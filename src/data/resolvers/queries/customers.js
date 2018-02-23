@@ -8,12 +8,14 @@ import { paginate } from './utils';
 const listQuery = async params => {
   // exclude empty customers =========
   // for engage purpose we are creating this kind of customer
+  const emptySelector = { $in: [null, ''] };
+
   let selector = {
     $nor: [
       {
-        firstName: null,
-        lastName: null,
-        email: null,
+        firstName: emptySelector,
+        lastName: emptySelector,
+        email: emptySelector,
         visitorContactInfo: null,
       },
     ],
