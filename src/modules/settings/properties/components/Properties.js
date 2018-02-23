@@ -38,8 +38,7 @@ class Properties extends Component {
       queryParams,
       removePropertyGroup,
       removeProperty,
-      updatePropertyVisible,
-      updatePropertyGroupVisible
+      updatePropertyVisible
     } = this.props;
 
     if (fieldsgroups.length === 0) {
@@ -62,7 +61,6 @@ class Properties extends Component {
               removePropertyGroup={removePropertyGroup}
               removeProperty={removeProperty}
               updatePropertyVisible={updatePropertyVisible}
-              updatePropertyGroupVisible={updatePropertyGroupVisible}
             />
           );
         })}

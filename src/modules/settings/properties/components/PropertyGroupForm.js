@@ -115,14 +115,16 @@ class PropertyGroupForm extends React.Component {
 
         <FormGroup>
           <ControlLabel>Visible</ControlLabel>
-          <Toggle
-            checked={this.state.visible}
-            icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
-            }}
-            onChange={this.visibleHandler}
-          />
+          <div>
+            <Toggle
+              checked={this.state.visible}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+              onChange={this.visibleHandler}
+            />
+          </div>
         </FormGroup>
 
         <Modal.Footer>
