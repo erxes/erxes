@@ -43,6 +43,7 @@ const updateListOrder = async (collection, orders) => {
  */
 const createOrUpdatePipelineStages = async (stages, pipelineId) => {
   let order = 0;
+  const stageIds = [];
 
   for (let stage of stages) {
     if (stage.name) {
@@ -55,12 +56,18 @@ const createOrUpdatePipelineStages = async (stages, pipelineId) => {
         const stage = await DealStages.findOne({ _id });
         delete doc._id;
 
-        if (stage) await DealStages.update({ _id }, { $set: doc });
+        if (stage) {
+          await DealStages.update({ _id }, { $set: doc });
+          stageIds.push(stage._id);
+        }
       } else {
-        DealStages.create(doc);
+        const stage = await DealStages.create(doc);
+        stageIds.push(stage._id);
       }
     }
   }
+
+  await DealStages.remove({ pipelineId, _id: { $nin: stageIds } });
 };
 
 // Deal board schema

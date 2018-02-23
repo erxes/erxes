@@ -17,21 +17,28 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('Test deals mutations', () => {
-  let _board, _pipeline, _stage, _deal, _user;
+  let _board, _pipeline, _pipeline2, _stage, _stage2, _deal, _deal2, _user;
 
   beforeEach(async () => {
     // Creating test data
     _board = await dealBoardFactory();
+
     _pipeline = await dealPipelineFactory({ boardId: _board._id });
+    _pipeline2 = await dealPipelineFactory();
+
     _stage = await dealStageFactory({
       pipelineId: _pipeline._id,
       boardId: _board._id,
     });
+    _stage2 = await dealPipelineFactory();
+
     _deal = await dealFactory({
       pipelineId: _pipeline._id,
       boardId: _board._id,
       stageId: _stage._id,
     });
+    _deal2 = await dealPipelineFactory();
+
     _user = await userFactory();
   });
 
@@ -151,6 +158,16 @@ describe('Test deals mutations', () => {
     expect(DealPipelines.updatePipeline.mock.calls.length).toBe(1);
   });
 
+  test('Pipeline update orders', async () => {
+    const orders = [{ _id: _pipeline._id, order: 9 }, { _id: _pipeline2._id, order: 3 }];
+
+    DealPipelines.updateOrder = jest.fn();
+    await dealMutations.dealPipelinesUpdateOrder(null, { orders }, { user: _user });
+
+    expect(DealPipelines.updateOrder).toBeCalledWith(orders);
+    expect(DealPipelines.updateOrder.mock.calls.length).toBe(1);
+  });
+
   test('Remove pipeline', async () => {
     DealPipelines.removePipeline = jest.fn();
     await dealMutations.dealPipelinesRemove({}, { _id: _pipeline.id }, { user: _user });
@@ -183,6 +200,16 @@ describe('Test deals mutations', () => {
 
     expect(DealStages.updateStage).toBeCalledWith(_stage._id, updateDoc);
     expect(DealStages.updateStage.mock.calls.length).toBe(1);
+  });
+
+  test('Stage update orders', async () => {
+    const orders = [{ _id: _stage._id, order: 9 }, { _id: _stage2._id, order: 3 }];
+
+    DealStages.updateOrder = jest.fn();
+    await dealMutations.dealStagesUpdateOrder(null, { orders }, { user: _user });
+
+    expect(DealStages.updateOrder).toBeCalledWith(orders);
+    expect(DealStages.updateOrder.mock.calls.length).toBe(1);
   });
 
   test('Remove stage', async () => {
@@ -223,6 +250,16 @@ describe('Test deals mutations', () => {
 
     expect(Deals.updateDeal).toBeCalledWith(_deal._id, updateDoc);
     expect(Deals.updateDeal.mock.calls.length).toBe(1);
+  });
+
+  test('Deal update orders', async () => {
+    const orders = [{ _id: _deal._id, order: 9 }, { _id: _deal2._id, order: 3 }];
+
+    Deals.updateOrder = jest.fn();
+    await dealMutations.dealsUpdateOrder(null, { orders }, { user: _user });
+
+    expect(Deals.updateOrder).toBeCalledWith(orders);
+    expect(Deals.updateOrder.mock.calls.length).toBe(1);
   });
 
   test('Remove deal', async () => {
