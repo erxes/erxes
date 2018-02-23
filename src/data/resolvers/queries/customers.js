@@ -6,7 +6,18 @@ import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 const listQuery = async params => {
-  let selector = {};
+  // exclude empty customers =========
+  // for engage purpose we are creating this kind of customer
+  let selector = {
+    $nor: [
+      {
+        firstName: null,
+        lastName: null,
+        email: null,
+        visitorContactInfo: null,
+      },
+    ],
+  };
 
   // Filter by segments
   if (params.segment) {
@@ -87,6 +98,7 @@ const customerQueries = {
       byTag: {},
       byFakeSegment: 0,
     };
+
     const selector = await listQuery(params);
 
     const count = query => {

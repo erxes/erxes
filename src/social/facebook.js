@@ -352,10 +352,10 @@ export class SaveWebhookResponse {
     // when feed response will contain name field
     // when messeger response will not contain name field
     const firstName = res.first_name || res.name;
-    const lastName = res.last_name;
+    const lastName = res.last_name || '';
 
     // create customer
-    const createdCustomer = await Customers.create({
+    const createdCustomer = await Customers.createCustomer({
       firstName,
       lastName,
       integrationId,
