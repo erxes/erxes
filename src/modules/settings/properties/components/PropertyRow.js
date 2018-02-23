@@ -38,14 +38,10 @@ class PropertyRow extends React.Component {
     this.setState({ collapse: !this.state.collapse });
   }
 
-  visibleHandler(e, { property, group }) {
+  visibleHandler(e, property) {
     const visible = e.target.checked;
 
-    if (property) {
-      return this.props.updatePropertyVisible({ _id: property._id, visible });
-    }
-
-    this.props.updatePropertyGroupVisible({ _id: group._id, visible });
+    return this.props.updatePropertyVisible({ _id: property._id, visible });
   }
 
   renderTableRow(field) {
@@ -66,7 +62,7 @@ class PropertyRow extends React.Component {
               checked: <span>Yes</span>,
               unchecked: <span>No</span>
             }}
-            onChange={e => this.visibleHandler(e, { property: field })}
+            onChange={e => this.visibleHandler(e, field)}
           />
         </td>
         <td width="10%">
@@ -114,21 +110,13 @@ class PropertyRow extends React.Component {
 
     return (
       <li key={group._id}>
-        <CollapseRow onClick={this.handleCollapse}>
+        <CollapseRow>
           <DropIcon
             isOpen={this.state.collapse}
             onClick={this.handleCollapse}
           />
-          {group.name}
+          <span onClick={this.handleCollapse}>{group.name}</span>
           <ActionButtons>
-            {/* <Toggle
-              defaultChecked={group.visible}
-              icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
-              }}
-              onChange={e => this.visibleHandler(e, { group: group })}
-            /> */}
             <ModalTrigger
               title="Edit group"
               trigger={<Icon icon="edit" />}

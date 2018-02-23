@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
+import Toggle from 'react-toggle';
 import {
   Button,
   FormGroup,
@@ -30,11 +31,13 @@ class PropertyGroupForm extends React.Component {
     this.state = {
       name: '',
       description: '',
+      visible: true,
       action
     };
 
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.visibleHandler = this.visibleHandler.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -43,7 +46,8 @@ class PropertyGroupForm extends React.Component {
 
       this.setState({
         name: group.name || '',
-        description: group.description || ''
+        description: group.description || '',
+        visible: group.visible || true
       });
     }
   }
@@ -51,13 +55,14 @@ class PropertyGroupForm extends React.Component {
   onSubmit(e) {
     e.preventDefault();
 
-    const { name, description } = this.state;
+    const { name, description, visible } = this.state;
 
     const doc = {
       name,
       contentType: 'Customer',
       order: 1,
-      description
+      description,
+      visible
     };
 
     this.state.action(
@@ -74,6 +79,12 @@ class PropertyGroupForm extends React.Component {
     this.setState({
       [name]: value
     });
+  }
+
+  visibleHandler(e) {
+    const visible = e.target.checked;
+
+    this.setState({ visible });
   }
 
   render() {
@@ -99,6 +110,18 @@ class PropertyGroupForm extends React.Component {
             required
             value={this.state.description}
             onChange={e => this.onChange(e)}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Visible</ControlLabel>
+          <Toggle
+            defaultChecked={this.state.visible}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+            onChange={this.visibleHandler}
           />
         </FormGroup>
 
