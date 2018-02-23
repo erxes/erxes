@@ -186,7 +186,10 @@ export const customerFactory = (params = {}) => {
   return customer.save();
 };
 
-export const fieldFactory = (params = {}) => {
+export const fieldFactory = async (params = {}) => {
+  const groupObj = await fieldGroupFactory({});
+  const userObj = await userFactory({});
+
   const field = new Fields({
     contentType: params.contentType || 'form',
     contentTypeId: params.contentTypeId || 'DFAFDASFDASFDSFDASFASF',
@@ -196,6 +199,10 @@ export const fieldFactory = (params = {}) => {
     description: params.description || faker.random.word(),
     isRequired: params.isRequired || false,
     order: params.order || 0,
+    isDefinedByErxes: params.isDefinedByErxes || false,
+    visible: params.visible || true,
+    groupId: params.groupId || groupObj._id,
+    lastUpdate: params.lastUpdatedBy || userObj._id,
   });
 
   return field.save();
