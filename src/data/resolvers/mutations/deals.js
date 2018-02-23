@@ -146,7 +146,7 @@ const dealMutations = {
    * @return {Promise} updated deal object
    */
   dealsEdit(root, { _id, ...doc }) {
-    return Deals.updateDeals(_id, doc);
+    return Deals.updateDeal(_id, doc);
   },
 
   /**
@@ -164,7 +164,7 @@ const dealMutations = {
    * @return {Promise}
    */
   dealsRemove(root, { _id }) {
-    return Deals.removeDeals(_id);
+    return Deals.removeDeal(_id);
   },
 };
 

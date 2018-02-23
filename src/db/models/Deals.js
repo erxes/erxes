@@ -42,17 +42,23 @@ const updateListOrder = async (collection, orders) => {
  * @param  {String} pipelineId
  */
 const createOrUpdatePipelineStages = async (stages, pipelineId) => {
+  let order = 0;
+
   for (let stage of stages) {
-    const doc = { pipelineId, ...stage };
+    if (stage.name) {
+      order += 1;
 
-    if (doc._id) {
-      const _id = doc._id;
-      const stage = await DealStages.findOne({ _id });
-      delete doc._id;
+      const doc = stage.order ? { pipelineId, ...stage } : { order, pipelineId, ...stage };
 
-      if (stage) await DealStages.update({ _id }, { $set: doc });
-    } else {
-      DealStages.create(doc);
+      if (doc._id) {
+        const _id = doc._id;
+        const stage = await DealStages.findOne({ _id });
+        delete doc._id;
+
+        if (stage) await DealStages.update({ _id }, { $set: doc });
+      } else {
+        DealStages.create(doc);
+      }
     }
   }
 };

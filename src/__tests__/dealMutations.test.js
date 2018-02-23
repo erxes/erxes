@@ -205,30 +205,30 @@ describe('Test deals mutations', () => {
       assignedUserIds: _deal.assignedUserIds,
     };
 
-    Deals.createDeals = jest.fn();
+    Deals.createDeal = jest.fn();
     await dealMutations.dealsAdd({}, dealDoc, { user: _user });
 
-    expect(Deals.createDeals).toBeCalledWith({
+    expect(Deals.createDeal).toBeCalledWith({
       ...dealDoc,
       userId: _user._id,
     });
-    expect(Deals.createDeals.mock.calls.length).toBe(1);
+    expect(Deals.createDeal.mock.calls.length).toBe(1);
   });
 
   test('Update deal', async () => {
     const updateDoc = { boardId: 'fakeId' };
 
-    Deals.updateDeals = jest.fn();
+    Deals.updateDeal = jest.fn();
     await dealMutations.dealsEdit(null, { _id: _deal._id, ...updateDoc }, { user: _user });
 
-    expect(Deals.updateDeals).toBeCalledWith(_deal._id, updateDoc);
-    expect(Deals.updateDeals.mock.calls.length).toBe(1);
+    expect(Deals.updateDeal).toBeCalledWith(_deal._id, updateDoc);
+    expect(Deals.updateDeal.mock.calls.length).toBe(1);
   });
 
   test('Remove deal', async () => {
-    Deals.removeDeals = jest.fn();
+    Deals.removeDeal = jest.fn();
     await dealMutations.dealsRemove({}, { _id: _deal.id }, { user: _user });
 
-    expect(Deals.removeDeals.mock.calls.length).toBe(1);
+    expect(Deals.removeDeal.mock.calls.length).toBe(1);
   });
 });
