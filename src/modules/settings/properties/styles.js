@@ -35,7 +35,7 @@ const TypeList = PropertyList.extend`
     justify-content: space-between;
 
     &:hover {
-      cursor: auto;
+      cursor: pointer;
     }
   }
 `;
