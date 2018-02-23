@@ -67,7 +67,13 @@ const createOrUpdatePipelineStages = async (stages, pipelineId) => {
     }
   }
 
-  await DealStages.remove({ pipelineId, _id: { $nin: stageIds } });
+  const removeStageIds = await DealStages.find({ pipelineId, _id: { $nin: stageIds } }).select(
+    '_id',
+  );
+
+  for (let selector of removeStageIds) {
+    DealStages.removeStage(selector._id);
+  }
 };
 
 // Deal board schema

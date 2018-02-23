@@ -129,7 +129,8 @@ describe('Test deals model', () => {
       },
       [
         {
-          name: _stage.name,
+          _id: _stage._id,
+          name: `${_stage.name} change`,
           boardId: _stage.boardId,
         },
       ],
