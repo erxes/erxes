@@ -59,7 +59,6 @@ class PropertyGroupForm extends React.Component {
 
     const doc = {
       name,
-      contentType: 'Customer',
       order: 1,
       description,
       visible
