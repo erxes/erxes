@@ -29,6 +29,11 @@ export const types = `
     getMessengerCustomData: JSON
     getTags: [Tag]
   }
+
+  type CustomersListResponse {
+    list: [Customer],
+    totalCount: Float,
+  }
 `;
 
 const queryParams = `
@@ -41,7 +46,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  customers(${queryParams}): [Customer]
+  customers(${queryParams}): CustomersListResponse
   customerCounts(${queryParams}, byFakeSegment: JSON): JSON
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
