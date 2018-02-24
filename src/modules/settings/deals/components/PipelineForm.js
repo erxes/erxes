@@ -37,7 +37,6 @@ class PipelineForm extends Component {
   }
 
   onChangeStages(stages) {
-    console.log('stage stages: ', stages);
     this.setState({
       stages
     });

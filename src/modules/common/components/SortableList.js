@@ -15,19 +15,18 @@ const DragHandle = SortableHandle(() => (
   </DragHandler>
 ));
 
-const SortableItem = SortableElement(({ child }) => (
+const SortableItem = SortableElement(({ field }) => (
   <SortItem>
     <DragHandle />
-    {child}
+    {field}
   </SortItem>
 ));
 
 const Sortable = SortableContainer(({ fields, child }) => {
-  console.log('fields: ', fields);
   return (
     <SortableWrapper>
       {fields.map((field, index) => (
-        <SortableItem key={index} index={index} child={child(field)} />
+        <SortableItem key={index} index={index} field={child(field)} />
       ))}
     </SortableWrapper>
   );
@@ -48,7 +47,6 @@ class SortableList extends Component {
 
   onSortEnd({ oldIndex, newIndex }) {
     const reOrderedFields = arrayMove(this.props.fields, oldIndex, newIndex);
-    console.log('reOrderedFields: ', reOrderedFields);
     this.props.onChangeFields(reOrderedFields);
   }
 

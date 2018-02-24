@@ -31,7 +31,7 @@ export default compose(
   graphql(gql(queries.stages), {
     name: 'stagesQuery',
     options: ({ pipeline }) => ({
-      variables: { pipelineId: pipeline._id },
+      variables: { pipelineId: pipeline._id || '' },
       fetchPolicy: 'network-only'
     })
   })
