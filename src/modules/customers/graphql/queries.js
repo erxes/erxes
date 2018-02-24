@@ -129,21 +129,6 @@ const tags = `
   }
 `;
 
-const fields = `
-  query {
-    fields(contentType: "customer") {
-      _id
-      type
-      validation
-      text
-      description
-      options
-      isRequired
-      order
-    }
-  }
-`;
-
 const customersListConfig = `
   query {
     fieldsDefaultColumnsConfig(contentType: "customer") {
@@ -179,13 +164,49 @@ const activityLogsCustomer = `
   }
 `;
 
+const fieldsgroups = `
+  query fieldsgroups($contentType: String!) {
+    fieldsgroups(contentType: $contentType) {
+      _id
+      name
+      description
+      order
+      visible
+      lastUpdatedBy {
+        details {
+          fullName
+        }
+      }
+      isDefinedByErxes
+      getFields {
+        _id
+        contentType
+        type
+        text
+        visible
+        validation
+        order
+        options
+        groupId
+        description
+        isDefinedByErxes
+        lastUpdatedBy {
+          details {
+            fullName
+          }
+        }
+      }
+    }
+  }
+`;
+
 export default {
   customers,
   customerCounts,
   customerDetail,
   brands,
   tags,
-  fields,
   customersListConfig,
-  activityLogsCustomer
+  activityLogsCustomer,
+  fieldsgroups
 };

@@ -8,8 +8,9 @@ import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 
 const EditInformationContainer = (props, context) => {
-  const { customer, customersEdit, fieldsQuery } = props;
-  if (fieldsQuery.loading) {
+  const { customer, customersEdit, fieldsGroupsQuery } = props;
+
+  if (fieldsGroupsQuery.loading) {
     return (
       <Sidebar full>
         <Spinner />
@@ -35,7 +36,7 @@ const EditInformationContainer = (props, context) => {
     ...props,
     save,
     currentUser: context.currentUser,
-    customFields: fieldsQuery.fields
+    fieldsGroups: fieldsGroupsQuery.fieldsgroups || []
   };
 
   return <EditInformation {...updatedProps} />;
@@ -44,8 +45,8 @@ const EditInformationContainer = (props, context) => {
 EditInformationContainer.propTypes = {
   customer: PropTypes.object.isRequired,
   sections: PropTypes.node,
-  fieldsQuery: PropTypes.object.isRequired,
-  customersEdit: PropTypes.func.isRequired
+  customersEdit: PropTypes.func.isRequired,
+  fieldsGroupsQuery: PropTypes.object.isRequired
 };
 
 EditInformationContainer.contextTypes = {
@@ -59,10 +60,12 @@ const options = ({ customer }) => ({
 });
 
 export default compose(
-  graphql(gql(queries.fields), {
-    name: 'fieldsQuery',
+  graphql(gql(queries.fieldsgroups), {
+    name: 'fieldsGroupsQuery',
     options: () => ({
-      notifyOnNetworkStatusChange: true
+      variables: {
+        contentType: 'customer'
+      }
     })
   }),
   // mutations

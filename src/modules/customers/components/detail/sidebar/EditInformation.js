@@ -27,10 +27,10 @@ import {
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
   sections: PropTypes.node,
-  otherProperties: PropTypes.node
+  otherProperties: PropTypes.node,
+  fieldsGroups: PropTypes.array.isRequired
 };
 
 class LeftSidebar extends React.Component {
@@ -146,33 +146,39 @@ class LeftSidebar extends React.Component {
   }
 
   renderCustomFields() {
-    const { customFields, customer } = this.props;
+    const { customer, fieldsGroups } = this.props;
     const { Section } = Sidebar;
 
-    return (
-      <Section>
-        <Section.Title>Customer properties</Section.Title>
-        <Section.QuickButtons>
-          <Link to="/fields/manage/customer">
-            <Icon icon="gear-a" />
-          </Link>
-        </Section.QuickButtons>
-        <SidebarContent>
-          {customFields.map((field, index) => (
-            <GenerateField
-              field={field}
-              key={index}
-              onValueChange={this.handleFieldsChange}
-              defaultValue={
-                customer.customFieldsData
-                  ? customer.customFieldsData[field._id]
-                  : ''
-              }
-            />
-          ))}
-        </SidebarContent>
-      </Section>
-    );
+    return fieldsGroups.map(fieldGroup => {
+      if (!fieldGroup.visible) return null;
+      return (
+        <Section key={fieldGroup._id}>
+          <Section.Title>{fieldGroup.name}</Section.Title>
+          <Section.QuickButtons>
+            <Link to="/settings/properties?type=customer">
+              <Icon icon="gear-a" />
+            </Link>
+          </Section.QuickButtons>
+          <SidebarContent>
+            {fieldGroup.getFields.map((field, index) => {
+              if (!field.visible) return null;
+              return (
+                <GenerateField
+                  field={field}
+                  key={index}
+                  onValueChange={this.handleFieldsChange}
+                  defaultValue={
+                    customer.customFieldsData
+                      ? customer.customFieldsData[field._id]
+                      : ''
+                  }
+                />
+              );
+            })}
+          </SidebarContent>
+        </Section>
+      );
+    });
   }
 
   renderDeviceProperties() {
