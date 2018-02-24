@@ -204,8 +204,11 @@ class KnowledgeForm extends Component {
               placement="bottom"
               overlay={popoverTop}
             >
-              <ColorPick>
-                <ColorPicker style={{ backgroundColor: this.state.color }} />
+              <ColorPick full>
+                <ColorPicker
+                  style={{ backgroundColor: this.state.color }}
+                  full
+                />
               </ColorPick>
             </OverlayTrigger>
           </div>

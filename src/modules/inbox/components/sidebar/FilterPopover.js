@@ -12,7 +12,8 @@ const propTypes = {
   counts: PropTypes.object,
   paramKey: PropTypes.string.isRequired,
   placement: PropTypes.string,
-  icon: PropTypes.string
+  icon: PropTypes.string,
+  searchable: PropTypes.bool
 };
 
 const defaultProps = {
@@ -20,6 +21,17 @@ const defaultProps = {
 };
 
 class FilterPopover extends Component {
+  constructor(props) {
+    super(props);
+
+    this.update = this.update.bind(this);
+  }
+
+  // rerender component
+  update() {
+    this.forceUpdate();
+  }
+
   render() {
     const {
       buttonText,
@@ -28,7 +40,8 @@ class FilterPopover extends Component {
       fields,
       paramKey,
       counts,
-      icon
+      icon,
+      searchable
     } = this.props;
 
     const popover = (
@@ -39,6 +52,8 @@ class FilterPopover extends Component {
           counts={counts}
           icon={icon}
           loading={false}
+          searchable={searchable}
+          update={this.update}
         />
       </Popover>
     );
@@ -52,6 +67,7 @@ class FilterPopover extends Component {
         placement={placement}
         overlay={popover}
         container={this}
+        shouldUpdatePosition
         rootClose
       >
         <PopoverButton>
