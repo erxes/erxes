@@ -35,6 +35,14 @@ const listParamsValue = `
 export const companies = `
   query companies(${listParamsDef}) {
     companies(${listParamsValue}) {
+      ${companyFields}
+    }
+  }
+`;
+
+export const companiesMain = `
+  query companiesMain(${listParamsDef}) {
+    companiesMain(${listParamsValue}) {
       list {
         ${companyFields}
       }
@@ -128,6 +136,7 @@ const activityLogsCompany = `
 
 export default {
   companies,
+  companiesMain,
   companyCounts,
   companyDetail,
   fields,
