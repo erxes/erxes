@@ -3,6 +3,7 @@
  */
 
 import mongoose from 'mongoose';
+import { Fields } from './';
 import { field } from './utils';
 
 const FieldGroupSchema = mongoose.Schema({
@@ -85,6 +86,13 @@ class FieldGroup {
     const groupObj = await this.findOne({ _id });
 
     if (!groupObj) throw new Error(`Group not found with id of ${_id}`);
+
+    // Deleting fields that are associated with this group
+    const fields = await Fields.find({ groupId: _id });
+
+    fields.forEach(field => {
+      Fields.removeField(field._id);
+    });
 
     // Can not delete group that is defined by erxes
     await this.checkIsDefinedByErxes(_id);
