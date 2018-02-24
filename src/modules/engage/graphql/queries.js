@@ -164,6 +164,34 @@ const brands = `
   }
 `;
 
+const segmentDetail = `
+  query segmentDetail($_id: String) {
+    segmentDetail(_id: $_id) {
+      ${segmentFields}
+      getSubSegments {
+        ${segmentFields}
+      }
+    }
+  }
+`;
+
+const headSegments = `
+  query headSegments {
+    segmentsGetHeads {
+      ${segmentFields}
+      getSubSegments {
+        ${segmentFields}
+      }
+    }
+  }
+`;
+
+const combinedFields = `
+  query fieldsCombinedByContentType {
+    fieldsCombinedByContentType(contentType: "customer")
+  }
+`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -174,5 +202,8 @@ export default {
   brands,
   tags,
   emailTemplates,
-  customerCounts
+  customerCounts,
+  segmentDetail,
+  headSegments,
+  combinedFields
 };
