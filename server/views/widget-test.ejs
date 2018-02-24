@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <style>
-      [data-erxes-embed] {
+      [data-erxes-embed],
+      [data-erxes-kbase] {
         width: 100%;
         height: 600px;
         position: relative;
@@ -10,13 +11,15 @@
     </style>
   </head>
   <body>
+    <div data-erxes-kbase></div>
     <div data-erxes-embed></div>
     <div data-erxes-modal>Contact us</div>
     <div data-erxes-modal>Contact us second handler</div>
     <script>
       window.erxesSettings = {
+        // messenger
         messenger: {
-          brand_id: "YDEdKj",
+          brand_id: "asC5MG",
           email: "lombo@yahoo.com",
           companyData: {
             id: "123",
@@ -24,10 +27,26 @@
             plan: "pro",
           }
         },
+        // knowledgebase topic 
+        knowledgeBase: {
+          topic_id: "EPPQRzC4MbtPoEcd7"
+        },
       };
+
+    // messenger script  
     (function() {
       var script = document.createElement('script');
       script.src = "build/messengerWidget.bundle.js";
+      script.async = true;
+
+      var entry = document.getElementsByTagName('script')[0];
+      entry.parentNode.insertBefore(script, entry);
+    })();
+    
+    // knowledgebase script
+    (function() {
+      var script = document.createElement('script');
+      script.src = "build/knowledgeBaseWidget.bundle.js";
       script.async = true;
 
       var entry = document.getElementsByTagName('script')[0];
