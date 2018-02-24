@@ -5,7 +5,7 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
 import { FIELD_CONTENT_TYPES } from '../../data/constants';
-import { Forms, FieldsGroups } from './';
+import { Forms, FieldsGroups, Customers } from './';
 import { field } from './utils';
 
 const FieldSchema = mongoose.Schema({
@@ -134,6 +134,11 @@ class Field {
     if (!fieldObj) throw new Error(`Field not found with id ${_id}`);
 
     await this.checkIsDefinedByErxes(_id);
+
+    // Removing field value from customer
+    const index = `customFieldsData.${_id}`;
+
+    await Customers.updateMany({ [index]: { $exists: true } }, { $unset: { [index]: 1 } });
 
     return fieldObj.remove();
   }
