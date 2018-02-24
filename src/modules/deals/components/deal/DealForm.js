@@ -18,6 +18,7 @@ const propTypes = {
   deal: PropTypes.object,
   saveDeal: PropTypes.func.isRequired,
   close: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
   companies: PropTypes.array,
   boardId: PropTypes.string,
   pipelineId: PropTypes.string,

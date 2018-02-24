@@ -3,12 +3,16 @@ import PropTypes from 'prop-types';
 import { Stage } from '../../containers';
 import { Droppable } from 'react-beautiful-dnd';
 import { PipelineContainer, PipelineHeader, PipelineBody } from '../../styles';
+import { listObjectUnFreeze } from 'modules/common/utils';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
   boardId: PropTypes.string,
   stages: PropTypes.array,
-  deals: PropTypes.array
+  collectStages: PropTypes.func,
+  collectDeals: PropTypes.func,
+  dealsByStage: PropTypes.object,
+  stagesFromDb: PropTypes.array
 };
 
 class Pipeline extends React.Component {
@@ -21,6 +25,11 @@ class Pipeline extends React.Component {
     this.state = {
       showDealForm: {}
     };
+
+    props.collectStages(
+      props.pipeline._id,
+      listObjectUnFreeze(props.stagesFromDb)
+    );
   }
 
   addDealForm(stageId) {
@@ -42,7 +51,7 @@ class Pipeline extends React.Component {
   }
 
   render() {
-    const { stages, pipeline, boardId, deals } = this.props;
+    const { stages, pipeline, boardId, dealsByStage } = this.props;
 
     const content = provided => (
       <PipelineBody innerRef={provided.innerRef}>
@@ -57,7 +66,7 @@ class Pipeline extends React.Component {
               showDealForm={this.state.showDealForm}
               closeDealForm={this.closeDealForm}
               addDealForm={this.addDealForm}
-              deals={deals.filter(d => d.stageId === stage._id)}
+              deals={dealsByStage[stage._id] || []}
               collectDeals={this.props.collectDeals}
             />
           );

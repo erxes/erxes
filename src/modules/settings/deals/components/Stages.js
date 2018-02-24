@@ -33,6 +33,7 @@ class Stages extends Component {
     const stages = this.props.stages;
 
     stages.push({
+      _id: Math.random(),
       name: '',
       pipelineId: this.props.pipelineId,
       boardId: this.props.boardId

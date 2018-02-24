@@ -6,7 +6,7 @@ import { Dropdown } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import { DragDropContext } from 'react-beautiful-dnd';
 
-import { Pipeline } from '../';
+import { Pipeline } from '../../containers';
 import { moveInList, addToList, removeFromList } from '../../utils';
 import { BarItems } from 'modules/layout/styles';
 import { Button, DropdownToggle, Icon } from 'modules/common/components';
@@ -15,7 +15,11 @@ const propTypes = {
   currentBoard: PropTypes.object,
   boards: PropTypes.array,
   pipelines: PropTypes.array,
-  stages: PropTypes.array
+  stages: PropTypes.array,
+  dealsUpdateOrder: PropTypes.func,
+  stagesUpdateOrder: PropTypes.func,
+  dealsChange: PropTypes.func,
+  stagesChange: PropTypes.func
 };
 
 class Board extends React.Component {
@@ -23,82 +27,103 @@ class Board extends React.Component {
     super(props);
 
     this.state = {
-      deals: [],
-      stages: props.stages,
-      showDealForm: {}
+      dealsByStage: {},
+      stagesByPipeline: {}
     };
 
     this.collectDeals = this.collectDeals.bind(this);
+    this.collectStages = this.collectStages.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
   }
 
-  collectDeals(deals) {
-    const _deals = this.state.deals;
+  collectStages(pipelineId, stages) {
+    const stagesByPipeline = this.state.stagesByPipeline;
+    stagesByPipeline[pipelineId] = stages;
 
     this.setState({
-      deals: _deals.concat(deals)
+      stagesByPipeline
     });
   }
 
-  showNewDeal(stageId) {
-    const showDealForm = this.state.showDealForm;
-    showDealForm[stageId] = true;
+  collectDeals(stageId, deals) {
+    const dealsByStage = this.state.dealsByStage;
+    dealsByStage[stageId] = deals;
 
     this.setState({
-      showDealForm
+      dealsByStage
     });
   }
 
-  reOrder({ source, destination }, list, fieldName) {
-    const destinationList = list.filter(
-      item => destination.droppableId === item[fieldName]
-    );
+  collectOrders(list) {
+    const updatedList = [];
 
-    const sourceList = list.filter(
-      item => source.droppableId === item[fieldName]
-    );
+    list.forEach((element, index) => {
+      updatedList.push({
+        _id: element._id,
+        order: index
+      });
+    });
 
+    return updatedList;
+  }
+
+  reOrder(
+    { type, source, destination, draggableId },
+    list,
+    updateOrder,
+    change
+  ) {
     // If ordering within list
     if (source.droppableId === destination.droppableId) {
       // move in list
-      const movedList = moveInList(
-        destinationList,
+      const reOrderedList = moveInList(
+        list[destination.droppableId],
         source.index,
         destination.index
       );
 
-      const otherDestinationList = list.filter(
-        item => destination.droppableId !== item[fieldName]
-      );
+      updateOrder(this.collectOrders(reOrderedList));
 
-      // update moved list
-      return otherDestinationList.concat(movedList);
+      // update reordered list
+      list[destination.droppableId] = reOrderedList;
+
+      return list;
     }
 
     // When move to another list
     // Remove from source list
-    const { sourceArray, removedItem } = removeFromList(
-      sourceList,
+    const { sourceList, removedItem } = removeFromList(
+      list[source.droppableId],
       source.index
     );
 
-    removedItem[fieldName] = destination.droppableId;
+    // Update source list
+    list[source.droppableId] = sourceList;
 
     // Add destination list
-    const addedList = addToList(
-      destinationList,
+    const destinationList = addToList(
+      list[destination.droppableId],
       destination.index,
       removedItem
     );
 
-    const otherList = list.filter(
-      item =>
-        source.droppableId !== item[fieldName] &&
-        destination.droppableId !== item[fieldName]
-    );
+    // Update destination list
+    list[destination.droppableId] = destinationList;
 
-    // Update added list
-    return otherList.concat(sourceArray, addedList);
+    updateOrder(this.collectOrders(sourceList));
+    updateOrder(this.collectOrders(destinationList));
+
+    if (type === 'DEAL') {
+      const deal = list[destination.droppableId].find(
+        el => el._id === draggableId
+      );
+
+      change(draggableId, destination.droppableId, deal.pipelineId);
+    }
+
+    change(draggableId, destination.droppableId);
+
+    return list;
   }
 
   onDragEnd(result) {
@@ -111,8 +136,9 @@ class Board extends React.Component {
       case 'DEAL': {
         const reOrderedDeals = this.reOrder(
           result,
-          this.state.deals,
-          'stageId'
+          this.state.dealsByStage,
+          this.props.dealsUpdateOrder,
+          this.props.dealsChange
         );
 
         this.setState({
@@ -124,8 +150,9 @@ class Board extends React.Component {
       case 'STAGE': {
         const reOrderedStages = this.reOrder(
           result,
-          this.state.stages,
-          'pipelineId'
+          this.state.stagesByPipeline,
+          this.props.stagesUpdateOrder,
+          this.props.stagesChange
         );
 
         this.setState({
@@ -182,10 +209,9 @@ class Board extends React.Component {
               key={pipeline._id}
               pipeline={pipeline}
               boardId={currentBoard._id}
-              stages={this.state.stages.filter(
-                stage => pipeline._id === stage.pipelineId
-              )}
-              deals={this.state.deals}
+              stages={this.state.stagesByPipeline[pipeline._id] || []}
+              dealsByStage={this.state.dealsByStage}
+              collectStages={this.collectStages}
               collectDeals={this.collectDeals}
             />
           );

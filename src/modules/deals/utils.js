@@ -9,7 +9,7 @@ export function moveInList(array, startIndex, endIndex) {
 // Remove from list
 export function removeFromList(array, index) {
   const [removedItem] = array.splice(index, 1);
-  return { sourceArray: array, removedItem: Object.assign({}, removedItem) };
+  return { sourceList: array, removedItem };
 }
 
 // Add to list
@@ -18,6 +18,7 @@ export function addToList(array, index, item) {
   return array;
 }
 
+// get options for react-select-plus
 export function selectOptions(array) {
   const options = [];
   array.map(item => options.push({ value: item._id, label: item.name }));

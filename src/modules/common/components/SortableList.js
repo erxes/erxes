@@ -23,6 +23,7 @@ const SortableItem = SortableElement(({ child }) => (
 ));
 
 const Sortable = SortableContainer(({ fields, child }) => {
+  console.log('fields: ', fields);
   return (
     <SortableWrapper>
       {fields.map((field, index) => (
@@ -47,7 +48,7 @@ class SortableList extends Component {
 
   onSortEnd({ oldIndex, newIndex }) {
     const reOrderedFields = arrayMove(this.props.fields, oldIndex, newIndex);
-
+    console.log('reOrderedFields: ', reOrderedFields);
     this.props.onChangeFields(reOrderedFields);
   }
 

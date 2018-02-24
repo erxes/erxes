@@ -7,6 +7,7 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
+import { listObjectUnFreeze } from 'modules/common/utils';
 import { Stages } from './';
 
 const propTypes = {
@@ -30,19 +31,13 @@ class PipelineForm extends Component {
     this.onChangeStages = this.onChangeStages.bind(this);
     this.renderContent = this.renderContent.bind(this);
 
-    const stages = [];
-
-    props.stages.forEach(s => {
-      // unFreeze
-      stages.push(Object.assign({}, s));
-    });
-
     this.state = {
-      stages
+      stages: listObjectUnFreeze(props.stages)
     };
   }
 
   onChangeStages(stages) {
+    console.log('stage stages: ', stages);
     this.setState({
       stages
     });
@@ -67,7 +62,7 @@ class PipelineForm extends Component {
       doc: {
         name: document.getElementById('pipeline-name').value,
         boardId: pipeline ? pipeline.boardId : this.props.boardId,
-        stages: this.state.stages
+        stages: this.state.stages.filter(el => el.name !== '')
       }
     };
   }

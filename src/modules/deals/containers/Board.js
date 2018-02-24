@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { router as routerUtils } from 'modules/common/utils';
+import { router as routerUtils, Alert } from 'modules/common/utils';
 import { Spinner } from 'modules/common/components';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Board as BoardComponent } from '../components';
 
-import { queries } from '../graphql';
+import { queries, mutations } from '../graphql';
 
 class Container extends React.Component {
   componentWillReceiveProps() {
@@ -19,21 +19,60 @@ class Container extends React.Component {
   }
 
   render() {
-    const { boardsQuery, pipelinesQuery, stagesQuery } = this.props;
+    const {
+      boardsQuery,
+      pipelinesQuery,
+      dealsUpdateOrderMutation,
+      stagesUpdateOrderMutation,
+      dealsChangeMutation,
+      stagesChangeMutation
+    } = this.props;
 
     const boards = boardsQuery.dealBoards || [];
     const pipelines = pipelinesQuery.dealPipelines || [];
-    const stages = stagesQuery.dealStages || [];
 
-    if (boardsQuery.loading || pipelinesQuery.loading || stagesQuery.loading) {
+    if (boardsQuery.loading || pipelinesQuery.loading) {
       return <Spinner />;
     }
+
+    const dealsUpdateOrder = orders => {
+      dealsUpdateOrderMutation({
+        variables: { orders }
+      }).catch(error => {
+        Alert.error(error.message);
+      });
+    };
+
+    const stagesUpdateOrder = orders => {
+      stagesUpdateOrderMutation({
+        variables: { orders }
+      }).catch(error => {
+        Alert.error(error.message);
+      });
+    };
+
+    // if move to other stage, will change stageId and pipelineId
+    const dealsChange = (_id, stageId, pipelineId) => {
+      dealsChangeMutation({
+        variables: { _id, stageId, pipelineId }
+      });
+    };
+
+    // if move to other stage, will change stageId and pipelineId
+    const stagesChange = (_id, pipelineId) => {
+      stagesChangeMutation({
+        variables: { _id, pipelineId }
+      });
+    };
 
     const extendedProps = {
       ...this.props,
       boards,
       pipelines,
-      stages
+      dealsUpdateOrder,
+      stagesUpdateOrder,
+      dealsChange,
+      stagesChange
     };
 
     return <BoardComponent {...extendedProps} />;
@@ -43,7 +82,10 @@ class Container extends React.Component {
 const propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
-  stagesQuery: PropTypes.object,
+  dealsUpdateOrderMutation: PropTypes.func,
+  stagesUpdateOrderMutation: PropTypes.func,
+  dealsChangeMutation: PropTypes.func,
+  stagesChangeMutation: PropTypes.func,
   currentBoardId: PropTypes.string,
   history: PropTypes.object
 };
@@ -54,16 +96,20 @@ const BoardContainer = compose(
   graphql(gql(queries.boards), {
     name: 'boardsQuery'
   }),
+  graphql(gql(mutations.dealsUpdateOrder), {
+    name: 'dealsUpdateOrderMutation'
+  }),
+  graphql(gql(mutations.stagesUpdateOrder), {
+    name: 'stagesUpdateOrderMutation'
+  }),
+  graphql(gql(mutations.dealsChange), {
+    name: 'dealsChangeMutation'
+  }),
+  graphql(gql(mutations.stagesChange), {
+    name: 'stagesChangeMutation'
+  }),
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
-    options: ({ currentBoardId }) => ({
-      variables: {
-        boardId: currentBoardId || ''
-      }
-    })
-  }),
-  graphql(gql(queries.stages), {
-    name: 'stagesQuery',
     options: ({ currentBoardId }) => ({
       variables: {
         boardId: currentBoardId || ''

@@ -46,7 +46,43 @@ const dealsEdit = `
   }
 `;
 
+const dealsUpdateOrder = `
+  mutation dealsUpdateOrder($orders: [OrderItem]) {
+    dealsUpdateOrder(orders: $orders) {
+      _id
+    }
+  }
+`;
+
+const stagesUpdateOrder = `
+  mutation dealStagesUpdateOrder($orders: [OrderItem]) {
+    dealStagesUpdateOrder(orders: $orders) {
+      _id
+    }
+  }
+`;
+
+const dealsChange = `
+  mutation dealsChange($_id: String!, $stageId: String!, $pipelineId: String) {
+    dealsChange(_id: $_id, stageId: $stageId, pipelineId: $pipelineId) {
+      _id
+    }
+  }
+`;
+
+const stagesChange = `
+  mutation dealStagesChange($_id: String!, $pipelineId: String!) {
+    dealStagesChange(_id: $_id, pipelineId: $pipelineId) {
+      _id
+    }
+  }
+`;
+
 export default {
   dealsAdd,
-  dealsEdit
+  dealsEdit,
+  dealsUpdateOrder,
+  stagesUpdateOrder,
+  dealsChange,
+  stagesChange
 };
