@@ -22,10 +22,14 @@ const trackIntegration = integration => {
   const stream = twit.stream('user');
 
   // listen for timeline
-  stream.on('tweet', data => receiveTimeLineResponse(integration, data));
+  stream.on('tweet', data => {
+    console.log(`Receiving tweet from ${integration.name}`); // eslint-disable-line
+    receiveTimeLineResponse(integration, data);
+  });
 
   // listen for direct messages
   stream.on('direct_message', data => {
+    console.log(`Receiving direct message from ${integration.name}`); // eslint-disable-line
     getOrCreateDirectMessageConversation(data.direct_message, integration);
   });
 };
