@@ -418,7 +418,7 @@ describe('social integration test', () => {
       name: 'name',
       brandId: _brand._id,
       twitterData: {
-        id: 1,
+        info: { id: 1 },
         token: 'token',
         tokenSecret: 'tokenSecret',
       },
