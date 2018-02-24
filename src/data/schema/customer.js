@@ -46,7 +46,8 @@ const queryParams = `
 `;
 
 export const queries = `
-  customers(${queryParams}): CustomersListResponse
+  customersMain(${queryParams}): CustomersListResponse
+  customers(${queryParams}): [Customer]
   customerCounts(${queryParams}, byFakeSegment: JSON): JSON
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]

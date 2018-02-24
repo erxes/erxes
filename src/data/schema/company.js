@@ -32,7 +32,8 @@ const queryParams = `
 `;
 
 export const queries = `
-  companies(${queryParams}): CompaniesListResponse
+  companiesMain(${queryParams}): CompaniesListResponse
+  companies(${queryParams}): [Company]
   companyCounts(${queryParams}): JSON
   companyDetail(_id: String!): Company
 `;

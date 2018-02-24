@@ -30,24 +30,36 @@ const listQuery = async params => {
     selector.tagIds = params.tag;
   }
 
+  // filter directly using ids
+  if (params.ids) {
+    selector = { _id: { $in: params.ids } };
+  }
+
   return selector;
 };
 
 const companyQueries = {
   /**
    * Companies list
-   * @param {Object} args - Query params
+   * @param {Object} args
    * @return {Promise} filtered companies list by given parameters
    */
-  async companies(root, { ids, ...params }) {
-    let selector = await listQuery(params);
+  async companies(root, params) {
+    const selector = await listQuery(params);
 
-    if (params.ids) {
-      selector = { _id: { $in: ids } };
-    }
+    return paginate(Companies.find(selector), params);
+  },
 
-    const totalCount = await Companies.find(selector).count();
+  /**
+   * Companies for only main list
+   * @param {Object} args
+   * @return {Promise} filtered companies list by given parameters
+   */
+  async companiesMain(root, params) {
+    const selector = await listQuery(params);
+
     const list = await paginate(Companies.find(selector), params);
+    const totalCount = await Companies.find(selector).count();
 
     return { list, totalCount };
   },
