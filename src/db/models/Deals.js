@@ -51,18 +51,16 @@ const createOrUpdatePipelineStages = async (stages, pipelineId) => {
 
       const doc = stage.order ? { pipelineId, ...stage } : { order, pipelineId, ...stage };
 
-      if (doc._id) {
-        const _id = doc._id;
-        const stage = await DealStages.findOne({ _id });
-        delete doc._id;
+      const _id = doc._id;
+      const obj = await DealStages.findOne({ _id });
+      delete doc._id;
 
-        if (stage) {
-          await DealStages.update({ _id }, { $set: doc });
-          stageIds.push(stage._id);
-        }
-      } else {
-        const stage = await DealStages.create(doc);
+      if (obj) {
+        await DealStages.update({ _id }, { $set: doc });
         stageIds.push(stage._id);
+      } else {
+        const newStage = await DealStages.create(doc);
+        stageIds.push(newStage._id);
       }
     }
   }
