@@ -30,7 +30,7 @@ export default function ArticleDetail({ data }) {
       </div>
       <div className="erxes-article-content">
         <p>{data.summary}</p>
-        <p>{data.content}</p>
+        <p dangerouslySetInnerHTML={{__html: data.content}}/>
       </div>
     </div>
   );

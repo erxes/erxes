@@ -18,14 +18,14 @@
 
 .erxes-kb-item {
   display: block;
-  padding: 25px;
+  padding: 25px 35px;
   text-decoration: none;
   background: $white;
   margin-bottom: 25px;
   border: 1px solid $border-color;
   border-radius: $border-radius;
   box-shadow: 0 6px 8px 0 rgba(0,0,0,0.07);
-  transition: box-shadow 0.3s ease-in-out;
+  transition: box-shadow 0.3s ease;
 
   &:last-child {
     margin-bottom: 0;
@@ -66,6 +66,7 @@
 
     .item-meta {
       margin-bottom: 20px;
+      color: $text-color-light;
     }
   }
 
