@@ -90,9 +90,9 @@ class FieldGroup {
     // Deleting fields that are associated with this group
     const fields = await Fields.find({ groupId: _id });
 
-    fields.forEach(field => {
-      Fields.removeField(field._id);
-    });
+    for (let field of fields) {
+      await Fields.removeField(field._id);
+    }
 
     // Can not delete group that is defined by erxes
     await this.checkIsDefinedByErxes(_id);

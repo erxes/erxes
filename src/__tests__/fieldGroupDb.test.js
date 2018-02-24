@@ -4,7 +4,7 @@
 import { connect, disconnect } from '../db/connection';
 import { Fields, FieldsGroups } from '../db/models';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
-import { fieldGroupFactory, userFactory } from '../db/factories';
+import { fieldGroupFactory, userFactory, fieldFactory } from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -32,6 +32,7 @@ describe('Fields', () => {
 
   test('Create group', async () => {
     expect.assertions(4);
+
     const user = await userFactory({});
 
     const doc = {
@@ -51,6 +52,7 @@ describe('Fields', () => {
 
   test('Update group', async () => {
     expect.assertions(4);
+
     const user = await userFactory({});
     const fieldGroup = await fieldGroupFactory({});
 
@@ -74,8 +76,10 @@ describe('Fields', () => {
   });
 
   test('Remove group', async () => {
-    expect.assertions(2);
+    expect.assertions(3);
+
     const fieldGroup = await fieldGroupFactory({});
+    await fieldFactory({ groupId: fieldGroup._id });
 
     try {
       await FieldsGroups.removeFieldsGroup(_fieldGroup._id);
@@ -85,6 +89,7 @@ describe('Fields', () => {
 
     await FieldsGroups.removeFieldsGroup(fieldGroup._id);
 
+    expect(await Fields.find({ groupId: fieldGroup._id })).toHaveLength(0);
     expect(await FieldsGroups.findOne({ _id: fieldGroup._id })).toBeNull();
   });
 
@@ -102,6 +107,7 @@ describe('Fields', () => {
 
   test('Update group visible', async () => {
     expect.assertions(2);
+
     const fieldGroup = await fieldGroupFactory({ visible: true });
     const user = await userFactory({});
 
@@ -110,8 +116,8 @@ describe('Fields', () => {
     } catch (e) {
       expect(e.message).toBe('Cant update this group');
     }
-    const visible = false;
 
+    const visible = false;
     const groupObj = await FieldsGroups.updateFieldsGroupVisible(fieldGroup._id, visible, user._id);
 
     expect(groupObj.visible).toBe(visible);

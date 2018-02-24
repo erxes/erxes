@@ -2,8 +2,14 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Forms, Fields } from '../db/models';
-import { formFactory, fieldFactory, userFactory, fieldGroupFactory } from '../db/factories';
+import { Forms, Fields, Customers } from '../db/models';
+import {
+  formFactory,
+  fieldFactory,
+  userFactory,
+  fieldGroupFactory,
+  customerFactory,
+} from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -46,7 +52,10 @@ describe('Fields', () => {
     const form2 = await formFactory({});
 
     // first attempt
-    let field = await Fields.createField({ contentType, contentTypeId: form1._id });
+    let field = await Fields.createField({
+      contentType,
+      contentTypeId: form1._id,
+    });
     expect(field.order).toBe(0);
 
     // second attempt
@@ -72,7 +81,10 @@ describe('Fields', () => {
     expect.assertions(1);
 
     try {
-      await Fields.createField({ contentType: 'form', contentTypeId: 'DFAFDFADS' });
+      await Fields.createField({
+        contentType: 'form',
+        contentTypeId: 'DFAFDFADS',
+      });
     } catch (e) {
       expect(e.message).toEqual('Form not found with _id of DFAFDFADS');
     }
@@ -130,7 +142,9 @@ describe('Fields', () => {
   });
 
   test('Remove field valid', async () => {
-    expect.assertions(4);
+    expect.assertions(5);
+
+    await customerFactory({ customFieldsData: { [_field._id]: '1231' } });
     const testField = await fieldFactory({ isDefinedByErxes: true });
 
     try {
@@ -145,7 +159,12 @@ describe('Fields', () => {
       expect(e.message).toBe('Cant update this field');
     }
 
-    const fieldDeletedObj = await Fields.removeField({ _id: _field.id });
+    const fieldDeletedObj = await Fields.removeField(_field.id);
+
+    const index = `customFieldsData.${_field._id}`;
+
+    // Checking if field  value removed from customer
+    expect(await Customers.find({ [index]: { $exists: true } })).toHaveLength(0);
 
     expect(fieldDeletedObj.id).toBe(_field.id);
 
@@ -247,6 +266,7 @@ describe('Fields', () => {
 
   test('Update field visible', async () => {
     expect.assertions(3);
+
     const field = await fieldFactory({ visible: true });
     const user = await userFactory({});
     const testField = await fieldFactory({ isDefinedByErxes: true });
