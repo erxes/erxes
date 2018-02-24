@@ -145,7 +145,7 @@ const customerQueries = {
       });
     }
 
-    // Count customers by filter
+    // Count customers by tag
     const tags = await Tags.find({ type: TAG_TYPES.CUSTOMER });
 
     for (let tag of tags) {
