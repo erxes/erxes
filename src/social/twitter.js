@@ -16,7 +16,6 @@ import { twitRequest } from './twitterTracker';
  */
 const getOrCreateCustomer = async (integrationId, user) => {
   const customer = await Customers.findOne({
-    integrationId,
     'twitterData.id': user.id,
   });
 
