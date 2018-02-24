@@ -81,21 +81,25 @@ class CompanyListContainer extends Bulk {
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
+    const { list = [], totalCount = 0 } = companiesQuery.companies || {};
+
+    const counts = companyCountsQuery.companyCounts || {
+      byBrand: {},
+      byIntegrationType: {},
+      bySegment: {},
+      byTag: {}
+    };
 
     const updatedProps = {
       ...this.props,
       columnsConfig,
-
-      counts: companyCountsQuery.companyCounts || {
-        all: 0,
-        byBrand: {},
-        byIntegrationType: {},
-        bySegment: {},
-        byTag: {}
+      counts: {
+        all: totalCount,
+        ...counts
       },
       tags: tagsQuery.tags || [],
       searchValue,
-      companies: companiesQuery.companies || [],
+      companies: list,
       addCompany,
       loading: companiesQuery.loading,
       bulk: this.state.bulk || [],

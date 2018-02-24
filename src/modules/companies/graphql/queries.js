@@ -35,7 +35,11 @@ const listParamsValue = `
 export const companies = `
   query companies(${listParamsDef}) {
     companies(${listParamsValue}) {
-      ${companyFields}
+      list {
+        ${companyFields}
+      }
+
+      totalCount
     }
   }
 `;
