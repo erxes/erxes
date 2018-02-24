@@ -27,6 +27,7 @@ class FilterPopover extends Component {
     this.update = this.update.bind(this);
   }
 
+  // rerender component
   update() {
     this.forceUpdate();
   }

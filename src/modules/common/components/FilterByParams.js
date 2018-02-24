@@ -14,10 +14,19 @@ const propTypes = {
   paramKey: PropTypes.string.isRequired,
   icon: PropTypes.string,
   loading: PropTypes.bool.isRequired,
-  searchable: PropTypes.bool
+  searchable: PropTypes.bool,
+  update: PropTypes.func
 };
 
-const PopoverContent = styled.div``;
+const PopoverContent = styled.div`
+  > input {
+    padding: 10px 20px;
+  }
+
+  ${SidebarList} {
+    padding-top: 10px;
+  }
+`;
 
 class FilterByParams extends Component {
   constructor(props) {
@@ -44,7 +53,7 @@ class FilterByParams extends Component {
     }
 
     return (
-      <PopoverContent searchable>
+      <PopoverContent>
         {searchable && <Filter onChange={this.filterItems} />}
         <SidebarList>
           {fields.map(field => {
@@ -75,8 +84,6 @@ class FilterByParams extends Component {
               </li>
             );
           })}
-
-          {fields.length === 0 && 'hooson'}
         </SidebarList>
       </PopoverContent>
     );
