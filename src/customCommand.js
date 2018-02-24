@@ -9,6 +9,8 @@ export const customCommand = async () => {
   const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET } = process.env;
 
   for (const integration of integrations) {
+    console.log(integration.name); // eslint-disable-line
+
     // Twit instance
     const twit = new Twit({
       consumer_key: TWITTER_CONSUMER_KEY,
