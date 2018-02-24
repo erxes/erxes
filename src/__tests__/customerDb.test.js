@@ -52,7 +52,6 @@ describe('Customers model tests', () => {
     }
 
     const doc = {
-      name: 'name',
       email: 'dombo@yahoo.com',
       firstName: 'firstName',
       lastName: 'lastName',
@@ -60,7 +59,7 @@ describe('Customers model tests', () => {
 
     const customerObj = await Customers.createCustomer(doc);
 
-    expect(customerObj.name).toBe(doc.name);
+    expect(customerObj.createdAt).toBeDefined();
     expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.lastName).toBe(doc.lastName);
     expect(customerObj.email).toBe(doc.email);
@@ -74,7 +73,7 @@ describe('Customers model tests', () => {
     });
 
     const doc = {
-      name: 'Dombo',
+      firstName: 'Dombo',
       email: 'dombo@yahoo.com',
       phone: '242442200',
     };
@@ -97,7 +96,7 @@ describe('Customers model tests', () => {
 
     const customerObj = await Customers.updateCustomer(_customer._id, doc);
 
-    expect(customerObj.name).toBe(doc.name);
+    expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.email).toBe(doc.email);
     expect(customerObj.phone).toBe(doc.phone);
   });
@@ -218,13 +217,6 @@ describe('Customers model tests', () => {
 
     const mergedTagIds = Array.from(new Set(testCustomer.tagIds.concat(testCustomer2.tagIds)));
 
-    // checking length validation
-    try {
-      await Customers.mergeCustomers(['123', '123', '123'], {});
-    } catch (e) {
-      expect(e.message).toBe('You can only merge 2 customers at a time');
-    }
-
     // test duplication
     try {
       await Customers.mergeCustomers(customerIds, { twitterData: _customer.twitterData });
@@ -272,6 +264,10 @@ describe('Customers model tests', () => {
       messengerData: {
         sessionCount: 6,
       },
+      visitorContactInfo: {
+        email: 'test123@gmail.com',
+        phone: '1213312132',
+      },
     };
 
     const updatedCustomer = await Customers.mergeCustomers(customerIds, doc);
@@ -285,6 +281,7 @@ describe('Customers model tests', () => {
     expect(updatedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
     expect(updatedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
     expect(updatedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
+    expect(updatedCustomer.visitorContactInfo.toJSON()).toEqual(doc.visitorContactInfo);
 
     // Checking old customers datas to be deleted
     expect(await Customers.find({ _id: customerIds[0] })).toHaveLength(0);

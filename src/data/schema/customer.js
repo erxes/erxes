@@ -7,7 +7,6 @@ export const types = `
   type Customer {
     _id: String!
     integrationId: String
-    name: String
     firstName: String
     lastName: String
     email: String
@@ -18,6 +17,7 @@ export const types = `
     remoteAddress: String
     internalNotes: JSON
     location: JSON
+    visitorContactInfo: JSON
     customFieldsData: JSON
     messengerData: JSON
     twitterData: JSON
@@ -28,6 +28,11 @@ export const types = `
     getIntegrationData: JSON
     getMessengerCustomData: JSON
     getTags: [Tag]
+  }
+
+  type CustomersListResponse {
+    list: [Customer],
+    totalCount: Float,
   }
 `;
 
@@ -41,7 +46,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  customers(${queryParams}): [Customer]
+  customers(${queryParams}): CustomersListResponse
   customerCounts(${queryParams}, byFakeSegment: JSON): JSON
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]

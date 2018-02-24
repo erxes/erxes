@@ -199,13 +199,6 @@ describe('Companies model tests', () => {
       expect(e.message).toBe('Duplicated name');
     }
 
-    // checking length validation
-    try {
-      await Companies.mergeCompanies(['123', '123', '123'], {});
-    } catch (e) {
-      expect(e.message).toBe('You can only merge 2 companies at a time');
-    }
-
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: companyIds[0],

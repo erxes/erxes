@@ -16,6 +16,14 @@ const locationSchema = mongoose.Schema(
   { _id: false },
 );
 
+const VisitorContactSchema = mongoose.Schema(
+  {
+    email: String,
+    phone: String,
+  },
+  { _id: false },
+);
+
 /*
  * messenger schema
  */
@@ -23,15 +31,15 @@ const messengerSchema = mongoose.Schema(
   {
     lastSeenAt: field({
       type: Date,
-      label: 'Messenger: Last online',
+      label: 'Last seen at',
     }),
     sessionCount: field({
       type: Number,
-      label: 'Messenger: Session count',
+      label: 'Session count',
     }),
     isActive: field({
       type: Boolean,
-      label: 'Messenger: Is online',
+      label: 'Is online',
     }),
     customData: field({
       type: Object,
@@ -46,25 +54,25 @@ const messengerSchema = mongoose.Schema(
  */
 const twitterSchema = mongoose.Schema(
   {
-    id: field({
-      type: Number,
-      label: 'Twitter: ID (Number)',
-    }),
     idStr: field({
       type: String,
-      label: 'Twitter: ID (String)',
+      label: 'Twitter ID',
+    }),
+    id: field({
+      type: Number,
+      label: 'Twitter ID (Number)',
     }),
     name: field({
       type: String,
-      label: 'Twitter: Name',
+      label: 'Twitter name',
     }),
     screenName: field({
       type: String,
-      label: 'Twitter: Screen name',
+      label: 'Twitter screen name',
     }),
     profileImageUrl: field({
       type: String,
-      label: 'Twitter: Profile photo',
+      label: 'Twitter photo',
     }),
   },
   { _id: false },
@@ -77,12 +85,12 @@ const facebookSchema = mongoose.Schema(
   {
     id: field({
       type: String,
-      label: 'Facebook: ID',
+      label: 'Facebook ID',
     }),
     profilePic: field({
       type: String,
       optional: true,
-      label: 'Facebook: Profile photo',
+      label: 'Facebook photo',
     }),
   },
   { _id: false },
@@ -91,27 +99,35 @@ const facebookSchema = mongoose.Schema(
 const CustomerSchema = mongoose.Schema({
   _id: field({ pkey: true }),
 
-  name: field({ type: String }),
-  firstName: field({ type: String, label: 'First name' }),
-  lastName: field({ type: String, label: 'Last name' }),
-  email: field({ type: String, label: 'Email' }),
-  phone: field({ type: String, label: 'Phone' }),
-  isUser: field({ type: Boolean, label: 'Is user' }),
+  firstName: field({ type: String, label: 'First name', optional: true }),
+  lastName: field({ type: String, label: 'Last name', optional: true }),
+
+  email: field({ type: String, label: 'Email', optional: true }),
+  phone: field({ type: String, label: 'Phone', optional: true }),
+  isUser: field({ type: Boolean, label: 'Is user', optional: true }),
   createdAt: field({ type: Date, label: 'Created at' }),
 
   integrationId: field({ type: String }),
-  tagIds: field({ type: [String] }),
-  companyIds: field({ type: [String] }),
+  tagIds: field({ type: [String], optional: true }),
+  companyIds: field({ type: [String], optional: true }),
 
-  location: field({ type: locationSchema }),
+  customFieldsData: field({ type: Object, optional: true }),
+  messengerData: field({ type: messengerSchema, optional: true }),
+  twitterData: field({ type: twitterSchema, optional: true }),
+  facebookData: field({ type: facebookSchema, optional: true }),
 
-  customFieldsData: field({ type: Object }),
-  messengerData: field({ type: messengerSchema }),
-  twitterData: field({ type: twitterSchema }),
-  facebookData: field({ type: facebookSchema }),
+  location: field({ type: locationSchema, optional: true }),
+
+  // if customer is not a user then we will contact with this visitor using
+  // this information
+  visitorContactInfo: field({ type: VisitorContactSchema, optional: true }),
 });
 
 class Customer {
+  getFullName() {
+    return `${this.firstName || ''} ${this.lastName || ''}`;
+  }
+
   /**
    * Checking if customer has duplicated unique properties
    * @param  {Object} customerFields - Customer fields to check duplications
@@ -165,6 +181,8 @@ class Customer {
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+
+    doc.createdAt = new Date();
 
     return this.create(doc);
   }
@@ -260,11 +278,6 @@ class Customer {
    * @return {Promise} Customer object
    */
   static async mergeCustomers(customerIds, customerFields) {
-    // Checking customerIds length
-    if (customerIds.length !== 2) {
-      throw new Error('You can only merge 2 customers at a time');
-    }
-
     // Checking duplicated fields of customer
     await this.checkDuplication(customerFields, customerIds);
 

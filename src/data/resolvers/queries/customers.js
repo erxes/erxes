@@ -6,7 +6,20 @@ import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 const listQuery = async params => {
-  let selector = {};
+  // exclude empty customers =========
+  // for engage purpose we are creating this kind of customer
+  const emptySelector = { $in: [null, ''] };
+
+  let selector = {
+    $nor: [
+      {
+        firstName: emptySelector,
+        lastName: emptySelector,
+        email: emptySelector,
+        visitorContactInfo: null,
+      },
+    ],
+  };
 
   // Filter by segments
   if (params.segment) {
@@ -70,7 +83,10 @@ const customerQueries = {
       selector = { _id: { $in: ids } };
     }
 
-    return paginate(Customers.find(selector), params).sort(sort);
+    const totalCount = await Customers.find(selector).count();
+    const list = await paginate(Customers.find(selector), params).sort(sort);
+
+    return { list, totalCount };
   },
 
   /**
@@ -87,15 +103,13 @@ const customerQueries = {
       byTag: {},
       byFakeSegment: 0,
     };
+
     const selector = await listQuery(params);
 
     const count = query => {
       const findQuery = Object.assign({}, selector, query);
       return Customers.find(findQuery).count();
     };
-
-    // Count current filtered customers
-    counts.all = await count(selector);
 
     // Count customers by segments
     const segments = await Segments.find({

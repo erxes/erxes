@@ -179,7 +179,8 @@ export const companyFactory = (params = {}) => {
 
 export const customerFactory = (params = {}) => {
   const customer = new Customers({
-    name: params.name || faker.random.word(),
+    firstName: params.firstName || faker.random.word(),
+    lastName: params.lastName || faker.random.word(),
     email: params.email || faker.internet.email(),
     phone: params.phone || faker.phone.phoneNumber(),
     messengerData: params.messengerData || {},
@@ -339,11 +340,11 @@ export const knowledgeBaseTopicFactory = params => {
   );
 };
 
-export const knowledgeBaseCategoryFactory = params => {
+export const knowledgeBaseCategoryFactory = (params = {}) => {
   const doc = {
     title: faker.random.word(),
     description: faker.lorem.sentence,
-    articleIds: [faker.random.word(), faker.random.word()],
+    articleIds: params.articleIds || [faker.random.word(), faker.random.word()],
     icon: faker.random.word(),
   };
 
@@ -356,6 +357,7 @@ export const knowledgeBaseArticleFactory = params => {
     summary: faker.lorem.sentence,
     content: faker.lorem.sentence,
     icon: faker.random.word(),
+    categoryIds: params.categoryIds || [],
   };
 
   return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, faker.random.word());

@@ -95,7 +95,8 @@ const fieldQueries = {
   fieldsDefaultColumnsConfig(root, { contentType }) {
     if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
       return [
-        { name: 'name', label: 'Name', order: 1 },
+        { name: 'firstName', label: 'First name', order: 1 },
+        { name: 'lastName', label: 'Last name', order: 1 },
         { name: 'email', label: 'Email', order: 2 },
         { name: 'phone', label: 'Phone', order: 3 },
       ];
