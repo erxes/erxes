@@ -9,17 +9,12 @@ const fieldsGroupQueries = {
    *
    * @return {Promise} sorted fields group list
    */
-  fieldsgroups(root, { contentType, visibleOnly }) {
+  fieldsgroups(root, { contentType }) {
     const query = {};
 
     // querying by content type
     if (contentType) {
       query.contentType = contentType;
-    }
-
-    // retreiving visible only groups
-    if (visibleOnly) {
-      query.visible = visibleOnly;
     }
 
     return FieldsGroups.find(query).sort({ order: 1 });
