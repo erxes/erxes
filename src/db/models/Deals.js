@@ -57,7 +57,7 @@ const createOrUpdatePipelineStages = async (stages, pipelineId) => {
 
       if (obj) {
         await DealStages.update({ _id }, { $set: doc });
-        stageIds.push(stage._id);
+        stageIds.push(obj._id);
       } else {
         const newStage = await DealStages.create(doc);
         stageIds.push(newStage._id);
@@ -65,9 +65,10 @@ const createOrUpdatePipelineStages = async (stages, pipelineId) => {
     }
   }
 
-  const removeStageIds = await DealStages.find({ pipelineId, _id: { $nin: stageIds } }).select(
-    '_id',
-  );
+  const removeStageIds = await DealStages.find({
+    pipelineId,
+    _id: { $nin: stageIds },
+  }).select('_id');
 
   for (let selector of removeStageIds) {
     DealStages.removeStage(selector._id);
