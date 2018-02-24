@@ -1,13 +1,17 @@
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 
+const imageSize = 30;
+
 const Members = styled.div`
   padding-top: ${dimensions.unitSpacing - 5}px;
 `;
 
 const MemberImg = styled.img`
-  width: ${dimensions.coreSpacing + 10}px;
-  border-radius: ${dimensions.unitSpacing + 5}px;
+  width: ${imageSize}px;
+  height: ${imageSize}px;
+  border-radius: ${imageSize / 2}px;
+  background: ${colors.bgActive};
   border: 2px solid ${colors.colorWhite};
   margin-left: -8px;
 

@@ -105,14 +105,15 @@ const NotifButton = styled.div`
   cursor: pointer;
   position: relative;
 
-  & .badge {
+  .badge {
     position: absolute;
     top: 0;
-    right: -9px;
-    font-size: ${dimensions.unitSpacing}px;
+    right: -10px;
+    font-size: 9px;
     background-color: ${colors.colorCoreRed};
     padding: 3px 5px;
     min-width: 16px;
+    border: 2px solid ${colors.colorWhite};
   }
 `;
 

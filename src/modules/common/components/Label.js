@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
 import { colors, dimensions } from '../styles';
+import { colorParser } from 'modules/common/utils';
 
 const shake = keyframes`
   0%{transform:rotate(-10deg)}
@@ -27,6 +28,9 @@ const types = {
   },
   warning: {
     background: colors.colorCoreYellow
+  },
+  simple: {
+    background: colors.colorCoreLightGray
   }
 };
 
@@ -39,7 +43,8 @@ const LabelStyled = styled.span`
   display: inline-block;
   line-height: 1.32857143;
   background: ${props => types[props.lblStyle].background};
-  color: ${colors.colorWhite};
+  color: ${props =>
+    props.hasLightBackground ? colors.colorBlack : colors.colorWhite};
   border: none;
   animation: ${props => (props.shake ? `${shake} 3.5s ease infinite` : 'none')};
 
@@ -77,19 +82,28 @@ const LabelStyled = styled.span`
 `;
 
 function Label({ ...props }) {
-  return <LabelStyled {...props}>{props.children}</LabelStyled>;
+  const updatedProps = {
+    ...props,
+    hasLightBackground: props.style
+      ? colorParser.isColorLight(props.style.backgroundColor)
+      : null
+  };
+
+  return <LabelStyled {...updatedProps}>{props.children}</LabelStyled>;
 }
 
 Label.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   shake: PropTypes.bool,
+  style: PropTypes.object,
   lblStyle: PropTypes.oneOf([
     'default',
     'primary',
     'success',
     'danger',
-    'warning'
+    'warning',
+    'simple'
   ])
 };
 

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import { setBadge } from 'modules/common/utils';
 import { colors, dimensions } from 'modules/common/styles';
 import { Tip, Label } from 'modules/common/components';
 
@@ -80,8 +81,8 @@ const NavIcon = styled.i`
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   display: inline-block;
 
   &.icon-inbox {
@@ -107,9 +108,17 @@ const NavIcon = styled.i`
   &.icon-settings {
     background-image: url('/images/icons/nav-06.svg');
   }
+
+  &.icon-knowledge {
+    background-image: url('/images/icons/nav-07.svg');
+  }
 `;
 
 class Navigation extends Component {
+  componentDidUpdate() {
+    setBadge(this.props.unreadConversationsCount);
+  }
+
   componentWillReceiveProps(nextProps) {
     if (
       nextProps.unreadConversationsCount > this.props.unreadConversationsCount
@@ -155,6 +164,11 @@ class Navigation extends Component {
           <Tip placement="right" text="Insights">
             <NavLink to="/insights" activeClassName="active">
               <NavIcon className="icon-insights" />
+            </NavLink>
+          </Tip>
+          <Tip placement="right" text="Knowledge Base">
+            <NavLink to="/knowledgeBase" activeClassName="active">
+              <NavIcon className="icon-knowledge" />
             </NavLink>
           </Tip>
           <Tip placement="right" text="Settings">

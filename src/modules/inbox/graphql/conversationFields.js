@@ -31,7 +31,6 @@ export default `
     _id
     firstName
     lastName
-    name
     email
     phone
     isUser
@@ -43,6 +42,7 @@ export default `
       website
     }
 
+    visitorContactInfo
     getMessengerCustomData
     customFieldsData
     messengerData

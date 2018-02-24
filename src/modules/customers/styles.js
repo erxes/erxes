@@ -88,7 +88,7 @@ const Title = styled.h4`
   padding: 10px ${columnSizing};
   font-size: 12px;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: ${props => (props.full ? 'normal' : 'nowrap')};
   overflow: hidden;
   text-overflow: ellipsis;
 
@@ -117,12 +117,6 @@ const Footer = styled.div`
 const LoadMore = styled.div`
   text-align: center;
   margin-top: 10px;
-`;
-
-const DetailContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
 `;
 
 const SubContent = styled.div`
@@ -157,7 +151,6 @@ export {
   Title,
   Footer,
   LoadMore,
-  DetailContent,
   SubContent,
   InfoTitle,
   InfoDetail,

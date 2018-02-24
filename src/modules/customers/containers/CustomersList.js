@@ -84,18 +84,22 @@ class CustomerListContainer extends Bulk {
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
+    const { list = [], totalCount = 0 } = customersQuery.customers || {};
+
+    const counts = customerCountsQuery.customerCounts || {
+      byBrand: {},
+      byIntegrationType: {},
+      bySegment: {},
+      byTag: {}
+    };
 
     const updatedProps = {
       ...this.props,
       columnsConfig,
-
-      customers: customersQuery.customers || [],
-      counts: customerCountsQuery.customerCounts || {
-        all: 0,
-        byBrand: {},
-        byIntegrationType: {},
-        bySegment: {},
-        byTag: {}
+      customers: list,
+      counts: {
+        all: totalCount,
+        ...counts
       },
       brands: brandsQuery.brands || [],
       integrations: KIND_CHOICES.ALL_LIST,

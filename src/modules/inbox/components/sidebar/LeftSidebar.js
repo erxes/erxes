@@ -68,8 +68,9 @@ class LeftSidebar extends Bulk {
               onChange={() => {
                 this.toggleAll(conversations, 'conversations');
               }}
-            />
-            Select all
+            >
+              Select all
+            </FormControl>
           </LeftItem>
 
           <RightItems>

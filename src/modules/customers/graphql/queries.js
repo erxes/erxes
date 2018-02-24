@@ -9,6 +9,7 @@ const customerFields = `
     createdAt
     remoteAddress
     location
+    visitorContactInfo
 
     customFieldsData
     messengerData
@@ -44,7 +45,11 @@ const listParamsValue = `
 const customers = `
   query customers(${listParamsDef}) {
     customers(${listParamsValue}) {
-      ${customerFields}
+      list {
+        ${customerFields}
+      }
+
+      totalCount
     }
   }
 `;
