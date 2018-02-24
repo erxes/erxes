@@ -19,7 +19,7 @@ import { TaggerSection } from 'modules/customers/components/detail/sidebar';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
-  customFields: PropTypes.array.isRequired,
+  fieldsGroups: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired
 };
 
@@ -163,34 +163,42 @@ class LeftSidebar extends React.Component {
   }
 
   renderCustomFields() {
-    const { customFields, company } = this.props;
+    const { fieldsGroups, company } = this.props;
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    return (
-      <Section>
-        <Title>About</Title>
-        <QuickButtons>
-          <Link to="/fields/manage/company">
-            <Icon icon="gear-a" />
-          </Link>
-        </QuickButtons>
-        <SidebarContent>
-          {customFields.map((field, index) => (
-            <GenerateField
-              field={field}
-              key={index}
-              onValueChange={this.handleFieldsChange}
-              defaultValue={
-                company.customFieldsData
-                  ? company.customFieldsData[field._id]
-                  : ''
-              }
-            />
-          ))}
-        </SidebarContent>
-      </Section>
-    );
+    return fieldsGroups.map(fieldGroup => {
+      if (!fieldGroup.visible) return null;
+
+      return (
+        <Section key={fieldGroup._id}>
+          <Title>{fieldGroup.name}</Title>
+          <QuickButtons>
+            <Link to="/settings/properties?type=company">
+              <Icon icon="gear-a" />
+            </Link>
+          </QuickButtons>
+          <SidebarContent>
+            {fieldGroup.getFields.map((field, index) => {
+              if (!field.visible) return null;
+
+              return (
+                <GenerateField
+                  field={field}
+                  key={index}
+                  onValueChange={this.handleFieldsChange}
+                  defaultValue={
+                    company.customFieldsData
+                      ? company.customFieldsData[field._id]
+                      : ''
+                  }
+                />
+              );
+            })}
+          </SidebarContent>
+        </Section>
+      );
+    });
   }
 
   renderFullName(customer) {

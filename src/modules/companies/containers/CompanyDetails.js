@@ -11,7 +11,7 @@ const CompanyDetailsContainer = (props, context) => {
     companyDetailQuery,
     companyActivityLogQuery,
     companiesEdit,
-    fieldsQuery
+    fieldsGroupsQuery
   } = props;
 
   //refetch for display customer change
@@ -37,7 +37,7 @@ const CompanyDetailsContainer = (props, context) => {
     },
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     currentUser: context.currentUser,
-    customFields: fieldsQuery.fields || []
+    fieldsGroups: fieldsGroupsQuery.fieldsgroups || []
   };
 
   return <CompanyDetails {...updatedProps} />;
@@ -46,7 +46,7 @@ const CompanyDetailsContainer = (props, context) => {
 CompanyDetailsContainer.propTypes = {
   id: PropTypes.string,
   companyDetailQuery: PropTypes.object,
-  fieldsQuery: PropTypes.object,
+  fieldsGroupsQuery: PropTypes.object,
   companiesEdit: PropTypes.func,
   companyActivityLogQuery: PropTypes.object
 };
@@ -72,8 +72,13 @@ export default compose(
       }
     })
   }),
-  graphql(gql(queries.fields), {
-    name: 'fieldsQuery'
+  graphql(gql(queries.fieldsgroups), {
+    name: 'fieldsGroupsQuery',
+    options: () => ({
+      variables: {
+        contentType: 'company'
+      }
+    })
   }),
   graphql(gql(mutations.companiesEdit), {
     name: 'companiesEdit'

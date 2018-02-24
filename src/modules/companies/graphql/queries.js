@@ -72,21 +72,6 @@ const tags = `
   }
 `;
 
-export const fields = `
-  query {
-    fields(contentType: "company") {
-      _id
-      type
-      validation
-      text
-      description
-      options
-      isRequired
-      order
-    }
-  }
-`;
-
 export const companiesListConfig = `
   query {
     fieldsDefaultColumnsConfig(contentType: "company") {
@@ -122,12 +107,48 @@ const activityLogsCompany = `
   }
 `;
 
+const fieldsgroups = `
+  query fieldsgroups($contentType: String!) {
+    fieldsgroups(contentType: $contentType) {
+      _id
+      name
+      description
+      order
+      visible
+      lastUpdatedBy {
+        details {
+          fullName
+        }
+      }
+      isDefinedByErxes
+      getFields {
+        _id
+        contentType
+        type
+        text
+        visible
+        validation
+        order
+        options
+        groupId
+        description
+        isDefinedByErxes
+        lastUpdatedBy {
+          details {
+            fullName
+          }
+        }
+      }
+    }
+  }
+`;
+
 export default {
   companies,
   companyCounts,
   companyDetail,
-  fields,
   tags,
   companiesListConfig,
-  activityLogsCompany
+  activityLogsCompany,
+  fieldsgroups
 };

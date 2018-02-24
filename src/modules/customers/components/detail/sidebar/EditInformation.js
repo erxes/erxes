@@ -151,6 +151,7 @@ class LeftSidebar extends React.Component {
 
     return fieldsGroups.map(fieldGroup => {
       if (!fieldGroup.visible) return null;
+
       return (
         <Section key={fieldGroup._id}>
           <Section.Title>{fieldGroup.name}</Section.Title>
@@ -162,6 +163,7 @@ class LeftSidebar extends React.Component {
           <SidebarContent>
             {fieldGroup.getFields.map((field, index) => {
               if (!field.visible) return null;
+
               return (
                 <GenerateField
                   field={field}
