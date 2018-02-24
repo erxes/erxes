@@ -20,14 +20,14 @@ const propTypes = {
   save: PropTypes.func.isRequired
 };
 
-function Row({ tag, type, count, remove, save }) {
+function Row({ tag, type, count, remove, save }, { __ }) {
   function removeTag() {
     remove(tag);
   }
 
   const editTrigger = (
     <Button btnStyle="link">
-      <Tip text="Edit">
+      <Tip text={__('Edit')}>
         <Icon icon="edit" />
       </Tip>
     </Button>
@@ -45,7 +45,7 @@ function Row({ tag, type, count, remove, save }) {
             <Form type={type} tag={tag} save={save} />
           </ModalTrigger>
 
-          <Tip text="Delete">
+          <Tip text={__('Delete')}>
             <Button btnStyle="link" onClick={removeTag} icon="close-circled" />
           </Tip>
         </ActionButtons>
@@ -55,5 +55,8 @@ function Row({ tag, type, count, remove, save }) {
 }
 
 Row.propTypes = propTypes;
+Row.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Row;

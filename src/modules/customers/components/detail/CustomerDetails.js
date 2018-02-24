@@ -97,6 +97,7 @@ class CustomerDetails extends React.Component {
   render() {
     const { currentTab } = this.state;
     const { customer } = this.props;
+    const { __ } = this.context;
 
     const breadcrumb = [
       { title: 'Customers', link: '/customers' },
@@ -108,7 +109,7 @@ class CustomerDetails extends React.Component {
         <WhiteBoxRoot>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> New note
+              <Icon icon="compose" /> {__('New note')}
             </TabTitle>
           </Tabs>
 
@@ -120,19 +121,19 @@ class CustomerDetails extends React.Component {
             className={currentTab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}
           >
-            Activity
+            {__('Activity')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
             onClick={() => this.onTabClick('notes')}
           >
-            Notes
+            {__('Notes')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'conversations' ? 'active' : ''}
             onClick={() => this.onTabClick('conversations')}
           >
-            Conversation
+            {__('Conversation')}
           </TabTitle>
         </Tabs>
 
@@ -152,5 +153,8 @@ class CustomerDetails extends React.Component {
 }
 
 CustomerDetails.propTypes = propTypes;
+CustomerDetails.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(CustomerDetails);

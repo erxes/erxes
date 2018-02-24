@@ -56,12 +56,13 @@ class UserCommonInfos extends Component {
 
   render() {
     const user = this.props.user;
+    const { __ } = this.context;
     const { avatarPreviewStyle, avatarPreviewUrl } = this.state;
 
     return (
       <ProfileWrapper>
         <FormGroup>
-          <ControlLabel>Photo</ControlLabel>
+          <ControlLabel>{__('Photo')}</ControlLabel>
           <img alt="avatar" style={avatarPreviewStyle} src={avatarPreviewUrl} />
 
           <FormControl type="file" onChange={this.handleImageChange} />
@@ -69,7 +70,7 @@ class UserCommonInfos extends Component {
 
         <ProfileRow>
           <FormGroup>
-            <ControlLabel>Name</ControlLabel>
+            <ControlLabel>{__('Name')}</ControlLabel>
             <FormControl
               type="text"
               id="fullName"
@@ -78,7 +79,7 @@ class UserCommonInfos extends Component {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Position</ControlLabel>
+            <ControlLabel>{__('Position')}</ControlLabel>
             <FormControl
               type="text"
               id="position"
@@ -89,7 +90,7 @@ class UserCommonInfos extends Component {
 
         <ProfileRow>
           <FormGroup>
-            <ControlLabel>Username</ControlLabel>
+            <ControlLabel>{__('Username')}</ControlLabel>
             <FormControl
               type="text"
               id="username"
@@ -98,14 +99,14 @@ class UserCommonInfos extends Component {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Email</ControlLabel>
+            <ControlLabel>{__('Email')}</ControlLabel>
             <FormControl type="email" id="email" defaultValue={user.email} />
           </FormGroup>
         </ProfileRow>
 
         <ProfileRow>
           <FormGroup>
-            <ControlLabel>Twitter username</ControlLabel>
+            <ControlLabel>{__('Twitter username')}</ControlLabel>
             <FormControl
               type="text"
               id="twitterUsername"
@@ -119,5 +120,8 @@ class UserCommonInfos extends Component {
 }
 
 UserCommonInfos.propTypes = propTypes;
+UserCommonInfos.contextTypes = {
+  __: PropTypes.func
+};
 
 export default UserCommonInfos;

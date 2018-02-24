@@ -11,7 +11,7 @@ const propTypes = {
   paramName: PropTypes.string
 };
 
-function LoadMore({ history, perPage = 20, all, paramName = 'limit' }) {
+function LoadMore({ history, perPage = 20, all, paramName = 'limit' }, { __ }) {
   const loaded = parseInt(router.getParam(history, paramName), 10) || perPage;
 
   const load = () => {
@@ -20,11 +20,14 @@ function LoadMore({ history, perPage = 20, all, paramName = 'limit' }) {
 
   return loaded < all ? (
     <Button block btnStyle="link" onClick={load}>
-      Load more
+      {__('Load more')}
     </Button>
   ) : null;
 }
 
 LoadMore.propTypes = propTypes;
+LoadMore.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(LoadMore);

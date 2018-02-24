@@ -23,7 +23,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class CommonAssociate extends Component {
@@ -111,11 +112,12 @@ class CommonAssociate extends Component {
   render() {
     const { datas, form, title, data } = this.props;
     const selectedDatas = this.state.datas;
+    const { __ } = this.context;
 
     const addTrigger = (
       <p>
-        Don&apos;t see the result you&apos;re looking for? &ensp;
-        <a>Create a new {title}</a>
+        {__('Don&apos;t see the result you&apos;re looking for? &ensp;')}
+        <a>{__(`Create a new ${title}`)}</a>
       </p>
     );
 

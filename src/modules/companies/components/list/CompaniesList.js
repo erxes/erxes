@@ -102,6 +102,7 @@ class CompaniesList extends React.Component {
       mergeCompanies,
       basicInfos
     } = this.props;
+    const { __ } = this.context;
 
     const mainContent = (
       <div>
@@ -115,9 +116,9 @@ class CompaniesList extends React.Component {
                 />
               </th>
               {columnsConfig.map(({ name, label }) => (
-                <th key={name}>{label}</th>
+                <th key={name}>{__(label)}</th>
               ))}
-              <th>Tags</th>
+              <th>{__('Tags')}</th>
             </tr>
           </thead>
           <tbody id="companies">
@@ -252,5 +253,8 @@ class CompaniesList extends React.Component {
 }
 
 CompaniesList.propTypes = propTypes;
+CompaniesList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(CompaniesList);

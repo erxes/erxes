@@ -125,14 +125,14 @@ const ButtonGroup = styled.div`
   }
 `;
 
-function Button({ ...props }) {
+function Button({ ...props }, { __ }) {
   const Element = props.href ? ButtonLink : ButtonStyled;
 
   if (props.icon) {
     return (
       <Element {...props}>
         <Icon icon={props.icon} />
-        {props.children && <span>{props.children}</span>}
+        {props.children && <span>{__(props.children)}</span>}
       </Element>
     );
   }
@@ -169,6 +169,10 @@ Button.propTypes = {
   disabled: PropTypes.bool,
   block: PropTypes.bool,
   icon: PropTypes.string
+};
+
+Button.contextTypes = {
+  __: PropTypes.func
 };
 
 Button.defaultProps = {

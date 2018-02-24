@@ -26,9 +26,10 @@ class CommonReport extends Component {
   }
 
   renderTitle(title, time) {
+    const { __ } = this.context;
     return (
       <InsightTitle>
-        {title}
+        {__(title)}
         {time ? <span>({time})</span> : null}
       </InsightTitle>
     );
@@ -65,5 +66,8 @@ class CommonReport extends Component {
 }
 
 CommonReport.propTypes = propTypes;
+CommonReport.contextTypes = {
+  __: PropTypes.func
+};
 
 export default CommonReport;

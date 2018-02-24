@@ -86,6 +86,7 @@ class LeftSidebar extends React.Component {
   renderCompanies() {
     const { customer } = this.props;
     const { Section } = Sidebar;
+    const { __ } = this.context;
 
     const companyTrigger = (
       <QuickButton>
@@ -95,7 +96,7 @@ class LeftSidebar extends React.Component {
 
     return (
       <Section>
-        <Section.Title>Companies</Section.Title>
+        <Section.Title>{__('Companies')}</Section.Title>
         <Section.QuickButtons>
           <ModalTrigger title="Associate" trigger={companyTrigger} size="lg">
             <CompanyAssociate data={customer} />
@@ -125,10 +126,11 @@ class LeftSidebar extends React.Component {
   }
 
   renderDeviceProperty(text, value, secondValue, nowrap) {
+    const { __ } = this.context;
     if (value || secondValue) {
       return (
         <li>
-          {text}:
+          {__(text)}:
           {nowrap ? (
             <BlockValue>
               {value} {secondValue}
@@ -148,10 +150,11 @@ class LeftSidebar extends React.Component {
   renderCustomFields() {
     const { customFields, customer } = this.props;
     const { Section } = Sidebar;
+    const { __ } = this.context;
 
     return (
       <Section>
-        <Section.Title>Customer properties</Section.Title>
+        <Section.Title>{__('Customer properties')}</Section.Title>
         <Section.QuickButtons>
           <Link to="/fields/manage/customer">
             <Icon icon="gear-a" />
@@ -178,13 +181,14 @@ class LeftSidebar extends React.Component {
   renderDeviceProperties() {
     const { customer } = this.props;
     const { Section } = Sidebar;
+    const { __ } = this.context;
     const location = customer.location;
 
     if (location) {
       const ua = parse(location.userAgent || ' ');
       return (
         <Section>
-          <Section.Title>Device properties</Section.Title>
+          <Section.Title>{__('Device properties')}</Section.Title>
           <SidebarList className="no-link">
             {this.renderDeviceProperty('Location', location.country)}
             {this.renderDeviceProperty(
@@ -213,11 +217,12 @@ class LeftSidebar extends React.Component {
   renderOtherProperties() {
     const { otherProperties } = this.props;
     const { Section } = Sidebar;
+    const { __ } = this.context;
 
     if (otherProperties) {
       return (
         <Section>
-          <Section.Title>Other properties</Section.Title>
+          <Section.Title>{__('Other properties')}</Section.Title>
           <SidebarList className="no-link">{otherProperties}</SidebarList>
         </Section>
       );
@@ -274,5 +279,8 @@ class LeftSidebar extends React.Component {
 }
 
 LeftSidebar.propTypes = propTypes;
+LeftSidebar.contextTypes = {
+  __: PropTypes.func
+};
 
 export default LeftSidebar;

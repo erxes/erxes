@@ -29,9 +29,10 @@ class ResetPassword extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <AuthBox>
-        <h2>Set your new password</h2>
+        <h2>{__('Set your new password')}</h2>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
             <FormControl
@@ -51,5 +52,8 @@ class ResetPassword extends Component {
 }
 
 ResetPassword.propTypes = propTypes;
+ResetPassword.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ResetPassword;

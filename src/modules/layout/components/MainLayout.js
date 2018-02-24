@@ -4,6 +4,9 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Layout } from '../styles';
 import { Navigation } from '../containers';
+import { translations } from '../../../locales';
+import en from 'react-intl/locale-data/en';
+import { injectIntl, IntlProvider, addLocaleData } from 'react-intl';
 
 const propTypes = {
   history: PropTypes.object,
@@ -11,9 +14,61 @@ const propTypes = {
   children: PropTypes.node
 };
 
-class MainLayout extends React.Component {
+class TranslationWrapper extends React.Component {
   getChildContext() {
-    return { currentUser: this.props.currentUser };
+    const { intl } = this.props;
+    const { formatMessage } = intl;
+
+    return {
+      __: msg => formatMessage({ id: msg })
+    };
+  }
+
+  render() {
+    const { children, currentUser } = this.props;
+    return (
+      <div>
+        {currentUser && <Navigation />}
+        {children}
+      </div>
+    );
+  }
+}
+
+TranslationWrapper.propTypes = {
+  intl: PropTypes.object,
+  children: PropTypes.object,
+  currentUser: PropTypes.object
+};
+
+TranslationWrapper.childContextTypes = {
+  __: PropTypes.func
+};
+
+const InjectedComponent = injectIntl(TranslationWrapper);
+
+const messages = {
+  ...translations
+};
+addLocaleData([...en]);
+
+class MainLayout extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      toggleLang: false,
+      locale: 'en',
+      messages: messages
+    };
+  }
+
+  getChildContext() {
+    return {
+      currentUser: this.props.currentUser,
+      toggleLang: this.toggleLang,
+      locale: this.state.locale
+    };
   }
 
   componentWillMount() {
@@ -45,13 +100,14 @@ class MainLayout extends React.Component {
   }
 
   render() {
-    const { children, currentUser } = this.props;
+    const { locale, messages } = this.state;
 
     return (
-      <Layout>
-        {currentUser && <Navigation />}
-        {children}
-      </Layout>
+      <IntlProvider locale={locale || 'en'} messages={messages}>
+        <Layout>
+          <InjectedComponent {...this.props} />
+        </Layout>
+      </IntlProvider>
     );
   }
 }
@@ -59,7 +115,9 @@ class MainLayout extends React.Component {
 MainLayout.propTypes = propTypes;
 
 MainLayout.childContextTypes = {
-  currentUser: PropTypes.object
+  currentUser: PropTypes.object,
+  toggleLang: PropTypes.func,
+  locale: PropTypes.string
 };
 
 export default withRouter(MainLayout);

@@ -21,7 +21,7 @@ const propTypes = {
   save: PropTypes.func.isRequired
 };
 
-function List({ tags, type, remove, save }) {
+function List({ tags, type, remove, save }, { __ }) {
   const trigger = (
     <Button btnStyle="success" size="small" icon="plus">
       Add tag
@@ -38,16 +38,16 @@ function List({ tags, type, remove, save }) {
         </DropdownToggle>
         <Dropdown.Menu>
           <li>
-            <Link to="/tags/engageMessage">Engage Message</Link>
+            <Link to="/tags/engageMessage">{__('Engage Message')}</Link>
           </li>
           <li>
-            <Link to="/tags/conversation">Conversation</Link>
+            <Link to="/tags/conversation">{__('Conversation')}</Link>
           </li>
           <li>
-            <Link to="/tags/customer">Customer</Link>
+            <Link to="/tags/customer">{__('Customer')}</Link>
           </li>
           <li>
-            <Link to="/tags/company">Company</Link>
+            <Link to="/tags/company">{__('Company')}</Link>
           </li>
         </Dropdown.Menu>
       </Dropdown>
@@ -62,9 +62,9 @@ function List({ tags, type, remove, save }) {
     <Table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Item counts</th>
-          <th>Actions</th>
+          <th>{__('Name')}</th>
+          <th>{__('Item counts')}</th>
+          <th>{__('Actions')}</th>
         </tr>
       </thead>
       <tbody>
@@ -94,5 +94,8 @@ function List({ tags, type, remove, save }) {
 }
 
 List.propTypes = propTypes;
+List.contextTypes = {
+  __: PropTypes.func
+};
 
 export default List;
