@@ -95,6 +95,16 @@ const dealMutations = {
   },
 
   /**
+   * Change stage
+   * @param {String} _id stage id
+   * @param {String} doc.pipelineId
+   * @return {Promise} updated stage object
+   */
+  dealStagesChange(root, { _id, pipelineId }) {
+    return DealStages.changeStage(_id, pipelineId);
+  },
+
+  /**
    * Update stage orders
    * @param [OrderItem] [{ _id: [stage id], order: [order value] }]
    * @return {Promise} updated stages
@@ -146,6 +156,17 @@ const dealMutations = {
    * @return {Promise} updated deal object
    */
   dealsEdit(root, { _id, ...doc }) {
+    return Deals.updateDeal(_id, doc);
+  },
+
+  /**
+   * Change deal
+   * @param {String} _id deal id
+   * @param {String} doc.pipelineId
+   * @param {String} doc.stageId
+   * @return {Promise} updated deal object
+   */
+  dealsChange(root, { _id, ...doc }) {
     return Deals.updateDeal(_id, doc);
   },
 

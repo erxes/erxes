@@ -229,6 +229,18 @@ class Stage {
     return this.findOne({ _id });
   }
 
+  /**
+   * Change Stage
+   * @param  {String} pipelineId
+   * @return {Promise} updated stage object
+   */
+  static async changeStage(_id, pipelineId) {
+    await this.update({ _id }, { $set: { pipelineId } });
+    await Deals.updateMany({ stageId: _id }, { $set: { pipelineId } });
+
+    return this.findOne({ _id });
+  }
+
   /*
    * Update given stages orders
    *

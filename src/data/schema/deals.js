@@ -70,6 +70,7 @@ export const mutations = `
 	dealStagesEdit(
     _id: String!, name: String!, boardId: String, pipelineId: String!
   ): DealStage
+	dealStagesChange(_id: String!, pipelineId: String!): DealStage
   dealStagesUpdateOrder(orders: [OrderItem]): [DealStage]
   dealStagesRemove(_id: String!): String
 
@@ -96,6 +97,7 @@ export const mutations = `
     note: String,
     productsData: JSON
   ): Deal
+	dealsChange( _id: String!, pipelineId: String, stageId: String! ): Deal
   dealsUpdateOrder(orders: [OrderItem]): [Deal]
   dealsRemove(_id: String!): String
 `;
