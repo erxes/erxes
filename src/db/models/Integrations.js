@@ -165,7 +165,11 @@ class Integration {
    * @param {Object} doc - Integration doc
    * @return {Promise} returns integration document promise
    */
-  static createTwitterIntegration({ name, brandId, twitterData }) {
+  static async createTwitterIntegration({ name, brandId, twitterData }) {
+    if (await this.findOne({ 'twitterData.info.id': twitterData.info.id })) {
+      throw new Error('Already added');
+    }
+
     return this.createIntegration({
       name,
       brandId,
