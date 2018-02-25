@@ -44,7 +44,7 @@ describe('receive timeline response', () => {
 
   beforeEach(async () => {
     _integration = await integrationFactory({
-      twitterData: { id: 1 },
+      twitterData: { info: { id: 1 } },
     });
   });
 
@@ -178,7 +178,7 @@ describe('receive timeline response', () => {
   test('check deleted integration', async () => {
     const response = await receiveTimeLineResponse({
       _id: 'DFAFDFSD',
-      twitterData: {},
+      twitterData: { info: {} },
     });
 
     expect(response).toBe(null);

@@ -414,11 +414,13 @@ describe('social integration test', () => {
   });
 
   test('create twitter integration', async () => {
+    expect.assertions(5);
+
     const doc = {
       name: 'name',
       brandId: _brand._id,
       twitterData: {
-        id: 1,
+        info: { id: 1 },
         token: 'token',
         tokenSecret: 'tokenSecret',
       },
@@ -430,6 +432,12 @@ describe('social integration test', () => {
     expect(integration.brandId).toBe(doc.brandId);
     expect(integration.kind).toBe(KIND_CHOICES.TWITTER);
     expect(integration.twitterData.toJSON()).toEqual(doc.twitterData);
+
+    try {
+      await Integrations.createTwitterIntegration(doc);
+    } catch (e) {
+      expect(e.message).toBe('Already added');
+    }
   });
 
   test('create facebook integration', async () => {

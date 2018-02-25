@@ -165,7 +165,17 @@ class Integration {
    * @param {Object} doc - Integration doc
    * @return {Promise} returns integration document promise
    */
-  static createTwitterIntegration({ name, brandId, twitterData }) {
+  static async createTwitterIntegration({ name, brandId, twitterData }) {
+    const prevEntry = await this.findOne({
+      twitterData: { $exists: true },
+      'twitterData.info.id': twitterData.info.id,
+    });
+
+    // check duplication
+    if (prevEntry) {
+      throw new Error('Already added');
+    }
+
     return this.createIntegration({
       name,
       brandId,
