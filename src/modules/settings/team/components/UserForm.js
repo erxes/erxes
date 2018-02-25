@@ -6,7 +6,6 @@ import {
 } from 'modules/common/components';
 import Select from 'react-select-plus';
 import { UserCommonInfos } from 'modules/auth/components';
-import { removeEmptyValue } from '../../utils';
 import { Form as CommonForm } from '../../common/components';
 
 class UserForm extends CommonForm {
@@ -65,7 +64,7 @@ class UserForm extends CommonForm {
 
   generateDoc() {
     return {
-      doc: removeEmptyValue({
+      doc: {
         username: document.getElementById('username').value,
         email: document.getElementById('email').value,
         role: document.getElementById('role').value,
@@ -88,7 +87,7 @@ class UserForm extends CommonForm {
           github: document.getElementById('github').value,
           website: document.getElementById('website').value
         }
-      })
+      }
     };
   }
 
