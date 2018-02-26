@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import { Spinner } from 'modules/common/components';
 import { Twitter } from '../components';
 
 const TwitterContainer = props => {
@@ -16,11 +17,12 @@ const TwitterContainer = props => {
   } = props;
 
   if (brandsQuery.loading || twitterAuthUrlQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   if (type === 'link') {
     window.location.href = twitterAuthUrlQuery.integrationGetTwitterAuthUrl;
+    return <Spinner />;
   }
 
   const brands = brandsQuery.brands;

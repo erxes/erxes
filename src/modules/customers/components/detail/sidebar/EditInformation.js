@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import parse from 'ua-parser-js';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarContent, QuickButton } from 'modules/layout/styles';
+import { SidebarContent } from 'modules/layout/styles';
 import {
   ModalTrigger,
   Button,
@@ -88,9 +88,9 @@ class LeftSidebar extends React.Component {
     const { Section } = Sidebar;
 
     const companyTrigger = (
-      <QuickButton>
+      <a>
         <Icon icon="plus" />
-      </QuickButton>
+      </a>
     );
 
     return (

@@ -51,6 +51,18 @@ const customers = `
   }
 `;
 
+const customersMain = `
+  query customersMain(${listParamsDef}) {
+    customersMain(${listParamsValue}) {
+      list {
+        ${customerFields}
+      }
+
+      totalCount
+    }
+  }
+`;
+
 const customerCounts = `
   query customerCounts(${listParamsDef}, $byFakeSegment: JSON) {
     customerCounts(${listParamsValue}, byFakeSegment: $byFakeSegment)
@@ -178,6 +190,7 @@ const activityLogsCustomer = `
 
 export default {
   customers,
+  customersMain,
   customerCounts,
   customerDetail,
   brands,

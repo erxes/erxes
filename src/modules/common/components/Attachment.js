@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, ImageWithPreview } from 'modules/common/components';
@@ -88,16 +88,18 @@ class Attachment extends Component {
   }
 
   renderOtherFile(name, icon) {
-    return [
-      <FileWrapper key="wrapper">
-        <Icon icon={icon} /> <span>{name}</span>
-      </FileWrapper>,
-      <Overlay key="overlay" href={this.props.attachment.url} target="_blank">
-        <div>
-          <Icon icon="android-download" />
-        </div>
-      </Overlay>
-    ];
+    return (
+      <Fragment>
+        <FileWrapper key="wrapper">
+          <Icon icon={icon} /> <span>{name}</span>
+        </FileWrapper>
+        <Overlay key="overlay" href={this.props.attachment.url} target="_blank">
+          <div>
+            <Icon icon="android-download" />
+          </div>
+        </Overlay>
+      </Fragment>
+    );
   }
 
   onLoadImage() {

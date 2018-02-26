@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { colors, typography, dimensions } from 'modules/common/styles';
 
 const AuthBox = styled.div`
   background-color: #fff;
@@ -62,7 +63,7 @@ const Links = styled.div`
 `;
 
 const ProfileWrapper = styled.div`
-  position: relative;
+  display: flex;
 
   img {
     display: block;
@@ -72,17 +73,18 @@ const ProfileWrapper = styled.div`
   }
 `;
 
-const ProfileRow = styled.div`
-  display: flex;
-  flex: 2;
-
-  > div {
-    flex: 1;
-
-    &:not(:last-child) {
-      margin-right: 20px;
-    }
-  }
+const ProfileColumn = styled.div`
+  flex: 1;
+  padding: 0 20px;
 `;
 
-export { AuthBox, Links, ProfileWrapper, ProfileRow };
+const ColumnTitle = styled.h4`
+  text-transform: uppercase;
+  font-weight: ${typography.fontWeightMedium};
+  border-bottom: 1 px dotted ${colors.colorShadowGray};
+  padding-bottom: ${dimensions.unitSpacing};
+  font-size: ${typography.fontSizeHeading8}px;
+  margin: 0 0 ${dimensions.coreSpacing};
+`;
+
+export { AuthBox, Links, ProfileWrapper, ProfileColumn, ColumnTitle };
