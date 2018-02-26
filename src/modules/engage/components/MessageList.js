@@ -1,11 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Dropdown } from 'react-bootstrap';
 import { Pagination } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import {
-  DropdownToggle,
   TaggerPopover,
   Table,
   Button,
@@ -69,28 +67,11 @@ class List extends React.Component {
     } = this.props;
 
     const actionBarRight = (
-      <Dropdown id="dropdown-engage" pullRight>
-        <DropdownToggle bsRole="toggle">
-          <Button btnStyle="success" size="small" icon="plus">
-            New message <Icon icon="chevron-down" />
-          </Button>
-        </DropdownToggle>
-        <Dropdown.Menu>
-          <li>
-            <Link to={'/engage/messages/create?kind=auto'}>Auto message</Link>
-          </li>
-          <li>
-            <Link to={'/engage/messages/create?kind=manual'}>
-              Manual message
-            </Link>
-          </li>
-          <li>
-            <Link to={'/engage/messages/create?kind=visitorAuto'}>
-              Visitor auto message
-            </Link>
-          </li>
-        </Dropdown.Menu>
-      </Dropdown>
+      <Link to={'/engage/messages/create?'}>
+        <Button btnStyle="success" size="small" icon="plus">
+          New engagement
+        </Button>
+      </Link>
     );
 
     const actionBar = (

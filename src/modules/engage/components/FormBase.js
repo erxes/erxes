@@ -26,17 +26,6 @@ class FormBase extends Component {
       this.props.save(doc);
     }
   }
-
-  renderTitle() {
-    const { kind } = this.props;
-    let title = 'Visitor auto message';
-    if (kind === 'auto') {
-      title = 'Auto message';
-    } else if (kind === 'manual') {
-      title = 'Manual message';
-    }
-    return [{ title: 'Engage', link: '/engage' }, { title: title }];
-  }
 }
 
 FormBase.propTypes = propTypes;

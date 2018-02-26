@@ -14,8 +14,14 @@ const AutoAndManualFormContainer = props => {
     combinedFieldsQuery,
     segmentsAddQuery,
     emailTemplatesQuery,
-    customerCountsQuery
+    customerCountsQuery,
+    engageMessageDetailQuery,
+    brandsQuery,
+    kind
   } = props;
+
+  const message = engageMessageDetailQuery.engageMessageDetail || [];
+  const brands = brandsQuery.brands || [];
 
   const customerCounts = customerCountsQuery.customerCounts || {
     all: 0,
@@ -57,7 +63,9 @@ const AutoAndManualFormContainer = props => {
     segments: segmentsQuery.segments || [],
     templates: emailTemplatesQuery.emailTemplates || [],
     customerCounts: customerCounts.bySegment || {},
-    count
+    count,
+    kind: message ? message.kind : kind,
+    brands
   };
 
   return <AutoAndManualForm {...updatedProps} />;
@@ -69,7 +77,10 @@ AutoAndManualFormContainer.propTypes = {
   customerCountsQuery: PropTypes.object,
   headSegmentsQuery: PropTypes.object,
   combinedFieldsQuery: PropTypes.object,
-  segmentsAddQuery: PropTypes.func
+  segmentsAddQuery: PropTypes.func,
+  kind: PropTypes.string,
+  engageMessageDetailQuery: PropTypes.object,
+  brandsQuery: PropTypes.object
 };
 
 export default withFormMutations(
@@ -79,6 +90,15 @@ export default withFormMutations(
     graphql(gql(queries.customerCounts), { name: 'customerCountsQuery' }),
     graphql(gql(queries.headSegments), { name: 'headSegmentsQuery' }),
     graphql(gql(queries.combinedFields), { name: 'combinedFieldsQuery' }),
-    graphql(gql(mutations.segmentsAdd), { name: 'segmentsAddQuery' })
+    graphql(gql(mutations.segmentsAdd), { name: 'segmentsAddQuery' }),
+    graphql(gql(queries.engageMessageDetail), {
+      name: 'engageMessageDetailQuery',
+      options: ({ messageId }) => ({
+        variables: {
+          _id: messageId
+        }
+      })
+    }),
+    graphql(gql(queries.brands), { name: 'brandsQuery' })
   )(AutoAndManualFormContainer)
 );

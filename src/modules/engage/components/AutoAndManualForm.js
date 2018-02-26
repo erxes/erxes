@@ -3,7 +3,14 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { StepWrapper, TitleContainer } from './step/style';
 import { FormControl } from 'modules/common/components';
-import { ChannelStep, SegmentStep, MessageStep, Steps, Step } from './step';
+import {
+  ChannelStep,
+  SegmentStep,
+  MessageStep,
+  Steps,
+  Step,
+  ConditionStep
+} from './step';
 import FormBase from './FormBase';
 
 const propTypes = {
@@ -23,6 +30,7 @@ class AutoAndManualForm extends FormBase {
 
     const message = props.message || {};
     let content = message.messenger ? message.messenger.content : '';
+    const rules = content.rules ? content.rules.map(rule => ({ ...rule })) : [];
     content = message.email ? message.email.content : content;
     const messenger = message.messenger || {};
     const email = message.email || {};
@@ -36,11 +44,13 @@ class AutoAndManualForm extends FormBase {
         step2: validate,
         step3: validate
       },
-      method: message.method || 'email',
+      kind: message.kind || 'auto',
+      method: message.method || 'messenger',
       title: message.title || null,
       segment: message.segmentId || '',
       message: content,
       fromUser: message.fromUserId,
+      rules,
       messenger: {
         brandId: messenger.brandId || '',
         kind: messenger.kind || '',
@@ -56,26 +66,6 @@ class AutoAndManualForm extends FormBase {
     this.changeState = this.changeState.bind(this);
   }
 
-  validate() {
-    const step3 = this.state[this.state.method];
-    let validate = { ...this.state.validate };
-    validate['step2'] = false;
-    validate['step3'] = false;
-
-    if (this.state.segment === '') {
-      validate['step2'] = true;
-    }
-
-    Object.keys(step3).map(key => {
-      if (step3[key] === '') {
-        validate['step3'] = true;
-      }
-      return false;
-    });
-
-    this.setState({ validate });
-  }
-
   generateDoc(e) {
     e.preventDefault();
 
@@ -83,19 +73,26 @@ class AutoAndManualForm extends FormBase {
       segmentId: this.state.segment,
       title: this.state.title,
       fromUserId: this.state.fromUser,
-      method: this.state.method
+      kind: this.state.kind
     };
 
-    if (this.state.method === 'email') {
+    if (this.state.kind === 'auto') {
       doc.email = {
         templateId: this.state.email.templateId,
         subject: this.state.email.subject,
         content: this.state.message
       };
-    } else if (this.state.method === 'messenger') {
+    } else if (this.state.kind === 'manual') {
       doc.messenger = {
         brandId: this.state.messenger.brandId,
         kind: this.state.messenger.kind,
+        sentAs: this.state.messenger.sentAs,
+        content: this.state.message
+      };
+    } else {
+      doc.messenger = {
+        rules: this.state.rules,
+        brandId: this.state.messenger.brandId,
         sentAs: this.state.messenger.sentAs,
         content: this.state.message
       };
@@ -110,7 +107,6 @@ class AutoAndManualForm extends FormBase {
 
   next(stepNumber) {
     const { activeStep, maxStep } = this.state;
-    this.validate();
 
     if (stepNumber === 0) {
       if (activeStep <= maxStep) {
@@ -119,6 +115,29 @@ class AutoAndManualForm extends FormBase {
     } else {
       this.setState({ activeStep: stepNumber });
     }
+  }
+
+  renderSegmentStep() {
+    if (this.state.kind === 'visitorAuto') {
+      return (
+        <ConditionStep
+          rules={this.state.rules}
+          changeRules={this.changeState}
+        />
+      );
+    }
+    return (
+      <SegmentStep
+        changeSegment={this.changeState}
+        segments={this.props.segments}
+        headSegments={this.props.headSegments}
+        segmentFields={this.props.segmentFields}
+        segmentAdd={this.props.segmentAdd}
+        counts={this.props.customerCounts}
+        count={this.props.count}
+        segment={this.state.segment}
+      />
+    );
   }
 
   render() {
@@ -135,7 +154,12 @@ class AutoAndManualForm extends FormBase {
 
     return (
       <StepWrapper>
-        <Wrapper.Header breadcrumb={this.renderTitle()} />
+        <Wrapper.Header
+          breadcrumb={[
+            { title: 'Engage', link: '/engage' },
+            { title: 'New engagement' }
+          ]}
+        />
         <TitleContainer>
           <div>Title</div>
           <FormControl
@@ -151,8 +175,8 @@ class AutoAndManualForm extends FormBase {
             next={this.next}
           >
             <ChannelStep
-              changeMethod={this.changeState}
-              method={this.state.method}
+              changeState={this.changeState}
+              kind={this.state.kind}
             />
           </Step>
           <Step
@@ -160,16 +184,7 @@ class AutoAndManualForm extends FormBase {
             title="Who is this message for?"
             next={this.next}
           >
-            <SegmentStep
-              changeSegment={this.changeState}
-              segments={this.props.segments}
-              headSegments={this.props.headSegments}
-              segmentFields={this.props.segmentFields}
-              segmentAdd={this.props.segmentAdd}
-              counts={this.props.customerCounts}
-              count={this.props.count}
-              segment={this.state.segment}
-            />
+            {this.renderSegmentStep()}
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"
@@ -185,6 +200,7 @@ class AutoAndManualForm extends FormBase {
               method={this.state.method}
               templates={this.props.templates}
               defaultValue={defaultMessageStepValue}
+              kind={this.state.kind}
             />
           </Step>
         </Steps>
