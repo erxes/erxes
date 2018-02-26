@@ -25,6 +25,7 @@ const ProductListContainer = props => {
       })
         .then(() => {
           productsQuery.refetch();
+          productsCountQuery.refetch();
 
           Alert.success('Successfully deleted.');
         })
@@ -48,6 +49,7 @@ const ProductListContainer = props => {
     })
       .then(() => {
         productsQuery.refetch();
+        productsCountQuery.refetch();
 
         Alert.success('Successfully saved!');
         callback();
@@ -80,11 +82,9 @@ ProductListContainer.propTypes = {
 export default compose(
   graphql(gql(queries.products), {
     name: 'productsQuery',
-    options: () => ({
+    options: ({ queryParams }) => ({
       variables: {
-        // type: 'service',
-        perPage: 5,
-        page: 5
+        perPage: queryParams.perPage || 20
       },
       fetchPolicy: 'network-only'
     })
