@@ -67,8 +67,7 @@ class MainLayout extends React.Component {
 
   getChildContext() {
     return {
-      currentUser: this.props.currentUser,
-      toggleLang: this.toggleLang
+      currentUser: this.props.currentUser
     };
   }
 
@@ -98,27 +97,6 @@ class MainLayout extends React.Component {
     if (!currentUser) {
       history.push('/sign-in');
     }
-
-    this.getLang();
-  }
-
-  getLang() {
-    const lang = localStorage.getItem('locale');
-    const messages = lang === 'mn' ? mergedMessages : {};
-
-    this.setLang(lang || 'en', messages);
-  }
-
-  setLang(locale, messages) {
-    localStorage.setItem('locale', locale);
-    this.setState({ locale, messages });
-  }
-
-  toggleLang() {
-    this.setState(prevState => ({ toggleLang: !prevState.toggleLang }));
-    const { toggleLang } = this.state;
-
-    toggleLang ? this.setLang('mn', mergedMessages) : this.setLang('en', {});
   }
 
   render() {
