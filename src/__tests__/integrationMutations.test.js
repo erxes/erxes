@@ -235,7 +235,7 @@ describe('mutations', () => {
       name: authenticateDoc.info.name,
       brandId: 'brandId',
       twitterData: {
-        id: authenticateDoc.info.id,
+        info: authenticateDoc.info,
         token: authenticateDoc.tokens.auth.token,
         tokenSecret: authenticateDoc.tokens.auth.token_secret,
       },

@@ -7,7 +7,6 @@ export const types = `
   type Customer {
     _id: String!
     integrationId: String
-    name: String
     firstName: String
     lastName: String
     email: String
@@ -30,6 +29,11 @@ export const types = `
     getMessengerCustomData: JSON
     getTags: [Tag]
   }
+
+  type CustomersListResponse {
+    list: [Customer],
+    totalCount: Float,
+  }
 `;
 
 const queryParams = `
@@ -42,6 +46,7 @@ const queryParams = `
 `;
 
 export const queries = `
+  customersMain(${queryParams}): CustomersListResponse
   customers(${queryParams}): [Customer]
   customerCounts(${queryParams}, byFakeSegment: JSON): JSON
   customerDetail(_id: String!): Customer

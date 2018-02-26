@@ -44,7 +44,7 @@ describe('receive timeline response', () => {
 
   beforeEach(async () => {
     _integration = await integrationFactory({
-      twitterData: { id: 1 },
+      twitterData: { info: { id: 1 } },
     });
   });
 
@@ -134,6 +134,7 @@ describe('receive timeline response', () => {
     expect(conversation.twitterData.isDirectMessage).toBe(false);
 
     // check customer field values
+    expect(customer.createdAt).toBeDefined();
     expect(customer.integrationId).toBe(_integration._id);
     expect(customer.twitterData.id).toBe(twitterUserId);
     expect(customer.twitterData.idStr).toBe(twitterUserIdStr);
@@ -177,7 +178,7 @@ describe('receive timeline response', () => {
   test('check deleted integration', async () => {
     const response = await receiveTimeLineResponse({
       _id: 'DFAFDFSD',
-      twitterData: {},
+      twitterData: { info: {} },
     });
 
     expect(response).toBe(null);

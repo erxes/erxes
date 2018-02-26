@@ -21,7 +21,8 @@
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
     "precommit": "lint-staged",
     "test": "jest --runInBand --coverage",
-    "loadInitialData": "babel-node ./src/initialData.js"
+    "loadInitialData": "babel-node ./src/initialData.js",
+    "customCommand": "babel-node ./src/customCommand.js"
   },
   "lint-staged": {
     "*.js": [
@@ -66,9 +67,9 @@
     "mongoose-type-email": "^1.0.5",
     "node-schedule": "^1.2.5",
     "nodemailer": "^4.1.3",
+    "oauth": "^0.9.15",
     "sha256": "^0.2.0",
     "sinon": "^4.0.1",
-    "social-oauth-client": "^0.1.6",
     "strip": "^3.0.0",
     "subscriptions-transport-ws": "0.8.3",
     "twit": "^2.2.9",

@@ -253,6 +253,7 @@ const TopicSchema = mongoose.Schema({
     type: [String],
     required: false,
   }),
+  color: field({ type: String }),
   ...commonFields,
 });
 

@@ -130,6 +130,7 @@ describe('receive direct message response', () => {
     expect(conv.twitterData.directMessage.recipientIdStr).toBe(data.recipient_id_str);
 
     // check customer field values
+    expect(customer.createdAt).toBeDefined();
     expect(customer.integrationId).toBe(_integration._id);
     expect(customer.twitterData.id).toBe(data.sender_id);
     expect(customer.twitterData.idStr).toBe(data.sender_id_str);

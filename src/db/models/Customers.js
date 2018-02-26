@@ -31,15 +31,15 @@ const messengerSchema = mongoose.Schema(
   {
     lastSeenAt: field({
       type: Date,
-      label: 'Messenger: Last online',
+      label: 'Last seen at',
     }),
     sessionCount: field({
       type: Number,
-      label: 'Messenger: Session count',
+      label: 'Session count',
     }),
     isActive: field({
       type: Boolean,
-      label: 'Messenger: Is online',
+      label: 'Is online',
     }),
     customData: field({
       type: Object,
@@ -54,25 +54,25 @@ const messengerSchema = mongoose.Schema(
  */
 const twitterSchema = mongoose.Schema(
   {
-    id: field({
-      type: Number,
-      label: 'Twitter: ID (Number)',
-    }),
     idStr: field({
       type: String,
-      label: 'Twitter: ID (String)',
+      label: 'Twitter ID',
+    }),
+    id: field({
+      type: Number,
+      label: 'Twitter ID (Number)',
     }),
     name: field({
       type: String,
-      label: 'Twitter: Name',
+      label: 'Twitter name',
     }),
     screenName: field({
       type: String,
-      label: 'Twitter: Screen name',
+      label: 'Twitter screen name',
     }),
     profileImageUrl: field({
       type: String,
-      label: 'Twitter: Profile photo',
+      label: 'Twitter photo',
     }),
   },
   { _id: false },
@@ -85,12 +85,12 @@ const facebookSchema = mongoose.Schema(
   {
     id: field({
       type: String,
-      label: 'Facebook: ID',
+      label: 'Facebook ID',
     }),
     profilePic: field({
       type: String,
       optional: true,
-      label: 'Facebook: Profile photo',
+      label: 'Facebook photo',
     }),
   },
   { _id: false },
@@ -99,9 +99,9 @@ const facebookSchema = mongoose.Schema(
 const CustomerSchema = mongoose.Schema({
   _id: field({ pkey: true }),
 
-  name: field({ type: String, optional: true }),
   firstName: field({ type: String, label: 'First name', optional: true }),
   lastName: field({ type: String, label: 'Last name', optional: true }),
+
   email: field({ type: String, label: 'Email', optional: true }),
   phone: field({ type: String, label: 'Phone', optional: true }),
   isUser: field({ type: Boolean, label: 'Is user', optional: true }),
@@ -124,6 +124,10 @@ const CustomerSchema = mongoose.Schema({
 });
 
 class Customer {
+  getFullName() {
+    return `${this.firstName || ''} ${this.lastName || ''}`;
+  }
+
   /**
    * Checking if customer has duplicated unique properties
    * @param  {Object} customerFields - Customer fields to check duplications
@@ -177,6 +181,8 @@ class Customer {
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+
+    doc.createdAt = new Date();
 
     return this.create(doc);
   }

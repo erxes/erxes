@@ -6,7 +6,20 @@ import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 const listQuery = async params => {
-  let selector = {};
+  // exclude empty customers =========
+  // for engage purpose we are creating this kind of customer
+  const emptySelector = { $in: [null, ''] };
+
+  let selector = {
+    $nor: [
+      {
+        firstName: emptySelector,
+        lastName: emptySelector,
+        email: emptySelector,
+        visitorContactInfo: null,
+      },
+    ],
+  };
 
   // Filter by segments
   if (params.segment) {
@@ -41,6 +54,7 @@ const listQuery = async params => {
     selector.tagIds = params.tag;
   }
 
+  // search =========
   if (params.searchValue) {
     const fields = [
       { firstName: new RegExp(`.*${params.searchValue}.*`, 'i') },
@@ -52,8 +66,15 @@ const listQuery = async params => {
     selector = { $or: fields };
   }
 
+  // filter directly using ids
+  if (params.ids) {
+    selector = { _id: { $in: params.ids } };
+  }
+
   return selector;
 };
+
+const CUSTOMERS_SORT = { 'messengerData.lastSeenAt': -1 };
 
 const customerQueries = {
   /**
@@ -61,16 +82,24 @@ const customerQueries = {
    * @param {Object} args
    * @return {Promise} filtered customers list by given parameters
    */
-  async customers(root, { ids, ...params }) {
-    const sort = { 'messengerData.lastSeenAt': -1 };
+  async customers(root, params) {
+    const selector = await listQuery(params);
 
-    let selector = await listQuery(params);
+    return paginate(Customers.find(selector).sort(CUSTOMERS_SORT), params);
+  },
 
-    if (ids) {
-      selector = { _id: { $in: ids } };
-    }
+  /**
+   * Customers for only main list
+   * @param {Object} args
+   * @return {Promise} filtered customers list by given parameters
+   */
+  async customersMain(root, params) {
+    const selector = await listQuery(params);
 
-    return paginate(Customers.find(selector), params).sort(sort);
+    const list = await paginate(Customers.find(selector).sort(CUSTOMERS_SORT), params);
+    const totalCount = await Customers.find(selector).count();
+
+    return { list, totalCount };
   },
 
   /**
@@ -87,15 +116,13 @@ const customerQueries = {
       byTag: {},
       byFakeSegment: 0,
     };
+
     const selector = await listQuery(params);
 
     const count = query => {
       const findQuery = Object.assign({}, selector, query);
       return Customers.find(findQuery).count();
     };
-
-    // Count current filtered customers
-    counts.all = await count(selector);
 
     // Count customers by segments
     const segments = await Segments.find({
@@ -131,7 +158,7 @@ const customerQueries = {
       });
     }
 
-    // Count customers by filter
+    // Count customers by tag
     const tags = await Tags.find({ type: TAG_TYPES.CUSTOMER });
 
     for (let tag of tags) {

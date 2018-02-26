@@ -16,7 +16,6 @@ import { twitRequest } from './twitterTracker';
  */
 const getOrCreateCustomer = async (integrationId, user) => {
   const customer = await Customers.findOne({
-    integrationId,
     'twitterData.id': user.id,
   });
 
@@ -25,8 +24,8 @@ const getOrCreateCustomer = async (integrationId, user) => {
   }
 
   // create customer
-  const createdCustomer = await Customers.create({
-    name: user.name,
+  const createdCustomer = await Customers.createCustomer({
+    firstName: user.name,
     integrationId,
     twitterData: {
       id: user.id,
@@ -135,6 +134,8 @@ export const getOrCreateDirectMessageConversation = async (data, integration) =>
     return null;
   }
 
+  console.log('Receiving direct message'); // eslint-disable-line
+
   let conversation = await Conversations.findOne({
     'twitterData.isDirectMessage': true,
     $or: [
@@ -193,7 +194,7 @@ export const getOrCreateDirectMessageConversation = async (data, integration) =>
  * Receive timeline response
  */
 export const receiveTimeLineResponse = async (integration, data) => {
-  const integrationUserId = integration.twitterData.id;
+  const integrationUserId = integration.twitterData.info.id;
   const integrationOnDb = await Integrations.findOne({ _id: integration._id });
 
   // When situations like integration is deleted but trackIntegration
@@ -205,12 +206,14 @@ export const receiveTimeLineResponse = async (integration, data) => {
 
   // if user is replying to some tweet
   if (data.in_reply_to_status_id && data.user.id === integrationUserId) {
+    console.log('Receiving mention reply'); // eslint-disable-line
     return receiveMentionReply(integration, data);
   }
 
   for (let mention of data.entities.user_mentions) {
     // listen for only mentioned tweets
     if (mention.id === integrationUserId) {
+      console.log('Receiving mention'); // eslint-disable-line
       await createConversationByMention(integration, data);
     }
   }
