@@ -2,8 +2,6 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import ChannelsRoutes from './channels/routes';
 import BrandsRoutes from './brands/routes';
-import GeneralSettingsRoutes from './generalSettings/routes';
-import ProductServiceRoutes from './productService/routes';
 import ResponseTemplatesRoutes from './responseTemplates/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import TeamMembersRoutes from './team/routes';
@@ -16,13 +14,11 @@ import MainRoutes from './main/routes';
 
 const routes = () => [
   <MainRoutes key="MainRoutes" />,
-  <GeneralSettingsRoutes key="GeneralSettingsRoutes" />,
   <ChannelsRoutes key="ChannelsRoutes" />,
   <BrandsRoutes key="BrandsRoutes" />,
   <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />,
   <EmailTemplatesRoutes key="EmailTemplatesRoutes" />,
   <TeamMembersRoutes key="TeamMembersRoutes" />,
-  <ProductServiceRoutes key="ProductServiceRoutes" />,
   <EmailRoutes key="EmailRoutes" />,
   <FormsRoutes key="FormsRoutes" />,
   <IntegrationsRoutes key="IntegrationsRoutes" />,

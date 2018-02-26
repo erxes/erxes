@@ -377,12 +377,12 @@ export {
   ColorPicker,
   LogoContainer,
   LogoSpan,
+  TableRow,
   FlexRow,
   SidebarListItem,
   IntegrationName,
   RightButton,
   ActionButtons,
   CollapseRow,
-  TableRow,
   BrandName
 };
