@@ -120,7 +120,7 @@ class Row extends Component {
         <td>
           {integration.name}
           {integration.kind === 'twitter' &&
-            ` (${twitterData.info.screen_name})`}
+            ` (${twitterData.info && twitterData.info.screen_name})`}
         </td>
 
         <td>
