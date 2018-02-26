@@ -54,7 +54,12 @@ EditInformationContainer.contextTypes = {
 
 const options = ({ customer }) => ({
   refetchQueries: [
-    { query: gql`${queries.customerDetail}`, variables: { _id: customer._id } }
+    {
+      query: gql`
+        ${queries.customerDetail}
+      `,
+      variables: { _id: customer._id }
+    }
   ]
 });
 

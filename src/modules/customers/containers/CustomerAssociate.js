@@ -105,7 +105,9 @@ CustomerAssociateContainer.propTypes = {
 const options = ({ data }) => ({
   refetchQueries: [
     {
-      query: gql`${companyQueries.companyDetail}`,
+      query: gql`
+        ${companyQueries.companyDetail}
+      `,
       variables: { _id: data._id }
     }
   ]

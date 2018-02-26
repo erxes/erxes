@@ -59,6 +59,7 @@
     "react-select-plus": "^1.0.0-rc.5",
     "react-sortable-hoc": "^0.6.8",
     "react-toggle": "^4.0.2",
+    "react-beautiful-dnd": "^4.0.1",
     "recharts": "1.0.0-beta.2",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
@@ -69,10 +70,7 @@
     "underscore": "^1.8.3"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,json,css}": [
-      "prettier --single-quote --write",
-      "git add"
-    ]
+    "src/**/*.{js,jsx,json,css}": ["prettier --single-quote --write", "git add"]
   },
   "collective": {
     "type": "opencollective",
