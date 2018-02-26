@@ -38,10 +38,9 @@ export const types = `
     amount: JSON
     closeDate: Date
     note: String
-    amount: Int!
     company: Company
     customer: Customer
-    products: Product
+    products: [Product]
     assignedUsers: [User]
     ${commonTypes}
   }
@@ -54,6 +53,19 @@ export const queries = `
   dealPipelines(boardId: String!): [DealPipeline]
   dealStages(boardId: String, pipelineId: String!): [DealStage]
   deals(boardId: String, pipelineId: String, stageId: String!): [Deal]
+`;
+
+const dealMutationParams = `
+  boardId: String,
+  pipelineId: String,
+  stageId: String!,
+  productIds: [String]!,
+  assignedUserIds: [String],
+  companyId: String!,
+  customerId: String!,
+  closeDate: Date!,
+  note: String,
+  productsData: JSON
 `;
 
 export const mutations = `
@@ -75,29 +87,8 @@ export const mutations = `
   dealStagesUpdateOrder(orders: [OrderItem]): [DealStage]
   dealStagesRemove(_id: String!): String
 
-	dealsAdd(
-    boardId: String,
-    pipelineId: String,
-    stageId: String!,
-    productIds: [String]!,
-    companyId: String!,
-    customerId: String!,
-    closeDate: Date!,
-    note: String,
-    productsData: JSON
-  ): Deal
-	dealsEdit(
-    _id: String!,
-    boardId: String,
-    pipelineId: String,
-    stageId: String!,
-    productIds: [String]!,
-    companyId: String!,
-    customerId: String!,
-    closeDate: Date!,
-    note: String,
-    productsData: JSON
-  ): Deal
+	dealsAdd(${dealMutationParams}): Deal
+	dealsEdit(_id: String!, ${dealMutationParams}): Deal
 	dealsChange( _id: String!, pipelineId: String, stageId: String! ): Deal
   dealsUpdateOrder(orders: [OrderItem]): [Deal]
   dealsRemove(_id: String!): String
