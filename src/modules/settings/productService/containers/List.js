@@ -16,7 +16,7 @@ const ProductListContainer = props => {
   } = props;
 
   const products = productsQuery.products || [];
-  console.log(products);
+
   // remove action
   const remove = _id => {
     confirm().then(() => {
