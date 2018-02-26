@@ -9,7 +9,11 @@ const productQueries = {
    * @return {Promise} filtered product objects by type
    */
   products(root, { type }) {
-    return Products.find({ type });
+    const filter = {};
+
+    if (type) filter.type = type;
+
+    return Products.find(filter);
   },
 };
 

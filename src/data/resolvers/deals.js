@@ -15,13 +15,17 @@ export default {
 
   amount(deal) {
     const data = deal.productsData || [];
-    let amount = 0;
+    const amountObj = {};
 
     data.forEach(product => {
-      amount += product.amount || 0;
+      const type = product.currency;
+
+      if (!amountObj[type]) amountObj[type] = 0;
+
+      amountObj[type] += product.amount || 0;
     });
 
-    return amount;
+    return amountObj;
   },
 
   assignedUsers(deal) {

@@ -22,7 +22,7 @@ export const types = `
     name: String!
     boardId: String
     pipelineId: String!
-    amount: Int!
+    amount: JSON
     ${commonTypes}
   }
 
@@ -35,7 +35,7 @@ export const types = `
     productsData: JSON!
     companyId: String!
     customerId: String!
-    amount: Int
+    amount: JSON
     closeDate: Date
     note: String
     amount: Int!
