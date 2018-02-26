@@ -10,7 +10,7 @@ const ProductListContainer = props => {
   const { productsQuery, addMutation, editMutation, removeMutation } = props;
 
   const products = productsQuery.products || [];
-  console.log(products);
+
   // remove action
   const remove = _id => {
     confirm().then(() => {
@@ -18,6 +18,8 @@ const ProductListContainer = props => {
         variables: { _id }
       })
         .then(() => {
+          productsQuery.refetch();
+
           Alert.success('Successfully deleted.');
         })
         .catch(error => {
@@ -39,8 +41,9 @@ const ProductListContainer = props => {
       variables: doc
     })
       .then(() => {
-        Alert.success('Successfully saved!');
+        productsQuery.refetch();
 
+        Alert.success('Successfully saved!');
         callback();
       })
       .catch(error => {
@@ -70,9 +73,6 @@ export default compose(
   graphql(gql(queries.products), {
     name: 'productsQuery',
     options: () => ({
-      variables: {
-        type: 'product'
-      },
       fetchPolicy: 'network-only'
     })
   }),

@@ -43,14 +43,15 @@ class Form extends Component {
       doc: {
         name: document.getElementById('product-name').value,
         type: document.getElementById('product-type').value,
-        description: document.getElementById('product-description').value
+        description: document.getElementById('product-description').value,
+        sku: document.getElementById('product-sku').value
       }
     };
   }
 
   renderContent() {
     const product = this.props.product || {};
-    console.log(product);
+
     const types = this.props.loadTypes || [];
     return (
       <div>
@@ -93,6 +94,16 @@ class Form extends Component {
             defaultValue={product.description}
           />
         </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>SKU</ControlLabel>
+
+          <FormControl
+            id="product-sku"
+            type="text"
+            defaultValue={product.sku}
+          />
+        </FormGroup>
       </div>
     );
   }
@@ -102,10 +113,6 @@ class Form extends Component {
       <form onSubmit={this.save}>
         {this.renderContent(this.props.product || {})}
         <Modal.Footer>
-          <Button btnStyle="link" type="submit">
-            SKU
-          </Button>
-
           <Button
             btnStyle="simple"
             onClick={() => {
