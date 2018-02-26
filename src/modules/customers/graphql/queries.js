@@ -45,6 +45,14 @@ const listParamsValue = `
 const customers = `
   query customers(${listParamsDef}) {
     customers(${listParamsValue}) {
+      ${customerFields}
+    }
+  }
+`;
+
+const customersMain = `
+  query customersMain(${listParamsDef}) {
+    customersMain(${listParamsValue}) {
       list {
         ${customerFields}
       }
@@ -202,6 +210,7 @@ const fieldsgroups = `
 
 export default {
   customers,
+  customersMain,
   customerCounts,
   customerDetail,
   brands,

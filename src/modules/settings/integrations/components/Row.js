@@ -112,11 +112,17 @@ class Row extends Component {
   }
 
   render() {
-    const integration = this.props.integration;
+    const { integration } = this.props;
+    const twitterData = (integration || {}).twitterData || {};
 
     return (
       <tr>
-        <td>{integration.name}</td>
+        <td>
+          {integration.name}
+          {integration.kind === 'twitter' &&
+            ` (${twitterData.info && twitterData.info.screen_name})`}
+        </td>
+
         <td>
           <Label className={`label-${this.getTypeName()}`}>
             {integration.kind}

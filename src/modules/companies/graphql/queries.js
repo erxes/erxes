@@ -40,6 +40,18 @@ export const companies = `
   }
 `;
 
+export const companiesMain = `
+  query companiesMain(${listParamsDef}) {
+    companiesMain(${listParamsValue}) {
+      list {
+        ${companyFields}
+      }
+
+      totalCount
+    }
+  }
+`;
+
 export const companyCounts = `
   query companyCounts(${listParamsDef}) {
     companyCounts(${listParamsValue})
@@ -145,6 +157,7 @@ const fieldsgroups = `
 
 export default {
   companies,
+  companiesMain,
   companyCounts,
   companyDetail,
   tags,
