@@ -8,6 +8,7 @@ const commonParamsDef = `
   $email: String!,
   $role: String!
   $details: UserDetails,
+  $links: UserLinks,
   $channelIds: [String],
   $password: String!,
   $passwordConfirmation: String!
@@ -18,6 +19,7 @@ const commonParams = `
   email: $email,
   role: $role,
   details: $details,
+  links: $links,
   channelIds: $channelIds,
   password: $password,
   passwordConfirmation: $passwordConfirmation
@@ -38,7 +40,17 @@ export default commonListComposer({
             avatar
             fullName
             position
+            description
+            location
             twitterUsername
+          }
+          links {
+            linkedIn
+            twitter
+            facebook
+            github
+            youtube
+            website
           }
         }
       }

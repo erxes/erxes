@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarContent, QuickButton } from 'modules/layout/styles';
+import { SidebarContent } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
 import {
   Button,
@@ -166,9 +166,9 @@ class BasicInfo extends React.Component {
           <div className="cutomer-name">
             {customer.name || this.renderName(customer)}
           </div>
-          <QuickButton>
+          <a>
             <Icon icon="edit" onClick={this.toggleEditing} />
-          </QuickButton>
+          </a>
         </NameWrapper>
         <AboutWrapper>
           <AboutList>
