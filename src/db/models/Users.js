@@ -22,8 +22,8 @@ const DetailSchema = mongoose.Schema(
     avatar: field({ type: String }),
     fullName: field({ type: String }),
     position: field({ type: String }),
-    location: field({ type: String }),
-    description: field({ type: String }),
+    location: field({ type: String, optional: true }),
+    description: field({ type: String, optional: true }),
     twitterUsername: field({ type: String, optional: true }),
   },
   { _id: false },
@@ -31,11 +31,11 @@ const DetailSchema = mongoose.Schema(
 
 const LinkSchema = mongoose.Schema(
   {
-    linkedIn: field({ type: String }),
-    twitter: field({ type: String }),
-    facebook: field({ type: String }),
-    github: field({ type: String }),
-    website: field({ type: String }),
+    linkedIn: field({ type: String, optional: true }),
+    twitter: field({ type: String, optional: true }),
+    facebook: field({ type: String, optional: true }),
+    github: field({ type: String, optional: true }),
+    website: field({ type: String, optional: true }),
   },
   { _id: false },
 );
