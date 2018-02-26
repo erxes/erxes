@@ -28,23 +28,19 @@ const NavItem = styled.div`
   vertical-align: middle;
 `;
 
-const QuickNavigation = ({ logout, currentUser, toggleLang, locale }) => {
+const QuickNavigation = ({ logout, currentUser, selectLang, locale }) => {
   return (
     <nav>
-      <NavItem onClick={toggleLang}>
-        <Icon icon="android-globe" size={20} />
-      </NavItem>
       <NavItem>
         <DropdownButton
           bsStyle="default"
           title={locale || 'EN'}
           noCaret
-          onSelect={e => toggleLang(e)}
+          onSelect={e => selectLang(e)}
           id="dropdown-no-caret"
         >
           <MenuItem eventKey="en">EN</MenuItem>
           <MenuItem eventKey="mn">MN</MenuItem>
-          <MenuItem eventKey="es">ES</MenuItem>
         </DropdownButton>
       </NavItem>
       <NavItem>
@@ -84,8 +80,7 @@ const QuickNavigation = ({ logout, currentUser, toggleLang, locale }) => {
 QuickNavigation.propTypes = {
   logout: PropTypes.func,
   currentUser: PropTypes.object.isRequired,
-  locale: PropTypes.string,
-  toggleLang: PropTypes.func
+  selectLang: PropTypes.func
 };
 
 export default QuickNavigation;

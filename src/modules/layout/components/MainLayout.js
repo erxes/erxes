@@ -6,12 +6,13 @@ import { Layout } from '../styles';
 import { Navigation } from '../containers';
 import translations from '../../../locales';
 import en from 'react-intl/locale-data/en';
+import mn from 'react-intl/locale-data/mn';
 import { injectIntl, IntlProvider, addLocaleData } from 'react-intl';
 
 const propTypes = {
   history: PropTypes.object,
   currentUser: PropTypes.object,
-  toggleLang: PropTypes.func,
+  selectLang: PropTypes.func,
   children: PropTypes.node
 };
 
@@ -49,25 +50,27 @@ TranslationWrapper.childContextTypes = {
 const InjectedComponent = injectIntl(TranslationWrapper);
 
 const messages = {
-  ...translations.en
+  ...translations
 };
 
-addLocaleData([...en]);
+addLocaleData([...en, ...mn]);
 
 class MainLayout extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      toggleLang: false,
       locale: 'en',
-      messages: messages
+      messages: messages['en']
     };
+
+    this.selectLang = this.selectLang.bind(this);
   }
 
   getChildContext() {
     return {
-      currentUser: this.props.currentUser
+      currentUser: this.props.currentUser,
+      selectLang: this.selectLang
     };
   }
 
@@ -97,13 +100,28 @@ class MainLayout extends React.Component {
     if (!currentUser) {
       history.push('/sign-in');
     }
+
+    this.getLang();
+  }
+
+  getLang() {
+    const locale = localStorage.getItem('locale');
+    this.selectLang(locale);
+  }
+
+  selectLang(locale) {
+    localStorage.setItem('locale', locale || 'en');
+    this.setState({
+      locale: locale || 'en',
+      messages: messages[locale || 'en']
+    });
   }
 
   render() {
     const { locale, messages } = this.state;
 
     return (
-      <IntlProvider locale={locale || 'en'} messages={messages}>
+      <IntlProvider locale={locale} messages={messages}>
         <Layout>
           <InjectedComponent {...this.props} />
         </Layout>
@@ -116,7 +134,7 @@ MainLayout.propTypes = propTypes;
 
 MainLayout.childContextTypes = {
   currentUser: PropTypes.object,
-  toggleLang: PropTypes.func
+  selectLang: PropTypes.func
 };
 
 export default withRouter(MainLayout);
