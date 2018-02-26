@@ -15,7 +15,7 @@ const productQueries = {
 
     if (type) filter.type = type;
 
-    return paginate(Products.find({ filter }), pagintationArgs);
+    return paginate(Products.find(filter), pagintationArgs);
   },
 
   /**
