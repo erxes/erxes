@@ -107,7 +107,6 @@ class Field {
       contentTypeId,
       order,
       groupId,
-      isDefinedByErxes: false,
       ...fields,
     });
   }
