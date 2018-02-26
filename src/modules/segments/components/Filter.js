@@ -3,11 +3,7 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import {
-  QuickButton,
-  SidebarList,
-  SidebarCounter
-} from 'modules/layout/styles';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import {
   DropdownToggle,
   Icon,
@@ -81,9 +77,9 @@ function Segments({ history, contentType, counts, segments, loading }) {
           style={{ verticalAlign: 'top', float: 'left' }}
         >
           <DropdownToggle bsRole="toggle">
-            <QuickButton>
+            <a>
               <Icon icon="gear-a" />
-            </QuickButton>
+            </a>
           </DropdownToggle>
           <Dropdown.Menu>
             <MenuItem
@@ -98,14 +94,14 @@ function Segments({ history, contentType, counts, segments, loading }) {
         </Dropdown>
 
         {router.getParam(history, 'segment') ? (
-          <QuickButton
+          <a
             tabIndex={0}
             onClick={() => {
               router.setParams(history, { segment: null });
             }}
           >
             <Icon icon="close-circled" />
-          </QuickButton>
+          </a>
         ) : null}
       </Section.QuickButtons>
 
