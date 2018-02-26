@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import _ from 'lodash';
 import {
   Tip,
   ActionButtons,
@@ -11,10 +12,11 @@ import {
   Icon,
   Tags
 } from 'modules/common/components';
-import { EngageTitle, HelperText } from '../styles';
+import { HelperText } from '../styles';
 import { MESSAGE_KINDS } from 'modules/engage/constants';
 
 const propTypes = {
+  columnsConfig: PropTypes.array.isRequired,
   message: PropTypes.object.isRequired,
   edit: PropTypes.func.isRequired,
   remove: PropTypes.func.isRequired,
@@ -94,12 +96,12 @@ class Row extends React.Component {
     ));
   }
 
-  render() {
+  renderValue(name) {
+    const { message } = this.props;
+
     let status = <Label lblStyle="default">Sending</Label>;
     let successCount = 0;
     let failedCount = 0;
-
-    const { message, remove } = this.props;
 
     const deliveryReports = Object.values(message.deliveryReports || {});
     const totalCount = deliveryReports.length;
@@ -118,33 +120,37 @@ class Row extends React.Component {
       status = <Label lblStyle="success">Sent</Label>;
     }
 
-    return (
-      <tr key={message._id}>
-        <td>
-          <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
-        </td>
-        <td>
-          <EngageTitle onClick={this.props.edit}>{message.title}</EngageTitle>
-          {message.isDraft ? <Label lblStyle="primary">Draft</Label> : null}
-          {this.renderRules()}
-        </td>
+    if (name === 'from') {
+      return (
         <td className="text-normal">
           <NameCard user={message.fromUser} avatarSize={30} singleLine />
         </td>
-        <td>{status}</td>
+      );
+    } else if (name === 'status') {
+      return <td>{status}</td>;
+    } else if (name === 'total') {
+      return (
         <td className="text-primary">
           <Icon icon="cube" />
           <b> {totalCount}</b>
         </td>
+      );
+    } else if (name === 'sent') {
+      return (
         <td className="text-success">
           <Icon icon="paper-airplane" />
           <b> {successCount}</b>
         </td>
+      );
+    } else if (name === 'failed') {
+      return (
         <td className="text-warning">
           <Icon icon="alert-circled" />
           <b> {failedCount}</b>
         </td>
-
+      );
+    } else if (name === 'type') {
+      return (
         <td>
           {message.email ? (
             <div>
@@ -156,15 +162,34 @@ class Row extends React.Component {
             </div>
           )}
         </td>
+      );
+    } else if (name === 'created date') {
+      return (
         <td>
           <Icon icon="calendar" />{' '}
           {moment(message.createdDate).format('DD MMM YYYY')}
         </td>
-
+      );
+    } else if (name === 'tags') {
+      return (
         <td>
           <Tags tags={message.getTags} limit={3} />
         </td>
+      );
+    }
 
+    return <td>{_.get(message, name)}</td>;
+  }
+
+  render() {
+    const { message, columnsConfig, remove } = this.props;
+
+    return (
+      <tr key={message._id}>
+        <td>
+          <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
+        </td>
+        {columnsConfig.map(({ name }) => this.renderValue(name))}
         <td>
           <ActionButtons>
             {this.renderLinks()}
