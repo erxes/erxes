@@ -65,6 +65,7 @@ const dealMutationParams = `
   customerId: String!,
   closeDate: Date!,
   note: String,
+  order: Int,
   productsData: JSON
 `;
 
