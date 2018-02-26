@@ -57,9 +57,7 @@ const commonListComposer = options => {
         doc._id = object._id;
       }
       mutation({
-        variables: {
-          ...doc
-        }
+        variables: doc
       })
         .then(() => {
           // update queries
