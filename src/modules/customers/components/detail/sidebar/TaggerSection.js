@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
 import { Sidebar } from 'modules/layout/components';
-import { QuickButton, SidebarList } from 'modules/layout/styles';
+import { SidebarList } from 'modules/layout/styles';
 import { EmptyState, Tagger, Icon } from 'modules/common/components';
 
 const propTypes = {
@@ -49,9 +49,9 @@ class TaggerSection extends Component {
         <Title>Tags</Title>
 
         <QuickButtons>
-          <QuickButton tabIndex={0} onClick={this.toggleTagger}>
+          <a tabIndex={0} onClick={this.toggleTagger}>
             <Icon icon="gear-a" />
-          </QuickButton>
+          </a>
         </QuickButtons>
 
         <Collapse in={this.state.isTaggerVisible}>
