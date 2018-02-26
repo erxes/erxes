@@ -71,6 +71,8 @@ class Field {
       if (groupObj.isDefinedByErxes) {
         throw new Error('You cant add field into this group');
       }
+
+      query.groupId = groupId;
     }
 
     if (contentTypeId) {
