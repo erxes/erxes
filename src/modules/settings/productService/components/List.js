@@ -1,37 +1,39 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import {
-  ModalTrigger,
-  Button,
-  Table,
-  Tip,
-  Icon
-} from 'modules/common/components';
-import { Form } from '/';
-import { ActionButtons, TableRow } from '../../styles';
+import { Table, Button, ModalTrigger } from 'modules/common/components';
+import { Form } from '../containers';
+import { Row } from '/';
+
+const propTypes = {
+  products: PropTypes.array.isRequired,
+  remove: PropTypes.func.isRequired,
+  save: PropTypes.func.isRequired
+};
 
 class List extends Component {
+  constructor(props) {
+    super(props);
+
+    this.renderRow = this.renderRow.bind(this);
+    this.renderEditForm = this.renderEditForm.bind(this);
+  }
+
   renderEditForm(props) {
     return <Form {...props} />;
   }
 
-  renderEditAction() {
-    const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text="Edit">
-          <Icon icon="edit" />
-        </Tip>
-      </Button>
-    );
+  renderRow() {
+    const { products, remove, save } = this.props;
 
-    return (
-      <ModalTrigger title="Edit" trigger={editTrigger}>
-        {this.renderEditForm()}
-      </ModalTrigger>
-    );
+    return products.map(product => (
+      <Row key={product._id} product={product} remove={remove} save={save} />
+    ));
   }
 
   render() {
+    const { save } = this.props;
+
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
       { title: 'Product & Service' }
@@ -45,7 +47,7 @@ class List extends Component {
 
     const actionBarRight = (
       <ModalTrigger title="Add Product / Service" trigger={trigger}>
-        {this.renderEditForm()}
+        {this.renderEditForm({ save })}
       </ModalTrigger>
     );
 
@@ -60,36 +62,7 @@ class List extends Component {
             <th />
           </tr>
         </thead>
-        <tbody>
-          <TableRow>
-            <td>Product Name 1</td>
-            <td>Product Type 1</td>
-            <td>Product DescriptionProduct Description</td>
-            <td>SKU</td>
-            <td width="5%">
-              <ActionButtons>
-                {this.renderEditAction()}
-                <Tip text="Delete">
-                  <Button btnStyle="link" icon="close" />
-                </Tip>
-              </ActionButtons>
-            </td>
-          </TableRow>
-          <TableRow>
-            <td>Product Name 2</td>
-            <td>Product Type 2</td>
-            <td>Product DescriptionProduct Description</td>
-            <td>SKU</td>
-            <td width="5%">
-              <ActionButtons>
-                {this.renderEditAction()}
-                <Tip text="Delete">
-                  <Button btnStyle="link" icon="close" />
-                </Tip>
-              </ActionButtons>
-            </td>
-          </TableRow>
-        </tbody>
+        <tbody>{this.renderRow()}</tbody>
       </Table>
     );
 
@@ -102,5 +75,7 @@ class List extends Component {
     );
   }
 }
+
+List.propTypes = propTypes;
 
 export default List;
