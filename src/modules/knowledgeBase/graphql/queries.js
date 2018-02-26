@@ -14,6 +14,7 @@ const knowledgeBaseTopics = `
         description
         icon
       }
+      color
       createdBy
       createdDate
       modifiedBy

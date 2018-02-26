@@ -1,8 +1,8 @@
 const customerFields = `
     _id
-    name
     firstName
     lastName
+    name
     email
     phone
     isUser
@@ -47,6 +47,18 @@ const customers = `
   query customers(${listParamsDef}) {
     customers(${listParamsValue}) {
       ${customerFields}
+    }
+  }
+`;
+
+const customersMain = `
+  query customersMain(${listParamsDef}) {
+    customersMain(${listParamsValue}) {
+      list {
+        ${customerFields}
+      }
+
+      totalCount
     }
   }
 `;
@@ -178,6 +190,7 @@ const activityLogsCustomer = `
 
 export default {
   customers,
+  customersMain,
   customerCounts,
   customerDetail,
   brands,

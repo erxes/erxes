@@ -84,6 +84,7 @@ export default compose(
     name: 'productsQuery',
     options: ({ queryParams }) => ({
       variables: {
+        page: queryParams.page || 1,
         perPage: queryParams.perPage || 20
       },
       fetchPolicy: 'network-only'

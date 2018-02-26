@@ -89,6 +89,7 @@ const FieldItem = styled.div`
     padding: 8px 14px;
     width: 100%;
     background: transparent;
+    margin-top: 10px;
 
     &:focus {
       box-shadow: none;
@@ -122,7 +123,6 @@ const InputDescription = styled.span`
   display: block;
   font-size: 12px;
   color: ${colors.colorCoreGray};
-  margin-bottom: 10px;
 `;
 
 export {

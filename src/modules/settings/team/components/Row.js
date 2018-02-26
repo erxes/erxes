@@ -4,6 +4,12 @@ import { UserForm } from '../containers';
 import { NameCard } from 'modules/common/components';
 
 class Row extends CommonRow {
+  constructor(props) {
+    super(props);
+
+    this.size = 'lg';
+  }
+
   renderForm(props) {
     return <UserForm {...props} />;
   }

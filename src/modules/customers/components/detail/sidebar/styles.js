@@ -91,6 +91,10 @@ const NameWrapper = styled.div`
   a {
     cursor: pointer;
   }
+
+  > a {
+    color: ${colors.colorCoreLightGray};
+  }
 `;
 
 const AboutWrapper = styled.div`
