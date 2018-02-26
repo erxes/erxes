@@ -7,7 +7,13 @@ import { queries, mutations } from '../graphql';
 import { List } from '../components';
 
 const ProductListContainer = props => {
-  const { productsQuery, addMutation, editMutation, removeMutation } = props;
+  const {
+    productsQuery,
+    productsCountQuery,
+    addMutation,
+    editMutation,
+    removeMutation
+  } = props;
 
   const products = productsQuery.products || [];
   console.log(products);
@@ -18,6 +24,9 @@ const ProductListContainer = props => {
         variables: { _id }
       })
         .then(() => {
+          productsQuery.refetch();
+          productsCountQuery.refetch();
+
           Alert.success('Successfully deleted.');
         })
         .catch(error => {
@@ -39,8 +48,10 @@ const ProductListContainer = props => {
       variables: doc
     })
       .then(() => {
-        Alert.success('Successfully saved!');
+        productsQuery.refetch();
+        productsCountQuery.refetch();
 
+        Alert.success('Successfully saved!');
         callback();
       })
       .catch(error => {
@@ -53,7 +64,8 @@ const ProductListContainer = props => {
     products,
     save,
     remove,
-    loading: productsQuery.loading
+    loading: productsQuery.loading,
+    productsCount: productsCountQuery.productsTotalCount || 0
   };
 
   return <List {...updatedProps} />;
@@ -61,6 +73,7 @@ const ProductListContainer = props => {
 
 ProductListContainer.propTypes = {
   productsQuery: PropTypes.object,
+  productsCountQuery: PropTypes.object,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
   removeMutation: PropTypes.func
@@ -69,12 +82,15 @@ ProductListContainer.propTypes = {
 export default compose(
   graphql(gql(queries.products), {
     name: 'productsQuery',
-    options: () => ({
+    options: ({ queryParams }) => ({
       variables: {
-        type: 'product'
+        perPage: queryParams.perPage || 20
       },
       fetchPolicy: 'network-only'
     })
+  }),
+  graphql(gql(queries.productsCount), {
+    name: 'productsCountQuery'
   }),
   graphql(gql(mutations.productAdd), {
     name: 'addMutation'

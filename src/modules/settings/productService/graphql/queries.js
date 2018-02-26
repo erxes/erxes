@@ -1,6 +1,6 @@
 const products = `
-  query products($type: String) {
-    products(type: $type) {
+  query products($type: String, $perPage: Int, $page: Int) {
+    products(type: $type, perPage: $perPage, page: $page) {
       _id
       name
       type
@@ -11,6 +11,13 @@ const products = `
   }
 `;
 
+const productsCount = `
+  query productsTotalCount($type: String) {
+    productsTotalCount(type: $type)
+  }
+`;
+
 export default {
-  products
+  products,
+  productsCount
 };
