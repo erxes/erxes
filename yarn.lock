@@ -6621,9 +6621,9 @@ react-apollo@2.0.4:
     lodash.pick "^4.4.0"
     prop-types "^15.5.8"
 
-react-beautiful-dnd@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/react-beautiful-dnd/-/react-beautiful-dnd-4.0.1.tgz#3b0a49bf6be75af351176c904f012611dd292b81"
+react-beautiful-dnd@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/react-beautiful-dnd/-/react-beautiful-dnd-5.0.0.tgz#5200d37c4fc847946f5bf56f2613f2ca9591d405"
   dependencies:
     babel-runtime "^6.26.0"
     invariant "^2.2.2"
