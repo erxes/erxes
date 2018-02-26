@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   FormGroup,
   ControlLabel,
@@ -83,6 +84,7 @@ class UserForm extends CommonForm {
 
   renderContent(object) {
     const user = object._id ? object : { details: {} };
+    const { __ } = this.context;
 
     return (
       <div>
@@ -106,8 +108,8 @@ class UserForm extends CommonForm {
             defaultValue={user.role}
             id="role"
           >
-            <option value="admin">Admin</option>
-            <option value="contributor">Contributor</option>
+            <option value="admin">{__('Admin')}</option>
+            <option value="contributor">{__('Contributor')}</option>
           </FormControl>
         </FormGroup>
 
@@ -116,5 +118,9 @@ class UserForm extends CommonForm {
     );
   }
 }
+
+UserForm.contextTypes = {
+  __: PropTypes.func
+};
 
 export default UserForm;

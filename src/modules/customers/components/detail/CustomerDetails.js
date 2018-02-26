@@ -100,7 +100,7 @@ class CustomerDetails extends React.Component {
     const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Customers', link: '/customers' },
+      { title: __('Customers'), link: '/customers' },
       { title: customer.name || customer.email || 'N/A' }
     ];
 

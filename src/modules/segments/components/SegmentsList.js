@@ -77,7 +77,7 @@ function SegmentsList({ contentType, segments, removeSegment }, { __ }) {
 
   return (
     <Wrapper
-      header={<Wrapper.Header breadcrumb={[{ title: 'Segments' }]} />}
+      header={<Wrapper.Header breadcrumb={[{ title: __('Segments') }]} />}
       actionBar={actionBar}
       content={content}
     />

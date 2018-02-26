@@ -4,7 +4,7 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Layout } from '../styles';
 import { Navigation } from '../containers';
-import { translations } from '../../../locales';
+import translations from '../../../locales';
 import en from 'react-intl/locale-data/en';
 import { injectIntl, IntlProvider, addLocaleData } from 'react-intl';
 
@@ -48,8 +48,9 @@ TranslationWrapper.childContextTypes = {
 const InjectedComponent = injectIntl(TranslationWrapper);
 
 const messages = {
-  ...translations
+  ...translations.en
 };
+
 addLocaleData([...en]);
 
 class MainLayout extends React.Component {

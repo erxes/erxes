@@ -24,10 +24,11 @@ class Brands extends Component {
       queryParams,
       loading
     } = this.props;
+    const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Brands', link: '/settings/brands' },
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Brands'), link: '/settings/brands' },
       { title: `${currentBrand.name || ''}` }
     ];
 

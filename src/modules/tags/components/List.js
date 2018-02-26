@@ -82,7 +82,7 @@ function List({ tags, type, remove, save }, { __ }) {
     </Table>
   );
 
-  const breadcrumb = [{ title: 'Tags', link: '/tags' }, { title: type }];
+  const breadcrumb = [{ title: __('Tags'), link: '/tags' }, { title: type }];
 
   return (
     <Wrapper

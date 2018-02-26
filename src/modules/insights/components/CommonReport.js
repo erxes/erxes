@@ -51,7 +51,8 @@ class CommonReport extends Component {
   }
 
   renderBreadCrumnb() {
-    return [{ title: 'Insights', link: '/insight' }];
+    const { __ } = this.context;
+    return [{ title: __('Insights'), link: '/insight' }];
   }
 
   render() {

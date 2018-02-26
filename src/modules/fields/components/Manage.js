@@ -261,8 +261,8 @@ class Manage extends Component {
   }
 
   render() {
-    const breadcrumb = [{ title: 'Manage fields' }];
     const { __ } = this.context;
+    const breadcrumb = [{ title: __('Manage fields') }];
 
     const Sidebar = Wrapper.Sidebar;
 

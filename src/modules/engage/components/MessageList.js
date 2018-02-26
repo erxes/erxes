@@ -144,7 +144,7 @@ class List extends React.Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Engage' }]} />}
+        header={<Wrapper.Header breadcrumb={[{ title: __('Engage') }]} />}
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

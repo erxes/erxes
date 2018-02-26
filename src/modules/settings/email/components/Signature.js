@@ -61,13 +61,15 @@ class Signature extends Component {
 
   render() {
     const current = this.getCurrent() || {};
+    const { __ } = this.context;
 
     const content = (
       <ContentBox>
-        <SubHeading>Email signatures</SubHeading>
+        <SubHeading>{__('Email signatures')}</SubHeading>
         <Well>
-          Signatures are only included in response emails. <br />
-          You can use Markdown to format your signature.
+          {__('Signatures are only included in response emails.')}
+          <br />
+          {__('You can use Markdown to format your signature.')}
         </Well>
 
         <form id="signature-form" onSubmit={this.handleSubmit}>
@@ -101,8 +103,8 @@ class Signature extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Signature template' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Signature template') }
     ];
 
     const actionFooter = (
@@ -131,5 +133,8 @@ class Signature extends Component {
 }
 
 Signature.propTypes = propTypes;
+Signature.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Signature;

@@ -34,6 +34,7 @@ class NotificationList extends Component {
 
   render() {
     const { notifications, count, markAsRead } = this.props;
+    const { __ } = this.context;
 
     const content = (
       <NotifList>
@@ -72,7 +73,9 @@ class NotificationList extends Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Notifications' }]} />}
+        header={
+          <Wrapper.Header breadcrumb={[{ title: __('Notifications') }]} />
+        }
         leftSidebar={<Sidebar />}
         actionBar={actionBar}
         content={content}

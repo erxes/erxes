@@ -74,7 +74,7 @@ class CompanyDetails extends React.Component {
     const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Companies', link: '/companies' },
+      { title: __('Companies'), link: '/companies' },
       { title: company.name || company.email || 'N/A' }
     ];
 
