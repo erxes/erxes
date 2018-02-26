@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 
 export const TwitterSchema = mongoose.Schema(
   {
-    id: {
-      type: Number,
+    info: {
+      type: Object,
     },
     token: {
       type: String,

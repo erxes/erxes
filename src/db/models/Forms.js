@@ -80,12 +80,6 @@ class Form {
    * @throws {Error} throws Error if this form has fields or if used in an integration
    */
   static async removeForm(_id) {
-    const fieldCount = await Fields.find({ contentTypeId: _id }).count();
-
-    if (fieldCount > 0) {
-      throw new Error('You cannot delete this form. This form has some fields.');
-    }
-
     const integrationCount = await Integrations.find({ formId: _id }).count();
 
     if (integrationCount > 0) {

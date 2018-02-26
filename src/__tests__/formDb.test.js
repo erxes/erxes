@@ -129,23 +129,7 @@ describe('test exception in remove form method', async () => {
   });
 
   test('check if errors are being thrown as intended', async () => {
-    expect.assertions(2);
-
-    await fieldFactory({
-      contentTypeId: _form._id,
-      type: 'input',
-      validation: 'number',
-      text: 'form field text',
-      description: 'form field description',
-    });
-
-    try {
-      await Forms.removeForm(_form._id);
-    } catch (e) {
-      expect(e.message).toEqual('You cannot delete this form. This form has some fields.');
-    }
-
-    await Fields.remove({});
+    expect.assertions(1);
 
     await integrationFactory({
       formId: _form._id,

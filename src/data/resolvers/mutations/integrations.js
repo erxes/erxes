@@ -84,7 +84,7 @@ const integrationMutations = {
       name: data.info.name,
       brandId,
       twitterData: {
-        id: data.info.id,
+        info: data.info,
         token: data.tokens.auth.token,
         tokenSecret: data.tokens.auth.token_secret,
       },
