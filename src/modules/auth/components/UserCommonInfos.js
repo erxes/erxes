@@ -22,24 +22,10 @@ class UserCommonInfos extends Component {
 
     this.state = {
       avatarPreviewUrl: this.props.user.details.avatar || defaultAvatar,
-      avatarPreviewStyle: {},
-      location: this.props.user.details.location || ''
+      avatarPreviewStyle: {}
     };
 
-    this.onLocationChange = this.onLocationChange.bind(this);
     this.handleImageChange = this.handleImageChange.bind(this);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { user } = nextProps;
-
-    this.setState({
-      location: user.details.location || ''
-    });
-  }
-
-  onLocationChange(e) {
-    this.setState({ location: e.value });
   }
 
   handleImageChange(e) {
@@ -137,10 +123,9 @@ class UserCommonInfos extends Component {
             <ControlLabel>Location</ControlLabel>
             <FormControl
               componentClass="select"
-              value={this.state.location}
-              id="location"
+              defaultValue={details.location}
+              id="user-location"
               options={timezones}
-              onChange={e => this.onLocationChange(e)}
             />
           </FormGroup>
         </ProfileColumn>

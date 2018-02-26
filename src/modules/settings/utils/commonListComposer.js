@@ -69,7 +69,6 @@ const commonListComposer = options => {
           callback();
         })
         .catch(error => {
-          console.log(error);
           Alert.error(error.message);
         });
     };

@@ -72,7 +72,7 @@ class UserForm extends CommonForm {
           avatar: this.state.avatar,
           position: document.getElementById('position').value,
           fullName: document.getElementById('fullName').value,
-          location: '123',
+          location: document.getElementById('user-location').value,
           description: document.getElementById('description').value
         },
         channelIds: this.collectValues(this.state.selectedChannels),
