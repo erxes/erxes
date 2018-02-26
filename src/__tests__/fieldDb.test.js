@@ -95,9 +95,10 @@ describe('Fields', () => {
     }
   });
 
-  test('createField on isDefinedByErxes group', async () => {
-    expect.assertions(1);
+  test('createField on isDefinedByErxes group, and with user', async () => {
+    expect.assertions(2);
 
+    const user = await userFactory({});
     const group = await fieldGroupFactory({ isDefinedByErxes: true });
 
     try {
@@ -105,6 +106,10 @@ describe('Fields', () => {
     } catch (e) {
       expect(e.message).toEqual('You cant add field into this group');
     }
+
+    const fieldObj = await Fields.createField({ lastUpdatedBy: user._id });
+
+    expect(fieldObj.lastUpdatedBy).toBe(user._id);
   });
 
   test('updateOrder()', async () => {
@@ -144,6 +149,7 @@ describe('Fields', () => {
     expect(fieldObj.options).toEqual(expect.arrayContaining(doc.options));
     expect(fieldObj.isRequired).toBe(doc.isRequired);
     expect(fieldObj.order).toBe(doc.order);
+    expect(fieldObj.lastUpdatedBy).toBe(doc.lastUpdatedBy);
   });
 
   test('Remove field valid', async () => {

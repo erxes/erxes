@@ -106,7 +106,7 @@ describe('Fields', () => {
   });
 
   test('Update group visible', async () => {
-    expect.assertions(2);
+    expect.assertions(3);
 
     const fieldGroup = await fieldGroupFactory({ visible: true });
     const user = await userFactory({});
@@ -121,5 +121,6 @@ describe('Fields', () => {
     const groupObj = await FieldsGroups.updateFieldsGroupVisible(fieldGroup._id, visible, user._id);
 
     expect(groupObj.visible).toBe(visible);
+    expect(groupObj.lastUpdatedBy).toBe(user._id);
   });
 });
