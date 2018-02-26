@@ -100,6 +100,7 @@ class LeftSidebar extends Bulk {
           fields={channels}
           counts={counts.byChannels}
           paramKey="channelId"
+          searchable
         />
         <StatusFilterPopover counts={counts} />
       </Sidebar.Header>
@@ -117,6 +118,7 @@ class LeftSidebar extends Bulk {
           popoverTitle="Filter by brand"
           placement="top"
           paramKey="brandId"
+          searchable
         />
 
         <FilterPopover
@@ -136,6 +138,7 @@ class LeftSidebar extends Bulk {
           popoverTitle="Filter by tag"
           placement="top"
           icon="pricetag"
+          searchable
         />
       </Sidebar.Footer>
     );

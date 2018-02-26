@@ -1,7 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import { QuickButton } from '../../layout/styles';
+import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 import { Icon, FilterByParams } from 'modules/common/components';
 import { router } from 'modules/common/utils';
@@ -22,19 +22,19 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }) {
       <Section.Title>Filter by tags</Section.Title>
 
       <Section.QuickButtons>
-        <QuickButton href={manageUrl}>
+        <Link to={manageUrl}>
           <Icon icon="gear-a" />
-        </QuickButton>
+        </Link>
 
         {router.getParam(history, 'tag') ? (
-          <QuickButton
+          <a
             tabIndex={0}
             onClick={() => {
               router.setParams(history, { tag: null });
             }}
           >
             <Icon icon="close-circled" />
-          </QuickButton>
+          </a>
         ) : null}
       </Section.QuickButtons>
 

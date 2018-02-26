@@ -641,17 +641,17 @@ injectGlobal`
   /* scrollbar */
 
   ::-webkit-scrollbar {
-    width: 5px;
-    height: 7px;
+    width: 6px;
+    height: 8px;
     border-radius: 2px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(215, 215, 215, .5);
+    background: rgba(215, 215, 215, .6);
     border-radius: 5px;
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(215, 215, 215, .25);
+    background: rgba(215, 215, 215, .35);
   }
 `;

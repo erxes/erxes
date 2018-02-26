@@ -56,6 +56,7 @@ export default compose(
             code
           }
           formData
+          twitterData
           formId
           form {
             _id

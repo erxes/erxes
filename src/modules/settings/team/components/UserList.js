@@ -9,6 +9,7 @@ class UserList extends List {
     super(props);
 
     this.title = 'New user';
+    this.size = 'lg';
   }
 
   renderRow(props) {

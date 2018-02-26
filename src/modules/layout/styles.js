@@ -33,6 +33,7 @@ const Contents = styled.div`
   margin: ${dimensions.coreSpacing}px;
   margin-right: 0;
   max-height: 100%;
+  overflow: hidden;
 `;
 
 const MainContent = styled.section`
@@ -166,35 +167,20 @@ const SidebarToggle = styled.a`
   );
 `;
 
-const QuickButton = styled.a`
-  float: left;
-  color: ${colors.colorCoreLightGray};
-  text-transform: none;
-  cursor: pointer;
-  margin-left: ${dimensions.unitSpacing}px;
-  font-size: ${typography.fontSizeHeading8}px;
-  font-weight: ${typography.fontWeightLight};
-  outline: 0;
-
-  > i {
-    font-size: 14px;
-    margin-right: 0;
-
-    &:hover {
-      color: ${colors.colorCoreBlack};
-    }
-  }
-`;
-
 const HelperButtons = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
   top: 16px;
 
   a {
+    float: left;
     color: ${colors.colorCoreLightGray};
+    text-transform: none;
     cursor: pointer;
+    margin-left: ${dimensions.unitSpacing}px;
     font-size: ${typography.fontSizeHeading8}px;
+    font-weight: ${typography.fontWeightLight};
+    outline: 0;
 
     > i {
       font-size: 14px;
@@ -387,7 +373,6 @@ export {
   SidebarToggle,
   SidebarCounter,
   HelperButtons,
-  QuickButton,
   SidebarTitle,
   UserHelper,
   SidebarList,

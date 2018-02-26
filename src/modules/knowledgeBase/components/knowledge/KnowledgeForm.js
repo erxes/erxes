@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
-import { Modal } from 'react-bootstrap';
+import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { ChromePicker } from 'react-color';
 import {
   FormGroup,
   ControlLabel,
@@ -10,8 +11,12 @@ import {
   Button,
   EmptyState
 } from 'modules/common/components';
+import {
+  MarkdownWrapper,
+  ColorPick,
+  ColorPicker
+} from 'modules/settings/styles';
 import SelectBrand from '../SelectBrand';
-import { MarkdownWrapper } from 'modules/settings/styles';
 
 const propTypes = {
   topic: PropTypes.object,
@@ -28,21 +33,29 @@ class KnowledgeForm extends Component {
   constructor(props, context) {
     super(props, context);
 
-    let code = '';
+    let code = '',
+      color = '';
 
     // showed install code automatically in edit mode
     if (props.topic) {
       code = this.constructor.getInstallCode(props.topic._id);
+      color = props.topic.color;
     }
 
     this.state = {
+      copied: false,
       code,
-      copied: false
+      color
     };
 
     this.handleBrandChange = this.handleBrandChange.bind(this);
+    this.onColorChange = this.onColorChange.bind(this);
     this.save = this.save.bind(this);
     this.remove = this.remove.bind(this);
+  }
+
+  onColorChange(e) {
+    this.setState({ color: e.hex });
   }
 
   save(e) {
@@ -135,7 +148,8 @@ class KnowledgeForm extends Component {
           title: document.getElementById('knowledgebase-title').value,
           description: document.getElementById('knowledgebase-description')
             .value,
-          brandId: document.getElementById('selectBrand').value
+          brandId: document.getElementById('selectBrand').value,
+          color: this.state.color
         }
       }
     };
@@ -145,6 +159,12 @@ class KnowledgeForm extends Component {
     const { brands } = this.props;
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
+
+    const popoverTop = (
+      <Popover id="color-picker">
+        <ChromePicker color={this.state.color} onChange={this.onColorChange} />
+      </Popover>
+    );
 
     return (
       <div>
@@ -175,6 +195,24 @@ class KnowledgeForm extends Component {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Choose a custom color</ControlLabel>
+          <div>
+            <OverlayTrigger
+              trigger="click"
+              rootClose
+              placement="bottom"
+              overlay={popoverTop}
+            >
+              <ColorPick full>
+                <ColorPicker
+                  style={{ backgroundColor: this.state.color }}
+                  full
+                />
+              </ColorPick>
+            </OverlayTrigger>
+          </div>
+        </FormGroup>
         {this.renderInstallCode()}
       </div>
     );

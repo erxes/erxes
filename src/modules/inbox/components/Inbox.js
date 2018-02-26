@@ -85,7 +85,7 @@ class Inbox extends Component {
 
     return (
       <Wrapper.Sidebar full>
-        <Spinner />
+        {this.props.loading && <Spinner />}
       </Wrapper.Sidebar>
     );
   }
