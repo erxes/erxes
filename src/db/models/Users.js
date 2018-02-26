@@ -22,7 +22,20 @@ const DetailSchema = mongoose.Schema(
     avatar: field({ type: String }),
     fullName: field({ type: String }),
     position: field({ type: String }),
+    location: field({ type: String, optional: true }),
+    description: field({ type: String, optional: true }),
     twitterUsername: field({ type: String, optional: true }),
+  },
+  { _id: false },
+);
+
+const LinkSchema = mongoose.Schema(
+  {
+    linkedIn: field({ type: String, optional: true }),
+    twitter: field({ type: String, optional: true }),
+    facebook: field({ type: String, optional: true }),
+    github: field({ type: String, optional: true }),
+    website: field({ type: String, optional: true }),
   },
   { _id: false },
 );
@@ -49,6 +62,7 @@ const UserSchema = mongoose.Schema({
   emailSignatures: field({ type: [EmailSignatureSchema] }),
   starredConversationIds: field({ type: [String] }),
   details: field({ type: DetailSchema }),
+  links: field({ type: LinkSchema, default: {} }),
 });
 
 class User {
@@ -61,7 +75,7 @@ class User {
    * @param {Object} doc - user fields
    * @return {Promise} newly created user object
    */
-  static async createUser({ username, email, password, role, details }) {
+  static async createUser({ username, email, password, role, details, links }) {
     await this.checkDuplications({ twitterUsername: details.twitterUsername });
 
     return this.create({
@@ -69,6 +83,7 @@ class User {
       email,
       role,
       details,
+      links,
       // hash password
       password: await this.generatePassword(password),
     });
@@ -80,13 +95,13 @@ class User {
    * @param {Object} doc - user fields
    * @return {Promise} updated user info
    */
-  static async updateUser(_id, { username, email, password, role, details }) {
+  static async updateUser(_id, { username, email, password, role, details, links }) {
     await this.checkDuplications({
       userId: _id,
       twitterUsername: details.twitterUsername,
     });
 
-    const doc = { username, email, password, role, details };
+    const doc = { username, email, password, role, details, links };
 
     // change password
     if (password) {
@@ -108,8 +123,8 @@ class User {
    * @param {Object} doc - User profile information
    * @return {Promise} - Updated user
    */
-  static async editProfile(_id, { username, email, details }) {
-    await this.update({ _id }, { $set: { username, email, details } });
+  static async editProfile(_id, { username, email, details, links }) {
+    await this.update({ _id }, { $set: { username, email, details, links } });
 
     return this.findOne({ _id });
   }
