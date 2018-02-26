@@ -22,7 +22,7 @@ const commonFields = `
 `;
 
 export const queries = `
-  fieldsgroups(contentType: String): [FieldsGroup]
+  fieldsGroups(contentType: String): [FieldsGroup]
 `;
 
 export const mutations = `

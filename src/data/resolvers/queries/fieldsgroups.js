@@ -5,11 +5,10 @@ const fieldsGroupQueries = {
   /**
    * Fields list
    * @param {String} contentType - Sort by content type
-   * @param {Boolean} visibleOnly - Visible only fields
    *
    * @return {Promise} sorted fields group list
    */
-  fieldsgroups(root, { contentType }) {
+  fieldsGroups(root, { contentType }) {
     const query = {};
 
     // querying by content type
