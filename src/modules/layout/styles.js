@@ -33,6 +33,7 @@ const Contents = styled.div`
   margin: ${dimensions.coreSpacing}px;
   margin-right: 0;
   max-height: 100%;
+  overflow: hidden;
 `;
 
 const MainContent = styled.section`
