@@ -36,7 +36,7 @@ const EditInformationContainer = (props, context) => {
     ...props,
     save,
     currentUser: context.currentUser,
-    fieldsGroups: fieldsGroupsQuery.fieldsgroups || []
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
 
   return <EditInformation {...updatedProps} />;
@@ -60,7 +60,7 @@ const options = ({ customer }) => ({
 });
 
 export default compose(
-  graphql(gql(queries.fieldsgroups), {
+  graphql(gql(queries.fieldsGroups), {
     name: 'fieldsGroupsQuery',
     options: () => ({
       variables: {

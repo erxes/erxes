@@ -43,7 +43,7 @@ const PropertyFormContainer = (props, context) => {
     ...props,
     add,
     edit,
-    groups: fieldsGroupsQuery.fieldsgroups
+    groups: fieldsGroupsQuery.fieldsGroups
   };
 
   return <PropertyForm {...updatedProps} />;
@@ -52,7 +52,7 @@ const PropertyFormContainer = (props, context) => {
 const options = ({ queryParams }) => ({
   refetchQueries: [
     {
-      query: gql`${queries.fieldsgroups}`,
+      query: gql`${queries.fieldsGroups}`,
       variables: { contentType: queryParams.type }
     }
   ]
@@ -71,7 +71,7 @@ PropertyFormContainer.contextTypes = {
 };
 
 export default compose(
-  graphql(gql(queries.fieldsgroups), {
+  graphql(gql(queries.fieldsGroups), {
     name: 'fieldsGroupsQuery',
     options: ({ queryParams }) => ({
       variables: {

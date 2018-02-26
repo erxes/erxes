@@ -37,7 +37,7 @@ const CompanyDetailsContainer = (props, context) => {
     },
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     currentUser: context.currentUser,
-    fieldsGroups: fieldsGroupsQuery.fieldsgroups || []
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
 
   return <CompanyDetails {...updatedProps} />;
@@ -72,7 +72,7 @@ export default compose(
       }
     })
   }),
-  graphql(gql(queries.fieldsgroups), {
+  graphql(gql(queries.fieldsGroups), {
     name: 'fieldsGroupsQuery',
     options: () => ({
       variables: {

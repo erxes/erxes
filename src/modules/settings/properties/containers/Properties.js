@@ -17,7 +17,6 @@ const PropertiesContainer = (props, context) => {
     fieldsGroupsUpdateVisible,
     fieldsUpdateVisible
   } = props;
-  const fieldsgroups = fieldsGroupsQuery.fieldsgroups || [];
   const { currentUser } = context;
 
   if (!router.getParam(history, 'type')) {
@@ -76,7 +75,7 @@ const PropertiesContainer = (props, context) => {
 
   const updatedProps = {
     ...props,
-    fieldsgroups,
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
     currentType,
     removePropertyGroup,
     removeProperty,
@@ -104,18 +103,18 @@ PropertiesContainer.contextTypes = {
 const options = ({ queryParams }) => ({
   refetchQueries: [
     {
-      query: gql`${queries.fieldsgroups}`,
+      query: gql`${queries.fieldsGroups}`,
       variables: { contentType: queryParams.type }
     }
   ]
 });
 
 export default compose(
-  graphql(gql(queries.fieldsgroups), {
+  graphql(gql(queries.fieldsGroups), {
     name: 'fieldsGroupsQuery',
     options: ({ queryParams }) => ({
       variables: {
-        contentType: queryParams.type || 'customer'
+        contentType: queryParams.type
       }
     })
   }),

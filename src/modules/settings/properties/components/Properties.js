@@ -16,7 +16,7 @@ import { PropertyList } from '../styles';
 const propTypes = {
   queryParams: PropTypes.object,
   refetch: PropTypes.func,
-  fieldsgroups: PropTypes.array,
+  fieldsGroups: PropTypes.array,
   currentType: PropTypes.string,
   removePropertyGroup: PropTypes.func.isRequired,
   removeProperty: PropTypes.func.isRequired,
@@ -34,14 +34,14 @@ class Properties extends Component {
 
   renderProperties() {
     const {
-      fieldsgroups,
+      fieldsGroups,
       queryParams,
       removePropertyGroup,
       removeProperty,
       updatePropertyVisible
     } = this.props;
 
-    if (fieldsgroups.length === 0) {
+    if (fieldsGroups.length === 0) {
       return (
         <EmptyState
           icon="android-more-horizontal"
@@ -52,7 +52,7 @@ class Properties extends Component {
 
     return (
       <PropertyList>
-        {fieldsgroups.map(group => {
+        {fieldsGroups.map(group => {
           return (
             <PropertyRow
               key={group._id}
@@ -69,11 +69,11 @@ class Properties extends Component {
   }
 
   renderActionBar() {
-    const { queryParams, fieldsgroups } = this.props;
+    const { queryParams, fieldsGroups } = this.props;
 
     let propertyForm = <PropertyForm queryParams={queryParams} />;
 
-    if (fieldsgroups.length === 0) {
+    if (fieldsGroups.length === 0) {
       propertyForm = <center>Please add property Group first!</center>;
     }
 

@@ -52,7 +52,7 @@ const PropertyGroupFormContainer = (props, context) => {
 const options = ({ queryParams }) => ({
   refetchQueries: [
     {
-      query: gql`${queries.fieldsgroups}`,
+      query: gql`${queries.fieldsGroups}`,
       variables: { contentType: queryParams.type }
     }
   ]

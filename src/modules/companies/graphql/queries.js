@@ -119,9 +119,9 @@ const activityLogsCompany = `
   }
 `;
 
-const fieldsgroups = `
-  query fieldsgroups($contentType: String!) {
-    fieldsgroups(contentType: $contentType) {
+const fieldsGroups = `
+  query fieldsGroups($contentType: String!) {
+    fieldsGroups(contentType: $contentType) {
       _id
       name
       description
@@ -163,5 +163,5 @@ export default {
   tags,
   companiesListConfig,
   activityLogsCompany,
-  fieldsgroups
+  fieldsGroups
 };
