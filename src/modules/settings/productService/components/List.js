@@ -5,7 +5,8 @@ import {
   Table,
   Button,
   ModalTrigger,
-  Pagination
+  Pagination,
+  DataWithLoader
 } from 'modules/common/components';
 import { Form } from '../containers';
 import { Row } from '/';
@@ -14,7 +15,8 @@ const propTypes = {
   products: PropTypes.array.isRequired,
   productsCount: PropTypes.number.isRequired,
   remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
+  loading: PropTypes.bool
 };
 
 class List extends Component {
@@ -38,7 +40,7 @@ class List extends Component {
   }
 
   render() {
-    const { save, productsCount } = this.props;
+    const { save, productsCount, loading } = this.props;
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
@@ -76,8 +78,16 @@ class List extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={<Wrapper.ActionBar right={actionBarRight} />}
-        content={content}
         footer={<Pagination count={productsCount} />}
+        content={
+          <DataWithLoader
+            data={content}
+            loading={loading}
+            count={productsCount}
+            emptyText="There is no data"
+            emptyImage="/images/robots/robot-05.svg"
+          />
+        }
       />
     );
   }
