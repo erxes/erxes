@@ -44,7 +44,7 @@
     "moment": "2.19.3",
     "opencollective": "^1.0.3",
     "query-string": "^5.0.0",
-    "react": "^16.0.0",
+    "react": "^16.2.0",
     "react-apollo": "2.0.4",
     "react-bootstrap": "^0.31.3",
     "react-copy-to-clipboard": "^5.0.1",
