@@ -42,12 +42,14 @@ export default compose(
         $username: String!
         $email: String!
         $details: UserDetails
+        $links: UserLinks
         $password: String!
       ) {
         usersEditProfile(
           username: $username
           email: $email
           details: $details
+          links: $links
           password: $password
         ) {
           _id
