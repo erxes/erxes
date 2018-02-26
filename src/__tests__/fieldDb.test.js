@@ -33,6 +33,8 @@ describe('Fields', () => {
   });
 
   test('createField() without contentTypeId', async () => {
+    const group = await fieldGroupFactory({ contentType: 'customer' });
+
     // first attempt
     let field = await Fields.createField({ contentType: 'customer' });
     expect(field.order).toBe(0);
@@ -44,6 +46,9 @@ describe('Fields', () => {
     // third attempt
     field = await Fields.createField({ contentType: 'customer' });
     expect(field.order).toBe(2);
+
+    field = await Fields.createField({ contentType: 'customer', groupId: group._id });
+    expect(field.order).toBe(0);
   });
 
   test('createField() with contentTypeId', async () => {
