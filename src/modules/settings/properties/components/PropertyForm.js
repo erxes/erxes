@@ -98,8 +98,7 @@ class PropertyForm extends Component {
       text,
       description,
       groupId,
-      options,
-      order: 1
+      options
     };
 
     this.state.action(

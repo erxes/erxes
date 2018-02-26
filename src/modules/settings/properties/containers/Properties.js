@@ -115,7 +115,7 @@ export default compose(
     name: 'fieldsGroupsQuery',
     options: ({ queryParams }) => ({
       variables: {
-        contentType: queryParams.type
+        contentType: queryParams.type || ''
       }
     })
   }),
