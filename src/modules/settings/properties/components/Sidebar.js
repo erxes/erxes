@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { SidebarList as List } from 'modules/layout/styles';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 
 const propTypes = {
   currentType: PropTypes.string
@@ -35,13 +36,16 @@ class Sidebar extends Component {
           <li>
             <Link
               className={this.getClassName('customer')}
-              to={`?type=customer`}
+              to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER}`}
             >
               Customer Properties
             </Link>
           </li>
           <li>
-            <Link className={this.getClassName('company')} to={`?type=company`}>
+            <Link
+              className={this.getClassName('company')}
+              to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.COMPANY}`}
+            >
               Company Properties
             </Link>
           </li>

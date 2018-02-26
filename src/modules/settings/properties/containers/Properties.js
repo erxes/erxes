@@ -7,6 +7,7 @@ import { queries, mutations } from '../graphql';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { Properties } from '../components';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 
 const PropertiesContainer = (props, context) => {
   const {
@@ -20,7 +21,7 @@ const PropertiesContainer = (props, context) => {
   const { currentUser } = context;
 
   if (!router.getParam(history, 'type')) {
-    router.setParams(history, { type: 'customer' });
+    router.setParams(history, { type: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER });
   }
 
   const removePropertyGroup = ({ _id }) => {
