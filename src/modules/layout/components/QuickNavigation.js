@@ -31,6 +31,9 @@ const NavItem = styled.div`
 const QuickNavigation = ({ logout, currentUser, toggleLang, locale }) => {
   return (
     <nav>
+      <NavItem onClick={toggleLang}>
+        <Icon icon="android-globe" size={20} />
+      </NavItem>
       <NavItem>
         <DropdownButton
           bsStyle="default"

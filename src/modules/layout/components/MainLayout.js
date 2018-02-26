@@ -11,6 +11,7 @@ import { injectIntl, IntlProvider, addLocaleData } from 'react-intl';
 const propTypes = {
   history: PropTypes.object,
   currentUser: PropTypes.object,
+  toggleLang: PropTypes.func,
   children: PropTypes.node
 };
 
@@ -67,8 +68,7 @@ class MainLayout extends React.Component {
   getChildContext() {
     return {
       currentUser: this.props.currentUser,
-      toggleLang: this.toggleLang,
-      locale: this.state.locale
+      toggleLang: this.toggleLang
     };
   }
 
@@ -98,6 +98,27 @@ class MainLayout extends React.Component {
     if (!currentUser) {
       history.push('/sign-in');
     }
+
+    this.getLang();
+  }
+
+  getLang() {
+    const lang = localStorage.getItem('locale');
+    const messages = lang === 'mn' ? mergedMessages : {};
+
+    this.setLang(lang || 'en', messages);
+  }
+
+  setLang(locale, messages) {
+    localStorage.setItem('locale', locale);
+    this.setState({ locale, messages });
+  }
+
+  toggleLang() {
+    this.setState(prevState => ({ toggleLang: !prevState.toggleLang }));
+    const { toggleLang } = this.state;
+
+    toggleLang ? this.setLang('mn', mergedMessages) : this.setLang('en', {});
   }
 
   render() {
@@ -117,8 +138,7 @@ MainLayout.propTypes = propTypes;
 
 MainLayout.childContextTypes = {
   currentUser: PropTypes.object,
-  toggleLang: PropTypes.func,
-  locale: PropTypes.string
+  toggleLang: PropTypes.func
 };
 
 export default withRouter(MainLayout);
