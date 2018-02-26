@@ -51,7 +51,7 @@ describe('Test deals mutations', () => {
   });
 
   test('Check login required', async () => {
-    expect.assertions(12);
+    expect.assertions(14);
 
     const check = async fn => {
       try {
@@ -85,6 +85,9 @@ describe('Test deals mutations', () => {
     // edit
     check(dealMutations.dealStagesEdit);
 
+    // change
+    check(dealMutations.dealStagesChange);
+
     // remove
     check(dealMutations.dealStagesRemove);
 
@@ -93,6 +96,9 @@ describe('Test deals mutations', () => {
 
     // edit
     check(dealMutations.dealsEdit);
+
+    // change
+    check(dealMutations.dealsChange);
 
     // remove
     check(dealMutations.dealsRemove);
@@ -202,6 +208,15 @@ describe('Test deals mutations', () => {
     expect(DealStages.updateStage.mock.calls.length).toBe(1);
   });
 
+  test('Change stage', async () => {
+    const pipelineId = _pipeline._id;
+    DealStages.changeStage = jest.fn();
+    await dealMutations.dealStagesChange(null, { _id: _stage._id, pipelineId }, { user: _user });
+
+    expect(DealStages.changeStage).toBeCalledWith(_stage._id, pipelineId);
+    expect(DealStages.changeStage.mock.calls.length).toBe(1);
+  });
+
   test('Stage update orders', async () => {
     const orders = [{ _id: _stage._id, order: 9 }, { _id: _stage2._id, order: 3 }];
 
@@ -247,6 +262,15 @@ describe('Test deals mutations', () => {
 
     Deals.updateDeal = jest.fn();
     await dealMutations.dealsEdit(null, { _id: _deal._id, ...updateDoc }, { user: _user });
+
+    expect(Deals.updateDeal).toBeCalledWith(_deal._id, updateDoc);
+    expect(Deals.updateDeal.mock.calls.length).toBe(1);
+  });
+
+  test('Change deal', async () => {
+    const updateDoc = { stageId: _stage._id };
+    Deals.updateDeal = jest.fn();
+    await dealMutations.dealsChange(null, { _id: _deal._id, ...updateDoc }, { user: _user });
 
     expect(Deals.updateDeal).toBeCalledWith(_deal._id, updateDoc);
     expect(Deals.updateDeal.mock.calls.length).toBe(1);

@@ -42,6 +42,7 @@ export const types = `
     company: Company
     customer: Customer
     products: Product
+    assignedUsers: [User]
     ${commonTypes}
   }
 `;

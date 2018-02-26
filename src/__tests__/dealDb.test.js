@@ -16,12 +16,13 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('Test deals model', () => {
-  let _board, _pipeline, _stage, _deal, _user;
+  let _board, _pipeline, _pipeline2, _stage, _deal, _user;
 
   beforeEach(async () => {
     // Creating test data
     _board = await dealBoardFactory();
     _pipeline = await dealPipelineFactory({ boardId: _board._id });
+    _pipeline2 = await dealPipelineFactory();
     _stage = await dealStageFactory({
       pipelineId: _pipeline._id,
       boardId: _board._id,
@@ -97,6 +98,7 @@ describe('Test deals model', () => {
 
   // Test deal pipeline
   test('Create pipeline', async () => {
+    const _stage0 = await dealStageFactory();
     const pipelineObj = await DealPipelines.createPipeline(
       {
         name: _pipeline.name,
@@ -105,39 +107,45 @@ describe('Test deals model', () => {
       },
       [
         {
-          _id: _stage._id,
+          _id: _stage0._id,
           name: _stage.name,
-          boardId: _stage.boardId,
         },
       ],
     );
+
+    const stageObj = await DealStages.findOne({ _id: _stage0._id });
 
     expect(pipelineObj).toBeDefined();
     expect(pipelineObj.name).toEqual(_pipeline.name);
     expect(pipelineObj.boardId).toEqual(_board._id);
     expect(pipelineObj.createdAt).toEqual(_pipeline.createdAt);
     expect(pipelineObj.userId).toEqual(_user._id);
+    expect(stageObj.pipelineId).toEqual(pipelineObj._id);
   });
 
   test('Update pipeline', async () => {
     const pipelineName = 'Update pipeline name';
+    const _pipeline0 = await dealPipelineFactory();
+    const _stage0 = await dealStageFactory({ pipelineId: _pipeline0._id });
+
     const pipelineObj = await DealPipelines.updatePipeline(
-      _pipeline._id,
+      _pipeline0._id,
       {
         name: pipelineName,
         userId: _user._id,
       },
       [
         {
-          _id: _stage._id,
           name: `${_stage.name} change`,
-          boardId: _stage.boardId,
         },
       ],
     );
 
+    const stages = await DealStages.find({ _id: _stage0._id });
+
     expect(pipelineObj).toBeDefined();
     expect(pipelineObj.name).toEqual(pipelineName);
+    expect(stages.length).toEqual(0);
   });
 
   test('Update pipeline orders', async () => {
@@ -207,6 +215,22 @@ describe('Test deals model', () => {
 
     expect(stageObj).toBeDefined();
     expect(stageObj.name).toEqual(stageName);
+  });
+
+  test('Change stage', async () => {
+    const pipeline2Id = _pipeline2._id;
+    const _deal0 = await dealFactory({
+      pipelineId: _pipeline._id,
+      stageId: _stage._id,
+    });
+    const stageObj = await DealStages.changeStage(_stage._id, pipeline2Id);
+    const deals = await Deals.find({ stageId: _stage._id });
+
+    expect(stageObj).toBeDefined();
+    expect(stageObj.pipelineId).toEqual(pipeline2Id);
+    expect(_deal0.pipelineId).toEqual(_pipeline._id);
+    expect(deals[0].pipelineId).toEqual(pipeline2Id);
+    expect(deals[1].pipelineId).toEqual(pipeline2Id);
   });
 
   test('Update stage orders', async () => {

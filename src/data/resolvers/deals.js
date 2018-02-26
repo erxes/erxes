@@ -1,4 +1,4 @@
-import { Products, Companies, Customers } from '../../db/models';
+import { Products, Companies, Customers, Users } from '../../db/models';
 
 export default {
   company(deal) {
@@ -22,5 +22,9 @@ export default {
     });
 
     return amount;
+  },
+
+  assignedUsers(deal) {
+    return Users.find({ _id: { $in: deal.assignedUserIds } });
   },
 };

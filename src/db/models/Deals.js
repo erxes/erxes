@@ -142,7 +142,7 @@ class Pipeline {
     const pipeline = await this.create(doc);
 
     if (stages) {
-      createOrUpdatePipelineStages(stages, pipeline._id);
+      await createOrUpdatePipelineStages(stages, pipeline._id);
     }
 
     return pipeline;
@@ -155,7 +155,7 @@ class Pipeline {
    */
   static async updatePipeline(_id, doc, stages) {
     if (stages) {
-      createOrUpdatePipelineStages(stages, _id);
+      await createOrUpdatePipelineStages(stages, _id);
     }
 
     await this.update({ _id }, { $set: doc });
