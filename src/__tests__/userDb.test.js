@@ -62,6 +62,7 @@ describe('User db utils', () => {
     const userObj = await Users.createUser({
       ..._user._doc,
       details: { ..._user.details.toJSON(), twitterUsername: 'twitter' },
+      links: { ..._user.links.toJSON() },
       password: testPassword,
     });
 
@@ -75,6 +76,7 @@ describe('User db utils', () => {
     expect(userObj.details.twitterUsername).toBe('twitter');
     expect(userObj.details.fullName).toBe(_user.details.fullName);
     expect(userObj.details.avatar).toBe(_user.details.avatar);
+    expect(userObj.links.toJSON()).toEqual(_user.links.toJSON());
   });
 
   test('Update user', async () => {
@@ -88,6 +90,7 @@ describe('User db utils', () => {
       username: updateDoc.username,
       password: testPassword,
       details: { ...updateDoc._doc.details.toJSON(), twitterUsername: 'tw' },
+      links: { ...updateDoc._doc.links.toJSON() },
     });
 
     let userObj = await Users.findOne({ _id: _user._id });
@@ -100,6 +103,7 @@ describe('User db utils', () => {
     expect(userObj.details.twitterUsername).toBe('tw');
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
+    expect(userObj.links.toJSON()).toEqual(updateDoc.links.toJSON());
 
     // try without password ============
     await Users.updateUser(_user._id, {
@@ -128,6 +132,7 @@ describe('User db utils', () => {
       email: updateDoc.email,
       username: updateDoc.username,
       details: updateDoc._doc.details,
+      links: updateDoc._doc.links,
     });
 
     const userObj = await Users.findOne({ _id: _user._id });
@@ -138,6 +143,7 @@ describe('User db utils', () => {
     expect(userObj.details.twitterUsername).toBe(updateDoc.details.twitterUsername);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
+    expect(userObj.links.toJSON()).toEqual(updateDoc.links.toJSON());
   });
 
   test('Config email signature', async () => {
