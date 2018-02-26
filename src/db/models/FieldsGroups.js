@@ -54,7 +54,7 @@ class FieldGroup {
     // Automatically setting order of group to the bottom
     const order = (await this.count({ contentType })) + 1;
 
-    return this.create({ ...doc, visible, order });
+    return this.create({ ...doc, visible, order, isDefinedByErxes: false });
   }
 
   /**
