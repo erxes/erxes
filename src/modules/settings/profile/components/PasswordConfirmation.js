@@ -23,15 +23,18 @@ class PasswordConfirmation extends Component {
     this.submit = this.submit.bind(this);
   }
 
-  submit() {
+  submit(e) {
+    e.preventDefault();
+
     const password = document.getElementById('password').value;
+
     this.props.onSuccess(password);
     this.context.closeModal();
   }
 
   render() {
     return (
-      <form>
+      <form onSubmit={e => this.submit(e)}>
         <FormGroup>
           <ControlLabel>Please Enter your password to confirm</ControlLabel>
           <FormControl autoFocus id="password" type="password" />
@@ -47,7 +50,7 @@ class PasswordConfirmation extends Component {
           <Button
             btnStyle="success"
             icon="checkmark"
-            onClick={() => this.submit()}
+            onClick={e => this.submit(e)}
           >
             Save
           </Button>
