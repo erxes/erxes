@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { compose } from 'react-apollo';
 import { confirm } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
-import { removeEmptyValue } from './';
 
 const commonListComposer = options => {
   const {
@@ -57,12 +56,9 @@ const commonListComposer = options => {
         mutation = editMutation;
         doc._id = object._id;
       }
-
       mutation({
         variables: {
-          ...doc,
-          links: removeEmptyValue(doc.links),
-          details: removeEmptyValue(doc.details)
+          ...doc
         }
       })
         .then(() => {
@@ -75,6 +71,7 @@ const commonListComposer = options => {
           callback();
         })
         .catch(error => {
+          console.log(error);
           Alert.error(error.message);
         });
     };
