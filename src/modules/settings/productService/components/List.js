@@ -1,12 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Table, Button, ModalTrigger } from 'modules/common/components';
+import {
+  Table,
+  Button,
+  ModalTrigger,
+  Pagination
+} from 'modules/common/components';
 import { Form } from '../containers';
 import { Row } from '/';
 
 const propTypes = {
   products: PropTypes.array.isRequired,
+  productsCount: PropTypes.number.isRequired,
   remove: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired
 };
@@ -32,7 +38,7 @@ class List extends Component {
   }
 
   render() {
-    const { save } = this.props;
+    const { save, productsCount } = this.props;
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
@@ -71,6 +77,7 @@ class List extends Component {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={<Wrapper.ActionBar right={actionBarRight} />}
         content={content}
+        footer={<Pagination count={productsCount} />}
       />
     );
   }

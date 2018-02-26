@@ -7,10 +7,16 @@ import { queries, mutations } from '../graphql';
 import { List } from '../components';
 
 const ProductListContainer = props => {
-  const { productsQuery, addMutation, editMutation, removeMutation } = props;
+  const {
+    productsQuery,
+    productsCountQuery,
+    addMutation,
+    editMutation,
+    removeMutation
+  } = props;
 
   const products = productsQuery.products || [];
-
+  console.log(products);
   // remove action
   const remove = _id => {
     confirm().then(() => {
@@ -56,7 +62,8 @@ const ProductListContainer = props => {
     products,
     save,
     remove,
-    loading: productsQuery.loading
+    loading: productsQuery.loading,
+    productsCount: productsCountQuery.productsTotalCount || 0
   };
 
   return <List {...updatedProps} />;
@@ -64,6 +71,7 @@ const ProductListContainer = props => {
 
 ProductListContainer.propTypes = {
   productsQuery: PropTypes.object,
+  productsCountQuery: PropTypes.object,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
   removeMutation: PropTypes.func
@@ -73,8 +81,16 @@ export default compose(
   graphql(gql(queries.products), {
     name: 'productsQuery',
     options: () => ({
+      variables: {
+        // type: 'service',
+        perPage: 5,
+        page: 5
+      },
       fetchPolicy: 'network-only'
     })
+  }),
+  graphql(gql(queries.productsCount), {
+    name: 'productsCountQuery'
   }),
   graphql(gql(mutations.productAdd), {
     name: 'addMutation'
