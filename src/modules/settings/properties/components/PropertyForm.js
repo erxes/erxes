@@ -56,23 +56,29 @@ class PropertyForm extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState(
-      nextProps.field
-        ? nextProps.field.type === 'select' ||
-          nextProps.field.type === 'radio' ||
-          nextProps.field.type === 'checkbox'
-          ? {
-              ...nextProps.field,
-              groupId: nextProps.field.groupId,
-              hasOptions: true,
-              options: Object.assign([], nextProps.field.options)
-            }
-          : {
-              ...nextProps.field,
-              groupId: nextProps.field.groupId
-            }
-        : { groupId: nextProps.groups[0]._id }
-    );
+    let doc = { groupId: nextProps.groups[0]._id };
+
+    if (nextProps.field) {
+      doc = {
+        ...nextProps.field,
+        groupId: nextProps.field.groupId
+      };
+
+      if (
+        nextProps.field.type === 'select' ||
+        nextProps.field.type === 'radio' ||
+        nextProps.field.type === 'check'
+      ) {
+        doc = {
+          ...nextProps.field,
+          groupId: nextProps.field.groupId,
+          hasOptions: true,
+          options: Object.assign([], nextProps.field.options || [])
+        };
+      }
+    }
+
+    this.setState({ ...doc });
   }
 
   onSubmit(e) {
@@ -106,16 +112,17 @@ class PropertyForm extends Component {
   onFieldChange(e) {
     const value = e.target.value;
     const name = e.target.name;
+    let doc = {};
 
     if (name === 'type') {
-      this.setState(
-        value === 'select' || value === 'check' || value === 'radio'
-          ? { hasOptions: true }
-          : { hasOptions: false, options: [] }
-      );
+      doc = { hasOptions: false, options: [] };
+
+      if (value === 'select' || value === 'check' || value === 'radio') {
+        doc = { hasOptions: true };
+      }
     }
 
-    this.setState({ [name]: value });
+    this.setState({ [name]: value, ...doc });
   }
 
   handleAddOption() {
@@ -127,7 +134,10 @@ class PropertyForm extends Component {
   }
 
   handleSaveOption() {
-    this.state.options.push(this.state.optionValue);
+    const { options, optionValue } = this.state;
+
+    this.setState({ options: [...options, optionValue] });
+
     this.handleCancelAddingOption();
   }
 
