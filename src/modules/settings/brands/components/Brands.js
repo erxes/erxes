@@ -75,5 +75,8 @@ class Brands extends Component {
 }
 
 Brands.propTypes = propTypes;
+Brands.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Brands;

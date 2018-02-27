@@ -370,5 +370,12 @@
   "There aren’t any activities at the moment.":
     "There aren’t any activities at the moment.",
   "This item is required": "This item is required",
-  "Manage fields": "Manage fields"
+  "Manage fields": "Manage fields",
+  "Add integrations ": "Add integrations ",
+  "Form": "Form",
+  "Create a new Customer": "Create a new Customer",
+  "New Customer": "New Customer",
+  "Segments": "Segments",
+  "Add a condition": "Add a condition",
+  "Open": "Open"
 }
