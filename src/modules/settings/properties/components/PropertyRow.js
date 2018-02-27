@@ -30,6 +30,8 @@ class PropertyRow extends React.Component {
     };
 
     this.renderTable = this.renderTable.bind(this);
+    this.renderTableRow = this.renderTableRow.bind(this);
+    this.renderActionButtons = this.renderActionButtons.bind(this);
     this.handleCollapse = this.handleCollapse.bind(this);
   }
 
@@ -43,10 +45,8 @@ class PropertyRow extends React.Component {
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
   }
 
-  renderActionButtons(field) {
-    const { queryParams, removeProperty } = this.props;
-
-    if (!field.isDefinedByErxes) return null;
+  renderActionButtons(data, remove, form) {
+    if (data.isDefinedByErxes) return null;
 
     return (
       <ActionButtons>
@@ -55,13 +55,13 @@ class PropertyRow extends React.Component {
           trigger={<Icon icon="edit" />}
           size="lg"
         >
-          <PropertyForm field={field} queryParams={queryParams} />
+          {form}
         </ModalTrigger>
         <Icon
           icon="close"
           onClick={() =>
             confirm().then(() => {
-              removeProperty({ _id: field._id });
+              remove({ _id: data._id });
             })
           }
         />
@@ -70,6 +70,7 @@ class PropertyRow extends React.Component {
   }
 
   renderTableRow(field) {
+    const { removeProperty, queryParams } = this.props;
     const lastUpdate = field.lastUpdatedBy.details;
 
     return (
@@ -89,7 +90,13 @@ class PropertyRow extends React.Component {
             onChange={e => this.visibleHandler(e, field)}
           />
         </td>
-        <td width="10%">{this.renderActionButtons(field)}</td>
+        <td width="10%">
+          {this.renderActionButtons(
+            field,
+            removeProperty,
+            <PropertyForm field={field} queryParams={queryParams} />
+          )}
+        </td>
       </TableRow>
     );
   }
@@ -122,24 +129,10 @@ class PropertyRow extends React.Component {
             onClick={this.handleCollapse}
           />
           <span onClick={this.handleCollapse}>{group.name}</span>
-          {!group.isDefinedByErxes && (
-            <ActionButtons>
-              <ModalTrigger
-                title="Edit group"
-                trigger={<Icon icon="edit" />}
-                size="lg"
-              >
-                <PropertyGroupForm group={group} queryParams={queryParams} />
-              </ModalTrigger>
-              <Icon
-                icon="close"
-                onClick={() =>
-                  confirm().then(() => {
-                    removePropertyGroup({ _id: group._id });
-                  })
-                }
-              />
-            </ActionButtons>
+          {this.renderActionButtons(
+            group,
+            removePropertyGroup,
+            <PropertyGroupForm group={group} queryParams={queryParams} />
           )}
         </CollapseRow>
 

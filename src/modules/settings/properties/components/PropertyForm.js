@@ -137,7 +137,7 @@ class PropertyForm extends Component {
             id="optionValue"
             autoFocus
             onKeyPress={e => {
-              if (e.key === 'Enter') this.handleSaveOption;
+              if (e.key === 'Enter') this.handleSaveOption();
             }}
           />
           <Actions>
