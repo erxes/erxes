@@ -12,6 +12,7 @@ import {
   StepStatus
 } from './style';
 import { Icon, Button } from 'modules/common/components';
+import { Link } from 'react-router-dom';
 
 const propTypes = {
   stepNumber: PropTypes.number,
@@ -29,21 +30,32 @@ const propTypes = {
 class Step extends Component {
   renderButton() {
     const { save, next, message } = this.props;
+    const cancelButton = (
+      <Link to="/engage">
+        <Button btnStyle="simple" size="small" icon="close">
+          Cancel
+        </Button>
+      </Link>
+    );
 
     if (save && Object.keys(message).length !== 0) {
       return (
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="ios-arrow-forward"
-          onClick={e => save('save', e)}
-        >
-          Save
-        </Button>
+        <Button.Group>
+          {cancelButton}
+          <Button
+            btnStyle="primary"
+            size="small"
+            icon="ios-arrow-forward"
+            onClick={e => save('save', e)}
+          >
+            Save
+          </Button>
+        </Button.Group>
       );
     } else if (save) {
       return (
         <Button.Group>
+          {cancelButton}
           <Button
             btnStyle="warning"
             size="small"
