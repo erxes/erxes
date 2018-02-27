@@ -171,8 +171,8 @@ class Navigation extends Component {
               <NavIcon className="icon-knowledge" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Lead">
-            <NavLink to="/lead" activeClassName="active">
+          <Tip placement="right" text="Forms">
+            <NavLink to="/forms" activeClassName="active">
               <NavIcon className="icon-engage" />
             </NavLink>
           </Tip>
