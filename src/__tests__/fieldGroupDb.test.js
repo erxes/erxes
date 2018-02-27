@@ -39,15 +39,15 @@ describe('Fields', () => {
       name: 'Name',
       description: 'Description',
       contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-      lastUpdatedBy: user._id,
+      lastUpdatedUserId: user._id,
     };
 
-    const groupObj = await FieldsGroups.createFieldsGroup(doc);
+    const groupObj = await FieldsGroups.createGroup(doc);
 
     expect(groupObj.name).toBe(doc.name);
     expect(groupObj.description).toBe(doc.description);
     expect(groupObj.contentType).toBe(doc.contentType);
-    expect(groupObj.lastUpdatedBy).toBe(doc.lastUpdatedBy);
+    expect(groupObj.lastUpdatedUserId).toBe(doc.lastUpdatedUserId);
   });
 
   test('Update group', async () => {
@@ -59,20 +59,20 @@ describe('Fields', () => {
     const doc = {
       name: 'test name',
       description: 'test description',
-      lastUpdatedBy: user._id,
+      lastUpdatedUserId: user._id,
     };
 
     try {
-      await FieldsGroups.updateFieldsGroup(_fieldGroup._id, doc);
+      await FieldsGroups.updateGroup(_fieldGroup._id, doc);
     } catch (e) {
       expect(e.message).toBe('Cant update this group');
     }
 
-    const groupObj = await FieldsGroups.updateFieldsGroup(fieldGroup._id, doc);
+    const groupObj = await FieldsGroups.updateGroup(fieldGroup._id, doc);
 
     expect(groupObj.name).toBe(doc.name);
     expect(groupObj.description).toBe(doc.description);
-    expect(groupObj.lastUpdatedBy).toBe(doc.lastUpdatedBy);
+    expect(groupObj.lastUpdatedUserId).toBe(doc.lastUpdatedUserId);
   });
 
   test('Remove group', async () => {
@@ -82,12 +82,12 @@ describe('Fields', () => {
     await fieldFactory({ groupId: fieldGroup._id });
 
     try {
-      await FieldsGroups.removeFieldsGroup(_fieldGroup._id);
+      await FieldsGroups.removeGroup(_fieldGroup._id);
     } catch (e) {
       expect(e.message).toBe('Cant update this group');
     }
 
-    await FieldsGroups.removeFieldsGroup(fieldGroup._id);
+    await FieldsGroups.removeGroup(fieldGroup._id);
 
     expect(await Fields.find({ groupId: fieldGroup._id })).toHaveLength(0);
     expect(await FieldsGroups.findOne({ _id: fieldGroup._id })).toBeNull();
@@ -99,7 +99,7 @@ describe('Fields', () => {
     const _id = '1333131';
 
     try {
-      await FieldsGroups.removeFieldsGroup(_id);
+      await FieldsGroups.removeGroup(_id);
     } catch (e) {
       expect(e.message).toBe(`Group not found with id of ${_id}`);
     }
@@ -108,19 +108,19 @@ describe('Fields', () => {
   test('Update group visible', async () => {
     expect.assertions(3);
 
-    const fieldGroup = await fieldGroupFactory({ visible: true });
+    const fieldGroup = await fieldGroupFactory({ isVisible: true });
     const user = await userFactory({});
 
     try {
-      await FieldsGroups.updateFieldsGroupVisible(_fieldGroup._id, true, user._id);
+      await FieldsGroups.updateGroupVisible(_fieldGroup._id, true, user._id);
     } catch (e) {
       expect(e.message).toBe('Cant update this group');
     }
 
-    const visible = false;
-    const groupObj = await FieldsGroups.updateFieldsGroupVisible(fieldGroup._id, visible, user._id);
+    const isVisible = false;
+    const groupObj = await FieldsGroups.updateGroupVisible(fieldGroup._id, isVisible, user._id);
 
-    expect(groupObj.visible).toBe(visible);
-    expect(groupObj.lastUpdatedBy).toBe(user._id);
+    expect(groupObj.isVisible).toBe(isVisible);
+    expect(groupObj.lastUpdatedUserId).toBe(user._id);
   });
 });

@@ -5,9 +5,10 @@ type FieldsGroup {
     contentType: String
     order: Int
     description: String
-    visible: Boolean
+    isVisible: Boolean
     isDefinedByErxes: Boolean
-    getFields: [Field]
+    Fields: [Field]
+    lastUpdatedUserId: String
     lastUpdatedBy: User
   }
 `;
@@ -18,7 +19,7 @@ const commonFields = `
   order: Int
   description: String
   visible: Boolean
-  lastUpdatedBy: String
+  lastUpdatedUserId: String
 `;
 
 export const queries = `
@@ -29,5 +30,6 @@ export const mutations = `
   fieldsGroupsAdd(${commonFields}): FieldsGroup
   fieldsGroupsEdit(_id: String!, ${commonFields}): FieldsGroup
   fieldsGroupsRemove(_id: String!): String
-  fieldsGroupsUpdateVisible(_id: String, visible: Boolean, lastUpdatedBy: String) : FieldsGroup
+  fieldsGroupsUpdateVisible
+  (_id: String, isVisible: Boolean, lastUpdatedUserId: String) : FieldsGroup
 `;

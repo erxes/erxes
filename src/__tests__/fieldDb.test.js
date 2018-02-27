@@ -107,9 +107,9 @@ describe('Fields', () => {
       expect(e.message).toEqual('You cant add field into this group');
     }
 
-    const fieldObj = await Fields.createField({ lastUpdatedBy: user._id });
+    const fieldObj = await Fields.createField({ lastUpdatedUserId: user._id });
 
-    expect(fieldObj.lastUpdatedBy).toBe(user._id);
+    expect(fieldObj.lastUpdatedUserId).toBe(user._id);
   });
 
   test('updateOrder()', async () => {
@@ -278,11 +278,11 @@ describe('Fields', () => {
   test('Update field visible', async () => {
     expect.assertions(3);
 
-    const field = await fieldFactory({ visible: true });
+    const field = await fieldFactory({ isVisible: true });
     const user = await userFactory({});
     const testField = await fieldFactory({ isDefinedByErxes: true });
 
-    const visible = false;
+    const isVisible = false;
 
     try {
       await Fields.updateFieldsVisible(testField._id);
@@ -290,9 +290,9 @@ describe('Fields', () => {
       expect(e.message).toBe('Cant update this field');
     }
 
-    const fieldObj = await Fields.updateFieldsVisible(field._id, visible, user._id);
+    const fieldObj = await Fields.updateFieldsVisible(field._id, isVisible, user._id);
 
-    expect(fieldObj.visible).toBe(visible);
-    expect(fieldObj.lastUpdatedBy).toBe(user._id);
+    expect(fieldObj.isVisible).toBe(isVisible);
+    expect(fieldObj.lastUpdatedUserId).toBe(user._id);
   });
 });

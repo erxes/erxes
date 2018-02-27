@@ -38,13 +38,13 @@ const fieldMutations = {
   /**
    * Update field's visible
    * @param {String} _id - Field id to update
-   * @param {String} visible - True or false visible value
-   * @param {String} lastUpdatedBy - id of user who updated field last
+   * @param {String} isVisible - True or false visible value
+   * @param {String} lastUpdatedUserId - id of user who updated field last
    *
    * @return {Promise} Updated field
    */
-  fieldsUpdateVisible(root, { _id, visible, lastUpdatedBy }) {
-    return Fields.updateFieldsVisible(_id, visible, lastUpdatedBy);
+  fieldsUpdateVisible(root, { _id, isVisible, lastUpdatedUserId }) {
+    return Fields.updateFieldsVisible(_id, isVisible, lastUpdatedUserId);
   },
 };
 

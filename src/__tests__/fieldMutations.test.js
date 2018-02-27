@@ -100,15 +100,15 @@ describe('Fields mutations', () => {
   test('Update visible', async () => {
     Fields.updateFieldsVisible = jest.fn();
 
-    const visible = false;
-    const lastUpdatedBy = _user._id;
+    const isVisible = false;
+    const lastUpdatedUserId = _user._id;
 
     await fieldMutations.fieldsUpdateVisible(
       {},
-      { _id: _field._id, visible, lastUpdatedBy },
+      { _id: _field._id, isVisible, lastUpdatedUserId },
       { user: _user },
     );
 
-    expect(Fields.updateFieldsVisible).toBeCalledWith(_field._id, visible, lastUpdatedBy);
+    expect(Fields.updateFieldsVisible).toBeCalledWith(_field._id, isVisible, lastUpdatedUserId);
   });
 });

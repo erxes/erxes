@@ -1,20 +1,19 @@
 import { FieldsGroups } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '../../constants';
 
 const fieldsGroupQueries = {
   /**
    * Fields list
-   * @param {String} contentType - Sort by content type
+   * @param {String} contentType - Filter by content type
    *
-   * @return {Promise} sorted fields group list
+   * @return {Promise} Filtered fields group list
    */
   fieldsGroups(root, { contentType }) {
     const query = {};
 
     // querying by content type
-    if (contentType) {
-      query.contentType = contentType;
-    }
+    query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
 
     return FieldsGroups.find(query).sort({ order: 1 });
   },

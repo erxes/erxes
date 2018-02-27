@@ -209,9 +209,9 @@ export const fieldFactory = async (params = {}) => {
     isRequired: params.isRequired || false,
     order: params.order || 0,
     isDefinedByErxes: params.isDefinedByErxes || false,
-    visible: params.visible || true,
+    isVisible: params.visible || true,
     groupId: params.groupId || groupObj._id,
-    lastUpdate: params.lastUpdatedBy || userObj._id,
+    lastUpdatedUserId: params.lastUpdatedUserId || userObj._id,
   });
 
   return field.save();
@@ -401,10 +401,10 @@ export const fieldGroupFactory = async params => {
     contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
     description: faker.random.word(),
     order: 1,
-    visible: true,
+    isVisible: true,
     isDefinedByErxes: false,
-    lastUpdatedBy: user._id,
+    lastUpdatedUserId: user._id,
   };
 
-  return FieldsGroups.createFieldsGroup({ ...doc, ...params }, faker.random.word());
+  return FieldsGroups.createGroup({ ...doc, ...params }, faker.random.word());
 };

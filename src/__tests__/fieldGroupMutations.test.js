@@ -53,29 +53,29 @@ describe('Fields mutations', () => {
   });
 
   test('Create field', async () => {
-    const mockedMethod = jest.spyOn(FieldsGroups, 'createFieldsGroup');
+    const mockedMethod = jest.spyOn(FieldsGroups, 'createGroup');
 
     const doc = {
       name: faker.random.word(),
       description: faker.random.word(),
       contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-      lastUpdatedBy: _user._id,
+      lastUpdatedUserId: _user._id,
     };
 
     await fieldsGroupsMutations.fieldsGroupsAdd({}, doc, { user: _user });
 
-    expect(FieldsGroups.createFieldsGroup).toBeCalledWith(doc);
+    expect(FieldsGroups.createGroup).toBeCalledWith(doc);
 
     mockedMethod.mockRestore();
   });
 
   test('Update field group', async () => {
-    FieldsGroups.updateFieldsGroup = jest.fn();
+    FieldsGroups.updateGroup = jest.fn();
 
     const doc = {
       name: faker.random.word(),
       description: faker.random.word(),
-      lastUpdatedBy: _user._id,
+      lastUpdatedUserId: _user._id,
     };
 
     await fieldsGroupsMutations.fieldsGroupsEdit(
@@ -84,33 +84,33 @@ describe('Fields mutations', () => {
       { user: _user },
     );
 
-    expect(FieldsGroups.updateFieldsGroup).toBeCalledWith(_fieldGroup._id, doc);
+    expect(FieldsGroups.updateGroup).toBeCalledWith(_fieldGroup._id, doc);
   });
 
   test('Remove field group', async () => {
-    FieldsGroups.removeFieldsGroup = jest.fn();
+    FieldsGroups.removeGroup = jest.fn();
 
     await fieldsGroupsMutations.fieldsGroupsRemove({}, { _id: _fieldGroup._id }, { user: _user });
 
-    expect(FieldsGroups.removeFieldsGroup).toBeCalledWith(_fieldGroup._id);
+    expect(FieldsGroups.removeGroup).toBeCalledWith(_fieldGroup._id);
   });
 
   test('Update visible', async () => {
-    FieldsGroups.updateFieldsGroupVisible = jest.fn();
+    FieldsGroups.updateGroupVisible = jest.fn();
 
-    const visible = false;
-    const lastUpdatedBy = _user._id;
+    const isVisible = false;
+    const lastUpdatedUserId = _user._id;
 
     await fieldsGroupsMutations.fieldsGroupsUpdateVisible(
       {},
-      { _id: _fieldGroup._id, visible, lastUpdatedBy },
+      { _id: _fieldGroup._id, isVisible, lastUpdatedUserId },
       { user: _user },
     );
 
-    expect(FieldsGroups.updateFieldsGroupVisible).toBeCalledWith(
+    expect(FieldsGroups.updateGroupVisible).toBeCalledWith(
       _fieldGroup._id,
-      visible,
-      lastUpdatedBy,
+      isVisible,
+      lastUpdatedUserId,
     );
   });
 });
