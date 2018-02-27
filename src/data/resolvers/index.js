@@ -20,8 +20,7 @@ import KnowledgeBaseCategory from './knowledgeBaseCategory';
 import KnowledgeBaseTopic from './knowledgeBaseTopic';
 import ActivityLog from './activityLog';
 import ActivityLogForMonth from './activityLogForMonth';
-import FieldsGroup from './fieldsgroup';
-import Field from './field';
+import { Field, FieldsGroup } from './field';
 
 export default {
   ...customScalars,

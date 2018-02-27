@@ -1,6 +1,6 @@
-import { Users } from '../../db/models';
+import { Users, Fields } from '../../db/models';
 
-export default {
+const Field = {
   lastUpdatedBy(Field) {
     const { lastUpdatedUserId } = Field;
 
@@ -8,3 +8,19 @@ export default {
     return Users.findOne({ _id: lastUpdatedUserId });
   },
 };
+
+const FieldsGroup = {
+  fields(FieldGroup) {
+    // Returning all fields that are related to the group
+    return Fields.find({ groupId: FieldGroup._id });
+  },
+
+  lastUpdatedBy(FieldGroup) {
+    const { lastUpdatedUserId } = FieldGroup;
+
+    // Returning user who updated the group last
+    return Users.findOne({ _id: lastUpdatedUserId });
+  },
+};
+
+export { Field, FieldsGroup };

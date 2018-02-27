@@ -32,7 +32,14 @@ import {
   mutations as EmailTemplateMutations,
 } from './emailTemplate';
 
-import { types as FieldTypes, queries as FieldQueries, mutations as FieldMutations } from './field';
+import {
+  fieldsTypes as FieldTypes,
+  fieldsQueries as FieldQueries,
+  fieldsMutations as FieldMutations,
+  fieldsGroupsTypes as FieldGroupTypes,
+  fieldsGroupsMutations as FieldGroupMutations,
+  fieldsGroupsQueries as FieldGroupQueries,
+} from './field';
 
 import { types as FormTypes, queries as FormQueries, mutations as FormMutatons } from './form';
 
@@ -87,12 +94,6 @@ import {
   queries as ActivityLogQueries,
   mutations as ActivityLogMutations,
 } from './activityLog';
-
-import {
-  types as FieldGroupTypes,
-  mutations as FieldGroupMutations,
-  queries as FieldGroupQueries,
-} from './fieldGroup';
 
 export const types = `
   scalar JSON

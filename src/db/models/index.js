@@ -6,7 +6,7 @@ import Brands from './Brands';
 import Integrations from './Integrations';
 import EngageMessages from './Engages';
 import Tags from './Tags';
-import Fields from './Fields';
+import { Fields, FieldsGroups } from './Fields';
 import Forms from './Forms';
 import InternalNotes from './InternalNotes';
 import Customers from './Customers';
@@ -21,7 +21,6 @@ import {
 } from './KnowledgeBase';
 import { Notifications, NotificationConfigurations } from './Notifications';
 import ActivityLogs from './ActivityLogs';
-import FieldsGroups from './FieldsGroups';
 
 export {
   Users,
