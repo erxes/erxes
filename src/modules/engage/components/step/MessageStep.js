@@ -26,7 +26,7 @@ class MessageStep extends Component {
 
     let hasKind = true;
 
-    if (kind === 'visitor') {
+    if (kind === 'visitorAuto') {
       hasKind = false;
     }
 

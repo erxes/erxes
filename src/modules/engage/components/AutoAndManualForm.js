@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { StepWrapper, TitleContainer } from './step/style';
@@ -11,7 +11,6 @@ import {
   Step,
   ConditionStep
 } from './step';
-import FormBase from './FormBase';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
@@ -21,21 +20,27 @@ const propTypes = {
   templates: PropTypes.array.isRequired,
   customerCounts: PropTypes.object.isRequired,
   count: PropTypes.func.isRequired,
-  message: PropTypes.object
+  message: PropTypes.object,
+  brands: PropTypes.array,
+  users: PropTypes.array,
+  save: PropTypes.func,
+  kind: PropTypes.string
 };
 
-class AutoAndManualForm extends FormBase {
+class AutoAndManualForm extends Component {
   constructor(props) {
     super(props);
 
     const message = props.message || {};
+    const rules = message.messenger
+      ? message.messenger.rules.map(rule => ({ ...rule }))
+      : [];
     let content = message.messenger ? message.messenger.content : '';
-    const rules = content.rules ? content.rules.map(rule => ({ ...rule })) : [];
     content = message.email ? message.email.content : content;
     const messenger = message.messenger || {};
     const email = message.email || {};
     const validate = message.title ? false : true;
-    console.log(props.message);
+
     this.state = {
       activeStep: 1,
       maxStep: 3,
@@ -62,12 +67,23 @@ class AutoAndManualForm extends FormBase {
       }
     };
 
+    this.save = this.save.bind(this);
     this.next = this.next.bind(this);
     this.changeState = this.changeState.bind(this);
   }
 
+  save(type, e) {
+    const doc = this.generateDoc(e);
+    if (type === 'live') {
+      this.props.save({ isLive: true, isDraft: false, ...doc });
+    } else if (type === 'draft ') {
+      this.props.save({ isLive: false, isDraft: true, ...doc });
+    } else {
+      this.props.save(doc);
+    }
+  }
+
   validate() {
-    console.log(this.props.message);
     const step3 = this.state[this.state.method];
     let validate = { ...this.state.validate };
     validate['step2'] = false;
