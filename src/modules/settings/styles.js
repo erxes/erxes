@@ -86,14 +86,14 @@ const LogoSpan = styled.span`
 
 const ColorPick = styled.div`
   border-radius: 4px;
-  display: inline-block;
+  display: ${props => (props.full ? 'block' : 'inline-block')};
   padding: 5px;
   border: 1px solid ${colors.colorShadowGray};
   cursor: pointer;
 `;
 
 const ColorPicker = styled.div`
-  width: 80px;
+  width: ${props => (props.full ? '100%' : '80px')};
   height: 15px;
 `;
 
@@ -302,7 +302,8 @@ const SidebarListItem = styled.li`
     background: ${props => !props.isActive && colors.bgLight};
 
     ${ActionButtons} {
-      width: ${dimensions.headerSpacing}px;
+      width: auto;
+      padding-right: ${dimensions.coreSpacing}px;
     }
   }
 `;

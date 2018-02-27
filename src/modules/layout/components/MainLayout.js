@@ -79,16 +79,16 @@ class MainLayout extends React.Component {
       relativeTime: {
         future: 'in %s',
         past: '%s ',
-        s: 's',
-        m: 'm',
+        s: 'just now',
+        m: 'a min',
         mm: '%d m',
-        h: 'h',
+        h: 'an hour',
         hh: '%d h',
-        d: 'd',
+        d: 'a day',
         dd: '%d d',
         M: 'a mth',
         MM: '%d mths',
-        y: 'y',
+        y: 'an year',
         yy: '%d y'
       }
     });
@@ -115,6 +115,20 @@ class MainLayout extends React.Component {
       locale: locale || 'en',
       messages: messages[locale || 'en']
     });
+
+    //browser default form validation event listener
+    document.addEventListener(
+      'invalid',
+      (function() {
+        return function(e) {
+          //prevent the browser from showing default error hint
+          e.preventDefault();
+
+          e.target.classList.add('form-invalid');
+        };
+      })(),
+      true
+    );
   }
 
   render() {

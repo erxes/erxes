@@ -4,12 +4,22 @@ import { colors, dimensions } from 'modules/common/styles';
 const MessageContent = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-radius: 7px;
+  border-bottom-left-radius: 0;
   background: ${colors.colorWhite};
   background: ${props =>
     props.internal ? colors.bgInternal : props.staff && colors.colorSecondary};
   word-break: break-word;
   box-shadow: 0 1px 1px 0 ${colors.darkShadow};
   color: ${props => props.staff && !props.internal && colors.colorWhite};
+
+  ${props => {
+    if (props.staff) {
+      return `
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 7px;
+      `;
+    }
+  }};
 
   p {
     margin: 0;

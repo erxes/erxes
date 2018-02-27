@@ -194,6 +194,31 @@ const Recipient = styled.div`
   font-size: 13px;
 `;
 
+const StepHeaderNumber = styled.div`
+  margin-right: 10px;
+  border-radius: 100%;
+  background: ${colors.colorPrimary};
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${colors.colorWhite};
+`;
+
+const StepHeader = styled.div`
+  padding: 10px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  background: ${colors.bgLight};
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+`;
+
+const StepContent = styled.div`
+  display: flex;
+`;
+
 export {
   EngageTitle,
   HelperText,
@@ -209,5 +234,8 @@ export {
   InlineForm,
   Segmentli,
   Recipients,
-  Recipient
+  Recipient,
+  StepHeader,
+  StepHeaderNumber,
+  StepContent
 };

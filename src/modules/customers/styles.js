@@ -119,12 +119,6 @@ const LoadMore = styled.div`
   margin-top: 10px;
 `;
 
-const DetailContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-`;
-
 const SubContent = styled.div`
   flex: 1;
 `;
@@ -157,7 +151,6 @@ export {
   Title,
   Footer,
   LoadMore,
-  DetailContent,
   SubContent,
   InfoTitle,
   InfoDetail,

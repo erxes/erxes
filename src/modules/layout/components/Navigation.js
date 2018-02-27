@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import { setBadge } from 'modules/common/utils';
 import { colors, dimensions } from 'modules/common/styles';
 import { Tip, Label } from 'modules/common/components';
 
@@ -114,6 +115,10 @@ const NavIcon = styled.i`
 `;
 
 class Navigation extends Component {
+  componentDidUpdate() {
+    setBadge(this.props.unreadConversationsCount);
+  }
+
   componentWillReceiveProps(nextProps) {
     if (
       nextProps.unreadConversationsCount > this.props.unreadConversationsCount

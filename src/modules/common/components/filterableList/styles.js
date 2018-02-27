@@ -2,11 +2,11 @@ import styled from 'styled-components';
 import { colors, dimensions } from '../../styles';
 
 const PopoverHeader = styled.div`
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   display: block !important;
 
   input {
     margin-bottom: 0;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -21,6 +21,7 @@ const PopoverList = styled.ul`
   list-style: none;
   overflow: auto;
   padding-bottom: 10px;
+  padding-top: 10px;
 
   li {
     position: relative;

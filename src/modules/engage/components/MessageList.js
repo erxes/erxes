@@ -129,8 +129,6 @@ class List extends React.Component {
             ))}
           </tbody>
         </Table>
-
-        <Pagination count={totalCount} />
       </div>
     );
 

@@ -42,7 +42,8 @@ const propTypes = {
   loadingTags: PropTypes.bool.isRequired,
   removeCustomers: PropTypes.func.isRequired,
   mergeCustomers: PropTypes.func.isRequired,
-  basicInfos: PropTypes.object.isRequired
+  basicInfos: PropTypes.object.isRequired,
+  queryParams: PropTypes.object
 };
 
 class CustomersList extends React.Component {
@@ -134,7 +135,8 @@ class CustomersList extends React.Component {
       mergeCustomers,
       basicInfos,
       location,
-      history
+      history,
+      queryParams
     } = this.props;
     const { __ } = this.context;
 
@@ -241,7 +243,9 @@ class CustomersList extends React.Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
+        }
         actionBar={actionBar}
         footer={<Pagination count={counts.all} />}
         leftSidebar={
