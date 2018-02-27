@@ -53,9 +53,23 @@ const deals = `
       pipelineId
       customer {
         _id
+        firstName
+        email
+      }
+      products {
+        _id
         name
       }
       amount
+      closeDate
+      assignedUsers {
+        _id
+        email
+        details {
+          fullName
+          avatar
+        }
+      }
     }
   }
 `;
@@ -67,7 +81,8 @@ const companies = `
       name
       customers {
         _id
-        name
+        firstName
+        email
       }
     }
   }
@@ -82,6 +97,19 @@ const products = `
   }
 `;
 
+const users = `
+  query users {
+    users {
+      _id
+      username
+      email
+      details {
+        fullName
+      }
+    }
+  }
+`;
+
 export default {
   boards,
   boardGetLast,
@@ -90,5 +118,6 @@ export default {
   stages,
   deals,
   companies,
-  products
+  products,
+  users
 };

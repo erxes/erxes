@@ -4,11 +4,13 @@ import { rgba } from 'modules/common/styles/color';
 
 const PipelineContainer = styled.div`
   background-color: ${colors.colorWhite};
-  height: 100%;
-  margin-bottom: 20px;
+  &:not(:first-child) {
+    margin-top: 20px;
+  }
 `;
 
 const PipelineHeader = styled.div`
+  width: 100%;
   height: 85px;
   padding: 0 30px;
   border-bottom: 1px solid ${colors.colorShadowGray};
@@ -23,14 +25,22 @@ const PipelineHeader = styled.div`
 `;
 
 const PipelineBody = styled.div`
-  display: inline-flex;
-  height: calc(100% - 85px);
+  overflow-x: auto;
+  > div {
+    display: inline-flex;
+  }
+`;
+
+const StageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 400px;
 `;
 
 const StageContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 330px;
+  min-height: calc(100vh - 233px);
   border-right: 1px solid ${colors.colorShadowGray};
   background: ${({ isDragging }) =>
     isDragging ? rgba(colors.colorCoreDarkGray, 0.2) : 'none'};
@@ -41,16 +51,32 @@ const StageContainer = styled.div`
     border-bottom: 1px solid ${colors.colorShadowGray};
     font-size: 18px;
     text-transform: uppercase;
+    span {
+      float: right;
+      text-transform: capitalize;
+      color: #585278;
+      font-size: 16px;
+    }
   }
 `;
 
 const StageBody = styled.div`
-  padding: 10px 30px;
+  padding: 10px 30px 30px;
+`;
+
+const StageDropZone = styled.div`
+  padding: 10px 0;
+`;
+
+const EmptyStage = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100px;
+  min-height: calc(100vh - 233px);
 `;
 
 const AddNewDeal = styled.a`
   display: block;
-  margin: 10px 30px;
   height: 70px;
   line-height: 70px;
   text-align: center;
@@ -65,15 +91,68 @@ const AddNewDeal = styled.a`
 `;
 
 const DealContainer = styled.div`
+  overflow: hidden;
   margin: 10px 0;
-  padding: 20px;
+  padding: 10px 15px;
   border-radius: 5px;
   border: 1px solid ${colors.colorShadowGray};
   background-color: #f6f6f6;
 `;
 
+const DealHeader = styled.div`
+  overflow: hidden;
+  margin-bottom: 10px;
+  h4 {
+    margin: 0;
+    float: left;
+    color: #2795ff;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  span {
+    float: right;
+  }
+`;
+
+const DealProducts = styled.div`
+  overflow: hidden;
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    > li {
+      float: left;
+      border-radius: 10px;
+      padding: 5px 8px;
+      margin-right: 5px;
+      color: #fff;
+      background: #130ef5;
+      text-transform: uppercase;
+      font-size: 9px;
+    }
+    .remained-count {
+      background: #a3a7ac;
+    }
+  }
+`;
+
+const DealAmount = styled.div`
+  float: left;
+  margin-top: 10px;
+  p {
+    margin-bottom: 0;
+  }
+`;
+
+const DealFormAmount = styled.div`
+  margin-top: 10px;
+  p {
+    margin-bottom: 0;
+    font-weight: bold;
+  }
+`;
+
 const DealFormContainer = styled.div`
-  margin: 10px 30px;
   padding: 30px;
   border-radius: 5px;
   border: 1px dotted ${colors.colorShadowGray};
@@ -102,6 +181,26 @@ const DealButton = styled.div`
   border-radius: 5px;
   i {
     float: right;
+  }
+`;
+
+const DealUsers = styled.ul`
+  float: right;
+  margin-top: 15px;
+  list-style: none;
+  li {
+    float: left;
+    border: 1px solid ${colors.colorWhite};
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 15px;
+    background: #a3a7ac;
+    text-align: center;
+    color: ${colors.colorWhite};
+    img {
+      vertical-align: top;
+    }
   }
 `;
 
@@ -142,6 +241,7 @@ const ProductFooter = styled.div`
 
 const FooterInfo = styled.div`
   overflow: hidden;
+  padding-bottom: 10px;
   > div {
     &:first-child {
       float: left;
@@ -184,12 +284,20 @@ export {
   PipelineContainer,
   PipelineHeader,
   PipelineBody,
+  StageWrapper,
   StageContainer,
   StageBody,
+  StageDropZone,
+  EmptyStage,
   AddNewDeal,
   DealContainer,
+  DealHeader,
+  DealAmount,
+  DealFormAmount,
+  DealProducts,
   DealFormContainer,
   DealButton,
+  DealUsers,
   ProductFormContainer,
   ProductTable,
   ProductFooter,

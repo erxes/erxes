@@ -6,7 +6,7 @@ import { queries } from '../graphql';
 import { PipelineForm } from '../components';
 import { Spinner } from 'modules/common/components';
 
-const PipelineFormContainer = props => {
+const EditPipelineFormContainer = props => {
   const { stagesQuery } = props;
 
   if (stagesQuery.loading) {
@@ -23,11 +23,11 @@ const PipelineFormContainer = props => {
   return <PipelineForm {...extendedProps} />;
 };
 
-PipelineFormContainer.propTypes = {
+EditPipelineFormContainer.propTypes = {
   stagesQuery: PropTypes.object
 };
 
-export default compose(
+const EditPipelineForm = compose(
   graphql(gql(queries.stages), {
     name: 'stagesQuery',
     options: ({ pipeline }) => ({
@@ -35,4 +35,20 @@ export default compose(
       fetchPolicy: 'network-only'
     })
   })
-)(PipelineFormContainer);
+)(EditPipelineFormContainer);
+
+const PipelineFormContainer = props => {
+  const { pipeline } = props;
+
+  if (pipeline) {
+    return <EditPipelineForm {...props} />;
+  }
+
+  return <PipelineForm {...props} />;
+};
+
+PipelineFormContainer.propTypes = {
+  pipeline: PropTypes.object
+};
+
+export default PipelineFormContainer;

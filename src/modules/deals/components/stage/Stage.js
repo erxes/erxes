@@ -1,7 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { StageContainer, StageBody, AddNewDeal } from '../../styles';
+import {
+  StageWrapper,
+  StageContainer,
+  StageBody,
+  StageDropZone,
+  AddNewDeal
+} from '../../styles';
 import { Icon } from 'modules/common/components';
 import { Deal } from '../';
 import { DealForm } from '../../containers';
@@ -25,17 +31,7 @@ class Stage extends React.Component {
   constructor(props) {
     super(props);
 
-    let amount = 0;
-
-    props.deals.forEach(deal => {
-      amount += deal.amount;
-    });
-
     props.collectDeals(props.stage._id, listObjectUnFreeze(props.dealsFromDb));
-
-    this.state = {
-      amount
-    };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -48,50 +44,61 @@ class Stage extends React.Component {
   }
 
   render() {
-    const { stage, pipelineId, boardId, deals, index } = this.props;
-    const { amount } = this.state;
+    const {
+      stage,
+      pipelineId,
+      boardId,
+      deals,
+      refetch,
+      showDealForm,
+      closeDealForm
+    } = this.props;
 
     return (
-      <Draggable draggableId={stage._id} index={index}>
+      <Draggable draggableId={stage._id} index={this.props.index}>
         {(provided, snapshot) => {
           return (
-            <StageContainer
-              innerRef={provided.innerRef}
-              {...provided.draggableProps}
-              isDragging={snapshot.isDragging}
-            >
-              <h3 {...provided.dragHandleProps}>
-                {stage.name} {amount}
-              </h3>
-              <Droppable droppableId={stage._id} type="DEAL">
-                {dropProvided => (
-                  <StageBody innerRef={dropProvided.innerRef}>
-                    <div>
-                      {deals.map((deal, i) => (
-                        <Deal key={deal._id} deal={deal} index={i} />
-                      ))}
-                    </div>
-                    {dropProvided.placeholder}
-                  </StageBody>
-                )}
-              </Droppable>
-              {this.props.showDealForm[stage._id] ? (
-                <DealForm
-                  boardId={boardId}
-                  pipelineId={pipelineId}
-                  stageId={stage._id}
-                  refetch={this.props.refetch}
-                  close={this.props.closeDealForm.bind(this, stage._id)}
-                  deals={this.props.deals}
-                />
-              ) : (
-                <AddNewDeal
-                  onClick={this.props.addDealForm.bind(this, stage._id)}
-                >
-                  <Icon icon="plus" /> Add new deal
-                </AddNewDeal>
-              )}
-            </StageContainer>
+            <StageWrapper>
+              <StageContainer
+                innerRef={provided.innerRef}
+                {...provided.draggableProps}
+                isDragging={snapshot.isDragging}
+              >
+                <h3 {...provided.dragHandleProps}>
+                  {stage.name} <span>Deal: {deals.length}</span>
+                </h3>
+                <StageBody>
+                  <Droppable droppableId={stage._id} type="DEAL">
+                    {dropProvided => (
+                      <StageDropZone innerRef={dropProvided.innerRef}>
+                        <div>
+                          {deals.map((deal, index) => (
+                            <Deal key={deal._id} deal={deal} index={index} />
+                          ))}
+                        </div>
+                        {dropProvided.placeholder}
+                      </StageDropZone>
+                    )}
+                  </Droppable>
+                  {showDealForm[stage._id] ? (
+                    <DealForm
+                      boardId={boardId}
+                      pipelineId={pipelineId}
+                      stageId={stage._id}
+                      refetch={refetch}
+                      close={closeDealForm.bind(this, stage._id)}
+                      dealsLength={deals.length}
+                    />
+                  ) : (
+                    <AddNewDeal
+                      onClick={this.props.addDealForm.bind(this, stage._id)}
+                    >
+                      <Icon icon="plus" /> Add new deal
+                    </AddNewDeal>
+                  )}
+                </StageBody>
+              </StageContainer>
+            </StageWrapper>
           );
         }}
       </Draggable>

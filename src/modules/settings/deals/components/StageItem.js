@@ -12,9 +12,8 @@ const propTypes = {
 class StageItem extends Component {
   render() {
     const { stage } = this.props;
-
     return (
-      <StageItemContainer>
+      <StageItemContainer key={stage._id}>
         <FormControl
           defaultValue={stage.name}
           type="text"

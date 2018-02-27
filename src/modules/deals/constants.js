@@ -1,22 +1,22 @@
 export const UOM = [
   {
-    _id: 'uom1',
+    _id: 'Man hour',
     name: 'Man hour'
   },
   {
-    _id: 'uom2',
+    _id: 'Quantity',
     name: 'Quantity'
   }
 ];
 
 export const Currencies = [
   {
-    _id: 'currency1',
+    _id: 'MNT',
     code: 'MNT',
     name: 'MNT'
   },
   {
-    _id: 'currency2',
+    _id: 'USD',
     code: 'USD',
     name: 'USD'
   }

@@ -42,7 +42,7 @@ class HomeWithCurrent extends React.Component {
     const removePipeline = _id => {
       confirm().then(() => {
         removePipelineMutation({
-          variables: { ids: [_id] }
+          variables: { _id }
         })
           .then(() => {
             pipelinesQuery.refetch();

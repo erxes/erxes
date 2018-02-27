@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
+import moment from 'moment';
+import { DealProduct, DealUser } from '../';
 
-import { DealContainer } from '../../styles';
+import { DealContainer, DealHeader, DealAmount } from '../../styles';
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
@@ -22,9 +24,21 @@ class Deal extends React.Component {
               {...provided.draggableProps}
               {...provided.dragHandleProps}
             >
-              {deal.customer.name}
-              <br />
-              {deal.amount}
+              <DealHeader>
+                <h4>{deal.customer.firstName || deal.customer.email}</h4>
+                <span>{moment(deal.closeDate).format('YYYY-MM-DD')}</span>
+              </DealHeader>
+              {deal.products ? <DealProduct products={deal.products} /> : null}
+              <DealAmount>
+                {Object.keys(deal.amount).map(el => (
+                  <p key={el}>
+                    {deal.amount[el]} {el}
+                  </p>
+                ))}
+              </DealAmount>
+              {deal.assignedUsers ? (
+                <DealUser users={deal.assignedUsers} />
+              ) : null}
             </DealContainer>
             {provided.placeholder}
           </div>

@@ -24,3 +24,24 @@ export function selectOptions(array) {
   array.map(item => options.push({ value: item._id, label: item.name }));
   return options;
 }
+
+// get customer options for react-select-plus
+export function selectCustomerOptions(array) {
+  const options = [];
+  array.map(item =>
+    options.push({ value: item._id, label: item.firstName || item.email })
+  );
+  return options;
+}
+
+// get user options for react-select-plus
+export function selectUserOptions(array) {
+  const options = [];
+  array.map(item =>
+    options.push({
+      value: item._id,
+      label: item.details.fullName || item.email
+    })
+  );
+  return options;
+}

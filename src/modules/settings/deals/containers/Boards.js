@@ -15,7 +15,7 @@ const BoardsContainer = props => {
   const remove = _id => {
     confirm().then(() => {
       removeMutation({
-        variables: { ids: [_id] }
+        variables: { _id }
       })
         .then(() => {
           boardsQuery.refetch();

@@ -3,11 +3,13 @@ const commonVariables = `
   $pipelineId: String,
   $stageId: String!,
   $productIds: [String]!,
-  $productsData: JSON,
+  $productsData: JSON!,
   $companyId: String!,
   $customerId: String!,
   $closeDate: Date!,
-  $note: String
+  $note: String,
+  $assignedUserIds: [String],
+  $order: Int,
 `;
 
 const commonParams = `
@@ -19,7 +21,9 @@ const commonParams = `
   companyId: $companyId,
   customerId: $customerId,
   closeDate: $closeDate,
-  note: $note
+  note: $note,
+  assignedUserIds: $assignedUserIds,
+  order: $order
 `;
 
 const dealsAdd = `

@@ -127,6 +127,7 @@ class Board extends React.Component {
   }
 
   onDragEnd(result) {
+    console.log('result: ', result);
     // dropped outside the list
     if (!result.destination) {
       return;

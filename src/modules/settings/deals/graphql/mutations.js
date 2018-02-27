@@ -23,8 +23,8 @@ const boardEdit = `
 `;
 
 const boardRemove = `
-  mutation dealBoardsRemove($ids: [String!]!) {
-    dealBoardsRemove(ids: $ids)
+  mutation dealBoardsRemove($_id: String!) {
+    dealBoardsRemove(_id: $_id)
   }
 `;
 
@@ -57,8 +57,8 @@ const pipelineEdit = `
 `;
 
 const pipelineRemove = `
-  mutation dealPipelinesRemove($ids: [String!]!) {
-    dealPipelinesRemove(ids: $ids)
+  mutation dealPipelinesRemove($_id: String!) {
+    dealPipelinesRemove(_id: $_id)
   }
 `;
 

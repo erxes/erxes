@@ -2,7 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Stage } from '../../containers';
 import { Droppable } from 'react-beautiful-dnd';
-import { PipelineContainer, PipelineHeader, PipelineBody } from '../../styles';
+import {
+  PipelineContainer,
+  PipelineHeader,
+  PipelineBody,
+  EmptyStage
+} from '../../styles';
 import { listObjectUnFreeze } from 'modules/common/utils';
 
 const propTypes = {
@@ -53,27 +58,6 @@ class Pipeline extends React.Component {
   render() {
     const { stages, pipeline, boardId, dealsByStage } = this.props;
 
-    const content = provided => (
-      <PipelineBody innerRef={provided.innerRef}>
-        {stages.map((stage, index) => {
-          return (
-            <Stage
-              key={stage._id}
-              index={index}
-              stage={stage}
-              boardId={boardId}
-              pipelineId={pipeline._id}
-              showDealForm={this.state.showDealForm}
-              closeDealForm={this.closeDealForm}
-              addDealForm={this.addDealForm}
-              deals={dealsByStage[stage._id] || []}
-              collectDeals={this.props.collectDeals}
-            />
-          );
-        })}
-      </PipelineBody>
-    );
-
     return (
       <PipelineContainer>
         <PipelineHeader>
@@ -84,7 +68,32 @@ class Pipeline extends React.Component {
           direction="horizontal"
           droppableId={pipeline._id}
         >
-          {provided => content(provided)}
+          {provided => (
+            <PipelineBody
+              innerRef={provided.innerRef}
+              {...provided.droppableProps}
+            >
+              <div>
+                {stages.map((stage, index) => {
+                  return (
+                    <Stage
+                      key={stage._id}
+                      stage={stage}
+                      index={index}
+                      boardId={boardId}
+                      pipelineId={pipeline._id}
+                      showDealForm={this.state.showDealForm}
+                      closeDealForm={this.closeDealForm}
+                      addDealForm={this.addDealForm}
+                      deals={dealsByStage[stage._id] || []}
+                      collectDeals={this.props.collectDeals}
+                    />
+                  );
+                })}
+                <EmptyStage />
+              </div>
+            </PipelineBody>
+          )}
         </Droppable>
       </PipelineContainer>
     );

@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { UOM, Currencies } from '../../constants';
 import { FormControl, Icon } from 'modules/common/components';
+import Select from 'react-select-plus';
 import { ProductItemText } from '../../styles';
+import { selectOptions } from '../../utils';
 
 const propTypes = {
   products: PropTypes.array,
@@ -20,52 +22,49 @@ class ProductItemForm extends React.Component {
     return (
       <tr>
         <td>
-          <FormControl
-            componentClass="select"
-            onChange={this.props.onChangeSelect.bind(
-              this,
-              product._id,
-              'productId'
+          <Select
+            placeholder="Choose"
+            value={product.productId}
+            onChange={value =>
+              this.props.onChangeSelect(value, product._id, 'productId')
+            }
+            optionRenderer={option => (
+              <div className="simple-option">
+                <span>{option.label}</span>
+              </div>
             )}
-          >
-            <option />
-            {products.map(item => (
-              <option key={item._id} value={item._id}>
-                {item.name}
-              </option>
-            ))}
-          </FormControl>
+            options={selectOptions(products)}
+          />
         </td>
         <td>
-          <FormControl
-            componentClass="select"
-            onChange={this.props.onChangeSelect.bind(this, product._id, 'uom')}
-          >
-            <option />
-            {UOM.map(item => (
-              <option key={item._id} value={item._id}>
-                {item.name}
-              </option>
-            ))}
-          </FormControl>
+          <Select
+            placeholder="Choose"
+            value={product.uom}
+            onChange={value =>
+              this.props.onChangeSelect(value, product._id, 'uom')
+            }
+            optionRenderer={option => (
+              <div className="simple-option">
+                <span>{option.label}</span>
+              </div>
+            )}
+            options={selectOptions(UOM)}
+          />
         </td>
         <td>
-          <FormControl
-            componentClass="select"
+          <Select
+            placeholder="Choose"
             value={product.currency}
-            onChange={this.props.onChangeSelect.bind(
-              this,
-              product._id,
-              'currency'
+            onChange={value =>
+              this.props.onChangeSelect(value, product._id, 'currency')
+            }
+            optionRenderer={option => (
+              <div className="simple-option">
+                <span>{option.label}</span>
+              </div>
             )}
-          >
-            <option />
-            {Currencies.map(item => (
-              <option key={item.code} value={item.code}>
-                {item.name}
-              </option>
-            ))}
-          </FormControl>
+            options={selectOptions(Currencies)}
+          />
         </td>
         <td>
           <FormControl

@@ -8,7 +8,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { ProductItemForm } from '../../containers';
+import { ProductItemForm } from '../';
 import {
   ProductFormContainer,
   ProductTable,
@@ -19,7 +19,8 @@ import {
 
 const propTypes = {
   onChangeProductsData: PropTypes.func.isRequired,
-  productsData: PropTypes.array
+  productsData: PropTypes.array,
+  products: PropTypes.array
 };
 
 const contextTypes = {
@@ -100,13 +101,13 @@ class ProductForm extends React.Component {
     });
   }
 
-  onChangeSelect(_id, type, e) {
+  onChangeSelect(selected, _id, type) {
     const productsData = this.props.productsData;
 
-    const product = productsData.find(p => p._id === _id);
-    product[type] = e.target.value;
+    const productData = productsData.find(p => p._id === _id);
+    productData[type] = selected ? selected.value : '';
 
-    if (product.amount > 0 && type === 'currency') {
+    if (productData.amount > 0 && type === 'currency') {
       this.updateTotal();
     }
 
@@ -161,12 +162,12 @@ class ProductForm extends React.Component {
         <ProductTable>
           <thead>
             <tr>
-              <td width="200">Product & Service</td>
+              <td>Product & Service</td>
               <td width="120">UOM</td>
-              <td>Currency</td>
-              <td>Quantity</td>
-              <td>Unit Price</td>
-              <td>Amount</td>
+              <td width="120">Currency</td>
+              <td width="100">Quantity</td>
+              <td width="140">Unit Price</td>
+              <td width="120">Amount</td>
             </tr>
           </thead>
           <tbody>
@@ -174,6 +175,7 @@ class ProductForm extends React.Component {
               <ProductItemForm
                 key={product._id}
                 product={product}
+                products={this.props.products}
                 onChangeSelect={this.onChangeSelect}
                 onChangeInput={this.onChangeInput}
                 removeProductItem={this.removeProductItem}

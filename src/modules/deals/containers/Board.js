@@ -58,7 +58,7 @@ class Container extends React.Component {
       });
     };
 
-    // if move to other stage, will change stageId and pipelineId
+    // if move to other pipeline, will change pipelineId
     const stagesChange = (_id, pipelineId) => {
       stagesChangeMutation({
         variables: { _id, pipelineId }
