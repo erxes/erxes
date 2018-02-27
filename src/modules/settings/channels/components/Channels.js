@@ -78,5 +78,8 @@ class Channels extends Component {
 }
 
 Channels.propTypes = propTypes;
+Channels.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Channels;

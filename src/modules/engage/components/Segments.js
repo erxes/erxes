@@ -40,7 +40,6 @@ class Segments extends Component {
 
   render() {
     const { segments, counts } = this.props;
-    const { __ } = this.context;
 
     const orderedSegments = [];
 
@@ -75,8 +74,5 @@ class Segments extends Component {
 }
 
 Segments.propTypes = propTypes;
-Segments.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Segments;
