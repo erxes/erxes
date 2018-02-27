@@ -116,7 +116,7 @@ const SortableList = SortableContainer(({ fields, config }) => {
 
   return (
     <SortableWrapper>
-      {config.map((field, index) => (
+      {fields.map((field, index) => (
         <SortableItem
           key={index}
           index={index}

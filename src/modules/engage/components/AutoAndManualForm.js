@@ -35,7 +35,7 @@ class AutoAndManualForm extends FormBase {
     const messenger = message.messenger || {};
     const email = message.email || {};
     const validate = message.title ? false : true;
-
+    console.log(props.message);
     this.state = {
       activeStep: 1,
       maxStep: 3,
@@ -64,6 +64,31 @@ class AutoAndManualForm extends FormBase {
 
     this.next = this.next.bind(this);
     this.changeState = this.changeState.bind(this);
+  }
+
+  validate() {
+    console.log(this.props.message);
+    const step3 = this.state[this.state.method];
+    let validate = { ...this.state.validate };
+    validate['step2'] = false;
+    validate['step3'] = false;
+
+    if (this.state.rules === '') {
+      validate['step2'] = true;
+    }
+
+    if (this.state.segment === '') {
+      validate['step2'] = true;
+    }
+
+    Object.keys(step3).map(key => {
+      if (step3[key] === '') {
+        validate['step3'] = true;
+      }
+      return false;
+    });
+
+    this.setState({ validate });
   }
 
   generateDoc(e) {
@@ -107,7 +132,7 @@ class AutoAndManualForm extends FormBase {
 
   next(stepNumber) {
     const { activeStep, maxStep } = this.state;
-
+    this.validate();
     if (stepNumber === 0) {
       if (activeStep <= maxStep) {
         this.setState({ activeStep: activeStep + 1 });

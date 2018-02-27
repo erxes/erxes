@@ -88,7 +88,7 @@ class List extends React.Component {
         Edit columns
       </Button>
     );
-    console.log(columnsConfig);
+
     const actionBarRight = (
       <BarItems>
         <ModalTrigger title="Choose which column you see" trigger={editColumns}>

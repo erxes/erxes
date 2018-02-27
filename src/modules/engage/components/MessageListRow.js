@@ -12,7 +12,7 @@ import {
   Icon,
   Tags
 } from 'modules/common/components';
-import { HelperText } from '../styles';
+import { HelperText, EngageTitle } from '../styles';
 import { MESSAGE_KINDS } from 'modules/engage/constants';
 
 const propTypes = {
@@ -96,62 +96,71 @@ class Row extends React.Component {
     ));
   }
 
-  renderValue(name) {
+  renderValue(name, counter) {
     const { message } = this.props;
 
     let status = <Label lblStyle="default">Sending</Label>;
     let successCount = 0;
     let failedCount = 0;
 
-    const deliveryReports = Object.values(message.deliveryReports || {});
-    const totalCount = deliveryReports.length;
-
-    deliveryReports.forEach(report => {
-      if (report.status === 'sent') {
-        successCount++;
-      }
-
-      if (report.status === 'failed') {
-        failedCount++;
-      }
-    });
-
-    if (totalCount === successCount + failedCount) {
-      status = <Label lblStyle="success">Sent</Label>;
+    if (name === 'title') {
+      return (
+        <td key={counter}>
+          <EngageTitle onClick={this.props.edit}>{message.title}</EngageTitle>
+          {message.isDraft ? <Label lblStyle="primary">Draft</Label> : null}
+          {this.renderRules()}
+        </td>
+      );
     }
-
     if (name === 'from') {
       return (
-        <td className="text-normal">
+        <td className="text-normal" key={counter}>
           <NameCard user={message.fromUser} avatarSize={30} singleLine />
         </td>
       );
     } else if (name === 'status') {
-      return <td>{status}</td>;
+      return <td key={counter}>{status}</td>;
     } else if (name === 'total') {
+      const deliveryReports = Object.values(message.deliveryReports || {});
+      const totalCount = deliveryReports.length;
+
+      deliveryReports.forEach(report => {
+        if (report.status === 'sent') {
+          successCount++;
+        }
+
+        if (report.status === 'failed') {
+          failedCount++;
+        }
+      });
+
+      if (totalCount === successCount + failedCount) {
+        status = <Label lblStyle="success">Sent</Label>;
+      }
+
       return (
-        <td className="text-primary">
+        <td className="text-primary" key={counter}>
           <Icon icon="cube" />
           <b> {totalCount}</b>
         </td>
       );
     } else if (name === 'sent') {
       return (
-        <td className="text-success">
+        <td className="text-success" key={counter}>
           <Icon icon="paper-airplane" />
           <b> {successCount}</b>
         </td>
       );
     } else if (name === 'failed') {
       return (
-        <td className="text-warning">
+        <td className="text-warning" key={counter}>
           <Icon icon="alert-circled" />
           <b> {failedCount}</b>
         </td>
       );
     } else if (name === 'type') {
       return (
-        <td>
+        <td key={counter}>
           {message.email ? (
             <div>
               <Icon icon="email" /> Email
@@ -165,31 +174,35 @@ class Row extends React.Component {
       );
     } else if (name === 'created date') {
       return (
-        <td>
+        <td key={counter}>
           <Icon icon="calendar" />{' '}
           {moment(message.createdDate).format('DD MMM YYYY')}
         </td>
       );
     } else if (name === 'tags') {
       return (
-        <td>
+        <td key={counter}>
           <Tags tags={message.getTags} limit={3} />
         </td>
       );
+    } else if (name === 'brand') {
+      return (
+        <td key={counter}>{message.getBrand ? message.getBrand.name : ''}</td>
+      );
     }
 
-    return <td>{_.get(message, name)}</td>;
+    return <td key={counter}>{_.get(message, name)}</td>;
   }
 
   render() {
     const { message, columnsConfig, remove } = this.props;
-
+    let counter = 0;
     return (
       <tr key={message._id}>
         <td>
           <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
         </td>
-        {columnsConfig.map(({ name }) => this.renderValue(name))}
+        {columnsConfig.map(({ name }) => this.renderValue(name, counter++))}
         <td>
           <ActionButtons>
             {this.renderLinks()}

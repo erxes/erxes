@@ -27,6 +27,10 @@ const engageMessages = `
         name
         colorCode
       }
+      getBrand{
+        _id
+        name
+      }
       messenger
       email
     }

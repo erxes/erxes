@@ -14,6 +14,10 @@ const BoxContainer = FlexItem.extend`
   }
 `;
 
+const Preview = FlexItem.extend`
+  flex: 1 100%;
+`;
+
 const Box = styled.div`
   display: inline-block;
   text-align: center;
@@ -133,7 +137,7 @@ class ChannelStep extends Component {
           </div>
         </BoxContainer>
         <Divider />
-        <FlexItem />
+        <Preview />
       </FlexItem>
     );
   }

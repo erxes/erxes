@@ -20,7 +20,7 @@ const AutoAndManualFormContainer = props => {
     kind
   } = props;
 
-  const message = engageMessageDetailQuery.engageMessageDetail || [];
+  const message = engageMessageDetailQuery.engageMessageDetail || {};
   const brands = brandsQuery.brands || [];
 
   const customerCounts = customerCountsQuery.customerCounts || {
