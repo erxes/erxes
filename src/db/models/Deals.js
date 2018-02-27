@@ -283,6 +283,8 @@ const productSchema = mongoose.Schema(
     unitPrice: Number,
     taxPercent: Number,
     tax: Number,
+    discountPercent: Number,
+    discount: Number,
     amount: Number,
   },
   { _id: false },
