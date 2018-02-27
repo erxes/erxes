@@ -117,14 +117,15 @@ class Configs extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const content = (
       <ContentBox>
         <Row>
           <Col md={5}>
-            <SubHeading>Online messaging</SubHeading>
+            <SubHeading>{__('Online messaging')}</SubHeading>
 
             <FormGroup>
-              <ControlLabel>Welcome message</ControlLabel>
+              <ControlLabel>{__('Welcome message')}</ControlLabel>
 
               <FormControl
                 componentClass="textarea"
@@ -135,7 +136,7 @@ class Configs extends Component {
               />
             </FormGroup>
 
-            <SubHeading>Offline messaging</SubHeading>
+            <SubHeading>{__('Offline messaging')}</SubHeading>
 
             <FormGroup>
               <ControlLabel>Away message</ControlLabel>
@@ -162,7 +163,7 @@ class Configs extends Component {
             </FormGroup>
           </Col>
           <Col md={7}>
-            <SubHeading>Hours & Availability</SubHeading>
+            <SubHeading>{__('Hours & Availability')}</SubHeading>
             <FormGroup>
               <FormControl
                 name="method"
@@ -172,7 +173,7 @@ class Configs extends Component {
                 onChange={this.onMethodChange}
                 inline
               >
-                Turn online/offline manually
+                {__('Turn online/offline manually')}
               </FormControl>
 
               <FormControl
@@ -183,7 +184,7 @@ class Configs extends Component {
                 onChange={this.onMethodChange}
                 inline
               >
-                Set to follow your schedule
+                {__('Set to follow your schedule')}
               </FormControl>
             </FormGroup>
 
@@ -223,8 +224,8 @@ class Configs extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/integrations' },
-      { title: 'Integrations' }
+      { title: __('Settings'), link: '/settings/integrations' },
+      { title: __('Integrations') }
     ];
 
     const actionFooter = (
@@ -264,6 +265,10 @@ class Configs extends Component {
 Configs.propTypes = {
   prevOptions: PropTypes.object.isRequired, // eslint-disable-line
   save: PropTypes.func.isRequired
+};
+
+Configs.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Configs;

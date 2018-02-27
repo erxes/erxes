@@ -104,7 +104,8 @@ const SortableItem = SortableElement(({ field, isChecked }) => (
 ));
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 const SortableList = SortableContainer(({ fields, config }) => {
@@ -170,6 +171,7 @@ class ManageColumns extends Component {
 
   render() {
     const { config } = this.props;
+    const { __ } = this.context;
 
     const closeModal = () => {
       this.context.closeModal();
@@ -178,8 +180,8 @@ class ManageColumns extends Component {
     return (
       <form onSubmit={this.onSubmit}>
         <Header>
-          <span>Column name</span>
-          <span>Visible</span>
+          <span>{__('Column name')}</span>
+          <span>{__('Visible')}</span>
         </Header>
 
         <SortableList

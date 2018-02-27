@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 import { Tip, ActionButtons, Button, Label } from 'modules/common/components';
@@ -23,18 +24,19 @@ class Row extends CommonRow {
   }
 
   renderActions() {
+    const { __ } = this.context;
     const { object } = this.props;
 
     return (
       <td>
         <ActionButtons>
-          <Tip text="Manage Fields">
+          <Tip text={__('Manage Fields')}>
             <Link to={`/fields/manage/form/${object._id}`}>
               <Button btnStyle="link" icon="navicon-round" />
             </Link>
           </Tip>
 
-          <Tip text="Duplicate">
+          <Tip text={__('Duplicate')}>
             <Button
               btnStyle="link"
               onClick={this.duplicateForm}
@@ -66,5 +68,9 @@ class Row extends CommonRow {
     );
   }
 }
+
+Row.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Row;

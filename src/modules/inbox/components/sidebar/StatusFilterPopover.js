@@ -31,6 +31,7 @@ class StatusFilterPopover extends Component {
 
   renderSingleFilter(paramName, paramValue, countName, text, count) {
     const { history } = this.props;
+    const { __ } = this.context;
 
     const onClick = () => {
       // clear previous values
@@ -46,7 +47,7 @@ class StatusFilterPopover extends Component {
           }
           onClick={onClick}
         >
-          {text}
+          {__(text)}
           <SidebarCounter>{count}</SidebarCounter>
         </a>
       </li>
@@ -106,5 +107,8 @@ class StatusFilterPopover extends Component {
 }
 
 StatusFilterPopover.propTypes = propTypes;
+StatusFilterPopover.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(StatusFilterPopover);

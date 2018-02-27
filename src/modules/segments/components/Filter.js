@@ -23,9 +23,8 @@ const propTypes = {
   loading: PropTypes.bool.isRequired
 };
 
-function Segments({ history, contentType, counts, segments, loading }) {
+function Segments({ history, contentType, counts, segments, loading }, { __ }) {
   const { Section, Header } = Wrapper.Sidebar;
-
   const orderedSegments = [];
 
   segments.forEach(segment => {
@@ -54,11 +53,11 @@ function Segments({ history, contentType, counts, segments, loading }) {
           >
             {segment.subOf ? '\u00a0\u00a0' : null}
             <Icon
-              icon="ios-circle-filled"
+              icon="record"
               size={10}
               style={{
                 color: segment.color,
-                marginRight: '10px'
+                marginRight: '5px'
               }}
             />{' '}
             {segment.name}
@@ -71,14 +70,14 @@ function Segments({ history, contentType, counts, segments, loading }) {
 
   return (
     <Section>
-      <Header spaceBottom>Filter by segments</Header>
+      <Header spaceBottom>{__('Filter by segments')}</Header>
 
       <Section.QuickButtons>
         <Dropdown
           id="dropdown-user"
           className="quick-button"
           pullRight
-          style={{ verticalAlign: 'top' }}
+          style={{ verticalAlign: 'top', float: 'left' }}
         >
           <DropdownToggle bsRole="toggle">
             <QuickButton>
@@ -89,10 +88,10 @@ function Segments({ history, contentType, counts, segments, loading }) {
             <MenuItem
               onClick={() => history.push(`/segments/new/${contentType}`)}
             >
-              New segment
+              {__('New segment')}
             </MenuItem>
             <MenuItem onClick={() => history.push(`/segments/${contentType}`)}>
-              Manage segments
+              {__('Manage segments')}
             </MenuItem>
           </Dropdown.Menu>
         </Dropdown>
@@ -123,5 +122,8 @@ function Segments({ history, contentType, counts, segments, loading }) {
 }
 
 Segments.propTypes = propTypes;
+Segments.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(Segments);

@@ -24,6 +24,6 @@ const routes = () => [
   <ProfileRoutes key="ProfileRoutes" />
 ];
 
-const settingsRoute = () => <Route path="/settings" component={routes} />;
+const settingsRoute = () => <Route component={routes} />;
 
 export default settingsRoute;

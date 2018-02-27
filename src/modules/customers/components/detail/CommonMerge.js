@@ -25,7 +25,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func
+  closeModal: PropTypes.func,
+  __: PropTypes.func
 };
 
 class CommonMerge extends Component {
@@ -156,12 +157,17 @@ class CommonMerge extends Component {
         <FormControl
           onChange={e => this.handleInputChange(e, property)}
           value={data[property] || ''}
+          required={['firstName', 'email', 'name', 'website'].includes(
+            property
+          )} //required fields
         />
       </FormGroup>
     );
   }
 
-  save() {
+  save(e) {
+    e.preventDefault();
+
     const { datas } = this.props;
     const data = { ...this.state.data };
     const ids = [];
@@ -228,33 +234,36 @@ class CommonMerge extends Component {
   }
 
   renderMessengerData(data) {
+    const { __ } = this.context;
     return (
       <Info>
-        <InfoTitle>Last seen at:</InfoTitle>
+        <InfoTitle>{__('Last seen at')}:</InfoTitle>
         <InfoDetail>{moment(data.lastSeenAt).format('lll')}</InfoDetail>
-        <InfoTitle>Session count:</InfoTitle>
+        <InfoTitle>{__('Session count')}:</InfoTitle>
         <InfoDetail>{data.sessionCount}</InfoDetail>
       </Info>
     );
   }
 
   renderTwitterData(data) {
+    const { __ } = this.context;
     return (
       <Info>
-        <InfoTitle>Name: </InfoTitle>
+        <InfoTitle>{__('Name')}: </InfoTitle>
         <InfoDetail>{data.name}</InfoDetail>
-        <InfoTitle>Screen name: </InfoTitle>
+        <InfoTitle>{__('Screen name')}: </InfoTitle>
         <InfoDetail>{data.screenName}</InfoDetail>
       </Info>
     );
   }
 
   renderVisitorContactInfo(data) {
+    const { __ } = this.context;
     return (
       <Info>
-        <InfoTitle>E-mail: </InfoTitle>
+        <InfoTitle>{__('E-mail')}: </InfoTitle>
         <InfoDetail>{data.email}</InfoDetail>
-        <InfoTitle>Phone: </InfoTitle>
+        <InfoTitle>{__('Phone')}: </InfoTitle>
         <InfoDetail>{data.phone}</InfoDetail>
       </Info>
     );
@@ -262,9 +271,10 @@ class CommonMerge extends Component {
 
   render() {
     const { datas } = this.props;
+    const { __ } = this.context;
 
     return (
-      <div>
+      <form onSubmit={this.save}>
         <Columns>
           {datas.map(data => {
             return (
@@ -275,7 +285,7 @@ class CommonMerge extends Component {
             );
           })}
           <Column>
-            <Title>Merged Info</Title>
+            <Title>{__('Merged Info')}</Title>
             <ul>{this.renderMergedData()}</ul>
           </Column>
         </Columns>
@@ -287,11 +297,11 @@ class CommonMerge extends Component {
           >
             Cancel
           </Button>
-          <Button onClick={this.save} btnStyle="success" icon="checkmark">
+          <Button type="submit" btnStyle="success" icon="checkmark">
             Save
           </Button>
         </Modal.Footer>
-      </div>
+      </form>
     );
   }
 }

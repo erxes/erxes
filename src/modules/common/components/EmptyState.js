@@ -9,6 +9,7 @@ const EmptyStateStyled = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  flex: 1;
   justify-content: center;
   text-align: center;
   font-size: 14px;
@@ -28,7 +29,6 @@ const EmptyStateStyled = styled.div`
       `;
     } else {
       return `
-        position: absolute;
         bottom: 0;
         top: 0;
         left: 0;
@@ -41,7 +41,7 @@ const EmptyStateStyled = styled.div`
   i {
     font-size: ${props => (props.size === 'small' ? '28px' : '14vh')};
     line-height: ${props => (props.size === 'small' ? '40px' : '18vh')};
-    color: ${colors.colorShadowGray};
+    color: ${colors.colorCoreLightGray};
   }
 
   a {
@@ -58,11 +58,15 @@ EmptyState.propTypes = {
   linkText: PropTypes.string
 };
 
-function EmptyState({ text, icon, image, size, linkUrl, linkText }) {
+EmptyState.contextTypes = {
+  __: PropTypes.func
+};
+
+function EmptyState({ text, icon, image, size, linkUrl, linkText }, { __ }) {
   return (
     <EmptyStateStyled size={size}>
       {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
-      {text}
+      {__(text)}
       {linkUrl && linkText ? (
         <Button btnStyle="simple" size="small" href={linkUrl}>
           {linkText}

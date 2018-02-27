@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Dropdown, MenuItem } from 'react-bootstrap';
+import { Dropdown, MenuItem, DropdownButton } from 'react-bootstrap';
 import styled from 'styled-components';
 import { NameCard, DropdownToggle, Icon } from 'modules/common/components';
 import { UserHelper } from '../styles';
@@ -28,9 +28,21 @@ const NavItem = styled.div`
   vertical-align: middle;
 `;
 
-const QuickNavigation = ({ logout, currentUser }) => {
+const QuickNavigation = ({ logout, currentUser, selectLang, locale }) => {
   return (
     <nav>
+      <NavItem>
+        <DropdownButton
+          bsStyle="default"
+          title={locale || 'EN'}
+          noCaret
+          onSelect={e => selectLang(e)}
+          id="dropdown-no-caret"
+        >
+          <MenuItem eventKey="en">EN</MenuItem>
+          <MenuItem eventKey="mn">MN</MenuItem>
+        </DropdownButton>
+      </NavItem>
       <NavItem>
         <Widget />
       </NavItem>
@@ -67,7 +79,8 @@ const QuickNavigation = ({ logout, currentUser }) => {
 
 QuickNavigation.propTypes = {
   logout: PropTypes.func,
-  currentUser: PropTypes.object.isRequired
+  currentUser: PropTypes.object.isRequired,
+  selectLang: PropTypes.func
 };
 
 export default QuickNavigation;

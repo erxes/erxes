@@ -111,10 +111,11 @@ class LeftSidebar extends React.Component {
   renderBasicInfo() {
     const { Section } = Sidebar;
     const { Title } = Section;
+    const { __ } = this.context;
 
     return (
       <Section>
-        <Title>Basic info</Title>
+        <Title>{__('Basic info')}</Title>
 
         <SidebarContent>
           <FormGroup>
@@ -166,10 +167,11 @@ class LeftSidebar extends React.Component {
     const { customFields, company } = this.props;
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
+    const { __ } = this.context;
 
     return (
       <Section>
-        <Title>About</Title>
+        <Title>{__('About')}</Title>
         <QuickButtons>
           <Link to="/fields/manage/company">
             <Icon icon="gear-a" />
@@ -204,10 +206,11 @@ class LeftSidebar extends React.Component {
     const { company } = this.props;
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
+    const { __ } = this.context;
 
     return (
       <Section>
-        <Title>Customers</Title>
+        <Title>{__('Customers')}</Title>
 
         <QuickButtons>
           <ModalTrigger
@@ -224,7 +227,7 @@ class LeftSidebar extends React.Component {
               <Link to={`/customers/details/${customer._id}`}>
                 <Icon icon="android-arrow-forward" />
               </Link>
-              <span>Name: </span>
+              <span>{__('Name')}: </span>
               <span>{this.renderFullName(customer)}</span>
             </CustomerWrapper>
           ))}
@@ -275,5 +278,8 @@ class LeftSidebar extends React.Component {
 }
 
 LeftSidebar.propTypes = propTypes;
+LeftSidebar.contextTypes = {
+  __: PropTypes.func
+};
 
 export default LeftSidebar;

@@ -47,6 +47,7 @@ class Profile extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const content = (
       <ContentBox>
         <form onSubmit={this.handleSubmit}>
@@ -64,8 +65,8 @@ class Profile extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Profile settings' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Profile settings') }
     ];
 
     const actionFooter = (
@@ -94,5 +95,8 @@ class Profile extends Component {
 }
 
 Profile.propTypes = propTypes;
+Profile.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Profile;

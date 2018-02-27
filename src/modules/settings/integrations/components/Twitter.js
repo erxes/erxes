@@ -20,6 +20,7 @@ class Twitter extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const content = (
       <ContentBox>
         <form onSubmit={this.handleSubmit}>
@@ -35,8 +36,8 @@ class Twitter extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/integrations' },
-      { title: 'Integrations' }
+      { title: __('Settings'), link: '/settings/integrations' },
+      { title: __('Integrations') }
     ];
 
     return (
@@ -51,6 +52,10 @@ class Twitter extends Component {
 Twitter.propTypes = {
   brands: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired
+};
+
+Twitter.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Twitter;

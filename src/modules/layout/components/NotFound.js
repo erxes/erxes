@@ -1,15 +1,18 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-function NotFound() {
+function NotFound({ __ }) {
   return (
     <div className="auth-content">
       <div className="container">
         <div className="col-md-7">
           <div className="auth-description not-found">
             <img src="/images/logo.png" alt="erxes" />
-            <h1>404. This page is not found.</h1>
+            <h1>{__('404. This page is not found.')}</h1>
             <p>
-              erxes is an open-source messaging platform for customer success
+              {__(
+                'erxes is an open-source messaging platform for customer success'
+              )}
             </p>
             <a href="http://erxes.io/">« Go to home page</a>
           </div>
@@ -18,5 +21,9 @@ function NotFound() {
     </div>
   );
 }
+
+NotFound.contextTypes = {
+  __: PropTypes.func
+};
 
 export default NotFound;
