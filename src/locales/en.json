@@ -366,5 +366,9 @@
   "Customer": "Customer",
   "Add tag": "Add tag",
   "Company": "Company",
-  "New message ": "New message "
+  "New message ": "New message ",
+  "There aren’t any activities at the moment.":
+    "There aren’t any activities at the moment.",
+  "This item is required": "This item is required",
+  "Manage fields": "Manage fields"
 }
