@@ -12,7 +12,6 @@ import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
 import SettingsRoutes from './modules/settings/routes';
 import InboxRoutes from './modules/inbox/routes';
 import TagsRoutes from './modules/tags/routes';
-import DealsRoutes from './modules/deals/routes';
 import NotificationRoutes from './modules/notifications/routes';
 import { MainLayout } from 'modules/layout/containers';
 import { MainBar } from 'modules/layout/components';
@@ -35,7 +34,6 @@ const renderRoutes = currentUser => {
         <KnowledgeBaseRoutes />
         <SettingsRoutes />
         <TagsRoutes />
-        <DealsRoutes />
         <NotificationRoutes />
       </MainWrapper>
     );

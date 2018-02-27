@@ -8,20 +8,59 @@ import {
   Button
 } from 'modules/common/components';
 
+const propTypes = {
+  product: PropTypes.object,
+  save: PropTypes.func.isRequired,
+  loadTypes: PropTypes.array
+};
+
 const contextTypes = {
   closeModal: PropTypes.func.isRequired
 };
 
 class Form extends Component {
+  constructor(props) {
+    super(props);
+
+    this.generateDoc = this.generateDoc.bind(this);
+    this.save = this.save.bind(this);
+  }
+
+  save(e) {
+    e.preventDefault();
+
+    this.props.save(
+      this.generateDoc(),
+      () => {
+        this.context.closeModal();
+      },
+      this.props.product
+    );
+  }
+
+  generateDoc() {
+    return {
+      doc: {
+        name: document.getElementById('product-name').value,
+        type: document.getElementById('product-type').value,
+        description: document.getElementById('product-description').value,
+        sku: document.getElementById('product-sku').value
+      }
+    };
+  }
+
   renderContent() {
+    const product = this.props.product || {};
+
+    const types = this.props.loadTypes || [];
     return (
       <div>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
           <FormControl
-            id="brand-name"
-            defaultValue="Product Name"
+            id="product-name"
+            defaultValue={product.name}
             type="text"
             required
           />
@@ -31,21 +70,38 @@ class Form extends Component {
           <ControlLabel>Type</ControlLabel>
 
           <FormControl
-            id="brand-name"
-            defaultValue="Product Type"
-            type="text"
+            componentClass="select"
+            id="product-type"
+            defaultValue={product.type}
             required
-          />
+          >
+            <option />
+            {types.map((type, index) => (
+              <option key={index} value={type}>
+                {type}
+              </option>
+            ))}
+          </FormControl>
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
 
           <FormControl
-            id="brand-description"
+            id="product-description"
             componentClass="textarea"
             rows={5}
-            defaultValue="Product Description"
+            defaultValue={product.description}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>SKU</ControlLabel>
+
+          <FormControl
+            id="product-sku"
+            type="text"
+            defaultValue={product.sku}
           />
         </FormGroup>
       </div>
@@ -55,12 +111,8 @@ class Form extends Component {
   render() {
     return (
       <form onSubmit={this.save}>
-        {this.renderContent()}
+        {this.renderContent(this.props.product || {})}
         <Modal.Footer>
-          <Button btnStyle="link" type="submit">
-            SKU
-          </Button>
-
           <Button
             btnStyle="simple"
             onClick={() => {
@@ -72,17 +124,15 @@ class Form extends Component {
           </Button>
 
           <Button btnStyle="success" type="submit" icon="checkmark">
-            Save & New
-          </Button>
-
-          <Button btnStyle="primary" type="submit" name="close" icon="close">
-            Save & Close
+            Save
           </Button>
         </Modal.Footer>
       </form>
     );
   }
 }
+
+Form.propTypes = propTypes;
 Form.contextTypes = contextTypes;
 
 export default Form;

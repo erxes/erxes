@@ -90,23 +90,97 @@ class Conversation extends Component {
 
     let tempId;
 
-    messages.forEach(message => {
-      rows.push(
-        <Message
-          isSameUser={
-            message.userId
-              ? message.userId === tempId
-              : message.customerId === tempId
-          }
-          message={message}
-          staff={!message.customerId}
-          key={message._id}
-          scrollBottom={scrollBottom}
-        />
-      );
+    const childSelector = (fbData, parentId) => {
+      return fbData && fbData.parentId && fbData.parentId === parentId;
+    };
 
-      tempId = message.userId ? message.userId : message.customerId;
-    });
+    const reactionCounts = reactions => {
+      console.log(reactions);
+
+      if (reactions) {
+        const keys = Object.keys(reactions);
+        const data = {};
+
+        keys.forEach(key => {
+          if (reactions[key]) data[key] = reactions[key].length;
+        });
+
+        console.log(data);
+      }
+
+      return null;
+    };
+
+    const renderMessages = (data, isFeed) => {
+      data.forEach(message => {
+        if (isFeed && message.facebookData) {
+          console.log(message.facebookData.postUrl);
+          reactionCounts(message.facebookData.reactions);
+        }
+
+        rows.push(
+          <Message
+            isSameUser={
+              message.userId
+                ? message.userId === tempId
+                : message.customerId === tempId
+            }
+            message={message}
+            staff={!message.customerId}
+            key={message._id}
+            scrollBottom={scrollBottom}
+          />
+        );
+
+        tempId = message.userId ? message.userId : message.customerId;
+
+        if (isFeed) {
+          const childComments = messages.filter(msg => {
+            return (
+              message.facebookData &&
+              childSelector(msg.facebookData, message.facebookData.commentId)
+            );
+          });
+
+          renderMessages(childComments, false);
+        }
+      });
+    };
+
+    if (
+      conversation.integration &&
+      conversation.integration.kind === 'facebook' &&
+      conversation.facebookData &&
+      conversation.facebookData.kind === 'feed'
+    ) {
+      const post = messages.find(msg => {
+        const fbData = msg.facebookData;
+        return (
+          (fbData.postId === conversation.postId && fbData.item === 'post') ||
+          'status'
+        );
+      });
+
+      if (post) {
+        rows.push(
+          <Message
+            message={post}
+            staff={!post.customerId}
+            key={post._id}
+            scrollBottom={scrollBottom}
+          />
+        );
+      }
+
+      const postComments = messages.filter(msg => {
+        const fbData = msg.facebookData || {};
+        return fbData.postId === fbData.parentId || msg.userId !== null;
+      });
+
+      renderMessages(postComments, true);
+    } else {
+      renderMessages(messages, false);
+    }
 
     return (
       <Wrapper>

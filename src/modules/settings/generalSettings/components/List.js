@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Wrapper } from 'modules/layout/components';
-import { Col, Row } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { Wrapper, ActionBar } from 'modules/layout/components';
 import Select from 'react-select-plus';
-import { FormGroup } from 'modules/common/components';
+import { FormGroup, Button } from 'modules/common/components';
 import { currency, measurements } from '../constants';
 import { ContentBox, SubHeading } from '../../styles';
 
@@ -10,10 +11,11 @@ class List extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = { value: '' };
 
     this.selectCurrencyChange = this.selectCurrencyChange.bind(this);
     this.selectUOMChange = this.selectUOMChange.bind(this);
+    this.save = this.save.bind(this);
   }
 
   getInitialState() {
@@ -22,6 +24,12 @@ class List extends Component {
       value: [],
       data: []
     };
+  }
+
+  save(e) {
+    e.preventDefault();
+
+    this.props.save(this.state);
   }
 
   selectCurrencyChange(value) {
@@ -38,33 +46,52 @@ class List extends Component {
       { title: 'General Settings' }
     ];
 
+    const actionFooter = (
+      <ActionBar
+        right={
+          <Button.Group>
+            <Link to="/settings/general-settings">
+              <Button size="small" btnStyle="simple" icon="close">
+                Cancel
+              </Button>
+            </Link>
+
+            <Button
+              size="small"
+              btnStyle="success"
+              onClick={this.save}
+              icon="checkmark"
+            >
+              Save
+            </Button>
+          </Button.Group>
+        }
+      />
+    );
+
     const content = (
       <ContentBox>
-        <Row>
-          <Col md={5}>
-            <SubHeading>Currency</SubHeading>
-            <FormGroup>
-              <Select
-                options={currency}
-                value={this.state.value}
-                removeSelected={this.state.removeSelected}
-                onChange={this.selectCurrencyChange}
-                multi
-              />
-            </FormGroup>
+        <SubHeading>Currency</SubHeading>
+        <FormGroup>
+          <Select
+            options={currency}
+            value={this.state.value}
+            removeSelected={this.state.removeSelected}
+            onChange={this.selectCurrencyChange}
+            multi
+          />
+        </FormGroup>
 
-            <SubHeading>Unit of measurement</SubHeading>
-            <FormGroup>
-              <Select
-                multi
-                options={measurements}
-                value={this.state.data}
-                removeSelected={this.state.removeSelected}
-                onChange={this.selectUOMChange}
-              />
-            </FormGroup>
-          </Col>
-        </Row>
+        <SubHeading>Unit of measurement</SubHeading>
+        <FormGroup>
+          <Select
+            multi
+            options={measurements}
+            value={this.state.data}
+            removeSelected={this.state.removeSelected}
+            onChange={this.selectUOMChange}
+          />
+        </FormGroup>
       </ContentBox>
     );
 
@@ -72,9 +99,14 @@ class List extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         content={content}
+        footer={actionFooter}
       />
     );
   }
 }
+
+List.propTypes = {
+  save: PropTypes.func
+};
 
 export default List;
