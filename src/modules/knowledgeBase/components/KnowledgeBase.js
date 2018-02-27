@@ -18,8 +18,9 @@ const propTypes = {
 
 class KnowledgeBase extends Component {
   breadcrumb() {
+    const { __ } = this.context;
     return [
-      { title: 'Knowledge base', link: '/knowledgeBase' },
+      { title: __('Knowledge base'), link: '/knowledgeBase' },
       { title: `${this.props.currentCategory.title || ''}` }
     ];
   }
@@ -81,5 +82,8 @@ class KnowledgeBase extends Component {
 }
 
 KnowledgeBase.propTypes = propTypes;
+KnowledgeBase.contextTypes = {
+  __: PropTypes.func
+};
 
 export default KnowledgeBase;

@@ -26,10 +26,11 @@ class Channels extends Component {
       loading,
       refetch
     } = this.props;
+    const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Channels', link: '/settings/channels' },
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Channels'), link: '/settings/channels' },
       { title: `${currentChannel.name || ''}` }
     ];
 

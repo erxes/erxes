@@ -125,13 +125,14 @@ class Navigation extends Component {
 
   render() {
     const { unreadConversationsCount } = this.props;
+    const { __ } = this.context;
     return (
       <LeftNavigation>
         <NavLink to="/" activeClassName="active">
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
-          <Tip placement="right" text="Inbox">
+          <Tip placement="right" text={__('Inbox')}>
             <NavLink to="/inbox" activeClassName="active">
               <NavIcon className="icon-inbox" />
               {unreadConversationsCount !== 0 && (
@@ -141,32 +142,32 @@ class Navigation extends Component {
               )}
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Customers">
+          <Tip placement="right" text={__('Customers')}>
             <NavLink to="/customers" activeClassName="active">
               <NavIcon className="icon-customer" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Companies">
+          <Tip placement="right" text={__('Companies')}>
             <NavLink to="/companies" activeClassName="active">
               <NavIcon className="icon-company" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Engage">
+          <Tip placement="right" text={__('Engage')}>
             <NavLink to="/engage" activeClassName="active">
               <NavIcon className="icon-engage" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Insights">
+          <Tip placement="right" text={__('Insights')}>
             <NavLink to="/insights" activeClassName="active">
               <NavIcon className="icon-insights" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Knowledge Base">
+          <Tip placement="right" text={__('Knowledge Base')}>
             <NavLink to="/knowledgeBase" activeClassName="active">
               <NavIcon className="icon-knowledge" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Settings">
+          <Tip placement="right" text={__('Settings')}>
             <NavLink to="/settings" activeClassName="active">
               <NavIcon className="icon-settings" />
             </NavLink>
@@ -179,6 +180,10 @@ class Navigation extends Component {
 
 Navigation.propTypes = {
   unreadConversationsCount: PropTypes.number
+};
+
+Navigation.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Navigation;

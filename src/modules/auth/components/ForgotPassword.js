@@ -36,9 +36,10 @@ class ForgotPassword extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <AuthBox>
-        <h2>Reset your password</h2>
+        <h2>{__('Reset your password')}</h2>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
             <FormControl
@@ -54,7 +55,7 @@ class ForgotPassword extends Component {
           </Button>
         </form>
         <Links>
-          <Link to="/sign-in">Sign in</Link>
+          <Link to="/sign-in">{__('Sign in')}</Link>
         </Links>
       </AuthBox>
     );
@@ -62,5 +63,8 @@ class ForgotPassword extends Component {
 }
 
 ForgotPassword.propTypes = propTypes;
+ForgotPassword.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ForgotPassword;

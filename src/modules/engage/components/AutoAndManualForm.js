@@ -89,6 +89,7 @@ class AutoAndManualForm extends FormBase {
 
   renderChannelType() {
     const method = this.state.method;
+    const { __ } = this.context;
 
     return (
       <EngageBox>
@@ -96,10 +97,10 @@ class AutoAndManualForm extends FormBase {
           selected={method === 'email'}
           onClick={() => this.onClickBox('email')}
         >
-          <span>Email</span>
+          <span>{__('Email')}</span>
           <p>
-            Delivered to a user s email inbox <br />Customize with your own
-            templates
+            {__('Delivered to a user s email inbox')} <br />
+            {__('Customize with your own templates')}
           </p>
         </ButtonBox>
 
@@ -107,9 +108,10 @@ class AutoAndManualForm extends FormBase {
           selected={method === 'messenger'}
           onClick={() => this.onClickBox('messenger')}
         >
-          <span>Messenger</span>
+          <span>{__('Messenger')}</span>
           <p>
-            Delivered inside your app<br />Reach active users
+            {__('Delivered inside your app')} <br />
+            {__('Reach active users')}
           </p>
         </ButtonBox>
       </EngageBox>
@@ -121,6 +123,7 @@ class AutoAndManualForm extends FormBase {
 
     const { Section } = Wrapper.Sidebar;
     const { Title } = Wrapper.Sidebar.Section;
+    const { __ } = this.context;
 
     return (
       <div>
@@ -132,7 +135,7 @@ class AutoAndManualForm extends FormBase {
         />
 
         <Section>
-          <Title>Channel</Title>
+          <Title>{__('Channel')}</Title>
           {this.renderChannelType()}
         </Section>
       </div>
@@ -165,5 +168,8 @@ class AutoAndManualForm extends FormBase {
 }
 
 AutoAndManualForm.propTypes = propTypes;
+AutoAndManualForm.contextTypes = {
+  __: PropTypes.func
+};
 
 export default AutoAndManualForm;

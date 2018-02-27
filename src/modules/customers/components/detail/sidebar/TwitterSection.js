@@ -7,7 +7,7 @@ const propTypes = {
   customer: PropTypes.object.isRequired
 };
 
-function TwitterSection({ customer }) {
+function TwitterSection({ customer }, { __ }) {
   const { twitterData } = customer;
 
   if (!twitterData) {
@@ -18,14 +18,14 @@ function TwitterSection({ customer }) {
 
   return (
     <Sidebar.Section>
-      <Title>Twitter</Title>
+      <Title>{__('Twitter')}</Title>
       <SidebarList className="no-link">
         <li>
-          Name
+          {__('Name')}
           <SidebarCounter>{twitterData.name}</SidebarCounter>
         </li>
         <li>
-          Screen name
+          {__('Screen name')}
           <SidebarCounter>{twitterData.screenName}</SidebarCounter>
         </li>
       </SidebarList>
@@ -34,5 +34,8 @@ function TwitterSection({ customer }) {
 }
 
 TwitterSection.propTypes = propTypes;
+TwitterSection.contextTypes = {
+  __: PropTypes.func
+};
 
 export default TwitterSection;

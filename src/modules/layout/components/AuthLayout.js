@@ -21,6 +21,7 @@ class AuthLayout extends React.Component {
 
   render() {
     const { content } = this.props;
+    const { __ } = this.context;
 
     return (
       <Authlayout>
@@ -29,10 +30,11 @@ class AuthLayout extends React.Component {
             <Col md={7}>
               <AuthDescription>
                 <img src="/images/logo.png" alt="erxes" />
-                <h1>Customer engagement. Redefined.</h1>
+                <h1>{__('Customer engagement. Redefined.')}</h1>
                 <p>
-                  erxes is an AI meets open source messaging platform for sales
-                  and marketing teams.
+                  {__(
+                    'erxes is an AI meets open source messaging platform for sales and marketing teams.'
+                  )}
                 </p>
                 <a href="http://erxes.io/">« Go to home page</a>
               </AuthDescription>
@@ -46,5 +48,8 @@ class AuthLayout extends React.Component {
 }
 
 AuthLayout.propTypes = propTypes;
+AuthLayout.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(AuthLayout);

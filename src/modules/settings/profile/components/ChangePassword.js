@@ -32,9 +32,10 @@ class ChangePassword extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const content = (
       <ContentBox>
-        <SubHeading>Change Password</SubHeading>
+        <SubHeading>{__('Change Password')}</SubHeading>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
             <ControlLabel>Current Password</ControlLabel>
@@ -67,8 +68,8 @@ class ChangePassword extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Change password' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Change password') }
     ];
 
     const actionFooter = (
@@ -97,5 +98,8 @@ class ChangePassword extends Component {
 }
 
 ChangePassword.propTypes = propTypes;
+ChangePassword.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ChangePassword;

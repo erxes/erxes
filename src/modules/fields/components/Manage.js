@@ -194,6 +194,7 @@ class Manage extends Component {
 
   renderForm() {
     const editingField = this.state.editingField;
+    const { __ } = this.context;
 
     return (
       <ContentBox>
@@ -213,8 +214,8 @@ class Manage extends Component {
             <option value="check">Checkbox</option>
             <option value="radio">Radio button</option>
             <option value="email">Email</option>
-            <option value="firstName">First name</option>
-            <option value="lastName">Last name</option>
+            <option value="firstName">{__('First name')}</option>
+            <option value="lastName">{__('Last name')}</option>
           </FormControl>
         </FormGroup>
 
@@ -228,9 +229,9 @@ class Manage extends Component {
             onChange={this.onChangeValidation}
           >
             <option />
-            <option value="email">Email</option>
-            <option value="number">Number</option>
-            <option value="date">Date</option>
+            <option value="email">{__('Email')}</option>
+            <option value="number">{__('Number')}</option>
+            <option value="date">{__('Date')}</option>
           </FormControl>
         </FormGroup>
 
@@ -260,7 +261,8 @@ class Manage extends Component {
   }
 
   render() {
-    const breadcrumb = [{ title: 'Manage fields' }];
+    const { __ } = this.context;
+    const breadcrumb = [{ title: __('Manage fields') }];
 
     const Sidebar = Wrapper.Sidebar;
 
@@ -272,7 +274,7 @@ class Manage extends Component {
           componentClass="checkbox"
           onChange={this.onChangeIsRequired}
         >
-          This item is required
+          {__('This item is required')}
         </FormControl>
 
         {this.renderButtons()}
@@ -280,7 +282,11 @@ class Manage extends Component {
     );
 
     const preview = (
-      <Sidebar half full header={<Sidebar.Header>Preview</Sidebar.Header>}>
+      <Sidebar
+        half
+        full
+        header={<Sidebar.Header>{__('Preview')}</Sidebar.Header>}
+      >
         <FieldsPreview
           fields={this.state.fields}
           onFieldEdit={this.onFieldEdit}
@@ -307,6 +313,10 @@ Manage.propTypes = {
   deleteField: PropTypes.func.isRequired,
   onSort: PropTypes.func.isRequired,
   fields: PropTypes.array.isRequired // eslint-disable-line
+};
+
+Manage.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Manage;

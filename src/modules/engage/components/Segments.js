@@ -35,6 +35,7 @@ class Segments extends Component {
   render() {
     const { segments, counts } = this.props;
     const { Section } = Wrapper.Sidebar;
+    const { __ } = this.context;
 
     const orderedSegments = [];
 
@@ -46,7 +47,7 @@ class Segments extends Component {
 
     return (
       <Section collapsible={segments.length > 5}>
-        <Section.Title>Choose segment</Section.Title>
+        <Section.Title>{__('Choose segment')}</Section.Title>
         <SidebarList>
           {orderedSegments.length ? (
             orderedSegments.map(segment => (
@@ -78,5 +79,8 @@ class Segments extends Component {
 }
 
 Segments.propTypes = propTypes;
+Segments.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Segments;

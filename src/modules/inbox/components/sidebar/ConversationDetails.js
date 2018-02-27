@@ -34,6 +34,7 @@ class ConversationDetails extends Component {
   }
   render() {
     const { Title } = Sidebar.Section;
+    const { __ } = this.context;
 
     const { conversation = {} } = this.props;
     const { integration = {} } = conversation;
@@ -41,30 +42,30 @@ class ConversationDetails extends Component {
 
     return (
       <Sidebar.Section>
-        <Title>Conversation Details</Title>
+        <Title>{__('Conversation Details')}</Title>
         <SidebarList className="no-link">
           <li>
-            Opened
+            {__('Opened')}
             <SidebarCounter>
               {moment(conversation.createdAt).format('lll')}
             </SidebarCounter>
           </li>
           <li>
-            Channels
+            {__('Channels')}
             <SidebarCounter>
               {channels.map(c => <span key={c._id}>{c.name} </span>)}
             </SidebarCounter>
           </li>
           <li>
-            Brand
+            {__('Brand')}
             <SidebarCounter>{brand && brand.name}</SidebarCounter>
           </li>
           <li>
-            Integration
+            {__('Integration')}
             <SidebarCounter>{integration.kind}</SidebarCounter>
           </li>
           <li>
-            Conversations
+            {__('Conversations')}
             <SidebarCounter>{conversation.messageCount}</SidebarCounter>
           </li>
         </SidebarList>
@@ -74,5 +75,8 @@ class ConversationDetails extends Component {
 }
 
 ConversationDetails.propTypes = propTypes;
+ConversationDetails.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ConversationDetails;

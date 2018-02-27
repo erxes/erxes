@@ -49,6 +49,7 @@ class ConfirmDialog extends React.Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { confirmation = 'Are you sure?' } = this.props;
 
     const {
@@ -69,7 +70,7 @@ class ConfirmDialog extends React.Component {
           <IconWrapper>
             <Icon icon="ios-information-outline" />
           </IconWrapper>
-          {confirmation}
+          {__(confirmation)}
         </ModalBody>
         <ModalFooter>
           <Button
@@ -78,7 +79,7 @@ class ConfirmDialog extends React.Component {
             onClick={this.dismiss}
             icon="close"
           >
-            {cancelLabel}
+            {__(cancelLabel)}
           </Button>
           <Button
             size="small"
@@ -86,7 +87,7 @@ class ConfirmDialog extends React.Component {
             onClick={this.proceed}
             icon="checkmark"
           >
-            {okLabel}
+            {__(okLabel)}
           </Button>
         </ModalFooter>
       </Modal>
@@ -99,6 +100,10 @@ ConfirmDialog.propTypes = {
   confirmation: PropTypes.string,
   proceed: PropTypes.func,
   dismiss: PropTypes.func
+};
+
+ConfirmDialog.contextTypes = {
+  __: PropTypes.func
 };
 
 export default ConfirmDialog;
