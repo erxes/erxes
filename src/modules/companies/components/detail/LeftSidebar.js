@@ -12,10 +12,12 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { GenerateField } from 'modules/fields/components';
 import { CustomerAssociate } from 'modules/customers/containers';
 import { CustomersWrapper, CustomerWrapper } from '../../styles';
-import { TaggerSection } from 'modules/customers/components/detail/sidebar';
+import {
+  TaggerSection,
+  CustomProperties
+} from 'modules/customers/components/detail/sidebar';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -28,15 +30,13 @@ class LeftSidebar extends React.Component {
     super(props);
 
     this.state = {
-      editing: false,
-      customFieldsData: this.props.company.customFieldsData || {}
+      editing: false
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
     this.cancelEditing = this.cancelEditing.bind(this);
     this.save = this.save.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.handleFieldsChange = this.handleFieldsChange.bind(this);
   }
 
   toggleEditing() {
@@ -52,8 +52,7 @@ class LeftSidebar extends React.Component {
       size: company.size,
       website: company.website,
       industry: company.industry,
-      plan: company.plan,
-      customFieldsData: company.customFieldsData
+      plan: company.plan
     });
   }
 
@@ -66,8 +65,16 @@ class LeftSidebar extends React.Component {
       website: this.state.website || company.website,
       industry: this.state.industry || company.industry,
       plan: this.state.plan || company.plan,
-      customFieldsData: this.state.customFieldsData || company.customFieldsData
+      customFieldsData: {}
     };
+
+    const wrapper = document
+      .getElementById('fields')
+      .getElementsByTagName('input');
+
+    for (let input of wrapper) {
+      doc.customFieldsData[input.id] = input.value;
+    }
 
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
@@ -85,16 +92,6 @@ class LeftSidebar extends React.Component {
     this.setState({ [inputname]: e.target.value });
   }
 
-  handleFieldsChange({ _id, value }) {
-    this.toggleEditing();
-    const { customFieldsData } = this.state;
-    const newfields = {
-      ...customFieldsData,
-      [_id]: value
-    };
-    this.setState({ customFieldsData: newfields });
-  }
-
   componentWillReceiveProps(nextProps) {
     const company = nextProps.company || {};
 
@@ -103,8 +100,7 @@ class LeftSidebar extends React.Component {
       size: company.size || '',
       website: company.website || '',
       industry: company.industry || '',
-      plan: company.plan || '',
-      customFieldsData: company.customFieldsData || []
+      plan: company.plan || ''
     });
   }
 
@@ -160,45 +156,6 @@ class LeftSidebar extends React.Component {
         </SidebarContent>
       </Section>
     );
-  }
-
-  renderCustomFields() {
-    const { fieldsGroups, company } = this.props;
-    const { Section } = Sidebar;
-    const { Title, QuickButtons } = Section;
-
-    return fieldsGroups.map(fieldGroup => {
-      if (!fieldGroup.visible) return null;
-
-      return (
-        <Section key={fieldGroup._id}>
-          <Title>{fieldGroup.name}</Title>
-          <QuickButtons>
-            <Link to="/settings/properties?type=company">
-              <Icon icon="gear-a" />
-            </Link>
-          </QuickButtons>
-          <SidebarContent>
-            {fieldGroup.getFields.map((field, index) => {
-              if (!field.visible) return null;
-
-              return (
-                <GenerateField
-                  field={field}
-                  key={index}
-                  onValueChange={this.handleFieldsChange}
-                  defaultValue={
-                    company.customFieldsData
-                      ? company.customFieldsData[field._id]
-                      : ''
-                  }
-                />
-              );
-            })}
-          </SidebarContent>
-        </Section>
-      );
-    });
   }
 
   renderFullName(customer) {
@@ -269,13 +226,17 @@ class LeftSidebar extends React.Component {
   }
 
   render() {
-    const { company } = this.props;
+    const { company, fieldsGroups } = this.props;
 
     return (
       <Sidebar size="wide" footer={this.renderSidebarFooter()}>
         {this.renderBasicInfo()}
+        <CustomProperties
+          data={company}
+          fieldsGroups={fieldsGroups}
+          toggleEditing={this.toggleEditing}
+        />
         {this.renderCustomers()}
-        {this.renderCustomFields()}
         <TaggerSection data={company} type="company" />
       </Sidebar>
     );

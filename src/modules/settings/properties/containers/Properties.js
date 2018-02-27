@@ -48,9 +48,9 @@ const PropertiesContainer = (props, context) => {
       });
   };
 
-  const updatePropertyVisible = ({ _id, visible }) => {
+  const updatePropertyVisible = ({ _id, isVisible }) => {
     fieldsUpdateVisible({
-      variables: { _id, visible, lastUpdatedBy: currentUser._id }
+      variables: { _id, isVisible, lastUpdatedUserId: currentUser._id }
     })
       .then(() => {
         Alert.success('Successfully Updated');
@@ -60,9 +60,9 @@ const PropertiesContainer = (props, context) => {
       });
   };
 
-  const updatePropertyGroupVisible = ({ _id, visible }) => {
+  const updatePropertyGroupVisible = ({ _id, isVisible }) => {
     fieldsGroupsUpdateVisible({
-      variables: { _id, visible, lastUpdatedBy: currentUser._id }
+      variables: { _id, isVisible, lastUpdatedUserId: currentUser._id }
     })
       .then(() => {
         Alert.success('Successfully Updated');

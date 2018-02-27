@@ -38,13 +38,38 @@ class PropertyRow extends React.Component {
   }
 
   visibleHandler(e, property) {
-    const visible = e.target.checked;
+    const isVisible = e.target.checked;
 
-    return this.props.updatePropertyVisible({ _id: property._id, visible });
+    return this.props.updatePropertyVisible({ _id: property._id, isVisible });
+  }
+
+  renderActionButtons(field) {
+    const { queryParams, removeProperty } = this.props;
+
+    if (!field.isDefinedByErxes) return null;
+
+    return (
+      <ActionButtons>
+        <ModalTrigger
+          title="Edit Property"
+          trigger={<Icon icon="edit" />}
+          size="lg"
+        >
+          <PropertyForm field={field} queryParams={queryParams} />
+        </ModalTrigger>
+        <Icon
+          icon="close"
+          onClick={() =>
+            confirm().then(() => {
+              removeProperty({ _id: field._id });
+            })
+          }
+        />
+      </ActionButtons>
+    );
   }
 
   renderTableRow(field) {
-    const { queryParams, removeProperty } = this.props;
     const lastUpdate = field.lastUpdatedBy.details;
 
     return (
@@ -56,7 +81,7 @@ class PropertyRow extends React.Component {
         <td width="40%">{lastUpdate.fullName}</td>
         <td width="10%">
           <Toggle
-            defaultChecked={field.visible}
+            defaultChecked={field.isVisible}
             icons={{
               checked: <span>Yes</span>,
               unchecked: <span>No</span>
@@ -64,27 +89,7 @@ class PropertyRow extends React.Component {
             onChange={e => this.visibleHandler(e, field)}
           />
         </td>
-        <td width="10%">
-          {!field.isDefinedByErxes && (
-            <ActionButtons>
-              <ModalTrigger
-                title="Edit Property"
-                trigger={<Icon icon="edit" />}
-                size="lg"
-              >
-                <PropertyForm field={field} queryParams={queryParams} />
-              </ModalTrigger>
-              <Icon
-                icon="close"
-                onClick={() =>
-                  confirm().then(() => {
-                    removeProperty({ _id: field._id });
-                  })
-                }
-              />
-            </ActionButtons>
-          )}
-        </td>
+        <td width="10%">{this.renderActionButtons(field)}</td>
       </TableRow>
     );
   }
@@ -107,7 +112,7 @@ class PropertyRow extends React.Component {
 
   render() {
     const { group, removePropertyGroup, queryParams } = this.props;
-    const fields = group.getFields || [];
+    const fields = group.fields || [];
 
     return (
       <li key={group._id}>

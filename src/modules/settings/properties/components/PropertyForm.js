@@ -26,79 +26,64 @@ class PropertyForm extends Component {
     super(props);
 
     let action = props.add;
+    let doc = {};
+
+    if (props.field) {
+      doc = {
+        ...props.field
+      };
+
+      if (
+        props.field.type === 'select' ||
+        props.field.type === 'radio' ||
+        props.field.type === 'check'
+      ) {
+        doc = {
+          ...props.field,
+          hasOptions: true,
+          options: Object.assign([], props.field.options || [])
+        };
+      }
+    }
 
     if (props.field) {
       action = props.edit;
     }
 
     this.state = {
-      type: '',
-      validation: '',
-      text: '',
-      description: '',
-      optionValue: '',
-      groupId: '',
       options: [],
-      add: false,
       hasOptions: false,
+      ...doc,
       action
     };
 
     this.handleAddOption = this.handleAddOption.bind(this);
+    this.renderOption = this.renderOption.bind(this);
     this.renderOptions = this.renderOptions.bind(this);
     this.handleSaveOption = this.handleSaveOption.bind(this);
-    this.onOptionValueChange = this.onOptionValueChange.bind(this);
-    this.renderButtonOrInput = this.renderButtonOrInput.bind(this);
-    this.onFieldChange = this.onFieldChange.bind(this);
+    this.renderButtonOrElement = this.renderButtonOrElement.bind(this);
+    this.onTypeChange = this.onTypeChange.bind(this);
     this.handleCancelAddingOption = this.handleCancelAddingOption.bind(this);
     this.handleRemoveOption = this.handleRemoveOption.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    let doc = { groupId: nextProps.groups[0]._id };
-
-    if (nextProps.field) {
-      doc = {
-        ...nextProps.field,
-        groupId: nextProps.field.groupId
-      };
-
-      if (
-        nextProps.field.type === 'select' ||
-        nextProps.field.type === 'radio' ||
-        nextProps.field.type === 'check'
-      ) {
-        doc = {
-          ...nextProps.field,
-          groupId: nextProps.field.groupId,
-          hasOptions: true,
-          options: Object.assign([], nextProps.field.options || [])
-        };
-      }
-    }
-
-    this.setState({ ...doc });
-  }
-
   onSubmit(e) {
     e.preventDefault();
-    const {
-      type,
-      validation,
-      text,
-      description,
-      groupId,
-      options
-    } = this.state;
+    const groupId = document.getElementById('groupId').value;
+    const validation = document.getElementById('validation').value;
+    const text = document.getElementById('text').value;
+    const description = document.getElementById('description').value;
+
+    const { type, options } = this.state;
 
     const doc = {
       type,
       validation,
       text,
       description,
-      groupId,
-      options
+      options,
+      groupId
     };
 
     this.state.action(
@@ -108,20 +93,15 @@ class PropertyForm extends Component {
     this.context.closeModal();
   }
 
-  onFieldChange(e) {
+  onTypeChange(e) {
     const value = e.target.value;
-    const name = e.target.name;
-    let doc = {};
+    let doc = { hasOptions: false, options: [] };
 
-    if (name === 'type') {
-      doc = { hasOptions: false, options: [] };
-
-      if (value === 'select' || value === 'check' || value === 'radio') {
-        doc = { hasOptions: true };
-      }
+    if (value === 'select' || value === 'check' || value === 'radio') {
+      doc = { hasOptions: true };
     }
 
-    this.setState({ [name]: value, ...doc });
+    this.setState({ type: value, ...doc });
   }
 
   handleAddOption() {
@@ -133,15 +113,12 @@ class PropertyForm extends Component {
   }
 
   handleSaveOption() {
-    const { options, optionValue } = this.state;
+    const { options } = this.state;
+    const optionValue = document.getElementById('optionValue').value;
 
     this.setState({ options: [...options, optionValue] });
 
     this.handleCancelAddingOption();
-  }
-
-  onOptionValueChange(e) {
-    this.setState({ optionValue: e.target.value });
   }
 
   handleRemoveOption(index) {
@@ -152,21 +129,23 @@ class PropertyForm extends Component {
     });
   }
 
-  renderButtonOrInput() {
+  renderButtonOrElement() {
     if (this.state.add) {
       return (
         <div>
           <FormControl
-            onChange={this.onOptionValueChange}
-            value={this.state.optionValue}
+            id="optionValue"
             autoFocus
+            onKeyPress={e => {
+              if (e.key === 'Enter') this.handleSaveOption;
+            }}
           />
           <Actions>
             <Button
               type="success"
               btnStyle="simple"
               size="small"
-              onClick={this.handleCancelAddingOption}
+              onClick={this.handleSaveOption}
             >
               Cancel
             </Button>
@@ -190,26 +169,31 @@ class PropertyForm extends Component {
     );
   }
 
-  renderOptions() {
+  renderOption(option, index) {
     return (
-      this.state.hasOptions && (
-        <TypeList>
-          {this.state.options.map((option, index) => {
-            return (
-              <li key={index} onClick={() => this.handleRemoveOption(index)}>
-                {option} <Icon icon="close" />
-              </li>
-            );
-          })}
-          {this.renderButtonOrInput()}
-        </TypeList>
-      )
+      <li key={index}>
+        {option}
+        <Icon icon="close" onClick={() => this.handleRemoveOption(index)} />
+      </li>
+    );
+  }
+
+  renderOptions() {
+    if (!this.state.hasOptions) return null;
+
+    return (
+      <TypeList>
+        {this.state.options.map((option, index) =>
+          this.renderOption(option, index)
+        )}
+        {this.renderButtonOrElement()}
+      </TypeList>
     );
   }
 
   render() {
-    const { groups } = this.props;
-    const { type, validation, text, description, groupId } = this.state;
+    const { groups, field = {} } = this.props;
+    const { type } = this.state;
 
     return (
       <form onSubmit={this.onSubmit}>
@@ -217,10 +201,9 @@ class PropertyForm extends Component {
           <ControlLabel htmlFor="type">Type:</ControlLabel>
 
           <FormControl
-            name="type"
             componentClass="select"
             value={type}
-            onChange={this.onFieldChange}
+            onChange={this.onTypeChange}
           >
             <option />
             <option value="input">Input</option>
@@ -239,10 +222,9 @@ class PropertyForm extends Component {
           <ControlLabel htmlFor="validation">Validation:</ControlLabel>
 
           <FormControl
-            name="validation"
             componentClass="select"
-            value={validation}
-            onChange={this.onFieldChange}
+            id="validation"
+            defaultValue={field.validation || ''}
           >
             <option />
             <option value="email">Email</option>
@@ -253,31 +235,24 @@ class PropertyForm extends Component {
 
         <FormGroup>
           <ControlLabel htmlFor="text">Text:</ControlLabel>
-          <FormControl
-            type="text"
-            name="text"
-            value={text}
-            onChange={this.onFieldChange}
-          />
+          <FormControl type="text" id="text" defaultValue={field.text || ''} />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel htmlFor="description">Description:</ControlLabel>
           <FormControl
-            name="description"
+            id="description"
             componentClass="textarea"
-            value={description || ''}
-            onChange={this.onFieldChange}
+            defaultValue={field.description || ''}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel htmlFor="description">Group:</ControlLabel>
           <FormControl
-            name="groupId"
+            id="groupId"
             componentClass="select"
-            onChange={this.onFieldChange}
-            value={groupId}
+            defaultValue={field.groupId || groups[0]._id}
           >
             {groups.map(group => {
               return (

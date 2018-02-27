@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import parse from 'ua-parser-js';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarContent } from 'modules/layout/styles';
 import {
   ModalTrigger,
   Button,
@@ -12,7 +11,7 @@ import {
   EmptyState
 } from 'modules/common/components';
 import { Alert, urlParser } from 'modules/common/utils';
-import { GenerateField } from 'modules/fields/components';
+import { CustomProperties } from './';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
 import { CompanyWrapper, BlockValue } from './styles';
@@ -38,14 +37,12 @@ class LeftSidebar extends React.Component {
     super(props);
 
     this.state = {
-      editing: false,
-      customData: {}
+      editing: false
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
     this.cancelEditing = this.cancelEditing.bind(this);
     this.save = this.save.bind(this);
-    this.handleFieldsChange = this.handleFieldsChange.bind(this);
   }
 
   toggleEditing() {
@@ -55,32 +52,28 @@ class LeftSidebar extends React.Component {
 
   cancelEditing() {
     this.setState({
-      editing: false,
-      customData: this.props.customer.customFieldsData || {}
+      editing: false
     });
   }
 
   save() {
-    const doc = {
-      customFieldsData: this.state.customData
-    };
+    const customFieldsData = {};
+    const { save } = this.props;
 
-    this.props.save(doc, error => {
+    const wrapper = document
+      .getElementById('fields')
+      .getElementsByTagName('input');
+
+    for (let input of wrapper) {
+      customFieldsData[input.id] = input.value;
+    }
+
+    save({ customFieldsData }, error => {
       if (error) return Alert.error(error.message);
 
       this.cancelEditing();
       return Alert.success('Success');
     });
-  }
-
-  handleFieldsChange({ _id, value }) {
-    this.toggleEditing();
-    const { customData } = this.state;
-    const newfields = {
-      ...customData,
-      [_id]: value
-    };
-    this.setState({ customData: newfields });
   }
 
   renderCompanies() {
@@ -143,44 +136,6 @@ class LeftSidebar extends React.Component {
     }
 
     return null;
-  }
-
-  renderCustomFields() {
-    const { customer, fieldsGroups } = this.props;
-    const { Section } = Sidebar;
-
-    return fieldsGroups.map(fieldGroup => {
-      if (!fieldGroup.visible) return null;
-
-      return (
-        <Section key={fieldGroup._id}>
-          <Section.Title>{fieldGroup.name}</Section.Title>
-          <Section.QuickButtons>
-            <Link to="/settings/properties?type=customer">
-              <Icon icon="gear-a" />
-            </Link>
-          </Section.QuickButtons>
-          <SidebarContent>
-            {fieldGroup.getFields.map((field, index) => {
-              if (!field.visible) return null;
-
-              return (
-                <GenerateField
-                  field={field}
-                  key={index}
-                  onValueChange={this.handleFieldsChange}
-                  defaultValue={
-                    customer.customFieldsData
-                      ? customer.customFieldsData[field._id]
-                      : ''
-                  }
-                />
-              );
-            })}
-          </SidebarContent>
-        </Section>
-      );
-    });
   }
 
   renderDeviceProperties() {
@@ -262,13 +217,17 @@ class LeftSidebar extends React.Component {
   }
 
   render() {
-    const { customer } = this.props;
+    const { customer, fieldsGroups } = this.props;
 
     return (
       <Sidebar footer={this.renderSidebarFooter()}>
         <BasicInfo customer={customer} save={this.props.save} />
         {this.props.sections && this.props.sections}
-        {this.renderCustomFields()}
+        <CustomProperties
+          toggleEditing={this.toggleEditing}
+          data={customer}
+          fieldsGroups={fieldsGroups}
+        />
         {this.renderCompanies()}
         {this.renderDeviceProperties()}
         {this.renderOtherProperties()}

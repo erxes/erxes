@@ -13,7 +13,11 @@ const PropertyFormContainer = (props, context) => {
 
   const add = ({ doc }) => {
     fieldsAdd({
-      variables: { ...doc, contentType: type, lastUpdatedBy: currentUser._id }
+      variables: {
+        ...doc,
+        contentType: type,
+        lastUpdatedUserId: currentUser._id
+      }
     })
       .then(() => {
         Alert.success('Successfully added');
@@ -28,7 +32,7 @@ const PropertyFormContainer = (props, context) => {
       variables: {
         _id,
         ...doc,
-        lastUpdatedBy: currentUser._id
+        lastUpdatedUserId: currentUser._id
       }
     })
       .then(() => {

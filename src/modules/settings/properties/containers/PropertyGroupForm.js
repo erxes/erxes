@@ -14,7 +14,11 @@ const PropertyGroupFormContainer = (props, context) => {
 
   const add = ({ doc }) => {
     fieldsGroupsAdd({
-      variables: { ...doc, contentType: type, lastUpdatedBy: currentUser._id }
+      variables: {
+        ...doc,
+        contentType: type,
+        lastUpdatedUserId: currentUser._id
+      }
     })
       .then(() => {
         Alert.success('Successfully added');
@@ -29,7 +33,7 @@ const PropertyGroupFormContainer = (props, context) => {
       variables: {
         _id,
         ...doc,
-        lastUpdatedBy: currentUser._id
+        lastUpdatedUserId: currentUser._id
       }
     })
       .then(() => {

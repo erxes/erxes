@@ -5,19 +5,19 @@ const fieldsGroups = `
       name
       description
       order
-      visible
+      isVisible
       lastUpdatedBy {
         details {
           fullName
         }
       }
       isDefinedByErxes
-      getFields {
+      fields {
         _id
         contentType
         type
         text
-        visible
+        isVisible
         validation
         order
         options

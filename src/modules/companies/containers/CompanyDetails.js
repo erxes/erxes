@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
+import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import { CompanyDetails } from '../components';
 
 const CompanyDetailsContainer = (props, context) => {
@@ -72,7 +73,7 @@ export default compose(
       }
     })
   }),
-  graphql(gql(queries.fieldsGroups), {
+  graphql(gql(fieldQueries.fieldsGroups), {
     name: 'fieldsGroupsQuery',
     options: () => ({
       variables: {

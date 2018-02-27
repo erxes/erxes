@@ -31,7 +31,7 @@ class PropertyGroupForm extends React.Component {
     this.state = {
       name: '',
       description: '',
-      visible: true,
+      isVisible: true,
       action
     };
 
@@ -47,7 +47,7 @@ class PropertyGroupForm extends React.Component {
       this.setState({
         name: group.name || '',
         description: group.description || '',
-        visible: group.visible
+        isVisible: group.isVisible
       });
     }
   }
@@ -55,12 +55,12 @@ class PropertyGroupForm extends React.Component {
   onSubmit(e) {
     e.preventDefault();
 
-    const { name, description, visible } = this.state;
+    const { name, description, isVisible } = this.state;
 
     const doc = {
       name,
       description,
-      visible
+      isVisible
     };
 
     this.state.action(
@@ -80,9 +80,9 @@ class PropertyGroupForm extends React.Component {
   }
 
   visibleHandler(e) {
-    const visible = e.target.checked;
+    const isVisible = e.target.checked;
 
-    this.setState({ visible });
+    this.setState({ isVisible });
   }
 
   render() {
@@ -115,7 +115,7 @@ class PropertyGroupForm extends React.Component {
           <ControlLabel>Visible</ControlLabel>
           <div>
             <Toggle
-              checked={this.state.visible}
+              checked={this.state.isVisible}
               icons={{
                 checked: <span>Yes</span>,
                 unchecked: <span>No</span>
