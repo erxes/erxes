@@ -105,6 +105,15 @@ class PropertyRow extends React.Component {
   }
 
   renderTable(fields) {
+    if (fields.length === 0) {
+      return (
+        <EmptyState
+          icon="android-more-horizontal"
+          text="There arent't any fields in this group"
+        />
+      );
+    }
+
     return (
       <Table hover>
         <thead>
@@ -140,16 +149,7 @@ class PropertyRow extends React.Component {
         </CollapseRow>
 
         <Collapse in={this.state.collapse}>
-          <div>
-            {fields.length === 0 ? (
-              <EmptyState
-                icon="android-more-horizontal"
-                text="There arent't any fields in this group"
-              />
-            ) : (
-              this.renderTable(fields)
-            )}
-          </div>
+          <div>{this.renderTable(fields)}</div>
         </Collapse>
       </li>
     );

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries, mutations } from '../graphql';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import { EditInformation } from '../components/detail/sidebar';
@@ -65,7 +66,7 @@ export default compose(
     name: 'fieldsGroupsQuery',
     options: () => ({
       variables: {
-        contentType: 'customer'
+        contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER
       }
     })
   }),
