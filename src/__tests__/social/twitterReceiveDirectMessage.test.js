@@ -23,7 +23,6 @@ describe('receive direct message response', () => {
     id: 2442424242,
     id_str: '2442424242',
     name: 'username',
-    screen_name: 'screen name',
     profile_image_url: 'profile_image_url',
   };
 
@@ -62,7 +61,6 @@ describe('receive direct message response', () => {
       {
         id: 42242242,
         id_str: '42242242',
-        screen_name: 'screen_name',
         sender_id: senderId,
         sender_id_str: senderId.toString(),
         recipient_id: recipientId,
@@ -87,19 +85,105 @@ describe('receive direct message response', () => {
 
     // direct message
     const data = {
-      id: 33324242424242,
-      id_str: '33324242424242',
-      text: 'direct message',
-      sender_id: 24242424242,
-      sender_id_str: '24242424242',
-      recipient_id: 343424242424242,
-      recipient_id_str: '343424242424242',
+      id: 968686272498708500,
+      id_str: '968686272498708484',
+      text: 'rrrr https://t.co/o3O2wAeYaB',
       sender: {
-        id: 24242424242,
-        id_str: '24242424242',
-        name: 'username',
-        screen_name: 'screen_name',
-        profile_image_url: 'profile_image_url',
+        id: 169431359,
+        id_str: '169431359',
+        name: 'BatAmar Battulga',
+        screen_name: 'b_batamar',
+        location: 'Mongolia',
+        url: 'http://thenewmediatechnology.com/',
+        description: 'Back-End engineer at @erxesHQ',
+        protected: false,
+        followers_count: 520,
+        friends_count: 141,
+        listed_count: 15,
+        created_at: 'Thu Jul 22 09:35:28 +0000 2010',
+        favourites_count: 3,
+        utc_offset: -32400,
+        time_zone: 'Alaska',
+        geo_enabled: false,
+        verified: false,
+        statuses_count: 142,
+        lang: 'en',
+        contributors_enabled: false,
+        is_translator: false,
+        is_translation_enabled: false,
+        profile_background_color: '0099B9',
+        profile_background_image_url: 'kfvbnqngu4tmwh4w1bbe.jpeg',
+        profile_background_image_url_https: 'kfvbnqngu4tmwh4w1bbe.jpeg',
+        profile_background_tile: false,
+        profile_image_url: '79Dob1zF_normal.jpg',
+        profile_image_url_https: '79Dob1zF_normal.jpg',
+        profile_banner_url: 'https://pbs.twimg.com/profile_banners/169431359/1478856517',
+        profile_link_color: '0099B9',
+        profile_sidebar_border_color: '5ED4DC',
+        profile_sidebar_fill_color: '95E8EC',
+        profile_text_color: '3C3940',
+        profile_use_background_image: true,
+        default_profile: false,
+        default_profile_image: false,
+        following: false,
+        follow_request_sent: false,
+        notifications: false,
+        translator_type: 'none',
+      },
+      sender_id: 169431359,
+      sender_id_str: '169431359',
+      sender_screen_name: 'b_batamar',
+      recipient: {
+        id: 800236126610935800,
+        id_str: '800236126610935808',
+        name: 'dombo123',
+        screen_name: 'Dombo84986356',
+        location: null,
+        url: null,
+        description: null,
+        protected: false,
+        followers_count: 4,
+        friends_count: 3,
+        listed_count: 0,
+        created_at: 'Sun Nov 20 07:15:35 +0000 2016',
+        favourites_count: 0,
+        utc_offset: null,
+        time_zone: null,
+        geo_enabled: false,
+        verified: false,
+        statuses_count: 124,
+        lang: 'en',
+        contributors_enabled: false,
+        is_translator: false,
+        is_translation_enabled: false,
+        profile_background_color: 'F5F8FA',
+        profile_background_image_url: null,
+        profile_background_image_url_https: null,
+        profile_background_tile: false,
+        profile_image_url: 'default_profile_normal.png',
+        profile_image_url_https: 'default_profile_normal.png',
+        profile_link_color: '1DA1F2',
+        profile_sidebar_border_color: 'C0DEED',
+        profile_sidebar_fill_color: 'DDEEF6',
+        profile_text_color: '333333',
+        profile_use_background_image: true,
+        default_profile: true,
+        default_profile_image: false,
+        following: false,
+        follow_request_sent: false,
+        notifications: false,
+        translator_type: 'none',
+      },
+      recipient_id: 800236126610935800,
+      recipient_id_str: '800236126610935808',
+      recipient_screen_name: 'Dombo84986356',
+      created_at: 'Wed Feb 28 03:16:19 +0000 2018',
+      entities: {
+        hashtags: [],
+        symbols: [],
+        user_mentions: [],
+        urls: [[Object]],
+        media: [[Object]],
       },
     };
 
@@ -114,6 +198,13 @@ describe('receive direct message response', () => {
     const customer = await Customers.findOne();
     const message = await ConversationMessages.findOne();
 
+    const directMessageDoc = {
+      senderId: data.sender_id,
+      senderIdStr: data.sender_id_str,
+      recipientId: data.recipient_id,
+      recipientIdStr: data.recipient_id_str,
+    };
+
     // check conv field values
     expect(conv.createdAt).toBeDefined();
     expect(conv.integrationId).toBe(_integration._id);
@@ -122,12 +213,9 @@ describe('receive direct message response', () => {
     expect(conv.content).toBe(data.text);
     expect(conv.twitterData.id).toBe(data.id);
     expect(conv.twitterData.idStr).toBe(data.id_str);
-    expect(conv.twitterData.screenName).toBe(data.sender.screen_name);
     expect(conv.twitterData.isDirectMessage).toBe(true);
-    expect(conv.twitterData.directMessage.senderId).toBe(data.sender_id);
-    expect(conv.twitterData.directMessage.senderIdStr).toBe(data.sender_id_str);
-    expect(conv.twitterData.directMessage.recipientId).toBe(data.recipient_id);
-    expect(conv.twitterData.directMessage.recipientIdStr).toBe(data.recipient_id_str);
+    expect(conv.twitterData.entities).toBeDefined();
+    expect(conv.twitterData.directMessage.toJSON()).toEqual(directMessageDoc);
 
     // check customer field values
     expect(customer.createdAt).toBeDefined();
@@ -135,7 +223,6 @@ describe('receive direct message response', () => {
     expect(customer.twitterData.id).toBe(data.sender_id);
     expect(customer.twitterData.idStr).toBe(data.sender_id_str);
     expect(customer.twitterData.name).toBe(data.sender.name);
-    expect(customer.twitterData.screenName).toBe(data.sender.screen_name);
     expect(customer.twitterData.profileImageUrl).toBe(data.sender.profile_image_url);
 
     // 1 log
@@ -147,6 +234,8 @@ describe('receive direct message response', () => {
     expect(message.customerId).toBe(customer._id);
     expect(message.internal).toBe(false);
     expect(message.content).toBe(data.text);
+    expect(message.twitterData.entities).toBeDefined();
+    expect(message.twitterData.directMessage.toJSON()).toEqual(directMessageDoc);
 
     // tweet reply ===============
     data.text = 'reply';

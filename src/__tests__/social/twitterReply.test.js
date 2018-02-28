@@ -4,7 +4,7 @@
 import Twit from 'twit';
 import sinon from 'sinon';
 import { connect, disconnect } from '../../db/connection';
-import { integrationFactory, conversationFactory } from '../../db/factories';
+import { integrationFactory, conversationFactory, customerFactory } from '../../db/factories';
 import { Conversations, ConversationMessages, Customers, Integrations } from '../../db/models';
 import { TwitMap, tweetReply } from '../../social/twitter';
 import { twitRequest } from '../../social/twitterTracker';
@@ -86,12 +86,18 @@ describe('twitter integration', () => {
     const tweetIdStr = '242424242';
     const screenName = 'test';
 
+    const customer = await customerFactory({
+      twitterData: {
+        screenName,
+      },
+    });
+
     const conversation = await conversationFactory({
+      customerId: customer._id,
       integrationId: _integration._id,
       twitterData: {
         isDirectMessage: false,
         idStr: tweetIdStr,
-        screenName,
       },
     });
 
