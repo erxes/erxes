@@ -79,8 +79,8 @@ class PropertyRow extends React.Component {
           <FieldType>{field.type}</FieldType>
         </td>
         <td width="40%">
-          {field.lastUpdatedBy
-            ? field.lastUpdatedBy.details.fullName
+          {field.lastUpdatedUser
+            ? field.lastUpdatedUser.details.fullName
             : 'Unknown'}
         </td>
         <td width="10%">

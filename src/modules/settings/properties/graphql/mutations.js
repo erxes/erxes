@@ -4,7 +4,6 @@ const commonFields = `
   $order: Int,
   $description: String,
   $isVisible: Boolean,
-  $lastUpdatedUserId: String,
 `;
 
 const commonTypes = `
@@ -13,7 +12,6 @@ const commonTypes = `
   order: $order,
   description: $description,
   isVisible: $isVisible,
-  lastUpdatedUserId: $lastUpdatedUserId,
 `;
 
 const fieldsGroupsAdd = `
@@ -39,8 +37,8 @@ const fieldsGroupsRemove = `
 `;
 
 const fieldsGroupsUpdateVisible = `
-  mutation fieldsGroupsUpdateVisible($_id: String!, $isVisible: Boolean, $lastUpdatedUserId: String) {
-    fieldsGroupsUpdateVisible(_id: $_id, isVisible: $isVisible, lastUpdatedUserId: $lastUpdatedUserId) {
+  mutation fieldsGroupsUpdateVisible($_id: String!, $isVisible: Boolean) {
+    fieldsGroupsUpdateVisible(_id: $_id, isVisible: $isVisible) {
       _id
     }
   }
@@ -56,7 +54,6 @@ const commonVariables = `
   $order: Int,
   $groupId: String,
   $isVisible: Boolean,
-  $lastUpdatedUserId: String
 `;
 
 const commonParams = `
@@ -69,7 +66,6 @@ const commonParams = `
   order: $order,
   groupId: $groupId,
   isVisible: $isVisible,
-  lastUpdatedUserId: $lastUpdatedUserId
 `;
 
 const fieldsAdd = `
@@ -105,8 +101,8 @@ const fieldsRemove = `
 `;
 
 const fieldsUpdateVisible = `
-  mutation fieldsUpdateVisible($_id: String!, $isVisible: Boolean, $lastUpdatedUserId: String) {
-    fieldsUpdateVisible(_id: $_id, isVisible: $isVisible, lastUpdatedUserId: $lastUpdatedUserId) {
+  mutation fieldsUpdateVisible($_id: String!, $isVisible: Boolean) {
+    fieldsUpdateVisible(_id: $_id, isVisible: $isVisible) {
       _id
     }
   }

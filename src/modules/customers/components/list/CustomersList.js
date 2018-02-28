@@ -171,7 +171,7 @@ class CustomersList extends React.Component {
               </ModalTrigger>
             </li>
             <li>
-              <Link to="/fields/manage/customer">Properties</Link>
+              <Link to="/settings/properties?type=customer">Properties</Link>
             </li>
           </Dropdown.Menu>
         </Dropdown>

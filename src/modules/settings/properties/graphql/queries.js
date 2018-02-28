@@ -6,7 +6,7 @@ const fieldsGroups = `
       description
       order
       isVisible
-      lastUpdatedBy {
+      lastUpdatedUser {
         details {
           fullName
         }
@@ -24,7 +24,7 @@ const fieldsGroups = `
         groupId
         description
         isDefinedByErxes
-        lastUpdatedBy {
+        lastUpdatedUser {
           details {
             fullName
           }

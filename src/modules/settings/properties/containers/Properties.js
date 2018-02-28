@@ -9,7 +9,7 @@ import { Alert } from 'modules/common/utils';
 import { Properties } from '../components';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 
-const PropertiesContainer = (props, context) => {
+const PropertiesContainer = props => {
   const {
     fieldsGroupsQuery,
     history,
@@ -18,7 +18,6 @@ const PropertiesContainer = (props, context) => {
     fieldsGroupsUpdateVisible,
     fieldsUpdateVisible
   } = props;
-  const { currentUser } = context;
 
   if (!router.getParam(history, 'type')) {
     router.setParams(history, { type: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER });
@@ -50,7 +49,7 @@ const PropertiesContainer = (props, context) => {
 
   const updatePropertyVisible = ({ _id, isVisible }) => {
     fieldsUpdateVisible({
-      variables: { _id, isVisible, lastUpdatedUserId: currentUser._id }
+      variables: { _id, isVisible }
     })
       .then(() => {
         Alert.success('Successfully Updated');
@@ -62,7 +61,7 @@ const PropertiesContainer = (props, context) => {
 
   const updatePropertyGroupVisible = ({ _id, isVisible }) => {
     fieldsGroupsUpdateVisible({
-      variables: { _id, isVisible, lastUpdatedUserId: currentUser._id }
+      variables: { _id, isVisible }
     })
       .then(() => {
         Alert.success('Successfully Updated');
@@ -95,10 +94,6 @@ PropertiesContainer.propTypes = {
   fieldsRemove: PropTypes.func.isRequired,
   fieldsGroupsUpdateVisible: PropTypes.func.isRequired,
   fieldsUpdateVisible: PropTypes.func.isRequired
-};
-
-PropertiesContainer.contextTypes = {
-  currentUser: PropTypes.object
 };
 
 const options = ({ queryParams }) => ({
