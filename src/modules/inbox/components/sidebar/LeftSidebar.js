@@ -58,6 +58,7 @@ class LeftSidebar extends Bulk {
   renderSidebarHeader() {
     const { channels, counts, conversations } = this.props;
     const { bulk } = this.state;
+    const { __ } = this.context;
 
     if (bulk.length > 0) {
       return (
@@ -69,7 +70,7 @@ class LeftSidebar extends Bulk {
                 this.toggleAll(conversations, 'conversations');
               }}
             >
-              Select all
+              {__('Select all')}
             </FormControl>
           </LeftItem>
 
@@ -182,5 +183,8 @@ class LeftSidebar extends Bulk {
 }
 
 LeftSidebar.propTypes = propTypes;
+LeftSidebar.contextTypes = {
+  __: PropTypes.func
+};
 
 export default LeftSidebar;

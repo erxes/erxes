@@ -153,6 +153,7 @@ class WidgetForm extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <form onSubmit={this.save}>
         {this.renderCustomers()}
@@ -161,8 +162,8 @@ class WidgetForm extends Component {
           <ControlLabel>Channel:</ControlLabel>
 
           <FormControl componentClass="select" onChange={this.onChannelChange}>
-            <option value="email">Email</option>
-            <option value="messenger">Messenger</option>
+            <option value="email">{__('Email')}</option>
+            <option value="messenger">{__('Messenger')}</option>
           </FormControl>
         </FormGroup>
 
@@ -201,7 +202,8 @@ WidgetForm.propTypes = {
 };
 
 WidgetForm.contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 export default WidgetForm;

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 import { BoxRoot, FullContent } from 'modules/common/styles/styles';
@@ -30,19 +31,21 @@ const Box = BoxRoot.extend`
 
 class InsightPage extends React.Component {
   renderBox(name, image, to, desc) {
+    const { __ } = this.context;
     return (
       <Box>
         <Link to={to}>
           <img src={image} alt={name} />
-          <span>{name}</span>
-          <p>{desc}</p>
+          <span>{__(name)}</span>
+          <p>{__(desc)}</p>
         </Link>
       </Box>
     );
   }
 
   render() {
-    const breadcrumb = [{ title: 'Insights', link: '/insights' }];
+    const { __ } = this.context;
+    const breadcrumb = [{ title: __('Insights'), link: '/insights' }];
 
     const content = (
       <FullContent center>
@@ -88,5 +91,9 @@ class InsightPage extends React.Component {
     );
   }
 }
+
+InsightPage.contextTypes = {
+  __: PropTypes.func
+};
 
 export default InsightPage;

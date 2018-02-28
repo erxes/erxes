@@ -26,11 +26,12 @@ class IntegrationRow extends Component {
 
   renderExtraLinks() {
     const { integration, refetch } = this.props;
+    const { __ } = this.context;
     const kind = integration.kind;
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -39,7 +40,7 @@ class IntegrationRow extends Component {
     if (kind === KIND_CHOICES.MESSENGER) {
       return (
         <ActionButtons>
-          <Tip text="Appearance">
+          <Tip text={__('Appearance')}>
             <Link
               to={`/settings/integrations/messenger/appearance/${
                 integration._id
@@ -51,7 +52,7 @@ class IntegrationRow extends Component {
             </Link>
           </Tip>
 
-          <Tip text="Hours, Availability & Other configs">
+          <Tip text={__('Hours, Availability & Other configs')}>
             <Link to={`integrations/messenger/configs/${integration._id}`}>
               <Button btnStyle="link">
                 <Icon icon="gear-a" />
@@ -117,5 +118,8 @@ class IntegrationRow extends Component {
 }
 
 IntegrationRow.propTypes = propTypes;
+IntegrationRow.contextTypes = {
+  __: PropTypes.func
+};
 
 export default IntegrationRow;

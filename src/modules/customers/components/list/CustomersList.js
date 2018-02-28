@@ -75,6 +75,7 @@ class CustomersList extends React.Component {
 
   renderContent() {
     const { customers, columnsConfig, toggleBulk, history } = this.props;
+    const { __ } = this.context;
 
     return (
       <Table whiteSpace="nowrap" hover bordered>
@@ -84,9 +85,9 @@ class CustomersList extends React.Component {
               <FormControl componentClass="checkbox" onChange={this.onChange} />
             </th>
             {columnsConfig.map(({ name, label }) => (
-              <th key={name}>{label}</th>
+              <th key={name}>{__(label)}</th>
             ))}
-            <th>Tags</th>
+            <th>{__('Tags')}</th>
           </tr>
         </thead>
         <tbody id="customers">
@@ -137,13 +138,14 @@ class CustomersList extends React.Component {
       history,
       queryParams
     } = this.props;
+    const { __ } = this.context;
 
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="plus">
         Add customer
       </Button>
     );
-    const editColumns = <a>Edit columns</a>;
+    const editColumns = <a>{__('Edit columns')}</a>;
     const actionBarRight = (
       <BarItems>
         <FormControl
@@ -171,7 +173,7 @@ class CustomersList extends React.Component {
               </ModalTrigger>
             </li>
             <li>
-              <Link to="/fields/manage/customer">Properties</Link>
+              <Link to="/fields/manage/customer">{__('Properties')}</Link>
             </li>
           </Dropdown.Menu>
         </Dropdown>
@@ -264,5 +266,8 @@ class CustomersList extends React.Component {
 }
 
 CustomersList.propTypes = propTypes;
+CustomersList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(CustomersList);

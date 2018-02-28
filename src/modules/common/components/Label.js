@@ -81,7 +81,7 @@ const LabelStyled = styled.span`
   }
 `;
 
-function Label({ ...props }) {
+function Label({ ...props }, { __ }) {
   const updatedProps = {
     ...props,
     hasLightBackground: props.style
@@ -89,7 +89,7 @@ function Label({ ...props }) {
       : null
   };
 
-  return <LabelStyled {...updatedProps}>{props.children}</LabelStyled>;
+  return <LabelStyled {...updatedProps}>{__(props.children)}</LabelStyled>;
 }
 
 Label.propTypes = {
@@ -105,6 +105,10 @@ Label.propTypes = {
     'warning',
     'simple'
   ])
+};
+
+Label.contextTypes = {
+  __: PropTypes.func
 };
 
 Label.defaultProps = {

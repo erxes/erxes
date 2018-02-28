@@ -56,6 +56,7 @@ class UserCommonInfos extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { user = {} } = this.props;
     const { details = {}, links = {} } = user;
     const { avatarPreviewStyle, avatarPreviewUrl } = this.state;
@@ -63,19 +64,18 @@ class UserCommonInfos extends Component {
     return (
       <ProfileWrapper>
         <ProfileColumn>
-          <ColumnTitle>Basics</ColumnTitle>
+          <ColumnTitle>{__('Basics')}</ColumnTitle>
           <FormGroup>
-            <ControlLabel>Photo</ControlLabel>
+            <ControlLabel>{__('Photo')}</ControlLabel>
             <img
               alt="avatar"
               style={avatarPreviewStyle}
               src={avatarPreviewUrl}
             />
-
             <FormControl type="file" onChange={this.handleImageChange} />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Name</ControlLabel>
+            <ControlLabel>{__('Name')}</ControlLabel>
             <FormControl
               type="text"
               id="fullName"
@@ -112,7 +112,7 @@ class UserCommonInfos extends Component {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Position</ControlLabel>
+            <ControlLabel>{__('Position')}</ControlLabel>
             <FormControl
               type="text"
               id="position"
@@ -120,7 +120,7 @@ class UserCommonInfos extends Component {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Location</ControlLabel>
+            <ControlLabel>{__('Location')}</ControlLabel>
             <FormControl
               componentClass="select"
               defaultValue={details.location}
@@ -130,7 +130,7 @@ class UserCommonInfos extends Component {
           </FormGroup>
         </ProfileColumn>
         <ProfileColumn>
-          <ColumnTitle>Links</ColumnTitle>
+          <ColumnTitle>{__('Links')}</ColumnTitle>
           <FormGroup>
             <ControlLabel>LinkedIn</ControlLabel>
             <FormControl
@@ -186,5 +186,8 @@ class UserCommonInfos extends Component {
 }
 
 UserCommonInfos.propTypes = propTypes;
+UserCommonInfos.contextTypes = {
+  __: PropTypes.func
+};
 
 export default UserCommonInfos;
