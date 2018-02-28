@@ -70,7 +70,7 @@ describe('Fields mutations', () => {
 
     await fieldMutations.fieldsAdd({}, doc, { user: _user });
 
-    expect(Fields.createField).toBeCalledWith(doc);
+    expect(Fields.createField).toBeCalledWith({ ...doc, lastUpdatedUserId: _user._id });
   });
 
   test('Update field valid', async () => {
@@ -78,7 +78,7 @@ describe('Fields mutations', () => {
 
     await fieldMutations.fieldsEdit({}, { _id: _field._id, ...doc }, { user: _user });
 
-    expect(Fields.updateField).toBeCalledWith(_field._id, doc);
+    expect(Fields.updateField).toBeCalledWith(_field._id, { ...doc, lastUpdatedUserId: _user._id });
 
     mockedMethod.mockRestore();
   });
@@ -105,15 +105,10 @@ describe('Fields mutations', () => {
     Fields.updateFieldsVisible = jest.fn();
 
     const isVisible = false;
-    const lastUpdatedUserId = _user._id;
 
-    await fieldMutations.fieldsUpdateVisible(
-      {},
-      { _id: _field._id, isVisible, lastUpdatedUserId },
-      { user: _user },
-    );
+    await fieldMutations.fieldsUpdateVisible({}, { _id: _field._id, isVisible }, { user: _user });
 
-    expect(Fields.updateFieldsVisible).toBeCalledWith(_field._id, isVisible, lastUpdatedUserId);
+    expect(Fields.updateFieldsVisible).toBeCalledWith(_field._id, isVisible, _user._id);
   });
 });
 
@@ -165,12 +160,11 @@ describe('Fields Group mutations', () => {
       name: faker.random.word(),
       description: faker.random.word(),
       contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-      lastUpdatedUserId: _user._id,
     };
 
     await fieldsGroupsMutations.fieldsGroupsAdd({}, doc, { user: _user });
 
-    expect(FieldsGroups.createGroup).toBeCalledWith(doc);
+    expect(FieldsGroups.createGroup).toBeCalledWith({ ...doc, lastUpdatedUserId: _user._id });
 
     mockedMethod.mockRestore();
   });
@@ -181,7 +175,6 @@ describe('Fields Group mutations', () => {
     const doc = {
       name: faker.random.word(),
       description: faker.random.word(),
-      lastUpdatedUserId: _user._id,
     };
 
     await fieldsGroupsMutations.fieldsGroupsEdit(
@@ -190,7 +183,10 @@ describe('Fields Group mutations', () => {
       { user: _user },
     );
 
-    expect(FieldsGroups.updateGroup).toBeCalledWith(_fieldGroup._id, doc);
+    expect(FieldsGroups.updateGroup).toBeCalledWith(_fieldGroup._id, {
+      ...doc,
+      lastUpdatedUserId: _user._id,
+    });
 
     mockedMethod.mockRestore();
   });
@@ -207,18 +203,13 @@ describe('Fields Group mutations', () => {
     FieldsGroups.updateGroupVisible = jest.fn();
 
     const isVisible = false;
-    const lastUpdatedUserId = _user._id;
 
     await fieldsGroupsMutations.fieldsGroupsUpdateVisible(
       {},
-      { _id: _fieldGroup._id, isVisible, lastUpdatedUserId },
+      { _id: _fieldGroup._id, isVisible },
       { user: _user },
     );
 
-    expect(FieldsGroups.updateGroupVisible).toBeCalledWith(
-      _fieldGroup._id,
-      isVisible,
-      lastUpdatedUserId,
-    );
+    expect(FieldsGroups.updateGroupVisible).toBeCalledWith(_fieldGroup._id, isVisible, _user._id);
   });
 });

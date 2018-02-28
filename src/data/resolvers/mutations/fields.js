@@ -6,16 +6,16 @@ const fieldMutations = {
    * Adds field object
    * @return {Promise}
    */
-  fieldsAdd(root, args) {
-    return Fields.createField(args);
+  fieldsAdd(root, args, { user }) {
+    return Fields.createField({ ...args, lastUpdatedUserId: user._id });
   },
 
   /**
    * Updates field object
   * @return {Promise} return Promise(null)
   */
-  fieldsEdit(root, { _id, ...doc }) {
-    return Fields.updateField(_id, doc);
+  fieldsEdit(root, { _id, ...doc }, { user }) {
+    return Fields.updateField(_id, { ...doc, lastUpdatedUserId: user._id });
   },
 
   /**
@@ -39,12 +39,11 @@ const fieldMutations = {
    * Update field's visible
    * @param {String} _id - Field id to update
    * @param {String} isVisible - True or false visible value
-   * @param {String} lastUpdatedUserId - id of user who updated field last
    *
    * @return {Promise} Updated field
    */
-  fieldsUpdateVisible(root, { _id, isVisible, lastUpdatedUserId }) {
-    return Fields.updateFieldsVisible(_id, isVisible, lastUpdatedUserId);
+  fieldsUpdateVisible(root, { _id, isVisible }, { user }) {
+    return Fields.updateFieldsVisible(_id, isVisible, user._id);
   },
 };
 
@@ -55,12 +54,11 @@ const fieldsGroupsMutations = {
    * @param {String} doc.name - Group name
    * @param {String} doc.contentType - Group type customer or company
    * @param {String} doc.description - Group description
-   * @param {String} doc.lastUpdatedUserId - Id of user who updated the group last
    *
    * @return {Promise} Newly created Group
    */
-  fieldsGroupsAdd(root, doc) {
-    return FieldsGroups.createGroup(doc);
+  fieldsGroupsAdd(root, doc, { user }) {
+    return FieldsGroups.createGroup({ ...doc, lastUpdatedUserId: user._id });
   },
 
   /**
@@ -69,12 +67,11 @@ const fieldsGroupsMutations = {
    * @param {Object} doc - Graphql input data
    * @param {String} doc.name - Group name
    * @param {String} doc.description - Id of parent group
-   * @param {String} doc.lastUpdatedUserId - Id of user who updated the group last
    *
    * @return {Promise} Newly updated Group
    */
-  fieldsGroupsEdit(root, { _id, ...doc }) {
-    return FieldsGroups.updateGroup(_id, doc);
+  fieldsGroupsEdit(root, { _id, ...doc }, { user }) {
+    return FieldsGroups.updateGroup(_id, { ...doc, lastUpdatedUserId: user._id });
   },
 
   /**
@@ -91,12 +88,11 @@ const fieldsGroupsMutations = {
    * Update field group's visible
    * @param {String} _id - Field group id to update
    * @param {String} isVisible - True or false visible value
-   * @param {String} lastUpdatedUserId - id of a User who updated the visible last
    *
    * @return {Promise} Updated field group
    */
-  fieldsGroupsUpdateVisible(root, { _id, isVisible, lastUpdatedUserId }) {
-    return FieldsGroups.updateGroupVisible(_id, isVisible, lastUpdatedUserId);
+  fieldsGroupsUpdateVisible(root, { _id, isVisible }, { user }) {
+    return FieldsGroups.updateGroupVisible(_id, isVisible, user._id);
   },
 };
 

@@ -97,16 +97,6 @@ describe('Fields', () => {
     }
   });
 
-  test('createField with user', async () => {
-    expect.assertions(1);
-
-    const user = await userFactory({});
-
-    const fieldObj = await Fields.createField({ lastUpdatedUserId: user._id });
-
-    expect(fieldObj.lastUpdatedUserId).toBe(user._id);
-  });
-
   test('updateOrder()', async () => {
     const field1 = await fieldFactory();
     const field2 = await fieldFactory();
@@ -144,7 +134,6 @@ describe('Fields', () => {
     expect(fieldObj.options).toEqual(expect.arrayContaining(doc.options));
     expect(fieldObj.isRequired).toBe(doc.isRequired);
     expect(fieldObj.order).toBe(doc.order);
-    expect(fieldObj.lastUpdatedBy).toBe(doc.lastUpdatedBy);
   });
 
   test('Remove field valid', async () => {
@@ -271,7 +260,7 @@ describe('Fields', () => {
   });
 
   test('Update field visible', async () => {
-    expect.assertions(3);
+    expect.assertions(2);
 
     const field = await fieldFactory({ isVisible: true });
     const user = await userFactory({});
@@ -288,7 +277,6 @@ describe('Fields', () => {
     const fieldObj = await Fields.updateFieldsVisible(field._id, isVisible, user._id);
 
     expect(fieldObj.isVisible).toBe(isVisible);
-    expect(fieldObj.lastUpdatedUserId).toBe(user._id);
   });
 });
 
@@ -312,15 +300,12 @@ describe('Fields groups', () => {
   });
 
   test('Create group', async () => {
-    expect.assertions(6);
-
-    const user = await userFactory({});
+    expect.assertions(5);
 
     const doc = {
       name: 'Name',
       description: 'Description',
       contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-      lastUpdatedUserId: user._id,
     };
 
     let groupObj = await FieldsGroups.createGroup(doc);
@@ -328,7 +313,6 @@ describe('Fields groups', () => {
     expect(groupObj.name).toBe(doc.name);
     expect(groupObj.description).toBe(doc.description);
     expect(groupObj.contentType).toBe(doc.contentType);
-    expect(groupObj.lastUpdatedUserId).toBe(doc.lastUpdatedUserId);
     expect(groupObj.order).toBe(1);
 
     groupObj = await FieldsGroups.createGroup(doc);
@@ -337,15 +321,13 @@ describe('Fields groups', () => {
   });
 
   test('Update group', async () => {
-    expect.assertions(4);
+    expect.assertions(3);
 
-    const user = await userFactory({});
     const fieldGroup = await fieldGroupFactory({});
 
     const doc = {
       name: 'test name',
       description: 'test description',
-      lastUpdatedUserId: user._id,
     };
 
     try {
@@ -358,7 +340,6 @@ describe('Fields groups', () => {
 
     expect(groupObj.name).toBe(doc.name);
     expect(groupObj.description).toBe(doc.description);
-    expect(groupObj.lastUpdatedUserId).toBe(doc.lastUpdatedUserId);
   });
 
   test('Remove group', async () => {
@@ -392,7 +373,7 @@ describe('Fields groups', () => {
   });
 
   test('Update group visible', async () => {
-    expect.assertions(3);
+    expect.assertions(2);
 
     const fieldGroup = await fieldGroupFactory({ isVisible: true });
     const user = await userFactory({});
@@ -407,6 +388,5 @@ describe('Fields groups', () => {
     const groupObj = await FieldsGroups.updateGroupVisible(fieldGroup._id, isVisible, user._id);
 
     expect(groupObj.isVisible).toBe(isVisible);
-    expect(groupObj.lastUpdatedUserId).toBe(user._id);
   });
 });

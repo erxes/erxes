@@ -197,7 +197,6 @@ export const customerFactory = (params = {}) => {
 
 export const fieldFactory = async (params = {}) => {
   const groupObj = await fieldGroupFactory({});
-  const userObj = await userFactory({});
 
   const field = new Fields({
     contentType: params.contentType || 'form',
@@ -210,7 +209,6 @@ export const fieldFactory = async (params = {}) => {
     order: params.order || 0,
     isVisible: params.visible || true,
     groupId: params.groupId || groupObj._id,
-    lastUpdatedUserId: params.lastUpdatedUserId || userObj._id,
   });
 
   await field.save();
@@ -395,15 +393,12 @@ export const activityLogFactory = params => {
 };
 
 export const fieldGroupFactory = async params => {
-  const user = await userFactory({});
-
   const doc = {
     name: faker.random.word(),
     contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
     description: faker.random.word(),
     order: 1,
     isVisible: true,
-    lastUpdatedUserId: user._id,
   };
 
   const groupObj = await FieldsGroups.createGroup(doc, faker.random.word());

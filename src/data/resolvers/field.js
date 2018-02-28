@@ -1,7 +1,7 @@
 import { Users, Fields } from '../../db/models';
 
 const Field = {
-  lastUpdatedBy(Field) {
+  lastUpdatedUser(Field) {
     const { lastUpdatedUserId } = Field;
 
     // Returning user who updated the field last
@@ -15,7 +15,7 @@ const FieldsGroup = {
     return Fields.find({ groupId: FieldGroup._id });
   },
 
-  lastUpdatedBy(FieldGroup) {
+  lastUpdatedUser(FieldGroup) {
     const { lastUpdatedUserId } = FieldGroup;
 
     // Returning user who updated the group last
