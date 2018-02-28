@@ -31,6 +31,7 @@ describe('Fields', () => {
     // Clearing test data
     await Forms.remove();
     await Fields.remove({});
+    await FieldsGroups.remove({});
   });
 
   test('createField() without contentTypeId', async () => {
@@ -301,25 +302,24 @@ describe('Fields', () => {
 /**
  * Fields groups related tests
  */
-describe('Fields', () => {
+describe('Fields groups', () => {
   let _fieldGroup;
 
   beforeEach(async () => {
     // creating field group
     _fieldGroup = await fieldGroupFactory({
       contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-      order: 1,
       isDefinedByErxes: true,
     });
   });
 
   afterEach(async () => {
     // Clearing test data
-    await Fields.remove({});
+    await FieldsGroups.remove({});
   });
 
   test('Create group', async () => {
-    expect.assertions(4);
+    expect.assertions(6);
 
     const user = await userFactory({});
 
@@ -330,12 +330,17 @@ describe('Fields', () => {
       lastUpdatedUserId: user._id,
     };
 
-    const groupObj = await FieldsGroups.createGroup(doc);
+    let groupObj = await FieldsGroups.createGroup(doc);
 
     expect(groupObj.name).toBe(doc.name);
     expect(groupObj.description).toBe(doc.description);
     expect(groupObj.contentType).toBe(doc.contentType);
     expect(groupObj.lastUpdatedUserId).toBe(doc.lastUpdatedUserId);
+    expect(groupObj.order).toBe(1);
+
+    groupObj = await FieldsGroups.createGroup(doc);
+
+    expect(groupObj.order).toBe(2);
   });
 
   test('Update group', async () => {
