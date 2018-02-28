@@ -64,14 +64,7 @@ class Field {
   static async createField({ contentType, contentTypeId, groupId, ...fields }) {
     const query = { contentType };
 
-    // Check if inserting into default isDefinedByErxes group
     if (groupId) {
-      const groupObj = await FieldsGroups.findOne({ _id: groupId });
-
-      if (groupObj.isDefinedByErxes) {
-        throw new Error('You cant add field into this group');
-      }
-
       query.groupId = groupId;
     }
 
@@ -107,6 +100,7 @@ class Field {
       contentTypeId,
       order,
       groupId,
+      isDefinedByErxes: false,
       ...fields,
     });
   }
@@ -271,7 +265,7 @@ const FieldGroupSchema = mongoose.Schema({
     type: String,
   }),
   // Id of user who updated the group
-  lastUpdatedUserId: { type: String },
+  lastUpdatedUserId: field({ type: String }),
   isVisible: field({ type: Boolean, default: true }),
 });
 
@@ -295,7 +289,6 @@ class FieldGroup {
    * @param {String} doc.contentType - Content type customer or company
    * @param {String} doc.description - Group description
    * @param {String} doc.lastUpdatedUserId - Id of user who updated the group last
-   * @param {Boolean} doc.isDefinedByErxes - If true you cant edit fieldgroup
    *
    * @return {Promise} Newly created Group
    */
@@ -314,7 +307,7 @@ class FieldGroup {
       order = lastGroup.order + 1;
     }
 
-    return this.create({ ...doc, isVisible, order });
+    return this.create({ ...doc, isVisible, order, isDefinedByErxes: false });
   }
 
   /**

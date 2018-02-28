@@ -43,7 +43,6 @@ const fieldsCommonFields = `
   options: [String]
   isRequired: Boolean
   order: Int
-  isDefinedByErxes: Boolean
   groupId: String
   isVisible: Boolean
   lastUpdatedUserId: String

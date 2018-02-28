@@ -97,17 +97,10 @@ describe('Fields', () => {
     }
   });
 
-  test('createField on isDefinedByErxes group, and with user', async () => {
-    expect.assertions(2);
+  test('createField with user', async () => {
+    expect.assertions(1);
 
     const user = await userFactory({});
-    const group = await fieldGroupFactory({ isDefinedByErxes: true });
-
-    try {
-      await Fields.createField({ groupId: group._id });
-    } catch (e) {
-      expect(e.message).toEqual('You cant add field into this group');
-    }
 
     const fieldObj = await Fields.createField({ lastUpdatedUserId: user._id });
 

@@ -37,6 +37,7 @@ describe('Fields mutations', () => {
   afterEach(async () => {
     // Clearing test data
     await Fields.remove({});
+    await FieldsGroups.remove({});
     await Users.remove({});
   });
 
@@ -73,17 +74,19 @@ describe('Fields mutations', () => {
   });
 
   test('Update field valid', async () => {
-    Fields.updateField = jest.fn();
+    const mockedMethod = jest.spyOn(Fields, 'updateField');
 
     await fieldMutations.fieldsEdit({}, { _id: _field._id, ...doc }, { user: _user });
 
     expect(Fields.updateField).toBeCalledWith(_field._id, doc);
+
+    mockedMethod.mockRestore();
   });
 
   test('Remove field valid', async () => {
     Fields.removeField = jest.fn();
 
-    await fieldMutations.fieldsRemove({}, { _id: _field.id }, { user: _user });
+    await fieldMutations.fieldsRemove({}, { _id: _field._id }, { user: _user });
 
     expect(Fields.removeField).toBeCalledWith(_field._id);
   });
@@ -127,6 +130,7 @@ describe('Fields Group mutations', () => {
   afterEach(async () => {
     // Clearing test data
     await FieldsGroups.remove({});
+    await Fields.remove({});
     await Users.remove({});
   });
 
@@ -172,7 +176,7 @@ describe('Fields Group mutations', () => {
   });
 
   test('Update field group', async () => {
-    FieldsGroups.updateGroup = jest.fn();
+    const mockedMethod = jest.spyOn(FieldsGroups, 'updateGroup');
 
     const doc = {
       name: faker.random.word(),
@@ -187,6 +191,8 @@ describe('Fields Group mutations', () => {
     );
 
     expect(FieldsGroups.updateGroup).toBeCalledWith(_fieldGroup._id, doc);
+
+    mockedMethod.mockRestore();
   });
 
   test('Remove field group', async () => {

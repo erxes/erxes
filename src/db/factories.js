@@ -208,13 +208,14 @@ export const fieldFactory = async (params = {}) => {
     description: params.description || faker.random.word(),
     isRequired: params.isRequired || false,
     order: params.order || 0,
-    isDefinedByErxes: params.isDefinedByErxes || false,
     isVisible: params.visible || true,
     groupId: params.groupId || groupObj._id,
     lastUpdatedUserId: params.lastUpdatedUserId || userObj._id,
   });
 
-  return field.save();
+  await field.save();
+
+  return await Fields.updateField(field._id, params);
 };
 
 export const conversationFactory = (params = {}) => {
@@ -402,9 +403,10 @@ export const fieldGroupFactory = async params => {
     description: faker.random.word(),
     order: 1,
     isVisible: true,
-    isDefinedByErxes: false,
     lastUpdatedUserId: user._id,
   };
 
-  return FieldsGroups.createGroup({ ...doc, ...params }, faker.random.word());
+  const groupObj = await FieldsGroups.createGroup(doc, faker.random.word());
+
+  return await FieldsGroups.updateGroup(groupObj._id, params, faker.random.word());
 };
