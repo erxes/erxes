@@ -1,16 +1,13 @@
-const products = `
-  query products($type: String) {
-    products(type: $type) {
+const getConfig = `
+  query getConfig($code: String!) {
+    getConfig(code: $code) {
       _id
-      name
-      type
-      description
-      sku
-      createdAt
+      code
+      value
     }
   }
 `;
 
 export default {
-  products
+  getConfig
 };

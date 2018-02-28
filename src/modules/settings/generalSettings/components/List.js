@@ -4,14 +4,15 @@ import PropTypes from 'prop-types';
 import { Wrapper, ActionBar } from 'modules/layout/components';
 import Select from 'react-select-plus';
 import { FormGroup, Button } from 'modules/common/components';
-import { currency, measurements } from '../constants';
+import { currency } from '../constants';
 import { ContentBox, SubHeading } from '../../styles';
+import _ from 'underscore';
 
 class List extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { value: '' };
+    this.state = { value: this.props.currencyValue };
 
     this.selectCurrencyChange = this.selectCurrencyChange.bind(this);
     this.selectUOMChange = this.selectUOMChange.bind(this);
@@ -21,7 +22,7 @@ class List extends Component {
   getInitialState() {
     return {
       removeSelected: true,
-      value: [],
+      value: this.props.currencyValue,
       data: []
     };
   }
@@ -29,10 +30,12 @@ class List extends Component {
   save(e) {
     e.preventDefault();
 
-    this.props.save(this.state);
+    this.props.save(this.state.value);
   }
 
-  selectCurrencyChange(value) {
+  selectCurrencyChange(data) {
+    const value = _.pluck(data, 'value');
+
     this.setState({ value });
   }
 
@@ -81,17 +84,6 @@ class List extends Component {
             multi
           />
         </FormGroup>
-
-        <SubHeading>Unit of measurement</SubHeading>
-        <FormGroup>
-          <Select
-            multi
-            options={measurements}
-            value={this.state.data}
-            removeSelected={this.state.removeSelected}
-            onChange={this.selectUOMChange}
-          />
-        </FormGroup>
       </ContentBox>
     );
 
@@ -106,7 +98,8 @@ class List extends Component {
 }
 
 List.propTypes = {
-  save: PropTypes.func
+  save: PropTypes.func.isRequired,
+  currencyValue: PropTypes.array
 };
 
 export default List;
