@@ -35,6 +35,7 @@ const ListContainer = props => {
   const updatedProps = {
     ...props,
     currencyValue: currencyConfig ? currencyConfig.value : ['MNT', 'USD'],
+    uomValue: currencyConfig ? currencyConfig.value : ['PC', 'EA'],
     save
   };
 
