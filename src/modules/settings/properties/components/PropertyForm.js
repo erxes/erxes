@@ -29,6 +29,7 @@ class PropertyForm extends Component {
     let doc = {};
 
     if (props.field) {
+      action = props.edit;
       doc = {
         ...props.field
       };
@@ -44,10 +45,6 @@ class PropertyForm extends Component {
           options: Object.assign([], props.field.options || [])
         };
       }
-    }
-
-    if (props.field) {
-      action = props.edit;
     }
 
     this.state = {
