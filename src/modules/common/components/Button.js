@@ -82,6 +82,7 @@ const ButtonStyled = styled.button`
       box-shadow: ${types[props.btnStyle] === types.link
         ? 'none'
         : `0 0 4px 0 ${colors.borderDarker}`};
+      color: ${colors.colorWhite};
       color: ${types[props.btnStyle].color && darken(colors.colorCoreGray, 24)};
       text-decoration: none;
     }
