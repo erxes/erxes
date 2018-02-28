@@ -16,7 +16,7 @@ const extractConversationData = ({ data, isDirectMessage, timeline, directMessag
   idStr: data.id_str,
   isDirectMessage,
   entities: data.entities,
-  extendedEntities: data.extendedEntities,
+  extendedEntities: data.extended_entities,
   timeline,
   directMessage,
 });
