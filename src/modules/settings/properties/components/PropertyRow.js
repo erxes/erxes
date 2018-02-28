@@ -71,8 +71,6 @@ class PropertyRow extends React.Component {
 
   renderTableRow(field) {
     const { removeProperty, queryParams } = this.props;
-    const { lastUpdatedBy = {} } = field;
-    const { details = {} } = lastUpdatedBy;
 
     return (
       <TableRow key={field._id}>
@@ -80,7 +78,11 @@ class PropertyRow extends React.Component {
           {field.text}
           <FieldType>{field.type}</FieldType>
         </td>
-        <td width="40%">{details.fullName || 'Unknown'}</td>
+        <td width="40%">
+          {field.lastUpdatedBy
+            ? field.lastUpdatedBy.details.fullName
+            : 'Unknown'}
+        </td>
         <td width="10%">
           <Toggle
             defaultChecked={field.isVisible}
