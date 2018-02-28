@@ -114,16 +114,17 @@ class AutoAndManualForm extends Component {
       segmentId: this.state.segment,
       title: this.state.title,
       fromUserId: this.state.fromUser,
-      kind: this.state.kind
+      kind: this.state.kind,
+      method: this.state.method
     };
 
-    if (this.state.kind === 'auto') {
+    if (this.state.kind === 'manual') {
       doc.email = {
         templateId: this.state.email.templateId,
         subject: this.state.email.subject,
         content: this.state.message
       };
-    } else if (this.state.kind === 'manual') {
+    } else if (this.state.kind === 'auto') {
       doc.messenger = {
         brandId: this.state.messenger.brandId,
         kind: this.state.messenger.kind,
@@ -138,7 +139,7 @@ class AutoAndManualForm extends Component {
         content: this.state.message
       };
     }
-
+    console.log(doc);
     return doc;
   }
 
