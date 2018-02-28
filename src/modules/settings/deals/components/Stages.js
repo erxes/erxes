@@ -17,7 +17,6 @@ class Stages extends Component {
 
     this.add = this.add.bind(this);
     this.remove = this.remove.bind(this);
-    this.onChangeFields = this.onChangeFields.bind(this);
     this.onChangeName = this.onChangeName.bind(this);
   }
 
@@ -34,6 +33,7 @@ class Stages extends Component {
     const stages = this.props.stages;
 
     stages.push({
+      _id: Math.random(),
       name: '',
       pipelineId: this.props.pipelineId,
       boardId: this.props.boardId
@@ -48,10 +48,6 @@ class Stages extends Component {
     const remainedStages = stages.filter(stage => stage._id !== _id);
 
     this.props.onChangeStages(remainedStages);
-  }
-
-  onChangeFields(stages) {
-    this.props.onChangeStages(stages);
   }
 
   render() {
@@ -72,7 +68,7 @@ class Stages extends Component {
           child={child}
           lockAxis="y"
           useDragHandle
-          onChangeFields={this.onChangeFields}
+          onChangeFields={this.props.onChangeStages}
         />
         <Button onClick={this.add} btnStyle="success" size="small" icon="plus">
           Add stage

@@ -110,7 +110,6 @@ class ManageColumns extends Component {
 
         <SortableList
           fields={this.state.fields}
-          config={config}
           lockAxis="y"
           child={child}
           useDragHandle

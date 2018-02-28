@@ -10,15 +10,10 @@ const propTypes = {
 };
 
 class StageItem extends Component {
-  remove(_id) {
-    this.props.remove(_id);
-  }
-
   render() {
     const { stage } = this.props;
-
     return (
-      <StageItemContainer>
+      <StageItemContainer key={stage._id}>
         <FormControl
           defaultValue={stage.name}
           type="text"
@@ -28,7 +23,7 @@ class StageItem extends Component {
         <Tip text="Delete">
           <Button
             btnStyle="link"
-            onClick={this.remove.bind(this, stage._id)}
+            onClick={this.props.remove.bind(this, stage._id)}
             icon="close"
           />
         </Tip>
