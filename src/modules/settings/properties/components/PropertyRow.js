@@ -71,7 +71,8 @@ class PropertyRow extends React.Component {
 
   renderTableRow(field) {
     const { removeProperty, queryParams } = this.props;
-    const lastUpdate = field.lastUpdatedBy.details;
+    const { lastUpdatedBy = {} } = field;
+    const { details = {} } = lastUpdatedBy;
 
     return (
       <TableRow key={field._id}>
@@ -79,7 +80,7 @@ class PropertyRow extends React.Component {
           {field.text}
           <FieldType>{field.type}</FieldType>
         </td>
-        <td width="40%">{lastUpdate.fullName}</td>
+        <td width="40%">{details.fullName || 'Unknown'}</td>
         <td width="10%">
           <Toggle
             defaultChecked={field.isVisible}
@@ -119,7 +120,7 @@ class PropertyRow extends React.Component {
 
   render() {
     const { group, removePropertyGroup, queryParams } = this.props;
-    const fields = group.fields || [];
+    const { fields = [] } = group;
 
     return (
       <li key={group._id}>

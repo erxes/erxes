@@ -23,39 +23,28 @@ class PropertyGroupForm extends React.Component {
   constructor(props) {
     super(props);
     let action = props.add;
+    let isVisible = true;
 
     if (props.group) {
       action = props.edit;
+      isVisible = props.group.isVisible;
     }
 
     this.state = {
-      name: '',
-      description: '',
-      isVisible: true,
+      isVisible,
       action
     };
 
-    this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.visibleHandler = this.visibleHandler.bind(this);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.group) {
-      const { group } = nextProps;
-
-      this.setState({
-        name: group.name || '',
-        description: group.description || '',
-        isVisible: group.isVisible
-      });
-    }
   }
 
   onSubmit(e) {
     e.preventDefault();
 
-    const { name, description, isVisible } = this.state;
+    const { isVisible } = this.state;
+    const name = document.getElementById('name').value;
+    const description = document.getElementById('description').value;
 
     const doc = {
       name,
@@ -70,15 +59,6 @@ class PropertyGroupForm extends React.Component {
     this.context.closeModal();
   }
 
-  onChange(e) {
-    const value = e.target.value;
-    const name = e.target.name;
-
-    this.setState({
-      [name]: value
-    });
-  }
-
   visibleHandler(e) {
     const isVisible = e.target.checked;
 
@@ -86,17 +66,18 @@ class PropertyGroupForm extends React.Component {
   }
 
   render() {
+    const { group = {} } = this.props;
+
     return (
       <form onSubmit={this.onSubmit}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
           <FormControl
             type="text"
-            name="name"
+            id="name"
             autoFocus
             required
-            value={this.state.name}
-            onChange={e => this.onChange(e)}
+            defaultValue={group.name || ''}
           />
         </FormGroup>
 
@@ -104,10 +85,9 @@ class PropertyGroupForm extends React.Component {
           <ControlLabel>Description</ControlLabel>
           <FormControl
             type="text"
-            name="description"
+            id="description"
             required
-            value={this.state.description}
-            onChange={e => this.onChange(e)}
+            defaultValue={group.name || ''}
           />
         </FormGroup>
 
