@@ -31,7 +31,7 @@ class PropertyForm extends Component {
     if (props.field) {
       action = props.edit;
       doc = {
-        ...props.field
+        type: props.field.type
       };
 
       if (
@@ -40,7 +40,7 @@ class PropertyForm extends Component {
         props.field.type === 'check'
       ) {
         doc = {
-          ...props.field,
+          type: props.field.type,
           hasOptions: true,
           options: Object.assign([], props.field.options || [])
         };
@@ -49,6 +49,7 @@ class PropertyForm extends Component {
 
     this.state = {
       options: [],
+      type: '',
       hasOptions: false,
       ...doc,
       action
