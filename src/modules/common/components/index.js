@@ -32,6 +32,7 @@ import { Tabs, TabList, TabTitle } from './tabs';
 import ConfirmDialog from './ConfirmDialog';
 import DataWithLoader from './DataWithLoader';
 import ImageWithPreview from './ImageWithPreview';
+import IntegrationIcon from './IntegrationIcon';
 // TODO remove
 const pagination = {};
 
@@ -74,5 +75,6 @@ export {
   TabTitle,
   ConfirmDialog,
   DataWithLoader,
-  ImageWithPreview
+  ImageWithPreview,
+  IntegrationIcon
 };
