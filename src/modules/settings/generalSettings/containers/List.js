@@ -6,22 +6,22 @@ import { Alert } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 import { List } from '../components';
 import { Spinner } from 'modules/common/components';
-const currencyCode = 'dealCurrency';
 
 const ListContainer = props => {
-  const { insertConfig, configQuery } = props;
+  const { insertConfig, currencyConfigQuery, uomConfigQuery } = props;
 
-  if (configQuery.loading) {
+  if (currencyConfigQuery.loading || uomConfigQuery.loading) {
     return <Spinner objective />;
   }
 
   // create or update action
-  const save = value => {
+  const save = (code, value) => {
     insertConfig({
-      variables: { code: currencyCode, value }
+      variables: { code, value }
     })
       .then(() => {
-        configQuery.refetch();
+        currencyConfigQuery.refetch();
+        uomConfigQuery.refetch();
 
         Alert.success('Successfully saved!');
       })
@@ -30,12 +30,13 @@ const ListContainer = props => {
       });
   };
 
-  const currencyConfig = configQuery.getConfig;
+  const currencies = currencyConfigQuery.getConfig;
+  const uom = uomConfigQuery.getConfig;
 
   const updatedProps = {
     ...props,
-    currencyValue: currencyConfig ? currencyConfig.value : ['MNT', 'USD'],
-    uomValue: currencyConfig ? currencyConfig.value : ['PC', 'EA'],
+    currencies: currencies ? currencies.value : ['MNT', 'USD'],
+    uom: uom ? uom.value : ['PC', 'H'],
     save
   };
 
@@ -43,16 +44,26 @@ const ListContainer = props => {
 };
 
 ListContainer.propTypes = {
-  configQuery: PropTypes.object,
+  currencyConfigQuery: PropTypes.object,
+  uomConfigQuery: PropTypes.object,
   insertConfig: PropTypes.func
 };
 
 export default compose(
   graphql(gql(queries.getConfig), {
-    name: 'configQuery',
+    name: 'currencyConfigQuery',
     options: () => ({
       variables: {
-        code: currencyCode
+        code: 'dealCurrency'
+      },
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql(gql(queries.getConfig), {
+    name: 'uomConfigQuery',
+    options: () => ({
+      variables: {
+        code: 'dealUOM'
       },
       fetchPolicy: 'network-only'
     })

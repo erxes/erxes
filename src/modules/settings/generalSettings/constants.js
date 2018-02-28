@@ -193,6 +193,7 @@ export const measurement = [
   { label: 'Kilogram KG', value: 'KG' },
   { label: 'Kilograms KGS', value: 'KGS' },
   { label: 'Liter L', value: 'L' },
+  { label: 'Man hour H', value: 'H' },
   { label: 'Meter M', value: 'M' },
   { label: 'Package PK', value: 'PK' },
   { label: 'Packet PA', value: 'PA' },

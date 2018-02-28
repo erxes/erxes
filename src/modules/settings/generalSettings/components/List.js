@@ -13,40 +13,30 @@ class List extends Component {
     super(props);
 
     this.state = {
-      currencyValue: this.props.currencyValue,
-      uomValue: this.props.uomValue
+      currencies: props.currencies,
+      uom: props.uom
     };
 
-    this.selectCurrencyChange = this.selectCurrencyChange.bind(this);
-    this.selectUOMChange = this.selectUOMChange.bind(this);
+    this.onCurrenciesChange = this.onCurrenciesChange.bind(this);
+    this.onUOMChange = this.onUOMChange.bind(this);
+
     this.save = this.save.bind(this);
-  }
-
-  getInitialState() {
-    return {
-      removeSelected: true,
-      currencyValue: this.props.currencyValue,
-      uomValue: this.props.uomValue,
-      data: []
-    };
   }
 
   save(e) {
     e.preventDefault();
-
-    this.props.save(this.state.currencyValue, this.state.uomValue);
+    this.props.save('dealCurrency', this.state.currencies);
+    this.props.save('dealUOM', this.state.uom);
   }
 
-  selectCurrencyChange(data) {
-    const currencyValue = _.pluck(data, 'value');
-
-    this.setState({ currencyValue });
+  onCurrenciesChange(data) {
+    const currencies = _.pluck(data, 'value');
+    this.setState({ currencies });
   }
 
-  selectUOMChange(data) {
-    const uomValue = _.pluck(data, 'value');
-
-    this.setState({ uomValue });
+  onUOMChange(data) {
+    const uom = _.pluck(data, 'value');
+    this.setState({ uom });
   }
 
   render() {
@@ -84,9 +74,9 @@ class List extends Component {
         <FormGroup>
           <Select
             options={currency}
-            value={this.state.currencyValue}
+            value={this.state.currencies}
             removeSelected={this.state.removeSelected}
-            onChange={this.selectCurrencyChange}
+            onChange={this.onCurrenciesChange}
             multi
           />
         </FormGroup>
@@ -95,9 +85,9 @@ class List extends Component {
         <FormGroup>
           <Select
             options={measurement}
-            value={this.state.uomValue}
+            value={this.state.uom}
             removeSelected={this.state.removeSelected}
-            onChange={this.selectUOMChange}
+            onChange={this.onUOMChange}
             multi
           />
         </FormGroup>
@@ -116,8 +106,8 @@ class List extends Component {
 
 List.propTypes = {
   save: PropTypes.func.isRequired,
-  currencyValue: PropTypes.array,
-  uomValue: PropTypes.array
+  currencies: PropTypes.array,
+  uom: PropTypes.array
 };
 
 export default List;
