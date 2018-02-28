@@ -26,11 +26,16 @@ class PropertyForm extends Component {
     super(props);
 
     let action = props.add;
-    let doc = {};
+    let doc = {
+      options: [],
+      type: '',
+      hasOptions: false
+    };
 
     if (props.field) {
       action = props.edit;
       doc = {
+        ...doc,
         type: props.field.type
       };
 
@@ -48,9 +53,6 @@ class PropertyForm extends Component {
     }
 
     this.state = {
-      options: [],
-      type: '',
-      hasOptions: false,
       ...doc,
       action
     };
@@ -107,7 +109,7 @@ class PropertyForm extends Component {
   }
 
   handleCancelAddingOption() {
-    this.setState({ add: false, optionValue: '' });
+    this.setState({ add: false });
   }
 
   handleSaveOption() {
