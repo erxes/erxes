@@ -306,7 +306,13 @@ class FieldGroup {
     const { contentType } = doc;
 
     // Automatically setting order of group to the bottom
-    const order = (await this.count({ contentType })) + 1;
+    let order = 0;
+
+    const lastGroup = await Fields.findOne({ contentType }).sort({ order: -1 });
+
+    if (lastGroup) {
+      order = lastGroup.order + 1;
+    }
 
     return this.create({ ...doc, isVisible, order });
   }
