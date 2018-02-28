@@ -19,6 +19,7 @@ import notifications from './notifications';
 import activityLogs from './activityLogs';
 import deals from './deals';
 import products from './products';
+import configs from './configs';
 
 export default {
   ...users,
@@ -42,4 +43,5 @@ export default {
   ...activityLogs,
   ...deals,
   ...products,
+  ...configs,
 };

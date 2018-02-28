@@ -88,13 +88,19 @@ import {
   mutations as ActivityLogMutations,
 } from './activityLog';
 
-import { types as DealTypes, queries as DealQueries, mutations as DealMutations } from './deals';
+import { types as DealTypes, queries as DealQueries, mutations as DealMutations } from './deal';
 
 import {
   types as ProductTypes,
   queries as ProductQueries,
   mutations as ProductMutations,
-} from './products';
+} from './product';
+
+import {
+  types as ConfigTypes,
+  queries as ConfigQueries,
+  mutations as ConfigMutations,
+} from './config';
 
 export const types = `
   scalar JSON
@@ -121,6 +127,7 @@ export const types = `
   ${NotificationTypes}
   ${DealTypes}
   ${ProductTypes}
+  ${ConfigTypes}
 `;
 
 export const queries = `
@@ -146,6 +153,7 @@ export const queries = `
     ${ActivityLogQueries}
     ${DealQueries}
     ${ProductQueries}
+    ${ConfigQueries}
   }
 `;
 
@@ -171,6 +179,7 @@ export const mutations = `
     ${ActivityLogMutations}
     ${DealMutations}
     ${ProductMutations}
+    ${ConfigMutations}
   }
 `;
 
