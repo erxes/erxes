@@ -22,6 +22,7 @@ const contextTypes = {
 class PropertyGroupForm extends React.Component {
   constructor(props) {
     super(props);
+
     let action = props.add;
     let isVisible = true;
 

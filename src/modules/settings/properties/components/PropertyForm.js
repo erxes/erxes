@@ -26,6 +26,7 @@ class PropertyForm extends Component {
     super(props);
 
     let action = props.add;
+
     let doc = {
       options: [],
       type: '',
@@ -34,6 +35,7 @@ class PropertyForm extends Component {
 
     if (props.field) {
       action = props.edit;
+
       doc = {
         ...doc,
         type: props.field.type
@@ -95,6 +97,7 @@ class PropertyForm extends Component {
 
   onTypeChange(e) {
     const value = e.target.value;
+
     let doc = { hasOptions: false, options: [] };
 
     if (value === 'select' || value === 'check' || value === 'radio') {
