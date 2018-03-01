@@ -10,8 +10,8 @@ import {
   Tip,
   EmptyState
 } from 'modules/common/components';
-import { Alert, urlParser } from 'modules/common/utils';
-import { CustomProperties } from './';
+import { urlParser } from 'modules/common/utils';
+import { ManageGroups } from 'modules/settings/properties/components';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
 import { CompanyWrapper, BlockValue } from './styles';
@@ -32,51 +32,7 @@ const propTypes = {
   fieldsGroups: PropTypes.array.isRequired
 };
 
-class LeftSidebar extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      editing: false,
-      customFieldsData: {}
-    };
-
-    this.toggleEditing = this.toggleEditing.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.cancelEditing = this.cancelEditing.bind(this);
-    this.save = this.save.bind(this);
-  }
-
-  toggleEditing() {
-    this.cancelEditing();
-    this.setState({ editing: true });
-  }
-
-  cancelEditing() {
-    this.setState({
-      editing: false
-    });
-  }
-
-  onChange({ _id, value }) {
-    const { customFieldsData } = this.state;
-
-    this.setState({ customFieldsData: { ...customFieldsData, [_id]: value } });
-    this.toggleEditing();
-  }
-
-  save() {
-    const { customFieldsData } = this.state;
-    const { save } = this.props;
-
-    save({ customFieldsData }, error => {
-      if (error) return Alert.error(error.message);
-
-      this.cancelEditing();
-      return Alert.success('Success');
-    });
-  }
-
+class LeftSidebar extends ManageGroups {
   renderCompanies() {
     const { customer } = this.props;
     const { Section } = Sidebar;
@@ -218,17 +174,13 @@ class LeftSidebar extends React.Component {
   }
 
   render() {
-    const { customer, fieldsGroups } = this.props;
+    const { customer } = this.props;
 
     return (
       <Sidebar footer={this.renderSidebarFooter()}>
         <BasicInfo customer={customer} save={this.props.save} />
         {this.props.sections && this.props.sections}
-        <CustomProperties
-          onChange={this.onChange}
-          data={customer}
-          fieldsGroups={fieldsGroups}
-        />
+        {this.renderGroups(customer)}
         {this.renderCompanies()}
         {this.renderDeviceProperties()}
         {this.renderOtherProperties()}
