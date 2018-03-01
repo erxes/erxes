@@ -64,13 +64,8 @@ class Step extends Component {
       );
     }
     return (
-      <Button
-        btnStyle="primary"
-        size="small"
-        icon="ios-arrow-forward"
-        onClick={() => next(0)}
-      >
-        Next
+      <Button btnStyle="primary" size="small" onClick={() => next(0)}>
+        Next <Icon icon="ios-arrow-forward" />
       </Button>
     );
   }

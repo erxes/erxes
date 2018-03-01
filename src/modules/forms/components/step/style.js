@@ -1,33 +1,6 @@
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 
-const StepContainer = styled.div`
-  display: flex;
-  height: 100%;
-  > *:nth-child(n + 2) {
-    margin-left: 5px;
-  }
-`;
-
-const StepWrapper = styled.div`
-  margin: ${dimensions.coreSpacing}px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const TitleContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-  padding: 10px 20px;
-  background: ${colors.colorWhite};
-
-  > *:nth-child(n + 2) {
-    margin-left: 10px;
-  }
-`;
-
 const StepItem = styled.div`
   transition: all 0.3s;
   width: ${props => (props.show ? '100%' : '70px')};
@@ -90,69 +63,17 @@ const ShortStep = styled.div`
   flex-direction: column;
 `;
 
-const ContentCenter = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-`;
-
 const StepStatus = styled.div`
   margin-top: 20px;
 `;
 
 const FlexItem = styled.div`
   display: flex;
-  height: 100%;
-  flex: ${props => (props.count ? props.count : 1)};
-  flex-wrap: ${props => (props.wrap ? props.wrap : 'nowrap')};
-  ${props => {
-    if (props.overflow) {
-      return `
-        overflow: ${props.overflow};
-      `;
-    }
-  }};
-  ${props => {
-    if (props.v) {
-      return `
-        align-items: ${props.v};
-      `;
-    }
-  }};
-  ${props => {
-    if (props.h) {
-      return `
-        justify-content: ${props.h};
-      `;
-    }
-  }};
-  ${props => {
-    if (props.direction) {
-      return `
-        flex-direction: ${props.direction};
-      `;
-    }
-  }};
-`;
-
-const FlexPad = FlexItem.extend`
-  padding: ${dimensions.coreSpacing}px;
-`;
-
-const Show = styled.div`
-  display: ${props => (props.show ? 'block' : 'none')};
-`;
-
-const Divider = styled.div`
-  width: 1px;
-  background: ${colors.borderPrimary};
+  flex-direction: row;
   height: 100%;
 `;
 
 export {
-  StepWrapper,
-  TitleContainer,
   StepItem,
   FullStep,
   StepHeaderContainer,
@@ -162,10 +83,5 @@ export {
   StepContent,
   ShortStep,
   StepStatus,
-  ContentCenter,
-  FlexItem,
-  FlexPad,
-  Show,
-  Divider,
-  StepContainer
+  FlexItem
 };

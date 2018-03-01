@@ -1,42 +1,34 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FlexItem, Divider } from './style';
+import { FlexItem } from './style';
 import styled from 'styled-components';
 import { dimensions, colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 
-const BoxContainer = FlexItem.extend`
-  min-width: 500px;
-  padding: 0 20px;
-  > div {
-    max-height: 100%;
-    width: 420px;
-  }
+const BoxContainer = styled.div`
+  align-self: center;
+  min-width: 450px;
+  padding: ${dimensions.coreSpacing}px;
 `;
 
-const Preview = FlexItem.extend`
-  flex: 1 100%;
+const Preview = styled.div`
+  flex: 1;
   background: ${colors.bgMain};
+  padding: ${dimensions.coreSpacing}px;
 `;
 
 const Box = styled.div`
   display: inline-block;
   text-align: center;
   background: ${colors.colorLightBlue};
-  box-shadow: 0 8px 5px ${rgba(colors.colorCoreGray, 0.08)};
+  box-shadow: 0 5px 5px ${rgba(colors.colorCoreGray, 0.08)};
+  border: 1px solid
+    ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};
   border-radius: ${dimensions.unitSpacing / 2}px;
   padding: ${dimensions.headerSpacing - 5}px;
   transition: all 0.25s ease;
   width: 200px;
-  margin-top: 20px;
-
-  &:nth-child(2n) {
-    margin-left: 20px;
-  }
-
-  &:last-child {
-    margin-bottom: 20px;
-  }
+  margin-right: 20px;
 
   img {
     width: 75px;
@@ -57,30 +49,15 @@ const Box = styled.div`
       transform: scale(1.1);
     }
   }
-
-  @media (max-width: 780px) {
-    width: 100%;
-  }
-
-  ${props => {
-    if (props.selected) {
-      return `
-        box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
-        img {
-          transform: scale(1.1);
-        }
-      `;
-    }
-  }};
 `;
 
 const propTypes = {
-  changeState: PropTypes.func,
-  kind: PropTypes.string
+  kind: PropTypes.string,
+  changeState: PropTypes.func
 };
 
 class ChooseType extends Component {
-  renderBox(name, image, desc, value) {
+  renderBox(name, image, value) {
     return (
       <Box
         selected={this.props.kind === value}
@@ -93,30 +70,34 @@ class ChooseType extends Component {
   }
 
   changeState(value) {
-    if (value === 'manual') {
-      this.props.changeState('method', 'email');
-    } else {
-      this.props.changeState('method', 'messenger');
+    if (value === 'shoutbox') {
+      this.props.changeState('kind', 'shoutbox');
+    } else if (value === 'popup') {
+      this.props.changeState('kind', 'popup');
     }
     this.props.changeState('kind', value);
+  }
+
+  renderPreview() {
+    const { kind } = this.props;
+
+    if (kind === 'shoutbox') {
+      return 'zurag1';
+    } else if (kind === 'popup') {
+      return 'zurag2';
+    }
+    return 'zruag3';
   }
 
   render() {
     return (
       <FlexItem>
-        <BoxContainer v="center" h="center" overflow="auto">
-          <div>
-            {this.renderBox('ShoutBox', '/images/icons/erxes-07.svg', 'auto')}
-            {this.renderBox('Popup', '/images/icons/erxes-08.svg', 'manual')}
-            {this.renderBox(
-              'Embedded',
-              '/images/icons/erxes-08.svg',
-              'visitorAuto'
-            )}
-          </div>
+        <BoxContainer>
+          {this.renderBox('ShoutBox', '/images/icons/erxes-07.svg', 'shoutbox')}
+          {this.renderBox('Popup', '/images/icons/erxes-08.svg', 'popup')}
+          {this.renderBox('Embedded', '/images/icons/erxes-08.svg', 'embedded')}
         </BoxContainer>
-        <Divider />
-        <Preview />
+        <Preview>{this.renderPreview()}</Preview>
       </FlexItem>
     );
   }

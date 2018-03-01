@@ -2,32 +2,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../graphql';
+import { queries } from '../graphql';
 import { Form } from '../components';
 
 const ListContainer = props => {
-  const { integrationsQuery, integrationsCountQuery, removeMutation } = props;
+  const { integrationsQuery } = props;
 
-  const integrationsCount = integrationsCountQuery.integrationsTotalCount || 0;
   const integrations = integrationsQuery.integrations || [];
-
-  const removeIntegration = (_id, callback) => {
-    removeMutation({
-      variables: { _id }
-    }).then(() => {
-      // refresh queries
-      integrationsQuery.refetch();
-      integrationsCountQuery.refetch();
-
-      callback();
-    });
-  };
 
   const updatedProps = {
     ...this.props,
     integrations,
-    integrationsCount,
-    removeIntegration,
     loading: integrationsQuery.loading
   };
 
@@ -35,7 +20,6 @@ const ListContainer = props => {
 };
 
 ListContainer.propTypes = {
-  integrationsCountQuery: PropTypes.object,
   integrationsQuery: PropTypes.object,
   removeMutation: PropTypes.func
 };
@@ -54,17 +38,5 @@ export default compose(
         fetchPolicy: 'network-only'
       };
     }
-  }),
-  graphql(gql(queries.integrationsCount), {
-    name: 'integrationsCountQuery',
-    options: () => {
-      return {
-        variables: { kind: 'form' },
-        fetchPolicy: 'network-only'
-      };
-    }
-  }),
-  graphql(gql(mutations.integrationRemove), {
-    name: 'removeMutation'
   })
 )(ListContainer);
