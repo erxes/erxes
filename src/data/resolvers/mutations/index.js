@@ -7,7 +7,7 @@ import internalNotes from './internalNotes';
 import customers from './customers';
 import segments from './segments';
 import companies from './companies';
-import fields from './fields';
+import { fieldMutations as fields, fieldsGroupsMutations as fieldsgroups } from './fields';
 import emailTemplates from './emailTemplates';
 import responseTemplates from './responseTemplates';
 import channels from './channels';
@@ -36,4 +36,5 @@ export default {
   ...notifications,
   ...knowledgeBase,
   ...activityLogs,
+  ...fieldsgroups,
 };

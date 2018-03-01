@@ -32,7 +32,14 @@ import {
   mutations as EmailTemplateMutations,
 } from './emailTemplate';
 
-import { types as FieldTypes, queries as FieldQueries, mutations as FieldMutations } from './field';
+import {
+  fieldsTypes as FieldTypes,
+  fieldsQueries as FieldQueries,
+  fieldsMutations as FieldMutations,
+  fieldsGroupsTypes as FieldGroupTypes,
+  fieldsGroupsMutations as FieldGroupMutations,
+  fieldsGroupsQueries as FieldGroupQueries,
+} from './field';
 
 import { types as FormTypes, queries as FormQueries, mutations as FormMutatons } from './form';
 
@@ -111,6 +118,7 @@ export const types = `
   ${InsightTypes}
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
+  ${FieldGroupTypes}
 `;
 
 export const queries = `
@@ -134,6 +142,7 @@ export const queries = `
     ${KnowledgeBaseQueries}
     ${NotificationQueries}
     ${ActivityLogQueries}
+    ${FieldGroupQueries}
   }
 `;
 
@@ -157,6 +166,7 @@ export const mutations = `
     ${KnowledgeBaseMutations}
     ${NotificationMutations}
     ${ActivityLogMutations}
+    ${FieldGroupMutations}
   }
 `;
 
