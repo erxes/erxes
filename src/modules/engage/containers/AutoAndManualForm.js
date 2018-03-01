@@ -51,8 +51,6 @@ const AutoAndManualFormContainer = props => {
   };
 
   const save = doc => {
-    doc.kind = message.kind ? message.kind : kind;
-
     if (messageId) {
       return doMutation(editMutation, { ...doc, _id: messageId });
     }

@@ -11,6 +11,9 @@ import {
   Step,
   ConditionStep
 } from './step';
+import _ from 'lodash';
+import { Button } from 'modules/common/components';
+import { Link } from 'react-router-dom';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
@@ -39,19 +42,18 @@ class AutoAndManualForm extends Component {
     content = message.email ? message.email.content : content;
     const messenger = message.messenger || {};
     const email = message.email || {};
-    const validate = message.title ? false : true;
 
     this.state = {
       activeStep: 1,
       maxStep: 3,
       validate: {
         step1: false,
-        step2: validate,
-        step3: validate
+        step2: true,
+        step3: true
       },
       kind: message.kind || 'auto',
       method: message.method || 'messenger',
-      title: message.title || null,
+      title: message.title || '',
       segment: message.segmentId || '',
       message: content,
       fromUser: message.fromUserId,
@@ -70,41 +72,21 @@ class AutoAndManualForm extends Component {
     this.save = this.save.bind(this);
     this.next = this.next.bind(this);
     this.changeState = this.changeState.bind(this);
+    this.renderSaveButton = this.renderSaveButton.bind(this);
+    this.renderNextButton = this.renderNextButton.bind(this);
   }
 
   save(type, e) {
+    const { save } = this.props;
     const doc = this.generateDoc(e);
+
     if (type === 'live') {
-      this.props.save({ isLive: true, isDraft: false, ...doc });
+      save({ isLive: true, isDraft: false, ...doc });
     } else if (type === 'draft ') {
-      this.props.save({ isLive: false, isDraft: true, ...doc });
+      save({ isLive: false, isDraft: true, ...doc });
     } else {
-      this.props.save(doc);
+      save(doc);
     }
-  }
-
-  validate() {
-    const step3 = this.state[this.state.method];
-    let validate = { ...this.state.validate };
-    validate['step2'] = false;
-    validate['step3'] = false;
-
-    if (this.state.rules === '') {
-      validate['step2'] = true;
-    }
-
-    if (this.state.segment === '') {
-      validate['step2'] = true;
-    }
-
-    Object.keys(step3).map(key => {
-      if (step3[key] === '') {
-        validate['step3'] = true;
-      }
-      return false;
-    });
-
-    this.setState({ validate });
   }
 
   generateDoc(e) {
@@ -139,17 +121,84 @@ class AutoAndManualForm extends Component {
         content: this.state.message
       };
     }
-    console.log(doc);
+
     return doc;
+  }
+
+  componentDidMount() {
+    this.checkValidate();
   }
 
   changeState(key, value) {
     this.setState({ [key]: value });
   }
 
+  checkValidate() {
+    let validate = Object.assign({}, this.state.validate);
+    const {
+      kind,
+      segment,
+      rules,
+      fromUser,
+      message,
+      messenger,
+      email
+    } = this.state;
+    if (kind === 'auto' || kind === 'manual') {
+      if (segment === '') {
+        validate['step2'] = true;
+      } else {
+        validate['step2'] = false;
+      }
+    } else if (kind === 'visitorAuto') {
+      if (rules.length > 0) {
+        validate['step2'] = false;
+      } else {
+        validate['step2'] = true;
+      }
+    }
+
+    if (kind === 'auto') {
+      if (
+        messenger.brandId === '' ||
+        messenger.kind === '' ||
+        messenger.sentAs === '' ||
+        fromUser === '' ||
+        message === ''
+      ) {
+        validate['step3'] = true;
+      } else {
+        validate['step3'] = false;
+      }
+    } else if (kind === 'visitorAuto') {
+      if (
+        messenger.brandId === '' ||
+        messenger.sentAs === '' ||
+        fromUser === '' ||
+        message === ''
+      ) {
+        validate['step3'] = true;
+      } else {
+        validate['step3'] = false;
+      }
+    } else if (kind === 'manual') {
+      if (
+        email.subject === '' ||
+        email.templateId === '' ||
+        fromUser === '' ||
+        message === ''
+      ) {
+        validate['step3'] = true;
+      } else {
+        validate['step3'] = false;
+      }
+    }
+    this.setState({ validate });
+  }
+
   next(stepNumber) {
     const { activeStep, maxStep } = this.state;
-    this.validate();
+    this.checkValidate();
     if (stepNumber === 0) {
       if (activeStep <= maxStep) {
         this.setState({ activeStep: activeStep + 1 });
@@ -157,6 +206,66 @@ class AutoAndManualForm extends Component {
     } else {
       this.setState({ activeStep: stepNumber });
     }
+  }
+
+  renderNextButton() {
+    return (
+      <Button
+        btnStyle="primary"
+        size="small"
+        icon="ios-arrow-forward"
+        onClick={() => this.next(0)}
+      >
+        Next
+      </Button>
+    );
+  }
+
+  renderSaveButton(message) {
+    const cancelButton = (
+      <Link to="/engage">
+        <Button btnStyle="simple" size="small" icon="close">
+          Cancel
+        </Button>
+      </Link>
+    );
+
+    if (!_.isEmpty(message)) {
+      return (
+        <Button.Group>
+          {cancelButton}
+          <Button
+            btnStyle="primary"
+            size="small"
+            icon="ios-arrow-forward"
+            onClick={e => this.save('save', e)}
+          >
+            Save
+          </Button>
+        </Button.Group>
+      );
+    }
+    return (
+      <Button.Group>
+        {cancelButton}
+        <Button
+          btnStyle="warning"
+          size="small"
+          icon="ios-arrow-forward"
+          onClick={e => this.save('draft', e)}
+        >
+          Save & Draft
+        </Button>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="ios-arrow-forward"
+          onClick={e => this.save('live', e)}
+        >
+          Save & Live
+        </Button>
+      </Button.Group>
+    );
   }
 
   renderSegmentStep() {
@@ -185,7 +294,6 @@ class AutoAndManualForm extends Component {
   render() {
     const {
       activeStep,
-      maxStep,
       validate,
       messenger,
       email,
@@ -210,11 +318,13 @@ class AutoAndManualForm extends Component {
             defaultValue={this.state.title}
           />
         </TitleContainer>
-        <Steps maxStep={maxStep} active={activeStep} validate={validate}>
+        <Steps active={activeStep}>
           <Step
             img="/images/icons/erxes-05.svg"
             title="Choose channel"
+            nextButton={this.renderNextButton()}
             next={this.next}
+            validate={validate['step1']}
           >
             <ChannelStep
               changeState={this.changeState}
@@ -224,16 +334,18 @@ class AutoAndManualForm extends Component {
           <Step
             img="/images/icons/erxes-02.svg"
             title="Who is this message for?"
+            nextButton={this.renderNextButton()}
             next={this.next}
+            validate={validate['step2']}
           >
             {this.renderSegmentStep()}
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"
             title="Compose your message"
-            save={this.save}
+            nextButton={this.renderSaveButton(this.props.message)}
             next={this.next}
-            message={this.props.message}
+            validate={validate['step3']}
           >
             <MessageStep
               brands={this.props.brands}
