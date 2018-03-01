@@ -43,8 +43,6 @@ class Field {
   /** Check if Group is defined by erxes by default
    *
    * @param {String} _id - Id of field object to check
-   *
-   * @return {Promise} Newly created Group
    */
   static async checkIsDefinedByErxes(_id) {
     const fieldObj = await this.findOne({ _id });
@@ -242,7 +240,7 @@ class Field {
    * @param {Boolean} isVisible - True or false to be shown
    * @param {String} lastUpdatedUserId - id of user who updated field last
    *
-   * @return {Promise} Result
+   * @return {Promise} Updated Field
    */
   static async updateFieldsVisible(_id, isVisible, lastUpdatedUserId) {
     await this.checkIsDefinedByErxes(_id);
@@ -273,8 +271,6 @@ class FieldGroup {
   /** Check if Group is defined by erxes by default
    *
    * @param {String} _id - Id of group object to check
-   *
-   * @return {Promise} Newly created Group
    */
   static async checkIsDefinedByErxes(_id) {
     const groupObj = await this.findOne({ _id });
@@ -318,7 +314,7 @@ class FieldGroup {
    * @param {String} doc.description - Field group description
    * @param {String} doc.lastUpdatedUserId - Id of user who updated the group last
    *
-   * @return {Promise} Updated field object
+   * @return {Promise} Updated field group object
    */
   static async updateGroup(_id, doc) {
     // Can not edit group that is defined by erxes
@@ -361,7 +357,7 @@ class FieldGroup {
    * @param {Boolean} isVisible - True or false to be shown
    * @param {Boolean} lastUpdatedUserId - id of User who updated group last
    *
-   * @return {Promise} Result
+   * @return {Promise} Updated Field group
    */
   static async updateGroupVisible(_id, isVisible, lastUpdatedUserId) {
     // Can not update group that is defined by erxes

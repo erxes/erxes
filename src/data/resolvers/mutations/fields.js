@@ -66,9 +66,9 @@ const fieldsGroupsMutations = {
    * @param {Object} _id - Id of group to update
    * @param {Object} doc - Graphql input data
    * @param {String} doc.name - Group name
-   * @param {String} doc.description - Id of parent group
+   * @param {String} doc.description - Description of group
    *
-   * @return {Promise} Newly updated Group
+   * @return {Promise} Updated Group
    */
   fieldsGroupsEdit(root, { _id, ...doc }, { user }) {
     return FieldsGroups.updateGroup(_id, { ...doc, lastUpdatedUserId: user._id });
