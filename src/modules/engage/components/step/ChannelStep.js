@@ -111,6 +111,17 @@ class ChannelStep extends Component {
     this.props.changeState('kind', value);
   }
 
+  renderPreview() {
+    const { kind } = this.props;
+
+    if (kind === 'auto') {
+      return 'zurag1';
+    } else if (kind === 'manual') {
+      return 'zurag2';
+    }
+    return 'zruag3';
+  }
+
   render() {
     return (
       <FlexItem>
@@ -137,7 +148,7 @@ class ChannelStep extends Component {
           </div>
         </BoxContainer>
         <Divider />
-        <Preview />
+        <Preview>{this.renderPreview()}</Preview>
       </FlexItem>
     );
   }
