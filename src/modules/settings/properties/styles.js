@@ -74,6 +74,12 @@ const DropIcon = styled.span`
   }
 `;
 
+const InputDescription = styled.span`
+  display: block;
+  font-size: 12px;
+  color: ${colors.colorCoreGray};
+`;
+
 export {
   ContentBox,
   PropertyList,
@@ -81,5 +87,6 @@ export {
   TypeList,
   AddOption,
   Actions,
-  FieldType
+  FieldType,
+  InputDescription
 };

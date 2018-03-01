@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
-import { GenerateField } from 'modules/fields/components';
 import { SidebarContent } from 'modules/layout/styles';
 import styled from 'styled-components';
 import { dimensions } from 'modules/common/styles';
+import { GenerateField } from 'modules/settings/properties/components';
 
 const FieldWrapper = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;

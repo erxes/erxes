@@ -29,7 +29,7 @@ class Row extends CommonRow {
       <td>
         <ActionButtons>
           <Tip text="Manage Fields">
-            <Link to={`/fields/manage/form/${object._id}`}>
+            <Link to={`/settings/forms/fields/manage/form/${object._id}`}>
               <Button btnStyle="link" icon="navicon-round" />
             </Link>
           </Tip>

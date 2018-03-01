@@ -21,7 +21,7 @@ import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
 import { CustomerForm, CommonMerge } from '../';
-import { ManageColumns } from 'modules/fields/containers';
+import { ManageColumns } from 'modules/settings/properties/containers';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
