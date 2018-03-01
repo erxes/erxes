@@ -213,7 +213,7 @@ export const fieldFactory = async (params = {}) => {
 
   await field.save();
 
-  return await Fields.updateField(field._id, params);
+  return Fields.updateField(field._id, params);
 };
 
 export const conversationFactory = (params = {}) => {
@@ -403,5 +403,5 @@ export const fieldGroupFactory = async params => {
 
   const groupObj = await FieldsGroups.createGroup(doc, faker.random.word());
 
-  return await FieldsGroups.updateGroup(groupObj._id, params, faker.random.word());
+  return FieldsGroups.updateGroup(groupObj._id, params, faker.random.word());
 };

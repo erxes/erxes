@@ -122,7 +122,7 @@ moduleRequireLogin(fieldQueries);
 
 const fieldsGroupQueries = {
   /**
-   * Fields list
+   * Fields group list
    * @param {String} contentType - Filter by content type
    *
    * @return {Promise} Filtered fields group list
