@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { Alert } from 'modules/common/utils';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { AutoAndManualForm } from '../components';
+import { EngageForm } from '../components';
 import { queries, mutations } from '../graphql';
 import { withRouter } from 'react-router';
 
-const AutoAndManualFormContainer = props => {
+const EngageFormContainer = props => {
   const {
     segmentsQuery,
     headSegmentsQuery,
@@ -106,10 +106,10 @@ const AutoAndManualFormContainer = props => {
     users
   };
 
-  return <AutoAndManualForm {...updatedProps} />;
+  return <EngageForm {...updatedProps} />;
 };
 
-AutoAndManualFormContainer.propTypes = {
+EngageFormContainer.propTypes = {
   messageId: PropTypes.string,
   history: PropTypes.object,
   segmentsQuery: PropTypes.object,
@@ -126,7 +126,7 @@ AutoAndManualFormContainer.propTypes = {
   editMutation: PropTypes.func
 };
 
-const EngageForm = compose(
+const EngageFormContainers = compose(
   graphql(gql(queries.users), { name: 'usersQuery' }),
   graphql(gql(mutations.messagesAdd), { name: 'addMutation' }),
   graphql(gql(mutations.messagesEdit), { name: 'editMutation' }),
@@ -146,6 +146,6 @@ const EngageForm = compose(
     })
   }),
   graphql(gql(queries.brands), { name: 'brandsQuery' })
-)(AutoAndManualFormContainer);
+)(EngageFormContainer);
 
-export default withRouter(EngageForm);
+export default withRouter(EngageFormContainers);

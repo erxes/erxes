@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { MessageList, AutoAndManualForm } from './containers';
+import { MessageList, EngageForm } from './containers';
 
 const routes = () => [
   <Route key="/engage/home" exact path="/engage" component={MessageList} />,
@@ -10,7 +10,7 @@ const routes = () => [
     exact
     path="/engage/messages/create"
     component={() => {
-      return <AutoAndManualForm />;
+      return <EngageForm />;
     }}
   />,
 
@@ -19,7 +19,7 @@ const routes = () => [
     exact
     path="/engage/messages/edit/:_id"
     component={({ match }) => {
-      return <AutoAndManualForm messageId={match.params._id} />;
+      return <EngageForm messageId={match.params._id} />;
     }}
   />
 ];

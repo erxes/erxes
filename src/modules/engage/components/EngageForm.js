@@ -30,7 +30,7 @@ const propTypes = {
   kind: PropTypes.string
 };
 
-class AutoAndManualForm extends Component {
+class EngageForm extends Component {
   constructor(props) {
     super(props);
 
@@ -363,6 +363,6 @@ class AutoAndManualForm extends Component {
   }
 }
 
-AutoAndManualForm.propTypes = propTypes;
+EngageForm.propTypes = propTypes;
 
-export default AutoAndManualForm;
+export default EngageForm;
