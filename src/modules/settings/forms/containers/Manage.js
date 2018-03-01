@@ -6,10 +6,10 @@ import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
 import { Manage } from '../components';
 import { queries, mutations } from '../graphql';
+import { FIELDS__CONTENT_TYPES } from '../constants';
 
 const ManageContainer = props => {
   const {
-    contentType,
     contentTypeId,
     fieldsQuery,
     fieldsAdd,
@@ -34,7 +34,7 @@ const ManageContainer = props => {
   const addField = doc => {
     fieldsAdd({
       variables: {
-        contentType,
+        contentType: FIELDS__CONTENT_TYPES.FORM,
         contentTypeId,
         ...doc
       }
@@ -89,7 +89,6 @@ const ManageContainer = props => {
 };
 
 ManageContainer.propTypes = {
-  contentType: PropTypes.string,
   contentTypeId: PropTypes.string,
   fieldsQuery: PropTypes.object,
   fieldsAdd: PropTypes.func,
@@ -101,10 +100,10 @@ ManageContainer.propTypes = {
 export default compose(
   graphql(gql(queries.fields), {
     name: 'fieldsQuery',
-    options: ({ contentType, contentTypeId }) => {
+    options: ({ contentTypeId }) => {
       return {
         variables: {
-          contentType,
+          contentType: FIELDS__CONTENT_TYPES.FORM,
           contentTypeId
         }
       };

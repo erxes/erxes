@@ -13,13 +13,13 @@ const routes = () => [
     }}
   />,
   <Route
-    key="/settings/forms/fields/manage/:contentType/:contentTypeId?"
+    key="/settings/forms/fieldsmanage/:contentTypeId?"
     exact
-    path="/settings/forms/fields/manage/:contentType/:contentTypeId?"
+    path="/settings/forms/fields/manage/:contentTypeId?"
     component={({ match }) => {
-      const { contentType, contentTypeId } = match.params;
+      const { contentTypeId } = match.params;
 
-      return <Manage contentType={contentType} contentTypeId={contentTypeId} />;
+      return <Manage contentTypeId={contentTypeId} />;
     }}
   />
 ];
