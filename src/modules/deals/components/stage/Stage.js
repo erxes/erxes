@@ -4,6 +4,7 @@ import { Draggable, Droppable } from 'react-beautiful-dnd';
 import {
   StageWrapper,
   StageContainer,
+  StageHeader,
   StageBody,
   StageDropZone,
   AddNewDeal
@@ -32,6 +33,10 @@ class Stage extends React.Component {
     super(props);
 
     props.collectDeals(props.stage._id, listObjectUnFreeze(props.dealsFromDb));
+
+    this.state = {
+      amount: {}
+    };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -40,6 +45,18 @@ class Stage extends React.Component {
         this.props.stage._id,
         listObjectUnFreeze(nextProps.dealsFromDb)
       );
+    }
+
+    if (nextProps.deals.length > 0) {
+      const amount = {};
+      nextProps.deals.forEach(deal => {
+        Object.keys(deal.amount).forEach(key => {
+          if (!amount[key]) amount[key] = deal.amount[key];
+          else amount[key] += deal.amount[key];
+        });
+      });
+
+      this.setState({ amount });
     }
   }
 
@@ -54,6 +71,8 @@ class Stage extends React.Component {
       closeDealForm
     } = this.props;
 
+    const amount = this.state.amount;
+
     return (
       <Draggable draggableId={stage._id} index={this.props.index}>
         {(provided, snapshot) => {
@@ -64,9 +83,19 @@ class Stage extends React.Component {
                 {...provided.draggableProps}
                 isDragging={snapshot.isDragging}
               >
-                <h3 {...provided.dragHandleProps}>
-                  {stage.name} <span>Deal: {deals.length}</span>
-                </h3>
+                <StageHeader {...provided.dragHandleProps}>
+                  <h3>{stage.name}</h3>
+                  {Object.keys(amount).length > 0 ? (
+                    <ul>
+                      {Object.keys(amount).map(key => (
+                        <li key={key}>
+                          {amount[key].toLocaleString()} {key}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  <span className="deals-count">Deal: {deals.length}</span>
+                </StageHeader>
                 <StageBody>
                   <Droppable droppableId={stage._id} type="DEAL">
                     {dropProvided => (

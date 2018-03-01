@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Wrapper, ActionBar } from 'modules/layout/components';
 import Select from 'react-select-plus';
 import { FormGroup, Button } from 'modules/common/components';
-import { currency, measurement } from '../constants';
+import { CURRENCIES, MEASUREMENTS } from '../constants';
 import { ContentBox, SubHeading } from '../../styles';
 import _ from 'underscore';
 
@@ -73,7 +73,7 @@ class List extends Component {
         <SubHeading>Currency</SubHeading>
         <FormGroup>
           <Select
-            options={currency}
+            options={CURRENCIES}
             value={this.state.currencies}
             removeSelected={this.state.removeSelected}
             onChange={this.onCurrenciesChange}
@@ -84,7 +84,7 @@ class List extends Component {
         <SubHeading>Unit of measurement</SubHeading>
         <FormGroup>
           <Select
-            options={measurement}
+            options={MEASUREMENTS}
             value={this.state.uom}
             removeSelected={this.state.removeSelected}
             onChange={this.onUOMChange}

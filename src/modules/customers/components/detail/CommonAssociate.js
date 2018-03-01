@@ -19,7 +19,8 @@ const propTypes = {
   title: PropTypes.string.isRequired,
   renderName: PropTypes.func.isRequired,
   perPage: PropTypes.number.isRequired,
-  clearState: PropTypes.func.isRequired
+  clearState: PropTypes.func.isRequired,
+  limit: PropTypes.number
 };
 
 const contextTypes = {
@@ -29,6 +30,7 @@ const contextTypes = {
 class CommonAssociate extends Component {
   constructor(props) {
     super(props);
+
     const datas = this.props.data.datas || [];
 
     this.state = {
@@ -44,14 +46,7 @@ class CommonAssociate extends Component {
   }
 
   save() {
-    const { datas } = this.state;
-    const ids = [];
-
-    datas.forEach(data => {
-      ids.push(data._id.toString());
-    });
-
-    this.props.save(ids);
+    this.props.save(this.state.datas);
     this.context.closeModal();
   }
 
@@ -69,6 +64,10 @@ class CommonAssociate extends Component {
     const { datas } = this.state;
 
     if (type === 'plus') {
+      if (this.props.limit && this.props.limit === datas.length) {
+        return;
+      }
+
       this.setState({
         datas: [...datas, data]
       });

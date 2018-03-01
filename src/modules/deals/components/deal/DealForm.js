@@ -11,25 +11,27 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { DealFormContainer, DealButton, DealFormAmount } from '../../styles';
-import { ProductForm, DealProduct } from '../';
+import { Alert, renderFullName } from 'modules/common/utils';
+import { CompanyAssociate } from 'modules/companies/containers';
+import { CustomerAssociate } from '../../containers';
 import {
-  selectOptions,
-  selectCustomerOptions,
-  selectUserOptions
-} from '../../utils';
+  DealFormContainer,
+  DealButton,
+  DealFormAmount,
+  DealProducts
+} from '../../styles';
+import { ProductForm, DealProduct } from '../';
+import { selectUserOptions } from '../../utils';
 
 const propTypes = {
   deal: PropTypes.object,
-  saveDeal: PropTypes.func.isRequired,
+  addDeal: PropTypes.func.isRequired,
   close: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
-  companies: PropTypes.array,
   boardId: PropTypes.string,
   pipelineId: PropTypes.string,
   stageId: PropTypes.string,
   users: PropTypes.array,
-  products: PropTypes.array,
   dealsLength: PropTypes.number
 };
 
@@ -41,15 +43,14 @@ class DealForm extends React.Component {
     this.onChangeCustomer = this.onChangeCustomer.bind(this);
     this.onDateInputChange = this.onDateInputChange.bind(this);
     this.onChangeProductsData = this.onChangeProductsData.bind(this);
-    this.onChangeProducts = this.onChangeProducts.bind(this);
     this.onChangeUsers = this.onChangeUsers.bind(this);
+    this.saveProductsData = this.saveProductsData.bind(this);
 
-    this.saveDeal = this.saveDeal.bind(this);
+    this.addDeal = this.addDeal.bind(this);
 
     this.state = {
-      companyId: '',
-      customerId: '',
-      customers: [],
+      company: null,
+      customer: null,
       closeDate: null,
       note: '',
       amount: {},
@@ -59,17 +60,25 @@ class DealForm extends React.Component {
     };
   }
 
-  saveDeal(e) {
-    e.preventDefault();
-
+  addDeal() {
     const {
-      customerId,
-      companyId,
+      customer,
+      company,
       closeDate,
       productsData,
       note,
       assignedUserIds
     } = this.state;
+
+    if (!company) {
+      Alert.error('Choose a company');
+      return;
+    }
+
+    if (!customer) {
+      Alert.error('Choose a customer');
+      return;
+    }
 
     const { boardId, pipelineId, stageId, dealsLength } = this.props;
 
@@ -77,8 +86,12 @@ class DealForm extends React.Component {
     const filteredProductsData = [];
 
     productsData.forEach(p => {
-      if (p.productId) {
-        productIds.push(p.productId);
+      if (p.product) {
+        p.productId = p.product._id;
+        productIds.push(p.product._id);
+
+        delete p.product;
+
         filteredProductsData.push(p);
       }
     });
@@ -87,19 +100,20 @@ class DealForm extends React.Component {
       boardId,
       pipelineId,
       stageId,
-      companyId,
-      customerId,
+      companyId: company._id,
+      customerId: customer._id,
       closeDate: new Date(closeDate),
       productIds,
       productsData: filteredProductsData,
-      note,
       assignedUserIds,
       order: dealsLength
     };
 
-    console.log('deal: ', deal);
+    if (note) {
+      deal.note = note;
+    }
 
-    this.props.saveDeal(
+    this.props.addDeal(
       {
         doc: deal
       },
@@ -111,22 +125,21 @@ class DealForm extends React.Component {
     );
   }
 
-  onChangeCompany(company) {
-    if (company) {
-      const companyId = company.value;
-
-      const customers = this.props.companies.find(
-        company => company._id === companyId
-      ).customers;
-
-      this.setState({ companyId, customers });
+  onChangeCompany(companies) {
+    if (companies && companies.length === 1) {
+      const company = companies[0];
+      this.setState({ company });
     } else {
-      this.setState({ companyId: '', customerId: '', customers: [] });
+      this.setState({ company: null, customer: null });
     }
   }
 
-  onChangeCustomer(customer) {
-    this.setState({ customerId: customer ? customer.value : '' });
+  onChangeCustomer(customers) {
+    if (customers && customers.length === 1) {
+      this.setState({ customer: customers[0] });
+    } else {
+      this.setState({ customer: null });
+    }
   }
 
   onDateInputChange(date) {
@@ -134,19 +147,19 @@ class DealForm extends React.Component {
   }
 
   onChangeProductsData(productsData) {
+    this.setState({ productsData });
+  }
+
+  saveProductsData() {
+    const productsData = this.state.productsData;
     const products = [];
     const amount = {};
 
     productsData.forEach(el => {
       // products
-      this.props.products.forEach(pEl => {
-        if (pEl._id === el.productId) {
-          products.push({
-            _id: pEl._id,
-            name: pEl.name
-          });
-        }
-      });
+      if (el.product) {
+        products.push(el.product);
+      }
 
       // amount
       if (!amount[el.currency]) amount[el.currency] = el.amount;
@@ -154,10 +167,6 @@ class DealForm extends React.Component {
     });
 
     this.setState({ productsData, products, amount });
-  }
-
-  onChangeProducts(products) {
-    this.setState({ products });
   }
 
   onChangeNote(e) {
@@ -177,16 +186,27 @@ class DealForm extends React.Component {
   render() {
     const productTrigger = (
       <DealButton>
-        Select Product & Service <Icon icon="plus" />
+        Product & Service <Icon icon="plus" />
       </DealButton>
     );
 
-    const { companies, users } = this.props;
+    const companyTrigger = (
+      <DealButton>
+        Choose company <Icon icon="plus" />
+      </DealButton>
+    );
+
+    const customerTrigger = (
+      <DealButton>
+        Choose customer <Icon icon="plus" />
+      </DealButton>
+    );
+
+    const { users } = this.props;
     const {
-      customers,
-      companyId,
+      company,
+      customer,
       assignedUserIds,
-      customerId,
       closeDate,
       products,
       productsData,
@@ -195,49 +215,67 @@ class DealForm extends React.Component {
 
     return (
       <DealFormContainer>
-        <form onSubmit={e => this.saveDeal(e)}>
+        <form>
           <ModalTrigger
-            size="large"
             title="New Product & Service"
             trigger={productTrigger}
+            size="large"
           >
             <ProductForm
               onChangeProductsData={this.onChangeProductsData}
               productsData={productsData}
-              products={this.props.products}
+              saveProductsData={this.saveProductsData}
             />
           </ModalTrigger>
           <FormGroup>
             <DealProduct products={products} />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>Company</ControlLabel>
-            <Select
-              placeholder="Choose company"
-              value={companyId}
-              onChange={value => this.onChangeCompany(value)}
-              optionRenderer={option => (
-                <div className="simple-option">
-                  <span>{option.label}</span>
-                </div>
-              )}
-              options={selectOptions(companies)}
+          <ModalTrigger
+            size="large"
+            title="Select company"
+            trigger={companyTrigger}
+          >
+            <CompanyAssociate
+              data={{ firstName: 'Deal', companies: company ? [company] : [] }}
+              save={this.onChangeCompany}
+              limit={1}
             />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Customer</ControlLabel>
-            <Select
-              placeholder="Choose customer"
-              value={customerId}
-              onChange={value => this.onChangeCustomer(value)}
-              optionRenderer={option => (
-                <div className="simple-option">
-                  <span>{option.label}</span>
-                </div>
-              )}
-              options={selectCustomerOptions(customers)}
-            />
-          </FormGroup>
+          </ModalTrigger>
+          {company ? (
+            <FormGroup>
+              <DealProducts>
+                <ul>
+                  <li>{company.name}</li>
+                </ul>
+              </DealProducts>
+            </FormGroup>
+          ) : null}
+          {company ? (
+            <ModalTrigger
+              size="large"
+              title="Select customer"
+              trigger={customerTrigger}
+            >
+              <CustomerAssociate
+                data={{
+                  companyId: company._id,
+                  customers: customer ? [customer] : []
+                }}
+                companyId={company._id}
+                save={this.onChangeCustomer}
+                limit={1}
+              />
+            </ModalTrigger>
+          ) : null}
+          {customer ? (
+            <FormGroup>
+              <DealProducts>
+                <ul>
+                  <li>{renderFullName(customer)}</li>
+                </ul>
+              </DealProducts>
+            </FormGroup>
+          ) : null}
           {Object.keys(amount).length !== 0 ? (
             <FormGroup>
               <ControlLabel>Amount</ControlLabel>
@@ -295,7 +333,13 @@ class DealForm extends React.Component {
               Close
             </Button>
 
-            <Button btnStyle="success" type="submit" icon="checkmark">
+            <Button
+              btnStyle="success"
+              onClick={() => {
+                this.addDeal();
+              }}
+              icon="checkmark"
+            >
               Save
             </Button>
           </Modal.Footer>

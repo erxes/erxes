@@ -1,4 +1,4 @@
-export const currency = [
+export const CURRENCIES = [
   { value: 'AED', label: 'United Arab Emirates Dirham' },
   { value: 'AFN', label: 'Afghan Afghani' },
   { value: 'ALL', label: 'Albanian Lek' },
@@ -171,7 +171,7 @@ export const currency = [
   { value: 'ZWL', label: 'Zimbabwean Dollar' }
 ];
 
-export const measurement = [
+export const MEASUREMENTS = [
   { label: 'Bag BG', value: 'BG' },
   { label: 'Barrel BA', value: 'BA' },
   { label: 'Bolt BT', value: 'BT' },

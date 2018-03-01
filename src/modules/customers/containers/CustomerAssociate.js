@@ -61,7 +61,13 @@ class CustomerAssociateContainer extends React.Component {
 
     const form = <CustomerForm addCustomer={addCustomer} />;
 
-    const save = customerIds => {
+    const save = customers => {
+      const customerIds = [];
+
+      customers.forEach(data => {
+        customerIds.push(data._id.toString());
+      });
+
       companiesEditCustomers({
         variables: { _id: data._id, customerIds }
       })

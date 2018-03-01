@@ -1,40 +1,59 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { UOM, Currencies } from '../../constants';
-import { FormControl, Icon } from 'modules/common/components';
+import { FormControl, Icon, ModalTrigger } from 'modules/common/components';
 import Select from 'react-select-plus';
-import { ProductItemText } from '../../styles';
+import { DealButton, DealProducts, ProductItemText } from '../../styles';
 import { selectOptions } from '../../utils';
+import { ProductAssociate } from '../../containers';
+import { UOM, CURRENCIES } from '../../constants';
 
 const propTypes = {
-  products: PropTypes.array,
+  uom: PropTypes.array,
+  currencies: PropTypes.array,
   product: PropTypes.object.isRequired,
   removeProductItem: PropTypes.func.isRequired,
+  onChangeProduct: PropTypes.func.isRequired,
   onChangeSelect: PropTypes.func.isRequired,
   onChangeInput: PropTypes.func.isRequired
 };
 
 class ProductItemForm extends React.Component {
   render() {
-    const { products, product } = this.props;
-    const total = product.amount - product.discount - product.tax;
+    // const { uom, currencies } = this.props;
 
+    const productServiceTrigger = (
+      <DealButton>
+        Product & Service <Icon icon="plus" />
+      </DealButton>
+    );
+
+    const { product } = this.props;
     return (
-      <tr>
+      <tr key={product._id}>
         <td>
-          <Select
-            placeholder="Choose"
-            value={product.productId}
-            onChange={value =>
-              this.props.onChangeSelect(value, product._id, 'productId')
-            }
-            optionRenderer={option => (
-              <div className="simple-option">
-                <span>{option.label}</span>
-              </div>
-            )}
-            options={selectOptions(products)}
-          />
+          <ModalTrigger
+            title="Choose product & service"
+            trigger={productServiceTrigger}
+            size="large"
+          >
+            <ProductAssociate
+              save={products =>
+                this.props.onChangeProduct(products, product._id)
+              }
+              data={{
+                name: 'Product',
+                products: product.product ? [product.product] : []
+              }}
+              limit={1}
+            />
+          </ModalTrigger>
+          {product.product ? (
+            <DealProducts>
+              <ul>
+                <li>{product.product.name}</li>
+              </ul>
+            </DealProducts>
+          ) : null}
         </td>
         <td>
           <Select
@@ -63,7 +82,7 @@ class ProductItemForm extends React.Component {
                 <span>{option.label}</span>
               </div>
             )}
-            options={selectOptions(Currencies)}
+            options={selectOptions(CURRENCIES)}
           />
         </td>
         <td>
@@ -108,7 +127,7 @@ class ProductItemForm extends React.Component {
             type="number"
             min="0"
             max="100"
-            placeholder="Tax"
+            placeholder="Tax percent"
             onChange={this.props.onChangeInput.bind(
               this,
               product._id,
@@ -119,7 +138,8 @@ class ProductItemForm extends React.Component {
         </td>
         <td>
           <ProductItemText>
-            {product.amount} {product.currency}
+            {(product.quantity * product.unitPrice).toLocaleString()}{' '}
+            {product.currency}
           </ProductItemText>
           <FormControl
             value={product.discount}
@@ -131,14 +151,17 @@ class ProductItemForm extends React.Component {
             )}
           />
           <ProductItemText>
-            {product.tax} {product.currency}
+            {product.tax.toLocaleString()} {product.currency}
           </ProductItemText>
           <ProductItemText>
-            {total > 0 ? total : 0} {product.currency}
+            {product.amount.toLocaleString()} {product.currency}
           </ProductItemText>
         </td>
         <td>
-          <div onClick={this.props.removeProductItem.bind(this, product._id)}>
+          <div
+            className="remove"
+            onClick={this.props.removeProductItem.bind(this, product._id)}
+          >
             <Icon icon="ios-trash" />
           </div>
         </td>

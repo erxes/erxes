@@ -9,7 +9,7 @@ export const UOM = [
   }
 ];
 
-export const Currencies = [
+export const CURRENCIES = [
   {
     _id: 'MNT',
     code: 'MNT',

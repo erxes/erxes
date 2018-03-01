@@ -8,28 +8,13 @@ import { queries, mutations } from '../graphql';
 
 class DealFormContainer extends React.Component {
   render() {
-    const {
-      companiesQuery,
-      productsQuery,
-      usersQuery,
-      addDealMutation,
-      editDealMutation
-    } = this.props;
+    const { usersQuery, addDealMutation } = this.props;
 
-    const companies = companiesQuery.companies || [];
     const users = usersQuery.users || [];
-    const products = productsQuery.products || [];
 
-    // create or update action
-    const saveDeal = ({ doc }, callback, deal) => {
-      let mutation = addDealMutation;
-      // if edit mode
-      if (deal) {
-        mutation = editDealMutation;
-        doc._id = deal._id;
-      }
-
-      mutation({
+    // create action
+    const addDeal = ({ doc }, callback) => {
+      addDealMutation({
         variables: doc
       })
         .then(() => {
@@ -44,10 +29,8 @@ class DealFormContainer extends React.Component {
 
     const extendedProps = {
       ...this.props,
-      companies,
       users,
-      products,
-      saveDeal
+      addDeal
     };
 
     return <DealForm {...extendedProps} />;
@@ -55,29 +38,18 @@ class DealFormContainer extends React.Component {
 }
 
 const propTypes = {
-  companiesQuery: PropTypes.object,
   usersQuery: PropTypes.object,
-  productsQuery: PropTypes.object,
-  addDealMutation: PropTypes.func,
-  editDealMutation: PropTypes.func
+  addDealMutation: PropTypes.func
 };
 
 DealFormContainer.propTypes = propTypes;
 
 export default compose(
-  graphql(gql(queries.companies), {
-    name: 'companiesQuery'
-  }),
-  graphql(gql(queries.products), {
-    name: 'productsQuery'
-  }),
   graphql(gql(queries.users), {
     name: 'usersQuery'
   }),
+  // mutation
   graphql(gql(mutations.dealsAdd), {
     name: 'addDealMutation'
-  }),
-  graphql(gql(mutations.dealsEdit), {
-    name: 'editDealMutation'
   })
 )(DealFormContainer);

@@ -33,35 +33,53 @@ const PipelineBody = styled.div`
 
 const StageWrapper = styled.div`
   display: flex;
+  border-right: 1px solid ${colors.colorShadowGray};
   flex-direction: column;
-  width: 400px;
+  width: 450px;
 `;
 
 const StageContainer = styled.div`
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 233px);
-  border-right: 1px solid ${colors.colorShadowGray};
   background: ${({ isDragging }) =>
     isDragging ? rgba(colors.colorCoreDarkGray, 0.2) : 'none'};
   transition: background-color 0.1s ease;
+`;
+
+const StageHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 30px;
+  border-bottom: 1px solid ${colors.colorShadowGray};
+  line-height: 18px;
   h3 {
     margin: 0;
-    padding: 30px;
-    border-bottom: 1px solid ${colors.colorShadowGray};
     font-size: 18px;
     text-transform: uppercase;
-    span {
-      float: right;
-      text-transform: capitalize;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    li {
+      float: left;
+      padding-right: 5px;
       color: #585278;
-      font-size: 16px;
+      font-size: 14px;
+      font-weight: bold;
     }
+  }
+  .deals-count {
+    text-transform: capitalize;
+    color: #585278;
+    font-size: 16px;
+    font-weight: bold;
   }
 `;
 
 const StageBody = styled.div`
-  padding: 10px 30px 30px;
+  padding: 10px 15px 30px;
 `;
 
 const StageDropZone = styled.div`
@@ -84,6 +102,7 @@ const AddNewDeal = styled.a`
   border-radius: 5px;
   color: ${rgba(colors.colorCoreDarkGray, 0.9)};
   font-size: 14px;
+  cursor: pointer;
   i {
     margin-right: 8px;
     font-size: 15px;
@@ -124,7 +143,7 @@ const DealProducts = styled.div`
       float: left;
       border-radius: 10px;
       padding: 5px 8px;
-      margin-right: 5px;
+      margin: 5px 5px 0 0;
       color: #fff;
       background: #130ef5;
       text-transform: uppercase;
@@ -153,7 +172,7 @@ const DealFormAmount = styled.div`
 `;
 
 const DealFormContainer = styled.div`
-  padding: 30px;
+  padding: 20px;
   border-radius: 5px;
   border: 1px dotted ${colors.colorShadowGray};
   background-color: #f6f6f6;
@@ -179,6 +198,7 @@ const DealButton = styled.div`
   margin-bottom: 15px;
   background: ${colors.colorWhite};
   border-radius: 5px;
+  cursor: pointer;
   i {
     float: right;
   }
@@ -222,6 +242,9 @@ const ProductTable = styled.table`
     td {
       padding: 30px 10px 30px 0;
       vertical-align: top;
+      ${DealButton} {
+        border: 1px solid ${colors.colorShadowGray};
+      }
     }
   }
   td {
@@ -231,6 +254,12 @@ const ProductTable = styled.table`
     }
     &:last-child {
       padding-right: 30px;
+    }
+    .remove {
+      cursor: pointer;
+      i {
+        font-size: 17px;
+      }
     }
   }
 `;
@@ -267,7 +296,7 @@ const AddProduct = styled.div`
   text-align: center;
   background: #ebebeb;
   color: #5fa3b8;
-  cursor: hand;
+  cursor: pointer;
   i {
     padding-right: 8px;
   }
@@ -277,6 +306,7 @@ const ProductItemText = styled.div`
   height: 34px;
   line-height: 34px;
   font-weight: bold;
+  padding-left: 10px;
   text-align: ${props => props.align || 'left'};
 `;
 
@@ -286,6 +316,7 @@ export {
   PipelineBody,
   StageWrapper,
   StageContainer,
+  StageHeader,
   StageBody,
   StageDropZone,
   EmptyStage,

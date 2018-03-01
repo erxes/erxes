@@ -2,7 +2,6 @@ const customerFields = `
     _id
     firstName
     lastName
-    name
     email
     phone
     isUser

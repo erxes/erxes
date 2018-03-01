@@ -8,7 +8,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { ProductItemForm } from '../';
+import { ProductItemForm } from '../../containers';
 import {
   ProductFormContainer,
   ProductTable,
@@ -19,6 +19,7 @@ import {
 
 const propTypes = {
   onChangeProductsData: PropTypes.func.isRequired,
+  saveProductsData: PropTypes.func.isRequired,
   productsData: PropTypes.array,
   products: PropTypes.array
 };
@@ -34,12 +35,12 @@ class ProductForm extends React.Component {
     this.addProductItem = this.addProductItem.bind(this);
     this.removeProductItem = this.removeProductItem.bind(this);
     this.onChangeInput = this.onChangeInput.bind(this);
+    this.onChangeProduct = this.onChangeProduct.bind(this);
     this.onChangeSelect = this.onChangeSelect.bind(this);
     this.updateTotal = this.updateTotal.bind(this);
 
     this.state = {
       total: {},
-      subTotal: {},
       discount: {},
       tax: {}
     };
@@ -73,7 +74,6 @@ class ProductForm extends React.Component {
     const productsData = this.props.productsData;
 
     let total = {};
-    let subTotal = {};
     let tax = {};
     let discount = {};
 
@@ -81,12 +81,10 @@ class ProductForm extends React.Component {
       if (p.currency) {
         if (total[p.currency]) {
           total[p.currency] += p.amount;
-          subTotal[p.currency] += p.amount - p.tax || 0 - p.discount || 0;
           tax[p.currency] += p.tax;
           discount[p.currency] += p.discount;
         } else {
           total[p.currency] = p.amount;
-          subTotal[p.currency] = p.amount - p.tax || 0 - p.discount || 0;
           tax[p.currency] = p.tax;
           discount[p.currency] = p.discount;
         }
@@ -95,10 +93,19 @@ class ProductForm extends React.Component {
 
     this.setState({
       total,
-      subTotal,
       tax,
       discount
     });
+  }
+
+  onChangeProduct(products, _id) {
+    const productsData = this.props.productsData;
+
+    const productData = productsData.find(p => p._id === _id);
+
+    productData.product = products && products.length > 0 ? products[0] : null;
+
+    this.props.onChangeProductsData(productsData);
   }
 
   onChangeSelect(selected, _id, type) {
@@ -120,35 +127,27 @@ class ProductForm extends React.Component {
     const product = productsData.find(p => p._id === _id);
     product[type] = e.target.value;
 
-    if (type === 'quantity' || type === 'unitPrice') {
-      product.amount = product.unitPrice * product.quantity;
+    const amount = product.unitPrice * product.quantity;
 
-      if (product.amount > 0) {
-        product.discountPercent = product.discount * 100 / product.amount;
-        product.discount = product.amount * product.discountPercent / 100;
-        product.tax =
-          (product.amount - product.discount || 0) * product.taxPercent / 100;
-      }
-    } else if (product.amount > 0) {
+    if (amount > 0) {
       switch (type) {
         case 'discount': {
-          product.discountPercent = product.discount * 100 / product.amount;
+          product.discountPercent = product.discount * 100 / amount;
           break;
         }
         case 'discountPercent': {
-          product.discount = product.amount * product.discountPercent / 100;
+          product.discount = amount * product.discountPercent / 100;
           break;
         }
-        case 'taxPercent': {
-          product.tax =
-            (product.amount - product.discount || 0) * product.taxPercent / 100;
-          break;
+        default: {
+          product.discountPercent = product.discount * 100 / amount;
+          product.discount = amount * product.discountPercent / 100;
         }
-        default:
       }
-    }
 
-    if (product.amount > 0) {
+      product.tax = (amount - product.discount || 0) * product.taxPercent / 100;
+      product.amount = amount - (product.discount || 0) + (product.tax || 0);
+
       this.updateTotal();
     }
 
@@ -156,7 +155,8 @@ class ProductForm extends React.Component {
   }
 
   render() {
-    const { total, subTotal, tax, discount } = this.state;
+    const { total, tax, discount } = this.state;
+
     return (
       <ProductFormContainer>
         <ProductTable>
@@ -176,6 +176,7 @@ class ProductForm extends React.Component {
                 key={product._id}
                 product={product}
                 products={this.props.products}
+                onChangeProduct={this.onChangeProduct}
                 onChangeSelect={this.onChangeSelect}
                 onChangeInput={this.onChangeInput}
                 removeProductItem={this.removeProductItem}
@@ -195,21 +196,11 @@ class ProductForm extends React.Component {
             <table>
               <tbody>
                 <tr>
-                  <td>Sub total:</td>
-                  <td>
-                    {Object.keys(subTotal).map(s => (
-                      <div key={s}>
-                        {subTotal[s]} {s}
-                      </div>
-                    ))}
-                  </td>
-                </tr>
-                <tr>
                   <td>Tax:</td>
                   <td>
                     {Object.keys(tax).map(t => (
                       <div key={t}>
-                        {tax[t]} {t}
+                        {tax[t].toLocaleString()} {t}
                       </div>
                     ))}
                   </td>
@@ -219,7 +210,7 @@ class ProductForm extends React.Component {
                   <td>
                     {Object.keys(discount).map(d => (
                       <div key={d}>
-                        {discount[d]} {d}
+                        {discount[d].toLocaleString()} {d}
                       </div>
                     ))}
                   </td>
@@ -230,7 +221,7 @@ class ProductForm extends React.Component {
                     {Object.keys(total).map(t => (
                       <div key={t}>
                         <b>
-                          {total[t]} {t}
+                          {total[t].toLocaleString()} {t}
                         </b>
                       </div>
                     ))}
@@ -253,6 +244,7 @@ class ProductForm extends React.Component {
             <Button
               btnStyle="success"
               onClick={() => {
+                this.props.saveProductsData();
                 this.context.closeModal();
               }}
               icon="checkmark"

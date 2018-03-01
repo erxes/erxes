@@ -32,7 +32,7 @@ class Deal extends React.Component {
               <DealAmount>
                 {Object.keys(deal.amount).map(el => (
                   <p key={el}>
-                    {deal.amount[el]} {el}
+                    {deal.amount[el].toLocaleString()} {el}
                   </p>
                 ))}
               </DealAmount>

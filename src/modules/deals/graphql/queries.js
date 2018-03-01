@@ -74,29 +74,6 @@ const deals = `
   }
 `;
 
-const companies = `
-  query companies {
-    companies {
-      _id
-      name
-      customers {
-        _id
-        firstName
-        email
-      }
-    }
-  }
-`;
-
-const products = `
-  query products {
-    products {
-      _id
-      name
-    }
-  }
-`;
-
 const users = `
   query users {
     users {
@@ -110,6 +87,16 @@ const users = `
   }
 `;
 
+const getConfig = `
+  query getConfig($code: String!) {
+    getConfig(code: $code) {
+      _id
+      code
+      value
+    }
+  }
+`;
+
 export default {
   boards,
   boardGetLast,
@@ -117,7 +104,6 @@ export default {
   pipelines,
   stages,
   deals,
-  companies,
-  products,
-  users
+  users,
+  getConfig
 };
