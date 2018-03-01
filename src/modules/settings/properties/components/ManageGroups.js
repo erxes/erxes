@@ -7,6 +7,7 @@ import GenerateField from './GenerateField';
 
 const propTypes = {
   fieldsGroups: PropTypes.array.isRequired,
+  customFieldsData: PropTypes.object,
   save: PropTypes.func.isRequired
 };
 
@@ -16,7 +17,7 @@ class GenerateGroups extends React.Component {
 
     this.state = {
       editing: false,
-      customFieldsData: {}
+      customFieldsData: props.customFieldsData
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -54,8 +55,9 @@ class GenerateGroups extends React.Component {
     this.toggleEditing();
   }
 
-  renderGroups(data) {
+  renderGroups() {
     const { fieldsGroups } = this.props;
+    const { customFieldsData } = this.state;
     const { Section } = Sidebar;
 
     return fieldsGroups.map(fieldGroup => {
@@ -78,9 +80,7 @@ class GenerateGroups extends React.Component {
                     this.onChange({ _id, value })
                   }
                   defaultValue={
-                    data.customFieldsData
-                      ? data.customFieldsData[field._id]
-                      : ''
+                    customFieldsData ? customFieldsData[field._id] : ''
                   }
                 />
               );

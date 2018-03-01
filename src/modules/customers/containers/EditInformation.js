@@ -37,6 +37,7 @@ const EditInformationContainer = (props, context) => {
   const updatedProps = {
     ...props,
     save,
+    customFieldsData: customer.customFieldsData || {},
     currentUser: context.currentUser,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };

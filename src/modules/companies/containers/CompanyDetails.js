@@ -44,6 +44,7 @@ const CompanyDetailsContainer = (props, context) => {
     save,
     loadingLogs: companyActivityLogQuery.loading,
     company: companyDetailQuery.companyDetail,
+    customFieldsData: companyDetailQuery.companyDetail.customFieldsData || {},
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     currentUser: context.currentUser,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []

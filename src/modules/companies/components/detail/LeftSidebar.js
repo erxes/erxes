@@ -12,7 +12,8 @@ import BasicInfo from './BasicInfo';
 const propTypes = {
   company: PropTypes.object.isRequired,
   fieldsGroups: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
+  customFieldsData: PropTypes.object
 };
 
 class LeftSidebar extends ManageGroups {

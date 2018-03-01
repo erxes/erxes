@@ -29,7 +29,8 @@ const propTypes = {
   save: PropTypes.func.isRequired,
   sections: PropTypes.node,
   otherProperties: PropTypes.node,
-  fieldsGroups: PropTypes.array.isRequired
+  fieldsGroups: PropTypes.array.isRequired,
+  customFieldsData: PropTypes.object
 };
 
 class LeftSidebar extends ManageGroups {
@@ -180,7 +181,7 @@ class LeftSidebar extends ManageGroups {
       <Sidebar footer={this.renderSidebarFooter()}>
         <BasicInfo customer={customer} save={this.props.save} />
         {this.props.sections && this.props.sections}
-        {this.renderGroups(customer)}
+        {this.renderGroups()}
         {this.renderCompanies()}
         {this.renderDeviceProperties()}
         {this.renderOtherProperties()}
