@@ -37,10 +37,12 @@ class LeftSidebar extends React.Component {
     super(props);
 
     this.state = {
-      editing: false
+      editing: false,
+      customFieldsData: {}
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
+    this.onChange = this.onChange.bind(this);
     this.cancelEditing = this.cancelEditing.bind(this);
     this.save = this.save.bind(this);
   }
@@ -56,17 +58,16 @@ class LeftSidebar extends React.Component {
     });
   }
 
+  onChange({ _id, value }) {
+    const { customFieldsData } = this.state;
+
+    this.setState({ customFieldsData: { ...customFieldsData, [_id]: value } });
+    this.toggleEditing();
+  }
+
   save() {
-    const customFieldsData = {};
+    const { customFieldsData } = this.state;
     const { save } = this.props;
-
-    const wrapper = document
-      .getElementById('fields')
-      .getElementsByTagName('input');
-
-    for (let input of wrapper) {
-      customFieldsData[input.id] = input.value;
-    }
 
     save({ customFieldsData }, error => {
       if (error) return Alert.error(error.message);
@@ -224,7 +225,7 @@ class LeftSidebar extends React.Component {
         <BasicInfo customer={customer} save={this.props.save} />
         {this.props.sections && this.props.sections}
         <CustomProperties
-          toggleEditing={this.toggleEditing}
+          onChange={this.onChange}
           data={customer}
           fieldsGroups={fieldsGroups}
         />
