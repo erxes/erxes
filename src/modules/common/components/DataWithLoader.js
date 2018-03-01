@@ -15,7 +15,6 @@ const propTypes = {
 
 class DataWithLoader extends Component {
   showData() {
-    const { __ } = this.context;
     const {
       loading,
       count,
@@ -32,7 +31,7 @@ class DataWithLoader extends Component {
     } else if (count === 0) {
       return (
         <EmptyState
-          text={__(emptyText)}
+          text={emptyText}
           size={size}
           icon={emptyIcon}
           image={emptyImage}
@@ -55,10 +54,6 @@ DataWithLoader.defaultProps = {
   emptyImage: null,
   size: 'full',
   objective: false
-};
-
-DataWithLoader.contextTypes = {
-  __: PropTypes.func
 };
 
 export default DataWithLoader;

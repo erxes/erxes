@@ -29,10 +29,10 @@ class TranslationWrapper extends React.Component {
   render() {
     const { children, currentUser } = this.props;
     return (
-      <div>
+      <React.Fragment>
         {currentUser && <Navigation />}
         {children}
-      </div>
+      </React.Fragment>
     );
   }
 }

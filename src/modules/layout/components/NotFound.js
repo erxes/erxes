@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function NotFound({ __ }) {
+function NotFound(props = {}, { __ }) {
   return (
     <div className="auth-content">
       <div className="container">
