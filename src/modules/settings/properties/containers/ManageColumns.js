@@ -4,7 +4,7 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { ManageColumns } from '../components';
-import { queries } from '../graphql';
+import { queries } from 'modules/settings/forms/graphql';
 
 const ManageColumnsContainer = props => {
   const {

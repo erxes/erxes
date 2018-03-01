@@ -2,7 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries, mutations } from '../graphql';
+import { queries as fieldQueries } from 'modules/settings/properties/graphql';
+import { Spinner } from 'modules/common/components';
+import { Sidebar } from 'modules/layout/components';
 import { CompanyDetails } from '../components';
 
 const CompanyDetailsContainer = (props, context) => {
@@ -11,8 +15,16 @@ const CompanyDetailsContainer = (props, context) => {
     companyDetailQuery,
     companyActivityLogQuery,
     companiesEdit,
-    fieldsQuery
+    fieldsGroupsQuery
   } = props;
+
+  if (companyDetailQuery.loading) {
+    return (
+      <Sidebar full>
+        <Spinner />
+      </Sidebar>
+    );
+  }
 
   //refetch for display customer change
   companyDetailQuery.refetch();
@@ -31,13 +43,11 @@ const CompanyDetailsContainer = (props, context) => {
     ...props,
     save,
     loadingLogs: companyActivityLogQuery.loading,
-    company: companyDetailQuery.companyDetail || {
-      customers: [],
-      customFieldsData: {}
-    },
+    company: companyDetailQuery.companyDetail,
+    customFieldsData: companyDetailQuery.companyDetail.customFieldsData || {},
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     currentUser: context.currentUser,
-    customFields: fieldsQuery.fields || []
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
 
   return <CompanyDetails {...updatedProps} />;
@@ -46,7 +56,7 @@ const CompanyDetailsContainer = (props, context) => {
 CompanyDetailsContainer.propTypes = {
   id: PropTypes.string,
   companyDetailQuery: PropTypes.object,
-  fieldsQuery: PropTypes.object,
+  fieldsGroupsQuery: PropTypes.object,
   companiesEdit: PropTypes.func,
   companyActivityLogQuery: PropTypes.object
 };
@@ -54,6 +64,12 @@ CompanyDetailsContainer.propTypes = {
 CompanyDetailsContainer.contextTypes = {
   currentUser: PropTypes.object
 };
+
+const options = ({ id }) => ({
+  refetchQueries: [
+    { query: gql`${queries.companyDetail}`, variables: { _id: id } }
+  ]
+});
 
 export default compose(
   graphql(gql(queries.companyDetail), {
@@ -72,10 +88,16 @@ export default compose(
       }
     })
   }),
-  graphql(gql(queries.fields), {
-    name: 'fieldsQuery'
+  graphql(gql(fieldQueries.fieldsGroups), {
+    name: 'fieldsGroupsQuery',
+    options: () => ({
+      variables: {
+        contentType: FIELDS_GROUPS_CONTENT_TYPES.COMPANY
+      }
+    })
   }),
   graphql(gql(mutations.companiesEdit), {
-    name: 'companiesEdit'
+    name: 'companiesEdit',
+    options
   })
 )(CompanyDetailsContainer);
