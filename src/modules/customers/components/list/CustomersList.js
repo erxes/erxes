@@ -21,7 +21,7 @@ import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
 import { CustomerForm, CommonMerge } from '../';
-import { ManageColumns } from 'modules/fields/containers';
+import { ManageColumns } from 'modules/settings/properties/containers';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
@@ -171,7 +171,7 @@ class CustomersList extends React.Component {
               </ModalTrigger>
             </li>
             <li>
-              <Link to="/fields/manage/customer">Properties</Link>
+              <Link to="/settings/properties?type=customer">Properties</Link>
             </li>
           </Dropdown.Menu>
         </Dropdown>
