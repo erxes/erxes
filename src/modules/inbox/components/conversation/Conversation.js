@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { Spinner } from 'modules/common/components';
 import Message from './Message';
+import TwitterMessage from './TwitterMessage';
 
 const propTypes = {
   conversation: PropTypes.object,
@@ -53,12 +54,6 @@ const File = styled.span`
 `;
 
 class Conversation extends Component {
-  constructor(props) {
-    super(props);
-
-    this.renderPreview = this.renderPreview.bind(this);
-  }
-
   renderPreview() {
     const { attachmentPreview } = this.props;
 
@@ -78,7 +73,7 @@ class Conversation extends Component {
     return null;
   }
 
-  render() {
+  renderMessages() {
     const { conversation, scrollBottom } = this.props;
 
     if (!conversation) {
@@ -91,26 +86,44 @@ class Conversation extends Component {
     let tempId;
 
     messages.forEach(message => {
-      rows.push(
-        <Message
-          isSameUser={
-            message.userId
-              ? message.userId === tempId
-              : message.customerId === tempId
-          }
-          message={message}
-          staff={!message.customerId}
-          key={message._id}
-          scrollBottom={scrollBottom}
-        />
-      );
+      const isTweet =
+        message.twitterData && !message.twitterData.isDirectMessage;
+
+      if (isTweet) {
+        rows.push(
+          <TwitterMessage
+            message={message}
+            staff={!message.customerId}
+            scrollBottom={scrollBottom}
+            key={message._id}
+          />
+        );
+      } else {
+        rows.push(
+          <Message
+            isSameUser={
+              message.userId
+                ? message.userId === tempId
+                : message.customerId === tempId
+            }
+            message={message}
+            staff={!message.customerId}
+            key={message._id}
+            scrollBottom={scrollBottom}
+          />
+        );
+      }
 
       tempId = message.userId ? message.userId : message.customerId;
     });
 
+    return rows;
+  }
+
+  render() {
     return (
       <Wrapper>
-        {rows}
+        {this.renderMessages()}
         {this.renderPreview()}
       </Wrapper>
     );
