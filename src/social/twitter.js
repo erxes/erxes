@@ -10,6 +10,7 @@ import { twitRequest } from './twitterTracker';
 
 /*
  * Prepare data to save for conversation
+ * Common util. Using in both timeline and direct message
  */
 const extractConversationData = ({ data, isDirectMessage, timeline, directMessage }) => ({
   id: data.id,
@@ -22,47 +23,12 @@ const extractConversationData = ({ data, isDirectMessage, timeline, directMessag
 });
 
 /*
- * Prepare data to save for conversation using timeline info
- */
-const extractConversationDataTimeline = data =>
-  extractConversationData({
-    data,
-    isDirectMessage: false,
-    timeline: {
-      inReplyToStatusId: data.in_reply_to_status_id,
-      inReplyToStatusIdStr: data.in_reply_to_status_id_str,
-      inReplyToUserId: data.in_reply_to_user_id,
-      inReplyToUserIdStr: data.in_reply_to_user_id_str,
-      inReplyToScreenName: data.in_reply_to_screen_name,
-      isQuoteStatus: data.is_quote_status,
-      favorited: data.favorited,
-      retweeted: data.retweeted,
-      quoteCount: data.quote_count,
-      replyCount: data.reply_count,
-      retweetCount: data.retweet_count,
-      favoriteCount: data.favorite_count,
-    },
-  });
-
-/*
- * Prepare data to save for conversation using direct message
- */
-const extractConversationDataDirectMessage = data =>
-  extractConversationData({
-    data,
-    isDirectMessage: true,
-    directMessage: {
-      senderId: data.sender_id,
-      senderIdStr: data.sender_id_str,
-      recipientId: data.recipient_id,
-      recipientIdStr: data.recipient_id_str,
-    },
-  });
-
-/*
  * Get or create customer using twitter data
+ * Common util. Using in both timeline and direct message
+ *
  * @param {String} integrationId - Integration id
  * @param {Object} user - User
+ *
  * @return customer id
  */
 const getOrCreateCustomer = async (integrationId, user) => {
@@ -93,24 +59,32 @@ const getOrCreateCustomer = async (integrationId, user) => {
   return createdCustomer;
 };
 
+// Direct message ================================
+
 /*
- * Create new message
+ * Prepare data to save for conversation using direct message
+ */
+const extractConversationDataDirectMessage = data =>
+  extractConversationData({
+    data,
+    isDirectMessage: true,
+    directMessage: {
+      senderId: data.sender_id,
+      senderIdStr: data.sender_id_str,
+      recipientId: data.recipient_id,
+      recipientIdStr: data.recipient_id_str,
+    },
+  });
+
+/*
+ * Create new direct message
  * @param {Object} conversation
  * @param {String} content
  * @param {Object} user
  * @return newly created message id
  */
-const createMessage = async ({ conversation, data }) => {
-  let user = data.user;
-  let twitterData = extractConversationDataTimeline(data);
-
-  // is direct message
-  if (conversation.twitterData.isDirectMessage) {
-    user = data.sender;
-    twitterData = extractConversationDataDirectMessage(data);
-  }
-
-  const customerId = await getOrCreateCustomer(conversation.integrationId, user);
+const createDirectMessage = async ({ conversation, data }) => {
+  const customerId = await getOrCreateCustomer(conversation.integrationId, data.sender);
 
   // create new message
   const messageId = await ConversationMessages.createMessage({
@@ -118,7 +92,7 @@ const createMessage = async ({ conversation, data }) => {
     customerId,
     content: data.text,
     internal: false,
-    twitterData,
+    twitterData: extractConversationDataDirectMessage(data),
   });
 
   // notify subscription =========
@@ -127,53 +101,6 @@ const createMessage = async ({ conversation, data }) => {
   await conversationMessageCreated(message, message.conversationId);
 
   return messageId;
-};
-
-/*
- * Create new message by tweet reply information
- * @param {Object} integration
- * @param {Object} data - Twitter stream data
- * @return newly created message
- */
-export const receiveMentionReply = async (integration, data) => {
-  // find conversation by tweet id
-  const conversation = await Conversations.findOne({
-    'twitterData.id': data.in_reply_to_status_id,
-  });
-
-  if (conversation) {
-    // if closed, reopen it
-    await Conversations.reopen(conversation._id);
-
-    // create new message
-    return createMessage({ conversation, data });
-  }
-
-  return null;
-};
-
-/*
- * Create conversation by mentioned information
- * @param {Object} integration - Integration
- * @param {Object} data - Tweet data
- * @return newly created message
- */
-export const createConversationByMention = async (integration, data) => {
-  const customerId = await getOrCreateCustomer(integration._id, data.user);
-
-  const conversationId = await Conversations.createConversation({
-    content: data.text,
-    integrationId: integration._id,
-    customerId,
-
-    // save tweet information
-    twitterData: extractConversationDataTimeline(data),
-  });
-
-  const conversation = await Conversations.findOne({ _id: conversationId });
-
-  // create new message
-  return createMessage({ conversation, data });
 };
 
 /*
@@ -211,7 +138,7 @@ export const getOrCreateDirectMessageConversation = async (data, integration) =>
     await Conversations.reopen(conversation._id);
 
     // create new message
-    await createMessage({ conversation, data });
+    await createDirectMessage({ conversation, data });
 
     // create new conversation
   } else {
@@ -229,10 +156,109 @@ export const getOrCreateDirectMessageConversation = async (data, integration) =>
     conversation = await Conversations.findOne({ _id: conversationId });
 
     // create new message
-    await createMessage({ conversation, data });
+    await createDirectMessage({ conversation, data });
   }
 
   return conversation;
+};
+
+// Timeline ==========================
+
+/*
+ * Prepare data to save for conversation using timeline info
+ */
+const extractConversationDataTimeline = data =>
+  extractConversationData({
+    data,
+    isDirectMessage: false,
+    timeline: {
+      inReplyToStatusId: data.in_reply_to_status_id,
+      inReplyToStatusIdStr: data.in_reply_to_status_id_str,
+      inReplyToUserId: data.in_reply_to_user_id,
+      inReplyToUserIdStr: data.in_reply_to_user_id_str,
+      inReplyToScreenName: data.in_reply_to_screen_name,
+      isQuoteStatus: data.is_quote_status,
+      favorited: data.favorited,
+      retweeted: data.retweeted,
+      quoteCount: data.quote_count,
+      replyCount: data.reply_count,
+      retweetCount: data.retweet_count,
+      favoriteCount: data.favorite_count,
+    },
+  });
+
+/*
+ * Create new message using timeline
+ * @param {Object} conversation
+ * @param {String} content
+ * @param {Object} user
+ * @return newly created message id
+ */
+const createTimeMessage = async ({ conversation, data }) => {
+  const customerId = await getOrCreateCustomer(conversation.integrationId, data.user);
+
+  // create new message
+  const messageId = await ConversationMessages.createMessage({
+    conversationId: conversation._id,
+    customerId,
+    content: data.text,
+    internal: false,
+    twitterData: extractConversationDataTimeline(data),
+  });
+
+  // notify subscription =========
+  const message = await ConversationMessages.findOne({ _id: messageId });
+
+  await conversationMessageCreated(message, message.conversationId);
+
+  return messageId;
+};
+
+/*
+ * Create new message by tweet reply information
+ * @param {Object} integration
+ * @param {Object} data - Twitter stream data
+ * @return newly created message
+ */
+export const receiveMentionReply = async (integration, data) => {
+  // find conversation by tweet id
+  const conversation = await Conversations.findOne({
+    'twitterData.id': data.in_reply_to_status_id,
+  });
+
+  if (conversation) {
+    // if closed, reopen it
+    await Conversations.reopen(conversation._id);
+
+    // create new message
+    return createTimeMessage({ conversation, data });
+  }
+
+  return null;
+};
+
+/*
+ * Create conversation by mentioned information
+ * @param {Object} integration - Integration
+ * @param {Object} data - Tweet data
+ * @return newly created message
+ */
+export const createConversationByMention = async (integration, data) => {
+  const customerId = await getOrCreateCustomer(integration._id, data.user);
+
+  const conversationId = await Conversations.createConversation({
+    content: data.text,
+    integrationId: integration._id,
+    customerId,
+
+    // save tweet information
+    twitterData: extractConversationDataTimeline(data),
+  });
+
+  const conversation = await Conversations.findOne({ _id: conversationId });
+
+  // create new message
+  return createTimeMessage({ conversation, data });
 };
 
 /*
