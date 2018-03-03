@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { ChooseType, Steps, Step } from './step';
+import { ChooseType, Steps, Step, CallOut } from './step';
 import { StepWrapper } from '../styles';
 
 const propTypes = {
@@ -23,7 +23,7 @@ class Form extends Component {
       validate: {
         step1: false,
         step2: true,
-        step3: false
+        step3: true
       }
     };
 
@@ -69,19 +69,15 @@ class Form extends Component {
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
         <Steps maxStep={maxStep} active={activeStep} validate="true">
-          <Step
-            img="/images/icons/erxes-05.svg"
-            title="Choose a flow type"
-            next={this.next}
-          >
+          <Step img="/images/icons/erxes-05.svg" title="Type" next={this.next}>
             <ChooseType changeState={this.changeState} kind={this.state.kind} />
           </Step>
           <Step
             img="/images/icons/erxes-02.svg"
-            title="Who is this message for?"
+            title="CallOut"
             next={this.next}
           >
-            <div>hi step 2</div>
+            <CallOut />
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"

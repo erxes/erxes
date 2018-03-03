@@ -70,7 +70,27 @@ const StepStatus = styled.div`
 const FlexItem = styled.div`
   display: flex;
   flex-direction: row;
+  overflow: auto;
   height: 100%;
+`;
+
+const LeftItem = styled.div`
+  min-width: 600px;
+  padding: ${dimensions.coreSpacing}px;
+`;
+
+const Preview = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: ${colors.bgMain};
+  padding: ${dimensions.coreSpacing}px;
+`;
+
+const Title = styled.label`
+  display: block;
+  margin: 20px 0 10px;
 `;
 
 export {
@@ -83,5 +103,8 @@ export {
   StepContent,
   ShortStep,
   StepStatus,
-  FlexItem
+  FlexItem,
+  LeftItem,
+  Preview,
+  Title
 };

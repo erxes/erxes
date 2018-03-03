@@ -1,21 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FlexItem } from './style';
 import styled from 'styled-components';
 import { dimensions, colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-
-const BoxContainer = styled.div`
-  align-self: center;
-  min-width: 450px;
-  padding: ${dimensions.coreSpacing}px;
-`;
-
-const Preview = styled.div`
-  flex: 1;
-  background: ${colors.bgMain};
-  padding: ${dimensions.coreSpacing}px;
-`;
+import { FlexItem, LeftItem, Preview, Title } from './style';
 
 const Box = styled.div`
   display: inline-block;
@@ -23,7 +11,8 @@ const Box = styled.div`
   background: ${colors.colorLightBlue};
   box-shadow: 0 5px 5px ${rgba(colors.colorCoreGray, 0.08)};
   border: 1px solid
-    ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};
+    ${props =>
+      props.selected ? colors.colorPrimaryDark : colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
   padding: ${dimensions.headerSpacing - 5}px;
   transition: all 0.25s ease;
@@ -92,11 +81,12 @@ class ChooseType extends Component {
   render() {
     return (
       <FlexItem>
-        <BoxContainer>
+        <LeftItem>
+          <Title>Choose a flow type</Title>
           {this.renderBox('ShoutBox', '/images/icons/erxes-07.svg', 'shoutbox')}
           {this.renderBox('Popup', '/images/icons/erxes-08.svg', 'popup')}
           {this.renderBox('Embedded', '/images/icons/erxes-08.svg', 'embedded')}
-        </BoxContainer>
+        </LeftItem>
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>
     );
