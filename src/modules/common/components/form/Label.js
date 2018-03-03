@@ -7,7 +7,8 @@ const propTypes = {
 };
 
 function ControlLabel(props, { __ }) {
-  return <Label>{__(props.children)}</Label>;
+  const { children, ignoreTrans } = props;
+  return <Label>{ignoreTrans ? children : __(children)}</Label>;
 }
 
 ControlLabel.propTypes = propTypes;

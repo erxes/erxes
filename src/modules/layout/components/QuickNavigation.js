@@ -39,8 +39,8 @@ const QuickNavigation = ({ logout, currentUser, selectLang, locale }) => {
           onSelect={e => selectLang(e)}
           id="dropdown-no-caret"
         >
-          <MenuItem eventKey="en">EN</MenuItem>
-          <MenuItem eventKey="mn">MN</MenuItem>
+          <MenuItem eventKey="en">en</MenuItem>
+          <MenuItem eventKey="mn">mn</MenuItem>
         </DropdownButton>
       </NavItem>
       <NavItem>
@@ -80,6 +80,12 @@ const QuickNavigation = ({ logout, currentUser, selectLang, locale }) => {
 QuickNavigation.propTypes = {
   logout: PropTypes.func,
   currentUser: PropTypes.object.isRequired,
+  selectLang: PropTypes.func,
+  locale: PropTypes.string
+};
+
+QuickNavigation.contextTypes = {
+  locale: PropTypes.string,
   selectLang: PropTypes.func
 };
 

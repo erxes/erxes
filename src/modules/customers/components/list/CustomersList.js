@@ -150,7 +150,7 @@ class CustomersList extends React.Component {
       <BarItems>
         <FormControl
           type="text"
-          placeholder="Type to search.."
+          placeholder={__('Type to search')}
           onChange={e => this.search(e)}
           value={this.state.searchValue}
           autoFocus
@@ -239,7 +239,7 @@ class CustomersList extends React.Component {
       <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
     );
 
-    const breadcrumb = [{ title: `Customers (${counts.all})` }];
+    const breadcrumb = [{ title: __(`Customers`) + ` (${counts.all})` }];
 
     return (
       <Wrapper

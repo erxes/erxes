@@ -82,7 +82,7 @@ class Config extends Component {
             <ControlLabel>Choose your email template type</ControlLabel>
             <FormControl
               componentClass="select"
-              placeholder="select"
+              placeholder={__('select')}
               onChange={this.handleTypeChange}
               value={type}
             >

@@ -81,7 +81,9 @@ const LabelStyled = styled.span`
   }
 `;
 
-function Label({ ...props }, { __ }) {
+function Label(props, { __ }) {
+  const { ignoreTrans } = props;
+
   const updatedProps = {
     ...props,
     hasLightBackground: props.style
@@ -89,7 +91,11 @@ function Label({ ...props }, { __ }) {
       : null
   };
 
-  return <LabelStyled {...updatedProps}>{__(props.children)}</LabelStyled>;
+  return (
+    <LabelStyled {...updatedProps}>
+      {ignoreTrans ? props.children : __(props.children)}
+    </LabelStyled>
+  );
 }
 
 Label.propTypes = {

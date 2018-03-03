@@ -49,7 +49,7 @@ class SignIn extends Component {
           <FormGroup>
             <FormControl
               type="email"
-              placeholder="your@email.com"
+              placeholder={__('your@email.com')}
               value={this.state.email}
               required
               onChange={this.handleEmailChange}
@@ -58,7 +58,7 @@ class SignIn extends Component {
           <FormGroup>
             <FormControl
               type="password"
-              placeholder="password"
+              placeholder={__('password')}
               value={this.state.password}
               required
               onChange={this.handlePasswordChange}

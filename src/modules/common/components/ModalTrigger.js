@@ -40,7 +40,7 @@ class ModalTrigger extends Component {
   }
 
   render() {
-    const { title, trigger, children, size } = this.props;
+    const { title, trigger, children, size, ignoreTrans } = this.props;
     const { __ } = this.context;
 
     // add onclick event to the trigger component
@@ -54,7 +54,7 @@ class ModalTrigger extends Component {
 
         <Modal bsSize={size} show={this.state.isOpen} onHide={this.closeModal}>
           <Modal.Header closeButton>
-            <Modal.Title>{__(title)}</Modal.Title>
+            <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
           </Modal.Header>
           <Modal.Body>{children}</Modal.Body>
         </Modal>

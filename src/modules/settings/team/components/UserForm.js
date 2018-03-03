@@ -42,6 +42,7 @@ class UserForm extends CommonForm {
   }
 
   renderChannels() {
+    const { __ } = this.context;
     const self = this;
     const { channels } = this.props;
 
@@ -51,7 +52,7 @@ class UserForm extends CommonForm {
         <br />
 
         <Select
-          placeholder="Choose channels"
+          placeholder={__('Choose channels')}
           value={self.state.selectedChannels}
           options={self.generateChannelsParams(channels)}
           onChange={items => {

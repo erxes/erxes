@@ -256,9 +256,11 @@ class RespondBox extends Component {
       type = 'note';
     }
 
-    let placeholder = `To send your ${
-      type
-    } press [Enter] and [Shift + Enter] to add a new line …`;
+    let placeholder = __(
+      `To send your ${
+        type
+      } press [Enter] and [Shift + Enter] to add a new line ...`
+    );
 
     return (
       <MaskWrapper>

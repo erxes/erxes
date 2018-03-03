@@ -41,7 +41,7 @@ class ChangePassword extends Component {
             <ControlLabel>Current Password</ControlLabel>
             <FormControl
               type="password"
-              placeholder="Current password"
+              placeholder={__('Current password')}
               id="current-password"
             />
           </FormGroup>
@@ -50,7 +50,7 @@ class ChangePassword extends Component {
             <ControlLabel>New Password</ControlLabel>
             <FormControl
               type="password"
-              placeholder="Enter new password"
+              placeholder={__('Enter new password')}
               id="new-password"
             />
           </FormGroup>
@@ -59,7 +59,7 @@ class ChangePassword extends Component {
             <ControlLabel>Re-type Password to confirm</ControlLabel>
             <FormControl
               type="password"
-              placeholder="Re-type password"
+              placeholder={__('Re-type password')}
               id="new-password-confirmation"
             />
           </FormGroup>

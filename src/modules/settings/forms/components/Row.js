@@ -58,7 +58,7 @@ class Row extends CommonRow {
       <tr>
         <td>{object.title}</td>
         <td>
-          <Label>{object.code}</Label>
+          <Label ignoreTrans>{object.code}</Label>
         </td>
         <td>{object.description}</td>
         <td>{moment(object.createdAt).format('DD MMM YYYY')}</td>

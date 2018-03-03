@@ -40,13 +40,14 @@ class List extends React.Component {
         <td>
           <Label
             lblStyle={emailConfig.type === 'simple' ? 'default' : 'primary'}
+            ignoreTrans
           >
             {emailConfig.type}
           </Label>
         </td>
         <td>
           <ActionButtons>
-            <ModalTrigger title={title} trigger={editTrigger}>
+            <ModalTrigger title={title} trigger={editTrigger} ignoreTrans>
               <Config brandId={_id} refetch={refetch} />
             </ModalTrigger>
           </ActionButtons>

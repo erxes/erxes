@@ -129,7 +129,7 @@ class Configs extends Component {
 
               <FormControl
                 componentClass="textarea"
-                placeholder="Write here Welcome message."
+                placeholder={__('Write here Welcome message.')}
                 rows={3}
                 value={this.state.welcomeMessage}
                 onChange={this.onWelcomeMessageChange}
@@ -143,7 +143,7 @@ class Configs extends Component {
 
               <FormControl
                 componentClass="textarea"
-                placeholder="Write here Away message."
+                placeholder={__('Write here Away message.')}
                 rows={3}
                 value={this.state.awayMessage}
                 onChange={this.onAwayMessageChange}
@@ -155,7 +155,7 @@ class Configs extends Component {
 
               <FormControl
                 componentClass="textarea"
-                placeholder="Write here Thank you message."
+                placeholder={__('Write here Thank you message.')}
                 rows={3}
                 value={this.state.thankYouMessage}
                 onChange={this.onThankYouMessageChange}

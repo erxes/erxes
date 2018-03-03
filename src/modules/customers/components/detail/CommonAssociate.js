@@ -126,7 +126,7 @@ class CommonAssociate extends Component {
         <Columns>
           <Column>
             <FormControl
-              placeholder="Type to search"
+              placeholder={__('Type to search')}
               onChange={e => this.search(e)}
             />
             <ul>

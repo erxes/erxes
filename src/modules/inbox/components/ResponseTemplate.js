@@ -150,7 +150,7 @@ class ResponseTemplate extends Component {
             <InlineColumn>
               <FormControl
                 type="text"
-                placeholder="Search..."
+                placeholder={__('Search...')}
                 onChange={this.filterItems}
                 autoFocus
               />
@@ -158,7 +158,7 @@ class ResponseTemplate extends Component {
             <InlineColumn>
               <FormControl
                 componentClass="select"
-                placeholder="Select Brand"
+                placeholder={__('Select Brand')}
                 onChange={this.onFilter}
                 defaultValue={this.state.brandId}
               >

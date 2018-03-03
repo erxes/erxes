@@ -37,7 +37,7 @@ class ResetPassword extends Component {
           <FormGroup>
             <FormControl
               type="password"
-              placeholder="new password"
+              placeholder={__('new password')}
               required
               onChange={this.handlePasswordChange}
             />

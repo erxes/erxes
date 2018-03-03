@@ -141,7 +141,7 @@ class Navigation extends Component {
             <NavLink to="/inbox" activeClassName="active">
               <NavIcon className="icon-inbox" />
               {unreadConversationsCount !== 0 && (
-                <Label shake lblStyle="danger">
+                <Label shake lblStyle="danger" ignoreTrans>
                   {unreadConversationsCount}
                 </Label>
               )}

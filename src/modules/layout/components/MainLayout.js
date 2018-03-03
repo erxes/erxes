@@ -13,6 +13,7 @@ const propTypes = {
   history: PropTypes.object,
   currentUser: PropTypes.object,
   selectLang: PropTypes.func,
+  locale: PropTypes.string,
   children: PropTypes.node
 };
 
@@ -70,7 +71,8 @@ class MainLayout extends React.Component {
   getChildContext() {
     return {
       currentUser: this.props.currentUser,
-      selectLang: this.selectLang
+      selectLang: this.selectLang,
+      locale: this.state.locale
     };
   }
 
@@ -148,7 +150,8 @@ MainLayout.propTypes = propTypes;
 
 MainLayout.childContextTypes = {
   currentUser: PropTypes.object,
-  selectLang: PropTypes.func
+  selectLang: PropTypes.func,
+  locale: PropTypes.string
 };
 
 export default withRouter(MainLayout);
