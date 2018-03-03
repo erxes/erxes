@@ -1,8 +1,6 @@
 import MessageList from './MessageList';
 import MessageListRow from './MessageListRow';
-import MessageForm from './MessageForm';
-import AutoAndManualForm from './AutoAndManualForm';
-import VisitorForm from './VisitorForm';
+import EngageForm from './EngageForm';
 import MessengerPreview from './MessengerPreview';
 
 // sidebar
@@ -17,9 +15,7 @@ const Sidebar = { Main, Status, Tag };
 export {
   MessageList,
   MessageListRow,
-  MessageForm,
-  AutoAndManualForm,
-  VisitorForm,
+  EngageForm,
   Widget,
   MessengerPreview,
   Sidebar

@@ -27,6 +27,10 @@ const engageMessages = `
         name
         colorCode
       }
+      getBrand{
+        _id
+        name
+      }
       messenger
       email
     }
@@ -192,6 +196,16 @@ const combinedFields = `
   }
 `;
 
+export const engagesListConfig = `
+  query {
+    fieldsDefaultColumnsConfig(contentType: "engage") {
+      name
+      label
+      order
+    }
+  }
+`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -205,5 +219,6 @@ export default {
   customerCounts,
   segmentDetail,
   headSegments,
-  combinedFields
+  combinedFields,
+  engagesListConfig
 };

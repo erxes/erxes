@@ -3,10 +3,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const propTypes = {
-  maxStep: PropTypes.number.isRequired,
   children: PropTypes.any.isRequired,
-  active: PropTypes.number.isRequired,
-  validate: PropTypes.object
+  active: PropTypes.number.isRequired
 };
 
 const StepContainer = styled.div`
@@ -19,16 +17,14 @@ const StepContainer = styled.div`
 
 class Steps extends Component {
   render() {
-    let { maxStep, children, active, validate } = this.props;
+    let { children, active } = this.props;
     //cloning step's children with default state
     return (
       <StepContainer>
         {React.Children.map(children, (child, index) => {
           return React.cloneElement(child, {
             stepNumber: index + 1,
-            active,
-            maxStep,
-            validate
+            active
           });
         })}
       </StepContainer>
