@@ -16,7 +16,7 @@ import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import { CompanyForm } from '../';
-import { ManageColumns } from '../../../fields/containers';
+import { ManageColumns } from 'modules/settings/properties/containers';
 import { CommonMerge } from 'modules/customers/components';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
 

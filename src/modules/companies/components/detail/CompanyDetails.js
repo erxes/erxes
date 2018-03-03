@@ -16,7 +16,7 @@ import { hasAnyActivity } from 'modules/customers/utils';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
-  customFields: PropTypes.array.isRequired,
+  fieldsGroups: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,

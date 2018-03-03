@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import parse from 'ua-parser-js';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarContent } from 'modules/layout/styles';
 import {
   ModalTrigger,
   Button,
@@ -11,8 +10,8 @@ import {
   Tip,
   EmptyState
 } from 'modules/common/components';
-import { Alert, urlParser } from 'modules/common/utils';
-import { GenerateField } from 'modules/fields/components';
+import { urlParser } from 'modules/common/utils';
+import { ManageGroups } from 'modules/settings/properties/components';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
 import { CompanyWrapper, BlockValue } from './styles';
@@ -27,62 +26,14 @@ import {
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
   sections: PropTypes.node,
-  otherProperties: PropTypes.node
+  otherProperties: PropTypes.node,
+  fieldsGroups: PropTypes.array.isRequired,
+  customFieldsData: PropTypes.object
 };
 
-class LeftSidebar extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      editing: false,
-      customData: {}
-    };
-
-    this.toggleEditing = this.toggleEditing.bind(this);
-    this.cancelEditing = this.cancelEditing.bind(this);
-    this.save = this.save.bind(this);
-    this.handleFieldsChange = this.handleFieldsChange.bind(this);
-  }
-
-  toggleEditing() {
-    this.cancelEditing();
-    this.setState({ editing: true });
-  }
-
-  cancelEditing() {
-    this.setState({
-      editing: false,
-      customData: this.props.customer.customFieldsData || {}
-    });
-  }
-
-  save() {
-    const doc = {
-      customFieldsData: this.state.customData
-    };
-
-    this.props.save(doc, error => {
-      if (error) return Alert.error(error.message);
-
-      this.cancelEditing();
-      return Alert.success('Success');
-    });
-  }
-
-  handleFieldsChange({ _id, value }) {
-    this.toggleEditing();
-    const { customData } = this.state;
-    const newfields = {
-      ...customData,
-      [_id]: value
-    };
-    this.setState({ customData: newfields });
-  }
-
+class LeftSidebar extends ManageGroups {
   renderCompanies() {
     const { customer } = this.props;
     const { Section } = Sidebar;
@@ -145,37 +96,6 @@ class LeftSidebar extends React.Component {
     }
 
     return null;
-  }
-
-  renderCustomFields() {
-    const { customFields, customer } = this.props;
-    const { Section } = Sidebar;
-    const { __ } = this.context;
-
-    return (
-      <Section>
-        <Section.Title>{__('Customer properties')}</Section.Title>
-        <Section.QuickButtons>
-          <Link to="/fields/manage/customer">
-            <Icon icon="gear-a" />
-          </Link>
-        </Section.QuickButtons>
-        <SidebarContent>
-          {customFields.map((field, index) => (
-            <GenerateField
-              field={field}
-              key={index}
-              onValueChange={this.handleFieldsChange}
-              defaultValue={
-                customer.customFieldsData
-                  ? customer.customFieldsData[field._id]
-                  : ''
-              }
-            />
-          ))}
-        </SidebarContent>
-      </Section>
-    );
   }
 
   renderDeviceProperties() {
@@ -265,7 +185,7 @@ class LeftSidebar extends React.Component {
       <Sidebar footer={this.renderSidebarFooter()}>
         <BasicInfo customer={customer} save={this.props.save} />
         {this.props.sections && this.props.sections}
-        {this.renderCustomFields()}
+        {this.renderGroups()}
         {this.renderCompanies()}
         {this.renderDeviceProperties()}
         {this.renderOtherProperties()}
