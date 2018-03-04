@@ -21,6 +21,7 @@ import KnowledgeBaseTopic from './knowledgeBaseTopic';
 import ActivityLog from './activityLog';
 import ActivityLogForMonth from './activityLogForMonth';
 import { Field, FieldsGroup } from './field';
+import User from './user';
 
 export default {
   ...customScalars,
@@ -52,4 +53,5 @@ export default {
   ActivityLogForMonth,
   FieldsGroup,
   Field,
+  User,
 };
