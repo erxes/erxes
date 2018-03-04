@@ -25,7 +25,7 @@ import { selectUserOptions } from '../../utils';
 
 const propTypes = {
   deal: PropTypes.object,
-  addDeal: PropTypes.func.isRequired,
+  save: PropTypes.func.isRequired,
   close: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
   boardId: PropTypes.string,
@@ -46,21 +46,24 @@ class DealForm extends React.Component {
     this.onChangeUsers = this.onChangeUsers.bind(this);
     this.saveProductsData = this.saveProductsData.bind(this);
 
-    this.addDeal = this.addDeal.bind(this);
+    this.save = this.save.bind(this);
+
+    const deal = props.deal || {};
 
     this.state = {
-      company: null,
-      customer: null,
-      closeDate: null,
-      note: '',
       amount: {},
-      productsData: [],
-      products: [],
-      assignedUserIds: []
+      // Deal datas
+      company: deal.company,
+      customer: deal.customer,
+      closeDate: deal.closeDate,
+      note: deal.note,
+      productsData: deal.productsData || [],
+      products: deal.products || [],
+      assignedUserIds: deal.assignedUserIds || []
     };
   }
 
-  addDeal() {
+  save() {
     const {
       customer,
       company,
@@ -80,42 +83,34 @@ class DealForm extends React.Component {
       return;
     }
 
-    const { boardId, pipelineId, stageId, dealsLength } = this.props;
-
     const productIds = [];
-    const filteredProductsData = [];
 
     productsData.forEach(p => {
-      if (p.product) {
-        p.productId = p.product._id;
-        productIds.push(p.product._id);
-
-        delete p.product;
-
-        filteredProductsData.push(p);
-      }
+      productIds.push(p.productId);
     });
 
-    const deal = {
-      boardId,
-      pipelineId,
-      stageId,
+    const { deal, boardId, pipelineId, stageId, dealsLength } = this.props;
+
+    const doc = {
       companyId: company._id,
       customerId: customer._id,
       closeDate: new Date(closeDate),
       productIds,
-      productsData: filteredProductsData,
+      productsData,
       assignedUserIds,
-      order: dealsLength
+      boardId: deal ? deal.boardId : boardId,
+      pipelineId: deal ? deal.pipelineId : pipelineId,
+      stageId: deal ? deal.stageId : stageId,
+      order: deal ? deal.order : dealsLength
     };
 
     if (note) {
-      deal.note = note;
+      doc.note = note;
     }
 
-    this.props.addDeal(
+    this.props.save(
       {
-        doc: deal
+        doc
       },
       () => {
         this.props.refetch();
@@ -128,6 +123,11 @@ class DealForm extends React.Component {
   onChangeCompany(companies) {
     if (companies && companies.length === 1) {
       const company = companies[0];
+
+      if (company !== this.state.company) {
+        this.setState({ customer: null });
+      }
+
       this.setState({ company });
     } else {
       this.setState({ company: null, customer: null });
@@ -155,18 +155,24 @@ class DealForm extends React.Component {
     const products = [];
     const amount = {};
 
+    const filteredProductsData = [];
+
     productsData.forEach(el => {
       // products
       if (el.product) {
         products.push(el.product);
-      }
+        el.productId = el.product._id;
+        delete el.product;
 
-      // amount
-      if (!amount[el.currency]) amount[el.currency] = el.amount;
-      else amount[el.currency] += el.amount;
+        // amount
+        if (!amount[el.currency]) amount[el.currency] = el.amount;
+        else amount[el.currency] += el.amount;
+
+        filteredProductsData.push(el);
+      }
     });
 
-    this.setState({ productsData, products, amount });
+    this.setState({ productsData: filteredProductsData, products, amount });
   }
 
   onChangeNote(e) {
@@ -192,13 +198,13 @@ class DealForm extends React.Component {
 
     const companyTrigger = (
       <DealButton>
-        Choose company <Icon icon="plus" />
+        Choose a company <Icon icon="plus" />
       </DealButton>
     );
 
     const customerTrigger = (
       <DealButton>
-        Choose customer <Icon icon="plus" />
+        Choose a customer <Icon icon="plus" />
       </DealButton>
     );
 
@@ -336,7 +342,7 @@ class DealForm extends React.Component {
             <Button
               btnStyle="success"
               onClick={() => {
-                this.addDeal();
+                this.save();
               }}
               icon="checkmark"
             >

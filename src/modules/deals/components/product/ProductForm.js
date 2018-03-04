@@ -8,7 +8,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { ProductItemForm } from '../../containers';
+import { ProductItemForm } from '../';
 import {
   ProductFormContainer,
   ProductTable,

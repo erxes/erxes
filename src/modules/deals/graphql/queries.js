@@ -51,6 +51,11 @@ const deals = `
       _id
       stageId
       pipelineId
+      boardId
+      company {
+        _id
+        name
+      }
       customer {
         _id
         firstName
@@ -60,6 +65,7 @@ const deals = `
         _id
         name
       }
+      productsData
       amount
       closeDate
       assignedUsers {

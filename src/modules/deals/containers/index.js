@@ -5,6 +5,8 @@ import DealForm from './DealForm';
 import CustomerAssociate from './CustomerAssociate';
 import ProductAssociate from './ProductAssociate';
 import ProductItemForm from './ProductItemForm';
+import QuickEditDealForm from './QuickEditDealForm';
+import DealMoveForm from './DealMoveForm';
 
 export {
   Board,
@@ -13,5 +15,7 @@ export {
   DealForm,
   CustomerAssociate,
   ProductAssociate,
-  ProductItemForm
+  ProductItemForm,
+  QuickEditDealForm,
+  DealMoveForm
 };

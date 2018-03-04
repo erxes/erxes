@@ -21,26 +21,42 @@ const propTypes = {
   deals: PropTypes.array,
   dealsFromDb: PropTypes.array,
   index: PropTypes.number.isRequired,
-  addDealForm: PropTypes.func.isRequired,
-  closeDealForm: PropTypes.func.isRequired,
   collectDeals: PropTypes.func.isRequired,
-  refetch: PropTypes.func.isRequired,
-  showDealForm: PropTypes.object.isRequired
+  refetch: PropTypes.func.isRequired
 };
 
 class Stage extends React.Component {
   constructor(props) {
     super(props);
 
+    this.showForm = this.showForm.bind(this);
+    this.closeForm = this.closeForm.bind(this);
+
     props.collectDeals(props.stage._id, listObjectUnFreeze(props.dealsFromDb));
 
     this.state = {
-      amount: {}
+      amount: {},
+      show: false
     };
   }
 
+  showForm() {
+    this.setState({
+      show: true
+    });
+  }
+
+  closeForm() {
+    this.setState({
+      show: false
+    });
+  }
+
   componentWillReceiveProps(nextProps) {
-    if (this.props.dealsFromDb.length !== nextProps.dealsFromDb.length) {
+    if (
+      JSON.stringify(this.props.dealsFromDb) !==
+      JSON.stringify(nextProps.dealsFromDb)
+    ) {
       this.props.collectDeals(
         this.props.stage._id,
         listObjectUnFreeze(nextProps.dealsFromDb)
@@ -61,15 +77,7 @@ class Stage extends React.Component {
   }
 
   render() {
-    const {
-      stage,
-      pipelineId,
-      boardId,
-      deals,
-      refetch,
-      showDealForm,
-      closeDealForm
-    } = this.props;
+    const { stage, pipelineId, boardId, deals, refetch } = this.props;
 
     const amount = this.state.amount;
 
@@ -102,26 +110,29 @@ class Stage extends React.Component {
                       <StageDropZone innerRef={dropProvided.innerRef}>
                         <div>
                           {deals.map((deal, index) => (
-                            <Deal key={deal._id} deal={deal} index={index} />
+                            <Deal
+                              key={deal._id}
+                              deal={deal}
+                              index={index}
+                              refetch={refetch}
+                            />
                           ))}
                         </div>
                         {dropProvided.placeholder}
                       </StageDropZone>
                     )}
                   </Droppable>
-                  {showDealForm[stage._id] ? (
+                  {this.state.show ? (
                     <DealForm
                       boardId={boardId}
                       pipelineId={pipelineId}
                       stageId={stage._id}
                       refetch={refetch}
-                      close={closeDealForm.bind(this, stage._id)}
+                      close={this.closeForm.bind(this)}
                       dealsLength={deals.length}
                     />
                   ) : (
-                    <AddNewDeal
-                      onClick={this.props.addDealForm.bind(this, stage._id)}
-                    >
+                    <AddNewDeal onClick={this.showForm.bind(this)}>
                       <Icon icon="plus" /> Add new deal
                     </AddNewDeal>
                   )}

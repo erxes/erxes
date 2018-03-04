@@ -24,35 +24,10 @@ class Pipeline extends React.Component {
   constructor(props) {
     super(props);
 
-    this.addDealForm = this.addDealForm.bind(this);
-    this.closeDealForm = this.closeDealForm.bind(this);
-
-    this.state = {
-      showDealForm: {}
-    };
-
     props.collectStages(
       props.pipeline._id,
       listObjectUnFreeze(props.stagesFromDb)
     );
-  }
-
-  addDealForm(stageId) {
-    const showDealForm = this.state.showDealForm;
-    showDealForm[stageId] = true;
-
-    this.setState({
-      showDealForm
-    });
-  }
-
-  closeDealForm(stageId) {
-    const showDealForm = this.state.showDealForm;
-    showDealForm[stageId] = false;
-
-    this.setState({
-      showDealForm
-    });
   }
 
   render() {
@@ -82,9 +57,6 @@ class Pipeline extends React.Component {
                       index={index}
                       boardId={boardId}
                       pipelineId={pipeline._id}
-                      showDealForm={this.state.showDealForm}
-                      closeDealForm={this.closeDealForm}
-                      addDealForm={this.addDealForm}
                       deals={dealsByStage[stage._id] || []}
                       collectDeals={this.props.collectDeals}
                     />

@@ -30,10 +30,6 @@ const dealsAdd = `
   mutation dealsAdd(${commonVariables}) {
     dealsAdd(${commonParams}) {
       _id
-      stageId
-      companyId
-      customerId
-      amount
     }
   }
 `;
@@ -42,11 +38,13 @@ const dealsEdit = `
   mutation dealsEdit($_id: String!, ${commonVariables}) {
     dealsEdit(_id: $_id, ${commonParams}) {
       _id
-      stageId
-      companyId
-      customerId
-      amount
     }
+  }
+`;
+
+const dealsRemove = `
+  mutation dealsRemove($_id: String!) {
+    dealsRemove(_id: $_id)
   }
 `;
 
@@ -85,6 +83,7 @@ const stagesChange = `
 export default {
   dealsAdd,
   dealsEdit,
+  dealsRemove,
   dealsUpdateOrder,
   stagesUpdateOrder,
   dealsChange,

@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { colors, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 
+const StageWidth = 450;
+
 const PipelineContainer = styled.div`
   background-color: ${colors.colorWhite};
   &:not(:first-child) {
@@ -35,7 +37,7 @@ const StageWrapper = styled.div`
   display: flex;
   border-right: 1px solid ${colors.colorShadowGray};
   flex-direction: column;
-  width: 450px;
+  width: ${StageWidth}px;
 `;
 
 const StageContainer = styled.div`
@@ -109,13 +111,33 @@ const AddNewDeal = styled.a`
   }
 `;
 
+const DealContainerHover = styled.div`
+  position: absolute;
+  opacity: 0;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: ${rgba(colors.colorCoreDarkGray, 0.2)};
+  > div {
+    float: right;
+    padding: 25px 25px 0 0;
+    font-size: 15px;
+  }
+`;
+
 const DealContainer = styled.div`
+  position: relative;
   overflow: hidden;
   margin: 10px 0;
   padding: 10px 15px;
   border-radius: 5px;
   border: 1px solid ${colors.colorShadowGray};
   background-color: #f6f6f6;
+  &:hover ${DealContainerHover} {
+    opacity: 1;
+  }
 `;
 
 const DealHeader = styled.div`
@@ -310,6 +332,51 @@ const ProductItemText = styled.div`
   text-align: ${props => props.align || 'left'};
 `;
 
+const QuickEditDealFormContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 70px;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background: ${rgba(colors.colorCoreDarkGray, 0.5)};
+  > div {
+    position: absolute;
+    top: ${props => `${props.top}px`};
+    left: ${props => `${props.left - 70}px`};
+    ${DealFormContainer} {
+      float: left;
+      width: ${StageWidth - 30}px;
+    }
+  }
+`;
+
+const RightControls = styled.div`
+  float: left;
+  margin-left: 10px;
+  button {
+    display: block;
+    background: ${rgba(colors.colorCoreDarkGray, 0.9)};
+    padding: 5px 10px;
+    margin: 0 0 10px 0;
+    border-radius: 10px;
+    color: ${colors.colorWhite};
+    text-transform: none;
+    i {
+      font-size: 10px;
+    }
+  }
+`;
+
+const DealMoveFormContainer = styled.div`
+  position: absolute;
+  top: 32px;
+  left: 430px;
+  background: ${colors.colorWhite};
+  width: 240px;
+  padding: 20px;
+`;
+
 export {
   PipelineContainer,
   PipelineHeader,
@@ -322,6 +389,7 @@ export {
   EmptyStage,
   AddNewDeal,
   DealContainer,
+  DealContainerHover,
   DealHeader,
   DealAmount,
   DealFormAmount,
@@ -334,5 +402,8 @@ export {
   ProductFooter,
   FooterInfo,
   AddProduct,
-  ProductItemText
+  ProductItemText,
+  QuickEditDealFormContainer,
+  RightControls,
+  DealMoveFormContainer
 };
