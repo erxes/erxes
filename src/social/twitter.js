@@ -299,6 +299,17 @@ export const receiveTimelineInformation = async (integration, data) => {
     return null;
   }
 
+  const twitterData = integration.twitterData.toJSON();
+
+  // listen for only participated tweets
+  const isParticipated = data.entities.user_mentions.find(
+    mention => mention.id === twitterData.info.id,
+  );
+
+  if (!isParticipated) {
+    return null;
+  }
+
   console.log('Receiving timeline info'); // eslint-disable-line
 
   const twit = TwitMap[integration._id];

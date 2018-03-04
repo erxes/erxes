@@ -186,9 +186,7 @@ describe('Conversation message mutations', () => {
       integrationId: integration._id,
       twitterData: {
         isDirectMessage: true,
-        directMessage: {
-          senderIdStr: 'sender_id',
-        },
+        sender_id_str: 'sender_id',
       },
     });
 

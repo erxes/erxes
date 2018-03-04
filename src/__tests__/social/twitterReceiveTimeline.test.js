@@ -68,7 +68,7 @@ describe('createOrUpdateTimelineConversation', () => {
     entities: {
       hashtags: [],
       urls: [],
-      user_mentions: [[Object]],
+      user_mentions: [{ id: 1 }],
       symbols: [],
       media: [[Object]],
     },
