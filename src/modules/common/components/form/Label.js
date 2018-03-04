@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { Label } from './styles';
 
 const propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  ignoreTrans: PropTypes.bool
 };
 
 function ControlLabel(props, { __ }) {

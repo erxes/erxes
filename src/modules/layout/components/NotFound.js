@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function NotFound(props = {}, { __ }) {
+function NotFound(props, { __ }) {
   return (
     <div className="auth-content">
       <div className="container">
@@ -14,7 +14,7 @@ function NotFound(props = {}, { __ }) {
                 'erxes is an open-source messaging platform for customer success'
               )}
             </p>
-            <a href="http://erxes.io/">« Go to home page</a>
+            <a href="http://erxes.io/">« {__('Go to home page')}</a>
           </div>
         </div>
       </div>

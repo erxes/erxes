@@ -6,7 +6,8 @@ const propTypes = {
   title: PropTypes.string.isRequired,
   trigger: PropTypes.element.isRequired,
   children: PropTypes.node.isRequired,
-  size: PropTypes.string
+  size: PropTypes.string,
+  ignoreTrans: PropTypes.bool
 };
 
 const childContextTypes = {

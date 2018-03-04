@@ -139,7 +139,10 @@ class ManageIntegrationForm extends Component {
       >
         <IntegrationName>{integration.name}</IntegrationName>
         <Tip text={this.getTypeName(integration)}>
-          <Label className={`label-${this.getTypeName(integration)} round`}>
+          <Label
+            className={`label-${this.getTypeName(integration)} round`}
+            ignoreTrans
+          >
             <Icon icon={this.getIconByKind(integration)} />
           </Label>
         </Tip>

@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
 
-function Sidebar(props = {}, { __ }) {
+function Sidebar(props, { __ }) {
   const Sidebar = Wrapper.Sidebar;
   const { Title } = Sidebar.Section;
 

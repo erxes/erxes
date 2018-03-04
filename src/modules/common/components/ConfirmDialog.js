@@ -34,8 +34,6 @@ class ConfirmDialog extends React.Component {
 
     this.dismiss = this.dismiss.bind(this);
     this.proceed = this.proceed.bind(this);
-
-    console.log(this);
   }
 
   dismiss() {
@@ -51,8 +49,8 @@ class ConfirmDialog extends React.Component {
   }
 
   render() {
-    const { __ } = this.context;
     const { confirmation = 'Are you sure?' } = this.props;
+    const { __ } = this.context;
 
     const {
       okLabel = 'Yes, I am',
@@ -102,6 +100,10 @@ ConfirmDialog.propTypes = {
   confirmation: PropTypes.string,
   proceed: PropTypes.func,
   dismiss: PropTypes.func
+};
+
+ConfirmDialog.contextTypes = {
+  __: PropTypes.func
 };
 
 export default ConfirmDialog;

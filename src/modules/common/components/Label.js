@@ -102,6 +102,7 @@ Label.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   shake: PropTypes.bool,
+  ignoreTrans: PropTypes.bool,
   style: PropTypes.object,
   lblStyle: PropTypes.oneOf([
     'default',
