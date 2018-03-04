@@ -54,18 +54,16 @@ describe('twitter integration', () => {
 
   test('direct message', async () => {
     const text = 'reply';
-    const senderId = 242424242;
+    const sender_id = 242424242;
 
     const conversation = await conversationFactory({
       integrationId: _integration._id,
       twitterData: {
         isDirectMessage: true,
-        directMessage: {
-          senderId,
-          senderIdStr: senderId.toString(),
-          recipientId: 535335353,
-          recipientIdStr: '535335353',
-        },
+        sender_id,
+        sender_id_str: sender_id.toString(),
+        recipient_id: 535335353,
+        recipient_id_str: '535335353',
       },
     });
 
@@ -75,7 +73,7 @@ describe('twitter integration', () => {
     // check twit post params
     expect(
       stub.calledWith(twit, 'direct_messages/new', {
-        user_id: senderId.toString(),
+        user_id: sender_id.toString(),
         text,
       }),
     ).toBe(true);
@@ -84,11 +82,11 @@ describe('twitter integration', () => {
   test('timeline', async () => {
     const text = 'reply';
     const tweetIdStr = '242424242';
-    const screenName = 'test';
+    const screen_name = 'test';
 
     const customer = await customerFactory({
       twitterData: {
-        screenName,
+        screen_name,
       },
     });
 
@@ -97,7 +95,7 @@ describe('twitter integration', () => {
       integrationId: _integration._id,
       twitterData: {
         isDirectMessage: false,
-        idStr: tweetIdStr,
+        id_str: tweetIdStr,
       },
     });
 
@@ -107,7 +105,7 @@ describe('twitter integration', () => {
     // check twit post params
     expect(
       stub.calledWith(twit, 'statuses/update', {
-        status: `@${screenName} ${text}`,
+        status: `@${screen_name} ${text}`,
 
         // replying tweet id
         in_reply_to_status_id: tweetIdStr,

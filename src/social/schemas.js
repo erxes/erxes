@@ -28,70 +28,43 @@ export const FacebookSchema = mongoose.Schema(
   { _id: false },
 );
 
-const TwitterDirectMessageSchema = mongoose.Schema(
-  {
-    senderId: field({
-      type: Number,
-    }),
-    senderIdStr: field({
-      type: String,
-    }),
-    recipientId: field({
-      type: Number,
-    }),
-    recipientIdStr: field({
-      type: String,
-    }),
-  },
-  { _id: false },
-);
-
-const TwitterTimelineSchema = mongoose.Schema(
-  {
-    inReplyToStatusId: field({ type: Number, optional: true }),
-    inReplyToStatusIdStr: field({ type: String, optional: true }),
-    inReplyToUserId: field({ type: Number, optional: true }),
-    inReplyToUserIdStr: field({ type: String, optional: true }),
-    inReplyToScreenName: field({ type: String, optional: true }),
-    isQuoteStatus: field({ type: Boolean }),
-    favorited: field({ type: Boolean }),
-    retweeted: field({ type: Boolean }),
-    quoteCount: field({ type: Number, optional: true }),
-    replyCount: field({ type: Number, optional: true }),
-    retweetCount: field({ type: Number, optional: true }),
-    favoriteCount: field({ type: Number, optional: true }),
-  },
-  { _id: false },
-);
-
 /*
  * Twitter response schema
  * Using in conversation, conversation message
+ * Saving fields with underscores because, we want to store it exactly
+ * like twitter response so that we can use it in findParentTweets helper to
+ * not send extra request to twitter
  */
 export const TwitterResponseSchema = mongoose.Schema(
   {
-    id: field({
-      type: Number,
-      optional: true,
-    }),
-    idStr: field({
-      type: String,
-    }),
-    isDirectMessage: field({
-      type: Boolean,
-    }),
+    id: field({ type: Number, optional: true }),
+    id_str: field({ type: String }),
+    created_at: field({ type: Date, optional: true }),
+    isDirectMessage: field({ type: Boolean }),
 
     // media content
     entities: field({ type: Object, optional: true }),
-    extendedEntities: field({ type: Object, optional: true }),
+    extended_entities: field({ type: Object, optional: true }),
 
-    timeline: field({
-      type: TwitterTimelineSchema,
-    }),
+    // direct message
+    sender_id: field({ type: Number }),
+    sender_id_str: field({ type: String }),
+    recipient_id: field({ type: Number }),
+    recipient_id_str: field({ type: String }),
 
-    directMessage: field({
-      type: TwitterDirectMessageSchema,
-    }),
+    // timeline
+    in_reply_to_status_id: field({ type: Number, optional: true }),
+    in_reply_to_status_id_str: field({ type: String, optional: true }),
+    in_reply_to_user_id: field({ type: Number, optional: true }),
+    in_reply_to_user_id_str: field({ type: String, optional: true }),
+    in_reply_to_screen_name: field({ type: String, optional: true }),
+    is_quote_status: field({ type: Boolean }),
+    favorited: field({ type: Boolean }),
+    retweeted: field({ type: Boolean }),
+    quote_count: field({ type: Number, optional: true }),
+    reply_count: field({ type: Number, optional: true }),
+    retweet_count: field({ type: Number, optional: true }),
+    favorite_count: field({ type: Number, optional: true }),
   },
   { _id: false },
 );

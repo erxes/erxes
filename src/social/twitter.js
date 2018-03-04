@@ -6,20 +6,21 @@ import {
   Integrations,
 } from '../db/models';
 import { conversationMessageCreated } from '../data/resolvers/mutations/conversations';
-import { twitRequest } from './twitterTracker';
+import { twitRequest, findParentTweets } from './twitterTracker';
 
 /*
  * Prepare data to save for conversation
  * Common util. Using in both timeline and direct message
  */
-const extractConversationData = ({ data, isDirectMessage, timeline, directMessage }) => ({
+const extractConversationData = ({ data, isDirectMessage, timeline = {}, directMessage = {} }) => ({
   id: data.id,
-  idStr: data.id_str,
+  id_str: data.id_str,
+  created_at: data.created_at,
   isDirectMessage,
   entities: data.entities,
-  extendedEntities: data.extended_entities,
-  timeline,
-  directMessage,
+  extended_entities: data.extended_entities,
+  ...timeline,
+  ...directMessage,
 });
 
 /*
@@ -46,10 +47,10 @@ const getOrCreateCustomer = async (integrationId, user) => {
     integrationId,
     twitterData: {
       id: user.id,
-      idStr: user.id_str,
+      id_str: user.id_str,
       name: user.name,
-      screenName: user.screen_name,
-      profileImageUrl: user.profile_image_url,
+      screen_name: user.screen_name,
+      profile_image_url: user.profile_image_url,
     },
   });
 
@@ -69,10 +70,10 @@ const extractConversationDataDirectMessage = data =>
     data,
     isDirectMessage: true,
     directMessage: {
-      senderId: data.sender_id,
-      senderIdStr: data.sender_id_str,
-      recipientId: data.recipient_id,
-      recipientIdStr: data.recipient_id_str,
+      sender_id: data.sender_id,
+      sender_id_str: data.sender_id_str,
+      recipient_id: data.recipient_id,
+      recipient_id_str: data.recipient_id_str,
     },
   });
 
@@ -109,7 +110,7 @@ const createDirectMessage = async ({ conversation, data }) => {
  * @param {Object} integration
  * @return previous or newly conversation object
  */
-export const getOrCreateDirectMessageConversation = async (data, integration) => {
+export const receiveDirectMessageInformation = async (data, integration) => {
   // When situations like integration is deleted but trackIntegration
   // version of that integration is still running, new conversations being
   // created using non existing integrationId
@@ -117,23 +118,32 @@ export const getOrCreateDirectMessageConversation = async (data, integration) =>
     return null;
   }
 
-  console.log('Receiving direct message'); // eslint-disable-line
-
   let conversation = await Conversations.findOne({
     'twitterData.isDirectMessage': true,
     $or: [
       {
-        'twitterData.directMessage.senderId': data.sender_id,
-        'twitterData.directMessage.recipientId': data.recipient_id,
+        'twitterData.sender_id': data.sender_id,
+        'twitterData.recipient_id': data.recipient_id,
       },
       {
-        'twitterData.directMessage.senderId': data.recipient_id,
-        'twitterData.directMessage.recipientId': data.sender_id,
+        'twitterData.sender_id': data.recipient_id,
+        'twitterData.recipient_id': data.sender_id,
       },
     ],
   });
 
   if (conversation) {
+    // update some infos
+    await Conversations.update(
+      { _id: conversation._id },
+      {
+        $set: {
+          content: data.text,
+          updatedAt: new Date(),
+        },
+      },
+    );
+
     // if closed, reopen it
     await Conversations.reopen(conversation._id);
 
@@ -172,18 +182,18 @@ const extractConversationDataTimeline = data =>
     data,
     isDirectMessage: false,
     timeline: {
-      inReplyToStatusId: data.in_reply_to_status_id,
-      inReplyToStatusIdStr: data.in_reply_to_status_id_str,
-      inReplyToUserId: data.in_reply_to_user_id,
-      inReplyToUserIdStr: data.in_reply_to_user_id_str,
-      inReplyToScreenName: data.in_reply_to_screen_name,
-      isQuoteStatus: data.is_quote_status,
+      in_reply_to_status_id: data.in_reply_to_status_id,
+      in_reply_to_status_id_str: data.in_reply_to_status_id_str,
+      in_reply_to_user_id: data.in_reply_to_user_id,
+      in_reply_to_user_id_str: data.in_reply_to_user_id_str,
+      in_reply_to_screen_name: data.in_reply_to_screen_name,
+      is_quote_status: data.is_quote_status,
       favorited: data.favorited,
       retweeted: data.retweeted,
-      quoteCount: data.quote_count,
-      replyCount: data.reply_count,
-      retweetCount: data.retweet_count,
-      favoriteCount: data.favorite_count,
+      quote_count: data.quote_count,
+      reply_count: data.reply_count,
+      retweet_count: data.retweet_count,
+      favorite_count: data.favorite_count,
     },
   });
 
@@ -194,17 +204,40 @@ const extractConversationDataTimeline = data =>
  * @param {Object} user
  * @return newly created message id
  */
-const createTimeMessage = async ({ conversation, data }) => {
-  const customerId = await getOrCreateCustomer(conversation.integrationId, data.user);
-
-  // create new message
-  const messageId = await ConversationMessages.createMessage({
-    conversationId: conversation._id,
-    customerId,
-    content: data.text,
-    internal: false,
-    twitterData: extractConversationDataTimeline(data),
+export const createOrUpdateTimelineMessage = async (conversation, data) => {
+  const prevMessage = await ConversationMessages.findOne({
+    'twitterData.id': data.id,
   });
+
+  let messageId;
+
+  // update
+  if (prevMessage) {
+    await ConversationMessages.update(
+      { 'twitterData.id': data.id },
+      {
+        $set: {
+          twitterData: data,
+          content: data.text,
+        },
+      },
+    );
+
+    messageId = prevMessage._id;
+
+    // create
+  } else {
+    const customerId = await getOrCreateCustomer(conversation.integrationId, data.user);
+
+    // create new message
+    messageId = await ConversationMessages.createMessage({
+      conversationId: conversation._id,
+      customerId,
+      content: data.text,
+      internal: false,
+      twitterData: extractConversationDataTimeline(data),
+    });
+  }
 
   // notify subscription =========
   const message = await ConversationMessages.findOne({ _id: messageId });
@@ -215,26 +248,41 @@ const createTimeMessage = async ({ conversation, data }) => {
 };
 
 /*
- * Create new message by tweet reply information
- * @param {Object} integration
- * @param {Object} data - Twitter stream data
- * @return newly created message
+ * Create or update conversation using tweet data
+ *
+ * @param {String} integrationId - Integration id
+ * @param {Object} tweet - Twitter response
+ *
+ * @return {Object} - Created or updated conversation object
  */
-export const receiveMentionReply = async (integration, data) => {
-  // find conversation by tweet id
-  const conversation = await Conversations.findOne({
-    'twitterData.id': data.in_reply_to_status_id,
+export const createOrUpdateTimelineConversation = async (integrationId, tweet) => {
+  let prevConversation = await Conversations.findOne({
+    'twitterData.id': tweet.id,
   });
 
-  if (conversation) {
-    // if closed, reopen it
-    await Conversations.reopen(conversation._id);
+  if (prevConversation) {
+    // update some infos
+    await Conversations.update(
+      { 'twitterData.id': tweet.id },
+      {
+        $set: {
+          twitterData: tweet,
+          content: tweet.text,
+          updatedAt: new Date(),
+        },
+      },
+    );
 
-    // create new message
-    return createTimeMessage({ conversation, data });
+    // reopen & return updated conversation
+    return Conversations.reopen(prevConversation._id);
   }
 
-  return null;
+  return Conversations.createConversation({
+    content: tweet.text,
+    integrationId,
+    customerId: await getOrCreateCustomer(integrationId, tweet.user),
+    twitterData: extractConversationDataTimeline(tweet),
+  });
 };
 
 /*
@@ -243,53 +291,29 @@ export const receiveMentionReply = async (integration, data) => {
  * @param {Object} data - Tweet data
  * @return newly created message
  */
-export const createConversationByMention = async (integration, data) => {
-  const customerId = await getOrCreateCustomer(integration._id, data.user);
-
-  const conversationId = await Conversations.createConversation({
-    content: data.text,
-    integrationId: integration._id,
-    customerId,
-
-    // save tweet information
-    twitterData: extractConversationDataTimeline(data),
-  });
-
-  const conversation = await Conversations.findOne({ _id: conversationId });
-
-  // create new message
-  return createTimeMessage({ conversation, data });
-};
-
-/*
- * Receive timeline response
- */
-export const receiveTimeLineResponse = async (integration, data) => {
-  const integrationUserId = integration.twitterData.info.id;
-  const integrationOnDb = await Integrations.findOne({ _id: integration._id });
-
+export const receiveTimelineInformation = async (integration, data) => {
   // When situations like integration is deleted but trackIntegration
   // version of that integration is still running, new conversations being
   // created using non existing integrationId
-  if (!integrationOnDb) {
+  if (!await Integrations.findOne({ _id: integration._id })) {
     return null;
   }
 
-  // if user is replying to some tweet
-  if (data.in_reply_to_status_id && data.user.id === integrationUserId) {
-    console.log('Receiving mention reply'); // eslint-disable-line
-    return receiveMentionReply(integration, data);
+  console.log('Receiving timeline info'); // eslint-disable-line
+
+  const twit = TwitMap[integration._id];
+  const tweets = await findParentTweets(twit, data, [data]);
+
+  // find base tweet
+  const rootTweet = tweets.find(tweet => !tweet.in_reply_to_status_id);
+
+  const conversation = await createOrUpdateTimelineConversation(integration._id, rootTweet);
+
+  for (const tweet of tweets) {
+    await createOrUpdateTimelineMessage(conversation, tweet);
   }
 
-  for (let mention of data.entities.user_mentions) {
-    // listen for only mentioned tweets
-    if (mention.id === integrationUserId) {
-      console.log('Receiving mention'); // eslint-disable-line
-      await createConversationByMention(integration, data);
-    }
-  }
-
-  return null;
+  return conversation;
 };
 
 // save twit instances by integration id
@@ -305,7 +329,7 @@ export const tweetReply = async (conversation, text) => {
   // send direct message
   if (conversation.twitterData.isDirectMessage) {
     return twitRequest.post(twit, 'direct_messages/new', {
-      user_id: twitterData.directMessage.senderIdStr,
+      user_id: twitterData.sender_id_str,
       text,
     });
   }
@@ -314,9 +338,9 @@ export const tweetReply = async (conversation, text) => {
 
   // send reply
   return twitRequest.post(twit, 'statuses/update', {
-    status: `@${customer.twitterData.screenName} ${text}`,
+    status: `@${customer.twitterData.screen_name} ${text}`,
 
     // replying tweet id
-    in_reply_to_status_id: twitterData.idStr,
+    in_reply_to_status_id: twitterData.id_str,
   });
 };
