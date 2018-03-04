@@ -213,3 +213,9 @@ export const ACTIVITY_PERFORMER_TYPES = {
 
   ALL: ['SYSTEM', 'USER', 'CUSTOMER'],
 };
+
+export const FIELDS_GROUPS_CONTENT_TYPES = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  ALL: ['customer', 'company'],
+};

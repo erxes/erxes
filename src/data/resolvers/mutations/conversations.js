@@ -97,14 +97,14 @@ const conversationMutations = {
   async conversationSubscribeMessageCreated(root, { _id }) {
     const message = await ConversationMessages.findOne({ _id });
 
-    conversationMessageCreated(message, message.conversationId);
+    return conversationMessageCreated(message, message.conversationId);
   },
 
   /*
    * Calling this mutation from widget api run read state subscription
    */
   async conversationSubscribeChanged(root, { _ids, type }) {
-    conversationsChanged(_ids, type);
+    return conversationsChanged(_ids, type);
   },
 
   /**

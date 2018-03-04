@@ -185,8 +185,10 @@ class Customer {
     // Checking duplicated fields of customer
     await this.checkDuplication(doc, _id);
 
-    // clean custom field values
-    doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+    if (doc.customFieldsData) {
+      // clean custom field values
+      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+    }
 
     await this.update({ _id }, { $set: doc });
 
