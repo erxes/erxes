@@ -122,9 +122,7 @@ class DealForm extends React.Component {
     }
 
     this.props.save(
-      {
-        doc
-      },
+      doc,
       () => {
         this.props.refetch();
         this.props.close();

@@ -65,8 +65,8 @@ const stagesUpdateOrder = `
 `;
 
 const dealsChange = `
-  mutation dealsChange($_id: String!, $stageId: String!, $pipelineId: String) {
-    dealsChange(_id: $_id, stageId: $stageId, pipelineId: $pipelineId) {
+  mutation dealsChange($_id: String!, $stageId: String!, $pipelineId: String, $boardId: String) {
+    dealsChange(_id: $_id, stageId: $stageId, pipelineId: $pipelineId, boardId: $boardId) {
       _id
     }
   }

@@ -14,7 +14,7 @@ const propTypes = {
   bottom: PropTypes.number,
   left: PropTypes.number,
   close: PropTypes.func,
-  add: PropTypes.func,
+  copy: PropTypes.func,
   remove: PropTypes.func,
   refetch: PropTypes.func,
   deal: PropTypes.object
@@ -24,19 +24,18 @@ class QuickEdit extends React.Component {
   constructor(props) {
     super(props);
 
-    this.move = this.move.bind(this);
+    this.toggleMove = this.toggleMove.bind(this);
     this.copy = this.copy.bind(this);
     this.remove = this.remove.bind(this);
-    this.closeMove = this.closeMove.bind(this);
 
     this.state = {
       showMove: false
     };
   }
 
-  move() {
+  toggleMove() {
     this.setState({
-      showMove: true
+      showMove: !this.state.showMove
     });
   }
 
@@ -67,28 +66,17 @@ class QuickEdit extends React.Component {
       productsData: deal.productsData
     };
 
-    this.props.add(
-      {
-        doc
-      },
-      () => {
-        this.props.refetch();
-        this.props.close();
-      }
-    );
-  }
-
-  closeMove() {
-    this.setState({
-      showMove: false
+    this.props.copy(doc, () => {
+      this.props.refetch();
+      this.props.close();
     });
   }
 
   remove() {
     const deal = this.props.deal;
     this.props.remove(deal._id, () => {
-      this.props.close();
       this.props.refetch();
+      this.props.close();
     });
   }
 
@@ -100,7 +88,7 @@ class QuickEdit extends React.Component {
         <div>
           <DealForm close={close} deal={deal} refetch={refetch} />
           <RightControls>
-            <Button btnStyle="link" onClick={this.move}>
+            <Button btnStyle="link" onClick={this.toggleMove}>
               Move
             </Button>
             <Button btnStyle="link" onClick={this.copy}>
@@ -115,7 +103,8 @@ class QuickEdit extends React.Component {
               <DealMoveForm
                 deal={deal}
                 closeEditForm={close}
-                close={this.closeMove}
+                close={this.toggleMove}
+                refetch={refetch}
               />
             </DealMoveFormContainer>
           ) : null}

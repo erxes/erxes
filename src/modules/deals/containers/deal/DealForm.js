@@ -13,7 +13,7 @@ class DealFormContainer extends React.Component {
     const users = usersQuery.users || [];
 
     // create or update action
-    const save = ({ doc }, callback, deal) => {
+    const save = (doc, callback, deal) => {
       let mutation = addMutation;
       // if edit mode
       if (deal) {

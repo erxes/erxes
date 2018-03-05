@@ -6,7 +6,7 @@ import gql from 'graphql-tag';
 import { DealMoveForm } from '../../components';
 import { Alert } from 'modules/common/utils';
 
-import { queries } from '../../graphql';
+import { queries, mutations } from '../../graphql';
 
 class DealMoveFormContainer extends React.Component {
   constructor(props) {
@@ -51,7 +51,13 @@ class DealMoveFormContainer extends React.Component {
   }
 
   render() {
-    const { deal, boardsQuery, pipelinesQuery, stagesQuery } = this.props;
+    const {
+      deal,
+      boardsQuery,
+      pipelinesQuery,
+      stagesQuery,
+      dealsChangeMutation
+    } = this.props;
     const { boardId, pipelineId } = this.state;
 
     if (boardsQuery.loading || pipelinesQuery.loading || stagesQuery.loading) {
@@ -59,9 +65,16 @@ class DealMoveFormContainer extends React.Component {
     }
 
     const move = (doc, callback) => {
-      Alert.success('Successfully moved.');
-
-      callback();
+      dealsChangeMutation({
+        variables: doc
+      })
+        .then(() => {
+          Alert.success('Successfully moved.');
+          callback();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
     };
 
     const boards = boardsQuery.dealBoards;
@@ -94,6 +107,7 @@ const propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
   stagesQuery: PropTypes.object,
+  dealsChangeMutation: PropTypes.func,
   deal: PropTypes.object
 };
 
@@ -118,5 +132,8 @@ export default compose(
         pipelineId: deal.pipelineId
       }
     })
+  }),
+  graphql(gql(mutations.dealsChange), {
+    name: 'dealsChangeMutation'
   })
 )(DealMoveFormContainer);

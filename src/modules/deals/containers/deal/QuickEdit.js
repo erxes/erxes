@@ -27,8 +27,8 @@ class QickEditDealFormContainer extends React.Component {
       });
     };
 
-    // create action
-    const add = ({ doc }, callback) => {
+    // create copied one
+    const copy = (doc, callback) => {
       addMutation({
         variables: doc
       })
@@ -44,7 +44,7 @@ class QickEditDealFormContainer extends React.Component {
 
     const extendedProps = {
       ...this.props,
-      add,
+      copy,
       remove
     };
 

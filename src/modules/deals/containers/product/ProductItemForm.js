@@ -4,18 +4,15 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { ProductItemForm } from '../../components';
 import { queries } from '../../graphql';
-import { Spinner } from 'modules/common/components';
 
 class ProductItemFormContainer extends React.Component {
   render() {
     const { getUomQuery, getCurrenciesQuery } = this.props;
 
-    if (getUomQuery.loading || getCurrenciesQuery.loading) {
-      return <Spinner />;
-    }
-
-    const uom = getUomQuery.getConfig.value || [];
-    const currencies = getCurrenciesQuery.getConfig.value || [];
+    const uom = getUomQuery.getConfig ? getUomQuery.getConfig.value : [];
+    const currencies = getCurrenciesQuery.getConfig
+      ? getCurrenciesQuery.getConfig.value
+      : [];
 
     const extendedProps = {
       ...this.props,

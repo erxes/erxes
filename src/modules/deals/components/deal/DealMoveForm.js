@@ -20,13 +20,14 @@ class DealMoveForm extends React.Component {
     const { deal, boardId, pipelineId } = this.props;
 
     const doc = {
-      dealId: deal._id,
+      _id: deal._id,
       boardId,
       pipelineId,
       stageId: this.state.stageId
     };
 
     this.props.move(doc, () => {
+      this.props.refetch();
       this.props.closeEditForm();
     });
   }
@@ -41,7 +42,6 @@ class DealMoveForm extends React.Component {
 
   render() {
     const { boards, pipelines, stages, boardId, pipelineId } = this.props;
-    const { stageId } = this.state;
 
     return (
       <form>
@@ -76,7 +76,7 @@ class DealMoveForm extends React.Component {
         <FormGroup>
           <Select
             placeholder="Choose a stage"
-            value={stageId}
+            value={this.state.stageId}
             onChange={value => this.onChangeStage(value)}
             optionRenderer={option => {
               return (
@@ -127,7 +127,8 @@ const propTypes = {
   closeEditForm: PropTypes.func.isRequired,
   onChangeBoard: PropTypes.func.isRequired,
   onChangePipeline: PropTypes.func.isRequired,
-  move: PropTypes.func.isRequired
+  move: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired
 };
 
 DealMoveForm.propTypes = propTypes;

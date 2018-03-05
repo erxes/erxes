@@ -3,9 +3,12 @@ import PropTypes from 'prop-types';
 import { FormControl, Icon, ModalTrigger } from 'modules/common/components';
 import Select from 'react-select-plus';
 import { DealButton, DealProducts, ProductItemText } from '../../styles';
-import { selectOptions } from '../../utils';
+import { selectConfigOptions } from '../../utils';
 import { ProductAssociate } from '../../containers';
-import { UOM, CURRENCIES } from '../../constants';
+import {
+  CURRENCIES,
+  MEASUREMENTS
+} from 'modules/settings/generalSettings/constants';
 
 const propTypes = {
   uom: PropTypes.array,
@@ -19,7 +22,7 @@ const propTypes = {
 
 class ProductItemForm extends React.Component {
   render() {
-    // const { uom, currencies } = this.props;
+    const { uom, currencies } = this.props;
 
     const productServiceTrigger = (
       <DealButton>
@@ -67,7 +70,7 @@ class ProductItemForm extends React.Component {
                 <span>{option.label}</span>
               </div>
             )}
-            options={selectOptions(UOM)}
+            options={selectConfigOptions(uom, MEASUREMENTS)}
           />
         </td>
         <td>
@@ -82,7 +85,7 @@ class ProductItemForm extends React.Component {
                 <span>{option.label}</span>
               </div>
             )}
-            options={selectOptions(CURRENCIES)}
+            options={selectConfigOptions(currencies, CURRENCIES)}
           />
         </td>
         <td>

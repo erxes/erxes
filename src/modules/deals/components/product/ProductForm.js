@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import { Button, Icon } from 'modules/common/components';
-import { ProductItemForm } from '../';
+import { ProductItemForm } from '../../containers';
 import {
   ProductFormContainer,
   ProductTable,
