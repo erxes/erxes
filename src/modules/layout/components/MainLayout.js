@@ -12,8 +12,17 @@ const propTypes = {
 };
 
 class MainLayout extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.can = this.can.bind(this);
+  }
+
   getChildContext() {
-    return { currentUser: this.props.currentUser };
+    return {
+      currentUser: this.props.currentUser,
+      can: this.can
+    };
   }
 
   componentWillMount() {
@@ -58,6 +67,13 @@ class MainLayout extends React.Component {
     );
   }
 
+  can(actionName) {
+    const { currentUser } = this.props;
+    const actions = currentUser.permissionActions || [];
+
+    return actions.indexOf(actionName) >= 0;
+  }
+
   render() {
     const { children, currentUser } = this.props;
 
@@ -73,7 +89,8 @@ class MainLayout extends React.Component {
 MainLayout.propTypes = propTypes;
 
 MainLayout.childContextTypes = {
-  currentUser: PropTypes.object
+  currentUser: PropTypes.object,
+  can: PropTypes.func
 };
 
 export default withRouter(MainLayout);

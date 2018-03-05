@@ -21,8 +21,8 @@ const permissionAdd = `
 `;
 
 const permissionRemove = `
-  mutation permissionsRemove($_id: String!) {
-    permissionsRemove(_id: $_id)
+  mutation permissionsRemove($ids: [String]!) {
+    permissionsRemove(ids: $ids)
   }
 `;
 

@@ -25,11 +25,12 @@ const PermissionListContainer = props => {
   const remove = _id => {
     confirm().then(() => {
       removeMutation({
-        variables: { _id }
+        variables: { ids: [_id] }
       })
         .then(() => {
           // update queries
           permissionsQuery.refetch();
+          totalCountQuery.refetch();
 
           Alert.success('Congrats', 'Successfully deleted.');
         })
@@ -47,6 +48,7 @@ const PermissionListContainer = props => {
       .then(() => {
         // update queries
         permissionsQuery.refetch();
+        totalCountQuery.refetch();
 
         Alert.success('Congrats');
 
@@ -69,7 +71,7 @@ const PermissionListContainer = props => {
     history,
     save,
     remove,
-    totalCount: totalCountQuery.premissionsTotalCount || 20,
+    totalCount: totalCountQuery.permissionsTotalCount || 0,
     modules: modulesQuery.permissionModules || [],
     actions: actionsQuery.permissionActions || [],
     permissions: permissionsQuery.permissions || [],

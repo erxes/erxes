@@ -95,8 +95,6 @@ class Conversation extends Component {
     };
 
     const reactionCounts = reactions => {
-      console.log(reactions);
-
       if (reactions) {
         const keys = Object.keys(reactions);
         const data = {};
@@ -104,8 +102,6 @@ class Conversation extends Component {
         keys.forEach(key => {
           if (reactions[key]) data[key] = reactions[key].length;
         });
-
-        console.log(data);
       }
 
       return null;
@@ -114,7 +110,6 @@ class Conversation extends Component {
     const renderMessages = (data, isFeed) => {
       data.forEach(message => {
         if (isFeed && message.facebookData) {
-          console.log(message.facebookData.postUrl);
           reactionCounts(message.facebookData.reactions);
         }
 

@@ -6,7 +6,9 @@ import {
   Button,
   DataWithLoader,
   Table,
-  FormControl
+  FormControl,
+  Tip,
+  ActionButtons
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/Sidebar';
@@ -25,7 +27,7 @@ const propTypes = {
   permissions: PropTypes.array.isRequired,
   modules: PropTypes.array.isRequired,
   actions: PropTypes.array.isRequired,
-  totalCount: PropTypes.number.isRequired,
+  totalCount: PropTypes.number,
   users: PropTypes.array.isRequired,
   history: PropTypes.object,
   queryParams: PropTypes.object,
@@ -41,7 +43,7 @@ class PermissionList extends Component {
   }
 
   renderObjects() {
-    const { permissions } = this.props;
+    const { permissions, remove } = this.props;
 
     return permissions.map(object => {
       return (
@@ -56,6 +58,17 @@ class PermissionList extends Component {
               defaultChecked={object.allowed}
             />
           </td>
+          <td>
+            <ActionButtons>
+              <Tip text="Delete">
+                <Button
+                  btnStyle="link"
+                  onClick={remove.bind(null, object._id)}
+                  icon="close"
+                />
+              </Tip>
+            </ActionButtons>
+          </td>
         </tr>
       );
     });
@@ -69,7 +82,8 @@ class PermissionList extends Component {
             <th>Module</th>
             <th>Action</th>
             <th>Email</th>
-            <th width="100px">Allow</th>
+            <th>Allow</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
@@ -93,6 +107,8 @@ class PermissionList extends Component {
       totalCount
     } = this.props;
 
+    const { can } = this.context;
+
     const title = 'New permission';
 
     const breadcrumb = [
@@ -106,11 +122,11 @@ class PermissionList extends Component {
       </Button>
     );
 
-    const actionBarRight = (
+    const actionBarRight = can('configPermission') ? (
       <ModalTrigger title={title} size={'lg'} trigger={trigger}>
         {this.renderForm({ modules, actions, users, history, save })}
       </ModalTrigger>
-    );
+    ) : null;
 
     const actionBarLeft = (
       <div>
@@ -179,5 +195,9 @@ class PermissionList extends Component {
 }
 
 PermissionList.propTypes = propTypes;
+
+PermissionList.contextTypes = {
+  can: PropTypes.func
+};
 
 export default PermissionList;
