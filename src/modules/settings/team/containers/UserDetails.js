@@ -3,13 +3,15 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
+import { queries, mutations } from '../graphql';
 import { UserDetails } from '../components';
 
 const UserDetailsContainer = (props, context) => {
-  const { userDetailQuery } = props;
+  const { userDetailQuery, usersEdit, channelsQuery } = props;
 
-  if (userDetailQuery.loading) {
+  if (userDetailQuery.loading || channelsQuery.loading) {
     return (
       <Sidebar full>
         <Spinner />
@@ -17,9 +19,28 @@ const UserDetailsContainer = (props, context) => {
     );
   }
 
+  const user = userDetailQuery.userDetail;
+
+  const save = ({ doc }, callback) => {
+    doc._id = user._id;
+
+    usersEdit({
+      variables: doc
+    })
+      .then(() => {
+        Alert.success('Successfully saved');
+        callback();
+      })
+      .catch(e => {
+        callback(e);
+      });
+  };
+
   const updatedProps = {
     ...props,
-    user: userDetailQuery.userDetail,
+    save,
+    user,
+    channels: channelsQuery.channels,
     currentUser: context.currentUser
   };
 
@@ -28,50 +49,39 @@ const UserDetailsContainer = (props, context) => {
 
 UserDetailsContainer.propTypes = {
   id: PropTypes.string,
-  userDetailQuery: PropTypes.object
+  userDetailQuery: PropTypes.object,
+  usersEdit: PropTypes.func,
+  channelsQuery: PropTypes.object
 };
 
 UserDetailsContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-const userDetail = gql`
-  query userDetail($_id: String) {
-    userDetail(_id: $_id) {
-      username
-      email
-      role
-      conversations {
-        _id
-        content
-      }
-      details {
-        avatar
-        fullName
-        position
-        location
-        description
-        twitterUsername
-      }
-      links {
-        linkedIn
-        twitter
-        facebook
-        github
-        youtube
-        website
-      }
-    }
-  }
-`;
+const options = ({ id }) => ({
+  refetchQueries: [
+    { query: gql(queries.userDetail), variables: { _id: id } },
+    { query: gql(queries.channels), variables: { memberIds: [id] } }
+  ]
+});
 
 export default compose(
-  graphql(userDetail, {
+  graphql(gql(queries.userDetail), {
     name: 'userDetailQuery',
     options: ({ id }) => ({
       variables: {
         _id: id
       }
+    })
+  }),
+  graphql(gql(mutations.usersEdit), {
+    name: 'usersEdit',
+    options
+  }),
+  graphql(gql(queries.channels), {
+    name: 'channelsQuery',
+    options: ({ id }) => ({
+      variables: { memberIds: [id] }
     })
   })
 )(UserDetailsContainer);
