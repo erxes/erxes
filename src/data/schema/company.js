@@ -39,7 +39,7 @@ export const queries = `
 `;
 
 const commonFields = `
-  name: String!,
+  name: String,
   size: Int,
   website: String,
   industry: String,
