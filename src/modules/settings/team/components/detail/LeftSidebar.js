@@ -1,29 +1,41 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
 import {
   SidebarContent,
   SidebarCounter,
   SidebarList
 } from 'modules/layout/styles';
-import { Icon, NameCard } from 'modules/common/components';
+import { Icon, NameCard, ModalTrigger, Tip } from 'modules/common/components';
+import { UserForm } from '../../containers';
+import { Channel } from './styles';
 
 const propTypes = {
-  user: PropTypes.object.isRequired
+  user: PropTypes.object.isRequired,
+  save: PropTypes.func,
+  channels: PropTypes.array
 };
 
-function LeftSidebar({ user }) {
-  const { Title, QuickButtons } = Sidebar.Section;
+function LeftSidebar({ user, save, channels }) {
+  const { Section } = Sidebar;
+  const { Title, QuickButtons } = Section;
   const { details = {}, links = {} } = user;
 
   return (
     <Sidebar>
-      <Sidebar.Section>
+      <Section>
         <Title>Details</Title>
 
         <QuickButtons>
           <a tabIndex={0}>
-            <Icon icon="edit" />
+            <ModalTrigger
+              title="Edit Team Member"
+              trigger={<Icon icon="edit" />}
+              size="lg"
+            >
+              <UserForm object={user} save={save} />
+            </ModalTrigger>
           </a>
         </QuickButtons>
 
@@ -48,9 +60,9 @@ function LeftSidebar({ user }) {
             </li>
           </SidebarList>
         </SidebarContent>
-      </Sidebar.Section>
+      </Section>
 
-      <Sidebar.Section>
+      <Section>
         <Title>Links</Title>
 
         <SidebarContent>
@@ -81,7 +93,28 @@ function LeftSidebar({ user }) {
             </li>
           </SidebarList>
         </SidebarContent>
-      </Sidebar.Section>
+      </Section>
+
+      <Section>
+        <Title>Channels</Title>
+        <SidebarContent>
+          <Channel>
+            {channels.map(channel => {
+              return (
+                <div key={channel._id}>
+                  <Link to={`/settings/channels?id=${channel._id}`}>
+                    <Icon icon="android-open" />
+                  </Link>
+                  <div>{channel.name || ''}</div>
+                  <Tip text={channel.description || ''}>
+                    <span>{channel.description || ''}</span>
+                  </Tip>
+                </div>
+              );
+            })}
+          </Channel>
+        </SidebarContent>
+      </Section>
     </Sidebar>
   );
 }
