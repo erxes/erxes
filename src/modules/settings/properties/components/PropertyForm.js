@@ -214,9 +214,6 @@ class PropertyForm extends Component {
             <option value="select">Select</option>
             <option value="check">Checkbox</option>
             <option value="radio">Radio button</option>
-            <option value="email">Email</option>
-            <option value="firstName">First name</option>
-            <option value="lastName">Last name</option>
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
