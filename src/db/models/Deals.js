@@ -276,7 +276,8 @@ class Stage {
 /* Deal products schema */
 const productSchema = mongoose.Schema(
   {
-    productId: String,
+    _id: String,
+    product: JSON,
     uom: String,
     currency: String,
     quantity: Number,

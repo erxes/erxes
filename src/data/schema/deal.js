@@ -90,7 +90,7 @@ export const mutations = `
 
 	dealsAdd(${dealMutationParams}): Deal
 	dealsEdit(_id: String!, ${dealMutationParams}): Deal
-	dealsChange( _id: String!, pipelineId: String, stageId: String! ): Deal
+	dealsChange( _id: String!, boardId: String, pipelineId: String, stageId: String!): Deal
   dealsUpdateOrder(orders: [OrderItem]): [Deal]
   dealsRemove(_id: String!): String
 `;

@@ -162,6 +162,7 @@ const dealMutations = {
   /**
    * Change deal
    * @param {String} _id deal id
+   * @param {String} doc.boardId
    * @param {String} doc.pipelineId
    * @param {String} doc.stageId
    * @return {Promise} updated deal object
