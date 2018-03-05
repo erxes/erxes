@@ -5,7 +5,7 @@ import DealForm from './DealForm';
 import CustomerAssociate from './CustomerAssociate';
 import ProductAssociate from './ProductAssociate';
 import ProductItemForm from './ProductItemForm';
-import QuickEditDealForm from './QuickEditDealForm';
+import QuickEdit from './QuickEdit';
 import DealMoveForm from './DealMoveForm';
 
 export {
@@ -16,6 +16,6 @@ export {
   CustomerAssociate,
   ProductAssociate,
   ProductItemForm,
-  QuickEditDealForm,
+  QuickEdit,
   DealMoveForm
 };

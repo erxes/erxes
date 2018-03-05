@@ -332,7 +332,7 @@ const ProductItemText = styled.div`
   text-align: ${props => props.align || 'left'};
 `;
 
-const QuickEditDealFormContainer = styled.div`
+const QuickEditContainer = styled.div`
   position: fixed;
   top: 0;
   left: 70px;
@@ -403,7 +403,7 @@ export {
   FooterInfo,
   AddProduct,
   ProductItemText,
-  QuickEditDealFormContainer,
+  QuickEditContainer,
   RightControls,
   DealMoveFormContainer
 };

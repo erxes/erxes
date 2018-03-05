@@ -68,6 +68,7 @@ const deals = `
       productsData
       amount
       closeDate
+      note
       assignedUsers {
         _id
         email

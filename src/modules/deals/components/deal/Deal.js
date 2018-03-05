@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
 import moment from 'moment';
 import { DealProduct, DealUser } from '../';
-import { QuickEditDealForm } from '../../containers';
+import { QuickEdit } from '../../containers';
 import { Icon } from 'modules/common/components';
 import {
   DealContainer,
@@ -61,7 +61,7 @@ class Deal extends React.Component {
     if (this.state.showQuickEdit) {
       const { top, left } = this.state;
       return (
-        <QuickEditDealForm
+        <QuickEdit
           top={top}
           left={left}
           close={this.closeQuickEditForm}

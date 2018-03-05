@@ -3,7 +3,7 @@ import Pipeline from './pipeline/Pipeline';
 import Stage from './stage/Stage';
 import Deal from './deal/Deal';
 import DealForm from './deal/DealForm';
-import QuickEditDealForm from './deal/QuickEdit';
+import QuickEdit from './deal/QuickEdit';
 import DealProduct from './deal/DealProduct';
 import DealUser from './deal/DealUser';
 import DealMoveForm from './deal/DealMoveForm';
@@ -16,7 +16,7 @@ export {
   Stage,
   Deal,
   DealForm,
-  QuickEditDealForm,
+  QuickEdit,
   DealProduct,
   DealUser,
   DealMoveForm,
