@@ -83,7 +83,7 @@ const NameWrapper = styled.div`
   flex-direction: row;
   align-items: center;
 
-  .cutomer-name {
+  .customer-name {
     flex: 1;
     word-break: break-word;
   }
