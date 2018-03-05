@@ -1,13 +1,14 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { List } from './containers';
+import { Properties } from './containers';
 
 const routes = () => (
   <Route
-    path="/settings/product-service/"
+    path="/settings/properties/"
     component={({ location }) => {
-      return <List queryParams={queryString.parse(location.search)} />;
+      const queryParams = queryString.parse(location.search);
+      return <Properties queryParams={queryParams} />;
     }}
   />
 );

@@ -1,7 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { Sidebar } from 'modules/layout/components';
+import { Button } from 'modules/common/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+
+const ButtonWrapper = styled.div`
+  padding: 10px 20px;
+`;
 
 const propTypes = {
   customer: PropTypes.object.isRequired
@@ -26,9 +32,19 @@ function TwitterSection({ customer }) {
         </li>
         <li>
           Screen name
-          <SidebarCounter>{twitterData.screenName}</SidebarCounter>
+          <SidebarCounter>@{twitterData.screenName}</SidebarCounter>
         </li>
       </SidebarList>
+      <ButtonWrapper>
+        <Button
+          block
+          btnStyle="primary"
+          target="_blank"
+          href={`https://twitter.com/${twitterData.screenName}`}
+        >
+          Go to twitter
+        </Button>
+      </ButtonWrapper>
     </Sidebar.Section>
   );
 }
