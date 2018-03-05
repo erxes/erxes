@@ -36,6 +36,11 @@ function SettingsSidebar() {
               Forms
             </NavLink>
           </li>
+          <li>
+            <NavLink activeClassName="active" to="/settings/permissions">
+              Permissions
+            </NavLink>
+          </li>
         </SidebarList>
       </Sidebar.Section>
 

@@ -11,6 +11,7 @@ import IntegrationsRoutes from './integrations/routes';
 import ProfileRoutes from './profile/routes';
 import PropertiesRoutes from './properties/routes';
 import MainRoutes from './main/routes';
+import PermissionRoutes from './permissions/routes';
 
 const routes = () => [
   <MainRoutes key="MainRoutes" />,
@@ -23,7 +24,8 @@ const routes = () => [
   <FormsRoutes key="FormsRoutes" />,
   <IntegrationsRoutes key="IntegrationsRoutes" />,
   <ProfileRoutes key="ProfileRoutes" />,
-  <PropertiesRoutes key="PropertiesRoutes" />
+  <PropertiesRoutes key="PropertiesRoutes" />,
+  <PermissionRoutes key="PermissionRoutes" />
 ];
 
 const settingsRoute = () => <Route component={routes} />;

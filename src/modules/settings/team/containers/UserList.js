@@ -2,6 +2,7 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { commonListComposer } from '../../utils';
 import { UserList } from '../components';
+import { queries } from '../graphql';
 
 const commonParamsDef = `
   $username: String!,
@@ -28,46 +29,18 @@ const commonParams = `
 export default commonListComposer({
   name: 'users',
 
-  gqlListQuery: graphql(
-    gql`
-      query users($page: Int, $perPage: Int) {
-        users(page: $page, perPage: $perPage) {
-          _id
-          username
-          email
-          role
-          details {
-            avatar
-            fullName
-            position
-            description
-            location
-            twitterUsername
-          }
-          links {
-            linkedIn
-            twitter
-            facebook
-            github
-            youtube
-            website
-          }
+  gqlListQuery: graphql(gql(queries.users), {
+    name: 'listQuery',
+    options: ({ queryParams }) => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        variables: {
+          page: queryParams.page,
+          perPage: queryParams.perPage || 20
         }
-      }
-    `,
-    {
-      name: 'listQuery',
-      options: ({ queryParams }) => {
-        return {
-          notifyOnNetworkStatusChange: true,
-          variables: {
-            page: queryParams.page,
-            perPage: queryParams.perPage || 20
-          }
-        };
-      }
+      };
     }
-  ),
+  }),
 
   gqlTotalCountQuery: graphql(
     gql`
