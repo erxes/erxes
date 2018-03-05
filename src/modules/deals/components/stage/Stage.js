@@ -63,17 +63,18 @@ class Stage extends React.Component {
       );
     }
 
+    const amount = {};
+
     if (nextProps.deals.length > 0) {
-      const amount = {};
       nextProps.deals.forEach(deal => {
         Object.keys(deal.amount).forEach(key => {
           if (!amount[key]) amount[key] = deal.amount[key];
           else amount[key] += deal.amount[key];
         });
       });
-
-      this.setState({ amount });
     }
+
+    this.setState({ amount });
   }
 
   render() {
@@ -92,7 +93,10 @@ class Stage extends React.Component {
                 isDragging={snapshot.isDragging}
               >
                 <StageHeader {...provided.dragHandleProps}>
-                  <h3>{stage.name}</h3>
+                  <div>
+                    <h3>{stage.name}</h3>
+                    <span className="deals-count">Deal: {deals.length}</span>
+                  </div>
                   {Object.keys(amount).length > 0 ? (
                     <ul>
                       {Object.keys(amount).map(key => (
@@ -101,8 +105,11 @@ class Stage extends React.Component {
                         </li>
                       ))}
                     </ul>
-                  ) : null}
-                  <span className="deals-count">Deal: {deals.length}</span>
+                  ) : (
+                    <ul>
+                      <li>0</li>
+                    </ul>
+                  )}
                 </StageHeader>
                 <StageBody>
                   <Droppable droppableId={stage._id} type="DEAL">

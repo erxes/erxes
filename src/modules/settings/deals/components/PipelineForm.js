@@ -32,7 +32,7 @@ class PipelineForm extends Component {
     this.renderContent = this.renderContent.bind(this);
 
     this.state = {
-      stages: props.stages ? listObjectUnFreeze(props.stages) : []
+      stages: listObjectUnFreeze(props.stages)
     };
   }
 

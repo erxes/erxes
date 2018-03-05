@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { Spinner } from 'modules/common/components';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { DealMoveForm } from '../components';
+import { DealMoveForm } from '../../components';
 import { Alert } from 'modules/common/utils';
 
-import { queries } from '../graphql';
+import { queries } from '../../graphql';
 
 class DealMoveFormContainer extends React.Component {
   constructor(props) {

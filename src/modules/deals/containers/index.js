@@ -1,12 +1,12 @@
 import Board from './Board';
-import Stage from './Stage';
 import Pipeline from './Pipeline';
-import DealForm from './DealForm';
-import CustomerAssociate from './CustomerAssociate';
-import ProductAssociate from './ProductAssociate';
-import ProductItemForm from './ProductItemForm';
-import QuickEdit from './QuickEdit';
-import DealMoveForm from './DealMoveForm';
+import Stage from './Stage';
+import DealForm from './deal/DealForm';
+import QuickEdit from './deal/QuickEdit';
+import DealMoveForm from './deal/DealMoveForm';
+import CustomerAssociate from './associate/CustomerAssociate';
+import ProductAssociate from './associate/ProductAssociate';
+import ProductItemForm from './product/ProductItemForm';
 
 export {
   Board,

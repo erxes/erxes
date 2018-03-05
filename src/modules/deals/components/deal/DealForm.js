@@ -11,7 +11,11 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { Alert, renderFullName } from 'modules/common/utils';
+import {
+  Alert,
+  renderFullName,
+  listObjectUnFreeze
+} from 'modules/common/utils';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { CustomerAssociate } from '../../containers';
 import {
@@ -57,9 +61,11 @@ class DealForm extends React.Component {
       customer: deal.customer,
       closeDate: deal.closeDate,
       note: deal.note,
-      productsData: deal.productsData || [],
+      productsData: listObjectUnFreeze(deal.productsData),
       products: deal.products || [],
-      assignedUserIds: deal.assignedUsers.map(el => el['_id']) || []
+      assignedUserIds: deal.assignedUsers
+        ? deal.assignedUsers.map(el => el['_id'])
+        : []
     };
   }
 
@@ -83,10 +89,17 @@ class DealForm extends React.Component {
       return;
     }
 
+    if (!closeDate) {
+      Alert.error('Select a close date');
+      return;
+    }
+
     const productIds = [];
 
-    productsData.forEach(p => {
-      productIds.push(p.productId);
+    productsData.forEach(el => {
+      if (!productIds.find(pEl => pEl === el.product._id)) {
+        productIds.push(el.product._id);
+      }
     });
 
     const { deal, boardId, pipelineId, stageId, dealsLength } = this.props;
@@ -159,10 +172,11 @@ class DealForm extends React.Component {
 
     productsData.forEach(el => {
       // products
-      if (el.product) {
-        products.push(el.product);
-        el.productId = el.product._id;
-        delete el.product;
+      if (el.product && el.currency && el.quantity && el.unitPrice) {
+        // if don't add before, push to array
+        if (!products.find(pEl => pEl._id === el.product._id)) {
+          products.push(el.product);
+        }
 
         // amount
         if (!amount[el.currency]) amount[el.currency] = el.amount;

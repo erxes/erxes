@@ -11,6 +11,7 @@ import { DealMoveForm } from '../../containers';
 
 const propTypes = {
   top: PropTypes.number,
+  bottom: PropTypes.number,
   left: PropTypes.number,
   close: PropTypes.func,
   add: PropTypes.func,
@@ -92,10 +93,10 @@ class QuickEdit extends React.Component {
   }
 
   render() {
-    const { deal, refetch, top, left, close } = this.props;
+    const { deal, refetch, top, bottom, left, close } = this.props;
 
     return (
-      <QuickEditContainer top={top} left={left}>
+      <QuickEditContainer top={top} bottom={bottom} left={left}>
         <div>
           <DealForm close={close} deal={deal} refetch={refetch} />
           <RightControls>

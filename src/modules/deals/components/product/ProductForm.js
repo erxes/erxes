@@ -1,13 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
-import {
-  Button,
-  Icon,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import { Button, Icon } from 'modules/common/components';
 import { ProductItemForm } from '../';
 import {
   ProductFormContainer,
@@ -49,7 +43,7 @@ class ProductForm extends React.Component {
   addProductItem() {
     const productsData = this.props.productsData;
     productsData.push({
-      _id: Math.random(),
+      _id: Math.random().toString(),
       quantity: 1,
       unitPrice: 0,
       tax: 0,
@@ -189,10 +183,6 @@ class ProductForm extends React.Component {
         </AddProduct>
         <ProductFooter>
           <FooterInfo>
-            <FormGroup>
-              <ControlLabel>Notes</ControlLabel>
-              <FormControl componentClass="textarea" />
-            </FormGroup>
             <table>
               <tbody>
                 <tr>

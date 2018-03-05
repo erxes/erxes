@@ -2,7 +2,8 @@ import styled from 'styled-components';
 import { colors, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 
-const StageWidth = 450;
+const StageWidth = 300;
+const StageHeight = 'calc(100vh - 233px)';
 
 const PipelineContainer = styled.div`
   background-color: ${colors.colorWhite};
@@ -43,40 +44,43 @@ const StageWrapper = styled.div`
 const StageContainer = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 233px);
+  min-height: ${StageHeight};
   background: ${({ isDragging }) =>
     isDragging ? rgba(colors.colorCoreDarkGray, 0.2) : 'none'};
   transition: background-color 0.1s ease;
 `;
 
 const StageHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 30px;
+  padding: 20px 30px;
   border-bottom: 1px solid ${colors.colorShadowGray};
-  line-height: 18px;
-  h3 {
-    margin: 0;
-    font-size: 18px;
-    text-transform: uppercase;
+  > div {
+    line-height: 18px;
+    display: flex;
+    justify-content: space-between;
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      text-transform: uppercase;
+    }
+    .deals-count {
+      text-transform: capitalize;
+      color: #585278;
+      font-size: 16px;
+      font-weight: bold;
+    }
   }
   ul {
+    float: right;
     list-style: none;
-    margin: 0;
+    margin: 10px 0 0;
     padding: 0;
     li {
       float: left;
-      padding-right: 5px;
+      padding-left: 5px;
       color: #585278;
       font-size: 14px;
       font-weight: bold;
     }
-  }
-  .deals-count {
-    text-transform: capitalize;
-    color: #585278;
-    font-size: 16px;
-    font-weight: bold;
   }
 `;
 
@@ -91,8 +95,8 @@ const StageDropZone = styled.div`
 const EmptyStage = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100px;
-  min-height: calc(100vh - 233px);
+  width: ${StageWidth}px;
+  min-height: ${StageHeight};
 `;
 
 const AddNewDeal = styled.a`
@@ -342,7 +346,8 @@ const QuickEditContainer = styled.div`
   background: ${rgba(colors.colorCoreDarkGray, 0.5)};
   > div {
     position: absolute;
-    top: ${props => `${props.top}px`};
+    top: ${props => (props.top === 0 ? 'auto' : `${props.top}px`)};
+    bottom: ${props => (props.bottom === 0 ? 'auto' : `${props.bottom}px`)};
     left: ${props => `${props.left - 70}px`};
     ${DealFormContainer} {
       float: left;
@@ -371,7 +376,7 @@ const RightControls = styled.div`
 const DealMoveFormContainer = styled.div`
   position: absolute;
   top: 32px;
-  left: 430px;
+  left: ${StageWidth - 20}px;
   background: ${colors.colorWhite};
   width: 240px;
   padding: 20px;

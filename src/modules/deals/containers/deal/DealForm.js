@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import { DealForm } from '../components';
-import { queries, mutations } from '../graphql';
+import { DealForm } from '../../components';
+import { queries, mutations } from '../../graphql';
 
 class DealFormContainer extends React.Component {
   render() {

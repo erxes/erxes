@@ -28,7 +28,8 @@ class Deal extends React.Component {
     this.state = {
       showQuickEdit: false,
       top: 0,
-      left: 0
+      left: 0,
+      bottom: 0
     };
   }
 
@@ -43,15 +44,18 @@ class Deal extends React.Component {
     const height = window.innerHeight;
 
     let top = info.top;
+    let bottom = 0;
+
     if (height - top < 670) {
-      // padding bottom 10px
-      top = height - 680;
+      top = 0;
+      bottom = 10;
     }
 
     this.setState({
       showQuickEdit: true,
       top,
-      left: info.left
+      left: info.left,
+      bottom
     });
   }
 
@@ -59,10 +63,12 @@ class Deal extends React.Component {
     const { deal, refetch, index } = this.props;
 
     if (this.state.showQuickEdit) {
-      const { top, left } = this.state;
+      const { top, bottom, left } = this.state;
+
       return (
         <QuickEdit
           top={top}
+          bottom={bottom}
           left={left}
           close={this.closeQuickEditForm}
           deal={deal}
