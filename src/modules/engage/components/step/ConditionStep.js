@@ -83,7 +83,7 @@ class ConditionStep extends Component {
 
     return (
       <FormGroup key={rule._id}>
-        <ControlLabel>{rule.text}:</ControlLabel>
+        <ControlLabel>{rule.text}</ControlLabel>
         <InlineForm>
           <FormControl
             componentClass="select"
