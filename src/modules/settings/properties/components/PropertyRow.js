@@ -8,7 +8,7 @@ import {
   ModalTrigger,
   EmptyState
 } from 'modules/common/components';
-import { confirm } from 'modules/common/utils';
+import { confirm, Alert } from 'modules/common/utils';
 import { PropertyGroupForm, PropertyForm } from '../containers';
 import { DropIcon, FieldType } from '../styles';
 import { ActionButtons, CollapseRow, TableRow } from '../../styles';
@@ -40,6 +40,10 @@ class PropertyRow extends React.Component {
   }
 
   visibleHandler(e, property) {
+    if (property.isDefinedByErxes) {
+      return Alert.error('You cannot update this property');
+    }
+
     const isVisible = e.target.checked;
 
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
