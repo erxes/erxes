@@ -286,35 +286,13 @@ export const createOrUpdateTimelineConversation = async (integrationId, tweet) =
 };
 
 /*
- * Create conversation by mentioned information
+ * Create conversation, message, customer by mentioned information
  * @param {Object} integration - Integration
  * @param {Object} data - Tweet data
  * @return newly created message
  */
-export const receiveTimelineInformation = async (integration, data) => {
-  // When situations like integration is deleted but trackIntegration
-  // version of that integration is still running, new conversations being
-  // created using non existing integrationId
-  if (!await Integrations.findOne({ _id: integration._id })) {
-    return null;
-  }
-
-  const twitterData = integration.twitterData.toJSON();
-
-  // listen for mentioned tweets or previousely saved tweets ================
-  const isMentioned = data.entities.user_mentions.find(
-    mention => mention.id === twitterData.info.id,
-  );
-
-  const repliedMessage = await ConversationMessages.findOne({
-    'twitterData.id': data.in_reply_to_status_id,
-  });
-
-  if (!isMentioned && (data.in_reply_to_status_id && !repliedMessage)) {
-    return null;
-  }
-
-  console.log('Receiving timeline info'); // eslint-disable-line
+export const saveTimelineInformation = async (integration, data) => {
+  console.log('Received timeline information .........'); // eslint-disable-line
 
   const twit = TwitMap[integration._id];
   const tweets = await findParentTweets(twit, data, [data]);
@@ -329,6 +307,41 @@ export const receiveTimelineInformation = async (integration, data) => {
   }
 
   return conversation;
+};
+
+/*
+ * Receive timeline information
+ * @param {Object} integration - Integration
+ * @param {Object} data - Tweet data
+ * @return newly created message
+ */
+export const receiveTimelineInformation = async (integration, data) => {
+  // When situations like integration is deleted but trackIntegration
+  // version of that integration is still running, new conversations being
+  // created using non existing integrationId
+  if (!await Integrations.findOne({ _id: integration._id })) {
+    return null;
+  }
+
+  const twitterData = integration.twitterData.toJSON();
+
+  // listen for mentioned tweets ================
+  const isMentioned = data.entities.user_mentions.find(
+    mention => mention.id === twitterData.info.id,
+  );
+
+  if (isMentioned) {
+    return saveTimelineInformation(integration, data);
+  }
+
+  // listen for previousely saved tweets ================
+  const repliedMessage = await ConversationMessages.findOne({
+    $and: [{ 'twitterData.id': { $ne: null } }, { 'twitterData.id': data.in_reply_to_status_id }],
+  });
+
+  if (data.in_reply_to_status_id && repliedMessage) {
+    return saveTimelineInformation(integration, data);
+  }
 };
 
 // save twit instances by integration id
