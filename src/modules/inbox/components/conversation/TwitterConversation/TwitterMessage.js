@@ -12,14 +12,13 @@ const propTypes = {
 };
 
 const Tweet = styled.div`
-  padding: 20px 20px 20px 70px;
-  border: 1px solid #eee;
+  padding: 20px 20px 15px 70px;
+  border: 1px solid #dee4e7;
   overflow: hidden;
   position: relative;
-  border-radius: 4px;
   margin-bottom: 20px;
   background: #fff;
-  max-width: 700px;
+  border-radius: 3px;
 
   > span {
     position: absolute;
@@ -29,7 +28,7 @@ const Tweet = styled.div`
 `;
 
 const MessageContent = styled.div`
-  margin: 10px 0;
+  margin: 5px 0 10px 0;
 `;
 
 const User = styled.div`
@@ -77,29 +76,33 @@ class TwitterMessage extends Component {
     );
   }
 
-  renderCounts(timeline) {
+  renderCounts(twitterData) {
     return (
       <Counts>
         <span>
-          <Icon icon="chatbubble" /> Reply • {timeline.replyCount}
+          <Icon icon="chatbubble" /> Reply • {twitterData.reply_count || 0}
         </span>
         <span>
-          <Icon icon="loop" /> Retweet • {timeline.retweetCount}
+          <Icon icon="loop" /> Retweet • {twitterData.retweet_count || 0}
         </span>
         <span>
-          <Icon icon="heart" /> Favorite • {timeline.favoriteCount}
+          <Icon icon="heart" /> Favorite • {twitterData.favorite_count || 0}
+        </span>
+        <span>
+          <Icon icon="quote" /> Quote • {twitterData.quote_count || 0}
         </span>
       </Counts>
     );
   }
 
-  renderReply(timeline) {
-    const inReplyStatus = timeline.inReplyToStatusId;
+  renderReply(twitterData) {
+    const inReplyStatus = twitterData.in_reply_to_status_id;
 
     if (inReplyStatus) {
       return (
         <Reply>
-          Replying to {this.renderTwitterLink(timeline.inReplyToScreenName)}
+          Replying to{' '}
+          {this.renderTwitterLink(twitterData.in_reply_to_screen_name)}
         </Reply>
       );
     }
@@ -109,12 +112,15 @@ class TwitterMessage extends Component {
 
   render() {
     const { message } = this.props;
+    console.log(message);
+
     const customer = message.customer || {};
     const twitterCustomer = customer.twitterData;
     const twitterName = twitterCustomer.name;
-    const twitterUsername = twitterCustomer.screenName;
-    const timeline = message.twitterData && message.twitterData.timeline;
-    const messageDate = message.createdAt;
+    const twitterUsername =
+      twitterCustomer.screen_name || twitterCustomer.screenName;
+    const twitterData = message.twitterData;
+    const messageDate = twitterData.created_at;
 
     return (
       <Tweet>
@@ -125,18 +131,15 @@ class TwitterMessage extends Component {
             • @{twitterUsername}
             <Tip text={moment(messageDate).format('lll')}>
               <time>
-                {' '}
                 {moment(messageDate)
                   .subtract(2, 'minutes')
                   .fromNow()}
               </time>
             </Tip>
           </User>
-          {this.renderReply(timeline)}
-
+          {this.renderReply(twitterData)}
           <MessageContent>{message.content}</MessageContent>
-
-          {this.renderCounts(timeline)}
+          {this.renderCounts(twitterData)}
         </div>
       </Tweet>
     );

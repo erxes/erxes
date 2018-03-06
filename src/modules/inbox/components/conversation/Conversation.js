@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { Spinner } from 'modules/common/components';
 import Message from './Message';
-import TwitterMessage from './TwitterMessage';
+import { TwitterConversation } from './TwitterConversation';
 
 const propTypes = {
   conversation: PropTypes.object,
@@ -86,33 +86,19 @@ class Conversation extends Component {
     let tempId;
 
     messages.forEach(message => {
-      const isTweet =
-        message.twitterData && !message.twitterData.isDirectMessage;
-
-      if (isTweet) {
-        rows.push(
-          <TwitterMessage
-            message={message}
-            staff={!message.customerId}
-            scrollBottom={scrollBottom}
-            key={message._id}
-          />
-        );
-      } else {
-        rows.push(
-          <Message
-            isSameUser={
-              message.userId
-                ? message.userId === tempId
-                : message.customerId === tempId
-            }
-            message={message}
-            staff={!message.customerId}
-            key={message._id}
-            scrollBottom={scrollBottom}
-          />
-        );
-      }
+      rows.push(
+        <Message
+          isSameUser={
+            message.userId
+              ? message.userId === tempId
+              : message.customerId === tempId
+          }
+          message={message}
+          staff={!message.customerId}
+          key={message._id}
+          scrollBottom={scrollBottom}
+        />
+      );
 
       tempId = message.userId ? message.userId : message.customerId;
     });
@@ -120,10 +106,27 @@ class Conversation extends Component {
     return rows;
   }
 
+  renderConversation() {
+    const { conversation, scrollBottom } = this.props;
+    const isTweet =
+      conversation.twitterData && !conversation.twitterData.isDirectMessage;
+
+    if (isTweet) {
+      return (
+        <TwitterConversation
+          conversation={conversation}
+          scrollBottom={scrollBottom}
+        />
+      );
+    }
+
+    return this.renderMessages();
+  }
+
   render() {
     return (
       <Wrapper>
-        {this.renderMessages()}
+        {this.renderConversation()}
         {this.renderPreview()}
       </Wrapper>
     );
