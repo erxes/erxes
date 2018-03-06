@@ -181,7 +181,8 @@ class ManageIntegrationForm extends Component {
           </Column>
           <Column>
             <Title full>
-              {currentChannel.name}&apos;s integration
+              {currentChannel.name}
+              {__('`s integration')}
               <span>({selectedIntegrations.length})</span>
             </Title>
             <ul>

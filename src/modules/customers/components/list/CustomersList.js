@@ -159,7 +159,7 @@ class CustomersList extends React.Component {
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
-              Customize <Icon icon="ios-arrow-down" />
+              {__('Customize ')} <Icon icon="ios-arrow-down" />
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>

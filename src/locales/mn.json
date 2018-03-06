@@ -403,9 +403,9 @@
   "Icon": "Тэмдэг",
   "draft": "түр хадгалах",
   "Twitter Username": "Твиттер -т нэвтрэх нэр",
-  "LinkedIn": "LinkedIn",
-  "Youtube": "Youtube",
-  "Github": "Github",
+  "LinkedIn": "Линкэдин",
+  "Youtube": "Юүтүб",
+  "Github": "Гитхаб",
   "Edit response": "Хариултыг засах",
   "To send your message press [Enter] and [Shift + Enter] to add a new line ...":
     "Тэмдэглэлээ илгээхийн тулд [Enter] шинэ мөр нэмэх бол [Shift + Enter] дарна уу ...",
@@ -508,5 +508,7 @@
   "There is no message.": "Зурвас олдсонгүй.",
   "per page": "хуудас бүрт",
   "[view]": "[харах]",
-  "Go to twitter": "Твиттерлүү үсрэх"
+  "Go to twitter": "Твиттерлүү үсрэх",
+  "Build": "Угсрах",
+  "`s integration": "-ийн интеграцууд"
 }

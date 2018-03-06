@@ -299,7 +299,7 @@ class Manage extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         rightSidebar={preview}
-        actionBar={<Wrapper.ActionBar left="Build" />}
+        actionBar={<Wrapper.ActionBar left={__('Build')} />}
         footer={footerActions}
         content={this.renderForm()}
       />

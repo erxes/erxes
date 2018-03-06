@@ -39,10 +39,11 @@ class List extends React.Component {
 
   renderTagger() {
     const { bulk } = this.props;
+    const { __ } = this.context;
 
     const tagButton = (
       <Button btnStyle="simple" size="small">
-        Tag <Icon icon="ios-arrow-down" />
+        {__('Tag')} <Icon icon="ios-arrow-down" />
       </Button>
     );
 
@@ -73,7 +74,7 @@ class List extends React.Component {
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="plus">
-            New message <Icon icon="chevron-down" />
+            {__('New message')} <Icon icon="chevron-down" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>

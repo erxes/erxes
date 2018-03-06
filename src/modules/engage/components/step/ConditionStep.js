@@ -51,7 +51,6 @@ class ConditionStep extends Component {
   }
 
   renderRule(rule) {
-    const { __ } = this.context;
     const remove = () => {
       let rules = this.state.rules;
 
@@ -93,7 +92,7 @@ class ConditionStep extends Component {
           >
             {RULE_CONDITIONS[rule.kind].map((cond, index) => (
               <option key={index} value={cond.value}>
-                {cond.text ? __(cond.text) : cond.text}
+                {cond.text}
               </option>
             ))}
           </FormControl>
@@ -115,7 +114,6 @@ class ConditionStep extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     return (
       <FlexPad overflow="auto" direction="column">
         <FormGroup>
@@ -123,7 +121,7 @@ class ConditionStep extends Component {
           <FormControl componentClass="select" onChange={this.addRule}>
             {VISITOR_AUDIENCE_RULES.map((rule, index) => (
               <option key={index} value={rule.value}>
-                {rule.text ? __(rule.text) : rule.text}
+                {rule.text}
               </option>
             ))}
           </FormControl>
