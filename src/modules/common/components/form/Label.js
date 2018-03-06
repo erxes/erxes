@@ -10,7 +10,6 @@ const propTypes = {
 function ControlLabel(props, { __ }) {
   const { children, ignoreTrans } = props;
 
-  console.log(children);
   return <Label>{ignoreTrans ? children : __(children)}</Label>;
 }
 
