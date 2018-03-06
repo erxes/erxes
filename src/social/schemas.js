@@ -45,6 +45,7 @@ export const TwitterResponseSchema = mongoose.Schema(
     // media content
     entities: field({ type: Object, optional: true }),
     extended_entities: field({ type: Object, optional: true }),
+    extended_tweet: field({ type: Object, optional: true }),
 
     // direct message
     sender_id: field({ type: Number }),

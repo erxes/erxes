@@ -19,6 +19,7 @@ const extractConversationData = ({ data, isDirectMessage, timeline = {}, directM
   isDirectMessage,
   entities: data.entities,
   extended_entities: data.extended_entities,
+  extended_tweet: data.extended_tweet,
   ...timeline,
   ...directMessage,
 });
