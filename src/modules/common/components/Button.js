@@ -131,7 +131,7 @@ function Button({ ...props }, { __ }) {
 
   let content = props.children;
 
-  if (typeof content === 'string') {
+  if (typeof content === 'string' && __) {
     content = __(content);
   }
 

@@ -125,7 +125,7 @@ class Configs extends Component {
             <SubHeading>{__('Online messaging')}</SubHeading>
 
             <FormGroup>
-              <ControlLabel>{__('Welcome message')}</ControlLabel>
+              <ControlLabel>Welcome message</ControlLabel>
 
               <FormControl
                 componentClass="textarea"
@@ -202,7 +202,7 @@ class Configs extends Component {
               />
             </FormGroup>
 
-            <SubHeading>Other configs</SubHeading>
+            <SubHeading>{__('Other configs')}</SubHeading>
 
             <FormGroup>
               <ControlLabel>Notify customer</ControlLabel>

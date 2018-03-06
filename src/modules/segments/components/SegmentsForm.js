@@ -246,7 +246,7 @@ class SegmentsForm extends Component {
 
     const breadcrumb = [
       { title: __('Segments'), link: `/segments/${contentType}` },
-      { title: segment ? 'Edit segment' : 'New segment' }
+      { title: segment ? __('Edit segment') : __('New segment') }
     ];
 
     const content = (

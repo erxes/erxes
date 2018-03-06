@@ -69,7 +69,6 @@ class ConfirmDialog extends React.Component {
           <IconWrapper>
             <Icon icon="ios-information-outline" />
           </IconWrapper>
-          confirmation
           {confirmation}
         </ModalBody>
         <ModalFooter>
