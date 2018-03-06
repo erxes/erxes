@@ -19,9 +19,10 @@ class AddConditionButton extends Component {
   addCondition(items, id) {
     const [type] = Object.keys(types);
     const [operator] = operators[type];
+    const title = items.find(item => item._id === id).title;
 
     this.props.addCondition({
-      field: id,
+      field: title,
       value: '',
       operator: operator.value,
       dateUnit: dateUnits.days,

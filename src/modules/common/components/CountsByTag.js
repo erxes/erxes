@@ -14,12 +14,16 @@ CountsByTag.propTypes = {
   loading: PropTypes.bool.isRequired
 };
 
-function CountsByTag({ history, tags, counts, manageUrl, loading }) {
+CountsByTag.contextTypes = {
+  __: PropTypes.func
+};
+
+function CountsByTag({ history, tags, counts, manageUrl, loading }, { __ }) {
   const { Section } = Wrapper.Sidebar;
 
   return (
     <Section>
-      <Section.Title>Filter by tags</Section.Title>
+      <Section.Title>{__('Filter by tags')}</Section.Title>
 
       <Section.QuickButtons>
         <Link to={manageUrl}>

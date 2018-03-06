@@ -52,6 +52,7 @@ class Participators extends Component {
     const { participatedUsers, limit } = this.props;
     const { toggle } = this.state;
     const length = participatedUsers.length;
+    const { __ } = this.context;
 
     const Trigger = user => (
       <Tip key={user._id} placement="top" text={user.details.fullName || ''}>
@@ -63,7 +64,7 @@ class Participators extends Component {
     );
 
     const Tooltip = (
-      <Tip placement="top" text="View more">
+      <Tip placement="top" text={__('View more')}>
         <More>{`+${length - limit}`}</More>
       </Tip>
     );
@@ -82,6 +83,10 @@ class Participators extends Component {
 Participators.propTypes = {
   participatedUsers: PropTypes.array.isRequired,
   limit: PropTypes.number
+};
+
+Participators.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Participators;

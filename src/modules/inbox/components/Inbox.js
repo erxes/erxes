@@ -99,6 +99,7 @@ class Inbox extends Component {
       refetch,
       loading
     } = this.props;
+    const { __ } = this.context;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];
@@ -144,7 +145,7 @@ class Inbox extends Component {
 
     const actionBarLeft = (
       <ActionBarLeft>
-        <AssignText>Assign to:</AssignText>
+        <AssignText>{__('Assign to')}:</AssignText>
         <AssignBoxPopover
           targets={[currentConversation]}
           trigger={assignTrigger}
@@ -174,7 +175,7 @@ class Inbox extends Component {
       </ConversationWrapper>
     );
 
-    const breadcrumb = [{ title: 'Inbox' }];
+    const breadcrumb = [{ title: __('Inbox') }];
 
     return (
       <Wrapper
@@ -212,6 +213,10 @@ Inbox.propTypes = {
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
   loading: PropTypes.bool
+};
+
+Inbox.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Inbox;

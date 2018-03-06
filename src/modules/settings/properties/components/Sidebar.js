@@ -9,13 +9,18 @@ const propTypes = {
   currentType: PropTypes.string
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class Sidebar extends Component {
   renderSidebarHeader() {
+    const { __ } = this.context;
     const { Header } = LeftSidebar;
 
     return (
       <Header uppercase bold>
-        Properties
+        {__('Properties')}
       </Header>
     );
   }
@@ -30,6 +35,7 @@ class Sidebar extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <LeftSidebar full header={this.renderSidebarHeader()}>
         <List>
@@ -38,7 +44,7 @@ class Sidebar extends Component {
               className={this.getClassName('customer')}
               to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER}`}
             >
-              Customer Properties
+              {__('Customer Properties')}
             </Link>
           </li>
           <li>
@@ -46,7 +52,7 @@ class Sidebar extends Component {
               className={this.getClassName('company')}
               to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.COMPANY}`}
             >
-              Company Properties
+              {__('Company Properties')}
             </Link>
           </li>
         </List>
@@ -56,5 +62,6 @@ class Sidebar extends Component {
 }
 
 Sidebar.propTypes = propTypes;
+Sidebar.contextTypes = contextTypes;
 
 export default Sidebar;

@@ -81,7 +81,9 @@ const LabelStyled = styled.span`
   }
 `;
 
-function Label({ ...props }) {
+function Label(props, { __ }) {
+  const { ignoreTrans } = props;
+
   const updatedProps = {
     ...props,
     hasLightBackground: props.style
@@ -89,13 +91,18 @@ function Label({ ...props }) {
       : null
   };
 
-  return <LabelStyled {...updatedProps}>{props.children}</LabelStyled>;
+  return (
+    <LabelStyled {...updatedProps}>
+      {ignoreTrans ? props.children : __(props.children)}
+    </LabelStyled>
+  );
 }
 
 Label.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   shake: PropTypes.bool,
+  ignoreTrans: PropTypes.bool,
   style: PropTypes.object,
   lblStyle: PropTypes.oneOf([
     'default',
@@ -105,6 +112,10 @@ Label.propTypes = {
     'warning',
     'simple'
   ])
+};
+
+Label.contextTypes = {
+  __: PropTypes.func
 };
 
 Label.defaultProps = {

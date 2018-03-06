@@ -39,10 +39,11 @@ class List extends React.Component {
 
   renderTagger() {
     const { bulk } = this.props;
+    const { __ } = this.context;
 
     const tagButton = (
       <Button btnStyle="simple" size="small">
-        Tag <Icon icon="ios-arrow-down" />
+        {__('Tag')} <Icon icon="ios-arrow-down" />
       </Button>
     );
 
@@ -67,26 +68,29 @@ class List extends React.Component {
       refetch,
       loading
     } = this.props;
+    const { __ } = this.context;
 
     const actionBarRight = (
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="plus">
-            New message <Icon icon="chevron-down" />
+            {__('New message')} <Icon icon="chevron-down" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
           <li>
-            <Link to={'/engage/messages/create?kind=auto'}>Auto message</Link>
+            <Link to={'/engage/messages/create?kind=auto'}>
+              {__('Auto message')}
+            </Link>
           </li>
           <li>
             <Link to={'/engage/messages/create?kind=manual'}>
-              Manual message
+              {__('Manual message')}
             </Link>
           </li>
           <li>
             <Link to={'/engage/messages/create?kind=visitorAuto'}>
-              Visitor auto message
+              {__('Visitor auto message')}
             </Link>
           </li>
         </Dropdown.Menu>
@@ -103,16 +107,16 @@ class List extends React.Component {
           <thead>
             <tr>
               <th />
-              <th>Title</th>
-              <th>From</th>
-              <th>Status</th>
-              <th>Total</th>
-              <th>Sent</th>
-              <th>Failed</th>
-              <th>Type</th>
-              <th>Created date</th>
-              <th>Tags</th>
-              <th>Actions</th>
+              <th>{__('Title')}</th>
+              <th>{__('From')}</th>
+              <th>{__('Status')}</th>
+              <th>{__('Total')}</th>
+              <th>{__('Sent')}</th>
+              <th>{__('Failed')}</th>
+              <th>{__('Type')}</th>
+              <th>{__('Created date')}</th>
+              <th>{__('Tags')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -139,7 +143,7 @@ class List extends React.Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Engage' }]} />}
+        header={<Wrapper.Header breadcrumb={[{ title: __('Engage') }]} />}
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
@@ -158,5 +162,8 @@ class List extends React.Component {
 }
 
 List.propTypes = propTypes;
+List.contextTypes = {
+  __: PropTypes.func
+};
 
 export default List;

@@ -21,6 +21,10 @@ const propTypes = {
   updatePropertyVisible: PropTypes.func.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class PropertyRow extends React.Component {
   constructor(props) {
     super(props);
@@ -105,6 +109,7 @@ class PropertyRow extends React.Component {
   }
 
   renderTable(fields) {
+    const { __ } = this.context;
     if (fields.length === 0) {
       return (
         <EmptyState
@@ -118,9 +123,9 @@ class PropertyRow extends React.Component {
       <Table hover>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Last Updated By</th>
-            <th>Visible</th>
+            <th>{__('Name')}</th>
+            <th>{__('Last Updated By')}</th>
+            <th>{__('Visible')}</th>
             <th />
           </tr>
         </thead>
@@ -157,5 +162,6 @@ class PropertyRow extends React.Component {
 }
 
 PropertyRow.propTypes = propTypes;
+PropertyRow.contextTypes = contextTypes;
 
 export default PropertyRow;

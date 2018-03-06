@@ -28,10 +28,11 @@ class LeftSidebar extends ManageGroups {
     const { company } = this.props;
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
+    const { __ } = this.context;
 
     return (
       <Section>
-        <Title>Customers</Title>
+        <Title>{__('Customers')}</Title>
 
         <QuickButtons>
           <ModalTrigger
@@ -48,7 +49,7 @@ class LeftSidebar extends ManageGroups {
               <Link to={`/customers/details/${customer._id}`}>
                 <Icon icon="android-arrow-forward" />
               </Link>
-              <span>Name: </span>
+              <span>{__('Name')}: </span>
               <span>{this.renderFullName(customer)}</span>
             </CustomerWrapper>
           ))}
@@ -99,5 +100,8 @@ class LeftSidebar extends ManageGroups {
 }
 
 LeftSidebar.propTypes = propTypes;
+LeftSidebar.contextTypes = {
+  __: PropTypes.func
+};
 
 export default LeftSidebar;
