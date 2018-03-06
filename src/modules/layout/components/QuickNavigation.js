@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Dropdown, MenuItem, DropdownButton } from 'react-bootstrap';
+import { Dropdown, MenuItem } from 'react-bootstrap';
 import styled from 'styled-components';
 import { NameCard, DropdownToggle, Icon } from 'modules/common/components';
 import { UserHelper } from '../styles';
@@ -35,16 +35,15 @@ const QuickNavigation = (
   return (
     <nav>
       <NavItem>
-        <DropdownButton
-          bsStyle="default"
-          title={locale || 'EN'}
-          noCaret
-          onSelect={e => selectLang(e)}
-          id="dropdown-no-caret"
-        >
-          <MenuItem eventKey="en">en</MenuItem>
-          <MenuItem eventKey="mn">mn</MenuItem>
-        </DropdownButton>
+        <Dropdown id="dropdown-lang" onSelect={e => selectLang(e)}>
+          <DropdownToggle bsRole="toggle">
+            {locale || 'EN'} <Icon icon="chevron-down" size={10} />
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <MenuItem eventKey="en">en</MenuItem>
+            <MenuItem eventKey="mn">mn</MenuItem>
+          </Dropdown.Menu>
+        </Dropdown>
       </NavItem>
       <NavItem>
         <Widget />
