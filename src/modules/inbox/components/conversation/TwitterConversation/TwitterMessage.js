@@ -109,6 +109,8 @@ class TwitterMessage extends Component {
 
   render() {
     const { message } = this.props;
+    console.log(message);
+
     const customer = message.customer || {};
     const twitterCustomer = customer.twitterData;
     const twitterName = twitterCustomer.name;
