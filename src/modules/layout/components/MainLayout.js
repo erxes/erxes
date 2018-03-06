@@ -122,11 +122,13 @@ class MainLayout extends React.Component {
 
   getLang() {
     const locale = localStorage.getItem('locale');
+
     this.selectLang(locale);
   }
 
   selectLang(locale) {
     localStorage.setItem('locale', locale || 'en');
+
     this.setState({
       locale: locale || 'en',
       messages: messages[locale || 'en']
