@@ -273,6 +273,11 @@ const SidebarCounter = styled.span`
     padding: 0;
     color: ${colors.linkPrimary};
   }
+
+  span {
+    float: right;
+    margin-left: 5px;
+  }
 `;
 
 const FlexContent = styled.div`

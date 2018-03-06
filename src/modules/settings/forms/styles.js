@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors, dimensions } from '../common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const colorLightPurle = '#ece6f8';
@@ -119,12 +119,6 @@ const Label = styled.label`
   font-weight: 500;
 `;
 
-const InputDescription = styled.span`
-  display: block;
-  font-size: 12px;
-  color: ${colors.colorCoreGray};
-`;
-
 export {
   ContentBox,
   PreviewForm,
@@ -132,6 +126,5 @@ export {
   DragableItem,
   FieldItem,
   Label,
-  InputDescription,
   DragHandler
 };

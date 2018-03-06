@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Sidebar } from 'modules/layout/components';
+import { IntegrationIcon } from 'modules/common/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
 const propTypes = {
@@ -61,7 +62,15 @@ class ConversationDetails extends Component {
           </li>
           <li>
             Integration
-            <SidebarCounter>{integration.kind}</SidebarCounter>
+            <SidebarCounter>
+              {integration.kind}
+              <IntegrationIcon
+                integration={integration}
+                customer={conversation.customer}
+                facebookData={conversation.facebookData}
+                twitterData={conversation.twitterData}
+              />
+            </SidebarCounter>
           </li>
           <li>
             Conversations
