@@ -78,7 +78,7 @@ class Properties extends Component {
     }
 
     const addGroup = <MenuItem>Add group</MenuItem>;
-    const addField = <MenuItem>Add Field</MenuItem>;
+    const addField = <MenuItem>Add a new property</MenuItem>;
 
     return (
       <Dropdown id="dropdown-knowledgebase" className="quick-button" pullRight>

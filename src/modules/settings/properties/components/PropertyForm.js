@@ -201,6 +201,37 @@ class PropertyForm extends Component {
     return (
       <form onSubmit={this.onSubmit}>
         <FormGroup>
+          <ControlLabel htmlFor="text">Name:</ControlLabel>
+          <FormControl type="text" id="text" defaultValue={field.text || ''} />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel htmlFor="description">Description:</ControlLabel>
+          <FormControl
+            id="description"
+            componentClass="textarea"
+            defaultValue={field.description || ''}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel htmlFor="description">Group:</ControlLabel>
+          <FormControl
+            id="groupId"
+            componentClass="select"
+            defaultValue={field.groupId || groups[0]._id}
+          >
+            {groups.map(group => {
+              return (
+                <option key={group._id} value={group._id}>
+                  {group.name}
+                </option>
+              );
+            })}
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel htmlFor="type">Type:</ControlLabel>
 
           <FormControl
@@ -230,37 +261,6 @@ class PropertyForm extends Component {
             <option value="email">Email</option>
             <option value="number">Number</option>
             <option value="date">Date</option>
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel htmlFor="text">Text:</ControlLabel>
-          <FormControl type="text" id="text" defaultValue={field.text || ''} />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel htmlFor="description">Description:</ControlLabel>
-          <FormControl
-            id="description"
-            componentClass="textarea"
-            defaultValue={field.description || ''}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel htmlFor="description">Group:</ControlLabel>
-          <FormControl
-            id="groupId"
-            componentClass="select"
-            defaultValue={field.groupId || groups[0]._id}
-          >
-            {groups.map(group => {
-              return (
-                <option key={group._id} value={group._id}>
-                  {group.name}
-                </option>
-              );
-            })}
           </FormControl>
         </FormGroup>
 
