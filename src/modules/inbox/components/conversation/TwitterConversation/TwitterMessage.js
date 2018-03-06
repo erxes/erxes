@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import moment from 'moment';
 import { colors } from 'modules/common/styles';
 import { NameCard, Tip, Icon } from 'modules/common/components';
+import { TweetContent } from './';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
@@ -25,10 +26,6 @@ const Tweet = styled.div`
     left: 20px;
     top: 20px;
   }
-`;
-
-const MessageContent = styled.div`
-  margin: 5px 0 10px 0;
 `;
 
 const User = styled.div`
@@ -112,8 +109,6 @@ class TwitterMessage extends Component {
 
   render() {
     const { message } = this.props;
-    console.log(message);
-
     const customer = message.customer || {};
     const twitterCustomer = customer.twitterData;
     const twitterName = twitterCustomer.name;
@@ -138,7 +133,10 @@ class TwitterMessage extends Component {
             </Tip>
           </User>
           {this.renderReply(twitterData)}
-          <MessageContent>{message.content}</MessageContent>
+          <TweetContent
+            content={message.content}
+            entities={twitterData.entities}
+          />
           {this.renderCounts(twitterData)}
         </div>
       </Tweet>
