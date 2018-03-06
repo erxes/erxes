@@ -8,7 +8,8 @@ import {
   Table,
   FormControl,
   Tip,
-  ActionButtons
+  ActionButtons,
+  ShowContent
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/Sidebar';
@@ -44,6 +45,7 @@ class PermissionList extends Component {
 
   renderObjects() {
     const { permissions, remove } = this.props;
+    const { can } = this.context;
 
     return permissions.map(object => {
       return (
@@ -59,15 +61,17 @@ class PermissionList extends Component {
             />
           </td>
           <td>
-            <ActionButtons>
-              <Tip text="Delete">
-                <Button
-                  btnStyle="link"
-                  onClick={remove.bind(null, object._id)}
-                  icon="close"
-                />
-              </Tip>
-            </ActionButtons>
+            <ShowContent show={can('configPermission')}>
+              <ActionButtons>
+                <Tip text="Delete">
+                  <Button
+                    btnStyle="link"
+                    onClick={remove.bind(null, object._id)}
+                    icon="close"
+                  />
+                </Tip>
+              </ActionButtons>
+            </ShowContent>
           </td>
         </tr>
       );

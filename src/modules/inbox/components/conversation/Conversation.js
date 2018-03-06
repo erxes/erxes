@@ -14,7 +14,6 @@ const propTypes = {
 const Wrapper = styled.div`
   padding: 20px;
   overflow: hidden;
-
   > div:first-child {
     margin-top: 0;
   }
@@ -31,7 +30,6 @@ const Preview = styled.div`
   box-shadow: 0 1px 1px 0 ${colors.darkShadow};
   border-radius: 7px;
   position: relative;
-
   > div {
     position: absolute;
     left: 50%;
@@ -39,7 +37,6 @@ const Preview = styled.div`
     margin-left: -12px;
     margin-top: -12px;
   }
-
   img {
     max-width: 100%;
     opacity: 0.7;
@@ -90,92 +87,23 @@ class Conversation extends Component {
 
     let tempId;
 
-    const childSelector = (fbData, parentId) => {
-      return fbData && fbData.parentId && fbData.parentId === parentId;
-    };
+    messages.forEach(message => {
+      rows.push(
+        <Message
+          isSameUser={
+            message.userId
+              ? message.userId === tempId
+              : message.customerId === tempId
+          }
+          message={message}
+          staff={!message.customerId}
+          key={message._id}
+          scrollBottom={scrollBottom}
+        />
+      );
 
-    const reactionCounts = reactions => {
-      if (reactions) {
-        const keys = Object.keys(reactions);
-        const data = {};
-
-        keys.forEach(key => {
-          if (reactions[key]) data[key] = reactions[key].length;
-        });
-      }
-
-      return null;
-    };
-
-    const renderMessages = (data, isFeed) => {
-      data.forEach(message => {
-        if (isFeed && message.facebookData) {
-          reactionCounts(message.facebookData.reactions);
-        }
-
-        rows.push(
-          <Message
-            isSameUser={
-              message.userId
-                ? message.userId === tempId
-                : message.customerId === tempId
-            }
-            message={message}
-            staff={!message.customerId}
-            key={message._id}
-            scrollBottom={scrollBottom}
-          />
-        );
-
-        tempId = message.userId ? message.userId : message.customerId;
-
-        if (isFeed) {
-          const childComments = messages.filter(msg => {
-            return (
-              message.facebookData &&
-              childSelector(msg.facebookData, message.facebookData.commentId)
-            );
-          });
-
-          renderMessages(childComments, false);
-        }
-      });
-    };
-
-    if (
-      conversation.integration &&
-      conversation.integration.kind === 'facebook' &&
-      conversation.facebookData &&
-      conversation.facebookData.kind === 'feed'
-    ) {
-      const post = messages.find(msg => {
-        const fbData = msg.facebookData;
-        return (
-          (fbData.postId === conversation.postId && fbData.item === 'post') ||
-          'status'
-        );
-      });
-
-      if (post) {
-        rows.push(
-          <Message
-            message={post}
-            staff={!post.customerId}
-            key={post._id}
-            scrollBottom={scrollBottom}
-          />
-        );
-      }
-
-      const postComments = messages.filter(msg => {
-        const fbData = msg.facebookData || {};
-        return fbData.postId === fbData.parentId || msg.userId !== null;
-      });
-
-      renderMessages(postComments, true);
-    } else {
-      renderMessages(messages, false);
-    }
+      tempId = message.userId ? message.userId : message.customerId;
+    });
 
     return (
       <Wrapper>
