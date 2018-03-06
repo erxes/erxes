@@ -88,7 +88,7 @@ class ArticleRow extends Component {
             <AuthorName>
               {user.details.fullName || user.username || user.email}
             </AuthorName>
-            Created {moment(article.createdDate).format('ll')}
+            {__('Created')} {moment(article.createdDate).format('ll')}
           </ArticleAuthor>
         </ArticleColumn>
         <ActionButtons>
