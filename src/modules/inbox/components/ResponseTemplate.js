@@ -197,7 +197,7 @@ class ResponseTemplate extends Component {
           ref="overlay"
         >
           <Button btnStyle="link">
-            <Tip text="Response template">
+            <Tip text={__('Response template')}>
               <Icon icon="clipboard" size={17} />
             </Tip>
           </Button>
