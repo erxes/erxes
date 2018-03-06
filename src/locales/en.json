@@ -507,5 +507,8 @@
   "Go to twitter": "Go to twitter",
   "Build": "Build",
   "`s integration": "`s integration",
-  "Created": "Created"
+  "Created": "Created",
+  "Email templates:": "Email templates:",
+  "Content:": "Content:",
+  "Parent segment conditions": "Parent segment conditions"
 }

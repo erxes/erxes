@@ -113,7 +113,7 @@ class Condition extends Component {
 
     return (
       <ConditionItem>
-        <ControlLabel>{condition.field}</ControlLabel>
+        <ControlLabel ignoreTrans>{condition.field}</ControlLabel>
         <br />
         <FlexContent>
           <FlexItem>

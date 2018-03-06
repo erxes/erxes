@@ -511,5 +511,8 @@
   "Go to twitter": "Твиттерлүү үсрэх",
   "Build": "Угсрах",
   "`s integration": "-ийн интеграцууд",
-  "Created": "Үүссэн"
+  "Created": "Үүссэн",
+  "Email templates:": "Имэйл тэмплэйт:",
+  "Content:": "Агуулга:",
+  "Parent segment conditions": "Эцэг сегментийн нөхцөлүүд"
 }
