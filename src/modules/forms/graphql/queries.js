@@ -16,6 +16,8 @@ const integrations = `
         _id
         title
         code
+        description
+        createdDate
       }
     }
   }

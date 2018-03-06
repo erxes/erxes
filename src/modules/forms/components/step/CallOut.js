@@ -21,27 +21,42 @@ const ImageContent = styled.div`
 `;
 
 const propTypes = {
-  kind: PropTypes.string,
-  changeState: PropTypes.func
+  integration: PropTypes.object
 };
 
 class CallOut extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      title: props.integration || {}
+    };
+
+    this.onChangeText = this.onChangeText.bind(this);
+  }
+
+  onChangeText() {
+    const value = document.getElementById('callout-title').value;
+    this.setState({ title: value });
+    console.log(this.state.title);
+  }
+
   render() {
+    const { integration } = this.props;
+    console.log(this.state.title);
     return (
       <FlexItem>
         <LeftItem>
-          <Title>Featured image</Title>
-          <ImageWrapper>
-            <ImageContent>
-              <Button btnStyle="warning">Upload</Button>
-            </ImageContent>
-          </ImageWrapper>
-
-          <Title>Callout text</Title>
-          <FormControl defaultValue="i'm callout text" />
+          <Title>Callout title</Title>
+          <FormControl
+            id="callout-title"
+            type="text"
+            defaultValue={integration.title}
+            onChange={this.onChangeText}
+          />
 
           <Title>Callout body</Title>
-          <FormControl defaultValue="i'm callout body" />
+          <FormControl defaultValue="Callout description here" />
 
           <Title>Callout button text</Title>
           <FormControl defaultValue="i'm callout button text" />
@@ -57,8 +72,15 @@ class CallOut extends Component {
             <span />
             <span />
           </div>
+
+          <Title>Featured image</Title>
+          <ImageWrapper>
+            <ImageContent>
+              <Button btnStyle="warning">Upload</Button>
+            </ImageContent>
+          </ImageWrapper>
         </LeftItem>
-        <Preview>right</Preview>
+        <Preview>{/* {haha} */}</Preview>
       </FlexItem>
     );
   }
