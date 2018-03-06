@@ -500,5 +500,8 @@
   "New message": "Шинэ зурвас",
   "Message": "Зурвас",
   "Merge Customers": "Хэрэглэгчдийг нэгтгэх",
-  "Other configs": "Бусад тохиргоо"
+  "Other configs": "Бусад тохиргоо",
+  "Assign": "Оноо",
+  "There is no message.": "Зурвас олдсонгүй.",
+  "per page": "хуудас бүрт"
 }
