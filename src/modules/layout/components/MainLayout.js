@@ -103,6 +103,20 @@ class MainLayout extends React.Component {
       history.push('/sign-in');
     }
 
+    //browser default form validation event listener
+    document.addEventListener(
+      'invalid',
+      (function() {
+        return function(e) {
+          //prevent the browser from showing default error hint
+          e.preventDefault();
+
+          e.target.classList.add('form-invalid');
+        };
+      })(),
+      true
+    );
+
     this.getLang();
   }
 
@@ -117,20 +131,6 @@ class MainLayout extends React.Component {
       locale: locale || 'en',
       messages: messages[locale || 'en']
     });
-
-    //browser default form validation event listener
-    document.addEventListener(
-      'invalid',
-      (function() {
-        return function(e) {
-          //prevent the browser from showing default error hint
-          e.preventDefault();
-
-          e.target.classList.add('form-invalid');
-        };
-      })(),
-      true
-    );
   }
 
   render() {

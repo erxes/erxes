@@ -180,7 +180,7 @@ class BasicInfo extends React.Component {
               <Aboutvalues>
                 {customer.email ||
                   this.getVisitorInfo(customer, 'email') || (
-                    <a onClick={this.toggleEditing}>Add Email</a>
+                    <a onClick={this.toggleEditing}>{__('Add Email')}</a>
                   )}
               </Aboutvalues>
             </li>
@@ -189,7 +189,7 @@ class BasicInfo extends React.Component {
               <Aboutvalues>
                 {customer.phone ||
                   this.getVisitorInfo(customer, 'phone') || (
-                    <a onClick={this.toggleEditing}>Add Phone</a>
+                    <a onClick={this.toggleEditing}>{__('Add Phone')}</a>
                   )}
               </Aboutvalues>
             </li>

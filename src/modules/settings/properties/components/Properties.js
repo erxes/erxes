@@ -111,7 +111,7 @@ class Properties extends Component {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Properties'), link: '/settings/properties' },
-      { title: `${currentType}` }
+      { title: __(currentType) }
     ];
 
     return (

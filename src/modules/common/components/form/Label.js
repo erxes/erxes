@@ -9,7 +9,13 @@ const propTypes = {
 
 function ControlLabel(props, { __ }) {
   const { children, ignoreTrans } = props;
-  return <Label>{ignoreTrans ? children : __(children)}</Label>;
+  const isArray = Array.isArray(children);
+
+  return (
+    <Label>
+      {ignoreTrans ? children : isArray ? __(children[0]) : __(children)}
+    </Label>
+  );
 }
 
 ControlLabel.propTypes = propTypes;

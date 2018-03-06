@@ -145,7 +145,7 @@ class Inbox extends Component {
 
     const actionBarLeft = (
       <ActionBarLeft>
-        <AssignText>Assign to:</AssignText>
+        <AssignText>{__('Assign to')}:</AssignText>
         <AssignBoxPopover
           targets={[currentConversation]}
           trigger={assignTrigger}

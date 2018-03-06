@@ -66,7 +66,7 @@ class UserCommonInfos extends Component {
         <ProfileColumn>
           <ColumnTitle>{__('Basics')}</ColumnTitle>
           <FormGroup>
-            <ControlLabel>{__('Photo')}</ControlLabel>
+            <ControlLabel>Photo</ControlLabel>
             <img
               alt="avatar"
               style={avatarPreviewStyle}
@@ -75,7 +75,7 @@ class UserCommonInfos extends Component {
             <FormControl type="file" onChange={this.handleImageChange} />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Name')}</ControlLabel>
+            <ControlLabel>Name</ControlLabel>
             <FormControl
               type="text"
               id="fullName"
@@ -112,7 +112,7 @@ class UserCommonInfos extends Component {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Position')}</ControlLabel>
+            <ControlLabel>Position</ControlLabel>
             <FormControl
               type="text"
               id="position"
@@ -120,7 +120,7 @@ class UserCommonInfos extends Component {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Location')}</ControlLabel>
+            <ControlLabel>Location</ControlLabel>
             <FormControl
               componentClass="select"
               defaultValue={details.location}

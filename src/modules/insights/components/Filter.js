@@ -113,7 +113,7 @@ class Filter extends React.Component {
 
     return (
       <InsightFilter>
-        <InsightTitle>Filter</InsightTitle>
+        <InsightTitle>{__('Filter')}</InsightTitle>
         <FlexRow>
           {this.renderIntegrations()}
           {this.renderBrands()}

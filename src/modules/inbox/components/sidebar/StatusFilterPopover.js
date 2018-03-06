@@ -56,9 +56,10 @@ class StatusFilterPopover extends Component {
 
   render() {
     const { counts } = this.props;
+    const { __ } = this.context;
 
     const popover = (
-      <Popover id="filter-popover" title="Filter by status">
+      <Popover id="filter-popover" title={__('Filter by status')}>
         <SidebarList>
           {this.renderSingleFilter(
             'unassigned',
@@ -98,7 +99,7 @@ class StatusFilterPopover extends Component {
         rootClose
       >
         <PopoverButton>
-          Status
+          {__('Status')}
           <Icon icon="ios-arrow-down" />
         </PopoverButton>
       </OverlayTrigger>

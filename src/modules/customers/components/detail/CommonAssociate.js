@@ -116,7 +116,7 @@ class CommonAssociate extends Component {
 
     const addTrigger = (
       <p>
-        {__('Don&apos;t see the result you&apos;re looking for? &ensp;')}
+        {__("Don't see the result you're looking for? ")}
         <a>{__(`Create a new ${title}`)}</a>
       </p>
     );

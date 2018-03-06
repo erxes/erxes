@@ -28,7 +28,10 @@ const NavItem = styled.div`
   vertical-align: middle;
 `;
 
-const QuickNavigation = ({ logout, currentUser, selectLang, locale }) => {
+const QuickNavigation = (
+  { logout, currentUser, selectLang, locale },
+  { __ }
+) => {
   return (
     <nav>
       <NavItem>
@@ -63,13 +66,15 @@ const QuickNavigation = ({ logout, currentUser, selectLang, locale }) => {
             </NameCardWrapper>
             <MenuItem divider />
             <li>
-              <Link to="/settings/profile">Edit Profile</Link>
+              <Link to="/settings/profile">{__('Edit Profile')}</Link>
             </li>
             <li>
-              <Link to="/settings/change-password">Change password</Link>
+              <Link to="/settings/change-password">
+                {__('Change password')}
+              </Link>
             </li>
             <MenuItem divider />
-            <MenuItem onClick={logout}>Sign out</MenuItem>
+            <MenuItem onClick={logout}>{__('Sign out')}</MenuItem>
           </Dropdown.Menu>
         </Dropdown>
       </NavItem>
@@ -86,7 +91,8 @@ QuickNavigation.propTypes = {
 
 QuickNavigation.contextTypes = {
   locale: PropTypes.string,
-  selectLang: PropTypes.func
+  selectLang: PropTypes.func,
+  __: PropTypes.func
 };
 
 export default QuickNavigation;

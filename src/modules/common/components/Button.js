@@ -128,25 +128,33 @@ const ButtonGroup = styled.div`
 
 function Button({ ...props }, { __ }) {
   const Element = props.href ? ButtonLink : ButtonStyled;
+  let children = [];
+
+  if (typeof props.children === 'object' && !isOnlyChildren(props.children)) {
+    children[0] = __(props.children[0]);
+    children[1] = props.children[1];
+  } else if (!React.isValidElement(props.children)) {
+    children = props.children && __(props.children);
+  }
 
   if (props.icon) {
-    let text = props.children;
-    if (typeof text === 'object') {
-      text = props.children[0];
-    }
     return (
       <Element {...props}>
         <Icon icon={props.icon} />
-        {props.children && <span>{__(text)}</span>}
+        <span>{children}</span>
       </Element>
     );
   }
 
-  return <Element {...props}>{props.children}</Element>;
+  return <Element {...props}>{children}</Element>;
 }
 
 function Group({ children }) {
   return <ButtonGroup>{children}</ButtonGroup>;
+}
+
+function isOnlyChildren(component) {
+  return React.isValidElement(component) && React.Children.only(component);
 }
 
 Button.Group = Group;

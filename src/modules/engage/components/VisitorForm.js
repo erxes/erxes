@@ -12,6 +12,10 @@ const propTypes = {
   message: PropTypes.object
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class VisitorForm extends FormBase {
   constructor(props) {
     super(props);
@@ -109,13 +113,14 @@ class VisitorForm extends FormBase {
       message,
       rules
     } = this.state;
+    const { __ } = this.context;
     const defaultMessengerValue = { messenger, fromUser, message, rules };
 
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={this.renderTitle()} />
         <TitleContainer>
-          <div>Title</div>
+          <div>{__('Title')}</div>
           <FormControl
             onChange={e => this.changeState('title', e.target.value)}
             defaultValue={this.state.title}
@@ -154,5 +159,6 @@ class VisitorForm extends FormBase {
 }
 
 VisitorForm.propTypes = propTypes;
+VisitorForm.contextTypes = contextTypes;
 
 export default VisitorForm;

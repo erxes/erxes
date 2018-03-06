@@ -26,7 +26,7 @@ function Status({ history, counts }, { __ }) {
               }
               to={`/engage?status=${status.key}`}
             >
-              {status.value}
+              {__(status.value)}
               <SidebarCounter>{counts[status.key]}</SidebarCounter>
             </Link>
           </li>

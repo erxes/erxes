@@ -30,11 +30,11 @@ class FormBase extends Component {
   renderTitle() {
     const { __ } = this.context;
     const { kind } = this.props;
-    let title = 'Visitor auto message';
+    let title = __('Visitor auto message');
     if (kind === 'auto') {
-      title = 'Auto message';
+      title = __('Auto message');
     } else if (kind === 'manual') {
-      title = 'Manual message';
+      title = __('Manual message');
     }
     return [{ title: __('Engage'), link: '/engage' }, { title: title }];
   }
