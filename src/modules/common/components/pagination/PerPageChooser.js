@@ -7,7 +7,7 @@ import { PerPageButton, Option } from './styles';
 import { Dropdown } from 'react-bootstrap';
 
 // per page chooser component
-const PerPageChooser = ({ history }) => {
+const PerPageChooser = ({ history }, { __ }) => {
   const currentPerPage = Number(router.getParam(history, 'perPage')) || 20;
 
   const onClick = perPage => {
@@ -26,7 +26,7 @@ const PerPageChooser = ({ history }) => {
     <Dropdown id="per-page-chooser" className="dropup">
       <DropdownToggle bsRole="toggle">
         <PerPageButton>
-          {currentPerPage} per page <Icon icon="ios-arrow-up" />
+          {currentPerPage} {__('per page')} <Icon icon="ios-arrow-up" />
         </PerPageButton>
       </DropdownToggle>
       <Dropdown.Menu>
@@ -41,6 +41,10 @@ const PerPageChooser = ({ history }) => {
 
 PerPageChooser.propTypes = {
   history: PropTypes.object.isRequired
+};
+
+PerPageChooser.contextTypes = {
+  __: PropTypes.func
 };
 
 export default withRouter(PerPageChooser);

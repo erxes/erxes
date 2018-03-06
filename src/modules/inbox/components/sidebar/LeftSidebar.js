@@ -48,9 +48,10 @@ class LeftSidebar extends Bulk {
   }
 
   renderTrigger(text) {
+    const { __ } = this.context;
     return (
       <PopoverButton>
-        {text} <Icon icon="ios-arrow-down" />
+        {__(text)} <Icon icon="ios-arrow-down" />
       </PopoverButton>
     );
   }
