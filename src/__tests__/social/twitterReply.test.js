@@ -68,7 +68,7 @@ describe('twitter integration', () => {
     });
 
     // action
-    await tweetReply(conversation, text);
+    await tweetReply({ conversation, text });
 
     // check twit post params
     expect(
@@ -82,11 +82,11 @@ describe('twitter integration', () => {
   test('timeline', async () => {
     const text = 'reply';
     const tweetIdStr = '242424242';
-    const screen_name = 'test';
+    const toScreenName = 'test';
 
     const customer = await customerFactory({
       twitterData: {
-        screen_name,
+        screen_name: toScreenName,
       },
     });
 
@@ -100,12 +100,12 @@ describe('twitter integration', () => {
     });
 
     // action
-    await tweetReply(conversation, text);
+    await tweetReply({ conversation, text, toId: tweetIdStr, toScreenName });
 
     // check twit post params
     expect(
       stub.calledWith(twit, 'statuses/update', {
-        status: `@${screen_name} ${text}`,
+        status: `@${toScreenName} ${text}`,
 
         // replying tweet id
         in_reply_to_status_id: tweetIdStr,

@@ -301,12 +301,16 @@ export const receiveTimelineInformation = async (integration, data) => {
 
   const twitterData = integration.twitterData.toJSON();
 
-  // listen for only participated tweets
-  const isParticipated = data.entities.user_mentions.find(
+  // listen for mentioned tweets or previousely saved tweets ================
+  const isMentioned = data.entities.user_mentions.find(
     mention => mention.id === twitterData.info.id,
   );
 
-  if (!isParticipated) {
+  const repliedMessage = await ConversationMessages.findOne({
+    'twitterData.id': data.in_reply_to_status_id,
+  });
+
+  if (!isMentioned && (data.in_reply_to_status_id && !repliedMessage)) {
     return null;
   }
 
@@ -333,7 +337,7 @@ export const TwitMap = {};
 /*
  * post reply to twitter
  */
-export const tweetReply = async (conversation, text) => {
+export const tweetReply = async ({ conversation, text, toId, toScreenName }) => {
   const twit = TwitMap[conversation.integrationId];
   const twitterData = conversation.twitterData;
 
@@ -345,13 +349,11 @@ export const tweetReply = async (conversation, text) => {
     });
   }
 
-  const customer = await Customers.findOne({ _id: conversation.customerId });
-
   // send reply
   return twitRequest.post(twit, 'statuses/update', {
-    status: `@${customer.twitterData.screen_name} ${text}`,
+    status: `@${toScreenName} ${text}`,
 
     // replying tweet id
-    in_reply_to_status_id: twitterData.id_str,
+    in_reply_to_status_id: toId,
   });
 };

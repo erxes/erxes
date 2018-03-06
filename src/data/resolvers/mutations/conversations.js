@@ -146,7 +146,13 @@ const conversationMutations = {
 
     // send reply to twitter
     if (kind === KIND_CHOICES.TWITTER) {
-      await tweetReply(conversation, strip(doc.content));
+      await tweetReply({
+        conversation,
+        text: strip(doc.content),
+        toId: doc.tweetReplyToId,
+        toScreenName: doc.tweetReplyToScreenName,
+      });
+
       return null;
     }
 

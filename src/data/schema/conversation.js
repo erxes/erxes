@@ -107,6 +107,8 @@ export const mutations = `
     mentionedUserIds: [String],
     internal: Boolean,
     attachments: [JSON],
+    tweetReplyToId: String,
+    tweetReplyToScreenName: String,
   ): ConversationMessage
 
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
