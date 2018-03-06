@@ -4,6 +4,7 @@ const currentUser = `
       _id
       username
       email
+      isOwner
       details {
         avatar
         fullName
