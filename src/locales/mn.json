@@ -130,7 +130,10 @@
   "New Password": "Шинэ нууц үг",
   "Re-type Password to confirm": "Нууц үгээ давтан оруулна уу",
   "Signature": "Гарын үсэг",
-  "simple": "Энгийн",
+  "simple": "энгийн",
+  "custom": "дурын",
+  "default": "үндсэн",
+  "primary": "гол",
   "Content": "Агуулга",
   "Save & draft": "Хадгалах & Түр хадгалах",
   "Save & live": "Хадгалах & Нийтлэх",
@@ -503,5 +506,7 @@
   "Other configs": "Бусад тохиргоо",
   "Assign": "Оноо",
   "There is no message.": "Зурвас олдсонгүй.",
-  "per page": "хуудас бүрт"
+  "per page": "хуудас бүрт",
+  "[view]": "[харах]",
+  "Go to twitter": "Твиттерлүү үсрэх"
 }

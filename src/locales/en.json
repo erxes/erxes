@@ -131,6 +131,9 @@
   "Re-type Password to confirm": "Re-type Password to confirm",
   "Signature": "Signature",
   "simple": "simple",
+  "custom": "custom",
+  "default": "default",
+  "primary": "primary",
   "Content": "Content",
   "Save & draft": "Save & draft",
   "Save & live": "Save & live",
@@ -499,5 +502,7 @@
   "Other configs": "Other configs",
   "Assign": "Assign",
   "There is no message.": "There is no message.",
-  "per page": "per page"
+  "per page": "per page",
+  "[view]": "[view]",
+  "Go to twitter": "Go to twitter"
 }

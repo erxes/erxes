@@ -28,7 +28,7 @@ function FacebookSection({ customer }, { __ }) {
               href={`http://facebook.com/${facebookData.id}`}
               rel="noopener noreferrer"
             >
-              [view]
+              {__('[view]')}
             </a>
           </SidebarCounter>
         </li>

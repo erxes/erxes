@@ -40,7 +40,6 @@ class List extends React.Component {
         <td>
           <Label
             lblStyle={emailConfig.type === 'simple' ? 'default' : 'primary'}
-            ignoreTrans
           >
             {emailConfig.type}
           </Label>

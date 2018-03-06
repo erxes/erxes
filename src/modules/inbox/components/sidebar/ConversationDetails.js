@@ -13,6 +13,7 @@ class ConversationDetails extends Component {
   renderFacebookPostUrl() {
     const conversation = this.props.conversation;
     const integration = conversation.integration || {};
+    const { __ } = this.context;
 
     if (
       integration.kind === 'facebook' &&
@@ -24,7 +25,7 @@ class ConversationDetails extends Component {
           Facebook URL
           <SidebarCounter>
             <a target="_blank" href={link} rel="noopener noreferrer">
-              [view]
+              {__('[view]')}
             </a>
           </SidebarCounter>
         </li>
