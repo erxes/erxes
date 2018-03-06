@@ -516,5 +516,7 @@
   "Content:": "Агуулга:",
   "Parent segment conditions": "Эцэг сегментийн нөхцөлүүд",
   "Response Templates": "Хариу үйлдлийн загварууд",
-  "Merge Companies": "Компаниудыг нэгтгэх"
+  "Merge Companies": "Компаниудыг нэгтгэх",
+  "Response template": "Хариу үйлдлийн загвар",
+  "Attach file": "Файл хавсаргах"
 }

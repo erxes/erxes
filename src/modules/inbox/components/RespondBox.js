@@ -225,7 +225,7 @@ class RespondBox extends Component {
         >
           {__('Internal note')}
         </FormControl>
-        <Tip text="Attach file">
+        <Tip text={__('Attach file')}>
           <label>
             <Icon icon="android-attach" size={17} />
             <input type="file" onChange={this.handleFileInput} />
