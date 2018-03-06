@@ -139,7 +139,7 @@ function Button({ ...props }, { __ }) {
     return (
       <Element {...props}>
         <Icon icon={props.icon} />
-        <span>{content}</span>
+        {content && <span>{content}</span>}
       </Element>
     );
   }

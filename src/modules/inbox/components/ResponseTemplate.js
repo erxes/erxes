@@ -143,7 +143,7 @@ class ResponseTemplate extends Component {
       <Popover
         className="popover-template"
         id="templates-popover"
-        title="Response Templates"
+        title={__('Response Templates')}
       >
         <PopoverHeader>
           <InlineHeader>
