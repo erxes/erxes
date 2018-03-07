@@ -69,6 +69,10 @@ class LeftSidebar extends React.Component {
                   {details.twitterUsername || 'N/A'}
                 </SidebarCounter>
               </li>
+              <li>
+                Mini-resume:
+                <SidebarCounter>{details.description || 'N/A'}</SidebarCounter>
+              </li>
             </SidebarList>
           </SidebarContent>
         </Section>
