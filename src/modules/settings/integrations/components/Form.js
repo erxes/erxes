@@ -186,6 +186,7 @@ class Form extends Common {
   }
 
   extraContent() {
+    const { __ } = this.context;
     const { integration = {} } = this.props;
     const formData = integration.formData || {};
 
@@ -196,7 +197,7 @@ class Form extends Common {
 
           <FormControl
             componentClass="select"
-            placeholder="Select Form"
+            placeholder={__('Select Form')}
             onChange={this.handleFormChange}
             defaultValue={integration.formId}
             id="formId"
@@ -265,6 +266,10 @@ class Form extends Common {
 Form.propTypes = {
   forms: PropTypes.array.isRequired, // eslint-disable-line
   loadTypes: PropTypes.array.isRequired // eslint-disable-line
+};
+
+Form.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Form;

@@ -25,7 +25,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class ManageIntegrationForm extends Component {
@@ -138,7 +139,10 @@ class ManageIntegrationForm extends Component {
       >
         <IntegrationName>{integration.name}</IntegrationName>
         <Tip text={this.getTypeName(integration)}>
-          <Label className={`label-${this.getTypeName(integration)} round`}>
+          <Label
+            className={`label-${this.getTypeName(integration)} round`}
+            ignoreTrans
+          >
             <Icon icon={this.getIconByKind(integration)} />
           </Label>
         </Tip>
@@ -166,6 +170,7 @@ class ManageIntegrationForm extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { allIntegrations, currentBrand } = this.props;
     const selectedIntegrations = this.state.integrations;
 
@@ -174,7 +179,7 @@ class ManageIntegrationForm extends Component {
         <Columns>
           <Column>
             <FormControl
-              placeholder="Type to search"
+              placeholder={__('Type to search')}
               onChange={e => this.search(e)}
             />
             <ul>

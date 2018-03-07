@@ -24,9 +24,10 @@ class ResponseReport extends CommonReport {
   }
 
   renderBreadCrumnb() {
+    const { __ } = this.context;
     return [
-      { title: 'Insights', link: '/insight' },
-      { title: 'Response Report' }
+      { title: __('Insights'), link: '/insight' },
+      { title: __('Response Report') }
     ];
   }
 

@@ -20,6 +20,10 @@ const propTypes = {
   save: PropTypes.func.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class BasicInfo extends React.Component {
   constructor(props) {
     super(props);
@@ -61,12 +65,13 @@ class BasicInfo extends React.Component {
   }
 
   renderInfo() {
+    const { __ } = this.context;
     const { company } = this.props;
     const { Title, QuickButtons } = Sidebar.Section;
 
     return (
       <Sidebar.Section>
-        <Title>Basic Info</Title>
+        <Title>{__('Basic Info')}</Title>
 
         <QuickButtons>
           <a tabIndex={0} onClick={this.toggleEditing}>
@@ -77,23 +82,23 @@ class BasicInfo extends React.Component {
         <SidebarContent>
           <SidebarList>
             <li>
-              Name:
+              {__('Name:')}
               <SidebarCounter>{company.name || 'N/A'}</SidebarCounter>
             </li>
             <li>
-              Size:
+              {__('Size:')}
               <SidebarCounter>{company.size || 'N/A'}</SidebarCounter>
             </li>
             <li>
-              Website:
+              {__('Website:')}
               <SidebarCounter>{company.website || 'N/A'}</SidebarCounter>
             </li>
             <li>
-              Industry:
+              {__('Industry:')}
               <SidebarCounter>{company.industry || 'N/A'}</SidebarCounter>
             </li>
             <li>
-              Plan:
+              {__('Plan:')}
               <SidebarCounter>{company.plan || 'N/A'}</SidebarCounter>
             </li>
           </SidebarList>
@@ -103,6 +108,7 @@ class BasicInfo extends React.Component {
   }
 
   renderForm() {
+    const { __ } = this.context;
     const { company } = this.props;
 
     return (
@@ -110,23 +116,23 @@ class BasicInfo extends React.Component {
         <SidebarContent>
           <br />
           <FormGroup>
-            Name:
+            {__('Name:')}
             <FormControl id="name" defaultValue={company.name || ''} />
           </FormGroup>
           <FormGroup>
-            Size:
+            {__('Size:')}
             <FormControl id="size" defaultValue={company.size || ''} />
           </FormGroup>
           <FormGroup>
-            Website:
+            {__('Website:')}
             <FormControl id="website" defaultValue={company.website || ''} />
           </FormGroup>
           <FormGroup>
-            Industry:
+            {__('Industry:')}
             <FormControl id="industry" defaultValue={company.industry || ''} />
           </FormGroup>
           <FormGroup>
-            Plan:
+            {__('Plan:')}
             <FormControl id="plan" defaultValue={company.plan || ''} />
           </FormGroup>
 
@@ -155,5 +161,6 @@ class BasicInfo extends React.Component {
 }
 
 BasicInfo.propTypes = propTypes;
+BasicInfo.contextTypes = contextTypes;
 
 export default BasicInfo;

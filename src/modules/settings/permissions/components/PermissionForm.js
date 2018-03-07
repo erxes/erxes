@@ -8,14 +8,18 @@ import {
   FormControl
 } from 'modules/common/components';
 import Select from 'react-select-plus';
-import { generateModuleParams, generateUsersParams } from './utils';
+import {
+  generateModuleParams,
+  generateUsersParams,
+  correctValue,
+  filterActions
+} from './utils';
 
 const propTypes = {
   save: PropTypes.func,
   modules: PropTypes.array.isRequired,
   actions: PropTypes.array.isRequired,
-  users: PropTypes.array.isRequired,
-  history: PropTypes.object
+  users: PropTypes.array.isRequired
 };
 
 const contextTypes = {
@@ -54,8 +58,10 @@ class PermissionForm extends Component {
   }
 
   changeModule(item) {
+    const val = correctValue(item);
+
     this.setState({
-      selectedModule: item ? item.value : '',
+      selectedModule: val,
       selectedActions: []
     });
   }
@@ -66,6 +72,7 @@ class PermissionForm extends Component {
 
   renderContent() {
     const { modules, actions, users } = this.props;
+    const { selectedModule, selectedActions, selectedUsers } = this.state;
 
     return (
       <div>
@@ -76,7 +83,7 @@ class PermissionForm extends Component {
           <Select
             placeholder="Choose module"
             options={generateModuleParams(modules)}
-            value={this.state.selectedModule}
+            value={selectedModule}
             onChange={items => {
               this.changeModule(items);
             }}
@@ -89,8 +96,8 @@ class PermissionForm extends Component {
 
           <Select
             placeholder="Choose actions"
-            options={generateModuleParams(actions)}
-            value={this.state.selectedActions}
+            options={filterActions(actions, selectedModule)}
+            value={selectedActions}
             onChange={items => {
               this.setState({ selectedActions: items });
             }}
@@ -105,7 +112,7 @@ class PermissionForm extends Component {
           <Select
             placeholder="Choose users"
             options={generateUsersParams(users)}
-            value={this.state.selectedUsers}
+            value={selectedUsers}
             onChange={items => {
               this.setState({ selectedUsers: items });
             }}

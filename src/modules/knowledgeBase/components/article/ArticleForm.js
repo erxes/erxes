@@ -22,7 +22,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class ArticleForm extends Component {
@@ -88,6 +89,7 @@ class ArticleForm extends Component {
   }
 
   renderContent(article) {
+    const { __ } = this.context;
     const props = {
       editorState: this.state.editorState,
       onChange: this.onChange,
@@ -127,7 +129,7 @@ class ArticleForm extends Component {
           <FormControl
             id="knowledgebase-article-status"
             componentClass="select"
-            placeholder="select"
+            placeholder={__('select')}
             onChange={e => {
               this.setState({ status: e.target.value });
             }}

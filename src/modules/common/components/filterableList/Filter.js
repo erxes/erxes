@@ -7,11 +7,11 @@ const propTypes = {
   onChange: PropTypes.func.isRequired
 };
 
-function Filter({ placeholder = 'Search ...', onChange }) {
+function Filter({ placeholder = 'Search ...', onChange }, { __ }) {
   return (
     <FormControl
       type="text"
-      placeholder={placeholder}
+      placeholder={__(placeholder)}
       onChange={onChange}
       autoFocus
     />
@@ -19,5 +19,8 @@ function Filter({ placeholder = 'Search ...', onChange }) {
 }
 
 Filter.propTypes = propTypes;
+Filter.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Filter;

@@ -123,17 +123,8 @@ export default withRouter(
       })
     }),
     graphql(gql(queries.modules), { name: 'modulesQuery' }),
+    graphql(gql(queries.actions), { name: 'actionsQuery' }),
     graphql(gql(userQueries.users), { name: 'usersQuery' }),
-    graphql(gql(queries.actions), {
-      name: 'actionsQuery',
-      options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only',
-        notifyOnNetworkStatusChange: true,
-        variables: {
-          moduleName: queryParams.module
-        }
-      })
-    }),
 
     // mutations
     graphql(gql(mutations.permissionAdd), {

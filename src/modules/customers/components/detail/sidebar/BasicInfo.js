@@ -91,26 +91,27 @@ class BasicInfo extends React.Component {
 
   renderForm() {
     const { customer } = this.props;
+    const { __ } = this.context;
 
     return (
       <SidebarContent>
         <br />
         <FormGroup>
-          First name:
+          {__('First name')}:
           <FormControl
             defaultValue={customer.firstName}
             onChange={e => this.handleChange(e, 'firstName')}
           />
         </FormGroup>
         <FormGroup>
-          Last name:
+          {__('Last name')}:
           <FormControl
             defaultValue={customer.lastName}
             onChange={e => this.handleChange(e, 'lastName')}
           />
         </FormGroup>
         <FormGroup>
-          Primary Email:
+          {__('Primary Email')}:
           <FormControl
             defaultValue={
               customer.email || this.getVisitorInfo(customer, 'email')
@@ -119,7 +120,7 @@ class BasicInfo extends React.Component {
           />
         </FormGroup>
         <FormGroup>
-          Phone:
+          {__('Phone')}:
           <FormControl
             defaultValue={
               customer.phone || this.getVisitorInfo(customer, 'phone')
@@ -146,15 +147,17 @@ class BasicInfo extends React.Component {
   }
 
   renderName(customer) {
+    const { __ } = this.context;
     if (customer.firstName || customer.lastName) {
       return (customer.firstName || '') + ' ' + (customer.lastName || '');
     }
-    return <a onClick={this.toggleEditing}>Edit name</a>;
+    return <a onClick={this.toggleEditing}>{__('Edit name')}</a>;
   }
 
   renderInfo() {
     const { customer } = this.props;
     const isUser = customer.isUser;
+    const { __ } = this.context;
 
     return (
       <SidebarContent>
@@ -173,20 +176,20 @@ class BasicInfo extends React.Component {
         <AboutWrapper>
           <AboutList>
             <li>
-              Email:
+              {__('Email')}:
               <Aboutvalues>
                 {customer.email ||
                   this.getVisitorInfo(customer, 'email') || (
-                    <a onClick={this.toggleEditing}>Add Email</a>
+                    <a onClick={this.toggleEditing}>{__('Add Email')}</a>
                   )}
               </Aboutvalues>
             </li>
             <li>
-              Phone:
+              {__('Phone')}:
               <Aboutvalues>
                 {customer.phone ||
                   this.getVisitorInfo(customer, 'phone') || (
-                    <a onClick={this.toggleEditing}>Add Phone</a>
+                    <a onClick={this.toggleEditing}>{__('Add Phone')}</a>
                   )}
               </Aboutvalues>
             </li>
@@ -206,5 +209,8 @@ class BasicInfo extends React.Component {
 }
 
 BasicInfo.propTypes = propTypes;
+BasicInfo.contextTypes = {
+  __: PropTypes.func
+};
 
 export default BasicInfo;

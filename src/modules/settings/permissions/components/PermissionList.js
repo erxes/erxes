@@ -20,7 +20,8 @@ import { router } from 'modules/common/utils';
 import {
   generateModuleParams,
   generateUsersParams,
-  correctValue
+  correctValue,
+  filterActions
 } from './utils';
 
 const propTypes = {
@@ -128,7 +129,7 @@ class PermissionList extends Component {
 
     const actionBarRight = can('configPermission') ? (
       <ModalTrigger title={title} size={'lg'} trigger={trigger}>
-        {this.renderForm({ modules, actions, users, history, save })}
+        {this.renderForm({ modules, actions, users, save })}
       </ModalTrigger>
     ) : null;
 
@@ -148,7 +149,7 @@ class PermissionList extends Component {
         <FilterWrapper>
           <Select
             placeholder="Choose action"
-            options={generateModuleParams(actions)}
+            options={filterActions(actions, queryParams.module)}
             value={queryParams.action}
             onChange={item => {
               router.setParams(history, { action: correctValue(item) });
@@ -180,13 +181,7 @@ class PermissionList extends Component {
         transparent={false}
         content={
           <DataWithLoader
-            data={this.renderContent({
-              modules,
-              actions,
-              users,
-              history,
-              save
-            })}
+            data={this.renderContent()}
             loading={isLoading}
             count={totalCount}
             emptyText="There is no data."

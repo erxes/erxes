@@ -15,3 +15,11 @@ export const generateUsersParams = users => {
 export const correctValue = data => {
   return data ? data.value : '';
 };
+
+export const filterActions = (actions, moduleName) => {
+  if (!moduleName) return [];
+
+  const moduleActions = actions.filter(a => a.module === moduleName);
+
+  return generateModuleParams(moduleActions);
+};

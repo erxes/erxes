@@ -37,6 +37,7 @@ class LeftSidebar extends ManageGroups {
   renderCompanies() {
     const { customer } = this.props;
     const { Section } = Sidebar;
+    const { __ } = this.context;
 
     const companyTrigger = (
       <a>
@@ -46,7 +47,7 @@ class LeftSidebar extends ManageGroups {
 
     return (
       <Section>
-        <Section.Title>Companies</Section.Title>
+        <Section.Title>{__('Companies')}</Section.Title>
         <Section.QuickButtons>
           <ModalTrigger title="Associate" trigger={companyTrigger} size="lg">
             <CompanyAssociate data={customer} />
@@ -76,10 +77,11 @@ class LeftSidebar extends ManageGroups {
   }
 
   renderDeviceProperty(text, value, secondValue, nowrap) {
+    const { __ } = this.context;
     if (value || secondValue) {
       return (
         <li>
-          {text}:
+          {__(text)}:
           {nowrap ? (
             <BlockValue>
               {value} {secondValue}
@@ -99,13 +101,14 @@ class LeftSidebar extends ManageGroups {
   renderDeviceProperties() {
     const { customer } = this.props;
     const { Section } = Sidebar;
+    const { __ } = this.context;
     const location = customer.location;
 
     if (location) {
       const ua = parse(location.userAgent || ' ');
       return (
         <Section>
-          <Section.Title>Device properties</Section.Title>
+          <Section.Title>{__('Device properties')}</Section.Title>
           <SidebarList className="no-link">
             {this.renderDeviceProperty('Location', location.country)}
             {this.renderDeviceProperty(
@@ -134,11 +137,12 @@ class LeftSidebar extends ManageGroups {
   renderOtherProperties() {
     const { otherProperties } = this.props;
     const { Section } = Sidebar;
+    const { __ } = this.context;
 
     if (otherProperties) {
       return (
         <Section>
-          <Section.Title>Other properties</Section.Title>
+          <Section.Title>{__('Other properties')}</Section.Title>
           <SidebarList className="no-link">{otherProperties}</SidebarList>
         </Section>
       );
@@ -195,5 +199,8 @@ class LeftSidebar extends ManageGroups {
 }
 
 LeftSidebar.propTypes = propTypes;
+LeftSidebar.contextTypes = {
+  __: PropTypes.func
+};
 
 export default LeftSidebar;

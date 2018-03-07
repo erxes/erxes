@@ -38,8 +38,8 @@ const modules = `
 `;
 
 const actions = `
-  query permissionActions($moduleName: String) {
-    permissionActions(moduleName: $moduleName) {
+  query permissionActions {
+    permissionActions {
       name
       description
       module

@@ -1,5 +1,9 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
+# globals
+*.un~
+*.swp
+
 # dependencies
 /node_modules
 
