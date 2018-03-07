@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Toggle from 'react-toggle';
-import { Wrapper } from 'modules/layout/components';
 import { ContentBox, SubHeading, InlineItems, SubItem } from '../../styles';
-import Sidebar from 'modules/settings/Sidebar';
 
 class NotificationSettings extends Component {
   constructor(props) {
@@ -93,18 +91,7 @@ class NotificationSettings extends Component {
       </ContentBox>
     );
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Notification settings') }
-    ];
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        content={content}
-      />
-    );
+    return content;
   }
 }
 
