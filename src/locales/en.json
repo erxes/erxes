@@ -514,5 +514,14 @@
   "Response Templates": "Response Templates",
   "Merge Companies": "Merge Companies",
   "Response template": "Response template",
-  "Attach file": "Attach file"
+  "Attach file": "Attach file",
+  "Deal": "Deal",
+  "New Product & Service": "New Product & Service",
+  "Select company": "Select company",
+  "Select customer": "Select customer",
+  "Note": "Note",
+  "Assigned to": "Assigned to",
+  "Move": "Move",
+  "Copy": "Copy",
+  "Close date": "Close date"
 }

@@ -518,5 +518,14 @@
   "Response Templates": "Хариу үйлдлийн загварууд",
   "Merge Companies": "Компаниудыг нэгтгэх",
   "Response template": "Хариу үйлдлийн загвар",
-  "Attach file": "Файл хавсаргах"
+  "Attach file": "Файл хавсаргах",
+  "Deal": "Хэлэлцээр",
+  "New Product & Service": "Шинэ бүтээгдэхүүн үйлчилгээ",
+  "Select company": "Компани сонгох",
+  "Select customer": "Харилцагч сонгох",
+  "Note": "Тэмдэглэл",
+  "Assigned to": "Хариуцсан",
+  "Move": "Шилжүүлэх",
+  "Copy": "Хуулах",
+  "Close date": "Дуусах огноо"
 }
