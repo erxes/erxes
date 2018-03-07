@@ -24,9 +24,10 @@ class VolumeReport extends CommonReport {
   }
 
   renderBreadCrumnb() {
+    const { __ } = this.context;
     return [
-      { title: 'Insights', link: '/insight' },
-      { title: 'Volume Report' }
+      { title: __('Insights'), link: '/insight' },
+      { title: __('Volume Report') }
     ];
   }
 

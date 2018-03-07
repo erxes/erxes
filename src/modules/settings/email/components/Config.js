@@ -15,7 +15,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class Config extends Component {
@@ -59,6 +60,7 @@ class Config extends Component {
     };
 
     const { type, template } = this.state;
+    const { __ } = this.context;
 
     const templateControl = (
       <FormGroup>
@@ -69,7 +71,7 @@ class Config extends Component {
           rows={20}
           onChange={this.handleTemplateChange}
         />
-        <HelpBlock>Use html template here</HelpBlock>
+        <HelpBlock>{__('Use html template here')}</HelpBlock>
       </FormGroup>
     );
 
@@ -80,12 +82,12 @@ class Config extends Component {
             <ControlLabel>Choose your email template type</ControlLabel>
             <FormControl
               componentClass="select"
-              placeholder="select"
+              placeholder={__('select')}
               onChange={this.handleTypeChange}
               value={type}
             >
-              <option value="simple">Simple</option>
-              <option value="custom">Custom</option>
+              <option value="simple">{__('Simple')}</option>
+              <option value="custom">{__('Custom')}</option>
             </FormControl>
           </FormGroup>
 

@@ -24,6 +24,10 @@ const propTypes = {
   updatePropertyGroupVisible: PropTypes.func.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class Properties extends Component {
   constructor(props) {
     super(props);
@@ -69,22 +73,23 @@ class Properties extends Component {
   }
 
   renderActionBar() {
+    const { __ } = this.context;
     const { queryParams, fieldsGroups } = this.props;
 
     let propertyForm = <PropertyForm queryParams={queryParams} />;
 
     if (fieldsGroups.length === 0) {
-      propertyForm = <center>Please add property Group first!</center>;
+      propertyForm = <center>{__('Please add property Group first')}!</center>;
     }
 
-    const addGroup = <MenuItem>Add group</MenuItem>;
-    const addField = <MenuItem>Add Field</MenuItem>;
+    const addGroup = <MenuItem>{__('Add group')}</MenuItem>;
+    const addField = <MenuItem>{__('Add Field')}</MenuItem>;
 
     return (
       <Dropdown id="dropdown-knowledgebase" className="quick-button" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="plus">
-            Add Group & Field <Icon icon="chevron-down" />
+            {__('Add Group & Field ')} <Icon icon="chevron-down" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
@@ -100,12 +105,13 @@ class Properties extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { currentType } = this.props;
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Properties', link: '/settings/properties' },
-      { title: `${currentType}` }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Properties'), link: '/settings/properties' },
+      { title: __(currentType) }
     ];
 
     return (
@@ -120,5 +126,6 @@ class Properties extends Component {
 }
 
 Properties.propTypes = propTypes;
+Properties.contextTypes = contextTypes;
 
 export default Properties;

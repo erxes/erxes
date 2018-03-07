@@ -39,16 +39,21 @@ const propTypes = {
   method: PropTypes.string
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class ChannelStep extends Component {
   renderBox(name, image, desc) {
+    const { __ } = this.context;
     return (
       <Box
         selected={this.props.method === name}
         onClick={() => this.props.changeMethod('method', name)}
       >
         <img src={image} alt={name} />
-        <span>{name}</span>
-        <p>{desc}</p>
+        <span>{__(name)}</span>
+        <p>{__(desc)}</p>
       </Box>
     );
   }
@@ -72,5 +77,6 @@ class ChannelStep extends Component {
 }
 
 ChannelStep.propTypes = propTypes;
+ChannelStep.contextTypes = contextTypes;
 
 export default ChannelStep;

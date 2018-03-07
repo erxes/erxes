@@ -43,9 +43,10 @@ class FilterPopover extends Component {
       icon,
       searchable
     } = this.props;
+    const { __ } = this.context;
 
     const popover = (
-      <Popover id="filter-popover" title={popoverTitle}>
+      <Popover id="filter-popover" title={__(popoverTitle)}>
         <FilterByParams
           fields={fields}
           paramKey={paramKey}
@@ -71,7 +72,7 @@ class FilterPopover extends Component {
         rootClose
       >
         <PopoverButton>
-          {buttonText}
+          {__(buttonText)}
           <Icon
             icon={placement === 'top' ? 'ios-arrow-up' : 'ios-arrow-down'}
           />
@@ -83,5 +84,8 @@ class FilterPopover extends Component {
 
 FilterPopover.propTypes = propTypes;
 FilterPopover.defaultProps = defaultProps;
+FilterPopover.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(FilterPopover);

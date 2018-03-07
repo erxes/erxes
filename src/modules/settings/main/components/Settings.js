@@ -1,27 +1,30 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 import { Row, RowTitle, Box, Divider, BoxName } from '../styles';
 
 class Settings extends Component {
   renderBox(name, image, to) {
+    const { __ } = this.context;
     return (
       <Box>
         <Link to={to}>
           <img src={image} alt={name} />
-          <BoxName>{name}</BoxName>
+          <BoxName>{__(name)}</BoxName>
         </Link>
       </Box>
     );
   }
 
   render() {
-    const breadcrumb = [{ title: 'Settings', link: '/settings' }];
+    const { __ } = this.context;
+    const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
 
     const content = (
       <div>
         <Row>
-          <RowTitle>Account Settings</RowTitle>
+          <RowTitle>{__('Account Settings')}</RowTitle>
           <div>
             {this.renderBox(
               'Channels',
@@ -88,7 +91,7 @@ class Settings extends Component {
         </Row>
         <Divider />
         <Row>
-          <RowTitle className="secondRow">Personal Settings</RowTitle>
+          <RowTitle className="secondRow">{__('Personal Settings')}</RowTitle>
           <div>
             {this.renderBox(
               'Profile',
@@ -124,5 +127,9 @@ class Settings extends Component {
     );
   }
 }
+
+Settings.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Settings;
