@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import _ from 'lodash';
 import {
   Tip,
   ActionButtons,
@@ -12,11 +11,10 @@ import {
   Icon,
   Tags
 } from 'modules/common/components';
-import { HelperText, EngageTitle } from '../styles';
+import { EngageTitle, HelperText } from '../styles';
 import { MESSAGE_KINDS } from 'modules/engage/constants';
 
 const propTypes = {
-  columnsConfig: PropTypes.array.isRequired,
   message: PropTypes.object.isRequired,
   edit: PropTypes.func.isRequired,
   remove: PropTypes.func.isRequired,
@@ -34,8 +32,9 @@ class Row extends React.Component {
   }
 
   renderLink(text, className, onClick) {
+    const { __ } = this.context;
     return (
-      <Tip text={text} key={`${text}-${this.props.message._id}`}>
+      <Tip text={__(text)} key={`${text}-${this.props.message._id}`}>
         <Button btnStyle="link" onClick={onClick} icon={className} />
       </Tip>
     );
@@ -96,118 +95,83 @@ class Row extends React.Component {
     ));
   }
 
-  renderValue(name, counter) {
-    const { message } = this.props;
-
+  render() {
     let status = <Label lblStyle="default">Sending</Label>;
     let successCount = 0;
     let failedCount = 0;
 
-    if (name === 'title') {
-      return (
-        <td key={counter}>
-          <EngageTitle onClick={this.props.edit}>{message.title}</EngageTitle>
-          {message.isDraft ? <Label lblStyle="primary">Draft</Label> : null}
-          {this.renderRules()}
-        </td>
-      );
-    }
-    if (name === 'from') {
-      return (
-        <td className="text-normal" key={counter}>
-          <NameCard user={message.fromUser} avatarSize={30} singleLine />
-        </td>
-      );
-    } else if (name === 'status') {
-      return <td key={counter}>{status}</td>;
-    } else if (name === 'total') {
-      const deliveryReports = Object.values(message.deliveryReports || {});
-      const totalCount = deliveryReports.length;
+    const { message, remove } = this.props;
 
-      deliveryReports.forEach(report => {
-        if (report.status === 'sent') {
-          successCount++;
-        }
+    const deliveryReports = Object.values(message.deliveryReports || {});
+    const totalCount = deliveryReports.length;
+    const { __ } = this.context;
 
-        if (report.status === 'failed') {
-          failedCount++;
-        }
-      });
-
-      if (totalCount === successCount + failedCount) {
-        status = <Label lblStyle="success">Sent</Label>;
+    deliveryReports.forEach(report => {
+      if (report.status === 'sent') {
+        successCount++;
       }
 
-      return (
-        <td className="text-primary" key={counter}>
-          <Icon icon="cube" />
-          <b> {totalCount}</b>
-        </td>
-      );
-    } else if (name === 'sent') {
-      return (
-        <td className="text-success" key={counter}>
-          <Icon icon="paper-airplane" />
-          <b> {successCount}</b>
-        </td>
-      );
-    } else if (name === 'failed') {
-      return (
-        <td className="text-warning" key={counter}>
-          <Icon icon="alert-circled" />
-          <b> {failedCount}</b>
-        </td>
-      );
-    } else if (name === 'type') {
-      return (
-        <td key={counter}>
-          {message.email ? (
-            <div>
-              <Icon icon="email" /> Email
-            </div>
-          ) : (
-            <div>
-              <Icon icon="chatbox" /> Messenger
-            </div>
-          )}
-        </td>
-      );
-    } else if (name === 'created date') {
-      return (
-        <td key={counter}>
-          <Icon icon="calendar" />{' '}
-          {moment(message.createdDate).format('DD MMM YYYY')}
-        </td>
-      );
-    } else if (name === 'tags') {
-      return (
-        <td key={counter}>
-          <Tags tags={message.getTags} limit={3} />
-        </td>
-      );
-    } else if (name === 'brand') {
-      return (
-        <td key={counter}>{message.getBrand ? message.getBrand.name : ''}</td>
-      );
+      if (report.status === 'failed') {
+        failedCount++;
+      }
+    });
+
+    if (totalCount === successCount + failedCount) {
+      status = <Label lblStyle="success">Sent</Label>;
     }
 
-    return <td key={counter}>{_.get(message, name)}</td>;
-  }
-
-  render() {
-    const { message, columnsConfig, remove } = this.props;
-    let counter = 0;
     return (
       <tr key={message._id}>
         <td>
           <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
         </td>
-        {columnsConfig.map(({ name }) => this.renderValue(name, counter++))}
+        <td>
+          <EngageTitle onClick={this.props.edit}>{message.title}</EngageTitle>
+          {message.isDraft ? <Label lblStyle="primary">Draft</Label> : null}
+          {this.renderRules()}
+        </td>
+        <td className="text-normal">
+          <NameCard user={message.fromUser} avatarSize={30} singleLine />
+        </td>
+        <td>{status}</td>
+        <td className="text-primary">
+          <Icon icon="cube" />
+          <b> {totalCount}</b>
+        </td>
+        <td className="text-success">
+          <Icon icon="paper-airplane" />
+          <b> {successCount}</b>
+        </td>
+        <td className="text-warning">
+          <Icon icon="alert-circled" />
+          <b> {failedCount}</b>
+        </td>
+
+        <td>
+          {message.email ? (
+            <div>
+              <Icon icon="email" /> {__('Email')}
+            </div>
+          ) : (
+            <div>
+              <Icon icon="chatbox" /> {__('Messenger')}
+            </div>
+          )}
+        </td>
+        <td>
+          <Icon icon="calendar" />{' '}
+          {moment(message.createdDate).format('DD MMM YYYY')}
+        </td>
+
+        <td>
+          <Tags tags={message.getTags} limit={3} />
+        </td>
+
         <td>
           <ActionButtons>
             {this.renderLinks()}
 
-            <Tip text="Delete">
+            <Tip text={__('Delete')}>
               <Button btnStyle="link" onClick={remove} icon="close" />
             </Tip>
           </ActionButtons>
@@ -218,5 +182,8 @@ class Row extends React.Component {
 }
 
 Row.propTypes = propTypes;
+Row.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Row;

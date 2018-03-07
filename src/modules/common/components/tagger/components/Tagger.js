@@ -17,6 +17,10 @@ const propTypes = {
   tag: PropTypes.func.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class Tagger extends Component {
   constructor(props) {
     super(props);
@@ -107,10 +111,11 @@ class Tagger extends Component {
       return <Spinner objective />;
     }
 
+    const { __ } = this.context;
     const { className, event, type } = this.props;
     const links = [
       {
-        title: 'Manage tags',
+        title: __('Manage tags'),
         href: `/tags/${type}`
       }
     ];
@@ -127,5 +132,6 @@ class Tagger extends Component {
 }
 
 Tagger.propTypes = propTypes;
+Tagger.contextTypes = contextTypes;
 
 export default Tagger;

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import {
   FormGroup,
   FormControl,
@@ -19,10 +18,9 @@ const propTypes = {
   changeRules: PropTypes.func.isRequired
 };
 
-const StepContainer = styled.div`
-  width: 500px;
-  max-width: 500px;
-`;
+const contextTypes = {
+  __: PropTypes.func
+};
 
 class ConditionStep extends Component {
   constructor(props) {
@@ -85,7 +83,7 @@ class ConditionStep extends Component {
 
     return (
       <FormGroup key={rule._id}>
-        <ControlLabel>{rule.text}:</ControlLabel>
+        <ControlLabel>{rule.text}</ControlLabel>
         <InlineForm>
           <FormControl
             componentClass="select"
@@ -117,28 +115,27 @@ class ConditionStep extends Component {
 
   render() {
     return (
-      <FlexPad overflow="auto" direction="column" v="center">
-        <StepContainer>
-          <FormGroup>
-            <ControlLabel>Add rule</ControlLabel>
-            <FormControl componentClass="select" onChange={this.addRule}>
-              {VISITOR_AUDIENCE_RULES.map((rule, index) => (
-                <option key={index} value={rule.value}>
-                  {rule.text}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
+      <FlexPad overflow="auto" direction="column">
+        <FormGroup>
+          <ControlLabel>Add rule</ControlLabel>
+          <FormControl componentClass="select" onChange={this.addRule}>
+            {VISITOR_AUDIENCE_RULES.map((rule, index) => (
+              <option key={index} value={rule.value}>
+                {rule.text}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
 
-          <FormGroup>
-            {this.state.rules.map(rule => this.renderRule(rule))}
-          </FormGroup>
-        </StepContainer>
+        <FormGroup>
+          {this.state.rules.map(rule => this.renderRule(rule))}
+        </FormGroup>
       </FlexPad>
     );
   }
 }
 
 ConditionStep.propTypes = propTypes;
+ConditionStep.contextTypes = contextTypes;
 
 export default ConditionStep;

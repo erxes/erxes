@@ -5,12 +5,12 @@ import { Icon } from 'modules/common/components';
 import { NotificationsLatest } from '../containers';
 import { NotifButton } from './styles';
 
-const Widget = ({ unreadCount }) => {
+const Widget = ({ unreadCount }, { __ }) => {
   const popoverNotification = (
     <Popover
       id="npopover"
       className="notification-popover"
-      title="Notifications"
+      title={__('Notifications')}
     >
       <NotificationsLatest />
     </Popover>
@@ -34,6 +34,10 @@ const Widget = ({ unreadCount }) => {
 
 Widget.propTypes = {
   unreadCount: PropTypes.number
+};
+
+Widget.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Widget;

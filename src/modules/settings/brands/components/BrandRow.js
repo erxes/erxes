@@ -27,11 +27,12 @@ class BrandRow extends Component {
   }
 
   renderEditAction() {
+    const { __ } = this.context;
     const { brand, save } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -66,5 +67,8 @@ class BrandRow extends Component {
 }
 
 BrandRow.propTypes = propTypes;
+BrandRow.contextTypes = {
+  __: PropTypes.func
+};
 
 export default BrandRow;

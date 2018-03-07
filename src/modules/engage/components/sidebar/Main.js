@@ -4,34 +4,34 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
-function Main({ counts }) {
+function Main({ counts }, { __ }) {
   const { Title } = Wrapper.Sidebar.Section;
 
   return (
     <Wrapper.Sidebar.Section>
-      <Title>Kind</Title>
+      <Title>{__('Kind')}</Title>
       <SidebarList>
         <li>
           <Link to="/engage">
-            All
+            {__('All')}
             <SidebarCounter>{counts.all}</SidebarCounter>
           </Link>
         </li>
         <li>
           <Link to={`/engage?kind=auto`}>
-            Auto
+            {__('Auto')}
             <SidebarCounter>{counts.auto}</SidebarCounter>
           </Link>
         </li>
         <li>
           <Link to={`/engage?kind=visitorAuto`}>
-            Visitor auto
+            {__('Visitor auto')}
             <SidebarCounter>{counts.visitorAuto}</SidebarCounter>
           </Link>
         </li>
         <li>
           <Link to={`/engage?kind=manual`}>
-            Manual
+            {__('Manual')}
             <SidebarCounter>{counts.manual}</SidebarCounter>
           </Link>
         </li>
@@ -42,6 +42,10 @@ function Main({ counts }) {
 
 Main.propTypes = {
   counts: PropTypes.object
+};
+
+Main.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Main;

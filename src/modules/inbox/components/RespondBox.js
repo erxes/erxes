@@ -195,11 +195,13 @@ class RespondBox extends Component {
   }
 
   renderMask() {
+    const { __ } = this.context;
     if (this.state.isInactive) {
       return (
         <Mask onClick={this.hideMask}>
-          Customer is offline. Click to hide and send messages and they will
-          receive them the next time they are online.
+          {__(
+            'Customer is offline. Click to hide and send messages and they will receive them the next time they are online.'
+          )}
         </Mask>
       );
     }
@@ -210,6 +212,7 @@ class RespondBox extends Component {
   render() {
     const { isInternal, responseTemplate } = this.state;
     const { responseTemplates, conversation } = this.props;
+    const { __ } = this.context;
 
     const integration = conversation.integration || {};
 
@@ -220,9 +223,9 @@ class RespondBox extends Component {
           componentClass="checkbox"
           onChange={this.toggleForm}
         >
-          Internal note
+          {__('Internal note')}
         </FormControl>
-        <Tip text="Attach file">
+        <Tip text={__('Attach file')}>
           <label>
             <Icon icon="android-attach" size={17} />
             <input type="file" onChange={this.handleFileInput} />
@@ -253,9 +256,11 @@ class RespondBox extends Component {
       type = 'note';
     }
 
-    let placeholder = `To send your ${
-      type
-    } press [Enter] and [Shift + Enter] to add a new line …`;
+    let placeholder = __(
+      `To send your ${
+        type
+      } press [Enter] and [Shift + Enter] to add a new line ...`
+    );
 
     return (
       <MaskWrapper>
@@ -285,5 +290,8 @@ class RespondBox extends Component {
 }
 
 RespondBox.propTypes = propTypes;
+RespondBox.contextTypes = {
+  __: PropTypes.func
+};
 
 export default RespondBox;

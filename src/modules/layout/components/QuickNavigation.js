@@ -28,9 +28,23 @@ const NavItem = styled.div`
   vertical-align: middle;
 `;
 
-const QuickNavigation = ({ logout, currentUser }) => {
+const QuickNavigation = (
+  { logout, currentUser, selectLang, locale },
+  { __ }
+) => {
   return (
     <nav>
+      <NavItem>
+        <Dropdown id="dropdown-lang" onSelect={e => selectLang(e)}>
+          <DropdownToggle bsRole="toggle">
+            {locale || 'EN'} <Icon icon="chevron-down" size={10} />
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <MenuItem eventKey="en">en</MenuItem>
+            <MenuItem eventKey="mn">mn</MenuItem>
+          </Dropdown.Menu>
+        </Dropdown>
+      </NavItem>
       <NavItem>
         <Widget />
       </NavItem>
@@ -51,13 +65,15 @@ const QuickNavigation = ({ logout, currentUser }) => {
             </NameCardWrapper>
             <MenuItem divider />
             <li>
-              <Link to="/settings/profile">Edit Profile</Link>
+              <Link to="/settings/profile">{__('Edit Profile')}</Link>
             </li>
             <li>
-              <Link to="/settings/change-password">Change password</Link>
+              <Link to="/settings/change-password">
+                {__('Change password')}
+              </Link>
             </li>
             <MenuItem divider />
-            <MenuItem onClick={logout}>Sign out</MenuItem>
+            <MenuItem onClick={logout}>{__('Sign out')}</MenuItem>
           </Dropdown.Menu>
         </Dropdown>
       </NavItem>
@@ -67,7 +83,15 @@ const QuickNavigation = ({ logout, currentUser }) => {
 
 QuickNavigation.propTypes = {
   logout: PropTypes.func,
-  currentUser: PropTypes.object.isRequired
+  currentUser: PropTypes.object.isRequired,
+  selectLang: PropTypes.func,
+  locale: PropTypes.string
+};
+
+QuickNavigation.contextTypes = {
+  locale: PropTypes.string,
+  selectLang: PropTypes.func,
+  __: PropTypes.func
 };
 
 export default QuickNavigation;

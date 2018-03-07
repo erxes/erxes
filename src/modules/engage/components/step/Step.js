@@ -36,6 +36,7 @@ class Step extends Component {
       validate,
       nextButton
     } = this.props;
+    const { __ } = this.context;
 
     let show = false;
 
@@ -57,7 +58,7 @@ class Step extends Component {
               <StepImg>
                 <img src={img} alt="step-icon" />
               </StepImg>
-              <StepHeaderTitle>{title}</StepHeaderTitle>
+              <StepHeaderTitle>{__(title)}</StepHeaderTitle>
             </StepHeader>
             {nextButton}
           </StepHeaderContainer>
@@ -77,5 +78,8 @@ class Step extends Component {
 }
 
 Step.propTypes = propTypes;
+Step.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Step;

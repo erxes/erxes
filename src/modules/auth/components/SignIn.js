@@ -41,14 +41,15 @@ class SignIn extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <AuthBox>
-        <h2>Sign In</h2>
+        <h2>{__('Sign in')}</h2>
         <form onSubmit={this.login}>
           <FormGroup>
             <FormControl
               type="email"
-              placeholder="your@email.com"
+              placeholder={__('your@email.com')}
               value={this.state.email}
               required
               onChange={this.handleEmailChange}
@@ -57,7 +58,7 @@ class SignIn extends Component {
           <FormGroup>
             <FormControl
               type="password"
-              placeholder="password"
+              placeholder={__('password')}
               value={this.state.password}
               required
               onChange={this.handlePasswordChange}
@@ -68,7 +69,7 @@ class SignIn extends Component {
           </Button>
         </form>
         <Links>
-          <Link to="/forgot-password">Forgot password?</Link>
+          <Link to="/forgot-password">{__('Forgot password?')}</Link>
         </Links>
       </AuthBox>
     );
@@ -76,5 +77,8 @@ class SignIn extends Component {
 }
 
 SignIn.propTypes = propTypes;
+SignIn.contextTypes = {
+  __: PropTypes.func
+};
 
 export default SignIn;

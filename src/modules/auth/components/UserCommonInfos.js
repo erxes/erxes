@@ -56,6 +56,7 @@ class UserCommonInfos extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { user = {} } = this.props;
     const { details = {}, links = {} } = user;
     const { avatarPreviewStyle, avatarPreviewUrl } = this.state;
@@ -63,7 +64,7 @@ class UserCommonInfos extends Component {
     return (
       <ProfileWrapper>
         <ProfileColumn>
-          <ColumnTitle>Basics</ColumnTitle>
+          <ColumnTitle>{__('Basics')}</ColumnTitle>
           <FormGroup>
             <ControlLabel>Photo</ControlLabel>
             <img
@@ -71,7 +72,6 @@ class UserCommonInfos extends Component {
               style={avatarPreviewStyle}
               src={avatarPreviewUrl}
             />
-
             <FormControl type="file" onChange={this.handleImageChange} />
           </FormGroup>
           <FormGroup>
@@ -130,7 +130,7 @@ class UserCommonInfos extends Component {
           </FormGroup>
         </ProfileColumn>
         <ProfileColumn>
-          <ColumnTitle>Links</ColumnTitle>
+          <ColumnTitle>{__('Links')}</ColumnTitle>
           <FormGroup>
             <ControlLabel>LinkedIn</ControlLabel>
             <FormControl
@@ -186,5 +186,8 @@ class UserCommonInfos extends Component {
 }
 
 UserCommonInfos.propTypes = propTypes;
+UserCommonInfos.contextTypes = {
+  __: PropTypes.func
+};
 
 export default UserCommonInfos;

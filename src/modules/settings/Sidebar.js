@@ -1,60 +1,61 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { Sidebar } from '../layout/components';
 import { SidebarList } from '../layout/styles';
 
-function SettingsSidebar() {
+function SettingsSidebar(props, { __ }) {
   const { Title } = Sidebar.Section;
 
   return (
     <Sidebar>
       <Sidebar.Section>
-        <Title>Account settings</Title>
+        <Title>{__('Account settings')}</Title>
         <SidebarList>
           <li>
             <NavLink activeClassName="active" to="/settings/team">
-              Team members
+              {__('Team members')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/settings/response-templates">
-              Response templates
+              {__('Response templates')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/settings/email-templates">
-              Email templates
+              {__('Email templates')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/settings/emails">
-              Email appearance
+              {__('Email appearance')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/settings/forms">
-              Forms
+              {__('Forms')}
             </NavLink>
           </li>
         </SidebarList>
       </Sidebar.Section>
 
       <Sidebar.Section>
-        <Title>Personal settings</Title>
+        <Title>{__('Personal settings')}</Title>
         <SidebarList>
           <li>
             <NavLink activeClassName="active" to="/settings/profile">
-              Profile
+              {__('Profile')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/settings/change-password">
-              Change password
+              {__('Change password')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/settings/emails/signatures">
-              Email signatures
+              {__('Email signatures')}
             </NavLink>
           </li>
           <li>
@@ -62,7 +63,7 @@ function SettingsSidebar() {
               activeClassName="active"
               to="/settings/notification-settings"
             >
-              Notification settings
+              {__('Notification settings')}
             </NavLink>
           </li>
         </SidebarList>
@@ -70,5 +71,9 @@ function SettingsSidebar() {
     </Sidebar>
   );
 }
+
+SettingsSidebar.contextTypes = {
+  __: PropTypes.func
+};
 
 export default SettingsSidebar;
