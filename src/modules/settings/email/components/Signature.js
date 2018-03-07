@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ActionBar, Wrapper } from 'modules/layout/components';
+import { Modal } from 'react-bootstrap';
 import {
   ControlLabel,
-  Button,
   FormGroup,
-  FormControl
+  FormControl,
+  Button
 } from 'modules/common/components';
-import { ContentBox, SubHeading, Well } from '../../styles';
-import Sidebar from 'modules/settings/Sidebar';
+import { ContentBox, Well } from '../../styles';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,
@@ -57,15 +56,16 @@ class Signature extends Component {
     e.preventDefault();
 
     this.props.save(this.state.signatures);
+
+    this.context.closeModal();
   }
 
   render() {
     const current = this.getCurrent() || {};
-    const { __ } = this.context;
+    const { __, closeModal } = this.context;
 
     const content = (
       <ContentBox>
-        <SubHeading>{__('Email signatures')}</SubHeading>
         <Well>
           {__('Signatures are only included in response emails.')}
           <br />
@@ -98,43 +98,27 @@ class Signature extends Component {
               value={current.content}
             />
           </FormGroup>
+          <Modal.Footer>
+            <Button btnStyle="simple" onClick={() => closeModal()} icon="close">
+              Close
+            </Button>
+
+            <Button btnStyle="success" type="submit" icon="checkmark">
+              Save
+            </Button>
+          </Modal.Footer>
         </form>
       </ContentBox>
     );
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Signature template') }
-    ];
-
-    const actionFooter = (
-      <ActionBar
-        right={
-          <Button
-            btnStyle="success"
-            onClick={this.handleSubmit}
-            icon="checkmark"
-          >
-            Save
-          </Button>
-        }
-      />
-    );
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        footer={actionFooter}
-        content={content}
-      />
-    );
+    return content;
   }
 }
 
 Signature.propTypes = propTypes;
 Signature.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
+  closeModal: PropTypes.func
 };
 
 export default Signature;

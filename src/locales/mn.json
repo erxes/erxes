@@ -396,7 +396,7 @@
   "From:": "Хэнээс:",
   "Pages": "Хуудсууд",
   "Basics": "Үндсэн",
-  "Links": "Линк - үүд",
+  "Links": "Холбоосууд",
   "Enter your password to Confirm": "Баталгаажуулах нууц үгээ оруулна уу",
   "Number of visits": "Зочилсон тоо",
   "Written By": "Бичсэн",
@@ -518,5 +518,6 @@
   "Response Templates": "Хариу үйлдлийн загварууд",
   "Merge Companies": "Компаниудыг нэгтгэх",
   "Response template": "Хариу үйлдлийн загвар",
-  "Attach file": "Файл хавсаргах"
+  "Attach file": "Файл хавсаргах",
+  "Details": "Дэлгэрэнгүй мэдээлэл"
 }

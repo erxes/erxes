@@ -74,5 +74,8 @@ class UserDetails extends React.Component {
 }
 
 UserDetails.propTypes = propTypes;
+UserDetails.contextTypes = {
+  __: PropTypes.func
+};
 
 export default UserDetails;

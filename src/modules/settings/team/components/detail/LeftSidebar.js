@@ -17,108 +17,116 @@ const propTypes = {
   channels: PropTypes.array
 };
 
-function LeftSidebar({ user, save, channels }) {
-  const { Section } = Sidebar;
-  const { Title, QuickButtons } = Section;
-  const { details = {}, links = {} } = user;
+class LeftSidebar extends React.Component {
+  render() {
+    const { Section } = Sidebar;
+    const { Title, QuickButtons } = Section;
+    const { user, save, channels } = this.props;
+    const { details = {}, links = {} } = user;
+    const { __ } = this.context;
 
-  return (
-    <Sidebar>
-      <Section>
-        <Title>Details</Title>
+    return (
+      <Sidebar>
+        <Section>
+          <Title>{__('Details')}</Title>
 
-        <QuickButtons>
-          <a tabIndex={0}>
-            <ModalTrigger
-              title="Edit Team Member"
-              trigger={<Icon icon="edit" />}
-              size="lg"
-            >
-              <UserForm object={user} save={save} />
-            </ModalTrigger>
-          </a>
-        </QuickButtons>
+          <QuickButtons>
+            <a tabIndex={0}>
+              <ModalTrigger
+                title="Edit"
+                trigger={<Icon icon="edit" />}
+                size="lg"
+              >
+                <UserForm object={user} save={save} />
+              </ModalTrigger>
+            </a>
+          </QuickButtons>
 
-        <SidebarContent>
-          <center>
-            <NameCard user={user} avatarSize={50} singleLine />
-          </center>
-          <SidebarList>
-            <li>
-              Location:
-              <SidebarCounter>{details.location || 'N/A'}</SidebarCounter>
-            </li>
-            <li>
-              Position:
-              <SidebarCounter>{details.position || 'N/A'}</SidebarCounter>
-            </li>
-            <li>
-              Twitter Username:
-              <SidebarCounter>
-                {details.twitterUsername || 'N/A'}
-              </SidebarCounter>
-            </li>
-          </SidebarList>
-        </SidebarContent>
-      </Section>
+          <SidebarContent>
+            <center>
+              <NameCard user={user} avatarSize={50} singleLine />
+            </center>
+            <SidebarList>
+              <li>
+                {__('Location')}:
+                <SidebarCounter>{details.location || 'N/A'}</SidebarCounter>
+              </li>
+              <li>
+                {__('Position')}:
+                <SidebarCounter>{details.position || 'N/A'}</SidebarCounter>
+              </li>
+              <li>
+                {__('Twitter Username')}:
+                <SidebarCounter>
+                  {details.twitterUsername || 'N/A'}
+                </SidebarCounter>
+              </li>
+            </SidebarList>
+          </SidebarContent>
+        </Section>
 
-      <Section>
-        <Title>Links</Title>
+        <Section>
+          <Title>{__('Links')}</Title>
 
-        <SidebarContent>
-          <SidebarList>
-            <li>
-              Linked In:
-              <SidebarCounter>{links.linkedIn || 'N/A'}</SidebarCounter>
-            </li>
-            <li>
-              Twitter:
-              <SidebarCounter>{links.twitter || 'N/A'}</SidebarCounter>
-            </li>
-            <li>
-              Facebook:
-              <SidebarCounter>{links.facebook || 'N/A'}</SidebarCounter>
-            </li>
-            <li>
-              Github:
-              <SidebarCounter>{links.github || 'N/A'}</SidebarCounter>
-            </li>
-            <li>
-              Youtube:
-              <SidebarCounter>{links.youtube || 'N/A'}</SidebarCounter>
-            </li>
-            <li>
-              Website:
-              <SidebarCounter>{links.website || 'N/A'}</SidebarCounter>
-            </li>
-          </SidebarList>
-        </SidebarContent>
-      </Section>
+          <SidebarContent>
+            <SidebarList>
+              <li>
+                Linked In:
+                <SidebarCounter>{links.linkedIn || 'N/A'}</SidebarCounter>
+              </li>
+              <li>
+                Twitter:
+                <SidebarCounter>{links.twitter || 'N/A'}</SidebarCounter>
+              </li>
+              <li>
+                Facebook:
+                <SidebarCounter>{links.facebook || 'N/A'}</SidebarCounter>
+              </li>
+              <li>
+                Github:
+                <SidebarCounter>{links.github || 'N/A'}</SidebarCounter>
+              </li>
+              <li>
+                Youtube:
+                <SidebarCounter>{links.youtube || 'N/A'}</SidebarCounter>
+              </li>
+              <li>
+                Website:
+                <SidebarCounter>{links.website || 'N/A'}</SidebarCounter>
+              </li>
+            </SidebarList>
+          </SidebarContent>
+        </Section>
 
-      <Section>
-        <Title>Channels</Title>
-        <SidebarContent>
-          <Channel>
-            {channels.map(channel => {
-              return (
-                <div key={channel._id}>
-                  <Link to={`/settings/channels?id=${channel._id}`}>
-                    <Icon icon="android-open" />
-                  </Link>
-                  <div>{channel.name || ''}</div>
-                  <Tip text={channel.description || ''}>
-                    <span>{channel.description || ''}</span>
-                  </Tip>
-                </div>
-              );
-            })}
-          </Channel>
-        </SidebarContent>
-      </Section>
-    </Sidebar>
-  );
+        <Section>
+          <Title>{__('Channels')}</Title>
+          <SidebarContent>
+            <Channel>
+              {channels.map(channel => {
+                return (
+                  <div key={channel._id}>
+                    <Link to={`/settings/channels?id=${channel._id}`}>
+                      <Icon icon="android-open" />
+                    </Link>
+                    <div>{channel.name || ''}</div>
+                    <Tip text={channel.description || ''}>
+                      <span>{channel.description || ''}</span>
+                    </Tip>
+                  </div>
+                );
+              })}
+            </Channel>
+          </SidebarContent>
+        </Section>
+      </Sidebar>
+    );
+  }
 }
 
 LeftSidebar.propTypes = propTypes;
+
+LeftSidebar.contextTypes = {
+  __: PropTypes.func
+};
 
 export default LeftSidebar;
