@@ -9,7 +9,7 @@ import { queries, mutations } from '../graphql';
 import { UserDetails } from '../components';
 
 const UserDetailsContainer = (props, context) => {
-  const { userDetailQuery, usersEdit, channelsQuery } = props;
+  const { userDetailQuery, usersEdit, channelsQuery, usersEditProfile } = props;
 
   if (userDetailQuery.loading || channelsQuery.loading) {
     return (
@@ -21,7 +21,7 @@ const UserDetailsContainer = (props, context) => {
 
   const user = userDetailQuery.userDetail;
 
-  const save = ({ doc }, callback) => {
+  const saveUser = ({ doc }, callback) => {
     doc._id = user._id;
 
     usersEdit({
@@ -36,9 +36,20 @@ const UserDetailsContainer = (props, context) => {
       });
   };
 
+  const saveProfile = variables => {
+    usersEditProfile({ variables })
+      .then(() => {
+        Alert.success('Congrats');
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   const updatedProps = {
     ...props,
-    save,
+    saveUser,
+    saveProfile,
     user,
     channels: channelsQuery.channels,
     currentUser: context.currentUser
@@ -51,7 +62,8 @@ UserDetailsContainer.propTypes = {
   id: PropTypes.string,
   userDetailQuery: PropTypes.object,
   usersEdit: PropTypes.func,
-  channelsQuery: PropTypes.object
+  channelsQuery: PropTypes.object,
+  usersEditProfile: PropTypes.func
 };
 
 UserDetailsContainer.contextTypes = {
@@ -74,14 +86,18 @@ export default compose(
       }
     })
   }),
-  graphql(gql(mutations.usersEdit), {
-    name: 'usersEdit',
-    options
-  }),
   graphql(gql(queries.channels), {
     name: 'channelsQuery',
     options: ({ id }) => ({
       variables: { memberIds: [id] }
     })
+  }),
+  graphql(gql(mutations.usersEditProfile), {
+    name: 'usersEditProfile',
+    options
+  }),
+  graphql(gql(mutations.usersEdit), {
+    name: 'usersEdit',
+    options
   })
 )(UserDetailsContainer);

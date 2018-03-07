@@ -8,12 +8,14 @@ import {
   SidebarList
 } from 'modules/layout/styles';
 import { Icon, NameCard, ModalTrigger, Tip } from 'modules/common/components';
+import { EditProfile } from 'modules/settings/profile/components';
 import { UserForm } from '../../containers';
 import { Channel } from './styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
-  save: PropTypes.func,
+  saveProfile: PropTypes.func,
+  saveUser: PropTypes.func,
   channels: PropTypes.array
 };
 
@@ -21,9 +23,15 @@ class LeftSidebar extends React.Component {
   render() {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
-    const { user, save, channels } = this.props;
+    const { user, saveProfile, channels, saveUser } = this.props;
     const { details = {}, links = {} } = user;
-    const { __ } = this.context;
+    const { __, currentUser } = this.context;
+
+    let form = <UserForm object={user} save={saveUser} />;
+
+    if (currentUser._id === user._id) {
+      form = <EditProfile save={saveProfile} currentUser={currentUser} />;
+    }
 
     return (
       <Sidebar>
@@ -37,7 +45,7 @@ class LeftSidebar extends React.Component {
                 trigger={<Icon icon="edit" />}
                 size="lg"
               >
-                <UserForm object={user} save={save} />
+                {form}
               </ModalTrigger>
             </a>
           </QuickButtons>
@@ -126,7 +134,8 @@ class LeftSidebar extends React.Component {
 LeftSidebar.propTypes = propTypes;
 
 LeftSidebar.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
+  currentUser: PropTypes.object
 };
 
 export default LeftSidebar;

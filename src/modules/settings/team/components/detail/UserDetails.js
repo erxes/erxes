@@ -17,7 +17,8 @@ import LeftSidebar from './LeftSidebar';
 const propTypes = {
   user: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired,
+  saveProfile: PropTypes.func.isRequired,
+  saveUser: PropTypes.func.isRequired,
   channels: PropTypes.array
 };
 
