@@ -47,6 +47,7 @@ class Facebook extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { apps, pages, brands } = this.props;
 
     return (
@@ -64,7 +65,7 @@ class Facebook extends Component {
 
           <FormControl
             componentClass="select"
-            placeholder="Select app"
+            placeholder={__('Select app')}
             onChange={this.onAppChange}
             id="app"
           >
@@ -106,6 +107,10 @@ Facebook.propTypes = {
   brands: PropTypes.array.isRequired,
   apps: PropTypes.array.isRequired,
   pages: PropTypes.array.isRequired
+};
+
+Facebook.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Facebook;

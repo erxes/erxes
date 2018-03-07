@@ -44,9 +44,10 @@ class TaggerSection extends Component {
     const { data, type } = this.props;
     const tags = data.getTags || [];
     const { Title, QuickButtons } = Sidebar.Section;
+    const { __ } = this.context;
     return (
       <Sidebar.Section>
-        <Title>Tags</Title>
+        <Title>{__('Tags')}</Title>
 
         <QuickButtons>
           <a tabIndex={0} onClick={this.toggleTagger}>
@@ -72,5 +73,8 @@ class TaggerSection extends Component {
 }
 
 TaggerSection.propTypes = propTypes;
+TaggerSection.contextTypes = {
+  __: PropTypes.func
+};
 
 export default TaggerSection;

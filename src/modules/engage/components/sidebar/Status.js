@@ -7,12 +7,12 @@ import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { router } from 'modules/common/utils';
 import { statusFilters } from 'modules/engage/constants';
 
-function Status({ history, counts }) {
+function Status({ history, counts }, { __ }) {
   const { Section } = Wrapper.Sidebar;
 
   return (
     <Section>
-      <Section.Title>Status</Section.Title>
+      <Section.Title>{__('Status')}</Section.Title>
 
       <SidebarList>
         {statusFilters.map((status, index) => (
@@ -26,7 +26,7 @@ function Status({ history, counts }) {
               }
               to={`/engage?status=${status.key}`}
             >
-              {status.value}
+              {__(status.value)}
               <SidebarCounter>{counts[status.key]}</SidebarCounter>
             </Link>
           </li>
@@ -39,6 +39,10 @@ function Status({ history, counts }) {
 Status.propTypes = {
   history: PropTypes.object,
   counts: PropTypes.object
+};
+
+Status.contextTypes = {
+  __: PropTypes.func
 };
 
 export default withRouter(Status);

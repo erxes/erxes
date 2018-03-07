@@ -16,6 +16,10 @@ const propTypes = {
   brandId: PropTypes.string.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class ResponseTemplateModal extends Component {
   constructor(props) {
     super(props);
@@ -33,6 +37,7 @@ class ResponseTemplateModal extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { brands, trigger, brandId } = this.props;
 
     return (
@@ -43,7 +48,7 @@ class ResponseTemplateModal extends Component {
           <FormControl
             id="template-brand-id"
             componentClass="select"
-            placeholder="Select Brand"
+            placeholder={__('Select Brand')}
             defaultValue={brandId}
           >
             {brands.map(brand => (
@@ -70,5 +75,6 @@ class ResponseTemplateModal extends Component {
 }
 
 ResponseTemplateModal.propTypes = propTypes;
+ResponseTemplateModal.contextTypes = contextTypes;
 
 export default ResponseTemplateModal;

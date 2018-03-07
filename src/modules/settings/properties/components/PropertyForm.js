@@ -18,7 +18,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class PropertyForm extends Component {
@@ -133,6 +134,7 @@ class PropertyForm extends Component {
   }
 
   renderButtonOrElement() {
+    const { __ } = this.context;
     if (this.state.add) {
       return (
         <div>
@@ -167,7 +169,7 @@ class PropertyForm extends Component {
 
     return (
       <AddOption onClick={this.handleAddOption}>
-        <Icon icon="plus" /> Add an option
+        <Icon icon="plus" /> {__('Add an option')}
       </AddOption>
     );
   }
