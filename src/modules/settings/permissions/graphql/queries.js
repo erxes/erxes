@@ -1,13 +1,15 @@
 const commonParamsDef = `
   $module: String,
   $action: String,
-  $userId: String
+  $userId: String,
+  $groupId: String
 `;
 
 const commonParams = `
   module: $module,
   action: $action,
-  userId: $userId
+  userId: $userId,
+  groupId: $groupId
 `;
 
 const permissions = `
@@ -17,12 +19,18 @@ const permissions = `
       module
       action
       userId
+      groupId
       allowed
 
       user {
         _id
         username
         email
+      }
+
+      group {
+        _id
+        name
       }
     }
   }

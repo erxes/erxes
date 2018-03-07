@@ -5,10 +5,10 @@ export const generateModuleParams = lists => {
   }));
 };
 
-export const generateUsersParams = users => {
-  return users.map(user => ({
-    value: user._id,
-    label: user.email
+export const generateListParams = items => {
+  return items.map(item => ({
+    value: item._id,
+    label: item.email || item.name
   }));
 };
 

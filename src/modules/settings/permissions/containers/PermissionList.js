@@ -6,6 +6,7 @@ import gql from 'graphql-tag';
 import { PermissionList } from '../components';
 import { queries, mutations } from '../graphql';
 import { queries as userQueries } from 'modules/settings/team/graphql';
+import { queries as usersGroupQueries } from 'modules/settings/usersGroups/graphql';
 import { Alert, confirm } from 'modules/common/utils';
 
 const PermissionListContainer = props => {
@@ -18,7 +19,8 @@ const PermissionListContainer = props => {
     queryParams,
     history,
     removeMutation,
-    addMutation
+    addMutation,
+    usersGroupsQuery
   } = props;
 
   // remove action
@@ -64,6 +66,7 @@ const PermissionListContainer = props => {
     modulesQuery.loading ||
     actionsQuery.loading ||
     usersQuery.loading ||
+    usersGroupsQuery.loading ||
     totalCountQuery.loading;
 
   const updatedProps = {
@@ -76,6 +79,7 @@ const PermissionListContainer = props => {
     actions: actionsQuery.permissionActions || [],
     permissions: permissionsQuery.permissions || [],
     users: usersQuery.users || [],
+    groups: usersGroupsQuery.usersGroups || [],
     isLoading
   };
 
@@ -89,6 +93,7 @@ PermissionListContainer.propTypes = {
   modulesQuery: PropTypes.object,
   actionsQuery: PropTypes.object,
   usersQuery: PropTypes.object,
+  usersGroupsQuery: PropTypes.object,
   totalCountQuery: PropTypes.object,
   addMutation: PropTypes.func,
   removeMutation: PropTypes.func
@@ -104,7 +109,8 @@ export default withRouter(
         variables: {
           module: queryParams.module,
           action: queryParams.action,
-          userId: queryParams.userId
+          userId: queryParams.userId,
+          groupId: queryParams.groupId
         }
       })
     }),
@@ -117,6 +123,7 @@ export default withRouter(
           module: queryParams.module,
           action: queryParams.action,
           userId: queryParams.userId,
+          groupId: queryParams.groupId,
           page: queryParams.page || 1,
           perPage: queryParams.perPage || 20
         }
@@ -125,6 +132,7 @@ export default withRouter(
     graphql(gql(queries.modules), { name: 'modulesQuery' }),
     graphql(gql(queries.actions), { name: 'actionsQuery' }),
     graphql(gql(userQueries.users), { name: 'usersQuery' }),
+    graphql(gql(usersGroupQueries.usersGroups), { name: 'usersGroupsQuery' }),
 
     // mutations
     graphql(gql(mutations.permissionAdd), {

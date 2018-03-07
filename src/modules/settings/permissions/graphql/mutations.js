@@ -2,6 +2,7 @@ const commonParamsDef = `
   $module: String!,
   $actions: [String!]!,
   $userIds: [String!]!,
+  $groupIds: [String!]!,
   $allowed: Boolean,
 `;
 
@@ -9,6 +10,7 @@ const commonParams = `
   module: $module,
   actions: $actions,
   userIds: $userIds,
+  groupIds: $groupIds,
   allowed: $allowed,
 `;
 

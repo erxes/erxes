@@ -19,7 +19,7 @@ import Select from 'react-select-plus';
 import { router } from 'modules/common/utils';
 import {
   generateModuleParams,
-  generateUsersParams,
+  generateListParams,
   correctValue,
   filterActions
 } from './utils';
@@ -29,6 +29,7 @@ const propTypes = {
   permissions: PropTypes.array.isRequired,
   modules: PropTypes.array.isRequired,
   actions: PropTypes.array.isRequired,
+  groups: PropTypes.array.isRequired,
   totalCount: PropTypes.number,
   users: PropTypes.array.isRequired,
   history: PropTypes.object,
@@ -54,7 +55,8 @@ class PermissionList extends Component {
         <tr key={object._id}>
           <td>{object.module}</td>
           <td>{object.action}</td>
-          <td>{object.user.email}</td>
+          <td>{object.user ? object.user.email : ''}</td>
+          <td>{object.group ? object.group.name : ''}</td>
           <td>
             <FormControl
               componentClass="checkbox"
@@ -88,6 +90,7 @@ class PermissionList extends Component {
             <th>Module</th>
             <th>Action</th>
             <th>Email</th>
+            <th>Group</th>
             <th>Allow</th>
             <th>Actions</th>
           </tr>
@@ -109,6 +112,7 @@ class PermissionList extends Component {
       users,
       history,
       save,
+      groups,
       queryParams,
       totalCount
     } = this.props;
@@ -128,7 +132,7 @@ class PermissionList extends Component {
 
     const actionBarRight = can('configPermission') ? (
       <ModalTrigger title={this.title} size={'lg'} trigger={trigger}>
-        {this.renderForm({ modules, actions, users, save })}
+        {this.renderForm({ modules, actions, users, groups, save })}
       </ModalTrigger>
     ) : null;
 
@@ -158,8 +162,19 @@ class PermissionList extends Component {
 
         <FilterWrapper>
           <Select
+            placeholder="Choose group"
+            options={generateListParams(groups)}
+            value={queryParams.groupId}
+            onChange={item => {
+              router.setParams(history, { groupId: correctValue(item) });
+            }}
+          />
+        </FilterWrapper>
+
+        <FilterWrapper>
+          <Select
             placeholder="Choose user"
-            options={generateUsersParams(users)}
+            options={generateListParams(users)}
             value={queryParams.userId}
             onChange={item => {
               router.setParams(history, { userId: correctValue(item) });

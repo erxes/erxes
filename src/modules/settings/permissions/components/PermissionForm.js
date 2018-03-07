@@ -10,7 +10,7 @@ import {
 import Select from 'react-select-plus';
 import {
   generateModuleParams,
-  generateUsersParams,
+  generateListParams,
   correctValue,
   filterActions
 } from './utils';
@@ -19,7 +19,8 @@ const propTypes = {
   save: PropTypes.func,
   modules: PropTypes.array.isRequired,
   actions: PropTypes.array.isRequired,
-  users: PropTypes.array.isRequired
+  users: PropTypes.array.isRequired,
+  groups: PropTypes.array.isRequired
 };
 
 const contextTypes = {
@@ -32,7 +33,8 @@ class PermissionForm extends Component {
     this.state = {
       selectedModule: '',
       selectedActions: [],
-      selectedUsers: []
+      selectedUsers: [],
+      selectedGroups: []
     };
 
     this.save = this.save.bind(this);
@@ -42,13 +44,19 @@ class PermissionForm extends Component {
   save(e) {
     e.preventDefault();
 
-    const { selectedModule, selectedActions, selectedUsers } = this.state;
+    const {
+      selectedModule,
+      selectedActions,
+      selectedUsers,
+      selectedGroups
+    } = this.state;
 
     this.props.save(
       {
         module: selectedModule,
         actions: this.collectValues(selectedActions),
         userIds: this.collectValues(selectedUsers),
+        groupIds: this.collectValues(selectedGroups),
         allowed: document.getElementById('allowed').checked
       },
       () => {
@@ -71,8 +79,13 @@ class PermissionForm extends Component {
   }
 
   renderContent() {
-    const { modules, actions, users } = this.props;
-    const { selectedModule, selectedActions, selectedUsers } = this.state;
+    const { modules, actions, users, groups } = this.props;
+    const {
+      selectedModule,
+      selectedActions,
+      selectedUsers,
+      selectedGroups
+    } = this.state;
 
     return (
       <div>
@@ -106,12 +119,27 @@ class PermissionForm extends Component {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Choose the groups</ControlLabel>
+          <br />
+
+          <Select
+            placeholder="Choose groups"
+            options={generateListParams(groups)}
+            value={selectedGroups}
+            onChange={items => {
+              this.setState({ selectedGroups: items });
+            }}
+            multi
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Choose the users</ControlLabel>
           <br />
 
           <Select
             placeholder="Choose users"
-            options={generateUsersParams(users)}
+            options={generateListParams(users)}
             value={selectedUsers}
             onChange={items => {
               this.setState({ selectedUsers: items });
