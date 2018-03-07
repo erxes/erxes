@@ -2,7 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Button, Icon } from 'modules/common/components';
-import { ChooseType, Steps, Step, CallOut, FormStep } from './step';
+import {
+  ChooseType,
+  Steps,
+  Step,
+  CallOut,
+  FormStep,
+  SuccessStep
+} from './step';
 import { StepWrapper } from '../styles';
 
 const propTypes = {
@@ -161,7 +168,7 @@ class Form extends Component {
             next={this.next}
             nextButton={this.renderNextButton()}
           >
-            <div>hi step 4</div>
+            <SuccessStep />
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"

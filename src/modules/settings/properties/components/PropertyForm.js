@@ -173,6 +173,7 @@ class PropertyForm extends Component {
   }
 
   renderOption(option, index) {
+    console.log(option, index);
     return (
       <li key={index}>
         {option}

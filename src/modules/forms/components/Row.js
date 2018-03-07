@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import {
   ActionButtons,
   Tip,
@@ -31,14 +32,15 @@ class Row extends Component {
 
   render() {
     const { integration } = this.props;
+    const form = integration.form;
 
     return (
       <tr>
-        <td>{integration.name}</td>
+        <td>{form.title}</td>
         <td>0</td>
         <td>0.00%</td>
         <td>0</td>
-        <td>3 hours ago</td>
+        <td>{moment(form.createdDate).format('ll')}</td>
         <td>
           <ActionButtons>
             {this.renderEditAction()}

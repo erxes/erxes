@@ -29,21 +29,19 @@ class CallOut extends Component {
     super(props);
 
     this.state = {
-      title: props.integration || {}
+      title: ''
     };
 
     this.onChangeText = this.onChangeText.bind(this);
   }
 
-  onChangeText() {
-    const value = document.getElementById('callout-title').value;
-    this.setState({ title: value });
-    console.log(this.state.title);
+  onChangeText(event) {
+    this.setState({ title: event.target.value });
   }
 
   render() {
     const { integration } = this.props;
-    console.log(this.state.title);
+
     return (
       <FlexItem>
         <LeftItem>
@@ -52,6 +50,7 @@ class CallOut extends Component {
             id="callout-title"
             type="text"
             defaultValue={integration.title}
+            value={this.state.title}
             onChange={this.onChangeText}
           />
 
@@ -80,7 +79,7 @@ class CallOut extends Component {
             </ImageContent>
           </ImageWrapper>
         </LeftItem>
-        <Preview>{/* {haha} */}</Preview>
+        <Preview>{this.state.title}</Preview>
       </FlexItem>
     );
   }
