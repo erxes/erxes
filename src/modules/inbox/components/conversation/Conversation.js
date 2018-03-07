@@ -75,6 +75,12 @@ class Conversation extends Component {
 
   renderMessages() {
     const { conversation, scrollBottom } = this.props;
+    const currentUser = this.context.currentUser;
+    const twitterUsername =
+      (currentUser &&
+        currentUser.details &&
+        currentUser.details.twitterUsername) ||
+      '';
 
     if (!conversation) {
       return null;
@@ -86,6 +92,8 @@ class Conversation extends Component {
     let tempId;
 
     messages.forEach(message => {
+      const twitterData = message.customer && message.customer.twitterData;
+
       rows.push(
         <Message
           isSameUser={
@@ -94,7 +102,10 @@ class Conversation extends Component {
               : message.customerId === tempId
           }
           message={message}
-          staff={!message.customerId}
+          staff={
+            !message.customerId ||
+            (twitterData && twitterData.screenName === twitterUsername)
+          }
           key={message._id}
           scrollBottom={scrollBottom}
         />
@@ -108,8 +119,9 @@ class Conversation extends Component {
 
   renderConversation() {
     const { conversation, scrollBottom } = this.props;
+    const twitterData = conversation.twitterData;
     const isTweet =
-      conversation.twitterData && !conversation.twitterData.isDirectMessage;
+      twitterData && !twitterData.isDirectMessage && twitterData.created_at;
 
     if (isTweet) {
       return (
@@ -134,5 +146,8 @@ class Conversation extends Component {
 }
 
 Conversation.propTypes = propTypes;
+Conversation.contextTypes = {
+  currentUser: PropTypes.object
+};
 
 export default Conversation;

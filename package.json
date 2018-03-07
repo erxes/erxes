@@ -64,6 +64,7 @@
     "recharts": "1.0.0-beta.2",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
+    "scriptjs": "^2.5.8",
     "strip": "^3.0.0",
     "styled-components": "^3.1.6",
     "subscriptions-transport-ws": "0.8.3",

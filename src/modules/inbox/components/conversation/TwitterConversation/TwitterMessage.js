@@ -4,7 +4,10 @@ import styled from 'styled-components';
 import moment from 'moment';
 import { colors } from 'modules/common/styles';
 import { NameCard, Tip, Icon } from 'modules/common/components';
-import { TweetContent } from './';
+import { TweetContent, TweetMedia } from './';
+
+const mainSize = '20px';
+const borderRadius = '4px';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
@@ -13,35 +16,54 @@ const propTypes = {
 };
 
 const Tweet = styled.div`
-  padding: 20px 20px 15px 70px;
-  border: 1px solid #dee4e7;
+  padding: ${mainSize} ${mainSize} 15px 70px;
+  padding-left: ${props => props.root && mainSize};
+  border: 1px solid ${colors.borderDarker};
   overflow: hidden;
   position: relative;
-  margin-bottom: 20px;
-  background: #fff;
-  border-radius: 3px;
+  margin-bottom: ${mainSize};
+  background: ${props => props.root && colors.colorWhite};
+  border-radius: ${borderRadius};
 
   > span {
     position: absolute;
-    left: 20px;
-    top: 20px;
+    left: ${mainSize};
+    top: ${mainSize};
+  }
+
+  img {
+    margin-bottom: 15px;
+    max-width: 100%;
   }
 `;
 
 const User = styled.div`
   color: ${colors.colorCoreGray};
   position: relative;
-  padding-right: 20px;
+  padding-right: ${mainSize};
+  padding-left: ${props => props.root && '50px'};
+  margin-bottom: ${props => props.root && '10px'};
+
+  > span {
+    display: ${props => props.root && 'block'};
+
+    &:before {
+      content: ${props => !props.root && '• '};
+    }
+  }
 
   time {
     position: absolute;
     right: 0;
+    top: 0;
   }
 `;
 
 const Counts = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 12px;
+  border-top: ${props => props.root && `1px solid ${colors.borderPrimary}`};
+  padding-top: ${props => props.root && '15px'};
 
   i {
     font-size: 14px;
@@ -49,7 +71,7 @@ const Counts = styled.div`
   }
 
   > span {
-    margin-right: 20px;
+    margin-right: ${mainSize};
   }
 `;
 
@@ -73,29 +95,29 @@ class TwitterMessage extends Component {
     );
   }
 
-  renderCounts(twitterData) {
+  renderCount(text, count, icon) {
     return (
-      <Counts>
-        <span>
-          <Icon icon="chatbubble" /> Reply • {twitterData.reply_count || 0}
-        </span>
-        <span>
-          <Icon icon="loop" /> Retweet • {twitterData.retweet_count || 0}
-        </span>
-        <span>
-          <Icon icon="heart" /> Favorite • {twitterData.favorite_count || 0}
-        </span>
-        <span>
-          <Icon icon="quote" /> Quote • {twitterData.quote_count || 0}
-        </span>
+      <span>
+        <Icon icon={icon} /> {text} • {count}
+      </span>
+    );
+  }
+
+  renderCounts(twitterData) {
+    const inReplyStatus = twitterData.in_reply_to_status_id ? false : true;
+
+    return (
+      <Counts root={inReplyStatus}>
+        {this.renderCount('Reply', twitterData.reply_count || 0, 'chatbubble')}
+        {this.renderCount('Retweet', twitterData.retweet_count || 0, 'loop')}
+        {this.renderCount('Favorite', twitterData.favorite_count || 0, 'heart')}
+        {this.renderCount('Quote', twitterData.quote_count || 0, 'quote')}
       </Counts>
     );
   }
 
-  renderReply(twitterData) {
-    const inReplyStatus = twitterData.in_reply_to_status_id;
-
-    if (inReplyStatus) {
+  renderReply(twitterData, inReplyStatus) {
+    if (!inReplyStatus) {
       return (
         <Reply>
           Replying to{' '}
@@ -108,37 +130,45 @@ class TwitterMessage extends Component {
   }
 
   render() {
-    const { message } = this.props;
-    console.log(message);
+    const { message, scrollBottom } = this.props;
 
+    // customer
     const customer = message.customer || {};
     const twitterCustomer = customer.twitterData;
     const twitterName = twitterCustomer.name;
     const twitterUsername =
       twitterCustomer.screen_name || twitterCustomer.screenName;
+
+    // twitter data
     const twitterData = message.twitterData;
     const messageDate = twitterData.created_at;
+    const extendedTweet = twitterData.extended_tweet;
+    const tweetContent =
+      (extendedTweet && extendedTweet.full_text) || message.content;
+    const entities =
+      (extendedTweet && extendedTweet.entities) || twitterData.entities;
+
+    const inReplyStatus = twitterData.in_reply_to_status_id ? false : true;
 
     return (
-      <Tweet>
+      <Tweet root={inReplyStatus}>
         <NameCard.Avatar customer={customer} />
+
+        <User root={inReplyStatus}>
+          {this.renderTwitterLink(twitterUsername, twitterName)}
+          <span>@{twitterUsername}</span>
+          <Tip text={moment(messageDate).format('lll')}>
+            <time>
+              {moment(messageDate)
+                .subtract(2, 'minutes')
+                .fromNow()}
+            </time>
+          </Tip>
+        </User>
         <div>
-          <User>
-            {this.renderTwitterLink(twitterUsername, twitterName)}
-            • @{twitterUsername}
-            <Tip text={moment(messageDate).format('lll')}>
-              <time>
-                {moment(messageDate)
-                  .subtract(2, 'minutes')
-                  .fromNow()}
-              </time>
-            </Tip>
-          </User>
-          {this.renderReply(twitterData)}
-          <TweetContent
-            content={message.content}
-            entities={twitterData.entities}
-          />
+          {this.renderReply(twitterData, inReplyStatus)}
+          <TweetContent content={tweetContent} entities={entities} />
+          <TweetMedia data={twitterData} scrollBottom={scrollBottom} />
           {this.renderCounts(twitterData)}
         </div>
       </Tweet>

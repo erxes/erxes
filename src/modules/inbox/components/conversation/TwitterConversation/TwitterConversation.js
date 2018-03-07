@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { TwitterMessage } from './';
+import Message from '../Message';
 
 const propTypes = {
   conversation: PropTypes.object,
@@ -11,6 +12,7 @@ const propTypes = {
 const List = styled.ul`
   list-style: none;
   padding-left: ${props => (props.isRoot ? '0' : '40px')};
+  max-width: 700px;
 `;
 
 class TwitterConversation extends Component {
@@ -25,7 +27,10 @@ class TwitterConversation extends Component {
     const array = [];
 
     messages.forEach(message => {
-      if (message.twitterData.in_reply_to_status_id_str === parent) {
+      if (
+        message.twitterData &&
+        message.twitterData.in_reply_to_status_id_str === parent
+      ) {
         const children = this.renderMessages(
           messages,
           message.twitterData.id_str
@@ -61,6 +66,19 @@ class TwitterConversation extends Component {
     });
   }
 
+  renderInternals(messages) {
+    return messages.filter(message => !message.twitterData).map(message => {
+      return (
+        <Message
+          message={message}
+          staff={!message.customerId}
+          key={message._id}
+          scrollBottom={this.props.scrollBottom}
+        />
+      );
+    });
+  }
+
   render() {
     const { conversation } = this.props;
 
@@ -71,7 +89,12 @@ class TwitterConversation extends Component {
     const messages = conversation.messages || [];
     const nestedMessages = this.renderMessages(messages, null);
 
-    return <List isRoot>{this.renderTweets(nestedMessages)}</List>;
+    return (
+      <List isRoot>
+        {this.renderTweets(nestedMessages)}
+        {this.renderInternals(messages)}
+      </List>
+    );
   }
 }
 

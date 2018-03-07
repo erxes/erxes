@@ -10,7 +10,6 @@ const propTypes = {
 
 const MessageContent = styled.div`
   margin: 5px 0 10px 0;
-  max-width: 640px;
 
   a {
     font-weight: bold;
