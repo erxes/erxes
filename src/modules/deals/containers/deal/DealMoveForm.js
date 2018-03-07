@@ -56,6 +56,7 @@ class DealMoveFormContainer extends React.Component {
       boardsQuery,
       pipelinesQuery,
       stagesQuery,
+      dealsQuery,
       dealsChangeMutation
     } = this.props;
     const { boardId, pipelineId } = this.state;
@@ -68,8 +69,11 @@ class DealMoveFormContainer extends React.Component {
       dealsChangeMutation({
         variables: doc
       })
-        .then(() => {
+        .then(({ data }) => {
           Alert.success('Successfully moved.');
+
+          dealsQuery.refetch({ stageId: data.dealsChange.stageId });
+
           callback();
         })
         .catch(error => {
@@ -107,6 +111,7 @@ const propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
   stagesQuery: PropTypes.object,
+  dealsQuery: PropTypes.object,
   dealsChangeMutation: PropTypes.func,
   deal: PropTypes.object
 };
@@ -135,5 +140,13 @@ export default compose(
   }),
   graphql(gql(mutations.dealsChange), {
     name: 'dealsChangeMutation'
+  }),
+  graphql(gql(queries.deals), {
+    name: 'dealsQuery',
+    options: ({ stageId }) => ({
+      variables: {
+        stageId: stageId || ''
+      }
+    })
   })
 )(DealMoveFormContainer);
