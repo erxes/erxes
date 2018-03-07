@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Modal } from 'react-bootstrap';
 import { Button, ModalTrigger } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
-import { ActionBar, Wrapper } from 'modules/layout/components';
-import Sidebar from 'modules/settings/Sidebar';
 import { ContentBox } from '../../styles';
 import { PasswordConfirmation } from './';
 
@@ -12,7 +11,7 @@ const propTypes = {
   save: PropTypes.func.isRequired
 };
 
-class Profile extends Component {
+class EditProfile extends Component {
   constructor(props) {
     super(props);
 
@@ -44,6 +43,8 @@ class Profile extends Component {
       },
       password
     });
+
+    this.context.closeModal();
   }
 
   onAvatarUpload(url) {
@@ -51,29 +52,29 @@ class Profile extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     const saveButton = (
       <Button btnStyle="success" icon="checkmark">
         Save
       </Button>
     );
-    const content = (
+
+    return (
       <ContentBox>
         <UserCommonInfos
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
         />
-      </ContentBox>
-    );
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Profile settings') }
-    ];
+        <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={() => this.context.closeModal()}
+            icon="close"
+          >
+            Cancel
+          </Button>
 
-    const actionFooter = (
-      <ActionBar
-        right={
           <ModalTrigger
             title="Enter your password to Confirm"
             trigger={saveButton}
@@ -82,24 +83,16 @@ class Profile extends Component {
               onSuccess={password => this.handleSubmit(password)}
             />
           </ModalTrigger>
-        }
-      />
-    );
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        footer={actionFooter}
-        content={content}
-      />
+        </Modal.Footer>
+      </ContentBox>
     );
   }
 }
 
-Profile.propTypes = propTypes;
-Profile.contextTypes = {
-  __: PropTypes.func
+EditProfile.propTypes = propTypes;
+EditProfile.contextTypes = {
+  __: PropTypes.func,
+  closeModal: PropTypes.func
 };
 
-export default Profile;
+export default EditProfile;

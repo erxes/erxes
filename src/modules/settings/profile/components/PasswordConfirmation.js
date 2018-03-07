@@ -36,7 +36,7 @@ class PasswordConfirmation extends Component {
     return (
       <form onSubmit={e => this.submit(e)}>
         <FormGroup>
-          <ControlLabel>Please Enter your password to confirm</ControlLabel>
+          <ControlLabel>Enter your password to Confirm</ControlLabel>
           <FormControl autoFocus id="password" type="password" />
         </FormGroup>
         <Modal.Footer>
