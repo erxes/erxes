@@ -19,7 +19,6 @@ const extractConversationData = ({ data, isDirectMessage, timeline = {}, directM
   isDirectMessage,
   entities: data.entities,
   extended_entities: data.extended_entities,
-  extended_tweet: data.extended_tweet,
   ...timeline,
   ...directMessage,
 });
@@ -178,8 +177,8 @@ export const receiveDirectMessageInformation = async (data, integration) => {
 /*
  * Prepare data to save for conversation using timeline info
  */
-const extractConversationDataTimeline = data =>
-  extractConversationData({
+const extractConversationDataTimeline = data => {
+  const updatedData = {
     data,
     isDirectMessage: false,
     timeline: {
@@ -196,7 +195,14 @@ const extractConversationDataTimeline = data =>
       retweet_count: data.retweet_count,
       favorite_count: data.favorite_count,
     },
-  });
+  };
+
+  if (data.extended_tweet) {
+    updatedData.extended_tweet = data.extended_tweet;
+  }
+
+  return extractConversationData(updatedData);
+};
 
 /*
  * Create new message using timeline
