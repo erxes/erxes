@@ -146,7 +146,8 @@ const MainContainer = props => {
 };
 
 MainContainer.propTypes = {
-  calledFromOthers: PropTypes.bool
+  calledFromOthers: PropTypes.bool,
+  data: PropTypes.object
 };
 
 export default compose(
