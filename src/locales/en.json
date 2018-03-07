@@ -515,5 +515,8 @@
   "Merge Companies": "Merge Companies",
   "Response template": "Response template",
   "Attach file": "Attach file",
-  "Permissions": "Permissions"
+  "Permissions": "Permissions",
+  "New permission": "New permission",
+  "New group": "New group",
+  "Users groups": "Users groups"
 }

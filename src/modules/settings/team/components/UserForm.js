@@ -22,7 +22,8 @@ class UserForm extends CommonForm {
 
     this.state = {
       avatar: user.details.avatar || defaultAvatar,
-      selectedChannels: this.generateChannelsParams(props.selectedChannels)
+      selectedChannels: this.generateChannelsParams(props.selectedChannels),
+      selectedGroups: user.groupIds
     };
   }
 
@@ -64,7 +65,32 @@ class UserForm extends CommonForm {
     );
   }
 
+  renderGroups() {
+    const { __ } = this.context;
+    const self = this;
+    const { groups } = this.props;
+
+    return (
+      <FormGroup>
+        <ControlLabel>Choose the channels</ControlLabel>
+        <br />
+
+        <Select
+          placeholder={__('Choose groups')}
+          value={self.state.selectedGroups}
+          options={self.generateChannelsParams(groups)}
+          onChange={items => {
+            self.setState({ selectedGroups: items });
+          }}
+          multi
+        />
+      </FormGroup>
+    );
+  }
+
   generateDoc() {
+    const { selectedChannels, selectedGroups } = this.state;
+
     return {
       doc: {
         username: document.getElementById('username').value,
@@ -77,7 +103,7 @@ class UserForm extends CommonForm {
           location: document.getElementById('user-location').value,
           description: document.getElementById('description').value
         },
-        channelIds: this.collectValues(this.state.selectedChannels),
+        channelIds: this.collectValues(selectedChannels),
         password: document.getElementById('password').value,
         passwordConfirmation: document.getElementById('password-confirmation')
           .value,
@@ -88,7 +114,8 @@ class UserForm extends CommonForm {
           youtube: document.getElementById('youtube').value,
           github: document.getElementById('github').value,
           website: document.getElementById('website').value
-        }
+        },
+        groupIds: this.collectValues(selectedGroups)
       }
     };
   }
@@ -125,6 +152,7 @@ class UserForm extends CommonForm {
         </FormGroup>
 
         {this.renderChannels()}
+        {this.renderGroups()}
       </div>
     );
   }

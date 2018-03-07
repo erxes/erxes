@@ -12,6 +12,7 @@ const commonParamsDef = `
   $links: UserLinks,
   $channelIds: [String],
   $password: String!,
+  $groupIds: [String],
   $passwordConfirmation: String!
 `;
 
@@ -23,6 +24,7 @@ const commonParams = `
   links: $links,
   channelIds: $channelIds,
   password: $password,
+  groupIds: $groupIds,
   passwordConfirmation: $passwordConfirmation
 `;
 

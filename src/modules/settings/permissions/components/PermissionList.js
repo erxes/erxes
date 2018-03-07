@@ -42,6 +42,7 @@ class PermissionList extends Component {
     super(props);
 
     this.renderObjects = this.renderObjects.bind(this);
+    this.title = 'New permission';
   }
 
   renderObjects() {
@@ -114,8 +115,6 @@ class PermissionList extends Component {
 
     const { can } = this.context;
 
-    const title = 'New permission';
-
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
       { title: 'Permissions' }
@@ -123,12 +122,12 @@ class PermissionList extends Component {
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="plus">
-        {title}
+        {this.title}
       </Button>
     );
 
     const actionBarRight = can('configPermission') ? (
-      <ModalTrigger title={title} size={'lg'} trigger={trigger}>
+      <ModalTrigger title={this.title} size={'lg'} trigger={trigger}>
         {this.renderForm({ modules, actions, users, save })}
       </ModalTrigger>
     ) : null;

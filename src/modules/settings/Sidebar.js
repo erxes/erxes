@@ -45,6 +45,11 @@ function SettingsSidebar(props, { __, can }) {
               </NavLink>
             </li>
           </ShowContent>
+          <li>
+            <NavLink activeClassName="active" to="/settings/users/groups">
+              {__('Users groups')}
+            </NavLink>
+          </li>
         </SidebarList>
       </Sidebar.Section>
 

@@ -5,6 +5,7 @@ const users = `
       username
       email
       role
+      groupIds
       details {
         avatar
         fullName

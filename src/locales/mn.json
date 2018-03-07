@@ -519,5 +519,8 @@
   "Merge Companies": "Компаниудыг нэгтгэх",
   "Response template": "Хариу үйлдлийн загвар",
   "Attach file": "Файл хавсаргах",
-  "Permissions": "Хандах эрх"
+  "Permissions": "Хандах эрх",
+  "New permission": "Эрх үүсгэх",
+  "New group": "Бүлэг үүсгэх",
+  "Users groups": "Хэрэглэгчдийн бүлгийн жагсаалт"
 }
