@@ -17,7 +17,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class ChannelForm extends Component {
@@ -68,6 +69,7 @@ class ChannelForm extends Component {
   }
 
   renderContent() {
+    const { __ } = this.context;
     const { members, channel } = this.props;
 
     const object = channel || { memberIds: [] };
@@ -101,7 +103,7 @@ class ChannelForm extends Component {
           <ControlLabel>Members</ControlLabel>
 
           <Select
-            placeholder="Choose members"
+            placeholder={__('Choose members')}
             onChange={items => {
               self.setState({ selectedMembers: items });
             }}

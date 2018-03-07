@@ -132,12 +132,13 @@ class AutoAndManualForm extends FormBase {
       message
     } = this.state;
     const defaultMessageStepValue = { messenger, email, fromUser, message };
+    const { __ } = this.context;
 
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={this.renderTitle()} />
         <TitleContainer>
-          <div>Title</div>
+          <div>{__('Title')}</div>
           <FormControl
             required
             onChange={e => this.changeState('title', e.target.value)}
@@ -194,5 +195,8 @@ class AutoAndManualForm extends FormBase {
 }
 
 AutoAndManualForm.propTypes = propTypes;
+AutoAndManualForm.contextTypes = {
+  __: PropTypes.func
+};
 
 export default AutoAndManualForm;

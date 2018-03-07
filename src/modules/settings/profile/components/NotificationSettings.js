@@ -70,9 +70,10 @@ class NotificationSettings extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const content = (
       <ContentBox>
-        <SubHeading>Notifications</SubHeading>
+        <SubHeading>{__('Notifications')}</SubHeading>
         <InlineItems>
           <Toggle
             defaultChecked={this.props.getNotificationByEmail}
@@ -82,7 +83,7 @@ class NotificationSettings extends Component {
               unchecked: null
             }}
           />
-          Get notification by email
+          {__('Get notification by email')}
         </InlineItems>
         <ContentBox>
           {this.props.modules.map((module, index) =>
@@ -93,8 +94,8 @@ class NotificationSettings extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Notification settings' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Notification settings') }
     ];
 
     return (
@@ -119,6 +120,10 @@ NotificationSettings.propTypes = {
 
   // previously configured value
   getNotificationByEmail: PropTypes.bool.isRequired
+};
+
+NotificationSettings.contextTypes = {
+  __: PropTypes.func
 };
 
 export default NotificationSettings;

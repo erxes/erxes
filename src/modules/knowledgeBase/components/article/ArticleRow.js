@@ -42,10 +42,11 @@ class ArticleRow extends Component {
 
   renderEditAction() {
     const { article, queryParams, currentCategoryId, topicIds } = this.props;
+    const { __ } = this.context;
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -66,6 +67,7 @@ class ArticleRow extends Component {
   render() {
     const { article } = this.props;
     const user = article.createdUser;
+    const { __ } = this.context;
 
     return (
       <Row>
@@ -82,16 +84,16 @@ class ArticleRow extends Component {
                 '/images/avatar-colored.svg'
               }
             />
-            Written By
+            {__('Written By')}
             <AuthorName>
               {user.details.fullName || user.username || user.email}
             </AuthorName>
-            Created {moment(article.createdDate).format('ll')}
+            {__('Created')} {moment(article.createdDate).format('ll')}
           </ArticleAuthor>
         </ArticleColumn>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text="Delete">
+          <Tip text={__('Delete')}>
             <Button btnStyle="link" onClick={this.remove} icon="close" />
           </Tip>
         </ActionButtons>
@@ -101,5 +103,8 @@ class ArticleRow extends Component {
 }
 
 ArticleRow.propTypes = propTypes;
+ArticleRow.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ArticleRow;

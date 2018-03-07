@@ -7,7 +7,7 @@ const propTypes = {
   customer: PropTypes.object.isRequired
 };
 
-function FacebookSection({ customer }) {
+function FacebookSection({ customer }, { __ }) {
   const { facebookData } = customer;
 
   if (!facebookData) {
@@ -18,17 +18,17 @@ function FacebookSection({ customer }) {
 
   return (
     <Sidebar.Section>
-      <Title>Facebook</Title>
+      <Title>{__('Facebook')}</Title>
       <SidebarList className="no-link">
         <li>
-          Facebook profile
+          {__('Facebook profile')}
           <SidebarCounter>
             <a
               target="_blank"
               href={`http://facebook.com/${facebookData.id}`}
               rel="noopener noreferrer"
             >
-              [view]
+              {__('[view]')}
             </a>
           </SidebarCounter>
         </li>
@@ -38,5 +38,8 @@ function FacebookSection({ customer }) {
 }
 
 FacebookSection.propTypes = propTypes;
+FacebookSection.contextTypes = {
+  __: PropTypes.func
+};
 
 export default FacebookSection;

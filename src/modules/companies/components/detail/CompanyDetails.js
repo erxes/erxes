@@ -16,7 +16,7 @@ import { hasAnyActivity } from 'modules/customers/utils';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
-  customFields: PropTypes.array.isRequired,
+  fieldsGroups: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
@@ -76,9 +76,10 @@ class CompanyDetails extends React.Component {
   render() {
     const { currentTab } = this.state;
     const { company } = this.props;
+    const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Companies', link: '/companies' },
+      { title: __('Companies'), link: '/companies' },
       { title: company.name || company.email || 'N/A' }
     ];
 
@@ -87,7 +88,7 @@ class CompanyDetails extends React.Component {
         <WhiteBox>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> New note
+              <Icon icon="compose" /> {__('New note')}
             </TabTitle>
           </Tabs>
 
@@ -99,19 +100,19 @@ class CompanyDetails extends React.Component {
             className={currentTab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}
           >
-            Activity
+            {__('Activity')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
             onClick={() => this.onTabClick('notes')}
           >
-            Notes
+            {__('Notes')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'conversations' ? 'active' : ''}
             onClick={() => this.onTabClick('conversations')}
           >
-            Conversation
+            {__('Conversation')}
           </TabTitle>
         </Tabs>
 
@@ -131,5 +132,8 @@ class CompanyDetails extends React.Component {
 }
 
 CompanyDetails.propTypes = propTypes;
+CompanyDetails.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(CompanyDetails);
