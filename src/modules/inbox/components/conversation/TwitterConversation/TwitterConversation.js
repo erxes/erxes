@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { TwitterMessage } from './';
@@ -90,10 +90,10 @@ class TwitterConversation extends Component {
     const nestedMessages = this.renderMessages(messages, null);
 
     return (
-      <List isRoot>
-        {this.renderTweets(nestedMessages)}
+      <Fragment>
+        <List isRoot>{this.renderTweets(nestedMessages)}</List>
         {this.renderInternals(messages)}
-      </List>
+      </Fragment>
     );
   }
 }

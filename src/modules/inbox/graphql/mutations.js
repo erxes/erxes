@@ -19,6 +19,25 @@ const conversationMessageAdd = `
   }
 `;
 
+const conversationTwitterAdd = `
+  mutation conversationMessageAdd(
+    $conversationId: String!,
+    $content: String!,
+    $tweetReplyToId: String,
+    $tweetReplyToScreenName: String
+  ) {
+    conversationMessageAdd(
+      conversationId: $conversationId,
+      content: $content,
+      tweetReplyToId: $tweetReplyToId,
+      tweetReplyToScreenName: $tweetReplyToScreenName
+    ) {
+      _id
+      content
+    }
+  }
+`;
+
 const markAsRead = `
   mutation conversationMarkAsRead(
     $_id: String
@@ -76,6 +95,7 @@ const conversationsUnassign = `
 
 export default {
   conversationMessageAdd,
+  conversationTwitterAdd,
   conversationsChangeStatus,
   conversationsAssign,
   conversationsUnassign,

@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import moment from 'moment';
 import { colors } from 'modules/common/styles';
-import { NameCard, Tip, Icon } from 'modules/common/components';
+import { NameCard, Tip, Icon, ModalTrigger } from 'modules/common/components';
 import { TweetContent, TweetMedia } from './';
+import { TweetReply } from 'modules/inbox/containers';
 
 const mainSize = '20px';
 const borderRadius = '4px';
@@ -34,6 +35,7 @@ const Tweet = styled.div`
   img {
     margin-bottom: 15px;
     max-width: 100%;
+    border-radius: ${borderRadius};
   }
 `;
 
@@ -69,14 +71,20 @@ const Counts = styled.div`
     font-size: 14px;
     margin-right: 3px;
   }
-
-  > span {
-    margin-right: ${mainSize};
-  }
 `;
 
 const Reply = styled.div`
   color: ${colors.colorCoreGray};
+`;
+
+const Count = styled.span`
+  margin-right: ${mainSize};
+  transition: color ease 0.3s;
+
+  &:hover {
+    cursor: ${props => props.hasEvent && 'pointer'};
+    color: ${props => props.hasEvent && colors.colorCoreBlack};
+  }
 `;
 
 class TwitterMessage extends Component {
@@ -95,20 +103,29 @@ class TwitterMessage extends Component {
     );
   }
 
-  renderCount(text, count, icon) {
+  renderCount(text, count, icon, hasEvent) {
     return (
-      <span>
+      <Count hasEvent={hasEvent}>
         <Icon icon={icon} /> {text} • {count}
-      </span>
+      </Count>
     );
   }
 
   renderCounts(twitterData) {
+    const replyTrigger = this.renderCount(
+      'Reply',
+      twitterData.reply_count || 0,
+      'chatbubble',
+      true
+    );
+
     const inReplyStatus = twitterData.in_reply_to_status_id ? false : true;
 
     return (
       <Counts root={inReplyStatus}>
-        {this.renderCount('Reply', twitterData.reply_count || 0, 'chatbubble')}
+        <ModalTrigger title="Reply tweet" trigger={replyTrigger}>
+          <TweetReply parentMessage={this.props.message} />
+        </ModalTrigger>
         {this.renderCount('Retweet', twitterData.retweet_count || 0, 'loop')}
         {this.renderCount('Favorite', twitterData.favorite_count || 0, 'heart')}
         {this.renderCount('Quote', twitterData.quote_count || 0, 'quote')}
