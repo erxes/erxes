@@ -27,11 +27,12 @@ class List extends Component {
 
   render() {
     const { integrationsCount, loading } = this.props;
+    const { __ } = this.context;
 
     const actionBarRight = (
       <Link to="/forms/create">
         <Button btnStyle="success" size="small" icon="plus">
-          Create form
+          {__('Create form')}
         </Button>
       </Link>
     );
@@ -40,11 +41,11 @@ class List extends Component {
       <Table hover>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Views</th>
-            <th>Conversion rate</th>
-            <th>Contacts gathered</th>
-            <th>Created at</th>
+            <th>{__('Name')}</th>
+            <th>{__('Views')}</th>
+            <th>{__('Conversion rate')}</th>
+            <th>{__('Contacts gathered')}</th>
+            <th>{__('Created At')}</th>
             <th width="5%" />
           </tr>
         </thead>
@@ -54,7 +55,7 @@ class List extends Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Forms' }]} />}
+        header={<Wrapper.Header breadcrumb={[{ title: __('Forms') }]} />}
         actionBar={<Wrapper.ActionBar right={actionBarRight} />}
         footer={<Pagination count={integrationsCount} />}
         content={
@@ -62,7 +63,7 @@ class List extends Component {
             data={content}
             loading={loading}
             count={integrationsCount}
-            emptyText="There is no forms."
+            emptyText="There is no form."
             emptyImage="/images/robots/robot-03.svg"
           />
         }
@@ -72,5 +73,8 @@ class List extends Component {
 }
 
 List.propTypes = propTypes;
+List.contextTypes = {
+  __: PropTypes.func
+};
 
 export default List;

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
 import { dimensions, colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { FlexItem, LeftItem, Preview, Title } from './style';
@@ -47,13 +48,14 @@ const propTypes = {
 
 class ChooseType extends Component {
   renderBox(name, image, value) {
+    const { __ } = this.context;
     return (
       <Box
         selected={this.props.kind === value}
         onClick={() => this.changeState(value)}
       >
         <img src={image} alt={name} />
-        <span>{name}</span>
+        <span>{__(name)}</span>
       </Box>
     );
   }
@@ -71,18 +73,19 @@ class ChooseType extends Component {
     const { kind } = this.props;
 
     if (kind === 'shoutbox') {
-      return 'zurag1';
+      return <ShoutboxPreview />;
     } else if (kind === 'popup') {
-      return 'zurag2';
+      return <PopupPreview />;
     }
-    return 'zruag3';
+    return <EmbeddedPreview />;
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <FlexItem>
         <LeftItem>
-          <Title>Choose a flow type</Title>
+          <Title>{__('Choose a flow type')}</Title>
           {this.renderBox('ShoutBox', '/images/icons/erxes-07.svg', 'shoutbox')}
           {this.renderBox('Popup', '/images/icons/erxes-08.svg', 'popup')}
           {this.renderBox('Embedded', '/images/icons/erxes-08.svg', 'embedded')}
@@ -94,5 +97,8 @@ class ChooseType extends Component {
 }
 
 ChooseType.propTypes = propTypes;
+ChooseType.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ChooseType;

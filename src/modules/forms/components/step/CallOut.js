@@ -41,11 +41,12 @@ class CallOut extends Component {
 
   render() {
     const { integration } = this.props;
+    const { __ } = this.context;
 
     return (
       <FlexItem>
         <LeftItem>
-          <Title>Callout title</Title>
+          <Title>{__('Callout title')}</Title>
           <FormControl
             id="callout-title"
             type="text"
@@ -54,14 +55,14 @@ class CallOut extends Component {
             onChange={this.onChangeText}
           />
 
-          <Title>Callout body</Title>
+          <Title>{__('Callout body')}</Title>
           <FormControl defaultValue="Callout description here" />
 
-          <Title>Callout button text</Title>
+          <Title>{__('Callout button text')}</Title>
           <FormControl defaultValue="i'm callout button text" />
 
-          <Title>Theme color</Title>
-          <p>Try some of these colors:</p>
+          <Title>{__('Theme color')}</Title>
+          <p>{__('Try some of these colors:')}</p>
 
           <div>
             <span />
@@ -72,7 +73,7 @@ class CallOut extends Component {
             <span />
           </div>
 
-          <Title>Featured image</Title>
+          <Title>{__('Featured image')}</Title>
           <ImageWrapper>
             <ImageContent>
               <Button btnStyle="warning">Upload</Button>
@@ -86,5 +87,8 @@ class CallOut extends Component {
 }
 
 CallOut.propTypes = propTypes;
+CallOut.contextTypes = {
+  __: PropTypes.func
+};
 
 export default CallOut;

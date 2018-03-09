@@ -152,10 +152,11 @@ class FormStep extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <FlexItem>
         <LeftItem>
-          <Title>Add a field</Title>
+          <Title>{__('Add a field')}</Title>
           {this.renderOptions()}
         </LeftItem>
         <Preview>right</Preview>
@@ -165,5 +166,8 @@ class FormStep extends Component {
 }
 
 FormStep.propTypes = propTypes;
+FormStep.contextTypes = {
+  __: PropTypes.func
+};
 
 export default FormStep;

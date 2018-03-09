@@ -40,10 +40,10 @@ class Form extends Component {
     this.changeState = this.changeState.bind(this);
   }
 
-  renderNextButton() {
+  renderNextButton(__) {
     return (
       <Button btnStyle="primary" size="small" onClick={() => this.next(0)}>
-        Next <Icon icon="ios-arrow-forward" />
+        {__('Next')} <Icon icon="ios-arrow-forward" />
       </Button>
     );
   }
@@ -131,8 +131,8 @@ class Form extends Component {
   render() {
     const { activeStep, hasOptions } = this.state;
     const integration = this.props.integration || {};
-
-    const breadcrumb = [{ title: 'Forms', link: '/forms' }, { title: 'Flow' }];
+    const { __ } = this.context;
+    const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
 
     return (
       <StepWrapper>
@@ -142,7 +142,7 @@ class Form extends Component {
             img="/images/icons/erxes-05.svg"
             title="Type"
             next={this.next}
-            nextButton={this.renderNextButton()}
+            nextButton={this.renderNextButton(__)}
           >
             <ChooseType changeState={this.changeState} kind={this.state.kind} />
           </Step>
@@ -150,7 +150,7 @@ class Form extends Component {
             img="/images/icons/erxes-02.svg"
             title="CallOut"
             next={this.next}
-            nextButton={this.renderNextButton()}
+            nextButton={this.renderNextButton(__)}
           >
             <CallOut integration={integration} />
           </Step>
@@ -158,7 +158,7 @@ class Form extends Component {
             img="/images/icons/erxes-08.svg"
             title="Form"
             next={this.next}
-            nextButton={this.renderNextButton()}
+            nextButton={this.renderNextButton(__)}
           >
             <FormStep hasOptions={hasOptions} />
           </Step>
@@ -166,7 +166,7 @@ class Form extends Component {
             img="/images/icons/erxes-08.svg"
             title="Thank content"
             next={this.next}
-            nextButton={this.renderNextButton()}
+            nextButton={this.renderNextButton(__)}
           >
             <SuccessStep />
           </Step>
@@ -174,7 +174,7 @@ class Form extends Component {
             img="/images/icons/erxes-08.svg"
             title="Full Preview"
             next={this.next}
-            nextButton={this.renderNextButton()}
+            nextButton={this.renderNextButton(__)}
           >
             <div>hi step 5</div>
           </Step>
@@ -185,5 +185,8 @@ class Form extends Component {
 }
 
 Form.propTypes = propTypes;
+Form.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Form;

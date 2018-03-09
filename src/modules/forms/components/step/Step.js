@@ -26,6 +26,7 @@ const propTypes = {
 
 class Step extends Component {
   render() {
+    const { __ } = this.context;
     const {
       stepNumber,
       active,
@@ -57,7 +58,7 @@ class Step extends Component {
               <StepImg>
                 <img src={img} alt="step-icon" />
               </StepImg>
-              <StepHeaderTitle>{title}</StepHeaderTitle>
+              <StepHeaderTitle>{__(title)}</StepHeaderTitle>
             </StepHeader>
             {nextButton}
           </StepHeaderContainer>
@@ -77,5 +78,8 @@ class Step extends Component {
 }
 
 Step.propTypes = propTypes;
+Step.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Step;

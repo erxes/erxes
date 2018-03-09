@@ -9,10 +9,12 @@ const propTypes = {
 
 class SuccessStep extends Component {
   render() {
+    const { __ } = this.context;
+
     return (
       <FlexItem>
         <LeftItem>
-          <Title>On Success</Title>
+          <Title>{__('On success')}</Title>
           <FormControl componentClass="select" value="type">
             <option />
             <option value="input">Input</option>
@@ -20,7 +22,7 @@ class SuccessStep extends Component {
             <option value="select">Select</option>
           </FormControl>
 
-          <Title>Thank you content</Title>
+          <Title>{__('Thank content')}</Title>
           <FormControl
             id="description"
             componentClass="textarea"
@@ -34,5 +36,8 @@ class SuccessStep extends Component {
 }
 
 SuccessStep.propTypes = propTypes;
+SuccessStep.contextTypes = {
+  __: PropTypes.func
+};
 
 export default SuccessStep;
