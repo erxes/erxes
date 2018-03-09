@@ -77,21 +77,21 @@ class MainLayout extends React.Component {
   }
 
   componentWillMount() {
-    moment.updateLocale('en', {
+    moment.locale('mn', {
       relativeTime: {
         future: 'in %s',
         past: '%s ',
-        s: 'just now',
-        m: 'a min',
+        s: 'саяхан',
+        m: 'минут',
         mm: '%d m',
-        h: 'an hour',
-        hh: '%d h',
-        d: 'a day',
-        dd: '%d d',
-        M: 'a mth',
-        MM: '%d mths',
-        y: 'an year',
-        yy: '%d y'
+        h: '1 цаг',
+        hh: '%d ц',
+        d: '1 өдөр',
+        dd: '%d өдөр',
+        M: '1 сар',
+        MM: '%d сар',
+        y: '1 жил',
+        yy: '%d жил'
       }
     });
   }
@@ -128,6 +128,8 @@ class MainLayout extends React.Component {
 
   selectLang(locale) {
     localStorage.setItem('locale', locale || 'en');
+
+    moment.locale(locale || 'en');
 
     this.setState({
       locale: locale || 'en',
