@@ -1,8 +1,9 @@
-import { Customers, Companies } from '../../../db/models';
+import { Customers, Companies, Users } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
 import {
   CustomerMonthActivityLogBuilder,
   CompanyMonthActivityLogBuilder,
+  UserMonthActivityLogBuilder,
 } from './activityLogUtils';
 
 const activityLogQueries = {
@@ -32,6 +33,20 @@ const activityLogQueries = {
 
     const companyMonthActivityLogBuilder = new CompanyMonthActivityLogBuilder(company);
     return companyMonthActivityLogBuilder.build();
+  },
+
+  /**
+   * Get activity log for user
+   * @param {Object} root
+   * @param {Object} object2 - Graphql input data
+   * @param {string} object._id - user id
+   * @return {Promise} Promise resolving array of ActivityLogForMonth
+   */
+  async activityLogsUser(root, { _id }) {
+    const user = await Users.findOne({ _id });
+
+    const userMonthActivityLogBuilder = new UserMonthActivityLogBuilder(user);
+    return userMonthActivityLogBuilder.build();
   },
 };
 
