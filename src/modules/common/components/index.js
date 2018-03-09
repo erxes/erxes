@@ -33,7 +33,7 @@ import ConfirmDialog from './ConfirmDialog';
 import DataWithLoader from './DataWithLoader';
 import ImageWithPreview from './ImageWithPreview';
 import IntegrationIcon from './IntegrationIcon';
-import ShowContent from './ShowContent';
+import ContentWithPermission from './ContentWithPermission';
 // TODO remove
 const pagination = {};
 
@@ -78,5 +78,5 @@ export {
   DataWithLoader,
   ImageWithPreview,
   IntegrationIcon,
-  ShowContent
+  ContentWithPermission
 };

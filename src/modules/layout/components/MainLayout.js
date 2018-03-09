@@ -142,6 +142,8 @@ class MainLayout extends React.Component {
 
     if (currentUser.isOwner) return true;
 
+    if (!actionName) return false;
+
     const actions = currentUser.permissionActions || [];
 
     return actions.indexOf(actionName) >= 0;

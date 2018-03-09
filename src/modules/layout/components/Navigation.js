@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import { setBadge } from 'modules/common/utils';
 import { colors, dimensions } from 'modules/common/styles';
-import { Tip, Label } from 'modules/common/components';
+import { Tip, Label, ContentWithPermission } from 'modules/common/components';
 
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
@@ -137,46 +137,60 @@ class Navigation extends Component {
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
-          <Tip placement="right" text={__('Inbox')}>
-            <NavLink to="/inbox" activeClassName="active">
-              <NavIcon className="icon-inbox" />
-              {unreadConversationsCount !== 0 && (
-                <Label shake lblStyle="danger" ignoreTrans>
-                  {unreadConversationsCount}
-                </Label>
-              )}
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Customers')}>
-            <NavLink to="/customers" activeClassName="active">
-              <NavIcon className="icon-customer" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Companies')}>
-            <NavLink to="/companies" activeClassName="active">
-              <NavIcon className="icon-company" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Engage')}>
-            <NavLink to="/engage" activeClassName="active">
-              <NavIcon className="icon-engage" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Insights')}>
-            <NavLink to="/insights" activeClassName="active">
-              <NavIcon className="icon-insights" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Knowledge Base')}>
-            <NavLink to="/knowledgeBase" activeClassName="active">
-              <NavIcon className="icon-knowledge" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Settings')}>
-            <NavLink to="/settings" activeClassName="active">
-              <NavIcon className="icon-settings" />
-            </NavLink>
-          </Tip>
+          <ContentWithPermission action="showConversationList">
+            <Tip placement="right" text={__('Inbox')}>
+              <NavLink to="/inbox" activeClassName="active">
+                <NavIcon className="icon-inbox" />
+                {unreadConversationsCount !== 0 && (
+                  <Label shake lblStyle="danger" ignoreTrans>
+                    {unreadConversationsCount}
+                  </Label>
+                )}
+              </NavLink>
+            </Tip>
+          </ContentWithPermission>
+          <ContentWithPermission action="showCustomerList">
+            <Tip placement="right" text={__('Customers')}>
+              <NavLink to="/customers" activeClassName="active">
+                <NavIcon className="icon-customer" />
+              </NavLink>
+            </Tip>
+          </ContentWithPermission>
+          <ContentWithPermission action="showCompanyList">
+            <Tip placement="right" text={__('Companies')}>
+              <NavLink to="/companies" activeClassName="active">
+                <NavIcon className="icon-company" />
+              </NavLink>
+            </Tip>
+          </ContentWithPermission>
+          <ContentWithPermission action="showEngageMessageList">
+            <Tip placement="right" text={__('Engage')}>
+              <NavLink to="/engage" activeClassName="active">
+                <NavIcon className="icon-engage" />
+              </NavLink>
+            </Tip>
+          </ContentWithPermission>
+          <ContentWithPermission action="showVolumeReport">
+            <Tip placement="right" text={__('Insights')}>
+              <NavLink to="/insights" activeClassName="active">
+                <NavIcon className="icon-insights" />
+              </NavLink>
+            </Tip>
+          </ContentWithPermission>
+          <ContentWithPermission action="showKnowledgeBaseArticles">
+            <Tip placement="right" text={__('Knowledge Base')}>
+              <NavLink to="/knowledgeBase" activeClassName="active">
+                <NavIcon className="icon-knowledge" />
+              </NavLink>
+            </Tip>
+          </ContentWithPermission>
+          <ContentWithPermission action="isOwner">
+            <Tip placement="right" text={__('Settings')}>
+              <NavLink to="/settings" activeClassName="active">
+                <NavIcon className="icon-settings" />
+              </NavLink>
+            </Tip>
+          </ContentWithPermission>
         </Nav>
       </LeftNavigation>
     );
