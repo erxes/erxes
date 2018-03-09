@@ -2,31 +2,7 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { commonListComposer } from '../../utils';
 import { UserList } from '../components';
-import { queries } from '../graphql';
-
-const commonParamsDef = `
-  $username: String!,
-  $email: String!,
-  $role: String!
-  $details: UserDetails,
-  $links: UserLinks,
-  $channelIds: [String],
-  $password: String!,
-  $groupIds: [String],
-  $passwordConfirmation: String!
-`;
-
-const commonParams = `
-  username: $username,
-  email: $email,
-  role: $role,
-  details: $details,
-  links: $links,
-  channelIds: $channelIds,
-  password: $password,
-  groupIds: $groupIds,
-  passwordConfirmation: $passwordConfirmation
-`;
+import { queries, mutations } from '../graphql';
 
 export default commonListComposer({
   name: 'users',
@@ -55,42 +31,17 @@ export default commonListComposer({
     }
   ),
 
-  gqlAddMutation: graphql(
-    gql`
-      mutation usersAdd(${commonParamsDef}) {
-        usersAdd(${commonParams}) {
-          _id
-        }
-      }
-    `,
-    {
-      name: 'addMutation'
-    }
-  ),
+  gqlAddMutation: graphql(gql(mutations.usersAdd), {
+    name: 'addMutation'
+  }),
 
-  gqlEditMutation: graphql(
-    gql`
-      mutation usersEdit($_id: String!, ${commonParamsDef}) {
-        usersEdit(_id: $_id, ${commonParams}) {
-          _id
-        }
-      }
-    `,
-    {
-      name: 'editMutation'
-    }
-  ),
+  gqlEditMutation: graphql(gql(mutations.usersEdit), {
+    name: 'editMutation'
+  }),
 
-  gqlRemoveMutation: graphql(
-    gql`
-      mutation usersRemove($_id: String!) {
-        usersRemove(_id: $_id)
-      }
-    `,
-    {
-      name: 'removeMutation'
-    }
-  ),
+  gqlRemoveMutation: graphql(gql(mutations.usersRemove), {
+    name: 'removeMutation'
+  }),
 
   ListComponent: UserList
 });

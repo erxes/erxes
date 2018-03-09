@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { Spinner } from 'modules/common/components';
 import Message from './Message';
+import { TwitterConversation } from './TwitterConversation';
 
 const propTypes = {
   conversation: PropTypes.object,
@@ -50,12 +51,6 @@ const File = styled.span`
 `;
 
 class Conversation extends Component {
-  constructor(props) {
-    super(props);
-
-    this.renderPreview = this.renderPreview.bind(this);
-  }
-
   renderPreview() {
     const { attachmentPreview } = this.props;
 
@@ -75,8 +70,14 @@ class Conversation extends Component {
     return null;
   }
 
-  render() {
+  renderMessages() {
     const { conversation, scrollBottom } = this.props;
+    const currentUser = this.context.currentUser;
+    const twitterUsername =
+      (currentUser &&
+        currentUser.details &&
+        currentUser.details.twitterUsername) ||
+      '';
 
     if (!conversation) {
       return null;
@@ -88,6 +89,8 @@ class Conversation extends Component {
     let tempId;
 
     messages.forEach(message => {
+      const twitterData = message.customer && message.customer.twitterData;
+
       rows.push(
         <Message
           isSameUser={
@@ -96,7 +99,10 @@ class Conversation extends Component {
               : message.customerId === tempId
           }
           message={message}
-          staff={!message.customerId}
+          staff={
+            !message.customerId ||
+            (twitterData && twitterData.screenName === twitterUsername)
+          }
           key={message._id}
           scrollBottom={scrollBottom}
         />
@@ -105,9 +111,31 @@ class Conversation extends Component {
       tempId = message.userId ? message.userId : message.customerId;
     });
 
+    return rows;
+  }
+
+  renderConversation() {
+    const { conversation, scrollBottom } = this.props;
+    const twitterData = conversation.twitterData;
+    const isTweet =
+      twitterData && !twitterData.isDirectMessage && twitterData.created_at;
+
+    if (isTweet) {
+      return (
+        <TwitterConversation
+          conversation={conversation}
+          scrollBottom={scrollBottom}
+        />
+      );
+    }
+
+    return this.renderMessages();
+  }
+
+  render() {
     return (
       <Wrapper>
-        {rows}
+        {this.renderConversation()}
         {this.renderPreview()}
       </Wrapper>
     );
@@ -115,5 +143,8 @@ class Conversation extends Component {
 }
 
 Conversation.propTypes = propTypes;
+Conversation.contextTypes = {
+  currentUser: PropTypes.object
+};
 
 export default Conversation;
