@@ -31,5 +31,5 @@ TweetReplyContainer.propTypes = {
 };
 
 export default compose(
-  graphql(gql(mutations.conversationTwitterAdd), { name: 'replyTweetMutation' })
+  graphql(gql(mutations.conversationMessageAdd), { name: 'replyTweetMutation' })
 )(TweetReplyContainer);

@@ -4,31 +4,16 @@ const conversationMessageAdd = `
     $content: String!,
     $mentionedUserIds: [String],
     $internal: Boolean,
-    $attachments: [JSON]
-  ) {
-    conversationMessageAdd(
-      conversationId: $conversationId,
-      content: $content,
-      mentionedUserIds: $mentionedUserIds,
-      internal: $internal,
-      attachments: $attachments
-    ) {
-      _id
-      content
-    }
-  }
-`;
-
-const conversationTwitterAdd = `
-  mutation conversationMessageAdd(
-    $conversationId: String!,
-    $content: String!,
+    $attachments: [JSON],
     $tweetReplyToId: String,
     $tweetReplyToScreenName: String
   ) {
     conversationMessageAdd(
       conversationId: $conversationId,
       content: $content,
+      mentionedUserIds: $mentionedUserIds,
+      internal: $internal,
+      attachments: $attachments,
       tweetReplyToId: $tweetReplyToId,
       tweetReplyToScreenName: $tweetReplyToScreenName
     ) {
@@ -95,7 +80,6 @@ const conversationsUnassign = `
 
 export default {
   conversationMessageAdd,
-  conversationTwitterAdd,
   conversationsChangeStatus,
   conversationsAssign,
   conversationsUnassign,
