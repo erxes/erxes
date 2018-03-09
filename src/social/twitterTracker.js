@@ -1,6 +1,6 @@
 import Twit from 'twit';
 import { OAuth } from 'oauth';
-import { TwitMap, receiveTimeLineResponse, getOrCreateDirectMessageConversation } from './twitter';
+import { TwitMap, receiveTimelineInformation, receiveDirectMessageInformation } from './twitter';
 import { Integrations } from '../db/models';
 import { INTEGRATION_KIND_CHOICES } from '../data/constants';
 
@@ -23,12 +23,12 @@ const trackIntegration = integration => {
 
   // listen for timeline
   stream.on('tweet', data => {
-    receiveTimeLineResponse(integration, data);
+    receiveTimelineInformation(integration, data);
   });
 
   // listen for direct messages
   stream.on('direct_message', data => {
-    getOrCreateDirectMessageConversation(data.direct_message, integration);
+    receiveDirectMessageInformation(data.direct_message, integration);
   });
 };
 
@@ -125,9 +125,9 @@ export const trackIntegrations = () => {
  * Promisify twit post util
  */
 export const twitRequest = {
-  post(twit, path, data) {
+  base(twit, method, path, data) {
     return new Promise((resolve, reject) => {
-      twit.post(path, data, (e, response) => {
+      twit[method](path, data, (e, response) => {
         if (e) {
           return reject(e);
         }
@@ -136,11 +136,37 @@ export const twitRequest = {
       });
     });
   },
+
+  post(twit, path, data) {
+    return this.base(twit, 'post', path, data);
+  },
+
+  get(twit, path, data) {
+    return this.base(twit, 'get', path, data);
+  },
+};
+
+/*
+ * Find root tweet using id
+ */
+export const findParentTweets = async (twit, data, tweets) => {
+  if (data.in_reply_to_status_id_str) {
+    const parentData = await twitRequest.get(twit, 'statuses/show', {
+      id: data.in_reply_to_status_id_str,
+    });
+
+    tweets.push(parentData);
+
+    return findParentTweets(twit, { ...parentData }, tweets);
+  }
+
+  return tweets;
 };
 
 // doing this to mock authenticate function in test
 export const socUtils = {
   authenticate,
   trackIntegration,
+  findParentTweets,
   getTwitterAuthorizeUrl,
 };

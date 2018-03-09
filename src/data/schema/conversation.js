@@ -49,6 +49,7 @@ export const types = `
     isCustomerRead: Boolean
     engageData: EngageData
     formWidgetData: JSON
+    twitterData: JSON
     facebookData: JSON
 
     user: User
@@ -106,6 +107,8 @@ export const mutations = `
     mentionedUserIds: [String],
     internal: Boolean,
     attachments: [JSON],
+    tweetReplyToId: String,
+    tweetReplyToScreenName: String,
   ): ConversationMessage
 
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
