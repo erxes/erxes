@@ -347,7 +347,17 @@ export const receiveTimelineInformation = async (integration, data) => {
   });
 
   if (data.in_reply_to_status_id && repliedMessage) {
-    return saveTimelineInformation(integration, data);
+    const conversation = await Conversations.findOne({
+      _id: repliedMessage.conversationId,
+    });
+
+    // receiving multiple accounts's timeline info, So we will receive same
+    // tweet multiple times. So we are checking that found message is in
+    // this listening integration
+    // Otherwise same tweet will be saved multiple times
+    if (conversation.integrationId === integration._id) {
+      return saveTimelineInformation(integration, data);
+    }
   }
 };
 
