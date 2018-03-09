@@ -98,8 +98,4 @@ class Form extends CommonForm {
   }
 }
 
-Form.contextTypes = {
-  __: PropTypes.func
-};
-
 export default Form;
