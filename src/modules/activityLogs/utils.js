@@ -124,7 +124,13 @@ export default class {
   _getCaption({ action, by, id }) {
     let caption;
     const source = <strong>{this._getUserName(by)}</strong>;
-    const target = <strong>{this.target.firstName || this.target.name}</strong>;
+    const target = (
+      <strong>
+        {this.target.firstName ||
+          this.target.name ||
+          this.target.details.fullName}
+      </strong>
+    );
 
     switch (action) {
       case 'customer-create':
