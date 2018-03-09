@@ -9,7 +9,13 @@ import { queries, mutations } from '../graphql';
 import { UserDetails } from '../components';
 
 const UserDetailsContainer = (props, context) => {
-  const { userDetailQuery, usersEdit, channelsQuery, usersEditProfile } = props;
+  const {
+    userDetailQuery,
+    usersEdit,
+    channelsQuery,
+    usersEditProfile,
+    userActivityLogQuery
+  } = props;
 
   if (userDetailQuery.loading || channelsQuery.loading) {
     return (
@@ -51,6 +57,8 @@ const UserDetailsContainer = (props, context) => {
     saveUser,
     saveProfile,
     user,
+    loadingLogs: userActivityLogQuery.loading,
+    activityLogsUser: userActivityLogQuery.activityLogsUser || [],
     channels: channelsQuery.channels,
     currentUser: context.currentUser
   };
@@ -63,7 +71,8 @@ UserDetailsContainer.propTypes = {
   userDetailQuery: PropTypes.object,
   usersEdit: PropTypes.func,
   channelsQuery: PropTypes.object,
-  usersEditProfile: PropTypes.func
+  usersEditProfile: PropTypes.func,
+  userActivityLogQuery: PropTypes.object
 };
 
 UserDetailsContainer.contextTypes = {
@@ -90,6 +99,12 @@ export default compose(
     name: 'channelsQuery',
     options: ({ id }) => ({
       variables: { memberIds: [id] }
+    })
+  }),
+  graphql(gql(queries.userActivityLog), {
+    name: 'userActivityLogQuery',
+    options: ({ id }) => ({
+      variables: { _id: id }
     })
   }),
   graphql(gql(mutations.usersEditProfile), {
