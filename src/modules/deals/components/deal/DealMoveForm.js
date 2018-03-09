@@ -90,23 +90,11 @@ class DealMoveForm extends React.Component {
           />
         </FormGroup>
         <Modal.Footer>
-          <Button
-            btnStyle="simple"
-            onClick={() => {
-              this.props.close();
-            }}
-            icon="close"
-          >
+          <Button btnStyle="simple" onClick={this.props.close} icon="close">
             Close
           </Button>
 
-          <Button
-            btnStyle="success"
-            onClick={() => {
-              this.move();
-            }}
-            icon="checkmark"
-          >
+          <Button btnStyle="success" onClick={this.move} icon="checkmark">
             Move
           </Button>
         </Modal.Footer>
