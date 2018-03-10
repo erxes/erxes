@@ -198,11 +198,13 @@ class RespondBox extends Component {
 
   renderMask() {
     const { __ } = this.context;
+
     if (this.state.isInactive) {
       return (
         <Mask onClick={this.hideMask}>
           {__(
-            'Customer is offline. Click to hide and send messages and they will receive them the next time they are online.'
+            `Customer is offline. Click to hide and send messages and they
+              will receive them the next time they are online.`
           )}
         </Mask>
       );
