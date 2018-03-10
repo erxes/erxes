@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Icon, Tip, FormControl } from 'modules/common/components';
@@ -203,8 +205,7 @@ class RespondBox extends Component {
       return (
         <Mask onClick={this.hideMask}>
           {__(
-            `Customer is offline. Click to hide and send messages and they
-              will receive them the next time they are online.`
+            'Customer is offline. Click to hide and send messages and they will receive them the next time they are online.'
           )}
         </Mask>
       );
@@ -229,6 +230,7 @@ class RespondBox extends Component {
         >
           {__('Internal note')}
         </FormControl>
+
         <Tip text={__('Attach file')}>
           <label>
             <Icon icon="android-attach" size={17} />
