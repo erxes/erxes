@@ -29,7 +29,7 @@ class RespondBox extends Component {
     super(props);
 
     this.state = {
-      isInactive: !this.checkIsActie(props.conversation),
+      isInactive: !this.checkIsActive(props.conversation),
       editorKey: 'editor',
       isInternal: false,
       attachments: [],
@@ -56,7 +56,9 @@ class RespondBox extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.conversation.customer !== nextProps.conversation.customer) {
-      this.setState({ isInactive: !this.checkIsActie(nextProps.conversation) });
+      this.setState({
+        isInactive: !this.checkIsActive(nextProps.conversation)
+      });
     }
   }
 
@@ -70,7 +72,7 @@ class RespondBox extends Component {
     this.setState({ mentionedUserIds });
   }
 
-  checkIsActie(conversation) {
+  checkIsActive(conversation) {
     return (
       conversation.integration.kind !== 'messenger' ||
       (conversation.customer.messengerData &&
