@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import striptags from 'striptags';
 import { toggleNotifer, toggleNotiferFull } from '../actions/messenger';
 import { User, EngageMessage } from '../components';

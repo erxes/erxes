@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { gql } from 'react-apollo';
 import { connection } from '../connection';
 import graphqlTypes from './graphql';

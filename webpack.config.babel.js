@@ -10,6 +10,7 @@ const {
   API_SUBSCRIPTIONS_URL,
   API_GRAPHQL_URL,
   APP_API_URL,
+  LANGUAGE_CODE,
 } = process.env;
 
 export default {
@@ -50,7 +51,7 @@ export default {
   },
 
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: ['.js', '.jsx', '.json'],
   },
 
   plugins: [
@@ -59,6 +60,7 @@ export default {
       API_SUBSCRIPTIONS_URL: JSON.stringify(API_SUBSCRIPTIONS_URL),
       API_GRAPHQL_URL: JSON.stringify(API_GRAPHQL_URL),
       APP_API_URL: JSON.stringify(APP_API_URL),
+      LANGUAGE_CODE: JSON.stringify(LANGUAGE_CODE),
     }),
     // new BundleAnalyzerPlugin(),
   ],

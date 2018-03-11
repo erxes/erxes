@@ -6,7 +6,11 @@ const propTypes = {
   data: PropTypes.object, // eslint-disable-line
 };
 
-export default function ArticleDetail({ data }) {
+const contextTypes = {
+  __: PropTypes.func
+};
+
+export default function ArticleDetail({ data }, {__}) {
   const { author } = data;
   return (
     <div className="erxes-kb-item detail">
@@ -20,10 +24,10 @@ export default function ArticleDetail({ data }) {
         </div>
         <div>
           <div>
-            Written by <span>{author.details.fullName}</span>
+            {__('Written by')} <span>{author.details.fullName}</span>
           </div>
           <div>
-            {data.modifiedDate ? 'Modified ' : 'Created '}
+            {data.modifiedDate ? __('Modified ') : __('Created ')}
             {moment(data.modifiedDate ? data.modifiedDate : data.createdDate).fromNow()}
           </div>
         </div>
@@ -37,3 +41,4 @@ export default function ArticleDetail({ data }) {
 }
 
 ArticleDetail.propTypes = propTypes;
+ArticleDetail.contextTypes = contextTypes;

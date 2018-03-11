@@ -13,14 +13,13 @@
   <body>
     <div data-erxes-kbase></div>
     <div data-erxes-embed></div>
-    <div data-erxes-modal>Contact us</div>
+    <div data-erxes-modal="3yhnynSiLnD9Gxhx6">Contact us</div>
     <div data-erxes-modal>Contact us second handler</div>
     <script>
       window.erxesSettings = {
         // messenger
         messenger: {
           brand_id: "asC5MG",
-          email: "lombo@yahoo.com",
           companyData: {
             id: "123",
             name: "Intercorp",
@@ -29,7 +28,7 @@
         },
         // knowledgebase topic 
         knowledgeBase: {
-          topic_id: "EPPQRzC4MbtPoEcd7"
+          topic_id: "68eWxjFq4KKw92qdS"
         },
       };
 
@@ -47,6 +46,16 @@
     (function() {
       var script = document.createElement('script');
       script.src = "build/knowledgeBaseWidget.bundle.js";
+      script.async = true;
+
+      var entry = document.getElementsByTagName('script')[0];
+      entry.parentNode.insertBefore(script, entry);
+    })();
+
+    // form script
+    (function() {
+      var script = document.createElement('script');
+      script.src = "build/formWidget.bundle.js";
       script.async = true;
 
       var entry = document.getElementsByTagName('script')[0];
