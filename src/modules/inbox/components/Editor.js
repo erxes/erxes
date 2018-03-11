@@ -173,10 +173,7 @@ export default class Editor extends Component {
   }
 
   onTemplatesStateChange(templatesState) {
-    if (templatesState) {
-      return this.setState({ templatesState });
-    }
-    return this.setState({ templatesState: {} });
+    this.setState({ templatesState });
   }
 
   getTemplatesState(invalidate = true) {
