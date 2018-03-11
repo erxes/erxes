@@ -44,11 +44,25 @@ function TopBar({
     return null;
   };
 
+  const renderLeftButton = () => {
+    if (onButtonClick) {
+      return (
+        <a
+          href="#"
+          className="topbar-button left"
+          onClick={onButtonClick}
+        >
+          {buttonIcon}
+        </a>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="erxes-topbar" style={{ backgroundColor: color }}>
-      <a href="" className="topbar-button left" onClick={onButtonClick} >
-        {buttonIcon}
-      </a>
+      {renderLeftButton()}
       <div className="erxes-middle">
         {middle}
       </div>

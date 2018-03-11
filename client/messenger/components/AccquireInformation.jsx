@@ -44,7 +44,7 @@ class AccquireInformation extends Component {
 
     return (
       <div className="erxes-messenger accquire-information" style={style}>
-        <TopBar middle={title} buttonIcon={iconExit} />
+        <TopBar middle={title} />
 
         <div className="content">
           <p className="type">
