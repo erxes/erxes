@@ -200,7 +200,7 @@ class RespondBox extends Component {
       return (
         <Mask onClick={this.hideMask}>
           {__(
-            'Customer is offline. Click to hide and send messages and they will receive them the next time they are online.' // eslint-disable-line no-use-before-define
+            'Customer is offline. Click to hide and send messages and they will receive them the next time they are online.' // eslint-disable-line
           )}
         </Mask>
       );

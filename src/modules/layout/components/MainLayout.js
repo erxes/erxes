@@ -79,19 +79,19 @@ class MainLayout extends React.Component {
   componentWillMount() {
     moment.locale('mn', {
       relativeTime: {
-        future: 'in %s',
-        past: '%s ',
+        future: '%s дараа',
+        past: '%s өмнө',
         s: 'саяхан',
-        m: 'минут',
-        mm: '%d m',
-        h: '1 цаг',
-        hh: '%d ц',
-        d: '1 өдөр',
-        dd: '%d өдөр',
-        M: '1 сар',
-        MM: '%d сар',
-        y: '1 жил',
-        yy: '%d жил'
+        m: 'минутын',
+        mm: '%d минутын',
+        h: '1 цагийн',
+        hh: '%d цагийн',
+        d: '1 өдрийн',
+        dd: '%d өдрийн',
+        M: '1 сарын',
+        MM: '%d сарын',
+        y: '1 жилийн',
+        yy: '%d жилийн'
       }
     });
   }
