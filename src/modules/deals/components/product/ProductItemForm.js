@@ -16,7 +16,8 @@ const propTypes = {
   product: PropTypes.object.isRequired,
   removeProductItem: PropTypes.func.isRequired,
   onChangeProduct: PropTypes.func.isRequired,
-  onChangeSelect: PropTypes.func.isRequired,
+  onChangeCurrency: PropTypes.func.isRequired,
+  onChangeUom: PropTypes.func.isRequired,
   onChangeInput: PropTypes.func.isRequired
 };
 
@@ -60,11 +61,10 @@ class ProductItemForm extends React.Component {
         </td>
         <td>
           <Select
+            name="uom"
             placeholder="Choose"
             value={product.uom}
-            onChange={value =>
-              this.props.onChangeSelect(value, product._id, 'uom')
-            }
+            onChange={value => this.props.onChangeUom(value, product._id)}
             optionRenderer={option => (
               <div className="simple-option">
                 <span>{option.label}</span>
@@ -75,11 +75,10 @@ class ProductItemForm extends React.Component {
         </td>
         <td>
           <Select
+            name="currency"
             placeholder="Choose"
             value={product.currency}
-            onChange={value =>
-              this.props.onChangeSelect(value, product._id, 'currency')
-            }
+            onChange={value => this.props.onChangeCurrency(value, product._id)}
             optionRenderer={option => (
               <div className="simple-option">
                 <span>{option.label}</span>
@@ -94,11 +93,8 @@ class ProductItemForm extends React.Component {
             type="number"
             min="1"
             placeholder="Quantity"
-            onChange={this.props.onChangeInput.bind(
-              this,
-              product._id,
-              'quantity'
-            )}
+            name="quantity"
+            onChange={e => this.props.onChangeInput(product._id, e)}
           />
           <ProductItemText align="right">Discount</ProductItemText>
           <ProductItemText align="right">Tax</ProductItemText>
@@ -107,11 +103,8 @@ class ProductItemForm extends React.Component {
           <FormControl
             value={product.unitPrice}
             placeholder="Unit price"
-            onChange={this.props.onChangeInput.bind(
-              this,
-              product._id,
-              'unitPrice'
-            )}
+            name="unitPrice"
+            onChange={e => this.props.onChangeInput(product._id, e)}
           />
           <FormControl
             value={product.discountPercent}
@@ -119,11 +112,8 @@ class ProductItemForm extends React.Component {
             min="0"
             max="100"
             placeholder="Discount percent"
-            onChange={this.props.onChangeInput.bind(
-              this,
-              product._id,
-              'discountPercent'
-            )}
+            name="discountPercent"
+            onChange={e => this.props.onChangeInput(product._id, e)}
           />
           <FormControl
             value={product.taxPercent}
@@ -131,11 +121,8 @@ class ProductItemForm extends React.Component {
             min="0"
             max="100"
             placeholder="Tax percent"
-            onChange={this.props.onChangeInput.bind(
-              this,
-              product._id,
-              'taxPercent'
-            )}
+            name="taxPercent"
+            onChange={e => this.props.onChangeInput(product._id, e)}
           />
           <ProductItemText>Total</ProductItemText>
         </td>
@@ -147,11 +134,8 @@ class ProductItemForm extends React.Component {
           <FormControl
             value={product.discount}
             placeholder="Discount amount"
-            onChange={this.props.onChangeInput.bind(
-              this,
-              product._id,
-              'discount'
-            )}
+            name="discount"
+            onChange={e => this.props.onChangeInput(product._id, e)}
           />
           <ProductItemText>
             {product.tax.toLocaleString()} {product.currency}

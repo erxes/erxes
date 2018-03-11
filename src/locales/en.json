@@ -110,7 +110,7 @@
   "Offline": "Offline",
   "Twitter": "Twitter",
   "Screen name": "Screen name",
-  "Don't see the result you\re looking for? ":
+  "Don't see the result you're looking for? ":
     "Don't see the result you're looking for? ",
   "Merged Info": "Merged Info",
   "E-mail": "E-mail",
@@ -523,5 +523,15 @@
   "Assigned to": "Assigned to",
   "Move": "Move",
   "Copy": "Copy",
-  "Close date": "Close date"
+  "Close date": "Close date",
+  "Choose product & service": "Choose product & service",
+  "Create a new Product": "Create a new Product",
+  "New Product": "New Product",
+  "SKU": "SKU",
+  "Choose a company": "Choose a company",
+  "Choose a customer": "Choose a customer",
+  "Deal Settings": "Deal Settings",
+  "Boards & Pipelines": "Boards & Pipelines",
+  "Product & Service": "Product & Service",
+  "There is no pipeline in this board.": "There is no pipeline in this board."
 }

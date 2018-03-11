@@ -70,7 +70,7 @@ class Settings extends Component {
         </Row>
         <Divider />
         <Row>
-          <RowTitle className="secondRow">Deal Settings</RowTitle>
+          <RowTitle className="secondRow">{__('Deal Settings')}</RowTitle>
           <div>
             {this.renderBox(
               'Boards & Pipelines',

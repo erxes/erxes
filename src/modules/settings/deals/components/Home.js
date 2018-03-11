@@ -21,10 +21,11 @@ const propTypes = {
 class Home extends Component {
   render() {
     const { loading, pipelines, boardId } = this.props;
+    const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Deals' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Deal') }
     ];
 
     const trigger = (
@@ -65,5 +66,8 @@ class Home extends Component {
 }
 
 Home.propTypes = propTypes;
+Home.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Home;

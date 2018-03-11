@@ -202,21 +202,22 @@ class DealForm extends React.Component {
   }
 
   render() {
+    const { __ } = this.context;
     const productTrigger = (
       <DealButton>
-        Product & Service <Icon icon="plus" />
+        {__('Product & Service')} <Icon icon="plus" />
       </DealButton>
     );
 
     const companyTrigger = (
       <DealButton>
-        Choose a company <Icon icon="plus" />
+        {__('Choose a company')} <Icon icon="plus" />
       </DealButton>
     );
 
     const customerTrigger = (
       <DealButton>
-        Choose a customer <Icon icon="plus" />
+        {__('Choose a customer')} <Icon icon="plus" />
       </DealButton>
     );
 

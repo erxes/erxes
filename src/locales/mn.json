@@ -527,5 +527,16 @@
   "Assigned to": "Хариуцсан",
   "Move": "Шилжүүлэх",
   "Copy": "Хуулах",
-  "Close date": "Дуусах огноо"
+  "Close date": "Дуусах огноо",
+  "Choose product & service": "Бүтээгдэхүүн үйлчилгээ сонгох",
+  "Create a new Product": "Шинэ бүтээгдэхүүн үүсгэх",
+  "New Product": "Шинэ бүтээгдэхүүн",
+  "SKU": "SKU",
+  "Choose a company": "Компани сонгох",
+  "Choose a customer": "Харилцагч сонгох",
+  "Deal Settings": "Хэлэлцээр тохиргоо",
+  "Boards & Pipelines": "Самбар болон Пайплайн",
+  "Product & Service": "Бүтээгдэхүүн үйлчилгээ",
+  "There is no pipeline in this board.":
+    "Тухайн самбарт харгалзах пайплайн байхгүй байна."
 }

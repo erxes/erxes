@@ -30,7 +30,8 @@ class ProductForm extends React.Component {
     this.removeProductItem = this.removeProductItem.bind(this);
     this.onChangeInput = this.onChangeInput.bind(this);
     this.onChangeProduct = this.onChangeProduct.bind(this);
-    this.onChangeSelect = this.onChangeSelect.bind(this);
+    this.onChangeUom = this.onChangeUom.bind(this);
+    this.onChangeCurrency = this.onChangeCurrency.bind(this);
     this.updateTotal = this.updateTotal.bind(this);
 
     this.state = {
@@ -102,29 +103,39 @@ class ProductForm extends React.Component {
     this.props.onChangeProductsData(productsData);
   }
 
-  onChangeSelect(selected, _id, type) {
+  onChangeUom(selected, _id) {
     const productsData = this.props.productsData;
 
     const productData = productsData.find(p => p._id === _id);
-    productData[type] = selected ? selected.value : '';
+    productData.uom = selected ? selected.value : '';
 
-    if (productData.amount > 0 && type === 'currency') {
+    this.props.onChangeProductsData(productsData);
+  }
+
+  onChangeCurrency(selected, _id) {
+    const productsData = this.props.productsData;
+
+    const productData = productsData.find(p => p._id === _id);
+    productData.currency = selected ? selected.value : '';
+
+    if (productData.amount > 0) {
       this.updateTotal();
     }
 
     this.props.onChangeProductsData(productsData);
   }
 
-  onChangeInput(_id, type, e) {
+  onChangeInput(_id, e) {
     const productsData = this.props.productsData;
+    const name = e.target.name;
 
     const product = productsData.find(p => p._id === _id);
-    product[type] = e.target.value;
+    product[name] = e.target.value;
 
     const amount = product.unitPrice * product.quantity;
 
     if (amount > 0) {
-      switch (type) {
+      switch (name) {
         case 'discount': {
           product.discountPercent = product.discount * 100 / amount;
           break;
@@ -171,7 +182,8 @@ class ProductForm extends React.Component {
                 product={product}
                 products={this.props.products}
                 onChangeProduct={this.onChangeProduct}
-                onChangeSelect={this.onChangeSelect}
+                onChangeCurrency={this.onChangeCurrency}
+                onChangeUom={this.onChangeUom}
                 onChangeInput={this.onChangeInput}
                 removeProductItem={this.removeProductItem}
               />
