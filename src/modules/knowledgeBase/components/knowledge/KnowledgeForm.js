@@ -149,6 +149,7 @@ class KnowledgeForm extends Component {
           description: document.getElementById('knowledgebase-description')
             .value,
           brandId: document.getElementById('selectBrand').value,
+          languageCode: document.getElementById('languageCode').value,
           color: this.state.color
         }
       }
@@ -193,6 +194,20 @@ class KnowledgeForm extends Component {
             defaultValue={brandId}
             onChange={this.handleBrandChange}
           />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Language</ControlLabel>
+
+          <FormControl
+            componentClass="select"
+            defaultValue={topic.languageCode || 'en'}
+            id="languageCode"
+          >
+            <option />
+            <option value="mn">Монгол</option>
+            <option value="en">English</option>
+          </FormControl>
         </FormGroup>
 
         <FormGroup>
