@@ -4,14 +4,18 @@ const conversationMessageAdd = `
     $content: String!,
     $mentionedUserIds: [String],
     $internal: Boolean,
-    $attachments: [JSON]
+    $attachments: [JSON],
+    $tweetReplyToId: String,
+    $tweetReplyToScreenName: String
   ) {
     conversationMessageAdd(
       conversationId: $conversationId,
       content: $content,
       mentionedUserIds: $mentionedUserIds,
       internal: $internal,
-      attachments: $attachments
+      attachments: $attachments,
+      tweetReplyToId: $tweetReplyToId,
+      tweetReplyToScreenName: $tweetReplyToScreenName
     ) {
       _id
       content

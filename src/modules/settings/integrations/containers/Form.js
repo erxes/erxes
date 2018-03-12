@@ -68,6 +68,7 @@ const commonParamsDef = `
   $name: String!,
   $brandId: String!,
   $formId: String!,
+  $languageCode: String,
   $formData: IntegrationFormData!
 `;
 
@@ -75,6 +76,7 @@ const commonParams = `
   name: $name,
   brandId: $brandId,
   formId: $formId,
+  languageCode: $languageCode,
   formData: $formData
 `;
 

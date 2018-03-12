@@ -32,7 +32,7 @@ function TwitterSection({ customer }, { __ }) {
         </li>
         <li>
           {__('Screen name')}
-          <SidebarCounter>@{twitterData.screenName}</SidebarCounter>
+          <SidebarCounter>@{twitterData.screen_name}</SidebarCounter>
         </li>
       </SidebarList>
       <ButtonWrapper>
@@ -40,7 +40,7 @@ function TwitterSection({ customer }, { __ }) {
           block
           btnStyle="primary"
           target="_blank"
-          href={`https://twitter.com/${twitterData.screenName}`}
+          href={`https://twitter.com/${twitterData.screen_name}`}
         >
           Go to twitter
         </Button>
