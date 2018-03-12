@@ -19,7 +19,25 @@ window.addEventListener('message', (event) => {
   }
 
   // set locale moment
-  moment.locale('mn', {
+  moment.updateLocale('en', {
+    relativeTime: {
+      future: 'in %s',
+      past: '%s ',
+      s: 's',
+      m: 'm',
+      mm: '%d m',
+      h: 'h',
+      hh: '%d h',
+      d: 'd',
+      dd: '%d d',
+      M: 'a mth',
+      MM: '%d mths',
+      y: 'y',
+      yy: '%d y',
+    },
+  });
+
+  moment.defineLocale('mn', {
     relativeTime: {
       future: '%s дараа',
       past: '%s өмнө',
@@ -39,7 +57,7 @@ window.addEventListener('message', (event) => {
 
   // load translations
   T.setTexts(translation[LANGUAGE_CODE]);
-  moment.locale(LANGUAGE_CODE || 'en');
+  moment.locale(LANGUAGE_CODE);
 
   connection.setting = event.data.setting;
   // render root react component

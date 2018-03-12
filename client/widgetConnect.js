@@ -11,7 +11,6 @@ import T from 'i18n-react';
 import translation from '../locales';
 import moment from 'moment';
 
-
 // base connect function for all widgets
 const widgetConnect = (params) => {
   const {
@@ -23,7 +22,25 @@ const widgetConnect = (params) => {
   } = params;
 
   // set locale moment
-  moment.locale('mn', {
+  moment.updateLocale('en', {
+    relativeTime: {
+      future: 'in %s',
+      past: '%s ',
+      s: 's',
+      m: 'm',
+      mm: '%d m',
+      h: 'h',
+      hh: '%d h',
+      d: 'd',
+      dd: '%d d',
+      M: 'a mth',
+      MM: '%d mths',
+      y: 'y',
+      yy: '%d y',
+    },
+  });
+
+  moment.defineLocale('mn', {
     relativeTime: {
       future: '%s дараа',
       past: '%s өмнө',
@@ -43,7 +60,7 @@ const widgetConnect = (params) => {
 
   // load translation resources
   T.setTexts(translation[LANGUAGE_CODE]);
-  moment.locale(LANGUAGE_CODE || 'en');
+  moment.locale(LANGUAGE_CODE);
 
   window.addEventListener('message', (event) => {
     // connect to api using passed setting
@@ -53,34 +70,36 @@ const widgetConnect = (params) => {
 
     // call connect mutation
     connectMutation(event)
+      .then(({ data }) => {
+        // check connection and save connection info
+        connectCallback(data);
 
-    .then(({ data }) => {
-      // check connection and save connection info
-      connectCallback(data);
+        // notify parent window that connected
+        window.parent.postMessage(
+          {
+            fromErxes: true,
+            ...postParams,
+            action: 'connected',
+            connectionInfo: data,
+            setting: event.data.setting,
+          },
+          '*',
+        );
 
-      // notify parent window that connected
-      window.parent.postMessage({
-        fromErxes: true,
-        ...postParams,
-        action: 'connected',
-        connectionInfo: data,
-        setting: event.data.setting,
-      }, '*');
+        // render root react component
+        ReactDOM.render(
+          <ApolloProvider store={createStore(reducers)} client={client}>
+            <TranslationWrapper>
+              <AppContainer />
+            </TranslationWrapper>
+          </ApolloProvider>,
+          document.getElementById('root'),
+        );
+      })
 
-      // render root react component
-      ReactDOM.render(
-        <ApolloProvider store={createStore(reducers)} client={client}>
-          <TranslationWrapper>
-            <AppContainer />
-          </TranslationWrapper>
-        </ApolloProvider>,
-        document.getElementById('root'),
-      );
-    })
-
-    .catch((error) => {
-      console.log(error); // eslint-disable-line
-    });
+      .catch((error) => {
+        console.log(error); // eslint-disable-line
+      });
   });
 };
 
