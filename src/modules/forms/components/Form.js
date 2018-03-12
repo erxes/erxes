@@ -27,7 +27,12 @@ class Form extends Component {
       activeStep: 1,
       maxStep: 5,
       kind: data.loadType || 'shoutbox',
-      segment: '',
+      title: 'Contact',
+      bodyValue: 'Body description here',
+      btnText: 'Send',
+      color: '#04A9F5',
+      theme: '#04A9F5',
+      logoPreviewUrl: '',
       hasOptions: false,
       validate: {
         step1: false,
@@ -40,80 +45,16 @@ class Form extends Component {
     this.changeState = this.changeState.bind(this);
   }
 
-  renderNextButton(__) {
+  renderNextButton() {
     return (
       <Button btnStyle="primary" size="small" onClick={() => this.next(0)}>
-        {__('Next')} <Icon icon="ios-arrow-forward" />
+        Next <Icon icon="ios-arrow-forward" />
       </Button>
     );
   }
 
-  checkValidate() {
-    let validate = Object.assign({}, this.state.validate);
-    const {
-      kind,
-      segment,
-      rules,
-      fromUser,
-      message,
-      messenger,
-      email
-    } = this.state;
-    if (kind === 'auto' || kind === 'manual') {
-      if (segment === '') {
-        validate['step2'] = true;
-      } else {
-        validate['step2'] = false;
-      }
-    } else if (kind === 'visitorAuto') {
-      if (rules.length > 0) {
-        validate['step2'] = false;
-      } else {
-        validate['step2'] = true;
-      }
-    }
-
-    if (kind === 'auto') {
-      if (
-        messenger.brandId === '' ||
-        messenger.kind === '' ||
-        messenger.sentAs === '' ||
-        fromUser === '' ||
-        message === ''
-      ) {
-        validate['step3'] = true;
-      } else {
-        validate['step3'] = false;
-      }
-    } else if (kind === 'visitorAuto') {
-      if (
-        messenger.brandId === '' ||
-        messenger.sentAs === '' ||
-        fromUser === '' ||
-        message === ''
-      ) {
-        validate['step3'] = true;
-      } else {
-        validate['step3'] = false;
-      }
-    } else if (kind === 'manual') {
-      if (
-        email.subject === '' ||
-        email.templateId === '' ||
-        fromUser === '' ||
-        message === ''
-      ) {
-        validate['step3'] = true;
-      } else {
-        validate['step3'] = false;
-      }
-    }
-    this.setState({ validate });
-  }
-
   next(stepNumber) {
     const { activeStep, maxStep } = this.state;
-    this.checkValidate();
 
     if (stepNumber === 0) {
       if (activeStep <= maxStep) {
@@ -129,7 +70,17 @@ class Form extends Component {
   }
 
   render() {
-    const { activeStep, hasOptions } = this.state;
+    const {
+      activeStep,
+      hasOptions,
+      title,
+      kind,
+      btnText,
+      bodyValue,
+      color,
+      theme,
+      logoPreviewUrl
+    } = this.state;
     const integration = this.props.integration || {};
     const { __ } = this.context;
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
@@ -142,31 +93,44 @@ class Form extends Component {
             img="/images/icons/erxes-05.svg"
             title="Type"
             next={this.next}
-            nextButton={this.renderNextButton(__)}
+            nextButton={this.renderNextButton()}
           >
-            <ChooseType changeState={this.changeState} kind={this.state.kind} />
+            <ChooseType changeState={this.changeState} kind={kind} />
           </Step>
           <Step
             img="/images/icons/erxes-02.svg"
             title="CallOut"
             next={this.next}
-            nextButton={this.renderNextButton(__)}
+            nextButton={this.renderNextButton()}
           >
-            <CallOut integration={integration} kind={this.state.kind} />
+            <CallOut
+              changeState={this.changeState}
+              integration={integration}
+              kind={kind}
+            />
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"
             title="Form"
             next={this.next}
-            nextButton={this.renderNextButton(__)}
+            nextButton={this.renderNextButton()}
           >
-            <FormStep hasOptions={hasOptions} kind={this.state.kind} />
+            <FormStep
+              title={title}
+              btnText={btnText}
+              bodyValue={bodyValue}
+              hasOptions={hasOptions}
+              kind={kind}
+              color={color}
+              theme={theme}
+              image={logoPreviewUrl}
+            />
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"
             title="Thank content"
             next={this.next}
-            nextButton={this.renderNextButton(__)}
+            nextButton={this.renderNextButton()}
           >
             <SuccessStep />
           </Step>
@@ -174,7 +138,7 @@ class Form extends Component {
             img="/images/icons/erxes-08.svg"
             title="Full Preview"
             next={this.next}
-            nextButton={this.renderNextButton(__)}
+            nextButton={this.renderNextButton()}
           >
             <div>hi step 5</div>
           </Step>

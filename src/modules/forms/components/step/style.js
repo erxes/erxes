@@ -178,7 +178,7 @@ const ColorPicker = styled.div`
   padding: 5px;
   border: 1px solid ${colors.colorShadowGray};
   cursor: pointer;
-  margin-left: 20px;
+  margin: 0 20px 5px;
 `;
 
 const Picker = styled.div`

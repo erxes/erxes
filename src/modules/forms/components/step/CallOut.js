@@ -61,7 +61,8 @@ const ImageContent = styled.div`
 
 const propTypes = {
   integration: PropTypes.object,
-  kind: PropTypes.string
+  kind: PropTypes.string,
+  changeState: PropTypes.func
 };
 
 class CallOut extends Component {
@@ -79,11 +80,11 @@ class CallOut extends Component {
       logoPreviewUrl: ''
     };
 
-    this.onChangeText = this.onChangeText.bind(this);
     this.onColorChange = this.onColorChange.bind(this);
     this.onChangeBody = this.onChangeBody.bind(this);
     this.renderPreview = this.renderPreview.bind(this);
     this.onChangeBtn = this.onChangeBtn.bind(this);
+    this.onChangeText = this.onChangeText.bind(this);
     this.onThemeChange = this.onThemeChange.bind(this);
     this.handleImage = this.handleImage.bind(this);
     this.removeImage = this.removeImage.bind(this);
@@ -91,26 +92,32 @@ class CallOut extends Component {
 
   onColorChange(e) {
     this.setState({ color: e.hex });
+    this.props.changeState('color', e.hex);
   }
 
-  onChangeText(event) {
-    this.setState({ title: event.target.value });
+  onChangeText(value) {
+    this.setState({ title: value });
+    this.props.changeState('title', value);
   }
 
-  onChangeBody(event) {
-    this.setState({ bodyValue: event.target.value });
+  onChangeBody(value) {
+    this.setState({ bodyValue: value });
+    this.props.changeState('bodyValue', value);
   }
 
   onThemeChange(value) {
     this.setState({ theme: value });
+    this.props.changeState('theme', value);
   }
 
-  onChangeBtn(event) {
-    this.setState({ btnText: event.target.value });
+  onChangeBtn(value) {
+    this.setState({ btnText: value });
+    this.props.changeState('btnText', value);
   }
 
-  removeImage() {
+  removeImage(value) {
     this.setState({ logoPreviewUrl: '' });
+    this.props.changeState('logoPreviewUrl', value);
   }
 
   handleImage(e) {
@@ -132,6 +139,7 @@ class CallOut extends Component {
 
       afterRead: ({ result }) => {
         this.setState({ logoPreviewUrl: result });
+        this.props.changeState('logoPreviewUrl', result);
       }
     });
   }
@@ -199,7 +207,11 @@ class CallOut extends Component {
     return logoPreviewUrl ? (
       <div>
         <img src={logoPreviewUrl} alt="previewImage" />
-        <Icon icon="close" size={15} onClick={this.removeImage} />
+        <Icon
+          icon="close"
+          size={15}
+          onClick={e => this.removeImage(e.target.value)}
+        />
       </div>
     ) : (
       <input type="file" onChange={this.handleImage} />
@@ -223,7 +235,7 @@ class CallOut extends Component {
             id="callout-title"
             type="text"
             value={this.state.title}
-            onChange={this.onChangeText}
+            onChange={e => this.onChangeText(e.target.value)}
           />
 
           <Title>{__('Callout body')}</Title>
@@ -231,14 +243,14 @@ class CallOut extends Component {
             id="callout-body"
             type="text"
             value={this.state.bodyValue}
-            onChange={this.onChangeBody}
+            onChange={e => this.onChangeBody(e.target.value)}
           />
 
           <Title>{__('Callout button text')}</Title>
           <FormControl
             id="callout-btn-text"
             value={this.state.btnText}
-            onChange={this.onChangeBtn}
+            onChange={e => this.onChangeBtn(e.target.value)}
           />
 
           <Title>{__('Theme color')}</Title>

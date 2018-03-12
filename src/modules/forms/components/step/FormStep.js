@@ -44,7 +44,13 @@ const FieldItem = styled.li`
 
 const propTypes = {
   hasOptions: PropTypes.bool,
-  kind: PropTypes.string
+  kind: PropTypes.string,
+  title: PropTypes.string,
+  btnText: PropTypes.string,
+  bodyValue: PropTypes.string,
+  color: PropTypes.string,
+  theme: PropTypes.string,
+  image: PropTypes.string
 };
 
 class FormStep extends Component {
@@ -135,14 +141,7 @@ class FormStep extends Component {
 
   renderPreview() {
     const { kind } = this.props;
-    const {
-      title,
-      bodyValue,
-      btnText,
-      color,
-      theme,
-      logoPreviewUrl
-    } = this.state;
+    const { title, bodyValue, btnText, color, theme, image } = this.props;
 
     if (kind === 'shoutbox') {
       return (
@@ -152,7 +151,7 @@ class FormStep extends Component {
           btnText={btnText}
           color={color}
           theme={theme}
-          image={logoPreviewUrl}
+          image={image}
         />
       );
     } else if (kind === 'popup') {
@@ -163,7 +162,7 @@ class FormStep extends Component {
           btnText={btnText}
           color={color}
           theme={theme}
-          image={logoPreviewUrl}
+          image={image}
         />
       );
     }
@@ -174,7 +173,7 @@ class FormStep extends Component {
         btnText={btnText}
         color={color}
         theme={theme}
-        image={logoPreviewUrl}
+        image={image}
       />
     );
   }
@@ -191,6 +190,10 @@ class FormStep extends Component {
   renderOptions() {
     return (
       <Fields>
+        <FieldItem>
+          Email
+          <Icon icon="close" onClick={() => this.handleRemoveOption()} />
+        </FieldItem>
         {this.state.options.map((option, index) =>
           this.renderOption(option, index)
         )}
@@ -204,7 +207,7 @@ class FormStep extends Component {
     return (
       <FlexItem>
         <LeftItem>
-          <Title>{__('Add a field')}</Title>
+          <Title>{__('Included fields')}</Title>
           {this.renderOptions()}
         </LeftItem>
         <Preview>{this.renderPreview()}</Preview>

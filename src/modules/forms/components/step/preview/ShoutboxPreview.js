@@ -15,12 +15,21 @@ const propTypes = {
   btnText: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
-  image: PropTypes.string
+  image: PropTypes.string,
+  fields: PropTypes.string
 };
 
 class ShoutboxPreview extends Component {
   render() {
-    const { theme, color, title, bodyValue, btnText, image } = this.props;
+    const {
+      theme,
+      color,
+      title,
+      bodyValue,
+      btnText,
+      image,
+      fields
+    } = this.props;
 
     return (
       <MessengerPreview>
@@ -35,6 +44,7 @@ class ShoutboxPreview extends Component {
                   <img src={image} alt="eee" />
                 </div>
               )}
+              {fields && <div>here is field</div>}
               <BodyContent>
                 {bodyValue}
                 <Button btnStyle="primary" style={{ backgroundColor: color }}>
