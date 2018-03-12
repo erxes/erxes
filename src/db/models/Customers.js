@@ -50,30 +50,18 @@ const messengerSchema = mongoose.Schema(
 );
 
 /*
- * twitter schema
+ * Twitter schema
+ * Saving fields with underscores because, we want to store it exactly
+ * like twitter response so that we can use it in findParentTweets helper to
+ * not send extra request to twitter
  */
 const twitterSchema = mongoose.Schema(
   {
-    idStr: field({
-      type: String,
-      label: 'Twitter ID',
-    }),
-    id: field({
-      type: Number,
-      label: 'Twitter ID (Number)',
-    }),
-    name: field({
-      type: String,
-      label: 'Twitter name',
-    }),
-    screenName: field({
-      type: String,
-      label: 'Twitter screen name',
-    }),
-    profileImageUrl: field({
-      type: String,
-      label: 'Twitter photo',
-    }),
+    id: field({ type: Number, label: 'Twitter ID (Number)' }),
+    id_str: field({ type: String, label: 'Twitter ID' }),
+    name: field({ type: String, label: 'Twitter name' }),
+    screen_name: field({ type: String, label: 'Twitter screen name' }),
+    profile_image_url: field({ type: String, label: 'Twitter photo' }),
   },
   { _id: false },
 );

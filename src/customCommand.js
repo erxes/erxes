@@ -1,25 +1,21 @@
 import { connect, disconnect } from './db/connection';
-import { Fields, FieldsGroups } from './db/models';
-import { FIELDS_GROUPS_CONTENT_TYPES, FIELD_CONTENT_TYPES } from './data/constants';
+import { Customers, Integrations, Conversations, ConversationMessages } from './db/models';
 
 export const customCommand = async () => {
   connect();
 
-  const updateGroup = async (fieldType, fieldGroupType) => {
-    const groupObj = await FieldsGroups.createGroup({
-      name: 'Unassorted properties',
-      description: 'Unassorted properties',
-      contentType: fieldGroupType,
-    });
+  const integrations = await Integrations.find({ kind: 'twitter' });
 
-    await Fields.updateMany(
-      { contentType: fieldType },
-      { groupId: groupObj._id, isVisible: true, isDefinedByErxes: false },
-    );
-  };
+  for (const integration of integrations) {
+    console.log(integration._id);
 
-  await updateGroup(FIELD_CONTENT_TYPES.CUSTOMER, FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER);
-  await updateGroup(FIELD_CONTENT_TYPES.COMPANY, FIELDS_GROUPS_CONTENT_TYPES.COMPANY);
+    const conversations = await Conversations.find({ integrationId: integration._id });
+    const conversationIds = conversations.map(c => c._id);
+
+    await ConversationMessages.remove({ conversationId: { $in: conversationIds } });
+    await Conversations.remove({ _id: { $in: conversationIds } });
+    await Customers.remove({ integrationId: integration._id });
+  }
 
   disconnect();
 };
