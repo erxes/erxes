@@ -141,7 +141,8 @@ Common.propTypes = {
 };
 
 Common.contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 export default Common;

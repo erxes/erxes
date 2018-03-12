@@ -268,8 +268,4 @@ Form.propTypes = {
   loadTypes: PropTypes.array.isRequired // eslint-disable-line
 };
 
-Form.contextTypes = {
-  __: PropTypes.func
-};
-
 export default Form;
