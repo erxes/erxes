@@ -89,6 +89,7 @@ class Form extends Common {
       name: document.getElementById('integration-name').value,
       brandId: document.getElementById('selectBrand').value,
       formId: document.getElementById('formId').value,
+      languageCode: document.getElementById('languageCode').value,
       formData: {
         loadType: getElementById('loadType'),
         successAction: getElementById('successAction'),
@@ -266,10 +267,6 @@ class Form extends Common {
 Form.propTypes = {
   forms: PropTypes.array.isRequired, // eslint-disable-line
   loadTypes: PropTypes.array.isRequired // eslint-disable-line
-};
-
-Form.contextTypes = {
-  __: PropTypes.func
 };
 
 export default Form;

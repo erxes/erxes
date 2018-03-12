@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
 import {
   FormGroup,
@@ -97,9 +96,5 @@ class Form extends CommonForm {
     );
   }
 }
-
-Form.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Form;
