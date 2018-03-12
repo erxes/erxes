@@ -68,4 +68,6 @@ export const setMomentLocale = () => {
 
 export const setLocale = (code) => {
   T.setTexts(translation[code || 'en']);
+
+  setMomentLocale(code);
 }

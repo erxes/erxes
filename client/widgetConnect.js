@@ -7,7 +7,6 @@ import ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import client, { createStore } from './apollo-client';
 import TranslationWrapper from './TranslationWrapper';
-import { setMomentLocale } from './utils';
 
 // base connect function for all widgets
 const widgetConnect = (params) => {
@@ -18,8 +17,6 @@ const widgetConnect = (params) => {
     AppContainer,
     reducers,
   } = params;
-
-  setMomentLocale();
 
   window.addEventListener('message', (event) => {
     // connect to api using passed setting

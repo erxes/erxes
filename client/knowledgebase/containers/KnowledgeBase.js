@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { setMomentLocale, setLocale } from '../../utils';
+import { setLocale } from '../../utils';
 import TranslationWrapper from '../../TranslationWrapper';
 import { KnowledgeBase } from '../components';
 import { connection } from '../connection';
@@ -42,7 +42,6 @@ const Topic = (props) => {
   const { color, languageCode } = knowledgeBaseTopicsDetail;
 
   // set language
-  setMomentLocale();
   setLocale(languageCode);
 
   const updatedProps = {
