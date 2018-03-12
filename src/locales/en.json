@@ -533,5 +533,6 @@
   "Deal Settings": "Deal Settings",
   "Boards & Pipelines": "Boards & Pipelines",
   "Product & Service": "Product & Service",
-  "There is no pipeline in this board.": "There is no pipeline in this board."
+  "There is no pipeline in this board.": "There is no pipeline in this board.",
+  "Add new deal": "Add new deal"
 }
