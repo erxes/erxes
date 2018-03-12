@@ -38,7 +38,7 @@ class UserDetails extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { currentTab: 'activity' };
+    this.state = { currentTab: 'notes' };
 
     this.renderTabContent = this.renderTabContent.bind(this);
     this.onTabClick = this.onTabClick.bind(this);
@@ -131,12 +131,6 @@ class UserDetails extends React.Component {
         </WhiteBoxRoot>
 
         <Tabs grayBorder>
-          <TabTitle
-            className={currentTab === 'activity' ? 'active' : ''}
-            onClick={() => this.onTabClick('activity')}
-          >
-            {__('Activity')}
-          </TabTitle>
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
             onClick={() => this.onTabClick('notes')}
