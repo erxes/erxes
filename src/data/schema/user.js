@@ -49,7 +49,7 @@ export const types = `
     links: UserLinksType
     emailSignatures: JSON
     getNotificationByEmail: Boolean
-    conversations: [Conversation]
+    participatedConversations: [Conversation]
   }
 
   type AuthPayload {

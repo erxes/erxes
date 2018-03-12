@@ -1,7 +1,7 @@
 import { Conversations } from '../../db/models';
 
 export default {
-  conversations(user) {
+  participatedConversations(user) {
     return Conversations.find({ participatedUserIds: { $in: [user._id] } });
   },
 };

@@ -36,10 +36,8 @@ const activityLogQueries = {
   },
 
   /**
-   * Get activity log for user
-   * @param {Object} root
-   * @param {Object} object2 - Graphql input data
-   * @param {string} object._id - user id
+   * Get activity logs for user
+   * @param {String} _id - user id
    * @return {Promise} Promise resolving array of ActivityLogForMonth
    */
   async activityLogsUser(root, { _id }) {
