@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { iconExit } from '../../icons/Icons';
 
 const propTypes = {
@@ -11,6 +12,10 @@ const propTypes = {
   isConversationEnded: PropTypes.bool,
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 function TopBar({
     middle,
     buttonIcon,
@@ -19,10 +24,10 @@ function TopBar({
     isChat,
     isConversationEnded,
     endConversation,
-  }) {
+  }, {__}) {
 
   const onEndConversation = () => {
-    if (confirm('Do you want to end this conversation ?')) {
+    if (confirm(__('Do you want to end this conversation ?'))) {
       endConversation();
     }
   };
@@ -72,6 +77,7 @@ function TopBar({
 }
 
 TopBar.propTypes = propTypes;
+TopBar.contextTypes = contextTypes;
 
 TopBar.defaultProps = {
   middle: null,

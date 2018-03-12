@@ -31,6 +31,7 @@ export const connect = variables =>
 
           integrationId,
           messengerData,
+          languageCode,
           uiOptions,
           customerId,
         }

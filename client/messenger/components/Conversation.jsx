@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { iconLeft } from '../../icons/Icons';
 import { MessagesList, MessageSender, TopBar } from '../containers';
 
@@ -14,7 +15,11 @@ const propTypes = {
   color: PropTypes.string,
 };
 
-class Conversation extends Component {
+const contextTypes = {
+  __: PropTypes.func
+}
+
+class Conversation extends React.Component {
   constructor(props) {
     super(props);
 
@@ -33,6 +38,7 @@ class Conversation extends Component {
   }
 
   renderTitle() {
+    const { __ } = this.context;
     const { user, isOnline } = this.props;
 
     if (user) {
@@ -44,11 +50,11 @@ class Conversation extends Component {
         <div className="erxes-staff-company">
           {isOnline ? (
             <div className="erxes-state online">
-              <span /> Online
+              <span /> {__('Online')}
             </div>
           ) : (
             <div className="erxes-state offline">
-              <span /> Offline
+              <span /> {__("Offline")}
             </div>
           )}
         </div>
@@ -65,8 +71,8 @@ class Conversation extends Component {
 
     return (
       <div className="erxes-topbar-title">
-        <div>Conversation</div>
-        <span>with Support staff</span>
+        <div>{__('Conversation')}</div>
+        <span>{__('with Support staff')}</span>
       </div>
     );
   }
@@ -80,8 +86,8 @@ class Conversation extends Component {
       isOnline,
       color,
     } = this.props;
-
-    const placeholder = isNew ? 'Send a message ...' : 'Write a reply ...';
+    const { __ } = this.context;
+    const placeholder = isNew ? __('Send a message') : __('Write a reply');
     const style = { border: `1px solid ${color}` };
 
     return (
@@ -104,6 +110,7 @@ class Conversation extends Component {
 }
 
 Conversation.propTypes = propTypes;
+Conversation.contextTypes = contextTypes;
 
 Conversation.defaultProps = {
   user: {},

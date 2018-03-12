@@ -45,6 +45,7 @@ export const connect = (brandCode, formCode) =>
         formConnect(brandCode: $brandCode, formCode: $formCode) {
           integrationId,
           integrationName,
+          languageCode,
           formId,
           formData
         }

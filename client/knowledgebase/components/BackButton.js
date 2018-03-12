@@ -7,15 +7,20 @@ const propTypes = {
   text: PropTypes.string.isRequired
 };
 
-function BackButton({ onClickHandler, text }) {
+const contextTypes = {
+  __: PropTypes.func
+}
+
+function BackButton({ onClickHandler, text }, {__}) {
   return (
     <button onClick={onClickHandler} className="back">
       <Ionicons icon="ion-chevron-left" fontSize="10px" color="#888" />
-      {text}
+      {__(text)}
     </button>
   );
 }
 
 BackButton.propTypes = propTypes;
+BackButton.contextTypes = contextTypes;
 
 export default BackButton;

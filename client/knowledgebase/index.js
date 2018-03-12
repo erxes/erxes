@@ -1,3 +1,5 @@
+/* global FileReader */
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import client, { createStore } from '../apollo-client';
@@ -8,11 +10,14 @@ import reducers from './reducers';
 import './sass/style.scss';
 
 window.addEventListener('message', (event) => {
-  if (!(event.data.fromPublisher && event.data.setting)) {
+  const data = event.data;
+
+  if (!(data.fromPublisher && data.setting)) {
     return;
   }
 
   connection.setting = event.data.setting;
+
   // render root react component
   ReactDOM.render(
     <ApolloProvider store={createStore(reducers)} client={client}>

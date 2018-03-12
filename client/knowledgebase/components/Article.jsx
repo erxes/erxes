@@ -8,6 +8,10 @@ const propTypes = {
   onSwitchToArticleDisplay: PropTypes.func,
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 export default class Article extends React.Component {
   constructor(props) {
     super(props);
@@ -30,6 +34,7 @@ export default class Article extends React.Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { article } = this.props;
     const { author } = article;
 
@@ -46,10 +51,10 @@ export default class Article extends React.Component {
           </div>
           <div>
             <div>
-              Written by <span>{author.details.fullName}</span>
+              {__('Written by')} <span>{author.details.fullName}</span>
             </div>
             <div>
-              {article.modifiedDate ? 'Modified ' : 'Created '}
+              {article.modifiedDate ? __('Modified ') : __('Created ')}
               {moment(article.modifiedDate ? article.modifiedDate : article.createdDate).fromNow()}
             </div>
           </div>
@@ -60,3 +65,4 @@ export default class Article extends React.Component {
 }
 
 Article.propTypes = propTypes;
+Article.contextTypes = contextTypes;

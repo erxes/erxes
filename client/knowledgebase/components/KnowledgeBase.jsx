@@ -19,6 +19,10 @@ const propTypes = {
   color: PropTypes.string,
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 export default class KnowledgeBase extends React.Component {
   constructor(props) {
     super(props);
@@ -47,7 +51,8 @@ export default class KnowledgeBase extends React.Component {
   }
 
   renderContent() {
-    const { displayType, color } = this.props;
+    const { __ } = this.context;
+    const { displayType } = this.props;
     if (displayType.displayType === CONTENT_TYPE_TOPIC) {
       return (
         <Categories />
@@ -57,7 +62,7 @@ export default class KnowledgeBase extends React.Component {
     if (displayType.displayType === CONTENT_TYPE_CATEGORY) {
       return (
         <div>
-          <BackButton onClickHandler={this.onTopicClickHandler} text="Back to categories" />
+          <BackButton onClickHandler={this.onTopicClickHandler} text={__('Back to categories')} />
           <CategoryDetail category={displayType.category} />
         </div>
       );
@@ -70,7 +75,7 @@ export default class KnowledgeBase extends React.Component {
             onClickHandler={displayType.data.category != null ?
               this.onCategoryClickHandler : this.onTopicClickHandler}
             text={displayType.data.category != null ?
-              'Back to articles' : 'Back to top'}
+              __('Back to articles') : __('Back to top')}
           />
           <ArticleDetail data={displayType.data} />
         </div>
@@ -110,3 +115,4 @@ export default class KnowledgeBase extends React.Component {
 }
 
 KnowledgeBase.propTypes = propTypes;
+KnowledgeBase.contextTypes = contextTypes;

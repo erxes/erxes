@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
 
 import widgetConnect from '../widgetConnect';
+import { setLocale } from '../utils';
 import { connection } from './connection';
 import { connect } from './actions';
 import reducers from './reducers';
@@ -28,6 +29,9 @@ widgetConnect({
 
     // save connection info
     connection.data = data.formConnect;
+
+    // set language
+    setLocale(data.formConnect.languageCode);
 
     window.addEventListener('message', (event) => {
       if (event.data.fromPublisher) {

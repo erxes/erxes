@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Field from './Field';
 import { SUCCESS, INITIAL } from '../constants';
 
@@ -70,6 +71,7 @@ export default class Form extends React.Component {
   }
 
   renderForm() {
+    const { __ } = this.context;
     return (
       <div className="erxes-form">
         <div className="erxes-topbar thiner">
@@ -87,7 +89,7 @@ export default class Form extends React.Component {
             onClick={this.onSubmit}
             className="btn btn-block"
           >
-            Send
+            {__('Send')}
           </button>
         </div>
       </div>
@@ -96,6 +98,7 @@ export default class Form extends React.Component {
 
   renderSuccessForm(thankContent) {
     const { integrationName, onCreateNew } = this.props;
+    const { __ } = this.context;
 
     return (
       <div className="erxes-form">
@@ -110,11 +113,11 @@ export default class Form extends React.Component {
           <div className="erxes-result">
             <span>
               {
-                thankContent ||
-                'Thanks for your message. We will respond as soon as we can.'
+                __(thankContent) ||
+                __('Thanks for your message. We will respond as soon as we can.')
               }
             </span>
-            <button className="btn" onClick={onCreateNew}>Create new</button>
+            <button className="btn" onClick={onCreateNew}>{__('Create new')}</button>
           </div>
         </div>
       </div>
@@ -195,4 +198,8 @@ Form.propTypes = {
   onSubmit: PropTypes.func,
   onCreateNew: PropTypes.func,
   sendEmail: PropTypes.func,
+};
+
+Form.contextTypes = {
+  __: PropTypes.func
 };

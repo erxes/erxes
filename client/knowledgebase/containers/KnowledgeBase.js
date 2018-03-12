@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
+import { setLocale } from '../../utils';
+import TranslationWrapper from '../../TranslationWrapper';
 import { KnowledgeBase } from '../components';
 import { connection } from '../connection';
 import { switchToCategoryDisplay, switchToTopicDisplay } from '../actions';
@@ -17,6 +19,7 @@ const mapDisptachToProps = dispatch => ({
   onSwitchToTopicDisplay() {
     dispatch(switchToTopicDisplay());
   },
+
   onSwitchToCategoryDisplay(category) {
     dispatch(switchToCategoryDisplay(category));
   },
@@ -29,26 +32,34 @@ const propTypes = {
   }),
 };
 
-const TopicColor = (props) => {
-  let color = '';
+const Topic = (props) => {
+  const { data: { loading, knowledgeBaseTopicsDetail } } = props;
 
-  if (props.data.loading) {
-    return false;
-  } else {
-    color = props.data.knowledgeBaseTopicsDetail.color;
+  if (loading) {
+    return null;
   }
+
+  const { color, languageCode } = knowledgeBaseTopicsDetail;
+
+  // set language
+  setLocale(languageCode);
 
   const updatedProps = {
     ...props,
     color,
   }
-  return (<KnowledgeBase {...updatedProps}/>);
+
+  return (
+    <TranslationWrapper>
+      <KnowledgeBase {...updatedProps}/>
+    </TranslationWrapper>
+  );
 };
 
-TopicColor.propTypes = propTypes;
+Topic.propTypes = propTypes;
 
-const TopicColorWithData = graphql(
-  gql(queries.getKbTopicColorQuery),
+const TopicWithData = graphql(
+  gql(queries.getKbTopicQuery),
   {
     options: () => ({
       fetchPolicy: 'network-only',
@@ -57,6 +68,6 @@ const TopicColorWithData = graphql(
       },
     }),
   },
-)(TopicColor);
+)(Topic);
 
-export default connect(mapStateToProps, mapDisptachToProps)(TopicColorWithData);
+export default connect(mapStateToProps, mapDisptachToProps)(TopicWithData);

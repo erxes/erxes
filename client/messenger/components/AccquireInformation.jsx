@@ -1,10 +1,11 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-import React, { PropTypes, Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { iconRight, iconExit } from '../../icons/Icons';
 import { TopBar } from '../containers';
 
-class AccquireInformation extends Component {
+class AccquireInformation extends React.Component {
   constructor(props) {
     super(props);
 
@@ -30,13 +31,14 @@ class AccquireInformation extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { color } = this.props;
     const { type } = this.state;
 
     const title = (
       <div className="erxes-topbar-title">
-        <div>Contact</div>
-        <span>Give us your contact information</span>
+        <div>{__('Contact')}</div>
+        <span>{__('Give us your contact information')}</span>
       </div>
     );
 
@@ -52,14 +54,14 @@ class AccquireInformation extends Component {
               className={type === 'email' ? 'current' : ''}
               onClick={() => this.onTypeChange('email')}
             >
-              Email
+              {__('Email')}
             </span>
 
             <span
               className={type === 'phone' ? 'current' : ''}
               onClick={() => this.onTypeChange('phone')}
             >
-              SMS
+              {__('SMS')}
             </span>
           </p>
 
@@ -67,7 +69,7 @@ class AccquireInformation extends Component {
             <input
               onChange={this.onValueChange}
               placeholder={
-                type === 'email' ? 'email@domain.com' : 'phone number ...'
+                type === 'email' ? __('email@domain.com') : __('phone number')
               }
               style={{ borderColor: color }}
             />
@@ -89,6 +91,10 @@ class AccquireInformation extends Component {
 AccquireInformation.propTypes = {
   color: PropTypes.string,
   save: PropTypes.func,
+};
+
+AccquireInformation.contextTypes = {
+  __: PropTypes.func
 };
 
 export default AccquireInformation;
