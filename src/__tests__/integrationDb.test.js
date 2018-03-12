@@ -66,7 +66,7 @@ describe('messenger integration model edit method', () => {
     const doc = {
       name: 'Integration test 2',
       brandId: _brand2._id,
-      kind: 'new kind',
+      kind: KIND_CHOICES.MESSENGER,
     };
 
     const updatedIntegration = await Integrations.updateMessengerIntegration(_integration._id, doc);
