@@ -1,4 +1,4 @@
-/* global FileReader LANGUAGE_CODE */
+/* global FileReader */
 
 /* eslint-disable react/jsx-filename-extension */
 
@@ -7,8 +7,6 @@ import ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import client, { createStore } from './apollo-client';
 import TranslationWrapper from './TranslationWrapper';
-import T from 'i18n-react';
-import translation from '../locales';
 import { setMomentLocale } from './utils';
 
 // base connect function for all widgets
@@ -20,9 +18,6 @@ const widgetConnect = (params) => {
     AppContainer,
     reducers,
   } = params;
-
-  // load translation resources
-  T.setTexts(translation[LANGUAGE_CODE]);
 
   setMomentLocale();
 

@@ -66,6 +66,8 @@ const getKbTopicQuery = `
     knowledgeBaseTopicsDetail(topicId: $topicId) {
       title
       description
+      color
+      languageCode
       categories {
         _id
         title
@@ -83,18 +85,9 @@ const getKbTopicQuery = `
   }
 `;
 
-const getKbTopicColorQuery = `
-  query knowledgeBaseTopicsDetail($topicId: String!) {
-    knowledgeBaseTopicsDetail(topicId: $topicId) {
-      color
-    }
-  }
-`;
-
 export default {
   kbLoaderQuery,
   kbSearchArticlesQuery,
   getKbCategoryQuery,
   getKbTopicQuery,
-  getKbTopicColorQuery,
 }

@@ -1,10 +1,11 @@
 /* global FileReader LANGUAGE_CODE */
 import moment from 'moment';
+import T from 'i18n-react';
+import translation from '../locales';
 
 export const getBrowserInfo = async () => {
   let location;
-
-  try {
+try {
     const response = await fetch('https://freegeoip.net/json/');
 
     location = await response.json();
@@ -63,4 +64,8 @@ export const setMomentLocale = () => {
   });
 
   moment.locale(LANGUAGE_CODE);
+}
+
+export const setLocale = (code) => {
+  T.setTexts(translation[code || 'en']);
 }
