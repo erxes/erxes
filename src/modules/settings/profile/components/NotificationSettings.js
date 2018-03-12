@@ -70,7 +70,7 @@ class NotificationSettings extends Component {
   render() {
     const { __ } = this.context;
     const content = (
-      <ContentBox>
+      <div>
         <SubHeading>{__('Notifications')}</SubHeading>
         <InlineItems>
           <Toggle
@@ -88,7 +88,7 @@ class NotificationSettings extends Component {
             this.renderModule(module, index)
           )}
         </ContentBox>
-      </ContentBox>
+      </div>
     );
 
     return content;

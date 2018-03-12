@@ -9,7 +9,7 @@ import {
   SidebarCounter,
   SidebarList
 } from 'modules/layout/styles';
-import { Icon, NameCard, ModalTrigger, Tip } from 'modules/common/components';
+import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { EditProfile } from 'modules/settings/profile/components';
 import { UserForm } from '../../containers';
 
@@ -29,13 +29,11 @@ const Channel = styled.div`
   }
 
   span {
-    display: inline-block;
+    display: block;
     color: ${colors.colorCoreLightGray};
 
     &:last-child {
       overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
     }
   }
 
@@ -152,9 +150,7 @@ class LeftSidebar extends React.Component {
                       <Icon icon="android-open" />
                     </Link>
                     <div>{channel.name || ''}</div>
-                    <Tip text={channel.description || ''}>
-                      <span>{channel.description || ''}</span>
-                    </Tip>
+                    <span>{channel.description || ''}</span>
                   </div>
                 );
               })}

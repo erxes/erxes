@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button
+  Button,
+  ModalFooter
 } from 'modules/common/components';
 
 const propTypes = {
@@ -62,7 +62,7 @@ class ChangePassword extends Component {
             id="new-password-confirmation"
           />
         </FormGroup>
-        <Modal.Footer>
+        <ModalFooter>
           <Button btnStyle="simple" onClick={() => closeModal()} icon="close">
             Close
           </Button>
@@ -70,7 +70,7 @@ class ChangePassword extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

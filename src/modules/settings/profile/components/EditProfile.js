@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
-import { Button, ModalTrigger } from 'modules/common/components';
+import { Button, ModalTrigger, ModalFooter } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
-import { ContentBox } from '../../styles';
 import { PasswordConfirmation } from './';
 
 const propTypes = {
@@ -59,13 +57,13 @@ class EditProfile extends Component {
     );
 
     return (
-      <ContentBox>
+      <div>
         <UserCommonInfos
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
         />
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -83,8 +81,8 @@ class EditProfile extends Component {
               onSuccess={password => this.handleSubmit(password)}
             />
           </ModalTrigger>
-        </Modal.Footer>
-      </ContentBox>
+        </ModalFooter>
+      </div>
     );
   }
 }

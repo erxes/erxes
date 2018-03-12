@@ -7,7 +7,7 @@ import {
   FormControl,
   Button
 } from 'modules/common/components';
-import { ContentBox, Well } from '../../styles';
+import { Well } from '../../styles';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,
@@ -65,7 +65,7 @@ class Signature extends Component {
     const { __, closeModal } = this.context;
 
     const content = (
-      <ContentBox>
+      <div>
         <Well>
           {__('Signatures are only included in response emails.')}
           <br />
@@ -108,7 +108,7 @@ class Signature extends Component {
             </Button>
           </Modal.Footer>
         </form>
-      </ContentBox>
+      </div>
     );
 
     return content;

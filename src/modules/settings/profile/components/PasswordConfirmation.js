@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button
+  Button,
+  ModalFooter
 } from 'modules/common/components';
 
 const propTypes = {
@@ -39,7 +39,7 @@ class PasswordConfirmation extends Component {
           <ControlLabel>Enter your password to Confirm</ControlLabel>
           <FormControl autoFocus id="password" type="password" />
         </FormGroup>
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             icon="close"
@@ -54,7 +54,7 @@ class PasswordConfirmation extends Component {
           >
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

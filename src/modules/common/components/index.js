@@ -11,7 +11,7 @@ import Loader from './Loader';
 import Chip from './Chip';
 import LoadMore from './LoadMore';
 import Pagination from './pagination/Pagination';
-import ModalTrigger from './ModalTrigger';
+import { ModalTrigger, ModalFooter } from './ModalTrigger';
 import ActionButtons from './ActionButtons';
 import EmptyState from './EmptyState';
 import Bulk from './Bulk';
@@ -53,6 +53,7 @@ export {
   Pagination,
   pagination,
   ModalTrigger,
+  ModalFooter,
   EmptyState,
   Bulk,
   ConversationList,
