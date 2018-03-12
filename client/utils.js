@@ -1,4 +1,4 @@
-/* global FileReader LANGUAGE_CODE */
+/* global FileReader */
 import moment from 'moment';
 import T from 'i18n-react';
 import translation from '../locales';
@@ -62,8 +62,6 @@ export const setMomentLocale = () => {
       yy: '%d жилийн',
     },
   });
-
-  moment.locale(LANGUAGE_CODE);
 }
 
 export const setLocale = (code) => {
