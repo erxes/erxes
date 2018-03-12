@@ -5,7 +5,7 @@ const userDetail = `
       username
       email
       role
-      conversations {
+      participatedConversations {
         _id
         createdAt
         customer {

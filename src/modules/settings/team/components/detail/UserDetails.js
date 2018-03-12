@@ -48,36 +48,40 @@ class UserDetails extends React.Component {
     this.setState({ currentTab });
   }
 
+  renderConversation(conversation, user) {
+    return (
+      <ActivityRow key={conversation._id}>
+        <ActivityWrapper>
+          <AvatarWrapper>
+            <NameCard.Avatar user={user} size={50} />
+          </AvatarWrapper>
+
+          <ActivityCaption>
+            {user.details.fullName} participated in a
+            <Link to={`/inbox?_id=${conversation._id}`}>
+              <strong> conversation </strong>
+            </Link>
+            with{' '}
+            <Link to={`/customers/details/${conversation.customer._id}`}>
+              <strong>{renderFullName(conversation.customer)}</strong>
+            </Link>
+          </ActivityCaption>
+
+          <ActivityDate>
+            {moment(conversation.createdAt).fromNow()}
+          </ActivityDate>
+        </ActivityWrapper>
+      </ActivityRow>
+    );
+  }
+
   renderTabContent() {
     const { currentTab } = this.state;
     const { currentUser, activityLogsUser, loadingLogs, user } = this.props;
 
     if (currentTab === 'conversation') {
-      return user.conversations.map(conversation => {
-        return (
-          <ActivityRow key={conversation._id}>
-            <ActivityWrapper>
-              <AvatarWrapper>
-                <NameCard.Avatar user={user} size={50} />
-              </AvatarWrapper>
-
-              <ActivityCaption>
-                {user.details.fullName} participated in a
-                <Link to={`/inbox?_id=${conversation._id}`}>
-                  <strong> conversation </strong>
-                </Link>
-                with{' '}
-                <Link to={`/customers/details/${conversation.customer._id}`}>
-                  <strong>{renderFullName(conversation.customer)}</strong>
-                </Link>
-              </ActivityCaption>
-
-              <ActivityDate>
-                {moment(conversation.createdAt).fromNow()}
-              </ActivityDate>
-            </ActivityWrapper>
-          </ActivityRow>
-        );
+      return user.participatedConversations.map(conversation => {
+        return this.renderConversation(conversation, user);
       });
     }
 
@@ -100,7 +104,7 @@ class UserDetails extends React.Component {
               type={currentTab} //show logs filtered by type
             />
           }
-          emptyText="No Activities"
+          emptyText="Empty Notes"
           emptyImage="/images/robots/robot-03.svg"
         />
       </div>

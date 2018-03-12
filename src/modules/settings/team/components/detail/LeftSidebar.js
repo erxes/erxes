@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import { colors, dimensions } from 'modules/common/styles';
 import { Sidebar } from 'modules/layout/components';
 import {
   SidebarContent,
@@ -10,7 +12,6 @@ import {
 import { Icon, NameCard, ModalTrigger, Tip } from 'modules/common/components';
 import { EditProfile } from 'modules/settings/profile/components';
 import { UserForm } from '../../containers';
-import { Channel } from './styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -18,6 +19,36 @@ const propTypes = {
   saveUser: PropTypes.func,
   channels: PropTypes.array
 };
+
+const Channel = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
+  width: 100%;
+
+  &:first-of-type {
+    border-top: none;
+  }
+
+  span {
+    display: inline-block;
+    color: ${colors.colorCoreLightGray};
+
+    &:last-child {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+
+  i {
+    color: ${colors.colorCoreLightGray};
+    position: absolute;
+    right: ${dimensions.coreSpacing}px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+`;
 
 class LeftSidebar extends React.Component {
   render() {
