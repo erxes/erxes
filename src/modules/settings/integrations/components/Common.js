@@ -15,7 +15,6 @@ import SelectBrand from './SelectBrand';
 
 class Common extends Component {
   static installCodeIncludeScript(type) {
-    // TODO
     return `
       (function() {
         var script = document.createElement('script');
@@ -34,6 +33,7 @@ class Common extends Component {
     super(props, context);
 
     let code = '';
+
     // showed install code automatically in edit mode
     if (props.integration) {
       const brand = props.integration.brand || '';
@@ -71,7 +71,8 @@ class Common extends Component {
 
     this.props.save({
       name: document.getElementById('integration-name').value,
-      brandId: document.getElementById('selectBrand').value
+      brandId: document.getElementById('selectBrand').value,
+      languageCode: document.getElementById('languageCode').value
     });
   }
 
@@ -95,6 +96,20 @@ class Common extends Component {
           defaultValue={integration.brandId}
           onChange={this.handleBrandChange}
         />
+
+        <FormGroup>
+          <ControlLabel>Language</ControlLabel>
+
+          <FormControl
+            componentClass="select"
+            defaultValue={integration.languageCode || 'en'}
+            id="languageCode"
+          >
+            <option />
+            <option value="mn">Монгол</option>
+            <option value="en">English</option>
+          </FormControl>
+        </FormGroup>
 
         {this.extraContent && this.extraContent()}
 
@@ -141,7 +156,8 @@ Common.propTypes = {
 };
 
 Common.contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 export default Common;

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { Spinner } from 'modules/common/components';
 import Message from './Message';
+import { TwitterConversation } from './TwitterConversation';
 
 const propTypes = {
   conversation: PropTypes.object,
@@ -53,12 +54,6 @@ const File = styled.span`
 `;
 
 class Conversation extends Component {
-  constructor(props) {
-    super(props);
-
-    this.renderPreview = this.renderPreview.bind(this);
-  }
-
   renderPreview() {
     const { attachmentPreview } = this.props;
 
@@ -78,8 +73,14 @@ class Conversation extends Component {
     return null;
   }
 
-  render() {
+  renderMessages() {
     const { conversation, scrollBottom } = this.props;
+    const currentUser = this.context.currentUser;
+    const twitterUsername =
+      (currentUser &&
+        currentUser.details &&
+        currentUser.details.twitterUsername) ||
+      '';
 
     if (!conversation) {
       return null;
@@ -90,101 +91,54 @@ class Conversation extends Component {
 
     let tempId;
 
-    const childSelector = (fbData, parentId) => {
-      return fbData && fbData.parentId && fbData.parentId === parentId;
-    };
+    messages.forEach(message => {
+      const twitterData = message.customer && message.customer.twitterData;
 
-    const reactionCounts = reactions => {
-      console.log(reactions);
+      rows.push(
+        <Message
+          isSameUser={
+            message.userId
+              ? message.userId === tempId
+              : message.customerId === tempId
+          }
+          message={message}
+          staff={
+            !message.customerId ||
+            (twitterData && twitterData.screenName === twitterUsername)
+          }
+          key={message._id}
+          scrollBottom={scrollBottom}
+        />
+      );
 
-      if (reactions) {
-        const keys = Object.keys(reactions);
-        const data = {};
+      tempId = message.userId ? message.userId : message.customerId;
+    });
 
-        keys.forEach(key => {
-          if (reactions[key]) data[key] = reactions[key].length;
-        });
+    return rows;
+  }
 
-        console.log(data);
-      }
+  renderConversation() {
+    const { conversation, scrollBottom } = this.props;
+    const twitterData = conversation.twitterData;
+    const isTweet =
+      twitterData && !twitterData.isDirectMessage && twitterData.created_at;
 
-      return null;
-    };
-
-    const renderMessages = (data, isFeed) => {
-      data.forEach(message => {
-        if (isFeed && message.facebookData) {
-          console.log(message.facebookData.postUrl);
-          reactionCounts(message.facebookData.reactions);
-        }
-
-        rows.push(
-          <Message
-            isSameUser={
-              message.userId
-                ? message.userId === tempId
-                : message.customerId === tempId
-            }
-            message={message}
-            staff={!message.customerId}
-            key={message._id}
-            scrollBottom={scrollBottom}
-          />
-        );
-
-        tempId = message.userId ? message.userId : message.customerId;
-
-        if (isFeed) {
-          const childComments = messages.filter(msg => {
-            return (
-              message.facebookData &&
-              childSelector(msg.facebookData, message.facebookData.commentId)
-            );
-          });
-
-          renderMessages(childComments, false);
-        }
-      });
-    };
-
-    if (
-      conversation.integration &&
-      conversation.integration.kind === 'facebook' &&
-      conversation.facebookData &&
-      conversation.facebookData.kind === 'feed'
-    ) {
-      const post = messages.find(msg => {
-        const fbData = msg.facebookData;
-        return (
-          (fbData.postId === conversation.postId && fbData.item === 'post') ||
-          'status'
-        );
-      });
-
-      if (post) {
-        rows.push(
-          <Message
-            message={post}
-            staff={!post.customerId}
-            key={post._id}
-            scrollBottom={scrollBottom}
-          />
-        );
-      }
-
-      const postComments = messages.filter(msg => {
-        const fbData = msg.facebookData || {};
-        return fbData.postId === fbData.parentId || msg.userId !== null;
-      });
-
-      renderMessages(postComments, true);
-    } else {
-      renderMessages(messages, false);
+    if (isTweet) {
+      return (
+        <TwitterConversation
+          conversation={conversation}
+          scrollBottom={scrollBottom}
+        />
+      );
     }
 
+    return this.renderMessages();
+  }
+
+  render() {
     return (
       <Wrapper>
-        {rows}
+        {this.renderConversation()}
         {this.renderPreview()}
       </Wrapper>
     );
@@ -192,5 +146,8 @@ class Conversation extends Component {
 }
 
 Conversation.propTypes = propTypes;
+Conversation.contextTypes = {
+  currentUser: PropTypes.object
+};
 
 export default Conversation;

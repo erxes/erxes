@@ -9,7 +9,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class Form extends Component {
