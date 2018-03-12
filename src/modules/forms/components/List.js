@@ -42,6 +42,7 @@ class List extends Component {
         <thead>
           <tr>
             <th>{__('Name')}</th>
+            <th>{__('Brand')}</th>
             <th>{__('Views')}</th>
             <th>{__('Conversion rate')}</th>
             <th>{__('Contacts gathered')}</th>

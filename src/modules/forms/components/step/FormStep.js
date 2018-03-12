@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { FormControl, Button, Icon } from 'modules/common/components';
+import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
 import { dimensions, colors } from 'modules/common/styles';
 import { FlexItem, LeftItem, Preview, Title } from './style';
 
@@ -42,7 +43,8 @@ const FieldItem = styled.li`
 `;
 
 const propTypes = {
-  hasOptions: PropTypes.bool
+  hasOptions: PropTypes.bool,
+  kind: PropTypes.string
 };
 
 class FormStep extends Component {
@@ -131,6 +133,52 @@ class FormStep extends Component {
     );
   }
 
+  renderPreview() {
+    const { kind } = this.props;
+    const {
+      title,
+      bodyValue,
+      btnText,
+      color,
+      theme,
+      logoPreviewUrl
+    } = this.state;
+
+    if (kind === 'shoutbox') {
+      return (
+        <ShoutboxPreview
+          title={title}
+          bodyValue={bodyValue}
+          btnText={btnText}
+          color={color}
+          theme={theme}
+          image={logoPreviewUrl}
+        />
+      );
+    } else if (kind === 'popup') {
+      return (
+        <PopupPreview
+          title={title}
+          bodyValue={bodyValue}
+          btnText={btnText}
+          color={color}
+          theme={theme}
+          image={logoPreviewUrl}
+        />
+      );
+    }
+    return (
+      <EmbeddedPreview
+        title={title}
+        bodyValue={bodyValue}
+        btnText={btnText}
+        color={color}
+        theme={theme}
+        image={logoPreviewUrl}
+      />
+    );
+  }
+
   renderOption(option, index) {
     return (
       <FieldItem key={index}>
@@ -159,7 +207,7 @@ class FormStep extends Component {
           <Title>{__('Add a field')}</Title>
           {this.renderOptions()}
         </LeftItem>
-        <Preview>right</Preview>
+        <Preview>{this.renderPreview()}</Preview>
       </FlexItem>
     );
   }

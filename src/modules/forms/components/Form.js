@@ -152,7 +152,7 @@ class Form extends Component {
             next={this.next}
             nextButton={this.renderNextButton(__)}
           >
-            <CallOut integration={integration} />
+            <CallOut integration={integration} kind={this.state.kind} />
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"
@@ -160,7 +160,7 @@ class Form extends Component {
             next={this.next}
             nextButton={this.renderNextButton(__)}
           >
-            <FormStep hasOptions={hasOptions} />
+            <FormStep hasOptions={hasOptions} kind={this.state.kind} />
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"

@@ -37,6 +37,7 @@ class Row extends Component {
     return (
       <tr>
         <td>{form.title}</td>
+        <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>0</td>
         <td>0.00%</td>
         <td>0</td>

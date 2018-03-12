@@ -47,6 +47,17 @@ const propTypes = {
 };
 
 class ChooseType extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      title: 'Contact',
+      bodyValue: 'Body description here',
+      btnText: 'Send',
+      color: '#04A9F5'
+    };
+  }
+
   renderBox(name, image, value) {
     const { __ } = this.context;
     return (
@@ -71,13 +82,35 @@ class ChooseType extends Component {
 
   renderPreview() {
     const { kind } = this.props;
+    const { title, bodyValue, btnText, color } = this.state;
 
     if (kind === 'shoutbox') {
-      return <ShoutboxPreview />;
+      return (
+        <ShoutboxPreview
+          title={title}
+          bodyValue={bodyValue}
+          btnText={btnText}
+          color={color}
+        />
+      );
     } else if (kind === 'popup') {
-      return <PopupPreview />;
+      return (
+        <PopupPreview
+          title={title}
+          bodyValue={bodyValue}
+          btnText={btnText}
+          color={color}
+        />
+      );
     }
-    return <EmbeddedPreview />;
+    return (
+      <EmbeddedPreview
+        title={title}
+        bodyValue={bodyValue}
+        btnText={btnText}
+        color={color}
+      />
+    );
   }
 
   render() {

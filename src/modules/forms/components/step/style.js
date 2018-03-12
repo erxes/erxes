@@ -82,15 +82,108 @@ const LeftItem = styled.div`
 const Preview = styled.div`
   flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  background: ${colors.bgMain};
+  background: ${colors.bgLight};
   padding: ${dimensions.coreSpacing}px;
 `;
 
 const Title = styled.label`
   display: block;
   margin: 20px 0 10px;
+`;
+
+const CenterContainer = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+`;
+
+const Embedded = styled.div`
+  width: 100%;
+`;
+
+const FormContainer = styled.div`
+  display: block;
+  position: fixed;
+  border-radius: 5px;
+  background-color: ${colors.colorWhite};
+  width: 500px;
+`;
+
+const PopupTitle = styled.div`
+  padding: 20px;
+  border-radius: 5px 5px 0 0;
+  background-color: ${colors.colorSecondary};
+  color: ${colors.colorWhite};
+  text-align: center;
+`;
+
+const PreviewBody = styled.div`
+  padding: 20px;
+  color: ${colors.textPrimary};
+  display: flex;
+  overflow: auto;
+
+  img {
+    max-width: 100px;
+    margin-right: 10px;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 20px;
+  }
+`;
+
+const BodyContent = styled.div`
+  flex: 1;
+`;
+
+const BodyText = styled.span`
+  display: block;
+  margin-bottom: 20px;
+`;
+
+const BackgroundSelector = styled.li`
+  display: inline-block;
+  cursor: pointer;
+  margin-left: 10px;
+  border-radius: 50%;
+  border: 1px solid
+    ${props => (props.selected ? colors.colorPrimary : 'transparent')};
+
+  > div {
+    height: 30px;
+    width: 30px;
+    margin: 5px;
+    background: #eee;
+    border-radius: 50%;
+    line-height: 30px;
+    border: 1px solid #edf1f5;
+  }
+
+  &:first-child {
+    margin: 0;
+  }
+`;
+const ColorPick = styled.ul`
+  list-style: none;
+  padding: 0;
+`;
+
+const ColorPicker = styled.div`
+  border-radius: 4px;
+  display: inline-block;
+  padding: 5px;
+  border: 1px solid ${colors.colorShadowGray};
+  cursor: pointer;
+  margin-left: 20px;
+`;
+
+const Picker = styled.div`
+  width: 80px;
+  height: 15px;
 `;
 
 export {
@@ -106,5 +199,16 @@ export {
   FlexItem,
   LeftItem,
   Preview,
-  Title
+  Title,
+  CenterContainer,
+  FormContainer,
+  PreviewBody,
+  PopupTitle,
+  BodyText,
+  ColorPick,
+  ColorPicker,
+  Picker,
+  BackgroundSelector,
+  BodyContent,
+  Embedded
 };
