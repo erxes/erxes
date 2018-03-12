@@ -26,7 +26,7 @@ try {
   };
 }
 
-export const setMomentLocale = () => {
+export const setMomentLocale = (code) => {
   moment.updateLocale('en', {
     relativeTime: {
       future: 'in %s',
@@ -62,6 +62,8 @@ export const setMomentLocale = () => {
       yy: '%d жилийн',
     },
   });
+
+  moment.locale(code)
 }
 
 export const setLocale = (code) => {
