@@ -62,10 +62,10 @@ class UserDetails extends React.Component {
               </AvatarWrapper>
 
               <ActivityCaption>
-                {user.details.fullName} had{' '}
+                {user.details.fullName} participated in a
                 <Link to={`/inbox?_id=${conversation._id}`}>
-                  <strong>conversation</strong>
-                </Link>{' '}
+                  <strong> conversation </strong>
+                </Link>
                 with{' '}
                 <Link to={`/customers/details/${conversation.customer._id}`}>
                   <strong>{renderFullName(conversation.customer)}</strong>
