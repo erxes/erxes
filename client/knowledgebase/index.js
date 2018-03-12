@@ -11,53 +11,17 @@ import './sass/style.scss';
 import TranslationWrapper from '../TranslationWrapper';
 import T from 'i18n-react';
 import translation from '../../locales';
-import moment from 'moment';
+import { setMomentLocale } from '../utils';
 
 window.addEventListener('message', (event) => {
   if (!(event.data.fromPublisher && event.data.setting)) {
     return;
   }
 
-  // set locale moment
-  moment.updateLocale('en', {
-    relativeTime: {
-      future: 'in %s',
-      past: '%s ',
-      s: 's',
-      m: 'm',
-      mm: '%d m',
-      h: 'h',
-      hh: '%d h',
-      d: 'd',
-      dd: '%d d',
-      M: 'a mth',
-      MM: '%d mths',
-      y: 'y',
-      yy: '%d y',
-    },
-  });
-
-  moment.defineLocale('mn', {
-    relativeTime: {
-      future: '%s дараа',
-      past: '%s өмнө',
-      s: 'саяхан',
-      m: 'минутын',
-      mm: '%d минутын',
-      h: '1 цагийн',
-      hh: '%d цагийн',
-      d: '1 өдрийн',
-      dd: '%d өдрийн',
-      M: '1 сарын',
-      MM: '%d сарын',
-      y: '1 жилийн',
-      yy: '%d жилийн',
-    },
-  });
-
   // load translations
   T.setTexts(translation[LANGUAGE_CODE]);
-  moment.locale(LANGUAGE_CODE);
+
+  setMomentLocale();
 
   connection.setting = event.data.setting;
   // render root react component
