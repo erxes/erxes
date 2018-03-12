@@ -1,17 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import { colors, dimensions } from 'modules/common/styles';
 import { Sidebar } from 'modules/layout/components';
-import {
-  SidebarContent,
-  SidebarCounter,
-  SidebarList
-} from 'modules/layout/styles';
+import { SidebarContent, SidebarList } from 'modules/layout/styles';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { EditProfile } from 'modules/settings/profile/components';
 import { UserForm } from '../../containers';
+import { Channel, Info } from './styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -19,34 +14,6 @@ const propTypes = {
   saveUser: PropTypes.func,
   channels: PropTypes.array
 };
-
-const Channel = styled.div`
-  border-top: 1px solid ${colors.borderPrimary};
-  width: 100%;
-
-  &:first-of-type {
-    border-top: none;
-  }
-
-  span {
-    display: block;
-    color: ${colors.colorCoreLightGray};
-
-    &:last-child {
-      overflow: hidden;
-    }
-  }
-
-  i {
-    color: ${colors.colorCoreLightGray};
-    position: absolute;
-    right: ${dimensions.coreSpacing}px;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-`;
 
 class LeftSidebar extends React.Component {
   render() {
@@ -86,21 +53,19 @@ class LeftSidebar extends React.Component {
             <SidebarList>
               <li>
                 {__('Location')}:
-                <SidebarCounter>{details.location || 'N/A'}</SidebarCounter>
+                <Info>{details.location || 'N/A'}</Info>
               </li>
               <li>
                 {__('Position')}:
-                <SidebarCounter>{details.position || 'N/A'}</SidebarCounter>
+                <Info>{details.position || 'N/A'}</Info>
               </li>
               <li>
                 {__('Twitter Username')}:
-                <SidebarCounter>
-                  {details.twitterUsername || 'N/A'}
-                </SidebarCounter>
+                <Info>{details.twitterUsername || 'N/A'}</Info>
               </li>
               <li>
                 Mini-resume:
-                <SidebarCounter>{details.description || 'N/A'}</SidebarCounter>
+                <Info>{details.description || 'N/A'}</Info>
               </li>
             </SidebarList>
           </SidebarContent>
@@ -113,27 +78,27 @@ class LeftSidebar extends React.Component {
             <SidebarList>
               <li>
                 Linked In:
-                <SidebarCounter>{links.linkedIn || 'N/A'}</SidebarCounter>
+                <Info>{links.linkedIn || 'N/A'}</Info>
               </li>
               <li>
                 Twitter:
-                <SidebarCounter>{links.twitter || 'N/A'}</SidebarCounter>
+                <Info>{links.twitter || 'N/A'}</Info>
               </li>
               <li>
                 Facebook:
-                <SidebarCounter>{links.facebook || 'N/A'}</SidebarCounter>
+                <Info>{links.facebook || 'N/A'}</Info>
               </li>
               <li>
                 Github:
-                <SidebarCounter>{links.github || 'N/A'}</SidebarCounter>
+                <Info>{links.github || 'N/A'}</Info>
               </li>
               <li>
                 Youtube:
-                <SidebarCounter>{links.youtube || 'N/A'}</SidebarCounter>
+                <Info>{links.youtube || 'N/A'}</Info>
               </li>
               <li>
                 Website:
-                <SidebarCounter>{links.website || 'N/A'}</SidebarCounter>
+                <Info>{links.website || 'N/A'}</Info>
               </li>
             </SidebarList>
           </SidebarContent>
