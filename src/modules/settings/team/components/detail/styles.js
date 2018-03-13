@@ -1,58 +1,58 @@
 import styled from 'styled-components';
-import { colors, dimensions, typography } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
+import {
+  AboutList,
+  Aboutvalues,
+  NameWrapper
+} from 'modules/customers/components/detail/sidebar/styles';
 
-const Channel = styled.div`
-  border-top: 1px solid ${colors.borderPrimary};
-  width: 100%;
+const List = AboutList.extend`
+  li {
+    padding: ${props => props.hover && `${dimensions.unitSpacing}px 0`};
+    border-bottom: ${props =>
+      props.hover && `1px solid ${colors.borderPrimary}`};
 
-  &:first-of-type {
-    border-top: none;
-  }
+    > a {
+      white-space: normal;
+      display: block;
+      padding: 0 20px;
+      color: ${colors.textPrimary};
 
-  span {
-    display: block;
-    color: ${colors.colorCoreLightGray};
-
-    &:last-child {
-      overflow: hidden;
+      span {
+        color: ${colors.colorCoreLightGray};
+      }
     }
-  }
 
-  i {
-    color: ${colors.colorCoreLightGray};
-    position: absolute;
-    right: ${dimensions.coreSpacing}px;
+    &:first-child {
+      padding-top: ${props => props.hover && `${dimensions.unitSpacing}px`};
+    }
 
     &:hover {
-      cursor: pointer;
+      background: ${props => props.hover && colors.bgLight};
     }
   }
 `;
 
-const Info = styled.span`
-  white-space: pre;
-  font-size: ${typography.fontSizeHeading8}px;
-  text-align: right;
-  color: ${colors.colorCoreGray};
-  margin-top: 2px;
-  position: absolute;
-  right: ${dimensions.coreSpacing}px;
-  max-width: 60%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  background-color: #fff;
-  box-shadow: -2px 0 10px 2px #fff;
-  padding-left: 10px;
+const Value = Aboutvalues.extend``;
 
+const User = NameWrapper.extend`
+  padding: ${dimensions.coreSpacing}px 0;
+  justify-content: space-between;
+`;
+
+const Links = styled.div`
   a {
-    padding: 0;
-    color: ${colors.linkPrimary};
-  }
+    color: ${colors.colorCoreLightGray};
+    margin-right: 10px;
 
-  span {
-    float: right;
-    margin-left: 5px;
+    &:hover {
+      color: ${colors.colorCoreGray};
+    }
+
+    i {
+      font-size: 14px;
+    }
   }
 `;
 
-export { Channel, Info };
+export { List, Value, User, Links };

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
-import styled from 'styled-components';
 
 const propTypes = {
   title: PropTypes.string.isRequired,
@@ -69,8 +68,4 @@ ModalTrigger.propTypes = propTypes;
 ModalTrigger.contextTypes = contextTypes;
 ModalTrigger.childContextTypes = childContextTypes;
 
-const ModalFooter = styled.div`
-  text-align: right;
-`;
-
-export { ModalTrigger, ModalFooter };
+export default ModalTrigger;

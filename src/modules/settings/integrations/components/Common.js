@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import {
@@ -12,6 +11,7 @@ import {
 } from 'modules/common/components';
 import { MarkdownWrapper } from '../../styles';
 import SelectBrand from './SelectBrand';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 class Common extends Component {
   static installCodeIncludeScript(type) {
@@ -132,7 +132,7 @@ class Common extends Component {
           </MarkdownWrapper>
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             icon="close"
@@ -143,7 +143,7 @@ class Common extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarContent, SidebarList } from 'modules/layout/styles';
+import { SidebarContent } from 'modules/layout/styles';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { EditProfile } from 'modules/settings/profile/components';
 import { UserForm } from '../../containers';
-import { Channel, Info } from './styles';
+import { List, Value, User, Links } from './styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -16,9 +16,32 @@ const propTypes = {
 };
 
 class LeftSidebar extends React.Component {
+  renderLink(link, icon) {
+    if (link) {
+      return (
+        <a href={link} target="_blank">
+          <Icon icon={icon} />
+        </a>
+      );
+    }
+    return null;
+  }
+  renderLinks(links) {
+    return (
+      <Links>
+        {this.renderLink(links.linkedIn, 'social-linkedin')}
+        {this.renderLink(links.twitter, 'social-twitter')}
+        {this.renderLink(links.facebook, 'social-facebook')}
+        {this.renderLink(links.github, 'social-github')}
+        {this.renderLink(links.youtube, 'social-youtube')}
+        {this.renderLink(links.website, 'android-globe')}
+      </Links>
+    );
+  }
+
   render() {
     const { Section } = Sidebar;
-    const { Title, QuickButtons } = Section;
+    const { Title } = Section;
     const { user, saveProfile, channels, saveUser } = this.props;
     const { details = {}, links = {} } = user;
     const { __, currentUser } = this.context;
@@ -30,97 +53,60 @@ class LeftSidebar extends React.Component {
     }
 
     return (
-      <Sidebar>
+      <Sidebar wide>
         <Section>
-          <Title>{__('Details')}</Title>
-
-          <QuickButtons>
-            <a tabIndex={0}>
-              <ModalTrigger
-                title="Edit"
-                trigger={<Icon icon="edit" />}
-                size="lg"
-              >
-                {form}
-              </ModalTrigger>
-            </a>
-          </QuickButtons>
-
           <SidebarContent>
-            <center>
-              <NameCard user={user} avatarSize={50} singleLine />
-            </center>
-            <SidebarList>
+            <User>
+              <NameCard
+                user={user}
+                avatarSize={50}
+                secondLine={this.renderLinks(links)}
+              />
+              <a tabIndex={0}>
+                <ModalTrigger
+                  title="Edit"
+                  trigger={<Icon icon="edit" />}
+                  size="lg"
+                >
+                  {form}
+                </ModalTrigger>
+              </a>
+            </User>
+            <List>
               <li>
                 {__('Location')}:
-                <Info>{details.location || 'N/A'}</Info>
+                <Value>{details.location || '-'}</Value>
               </li>
               <li>
                 {__('Position')}:
-                <Info>{details.position || 'N/A'}</Info>
+                <Value>{details.position || '-'}</Value>
               </li>
               <li>
                 {__('Twitter Username')}:
-                <Info>{details.twitterUsername || 'N/A'}</Info>
+                <Value>{details.twitterUsername || '-'}</Value>
               </li>
               <li>
                 Mini-resume:
-                <Info>{details.description || 'N/A'}</Info>
+                <Value>{details.description || '-'}</Value>
               </li>
-            </SidebarList>
-          </SidebarContent>
-        </Section>
-
-        <Section>
-          <Title>{__('Links')}</Title>
-
-          <SidebarContent>
-            <SidebarList>
-              <li>
-                Linked In:
-                <Info>{links.linkedIn || 'N/A'}</Info>
-              </li>
-              <li>
-                Twitter:
-                <Info>{links.twitter || 'N/A'}</Info>
-              </li>
-              <li>
-                Facebook:
-                <Info>{links.facebook || 'N/A'}</Info>
-              </li>
-              <li>
-                Github:
-                <Info>{links.github || 'N/A'}</Info>
-              </li>
-              <li>
-                Youtube:
-                <Info>{links.youtube || 'N/A'}</Info>
-              </li>
-              <li>
-                Website:
-                <Info>{links.website || 'N/A'}</Info>
-              </li>
-            </SidebarList>
+            </List>
           </SidebarContent>
         </Section>
 
         <Section>
           <Title>{__('Channels')}</Title>
-          <SidebarContent>
-            <Channel>
-              {channels.map(channel => {
-                return (
-                  <div key={channel._id}>
-                    <Link to={`/settings/channels?id=${channel._id}`}>
-                      <Icon icon="android-open" />
-                    </Link>
+          <List hover>
+            {channels.map(channel => {
+              return (
+                <li key={channel._id}>
+                  <Link to={`/settings/channels?id=${channel._id}`}>
                     <div>{channel.name || ''}</div>
                     <span>{channel.description || ''}</span>
-                  </div>
-                );
-              })}
-            </Channel>
-          </SidebarContent>
+                  </Link>
+                </li>
+              );
+            })}
+          </List>
         </Section>
       </Sidebar>
     );
