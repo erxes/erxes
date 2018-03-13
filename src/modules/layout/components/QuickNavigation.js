@@ -38,16 +38,15 @@ const NavItem = styled.div`
   vertical-align: middle;
 `;
 
-const QuickNavigation = (
-  { logout, currentUser, selectLang, locale },
-  { __ }
-) => {
+const QuickNavigation = ({ logout }, context) => {
+  const { currentUser, changeLanguage, currentLanguage, __ } = context;
+
   return (
     <nav>
       <NavItem>
-        <Dropdown id="dropdown-lang" onSelect={e => selectLang(e)}>
+        <Dropdown id="dropdown-lang" onSelect={e => changeLanguage(e)}>
           <DropdownToggle bsRole="toggle">
-            {locale || 'EN'} <Icon icon="chevron-down" size={10} />
+            {currentLanguage || 'EN'} <Icon icon="chevron-down" size={10} />
           </DropdownToggle>
           <Dropdown.Menu>
             <MenuItem eventKey="en">en</MenuItem>
@@ -74,11 +73,13 @@ const QuickNavigation = (
               <NameCard user={currentUser} />
             </NameCardWrapper>
             <MenuItem divider />
+
             <li>
               <Link to={`/settings/team/details/${currentUser._id}`}>
                 {__('View Profile')}
               </Link>
             </li>
+
             <ModalTrigger
               title="Change Password"
               trigger={
@@ -89,6 +90,7 @@ const QuickNavigation = (
             >
               <ChangePassword />
             </ModalTrigger>
+
             <ModalTrigger
               title="Email signatures"
               trigger={
@@ -99,6 +101,7 @@ const QuickNavigation = (
             >
               <Signature />
             </ModalTrigger>
+
             <ModalTrigger
               title="Notification settings"
               trigger={
@@ -109,6 +112,7 @@ const QuickNavigation = (
             >
               <NotificationSettings />
             </ModalTrigger>
+
             <MenuItem divider />
             <MenuItem onClick={logout}>{__('Sign out')}</MenuItem>
           </Dropdown.Menu>
@@ -119,15 +123,13 @@ const QuickNavigation = (
 };
 
 QuickNavigation.propTypes = {
-  logout: PropTypes.func,
-  currentUser: PropTypes.object.isRequired,
-  selectLang: PropTypes.func,
-  locale: PropTypes.string
+  logout: PropTypes.func
 };
 
 QuickNavigation.contextTypes = {
-  locale: PropTypes.string,
-  selectLang: PropTypes.func,
+  currentUser: PropTypes.object,
+  changeLanguage: PropTypes.func,
+  currentLanguage: PropTypes.string,
   __: PropTypes.func
 };
 

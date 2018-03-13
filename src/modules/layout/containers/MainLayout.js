@@ -1,12 +1,12 @@
+import moment from 'moment';
 import React from 'react';
-import { MainLayout } from '../components';
 import PropTypes from 'prop-types';
+import { injectIntl, IntlProvider, addLocaleData } from 'react-intl';
 import { withCurrentUser } from 'modules/auth/containers';
+import { MainLayout } from '../components';
 import translations from '../../../locales';
 import en from 'react-intl/locale-data/en';
 import mn from 'react-intl/locale-data/mn';
-import { injectIntl, IntlProvider, addLocaleData } from 'react-intl';
-import moment from 'moment';
 
 addLocaleData([...en, ...mn]);
 
@@ -83,46 +83,42 @@ class MainLayoutContainer extends React.Component {
     super(props);
 
     this.state = {
-      locale: 'en',
+      currentLanguage: 'en',
       messages: messages['en']
     };
 
-    this.selectLang = this.selectLang.bind(this);
+    this.changeLanguage = this.changeLanguage.bind(this);
   }
 
   getChildContext() {
     return {
-      selectLang: this.selectLang,
-      locale: this.state.locale
+      changeLanguage: this.changeLanguage,
+      currentLanguage: this.state.currentLanguage
     };
   }
 
   componentDidMount() {
-    this.getLang();
+    this.changeLanguage(localStorage.getItem('currentLanguage'));
   }
 
-  getLang() {
-    const locale = localStorage.getItem('locale');
+  changeLanguage(languageCode) {
+    const currentLanguage = languageCode || 'en';
 
-    this.selectLang(locale);
-  }
+    localStorage.setItem('currentLanguage', currentLanguage);
 
-  selectLang(locale) {
-    localStorage.setItem('locale', locale || 'en');
-
-    moment.locale(locale || 'en');
+    moment.locale(currentLanguage);
 
     this.setState({
-      locale: locale || 'en',
-      messages: messages[locale || 'en']
+      currentLanguage,
+      messages: messages[currentLanguage]
     });
   }
 
   render() {
-    const { locale, messages } = this.state;
+    const { currentLanguage, messages } = this.state;
 
     return (
-      <IntlProvider locale={locale} messages={messages}>
+      <IntlProvider locale={currentLanguage} messages={messages}>
         <InjectedComponent>
           <MainLayout {...this.props} />
         </InjectedComponent>
@@ -132,8 +128,8 @@ class MainLayoutContainer extends React.Component {
 }
 
 MainLayoutContainer.childContextTypes = {
-  selectLang: PropTypes.func,
-  locale: PropTypes.string
+  changeLanguage: PropTypes.func,
+  currentLanguage: PropTypes.string
 };
 
 export default withCurrentUser(MainLayoutContainer);
