@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'modules/common/components';
-import { Embedded, PopupTitle, PreviewBody, BodyContent } from '../style';
+import {
+  Embedded,
+  PopupTitle,
+  PreviewBody,
+  BodyContent,
+  FormBody,
+  FieldTitle
+} from '../style';
 
 const propTypes = {
   title: PropTypes.string,
@@ -9,12 +16,30 @@ const propTypes = {
   btnText: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
-  image: PropTypes.string
+  image: PropTypes.string,
+  options: PropTypes.array
 };
 
 class EmbeddedPreview extends Component {
+  renderField(field, index) {
+    return (
+      <FormBody key={index}>
+        <FieldTitle>{field}:</FieldTitle>
+        <input />
+      </FormBody>
+    );
+  }
+
   render() {
-    const { theme, color, title, bodyValue, btnText, image } = this.props;
+    const {
+      theme,
+      color,
+      title,
+      bodyValue,
+      btnText,
+      image,
+      options
+    } = this.props;
 
     return (
       <Embedded>
@@ -29,6 +54,10 @@ class EmbeddedPreview extends Component {
           )}
           <BodyContent>
             {bodyValue}
+            {options &&
+              this.props.options.map((field, index) =>
+                this.renderField(field, index)
+              )}
             <Button btnStyle="primary" style={{ backgroundColor: color }}>
               {btnText}
             </Button>

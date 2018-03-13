@@ -124,6 +124,7 @@ const PreviewBody = styled.div`
   color: ${colors.textPrimary};
   display: flex;
   overflow: auto;
+  background: #fafafa;
 
   img {
     max-width: 100px;
@@ -186,6 +187,25 @@ const Picker = styled.div`
   height: 15px;
 `;
 
+const FormBody = styled.div`
+  margin: 20px 0 10px;
+
+  input {
+    width: 100%;
+    border-radius: 4px;
+    display: block;
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    outline: 0;
+  }
+`;
+
+const FieldTitle = styled.div`
+  color: #333;
+  padding-bottom: 10px;
+  text-transform: capitalize;
+`;
+
 export {
   StepItem,
   FullStep,
@@ -208,7 +228,9 @@ export {
   ColorPick,
   ColorPicker,
   Picker,
+  FieldTitle,
   BackgroundSelector,
   BodyContent,
-  Embedded
+  Embedded,
+  FormBody
 };

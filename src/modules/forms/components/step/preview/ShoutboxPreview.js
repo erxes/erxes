@@ -7,7 +7,13 @@ import {
   LogoContainer,
   LogoSpan
 } from 'modules/settings/styles';
-import { PopupTitle, PreviewBody, BodyContent } from '../style';
+import {
+  PopupTitle,
+  PreviewBody,
+  BodyContent,
+  FormBody,
+  FieldTitle
+} from '../style';
 
 const propTypes = {
   title: PropTypes.string,
@@ -16,10 +22,19 @@ const propTypes = {
   color: PropTypes.string,
   theme: PropTypes.string,
   image: PropTypes.string,
-  fields: PropTypes.string
+  options: PropTypes.array
 };
 
 class ShoutboxPreview extends Component {
+  renderField(field, index) {
+    return (
+      <FormBody key={index}>
+        <FieldTitle>{field}:</FieldTitle>
+        <input />
+      </FormBody>
+    );
+  }
+
   render() {
     const {
       theme,
@@ -28,7 +43,7 @@ class ShoutboxPreview extends Component {
       bodyValue,
       btnText,
       image,
-      fields
+      options
     } = this.props;
 
     return (
@@ -44,9 +59,12 @@ class ShoutboxPreview extends Component {
                   <img src={image} alt="eee" />
                 </div>
               )}
-              {fields && <div>here is field</div>}
               <BodyContent>
                 {bodyValue}
+                {options &&
+                  this.props.options.map((field, index) =>
+                    this.renderField(field, index)
+                  )}
                 <Button btnStyle="primary" style={{ backgroundColor: color }}>
                   {btnText}
                 </Button>

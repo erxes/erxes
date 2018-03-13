@@ -6,7 +6,9 @@ import {
   FormContainer,
   PopupTitle,
   PreviewBody,
-  BodyContent
+  BodyContent,
+  FormBody,
+  FieldTitle
 } from '../style';
 
 const propTypes = {
@@ -15,12 +17,30 @@ const propTypes = {
   btnText: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
-  image: PropTypes.string
+  image: PropTypes.string,
+  options: PropTypes.array
 };
 
 class PopupPreview extends Component {
+  renderField(field, index) {
+    return (
+      <FormBody key={index}>
+        <FieldTitle>{field}:</FieldTitle>
+        <input />
+      </FormBody>
+    );
+  }
+
   render() {
-    const { theme, color, title, bodyValue, btnText, image } = this.props;
+    const {
+      theme,
+      color,
+      title,
+      bodyValue,
+      btnText,
+      image,
+      options
+    } = this.props;
 
     return (
       <CenterContainer>
@@ -36,6 +56,10 @@ class PopupPreview extends Component {
             )}
             <BodyContent>
               {bodyValue}
+              {options &&
+                this.props.options.map((field, index) =>
+                  this.renderField(field, index)
+                )}
               <Button btnStyle="primary" style={{ backgroundColor: color }}>
                 {btnText}
               </Button>

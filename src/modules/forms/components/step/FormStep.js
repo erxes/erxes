@@ -50,7 +50,9 @@ const propTypes = {
   bodyValue: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
-  image: PropTypes.string
+  image: PropTypes.string,
+  options: PropTypes.array,
+  changeState: PropTypes.func
 };
 
 class FormStep extends Component {
@@ -59,7 +61,7 @@ class FormStep extends Component {
 
     this.state = {
       add: false,
-      options: []
+      options: ['email']
     };
 
     this.handleOption = this.handleOption.bind(this);
@@ -83,6 +85,7 @@ class FormStep extends Component {
     this.setState({
       options: options.splice(index, 1) && options
     });
+    this.props.changeState('options', options);
   }
 
   handleSaveOption() {
@@ -90,8 +93,8 @@ class FormStep extends Component {
     const optionValue = document.getElementById('optionValue').value;
 
     this.setState({ options: [...options, optionValue] });
-
     this.handleCancelAddingOption();
+    this.props.changeState('options', options);
   }
 
   renderNewField() {
@@ -99,12 +102,17 @@ class FormStep extends Component {
       return (
         <div>
           <FormControl
+            componentClass="select"
+            placeholder="Select a Field"
+            defaultValue=""
+            onChange={this.handleSaveOption}
             id="optionValue"
-            autoFocus
-            onKeyPress={e => {
-              if (e.key === 'Enter') this.handleSaveOption();
-            }}
-          />
+          >
+            <option />
+            <option>FirstName</option>
+            <option>LastName</option>
+            <option>Phone</option>
+          </FormControl>
           <Actions>
             <Button
               type="success"
@@ -113,14 +121,6 @@ class FormStep extends Component {
               onClick={this.handleOption}
             >
               Cancel
-            </Button>
-            <Button
-              type="success"
-              btnStyle="success"
-              size="small"
-              onClick={this.handleSaveOption}
-            >
-              Save
             </Button>
           </Actions>
         </div>
@@ -140,8 +140,16 @@ class FormStep extends Component {
   }
 
   renderPreview() {
-    const { kind } = this.props;
-    const { title, bodyValue, btnText, color, theme, image } = this.props;
+    const {
+      title,
+      bodyValue,
+      btnText,
+      color,
+      theme,
+      image,
+      options,
+      kind
+    } = this.props;
 
     if (kind === 'shoutbox') {
       return (
@@ -152,6 +160,7 @@ class FormStep extends Component {
           color={color}
           theme={theme}
           image={image}
+          options={options}
         />
       );
     } else if (kind === 'popup') {
@@ -163,6 +172,7 @@ class FormStep extends Component {
           color={color}
           theme={theme}
           image={image}
+          options={options}
         />
       );
     }
@@ -174,6 +184,7 @@ class FormStep extends Component {
         color={color}
         theme={theme}
         image={image}
+        options={options}
       />
     );
   }
@@ -190,10 +201,6 @@ class FormStep extends Component {
   renderOptions() {
     return (
       <Fields>
-        <FieldItem>
-          Email
-          <Icon icon="close" onClick={() => this.handleRemoveOption()} />
-        </FieldItem>
         {this.state.options.map((option, index) =>
           this.renderOption(option, index)
         )}
@@ -204,6 +211,7 @@ class FormStep extends Component {
 
   render() {
     const { __ } = this.context;
+
     return (
       <FlexItem>
         <LeftItem>

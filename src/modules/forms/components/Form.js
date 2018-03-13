@@ -33,6 +33,7 @@ class Form extends Component {
       color: '#04A9F5',
       theme: '#04A9F5',
       logoPreviewUrl: '',
+      options: ['email'],
       hasOptions: false,
       validate: {
         step1: false,
@@ -79,6 +80,7 @@ class Form extends Component {
       bodyValue,
       color,
       theme,
+      options,
       logoPreviewUrl
     } = this.state;
     const integration = this.props.integration || {};
@@ -116,6 +118,7 @@ class Form extends Component {
             nextButton={this.renderNextButton()}
           >
             <FormStep
+              changeState={this.changeState}
               title={title}
               btnText={btnText}
               bodyValue={bodyValue}
@@ -123,6 +126,7 @@ class Form extends Component {
               kind={kind}
               color={color}
               theme={theme}
+              options={options}
               image={logoPreviewUrl}
             />
           </Step>

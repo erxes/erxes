@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Icon } from 'modules/common/components';
 import {
   StepItem,
   FullStep,
@@ -9,8 +8,7 @@ import {
   StepImg,
   StepHeaderTitle,
   StepContent,
-  ShortStep,
-  StepStatus
+  ShortStep
 } from './style';
 
 const propTypes = {
@@ -20,7 +18,6 @@ const propTypes = {
   title: PropTypes.string,
   children: PropTypes.any,
   next: PropTypes.func,
-  validate: PropTypes.bool,
   nextButton: PropTypes.object
 };
 
@@ -34,7 +31,6 @@ class Step extends Component {
       title,
       children,
       next,
-      validate,
       nextButton
     } = this.props;
 
@@ -42,12 +38,6 @@ class Step extends Component {
 
     if (stepNumber === active) {
       show = true;
-    }
-
-    let status = 'checkmark';
-
-    if (validate) {
-      status = 'close';
     }
 
     return (
@@ -68,9 +58,6 @@ class Step extends Component {
           <StepImg>
             <img src={img} alt="step-icon" />
           </StepImg>
-          <StepStatus>
-            <Icon icon={status} />
-          </StepStatus>
         </ShortStep>
       </StepItem>
     );
