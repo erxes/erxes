@@ -143,6 +143,7 @@ injectGlobal`
     color: #222;
     background: #f5f5f5;
     outline: 0;
+    cursor: pointer;
   }
 
   /* tooltip */
