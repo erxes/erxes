@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import Toggle from 'react-toggle';
 import {
   Button,
@@ -8,6 +7,7 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   add: PropTypes.func.isRequired,
@@ -106,7 +106,7 @@ class PropertyGroupForm extends React.Component {
           </div>
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             onClick={() => {
@@ -120,7 +120,7 @@ class PropertyGroupForm extends React.Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

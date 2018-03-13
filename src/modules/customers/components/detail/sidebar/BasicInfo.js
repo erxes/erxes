@@ -35,7 +35,6 @@ class BasicInfo extends React.Component {
     this.toggleEditing = this.toggleEditing.bind(this);
     this.cancelEditing = this.cancelEditing.bind(this);
     this.save = this.save.bind(this);
-    this.handleChange = this.handleChange.bind(this);
   }
 
   componentWillReceiveProps(newProps) {
@@ -47,30 +46,21 @@ class BasicInfo extends React.Component {
   }
 
   toggleEditing() {
-    this.cancelEditing();
     this.setState({ editing: true });
   }
 
   cancelEditing() {
-    const { customer } = this.props;
-
     this.setState({
-      editing: false,
-      firstName: customer.firstName,
-      lastName: customer.lastName,
-      email: customer.email,
-      phone: customer.phone
+      editing: false
     });
   }
 
   save() {
-    const { customer } = this.props;
-
     const doc = {
-      firstName: this.state.firstName || customer.firstName,
-      lastName: this.state.lastName || customer.lastName,
-      email: this.state.email || customer.email,
-      phone: this.state.phone || customer.phone
+      firstName: document.getElementById('firstName').value,
+      lastName: document.getElementById('lastName').value,
+      email: document.getElementById('email').value,
+      phone: document.getElementById('phone').value
     };
 
     this.props.save(doc, error => {
@@ -79,10 +69,6 @@ class BasicInfo extends React.Component {
       this.cancelEditing();
       return Alert.success('Success');
     });
-  }
-
-  handleChange(e, inputname) {
-    this.setState({ [inputname]: e.target.value });
   }
 
   getVisitorInfo(customer, key) {
@@ -98,34 +84,28 @@ class BasicInfo extends React.Component {
         <br />
         <FormGroup>
           {__('First name')}:
-          <FormControl
-            defaultValue={customer.firstName}
-            onChange={e => this.handleChange(e, 'firstName')}
-          />
+          <FormControl defaultValue={customer.firstName} id="firstName" />
         </FormGroup>
         <FormGroup>
           {__('Last name')}:
-          <FormControl
-            defaultValue={customer.lastName}
-            onChange={e => this.handleChange(e, 'lastName')}
-          />
+          <FormControl defaultValue={customer.lastName} id="lastName" />
         </FormGroup>
         <FormGroup>
           {__('Primary Email')}:
           <FormControl
+            id="email"
             defaultValue={
               customer.email || this.getVisitorInfo(customer, 'email')
             }
-            onChange={e => this.handleChange(e, 'email')}
           />
         </FormGroup>
         <FormGroup>
           {__('Phone')}:
           <FormControl
+            id="phone"
             defaultValue={
               customer.phone || this.getVisitorInfo(customer, 'phone')
             }
-            onChange={e => this.handleChange(e, 'phone')}
           />
         </FormGroup>
         <ButtonWrapper>
@@ -166,7 +146,7 @@ class BasicInfo extends React.Component {
             <NameCard.Avatar customer={customer} size={50} />
             {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
           </AvatarWrapper>
-          <div className="cutomer-name">
+          <div className="customer-name">
             {customer.name || this.renderName(customer)}
           </div>
           <a>

@@ -53,12 +53,14 @@ const User = styled.div`
       content: ${props => !props.root && '• '};
     }
   }
+`;
 
-  time {
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
+const Time = styled.a`
+  color: ${colors.colorCoreGray};
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
 `;
 
 const Counts = styled.div`
@@ -92,14 +94,31 @@ class TwitterMessage extends Component {
     super(props);
 
     this.renderReply = this.renderReply.bind(this);
-    this.renderTwitterLink = this.renderTwitterLink.bind(this);
+    this.renderTweetLink = this.renderTweetLink.bind(this);
+    this.renderUserLink = this.renderUserLink.bind(this);
   }
 
-  renderTwitterLink(username, fullName) {
+  renderUserLink(username, fullName) {
     return (
       <a target="_blank" href={`https://twitter.com/${username}`}>
         {fullName ? <b>{fullName} </b> : `@${username}`}
       </a>
+    );
+  }
+
+  renderTweetLink() {
+    const { message } = this.props;
+    const messageDate = message.twitterData.created_at;
+    const idStr = message.twitterData.id_str;
+
+    return (
+      <Tip text={moment(messageDate).format('lll')}>
+        <Time href={`https://twitter.com/statuses/${idStr}`} target="_blank">
+          {moment(messageDate)
+            .subtract(2, 'minutes')
+            .fromNow()}
+        </Time>
+      </Tip>
     );
   }
 
@@ -137,8 +156,7 @@ class TwitterMessage extends Component {
     if (!inReplyStatus) {
       return (
         <Reply>
-          Replying to{' '}
-          {this.renderTwitterLink(twitterData.in_reply_to_screen_name)}
+          Replying to {this.renderUserLink(twitterData.in_reply_to_screen_name)}
         </Reply>
       );
     }
@@ -158,7 +176,6 @@ class TwitterMessage extends Component {
 
     // twitter data
     const twitterData = message.twitterData;
-    const messageDate = twitterData.created_at;
     const extendedTweet = twitterData.extended_tweet;
     const tweetContent =
       (extendedTweet && extendedTweet.full_text) || message.content;
@@ -172,15 +189,9 @@ class TwitterMessage extends Component {
         <NameCard.Avatar customer={customer} />
 
         <User root={inReplyStatus}>
-          {this.renderTwitterLink(twitterUsername, twitterName)}
+          {this.renderUserLink(twitterUsername, twitterName)}
           <span>@{twitterUsername}</span>
-          <Tip text={moment(messageDate).format('lll')}>
-            <time>
-              {moment(messageDate)
-                .subtract(2, 'minutes')
-                .fromNow()}
-            </time>
-          </Tip>
+          {this.renderTweetLink()}
         </User>
         <div>
           {this.renderReply(twitterData, inReplyStatus)}
