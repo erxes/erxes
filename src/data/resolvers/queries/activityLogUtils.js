@@ -95,7 +95,15 @@ export class CompanyMonthActivityLogBuilder extends BaseMonthActivityBuilder {
   }
 }
 
+export class UserMonthActivityLogBuilder extends BaseMonthActivityBuilder {
+  constructor(coc) {
+    super(coc);
+    this.cocContentType = COC_CONTENT_TYPES.USER;
+  }
+}
+
 export default {
   CustomerMonthActivityLogBuilder,
   CompanyMonthActivityLogBuilder,
+  UserMonthActivityLogBuilder,
 };

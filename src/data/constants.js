@@ -176,7 +176,8 @@ export const FIELD_CONTENT_TYPES = {
 export const COC_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
-  ALL: ['customer', 'company'],
+  USER: 'user',
+  ALL: ['customer', 'company', 'user'],
 };
 
 export const ROLES = {
