@@ -100,7 +100,7 @@ class UserDetails extends React.Component {
             <ActivityList
               user={currentUser}
               activities={activityLogsUser}
-              target={user}
+              target={user.details.fullName}
               type={currentTab} //show logs filtered by type
             />
           }
