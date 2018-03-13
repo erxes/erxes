@@ -4,6 +4,7 @@ export const types = `
     kind: String!
     name: String!
     brandId: String!
+    languageCode: String
     code: String
     formId: String
     formData: JSON
@@ -81,12 +82,16 @@ export const queries = `
 export const mutations = `
   integrationsCreateMessengerIntegration(
     name: String!,
-    brandId: String!): Integration
+    brandId: String!,
+    languageCode: String
+    ): Integration
 
   integrationsEditMessengerIntegration(
     _id: String!,
     name: String!,
-    brandId: String!): Integration
+    brandId: String!,
+    languageCode: String
+  ): Integration
 
   integrationsSaveMessengerAppearanceData(
     _id: String!,
@@ -99,6 +104,7 @@ export const mutations = `
   integrationsCreateFormIntegration(
     name: String!,
     brandId: String!,
+    languageCode: String,
     formId: String!,
     formData: IntegrationFormData!): Integration
 
@@ -118,6 +124,7 @@ export const mutations = `
     _id: String!
     name: String!,
     brandId: String!,
+    languageCode: String,
     formId: String!,
     formData: IntegrationFormData!): Integration
 

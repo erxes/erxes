@@ -3,6 +3,7 @@ import 'mongoose-type-email';
 import { ConversationMessages, Conversations } from './';
 import { Customers } from './';
 import {
+  LANGUAGE_CHOICES,
   KIND_CHOICES,
   FORM_SUCCESS_ACTIONS,
   FORM_LOAD_TYPES,
@@ -106,12 +107,21 @@ const UiOptionsSchema = mongoose.Schema(
 // schema for integration document
 const IntegrationSchema = mongoose.Schema({
   _id: field({ pkey: true }),
+
   kind: field({
     type: String,
     enum: KIND_CHOICES.ALL,
   }),
+
   name: field({ type: String }),
   brandId: field({ type: String }),
+
+  languageCode: field({
+    type: String,
+    enum: LANGUAGE_CHOICES,
+    optional: true,
+  }),
+
   formId: field({ type: String }),
   formData: field({ type: FormDataSchema }),
   messengerData: field({ type: MessengerDataSchema }),
@@ -152,10 +162,9 @@ class Integration {
    * @param {String} object.brandId - Integration brand id
    * @return {Promise} returns integration document promise
    */
-  static createMessengerIntegration({ name, brandId }) {
+  static createMessengerIntegration(doc) {
     return this.createIntegration({
-      name,
-      brandId,
+      ...doc,
       kind: KIND_CHOICES.MESSENGER,
     });
   }
@@ -205,8 +214,8 @@ class Integration {
    * @param {string} object.brandId - Integration brand id
    * @return {Promise} returns Promise resolving updated Integration document
    */
-  static async updateMessengerIntegration(_id, { name, brandId }) {
-    await this.update({ _id }, { $set: { name, brandId } }, { runValidators: true });
+  static async updateMessengerIntegration(_id, doc) {
+    await this.update({ _id }, { $set: doc }, { runValidators: true });
     return this.findOne({ _id });
   }
 
