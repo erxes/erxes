@@ -524,5 +524,7 @@
   "Tweet": "Жиргэх",
   "Details": "Дэлгэрэнгүй мэдээлэл",
   "View Profile": "Профайл харах",
-  "Empty Notes": "Тэмдэглэл байхгүй байна"
+  "Empty Notes": "Тэмдэглэл байхгүй байна",
+  "Mini-resume": "Товч танилцуулга",
+  "You cannot update this property": "Уг талбарыг шинэчлэх боломжгүй"
 }

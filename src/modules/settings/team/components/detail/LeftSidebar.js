@@ -86,7 +86,7 @@ class LeftSidebar extends React.Component {
                 <Value>{details.twitterUsername || '-'}</Value>
               </li>
               <li>
-                Mini-resume:
+                {__('Mini-resume')}:
                 <Value>{details.description || '-'}</Value>
               </li>
             </List>

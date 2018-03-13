@@ -37,6 +37,7 @@ class PropertyRow extends React.Component {
     this.renderTableRow = this.renderTableRow.bind(this);
     this.renderActionButtons = this.renderActionButtons.bind(this);
     this.handleCollapse = this.handleCollapse.bind(this);
+    this.visibleHandler = this.visibleHandler.bind(this);
   }
 
   handleCollapse() {
@@ -44,8 +45,10 @@ class PropertyRow extends React.Component {
   }
 
   visibleHandler(e, property) {
+    const { __ } = this.context;
+
     if (property.isDefinedByErxes) {
-      return Alert.error('You cannot update this property');
+      return Alert.error(__('You cannot update this property'));
     }
 
     const isVisible = e.target.checked;
