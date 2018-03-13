@@ -49,12 +49,16 @@ export const types = `
     links: UserLinksType
     emailSignatures: JSON
     getNotificationByEmail: Boolean
-    participatedConversations: [Conversation]
   }
 
   type AuthPayload {
     token: String!
     refreshToken: String!
+  }
+
+  type userConversationListResponse {
+    list: [Conversation],
+    totalCount: Float,
   }
 `;
 
@@ -63,6 +67,7 @@ export const queries = `
   userDetail(_id: String): User
   usersTotalCount: Int
   currentUser: User
+  userConversations(_id: String, perPage: Int): userConversationListResponse
 `;
 
 const commonParams = `

@@ -1,4 +1,4 @@
-import { Users } from '../../../db/models';
+import { Users, Conversations } from '../../../db/models';
 import { requireLogin } from '../../permissions';
 import { paginate } from './utils';
 
@@ -47,6 +47,21 @@ const userQueries = {
     }
 
     return null;
+  },
+
+  /**
+   * Users conversations list
+   * @param {Object} perPage - Display results per page
+   * @param {Object} _id - User id
+   * @return {Promise} sorted user conversations
+   */
+  userConversations(root, { _id, perPage }) {
+    const selector = { participatedUserIds: { $in: [_id] } };
+
+    const list = paginate(Conversations.find(selector), { perPage });
+    const totalCount = Conversations.find(selector).count();
+
+    return { list, totalCount };
   },
 };
 
