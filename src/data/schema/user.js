@@ -56,7 +56,7 @@ export const types = `
     refreshToken: String!
   }
 
-  type userConversationListResponse {
+  type UserConversationListResponse {
     list: [Conversation],
     totalCount: Float,
   }
