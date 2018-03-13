@@ -67,7 +67,7 @@ export const queries = `
   userDetail(_id: String): User
   usersTotalCount: Int
   currentUser: User
-  userConversations(_id: String, perPage: Int): userConversationListResponse
+  userConversations(_id: String, perPage: Int): UserConversationListResponse
 `;
 
 const commonParams = `
