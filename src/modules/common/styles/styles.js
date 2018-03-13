@@ -60,4 +60,9 @@ const BoxRoot = styled.div`
   }
 `;
 
-export { BoxRoot, FullContent };
+const ModalFooter = styled.div`
+  text-align: right;
+  margin-top: 40px;
+`;
+
+export { BoxRoot, FullContent, ModalFooter };

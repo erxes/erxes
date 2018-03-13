@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   FormControl,
   Button,
@@ -13,6 +12,7 @@ import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { LoadMore, Title, Columns, Column } from 'modules/customers/styles';
 import { BrandName, IntegrationName } from '../../styles';
 import { ChooseBrand } from '../containers';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   currentBrand: PropTypes.object,
@@ -212,7 +212,7 @@ class ManageIntegrationForm extends Component {
             </ul>
           </Column>
         </Columns>
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             icon="close"
@@ -223,7 +223,7 @@ class ManageIntegrationForm extends Component {
           <Button btnStyle="success" icon="checkmark" onClick={this.save}>
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </div>
     );
   }

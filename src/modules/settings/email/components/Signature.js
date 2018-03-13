@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   ControlLabel,
   FormGroup,
@@ -8,6 +7,7 @@ import {
   Button
 } from 'modules/common/components';
 import { Well } from '../../styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,
@@ -98,7 +98,7 @@ class Signature extends Component {
               value={current.content}
             />
           </FormGroup>
-          <Modal.Footer>
+          <ModalFooter>
             <Button btnStyle="simple" onClick={() => closeModal()} icon="close">
               Close
             </Button>
@@ -106,7 +106,7 @@ class Signature extends Component {
             <Button btnStyle="success" type="submit" icon="checkmark">
               Save
             </Button>
-          </Modal.Footer>
+          </ModalFooter>
         </form>
       </div>
     );

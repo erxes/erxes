@@ -4,9 +4,9 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button,
-  ModalFooter
+  Button
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   save: PropTypes.func.isRequired
