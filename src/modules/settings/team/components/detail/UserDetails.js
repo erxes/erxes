@@ -10,7 +10,8 @@ import {
   Tabs,
   TabTitle,
   Icon,
-  DataWithLoader
+  DataWithLoader,
+  LoadMore
 } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
 import {
@@ -31,7 +32,8 @@ const propTypes = {
   saveUser: PropTypes.func.isRequired,
   channels: PropTypes.array,
   loadingLogs: PropTypes.bool,
-  activityLogsUser: PropTypes.array
+  activityLogsUser: PropTypes.array,
+  totalConversationCount: PropTypes.number
 };
 
 class UserDetails extends React.Component {
@@ -77,12 +79,24 @@ class UserDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, activityLogsUser, loadingLogs, user } = this.props;
+    const {
+      currentUser,
+      activityLogsUser,
+      loadingLogs,
+      user,
+      totalConversationCount
+    } = this.props;
 
     if (currentTab === 'conversation') {
-      return user.participatedConversations.map(conversation => {
-        return this.renderConversation(conversation, user);
-      });
+      return (
+        <div>
+          {user.participatedConversations.map(conversation => {
+            return this.renderConversation(conversation, user);
+          })}
+
+          <LoadMore all={totalConversationCount} />
+        </div>
+      );
     }
 
     return (

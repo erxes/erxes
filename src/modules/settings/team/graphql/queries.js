@@ -5,17 +5,7 @@ const userDetail = `
       username
       email
       role
-      participatedConversations {
-        _id
-        createdAt
-        customer {
-          _id
-          firstName
-          lastName
-          email
-          phone
-        }
-      }
+
       details {
         avatar
         fullName
@@ -61,6 +51,25 @@ query activityLogsUser($_id: String!) {
 }
 `;
 
+const userConversations = `
+query userConversations($_id: String!, $perPage: Int) {
+    userConversations(_id: $_id, perPage: $perPage) {
+    list {
+      _id
+      createdAt
+      customer {
+        _id
+        firstName
+        lastName
+        email
+        phone
+        }
+      }
+      totalCount
+    }
+  }
+`;
+
 const channels = `
   query channels($memberIds: [String]) {
     channels(memberIds: $memberIds) {
@@ -72,4 +81,4 @@ const channels = `
   }
 `;
 
-export default { userDetail, channels, userActivityLog };
+export default { userDetail, channels, userActivityLog, userConversations };
