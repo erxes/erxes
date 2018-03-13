@@ -89,6 +89,7 @@
   "Last name": "Last name",
   "Primary Email": "Primary Email",
   "Phone": "Phone",
+  "Is user": "Is user",
   "Save & New": "Save & New",
   "Save & Close": "Save & Close",
   "Close": "Close",
@@ -437,7 +438,7 @@
   "There arent't any groups and fields": "There arent't any groups and fields",
   "Please add property Group first": "Please add property Group first",
   "Add group": "Add group",
-  "Add Field": "Add Field",
+  "Add Property": "Add Property",
   "Add Group & Field ": "Add Group & Field ",
   "Add Group": "Add Group",
   "Edit Property": "Edit Property",
@@ -516,5 +517,10 @@
   "Response template": "Response template",
   "Attach file": "Attach file",
   "Reply tweet": "Reply tweet",
-  "Tweet": "Tweet"
+  "Tweet": "Tweet",
+  "Details": "Details",
+  "View Profile": "View Profile",
+  "Empty Notes": "Empty Notes",
+  "Mini-resume": "Mini-resume",
+  "You cannot update this property": "You cannot update this property"
 }

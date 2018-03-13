@@ -83,7 +83,7 @@ class Properties extends Component {
     }
 
     const addGroup = <MenuItem>{__('Add group')}</MenuItem>;
-    const addField = <MenuItem>{__('Add Field')}</MenuItem>;
+    const addField = <MenuItem>{__('Add Property')}</MenuItem>;
 
     return (
       <Dropdown id="dropdown-knowledgebase" className="quick-button" pullRight>
@@ -96,7 +96,7 @@ class Properties extends Component {
           <ModalTrigger title="Add Group" trigger={addGroup} size="lg">
             <PropertyGroupForm queryParams={queryParams} />
           </ModalTrigger>
-          <ModalTrigger title="Add Field" trigger={addField} size="lg">
+          <ModalTrigger title="Add Property" trigger={addField} size="lg">
             {propertyForm}
           </ModalTrigger>
         </Dropdown.Menu>

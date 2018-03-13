@@ -62,7 +62,7 @@ class CompanyDetails extends React.Component {
             <ActivityList
               user={currentUser}
               activities={companyActivityLog}
-              target={company}
+              target={company.name}
               type={currentTab} //show logs filtered by type
             />
           }

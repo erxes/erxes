@@ -62,7 +62,7 @@ class CustomerDetails extends React.Component {
             <ActivityList
               user={currentUser}
               activities={activityLogsCustomer}
-              target={customer}
+              target={customer.firstName}
               type={currentTab} //show logs filtered by type
             />
           }
