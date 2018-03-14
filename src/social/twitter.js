@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+
 import {
   ActivityLogs,
   Customers,
@@ -386,6 +388,20 @@ export const tweetReply = async ({ conversation, text, toId, toScreenName }) => 
 };
 
 /*
+ * Update twitterData field's value in conversation, message
+ */
+const updateTwitterData = async ({ twit, tweetId }) => {
+  const twitterData = await twitRequest.get(twit, 'statuses/show', {
+    id: tweetId,
+  });
+
+  const selector = { 'twitterData.id_str': tweetId };
+
+  await Conversations.update(selector, { $set: { twitterData } });
+  await ConversationMessages.update(selector, { $set: { twitterData } });
+};
+
+/*
  * Tweet
  */
 export const tweet = async ({ integrationId, text, toId, toScreenName }) => {
@@ -406,7 +422,12 @@ export const tweet = async ({ integrationId, text, toId, toScreenName }) => {
 export const retweet = async ({ integrationId, id }) => {
   const twit = TwitMap[integrationId];
 
-  return twitRequest.post(twit, 'statuses/retweet/:id', { id });
+  const response = await twitRequest.post(twit, 'statuses/retweet/:id', { id });
+
+  // update main tweet's data
+  updateTwitterData({ twit, tweetId: response.retweeted_status.id_str });
+
+  return response;
 };
 
 /*
@@ -415,5 +436,10 @@ export const retweet = async ({ integrationId, id }) => {
 export const favorite = async ({ integrationId, id }) => {
   const twit = TwitMap[integrationId];
 
-  return twitRequest.post(twit, 'favorites/create', { id });
+  const response = await twitRequest.post(twit, 'favorites/create', { id });
+
+  // update main tweet's data
+  updateTwitterData({ twit, tweetId: response.id_str });
+
+  return response;
 };
