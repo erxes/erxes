@@ -331,17 +331,17 @@ export const receiveTimelineInformation = async (integration, data) => {
   }
 
   const twitterData = integration.twitterData.toJSON();
+  const userId = twitterData.info.id;
 
   // listen for mentioned tweets ================
-  const isMentioned = data.entities.user_mentions.find(
-    mention => mention.id === twitterData.info.id,
-  );
+  const isMentioned = data.entities.user_mentions.find(mention => mention.id === userId);
 
-  if (isMentioned) {
+  // if tracking user is mentioned but he created this tweet then ignore it
+  if (isMentioned && data.user.id !== userId) {
     return saveTimelineInformation(integration, data);
   }
 
-  // listen for previousely saved tweets ================
+  // listen for previously saved tweets ================
   const repliedMessage = await ConversationMessages.findOne({
     $and: [{ 'twitterData.id': { $ne: null } }, { 'twitterData.id': data.in_reply_to_status_id }],
   });
@@ -365,10 +365,12 @@ export const receiveTimelineInformation = async (integration, data) => {
 export const TwitMap = {};
 
 /*
- * post reply to twitter
+ * Post reply to twitter
  */
 export const tweetReply = async ({ conversation, text, toId, toScreenName }) => {
-  const twit = TwitMap[conversation.integrationId];
+  const integrationId = conversation.integrationId;
+
+  const twit = TwitMap[integrationId];
   const twitterData = conversation.twitterData;
 
   // send direct message
@@ -379,6 +381,16 @@ export const tweetReply = async ({ conversation, text, toId, toScreenName }) => 
     });
   }
 
+  // tweet
+  return tweet({ integrationId, text, toId, toScreenName });
+};
+
+/*
+ * Tweet
+ */
+export const tweet = async ({ integrationId, text, toId, toScreenName }) => {
+  const twit = TwitMap[integrationId];
+
   // send reply
   return twitRequest.post(twit, 'statuses/update', {
     status: `@${toScreenName} ${text}`,
@@ -386,4 +398,22 @@ export const tweetReply = async ({ conversation, text, toId, toScreenName }) => 
     // replying tweet id
     in_reply_to_status_id: toId,
   });
+};
+
+/*
+ * Retweet
+ */
+export const retweet = async ({ integrationId, id }) => {
+  const twit = TwitMap[integrationId];
+
+  return twitRequest.post(twit, 'statuses/retweet/:id', { id });
+};
+
+/*
+ * Favorite
+ */
+export const favorite = async ({ integrationId, id }) => {
+  const twit = TwitMap[integrationId];
+
+  return twitRequest.post(twit, 'favorites/create', { id });
 };
