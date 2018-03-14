@@ -1,275 +1,242 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import faker from 'faker';
-import { FORM_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../data/constants';
-import { Integrations } from '../db/models';
-import { ROLES } from '../data/constants';
-import integrationMutations from '../data/resolvers/mutations/integrations';
-import { socUtils } from '../social/twitterTracker';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { Users, Integrations, Brands } from '../db/models';
+import { userFactory, integrationFactory, brandFactory } from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
 
 describe('mutations', () => {
-  const _fakeBrandId = 'fakeBrandId';
-  const _fakeFormId = 'fakeFormId';
-  const _fakeIntegrationId = '_fakeIntegrationId';
+  let _integration;
+  let _brand;
+  let _user;
+  let context;
 
-  const _user = { _id: 'fakeId', role: ROLES.CONTRIBUTOR };
-  const _adminUser = { _id: 'fakeId', role: ROLES.ADMIN };
+  const commonParamDefs = `
+    $name: String!
+    $brandId: String!
+    $languageCode: String
+  `;
+  const commonParams = `
+    name: $name
+    brandId: $brandId
+    languageCode: $languageCode
+  `;
 
-  test(`test if Error('Login required') exception is working as intended`, () => {
-    expect.assertions(10);
+  beforeEach(async () => {
+    // Creating test data
+    _user = await userFactory({ role: 'admin' });
+    _integration = await integrationFactory();
+    _brand = await brandFactory();
 
-    // Login required ==================
-    const check = mutation => {
-      try {
-        mutation(null, {}, {});
-      } catch (e) {
-        expect(e.message).toBe('Login required');
+    context = { user: _user };
+  });
+
+  afterEach(async () => {
+    // Clearing test data
+    await Users.remove({});
+    await Brands.remove({});
+    await Integrations.remove({});
+  });
+
+  test('Create messenger integration', async () => {
+    const args = {
+      name: _integration.name,
+      brandId: _brand._id,
+      languageCode: 'en',
+    };
+
+    const mutation = `
+      mutation integrationsCreateMessengerIntegration(${commonParamDefs}) {
+        integrationsCreateMessengerIntegration(${commonParams}) {
+          name
+          brandId
+          languageCode
+        }
       }
-    };
+    `;
 
-    check(integrationMutations.integrationsCreateMessengerIntegration);
-    check(integrationMutations.integrationsEditMessengerIntegration);
-    check(integrationMutations.integrationsSaveMessengerConfigs);
-    check(integrationMutations.integrationsSaveMessengerAppearanceData);
-    check(integrationMutations.integrationsCreateFormIntegration);
-    check(integrationMutations.integrationsEditFormIntegration);
-    check(integrationMutations.integrationsEditFormIntegration);
-    check(integrationMutations.integrationsRemove);
-    check(integrationMutations.integrationsCreateTwitterIntegration);
-    check(integrationMutations.integrationsCreateFacebookIntegration);
-  });
-
-  test(`test if Error('Permission required') exception is working as intended`, async () => {
-    expect.assertions(1);
-
-    const expectError = async func => {
-      try {
-        await func(null, {}, { user: _user });
-      } catch (e) {
-        expect(e.message).toBe('Permission required');
-      }
-    };
-
-    // Login required ==================
-    expectError(integrationMutations.integrationsRemove);
-  });
-
-  test('test Integrations.createMessengerIntegration', async () => {
-    const doc = {
-      name: 'Integration test',
-      brandId: _fakeBrandId,
-    };
-
-    Integrations.createMessengerIntegration = jest.fn();
-
-    await integrationMutations.integrationsCreateMessengerIntegration(null, doc, { user: _user });
-
-    expect(Integrations.createMessengerIntegration).toBeCalledWith(doc);
-    expect(Integrations.createMessengerIntegration.mock.calls.length).toBe(1);
-  });
-
-  test('test Integrations.updateMessengerIntegration', async () => {
-    const doc = {
-      _id: _fakeIntegrationId,
-      name: 'Integration test 2',
-      brandId: _fakeBrandId,
-    };
-
-    Integrations.updateMessengerIntegration = jest.fn();
-
-    await integrationMutations.integrationsEditMessengerIntegration(null, doc, { user: _user });
-
-    delete doc._id;
-
-    expect(Integrations.updateMessengerIntegration).toBeCalledWith(_fakeIntegrationId, doc);
-    expect(Integrations.updateMessengerIntegration.mock.calls.length).toBe(1);
-  });
-
-  test('test Integrations.saveMessengerConfigs', async () => {
-    const uiOptions = {
-      color: faker.random.word(),
-      wallpaper: faker.random.word(),
-      logo: faker.random.word(),
-    };
-
-    Integrations.saveMessengerAppearanceData = jest.fn();
-
-    await integrationMutations.integrationsSaveMessengerAppearanceData(
-      null,
-      {
-        _id: _fakeIntegrationId,
-        uiOptions,
-      },
-      { user: _user },
+    const integration = await graphqlRequest(
+      mutation,
+      'integrationsCreateMessengerIntegration',
+      args,
+      context,
     );
 
-    expect(Integrations.saveMessengerAppearanceData).toBeCalledWith(_fakeIntegrationId, uiOptions);
-    expect(Integrations.saveMessengerAppearanceData.mock.calls.length).toBe(1);
+    expect(integration.name).toBe(args.name);
+    expect(integration.brandId).toBe(args.brandId);
+    expect(integration.languageCode).toBe(args.languageCode);
   });
 
-  test('test Integrations.saveMessengerConfigs', async () => {
+  test('Edit messenger integration', async () => {
+    const args = {
+      _id: _integration._id,
+      name: _integration.name,
+      brandId: _brand._id,
+      languageCode: 'en',
+    };
+
+    const mutation = `
+        mutation integrationsEditMessengerIntegration($_id: String!, ${commonParamDefs}) {
+          integrationsEditMessengerIntegration(_id: $_id, ${commonParams}) {
+            _id
+            name
+            brandId
+            languageCode
+          }
+        }
+    `;
+
+    const integration = await graphqlRequest(
+      mutation,
+      'integrationsEditMessengerIntegration',
+      args,
+      context,
+    );
+
+    expect(integration._id).toBe(args._id);
+    expect(integration.name).toBe(args.name);
+    expect(integration.brandId).toBe(args.brandId);
+    expect(integration.languageCode).toBe(args.languageCode);
+  });
+
+  test('Save messenger integration appearance data', async () => {
+    const uiOptions = {
+      color: 'fakeColor',
+      wallpaper: 'fakeWallpaper',
+      logo: 'fakeLogo',
+    };
+
+    const args = {
+      _id: _integration._id,
+      uiOptions: uiOptions,
+    };
+
+    const mutation = `
+      mutation integrationsSaveMessengerAppearanceData(
+        $_id: String!,
+        $uiOptions: MessengerUiOptions
+      ) {
+        integrationsSaveMessengerAppearanceData(_id: $_id, uiOptions: $uiOptions) {
+          _id
+          uiOptions
+        }
+      }
+    `;
+
+    const messengerAppearanceData = await graphqlRequest(
+      mutation,
+      'integrationsSaveMessengerAppearanceData',
+      args,
+      context,
+    );
+
+    expect(messengerAppearanceData._id).toBe(args._id);
+    expect(messengerAppearanceData.uiOptions.toJSON()).toEqual(args.uiOptions);
+  });
+
+  test('Save messenger integration config', async () => {
     const messengerData = {
-      notifyCustomer: true,
-      availabilityMethod: MESSENGER_DATA_AVAILABILITY.AUTO,
+      notifyCustomer: false,
       isOnline: false,
       onlineHours: [
         {
-          day: 'Monday',
-          from: '8am',
-          to: '12pm',
-        },
-        {
-          day: 'Monday',
-          from: '2pm',
-          to: '6pm',
+          day: 'fakeDay',
+          from: 'fakeFrom',
+          to: 'fakeTo',
         },
       ],
-      timezone: 'CET',
-      welcomeMessage: 'Welcome user',
-      awayMessage: 'Bye bye',
-      thankYouMessage: 'Thank you',
+      timezone: 'fakeTimezone',
+      welcomeMessage: 'fakeMessage',
+      awayMessage: 'fakeAwayMessage',
+      thankYouMessage: 'fakeThankMessage',
     };
 
-    Integrations.saveMessengerConfigs = jest.fn();
+    const args = {
+      _id: _integration._id,
+      messengerData: messengerData,
+    };
 
-    await integrationMutations.integrationsSaveMessengerConfigs(
-      null,
-      {
-        _id: _fakeIntegrationId,
-        messengerData,
-      },
-      { user: _user },
+    const mutation = `
+      mutation integrationsSaveMessengerConfigs(
+        $_id: String!,
+        $messengerData: IntegrationMessengerData
+      ) {
+        integrationsSaveMessengerConfigs(
+          _id: $_id,
+          messengerData: $messengerData
+        ) {
+          _id
+          messengerData
+        }
+      }
+    `;
+
+    const messengerConfig = await graphqlRequest(
+      mutation,
+      'integrationsSaveMessengerConfigs',
+      args,
+      context,
     );
 
-    expect(Integrations.saveMessengerConfigs).toBeCalledWith(_fakeIntegrationId, messengerData);
-    expect(Integrations.saveMessengerConfigs.mock.calls.length).toBe(1);
+    expect(messengerConfig._id).toBe(args._id);
+    expect(messengerConfig.messengerData.toJSON()).toEqual(args.messengerData);
   });
 
-  test('test Integrations.createFormIntegration', async () => {
-    const mainDoc = {
-      name: 'form integration test',
-      brandId: _fakeBrandId,
-      formId: _fakeFormId,
+  test('Create form integration', async () => {
+    const args = {
+      name: _integration.name,
+      brandId: _brand._id,
+      languageCode: 'en',
+      loadType: 'fakeLoadType',
+      fromEmail: 'fakeFromEmail',
+      userEmailTitle: 'fakeUserEmailTitle',
+      userEmailContent: 'fakeUserEmailContent',
+      adminEmailTitle: 'fakeAdminEmailTitle',
+      adminEmailContent: 'fakeAdminEmailContent',
+      redirectUrl: 'fakeRedirectUrl',
+      successAction: 'fakeSuccessAction',
+      formId: _integration.formId,
+      formData: {
+        thankContent: 'fakeThankContent',
+        adminEmails: [],
+      },
     };
 
-    const formData = {
-      loadType: FORM_LOAD_TYPES.EMBEDDED,
-    };
+    const mutation = `
+      mutation integrationsCreateFormIntegration(
+        ${commonParamDefs},
+        $formId: String!,
+        $formData: IntegrationFormData!
+      ) {
+        integrationsCreateFormIntegration(
+          ${commonParams},
+          formId: $formId,
+          formData: $formData
+        ) {
+          name
+          brandId
+          languageCode
+          formId
+          formData
+        }
+      }
+    `;
 
-    Integrations.createFormIntegration = jest.fn();
-
-    const doc = {
-      ...mainDoc,
-      formData,
-    };
-
-    await integrationMutations.integrationsCreateFormIntegration(null, doc, { user: _user });
-
-    expect(Integrations.createFormIntegration).toBeCalledWith(doc);
-    expect(Integrations.createFormIntegration.mock.calls.length).toBe(1);
-  });
-
-  test('test Integrations.updateFormIntegration', async () => {
-    const mainDoc = {
-      name: 'form integration test 2',
-      brandId: _fakeBrandId,
-      formId: _fakeFormId,
-    };
-
-    const formData = {
-      loadType: FORM_LOAD_TYPES.SHOUTBOX,
-    };
-
-    const doc = {
-      _id: _fakeIntegrationId,
-      ...mainDoc,
-      formData,
-    };
-
-    Integrations.updateFormIntegration = jest.fn();
-
-    await integrationMutations.integrationsEditFormIntegration(null, doc, { user: _user });
-
-    delete doc._id;
-
-    expect(Integrations.updateFormIntegration).toBeCalledWith(_fakeIntegrationId, doc);
-    expect(Integrations.updateFormIntegration.mock.calls.length).toBe(1);
-  });
-
-  test('test Integrations.removeIntegration', async () => {
-    Integrations.removeIntegration = jest.fn();
-
-    await integrationMutations.integrationsRemove(
-      null,
-      { _id: _fakeIntegrationId },
-      { user: _adminUser },
+    const formIntegration = await graphqlRequest(
+      mutation,
+      'integrationsCreateFormIntegration',
+      args,
+      context,
     );
 
-    expect(Integrations.removeIntegration).toBeCalledWith(_fakeIntegrationId);
-    expect(Integrations.removeIntegration.mock.calls.length).toBe(1);
-  });
-
-  test('create twitter integration', async () => {
-    const integrationDoc = { _id: 'id', name: 'name' };
-    Integrations.createTwitterIntegration = jest.fn(() => integrationDoc);
-
-    const authenticateDoc = {
-      info: {
-        name: 'name',
-        id: 1,
-      },
-
-      tokens: {
-        auth: {
-          token: 'token',
-          tokenSecret: 'secret',
-        },
-      },
-    };
-
-    socUtils.authenticate = jest.fn(() => authenticateDoc);
-    socUtils.trackIntegration = jest.fn();
-
-    const doc = {
-      name: authenticateDoc.info.name,
-      brandId: 'brandId',
-      twitterData: {
-        info: authenticateDoc.info,
-        token: authenticateDoc.tokens.auth.token,
-        tokenSecret: authenticateDoc.tokens.auth.token_secret,
-      },
-    };
-
-    await integrationMutations.integrationsCreateTwitterIntegration(null, doc, {
-      user: _adminUser,
-    });
-
-    expect(Integrations.createTwitterIntegration).toBeCalledWith(doc);
-    expect(socUtils.trackIntegration).toBeCalledWith(integrationDoc);
-  });
-
-  test('create facebook integration', async () => {
-    Integrations.createFacebookIntegration = jest.fn();
-
-    const doc = {
-      name: 'name',
-      brandId: 'brandId',
-      appId: '1',
-      pageIds: ['1'],
-    };
-
-    await integrationMutations.integrationsCreateFacebookIntegration(null, doc, {
-      user: _adminUser,
-    });
-
-    expect(Integrations.createFacebookIntegration).toBeCalledWith({
-      name: 'name',
-      brandId: 'brandId',
-      facebookData: {
-        appId: '1',
-        pageIds: ['1'],
-      },
-    });
+    expect(formIntegration.name).toBe(args.name);
+    expect(formIntegration.brandId).toBe(args.brandId);
+    expect(formIntegration.languageCode).toBe(args.languageCode);
+    expect(formIntegration.formId).toBe(args.formId);
+    expect(formIntegration.formData.toJSON()).toEqual(args.formData);
   });
 });

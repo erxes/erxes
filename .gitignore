@@ -6,3 +6,6 @@ npm-debug.log*
 .env
 coverage
 dump.rdb
+*.un~
+*.swp
+*.swo

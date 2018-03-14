@@ -1,10 +1,9 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { EmailTemplates, Users } from '../db/models';
 import { emailTemplateFactory, userFactory } from '../db/factories';
-import emailTemplateMutations from '../data/resolvers/mutations/emailTemplates';
 
 beforeAll(() => connect());
 
@@ -13,11 +12,24 @@ afterAll(() => disconnect());
 describe('Email template mutations', () => {
   let _emailTemplate;
   let _user;
+  let context;
+
+  const commonParamDefs = `
+    $name: String!
+    $content: String!
+  `;
+
+  const commonParams = `
+    name: $name
+    content: $content
+  `;
 
   beforeEach(async () => {
     // Creating test data
     _emailTemplate = await emailTemplateFactory();
     _user = await userFactory();
+
+    context = { user: _user };
   });
 
   afterEach(async () => {
@@ -26,66 +38,60 @@ describe('Email template mutations', () => {
     await Users.remove({});
   });
 
-  test('Email templates login required functions', async () => {
-    const checkLogin = async (fn, args) => {
-      try {
-        await fn({}, args, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
-      }
-    };
-
-    expect.assertions(3);
-
-    // add email template
-    checkLogin(emailTemplateMutations.emailTemplatesAdd, {
+  test('Add email template', async () => {
+    const args = {
       name: _emailTemplate.name,
       content: _emailTemplate.content,
-    });
+    };
 
-    // update email template
-    checkLogin(emailTemplateMutations.emailTemplatesEdit, { _id: _emailTemplate.id });
+    const mutation = `
+      mutation emailTemplatesAdd(${commonParamDefs}) {
+        emailTemplatesAdd(${commonParams}) {
+          name
+          content
+        }
+      }
+    `;
 
-    // remove email template
-    checkLogin(emailTemplateMutations.emailTemplatesRemove, { _id: _emailTemplate.id });
+    const emailTemplate = await graphqlRequest(mutation, 'emailTemplatesAdd', args, context);
+
+    expect(emailTemplate.name).toBe(args.name);
+    expect(emailTemplate.content).toBe(args.content);
   });
 
-  test('Create email template', async () => {
-    EmailTemplates.create = jest.fn();
+  test('Edit email template', async () => {
+    const args = {
+      _id: _emailTemplate._id,
+      name: _emailTemplate.name,
+      content: _emailTemplate.content,
+    };
 
-    const _doc = { name: _emailTemplate.name, content: _emailTemplate.content };
+    const mutation = `
+      mutation emailTemplatesEdit($_id: String!, ${commonParamDefs}) {
+        emailTemplatesEdit(_id: $_id, ${commonParams}) {
+          _id
+          name
+          content
+        }
+      }
+    `;
 
-    await emailTemplateMutations.emailTemplatesAdd({}, _doc, { user: _user });
+    const emailTemplate = await graphqlRequest(mutation, 'emailTemplatesEdit', args, context);
 
-    expect(EmailTemplates.create.mock.calls.length).toBe(1);
-    expect(EmailTemplates.create).toBeCalledWith(_doc);
+    expect(emailTemplate._id).toBe(args._id);
+    expect(emailTemplate.name).toBe(args.name);
+    expect(emailTemplate.content).toBe(args.content);
   });
 
-  test('Update email template', async () => {
-    EmailTemplates.updateEmailTemplate = jest.fn();
+  test('Remove email template', async () => {
+    const mutation = `
+      mutation emailTemplatesRemove($_id: String!) {
+        emailTemplatesRemove(_id: $_id)
+      }
+    `;
 
-    const _doc = { name: _emailTemplate.name, content: _emailTemplate.content };
+    await graphqlRequest(mutation, 'emailTemplatesRemove', { _id: _emailTemplate._id }, context);
 
-    await emailTemplateMutations.emailTemplatesEdit(
-      {},
-      { _id: _emailTemplate.id, ..._doc },
-      { user: _user },
-    );
-
-    expect(EmailTemplates.updateEmailTemplate.mock.calls.length).toBe(1);
-    expect(EmailTemplates.updateEmailTemplate).toBeCalledWith(_emailTemplate.id, _doc);
-  });
-
-  test('Delete email template', async () => {
-    EmailTemplates.removeEmailTemplate = jest.fn();
-
-    await emailTemplateMutations.emailTemplatesRemove(
-      {},
-      { _id: _emailTemplate.id },
-      { user: _user },
-    );
-
-    expect(EmailTemplates.removeEmailTemplate.mock.calls.length).toBe(1);
-    expect(EmailTemplates.removeEmailTemplate).toBeCalledWith(_emailTemplate.id);
+    expect(await EmailTemplates.findOne({ _id: _emailTemplate._id })).toBe(null);
   });
 });

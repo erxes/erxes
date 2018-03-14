@@ -1,5 +1,8 @@
 /* eslint-disable no-console */
 
+import { graphql } from 'graphql';
+import { userFactory } from './factories';
+import schema from '../data/';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
@@ -40,3 +43,13 @@ export function connect() {
 export function disconnect() {
   return mongoose.connection.close();
 }
+
+export const graphqlRequest = async (mutation, name, args, context) => {
+  const user = await userFactory({});
+  const rootValue = {};
+  const response = await graphql(schema, mutation, rootValue, context || { user }, args);
+  if (response.errors) {
+    throw response.errors;
+  }
+  return response.data[name];
+};
