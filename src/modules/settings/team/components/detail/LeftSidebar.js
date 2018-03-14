@@ -87,7 +87,7 @@ class LeftSidebar extends React.Component {
               </li>
               <li>
                 {__('Mini-resume')}:
-                <Value>{details.description || '-'}</Value>
+                <Value nowrap>{details.description || '-'}</Value>
               </li>
             </List>
           </SidebarContent>

@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 import {
   AboutList,
@@ -33,7 +33,16 @@ const List = AboutList.extend`
   }
 `;
 
-const Value = Aboutvalues.extend``;
+const Value = Aboutvalues.extend`
+  ${props =>
+    props.nowrap &&
+    css`
+      width: 100%;
+      white-space: normal;
+      position: initial;
+      margin-left: 10px;
+    `};
+`;
 
 const User = NameWrapper.extend`
   padding: ${dimensions.coreSpacing}px 0;

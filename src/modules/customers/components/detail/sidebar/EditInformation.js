@@ -1,20 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import parse from 'ua-parser-js';
 import { Sidebar } from 'modules/layout/components';
-import {
-  ModalTrigger,
-  Button,
-  Icon,
-  Tip,
-  EmptyState
-} from 'modules/common/components';
-import { urlParser } from 'modules/common/utils';
+import { Button } from 'modules/common/components';
 import { ManageGroups } from 'modules/settings/properties/components';
-import { CompanyAssociate } from 'modules/companies/containers';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
-import { CompanyWrapper, BlockValue } from './styles';
+import { BlockValue } from './styles';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
 import {
@@ -27,55 +18,15 @@ import {
 const propTypes = {
   customer: PropTypes.object.isRequired,
   save: PropTypes.func.isRequired,
-  sections: PropTypes.node,
+  sectionTop: PropTypes.node,
+  sectionBottom: PropTypes.node,
   otherProperties: PropTypes.node,
   fieldsGroups: PropTypes.array.isRequired,
-  customFieldsData: PropTypes.object
+  customFieldsData: PropTypes.object,
+  wide: PropTypes.bool
 };
 
 class LeftSidebar extends ManageGroups {
-  renderCompanies() {
-    const { customer } = this.props;
-    const { Section } = Sidebar;
-    const { __ } = this.context;
-
-    const companyTrigger = (
-      <a>
-        <Icon icon="plus" />
-      </a>
-    );
-
-    return (
-      <Section>
-        <Section.Title>{__('Companies')}</Section.Title>
-        <Section.QuickButtons>
-          <ModalTrigger title="Associate" trigger={companyTrigger} size="lg">
-            <CompanyAssociate data={customer} />
-          </ModalTrigger>
-        </Section.QuickButtons>
-        {customer.companies.map((company, index) => (
-          <CompanyWrapper key={index}>
-            <Link to={`/companies/details/${company._id}`}>
-              <Icon icon="android-open" />
-            </Link>
-            <div>{company.name || 'N/A'}</div>
-            <Tip text={company.website || ''}>
-              <span>
-                <a target="_blank" href={`//${company.website}`}>
-                  {urlParser.extractRootDomain(company.website)}
-                </a>
-              </span>
-            </Tip>
-          </CompanyWrapper>
-        ))}
-
-        {customer.companies.length === 0 && (
-          <EmptyState icon="briefcase" text="No company" />
-        )}
-      </Section>
-    );
-  }
-
   renderDeviceProperty(text, value, secondValue, nowrap) {
     const { __ } = this.context;
     if (value || secondValue) {
@@ -179,14 +130,14 @@ class LeftSidebar extends ManageGroups {
   }
 
   render() {
-    const { customer } = this.props;
+    const { customer, wide } = this.props;
 
     return (
-      <Sidebar footer={this.renderSidebarFooter()}>
+      <Sidebar wide={wide} footer={this.renderSidebarFooter()}>
         <BasicInfo customer={customer} save={this.props.save} />
-        {this.props.sections && this.props.sections}
+        {this.props.sectionTop && this.props.sectionTop}
         {this.renderGroups()}
-        {this.renderCompanies()}
+        {this.props.sectionBottom && this.props.sectionBottom}
         {this.renderDeviceProperties()}
         {this.renderOtherProperties()}
         <MessengerSection customer={customer} />
