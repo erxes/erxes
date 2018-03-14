@@ -179,7 +179,7 @@ class CustomersList extends React.Component {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-        <ModalTrigger title="New customer" trigger={addTrigger}>
+        <ModalTrigger title="New customer" trigger={addTrigger} size="lg">
           <CustomerForm addCustomer={addCustomer} />
         </ModalTrigger>
       </BarItems>
