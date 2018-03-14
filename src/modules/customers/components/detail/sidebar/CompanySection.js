@@ -36,11 +36,9 @@ function CompaniySection({ customer }, { __ }) {
           </Link>
           <div>{company.name || 'N/A'}</div>
           <Tip text={company.website || ''}>
-            <span>
-              <a target="_blank" href={`//${company.website}`}>
-                {urlParser.extractRootDomain(company.website)}
-              </a>
-            </span>
+            <a target="_blank" href={`//${company.website}`}>
+              {urlParser.extractRootDomain(company.website)}
+            </a>
           </Tip>
         </CompanyWrapper>
       ))}

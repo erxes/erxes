@@ -36,15 +36,15 @@ injectGlobal`
   }
 
   .text-primary {
-    color: #04A9F5 !important;
+    color: #6569DF !important;
   }
 
   .text-success {
-    color: #67C682 !important;
+    color: #3CCC38 !important;
   }
 
   .text-warning {
-    color: #F5C22B !important;
+    color: #F7CE53 !important;
   }
   /* override */
   .modal-backdrop {
@@ -304,9 +304,9 @@ injectGlobal`
   }
 
   .Select--multi .Select-value {
-    background-color: #04a9f5;
+    background-color: #6569DF;
     border-radius: 11px;
-    border: 1px solid #04a9f5;
+    border: 1px solid #6569DF;
     color: #fff;
     margin-top: 6px;
     margin-left: 0;
@@ -402,7 +402,7 @@ injectGlobal`
     height: 20px;
     float: right;
     border-radius: 10px;
-    background: #F5C22B;
+    background: #F7CE53;
     text-align: center;
     font-size: 10px;
     line-height: 20px;
@@ -412,7 +412,7 @@ injectGlobal`
   /* react toggle */
 
   .react-toggle--checked .react-toggle-track {
-    background-color: #67C682;
+    background-color: #3CCC38;
   }
 
   .react-toggle-track {
@@ -425,7 +425,7 @@ injectGlobal`
 
   .react-toggle--checked .react-toggle-thumb,
   .react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
-    border-color: #67c682;
+    border-color: #3CCC38;
   }
 
   /* punch card */
@@ -453,12 +453,12 @@ injectGlobal`
   }
 
   .rdtPicker td.rdtToday:before {
-    border-bottom: 7px solid #04A9F5;
+    border-bottom: 7px solid #6569DF;
   }
 
   .rdtPicker td.rdtActive, 
   .rdtPicker td.rdtActive:hover {
-    background-color: #04A9F5;
+    background-color: #6569DF;
   }
 
   .rdtPicker th,
@@ -636,7 +636,7 @@ injectGlobal`
   }
   .icon-option svg {
     margin-right: 10px;
-    fill: #04A9F5;
+    fill: #6569DF;
   }
 
   /* scrollbar */
