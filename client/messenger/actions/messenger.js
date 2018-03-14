@@ -127,6 +127,7 @@ export const saveGetNotified = ({ type, value }) => (dispatch) => {
 
 export const endConversation = () => (dispatch) => {
   const setting = connection.setting;
+  const data = connection.data;
 
   // ignore this action for inapp
   if (setting.email) {
@@ -135,13 +136,24 @@ export const endConversation = () => (dispatch) => {
 
   client.mutate({
     mutation: gql`
-      mutation endConversation($brandCode: String!, $browserInfo: JSON!, $data: JSON) {
-        endConversation(brandCode: $brandCode, browserInfo: $browserInfo, data: $data) {
+      mutation endConversation(
+        $customerId: String
+        $brandCode: String!
+        $browserInfo: JSON!
+        $data: JSON
+      ) {
+        endConversation(
+          customerId: $customerId
+          brandCode: $brandCode
+          browserInfo: $browserInfo
+          data: $data
+        ) {
           customerId
         }
       }`,
 
     variables: {
+      customerId: data.customerId,
       brandCode: setting.brand_id,
       data: setting.data,
       browserInfo: setting.browserInfo,
