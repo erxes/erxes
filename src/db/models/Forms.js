@@ -12,6 +12,9 @@ const FormSchema = mongoose.Schema({
     type: String,
     optional: true,
   }),
+  buttonText: field({ type: String, optional: true }),
+  themeColor: field({ type: String, optional: true }),
+  featuredImage: field({ type: String, optional: true }),
   code: field({ type: String }),
   createdUserId: field({ type: String }),
   createdDate: field({
@@ -42,6 +45,9 @@ class Form {
    * @param {Object} doc - Form object
    * @param {string} doc.title - Form title
    * @param {string} doc.description - Form description
+   * @param {string} doc.buttonText - Form's submit button text
+   * @param {string} doc.themeColor - Form theme color
+   * @param {string} doc.featuredImage - Form featured image
    * @param {Date} doc.createdDate - Form creation date
    * @param {Object|string} createdUser - The user who is creating this form,
    * can be both user id or user object
@@ -66,10 +72,17 @@ class Form {
    * @param {Object} object - Form object
    * @param {string} object.title - Form title
    * @param {string} object.description - Form description
+   * @param {string} object.buttonText - Form's submit button text
+   * @param {string} object.themeColor - Form theme color
+   * @param {string} object.featuredImage - Form featured image
    * @return {Promise} returns Promise resolving updated Form document
    */
-  static async updateForm(_id, { title, description }) {
-    await this.update({ _id }, { $set: { title, description } }, { runValidators: true });
+  static async updateForm(_id, { title, description, buttonText, themeColor, featuredImage }) {
+    await this.update(
+      { _id },
+      { $set: { title, description, buttonText, themeColor, featuredImage } },
+      { runValidators: true },
+    );
     return this.findOne({ _id });
   }
 
