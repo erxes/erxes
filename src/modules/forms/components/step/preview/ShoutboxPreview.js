@@ -22,6 +22,7 @@ const propTypes = {
   color: PropTypes.string,
   theme: PropTypes.string,
   image: PropTypes.string,
+  thankContent: PropTypes.string,
   options: PropTypes.array
 };
 
@@ -43,7 +44,8 @@ class ShoutboxPreview extends Component {
       bodyValue,
       btnText,
       image,
-      options
+      options,
+      thankContent
     } = this.props;
 
     return (
@@ -61,13 +63,16 @@ class ShoutboxPreview extends Component {
               )}
               <BodyContent>
                 {bodyValue}
+                {thankContent && thankContent}
                 {options &&
                   this.props.options.map((field, index) =>
                     this.renderField(field, index)
                   )}
-                <Button btnStyle="primary" style={{ backgroundColor: color }}>
-                  {btnText}
-                </Button>
+                {btnText && (
+                  <Button btnStyle="primary" style={{ backgroundColor: color }}>
+                    {btnText}
+                  </Button>
+                )}
               </BodyContent>
             </PreviewBody>
           </WidgetPreviewStyled>

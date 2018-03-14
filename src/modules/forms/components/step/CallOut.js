@@ -60,7 +60,6 @@ const ImageContent = styled.div`
 `;
 
 const propTypes = {
-  integration: PropTypes.object,
   kind: PropTypes.string,
   changeState: PropTypes.func
 };

@@ -13,7 +13,7 @@ import {
 import { StepWrapper } from '../styles';
 
 const propTypes = {
-  integration: PropTypes.object,
+  integrations: PropTypes.array,
   loading: PropTypes.bool
 };
 
@@ -21,20 +21,19 @@ class Form extends Component {
   constructor(props) {
     super(props);
 
-    const data = props.integration || {};
-
     this.state = {
       activeStep: 1,
       maxStep: 5,
-      kind: data.loadType || 'shoutbox',
+      kind: 'shoutbox',
       title: 'Contact',
       bodyValue: 'Body description here',
+      thankContent: 'Thank you.',
+      successAction: 'onPage',
       btnText: 'Send',
       color: '#04A9F5',
       theme: '#04A9F5',
       logoPreviewUrl: '',
       options: ['email'],
-      hasOptions: false,
       validate: {
         step1: false,
         step2: true,
@@ -73,7 +72,6 @@ class Form extends Component {
   render() {
     const {
       activeStep,
-      hasOptions,
       title,
       kind,
       btnText,
@@ -81,9 +79,11 @@ class Form extends Component {
       color,
       theme,
       options,
-      logoPreviewUrl
+      logoPreviewUrl,
+      thankContent,
+      successAction
     } = this.state;
-    const integration = this.props.integration || {};
+    const integrations = this.props.integrations || [];
     const { __ } = this.context;
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
 
@@ -105,11 +105,7 @@ class Form extends Component {
             next={this.next}
             nextButton={this.renderNextButton()}
           >
-            <CallOut
-              changeState={this.changeState}
-              integration={integration}
-              kind={kind}
-            />
+            <CallOut changeState={this.changeState} kind={kind} />
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"
@@ -122,7 +118,6 @@ class Form extends Component {
               title={title}
               btnText={btnText}
               bodyValue={bodyValue}
-              hasOptions={hasOptions}
               kind={kind}
               color={color}
               theme={theme}
@@ -136,7 +131,18 @@ class Form extends Component {
             next={this.next}
             nextButton={this.renderNextButton()}
           >
-            <SuccessStep />
+            {integrations.map(integration => (
+              <SuccessStep
+                key={integration._id}
+                changeState={this.changeState}
+                thankContent={thankContent}
+                kind={kind}
+                color={color}
+                theme={theme}
+                successAction={successAction}
+                formData={integration.formData}
+              />
+            ))}
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"

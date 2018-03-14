@@ -43,7 +43,6 @@ const FieldItem = styled.li`
 `;
 
 const propTypes = {
-  hasOptions: PropTypes.bool,
   kind: PropTypes.string,
   title: PropTypes.string,
   btnText: PropTypes.string,
@@ -94,6 +93,7 @@ class FormStep extends Component {
 
     this.setState({ options: [...options, optionValue] });
     this.handleCancelAddingOption();
+    console.log(options);
     this.props.changeState('options', options);
   }
 

@@ -190,7 +190,7 @@ class Form extends Common {
     const { __ } = this.context;
     const { integration = {} } = this.props;
     const formData = integration.formData || {};
-
+    console.log(integration);
     return (
       <div>
         <FormGroup>
