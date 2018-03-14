@@ -89,7 +89,7 @@ class LeftSidebar extends ManageGroups {
     const { company, save } = this.props;
 
     return (
-      <Sidebar size="wide" footer={this.renderSidebarFooter()}>
+      <Sidebar wide footer={this.renderSidebarFooter()}>
         <BasicInfo company={company} save={save} />
         {this.renderGroups(company)}
         {this.renderCustomers()}

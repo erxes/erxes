@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarContent } from 'modules/layout/styles';
+import {
+  SidebarContent,
+  SidebarCounter,
+  SidebarList
+} from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
 import {
   Button,
@@ -11,13 +15,7 @@ import {
   NameCard
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import {
-  AboutList,
-  Aboutvalues,
-  NameWrapper,
-  ButtonWrapper,
-  AboutWrapper
-} from './styles';
+import { NameWrapper, ButtonWrapper } from './styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -140,42 +138,42 @@ class BasicInfo extends React.Component {
     const { __ } = this.context;
 
     return (
-      <SidebarContent>
-        <NameWrapper>
-          <AvatarWrapper isUser={isUser}>
-            <NameCard.Avatar customer={customer} size={50} />
-            {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
-          </AvatarWrapper>
-          <div className="customer-name">
-            {customer.name || this.renderName(customer)}
-          </div>
-          <a>
-            <Icon icon="edit" onClick={this.toggleEditing} />
-          </a>
-        </NameWrapper>
-        <AboutWrapper>
-          <AboutList>
-            <li>
-              {__('Email')}:
-              <Aboutvalues>
-                {customer.email ||
-                  this.getVisitorInfo(customer, 'email') || (
-                    <a onClick={this.toggleEditing}>{__('Add Email')}</a>
-                  )}
-              </Aboutvalues>
-            </li>
-            <li>
-              {__('Phone')}:
-              <Aboutvalues>
-                {customer.phone ||
-                  this.getVisitorInfo(customer, 'phone') || (
-                    <a onClick={this.toggleEditing}>{__('Add Phone')}</a>
-                  )}
-              </Aboutvalues>
-            </li>
-          </AboutList>
-        </AboutWrapper>
-      </SidebarContent>
+      <Fragment>
+        <SidebarContent>
+          <NameWrapper>
+            <AvatarWrapper isUser={isUser}>
+              <NameCard.Avatar customer={customer} size={50} />
+              {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
+            </AvatarWrapper>
+            <div className="customer-name">
+              {customer.name || this.renderName(customer)}
+            </div>
+            <a>
+              <Icon icon="edit" onClick={this.toggleEditing} />
+            </a>
+          </NameWrapper>
+        </SidebarContent>
+        <SidebarList className="no-link">
+          <li>
+            {__('Email')}:
+            <SidebarCounter>
+              {customer.email ||
+                this.getVisitorInfo(customer, 'email') || (
+                  <a onClick={this.toggleEditing}>{__('Add Email')}</a>
+                )}
+            </SidebarCounter>
+          </li>
+          <li>
+            {__('Phone')}:
+            <SidebarCounter>
+              {customer.phone ||
+                this.getVisitorInfo(customer, 'phone') || (
+                  <a onClick={this.toggleEditing}>{__('Add Phone')}</a>
+                )}
+            </SidebarCounter>
+          </li>
+        </SidebarList>
+      </Fragment>
     );
   }
 

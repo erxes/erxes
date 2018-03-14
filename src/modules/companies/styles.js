@@ -3,11 +3,7 @@ import { colors } from '../common/styles';
 
 const CustomerWrapper = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-left: 20px;
-  padding-right: 20px;
-  width: 100%;
+  padding: 10px 20px;
 
   span {
     display: inline-block;

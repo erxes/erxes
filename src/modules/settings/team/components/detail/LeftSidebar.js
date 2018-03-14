@@ -2,11 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarContent } from 'modules/layout/styles';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { EditProfile } from 'modules/settings/profile/components';
 import { UserForm } from '../../containers';
-import { List, Value, User, Links } from './styles';
+import { List, User, Links } from './styles';
+import {
+  SidebarContent,
+  SidebarCounter,
+  SidebarList
+} from 'modules/layout/styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -72,36 +76,38 @@ class LeftSidebar extends React.Component {
                 </ModalTrigger>
               </a>
             </User>
-            <List>
-              <li>
-                {__('Location')}:
-                <Value>{details.location || '-'}</Value>
-              </li>
-              <li>
-                {__('Position')}:
-                <Value>{details.position || '-'}</Value>
-              </li>
-              <li>
-                {__('Twitter Username')}:
-                <Value>{details.twitterUsername || '-'}</Value>
-              </li>
-              <li>
-                {__('Mini-resume')}:
-                <Value>{details.description || '-'}</Value>
-              </li>
-            </List>
           </SidebarContent>
+          <SidebarList className="no-link">
+            <li>
+              {__('Location')}:
+              <SidebarCounter>{details.location || '-'}</SidebarCounter>
+            </li>
+            <li>
+              {__('Position')}:
+              <SidebarCounter>{details.position || '-'}</SidebarCounter>
+            </li>
+            <li>
+              {__('Twitter Username')}:
+              <SidebarCounter>{details.twitterUsername || '-'}</SidebarCounter>
+            </li>
+            <li>
+              {__('Mini-resume')}:
+              <SidebarCounter nowrap>
+                {details.description || '-'}
+              </SidebarCounter>
+            </li>
+          </SidebarList>
         </Section>
 
         <Section>
           <Title>{__('Channels')}</Title>
-          <List hover>
+          <List>
             {channels.map(channel => {
               return (
                 <li key={channel._id}>
                   <Link to={`/settings/channels?id=${channel._id}`}>
                     <div>{channel.name || ''}</div>
-                    <span>{channel.description || ''}</span>
+                    <p>{channel.description || ''}</p>
                   </Link>
                 </li>
               );

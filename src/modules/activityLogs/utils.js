@@ -23,7 +23,7 @@ const ICON_AND_COLOR_TABLE = {
   },
   'segment-create': {
     icon: 'funnel',
-    color: '#04A9F5'
+    color: '#6569DF'
   },
   'conversation-create': {
     icon: 'android-chat',
@@ -35,7 +35,7 @@ const ICON_AND_COLOR_TABLE = {
   },
   'company-create': {
     icon: 'android-bar',
-    color: '#04A9F5'
+    color: '#6569DF'
   }
 };
 

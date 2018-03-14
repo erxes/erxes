@@ -1,13 +1,13 @@
 import { rgba } from './color';
 
 // Core colors
-const colorPrimary = '#A389D4';
-const colorPrimaryDark = '#392a6f';
-const colorSecondary = '#04A9F5';
-const colorCoreRed = '#fd3259';
-const colorCoreTeal = '#24d5d8';
-const colorCoreYellow = '#F5C22B';
-const colorCoreGreen = '#67C682';
+const colorPrimary = '#673FBD';
+const colorPrimaryDark = '#5629B6';
+const colorSecondary = '#6569DF';
+const colorCoreRed = '#EA475D';
+const colorCoreTeal = '#63D2D6';
+const colorCoreYellow = '#F7CE53';
+const colorCoreGreen = '#3CCC38';
 const colorCoreBlack = '#393C40';
 const colorCoreGray = '#888';
 const colorCoreLightGray = '#AAAEB3';

@@ -1,39 +1,24 @@
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
-import {
-  AboutList,
-  Aboutvalues,
-  NameWrapper
-} from 'modules/customers/components/detail/sidebar/styles';
+import { SidebarList } from 'modules/layout/styles';
+import { NameWrapper } from 'modules/customers/components/detail/sidebar/styles';
 
-const List = AboutList.extend`
+const List = SidebarList.extend`
   li {
-    padding: ${props => props.hover && `${dimensions.unitSpacing}px 0`};
-    border-bottom: ${props =>
-      props.hover && `1px solid ${colors.borderPrimary}`};
+    border-top: 1px solid ${colors.borderPrimary};
 
     > a {
-      white-space: normal;
-      display: block;
-      padding: 0 20px;
+      padding: ${dimensions.unitSpacing}px 20px;
       color: ${colors.textPrimary};
+      white-space: normal;
 
-      span {
+      p {
         color: ${colors.colorCoreLightGray};
+        margin: 0;
       }
-    }
-
-    &:first-child {
-      padding-top: ${props => props.hover && `${dimensions.unitSpacing}px`};
-    }
-
-    &:hover {
-      background: ${props => props.hover && colors.bgLight};
     }
   }
 `;
-
-const Value = Aboutvalues.extend``;
 
 const User = NameWrapper.extend`
   padding: ${dimensions.coreSpacing}px 0;
@@ -55,4 +40,4 @@ const Links = styled.div`
   }
 `;
 
-export { List, Value, User, Links };
+export { List, User, Links };
