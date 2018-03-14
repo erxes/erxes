@@ -42,6 +42,7 @@ const fieldQueries = {
       const paths = schema.paths;
 
       schema.eachPath(name => {
+        console.log(name);
         const label = paths[name].options.label;
 
         // add to fields list

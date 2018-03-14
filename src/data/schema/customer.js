@@ -22,7 +22,15 @@ export const types = `
     messengerData: JSON
     twitterData: JSON
     facebookData: JSON
-
+    ownerId: String
+    position: String
+    department: String
+    leadStatus: String
+    lifecycleState: String
+    hasAuthority: String
+    description: String
+    doNotDisturb: String
+    links: JSON
     companies: [Company]
     conversations: [Conversation]
     getIntegrationData: JSON
@@ -58,6 +66,7 @@ const fields = `
   lastName: String
   email: String
   phone: String
+  hasAuthority: String
   customFieldsData: JSON
 `;
 

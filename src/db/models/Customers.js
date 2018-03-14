@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { CUSTOMER_LEAD_STATUS_TYPES, CUSTOMER_LIFECYCLE_STATE_TYPES } from '../../data/constants';
 import { Fields, Companies, ActivityLogs, Conversations, InternalNotes, EngageMessages } from './';
 import { field } from './utils';
 
@@ -84,14 +85,49 @@ const facebookSchema = mongoose.Schema(
   { _id: false },
 );
 
+const LinkSchema = mongoose.Schema(
+  {
+    linkedIn: field({ type: String, optional: true }),
+    twitter: field({ type: String, optional: true }),
+    facebook: field({ type: String, optional: true }),
+    github: field({ type: String, optional: true }),
+    youtube: field({ type: String, optional: true }),
+    website: field({ type: String, optional: true }),
+  },
+  { _id: false },
+);
+
 const CustomerSchema = mongoose.Schema({
   _id: field({ pkey: true }),
 
   firstName: field({ type: String, label: 'First name', optional: true }),
   lastName: field({ type: String, label: 'Last name', optional: true }),
-
   email: field({ type: String, label: 'Email', optional: true }),
   phone: field({ type: String, label: 'Phone', optional: true }),
+
+  ownerId: field({ type: String, optional: true, label: 'Owner' }),
+  position: field({ type: String, optional: true, label: 'Position' }),
+  department: field({ type: String, optional: true, label: 'Department' }),
+
+  leadStatus: field({
+    type: String,
+    enum: CUSTOMER_LEAD_STATUS_TYPES.ALL,
+    optional: true,
+    label: 'Lead Status',
+  }),
+
+  lifecycleState: field({
+    type: String,
+    enum: CUSTOMER_LIFECYCLE_STATE_TYPES.ALL,
+    optional: true,
+    label: 'Lifecycle State',
+  }),
+
+  hasAuthority: field({ type: String, optional: true, label: 'Has authority' }),
+  description: field({ type: String, optional: true }),
+  doNotDisturb: field({ type: String, optional: true, label: 'Do not disturb' }),
+  links: field({ type: LinkSchema, default: {} }),
+
   isUser: field({ type: Boolean, label: 'Is user', optional: true }),
   createdAt: field({ type: Date, label: 'Created at' }),
 

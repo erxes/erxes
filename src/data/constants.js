@@ -222,3 +222,70 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   COMPANY: 'company',
   ALL: ['customer', 'company'],
 };
+
+export const CUSTOMER_LEAD_STATUS_TYPES = {
+  ALL: [
+    'New',
+    'Open',
+    'In Progress',
+    'Open Deal',
+    'Unqualified',
+    'Attempted to Contact',
+    'Connected',
+    'Bad Timing',
+  ],
+};
+
+export const CUSTOMER_LIFECYCLE_STATE_TYPES = {
+  ALL: [
+    'Subscriber',
+    'Lead',
+    'Marketing Qualified Lead',
+    'Sales Qualified Lead',
+    'Opportunity',
+    'Customer',
+    'Evangelist',
+    'Other',
+  ],
+};
+
+export const COMPANY_LEAD_STATUS_TYPES = {
+  ALL: [
+    'New',
+    'Open',
+    'In Progress',
+    'Open Deal',
+    'Unqualified',
+    'Attempted to contact',
+    'Connected',
+    'Bad Timing',
+  ],
+};
+
+export const COMPANY_LIFECYCLE_STATE_TYPES = {
+  ALL: [
+    'Subscriber',
+    'Lead',
+    'Marketing Qualified Lead',
+    'Sales Qualified Lead',
+    'Opportunity',
+    'Customer',
+    'Evangelist',
+    'Other',
+  ],
+};
+
+export const COMPANY_BUSINESS_TYPES = {
+  ALL: [
+    'Analyst',
+    'Competitor',
+    'Customer',
+    'Integrator',
+    'Investor',
+    'Partner',
+    'Press',
+    'Prospect',
+    'Reseller',
+    'Other',
+  ],
+};

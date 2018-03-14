@@ -1,6 +1,23 @@
 import mongoose from 'mongoose';
+import {
+  COMPANY_LEAD_STATUS_TYPES,
+  COMPANY_LIFECYCLE_STATE_TYPES,
+  COMPANY_BUSINESS_TYPES,
+} from '../../data/constants';
 import { Fields, Customers, ActivityLogs, InternalNotes } from './';
 import { field } from './utils';
+
+const LinkSchema = mongoose.Schema(
+  {
+    linkedIn: field({ type: String, optional: true }),
+    twitter: field({ type: String, optional: true }),
+    facebook: field({ type: String, optional: true }),
+    github: field({ type: String, optional: true }),
+    youtube: field({ type: String, optional: true }),
+    website: field({ type: String, optional: true }),
+  },
+  { _id: false },
+);
 
 const CompanySchema = mongoose.Schema({
   _id: field({ pkey: true }),
@@ -33,6 +50,37 @@ const CompanySchema = mongoose.Schema({
     label: 'Plan',
     optional: true,
   }),
+
+  parentCompanyId: field({ type: String, optional: true, label: 'Parent Company' }),
+  email: field({ type: String, optional: true, label: 'Email' }),
+  ownerId: field({ type: String, optional: true, label: 'Owner' }),
+  phone: field({ type: String, optional: true, label: 'Phone' }),
+
+  leadStatus: field({
+    type: String,
+    enum: COMPANY_LEAD_STATUS_TYPES.ALL,
+    optional: true,
+    label: 'Lead Status',
+  }),
+
+  lifecycleState: field({
+    type: String,
+    enum: COMPANY_LIFECYCLE_STATE_TYPES.ALL,
+    optional: true,
+    label: 'Lifecycle State',
+  }),
+
+  businessType: field({
+    type: String,
+    enum: COMPANY_BUSINESS_TYPES.ALL,
+    optional: true,
+    label: 'Business Type',
+  }),
+
+  description: field({ type: String, optional: true }),
+  employees: field({ type: Number, optional: true, label: 'Employees' }),
+  doNotDisturb: field({ type: String, optional: true, label: 'Do not disturb' }),
+  links: field({ type: LinkSchema, default: {} }),
 
   lastSeenAt: field({
     type: Date,
