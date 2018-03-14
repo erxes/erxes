@@ -7,13 +7,13 @@ import {
   IntegrationKind,
   KindItem,
   KindCount,
-  LoaderWrapper
+  LoaderWrapper,
 } from '../styles';
 
 const propTypes = {
   data: PropTypes.array.isRequired,
   wrapperWidth: PropTypes.number,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
 };
 
 class Insights extends React.Component {
@@ -22,7 +22,7 @@ class Insights extends React.Component {
     const width = (wrapperWidth || 400) * 0.5;
     const height = width * 0.5;
 
-    const COLORS = ['#A389D4', '#F5C22B', '#1dcaff', '#3B5998', '#ccc'];
+    const COLORS = ['#A389D4', '#F7CE53', '#1dcaff', '#3B5998', '#ccc'];
     const classNames = ['default', 'form', 'twitter', 'facebook', 'primary'];
 
     const RADIAN = Math.PI / 180;
@@ -32,7 +32,7 @@ class Insights extends React.Component {
       midAngle,
       innerRadius,
       outerRadius,
-      percent
+      percent,
     }) => {
       const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
       const x = cx + radius * Math.cos(-midAngle * RADIAN);

@@ -1,24 +1,24 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button
+  Button,
 } from 'modules/common/components';
 import Ionicons from 'react-ionicons';
 import { icons } from '../../icons.constant';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   currentTopicId: PropTypes.string,
   category: PropTypes.object,
-  save: PropTypes.func
+  save: PropTypes.func,
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
 };
 
 class CategoryForm extends Component {
@@ -26,7 +26,7 @@ class CategoryForm extends Component {
     super(props, context);
 
     this.state = {
-      selectedIcon: this.getSelectedIcon()
+      selectedIcon: this.getSelectedIcon(),
     };
 
     this.renderOption = this.renderOption.bind(this);
@@ -42,7 +42,7 @@ class CategoryForm extends Component {
       () => {
         this.context.closeModal();
       },
-      this.props.category
+      this.props.category,
     );
   }
 
@@ -53,7 +53,7 @@ class CategoryForm extends Component {
 
   onChangeIcon(obj) {
     this.setState({
-      selectedIcon: obj.value
+      selectedIcon: obj.value,
     });
   }
 
@@ -75,12 +75,12 @@ class CategoryForm extends Component {
         doc: {
           title: document.getElementById('knowledgebase-category-title').value,
           description: document.getElementById(
-            'knowledgebase-category-description'
+            'knowledgebase-category-description',
           ).value,
           icon: this.state.selectedIcon,
-          topicIds: [currentTopicId]
-        }
-      }
+          topicIds: [currentTopicId],
+        },
+      },
     };
   }
 
@@ -129,7 +129,7 @@ class CategoryForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.category || {})}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -142,7 +142,7 @@ class CategoryForm extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

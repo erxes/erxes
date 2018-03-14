@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 class ChooseBrand extends Component {
   constructor(props) {
@@ -32,7 +32,7 @@ class ChooseBrand extends Component {
 
     this.props.save({
       name: document.getElementById('integration-name').value,
-      brandId: document.getElementById('selectBrand').value
+      brandId: document.getElementById('selectBrand').value,
     });
   }
 
@@ -70,7 +70,7 @@ class ChooseBrand extends Component {
           </FormControl>
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             icon="close"
@@ -81,7 +81,7 @@ class ChooseBrand extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }
@@ -90,12 +90,12 @@ class ChooseBrand extends Component {
 ChooseBrand.propTypes = {
   brands: PropTypes.array.isRequired,
   integration: PropTypes.object,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 ChooseBrand.contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default ChooseBrand;

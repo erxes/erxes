@@ -6,7 +6,7 @@ import {
   Button,
   DropdownToggle,
   Icon,
-  EmptyState
+  EmptyState,
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import { PropertyGroupForm, PropertyForm } from '../containers';
@@ -21,11 +21,11 @@ const propTypes = {
   removePropertyGroup: PropTypes.func.isRequired,
   removeProperty: PropTypes.func.isRequired,
   updatePropertyVisible: PropTypes.func.isRequired,
-  updatePropertyGroupVisible: PropTypes.func.isRequired
+  updatePropertyGroupVisible: PropTypes.func.isRequired,
 };
 
 const contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class Properties extends Component {
@@ -42,7 +42,7 @@ class Properties extends Component {
       queryParams,
       removePropertyGroup,
       removeProperty,
-      updatePropertyVisible
+      updatePropertyVisible,
     } = this.props;
 
     if (fieldsGroups.length === 0) {
@@ -83,7 +83,7 @@ class Properties extends Component {
     }
 
     const addGroup = <MenuItem>{__('Add group')}</MenuItem>;
-    const addField = <MenuItem>{__('Add Field')}</MenuItem>;
+    const addField = <MenuItem>{__('Add Property')}</MenuItem>;
 
     return (
       <Dropdown id="dropdown-knowledgebase" className="quick-button" pullRight>
@@ -96,7 +96,7 @@ class Properties extends Component {
           <ModalTrigger title="Add Group" trigger={addGroup} size="lg">
             <PropertyGroupForm queryParams={queryParams} />
           </ModalTrigger>
-          <ModalTrigger title="Add Field" trigger={addField} size="lg">
+          <ModalTrigger title="Add Property" trigger={addField} size="lg">
             {propertyForm}
           </ModalTrigger>
         </Dropdown.Menu>
@@ -111,7 +111,7 @@ class Properties extends Component {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Properties'), link: '/settings/properties' },
-      { title: __(currentType) }
+      { title: __(currentType) },
     ];
 
     return (

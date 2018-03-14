@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   ControlLabel,
   FormGroup,
   FormControl,
-  Button
+  Button,
 } from 'modules/common/components';
 import { METHODS } from 'modules/engage/constants';
 import Editor from './Editor';
 import { EditorWrapper, Recipients, Recipient } from '../styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 class WidgetForm extends Component {
   constructor(props) {
@@ -29,7 +29,7 @@ class WidgetForm extends Component {
 
     const doc = {
       title: document.getElementById('title').value,
-      customerIds: customers.map(customer => customer._id.toString())
+      customerIds: customers.map(customer => customer._id.toString()),
     };
 
     if (this.state.channel === 'email') {
@@ -37,7 +37,7 @@ class WidgetForm extends Component {
       doc.email = {
         templateId: document.getElementById('emailTemplateId').value,
         subject: document.getElementById('emailSubject').value,
-        content: this.state.content
+        content: this.state.content,
       };
     }
 
@@ -47,7 +47,7 @@ class WidgetForm extends Component {
         brandId: document.getElementById('brandId').value,
         kind: document.getElementById('messengerKind').value,
         sentAs: document.getElementById('sentAs').value,
-        content: this.state.content
+        content: this.state.content,
       };
     }
 
@@ -182,11 +182,11 @@ class WidgetForm extends Component {
           </EditorWrapper>
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button type="submit" btnStyle="success">
             Send
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }
@@ -198,12 +198,12 @@ WidgetForm.propTypes = {
   brands: PropTypes.array.isRequired,
   messengerKinds: PropTypes.array.isRequired,
   sentAsChoices: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 WidgetForm.contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default WidgetForm;

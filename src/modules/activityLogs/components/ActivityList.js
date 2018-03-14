@@ -8,8 +8,8 @@ import ActivityItem from './ActivityItem';
 const propTypes = {
   activities: PropTypes.array,
   user: PropTypes.object,
-  target: PropTypes.object,
-  type: PropTypes.string
+  target: PropTypes.string,
+  type: PropTypes.string,
 };
 
 class ActivityList extends React.Component {

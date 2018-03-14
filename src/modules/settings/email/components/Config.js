@@ -1,22 +1,23 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { HelpBlock, Modal } from 'react-bootstrap';
+import { HelpBlock } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   brand: PropTypes.object.isRequired,
   configEmail: PropTypes.func.isRequired,
-  defaultTemplate: PropTypes.string.isRequired
+  defaultTemplate: PropTypes.string.isRequired,
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class Config extends Component {
@@ -25,7 +26,7 @@ class Config extends Component {
 
     const { type, template } = props.brand.emailConfig || {
       type: 'simple',
-      template: ''
+      template: '',
     };
 
     this.state = { type, template: template || props.defaultTemplate };
@@ -93,7 +94,7 @@ class Config extends Component {
 
           {this.state.type === 'custom' ? templateControl : false}
 
-          <Modal.Footer>
+          <ModalFooter>
             <Button btnStyle="simple" onClick={onClick} icon="close">
               Cancel
             </Button>
@@ -101,7 +102,7 @@ class Config extends Component {
             <Button btnStyle="success" type="submit" icon="checkmark">
               Save
             </Button>
-          </Modal.Footer>
+          </ModalFooter>
         </form>
       </div>
     );

@@ -4,6 +4,7 @@ import CustomersList from './list/CustomersList';
 import CustomerDetails from './detail/CustomerDetails';
 import CommonAssociate from './detail/CommonAssociate';
 import CommonMerge from './detail/CommonMerge';
+import CompanySection from './detail/sidebar/CompanySection';
 
 export {
   CustomerRow,
@@ -11,5 +12,6 @@ export {
   CustomersList,
   CustomerDetails,
   CommonAssociate,
-  CommonMerge
+  CommonMerge,
+  CompanySection,
 };

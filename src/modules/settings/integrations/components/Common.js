@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import {
@@ -8,10 +7,11 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
-  EmptyState
+  EmptyState,
 } from 'modules/common/components';
 import { MarkdownWrapper } from '../../styles';
 import SelectBrand from './SelectBrand';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 class Common extends Component {
   static installCodeIncludeScript(type) {
@@ -42,7 +42,7 @@ class Common extends Component {
 
     this.state = {
       code,
-      copied: false
+      copied: false,
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -72,7 +72,7 @@ class Common extends Component {
     this.props.save({
       name: document.getElementById('integration-name').value,
       brandId: document.getElementById('selectBrand').value,
-      languageCode: document.getElementById('languageCode').value
+      languageCode: document.getElementById('languageCode').value,
     });
   }
 
@@ -132,7 +132,7 @@ class Common extends Component {
           </MarkdownWrapper>
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             icon="close"
@@ -143,7 +143,7 @@ class Common extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }
@@ -152,12 +152,12 @@ class Common extends Component {
 Common.propTypes = {
   brands: PropTypes.array.isRequired, // eslint-disable-line
   integration: PropTypes.object, // eslint-disable-line
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 Common.contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default Common;

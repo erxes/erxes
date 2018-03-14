@@ -1,29 +1,29 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
-import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button
+  Button,
 } from 'modules/common/components';
 import {
   ErxesEditor,
   toHTML,
-  createStateFromHTML
+  createStateFromHTML,
 } from 'modules/common/components/Editor';
 import { EditorWrapper } from 'modules/engage/styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   article: PropTypes.object,
   currentCategoryId: PropTypes.string,
-  save: PropTypes.func
+  save: PropTypes.func,
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class ArticleForm extends Component {
@@ -36,8 +36,8 @@ class ArticleForm extends Component {
       status: this.getCurrentStatus(),
       editorState: createStateFromHTML(
         EditorState.createEmpty(),
-        article.content || ''
-      )
+        article.content || '',
+      ),
     };
 
     this.onChange = this.onChange.bind(this);
@@ -53,7 +53,7 @@ class ArticleForm extends Component {
       () => {
         this.context.closeModal();
       },
-      this.props.article
+      this.props.article,
     );
   }
 
@@ -74,9 +74,9 @@ class ArticleForm extends Component {
             .value,
           content: this.getContent(this.state.editorState),
           status: this.state.status,
-          categoryIds: [this.props.currentCategoryId]
-        }
-      }
+          categoryIds: [this.props.currentCategoryId],
+        },
+      },
     };
   }
 
@@ -93,7 +93,7 @@ class ArticleForm extends Component {
     const props = {
       editorState: this.state.editorState,
       onChange: this.onChange,
-      defaultValue: article.content
+      defaultValue: article.content,
     };
 
     return (
@@ -154,7 +154,7 @@ class ArticleForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.article || {})}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -167,7 +167,7 @@ class ArticleForm extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

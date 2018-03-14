@@ -1,27 +1,25 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarContent } from 'modules/layout/styles';
+import {
+  SidebarContent,
+  SidebarCounter,
+  SidebarList,
+} from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
 import {
   Button,
   Icon,
   FormControl,
   FormGroup,
-  NameCard
+  NameCard,
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import {
-  AboutList,
-  Aboutvalues,
-  NameWrapper,
-  ButtonWrapper,
-  AboutWrapper
-} from './styles';
+import { NameWrapper, ButtonWrapper } from './styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 class BasicInfo extends React.Component {
@@ -29,13 +27,12 @@ class BasicInfo extends React.Component {
     super(props);
 
     this.state = {
-      editing: false
+      editing: false,
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
     this.cancelEditing = this.cancelEditing.bind(this);
     this.save = this.save.bind(this);
-    this.handleChange = this.handleChange.bind(this);
   }
 
   componentWillReceiveProps(newProps) {
@@ -47,30 +44,21 @@ class BasicInfo extends React.Component {
   }
 
   toggleEditing() {
-    this.cancelEditing();
     this.setState({ editing: true });
   }
 
   cancelEditing() {
-    const { customer } = this.props;
-
     this.setState({
       editing: false,
-      firstName: customer.firstName,
-      lastName: customer.lastName,
-      email: customer.email,
-      phone: customer.phone
     });
   }
 
   save() {
-    const { customer } = this.props;
-
     const doc = {
-      firstName: this.state.firstName || customer.firstName,
-      lastName: this.state.lastName || customer.lastName,
-      email: this.state.email || customer.email,
-      phone: this.state.phone || customer.phone
+      firstName: document.getElementById('firstName').value,
+      lastName: document.getElementById('lastName').value,
+      email: document.getElementById('email').value,
+      phone: document.getElementById('phone').value,
     };
 
     this.props.save(doc, error => {
@@ -79,10 +67,6 @@ class BasicInfo extends React.Component {
       this.cancelEditing();
       return Alert.success('Success');
     });
-  }
-
-  handleChange(e, inputname) {
-    this.setState({ [inputname]: e.target.value });
   }
 
   getVisitorInfo(customer, key) {
@@ -98,34 +82,28 @@ class BasicInfo extends React.Component {
         <br />
         <FormGroup>
           {__('First name')}:
-          <FormControl
-            defaultValue={customer.firstName}
-            onChange={e => this.handleChange(e, 'firstName')}
-          />
+          <FormControl defaultValue={customer.firstName} id="firstName" />
         </FormGroup>
         <FormGroup>
           {__('Last name')}:
-          <FormControl
-            defaultValue={customer.lastName}
-            onChange={e => this.handleChange(e, 'lastName')}
-          />
+          <FormControl defaultValue={customer.lastName} id="lastName" />
         </FormGroup>
         <FormGroup>
           {__('Primary Email')}:
           <FormControl
+            id="email"
             defaultValue={
               customer.email || this.getVisitorInfo(customer, 'email')
             }
-            onChange={e => this.handleChange(e, 'email')}
           />
         </FormGroup>
         <FormGroup>
           {__('Phone')}:
           <FormControl
+            id="phone"
             defaultValue={
               customer.phone || this.getVisitorInfo(customer, 'phone')
             }
-            onChange={e => this.handleChange(e, 'phone')}
           />
         </FormGroup>
         <ButtonWrapper>
@@ -160,42 +138,42 @@ class BasicInfo extends React.Component {
     const { __ } = this.context;
 
     return (
-      <SidebarContent>
-        <NameWrapper>
-          <AvatarWrapper isUser={isUser}>
-            <NameCard.Avatar customer={customer} size={50} />
-            {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
-          </AvatarWrapper>
-          <div className="cutomer-name">
-            {customer.name || this.renderName(customer)}
-          </div>
-          <a>
-            <Icon icon="edit" onClick={this.toggleEditing} />
-          </a>
-        </NameWrapper>
-        <AboutWrapper>
-          <AboutList>
-            <li>
-              {__('Email')}:
-              <Aboutvalues>
-                {customer.email ||
-                  this.getVisitorInfo(customer, 'email') || (
-                    <a onClick={this.toggleEditing}>{__('Add Email')}</a>
-                  )}
-              </Aboutvalues>
-            </li>
-            <li>
-              {__('Phone')}:
-              <Aboutvalues>
-                {customer.phone ||
-                  this.getVisitorInfo(customer, 'phone') || (
-                    <a onClick={this.toggleEditing}>{__('Add Phone')}</a>
-                  )}
-              </Aboutvalues>
-            </li>
-          </AboutList>
-        </AboutWrapper>
-      </SidebarContent>
+      <Fragment>
+        <SidebarContent>
+          <NameWrapper>
+            <AvatarWrapper isUser={isUser}>
+              <NameCard.Avatar customer={customer} size={50} />
+              {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
+            </AvatarWrapper>
+            <div className="customer-name">
+              {customer.name || this.renderName(customer)}
+            </div>
+            <a>
+              <Icon icon="edit" onClick={this.toggleEditing} />
+            </a>
+          </NameWrapper>
+        </SidebarContent>
+        <SidebarList className="no-link">
+          <li>
+            {__('Email')}:
+            <SidebarCounter>
+              {customer.email ||
+                this.getVisitorInfo(customer, 'email') || (
+                  <a onClick={this.toggleEditing}>{__('Add Email')}</a>
+                )}
+            </SidebarCounter>
+          </li>
+          <li>
+            {__('Phone')}:
+            <SidebarCounter>
+              {customer.phone ||
+                this.getVisitorInfo(customer, 'phone') || (
+                  <a onClick={this.toggleEditing}>{__('Add Phone')}</a>
+                )}
+            </SidebarCounter>
+          </li>
+        </SidebarList>
+      </Fragment>
     );
   }
 
@@ -210,7 +188,7 @@ class BasicInfo extends React.Component {
 
 BasicInfo.propTypes = propTypes;
 BasicInfo.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default BasicInfo;

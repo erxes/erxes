@@ -112,6 +112,10 @@ const NavIcon = styled.i`
   &.icon-knowledge {
     background-image: url('/images/icons/nav-07.svg');
   }
+
+  &.icon-deals {
+    background-image: url('/images/icons/nav-08.svg');
+  }
 `;
 
 class Navigation extends Component {
@@ -172,6 +176,11 @@ class Navigation extends Component {
               <NavIcon className="icon-knowledge" />
             </NavLink>
           </Tip>
+          <Tip placement="right" text={__('Deal')}>
+            <NavLink to="/deals" activeClassName="active">
+              <NavIcon className="icon-deals" />
+            </NavLink>
+          </Tip>
           <Tip placement="right" text={__('Settings')}>
             <NavLink to="/settings" activeClassName="active">
               <NavIcon className="icon-settings" />
@@ -184,11 +193,11 @@ class Navigation extends Component {
 }
 
 Navigation.propTypes = {
-  unreadConversationsCount: PropTypes.number
+  unreadConversationsCount: PropTypes.number,
 };
 
 Navigation.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default Navigation;

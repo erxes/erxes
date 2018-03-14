@@ -6,9 +6,9 @@ import {
   Table,
   Icon,
   ModalTrigger,
-  EmptyState
+  EmptyState,
 } from 'modules/common/components';
-import { confirm } from 'modules/common/utils';
+import { confirm, Alert } from 'modules/common/utils';
 import { PropertyGroupForm, PropertyForm } from '../containers';
 import { DropIcon, FieldType } from '../styles';
 import { ActionButtons, CollapseRow, TableRow } from '../../styles';
@@ -18,11 +18,11 @@ const propTypes = {
   queryParams: PropTypes.object.isRequired,
   removeProperty: PropTypes.func.isRequired,
   removePropertyGroup: PropTypes.func.isRequired,
-  updatePropertyVisible: PropTypes.func.isRequired
+  updatePropertyVisible: PropTypes.func.isRequired,
 };
 
 const contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class PropertyRow extends React.Component {
@@ -30,13 +30,14 @@ class PropertyRow extends React.Component {
     super(props);
 
     this.state = {
-      collapse: true
+      collapse: true,
     };
 
     this.renderTable = this.renderTable.bind(this);
     this.renderTableRow = this.renderTableRow.bind(this);
     this.renderActionButtons = this.renderActionButtons.bind(this);
     this.handleCollapse = this.handleCollapse.bind(this);
+    this.visibleHandler = this.visibleHandler.bind(this);
   }
 
   handleCollapse() {
@@ -44,6 +45,12 @@ class PropertyRow extends React.Component {
   }
 
   visibleHandler(e, property) {
+    const { __ } = this.context;
+
+    if (property.isDefinedByErxes) {
+      return Alert.error(__('You cannot update this property'));
+    }
+
     const isVisible = e.target.checked;
 
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
@@ -92,7 +99,7 @@ class PropertyRow extends React.Component {
             defaultChecked={field.isVisible}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              unchecked: <span>No</span>,
             }}
             onChange={e => this.visibleHandler(e, field)}
           />
@@ -101,7 +108,7 @@ class PropertyRow extends React.Component {
           {this.renderActionButtons(
             field,
             removeProperty,
-            <PropertyForm field={field} queryParams={queryParams} />
+            <PropertyForm field={field} queryParams={queryParams} />,
           )}
         </td>
       </TableRow>
@@ -149,7 +156,7 @@ class PropertyRow extends React.Component {
           {this.renderActionButtons(
             group,
             removePropertyGroup,
-            <PropertyGroupForm group={group} queryParams={queryParams} />
+            <PropertyGroupForm group={group} queryParams={queryParams} />,
           )}
         </CollapseRow>
 

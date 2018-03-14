@@ -13,30 +13,30 @@ const MONTHS = [
   'September',
   'October',
   'November',
-  'December'
+  'December',
 ];
 
 const ICON_AND_COLOR_TABLE = {
   'customer-create': {
     icon: 'android-bar',
-    color: '#A389D4'
+    color: '#A389D4',
   },
   'segment-create': {
     icon: 'funnel',
-    color: '#04A9F5'
+    color: '#6569DF',
   },
   'conversation-create': {
     icon: 'android-chat',
-    color: '#F44236'
+    color: '#F44236',
   },
   'internal_note-create': {
     icon: 'clipboard',
-    color: '#F5C22B'
+    color: '#F5C22B',
   },
   'company-create': {
     icon: 'android-bar',
-    color: '#04A9F5'
-  }
+    color: '#6569DF',
+  },
 };
 
 /**
@@ -54,7 +54,7 @@ export default class {
 
     this.queryData = activities;
     this.currentUser = user;
-    this.target = target || {};
+    this.target = target || 'N/A';
   }
 
   /**
@@ -70,7 +70,7 @@ export default class {
 
     let result = {
       title: `${MONTHS[month]} ${year}`,
-      data: []
+      data: [],
     };
 
     for (let item of list) {
@@ -84,7 +84,7 @@ export default class {
       const caption = this._getCaption({
         action: item.action,
         by: item.by,
-        id: item.id
+        id: item.id,
       });
 
       result.data.push({
@@ -93,7 +93,7 @@ export default class {
         content: hasContent ? item.content : null,
         date: item.createdAt,
         createdAt: item.createdAt,
-        by: item.by
+        by: item.by,
       });
     }
 
@@ -124,7 +124,7 @@ export default class {
   _getCaption({ action, by, id }) {
     let caption;
     const source = <strong>{this._getUserName(by)}</strong>;
-    const target = <strong>{this.target.firstName || this.target.name}</strong>;
+    const target = <strong>{this.target}</strong>;
 
     switch (action) {
       case 'customer-create':

@@ -1,20 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   FormControl,
   ControlLabel,
-  Button
+  Button,
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   brand: PropTypes.object,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
 };
 
 class BrandForm extends Component {
@@ -33,7 +33,7 @@ class BrandForm extends Component {
       () => {
         this.context.closeModal();
       },
-      this.props.brand
+      this.props.brand,
     );
   }
 
@@ -41,8 +41,8 @@ class BrandForm extends Component {
     return {
       doc: {
         name: document.getElementById('brand-name').value,
-        description: document.getElementById('brand-description').value
-      }
+        description: document.getElementById('brand-description').value,
+      },
     };
   }
 
@@ -84,7 +84,7 @@ class BrandForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent()}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -97,7 +97,7 @@ class BrandForm extends Component {
           <Button btnStyle="success" icon="checkmark" type="submit">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

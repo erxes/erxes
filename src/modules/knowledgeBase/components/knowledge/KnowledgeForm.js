@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
-import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { ChromePicker } from 'react-color';
 import {
@@ -9,24 +9,25 @@ import {
   ControlLabel,
   FormControl,
   Button,
-  EmptyState
+  EmptyState,
 } from 'modules/common/components';
 import {
   MarkdownWrapper,
   ColorPick,
-  ColorPicker
+  ColorPicker,
 } from 'modules/settings/styles';
 import SelectBrand from '../SelectBrand';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   topic: PropTypes.object,
   save: PropTypes.func.isRequired,
   remove: PropTypes.func,
-  brands: PropTypes.array.isRequired
+  brands: PropTypes.array.isRequired,
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
 };
 
 class KnowledgeForm extends Component {
@@ -45,7 +46,7 @@ class KnowledgeForm extends Component {
     this.state = {
       copied: false,
       code,
-      color
+      color,
     };
 
     this.handleBrandChange = this.handleBrandChange.bind(this);
@@ -66,7 +67,7 @@ class KnowledgeForm extends Component {
       () => {
         this.context.closeModal();
       },
-      this.props.topic
+      this.props.topic,
     );
   }
 
@@ -150,9 +151,9 @@ class KnowledgeForm extends Component {
             .value,
           brandId: document.getElementById('selectBrand').value,
           languageCode: document.getElementById('languageCode').value,
-          color: this.state.color
-        }
-      }
+          color: this.state.color,
+        },
+      },
     };
   }
 
@@ -243,7 +244,7 @@ class KnowledgeForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(topic || {})}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -265,7 +266,7 @@ class KnowledgeForm extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

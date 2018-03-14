@@ -7,7 +7,7 @@ import {
   Icon,
   TaggerPopover,
   Tags,
-  Spinner
+  Spinner,
 } from 'modules/common/components';
 import { LeftSidebar, RespondBox, Resolver } from '../containers';
 import { AssignBoxPopover, Participators, Conversation } from './';
@@ -15,13 +15,14 @@ import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems, SidebarCounter } from 'modules/layout/styles';
 import ConversationDetails from './sidebar/ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
+import { CompanySection } from 'modules/customers/components';
 
 import {
   PopoverButton,
   ConversationWrapper,
   AssignText,
   ActionBarLeft,
-  AssignTrigger
+  AssignTrigger,
 } from '../styles';
 
 class Inbox extends Component {
@@ -29,7 +30,7 @@ class Inbox extends Component {
     super(props);
 
     this.state = {
-      attachmentPreview: {}
+      attachmentPreview: {},
     };
 
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
@@ -75,7 +76,12 @@ class Inbox extends Component {
       return (
         <EditInformation
           conversation={currentConversation}
-          sections={<ConversationDetails conversation={currentConversation} />}
+          sectionTop={
+            <ConversationDetails conversation={currentConversation} />
+          }
+          sectionBottom={
+            <CompanySection customer={currentConversation.customer} />
+          }
           customer={currentConversation.customer}
           refetch={this.props.refetch}
           otherProperties={this.renderMessengerData()}
@@ -97,7 +103,7 @@ class Inbox extends Component {
       currentConversation,
       onChangeConversation,
       refetch,
-      loading
+      loading,
     } = this.props;
     const { __ } = this.context;
     const tags = currentConversation.tags || [];
@@ -216,11 +222,11 @@ Inbox.propTypes = {
   onChangeConversation: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
 };
 
 Inbox.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default Inbox;

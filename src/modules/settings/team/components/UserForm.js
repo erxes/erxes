@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {
   FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
 } from 'modules/common/components';
 import Select from 'react-select-plus';
 import { UserCommonInfos } from 'modules/auth/components';
@@ -22,7 +22,7 @@ class UserForm extends CommonForm {
 
     this.state = {
       avatar: user.details.avatar || defaultAvatar,
-      selectedChannels: this.generateChannelsParams(props.selectedChannels)
+      selectedChannels: this.generateChannelsParams(props.selectedChannels),
     };
   }
 
@@ -33,7 +33,7 @@ class UserForm extends CommonForm {
   generateChannelsParams(channels) {
     return channels.map(channel => ({
       value: channel._id,
-      label: channel.name
+      label: channel.name,
     }));
   }
 
@@ -75,7 +75,7 @@ class UserForm extends CommonForm {
           position: document.getElementById('position').value,
           fullName: document.getElementById('fullName').value,
           location: document.getElementById('user-location').value,
-          description: document.getElementById('description').value
+          description: document.getElementById('description').value,
         },
         channelIds: this.collectValues(this.state.selectedChannels),
         password: document.getElementById('password').value,
@@ -87,9 +87,9 @@ class UserForm extends CommonForm {
           facebook: document.getElementById('facebook').value,
           youtube: document.getElementById('youtube').value,
           github: document.getElementById('github').value,
-          website: document.getElementById('website').value
-        }
-      }
+          website: document.getElementById('website').value,
+        },
+      },
     };
   }
 
@@ -131,7 +131,8 @@ class UserForm extends CommonForm {
 }
 
 UserForm.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
+  closeModal: PropTypes.func,
 };
 
 export default UserForm;

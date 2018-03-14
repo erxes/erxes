@@ -1,23 +1,23 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   ModalTrigger,
   Button,
   FormControl,
   FormGroup,
-  ControlLabel
+  ControlLabel,
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   onSave: PropTypes.func.isRequired,
   brands: PropTypes.array,
   trigger: PropTypes.node,
-  brandId: PropTypes.string.isRequired
+  brandId: PropTypes.string.isRequired,
 };
 
 const contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class ResponseTemplateModal extends Component {
@@ -30,7 +30,7 @@ class ResponseTemplateModal extends Component {
   onSave() {
     const doc = {
       brandId: document.getElementById('template-brand-id').value,
-      name: document.getElementById('template-name').value
+      name: document.getElementById('template-name').value,
     };
 
     this.props.onSave(doc.brandId, doc.name);
@@ -64,11 +64,11 @@ class ResponseTemplateModal extends Component {
           <FormControl id="template-name" type="text" required />
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button onClick={this.onSave} btnStyle="success" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </ModalTrigger>
     );
   }

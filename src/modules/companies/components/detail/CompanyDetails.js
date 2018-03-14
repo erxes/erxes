@@ -7,7 +7,7 @@ import {
   DataWithLoader,
   Tabs,
   TabTitle,
-  Icon
+  Icon,
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
@@ -22,7 +22,7 @@ const propTypes = {
   currentUser: PropTypes.object.isRequired,
   companyActivityLog: PropTypes.array.isRequired,
   loadingLogs: PropTypes.bool.isRequired,
-  history: PropTypes.object
+  history: PropTypes.object,
 };
 
 class CompanyDetails extends React.Component {
@@ -44,7 +44,7 @@ class CompanyDetails extends React.Component {
       currentUser,
       companyActivityLog,
       company,
-      loadingLogs
+      loadingLogs,
     } = this.props;
 
     return (
@@ -62,7 +62,7 @@ class CompanyDetails extends React.Component {
             <ActivityList
               user={currentUser}
               activities={companyActivityLog}
-              target={company}
+              target={company.name}
               type={currentTab} //show logs filtered by type
             />
           }
@@ -80,7 +80,7 @@ class CompanyDetails extends React.Component {
 
     const breadcrumb = [
       { title: __('Companies'), link: '/companies' },
-      { title: company.name || company.email || 'N/A' }
+      { title: company.name || company.email || 'N/A' },
     ];
 
     const content = (
@@ -133,7 +133,7 @@ class CompanyDetails extends React.Component {
 
 CompanyDetails.propTypes = propTypes;
 CompanyDetails.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default withRouter(CompanyDetails);

@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import moment from 'moment';
 import {
   Button,
   Icon,
   FormControl,
-  FormGroup
+  FormGroup,
 } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
 import {
@@ -15,18 +14,19 @@ import {
   Column,
   InfoTitle,
   InfoDetail,
-  Info
+  Info,
 } from '../../styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   datas: PropTypes.array.isRequired,
   basicInfos: PropTypes.object,
-  save: PropTypes.func
+  save: PropTypes.func,
 };
 
 const contextTypes = {
   closeModal: PropTypes.func,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class CommonMerge extends Component {
@@ -39,7 +39,7 @@ class CommonMerge extends Component {
       messengerData: data => this.renderMessengerData(data),
       twitterData: data => this.renderTwitterData(data),
       facebookData: data => this.renderFacebookData(data),
-      visitorContactInfo: data => this.renderVisitorContactInfo(data)
+      visitorContactInfo: data => this.renderVisitorContactInfo(data),
     };
 
     Object.keys(basicInfos).forEach(info => {
@@ -47,7 +47,7 @@ class CommonMerge extends Component {
     });
 
     this.state = {
-      data
+      data,
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -87,7 +87,7 @@ class CommonMerge extends Component {
       return this.renderProperty(
         'close',
         { [property]: data[property] },
-        index
+        index,
       );
     });
   }
@@ -119,7 +119,7 @@ class CommonMerge extends Component {
         return this.renderProperty(
           'plus',
           { [property]: data[property] },
-          property
+          property,
         );
       return null;
     });
@@ -158,7 +158,7 @@ class CommonMerge extends Component {
           onChange={e => this.handleInputChange(e, property)}
           value={data[property] || ''}
           required={['firstName', 'email', 'name', 'website'].includes(
-            property
+            property,
           )} //required fields
         />
       </FormGroup>
@@ -187,7 +187,7 @@ class CommonMerge extends Component {
       data,
       callback: () => {
         this.context.closeModal();
-      }
+      },
     });
   }
 
@@ -197,8 +197,8 @@ class CommonMerge extends Component {
     this.setState({
       data: {
         ...this.state.data,
-        [property]: value
-      }
+        [property]: value,
+      },
     });
   }
 
@@ -213,7 +213,7 @@ class CommonMerge extends Component {
     }
 
     this.setState({
-      data
+      data,
     });
   }
 
@@ -289,7 +289,7 @@ class CommonMerge extends Component {
             <ul>{this.renderMergedData()}</ul>
           </Column>
         </Columns>
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             onClick={() => this.context.closeModal()}
@@ -300,7 +300,7 @@ class CommonMerge extends Component {
           <Button type="submit" btnStyle="success" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

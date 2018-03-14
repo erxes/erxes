@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   tag: PropTypes.object,
   type: PropTypes.string.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
 };
 
 class Form extends Component {
@@ -32,7 +32,7 @@ class Form extends Component {
 
     this.state = {
       name: tag ? tag.name : '',
-      colorCode: tag ? tag.colorCode : Form.generateRandomColorCode()
+      colorCode: tag ? tag.colorCode : Form.generateRandomColorCode(),
     };
 
     this.submit = this.submit.bind(this);
@@ -49,7 +49,7 @@ class Form extends Component {
     save({
       tag,
       doc: { name, type, colorCode },
-      callback: () => this.context.closeModal()
+      callback: () => this.context.closeModal(),
     });
   }
 
@@ -91,7 +91,7 @@ class Form extends Component {
           />
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button btnStyle="simple" onClick={onClick} icon="close">
             Cancel
           </Button>
@@ -99,7 +99,7 @@ class Form extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

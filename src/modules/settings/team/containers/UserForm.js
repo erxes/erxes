@@ -4,6 +4,7 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { UserForm } from '../components';
 import { Spinner } from 'modules/common/components';
+import { queries } from '../graphql';
 
 const UserFormContainer = props => {
   const { object = {}, channelsQuery } = props;
@@ -23,7 +24,7 @@ const UserFormContainer = props => {
   const updatedProps = {
     ...props,
     selectedChannels,
-    channels
+    channels,
   };
 
   return <UserForm {...updatedProps} />;
@@ -31,25 +32,14 @@ const UserFormContainer = props => {
 
 UserFormContainer.propTypes = {
   object: PropTypes.object,
-  channelsQuery: PropTypes.object
+  channelsQuery: PropTypes.object,
 };
 
 export default compose(
-  graphql(
-    gql`
-      query channels {
-        channels {
-          _id
-          name
-          memberIds
-        }
-      }
-    `,
-    {
-      name: 'channelsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }
-  )
+  graphql(gql(queries.channels), {
+    name: 'channelsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only',
+    }),
+  }),
 )(UserFormContainer);

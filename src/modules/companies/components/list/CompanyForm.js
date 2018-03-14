@@ -1,19 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
-  addCompany: PropTypes.func.isRequired
+  addCompany: PropTypes.func.isRequired,
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
 };
 
 class CompanyForm extends React.Component {
@@ -31,14 +31,14 @@ class CompanyForm extends React.Component {
     this.props.addCompany({
       doc: {
         name: name.value,
-        website: website.value
+        website: website.value,
       },
 
       callback: () => {
         name.value = '';
         website.value = '';
         if (document.activeElement.name === 'close') this.context.closeModal();
-      }
+      },
     });
   }
 
@@ -55,7 +55,7 @@ class CompanyForm extends React.Component {
           <FormControl id="company-website" type="text" required />
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             onClick={() => {
@@ -73,7 +73,7 @@ class CompanyForm extends React.Component {
           <Button btnStyle="primary" type="submit" name="close" icon="close">
             Save & Close
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

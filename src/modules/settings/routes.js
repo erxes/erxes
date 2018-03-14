@@ -8,7 +8,6 @@ import TeamMembersRoutes from './team/routes';
 import EmailRoutes from './email/routes';
 import FormsRoutes from './forms/routes';
 import IntegrationsRoutes from './integrations/routes';
-import ProfileRoutes from './profile/routes';
 import DealRoutes from './deals/routes';
 import PropertiesRoutes from './properties/routes';
 import MainRoutes from './main/routes';
@@ -23,9 +22,8 @@ const routes = () => [
   <EmailRoutes key="EmailRoutes" />,
   <FormsRoutes key="FormsRoutes" />,
   <IntegrationsRoutes key="IntegrationsRoutes" />,
-  <ProfileRoutes key="ProfileRoutes" />,
   <DealRoutes key="DealRoutes" />,
-  <PropertiesRoutes key="PropertiesRoutes" />
+  <PropertiesRoutes key="PropertiesRoutes" />,
 ];
 
 const settingsRoute = () => <Route component={routes} />;

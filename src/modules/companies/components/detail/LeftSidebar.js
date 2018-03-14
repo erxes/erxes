@@ -13,7 +13,7 @@ const propTypes = {
   company: PropTypes.object.isRequired,
   fieldsGroups: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
-  customFieldsData: PropTypes.object
+  customFieldsData: PropTypes.object,
 };
 
 class LeftSidebar extends ManageGroups {
@@ -89,7 +89,7 @@ class LeftSidebar extends ManageGroups {
     const { company, save } = this.props;
 
     return (
-      <Sidebar size="wide" footer={this.renderSidebarFooter()}>
+      <Sidebar wide footer={this.renderSidebarFooter()}>
         <BasicInfo company={company} save={save} />
         {this.renderGroups(company)}
         {this.renderCustomers()}
@@ -101,7 +101,7 @@ class LeftSidebar extends ManageGroups {
 
 LeftSidebar.propTypes = propTypes;
 LeftSidebar.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default LeftSidebar;

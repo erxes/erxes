@@ -2,17 +2,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, ModalTrigger } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
-import { ActionBar, Wrapper } from 'modules/layout/components';
-import Sidebar from 'modules/settings/Sidebar';
-import { ContentBox } from '../../styles';
 import { PasswordConfirmation } from './';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   currentUser: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
-class Profile extends Component {
+class EditProfile extends Component {
   constructor(props) {
     super(props);
 
@@ -32,7 +30,7 @@ class Profile extends Component {
         position: document.getElementById('position').value,
         location: document.getElementById('user-location').value,
         description: document.getElementById('description').value,
-        twitterUsername: document.getElementById('twitterUsername').value
+        twitterUsername: document.getElementById('twitterUsername').value,
       },
       links: {
         linkedIn: document.getElementById('linkedin').value,
@@ -40,10 +38,12 @@ class Profile extends Component {
         facebook: document.getElementById('facebook').value,
         youtube: document.getElementById('youtube').value,
         github: document.getElementById('github').value,
-        website: document.getElementById('website').value
+        website: document.getElementById('website').value,
       },
-      password
+      password,
     });
+
+    this.context.closeModal();
   }
 
   onAvatarUpload(url) {
@@ -51,29 +51,29 @@ class Profile extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     const saveButton = (
       <Button btnStyle="success" icon="checkmark">
         Save
       </Button>
     );
-    const content = (
-      <ContentBox>
+
+    return (
+      <div>
         <UserCommonInfos
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
         />
-      </ContentBox>
-    );
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Profile settings') }
-    ];
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={() => this.context.closeModal()}
+            icon="close"
+          >
+            Cancel
+          </Button>
 
-    const actionFooter = (
-      <ActionBar
-        right={
           <ModalTrigger
             title="Enter your password to Confirm"
             trigger={saveButton}
@@ -82,24 +82,16 @@ class Profile extends Component {
               onSuccess={password => this.handleSubmit(password)}
             />
           </ModalTrigger>
-        }
-      />
-    );
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        footer={actionFooter}
-        content={content}
-      />
+        </ModalFooter>
+      </div>
     );
   }
 }
 
-Profile.propTypes = propTypes;
-Profile.contextTypes = {
-  __: PropTypes.func
+EditProfile.propTypes = propTypes;
+EditProfile.contextTypes = {
+  __: PropTypes.func,
+  closeModal: PropTypes.func,
 };
 
-export default Profile;
+export default EditProfile;

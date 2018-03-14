@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   FormControl,
   Button,
   Icon,
   Tip,
   Label,
-  ModalTrigger
+  ModalTrigger,
 } from 'modules/common/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { LoadMore, Title, Columns, Column } from 'modules/customers/styles';
 import { BrandName, IntegrationName } from '../../styles';
 import { ChooseBrand } from '../containers';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   currentBrand: PropTypes.object,
@@ -21,12 +21,12 @@ const propTypes = {
   refetch: PropTypes.func.isRequired,
   allIntegrations: PropTypes.array.isRequired,
   perPage: PropTypes.number.isRequired,
-  clearState: PropTypes.func.isRequired
+  clearState: PropTypes.func.isRequired,
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class ManageIntegrationForm extends Component {
@@ -38,7 +38,7 @@ class ManageIntegrationForm extends Component {
     this.state = {
       integrations: currentBrand.integrations || [],
       hasMore: true,
-      searchValue: ''
+      searchValue: '',
     };
 
     this.save = this.save.bind(this);
@@ -112,11 +112,11 @@ class ManageIntegrationForm extends Component {
 
     if (type === 'plus') {
       this.setState({
-        integrations: [...integrations, integration]
+        integrations: [...integrations, integration],
       });
     } else {
       this.setState({
-        integrations: integrations.filter(item => item !== integration)
+        integrations: integrations.filter(item => item !== integration),
       });
     }
   }
@@ -184,7 +184,7 @@ class ManageIntegrationForm extends Component {
             />
             <ul>
               {allIntegrations.map(integration =>
-                this.renderRow(integration, 'plus')
+                this.renderRow(integration, 'plus'),
               )}
               {this.state.hasMore && (
                 <LoadMore>
@@ -207,12 +207,12 @@ class ManageIntegrationForm extends Component {
             </Title>
             <ul>
               {selectedIntegrations.map(integration =>
-                this.renderRow(integration, 'close')
+                this.renderRow(integration, 'close'),
               )}
             </ul>
           </Column>
         </Columns>
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             icon="close"
@@ -223,7 +223,7 @@ class ManageIntegrationForm extends Component {
           <Button btnStyle="success" icon="checkmark" onClick={this.save}>
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </div>
     );
   }

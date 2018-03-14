@@ -1,15 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Wrapper } from 'modules/layout/components';
+import { Wrapper, Sidebar } from 'modules/layout/components';
 import {
   DataWithLoader,
   Tabs,
   TabTitle,
-  Icon
+  Icon,
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { EditInformation } from 'modules/customers/containers';
+import { CompanySection } from 'modules/customers/components';
 import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import { hasAnyActivity } from 'modules/customers/utils';
@@ -20,7 +21,7 @@ const propTypes = {
   queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired,
   loadingLogs: PropTypes.bool,
-  history: PropTypes.object
+  history: PropTypes.object,
 };
 
 class CustomerDetails extends React.Component {
@@ -42,7 +43,7 @@ class CustomerDetails extends React.Component {
       currentUser,
       activityLogsCustomer,
       loadingLogs,
-      customer
+      customer,
     } = this.props;
 
     return (
@@ -62,7 +63,7 @@ class CustomerDetails extends React.Component {
             <ActivityList
               user={currentUser}
               activities={activityLogsCustomer}
-              target={customer}
+              target={customer.firstName}
               type={currentTab} //show logs filtered by type
             />
           }
@@ -80,7 +81,7 @@ class CustomerDetails extends React.Component {
 
     const breadcrumb = [
       { title: __('Customers'), link: '/customers' },
-      { title: customer.name || customer.email || 'N/A' }
+      { title: customer.name || customer.email || 'N/A' },
     ];
 
     const content = (
@@ -120,10 +121,17 @@ class CustomerDetails extends React.Component {
       </div>
     );
 
+    const rightSidebar = (
+      <Sidebar>
+        <CompanySection customer={customer} />
+      </Sidebar>
+    );
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<EditInformation customer={customer} />}
+        leftSidebar={<EditInformation wide customer={customer} />}
+        rightSidebar={rightSidebar}
         content={content}
         transparent={true}
       />
@@ -133,7 +141,7 @@ class CustomerDetails extends React.Component {
 
 CustomerDetails.propTypes = propTypes;
 CustomerDetails.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default withRouter(CustomerDetails);

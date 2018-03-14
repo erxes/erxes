@@ -1,22 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import Toggle from 'react-toggle';
 import {
   Button,
   FormGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   add: PropTypes.func.isRequired,
   edit: PropTypes.func.isRequired,
-  group: PropTypes.object
+  group: PropTypes.object,
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
 };
 
 class PropertyGroupForm extends React.Component {
@@ -33,7 +33,7 @@ class PropertyGroupForm extends React.Component {
 
     this.state = {
       isVisible,
-      action
+      action,
     };
 
     this.onSubmit = this.onSubmit.bind(this);
@@ -50,11 +50,11 @@ class PropertyGroupForm extends React.Component {
     const doc = {
       name,
       description,
-      isVisible
+      isVisible,
     };
 
     this.state.action(
-      this.props.group ? { _id: this.props.group._id, doc } : { doc }
+      this.props.group ? { _id: this.props.group._id, doc } : { doc },
     );
 
     this.context.closeModal();
@@ -99,14 +99,14 @@ class PropertyGroupForm extends React.Component {
               checked={this.state.isVisible}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
               onChange={this.visibleHandler}
             />
           </div>
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             onClick={() => {
@@ -120,7 +120,7 @@ class PropertyGroupForm extends React.Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }
