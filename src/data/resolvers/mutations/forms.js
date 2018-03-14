@@ -8,9 +8,7 @@ const formMutations = {
    * @param {Object} doc - Form object
    * @param {string} doc.title - Form title
    * @param {string} doc.description - Form description
-   * @param {string} doc.buttonText - Form's submit button text
-   * @param {string} doc.themeColor - Form theme color
-   * @param {string} doc.featuredImage - Form featured image
+   * @param {Object} doc.callout - Form callout
    * @param {Object} doc.user - The user who created this form
    * @return {Promise} return Promise resolving Form document
    */
@@ -25,9 +23,7 @@ const formMutations = {
    * @param {string} object2._id - Form id
    * @param {string} object2.title - Form title
    * @param {string} object2.description - Form description
-   * @param {string} doc.buttonText - Form's submit button text
-   * @param {string} doc.themeColor - Form theme color
-   * @param {string} doc.featuredImage - Form featured image
+   * @param {Object} doc.callout - Form callout
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user who is making this action
    * @return {Promise} return Promise resolving Form document

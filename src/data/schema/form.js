@@ -4,9 +4,7 @@ export const types = `
     title: String
     code: String
     description: String
-    buttonText: String
-    themeColor: String
-    featuredImage: String
+    callout: JSON
     createdUserId: String
     createdDate: Date
   }
@@ -15,9 +13,7 @@ export const types = `
 const commonFields = `
   title: String!,
   description: String,
-  buttonText: String,
-  themeColor: String,
-  featuredImage: String
+  callout: JSON
 `;
 
 export const mutations = `
