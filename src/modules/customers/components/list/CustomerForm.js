@@ -10,7 +10,8 @@ import { ModalFooter } from 'modules/common/styles/styles';
 import { FormWrapper, FormColumn, ColumnTitle } from '../../styles';
 
 const propTypes = {
-  addCustomer: PropTypes.func.isRequired
+  customer: PropTypes.object,
+  action: PropTypes.func.isRequired
 };
 
 const contextTypes = {
@@ -22,20 +23,54 @@ class CustomerForm extends React.Component {
   constructor(props) {
     super(props);
 
-    this.addCustomer = this.addCustomer.bind(this);
+    this.action = this.action.bind(this);
   }
 
-  addCustomer(e) {
+  action(e) {
     e.preventDefault();
+    console.log('asd');
     const firstName = document.getElementById('customer-firstname');
     const lastName = document.getElementById('customer-lastname');
     const email = document.getElementById('customer-email');
+    const owner = document.getElementById('customer-owner');
+    const phone = document.getElementById('customer-phone');
+    const position = document.getElementById('customer-position');
+    const department = document.getElementById('customer-department');
+    const leadStatus = document.getElementById('customer-leadStatus');
+    const lifecycleState = document.getElementById('customer-lifecycleState');
+    const hasAuthority = document.getElementById('customer-hasAuthority');
+    const description = document.getElementById('customer-description');
+    const doNotDisturb = document.getElementById('customer-doNotDisturb');
+    const linkedIn = document.getElementById('customer-linkedin');
+    const twitter = document.getElementById('customer-twitter');
+    const facebook = document.getElementById('customer-facebook');
+    const github = document.getElementById('customer-github');
+    const youtube = document.getElementById('customer-youtube');
+    const website = document.getElementById('customer-website');
 
-    this.props.addCustomer({
+    this.props.action({
       doc: {
         firstName: firstName.value,
         lastName: lastName.value,
-        email: email.value
+        email: email.value,
+        owner: owner.value,
+        phone: phone.value,
+        position: position.value,
+        department: department.value,
+        leadStatus: leadStatus.value,
+        lifecycleState: lifecycleState.value,
+        hasAuthority: hasAuthority.value,
+        description: description.value,
+        doNotDisturb: doNotDisturb.value,
+
+        links: {
+          linkedIn: linkedIn.value,
+          twitter: twitter.value,
+          facebook: facebook.value,
+          github: github.value,
+          youtube: youtube.value,
+          website: website.value
+        }
       },
 
       callback: () => {
@@ -49,9 +84,11 @@ class CustomerForm extends React.Component {
 
   render() {
     const { __, closeModal } = this.context;
+    const { customer = {} } = this.props;
+    const { links = {} } = customer;
 
     return (
-      <form onSubmit={e => this.addCustomer(e)}>
+      <form onSubmit={e => this.action(e)}>
         <FormWrapper>
           <FormColumn>
             <ColumnTitle>{__('Basics')}</ColumnTitle>
@@ -62,42 +99,68 @@ class CustomerForm extends React.Component {
                 type="text"
                 autoFocus
                 required
+                defaultValue={customer.firstName || ''}
               />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Last Name</ControlLabel>
-              <FormControl id="customer-lastname" type="text" />
+              <FormControl
+                id="customer-lastname"
+                type="text"
+                defaultValue={customer.lastName || ''}
+              />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Email</ControlLabel>
-              <FormControl id="customer-email" type="email" required />
+              <FormControl
+                id="customer-email"
+                type="email"
+                defaultValue={customer.email || ''}
+                required
+              />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Phone</ControlLabel>
-              <FormControl id="customer-phone" type="email" />
+              <FormControl
+                id="customer-phone"
+                defaultValue={customer.phone || ''}
+              />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
-              <FormControl id="customer-owner" type="email" />
+              <FormControl
+                id="customer-owner"
+                defaultValue={customer.ownerId || ''}
+              />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Position</ControlLabel>
-              <FormControl id="customer-position" type="email" />
+              <FormControl
+                id="customer-position"
+                defaultValue={customer.position || ''}
+              />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Department</ControlLabel>
-              <FormControl id="customer-department" type="email" />
+              <FormControl
+                id="customer-department"
+                defaultValue={customer.department || ''}
+              />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Lead Status</ControlLabel>
-              <FormControl id="customer-leadStatus" componentClass="select">
+              <FormControl
+                id="customer-leadStatus"
+                componentClass="select"
+                defaultValue={customer.leadStatus || ''}
+              >
                 <option />
                 <option>New</option>
                 <option>Open</option>
@@ -112,7 +175,11 @@ class CustomerForm extends React.Component {
 
             <FormGroup>
               <ControlLabel>Lifecycle State</ControlLabel>
-              <FormControl id="customer-lifecycleState" componentClass="select">
+              <FormControl
+                id="customer-lifecycleState"
+                componentClass="select"
+                defaultValue={customer.lifecycleState || ''}
+              >
                 <option />
                 <option>Subscriber</option>
                 <option>Lead</option>
@@ -127,17 +194,26 @@ class CustomerForm extends React.Component {
 
             <FormGroup>
               <ControlLabel>Has Authority</ControlLabel>
-              <FormControl id="customer-hasAuthority" type="email" />
+              <FormControl
+                id="customer-hasAuthority"
+                defaultValue={customer.hasAuthority || ''}
+              />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
-              <FormControl id="customer-description" type="email" />
+              <FormControl
+                id="customer-description"
+                defaultValue={customer.description || ''}
+              />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Do not disturb</ControlLabel>
-              <FormControl id="customer-doNotDisturb" type="email" />
+              <FormControl
+                id="customer-doNotDisturb"
+                defaultValue={customer.doNotDisturb || ''}
+              />
             </FormGroup>
           </FormColumn>
 
@@ -145,27 +221,45 @@ class CustomerForm extends React.Component {
             <ColumnTitle>{__('Links')}</ColumnTitle>
             <FormGroup>
               <ControlLabel>Linked In</ControlLabel>
-              <FormControl id="customer-linkedin" type="email" />
+              <FormControl
+                id="customer-linkedin"
+                defaultValue={links.linkedIn || ''}
+              />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Twitter</ControlLabel>
-              <FormControl id="customer-twitter" type="email" />
+              <FormControl
+                id="customer-twitter"
+                defaultValue={links.twitter || ''}
+              />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Facebook</ControlLabel>
-              <FormControl id="customer-facebook" type="email" />
+              <FormControl
+                id="customer-facebook"
+                defaultValue={links.facebook || ''}
+              />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Github</ControlLabel>
-              <FormControl id="customer-github" type="email" />
+              <FormControl
+                id="customer-github"
+                defaultValue={links.github || ''}
+              />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Youtube</ControlLabel>
-              <FormControl id="customer-youtube" type="email" />
+              <FormControl
+                id="customer-youtube"
+                defaultValue={links.youtube || ''}
+              />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Website</ControlLabel>
-              <FormControl id="customer-website" type="email" />
+              <FormControl
+                id="customer-website"
+                defaultValue={links.website || ''}
+              />
             </FormGroup>
           </FormColumn>
         </FormWrapper>
