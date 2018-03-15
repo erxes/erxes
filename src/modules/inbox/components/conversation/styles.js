@@ -11,6 +11,7 @@ const MessageContent = styled.div`
   word-break: break-word;
   box-shadow: 0 1px 1px 0 ${colors.darkShadow};
   color: ${props => props.staff && !props.internal && colors.colorWhite};
+  text-align: left;
 
   ${props => {
     if (props.staff) {
@@ -20,6 +21,10 @@ const MessageContent = styled.div`
       `;
     }
   }};
+
+  a {
+    color: ${props => props.staff && colors.colorWhite};
+  }
 
   p {
     margin: 0;

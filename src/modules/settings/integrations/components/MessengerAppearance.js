@@ -28,7 +28,7 @@ class Appearance extends Component {
     super(props);
 
     this.state = {
-      color: props.prevOptions.color || '#04A9F5',
+      color: props.prevOptions.color || '#6569DF',
       wallpaper: props.prevOptions.wallpaper || '1',
       logo: props.prevOptions.logo,
       logoPreviewStyle: {},

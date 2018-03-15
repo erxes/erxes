@@ -13,7 +13,6 @@ import {
   Icon
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { ButtonWrapper } from 'modules/customers/components/detail/sidebar/styles';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -79,30 +78,28 @@ class BasicInfo extends React.Component {
           </a>
         </QuickButtons>
 
-        <SidebarContent>
-          <SidebarList>
-            <li>
-              {__('Name:')}
-              <SidebarCounter>{company.name || 'N/A'}</SidebarCounter>
-            </li>
-            <li>
-              {__('Size:')}
-              <SidebarCounter>{company.size || 'N/A'}</SidebarCounter>
-            </li>
-            <li>
-              {__('Website:')}
-              <SidebarCounter>{company.website || 'N/A'}</SidebarCounter>
-            </li>
-            <li>
-              {__('Industry:')}
-              <SidebarCounter>{company.industry || 'N/A'}</SidebarCounter>
-            </li>
-            <li>
-              {__('Plan:')}
-              <SidebarCounter>{company.plan || 'N/A'}</SidebarCounter>
-            </li>
-          </SidebarList>
-        </SidebarContent>
+        <SidebarList className="no-link">
+          <li>
+            {__('Name:')}
+            <SidebarCounter>{company.name || '-'}</SidebarCounter>
+          </li>
+          <li>
+            {__('Size:')}
+            <SidebarCounter>{company.size || '-'}</SidebarCounter>
+          </li>
+          <li>
+            {__('Website:')}
+            <SidebarCounter>{company.website || '-'}</SidebarCounter>
+          </li>
+          <li>
+            {__('Industry:')}
+            <SidebarCounter>{company.industry || '-'}</SidebarCounter>
+          </li>
+          <li>
+            {__('Plan:')}
+            <SidebarCounter>{company.plan || '-'}</SidebarCounter>
+          </li>
+        </SidebarList>
       </Sidebar.Section>
     );
   }
@@ -136,7 +133,7 @@ class BasicInfo extends React.Component {
             <FormControl id="plan" defaultValue={company.plan || ''} />
           </FormGroup>
 
-          <ButtonWrapper>
+          <div style={{ textAlign: 'right' }}>
             <Button
               btnStyle="success"
               size="small"
@@ -149,7 +146,7 @@ class BasicInfo extends React.Component {
               onClick={this.cancelEditing}
               icon="close"
             />
-          </ButtonWrapper>
+          </div>
         </SidebarContent>
       </Sidebar.Section>
     );

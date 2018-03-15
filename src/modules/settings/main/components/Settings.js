@@ -68,7 +68,7 @@ class Settings extends Component {
             )}
             {this.renderBox(
               'Properties',
-              '/images/icons/erxes-05.svg',
+              '/images/icons/erxes-01.svg',
               '/settings/properties'
             )}
           </div>
