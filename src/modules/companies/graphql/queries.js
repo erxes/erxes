@@ -5,6 +5,26 @@ const companyFields = `
   industry
   website
   plan
+  
+  parentCompanyId
+  email
+  ownerId
+  phone
+  leadStatus
+  lifecycleState
+  businessType
+  description
+  employees
+  doNotDisturb
+  links {
+    linkedIn
+    twitter
+    facebook
+    github
+    youtube
+    website
+  }
+
   customFieldsData
   tagIds
   getTags {
