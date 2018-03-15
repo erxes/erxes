@@ -3,6 +3,7 @@ import {
   COMPANY_LEAD_STATUS_TYPES,
   COMPANY_LIFECYCLE_STATE_TYPES,
   COMPANY_BUSINESS_TYPES,
+  COMPANY_INDUSTRY_TYPES,
 } from '../../data/constants';
 import { Fields, Customers, ActivityLogs, InternalNotes } from './';
 import { field } from './utils';
@@ -35,6 +36,7 @@ const CompanySchema = mongoose.Schema({
 
   industry: field({
     type: String,
+    enum: COMPANY_INDUSTRY_TYPES.ALL,
     label: 'Industry',
     optional: true,
   }),
