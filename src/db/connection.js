@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import { graphql } from 'graphql';
 import { userFactory } from './factories';
 import schema from '../data/';
-import dotenv from 'dotenv';
-import mongoose from 'mongoose';
 
 dotenv.config();
 
