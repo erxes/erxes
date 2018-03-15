@@ -4,6 +4,8 @@
 import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { Users, Integrations, Brands } from '../db/models';
 import { userFactory, integrationFactory, brandFactory } from '../db/factories';
+import { socUtils } from '../social/twitterTracker';
+import faker from 'faker';
 
 beforeAll(() => connect());
 
@@ -20,11 +22,28 @@ describe('mutations', () => {
     $brandId: String!
     $languageCode: String
   `;
+
   const commonParams = `
     name: $name
     brandId: $brandId
     languageCode: $languageCode
   `;
+
+  const commonFormProperties = {
+    languageCode: 'en',
+    loadType: faker.random.word(),
+    fromEmail: faker.internet.email(),
+    userEmailTitle: faker.random.word(),
+    userEmailContent: faker.random.word(),
+    adminEmailTitle: faker.random.word(),
+    adminEmailContent: faker.random.word(),
+    redirectUrl: faker.random.word(),
+    successAction: faker.random.word(),
+    formData: {
+      thankContent: faker.random.word(),
+      adminEmails: [],
+    },
+  };
 
   beforeEach(async () => {
     // Creating test data
@@ -80,8 +99,14 @@ describe('mutations', () => {
     };
 
     const mutation = `
-        mutation integrationsEditMessengerIntegration($_id: String!, ${commonParamDefs}) {
-          integrationsEditMessengerIntegration(_id: $_id, ${commonParams}) {
+        mutation integrationsEditMessengerIntegration(
+          $_id: String!
+          ${commonParamDefs}
+        ) {
+          integrationsEditMessengerIntegration(
+          _id: $_id
+          ${commonParams}
+        ) {
             _id
             name
             brandId
@@ -105,9 +130,9 @@ describe('mutations', () => {
 
   test('Save messenger integration appearance data', async () => {
     const uiOptions = {
-      color: 'fakeColor',
-      wallpaper: 'fakeWallpaper',
-      logo: 'fakeLogo',
+      color: faker.random.word(),
+      wallpaper: faker.random.word(),
+      logo: faker.random.image(),
     };
 
     const args = {
@@ -117,7 +142,7 @@ describe('mutations', () => {
 
     const mutation = `
       mutation integrationsSaveMessengerAppearanceData(
-        $_id: String!,
+        $_id: String!
         $uiOptions: MessengerUiOptions
       ) {
         integrationsSaveMessengerAppearanceData(_id: $_id, uiOptions: $uiOptions) {
@@ -142,17 +167,18 @@ describe('mutations', () => {
     const messengerData = {
       notifyCustomer: false,
       isOnline: false,
+      availabilityMethod: 'auto',
       onlineHours: [
         {
-          day: 'fakeDay',
-          from: 'fakeFrom',
-          to: 'fakeTo',
+          day: faker.random.word(),
+          from: faker.random.word(),
+          to: faker.random.word(),
         },
       ],
-      timezone: 'fakeTimezone',
-      welcomeMessage: 'fakeMessage',
-      awayMessage: 'fakeAwayMessage',
-      thankYouMessage: 'fakeThankMessage',
+      timezone: faker.random.word(),
+      welcomeMessage: faker.random.word(),
+      awayMessage: faker.random.word(),
+      thankYouMessage: faker.random.word(),
     };
 
     const args = {
@@ -162,11 +188,11 @@ describe('mutations', () => {
 
     const mutation = `
       mutation integrationsSaveMessengerConfigs(
-        $_id: String!,
+        $_id: String!
         $messengerData: IntegrationMessengerData
       ) {
         integrationsSaveMessengerConfigs(
-          _id: $_id,
+          _id: $_id
           messengerData: $messengerData
         ) {
           _id
@@ -190,31 +216,19 @@ describe('mutations', () => {
     const args = {
       name: _integration.name,
       brandId: _brand._id,
-      languageCode: 'en',
-      loadType: 'fakeLoadType',
-      fromEmail: 'fakeFromEmail',
-      userEmailTitle: 'fakeUserEmailTitle',
-      userEmailContent: 'fakeUserEmailContent',
-      adminEmailTitle: 'fakeAdminEmailTitle',
-      adminEmailContent: 'fakeAdminEmailContent',
-      redirectUrl: 'fakeRedirectUrl',
-      successAction: 'fakeSuccessAction',
       formId: _integration.formId,
-      formData: {
-        thankContent: 'fakeThankContent',
-        adminEmails: [],
-      },
+      ...commonFormProperties,
     };
 
     const mutation = `
       mutation integrationsCreateFormIntegration(
-        ${commonParamDefs},
-        $formId: String!,
+        ${commonParamDefs}
+        $formId: String!
         $formData: IntegrationFormData!
       ) {
         integrationsCreateFormIntegration(
-          ${commonParams},
-          formId: $formId,
+          ${commonParams}
+          formId: $formId
           formData: $formData
         ) {
           name
@@ -233,6 +247,144 @@ describe('mutations', () => {
       context,
     );
 
+    expect(formIntegration.name).toBe(args.name);
+    expect(formIntegration.brandId).toBe(args.brandId);
+    expect(formIntegration.languageCode).toBe(args.languageCode);
+    expect(formIntegration.formId).toBe(args.formId);
+    expect(formIntegration.formData.toJSON()).toEqual(args.formData);
+  });
+
+  test('Create twitter integration', async () => {
+    const args = {
+      brandId: _brand._id,
+      queryParams: {
+        oauth_token: 'fakeOauthToken',
+        oauth_verifier: 'fakeOauthVerifier',
+      },
+    };
+
+    const authenticateDoc = {
+      info: {
+        name: 'name',
+        id: 1,
+      },
+
+      tokens: {
+        auth: {
+          token: 'token',
+          tokenSecret: 'secret',
+        },
+      },
+    };
+
+    socUtils.authenticate = jest.fn(() => authenticateDoc);
+    socUtils.trackIntegration = jest.fn();
+
+    const mutation = `
+      mutation integrationsCreateTwitterIntegration(
+        $brandId: String!
+        $queryParams: TwitterIntegrationAuthParams!
+      ) {
+        integrationsCreateTwitterIntegration(
+          brandId: $brandId
+          queryParams: $queryParams
+        ) {
+          brandId
+          twitterData
+        }
+      }
+    `;
+
+    const twitterIntegration = await graphqlRequest(
+      mutation,
+      'integrationsCreateTwitterIntegration',
+      args,
+      context,
+    );
+
+    expect(twitterIntegration.brandId).toBe(args.brandId);
+  });
+
+  test('Create facebook integration', async () => {
+    const args = {
+      brandId: _brand._id,
+      name: _integration.name,
+      appId: 'fakeAppId',
+      pageIds: ['fakePageIds'],
+    };
+
+    const mutation = `
+      mutation integrationsCreateFacebookIntegration(
+        $brandId: String!
+        $name: String!
+        $appId: String!
+        $pageIds: [String!]!
+      ) {
+        integrationsCreateFacebookIntegration(
+          brandId: $brandId
+          name: $name
+          appId: $appId
+          pageIds: $pageIds
+        ) {
+          brandId
+          name
+          facebookData
+        }
+      }
+    `;
+
+    const facebookIntegration = await graphqlRequest(
+      mutation,
+      'integrationsCreateFacebookIntegration',
+      args,
+      context,
+    );
+
+    expect(facebookIntegration.brandId).toBe(args.brandId);
+    expect(facebookIntegration.name).toBe(args.name);
+    expect(facebookIntegration.facebookData.appId).toBe(args.appId);
+    expect(facebookIntegration.facebookData.pageIds).toEqual(expect.arrayContaining(args.pageIds));
+  });
+
+  test('Edit form integration', async () => {
+    const args = {
+      _id: _integration._id,
+      name: _integration.name,
+      brandId: _brand._id,
+      formId: _integration.formId,
+      ...commonFormProperties,
+    };
+    const mutation = `
+      mutation integrationsEditFormIntegration(
+        $_id: String!
+        $formId: String!
+        $formData: IntegrationFormData!
+        ${commonParamDefs}
+      ) {
+        integrationsEditFormIntegration(
+          _id: $_id
+          formId: $formId
+          formData: $formData
+          ${commonParams}
+        ) {
+          _id
+          name
+          brandId
+          languageCode
+          formId
+          formData
+        }
+      }
+    `;
+
+    const formIntegration = await graphqlRequest(
+      mutation,
+      'integrationsEditFormIntegration',
+      args,
+      context,
+    );
+
+    expect(formIntegration._id).toBe(args._id);
     expect(formIntegration.name).toBe(args.name);
     expect(formIntegration.brandId).toBe(args.brandId);
     expect(formIntegration.languageCode).toBe(args.languageCode);

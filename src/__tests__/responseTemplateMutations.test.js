@@ -66,7 +66,7 @@ describe('Response template mutations', () => {
     expect(responseTemplate.name).toBe(args.name);
     expect(responseTemplate.brandId).toBe(args.brandId);
     expect(responseTemplate.content).toBe(args.content);
-    expect(JSON.stringify(responseTemplate.files)).toEqual(JSON.stringify(args.files));
+    expect(responseTemplate.files).toEqual(expect.arrayContaining(args.files));
   });
 
   test('Edit response template', async () => {
@@ -96,7 +96,7 @@ describe('Response template mutations', () => {
     expect(responseTemplate.name).toBe(args.name);
     expect(responseTemplate.brandId).toBe(args.brandId);
     expect(responseTemplate.content).toBe(args.content);
-    expect(JSON.stringify(responseTemplate.files)).toEqual(JSON.stringify(args.files));
+    expect(responseTemplate.files).toEqual(expect.arrayContaining(args.files));
   });
 
   test('Remove response template', async () => {
