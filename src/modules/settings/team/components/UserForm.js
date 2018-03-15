@@ -131,7 +131,8 @@ class UserForm extends CommonForm {
 }
 
 UserForm.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
+  closeModal: PropTypes.func
 };
 
 export default UserForm;
