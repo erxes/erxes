@@ -62,7 +62,10 @@ class EmbeddedPreview extends Component {
                 this.renderField(field, index)
               )}
             {btnText && (
-              <Button btnStyle="primary" style={{ backgroundColor: color }}>
+              <Button
+                btnStyle="primary"
+                style={{ backgroundColor: theme ? theme : color }}
+              >
                 {btnText}
               </Button>
             )}

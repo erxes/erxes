@@ -15,6 +15,12 @@ import {
   FieldTitle
 } from '../style';
 
+const ShoutBox = MessengerPreview.extend`
+  background: url('/images/preview.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+`;
+
 const propTypes = {
   title: PropTypes.string,
   bodyValue: PropTypes.string,
@@ -49,7 +55,7 @@ class ShoutboxPreview extends Component {
     } = this.props;
 
     return (
-      <MessengerPreview>
+      <ShoutBox>
         <Messenger>
           <WidgetPreviewStyled className="engage-message type-default">
             <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
@@ -69,18 +75,21 @@ class ShoutboxPreview extends Component {
                     this.renderField(field, index)
                   )}
                 {btnText && (
-                  <Button btnStyle="primary" style={{ backgroundColor: color }}>
+                  <Button
+                    btnStyle="primary"
+                    style={{ backgroundColor: theme ? theme : color }}
+                  >
                     {btnText}
                   </Button>
                 )}
               </BodyContent>
             </PreviewBody>
           </WidgetPreviewStyled>
-          <LogoContainer style={{ backgroundColor: color }}>
+          <LogoContainer style={{ backgroundColor: theme ? theme : color }}>
             <LogoSpan>1</LogoSpan>
           </LogoContainer>
         </Messenger>
-      </MessengerPreview>
+      </ShoutBox>
     );
   }
 }

@@ -4,20 +4,19 @@ import styled from 'styled-components';
 import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
 import { dimensions, colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-import { FlexItem, LeftItem, Preview, Title } from './style';
+import { FlexItem, LeftItem, Preview, Title, BoxRow } from './style';
 
 const Box = styled.div`
   display: inline-block;
   text-align: center;
   background: ${colors.colorLightBlue};
-  box-shadow: 0 5px 5px ${rgba(colors.colorCoreGray, 0.08)};
-  border: 1px solid
-    ${props =>
-      props.selected ? colors.colorPrimaryDark : colors.borderPrimary};
+  box-shadow: ${props =>
+    props.selected && `0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)}`};
+  border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
-  padding: ${dimensions.headerSpacing - 5}px;
+  padding: ${dimensions.coreSpacing * 2}px;
   transition: all 0.25s ease;
-  width: 200px;
+  width: 270px;
   margin-right: 20px;
 
   img {
@@ -31,13 +30,14 @@ const Box = styled.div`
     margin-top: ${dimensions.unitSpacing}px;
   }
 
+  &:last-child {
+    margin-right: 0;
+  }
+
   &:hover {
     cursor: pointer;
-    box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
-
-    img {
-      transform: scale(1.1);
-    }
+    box-shadow: ${props =>
+      !props.selected && `0 5px 5px ${rgba(colors.colorCoreGray, 0.08)}`};
   }
 `;
 
@@ -119,8 +119,14 @@ class ChooseType extends Component {
       <FlexItem>
         <LeftItem>
           <Title>{__('Choose a flow type')}</Title>
-          {this.renderBox('ShoutBox', '/images/icons/erxes-07.svg', 'shoutbox')}
-          {this.renderBox('Popup', '/images/icons/erxes-08.svg', 'popup')}
+          <BoxRow>
+            {this.renderBox(
+              'ShoutBox',
+              '/images/icons/erxes-07.svg',
+              'shoutbox'
+            )}
+            {this.renderBox('Popup', '/images/icons/erxes-08.svg', 'popup')}
+          </BoxRow>
           {this.renderBox('Embedded', '/images/icons/erxes-08.svg', 'embedded')}
         </LeftItem>
         <Preview>{this.renderPreview()}</Preview>

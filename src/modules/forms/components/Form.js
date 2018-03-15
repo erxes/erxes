@@ -31,7 +31,7 @@ class Form extends Component {
       successAction: 'onPage',
       btnText: 'Send',
       color: '#04A9F5',
-      theme: '#04A9F5',
+      theme: '',
       logoPreviewUrl: '',
       options: ['email'],
       validate: {
@@ -105,7 +105,16 @@ class Form extends Component {
             next={this.next}
             nextButton={this.renderNextButton()}
           >
-            <CallOut changeState={this.changeState} kind={kind} />
+            <CallOut
+              changeState={this.changeState}
+              kind={kind}
+              title={title}
+              btnText={btnText}
+              bodyValue={bodyValue}
+              color={color}
+              theme={theme}
+              image={logoPreviewUrl}
+            />
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"

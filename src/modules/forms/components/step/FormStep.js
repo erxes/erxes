@@ -91,10 +91,9 @@ class FormStep extends Component {
     const { options } = this.state;
     const optionValue = document.getElementById('optionValue').value;
 
-    this.setState({ options: [...options, optionValue] });
-    this.handleCancelAddingOption();
-    console.log(options);
-    this.props.changeState('options', options);
+    this.setState({ options: [...options, optionValue] }, () => {
+      this.props.changeState('options', this.state.options);
+    });
   }
 
   renderNewField() {

@@ -43,6 +43,7 @@ class PopupPreview extends Component {
       options,
       thankContent
     } = this.props;
+    // console.log(theme, color)
 
     return (
       <CenterContainer>
@@ -64,7 +65,10 @@ class PopupPreview extends Component {
                   this.renderField(field, index)
                 )}
               {btnText && (
-                <Button btnStyle="primary" style={{ backgroundColor: color }}>
+                <Button
+                  btnStyle="primary"
+                  style={{ backgroundColor: theme ? theme : color }}
+                >
                   {btnText}
                 </Button>
               )}

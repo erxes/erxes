@@ -61,7 +61,13 @@ const ImageContent = styled.div`
 
 const propTypes = {
   kind: PropTypes.string,
-  changeState: PropTypes.func
+  changeState: PropTypes.func,
+  title: PropTypes.string,
+  btnText: PropTypes.string,
+  bodyValue: PropTypes.string,
+  color: PropTypes.string,
+  theme: PropTypes.string,
+  image: PropTypes.string
 };
 
 class CallOut extends Component {
@@ -69,14 +75,8 @@ class CallOut extends Component {
     super(props);
 
     this.state = {
-      title: 'Contact',
-      bodyValue: 'Body description here',
-      btnText: 'Send',
-      color: '#04A9F5',
-      theme: '#04A9F5',
       logo: '',
-      logoPreviewStyle: {},
-      logoPreviewUrl: ''
+      logoPreviewStyle: {}
     };
 
     this.onColorChange = this.onColorChange.bind(this);
@@ -90,8 +90,10 @@ class CallOut extends Component {
   }
 
   onColorChange(e) {
-    this.setState({ color: e.hex });
-    this.props.changeState('color', e.hex);
+    this.setState({ color: e.hex, theme: '#000' }, () => {
+      this.props.changeState('color', e.hex);
+      this.props.changeState('theme', '');
+    });
   }
 
   onChangeText(value) {
@@ -144,15 +146,7 @@ class CallOut extends Component {
   }
 
   renderPreview() {
-    const { kind } = this.props;
-    const {
-      title,
-      bodyValue,
-      btnText,
-      color,
-      theme,
-      logoPreviewUrl
-    } = this.state;
+    const { kind, title, bodyValue, btnText, color, theme, image } = this.props;
 
     if (kind === 'shoutbox') {
       return (
@@ -162,7 +156,7 @@ class CallOut extends Component {
           btnText={btnText}
           color={color}
           theme={theme}
-          image={logoPreviewUrl}
+          image={image}
         />
       );
     } else if (kind === 'popup') {
@@ -173,7 +167,7 @@ class CallOut extends Component {
           btnText={btnText}
           color={color}
           theme={theme}
-          image={logoPreviewUrl}
+          image={image}
         />
       );
     }
@@ -184,7 +178,7 @@ class CallOut extends Component {
         btnText={btnText}
         color={color}
         theme={theme}
-        image={logoPreviewUrl}
+        image={image}
       />
     );
   }
@@ -192,7 +186,7 @@ class CallOut extends Component {
   renderThemeColor(value) {
     return (
       <BackgroundSelector
-        selected={this.state.theme === value}
+        selected={this.props.theme === value}
         onClick={() => this.onThemeChange(value)}
       >
         <div style={{ backgroundColor: value }} />
@@ -201,11 +195,11 @@ class CallOut extends Component {
   }
 
   renderUploadImage() {
-    const { logoPreviewUrl } = this.state;
+    const { image } = this.props;
 
-    return logoPreviewUrl ? (
+    return image ? (
       <div>
-        <img src={logoPreviewUrl} alt="previewImage" />
+        <img src={image} alt="previewImage" />
         <Icon
           icon="close"
           size={15}
@@ -222,7 +216,7 @@ class CallOut extends Component {
 
     const popoverTop = (
       <Popover id="color-picker">
-        <ChromePicker color={this.state.color} onChange={this.onColorChange} />
+        <ChromePicker color={this.props.color} onChange={this.onColorChange} />
       </Popover>
     );
 
@@ -233,7 +227,7 @@ class CallOut extends Component {
           <FormControl
             id="callout-title"
             type="text"
-            value={this.state.title}
+            value={this.props.title}
             onChange={e => this.onChangeText(e.target.value)}
           />
 
@@ -241,14 +235,14 @@ class CallOut extends Component {
           <FormControl
             id="callout-body"
             type="text"
-            value={this.state.bodyValue}
+            value={this.props.bodyValue}
             onChange={e => this.onChangeBody(e.target.value)}
           />
 
           <Title>{__('Callout button text')}</Title>
           <FormControl
             id="callout-btn-text"
-            value={this.state.btnText}
+            value={this.props.btnText}
             onChange={e => this.onChangeBtn(e.target.value)}
           />
 
@@ -269,7 +263,7 @@ class CallOut extends Component {
               overlay={popoverTop}
             >
               <ColorPicker>
-                <Picker style={{ backgroundColor: this.state.color }} />
+                <Picker style={{ backgroundColor: this.props.color }} />
               </ColorPicker>
             </OverlayTrigger>
           </ColorPick>

@@ -7,6 +7,10 @@ const StepItem = styled.div`
   box-shadow: 0 0 4px ${colors.colorShadowGray};
 `;
 
+const BoxRow = styled.div`
+  margin-bottom: 20px;
+`;
+
 const FullStep = styled.div`
   background: ${colors.colorWhite};
   height: 100%;
@@ -82,7 +86,8 @@ const LeftItem = styled.div`
 const Preview = styled.div`
   flex: 1;
   display: flex;
-  background: ${colors.bgLight};
+  border-left: 1px solid ${colors.borderPrimary};
+  margin: 20px 0;
   padding: ${dimensions.coreSpacing}px;
 `;
 
@@ -97,6 +102,9 @@ const CenterContainer = styled.div`
   align-items: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.6);
+  background: url('/images/preview.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 `;
 
 const Embedded = styled.div`
@@ -232,5 +240,6 @@ export {
   BackgroundSelector,
   BodyContent,
   Embedded,
-  FormBody
+  FormBody,
+  BoxRow
 };
