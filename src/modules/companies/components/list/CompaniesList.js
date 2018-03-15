@@ -223,7 +223,7 @@ class CompaniesList extends React.Component {
           />
         </ModalTrigger>
         <ModalTrigger title="New company" trigger={addTrigger}>
-          <CompanyForm addCompany={addCompany} />
+          <CompanyForm action={addCompany} />
         </ModalTrigger>
       </BarItems>
     );
