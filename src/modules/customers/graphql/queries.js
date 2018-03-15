@@ -16,6 +16,23 @@ const customerFields = `
     twitterData
     facebookData
 
+    ownerId
+    position
+    department
+    leadStatus
+    lifecycleState
+    hasAuthority
+    description
+    doNotDisturb
+    links {
+      linkedIn
+      twitter
+      facebook
+      github
+      youtube
+      website
+    }
+
     tagIds
     getTags {
       _id
