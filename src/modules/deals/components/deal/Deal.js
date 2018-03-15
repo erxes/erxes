@@ -89,6 +89,7 @@ class Deal extends React.Component {
               <DealHeader>
                 <h4>{deal.customer.firstName || deal.customer.email}</h4>
                 <span>{moment(deal.closeDate).format('YYYY-MM-DD')}</span>
+                <span>{deal.stageId}</span>
               </DealHeader>
               {deal.products ? <DealProduct products={deal.products} /> : null}
               <DealAmount>

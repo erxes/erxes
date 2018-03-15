@@ -22,6 +22,8 @@ class Container extends React.Component {
     const {
       boardsQuery,
       pipelinesQuery,
+      stagesQuery,
+      dealsQuery,
       dealsUpdateOrderMutation,
       stagesUpdateOrderMutation,
       dealsChangeMutation,
@@ -30,8 +32,15 @@ class Container extends React.Component {
 
     const boards = boardsQuery.dealBoards || [];
     const pipelines = pipelinesQuery.dealPipelines || [];
+    const stages = stagesQuery.dealStages || [];
+    const deals = dealsQuery.deals || [];
 
-    if (boardsQuery.loading || pipelinesQuery.loading) {
+    if (
+      boardsQuery.loading ||
+      pipelinesQuery.loading ||
+      stagesQuery.loading ||
+      dealsQuery.loading
+    ) {
       return <Spinner />;
     }
 
@@ -55,13 +64,21 @@ class Container extends React.Component {
     const dealsChange = (_id, stageId, pipelineId) => {
       dealsChangeMutation({
         variables: { _id, stageId, pipelineId }
-      });
+      })
+        .then(() => {
+          dealsQuery.refetch();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
     };
 
     // if move to other pipeline, will change pipelineId
     const stagesChange = (_id, pipelineId) => {
       stagesChangeMutation({
         variables: { _id, pipelineId }
+      }).catch(error => {
+        Alert.error(error.message);
       });
     };
 
@@ -69,6 +86,9 @@ class Container extends React.Component {
       ...this.props,
       boards,
       pipelines,
+      stages,
+      deals,
+      dealsRefetch: dealsQuery.refetch,
       dealsUpdateOrder,
       stagesUpdateOrder,
       dealsChange,
@@ -96,6 +116,30 @@ const BoardContainer = compose(
   graphql(gql(queries.boards), {
     name: 'boardsQuery'
   }),
+  graphql(gql(queries.pipelines), {
+    name: 'pipelinesQuery',
+    options: ({ currentBoardId }) => ({
+      variables: {
+        boardId: currentBoardId || ''
+      }
+    })
+  }),
+  graphql(gql(queries.stages), {
+    name: 'stagesQuery',
+    options: ({ currentBoardId }) => ({
+      variables: {
+        boardId: currentBoardId || ''
+      }
+    })
+  }),
+  graphql(gql(queries.deals), {
+    name: 'dealsQuery',
+    options: ({ currentBoardId }) => ({
+      variables: {
+        boardId: currentBoardId || ''
+      }
+    })
+  }),
   graphql(gql(mutations.dealsUpdateOrder), {
     name: 'dealsUpdateOrderMutation'
   }),
@@ -107,14 +151,6 @@ const BoardContainer = compose(
   }),
   graphql(gql(mutations.stagesChange), {
     name: 'stagesChangeMutation'
-  }),
-  graphql(gql(queries.pipelines), {
-    name: 'pipelinesQuery',
-    options: ({ currentBoardId }) => ({
-      variables: {
-        boardId: currentBoardId || ''
-      }
-    })
   })
 )(Container);
 

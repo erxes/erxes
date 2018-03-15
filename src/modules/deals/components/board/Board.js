@@ -6,16 +6,19 @@ import { Dropdown } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import { DragDropContext } from 'react-beautiful-dnd';
 
-import { Pipeline } from '../../containers';
+import { Pipeline } from '../';
 import { moveInList, addToList, removeFromList } from '../../utils';
 import { BarItems } from 'modules/layout/styles';
 import { Button, DropdownToggle, Icon } from 'modules/common/components';
+import { listObjectUnFreeze } from 'modules/common/utils';
 
 const propTypes = {
   currentBoard: PropTypes.object,
   boards: PropTypes.array,
   pipelines: PropTypes.array,
   stages: PropTypes.array,
+  dealsRefetch: PropTypes.func,
+  deals: PropTypes.array,
   dealsUpdateOrder: PropTypes.func,
   stagesUpdateOrder: PropTypes.func,
   dealsChange: PropTypes.func,
@@ -27,31 +30,57 @@ class Board extends React.Component {
     super(props);
 
     this.state = {
-      dealsByStage: {},
-      stagesByPipeline: {}
+      dealsByStage: this.collectDeals(listObjectUnFreeze(props.deals)),
+      stagesByPipeline: this.collectStages(listObjectUnFreeze(props.stages))
     };
 
-    this.collectDeals = this.collectDeals.bind(this);
-    this.collectStages = this.collectStages.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
   }
 
-  collectStages(pipelineId, stages) {
-    const stagesByPipeline = this.state.stagesByPipeline;
-    stagesByPipeline[pipelineId] = stages;
+  componentWillReceiveProps(nextProps) {
+    if (JSON.stringify(this.props.deals) !== JSON.stringify(nextProps.deals)) {
+      this.setState({
+        dealsByStage: this.collectDeals(listObjectUnFreeze(nextProps.deals))
+      });
+    }
 
-    this.setState({
-      stagesByPipeline
-    });
+    if (
+      JSON.stringify(this.props.stages) !== JSON.stringify(nextProps.stages)
+    ) {
+      this.setState({
+        stagesByPipeline: this.collectStages(
+          listObjectUnFreeze(nextProps.stages)
+        )
+      });
+    }
   }
 
-  collectDeals(stageId, deals) {
-    const dealsByStage = this.state.dealsByStage;
-    dealsByStage[stageId] = deals;
+  collectDeals(deals) {
+    const dealsByStage = {};
 
-    this.setState({
-      dealsByStage
+    deals.forEach(el => {
+      if (dealsByStage[el.stageId]) {
+        dealsByStage[el.stageId].push(el);
+      } else {
+        dealsByStage[el.stageId] = [el];
+      }
     });
+
+    return dealsByStage;
+  }
+
+  collectStages(stages) {
+    const stagesByPipeline = {};
+
+    stages.forEach(el => {
+      if (stagesByPipeline[el.pipelineId]) {
+        stagesByPipeline[el.pipelineId].push(el);
+      } else {
+        stagesByPipeline[el.pipelineId] = [el];
+      }
+    });
+
+    return stagesByPipeline;
   }
 
   collectOrders(list) {
@@ -118,10 +147,14 @@ class Board extends React.Component {
         el => el._id === draggableId
       );
 
-      change(draggableId, destination.droppableId, deal.pipelineId);
-    }
+      removedItem.stageId = destination.droppableId;
 
-    change(draggableId, destination.droppableId);
+      change(draggableId, destination.droppableId, deal.pipelineId);
+    } else {
+      removedItem.pipelineId = destination.droppableId;
+
+      change(draggableId, destination.droppableId);
+    }
 
     return list;
   }
@@ -142,7 +175,7 @@ class Board extends React.Component {
         );
 
         this.setState({
-          deals: reOrderedDeals
+          dealsByStage: reOrderedDeals
         });
 
         break;
@@ -156,7 +189,7 @@ class Board extends React.Component {
         );
 
         this.setState({
-          stages: reOrderedStages
+          stagesByPipeline: reOrderedStages
         });
 
         break;
@@ -211,8 +244,7 @@ class Board extends React.Component {
               boardId={currentBoard._id}
               stages={this.state.stagesByPipeline[pipeline._id] || []}
               dealsByStage={this.state.dealsByStage}
-              collectStages={this.collectStages}
-              collectDeals={this.collectDeals}
+              dealsRefetch={this.props.dealsRefetch}
             />
           );
         })}

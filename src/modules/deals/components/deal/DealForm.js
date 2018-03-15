@@ -369,5 +369,8 @@ class DealForm extends React.Component {
 }
 
 DealForm.propTypes = propTypes;
+DealForm.contextTypes = {
+  __: PropTypes.func
+};
 
 export default DealForm;

@@ -12,7 +12,6 @@ import {
 import { Icon } from 'modules/common/components';
 import { Deal } from '../';
 import { DealForm } from '../../containers';
-import { listObjectUnFreeze } from 'modules/common/utils';
 
 const propTypes = {
   stage: PropTypes.object.isRequired,
@@ -21,8 +20,7 @@ const propTypes = {
   deals: PropTypes.array,
   dealsFromDb: PropTypes.array,
   index: PropTypes.number.isRequired,
-  collectDeals: PropTypes.func.isRequired,
-  refetch: PropTypes.func.isRequired
+  dealsRefetch: PropTypes.func.isRequired
 };
 
 class Stage extends React.Component {
@@ -31,8 +29,6 @@ class Stage extends React.Component {
 
     this.showForm = this.showForm.bind(this);
     this.closeForm = this.closeForm.bind(this);
-
-    props.collectDeals(props.stage._id, listObjectUnFreeze(props.dealsFromDb));
 
     this.state = {
       amount: {},
@@ -53,16 +49,6 @@ class Stage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (
-      JSON.stringify(this.props.dealsFromDb) !==
-      JSON.stringify(nextProps.dealsFromDb)
-    ) {
-      this.props.collectDeals(
-        this.props.stage._id,
-        listObjectUnFreeze(nextProps.dealsFromDb)
-      );
-    }
-
     const amount = {};
 
     if (nextProps.deals.length > 0) {
@@ -78,7 +64,7 @@ class Stage extends React.Component {
   }
 
   render() {
-    const { stage, pipelineId, boardId, deals, refetch } = this.props;
+    const { stage, pipelineId, boardId, deals, dealsRefetch } = this.props;
 
     const amount = this.state.amount;
 
@@ -121,7 +107,7 @@ class Stage extends React.Component {
                               key={deal._id}
                               deal={deal}
                               index={index}
-                              refetch={refetch}
+                              refetch={dealsRefetch}
                             />
                           ))}
                         </div>
@@ -134,7 +120,7 @@ class Stage extends React.Component {
                       boardId={boardId}
                       pipelineId={pipelineId}
                       stageId={stage._id}
-                      refetch={refetch}
+                      refetch={dealsRefetch}
                       close={this.closeForm.bind(this)}
                       dealsLength={deals.length}
                     />

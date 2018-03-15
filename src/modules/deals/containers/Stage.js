@@ -38,7 +38,8 @@ export default compose(
     options: ({ stage }) => ({
       variables: {
         stageId: stage._id
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   })
 )(StageContainer);

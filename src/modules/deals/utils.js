@@ -1,5 +1,5 @@
 // Move in list
-export function moveInList(array, startIndex, endIndex) {
+export function moveInList(array = [], startIndex, endIndex) {
   const [removedItem] = array.splice(startIndex, 1);
   array.splice(endIndex, 0, removedItem);
 
@@ -7,13 +7,13 @@ export function moveInList(array, startIndex, endIndex) {
 }
 
 // Remove from list
-export function removeFromList(array, index) {
+export function removeFromList(array = [], index) {
   const [removedItem] = array.splice(index, 1);
   return { sourceList: array, removedItem };
 }
 
 // Add to list
-export function addToList(array, index, item) {
+export function addToList(array = [], index, item) {
   array.splice(index, 0, item);
   return array;
 }

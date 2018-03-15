@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Stage } from '../../containers';
+import { Stage } from '../';
 import { Droppable } from 'react-beautiful-dnd';
 import {
   PipelineContainer,
@@ -8,30 +8,25 @@ import {
   PipelineBody,
   EmptyStage
 } from '../../styles';
-import { listObjectUnFreeze } from 'modules/common/utils';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
   boardId: PropTypes.string,
   stages: PropTypes.array,
-  collectStages: PropTypes.func,
-  collectDeals: PropTypes.func,
   dealsByStage: PropTypes.object,
+  dealsRefetch: PropTypes.func,
   stagesFromDb: PropTypes.array
 };
 
 class Pipeline extends React.Component {
-  constructor(props) {
-    super(props);
-
-    props.collectStages(
-      props.pipeline._id,
-      listObjectUnFreeze(props.stagesFromDb)
-    );
-  }
-
   render() {
-    const { stages, pipeline, boardId, dealsByStage } = this.props;
+    const {
+      stages,
+      pipeline,
+      boardId,
+      dealsByStage,
+      dealsRefetch
+    } = this.props;
 
     return (
       <PipelineContainer>
@@ -58,7 +53,7 @@ class Pipeline extends React.Component {
                       boardId={boardId}
                       pipelineId={pipeline._id}
                       deals={dealsByStage[stage._id] || []}
-                      collectDeals={this.props.collectDeals}
+                      dealsRefetch={dealsRefetch}
                     />
                   );
                 })}
