@@ -28,7 +28,7 @@ class CustomerForm extends React.Component {
 
   action(e) {
     e.preventDefault();
-    console.log('asd');
+
     const firstName = document.getElementById('customer-firstname');
     const lastName = document.getElementById('customer-lastname');
     const email = document.getElementById('customer-email');
