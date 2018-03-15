@@ -7,6 +7,7 @@ import { queries, mutations } from '../graphql';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
+import { Alert } from 'modules/common/utils';
 import { CompanyDetails } from '../components';
 
 const CompanyDetailsContainer = (props, context) => {
@@ -29,13 +30,14 @@ const CompanyDetailsContainer = (props, context) => {
   //refetch for display customer change
   companyDetailQuery.refetch();
 
-  const save = (variables, callback) => {
-    companiesEdit({ variables: { _id: id, ...variables } })
+  const save = ({ doc, callback }) => {
+    companiesEdit({ variables: { _id: id, ...doc } })
       .then(() => {
+        Alert.success('Success');
         callback();
       })
       .catch(e => {
-        callback(e);
+        Alert.error(e.message);
       });
   };
 
