@@ -346,13 +346,13 @@ const AuthDescription = styled.div`
     color: ${colors.colorWhite};
   }
   p {
-    color: ${colors.colorPrimary};
+    color: rgba(255, 255, 255, 0.7);
     margin-bottom: 50px;
     font-size: 16px;
     line-height: 1.8em;
   }
   a {
-    color: ${colors.colorPrimary};
+    color: rgba(255, 255, 255, 0.7);
   }
   .not-found {
     margin-top: 0;
