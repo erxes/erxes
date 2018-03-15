@@ -6,6 +6,19 @@ export const types = `
     website: String
     industry: String
     plan: String
+
+    parentCompanyId: String
+    email: String
+    ownerId: String
+    phone: String
+    leadStatus: String
+    lifecycleState: String
+    businessType: String
+    description: String
+    employees: Int
+    doNotDisturb: String
+    links: CompanyLinks
+
     lastSeenAt: Date
     sessionCount: Int
     tagIds: [String]
@@ -19,6 +32,15 @@ export const types = `
   type CompaniesListResponse {
     list: [Company],
     totalCount: Float,
+  }
+
+  type CompanyLinks {
+    linkedIn: String
+    twitter: String
+    facebook: String
+    github: String
+    youtube: String
+    website: String
   }
 `;
 
@@ -44,6 +66,19 @@ const commonFields = `
   website: String,
   industry: String,
   plan: String,
+
+  parentCompanyId: String,
+  email: String,
+  ownerId: String,
+  phone: String,
+  leadStatus: String,
+  lifecycleState: String,
+  businessType: String,
+  description: String,
+  employees: Int,
+  doNotDisturb: String,
+  links: JSON,
+
   lastSeenAt: Date,
   sessionCount: Int,
   tagIds: [String]
