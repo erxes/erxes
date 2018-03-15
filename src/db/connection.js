@@ -48,8 +48,10 @@ export const graphqlRequest = async (mutation, name, args, context) => {
   const user = await userFactory({});
   const rootValue = {};
   const response = await graphql(schema, mutation, rootValue, context || { user }, args);
+
   if (response.errors) {
     throw response.errors;
   }
+
   return response.data[name];
 };
