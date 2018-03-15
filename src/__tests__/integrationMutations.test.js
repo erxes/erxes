@@ -1,11 +1,11 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
+import faker from 'faker';
 import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { Users, Integrations, Brands } from '../db/models';
 import { userFactory, integrationFactory, brandFactory } from '../db/factories';
 import { socUtils } from '../social/twitterTracker';
-import faker from 'faker';
 
 beforeAll(() => connect());
 
