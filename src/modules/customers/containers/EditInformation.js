@@ -8,6 +8,7 @@ import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import { EditInformation } from '../components/detail/sidebar';
 import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
+import { Alert } from 'modules/common/utils';
 
 const EditInformationContainer = (props, context) => {
   const { customer, customersEdit, fieldsGroupsQuery } = props;
@@ -22,15 +23,16 @@ const EditInformationContainer = (props, context) => {
 
   const { _id } = customer;
 
-  const save = (variables, callback) => {
+  const save = ({ doc, callback }) => {
     customersEdit({
-      variables: { _id: _id, ...variables }
+      variables: { _id: _id, ...doc }
     })
       .then(() => {
+        Alert.success('Success');
         callback();
       })
       .catch(e => {
-        callback(e);
+        Alert.error(e.message);
       });
   };
 
