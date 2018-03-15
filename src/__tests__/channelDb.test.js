@@ -1,10 +1,10 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
+import toBeType from 'jest-tobetype';
 import { connect, disconnect } from '../db/connection';
 import { userFactory, integrationFactory, channelFactory } from '../db/factories';
 import { Channels, Users, Integrations } from '../db/models';
-import toBeType from 'jest-tobetype';
 
 expect.extend(toBeType);
 
