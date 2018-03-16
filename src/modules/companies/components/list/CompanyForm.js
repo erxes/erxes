@@ -33,6 +33,12 @@ class CompanyForm extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      parentCompanyId: props.company.parentCompanyId || '',
+      ownerId: props.company.ownerId || '',
+      doNotDisturb: props.company.doNotDisturb || 'No'
+    };
+
     this.action = this.action.bind(this);
   }
 
@@ -43,16 +49,13 @@ class CompanyForm extends React.Component {
     const size = document.getElementById('company-size');
     const industry = document.getElementById('company-industry');
     const plan = document.getElementById('company-plan');
-    const parentCompany = document.getElementById('company-parentCompany');
     const email = document.getElementById('company-email');
-    const owner = document.getElementById('company-owner');
     const phone = document.getElementById('company-phone');
     const leadStatus = document.getElementById('company-leadStatus');
     const lifecycleState = document.getElementById('company-lifecycleState');
     const businessType = document.getElementById('company-businessType');
     const description = document.getElementById('company-description');
     const employees = document.getElementById('company-employees');
-    const doNotDisturb = document.getElementById('company-doNotDisturb');
 
     const linkedIn = document.getElementById('company-linkedIn');
     const twitter = document.getElementById('company-twitter');
@@ -68,16 +71,16 @@ class CompanyForm extends React.Component {
         size: size.value,
         industry: industry.value,
         plan: plan.value,
-        parentCompanyId: parentCompany.value,
+        parentCompanyId: this.state.parentCompanyId,
         email: email.value,
-        ownerId: owner.value,
+        ownerId: this.state.ownerId,
         phone: phone.value,
         leadStatus: leadStatus.value,
         lifecycleState: lifecycleState.value,
         businessType: businessType.value,
         description: description.value,
         employees: employees.value,
-        doNotDisturb: doNotDisturb.value,
+        doNotDisturb: this.state.doNotDisturb,
         links: {
           linkedIn: linkedIn.value,
           twitter: twitter.value,
@@ -136,7 +139,7 @@ class CompanyForm extends React.Component {
               <FormControl
                 id="company-size"
                 type="text"
-                defaultValue={company.size || ''}
+                defaultValue={company.size || 0}
               />
             </FormGroup>
 
@@ -167,7 +170,10 @@ class CompanyForm extends React.Component {
               <ControlLabel>Parent Company</ControlLabel>
               <Select
                 placeholder="Search..."
-                value={company.parentCompanyId || ''}
+                onChange={selectedOption => {
+                  this.setState({ parentCompanyId: selectedOption.value });
+                }}
+                value={this.state.parentCompanyId}
                 options={this.generateCompanyParams(companies)}
               />
             </FormGroup>
@@ -185,7 +191,10 @@ class CompanyForm extends React.Component {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search..."
-                value={company.ownerId || ''}
+                onChange={selectedOption => {
+                  this.setState({ ownerId: selectedOption.value });
+                }}
+                value={this.state.ownerId}
                 options={this.generateUserParams(users)}
               />
             </FormGroup>
@@ -255,7 +264,7 @@ class CompanyForm extends React.Component {
               <FormControl
                 id="company-employees"
                 type="text"
-                defaultValue={company.employees || ''}
+                defaultValue={company.employees || 0}
               />
             </FormGroup>
 
@@ -263,17 +272,21 @@ class CompanyForm extends React.Component {
               <ControlLabel>Do Not Disturb</ControlLabel>
               <FormControl
                 componentClass="radio"
-                name="doNotDisturb"
                 value="Yes"
-                checked={company.doNotDisturb === 'Yes'}
+                onChange={e => {
+                  this.setState({ doNotDisturb: e.target.value });
+                }}
+                checked={this.state.doNotDisturb === 'Yes'}
               >
                 Yes
               </FormControl>
               <FormControl
                 componentClass="radio"
-                name="doNotDisturb"
                 value="No"
-                checked={company.doNotDisturb === 'No'}
+                onChange={e => {
+                  this.setState({ doNotDisturb: e.target.value });
+                }}
+                checked={this.state.doNotDisturb === 'No'}
               >
                 No
               </FormControl>

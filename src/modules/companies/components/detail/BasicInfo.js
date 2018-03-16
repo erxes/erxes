@@ -76,7 +76,9 @@ class BasicInfo extends React.Component {
           </li>
           <li>
             Parent Company:
-            <SidebarCounter>{company.parentCompanyId || '-'}</SidebarCounter>
+            <SidebarCounter>
+              {company.parentCompany ? company.parentCompany.name : '-'}
+            </SidebarCounter>
           </li>
           <li>
             Email:
@@ -84,7 +86,9 @@ class BasicInfo extends React.Component {
           </li>
           <li>
             Owner:
-            <SidebarCounter>{company.ownerId || '-'}</SidebarCounter>
+            <SidebarCounter>
+              {company.owner.details ? company.owner.details.fullName : '-'}
+            </SidebarCounter>
           </li>
           <li>
             Phone:
