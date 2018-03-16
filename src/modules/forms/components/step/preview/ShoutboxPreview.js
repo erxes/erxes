@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { keyframes } from 'styled-components';
 import { Button } from 'modules/common/components';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import {
@@ -15,10 +16,31 @@ import {
   FieldTitle
 } from '../style';
 
+const slideright = keyframes`
+  0% {
+    transform: translateX(-20px);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+`;
+
 const ShoutBox = MessengerPreview.extend`
   background: url('/images/preview.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
+`;
+
+const Widget = Messenger.extend`
+  animation: ${slideright} 0.5s linear;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.3) 60%,
+    #eee 100%
+  );
 `;
 
 const propTypes = {
@@ -56,7 +78,7 @@ class ShoutboxPreview extends Component {
 
     return (
       <ShoutBox>
-        <Messenger>
+        <Widget>
           <WidgetPreviewStyled className="engage-message type-default">
             <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
               {title}
@@ -88,7 +110,7 @@ class ShoutboxPreview extends Component {
           <LogoContainer style={{ backgroundColor: theme ? theme : color }}>
             <LogoSpan>1</LogoSpan>
           </LogoContainer>
-        </Messenger>
+        </Widget>
       </ShoutBox>
     );
   }

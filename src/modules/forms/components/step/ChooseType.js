@@ -20,7 +20,7 @@ const Box = styled.div`
   margin-right: 20px;
 
   img {
-    width: 75px;
+    width: 40px;
     transition: all 0.5s ease;
   }
 
@@ -122,12 +122,12 @@ class ChooseType extends Component {
           <BoxRow>
             {this.renderBox(
               'ShoutBox',
-              '/images/icons/erxes-07.svg',
+              '/images/icons/shoutbox.svg',
               'shoutbox'
             )}
-            {this.renderBox('Popup', '/images/icons/erxes-08.svg', 'popup')}
+            {this.renderBox('Popup', '/images/icons/expand.svg', 'popup')}
           </BoxRow>
-          {this.renderBox('Embedded', '/images/icons/erxes-08.svg', 'embedded')}
+          {this.renderBox('Embedded', '/images/icons/computer.svg', 'embedded')}
         </LeftItem>
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>

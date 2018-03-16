@@ -1,5 +1,14 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
 
 const StepItem = styled.div`
   transition: all 0.3s;
@@ -79,7 +88,9 @@ const FlexItem = styled.div`
 `;
 
 const LeftItem = styled.div`
-  min-width: 600px;
+  position: relative;
+  overflow: auto;
+  min-width: 500px;
   padding: ${dimensions.coreSpacing}px;
 `;
 
@@ -99,16 +110,19 @@ const Title = styled.label`
 const CenterContainer = styled.div`
   display: flex;
   flex: 1;
+  position: relative;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.6);
   background: url('/images/preview.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
 `;
 
 const Embedded = styled.div`
-  width: 100%;
+  flex: 1;
+  margin: 20px;
+  padding: 5px;
+  box-shadow: 0 0 10px #edf1f5 inset;
 `;
 
 const FormContainer = styled.div`
@@ -117,6 +131,7 @@ const FormContainer = styled.div`
   border-radius: 5px;
   background-color: ${colors.colorWhite};
   width: 500px;
+  animation: ${fadeIn} 0.5s linear;
 `;
 
 const PopupTitle = styled.div`
@@ -214,6 +229,12 @@ const FieldTitle = styled.div`
   text-transform: capitalize;
 `;
 
+const OverlayTrigger = styled.div`
+  background-color: rgba(0, 0, 0, 0.5);
+  flex: 1;
+  height: 100%;
+`;
+
 export {
   StepItem,
   FullStep,
@@ -238,6 +259,7 @@ export {
   Picker,
   FieldTitle,
   BackgroundSelector,
+  OverlayTrigger,
   BodyContent,
   Embedded,
   FormBody,

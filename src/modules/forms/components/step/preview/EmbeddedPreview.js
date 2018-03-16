@@ -7,7 +7,8 @@ import {
   PreviewBody,
   BodyContent,
   FormBody,
-  FieldTitle
+  FieldTitle,
+  CenterContainer
 } from '../style';
 
 const propTypes = {
@@ -20,6 +21,15 @@ const propTypes = {
   thankContent: PropTypes.string,
   options: PropTypes.array
 };
+
+const EmbeddedPreviewBody = PreviewBody.extend`
+  background-color: #fff;
+`;
+
+const Container = CenterContainer.extend`
+  align-items: inherit;
+  display: block;
+`;
 
 class EmbeddedPreview extends Component {
   renderField(field, index) {
@@ -44,34 +54,36 @@ class EmbeddedPreview extends Component {
     } = this.props;
 
     return (
-      <Embedded>
-        <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
-          {title}
-        </PopupTitle>
-        <PreviewBody>
-          {image && (
-            <div>
-              <img src={image} alt="eee" />
-            </div>
-          )}
-          <BodyContent>
-            {bodyValue}
-            {thankContent && thankContent}
-            {options &&
-              this.props.options.map((field, index) =>
-                this.renderField(field, index)
-              )}
-            {btnText && (
-              <Button
-                btnStyle="primary"
-                style={{ backgroundColor: theme ? theme : color }}
-              >
-                {btnText}
-              </Button>
+      <Container>
+        <Embedded>
+          <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
+            {title}
+          </PopupTitle>
+          <EmbeddedPreviewBody>
+            {image && (
+              <div>
+                <img src={image} alt="eee" />
+              </div>
             )}
-          </BodyContent>
-        </PreviewBody>
-      </Embedded>
+            <BodyContent>
+              {bodyValue}
+              {thankContent && thankContent}
+              {options &&
+                this.props.options.map((field, index) =>
+                  this.renderField(field, index)
+                )}
+              {btnText && (
+                <Button
+                  btnStyle="primary"
+                  style={{ backgroundColor: theme ? theme : color }}
+                >
+                  {btnText}
+                </Button>
+              )}
+            </BodyContent>
+          </EmbeddedPreviewBody>
+        </Embedded>
+      </Container>
     );
   }
 }

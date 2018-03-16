@@ -8,7 +8,8 @@ import {
   PreviewBody,
   BodyContent,
   FormBody,
-  FieldTitle
+  FieldTitle,
+  OverlayTrigger
 } from '../style';
 
 const propTypes = {
@@ -43,10 +44,10 @@ class PopupPreview extends Component {
       options,
       thankContent
     } = this.props;
-    // console.log(theme, color)
 
     return (
       <CenterContainer>
+        <OverlayTrigger />
         <FormContainer>
           <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
             {title}

@@ -33,7 +33,6 @@ class Form extends Component {
       color: '#04A9F5',
       theme: '',
       logoPreviewUrl: '',
-      options: ['email'],
       validate: {
         step1: false,
         step2: true,

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { FormControl, Button, Icon } from 'modules/common/components';
+import { FormGroup, FormControl, Button } from 'modules/common/components';
 import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
-import { dimensions, colors } from 'modules/common/styles';
+import { colors } from 'modules/common/styles';
 import { FlexItem, LeftItem, Preview, Title } from './style';
 
 const Fields = styled.ul`
@@ -16,29 +16,24 @@ const Fields = styled.ul`
   }
 `;
 
-const Actions = styled.div`
-  margin-top: ${dimensions.coreSpacing}px;
+const FlexColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
-const FieldItem = styled.li`
-  padding: 6px 20px;
-  position: relative;
-  margin-bottom: ${dimensions.unitSpacing - 4}px;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: 2px;
+const Footer = styled.div`
   display: flex;
-  justify-content: space-between;
-  transition: all 0.3s ease;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 20px;
+  background: #fafafa;
+  height: 50px;
+  border-top: 1px solid #eee;
 
-  i {
-    display: none;
-    cursor: pointer;
-  }
-
-  &:hover {
-    i {
-      display: inline-block;
-    }
+  label {
+    margin-bottom: 0;
+    margin-right: 20px;
   }
 `;
 
@@ -54,88 +49,70 @@ const propTypes = {
   changeState: PropTypes.func
 };
 
+const editingFieldDefaultValue = {
+  isRequired: false
+};
+
 class FormStep extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      add: false,
-      options: ['email']
+      chosenFieldType: null,
+      editingField: editingFieldDefaultValue
     };
 
-    this.handleOption = this.handleOption.bind(this);
-    this.renderNewField = this.renderNewField.bind(this);
-    this.handleSaveOption = this.handleSaveOption.bind(this);
+    this.onChangeType = this.onChangeType.bind(this);
+    this.onChangeValidation = this.onChangeValidation.bind(this);
+    this.onChangeText = this.onChangeText.bind(this);
+    this.onChangeDescription = this.onChangeDescription.bind(this);
+    this.onChangeOptions = this.onChangeOptions.bind(this);
+    this.onChangeIsRequired = this.onChangeIsRequired.bind(this);
+
     this.renderOptions = this.renderOptions.bind(this);
-    this.handleCancelAddingOption = this.handleCancelAddingOption.bind(this);
+    this.footerActions = this.footerActions.bind(this);
+    this.renderOptionsTextArea = this.renderOptionsTextArea.bind(this);
   }
 
-  handleCancelAddingOption() {
-    this.setState({ add: false });
+  // componentWillReceiveProps(nextProps) {
+  //   this.setState({ fields: nextProps.fields });
+  // }
+
+  onFieldEdit(field) {
+    this.setState({ editingField: field });
   }
 
-  handleOption() {
-    this.setState({ add: !this.state.add });
+  onChangeType(e) {
+    this.setState({ chosenFieldType: e.target.value });
+    this.setChanges('type', e.target.value);
   }
 
-  handleRemoveOption(index) {
-    const { options } = this.state;
-
-    this.setState({
-      options: options.splice(index, 1) && options
-    });
-    this.props.changeState('options', options);
+  onChangeValidation(e) {
+    this.setChanges('validation', e.target.value);
   }
 
-  handleSaveOption() {
-    const { options } = this.state;
-    const optionValue = document.getElementById('optionValue').value;
-
-    this.setState({ options: [...options, optionValue] }, () => {
-      this.props.changeState('options', this.state.options);
-    });
+  onChangeText(e) {
+    this.setChanges('text', e.target.value);
   }
 
-  renderNewField() {
-    if (this.state.add) {
-      return (
-        <div>
-          <FormControl
-            componentClass="select"
-            placeholder="Select a Field"
-            defaultValue=""
-            onChange={this.handleSaveOption}
-            id="optionValue"
-          >
-            <option />
-            <option>FirstName</option>
-            <option>LastName</option>
-            <option>Phone</option>
-          </FormControl>
-          <Actions>
-            <Button
-              type="success"
-              btnStyle="simple"
-              size="small"
-              onClick={this.handleOption}
-            >
-              Cancel
-            </Button>
-          </Actions>
-        </div>
-      );
-    }
+  onChangeDescription(e) {
+    this.setChanges('description', e.target.value);
+  }
 
-    return (
-      <Button
-        onClick={this.handleOption}
-        btnStyle="link"
-        size="small"
-        icon="plus"
-      >
-        Add another form field
-      </Button>
-    );
+  setChanges(attributeName, value) {
+    const { editingField } = this.state;
+
+    editingField[attributeName] = value;
+
+    this.setState({ editingField });
+  }
+
+  onChangeOptions(e) {
+    this.setChanges('options', e.target.value.split('\n'));
+  }
+
+  onChangeIsRequired(e) {
+    this.setChanges('isRequired', e.target.checked);
   }
 
   renderPreview() {
@@ -160,6 +137,9 @@ class FormStep extends Component {
           theme={theme}
           image={image}
           options={options}
+          // fields={this.state.fields}
+          onFieldEdit={this.onFieldEdit}
+          // onSort={this.props.onSort}
         />
       );
     } else if (kind === 'popup') {
@@ -188,35 +168,184 @@ class FormStep extends Component {
     );
   }
 
-  renderOption(option, index) {
+  renderButtons() {
+    const _id = this.state.editingField._id;
+
+    if (_id) {
+      // reset editing field state
+      const reset = () => {
+        this.setState({ editingField: editingFieldDefaultValue });
+      };
+
+      const onDelete = e => {
+        e.preventDefault();
+
+        // remove field from state
+        const fields = this.state.fields.filter(field => field._id !== _id);
+
+        this.setState({ fields });
+
+        // remove field from db
+        // this.props.deleteField(_id);
+
+        reset();
+      };
+
+      return (
+        <Button.Group>
+          <Button
+            size="small"
+            btnStyle="danger"
+            onClick={onDelete}
+            icon="close"
+          >
+            Delete
+          </Button>
+          <Button size="small" btnStyle="primary" onClick={reset} icon="plus">
+            New
+          </Button>
+          <Button
+            size="small"
+            onClick={this.onSubmit}
+            btnStyle="success"
+            icon="checkmark"
+          >
+            Save
+          </Button>
+        </Button.Group>
+      );
+    }
     return (
-      <FieldItem key={index}>
-        {option}
-        <Icon icon="close" onClick={() => this.handleRemoveOption(index)} />
-      </FieldItem>
+      <Button
+        size="small"
+        onClick={this.onSubmit}
+        btnStyle="primary"
+        icon="plus"
+      >
+        Add
+      </Button>
+    );
+  }
+
+  footerActions() {
+    const { __ } = this.context;
+
+    return (
+      <Footer>
+        <FormControl
+          checked={this.state.editingField.isRequired || false}
+          id="isRequired"
+          componentClass="checkbox"
+          onChange={this.onChangeIsRequired}
+        >
+          {__('This item is required')}
+        </FormControl>
+
+        {this.renderButtons()}
+      </Footer>
+    );
+  }
+
+  renderOptionsTextArea() {
+    const { editingField, chosenFieldType } = this.state;
+
+    if (
+      !['select', 'check', 'radio'].includes(
+        chosenFieldType || editingField.type
+      )
+    ) {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <Title htmlFor="type">Options:</Title>
+
+        <FormControl
+          id="options"
+          componentClass="textarea"
+          value={(editingField.options || []).join('\n')}
+          onChange={this.onChangeOptions}
+        />
+      </FormGroup>
     );
   }
 
   renderOptions() {
+    const editingField = this.state.editingField;
+    const { __ } = this.context;
+
     return (
       <Fields>
-        {this.state.options.map((option, index) =>
-          this.renderOption(option, index)
-        )}
-        {this.renderNewField()}
+        <FormGroup>
+          <Title htmlFor="type">Type:</Title>
+
+          <FormControl
+            id="type"
+            componentClass="select"
+            value={editingField.type || ''}
+            onChange={this.onChangeType}
+          >
+            <option />
+            <option value="input">Input</option>
+            <option value="textarea">Text area</option>
+            <option value="select">Select</option>
+            <option value="check">Checkbox</option>
+            <option value="radio">Radio button</option>
+            <option value="email">Email</option>
+            <option value="firstName">{__('First name')}</option>
+            <option value="lastName">{__('Last name')}</option>
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <Title htmlFor="validation">Validation:</Title>
+
+          <FormControl
+            id="validation"
+            componentClass="select"
+            value={editingField.validation || ''}
+            onChange={this.onChangeValidation}
+          >
+            <option />
+            <option value="email">{__('Email')}</option>
+            <option value="number">{__('Number')}</option>
+            <option value="date">{__('Date')}</option>
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <Title htmlFor="text">Text:</Title>
+          <FormControl
+            id="text"
+            type="text"
+            value={editingField.text || ''}
+            onChange={this.onChangeText}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <Title htmlFor="description">Description:</Title>
+          <FormControl
+            id="description"
+            componentClass="textarea"
+            value={editingField.description || ''}
+            onChange={this.onChangeDescription}
+          />
+        </FormGroup>
+
+        {this.renderOptionsTextArea()}
       </Fields>
     );
   }
 
   render() {
-    const { __ } = this.context;
-
     return (
       <FlexItem>
-        <LeftItem>
-          <Title>{__('Included fields')}</Title>
-          {this.renderOptions()}
-        </LeftItem>
+        <FlexColumn>
+          <LeftItem>{this.renderOptions()}</LeftItem>
+          {this.footerActions()}
+        </FlexColumn>
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>
     );
