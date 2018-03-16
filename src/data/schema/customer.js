@@ -45,6 +45,7 @@ export const types = `
     getIntegrationData: JSON
     getMessengerCustomData: JSON
     getTags: [Tag]
+    owner: User
   }
 
   type CustomersListResponse {

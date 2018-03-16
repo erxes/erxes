@@ -18,6 +18,8 @@ export const types = `
     employees: Int
     doNotDisturb: String
     links: CompanyLinks
+    owner: User
+    parentCompany: Company
 
     lastSeenAt: Date
     sessionCount: Int
