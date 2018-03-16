@@ -173,11 +173,13 @@ const dealMutations = {
 
   /**
    * Update deal orders
-   * @param [OrderItem] [{ _id: [deal id], order: [order value] }]
-   * @return {Promise} updated deals
+   * @param {String} _id deal id
+   * @param OrderItem source { _id: [stage id], order: [order value] }
+   * @param OrderItem destination { _id: [stage id], order: [order value] }
+   * @return {Promise} updated deal
    */
-  dealsUpdateOrder(root, { orders }) {
-    return Deals.updateOrder(orders);
+  dealsUpdateOrder(root, params) {
+    return Deals.updateOrder(params);
   },
 
   /**

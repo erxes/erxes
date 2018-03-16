@@ -51,8 +51,8 @@ export const queries = `
   dealBoardGetLast: DealBoard
   dealBoardDetail(_id: String!): DealBoard
   dealPipelines(boardId: String!): [DealPipeline]
-  dealStages(boardId: String, pipelineId: String): [DealStage]
-  deals(boardId: String, pipelineId: String, stageId: String): [Deal]
+  dealStages(boardId: String, pipelineId: String!): [DealStage]
+  deals(boardId: String, pipelineId: String, stageId: String!): [Deal]
 `;
 
 const dealMutationParams = `
@@ -91,6 +91,6 @@ export const mutations = `
 	dealsAdd(${dealMutationParams}): Deal
 	dealsEdit(_id: String!, ${dealMutationParams}): Deal
 	dealsChange( _id: String!, boardId: String, pipelineId: String, stageId: String!): Deal
-  dealsUpdateOrder(orders: [OrderItem]): [Deal]
+  dealsUpdateOrder(_id: String, source: OrderItem, destination: OrderItem): Deal
   dealsRemove(_id: String!): String
 `;

@@ -36,6 +36,70 @@ const updateListOrder = async (collection, orders) => {
 };
 
 /*
+ * Update given collections orders
+ *
+ * @param OrderItem source
+ * [{
+ *  _id: {String} id
+ *  order: {Number} order
+ * }] 
+ * 
+ * @param OrderItem destination
+ * [{
+ *  _id: {String} id
+ *  order: {Number} order
+ * }]
+ *
+ * @return Object updated deal
+ */
+const updateDealOrder = async (collection, { _id, source, destination }) => {
+  if (source._id === destination._id) {
+    const selector = { stageId: source._id };
+
+    if (source.order > destination.order) {
+      selector.order = { $gt: destination.order, $lt: source.order };
+    } else {
+      selector.order = { $gt: source.order, $lt: destination.order };
+    }
+
+    const list = await collection.find(selector);
+
+    list.forEach(async el => {
+      await collection.update({ _id: el._id }, { $set: { order: el.order - 1 } });
+    });
+
+    // update order
+    await collection.update({ _id }, { $set: { order: destination.order } });
+  } else {
+    const sourceList = await collection.find({
+      stageId: source._id,
+      order: { $gt: source.order },
+    });
+
+    sourceList.forEach(async el => {
+      await collection.update({ _id: el._id }, { $set: { order: el.order - 1 } });
+    });
+
+    const destinationList = await collection.find({
+      stageId: destination._id,
+      order: { $gte: destination.order },
+    });
+
+    destinationList.forEach(async el => {
+      await collection.update({ _id: el._id }, { $set: { order: el.order + 1 } });
+    });
+
+    // update order
+    await collection.update(
+      { _id },
+      { $set: { order: destination.order, stageId: destination._id } },
+    );
+  }
+
+  return collection.findOne({ _id });
+};
+
+/*
  * Create pipelines with stages
  *
  * @param {[Stage]} stages
@@ -339,8 +403,8 @@ class Deal {
    *
    * @return [Deal] updated deals
    */
-  static async updateOrder(orders) {
-    return await updateListOrder(this, orders);
+  static async updateOrder(params) {
+    return await updateDealOrder(this, params);
   }
 
   /**
