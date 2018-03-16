@@ -425,7 +425,7 @@ export const retweet = async ({ integrationId, id }) => {
   const response = await twitRequest.post(twit, 'statuses/retweet/:id', { id });
 
   // update main tweet's data
-  updateTwitterData({ twit, tweetId: response.retweeted_status.id_str });
+  await updateTwitterData({ twit, tweetId: response.retweeted_status.id_str });
 
   return response;
 };
@@ -439,7 +439,7 @@ export const favorite = async ({ integrationId, id }) => {
   const response = await twitRequest.post(twit, 'favorites/create', { id });
 
   // update main tweet's data
-  updateTwitterData({ twit, tweetId: response.id_str });
+  await updateTwitterData({ twit, tweetId: response.id_str });
 
   return response;
 };
