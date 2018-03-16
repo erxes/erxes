@@ -36,6 +36,6 @@ export default {
     return Companies.find({ _id: { $in: customer.companyIds || [] } });
   },
   owner(customer) {
-    return Users.find({ _id: customer.ownerId });
+    return Users.findOne({ _id: customer.ownerId });
   },
 };

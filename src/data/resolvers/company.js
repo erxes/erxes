@@ -9,9 +9,9 @@ export default {
     return Tags.find({ _id: { $in: company.tagIds || [] } });
   },
   owner(company) {
-    return Users.find({ _id: company.ownerId });
+    return Users.findOne({ _id: company.ownerId });
   },
   parentCompany(company) {
-    return Companies.find({ _id: company.parentCompanyId });
+    return Companies.findOne({ _id: company.parentCompanyId });
   },
 };
