@@ -32,6 +32,11 @@ const customerFields = `
       youtube
       website
     }
+    owner {
+      details {
+        fullName
+      }
+    }
 
     tagIds
     getTags {
