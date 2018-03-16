@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
-import { ModalTrigger, Icon } from 'modules/common/components';
+import { ModalTrigger, Button, Icon } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
 import { CustomerAssociate } from 'modules/customers/containers';
 import { ManageGroups } from 'modules/settings/properties/components';
@@ -51,11 +51,38 @@ class LeftSidebar extends ManageGroups {
     );
   }
 
+  renderSidebarFooter() {
+    if (!this.state.editing) {
+      return null;
+    }
+
+    return (
+      <Sidebar.Footer>
+        <Button
+          btnStyle="simple"
+          size="small"
+          onClick={this.cancelEditing}
+          icon="close"
+        >
+          Discard
+        </Button>
+        <Button
+          btnStyle="success"
+          size="small"
+          onClick={this.save}
+          icon="checkmark"
+        >
+          Save
+        </Button>
+      </Sidebar.Footer>
+    );
+  }
+
   render() {
     const { company } = this.props;
 
     return (
-      <Sidebar wide>
+      <Sidebar wide footer={this.renderSidebarFooter()}>
         <BasicInfo company={company} />
         {this.renderGroups(company)}
         {this.renderCustomers()}

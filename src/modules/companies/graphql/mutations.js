@@ -14,6 +14,7 @@ const commonFields = `
   $employees: Int,
   $doNotDisturb: String,
   $links: JSON
+  $customFieldsData: JSON
 `;
 
 const commonVariables = `
@@ -32,6 +33,7 @@ const commonVariables = `
   employees: $employees,
   doNotDisturb: $doNotDisturb,
   links: $links
+  customFieldsData: $customFieldsData
 `;
 
 const companiesAdd = `

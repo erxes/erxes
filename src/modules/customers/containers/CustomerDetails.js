@@ -12,7 +12,7 @@ const CustomerDetailsContainer = (props, context) => {
 
   if (customerDetailQuery.loading) {
     return (
-      <Sidebar full>
+      <Sidebar full wide>
         <Spinner />
       </Sidebar>
     );

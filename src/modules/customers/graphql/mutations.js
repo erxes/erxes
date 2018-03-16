@@ -12,6 +12,7 @@ const commonFields = `
   $description: String,
   $doNotDisturb: String,
   $links: JSON
+  $customFieldsData: JSON
 `;
 
 const commonVariables = `
@@ -28,6 +29,7 @@ const commonVariables = `
   description: $description,
   doNotDisturb: $doNotDisturb,
   links: $links
+  customFieldsData: $customFieldsData
 `;
 
 const customersAdd = `
