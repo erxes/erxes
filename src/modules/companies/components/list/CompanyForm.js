@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Select from 'react-select-plus';
 import {
   Button,
   FormGroup,
@@ -17,7 +18,10 @@ import {
 
 const propTypes = {
   action: PropTypes.func.isRequired,
-  company: PropTypes.object
+  company: PropTypes.object,
+  users: PropTypes.array,
+  companies: PropTypes.array,
+  companiesQuery: PropTypes.object
 };
 
 const contextTypes = {
@@ -92,9 +96,23 @@ class CompanyForm extends React.Component {
     });
   }
 
+  generateCompanyParams(companies) {
+    return companies.map(company => ({
+      value: company._id,
+      label: company.name || ''
+    }));
+  }
+
+  generateUserParams(users) {
+    return users.map(user => ({
+      value: user._id,
+      label: user.details.fullName || ''
+    }));
+  }
+
   render() {
     const { __ } = this.context;
-    const { company = {} } = this.props;
+    const { company = {}, companies, users } = this.props;
     const { links = {} } = company;
 
     return (
@@ -147,10 +165,10 @@ class CompanyForm extends React.Component {
 
             <FormGroup>
               <ControlLabel>Parent Company</ControlLabel>
-              <FormControl
-                id="company-parentCompany"
-                type="text"
-                defaultValue={company.parentCompanyId || ''}
+              <Select
+                placeholder="Search..."
+                value={company.parentCompanyId || ''}
+                options={this.generateCompanyParams(companies)}
               />
             </FormGroup>
 
@@ -165,10 +183,10 @@ class CompanyForm extends React.Component {
 
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
-              <FormControl
-                id="company-owner"
-                type="text"
-                defaultValue={company.ownerId || ''}
+              <Select
+                placeholder="Search..."
+                value={company.ownerId || ''}
+                options={this.generateUserParams(users)}
               />
             </FormGroup>
 
@@ -244,10 +262,21 @@ class CompanyForm extends React.Component {
             <FormGroup>
               <ControlLabel>Do Not Disturb</ControlLabel>
               <FormControl
-                id="company-doNotDisturb"
-                type="text"
-                defaultValue={company.doNotDisturb || ''}
-              />
+                componentClass="radio"
+                name="doNotDisturb"
+                value="Yes"
+                checked={company.doNotDisturb === 'Yes'}
+              >
+                Yes
+              </FormControl>
+              <FormControl
+                componentClass="radio"
+                name="doNotDisturb"
+                value="No"
+                checked={company.doNotDisturb === 'No'}
+              >
+                No
+              </FormControl>
             </FormGroup>
           </FormColumn>
 
