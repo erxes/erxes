@@ -87,7 +87,7 @@ class BasicInfo extends React.Component {
           <li>
             Owner:
             <SidebarCounter>
-              {company.owner.details ? company.owner.details.fullName : '-'}
+              {company.owner ? company.owner.details.fullName : '-'}
             </SidebarCounter>
           </li>
           <li>

@@ -57,7 +57,6 @@ const CompanyFromContainer = props => {
 
 CompanyFromContainer.propTypes = {
   company: PropTypes.object,
-  action: PropTypes.func,
   companiesQuery: PropTypes.object,
   usersQuery: PropTypes.object,
   companiesEdit: PropTypes.func,
