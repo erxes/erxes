@@ -10,7 +10,7 @@ import { AvatarWrapper } from 'modules/activityLogs/styles';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
 import { Links } from 'modules/settings/team/components/detail/styles';
-import { CustomerForm } from '../../';
+import { CustomerForm } from '../../../containers';
 import { NameWrapper } from './styles';
 
 const propTypes = {

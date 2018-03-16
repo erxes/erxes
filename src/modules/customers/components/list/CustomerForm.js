@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Select from 'react-select-plus';
 import {
   Button,
   FormGroup,
@@ -11,7 +12,8 @@ import { FormWrapper, FormColumn, ColumnTitle } from '../../styles';
 
 const propTypes = {
   customer: PropTypes.object,
-  action: PropTypes.func.isRequired
+  action: PropTypes.func.isRequired,
+  users: PropTypes.array
 };
 
 const contextTypes = {
@@ -23,6 +25,12 @@ class CustomerForm extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      ownerId: props.customer.ownerId || '',
+      doNotDisturb: props.customer.doNotDisturb || 'No',
+      hasAuthority: props.customer.hasAuthority || 'No'
+    };
+
     this.action = this.action.bind(this);
   }
 
@@ -32,15 +40,12 @@ class CustomerForm extends React.Component {
     const firstName = document.getElementById('customer-firstname');
     const lastName = document.getElementById('customer-lastname');
     const email = document.getElementById('customer-email');
-    const owner = document.getElementById('customer-owner');
     const phone = document.getElementById('customer-phone');
     const position = document.getElementById('customer-position');
     const department = document.getElementById('customer-department');
     const leadStatus = document.getElementById('customer-leadStatus');
     const lifecycleState = document.getElementById('customer-lifecycleState');
-    const hasAuthority = document.getElementById('customer-hasAuthority');
     const description = document.getElementById('customer-description');
-    const doNotDisturb = document.getElementById('customer-doNotDisturb');
     const linkedIn = document.getElementById('customer-linkedin');
     const twitter = document.getElementById('customer-twitter');
     const facebook = document.getElementById('customer-facebook');
@@ -53,15 +58,15 @@ class CustomerForm extends React.Component {
         firstName: firstName.value,
         lastName: lastName.value,
         email: email.value,
-        owner: owner.value,
+        ownerId: this.state.ownerId,
         phone: phone.value,
         position: position.value,
         department: department.value,
         leadStatus: leadStatus.value,
         lifecycleState: lifecycleState.value,
-        hasAuthority: hasAuthority.value,
+        hasAuthority: this.state.hasAuthority,
         description: description.value,
-        doNotDisturb: doNotDisturb.value,
+        doNotDisturb: this.state.doNotDisturb,
 
         links: {
           linkedIn: linkedIn.value,
@@ -82,9 +87,16 @@ class CustomerForm extends React.Component {
     });
   }
 
+  generateUserParams(users) {
+    return users.map(user => ({
+      value: user._id,
+      label: user.details.fullName || ''
+    }));
+  }
+
   render() {
     const { __, closeModal } = this.context;
-    const { customer = {} } = this.props;
+    const { customer = {}, users } = this.props;
     const { links = {} } = customer;
 
     return (
@@ -132,9 +144,13 @@ class CustomerForm extends React.Component {
 
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
-              <FormControl
-                id="customer-owner"
-                defaultValue={customer.ownerId || ''}
+              <Select
+                placeholder="Search..."
+                onChange={selectedOption => {
+                  this.setState({ ownerId: selectedOption.value });
+                }}
+                value={this.state.ownerId}
+                options={this.generateUserParams(users)}
               />
             </FormGroup>
 
@@ -195,9 +211,25 @@ class CustomerForm extends React.Component {
             <FormGroup>
               <ControlLabel>Has Authority</ControlLabel>
               <FormControl
-                id="customer-hasAuthority"
-                defaultValue={customer.hasAuthority || ''}
-              />
+                componentClass="radio"
+                value="Yes"
+                onChange={e => {
+                  this.setState({ hasAuthority: e.target.value });
+                }}
+                checked={this.state.hasAuthority === 'Yes'}
+              >
+                Yes
+              </FormControl>
+              <FormControl
+                componentClass="radio"
+                value="No"
+                onChange={e => {
+                  this.setState({ hasAuthority: e.target.value });
+                }}
+                checked={this.state.hasAuthority === 'No'}
+              >
+                No
+              </FormControl>
             </FormGroup>
 
             <FormGroup>
@@ -211,9 +243,25 @@ class CustomerForm extends React.Component {
             <FormGroup>
               <ControlLabel>Do not disturb</ControlLabel>
               <FormControl
-                id="customer-doNotDisturb"
-                defaultValue={customer.doNotDisturb || ''}
-              />
+                componentClass="radio"
+                value="Yes"
+                onChange={e => {
+                  this.setState({ doNotDisturb: e.target.value });
+                }}
+                checked={this.state.doNotDisturb === 'Yes'}
+              >
+                Yes
+              </FormControl>
+              <FormControl
+                componentClass="radio"
+                value="No"
+                onChange={e => {
+                  this.setState({ doNotDisturb: e.target.value });
+                }}
+                checked={this.state.doNotDisturb === 'No'}
+              >
+                No
+              </FormControl>
             </FormGroup>
           </FormColumn>
 
