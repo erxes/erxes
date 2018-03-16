@@ -3,19 +3,16 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
-import { queries, mutations } from '../graphql';
+import { queries } from '../graphql';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
-import { Alert } from 'modules/common/utils';
 import { CompanyDetails } from '../components';
 
 const CompanyDetailsContainer = (props, context) => {
   const {
-    id,
     companyDetailQuery,
     companyActivityLogQuery,
-    companiesEdit,
     fieldsGroupsQuery
   } = props;
 
@@ -30,20 +27,8 @@ const CompanyDetailsContainer = (props, context) => {
   //refetch for display customer change
   companyDetailQuery.refetch();
 
-  const save = ({ doc, callback }) => {
-    companiesEdit({ variables: { _id: id, ...doc } })
-      .then(() => {
-        Alert.success('Success');
-        callback();
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
   const updatedProps = {
     ...props,
-    save,
     loadingLogs: companyActivityLogQuery.loading,
     company: companyDetailQuery.companyDetail,
     customFieldsData: companyDetailQuery.companyDetail.customFieldsData || {},
@@ -59,19 +44,12 @@ CompanyDetailsContainer.propTypes = {
   id: PropTypes.string,
   companyDetailQuery: PropTypes.object,
   fieldsGroupsQuery: PropTypes.object,
-  companiesEdit: PropTypes.func,
   companyActivityLogQuery: PropTypes.object
 };
 
 CompanyDetailsContainer.contextTypes = {
   currentUser: PropTypes.object
 };
-
-const options = ({ id }) => ({
-  refetchQueries: [
-    { query: gql`${queries.companyDetail}`, variables: { _id: id } }
-  ]
-});
 
 export default compose(
   graphql(gql(queries.companyDetail), {
@@ -97,9 +75,5 @@ export default compose(
         contentType: FIELDS_GROUPS_CONTENT_TYPES.COMPANY
       }
     })
-  }),
-  graphql(gql(mutations.companiesEdit), {
-    name: 'companiesEdit',
-    options
   })
 )(CompanyDetailsContainer);

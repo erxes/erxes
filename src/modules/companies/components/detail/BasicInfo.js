@@ -4,11 +4,10 @@ import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { Icon, ModalTrigger } from 'modules/common/components';
 import { Links } from 'modules/settings/team/components/detail/styles';
-import { CompanyForm } from '../';
+import { CompanyForm } from '../../containers';
 
 const propTypes = {
-  company: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired
+  company: PropTypes.object.isRequired
 };
 
 const contextTypes = {
@@ -42,7 +41,7 @@ class BasicInfo extends React.Component {
 
   renderInfo() {
     const { __ } = this.context;
-    const { company, save } = this.props;
+    const { company } = this.props;
     const { links = {} } = company;
     const { Title, QuickButtons } = Sidebar.Section;
 
@@ -52,7 +51,7 @@ class BasicInfo extends React.Component {
 
         <QuickButtons>
           <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
-            <CompanyForm action={save} company={company} />
+            <CompanyForm company={company} />
           </ModalTrigger>
         </QuickButtons>
 
@@ -66,10 +65,6 @@ class BasicInfo extends React.Component {
           <li>
             {__('Size:')}
             <SidebarCounter>{company.size || '-'}</SidebarCounter>
-          </li>
-          <li>
-            {__('Website:')}
-            <SidebarCounter>{company.website || '-'}</SidebarCounter>
           </li>
           <li>
             {__('Industry:')}

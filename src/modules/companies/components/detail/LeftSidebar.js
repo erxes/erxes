@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
-import { ModalTrigger, Button, Icon } from 'modules/common/components';
+import { ModalTrigger, Icon } from 'modules/common/components';
+import { renderFullName } from 'modules/common/utils';
 import { CustomerAssociate } from 'modules/customers/containers';
 import { ManageGroups } from 'modules/settings/properties/components';
 import { CustomersWrapper, CustomerWrapper } from '../../styles';
@@ -12,18 +13,10 @@ import BasicInfo from './BasicInfo';
 const propTypes = {
   company: PropTypes.object.isRequired,
   fieldsGroups: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired,
   customFieldsData: PropTypes.object
 };
 
 class LeftSidebar extends ManageGroups {
-  renderFullName(customer) {
-    if (customer.firstName || customer.lastName) {
-      return (customer.firstName || '') + ' ' + (customer.lastName || '');
-    }
-    return customer.email || customer.phone || 'N/A';
-  }
-
   renderCustomers() {
     const { company } = this.props;
     const { Section } = Sidebar;
@@ -50,7 +43,7 @@ class LeftSidebar extends ManageGroups {
                 <Icon icon="android-arrow-forward" />
               </Link>
               <span>{__('Name')}: </span>
-              <span>{this.renderFullName(customer)}</span>
+              <span>{renderFullName(customer)}</span>
             </CustomerWrapper>
           ))}
         </CustomersWrapper>
@@ -58,39 +51,12 @@ class LeftSidebar extends ManageGroups {
     );
   }
 
-  renderSidebarFooter() {
-    if (!this.state.editing) {
-      return null;
-    }
-
-    return (
-      <Sidebar.Footer>
-        <Button
-          btnStyle="simple"
-          size="small"
-          onClick={this.cancelBasicInfoEditing}
-          icon="close"
-        >
-          Discard
-        </Button>
-        <Button
-          btnStyle="success"
-          size="small"
-          onClick={this.save}
-          icon="checkmark"
-        >
-          Save
-        </Button>
-      </Sidebar.Footer>
-    );
-  }
-
   render() {
-    const { company, save } = this.props;
+    const { company } = this.props;
 
     return (
-      <Sidebar wide footer={this.renderSidebarFooter()}>
-        <BasicInfo company={company} save={save} />
+      <Sidebar wide>
+        <BasicInfo company={company} />
         {this.renderGroups(company)}
         {this.renderCustomers()}
         <TaggerSection data={company} type="company" />
