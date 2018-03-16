@@ -5,7 +5,7 @@ const companyFields = `
   industry
   website
   plan
-  
+
   parentCompanyId
   email
   ownerId
@@ -23,6 +23,14 @@ const companyFields = `
     github
     youtube
     website
+  }
+  owner {
+    details {
+      fullName
+    }
+  }
+  parentCompany {
+    name
   }
 
   customFieldsData

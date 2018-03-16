@@ -68,9 +68,9 @@ CompanyFromContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-const options = ({ id }) => ({
+const options = ({ company }) => ({
   refetchQueries: [
-    { query: gql`${queries.companyDetail}`, variables: { _id: id } }
+    { query: gql`${queries.companyDetail}`, variables: { _id: company._id } }
   ]
 });
 
