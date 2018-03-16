@@ -17,7 +17,8 @@ const propTypes = {
   copy: PropTypes.func,
   remove: PropTypes.func,
   refetch: PropTypes.func,
-  deal: PropTypes.object
+  deal: PropTypes.object,
+  saveDeal: PropTypes.func
 };
 
 class QuickEdit extends React.Component {
@@ -81,12 +82,12 @@ class QuickEdit extends React.Component {
   }
 
   render() {
-    const { deal, refetch, top, bottom, left, close } = this.props;
+    const { deal, refetch, top, bottom, left, close, saveDeal } = this.props;
 
     return (
       <QuickEditContainer top={top} bottom={bottom} left={left}>
         <div>
-          <DealForm close={close} deal={deal} refetch={refetch} />
+          <DealForm close={close} deal={deal} saveDeal={saveDeal} />
           <RightControls>
             <Button btnStyle="link" onClick={this.toggleMove}>
               Move

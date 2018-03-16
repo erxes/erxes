@@ -14,11 +14,11 @@ class PipelineContainer extends React.Component {
       return <Spinner />;
     }
 
-    const stagesFromDb = stagesQuery.dealStages;
+    const stages = stagesQuery.dealStages;
 
     const extendedProps = {
       ...this.props,
-      stagesFromDb
+      stages
     };
 
     return <Pipeline {...extendedProps} />;

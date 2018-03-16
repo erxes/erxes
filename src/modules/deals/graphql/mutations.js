@@ -49,8 +49,8 @@ const dealsRemove = `
 `;
 
 const dealsUpdateOrder = `
-  mutation dealsUpdateOrder($orders: [OrderItem]) {
-    dealsUpdateOrder(orders: $orders) {
+  mutation dealsUpdateOrder($_id: String, $source: OrderItem, $destination: OrderItem) {
+    dealsUpdateOrder(_id: $_id, source: $source, destination: $destination) {
       _id
     }
   }

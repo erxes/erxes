@@ -22,31 +22,20 @@ class Container extends React.Component {
     const {
       boardsQuery,
       pipelinesQuery,
-      stagesQuery,
-      dealsQuery,
       dealsUpdateOrderMutation,
-      stagesUpdateOrderMutation,
-      dealsChangeMutation,
-      stagesChangeMutation
+      stagesUpdateOrderMutation
     } = this.props;
 
     const boards = boardsQuery.dealBoards || [];
     const pipelines = pipelinesQuery.dealPipelines || [];
-    const stages = stagesQuery.dealStages || [];
-    const deals = dealsQuery.deals || [];
 
-    if (
-      boardsQuery.loading ||
-      pipelinesQuery.loading ||
-      stagesQuery.loading ||
-      dealsQuery.loading
-    ) {
+    if (boardsQuery.loading || pipelinesQuery.loading) {
       return <Spinner />;
     }
 
-    const dealsUpdateOrder = orders => {
+    const dealsUpdateOrder = (_id, source, destination) => {
       dealsUpdateOrderMutation({
-        variables: { orders }
+        variables: { _id, source, destination }
       }).catch(error => {
         Alert.error(error.message);
       });
@@ -60,39 +49,12 @@ class Container extends React.Component {
       });
     };
 
-    // if move to other stage, will change stageId and pipelineId
-    const dealsChange = (_id, stageId, pipelineId) => {
-      dealsChangeMutation({
-        variables: { _id, stageId, pipelineId }
-      })
-        .then(() => {
-          dealsQuery.refetch();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
-
-    // if move to other pipeline, will change pipelineId
-    const stagesChange = (_id, pipelineId) => {
-      stagesChangeMutation({
-        variables: { _id, pipelineId }
-      }).catch(error => {
-        Alert.error(error.message);
-      });
-    };
-
     const extendedProps = {
       ...this.props,
       boards,
       pipelines,
-      stages,
-      deals,
-      dealsRefetch: dealsQuery.refetch,
       dealsUpdateOrder,
-      stagesUpdateOrder,
-      dealsChange,
-      stagesChange
+      stagesUpdateOrder
     };
 
     return <BoardComponent {...extendedProps} />;
@@ -124,33 +86,11 @@ const BoardContainer = compose(
       }
     })
   }),
-  graphql(gql(queries.stages), {
-    name: 'stagesQuery',
-    options: ({ currentBoardId }) => ({
-      variables: {
-        boardId: currentBoardId || ''
-      }
-    })
-  }),
-  graphql(gql(queries.deals), {
-    name: 'dealsQuery',
-    options: ({ currentBoardId }) => ({
-      variables: {
-        boardId: currentBoardId || ''
-      }
-    })
-  }),
   graphql(gql(mutations.dealsUpdateOrder), {
     name: 'dealsUpdateOrderMutation'
   }),
   graphql(gql(mutations.stagesUpdateOrder), {
     name: 'stagesUpdateOrderMutation'
-  }),
-  graphql(gql(mutations.dealsChange), {
-    name: 'dealsChangeMutation'
-  }),
-  graphql(gql(mutations.stagesChange), {
-    name: 'stagesChangeMutation'
   })
 )(Container);
 

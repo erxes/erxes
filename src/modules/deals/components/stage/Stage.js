@@ -18,9 +18,8 @@ const propTypes = {
   boardId: PropTypes.string,
   pipelineId: PropTypes.string,
   deals: PropTypes.array,
-  dealsFromDb: PropTypes.array,
   index: PropTypes.number.isRequired,
-  dealsRefetch: PropTypes.func.isRequired
+  saveDeal: PropTypes.func.isRequired
 };
 
 class Stage extends React.Component {
@@ -64,7 +63,7 @@ class Stage extends React.Component {
   }
 
   render() {
-    const { stage, pipelineId, boardId, deals, dealsRefetch } = this.props;
+    const { stage, pipelineId, boardId, deals, saveDeal } = this.props;
 
     const amount = this.state.amount;
 
@@ -107,7 +106,7 @@ class Stage extends React.Component {
                               key={deal._id}
                               deal={deal}
                               index={index}
-                              refetch={dealsRefetch}
+                              saveDeal={saveDeal}
                             />
                           ))}
                         </div>
@@ -120,9 +119,9 @@ class Stage extends React.Component {
                       boardId={boardId}
                       pipelineId={pipelineId}
                       stageId={stage._id}
-                      refetch={dealsRefetch}
                       close={this.closeForm.bind(this)}
                       dealsLength={deals.length}
+                      saveDeal={saveDeal}
                     />
                   ) : (
                     <AddNewDeal onClick={this.showForm.bind(this)}>

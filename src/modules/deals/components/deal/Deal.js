@@ -15,7 +15,7 @@ import {
 const propTypes = {
   deal: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
-  refetch: PropTypes.func.isRequired
+  saveDeal: PropTypes.func.isRequired
 };
 
 class Deal extends React.Component {
@@ -60,7 +60,7 @@ class Deal extends React.Component {
   }
 
   render() {
-    const { deal, refetch, index } = this.props;
+    const { deal } = this.props;
 
     if (this.state.showQuickEdit) {
       const { top, bottom, left } = this.state;
@@ -72,13 +72,13 @@ class Deal extends React.Component {
           left={left}
           close={this.closeQuickEditForm}
           deal={deal}
-          refetch={refetch}
+          saveDeal={this.props.saveDeal}
         />
       );
     }
 
     return (
-      <Draggable draggableId={deal._id} index={index}>
+      <Draggable draggableId={deal._id} index={this.props.index}>
         {provided => (
           <div>
             <DealContainer
@@ -89,7 +89,7 @@ class Deal extends React.Component {
               <DealHeader>
                 <h4>{deal.customer.firstName || deal.customer.email}</h4>
                 <span>{moment(deal.closeDate).format('YYYY-MM-DD')}</span>
-                <span>{deal.stageId}</span>
+                <span>{deal.order}</span>
               </DealHeader>
               {deal.products ? <DealProduct products={deal.products} /> : null}
               <DealAmount>

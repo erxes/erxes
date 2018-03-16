@@ -28,10 +28,8 @@ import { ProductForm, DealProduct } from '../';
 import { selectUserOptions } from '../../utils';
 
 const propTypes = {
-  deal: PropTypes.object,
-  save: PropTypes.func.isRequired,
+  saveDeal: PropTypes.func.isRequired,
   close: PropTypes.func.isRequired,
-  refetch: PropTypes.func.isRequired,
   boardId: PropTypes.string,
   pipelineId: PropTypes.string,
   stageId: PropTypes.string,
@@ -121,10 +119,9 @@ class DealForm extends React.Component {
       doc.note = note;
     }
 
-    this.props.save(
+    this.props.saveDeal(
       doc,
       () => {
-        this.props.refetch();
         this.props.close();
       },
       this.props.deal

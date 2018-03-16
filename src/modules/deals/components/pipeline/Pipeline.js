@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Stage } from '../';
+import { Stage } from '../../containers';
 import { Droppable } from 'react-beautiful-dnd';
 import {
   PipelineContainer,
@@ -20,13 +20,7 @@ const propTypes = {
 
 class Pipeline extends React.Component {
   render() {
-    const {
-      stages,
-      pipeline,
-      boardId,
-      dealsByStage,
-      dealsRefetch
-    } = this.props;
+    const { stages, pipeline, boardId } = this.props;
 
     return (
       <PipelineContainer>
@@ -52,8 +46,6 @@ class Pipeline extends React.Component {
                       index={index}
                       boardId={boardId}
                       pipelineId={pipeline._id}
-                      deals={dealsByStage[stage._id] || []}
-                      dealsRefetch={dealsRefetch}
                     />
                   );
                 })}

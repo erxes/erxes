@@ -36,7 +36,7 @@ const pipelines = `
 `;
 
 const stages = `
-  query dealStages($pipelineId: String, $boardId: String) {
+  query dealStages($pipelineId: String!, $boardId: String) {
     dealStages(pipelineId: $pipelineId, boardId: $boardId) {
       _id
       name
@@ -46,7 +46,7 @@ const stages = `
 `;
 
 const deals = `
-  query deals($stageId: String, $boardId: String) {
+  query deals($stageId: String!, $boardId: String) {
     deals(stageId: $stageId, boardId: $boardId) {
       _id
       stageId
