@@ -34,7 +34,6 @@ const propTypes = {
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
-  addCustomer: PropTypes.func.isRequired,
   location: PropTypes.object,
   history: PropTypes.object,
   loading: PropTypes.bool.isRequired,
@@ -126,7 +125,6 @@ class CustomersList extends React.Component {
     const {
       counts,
       bulk,
-      addCustomer,
       tags,
       emptyBulk,
       loading,
@@ -180,7 +178,7 @@ class CustomersList extends React.Component {
           </Dropdown.Menu>
         </Dropdown>
         <ModalTrigger title="New customer" trigger={addTrigger} size="lg">
-          <CustomerForm action={addCustomer} />
+          <CustomerForm />
         </ModalTrigger>
       </BarItems>
     );
