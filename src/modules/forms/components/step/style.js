@@ -131,6 +131,9 @@ const FormContainer = styled.div`
   border-radius: 5px;
   background-color: ${colors.colorWhite};
   width: 500px;
+  max-height: 400px;
+  overflow: hidden;
+  z-index: 2;
   animation: ${fadeIn} 0.5s linear;
 `;
 
@@ -147,6 +150,7 @@ const PreviewBody = styled.div`
   color: ${colors.textPrimary};
   display: flex;
   overflow: auto;
+  max-height: 300px;
   background: #fafafa;
 
   img {
@@ -156,7 +160,7 @@ const PreviewBody = styled.div`
 
   button {
     width: 100%;
-    margin-top: 20px;
+    margin: 20px 0;
   }
 `;
 
@@ -231,8 +235,82 @@ const FieldTitle = styled.div`
 
 const OverlayTrigger = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
-  flex: 1;
-  height: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+`;
+
+const PreviewForm = styled.div`
+  margin-top: 20px;
+`;
+
+const DragableItem = styled.div`
+  position: relative;
+`;
+
+const DragHandler = styled.span`
+  cursor: move;
+  position: absolute;
+  top: 8px;
+  right: 20px;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  opacity: 1;
+  visibility: visible;
+  border: 1px solid ${colors.borderPrimary};
+  box-shadow: 0 0 4px ${colors.shadowPrimary};
+  transition: all 0.3s ease;
+
+  i {
+    margin: 0;
+    font-size: 16px;
+  }
+`;
+
+const FieldItem = styled.div`
+  &:hover {
+    cursor: pointer;
+  }
+
+  input,
+  textarea,
+  select {
+    border: 1px solid ${colors.colorShadowGray};
+    border-radius: 4px;
+    display: block;
+    outline: 0;
+    height: 34px;
+    padding: 8px 14px;
+    width: 100%;
+    background: transparent;
+    margin-top: 10px;
+
+    &:focus {
+      box-shadow: none;
+      border-color: ${colors.colorSecondary};
+    }
+  }
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    width: auto;
+    height: auto;
+    display: inline-block;
+    margin-right: 7px;
+    padding: 0;
+  }
+
+  textarea {
+    overflow: auto;
+    height: auto;
+  }
 `;
 
 export {
@@ -263,5 +341,9 @@ export {
   BodyContent,
   Embedded,
   FormBody,
-  BoxRow
+  BoxRow,
+  PreviewForm,
+  DragableItem,
+  DragHandler,
+  FieldItem
 };

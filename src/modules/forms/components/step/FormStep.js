@@ -46,7 +46,12 @@ const propTypes = {
   theme: PropTypes.string,
   image: PropTypes.string,
   options: PropTypes.array,
-  changeState: PropTypes.func
+  changeState: PropTypes.func,
+  addField: PropTypes.func.isRequired,
+  editField: PropTypes.func.isRequired,
+  deleteField: PropTypes.func.isRequired,
+  onSort: PropTypes.func.isRequired,
+  fields: PropTypes.array.isRequired
 };
 
 const editingFieldDefaultValue = {
@@ -58,6 +63,7 @@ class FormStep extends Component {
     super(props);
 
     this.state = {
+      fields: props.fields,
       chosenFieldType: null,
       editingField: editingFieldDefaultValue
     };
@@ -72,11 +78,12 @@ class FormStep extends Component {
     this.renderOptions = this.renderOptions.bind(this);
     this.footerActions = this.footerActions.bind(this);
     this.renderOptionsTextArea = this.renderOptionsTextArea.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   this.setState({ fields: nextProps.fields });
-  // }
+  componentWillReceiveProps(nextProps) {
+    this.setState({ fields: nextProps.fields });
+  }
 
   onFieldEdit(field) {
     this.setState({ editingField: field });
@@ -97,6 +104,32 @@ class FormStep extends Component {
 
   onChangeDescription(e) {
     this.setChanges('description', e.target.value);
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+
+    const editingField = this.state.editingField;
+    console.log(editingField);
+    const doc = {
+      type: editingField.type,
+      validation: editingField.validation,
+      text: editingField.text,
+      description: editingField.description,
+      options: editingField.options,
+      isRequired: editingField.isRequired
+    };
+
+    if (editingField._id) {
+      return this.props.editField(editingField._id, doc);
+    }
+
+    return this.props.addField(doc, fieldId => {
+      // newly created field to fields state
+      doc._id = fieldId;
+      this.state.fields.push(doc);
+      this.setState({ fields: this.state.fields });
+    });
   }
 
   setChanges(attributeName, value) {
@@ -137,9 +170,6 @@ class FormStep extends Component {
           theme={theme}
           image={image}
           options={options}
-          // fields={this.state.fields}
-          onFieldEdit={this.onFieldEdit}
-          // onSort={this.props.onSort}
         />
       );
     } else if (kind === 'popup') {
@@ -152,6 +182,9 @@ class FormStep extends Component {
           theme={theme}
           image={image}
           options={options}
+          fields={this.state.fields}
+          onFieldEdit={this.onFieldEdit}
+          onSort={this.props.onSort}
         />
       );
     }
@@ -186,7 +219,7 @@ class FormStep extends Component {
         this.setState({ fields });
 
         // remove field from db
-        // this.props.deleteField(_id);
+        this.props.deleteField(_id);
 
         reset();
       };

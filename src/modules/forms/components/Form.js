@@ -2,14 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Button, Icon } from 'modules/common/components';
-import {
-  ChooseType,
-  Steps,
-  Step,
-  CallOut,
-  FormStep,
-  SuccessStep
-} from './step';
+import { ChooseType, Steps, Step, CallOut, SuccessStep } from './step';
+import { FormStep } from '../containers';
 import { StepWrapper } from '../styles';
 
 const propTypes = {

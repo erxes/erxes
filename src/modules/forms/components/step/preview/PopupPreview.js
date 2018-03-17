@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'modules/common/components';
+import { FormPreview } from './';
 import {
   CenterContainer,
   FormContainer,
   PopupTitle,
   PreviewBody,
   BodyContent,
-  FormBody,
-  FieldTitle,
   OverlayTrigger
 } from '../style';
 
@@ -20,19 +19,12 @@ const propTypes = {
   theme: PropTypes.string,
   image: PropTypes.string,
   thankContent: PropTypes.string,
-  options: PropTypes.array
+  fields: PropTypes.array, // eslint-disable-line
+  onFieldEdit: PropTypes.func,
+  onSort: PropTypes.func
 };
 
 class PopupPreview extends Component {
-  renderField(field, index) {
-    return (
-      <FormBody key={index}>
-        <FieldTitle>{field}:</FieldTitle>
-        <input />
-      </FormBody>
-    );
-  }
-
   render() {
     const {
       theme,
@@ -41,7 +33,9 @@ class PopupPreview extends Component {
       bodyValue,
       btnText,
       image,
-      options,
+      fields,
+      onFieldEdit,
+      onSort,
       thankContent
     } = this.props;
 
@@ -53,18 +47,17 @@ class PopupPreview extends Component {
             {title}
           </PopupTitle>
           <PreviewBody>
-            {image && (
-              <div>
-                <img src={image} alt="eee" />
-              </div>
-            )}
+            {image && <img src={image} alt="eee" />}
             <BodyContent>
               {bodyValue}
+              {fields && (
+                <FormPreview
+                  fields={fields}
+                  onFieldEdit={onFieldEdit}
+                  onSort={onSort}
+                />
+              )}
               {thankContent && thankContent}
-              {options &&
-                this.props.options.map((field, index) =>
-                  this.renderField(field, index)
-                )}
               {btnText && (
                 <Button
                   btnStyle="primary"
@@ -82,5 +75,7 @@ class PopupPreview extends Component {
 }
 
 PopupPreview.propTypes = propTypes;
-
+PopupPreview.defaultProps = {
+  fields: []
+};
 export default PopupPreview;
