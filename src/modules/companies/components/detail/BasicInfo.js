@@ -4,23 +4,23 @@ import { Sidebar } from 'modules/layout/components';
 import {
   SidebarContent,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from 'modules/layout/styles';
 import {
   Button,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 const contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class BasicInfo extends React.Component {
@@ -28,7 +28,7 @@ class BasicInfo extends React.Component {
     super(props);
 
     this.state = {
-      editing: false
+      editing: false,
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -42,7 +42,7 @@ class BasicInfo extends React.Component {
       size: document.getElementById('size').value,
       website: document.getElementById('website').value,
       industry: document.getElementById('industry').value,
-      plan: document.getElementById('plan').value
+      plan: document.getElementById('plan').value,
     };
 
     this.props.save(doc, error => {
@@ -59,7 +59,7 @@ class BasicInfo extends React.Component {
 
   cancelEditing() {
     this.setState({
-      editing: false
+      editing: false,
     });
   }
 

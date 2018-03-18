@@ -7,7 +7,7 @@ import {
   Button,
   FormGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/styles';
 
@@ -43,7 +43,7 @@ class Facebook extends Component {
       name: document.getElementById('name').value,
       brandId: document.getElementById('selectBrand').value,
       appId: document.getElementById('app').value,
-      pageIds: this.collectCheckboxValues('pages')
+      pageIds: this.collectCheckboxValues('pages'),
     });
   }
 
@@ -107,11 +107,11 @@ Facebook.propTypes = {
   onAppSelect: PropTypes.func.isRequired,
   brands: PropTypes.array.isRequired,
   apps: PropTypes.array.isRequired,
-  pages: PropTypes.array.isRequired
+  pages: PropTypes.array.isRequired,
 };
 
 Facebook.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default Facebook;

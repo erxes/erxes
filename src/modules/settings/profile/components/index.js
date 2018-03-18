@@ -7,5 +7,5 @@ export {
   EditProfile,
   ChangePassword,
   NotificationSettings,
-  PasswordConfirmation
+  PasswordConfirmation,
 };

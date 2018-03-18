@@ -90,5 +90,5 @@ export default {
 
   socialFacebook,
   socialFacebookMessenger,
-  socialTwitter
+  socialTwitter,
 };

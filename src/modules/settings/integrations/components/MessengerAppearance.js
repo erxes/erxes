@@ -20,7 +20,7 @@ import {
   ColorPick,
   BackgroundSelector,
   ColorPicker,
-  LogoContainer
+  LogoContainer,
 } from '../../styles';
 
 class Appearance extends Component {
@@ -32,7 +32,7 @@ class Appearance extends Component {
       wallpaper: props.prevOptions.wallpaper || '1',
       logo: props.prevOptions.logo,
       logoPreviewStyle: {},
-      logoPreviewUrl: props.prevOptions.logo || '/images/logo-image.png'
+      logoPreviewUrl: props.prevOptions.logo || '/images/logo-image.png',
     };
 
     this.save = this.save.bind(this);
@@ -62,13 +62,13 @@ class Appearance extends Component {
       afterUpload: ({ response }) => {
         this.setState({
           logo: response,
-          logoPreviewStyle: { opacity: '1' }
+          logoPreviewStyle: { opacity: '1' },
         });
       },
 
       afterRead: ({ result }) => {
         this.setState({ logoPreviewUrl: result });
-      }
+      },
     });
   }
 
@@ -78,7 +78,7 @@ class Appearance extends Component {
     this.props.save({
       color: this.state.color,
       wallpaper: this.state.wallpaper,
-      logo: this.state.logo
+      logo: this.state.logo,
     });
   }
 
@@ -156,9 +156,9 @@ class Appearance extends Component {
                   style={Object.assign(
                     {
                       backgroundColor: this.state.color,
-                      backgroundImage: `url(${logoPreviewUrl})`
+                      backgroundImage: `url(${logoPreviewUrl})`,
                     },
-                    logoPreviewStyle
+                    logoPreviewStyle,
                   )}
                 >
                   <label>
@@ -179,7 +179,7 @@ class Appearance extends Component {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings/integrations' },
-      { title: __('Integrations') }
+      { title: __('Integrations') },
     ];
 
     const actionBar = (
@@ -219,11 +219,11 @@ class Appearance extends Component {
 Appearance.propTypes = {
   prevOptions: PropTypes.object.isRequired, // eslint-disable-line
   user: PropTypes.object.isRequired, // eslint-disable-line
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 Appearance.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default Appearance;

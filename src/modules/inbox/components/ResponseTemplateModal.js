@@ -5,7 +5,7 @@ import {
   Button,
   FormControl,
   FormGroup,
-  ControlLabel
+  ControlLabel,
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/styles';
 
@@ -13,11 +13,11 @@ const propTypes = {
   onSave: PropTypes.func.isRequired,
   brands: PropTypes.array,
   trigger: PropTypes.node,
-  brandId: PropTypes.string.isRequired
+  brandId: PropTypes.string.isRequired,
 };
 
 const contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class ResponseTemplateModal extends Component {
@@ -30,7 +30,7 @@ class ResponseTemplateModal extends Component {
   onSave() {
     const doc = {
       brandId: document.getElementById('template-brand-id').value,
-      name: document.getElementById('template-name').value
+      name: document.getElementById('template-name').value,
     };
 
     this.props.onSave(doc.brandId, doc.name);

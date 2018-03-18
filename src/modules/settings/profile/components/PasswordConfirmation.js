@@ -4,16 +4,16 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button
+  Button,
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
-  onSuccess: PropTypes.func.isRequired
+  onSuccess: PropTypes.func.isRequired,
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
 };
 
 class PasswordConfirmation extends Component {

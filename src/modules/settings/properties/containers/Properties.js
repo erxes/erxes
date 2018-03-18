@@ -18,7 +18,7 @@ const PropertiesContainer = props => {
     fieldsRemove,
     fieldsGroupsUpdateVisible,
     fieldsUpdateVisible,
-    queryParams
+    queryParams,
   } = props;
 
   if (!router.getParam(history, 'type')) {
@@ -27,7 +27,7 @@ const PropertiesContainer = props => {
 
   const removePropertyGroup = ({ _id }) => {
     fieldsGroupsRemove({
-      variables: { _id }
+      variables: { _id },
     })
       .then(() => {
         Alert.success('Successfully Removed');
@@ -39,7 +39,7 @@ const PropertiesContainer = props => {
 
   const removeProperty = ({ _id }) => {
     fieldsRemove({
-      variables: { _id }
+      variables: { _id },
     })
       .then(() => {
         Alert.success('Succesfully Removed');
@@ -51,7 +51,7 @@ const PropertiesContainer = props => {
 
   const updatePropertyVisible = ({ _id, isVisible }) => {
     fieldsUpdateVisible({
-      variables: { _id, isVisible }
+      variables: { _id, isVisible },
     })
       .then(() => {
         Alert.success('Successfully Updated');
@@ -63,7 +63,7 @@ const PropertiesContainer = props => {
 
   const updatePropertyGroupVisible = ({ _id, isVisible }) => {
     fieldsGroupsUpdateVisible({
-      variables: { _id, isVisible }
+      variables: { _id, isVisible },
     })
       .then(() => {
         Alert.success('Successfully Updated');
@@ -92,7 +92,7 @@ const PropertiesContainer = props => {
     removePropertyGroup,
     removeProperty,
     updatePropertyVisible,
-    updatePropertyGroupVisible
+    updatePropertyGroupVisible,
   };
 
   return <Properties {...updatedProps} />;
@@ -105,16 +105,18 @@ PropertiesContainer.propTypes = {
   fieldsGroupsRemove: PropTypes.func.isRequired,
   fieldsRemove: PropTypes.func.isRequired,
   fieldsGroupsUpdateVisible: PropTypes.func.isRequired,
-  fieldsUpdateVisible: PropTypes.func.isRequired
+  fieldsUpdateVisible: PropTypes.func.isRequired,
 };
 
 const options = ({ queryParams }) => ({
   refetchQueries: [
     {
-      query: gql`${queries.fieldsGroups}`,
-      variables: { contentType: queryParams.type }
-    }
-  ]
+      query: gql`
+        ${queries.fieldsGroups}
+      `,
+      variables: { contentType: queryParams.type },
+    },
+  ],
 });
 
 export default compose(
@@ -122,24 +124,24 @@ export default compose(
     name: 'fieldsGroupsQuery',
     options: ({ queryParams }) => ({
       variables: {
-        contentType: queryParams.type || ''
-      }
-    })
+        contentType: queryParams.type || '',
+      },
+    }),
   }),
   graphql(gql(mutations.fieldsGroupsRemove), {
     name: 'fieldsGroupsRemove',
-    options
+    options,
   }),
   graphql(gql(mutations.fieldsRemove), {
     name: 'fieldsRemove',
-    options
+    options,
   }),
   graphql(gql(mutations.fieldsUpdateVisible), {
     name: 'fieldsUpdateVisible',
-    options
+    options,
   }),
   graphql(gql(mutations.fieldsGroupsUpdateVisible), {
     name: 'fieldsGroupsUpdateVisible',
-    options
-  })
+    options,
+  }),
 )(withRouter(PropertiesContainer));

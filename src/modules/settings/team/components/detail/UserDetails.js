@@ -11,7 +11,7 @@ import {
   TabTitle,
   Icon,
   DataWithLoader,
-  LoadMore
+  LoadMore,
 } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
 import {
@@ -19,7 +19,7 @@ import {
   ActivityWrapper,
   AvatarWrapper,
   ActivityCaption,
-  ActivityDate
+  ActivityDate,
 } from 'modules/activityLogs/styles';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
@@ -33,7 +33,7 @@ const propTypes = {
   channels: PropTypes.array,
   loadingLogs: PropTypes.bool,
   activityLogsUser: PropTypes.array,
-  totalConversationCount: PropTypes.number
+  totalConversationCount: PropTypes.number,
 };
 
 class UserDetails extends React.Component {
@@ -84,7 +84,7 @@ class UserDetails extends React.Component {
       activityLogsUser,
       loadingLogs,
       user,
-      totalConversationCount
+      totalConversationCount,
     } = this.props;
 
     if (currentTab === 'conversation') {
@@ -133,7 +133,7 @@ class UserDetails extends React.Component {
 
     const breadcrumb = [
       { title: 'Users', link: '/settings/team' },
-      { title: details.fullName || 'N/A' }
+      { title: details.fullName || 'N/A' },
     ];
 
     const content = (
@@ -181,7 +181,7 @@ class UserDetails extends React.Component {
 UserDetails.propTypes = propTypes;
 UserDetails.contextTypes = {
   __: PropTypes.func,
-  currentUser: PropTypes.object
+  currentUser: PropTypes.object,
 };
 
 export default UserDetails;

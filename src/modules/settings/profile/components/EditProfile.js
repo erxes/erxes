@@ -7,7 +7,7 @@ import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   currentUser: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 class EditProfile extends Component {
@@ -30,7 +30,7 @@ class EditProfile extends Component {
         position: document.getElementById('position').value,
         location: document.getElementById('user-location').value,
         description: document.getElementById('description').value,
-        twitterUsername: document.getElementById('twitterUsername').value
+        twitterUsername: document.getElementById('twitterUsername').value,
       },
       links: {
         linkedIn: document.getElementById('linkedin').value,
@@ -38,9 +38,9 @@ class EditProfile extends Component {
         facebook: document.getElementById('facebook').value,
         youtube: document.getElementById('youtube').value,
         github: document.getElementById('github').value,
-        website: document.getElementById('website').value
+        website: document.getElementById('website').value,
       },
-      password
+      password,
     });
 
     this.context.closeModal();
@@ -91,7 +91,7 @@ class EditProfile extends Component {
 EditProfile.propTypes = propTypes;
 EditProfile.contextTypes = {
   __: PropTypes.func,
-  closeModal: PropTypes.func
+  closeModal: PropTypes.func,
 };
 
 export default EditProfile;

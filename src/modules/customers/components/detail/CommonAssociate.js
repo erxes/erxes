@@ -5,7 +5,7 @@ import {
   Icon,
   FormControl,
   ModalTrigger,
-  EmptyState
+  EmptyState,
 } from 'modules/common/components';
 import { Footer, LoadMore, Title, Columns, Column } from '../../styles';
 import { ModalFooter } from 'modules/common/styles/styles';
@@ -19,23 +19,25 @@ const propTypes = {
   title: PropTypes.string.isRequired,
   renderName: PropTypes.func.isRequired,
   perPage: PropTypes.number.isRequired,
-  clearState: PropTypes.func.isRequired
+  clearState: PropTypes.func.isRequired,
+  limit: PropTypes.number,
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class CommonAssociate extends Component {
   constructor(props) {
     super(props);
+
     const datas = this.props.data.datas || [];
 
     this.state = {
       datas,
       loadmore: true,
-      searchValue: ''
+      searchValue: '',
     };
 
     this.save = this.save.bind(this);
@@ -45,14 +47,7 @@ class CommonAssociate extends Component {
   }
 
   save() {
-    const { datas } = this.state;
-    const ids = [];
-
-    datas.forEach(data => {
-      ids.push(data._id.toString());
-    });
-
-    this.props.save(ids);
+    this.props.save(this.state.datas);
     this.context.closeModal();
   }
 
@@ -70,12 +65,16 @@ class CommonAssociate extends Component {
     const { datas } = this.state;
 
     if (type === 'plus') {
+      if (this.props.limit && this.props.limit === datas.length) {
+        return;
+      }
+
       this.setState({
-        datas: [...datas, data]
+        datas: [...datas, data],
       });
     } else {
       this.setState({
-        datas: datas.filter(item => item !== data)
+        datas: datas.filter(item => item !== data),
       });
     }
   }

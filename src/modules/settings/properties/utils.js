@@ -20,9 +20,9 @@ const generateFields = (infos, type) => {
       isDefinedByErxes: true,
       lastUpdatedUser: {
         details: {
-          fullName: 'SYSTEM'
-        }
-      }
+          fullName: 'SYSTEM',
+        },
+      },
     });
   });
 
@@ -39,21 +39,21 @@ const generateGroup = (infos, type) => {
     isVisible: true,
     lastUpdatedUser: {
       details: {
-        fullName: 'SYSTEM'
-      }
+        fullName: 'SYSTEM',
+      },
     },
     isDefinedByErxes: true,
-    fields: generateFields(infos, type)
+    fields: generateFields(infos, type),
   };
 };
 
 const customerBasicInfos = generateGroup(
   CUSTOMER_BASIC_INFO,
-  FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER
+  FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
 );
 const companyBasicInfos = generateGroup(
   COMPANY_INFO,
-  FIELDS_GROUPS_CONTENT_TYPES.COMPANY
+  FIELDS_GROUPS_CONTENT_TYPES.COMPANY,
 );
 
 export { customerBasicInfos, companyBasicInfos };

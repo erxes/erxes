@@ -4,12 +4,12 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button
+  Button,
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 class ChangePassword extends Component {
@@ -25,7 +25,7 @@ class ChangePassword extends Component {
     this.props.save({
       currentPassword: document.getElementById('current-password').value,
       newPassword: document.getElementById('new-password').value,
-      confirmation: document.getElementById('new-password-confirmation').value
+      confirmation: document.getElementById('new-password-confirmation').value,
     });
 
     this.context.closeModal();
@@ -79,7 +79,7 @@ class ChangePassword extends Component {
 ChangePassword.propTypes = propTypes;
 ChangePassword.contextTypes = {
   __: PropTypes.func,
-  closeModal: PropTypes.func
+  closeModal: PropTypes.func,
 };
 
 export default ChangePassword;

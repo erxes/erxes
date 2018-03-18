@@ -7,13 +7,13 @@ import { Navigation } from '../containers';
 const propTypes = {
   history: PropTypes.object,
   currentUser: PropTypes.object,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 class MainLayout extends React.Component {
   getChildContext() {
     return {
-      currentUser: this.props.currentUser
+      currentUser: this.props.currentUser,
     };
   }
 
@@ -35,7 +35,7 @@ class MainLayout extends React.Component {
           e.target.classList.add('form-invalid');
         };
       })(),
-      true
+      true,
     );
   }
 
@@ -54,7 +54,7 @@ class MainLayout extends React.Component {
 MainLayout.propTypes = propTypes;
 
 MainLayout.childContextTypes = {
-  currentUser: PropTypes.object
+  currentUser: PropTypes.object,
 };
 
 export default withRouter(MainLayout);

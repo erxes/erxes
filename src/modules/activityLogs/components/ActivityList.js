@@ -9,7 +9,7 @@ const propTypes = {
   activities: PropTypes.array,
   user: PropTypes.object,
   target: PropTypes.string,
-  type: PropTypes.string
+  type: PropTypes.string,
 };
 
 class ActivityList extends React.Component {

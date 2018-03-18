@@ -7,13 +7,13 @@ import {
   IntegrationKind,
   KindItem,
   KindCount,
-  LoaderWrapper
+  LoaderWrapper,
 } from '../styles';
 
 const propTypes = {
   data: PropTypes.array.isRequired,
   wrapperWidth: PropTypes.number,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
 };
 
 class Insights extends React.Component {
@@ -32,7 +32,7 @@ class Insights extends React.Component {
       midAngle,
       innerRadius,
       outerRadius,
-      percent
+      percent,
     }) => {
       const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
       const x = cx + radius * Math.cos(-midAngle * RADIAN);

@@ -24,7 +24,7 @@ const routes = () => [
 
       return <UserDetails id={id} queryParams={queryParams} />;
     }}
-  />
+  />,
 ];
 
 export default routes;

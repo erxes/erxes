@@ -13,7 +13,7 @@ const UserDetailsContainer = (props, context) => {
     channelsQuery,
     usersEditProfile,
     userActivityLogQuery,
-    userConversationsQuery
+    userConversationsQuery,
   } = props;
 
   const user = userDetailQuery.userDetail || {};
@@ -22,7 +22,7 @@ const UserDetailsContainer = (props, context) => {
     doc._id = user._id;
 
     usersEdit({
-      variables: doc
+      variables: doc,
     })
       .then(() => {
         Alert.success('Successfully saved');
@@ -55,7 +55,7 @@ const UserDetailsContainer = (props, context) => {
     loadingLogs: userActivityLogQuery.loading,
     activityLogsUser: userActivityLogQuery.activityLogsUser || [],
     channels: channelsQuery.channels || [],
-    currentUser: context.currentUser
+    currentUser: context.currentUser,
   };
 
   return <UserDetails {...updatedProps} />;
@@ -68,18 +68,18 @@ UserDetailsContainer.propTypes = {
   channelsQuery: PropTypes.object,
   usersEditProfile: PropTypes.func,
   userActivityLogQuery: PropTypes.object,
-  userConversationsQuery: PropTypes.object
+  userConversationsQuery: PropTypes.object,
 };
 
 UserDetailsContainer.contextTypes = {
-  currentUser: PropTypes.object
+  currentUser: PropTypes.object,
 };
 
 const options = ({ id }) => ({
   refetchQueries: [
     { query: gql(queries.userDetail), variables: { _id: id } },
-    { query: gql(queries.channels), variables: { memberIds: [id] } }
-  ]
+    { query: gql(queries.channels), variables: { memberIds: [id] } },
+  ],
 });
 
 export default compose(
@@ -87,37 +87,37 @@ export default compose(
     name: 'userDetailQuery',
     options: ({ id }) => ({
       variables: {
-        _id: id
-      }
-    })
+        _id: id,
+      },
+    }),
   }),
   graphql(gql(queries.userConversations), {
     name: 'userConversationsQuery',
     options: ({ id, queryParams }) => ({
       variables: {
         _id: id,
-        perPage: queryParams.limit || 20
-      }
-    })
+        perPage: queryParams.limit || 20,
+      },
+    }),
   }),
   graphql(gql(queries.channels), {
     name: 'channelsQuery',
     options: ({ id }) => ({
-      variables: { memberIds: [id] }
-    })
+      variables: { memberIds: [id] },
+    }),
   }),
   graphql(gql(queries.userActivityLog), {
     name: 'userActivityLogQuery',
     options: ({ id }) => ({
-      variables: { _id: id }
-    })
+      variables: { _id: id },
+    }),
   }),
   graphql(gql(mutations.usersEditProfile), {
     name: 'usersEditProfile',
-    options
+    options,
   }),
   graphql(gql(mutations.usersEdit), {
     name: 'usersEdit',
-    options
-  })
+    options,
+  }),
 )(UserDetailsContainer);

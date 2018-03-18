@@ -17,7 +17,7 @@ class NotificationSettings extends Component {
     // save config
     this.props.saveNotificationConfigurations({
       notifType: e.target.value,
-      isAllowed: e.target.checked
+      isAllowed: e.target.checked,
     });
   }
 
@@ -28,7 +28,7 @@ class NotificationSettings extends Component {
 
   isChecked(notifType) {
     const oldEntry = this.props.configs.find(
-      config => config.notifType === notifType.name
+      config => config.notifType === notifType.name,
     );
 
     // if no previous configuration found then default is checked
@@ -48,7 +48,7 @@ class NotificationSettings extends Component {
           onChange={this.onTypeChange}
           icons={{
             checked: null,
-            unchecked: null
+            unchecked: null,
           }}
         />
         {type.text}
@@ -61,7 +61,7 @@ class NotificationSettings extends Component {
       <SubItem key={mindex}>
         <SubHeading>{module.description}</SubHeading>
         {module.types.map((type, index) =>
-          this.renderNotifType(type, `${mindex}${index}`)
+          this.renderNotifType(type, `${mindex}${index}`),
         )}
       </SubItem>
     );
@@ -78,14 +78,14 @@ class NotificationSettings extends Component {
             onChange={this.onEmailConfigChange}
             icons={{
               checked: null,
-              unchecked: null
+              unchecked: null,
             }}
           />
           {__('Get notification by email')}
         </InlineItems>
         <ContentBox>
           {this.props.modules.map((module, index) =>
-            this.renderModule(module, index)
+            this.renderModule(module, index),
           )}
         </ContentBox>
       </div>
@@ -106,11 +106,11 @@ NotificationSettings.propTypes = {
   configGetNotificationByEmail: PropTypes.func.isRequired,
 
   // previously configured value
-  getNotificationByEmail: PropTypes.bool.isRequired
+  getNotificationByEmail: PropTypes.bool.isRequired,
 };
 
 NotificationSettings.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default NotificationSettings;

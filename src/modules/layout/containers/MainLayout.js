@@ -24,8 +24,8 @@ moment.defineLocale('mn', {
     M: '1 сарын',
     MM: '%d сарын',
     y: '1 жилийн',
-    yy: '%d жилийн'
-  }
+    yy: '%d жилийн',
+  },
 });
 
 moment.updateLocale('en', {
@@ -42,13 +42,13 @@ moment.updateLocale('en', {
     M: 'a mth',
     MM: '%d mths',
     y: 'y',
-    yy: '%d y'
-  }
+    yy: '%d y',
+  },
 });
 
 // load translation messages
 const messages = {
-  ...translations
+  ...translations,
 };
 
 class TranslationWrapper extends React.Component {
@@ -57,7 +57,7 @@ class TranslationWrapper extends React.Component {
     const { formatMessage } = intl;
 
     return {
-      __: msg => formatMessage({ id: msg })
+      __: msg => formatMessage({ id: msg }),
     };
   }
 
@@ -69,11 +69,11 @@ class TranslationWrapper extends React.Component {
 
 TranslationWrapper.propTypes = {
   intl: PropTypes.object,
-  children: PropTypes.object
+  children: PropTypes.object,
 };
 
 TranslationWrapper.childContextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 const InjectedComponent = injectIntl(TranslationWrapper);
@@ -84,7 +84,7 @@ class MainLayoutContainer extends React.Component {
 
     this.state = {
       currentLanguage: 'en',
-      messages: messages['en']
+      messages: messages['en'],
     };
 
     this.changeLanguage = this.changeLanguage.bind(this);
@@ -93,7 +93,7 @@ class MainLayoutContainer extends React.Component {
   getChildContext() {
     return {
       changeLanguage: this.changeLanguage,
-      currentLanguage: this.state.currentLanguage
+      currentLanguage: this.state.currentLanguage,
     };
   }
 
@@ -110,7 +110,7 @@ class MainLayoutContainer extends React.Component {
 
     this.setState({
       currentLanguage,
-      messages: messages[currentLanguage]
+      messages: messages[currentLanguage],
     });
   }
 
@@ -129,7 +129,7 @@ class MainLayoutContainer extends React.Component {
 
 MainLayoutContainer.childContextTypes = {
   changeLanguage: PropTypes.func,
-  currentLanguage: PropTypes.string
+  currentLanguage: PropTypes.string,
 };
 
 export default withCurrentUser(MainLayoutContainer);

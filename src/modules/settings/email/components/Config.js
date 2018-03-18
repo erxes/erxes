@@ -5,19 +5,19 @@ import {
   Button,
   FormGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   brand: PropTypes.object.isRequired,
   configEmail: PropTypes.func.isRequired,
-  defaultTemplate: PropTypes.string.isRequired
+  defaultTemplate: PropTypes.string.isRequired,
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class Config extends Component {
@@ -26,7 +26,7 @@ class Config extends Component {
 
     const { type, template } = props.brand.emailConfig || {
       type: 'simple',
-      template: ''
+      template: '',
     };
 
     this.state = { type, template: template || props.defaultTemplate };

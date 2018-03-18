@@ -7,7 +7,7 @@ import {
   Icon,
   TaggerPopover,
   Tags,
-  Spinner
+  Spinner,
 } from 'modules/common/components';
 import { LeftSidebar, RespondBox, Resolver } from '../containers';
 import { AssignBoxPopover, Participators, Conversation } from './';
@@ -22,7 +22,7 @@ import {
   ConversationWrapper,
   AssignText,
   ActionBarLeft,
-  AssignTrigger
+  AssignTrigger,
 } from '../styles';
 
 class Inbox extends Component {
@@ -30,7 +30,7 @@ class Inbox extends Component {
     super(props);
 
     this.state = {
-      attachmentPreview: {}
+      attachmentPreview: {},
     };
 
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
@@ -103,7 +103,7 @@ class Inbox extends Component {
       currentConversation,
       onChangeConversation,
       refetch,
-      loading
+      loading,
     } = this.props;
     const { __ } = this.context;
     const tags = currentConversation.tags || [];
@@ -163,7 +163,11 @@ class Inbox extends Component {
     );
 
     const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} invert />
+      <Wrapper.ActionBar
+        right={actionBarRight}
+        left={actionBarLeft}
+        background="colorWhite"
+      />
     );
 
     const content = (
@@ -218,11 +222,11 @@ Inbox.propTypes = {
   onChangeConversation: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
 };
 
 Inbox.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default Inbox;

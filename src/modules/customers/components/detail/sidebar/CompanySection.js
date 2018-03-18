@@ -8,7 +8,7 @@ import { CompanyAssociate } from 'modules/companies/containers';
 import { CompanyWrapper } from './styles';
 
 const propTypes = {
-  customer: PropTypes.object.isRequired
+  customer: PropTypes.object.isRequired,
 };
 
 function CompaniySection({ customer }, { __ }) {
@@ -52,7 +52,7 @@ function CompaniySection({ customer }, { __ }) {
 
 CompaniySection.propTypes = propTypes;
 CompaniySection.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default CompaniySection;

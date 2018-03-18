@@ -16,14 +16,14 @@ const QuickNavigationContainer = props => {
 
   const updatedProps = {
     ...props,
-    logout
+    logout,
   };
 
   return <QuickNavigation {...updatedProps} />;
 };
 
 QuickNavigationContainer.propTypes = {
-  history: PropTypes.object
+  history: PropTypes.object,
 };
 
 export default QuickNavigationContainer;

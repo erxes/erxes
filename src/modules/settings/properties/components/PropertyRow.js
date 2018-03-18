@@ -6,7 +6,7 @@ import {
   Table,
   Icon,
   ModalTrigger,
-  EmptyState
+  EmptyState,
 } from 'modules/common/components';
 import { confirm, Alert } from 'modules/common/utils';
 import { PropertyGroupForm, PropertyForm } from '../containers';
@@ -18,11 +18,11 @@ const propTypes = {
   queryParams: PropTypes.object.isRequired,
   removeProperty: PropTypes.func.isRequired,
   removePropertyGroup: PropTypes.func.isRequired,
-  updatePropertyVisible: PropTypes.func.isRequired
+  updatePropertyVisible: PropTypes.func.isRequired,
 };
 
 const contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class PropertyRow extends React.Component {
@@ -30,7 +30,7 @@ class PropertyRow extends React.Component {
     super(props);
 
     this.state = {
-      collapse: true
+      collapse: true,
     };
 
     this.renderTable = this.renderTable.bind(this);
@@ -99,7 +99,7 @@ class PropertyRow extends React.Component {
             defaultChecked={field.isVisible}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              unchecked: <span>No</span>,
             }}
             onChange={e => this.visibleHandler(e, field)}
           />
@@ -108,7 +108,7 @@ class PropertyRow extends React.Component {
           {this.renderActionButtons(
             field,
             removeProperty,
-            <PropertyForm field={field} queryParams={queryParams} />
+            <PropertyForm field={field} queryParams={queryParams} />,
           )}
         </td>
       </TableRow>
@@ -156,7 +156,7 @@ class PropertyRow extends React.Component {
           {this.renderActionButtons(
             group,
             removePropertyGroup,
-            <PropertyGroupForm group={group} queryParams={queryParams} />
+            <PropertyGroupForm group={group} queryParams={queryParams} />,
           )}
         </CollapseRow>
 

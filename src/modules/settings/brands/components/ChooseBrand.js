@@ -4,7 +4,7 @@ import {
   Button,
   FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/styles';
 
@@ -32,7 +32,7 @@ class ChooseBrand extends Component {
 
     this.props.save({
       name: document.getElementById('integration-name').value,
-      brandId: document.getElementById('selectBrand').value
+      brandId: document.getElementById('selectBrand').value,
     });
   }
 
@@ -90,12 +90,12 @@ class ChooseBrand extends Component {
 ChooseBrand.propTypes = {
   brands: PropTypes.array.isRequired,
   integration: PropTypes.object,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 ChooseBrand.contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default ChooseBrand;

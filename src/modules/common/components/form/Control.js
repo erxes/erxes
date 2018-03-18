@@ -55,7 +55,7 @@ const renderElement = (Element, attributes, type, child) => {
 
 class FormControl extends React.Component {
   render() {
-    const props = this.props;
+    const props = Object.assign({}, this.props);
     const childNode = props.children;
     const elementType = props.componentClass;
 
@@ -67,7 +67,7 @@ class FormControl extends React.Component {
     };
 
     const attributes = {
-      onChange: onChange,
+      onChange,
       onClick: props.onClick,
       value: props.value,
       defaultValue: props.defaultValue,
@@ -83,6 +83,8 @@ class FormControl extends React.Component {
       required: props.required,
       onFocus: props.onFocus,
       autoFocus: props.autoFocus,
+      min: props.min,
+      max: props.max,
       id: props.id
     };
 

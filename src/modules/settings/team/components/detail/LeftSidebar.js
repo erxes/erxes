@@ -9,14 +9,14 @@ import { List, User, Links } from './styles';
 import {
   SidebarContent,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from 'modules/layout/styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
   saveProfile: PropTypes.func,
   saveUser: PropTypes.func,
-  channels: PropTypes.array
+  channels: PropTypes.array,
 };
 
 class LeftSidebar extends React.Component {
@@ -123,7 +123,7 @@ LeftSidebar.propTypes = propTypes;
 
 LeftSidebar.contextTypes = {
   __: PropTypes.func,
-  currentUser: PropTypes.object
+  currentUser: PropTypes.object,
 };
 
 export default LeftSidebar;

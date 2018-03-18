@@ -7,13 +7,13 @@ import {
   NameCard,
   DropdownToggle,
   Icon,
-  ModalTrigger
+  ModalTrigger,
 } from 'modules/common/components';
 import { UserHelper } from '../styles';
 import { Widget } from 'modules/notifications/containers';
 import {
   ChangePassword,
-  NotificationSettings
+  NotificationSettings,
 } from 'modules/settings/profile/containers';
 import { Signature } from 'modules/settings/email/containers';
 
@@ -123,14 +123,14 @@ const QuickNavigation = ({ logout }, context) => {
 };
 
 QuickNavigation.propTypes = {
-  logout: PropTypes.func
+  logout: PropTypes.func,
 };
 
 QuickNavigation.contextTypes = {
   currentUser: PropTypes.object,
   changeLanguage: PropTypes.func,
   currentLanguage: PropTypes.string,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default QuickNavigation;

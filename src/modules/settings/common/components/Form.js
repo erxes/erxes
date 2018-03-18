@@ -5,12 +5,12 @@ import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   object: PropTypes.object,
-  save: PropTypes.func
+  save: PropTypes.func,
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class Form extends Component {
@@ -28,7 +28,7 @@ class Form extends Component {
       () => {
         this.context.closeModal();
       },
-      this.props.object
+      this.props.object,
     );
   }
 

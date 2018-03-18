@@ -4,7 +4,7 @@ import { Sidebar } from 'modules/layout/components';
 import {
   SidebarContent,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
 import {
@@ -12,14 +12,14 @@ import {
   Icon,
   FormControl,
   FormGroup,
-  NameCard
+  NameCard,
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { NameWrapper, ButtonWrapper } from './styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 class BasicInfo extends React.Component {
@@ -27,7 +27,7 @@ class BasicInfo extends React.Component {
     super(props);
 
     this.state = {
-      editing: false
+      editing: false,
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -49,7 +49,7 @@ class BasicInfo extends React.Component {
 
   cancelEditing() {
     this.setState({
-      editing: false
+      editing: false,
     });
   }
 
@@ -58,7 +58,7 @@ class BasicInfo extends React.Component {
       firstName: document.getElementById('firstName').value,
       lastName: document.getElementById('lastName').value,
       email: document.getElementById('email').value,
-      phone: document.getElementById('phone').value
+      phone: document.getElementById('phone').value,
     };
 
     this.props.save(doc, error => {
@@ -188,7 +188,7 @@ class BasicInfo extends React.Component {
 
 BasicInfo.propTypes = propTypes;
 BasicInfo.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default BasicInfo;

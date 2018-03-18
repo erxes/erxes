@@ -24,7 +24,7 @@ const UserFormContainer = props => {
   const updatedProps = {
     ...props,
     selectedChannels,
-    channels
+    channels,
   };
 
   return <UserForm {...updatedProps} />;
@@ -32,14 +32,14 @@ const UserFormContainer = props => {
 
 UserFormContainer.propTypes = {
   object: PropTypes.object,
-  channelsQuery: PropTypes.object
+  channelsQuery: PropTypes.object,
 };
 
 export default compose(
   graphql(gql(queries.channels), {
     name: 'channelsQuery',
     options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  })
+      fetchPolicy: 'network-only',
+    }),
+  }),
 )(UserFormContainer);

@@ -4,14 +4,14 @@ import {
   ControlLabel,
   FormGroup,
   FormControl,
-  Button
+  Button,
 } from 'modules/common/components';
 import { Well } from '../../styles';
 import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
 };
 
 class Signature extends Component {
@@ -24,7 +24,7 @@ class Signature extends Component {
 
     this.state = {
       signatures: props.signatures,
-      currentId: null
+      currentId: null,
     };
   }
 
@@ -36,7 +36,7 @@ class Signature extends Component {
     }
 
     return this.state.signatures.find(
-      signature => signature.brandId.toString() === currentId.toString()
+      signature => signature.brandId.toString() === currentId.toString(),
     );
   }
 
@@ -118,7 +118,7 @@ class Signature extends Component {
 Signature.propTypes = propTypes;
 Signature.contextTypes = {
   __: PropTypes.func,
-  closeModal: PropTypes.func
+  closeModal: PropTypes.func,
 };
 
 export default Signature;

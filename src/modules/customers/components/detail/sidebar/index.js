@@ -13,5 +13,5 @@ export {
   TaggerSection,
   BasicInfo,
   EditInformation,
-  CompanySection
+  CompanySection,
 };

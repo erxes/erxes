@@ -44,7 +44,7 @@ function SettingsSidebar(props, { __ }) {
 }
 
 SettingsSidebar.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default SettingsSidebar;

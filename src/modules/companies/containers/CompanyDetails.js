@@ -67,7 +67,12 @@ CompanyDetailsContainer.contextTypes = {
 
 const options = ({ id }) => ({
   refetchQueries: [
-    { query: gql`${queries.companyDetail}`, variables: { _id: id } }
+    {
+      query: gql`
+        ${queries.companyDetail}
+      `,
+      variables: { _id: id }
+    }
   ]
 });
 

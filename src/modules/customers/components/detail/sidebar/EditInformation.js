@@ -12,7 +12,7 @@ import {
   TaggerSection,
   MessengerSection,
   TwitterSection,
-  FacebookSection
+  FacebookSection,
 } from './';
 
 const propTypes = {
@@ -23,7 +23,7 @@ const propTypes = {
   otherProperties: PropTypes.node,
   fieldsGroups: PropTypes.array.isRequired,
   customFieldsData: PropTypes.object,
-  wide: PropTypes.bool
+  wide: PropTypes.bool,
 };
 
 class LeftSidebar extends ManageGroups {
@@ -65,7 +65,7 @@ class LeftSidebar extends ManageGroups {
             {this.renderDeviceProperty(
               'Browser',
               ua.browser.name,
-              ua.browser.version
+              ua.browser.version,
             )}
             {this.renderDeviceProperty('Platform', ua.os.name, ua.os.version)}
             {this.renderDeviceProperty('IP Address', location.remoteAddress)}
@@ -75,7 +75,7 @@ class LeftSidebar extends ManageGroups {
               'User Agent',
               location.userAgent,
               null,
-              true
+              true,
             )}
           </SidebarList>
         </Section>
@@ -151,7 +151,7 @@ class LeftSidebar extends ManageGroups {
 
 LeftSidebar.propTypes = propTypes;
 LeftSidebar.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default LeftSidebar;

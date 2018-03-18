@@ -76,5 +76,5 @@ const userActivityLogQuery = `
 export default {
   customerActivityLogQuery,
   companyActivityLogQuery,
-  userActivityLogQuery
+  userActivityLogQuery,
 };

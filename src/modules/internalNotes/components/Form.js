@@ -5,11 +5,11 @@ import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 
 const propTypes = {
-  create: PropTypes.func.isRequired
+  create: PropTypes.func.isRequired,
 };
 
 const contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 const EditorActions = styled.div`
@@ -37,7 +37,7 @@ class Form extends Component {
 
     this.state = {
       content: '',
-      Editing: false
+      Editing: false,
     };
 
     this.handleChange = this.handleChange.bind(this);

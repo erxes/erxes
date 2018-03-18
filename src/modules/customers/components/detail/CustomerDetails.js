@@ -6,7 +6,7 @@ import {
   DataWithLoader,
   Tabs,
   TabTitle,
-  Icon
+  Icon,
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { EditInformation } from 'modules/customers/containers';
@@ -21,7 +21,7 @@ const propTypes = {
   queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired,
   loadingLogs: PropTypes.bool,
-  history: PropTypes.object
+  history: PropTypes.object,
 };
 
 class CustomerDetails extends React.Component {
@@ -43,7 +43,7 @@ class CustomerDetails extends React.Component {
       currentUser,
       activityLogsCustomer,
       loadingLogs,
-      customer
+      customer,
     } = this.props;
 
     return (
@@ -81,7 +81,7 @@ class CustomerDetails extends React.Component {
 
     const breadcrumb = [
       { title: __('Customers'), link: '/customers' },
-      { title: customer.name || customer.email || 'N/A' }
+      { title: customer.name || customer.email || 'N/A' },
     ];
 
     const content = (
@@ -141,7 +141,7 @@ class CustomerDetails extends React.Component {
 
 CustomerDetails.propTypes = propTypes;
 CustomerDetails.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 export default withRouter(CustomerDetails);

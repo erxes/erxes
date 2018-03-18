@@ -13,5 +13,5 @@ export {
   CustomerDetails,
   CommonAssociate,
   CommonMerge,
-  CompanySection
+  CompanySection,
 };

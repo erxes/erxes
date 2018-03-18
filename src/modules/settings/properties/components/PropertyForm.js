@@ -5,7 +5,7 @@ import {
   FormGroup,
   FormControl,
   Button,
-  Icon
+  Icon,
 } from 'modules/common/components';
 import { TypeList, AddOption, Actions } from '../styles';
 import { ModalFooter } from 'modules/common/styles/styles';
@@ -14,12 +14,12 @@ const propTypes = {
   add: PropTypes.func.isRequired,
   edit: PropTypes.func.isRequired,
   field: PropTypes.object,
-  groups: PropTypes.array.isRequired
+  groups: PropTypes.array.isRequired,
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+  __: PropTypes.func,
 };
 
 class PropertyForm extends Component {
@@ -31,7 +31,7 @@ class PropertyForm extends Component {
     let doc = {
       options: [],
       type: '',
-      hasOptions: false
+      hasOptions: false,
     };
 
     if (props.field) {
@@ -39,7 +39,7 @@ class PropertyForm extends Component {
 
       doc = {
         ...doc,
-        type: props.field.type
+        type: props.field.type,
       };
 
       if (
@@ -50,14 +50,14 @@ class PropertyForm extends Component {
         doc = {
           type: props.field.type,
           hasOptions: true,
-          options: Object.assign([], props.field.options || [])
+          options: Object.assign([], props.field.options || []),
         };
       }
     }
 
     this.state = {
       ...doc,
-      action
+      action,
     };
 
     this.handleAddOption = this.handleAddOption.bind(this);
@@ -86,11 +86,11 @@ class PropertyForm extends Component {
       text,
       description,
       options,
-      groupId
+      groupId,
     };
 
     this.state.action(
-      this.props.field ? { _id: this.props.field._id, doc } : { doc }
+      this.props.field ? { _id: this.props.field._id, doc } : { doc },
     );
 
     this.context.closeModal();
@@ -129,7 +129,7 @@ class PropertyForm extends Component {
     const { options } = this.state;
 
     this.setState({
-      options: options.splice(index, 1) && options
+      options: options.splice(index, 1) && options,
     });
   }
 
@@ -189,7 +189,7 @@ class PropertyForm extends Component {
     return (
       <TypeList>
         {this.state.options.map((option, index) =>
-          this.renderOption(option, index)
+          this.renderOption(option, index),
         )}
         {this.renderButtonOrElement()}
       </TypeList>
