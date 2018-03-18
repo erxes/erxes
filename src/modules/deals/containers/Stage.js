@@ -8,8 +8,6 @@ import { queries, mutations } from '../graphql';
 import { Spinner } from 'modules/common/components';
 
 class StageContainer extends React.Component {
-  componentWillMount() {}
-
   render() {
     const { dealsQuery, addMutation, editMutation, stage } = this.props;
 
@@ -17,14 +15,11 @@ class StageContainer extends React.Component {
       return <Spinner />;
     }
 
-    console.log('context: ', this.context.dealsChange);
-    console.log('stage: ', stage);
+    const deals = dealsQuery.deals;
 
     if (this.context.dealsChange[stage._id]) {
       dealsQuery.refetch();
     }
-
-    const deals = dealsQuery.deals;
 
     // create or update deal
     const saveDeal = (doc, callback, deal) => {
@@ -69,8 +64,7 @@ const propTypes = {
 
 StageContainer.propTypes = propTypes;
 StageContainer.contextTypes = {
-  dealsChange: PropTypes.object,
-  clearDealsChange: PropTypes.func
+  dealsChange: PropTypes.object
 };
 
 export default compose(

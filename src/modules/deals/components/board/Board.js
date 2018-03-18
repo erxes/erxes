@@ -22,8 +22,7 @@ const propTypes = {
 };
 
 const childContextTypes = {
-  dealsChange: PropTypes.object.isRequired,
-  clearDealsChange: PropTypes.func.isRequired
+  dealsChange: PropTypes.object.isRequired
 };
 
 class Board extends React.Component {
@@ -31,7 +30,6 @@ class Board extends React.Component {
     super(props);
 
     this.onDragEnd = this.onDragEnd.bind(this);
-    this.clearDealsChange = this.clearDealsChange.bind(this);
 
     this.state = {
       dealsChange: {}
@@ -40,15 +38,8 @@ class Board extends React.Component {
 
   getChildContext() {
     return {
-      dealsChange: this.state.dealsChange,
-      clearDealsChange: this.clearDealsChange
+      dealsChange: this.state.dealsChange
     };
-  }
-
-  clearDealsChange() {
-    this.setState({
-      dealsChange: {}
-    });
   }
 
   onDragEnd(result) {
@@ -64,20 +55,21 @@ class Board extends React.Component {
         this.props.dealsUpdateOrder(
           draggableId,
           { _id: source.droppableId, order: source.index },
-          { _id: destination.droppableId, order: destination.index }
+          { _id: destination.droppableId, order: destination.index },
+          () => {
+            const dealsChange = {};
+
+            dealsChange[destination.droppableId] = true;
+
+            if (source.draggableId !== destination.draggableId) {
+              dealsChange[source.droppableId] = true;
+            }
+
+            this.setState({
+              dealsChange
+            });
+          }
         );
-
-        const dealsChange = {};
-
-        dealsChange[destination.droppableId] = true;
-
-        if (source.draggableId !== destination.draggableId) {
-          dealsChange[source.droppableId] = true;
-        }
-
-        this.setState({
-          dealsChange
-        });
 
         break;
       }

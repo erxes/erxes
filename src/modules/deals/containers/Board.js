@@ -33,12 +33,16 @@ class Container extends React.Component {
       return <Spinner />;
     }
 
-    const dealsUpdateOrder = (_id, source, destination) => {
+    const dealsUpdateOrder = (_id, source, destination, callback) => {
       dealsUpdateOrderMutation({
         variables: { _id, source, destination }
-      }).catch(error => {
-        Alert.error(error.message);
-      });
+      })
+        .then(() => {
+          callback();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
     };
 
     const stagesUpdateOrder = orders => {
