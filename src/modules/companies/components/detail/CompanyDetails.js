@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Wrapper } from 'modules/layout/components';
+import { Wrapper, Sidebar } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
 import {
   DataWithLoader,
@@ -12,6 +12,7 @@ import {
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
+import CustomerSection from './CustomerSection';
 import { hasAnyActivity } from 'modules/customers/utils';
 
 const propTypes = {
@@ -83,6 +84,12 @@ class CompanyDetails extends React.Component {
       { title: company.name || company.email || 'N/A' },
     ];
 
+    const rightSidebar = (
+      <Sidebar>
+        <CustomerSection company={company} />
+      </Sidebar>
+    );
+
     const content = (
       <div>
         <WhiteBox>
@@ -124,6 +131,7 @@ class CompanyDetails extends React.Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<LeftSidebar {...this.props} />}
+        rightSidebar={rightSidebar}
         content={content}
         transparent={true}
       />
