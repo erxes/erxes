@@ -57,16 +57,22 @@ const updateDealOrder = async (collection, { _id, source, destination }) => {
     const selector = { stageId: source._id };
 
     if (source.order > destination.order) {
-      selector.order = { $gt: destination.order, $lt: source.order };
+      selector.order = { $gte: destination.order, $lt: source.order };
     } else {
-      selector.order = { $gt: source.order, $lt: destination.order };
+      selector.order = { $gte: source.order, $lt: destination.order };
     }
 
     const list = await collection.find(selector);
 
-    list.forEach(async el => {
-      await collection.update({ _id: el._id }, { $set: { order: el.order - 1 } });
-    });
+    if (source.order > destination.order) {
+      list.forEach(async el => {
+        await collection.update({ _id: el._id }, { $set: { order: el.order + 1 } });
+      });
+    } else {
+      list.forEach(async el => {
+        await collection.update({ _id: el._id }, { $set: { order: el.order - 1 } });
+      });
+    }
 
     // update order
     await collection.update({ _id }, { $set: { order: destination.order } });
