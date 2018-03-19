@@ -262,7 +262,7 @@ class CompanyForm extends React.Component {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Employees</ControlLabel>
+              <ControlLabel>Employees count</ControlLabel>
               <FormControl
                 id="company-employees"
                 type="text"

@@ -263,7 +263,7 @@ class CustomerForm extends React.Component {
           <FormColumn>
             <ColumnTitle>{__('Links')}</ColumnTitle>
             <FormGroup>
-              <ControlLabel>Linked In</ControlLabel>
+              <ControlLabel>LinkedIn</ControlLabel>
               <FormControl
                 id="customer-linkedin"
                 defaultValue={links.linkedIn || ''}
