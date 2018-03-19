@@ -308,6 +308,38 @@ const SidebarListItem = styled.li`
   }
 `;
 
+const CollapseRow = styled.div`
+  font-size: ${coreSpace};
+  position: relative;
+  justify-content: space-between;
+  padding: ${dimensions.coreSpacing}px 0;
+
+  &:hover {
+    ${ActionButtons} {
+      width: auto;
+
+      span {
+        line-height: 0;
+      }
+
+      i {
+        margin-left: ${dimensions.coreSpacing}px;
+        font-size: ${typography.fontSizeHeading7 - 2}px;
+      }
+    }
+  }
+`;
+
+const TableRow = styled.tr`
+  &:hover {
+    ${ActionButtons} {
+      width: auto;
+      position: inherit;
+      justify-content: flex-end;
+    }
+  }
+`;
+
 const RightButton = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
@@ -345,10 +377,12 @@ export {
   ColorPicker,
   LogoContainer,
   LogoSpan,
+  TableRow,
   FlexRow,
   SidebarListItem,
   IntegrationName,
   RightButton,
   ActionButtons,
+  CollapseRow,
   BrandName
 };

@@ -8,7 +8,17 @@ const currentUser = `
         avatar
         fullName
         position
+        location
+        description
         twitterUsername
+      }
+      links {
+        linkedIn
+        twitter
+        facebook
+        youtube
+        github
+        website
       }
 
       emailSignatures

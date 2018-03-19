@@ -29,7 +29,7 @@ function Message({ message, staff, isSameUser, scrollBottom }) {
     fbpost: isPhotoPost || isVideoPost
   });
 
-  const prop = staff ? { user } : { customer };
+  const prop = user._id ? { user } : { customer };
 
   const renderAvatar = () => {
     if (!isSameUser) {

@@ -9,7 +9,7 @@ const companiesAdd = `
 const companiesEdit = `
   mutation companiesEdit(
     $_id: String!,
-    $name: String!,
+    $name: String,
     $size: Int,
     $industry: String,
     $website: String,

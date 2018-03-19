@@ -31,6 +31,7 @@ class StatusFilterPopover extends Component {
 
   renderSingleFilter(paramName, paramValue, countName, text, count) {
     const { history } = this.props;
+    const { __ } = this.context;
 
     const onClick = () => {
       // clear previous values
@@ -46,7 +47,7 @@ class StatusFilterPopover extends Component {
           }
           onClick={onClick}
         >
-          {text}
+          {__(text)}
           <SidebarCounter>{count}</SidebarCounter>
         </a>
       </li>
@@ -55,9 +56,10 @@ class StatusFilterPopover extends Component {
 
   render() {
     const { counts } = this.props;
+    const { __ } = this.context;
 
     const popover = (
-      <Popover id="filter-popover" title="Filter by status">
+      <Popover id="filter-popover" title={__('Filter by status')}>
         <SidebarList>
           {this.renderSingleFilter(
             'unassigned',
@@ -97,7 +99,7 @@ class StatusFilterPopover extends Component {
         rootClose
       >
         <PopoverButton>
-          Status
+          {__('Status')}
           <Icon icon="ios-arrow-down" />
         </PopoverButton>
       </OverlayTrigger>
@@ -106,5 +108,8 @@ class StatusFilterPopover extends Component {
 }
 
 StatusFilterPopover.propTypes = propTypes;
+StatusFilterPopover.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(StatusFilterPopover);

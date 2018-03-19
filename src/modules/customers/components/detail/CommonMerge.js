@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import moment from 'moment';
 import {
   Button,
@@ -17,6 +16,7 @@ import {
   InfoDetail,
   Info
 } from '../../styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   datas: PropTypes.array.isRequired,
@@ -25,7 +25,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func
+  closeModal: PropTypes.func,
+  __: PropTypes.func
 };
 
 class CommonMerge extends Component {
@@ -233,33 +234,36 @@ class CommonMerge extends Component {
   }
 
   renderMessengerData(data) {
+    const { __ } = this.context;
     return (
       <Info>
-        <InfoTitle>Last seen at:</InfoTitle>
+        <InfoTitle>{__('Last seen at')}:</InfoTitle>
         <InfoDetail>{moment(data.lastSeenAt).format('lll')}</InfoDetail>
-        <InfoTitle>Session count:</InfoTitle>
+        <InfoTitle>{__('Session count')}:</InfoTitle>
         <InfoDetail>{data.sessionCount}</InfoDetail>
       </Info>
     );
   }
 
   renderTwitterData(data) {
+    const { __ } = this.context;
     return (
       <Info>
-        <InfoTitle>Name: </InfoTitle>
+        <InfoTitle>{__('Name')}: </InfoTitle>
         <InfoDetail>{data.name}</InfoDetail>
-        <InfoTitle>Screen name: </InfoTitle>
+        <InfoTitle>{__('Screen name')}: </InfoTitle>
         <InfoDetail>{data.screenName}</InfoDetail>
       </Info>
     );
   }
 
   renderVisitorContactInfo(data) {
+    const { __ } = this.context;
     return (
       <Info>
-        <InfoTitle>E-mail: </InfoTitle>
+        <InfoTitle>{__('E-mail')}: </InfoTitle>
         <InfoDetail>{data.email}</InfoDetail>
-        <InfoTitle>Phone: </InfoTitle>
+        <InfoTitle>{__('Phone')}: </InfoTitle>
         <InfoDetail>{data.phone}</InfoDetail>
       </Info>
     );
@@ -267,6 +271,7 @@ class CommonMerge extends Component {
 
   render() {
     const { datas } = this.props;
+    const { __ } = this.context;
 
     return (
       <form onSubmit={this.save}>
@@ -280,11 +285,11 @@ class CommonMerge extends Component {
             );
           })}
           <Column>
-            <Title>Merged Info</Title>
+            <Title>{__('Merged Info')}</Title>
             <ul>{this.renderMergedData()}</ul>
           </Column>
         </Columns>
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             onClick={() => this.context.closeModal()}
@@ -295,7 +300,7 @@ class CommonMerge extends Component {
           <Button type="submit" btnStyle="success" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

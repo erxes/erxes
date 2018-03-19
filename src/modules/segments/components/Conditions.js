@@ -11,13 +11,20 @@ const propTypes = {
   contentType: PropTypes.string
 };
 
-function Conditions({
-  conditions,
-  changeCondition,
-  removeCondition,
-  contentType,
-  parentSegmentId
-}) {
+const contextTypes = {
+  __: PropTypes.func
+};
+
+function Conditions(
+  {
+    conditions,
+    changeCondition,
+    removeCondition,
+    contentType,
+    parentSegmentId
+  },
+  { __ }
+) {
   return (
     <div>
       {parentSegmentId ? (
@@ -26,8 +33,8 @@ function Conditions({
           target="_blank"
         >
           <h4>
-            <Label>
-              Parent segment conditions <Icon icon="android-open" />
+            <Label ignoreTrans>
+              {__('Parent segment conditions')} <Icon icon="android-open" />
             </Label>
           </h4>
           <br />
@@ -46,5 +53,6 @@ function Conditions({
 }
 
 Conditions.propTypes = propTypes;
+Conditions.contextTypes = contextTypes;
 
 export default Conditions;

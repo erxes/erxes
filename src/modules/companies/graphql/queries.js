@@ -84,21 +84,6 @@ const tags = `
   }
 `;
 
-export const fields = `
-  query {
-    fields(contentType: "company") {
-      _id
-      type
-      validation
-      text
-      description
-      options
-      isRequired
-      order
-    }
-  }
-`;
-
 export const companiesListConfig = `
   query {
     fieldsDefaultColumnsConfig(contentType: "company") {
@@ -139,7 +124,6 @@ export default {
   companiesMain,
   companyCounts,
   companyDetail,
-  fields,
   tags,
   companiesListConfig,
   activityLogsCompany

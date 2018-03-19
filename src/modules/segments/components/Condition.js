@@ -12,6 +12,10 @@ const propTypes = {
   removeCondition: PropTypes.func.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class Condition extends Component {
   constructor(props) {
     super(props);
@@ -59,6 +63,7 @@ class Condition extends Component {
   }
 
   renderValueInput() {
+    const { __ } = this.context;
     const { type, operator } = this.state;
     const currentOperator = operators[type].find(o => o.value === operator);
 
@@ -79,7 +84,7 @@ class Condition extends Component {
       <FormControl
         name="dateUnit"
         componentClass="select"
-        placeholder="select"
+        placeholder={__('select')}
         value={this.state.dateUnit}
         onChange={this.handleInputValue}
       >
@@ -104,17 +109,18 @@ class Condition extends Component {
 
   render() {
     const { condition } = this.props;
+    const { __ } = this.context;
 
     return (
       <ConditionItem>
-        <ControlLabel>{condition.field}</ControlLabel>
+        <ControlLabel ignoreTrans>{condition.field}</ControlLabel>
         <br />
         <FlexContent>
           <FlexItem>
             <FormControl
               name="operator"
               componentClass="select"
-              placeholder="select"
+              placeholder={__('select')}
               value={this.state.operator}
               onChange={this.handleInputValue}
             >
@@ -130,7 +136,7 @@ class Condition extends Component {
             <FormControl
               name="type"
               componentClass="select"
-              placeholder="select"
+              placeholder={__('select')}
               value={this.state.type}
               onChange={this.handleInputValue}
             >
@@ -154,5 +160,6 @@ class Condition extends Component {
 }
 
 Condition.propTypes = propTypes;
+Condition.contextTypes = contextTypes;
 
 export default Condition;

@@ -15,6 +15,7 @@ import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems, SidebarCounter } from 'modules/layout/styles';
 import ConversationDetails from './sidebar/ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
+import { CompanySection } from 'modules/customers/components';
 
 import {
   PopoverButton,
@@ -75,7 +76,12 @@ class Inbox extends Component {
       return (
         <EditInformation
           conversation={currentConversation}
-          sections={<ConversationDetails conversation={currentConversation} />}
+          sectionTop={
+            <ConversationDetails conversation={currentConversation} />
+          }
+          sectionBottom={
+            <CompanySection customer={currentConversation.customer} />
+          }
           customer={currentConversation.customer}
           refetch={this.props.refetch}
           otherProperties={this.renderMessengerData()}
@@ -85,7 +91,7 @@ class Inbox extends Component {
 
     return (
       <Wrapper.Sidebar full>
-        <Spinner />
+        {this.props.loading && <Spinner />}
       </Wrapper.Sidebar>
     );
   }
@@ -99,6 +105,7 @@ class Inbox extends Component {
       refetch,
       loading
     } = this.props;
+    const { __ } = this.context;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];
@@ -144,7 +151,7 @@ class Inbox extends Component {
 
     const actionBarLeft = (
       <ActionBarLeft>
-        <AssignText>Assign to:</AssignText>
+        <AssignText>{__('Assign to')}:</AssignText>
         <AssignBoxPopover
           targets={[currentConversation]}
           trigger={assignTrigger}
@@ -174,7 +181,7 @@ class Inbox extends Component {
       </ConversationWrapper>
     );
 
-    const breadcrumb = [{ title: 'Inbox' }];
+    const breadcrumb = [{ title: __('Inbox') }];
 
     return (
       <Wrapper
@@ -212,6 +219,10 @@ Inbox.propTypes = {
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
   loading: PropTypes.bool
+};
+
+Inbox.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Inbox;

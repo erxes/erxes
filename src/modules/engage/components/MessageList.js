@@ -11,7 +11,7 @@ import {
   DataWithLoader,
   ModalTrigger
 } from 'modules/common/components';
-import { ManageColumns } from 'modules/fields/containers';
+import { ManageColumns } from 'modules/settings/properties/containers';
 import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
 import { BarItems } from 'modules/layout/styles';
 
@@ -43,10 +43,11 @@ class List extends React.Component {
 
   renderTagger() {
     const { bulk } = this.props;
+    const { __ } = this.context;
 
     const tagButton = (
       <Button btnStyle="simple" size="small">
-        Tag <Icon icon="ios-arrow-down" />
+        {__('Tag')} <Icon icon="ios-arrow-down" />
       </Button>
     );
 
@@ -74,6 +75,7 @@ class List extends React.Component {
       history,
       location
     } = this.props;
+    const { __ } = this.context;
 
     const newEngagementButton = (
       <Link to={'/engage/messages/create'}>
@@ -143,7 +145,7 @@ class List extends React.Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Engage' }]} />}
+        header={<Wrapper.Header breadcrumb={[{ title: __('Engage') }]} />}
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
@@ -162,5 +164,8 @@ class List extends React.Component {
 }
 
 List.propTypes = propTypes;
+List.contextTypes = {
+  __: PropTypes.func
+};
 
 export default List;

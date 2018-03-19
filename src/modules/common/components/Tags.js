@@ -22,13 +22,20 @@ function Tags({ tags, limit }) {
   return (
     <TagList length={length}>
       {tags.slice(0, limit ? limit : length).map(tag => (
-        <Label key={tag.name} style={{ backgroundColor: tag.colorCode }}>
+        <Label
+          key={tag.name}
+          style={{ backgroundColor: tag.colorCode }}
+          ignoreTrans
+        >
           <span>{tag.name}</span>
         </Label>
       ))}
       {limit &&
         length - limit > 0 && (
-          <Label style={{ backgroundColor: colors.colorCoreLightGray }}>
+          <Label
+            style={{ backgroundColor: colors.colorCoreLightGray }}
+            ignoreTrans
+          >
             <span>{`+${length - limit}`}</span>
           </Label>
         )}

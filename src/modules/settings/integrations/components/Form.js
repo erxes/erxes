@@ -89,6 +89,7 @@ class Form extends Common {
       name: document.getElementById('integration-name').value,
       brandId: document.getElementById('selectBrand').value,
       formId: document.getElementById('formId').value,
+      languageCode: document.getElementById('languageCode').value,
       formData: {
         loadType: getElementById('loadType'),
         successAction: getElementById('successAction'),
@@ -186,6 +187,7 @@ class Form extends Common {
   }
 
   extraContent() {
+    const { __ } = this.context;
     const { integration = {} } = this.props;
     const formData = integration.formData || {};
 
@@ -196,7 +198,7 @@ class Form extends Common {
 
           <FormControl
             componentClass="select"
-            placeholder="Select Form"
+            placeholder={__('Select Form')}
             onChange={this.handleFormChange}
             defaultValue={integration.formId}
             id="formId"

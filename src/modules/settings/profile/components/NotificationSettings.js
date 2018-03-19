@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Toggle from 'react-toggle';
-import { Wrapper } from 'modules/layout/components';
 import { ContentBox, SubHeading, InlineItems, SubItem } from '../../styles';
-import Sidebar from 'modules/settings/Sidebar';
 
 class NotificationSettings extends Component {
   constructor(props) {
@@ -70,9 +68,10 @@ class NotificationSettings extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const content = (
-      <ContentBox>
-        <SubHeading>Notifications</SubHeading>
+      <div>
+        <SubHeading>{__('Notifications')}</SubHeading>
         <InlineItems>
           <Toggle
             defaultChecked={this.props.getNotificationByEmail}
@@ -82,28 +81,17 @@ class NotificationSettings extends Component {
               unchecked: null
             }}
           />
-          Get notification by email
+          {__('Get notification by email')}
         </InlineItems>
         <ContentBox>
           {this.props.modules.map((module, index) =>
             this.renderModule(module, index)
           )}
         </ContentBox>
-      </ContentBox>
+      </div>
     );
 
-    const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Notification settings' }
-    ];
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        content={content}
-      />
-    );
+    return content;
   }
 }
 
@@ -119,6 +107,10 @@ NotificationSettings.propTypes = {
 
   // previously configured value
   getNotificationByEmail: PropTypes.bool.isRequired
+};
+
+NotificationSettings.contextTypes = {
+  __: PropTypes.func
 };
 
 export default NotificationSettings;

@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { HelpBlock, Modal } from 'react-bootstrap';
+import { HelpBlock } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   brand: PropTypes.object.isRequired,
@@ -15,7 +16,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class Config extends Component {
@@ -59,6 +61,7 @@ class Config extends Component {
     };
 
     const { type, template } = this.state;
+    const { __ } = this.context;
 
     const templateControl = (
       <FormGroup>
@@ -69,7 +72,7 @@ class Config extends Component {
           rows={20}
           onChange={this.handleTemplateChange}
         />
-        <HelpBlock>Use html template here</HelpBlock>
+        <HelpBlock>{__('Use html template here')}</HelpBlock>
       </FormGroup>
     );
 
@@ -80,18 +83,18 @@ class Config extends Component {
             <ControlLabel>Choose your email template type</ControlLabel>
             <FormControl
               componentClass="select"
-              placeholder="select"
+              placeholder={__('select')}
               onChange={this.handleTypeChange}
               value={type}
             >
-              <option value="simple">Simple</option>
-              <option value="custom">Custom</option>
+              <option value="simple">{__('Simple')}</option>
+              <option value="custom">{__('Custom')}</option>
             </FormControl>
           </FormGroup>
 
           {this.state.type === 'custom' ? templateControl : false}
 
-          <Modal.Footer>
+          <ModalFooter>
             <Button btnStyle="simple" onClick={onClick} icon="close">
               Cancel
             </Button>
@@ -99,7 +102,7 @@ class Config extends Component {
             <Button btnStyle="success" type="submit" icon="checkmark">
               Save
             </Button>
-          </Modal.Footer>
+          </ModalFooter>
         </form>
       </div>
     );

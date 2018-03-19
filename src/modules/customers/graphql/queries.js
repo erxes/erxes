@@ -137,21 +137,6 @@ const tags = `
   }
 `;
 
-const fields = `
-  query {
-    fields(contentType: "customer") {
-      _id
-      type
-      validation
-      text
-      description
-      options
-      isRequired
-      order
-    }
-  }
-`;
-
 const customersListConfig = `
   query {
     fieldsDefaultColumnsConfig(contentType: "customer") {
@@ -194,7 +179,6 @@ export default {
   customerDetail,
   brands,
   tags,
-  fields,
   customersListConfig,
   activityLogsCustomer
 };

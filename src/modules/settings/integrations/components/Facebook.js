@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Checkbox } from 'react-bootstrap';
+import { Checkbox } from 'react-bootstrap';
 import SelectBrand from './SelectBrand';
 import {
   Button,
@@ -9,6 +9,7 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 class Facebook extends Component {
   constructor(props, context) {
@@ -47,6 +48,7 @@ class Facebook extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { apps, pages, brands } = this.props;
 
     return (
@@ -64,7 +66,7 @@ class Facebook extends Component {
 
           <FormControl
             componentClass="select"
-            placeholder="Select app"
+            placeholder={__('Select app')}
             onChange={this.onAppChange}
             id="app"
           >
@@ -90,11 +92,11 @@ class Facebook extends Component {
           ))}
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }
@@ -106,6 +108,10 @@ Facebook.propTypes = {
   brands: PropTypes.array.isRequired,
   apps: PropTypes.array.isRequired,
   pages: PropTypes.array.isRequired
+};
+
+Facebook.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Facebook;

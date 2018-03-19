@@ -16,7 +16,7 @@ import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import { CompanyForm } from '../';
-import { ManageColumns } from '../../../fields/containers';
+import { ManageColumns } from 'modules/settings/properties/containers';
 import { CommonMerge } from 'modules/customers/components';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
 
@@ -105,6 +105,7 @@ class CompaniesList extends React.Component {
       basicInfos,
       queryParams
     } = this.props;
+    const { __ } = this.context;
 
     const mainContent = (
       <CompaniesTableWrapper>
@@ -118,9 +119,9 @@ class CompaniesList extends React.Component {
                 />
               </th>
               {columnsConfig.map(({ name, label }) => (
-                <th key={name}>{label}</th>
+                <th key={name}>{__(label)}</th>
               ))}
-              <th>Tags</th>
+              <th>{__('Tags')}</th>
             </tr>
           </thead>
           <tbody id="companies">
@@ -208,7 +209,7 @@ class CompaniesList extends React.Component {
       <BarItems>
         <FormControl
           type="text"
-          placeholder="Type to search.."
+          placeholder={__('Type to search')}
           onChange={e => this.search(e)}
           value={this.state.searchValue}
           autoFocus
@@ -230,7 +231,7 @@ class CompaniesList extends React.Component {
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
     );
-    const breadcrumb = [{ title: `Companies (${counts.all})` }];
+    const breadcrumb = [{ title: __(`Companies`) + ` (${counts.all})` }];
 
     return (
       <Wrapper
@@ -257,5 +258,8 @@ class CompaniesList extends React.Component {
 }
 
 CompaniesList.propTypes = propTypes;
+CompaniesList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(CompaniesList);

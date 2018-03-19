@@ -34,8 +34,9 @@ class Row extends React.Component {
   }
 
   renderLink(text, className, onClick) {
+    const { __ } = this.context;
     return (
-      <Tip text={text} key={`${text}-${this.props.message._id}`}>
+      <Tip text={__(text)} key={`${text}-${this.props.message._id}`}>
         <Button btnStyle="link" onClick={onClick} icon={className} />
       </Tip>
     );
@@ -98,6 +99,7 @@ class Row extends React.Component {
 
   renderValue(name, counter) {
     const { message } = this.props;
+    const { __ } = this.context;
 
     let status = <Label lblStyle="default">Sending</Label>;
     let successCount = 0;
@@ -163,11 +165,11 @@ class Row extends React.Component {
         <td key={counter}>
           {message.email ? (
             <div>
-              <Icon icon="email" /> Email
+              <Icon icon="email" /> {__('Email')}
             </div>
           ) : (
             <div>
-              <Icon icon="chatbox" /> Messenger
+              <Icon icon="chatbox" /> {__('Messenger')}
             </div>
           )}
         </td>
@@ -196,6 +198,8 @@ class Row extends React.Component {
 
   render() {
     const { message, columnsConfig, remove } = this.props;
+    const { __ } = this.context;
+
     let counter = 0;
     return (
       <tr key={message._id}>
@@ -207,7 +211,7 @@ class Row extends React.Component {
           <ActionButtons>
             {this.renderLinks()}
 
-            <Tip text="Delete">
+            <Tip text={__('Delete')}>
               <Button btnStyle="link" onClick={remove} icon="close" />
             </Tip>
           </ActionButtons>
@@ -218,5 +222,8 @@ class Row extends React.Component {
 }
 
 Row.propTypes = propTypes;
+Row.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Row;

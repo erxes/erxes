@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   addCustomer: PropTypes.func.isRequired
@@ -63,7 +63,7 @@ class CustomerForm extends React.Component {
           <FormControl id="customer-email" type="email" required />
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             onClick={() => this.context.closeModal()}
@@ -79,7 +79,7 @@ class CustomerForm extends React.Component {
           <Button btnStyle="primary" type="submit" name="close" icon="close">
             Save & Close
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

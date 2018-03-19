@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   FormControl,
   Button,
@@ -13,6 +12,7 @@ import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { LoadMore, Title, Columns, Column } from 'modules/customers/styles';
 import { BrandName, IntegrationName } from '../../styles';
 import { ChooseBrand } from '../containers';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   currentBrand: PropTypes.object,
@@ -25,7 +25,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class ManageIntegrationForm extends Component {
@@ -138,7 +139,10 @@ class ManageIntegrationForm extends Component {
       >
         <IntegrationName>{integration.name}</IntegrationName>
         <Tip text={this.getTypeName(integration)}>
-          <Label className={`label-${this.getTypeName(integration)} round`}>
+          <Label
+            className={`label-${this.getTypeName(integration)} round`}
+            ignoreTrans
+          >
             <Icon icon={this.getIconByKind(integration)} />
           </Label>
         </Tip>
@@ -166,6 +170,7 @@ class ManageIntegrationForm extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { allIntegrations, currentBrand } = this.props;
     const selectedIntegrations = this.state.integrations;
 
@@ -174,7 +179,7 @@ class ManageIntegrationForm extends Component {
         <Columns>
           <Column>
             <FormControl
-              placeholder="Type to search"
+              placeholder={__('Type to search')}
               onChange={e => this.search(e)}
             />
             <ul>
@@ -207,7 +212,7 @@ class ManageIntegrationForm extends Component {
             </ul>
           </Column>
         </Columns>
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             icon="close"
@@ -218,7 +223,7 @@ class ManageIntegrationForm extends Component {
           <Button btnStyle="success" icon="checkmark" onClick={this.save}>
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </div>
     );
   }

@@ -14,6 +14,7 @@ class NotificationsLatest extends Component {
   render() {
     const { notifications, markAsRead } = this.props;
     const notifCount = notifications.length;
+    const { __ } = this.context;
 
     const mainContent = (
       <div>
@@ -29,7 +30,7 @@ class NotificationsLatest extends Component {
           </NotificationList>
         </NotificationArea>
         <NotificationSeeAll>
-          <Link to="/notifications">See all</Link>
+          <Link to="/notifications">{__('See all')}</Link>
         </NotificationSeeAll>
       </div>
     );
@@ -56,6 +57,10 @@ class NotificationsLatest extends Component {
 NotificationsLatest.propTypes = {
   notifications: PropTypes.array.isRequired,
   markAsRead: PropTypes.func.isRequired
+};
+
+NotificationsLatest.contextTypes = {
+  __: PropTypes.func
 };
 
 export default NotificationsLatest;

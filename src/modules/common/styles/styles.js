@@ -13,6 +13,7 @@ const FullContent = styled.div`
 const BoxRoot = styled.div`
   text-align: center;
   display: inline-block;
+  float: left;
   background: ${colors.colorLightBlue};
   box-shadow: 0 8px 5px ${rgba(colors.colorCoreGray, 0.08)};
   margin-right: ${dimensions.coreSpacing}px;
@@ -59,4 +60,9 @@ const BoxRoot = styled.div`
   }
 `;
 
-export { BoxRoot, FullContent };
+const ModalFooter = styled.div`
+  text-align: right;
+  margin-top: 40px;
+`;
+
+export { BoxRoot, FullContent, ModalFooter };

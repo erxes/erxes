@@ -10,7 +10,7 @@ const propTypes = {
   removeSegment: PropTypes.func.isRequired
 };
 
-function SegmentsList({ contentType, segments, removeSegment }) {
+function SegmentsList({ contentType, segments, removeSegment }, { __ }) {
   const remove = id => {
     removeSegment(id);
   };
@@ -27,9 +27,9 @@ function SegmentsList({ contentType, segments, removeSegment }) {
     <Table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Color</th>
+          <th>{__('Name')}</th>
+          <th>{__('Description')}</th>
+          <th>{__('Color')}</th>
           <th />
         </tr>
       </thead>
@@ -43,12 +43,12 @@ function SegmentsList({ contentType, segments, removeSegment }) {
             <td>{segment.color}</td>
             <td>
               <ActionButtons>
-                <Tip text="Edit">
+                <Tip text={__('Edit')}>
                   <Link to={`/segments/edit/${contentType}/${segment._id}`}>
                     <Button btnStyle="link" icon="edit" />
                   </Link>
                 </Tip>
-                <Tip text="Delete">
+                <Tip text={__('Delete')}>
                   <Button
                     btnStyle="link"
                     onClick={() => {
@@ -77,7 +77,7 @@ function SegmentsList({ contentType, segments, removeSegment }) {
 
   return (
     <Wrapper
-      header={<Wrapper.Header breadcrumb={[{ title: 'Segments' }]} />}
+      header={<Wrapper.Header breadcrumb={[{ title: __('Segments') }]} />}
       actionBar={actionBar}
       content={content}
     />
@@ -85,5 +85,8 @@ function SegmentsList({ contentType, segments, removeSegment }) {
 }
 
 SegmentsList.propTypes = propTypes;
+SegmentsList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default SegmentsList;

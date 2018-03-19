@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { colors, dimensions, typography } from '../common/styles';
 
 const UserHelper = styled.div`
@@ -33,6 +33,7 @@ const Contents = styled.div`
   margin: ${dimensions.coreSpacing}px;
   margin-right: 0;
   max-height: 100%;
+  overflow: hidden;
 `;
 
 const MainContent = styled.section`
@@ -164,35 +165,20 @@ const SidebarToggle = styled.a`
   );
 `;
 
-const QuickButton = styled.a`
-  float: left;
-  color: ${colors.colorCoreLightGray};
-  text-transform: none;
-  cursor: pointer;
-  margin-left: ${dimensions.unitSpacing}px;
-  font-size: ${typography.fontSizeHeading8}px;
-  font-weight: ${typography.fontWeightLight};
-  outline: 0;
-
-  > i {
-    font-size: 14px;
-    margin-right: 0;
-
-    &:hover {
-      color: ${colors.colorCoreBlack};
-    }
-  }
-`;
-
 const HelperButtons = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
   top: 16px;
 
   a {
+    float: left;
     color: ${colors.colorCoreLightGray};
+    text-transform: none;
     cursor: pointer;
+    margin-left: ${dimensions.unitSpacing}px;
     font-size: ${typography.fontSizeHeading8}px;
+    font-weight: ${typography.fontWeightLight};
+    outline: 0;
 
     > i {
       font-size: 14px;
@@ -243,6 +229,7 @@ const SidebarList = styled.ul`
     text-decoration: none;
     outline: 0;
     position: relative;
+    transition: background 0.3s ease;
 
     > i {
       margin-right: 5px;
@@ -255,11 +242,6 @@ const SidebarList = styled.ul`
       text-decoration: none;
       outline: 0;
       color: ${colors.colorCoreBlack};
-
-      > span {
-        background-color: ${colors.bgActive};
-        box-shadow: -2px 0 10px 2px ${colors.bgActive};
-      }
     }
   }
 
@@ -279,14 +261,26 @@ const SidebarCounter = styled.span`
   max-width: 60%;
   overflow: hidden;
   text-overflow: ellipsis;
-  background-color: #fff;
-  box-shadow: -2px 0 10px 2px #fff;
   padding-left: 10px;
 
   a {
     padding: 0;
     color: ${colors.linkPrimary};
   }
+
+  span {
+    float: right;
+    margin-left: 5px;
+  }
+
+  ${props =>
+    props.nowrap &&
+    css`
+      width: 100%;
+      white-space: normal;
+      position: initial;
+      margin-left: 10px;
+    `};
 `;
 
 const FlexContent = styled.div`
@@ -385,7 +379,6 @@ export {
   SidebarToggle,
   SidebarCounter,
   HelperButtons,
-  QuickButton,
   SidebarTitle,
   UserHelper,
   SidebarList,

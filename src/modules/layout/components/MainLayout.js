@@ -1,5 +1,4 @@
 import React from 'react';
-import moment from 'moment';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Layout } from '../styles';
@@ -13,27 +12,9 @@ const propTypes = {
 
 class MainLayout extends React.Component {
   getChildContext() {
-    return { currentUser: this.props.currentUser };
-  }
-
-  componentWillMount() {
-    moment.updateLocale('en', {
-      relativeTime: {
-        future: 'in %s',
-        past: '%s ',
-        s: 'just now',
-        m: 'a min',
-        mm: '%d m',
-        h: 'an hour',
-        hh: '%d h',
-        d: 'a day',
-        dd: '%d d',
-        M: 'a mth',
-        MM: '%d mths',
-        y: 'an year',
-        yy: '%d y'
-      }
-    });
+    return {
+      currentUser: this.props.currentUser
+    };
   }
 
   componentDidMount() {
@@ -59,7 +40,7 @@ class MainLayout extends React.Component {
   }
 
   render() {
-    const { children, currentUser } = this.props;
+    const { currentUser, children } = this.props;
 
     return (
       <Layout>

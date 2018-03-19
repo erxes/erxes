@@ -8,6 +8,10 @@ const propTypes = {
   create: PropTypes.func.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 const EditorActions = styled.div`
   padding: 0 20px 10px 20px;
   position: absolute;
@@ -73,19 +77,20 @@ class Form extends Component {
           size="small"
           icon="android-send"
         >
-          Save note
+          Save
         </Button>
       </EditorActions>
     );
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <EditorWrapper>
         <form onKeyDown={this.handleKeyDown} onChange={this.handleChange}>
           <FormControl
             componentClass="textarea"
-            placeholder="Start typing to leave a note ..."
+            placeholder={__('Start typing to leave a note ...')}
             value={this.state.content}
           />
           {this.renderFooter()}
@@ -96,5 +101,6 @@ class Form extends Component {
 }
 
 Form.propTypes = propTypes;
+Form.contextTypes = contextTypes;
 
 export default Form;

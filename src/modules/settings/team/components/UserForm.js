@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   FormGroup,
   ControlLabel,
@@ -17,9 +18,10 @@ class UserForm extends CommonForm {
     this.collectValues = this.collectValues.bind(this);
 
     const user = props.object || { details: {} };
+    const defaultAvatar = '/images/avatar-colored.png';
 
     this.state = {
-      avatar: user.details.avatar,
+      avatar: user.details.avatar || defaultAvatar,
       selectedChannels: this.generateChannelsParams(props.selectedChannels)
     };
   }
@@ -40,6 +42,7 @@ class UserForm extends CommonForm {
   }
 
   renderChannels() {
+    const { __ } = this.context;
     const self = this;
     const { channels } = this.props;
 
@@ -49,7 +52,7 @@ class UserForm extends CommonForm {
         <br />
 
         <Select
-          placeholder="Choose channels"
+          placeholder={__('Choose channels')}
           value={self.state.selectedChannels}
           options={self.generateChannelsParams(channels)}
           onChange={items => {
@@ -71,18 +74,28 @@ class UserForm extends CommonForm {
           avatar: this.state.avatar,
           position: document.getElementById('position').value,
           fullName: document.getElementById('fullName').value,
-          twitterUsername: document.getElementById('twitterUsername').value
+          location: document.getElementById('user-location').value,
+          description: document.getElementById('description').value
         },
         channelIds: this.collectValues(this.state.selectedChannels),
         password: document.getElementById('password').value,
         passwordConfirmation: document.getElementById('password-confirmation')
-          .value
+          .value,
+        links: {
+          linkedIn: document.getElementById('linkedin').value,
+          twitter: document.getElementById('twitter').value,
+          facebook: document.getElementById('facebook').value,
+          youtube: document.getElementById('youtube').value,
+          github: document.getElementById('github').value,
+          website: document.getElementById('website').value
+        }
       }
     };
   }
 
   renderContent(object) {
     const user = object._id ? object : { details: {} };
+    const { __ } = this.context;
 
     return (
       <div>
@@ -106,8 +119,8 @@ class UserForm extends CommonForm {
             defaultValue={user.role}
             id="role"
           >
-            <option value="admin">Admin</option>
-            <option value="contributor">Contributor</option>
+            <option value="admin">{__('Admin')}</option>
+            <option value="contributor">{__('Contributor')}</option>
           </FormControl>
         </FormGroup>
 
@@ -116,5 +129,10 @@ class UserForm extends CommonForm {
     );
   }
 }
+
+UserForm.contextTypes = {
+  __: PropTypes.func,
+  closeModal: PropTypes.func
+};
 
 export default UserForm;
