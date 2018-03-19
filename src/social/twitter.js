@@ -384,7 +384,12 @@ export const tweetReply = async ({ conversation, text, toId, toScreenName }) => 
   }
 
   // tweet
-  return tweet({ integrationId, text, toId, toScreenName });
+  return twitRequest.post(twit, 'statuses/update', {
+    status: `@${toScreenName} ${text}`,
+
+    // replying tweet id
+    in_reply_to_status_id: toId,
+  });
 };
 
 /*
@@ -404,15 +409,12 @@ const updateTwitterData = async ({ twit, tweetId }) => {
 /*
  * Tweet
  */
-export const tweet = async ({ integrationId, text, toId, toScreenName }) => {
+export const tweet = async ({ integrationId, text }) => {
   const twit = TwitMap[integrationId];
 
   // send reply
   return twitRequest.post(twit, 'statuses/update', {
-    status: `@${toScreenName} ${text}`,
-
-    // replying tweet id
-    in_reply_to_status_id: toId,
+    status: text,
   });
 };
 

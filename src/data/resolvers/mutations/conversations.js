@@ -200,8 +200,6 @@ const conversationMutations = {
    *
    * @param {String} doc.integrationId
    * @param {String} doc.text
-   * @param {String} doc.toId
-   * @param {String} doc.toScreenName
    *
    * @return {Promise} - twitter response
    */

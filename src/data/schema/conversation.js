@@ -114,8 +114,6 @@ export const mutations = `
   conversationsTweet(
     integrationId: String,
     text: String,
-    toId: String,
-    toScreenName: String,
   ): JSON
 
   conversationsRetweet(
