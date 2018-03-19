@@ -87,12 +87,12 @@ const facebookSchema = mongoose.Schema(
 
 const LinkSchema = mongoose.Schema(
   {
-    linkedIn: field({ type: String, optional: true }),
-    twitter: field({ type: String, optional: true }),
-    facebook: field({ type: String, optional: true }),
-    github: field({ type: String, optional: true }),
-    youtube: field({ type: String, optional: true }),
-    website: field({ type: String, optional: true }),
+    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
+    twitter: field({ type: String, optional: true, label: 'Twitter' }),
+    facebook: field({ type: String, optional: true, label: 'Facebook' }),
+    github: field({ type: String, optional: true, label: 'Github' }),
+    youtube: field({ type: String, optional: true, label: 'Youtube' }),
+    website: field({ type: String, optional: true, label: 'Website' }),
   },
   { _id: false },
 );
@@ -105,7 +105,7 @@ const CustomerSchema = mongoose.Schema({
   email: field({ type: String, label: 'Email', optional: true }),
   phone: field({ type: String, label: 'Phone', optional: true }),
 
-  ownerId: field({ type: String, optional: true, label: 'Owner' }),
+  ownerId: field({ type: String, optional: true }),
   position: field({ type: String, optional: true, label: 'Position' }),
   department: field({ type: String, optional: true, label: 'Department' }),
 
@@ -124,7 +124,7 @@ const CustomerSchema = mongoose.Schema({
   }),
 
   hasAuthority: field({ type: String, optional: true, label: 'Has authority' }),
-  description: field({ type: String, optional: true }),
+  description: field({ type: String, optional: true, label: 'Description' }),
   doNotDisturb: field({ type: String, optional: true, label: 'Do not disturb' }),
   links: field({ type: LinkSchema, default: {} }),
 

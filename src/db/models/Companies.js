@@ -10,12 +10,12 @@ import { field } from './utils';
 
 const LinkSchema = mongoose.Schema(
   {
-    linkedIn: field({ type: String, optional: true }),
-    twitter: field({ type: String, optional: true }),
-    facebook: field({ type: String, optional: true }),
-    github: field({ type: String, optional: true }),
-    youtube: field({ type: String, optional: true }),
-    website: field({ type: String, optional: true }),
+    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
+    twitter: field({ type: String, optional: true, label: 'Twitter' }),
+    facebook: field({ type: String, optional: true, label: 'Facebook' }),
+    github: field({ type: String, optional: true, label: 'Github' }),
+    youtube: field({ type: String, optional: true, label: 'Youtube' }),
+    website: field({ type: String, optional: true, label: 'Website' }),
   },
   { _id: false },
 );
