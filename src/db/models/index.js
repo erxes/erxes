@@ -6,7 +6,7 @@ import Brands from './Brands';
 import Integrations from './Integrations';
 import EngageMessages from './Engages';
 import Tags from './Tags';
-import Fields from './Fields';
+import { Fields, FieldsGroups } from './Fields';
 import Forms from './Forms';
 import InternalNotes from './InternalNotes';
 import Customers from './Customers';
@@ -54,4 +54,5 @@ export {
   Deals,
   Products,
   Configs,
+  FieldsGroups,
 };

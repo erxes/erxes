@@ -32,7 +32,14 @@ import {
   mutations as EmailTemplateMutations,
 } from './emailTemplate';
 
-import { types as FieldTypes, queries as FieldQueries, mutations as FieldMutations } from './field';
+import {
+  fieldsTypes as FieldTypes,
+  fieldsQueries as FieldQueries,
+  fieldsMutations as FieldMutations,
+  fieldsGroupsTypes as FieldGroupTypes,
+  fieldsGroupsMutations as FieldGroupMutations,
+  fieldsGroupsQueries as FieldGroupQueries,
+} from './field';
 
 import { types as FormTypes, queries as FormQueries, mutations as FormMutatons } from './form';
 
@@ -128,6 +135,7 @@ export const types = `
   ${DealTypes}
   ${ProductTypes}
   ${ConfigTypes}
+  ${FieldGroupTypes}
 `;
 
 export const queries = `
@@ -154,6 +162,7 @@ export const queries = `
     ${DealQueries}
     ${ProductQueries}
     ${ConfigQueries}
+    ${FieldGroupQueries}
   }
 `;
 
@@ -180,6 +189,7 @@ export const mutations = `
     ${DealMutations}
     ${ProductMutations}
     ${ConfigMutations}
+    ${FieldGroupMutations}
   }
 `;
 

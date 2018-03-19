@@ -14,7 +14,7 @@ const dealQueries = {
    * Deal Board detail
    * @param {Object} args
    * @param {String} args._id
-   * @return {Promise} deal boards list
+   * @return {Promise} deal board detail
    */
   dealBoardDetail(root, { _id }) {
     return DealBoards.findOne({ _id });
@@ -43,7 +43,7 @@ const dealQueries = {
    * @param {Object} args
    * @param {String} args.boardId
    * @param {String} args.pipelineId
-   * @return {Promise}  filtered stage objects by pipelineId
+   * @return {Promise}  filtered stage objects
    */
   dealStages(root, { boardId, pipelineId }) {
     const filter = { pipelineId };
@@ -59,7 +59,7 @@ const dealQueries = {
    * @param {String} args.boardId
    * @param {String} args.pipelineId
    * @param {String} args.stageId
-   * @return {Promise}  filtered pipeline objects by stageId
+   * @return {Promise} filtered pipeline objects by stageId
    */
   deals(root, { boardId, pipelineId, stageId }) {
     const filter = { stageId };
@@ -69,6 +69,16 @@ const dealQueries = {
     if (pipelineId) filter.pipelineId = pipelineId;
 
     return Deals.find(filter).sort({ order: 1, createdAt: -1 });
+  },
+
+  /**
+   * Deal detail
+   * @param {Object} args
+   * @param {String} args._id
+   * @return {Promise} deal detail
+   */
+  dealDetail(root, { _id }) {
+    return Deals.findOne({ _id });
   },
 };
 

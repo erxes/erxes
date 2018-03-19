@@ -54,6 +54,7 @@ export const queries = `
   dealPipelines(boardId: String!): [DealPipeline]
   dealStages(boardId: String, pipelineId: String!): [DealStage]
   deals(boardId: String, pipelineId: String, stageId: String!): [Deal]
+  dealDetail(_id: String!): Deal
 `;
 
 const dealMutationParams = `
