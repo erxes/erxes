@@ -1,7 +1,7 @@
 import { _ } from 'underscore';
 import strip from 'strip';
 import { Conversations, ConversationMessages, Integrations, Customers } from '../../../db/models';
-import { tweetReply } from '../../../social/twitter';
+import { tweetReply, tweet, retweet, favorite } from '../../../social/twitter';
 import { facebookReply } from '../../../social/facebook';
 import { NOTIFICATION_TYPES } from '../../constants';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
@@ -193,6 +193,42 @@ const conversationMutations = {
     await conversationMessageCreated(message, doc.conversationId);
 
     return message;
+  },
+
+  /**
+   * Tweet
+   *
+   * @param {String} doc.integrationId
+   * @param {String} doc.text
+   *
+   * @return {Promise} - twitter response
+   */
+  async conversationsTweet(root, doc) {
+    return tweet(doc);
+  },
+
+  /**
+   * Retweet
+   *
+   * @param {String} doc.integrationId - Integration id
+   * @param {String} doc.id - Tweet id
+   *
+   * @return {Promise} - twitter response
+   */
+  async conversationsRetweet(root, doc) {
+    return retweet(doc);
+  },
+
+  /**
+   * Favorite
+   *
+   * @param {String} doc.integrationId
+   * @param {String} doc.id
+   *
+   * @return {Promise} - twitter response
+   */
+  async conversationsFavorite(root, doc) {
+    return favorite(doc);
   },
 
   /**
