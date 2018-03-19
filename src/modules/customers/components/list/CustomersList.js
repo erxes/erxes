@@ -20,7 +20,8 @@ import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
-import { CustomerForm, CommonMerge } from '../';
+import { CommonMerge } from '../';
+import { CustomerForm } from '../../containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
 
 const propTypes = {
@@ -178,7 +179,7 @@ class CustomersList extends React.Component {
           </Dropdown.Menu>
         </Dropdown>
         <ModalTrigger title="New customer" trigger={addTrigger} size="lg">
-          <CustomerForm />
+          <CustomerForm size="lg" />
         </ModalTrigger>
       </BarItems>
     );

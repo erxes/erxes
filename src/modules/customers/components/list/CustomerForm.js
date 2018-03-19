@@ -28,11 +28,12 @@ const contextTypes = {
 class CustomerForm extends React.Component {
   constructor(props) {
     super(props);
+    const { customer = {} } = props;
 
     this.state = {
-      ownerId: props.customer.ownerId || '',
-      doNotDisturb: props.customer.doNotDisturb || 'No',
-      hasAuthority: props.customer.hasAuthority || 'No'
+      ownerId: customer.ownerId || '',
+      doNotDisturb: customer.doNotDisturb || 'No',
+      hasAuthority: customer.hasAuthority || 'No'
     };
 
     this.action = this.action.bind(this);

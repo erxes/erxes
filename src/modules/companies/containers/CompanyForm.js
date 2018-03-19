@@ -67,11 +67,19 @@ CompanyFromContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-const options = ({ company }) => ({
-  refetchQueries: [
-    { query: gql`${queries.companyDetail}`, variables: { _id: company._id } }
-  ]
-});
+const options = ({ company }) =>
+  company
+    ? {
+        refetchQueries: [
+          {
+            query: gql`${queries.companyDetail}`,
+            variables: { _id: company._id }
+          }
+        ]
+      }
+    : {
+        refetchQueries: [{ query: gql`${queries.companiesMain}` }]
+      };
 
 export default compose(
   graphql(gql(queries.companies), {

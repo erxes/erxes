@@ -14,8 +14,7 @@ import { CustomerForm } from '../../../containers';
 import { NameWrapper } from './styles';
 
 const propTypes = {
-  customer: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired
+  customer: PropTypes.object.isRequired
 };
 
 class BasicInfo extends React.Component {
@@ -48,7 +47,7 @@ class BasicInfo extends React.Component {
   }
 
   renderInfo() {
-    const { customer, save } = this.props;
+    const { customer } = this.props;
     const { links = {}, isUser } = customer;
     const { __ } = this.context;
 
@@ -67,7 +66,7 @@ class BasicInfo extends React.Component {
             </div>
 
             <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
-              <CustomerForm action={save} customer={customer} />
+              <CustomerForm size="lg" customer={customer} />
             </ModalTrigger>
           </NameWrapper>
         </SidebarContent>

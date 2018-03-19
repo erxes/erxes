@@ -59,11 +59,19 @@ CustomerFormContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-const options = ({ customer }) => ({
-  refetchQueries: [
-    { query: gql`${queries.customerDetail}`, variables: { _id: customer._id } }
-  ]
-});
+const options = ({ customer }) =>
+  customer
+    ? {
+        refetchQueries: [
+          {
+            query: gql`${queries.customerDetail}`,
+            variables: { _id: customer._id }
+          }
+        ]
+      }
+    : {
+        refetchQueries: [{ query: gql`${queries.customersMain}` }]
+      };
 
 export default compose(
   graphql(gql(userQueries.users), {

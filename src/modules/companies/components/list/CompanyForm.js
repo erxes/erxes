@@ -33,10 +33,12 @@ class CompanyForm extends React.Component {
   constructor(props) {
     super(props);
 
+    const { company = {} } = props;
+
     this.state = {
-      parentCompanyId: props.company.parentCompanyId || '',
-      ownerId: props.company.ownerId || '',
-      doNotDisturb: props.company.doNotDisturb || 'No'
+      parentCompanyId: company.parentCompanyId || '',
+      ownerId: company.ownerId || '',
+      doNotDisturb: company.doNotDisturb || 'No'
     };
 
     this.action = this.action.bind(this);
