@@ -180,6 +180,8 @@ class Customer {
       if (previousEntry.length > 0) {
         throw new Error('Duplicated email');
       }
+
+      delete query.email;
     }
 
     // Checking if cuostomer has twitter data
@@ -190,6 +192,19 @@ class Customer {
       // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated twitter');
+      }
+
+      delete query['twitterData.id'];
+    }
+
+    // Checking if customer has phone
+    if (customerFields.phone) {
+      query.phone = customerFields.phone;
+      previousEntry = await this.find(query);
+      // Checking if duplicated
+
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated phone');
       }
     }
   }
