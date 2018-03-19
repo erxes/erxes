@@ -213,7 +213,7 @@ class CustomerForm extends React.Component {
                 }}
                 checked={this.state.hasAuthority === 'Yes'}
               >
-                Yes
+                {__('Yes')}
               </FormControl>
               <FormControl
                 componentClass="radio"
@@ -223,7 +223,7 @@ class CustomerForm extends React.Component {
                 }}
                 checked={this.state.hasAuthority === 'No'}
               >
-                No
+                {__('No')}
               </FormControl>
             </FormGroup>
 
@@ -245,7 +245,7 @@ class CustomerForm extends React.Component {
                 }}
                 checked={this.state.doNotDisturb === 'Yes'}
               >
-                Yes
+                {__('Yes')}
               </FormControl>
               <FormControl
                 componentClass="radio"
@@ -255,7 +255,7 @@ class CustomerForm extends React.Component {
                 }}
                 checked={this.state.doNotDisturb === 'No'}
               >
-                No
+                {__('No')}
               </FormControl>
             </FormGroup>
           </FormColumn>

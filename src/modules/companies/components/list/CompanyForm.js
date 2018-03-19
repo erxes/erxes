@@ -271,7 +271,7 @@ class CompanyForm extends React.Component {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Do Not Disturb</ControlLabel>
+              <ControlLabel>Do not disturb</ControlLabel>
               <FormControl
                 componentClass="radio"
                 value="Yes"
@@ -280,7 +280,7 @@ class CompanyForm extends React.Component {
                 }}
                 checked={this.state.doNotDisturb === 'Yes'}
               >
-                Yes
+                {__('Yes')}
               </FormControl>
               <FormControl
                 componentClass="radio"
@@ -290,7 +290,7 @@ class CompanyForm extends React.Component {
                 }}
                 checked={this.state.doNotDisturb === 'No'}
               >
-                No
+                {__('No')}
               </FormControl>
             </FormGroup>
           </FormColumn>
