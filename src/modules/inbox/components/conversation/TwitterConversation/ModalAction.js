@@ -8,7 +8,6 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
 
 const Footer = styled.div`
   text-align: right;
@@ -24,26 +23,28 @@ const Char = styled.b`
 `;
 
 const propTypes = {
-  replyTweet: PropTypes.func.isRequired,
-  parentMessage: PropTypes.object.isRequired
+  replyTweet: PropTypes.func,
+  tweet: PropTypes.func,
+  retweet: PropTypes.func,
+  parentMessage: PropTypes.object.isRequired,
+  integrationId: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(['reply', 'retweet', 'quote']).isRequired
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired
 };
 
-class TweetReply extends React.Component {
+class ModalAction extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       tweet: '',
-      characterCount: this.getCharacterCount(
-        this.getScreenName(props.parentMessage)
-      )
+      characterCount: this.getCharacterCount(this.getContent())
     };
 
-    this.replyTweet = this.replyTweet.bind(this);
+    this.doAction = this.doAction.bind(this);
     this.onTweetContentChange = this.onTweetContentChange.bind(this);
   }
 
@@ -61,6 +62,22 @@ class TweetReply extends React.Component {
     });
   }
 
+  getContent() {
+    const { type, parentMessage } = this.props;
+
+    if (type === 'reply') {
+      return this.getScreenName(parentMessage);
+    }
+
+    if (type === 'quote') {
+      return `RT ${this.getScreenName(parentMessage)}: ${
+        parentMessage.content
+      } `;
+    }
+
+    return parentMessage.content;
+  }
+
   getScreenName(parentMessage, raw) {
     const twitterData =
       parentMessage.customer && parentMessage.customer.twitterData;
@@ -74,34 +91,60 @@ class TweetReply extends React.Component {
     return `@${screenName} `;
   }
 
-  replyTweet(e) {
+  doAction(e) {
     e.preventDefault();
 
-    const { parentMessage, replyTweet } = this.props;
+    const {
+      parentMessage,
+      replyTweet,
+      tweet,
+      retweet,
+      integrationId
+    } = this.props;
     const twitterData = parentMessage.twitterData || {};
-    const screenName = this.getScreenName(parentMessage, true);
-    const tweetContent = this.state.tweet.replace(`@${screenName} `, '');
+    const id = twitterData.id_str;
 
-    const tweet = {
-      conversationId: parentMessage.conversationId,
-      content: tweetContent,
-      tweetReplyToId: twitterData.id_str,
-      tweetReplyToScreenName: screenName
+    if (replyTweet) {
+      const screenName = this.getScreenName(parentMessage, true);
+      const tweetContent = this.state.tweet.replace(`@${screenName} `, '');
+
+      const replyData = {
+        conversationId: parentMessage.conversationId,
+        content: tweetContent,
+        tweetReplyToId: id,
+        tweetReplyToScreenName: screenName
+      };
+
+      return replyTweet(replyData, () => {
+        this.context.closeModal();
+      });
+    }
+
+    if (tweet) {
+      const tweetData = {
+        integrationId,
+        text: this.state.tweet
+      };
+      return tweet(tweetData, () => {
+        this.context.closeModal();
+      });
+    }
+
+    const tweetData = {
+      integrationId,
+      id
     };
 
-    replyTweet(tweet, error => {
-      if (error) {
-        return Alert.error(error.message);
-      }
+    return retweet(tweetData, () => {
       this.context.closeModal();
     });
   }
 
   render() {
-    const { parentMessage } = this.props;
+    const { type } = this.props;
 
     return (
-      <form onSubmit={this.replyTweet}>
+      <form onSubmit={this.doAction}>
         <FormGroup>
           <TweetInfo>
             <ControlLabel>Twitter</ControlLabel>
@@ -113,8 +156,9 @@ class TweetReply extends React.Component {
           <FormControl
             autoFocus
             componentClass="textarea"
+            disabled={type === 'retweet'}
             onChange={this.onTweetContentChange}
-            defaultValue={this.getScreenName(parentMessage)}
+            defaultValue={this.getContent()}
             required
           />
         </FormGroup>
@@ -139,7 +183,7 @@ class TweetReply extends React.Component {
   }
 }
 
-TweetReply.propTypes = propTypes;
-TweetReply.contextTypes = contextTypes;
+ModalAction.propTypes = propTypes;
+ModalAction.contextTypes = contextTypes;
 
-export default TweetReply;
+export default ModalAction;

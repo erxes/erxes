@@ -4,7 +4,7 @@ import RespondBox from './RespondBox';
 import ResponseTemplate from './ResponseTemplate';
 import AssignBox from './AssignBox';
 import Resolver from './Resolver';
-import TweetReply from './TweetReply';
+import TwitterMessage from './TwitterMessage';
 
 export {
   Inbox,
@@ -13,5 +13,5 @@ export {
   ResponseTemplate,
   AssignBox,
   Resolver,
-  TweetReply
+  TwitterMessage
 };
