@@ -27,6 +27,11 @@ class Settings extends Component {
           <RowTitle>{__('Account Settings')}</RowTitle>
           <div>
             {this.renderBox(
+              'General Settings',
+              '/images/icons/erxes-06.svg',
+              '/settings/general-settings'
+            )}
+            {this.renderBox(
               'Channels',
               '/images/icons/erxes-05.svg',
               '/settings/channels'

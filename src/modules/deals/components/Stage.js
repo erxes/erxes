@@ -53,7 +53,7 @@ class Stage extends React.Component {
   render() {
     const { stage, pipelineId, boardId, deals, index } = this.props;
 
-    const amount = this.state.amount;
+    const amount = stage.amount;
 
     return (
       <Draggable draggableId={stage._id} index={index}>
