@@ -36,7 +36,7 @@ const CompanySchema = mongoose.Schema({
 
   industry: field({
     type: String,
-    enum: COMPANY_INDUSTRY_TYPES.ALL,
+    enum: COMPANY_INDUSTRY_TYPES,
     label: 'Industry',
     optional: true,
   }),
@@ -60,21 +60,21 @@ const CompanySchema = mongoose.Schema({
 
   leadStatus: field({
     type: String,
-    enum: COMPANY_LEAD_STATUS_TYPES.ALL,
+    enum: COMPANY_LEAD_STATUS_TYPES,
     optional: true,
     label: 'Lead Status',
   }),
 
   lifecycleState: field({
     type: String,
-    enum: COMPANY_LIFECYCLE_STATE_TYPES.ALL,
+    enum: COMPANY_LIFECYCLE_STATE_TYPES,
     optional: true,
     label: 'Lifecycle State',
   }),
 
   businessType: field({
     type: String,
-    enum: COMPANY_BUSINESS_TYPES.ALL,
+    enum: COMPANY_BUSINESS_TYPES,
     optional: true,
     label: 'Business Type',
   }),

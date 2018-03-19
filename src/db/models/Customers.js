@@ -111,14 +111,14 @@ const CustomerSchema = mongoose.Schema({
 
   leadStatus: field({
     type: String,
-    enum: CUSTOMER_LEAD_STATUS_TYPES.ALL,
+    enum: CUSTOMER_LEAD_STATUS_TYPES,
     optional: true,
     label: 'Lead Status',
   }),
 
   lifecycleState: field({
     type: String,
-    enum: CUSTOMER_LIFECYCLE_STATE_TYPES.ALL,
+    enum: CUSTOMER_LIFECYCLE_STATE_TYPES,
     optional: true,
     label: 'Lifecycle State',
   }),
