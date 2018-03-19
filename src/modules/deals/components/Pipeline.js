@@ -14,14 +14,13 @@ const propTypes = {
   boardId: PropTypes.string,
   stages: PropTypes.array,
   collectDeals: PropTypes.func,
-  dealsByStage: PropTypes.object,
   dealResult: PropTypes.object,
   addToDeals: PropTypes.func
 };
 
 class Pipeline extends React.Component {
   render() {
-    const { stages, pipeline, boardId, dealsByStage, dealResult } = this.props;
+    const { stages, pipeline, boardId } = this.props;
 
     return (
       <PipelineContainer>
@@ -47,10 +46,7 @@ class Pipeline extends React.Component {
                       index={index}
                       boardId={boardId}
                       pipelineId={pipeline._id}
-                      deals={dealsByStage[stage._id] || []}
-                      collectDeals={this.props.collectDeals}
-                      addToDeals={this.props.addToDeals}
-                      dealResult={dealResult}
+                      state={this.props[`stageState${stage._id}`]}
                     />
                   );
                 })}

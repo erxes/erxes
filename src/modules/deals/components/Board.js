@@ -24,14 +24,14 @@ class Board extends React.Component {
     super(props);
 
     this.state = {
-      dealsByStage: {},
       stagesByPipeline: {},
 
-      dealResult: {}
+      stageStatepFb8257KLPtwTtWTk: {},
+      stageStateX8t7rmH8fC35AdeKh: {},
+      stageStateauGLRChyf9QdfDn9o: {}
     };
 
     this.addToDeals = this.addToDeals.bind(this);
-    this.collectDeals = this.collectDeals.bind(this);
     this.collectStages = this.collectStages.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
   }
@@ -49,15 +49,6 @@ class Board extends React.Component {
     });
   }
 
-  collectDeals(stageId, deals) {
-    const dealsByStage = this.state.dealsByStage;
-    dealsByStage[stageId] = deals;
-
-    this.setState({
-      dealsByStage
-    });
-  }
-
   collectStages(pipelineId, stages) {
     const stagesByPipeline = this.state.stagesByPipeline;
     stagesByPipeline[pipelineId] = stages;
@@ -68,19 +59,33 @@ class Board extends React.Component {
   }
 
   onDragEnd(result) {
+    const { type, destination, source, draggableId } = result;
+
     // dropped outside the list
-    if (!result.destination) {
+    if (!destination) {
       return;
     }
 
-    switch (result.type) {
+    switch (type) {
       case 'DEAL': {
         this.setState({
-          dealResult: result
+          // remove from list
+          [`stageState${source.droppableId}`]: {
+            type: 'removeItem',
+            index: source.index
+          },
+
+          // add to list
+          [`stageState${destination.droppableId}`]: {
+            type: 'addItem',
+            index: destination.index,
+            itemId: draggableId
+          }
         });
 
         break;
       }
+
       case 'STAGE': {
         const reOrderedStages = this.reOrder(
           result,
@@ -144,11 +149,18 @@ class Board extends React.Component {
               pipeline={pipeline}
               boardId={currentBoard._id}
               stages={this.state.stagesByPipeline[pipeline._id] || []}
-              dealsByStage={this.state.dealsByStage}
               collectStages={this.collectStages}
-              collectDeals={this.collectDeals}
               addToDeals={this.addToDeals}
               dealResult={this.state.dealResult}
+              stageStatepFb8257KLPtwTtWTk={
+                this.state.stageStatepFb8257KLPtwTtWTk
+              }
+              stageStateX8t7rmH8fC35AdeKh={
+                this.state.stageStateX8t7rmH8fC35AdeKh
+              }
+              stageStateauGLRChyf9QdfDn9o={
+                this.state.stageStateauGLRChyf9QdfDn9o
+              }
             />
           );
         })}

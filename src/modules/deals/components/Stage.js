@@ -19,7 +19,6 @@ const propTypes = {
   pipelineId: PropTypes.string,
   deals: PropTypes.array,
   index: PropTypes.number.isRequired,
-  collectDeals: PropTypes.func.isRequired,
   saveDeal: PropTypes.func.isRequired,
   removeDeal: PropTypes.func.isRequired,
   moveDeal: PropTypes.func.isRequired

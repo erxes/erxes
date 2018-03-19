@@ -7,72 +7,47 @@ import { queries, mutations } from '../graphql';
 import { Alert, confirm } from 'modules/common/utils';
 import { Spinner } from 'modules/common/components';
 import { listObjectUnFreeze } from 'modules/common/utils';
-import { moveInList, collectOrders } from '../utils';
 
 class StageContainer extends React.Component {
   constructor(props) {
     super(props);
 
-    const { collectDeals, stage, dealsFromDb } = props;
+    const { dealsFromDb } = props;
 
-    collectDeals(stage._id, listObjectUnFreeze(dealsFromDb));
+    this.state = {
+      deals: listObjectUnFreeze(dealsFromDb)
+    };
   }
 
   componentWillReceiveProps(nextProps) {
-    if (
-      JSON.stringify(this.props.dealResult) !==
-      JSON.stringify(nextProps.dealResult)
-    ) {
-      const {
-        dealResult: { source, destination, draggableId },
-        deals,
-        stage,
-        collectDeals,
-        dealsUpdateOrder,
-        dealsChange
-      } = nextProps;
+    if (this.props.state !== nextProps.state) {
+      const { deals } = this.state;
+      const { type, index, itemId } = nextProps.state;
 
-      if (
-        source.droppableId === stage._id &&
-        destination.droppableId === stage._id
-      ) {
-        // Move within list
-        const movedList = moveInList(deals, source.index, destination.index);
-
-        collectDeals(stage._id, movedList);
-
-        dealsUpdateOrder(collectOrders(movedList));
-      } else if (source.droppableId === stage._id) {
+      if (type === 'removeItem') {
         // Remove from list
-        deals.splice(source.index, 1);
-
-        collectDeals(stage._id, deals);
-
-        dealsUpdateOrder(collectOrders(deals));
-      } else if (destination.droppableId === stage._id) {
-        // Add to list
-        deals.splice(destination.index, 0, { _id: draggableId });
-
-        collectDeals(stage._id, deals);
-
-        dealsUpdateOrder(collectOrders(deals));
-
-        dealsChange(draggableId, stage._id);
+        deals.splice(index, 1);
       }
+
+      if (type === 'addItem') {
+        // Add to list
+        deals.splice(index, 0, { _id: itemId });
+      }
+
+      this.setState({ deals });
     }
   }
 
   render() {
     const {
-      collectDeals,
       addToDeals,
-      stage,
-      deals,
       addMutation,
       editMutation,
       removeMutation,
       dealsChangeMutation
     } = this.props;
+
+    const { deals } = this.state;
 
     // create or update deal
     const saveDeal = (doc, callback, deal) => {
@@ -98,8 +73,6 @@ class StageContainer extends React.Component {
             deals.push(data.dealsAdd);
           }
 
-          collectDeals(stage._id, deals);
-
           callback();
         })
         .catch(error => {
@@ -113,12 +86,8 @@ class StageContainer extends React.Component {
         removeMutation({
           variables: { _id }
         })
-          .then(({ data: { dealsRemove } }) => {
+          .then(() => {
             Alert.success('Successfully deleted.');
-
-            const filteredDeals = deals.filter(d => d._id !== dealsRemove._id);
-
-            collectDeals(stage._id, filteredDeals);
 
             callback();
           })
@@ -136,11 +105,6 @@ class StageContainer extends React.Component {
         .then(({ data: { dealsChange } }) => {
           Alert.success('Successfully moved.');
 
-          const filteredDeals = deals.filter(d => d._id !== dealsChange._id);
-
-          // update source list
-          collectDeals(stage._id, filteredDeals);
-
           // update destination list
           addToDeals(dealsChange.stageId, { _id: dealsChange._id });
 
@@ -153,6 +117,7 @@ class StageContainer extends React.Component {
 
     const extendedProps = {
       ...this.props,
+      deals,
       saveDeal,
       removeDeal,
       moveDeal
@@ -163,7 +128,7 @@ class StageContainer extends React.Component {
 }
 
 StageContainer.propTypes = {
-  collectDeals: PropTypes.func,
+  state: PropTypes.object,
   stage: PropTypes.object,
   dealsFromDb: PropTypes.array,
   deals: PropTypes.array,
