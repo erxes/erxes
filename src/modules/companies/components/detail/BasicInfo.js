@@ -27,15 +27,19 @@ class BasicInfo extends React.Component {
   }
 
   renderLinks(links) {
+    const { Title } = Sidebar.Section;
+
     return (
-      <Links>
-        {this.renderLink(links.linkedIn, 'social-linkedin')}
-        {this.renderLink(links.twitter, 'social-twitter')}
-        {this.renderLink(links.facebook, 'social-facebook')}
-        {this.renderLink(links.github, 'social-github')}
-        {this.renderLink(links.youtube, 'social-youtube')}
-        {this.renderLink(links.website, 'android-globe')}
-      </Links>
+      <Title>
+        <Links>
+          {this.renderLink(links.linkedIn, 'social-linkedin')}
+          {this.renderLink(links.twitter, 'social-twitter')}
+          {this.renderLink(links.facebook, 'social-facebook')}
+          {this.renderLink(links.github, 'social-github')}
+          {this.renderLink(links.youtube, 'social-youtube')}
+          {this.renderLink(links.website, 'android-globe')}
+        </Links>
+      </Title>
     );
   }
 
@@ -55,7 +59,7 @@ class BasicInfo extends React.Component {
           </ModalTrigger>
         </QuickButtons>
 
-        <Title>{this.renderLinks(links)}</Title>
+        {this.renderLinks(links)}
 
         <SidebarList className="no-link">
           <li>
