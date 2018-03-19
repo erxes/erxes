@@ -87,6 +87,20 @@ class CustomerForm extends React.Component {
         firstName.value = '';
         lastName.value = '';
         email.value = '';
+        phone.value = '';
+        position.value = '';
+        department.value = '';
+        leadStatus.value = '';
+        lifecycleState.value = '';
+        description.value = '';
+        linkedIn.value = '';
+        twitter.value = '';
+        facebook.value = '';
+        github.value = '';
+        youtube.value = '';
+        website.value = '';
+
+        this.setState({ ownerId: '', hasAuthority: 'No', doNotDisturb: 'No' });
         if (document.activeElement.name === 'close') this.context.closeModal();
       }
     });
@@ -183,7 +197,7 @@ class CustomerForm extends React.Component {
                 defaultValue={customer.leadStatus || ''}
               >
                 <option />
-                {CUSTOMER_LEAD_STATUS_TYPES.ALL.map((type, index) => {
+                {CUSTOMER_LEAD_STATUS_TYPES.map((type, index) => {
                   return <option key={index}>{type}</option>;
                 })}
               </FormControl>
@@ -197,7 +211,7 @@ class CustomerForm extends React.Component {
                 defaultValue={customer.lifecycleState || ''}
               >
                 <option />
-                {CUSTOMER_LIFECYCLE_STATE_TYPES.ALL.map((type, index) => {
+                {CUSTOMER_LIFECYCLE_STATE_TYPES.map((type, index) => {
                   return <option key={index}>{type}</option>;
                 })}
               </FormControl>

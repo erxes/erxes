@@ -96,6 +96,24 @@ class CompanyForm extends React.Component {
       callback: () => {
         name.value = '';
         website.value = '';
+        size.value = 0;
+        industry.value = '';
+        plan.value = '';
+        email.value = '';
+        phone.value = '';
+        leadStatus.value = '';
+        lifecycleState.value = '';
+        businessType.value = '';
+        description.value = '';
+        employees.value = '';
+        linkedIn.value = '';
+        twitter.value = '';
+        facebook.value = '';
+        github.value = '';
+        youtube.value = '';
+        website.value = '';
+
+        this.setState({ parentCompanyId: '', ownerId: '', doNotDisturb: 'No' });
         if (document.activeElement.name === 'close') this.context.closeModal();
       }
     });
@@ -153,7 +171,7 @@ class CompanyForm extends React.Component {
                 defaultValue={company.industry || ''}
               >
                 <option />
-                {COMPANY_INDUSTRY_TYPES.ALL.map((type, index) => {
+                {COMPANY_INDUSTRY_TYPES.map((type, index) => {
                   return <option key={index}>{type}</option>;
                 })}
               </FormControl>
@@ -218,7 +236,7 @@ class CompanyForm extends React.Component {
                 defaultValue={company.leadStatus || ''}
               >
                 <option />
-                {COMPANY_LEAD_STATUS_TYPES.ALL.map((type, index) => {
+                {COMPANY_LEAD_STATUS_TYPES.map((type, index) => {
                   return <option key={index}>{type}</option>;
                 })}
               </FormControl>
@@ -232,7 +250,7 @@ class CompanyForm extends React.Component {
                 defaultValue={company.lifecycleState || ''}
               >
                 <option />
-                {COMPANY_LIFECYCLE_STATE_TYPES.ALL.map((type, index) => {
+                {COMPANY_LIFECYCLE_STATE_TYPES.map((type, index) => {
                   return <option key={index}>{type}</option>;
                 })}
               </FormControl>
@@ -246,7 +264,7 @@ class CompanyForm extends React.Component {
                 defaultValue={company.businessType || ''}
               >
                 <option />
-                {COMPANY_BUSINESS_TYPES.ALL.map((type, index) => {
+                {COMPANY_BUSINESS_TYPES.map((type, index) => {
                   return <option key={index}>{type}</option>;
                 })}
               </FormControl>

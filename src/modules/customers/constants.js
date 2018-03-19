@@ -69,28 +69,24 @@ export const CUSTOMER_DATAS = {
   visitorContactInfo: 'Visitor contact info'
 };
 
-export const CUSTOMER_LEAD_STATUS_TYPES = {
-  ALL: [
-    'New',
-    'Open',
-    'In Progress',
-    'Open Deal',
-    'Unqualified',
-    'Attempted to contact',
-    'Connected',
-    'Bad Timing'
-  ]
-};
+export const CUSTOMER_LEAD_STATUS_TYPES = [
+  'New',
+  'Open',
+  'In Progress',
+  'Open Deal',
+  'Unqualified',
+  'Attempted to contact',
+  'Connected',
+  'Bad Timing'
+];
 
-export const CUSTOMER_LIFECYCLE_STATE_TYPES = {
-  ALL: [
-    'Subscriber',
-    'Lead',
-    'Marketing Qualified Lead',
-    'Sales Qualified Lead',
-    'Opportunity',
-    'Customer',
-    'Evangelist',
-    'Other'
-  ]
-};
+export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
+  'Subscriber',
+  'Lead',
+  'Marketing Qualified Lead',
+  'Sales Qualified Lead',
+  'Opportunity',
+  'Customer',
+  'Evangelist',
+  'Other'
+];
