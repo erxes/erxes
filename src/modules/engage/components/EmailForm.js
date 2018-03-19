@@ -34,6 +34,10 @@ const Flex = FlexItem.extend`
   }
 `;
 
+const PreviewStyle = styled.div`
+  padding: 0 20px;
+`;
+
 class EmailForm extends Component {
   constructor(props) {
     super(props);
@@ -99,10 +103,9 @@ class EmailForm extends Component {
       EMAIL_CONTENT_CLASS
     );
     // render editor to content
-
     if (contentContainer.length > 0) {
       ReactDom.render(
-        <div
+        <PreviewStyle
           dangerouslySetInnerHTML={{
             __html: this.props.defaultValue.message
           }}

@@ -82,6 +82,15 @@ const Box = styled.div`
     }
   }};
 `;
+const Img = styled.div`
+  width: 100%;
+  height: 100%;
+  background-image: url(${props => (props.src ? props.src : '')});
+  background-size: ${props => (props.size ? props.size : 'cover')};
+  background-repeat: no-repeat;
+  background-position: ${props =>
+    props.position ? props.position : 'right bottom'};
+`;
 
 const propTypes = {
   changeState: PropTypes.func,
@@ -115,11 +124,17 @@ class ChannelStep extends Component {
     const { kind } = this.props;
 
     if (kind === 'auto') {
-      return 'zurag1';
+      return <Img src="/images/engage/auto.jpg" />;
     } else if (kind === 'manual') {
-      return 'zurag2';
+      return (
+        <Img
+          src="/images/engage/email.jpg"
+          size="contain"
+          position="center center"
+        />
+      );
     }
-    return 'zruag3';
+    return <Img src="/images/engage/visitor.jpg" />;
   }
 
   render() {
