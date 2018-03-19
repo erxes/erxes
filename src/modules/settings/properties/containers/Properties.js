@@ -6,6 +6,7 @@ import { router } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import { customerBasicInfos, companyBasicInfos } from '../utils';
 import { Properties } from '../components';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 
@@ -16,7 +17,8 @@ const PropertiesContainer = props => {
     fieldsGroupsRemove,
     fieldsRemove,
     fieldsGroupsUpdateVisible,
-    fieldsUpdateVisible
+    fieldsUpdateVisible,
+    queryParams
   } = props;
 
   if (!router.getParam(history, 'type')) {
@@ -72,10 +74,20 @@ const PropertiesContainer = props => {
   };
 
   const currentType = router.getParam(history, 'type');
+  const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || {})];
+
+  // Initializing default properties for customer and company
+  let defaultGroup = companyBasicInfos;
+
+  if (queryParams.type === FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER) {
+    defaultGroup = customerBasicInfos;
+  }
+
+  fieldsGroups.unshift(defaultGroup);
 
   const updatedProps = {
     ...props,
-    fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
+    fieldsGroups,
     currentType,
     removePropertyGroup,
     removeProperty,

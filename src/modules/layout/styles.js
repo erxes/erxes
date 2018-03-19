@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { colors, dimensions, typography } from '../common/styles';
 
 const UserHelper = styled.div`
@@ -231,6 +231,7 @@ const SidebarList = styled.ul`
     text-decoration: none;
     outline: 0;
     position: relative;
+    transition: background 0.3s ease;
 
     > i {
       margin-right: 5px;
@@ -243,11 +244,6 @@ const SidebarList = styled.ul`
       text-decoration: none;
       outline: 0;
       color: ${colors.colorCoreBlack};
-
-      > span {
-        background-color: ${colors.bgActive};
-        box-shadow: -2px 0 10px 2px ${colors.bgActive};
-      }
     }
   }
 
@@ -267,8 +263,6 @@ const SidebarCounter = styled.span`
   max-width: 60%;
   overflow: hidden;
   text-overflow: ellipsis;
-  background-color: #fff;
-  box-shadow: -2px 0 10px 2px #fff;
   padding-left: 10px;
 
   a {
@@ -280,6 +274,15 @@ const SidebarCounter = styled.span`
     float: right;
     margin-left: 5px;
   }
+
+  ${props =>
+    props.nowrap &&
+    css`
+      width: 100%;
+      white-space: normal;
+      position: initial;
+      margin-left: 10px;
+    `};
 `;
 
 const FlexContent = styled.div`

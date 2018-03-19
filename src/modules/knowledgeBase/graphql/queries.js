@@ -15,6 +15,7 @@ const knowledgeBaseTopics = `
         icon
       }
       color
+      languageCode
       createdBy
       createdDate
       modifiedBy

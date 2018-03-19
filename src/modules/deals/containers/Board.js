@@ -22,9 +22,7 @@ class Container extends React.Component {
     const {
       boardsQuery,
       pipelinesQuery,
-      dealsUpdateOrderMutation,
       stagesUpdateOrderMutation,
-      dealsChangeMutation,
       stagesChangeMutation
     } = this.props;
 
@@ -35,26 +33,11 @@ class Container extends React.Component {
       return <Spinner />;
     }
 
-    const dealsUpdateOrder = orders => {
-      dealsUpdateOrderMutation({
-        variables: { orders }
-      }).catch(error => {
-        Alert.error(error.message);
-      });
-    };
-
     const stagesUpdateOrder = orders => {
       stagesUpdateOrderMutation({
         variables: { orders }
       }).catch(error => {
         Alert.error(error.message);
-      });
-    };
-
-    // if move to other stage, will change stageId and pipelineId
-    const dealsChange = (_id, stageId, pipelineId) => {
-      dealsChangeMutation({
-        variables: { _id, stageId, pipelineId }
       });
     };
 
@@ -69,9 +52,7 @@ class Container extends React.Component {
       ...this.props,
       boards,
       pipelines,
-      dealsUpdateOrder,
       stagesUpdateOrder,
-      dealsChange,
       stagesChange
     };
 
@@ -82,9 +63,7 @@ class Container extends React.Component {
 const propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
-  dealsUpdateOrderMutation: PropTypes.func,
   stagesUpdateOrderMutation: PropTypes.func,
-  dealsChangeMutation: PropTypes.func,
   stagesChangeMutation: PropTypes.func,
   currentBoardId: PropTypes.string,
   history: PropTypes.object
@@ -96,14 +75,8 @@ const BoardContainer = compose(
   graphql(gql(queries.boards), {
     name: 'boardsQuery'
   }),
-  graphql(gql(mutations.dealsUpdateOrder), {
-    name: 'dealsUpdateOrderMutation'
-  }),
   graphql(gql(mutations.stagesUpdateOrder), {
     name: 'stagesUpdateOrderMutation'
-  }),
-  graphql(gql(mutations.dealsChange), {
-    name: 'dealsChangeMutation'
   }),
   graphql(gql(mutations.stagesChange), {
     name: 'stagesChangeMutation'

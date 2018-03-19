@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { ProductItemForm } from '../../components';
-import { queries } from '../../graphql';
+import { ProductItemForm } from '../components';
+import { queries } from '../graphql';
 
 class ProductItemFormContainer extends React.Component {
   render() {

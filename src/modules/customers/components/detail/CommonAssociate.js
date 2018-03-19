@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   Button,
   Icon,
@@ -9,6 +8,7 @@ import {
   EmptyState
 } from 'modules/common/components';
 import { Footer, LoadMore, Title, Columns, Column } from '../../styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   data: PropTypes.object.isRequired,
@@ -159,7 +159,7 @@ class CommonAssociate extends Component {
             <ul>{selectedDatas.map(data => this.renderRow(data, 'close'))}</ul>
           </Column>
         </Columns>
-        <Modal.Footer>
+        <ModalFooter>
           <Footer>
             <ModalTrigger title={`New ${title}`} trigger={addTrigger}>
               {form}
@@ -177,7 +177,7 @@ class CommonAssociate extends Component {
               </Button>
             </div>
           </Footer>
-        </Modal.Footer>
+        </ModalFooter>
       </div>
     );
   }

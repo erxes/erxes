@@ -6,8 +6,7 @@ import { Dropdown } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import { DragDropContext } from 'react-beautiful-dnd';
 
-import { Pipeline } from '../../containers';
-import { moveInList, addToList, removeFromList } from '../../utils';
+import { Pipeline } from '../containers';
 import { BarItems } from 'modules/layout/styles';
 import { Button, DropdownToggle, Icon } from 'modules/common/components';
 
@@ -16,9 +15,7 @@ const propTypes = {
   boards: PropTypes.array,
   pipelines: PropTypes.array,
   stages: PropTypes.array,
-  dealsUpdateOrder: PropTypes.func,
   stagesUpdateOrder: PropTypes.func,
-  dealsChange: PropTypes.func,
   stagesChange: PropTypes.func
 };
 
@@ -28,20 +25,27 @@ class Board extends React.Component {
 
     this.state = {
       dealsByStage: {},
-      stagesByPipeline: {}
+      stagesByPipeline: {},
+
+      dealResult: {}
     };
 
+    this.addToDeals = this.addToDeals.bind(this);
     this.collectDeals = this.collectDeals.bind(this);
     this.collectStages = this.collectStages.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
   }
 
-  collectStages(pipelineId, stages) {
-    const stagesByPipeline = this.state.stagesByPipeline;
-    stagesByPipeline[pipelineId] = stages;
+  addToDeals(stageId, deal) {
+    const dealsByStage = this.state.dealsByStage;
+
+    const deals = dealsByStage[stageId] || [];
+    deals.push(deal);
+
+    dealsByStage[stageId] = deals;
 
     this.setState({
-      stagesByPipeline
+      dealsByStage
     });
   }
 
@@ -54,76 +58,13 @@ class Board extends React.Component {
     });
   }
 
-  collectOrders(list) {
-    const updatedList = [];
+  collectStages(pipelineId, stages) {
+    const stagesByPipeline = this.state.stagesByPipeline;
+    stagesByPipeline[pipelineId] = stages;
 
-    list.forEach((element, index) => {
-      updatedList.push({
-        _id: element._id,
-        order: index
-      });
+    this.setState({
+      stagesByPipeline
     });
-
-    return updatedList;
-  }
-
-  reOrder(
-    { type, source, destination, draggableId },
-    list,
-    updateOrder,
-    change
-  ) {
-    // If ordering within list
-    if (source.droppableId === destination.droppableId) {
-      // move in list
-      const reOrderedList = moveInList(
-        list[destination.droppableId],
-        source.index,
-        destination.index
-      );
-
-      updateOrder(this.collectOrders(reOrderedList));
-
-      // update reordered list
-      list[destination.droppableId] = reOrderedList;
-
-      return list;
-    }
-
-    // When move to another list
-    // Remove from source list
-    const { sourceList, removedItem } = removeFromList(
-      list[source.droppableId],
-      source.index
-    );
-
-    // Update source list
-    list[source.droppableId] = sourceList;
-
-    // Add destination list
-    const destinationList = addToList(
-      list[destination.droppableId],
-      destination.index,
-      removedItem
-    );
-
-    // Update destination list
-    list[destination.droppableId] = destinationList;
-
-    updateOrder(this.collectOrders(sourceList));
-    updateOrder(this.collectOrders(destinationList));
-
-    if (type === 'DEAL') {
-      const deal = list[destination.droppableId].find(
-        el => el._id === draggableId
-      );
-
-      change(draggableId, destination.droppableId, deal.pipelineId);
-    }
-
-    change(draggableId, destination.droppableId);
-
-    return list;
   }
 
   onDragEnd(result) {
@@ -134,15 +75,8 @@ class Board extends React.Component {
 
     switch (result.type) {
       case 'DEAL': {
-        const reOrderedDeals = this.reOrder(
-          result,
-          this.state.dealsByStage,
-          this.props.dealsUpdateOrder,
-          this.props.dealsChange
-        );
-
         this.setState({
-          deals: reOrderedDeals
+          dealResult: result
         });
 
         break;
@@ -156,7 +90,7 @@ class Board extends React.Component {
         );
 
         this.setState({
-          stages: reOrderedStages
+          stagesByPipeline: reOrderedStages
         });
 
         break;
@@ -213,6 +147,8 @@ class Board extends React.Component {
               dealsByStage={this.state.dealsByStage}
               collectStages={this.collectStages}
               collectDeals={this.collectDeals}
+              addToDeals={this.addToDeals}
+              dealResult={this.state.dealResult}
             />
           );
         })}

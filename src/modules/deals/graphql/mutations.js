@@ -26,10 +26,42 @@ const commonParams = `
   order: $order
 `;
 
+const commonReturn = `
+  _id
+  stageId
+  pipelineId
+  boardId
+  company {
+    _id
+    name
+  }
+  customer {
+    _id
+    firstName
+    email
+  }
+  products {
+    _id
+    name
+  }
+  productsData
+  amount
+  closeDate
+  note
+  assignedUsers {
+    _id
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
+`;
+
 const dealsAdd = `
   mutation dealsAdd(${commonVariables}) {
     dealsAdd(${commonParams}) {
-      _id
+      ${commonReturn}
     }
   }
 `;
@@ -37,14 +69,16 @@ const dealsAdd = `
 const dealsEdit = `
   mutation dealsEdit($_id: String!, ${commonVariables}) {
     dealsEdit(_id: $_id, ${commonParams}) {
-      _id
+      ${commonReturn}
     }
   }
 `;
 
 const dealsRemove = `
   mutation dealsRemove($_id: String!) {
-    dealsRemove(_id: $_id)
+    dealsRemove(_id: $_id) {
+      _id
+    }
   }
 `;
 
@@ -67,8 +101,7 @@ const stagesUpdateOrder = `
 const dealsChange = `
   mutation dealsChange($_id: String!, $stageId: String!, $pipelineId: String, $boardId: String) {
     dealsChange(_id: $_id, stageId: $stageId, pipelineId: $pipelineId, boardId: $boardId) {
-      _id
-      stageId
+      ${commonReturn}
     }
   }
 `;

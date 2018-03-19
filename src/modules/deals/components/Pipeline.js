@@ -1,37 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Stage } from '../../containers';
+import { Stage } from '../containers';
 import { Droppable } from 'react-beautiful-dnd';
 import {
   PipelineContainer,
   PipelineHeader,
   PipelineBody,
   EmptyStage
-} from '../../styles';
-import { listObjectUnFreeze } from 'modules/common/utils';
+} from '../styles';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
   boardId: PropTypes.string,
   stages: PropTypes.array,
-  collectStages: PropTypes.func,
   collectDeals: PropTypes.func,
   dealsByStage: PropTypes.object,
-  stagesFromDb: PropTypes.array
+  dealResult: PropTypes.object,
+  addToDeals: PropTypes.func
 };
 
 class Pipeline extends React.Component {
-  constructor(props) {
-    super(props);
-
-    props.collectStages(
-      props.pipeline._id,
-      listObjectUnFreeze(props.stagesFromDb)
-    );
-  }
-
   render() {
-    const { stages, pipeline, boardId, dealsByStage } = this.props;
+    const { stages, pipeline, boardId, dealsByStage, dealResult } = this.props;
 
     return (
       <PipelineContainer>
@@ -59,6 +49,8 @@ class Pipeline extends React.Component {
                       pipelineId={pipeline._id}
                       deals={dealsByStage[stage._id] || []}
                       collectDeals={this.props.collectDeals}
+                      addToDeals={this.props.addToDeals}
+                      dealResult={dealResult}
                     />
                   );
                 })}

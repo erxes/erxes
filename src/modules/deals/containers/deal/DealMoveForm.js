@@ -4,9 +4,7 @@ import { Spinner } from 'modules/common/components';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { DealMoveForm } from '../../components';
-import { Alert } from 'modules/common/utils';
-
-import { queries, mutations } from '../../graphql';
+import { queries } from '../../graphql';
 
 class DealMoveFormContainer extends React.Component {
   constructor(props) {
@@ -51,35 +49,12 @@ class DealMoveFormContainer extends React.Component {
   }
 
   render() {
-    const {
-      deal,
-      boardsQuery,
-      pipelinesQuery,
-      stagesQuery,
-      dealsQuery,
-      dealsChangeMutation
-    } = this.props;
+    const { deal, boardsQuery, pipelinesQuery, stagesQuery } = this.props;
     const { boardId, pipelineId } = this.state;
 
     if (boardsQuery.loading || pipelinesQuery.loading || stagesQuery.loading) {
       return <Spinner />;
     }
-
-    const move = (doc, callback) => {
-      dealsChangeMutation({
-        variables: doc
-      })
-        .then(({ data }) => {
-          Alert.success('Successfully moved.');
-
-          dealsQuery.refetch({ stageId: data.dealsChange.stageId });
-
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
 
     const boards = boardsQuery.dealBoards;
     const pipelines = pipelinesQuery.dealPipelines;
@@ -99,8 +74,7 @@ class DealMoveFormContainer extends React.Component {
       stageId: filteredStages[0]._id,
       pipelineId,
       onChangeBoard: this.onChangeBoard,
-      onChangePipeline: this.onChangePipeline,
-      move
+      onChangePipeline: this.onChangePipeline
     };
 
     return <DealMoveForm {...extendedProps} />;
@@ -111,8 +85,6 @@ const propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
   stagesQuery: PropTypes.object,
-  dealsQuery: PropTypes.object,
-  dealsChangeMutation: PropTypes.func,
   deal: PropTypes.object
 };
 
@@ -135,17 +107,6 @@ export default compose(
     options: ({ deal }) => ({
       variables: {
         pipelineId: deal.pipelineId
-      }
-    })
-  }),
-  graphql(gql(mutations.dealsChange), {
-    name: 'dealsChangeMutation'
-  }),
-  graphql(gql(queries.deals), {
-    name: 'dealsQuery',
-    options: ({ stageId }) => ({
-      variables: {
-        stageId: stageId || ''
       }
     })
   })

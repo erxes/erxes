@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import moment from 'moment';
 import {
   Button,
@@ -17,6 +16,7 @@ import {
   InfoDetail,
   Info
 } from '../../styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   datas: PropTypes.array.isRequired,
@@ -289,7 +289,7 @@ class CommonMerge extends Component {
             <ul>{this.renderMergedData()}</ul>
           </Column>
         </Columns>
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             onClick={() => this.context.closeModal()}
@@ -300,7 +300,7 @@ class CommonMerge extends Component {
           <Button type="submit" btnStyle="success" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

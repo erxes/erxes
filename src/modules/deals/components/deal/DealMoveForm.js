@@ -26,8 +26,7 @@ class DealMoveForm extends React.Component {
       stageId: this.state.stageId
     };
 
-    this.props.move(doc, () => {
-      this.props.refetch();
+    this.props.moveDeal(doc, () => {
       this.props.closeEditForm();
     });
   }
@@ -115,8 +114,7 @@ const propTypes = {
   closeEditForm: PropTypes.func.isRequired,
   onChangeBoard: PropTypes.func.isRequired,
   onChangePipeline: PropTypes.func.isRequired,
-  move: PropTypes.func.isRequired,
-  refetch: PropTypes.func.isRequired
+  moveDeal: PropTypes.func.isRequired
 };
 
 DealMoveForm.propTypes = propTypes;

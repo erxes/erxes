@@ -6,18 +6,6 @@ export function moveInList(array, startIndex, endIndex) {
   return array;
 }
 
-// Remove from list
-export function removeFromList(array, index) {
-  const [removedItem] = array.splice(index, 1);
-  return { sourceList: array, removedItem };
-}
-
-// Add to list
-export function addToList(array, index, item) {
-  array.splice(index, 0, item);
-  return array;
-}
-
 // get options for react-select-plus
 export function selectOptions(array) {
   const options = [];
@@ -47,4 +35,17 @@ export function selectUserOptions(array) {
     })
   );
   return options;
+}
+
+export function collectOrders(list) {
+  const updatedList = [];
+
+  list.forEach((element, index) => {
+    updatedList.push({
+      _id: element._id,
+      order: index
+    });
+  });
+
+  return updatedList;
 }

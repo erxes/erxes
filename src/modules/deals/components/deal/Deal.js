@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
 import moment from 'moment';
 import { DealProduct, DealUser } from '../';
-import { QuickEdit } from '../../containers';
+import { QuickEdit } from '../';
 import { Icon } from 'modules/common/components';
 import {
   DealContainer,
@@ -15,7 +15,9 @@ import {
 const propTypes = {
   deal: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
-  refetch: PropTypes.func.isRequired
+  saveDeal: PropTypes.func.isRequired,
+  removeDeal: PropTypes.func.isRequired,
+  moveDeal: PropTypes.func.isRequired
 };
 
 class Deal extends React.Component {
@@ -60,7 +62,7 @@ class Deal extends React.Component {
   }
 
   render() {
-    const { deal, refetch, index } = this.props;
+    const { deal, saveDeal, removeDeal, moveDeal, index } = this.props;
 
     if (this.state.showQuickEdit) {
       const { top, bottom, left } = this.state;
@@ -72,7 +74,9 @@ class Deal extends React.Component {
           left={left}
           close={this.closeQuickEditForm}
           deal={deal}
-          refetch={refetch}
+          saveDeal={saveDeal}
+          removeDeal={removeDeal}
+          moveDeal={moveDeal}
         />
       );
     }

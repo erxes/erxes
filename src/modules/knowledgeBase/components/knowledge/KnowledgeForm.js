@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
-import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { ChromePicker } from 'react-color';
 import {
@@ -17,6 +17,7 @@ import {
   ColorPicker
 } from 'modules/settings/styles';
 import SelectBrand from '../SelectBrand';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   topic: PropTypes.object,
@@ -149,6 +150,7 @@ class KnowledgeForm extends Component {
           description: document.getElementById('knowledgebase-description')
             .value,
           brandId: document.getElementById('selectBrand').value,
+          languageCode: document.getElementById('languageCode').value,
           color: this.state.color
         }
       }
@@ -196,6 +198,20 @@ class KnowledgeForm extends Component {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Language</ControlLabel>
+
+          <FormControl
+            componentClass="select"
+            defaultValue={topic.languageCode || 'en'}
+            id="languageCode"
+          >
+            <option />
+            <option value="mn">Монгол</option>
+            <option value="en">English</option>
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Choose a custom color</ControlLabel>
           <div>
             <OverlayTrigger
@@ -228,7 +244,7 @@ class KnowledgeForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(topic || {})}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -250,7 +266,7 @@ class KnowledgeForm extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

@@ -18,6 +18,7 @@ export default `
     sentAs
   }
   formWidgetData
+  twitterData
   facebookData
   user {
     _id

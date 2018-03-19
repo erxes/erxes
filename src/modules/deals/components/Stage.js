@@ -8,21 +8,21 @@ import {
   StageBody,
   StageDropZone,
   AddNewDeal
-} from '../../styles';
+} from '../styles';
 import { Icon } from 'modules/common/components';
-import { Deal } from '../';
-import { DealForm } from '../../containers';
-import { listObjectUnFreeze } from 'modules/common/utils';
+import { Deal } from '../containers';
+import { DealForm } from '../containers';
 
 const propTypes = {
   stage: PropTypes.object.isRequired,
   boardId: PropTypes.string,
   pipelineId: PropTypes.string,
   deals: PropTypes.array,
-  dealsFromDb: PropTypes.array,
   index: PropTypes.number.isRequired,
   collectDeals: PropTypes.func.isRequired,
-  refetch: PropTypes.func.isRequired
+  saveDeal: PropTypes.func.isRequired,
+  removeDeal: PropTypes.func.isRequired,
+  moveDeal: PropTypes.func.isRequired
 };
 
 class Stage extends React.Component {
@@ -31,8 +31,6 @@ class Stage extends React.Component {
 
     this.showForm = this.showForm.bind(this);
     this.closeForm = this.closeForm.bind(this);
-
-    props.collectDeals(props.stage._id, listObjectUnFreeze(props.dealsFromDb));
 
     this.state = {
       amount: {},
@@ -52,38 +50,13 @@ class Stage extends React.Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      JSON.stringify(this.props.dealsFromDb) !==
-      JSON.stringify(nextProps.dealsFromDb)
-    ) {
-      this.props.collectDeals(
-        this.props.stage._id,
-        listObjectUnFreeze(nextProps.dealsFromDb)
-      );
-    }
-
-    const amount = {};
-
-    if (nextProps.deals.length > 0) {
-      nextProps.deals.forEach(deal => {
-        Object.keys(deal.amount).forEach(key => {
-          if (!amount[key]) amount[key] = deal.amount[key];
-          else amount[key] += deal.amount[key];
-        });
-      });
-    }
-
-    this.setState({ amount });
-  }
-
   render() {
-    const { stage, pipelineId, boardId, deals, refetch } = this.props;
+    const { stage, pipelineId, boardId, deals, index } = this.props;
 
     const amount = this.state.amount;
 
     return (
-      <Draggable draggableId={stage._id} index={this.props.index}>
+      <Draggable draggableId={stage._id} index={index}>
         {(provided, snapshot) => {
           return (
             <StageWrapper>
@@ -119,9 +92,11 @@ class Stage extends React.Component {
                           {deals.map((deal, index) => (
                             <Deal
                               key={deal._id}
-                              deal={deal}
                               index={index}
-                              refetch={refetch}
+                              dealId={deal._id}
+                              saveDeal={this.props.saveDeal}
+                              removeDeal={this.props.removeDeal}
+                              moveDeal={this.props.moveDeal}
                             />
                           ))}
                         </div>
@@ -134,9 +109,9 @@ class Stage extends React.Component {
                       boardId={boardId}
                       pipelineId={pipelineId}
                       stageId={stage._id}
-                      refetch={refetch}
                       close={this.closeForm.bind(this)}
                       dealsLength={deals.length}
+                      saveDeal={this.props.saveDeal}
                     />
                   ) : (
                     <AddNewDeal onClick={this.showForm.bind(this)}>

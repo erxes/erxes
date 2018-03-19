@@ -14,9 +14,9 @@ const propTypes = {
   bottom: PropTypes.number,
   left: PropTypes.number,
   close: PropTypes.func,
-  copy: PropTypes.func,
-  remove: PropTypes.func,
-  refetch: PropTypes.func,
+  saveDeal: PropTypes.func,
+  removeDeal: PropTypes.func,
+  moveDeal: PropTypes.func,
   deal: PropTypes.object
 };
 
@@ -66,27 +66,26 @@ class QuickEdit extends React.Component {
       productsData: deal.productsData
     };
 
-    this.props.copy(doc, () => {
-      this.props.refetch();
+    this.props.saveDeal(doc, () => {
       this.props.close();
     });
   }
 
   remove() {
     const deal = this.props.deal;
-    this.props.remove(deal._id, () => {
-      this.props.refetch();
+
+    this.props.removeDeal(deal._id, () => {
       this.props.close();
     });
   }
 
   render() {
-    const { deal, refetch, top, bottom, left, close } = this.props;
+    const { deal, top, bottom, left, close, saveDeal, moveDeal } = this.props;
 
     return (
       <QuickEditContainer top={top} bottom={bottom} left={left}>
         <div>
-          <DealForm close={close} deal={deal} refetch={refetch} />
+          <DealForm saveDeal={saveDeal} close={close} deal={deal} />
           <RightControls>
             <Button btnStyle="link" onClick={this.toggleMove}>
               Move
@@ -103,8 +102,8 @@ class QuickEdit extends React.Component {
               <DealMoveForm
                 deal={deal}
                 closeEditForm={close}
+                moveDeal={moveDeal}
                 close={this.toggleMove}
-                refetch={refetch}
               />
             </DealMoveFormContainer>
           ) : null}

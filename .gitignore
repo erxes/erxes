@@ -3,6 +3,7 @@
 # globals
 *.un~
 *.swp
+*.swo
 
 # dependencies
 /node_modules
