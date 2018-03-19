@@ -35,6 +35,7 @@ export const types = `
     productsData: JSON!
     companyId: String!
     customerId: String!
+    assignedUserIds: [String]
     amount: JSON
     closeDate: Date
     note: String
@@ -92,5 +93,5 @@ export const mutations = `
 	dealsEdit(_id: String!, ${dealMutationParams}): Deal
 	dealsChange( _id: String!, boardId: String, pipelineId: String, stageId: String!): Deal
   dealsUpdateOrder(orders: [OrderItem]): [Deal]
-  dealsRemove(_id: String!): String
+  dealsRemove(_id: String!): Deal
 `;

@@ -349,11 +349,11 @@ class Deal {
    * @return {Promise}
    */
   static async removeDeal(_id) {
-    const deal = await Deals.findOne({ _id });
+    const deal = await this.findOne({ _id });
 
     if (!deal) throw new Error('Deal not found');
 
-    return Deals.remove({ _id });
+    return deal.remove();
   }
 }
 
