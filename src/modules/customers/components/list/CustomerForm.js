@@ -8,6 +8,10 @@ import {
   ControlLabel
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/styles';
+import {
+  CUSTOMER_LEAD_STATUS_TYPES,
+  CUSTOMER_LIFECYCLE_STATE_TYPES
+} from '../../constants';
 import { FormWrapper, FormColumn, ColumnTitle } from '../../styles';
 
 const propTypes = {
@@ -178,14 +182,9 @@ class CustomerForm extends React.Component {
                 defaultValue={customer.leadStatus || ''}
               >
                 <option />
-                <option>New</option>
-                <option>Open</option>
-                <option>In Progress</option>
-                <option>Open Deal</option>
-                <option>Unqualified</option>
-                <option>Attempted to Contact</option>
-                <option>Connected</option>
-                <option>Bad Timing</option>
+                {CUSTOMER_LEAD_STATUS_TYPES.ALL.map((type, index) => {
+                  return <option key={index}>{type}</option>;
+                })}
               </FormControl>
             </FormGroup>
 
@@ -197,14 +196,9 @@ class CustomerForm extends React.Component {
                 defaultValue={customer.lifecycleState || ''}
               >
                 <option />
-                <option>Subscriber</option>
-                <option>Lead</option>
-                <option>Marketing Qualified Lead</option>
-                <option>Sales Qualified Lead</option>
-                <option>Opportunity</option>
-                <option>Customer</option>
-                <option>Evangelist</option>
-                <option>Other</option>
+                {CUSTOMER_LIFECYCLE_STATE_TYPES.ALL.map((type, index) => {
+                  return <option key={index}>{type}</option>;
+                })}
               </FormControl>
             </FormGroup>
 

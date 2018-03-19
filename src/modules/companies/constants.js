@@ -1,9 +1,15 @@
 export const COMPANY_INFO = {
   name: 'Name',
-  website: 'Website',
   size: 'Size',
   industry: 'Industry',
-  plan: 'Plan'
+  plan: 'Plan',
+  email: 'Email',
+  phone: 'Phone',
+  leadStatus: 'Lead Status',
+  lifecycleState: 'Lifecycle State',
+  businessType: 'Business Type',
+  description: 'Description',
+  doNotDisturb: 'Do not disturb'
 };
 
 export const COMPANY_INDUSTRY_TYPES = {
