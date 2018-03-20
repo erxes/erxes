@@ -23,6 +23,28 @@ const integrations = `
   }
 `;
 
+const brands = `
+  query brands($page: Int, $perPage: Int) {
+    brands(page: $page, perPage: $perPage) {
+      _id
+      code
+      name
+      createdAt
+      description
+    }
+  }
+`;
+
+const forms = `
+  query forms($page: Int, $perPage: Int) {
+    forms(page: $page, perPage: $perPage) {
+      _id
+      title
+      code
+    }
+  }
+`;
+
 const integrationsCount = `
   query totalIntegrationsCount($kind: String) {
     integrationsTotalCount(kind: $kind)
@@ -64,6 +86,8 @@ export default {
   integrations,
   integrationsCount,
   fields,
+  brands,
+  forms,
   fieldsCombinedByContentType,
   fieldsDefaultColumnsConfig
 };

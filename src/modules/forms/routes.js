@@ -2,7 +2,6 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 import { List, Form } from './containers';
-// import { Form } from './components';
 
 const routes = () => [
   <Route
@@ -22,6 +21,16 @@ const routes = () => [
     component={({ location }) => {
       const queryParams = queryString.parse(location.search);
       return <Form queryParams={queryParams} />;
+    }}
+  />,
+
+  <Route
+    key="/forms/edit/:contentTypeId?"
+    exact
+    path="/forms/edit/:contentTypeId?"
+    component={({ match }) => {
+      const { contentTypeId } = match.params;
+      return <Form contentTypeId={contentTypeId} />;
     }}
   />
 ];

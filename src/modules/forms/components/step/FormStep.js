@@ -45,7 +45,6 @@ const propTypes = {
   color: PropTypes.string,
   theme: PropTypes.string,
   image: PropTypes.string,
-  options: PropTypes.array,
   changeState: PropTypes.func,
   addField: PropTypes.func.isRequired,
   editField: PropTypes.func.isRequired,
@@ -79,6 +78,7 @@ class FormStep extends Component {
     this.footerActions = this.footerActions.bind(this);
     this.renderOptionsTextArea = this.renderOptionsTextArea.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.onFieldEdit = this.onFieldEdit.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -110,7 +110,7 @@ class FormStep extends Component {
     e.preventDefault();
 
     const editingField = this.state.editingField;
-    console.log(editingField);
+
     const doc = {
       type: editingField.type,
       validation: editingField.validation,
@@ -149,16 +149,7 @@ class FormStep extends Component {
   }
 
   renderPreview() {
-    const {
-      title,
-      bodyValue,
-      btnText,
-      color,
-      theme,
-      image,
-      options,
-      kind
-    } = this.props;
+    const { title, bodyValue, btnText, color, theme, image, kind } = this.props;
 
     if (kind === 'shoutbox') {
       return (
@@ -169,7 +160,9 @@ class FormStep extends Component {
           color={color}
           theme={theme}
           image={image}
-          options={options}
+          fields={this.state.fields}
+          onFieldEdit={this.onFieldEdit}
+          onSort={this.props.onSort}
         />
       );
     } else if (kind === 'popup') {
@@ -181,7 +174,6 @@ class FormStep extends Component {
           color={color}
           theme={theme}
           image={image}
-          options={options}
           fields={this.state.fields}
           onFieldEdit={this.onFieldEdit}
           onSort={this.props.onSort}
@@ -196,7 +188,9 @@ class FormStep extends Component {
         color={color}
         theme={theme}
         image={image}
-        options={options}
+        fields={this.state.fields}
+        onFieldEdit={this.onFieldEdit}
+        onSort={this.props.onSort}
       />
     );
   }

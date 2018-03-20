@@ -129,7 +129,12 @@ class ChooseType extends Component {
           </BoxRow>
           {this.renderBox('Embedded', '/images/icons/computer.svg', 'embedded')}
         </LeftItem>
-        <Preview>{this.renderPreview()}</Preview>
+        <Preview>
+          {this.renderPreview()}
+          {/* <CarouselSteps>
+            Step
+          </CarouselSteps> */}
+        </Preview>
       </FlexItem>
     );
   }

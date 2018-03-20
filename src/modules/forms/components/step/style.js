@@ -1,5 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 
 const fadeIn = keyframes`
   from {
@@ -97,8 +98,8 @@ const LeftItem = styled.div`
 const Preview = styled.div`
   flex: 1;
   display: flex;
+  flex-direction: column;
   border-left: 1px solid ${colors.borderPrimary};
-  margin: 20px 0;
   padding: ${dimensions.coreSpacing}px;
 `;
 
@@ -113,6 +114,7 @@ const CenterContainer = styled.div`
   position: relative;
   align-items: center;
   justify-content: center;
+  min-height: 500px;
   background: url('/images/preview.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
@@ -242,14 +244,6 @@ const OverlayTrigger = styled.div`
   position: absolute;
 `;
 
-const PreviewForm = styled.div`
-  margin-top: 20px;
-`;
-
-const DragableItem = styled.div`
-  position: relative;
-`;
-
 const DragHandler = styled.span`
   cursor: move;
   position: absolute;
@@ -274,6 +268,32 @@ const DragHandler = styled.span`
   }
 `;
 
+const DragableItem = styled.div`
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
+  background-color: ${colors.bgLight};
+
+  &:hover ${DragHandler} {
+    opacity: 1;
+    visibility: visible;
+  }
+`;
+
+const PreviewForm = styled.div`
+  margin-top: 20px;
+  overflow: hidden;
+
+  ${DragableItem} {
+    box-shadow: none;
+  }
+
+  ${DragHandler} {
+    opacity: 0;
+    visibility: hidden;
+  }
+`;
+
 const FieldItem = styled.div`
   &:hover {
     cursor: pointer;
@@ -289,12 +309,16 @@ const FieldItem = styled.div`
     height: 34px;
     padding: 8px 14px;
     width: 100%;
-    background: transparent;
+    background: ${colors.colorWhite};
     margin-top: 10px;
 
     &:focus {
       box-shadow: none;
       border-color: ${colors.colorSecondary};
+    }
+
+    &:after {
+      top: 22px;
     }
   }
 
@@ -311,6 +335,69 @@ const FieldItem = styled.div`
     overflow: auto;
     height: auto;
   }
+`;
+
+const CarouselSteps = styled.div`
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+`;
+
+const MarkdownWrapper = styled.div`
+  position: relative;
+  background: #fafafa;
+  border: 1px solid #ddd;
+`;
+
+const ResolutionTabs = styled.div`
+  margin-bottom: 20px;
+  display: -webkit-inline-box;
+
+  > div {
+    padding: 5px 20px;
+    border-radius: 5px;
+    background-color: ${props =>
+      props.selected
+        ? rgba(colors.colorPrimary, 0.8)
+        : rgba(colors.colorPrimary, 0.6)};
+    color: ${colors.colorWhite};
+    border: 1px solid ${colors.colorPrimary};
+    transition: all ease 0.3s;
+
+    &:first-child {
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    &:not(:first-child):not(:last-child) {
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 0;
+      border-top-left-radius: 0;
+    }
+
+    &:hover {
+      cursor: pointer;
+      background-color: ${props =>
+        !props.selected && rgba(colors.colorPrimary, 0.5)};
+    }
+  }
+`;
+
+const DesktopPreview = styled.div`
+  border: 4px solid #ddd;
+`;
+
+const TabletPreview = styled.div`
+  border: 4px solid #333;
+`;
+
+const MobilePreview = styled.div`
+  border: 4px solid blue;
 `;
 
 export {
@@ -345,5 +432,11 @@ export {
   PreviewForm,
   DragableItem,
   DragHandler,
-  FieldItem
+  FieldItem,
+  CarouselSteps,
+  MarkdownWrapper,
+  ResolutionTabs,
+  DesktopPreview,
+  TabletPreview,
+  MobilePreview
 };

@@ -47,7 +47,12 @@ class PopupPreview extends Component {
             {title}
           </PopupTitle>
           <PreviewBody>
-            {image && <img src={image} alt="eee" />}
+            {image && (
+              <div>
+                {' '}
+                <img src={image} alt="eee" />{' '}
+              </div>
+            )}
             <BodyContent>
               {bodyValue}
               {fields && (

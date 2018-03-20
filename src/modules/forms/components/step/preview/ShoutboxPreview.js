@@ -3,18 +3,13 @@ import PropTypes from 'prop-types';
 import { keyframes } from 'styled-components';
 import { Button } from 'modules/common/components';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
+import { FormPreview } from './';
 import {
   WidgetPreviewStyled,
   LogoContainer,
   LogoSpan
 } from 'modules/settings/styles';
-import {
-  PopupTitle,
-  PreviewBody,
-  BodyContent,
-  FormBody,
-  FieldTitle
-} from '../style';
+import { PopupTitle, PreviewBody, BodyContent } from '../style';
 
 const slideright = keyframes`
   0% {
@@ -31,6 +26,8 @@ const ShoutBox = MessengerPreview.extend`
   background: url('/images/preview.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
+  width: auto;
+  margin-left: 0;
 `;
 
 const Widget = Messenger.extend`
@@ -51,19 +48,12 @@ const propTypes = {
   theme: PropTypes.string,
   image: PropTypes.string,
   thankContent: PropTypes.string,
-  options: PropTypes.array
+  fields: PropTypes.array, // eslint-disable-line
+  onFieldEdit: PropTypes.func,
+  onSort: PropTypes.func
 };
 
 class ShoutboxPreview extends Component {
-  renderField(field, index) {
-    return (
-      <FormBody key={index}>
-        <FieldTitle>{field}:</FieldTitle>
-        <input />
-      </FormBody>
-    );
-  }
-
   render() {
     const {
       theme,
@@ -72,7 +62,9 @@ class ShoutboxPreview extends Component {
       bodyValue,
       btnText,
       image,
-      options,
+      fields,
+      onFieldEdit,
+      onSort,
       thankContent
     } = this.props;
 
@@ -91,11 +83,14 @@ class ShoutboxPreview extends Component {
               )}
               <BodyContent>
                 {bodyValue}
+                {fields && (
+                  <FormPreview
+                    fields={fields}
+                    onFieldEdit={onFieldEdit}
+                    onSort={onSort}
+                  />
+                )}
                 {thankContent && thankContent}
-                {options &&
-                  this.props.options.map((field, index) =>
-                    this.renderField(field, index)
-                  )}
                 {btnText && (
                   <Button
                     btnStyle="primary"

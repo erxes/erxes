@@ -2,41 +2,48 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
 import { queries } from '../graphql';
 import { Form } from '../components';
 
 const ListContainer = props => {
-  const { integrationsQuery } = props;
+  const { brandsQuery, formsQuery, contentTypeId } = props;
 
-  const integrations = integrationsQuery.integrations || [];
+  if (brandsQuery.loading) {
+    return <Spinner objective />;
+  }
+
+  const brands = brandsQuery.brands || [];
+  const forms = formsQuery.forms || [];
 
   const updatedProps = {
     ...this.props,
-    integrations,
-    loading: integrationsQuery.loading
+    brands,
+    forms,
+    contentTypeId
   };
 
   return <Form {...updatedProps} />;
 };
 
 ListContainer.propTypes = {
-  integrationsQuery: PropTypes.object,
+  contentTypeId: PropTypes.string,
+  brandsQuery: PropTypes.object,
+  formsQuery: PropTypes.object,
   removeMutation: PropTypes.func
 };
 
 export default compose(
-  graphql(gql(queries.integrations), {
-    name: 'integrationsQuery',
-    options: ({ queryParams }) => {
-      return {
-        notifyOnNetworkStatusChange: true,
-        variables: {
-          page: queryParams.page,
-          perPage: queryParams.perPage || 20,
-          kind: 'form'
-        },
-        fetchPolicy: 'network-only'
-      };
-    }
+  graphql(gql(queries.brands), {
+    name: 'brandsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql(gql(queries.forms), {
+    name: 'formsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
   })
 )(ListContainer);

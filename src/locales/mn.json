@@ -188,6 +188,7 @@
   "No items": "Мэдээлэл олдсонгүй",
   "New": "Шинэ",
   "Options:": "Сонголтууд:",
+  "Options": "Сонголтууд",
   "Type:": "Төрөл:",
   "Add": "Нэмэх",
   "Validation:": "Баталгаажуулалт",
@@ -544,5 +545,8 @@
   "View Profile": "Профайл харах",
   "Empty Notes": "Тэмдэглэл байхгүй байна",
   "Mini-resume": "Товч танилцуулга",
-  "You cannot update this property": "Уг талбарыг шинэчлэх боломжгүй"
+  "You cannot update this property": "Уг талбарыг шинэчлэх боломжгүй",
+  "Desktop": "Компьютер",
+  "Mobile": "Гар утас",
+  "Tablet": "Таблет"
 }

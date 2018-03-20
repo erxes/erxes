@@ -82,7 +82,8 @@ const FormStepContainer = props => {
     editField,
     deleteField,
     onSort,
-    fields
+    fields,
+    contentTypeId
   };
 
   return <FormStep {...updatedProps} />;

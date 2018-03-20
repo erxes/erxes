@@ -6,7 +6,7 @@ import {
   SortableHandle,
   arrayMove
 } from 'react-sortable-hoc';
-import { EmptyState, Icon } from 'modules/common/components';
+import { Icon } from 'modules/common/components';
 import { PreviewForm, DragableItem, DragHandler } from '../style';
 import { FieldPreview } from './';
 
@@ -35,10 +35,6 @@ const SortableList = SortableContainer(({ fields, onEdit }) => (
         onEdit={onEdit}
       />
     ))}
-
-    {fields.length === 0 ? (
-      <EmptyState icon="clipboard" text="No items" size="full" />
-    ) : null}
   </PreviewForm>
 ));
 

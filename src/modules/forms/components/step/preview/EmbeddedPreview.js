@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'modules/common/components';
+import { FormPreview } from './';
 import {
   Embedded,
   PopupTitle,
   PreviewBody,
   BodyContent,
-  FormBody,
-  FieldTitle,
   CenterContainer
 } from '../style';
 
@@ -19,12 +18,10 @@ const propTypes = {
   theme: PropTypes.string,
   image: PropTypes.string,
   thankContent: PropTypes.string,
-  options: PropTypes.array
+  fields: PropTypes.array, // eslint-disable-line
+  onFieldEdit: PropTypes.func,
+  onSort: PropTypes.func
 };
-
-const EmbeddedPreviewBody = PreviewBody.extend`
-  background-color: #fff;
-`;
 
 const Container = CenterContainer.extend`
   align-items: inherit;
@@ -32,15 +29,6 @@ const Container = CenterContainer.extend`
 `;
 
 class EmbeddedPreview extends Component {
-  renderField(field, index) {
-    return (
-      <FormBody key={index}>
-        <FieldTitle>{field}:</FieldTitle>
-        <input />
-      </FormBody>
-    );
-  }
-
   render() {
     const {
       theme,
@@ -49,7 +37,9 @@ class EmbeddedPreview extends Component {
       bodyValue,
       btnText,
       image,
-      options,
+      fields,
+      onFieldEdit,
+      onSort,
       thankContent
     } = this.props;
 
@@ -59,7 +49,7 @@ class EmbeddedPreview extends Component {
           <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
             {title}
           </PopupTitle>
-          <EmbeddedPreviewBody>
+          <PreviewBody>
             {image && (
               <div>
                 <img src={image} alt="eee" />
@@ -67,11 +57,14 @@ class EmbeddedPreview extends Component {
             )}
             <BodyContent>
               {bodyValue}
+              {fields && (
+                <FormPreview
+                  fields={fields}
+                  onFieldEdit={onFieldEdit}
+                  onSort={onSort}
+                />
+              )}
               {thankContent && thankContent}
-              {options &&
-                this.props.options.map((field, index) =>
-                  this.renderField(field, index)
-                )}
               {btnText && (
                 <Button
                   btnStyle="primary"
@@ -81,7 +74,7 @@ class EmbeddedPreview extends Component {
                 </Button>
               )}
             </BodyContent>
-          </EmbeddedPreviewBody>
+          </PreviewBody>
         </Embedded>
       </Container>
     );
