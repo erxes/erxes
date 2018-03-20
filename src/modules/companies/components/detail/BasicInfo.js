@@ -90,14 +90,14 @@ class BasicInfo extends React.Component {
           {this.renderRow('Email', company.email)}
           {this.renderRow(
             'Owner',
-            company.owner ? company.details.fullName : '-'
+            company.owner ? company.owner.details.fullName : '-'
           )}
           {this.renderRow('Phone', company.phone)}
           {this.renderRow('Lead Status', company.leadStatus)}
-          {this.renderRow('ifecycle State', company.lifecycleState)}
+          {this.renderRow('Lifecycle State', company.lifecycleState)}
           {this.renderRow('Business Type', company.businessType)}
           {this.renderRow('Description', company.description)}
-          {this.renderRow('Employees', company.employees)}
+          {this.renderRow('Employees count', company.employees)}
           {this.renderRow('Do not disturb', company.doNotDisturb)}
         </SidebarList>
       </Sidebar.Section>

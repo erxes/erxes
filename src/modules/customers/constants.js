@@ -70,6 +70,7 @@ export const CUSTOMER_DATAS = {
 };
 
 export const CUSTOMER_LEAD_STATUS_TYPES = [
+  '',
   'New',
   'Open',
   'In Progress',
@@ -81,6 +82,7 @@ export const CUSTOMER_LEAD_STATUS_TYPES = [
 ];
 
 export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
+  '',
   'Subscriber',
   'Lead',
   'Marketing Qualified Lead',
