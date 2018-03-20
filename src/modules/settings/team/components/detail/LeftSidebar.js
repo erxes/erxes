@@ -87,10 +87,6 @@ class LeftSidebar extends React.Component {
               <SidebarCounter>{details.position || '-'}</SidebarCounter>
             </li>
             <li>
-              {__('Twitter Username')}:
-              <SidebarCounter>{details.twitterUsername || '-'}</SidebarCounter>
-            </li>
-            <li>
               {__('Mini-resume')}:
               <SidebarCounter nowrap>
                 {details.description || '-'}

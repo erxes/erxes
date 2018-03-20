@@ -1,34 +1,68 @@
+const commonFields = `
+  $firstName: String,
+  $lastName: String,
+  $email: String,
+  $phone: String,
+  $ownerId: String,
+  $position: String,
+  $department: String,
+  $leadStatus: String,
+  $lifecycleState: String,
+  $hasAuthority: String,
+  $description: String,
+  $doNotDisturb: String,
+  $links: JSON
+  $customFieldsData: JSON
+`;
+
+const commonVariables = `
+  firstName: $firstName,
+  lastName: $lastName,
+  email: $email,
+  phone: $phone,
+  ownerId: $ownerId,
+  position: $position,
+  department: $department,
+  leadStatus: $leadStatus,
+  lifecycleState: $lifecycleState,
+  hasAuthority: $hasAuthority,
+  description: $description,
+  doNotDisturb: $doNotDisturb,
+  links: $links
+  customFieldsData: $customFieldsData
+`;
+
 const customersAdd = `
-  mutation customersAdd($firstName: String, $lastName: String, $email: String) {
-    customersAdd(firstName: $firstName, lastName: $lastName, email: $email) {
+  mutation customersAdd(${commonFields}) {
+    customersAdd(${commonVariables}) {
       _id
     }
   }
 `;
 
 const customersEdit = `
-  mutation customersEdit(
-    $_id: String!,
-    $firstName: String,
-    $lastName: String,
-    $email: String,
-    $phone: String,
-    $customFieldsData: JSON
-  ) {
-
-    customersEdit(
-      _id: $_id,
-      firstName: $firstName,
-      lastName: $lastName,
-      email: $email,
-      phone: $phone,
-      customFieldsData: $customFieldsData
-    ) {
-
+  mutation customersEdit($_id: String!, ${commonFields}) {
+    customersEdit(_id: $_id, ${commonVariables}) {
       firstName
       lastName
       email
       phone
+      ownerId
+      position
+      department
+      leadStatus
+      lifecycleState
+      hasAuthority
+      description
+      doNotDisturb
+      links {
+        linkedIn
+        twitter
+        facebook
+        github
+        youtube
+        website
+      }
     }
   }
 `;

@@ -81,4 +81,37 @@ const channels = `
   }
 `;
 
-export default { userDetail, channels, userActivityLog, userConversations };
+const users = `
+  query users($page: Int, $perPage: Int) {
+    users(page: $page, perPage: $perPage) {
+      _id
+      username
+      email
+      role
+      details {
+        avatar
+        fullName
+        position
+        description
+        location
+        twitterUsername
+      }
+      links {
+        linkedIn
+        twitter
+        facebook
+        github
+        youtube
+        website
+      }
+    }
+  }
+`;
+
+export default {
+  userDetail,
+  channels,
+  userActivityLog,
+  userConversations,
+  users
+};
