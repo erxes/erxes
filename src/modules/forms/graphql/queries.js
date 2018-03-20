@@ -23,6 +23,28 @@ const integrations = `
   }
 `;
 
+const integrationDetail = `
+  query integrationDetail($_id: String!) {
+    integrationDetail(_id: $_id) {
+      _id
+      name
+      languageCode
+      brandId
+      code
+      formId
+      formData
+      form {
+        _id
+        title
+        code
+        description
+        createdDate
+        callout
+      }
+    }
+  }
+`;
+
 const brands = `
   query brands($page: Int, $perPage: Int) {
     brands(page: $page, perPage: $perPage) {
@@ -84,6 +106,7 @@ const fieldsDefaultColumnsConfig = `
 
 export default {
   integrations,
+  integrationDetail,
   integrationsCount,
   fields,
   brands,

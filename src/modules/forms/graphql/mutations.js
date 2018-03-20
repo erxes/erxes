@@ -17,6 +17,23 @@ const commonParams = `
   isRequired: $isRequired,
   order: $order
 `;
+
+const commonFormParamsDef = `
+  $name: String!,
+  $brandId: String!,
+  $formId: String!,
+  $languageCode: String,
+  $formData: IntegrationFormData!
+`;
+
+const commonFormParams = `
+  name: $name,
+  brandId: $brandId,
+  formId: $formId,
+  languageCode: $languageCode,
+  formData: $formData
+`;
+
 const integrationRemove = `
   mutation integrationsRemove($_id: String!) {
     integrationsRemove(_id: $_id)
@@ -86,6 +103,24 @@ const fieldsUpdateOrder = `
   }
 `;
 
+const integrationsCreateFormIntegration = `
+  mutation integrationsCreateFormIntegration(${commonFormParamsDef}) {
+    integrationsCreateFormIntegration(${commonFormParams}) {
+      _id
+    }
+  }
+`;
+
+const integrationsEditFormIntegration = `
+  mutation integrationsEditFormIntegration($_id: String!, ${
+    commonFormParamsDef
+  }) {
+    integrationsEditFormIntegration(_id: $_id, ${commonFormParams}) {
+      _id
+    }
+  }
+`;
+
 export default {
   fieldsAdd,
   fieldsEdit,
@@ -93,5 +128,7 @@ export default {
   fieldsUpdateOrder,
   integrationRemove,
   integrationsCreateMessenger,
-  integrationsEditMessenger
+  integrationsEditMessenger,
+  integrationsEditFormIntegration,
+  integrationsCreateFormIntegration
 };

@@ -46,11 +46,11 @@ const propTypes = {
   theme: PropTypes.string,
   image: PropTypes.string,
   changeState: PropTypes.func,
-  addField: PropTypes.func.isRequired,
-  editField: PropTypes.func.isRequired,
-  deleteField: PropTypes.func.isRequired,
-  onSort: PropTypes.func.isRequired,
-  fields: PropTypes.array.isRequired
+  addField: PropTypes.func,
+  editField: PropTypes.func,
+  deleteField: PropTypes.func,
+  onSort: PropTypes.func,
+  fields: PropTypes.array
 };
 
 const editingFieldDefaultValue = {
@@ -117,7 +117,7 @@ class FormStep extends Component {
       text: editingField.text,
       description: editingField.description,
       options: editingField.options,
-      isRequired: editingField.isRequired
+      isRequired: editingField
     };
 
     if (editingField._id) {

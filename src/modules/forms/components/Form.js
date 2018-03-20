@@ -11,34 +11,39 @@ import {
   CallOut,
   SuccessStep,
   OptionStep,
+  FormStep,
   FullPreviewStep
 } from './step';
-import { FormStep } from '../containers';
 import { StepWrapper, TitleContainer } from '../styles';
 
 const propTypes = {
-  integrations: PropTypes.array,
+  integration: PropTypes.object,
   brands: PropTypes.array,
   forms: PropTypes.array,
-  loading: PropTypes.bool,
-  contentTypeId: PropTypes.string
+  fields: PropTypes.array,
+  loading: PropTypes.bool
 };
 
 class Form extends Component {
   constructor(props) {
     super(props);
 
+    const integration = props.integration || {};
+    const formData = integration.formData || {};
+    const fields = props.fields || [];
+
+    console.log(integration, fields);
     this.state = {
       activeStep: 1,
       maxStep: 5,
-      kind: 'shoutbox',
+      kind: formData.loadType || 'shoutbox',
       preview: 'desktop',
-      title: 'Contact',
+      title: integration.name || 'Contact',
       bodyValue: 'Body description here',
-      thankContent: 'Thank you.',
-      successAction: 'onPage',
+      thankContent: formData.thankContent || 'Thank you.',
+      successAction: formData.successAction || 'onPage',
       btnText: 'Send',
-      fields: [],
+      fields: fields || [],
       color: '#04A9F5',
       theme: '',
       logoPreviewUrl: '',
@@ -133,7 +138,7 @@ class Form extends Component {
       preview,
       successAction
     } = this.state;
-    const integrations = this.props.integrations || [];
+    const { integration } = this.props;
     const { __ } = this.context;
 
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
@@ -191,7 +196,6 @@ class Form extends Component {
               theme={theme}
               options={options}
               image={logoPreviewUrl}
-              contentTypeId={this.props.contentTypeId}
             />
           </Step>
           <Step
@@ -220,18 +224,16 @@ class Form extends Component {
             next={this.next}
             nextButton={this.renderNextButton()}
           >
-            {integrations.map(integration => (
-              <SuccessStep
-                key={integration._id}
-                changeState={this.changeState}
-                thankContent={thankContent}
-                kind={kind}
-                color={color}
-                theme={theme}
-                successAction={successAction}
-                formData={integration.formData}
-              />
-            ))}
+            <SuccessStep
+              key={integration._id}
+              changeState={this.changeState}
+              thankContent={thankContent}
+              kind={kind}
+              color={color}
+              theme={theme}
+              successAction={successAction}
+              formData={integration.formData}
+            />
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"
