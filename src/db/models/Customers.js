@@ -201,8 +201,8 @@ class Customer {
     if (customerFields.phone) {
       query.phone = customerFields.phone;
       previousEntry = await this.find(query);
-      // Checking if duplicated
 
+      // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated phone');
       }
