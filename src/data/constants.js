@@ -224,6 +224,7 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
 };
 
 export const CUSTOMER_LEAD_STATUS_TYPES = [
+  '',
   'New',
   'Open',
   'In Progress',
@@ -235,6 +236,7 @@ export const CUSTOMER_LEAD_STATUS_TYPES = [
 ];
 
 export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
+  '',
   'Subscriber',
   'Lead',
   'Marketing Qualified Lead',
@@ -246,6 +248,7 @@ export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
 ];
 
 export const COMPANY_LEAD_STATUS_TYPES = [
+  '',
   'New',
   'Open',
   'In Progress',
@@ -257,6 +260,7 @@ export const COMPANY_LEAD_STATUS_TYPES = [
 ];
 
 export const COMPANY_LIFECYCLE_STATE_TYPES = [
+  '',
   'Subscriber',
   'Lead',
   'Marketing Qualified Lead',
@@ -268,6 +272,7 @@ export const COMPANY_LIFECYCLE_STATE_TYPES = [
 ];
 
 export const COMPANY_BUSINESS_TYPES = [
+  '',
   'Analyst',
   'Competitor',
   'Customer',
@@ -281,6 +286,7 @@ export const COMPANY_BUSINESS_TYPES = [
 ];
 
 export const COMPANY_INDUSTRY_TYPES = [
+  '',
   'Advertising/Public Relations',
   'Aerospace, Defense Contractors',
   'Agriculture',
