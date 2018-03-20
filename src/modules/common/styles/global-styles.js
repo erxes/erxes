@@ -113,11 +113,11 @@ injectGlobal`
   .dropdown-menu {
     margin-top: 0;
     border-radius: 0;
-    border-color: #eee;
+    border: none;
     font-size: 13px;
     color: #444;
     min-width: 100%;
-    box-shadow: 0 1px 2px 0 #ddd;
+    box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
   }
 
   .dropdown-menu > span {
@@ -173,13 +173,13 @@ injectGlobal`
 
   .popover {
     font-family: 'Montserrat','Helvetica Neue','Helvetica','Arial', sans-serif;
-    border: 1px solid #eee;
+    border: none;
     border-radius: 0;
     font-size: inherit;
     padding: 0;
     color: #444;
     font-weight: inherit;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .2);
+    box-shadow: 0 0 20px 3px rgba(0, 0, 0, 0.15);
   }
 
   .popover.bottom > .arrow {
@@ -191,7 +191,13 @@ injectGlobal`
     border-bottom-color: #fafafa;
   }
 
+  .popover > .arrow {
+    border-width: 10px;
+  }
+
   .popover.top > .arrow {
+    bottom: -10px;
+    margin-left: -10px;
     border-top-color: #eee;
   }
 
@@ -208,6 +214,7 @@ injectGlobal`
     font-size: 11px;
     text-transform: uppercase;
     color: #888;
+    border-radius: 0;
   }
 
   .popover-content {
@@ -644,12 +651,13 @@ injectGlobal`
   ::-webkit-scrollbar {
     width: 6px;
     height: 8px;
-    border-radius: 2px;
+    border-radius: 0;
   }
 
   ::-webkit-scrollbar-thumb {
     background: rgba(215, 215, 215, .6);
-    border-radius: 5px;
+    border-radius: 0;
+    border: 1px solid #ddd;
   }
 
   ::-webkit-scrollbar-track {

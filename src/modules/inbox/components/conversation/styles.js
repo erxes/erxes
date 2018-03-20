@@ -3,7 +3,7 @@ import { colors, dimensions } from 'modules/common/styles';
 
 const MessageContent = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  border-radius: 7px;
+  border-radius: 20px;
   border-bottom-left-radius: 0;
   background: ${colors.colorWhite};
   background: ${props =>
@@ -17,7 +17,7 @@ const MessageContent = styled.div`
     if (props.staff) {
       return `
         border-bottom-right-radius: 0;
-        border-bottom-left-radius: 7px;
+        border-bottom-left-radius: 20px;
       `;
     }
   }};
@@ -36,6 +36,7 @@ const MessageContent = styled.div`
 
   img {
     max-width: 100%;
+    border-radius: 2px;
   }
 
   ul,
@@ -83,7 +84,11 @@ const MessageItem = styled.div`
   }};
 
   &.attachment ${MessageContent} {
-    padding: ${dimensions.unitSpacing}px;
+    padding: ${dimensions.coreSpacing}px;
+
+    > span {
+      margin-bottom: 5px;
+    }
 
     br {
       display: none;
