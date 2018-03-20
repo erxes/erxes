@@ -36,74 +36,41 @@ class CustomerForm extends React.Component {
       hasAuthority: customer.hasAuthority || 'No'
     };
 
+    this.renderFormGroup = this.renderFormGroup.bind(this);
     this.action = this.action.bind(this);
   }
 
   action(e) {
     e.preventDefault();
 
-    const firstName = document.getElementById('customer-firstname');
-    const lastName = document.getElementById('customer-lastname');
-    const email = document.getElementById('customer-email');
-    const phone = document.getElementById('customer-phone');
-    const position = document.getElementById('customer-position');
-    const department = document.getElementById('customer-department');
-    const leadStatus = document.getElementById('customer-leadStatus');
-    const lifecycleState = document.getElementById('customer-lifecycleState');
-    const description = document.getElementById('customer-description');
-    const linkedIn = document.getElementById('customer-linkedin');
-    const twitter = document.getElementById('customer-twitter');
-    const facebook = document.getElementById('customer-facebook');
-    const github = document.getElementById('customer-github');
-    const youtube = document.getElementById('customer-youtube');
-    const website = document.getElementById('customer-website');
-
     this.props.action({
       doc: {
-        firstName: firstName.value,
-        lastName: lastName.value,
-        email: email.value,
+        firstName: document.getElementById('customer-firstname').value,
+        lastName: document.getElementById('customer-lastname').value,
+        email: document.getElementById('customer-email').value,
         ownerId: this.state.ownerId,
-        phone: phone.value,
-        position: position.value,
-        department: department.value,
-        leadStatus: leadStatus.value,
-        lifecycleState: lifecycleState.value,
+        phone: document.getElementById('customer-phone').value,
+        position: document.getElementById('customer-position').value,
+        department: document.getElementById('customer-department').value,
+        leadStatus: document.getElementById('customer-leadStatus').value,
+        lifecycleState: document.getElementById('customer-lifecycleState')
+          .value,
         hasAuthority: this.state.hasAuthority,
-        description: description.value,
+        description: document.getElementById('customer-description').value,
         doNotDisturb: this.state.doNotDisturb,
 
         links: {
-          linkedIn: linkedIn.value,
-          twitter: twitter.value,
-          facebook: facebook.value,
-          github: github.value,
-          youtube: youtube.value,
-          website: website.value
+          linkedIn: document.getElementById('customer-linkedin').value,
+          twitter: document.getElementById('customer-twitter').value,
+          facebook: document.getElementById('customer-facebook').value,
+          github: document.getElementById('customer-github').value,
+          youtube: document.getElementById('customer-youtube').value,
+          website: document.getElementById('customer-website').value
         }
-      },
-
-      callback: () => {
-        firstName.value = '';
-        lastName.value = '';
-        email.value = '';
-        phone.value = '';
-        position.value = '';
-        department.value = '';
-        leadStatus.value = '';
-        lifecycleState.value = '';
-        description.value = '';
-        linkedIn.value = '';
-        twitter.value = '';
-        facebook.value = '';
-        github.value = '';
-        youtube.value = '';
-        website.value = '';
-
-        this.setState({ ownerId: '', hasAuthority: 'No', doNotDisturb: 'No' });
-        if (document.activeElement.name === 'close') this.context.closeModal();
       }
     });
+
+    this.context.closeModal();
   }
 
   generateUserParams(users) {
@@ -111,6 +78,22 @@ class CustomerForm extends React.Component {
       value: user._id,
       label: user.details.fullName || ''
     }));
+  }
+
+  generateConstantParams(constants) {
+    return constants.map(constant => ({
+      value: constant,
+      label: constant
+    }));
+  }
+
+  renderFormGroup(label, props) {
+    return (
+      <FormGroup>
+        <ControlLabel>{label}</ControlLabel>
+        <FormControl {...props} />
+      </FormGroup>
+    );
   }
 
   render() {
@@ -123,43 +106,30 @@ class CustomerForm extends React.Component {
         <FormWrapper>
           <FormColumn>
             <ColumnTitle>{__('Basics')}</ColumnTitle>
-            <FormGroup>
-              <ControlLabel>First Name</ControlLabel>
-              <FormControl
-                id="customer-firstname"
-                type="text"
-                autoFocus
-                required
-                defaultValue={customer.firstName || ''}
-              />
-            </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Last Name</ControlLabel>
-              <FormControl
-                id="customer-lastname"
-                type="text"
-                defaultValue={customer.lastName || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('First Name', {
+              defaultValue: customer.firstName || '',
+              autoFocus: true,
+              required: true,
+              id: 'customer-firstname'
+            })}
 
-            <FormGroup>
-              <ControlLabel>Email</ControlLabel>
-              <FormControl
-                id="customer-email"
-                type="email"
-                defaultValue={customer.email || ''}
-                required
-              />
-            </FormGroup>
+            {this.renderFormGroup('Last Name', {
+              id: 'customer-lastname',
+              defaultValue: customer.lastName || ''
+            })}
 
-            <FormGroup>
-              <ControlLabel>Phone</ControlLabel>
-              <FormControl
-                id="customer-phone"
-                defaultValue={customer.phone || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Email', {
+              id: 'customer-email',
+              type: 'email',
+              defaultValue: customer.email || '',
+              required: true
+            })}
+
+            {this.renderFormGroup('Phone', {
+              id: 'customer-phone',
+              defaultValue: customer.phone || ''
+            })}
 
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
@@ -173,151 +143,106 @@ class CustomerForm extends React.Component {
               />
             </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Position</ControlLabel>
-              <FormControl
-                id="customer-position"
-                defaultValue={customer.position || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Position', {
+              id: 'customer-position',
+              defaultValue: customer.position || ''
+            })}
 
-            <FormGroup>
-              <ControlLabel>Department</ControlLabel>
-              <FormControl
-                id="customer-department"
-                defaultValue={customer.department || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Department', {
+              id: 'customer-department',
+              defaultValue: customer.department || ''
+            })}
 
-            <FormGroup>
-              <ControlLabel>Lead Status</ControlLabel>
-              <FormControl
-                id="customer-leadStatus"
-                componentClass="select"
-                defaultValue={customer.leadStatus || ''}
-              >
-                <option />
-                {CUSTOMER_LEAD_STATUS_TYPES.map((type, index) => {
-                  return <option key={index}>{type}</option>;
-                })}
-              </FormControl>
-            </FormGroup>
+            {this.renderFormGroup('Lead Status', {
+              id: 'customer-leadStatus',
+              componentClass: 'select',
+              defaultValue: customer.leadStatus || '',
+              options: this.generateConstantParams(CUSTOMER_LEAD_STATUS_TYPES)
+            })}
 
-            <FormGroup>
-              <ControlLabel>Lifecycle State</ControlLabel>
-              <FormControl
-                id="customer-lifecycleState"
-                componentClass="select"
-                defaultValue={customer.lifecycleState || ''}
-              >
-                <option />
-                {CUSTOMER_LIFECYCLE_STATE_TYPES.map((type, index) => {
-                  return <option key={index}>{type}</option>;
-                })}
-              </FormControl>
-            </FormGroup>
+            {this.renderFormGroup('Lifecycle State', {
+              id: 'customer-lifecycleState',
+              componentClass: 'select',
+              defaultValue: customer.lifecycleState || '',
+              options: this.generateConstantParams(
+                CUSTOMER_LIFECYCLE_STATE_TYPES
+              )
+            })}
 
-            <FormGroup>
-              <ControlLabel>Has Authority</ControlLabel>
-              <FormControl
-                componentClass="radio"
-                value="Yes"
-                onChange={e => {
-                  this.setState({ hasAuthority: e.target.value });
-                }}
-                checked={this.state.hasAuthority === 'Yes'}
-              >
-                {__('Yes')}
-              </FormControl>
-              <FormControl
-                componentClass="radio"
-                value="No"
-                onChange={e => {
-                  this.setState({ hasAuthority: e.target.value });
-                }}
-                checked={this.state.hasAuthority === 'No'}
-              >
-                {__('No')}
-              </FormControl>
-            </FormGroup>
+            {this.renderFormGroup('Has Authority', {
+              componentClass: 'radio',
+              options: [
+                {
+                  childNode: 'Yes',
+                  value: 'Yes',
+                  checked: this.state.hasAuthority === 'Yes',
+                  onChange: e => this.setState({ hasAuthority: e.target.value })
+                },
+                {
+                  childNode: 'No',
+                  value: 'No',
+                  checked: this.state.hasAuthority === 'No',
+                  onChange: e => this.setState({ hasAuthority: e.target.value })
+                }
+              ]
+            })}
 
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl
-                id="customer-description"
-                defaultValue={customer.description || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Description', {
+              id: 'customer-description',
+              defaultValue: customer.description || ''
+            })}
 
-            <FormGroup>
-              <ControlLabel>Do not disturb</ControlLabel>
-              <FormControl
-                componentClass="radio"
-                value="Yes"
-                onChange={e => {
-                  this.setState({ doNotDisturb: e.target.value });
-                }}
-                checked={this.state.doNotDisturb === 'Yes'}
-              >
-                {__('Yes')}
-              </FormControl>
-              <FormControl
-                componentClass="radio"
-                value="No"
-                onChange={e => {
-                  this.setState({ doNotDisturb: e.target.value });
-                }}
-                checked={this.state.doNotDisturb === 'No'}
-              >
-                {__('No')}
-              </FormControl>
-            </FormGroup>
+            {this.renderFormGroup('Do not disturb', {
+              componentClass: 'radio',
+              options: [
+                {
+                  childNode: 'Yes',
+                  value: 'Yes',
+                  checked: this.state.doNotDisturb === 'Yes',
+                  onChange: e => this.setState({ doNotDisturb: e.target.value })
+                },
+                {
+                  childNode: 'No',
+                  value: 'No',
+                  checked: this.state.doNotDisturb === 'No',
+                  onChange: e => this.setState({ doNotDisturb: e.target.value })
+                }
+              ]
+            })}
           </FormColumn>
 
           <FormColumn>
             <ColumnTitle>{__('Links')}</ColumnTitle>
-            <FormGroup>
-              <ControlLabel>LinkedIn</ControlLabel>
-              <FormControl
-                id="customer-linkedin"
-                defaultValue={links.linkedIn || ''}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Twitter</ControlLabel>
-              <FormControl
-                id="customer-twitter"
-                defaultValue={links.twitter || ''}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Facebook</ControlLabel>
-              <FormControl
-                id="customer-facebook"
-                defaultValue={links.facebook || ''}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Github</ControlLabel>
-              <FormControl
-                id="customer-github"
-                defaultValue={links.github || ''}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Youtube</ControlLabel>
-              <FormControl
-                id="customer-youtube"
-                defaultValue={links.youtube || ''}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Website</ControlLabel>
-              <FormControl
-                id="customer-website"
-                defaultValue={links.website || ''}
-              />
-            </FormGroup>
+
+            {this.renderFormGroup('LinkedIn', {
+              id: 'customer-linkedin',
+              defaultValue: links.linkedIn || ''
+            })}
+
+            {this.renderFormGroup('Twitter', {
+              id: 'customer-twitter',
+              defaultValue: links.twitter || ''
+            })}
+
+            {this.renderFormGroup('Facebook', {
+              id: 'customer-facebook',
+              defaultValue: links.facebook || ''
+            })}
+
+            {this.renderFormGroup('Github', {
+              id: 'customer-github',
+              defaultValue: links.github || ''
+            })}
+
+            {this.renderFormGroup('Youtube', {
+              id: 'customer-youtube',
+              defaultValue: links.youtube || ''
+            })}
+
+            {this.renderFormGroup('Website', {
+              id: 'customer-website',
+              defaultValue: links.website || ''
+            })}
           </FormColumn>
         </FormWrapper>
 
@@ -327,11 +252,7 @@ class CustomerForm extends React.Component {
           </Button>
 
           <Button btnStyle="success" type="submit" icon="checkmark">
-            Save & New
-          </Button>
-
-          <Button btnStyle="primary" type="submit" name="close" icon="close">
-            Save & Close
+            Save
           </Button>
         </ModalFooter>
       </form>

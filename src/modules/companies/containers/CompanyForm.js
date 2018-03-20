@@ -21,11 +21,10 @@ const CompanyFromContainer = props => {
     return <Spinner />;
   }
 
-  let action = ({ doc, callback }) => {
+  let action = ({ doc }) => {
     companiesAdd({ variables: doc })
       .then(() => {
         Alert.success('Success');
-        callback();
       })
       .catch(e => {
         Alert.error(e.message);
@@ -33,11 +32,10 @@ const CompanyFromContainer = props => {
   };
 
   if (company) {
-    action = ({ doc, callback }) => {
+    action = ({ doc }) => {
       companiesEdit({ variables: { _id: company._id, ...doc } })
         .then(() => {
           Alert.success('Success');
-          callback();
         })
         .catch(e => {
           Alert.error(e.message);

@@ -42,81 +42,40 @@ class CompanyForm extends React.Component {
     };
 
     this.action = this.action.bind(this);
+    this.renderFormGroup = this.renderFormGroup.bind(this);
   }
 
   action(e) {
     e.preventDefault();
 
-    const name = document.getElementById('company-name');
-    const size = document.getElementById('company-size');
-    const industry = document.getElementById('company-industry');
-    const plan = document.getElementById('company-plan');
-    const email = document.getElementById('company-email');
-    const phone = document.getElementById('company-phone');
-    const leadStatus = document.getElementById('company-leadStatus');
-    const lifecycleState = document.getElementById('company-lifecycleState');
-    const businessType = document.getElementById('company-businessType');
-    const description = document.getElementById('company-description');
-    const employees = document.getElementById('company-employees');
-
-    const linkedIn = document.getElementById('company-linkedIn');
-    const twitter = document.getElementById('company-twitter');
-    const facebook = document.getElementById('company-facebook');
-    const github = document.getElementById('company-github');
-    const youtube = document.getElementById('company-youtube');
-    const website = document.getElementById('company-website');
-
     this.props.action({
       doc: {
-        name: name.value,
-        website: website.value,
-        size: size.value,
-        industry: industry.value,
-        plan: plan.value,
+        name: document.getElementById('company-name').value,
+        size: document.getElementById('company-size').value,
+        industry: document.getElementById('company-industry').value,
+        plan: document.getElementById('company-plan').value,
         parentCompanyId: this.state.parentCompanyId,
-        email: email.value,
+        email: document.getElementById('company-email').value,
         ownerId: this.state.ownerId,
-        phone: phone.value,
-        leadStatus: leadStatus.value,
-        lifecycleState: lifecycleState.value,
-        businessType: businessType.value,
-        description: description.value,
-        employees: employees.value,
+        phone: document.getElementById('company-phone').value,
+        leadStatus: document.getElementById('company-leadStatus').value,
+        lifecycleState: document.getElementById('company-lifecycleState').value,
+        businessType: document.getElementById('company-businessType').value,
+        description: document.getElementById('company-description').value,
+        employees: document.getElementById('company-employees').value,
         doNotDisturb: this.state.doNotDisturb,
         links: {
-          linkedIn: linkedIn.value,
-          twitter: twitter.value,
-          facebook: facebook.value,
-          github: github.value,
-          youtube: youtube.value,
-          website: website.value
+          linkedIn: document.getElementById('company-linkedIn').value,
+          twitter: document.getElementById('company-twitter').value,
+          facebook: document.getElementById('company-facebook').value,
+          github: document.getElementById('company-github').value,
+          youtube: document.getElementById('company-youtube').value,
+          website: document.getElementById('company-website').value
         }
-      },
-
-      callback: () => {
-        name.value = '';
-        website.value = '';
-        size.value = 0;
-        industry.value = '';
-        plan.value = '';
-        email.value = '';
-        phone.value = '';
-        leadStatus.value = '';
-        lifecycleState.value = '';
-        businessType.value = '';
-        description.value = '';
-        employees.value = '';
-        linkedIn.value = '';
-        twitter.value = '';
-        facebook.value = '';
-        github.value = '';
-        youtube.value = '';
-        website.value = '';
-
-        this.setState({ parentCompanyId: '', ownerId: '', doNotDisturb: 'No' });
-        if (document.activeElement.name === 'close') this.context.closeModal();
       }
     });
+
+    this.context.closeModal();
   }
 
   generateCompanyParams(companies) {
@@ -133,6 +92,22 @@ class CompanyForm extends React.Component {
     }));
   }
 
+  generateConstantParams(constants) {
+    return constants.map(constant => ({
+      value: constant,
+      label: constant
+    }));
+  }
+
+  renderFormGroup(label, props) {
+    return (
+      <FormGroup>
+        <ControlLabel>{label}</ControlLabel>
+        <FormControl {...props} />
+      </FormGroup>
+    );
+  }
+
   render() {
     const { __ } = this.context;
     const { company = {}, companies, users } = this.props;
@@ -143,48 +118,29 @@ class CompanyForm extends React.Component {
         <FormWrapper>
           <FormColumn>
             <ColumnTitle>{__('Basics')}</ColumnTitle>
-            <FormGroup>
-              <ControlLabel>Name</ControlLabel>
-              <FormControl
-                id="company-name"
-                type="text"
-                autoFocus
-                defaultValue={company.name || ''}
-                required
-              />
-            </FormGroup>
+            {this.renderFormGroup('Name', {
+              id: 'company-name',
+              autoFocus: true,
+              defaultValue: company.name || '',
+              required: true
+            })}
 
-            <FormGroup>
-              <ControlLabel>Size</ControlLabel>
-              <FormControl
-                id="company-size"
-                type="text"
-                defaultValue={company.size || 0}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Size', {
+              id: 'company-size',
+              defaultValue: company.size || 0
+            })}
 
-            <FormGroup>
-              <ControlLabel>Industry</ControlLabel>
-              <FormControl
-                id="company-industry"
-                componentClass="select"
-                defaultValue={company.industry || ''}
-              >
-                <option />
-                {COMPANY_INDUSTRY_TYPES.map((type, index) => {
-                  return <option key={index}>{type}</option>;
-                })}
-              </FormControl>
-            </FormGroup>
+            {this.renderFormGroup('Industry', {
+              id: 'company-industry',
+              componentClass: 'select',
+              defaultValue: company.industry || '',
+              options: this.generateConstantParams(COMPANY_INDUSTRY_TYPES)
+            })}
 
-            <FormGroup>
-              <ControlLabel>Plan</ControlLabel>
-              <FormControl
-                id="company-plan"
-                type="text"
-                defaultValue={company.plan || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Plan', {
+              id: 'company-plan',
+              defaultValue: company.plan || ''
+            })}
 
             <FormGroup>
               <ControlLabel>Parent Company</ControlLabel>
@@ -198,14 +154,10 @@ class CompanyForm extends React.Component {
               />
             </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Email</ControlLabel>
-              <FormControl
-                id="company-email"
-                type="text"
-                defaultValue={company.email || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Email', {
+              id: 'company-email',
+              defaultValue: company.email || ''
+            })}
 
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
@@ -219,156 +171,95 @@ class CompanyForm extends React.Component {
               />
             </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Phone</ControlLabel>
-              <FormControl
-                id="company-phone"
-                type="text"
-                defaultValue={company.phone || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Phone', {
+              id: 'company-phone',
+              defaultValue: company.phone || ''
+            })}
 
-            <FormGroup>
-              <ControlLabel>Lead Status</ControlLabel>
-              <FormControl
-                id="company-leadStatus"
-                componentClass="select"
-                defaultValue={company.leadStatus || ''}
-              >
-                <option />
-                {COMPANY_LEAD_STATUS_TYPES.map((type, index) => {
-                  return <option key={index}>{type}</option>;
-                })}
-              </FormControl>
-            </FormGroup>
+            {this.renderFormGroup('Lead Status', {
+              id: 'company-leadStatus',
+              componentClass: 'select',
+              defaultValue: company.leadStatus || '',
+              options: this.generateConstantParams(COMPANY_LEAD_STATUS_TYPES)
+            })}
 
-            <FormGroup>
-              <ControlLabel>Lifecycle State</ControlLabel>
-              <FormControl
-                id="company-lifecycleState"
-                componentClass="select"
-                defaultValue={company.lifecycleState || ''}
-              >
-                <option />
-                {COMPANY_LIFECYCLE_STATE_TYPES.map((type, index) => {
-                  return <option key={index}>{type}</option>;
-                })}
-              </FormControl>
-            </FormGroup>
+            {this.renderFormGroup('Lifecycle State', {
+              id: 'company-lifecycleState',
+              componentClass: 'select',
+              defaultValue: company.lifecycleState || '',
+              options: this.generateConstantParams(
+                COMPANY_LIFECYCLE_STATE_TYPES
+              )
+            })}
 
-            <FormGroup>
-              <ControlLabel>Business Type</ControlLabel>
-              <FormControl
-                id="company-businessType"
-                componentClass="select"
-                defaultValue={company.businessType || ''}
-              >
-                <option />
-                {COMPANY_BUSINESS_TYPES.map((type, index) => {
-                  return <option key={index}>{type}</option>;
-                })}
-              </FormControl>
-            </FormGroup>
+            {this.renderFormGroup('Business Type', {
+              id: 'company-businessType',
+              componentClass: 'select',
+              defaultValue: company.businessType || '',
+              options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
+            })}
 
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl
-                id="company-description"
-                type="text"
-                defaultValue={company.description || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Description', {
+              id: 'company-description',
+              defaultValue: company.description || ''
+            })}
 
-            <FormGroup>
-              <ControlLabel>Employees count</ControlLabel>
-              <FormControl
-                id="company-employees"
-                type="text"
-                defaultValue={company.employees || 0}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Employees count', {
+              id: 'company-employees',
+              defaultValue: company.employees || 0
+            })}
 
-            <FormGroup>
-              <ControlLabel>Do not disturb</ControlLabel>
-              <FormControl
-                componentClass="radio"
-                value="Yes"
-                onChange={e => {
-                  this.setState({ doNotDisturb: e.target.value });
-                }}
-                checked={this.state.doNotDisturb === 'Yes'}
-              >
-                {__('Yes')}
-              </FormControl>
-              <FormControl
-                componentClass="radio"
-                value="No"
-                onChange={e => {
-                  this.setState({ doNotDisturb: e.target.value });
-                }}
-                checked={this.state.doNotDisturb === 'No'}
-              >
-                {__('No')}
-              </FormControl>
-            </FormGroup>
+            {this.renderFormGroup('Do not disturb', {
+              componentClass: 'radio',
+              options: [
+                {
+                  childNode: 'Yes',
+                  value: 'Yes',
+                  checked: this.state.doNotDisturb === 'Yes',
+                  onChange: e => this.setState({ doNotDisturb: e.target.value })
+                },
+                {
+                  childNode: 'No',
+                  value: 'No',
+                  checked: this.state.doNotDisturb === 'No',
+                  onChange: e => this.setState({ doNotDisturb: e.target.value })
+                }
+              ]
+            })}
           </FormColumn>
 
           <FormColumn>
             <ColumnTitle>{__('Links')}</ColumnTitle>
 
-            <FormGroup>
-              <ControlLabel>LinkedIn</ControlLabel>
-              <FormControl
-                id="company-linkedIn"
-                type="text"
-                defaultValue={links.linkedIn || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('LinkedIn', {
+              id: 'company-linkedIn',
+              defaultValue: links.linkedIn || ''
+            })}
 
-            <FormGroup>
-              <ControlLabel>Twitter</ControlLabel>
-              <FormControl
-                id="company-twitter"
-                type="text"
-                defaultValue={links.twitter || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Twitter', {
+              id: 'company-twitter',
+              defaultValue: links.twitter || ''
+            })}
 
-            <FormGroup>
-              <ControlLabel>Facebook</ControlLabel>
-              <FormControl
-                id="company-facebook"
-                type="text"
-                defaultValue={links.facebook || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Facebook', {
+              id: 'company-facebook',
+              defaultValue: links.facebook || ''
+            })}
 
-            <FormGroup>
-              <ControlLabel>Github</ControlLabel>
-              <FormControl
-                id="company-github"
-                type="text"
-                defaultValue={links.github || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Github', {
+              id: 'company-github',
+              defaultValue: links.github || ''
+            })}
 
-            <FormGroup>
-              <ControlLabel>Youtube</ControlLabel>
-              <FormControl
-                id="company-youtube"
-                type="text"
-                defaultValue={links.youtube || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Youtube', {
+              id: 'company-youtube',
+              defaultValue: links.youtube || ''
+            })}
 
-            <FormGroup>
-              <ControlLabel>Website</ControlLabel>
-              <FormControl
-                id="company-website"
-                type="text"
-                defaultValue={links.linkedIn || ''}
-              />
-            </FormGroup>
+            {this.renderFormGroup('Website', {
+              id: 'company-website',
+              defaultValue: links.website || ''
+            })}
           </FormColumn>
         </FormWrapper>
 
@@ -384,11 +275,7 @@ class CompanyForm extends React.Component {
           </Button>
 
           <Button btnStyle="success" type="submit" icon="checkmark">
-            Save & New
-          </Button>
-
-          <Button btnStyle="primary" type="submit" name="close" icon="close">
-            Save & Close
+            Save
           </Button>
         </ModalFooter>
       </form>

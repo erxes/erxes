@@ -15,11 +15,10 @@ const CustomerFormContainer = props => {
     return <Spinner />;
   }
 
-  let action = ({ doc, callback }) => {
+  let action = ({ doc }) => {
     customersAdd({ variables: doc })
       .then(() => {
         Alert.success('Success');
-        callback();
       })
       .catch(e => {
         Alert.error(e.message);
@@ -27,11 +26,10 @@ const CustomerFormContainer = props => {
   };
 
   if (customer) {
-    action = ({ doc, callback }) => {
+    action = ({ doc }) => {
       customersEdit({ variables: { _id: customer._id, ...doc } })
         .then(() => {
           Alert.success('Success');
-          callback();
         })
         .catch(e => {
           Alert.error(e.message);
