@@ -53,6 +53,7 @@ export const queries = `
   dealBoardDetail(_id: String!): DealBoard
   dealPipelines(boardId: String!): [DealPipeline]
   dealStages(boardId: String, pipelineId: String!): [DealStage]
+  dealStageDetail(_id: String!): DealStage
   deals(boardId: String, pipelineId: String, stageId: String!): [Deal]
   dealDetail(_id: String!): Deal
 `;

@@ -54,6 +54,16 @@ const dealQueries = {
   },
 
   /**
+   * Deal stage detail
+   * @param {Object} args
+   * @param {String} args._id
+   * @return {Promise} deal stage detail
+   */
+  dealStageDetail(root, { _id }) {
+    return DealStages.findOne({ _id });
+  },
+
+  /**
    * Deals list
    * @param {Object} args
    * @param {String} args.boardId
