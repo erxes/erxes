@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { CUSTOMER_LEAD_STATUS_TYPES, CUSTOMER_LIFECYCLE_STATE_TYPES } from '../../data/constants';
 import { Fields, Companies, ActivityLogs, Conversations, InternalNotes, EngageMessages } from './';
 import { field } from './utils';
 
@@ -84,14 +85,49 @@ const facebookSchema = mongoose.Schema(
   { _id: false },
 );
 
+const LinkSchema = mongoose.Schema(
+  {
+    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
+    twitter: field({ type: String, optional: true, label: 'Twitter' }),
+    facebook: field({ type: String, optional: true, label: 'Facebook' }),
+    github: field({ type: String, optional: true, label: 'Github' }),
+    youtube: field({ type: String, optional: true, label: 'Youtube' }),
+    website: field({ type: String, optional: true, label: 'Website' }),
+  },
+  { _id: false },
+);
+
 const CustomerSchema = mongoose.Schema({
   _id: field({ pkey: true }),
 
   firstName: field({ type: String, label: 'First name', optional: true }),
   lastName: field({ type: String, label: 'Last name', optional: true }),
-
   email: field({ type: String, label: 'Email', optional: true }),
   phone: field({ type: String, label: 'Phone', optional: true }),
+
+  ownerId: field({ type: String, optional: true }),
+  position: field({ type: String, optional: true, label: 'Position' }),
+  department: field({ type: String, optional: true, label: 'Department' }),
+
+  leadStatus: field({
+    type: String,
+    enum: CUSTOMER_LEAD_STATUS_TYPES,
+    optional: true,
+    label: 'Lead Status',
+  }),
+
+  lifecycleState: field({
+    type: String,
+    enum: CUSTOMER_LIFECYCLE_STATE_TYPES,
+    optional: true,
+    label: 'Lifecycle State',
+  }),
+
+  hasAuthority: field({ type: String, optional: true, label: 'Has authority' }),
+  description: field({ type: String, optional: true, label: 'Description' }),
+  doNotDisturb: field({ type: String, optional: true, label: 'Do not disturb' }),
+  links: field({ type: LinkSchema, default: {} }),
+
   isUser: field({ type: Boolean, label: 'Is user', optional: true }),
   createdAt: field({ type: Date, label: 'Created at' }),
 
@@ -144,9 +180,11 @@ class Customer {
       if (previousEntry.length > 0) {
         throw new Error('Duplicated email');
       }
+
+      delete query.email;
     }
 
-    // Checking if cuostomer has twitter data
+    // Checking if customer has twitter data
     if (customerFields.twitterData) {
       query['twitterData.id'] = customerFields.twitterData.id;
       previousEntry = await this.find(query);
@@ -154,6 +192,19 @@ class Customer {
       // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated twitter');
+      }
+
+      delete query['twitterData.id'];
+    }
+
+    // Checking if customer has phone
+    if (customerFields.phone) {
+      query.phone = customerFields.phone;
+      previousEntry = await this.find(query);
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated phone');
       }
     }
   }
