@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { TwitterMessage } from './';
+import { TwitterMessage } from 'modules/inbox/containers';
 import Message from '../Message';
 
 const propTypes = {
@@ -45,22 +45,24 @@ class TwitterConversation extends Component {
     return array;
   }
 
-  renderChildren(children) {
+  renderChildren(children, integrationId) {
     if (children) {
-      return <List>{this.renderTweets(children)}</List>;
+      return <List>{this.renderTweets(children, integrationId)}</List>;
     }
     return null;
   }
 
-  renderTweets(messages) {
+  renderTweets(messages, integrationId) {
     return messages.map(message => {
       return (
         <li key={message._id}>
           <TwitterMessage
             message={message}
+            currentConversationId={this.props.conversation._id}
+            integrationId={integrationId}
             scrollBottom={this.props.scrollBottom}
           />
-          {this.renderChildren(message.children)}
+          {this.renderChildren(message.children, integrationId)}
         </li>
       );
     });
@@ -81,6 +83,8 @@ class TwitterConversation extends Component {
 
   render() {
     const { conversation } = this.props;
+    const integration = conversation.integration;
+    const integrationId = integration && conversation.integration._id;
 
     if (!conversation) {
       return null;
@@ -91,7 +95,7 @@ class TwitterConversation extends Component {
 
     return (
       <Fragment>
-        <List isRoot>{this.renderTweets(nestedMessages)}</List>
+        <List isRoot>{this.renderTweets(nestedMessages, integrationId)}</List>
         {this.renderInternals(messages)}
       </Fragment>
     );

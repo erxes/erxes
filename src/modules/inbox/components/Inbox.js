@@ -41,8 +41,15 @@ class Inbox extends Component {
     this.scrollBottom();
   }
 
-  componentDidUpdate() {
-    this.scrollBottom();
+  componentDidUpdate(prevProps) {
+    const { currentConversation } = this.props;
+    const prevConversation = prevProps.currentConversation;
+    if (
+      currentConversation.messageCount !== prevConversation.messageCount ||
+      currentConversation._id !== prevConversation._id
+    ) {
+      this.scrollBottom();
+    }
   }
 
   scrollBottom() {
