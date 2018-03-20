@@ -1,4 +1,4 @@
-import { Companies, Conversations, Tags } from '../../db/models';
+import { Companies, Conversations, Tags, Users } from '../../db/models';
 
 export default {
   getIntegrationData(customer) {
@@ -34,5 +34,8 @@ export default {
 
   companies(customer) {
     return Companies.find({ _id: { $in: customer.companyIds || [] } });
+  },
+  owner(customer) {
+    return Users.findOne({ _id: customer.ownerId });
   },
 };
