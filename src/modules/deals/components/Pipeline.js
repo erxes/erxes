@@ -28,7 +28,7 @@ class Pipeline extends React.Component {
           <h2>{pipeline.name}</h2>
         </PipelineHeader>
         <Droppable
-          type="STAGE"
+          type="pipeline"
           direction="horizontal"
           droppableId={pipeline._id}
         >
@@ -42,7 +42,7 @@ class Pipeline extends React.Component {
                   return (
                     <Stage
                       key={stage._id}
-                      stage={stage}
+                      stageId={stage._id}
                       index={index}
                       boardId={boardId}
                       pipelineId={pipeline._id}

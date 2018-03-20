@@ -23,38 +23,34 @@ class Board extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      stagesByPipeline: {},
+    this.state = {};
 
-      stageStatepFb8257KLPtwTtWTk: {},
-      stageStateX8t7rmH8fC35AdeKh: {},
-      stageStateauGLRChyf9QdfDn9o: {}
-    };
-
-    this.addToDeals = this.addToDeals.bind(this);
-    this.collectStages = this.collectStages.bind(this);
+    this.move = this.move.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
   }
 
-  addToDeals(stageId, deal) {
-    const dealsByStage = this.state.dealsByStage;
-
-    const deals = dealsByStage[stageId] || [];
-    deals.push(deal);
-
-    dealsByStage[stageId] = deals;
-
-    this.setState({
-      dealsByStage
-    });
+  getChildContext() {
+    return {
+      move: this.move
+    };
   }
 
-  collectStages(pipelineId, stages) {
-    const stagesByPipeline = this.state.stagesByPipeline;
-    stagesByPipeline[pipelineId] = stages;
+  move({ source, destination, itemId, type }) {
+    this.setState({
+      // remove from list
+      [`${type}State${source._id}`]: {
+        type: 'removeItem',
+        index: source.index
+      }
+    });
 
     this.setState({
-      stagesByPipeline
+      // add to list
+      [`${type}State${destination._id}`]: {
+        type: 'addItem',
+        index: destination.index,
+        itemId
+      }
     });
   }
 
@@ -66,42 +62,12 @@ class Board extends React.Component {
       return;
     }
 
-    switch (type) {
-      case 'DEAL': {
-        this.setState({
-          // remove from list
-          [`stageState${source.droppableId}`]: {
-            type: 'removeItem',
-            index: source.index
-          },
-
-          // add to list
-          [`stageState${destination.droppableId}`]: {
-            type: 'addItem',
-            index: destination.index,
-            itemId: draggableId
-          }
-        });
-
-        break;
-      }
-
-      case 'STAGE': {
-        const reOrderedStages = this.reOrder(
-          result,
-          this.state.stagesByPipeline,
-          this.props.stagesUpdateOrder,
-          this.props.stagesChange
-        );
-
-        this.setState({
-          stagesByPipeline: reOrderedStages
-        });
-
-        break;
-      }
-      default:
-    }
+    this.move({
+      source: { _id: source.droppableId, index: source.index },
+      destination: { _id: destination.droppableId, index: destination.index },
+      itemId: draggableId,
+      type
+    });
   }
 
   render() {
@@ -140,27 +106,24 @@ class Board extends React.Component {
 
     const { pipelines } = this.props;
 
+    const stageStates = {};
+
+    Object.keys(this.state).forEach(key => {
+      if (key.startsWith('stageState')) {
+        stageStates[key] = this.state[key];
+      }
+    });
+
     const content = (
       <DragDropContext onDragEnd={this.onDragEnd}>
         {pipelines.map(pipeline => {
           return (
             <Pipeline
               key={pipeline._id}
+              {...stageStates}
+              state={this.state[`pipelineState${pipeline._id}`]}
               pipeline={pipeline}
               boardId={currentBoard._id}
-              stages={this.state.stagesByPipeline[pipeline._id] || []}
-              collectStages={this.collectStages}
-              addToDeals={this.addToDeals}
-              dealResult={this.state.dealResult}
-              stageStatepFb8257KLPtwTtWTk={
-                this.state.stageStatepFb8257KLPtwTtWTk
-              }
-              stageStateX8t7rmH8fC35AdeKh={
-                this.state.stageStateX8t7rmH8fC35AdeKh
-              }
-              stageStateauGLRChyf9QdfDn9o={
-                this.state.stageStateauGLRChyf9QdfDn9o
-              }
             />
           );
         })}
@@ -179,5 +142,8 @@ class Board extends React.Component {
 }
 
 Board.propTypes = propTypes;
+Board.childContextTypes = {
+  move: PropTypes.func
+};
 
 export default Board;

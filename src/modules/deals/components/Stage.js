@@ -32,7 +32,6 @@ class Stage extends React.Component {
     this.closeForm = this.closeForm.bind(this);
 
     this.state = {
-      amount: {},
       show: false
     };
   }
@@ -84,7 +83,7 @@ class Stage extends React.Component {
                   )}
                 </StageHeader>
                 <StageBody>
-                  <Droppable droppableId={stage._id} type="DEAL">
+                  <Droppable droppableId={stage._id} type="stage">
                     {dropProvided => (
                       <StageDropZone innerRef={dropProvided.innerRef}>
                         <div>

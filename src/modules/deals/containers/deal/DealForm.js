@@ -21,9 +21,7 @@ class DealFormContainer extends React.Component {
 }
 
 const propTypes = {
-  usersQuery: PropTypes.object,
-  addMutation: PropTypes.func,
-  editMutation: PropTypes.func
+  usersQuery: PropTypes.object
 };
 
 DealFormContainer.propTypes = propTypes;

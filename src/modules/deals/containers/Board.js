@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { router as routerUtils, Alert } from 'modules/common/utils';
+import { router as routerUtils } from 'modules/common/utils';
 import { Spinner } from 'modules/common/components';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Board as BoardComponent } from '../components';
 
-import { queries, mutations } from '../graphql';
+import { queries } from '../graphql';
 
 class Container extends React.Component {
   componentWillReceiveProps() {
@@ -19,12 +19,7 @@ class Container extends React.Component {
   }
 
   render() {
-    const {
-      boardsQuery,
-      pipelinesQuery,
-      stagesUpdateOrderMutation,
-      stagesChangeMutation
-    } = this.props;
+    const { boardsQuery, pipelinesQuery } = this.props;
 
     const boards = boardsQuery.dealBoards || [];
     const pipelines = pipelinesQuery.dealPipelines || [];
@@ -33,27 +28,10 @@ class Container extends React.Component {
       return <Spinner />;
     }
 
-    const stagesUpdateOrder = orders => {
-      stagesUpdateOrderMutation({
-        variables: { orders }
-      }).catch(error => {
-        Alert.error(error.message);
-      });
-    };
-
-    // if move to other pipeline, will change pipelineId
-    const stagesChange = (_id, pipelineId) => {
-      stagesChangeMutation({
-        variables: { _id, pipelineId }
-      });
-    };
-
     const extendedProps = {
       ...this.props,
       boards,
-      pipelines,
-      stagesUpdateOrder,
-      stagesChange
+      pipelines
     };
 
     return <BoardComponent {...extendedProps} />;
@@ -63,8 +41,6 @@ class Container extends React.Component {
 const propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
-  stagesUpdateOrderMutation: PropTypes.func,
-  stagesChangeMutation: PropTypes.func,
   currentBoardId: PropTypes.string,
   history: PropTypes.object
 };
@@ -74,12 +50,6 @@ Container.propTypes = propTypes;
 const BoardContainer = compose(
   graphql(gql(queries.boards), {
     name: 'boardsQuery'
-  }),
-  graphql(gql(mutations.stagesUpdateOrder), {
-    name: 'stagesUpdateOrderMutation'
-  }),
-  graphql(gql(mutations.stagesChange), {
-    name: 'stagesChangeMutation'
   }),
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
@@ -92,13 +62,12 @@ const BoardContainer = compose(
 )(Container);
 
 const BoardDetail = props => {
-  const { boardDetailQuery, currentBoardId } = props;
+  const { boardDetailQuery } = props;
 
   const currentBoard = boardDetailQuery.dealBoardDetail || {};
 
   const extendedProps = {
     ...props,
-    currentBoardId,
     currentBoard
   };
 
@@ -106,8 +75,7 @@ const BoardDetail = props => {
 };
 
 const boardDetailPropTypes = {
-  boardDetailQuery: PropTypes.object,
-  currentBoardId: PropTypes.string
+  boardDetailQuery: PropTypes.object
 };
 
 BoardDetail.propTypes = boardDetailPropTypes;

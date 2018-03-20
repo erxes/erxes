@@ -3,35 +3,78 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Pipeline } from '../components';
-import { queries } from '../graphql';
+import { queries, mutations } from '../graphql';
 import { Spinner } from 'modules/common/components';
-import { listObjectUnFreeze } from 'modules/common/utils';
+import { Alert, listObjectUnFreeze } from 'modules/common/utils';
+import { collectOrders } from '../utils';
 
 class PipelineContainer extends React.Component {
   constructor(props) {
     super(props);
 
-    const { collectStages, pipeline, stagesFromDb } = props;
+    const { stagesFromDb } = props;
 
-    collectStages(pipeline._id, listObjectUnFreeze(stagesFromDb));
+    this.state = {
+      stages: listObjectUnFreeze(stagesFromDb)
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.state !== nextProps.state) {
+      const {
+        state: { type, index, itemId },
+        pipeline,
+        stagesUpdateOrder,
+        stagesChange
+      } = nextProps;
+      const { stages } = this.state;
+
+      if (type === 'removeItem') {
+        // Remove from list
+        stages.splice(index, 1);
+
+        stagesUpdateOrder(collectOrders(stages));
+      }
+
+      if (type === 'addItem') {
+        // Add to list
+        stages.splice(index, 0, { _id: itemId });
+
+        stagesUpdateOrder(collectOrders(stages));
+        stagesChange(itemId, pipeline._id);
+      }
+
+      this.setState({ stages });
+    }
   }
 
   render() {
-    return <Pipeline {...this.props} />;
+    const extendedProps = {
+      ...this.props,
+      stages: this.state.stages
+    };
+
+    return <Pipeline {...extendedProps} />;
   }
 }
 
 const propTypes = {
-  collectStages: PropTypes.func,
   pipeline: PropTypes.object,
-  stagesFromDb: PropTypes.array
+  state: PropTypes.object,
+  stagesFromDb: PropTypes.array,
+  stagesUpdateOrder: PropTypes.func,
+  stagesChange: PropTypes.func
 };
 
 PipelineContainer.propTypes = propTypes;
 
 class StagesWithPipeline extends React.Component {
   render() {
-    const { stagesQuery } = this.props;
+    const {
+      stagesQuery,
+      stagesUpdateOrderMutation,
+      stagesChangeMutation
+    } = this.props;
 
     if (stagesQuery.loading) {
       return <Spinner />;
@@ -39,9 +82,26 @@ class StagesWithPipeline extends React.Component {
 
     const stagesFromDb = stagesQuery.dealStages;
 
+    const stagesUpdateOrder = orders => {
+      stagesUpdateOrderMutation({
+        variables: { orders }
+      }).catch(error => {
+        Alert.error(error.message);
+      });
+    };
+
+    // if move to other pipeline, will change pipelineId
+    const stagesChange = (_id, pipelineId) => {
+      stagesChangeMutation({
+        variables: { _id, pipelineId }
+      });
+    };
+
     const extendedProps = {
       ...this.props,
-      stagesFromDb
+      stagesFromDb,
+      stagesUpdateOrder,
+      stagesChange
     };
 
     return <PipelineContainer {...extendedProps} />;
@@ -49,7 +109,9 @@ class StagesWithPipeline extends React.Component {
 }
 
 StagesWithPipeline.propTypes = {
-  stagesQuery: PropTypes.object
+  stagesQuery: PropTypes.object,
+  stagesUpdateOrderMutation: PropTypes.func,
+  stagesChangeMutation: PropTypes.func
 };
 
 export default compose(
@@ -60,5 +122,11 @@ export default compose(
         pipelineId: pipeline._id
       }
     })
+  }),
+  graphql(gql(mutations.stagesUpdateOrder), {
+    name: 'stagesUpdateOrderMutation'
+  }),
+  graphql(gql(mutations.stagesChange), {
+    name: 'stagesChangeMutation'
   })
 )(StagesWithPipeline);

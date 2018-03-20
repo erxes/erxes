@@ -40,6 +40,15 @@ const stages = `
     dealStages(pipelineId: $pipelineId) {
       _id
       name
+    }
+  }
+`;
+
+const stageDetail = `
+  query dealStageDetail($_id: String!) {
+    dealStageDetail(_id: $_id) {
+      _id
+      name
       pipelineId
       amount
     }
@@ -119,6 +128,7 @@ export default {
   boardDetail,
   pipelines,
   stages,
+  stageDetail,
   deals,
   dealDetail,
   users,

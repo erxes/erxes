@@ -14,6 +14,7 @@ class DealMoveFormContainer extends React.Component {
 
     this.onChangeBoard = this.onChangeBoard.bind(this);
     this.onChangePipeline = this.onChangePipeline.bind(this);
+    this.moveDeal = this.moveDeal.bind(this);
 
     this.state = {
       boardId: deal.boardId,
@@ -48,6 +49,27 @@ class DealMoveFormContainer extends React.Component {
     });
   }
 
+  moveDeal(doc) {
+    const { deal } = this.props;
+
+    const moveDoc = {
+      source: {
+        _id: deal.stageId,
+        index: deal.order
+      },
+      destination: {
+        _id: doc.stageId,
+        index: 0
+      },
+      itemId: doc._id,
+      type: 'stage'
+    };
+
+    this.context.move(moveDoc);
+
+    this.props.moveDeal(doc);
+  }
+
   render() {
     const { deal, boardsQuery, pipelinesQuery, stagesQuery } = this.props;
     const { boardId, pipelineId } = this.state;
@@ -65,16 +87,19 @@ class DealMoveFormContainer extends React.Component {
       filteredStages = stages.filter(el => el._id !== deal.stageId);
     }
 
+    const stageId = filteredStages.length > 0 ? filteredStages[0]._id : null;
+
     const extendedProps = {
       ...this.props,
       boards,
       pipelines,
       stages: filteredStages,
       boardId,
-      stageId: filteredStages[0]._id,
+      stageId,
       pipelineId,
       onChangeBoard: this.onChangeBoard,
-      onChangePipeline: this.onChangePipeline
+      onChangePipeline: this.onChangePipeline,
+      moveDeal: this.moveDeal
     };
 
     return <DealMoveForm {...extendedProps} />;
@@ -85,10 +110,14 @@ const propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
   stagesQuery: PropTypes.object,
-  deal: PropTypes.object
+  deal: PropTypes.object,
+  moveDeal: PropTypes.func
 };
 
 DealMoveFormContainer.propTypes = propTypes;
+DealMoveFormContainer.contextTypes = {
+  move: PropTypes.func
+};
 
 export default compose(
   graphql(gql(queries.boards), {

@@ -54,7 +54,7 @@ class DealForm extends React.Component {
     const deal = props.deal || {};
 
     this.state = {
-      amount: {},
+      amount: deal.amount || {},
       // Deal datas
       company: deal.company,
       customer: deal.customer,

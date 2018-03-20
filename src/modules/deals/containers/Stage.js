@@ -7,10 +7,15 @@ import { queries, mutations } from '../graphql';
 import { Alert, confirm } from 'modules/common/utils';
 import { Spinner } from 'modules/common/components';
 import { listObjectUnFreeze } from 'modules/common/utils';
+import { collectOrders } from '../utils';
 
 class StageContainer extends React.Component {
   constructor(props) {
     super(props);
+
+    this.saveDeal = this.saveDeal.bind(this);
+    this.removeDeal = this.removeDeal.bind(this);
+    this.moveDeal = this.moveDeal.bind(this);
 
     const { dealsFromDb } = props;
 
@@ -21,106 +26,128 @@ class StageContainer extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.state !== nextProps.state) {
-      const { deals } = this.state;
-      const { type, index, itemId } = nextProps.state;
+      const {
+        state: { type, index, itemId },
+        stageId,
+        dealsUpdateOrder,
+        dealsChange,
+        stageDetailQuery
+      } = nextProps;
+      const deals = this.state.deals;
 
       if (type === 'removeItem') {
         // Remove from list
         deals.splice(index, 1);
+
+        dealsUpdateOrder(collectOrders(deals), () => {
+          stageDetailQuery.refetch();
+        });
       }
 
       if (type === 'addItem') {
         // Add to list
         deals.splice(index, 0, { _id: itemId });
+
+        dealsUpdateOrder(collectOrders(deals), () => {
+          stageDetailQuery.refetch();
+        });
+
+        dealsChange(itemId, stageId);
       }
 
       this.setState({ deals });
     }
   }
 
-  render() {
-    const {
-      addToDeals,
-      addMutation,
-      editMutation,
-      removeMutation,
-      dealsChangeMutation
-    } = this.props;
+  // create or update deal
+  saveDeal(doc, callback, deal) {
+    const { addMutation, editMutation, stageDetailQuery } = this.props;
 
-    const { deals } = this.state;
+    const deals = this.state.deals;
 
-    // create or update deal
-    const saveDeal = (doc, callback, deal) => {
-      let mutation = addMutation;
+    let mutation = addMutation;
 
-      // if edit mode
-      if (deal) {
-        mutation = editMutation;
-        doc._id = deal._id;
-      }
+    // if edit mode
+    if (deal) {
+      mutation = editMutation;
+      doc._id = deal._id;
+    }
 
-      mutation({
-        variables: doc
-      })
-        .then(({ data }) => {
-          Alert.success('Successfully saved!');
+    mutation({
+      variables: doc
+    })
+      .then(({ data }) => {
+        Alert.success('Successfully saved!');
 
-          if (deal) {
-            const index = deals.findIndex(d => d._id === data.dealsEdit._id);
+        if (deal) {
+          const index = deals.findIndex(d => d._id === data.dealsEdit._id);
 
-            deals[index] = data.dealsEdit;
-          } else {
-            deals.push(data.dealsAdd);
-          }
+          deals[index] = data.dealsEdit;
+        } else {
+          deals.push(data.dealsAdd);
+        }
 
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
+        this.setState({
+          deals
         });
-    };
 
-    // remove deal
-    const removeDeal = (_id, callback) => {
-      confirm().then(() => {
-        removeMutation({
-          variables: { _id }
-        })
-          .then(() => {
-            Alert.success('Successfully deleted.');
+        stageDetailQuery.refetch();
 
-            callback();
-          })
-          .catch(error => {
-            Alert.error(error.message);
-          });
+        callback();
+      })
+      .catch(error => {
+        Alert.error(error.message);
       });
-    };
+  }
 
-    // move deal
-    const moveDeal = (doc, callback) => {
-      dealsChangeMutation({
-        variables: doc
+  // remove deal
+  removeDeal(_id) {
+    const { removeMutation, stageDetailQuery } = this.props;
+    const deals = this.state.deals;
+
+    confirm().then(() => {
+      removeMutation({
+        variables: { _id }
       })
-        .then(({ data: { dealsChange } }) => {
-          Alert.success('Successfully moved.');
+        .then(({ data: { dealsRemove } }) => {
+          Alert.success('Successfully deleted.');
 
-          // update destination list
-          addToDeals(dealsChange.stageId, { _id: dealsChange._id });
+          this.setState({
+            deals: deals.filter(el => el._id !== dealsRemove._id)
+          });
 
-          callback();
+          stageDetailQuery.refetch();
         })
         .catch(error => {
           Alert.error(error.message);
         });
-    };
+    });
+  }
 
+  // move deal
+  moveDeal(doc) {
+    const { dealsChangeMutation, stageDetailQuery } = this.props;
+
+    dealsChangeMutation({
+      variables: doc
+    })
+      .then(() => {
+        Alert.success('Successfully moved.');
+
+        stageDetailQuery.refetch();
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  }
+
+  render() {
     const extendedProps = {
       ...this.props,
-      deals,
-      saveDeal,
-      removeDeal,
-      moveDeal
+      deals: this.state.deals,
+      saveDeal: this.saveDeal,
+      removeDeal: this.removeDeal,
+      moveDeal: this.moveDeal
     };
 
     return <Stage {...extendedProps} />;
@@ -129,17 +156,15 @@ class StageContainer extends React.Component {
 
 StageContainer.propTypes = {
   state: PropTypes.object,
-  stage: PropTypes.object,
+  stageId: PropTypes.string,
   dealsFromDb: PropTypes.array,
-  deals: PropTypes.array,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
   removeMutation: PropTypes.func,
   dealsChange: PropTypes.func,
   dealsChangeMutation: PropTypes.func,
-  dealResult: PropTypes.object,
-  addToDeals: PropTypes.func,
-  dealsUpdateOrder: PropTypes.func
+  dealsUpdateOrder: PropTypes.func,
+  stageDetailQuery: PropTypes.object
 };
 
 const StageContainerWithData = compose(
@@ -159,20 +184,28 @@ class StageWithDeals extends React.Component {
   render() {
     const {
       dealsQuery,
+      stageDetailQuery,
       dealsChangeMutation,
       dealsUpdateOrderMutation
     } = this.props;
 
-    if (dealsQuery.loading) {
+    if (dealsQuery.loading || stageDetailQuery.loading) {
       return <Spinner />;
     }
 
-    const dealsUpdateOrder = orders => {
+    const stage = stageDetailQuery.dealStageDetail;
+    const dealsFromDb = dealsQuery.deals;
+
+    const dealsUpdateOrder = (orders, callback) => {
       dealsUpdateOrderMutation({
         variables: { orders }
-      }).catch(error => {
-        Alert.error(error.message);
-      });
+      })
+        .then(() => {
+          callback();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
     };
 
     // if move to other stage, will change stageId and pipelineId
@@ -182,10 +215,9 @@ class StageWithDeals extends React.Component {
       });
     };
 
-    const dealsFromDb = dealsQuery.deals;
-
     const extendedProps = {
       ...this.props,
+      stage,
       dealsFromDb,
       dealsUpdateOrder,
       dealsChange
@@ -196,6 +228,7 @@ class StageWithDeals extends React.Component {
 }
 
 StageWithDeals.propTypes = {
+  stageDetailQuery: PropTypes.object,
   dealsQuery: PropTypes.object,
   dealsChangeMutation: PropTypes.func,
   dealsUpdateOrderMutation: PropTypes.func
@@ -204,9 +237,17 @@ StageWithDeals.propTypes = {
 export default compose(
   graphql(gql(queries.deals), {
     name: 'dealsQuery',
-    options: ({ stage }) => ({
+    options: ({ stageId }) => ({
       variables: {
-        stageId: stage._id
+        stageId
+      }
+    })
+  }),
+  graphql(gql(queries.stageDetail), {
+    name: 'stageDetailQuery',
+    options: ({ stageId }) => ({
+      variables: {
+        _id: stageId
       }
     })
   }),

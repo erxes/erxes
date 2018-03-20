@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { Button, FormGroup } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { selectOptions } from '../../utils';
 
 class DealMoveForm extends React.Component {
@@ -18,17 +19,21 @@ class DealMoveForm extends React.Component {
 
   move() {
     const { deal, boardId, pipelineId } = this.props;
+    const { stageId } = this.state;
+
+    if (!stageId) {
+      Alert.error('No stage');
+      return;
+    }
 
     const doc = {
-      _id: deal._id,
       boardId,
       pipelineId,
-      stageId: this.state.stageId
+      stageId,
+      _id: deal._id
     };
 
-    this.props.moveDeal(doc, () => {
-      this.props.closeEditForm();
-    });
+    this.props.moveDeal(doc);
   }
 
   onChangeStage(stage) {
@@ -108,10 +113,9 @@ const propTypes = {
   pipelines: PropTypes.array.isRequired,
   stages: PropTypes.array.isRequired,
   boardId: PropTypes.string.isRequired,
-  stageId: PropTypes.string.isRequired,
+  stageId: PropTypes.string,
   pipelineId: PropTypes.string.isRequired,
   close: PropTypes.func.isRequired,
-  closeEditForm: PropTypes.func.isRequired,
   onChangeBoard: PropTypes.func.isRequired,
   onChangePipeline: PropTypes.func.isRequired,
   moveDeal: PropTypes.func.isRequired

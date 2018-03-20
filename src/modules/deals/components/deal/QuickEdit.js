@@ -74,9 +74,7 @@ class QuickEdit extends React.Component {
   remove() {
     const deal = this.props.deal;
 
-    this.props.removeDeal(deal._id, () => {
-      this.props.close();
-    });
+    this.props.removeDeal(deal._id);
   }
 
   render() {
@@ -101,7 +99,6 @@ class QuickEdit extends React.Component {
             <DealMoveFormContainer>
               <DealMoveForm
                 deal={deal}
-                closeEditForm={close}
                 moveDeal={moveDeal}
                 close={this.toggleMove}
               />
