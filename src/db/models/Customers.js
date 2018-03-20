@@ -184,7 +184,7 @@ class Customer {
       delete query.email;
     }
 
-    // Checking if cuostomer has twitter data
+    // Checking if customer has twitter data
     if (customerFields.twitterData) {
       query['twitterData.id'] = customerFields.twitterData.id;
       previousEntry = await this.find(query);
