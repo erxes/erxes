@@ -23,7 +23,7 @@ class UserForm extends CommonForm {
     this.state = {
       avatar: user.details.avatar || defaultAvatar,
       selectedChannels: this.generateChannelsParams(props.selectedChannels),
-      selectedGroups: user.groupIds
+      selectedGroups: user.groupIds || []
     };
   }
 
