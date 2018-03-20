@@ -542,5 +542,16 @@
   "Empty Notes": "Empty Notes",
   "Mini-resume": "Mini-resume",
   "You cannot update this property": "You cannot update this property",
-  "Amount": "Amount"
+  "Amount": "Amount",
+  "Owner": "Owner",
+  "Department": "Department",
+  "Lead Status": "Lead status",
+  "Lifecycle State": "Lifecycle State",
+  "Has Authority": "Has Authority",
+  "Do not disturb": "Do not disturb",
+  "Parent Company": "Parent Company",
+  "Business Type": "Business Type",
+  "Employees count": "Employees count",
+  "Yes": "Yes",
+  "No": "No"
 }

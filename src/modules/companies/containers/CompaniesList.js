@@ -16,7 +16,6 @@ class CompanyListContainer extends Bulk {
       companiesMainQuery,
       companiesListConfigQuery,
       companyCountsQuery,
-      companiesAdd,
       tagsQuery,
       companiesRemove,
       companiesMerge,
@@ -32,21 +31,6 @@ class CompanyListContainer extends Bulk {
     if (localConfig) {
       columnsConfig = JSON.parse(localConfig);
     }
-
-    // add company
-    const addCompany = ({ doc, callback }) => {
-      companiesAdd({
-        variables: doc
-      })
-        .then(() => {
-          companiesMainQuery.refetch();
-          Alert.success('Success');
-          callback();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
 
     const removeCompanies = ({ companyIds }) => {
       companiesRemove({
@@ -101,7 +85,6 @@ class CompanyListContainer extends Bulk {
       tags: tagsQuery.tags || [],
       searchValue,
       companies: list,
-      addCompany,
       loading: companiesMainQuery.loading,
       bulk: this.state.bulk || [],
       emptyBulk: this.emptyBulk,
@@ -123,7 +106,6 @@ CompanyListContainer.propTypes = {
   companyCountsQuery: PropTypes.object,
   companiesListConfigQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
-  companiesAdd: PropTypes.func,
   loading: PropTypes.bool
 };
 
@@ -172,9 +154,6 @@ export default compose(
     })
   }),
   // mutations
-  graphql(gql(mutations.companiesAdd), {
-    name: 'companiesAdd'
-  }),
   graphql(gql(mutations.companiesRemove), {
     name: 'companiesRemove'
   }),

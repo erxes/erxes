@@ -45,7 +45,7 @@ const defaultProps = {
 
 const renderElement = (Element, attributes, type, child) => {
   return (
-    <FormLabel>
+    <FormLabel key={attributes.key ? attributes.key : null}>
       <Element {...attributes} type={type} />
       <span>
         {child && '\u00a0\u00a0'}
@@ -115,6 +115,17 @@ class FormControl extends React.Component {
     }
 
     if (elementType === 'radio') {
+      if (props.options) {
+        return props.options.map((option, index) => {
+          return renderElement(
+            Radio,
+            { key: index, ...attributes, ...option },
+            elementType,
+            option.childNode
+          );
+        });
+      }
+
       return renderElement(Radio, attributes, elementType, childNode);
     }
 
