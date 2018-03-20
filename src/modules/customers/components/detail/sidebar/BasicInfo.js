@@ -18,6 +18,12 @@ const propTypes = {
 };
 
 class BasicInfo extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.renderRow = this.renderRow.bind(this);
+  }
+
   getVisitorInfo(customer, key) {
     return customer.visitorContactInfo && customer.visitorContactInfo[key];
   }
@@ -46,10 +52,20 @@ class BasicInfo extends React.Component {
     );
   }
 
+  renderRow(label, value) {
+    const { __ } = this.context;
+
+    return (
+      <li>
+        {__(`${label}`)}:
+        <SidebarCounter>{value || '-'}</SidebarCounter>
+      </li>
+    );
+  }
+
   renderInfo() {
     const { customer } = this.props;
     const { links = {}, isUser } = customer;
-    const { __ } = this.context;
 
     return (
       <Fragment>
@@ -72,66 +88,27 @@ class BasicInfo extends React.Component {
         </SidebarContent>
 
         <SidebarList className="no-link">
-          <li>
-            {__('Email')}:
-            <SidebarCounter>
-              {customer.email ||
-                this.getVisitorInfo(customer, 'email') || (
-                  <a onClick={this.toggleEditing}>{__('Add Email')}</a>
-                )}
-            </SidebarCounter>
-          </li>
+          {this.renderRow(
+            'Email',
+            customer.email || this.getVisitorInfo(customer, 'email') || '-'
+          )}
+          {this.renderRow(
+            'Phone',
+            customer.phone || this.getVisitorInfo(customer, 'phone') || '-'
+          )}
 
-          <li>
-            {__('Phone')}:
-            <SidebarCounter>
-              {customer.phone ||
-                this.getVisitorInfo(customer, 'phone') || (
-                  <a onClick={this.toggleEditing}>{__('Add Phone')}</a>
-                )}
-            </SidebarCounter>
-          </li>
+          {this.renderRow(
+            'Owner',
+            customer.owner ? customer.owner.details.fullName : '-'
+          )}
 
-          <li>
-            Owner :
-            <SidebarCounter>
-              {customer.owner ? customer.owner.details.fullName : '-'}
-            </SidebarCounter>
-          </li>
-
-          <li>
-            Position :
-            <SidebarCounter>{customer.position || '-'}</SidebarCounter>
-          </li>
-
-          <li>
-            Department :
-            <SidebarCounter>{customer.department || '-'}</SidebarCounter>
-          </li>
-
-          <li>
-            Lead status :
-            <SidebarCounter>{customer.leadStatus || '-'}</SidebarCounter>
-          </li>
-          <li>
-            Lifecycle State :
-            <SidebarCounter>{customer.lifecycleState || '-'}</SidebarCounter>
-          </li>
-
-          <li>
-            Has Authority :
-            <SidebarCounter>{customer.hasAuthority || '-'}</SidebarCounter>
-          </li>
-
-          <li>
-            Description :
-            <SidebarCounter>{customer.description || '-'}</SidebarCounter>
-          </li>
-
-          <li>
-            Do Not Disturb :
-            <SidebarCounter>{customer.doNotDisturb || '-'}</SidebarCounter>
-          </li>
+          {this.renderRow('Position', customer.position)}
+          {this.renderRow('Department', customer.department)}
+          {this.renderRow('Lead Status', customer.leadStatus)}
+          {this.renderRow('Lifecycle State', customer.lifecycleState)}
+          {this.renderRow('Has Authority', customer.hasAuthority)}
+          {this.renderRow('Description', customer.description)}
+          {this.renderRow('Do not disturb', customer.doNotDisturb)}
         </SidebarList>
       </Fragment>
     );

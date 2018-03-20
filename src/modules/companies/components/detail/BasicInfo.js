@@ -15,6 +15,12 @@ const contextTypes = {
 };
 
 class BasicInfo extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.renderRow = this.renderRow.bind(this);
+  }
+
   renderLink(link, icon) {
     if (link) {
       return (
@@ -43,9 +49,20 @@ class BasicInfo extends React.Component {
     );
   }
 
-  renderInfo() {
+  renderRow(label, value) {
     const { __ } = this.context;
+
+    return (
+      <li>
+        {__(`${label}`)}:
+        <SidebarCounter>{value || '-'}</SidebarCounter>
+      </li>
+    );
+  }
+
+  renderInfo() {
     const { company } = this.props;
+    const { __ } = this.context;
     const { links = {} } = company;
     const { Title, QuickButtons } = Sidebar.Section;
 
@@ -62,66 +79,26 @@ class BasicInfo extends React.Component {
         {this.renderLinks(links)}
 
         <SidebarList className="no-link">
-          <li>
-            {__('Name:')}
-            <SidebarCounter>{company.name || '-'}</SidebarCounter>
-          </li>
-          <li>
-            {__('Size:')}
-            <SidebarCounter>{company.size || '-'}</SidebarCounter>
-          </li>
-          <li>
-            {__('Industry:')}
-            <SidebarCounter>{company.industry || '-'}</SidebarCounter>
-          </li>
-          <li>
-            {__('Plan:')}
-            <SidebarCounter>{company.plan || '-'}</SidebarCounter>
-          </li>
-          <li>
-            Parent Company:
-            <SidebarCounter>
-              {company.parentCompany ? company.parentCompany.name : '-'}
-            </SidebarCounter>
-          </li>
-          <li>
-            Email:
-            <SidebarCounter>{company.email || '-'}</SidebarCounter>
-          </li>
-          <li>
-            Owner:
-            <SidebarCounter>
-              {company.owner ? company.owner.details.fullName : '-'}
-            </SidebarCounter>
-          </li>
-          <li>
-            Phone:
-            <SidebarCounter>{company.phone || '-'}</SidebarCounter>
-          </li>
-          <li>
-            Lead Status:
-            <SidebarCounter>{company.leadStatus || '-'}</SidebarCounter>
-          </li>
-          <li>
-            Lifecycle State:
-            <SidebarCounter>{company.lifecycleState || '-'}</SidebarCounter>
-          </li>
-          <li>
-            Business Type:
-            <SidebarCounter>{company.businessType || '-'}</SidebarCounter>
-          </li>
-          <li>
-            Description:
-            <SidebarCounter>{company.description || '-'}</SidebarCounter>
-          </li>
-          <li>
-            Employees:
-            <SidebarCounter>{company.employees || '-'}</SidebarCounter>
-          </li>
-          <li>
-            Do Not Disturb:
-            <SidebarCounter>{company.doNotDisturb || '-'}</SidebarCounter>
-          </li>
+          {this.renderRow('Name', company.name)}
+          {this.renderRow('Size', company.size)}
+          {this.renderRow('Industry', company.industry)}
+          {this.renderRow('Plan', company.plan)}
+          {this.renderRow(
+            'Parent Company',
+            company.parentCompany ? company.parentCompany.name : '-'
+          )}
+          {this.renderRow('Email', company.email)}
+          {this.renderRow(
+            'Owner',
+            company.owner ? company.details.fullName : '-'
+          )}
+          {this.renderRow('Phone', company.phone)}
+          {this.renderRow('Lead Status', company.leadStatus)}
+          {this.renderRow('ifecycle State', company.lifecycleState)}
+          {this.renderRow('Business Type', company.businessType)}
+          {this.renderRow('Description', company.description)}
+          {this.renderRow('Employees', company.employees)}
+          {this.renderRow('Do not disturb', company.doNotDisturb)}
         </SidebarList>
       </Sidebar.Section>
     );
