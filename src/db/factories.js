@@ -171,7 +171,7 @@ export const companyFactory = (params = {}) => {
   const company = new Companies({
     name: params.name || faker.random.word(),
     size: params.size || faker.random.number(),
-    industry: params.industry || faker.company.bs(),
+    industry: params.industry || 'Airlines',
     website: params.website || faker.internet.domainName(),
     tagIds: params.tagIds || [faker.random.number()],
   });
