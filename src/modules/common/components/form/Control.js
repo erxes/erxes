@@ -23,6 +23,7 @@ const propTypes = {
   name: PropTypes.string,
   options: PropTypes.array,
   required: PropTypes.bool,
+  disabled: PropTypes.bool,
   round: PropTypes.bool,
   autoFocus: PropTypes.bool,
   onFocus: PropTypes.func,
@@ -38,7 +39,8 @@ const propTypes = {
 const defaultProps = {
   componentClass: 'input',
   required: false,
-  defaultChecked: false
+  defaultChecked: false,
+  disabled: false
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -81,6 +83,7 @@ class FormControl extends React.Component {
       name: props.name,
       round: props.round,
       required: props.required,
+      disabled: props.disabled,
       onFocus: props.onFocus,
       autoFocus: props.autoFocus,
       min: props.min,

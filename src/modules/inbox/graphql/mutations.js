@@ -35,6 +35,42 @@ const markAsRead = `
   }
 `;
 
+const favoriteTweet = `
+  mutation conversationsFavorite(
+    $integrationId: String,
+    $id: String
+  ) {
+    conversationsFavorite(
+      integrationId: $integrationId,
+      id: $id,
+    )
+  }
+`;
+
+const retweetTweet = `
+  mutation conversationsRetweet(
+    $integrationId: String,
+    $id: String
+  ) {
+    conversationsRetweet(
+      integrationId: $integrationId,
+      id: $id,
+    )
+  }
+`;
+
+const tweet = `
+  mutation conversationsTweet(
+    $integrationId: String,
+    $text: String
+  ) {
+    conversationsTweet(
+      integrationId: $integrationId,
+      text: $text
+    )
+  }
+`;
+
 const saveResponseTemplate = `
   mutation responseTemplatesAdd(
     $brandId: String!,
@@ -84,5 +120,8 @@ export default {
   conversationsAssign,
   conversationsUnassign,
   saveResponseTemplate,
-  markAsRead
+  markAsRead,
+  favoriteTweet,
+  retweetTweet,
+  tweet
 };
