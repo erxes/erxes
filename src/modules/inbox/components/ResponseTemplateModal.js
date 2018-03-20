@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   ModalTrigger,
   Button,
@@ -8,6 +7,7 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   onSave: PropTypes.func.isRequired,
@@ -64,11 +64,11 @@ class ResponseTemplateModal extends Component {
           <FormControl id="template-name" type="text" required />
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button onClick={this.onSave} btnStyle="success" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </ModalTrigger>
     );
   }

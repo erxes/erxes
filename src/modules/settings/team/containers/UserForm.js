@@ -4,6 +4,7 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { UserForm } from '../components';
 import { Spinner } from 'modules/common/components';
+import { queries } from '../graphql';
 import { queries as groupQueries } from 'modules/settings/usersGroups/graphql';
 
 const UserFormContainer = props => {
@@ -38,23 +39,12 @@ UserFormContainer.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql`
-      query channels {
-        channels {
-          _id
-          name
-          memberIds
-        }
-      }
-    `,
-    {
-      name: 'channelsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }
-  ),
+  graphql(gql(queries.channels), {
+    name: 'channelsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
+  }),
   graphql(gql(groupQueries.usersGroups), {
     name: 'groupsQuery',
     options: () => ({

@@ -44,4 +44,24 @@ const usersRemove = `
   }
 `;
 
-export default { usersAdd, usersEdit, usersRemove };
+const usersEditProfile = `
+  mutation usersEditProfile(
+    $username: String!
+    $email: String!
+    $details: UserDetails
+    $links: UserLinks
+    $password: String!
+  ) {
+    usersEditProfile(
+      username: $username
+      email: $email
+      details: $details
+      links: $links
+      password: $password
+    ) {
+      _id
+    }
+  }
+`;
+
+export default { usersAdd, usersEdit, usersRemove, usersEditProfile };

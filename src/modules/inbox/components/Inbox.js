@@ -15,6 +15,7 @@ import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems, SidebarCounter } from 'modules/layout/styles';
 import ConversationDetails from './sidebar/ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
+import { CompanySection } from 'modules/customers/components';
 
 import {
   PopoverButton,
@@ -40,8 +41,15 @@ class Inbox extends Component {
     this.scrollBottom();
   }
 
-  componentDidUpdate() {
-    this.scrollBottom();
+  componentDidUpdate(prevProps) {
+    const { currentConversation } = this.props;
+    const prevConversation = prevProps.currentConversation;
+    if (
+      currentConversation.messageCount !== prevConversation.messageCount ||
+      currentConversation._id !== prevConversation._id
+    ) {
+      this.scrollBottom();
+    }
   }
 
   scrollBottom() {
@@ -75,7 +83,12 @@ class Inbox extends Component {
       return (
         <EditInformation
           conversation={currentConversation}
-          sections={<ConversationDetails conversation={currentConversation} />}
+          sectionTop={
+            <ConversationDetails conversation={currentConversation} />
+          }
+          sectionBottom={
+            <CompanySection customer={currentConversation.customer} />
+          }
           customer={currentConversation.customer}
           refetch={this.props.refetch}
           otherProperties={this.renderMessengerData()}

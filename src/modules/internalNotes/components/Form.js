@@ -77,7 +77,7 @@ class Form extends Component {
           size="small"
           icon="android-send"
         >
-          Save note
+          Save
         </Button>
       </EditorActions>
     );

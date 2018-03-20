@@ -59,7 +59,7 @@ class PermissionList extends Component {
           <td>
             <FormControl
               componentClass="checkbox"
-              disabled="disabled"
+              disabled
               defaultChecked={object.allowed}
             />
           </td>

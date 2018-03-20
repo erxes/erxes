@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import {
   FormGroup,
@@ -8,6 +7,7 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   channel: PropTypes.object,
@@ -124,7 +124,7 @@ class ChannelForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.channel || {})}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -137,7 +137,7 @@ class ChannelForm extends Component {
           <Button btnStyle="success" icon="checkmark" type="submit">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

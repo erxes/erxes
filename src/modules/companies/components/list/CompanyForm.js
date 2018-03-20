@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   addCompany: PropTypes.func.isRequired
@@ -55,7 +55,7 @@ class CompanyForm extends React.Component {
           <FormControl id="company-website" type="text" required />
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             onClick={() => {
@@ -73,7 +73,7 @@ class CompanyForm extends React.Component {
           <Button btnStyle="primary" type="submit" name="close" icon="close">
             Save & Close
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   ControlLabel,
   FormGroup,
@@ -10,6 +9,7 @@ import {
 import { METHODS } from 'modules/engage/constants';
 import Editor from './Editor';
 import { EditorWrapper, Recipients, Recipient } from '../styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 class WidgetForm extends Component {
   constructor(props) {
@@ -182,11 +182,11 @@ class WidgetForm extends Component {
           </EditorWrapper>
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button type="submit" btnStyle="success">
             Send
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

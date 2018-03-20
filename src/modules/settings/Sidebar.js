@@ -54,35 +54,6 @@ function SettingsSidebar(props, { __ }) {
           </ContentWithPermission>
         </SidebarList>
       </Sidebar.Section>
-
-      <Sidebar.Section>
-        <Title>{__('Personal settings')}</Title>
-        <SidebarList>
-          <li>
-            <NavLink activeClassName="active" to="/settings/profile">
-              {__('Profile')}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink activeClassName="active" to="/settings/change-password">
-              {__('Change password')}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink activeClassName="active" to="/settings/emails/signatures">
-              {__('Email signatures')}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              activeClassName="active"
-              to="/settings/notification-settings"
-            >
-              {__('Notification settings')}
-            </NavLink>
-          </li>
-        </SidebarList>
-      </Sidebar.Section>
     </Sidebar>
   );
 }
