@@ -3,7 +3,7 @@ import TwitterMessage from './TwitterMessage';
 import TweetContent from './TweetContent';
 import TweetMedia from './TweetMedia';
 import TwitterVideoEmbed from './TwitterVideoEmbed';
-import TweetReply from './TweetReply';
+import ModalAction from './ModalAction';
 
 export {
   TwitterConversation,
@@ -11,5 +11,5 @@ export {
   TweetContent,
   TweetMedia,
   TwitterVideoEmbed,
-  TweetReply
+  ModalAction
 };
