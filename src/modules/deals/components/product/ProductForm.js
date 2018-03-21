@@ -19,7 +19,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class ProductForm extends React.Component {
@@ -160,6 +161,7 @@ class ProductForm extends React.Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { total, tax, discount } = this.state;
 
     return (
@@ -167,12 +169,12 @@ class ProductForm extends React.Component {
         <ProductTable>
           <thead>
             <tr>
-              <td>Product & Service</td>
-              <td width="120">UOM</td>
-              <td width="120">Currency</td>
-              <td width="100">Quantity</td>
-              <td width="140">Unit Price</td>
-              <td width="120">Amount</td>
+              <td>{__('Product & Service')}</td>
+              <td width="120">{__('UOM')}</td>
+              <td width="120">{__('Currency')}</td>
+              <td width="100">{__('Quantity')}</td>
+              <td width="140">{__('Unit price')}</td>
+              <td width="120">{__('Amount')}</td>
             </tr>
           </thead>
           <tbody>
@@ -191,14 +193,14 @@ class ProductForm extends React.Component {
           </tbody>
         </ProductTable>
         <AddProduct onClick={this.addProductItem}>
-          <Icon icon="plus" /> Add a new product & service
+          <Icon icon="plus" /> {__('Add Product / Service')}
         </AddProduct>
         <ProductFooter>
           <FooterInfo>
             <table>
               <tbody>
                 <tr>
-                  <td>Tax:</td>
+                  <td>{__('Tax')}:</td>
                   <td>
                     {Object.keys(tax).map(t => (
                       <div key={t}>
@@ -208,7 +210,7 @@ class ProductForm extends React.Component {
                   </td>
                 </tr>
                 <tr>
-                  <td>Discount:</td>
+                  <td>{__('Discount')}:</td>
                   <td>
                     {Object.keys(discount).map(d => (
                       <div key={d}>
@@ -218,7 +220,7 @@ class ProductForm extends React.Component {
                   </td>
                 </tr>
                 <tr>
-                  <td>Total:</td>
+                  <td>{__('Total')}:</td>
                   <td>
                     {Object.keys(total).map(t => (
                       <div key={t}>

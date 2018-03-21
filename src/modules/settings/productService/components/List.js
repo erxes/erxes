@@ -40,6 +40,7 @@ class List extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { save, productsCount, loading } = this.props;
 
     const breadcrumb = [
@@ -63,10 +64,10 @@ class List extends Component {
       <Table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>SKU</th>
+            <th>{__('Name')}</th>
+            <th>{__('Type')}</th>
+            <th>{__('Description')}</th>
+            <th>{__('SKU')}</th>
             <th />
           </tr>
         </thead>
@@ -94,5 +95,8 @@ class List extends Component {
 }
 
 List.propTypes = propTypes;
+List.contextTypes = {
+  __: PropTypes.func
+};
 
 export default List;

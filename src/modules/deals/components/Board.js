@@ -71,12 +71,14 @@ class Board extends React.Component {
   }
 
   render() {
-    const breadcrumb = [{ title: 'Deal' }];
+    const { __ } = this.context;
+    const breadcrumb = [{ title: __('Deal') }];
+
     const { currentBoard, boards } = this.props;
 
     const actionBarLeft = (
       <BarItems>
-        <Dropdown id="dropdown-board" pullRight>
+        <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
               {currentBoard.name} <Icon icon="ios-arrow-down" />
@@ -104,8 +106,6 @@ class Board extends React.Component {
       <Wrapper.ActionBar left={actionBarLeft} background="transparent" />
     );
 
-    const { pipelines } = this.props;
-
     const stageStates = {};
 
     Object.keys(this.state).forEach(key => {
@@ -116,7 +116,7 @@ class Board extends React.Component {
 
     const content = (
       <DragDropContext onDragEnd={this.onDragEnd}>
-        {pipelines.map(pipeline => {
+        {this.props.pipelines.map(pipeline => {
           return (
             <Pipeline
               key={pipeline._id}
@@ -142,6 +142,9 @@ class Board extends React.Component {
 }
 
 Board.propTypes = propTypes;
+Board.contextTypes = {
+  __: PropTypes.func
+};
 Board.childContextTypes = {
   move: PropTypes.func
 };

@@ -1,6 +1,6 @@
 const products = `
-  query products($type: String, $perPage: Int, $page: Int) {
-    products(type: $type, perPage: $perPage, page: $page) {
+  query products($type: String, $searchValue: String, $perPage: Int, $page: Int) {
+    products(type: $type, searchValue: $searchValue, perPage: $perPage, page: $page) {
       _id
       name
       type

@@ -33,6 +33,7 @@ class Boards extends Component {
   }
 
   renderSidebarHeader() {
+    const { __ } = this.context;
     const { save } = this.props;
     const { Header } = LeftSidebar;
 
@@ -44,7 +45,7 @@ class Boards extends Component {
 
     return (
       <Header uppercase bold>
-        Boards
+        {__('Board')}
         <ModalTrigger title="New Board" trigger={addBoard}>
           {this.renderBoardForm({ save })}
         </ModalTrigger>
@@ -70,5 +71,8 @@ class Boards extends Component {
 }
 
 Boards.propTypes = propTypes;
+Boards.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Boards;

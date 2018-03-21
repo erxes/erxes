@@ -21,12 +21,12 @@ class Container extends React.Component {
   render() {
     const { boardsQuery, pipelinesQuery } = this.props;
 
-    const boards = boardsQuery.dealBoards || [];
-    const pipelines = pipelinesQuery.dealPipelines || [];
-
     if (boardsQuery.loading || pipelinesQuery.loading) {
       return <Spinner />;
     }
+
+    const boards = boardsQuery.dealBoards;
+    const pipelines = pipelinesQuery.dealPipelines;
 
     const extendedProps = {
       ...this.props,
@@ -38,14 +38,12 @@ class Container extends React.Component {
   }
 }
 
-const propTypes = {
+Container.propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
   currentBoardId: PropTypes.string,
   history: PropTypes.object
 };
-
-Container.propTypes = propTypes;
 
 const BoardContainer = compose(
   graphql(gql(queries.boards), {
@@ -74,11 +72,9 @@ const BoardDetail = props => {
   return <BoardContainer {...extendedProps} />;
 };
 
-const boardDetailPropTypes = {
+BoardDetail.propTypes = {
   boardDetailQuery: PropTypes.object
 };
-
-BoardDetail.propTypes = boardDetailPropTypes;
 
 const BoardDetailContainer = compose(
   graphql(gql(queries.boardDetail), {

@@ -58,15 +58,13 @@ class PipelineContainer extends React.Component {
   }
 }
 
-const propTypes = {
+PipelineContainer.propTypes = {
   pipeline: PropTypes.object,
   state: PropTypes.object,
   stagesFromDb: PropTypes.array,
   stagesUpdateOrder: PropTypes.func,
   stagesChange: PropTypes.func
 };
-
-PipelineContainer.propTypes = propTypes;
 
 class StagesWithPipeline extends React.Component {
   render() {

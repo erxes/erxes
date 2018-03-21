@@ -40,16 +40,18 @@ class List extends Component {
   }
 
   render() {
+    const { __ } = this.context;
+
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'General Settings' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('General Settings') }
     ];
 
     const actionFooter = (
       <ActionBar
         right={
           <Button.Group>
-            <Link to="/settings/general-settings">
+            <Link to="/settings/">
               <Button size="small" btnStyle="simple" icon="close">
                 Cancel
               </Button>
@@ -70,7 +72,7 @@ class List extends Component {
 
     const content = (
       <ContentBox>
-        <SubHeading>Currency</SubHeading>
+        <SubHeading>{__('Currency')}</SubHeading>
         <FormGroup>
           <Select
             options={CURRENCIES}
@@ -81,7 +83,7 @@ class List extends Component {
           />
         </FormGroup>
 
-        <SubHeading>Unit of measurement</SubHeading>
+        <SubHeading>{__('Unit of measurement')}</SubHeading>
         <FormGroup>
           <Select
             options={MEASUREMENTS}
@@ -108,6 +110,9 @@ List.propTypes = {
   save: PropTypes.func.isRequired,
   currencies: PropTypes.array,
   uom: PropTypes.array
+};
+List.contextTypes = {
+  __: PropTypes.func
 };
 
 export default List;

@@ -17,7 +17,7 @@ import {
   listObjectUnFreeze
 } from 'modules/common/utils';
 import { CompanyAssociate } from 'modules/companies/containers';
-import { CustomerAssociate } from '../../containers';
+import { CustomerAssociate } from 'modules/customers/containers';
 import {
   DealFormContainer,
   DealButton,
@@ -275,7 +275,7 @@ class DealForm extends React.Component {
             >
               <CustomerAssociate
                 data={{
-                  companyId: company._id,
+                  name: company.name,
                   customers: customer ? [customer] : []
                 }}
                 companyId={company._id}
@@ -299,7 +299,7 @@ class DealForm extends React.Component {
               <DealFormAmount>
                 {Object.keys(amount).map(el => (
                   <p key={el}>
-                    {amount[el]} {el}
+                    {amount[el].toLocaleString()} {el}
                   </p>
                 ))}
               </DealFormAmount>
@@ -308,7 +308,7 @@ class DealForm extends React.Component {
           <FormGroup>
             <ControlLabel>Close date</ControlLabel>
             <Datetime
-              inputProps={{ placeholder: 'Click to select a date' }}
+              inputProps={{ placeholder: __('Click to select a date') }}
               dateFormat="YYYY/MM/DD"
               timeFormat={false}
               value={closeDate}
@@ -318,7 +318,6 @@ class DealForm extends React.Component {
           <FormGroup>
             <ControlLabel>Note</ControlLabel>
             <FormControl
-              placeholder="Note"
               componentClass="textarea"
               onChange={this.onChangeNote.bind(this)}
             />
@@ -326,7 +325,7 @@ class DealForm extends React.Component {
           <FormGroup>
             <ControlLabel>Assigned to</ControlLabel>
             <Select
-              placeholder="Choose users"
+              placeholder={__('Choose users')}
               value={assignedUserIds}
               onChange={value => this.onChangeUsers(value)}
               optionRenderer={option => (

@@ -23,11 +23,12 @@ const propTypes = {
 
 class ProductItemForm extends React.Component {
   render() {
+    const { __ } = this.context;
     const { uom, currencies } = this.props;
 
     const productServiceTrigger = (
       <DealButton>
-        Product & Service <Icon icon="plus" />
+        {__('Product & Service')} <Icon icon="plus" />
       </DealButton>
     );
 
@@ -96,8 +97,8 @@ class ProductItemForm extends React.Component {
             name="quantity"
             onChange={e => this.props.onChangeInput(product._id, e)}
           />
-          <ProductItemText align="right">Discount</ProductItemText>
-          <ProductItemText align="right">Tax</ProductItemText>
+          <ProductItemText align="right">{__('Discount')}</ProductItemText>
+          <ProductItemText align="right">{__('Tax')}</ProductItemText>
         </td>
         <td>
           <FormControl
@@ -124,7 +125,7 @@ class ProductItemForm extends React.Component {
             name="taxPercent"
             onChange={e => this.props.onChangeInput(product._id, e)}
           />
-          <ProductItemText>Total</ProductItemText>
+          <ProductItemText>{__('Total')}</ProductItemText>
         </td>
         <td>
           <ProductItemText>
@@ -158,5 +159,8 @@ class ProductItemForm extends React.Component {
 }
 
 ProductItemForm.propTypes = propTypes;
+ProductItemForm.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ProductItemForm;

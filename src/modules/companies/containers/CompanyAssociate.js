@@ -53,7 +53,7 @@ class CompanyAssociateContainer extends React.Component {
         });
     };
 
-    const form = <CompanyForm addCompany={addCompany} />;
+    const form = <CompanyForm action={addCompany} />;
 
     const renderName = data => {
       return data.name || data.website || 'N/A';
@@ -146,7 +146,6 @@ const MainContainer = props => {
 };
 
 MainContainer.propTypes = {
-  calledFromOthers: PropTypes.bool,
   data: PropTypes.object
 };
 

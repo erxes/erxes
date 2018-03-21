@@ -20,12 +20,7 @@ class CustomerAssociateContainer extends React.Component {
   }
 
   render() {
-    const {
-      data,
-      customersQuery,
-      customersAdd,
-      companiesEditCustomers
-    } = this.props;
+    const { data, customersQuery, customersAdd } = this.props;
 
     const search = (value, loadmore) => {
       if (!loadmore) {
@@ -59,25 +54,7 @@ class CustomerAssociateContainer extends React.Component {
         });
     };
 
-    const form = <CustomerForm addCustomer={addCustomer} />;
-
-    const save = customers => {
-      const customerIds = [];
-
-      customers.forEach(data => {
-        customerIds.push(data._id.toString());
-      });
-
-      companiesEditCustomers({
-        variables: { _id: data._id, customerIds }
-      })
-        .then(() => {
-          Alert.success('Successfully saved');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
+    const form = <CustomerForm action={addCustomer} />;
 
     const updatedProps = {
       ...this.props,
@@ -88,7 +65,6 @@ class CustomerAssociateContainer extends React.Component {
       },
       search,
       title: 'Customer',
-      save,
       form,
       renderName: renderFullName,
       perPage: this.state.perPage,
@@ -103,37 +79,88 @@ class CustomerAssociateContainer extends React.Component {
 
 CustomerAssociateContainer.propTypes = {
   data: PropTypes.object.isRequired,
-  companiesEditCustomers: PropTypes.func.isRequired,
   customersQuery: PropTypes.object.isRequired,
   customersAdd: PropTypes.func.isRequired
 };
 
-const options = ({ data }) => ({
-  refetchQueries: [
-    {
-      query: gql`
-        ${companyQueries.companyDetail}
-      `,
-      variables: { _id: data._id }
-    }
-  ]
-});
+const CustomerEditCompaniesContainer = props => {
+  const { companiesEditCustomers, data } = props;
+
+  const save = customers => {
+    const customerIds = [];
+
+    customers.forEach(data => {
+      customerIds.push(data._id.toString());
+    });
+
+    companiesEditCustomers({
+      variables: { _id: data._id, customerIds }
+    })
+      .then(() => {
+        Alert.success('Successfully saved');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  const extendedProps = {
+    ...props,
+    save
+  };
+
+  return <CustomerAssociateContainer {...extendedProps} />;
+};
+
+CustomerEditCompaniesContainer.propTypes = {
+  companiesEditCustomers: PropTypes.func.isRequired,
+  data: PropTypes.object.isRequired
+};
+
+const CustomerEditCompanies = compose(
+  graphql(gql(companyMutations.companiesEditCustomers), {
+    name: 'companiesEditCustomers',
+    options: ({ data }) => ({
+      refetchQueries: [
+        {
+          query: gql`
+            ${companyQueries.customerDetail}
+          `,
+          variables: { _id: data._id }
+        }
+      ]
+    })
+  })
+)(CustomerEditCompaniesContainer);
+
+const MainContainer = props => {
+  const { data } = props;
+
+  if (data._id) {
+    return <CustomerEditCompanies {...props} />;
+  }
+
+  return <CustomerAssociateContainer {...props} />;
+};
+
+MainContainer.propTypes = {
+  data: PropTypes.object
+};
 
 export default compose(
   graphql(gql(queries.customers), {
     name: 'customersQuery',
-    options: {
-      variables: {
-        perPage: 20
-      }
+    options: ({ companyId }) => {
+      return {
+        variables: {
+          perPage: 20,
+          companyIds: [companyId] || []
+        }
+      };
     }
   }),
   // mutations
   graphql(gql(mutations.customersAdd), {
     name: 'customersAdd'
-  }),
-  graphql(gql(companyMutations.companiesEditCustomers), {
-    name: 'companiesEditCustomers',
-    options
   })
-)(CustomerAssociateContainer);
+)(MainContainer);

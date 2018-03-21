@@ -24,12 +24,14 @@ class Pipelines extends Component {
   }
 
   render() {
+    const { __ } = this.context;
+
     return (
       <Table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Actions</th>
+            <th>{__('Name')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -39,5 +41,8 @@ class Pipelines extends Component {
 }
 
 Pipelines.propTypes = propTypes;
+Pipelines.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Pipelines;

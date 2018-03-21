@@ -1,11 +1,3 @@
-// Move in list
-export function moveInList(array, startIndex, endIndex) {
-  const [removedItem] = array.splice(startIndex, 1);
-  array.splice(endIndex, 0, removedItem);
-
-  return array;
-}
-
 // get options for react-select-plus
 export function selectOptions(array) {
   const options = [];

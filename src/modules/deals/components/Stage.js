@@ -49,6 +49,7 @@ class Stage extends React.Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { stage, pipelineId, boardId, deals, index } = this.props;
 
     const amount = stage.amount;
@@ -66,21 +67,21 @@ class Stage extends React.Component {
                 <StageHeader {...provided.dragHandleProps}>
                   <div>
                     <h3>{stage.name}</h3>
-                    <span className="deals-count">Deal: {deals.length}</span>
+                    <span className="deals-count">
+                      {__('Deal')}: {deals.length}
+                    </span>
                   </div>
-                  {Object.keys(amount).length > 0 ? (
-                    <ul>
-                      {Object.keys(amount).map(key => (
+                  <ul>
+                    {Object.keys(amount).length > 0 ? (
+                      Object.keys(amount).map(key => (
                         <li key={key}>
                           {amount[key].toLocaleString()} {key}
                         </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <ul>
+                      ))
+                    ) : (
                       <li>0</li>
-                    </ul>
-                  )}
+                    )}
+                  </ul>
                 </StageHeader>
                 <StageBody>
                   <Droppable droppableId={stage._id} type="stage">
@@ -113,7 +114,7 @@ class Stage extends React.Component {
                     />
                   ) : (
                     <AddNewDeal onClick={this.showForm.bind(this)}>
-                      <Icon icon="plus" /> Add new deal
+                      <Icon icon="plus" /> {__('Add new deal')}
                     </AddNewDeal>
                   )}
                 </StageBody>
@@ -129,3 +130,6 @@ class Stage extends React.Component {
 export default Stage;
 
 Stage.propTypes = propTypes;
+Stage.contextTypes = {
+  __: PropTypes.func
+};

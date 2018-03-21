@@ -52,6 +52,7 @@ const listParamsDef = `
   $segment: String,
   $tag: String,
   $ids: [String],
+  $companyIds: [String],
   $searchValue: String
 `;
 
@@ -61,6 +62,7 @@ const listParamsValue = `
   segment: $segment,
   tag: $tag,
   ids: $ids,
+  companyIds: $companyIds
   searchValue: $searchValue
 `;
 
