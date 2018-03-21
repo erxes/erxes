@@ -4,6 +4,7 @@ export default `
   status
   assignedUserId
   createdAt
+  updatedAt
   assignedUser {
     _id
     username

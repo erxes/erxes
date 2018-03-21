@@ -73,27 +73,31 @@ class Conversation extends Component {
     return null;
   }
 
+  isStuff(conversation, firstMessage, currentMessage) {
+    if (conversation.twitterData) {
+      const firstTwitterData = firstMessage.customer.twitterData;
+      const currentTwitterData = currentMessage.customer.twitterData;
+
+      return firstTwitterData.id_str !== currentTwitterData.id_str;
+    }
+
+    return currentMessage.userId;
+  }
+
   renderMessages() {
     const { conversation, scrollBottom } = this.props;
-    const currentUser = this.context.currentUser;
-    const twitterUsername =
-      (currentUser &&
-        currentUser.details &&
-        currentUser.details.twitterUsername) ||
-      '';
 
     if (!conversation) {
       return null;
     }
 
     const messages = conversation.messages || [];
+    const firstMessage = messages.length && messages[0];
     const rows = [];
 
     let tempId;
 
     messages.forEach(message => {
-      const twitterData = message.customer && message.customer.twitterData;
-
       rows.push(
         <Message
           isSameUser={
@@ -102,10 +106,7 @@ class Conversation extends Component {
               : message.customerId === tempId
           }
           message={message}
-          staff={
-            !message.customerId ||
-            (twitterData && twitterData.screenName === twitterUsername)
-          }
+          staff={this.isStuff(conversation, firstMessage, message)}
           key={message._id}
           scrollBottom={scrollBottom}
         />
@@ -119,8 +120,7 @@ class Conversation extends Component {
   renderConversation() {
     const { conversation, scrollBottom } = this.props;
     const twitterData = conversation.twitterData;
-    const isTweet =
-      twitterData && !twitterData.isDirectMessage && twitterData.created_at;
+    const isTweet = twitterData && !twitterData.isDirectMessage;
 
     if (isTweet) {
       return (
@@ -145,8 +145,5 @@ class Conversation extends Component {
 }
 
 Conversation.propTypes = propTypes;
-Conversation.contextTypes = {
-  currentUser: PropTypes.object
-};
 
 export default Conversation;
