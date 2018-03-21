@@ -13,7 +13,7 @@ const colorCoreGray = '#888';
 const colorCoreLightGray = '#AAAEB3';
 
 const colorLightGray = '#AAA';
-const colorLightBlue = '#f8fbff';
+const colorLightBlue = '#F8FBFF';
 const colorCoreDarkGray = '#373737';
 const colorShadowGray = '#DDD';
 
@@ -29,26 +29,26 @@ const bgUnread = '#F7F8FC';
 const bgInternal = '#FFFCCC';
 
 // Link colors
-const linkPrimary = '#1785fc';
+const linkPrimary = '#1785FC';
 const linkPrimaryHover = rgba(linkPrimary, 0.7);
 
 // Border colors
 const borderPrimary = '#EEE';
-const borderDarker = '#dee4e7';
+const borderDarker = '#DEE4E7';
 
 // Text colors
 const textPrimary = '#444';
 const textSecondary = rgba(textPrimary, 0.8);
-const textOverlay = '#fff';
+const textOverlay = '#FFF';
 
 // Shadow colors
 const shadowPrimary = rgba(colorShadowGray, 0.7);
 const darkShadow = rgba(colorBlack, 0.2);
 
 // Social colors
-const socialFacebook = '#3a5999';
-const socialFacebookMessenger = '#1472fb';
-const socialTwitter = '#1da1f2';
+const socialFacebook = '#3A5999';
+const socialFacebookMessenger = '#1472FB';
+const socialTwitter = '#1DA1F2';
 
 export default {
   colorPrimary,

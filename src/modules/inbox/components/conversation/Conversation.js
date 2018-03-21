@@ -93,13 +93,14 @@ class Conversation extends Component {
 
     messages.forEach(message => {
       const twitterData = message.customer && message.customer.twitterData;
-      const isSameUser = message.userId
-        ? message.userId === tempId
-        : message.customerId === tempId;
 
       rows.push(
         <Message
-          isSameUser={isSameUser}
+          isSameUser={
+            message.userId
+              ? message.userId === tempId
+              : message.customerId === tempId
+          }
           message={message}
           staff={
             !message.customerId ||
