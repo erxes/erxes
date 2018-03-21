@@ -35,6 +35,7 @@ export const types = `
 export const queries = `
   activityLogsCustomer(_id: String!): [ActivityLogForMonth]
   activityLogsCompany(_id: String!): [ActivityLogForMonth]
+  activityLogsUser(_id: String!): [ActivityLogForMonth]
 `;
 
 export const mutations = `

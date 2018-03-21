@@ -71,7 +71,7 @@
     "sha256": "^0.2.0",
     "sinon": "^4.0.1",
     "strip": "^3.0.0",
-    "subscriptions-transport-ws": "0.8.3",
+    "subscriptions-transport-ws": "^0.9.6",
     "twit": "^2.2.9",
     "underscore": "^1.8.3",
     "validator": "^9.0.0"

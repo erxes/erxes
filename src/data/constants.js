@@ -1,6 +1,8 @@
 export const EMAIL_CONTENT_CLASS = 'erxes-email-content';
 export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></div>`;
 
+export const LANGUAGE_CHOICES = ['', 'mn', 'en'];
+
 export const CONVERSATION_STATUSES = {
   NEW: 'new',
   OPEN: 'open',
@@ -174,7 +176,8 @@ export const FIELD_CONTENT_TYPES = {
 export const COC_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
-  ALL: ['customer', 'company'],
+  USER: 'user',
+  ALL: ['customer', 'company', 'user'],
 };
 
 export const ROLES = {
@@ -225,3 +228,122 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   COMPANY: 'company',
   ALL: ['customer', 'company'],
 };
+
+export const CUSTOMER_LEAD_STATUS_TYPES = [
+  '',
+  'New',
+  'Open',
+  'In Progress',
+  'Open Deal',
+  'Unqualified',
+  'Attempted to Contact',
+  'Connected',
+  'Bad Timing',
+];
+
+export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
+  '',
+  'Subscriber',
+  'Lead',
+  'Marketing Qualified Lead',
+  'Sales Qualified Lead',
+  'Opportunity',
+  'Customer',
+  'Evangelist',
+  'Other',
+];
+
+export const COMPANY_LEAD_STATUS_TYPES = [
+  '',
+  'New',
+  'Open',
+  'In Progress',
+  'Open Deal',
+  'Unqualified',
+  'Attempted to contact',
+  'Connected',
+  'Bad Timing',
+];
+
+export const COMPANY_LIFECYCLE_STATE_TYPES = [
+  '',
+  'Subscriber',
+  'Lead',
+  'Marketing Qualified Lead',
+  'Sales Qualified Lead',
+  'Opportunity',
+  'Customer',
+  'Evangelist',
+  'Other',
+];
+
+export const COMPANY_BUSINESS_TYPES = [
+  '',
+  'Analyst',
+  'Competitor',
+  'Customer',
+  'Integrator',
+  'Investor',
+  'Partner',
+  'Press',
+  'Prospect',
+  'Reseller',
+  'Other',
+];
+
+export const COMPANY_INDUSTRY_TYPES = [
+  '',
+  'Advertising/Public Relations',
+  'Aerospace, Defense Contractors',
+  'Agriculture',
+  'Airlines',
+  'Alcoholic Beverages',
+  'Alternative Energy Production & Services',
+  'Architectural Services',
+  'Attorneys/Law Firms',
+  'Automotive',
+  'Banks',
+  'Bars & Restaurants',
+  'Books, Magazines & Newspapers',
+  'Builders/General Contractors',
+  'Business Services',
+  'Car Manufacturers',
+  'Coal Mining',
+  'Colleges, Universities & Schools',
+  'Commercial TV & Radio Stations',
+  'Computer Software',
+  'Construction',
+  'Dairy',
+  'Doctors & Other Health Professionals',
+  'Education',
+  'Energy & Natural Resources',
+  'Finance, Insurance & Real Estate',
+  'Food & Beverage',
+  'Foundations, Philanthropists & Non-Profits',
+  'Health',
+  'Hotels, Motels & Tourism',
+  'Insurance',
+  'Internet',
+  'Lawyers / Law Firms',
+  'Meat processing & products',
+  'Medical Supplies',
+  'Mining',
+  'Mortgage Bankers & Brokers',
+  'Music Production',
+  'Natural Gas Pipelines',
+  'Nursing Homes/Hospitals',
+  'Phone Companies',
+  'Postal Unions',
+  'Printing & Publishing',
+  'Private Equity & Investment Firms',
+  'Publishing & Printing',
+  'Real Estate',
+  'Retail Sales',
+  'Schools/Education',
+  'Sports, Professional',
+  'Telecom Services & Equipment',
+  'Textiles',
+  'Tobacco',
+  'Transportation',
+  'TV / Movies / Music',
+];

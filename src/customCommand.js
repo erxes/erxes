@@ -1,25 +1,14 @@
 import { connect, disconnect } from './db/connection';
-import { Fields, FieldsGroups } from './db/models';
-import { FIELDS_GROUPS_CONTENT_TYPES, FIELD_CONTENT_TYPES } from './data/constants';
+import { Companies } from './db/models';
 
 export const customCommand = async () => {
   connect();
 
-  const updateGroup = async (fieldType, fieldGroupType) => {
-    const groupObj = await FieldsGroups.createGroup({
-      name: 'Unassorted properties',
-      description: 'Unassorted properties',
-      contentType: fieldGroupType,
-    });
+  const companies = await Companies.find({ website: { $exists: true } });
 
-    await Fields.updateMany(
-      { contentType: fieldType },
-      { groupId: groupObj._id, isVisible: true, isDefinedByErxes: false },
-    );
-  };
-
-  await updateGroup(FIELD_CONTENT_TYPES.CUSTOMER, FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER);
-  await updateGroup(FIELD_CONTENT_TYPES.COMPANY, FIELDS_GROUPS_CONTENT_TYPES.COMPANY);
+  for (const company of companies) {
+    await Companies.update({ _id: company._id }, { $set: { links: { website: company.website } } });
+  }
 
   disconnect();
 };

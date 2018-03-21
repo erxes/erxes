@@ -49,6 +49,7 @@ export const types = `
     isCustomerRead: Boolean
     engageData: EngageData
     formWidgetData: JSON
+    twitterData: JSON
     facebookData: JSON
 
     user: User
@@ -106,7 +107,24 @@ export const mutations = `
     mentionedUserIds: [String],
     internal: Boolean,
     attachments: [JSON],
+    tweetReplyToId: String,
+    tweetReplyToScreenName: String,
   ): ConversationMessage
+
+  conversationsTweet(
+    integrationId: String,
+    text: String,
+  ): JSON
+
+  conversationsRetweet(
+    integrationId: String,
+    id: String,
+  ): JSON
+
+  conversationsFavorite(
+    integrationId: String,
+    id: String,
+  ): JSON
 
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]

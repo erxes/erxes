@@ -1,4 +1,4 @@
-import { Customers, Tags } from '../../db/models';
+import { Customers, Tags, Companies, Users } from '../../db/models';
 
 export default {
   customers(company) {
@@ -7,5 +7,11 @@ export default {
 
   getTags(company) {
     return Tags.find({ _id: { $in: company.tagIds || [] } });
+  },
+  owner(company) {
+    return Users.findOne({ _id: company.ownerId });
+  },
+  parentCompany(company) {
+    return Companies.findOne({ _id: company.parentCompanyId });
   },
 };
