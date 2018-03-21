@@ -21,6 +21,24 @@ class DealProduct extends React.Component {
     });
   }
 
+  renderProductItem(item) {
+    return <li key={item._id}>{item.name}</li>;
+  }
+
+  renderOtherProducts(products) {
+    if (this.state.show) {
+      return products.map(
+        (el, index) => (index > 0 ? this.renderProductItem(el) : null)
+      );
+    }
+
+    return (
+      <li onClick={this.showOthers.bind(this)} className="remained-count">
+        +{products.length - 1}
+      </li>
+    );
+  }
+
   render() {
     const products = this.props.products;
     const length = products.length;
@@ -29,25 +47,11 @@ class DealProduct extends React.Component {
       return null;
     }
 
-    const otherProducts = () => {
-      if (this.state.show) {
-        return products.map(
-          (el, index) => (index > 0 ? <li key={el._id}>{el.name}</li> : null)
-        );
-      } else {
-        return (
-          <li onClick={this.showOthers.bind(this)} className="remained-count">
-            +{length - 1}
-          </li>
-        );
-      }
-    };
-
     return (
       <DealProducts>
         <ul>
-          <li>{products[0].name}</li>
-          {length > 1 ? otherProducts() : null}
+          {this.renderProductItem(products[0])}
+          {length > 1 ? this.renderOtherProducts(products) : null}
         </ul>
       </DealProducts>
     );

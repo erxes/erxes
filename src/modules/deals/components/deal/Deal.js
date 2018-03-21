@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Draggable } from 'react-beautiful-dnd';
 import moment from 'moment';
-import { DealProduct, DealUser } from '../';
-import { QuickEdit } from '../';
+import { Draggable } from 'react-beautiful-dnd';
+import { DealProduct, DealUser, QuickEdit } from '../';
 import { Icon } from 'modules/common/components';
 import {
   DealContainer,
@@ -94,7 +93,9 @@ class Deal extends React.Component {
                 <h4>{deal.customer.firstName || deal.customer.email}</h4>
                 <span>{moment(deal.closeDate).format('YYYY-MM-DD')}</span>
               </DealHeader>
+
               {deal.products ? <DealProduct products={deal.products} /> : null}
+
               <DealAmount>
                 {Object.keys(deal.amount).map(el => (
                   <p key={el}>
@@ -102,9 +103,11 @@ class Deal extends React.Component {
                   </p>
                 ))}
               </DealAmount>
+
               {deal.assignedUsers ? (
                 <DealUser users={deal.assignedUsers} />
               ) : null}
+
               <DealContainerHover innerRef={el => (this.hover = el)}>
                 <div onClick={this.showQuickEditForm}>
                   <Icon icon="edit" />

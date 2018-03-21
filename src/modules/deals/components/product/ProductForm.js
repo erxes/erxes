@@ -160,6 +160,24 @@ class ProductForm extends React.Component {
     this.props.onChangeProductsData(productsData);
   }
 
+  renderDiscount(discount) {
+    return Object.keys(discount).map(el => (
+      <div key={el}>
+        {discount[el].toLocaleString()} {el}
+      </div>
+    ));
+  }
+
+  renderTotal(total) {
+    return Object.keys(total).map(el => (
+      <div key={el}>
+        <b>
+          {total[el].toLocaleString()} {el}
+        </b>
+      </div>
+    ));
+  }
+
   render() {
     const { __ } = this.context;
     const { total, tax, discount } = this.state;
@@ -211,25 +229,11 @@ class ProductForm extends React.Component {
                 </tr>
                 <tr>
                   <td>{__('Discount')}:</td>
-                  <td>
-                    {Object.keys(discount).map(d => (
-                      <div key={d}>
-                        {discount[d].toLocaleString()} {d}
-                      </div>
-                    ))}
-                  </td>
+                  <td>{this.renderDiscount(discount)}</td>
                 </tr>
                 <tr>
                   <td>{__('Total')}:</td>
-                  <td>
-                    {Object.keys(total).map(t => (
-                      <div key={t}>
-                        <b>
-                          {total[t].toLocaleString()} {t}
-                        </b>
-                      </div>
-                    ))}
-                  </td>
+                  <td>{this.renderTotal(total)}</td>
                 </tr>
               </tbody>
             </table>

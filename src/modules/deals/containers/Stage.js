@@ -6,7 +6,6 @@ import { Stage } from '../components';
 import { queries, mutations } from '../graphql';
 import { Alert, confirm } from 'modules/common/utils';
 import { Spinner } from 'modules/common/components';
-import { listObjectUnFreeze } from 'modules/common/utils';
 import { collectOrders } from '../utils';
 
 class StageContainer extends React.Component {
@@ -20,7 +19,7 @@ class StageContainer extends React.Component {
     const { dealsFromDb } = props;
 
     this.state = {
-      deals: listObjectUnFreeze(dealsFromDb)
+      deals: [...dealsFromDb]
     };
   }
 

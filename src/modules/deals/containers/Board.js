@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { router as routerUtils } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { router as routerUtils } from 'modules/common/utils';
+import { Spinner } from 'modules/common/components';
 import { Board as BoardComponent } from '../components';
-
 import { queries } from '../graphql';
 
 class Container extends React.Component {

@@ -6,7 +6,6 @@ import Rotate from './animateRotate';
 import confirm from './confirmation/confirm';
 import urlParser from './urlParser';
 import colorParser from './colorParser';
-import listObjectUnFreeze from './listObjectUnFreeze';
 
 const renderFullName = data => {
   if (data.firstName || data.lastName) {
@@ -46,6 +45,5 @@ export {
   urlParser,
   colorParser,
   setTitle,
-  setBadge,
-  listObjectUnFreeze
+  setBadge
 };

@@ -48,11 +48,25 @@ class Stage extends React.Component {
     });
   }
 
+  renderAmount(amount) {
+    return (
+      <ul>
+        {Object.keys(amount).length > 0 ? (
+          Object.keys(amount).map(key => (
+            <li key={key}>
+              {amount[key].toLocaleString()} {key}
+            </li>
+          ))
+        ) : (
+          <li>0</li>
+        )}
+      </ul>
+    );
+  }
+
   render() {
     const { __ } = this.context;
     const { stage, pipelineId, boardId, deals, index } = this.props;
-
-    const amount = stage.amount;
 
     return (
       <Draggable draggableId={stage._id} index={index}>
@@ -71,17 +85,7 @@ class Stage extends React.Component {
                       {__('Deal')}: {deals.length}
                     </span>
                   </div>
-                  <ul>
-                    {Object.keys(amount).length > 0 ? (
-                      Object.keys(amount).map(key => (
-                        <li key={key}>
-                          {amount[key].toLocaleString()} {key}
-                        </li>
-                      ))
-                    ) : (
-                      <li>0</li>
-                    )}
-                  </ul>
+                  {this.renderAmount(stage.amount)}
                 </StageHeader>
                 <StageBody>
                   <Droppable droppableId={stage._id} type="stage">

@@ -7,7 +7,7 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
-import { listObjectUnFreeze } from 'modules/common/utils';
+import { listObjectUnFreeze } from '../utils';
 import { Stages } from './';
 
 const propTypes = {

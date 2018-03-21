@@ -11,11 +11,7 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import {
-  Alert,
-  renderFullName,
-  listObjectUnFreeze
-} from 'modules/common/utils';
+import { Alert, renderFullName } from 'modules/common/utils';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { CustomerAssociate } from 'modules/customers/containers';
 import {
@@ -25,7 +21,7 @@ import {
   DealProducts
 } from '../../styles';
 import { ProductForm, DealProduct } from '../';
-import { selectUserOptions } from '../../utils';
+import { selectUserOptions, listObjectUnFreeze } from '../../utils';
 
 const propTypes = {
   deal: PropTypes.object,
@@ -79,18 +75,15 @@ class DealForm extends React.Component {
     } = this.state;
 
     if (!company) {
-      Alert.error('Choose a company');
-      return;
+      return Alert.error('Choose a company');
     }
 
     if (!customer) {
-      Alert.error('Choose a customer');
-      return;
+      return Alert.error('Choose a customer');
     }
 
     if (!closeDate) {
-      Alert.error('Select a close date');
-      return;
+      return Alert.error('Select a close date');
     }
 
     const productIds = [];
@@ -199,13 +192,32 @@ class DealForm extends React.Component {
     });
   }
 
-  render() {
+  renderProductModal(productsData) {
     const { __ } = this.context;
+
     const productTrigger = (
       <DealButton>
         {__('Product & Service')} <Icon icon="plus" />
       </DealButton>
     );
+
+    return (
+      <ModalTrigger
+        title="New Product & Service"
+        trigger={productTrigger}
+        size="large"
+      >
+        <ProductForm
+          onChangeProductsData={this.onChangeProductsData}
+          productsData={productsData}
+          saveProductsData={this.saveProductsData}
+        />
+      </ModalTrigger>
+    );
+  }
+
+  renderCompanyModal(company) {
+    const { __ } = this.context;
 
     const companyTrigger = (
       <DealButton>
@@ -213,12 +225,98 @@ class DealForm extends React.Component {
       </DealButton>
     );
 
+    return (
+      <ModalTrigger
+        size="large"
+        title="Select company"
+        trigger={companyTrigger}
+      >
+        <CompanyAssociate
+          data={{ firstName: 'Deal', companies: company ? [company] : [] }}
+          save={this.onChangeCompany}
+          limit={1}
+        />
+      </ModalTrigger>
+    );
+  }
+
+  renderCompany(company) {
+    if (!company) return null;
+
+    return (
+      <FormGroup>
+        <DealProducts>
+          <ul>
+            <li>{company.name}</li>
+          </ul>
+        </DealProducts>
+      </FormGroup>
+    );
+  }
+
+  renderCustomerModal(company, customer) {
+    if (!company) return null;
+
+    const { __ } = this.context;
+
     const customerTrigger = (
       <DealButton>
         {__('Choose a customer')} <Icon icon="plus" />
       </DealButton>
     );
 
+    return (
+      <ModalTrigger
+        size="large"
+        title="Select customer"
+        trigger={customerTrigger}
+      >
+        <CustomerAssociate
+          data={{
+            name: company.name,
+            customers: customer ? [customer] : []
+          }}
+          companyId={company._id}
+          save={this.onChangeCustomer}
+          limit={1}
+        />
+      </ModalTrigger>
+    );
+  }
+
+  renderCustomer(customer) {
+    if (!customer) return null;
+
+    return (
+      <FormGroup>
+        <DealProducts>
+          <ul>
+            <li>{renderFullName(customer)}</li>
+          </ul>
+        </DealProducts>
+      </FormGroup>
+    );
+  }
+
+  renderAmount(amount) {
+    if (Object.keys(amount).length === 0) return null;
+
+    return (
+      <FormGroup>
+        <ControlLabel>Amount</ControlLabel>
+        <DealFormAmount>
+          {Object.keys(amount).map(el => (
+            <p key={el}>
+              {amount[el].toLocaleString()} {el}
+            </p>
+          ))}
+        </DealFormAmount>
+      </FormGroup>
+    );
+  }
+
+  render() {
+    const { __ } = this.context;
     const { users } = this.props;
     const {
       company,
@@ -233,78 +331,15 @@ class DealForm extends React.Component {
     return (
       <DealFormContainer>
         <form>
-          <ModalTrigger
-            title="New Product & Service"
-            trigger={productTrigger}
-            size="large"
-          >
-            <ProductForm
-              onChangeProductsData={this.onChangeProductsData}
-              productsData={productsData}
-              saveProductsData={this.saveProductsData}
-            />
-          </ModalTrigger>
+          {this.renderProductModal(productsData)}
           <FormGroup>
             <DealProduct products={products} />
           </FormGroup>
-          <ModalTrigger
-            size="large"
-            title="Select company"
-            trigger={companyTrigger}
-          >
-            <CompanyAssociate
-              data={{ firstName: 'Deal', companies: company ? [company] : [] }}
-              save={this.onChangeCompany}
-              limit={1}
-            />
-          </ModalTrigger>
-          {company ? (
-            <FormGroup>
-              <DealProducts>
-                <ul>
-                  <li>{company.name}</li>
-                </ul>
-              </DealProducts>
-            </FormGroup>
-          ) : null}
-          {company ? (
-            <ModalTrigger
-              size="large"
-              title="Select customer"
-              trigger={customerTrigger}
-            >
-              <CustomerAssociate
-                data={{
-                  name: company.name,
-                  customers: customer ? [customer] : []
-                }}
-                companyId={company._id}
-                save={this.onChangeCustomer}
-                limit={1}
-              />
-            </ModalTrigger>
-          ) : null}
-          {customer ? (
-            <FormGroup>
-              <DealProducts>
-                <ul>
-                  <li>{renderFullName(customer)}</li>
-                </ul>
-              </DealProducts>
-            </FormGroup>
-          ) : null}
-          {Object.keys(amount).length !== 0 ? (
-            <FormGroup>
-              <ControlLabel>Amount</ControlLabel>
-              <DealFormAmount>
-                {Object.keys(amount).map(el => (
-                  <p key={el}>
-                    {amount[el].toLocaleString()} {el}
-                  </p>
-                ))}
-              </DealFormAmount>
-            </FormGroup>
-          ) : null}
+          {this.renderCompanyModal(company)}
+          {this.renderCompany(company)}
+          {this.renderCustomerModal(company, customer)}
+          {this.renderCustomer(customer)}
+          {this.renderAmount(amount)}
           <FormGroup>
             <ControlLabel>Close date</ControlLabel>
             <Datetime

@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Spinner } from 'modules/common/components';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
 import { DealMoveForm } from '../../components';
 import { queries } from '../../graphql';
 

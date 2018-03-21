@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 import { Pipeline } from '../components';
 import { queries, mutations } from '../graphql';
 import { Spinner } from 'modules/common/components';
-import { Alert, listObjectUnFreeze } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import { collectOrders } from '../utils';
 
 class PipelineContainer extends React.Component {
@@ -15,7 +15,7 @@ class PipelineContainer extends React.Component {
     const { stagesFromDb } = props;
 
     this.state = {
-      stages: listObjectUnFreeze(stagesFromDb)
+      stages: [...stagesFromDb]
     };
   }
 

@@ -1,4 +1,4 @@
-const listObjectUnFreeze = source => {
+export function listObjectUnFreeze(source) {
   const target = [];
 
   if (source) {
@@ -16,6 +16,4 @@ const listObjectUnFreeze = source => {
   }
 
   return target;
-};
-
-export default listObjectUnFreeze;
+}
