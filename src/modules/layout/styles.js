@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components';
 import { colors, dimensions, typography } from '../common/styles';
+import { lighten } from '../common/styles/color';
 
 const UserHelper = styled.div`
   height: 50px;
@@ -33,7 +34,10 @@ const Contents = styled.div`
   margin: ${dimensions.coreSpacing}px;
   margin-right: 0;
   max-height: 100%;
-  overflow: hidden;
+
+  @-moz-document url-prefix() {
+    overflow: hidden;
+  }
 `;
 
 const MainContent = styled.section`
@@ -229,6 +233,7 @@ const SidebarList = styled.ul`
     text-decoration: none;
     outline: 0;
     position: relative;
+    border-left: 2px solid transparent;
     transition: background 0.3s ease;
 
     > i {
@@ -241,7 +246,11 @@ const SidebarList = styled.ul`
       background: ${colors.bgActive};
       text-decoration: none;
       outline: 0;
-      color: ${colors.colorCoreBlack};
+      color: ${lighten(colors.textPrimary, 40)};
+    }
+
+    &.active {
+      border-left: 2px solid ${colors.colorSecondary};
     }
   }
 

@@ -127,8 +127,10 @@ const NotifButton = styled.div`
   }
 `;
 
+const toggleSize = 32;
+
 const PopoverHeader = styled.div`
-  padding: 20px;
+  padding: ${dimensions.coreSpacing}px;
 `;
 
 const PopoverContent = styled.div`
@@ -138,9 +140,9 @@ const PopoverContent = styled.div`
 
 const Toggler = styled.div`
   display: flex;
-  height: 32px;
-  border: 1px solid #ddd;
-  border-radius: 16px;
+  height: ${toggleSize}px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: ${toggleSize / 2}px;
   position: relative;
   color: ${colors.colorCoreGray};
   z-index: 1;
@@ -150,10 +152,10 @@ const Toggler = styled.div`
     content: '';
     position: absolute;
     top: -1px;
-    height: 32px;
+    height: ${toggleSize}px;
     width: 50%;
     z-index: 3;
-    border-radius: 16px;
+    border-radius: ${toggleSize / 2}px;
     transition: all 0.3s ease;
     background: ${colors.colorPrimary};
     left: ${props => (props.activeFirst ? '-1px' : 'calc(50% + 1px)')};
@@ -164,7 +166,7 @@ const Toggler = styled.div`
 const Toggle = styled.div`
   flex: 1;
   text-align: center;
-  line-height: 30px;
+  line-height: ${toggleSize - 2}px;
   display: flex;
   justify-content: center;
   transition: all 0.3s ease;

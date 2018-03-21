@@ -4,7 +4,7 @@ import { colors, dimensions } from 'modules/common/styles';
 const MessageContent = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-radius: 20px;
-  border-bottom-left-radius: 0;
+  border-bottom-left-radius: 2px;
   background: ${colors.colorWhite};
   background: ${props =>
     props.internal ? colors.bgInternal : props.staff && colors.colorSecondary};
@@ -16,7 +16,7 @@ const MessageContent = styled.div`
   ${props => {
     if (props.staff) {
       return `
-        border-bottom-right-radius: 0;
+        border-bottom-right-radius: 2px;
         border-bottom-left-radius: 20px;
       `;
     }
@@ -60,8 +60,8 @@ const MessageContent = styled.div`
 `;
 
 const MessageItem = styled.div`
-  margin-bottom: ${dimensions.unitSpacing}px;
-  padding-right: ${dimensions.coreSpacing}%;
+  margin-top: ${props => (props.isSame ? dimensions.unitSpacing - 5 : 20)}px;
+  padding-right: 17%;
   display: flex;
   flex-direction: row;
   position: relative;
@@ -76,12 +76,26 @@ const MessageItem = styled.div`
     if (props.staff) {
       return `
         padding-right: 0;
-        padding-left: ${dimensions.coreSpacing}%;
+        padding-left: 17%;
         text-align: right;
         flex-direction: row-reverse;
       `;
     }
   }};
+
+  &.same {
+    ${MessageContent} {
+      border-top-left-radius: ${props => !props.staff && '2px'};
+      border-top-right-radius: ${props => props.staff && '2px'};
+    }
+
+    &:last-of-type {
+      ${MessageContent} {
+        border-bottom-right-radius: ${props => props.staff && '20px'};
+        border-bottom-left-radius: ${props => !props.staff && '20px'};
+      }
+    }
+  }
 
   &.attachment ${MessageContent} {
     padding: ${dimensions.coreSpacing}px;
@@ -108,12 +122,17 @@ const MessageItem = styled.div`
 
 const MessageBody = styled.div`
   margin: ${props => (props.staff ? '0 55px 0 0' : '0 0 0 55px')};
+  display: flex;
+  flex-direction: ${props => (props.staff ? 'row-reverse' : 'row')};
+  align-items: center;
 
   footer {
+    flex-shrink: 0;
     font-size: 11px;
     display: inline-block;
-    margin-top: 5px;
-    color: ${colors.colorCoreGray};
+    color: ${colors.colorCoreLightGray};
+    margin: 0 10px;
+    cursor: pointer;
   }
 `;
 
