@@ -527,5 +527,16 @@
   "View Profile": "Профайл харах",
   "Empty Notes": "Тэмдэглэл байхгүй байна",
   "Mini-resume": "Товч танилцуулга",
-  "You cannot update this property": "Уг талбарыг шинэчлэх боломжгүй"
+  "You cannot update this property": "Уг талбарыг шинэчлэх боломжгүй",
+  "Owner": "Эзэмшигч",
+  "Department": "Хэлтэс",
+  "Lead Status": "Борлуулалтын явц",
+  "Lifecycle State": "Төлөв",
+  "Has Authority": "Эрх мэдэлтэй эсэх",
+  "Do not disturb": "Садаа болох эсэх",
+  "Parent Company": "Толгой компани",
+  "Business Type": "Бизнесийн төрөл",
+  "Employees count": "Ажилчдын тоо",
+  "Yes": "Тийм",
+  "No": "Үгүй"
 }

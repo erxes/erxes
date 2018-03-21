@@ -43,6 +43,27 @@ export default `
       website
     }
 
+    owner {
+      details {
+        fullName
+      }
+    }
+    position
+    department
+    leadStatus
+    lifecycleState
+    hasAuthority
+    description
+    doNotDisturb
+    links {
+      linkedIn
+      twitter
+      facebook
+      youtube
+      github
+      website
+    }
+
     visitorContactInfo
     getMessengerCustomData
     customFieldsData

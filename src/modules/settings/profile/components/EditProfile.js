@@ -29,8 +29,7 @@ class EditProfile extends Component {
         fullName: document.getElementById('fullName').value,
         position: document.getElementById('position').value,
         location: document.getElementById('user-location').value,
-        description: document.getElementById('description').value,
-        twitterUsername: document.getElementById('twitterUsername').value
+        description: document.getElementById('description').value
       },
       links: {
         linkedIn: document.getElementById('linkedin').value,

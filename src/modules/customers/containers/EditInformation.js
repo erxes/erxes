@@ -14,7 +14,7 @@ const EditInformationContainer = (props, context) => {
 
   if (fieldsGroupsQuery.loading) {
     return (
-      <Sidebar full>
+      <Sidebar full wide>
         <Spinner />
       </Sidebar>
     );
@@ -24,7 +24,7 @@ const EditInformationContainer = (props, context) => {
 
   const save = (variables, callback) => {
     customersEdit({
-      variables: { _id: _id, ...variables }
+      variables: { _id, ...variables }
     })
       .then(() => {
         callback();

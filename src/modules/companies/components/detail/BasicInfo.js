@@ -1,22 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
-import {
-  SidebarContent,
-  SidebarCounter,
-  SidebarList
-} from 'modules/layout/styles';
-import {
-  Button,
-  FormControl,
-  FormGroup,
-  Icon
-} from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { Icon, ModalTrigger } from 'modules/common/components';
+import { Links } from 'modules/settings/team/components/detail/styles';
+import { CompanyForm } from '../../containers';
 
 const propTypes = {
-  company: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired
+  company: PropTypes.object.isRequired
 };
 
 const contextTypes = {
@@ -27,45 +18,52 @@ class BasicInfo extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      editing: false
-    };
-
-    this.toggleEditing = this.toggleEditing.bind(this);
-    this.cancelEditing = this.cancelEditing.bind(this);
-    this.save = this.save.bind(this);
+    this.renderRow = this.renderRow.bind(this);
   }
 
-  save() {
-    const doc = {
-      name: document.getElementById('name').value,
-      size: document.getElementById('size').value,
-      website: document.getElementById('website').value,
-      industry: document.getElementById('industry').value,
-      plan: document.getElementById('plan').value
-    };
-
-    this.props.save(doc, error => {
-      if (error) return Alert.error(error.message);
-
-      this.cancelEditing();
-      return Alert.success('Success');
-    });
+  renderLink(link, icon) {
+    if (link) {
+      return (
+        <a href={link} target="_blank">
+          <Icon icon={icon} />
+        </a>
+      );
+    }
+    return null;
   }
 
-  toggleEditing() {
-    this.setState({ editing: true });
+  renderLinks(links) {
+    const { Title } = Sidebar.Section;
+
+    return (
+      <Title>
+        <Links>
+          {this.renderLink(links.linkedIn, 'social-linkedin')}
+          {this.renderLink(links.twitter, 'social-twitter')}
+          {this.renderLink(links.facebook, 'social-facebook')}
+          {this.renderLink(links.github, 'social-github')}
+          {this.renderLink(links.youtube, 'social-youtube')}
+          {this.renderLink(links.website, 'android-globe')}
+        </Links>
+      </Title>
+    );
   }
 
-  cancelEditing() {
-    this.setState({
-      editing: false
-    });
+  renderRow(label, value) {
+    const { __ } = this.context;
+
+    return (
+      <li>
+        {__(`${label}`)}:
+        <SidebarCounter>{value || '-'}</SidebarCounter>
+      </li>
+    );
   }
 
   renderInfo() {
-    const { __ } = this.context;
     const { company } = this.props;
+    const { __ } = this.context;
+    const { links = {} } = company;
     const { Title, QuickButtons } = Sidebar.Section;
 
     return (
@@ -73,87 +71,41 @@ class BasicInfo extends React.Component {
         <Title>{__('Basic Info')}</Title>
 
         <QuickButtons>
-          <a tabIndex={0} onClick={this.toggleEditing}>
-            <Icon icon="edit" />
-          </a>
+          <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
+            <CompanyForm company={company} />
+          </ModalTrigger>
         </QuickButtons>
 
+        {this.renderLinks(links)}
+
         <SidebarList className="no-link">
-          <li>
-            {__('Name:')}
-            <SidebarCounter>{company.name || '-'}</SidebarCounter>
-          </li>
-          <li>
-            {__('Size:')}
-            <SidebarCounter>{company.size || '-'}</SidebarCounter>
-          </li>
-          <li>
-            {__('Website:')}
-            <SidebarCounter>{company.website || '-'}</SidebarCounter>
-          </li>
-          <li>
-            {__('Industry:')}
-            <SidebarCounter>{company.industry || '-'}</SidebarCounter>
-          </li>
-          <li>
-            {__('Plan:')}
-            <SidebarCounter>{company.plan || '-'}</SidebarCounter>
-          </li>
+          {this.renderRow('Name', company.name)}
+          {this.renderRow('Size', company.size)}
+          {this.renderRow('Industry', company.industry)}
+          {this.renderRow('Plan', company.plan)}
+          {this.renderRow(
+            'Parent Company',
+            company.parentCompany ? company.parentCompany.name : '-'
+          )}
+          {this.renderRow('Email', company.email)}
+          {this.renderRow(
+            'Owner',
+            company.owner ? company.owner.details.fullName : '-'
+          )}
+          {this.renderRow('Phone', company.phone)}
+          {this.renderRow('Lead Status', company.leadStatus)}
+          {this.renderRow('Lifecycle State', company.lifecycleState)}
+          {this.renderRow('Business Type', company.businessType)}
+          {this.renderRow('Description', company.description)}
+          {this.renderRow('Employees count', company.employees)}
+          {this.renderRow('Do not disturb', company.doNotDisturb)}
         </SidebarList>
       </Sidebar.Section>
     );
   }
 
-  renderForm() {
-    const { __ } = this.context;
-    const { company } = this.props;
-
-    return (
-      <Sidebar.Section>
-        <SidebarContent>
-          <br />
-          <FormGroup>
-            {__('Name:')}
-            <FormControl id="name" defaultValue={company.name || ''} />
-          </FormGroup>
-          <FormGroup>
-            {__('Size:')}
-            <FormControl id="size" defaultValue={company.size || ''} />
-          </FormGroup>
-          <FormGroup>
-            {__('Website:')}
-            <FormControl id="website" defaultValue={company.website || ''} />
-          </FormGroup>
-          <FormGroup>
-            {__('Industry:')}
-            <FormControl id="industry" defaultValue={company.industry || ''} />
-          </FormGroup>
-          <FormGroup>
-            {__('Plan:')}
-            <FormControl id="plan" defaultValue={company.plan || ''} />
-          </FormGroup>
-
-          <div style={{ textAlign: 'right' }}>
-            <Button
-              btnStyle="success"
-              size="small"
-              onClick={this.save}
-              icon="checkmark"
-            />
-            <Button
-              btnStyle="simple"
-              size="small"
-              onClick={this.cancelEditing}
-              icon="close"
-            />
-          </div>
-        </SidebarContent>
-      </Sidebar.Section>
-    );
-  }
-
   render() {
-    return this.state.editing ? this.renderForm() : this.renderInfo();
+    return this.renderInfo();
   }
 }
 

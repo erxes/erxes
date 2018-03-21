@@ -7,135 +7,65 @@ import {
   SidebarList
 } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
-import {
-  Button,
-  Icon,
-  FormControl,
-  FormGroup,
-  NameCard
-} from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
-import { NameWrapper, ButtonWrapper } from './styles';
+import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
+import { renderFullName } from 'modules/common/utils';
+import { Links } from 'modules/settings/team/components/detail/styles';
+import { CustomerForm } from '../../../containers';
+import { NameWrapper } from './styles';
 
 const propTypes = {
-  customer: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired
+  customer: PropTypes.object.isRequired
 };
 
 class BasicInfo extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      editing: false
-    };
-
-    this.toggleEditing = this.toggleEditing.bind(this);
-    this.cancelEditing = this.cancelEditing.bind(this);
-    this.save = this.save.bind(this);
-  }
-
-  componentWillReceiveProps(newProps) {
-    const { customer } = newProps;
-    const oldcustomer = this.props.customer;
-    if (customer._id !== oldcustomer._id) {
-      this.cancelEditing();
-    }
-  }
-
-  toggleEditing() {
-    this.setState({ editing: true });
-  }
-
-  cancelEditing() {
-    this.setState({
-      editing: false
-    });
-  }
-
-  save() {
-    const doc = {
-      firstName: document.getElementById('firstName').value,
-      lastName: document.getElementById('lastName').value,
-      email: document.getElementById('email').value,
-      phone: document.getElementById('phone').value
-    };
-
-    this.props.save(doc, error => {
-      if (error) return Alert.error(error.message);
-
-      this.cancelEditing();
-      return Alert.success('Success');
-    });
+    this.renderRow = this.renderRow.bind(this);
   }
 
   getVisitorInfo(customer, key) {
     return customer.visitorContactInfo && customer.visitorContactInfo[key];
   }
 
-  renderForm() {
-    const { customer } = this.props;
-    const { __ } = this.context;
+  renderLink(link, icon) {
+    if (link) {
+      return (
+        <a href={link} target="_blank">
+          <Icon icon={icon} />
+        </a>
+      );
+    }
+    return null;
+  }
 
+  renderLinks(links) {
     return (
-      <SidebarContent>
-        <br />
-        <FormGroup>
-          {__('First name')}:
-          <FormControl defaultValue={customer.firstName} id="firstName" />
-        </FormGroup>
-        <FormGroup>
-          {__('Last name')}:
-          <FormControl defaultValue={customer.lastName} id="lastName" />
-        </FormGroup>
-        <FormGroup>
-          {__('Primary Email')}:
-          <FormControl
-            id="email"
-            defaultValue={
-              customer.email || this.getVisitorInfo(customer, 'email')
-            }
-          />
-        </FormGroup>
-        <FormGroup>
-          {__('Phone')}:
-          <FormControl
-            id="phone"
-            defaultValue={
-              customer.phone || this.getVisitorInfo(customer, 'phone')
-            }
-          />
-        </FormGroup>
-        <ButtonWrapper>
-          <Button
-            btnStyle="simple"
-            size="small"
-            onClick={this.cancelEditing}
-            icon="close"
-          />
-          <Button
-            btnStyle="success"
-            size="small"
-            onClick={this.save}
-            icon="checkmark"
-          />
-        </ButtonWrapper>
-      </SidebarContent>
+      <Links>
+        {this.renderLink(links.linkedIn, 'social-linkedin')}
+        {this.renderLink(links.twitter, 'social-twitter')}
+        {this.renderLink(links.facebook, 'social-facebook')}
+        {this.renderLink(links.github, 'social-github')}
+        {this.renderLink(links.youtube, 'social-youtube')}
+        {this.renderLink(links.website, 'android-globe')}
+      </Links>
     );
   }
 
-  renderName(customer) {
+  renderRow(label, value) {
     const { __ } = this.context;
-    if (customer.firstName || customer.lastName) {
-      return (customer.firstName || '') + ' ' + (customer.lastName || '');
-    }
-    return <a onClick={this.toggleEditing}>{__('Edit name')}</a>;
+
+    return (
+      <li>
+        {__(`${label}`)}:
+        <SidebarCounter>{value || '-'}</SidebarCounter>
+      </li>
+    );
   }
 
   renderInfo() {
     const { customer } = this.props;
-    const isUser = customer.isUser;
-    const { __ } = this.context;
+    const { links = {}, isUser } = customer;
 
     return (
       <Fragment>
@@ -145,44 +75,47 @@ class BasicInfo extends React.Component {
               <NameCard.Avatar customer={customer} size={50} />
               {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
             </AvatarWrapper>
+
             <div className="customer-name">
-              {customer.name || this.renderName(customer)}
+              {renderFullName(customer)}
+              {this.renderLinks(links)}
             </div>
-            <a>
-              <Icon icon="edit" onClick={this.toggleEditing} />
-            </a>
+
+            <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
+              <CustomerForm size="lg" customer={customer} />
+            </ModalTrigger>
           </NameWrapper>
         </SidebarContent>
+
         <SidebarList className="no-link">
-          <li>
-            {__('Email')}:
-            <SidebarCounter>
-              {customer.email ||
-                this.getVisitorInfo(customer, 'email') || (
-                  <a onClick={this.toggleEditing}>{__('Add Email')}</a>
-                )}
-            </SidebarCounter>
-          </li>
-          <li>
-            {__('Phone')}:
-            <SidebarCounter>
-              {customer.phone ||
-                this.getVisitorInfo(customer, 'phone') || (
-                  <a onClick={this.toggleEditing}>{__('Add Phone')}</a>
-                )}
-            </SidebarCounter>
-          </li>
+          {this.renderRow(
+            'Email',
+            customer.email || this.getVisitorInfo(customer, 'email') || '-'
+          )}
+          {this.renderRow(
+            'Phone',
+            customer.phone || this.getVisitorInfo(customer, 'phone') || '-'
+          )}
+
+          {this.renderRow(
+            'Owner',
+            customer.owner ? customer.owner.details.fullName : '-'
+          )}
+
+          {this.renderRow('Position', customer.position)}
+          {this.renderRow('Department', customer.department)}
+          {this.renderRow('Lead Status', customer.leadStatus)}
+          {this.renderRow('Lifecycle State', customer.lifecycleState)}
+          {this.renderRow('Has Authority', customer.hasAuthority)}
+          {this.renderRow('Description', customer.description)}
+          {this.renderRow('Do not disturb', customer.doNotDisturb)}
         </SidebarList>
       </Fragment>
     );
   }
 
   render() {
-    return (
-      <Sidebar.Section>
-        {this.state.editing ? this.renderForm() : this.renderInfo()}
-      </Sidebar.Section>
-    );
+    return <Sidebar.Section>{this.renderInfo()}</Sidebar.Section>;
   }
 }
 
