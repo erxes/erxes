@@ -10,10 +10,15 @@ const productQueries = {
    * @param {Object} args.pagintationArgs - Query params
    * @return {Promise} filtered product objects by type
    */
-  products(root, { type, ...pagintationArgs }) {
-    const filter = {};
+  products(root, { type, searchValue, ...pagintationArgs }) {
+    let filter = {};
 
     if (type) filter.type = type;
+
+    // search =========
+    if (searchValue) {
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
 
     return paginate(Products.find(filter), pagintationArgs);
   },
