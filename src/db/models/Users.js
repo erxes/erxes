@@ -35,6 +35,7 @@ const LinkSchema = mongoose.Schema(
     twitter: field({ type: String, optional: true }),
     facebook: field({ type: String, optional: true }),
     github: field({ type: String, optional: true }),
+    youtube: field({ type: String, optional: true }),
     website: field({ type: String, optional: true }),
   },
   { _id: false },

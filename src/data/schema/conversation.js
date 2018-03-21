@@ -111,6 +111,21 @@ export const mutations = `
     tweetReplyToScreenName: String,
   ): ConversationMessage
 
+  conversationsTweet(
+    integrationId: String,
+    text: String,
+  ): JSON
+
+  conversationsRetweet(
+    integrationId: String,
+    id: String,
+  ): JSON
+
+  conversationsFavorite(
+    integrationId: String,
+    id: String,
+  ): JSON
+
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
