@@ -79,10 +79,8 @@ class ModalAction extends React.Component {
   }
 
   getScreenName(parentMessage, raw) {
-    const twitterData =
-      parentMessage.customer && parentMessage.customer.twitterData;
-    const screenName =
-      twitterData && (twitterData.screen_name || twitterData.screenName);
+    const twitterData = parentMessage.customer.twitterData;
+    const screenName = twitterData && twitterData.screen_name;
 
     if (raw) {
       return screenName;

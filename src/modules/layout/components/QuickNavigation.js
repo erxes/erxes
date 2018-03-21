@@ -10,7 +10,6 @@ import {
   ModalTrigger
 } from 'modules/common/components';
 import { UserHelper } from '../styles';
-import { Widget } from 'modules/notifications/containers';
 import {
   ChangePassword,
   NotificationSettings
@@ -53,9 +52,6 @@ const QuickNavigation = ({ logout }, context) => {
             <MenuItem eventKey="mn">mn</MenuItem>
           </Dropdown.Menu>
         </Dropdown>
-      </NavItem>
-      <NavItem>
-        <Widget />
       </NavItem>
       <NavItem>
         <Dropdown id="dropdown-user" pullRight>

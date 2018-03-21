@@ -91,7 +91,7 @@ class Row extends Component {
 
   render() {
     const { conversation, isRead, isActive, bulk } = this.props;
-    const { createdAt, content } = conversation;
+    const { createdAt, updatedAt, content } = conversation;
     const customer = conversation.customer || {};
     const integration = conversation.integration || {};
     const brand = integration.brand || {};
@@ -148,7 +148,7 @@ class Row extends Component {
           </FlexContent>
         </RowContent>
         <SmallText>
-          {moment(createdAt)
+          {moment(updatedAt || createdAt)
             .subtract(2, 'minutes')
             .fromNow()}
           {assignedUser && (

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Toggle from 'react-toggle';
-import { ContentBox, SubHeading, InlineItems, SubItem } from '../../styles';
+import { ModuleBox, SubHeading, InlineItems, SubItem } from '../../styles';
 
 class NotificationSettings extends Component {
   constructor(props) {
@@ -42,6 +42,7 @@ class NotificationSettings extends Component {
   renderNotifType(type, key) {
     return (
       <InlineItems key={key}>
+        {type.text}
         <Toggle
           value={type.name}
           checked={this.isChecked(type)}
@@ -51,7 +52,6 @@ class NotificationSettings extends Component {
             unchecked: null
           }}
         />
-        {type.text}
       </InlineItems>
     );
   }
@@ -73,6 +73,7 @@ class NotificationSettings extends Component {
       <div>
         <SubHeading>{__('Notifications')}</SubHeading>
         <InlineItems>
+          {__('Get notification by email')}
           <Toggle
             defaultChecked={this.props.getNotificationByEmail}
             onChange={this.onEmailConfigChange}
@@ -81,13 +82,12 @@ class NotificationSettings extends Component {
               unchecked: null
             }}
           />
-          {__('Get notification by email')}
         </InlineItems>
-        <ContentBox>
+        <ModuleBox>
           {this.props.modules.map((module, index) =>
             this.renderModule(module, index)
           )}
-        </ContentBox>
+        </ModuleBox>
       </div>
     );
 
