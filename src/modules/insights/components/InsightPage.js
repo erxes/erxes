@@ -9,7 +9,6 @@ const boxSize = 320;
 
 const Box = BoxRoot.extend`
   width: ${boxSize}px;
-  height: ${boxSize}px;
   display: flex;
   align-items: center;
 

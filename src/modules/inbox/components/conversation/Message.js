@@ -26,7 +26,8 @@ function Message({ message, staff, isSameUser, scrollBottom }) {
   // TODO: remove classes after test attachment and facebook post
   const classes = classNames({
     attachment: hasAttachment || isPhotoPost || isVideoPost,
-    fbpost: isPhotoPost || isVideoPost
+    fbpost: isPhotoPost || isVideoPost,
+    same: isSameUser
   });
 
   const prop = user._id ? { user } : { customer };
@@ -122,7 +123,7 @@ function Message({ message, staff, isSameUser, scrollBottom }) {
     const messageDate = message.createdAt;
 
     return (
-      <MessageItem staff={staff} className={classes}>
+      <MessageItem staff={staff} className={classes} isSame={isSameUser}>
         {renderAvatar()}
         <MessageBody staff={staff}>
           <MessageContent staff={staff} internal={message.internal}>

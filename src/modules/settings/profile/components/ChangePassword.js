@@ -45,6 +45,8 @@ class ChangePassword extends Component {
           />
         </FormGroup>
 
+        <br />
+
         <FormGroup>
           <ControlLabel>New Password</ControlLabel>
           <FormControl
