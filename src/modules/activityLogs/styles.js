@@ -8,10 +8,6 @@ const Timeline = styled.div`
   padding-left: ${iconWrapperWidth};
   position: relative;
 
-  div > h4:first-child {
-    padding-top: ${dimensions.coreSpacing}px;
-  }
-
   &:before {
     border-right: 1px solid ${colors.borderDarker};
     content: '';
@@ -23,9 +19,10 @@ const Timeline = styled.div`
 `;
 
 const ActivityTitle = styled.h4`
-  color: ${colors.textPrimary};
-  padding: ${dimensions.coreSpacing * 1.5}px 0;
+  color: ${colors.colorCoreGray};
+  padding: ${dimensions.coreSpacing * 1.5}px 0 ${dimensions.coreSpacing}px 0;
   margin: 0;
+  font-weight: 400;
   line-height: ${typography.lineHeightHeading4};
 `;
 
