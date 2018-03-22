@@ -45,4 +45,17 @@ const CompaniesTableWrapper = styled.div`
   }
 `;
 
-export { CustomersWrapper, CustomerWrapper, CompaniesTableWrapper };
+const CompanyLogo = styled.div`
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  margin-right: 20px;
+  background: ${colors.colorSecondary};
+`;
+
+export {
+  CustomersWrapper,
+  CustomerWrapper,
+  CompaniesTableWrapper,
+  CompanyLogo
+};

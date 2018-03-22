@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
-import { colors, dimensions } from '../styles';
+import { colors } from '../styles';
 import { colorParser } from 'modules/common/utils';
 
 const shake = keyframes`
@@ -39,7 +39,7 @@ const LabelStyled = styled.span`
   padding: 3px 9px;
   text-transform: uppercase;
   white-space: nowrap;
-  font-size: ${dimensions.unitSpacing - 1}px;
+  font-size: 8px;
   display: inline-block;
   line-height: 1.32857143;
   background: ${props => types[props.lblStyle].background};

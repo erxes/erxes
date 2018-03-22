@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { Icon, ModalTrigger } from 'modules/common/components';
-import { Links } from 'modules/settings/team/components/detail/styles';
+import { Links, InfoWrapper } from 'modules/common/styles/styles';
 import { CompanyForm } from '../../containers';
+import { CompanyLogo } from '../../styles';
 
 const propTypes = {
   company: PropTypes.object.isRequired
@@ -33,19 +34,15 @@ class BasicInfo extends React.Component {
   }
 
   renderLinks(links) {
-    const { Title } = Sidebar.Section;
-
     return (
-      <Title>
-        <Links>
-          {this.renderLink(links.linkedIn, 'social-linkedin')}
-          {this.renderLink(links.twitter, 'social-twitter')}
-          {this.renderLink(links.facebook, 'social-facebook')}
-          {this.renderLink(links.github, 'social-github')}
-          {this.renderLink(links.youtube, 'social-youtube')}
-          {this.renderLink(links.website, 'android-globe')}
-        </Links>
-      </Title>
+      <Links>
+        {this.renderLink(links.linkedIn, 'social-linkedin')}
+        {this.renderLink(links.twitter, 'social-twitter')}
+        {this.renderLink(links.facebook, 'social-facebook')}
+        {this.renderLink(links.github, 'social-github')}
+        {this.renderLink(links.youtube, 'social-youtube')}
+        {this.renderLink(links.website, 'android-globe')}
+      </Links>
     );
   }
 
@@ -62,24 +59,22 @@ class BasicInfo extends React.Component {
 
   renderInfo() {
     const { company } = this.props;
-    const { __ } = this.context;
     const { links = {} } = company;
-    const { Title, QuickButtons } = Sidebar.Section;
 
     return (
       <Sidebar.Section>
-        <Title>{__('Basic Info')}</Title>
-
-        <QuickButtons>
+        <InfoWrapper>
+          <CompanyLogo />
+          <div className="name">
+            {company.name}
+            {this.renderLinks(links)}
+          </div>
           <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
             <CompanyForm company={company} />
           </ModalTrigger>
-        </QuickButtons>
-
-        {this.renderLinks(links)}
+        </InfoWrapper>
 
         <SidebarList className="no-link">
-          {this.renderRow('Name', company.name)}
           {this.renderRow('Size', company.size)}
           {this.renderRow('Industry', company.industry)}
           {this.renderRow('Plan', company.plan)}
