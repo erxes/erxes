@@ -28,7 +28,7 @@ const contextTypes = {
   __: PropTypes.func
 };
 
-class CommonAssociate extends Component {
+class CommonChooser extends Component {
   constructor(props) {
     super(props);
 
@@ -183,7 +183,7 @@ class CommonAssociate extends Component {
   }
 }
 
-CommonAssociate.propTypes = propTypes;
-CommonAssociate.contextTypes = contextTypes;
+CommonChooser.propTypes = propTypes;
+CommonChooser.contextTypes = contextTypes;
 
-export default CommonAssociate;
+export default CommonChooser;

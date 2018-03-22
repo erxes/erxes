@@ -4,7 +4,7 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
 import { Alert, renderFullName } from 'modules/common/utils';
-import { CommonAssociate } from '../components';
+import { CommonChooser } from '../components';
 import { CustomerForm } from '../components';
 
 class CustomerChooser extends React.Component {
@@ -71,7 +71,7 @@ class CustomerChooser extends React.Component {
       datas: customersQuery.customers || []
     };
 
-    return <CommonAssociate {...updatedProps} />;
+    return <CommonChooser {...updatedProps} />;
   }
 }
 

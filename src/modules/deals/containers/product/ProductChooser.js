@@ -7,7 +7,7 @@ import {
   queries as productQueries
 } from 'modules/settings/productService/graphql';
 import { Alert } from 'modules/common/utils';
-import { CommonAssociate } from 'modules/customers/components';
+import { CommonChooser } from 'modules/customers/components';
 import { Form as ProductForm } from 'modules/settings/productService/containers';
 
 class ProductChooser extends React.Component {
@@ -71,7 +71,7 @@ class ProductChooser extends React.Component {
       datas: productsQuery.products || []
     };
 
-    return <CommonAssociate {...updatedProps} />;
+    return <CommonChooser {...updatedProps} />;
   }
 }
 
