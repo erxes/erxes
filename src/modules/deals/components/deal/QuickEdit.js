@@ -23,9 +23,7 @@ class QuickEdit extends React.Component {
     this.toggleMove = this.toggleMove.bind(this);
     this.copy = this.copy.bind(this);
 
-    this.state = {
-      showMove: false
-    };
+    this.state = { showMove: false };
   }
 
   toggleMove() {
@@ -33,30 +31,15 @@ class QuickEdit extends React.Component {
   }
 
   copy() {
-    const deal = this.props.deal;
-
-    const productIds = [];
-    deal.products.forEach(el => {
-      productIds.push(el._id);
-    });
-
-    const assignedUserIds = [];
-    deal.assignedUsers.forEach(el => {
-      assignedUserIds.push(el._id);
-    });
+    const { deal } = this.props;
 
     // copied doc
     const doc = {
-      stageId: deal.stageId,
-      pipelineId: deal.pipelineId,
-      boardId: deal.boardId,
-      closeDate: deal.closeDate,
-      note: deal.note,
-      productIds,
-      assignedUserIds,
-      companyId: deal.company._id,
-      customerId: deal.customer._id,
-      productsData: deal.productsData
+      ...deal,
+      productIds: deal.products.map(product => product._id),
+      assignedUserIds: deal.assignedUsers.map(user => user._id),
+      companyIds: deal.companies.map(company => company._id),
+      customerIds: deal.customers.map(customer => customer._id)
     };
 
     this.props.saveDeal(doc, () => this.props.close());

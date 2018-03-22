@@ -7,7 +7,7 @@ import { Alert, renderFullName } from 'modules/common/utils';
 import { CommonAssociate } from '../components';
 import { CustomerForm } from '../components';
 
-class CustomerAssociate extends React.Component {
+class CustomerChooser extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -75,7 +75,7 @@ class CustomerAssociate extends React.Component {
   }
 }
 
-CustomerAssociate.propTypes = {
+CustomerChooser.propTypes = {
   data: PropTypes.object.isRequired,
   customersQuery: PropTypes.object.isRequired,
   customersAdd: PropTypes.func.isRequired
@@ -96,4 +96,4 @@ export default compose(
   graphql(gql(mutations.customersAdd), {
     name: 'customersAdd'
   })
-)(CustomerAssociate);
+)(CustomerChooser);

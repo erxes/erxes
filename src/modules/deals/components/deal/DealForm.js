@@ -118,12 +118,14 @@ class DealForm extends React.Component {
       assignedUserIds
     } = this.state;
 
+    const { __ } = this.context;
+
     if (productsData.length === 0) {
-      return Alert.error('Select product & service');
+      return Alert.error(__('Please, select product & service'));
     }
 
     if (!closeDate) {
-      return Alert.error('Select a close date');
+      return Alert.error(__('Please, select a close date'));
     }
 
     const productIds = [];
@@ -217,10 +219,7 @@ class DealForm extends React.Component {
         trigger={customerTrigger}
       >
         <CustomerChooser
-          data={{
-            name: 'Deal',
-            customers
-          }}
+          data={{ name: 'Deal', customers }}
           save={this.onChangeCustomer}
         />
       </ModalTrigger>

@@ -27,9 +27,7 @@ class Container extends React.Component {
   }
 
   getChildContext() {
-    return {
-      move: this.move
-    };
+    return { move: this.move };
   }
 
   move({ source, destination, itemId, type }) {
@@ -55,9 +53,7 @@ class Container extends React.Component {
     const { type, destination, source, draggableId } = result;
 
     // dropped outside the list
-    if (!destination) {
-      return;
-    }
+    if (!destination) return;
 
     this.move({
       source: { _id: source.droppableId, index: source.index },

@@ -11,15 +11,11 @@ class UserCounter extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      show: false
-    };
+    this.state = { show: false };
   }
 
   showOthers() {
-    this.setState({
-      show: true
-    });
+    this.setState({ show: true });
   }
 
   renderUserItem(item) {
@@ -50,7 +46,7 @@ class UserCounter extends React.Component {
   }
 
   render() {
-    const users = this.props.users;
+    const { users } = this.props;
     const length = users.length;
 
     if (length === 0) {

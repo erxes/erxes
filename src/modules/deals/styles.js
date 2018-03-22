@@ -69,18 +69,19 @@ const StageHeader = styled.div`
       font-weight: bold;
     }
   }
-  ul {
-    float: right;
-    list-style: none;
-    margin: 10px 0 0;
-    padding: 0;
-    li {
-      float: left;
-      padding-left: 5px;
-      color: #585278;
-      font-size: 14px;
-      font-weight: bold;
-    }
+`;
+
+const StageAmount = styled.ul`
+  float: right;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  li {
+    float: left;
+    padding-left: 5px;
+    color: #585278;
+    font-size: 14px;
+    font-weight: bold;
   }
 `;
 
@@ -382,6 +383,7 @@ export {
   StageWrapper,
   StageContainer,
   StageHeader,
+  StageAmount,
   StageBody,
   StageDropZone,
   AddNewDeal,

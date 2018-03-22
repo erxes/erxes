@@ -39,7 +39,7 @@ class ItemCounter extends React.Component {
   }
 
   render() {
-    const items = this.props.items;
+    const { items } = this.props;
     const length = items.length;
 
     if (length === 0) {

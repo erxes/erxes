@@ -23,44 +23,29 @@ class DealMoveFormContainer extends React.Component {
   }
 
   onChangeBoard(boardId) {
-    this.setState({
-      boardId
-    });
+    this.setState({ boardId });
 
-    this.props.pipelinesQuery
-      .refetch({
-        boardId
-      })
-      .then(({ data }) => {
-        const pipelines = data.dealPipelines;
-        if (pipelines.length > 0) {
-          this.onChangePipeline(pipelines[0]._id);
-        }
-      });
+    this.props.pipelinesQuery.refetch({ boardId }).then(({ data }) => {
+      const pipelines = data.dealPipelines;
+
+      if (pipelines.length > 0) {
+        this.onChangePipeline(pipelines[0]._id);
+      }
+    });
   }
 
   onChangePipeline(pipelineId) {
-    this.setState({
-      pipelineId
-    });
+    this.setState({ pipelineId });
 
-    this.props.stagesQuery.refetch({
-      pipelineId
-    });
+    this.props.stagesQuery.refetch({ pipelineId });
   }
 
   moveDeal(doc) {
     const { deal } = this.props;
 
     const moveDoc = {
-      source: {
-        _id: deal.stageId,
-        index: deal.order
-      },
-      destination: {
-        _id: doc.stageId,
-        index: 0
-      },
+      source: { _id: deal.stageId, index: deal.order },
+      destination: { _id: doc.stageId, index: 0 },
       itemId: doc._id,
       type: 'stage'
     };
@@ -83,6 +68,7 @@ class DealMoveFormContainer extends React.Component {
     const stages = stagesQuery.dealStages;
 
     let filteredStages = stages;
+
     if (deal.pipelineId === pipelineId) {
       filteredStages = stages.filter(el => el._id !== deal.stageId);
     }

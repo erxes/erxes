@@ -19,11 +19,56 @@ const propTypes = {
 };
 
 class Board extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.renderBoard = this.renderBoard.bind(this);
+    this.renderPipeline = this.renderPipeline.bind(this);
+  }
+
+  renderBoard() {
+    const { currentBoard, boards } = this.props;
+
+    return boards.map(board => {
+      if (board._id !== currentBoard._id) {
+        return (
+          <li key={board._id}>
+            <Link to={`/deals/board?id=${board._id}`}>{board.name}</Link>
+          </li>
+        );
+      }
+
+      return null;
+    });
+  }
+
+  renderPipeline() {
+    const { states, pipelines, currentBoard } = this.props;
+
+    const stageStates = {};
+
+    Object.keys(states).forEach(key => {
+      if (key.startsWith('stageState')) {
+        stageStates[key] = states[key];
+      }
+    });
+
+    return pipelines.map(pipeline => (
+      <Pipeline
+        key={pipeline._id}
+        {...stageStates}
+        state={states[`pipelineState${pipeline._id}`]}
+        pipeline={pipeline}
+        boardId={currentBoard._id}
+      />
+    ));
+  }
+
   render() {
     const { __ } = this.context;
     const breadcrumb = [{ title: __('Deal') }];
 
-    const { currentBoard, boards } = this.props;
+    const { currentBoard, onDragEnd } = this.props;
 
     const actionBarLeft = (
       <BarItems>
@@ -34,20 +79,7 @@ class Board extends React.Component {
             </Button>
           </DropdownToggle>
 
-          <Dropdown.Menu>
-            {boards.map(board => {
-              if (board._id !== currentBoard._id) {
-                return (
-                  <li key={board._id}>
-                    <Link to={`/deals/board?id=${board._id}`}>
-                      {board.name}
-                    </Link>
-                  </li>
-                );
-              }
-              return null;
-            })}
-          </Dropdown.Menu>
+          <Dropdown.Menu>{this.renderBoard()}</Dropdown.Menu>
         </Dropdown>
       </BarItems>
     );
@@ -56,28 +88,9 @@ class Board extends React.Component {
       <Wrapper.ActionBar left={actionBarLeft} background="transparent" />
     );
 
-    const { states, pipelines, onDragEnd } = this.props;
-    const stageStates = {};
-
-    Object.keys(states).forEach(key => {
-      if (key.startsWith('stageState')) {
-        stageStates[key] = states[key];
-      }
-    });
-
     const content = (
       <DragDropContext onDragEnd={onDragEnd}>
-        {pipelines.map(pipeline => {
-          return (
-            <Pipeline
-              key={pipeline._id}
-              {...stageStates}
-              state={states[`pipelineState${pipeline._id}`]}
-              pipeline={pipeline}
-              boardId={currentBoard._id}
-            />
-          );
-        })}
+        {this.renderPipeline()}
       </DragDropContext>
     );
 

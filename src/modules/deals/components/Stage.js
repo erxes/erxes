@@ -5,6 +5,7 @@ import {
   StageWrapper,
   StageContainer,
   StageHeader,
+  StageAmount,
   StageBody,
   StageDropZone,
   AddNewDeal
@@ -30,6 +31,7 @@ class Stage extends React.Component {
 
     this.showForm = this.showForm.bind(this);
     this.closeForm = this.closeForm.bind(this);
+    this.renderDeal = this.renderDeal.bind(this);
 
     this.state = { show: false };
   }
@@ -43,19 +45,13 @@ class Stage extends React.Component {
   }
 
   renderAmount(amount) {
-    return (
-      <ul>
-        {Object.keys(amount).length > 0 ? (
-          Object.keys(amount).map(key => (
-            <li key={key}>
-              {amount[key].toLocaleString()} {key}
-            </li>
-          ))
-        ) : (
-          <li>0</li>
-        )}
-      </ul>
-    );
+    if (Object.keys(amount).length === 0) return <li>0</li>;
+
+    return Object.keys(amount).map(key => (
+      <li key={key}>
+        {amount[key].toLocaleString()} {key}
+      </li>
+    ));
   }
 
   renderDealForm(show) {
@@ -83,58 +79,61 @@ class Stage extends React.Component {
     );
   }
 
+  renderDeal(provided) {
+    const { deals, saveDeal, removeDeal, moveDeal } = this.props;
+
+    return (
+      <StageDropZone innerRef={provided.innerRef}>
+        <div>
+          {deals.map((deal, index) => (
+            <Deal
+              key={deal._id}
+              index={index}
+              dealId={deal._id}
+              saveDeal={saveDeal}
+              removeDeal={removeDeal}
+              moveDeal={moveDeal}
+            />
+          ))}
+        </div>
+        {provided.placeholder}
+      </StageDropZone>
+    );
+  }
+
   render() {
     const { __ } = this.context;
-    const { stage, deals, index, saveDeal, removeDeal, moveDeal } = this.props;
+    const { stage, deals, index } = this.props;
 
     return (
       <Draggable draggableId={stage._id} index={index}>
-        {(provided, snapshot) => {
-          return (
-            <StageWrapper>
-              <StageContainer
-                innerRef={provided.innerRef}
-                {...provided.draggableProps}
-                isDragging={snapshot.isDragging}
-              >
-                <StageHeader {...provided.dragHandleProps}>
-                  <div>
-                    <h3>{stage.name}</h3>
-                    <span className="deals-count">
-                      {__('Deal')}: {deals.length}
-                    </span>
-                  </div>
+        {(provided, snapshot) => (
+          <StageWrapper>
+            <StageContainer
+              innerRef={provided.innerRef}
+              {...provided.draggableProps}
+              isDragging={snapshot.isDragging}
+            >
+              <StageHeader {...provided.dragHandleProps}>
+                <div>
+                  <h3>{stage.name}</h3>
+                  <span className="deals-count">
+                    {__('Deal')}: {deals.length}
+                  </span>
+                </div>
+                <StageAmount>{this.renderAmount(stage.amount)}</StageAmount>
+              </StageHeader>
 
-                  {this.renderAmount(stage.amount)}
-                </StageHeader>
+              <StageBody>
+                <Droppable droppableId={stage._id} type="stage">
+                  {dropProvided => this.renderDeal(dropProvided)}
+                </Droppable>
 
-                <StageBody>
-                  <Droppable droppableId={stage._id} type="stage">
-                    {dropProvided => (
-                      <StageDropZone innerRef={dropProvided.innerRef}>
-                        <div>
-                          {deals.map((deal, index) => (
-                            <Deal
-                              key={deal._id}
-                              index={index}
-                              dealId={deal._id}
-                              saveDeal={saveDeal}
-                              removeDeal={removeDeal}
-                              moveDeal={moveDeal}
-                            />
-                          ))}
-                        </div>
-                        {dropProvided.placeholder}
-                      </StageDropZone>
-                    )}
-                  </Droppable>
-
-                  {this.renderDealForm(this.state.show)}
-                </StageBody>
-              </StageContainer>
-            </StageWrapper>
-          );
-        }}
+                {this.renderDealForm(this.state.show)}
+              </StageBody>
+            </StageContainer>
+          </StageWrapper>
+        )}
       </Draggable>
     );
   }

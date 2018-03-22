@@ -20,6 +20,7 @@ class ProductChooser extends React.Component {
 
   render() {
     const { data, productsQuery, productAdd } = this.props;
+    const { __ } = this.context;
 
     const search = (value, loadmore) => {
       if (!loadmore) {
@@ -45,7 +46,9 @@ class ProductChooser extends React.Component {
       })
         .then(() => {
           productsQuery.refetch();
-          Alert.success('Success');
+
+          Alert.success(__('Success'));
+
           callback();
         })
         .catch(e => {
@@ -57,10 +60,7 @@ class ProductChooser extends React.Component {
 
     const updatedProps = {
       ...this.props,
-      data: {
-        name: data.name,
-        datas: data.products
-      },
+      data: { name: data.name, datas: data.products },
       search,
       title: 'Product',
       form,
@@ -79,6 +79,10 @@ ProductChooser.propTypes = {
   data: PropTypes.object.isRequired,
   productsQuery: PropTypes.object.isRequired,
   productAdd: PropTypes.func.isRequired
+};
+
+ProductChooser.contextTypes = {
+  __: PropTypes.func
 };
 
 export default compose(

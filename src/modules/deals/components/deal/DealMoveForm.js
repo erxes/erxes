@@ -21,13 +21,14 @@ class DealMoveForm extends React.Component {
   move() {
     const { deal, boardId, pipelineId } = this.props;
     const { stageId } = this.state;
+    const { __ } = this.context;
 
     if (!pipelineId) {
-      return Alert.error('No pipeline');
+      return Alert.error(__('No pipeline'));
     }
 
     if (!stageId) {
-      return Alert.error('No stage');
+      return Alert.error(__('No stage'));
     }
 
     const doc = {
@@ -42,13 +43,12 @@ class DealMoveForm extends React.Component {
 
   onChangeStage(stage) {
     if (stage) {
-      this.setState({
-        stageId: stage.value
-      });
+      this.setState({ stageId: stage.value });
     }
   }
 
   render() {
+    const { __ } = this.context;
     const { boards, pipelines, stages, boardId, pipelineId } = this.props;
 
     return (
@@ -56,7 +56,7 @@ class DealMoveForm extends React.Component {
         <form>
           <FormGroup>
             <Select
-              placeholder="Choose a board"
+              placeholder={__('Choose a board')}
               value={boardId}
               onChange={board => this.props.onChangeBoard(board.value)}
               optionRenderer={option => (
@@ -71,7 +71,7 @@ class DealMoveForm extends React.Component {
 
           <FormGroup>
             <Select
-              placeholder="Choose a pipeline"
+              placeholder={__('Choose a pipeline')}
               value={pipelineId}
               onChange={pipeline => this.props.onChangePipeline(pipeline.value)}
               optionRenderer={option => (
@@ -86,7 +86,7 @@ class DealMoveForm extends React.Component {
 
           <FormGroup>
             <Select
-              placeholder="Choose a stage"
+              placeholder={__('Choose a stage')}
               value={this.state.stageId}
               onChange={value => this.onChangeStage(value)}
               optionRenderer={option => {
@@ -131,5 +131,8 @@ const propTypes = {
 };
 
 DealMoveForm.propTypes = propTypes;
+DealMoveForm.contextTypes = {
+  __: PropTypes.func
+};
 
 export default DealMoveForm;

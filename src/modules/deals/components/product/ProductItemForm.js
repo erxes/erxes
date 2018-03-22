@@ -69,9 +69,8 @@ class ProductItemForm extends React.Component {
 
   render() {
     const { __ } = this.context;
-    const { uom, currencies } = this.props;
+    const { uom, currencies, productData } = this.props;
 
-    const { productData } = this.props;
     return (
       <tr key={productData._id}>
         <td>
@@ -81,7 +80,7 @@ class ProductItemForm extends React.Component {
         <td>
           <Select
             name="uom"
-            placeholder="Choose"
+            placeholder={__('Choose')}
             value={productData.uom}
             onChange={value => this.props.onChangeUom(value, productData._id)}
             optionRenderer={option => (
@@ -95,7 +94,7 @@ class ProductItemForm extends React.Component {
         <td>
           <Select
             name="currency"
-            placeholder="Choose"
+            placeholder={__('Choose')}
             value={productData.currency}
             onChange={value =>
               this.props.onChangeCurrency(value, productData._id)

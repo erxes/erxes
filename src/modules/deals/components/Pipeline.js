@@ -14,8 +14,35 @@ const propTypes = {
 };
 
 class Pipeline extends React.Component {
-  render() {
+  constructor(props) {
+    super(props);
+
+    this.renderStage = this.renderStage.bind(this);
+  }
+
+  renderStage(provided) {
     const { stages, pipeline, boardId } = this.props;
+
+    return (
+      <PipelineBody innerRef={provided.innerRef} {...provided.droppableProps}>
+        <div>
+          {stages.map((stage, index) => (
+            <Stage
+              key={stage._id}
+              stageId={stage._id}
+              index={index}
+              boardId={boardId}
+              pipelineId={pipeline._id}
+              state={this.props[`stageState${stage._id}`]}
+            />
+          ))}
+        </div>
+      </PipelineBody>
+    );
+  }
+
+  render() {
+    const { pipeline } = this.props;
 
     return (
       <PipelineContainer>
@@ -28,27 +55,7 @@ class Pipeline extends React.Component {
           direction="horizontal"
           droppableId={pipeline._id}
         >
-          {provided => (
-            <PipelineBody
-              innerRef={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              <div>
-                {stages.map((stage, index) => {
-                  return (
-                    <Stage
-                      key={stage._id}
-                      stageId={stage._id}
-                      index={index}
-                      boardId={boardId}
-                      pipelineId={pipeline._id}
-                      state={this.props[`stageState${stage._id}`]}
-                    />
-                  );
-                })}
-              </div>
-            </PipelineBody>
-          )}
+          {provided => this.renderStage(provided)}
         </Droppable>
       </PipelineContainer>
     );

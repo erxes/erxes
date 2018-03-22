@@ -43,7 +43,8 @@ class ProductForm extends React.Component {
   }
 
   addProductItem() {
-    const productsData = this.props.productsData;
+    const { productsData } = this.props;
+
     productsData.push({
       _id: Math.random().toString(),
       quantity: 1,
@@ -59,7 +60,7 @@ class ProductForm extends React.Component {
   }
 
   removeProductItem(_id) {
-    const productsData = this.props.productsData;
+    const { productsData } = this.props;
 
     const removedProductsData = productsData.filter(p => p._id !== _id);
 
@@ -67,7 +68,7 @@ class ProductForm extends React.Component {
   }
 
   updateTotal() {
-    const productsData = this.props.productsData;
+    const { productsData } = this.props;
 
     let total = {};
     let tax = {};
@@ -87,15 +88,11 @@ class ProductForm extends React.Component {
       }
     });
 
-    this.setState({
-      total,
-      tax,
-      discount
-    });
+    this.setState({ total, tax, discount });
   }
 
   onChangeProduct(products, _id) {
-    const productsData = this.props.productsData;
+    const { productsData } = this.props;
 
     const productData = productsData.find(p => p._id === _id);
 
@@ -105,7 +102,7 @@ class ProductForm extends React.Component {
   }
 
   onChangeUom(selected, _id) {
-    const productsData = this.props.productsData;
+    const { productsData } = this.props;
 
     const productData = productsData.find(p => p._id === _id);
     productData.uom = selected ? selected.value : '';
@@ -114,7 +111,7 @@ class ProductForm extends React.Component {
   }
 
   onChangeCurrency(selected, _id) {
-    const productsData = this.props.productsData;
+    const { productsData } = this.props;
 
     const productData = productsData.find(p => p._id === _id);
     productData.currency = selected ? selected.value : '';
@@ -127,7 +124,7 @@ class ProductForm extends React.Component {
   }
 
   onChangeInput(_id, e) {
-    const productsData = this.props.productsData;
+    const { productsData } = this.props;
     const name = e.target.name;
 
     const product = productsData.find(p => p._id === _id);
