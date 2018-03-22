@@ -7,7 +7,6 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
-import { listObjectUnFreeze } from '../utils';
 import { Stages } from './';
 
 const propTypes = {
@@ -32,7 +31,7 @@ class PipelineForm extends Component {
     this.renderContent = this.renderContent.bind(this);
 
     this.state = {
-      stages: listObjectUnFreeze(props.stages)
+      stages: props.stages.map(stage => ({ ...stage }))
     };
   }
 

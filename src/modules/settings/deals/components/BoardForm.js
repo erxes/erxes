@@ -31,9 +31,7 @@ class BoardForm extends Component {
 
     this.props.save(
       this.generateDoc(),
-      () => {
-        this.context.closeModal();
-      },
+      () => this.context.closeModal(),
       this.props.board
     );
   }

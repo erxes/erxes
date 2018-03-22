@@ -31,6 +31,7 @@ const BoardsContainer = props => {
   // create or update action
   const save = ({ doc }, callback, board) => {
     let mutation = addMutation;
+
     // if edit mode
     if (board) {
       mutation = editMutation;

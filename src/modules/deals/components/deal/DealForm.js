@@ -21,7 +21,7 @@ import {
   DealProducts
 } from '../../styles';
 import { ProductForm, DealProduct } from '../';
-import { selectUserOptions, listObjectUnFreeze } from '../../utils';
+import { selectUserOptions } from '../../utils';
 
 const propTypes = {
   deal: PropTypes.object,
@@ -56,7 +56,7 @@ class DealForm extends React.Component {
       customer: deal.customer,
       closeDate: deal.closeDate,
       note: deal.note,
-      productsData: listObjectUnFreeze(deal.productsData),
+      productsData: deal.productsData.map(data => ({ ...data })),
       products: deal.products || [],
       assignedUserIds: deal.assignedUsers
         ? deal.assignedUsers.map(el => el['_id'])
@@ -340,6 +340,7 @@ class DealForm extends React.Component {
           {this.renderCustomerModal(company, customer)}
           {this.renderCustomer(customer)}
           {this.renderAmount(amount)}
+
           <FormGroup>
             <ControlLabel>Close date</ControlLabel>
             <Datetime
@@ -350,6 +351,7 @@ class DealForm extends React.Component {
               onChange={this.onDateInputChange.bind(this)}
             />
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>Note</ControlLabel>
             <FormControl
@@ -357,6 +359,7 @@ class DealForm extends React.Component {
               onChange={this.onChangeNote.bind(this)}
             />
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>Assigned to</ControlLabel>
             <Select
@@ -373,6 +376,7 @@ class DealForm extends React.Component {
               options={selectUserOptions(users)}
             />
           </FormGroup>
+
           <Modal.Footer>
             <Button
               btnStyle="simple"
