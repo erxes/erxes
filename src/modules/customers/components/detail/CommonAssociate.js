@@ -162,7 +162,7 @@ class CommonAssociate extends Component {
         </Columns>
         <ModalFooter>
           <Footer>
-            <ModalTrigger title={`New ${title}`} trigger={addTrigger}>
+            <ModalTrigger title={`New ${title}`} trigger={addTrigger} size="lg">
               {form}
             </ModalTrigger>
             <div>
