@@ -128,6 +128,7 @@ class Stage extends React.Component {
                       </StageDropZone>
                     )}
                   </Droppable>
+
                   {this.renderDealForm(this.state.show)}
                 </StageBody>
               </StageContainer>

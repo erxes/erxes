@@ -5,6 +5,7 @@ import Select from 'react-select-plus';
 import { Button, FormGroup } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { selectOptions } from '../../utils';
+import { DealMoveFormContainer } from '../../styles';
 
 class DealMoveForm extends React.Component {
   constructor(props) {
@@ -51,61 +52,66 @@ class DealMoveForm extends React.Component {
     const { boards, pipelines, stages, boardId, pipelineId } = this.props;
 
     return (
-      <form>
-        <FormGroup>
-          <Select
-            placeholder="Choose a board"
-            value={boardId}
-            onChange={board => this.props.onChangeBoard(board.value)}
-            optionRenderer={option => (
-              <div className="simple-option">
-                <span>{option.label}</span>
-              </div>
-            )}
-            options={selectOptions(boards)}
-            clearable={false}
-          />
-        </FormGroup>
-        <FormGroup>
-          <Select
-            placeholder="Choose a pipeline"
-            value={pipelineId}
-            onChange={pipeline => this.props.onChangePipeline(pipeline.value)}
-            optionRenderer={option => (
-              <div className="simple-option">
-                <span>{option.label}</span>
-              </div>
-            )}
-            options={selectOptions(pipelines)}
-            clearable={false}
-          />
-        </FormGroup>
-        <FormGroup>
-          <Select
-            placeholder="Choose a stage"
-            value={this.state.stageId}
-            onChange={value => this.onChangeStage(value)}
-            optionRenderer={option => {
-              return (
+      <DealMoveFormContainer>
+        <form>
+          <FormGroup>
+            <Select
+              placeholder="Choose a board"
+              value={boardId}
+              onChange={board => this.props.onChangeBoard(board.value)}
+              optionRenderer={option => (
                 <div className="simple-option">
                   <span>{option.label}</span>
                 </div>
-              );
-            }}
-            options={selectOptions(stages)}
-            clearable={false}
-          />
-        </FormGroup>
-        <Modal.Footer>
-          <Button btnStyle="simple" onClick={this.props.close} icon="close">
-            Close
-          </Button>
+              )}
+              options={selectOptions(boards)}
+              clearable={false}
+            />
+          </FormGroup>
 
-          <Button btnStyle="success" onClick={this.move} icon="checkmark">
-            Move
-          </Button>
-        </Modal.Footer>
-      </form>
+          <FormGroup>
+            <Select
+              placeholder="Choose a pipeline"
+              value={pipelineId}
+              onChange={pipeline => this.props.onChangePipeline(pipeline.value)}
+              optionRenderer={option => (
+                <div className="simple-option">
+                  <span>{option.label}</span>
+                </div>
+              )}
+              options={selectOptions(pipelines)}
+              clearable={false}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <Select
+              placeholder="Choose a stage"
+              value={this.state.stageId}
+              onChange={value => this.onChangeStage(value)}
+              optionRenderer={option => {
+                return (
+                  <div className="simple-option">
+                    <span>{option.label}</span>
+                  </div>
+                );
+              }}
+              options={selectOptions(stages)}
+              clearable={false}
+            />
+          </FormGroup>
+
+          <Modal.Footer>
+            <Button btnStyle="simple" onClick={this.props.close} icon="close">
+              Close
+            </Button>
+
+            <Button btnStyle="success" onClick={this.move} icon="checkmark">
+              Move
+            </Button>
+          </Modal.Footer>
+        </form>
+      </DealMoveFormContainer>
     );
   }
 }

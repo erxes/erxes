@@ -17,7 +17,7 @@ import {
 const propTypes = {
   uom: PropTypes.array,
   currencies: PropTypes.array,
-  product: PropTypes.object.isRequired,
+  productData: PropTypes.object.isRequired,
   removeProductItem: PropTypes.func.isRequired,
   onChangeProduct: PropTypes.func.isRequired,
   onChangeCurrency: PropTypes.func.isRequired,
@@ -26,9 +26,8 @@ const propTypes = {
 };
 
 class ProductItemForm extends React.Component {
-  render() {
+  renderProductModal(productData) {
     const { __ } = this.context;
-    const { uom, currencies } = this.props;
 
     const productServiceTrigger = (
       <DealButton>
@@ -36,40 +35,55 @@ class ProductItemForm extends React.Component {
       </DealButton>
     );
 
-    const { product } = this.props;
     return (
-      <tr key={product._id}>
+      <ModalTrigger
+        title="Choose product & service"
+        trigger={productServiceTrigger}
+        size="large"
+      >
+        <ProductChooser
+          save={products =>
+            this.props.onChangeProduct(products, productData._id)
+          }
+          data={{
+            name: 'Product',
+            products: productData.product ? [productData.product] : []
+          }}
+          limit={1}
+        />
+      </ModalTrigger>
+    );
+  }
+
+  renderProduct(productData) {
+    if (!productData.product) return null;
+
+    return (
+      <ItemCounterContainer>
+        <ul>
+          <li>{productData.product.name}</li>
+        </ul>
+      </ItemCounterContainer>
+    );
+  }
+
+  render() {
+    const { __ } = this.context;
+    const { uom, currencies } = this.props;
+
+    const { productData } = this.props;
+    return (
+      <tr key={productData._id}>
         <td>
-          <ModalTrigger
-            title="Choose product & service"
-            trigger={productServiceTrigger}
-            size="large"
-          >
-            <ProductChooser
-              save={products =>
-                this.props.onChangeProduct(products, product._id)
-              }
-              data={{
-                name: 'Product',
-                products: product.product ? [product.product] : []
-              }}
-              limit={1}
-            />
-          </ModalTrigger>
-          {product.product ? (
-            <ItemCounterContainer>
-              <ul>
-                <li>{product.product.name}</li>
-              </ul>
-            </ItemCounterContainer>
-          ) : null}
+          {this.renderProductModal(productData)}
+          {this.renderProduct(productData)}
         </td>
         <td>
           <Select
             name="uom"
             placeholder="Choose"
-            value={product.uom}
-            onChange={value => this.props.onChangeUom(value, product._id)}
+            value={productData.uom}
+            onChange={value => this.props.onChangeUom(value, productData._id)}
             optionRenderer={option => (
               <div className="simple-option">
                 <span>{option.label}</span>
@@ -82,8 +96,10 @@ class ProductItemForm extends React.Component {
           <Select
             name="currency"
             placeholder="Choose"
-            value={product.currency}
-            onChange={value => this.props.onChangeCurrency(value, product._id)}
+            value={productData.currency}
+            onChange={value =>
+              this.props.onChangeCurrency(value, productData._id)
+            }
             optionRenderer={option => (
               <div className="simple-option">
                 <span>{option.label}</span>
@@ -94,65 +110,73 @@ class ProductItemForm extends React.Component {
         </td>
         <td>
           <FormControl
-            value={product.quantity}
+            value={productData.quantity}
             type="number"
             min="1"
             placeholder="Quantity"
             name="quantity"
-            onChange={e => this.props.onChangeInput(product._id, e)}
+            onChange={e => this.props.onChangeInput(productData._id, e)}
           />
+
           <ProductItemText align="right">{__('Discount')}</ProductItemText>
+
           <ProductItemText align="right">{__('Tax')}</ProductItemText>
         </td>
         <td>
           <FormControl
-            value={product.unitPrice}
+            value={productData.unitPrice}
             placeholder="Unit price"
             name="unitPrice"
-            onChange={e => this.props.onChangeInput(product._id, e)}
+            onChange={e => this.props.onChangeInput(productData._id, e)}
           />
+
           <FormControl
-            value={product.discountPercent}
+            value={productData.discountPercent}
             type="number"
             min="0"
             max="100"
             placeholder="Discount percent"
             name="discountPercent"
-            onChange={e => this.props.onChangeInput(product._id, e)}
+            onChange={e => this.props.onChangeInput(productData._id, e)}
           />
+
           <FormControl
-            value={product.taxPercent}
+            value={productData.taxPercent}
             type="number"
             min="0"
             max="100"
             placeholder="Tax percent"
             name="taxPercent"
-            onChange={e => this.props.onChangeInput(product._id, e)}
+            onChange={e => this.props.onChangeInput(productData._id, e)}
           />
+
           <ProductItemText>{__('Total')}</ProductItemText>
         </td>
         <td>
           <ProductItemText>
-            {(product.quantity * product.unitPrice).toLocaleString()}{' '}
-            {product.currency}
+            {(productData.quantity * productData.unitPrice).toLocaleString()}{' '}
+            {productData.currency}
           </ProductItemText>
+
           <FormControl
-            value={product.discount}
+            value={productData.discount}
             placeholder="Discount amount"
             name="discount"
-            onChange={e => this.props.onChangeInput(product._id, e)}
+            onChange={e => this.props.onChangeInput(productData._id, e)}
           />
+
           <ProductItemText>
-            {product.tax.toLocaleString()} {product.currency}
+            {productData.tax.toLocaleString()} {productData.currency}
           </ProductItemText>
+
           <ProductItemText>
-            {product.amount.toLocaleString()} {product.currency}
+            {productData.amount.toLocaleString()} {productData.currency}
           </ProductItemText>
         </td>
         <td>
           <div
             className="remove"
-            onClick={this.props.removeProductItem.bind(this, product._id)}
+            onClick={this.props.removeProductItem.bind(this, productData._id)}
           >
             <Icon icon="ios-trash" />
           </div>

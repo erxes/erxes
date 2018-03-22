@@ -2,11 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { DealForm } from '../../containers';
 import { Button } from 'modules/common/components';
-import {
-  DealMoveFormContainer,
-  QuickEditContainer,
-  RightControls
-} from '../../styles';
+import { QuickEditContainer, RightControls } from '../../styles';
 import { DealMoveForm } from '../../containers';
 
 const propTypes = {
@@ -26,7 +22,6 @@ class QuickEdit extends React.Component {
 
     this.toggleMove = this.toggleMove.bind(this);
     this.copy = this.copy.bind(this);
-    this.remove = this.remove.bind(this);
 
     this.state = {
       showMove: false
@@ -34,9 +29,7 @@ class QuickEdit extends React.Component {
   }
 
   toggleMove() {
-    this.setState({
-      showMove: !this.state.showMove
-    });
+    this.setState({ showMove: !this.state.showMove });
   }
 
   copy() {
@@ -66,44 +59,45 @@ class QuickEdit extends React.Component {
       productsData: deal.productsData
     };
 
-    this.props.saveDeal(doc, () => {
-      this.props.close();
-    });
+    this.props.saveDeal(doc, () => this.props.close());
   }
 
-  remove() {
-    const deal = this.props.deal;
+  renderMoveForm(showMove) {
+    if (!showMove) return null;
 
-    this.props.removeDeal(deal._id);
+    const { deal, moveDeal } = this.props;
+
+    return (
+      <DealMoveForm deal={deal} moveDeal={moveDeal} close={this.toggleMove} />
+    );
   }
 
   render() {
-    const { deal, top, bottom, left, close, saveDeal, moveDeal } = this.props;
+    const { deal, top, bottom, left, close, saveDeal } = this.props;
 
     return (
       <QuickEditContainer top={top} bottom={bottom} left={left}>
         <div>
           <DealForm saveDeal={saveDeal} close={close} deal={deal} />
+
           <RightControls>
             <Button btnStyle="link" onClick={this.toggleMove}>
               Move
             </Button>
+
             <Button btnStyle="link" onClick={this.copy}>
               Copy
             </Button>
-            <Button btnStyle="link" onClick={this.remove}>
+
+            <Button
+              btnStyle="link"
+              onClick={() => this.props.removeDeal(this.props.deal._id)}
+            >
               Delete
             </Button>
           </RightControls>
-          {this.state.showMove ? (
-            <DealMoveFormContainer>
-              <DealMoveForm
-                deal={deal}
-                moveDeal={moveDeal}
-                close={this.toggleMove}
-              />
-            </DealMoveFormContainer>
-          ) : null}
+
+          {this.renderMoveForm(this.state.showMove)}
         </div>
       </QuickEditContainer>
     );

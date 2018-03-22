@@ -39,7 +39,6 @@ class DealForm extends React.Component {
     this.onChangeProductsData = this.onChangeProductsData.bind(this);
     this.onChangeUsers = this.onChangeUsers.bind(this);
     this.saveProductsData = this.saveProductsData.bind(this);
-
     this.save = this.save.bind(this);
 
     const deal = props.deal || {};
@@ -53,8 +52,60 @@ class DealForm extends React.Component {
       note: deal.note,
       productsData: (deal.productsData || []).map(data => ({ ...data })),
       products: deal.products || [],
-      assignedUserIds: (deal.assignedUsers || []).map(user => user['_id'])
+      assignedUserIds: (deal.assignedUsers || []).map(user => user._id)
     };
+  }
+
+  onChangeCompany(companies) {
+    this.setState({ companies });
+  }
+
+  onChangeCustomer(customers) {
+    this.setState({ customers });
+  }
+
+  onDateInputChange(closeDate) {
+    this.setState({ closeDate });
+  }
+
+  onChangeProductsData(productsData) {
+    this.setState({ productsData });
+  }
+
+  onChangeNote(e) {
+    this.setState({ note: e.target.value });
+  }
+
+  onChangeUsers(users) {
+    this.setState({
+      assignedUserIds: users.map(user => user.value)
+    });
+  }
+
+  saveProductsData() {
+    const productsData = this.state.productsData;
+    const products = [];
+    const amount = {};
+
+    const filteredProductsData = [];
+
+    productsData.forEach(el => {
+      // products
+      if (el.product && el.currency && el.quantity && el.unitPrice) {
+        // if don't add before, push to array
+        if (!products.find(pEl => pEl._id === el.product._id)) {
+          products.push(el.product);
+        }
+
+        // amount
+        if (!amount[el.currency]) amount[el.currency] = el.amount;
+        else amount[el.currency] += el.amount;
+
+        filteredProductsData.push(el);
+      }
+    });
+
+    this.setState({ productsData: filteredProductsData, products, amount });
   }
 
   save() {
@@ -86,8 +137,8 @@ class DealForm extends React.Component {
     const { deal, boardId, pipelineId, stageId, dealsLength } = this.props;
 
     const doc = {
-      companyIds: companies.map(company => company['_id']),
-      customerIds: customers.map(customer => customer['_id']),
+      companyIds: companies.map(company => company._id),
+      customerIds: customers.map(customer => customer._id),
       closeDate: new Date(closeDate),
       productIds,
       productsData,
@@ -101,62 +152,6 @@ class DealForm extends React.Component {
     if (note) doc.note = note;
 
     this.props.saveDeal(doc, () => this.props.close(), this.props.deal);
-  }
-
-  onChangeCompany(companies) {
-    this.setState({ companies });
-  }
-
-  onChangeCustomer(customers) {
-    this.setState({ customers });
-  }
-
-  onDateInputChange(closeDate) {
-    this.setState({ closeDate });
-  }
-
-  onChangeProductsData(productsData) {
-    this.setState({ productsData });
-  }
-
-  saveProductsData() {
-    const productsData = this.state.productsData;
-    const products = [];
-    const amount = {};
-
-    const filteredProductsData = [];
-
-    productsData.forEach(el => {
-      // products
-      if (el.product && el.currency && el.quantity && el.unitPrice) {
-        // if don't add before, push to array
-        if (!products.find(pEl => pEl._id === el.product._id)) {
-          products.push(el.product);
-        }
-
-        // amount
-        if (!amount[el.currency]) amount[el.currency] = el.amount;
-        else amount[el.currency] += el.amount;
-
-        filteredProductsData.push(el);
-      }
-    });
-
-    this.setState({ productsData: filteredProductsData, products, amount });
-  }
-
-  onChangeNote(e) {
-    this.setState({ note: e.target.value });
-  }
-
-  onChangeUsers(users) {
-    const assignedUserIds = [];
-
-    users.forEach(el => assignedUserIds.push(el.value));
-
-    this.setState({
-      assignedUserIds
-    });
   }
 
   renderProductModal(productsData) {
@@ -309,7 +304,7 @@ class DealForm extends React.Component {
             <Select
               placeholder={__('Choose users')}
               value={assignedUserIds}
-              onChange={value => this.onChangeUsers(value)}
+              onChange={this.onChangeUsers}
               optionRenderer={option => (
                 <div className="simple-option">
                   <span>{option.label}</span>

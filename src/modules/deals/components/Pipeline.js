@@ -2,12 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Stage } from '../containers';
 import { Droppable } from 'react-beautiful-dnd';
-import {
-  PipelineContainer,
-  PipelineHeader,
-  PipelineBody,
-  EmptyStage
-} from '../styles';
+import { PipelineContainer, PipelineHeader, PipelineBody } from '../styles';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
@@ -27,6 +22,7 @@ class Pipeline extends React.Component {
         <PipelineHeader>
           <h2>{pipeline.name}</h2>
         </PipelineHeader>
+
         <Droppable
           type="pipeline"
           direction="horizontal"
@@ -50,7 +46,6 @@ class Pipeline extends React.Component {
                     />
                   );
                 })}
-                <EmptyStage />
               </div>
             </PipelineBody>
           )}

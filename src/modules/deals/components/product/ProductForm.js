@@ -196,10 +196,10 @@ class ProductForm extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {this.props.productsData.map(product => (
+            {this.props.productsData.map(productData => (
               <ProductItemForm
-                key={product._id}
-                product={product}
+                key={productData._id}
+                productData={productData}
                 products={this.props.products}
                 onChangeProduct={this.onChangeProduct}
                 onChangeCurrency={this.onChangeCurrency}
@@ -210,9 +210,11 @@ class ProductForm extends React.Component {
             ))}
           </tbody>
         </ProductTable>
+
         <AddProduct onClick={this.addProductItem}>
           <Icon icon="plus" /> {__('Add Product / Service')}
         </AddProduct>
+
         <ProductFooter>
           <FooterInfo>
             <table>
@@ -238,6 +240,7 @@ class ProductForm extends React.Component {
               </tbody>
             </table>
           </FooterInfo>
+
           <Modal.Footer>
             <Button
               btnStyle="simple"

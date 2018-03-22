@@ -70,6 +70,20 @@ class Deal extends React.Component {
     return <UserCounter users={users} />;
   }
 
+  renderAmount(amount) {
+    if (Object.keys(amount).length === 0) return null;
+
+    return (
+      <DealAmount>
+        {Object.keys(amount).map(el => (
+          <p key={el}>
+            {amount[el].toLocaleString()} {el}
+          </p>
+        ))}
+      </DealAmount>
+    );
+  }
+
   render() {
     const { deal, saveDeal, removeDeal, moveDeal, index } = this.props;
 
@@ -105,13 +119,7 @@ class Deal extends React.Component {
 
               {this.renderProducts(deal.products || [])}
 
-              <DealAmount>
-                {Object.keys(deal.amount).map(el => (
-                  <p key={el}>
-                    {deal.amount[el].toLocaleString()} {el}
-                  </p>
-                ))}
-              </DealAmount>
+              {this.renderAmount(deal.amount || {})}
 
               {this.renderUsers(deal.assignedUsers || [])}
 

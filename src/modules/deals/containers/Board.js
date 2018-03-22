@@ -9,12 +9,62 @@ import { Board as BoardComponent } from '../components';
 import { queries } from '../graphql';
 
 class Container extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.move = this.move.bind(this);
+    this.onDragEnd = this.onDragEnd.bind(this);
+
+    this.state = {};
+  }
+
   componentWillReceiveProps() {
     const { history, currentBoardId } = this.props;
 
     if (!routerUtils.getParam(history, 'id') && currentBoardId) {
       routerUtils.setParams(history, { id: currentBoardId });
     }
+  }
+
+  getChildContext() {
+    return {
+      move: this.move
+    };
+  }
+
+  move({ source, destination, itemId, type }) {
+    this.setState({
+      // remove from list
+      [`${type}State${source._id}`]: {
+        type: 'removeItem',
+        index: source.index
+      }
+    });
+
+    this.setState({
+      // add to list
+      [`${type}State${destination._id}`]: {
+        type: 'addItem',
+        index: destination.index,
+        itemId
+      }
+    });
+  }
+
+  onDragEnd(result) {
+    const { type, destination, source, draggableId } = result;
+
+    // dropped outside the list
+    if (!destination) {
+      return;
+    }
+
+    this.move({
+      source: { _id: source.droppableId, index: source.index },
+      destination: { _id: destination.droppableId, index: destination.index },
+      itemId: draggableId,
+      type
+    });
   }
 
   render() {
@@ -29,6 +79,8 @@ class Container extends React.Component {
 
     const extendedProps = {
       ...this.props,
+      states: this.state,
+      onDragEnd: this.onDragEnd,
       boards,
       pipelines
     };
@@ -42,6 +94,10 @@ Container.propTypes = {
   pipelinesQuery: PropTypes.object,
   currentBoardId: PropTypes.string,
   history: PropTypes.object
+};
+
+Container.childContextTypes = {
+  move: PropTypes.func
 };
 
 const BoardContainer = compose(

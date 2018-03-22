@@ -14,62 +14,11 @@ const propTypes = {
   currentBoard: PropTypes.object,
   boards: PropTypes.array,
   pipelines: PropTypes.array,
-  stages: PropTypes.array,
-  stagesUpdateOrder: PropTypes.func,
-  stagesChange: PropTypes.func
+  onDragEnd: PropTypes.func,
+  states: PropTypes.object
 };
 
 class Board extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {};
-
-    this.move = this.move.bind(this);
-    this.onDragEnd = this.onDragEnd.bind(this);
-  }
-
-  getChildContext() {
-    return {
-      move: this.move
-    };
-  }
-
-  move({ source, destination, itemId, type }) {
-    this.setState({
-      // remove from list
-      [`${type}State${source._id}`]: {
-        type: 'removeItem',
-        index: source.index
-      }
-    });
-
-    this.setState({
-      // add to list
-      [`${type}State${destination._id}`]: {
-        type: 'addItem',
-        index: destination.index,
-        itemId
-      }
-    });
-  }
-
-  onDragEnd(result) {
-    const { type, destination, source, draggableId } = result;
-
-    // dropped outside the list
-    if (!destination) {
-      return;
-    }
-
-    this.move({
-      source: { _id: source.droppableId, index: source.index },
-      destination: { _id: destination.droppableId, index: destination.index },
-      itemId: draggableId,
-      type
-    });
-  }
-
   render() {
     const { __ } = this.context;
     const breadcrumb = [{ title: __('Deal') }];
@@ -84,6 +33,7 @@ class Board extends React.Component {
               {currentBoard.name} <Icon icon="ios-arrow-down" />
             </Button>
           </DropdownToggle>
+
           <Dropdown.Menu>
             {boards.map(board => {
               if (board._id !== currentBoard._id) {
@@ -106,22 +56,23 @@ class Board extends React.Component {
       <Wrapper.ActionBar left={actionBarLeft} background="transparent" />
     );
 
+    const { states, pipelines, onDragEnd } = this.props;
     const stageStates = {};
 
-    Object.keys(this.state).forEach(key => {
+    Object.keys(states).forEach(key => {
       if (key.startsWith('stageState')) {
-        stageStates[key] = this.state[key];
+        stageStates[key] = states[key];
       }
     });
 
     const content = (
-      <DragDropContext onDragEnd={this.onDragEnd}>
-        {this.props.pipelines.map(pipeline => {
+      <DragDropContext onDragEnd={onDragEnd}>
+        {pipelines.map(pipeline => {
           return (
             <Pipeline
               key={pipeline._id}
               {...stageStates}
-              state={this.state[`pipelineState${pipeline._id}`]}
+              state={states[`pipelineState${pipeline._id}`]}
               pipeline={pipeline}
               boardId={currentBoard._id}
             />
@@ -144,9 +95,6 @@ class Board extends React.Component {
 Board.propTypes = propTypes;
 Board.contextTypes = {
   __: PropTypes.func
-};
-Board.childContextTypes = {
-  move: PropTypes.func
 };
 
 export default Board;

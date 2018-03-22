@@ -92,13 +92,6 @@ const StageDropZone = styled.div`
   padding: 10px 0;
 `;
 
-const EmptyStage = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: ${StageWidth}px;
-  min-height: ${StageHeight};
-`;
-
 const AddNewDeal = styled.a`
   display: block;
   height: 70px;
@@ -391,7 +384,6 @@ export {
   StageHeader,
   StageBody,
   StageDropZone,
-  EmptyStage,
   AddNewDeal,
   DealContainer,
   DealContainerHover,
