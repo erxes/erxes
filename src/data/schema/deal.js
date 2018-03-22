@@ -33,14 +33,14 @@ export const types = `
     stageId: String!
     productIds: [String]!
     productsData: JSON!
-    companyId: String!
-    customerId: String!
+    companyIds: [String]!
+    customerIds: [String]!
     assignedUserIds: [String]
     amount: JSON
     closeDate: Date
     note: String
-    company: Company
-    customer: Customer
+    companies: [Company]
+    customers: [Customer]
     products: [Product]
     assignedUsers: [User]
     ${commonTypes}
@@ -64,8 +64,8 @@ const dealMutationParams = `
   stageId: String!,
   productIds: [String]!,
   assignedUserIds: [String],
-  companyId: String!,
-  customerId: String!,
+  companyIds: [String],
+  customerIds: [String],
   closeDate: Date!,
   note: String,
   order: Int,

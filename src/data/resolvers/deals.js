@@ -1,12 +1,12 @@
 import { Products, Companies, Customers, Users } from '../../db/models';
 
 export default {
-  company(deal) {
-    return Companies.findOne({ _id: deal.companyId });
+  companies(deal) {
+    return Companies.find({ _id: { $in: deal.companyIds || [] } });
   },
 
-  customer(deal) {
-    return Customers.findOne({ _id: deal.customerId });
+  customers(deal) {
+    return Customers.find({ _id: { $in: deal.customerIds || [] } });
   },
 
   products(deal) {

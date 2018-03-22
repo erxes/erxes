@@ -36,76 +36,6 @@ const updateListOrder = async (collection, orders) => {
 };
 
 /*
- * Update given collections orders
- *
- * @param OrderItem source
- * [{
- *  _id: {String} id
- *  order: {Number} order
- * }] 
- * 
- * @param OrderItem destination
- * [{
- *  _id: {String} id
- *  order: {Number} order
- * }]
- *
- * @return Object updated deal
- */
-const updateDealOrder = async (collection, { _id, source, destination }) => {
-  if (source._id === destination._id) {
-    const selector = { stageId: source._id };
-
-    if (source.order > destination.order) {
-      selector.order = { $gte: destination.order, $lt: source.order };
-    } else {
-      selector.order = { $gte: source.order, $lt: destination.order };
-    }
-
-    const list = await collection.find(selector);
-
-    if (source.order > destination.order) {
-      list.forEach(async el => {
-        await collection.update({ _id: el._id }, { $set: { order: el.order + 1 } });
-      });
-    } else {
-      list.forEach(async el => {
-        await collection.update({ _id: el._id }, { $set: { order: el.order - 1 } });
-      });
-    }
-
-    // update order
-    await collection.update({ _id }, { $set: { order: destination.order } });
-  } else {
-    const sourceList = await collection.find({
-      stageId: source._id,
-      order: { $gt: source.order },
-    });
-
-    sourceList.forEach(async el => {
-      await collection.update({ _id: el._id }, { $set: { order: el.order - 1 } });
-    });
-
-    const destinationList = await collection.find({
-      stageId: destination._id,
-      order: { $gte: destination.order },
-    });
-
-    destinationList.forEach(async el => {
-      await collection.update({ _id: el._id }, { $set: { order: el.order + 1 } });
-    });
-
-    // update order
-    await collection.update(
-      { _id },
-      { $set: { order: destination.order, stageId: destination._id } },
-    );
-  }
-
-  return collection.findOne({ _id });
-};
-
-/*
  * Create pipelines with stages
  *
  * @param {[Stage]} stages
@@ -366,8 +296,8 @@ const DealSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   productIds: field({ type: [String] }),
   productsData: field({ type: [productSchema] }),
-  companyId: field({ type: String }),
-  customerId: field({ type: String }),
+  companyIds: field({ type: [String] }),
+  customerIds: field({ type: [String] }),
   closeDate: field({ type: Date }),
   note: field({ type: String }),
   assignedUserIds: field({ type: [String] }),
