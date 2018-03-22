@@ -6,7 +6,12 @@ import Select from 'react-select-plus';
 import { FormGroup, Button } from 'modules/common/components';
 import { CURRENCIES, MEASUREMENTS } from '../constants';
 import { ContentBox, SubHeading } from '../../styles';
-import _ from 'underscore';
+
+const propTypes = {
+  save: PropTypes.func.isRequired,
+  currencies: PropTypes.array,
+  uom: PropTypes.array
+};
 
 class List extends Component {
   constructor(props) {
@@ -25,18 +30,17 @@ class List extends Component {
 
   save(e) {
     e.preventDefault();
+
     this.props.save('dealCurrency', this.state.currencies);
     this.props.save('dealUOM', this.state.uom);
   }
 
-  onCurrenciesChange(data) {
-    const currencies = _.pluck(data, 'value');
-    this.setState({ currencies });
+  onCurrenciesChange(currencies) {
+    this.setState({ currencies: currencies.map(el => el.value) });
   }
 
-  onUOMChange(data) {
-    const uom = _.pluck(data, 'value');
-    this.setState({ uom });
+  onUOMChange(uom) {
+    this.setState({ uom: uom.map(el => el.value) });
   }
 
   render() {
@@ -106,11 +110,7 @@ class List extends Component {
   }
 }
 
-List.propTypes = {
-  save: PropTypes.func.isRequired,
-  currencies: PropTypes.array,
-  uom: PropTypes.array
-};
+List.propTypes = propTypes;
 List.contextTypes = {
   __: PropTypes.func
 };

@@ -7,46 +7,53 @@ import { queries, mutations } from '../graphql';
 import { List } from '../components';
 import { Spinner } from 'modules/common/components';
 
-const ListContainer = props => {
-  const { insertConfig, currencyConfigQuery, uomConfigQuery } = props;
+class ListContainer extends React.Component {
+  render() {
+    const { insertConfig, currencyConfigQuery, uomConfigQuery } = this.props;
+    const { __ } = this.context;
 
-  if (currencyConfigQuery.loading || uomConfigQuery.loading) {
-    return <Spinner objective />;
-  }
+    if (currencyConfigQuery.loading || uomConfigQuery.loading) {
+      return <Spinner objective />;
+    }
 
-  // create or update action
-  const save = (code, value) => {
-    insertConfig({
-      variables: { code, value }
-    })
-      .then(() => {
-        currencyConfigQuery.refetch();
-        uomConfigQuery.refetch();
-
-        Alert.success('Successfully saved!');
+    // create or update action
+    const save = (code, value) => {
+      insertConfig({
+        variables: { code, value }
       })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
+        .then(() => {
+          currencyConfigQuery.refetch();
+          uomConfigQuery.refetch();
 
-  const currencies = currencyConfigQuery.getConfig;
-  const uom = uomConfigQuery.getConfig;
+          Alert.success(__('Successfully saved!'));
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
 
-  const updatedProps = {
-    ...props,
-    currencies: currencies ? currencies.value : ['MNT', 'USD'],
-    uom: uom ? uom.value : ['PC', 'H'],
-    save
-  };
+    const currencies = currencyConfigQuery.getConfig;
+    const uom = uomConfigQuery.getConfig;
 
-  return <List {...updatedProps} />;
-};
+    const updatedProps = {
+      ...this.props,
+      currencies: currencies ? currencies.value : ['MNT', 'USD'],
+      uom: uom ? uom.value : ['PC', 'H'],
+      save
+    };
+
+    return <List {...updatedProps} />;
+  }
+}
 
 ListContainer.propTypes = {
   currencyConfigQuery: PropTypes.object,
   uomConfigQuery: PropTypes.object,
   insertConfig: PropTypes.func
+};
+
+ListContainer.contextTypes = {
+  __: PropTypes.func
 };
 
 export default compose(

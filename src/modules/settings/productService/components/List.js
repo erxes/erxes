@@ -44,8 +44,8 @@ class List extends Component {
     const { save, productsCount, loading } = this.props;
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Product & Service' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Product & Service') }
     ];
 
     const trigger = (

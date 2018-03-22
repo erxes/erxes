@@ -20,8 +20,9 @@ class Row extends Component {
   }
 
   remove() {
-    const { remove, product } = this.props;
-    remove(product._id);
+    const { product } = this.props;
+
+    this.props.remove(product._id);
   }
 
   renderEditForm(props) {
@@ -60,6 +61,7 @@ class Row extends Component {
         <td width="5%">
           <ActionButtons>
             {this.renderEditAction()}
+
             <Tip text={__('Delete')}>
               <Button btnStyle="link" onClick={this.remove} icon="close" />
             </Tip>

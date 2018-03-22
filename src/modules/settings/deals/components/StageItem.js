@@ -12,6 +12,7 @@ const propTypes = {
 class StageItem extends Component {
   render() {
     const { stage } = this.props;
+
     return (
       <StageItemContainer key={stage._id}>
         <FormControl
@@ -20,6 +21,7 @@ class StageItem extends Component {
           placeholder="Stage name"
           onChange={this.props.onChangeName.bind(this, stage._id)}
         />
+
         <Tip text="Delete">
           <Button
             btnStyle="link"

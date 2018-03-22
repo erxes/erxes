@@ -30,15 +30,11 @@ class PipelineForm extends Component {
     this.onChangeStages = this.onChangeStages.bind(this);
     this.renderContent = this.renderContent.bind(this);
 
-    this.state = {
-      stages: props.stages.map(stage => ({ ...stage }))
-    };
+    this.state = { stages: props.stages.map(stage => ({ ...stage })) };
   }
 
   onChangeStages(stages) {
-    this.setState({
-      stages
-    });
+    this.setState({ stages });
   }
 
   save(e) {
@@ -46,9 +42,7 @@ class PipelineForm extends Component {
 
     this.props.save(
       this.generateDoc(),
-      () => {
-        this.context.closeModal();
-      },
+      () => this.context.closeModal(),
       this.props.pipeline
     );
   }
@@ -95,10 +89,6 @@ class PipelineForm extends Component {
   }
 
   render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
-
     return (
       <form onSubmit={this.save}>
         {this.renderContent()}
@@ -107,7 +97,7 @@ class PipelineForm extends Component {
             btnStyle="simple"
             type="button"
             icon="close"
-            onClick={onClick}
+            onClick={() => this.context.closeModal()}
           >
             Cancel
           </Button>

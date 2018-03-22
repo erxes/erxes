@@ -31,9 +31,7 @@ class Form extends Component {
 
     this.props.save(
       this.generateDoc(),
-      () => {
-        this.context.closeModal();
-      },
+      () => this.context.closeModal(),
       this.props.product
     );
   }
@@ -53,6 +51,7 @@ class Form extends Component {
     const product = this.props.product || {};
 
     const types = this.props.loadTypes || [];
+
     return (
       <div>
         <FormGroup>
@@ -112,12 +111,11 @@ class Form extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.product || {})}
+
         <Modal.Footer>
           <Button
             btnStyle="simple"
-            onClick={() => {
-              this.context.closeModal();
-            }}
+            onClick={() => this.context.closeModal()}
             icon="close"
           >
             Close

@@ -6,70 +6,75 @@ import { Alert, confirm } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 import { List } from '../components';
 
-const ProductListContainer = props => {
-  const {
-    productsQuery,
-    productsCountQuery,
-    addMutation,
-    editMutation,
-    removeMutation
-  } = props;
+class ProductListContainer extends React.Component {
+  render() {
+    const {
+      productsQuery,
+      productsCountQuery,
+      addMutation,
+      editMutation,
+      removeMutation
+    } = this.props;
+    const { __ } = this.context;
 
-  const products = productsQuery.products || [];
+    const products = productsQuery.products || [];
 
-  // remove action
-  const remove = _id => {
-    confirm().then(() => {
-      removeMutation({
-        variables: { _id }
+    // remove action
+    const remove = _id => {
+      confirm().then(() => {
+        removeMutation({
+          variables: { _id }
+        })
+          .then(() => {
+            productsQuery.refetch();
+            productsCountQuery.refetch();
+
+            Alert.success(__('Successfully deleted.'));
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      });
+    };
+
+    // create or update action
+    const save = ({ doc }, callback, product) => {
+      let mutation = addMutation;
+
+      // if edit mode
+      if (product) {
+        mutation = editMutation;
+        doc._id = product._id;
+      }
+
+      mutation({
+        variables: doc
       })
         .then(() => {
           productsQuery.refetch();
           productsCountQuery.refetch();
 
-          Alert.success('Successfully deleted.');
+          Alert.success(__('Successfully saved!'));
+
+          callback();
         })
         .catch(error => {
           Alert.error(error.message);
         });
-    });
-  };
+    };
 
-  // create or update action
-  const save = ({ doc }, callback, product) => {
-    let mutation = addMutation;
-    // if edit mode
-    if (product) {
-      mutation = editMutation;
-      doc._id = product._id;
-    }
+    const updatedProps = {
+      ...this.props,
+      products,
+      save,
+      remove,
+      loading: productsQuery.loading,
+      productsCount: productsCountQuery.productsTotalCount || 0
+    };
 
-    mutation({
-      variables: doc
-    })
-      .then(() => {
-        productsQuery.refetch();
-        productsCountQuery.refetch();
-
-        Alert.success('Successfully saved!');
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
-  const updatedProps = {
-    ...props,
-    products,
-    save,
-    remove,
-    loading: productsQuery.loading,
-    productsCount: productsCountQuery.productsTotalCount || 0
-  };
-
-  return <List {...updatedProps} />;
-};
+    return <List {...updatedProps} />;
+  }
+}
 
 ProductListContainer.propTypes = {
   productsQuery: PropTypes.object,
@@ -77,6 +82,10 @@ ProductListContainer.propTypes = {
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
   removeMutation: PropTypes.func
+};
+
+ProductListContainer.contextTypes = {
+  __: PropTypes.func
 };
 
 export default compose(

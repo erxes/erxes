@@ -22,8 +22,9 @@ class BoardRow extends Component {
   }
 
   remove() {
-    const { remove, board } = this.props;
-    remove(board._id);
+    const { board } = this.props;
+
+    this.props.remove(board._id);
   }
 
   renderEditAction() {

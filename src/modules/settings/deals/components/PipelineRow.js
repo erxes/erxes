@@ -23,8 +23,9 @@ class PipelineRow extends Component {
   }
 
   remove() {
-    const { remove, pipeline } = this.props;
-    remove(pipeline._id);
+    const { pipeline } = this.props;
+
+    this.props.remove(pipeline._id);
   }
 
   renderExtraLinks() {

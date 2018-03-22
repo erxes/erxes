@@ -35,6 +35,7 @@ class HomeWithCurrent extends React.Component {
       editPipelineMutation,
       removePipelineMutation
     } = this.props;
+    const { __ } = this.context;
 
     const pipelines = pipelinesQuery.dealPipelines || [];
 
@@ -47,7 +48,7 @@ class HomeWithCurrent extends React.Component {
           .then(() => {
             pipelinesQuery.refetch();
 
-            Alert.success('Successfully deleted.');
+            Alert.success(__('Successfully deleted.'));
           })
           .catch(error => {
             Alert.error(error.message);
@@ -70,7 +71,7 @@ class HomeWithCurrent extends React.Component {
         .then(() => {
           pipelinesQuery.refetch();
 
-          Alert.success('Successfully saved!');
+          Alert.success(__('Successfully saved!'));
 
           callback();
         })
@@ -104,6 +105,10 @@ HomeWithCurrent.propTypes = {
   removePipelineMutation: PropTypes.func
 };
 
+HomeWithCurrent.contextTypes = {
+  __: PropTypes.func
+};
+
 const HomeContainer = compose(
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
@@ -125,7 +130,9 @@ const HomeContainer = compose(
 //Getting lastBoard id to currentBoard
 const BoardWithLast = props => {
   const { lastBoardQuery } = props;
+
   const lastBoard = lastBoardQuery.dealBoardGetLast || {};
+
   const extendedProps = { ...props, boardId: lastBoard._id };
 
   return <HomeContainer {...extendedProps} />;

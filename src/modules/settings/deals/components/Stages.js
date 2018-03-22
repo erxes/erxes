@@ -21,7 +21,7 @@ class Stages extends Component {
   }
 
   onChangeName(_id, e) {
-    const stages = this.props.stages;
+    const { stages } = this.props;
 
     const stage = stages.find(s => s._id === _id);
     stage.name = e.target.value;
@@ -30,7 +30,7 @@ class Stages extends Component {
   }
 
   add() {
-    const stages = this.props.stages;
+    const { stages } = this.props;
 
     stages.push({
       _id: Math.random(),
@@ -43,7 +43,7 @@ class Stages extends Component {
   }
 
   remove(_id) {
-    const stages = this.props.stages;
+    const { stages } = this.props;
 
     const remainedStages = stages.filter(stage => stage._id !== _id);
 

@@ -73,6 +73,7 @@ class BoardForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.board || {})}
+
         <Modal.Footer>
           <Button
             btnStyle="simple"

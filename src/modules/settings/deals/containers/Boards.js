@@ -8,6 +8,7 @@ import { Boards } from '../components';
 
 const BoardsContainer = props => {
   const { boardsQuery, addMutation, editMutation, removeMutation } = props;
+  const { __ } = this.context;
 
   const boards = boardsQuery.dealBoards || [];
 
@@ -20,7 +21,7 @@ const BoardsContainer = props => {
         .then(() => {
           boardsQuery.refetch();
 
-          Alert.success('Successfully deleted.');
+          Alert.success(__('Successfully deleted.'));
         })
         .catch(error => {
           Alert.error(error.message);
@@ -44,7 +45,7 @@ const BoardsContainer = props => {
       .then(() => {
         boardsQuery.refetch();
 
-        Alert.success('Successfully saved!');
+        Alert.success(__('Successfully saved!'));
 
         callback();
       })
@@ -69,6 +70,10 @@ BoardsContainer.propTypes = {
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
   removeMutation: PropTypes.func
+};
+
+BoardsContainer.contextTypes = {
+  __: PropTypes.func
 };
 
 export default compose(
