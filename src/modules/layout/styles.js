@@ -46,7 +46,7 @@ const MainContent = styled.section`
   flex-direction: column;
   min-width: 480px;
   box-shadow: ${props =>
-    !props.transparent && `0 0 4px ${colors.shadowPrimary}`};
+    !props.transparent && `0 0 8px 1px ${colors.shadowPrimary}`};
   margin-right: ${dimensions.coreSpacing}px;
 `;
 
@@ -104,7 +104,7 @@ const SideContent = styled.section`
   margin-right: ${dimensions.coreSpacing}px;
   background: ${props => (props.full ? colors.colorWhite : 'none')};
   box-shadow: ${props =>
-    props.full ? `0 0 4px ${colors.shadowPrimary}` : 'none'};
+    props.full ? `0 0 8px 1px ${colors.shadowPrimary}` : 'none'};
 `;
 
 const SidebarHeader = styled.div`
@@ -136,7 +136,7 @@ const SidebarBox = styled.div`
   background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
-    props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
+    props.noShadow ? 'none' : `0 0 8px 1px ${colors.shadowPrimary}`};
   padding-bottom: ${dimensions.unitSpacing}px;
   position: ${props => (props.full ? 'initial' : 'relative')};
   justify-content: center;
@@ -310,7 +310,7 @@ const FlexRightItem = styled.div`
 const WhiteBoxRoot = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorWhite};
-  box-shadow: 0 0 4px ${colors.shadowPrimary};
+  box-shadow: 0 0 8px 1px ${colors.shadowPrimary};
 `;
 
 const WhiteBox = WhiteBoxRoot.extend`
