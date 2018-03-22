@@ -61,7 +61,6 @@ const queryParams = `
   tag: String,
   ids: [String],
   searchValue: String
-  companyIds: [String]
 `;
 
 export const queries = `

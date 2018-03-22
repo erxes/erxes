@@ -71,10 +71,6 @@ const listQuery = async params => {
     selector = { _id: { $in: params.ids } };
   }
 
-  if (params.companyIds) {
-    selector = { companyIds: { $in: params.companyIds } };
-  }
-
   return selector;
 };
 
