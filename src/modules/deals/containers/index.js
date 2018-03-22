@@ -4,7 +4,7 @@ import Stage from './Stage';
 import Deal from './deal/Deal';
 import DealForm from './deal/DealForm';
 import DealMoveForm from './deal/DealMoveForm';
-import ProductAssociate from './product/ProductAssociate';
+import ProductChooser from './product/ProductChooser';
 import ProductItemForm from './product/ProductItemForm';
 
 export {
@@ -13,7 +13,7 @@ export {
   Pipeline,
   Deal,
   DealForm,
-  ProductAssociate,
+  ProductChooser,
   ProductItemForm,
   DealMoveForm
 };

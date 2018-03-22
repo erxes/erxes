@@ -12,8 +12,8 @@ import {
   ControlLabel
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { CompanyAssociate } from 'modules/companies/containers';
-import { CustomerAssociate } from 'modules/customers/containers';
+import { CompanyChooser } from 'modules/companies/containers';
+import { CustomerChooser } from 'modules/customers/containers';
 import { DealFormContainer, DealButton, DealFormAmount } from '../../styles';
 import { ProductForm, ItemCounter } from '../';
 import { selectUserOptions } from '../../utils';
@@ -198,7 +198,7 @@ class DealForm extends React.Component {
         title="Select company"
         trigger={companyTrigger}
       >
-        <CompanyAssociate
+        <CompanyChooser
           data={{ firstName: 'Deal', companies }}
           save={this.onChangeCompany}
         />
@@ -221,7 +221,7 @@ class DealForm extends React.Component {
         title="Select customer"
         trigger={customerTrigger}
       >
-        <CustomerAssociate
+        <CustomerChooser
           data={{
             name: 'Deal',
             customers

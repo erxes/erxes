@@ -10,7 +10,7 @@ import { Alert } from 'modules/common/utils';
 import { CommonAssociate } from 'modules/customers/components';
 import { Form as ProductForm } from 'modules/settings/productService/containers';
 
-class ProductAssociateContainer extends React.Component {
+class ProductChooser extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -55,10 +55,6 @@ class ProductAssociateContainer extends React.Component {
 
     const form = <ProductForm save={addProduct} />;
 
-    const renderName = product => {
-      return product.name;
-    };
-
     const updatedProps = {
       ...this.props,
       data: {
@@ -68,7 +64,7 @@ class ProductAssociateContainer extends React.Component {
       search,
       title: 'Product',
       form,
-      renderName,
+      renderName: product => product.name,
       perPage: this.state.perPage,
       add: addProduct,
       clearState,
@@ -79,7 +75,7 @@ class ProductAssociateContainer extends React.Component {
   }
 }
 
-ProductAssociateContainer.propTypes = {
+ProductChooser.propTypes = {
   data: PropTypes.object.isRequired,
   productsQuery: PropTypes.object.isRequired,
   productAdd: PropTypes.func.isRequired
@@ -98,4 +94,4 @@ export default compose(
   graphql(gql(productMutations.productAdd), {
     name: 'productAdd'
   })
-)(ProductAssociateContainer);
+)(ProductChooser);

@@ -8,7 +8,7 @@ import {
   ProductItemText
 } from '../../styles';
 import { selectConfigOptions } from '../../utils';
-import { ProductAssociate } from '../../containers';
+import { ProductChooser } from '../../containers';
 import {
   CURRENCIES,
   MEASUREMENTS
@@ -45,7 +45,7 @@ class ProductItemForm extends React.Component {
             trigger={productServiceTrigger}
             size="large"
           >
-            <ProductAssociate
+            <ProductChooser
               save={products =>
                 this.props.onChangeProduct(products, product._id)
               }
