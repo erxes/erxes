@@ -1,17 +1,12 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
-import {
-  SidebarContent,
-  SidebarCounter,
-  SidebarList
-} from 'modules/layout/styles';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
-import { Links } from 'modules/settings/team/components/detail/styles';
+import { Links, InfoWrapper } from 'modules/common/styles/styles';
 import { CustomerForm } from '../../../containers';
-import { NameWrapper } from './styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired
@@ -69,23 +64,21 @@ class BasicInfo extends React.Component {
 
     return (
       <Fragment>
-        <SidebarContent>
-          <NameWrapper>
-            <AvatarWrapper isUser={isUser}>
-              <NameCard.Avatar customer={customer} size={50} />
-              {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
-            </AvatarWrapper>
+        <InfoWrapper>
+          <AvatarWrapper isUser={isUser}>
+            <NameCard.Avatar customer={customer} size={50} />
+            {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
+          </AvatarWrapper>
 
-            <div className="customer-name">
-              {renderFullName(customer)}
-              {this.renderLinks(links)}
-            </div>
+          <div className="name">
+            {renderFullName(customer)}
+            {this.renderLinks(links)}
+          </div>
 
-            <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
-              <CustomerForm size="lg" customer={customer} />
-            </ModalTrigger>
-          </NameWrapper>
-        </SidebarContent>
+          <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
+            <CustomerForm size="lg" customer={customer} />
+          </ModalTrigger>
+        </InfoWrapper>
 
         <SidebarList className="no-link">
           {this.renderRow(

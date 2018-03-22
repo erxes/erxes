@@ -60,9 +60,47 @@ const BoxRoot = styled.div`
   }
 `;
 
+const InfoWrapper = styled.div`
+  padding: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  .name {
+    flex: 1;
+    word-break: break-word;
+  }
+
+  i {
+    transition: all 0.3s ease;
+    color: ${colors.colorCoreLightGray};
+
+    &:hover {
+      cursor: pointer;
+      color: ${colors.colorCoreGray};
+    }
+  }
+`;
+
+const Links = styled.div`
+  a {
+    color: ${colors.colorCoreLightGray};
+    margin-right: 10px;
+
+    &:hover {
+      color: ${colors.colorCoreGray};
+    }
+
+    i {
+      font-size: 14px;
+    }
+  }
+`;
+
 const ModalFooter = styled.div`
   text-align: right;
   margin-top: 40px;
 `;
 
-export { BoxRoot, FullContent, ModalFooter };
+export { BoxRoot, FullContent, ModalFooter, InfoWrapper, Links };
