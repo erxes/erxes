@@ -56,7 +56,7 @@ class DealForm extends React.Component {
       customer: deal.customer,
       closeDate: deal.closeDate,
       note: deal.note,
-      productsData: deal.productsData.map(data => ({ ...data })),
+      productsData: (deal.productsData || []).map(data => ({ ...data })),
       products: deal.products || [],
       assignedUserIds: deal.assignedUsers
         ? deal.assignedUsers.map(el => el['_id'])
