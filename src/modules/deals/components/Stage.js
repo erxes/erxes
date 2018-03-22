@@ -31,21 +31,15 @@ class Stage extends React.Component {
     this.showForm = this.showForm.bind(this);
     this.closeForm = this.closeForm.bind(this);
 
-    this.state = {
-      show: false
-    };
+    this.state = { show: false };
   }
 
   showForm() {
-    this.setState({
-      show: true
-    });
+    this.setState({ show: true });
   }
 
   closeForm() {
-    this.setState({
-      show: false
-    });
+    this.setState({ show: false });
   }
 
   renderAmount(amount) {
@@ -64,9 +58,34 @@ class Stage extends React.Component {
     );
   }
 
+  renderDealForm(show) {
+    if (show) {
+      const { stage, pipelineId, boardId, deals } = this.props;
+
+      return (
+        <DealForm
+          boardId={boardId}
+          pipelineId={pipelineId}
+          stageId={stage._id}
+          close={this.closeForm.bind(this)}
+          dealsLength={deals.length}
+          saveDeal={this.props.saveDeal}
+        />
+      );
+    }
+
+    const { __ } = this.context;
+
+    return (
+      <AddNewDeal onClick={this.showForm.bind(this)}>
+        <Icon icon="plus" /> {__('Add new deal')}
+      </AddNewDeal>
+    );
+  }
+
   render() {
     const { __ } = this.context;
-    const { stage, pipelineId, boardId, deals, index } = this.props;
+    const { stage, deals, index, saveDeal, removeDeal, moveDeal } = this.props;
 
     return (
       <Draggable draggableId={stage._id} index={index}>
@@ -85,8 +104,10 @@ class Stage extends React.Component {
                       {__('Deal')}: {deals.length}
                     </span>
                   </div>
+
                   {this.renderAmount(stage.amount)}
                 </StageHeader>
+
                 <StageBody>
                   <Droppable droppableId={stage._id} type="stage">
                     {dropProvided => (
@@ -97,9 +118,9 @@ class Stage extends React.Component {
                               key={deal._id}
                               index={index}
                               dealId={deal._id}
-                              saveDeal={this.props.saveDeal}
-                              removeDeal={this.props.removeDeal}
-                              moveDeal={this.props.moveDeal}
+                              saveDeal={saveDeal}
+                              removeDeal={removeDeal}
+                              moveDeal={moveDeal}
                             />
                           ))}
                         </div>
@@ -107,20 +128,7 @@ class Stage extends React.Component {
                       </StageDropZone>
                     )}
                   </Droppable>
-                  {this.state.show ? (
-                    <DealForm
-                      boardId={boardId}
-                      pipelineId={pipelineId}
-                      stageId={stage._id}
-                      close={this.closeForm.bind(this)}
-                      dealsLength={deals.length}
-                      saveDeal={this.props.saveDeal}
-                    />
-                  ) : (
-                    <AddNewDeal onClick={this.showForm.bind(this)}>
-                      <Icon icon="plus" /> {__('Add new deal')}
-                    </AddNewDeal>
-                  )}
+                  {this.renderDealForm(this.state.show)}
                 </StageBody>
               </StageContainer>
             </StageWrapper>

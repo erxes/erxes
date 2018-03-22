@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { DealUsers } from '../../styles';
+import { UserCounterContainer } from '../../styles';
 import { Tip } from 'modules/common/components';
 
 const propTypes = {
   users: PropTypes.array
 };
 
-class DealUser extends React.Component {
+class UserCounter extends React.Component {
   constructor(props) {
     super(props);
 
@@ -58,14 +58,14 @@ class DealUser extends React.Component {
     }
 
     return (
-      <DealUsers>
+      <UserCounterContainer>
         {this.renderUserItem(users[0])}
         {length > 1 ? this.renderOtherUsers(users) : null}
-      </DealUsers>
+      </UserCounterContainer>
     );
   }
 }
 
-DealUser.propTypes = propTypes;
+UserCounter.propTypes = propTypes;
 
-export default DealUser;
+export default UserCounter;

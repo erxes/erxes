@@ -149,17 +149,17 @@ const DealHeader = styled.div`
   margin-bottom: 10px;
   h4 {
     margin: 0;
-    float: left;
+    float: right;
     color: #2795ff;
     font-size: 18px;
     font-weight: bold;
   }
   span {
-    float: right;
+    float: left;
   }
 `;
 
-const DealProducts = styled.div`
+const ItemCounterContainer = styled.div`
   overflow: hidden;
   ul {
     list-style: none;
@@ -230,7 +230,7 @@ const DealButton = styled.div`
   }
 `;
 
-const DealUsers = styled.ul`
+const UserCounterContainer = styled.ul`
   float: right;
   margin-top: 15px;
   list-style: none;
@@ -398,10 +398,10 @@ export {
   DealHeader,
   DealAmount,
   DealFormAmount,
-  DealProducts,
+  ItemCounterContainer,
   DealFormContainer,
   DealButton,
-  DealUsers,
+  UserCounterContainer,
   ProductFormContainer,
   ProductTable,
   ProductFooter,

@@ -150,11 +150,10 @@ MainContainer.propTypes = {
 export default compose(
   graphql(gql(queries.customers), {
     name: 'customersQuery',
-    options: ({ companyId }) => {
+    options: () => {
       return {
         variables: {
-          perPage: 20,
-          companyIds: [companyId] || []
+          perPage: 20
         }
       };
     }

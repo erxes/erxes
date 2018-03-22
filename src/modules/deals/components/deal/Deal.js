@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Draggable } from 'react-beautiful-dnd';
-import { DealProduct, DealUser, QuickEdit } from '../';
+import { ItemCounter, UserCounter, QuickEdit } from '../';
 import { Icon } from 'modules/common/components';
 import {
   DealContainer,
@@ -35,9 +35,7 @@ class Deal extends React.Component {
   }
 
   closeQuickEditForm() {
-    this.setState({
-      showQuickEdit: false
-    });
+    this.setState({ showQuickEdit: false });
   }
 
   showQuickEditForm() {
@@ -58,6 +56,18 @@ class Deal extends React.Component {
       left: info.left,
       bottom
     });
+  }
+
+  renderProducts(products) {
+    if (products.length === 0) return null;
+
+    return <ItemCounter items={products} />;
+  }
+
+  renderUsers(users) {
+    if (users.length === 0) return null;
+
+    return <UserCounter users={users} />;
   }
 
   render() {
@@ -90,11 +100,10 @@ class Deal extends React.Component {
               {...provided.dragHandleProps}
             >
               <DealHeader>
-                <h4>{deal.customer.firstName || deal.customer.email}</h4>
                 <span>{moment(deal.closeDate).format('YYYY-MM-DD')}</span>
               </DealHeader>
 
-              {deal.products ? <DealProduct products={deal.products} /> : null}
+              {this.renderProducts(deal.products || [])}
 
               <DealAmount>
                 {Object.keys(deal.amount).map(el => (
@@ -104,9 +113,7 @@ class Deal extends React.Component {
                 ))}
               </DealAmount>
 
-              {deal.assignedUsers ? (
-                <DealUser users={deal.assignedUsers} />
-              ) : null}
+              {this.renderUsers(deal.assignedUsers || [])}
 
               <DealContainerHover innerRef={el => (this.hover = el)}>
                 <div onClick={this.showQuickEditForm}>

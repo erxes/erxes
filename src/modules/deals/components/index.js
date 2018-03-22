@@ -4,11 +4,11 @@ import Stage from './Stage';
 import Deal from './deal/Deal';
 import DealForm from './deal/DealForm';
 import QuickEdit from './deal/QuickEdit';
-import DealProduct from './deal/DealProduct';
-import DealUser from './deal/DealUser';
 import DealMoveForm from './deal/DealMoveForm';
 import ProductForm from './product/ProductForm';
 import ProductItemForm from './product/ProductItemForm';
+import ItemCounter from './common/ItemCounter';
+import UserCounter from './common/UserCounter';
 
 export {
   Board,
@@ -17,8 +17,8 @@ export {
   Deal,
   DealForm,
   QuickEdit,
-  DealProduct,
-  DealUser,
+  ItemCounter,
+  UserCounter,
   DealMoveForm,
   ProductForm,
   ProductItemForm

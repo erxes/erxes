@@ -2,7 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormControl, Icon, ModalTrigger } from 'modules/common/components';
 import Select from 'react-select-plus';
-import { DealButton, DealProducts, ProductItemText } from '../../styles';
+import {
+  DealButton,
+  ItemCounterContainer,
+  ProductItemText
+} from '../../styles';
 import { selectConfigOptions } from '../../utils';
 import { ProductAssociate } from '../../containers';
 import {
@@ -53,11 +57,11 @@ class ProductItemForm extends React.Component {
             />
           </ModalTrigger>
           {product.product ? (
-            <DealProducts>
+            <ItemCounterContainer>
               <ul>
                 <li>{product.product.name}</li>
               </ul>
-            </DealProducts>
+            </ItemCounterContainer>
           ) : null}
         </td>
         <td>

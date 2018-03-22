@@ -4,8 +4,8 @@ const commonVariables = `
   $stageId: String!,
   $productIds: [String]!,
   $productsData: JSON!,
-  $companyId: String!,
-  $customerId: String!,
+  $companyIds: [String],
+  $customerIds: [String],
   $closeDate: Date!,
   $note: String,
   $assignedUserIds: [String],
@@ -18,8 +18,8 @@ const commonParams = `
   stageId: $stageId,
   productIds: $productIds,
   productsData: $productsData,
-  companyId: $companyId,
-  customerId: $customerId,
+  companyIds: $companyIds,
+  customerIds: $customerIds,
   closeDate: $closeDate,
   note: $note,
   assignedUserIds: $assignedUserIds,
@@ -31,11 +31,11 @@ const commonReturn = `
   stageId
   pipelineId
   boardId
-  company {
+  companies {
     _id
     name
   }
-  customer {
+  customers {
     _id
     firstName
     email

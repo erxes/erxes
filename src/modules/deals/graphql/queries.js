@@ -70,11 +70,11 @@ const dealDetail = `
       stageId
       pipelineId
       boardId
-      company {
+      companies {
         _id
         name
       }
-      customer {
+      customers {
         _id
         firstName
         email

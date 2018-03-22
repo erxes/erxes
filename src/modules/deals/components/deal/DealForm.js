@@ -11,16 +11,11 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { Alert, renderFullName } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { CustomerAssociate } from 'modules/customers/containers';
-import {
-  DealFormContainer,
-  DealButton,
-  DealFormAmount,
-  DealProducts
-} from '../../styles';
-import { ProductForm, DealProduct } from '../';
+import { DealFormContainer, DealButton, DealFormAmount } from '../../styles';
+import { ProductForm, ItemCounter } from '../';
 import { selectUserOptions } from '../../utils';
 
 const propTypes = {
@@ -52,34 +47,28 @@ class DealForm extends React.Component {
     this.state = {
       amount: deal.amount || {},
       // Deal datas
-      company: deal.company,
-      customer: deal.customer,
+      companies: deal.companies || [],
+      customers: deal.customers || [],
       closeDate: deal.closeDate,
       note: deal.note,
       productsData: (deal.productsData || []).map(data => ({ ...data })),
       products: deal.products || [],
-      assignedUserIds: deal.assignedUsers
-        ? deal.assignedUsers.map(el => el['_id'])
-        : []
+      assignedUserIds: (deal.assignedUsers || []).map(user => user['_id'])
     };
   }
 
   save() {
     const {
-      customer,
-      company,
+      companies,
+      customers,
       closeDate,
       productsData,
       note,
       assignedUserIds
     } = this.state;
 
-    if (!company) {
-      return Alert.error('Choose a company');
-    }
-
-    if (!customer) {
-      return Alert.error('Choose a customer');
+    if (productsData.length === 0) {
+      return Alert.error('Select product & service');
     }
 
     if (!closeDate) {
@@ -97,8 +86,8 @@ class DealForm extends React.Component {
     const { deal, boardId, pipelineId, stageId, dealsLength } = this.props;
 
     const doc = {
-      companyId: company._id,
-      customerId: customer._id,
+      companyIds: companies.map(company => company['_id']),
+      customerIds: customers.map(customer => customer['_id']),
       closeDate: new Date(closeDate),
       productIds,
       productsData,
@@ -109,43 +98,21 @@ class DealForm extends React.Component {
       order: deal ? deal.order : dealsLength
     };
 
-    if (note) {
-      doc.note = note;
-    }
+    if (note) doc.note = note;
 
-    this.props.saveDeal(
-      doc,
-      () => {
-        this.props.close();
-      },
-      this.props.deal
-    );
+    this.props.saveDeal(doc, () => this.props.close(), this.props.deal);
   }
 
   onChangeCompany(companies) {
-    if (companies && companies.length === 1) {
-      const company = companies[0];
-
-      if (company !== this.state.company) {
-        this.setState({ customer: null });
-      }
-
-      this.setState({ company });
-    } else {
-      this.setState({ company: null, customer: null });
-    }
+    this.setState({ companies });
   }
 
   onChangeCustomer(customers) {
-    if (customers && customers.length === 1) {
-      this.setState({ customer: customers[0] });
-    } else {
-      this.setState({ customer: null });
-    }
+    this.setState({ customers });
   }
 
-  onDateInputChange(date) {
-    this.setState({ closeDate: date });
+  onDateInputChange(closeDate) {
+    this.setState({ closeDate });
   }
 
   onChangeProductsData(productsData) {
@@ -216,7 +183,7 @@ class DealForm extends React.Component {
     );
   }
 
-  renderCompanyModal(company) {
+  renderCompanyModal(companies) {
     const { __ } = this.context;
 
     const companyTrigger = (
@@ -232,31 +199,14 @@ class DealForm extends React.Component {
         trigger={companyTrigger}
       >
         <CompanyAssociate
-          data={{ firstName: 'Deal', companies: company ? [company] : [] }}
+          data={{ firstName: 'Deal', companies }}
           save={this.onChangeCompany}
-          limit={1}
         />
       </ModalTrigger>
     );
   }
 
-  renderCompany(company) {
-    if (!company) return null;
-
-    return (
-      <FormGroup>
-        <DealProducts>
-          <ul>
-            <li>{company.name}</li>
-          </ul>
-        </DealProducts>
-      </FormGroup>
-    );
-  }
-
-  renderCustomerModal(company, customer) {
-    if (!company) return null;
-
+  renderCustomerModal(customers) {
     const { __ } = this.context;
 
     const customerTrigger = (
@@ -273,28 +223,12 @@ class DealForm extends React.Component {
       >
         <CustomerAssociate
           data={{
-            name: company.name,
-            customers: customer ? [customer] : []
+            name: 'Deal',
+            customers
           }}
-          companyId={company._id}
           save={this.onChangeCustomer}
-          limit={1}
         />
       </ModalTrigger>
-    );
-  }
-
-  renderCustomer(customer) {
-    if (!customer) return null;
-
-    return (
-      <FormGroup>
-        <DealProducts>
-          <ul>
-            <li>{renderFullName(customer)}</li>
-          </ul>
-        </DealProducts>
-      </FormGroup>
     );
   }
 
@@ -319,8 +253,8 @@ class DealForm extends React.Component {
     const { __ } = this.context;
     const { users } = this.props;
     const {
-      company,
-      customer,
+      companies,
+      customers,
       assignedUserIds,
       closeDate,
       products,
@@ -332,13 +266,23 @@ class DealForm extends React.Component {
       <DealFormContainer>
         <form>
           {this.renderProductModal(productsData)}
+
           <FormGroup>
-            <DealProduct products={products} />
+            <ItemCounter items={products} />
           </FormGroup>
-          {this.renderCompanyModal(company)}
-          {this.renderCompany(company)}
-          {this.renderCustomerModal(company, customer)}
-          {this.renderCustomer(customer)}
+
+          {this.renderCompanyModal(companies)}
+
+          <FormGroup>
+            <ItemCounter items={companies} />
+          </FormGroup>
+
+          {this.renderCustomerModal(customers)}
+
+          <FormGroup>
+            <ItemCounter items={customers} />
+          </FormGroup>
+
           {this.renderAmount(amount)}
 
           <FormGroup>
