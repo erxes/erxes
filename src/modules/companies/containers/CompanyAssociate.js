@@ -9,7 +9,7 @@ import {
 } from 'modules/customers/graphql';
 import { Alert, renderFullName } from 'modules/common/utils';
 import { CommonAssociate } from 'modules/customers/components';
-import { CompanyForm } from '../components';
+import { CompanyForm } from './';
 
 class CustomerAssociateContainer extends React.Component {
   constructor(props) {
