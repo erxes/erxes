@@ -7,7 +7,7 @@ import { Icon } from 'modules/common/components';
 import {
   DealContainer,
   DealContainerHover,
-  DealHeader,
+  DealDate,
   DealAmount
 } from '../../styles';
 
@@ -40,21 +40,13 @@ class Deal extends React.Component {
 
   showQuickEditForm() {
     const info = this.hover.getBoundingClientRect();
-    const height = window.innerHeight;
 
     let top = info.top;
-    let bottom = 0;
-
-    if (height - top < 670) {
-      top = 0;
-      bottom = 10;
-    }
 
     this.setState({
       showQuickEdit: true,
       top,
-      left: info.left,
-      bottom
+      left: info.left
     });
   }
 
@@ -77,7 +69,7 @@ class Deal extends React.Component {
       <DealAmount>
         {Object.keys(amount).map(el => (
           <p key={el}>
-            {amount[el].toLocaleString()} {el}
+            {amount[el].toLocaleString()} <span>{el}</span>
           </p>
         ))}
       </DealAmount>
@@ -113,9 +105,7 @@ class Deal extends React.Component {
               {...provided.draggableProps}
               {...provided.dragHandleProps}
             >
-              <DealHeader>
-                <span>{moment(deal.closeDate).format('YYYY-MM-DD')}</span>
-              </DealHeader>
+              <DealDate>{moment(deal.closeDate).format('YYYY-MM-DD')}</DealDate>
 
               {this.renderProducts(deal.products || [])}
 

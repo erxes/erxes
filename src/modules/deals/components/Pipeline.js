@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Stage } from '../containers';
+import { EmptyState } from 'modules/common/components';
 import { Droppable } from 'react-beautiful-dnd';
 import { PipelineContainer, PipelineHeader, PipelineBody } from '../styles';
 
@@ -37,6 +38,9 @@ class Pipeline extends React.Component {
             />
           ))}
         </div>
+        {stages.length === 0 && (
+          <EmptyState size="full" text="No stages" icon="map" />
+        )}
       </PipelineBody>
     );
   }

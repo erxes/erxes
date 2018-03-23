@@ -1,6 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, Icon, ModalTrigger } from 'modules/common/components';
+import {
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Button
+} from 'modules/common/components';
 import Select from 'react-select-plus';
 import {
   DealButton,
@@ -173,12 +178,11 @@ class ProductItemForm extends React.Component {
           </ProductItemText>
         </td>
         <td>
-          <div
-            className="remove"
+          <Button
+            btnStyle="danger"
+            icon="close"
             onClick={this.props.removeProductItem.bind(this, productData._id)}
-          >
-            <Icon icon="ios-trash" />
-          </div>
+          />
         </td>
       </tr>
     );

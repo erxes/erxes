@@ -84,7 +84,7 @@ class Stage extends React.Component {
 
     return (
       <StageDropZone innerRef={provided.innerRef}>
-        <div>
+        <div className="deals">
           {deals.map((deal, index) => (
             <Deal
               key={deal._id}
@@ -97,6 +97,7 @@ class Stage extends React.Component {
           ))}
         </div>
         {provided.placeholder}
+        {this.renderDealForm(this.state.show)}
       </StageDropZone>
     );
   }
@@ -128,8 +129,6 @@ class Stage extends React.Component {
                 <Droppable droppableId={stage._id} type="stage">
                   {dropProvided => this.renderDeal(dropProvided)}
                 </Droppable>
-
-                {this.renderDealForm(this.state.show)}
               </StageBody>
             </StageContainer>
           </StageWrapper>

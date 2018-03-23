@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Icon } from 'modules/common/components';
+import { Button, Icon, Table } from 'modules/common/components';
 import { ProductItemForm } from '../../containers';
 import {
   ProductFormContainer,
-  ProductTable,
   ProductFooter,
   FooterInfo,
   AddProduct
@@ -181,16 +180,16 @@ class ProductForm extends React.Component {
 
     return (
       <ProductFormContainer>
-        <ProductTable>
+        <Table alignTop={true}>
           <thead>
             <tr>
-              <td>{__('Product & Service')}</td>
-              <td>{__('UOM')}</td>
-              <td>{__('Currency')}</td>
-              <td width="80">{__('Quantity')}</td>
-              <td width="140">{__('Unit price')}</td>
-              <td width="120">{__('Amount')}</td>
-              <td width="50" />
+              <th>{__('Product & Service')}</th>
+              <th width="200">{__('UOM')}</th>
+              <th width="200">{__('Currency')}</th>
+              <th width="100">{__('Quantity')}</th>
+              <th>{__('Unit price')}</th>
+              <th>{__('Amount')}</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -207,7 +206,7 @@ class ProductForm extends React.Component {
               />
             ))}
           </tbody>
-        </ProductTable>
+        </Table>
 
         <AddProduct onClick={this.addProductItem}>
           <Icon icon="plus" /> {__('Add Product / Service')}

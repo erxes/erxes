@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { DealForm } from '../../containers';
 import { Button } from 'modules/common/components';
-import { QuickEditContainer, RightControls } from '../../styles';
+import { QuickEditContainer, RightControls, QuickForm } from '../../styles';
 import { DealMoveForm } from '../../containers';
 
 const propTypes = {
@@ -60,7 +60,7 @@ class QuickEdit extends React.Component {
 
     return (
       <QuickEditContainer top={top} bottom={bottom} left={left}>
-        <div>
+        <QuickForm>
           <DealForm saveDeal={saveDeal} close={close} deal={deal} />
 
           <RightControls>
@@ -81,7 +81,7 @@ class QuickEdit extends React.Component {
           </RightControls>
 
           {this.renderMoveForm(this.state.showMove)}
-        </div>
+        </QuickForm>
       </QuickEditContainer>
     );
   }

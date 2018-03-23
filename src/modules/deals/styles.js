@@ -1,12 +1,13 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { colors, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 
 const StageWidth = 300;
-const StageHeight = 'calc(100vh - 233px)';
 
 const PipelineContainer = styled.div`
   background-color: ${colors.colorWhite};
+  box-shadow: 0 0 8px 0px ${colors.colorShadowGray};
+
   &:not(:first-child) {
     margin-top: 20px;
   }
@@ -14,21 +15,23 @@ const PipelineContainer = styled.div`
 
 const PipelineHeader = styled.div`
   width: 100%;
-  height: 85px;
-  padding: 0 30px;
+  height: 50px;
+  padding: 0 20px;
+  background: ${colors.bgLight};
   border-bottom: 1px solid ${colors.colorShadowGray};
   h2 {
     margin: 0;
     padding: 0;
-    line-height: 85px;
+    line-height: 50px;
     font-weight: normal;
-    font-size: 20px;
+    font-size: 14px;
     color: ${rgba(colors.colorCoreDarkGray, 0.9)};
   }
 `;
 
 const PipelineBody = styled.div`
   overflow-x: auto;
+
   > div {
     display: inline-flex;
   }
@@ -44,28 +47,31 @@ const StageWrapper = styled.div`
 const StageContainer = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: ${StageHeight};
-  background: ${({ isDragging }) =>
-    isDragging ? rgba(colors.colorCoreDarkGray, 0.2) : 'none'};
-  transition: background-color 0.1s ease;
+  transition: background-color 0.3s ease;
+  flex: 1;
+  ${props => css`
+    background: ${props.isDragging ? colors.colorWhite : 'none'};
+    box-shadow: ${props.isDragging
+      ? `0 0 20px 2px ${colors.colorShadowGray}`
+      : 'none'};
+  `};
 `;
 
 const StageHeader = styled.div`
-  padding: 20px 30px;
-  border-bottom: 1px solid ${colors.colorShadowGray};
+  padding: 20px;
+  border-bottom: 1px solid ${colors.borderPrimary};
   > div {
     line-height: 18px;
     display: flex;
     justify-content: space-between;
     h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 14px;
       text-transform: uppercase;
     }
     .deals-count {
       text-transform: capitalize;
       color: #585278;
-      font-size: 16px;
       font-weight: bold;
     }
   }
@@ -80,29 +86,40 @@ const StageAmount = styled.ul`
     float: left;
     padding-left: 5px;
     color: #585278;
-    font-size: 14px;
     font-weight: bold;
   }
 `;
 
 const StageBody = styled.div`
-  padding: 10px 15px 30px;
+  padding: 10px;
+  height: 100%;
 `;
 
 const StageDropZone = styled.div`
-  padding: 10px 0;
+  height: 100%;
+
+  > div:not(.deals) {
+    background: #eee;
+    border-radius: 5px;
+  }
 `;
 
 const AddNewDeal = styled.a`
   display: block;
-  height: 70px;
-  line-height: 70px;
+  height: 60px;
+  line-height: 60px;
   text-align: center;
-  border: 1px dotted ${colors.colorShadowGray};
+  border: 1px dashed ${colors.colorShadowGray};
   border-radius: 5px;
   color: ${rgba(colors.colorCoreDarkGray, 0.9)};
   font-size: 14px;
+  transition: all 0.3s ease;
   cursor: pointer;
+
+  &:hover {
+    background: ${colors.bgLight};
+  }
+
   i {
     margin-right: 8px;
     font-size: 15px;
@@ -117,7 +134,10 @@ const DealContainerHover = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: ${rgba(colors.colorCoreDarkGray, 0.2)};
+  background: ${rgba(colors.colorCoreLightGray, 0.15)};
+  border: 1px solid ${colors.borderPrimary};
+  transition: all 0.3s ease;
+
   > div {
     float: right;
     padding: 25px 25px 0 0;
@@ -128,50 +148,43 @@ const DealContainerHover = styled.div`
 const DealContainer = styled.div`
   position: relative;
   overflow: hidden;
-  margin: 10px 0;
+  margin-bottom: 10px;
   padding: 10px 15px;
   border-radius: 5px;
-  border: 1px solid ${colors.colorShadowGray};
+  border: 1px solid ${colors.borderPrimary};
   background-color: #f6f6f6;
+  position: relative;
+
   &:hover ${DealContainerHover} {
     opacity: 1;
   }
 `;
 
-const DealHeader = styled.div`
-  overflow: hidden;
-  margin-bottom: 10px;
-  h4 {
-    margin: 0;
-    float: right;
-    color: #2795ff;
-    font-size: 18px;
-    font-weight: bold;
-  }
-  span {
-    float: left;
-  }
+const DealDate = styled.span`
+  position: absolute;
+  right: 15px;
+  font-size: 12px;
 `;
 
-const ItemCounterContainer = styled.div`
+const ItemCounterContainer = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: block;
   overflow: hidden;
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    > li {
-      float: left;
-      border-radius: 10px;
-      padding: 5px 8px;
-      margin: 5px 5px 0 0;
-      color: #fff;
-      background: #130ef5;
-      text-transform: uppercase;
-      font-size: 9px;
-    }
-    .remained-count {
-      background: #a3a7ac;
-    }
+
+  > li {
+    float: left;
+    border-radius: 10px;
+    padding: 5px 8px;
+    margin-right: 5px;
+    color: #fff;
+    background: #130ef5;
+    text-transform: uppercase;
+    font-size: 9px;
+  }
+  .remained-count {
+    background: #a3a7ac;
   }
 `;
 
@@ -228,17 +241,23 @@ const UserCounterContainer = styled.ul`
   float: right;
   margin-top: 15px;
   list-style: none;
+  padding: 0;
+
   li {
     float: left;
-    border: 1px solid ${colors.colorWhite};
+    border: 2px solid ${colors.colorWhite};
     width: 30px;
     height: 30px;
-    line-height: 30px;
+    line-height: 26px;
     border-radius: 15px;
     background: #a3a7ac;
     text-align: center;
     color: ${colors.colorWhite};
+    overflow: hidden;
+    margin-left: -10px;
+
     img {
+      width: 100%;
       vertical-align: top;
     }
   }
@@ -247,41 +266,6 @@ const UserCounterContainer = styled.ul`
 const ProductFormContainer = styled.div`
   background: ${colors.colorWhite};
   margin: -40px -40px -30px -40px;
-`;
-
-const ProductTable = styled.table`
-  width: 100%;
-  thead {
-    td {
-      padding: 10px 10px 10px 0;
-      font-weight: bold;
-      font-size: 14px;
-    }
-  }
-  tbody {
-    td {
-      padding: 30px 10px 30px 0;
-      vertical-align: top;
-      ${DealButton} {
-        border: 1px solid ${colors.colorShadowGray};
-      }
-    }
-  }
-  td {
-    border-bottom: 1px solid ${colors.colorShadowGray};
-    &:first-child {
-      padding-left: 30px;
-    }
-    &:last-child {
-      padding-right: 30px;
-    }
-    .remove {
-      cursor: pointer;
-      i {
-        font-size: 17px;
-      }
-    }
-  }
 `;
 
 const ProductFooter = styled.div`
@@ -338,10 +322,11 @@ const QuickEditContainer = styled.div`
   width: 100%;
   height: 100%;
   background: ${rgba(colors.colorCoreDarkGray, 0.5)};
+
   > div {
     position: absolute;
-    top: ${props => (props.top === 0 ? 'auto' : `${props.top}px`)};
-    bottom: ${props => (props.bottom === 0 ? 'auto' : `${props.bottom}px`)};
+    top: ${props => props.top && `${props.top}px`};
+    bottom: 10px;
     left: ${props => `${props.left - 70}px`};
     ${DealFormContainer} {
       float: left;
@@ -376,6 +361,13 @@ const DealMoveFormContainer = styled.div`
   padding: 20px;
 `;
 
+const QuickForm = styled.div`
+  > div {
+    overflow: auto;
+    height: 100%;
+  }
+`;
+
 export {
   PipelineContainer,
   PipelineHeader,
@@ -389,7 +381,7 @@ export {
   AddNewDeal,
   DealContainer,
   DealContainerHover,
-  DealHeader,
+  DealDate,
   DealAmount,
   DealFormAmount,
   ItemCounterContainer,
@@ -397,12 +389,12 @@ export {
   DealButton,
   UserCounterContainer,
   ProductFormContainer,
-  ProductTable,
   ProductFooter,
   FooterInfo,
   AddProduct,
   ProductItemText,
   QuickEditContainer,
   RightControls,
-  DealMoveFormContainer
+  DealMoveFormContainer,
+  QuickForm
 };

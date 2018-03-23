@@ -48,10 +48,8 @@ class ItemCounter extends React.Component {
 
     return (
       <ItemCounterContainer>
-        <ul>
-          {this.renderItem(items[0])}
-          {length > 1 ? this.renderOtherItems(items) : null}
-        </ul>
+        {this.renderItem(items[0])}
+        {length > 1 ? this.renderOtherItems(items) : null}
       </ItemCounterContainer>
     );
   }
