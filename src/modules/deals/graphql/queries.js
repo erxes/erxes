@@ -112,16 +112,6 @@ const users = `
   }
 `;
 
-const getConfig = `
-  query getConfig($code: String!) {
-    getConfig(code: $code) {
-      _id
-      code
-      value
-    }
-  }
-`;
-
 export default {
   boards,
   boardGetLast,
@@ -131,6 +121,5 @@ export default {
   stageDetail,
   deals,
   dealDetail,
-  users,
-  getConfig
+  users
 };

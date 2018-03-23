@@ -32,8 +32,8 @@ class ListContainer extends React.Component {
         });
     };
 
-    const currencies = currencyConfigQuery.getConfig;
-    const uom = uomConfigQuery.getConfig;
+    const currencies = currencyConfigQuery.configsDetail;
+    const uom = uomConfigQuery.configsDetail;
 
     const updatedProps = {
       ...this.props,
@@ -57,7 +57,7 @@ ListContainer.contextTypes = {
 };
 
 export default compose(
-  graphql(gql(queries.getConfig), {
+  graphql(gql(queries.configsDetail), {
     name: 'currencyConfigQuery',
     options: () => ({
       variables: {
@@ -66,7 +66,7 @@ export default compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql(gql(queries.getConfig), {
+  graphql(gql(queries.configsDetail), {
     name: 'uomConfigQuery',
     options: () => ({
       variables: {

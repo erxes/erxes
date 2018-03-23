@@ -3,15 +3,17 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { ProductItemForm } from '../../components';
-import { queries } from '../../graphql';
+import { queries } from 'modules/settings/general/graphql';
 
 class ProductItemFormContainer extends React.Component {
   render() {
     const { getUomQuery, getCurrenciesQuery } = this.props;
 
-    const uom = getUomQuery.getConfig ? getUomQuery.getConfig.value : [];
-    const currencies = getCurrenciesQuery.getConfig
-      ? getCurrenciesQuery.getConfig.value
+    const uom = getUomQuery.configsDetail
+      ? getUomQuery.configsDetail.value
+      : [];
+    const currencies = getCurrenciesQuery.configsDetail
+      ? getCurrenciesQuery.configsDetail.value
       : [];
 
     const extendedProps = {
@@ -32,7 +34,7 @@ const propTypes = {
 ProductItemFormContainer.propTypes = propTypes;
 
 export default compose(
-  graphql(gql(queries.getConfig), {
+  graphql(gql(queries.configsDetail), {
     name: 'getUomQuery',
     options: {
       variables: {
@@ -40,7 +42,7 @@ export default compose(
       }
     }
   }),
-  graphql(gql(queries.getConfig), {
+  graphql(gql(queries.configsDetail), {
     name: 'getCurrenciesQuery',
     options: {
       variables: {
