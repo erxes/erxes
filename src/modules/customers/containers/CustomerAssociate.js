@@ -29,7 +29,7 @@ const CustomerAssociate = props => {
 
   const extendedProps = {
     ...props,
-    save
+    onSelect: customers => save(customers)
   };
 
   return <CustomerChooser {...extendedProps} />;

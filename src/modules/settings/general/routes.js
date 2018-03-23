@@ -5,7 +5,7 @@ import { List } from './containers';
 
 const routes = () => (
   <Route
-    path="/settings/general-settings/"
+    path="/settings/general/"
     component={({ location }) => {
       return <List queryParams={queryString.parse(location.search)} />;
     }}

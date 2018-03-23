@@ -111,9 +111,7 @@ PropertiesContainer.propTypes = {
 const options = ({ queryParams }) => ({
   refetchQueries: [
     {
-      query: gql`
-        ${queries.fieldsGroups}
-      `,
+      query: gql`${queries.fieldsGroups}`,
       variables: { contentType: queryParams.type }
     }
   ]

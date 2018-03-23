@@ -10,11 +10,11 @@ class DealMoveFormContainer extends React.Component {
   constructor(props) {
     super(props);
 
-    const deal = props.deal;
-
     this.onChangeBoard = this.onChangeBoard.bind(this);
     this.onChangePipeline = this.onChangePipeline.bind(this);
     this.moveDeal = this.moveDeal.bind(this);
+
+    const { deal } = props;
 
     this.state = {
       boardId: deal.boardId,

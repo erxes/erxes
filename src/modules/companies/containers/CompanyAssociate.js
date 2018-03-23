@@ -29,7 +29,7 @@ const CompanyAssociate = props => {
 
   const extendedProps = {
     ...props,
-    save
+    onSelect: companies => save(companies)
   };
 
   return <CompanyChooser {...extendedProps} />;

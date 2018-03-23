@@ -9,10 +9,7 @@ import {
 } from '../../styles';
 import { selectConfigOptions } from '../../utils';
 import { ProductChooser } from '../../containers';
-import {
-  CURRENCIES,
-  MEASUREMENTS
-} from 'modules/settings/generalSettings/constants';
+import { CURRENCIES, MEASUREMENTS } from 'modules/settings/general/constants';
 
 const propTypes = {
   uom: PropTypes.array,
@@ -42,7 +39,7 @@ class ProductItemForm extends React.Component {
         size="large"
       >
         <ProductChooser
-          save={products =>
+          onSelect={products =>
             this.props.onChangeProduct(products, productData._id)
           }
           data={{
