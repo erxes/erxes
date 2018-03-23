@@ -30,7 +30,7 @@ class PipelineForm extends Component {
     this.onChangeStages = this.onChangeStages.bind(this);
     this.renderContent = this.renderContent.bind(this);
 
-    this.state = { stages: props.stages.map(stage => ({ ...stage })) };
+    this.state = { stages: (props.stages || []).map(stage => ({ ...stage })) };
   }
 
   onChangeStages(stages) {
