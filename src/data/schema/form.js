@@ -8,7 +8,6 @@ export const types = `
     createdUserId: String
     createdDate: Date
     viewCount: Int
-    conversationRate: Int
     contactsGathered: Int
   }
 

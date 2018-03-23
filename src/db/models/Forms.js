@@ -31,7 +31,6 @@ const FormSchema = mongoose.Schema({
     default: Date.now,
   }),
   viewCount: field({ type: Number }),
-  conversationRate: field({ type: Number }),
   contactsGathered: field({ type: Number }),
 });
 
