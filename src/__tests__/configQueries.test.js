@@ -14,6 +14,6 @@ describe('configQueries', () => {
       }
     };
 
-    expectError(configQueries.getConfig);
+    expectError(configQueries.configsDetail);
   });
 });

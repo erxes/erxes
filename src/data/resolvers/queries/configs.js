@@ -8,7 +8,7 @@ const configQueries = {
    * @param {Strign} args.code
    * @return {Promise} filtered config object by code
    */
-  getConfig(root, { code }) {
+  configsDetail(root, { code }) {
     return Configs.findOne({ code });
   },
 };

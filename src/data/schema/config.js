@@ -7,7 +7,7 @@ export const types = `
 `;
 
 export const queries = `
-  getConfig(code: String!): Config
+  configsDetail(code: String!): Config
 `;
 
 export const mutations = `
