@@ -35,14 +35,14 @@ class ListContainer extends Bulk {
     const brands = brandsQuery.brands || [];
     const forms = formsQuery.forms || [];
     const fields = [];
-    const integration = integrationDetailQuery.integrationDetail || {};
-
+    const integration = integrationDetailQuery.integrationDetail;
+    console.log(integration);
     // cloning graphql results, because in component we need to change
     // each field's attributes and it is immutable. so making it mutable
     fieldsQuery.fields.forEach(field => {
       fields.push({ ...field });
     });
-    console.log(fields);
+
     // create field
     const addField = doc => {
       fieldsAdd({
@@ -171,10 +171,10 @@ const ListContainerWithData = compose(
   graphql(gql(queries.integrationDetail), {
     name: 'integrationDetailQuery',
     options: ({ contentTypeId }) => ({
-      fetchPolicy: 'network-only',
       variables: {
         _id: contentTypeId
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(mutations.fieldsAdd), { name: 'fieldsAdd' }),

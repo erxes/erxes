@@ -109,6 +109,16 @@ class CommonAssociate extends Component {
     );
   }
 
+  renderSelected(selectedDatas) {
+    if (selectedDatas.length) {
+      return (
+        <ul>{selectedDatas.map(data => this.renderRow(data, 'close'))}</ul>
+      );
+    }
+
+    return <EmptyState text="No items added" icon="ios-list-outline" />;
+  }
+
   render() {
     const { datas, form, title, data } = this.props;
     const selectedDatas = this.state.datas;
@@ -150,19 +160,12 @@ class CommonAssociate extends Component {
               {data.name}&apos;s {title}
               <span>({selectedDatas.length})</span>
             </Title>
-            {!selectedDatas.length && (
-              <EmptyState
-                text="No items added"
-                size="full"
-                icon="ios-list-outline"
-              />
-            )}
-            <ul>{selectedDatas.map(data => this.renderRow(data, 'close'))}</ul>
+            {this.renderSelected(selectedDatas)}
           </Column>
         </Columns>
         <ModalFooter>
           <Footer>
-            <ModalTrigger title={`New ${title}`} trigger={addTrigger}>
+            <ModalTrigger title={`New ${title}`} trigger={addTrigger} size="lg">
               {form}
             </ModalTrigger>
             <div>

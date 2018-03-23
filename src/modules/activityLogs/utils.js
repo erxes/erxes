@@ -31,7 +31,7 @@ const ICON_AND_COLOR_TABLE = {
   },
   'internal_note-create': {
     icon: 'clipboard',
-    color: '#F5C22B'
+    color: '#F7CE53'
   },
   'company-create': {
     icon: 'android-bar',

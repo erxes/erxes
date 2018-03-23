@@ -9,7 +9,6 @@ import BasicInfo from './BasicInfo';
 const propTypes = {
   company: PropTypes.object.isRequired,
   fieldsGroups: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired,
   customFieldsData: PropTypes.object
 };
 
@@ -24,7 +23,7 @@ class LeftSidebar extends ManageGroups {
         <Button
           btnStyle="simple"
           size="small"
-          onClick={this.cancelBasicInfoEditing}
+          onClick={this.cancelEditing}
           icon="close"
         >
           Discard
@@ -42,11 +41,11 @@ class LeftSidebar extends ManageGroups {
   }
 
   render() {
-    const { company, save } = this.props;
+    const { company } = this.props;
 
     return (
       <Sidebar wide footer={this.renderSidebarFooter()}>
-        <BasicInfo company={company} save={save} />
+        <BasicInfo company={company} />
         {this.renderGroups(company)}
         <TaggerSection data={company} type="company" />
       </Sidebar>

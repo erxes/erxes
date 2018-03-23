@@ -20,7 +20,8 @@ import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
-import { CustomerForm, CommonMerge } from '../';
+import { CommonMerge } from '../';
+import { CustomerForm } from '../../containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
 
 const propTypes = {
@@ -34,7 +35,6 @@ const propTypes = {
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
-  addCustomer: PropTypes.func.isRequired,
   location: PropTypes.object,
   history: PropTypes.object,
   loading: PropTypes.bool.isRequired,
@@ -126,7 +126,6 @@ class CustomersList extends React.Component {
     const {
       counts,
       bulk,
-      addCustomer,
       tags,
       emptyBulk,
       loading,
@@ -179,8 +178,8 @@ class CustomersList extends React.Component {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-        <ModalTrigger title="New customer" trigger={addTrigger}>
-          <CustomerForm addCustomer={addCustomer} />
+        <ModalTrigger title="New customer" trigger={addTrigger} size="lg">
+          <CustomerForm size="lg" />
         </ModalTrigger>
       </BarItems>
     );

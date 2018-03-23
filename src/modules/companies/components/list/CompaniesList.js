@@ -15,7 +15,7 @@ import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
-import { CompanyForm } from '../';
+import { CompanyForm } from '../../containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
 import { CommonMerge } from 'modules/customers/components';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
@@ -24,7 +24,6 @@ const propTypes = {
   companies: PropTypes.array.isRequired,
   counts: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
-  addCompany: PropTypes.func.isRequired,
   history: PropTypes.object,
   location: PropTypes.object,
   loading: PropTypes.bool.isRequired,
@@ -94,7 +93,6 @@ class CompaniesList extends React.Component {
       history,
       location,
       loading,
-      addCompany,
       counts,
       toggleBulk,
       bulk,
@@ -222,8 +220,8 @@ class CompaniesList extends React.Component {
             contentType="company"
           />
         </ModalTrigger>
-        <ModalTrigger title="New company" trigger={addTrigger}>
-          <CompanyForm addCompany={addCompany} />
+        <ModalTrigger title="New company" trigger={addTrigger} size="lg">
+          <CompanyForm />
         </ModalTrigger>
       </BarItems>
     );

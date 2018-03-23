@@ -19,7 +19,6 @@ class CustomerListContainer extends Bulk {
       tagsQuery,
       customerCountsQuery,
       customersListConfigQuery,
-      customersAdd,
       customersRemove,
       customersMerge,
       history
@@ -34,21 +33,6 @@ class CustomerListContainer extends Bulk {
     if (localConfig) {
       columnsConfig = JSON.parse(localConfig);
     }
-
-    // add customer
-    const addCustomer = ({ doc, callback }) => {
-      customersAdd({
-        variables: doc
-      })
-        .then(() => {
-          customersMainQuery.refetch();
-          Alert.success('Success');
-          callback();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
 
     const removeCustomers = ({ customerIds }) => {
       customersRemove({
@@ -112,7 +96,6 @@ class CustomerListContainer extends Bulk {
       searchValue,
       loading: customersMainQuery.loading,
       loadingTags: tagsQuery.loading,
-      addCustomer,
       mergeCustomers,
       removeCustomers,
       basicInfos: Object.assign({}, CUSTOMER_BASIC_INFO, CUSTOMER_DATAS)
@@ -183,9 +166,6 @@ export default compose(
     })
   }),
   // mutations
-  graphql(gql(mutations.customersAdd), {
-    name: 'customersAdd'
-  }),
   graphql(gql(mutations.customersRemove), {
     name: 'customersRemove'
   }),

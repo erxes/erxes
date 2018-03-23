@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import { Widget } from 'modules/notifications/containers';
 import { setBadge } from 'modules/common/utils';
 import { colors, dimensions } from 'modules/common/styles';
 import { Tip, Label } from 'modules/common/components';
@@ -18,6 +19,7 @@ const LeftNavigation = styled.aside`
   bottom: 0;
 
   > a {
+    margin-top: ${dimensions.unitSpacing}px;
     line-height: ${dimensions.headerSpacing}px;
     display: flex;
     height: ${dimensions.headerSpacing}px;
@@ -38,7 +40,7 @@ const LeftNavigation = styled.aside`
 
 const Nav = styled.nav`
   display: block;
-  margin-top: ${dimensions.coreSpacing}px;
+  margin-top: ${dimensions.unitSpacing}px;
 
   > a {
     display: block;
@@ -183,6 +185,7 @@ class Navigation extends Component {
             </NavLink>
           </Tip>
         </Nav>
+        <Widget />
       </LeftNavigation>
     );
   }

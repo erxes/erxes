@@ -95,14 +95,6 @@ class UserCommonInfos extends Component {
             <FormControl type="text" id="email" defaultValue={user.email} />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Twitter Username</ControlLabel>
-            <FormControl
-              type="text"
-              id="twitterUsername"
-              defaultValue={details.twitterUsername}
-            />
-          </FormGroup>
-          <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <FormControl
               type="text"

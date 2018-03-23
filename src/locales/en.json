@@ -35,6 +35,7 @@
   "Resolve": "Resolve",
   "Send": "Send",
   "No company": "No company",
+  "No customers": "No customers",
   "Not tagged yet": "Not tagged yet",
   "New note": "New note",
   "Conversation": "Conversation",
@@ -118,7 +119,7 @@
   "Twitter quote": "Twitter quote",
   "Retweet": "Retweet",
   "Screen name": "Screen name",
-  "Don't see the result you\re looking for? ":
+  "Don't see the result you're looking for? ":
     "Don't see the result you're looking for? ",
   "Merged Info": "Merged Info",
   "E-mail": "E-mail",
@@ -266,7 +267,8 @@
   "Notification settings": "Notification settings",
   "Mark Page Read": "Mark Page Read",
   "Mark All Read": "Mark All Read",
-  "Coming soon..": "Coming soon",
+  "Coming soon": "Coming soon",
+  "AI": "AI",
   "See all": "See all",
   "Select a field": "Select a field",
   "Add condition": "Add condition",
@@ -546,5 +548,16 @@
   "You cannot update this property": "You cannot update this property",
   "Desktop": "Desktop",
   "Mobile": "Mobile",
-  "Tablet": "Tablet"
+  "Tablet": "Tablet",
+  "Owner": "Owner",
+  "Department": "Department",
+  "Lead Status": "Lead status",
+  "Lifecycle State": "Lifecycle State",
+  "Has Authority": "Has Authority",
+  "Do not disturb": "Do not disturb",
+  "Parent Company": "Parent Company",
+  "Business Type": "Business Type",
+  "Employees count": "Employees count",
+  "Yes": "Yes",
+  "No": "No"
 }

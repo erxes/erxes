@@ -48,7 +48,7 @@ class NotificationList extends Component {
       </NotifList>
     );
 
-    const actionBarLeft = (
+    const actionBarRight = (
       <div>
         <Button
           btnStyle="primary"
@@ -69,7 +69,7 @@ class NotificationList extends Component {
       </div>
     );
 
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+    const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
 
     return (
       <Wrapper
@@ -89,6 +89,10 @@ NotificationList.propTypes = {
   notifications: PropTypes.array.isRequired,
   markAsRead: PropTypes.func.isRequired,
   count: PropTypes.number.isRequired
+};
+
+NotificationList.contextTypes = {
+  __: PropTypes.func
 };
 
 export default NotificationList;
