@@ -17,9 +17,7 @@ const StepItem = styled.div`
   box-shadow: 0 0 4px ${colors.colorShadowGray};
 `;
 
-const BoxRow = styled.div`
-  margin-bottom: 20px;
-`;
+const BoxRow = styled.div``;
 
 const FullStep = styled.div`
   background: ${colors.colorWhite};
@@ -91,7 +89,8 @@ const FlexItem = styled.div`
 const LeftItem = styled.div`
   position: relative;
   overflow: auto;
-  min-width: 500px;
+  flex: 0 0 33.33333%;
+  min-width: 43.33333%;
   padding: ${dimensions.coreSpacing}px;
 `;
 
@@ -115,7 +114,7 @@ const CenterContainer = styled.div`
   align-items: center;
   justify-content: center;
   min-height: 500px;
-  background: url('/images/preview.png');
+  background: url('/images/previews/preview.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
 `;
@@ -389,15 +388,24 @@ const ResolutionTabs = styled.div`
 `;
 
 const DesktopPreview = styled.div`
-  border: 4px solid #ddd;
+  background: url('/images/previews/desktop.png') no-repeat;
+  padding-top: 30px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 5px;
 `;
 
 const TabletPreview = styled.div`
-  border: 4px solid #333;
+  padding: 80px 20px;
+  background: url('/images/previews/tablet.png') no-repeat;
+  width: 768px;
+  margin: 0 auto;
 `;
 
 const MobilePreview = styled.div`
-  border: 4px solid blue;
+  background: url('/images/previews/mobile.png') no-repeat;
+  width: 376px;
+  padding: 90px 19px 60px;
+  margin: 0 auto;
 `;
 
 export {

@@ -23,7 +23,7 @@ const slideright = keyframes`
 `;
 
 const ShoutBox = MessengerPreview.extend`
-  background: url('/images/preview.png');
+  background: url(${props => !props.data && '/images/previews/preview.png'});
   background-repeat: no-repeat;
   background-size: 100% 100%;
   width: auto;
@@ -48,6 +48,7 @@ const propTypes = {
   theme: PropTypes.string,
   image: PropTypes.string,
   thankContent: PropTypes.string,
+  preview: PropTypes.string,
   fields: PropTypes.array, // eslint-disable-line
   onFieldEdit: PropTypes.func,
   onSort: PropTypes.func
@@ -65,11 +66,12 @@ class ShoutboxPreview extends Component {
       fields,
       onFieldEdit,
       onSort,
-      thankContent
+      thankContent,
+      preview
     } = this.props;
 
     return (
-      <ShoutBox>
+      <ShoutBox data={preview}>
         <Widget>
           <WidgetPreviewStyled className="engage-message type-default">
             <PopupTitle style={{ backgroundColor: theme ? theme : color }}>

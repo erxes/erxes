@@ -11,7 +11,7 @@ const propTypes = {
 class Row extends Component {
   renderEditAction(integration) {
     return (
-      <Link to={`/forms/edit/${integration._id}`}>
+      <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
         <Button btnStyle="link">
           <Tip text="Edit">
             <Icon icon="edit" />

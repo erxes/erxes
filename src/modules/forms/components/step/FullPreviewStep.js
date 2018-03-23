@@ -56,7 +56,8 @@ class FullPreviewStep extends Component {
       theme,
       image,
       kind,
-      fields
+      fields,
+      preview
     } = this.props;
 
     if (kind === 'shoutbox') {
@@ -69,6 +70,7 @@ class FullPreviewStep extends Component {
           theme={theme}
           image={image}
           fields={fields}
+          preview={preview}
         />
       );
     } else if (kind === 'popup') {
@@ -81,6 +83,7 @@ class FullPreviewStep extends Component {
           theme={theme}
           image={image}
           fields={fields}
+          preview={preview}
         />
       );
     }
@@ -93,6 +96,7 @@ class FullPreviewStep extends Component {
         theme={theme}
         image={image}
         fields={fields}
+        preview={preview}
       />
     );
   }

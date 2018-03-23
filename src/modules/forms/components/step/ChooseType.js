@@ -18,6 +18,7 @@ const Box = styled.div`
   transition: all 0.25s ease;
   width: 270px;
   margin-right: 20px;
+  margin-bottom: 20px;
 
   img {
     width: 40px;

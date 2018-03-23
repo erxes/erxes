@@ -18,19 +18,18 @@ const routes = () => [
     key="/forms/create"
     exact
     path="/forms/create"
-    component={({ location }) => {
-      const queryParams = queryString.parse(location.search);
-      return <Form queryParams={queryParams} />;
+    component={() => {
+      return <Form />;
     }}
   />,
 
   <Route
-    key="/forms/edit/:contentTypeId?"
+    key="/forms/edit/:contentTypeId?/:formId?"
     exact
-    path="/forms/edit/:contentTypeId?"
+    path="/forms/edit/:contentTypeId/:formId?"
     component={({ match }) => {
-      const { contentTypeId } = match.params;
-      return <Form contentTypeId={contentTypeId} />;
+      const { contentTypeId, formId } = match.params;
+      return <Form contentTypeId={contentTypeId} formId={formId} />;
     }}
   />
 ];

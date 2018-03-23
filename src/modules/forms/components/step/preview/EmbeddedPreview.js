@@ -18,6 +18,7 @@ const propTypes = {
   theme: PropTypes.string,
   image: PropTypes.string,
   thankContent: PropTypes.string,
+  preview: PropTypes.string,
   fields: PropTypes.array, // eslint-disable-line
   onFieldEdit: PropTypes.func,
   onSort: PropTypes.func
@@ -40,11 +41,12 @@ class EmbeddedPreview extends Component {
       fields,
       onFieldEdit,
       onSort,
+      preview,
       thankContent
     } = this.props;
 
     return (
-      <Container>
+      <Container data={preview}>
         <Embedded>
           <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
             {title}

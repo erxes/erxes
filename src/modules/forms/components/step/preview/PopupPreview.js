@@ -19,6 +19,7 @@ const propTypes = {
   theme: PropTypes.string,
   image: PropTypes.string,
   thankContent: PropTypes.string,
+  preview: PropTypes.string,
   fields: PropTypes.array, // eslint-disable-line
   onFieldEdit: PropTypes.func,
   onSort: PropTypes.func
@@ -36,11 +37,12 @@ class PopupPreview extends Component {
       fields,
       onFieldEdit,
       onSort,
-      thankContent
+      thankContent,
+      preview
     } = this.props;
 
     return (
-      <CenterContainer>
+      <CenterContainer data={preview}>
         <OverlayTrigger />
         <FormContainer>
           <PopupTitle style={{ backgroundColor: theme ? theme : color }}>

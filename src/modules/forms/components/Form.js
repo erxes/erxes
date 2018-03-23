@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Button, Icon, FormControl } from 'modules/common/components';
-import _ from 'lodash';
 import {
   ChooseType,
   Steps,
@@ -21,7 +20,12 @@ const propTypes = {
   brands: PropTypes.array,
   forms: PropTypes.array,
   fields: PropTypes.array,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  addField: PropTypes.func,
+  editField: PropTypes.func,
+  deleteField: PropTypes.func,
+  save: PropTypes.func,
+  onSort: PropTypes.func
 };
 
 class Form extends Component {
@@ -32,13 +36,14 @@ class Form extends Component {
     const formData = integration.formData || {};
     const fields = props.fields || [];
 
-    console.log(integration, fields);
+    // console.log(integration, fields);
     this.state = {
       activeStep: 1,
       maxStep: 5,
       kind: formData.loadType || 'shoutbox',
       preview: 'desktop',
       title: integration.name || 'Contact',
+      languageCode: 'en',
       bodyValue: 'Body description here',
       thankContent: formData.thankContent || 'Thank you.',
       successAction: formData.successAction || 'onPage',
@@ -57,6 +62,28 @@ class Form extends Component {
     this.next = this.next.bind(this);
     this.changeState = this.changeState.bind(this);
     this.renderSaveButton = this.renderSaveButton.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleSubmit(e) {
+    const { save } = this.props;
+    const doc = this.generateDoc(e);
+    console.log(doc);
+    save(doc);
+  }
+
+  generateDoc(e) {
+    e.preventDefault();
+
+    const doc = {
+      name: this.state.title,
+      languageCode: this.state.languageCode,
+      formData: {
+        loadType: this.state.kind
+      }
+    };
+
+    return doc;
   }
 
   renderNextButton() {
@@ -69,28 +96,12 @@ class Form extends Component {
 
   renderSaveButton() {
     const cancelButton = (
-      <Link to="/engage">
+      <Link to="/forms">
         <Button btnStyle="simple" size="small" icon="close">
           Cancel
         </Button>
       </Link>
     );
-
-    if (!_.isEmpty()) {
-      return (
-        <Button.Group>
-          {cancelButton}
-          <Button
-            btnStyle="primary"
-            size="small"
-            icon="checkmark"
-            onClick={e => this.save('save', e)}
-          >
-            Save
-          </Button>
-        </Button.Group>
-      );
-    }
     return (
       <Button.Group>
         {cancelButton}
@@ -98,7 +109,7 @@ class Form extends Component {
           btnStyle="success"
           size="small"
           icon="checkmark"
-          onClick={e => this.save('live', e)}
+          onClick={this.handleSubmit}
         >
           Save
         </Button>
@@ -131,14 +142,19 @@ class Form extends Component {
       bodyValue,
       color,
       theme,
-      options,
       logoPreviewUrl,
       thankContent,
       fields,
       preview,
       successAction
     } = this.state;
-    const { integration } = this.props;
+    const {
+      integration,
+      addField,
+      deleteField,
+      editField,
+      onSort
+    } = this.props;
     const { __ } = this.context;
 
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
@@ -194,8 +210,12 @@ class Form extends Component {
               kind={kind}
               color={color}
               theme={theme}
-              options={options}
+              fields={fields}
               image={logoPreviewUrl}
+              addField={addField}
+              editField={editField}
+              deleteField={deleteField}
+              onSort={onSort}
             />
           </Step>
           <Step
@@ -212,7 +232,6 @@ class Form extends Component {
               kind={kind}
               color={color}
               theme={theme}
-              options={options}
               image={logoPreviewUrl}
               brands={this.props.brands}
               fields={fields}
