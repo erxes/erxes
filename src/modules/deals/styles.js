@@ -150,6 +150,8 @@ const DealContainerHover = styled.div`
     top: 30px;
     right: 15px;
     font-size: 15px;
+    cursor: pointer;
+    padding: 5px;
   }
 `;
 
@@ -220,7 +222,7 @@ const DealFormAmount = styled.div`
   }
 `;
 
-const DealFormContainer = styled.div`
+const DealFormContainer = styled.form`
   padding: 20px;
   border-radius: 5px;
   border: 1px dotted ${colors.colorShadowGray};
@@ -345,9 +347,12 @@ const QuickEditContainer = styled.div`
     top: ${props => props.top && `${props.top}px`};
     bottom: 10px;
     left: ${props => `${props.left - 70}px`};
+
     ${DealFormContainer} {
       float: left;
       width: ${StageWidth - 30}px;
+      overflow: auto;
+      height: 100%;
     }
   }
 `;
@@ -378,13 +383,6 @@ const DealMoveFormContainer = styled.div`
   padding: 20px;
 `;
 
-const QuickForm = styled.div`
-  > div {
-    overflow: auto;
-    height: 100%;
-  }
-`;
-
 export {
   PipelineContainer,
   PipelineHeader,
@@ -412,6 +410,5 @@ export {
   ProductItemText,
   QuickEditContainer,
   RightControls,
-  DealMoveFormContainer,
-  QuickForm
+  DealMoveFormContainer
 };
