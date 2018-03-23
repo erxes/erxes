@@ -140,13 +140,16 @@ class RespondBox extends Component {
     });
   }
 
+  cleanText(text) {
+    return text.replace(/&nbsp;/g, ' ');
+  }
+
   addMessage() {
     const { conversation, sendMessage } = this.props;
     const { isInternal, attachments, content, mentionedUserIds } = this.state;
-
     const message = {
       conversationId: conversation._id,
-      content: content || ' ',
+      content: this.cleanText(content) || ' ',
       internal: isInternal,
       attachments,
       mentionedUserIds

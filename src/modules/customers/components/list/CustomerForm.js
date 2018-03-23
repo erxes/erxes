@@ -103,10 +103,9 @@ class CustomerForm extends React.Component {
 
     return (
       <form onSubmit={e => this.action(e)}>
+        <ColumnTitle>{__('Basics')}</ColumnTitle>
         <FormWrapper>
           <FormColumn>
-            <ColumnTitle>{__('Basics')}</ColumnTitle>
-
             {this.renderFormGroup('First Name', {
               defaultValue: customer.firstName || '',
               autoFocus: true,
@@ -114,21 +113,11 @@ class CustomerForm extends React.Component {
               id: 'customer-firstname'
             })}
 
-            {this.renderFormGroup('Last Name', {
-              id: 'customer-lastname',
-              defaultValue: customer.lastName || ''
-            })}
-
             {this.renderFormGroup('Email', {
               id: 'customer-email',
               type: 'email',
               defaultValue: customer.email || '',
               required: true
-            })}
-
-            {this.renderFormGroup('Phone', {
-              id: 'customer-phone',
-              defaultValue: customer.phone || ''
             })}
 
             <FormGroup>
@@ -143,21 +132,9 @@ class CustomerForm extends React.Component {
               />
             </FormGroup>
 
-            {this.renderFormGroup('Position', {
-              id: 'customer-position',
-              defaultValue: customer.position || ''
-            })}
-
             {this.renderFormGroup('Department', {
               id: 'customer-department',
               defaultValue: customer.department || ''
-            })}
-
-            {this.renderFormGroup('Lead Status', {
-              id: 'customer-leadStatus',
-              componentClass: 'select',
-              defaultValue: customer.leadStatus || '',
-              options: this.generateConstantParams(CUSTOMER_LEAD_STATUS_TYPES)
             })}
 
             {this.renderFormGroup('Lifecycle State', {
@@ -167,6 +144,34 @@ class CustomerForm extends React.Component {
               options: this.generateConstantParams(
                 CUSTOMER_LIFECYCLE_STATE_TYPES
               )
+            })}
+
+            {this.renderFormGroup('Description', {
+              id: 'customer-description',
+              defaultValue: customer.description || ''
+            })}
+          </FormColumn>
+          <FormColumn>
+            {this.renderFormGroup('Last Name', {
+              id: 'customer-lastname',
+              defaultValue: customer.lastName || ''
+            })}
+
+            {this.renderFormGroup('Phone', {
+              id: 'customer-phone',
+              defaultValue: customer.phone || ''
+            })}
+
+            {this.renderFormGroup('Position', {
+              id: 'customer-position',
+              defaultValue: customer.position || ''
+            })}
+
+            {this.renderFormGroup('Lead Status', {
+              id: 'customer-leadStatus',
+              componentClass: 'select',
+              defaultValue: customer.leadStatus || '',
+              options: this.generateConstantParams(CUSTOMER_LEAD_STATUS_TYPES)
             })}
 
             {this.renderFormGroup('Has Authority', {
@@ -187,11 +192,6 @@ class CustomerForm extends React.Component {
               ]
             })}
 
-            {this.renderFormGroup('Description', {
-              id: 'customer-description',
-              defaultValue: customer.description || ''
-            })}
-
             {this.renderFormGroup('Do not disturb', {
               componentClass: 'radio',
               options: [
@@ -210,10 +210,10 @@ class CustomerForm extends React.Component {
               ]
             })}
           </FormColumn>
-
+        </FormWrapper>
+        <ColumnTitle>{__('Links')}</ColumnTitle>
+        <FormWrapper>
           <FormColumn>
-            <ColumnTitle>{__('Links')}</ColumnTitle>
-
             {this.renderFormGroup('LinkedIn', {
               id: 'customer-linkedin',
               defaultValue: links.linkedIn || ''
@@ -228,7 +228,8 @@ class CustomerForm extends React.Component {
               id: 'customer-facebook',
               defaultValue: links.facebook || ''
             })}
-
+          </FormColumn>
+          <FormColumn>
             {this.renderFormGroup('Github', {
               id: 'customer-github',
               defaultValue: links.github || ''

@@ -169,7 +169,7 @@ class DealForm extends React.Component {
       <ModalTrigger
         title="New Product & Service"
         trigger={productTrigger}
-        size="large"
+        dialogClassName="full"
       >
         <ProductForm
           onChangeProductsData={this.onChangeProductsData}

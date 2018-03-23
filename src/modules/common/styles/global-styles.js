@@ -59,6 +59,10 @@ injectGlobal`
     margin: 50px auto;
   }
 
+  .modal-dialog.full {
+    width: 85%;
+  }
+
   .modal-content {
     border-radius: 2px;
     border: 0;

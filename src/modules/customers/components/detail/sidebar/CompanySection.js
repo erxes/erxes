@@ -14,6 +14,7 @@ const propTypes = {
 function CompaniySection({ customer }, { __ }) {
   const { Section } = Sidebar;
   const { Title } = Sidebar.Section;
+  const companies = customer.companies || [];
 
   const companyTrigger = (
     <a>
@@ -29,7 +30,7 @@ function CompaniySection({ customer }, { __ }) {
           <CompanyAssociate data={customer} />
         </ModalTrigger>
       </Section.QuickButtons>
-      {customer.companies.map((company, index) => (
+      {companies.map((company, index) => (
         <CompanyWrapper key={index}>
           <Link to={`/companies/details/${company._id}`}>
             <Icon icon="android-open" />
@@ -43,7 +44,7 @@ function CompaniySection({ customer }, { __ }) {
         </CompanyWrapper>
       ))}
 
-      {customer.companies.length === 0 && (
+      {companies.length === 0 && (
         <EmptyState icon="briefcase" text="No company" />
       )}
     </Section>

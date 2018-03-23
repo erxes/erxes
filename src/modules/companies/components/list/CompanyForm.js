@@ -115,33 +115,21 @@ class CompanyForm extends React.Component {
 
     return (
       <form onSubmit={e => this.action(e)}>
+        <ColumnTitle>{__('Basics')}</ColumnTitle>
         <FormWrapper>
           <FormColumn>
-            <ColumnTitle>{__('Basics')}</ColumnTitle>
             {this.renderFormGroup('Name', {
               id: 'company-name',
               autoFocus: true,
               defaultValue: company.name || '',
               required: true
             })}
-
-            {this.renderFormGroup('Size', {
-              id: 'company-size',
-              defaultValue: company.size || 0
-            })}
-
             {this.renderFormGroup('Industry', {
               id: 'company-industry',
               componentClass: 'select',
               defaultValue: company.industry || '',
               options: this.generateConstantParams(COMPANY_INDUSTRY_TYPES)
             })}
-
-            {this.renderFormGroup('Plan', {
-              id: 'company-plan',
-              defaultValue: company.plan || ''
-            })}
-
             <FormGroup>
               <ControlLabel>Parent Company</ControlLabel>
               <Select
@@ -153,12 +141,36 @@ class CompanyForm extends React.Component {
                 options={this.generateCompanyParams(companies)}
               />
             </FormGroup>
-
+            {this.renderFormGroup('Plan', {
+              id: 'company-plan',
+              defaultValue: company.plan || ''
+            })}
+            {this.renderFormGroup('Lead Status', {
+              id: 'company-leadStatus',
+              componentClass: 'select',
+              defaultValue: company.leadStatus || '',
+              options: this.generateConstantParams(COMPANY_LEAD_STATUS_TYPES)
+            })}
+            {this.renderFormGroup('Business Type', {
+              id: 'company-businessType',
+              componentClass: 'select',
+              defaultValue: company.businessType || '',
+              options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
+            })}
+            {this.renderFormGroup('Employees count', {
+              id: 'company-employees',
+              defaultValue: company.employees || 0
+            })}
+          </FormColumn>
+          <FormColumn>
             {this.renderFormGroup('Email', {
               id: 'company-email',
               defaultValue: company.email || ''
             })}
-
+            {this.renderFormGroup('Size', {
+              id: 'company-size',
+              defaultValue: company.size || 0
+            })}
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
               <Select
@@ -170,19 +182,10 @@ class CompanyForm extends React.Component {
                 options={this.generateUserParams(users)}
               />
             </FormGroup>
-
             {this.renderFormGroup('Phone', {
               id: 'company-phone',
               defaultValue: company.phone || ''
             })}
-
-            {this.renderFormGroup('Lead Status', {
-              id: 'company-leadStatus',
-              componentClass: 'select',
-              defaultValue: company.leadStatus || '',
-              options: this.generateConstantParams(COMPANY_LEAD_STATUS_TYPES)
-            })}
-
             {this.renderFormGroup('Lifecycle State', {
               id: 'company-lifecycleState',
               componentClass: 'select',
@@ -191,24 +194,10 @@ class CompanyForm extends React.Component {
                 COMPANY_LIFECYCLE_STATE_TYPES
               )
             })}
-
-            {this.renderFormGroup('Business Type', {
-              id: 'company-businessType',
-              componentClass: 'select',
-              defaultValue: company.businessType || '',
-              options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
-            })}
-
             {this.renderFormGroup('Description', {
               id: 'company-description',
               defaultValue: company.description || ''
             })}
-
-            {this.renderFormGroup('Employees count', {
-              id: 'company-employees',
-              defaultValue: company.employees || 0
-            })}
-
             {this.renderFormGroup('Do not disturb', {
               componentClass: 'radio',
               options: [
@@ -227,10 +216,10 @@ class CompanyForm extends React.Component {
               ]
             })}
           </FormColumn>
-
+        </FormWrapper>
+        <ColumnTitle>{__('Links')}</ColumnTitle>
+        <FormWrapper>
           <FormColumn>
-            <ColumnTitle>{__('Links')}</ColumnTitle>
-
             {this.renderFormGroup('LinkedIn', {
               id: 'company-linkedIn',
               defaultValue: links.linkedIn || ''
@@ -245,7 +234,8 @@ class CompanyForm extends React.Component {
               id: 'company-facebook',
               defaultValue: links.facebook || ''
             })}
-
+          </FormColumn>
+          <FormColumn>
             {this.renderFormGroup('Github', {
               id: 'company-github',
               defaultValue: links.github || ''

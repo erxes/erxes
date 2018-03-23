@@ -8,30 +8,6 @@ const BlockValue = styled.div`
   white-space: normal;
 `;
 
-const NameWrapper = styled.div`
-  padding: ${dimensions.coreSpacing}px 0;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  .customer-name {
-    flex: 1;
-    word-break: break-word;
-  }
-
-  a {
-    cursor: pointer;
-  }
-
-  > a {
-    color: ${colors.colorCoreLightGray};
-  }
-`;
-
-const AboutWrapper = styled.div`
-  margin-top: ${dimensions.coreSpacing}px;
-`;
-
 const CompanyWrapper = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
   padding-top: 10px;
@@ -82,4 +58,4 @@ const ButtonWrapper = styled.div`
   text-align: right;
 `;
 
-export { BlockValue, NameWrapper, AboutWrapper, CompanyWrapper, ButtonWrapper };
+export { BlockValue, CompanyWrapper, ButtonWrapper };
