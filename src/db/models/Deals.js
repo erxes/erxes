@@ -174,8 +174,8 @@ class Pipeline {
    *
    * @return [Pipeline] updated pipelines
    */
-  static async updateOrder(orders) {
-    return await updateListOrder(this, orders);
+  static updateOrder(orders) {
+    return updateListOrder(this, orders);
   }
 
   /**
@@ -213,7 +213,7 @@ class Stage {
    * @param  {Object} doc
    * @return {Promise} Newly created stage object
    */
-  static async createStage(doc) {
+  static createStage(doc) {
     return this.create(doc);
   }
 
@@ -251,8 +251,8 @@ class Stage {
    *
    * @return [Stage] updated stages
    */
-  static async updateOrder(orders) {
-    return await updateListOrder(this, orders);
+  static updateOrder(orders) {
+    return updateListOrder(this, orders);
   }
 
   /**
@@ -339,8 +339,8 @@ class Deal {
    *
    * @return [Deal] updated deals
    */
-  static async updateOrder(orders) {
-    return await updateListOrder(this, orders);
+  static updateOrder(orders) {
+    return updateListOrder(this, orders);
   }
 
   /**

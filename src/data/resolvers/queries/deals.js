@@ -24,7 +24,7 @@ const dealQueries = {
    * Get last board
    * @return {Promise} board
    */
-  async dealBoardGetLast() {
+  dealBoardGetLast() {
     return DealBoards.findOne().sort({ order: 1, createdAt: -1 });
   },
 

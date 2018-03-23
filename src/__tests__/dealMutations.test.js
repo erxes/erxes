@@ -51,7 +51,7 @@ describe('Test deals mutations', () => {
   });
 
   test('Check login required', async () => {
-    expect.assertions(14);
+    expect.assertions(17);
 
     const check = async fn => {
       try {
@@ -76,6 +76,9 @@ describe('Test deals mutations', () => {
     // edit
     check(dealMutations.dealPipelinesEdit);
 
+    // update order
+    check(dealMutations.dealPipelinesUpdateOrder);
+
     // remove
     check(dealMutations.dealPipelinesRemove);
 
@@ -88,6 +91,9 @@ describe('Test deals mutations', () => {
     // change
     check(dealMutations.dealStagesChange);
 
+    // update order
+    check(dealMutations.dealStagesUpdateOrder);
+
     // remove
     check(dealMutations.dealStagesRemove);
 
@@ -99,6 +105,9 @@ describe('Test deals mutations', () => {
 
     // change
     check(dealMutations.dealsChange);
+
+    // update order
+    check(dealMutations.dealsUpdateOrder);
 
     // remove
     check(dealMutations.dealsRemove);

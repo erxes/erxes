@@ -75,11 +75,13 @@ describe('Test deals model', () => {
     await DealPipelines.update({}, { $set: doc });
 
     const isDeleted = await DealBoards.removeBoard(_board.id);
+
     expect(isDeleted).toBeTruthy();
   });
 
   test('Remove board not found', async () => {
     expect.assertions(1);
+
     try {
       await DealBoards.removeBoard(_user._id);
     } catch (e) {
@@ -153,8 +155,8 @@ describe('Test deals model', () => {
     const _pipeline2 = await dealPipelineFactory();
 
     const [updatedPipeline1, updatedPipeline2] = await DealPipelines.updateOrder([
-      { _id: _pipeline1._id, order: 4 },
-      { _id: _pipeline2._id, order: 5 },
+      { _id: _pipeline1._id, order: 5 },
+      { _id: _pipeline2._id, order: 4 },
     ]);
 
     expect(updatedPipeline1.order).toBe(4);
@@ -289,13 +291,13 @@ describe('Test deals model', () => {
   });
 
   test('Update deal', async () => {
-    const dealCompanyId = 'fakeId';
+    const dealBoardId = 'fakeId';
     const dealObj = await Deals.updateDeal(_deal._id, {
-      companyId: dealCompanyId,
+      boardId: dealBoardId,
     });
 
     expect(dealObj).toBeDefined();
-    expect(dealObj.companyId).toEqual(dealCompanyId);
+    expect(dealObj.boardId).toEqual(dealBoardId);
     expect(dealObj.amount).toEqual(_deal.amount);
     expect(dealObj.closeDate).toEqual(_deal.closeDate);
     expect(dealObj.note).toEqual(_deal.note);
