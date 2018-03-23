@@ -98,12 +98,13 @@ class Deal extends React.Component {
 
     return (
       <Draggable draggableId={deal._id} index={index}>
-        {provided => (
+        {(provided, snapshot) => (
           <div>
             <DealContainer
               innerRef={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
+              isDragging={snapshot.isDragging}
             >
               <DealDate>{moment(deal.closeDate).format('YYYY-MM-DD')}</DealDate>
 

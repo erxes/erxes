@@ -24,7 +24,7 @@ const PipelineHeader = styled.div`
     padding: 0;
     line-height: 50px;
     font-weight: normal;
-    font-size: 14px;
+    font-size: 13px;
     color: ${rgba(colors.colorCoreDarkGray, 0.9)};
   }
 `;
@@ -32,7 +32,7 @@ const PipelineHeader = styled.div`
 const PipelineBody = styled.div`
   overflow-x: auto;
 
-  > div {
+  > div:not([class]) {
     display: inline-flex;
   }
 `;
@@ -52,7 +52,7 @@ const StageContainer = styled.div`
   ${props => css`
     background: ${props.isDragging ? colors.colorWhite : 'none'};
     box-shadow: ${props.isDragging
-      ? `0 0 20px 2px ${colors.colorShadowGray}`
+      ? `0 0 20px 2px rgba(0, 0, 0, 0.14)`
       : 'none'};
   `};
 `;
@@ -64,15 +64,14 @@ const StageHeader = styled.div`
     line-height: 18px;
     display: flex;
     justify-content: space-between;
+
     h3 {
       margin: 0;
-      font-size: 14px;
+      font-size: 13px;
       text-transform: uppercase;
     }
     .deals-count {
       text-transform: capitalize;
-      color: #585278;
-      font-weight: bold;
     }
   }
 `;
@@ -85,8 +84,17 @@ const StageAmount = styled.ul`
   li {
     float: left;
     padding-left: 5px;
-    color: #585278;
     font-weight: bold;
+    font-size: 12px;
+
+    &:before {
+      content: '/';
+      margin-right: 5px;
+    }
+
+    &:first-child:before {
+      content: '';
+    }
   }
 `;
 
@@ -134,13 +142,13 @@ const DealContainerHover = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: ${rgba(colors.colorCoreLightGray, 0.15)};
-  border: 1px solid ${colors.borderPrimary};
+  background: ${rgba(colors.colorCoreLightGray, 0.2)};
   transition: all 0.3s ease;
 
   > div {
-    float: right;
-    padding: 25px 25px 0 0;
+    position: absolute;
+    top: 30px;
+    right: 15px;
     font-size: 15px;
   }
 `;
@@ -149,11 +157,13 @@ const DealContainer = styled.div`
   position: relative;
   overflow: hidden;
   margin-bottom: 10px;
-  padding: 10px 15px;
+  padding: 15px;
   border-radius: 5px;
   border: 1px solid ${colors.borderPrimary};
-  background-color: #f6f6f6;
+  background-color: ${colors.bgLight};
   position: relative;
+  box-shadow: ${props =>
+    props.isDragging ? `0 0 20px 2px rgba(0, 0, 0, 0.13)` : 'none'};
 
   &:hover ${DealContainerHover} {
     opacity: 1;
@@ -175,11 +185,11 @@ const ItemCounterContainer = styled.ul`
 
   > li {
     float: left;
-    border-radius: 10px;
-    padding: 5px 8px;
+    border-radius: 12px;
+    padding: 5px 10px;
     margin-right: 5px;
-    color: #fff;
-    background: #130ef5;
+    color: ${colors.colorWhite};
+    background: ${colors.colorSecondary};
     text-transform: uppercase;
     font-size: 9px;
   }
@@ -191,8 +201,14 @@ const ItemCounterContainer = styled.ul`
 const DealAmount = styled.div`
   float: left;
   margin-top: 10px;
+
   p {
     margin-bottom: 0;
+
+    span {
+      font-size: 11px;
+      font-weight: bold;
+    }
   }
 `;
 
@@ -239,22 +255,23 @@ const DealButton = styled.div`
 
 const UserCounterContainer = styled.ul`
   float: right;
-  margin-top: 15px;
+  margin-top: 20px;
+  margin-bottom: 0;
   list-style: none;
   padding: 0;
 
   li {
     float: left;
     border: 2px solid ${colors.colorWhite};
-    width: 30px;
-    height: 30px;
-    line-height: 26px;
-    border-radius: 15px;
+    width: 28px;
+    height: 28px;
+    line-height: 24px;
+    border-radius: 14px;
     background: #a3a7ac;
     text-align: center;
     color: ${colors.colorWhite};
     overflow: hidden;
-    margin-left: -10px;
+    margin-left: -12px;
 
     img {
       width: 100%;
