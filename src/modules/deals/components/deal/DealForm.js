@@ -259,86 +259,84 @@ class DealForm extends React.Component {
 
     return (
       <DealFormContainer>
-        <form>
-          {this.renderProductModal(productsData)}
+        {this.renderProductModal(productsData)}
 
-          <FormGroup>
-            <ItemCounter items={products} />
-          </FormGroup>
+        <FormGroup>
+          <ItemCounter items={products} />
+        </FormGroup>
 
-          {this.renderCompanyModal(companies)}
+        {this.renderCompanyModal(companies)}
 
-          <FormGroup>
-            <ItemCounter items={companies} />
-          </FormGroup>
+        <FormGroup>
+          <ItemCounter items={companies} />
+        </FormGroup>
 
-          {this.renderCustomerModal(customers)}
+        {this.renderCustomerModal(customers)}
 
-          <FormGroup>
-            <ItemCounter items={customers} />
-          </FormGroup>
+        <FormGroup>
+          <ItemCounter items={customers} />
+        </FormGroup>
 
-          {this.renderAmount(amount)}
+        {this.renderAmount(amount)}
 
-          <FormGroup>
-            <ControlLabel>Close date</ControlLabel>
-            <Datetime
-              inputProps={{ placeholder: __('Click to select a date') }}
-              dateFormat="YYYY/MM/DD"
-              timeFormat={false}
-              value={closeDate}
-              onChange={this.onDateInputChange.bind(this)}
-            />
-          </FormGroup>
+        <FormGroup>
+          <ControlLabel>Close date</ControlLabel>
+          <Datetime
+            inputProps={{ placeholder: __('Click to select a date') }}
+            dateFormat="YYYY/MM/DD"
+            timeFormat={false}
+            value={closeDate}
+            onChange={this.onDateInputChange.bind(this)}
+          />
+        </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Note</ControlLabel>
-            <FormControl
-              componentClass="textarea"
-              value={note}
-              onChange={this.onChangeNote.bind(this)}
-            />
-          </FormGroup>
+        <FormGroup>
+          <ControlLabel>Note</ControlLabel>
+          <FormControl
+            componentClass="textarea"
+            value={note}
+            onChange={this.onChangeNote.bind(this)}
+          />
+        </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Assigned to</ControlLabel>
-            <Select
-              placeholder={__('Choose users')}
-              value={assignedUserIds}
-              onChange={this.onChangeUsers}
-              optionRenderer={option => (
-                <div className="simple-option">
-                  <span>{option.label}</span>
-                </div>
-              )}
-              multi
-              removeSelected={true}
-              options={selectUserOptions(users)}
-            />
-          </FormGroup>
+        <FormGroup>
+          <ControlLabel>Assigned to</ControlLabel>
+          <Select
+            placeholder={__('Choose users')}
+            value={assignedUserIds}
+            onChange={this.onChangeUsers}
+            optionRenderer={option => (
+              <div className="simple-option">
+                <span>{option.label}</span>
+              </div>
+            )}
+            multi
+            removeSelected={true}
+            options={selectUserOptions(users)}
+          />
+        </FormGroup>
 
-          <Modal.Footer>
-            <Button
-              btnStyle="simple"
-              onClick={() => {
-                this.props.close();
-              }}
-              icon="close"
-            >
-              Close
-            </Button>
+        <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            onClick={() => {
+              this.props.close();
+            }}
+            icon="close"
+          >
+            Close
+          </Button>
 
-            <Button
-              btnStyle="success"
-              onClick={() => {
-                this.save();
-              }}
-              icon="checkmark"
-            >
-              Save
-            </Button>
-          </Modal.Footer>
-        </form>
+          <Button
+            btnStyle="success"
+            onClick={() => {
+              this.save();
+            }}
+            icon="checkmark"
+          >
+            Save
+          </Button>
+        </Modal.Footer>
       </DealFormContainer>
     );
   }
