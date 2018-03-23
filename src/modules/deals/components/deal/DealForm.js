@@ -49,7 +49,7 @@ class DealForm extends React.Component {
       companies: deal.companies || [],
       customers: deal.customers || [],
       closeDate: deal.closeDate,
-      note: deal.note,
+      note: deal.note || '',
       productsData: (deal.productsData || []).map(data => ({ ...data })),
       products: deal.products || [],
       assignedUserIds: (deal.assignedUsers || []).map(user => user._id)
