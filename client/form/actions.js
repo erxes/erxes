@@ -20,6 +20,20 @@ export const toggleShoutbox = (isVisible) => {
     isVisible: !isVisible,
   }, '*');
 
+  if(!isVisible) {
+    // Increasing view count
+    client.mutate({
+      mutation: gql`
+        mutation increaseViewCount($formId: String!) {
+          increaseViewCount(formId: $formId)
+        }`,
+
+      variables: {
+        formId: connection.data.formId,
+      },
+    });
+  }
+
   return {
     type: SHOUTBOX_FORM_TOGGLE,
     isVisible: !isVisible,
