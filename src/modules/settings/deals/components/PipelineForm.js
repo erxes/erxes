@@ -28,6 +28,7 @@ class PipelineForm extends Component {
     this.generateDoc = this.generateDoc.bind(this);
     this.save = this.save.bind(this);
     this.onChangeStages = this.onChangeStages.bind(this);
+    this.renderStages = this.renderStages.bind(this);
     this.renderContent = this.renderContent.bind(this);
 
     this.state = { stages: (props.stages || []).map(stage => ({ ...stage })) };
@@ -59,6 +60,19 @@ class PipelineForm extends Component {
     };
   }
 
+  renderStages(pipeline) {
+    if (!pipeline) return null;
+
+    return (
+      <Stages
+        stages={this.state.stages}
+        onChangeStages={this.onChangeStages}
+        boardId={pipeline.boardId}
+        pipelineId={pipeline._id}
+      />
+    );
+  }
+
   renderContent() {
     const { pipeline } = this.props;
 
@@ -76,14 +90,7 @@ class PipelineForm extends Component {
             required
           />
         </FormGroup>
-        {pipeline ? (
-          <Stages
-            stages={this.state.stages}
-            onChangeStages={this.onChangeStages}
-            boardId={pipeline.boardId}
-            pipelineId={pipeline._id}
-          />
-        ) : null}
+        {this.renderStages(pipeline)}
       </div>
     );
   }
@@ -92,6 +99,7 @@ class PipelineForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent()}
+
         <Modal.Footer>
           <Button
             btnStyle="simple"

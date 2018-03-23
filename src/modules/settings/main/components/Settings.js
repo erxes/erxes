@@ -29,7 +29,7 @@ class Settings extends Component {
             {this.renderBox(
               'General Settings',
               '/images/icons/erxes-06.svg',
-              '/settings/general-settings'
+              '/settings/general'
             )}
             {this.renderBox(
               'Channels',

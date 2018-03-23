@@ -12,40 +12,58 @@ class PipelineContainer extends React.Component {
   constructor(props) {
     super(props);
 
-    const { stagesFromDb } = props;
+    this.stagesUpdateOrder = this.stagesUpdateOrder.bind(this);
+    this.stagesChange = this.stagesChange.bind(this);
 
-    this.state = {
-      stages: [...stagesFromDb]
-    };
+    const { stages } = props;
+
+    this.state = { stages: [...stages] };
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.state !== nextProps.state) {
-      const {
-        state: { type, index, itemId },
-        pipeline,
-        stagesUpdateOrder,
-        stagesChange
-      } = nextProps;
+      const { state: { type, index, itemId }, pipeline } = nextProps;
+
       const { stages } = this.state;
 
       if (type === 'removeItem') {
         // Remove from list
         stages.splice(index, 1);
 
-        stagesUpdateOrder(collectOrders(stages));
+        this.stagesUpdateOrder(collectOrders(stages));
       }
 
       if (type === 'addItem') {
         // Add to list
         stages.splice(index, 0, { _id: itemId });
 
-        stagesUpdateOrder(collectOrders(stages));
-        stagesChange(itemId, pipeline._id);
+        this.stagesUpdateOrder(collectOrders(stages));
+        this.stagesChange(itemId, pipeline._id);
       }
 
       this.setState({ stages });
     }
+  }
+
+  stagesUpdateOrder(orders) {
+    const { stagesUpdateOrderMutation } = this.props;
+
+    stagesUpdateOrderMutation({
+      variables: { orders }
+    }).catch(error => {
+      Alert.error(error.message);
+    });
+  }
+
+  // if move to other pipeline, will change pipelineId
+  stagesChange(_id, pipelineId) {
+    const { stagesChangeMutation } = this.props;
+
+    stagesChangeMutation({
+      variables: { _id, pipelineId }
+    }).catch(error => {
+      Alert.error(error.message);
+    });
   }
 
   render() {
@@ -61,55 +79,43 @@ class PipelineContainer extends React.Component {
 PipelineContainer.propTypes = {
   pipeline: PropTypes.object,
   state: PropTypes.object,
-  stagesFromDb: PropTypes.array,
+  stages: PropTypes.array,
   stagesUpdateOrder: PropTypes.func,
-  stagesChange: PropTypes.func
+  stagesChange: PropTypes.func,
+  stagesUpdateOrderMutation: PropTypes.func,
+  stagesChangeMutation: PropTypes.func
 };
+
+const PipelineContainerWithData = compose(
+  graphql(gql(mutations.stagesUpdateOrder), {
+    name: 'stagesUpdateOrderMutation'
+  }),
+  graphql(gql(mutations.stagesChange), {
+    name: 'stagesChangeMutation'
+  })
+)(PipelineContainer);
 
 class StagesWithPipeline extends React.Component {
   render() {
-    const {
-      stagesQuery,
-      stagesUpdateOrderMutation,
-      stagesChangeMutation
-    } = this.props;
+    const { stagesQuery } = this.props;
 
     if (stagesQuery.loading) {
       return <Spinner />;
     }
 
-    const stagesFromDb = stagesQuery.dealStages;
-
-    const stagesUpdateOrder = orders => {
-      stagesUpdateOrderMutation({
-        variables: { orders }
-      }).catch(error => {
-        Alert.error(error.message);
-      });
-    };
-
-    // if move to other pipeline, will change pipelineId
-    const stagesChange = (_id, pipelineId) => {
-      stagesChangeMutation({
-        variables: { _id, pipelineId }
-      });
-    };
+    const stages = stagesQuery.dealStages;
 
     const extendedProps = {
       ...this.props,
-      stagesFromDb,
-      stagesUpdateOrder,
-      stagesChange
+      stages
     };
 
-    return <PipelineContainer {...extendedProps} />;
+    return <PipelineContainerWithData {...extendedProps} />;
   }
 }
 
 StagesWithPipeline.propTypes = {
-  stagesQuery: PropTypes.object,
-  stagesUpdateOrderMutation: PropTypes.func,
-  stagesChangeMutation: PropTypes.func
+  stagesQuery: PropTypes.object
 };
 
 export default compose(
@@ -118,13 +124,8 @@ export default compose(
     options: ({ pipeline }) => ({
       variables: {
         pipelineId: pipeline._id
-      }
+      },
+      fetchPolicy: 'cache-and-network'
     })
-  }),
-  graphql(gql(mutations.stagesUpdateOrder), {
-    name: 'stagesUpdateOrderMutation'
-  }),
-  graphql(gql(mutations.stagesChange), {
-    name: 'stagesChangeMutation'
   })
 )(StagesWithPipeline);

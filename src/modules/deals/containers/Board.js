@@ -131,8 +131,7 @@ const BoardDetailContainer = compose(
   graphql(gql(queries.boardDetail), {
     name: 'boardDetailQuery',
     options: ({ currentBoardId }) => ({
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: 'network-only',
       variables: { _id: currentBoardId || '' }
     })
   })
@@ -143,9 +142,13 @@ const BoardDetailContainer = compose(
  * in query string
  */
 const LastBoard = props => {
-  const { dealBoardGetLastQuery } = props;
+  const { boardGetLastQuery } = props;
 
-  const lastBoard = dealBoardGetLastQuery.dealBoardGetLast || {};
+  if (boardGetLastQuery.loading) {
+    return <Spinner />;
+  }
+
+  const lastBoard = boardGetLastQuery.dealBoardGetLast;
 
   const currentBoardId = lastBoard._id || '';
 
@@ -159,12 +162,13 @@ const LastBoard = props => {
 };
 
 LastBoard.propTypes = {
-  dealBoardGetLastQuery: PropTypes.object
+  boardGetLastQuery: PropTypes.object
 };
 
 const LastBoardContainer = compose(
   graphql(gql(queries.boardGetLast), {
-    name: 'dealBoardGetLastQuery'
+    name: 'boardGetLastQuery',
+    options: () => ({ fetchPolicy: 'network-only' })
   })
 )(LastBoard);
 

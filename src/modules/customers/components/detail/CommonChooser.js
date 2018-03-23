@@ -12,7 +12,7 @@ import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   data: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired,
+  onSelect: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired,
   datas: PropTypes.array.isRequired,
   form: PropTypes.node.isRequired,
@@ -40,14 +40,14 @@ class CommonChooser extends Component {
       searchValue: ''
     };
 
-    this.save = this.save.bind(this);
+    this.onSelect = this.onSelect.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.search = this.search.bind(this);
     this.loadMore = this.loadMore.bind(this);
   }
 
-  save() {
-    this.props.save(this.state.datas);
+  onSelect() {
+    this.props.onSelect(this.state.datas);
     this.context.closeModal();
   }
 
@@ -175,8 +175,12 @@ class CommonChooser extends Component {
               >
                 Cancel
               </Button>
-              <Button btnStyle="success" onClick={this.save} icon="checkmark">
-                Save
+              <Button
+                btnStyle="success"
+                onClick={this.onSelect}
+                icon="checkmark"
+              >
+                Select
               </Button>
             </div>
           </Footer>

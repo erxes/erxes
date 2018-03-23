@@ -197,7 +197,7 @@ class DealForm extends React.Component {
       >
         <CompanyChooser
           data={{ firstName: 'Deal', companies }}
-          save={this.onChangeCompany}
+          onSelect={this.onChangeCompany}
         />
       </ModalTrigger>
     );
@@ -220,7 +220,7 @@ class DealForm extends React.Component {
       >
         <CustomerChooser
           data={{ name: 'Deal', customers }}
-          save={this.onChangeCustomer}
+          onSelect={this.onChangeCustomer}
         />
       </ModalTrigger>
     );
@@ -253,7 +253,8 @@ class DealForm extends React.Component {
       closeDate,
       products,
       productsData,
-      amount
+      amount,
+      note
     } = this.state;
 
     return (
@@ -294,6 +295,7 @@ class DealForm extends React.Component {
             <ControlLabel>Note</ControlLabel>
             <FormControl
               componentClass="textarea"
+              value={note}
               onChange={this.onChangeNote.bind(this)}
             />
           </FormGroup>

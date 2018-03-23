@@ -156,6 +156,14 @@ class ProductForm extends React.Component {
     this.props.onChangeProductsData(productsData);
   }
 
+  renderTax(tax) {
+    return Object.keys(tax).map(el => (
+      <div key={el}>
+        {tax[el].toLocaleString()} {el}
+      </div>
+    ));
+  }
+
   renderDiscount(discount) {
     return Object.keys(discount).map(el => (
       <div key={el}>
@@ -218,13 +226,7 @@ class ProductForm extends React.Component {
               <tbody>
                 <tr>
                   <td>{__('Tax')}:</td>
-                  <td>
-                    {Object.keys(tax).map(t => (
-                      <div key={t}>
-                        {tax[t].toLocaleString()} {t}
-                      </div>
-                    ))}
-                  </td>
+                  <td>{this.renderTax(tax)}</td>
                 </tr>
                 <tr>
                   <td>{__('Discount')}:</td>
@@ -241,9 +243,7 @@ class ProductForm extends React.Component {
           <ModalFooter>
             <Button
               btnStyle="simple"
-              onClick={() => {
-                this.context.closeModal();
-              }}
+              onClick={() => this.context.closeModal()}
               icon="close"
             >
               Close

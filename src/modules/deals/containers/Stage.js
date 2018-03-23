@@ -15,10 +15,12 @@ class StageContainer extends React.Component {
     this.saveDeal = this.saveDeal.bind(this);
     this.removeDeal = this.removeDeal.bind(this);
     this.moveDeal = this.moveDeal.bind(this);
+    this.dealsUpdateOrder = this.dealsUpdateOrder.bind(this);
+    this.dealsChange = this.dealsChange.bind(this);
 
-    const { dealsFromDb } = props;
+    const { deals } = props;
 
-    this.state = { deals: [...dealsFromDb] };
+    this.state = { deals: [...deals] };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -26,18 +28,17 @@ class StageContainer extends React.Component {
       const {
         state: { type, index, itemId },
         stageId,
-        dealsUpdateOrder,
-        dealsChange,
         stageDetailQuery,
         dealsQuery
       } = nextProps;
+
       const { deals } = this.state;
 
       if (type === 'removeItem') {
         // Remove from list
         deals.splice(index, 1);
 
-        dealsUpdateOrder(collectOrders(deals), () => {
+        this.dealsUpdateOrder(collectOrders(deals), () => {
           stageDetailQuery.refetch();
           dealsQuery.refetch();
         });
@@ -47,12 +48,12 @@ class StageContainer extends React.Component {
         // Add to list
         deals.splice(index, 0, { _id: itemId });
 
-        dealsUpdateOrder(collectOrders(deals), () => {
+        this.dealsUpdateOrder(collectOrders(deals), () => {
           stageDetailQuery.refetch();
           dealsQuery.refetch();
         });
 
-        dealsChange(itemId, stageId);
+        this.dealsChange(itemId, stageId);
       }
 
       this.setState({ deals });
@@ -67,6 +68,7 @@ class StageContainer extends React.Component {
       stageDetailQuery,
       dealsQuery
     } = this.props;
+
     const { deals } = this.state;
     const { __ } = this.context;
 
@@ -150,13 +152,45 @@ class StageContainer extends React.Component {
       });
   }
 
+  dealsUpdateOrder(orders, callback) {
+    const { dealsUpdateOrderMutation } = this.props;
+
+    dealsUpdateOrderMutation({
+      variables: { orders }
+    })
+      .then(() => {
+        callback();
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  }
+
+  // if move to other stage, will change stageId and pipelineId
+  dealsChange(_id, stageId) {
+    const { dealsChangeMutation } = this.props;
+
+    dealsChangeMutation({
+      variables: { _id, stageId }
+    }).catch(error => {
+      Alert.error(error.message);
+    });
+  }
+
   render() {
+    const { stageDetailQuery } = this.props;
+
+    if (stageDetailQuery.loading) {
+      return <Spinner />;
+    }
+
     const extendedProps = {
       ...this.props,
       deals: this.state.deals,
       saveDeal: this.saveDeal,
       removeDeal: this.removeDeal,
-      moveDeal: this.moveDeal
+      moveDeal: this.moveDeal,
+      stage: stageDetailQuery.dealStageDetail
     };
 
     return <Stage {...extendedProps} />;
@@ -166,7 +200,7 @@ class StageContainer extends React.Component {
 StageContainer.propTypes = {
   state: PropTypes.object,
   stageId: PropTypes.string,
-  dealsFromDb: PropTypes.array,
+  deals: PropTypes.array,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
   removeMutation: PropTypes.func,
@@ -174,7 +208,8 @@ StageContainer.propTypes = {
   dealsChangeMutation: PropTypes.func,
   dealsUpdateOrder: PropTypes.func,
   stageDetailQuery: PropTypes.object,
-  dealsQuery: PropTypes.object
+  dealsQuery: PropTypes.object,
+  dealsUpdateOrderMutation: PropTypes.func
 };
 
 StageContainer.contextTypes = {
@@ -191,71 +226,6 @@ const StageContainerWithData = compose(
   }),
   graphql(gql(mutations.dealsRemove), {
     name: 'removeMutation'
-  })
-)(StageContainer);
-
-class StageWithDeals extends React.Component {
-  render() {
-    const {
-      dealsQuery,
-      stageDetailQuery,
-      dealsChangeMutation,
-      dealsUpdateOrderMutation
-    } = this.props;
-
-    if (dealsQuery.loading || stageDetailQuery.loading) {
-      return <Spinner />;
-    }
-
-    const stage = stageDetailQuery.dealStageDetail;
-    const dealsFromDb = dealsQuery.deals;
-
-    const dealsUpdateOrder = (orders, callback) => {
-      dealsUpdateOrderMutation({
-        variables: { orders }
-      })
-        .then(() => {
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
-
-    // if move to other stage, will change stageId and pipelineId
-    const dealsChange = (_id, stageId) => {
-      dealsChangeMutation({
-        variables: { _id, stageId }
-      });
-    };
-
-    const extendedProps = {
-      ...this.props,
-      stage,
-      dealsFromDb,
-      dealsUpdateOrder,
-      dealsChange
-    };
-
-    return <StageContainerWithData {...extendedProps} />;
-  }
-}
-
-StageWithDeals.propTypes = {
-  stageDetailQuery: PropTypes.object,
-  dealsQuery: PropTypes.object,
-  dealsChangeMutation: PropTypes.func,
-  dealsUpdateOrderMutation: PropTypes.func
-};
-
-export default compose(
-  graphql(gql(queries.deals), {
-    name: 'dealsQuery',
-    options: ({ stageId }) => ({
-      variables: {
-        stageId
-      }
-    })
   }),
   graphql(gql(queries.stageDetail), {
     name: 'stageDetailQuery',
@@ -270,5 +240,39 @@ export default compose(
   }),
   graphql(gql(mutations.dealsChange), {
     name: 'dealsChangeMutation'
+  })
+)(StageContainer);
+
+class StageWithDeals extends React.Component {
+  render() {
+    const { dealsQuery } = this.props;
+
+    if (dealsQuery.loading) {
+      return <Spinner />;
+    }
+
+    const deals = dealsQuery.deals;
+
+    const extendedProps = {
+      ...this.props,
+      deals
+    };
+
+    return <StageContainerWithData {...extendedProps} />;
+  }
+}
+
+StageWithDeals.propTypes = {
+  dealsQuery: PropTypes.object
+};
+
+export default compose(
+  graphql(gql(queries.deals), {
+    name: 'dealsQuery',
+    options: ({ stageId }) => ({
+      variables: {
+        stageId
+      }
+    })
   })
 )(StageWithDeals);
