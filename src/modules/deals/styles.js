@@ -3,6 +3,7 @@ import { colors, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 
 const StageWidth = 300;
+const StageHeight = 'calc(100vh - 200px)';
 
 const PipelineContainer = styled.div`
   background-color: ${colors.colorWhite};
@@ -42,13 +43,14 @@ const StageWrapper = styled.div`
   border-right: 1px solid ${colors.colorShadowGray};
   flex-direction: column;
   width: ${StageWidth}px;
+  max-height: ${StageHeight};
 `;
 
 const StageContainer = styled.div`
   display: flex;
   flex-direction: column;
   transition: background-color 0.3s ease;
-  flex: 1;
+  height: 100%;
   ${props => css`
     background: ${props.isDragging ? colors.colorWhite : 'none'};
     box-shadow: ${props.isDragging
@@ -81,11 +83,16 @@ const StageAmount = styled.ul`
   list-style: none;
   margin: 10px 0 0;
   padding: 0;
+
   li {
     float: left;
     padding-left: 5px;
-    font-weight: bold;
     font-size: 12px;
+
+    span {
+      font-weight: bold;
+      font-size: 10px;
+    }
 
     &:before {
       content: '/';
@@ -101,6 +108,7 @@ const StageAmount = styled.ul`
 const StageBody = styled.div`
   padding: 10px;
   height: 100%;
+  overflow: auto;
 `;
 
 const StageDropZone = styled.div`
@@ -123,6 +131,7 @@ const AddNewDeal = styled.a`
   font-size: 14px;
   transition: all 0.3s ease;
   cursor: pointer;
+  margin-bottom: 10px;
 
   &:hover {
     background: ${colors.bgLight};
@@ -208,7 +217,7 @@ const DealAmount = styled.div`
     margin-bottom: 0;
 
     span {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: bold;
     }
   }

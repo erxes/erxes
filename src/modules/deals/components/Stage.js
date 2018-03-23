@@ -49,7 +49,7 @@ class Stage extends React.Component {
 
     return Object.keys(amount).map(key => (
       <li key={key}>
-        {amount[key].toLocaleString()} {key}
+        {amount[key].toLocaleString()} <span>{key}</span>
       </li>
     ));
   }
