@@ -11,5 +11,5 @@ export const queries = `
 `;
 
 export const mutations = `
-	configsInsert(code: String!, value: [String]!): Config
+  configsInsert(code: String!, value: [String]!): Config
 `;

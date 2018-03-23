@@ -73,27 +73,26 @@ const dealMutationParams = `
 `;
 
 export const mutations = `
-	dealBoardsAdd(name: String!): DealBoard
-	dealBoardsEdit(_id: String!, name: String!): DealBoard
+  dealBoardsAdd(name: String!): DealBoard
+  dealBoardsEdit(_id: String!, name: String!): DealBoard
   dealBoardsRemove(_id: String!): String
 
-	dealPipelinesAdd(name: String!, boardId: String!, stages: JSON): DealPipeline
-	dealPipelinesEdit(_id: String!, name: String!, boardId: String!,
-    stages: JSON): DealPipeline
+  dealPipelinesAdd(name: String!, boardId: String!, stages: JSON): DealPipeline
+  dealPipelinesEdit(_id: String!, name: String!, boardId: String!, stages: JSON): DealPipeline
   dealPipelinesUpdateOrder(orders: [OrderItem]): [DealPipeline]
   dealPipelinesRemove(_id: String!): String
-
-	dealStagesAdd(name: String!, boardId: String, pipelineId: String!): DealStage
-	dealStagesEdit(
+  
+  dealStagesAdd(name: String!, boardId: String, pipelineId: String!): DealStage
+  dealStagesEdit(
     _id: String!, name: String!, boardId: String, pipelineId: String!
   ): DealStage
-	dealStagesChange(_id: String!, pipelineId: String!): DealStage
+  dealStagesChange(_id: String!, pipelineId: String!): DealStage
   dealStagesUpdateOrder(orders: [OrderItem]): [DealStage]
   dealStagesRemove(_id: String!): String
-
-	dealsAdd(${dealMutationParams}): Deal
-	dealsEdit(_id: String!, ${dealMutationParams}): Deal
-	dealsChange( _id: String!, boardId: String, pipelineId: String, stageId: String!): Deal
+  
+  dealsAdd(${dealMutationParams}): Deal
+  dealsEdit(_id: String!, ${dealMutationParams}): Deal
+  dealsChange( _id: String!, boardId: String, pipelineId: String, stageId: String!): Deal
   dealsUpdateOrder(orders: [OrderItem]): [Deal]
   dealsRemove(_id: String!): Deal
 `;
