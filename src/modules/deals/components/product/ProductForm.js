@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import { Button, Icon } from 'modules/common/components';
 import { ProductItemForm } from '../../containers';
 import {
@@ -10,6 +9,7 @@ import {
   FooterInfo,
   AddProduct
 } from '../../styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   onChangeProductsData: PropTypes.func.isRequired,
@@ -185,11 +185,12 @@ class ProductForm extends React.Component {
           <thead>
             <tr>
               <td>{__('Product & Service')}</td>
-              <td width="120">{__('UOM')}</td>
-              <td width="120">{__('Currency')}</td>
-              <td width="100">{__('Quantity')}</td>
+              <td>{__('UOM')}</td>
+              <td>{__('Currency')}</td>
+              <td width="80">{__('Quantity')}</td>
               <td width="140">{__('Unit price')}</td>
               <td width="120">{__('Amount')}</td>
+              <td width="50" />
             </tr>
           </thead>
           <tbody>
@@ -238,7 +239,7 @@ class ProductForm extends React.Component {
             </table>
           </FooterInfo>
 
-          <Modal.Footer>
+          <ModalFooter>
             <Button
               btnStyle="simple"
               onClick={() => {
@@ -259,7 +260,7 @@ class ProductForm extends React.Component {
             >
               Save
             </Button>
-          </Modal.Footer>
+          </ModalFooter>
         </ProductFooter>
       </ProductFormContainer>
     );

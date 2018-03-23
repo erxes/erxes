@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
 import { Alert, renderFullName } from 'modules/common/utils';
 import { CommonChooser } from '../components';
-import { CustomerForm } from '../components';
+import { CustomerForm } from '../containers';
 
 class CustomerChooser extends React.Component {
   constructor(props) {

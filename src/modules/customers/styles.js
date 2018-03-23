@@ -147,6 +147,11 @@ const InfoDetail = styled.p`
 
 const FormWrapper = styled.div`
   display: flex;
+  padding-bottom: 20px;
+
+  &:last-of-type {
+    padding: 0;
+  }
 
   img {
     display: block;
@@ -158,16 +163,20 @@ const FormWrapper = styled.div`
 
 const FormColumn = styled.div`
   flex: 1;
-  padding: 0 20px;
+  padding-right: 40px;
+
+  &:last-of-type {
+    padding: 0;
+  }
 `;
 
 const ColumnTitle = styled.h4`
   text-transform: uppercase;
   font-weight: ${typography.fontWeightMedium};
-  border-bottom: 1 px dotted ${colors.colorShadowGray};
-  padding-bottom: ${dimensions.unitSpacing};
-  font-size: ${typography.fontSizeHeading8}px;
-  margin: 0 0 ${dimensions.coreSpacing};
+  border-bottom: 1px dotted ${colors.colorShadowGray};
+  padding-bottom: ${dimensions.unitSpacing}px;
+  font-size: 14px;
+  margin: 0 0 ${dimensions.coreSpacing}px;
 `;
 
 export {
