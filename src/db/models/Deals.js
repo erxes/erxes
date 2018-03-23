@@ -42,37 +42,29 @@ const updateListOrder = async (collection, orders) => {
  * @param  {String} pipelineId
  */
 const createOrUpdatePipelineStages = async (stages, pipelineId) => {
-  let order = 0;
-  const stageIds = [];
+  console.log('stages: ', stages);
+  stages.forEach(async (stage, index) => {
+    const doc = { order: index++, pipelineId, ...stage };
 
-  for (let stage of stages) {
-    if (stage.name) {
-      order += 1;
+    const _id = doc._id;
+    const obj = await DealStages.findOne({ _id });
 
-      const doc = stage.order ? { pipelineId, ...stage } : { order, pipelineId, ...stage };
-
-      const _id = doc._id;
-      const obj = await DealStages.findOne({ _id });
-      delete doc._id;
-
-      if (obj) {
-        await DealStages.update({ _id }, { $set: doc });
-        stageIds.push(obj._id);
-      } else {
-        const newStage = await DealStages.create(doc);
-        stageIds.push(newStage._id);
-      }
+    // edit
+    if (obj) {
+      await DealStages.update({ _id }, { $set: doc });
+    } else {
+      await DealStages.create(doc);
     }
-  }
+  });
 
-  const removeStageIds = await DealStages.find({
+  const removedStages = await DealStages.find({
     pipelineId,
-    _id: { $nin: stageIds },
-  }).select('_id');
+    _id: { $nin: stages.map(s => s._id) },
+  });
 
-  for (let selector of removeStageIds) {
-    DealStages.removeStage(selector._id);
-  }
+  removedStages.forEach(stage => {
+    DealStages.removeStage(stage._id);
+  });
 };
 
 // Deal board schema
