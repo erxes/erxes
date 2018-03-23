@@ -42,7 +42,6 @@ const updateListOrder = async (collection, orders) => {
  * @param  {String} pipelineId
  */
 const createOrUpdatePipelineStages = async (stages, pipelineId) => {
-  console.log('stages: ', stages);
   stages.forEach(async (stage, index) => {
     const doc = { order: index++, pipelineId, ...stage };
 
