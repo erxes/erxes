@@ -55,7 +55,7 @@ class PipelineForm extends Component {
       doc: {
         name: document.getElementById('pipeline-name').value,
         boardId: pipeline ? pipeline.boardId : this.props.boardId,
-        stages: this.state.stages.filter(el => el.name !== '')
+        stages: this.state.stages.filter(el => el.name)
       }
     };
   }
