@@ -12,7 +12,7 @@ import {
 } from '../style';
 
 const propTypes = {
-  title: PropTypes.string,
+  calloutTitle: PropTypes.string,
   bodyValue: PropTypes.string,
   btnText: PropTypes.string,
   color: PropTypes.string,
@@ -30,7 +30,7 @@ class PopupPreview extends Component {
     const {
       theme,
       color,
-      title,
+      calloutTitle,
       bodyValue,
       btnText,
       image,
@@ -46,13 +46,13 @@ class PopupPreview extends Component {
         <OverlayTrigger />
         <FormContainer>
           <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
-            {title}
+            {calloutTitle}
           </PopupTitle>
           <PreviewBody>
             {image && (
               <div>
                 {' '}
-                <img src={image} alt="eee" />{' '}
+                <img src={image} alt="eee" />
               </div>
             )}
             <BodyContent>

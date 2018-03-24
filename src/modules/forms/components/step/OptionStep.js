@@ -1,92 +1,56 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ReactMarkdown from 'react-markdown';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import { FormControl, Button, EmptyState } from 'modules/common/components';
+import { FormControl } from 'modules/common/components';
 import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
-import { FlexItem, LeftItem, Preview, Title, MarkdownWrapper } from './style';
+import { FlexItem, LeftItem, Preview, Title } from './style';
 
 const propTypes = {
-  kind: PropTypes.string,
-  title: PropTypes.string,
+  type: PropTypes.string,
+  calloutTitle: PropTypes.string,
   btnText: PropTypes.string,
   bodyValue: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
   image: PropTypes.string,
-  changeState: PropTypes.func,
+  onChange: PropTypes.func,
   fields: PropTypes.array,
-  integration: PropTypes.object,
+  brand: PropTypes.object,
   brands: PropTypes.array
 };
 
 class OptionStep extends Component {
-  static installCodeIncludeScript(type) {
-    return `
-      (function() {
-        var script = document.createElement('script');
-        script.src = "${process.env.REACT_APP_CDN_HOST}/build/${
-      type
-    }Widget.bundle.js";
-        script.async = true;
-
-        var entry = document.getElementsByTagName('script')[0];
-        entry.parentNode.insertBefore(script, entry);
-      })();
-    `;
-  }
-
   constructor(props) {
     super(props);
 
-    let code = '';
-
-    if (props.integration) {
-      const brand = props.integration.brand || '';
-      code = this.constructor.getInstallCode(brand.code);
-    }
-
-    this.state = {
-      code,
-      copied: false
-    };
-
     this.renderPreview = this.renderPreview.bind(this);
     this.handleBrandChange = this.handleBrandChange.bind(this);
-  }
-
-  updateInstallCodeValue(brandId) {
-    if (brandId) {
-      const brand =
-        this.props.brands.find(brand => brand._id === brandId) || '';
-
-      const code = this.constructor.getInstallCode(brand.code);
-
-      this.setState({ code, copied: false });
-    }
+    this.onChangeLanguage = this.onChangeLanguage.bind(this);
   }
 
   handleBrandChange(value) {
-    this.updateInstallCodeValue(value);
-    this.props.changeState('selectBrand', value);
+    this.props.onChange('brand', value);
+  }
+
+  onChangeLanguage(value) {
+    this.props.onChange('language', value);
   }
 
   renderPreview() {
     const {
-      title,
+      calloutTitle,
       bodyValue,
       btnText,
       color,
       theme,
       image,
-      kind,
+      type,
       fields
     } = this.props;
 
-    if (kind === 'shoutbox') {
+    if (type === 'shoutbox') {
       return (
         <ShoutboxPreview
-          title={title}
+          calloutTitle={calloutTitle}
           bodyValue={bodyValue}
           btnText={btnText}
           color={color}
@@ -95,10 +59,10 @@ class OptionStep extends Component {
           fields={fields}
         />
       );
-    } else if (kind === 'popup') {
+    } else if (type === 'popup') {
       return (
         <PopupPreview
-          title={title}
+          calloutTitle={calloutTitle}
           bodyValue={bodyValue}
           btnText={btnText}
           color={color}
@@ -110,7 +74,7 @@ class OptionStep extends Component {
     }
     return (
       <EmbeddedPreview
-        title={title}
+        calloutTitle={calloutTitle}
         bodyValue={bodyValue}
         btnText={btnText}
         color={color}
@@ -123,7 +87,7 @@ class OptionStep extends Component {
 
   render() {
     const { __ } = this.context;
-    const { brands } = this.props;
+    const { brands, brand = {} } = this.props;
 
     return (
       <FlexItem>
@@ -131,8 +95,7 @@ class OptionStep extends Component {
           <Title>{__('Brand')}</Title>
           <FormControl
             componentClass="select"
-            placeholder={__('Select Brand')}
-            defaultValue=""
+            defaultValue={brand._id}
             id="selectBrand"
             onChange={e => this.handleBrandChange(e.target.value)}
           >
@@ -150,28 +113,12 @@ class OptionStep extends Component {
             componentClass="select"
             defaultValue={'en'}
             id="languageCode"
+            onChange={e => this.onChangeLanguage(e.target.value)}
           >
             <option />
             <option value="mn">Монгол</option>
             <option value="en">English</option>
           </FormControl>
-
-          <Title>{__('Install code')}</Title>
-          <MarkdownWrapper>
-            <ReactMarkdown source={this.state.code} />
-            {this.state.code ? (
-              <CopyToClipboard
-                text={this.state.code}
-                onCopy={() => this.setState({ copied: true })}
-              >
-                <Button size="small" btnStyle="primary" icon="ios-copy-outline">
-                  {this.state.copied ? 'Copied' : 'Copy to clipboard'}
-                </Button>
-              </CopyToClipboard>
-            ) : (
-              <EmptyState icon="code" text="No copyable code" size="small" />
-            )}
-          </MarkdownWrapper>
         </LeftItem>
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>

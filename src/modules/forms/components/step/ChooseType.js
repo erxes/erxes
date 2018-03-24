@@ -43,28 +43,21 @@ const Box = styled.div`
 `;
 
 const propTypes = {
-  kind: PropTypes.string,
-  changeState: PropTypes.func
+  type: PropTypes.string,
+  onChange: PropTypes.func,
+  title: PropTypes.string,
+  btnText: PropTypes.string,
+  bodyValue: PropTypes.string,
+  color: PropTypes.string
 };
 
 class ChooseType extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      title: 'Contact',
-      bodyValue: 'Body description here',
-      btnText: 'Send',
-      color: '#04A9F5'
-    };
-  }
-
   renderBox(name, image, value) {
     const { __ } = this.context;
     return (
       <Box
-        selected={this.props.kind === value}
-        onClick={() => this.changeState(value)}
+        selected={this.props.type === value}
+        onClick={() => this.onChange(value)}
       >
         <img src={image} alt={name} />
         <span>{__(name)}</span>
@@ -72,20 +65,23 @@ class ChooseType extends Component {
     );
   }
 
-  changeState(value) {
+  onChange(value) {
     if (value === 'shoutbox') {
-      this.props.changeState('kind', 'shoutbox');
-    } else if (value === 'popup') {
-      this.props.changeState('kind', 'popup');
+      return this.props.onChange('type', 'shoutbox');
     }
-    this.props.changeState('kind', value);
+
+    if (value === 'popup') {
+      return this.props.onChange('type', 'popup');
+    }
+
+    return this.props.onChange('type', value);
   }
 
   renderPreview() {
-    const { kind } = this.props;
-    const { title, bodyValue, btnText, color } = this.state;
+    const { type } = this.props;
+    const { title, bodyValue, btnText, color } = this.props;
 
-    if (kind === 'shoutbox') {
+    if (type === 'shoutbox') {
       return (
         <ShoutboxPreview
           title={title}
@@ -94,7 +90,7 @@ class ChooseType extends Component {
           color={color}
         />
       );
-    } else if (kind === 'popup') {
+    } else if (type === 'popup') {
       return (
         <PopupPreview
           title={title}
@@ -130,12 +126,7 @@ class ChooseType extends Component {
           </BoxRow>
           {this.renderBox('Embedded', '/images/icons/computer.svg', 'embedded')}
         </LeftItem>
-        <Preview>
-          {this.renderPreview()}
-          {/* <CarouselSteps>
-            Step
-          </CarouselSteps> */}
-        </Preview>
+        <Preview>{this.renderPreview()}</Preview>
       </FlexItem>
     );
   }

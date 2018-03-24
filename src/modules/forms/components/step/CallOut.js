@@ -60,9 +60,9 @@ const ImageContent = styled.div`
 `;
 
 const propTypes = {
-  kind: PropTypes.string,
-  changeState: PropTypes.func,
-  title: PropTypes.string,
+  type: PropTypes.string,
+  onChange: PropTypes.func,
+  calloutTitle: PropTypes.string,
   btnText: PropTypes.string,
   bodyValue: PropTypes.string,
   color: PropTypes.string,
@@ -91,34 +91,34 @@ class CallOut extends Component {
 
   onColorChange(e) {
     this.setState({ color: e.hex, theme: '#000' }, () => {
-      this.props.changeState('color', e.hex);
-      this.props.changeState('theme', '');
+      this.props.onChange('color', e.hex);
+      this.props.onChange('theme', '');
     });
   }
 
   onChangeText(value) {
-    this.setState({ title: value });
-    this.props.changeState('title', value);
+    this.setState({ calloutTitle: value });
+    this.props.onChange('calloutTitle', value);
   }
 
   onChangeBody(value) {
     this.setState({ bodyValue: value });
-    this.props.changeState('bodyValue', value);
+    this.props.onChange('bodyValue', value);
   }
 
   onThemeChange(value) {
     this.setState({ theme: value });
-    this.props.changeState('theme', value);
+    this.props.onChange('theme', value);
   }
 
   onChangeBtn(value) {
     this.setState({ btnText: value });
-    this.props.changeState('btnText', value);
+    this.props.onChange('btnText', value);
   }
 
   removeImage(value) {
     this.setState({ logoPreviewUrl: '' });
-    this.props.changeState('logoPreviewUrl', value);
+    this.props.onChange('logoPreviewUrl', value);
   }
 
   handleImage(e) {
@@ -140,29 +140,26 @@ class CallOut extends Component {
 
       afterRead: ({ result }) => {
         this.setState({ logoPreviewUrl: result });
-        this.props.changeState('logoPreviewUrl', result);
+        this.props.onChange('logoPreviewUrl', result);
       }
     });
   }
 
   renderPreview() {
-    const { kind, title, bodyValue, btnText, color, theme, image } = this.props;
+    const {
+      type,
+      calloutTitle,
+      bodyValue,
+      btnText,
+      color,
+      theme,
+      image
+    } = this.props;
 
-    if (kind === 'shoutbox') {
+    if (type === 'shoutbox') {
       return (
         <ShoutboxPreview
-          title={title}
-          bodyValue={bodyValue}
-          btnText={btnText}
-          color={color}
-          theme={theme}
-          image={image}
-        />
-      );
-    } else if (kind === 'popup') {
-      return (
-        <PopupPreview
-          title={title}
+          calloutTitle={calloutTitle}
           bodyValue={bodyValue}
           btnText={btnText}
           color={color}
@@ -171,9 +168,23 @@ class CallOut extends Component {
         />
       );
     }
+
+    if (type === 'popup') {
+      return (
+        <PopupPreview
+          calloutTitle={calloutTitle}
+          bodyValue={bodyValue}
+          btnText={btnText}
+          color={color}
+          theme={theme}
+          image={image}
+        />
+      );
+    }
+
     return (
       <EmbeddedPreview
-        title={title}
+        calloutTitle={calloutTitle}
         bodyValue={bodyValue}
         btnText={btnText}
         color={color}
@@ -227,7 +238,7 @@ class CallOut extends Component {
           <FormControl
             id="callout-title"
             type="text"
-            value={this.props.title}
+            value={this.props.calloutTitle}
             onChange={e => this.onChangeText(e.target.value)}
           />
 

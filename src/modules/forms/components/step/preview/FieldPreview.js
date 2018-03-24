@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { GenerateField } from 'modules/settings/properties/components';
 import { FieldItem } from '../style';
 
-export default class FieldPreview extends Component {
+class FieldPreview extends Component {
   constructor(props) {
     super(props);
 
@@ -29,3 +29,5 @@ FieldPreview.propTypes = {
   field: PropTypes.object, // eslint-disable-line
   onEdit: PropTypes.func
 };
+
+export default FieldPreview;

@@ -14,7 +14,7 @@ export const save = ({
     mutation = editMutation;
     variables._id = integration._id;
   }
-
+  console.log(variables);
   mutation({
     variables
   })

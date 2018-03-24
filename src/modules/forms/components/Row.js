@@ -29,9 +29,9 @@ class Row extends Component {
       <tr>
         <td>{integration.name}</td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
-        <td>0</td>
-        <td>0.00%</td>
-        <td>0</td>
+        <td>{form.viewCount}</td>
+        <td>{form.contactsGathered / form.viewCount} %</td>
+        <td>{form.contactsGathered}</td>
         <td>{moment(form.createdDate).format('ll')}</td>
         <td>
           <ActionButtons>

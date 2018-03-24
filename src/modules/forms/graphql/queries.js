@@ -18,6 +18,8 @@ const integrations = `
         code
         description
         createdDate
+        viewCount
+        contactsGathered
       }
     }
   }
@@ -33,13 +35,25 @@ const integrationDetail = `
       code
       formId
       formData
+      uiOptions
+      brand {
+        _id
+        name
+        code
+      }
       form {
         _id
         title
         code
         description
         createdDate
-        callout
+        callout {
+          title
+          description
+          buttonText
+          themeColor
+          featuredImage
+        }
       }
     }
   }

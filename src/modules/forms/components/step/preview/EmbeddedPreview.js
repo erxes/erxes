@@ -11,7 +11,7 @@ import {
 } from '../style';
 
 const propTypes = {
-  title: PropTypes.string,
+  calloutTitle: PropTypes.string,
   bodyValue: PropTypes.string,
   btnText: PropTypes.string,
   color: PropTypes.string,
@@ -34,7 +34,7 @@ class EmbeddedPreview extends Component {
     const {
       theme,
       color,
-      title,
+      calloutTitle,
       bodyValue,
       btnText,
       image,
@@ -49,7 +49,7 @@ class EmbeddedPreview extends Component {
       <Container data={preview}>
         <Embedded>
           <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
-            {title}
+            {calloutTitle}
           </PopupTitle>
           <PreviewBody>
             {image && (

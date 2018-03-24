@@ -4,30 +4,28 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
-import _ from 'underscore';
-import { Alert, confirm } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import { Bulk } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { Form } from '../components';
 
-class ListContainer extends Bulk {
+class EditFormContainer extends Bulk {
   render() {
     const {
       brandsQuery,
       formsQuery,
       integrationDetailQuery,
       contentTypeId,
-      fieldsQuery,
-      fieldsAdd,
-      fieldsEdit,
-      fieldsRemove,
-      fieldsUpdateOrder,
-      addMutation,
       editMutation,
+      fieldsQuery,
       history
     } = this.props;
 
-    if (fieldsQuery.loading || brandsQuery.loading) {
+    if (
+      fieldsQuery.loading ||
+      brandsQuery.loading ||
+      integrationDetailQuery.loading
+    ) {
       return false;
     }
 
@@ -41,53 +39,6 @@ class ListContainer extends Bulk {
     fieldsQuery.fields.forEach(field => {
       fields.push({ ...field });
     });
-
-    // create field
-    const addField = doc => {
-      console.log(doc, contentTypeId);
-      fieldsAdd({
-        variables: {
-          contentType: 'form',
-          contentTypeId: contentTypeId || '',
-          ...doc
-        }
-      }).then(() => {
-        fieldsQuery.refetch();
-        Alert.success('Success');
-      });
-    };
-
-    // edit field
-    const editField = (_id, doc) => {
-      fieldsEdit({
-        variables: { _id, ...doc }
-      }).then(() => {
-        Alert.success('Success');
-      });
-    };
-
-    // delete field
-    const deleteField = _id => {
-      confirm().then(() => {
-        fieldsRemove({ variables: { _id } }).then(() => {
-          fieldsQuery.refetch();
-          Alert.success('Success');
-        });
-      });
-    };
-
-    // update orders
-    const onSort = fields => {
-      const orders = [];
-
-      _.each(fields, (field, index) => {
-        orders.push({ _id: field._id, order: index });
-      });
-
-      fieldsUpdateOrder({
-        variables: { orders }
-      });
-    };
 
     const doMutation = (mutation, variables) => {
       mutation({
@@ -105,11 +56,7 @@ class ListContainer extends Bulk {
 
     // save
     const save = doc => {
-      if (contentTypeId) {
-        return doMutation(editMutation, { ...doc, _id: contentTypeId });
-      }
-
-      return doMutation(addMutation, doc);
+      return doMutation(editMutation, { ...doc, _id: contentTypeId });
     };
 
     const updatedProps = {
@@ -117,11 +64,6 @@ class ListContainer extends Bulk {
       brands,
       forms,
       integration,
-      contentTypeId,
-      addField,
-      editField,
-      deleteField,
-      onSort,
       fields,
       save
     };
@@ -130,21 +72,16 @@ class ListContainer extends Bulk {
   }
 }
 
-ListContainer.propTypes = {
+EditFormContainer.propTypes = {
   contentTypeId: PropTypes.string,
   fieldsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
   formsQuery: PropTypes.object,
   integrationDetailQuery: PropTypes.object,
-  fieldsAdd: PropTypes.func,
-  fieldsEdit: PropTypes.func,
-  fieldsRemove: PropTypes.func,
-  fieldsUpdateOrder: PropTypes.func,
-  addMutation: PropTypes.func,
   editMutation: PropTypes.func
 };
 
-const ListContainerWithData = compose(
+const EditFormWithData = compose(
   graphql(gql(queries.brands), {
     name: 'brandsQuery',
     options: () => ({
@@ -177,28 +114,21 @@ const ListContainerWithData = compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql(gql(mutations.fieldsAdd), { name: 'fieldsAdd' }),
-  graphql(gql(mutations.fieldsEdit), { name: 'fieldsEdit' }),
-  graphql(gql(mutations.fieldsRemove), { name: 'fieldsRemove' }),
-  graphql(gql(mutations.fieldsUpdateOrder), { name: 'fieldsUpdateOrder' }),
-  graphql(gql(mutations.integrationsCreateFormIntegration), {
-    name: 'addMutation'
-  }),
   graphql(gql(mutations.integrationsEditFormIntegration), {
     name: 'editMutation'
   })
-)(ListContainer);
+)(EditFormContainer);
 
-const FormIntegrationListContainer = props => {
+const EditFormIntegrationContainer = props => {
   const queryParams = queryString.parse(props.location.search);
 
   const extendedProps = { ...props, queryParams };
-  return <ListContainerWithData {...extendedProps} />;
+  return <EditFormWithData {...extendedProps} />;
 };
 
-FormIntegrationListContainer.propTypes = {
+EditFormIntegrationContainer.propTypes = {
   location: PropTypes.object,
   history: PropTypes.object
 };
 
-export default withRouter(FormIntegrationListContainer);
+export default withRouter(EditFormIntegrationContainer);

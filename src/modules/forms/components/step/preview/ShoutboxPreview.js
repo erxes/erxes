@@ -41,7 +41,7 @@ const Widget = Messenger.extend`
 `;
 
 const propTypes = {
-  title: PropTypes.string,
+  calloutTitle: PropTypes.string,
   bodyValue: PropTypes.string,
   btnText: PropTypes.string,
   color: PropTypes.string,
@@ -59,7 +59,7 @@ class ShoutboxPreview extends Component {
     const {
       theme,
       color,
-      title,
+      calloutTitle,
       bodyValue,
       btnText,
       image,
@@ -75,7 +75,7 @@ class ShoutboxPreview extends Component {
         <Widget>
           <WidgetPreviewStyled className="engage-message type-default">
             <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
-              {title}
+              {calloutTitle}
             </PopupTitle>
             <PreviewBody>
               {image && (

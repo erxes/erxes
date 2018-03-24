@@ -11,15 +11,15 @@ import {
 } from './style';
 
 const propTypes = {
-  kind: PropTypes.string,
-  title: PropTypes.string,
+  type: PropTypes.string,
+  calloutTitle: PropTypes.string,
   btnText: PropTypes.string,
   bodyValue: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
   image: PropTypes.string,
   preview: PropTypes.string,
-  changeState: PropTypes.func,
+  onChange: PropTypes.func,
   fields: PropTypes.array,
   integration: PropTypes.object
 };
@@ -30,40 +30,40 @@ class FullPreviewStep extends Component {
     return (
       <div
         selected={this.props.preview === value}
-        onClick={() => this.changeState(value)}
+        onClick={() => this.onChange(value)}
       >
         {__(name)}
       </div>
     );
   }
 
-  changeState(value) {
+  onChange(value) {
     if (value === 'desktop') {
-      this.props.changeState('preview', 'desktop');
+      this.props.onChange('preview', 'desktop');
     } else if (value === 'tablet') {
-      this.props.changeState('preview', 'tablet');
+      this.props.onChange('preview', 'tablet');
     } else {
-      this.props.changeState('preview', 'mobile');
+      this.props.onChange('preview', 'mobile');
     }
   }
 
   renderPreview() {
     const {
-      title,
+      calloutTitle,
       bodyValue,
       btnText,
       color,
       theme,
       image,
-      kind,
+      type,
       fields,
       preview
     } = this.props;
 
-    if (kind === 'shoutbox') {
+    if (type === 'shoutbox') {
       return (
         <ShoutboxPreview
-          title={title}
+          calloutTitle={calloutTitle}
           bodyValue={bodyValue}
           btnText={btnText}
           color={color}
@@ -73,10 +73,10 @@ class FullPreviewStep extends Component {
           preview={preview}
         />
       );
-    } else if (kind === 'popup') {
+    } else if (type === 'popup') {
       return (
         <PopupPreview
-          title={title}
+          calloutTitle={calloutTitle}
           bodyValue={bodyValue}
           btnText={btnText}
           color={color}
@@ -89,7 +89,7 @@ class FullPreviewStep extends Component {
     }
     return (
       <EmbeddedPreview
-        title={title}
+        calloutTitle={calloutTitle}
         bodyValue={bodyValue}
         btnText={btnText}
         color={color}

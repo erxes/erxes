@@ -5,12 +5,12 @@ import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
 import { FlexItem, LeftItem, Preview, Title } from './style';
 
 const propTypes = {
-  kind: PropTypes.string,
+  type: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
   thankContent: PropTypes.string,
   successAction: PropTypes.string,
-  changeState: PropTypes.func,
+  onChange: PropTypes.func,
   formData: PropTypes.object
 };
 
@@ -18,28 +18,61 @@ class SuccessStep extends Component {
   constructor(props) {
     super(props);
 
-    const formData = props.formData || {};
+    const formData = props.formData || [];
 
     this.state = {
       successAction: formData.successAction
     };
 
-    this.onChangeContent = this.onChangeContent.bind(this);
     this.renderPreview = this.renderPreview.bind(this);
     this.handleSuccessActionChange = this.handleSuccessActionChange.bind(this);
   }
 
   handleSuccessActionChange() {
-    this.setState({
-      successAction: document.getElementById('successAction').value
-    });
+    const value = document.getElementById('successAction').value;
 
-    this.props.changeState('successAction', this.state.successAction);
+    this.setState({ successAction: value });
+    this.props.onChange('successAction', value);
   }
 
   onChangeContent(value) {
     this.setState({ thankContent: value });
-    this.props.changeState('thankContent', value);
+    this.props.onChange('thankContent', value);
+  }
+
+  onRedirectUrl(value) {
+    this.setState({ redirectUrl: value });
+    this.props.onChange('redirectUrl', value);
+  }
+
+  onFromEmail(value) {
+    this.setState({ fromEmail: value });
+    this.props.onChange('fromEmail', value);
+  }
+
+  onUserEmail(value) {
+    this.setState({ userEmailTitle: value });
+    this.props.onChange('userEmailTitle', value);
+  }
+
+  onEmailContent(value) {
+    this.setState({ userEmailContent: value });
+    this.props.onChange('userEmailContent', value);
+  }
+
+  onAdminEmails(value) {
+    this.setState({ adminEmails: value });
+    this.props.onChange('adminEmails', value);
+  }
+
+  onAdminEmailTitle(value) {
+    this.setState({ adminEmailTitle: value });
+    this.props.onChange('adminEmailTitle', value);
+  }
+
+  onAdminContent(value) {
+    this.setState({ adminEmailContent: value });
+    this.props.onChange('adminEmailContent', value);
   }
 
   renderEmailFields(formData, __) {
@@ -52,6 +85,7 @@ class SuccessStep extends Component {
               type="text"
               id="fromEmail"
               defaultValue={formData.fromEmail}
+              onChange={e => this.onFromEmail(e.target.value)}
             />
           </FormGroup>
 
@@ -61,6 +95,7 @@ class SuccessStep extends Component {
               type="text"
               id="userEmailTitle"
               defaultValue={formData.userEmailTitle}
+              onChange={e => this.onUserEmail(e.target.value)}
             />
           </FormGroup>
 
@@ -71,6 +106,7 @@ class SuccessStep extends Component {
               type="text"
               defaultValue={formData.userEmailContent}
               id="userEmailContent"
+              onChange={e => this.onEmailContent(e.target.value)}
             />
           </FormGroup>
 
@@ -80,6 +116,7 @@ class SuccessStep extends Component {
               type="text"
               defaultValue={formData.adminEmails}
               id="adminEmails"
+              onChange={e => this.onAdminEmails(e.target.value)}
             />
           </FormGroup>
 
@@ -89,6 +126,7 @@ class SuccessStep extends Component {
               type="text"
               defaultValue={formData.adminEmailTitle}
               id="adminEmailTitle"
+              onChange={e => this.onAdminEmailTitle(e.target.value)}
             />
           </FormGroup>
 
@@ -99,6 +137,7 @@ class SuccessStep extends Component {
               type="text"
               defaultValue={formData.adminEmailContent}
               id="adminEmailContent"
+              onChange={e => this.onAdminContent(e.target.value)}
             />
           </FormGroup>
         </div>
@@ -116,6 +155,7 @@ class SuccessStep extends Component {
               type="text"
               defaultValue={formData.redirectUrl}
               id="redirectUrl"
+              onChange={e => this.onRedirectUrl(e.target.value)}
             />
           </FormGroup>
         </div>
@@ -124,9 +164,9 @@ class SuccessStep extends Component {
   }
 
   renderPreview() {
-    const { kind, color, theme, thankContent } = this.props;
+    const { type, color, theme, thankContent } = this.props;
 
-    if (kind === 'shoutbox') {
+    if (type === 'shoutbox') {
       return (
         <ShoutboxPreview
           color={color}
@@ -134,7 +174,7 @@ class SuccessStep extends Component {
           thankContent={thankContent}
         />
       );
-    } else if (kind === 'popup') {
+    } else if (type === 'popup') {
       return (
         <PopupPreview color={color} theme={theme} thankContent={thankContent} />
       );
@@ -159,7 +199,7 @@ class SuccessStep extends Component {
           <Title>{__('On success')}</Title>
           <FormControl
             componentClass="select"
-            defaultValue=""
+            defaultValue={formData.successAction}
             onChange={this.handleSuccessActionChange}
             id="successAction"
           >
@@ -174,7 +214,8 @@ class SuccessStep extends Component {
 
           <Title>{__('Thank content')}</Title>
           <FormControl
-            id="description"
+            id="thankContent"
+            type="text"
             componentClass="textarea"
             defaultValue={thankContent}
             onChange={e => this.onChangeContent(e.target.value)}

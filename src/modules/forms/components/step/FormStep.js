@@ -18,8 +18,13 @@ const Fields = styled.ul`
 
 const FlexColumn = styled.div`
   display: flex;
+  min-width: 43.33333%;
   flex-direction: column;
   justify-content: space-between;
+
+  ${LeftItem} {
+    flex: 1;
+  }
 `;
 
 const Footer = styled.div`
@@ -38,18 +43,14 @@ const Footer = styled.div`
 `;
 
 const propTypes = {
-  kind: PropTypes.string,
-  title: PropTypes.string,
+  type: PropTypes.string,
+  calloutTitle: PropTypes.string,
   btnText: PropTypes.string,
   bodyValue: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
   image: PropTypes.string,
-  changeState: PropTypes.func,
-  addField: PropTypes.func,
-  editField: PropTypes.func,
-  deleteField: PropTypes.func,
-  onSort: PropTypes.func,
+  onChange: PropTypes.func,
   fields: PropTypes.array
 };
 
@@ -117,19 +118,17 @@ class FormStep extends Component {
       text: editingField.text,
       description: editingField.description,
       options: editingField.options,
-      isRequired: editingField
+      isRequired: editingField.isRequired
     };
 
-    if (editingField._id) {
-      return this.props.editField(editingField._id, doc);
-    }
-
-    return this.props.addField(doc, fieldId => {
-      // newly created field to fields state
-      doc._id = fieldId;
-      this.state.fields.push(doc);
-      this.setState({ fields: this.state.fields });
+    // newly created field to fields state
+    this.state.fields.push({
+      _id: Math.random().toString(),
+      ...doc
     });
+
+    this.setState({ fields: this.state.fields });
+    this.props.onChange('fields', this.state.fields);
   }
 
   setChanges(attributeName, value) {
@@ -149,12 +148,20 @@ class FormStep extends Component {
   }
 
   renderPreview() {
-    const { title, bodyValue, btnText, color, theme, image, kind } = this.props;
+    const {
+      calloutTitle,
+      bodyValue,
+      btnText,
+      color,
+      theme,
+      image,
+      type
+    } = this.props;
 
-    if (kind === 'shoutbox') {
+    if (type === 'shoutbox') {
       return (
         <ShoutboxPreview
-          title={title}
+          calloutTitle={calloutTitle}
           bodyValue={bodyValue}
           btnText={btnText}
           color={color}
@@ -162,13 +169,12 @@ class FormStep extends Component {
           image={image}
           fields={this.state.fields}
           onFieldEdit={this.onFieldEdit}
-          onSort={this.props.onSort}
         />
       );
-    } else if (kind === 'popup') {
+    } else if (type === 'popup') {
       return (
         <PopupPreview
-          title={title}
+          calloutTitle={calloutTitle}
           bodyValue={bodyValue}
           btnText={btnText}
           color={color}
@@ -176,13 +182,12 @@ class FormStep extends Component {
           image={image}
           fields={this.state.fields}
           onFieldEdit={this.onFieldEdit}
-          onSort={this.props.onSort}
         />
       );
     }
     return (
       <EmbeddedPreview
-        title={title}
+        calloutTitle={calloutTitle}
         bodyValue={bodyValue}
         btnText={btnText}
         color={color}
@@ -190,7 +195,6 @@ class FormStep extends Component {
         image={image}
         fields={this.state.fields}
         onFieldEdit={this.onFieldEdit}
-        onSort={this.props.onSort}
       />
     );
   }
@@ -212,9 +216,6 @@ class FormStep extends Component {
 
         this.setState({ fields });
 
-        // remove field from db
-        this.props.deleteField(_id);
-
         reset();
       };
 
@@ -230,14 +231,6 @@ class FormStep extends Component {
           </Button>
           <Button size="small" btnStyle="primary" onClick={reset} icon="plus">
             New
-          </Button>
-          <Button
-            size="small"
-            onClick={this.onSubmit}
-            btnStyle="success"
-            icon="checkmark"
-          >
-            Save
           </Button>
         </Button.Group>
       );

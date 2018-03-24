@@ -21,11 +21,7 @@ const propTypes = {
   forms: PropTypes.array,
   fields: PropTypes.array,
   loading: PropTypes.bool,
-  addField: PropTypes.func,
-  editField: PropTypes.func,
-  deleteField: PropTypes.func,
-  save: PropTypes.func,
-  onSort: PropTypes.func
+  save: PropTypes.func
 };
 
 class Form extends Component {
@@ -33,57 +29,58 @@ class Form extends Component {
     super(props);
 
     const integration = props.integration || {};
-    const formData = integration.formData || {};
+    const formData = integration && (integration.formData || {});
+    const callOut = integration.form.callout || {};
     const fields = props.fields || [];
 
-    // console.log(integration, fields);
     this.state = {
       activeStep: 1,
-      maxStep: 5,
-      kind: formData.loadType || 'shoutbox',
+      maxStep: 6,
+      type: formData.loadType || 'shoutbox',
       preview: 'desktop',
-      title: integration.name || 'Contact',
-      languageCode: 'en',
-      bodyValue: 'Body description here',
+      title: integration.name || '',
+      calloutTitle: callOut.title || 'Contact',
+      bodyValue: callOut.description || 'Body description here',
       thankContent: formData.thankContent || 'Thank you.',
-      successAction: formData.successAction || 'onPage',
-      btnText: 'Send',
-      fields: fields || [],
-      color: '#04A9F5',
-      theme: '',
-      logoPreviewUrl: '',
-      validate: {
-        step1: false,
-        step2: true,
-        step3: true
-      }
+      btnText: callOut.buttonText || 'Send',
+      fields: fields || []
     };
 
     this.next = this.next.bind(this);
-    this.changeState = this.changeState.bind(this);
+    this.onChange = this.onChange.bind(this);
     this.renderSaveButton = this.renderSaveButton.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleSubmit(e) {
-    const { save } = this.props;
-    const doc = this.generateDoc(e);
-    console.log(doc);
-    save(doc);
-  }
-
-  generateDoc(e) {
     e.preventDefault();
 
-    const doc = {
+    this.props.save({
       name: this.state.title,
-      languageCode: this.state.languageCode,
+      brandId: this.state.brand,
+      languageCode: this.state.language,
       formData: {
-        loadType: this.state.kind
+        loadType: this.state.type,
+        successAction: this.state.successAction,
+        fromEmail: this.state.fromEmail,
+        userEmailTitle: this.state.userEmailTitle,
+        userEmailContent: this.state.userEmailContent,
+        adminEmails: this.state.adminEmails,
+        adminEmailTitle: this.state.adminEmailTitle,
+        adminEmailContent: this.state.adminEmailContent,
+        thankContent: this.state.thankContent,
+        redirectUrl: this.state.redirectUrl
+      },
+      form: {
+        callout: {
+          title: this.state.calloutTitle,
+          description: this.state.bodyValue,
+          buttonText: this.state.btnText,
+          themeColor: this.state.theme || this.state.color,
+          featuredImage: this.state.logoPreviewUrl
+        }
       }
-    };
-
-    return doc;
+    });
   }
 
   renderNextButton() {
@@ -129,15 +126,15 @@ class Form extends Component {
     }
   }
 
-  changeState(key, value) {
+  onChange(key, value) {
     this.setState({ [key]: value });
   }
 
   render() {
     const {
       activeStep,
-      title,
-      kind,
+      calloutTitle,
+      type,
       btnText,
       bodyValue,
       color,
@@ -148,15 +145,12 @@ class Form extends Component {
       preview,
       successAction
     } = this.state;
-    const {
-      integration,
-      addField,
-      deleteField,
-      editField,
-      onSort
-    } = this.props;
-    const { __ } = this.context;
 
+    const { integration, brands } = this.props;
+
+    const { __ } = this.context;
+    const formData = integration && integration.formData;
+    const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
 
     return (
@@ -166,7 +160,7 @@ class Form extends Component {
           <div>Title</div>
           <FormControl
             required
-            onChange={e => this.changeState('title', e.target.value)}
+            onChange={e => this.onChange('title', e.target.value)}
             defaultValue={this.state.title}
           />
         </TitleContainer>
@@ -177,7 +171,14 @@ class Form extends Component {
             next={this.next}
             nextButton={this.renderNextButton()}
           >
-            <ChooseType changeState={this.changeState} kind={kind} />
+            <ChooseType
+              onChange={this.onChange}
+              type={type}
+              calloutTitle={calloutTitle}
+              btnText={btnText}
+              bodyValue={bodyValue}
+              color={color}
+            />
           </Step>
           <Step
             img="/images/icons/erxes-02.svg"
@@ -186,9 +187,9 @@ class Form extends Component {
             nextButton={this.renderNextButton()}
           >
             <CallOut
-              changeState={this.changeState}
-              kind={kind}
-              title={title}
+              onChange={this.onChange}
+              type={type}
+              calloutTitle={calloutTitle}
               btnText={btnText}
               bodyValue={bodyValue}
               color={color}
@@ -203,19 +204,15 @@ class Form extends Component {
             nextButton={this.renderNextButton()}
           >
             <FormStep
-              changeState={this.changeState}
-              title={title}
+              onChange={this.onChange}
+              calloutTitle={calloutTitle}
               btnText={btnText}
               bodyValue={bodyValue}
-              kind={kind}
+              type={type}
               color={color}
               theme={theme}
               fields={fields}
               image={logoPreviewUrl}
-              addField={addField}
-              editField={editField}
-              deleteField={deleteField}
-              onSort={onSort}
             />
           </Step>
           <Step
@@ -225,15 +222,16 @@ class Form extends Component {
             nextButton={this.renderNextButton()}
           >
             <OptionStep
-              changeState={this.changeState}
-              title={title}
+              onChange={this.onChange}
+              calloutTitle={calloutTitle}
               btnText={btnText}
               bodyValue={bodyValue}
-              kind={kind}
+              type={type}
               color={color}
+              brand={brand}
               theme={theme}
               image={logoPreviewUrl}
-              brands={this.props.brands}
+              brands={brands}
               fields={fields}
             />
           </Step>
@@ -244,14 +242,13 @@ class Form extends Component {
             nextButton={this.renderNextButton()}
           >
             <SuccessStep
-              key={integration._id}
-              changeState={this.changeState}
+              onChange={this.onChange}
               thankContent={thankContent}
-              kind={kind}
+              type={type}
               color={color}
               theme={theme}
               successAction={successAction}
-              formData={integration.formData}
+              formData={formData}
             />
           </Step>
           <Step
@@ -261,11 +258,11 @@ class Form extends Component {
             nextButton={this.renderSaveButton()}
           >
             <FullPreviewStep
-              changeState={this.changeState}
-              title={title}
+              onChange={this.onChange}
+              calloutTitle={calloutTitle}
               btnText={btnText}
               bodyValue={bodyValue}
-              kind={kind}
+              type={type}
               color={color}
               theme={theme}
               image={logoPreviewUrl}

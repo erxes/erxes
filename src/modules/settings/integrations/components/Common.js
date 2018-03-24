@@ -78,7 +78,7 @@ class Common extends Component {
 
   render() {
     const integration = this.props.integration || {};
-
+    console.log(integration);
     return (
       <form onSubmit={this.handleSubmit}>
         <FormGroup>
