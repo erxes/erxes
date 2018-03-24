@@ -81,7 +81,7 @@ export const mutations = `
   dealPipelinesEdit(_id: String!, name: String!, boardId: String!, stages: JSON): DealPipeline
   dealPipelinesUpdateOrder(orders: [OrderItem]): [DealPipeline]
   dealPipelinesRemove(_id: String!): String
-  
+
   dealStagesAdd(name: String!, boardId: String, pipelineId: String!): DealStage
   dealStagesEdit(
     _id: String!, name: String!, boardId: String, pipelineId: String!
@@ -89,7 +89,7 @@ export const mutations = `
   dealStagesChange(_id: String!, pipelineId: String!): DealStage
   dealStagesUpdateOrder(orders: [OrderItem]): [DealStage]
   dealStagesRemove(_id: String!): String
-  
+
   dealsAdd(${dealMutationParams}): Deal
   dealsEdit(_id: String!, ${dealMutationParams}): Deal
   dealsChange( _id: String!, boardId: String, pipelineId: String, stageId: String!): Deal
