@@ -67,7 +67,7 @@ const createOrUpdatePipelineStages = async (stages, pipelineId) => {
 };
 
 // Deal board schema
-const DealBoardSchema = mongoose.Schema({
+const BoardSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
   ...commonFields,
@@ -117,7 +117,7 @@ class Board {
 }
 
 // Deal pipeline schema
-const DealPipelineSchema = mongoose.Schema({
+const PipelineSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
   boardId: field({ type: String }),
@@ -192,7 +192,7 @@ class Pipeline {
 }
 
 // Deal pipeline stage schema
-const DealStageSchema = mongoose.Schema({
+const StageSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
   boardId: field({ type: String }),
@@ -350,14 +350,14 @@ class Deal {
   }
 }
 
-DealBoardSchema.loadClass(Board);
-DealPipelineSchema.loadClass(Pipeline);
-DealStageSchema.loadClass(Stage);
+BoardSchema.loadClass(Board);
+PipelineSchema.loadClass(Pipeline);
+StageSchema.loadClass(Stage);
 DealSchema.loadClass(Deal);
 
-const DealBoards = mongoose.model('deal_boards', DealBoardSchema);
-const DealPipelines = mongoose.model('deal_pipelines', DealPipelineSchema);
-const DealStages = mongoose.model('deal_stages', DealStageSchema);
+const DealBoards = mongoose.model('deal_boards', BoardSchema);
+const DealPipelines = mongoose.model('deal_pipelines', PipelineSchema);
+const DealStages = mongoose.model('deal_stages', StageSchema);
 const Deals = mongoose.model('deals', DealSchema);
 
 export { DealBoards, DealPipelines, DealStages, Deals };
