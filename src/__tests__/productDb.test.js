@@ -10,13 +10,13 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('Test products model', () => {
-  let _product;
-  let _deal;
+  let product;
+  let deal;
 
   beforeEach(async () => {
     // Creating test data
-    _product = await productFactory({ type: 'service' });
-    _deal = await dealFactory({ productIds: [_product._id] });
+    product = await productFactory({ type: 'service' });
+    deal = await dealFactory({ productIds: [product._id] });
   });
 
   afterEach(async () => {
@@ -27,38 +27,39 @@ describe('Test products model', () => {
 
   test('Create product', async () => {
     const productObj = await Products.createProduct({
-      name: _product.name,
-      type: _product.type,
-      description: _product.description,
-      sku: _product.sku,
+      name: product.name,
+      type: product.type,
+      description: product.description,
+      sku: product.sku,
     });
 
     expect(productObj).toBeDefined();
-    expect(productObj.name).toEqual(_product.name);
-    expect(productObj.type).toEqual(_product.type);
-    expect(productObj.description).toEqual(_product.description);
-    expect(productObj.sku).toEqual(_product.sku);
+    expect(productObj.name).toEqual(product.name);
+    expect(productObj.type).toEqual(product.type);
+    expect(productObj.description).toEqual(product.description);
+    expect(productObj.sku).toEqual(product.sku);
   });
 
   test('Update product', async () => {
-    const productObj = await Products.updateProduct(_product._id, {
-      name: `${_product.name}-update`,
-      type: `${_product.type}-update`,
-      description: `${_product.description}-update`,
-      sku: `${_product.sku}-update`,
+    const productObj = await Products.updateProduct(product._id, {
+      name: `${product.name}-update`,
+      type: `${product.type}-update`,
+      description: `${product.description}-update`,
+      sku: `${product.sku}-update`,
     });
 
     expect(productObj).toBeDefined();
-    expect(productObj.name).toEqual(`${_product.name}-update`);
-    expect(productObj.type).toEqual(`${_product.type}-update`);
-    expect(productObj.description).toEqual(`${_product.description}-update`);
-    expect(productObj.sku).toEqual(`${_product.sku}-update`);
+    expect(productObj.name).toEqual(`${product.name}-update`);
+    expect(productObj.type).toEqual(`${product.type}-update`);
+    expect(productObj.description).toEqual(`${product.description}-update`);
+    expect(productObj.sku).toEqual(`${product.sku}-update`);
   });
 
   test('Remove product not found', async () => {
     expect.assertions(1);
+
     try {
-      await Products.removeProduct(_deal._id);
+      await Products.removeProduct(deal._id);
     } catch (e) {
       expect(e.message).toEqual('Product not found');
     }
@@ -66,16 +67,18 @@ describe('Test products model', () => {
 
   test("Can't remove a product", async () => {
     expect.assertions(1);
+
     try {
-      await Products.removeProduct(_product._id);
+      await Products.removeProduct(product._id);
     } catch (e) {
       expect(e.message).toEqual("Can't remove a product");
     }
   });
 
   test('Remove product', async () => {
-    await Deals.update({ _id: _deal._id }, { $set: { productIds: [] } });
-    const isDeleted = await Products.removeProduct(_product.id);
+    await Deals.update({ _id: deal._id }, { $set: { productIds: [] } });
+    const isDeleted = await Products.removeProduct(product.id);
+
     expect(isDeleted).toBeTruthy();
   });
 });

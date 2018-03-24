@@ -11,20 +11,20 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('Test products mutations', () => {
-  let _product;
-  let _user;
+  let product;
+  let user;
   let doc;
 
   beforeEach(async () => {
     // Creating test data
-    _product = await productFactory({ type: 'product' });
-    _user = await userFactory();
+    product = await productFactory({ type: 'product' });
+    user = await userFactory();
 
     doc = {
-      name: _product.name,
-      type: _product.type,
-      sku: _product.sku,
-      description: _product.description,
+      name: product.name,
+      type: product.type,
+      sku: product.sku,
+      description: product.description,
     };
   });
 
@@ -57,7 +57,8 @@ describe('Test products mutations', () => {
 
   test('Create product', async () => {
     Products.createProduct = jest.fn();
-    await productsMutations.productsAdd({}, doc, { user: _user });
+
+    await productsMutations.productsAdd({}, doc, { user });
 
     expect(Products.createProduct).toBeCalledWith(doc);
     expect(Products.createProduct.mock.calls.length).toBe(1);
@@ -65,15 +66,17 @@ describe('Test products mutations', () => {
 
   test('Update product', async () => {
     Products.updateProduct = jest.fn();
-    await productsMutations.productsEdit(null, { _id: _product._id, ...doc }, { user: _user });
 
-    expect(Products.updateProduct).toBeCalledWith(_product._id, doc);
+    await productsMutations.productsEdit(null, { _id: product._id, ...doc }, { user });
+
+    expect(Products.updateProduct).toBeCalledWith(product._id, doc);
     expect(Products.updateProduct.mock.calls.length).toBe(1);
   });
 
   test('Remove product', async () => {
     Products.removeProduct = jest.fn();
-    await productsMutations.productsRemove({}, { _id: _product.id }, { user: _user });
+
+    await productsMutations.productsRemove({}, { _id: product.id }, { user });
 
     expect(Products.removeProduct.mock.calls.length).toBe(1);
   });

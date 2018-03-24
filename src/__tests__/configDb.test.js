@@ -18,15 +18,15 @@ describe('Test configs model', () => {
     const code = 'dealCurrency';
     const value = ['MNT', 'USD', 'KRW'];
 
-    const configObj = await Configs.createOrUpdateConfig({
+    const createdConfig = await Configs.createOrUpdateConfig({
       code,
       value,
     });
 
-    expect(configObj).toBeDefined();
-    expect(configObj.code).toEqual(code);
-    expect(configObj.value.length).toEqual(value.length);
-    expect(configObj.value[0]).toEqual(value[0]);
+    expect(createdConfig).toBeDefined();
+    expect(createdConfig.code).toEqual(code);
+    expect(createdConfig.value.length).toEqual(value.length);
+    expect(createdConfig.value[0]).toEqual(value[0]);
 
     const updateConfig = await Configs.createOrUpdateConfig({
       code,

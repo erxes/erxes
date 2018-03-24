@@ -32,7 +32,9 @@ describe('Test configs mutations', () => {
 
   test('Insert config', async () => {
     const doc = { code: 'dealUOM', value: [] };
+
     Configs.createOrUpdateConfig = jest.fn();
+
     await configsMutations.configsInsert({}, doc, { user: { _id: 'userId' } });
 
     expect(Configs.createOrUpdateConfig).toBeCalledWith(doc);
