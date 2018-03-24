@@ -7,6 +7,8 @@ export const types = `
     callout: Callout
     createdUserId: String
     createdDate: Date
+    viewCount: Int
+    contactsGathered: Int
   }
 
   type Callout {

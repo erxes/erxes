@@ -30,6 +30,8 @@ const FormSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   }),
+  viewCount: field({ type: Number }),
+  contactsGathered: field({ type: Number }),
 });
 
 class Form {
