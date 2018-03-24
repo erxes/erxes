@@ -11,7 +11,7 @@ const ProductSchema = mongoose.Schema({
     enum: PRODUCT_TYPES.ALL,
   }),
   description: field({ type: String }),
-  sku: field({ type: String }),
+  sku: field({ type: String }), // Stock Keeping Unit
   createdAt: field({
     type: Date,
     default: new Date(),
