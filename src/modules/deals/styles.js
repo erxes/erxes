@@ -2,7 +2,9 @@ import styled, { css } from 'styled-components';
 import { colors, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 
-const StageWidth = 300;
+const stageWidth = 300;
+const stageHeight = 'calc(100vh - 200px)';
+const coreHeight = 50;
 
 const PipelineContainer = styled.div`
   background-color: ${colors.colorWhite};
@@ -15,17 +17,18 @@ const PipelineContainer = styled.div`
 
 const PipelineHeader = styled.div`
   width: 100%;
-  height: 50px;
+  height: ${coreHeight}px;
   padding: 0 20px;
   background: ${colors.bgLight};
   border-bottom: 1px solid ${colors.colorShadowGray};
+
   h2 {
     margin: 0;
     padding: 0;
-    line-height: 50px;
+    line-height: ${coreHeight - 2}px;
     font-weight: normal;
     font-size: 13px;
-    color: ${rgba(colors.colorCoreDarkGray, 0.9)};
+    color: ${colors.colorCoreDarkGray};
   }
 `;
 
@@ -41,14 +44,15 @@ const StageWrapper = styled.div`
   display: flex;
   border-right: 1px solid ${colors.colorShadowGray};
   flex-direction: column;
-  width: ${StageWidth}px;
+  width: ${stageWidth}px;
+  max-height: ${stageHeight};
 `;
 
 const StageContainer = styled.div`
   display: flex;
   flex-direction: column;
   transition: background-color 0.3s ease;
-  flex: 1;
+  height: 100%;
   ${props => css`
     background: ${props.isDragging ? colors.colorWhite : 'none'};
     box-shadow: ${props.isDragging
@@ -60,6 +64,33 @@ const StageContainer = styled.div`
 const StageHeader = styled.div`
   padding: 20px;
   border-bottom: 1px solid ${colors.borderPrimary};
+  position: relative;
+
+  &:after,
+  &:before {
+    position: absolute;
+    content: '';
+    top: 50%;
+    height: 0;
+    width: 0;
+  }
+
+  &:after {
+    border-top: 18px solid transparent;
+    border-bottom: 18px solid transparent;
+    border-left: 14px solid #fff;
+    right: -14px;
+    margin-top: -18px;
+  }
+
+  &:before {
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-left: 15px solid ${colors.colorShadowGray};
+    right: -15px;
+    margin-top: -20px;
+  }
+
   > div {
     line-height: 18px;
     display: flex;
@@ -81,11 +112,16 @@ const StageAmount = styled.ul`
   list-style: none;
   margin: 10px 0 0;
   padding: 0;
+
   li {
     float: left;
     padding-left: 5px;
-    font-weight: bold;
     font-size: 12px;
+
+    span {
+      font-weight: bold;
+      font-size: 10px;
+    }
 
     &:before {
       content: '/';
@@ -101,6 +137,7 @@ const StageAmount = styled.ul`
 const StageBody = styled.div`
   padding: 10px;
   height: 100%;
+  overflow: auto;
 `;
 
 const StageDropZone = styled.div`
@@ -114,8 +151,8 @@ const StageDropZone = styled.div`
 
 const AddNewDeal = styled.a`
   display: block;
-  height: 60px;
-  line-height: 60px;
+  height: ${coreHeight}px;
+  line-height: ${coreHeight - 2}px;
   text-align: center;
   border: 1px dashed ${colors.colorShadowGray};
   border-radius: 5px;
@@ -123,6 +160,7 @@ const AddNewDeal = styled.a`
   font-size: 14px;
   transition: all 0.3s ease;
   cursor: pointer;
+  margin-bottom: 10px;
 
   &:hover {
     background: ${colors.bgLight};
@@ -130,7 +168,6 @@ const AddNewDeal = styled.a`
 
   i {
     margin-right: 8px;
-    font-size: 15px;
   }
 `;
 
@@ -190,6 +227,7 @@ const ItemCounterContainer = styled.ul`
     border-radius: 12px;
     padding: 5px 10px;
     margin-right: 5px;
+    margin-bottom: 5px;
     color: ${colors.colorWhite};
     background: ${colors.colorSecondary};
     text-transform: uppercase;
@@ -200,6 +238,12 @@ const ItemCounterContainer = styled.ul`
   }
 `;
 
+const ItemName = styled.div`
+  line-height: 36px;
+  margin-bottom: 10px;
+  font-weight: bold;
+`;
+
 const DealAmount = styled.div`
   float: left;
   margin-top: 10px;
@@ -208,7 +252,7 @@ const DealAmount = styled.div`
     margin-bottom: 0;
 
     span {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: bold;
     }
   }
@@ -225,7 +269,7 @@ const DealFormAmount = styled.div`
 const DealFormContainer = styled.form`
   padding: 20px;
   border-radius: 5px;
-  border: 1px dotted ${colors.colorShadowGray};
+  border: 1px dashed ${colors.colorShadowGray};
   background-color: #f6f6f6;
 
   .form-control {
@@ -242,6 +286,10 @@ const DealFormContainer = styled.form`
       border-color: ${colors.colorSecondary};
     }
   }
+
+  textarea {
+    height: 62px;
+  }
 `;
 
 const DealButton = styled.div`
@@ -250,6 +298,13 @@ const DealButton = styled.div`
   background: ${colors.colorWhite};
   border-radius: 5px;
   cursor: pointer;
+  border: 1px solid ${colors.borderPrimary};
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: ${colors.bgLight};
+  }
+
   i {
     float: right;
   }
@@ -288,7 +343,8 @@ const ProductFormContainer = styled.div`
 `;
 
 const ProductFooter = styled.div`
-  padding: 30px;
+  padding: 20px;
+  background: ${colors.bgActive};
 `;
 
 const FooterInfo = styled.div`
@@ -312,17 +368,9 @@ const FooterInfo = styled.div`
 
 const AddProduct = styled.div`
   display: block;
-  height: 80px;
-  line-height: 80px;
-  font-size: 18px;
-  font-weight: bold;
+  padding: 20px;
   text-align: center;
-  background: #ebebeb;
-  color: #5fa3b8;
-  cursor: pointer;
-  i {
-    padding-right: 8px;
-  }
+  border-top: 1px solid ${colors.borderPrimary};
 `;
 
 const ProductItemText = styled.div`
@@ -350,7 +398,7 @@ const QuickEditContainer = styled.div`
 
     ${DealFormContainer} {
       float: left;
-      width: ${StageWidth - 30}px;
+      width: ${stageWidth - 30}px;
       overflow: auto;
       height: 100%;
     }
@@ -377,10 +425,15 @@ const RightControls = styled.div`
 const DealMoveFormContainer = styled.div`
   position: absolute;
   top: 32px;
-  left: ${StageWidth - 20}px;
+  left: ${stageWidth - 20}px;
   background: ${colors.colorWhite};
   width: 240px;
   padding: 20px;
+`;
+
+const Footer = styled.div`
+  text-align: right;
+  margin-top: 20px;
 `;
 
 export {
@@ -410,5 +463,7 @@ export {
   ProductItemText,
   QuickEditContainer,
   RightControls,
-  DealMoveFormContainer
+  DealMoveFormContainer,
+  Footer,
+  ItemName
 };

@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { Button, FormGroup } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { selectOptions } from '../../utils';
-import { DealMoveFormContainer } from '../../styles';
+import { DealMoveFormContainer, Footer } from '../../styles';
 
 class DealMoveForm extends React.Component {
   constructor(props) {
@@ -92,7 +91,7 @@ class DealMoveForm extends React.Component {
             )}
           </FormGroup>
 
-          <Modal.Footer>
+          <Footer>
             <Button btnStyle="simple" onClick={this.props.close} icon="close">
               Close
             </Button>
@@ -100,7 +99,7 @@ class DealMoveForm extends React.Component {
             <Button btnStyle="success" onClick={this.move} icon="checkmark">
               Move
             </Button>
-          </Modal.Footer>
+          </Footer>
         </form>
       </DealMoveFormContainer>
     );
