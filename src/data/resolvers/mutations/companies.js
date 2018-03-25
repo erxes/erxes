@@ -24,12 +24,13 @@ const companyMutations = {
    * Add new companyId to company's companyIds list also adds Customer registration log
    * @param {Object} args - Graphql input data
    * @param {String} args._id - Company id
-   * @param {String} args.name - Customer name
+   * @param {String} args.firstName - Customer first name
+   * @param {String} args.lastName - Customer last name
    * @param {String} args.email - Customer email
    * @return {Promise} newly created customer
    */
   async companiesAddCustomer(root, args, { user }) {
-    const customer = Companies.addCustomer(args);
+    const customer = await Companies.addCustomer(args);
     await ActivityLogs.createCustomerRegistrationLog(customer, user);
     return customer;
   },
