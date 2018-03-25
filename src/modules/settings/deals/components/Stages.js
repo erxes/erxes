@@ -18,6 +18,7 @@ class Stages extends Component {
     this.add = this.add.bind(this);
     this.remove = this.remove.bind(this);
     this.onChangeName = this.onChangeName.bind(this);
+    this.onStageInputKeyPress = this.onStageInputKeyPress.bind(this);
   }
 
   onChangeName(_id, e) {
@@ -50,6 +51,13 @@ class Stages extends Component {
     this.props.onChangeStages(remainedStages);
   }
 
+  onStageInputKeyPress(e) {
+    if (e.key === 'Enter') {
+      this.add();
+      e.preventDefault();
+    }
+  }
+
   render() {
     const child = stage => {
       return (
@@ -57,6 +65,7 @@ class Stages extends Component {
           stage={stage}
           onChangeName={this.onChangeName}
           remove={this.remove}
+          onKeyPress={this.onStageInputKeyPress}
         />
       );
     };

@@ -6,12 +6,13 @@ import { StageItemContainer } from '../styles';
 const propTypes = {
   stage: PropTypes.object,
   remove: PropTypes.func,
-  onChangeName: PropTypes.func
+  onChangeName: PropTypes.func,
+  onKeyPress: PropTypes.func
 };
 
 class StageItem extends Component {
   render() {
-    const { stage } = this.props;
+    const { stage, onChangeName, onKeyPress, remove } = this.props;
 
     return (
       <StageItemContainer key={stage._id}>
@@ -19,13 +20,15 @@ class StageItem extends Component {
           defaultValue={stage.name}
           type="text"
           placeholder="Stage name"
-          onChange={this.props.onChangeName.bind(this, stage._id)}
+          onKeyPress={onKeyPress}
+          autoFocus
+          onChange={onChangeName.bind(this, stage._id)}
         />
 
         <Tip text="Delete">
           <Button
             btnStyle="link"
-            onClick={this.props.remove.bind(this, stage._id)}
+            onClick={remove.bind(this, stage._id)}
             icon="close"
           />
         </Tip>
