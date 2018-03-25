@@ -27,7 +27,7 @@ class Settings extends Component {
           <RowTitle>{__('Account Settings')}</RowTitle>
           <div>
             {this.renderBox(
-              'General Settings',
+              'General',
               '/images/icons/erxes-06.svg',
               '/settings/general'
             )}
@@ -71,6 +71,11 @@ class Settings extends Component {
               '/images/icons/erxes-02.svg',
               '/settings/team'
             )}
+            {this.renderBox(
+              'Properties',
+              '/images/icons/erxes-01.svg',
+              '/settings/properties'
+            )}
           </div>
         </Row>
         <Divider />
@@ -86,11 +91,6 @@ class Settings extends Component {
               'Product & Service',
               '/images/icons/erxes-19.svg',
               '/settings/product-service'
-            )}
-            {this.renderBox(
-              'Properties',
-              '/images/icons/erxes-01.svg',
-              '/settings/properties'
             )}
           </div>
         </Row>
