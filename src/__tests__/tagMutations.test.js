@@ -35,6 +35,7 @@ describe('Test tags mutations', () => {
     _message = await engageMessageFactory({});
 
     context = { user: _user };
+
     doc = {
       name: `${_tag.name}1`,
       type: _tag.type,

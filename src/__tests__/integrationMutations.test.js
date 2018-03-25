@@ -354,6 +354,7 @@ describe('mutations', () => {
       formId: _integration.formId,
       ...commonFormProperties,
     };
+
     const mutation = `
       mutation integrationsEditFormIntegration(
         $_id: String!
