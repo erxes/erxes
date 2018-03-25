@@ -48,7 +48,7 @@ class List extends Component {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('General Settings') }
+      { title: __('General') }
     ];
 
     const actionFooter = (
