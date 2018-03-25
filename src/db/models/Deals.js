@@ -108,11 +108,7 @@ class Board {
 
     if (!board) throw new Error('Board not found');
 
-    let count = 0;
-
-    count += await DealPipelines.find({ boardId: _id }).count();
-    count += await DealStages.find({ boardId: _id }).count();
-    count += await Deals.find({ boardId: _id }).count();
+    const count = await DealPipelines.find({ boardId: _id }).count();
 
     if (count > 0) throw new Error("Can't remove a board");
 
@@ -184,10 +180,7 @@ class Pipeline {
 
     if (!pipeline) throw new Error('Pipeline not found');
 
-    let count = 0;
-
-    count += await DealStages.find({ pipelineId: _id }).count();
-    count += await Deals.find({ pipelineId: _id }).count();
+    const count = await DealStages.find({ pipelineId: _id }).count();
 
     if (count > 0) throw new Error("Can't remove a pipeline");
 

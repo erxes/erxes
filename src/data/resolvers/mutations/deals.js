@@ -74,7 +74,6 @@ const dealMutations = {
   /**
    * Create new stage
    * @param {String} doc.name
-   * @param {String} doc.boardId
    * @param {String} doc.pipelineId
    * @return {Promise} newly created stage object
    */
@@ -86,7 +85,6 @@ const dealMutations = {
    * Edit stage
    * @param {String} _id stage id
    * @param {String} doc.name
-   * @param {String} doc.boardId
    * @param {String} doc.pipelineId
    * @return {Promise} updated stage object
    */
@@ -130,8 +128,6 @@ const dealMutations = {
    * @param {Date} doc.closeDate
    * @param {String} doc.note
    * @param {[String]} doc.assignedUserIds
-   * @param {String} doc.boardId
-   * @param {String} doc.pipelineId
    * @param {String} doc.stageId
    * @return {Promise} newly created deal object
    */
@@ -148,8 +144,6 @@ const dealMutations = {
    * @param {Date} doc.closeDate
    * @param {String} doc.note
    * @param {[String]} doc.assignedUserIds
-   * @param {String} doc.boardId
-   * @param {String} doc.pipelineId
    * @param {String} doc.stageId
    * @return {Promise} updated deal object
    */
@@ -160,8 +154,6 @@ const dealMutations = {
   /**
    * Change deal
    * @param {String} _id deal id
-   * @param {String} doc.boardId
-   * @param {String} doc.pipelineId
    * @param {String} doc.stageId
    * @return {Promise} updated deal object
    */
