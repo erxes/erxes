@@ -36,14 +36,18 @@ const updateListOrder = async (collection, orders) => {
 };
 
 /*
- * Create pipelines with stages
+ * Create or update pipelines with stages
  *
  * @param {[Stage]} stages
  * @param  {String} pipelineId
  */
 const createOrUpdatePipelineStages = async (stages, pipelineId) => {
-  stages.forEach(async (stage, index) => {
-    const doc = { order: index++, pipelineId, ...stage };
+  let order = 0;
+
+  for (const stage of stages) {
+    order++;
+
+    const doc = { order, pipelineId, ...stage };
 
     const _id = doc._id;
     const obj = await DealStages.findOne({ _id });
@@ -54,16 +58,16 @@ const createOrUpdatePipelineStages = async (stages, pipelineId) => {
     } else {
       await DealStages.create(doc);
     }
-  });
+  }
 
   const removedStages = await DealStages.find({
     pipelineId,
     _id: { $nin: stages.map(s => s._id) },
   });
 
-  removedStages.forEach(stage => {
+  for (const stage of removedStages) {
     DealStages.removeStage(stage._id);
-  });
+  }
 };
 
 // Deal board schema
@@ -288,6 +292,7 @@ const ProductSchema = mongoose.Schema(
 const DealSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   productsData: field({ type: [ProductSchema] }),
+  companyIds: field({ type: [String] }),
   customerIds: field({ type: [String] }),
   closeDate: field({ type: Date }),
   note: field({ type: String, optional: true }),
