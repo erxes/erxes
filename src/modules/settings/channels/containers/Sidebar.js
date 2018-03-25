@@ -48,7 +48,7 @@ const SidebarContainer = props => {
       variables: doc
     })
       .then(() => {
-        Alert.success('Successfully saved!');
+        Alert.success('Successfully saved.');
 
         callback();
       })

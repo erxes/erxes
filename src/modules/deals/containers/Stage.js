@@ -92,7 +92,7 @@ class StageContainer extends React.Component {
       variables: doc
     })
       .then(({ data }) => {
-        Alert.success(__('Successfully saved!'));
+        Alert.success(__('Successfully saved.'));
 
         // if edit mode
         if (deal) {
