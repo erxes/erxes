@@ -14,11 +14,11 @@ class DealMoveFormContainer extends React.Component {
     this.onChangePipeline = this.onChangePipeline.bind(this);
     this.moveDeal = this.moveDeal.bind(this);
 
-    const { deal } = props;
+    const { boardId, pipelineId } = props;
 
     this.state = {
-      boardId: deal.boardId,
-      pipelineId: deal.pipelineId
+      boardId,
+      pipelineId
     };
   }
 
@@ -81,7 +81,7 @@ class DealMoveFormContainer extends React.Component {
 
     let filteredStages = stages;
 
-    if (deal.pipelineId === pipelineId) {
+    if (this.props.pipelineId === pipelineId) {
       filteredStages = stages.filter(stage => stage._id !== deal.stageId);
     }
 
@@ -109,7 +109,9 @@ const propTypes = {
   pipelinesQuery: PropTypes.object,
   stagesQuery: PropTypes.object,
   deal: PropTypes.object,
-  moveDeal: PropTypes.func
+  moveDeal: PropTypes.func,
+  boardId: PropTypes.string,
+  pipelineId: PropTypes.string
 };
 
 DealMoveFormContainer.propTypes = propTypes;
@@ -123,17 +125,17 @@ export default compose(
   }),
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
-    options: ({ deal }) => ({
+    options: ({ boardId }) => ({
       variables: {
-        boardId: deal.boardId
+        boardId
       }
     })
   }),
   graphql(gql(queries.stages), {
     name: 'stagesQuery',
-    options: ({ deal }) => ({
+    options: ({ pipelineId }) => ({
       variables: {
-        pipelineId: deal.pipelineId
+        pipelineId
       }
     })
   })

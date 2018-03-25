@@ -78,6 +78,7 @@ const dealDetail = `
         email
       }
       products
+      productsData
       amount
       closeDate
       note

@@ -27,7 +27,9 @@ class Container extends React.Component {
   }
 
   getChildContext() {
-    return { move: this.move };
+    const { currentBoard } = this.props;
+
+    return { move: this.move, boardId: currentBoard ? currentBoard._id : '' };
   }
 
   move({ source, destination, itemId, type }) {
@@ -93,7 +95,8 @@ Container.propTypes = {
 };
 
 Container.childContextTypes = {
-  move: PropTypes.func
+  move: PropTypes.func,
+  boardId: PropTypes.string
 };
 
 const BoardContainer = compose(

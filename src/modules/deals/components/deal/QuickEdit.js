@@ -48,9 +48,16 @@ class QuickEdit extends React.Component {
     if (!showMove) return null;
 
     const { deal, moveDeal } = this.props;
+    const { boardId, pipelineId } = this.context;
 
     return (
-      <DealMoveForm deal={deal} moveDeal={moveDeal} close={this.toggleMove} />
+      <DealMoveForm
+        deal={deal}
+        boardId={boardId}
+        pipelineId={pipelineId}
+        moveDeal={moveDeal}
+        close={this.toggleMove}
+      />
     );
   }
 
@@ -91,5 +98,9 @@ class QuickEdit extends React.Component {
 }
 
 QuickEdit.propTypes = propTypes;
+QuickEdit.contextTypes = {
+  boardId: PropTypes.string,
+  pipelineId: PropTypes.string
+};
 
 export default QuickEdit;
