@@ -96,7 +96,7 @@ class Row extends Component {
   render() {
     const { integration } = this.props;
     const form = integration.form || {};
-
+    console.log(integration);
     return (
       <TableRow>
         <td>{integration.name}</td>

@@ -20,23 +20,30 @@ class CreateFormContainer extends Bulk {
     const brands = brandsQuery.brands || [];
 
     const doMutation = (formMutation, mutation, variables) => {
-      variables.formId = 'aaaa';
-      console.log(variables);
+      let formId = '';
+
+      const { form, brandId, name, languageCode, formData } = variables;
+
       formMutation({
-        variables
+        variables: form
       })
-        .then(() => {
+        .then(({ data }) => {
+          formId = data.formsAdd._id;
+
           mutation({
-            variables
-          });
+            variables: { formData, brandId, name, languageCode, formId }
+          })
+            .then(() => {
+              Alert.success('Congrats');
+              history.push('/forms');
+            })
+            .catch(error => {
+              Alert.error(error.message);
+            });
         })
-        .then(() => {
-          Alert.success('Congrats');
-          history.push('/forms');
-        })
+
         .catch(error => {
           Alert.error(error.message);
-          console.log(error.message);
         });
     };
 
