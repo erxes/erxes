@@ -132,7 +132,7 @@ export const mutations = `
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationsStar(_ids: [String]!): User
   conversationsUnstar(_ids: [String]!): User
-  conversationsToggleParticipate(_ids: [String]!): Conversation
+  conversationsToggleParticipate(_ids: [String]!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
   conversationSubscribeMessageCreated(_id: String!): String
   conversationSubscribeChanged(_ids: [String], type: String!): String

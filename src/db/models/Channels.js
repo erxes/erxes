@@ -25,22 +25,6 @@ const ChannelSchema = mongoose.Schema({
 
 class Channel {
   /**
-   * Pre save filter method that adds userId to memberIds if it does not contain it
-   * @param {Channel} doc - Channel object
-   * @return {Null}
-   */
-  static preSave(doc) {
-    // on update method userId is not supplied
-    const userId = doc.userId || this.userId;
-
-    doc.memberIds = doc.memberIds || [];
-
-    if (!doc.memberIds.includes(userId)) {
-      doc.memberIds.push(userId);
-    }
-  }
-
-  /**
    * Create a new channel document
    * @param {Object} doc - Channel object
    * @param {string} doc.name - Channel name
@@ -58,8 +42,6 @@ class Channel {
 
     doc.userId = userId._id ? userId._id : userId;
 
-    this.preSave(doc);
-
     return this.create(doc);
   }
 
@@ -75,9 +57,8 @@ class Channel {
    * @return {Promise} returns Promise resolving updated channel document
    */
   static async updateChannel(_id, doc) {
-    this.preSave(doc);
-
     await this.update({ _id }, { $set: doc }, { runValidators: true });
+
     return this.findOne({});
   }
 
