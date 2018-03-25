@@ -243,7 +243,7 @@ class ProductForm extends React.Component {
             icon="plus"
             size="large"
           >
-            {__('Add Product / Service')}
+            Add Product / Service
           </Button>
         </AddProduct>
         <ProductFooter>
