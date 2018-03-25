@@ -269,9 +269,10 @@ export const integrationFactory = async (params = {}) => {
     messengerData: { welcomeMessage: 'welcome', notifyCustomer: true },
     twitterData: params.twitterData || {},
     facebookData: params.facebookData || {},
-    formData: params.formData === 'form'
-      ? params.formData
-      : kind === 'form' ? { thankContent: 'thankContent' } : null,
+    formData:
+      params.formData === 'form'
+        ? params.formData
+        : kind === 'form' ? { thankContent: 'thankContent' } : null,
   };
 
   return Integrations.create(doc);
@@ -425,7 +426,6 @@ export const dealPipelineFactory = (params = {}) => {
 export const dealStageFactory = (params = {}) => {
   const stage = new DealStages({
     name: faker.random.word(),
-    boardId: params.boardId || faker.random.word(),
     pipelineId: params.pipelineId || faker.random.word(),
   });
 
@@ -435,8 +435,6 @@ export const dealStageFactory = (params = {}) => {
 export const dealFactory = (params = {}) => {
   const deal = new Deals({
     ...params,
-    boardId: params.boardId || faker.random.word(),
-    pipelineId: params.pipelineId || faker.random.word(),
     stageId: params.stageId || faker.random.word(),
     companyId: faker.random.word(),
     amount: faker.random.number(),

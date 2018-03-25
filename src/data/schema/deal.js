@@ -20,7 +20,6 @@ export const types = `
   type DealStage {
     _id: String!
     name: String!
-    boardId: String
     pipelineId: String!
     amount: JSON
     ${commonTypes}
@@ -28,8 +27,6 @@ export const types = `
 
   type Deal {
     _id: String!
-    boardId: String
-    pipelineId: String
     stageId: String!
     companyIds: [String]!
     customerIds: [String]!
@@ -50,9 +47,9 @@ export const queries = `
   dealBoardGetLast: DealBoard
   dealBoardDetail(_id: String!): DealBoard
   dealPipelines(boardId: String!): [DealPipeline]
-  dealStages(boardId: String, pipelineId: String!): [DealStage]
+  dealStages(pipelineId: String!): [DealStage]
   dealStageDetail(_id: String!): DealStage
-  deals(boardId: String, pipelineId: String, stageId: String!): [Deal]
+  deals(stageId: String!): [Deal]
   dealDetail(_id: String!): Deal
 `;
 

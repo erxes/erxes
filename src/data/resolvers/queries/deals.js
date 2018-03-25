@@ -41,16 +41,11 @@ const dealQueries = {
   /**
    * Deal Stages list
    * @param {Object} args
-   * @param {String} args.boardId
    * @param {String} args.pipelineId
-   * @return {Promise}  filtered stage objects
+   * @return {Promise}  filtered stage objects by pipelineId
    */
-  dealStages(root, { boardId, pipelineId }) {
-    const filter = { pipelineId };
-
-    if (boardId) filter.boardId = boardId;
-
-    return DealStages.find(filter).sort({ order: 1, createdAt: -1 });
+  dealStages(root, { pipelineId }) {
+    return DealStages.find({ pipelineId }).sort({ order: 1, createdAt: -1 });
   },
 
   /**
@@ -66,19 +61,11 @@ const dealQueries = {
   /**
    * Deals list
    * @param {Object} args
-   * @param {String} args.boardId
-   * @param {String} args.pipelineId
    * @param {String} args.stageId
-   * @return {Promise} filtered pipeline objects by stageId
+   * @return {Promise} filtered deals objects by stageId
    */
-  deals(root, { boardId, pipelineId, stageId }) {
-    const filter = { stageId };
-
-    if (boardId) filter.boardId = boardId;
-
-    if (pipelineId) filter.pipelineId = pipelineId;
-
-    return Deals.find(filter).sort({ order: 1, createdAt: -1 });
+  deals(root, { stageId }) {
+    return Deals.find({ stageId }).sort({ order: 1, createdAt: -1 });
   },
 
   /**

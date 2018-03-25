@@ -198,14 +198,12 @@ describe('Test deals model', () => {
   test('Create stage', async () => {
     const createdStage = await DealStages.createStage({
       name: stage.name,
-      boardId: stage.boardId,
       pipelineId: stage.pipelineId,
       userId: user._id,
     });
 
     expect(createdStage).toBeDefined();
     expect(createdStage.name).toEqual(stage.name);
-    expect(createdStage.boardId).toEqual(board._id);
     expect(createdStage.pipelineId).toEqual(pipeline._id);
     expect(createdStage.createdAt).toEqual(stage.createdAt);
     expect(createdStage.userId).toEqual(user._id);
@@ -224,18 +222,10 @@ describe('Test deals model', () => {
 
   test('Change stage', async () => {
     const pipelineToUpdate = await dealPipelineFactory();
-    const deal = await dealFactory({
-      pipelineId: pipeline._id,
-      stageId: stage._id,
-    });
     const changedStage = await DealStages.changeStage(stage._id, pipelineToUpdate._id);
-    const deals = await Deals.find({ stageId: stage._id });
 
     expect(changedStage).toBeDefined();
     expect(changedStage.pipelineId).toEqual(pipelineToUpdate._id);
-    expect(deal.pipelineId).toEqual(pipeline._id);
-    expect(deals[0].pipelineId).toEqual(pipelineToUpdate._id);
-    expect(deals[1].pipelineId).toEqual(pipelineToUpdate._id);
   });
 
   test('Update stage orders', async () => {
@@ -280,28 +270,24 @@ describe('Test deals model', () => {
   // Test deal
   test('Create deal', async () => {
     const createdDeal = await Deals.createDeal({
-      boardId: deal.boardId,
-      pipelineId: deal.pipelineId,
       stageId: deal.stageId,
       userId: user._id,
     });
 
     expect(createdDeal).toBeDefined();
-    expect(createdDeal.boardId).toEqual(board._id);
-    expect(createdDeal.pipelineId).toEqual(pipeline._id);
     expect(createdDeal.stageId).toEqual(stage._id);
     expect(createdDeal.createdAt).toEqual(deal.createdAt);
     expect(createdDeal.userId).toEqual(user._id);
   });
 
   test('Update deal', async () => {
-    const dealBoardId = 'fakeId';
+    const dealStageId = 'fakeId';
     const updatedDeal = await Deals.updateDeal(deal._id, {
-      boardId: dealBoardId,
+      stageId: dealStageId,
     });
 
     expect(updatedDeal).toBeDefined();
-    expect(updatedDeal.boardId).toEqual(dealBoardId);
+    expect(updatedDeal.stageId).toEqual(dealStageId);
     expect(updatedDeal.amount).toEqual(deal.amount);
     expect(updatedDeal.closeDate).toEqual(deal.closeDate);
     expect(updatedDeal.note).toEqual(deal.note);

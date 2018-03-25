@@ -25,16 +25,9 @@ describe('Test deals mutations', () => {
 
     pipeline = await dealPipelineFactory({ boardId: board._id });
 
-    stage = await dealStageFactory({
-      pipelineId: pipeline._id,
-      boardId: board._id,
-    });
+    stage = await dealStageFactory({ pipelineId: pipeline._id });
 
-    deal = await dealFactory({
-      pipelineId: pipeline._id,
-      boardId: board._id,
-      stageId: stage._id,
-    });
+    deal = await dealFactory({ stageId: stage._id });
 
     user = await userFactory();
   });
@@ -199,7 +192,6 @@ describe('Test deals mutations', () => {
   test('Create stage', async () => {
     const stageDoc = {
       name: 'deal stage',
-      boardId: board._id,
       pipelineId: pipeline._id,
     };
 
@@ -261,8 +253,6 @@ describe('Test deals mutations', () => {
 
   test('Create deal', async () => {
     const dealDoc = {
-      boardId: deal.boardId,
-      pipelineId: deal.pipelineId,
       stageId: deal.stageId,
       companyId: deal.companyId,
       amount: deal.amount,

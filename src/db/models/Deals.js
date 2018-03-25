@@ -199,7 +199,6 @@ class Pipeline {
 const StageSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
-  boardId: field({ type: String }),
   pipelineId: field({ type: String }),
   ...commonFields,
 });
@@ -297,8 +296,6 @@ const DealSchema = mongoose.Schema({
   closeDate: field({ type: Date }),
   note: field({ type: String, optional: true }),
   assignedUserIds: field({ type: [String] }),
-  boardId: field({ type: String }),
-  pipelineId: field({ type: String }),
   stageId: field({ type: String }),
   ...commonFields,
 });
