@@ -290,7 +290,7 @@ const DealSchema = mongoose.Schema({
   productsData: field({ type: [ProductSchema] }),
   customerIds: field({ type: [String] }),
   closeDate: field({ type: Date }),
-  note: field({ type: String }),
+  note: field({ type: String, optional: true }),
   assignedUserIds: field({ type: [String] }),
   boardId: field({ type: String }),
   pipelineId: field({ type: String }),
