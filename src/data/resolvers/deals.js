@@ -27,17 +27,17 @@ export default {
 
   amount(deal) {
     const data = deal.productsData || [];
-    const amountObj = {};
+    const amountsMap = {};
 
     data.forEach(product => {
       const type = product.currency;
 
-      if (!amountObj[type]) amountObj[type] = 0;
+      if (!amountsMap[type]) amountsMap[type] = 0;
 
-      amountObj[type] += product.amount || 0;
+      amountsMap[type] += product.amount || 0;
     });
 
-    return amountObj;
+    return amountsMap;
   },
 
   assignedUsers(deal) {
