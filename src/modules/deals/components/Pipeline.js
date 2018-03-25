@@ -39,7 +39,7 @@ class Pipeline extends React.Component {
           ))}
         </div>
         {stages.length === 0 && (
-          <EmptyState size="full" text="No stages" icon="map" />
+          <EmptyState size="full" text="No stage" icon="map" />
         )}
       </PipelineBody>
     );

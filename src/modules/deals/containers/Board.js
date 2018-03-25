@@ -19,10 +19,10 @@ class Container extends React.Component {
   }
 
   componentWillReceiveProps() {
-    const { history, currentBoardId } = this.props;
+    const { history, currentBoard } = this.props;
 
-    if (!routerUtils.getParam(history, 'id') && currentBoardId) {
-      routerUtils.setParams(history, { id: currentBoardId });
+    if (!routerUtils.getParam(history, 'id') && currentBoard) {
+      routerUtils.setParams(history, { id: currentBoard._id });
     }
   }
 
@@ -88,7 +88,7 @@ class Container extends React.Component {
 Container.propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
-  currentBoardId: PropTypes.string,
+  currentBoard: PropTypes.string,
   history: PropTypes.object
 };
 
@@ -102,9 +102,9 @@ const BoardContainer = compose(
   }),
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
-    options: ({ currentBoardId }) => ({
+    options: ({ currentBoard }) => ({
       variables: {
-        boardId: currentBoardId || ''
+        boardId: currentBoard ? currentBoard._id : ''
       }
     })
   })
@@ -113,7 +113,11 @@ const BoardContainer = compose(
 const BoardDetail = props => {
   const { boardDetailQuery } = props;
 
-  const currentBoard = boardDetailQuery.dealBoardDetail || {};
+  if (boardDetailQuery.loading) {
+    return <Spinner />;
+  }
+
+  const currentBoard = boardDetailQuery.dealBoardDetail;
 
   const extendedProps = {
     ...props,
@@ -150,11 +154,8 @@ const LastBoard = props => {
 
   const lastBoard = boardGetLastQuery.dealBoardGetLast;
 
-  const currentBoardId = lastBoard._id || '';
-
   const extendedProps = {
     ...props,
-    currentBoardId,
     currentBoard: lastBoard
   };
 
