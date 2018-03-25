@@ -37,11 +37,13 @@ class Form extends Component {
       maxStep: 6,
       type: formData.loadType || 'shoutbox',
       preview: 'desktop',
-      title: integration.name || '',
+      title: integration.name,
       calloutTitle: form.title || 'Contact',
       bodyValue: form.description || 'Body description here',
       thankContent: formData.thankContent || 'Thank you.',
       btnText: form.buttonText || 'Send',
+      theme: form.themeColor,
+      logoPreviewUrl: form.featuredImage,
       fields: fields || []
     };
 

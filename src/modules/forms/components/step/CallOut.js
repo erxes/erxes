@@ -274,7 +274,7 @@ class CallOut extends Component {
               overlay={popoverTop}
             >
               <ColorPicker>
-                <Picker style={{ backgroundColor: this.props.color }} />
+                <Picker style={{ backgroundColor: this.props.theme }} />
               </ColorPicker>
             </OverlayTrigger>
           </ColorPick>

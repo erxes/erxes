@@ -17,11 +17,19 @@ const commonFormParams = `
 const commonParamsDef = `
   $title: String!,
   $description: String,
+  $buttonText: String,
+  $themeColor: String,
+  $featuredImage: String,
+  $fields: [JSON]
 `;
 
 const commonParams = `
   title: $title,
   description: $description,
+  buttonText: $buttonText,
+  themeColor: $themeColor,
+  featuredImage: $featuredImage,
+  fields: $fields
 `;
 
 const integrationRemove = `
@@ -64,19 +72,10 @@ const editForm = `
   }
 `;
 
-const removeForm = `
-  mutation formsRemove($_id: String!) {
-    formsRemove(_id: $_id) {
-      _id
-    }
-  }
-`;
-
 export default {
   integrationRemove,
   integrationsEditFormIntegration,
   integrationsCreateFormIntegration,
   addForm,
-  editForm,
-  removeForm
+  editForm
 };

@@ -13,7 +13,6 @@ class EditFormContainer extends Bulk {
   render() {
     const {
       brandsQuery,
-      formsQuery,
       integrationDetailQuery,
       contentTypeId,
       editMutation,
@@ -30,7 +29,6 @@ class EditFormContainer extends Bulk {
     }
 
     const brands = brandsQuery.brands || [];
-    const forms = formsQuery.forms || [];
     const fields = [];
     const integration = integrationDetailQuery.integrationDetail || {};
 
@@ -64,7 +62,6 @@ class EditFormContainer extends Bulk {
     const updatedProps = {
       ...this.props,
       brands,
-      forms,
       integration,
       fields,
       save
@@ -78,7 +75,6 @@ EditFormContainer.propTypes = {
   contentTypeId: PropTypes.string,
   fieldsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
-  formsQuery: PropTypes.object,
   integrationDetailQuery: PropTypes.object,
   editMutation: PropTypes.func
 };
@@ -100,12 +96,6 @@ const EditFormWithData = compose(
         }
       };
     }
-  }),
-  graphql(gql(queries.forms), {
-    name: 'formsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
   }),
   graphql(gql(queries.integrationDetail), {
     name: 'integrationDetailQuery',

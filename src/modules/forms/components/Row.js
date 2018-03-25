@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Alert, confirm } from 'modules/common/utils';
 import { Tip, Button, Icon, ModalTrigger } from 'modules/common/components';
+import { Manage } from './';
 
 const ActionButtons = styled.div`
   display: flex;
@@ -75,7 +76,7 @@ class Row extends Component {
     );
   }
 
-  manageAction() {
+  manageAction(integration) {
     const { __ } = this.context;
 
     const trigger = (
@@ -88,7 +89,7 @@ class Row extends Component {
 
     return (
       <ModalTrigger title="Install code" trigger={trigger}>
-        <div>hi</div>
+        <Manage integration={integration} />
       </ModalTrigger>
     );
   }
@@ -96,14 +97,14 @@ class Row extends Component {
   render() {
     const { integration } = this.props;
     const form = integration.form || {};
-    console.log(integration);
+
     return (
       <TableRow>
         <td>{integration.name}</td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
-        <td>{form.viewCount}</td>
-        <td>{form.contactsGathered / form.viewCount} %</td>
-        <td>{form.contactsGathered}</td>
+        <td>{form.viewCount || 0}</td>
+        <td>{form.contactsGathered / form.viewCount || '0.00'} %</td>
+        <td>{form.contactsGathered || 0}</td>
         <td>{moment(form.createdDate).format('ll')}</td>
         <td width="10%">
           <ActionButtons>

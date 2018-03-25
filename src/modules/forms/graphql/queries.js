@@ -10,6 +10,7 @@ const integrations = `
         name
         code
       }
+      languageCode
       formData
       formId
       form {
@@ -18,8 +19,11 @@ const integrations = `
         code
         description
         createdDate
-        viewCount
+        buttonText
+        themeColor
+        featuredImage
         contactsGathered
+        viewCount
       }
     }
   }
@@ -66,16 +70,6 @@ const brands = `
   }
 `;
 
-const forms = `
-  query forms($page: Int, $perPage: Int) {
-    forms(page: $page, perPage: $perPage) {
-      _id
-      title
-      code
-    }
-  }
-`;
-
 const integrationsCount = `
   query totalIntegrationsCount($kind: String) {
     integrationsTotalCount(kind: $kind)
@@ -102,6 +96,5 @@ export default {
   integrationDetail,
   integrationsCount,
   fields,
-  brands,
-  forms
+  brands
 };
