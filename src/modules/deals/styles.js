@@ -2,8 +2,8 @@ import styled, { css } from 'styled-components';
 import { colors, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 
-const StageWidth = 300;
-const StageHeight = 'calc(100vh - 200px)';
+const stageWidth = 300;
+const stageHeight = 'calc(100vh - 200px)';
 
 const PipelineContainer = styled.div`
   background-color: ${colors.colorWhite};
@@ -20,13 +20,14 @@ const PipelineHeader = styled.div`
   padding: 0 20px;
   background: ${colors.bgLight};
   border-bottom: 1px solid ${colors.colorShadowGray};
+
   h2 {
     margin: 0;
     padding: 0;
     line-height: 50px;
     font-weight: normal;
     font-size: 13px;
-    color: ${rgba(colors.colorCoreDarkGray, 0.9)};
+    color: ${colors.colorCoreDarkGray};
   }
 `;
 
@@ -42,8 +43,8 @@ const StageWrapper = styled.div`
   display: flex;
   border-right: 1px solid ${colors.colorShadowGray};
   flex-direction: column;
-  width: ${StageWidth}px;
-  max-height: ${StageHeight};
+  width: ${stageWidth}px;
+  max-height: ${stageHeight};
 `;
 
 const StageContainer = styled.div`
@@ -62,6 +63,33 @@ const StageContainer = styled.div`
 const StageHeader = styled.div`
   padding: 20px;
   border-bottom: 1px solid ${colors.borderPrimary};
+  position: relative;
+
+  &:after,
+  &:before {
+    position: absolute;
+    content: '';
+    top: 50%;
+    height: 0;
+    width: 0;
+  }
+
+  &:after {
+    border-top: 18px solid transparent;
+    border-bottom: 18px solid transparent;
+    border-left: 14px solid #fff;
+    right: -14px;
+    margin-top: -18px;
+  }
+
+  &:before {
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-left: 15px solid ${colors.colorShadowGray};
+    right: -15px;
+    margin-top: -20px;
+  }
+
   > div {
     line-height: 18px;
     display: flex;
@@ -199,6 +227,7 @@ const ItemCounterContainer = styled.ul`
     border-radius: 12px;
     padding: 5px 10px;
     margin-right: 5px;
+    margin-bottom: 5px;
     color: ${colors.colorWhite};
     background: ${colors.colorSecondary};
     text-transform: uppercase;
@@ -207,6 +236,12 @@ const ItemCounterContainer = styled.ul`
   .remained-count {
     background: #a3a7ac;
   }
+`;
+
+const ItemName = styled.div`
+  line-height: 36px;
+  margin-bottom: 10px;
+  font-weight: bold;
 `;
 
 const DealAmount = styled.div`
@@ -234,7 +269,7 @@ const DealFormAmount = styled.div`
 const DealFormContainer = styled.form`
   padding: 20px;
   border-radius: 5px;
-  border: 1px dotted ${colors.colorShadowGray};
+  border: 1px dashed ${colors.colorShadowGray};
   background-color: #f6f6f6;
 
   .form-control {
@@ -251,6 +286,10 @@ const DealFormContainer = styled.form`
       border-color: ${colors.colorSecondary};
     }
   }
+
+  textarea {
+    height: 62px;
+  }
 `;
 
 const DealButton = styled.div`
@@ -259,6 +298,13 @@ const DealButton = styled.div`
   background: ${colors.colorWhite};
   border-radius: 5px;
   cursor: pointer;
+  border: 1px solid ${colors.borderPrimary};
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: ${colors.bgLight};
+  }
+
   i {
     float: right;
   }
@@ -297,7 +343,8 @@ const ProductFormContainer = styled.div`
 `;
 
 const ProductFooter = styled.div`
-  padding: 30px;
+  padding: 20px;
+  background: ${colors.bgActive};
 `;
 
 const FooterInfo = styled.div`
@@ -321,17 +368,9 @@ const FooterInfo = styled.div`
 
 const AddProduct = styled.div`
   display: block;
-  height: 80px;
-  line-height: 80px;
-  font-size: 18px;
-  font-weight: bold;
+  padding: 20px;
   text-align: center;
-  background: #ebebeb;
-  color: #5fa3b8;
-  cursor: pointer;
-  i {
-    padding-right: 8px;
-  }
+  border-top: 1px solid ${colors.borderPrimary};
 `;
 
 const ProductItemText = styled.div`
@@ -359,7 +398,7 @@ const QuickEditContainer = styled.div`
 
     ${DealFormContainer} {
       float: left;
-      width: ${StageWidth - 30}px;
+      width: ${stageWidth - 30}px;
       overflow: auto;
       height: 100%;
     }
@@ -386,10 +425,15 @@ const RightControls = styled.div`
 const DealMoveFormContainer = styled.div`
   position: absolute;
   top: 32px;
-  left: ${StageWidth - 20}px;
+  left: ${stageWidth - 20}px;
   background: ${colors.colorWhite};
   width: 240px;
   padding: 20px;
+`;
+
+const Footer = styled.div`
+  text-align: right;
+  margin-top: 20px;
 `;
 
 export {
@@ -419,5 +463,7 @@ export {
   ProductItemText,
   QuickEditContainer,
   RightControls,
-  DealMoveFormContainer
+  DealMoveFormContainer,
+  Footer,
+  ItemName
 };

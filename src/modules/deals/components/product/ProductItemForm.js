@@ -7,11 +7,7 @@ import {
   Button
 } from 'modules/common/components';
 import Select from 'react-select-plus';
-import {
-  DealButton,
-  ItemCounterContainer,
-  ProductItemText
-} from '../../styles';
+import { DealButton, ItemName, ProductItemText } from '../../styles';
 import { selectConfigOptions } from '../../utils';
 import { ProductChooser } from '../../containers';
 import { CURRENCIES, MEASUREMENTS } from 'modules/settings/general/constants';
@@ -63,13 +59,7 @@ class ProductItemForm extends React.Component {
   renderProduct(product) {
     if (!product) return null;
 
-    return (
-      <ItemCounterContainer>
-        <ul>
-          <li>{product.name}</li>
-        </ul>
-      </ItemCounterContainer>
-    );
+    return <ItemName>{product.name}</ItemName>;
   }
 
   render() {
@@ -79,8 +69,8 @@ class ProductItemForm extends React.Component {
     return (
       <tr key={productData._id}>
         <td>
-          {this.renderProductModal(productData)}
           {this.renderProduct(productData.product)}
+          {this.renderProductModal(productData)}
         </td>
         <td>
           <Select
@@ -181,6 +171,7 @@ class ProductItemForm extends React.Component {
           <Button
             btnStyle="danger"
             icon="close"
+            size="small"
             onClick={this.props.removeProductItem.bind(this, productData._id)}
           />
         </td>

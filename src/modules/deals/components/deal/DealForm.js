@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import Datetime from 'react-datetime';
 import Select from 'react-select-plus';
 import {
@@ -14,7 +13,12 @@ import {
 import { Alert } from 'modules/common/utils';
 import { CompanyChooser } from 'modules/companies/containers';
 import { CustomerChooser } from 'modules/customers/containers';
-import { DealFormContainer, DealButton, DealFormAmount } from '../../styles';
+import {
+  DealFormContainer,
+  DealButton,
+  DealFormAmount,
+  Footer
+} from '../../styles';
 import { ProductForm, ItemCounter } from '../';
 import { selectUserOptions } from '../../utils';
 
@@ -258,19 +262,19 @@ class DealForm extends React.Component {
         {this.renderProductModal(productsData, products)}
 
         <FormGroup>
-          <ItemCounter items={products} />
+          <ItemCounter items={products} show />
         </FormGroup>
 
         {this.renderCompanyModal(companies)}
 
         <FormGroup>
-          <ItemCounter items={companies} />
+          <ItemCounter items={companies} show />
         </FormGroup>
 
         {this.renderCustomerModal(customers)}
 
         <FormGroup>
-          <ItemCounter items={customers} />
+          <ItemCounter items={customers} show />
         </FormGroup>
 
         {this.renderAmount(amount)}
@@ -312,7 +316,7 @@ class DealForm extends React.Component {
           />
         </FormGroup>
 
-        <Modal.Footer>
+        <Footer>
           <Button
             btnStyle="simple"
             onClick={() => {
@@ -332,7 +336,7 @@ class DealForm extends React.Component {
           >
             Save
           </Button>
-        </Modal.Footer>
+        </Footer>
       </DealFormContainer>
     );
   }

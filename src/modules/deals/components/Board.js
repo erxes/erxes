@@ -30,6 +30,18 @@ class Board extends React.Component {
   renderBoard() {
     const { currentBoard, boards } = this.props;
 
+    if (boards.length === 1) {
+      const { __ } = this.context;
+
+      return (
+        <li>
+          <Link to="/settings/deals">
+            <Icon icon="plus" /> {__('Create another board')}
+          </Link>
+        </li>
+      );
+    }
+
     return boards.map(board => {
       if (board._id !== currentBoard._id) {
         return (
@@ -53,6 +65,18 @@ class Board extends React.Component {
         stageStates[key] = states[key];
       }
     });
+
+    if (pipelines.length === 0) {
+      return (
+        <EmptyState
+          linkUrl={`/settings/deals?boardId=${currentBoard._id}`}
+          linkText="Create one"
+          size="full"
+          text="There is no pipeline in this board."
+          image="/images/robots/robot-05.svg"
+        />
+      );
+    }
 
     return pipelines.map(pipeline => (
       <Pipeline
@@ -97,7 +121,15 @@ class Board extends React.Component {
         </DragDropContext>
       );
     } else {
-      content = <EmptyState size="full" text="No board" icon="map" />;
+      content = (
+        <EmptyState
+          linkUrl="/settings/deals"
+          linkText="Create one"
+          size="full"
+          text="There is no board."
+          image="/images/robots/robot-05.svg"
+        />
+      );
     }
 
     return (

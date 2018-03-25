@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Icon, Table } from 'modules/common/components';
+import { Button, Table, EmptyState } from 'modules/common/components';
 import { ProductItemForm } from '../../containers';
 import {
   ProductFormContainer,
@@ -184,9 +184,27 @@ class ProductForm extends React.Component {
     ));
   }
 
+  renderEmpty(products) {
+    if (products.length === 0) {
+      return (
+        <tr>
+          <td colSpan="7">
+            <EmptyState
+              text="No product or services"
+              icon="information-circled"
+            />
+          </td>
+        </tr>
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { __ } = this.context;
     const { total, tax, discount } = this.state;
+    const products = this.props.productsData;
 
     return (
       <ProductFormContainer>
@@ -194,8 +212,8 @@ class ProductForm extends React.Component {
           <thead>
             <tr>
               <th>{__('Product & Service')}</th>
-              <th width="200">{__('UOM')}</th>
-              <th width="200">{__('Currency')}</th>
+              <th width="220">{__('UOM')}</th>
+              <th width="220">{__('Currency')}</th>
               <th width="100">{__('Quantity')}</th>
               <th>{__('Unit price')}</th>
               <th>{__('Amount')}</th>
@@ -203,7 +221,7 @@ class ProductForm extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {this.props.productsData.map(productData => (
+            {products.map(productData => (
               <ProductItemForm
                 key={productData._id}
                 productData={productData}
@@ -214,13 +232,20 @@ class ProductForm extends React.Component {
                 removeProductItem={this.removeProductItem}
               />
             ))}
+            {this.renderEmpty(products)}
           </tbody>
         </Table>
 
-        <AddProduct onClick={this.addProductItem}>
-          <Icon icon="plus" /> {__('Add Product / Service')}
+        <AddProduct>
+          <Button
+            btnStyle="success"
+            onClick={this.addProductItem}
+            icon="plus"
+            size="large"
+          >
+            {__('Add Product / Service')}
+          </Button>
         </AddProduct>
-
         <ProductFooter>
           <FooterInfo>
             <table>

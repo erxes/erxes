@@ -4,14 +4,19 @@ import { ItemCounterContainer } from '../../styles';
 import { renderFullName } from 'modules/common/utils';
 
 const propTypes = {
-  items: PropTypes.array
+  items: PropTypes.array,
+  show: PropTypes.bool
+};
+
+const defaultProps = {
+  show: false
 };
 
 class ItemCounter extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { show: false };
+    this.state = { show: props.show };
   }
 
   showOthers() {
@@ -52,5 +57,6 @@ class ItemCounter extends React.Component {
 }
 
 ItemCounter.propTypes = propTypes;
+ItemCounter.defaultProps = defaultProps;
 
 export default ItemCounter;
