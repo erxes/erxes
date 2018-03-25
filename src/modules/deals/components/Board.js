@@ -94,43 +94,48 @@ class Board extends React.Component {
     const breadcrumb = [{ title: __('Deal') }];
 
     const { currentBoard, onDragEnd } = this.props;
-    let content, actionBar;
 
-    if (currentBoard) {
-      const actionBarLeft = (
-        <BarItems>
-          <Dropdown id="dropdown-board">
-            <DropdownToggle bsRole="toggle">
-              <Button btnStyle="simple" size="small">
-                {currentBoard.name} <Icon icon="ios-arrow-down" />
-              </Button>
-            </DropdownToggle>
-
-            <Dropdown.Menu>{this.renderBoard()}</Dropdown.Menu>
-          </Dropdown>
-        </BarItems>
-      );
-
-      actionBar = (
-        <Wrapper.ActionBar left={actionBarLeft} background="transparent" />
-      );
-
-      content = (
-        <DragDropContext onDragEnd={onDragEnd}>
-          {this.renderPipeline()}
-        </DragDropContext>
-      );
-    } else {
-      content = (
-        <EmptyState
-          linkUrl="/settings/deals"
-          linkText="Create one"
-          size="full"
-          text="There is no board."
-          image="/images/robots/robot-05.svg"
+    if (!currentBoard) {
+      return (
+        <Wrapper
+          header={<Wrapper.Header breadcrumb={breadcrumb} />}
+          content={
+            <EmptyState
+              linkUrl="/settings/deals"
+              linkText="Create one"
+              size="full"
+              text="There is no board."
+              image="/images/robots/robot-05.svg"
+            />
+          }
+          transparent
         />
       );
     }
+
+    const actionBarLeft = (
+      <BarItems>
+        <Dropdown id="dropdown-board">
+          <DropdownToggle bsRole="toggle">
+            <Button btnStyle="simple" size="small">
+              {currentBoard.name} <Icon icon="ios-arrow-down" />
+            </Button>
+          </DropdownToggle>
+
+          <Dropdown.Menu>{this.renderBoard()}</Dropdown.Menu>
+        </Dropdown>
+      </BarItems>
+    );
+
+    const actionBar = (
+      <Wrapper.ActionBar left={actionBarLeft} background="transparent" />
+    );
+
+    const content = (
+      <DragDropContext onDragEnd={onDragEnd}>
+        {this.renderPipeline()}
+      </DragDropContext>
+    );
 
     return (
       <Wrapper
