@@ -16,6 +16,9 @@ import integrations from './integrations';
 import notifications from './notifications';
 import knowledgeBase from './knowledgeBase';
 import activityLogs from './activityLogs';
+import deals from './deals';
+import products from './products';
+import configs from './configs';
 
 export default {
   ...users,
@@ -36,5 +39,8 @@ export default {
   ...notifications,
   ...knowledgeBase,
   ...activityLogs,
+  ...deals,
+  ...products,
+  ...configs,
   ...fieldsgroups,
 };
