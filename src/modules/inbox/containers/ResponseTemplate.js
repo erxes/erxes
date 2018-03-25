@@ -57,9 +57,7 @@ export default compose(
     options: {
       refetchQueries: [
         {
-          query: gql`
-            ${queries.responseTemplateList}
-          `
+          query: gql`${queries.responseTemplateList}`
         }
       ]
     }

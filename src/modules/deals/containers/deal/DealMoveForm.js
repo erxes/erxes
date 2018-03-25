@@ -22,7 +22,12 @@ class DealMoveFormContainer extends React.Component {
     };
   }
 
-  onChangeBoard(boardId) {
+  onChangeBoard(board) {
+    // get value from react-select-plus component
+    // it is unnecessary to check whether board is null or not
+    // because this has at least one board (current board)
+    const boardId = board.value;
+
     this.setState({ boardId });
 
     this.props.pipelinesQuery.refetch({ boardId }).then(({ data }) => {
@@ -34,10 +39,17 @@ class DealMoveFormContainer extends React.Component {
     });
   }
 
-  onChangePipeline(pipelineId) {
-    this.setState({ pipelineId });
+  onChangePipeline(pipeline) {
+    if (pipeline) {
+      // get value from react-select-plus component
+      const pipelineId = pipeline.value;
 
-    this.props.stagesQuery.refetch({ pipelineId });
+      this.setState({ pipelineId });
+
+      this.props.stagesQuery.refetch({ pipelineId });
+    } else {
+      this.setState({ pipelineId: null });
+    }
   }
 
   moveDeal(doc) {
@@ -70,7 +82,7 @@ class DealMoveFormContainer extends React.Component {
     let filteredStages = stages;
 
     if (deal.pipelineId === pipelineId) {
-      filteredStages = stages.filter(el => el._id !== deal.stageId);
+      filteredStages = stages.filter(stage => stage._id !== deal.stageId);
     }
 
     const stageId = filteredStages.length > 0 ? filteredStages[0]._id : null;

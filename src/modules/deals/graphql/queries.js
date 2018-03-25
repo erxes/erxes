@@ -79,11 +79,7 @@ const dealDetail = `
         firstName
         email
       }
-      products {
-        _id
-        name
-      }
-      productsData
+      products
       amount
       closeDate
       note
@@ -95,6 +91,15 @@ const dealDetail = `
           avatar
         }
       }
+    }
+  }
+`;
+
+const productDetail = `
+  query productDetail($_id: String!) {
+    productDetail(_id: $_id) {
+      _id
+      name
     }
   }
 `;
@@ -121,5 +126,6 @@ export default {
   stageDetail,
   deals,
   dealDetail,
+  productDetail,
   users
 };

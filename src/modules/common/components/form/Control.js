@@ -57,11 +57,11 @@ const renderElement = (Element, attributes, type, child) => {
 
 class FormControl extends React.Component {
   render() {
-    const props = Object.assign({}, this.props);
+    const props = this.props;
     const childNode = props.children;
     const elementType = props.componentClass;
 
-    //cancel custom browser default form validation error
+    // cancel custom browser default form validation error
     const onChange = e => {
       e.target.classList.remove('form-invalid');
 

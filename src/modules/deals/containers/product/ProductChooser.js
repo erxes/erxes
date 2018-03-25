@@ -8,7 +8,7 @@ import {
 } from 'modules/settings/productService/graphql';
 import { Alert } from 'modules/common/utils';
 import { CommonChooser } from 'modules/customers/components';
-import { Form as ProductForm } from 'modules/settings/productService/containers';
+import { Form as ProductForm } from 'modules/settings/productService/components';
 
 class ProductChooser extends React.Component {
   constructor(props) {
@@ -38,7 +38,7 @@ class ProductChooser extends React.Component {
       productsQuery.refetch({ searchValue: '' });
     };
 
-    // add customer
+    // add product
     const addProduct = ({ doc }, callback) => {
       productAdd({
         variables: doc

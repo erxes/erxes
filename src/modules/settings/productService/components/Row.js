@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Tip, Icon, ModalTrigger } from 'modules/common/components';
-import { Form } from '../containers';
+import { Form } from './';
 import { ActionButtons, TableRow } from '../../styles';
 
 const propTypes = {

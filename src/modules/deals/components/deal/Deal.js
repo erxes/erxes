@@ -51,14 +51,10 @@ class Deal extends React.Component {
   }
 
   renderProducts(products) {
-    if (products.length === 0) return null;
-
     return <ItemCounter items={products} />;
   }
 
   renderUsers(users) {
-    if (users.length === 0) return null;
-
     return <UserCounter users={users} />;
   }
 
@@ -67,9 +63,9 @@ class Deal extends React.Component {
 
     return (
       <DealAmount>
-        {Object.keys(amount).map(el => (
-          <p key={el}>
-            {amount[el].toLocaleString()} <span>{el}</span>
+        {Object.keys(amount).map(key => (
+          <p key={key}>
+            {amount[key].toLocaleString()} <span>{key}</span>
           </p>
         ))}
       </DealAmount>
@@ -98,31 +94,37 @@ class Deal extends React.Component {
 
     return (
       <Draggable draggableId={deal._id} index={index}>
-        {(provided, snapshot) => (
-          <div>
-            <DealContainer
-              innerRef={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-              isDragging={snapshot.isDragging}
-            >
-              <DealDate>{moment(deal.closeDate).format('YYYY-MM-DD')}</DealDate>
+        {(provided, snapshot) => {
+          const products = deal.products.map(p => p.product);
 
-              {this.renderProducts(deal.products || [])}
+          return (
+            <div>
+              <DealContainer
+                innerRef={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                isDragging={snapshot.isDragging}
+              >
+                <DealDate>
+                  {moment(deal.closeDate).format('YYYY-MM-DD')}
+                </DealDate>
 
-              {this.renderAmount(deal.amount || {})}
+                {this.renderProducts(products)}
 
-              {this.renderUsers(deal.assignedUsers || [])}
+                {this.renderAmount(deal.amount || {})}
 
-              <DealContainerHover innerRef={el => (this.hover = el)}>
-                <div onClick={this.showQuickEditForm}>
-                  <Icon icon="edit" />
-                </div>
-              </DealContainerHover>
-            </DealContainer>
-            {provided.placeholder}
-          </div>
-        )}
+                {this.renderUsers(deal.assignedUsers || [])}
+
+                <DealContainerHover innerRef={el => (this.hover = el)}>
+                  <div onClick={this.showQuickEditForm}>
+                    <Icon icon="edit" />
+                  </div>
+                </DealContainerHover>
+              </DealContainer>
+              {provided.placeholder}
+            </div>
+          );
+        }}
       </Draggable>
     );
   }
