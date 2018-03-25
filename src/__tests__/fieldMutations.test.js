@@ -2,11 +2,9 @@
 /* eslint-disable no-underscore-dangle */
 
 import faker from 'faker';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
-import { connect, disconnect } from '../db/connection';
-import { Fields, Users, FieldsGroups } from '../db/models';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { Users, Fields, FieldsGroups } from '../db/models';
 import { userFactory, fieldFactory, fieldGroupFactory } from '../db/factories';
-import { fieldMutations, fieldsGroupsMutations } from '../data/resolvers/mutations/fields';
 
 beforeAll(() => connect());
 
@@ -15,201 +13,312 @@ afterAll(() => disconnect());
 /*
  * Generate test data
  */
-const doc = {
-  type: 'input',
+const fieldArgs = {
+  contentType: faker.random.word(),
+  contentTypeId: faker.random.word(),
   validation: 'number',
-  text: faker.random.word(),
+  type: 'text',
   description: faker.random.word(),
+  options: [],
   isRequired: false,
-  order: 0,
+  order: faker.random.number(),
+  groupId: faker.random.word(),
+  isVisible: false,
+};
+
+const fieldGroupArgs = {
+  name: faker.random.word(),
+  contentType: 'customer',
+  order: 2,
+  description: faker.random.word(),
+  isVisible: true,
 };
 
 describe('Fields mutations', () => {
   let _user;
   let _field;
+  let _fieldGroup;
+  let context;
+
+  const fieldsCommonParamDefs = `
+    $type: String
+    $validation: String
+    $text: String
+    $description: String
+    $options: [String]
+    $isRequired: Boolean
+    $order: Int
+    $groupId: String
+    $isVisible: Boolean
+  `;
+
+  const fieldsCommonParams = `
+    type: $type
+    validation: $validation
+    text: $text
+    description: $description
+    options: $options
+    isRequired: $isRequired
+    order: $order
+    groupId: $groupId
+    isVisible: $isVisible
+  `;
+
+  const fieldsGroupsCommonParamDefs = `
+    $name: String
+    $contentType: String
+    $order: Int
+    $description: String
+    $isVisible: Boolean
+  `;
+
+  const fieldsGroupsCommonParams = `
+    name: $name
+    contentType: $contentType
+    order: $order
+    description: $description
+    isVisible: $isVisible
+  `;
 
   beforeEach(async () => {
     // Creating test data
     _user = await userFactory();
     _field = await fieldFactory();
-  });
-
-  afterEach(async () => {
-    // Clearing test data
-    await Fields.remove({});
-    await FieldsGroups.remove({});
-    await Users.remove({});
-  });
-
-  test('Check login required', async () => {
-    expect.assertions(4);
-
-    const check = async fn => {
-      try {
-        await fn({}, {}, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
-      }
-    };
-
-    // add
-    check(fieldMutations.fieldsAdd);
-
-    // edit
-    check(fieldMutations.fieldsEdit);
-
-    // add company
-    check(fieldMutations.fieldsRemove);
-
-    // update order
-    check(fieldMutations.fieldsUpdateOrder);
-  });
-
-  test('Create field', async () => {
-    Fields.createField = jest.fn();
-
-    await fieldMutations.fieldsAdd({}, doc, { user: _user });
-
-    expect(Fields.createField).toBeCalledWith({ ...doc, lastUpdatedUserId: _user._id });
-  });
-
-  test('Update field valid', async () => {
-    const mockedMethod = jest.spyOn(Fields, 'updateField');
-
-    await fieldMutations.fieldsEdit({}, { _id: _field._id, ...doc }, { user: _user });
-
-    expect(Fields.updateField).toBeCalledWith(_field._id, { ...doc, lastUpdatedUserId: _user._id });
-
-    mockedMethod.mockRestore();
-  });
-
-  test('Remove field valid', async () => {
-    Fields.removeField = jest.fn();
-
-    await fieldMutations.fieldsRemove({}, { _id: _field._id }, { user: _user });
-
-    expect(Fields.removeField).toBeCalledWith(_field._id);
-  });
-
-  test('Update order', async () => {
-    Fields.updateOrder = jest.fn();
-
-    const orders = [{ _id: 'DFADF', order: 1 }];
-
-    await fieldMutations.fieldsUpdateOrder({}, { _id: _field._id, orders }, { user: _user });
-
-    expect(Fields.updateOrder).toBeCalledWith(orders);
-  });
-
-  test('Update visible', async () => {
-    Fields.updateFieldsVisible = jest.fn();
-
-    const isVisible = false;
-
-    await fieldMutations.fieldsUpdateVisible({}, { _id: _field._id, isVisible }, { user: _user });
-
-    expect(Fields.updateFieldsVisible).toBeCalledWith(_field._id, isVisible, _user._id);
-  });
-});
-
-describe('Fields Group mutations', () => {
-  let _user;
-  let _fieldGroup;
-
-  beforeEach(async () => {
-    // Creatubg test data
-    _user = await userFactory({});
     _fieldGroup = await fieldGroupFactory({});
+
+    context = { user: _user };
   });
 
   afterEach(async () => {
     // Clearing test data
-    await FieldsGroups.remove({});
-    await Fields.remove({});
     await Users.remove({});
+    await Fields.remove({});
+    await FieldsGroups.remove({});
   });
 
-  test('Check login required', async () => {
-    expect.assertions(4);
-
-    const check = async fn => {
-      try {
-        await fn({}, {}, {}, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
+  test('Add field', async () => {
+    const mutation = `
+      mutation fieldsAdd(
+        $contentType: String!
+        $contentTypeId: String
+        ${fieldsCommonParamDefs}
+      ) {
+        fieldsAdd(
+          contentType: $contentType
+          contentTypeId: $contentTypeId
+          ${fieldsCommonParams}
+        ) {
+          contentType
+          contentTypeId
+          type
+          validation
+          description
+          options
+          isRequired
+          order
+          groupId
+          isVisible
+        }
       }
-    };
+    `;
 
-    // add
-    check(fieldsGroupsMutations.fieldsGroupsAdd);
+    const field = await graphqlRequest(mutation, 'fieldsAdd', fieldArgs, context);
 
-    // edit
-    check(fieldsGroupsMutations.fieldsGroupsEdit);
-
-    // remove
-    check(fieldsGroupsMutations.fieldsGroupsRemove);
-
-    // update visible
-    check(fieldsGroupsMutations.fieldsGroupsUpdateVisible);
+    expect(field.contentType).toBe(fieldArgs.contentType);
+    expect(field.contentTypeId).toBe(fieldArgs.contentTypeId);
+    expect(field.validation).toBe(fieldArgs.validation);
+    expect(field.type).toBe(fieldArgs.type);
+    expect(field.description).toBe(fieldArgs.description);
+    expect(field.options).toEqual(fieldArgs.options);
+    expect(field.isRequired).toEqual(fieldArgs.isRequired);
+    expect(field.order).toBe(fieldArgs.order);
+    expect(field.groupId).toBe(fieldArgs.groupId);
+    expect(field.isVisible).toBe(fieldArgs.isVisible);
   });
 
-  test('Create field', async () => {
-    const mockedMethod = jest.spyOn(FieldsGroups, 'createGroup');
+  test('Edit field', async () => {
+    const mutation = `
+      mutation fieldsEdit(
+        $_id: String!
+        ${fieldsCommonParamDefs}
+      ) {
+        fieldsEdit(
+          _id: $_id
+          ${fieldsCommonParams}
+        ) {
+          _id
+          type
+          validation
+          description
+          options
+          isRequired
+          order
+          groupId
+          isVisible
+        }
+      }
+    `;
 
-    const doc = {
-      name: faker.random.word(),
-      description: faker.random.word(),
-      contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-    };
-
-    await fieldsGroupsMutations.fieldsGroupsAdd({}, doc, { user: _user });
-
-    expect(FieldsGroups.createGroup).toBeCalledWith({ ...doc, lastUpdatedUserId: _user._id });
-
-    mockedMethod.mockRestore();
-  });
-
-  test('Update field group', async () => {
-    const mockedMethod = jest.spyOn(FieldsGroups, 'updateGroup');
-
-    const doc = {
-      name: faker.random.word(),
-      description: faker.random.word(),
-    };
-
-    await fieldsGroupsMutations.fieldsGroupsEdit(
-      {},
-      { _id: _fieldGroup._id, ...doc },
-      { user: _user },
+    const field = await graphqlRequest(
+      mutation,
+      'fieldsEdit',
+      { _id: _field._id, ...fieldArgs },
+      context,
     );
 
-    expect(FieldsGroups.updateGroup).toBeCalledWith(_fieldGroup._id, {
-      ...doc,
-      lastUpdatedUserId: _user._id,
-    });
-
-    mockedMethod.mockRestore();
+    expect(field._id).toBe(_field._id);
+    expect(field.validation).toBe(fieldArgs.validation);
+    expect(field.type).toBe(fieldArgs.type);
+    expect(field.description).toBe(fieldArgs.description);
+    expect(field.options).toEqual(fieldArgs.options);
+    expect(field.isRequired).toEqual(fieldArgs.isRequired);
+    expect(field.order).toBe(fieldArgs.order);
+    expect(field.groupId).toBe(fieldArgs.groupId);
+    expect(field.isVisible).toBe(fieldArgs.isVisible);
   });
 
-  test('Remove field group', async () => {
-    FieldsGroups.removeGroup = jest.fn();
+  test('Remove field', async () => {
+    const mutation = `
+      mutation fieldsRemove($_id: String!) {
+        fieldsRemove(_id: $_id) {
+          _id
+        }
+      }
+    `;
 
-    await fieldsGroupsMutations.fieldsGroupsRemove({}, { _id: _fieldGroup._id }, { user: _user });
+    await graphqlRequest(mutation, 'fieldsRemove', { _id: _field._id }, context);
 
-    expect(FieldsGroups.removeGroup).toBeCalledWith(_fieldGroup._id);
+    expect(await Fields.findOne({ _id: _field._id })).toBe(null);
   });
 
-  test('Update visible', async () => {
-    FieldsGroups.updateGroupVisible = jest.fn();
+  test('Update order field', async () => {
+    const orders = [
+      {
+        _id: _field._id,
+        order: 1,
+      },
+    ];
 
-    const isVisible = false;
+    const mutation = `
+      mutation fieldsUpdateOrder($orders: [OrderItem]) {
+        fieldsUpdateOrder(orders: $orders) {
+          _id
+          order
+        }
+      }
+    `;
 
-    await fieldsGroupsMutations.fieldsGroupsUpdateVisible(
-      {},
-      { _id: _fieldGroup._id, isVisible },
-      { user: _user },
+    const [fields] = await graphqlRequest(mutation, 'fieldsUpdateOrder', { orders }, context);
+
+    const orderIds = orders.map(order => order._id);
+    const orderItems = orders.map(item => item.order);
+
+    expect(orderIds).toContain(fields._id);
+    expect(orderItems).toContain(fields.order);
+  });
+
+  test('Update field visible', async () => {
+    const args = {
+      _id: _field._id,
+      isVisible: _field.isVisible,
+    };
+
+    const mutation = `
+      mutation fieldsUpdateVisible($_id: String! $isVisible: Boolean) {
+        fieldsUpdateVisible(_id: $_id isVisible: $isVisible) {
+          _id
+          isVisible
+        }
+      }
+    `;
+
+    const field = await graphqlRequest(mutation, 'fieldsUpdateVisible', args, context);
+
+    expect(field._id).toBe(args._id);
+    expect(field.isVisible).toBe(args.isVisible);
+  });
+
+  test('Add group field', async () => {
+    const mutation = `
+      mutation fieldsGroupsAdd(${fieldsGroupsCommonParamDefs}) {
+        fieldsGroupsAdd(${fieldsGroupsCommonParams}) {
+          name
+          contentType
+          order
+          description
+          isVisible
+        }
+      }
+    `;
+
+    const fieldGroup = await graphqlRequest(mutation, 'fieldsGroupsAdd', fieldGroupArgs, context);
+
+    expect(fieldGroup.contentType).toBe(fieldGroupArgs.contentType);
+    expect(fieldGroup.name).toBe(fieldGroupArgs.name);
+    expect(fieldGroup.description).toBe(fieldGroupArgs.description);
+    expect(fieldGroup.order).toBe(fieldGroupArgs.order);
+    expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
+  });
+
+  test('Edit group field', async () => {
+    const mutation = `
+      mutation fieldsGroupsEdit($_id: String! ${fieldsGroupsCommonParamDefs}) {
+        fieldsGroupsEdit(_id: $_id ${fieldsGroupsCommonParams}) {
+          _id
+          name
+          contentType
+          order
+          description
+          isVisible
+        }
+      }
+    `;
+
+    const fieldGroup = await graphqlRequest(
+      mutation,
+      'fieldsGroupsEdit',
+      { _id: _fieldGroup._id, ...fieldGroupArgs },
+      context,
     );
 
-    expect(FieldsGroups.updateGroupVisible).toBeCalledWith(_fieldGroup._id, isVisible, _user._id);
+    expect(fieldGroup._id).toBe(_fieldGroup._id);
+    expect(fieldGroup.contentType).toBe(fieldGroupArgs.contentType);
+    expect(fieldGroup.name).toBe(fieldGroupArgs.name);
+    expect(fieldGroup.description).toBe(fieldGroupArgs.description);
+    expect(fieldGroup.order).toBe(fieldGroupArgs.order);
+    expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
+  });
+
+  test('Remove group field', async () => {
+    const mutation = `
+      mutation fieldsGroupsRemove($_id: String!) {
+        fieldsGroupsRemove(_id: $_id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'fieldsGroupsRemove', { _id: _fieldGroup._id }, context);
+
+    expect(await FieldsGroups.findOne({ _id: _fieldGroup._id })).toBe(null);
+  });
+
+  test('Update group field visible', async () => {
+    const args = {
+      _id: _fieldGroup._id,
+      isVisible: true,
+    };
+
+    const mutation = `
+      mutation fieldsGroupsUpdateVisible($_id: String, $isVisible: Boolean) {
+        fieldsGroupsUpdateVisible(_id: $_id isVisible: $isVisible) {
+          _id
+          isVisible
+        }
+      }
+    `;
+
+    const fieldGroup = await graphqlRequest(mutation, 'fieldsGroupsUpdateVisible', args, context);
+
+    expect(fieldGroup._id).toBe(args._id);
+    expect(fieldGroup.isVisible).toBe(args.isVisible);
   });
 });

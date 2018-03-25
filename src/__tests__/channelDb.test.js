@@ -1,10 +1,10 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
+import toBeType from 'jest-tobetype';
 import { connect, disconnect } from '../db/connection';
 import { userFactory, integrationFactory, channelFactory } from '../db/factories';
 import { Channels, Users, Integrations } from '../db/models';
-import toBeType from 'jest-tobetype';
 
 expect.extend(toBeType);
 
@@ -52,7 +52,7 @@ describe('channel creation', () => {
 
     expect(channel.name).toEqual(doc.name);
     expect(channel.description).toEqual(doc.description);
-    expect(channel.memberIds.length).toBe(2);
+    expect(channel.memberIds.length).toBe(1);
     expect(channel.integrationIds.length).toEqual(1);
     expect(channel.integrationIds[0]).toEqual(_integration._id);
     expect(channel.userId).toEqual(doc.userId);
@@ -104,9 +104,8 @@ describe('channel update', () => {
 
     expect(channel.name).toEqual(_channelDoc.name);
     expect(channel.description).toEqual(_channelDoc.description);
-    expect(channel.memberIds.length).toBe(2);
+    expect(channel.memberIds.length).toBe(1);
     expect(channel.memberIds[0]).toBe(_user2._id);
-    expect(channel.memberIds[1]).toBe(_user._id);
     expect(channel.integrationIds.length).toEqual(1);
     expect(channel.integrationIds[0]).toEqual(_integration._id);
 

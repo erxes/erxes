@@ -1,10 +1,9 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { ResponseTemplates, Users } from '../db/models';
 import { responseTemplateFactory, userFactory } from '../db/factories';
-import responseTemplateMutations from '../data/resolvers/mutations/responseTemplates';
 
 beforeAll(() => connect());
 
@@ -13,11 +12,28 @@ afterAll(() => disconnect());
 describe('Response template mutations', () => {
   let _responseTemplate;
   let _user;
+  let context;
+
+  const commonParamDefs = `
+    $brandId: String!
+    $name: String!
+    $content: String
+    $files: JSON
+  `;
+
+  const commonParams = `
+    brandId: $brandId
+    name: $name
+    content: $content
+    files: $files
+  `;
 
   beforeEach(async () => {
     // Creating test data
     _responseTemplate = await responseTemplateFactory();
     _user = await userFactory();
+
+    context = { user: _user };
   });
 
   afterEach(async () => {
@@ -26,75 +42,77 @@ describe('Response template mutations', () => {
     await Users.remove({});
   });
 
-  test('Response templates login required functions', async () => {
-    const checkLogin = async (fn, args) => {
-      try {
-        await fn({}, args, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
+  test('Add response template', async () => {
+    const args = {
+      name: _responseTemplate.name,
+      brandId: _responseTemplate.brandId,
+      content: _responseTemplate.content,
+      files: _responseTemplate.files,
+    };
+
+    const mutation = `
+      mutation responseTemplatesAdd(${commonParamDefs}) {
+        responseTemplatesAdd(${commonParams}) {
+          brandId
+          name
+          content
+          files
+        }
       }
-    };
+    `;
 
-    expect.assertions(3);
+    const responseTemplate = await graphqlRequest(mutation, 'responseTemplatesAdd', args, context);
 
-    // add response template
-    checkLogin(responseTemplateMutations.responseTemplatesAdd, {
-      name: _responseTemplate.name,
-      content: _responseTemplate.content,
-    });
-
-    // update response template
-    checkLogin(responseTemplateMutations.responseTemplatesEdit, { _id: _responseTemplate.id });
-
-    // remove response template
-    checkLogin(responseTemplateMutations.responseTemplatesRemove, { _id: _responseTemplate.id });
+    expect(responseTemplate.name).toBe(args.name);
+    expect(responseTemplate.brandId).toBe(args.brandId);
+    expect(responseTemplate.content).toBe(args.content);
+    expect(responseTemplate.files).toEqual(expect.arrayContaining(args.files));
   });
 
-  test('Create response template', async () => {
-    ResponseTemplates.create = jest.fn();
-
-    const _doc = {
+  test('Edit response template', async () => {
+    const args = {
+      _id: _responseTemplate._id,
+      brandId: _responseTemplate.brandId,
       name: _responseTemplate.name,
       content: _responseTemplate.content,
-      brandId: _responseTemplate.brandId,
       files: _responseTemplate.files,
     };
 
-    await responseTemplateMutations.responseTemplatesAdd({}, _doc, { user: _user });
-    expect(ResponseTemplates.create.mock.calls.length).toBe(1);
-    expect(ResponseTemplates.create).toBeCalledWith(_doc);
+    const mutation = `
+      mutation responseTemplatesEdit($_id: String!, ${commonParamDefs}) {
+        responseTemplatesEdit(_id: $_id, ${commonParams}) {
+          _id
+          brandId
+          name
+          content
+          files
+        }
+      }
+    `;
+
+    const responseTemplate = await graphqlRequest(mutation, 'responseTemplatesEdit', args, context);
+
+    expect(responseTemplate._id).toBe(args._id);
+    expect(responseTemplate.name).toBe(args.name);
+    expect(responseTemplate.brandId).toBe(args.brandId);
+    expect(responseTemplate.content).toBe(args.content);
+    expect(responseTemplate.files).toEqual(expect.arrayContaining(args.files));
   });
 
-  test('Update response template', async () => {
-    ResponseTemplates.updateResponseTemplate = jest.fn();
+  test('Remove response template', async () => {
+    const mutation = `
+      mutation responseTemplatesRemove($_id: String!) {
+        responseTemplatesRemove(_id: $_id)
+      }
+    `;
 
-    const _doc = {
-      name: _responseTemplate.name,
-      content: _responseTemplate.content,
-      brandId: _responseTemplate.brandId,
-      files: _responseTemplate.files,
-    };
-
-    await responseTemplateMutations.responseTemplatesEdit(
-      {},
-      { _id: _responseTemplate.id, ..._doc },
-      { user: _user },
+    await graphqlRequest(
+      mutation,
+      'responseTemplatesRemove',
+      { _id: _responseTemplate._id },
+      context,
     );
 
-    expect(ResponseTemplates.updateResponseTemplate.mock.calls.length).toBe(1);
-    expect(ResponseTemplates.updateResponseTemplate).toBeCalledWith(_responseTemplate.id, _doc);
-  });
-
-  test('Delete response template', async () => {
-    ResponseTemplates.removeResponseTemplate = jest.fn();
-
-    await responseTemplateMutations.responseTemplatesRemove(
-      {},
-      { _id: _responseTemplate.id },
-      { user: _user },
-    );
-
-    expect(ResponseTemplates.removeResponseTemplate.mock.calls.length).toBe(1);
-    expect(ResponseTemplates.removeResponseTemplate).toBeCalledWith(_responseTemplate.id);
+    expect(await ResponseTemplates.findOne({ _id: _responseTemplate._id })).toBe(null);
   });
 });
