@@ -122,10 +122,7 @@ class FormStep extends Component {
     };
 
     // newly created field to fields state
-    this.state.fields.push({
-      _id: Math.random().toString(),
-      ...doc
-    });
+    this.state.fields.push(doc);
 
     this.setState({ fields: this.state.fields });
   }

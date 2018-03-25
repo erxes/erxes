@@ -18,7 +18,6 @@ import { StepWrapper, TitleContainer } from '../styles';
 const propTypes = {
   integration: PropTypes.object,
   brands: PropTypes.array,
-  forms: PropTypes.array,
   fields: PropTypes.array,
   loading: PropTypes.bool,
   save: PropTypes.func
@@ -31,7 +30,6 @@ class Form extends Component {
     const integration = props.integration || {};
     const formData = integration && (integration.formData || {});
     const form = integration && (integration.form || {});
-    const callOut = form.callOut || {};
     const fields = props.fields || [];
 
     this.state = {
@@ -40,10 +38,10 @@ class Form extends Component {
       type: formData.loadType || 'shoutbox',
       preview: 'desktop',
       title: integration.name || '',
-      calloutTitle: callOut.title || 'Contact',
-      bodyValue: callOut.description || 'Body description here',
+      calloutTitle: form.title || 'Contact',
+      bodyValue: form.description || 'Body description here',
       thankContent: formData.thankContent || 'Thank you.',
-      btnText: callOut.buttonText || 'Send',
+      btnText: form.buttonText || 'Send',
       fields: fields || []
     };
 
@@ -57,7 +55,7 @@ class Form extends Component {
     e.preventDefault();
 
     this.props.save({
-      name: this.state.title,
+      title: this.state.title,
       brandId: this.state.brand,
       languageCode: this.state.language,
       formData: {
@@ -73,13 +71,12 @@ class Form extends Component {
         redirectUrl: this.state.redirectUrl
       },
       form: {
-        callout: {
-          title: this.state.calloutTitle,
-          description: this.state.bodyValue,
-          buttonText: this.state.btnText,
-          themeColor: this.state.theme || this.state.color,
-          featuredImage: this.state.logoPreviewUrl
-        }
+        title: this.state.calloutTitle,
+        description: this.state.bodyValue,
+        buttonText: this.state.btnText,
+        themeColor: this.state.theme || this.state.color,
+        featuredImage: this.state.logoPreviewUrl,
+        fields: this.state.fields
       }
     });
   }

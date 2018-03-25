@@ -46,13 +46,9 @@ const integrationDetail = `
         code
         description
         createdDate
-        callout {
-          title
-          description
-          buttonText
-          themeColor
-          featuredImage
-        }
+        buttonText
+        themeColor
+        featuredImage
       }
     }
   }

@@ -11,7 +11,7 @@ import { Form } from '../components';
 
 class CreateFormContainer extends Bulk {
   render() {
-    const { brandsQuery, addMutation, history } = this.props;
+    const { brandsQuery, addMutation, addFormMutation, history } = this.props;
 
     if (brandsQuery.loading) {
       return false;
@@ -19,12 +19,17 @@ class CreateFormContainer extends Bulk {
 
     const brands = brandsQuery.brands || [];
 
-    const doMutation = (mutation, variables) => {
+    const doMutation = (mutation, formMutation, variables) => {
       variables.formId = 'aaaa';
-
+      console.log(variables);
       mutation({
         variables
       })
+        .then(() => {
+          formMutation({
+            variables
+          });
+        })
         .then(() => {
           Alert.success('Congrats');
           history.push('/forms');
@@ -37,7 +42,7 @@ class CreateFormContainer extends Bulk {
 
     // save
     const save = doc => {
-      return doMutation(addMutation, doc);
+      return doMutation(addMutation, addFormMutation, doc);
     };
 
     const updatedProps = {
@@ -52,7 +57,8 @@ class CreateFormContainer extends Bulk {
 
 CreateFormContainer.propTypes = {
   brandsQuery: PropTypes.object,
-  addMutation: PropTypes.func
+  addMutation: PropTypes.func,
+  addFormMutation: PropTypes.func
 };
 
 const CreateFormWithData = compose(
@@ -64,6 +70,9 @@ const CreateFormWithData = compose(
   }),
   graphql(gql(mutations.integrationsCreateFormIntegration), {
     name: 'addMutation'
+  }),
+  graphql(gql(mutations.addForm), {
+    name: 'addFormMutation'
   })
 )(CreateFormContainer);
 
