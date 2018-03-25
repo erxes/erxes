@@ -15,7 +15,8 @@ const propTypes = {
   onChange: PropTypes.func,
   fields: PropTypes.array,
   brand: PropTypes.object,
-  brands: PropTypes.array
+  brands: PropTypes.array,
+  onFieldEdit: PropTypes.func
 };
 
 class OptionStep extends Component {
@@ -44,7 +45,9 @@ class OptionStep extends Component {
       theme,
       image,
       type,
-      fields
+      fields,
+      onChange,
+      onFieldEdit
     } = this.props;
 
     if (type === 'shoutbox') {
@@ -57,6 +60,8 @@ class OptionStep extends Component {
           theme={theme}
           image={image}
           fields={fields}
+          onChange={onChange}
+          onFieldEdit={onFieldEdit}
         />
       );
     } else if (type === 'popup') {
@@ -69,6 +74,8 @@ class OptionStep extends Component {
           theme={theme}
           image={image}
           fields={fields}
+          onChange={onChange}
+          onFieldEdit={onFieldEdit}
         />
       );
     }
@@ -81,6 +88,8 @@ class OptionStep extends Component {
         theme={theme}
         image={image}
         fields={fields}
+        onChange={onChange}
+        onFieldEdit={onFieldEdit}
       />
     );
   }

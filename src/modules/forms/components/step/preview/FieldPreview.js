@@ -11,7 +11,9 @@ class FieldPreview extends Component {
   }
 
   onEdit() {
-    this.props.onEdit(this.props.field);
+    const onEdit = this.props.onEdit || (() => {});
+
+    onEdit(this.props.field);
   }
 
   render() {

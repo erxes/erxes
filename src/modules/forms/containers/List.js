@@ -11,7 +11,7 @@ const ListContainer = props => {
   const integrationsCount = integrationsCountQuery.integrationsTotalCount || 0;
   const integrations = integrationsQuery.integrations || [];
 
-  const removeIntegration = (_id, callback) => {
+  const remove = (_id, callback) => {
     removeMutation({
       variables: { _id }
     }).then(() => {
@@ -27,7 +27,7 @@ const ListContainer = props => {
     ...this.props,
     integrations,
     integrationsCount,
-    removeIntegration,
+    remove,
     loading: integrationsQuery.loading
   };
 

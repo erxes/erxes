@@ -7,7 +7,10 @@ import {
   ResolutionTabs,
   DesktopPreview,
   TabletPreview,
-  MobilePreview
+  MobilePreview,
+  Tabs,
+  CarouselSteps,
+  CarouselInner
 } from './style';
 
 const propTypes = {
@@ -21,19 +24,33 @@ const propTypes = {
   preview: PropTypes.string,
   onChange: PropTypes.func,
   fields: PropTypes.array,
-  integration: PropTypes.object
+  integration: PropTypes.object,
+  carousel: PropTypes.string,
+  thankContent: PropTypes.string
 };
 
 class FullPreviewStep extends Component {
   renderTabs(name, value) {
     const { __ } = this.context;
+
     return (
-      <div
+      <Tabs
         selected={this.props.preview === value}
         onClick={() => this.onChange(value)}
       >
         {__(name)}
-      </div>
+      </Tabs>
+    );
+  }
+
+  carouseItems(name, value) {
+    return (
+      <CarouselInner selected={this.props.carousel === value}>
+        <li>
+          <span onClick={() => this.onChangePreview(value)} />
+        </li>
+        <span>{name}</span>
+      </CarouselInner>
     );
   }
 
@@ -47,6 +64,18 @@ class FullPreviewStep extends Component {
     }
   }
 
+  onChangePreview(value) {
+    if (value === 'callout') {
+      return this.props.onChange('carousel', 'callout');
+    }
+
+    if (value === 'form') {
+      return this.props.onChange('carousel', 'form');
+    }
+
+    return this.props.onChange('carousel', 'success');
+  }
+
   renderPreview() {
     const {
       calloutTitle,
@@ -57,7 +86,10 @@ class FullPreviewStep extends Component {
       image,
       type,
       fields,
-      preview
+      preview,
+      carousel,
+      onChange,
+      thankContent
     } = this.props;
 
     if (type === 'shoutbox') {
@@ -71,6 +103,9 @@ class FullPreviewStep extends Component {
           image={image}
           fields={fields}
           preview={preview}
+          carousel={carousel}
+          onChange={onChange}
+          thankContent={thankContent}
         />
       );
     } else if (type === 'popup') {
@@ -84,6 +119,9 @@ class FullPreviewStep extends Component {
           image={image}
           fields={fields}
           preview={preview}
+          carousel={carousel}
+          onChange={onChange}
+          thankContent={thankContent}
         />
       );
     }
@@ -97,6 +135,9 @@ class FullPreviewStep extends Component {
         image={image}
         fields={fields}
         preview={preview}
+        carousel={carousel}
+        onChange={onChange}
+        thankContent={thankContent}
       />
     );
   }
@@ -128,6 +169,13 @@ class FullPreviewStep extends Component {
         <Preview>
           {this.renderResolution()}
           {this.renderResolutionPreview()}
+          <CarouselSteps>
+            <ol>
+              {this.carouseItems('Callout', 'callout')}
+              {this.carouseItems('Form', 'form')}
+              {this.carouseItems('Success', 'success')}
+            </ol>
+          </CarouselSteps>
         </Preview>
       </FlexItem>
     );

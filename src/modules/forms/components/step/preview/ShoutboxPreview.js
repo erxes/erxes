@@ -24,10 +24,16 @@ const slideright = keyframes`
 
 const ShoutBox = MessengerPreview.extend`
   background: url(${props => !props.data && '/images/previews/preview.png'});
+  height: 100%;
+  min-height: 470px;
   background-repeat: no-repeat;
   background-size: 100% 100%;
   width: auto;
   margin-left: 0;
+`;
+
+const WidgetPreview = WidgetPreviewStyled.extend`
+  width: 100%;
 `;
 
 const Widget = Messenger.extend`
@@ -49,9 +55,11 @@ const propTypes = {
   image: PropTypes.string,
   thankContent: PropTypes.string,
   preview: PropTypes.string,
+  carousel: PropTypes.string,
   fields: PropTypes.array, // eslint-disable-line
   onFieldEdit: PropTypes.func,
-  onSort: PropTypes.func
+  onSort: PropTypes.func,
+  onChange: PropTypes.func
 };
 
 class ShoutboxPreview extends Component {
@@ -67,43 +75,54 @@ class ShoutboxPreview extends Component {
       onFieldEdit,
       onSort,
       thankContent,
-      preview
+      preview,
+      carousel,
+      onChange
     } = this.props;
+
+    const success = !(carousel === 'success');
+    const form = !(carousel === 'form');
+    const callout = !(carousel === 'callout');
 
     return (
       <ShoutBox data={preview}>
         <Widget>
-          <WidgetPreviewStyled className="engage-message type-default">
+          <WidgetPreview className="engage-message type-default">
             <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
-              {calloutTitle}
+              {success && calloutTitle}
             </PopupTitle>
             <PreviewBody>
-              {image && (
-                <div>
-                  <img src={image} alt="eee" />
-                </div>
-              )}
+              {image &&
+                success && (
+                  <div>
+                    <img src={image} alt="eee" />
+                  </div>
+                )}
               <BodyContent>
-                {bodyValue}
-                {fields && (
-                  <FormPreview
-                    fields={fields}
-                    onFieldEdit={onFieldEdit}
-                    onSort={onSort}
-                  />
-                )}
-                {thankContent && thankContent}
-                {btnText && (
-                  <Button
-                    btnStyle="primary"
-                    style={{ backgroundColor: theme ? theme : color }}
-                  >
-                    {btnText}
-                  </Button>
-                )}
+                {success && bodyValue}
+                {fields &&
+                  callout &&
+                  success && (
+                    <FormPreview
+                      fields={fields}
+                      onFieldEdit={onFieldEdit}
+                      onSort={onSort}
+                      onChange={onChange}
+                    />
+                  )}
+                {thankContent && callout && form && thankContent}
+                {btnText &&
+                  success && (
+                    <Button
+                      btnStyle="primary"
+                      style={{ backgroundColor: theme ? theme : color }}
+                    >
+                      {btnText}
+                    </Button>
+                  )}
               </BodyContent>
             </PreviewBody>
-          </WidgetPreviewStyled>
+          </WidgetPreview>
           <LogoContainer style={{ backgroundColor: theme ? theme : color }}>
             <LogoSpan>1</LogoSpan>
           </LogoContainer>

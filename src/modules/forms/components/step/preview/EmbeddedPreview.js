@@ -19,9 +19,11 @@ const propTypes = {
   image: PropTypes.string,
   thankContent: PropTypes.string,
   preview: PropTypes.string,
+  carousel: PropTypes.string,
   fields: PropTypes.array, // eslint-disable-line
   onFieldEdit: PropTypes.func,
-  onSort: PropTypes.func
+  onSort: PropTypes.func,
+  onChange: PropTypes.func
 };
 
 const Container = CenterContainer.extend`
@@ -42,39 +44,50 @@ class EmbeddedPreview extends Component {
       onFieldEdit,
       onSort,
       preview,
-      thankContent
+      carousel,
+      thankContent,
+      onChange
     } = this.props;
+
+    const success = !(carousel === 'success');
+    const form = !(carousel === 'form');
+    const callout = !(carousel === 'callout');
 
     return (
       <Container data={preview}>
         <Embedded>
           <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
-            {calloutTitle}
+            {success && calloutTitle}
           </PopupTitle>
-          <PreviewBody>
-            {image && (
-              <div>
-                <img src={image} alt="eee" />
-              </div>
-            )}
+          <PreviewBody embedded="embedded">
+            {image &&
+              success && (
+                <div>
+                  <img src={image} alt="eee" />
+                </div>
+              )}
             <BodyContent>
-              {bodyValue}
-              {fields && (
-                <FormPreview
-                  fields={fields}
-                  onFieldEdit={onFieldEdit}
-                  onSort={onSort}
-                />
-              )}
-              {thankContent && thankContent}
-              {btnText && (
-                <Button
-                  btnStyle="primary"
-                  style={{ backgroundColor: theme ? theme : color }}
-                >
-                  {btnText}
-                </Button>
-              )}
+              {success && bodyValue}
+              {fields &&
+                callout &&
+                success && (
+                  <FormPreview
+                    fields={fields}
+                    onFieldEdit={onFieldEdit}
+                    onSort={onSort}
+                    onChange={onChange}
+                  />
+                )}
+              {thankContent && callout && form && thankContent}
+              {btnText &&
+                success && (
+                  <Button
+                    btnStyle="primary"
+                    style={{ backgroundColor: theme ? theme : color }}
+                  >
+                    {btnText}
+                  </Button>
+                )}
             </BodyContent>
           </PreviewBody>
         </Embedded>

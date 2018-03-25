@@ -30,17 +30,16 @@ const integrationDetail = `
     integrationDetail(_id: $_id) {
       _id
       name
-      languageCode
-      brandId
-      code
-      formId
-      formData
-      uiOptions
       brand {
         _id
         name
         code
       }
+      languageCode
+      brandId
+      code
+      formId
+      formData
       form {
         _id
         title

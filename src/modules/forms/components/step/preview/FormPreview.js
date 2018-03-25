@@ -63,6 +63,8 @@ class FormPreview extends Component {
     this.setState({
       fields: reOrderedFields
     });
+
+    this.props.onChange('fields', this.state.fields);
   }
 
   render() {
@@ -80,7 +82,8 @@ class FormPreview extends Component {
 FormPreview.propTypes = {
   fields: PropTypes.array, // eslint-disable-line
   onFieldEdit: PropTypes.func,
-  onSort: PropTypes.func
+  onSort: PropTypes.func,
+  onChange: PropTypes.func
 };
 
 export default FormPreview;

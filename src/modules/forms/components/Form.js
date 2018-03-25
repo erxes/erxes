@@ -27,10 +27,11 @@ const propTypes = {
 class Form extends Component {
   constructor(props) {
     super(props);
-
+    console.log(props.forms);
     const integration = props.integration || {};
     const formData = integration && (integration.formData || {});
-    const callOut = integration.form.callout || {};
+    const form = integration && (integration.form || {});
+    const callOut = form.callOut || {};
     const fields = props.fields || [];
 
     this.state = {
@@ -143,6 +144,7 @@ class Form extends Component {
       thankContent,
       fields,
       preview,
+      carousel,
       successAction
     } = this.state;
 
@@ -150,7 +152,7 @@ class Form extends Component {
 
     const { __ } = this.context;
     const formData = integration && integration.formData;
-    const brand = integration && integration.brand;
+    const brand = integration && (integration.brand || {});
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
 
     return (
@@ -268,6 +270,8 @@ class Form extends Component {
               image={logoPreviewUrl}
               fields={fields}
               preview={preview}
+              thankContent={thankContent}
+              carousel={carousel || 'callout'}
             />
           </Step>
         </Steps>

@@ -41,6 +41,8 @@ class EditFormContainer extends Bulk {
     });
 
     const doMutation = (mutation, variables) => {
+      variables.formId = 'aaaa';
+
       mutation({
         variables
       })

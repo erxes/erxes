@@ -7,7 +7,6 @@ import { rgba } from 'modules/common/styles/color';
 import { FlexItem, LeftItem, Preview, Title, BoxRow } from './style';
 
 const Box = styled.div`
-  display: inline-block;
   text-align: center;
   background: ${colors.colorLightBlue};
   box-shadow: ${props =>
@@ -16,7 +15,7 @@ const Box = styled.div`
   border-radius: ${dimensions.unitSpacing / 2}px;
   padding: ${dimensions.coreSpacing * 2}px;
   transition: all 0.25s ease;
-  width: 270px;
+  width: 50%;
   margin-right: 20px;
   margin-bottom: 20px;
 
@@ -79,35 +78,16 @@ class ChooseType extends Component {
 
   renderPreview() {
     const { type } = this.props;
-    const { title, bodyValue, btnText, color } = this.props;
 
     if (type === 'shoutbox') {
-      return (
-        <ShoutboxPreview
-          title={title}
-          bodyValue={bodyValue}
-          btnText={btnText}
-          color={color}
-        />
-      );
-    } else if (type === 'popup') {
-      return (
-        <PopupPreview
-          title={title}
-          bodyValue={bodyValue}
-          btnText={btnText}
-          color={color}
-        />
-      );
+      return <ShoutboxPreview {...this.props} />;
     }
-    return (
-      <EmbeddedPreview
-        title={title}
-        bodyValue={bodyValue}
-        btnText={btnText}
-        color={color}
-      />
-    );
+
+    if (type === 'popup') {
+      return <PopupPreview {...this.props} />;
+    }
+
+    return <EmbeddedPreview {...this.props} />;
   }
 
   render() {
@@ -124,7 +104,14 @@ class ChooseType extends Component {
             )}
             {this.renderBox('Popup', '/images/icons/expand.svg', 'popup')}
           </BoxRow>
-          {this.renderBox('Embedded', '/images/icons/computer.svg', 'embedded')}
+          <BoxRow type="odd">
+            {this.renderBox(
+              'Embedded',
+              '/images/icons/computer.svg',
+              'embedded'
+            )}
+            <div />
+          </BoxRow>
         </LeftItem>
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>

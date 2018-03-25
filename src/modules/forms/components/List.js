@@ -13,15 +13,16 @@ import { Row } from '/';
 const propTypes = {
   integrations: PropTypes.array.isRequired,
   integrationsCount: PropTypes.number.isRequired,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  remove: PropTypes.func
 };
 
 class List extends Component {
   renderRow() {
-    const { integrations } = this.props;
+    const { integrations, remove } = this.props;
 
     return integrations.map(integration => (
-      <Row key={integration._id} integration={integration} />
+      <Row key={integration._id} integration={integration} remove={remove} />
     ));
   }
 

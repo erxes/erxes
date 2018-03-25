@@ -128,7 +128,6 @@ class FormStep extends Component {
     });
 
     this.setState({ fields: this.state.fields });
-    this.props.onChange('fields', this.state.fields);
   }
 
   setChanges(attributeName, value) {
@@ -155,7 +154,8 @@ class FormStep extends Component {
       color,
       theme,
       image,
-      type
+      type,
+      onChange
     } = this.props;
 
     if (type === 'shoutbox') {
@@ -169,9 +169,12 @@ class FormStep extends Component {
           image={image}
           fields={this.state.fields}
           onFieldEdit={this.onFieldEdit}
+          onChange={onChange}
         />
       );
-    } else if (type === 'popup') {
+    }
+
+    if (type === 'popup') {
       return (
         <PopupPreview
           calloutTitle={calloutTitle}
@@ -182,9 +185,11 @@ class FormStep extends Component {
           image={image}
           fields={this.state.fields}
           onFieldEdit={this.onFieldEdit}
+          onChange={onChange}
         />
       );
     }
+
     return (
       <EmbeddedPreview
         calloutTitle={calloutTitle}
@@ -195,6 +200,7 @@ class FormStep extends Component {
         image={image}
         fields={this.state.fields}
         onFieldEdit={this.onFieldEdit}
+        onChange={onChange}
       />
     );
   }
