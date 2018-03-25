@@ -1,7 +1,6 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import Twit from 'twit';
 import sinon from 'sinon';
 import faker from 'faker';
 import { connect, disconnect, graphqlRequest } from '../db/connection';
@@ -114,15 +113,8 @@ describe('Conversation message mutations', () => {
   test('Tweet conversation', async () => {
     const integration = await integrationFactory({ kind: 'twitter' });
 
-    // Twit instance
-    const twit = new Twit({
-      consumer_key: 'consumer_key',
-      consumer_secret: 'consumer_secret',
-      access_token: 'access_token',
-      access_token_secret: 'token_secret',
-    });
+    const twit = {};
 
-    // save twit instance
     TwitMap[integration._id] = twit;
 
     const args = {
@@ -155,6 +147,58 @@ describe('Conversation message mutations', () => {
     ).toBe(true);
 
     stub.restore();
+  });
+
+  test('Retweet conversation', async () => {
+    const integration = await integrationFactory({ kind: 'twitter' });
+
+    const args = {
+      integrationId: integration._id,
+      id: '123',
+    };
+
+    const twit = {};
+
+    TwitMap[integration._id] = twit;
+
+    // mock twitter request
+    const sandbox = sinon.sandbox.create();
+
+    // mock retweet request
+    const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({
+          retweeted_status: {
+            id_str: '123',
+          },
+        });
+      });
+    });
+
+    // mock get tweet object request
+    const getStub = sandbox.stub(twitRequest, 'get').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({});
+      });
+    });
+
+    const mutation = `
+      mutation conversationsRetweet($integrationId: String $id: String) {
+        conversationsRetweet(integrationId: $integrationId id: $id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'conversationsRetweet', args);
+
+    // check twit post params
+    expect(
+      postStub.calledWith(twit, 'statuses/retweet/:id', {
+        id: args.id,
+      }),
+    ).toBe(true);
+
+    postStub.restore();
+    getStub.restore();
   });
 
   test('Assign conversation', async () => {
