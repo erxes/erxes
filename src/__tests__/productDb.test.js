@@ -16,7 +16,7 @@ describe('Test products model', () => {
   beforeEach(async () => {
     // Creating test data
     product = await productFactory({ type: 'service' });
-    deal = await dealFactory({ productIds: [product._id] });
+    deal = await dealFactory({ productsData: [{ productId: product._id }] });
   });
 
   afterEach(async () => {
@@ -76,7 +76,7 @@ describe('Test products model', () => {
   });
 
   test('Remove product', async () => {
-    await Deals.update({ _id: deal._id }, { $set: { productIds: [] } });
+    await Deals.update({ _id: deal._id }, { $set: { productsData: [] } });
     const isDeleted = await Products.removeProduct(product.id);
 
     expect(isDeleted).toBeTruthy();

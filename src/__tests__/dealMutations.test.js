@@ -264,7 +264,6 @@ describe('Test deals mutations', () => {
       boardId: deal.boardId,
       pipelineId: deal.pipelineId,
       stageId: deal.stageId,
-      productIds: deal.productIds,
       companyId: deal.companyId,
       amount: deal.amount,
       closeDate: deal.closeDate,

@@ -271,7 +271,7 @@ const ProductSchema = mongoose.Schema(
   {
     _id: String,
     productId: String,
-    uom: String,
+    uom: String, // Units of measurement
     currency: String,
     quantity: Number,
     unitPrice: Number,

@@ -427,10 +427,10 @@ export const dealStageFactory = (params = {}) => {
 
 export const dealFactory = (params = {}) => {
   const deal = new Deals({
+    ...params,
     boardId: params.boardId || faker.random.word(),
     pipelineId: params.pipelineId || faker.random.word(),
     stageId: params.stageId || faker.random.word(),
-    productIds: params.productIds || [faker.random.word()],
     companyId: faker.random.word(),
     amount: faker.random.number(),
     closeDate: new Date(),

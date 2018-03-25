@@ -46,6 +46,6 @@ const productQueries = {
   },
 };
 
-// moduleRequireLogin(productQueries);
+moduleRequireLogin(productQueries);
 
 export default productQueries;

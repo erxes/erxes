@@ -124,7 +124,6 @@ const dealMutations = {
 
   /**
    * Create new deal
-   * @param {[String]} doc.productIds
    * @param {[Object]} doc.productsData
    * @param {[String]} doc.companyIds
    * @param {[String]} doc.customerIds
@@ -143,7 +142,6 @@ const dealMutations = {
   /**
    * Edit deal
    * @param {String} _id deal id
-   * @param {[String]} doc.productIds
    * @param {[Object]} doc.productsData
    * @param {[String]} doc.companyIds
    * @param {[String]} doc.customerIds

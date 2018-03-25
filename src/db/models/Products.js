@@ -49,7 +49,9 @@ class Product {
 
     if (!product) throw new Error('Product not found');
 
-    const count = await Deals.find({ productIds: { $in: [_id] } }).count();
+    const count = await Deals.find({
+      'productsData.productId': { $in: [_id] },
+    }).count();
 
     if (count > 0) throw new Error("Can't remove a product");
 
