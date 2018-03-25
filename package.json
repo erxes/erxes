@@ -20,7 +20,7 @@
     "lint": "eslint src",
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
     "precommit": "lint-staged",
-    "test": "jest --runInBand --coverage",
+    "test": "jest --runInBand",
     "loadInitialData": "babel-node ./src/initialData.js",
     "customCommand": "babel-node ./src/customCommand.js"
   },

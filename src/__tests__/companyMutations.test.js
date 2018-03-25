@@ -61,7 +61,7 @@ describe('Companies mutations', () => {
       name: faker.company.companyName(),
       size: faker.random.number(),
       website: faker.internet.url(),
-      industry: faker.random.word(),
+      industry: 'Airlines',
       plan: faker.random.word(),
       sessionCount: faker.random.number(),
       tagIds: _company.tagIds,
@@ -215,7 +215,7 @@ describe('Companies mutations', () => {
     const args = {
       companyIds: [_company._id],
       companyFields: {
-        name: 'test',
+        name: faker.company.companyName(),
       },
     };
 

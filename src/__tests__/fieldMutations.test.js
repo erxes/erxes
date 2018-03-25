@@ -210,8 +210,11 @@ describe('Fields mutations', () => {
 
     const [fields] = await graphqlRequest(mutation, 'fieldsUpdateOrder', { orders }, context);
 
-    expect(fields._id).toBe(orders[0]._id);
-    expect(fields.order).toBe(orders[0].order);
+    const orderIds = orders.map(order => order._id);
+    const orderItems = orders.map(item => item.order);
+
+    expect(orderIds).toContain(fields._id);
+    expect(orderItems).toContain(fields.order);
   });
 
   test('Update field visible', async () => {
@@ -222,7 +225,7 @@ describe('Fields mutations', () => {
 
     const mutation = `
       mutation fieldsUpdateVisible($_id: String! $isVisible: Boolean) {
-        fieldsUpdateVisible(_id: $_id isVisible: $isVisible){
+        fieldsUpdateVisible(_id: $_id isVisible: $isVisible) {
           _id
           isVisible
         }
@@ -306,7 +309,7 @@ describe('Fields mutations', () => {
 
     const mutation = `
       mutation fieldsGroupsUpdateVisible($_id: String, $isVisible: Boolean) {
-        fieldsGroupsUpdateVisible(_id: $_id isVisible $isVisible) {
+        fieldsGroupsUpdateVisible(_id: $_id isVisible: $isVisible) {
           _id
           isVisible
         }

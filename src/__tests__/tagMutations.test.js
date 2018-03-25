@@ -122,11 +122,8 @@ describe('Test tags mutations', () => {
 
     await graphqlRequest(mutation, 'tagsTag', args, context);
 
-    const [engageMessage] = await EngageMessages.find(
-      { _id: { $in: args.targetIds } },
-      { tagIds: 1 },
-    );
+    const engageMessage = await EngageMessages.findOne({ _id: _message._id });
 
-    expect(engageMessage.tagIds).toEqual(args.tagIds);
+    expect(engageMessage.tagIds).toContain(args.tagIds);
   });
 });
