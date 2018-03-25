@@ -27,7 +27,7 @@ const propTypes = {
 class Form extends Component {
   constructor(props) {
     super(props);
-    console.log(props.forms);
+
     const integration = props.integration || {};
     const formData = integration && (integration.formData || {});
     const form = integration && (integration.form || {});
