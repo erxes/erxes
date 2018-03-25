@@ -35,6 +35,7 @@ class HomeWithCurrent extends React.Component {
       editPipelineMutation,
       removePipelineMutation
     } = this.props;
+
     const { __ } = this.context;
 
     const pipelines = pipelinesQuery.dealPipelines || [];
