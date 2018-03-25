@@ -34,7 +34,7 @@ class UserCounter extends React.Component {
   renderOtherUsers(users) {
     if (this.state.show) {
       return users.map(
-        (el, index) => (index > 0 ? this.renderUserItem(el) : null)
+        (user, index) => (index > 0 ? this.renderUserItem(user) : null)
       );
     }
 
@@ -49,9 +49,7 @@ class UserCounter extends React.Component {
     const { users } = this.props;
     const length = users.length;
 
-    if (length === 0) {
-      return null;
-    }
+    if (length === 0) return null;
 
     return (
       <UserCounterContainer>

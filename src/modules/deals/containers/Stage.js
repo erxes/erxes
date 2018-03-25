@@ -15,8 +15,6 @@ class StageContainer extends React.Component {
     this.saveDeal = this.saveDeal.bind(this);
     this.removeDeal = this.removeDeal.bind(this);
     this.moveDeal = this.moveDeal.bind(this);
-    this.dealsUpdateOrder = this.dealsUpdateOrder.bind(this);
-    this.dealsChange = this.dealsChange.bind(this);
 
     const { deals } = props;
 
@@ -29,7 +27,9 @@ class StageContainer extends React.Component {
         state: { type, index, itemId },
         stageId,
         stageDetailQuery,
-        dealsQuery
+        dealsQuery,
+        dealsChangeMutation,
+        dealsUpdateOrderMutation
       } = nextProps;
 
       const { deals } = this.state;
@@ -37,24 +37,32 @@ class StageContainer extends React.Component {
       if (type === 'removeItem') {
         // Remove from list
         deals.splice(index, 1);
-
-        this.dealsUpdateOrder(collectOrders(deals), () => {
-          stageDetailQuery.refetch();
-          dealsQuery.refetch();
-        });
       }
 
       if (type === 'addItem') {
         // Add to list
         deals.splice(index, 0, { _id: itemId });
 
-        this.dealsUpdateOrder(collectOrders(deals), () => {
+        // if move to other stage, will change stageId
+        dealsChangeMutation({
+          variables: { _id: itemId, stageId }
+        }).catch(error => {
+          Alert.error(error.message);
+        });
+      }
+
+      const orders = collectOrders(deals);
+
+      dealsUpdateOrderMutation({
+        variables: { orders }
+      })
+        .then(() => {
           stageDetailQuery.refetch();
           dealsQuery.refetch();
+        })
+        .catch(error => {
+          Alert.error(error.message);
         });
-
-        this.dealsChange(itemId, stageId);
-      }
 
       this.setState({ deals });
     }
@@ -150,31 +158,6 @@ class StageContainer extends React.Component {
       .catch(error => {
         Alert.error(error.message);
       });
-  }
-
-  dealsUpdateOrder(orders, callback) {
-    const { dealsUpdateOrderMutation } = this.props;
-
-    dealsUpdateOrderMutation({
-      variables: { orders }
-    })
-      .then(() => {
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  }
-
-  // if move to other stage, will change stageId and pipelineId
-  dealsChange(_id, stageId) {
-    const { dealsChangeMutation } = this.props;
-
-    dealsChangeMutation({
-      variables: { _id, stageId }
-    }).catch(error => {
-      Alert.error(error.message);
-    });
   }
 
   render() {

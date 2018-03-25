@@ -8,8 +8,7 @@ import {
   Pagination,
   DataWithLoader
 } from 'modules/common/components';
-import { Form } from '../containers';
-import { Row } from '/';
+import { Form, Row } from './';
 
 const propTypes = {
   products: PropTypes.array.isRequired,

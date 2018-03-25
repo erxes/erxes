@@ -11,15 +11,11 @@ class ItemCounter extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      show: false
-    };
+    this.state = { show: false };
   }
 
   showOthers() {
-    this.setState({
-      show: true
-    });
+    this.setState({ show: true });
   }
 
   renderItem(item) {
@@ -28,7 +24,9 @@ class ItemCounter extends React.Component {
 
   renderOtherItems(items) {
     if (this.state.show) {
-      return items.map((el, index) => (index > 0 ? this.renderItem(el) : null));
+      return items.map(
+        (item, index) => (index > 0 ? this.renderItem(item) : null)
+      );
     }
 
     return (
@@ -42,9 +40,7 @@ class ItemCounter extends React.Component {
     const { items } = this.props;
     const length = items.length;
 
-    if (length === 0) {
-      return null;
-    }
+    if (length === 0) return null;
 
     return (
       <ItemCounterContainer>

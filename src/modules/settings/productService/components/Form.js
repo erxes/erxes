@@ -7,11 +7,11 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
+import { TYPES } from '../constants';
 
 const propTypes = {
   product: PropTypes.object,
-  save: PropTypes.func.isRequired,
-  loadTypes: PropTypes.array
+  save: PropTypes.func.isRequired
 };
 
 const contextTypes = {
@@ -37,20 +37,25 @@ class Form extends Component {
   }
 
   generateDoc() {
-    return {
-      doc: {
-        name: document.getElementById('product-name').value,
-        type: document.getElementById('product-type').value,
-        description: document.getElementById('product-description').value,
-        sku: document.getElementById('product-sku').value
-      }
+    const doc = {
+      name: document.getElementById('product-name').value,
+      type: document.getElementById('product-type').value,
+      description: document.getElementById('product-description').value
     };
+
+    const description = document.getElementById('product-description').value;
+    if (description) doc.description = description;
+
+    const sku = document.getElementById('product-sku').value;
+    if (sku) doc.sku = sku;
+
+    return doc;
   }
 
   renderContent() {
     const product = this.props.product || {};
 
-    const types = this.props.loadTypes || [];
+    const types = TYPES.ALL_LIST;
 
     return (
       <div>
@@ -74,7 +79,6 @@ class Form extends Component {
             defaultValue={product.type}
             required
           >
-            <option />
             {types.map((type, index) => (
               <option key={index} value={type}>
                 {type}

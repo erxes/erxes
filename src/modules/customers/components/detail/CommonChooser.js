@@ -69,13 +69,9 @@ class CommonChooser extends Component {
         return;
       }
 
-      this.setState({
-        datas: [...datas, data]
-      });
+      this.setState({ datas: [...datas, data] });
     } else {
-      this.setState({
-        datas: datas.filter(item => item !== data)
-      });
+      this.setState({ datas: datas.filter(item => item !== data) });
     }
   }
 

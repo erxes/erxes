@@ -13,9 +13,7 @@ class DealMoveForm extends React.Component {
 
     this.move = this.move.bind(this);
 
-    this.state = {
-      stageId: props.stageId
-    };
+    this.state = { stageId: props.stageId };
   }
 
   move() {
@@ -23,13 +21,9 @@ class DealMoveForm extends React.Component {
     const { stageId } = this.state;
     const { __ } = this.context;
 
-    if (!pipelineId) {
-      return Alert.error(__('No pipeline'));
-    }
+    if (!pipelineId) return Alert.error(__('No pipeline'));
 
-    if (!stageId) {
-      return Alert.error(__('No stage'));
-    }
+    if (!stageId) return Alert.error(__('No stage'));
 
     const doc = {
       boardId,
@@ -47,6 +41,23 @@ class DealMoveForm extends React.Component {
     }
   }
 
+  renderSelect(placeholder, value, onChange, options) {
+    return (
+      <Select
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        optionRenderer={option => (
+          <div className="simple-option">
+            <span>{option.label}</span>
+          </div>
+        )}
+        options={options}
+        clearable={false}
+      />
+    );
+  }
+
   render() {
     const { __ } = this.context;
     const { boards, pipelines, stages, boardId, pipelineId } = this.props;
@@ -55,50 +66,30 @@ class DealMoveForm extends React.Component {
       <DealMoveFormContainer>
         <form>
           <FormGroup>
-            <Select
-              placeholder={__('Choose a board')}
-              value={boardId}
-              onChange={board => this.props.onChangeBoard(board.value)}
-              optionRenderer={option => (
-                <div className="simple-option">
-                  <span>{option.label}</span>
-                </div>
-              )}
-              options={selectOptions(boards)}
-              clearable={false}
-            />
+            {this.renderSelect(
+              __('Choose a board'),
+              boardId,
+              board => this.props.onChangeBoard(board),
+              selectOptions(boards)
+            )}
           </FormGroup>
 
           <FormGroup>
-            <Select
-              placeholder={__('Choose a pipeline')}
-              value={pipelineId}
-              onChange={pipeline => this.props.onChangePipeline(pipeline.value)}
-              optionRenderer={option => (
-                <div className="simple-option">
-                  <span>{option.label}</span>
-                </div>
-              )}
-              options={selectOptions(pipelines)}
-              clearable={false}
-            />
+            {this.renderSelect(
+              __('Choose a pipeline'),
+              pipelineId,
+              pipeline => this.props.onChangePipeline(pipeline),
+              selectOptions(pipelines)
+            )}
           </FormGroup>
 
           <FormGroup>
-            <Select
-              placeholder={__('Choose a stage')}
-              value={this.state.stageId}
-              onChange={value => this.onChangeStage(value)}
-              optionRenderer={option => {
-                return (
-                  <div className="simple-option">
-                    <span>{option.label}</span>
-                  </div>
-                );
-              }}
-              options={selectOptions(stages)}
-              clearable={false}
-            />
+            {this.renderSelect(
+              __('Choose a stage'),
+              this.state.stageId,
+              stage => this.onChangeStage(stage),
+              selectOptions(stages)
+            )}
           </FormGroup>
 
           <Modal.Footer>

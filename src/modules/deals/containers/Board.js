@@ -88,7 +88,7 @@ class Container extends React.Component {
 Container.propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
-  currentBoard: PropTypes.string,
+  currentBoard: PropTypes.object,
   history: PropTypes.object
 };
 
@@ -142,7 +142,7 @@ const BoardDetailContainer = compose(
 )(BoardDetail);
 
 /*
- * We will use this component when there is not current board id
+ * We will use this component when there is no current board id
  * in query string
  */
 const LastBoard = props => {
