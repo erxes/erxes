@@ -71,7 +71,7 @@ class HomeWithCurrent extends React.Component {
         .then(() => {
           pipelinesQuery.refetch();
 
-          Alert.success(__('Successfully saved!'));
+          Alert.success(__('Successfully saved.'));
 
           callback();
         })

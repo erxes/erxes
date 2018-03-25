@@ -25,7 +25,7 @@ class ListContainer extends React.Component {
           currencyConfigQuery.refetch();
           uomConfigQuery.refetch();
 
-          Alert.success(__('Successfully saved!'));
+          Alert.success(__('Successfully saved.'));
         })
         .catch(error => {
           Alert.error(error.message);

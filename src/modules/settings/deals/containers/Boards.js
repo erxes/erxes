@@ -51,7 +51,7 @@ class BoardsContainer extends React.Component {
         .then(() => {
           boardsQuery.refetch();
 
-          Alert.success(__('Successfully saved!'));
+          Alert.success(__('Successfully saved.'));
 
           callback();
         })

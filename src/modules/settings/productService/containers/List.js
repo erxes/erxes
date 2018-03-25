@@ -54,7 +54,7 @@ class ProductListContainer extends React.Component {
           productsQuery.refetch();
           productsCountQuery.refetch();
 
-          Alert.success(__('Successfully saved!'));
+          Alert.success(__('Successfully saved.'));
 
           callback();
         })
