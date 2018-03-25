@@ -13,9 +13,8 @@ import { Form as ProductForm } from 'modules/settings/productService/containers'
 class ProductChooser extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      perPage: 20
-    };
+
+    this.state = { perPage: 20 };
   }
 
   render() {
