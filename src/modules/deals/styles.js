@@ -4,6 +4,7 @@ import { rgba } from 'modules/common/styles/color';
 
 const stageWidth = 300;
 const stageHeight = 'calc(100vh - 200px)';
+const coreHeight = 50;
 
 const PipelineContainer = styled.div`
   background-color: ${colors.colorWhite};
@@ -16,7 +17,7 @@ const PipelineContainer = styled.div`
 
 const PipelineHeader = styled.div`
   width: 100%;
-  height: 50px;
+  height: ${coreHeight}px;
   padding: 0 20px;
   background: ${colors.bgLight};
   border-bottom: 1px solid ${colors.colorShadowGray};
@@ -24,7 +25,7 @@ const PipelineHeader = styled.div`
   h2 {
     margin: 0;
     padding: 0;
-    line-height: 50px;
+    line-height: ${coreHeight - 2}px;
     font-weight: normal;
     font-size: 13px;
     color: ${colors.colorCoreDarkGray};
@@ -150,8 +151,8 @@ const StageDropZone = styled.div`
 
 const AddNewDeal = styled.a`
   display: block;
-  height: 60px;
-  line-height: 60px;
+  height: ${coreHeight}px;
+  line-height: ${coreHeight - 2}px;
   text-align: center;
   border: 1px dashed ${colors.colorShadowGray};
   border-radius: 5px;
@@ -167,7 +168,6 @@ const AddNewDeal = styled.a`
 
   i {
     margin-right: 8px;
-    font-size: 15px;
   }
 `;
 
