@@ -84,7 +84,6 @@ class Board extends React.Component {
         {...stageStates}
         state={states[`pipelineState${pipeline._id}`]}
         pipeline={pipeline}
-        boardId={currentBoard._id}
       />
     ));
   }

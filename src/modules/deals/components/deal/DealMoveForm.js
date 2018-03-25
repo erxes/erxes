@@ -16,17 +16,13 @@ class DealMoveForm extends React.Component {
   }
 
   move() {
-    const { deal, boardId, pipelineId } = this.props;
+    const { deal } = this.props;
     const { stageId } = this.state;
     const { __ } = this.context;
-
-    if (!pipelineId) return Alert.error(__('No pipeline'));
 
     if (!stageId) return Alert.error(__('No stage'));
 
     const doc = {
-      boardId,
-      pipelineId,
       stageId,
       _id: deal._id
     };

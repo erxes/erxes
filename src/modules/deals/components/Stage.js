@@ -16,8 +16,6 @@ import { DealForm } from '../containers';
 
 const propTypes = {
   stage: PropTypes.object.isRequired,
-  boardId: PropTypes.string,
-  pipelineId: PropTypes.string,
   deals: PropTypes.array,
   index: PropTypes.number.isRequired,
   saveDeal: PropTypes.func.isRequired,
@@ -55,12 +53,10 @@ class Stage extends React.Component {
 
   renderDealForm(show) {
     if (show) {
-      const { stage, pipelineId, boardId, deals } = this.props;
+      const { stage, deals } = this.props;
 
       return (
         <DealForm
-          boardId={boardId}
-          pipelineId={pipelineId}
           stageId={stage._id}
           close={this.closeForm.bind(this)}
           dealsLength={deals.length}

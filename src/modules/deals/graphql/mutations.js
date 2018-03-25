@@ -1,6 +1,4 @@
 const commonVariables = `
-  $boardId: String,
-  $pipelineId: String,
   $stageId: String!,
   $productsData: JSON!,
   $companyIds: [String],
@@ -12,8 +10,6 @@ const commonVariables = `
 `;
 
 const commonParams = `
-  boardId: $boardId,
-  pipelineId: $pipelineId,
   stageId: $stageId,
   productsData: $productsData,
   companyIds: $companyIds,
@@ -27,8 +23,6 @@ const commonParams = `
 const commonReturn = `
   _id
   stageId
-  pipelineId
-  boardId
   companies {
     _id
     name
@@ -93,8 +87,8 @@ const stagesUpdateOrder = `
 `;
 
 const dealsChange = `
-  mutation dealsChange($_id: String!, $stageId: String!, $pipelineId: String, $boardId: String) {
-    dealsChange(_id: $_id, stageId: $stageId, pipelineId: $pipelineId, boardId: $boardId) {
+  mutation dealsChange($_id: String!, $stageId: String!) {
+    dealsChange(_id: $_id, stageId: $stageId) {
       ${commonReturn}
     }
   }

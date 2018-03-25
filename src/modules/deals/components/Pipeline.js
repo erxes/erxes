@@ -7,7 +7,6 @@ import { PipelineContainer, PipelineHeader, PipelineBody } from '../styles';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
-  boardId: PropTypes.string,
   stages: PropTypes.array,
   collectDeals: PropTypes.func,
   dealResult: PropTypes.object,
@@ -16,7 +15,7 @@ const propTypes = {
 
 class Pipeline extends React.Component {
   renderStage(provided) {
-    const { stages, pipeline, boardId } = this.props;
+    const { stages, pipeline } = this.props;
 
     return (
       <PipelineBody innerRef={provided.innerRef} {...provided.droppableProps}>
@@ -26,7 +25,6 @@ class Pipeline extends React.Component {
               key={stage._id}
               stageId={stage._id}
               index={index}
-              boardId={boardId}
               pipelineId={pipeline._id}
               state={this.props[`stageState${stage._id}`]}
             />

@@ -68,8 +68,6 @@ const dealDetail = `
     dealDetail(_id: $_id) {
       _id
       stageId
-      pipelineId
-      boardId
       companies {
         _id
         name

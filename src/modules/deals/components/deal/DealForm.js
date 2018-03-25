@@ -26,8 +26,6 @@ const propTypes = {
   deal: PropTypes.object,
   close: PropTypes.func.isRequired,
   saveDeal: PropTypes.func.isRequired,
-  boardId: PropTypes.string,
-  pipelineId: PropTypes.string,
   stageId: PropTypes.string,
   users: PropTypes.array,
   dealsLength: PropTypes.number
@@ -136,7 +134,7 @@ class DealForm extends React.Component {
       return Alert.error(__('Please, select a close date'));
     }
 
-    const { deal, boardId, pipelineId, stageId, dealsLength } = this.props;
+    const { deal, stageId, dealsLength } = this.props;
 
     const doc = {
       companyIds: companies.map(company => company._id),
@@ -145,8 +143,6 @@ class DealForm extends React.Component {
       note,
       productsData,
       assignedUserIds,
-      boardId: deal ? deal.boardId : boardId,
-      pipelineId: deal ? deal.pipelineId : pipelineId,
       stageId: deal ? deal.stageId : stageId,
       order: deal ? deal.order : dealsLength
     };
