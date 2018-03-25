@@ -62,9 +62,11 @@ const ContentBox = styled.div`
 `;
 
 const ContentHeader = styled.div`
-  background: ${props => (props.invert ? colors.colorWhite : colors.bgLight)};
+  background: ${props =>
+    props.background === 'transparent' ? 'none' : colors[props.background]};
   min-height: ${dimensions.headerSpacing}px;
-  padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
+  padding: ${props =>
+    props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`};
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;
   justify-content: space-between;

@@ -114,6 +114,10 @@ const NavIcon = styled.i`
   &.icon-knowledge {
     background-image: url('/images/icons/nav-07.svg');
   }
+
+  &.icon-deal {
+    background-image: url('/images/icons/nav-08.svg');
+  }
 `;
 
 class Navigation extends Component {
@@ -172,6 +176,11 @@ class Navigation extends Component {
           <Tip placement="right" text={__('Knowledge Base')}>
             <NavLink to="/knowledgeBase" activeClassName="active">
               <NavIcon className="icon-knowledge" />
+            </NavLink>
+          </Tip>
+          <Tip placement="right" text={__('Deal')}>
+            <NavLink to="/deals" activeClassName="active">
+              <NavIcon className="icon-deal" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Settings')}>

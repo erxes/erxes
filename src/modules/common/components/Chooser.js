@@ -7,19 +7,20 @@ import {
   ModalTrigger,
   EmptyState
 } from 'modules/common/components';
-import { Footer, LoadMore, Title, Columns, Column } from '../../styles';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { Footer, LoadMore, Title, Columns, Column } from '../styles/chooser';
+import { ModalFooter } from '../styles/styles';
 
 const propTypes = {
   data: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired,
+  onSelect: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired,
   datas: PropTypes.array.isRequired,
   form: PropTypes.node.isRequired,
   title: PropTypes.string.isRequired,
   renderName: PropTypes.func.isRequired,
   perPage: PropTypes.number.isRequired,
-  clearState: PropTypes.func.isRequired
+  clearState: PropTypes.func.isRequired,
+  limit: PropTypes.number
 };
 
 const contextTypes = {
@@ -27,9 +28,10 @@ const contextTypes = {
   __: PropTypes.func
 };
 
-class CommonAssociate extends Component {
+class CommonChooser extends Component {
   constructor(props) {
     super(props);
+
     const datas = this.props.data.datas || [];
 
     this.state = {
@@ -38,21 +40,14 @@ class CommonAssociate extends Component {
       searchValue: ''
     };
 
-    this.save = this.save.bind(this);
+    this.onSelect = this.onSelect.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.search = this.search.bind(this);
     this.loadMore = this.loadMore.bind(this);
   }
 
-  save() {
-    const { datas } = this.state;
-    const ids = [];
-
-    datas.forEach(data => {
-      ids.push(data._id.toString());
-    });
-
-    this.props.save(ids);
+  onSelect() {
+    this.props.onSelect(this.state.datas);
     this.context.closeModal();
   }
 
@@ -70,13 +65,13 @@ class CommonAssociate extends Component {
     const { datas } = this.state;
 
     if (type === 'plus') {
-      this.setState({
-        datas: [...datas, data]
-      });
+      if (this.props.limit && this.props.limit === datas.length) {
+        return;
+      }
+
+      this.setState({ datas: [...datas, data] });
     } else {
-      this.setState({
-        datas: datas.filter(item => item !== data)
-      });
+      this.setState({ datas: datas.filter(item => item !== data) });
     }
   }
 
@@ -176,8 +171,12 @@ class CommonAssociate extends Component {
               >
                 Cancel
               </Button>
-              <Button btnStyle="success" onClick={this.save} icon="checkmark">
-                Save
+              <Button
+                btnStyle="success"
+                onClick={this.onSelect}
+                icon="checkmark"
+              >
+                Select
               </Button>
             </div>
           </Footer>
@@ -187,7 +186,7 @@ class CommonAssociate extends Component {
   }
 }
 
-CommonAssociate.propTypes = propTypes;
-CommonAssociate.contextTypes = contextTypes;
+CommonChooser.propTypes = propTypes;
+CommonChooser.contextTypes = contextTypes;
 
-export default CommonAssociate;
+export default CommonChooser;
