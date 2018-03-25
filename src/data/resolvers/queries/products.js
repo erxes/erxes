@@ -34,8 +34,18 @@ const productQueries = {
 
     return Products.find(filter).count();
   },
+
+  /**
+   * Product detail
+   * @param {Object} args
+   * @param {String} args._id
+   * @return {Promise} product detail
+   */
+  productDetail(root, { _id }) {
+    return Products.findOne({ _id });
+  },
 };
 
-moduleRequireLogin(productQueries);
+// moduleRequireLogin(productQueries);
 
 export default productQueries;

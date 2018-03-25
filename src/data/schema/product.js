@@ -17,8 +17,9 @@ const params = `
 `;
 
 export const queries = `
-  products(type: String, searchValue: String, page: Int, perPage: Int): [Product],
+  products(type: String, searchValue: String, page: Int, perPage: Int): [Product]
   productsTotalCount(type: String): Int
+  productDetail(_id: String!): Product
 `;
 
 export const mutations = `

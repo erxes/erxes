@@ -270,7 +270,7 @@ class Stage {
 const ProductSchema = mongoose.Schema(
   {
     _id: String,
-    product: JSON,
+    productId: String,
     uom: String,
     currency: String,
     quantity: Number,
@@ -287,9 +287,7 @@ const ProductSchema = mongoose.Schema(
 // Deal schema
 const DealSchema = mongoose.Schema({
   _id: field({ pkey: true }),
-  productIds: field({ type: [String] }),
   productsData: field({ type: [ProductSchema] }),
-  companyIds: field({ type: [String] }),
   customerIds: field({ type: [String] }),
   closeDate: field({ type: Date }),
   note: field({ type: String }),

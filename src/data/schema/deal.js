@@ -31,8 +31,6 @@ export const types = `
     boardId: String
     pipelineId: String
     stageId: String!
-    productIds: [String]!
-    productsData: JSON!
     companyIds: [String]!
     customerIds: [String]!
     assignedUserIds: [String]
@@ -41,7 +39,7 @@ export const types = `
     note: String
     companies: [Company]
     customers: [Customer]
-    products: [Product]
+    products: JSON
     assignedUsers: [User]
     ${commonTypes}
   }
@@ -62,7 +60,6 @@ const dealMutationParams = `
   boardId: String,
   pipelineId: String,
   stageId: String!,
-  productIds: [String]!,
   assignedUserIds: [String],
   companyIds: [String],
   customerIds: [String],

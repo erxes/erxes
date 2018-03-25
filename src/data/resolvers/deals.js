@@ -9,8 +9,20 @@ export default {
     return Customers.find({ _id: { $in: deal.customerIds || [] } });
   },
 
-  products(deal) {
-    return Products.find({ _id: { $in: deal.productIds || [] } });
+  async products(deal) {
+    const products = [];
+
+    for (const data of deal.productsData || []) {
+      const product = await Products.findOne({ _id: data.productId });
+
+      // Add product object to resulting list
+      products.push({
+        ...data.toJSON(),
+        product: product.toJSON(),
+      });
+    }
+
+    return products;
   },
 
   amount(deal) {
