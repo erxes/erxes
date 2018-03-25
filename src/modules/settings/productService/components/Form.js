@@ -37,19 +37,12 @@ class Form extends Component {
   }
 
   generateDoc() {
-    const doc = {
-      name: document.getElementById('product-name').value,
-      type: document.getElementById('product-type').value,
-      description: document.getElementById('product-description').value
+    return {
+      name: document.getElementById('name').value,
+      type: document.getElementById('type').value,
+      description: document.getElementById('description').value,
+      sku: document.getElementById('sku').value
     };
-
-    const description = document.getElementById('product-description').value;
-    if (description) doc.description = description;
-
-    const sku = document.getElementById('product-sku').value;
-    if (sku) doc.sku = sku;
-
-    return doc;
   }
 
   renderContent() {
@@ -63,7 +56,7 @@ class Form extends Component {
           <ControlLabel>Name</ControlLabel>
 
           <FormControl
-            id="product-name"
+            id="name"
             defaultValue={product.name}
             type="text"
             required
@@ -75,7 +68,7 @@ class Form extends Component {
 
           <FormControl
             componentClass="select"
-            id="product-type"
+            id="type"
             defaultValue={product.type}
             required
           >
@@ -91,7 +84,7 @@ class Form extends Component {
           <ControlLabel>Description</ControlLabel>
 
           <FormControl
-            id="product-description"
+            id="description"
             componentClass="textarea"
             rows={5}
             defaultValue={product.description}
@@ -101,11 +94,7 @@ class Form extends Component {
         <FormGroup>
           <ControlLabel>SKU</ControlLabel>
 
-          <FormControl
-            id="product-sku"
-            type="text"
-            defaultValue={product.sku}
-          />
+          <FormControl id="sku" type="text" defaultValue={product.sku} />
         </FormGroup>
       </div>
     );

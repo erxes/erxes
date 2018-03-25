@@ -138,6 +138,7 @@ class DealForm extends React.Component {
       companyIds: companies.map(company => company._id),
       customerIds: customers.map(customer => customer._id),
       closeDate: new Date(closeDate),
+      note,
       productsData,
       assignedUserIds,
       boardId: deal ? deal.boardId : boardId,
@@ -145,8 +146,6 @@ class DealForm extends React.Component {
       stageId: deal ? deal.stageId : stageId,
       order: deal ? deal.order : dealsLength
     };
-
-    if (note) doc.note = note;
 
     this.props.saveDeal(doc, () => this.props.close(), this.props.deal);
   }
