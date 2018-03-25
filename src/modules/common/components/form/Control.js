@@ -70,6 +70,7 @@ class FormControl extends React.Component {
 
     const attributes = {
       onChange,
+      onKeyPress: props.onKeyPress,
       onClick: props.onClick,
       value: props.value,
       defaultValue: props.defaultValue,

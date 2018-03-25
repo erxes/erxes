@@ -31,7 +31,6 @@ class Stage extends React.Component {
 
     this.showForm = this.showForm.bind(this);
     this.closeForm = this.closeForm.bind(this);
-    this.renderDeal = this.renderDeal.bind(this);
 
     this.state = { show: false };
   }

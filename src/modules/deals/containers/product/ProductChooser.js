@@ -7,7 +7,7 @@ import {
   queries as productQueries
 } from 'modules/settings/productService/graphql';
 import { Alert } from 'modules/common/utils';
-import { CommonChooser } from 'modules/customers/components';
+import { Chooser } from 'modules/common/components';
 import { Form as ProductForm } from 'modules/settings/productService/components';
 
 class ProductChooser extends React.Component {
@@ -39,7 +39,7 @@ class ProductChooser extends React.Component {
     };
 
     // add product
-    const addProduct = ({ doc }, callback) => {
+    const addProduct = (doc, callback) => {
       productAdd({
         variables: doc
       })
@@ -70,7 +70,7 @@ class ProductChooser extends React.Component {
       datas: productsQuery.products || []
     };
 
-    return <CommonChooser {...updatedProps} />;
+    return <Chooser {...updatedProps} />;
   }
 }
 

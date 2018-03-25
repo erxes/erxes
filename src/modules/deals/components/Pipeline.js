@@ -15,12 +15,6 @@ const propTypes = {
 };
 
 class Pipeline extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.renderStage = this.renderStage.bind(this);
-  }
-
   renderStage(provided) {
     const { stages, pipeline, boardId } = this.props;
 

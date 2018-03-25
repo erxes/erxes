@@ -7,8 +7,8 @@ import {
   ModalTrigger,
   EmptyState
 } from 'modules/common/components';
-import { Footer, LoadMore, Title, Columns, Column } from '../../styles';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { Footer, LoadMore, Title, Columns, Column } from '../styles/chooser';
+import { ModalFooter } from '../styles/styles';
 
 const propTypes = {
   data: PropTypes.object.isRequired,

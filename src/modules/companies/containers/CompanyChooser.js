@@ -4,7 +4,7 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
 import { Alert, renderFullName } from 'modules/common/utils';
-import { CommonChooser } from 'modules/customers/components';
+import { Chooser } from 'modules/common/components';
 import { CompanyForm } from '../containers';
 
 class CompanyChooser extends React.Component {
@@ -72,7 +72,7 @@ class CompanyChooser extends React.Component {
       datas: companiesQuery.companies || []
     };
 
-    return <CommonChooser {...updatedProps} />;
+    return <Chooser {...updatedProps} />;
   }
 }
 

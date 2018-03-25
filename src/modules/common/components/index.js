@@ -34,6 +34,7 @@ import DataWithLoader from './DataWithLoader';
 import SortableList from './SortableList';
 import ImageWithPreview from './ImageWithPreview';
 import IntegrationIcon from './IntegrationIcon';
+import Chooser from './Chooser';
 // TODO remove
 const pagination = {};
 
@@ -78,5 +79,6 @@ export {
   DataWithLoader,
   SortableList,
   ImageWithPreview,
-  IntegrationIcon
+  IntegrationIcon,
+  Chooser
 };
