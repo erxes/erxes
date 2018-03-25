@@ -1,7 +1,6 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import Twit from 'twit';
 import sinon from 'sinon';
 import faker from 'faker';
 import { connect, disconnect, graphqlRequest } from '../db/connection';
@@ -30,6 +29,7 @@ describe('Conversation message mutations', () => {
   let _conversationMessage;
   let _user;
   let _integration;
+  let _integrationTwitter;
   let _customer;
   let context;
 
@@ -40,6 +40,7 @@ describe('Conversation message mutations', () => {
     _user = await userFactory();
     _customer = await customerFactory();
     _integration = await integrationFactory({ kind: 'form' });
+    _integrationTwitter = await integrationFactory({ kind: 'twitter' });
     _conversation.integrationId = _integration._id;
     _conversation.customerId = _customer._id;
     _conversation.assignedUserId = _user._id;
@@ -112,21 +113,12 @@ describe('Conversation message mutations', () => {
   });
 
   test('Tweet conversation', async () => {
-    const integration = await integrationFactory({ kind: 'twitter' });
+    const twit = {};
 
-    // Twit instance
-    const twit = new Twit({
-      consumer_key: 'consumer_key',
-      consumer_secret: 'consumer_secret',
-      access_token: 'access_token',
-      access_token_secret: 'token_secret',
-    });
-
-    // save twit instance
-    TwitMap[integration._id] = twit;
+    TwitMap[_integrationTwitter._id] = twit;
 
     const args = {
-      integrationId: integration._id,
+      integrationId: _integrationTwitter._id,
       text: faker.random.word(),
     };
 
@@ -155,6 +147,104 @@ describe('Conversation message mutations', () => {
     ).toBe(true);
 
     stub.restore();
+  });
+
+  test('Retweet conversation', async () => {
+    const twit = {};
+
+    const args = {
+      integrationId: _integrationTwitter._id,
+      id: '123',
+    };
+
+    TwitMap[_integrationTwitter._id] = twit;
+
+    // mock twitter request
+    const sandbox = sinon.sandbox.create();
+
+    // mock retweet request
+    const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({
+          retweeted_status: {
+            id_str: '123',
+          },
+        });
+      });
+    });
+
+    // mock get tweet object request
+    const getStub = sandbox.stub(twitRequest, 'get').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({});
+      });
+    });
+
+    const mutation = `
+      mutation conversationsRetweet($integrationId: String $id: String) {
+        conversationsRetweet(integrationId: $integrationId id: $id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'conversationsRetweet', args);
+
+    // check twit post params
+    expect(
+      postStub.calledWith(twit, 'statuses/retweet/:id', {
+        id: args.id,
+      }),
+    ).toBe(true);
+
+    postStub.restore();
+    getStub.restore();
+  });
+
+  test('Favorite tweet', async () => {
+    const twit = {};
+
+    const args = {
+      integrationId: _integrationTwitter._id,
+      id: '123',
+    };
+
+    TwitMap[_integrationTwitter._id] = twit;
+
+    // mock twitter request
+    const sandbox = sinon.sandbox.create();
+
+    // mock retweet request
+    const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({
+          id_str: '123',
+        });
+      });
+    });
+
+    // mock get tweet object request
+    const getStub = sandbox.stub(twitRequest, 'get').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({});
+      });
+    });
+
+    const mutation = `
+      mutation conversationsFavorite($integrationId: String $id: String) {
+        conversationsFavorite(integrationId: $integrationId id: $id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'conversationsFavorite', args);
+
+    // check twit post params
+    expect(
+      postStub.calledWith(twit, 'favorites/create', {
+        id: args.id,
+      }),
+    ).toBe(true);
+
+    postStub.restore();
+    getStub.restore();
   });
 
   test('Assign conversation', async () => {
