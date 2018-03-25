@@ -99,20 +99,20 @@ describe('mutations', () => {
     };
 
     const mutation = `
-        mutation integrationsEditMessengerIntegration(
-          $_id: String!
-          ${commonParamDefs}
-        ) {
-          integrationsEditMessengerIntegration(
-          _id: $_id
-          ${commonParams}
-        ) {
-            _id
-            name
-            brandId
-            languageCode
-          }
+      mutation integrationsEditMessengerIntegration(
+        $_id: String!
+        ${commonParamDefs}
+      ) {
+        integrationsEditMessengerIntegration(
+        _id: $_id
+        ${commonParams}
+      ) {
+          _id
+          name
+          brandId
+          languageCode
         }
+      }
     `;
 
     const integration = await graphqlRequest(
