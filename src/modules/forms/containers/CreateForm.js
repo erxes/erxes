@@ -19,14 +19,14 @@ class CreateFormContainer extends Bulk {
 
     const brands = brandsQuery.brands || [];
 
-    const doMutation = (mutation, formMutation, variables) => {
+    const doMutation = (formMutation, mutation, variables) => {
       variables.formId = 'aaaa';
       console.log(variables);
-      mutation({
+      formMutation({
         variables
       })
         .then(() => {
-          formMutation({
+          mutation({
             variables
           });
         })
@@ -42,7 +42,7 @@ class CreateFormContainer extends Bulk {
 
     // save
     const save = doc => {
-      return doMutation(addMutation, addFormMutation, doc);
+      return doMutation(addFormMutation, addMutation, doc);
     };
 
     const updatedProps = {

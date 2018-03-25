@@ -55,7 +55,7 @@ class Form extends Component {
     e.preventDefault();
 
     this.props.save({
-      title: this.state.title,
+      name: this.state.title,
       brandId: this.state.brand,
       languageCode: this.state.language,
       formData: {
