@@ -211,9 +211,9 @@ class ProductForm extends React.Component {
         <Table alignTop={true}>
           <thead>
             <tr>
-              <th>{__('Product & Service')}</th>
-              <th width="220">{__('UOM')}</th>
-              <th width="220">{__('Currency')}</th>
+              <th width="250">{__('Product & Service')}</th>
+              <th width="200">{__('UOM')}</th>
+              <th width="200">{__('Currency')}</th>
               <th width="100">{__('Quantity')}</th>
               <th>{__('Unit price')}</th>
               <th>{__('Amount')}</th>
