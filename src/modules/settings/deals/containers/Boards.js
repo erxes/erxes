@@ -14,6 +14,7 @@ class BoardsContainer extends React.Component {
       editMutation,
       removeMutation
     } = this.props;
+
     const { __ } = this.context;
 
     const boards = boardsQuery.dealBoards || [];

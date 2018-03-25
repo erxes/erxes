@@ -44,9 +44,12 @@ class ProductItemForm extends React.Component {
         size="large"
       >
         <ProductChooser
-          onSelect={products =>
-            this.props.onChangeProduct(products, productData._id)
-          }
+          onSelect={products => {
+            const product =
+              products && products.length === 1 ? products[0] : null;
+
+            this.props.onChangeProduct(product, productData._id);
+          }}
           data={{
             name: 'Product',
             products: productData.product ? [productData.product] : []
@@ -57,13 +60,13 @@ class ProductItemForm extends React.Component {
     );
   }
 
-  renderProduct(productData) {
-    if (!productData.product) return null;
+  renderProduct(product) {
+    if (!product) return null;
 
     return (
       <ItemCounterContainer>
         <ul>
-          <li>{productData.product.name}</li>
+          <li>{product.name}</li>
         </ul>
       </ItemCounterContainer>
     );
@@ -77,7 +80,7 @@ class ProductItemForm extends React.Component {
       <tr key={productData._id}>
         <td>
           {this.renderProductModal(productData)}
-          {this.renderProduct(productData)}
+          {this.renderProduct(productData.product)}
         </td>
         <td>
           <Select

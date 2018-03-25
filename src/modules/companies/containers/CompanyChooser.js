@@ -11,9 +11,7 @@ class CompanyChooser extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      perPage: 20
-    };
+    this.state = { perPage: 20 };
   }
 
   render() {

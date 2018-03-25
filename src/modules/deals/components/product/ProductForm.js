@@ -12,6 +12,7 @@ import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   onChangeProductsData: PropTypes.func.isRequired,
+  onChangeProducts: PropTypes.func.isRequired,
   saveProductsData: PropTypes.func.isRequired,
   productsData: PropTypes.array,
   products: PropTypes.array
@@ -37,7 +38,8 @@ class ProductForm extends React.Component {
     this.state = {
       total: {},
       discount: {},
-      tax: {}
+      tax: {},
+      products: props.products || []
     };
   }
 
@@ -90,12 +92,12 @@ class ProductForm extends React.Component {
     this.setState({ total, tax, discount });
   }
 
-  onChangeProduct(products, _id) {
+  onChangeProduct(product, _id) {
     const { productsData } = this.props;
 
     const productData = productsData.find(p => p._id === _id);
 
-    productData.product = products && products.length > 0 ? products[0] : null;
+    productData.product = product;
 
     this.props.onChangeProductsData(productsData);
   }
@@ -157,26 +159,26 @@ class ProductForm extends React.Component {
   }
 
   renderTax(tax) {
-    return Object.keys(tax).map(el => (
-      <div key={el}>
-        {tax[el].toLocaleString()} {el}
+    return Object.keys(tax).map(key => (
+      <div key={key}>
+        {tax[key].toLocaleString()} {key}
       </div>
     ));
   }
 
   renderDiscount(discount) {
-    return Object.keys(discount).map(el => (
-      <div key={el}>
-        {discount[el].toLocaleString()} {el}
+    return Object.keys(discount).map(key => (
+      <div key={key}>
+        {discount[key].toLocaleString()} {key}
       </div>
     ));
   }
 
   renderTotal(total) {
-    return Object.keys(total).map(el => (
-      <div key={el}>
+    return Object.keys(total).map(key => (
+      <div key={key}>
         <b>
-          {total[el].toLocaleString()} {el}
+          {total[key].toLocaleString()} {key}
         </b>
       </div>
     ));
@@ -205,7 +207,6 @@ class ProductForm extends React.Component {
               <ProductItemForm
                 key={productData._id}
                 productData={productData}
-                products={this.props.products}
                 onChangeProduct={this.onChangeProduct}
                 onChangeCurrency={this.onChangeCurrency}
                 onChangeUom={this.onChangeUom}

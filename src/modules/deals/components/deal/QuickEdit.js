@@ -36,7 +36,6 @@ class QuickEdit extends React.Component {
     // copied doc
     const doc = {
       ...deal,
-      productIds: deal.products.map(product => product._id),
       assignedUserIds: deal.assignedUsers.map(user => user._id),
       companyIds: deal.companies.map(company => company._id),
       customerIds: deal.customers.map(customer => customer._id)

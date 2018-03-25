@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Dropdown } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
+import { EmptyState } from 'modules/common/components';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import { Pipeline } from '../containers';
@@ -69,30 +70,35 @@ class Board extends React.Component {
     const breadcrumb = [{ title: __('Deal') }];
 
     const { currentBoard, onDragEnd } = this.props;
+    let content, actionBar;
 
-    const actionBarLeft = (
-      <BarItems>
-        <Dropdown id="dropdown-board">
-          <DropdownToggle bsRole="toggle">
-            <Button btnStyle="simple" size="small">
-              {currentBoard.name} <Icon icon="ios-arrow-down" />
-            </Button>
-          </DropdownToggle>
+    if (currentBoard) {
+      const actionBarLeft = (
+        <BarItems>
+          <Dropdown id="dropdown-board">
+            <DropdownToggle bsRole="toggle">
+              <Button btnStyle="simple" size="small">
+                {currentBoard.name} <Icon icon="ios-arrow-down" />
+              </Button>
+            </DropdownToggle>
 
-          <Dropdown.Menu>{this.renderBoard()}</Dropdown.Menu>
-        </Dropdown>
-      </BarItems>
-    );
+            <Dropdown.Menu>{this.renderBoard()}</Dropdown.Menu>
+          </Dropdown>
+        </BarItems>
+      );
 
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} background="transparent" />
-    );
+      actionBar = (
+        <Wrapper.ActionBar left={actionBarLeft} background="transparent" />
+      );
 
-    const content = (
-      <DragDropContext onDragEnd={onDragEnd}>
-        {this.renderPipeline()}
-      </DragDropContext>
-    );
+      content = (
+        <DragDropContext onDragEnd={onDragEnd}>
+          {this.renderPipeline()}
+        </DragDropContext>
+      );
+    } else {
+      content = <EmptyState size="full" text="No board" icon="map" />;
+    }
 
     return (
       <Wrapper

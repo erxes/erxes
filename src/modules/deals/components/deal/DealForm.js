@@ -37,6 +37,7 @@ class DealForm extends React.Component {
     this.onChangeCustomer = this.onChangeCustomer.bind(this);
     this.onDateInputChange = this.onDateInputChange.bind(this);
     this.onChangeProductsData = this.onChangeProductsData.bind(this);
+    this.onChangeProducts = this.onChangeProducts.bind(this);
     this.onChangeUsers = this.onChangeUsers.bind(this);
     this.saveProductsData = this.saveProductsData.bind(this);
     this.save = this.save.bind(this);
@@ -50,8 +51,9 @@ class DealForm extends React.Component {
       customers: deal.customers || [],
       closeDate: deal.closeDate,
       note: deal.note || '',
-      productsData: (deal.productsData || []).map(data => ({ ...data })),
-      products: deal.products || [],
+      productsData: deal.products ? deal.products.map(p => ({ ...p })) : [],
+      // collecting data for ItemCounter component
+      products: deal.products ? deal.products.map(p => p.product) : [],
       assignedUserIds: (deal.assignedUsers || []).map(user => user._id)
     };
   }
@@ -72,36 +74,38 @@ class DealForm extends React.Component {
     this.setState({ productsData });
   }
 
+  onChangeProducts(products) {
+    this.setState({ products });
+  }
+
   onChangeNote(e) {
     this.setState({ note: e.target.value });
   }
 
   onChangeUsers(users) {
-    this.setState({
-      assignedUserIds: users.map(user => user.value)
-    });
+    this.setState({ assignedUserIds: users.map(user => user.value) });
   }
 
   saveProductsData() {
-    const productsData = this.state.productsData;
+    const { productsData } = this.state;
     const products = [];
     const amount = {};
 
     const filteredProductsData = [];
 
-    productsData.forEach(el => {
+    productsData.forEach(data => {
       // products
-      if (el.product && el.currency && el.quantity && el.unitPrice) {
-        // if don't add before, push to array
-        if (!products.find(pEl => pEl._id === el.product._id)) {
-          products.push(el.product);
-        }
+      if (data.product && data.currency && data.quantity && data.unitPrice) {
+        // calculating deal amount
+        if (!amount[data.currency]) amount[data.currency] = data.amount;
+        else amount[data.currency] += data.amount;
 
-        // amount
-        if (!amount[el.currency]) amount[el.currency] = el.amount;
-        else amount[el.currency] += el.amount;
+        // collecting data for ItemCounter component
+        products.push(data.product);
 
-        filteredProductsData.push(el);
+        data.productId = data.product._id;
+
+        filteredProductsData.push(data);
       }
     });
 
@@ -128,21 +132,13 @@ class DealForm extends React.Component {
       return Alert.error(__('Please, select a close date'));
     }
 
-    const productIds = [];
-
-    productsData.forEach(el => {
-      if (!productIds.find(pEl => pEl === el.product._id)) {
-        productIds.push(el.product._id);
-      }
-    });
-
     const { deal, boardId, pipelineId, stageId, dealsLength } = this.props;
 
     const doc = {
       companyIds: companies.map(company => company._id),
       customerIds: customers.map(customer => customer._id),
       closeDate: new Date(closeDate),
-      productIds,
+      note,
       productsData,
       assignedUserIds,
       boardId: deal ? deal.boardId : boardId,
@@ -151,12 +147,10 @@ class DealForm extends React.Component {
       order: deal ? deal.order : dealsLength
     };
 
-    if (note) doc.note = note;
-
     this.props.saveDeal(doc, () => this.props.close(), this.props.deal);
   }
 
-  renderProductModal(productsData) {
+  renderProductModal(productsData, products) {
     const { __ } = this.context;
 
     const productTrigger = (
@@ -173,7 +167,9 @@ class DealForm extends React.Component {
       >
         <ProductForm
           onChangeProductsData={this.onChangeProductsData}
+          onChangeProducts={this.onChangeProducts}
           productsData={productsData}
+          products={products}
           saveProductsData={this.saveProductsData}
         />
       </ModalTrigger>
@@ -233,9 +229,9 @@ class DealForm extends React.Component {
       <FormGroup>
         <ControlLabel>Amount</ControlLabel>
         <DealFormAmount>
-          {Object.keys(amount).map(el => (
-            <p key={el}>
-              {amount[el].toLocaleString()} {el}
+          {Object.keys(amount).map(key => (
+            <p key={key}>
+              {amount[key].toLocaleString()} {key}
             </p>
           ))}
         </DealFormAmount>
@@ -259,7 +255,7 @@ class DealForm extends React.Component {
 
     return (
       <DealFormContainer>
-        {this.renderProductModal(productsData)}
+        {this.renderProductModal(productsData, products)}
 
         <FormGroup>
           <ItemCounter items={products} />

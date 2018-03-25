@@ -12,9 +12,6 @@ class PipelineContainer extends React.Component {
   constructor(props) {
     super(props);
 
-    this.stagesUpdateOrder = this.stagesUpdateOrder.bind(this);
-    this.stagesChange = this.stagesChange.bind(this);
-
     const { stages } = props;
 
     this.state = { stages: [...stages] };
@@ -22,48 +19,42 @@ class PipelineContainer extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.state !== nextProps.state) {
-      const { state: { type, index, itemId }, pipeline } = nextProps;
+      const {
+        state: { type, index, itemId },
+        pipeline,
+        stagesUpdateOrderMutation,
+        stagesChangeMutation
+      } = nextProps;
 
       const { stages } = this.state;
 
       if (type === 'removeItem') {
         // Remove from list
         stages.splice(index, 1);
-
-        this.stagesUpdateOrder(collectOrders(stages));
       }
 
       if (type === 'addItem') {
         // Add to list
         stages.splice(index, 0, { _id: itemId });
 
-        this.stagesUpdateOrder(collectOrders(stages));
-        this.stagesChange(itemId, pipeline._id);
+        // if move to other pipeline, will change pipelineId
+        stagesChangeMutation({
+          variables: { _id: itemId, pipelineId: pipeline._id }
+        }).catch(error => {
+          Alert.error(error.message);
+        });
       }
+
+      const orders = collectOrders(stages);
+
+      stagesUpdateOrderMutation({
+        variables: { orders }
+      }).catch(error => {
+        Alert.error(error.message);
+      });
 
       this.setState({ stages });
     }
-  }
-
-  stagesUpdateOrder(orders) {
-    const { stagesUpdateOrderMutation } = this.props;
-
-    stagesUpdateOrderMutation({
-      variables: { orders }
-    }).catch(error => {
-      Alert.error(error.message);
-    });
-  }
-
-  // if move to other pipeline, will change pipelineId
-  stagesChange(_id, pipelineId) {
-    const { stagesChangeMutation } = this.props;
-
-    stagesChangeMutation({
-      variables: { _id, pipelineId }
-    }).catch(error => {
-      Alert.error(error.message);
-    });
   }
 
   render() {

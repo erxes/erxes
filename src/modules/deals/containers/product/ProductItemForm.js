@@ -2,16 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { queries as generalQueries } from 'modules/settings/general/graphql';
 import { ProductItemForm } from '../../components';
-import { queries } from '../../graphql';
 
 class ProductItemFormContainer extends React.Component {
   render() {
     const { getUomQuery, getCurrenciesQuery } = this.props;
 
-    const uom = getUomQuery.getConfig ? getUomQuery.getConfig.value : [];
-    const currencies = getCurrenciesQuery.getConfig
-      ? getCurrenciesQuery.getConfig.value
+    const uom = getUomQuery.configsDetail
+      ? getUomQuery.configsDetail.value
+      : [];
+    const currencies = getCurrenciesQuery.configsDetail
+      ? getCurrenciesQuery.configsDetail.value
       : [];
 
     const extendedProps = {
@@ -26,13 +28,15 @@ class ProductItemFormContainer extends React.Component {
 
 const propTypes = {
   getUomQuery: PropTypes.object,
-  getCurrenciesQuery: PropTypes.object
+  getCurrenciesQuery: PropTypes.object,
+  productDetailQuery: PropTypes.object,
+  productData: PropTypes.object
 };
 
 ProductItemFormContainer.propTypes = propTypes;
 
 export default compose(
-  graphql(gql(queries.getConfig), {
+  graphql(gql(generalQueries.configsDetail), {
     name: 'getUomQuery',
     options: {
       variables: {
@@ -40,7 +44,7 @@ export default compose(
       }
     }
   }),
-  graphql(gql(queries.getConfig), {
+  graphql(gql(generalQueries.configsDetail), {
     name: 'getCurrenciesQuery',
     options: {
       variables: {

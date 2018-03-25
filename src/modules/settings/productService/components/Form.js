@@ -7,11 +7,11 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
+import { TYPES } from '../constants';
 
 const propTypes = {
   product: PropTypes.object,
-  save: PropTypes.func.isRequired,
-  loadTypes: PropTypes.array
+  save: PropTypes.func.isRequired
 };
 
 const contextTypes = {
@@ -38,19 +38,17 @@ class Form extends Component {
 
   generateDoc() {
     return {
-      doc: {
-        name: document.getElementById('product-name').value,
-        type: document.getElementById('product-type').value,
-        description: document.getElementById('product-description').value,
-        sku: document.getElementById('product-sku').value
-      }
+      name: document.getElementById('name').value,
+      type: document.getElementById('type').value,
+      description: document.getElementById('description').value,
+      sku: document.getElementById('sku').value
     };
   }
 
   renderContent() {
     const product = this.props.product || {};
 
-    const types = this.props.loadTypes || [];
+    const types = TYPES.ALL_LIST;
 
     return (
       <div>
@@ -58,7 +56,7 @@ class Form extends Component {
           <ControlLabel>Name</ControlLabel>
 
           <FormControl
-            id="product-name"
+            id="name"
             defaultValue={product.name}
             type="text"
             required
@@ -70,11 +68,10 @@ class Form extends Component {
 
           <FormControl
             componentClass="select"
-            id="product-type"
+            id="type"
             defaultValue={product.type}
             required
           >
-            <option />
             {types.map((type, index) => (
               <option key={index} value={type}>
                 {type}
@@ -87,7 +84,7 @@ class Form extends Component {
           <ControlLabel>Description</ControlLabel>
 
           <FormControl
-            id="product-description"
+            id="description"
             componentClass="textarea"
             rows={5}
             defaultValue={product.description}
@@ -97,11 +94,7 @@ class Form extends Component {
         <FormGroup>
           <ControlLabel>SKU</ControlLabel>
 
-          <FormControl
-            id="product-sku"
-            type="text"
-            defaultValue={product.sku}
-          />
+          <FormControl id="sku" type="text" defaultValue={product.sku} />
         </FormGroup>
       </div>
     );

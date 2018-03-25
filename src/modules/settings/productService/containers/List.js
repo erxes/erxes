@@ -38,7 +38,7 @@ class ProductListContainer extends React.Component {
     };
 
     // create or update action
-    const save = ({ doc }, callback, product) => {
+    const save = (doc, callback, product) => {
       let mutation = addMutation;
 
       // if edit mode
