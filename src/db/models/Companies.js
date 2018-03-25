@@ -174,10 +174,11 @@ class Company {
    * Create new customer and add to customer's customer list
    * @return {Promise} newly created customer
    */
-  static async addCustomer({ _id, name, email }) {
+  static async addCustomer({ _id, firstName, lastName, email }) {
     // create customer
-    return await Customers.createCustomer({
-      name,
+    return Customers.createCustomer({
+      firstName,
+      lastName,
       email,
       companyIds: [_id],
     });

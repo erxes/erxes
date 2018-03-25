@@ -1,7 +1,7 @@
 import faker from 'faker';
 import Random from 'meteor-random';
 import {
-  MODULES,
+  NOTIFICATION_TYPES,
   COC_CONTENT_TYPES,
   ACTIVITY_PERFORMER_TYPES,
   ACTIVITY_TYPES,
@@ -292,7 +292,7 @@ export const notificationConfigurationFactory = params => {
 
   return NotificationConfigurations.createOrUpdateConfiguration(
     {
-      notifType: params.notifType || MODULES.CHANNEL_MEMBERS_CHANGE,
+      notifType: params.notifType || NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       // which module's type it is. For example: indocuments
       isAllowed,
     },
@@ -300,15 +300,23 @@ export const notificationConfigurationFactory = params => {
   );
 };
 
-export const notificationFactory = params => {
-  return Notifications.createNotification({
-    notifType: params.notifType || MODULES.CHANNEL_MEMBERS_CHANGE,
-    createdUser: params.createdUser || userFactory({}),
-    title: params.title || 'new Notification title',
-    content: params.content || 'new Notification content',
-    link: params.link || 'new Notification link',
-    receiver: params.receiver || userFactory({}),
-  });
+export const notificationFactory = async params => {
+  let receiver = params.receiver;
+
+  if (!receiver) {
+    receiver = await userFactory({});
+  }
+
+  return Notifications.createNotification(
+    {
+      notifType: params.notifType || NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
+      title: params.title || 'new Notification title',
+      content: params.content || 'new Notification content',
+      link: params.link || 'new Notification link',
+      receiver: receiver._id,
+    },
+    params.createdUser,
+  );
 };
 
 export const channelFactory = async (params = {}) => {

@@ -4,34 +4,23 @@ export const types = `
     title: String
     code: String
     description: String
-    callout: Callout
+    buttonText: String
+    themeColor: String
+    featuredImage: String
     createdUserId: String
     createdDate: Date
     viewCount: Int
     contactsGathered: Int
-  }
-
-  type Callout {
-    title: String
-    description: String
-    buttonText: String
-    themeColor: String
-    featuredImage: String
-  }
-
-  input CalloutParams {
-    title: String,
-    description: String,
-    buttonText: String,
-    themeColor: String,
-    featuredImage: String
   }
 `;
 
 const commonFields = `
   title: String!,
   description: String,
-  callout: CalloutParams
+  buttonText: String,
+  themeColor: String,
+  featuredImage: String,
+  fields: [JSON]
 `;
 
 export const mutations = `
