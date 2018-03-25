@@ -9,6 +9,7 @@ export const types = `
     participatedUserIds: [String]
     readUserIds: [String]
     createdAt: Date
+    updatedAt: Date
     status: String
     messageCount: Int
     number: Int
