@@ -106,9 +106,8 @@ const BoardContainer = compose(
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
     options: ({ currentBoard }) => ({
-      variables: {
-        boardId: currentBoard ? currentBoard._id : ''
-      }
+      variables: { boardId: currentBoard ? currentBoard._id : '' },
+      fetchPolicy: 'network-only'
     })
   })
 )(Container);

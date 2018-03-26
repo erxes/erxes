@@ -8,6 +8,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { PipelineForm } from '../containers';
+import { PipelineRowContainer } from '../styles';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
@@ -55,12 +56,10 @@ class PipelineRow extends Component {
     const { pipeline } = this.props;
 
     return (
-      <tr>
-        <td>{pipeline.name}</td>
-        <td>
-          <ActionButtons>{this.renderExtraLinks()}</ActionButtons>
-        </td>
-      </tr>
+      <PipelineRowContainer>
+        <span>{pipeline.name}</span>
+        <ActionButtons>{this.renderExtraLinks()}</ActionButtons>
+      </PipelineRowContainer>
     );
   }
 }
