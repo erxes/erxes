@@ -18,7 +18,13 @@ class Pipelines extends Component {
 
     this.onChangePipelines = this.onChangePipelines.bind(this);
 
-    this.state = { pipelines: [...props.pipelines] };
+    this.state = { pipelines: props.pipelines };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.pipelines !== this.props.pipelines) {
+      this.setState({ pipelines: nextProps.pipelines });
+    }
   }
 
   onChangePipelines(pipelines) {
