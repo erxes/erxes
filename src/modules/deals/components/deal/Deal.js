@@ -44,28 +44,6 @@ class Deal extends React.Component {
     });
   }
 
-  renderProducts(products) {
-    return <ItemCounter items={products} />;
-  }
-
-  renderUsers(users) {
-    return <UserCounter users={users} />;
-  }
-
-  renderAmount(amount) {
-    if (Object.keys(amount).length === 0) return null;
-
-    return (
-      <DealAmount>
-        {Object.keys(amount).map(key => (
-          <p key={key}>
-            {amount[key].toLocaleString()} <span>{key}</span>
-          </p>
-        ))}
-      </DealAmount>
-    );
-  }
-
   render() {
     const { deal, saveDeal, removeDeal, moveDeal, index } = this.props;
 

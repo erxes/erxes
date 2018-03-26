@@ -2,36 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
 import { EmptyState } from 'modules/common/components';
-import { DealSectionContainer, DealContainer, DealAmount } from '../../styles';
-import { ItemCounter, UserCounter, CommonDeal } from '../';
+import { DealSectionContainer, DealContainer } from '../../styles';
+import { CommonDeal } from '../';
 
 const propTypes = {
   deals: PropTypes.array.isRequired
 };
 
 class DealSection extends React.Component {
-  renderProducts(products) {
-    return <ItemCounter items={products} />;
-  }
-
-  renderUsers(users) {
-    return <UserCounter users={users} />;
-  }
-
-  renderAmount(amount) {
-    if (Object.keys(amount).length === 0) return null;
-
-    return (
-      <DealAmount>
-        {Object.keys(amount).map(key => (
-          <p key={key}>
-            {amount[key].toLocaleString()} <span>{key}</span>
-          </p>
-        ))}
-      </DealAmount>
-    );
-  }
-
   render() {
     const { Section } = Sidebar;
     const { Title } = Sidebar.Section;

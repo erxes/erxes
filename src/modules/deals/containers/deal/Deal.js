@@ -37,7 +37,8 @@ export default compose(
     options: ({ dealId }) => ({
       variables: {
         _id: dealId
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   })
 )(DealContainer);
