@@ -76,8 +76,11 @@ class Deal extends React.Component {
             >
               <CommonDeal deal={deal} />
 
-              <DealContainerHover innerRef={el => (this.hover = el)}>
-                <div onClick={this.showQuickEditForm}>
+              <DealContainerHover
+                innerRef={el => (this.hover = el)}
+                onClick={this.showQuickEditForm}
+              >
+                <div>
                   <Icon icon="edit" />
                 </div>
               </DealContainerHover>

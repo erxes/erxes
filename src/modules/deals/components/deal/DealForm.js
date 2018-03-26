@@ -97,10 +97,12 @@ class DealForm extends React.Component {
 
     productsData.forEach(data => {
       // products
-      if (data.product && data.currency && data.quantity && data.unitPrice) {
-        // calculating deal amount
-        if (!amount[data.currency]) amount[data.currency] = data.amount;
-        else amount[data.currency] += data.amount;
+      if (data.product) {
+        if (data.currency) {
+          // calculating deal amount
+          if (!amount[data.currency]) amount[data.currency] = data.amount || 0;
+          else amount[data.currency] += data.amount || 0;
+        }
 
         // collecting data for ItemCounter component
         products.push(data.product);

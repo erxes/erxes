@@ -226,7 +226,7 @@ const DealDate = styled.span`
   font-size: 12px;
 `;
 
-const DealProduct = styled.div`
+const DealItemCounter = styled.div`
   width: 70%;
 `;
 
@@ -466,7 +466,7 @@ export {
   DealSectionContainer,
   DealContainerHover,
   DealDate,
-  DealProduct,
+  DealItemCounter,
   DealAmount,
   DealFormAmount,
   ItemCounterContainer,

@@ -20,13 +20,6 @@ const propTypes = {
 };
 
 class Board extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.renderBoard = this.renderBoard.bind(this);
-    this.renderPipeline = this.renderPipeline.bind(this);
-  }
-
   renderBoard() {
     const { currentBoard, boards } = this.props;
 

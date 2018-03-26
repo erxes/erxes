@@ -69,7 +69,7 @@ class Stage extends React.Component {
 
     return (
       <AddNewDeal onClick={this.showForm.bind(this)}>
-        <Icon icon="plus" /> {__('Add new deal')}
+        <Icon icon="plus" /> {__('Add a deal')}
       </AddNewDeal>
     );
   }

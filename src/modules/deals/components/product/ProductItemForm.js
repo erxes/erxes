@@ -119,7 +119,8 @@ class ProductItemForm extends React.Component {
         <td>
           <FormControl
             value={productData.unitPrice}
-            placeholder="Unit price"
+            type="number"
+            placeholder="0"
             name="unitPrice"
             onChange={e => this.props.onChangeInput(productData._id, e)}
           />
@@ -129,7 +130,7 @@ class ProductItemForm extends React.Component {
             type="number"
             min="0"
             max="100"
-            placeholder="Discount percent"
+            placeholder="0"
             name="discountPercent"
             onChange={e => this.props.onChangeInput(productData._id, e)}
           />
@@ -139,7 +140,7 @@ class ProductItemForm extends React.Component {
             type="number"
             min="0"
             max="100"
-            placeholder="Tax percent"
+            placeholder="0"
             name="taxPercent"
             onChange={e => this.props.onChangeInput(productData._id, e)}
           />
@@ -154,7 +155,8 @@ class ProductItemForm extends React.Component {
 
           <FormControl
             value={productData.discount}
-            placeholder="Discount amount"
+            type="number"
+            placeholder="0"
             name="discount"
             onChange={e => this.props.onChangeInput(productData._id, e)}
           />

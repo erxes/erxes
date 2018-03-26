@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { DealProduct, DealDate, DealAmount } from '../../styles';
+import { DealItemCounter, DealDate, DealAmount } from '../../styles';
 import { ItemCounter, UserCounter } from '../';
 
 const propTypes = {
@@ -9,14 +9,6 @@ const propTypes = {
 };
 
 class Deal extends React.Component {
-  renderProducts(products) {
-    return <ItemCounter items={products} />;
-  }
-
-  renderUsers(users) {
-    return <UserCounter users={users} />;
-  }
-
   renderAmount(amount) {
     if (Object.keys(amount).length === 0) return null;
 
@@ -33,18 +25,27 @@ class Deal extends React.Component {
 
   render() {
     const { deal } = this.props;
+    const products = deal.products.map(p => p.product);
 
     return (
       <div>
         <DealDate>{moment(deal.closeDate).format('YYYY-MM-DD')}</DealDate>
 
-        <DealProduct>
-          {this.renderProducts(deal.products.map(p => p.product))}
-        </DealProduct>
+        <DealItemCounter>
+          <ItemCounter items={products} />
+        </DealItemCounter>
+
+        <DealItemCounter>
+          <ItemCounter items={deal.companies || []} />
+        </DealItemCounter>
+
+        <DealItemCounter>
+          <ItemCounter items={deal.customers || []} />
+        </DealItemCounter>
 
         {this.renderAmount(deal.amount || {})}
 
-        {this.renderUsers(deal.assignedUsers || [])}
+        <UserCounter users={deal.assignedUsers || []} />
       </div>
     );
   }
