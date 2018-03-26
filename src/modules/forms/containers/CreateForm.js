@@ -1,21 +1,19 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withRouter } from 'react-router';
-import queryString from 'query-string';
 import { Alert } from 'modules/common/utils';
-import { Bulk } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { Form } from '../components';
 
-class CreateFormContainer extends Bulk {
+class CreateFormContainer extends Component {
   render() {
     const {
       brandsQuery,
-      addMutation,
+      addIntegrationMutation,
       addFormMutation,
-      fieldsAddMutation,
+      addFieldsMutation,
       history
     } = this.props;
 
@@ -25,28 +23,28 @@ class CreateFormContainer extends Bulk {
 
     const brands = brandsQuery.brands || [];
 
-    const doMutation = (formMutation, mutation, fieldMutation, variables) => {
+    const save = doc => {
       let formId = '';
 
-      const { form, brandId, name, languageCode, formData, fields } = variables;
+      const { form, brandId, name, languageCode, formData, fields } = doc;
 
-      formMutation({
+      addFormMutation({
         variables: form
       })
-        .then(() => {
-          return mutation({
+        .then(({ data }) => {
+          formId = data.formsAdd._id;
+
+          return addIntegrationMutation({
             variables: { formData, brandId, name, languageCode, formId }
           });
         })
 
-        .then(({ data }) => {
-          formId = data.formsAdd._id;
-
+        .then(() => {
           const promises = [];
 
           for (const field of fields) {
             promises.push(
-              fieldMutation({
+              addFieldsMutation({
                 variables: {
                   contentType: 'form',
                   contentTypeId: formId,
@@ -69,11 +67,6 @@ class CreateFormContainer extends Bulk {
         });
     };
 
-    // save
-    const save = doc => {
-      return doMutation(addFormMutation, addMutation, fieldsAddMutation, doc);
-    };
-
     const updatedProps = {
       ...this.props,
       brands,
@@ -86,9 +79,9 @@ class CreateFormContainer extends Bulk {
 
 CreateFormContainer.propTypes = {
   brandsQuery: PropTypes.object,
-  addMutation: PropTypes.func,
+  addIntegrationMutation: PropTypes.func,
   addFormMutation: PropTypes.func,
-  fieldsAddMutation: PropTypes.func,
+  addFieldsMutation: PropTypes.func,
   location: PropTypes.object,
   history: PropTypes.object
 };
@@ -101,13 +94,13 @@ const CreateFormWithData = compose(
     })
   }),
   graphql(gql(mutations.integrationsCreateFormIntegration), {
-    name: 'addMutation'
+    name: 'addIntegrationMutation'
   }),
   graphql(gql(mutations.addForm), {
     name: 'addFormMutation'
   }),
   graphql(gql(mutations.fieldsAdd), {
-    name: 'fieldsAddMutation'
+    name: 'addFieldsMutation'
   })
 )(CreateFormContainer);
 

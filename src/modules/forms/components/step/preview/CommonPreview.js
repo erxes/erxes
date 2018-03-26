@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'modules/common/components';
 import { FormPreview } from './';
-import { PopupTitle, PreviewBody, BodyContent } from '../style';
+import { PopupTitle, PreviewBody, BodyContent, PreviewWrapper } from '../style';
 
 const propTypes = {
   calloutTitle: PropTypes.string,
@@ -41,7 +41,7 @@ class CommonPreview extends Component {
     const callout = !(carousel === 'callout');
 
     return (
-      <div>
+      <PreviewWrapper>
         <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
           {success && calloutTitle}
         </PopupTitle>
@@ -81,7 +81,7 @@ class CommonPreview extends Component {
               )}
           </BodyContent>
         </PreviewBody>
-      </div>
+      </PreviewWrapper>
     );
   }
 }

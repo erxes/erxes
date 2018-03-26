@@ -25,6 +25,7 @@ class SuccessStep extends Component {
     };
 
     this.renderPreview = this.renderPreview.bind(this);
+    this.onChangeFunction = this.onChangeFunction.bind(this);
     this.handleSuccessActionChange = this.handleSuccessActionChange.bind(this);
   }
 
@@ -35,44 +36,9 @@ class SuccessStep extends Component {
     this.props.onChange('successAction', value);
   }
 
-  onChangeContent(value) {
-    this.setState({ thankContent: value });
-    this.props.onChange('thankContent', value);
-  }
-
-  onRedirectUrl(value) {
-    this.setState({ redirectUrl: value });
-    this.props.onChange('redirectUrl', value);
-  }
-
-  onFromEmail(value) {
-    this.setState({ fromEmail: value });
-    this.props.onChange('fromEmail', value);
-  }
-
-  onUserEmail(value) {
-    this.setState({ userEmailTitle: value });
-    this.props.onChange('userEmailTitle', value);
-  }
-
-  onEmailContent(value) {
-    this.setState({ userEmailContent: value });
-    this.props.onChange('userEmailContent', value);
-  }
-
-  onAdminEmails(value) {
-    this.setState({ adminEmails: value });
-    this.props.onChange('adminEmails', value);
-  }
-
-  onAdminEmailTitle(value) {
-    this.setState({ adminEmailTitle: value });
-    this.props.onChange('adminEmailTitle', value);
-  }
-
-  onAdminContent(value) {
-    this.setState({ adminEmailContent: value });
-    this.props.onChange('adminEmailContent', value);
+  onChangeFunction(name, value) {
+    this.setState({ [name]: value });
+    this.props.onChange(name, value);
   }
 
   renderEmailFields(formData, __) {
@@ -85,7 +51,7 @@ class SuccessStep extends Component {
               type="text"
               id="fromEmail"
               defaultValue={formData.fromEmail}
-              onChange={e => this.onFromEmail(e.target.value)}
+              onChange={e => this.onChangeFunction('fromEmail', e.target.value)}
             />
           </FormGroup>
 
@@ -95,7 +61,9 @@ class SuccessStep extends Component {
               type="text"
               id="userEmailTitle"
               defaultValue={formData.userEmailTitle}
-              onChange={e => this.onUserEmail(e.target.value)}
+              onChange={e =>
+                this.onChangeFunction('userEmailTitle', e.target.value)
+              }
             />
           </FormGroup>
 
@@ -106,7 +74,9 @@ class SuccessStep extends Component {
               type="text"
               defaultValue={formData.userEmailContent}
               id="userEmailContent"
-              onChange={e => this.onEmailContent(e.target.value)}
+              onChange={e =>
+                this.onChangeFunction('userEmailContent', e.target.value)
+              }
             />
           </FormGroup>
 
@@ -116,7 +86,9 @@ class SuccessStep extends Component {
               type="text"
               defaultValue={formData.adminEmails}
               id="adminEmails"
-              onChange={e => this.onAdminEmails(e.target.value)}
+              onChange={e =>
+                this.onChangeFunction('adminEmails', e.target.value)
+              }
             />
           </FormGroup>
 
@@ -126,7 +98,9 @@ class SuccessStep extends Component {
               type="text"
               defaultValue={formData.adminEmailTitle}
               id="adminEmailTitle"
-              onChange={e => this.onAdminEmailTitle(e.target.value)}
+              onChange={e =>
+                this.onChangeFunction('adminEmailTitle', e.target.value)
+              }
             />
           </FormGroup>
 
@@ -137,7 +111,9 @@ class SuccessStep extends Component {
               type="text"
               defaultValue={formData.adminEmailContent}
               id="adminEmailContent"
-              onChange={e => this.onAdminContent(e.target.value)}
+              onChange={e =>
+                this.onChangeFunction('adminEmailContent', e.target.value)
+              }
             />
           </FormGroup>
         </div>
@@ -155,7 +131,9 @@ class SuccessStep extends Component {
               type="text"
               defaultValue={formData.redirectUrl}
               id="redirectUrl"
-              onChange={e => this.onRedirectUrl(e.target.value)}
+              onChange={e =>
+                this.onChangeFunction('redirectUrl', e.target.value)
+              }
             />
           </FormGroup>
         </div>
@@ -207,9 +185,12 @@ class SuccessStep extends Component {
             type="text"
             componentClass="textarea"
             defaultValue={thankContent}
-            onChange={e => this.onChangeContent(e.target.value)}
+            onChange={e =>
+              this.onChangeFunction('thankContent', e.target.value)
+            }
           />
         </LeftItem>
+
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>
     );

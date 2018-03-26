@@ -79,13 +79,15 @@ class CallOut extends Component {
       logoPreviewStyle: {}
     };
 
+    this.onChangeFunction = this.onChangeFunction.bind(this);
     this.onColorChange = this.onColorChange.bind(this);
-    this.onChangeBody = this.onChangeBody.bind(this);
-    this.onChangeBtn = this.onChangeBtn.bind(this);
-    this.onChangeText = this.onChangeText.bind(this);
-    this.onThemeChange = this.onThemeChange.bind(this);
     this.handleImage = this.handleImage.bind(this);
     this.removeImage = this.removeImage.bind(this);
+  }
+
+  onChangeFunction(name, value) {
+    this.setState({ [name]: value });
+    this.props.onChange(name, value);
   }
 
   onColorChange(e) {
@@ -93,26 +95,6 @@ class CallOut extends Component {
       this.props.onChange('color', e.hex);
       this.props.onChange('theme', '');
     });
-  }
-
-  onChangeText(value) {
-    this.setState({ calloutTitle: value });
-    this.props.onChange('calloutTitle', value);
-  }
-
-  onChangeBody(value) {
-    this.setState({ bodyValue: value });
-    this.props.onChange('bodyValue', value);
-  }
-
-  onThemeChange(value) {
-    this.setState({ theme: value });
-    this.props.onChange('theme', value);
-  }
-
-  onChangeBtn(value) {
-    this.setState({ btnText: value });
-    this.props.onChange('btnText', value);
   }
 
   removeImage(value) {
@@ -162,7 +144,7 @@ class CallOut extends Component {
     return (
       <BackgroundSelector
         selected={this.props.theme === value}
-        onClick={() => this.onThemeChange(value)}
+        onClick={() => this.onChangeFunction('theme', value)}
       >
         <div style={{ backgroundColor: value }} />
       </BackgroundSelector>
@@ -205,7 +187,9 @@ class CallOut extends Component {
             id="callout-title"
             type="text"
             value={this.props.calloutTitle}
-            onChange={e => this.onChangeText(e.target.value)}
+            onChange={e =>
+              this.onChangeFunction('calloutTitle', e.target.value)
+            }
           />
 
           <Title>{__('Callout body')}</Title>
@@ -213,14 +197,14 @@ class CallOut extends Component {
             id="callout-body"
             type="text"
             value={this.props.bodyValue}
-            onChange={e => this.onChangeBody(e.target.value)}
+            onChange={e => this.onChangeFunction('bodyValue', e.target.value)}
           />
 
           <Title>{__('Callout button text')}</Title>
           <FormControl
             id="callout-btn-text"
             value={this.props.btnText}
-            onChange={e => this.onChangeBtn(e.target.value)}
+            onChange={e => this.onChangeFunction('btnText', e.target.value)}
           />
 
           <Title>{__('Theme color')}</Title>

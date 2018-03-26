@@ -218,6 +218,12 @@ const Picker = styled.div`
   height: 15px;
 `;
 
+const PreviewWrapper = styled.div`
+  padding: 0 !important;
+  max-height: 400px;
+  overflow: auto;
+`;
+
 const FormBody = styled.div`
   margin: 20px 0 10px;
 
@@ -522,5 +528,6 @@ export {
   TabletPreview,
   MobilePreview,
   Tabs,
-  CarouselInner
+  CarouselInner,
+  PreviewWrapper
 };

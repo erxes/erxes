@@ -1,20 +1,18 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withRouter } from 'react-router';
-import queryString from 'query-string';
 import { Alert } from 'modules/common/utils';
-import { Bulk } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { Form } from '../components';
 
-class EditFormContainer extends Bulk {
+class EditFormContainer extends Component {
   render() {
     const {
+      formId,
       brandsQuery,
       integrationDetailQuery,
-      formId,
       editIntegrationMutation,
       addFieldMutation,
       editFieldMutation,
@@ -48,12 +46,14 @@ class EditFormContainer extends Bulk {
               brandId,
               name,
               languageCode,
-              formId
+              formId: formId
             }
           })
         )
 
         .then(() => {
+          const promises = [];
+
           const dbFieldIds = dbFields.map(field => field._id);
           const createFieldsData = [];
           const updateFieldsData = [];
@@ -71,16 +71,18 @@ class EditFormContainer extends Bulk {
             // not existing field
             delete field._id;
 
-            createFieldsData.push({
-              ...field,
-              contentType: 'form',
-              contentTypeId: formId
-            });
+            promises.push(
+              createFieldsData.push({
+                ...field,
+                contentType: 'form',
+                contentTypeId: formId
+              })
+            );
           }
 
           for (const dbFieldId of dbFieldIds) {
             if (!existingIds.includes(dbFieldId)) {
-              removeFieldsData.push({ _id: dbFieldId });
+              promises.push(removeFieldsData.push({ _id: dbFieldId }));
             }
           }
 
@@ -98,9 +100,12 @@ class EditFormContainer extends Bulk {
             datas: removeFieldsData,
             mutation: removeFieldMutation
           });
+
+          return Promise.all(promises);
         })
 
         .then(() => {
+          fieldsQuery.refetch();
           Alert.success('Congrats');
           history.push('/forms');
         })
@@ -123,16 +128,20 @@ class EditFormContainer extends Bulk {
 }
 
 EditFormContainer.propTypes = {
-  formId: PropTypes.string,
   fieldsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
   integrationDetailQuery: PropTypes.object,
-  editMutation: PropTypes.func,
-  fieldsAddMutation: PropTypes.func,
-  editFormMutation: PropTypes.func
+  editIntegrationMutation: PropTypes.func,
+  editFormMutation: PropTypes.func,
+  addFieldMutation: PropTypes.func,
+  editFieldMutation: PropTypes.func,
+  removeFieldMutation: PropTypes.func,
+  formId: PropTypes.string,
+  location: PropTypes.object,
+  history: PropTypes.object
 };
 
-const EditFormWithData = compose(
+const EditFormIntegrationContainer = compose(
   graphql(gql(queries.brands), {
     name: 'brandsQuery',
     options: () => ({
@@ -175,17 +184,5 @@ const EditFormWithData = compose(
     name: 'editFormMutation'
   })
 )(EditFormContainer);
-
-const EditFormIntegrationContainer = props => {
-  const queryParams = queryString.parse(props.location.search);
-
-  const extendedProps = { ...props, queryParams };
-  return <EditFormWithData {...extendedProps} />;
-};
-
-EditFormIntegrationContainer.propTypes = {
-  location: PropTypes.object,
-  history: PropTypes.object
-};
 
 export default withRouter(EditFormIntegrationContainer);

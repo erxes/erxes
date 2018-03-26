@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { FormGroup, FormControl, Button } from 'modules/common/components';
 import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 import { FlexItem, LeftItem, Preview, Title } from './style';
 
 const Fields = styled.ul`
@@ -31,14 +31,14 @@ const Footer = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding: 0 20px;
-  background: #fafafa;
-  height: 50px;
-  border-top: 1px solid #eee;
+  padding: 0 ${dimensions.coreSpacing}px;
+  background: ${colors.bgLight};
+  height: ${dimensions.headerSpacing}px;
+  border-top: 1px solid ${colors.borderPrimary};
 
   label {
     margin-bottom: 0;
-    margin-right: 20px;
+    margin-right: ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -68,12 +68,8 @@ class FormStep extends Component {
       editingField: editingFieldDefaultValue
     };
 
+    this.onChangeFunction = this.onChangeFunction.bind(this);
     this.onChangeType = this.onChangeType.bind(this);
-    this.onChangeValidation = this.onChangeValidation.bind(this);
-    this.onChangeText = this.onChangeText.bind(this);
-    this.onChangeDescription = this.onChangeDescription.bind(this);
-    this.onChangeOptions = this.onChangeOptions.bind(this);
-    this.onChangeIsRequired = this.onChangeIsRequired.bind(this);
 
     this.footerActions = this.footerActions.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
@@ -84,25 +80,17 @@ class FormStep extends Component {
     this.setState({ fields: nextProps.fields });
   }
 
-  onFieldEdit(field) {
-    this.setState({ editingField: field });
-  }
-
   onChangeType(e) {
     this.setState({ chosenFieldType: e.target.value });
     this.setChanges('type', e.target.value);
   }
 
-  onChangeValidation(e) {
-    this.setChanges('validation', e.target.value);
+  onFieldEdit(field) {
+    this.setState({ editingField: field });
   }
 
-  onChangeText(e) {
-    this.setChanges('text', e.target.value);
-  }
-
-  onChangeDescription(e) {
-    this.setChanges('description', e.target.value);
+  onChangeFunction(name, value) {
+    this.setChanges(name, value);
   }
 
   onSubmit(e) {
@@ -137,38 +125,15 @@ class FormStep extends Component {
     this.setState({ editingField });
   }
 
-  onChangeOptions(e) {
-    this.setChanges('options', e.target.value.split('\n'));
-  }
-
-  onChangeIsRequired(e) {
-    this.setChanges('isRequired', e.target.checked);
-  }
-
   renderPreview() {
-    const {
-      calloutTitle,
-      bodyValue,
-      btnText,
-      color,
-      theme,
-      image,
-      type,
-      onChange
-    } = this.props;
+    const { type } = this.props;
 
     if (type === 'shoutbox') {
       return (
         <ShoutboxPreview
-          calloutTitle={calloutTitle}
-          bodyValue={bodyValue}
-          btnText={btnText}
-          color={color}
-          theme={theme}
-          image={image}
+          {...this.props}
           fields={this.state.fields}
           onFieldEdit={this.onFieldEdit}
-          onChange={onChange}
         />
       );
     }
@@ -176,30 +141,18 @@ class FormStep extends Component {
     if (type === 'popup') {
       return (
         <PopupPreview
-          calloutTitle={calloutTitle}
-          bodyValue={bodyValue}
-          btnText={btnText}
-          color={color}
-          theme={theme}
-          image={image}
+          {...this.props}
           fields={this.state.fields}
           onFieldEdit={this.onFieldEdit}
-          onChange={onChange}
         />
       );
     }
 
     return (
       <EmbeddedPreview
-        calloutTitle={calloutTitle}
-        bodyValue={bodyValue}
-        btnText={btnText}
-        color={color}
-        theme={theme}
-        image={image}
+        {...this.props}
         fields={this.state.fields}
         onFieldEdit={this.onFieldEdit}
-        onChange={onChange}
       />
     );
   }
@@ -220,7 +173,6 @@ class FormStep extends Component {
         const fields = this.state.fields.filter(field => field._id !== _id);
 
         this.setState({ fields });
-
         reset();
 
         this.props.onChange('fields', fields);
@@ -264,7 +216,7 @@ class FormStep extends Component {
           checked={this.state.editingField.isRequired || false}
           id="isRequired"
           componentClass="checkbox"
-          onChange={this.onChangeIsRequired}
+          onChange={e => this.onChangeFunction('isRequired', e.target.checked)}
         >
           {__('This item is required')}
         </FormControl>
@@ -276,6 +228,7 @@ class FormStep extends Component {
 
   renderOptionsTextArea() {
     const { editingField, chosenFieldType } = this.state;
+    const { __ } = this.context;
 
     if (
       !['select', 'check', 'radio'].includes(
@@ -287,13 +240,15 @@ class FormStep extends Component {
 
     return (
       <FormGroup>
-        <Title htmlFor="type">Options:</Title>
+        <Title htmlFor="type">{__('Options:')}</Title>
 
         <FormControl
           id="options"
           componentClass="textarea"
           value={(editingField.options || []).join('\n')}
-          onChange={this.onChangeOptions}
+          onChange={e =>
+            this.onChangeFunction('options', e.target.value.split('\n'))
+          }
         />
       </FormGroup>
     );
@@ -306,7 +261,7 @@ class FormStep extends Component {
     return (
       <Fields>
         <FormGroup>
-          <Title htmlFor="type">Type:</Title>
+          <Title htmlFor="type">{__('Type:')}</Title>
 
           <FormControl
             id="type"
@@ -327,13 +282,13 @@ class FormStep extends Component {
         </FormGroup>
 
         <FormGroup>
-          <Title htmlFor="validation">Validation:</Title>
+          <Title htmlFor="validation">{__('Validation:')}</Title>
 
           <FormControl
             id="validation"
             componentClass="select"
             value={editingField.validation || ''}
-            onChange={this.onChangeValidation}
+            onChange={e => this.onChangeFunction('validation', e.target.value)}
           >
             <option />
             <option value="email">{__('Email')}</option>
@@ -343,22 +298,22 @@ class FormStep extends Component {
         </FormGroup>
 
         <FormGroup>
-          <Title htmlFor="text">Text:</Title>
+          <Title htmlFor="text">{__('Text:')}</Title>
           <FormControl
             id="text"
             type="text"
             value={editingField.text || ''}
-            onChange={this.onChangeText}
+            onChange={e => this.onChangeFunction('text', e.target.value)}
           />
         </FormGroup>
 
         <FormGroup>
-          <Title htmlFor="description">Description:</Title>
+          <Title htmlFor="description">{__('Description:')}</Title>
           <FormControl
             id="description"
             componentClass="textarea"
             value={editingField.description || ''}
-            onChange={this.onChangeDescription}
+            onChange={e => this.onChangeFunction('description', e.target.value)}
           />
         </FormGroup>
 
@@ -374,6 +329,7 @@ class FormStep extends Component {
           <LeftItem>{this.renderOptions()}</LeftItem>
           {this.footerActions()}
         </FlexColumn>
+
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>
     );

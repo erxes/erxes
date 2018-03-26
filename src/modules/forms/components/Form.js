@@ -85,9 +85,11 @@ class Form extends Component {
   }
 
   renderNextButton() {
+    const { __ } = this.context;
+
     return (
       <Button btnStyle="primary" size="small" onClick={() => this.next(0)}>
-        Next <Icon icon="ios-arrow-forward" />
+        {__('Next')} <Icon icon="ios-arrow-forward" />
       </Button>
     );
   }
@@ -160,7 +162,7 @@ class Form extends Component {
         <Wrapper.Header breadcrumb={breadcrumb} />
 
         <TitleContainer>
-          <div>Title</div>
+          <div>{__('Title')}</div>
           <FormControl
             required
             onChange={e => this.onChange('title', e.target.value)}

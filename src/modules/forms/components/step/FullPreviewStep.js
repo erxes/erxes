@@ -44,12 +44,14 @@ class FullPreviewStep extends Component {
   }
 
   carouseItems(name, value) {
+    const { __ } = this.context;
+
     return (
       <CarouselInner selected={this.props.carousel === value}>
         <li>
           <span onClick={() => this.onChangePreview(value)} />
         </li>
-        <span>{name}</span>
+        <span>{__(name)}</span>
       </CarouselInner>
     );
   }
@@ -108,7 +110,7 @@ class FullPreviewStep extends Component {
           {this.renderResolutionPreview()}
           <CarouselSteps>
             <ol>
-              {this.carouseItems('Callout', 'callout')}
+              {this.carouseItems('CallOut', 'callout')}
               {this.carouseItems('Form', 'form')}
               {this.carouseItems('Success', 'success')}
             </ol>

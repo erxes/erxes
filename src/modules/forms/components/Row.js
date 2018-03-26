@@ -20,7 +20,7 @@ const ActionButtons = styled.div`
 
   * {
     padding: 0;
-    margin-left: 10px;
+    margin-left: 20px;
 
     &:first-child {
       margin-left: 0;
@@ -65,10 +65,12 @@ class Row extends Component {
   }
 
   renderEditAction(integration) {
+    const { __ } = this.context;
+
     return (
       <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
         <Button btnStyle="link">
-          <Tip text="Edit">
+          <Tip text={__('Edit')}>
             <Icon icon="edit" />
           </Tip>
         </Button>
@@ -96,6 +98,7 @@ class Row extends Component {
 
   render() {
     const { integration } = this.props;
+    const { __ } = this.context;
     const form = integration.form || {};
 
     return (
@@ -110,7 +113,7 @@ class Row extends Component {
           <ActionButtons>
             {this.manageAction(integration)}
             {this.renderEditAction(integration)}
-            <Tip text="Delete">
+            <Tip text={__('Delete')}>
               <Button btnStyle="link" onClick={this.remove} icon="close" />
             </Tip>
           </ActionButtons>

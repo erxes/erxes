@@ -24,16 +24,11 @@ class OptionStep extends Component {
     super(props);
 
     this.renderPreview = this.renderPreview.bind(this);
-    this.handleBrandChange = this.handleBrandChange.bind(this);
-    this.onChangeLanguage = this.onChangeLanguage.bind(this);
+    this.onChangeFunction = this.onChangeFunction.bind(this);
   }
 
-  handleBrandChange(value) {
-    this.props.onChange('brand', value);
-  }
-
-  onChangeLanguage(value) {
-    this.props.onChange('language', value);
+  onChangeFunction(name, value) {
+    this.props.onChange(name, value);
   }
 
   renderPreview() {
@@ -62,7 +57,7 @@ class OptionStep extends Component {
             componentClass="select"
             defaultValue={brand._id}
             id="selectBrand"
-            onChange={e => this.handleBrandChange(e.target.value)}
+            onChange={e => this.onChangeFunction('brand', e.target.value)}
           >
             <option />
             {brands &&
@@ -78,13 +73,14 @@ class OptionStep extends Component {
             componentClass="select"
             defaultValue={'en'}
             id="languageCode"
-            onChange={e => this.onChangeLanguage(e.target.value)}
+            onChange={e => this.onChangeFunction('language', e.target.value)}
           >
             <option />
             <option value="mn">Монгол</option>
             <option value="en">English</option>
           </FormControl>
         </LeftItem>
+
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>
     );
