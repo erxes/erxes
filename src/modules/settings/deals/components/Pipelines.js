@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { SortableList } from 'modules/common/components';
 import { PipelineRow } from './';
 import { PipelineContainer } from '../styles';
-import { collectOrders } from '../utils';
+import { collectOrders } from 'modules/deals/utils';
 
 const propTypes = {
   pipelines: PropTypes.array.isRequired,
