@@ -74,7 +74,7 @@ class Form {
       delete doc.fields;
     }
 
-    const form = this.create(doc);
+    const form = await this.create(doc);
 
     for (let field of fields) {
       // Creating field for form
