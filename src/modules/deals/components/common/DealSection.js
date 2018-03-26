@@ -1,16 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { Sidebar } from 'modules/layout/components';
 import { EmptyState } from 'modules/common/components';
-import {
-  DealSectionContainer,
-  DealContainer,
-  DealProduct,
-  DealDate,
-  DealAmount
-} from '../../styles';
-import { ItemCounter, UserCounter } from '../';
+import { DealSectionContainer, DealContainer, DealAmount } from '../../styles';
+import { ItemCounter, UserCounter, CommonDeal } from '../';
 
 const propTypes = {
   deals: PropTypes.array.isRequired
@@ -52,15 +45,7 @@ class DealSection extends React.Component {
         <DealSectionContainer>
           {deals.map((deal, index) => (
             <DealContainer key={index}>
-              <DealDate>{moment(deal.closeDate).format('YYYY-MM-DD')}</DealDate>
-
-              <DealProduct>
-                {this.renderProducts(deal.products.map(p => p.product))}
-              </DealProduct>
-
-              {this.renderAmount(deal.amount || {})}
-
-              {this.renderUsers(deal.assignedUsers || [])}
+              <CommonDeal deal={deal} />
             </DealContainer>
           ))}
 

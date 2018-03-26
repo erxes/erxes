@@ -1,15 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { Draggable } from 'react-beautiful-dnd';
-import { ItemCounter, UserCounter, QuickEdit } from '../';
+import { ItemCounter, UserCounter, QuickEdit, CommonDeal } from '../';
 import { Icon } from 'modules/common/components';
-import {
-  DealContainer,
-  DealContainerHover,
-  DealDate,
-  DealAmount
-} from '../../styles';
+import { DealContainer, DealContainerHover, DealAmount } from '../../styles';
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
@@ -94,37 +88,25 @@ class Deal extends React.Component {
 
     return (
       <Draggable draggableId={deal._id} index={index}>
-        {(provided, snapshot) => {
-          const products = deal.products.map(p => p.product);
+        {(provided, snapshot) => (
+          <div>
+            <DealContainer
+              innerRef={provided.innerRef}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+              isDragging={snapshot.isDragging}
+            >
+              <CommonDeal deal={deal} />
 
-          return (
-            <div>
-              <DealContainer
-                innerRef={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                isDragging={snapshot.isDragging}
-              >
-                <DealDate>
-                  {moment(deal.closeDate).format('YYYY-MM-DD')}
-                </DealDate>
-
-                {this.renderProducts(products)}
-
-                {this.renderAmount(deal.amount || {})}
-
-                {this.renderUsers(deal.assignedUsers || [])}
-
-                <DealContainerHover innerRef={el => (this.hover = el)}>
-                  <div onClick={this.showQuickEditForm}>
-                    <Icon icon="edit" />
-                  </div>
-                </DealContainerHover>
-              </DealContainer>
-              {provided.placeholder}
-            </div>
-          );
-        }}
+              <DealContainerHover innerRef={el => (this.hover = el)}>
+                <div onClick={this.showQuickEditForm}>
+                  <Icon icon="edit" />
+                </div>
+              </DealContainerHover>
+            </DealContainer>
+            {provided.placeholder}
+          </div>
+        )}
       </Draggable>
     );
   }
