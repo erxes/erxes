@@ -108,12 +108,19 @@ class Form {
 
     if (fields) {
       for (let field of fields) {
-        // Cloning id, we wont be editing id of field
-        const _id = field._id;
+        // Updating form fields with the _id
+        if (field._id) {
+          // Cloning id, we wont be editing id of field
+          const _id = field._id;
 
-        delete field._id;
+          delete field._id;
 
-        await Fields.update({ _id }, { ...field });
+          await Fields.update({ _id }, { ...field });
+
+          // Creating new form field if there is no _id defined
+        } else {
+          await Fields.create({ ...field });
+        }
       }
     }
 
