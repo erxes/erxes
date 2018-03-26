@@ -11,7 +11,7 @@ const propTypes = {
   customer: PropTypes.object.isRequired
 };
 
-function CompaniySection({ customer }, { __ }) {
+function CompanySection({ customer }, { __ }) {
   const { Section } = Sidebar;
   const { Title } = Sidebar.Section;
   const companies = customer.companies || [];
@@ -51,9 +51,9 @@ function CompaniySection({ customer }, { __ }) {
   );
 }
 
-CompaniySection.propTypes = propTypes;
-CompaniySection.contextTypes = {
+CompanySection.propTypes = propTypes;
+CompanySection.contextTypes = {
   __: PropTypes.func
 };
 
-export default CompaniySection;
+export default CompanySection;

@@ -9,6 +9,7 @@ import ProductForm from './product/ProductForm';
 import ProductItemForm from './product/ProductItemForm';
 import ItemCounter from './common/ItemCounter';
 import UserCounter from './common/UserCounter';
+import DealSection from './common/DealSection';
 
 export {
   Board,
@@ -21,5 +22,6 @@ export {
   UserCounter,
   DealMoveForm,
   ProductForm,
-  ProductItemForm
+  ProductItemForm,
+  DealSection
 };

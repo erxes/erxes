@@ -9,11 +9,13 @@ import {
   Icon
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
-import { EditInformation } from 'modules/customers/containers';
-import { CompanySection } from 'modules/customers/components';
 import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
-import { hasAnyActivity } from 'modules/customers/utils';
+import { renderFullName } from 'modules/common/utils';
+import { DealSection } from 'modules/deals/components';
+import { EditInformation } from '../../containers';
+import { CompanySection } from '../';
+import { hasAnyActivity } from '../../utils';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -81,7 +83,7 @@ class CustomerDetails extends React.Component {
 
     const breadcrumb = [
       { title: __('Customers'), link: '/customers' },
-      { title: customer.name || customer.email || 'N/A' }
+      { title: renderFullName(customer) }
     ];
 
     const content = (
@@ -124,6 +126,7 @@ class CustomerDetails extends React.Component {
     const rightSidebar = (
       <Sidebar>
         <CompanySection customer={customer} />
+        <DealSection deals={customer.deals || []} />
       </Sidebar>
     );
 

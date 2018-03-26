@@ -136,6 +136,29 @@ const customerDetail = `
         }
         readUserIds
       }
+      deals {
+        _id
+        companies {
+          _id
+          name
+        }
+        customers {
+          _id
+          firstName
+          email
+        }
+        products
+        amount
+        closeDate
+        assignedUsers {
+          _id
+          email
+          details {
+            fullName
+            avatar
+          }
+        }
+      }
     }
   }
 `;

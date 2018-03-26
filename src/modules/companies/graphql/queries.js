@@ -90,13 +90,35 @@ export const companyDetail = `
   query companyDetail($_id: String!) {
     companyDetail(_id: $_id) {
       ${companyFields}
-
       customers {
         _id
         firstName
         lastName
         email
         phone
+      }
+      deals {
+        _id
+        companies {
+          _id
+          name
+        }
+        customers {
+          _id
+          firstName
+          email
+        }
+        products
+        amount
+        closeDate
+        assignedUsers {
+          _id
+          email
+          details {
+            fullName
+            avatar
+          }
+        }
       }
     }
   }

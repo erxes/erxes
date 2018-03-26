@@ -103,7 +103,7 @@ class Board extends React.Component {
               linkUrl="/settings/deals"
               linkText="Create one"
               size="full"
-              text="There is no board."
+              text="There is no board"
               image="/images/robots/robot-05.svg"
             />
           }

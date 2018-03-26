@@ -209,10 +209,25 @@ const DealContainer = styled.div`
   }
 `;
 
+const DealSectionContainer = styled.div`
+  ${DealContainer} {
+    background: none;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 0;
+    margin: 0;
+  }
+`;
+
 const DealDate = styled.span`
   position: absolute;
   right: 15px;
   font-size: 12px;
+`;
+
+const DealProduct = styled.div`
+  width: 70%;
 `;
 
 const ItemCounterContainer = styled.ul`
@@ -448,8 +463,10 @@ export {
   StageDropZone,
   AddNewDeal,
   DealContainer,
+  DealSectionContainer,
   DealContainerHover,
   DealDate,
+  DealProduct,
   DealAmount,
   DealFormAmount,
   ItemCounterContainer,
