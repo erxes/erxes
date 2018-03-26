@@ -2,11 +2,15 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Button, Icon, FormControl } from 'modules/common/components';
+import {
+  Button,
+  Icon,
+  FormControl,
+  Step,
+  Steps
+} from 'modules/common/components';
 import {
   ChooseType,
-  Steps,
-  Step,
   CallOut,
   SuccessStep,
   OptionStep,

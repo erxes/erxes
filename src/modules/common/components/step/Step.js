@@ -9,7 +9,7 @@ import {
   StepHeaderTitle,
   StepContent,
   ShortStep
-} from './style';
+} from './styles';
 
 const propTypes = {
   stepNumber: PropTypes.number,
