@@ -112,6 +112,7 @@ const sendViaEmail = async message => {
     // send email =========
     const transporter = await createTransporter();
 
+    console.log('creating transporter in engageUtils', userEmail, customer.email);
     transporter.sendMail(
       {
         from: userEmail,
@@ -120,7 +121,10 @@ const sendViaEmail = async message => {
         html: replacedContent,
       },
       /* istanbul ignore next */
-      error => sendEmailCb(message._id, mailMessageId, error),
+      error => {
+        console.log('showing error', error);
+        sendEmailCb(message._id, mailMessageId, error);
+      },
     );
   }
 };
