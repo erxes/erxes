@@ -37,8 +37,8 @@ class ListContainer extends React.Component {
 
     const updatedProps = {
       ...this.props,
-      currencies: currencies ? currencies.value : ['MNT', 'USD'],
-      uom: uom ? uom.value : ['PC', 'H'],
+      currencies: currencies ? currencies.value : [],
+      uom: uom ? uom.value : [],
       save
     };
 
