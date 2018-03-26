@@ -16,10 +16,12 @@ export default {
       const product = await Products.findOne({ _id: data.productId });
 
       // Add product object to resulting list
-      products.push({
-        ...data.toJSON(),
-        product: product.toJSON(),
-      });
+      if (data && product) {
+        products.push({
+          ...data.toJSON(),
+          product: product.toJSON(),
+        });
+      }
     }
 
     return products;
