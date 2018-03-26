@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
-import { ItemCounter, UserCounter, QuickEdit, CommonDeal } from '../';
+import { QuickEdit, CommonDeal } from '../';
 import { Icon } from 'modules/common/components';
-import { DealContainer, DealContainerHover, DealAmount } from '../../styles';
+import { DealContainer, DealContainerHover } from '../../styles';
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
