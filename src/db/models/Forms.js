@@ -50,7 +50,6 @@ class Form {
    * @param {string} doc.buttonText - Form submit button text
    * @param {string} doc.themeColor - Form theme color
    * @param {string} doc.featuredImage - Form featured image
-   * @param {Object[]} doc.fields - Form fields to be created with
    * @param {Date} doc.createdDate - Form creation date
    * @param {Object|string} createdUser - The user who is creating this form,
    * can be both user id or user object
@@ -66,22 +65,7 @@ class Form {
     doc.createdDate = new Date();
     doc.createdUserId = createdUserId;
 
-    // Cloning fields we need it to create fields
-    const fields = doc.fields || [];
-
-    // Deleting fields, we wont create form with fields property
-    if (doc.fields) {
-      delete doc.fields;
-    }
-
-    const form = await this.create(doc);
-
-    for (let field of fields) {
-      // Creating field for form
-      Fields.create({ ...field, contentType: FIELD_CONTENT_TYPES.FORM, contentTypeId: form._id });
-    }
-
-    return form;
+    return this.create(doc);
   }
 
   /**
@@ -93,40 +77,14 @@ class Form {
    * @param {string} object.buttonText - Form submit button text
    * @param {string} object.themeColor - Form theme color
    * @param {string} object.featuredImage - Form featured image
-   * @param {Object[]} object.fields - Form fields
    * @return {Promise} returns Promise resolving updated Form document
    */
-  static async updateForm(
-    _id,
-    { title, description, buttonText, themeColor, featuredImage, fields },
-  ) {
+  static async updateForm(_id, { title, description, buttonText, themeColor, featuredImage }) {
     await this.update(
       { _id },
       { $set: { title, description, buttonText, themeColor, featuredImage } },
       { runValidators: true },
     );
-
-    if (fields) {
-      for (let field of fields) {
-        // Updating form fields with the _id
-        if (field._id) {
-          // Cloning id, we wont be editing id of field
-          const _id = field._id;
-
-          delete field._id;
-
-          await Fields.update({ _id }, { ...field });
-
-          // Creating new form field if there is no _id defined
-        } else {
-          await Fields.create({
-            ...field,
-            contentType: FIELD_CONTENT_TYPES.FORM,
-            contentTypeId: _id,
-          });
-        }
-      }
-    }
 
     return this.findOne({ _id });
   }

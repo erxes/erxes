@@ -20,7 +20,6 @@ const commonFields = `
   buttonText: String,
   themeColor: String,
   featuredImage: String,
-  fields: [JSON]
 `;
 
 export const mutations = `
