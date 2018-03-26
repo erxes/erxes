@@ -1,14 +1,13 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { keyframes } from 'styled-components';
-import { Button } from 'modules/common/components';
+import CommonPreview from './CommonPreview';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import {
   WidgetPreviewStyled,
   LogoContainer,
   LogoSpan
 } from 'modules/settings/styles';
-import { PopupTitle, PreviewBody, BodyContent } from '../style';
 
 const slideright = keyframes`
   0% {
@@ -46,71 +45,20 @@ const Widget = Messenger.extend`
 `;
 
 const propTypes = {
-  calloutTitle: PropTypes.string,
-  bodyValue: PropTypes.string,
-  btnText: PropTypes.string,
-  color: PropTypes.string,
-  theme: PropTypes.string,
-  image: PropTypes.string,
-  thankContent: PropTypes.string,
   preview: PropTypes.string,
-  carousel: PropTypes.string,
-  fields: PropTypes.array, // eslint-disable-line
-  onFieldEdit: PropTypes.func,
-  onSort: PropTypes.func,
-  onChange: PropTypes.func
+  theme: PropTypes.string,
+  color: PropTypes.string
 };
 
-class ShoutboxPreview extends Component {
+class ShoutboxPreview extends CommonPreview {
   render() {
-    const {
-      theme,
-      color,
-      calloutTitle,
-      bodyValue,
-      btnText,
-      image,
-      fields,
-      onFieldEdit,
-      onSort,
-      thankContent,
-      preview,
-      carousel,
-      onChange
-    } = this.props;
-
-    const success = !(carousel === 'success');
-    const form = !(carousel === 'form');
-    const callout = !(carousel === 'callout');
+    const { preview, theme, color } = this.props;
 
     return (
       <ShoutBox data={preview}>
         <Widget>
           <WidgetPreview className="engage-message type-default">
-            <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
-              {success && calloutTitle}
-            </PopupTitle>
-            <PreviewBody>
-              {image &&
-                success && (
-                  <div>
-                    <img src={image} alt="eee" />
-                  </div>
-                )}
-              <BodyContent>
-                {success && bodyValue}
-                {thankContent && callout && form && thankContent}
-                {btnText &&
-                  success && (
-                    <Button
-                      btnStyle="primary"
-                      style={{ backgroundColor: theme ? theme : color }}
-                    >
-                      {btnText}
-                    </Button>
-                  )}
-              </BodyContent>
-            </PreviewBody>
+            {this.renderContent()}
           </WidgetPreview>
           <LogoContainer style={{ backgroundColor: theme ? theme : color }}>
             <LogoSpan>1</LogoSpan>
@@ -122,8 +70,5 @@ class ShoutboxPreview extends Component {
 }
 
 ShoutboxPreview.propTypes = propTypes;
-ShoutboxPreview.contextTypes = {
-  __: PropTypes.func
-};
 
 export default ShoutboxPreview;

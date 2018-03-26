@@ -45,6 +45,7 @@ class CommonPreview extends Component {
         <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
           {success && calloutTitle}
         </PopupTitle>
+
         <PreviewBody embedded="embedded">
           {image &&
             success && (
@@ -52,8 +53,10 @@ class CommonPreview extends Component {
                 <img src={image} alt="eee" />
               </div>
             )}
+
           <BodyContent>
             {success && bodyValue}
+
             {fields &&
               callout &&
               success && (
@@ -64,7 +67,9 @@ class CommonPreview extends Component {
                   onChange={onChange}
                 />
               )}
+
             {thankContent && callout && form && thankContent}
+
             {btnText &&
               success && (
                 <Button
