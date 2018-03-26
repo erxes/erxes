@@ -184,7 +184,7 @@ const DealContainerHover = styled.div`
 
   > div {
     position: absolute;
-    top: 30px;
+    top: 10px;
     right: 15px;
     font-size: 15px;
     cursor: pointer;

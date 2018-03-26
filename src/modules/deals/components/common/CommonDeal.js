@@ -9,6 +9,12 @@ const propTypes = {
 };
 
 class Deal extends React.Component {
+  renderDate(closeDate) {
+    if (!closeDate) return null;
+
+    return <DealDate>{moment(closeDate).format('YYYY-MM-DD')}</DealDate>;
+  }
+
   renderAmount(amount) {
     if (Object.keys(amount).length === 0) return null;
 
@@ -29,11 +35,7 @@ class Deal extends React.Component {
 
     return (
       <div>
-        <DealDate>{moment(deal.closeDate).format('YYYY-MM-DD')}</DealDate>
-
-        <DealItemCounter>
-          <ItemCounter items={products} />
-        </DealItemCounter>
+        {this.renderDate(deal.closeDate)}
 
         <DealItemCounter>
           <ItemCounter items={deal.companies || []} />
@@ -41,6 +43,10 @@ class Deal extends React.Component {
 
         <DealItemCounter>
           <ItemCounter items={deal.customers || []} />
+        </DealItemCounter>
+
+        <DealItemCounter>
+          <ItemCounter items={products} />
         </DealItemCounter>
 
         {this.renderAmount(deal.amount || {})}

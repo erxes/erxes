@@ -45,6 +45,9 @@ class ProductForm extends React.Component {
 
   componentDidMount() {
     this.updateTotal();
+
+    // initial product item
+    this.addProductItem();
   }
 
   addProductItem() {
