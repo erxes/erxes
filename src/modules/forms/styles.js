@@ -11,12 +11,12 @@ const StepWrapper = styled.div`
 const TitleContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 5px;
-  padding: 10px 20px;
+  margin-bottom: ${dimensions.unitSpacing / 2}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
 
   > *:nth-child(n + 2) {
-    margin-left: 10px;
+    margin-left: ${dimensions.unitSpacing}px;
   }
 `;
 

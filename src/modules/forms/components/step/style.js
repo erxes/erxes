@@ -59,7 +59,7 @@ const StepImg = styled.div`
 `;
 
 const StepHeaderTitle = styled.div`
-  margin-left: 10px;
+  margin-left: ${dimensions.unitSpacing}px;
 `;
 
 const StepContent = styled.div`
@@ -75,12 +75,12 @@ const ShortStep = styled.div`
   cursor: pointer;
   display: ${props => (props.show ? 'flex' : 'none')};
   align-items: center;
-  padding: 10px 0;
+  padding: ${dimensions.unitSpacing}px 0;
   flex-direction: column;
 `;
 
 const StepStatus = styled.div`
-  margin-top: 20px;
+  margin-top: ${dimensions.coreSpacing}px;
 `;
 
 const FlexItem = styled.div`
@@ -108,7 +108,7 @@ const Preview = styled.div`
 
 const Title = styled.label`
   display: block;
-  margin: 20px 0 10px;
+  margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;
 `;
 
 const CenterContainer = styled.div`
@@ -125,14 +125,14 @@ const CenterContainer = styled.div`
 
 const Embedded = styled.div`
   flex: 1;
-  margin: 20px;
-  padding: 5px;
-  box-shadow: 0 0 10px #edf1f5 inset;
+  margin: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing / 2}px;
+  box-shadow: 0 0 ${dimensions.unitSpacing}px ${colors.bgMain} inset;
 `;
 
 const FormContainer = styled.div`
   display: block;
-  border-radius: 5px;
+  border-radius: ${dimensions.unitSpacing / 2}px;
   background-color: ${colors.colorWhite};
   margin: auto;
   width: 60%;
@@ -143,28 +143,28 @@ const FormContainer = styled.div`
 `;
 
 const PopupTitle = styled.div`
-  padding: 20px;
+  padding: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorSecondary};
   color: ${colors.colorWhite};
   text-align: center;
 `;
 
 const PreviewBody = styled.div`
-  padding: 20px;
+  padding: ${dimensions.coreSpacing}px;
   color: ${colors.textPrimary};
   display: flex;
   overflow: auto;
   max-height: ${props => (props.embedded ? '500px' : '300px')};
-  background: #fafafa;
+  background: ${colors.bgLight};
 
   img {
     max-width: 100px;
-    margin-right: 10px;
+    margin-right: ${dimensions.unitSpacing}px;
   }
 
   button {
     width: 100%;
-    margin: 20px 0;
+    margin: ${dimensions.coreSpacing}px 0;
   }
 `;
 
@@ -174,25 +174,25 @@ const BodyContent = styled.div`
 
 const BodyText = styled.span`
   display: block;
-  margin-bottom: 20px;
+  margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
 const BackgroundSelector = styled.li`
   display: inline-block;
   cursor: pointer;
-  margin-left: 10px;
+  margin-left: ${dimensions.unitSpacing}px;
   border-radius: 50%;
   border: 1px solid
     ${props => (props.selected ? colors.colorPrimary : 'transparent')};
 
   > div {
-    height: 30px;
-    width: 30px;
-    margin: 5px;
-    background: #eee;
+    height: ${dimensions.headerSpacing - 20}px;
+    width: ${dimensions.headerSpacing - 20}px;
+    margin: ${dimensions.unitSpacing / 2}px;
+    background: ${colors.borderPrimary};
     border-radius: 50%;
-    line-height: 30px;
-    border: 1px solid #edf1f5;
+    line-height: ${dimensions.headerSpacing - 20}px;
+    border: 1px solid ${colors.bgMain};
   }
 
   &:first-child {
@@ -207,10 +207,10 @@ const ColorPick = styled.ul`
 const ColorPicker = styled.div`
   border-radius: 4px;
   display: inline-block;
-  padding: 5px;
+  padding: ${dimensions.unitSpacing / 2}px;
   border: 1px solid ${colors.colorShadowGray};
   cursor: pointer;
-  margin: 0 20px 5px;
+  margin: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing / 2}px;
 `;
 
 const Picker = styled.div`
@@ -225,21 +225,21 @@ const PreviewWrapper = styled.div`
 `;
 
 const FormBody = styled.div`
-  margin: 20px 0 10px;
+  margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;
 
   input {
     width: 100%;
     border-radius: 4px;
     display: block;
-    border: 1px solid #ddd;
+    border: 1px solid ${colors.colorShadowGray};
     padding: 6px 12px;
     outline: 0;
   }
 `;
 
 const FieldTitle = styled.div`
-  color: #333;
-  padding-bottom: 10px;
+  color: ${colors.colorCoreDarkGray};
+  padding-bottom: ${dimensions.unitSpacing}px;
   text-transform: capitalize;
 `;
 
@@ -255,14 +255,14 @@ const OverlayTrigger = styled.div`
 const DragHandler = styled.span`
   cursor: move;
   position: absolute;
-  top: 5px;
-  right: 10px;
+  top: ${dimensions.unitSpacing / 2}px;
+  right: ${dimensions.unitSpacing}px;
   z-index: 10;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 30px;
-  height: 30px;
+  width: ${dimensions.headerSpacing - 20}px;
+  height: ${dimensions.headerSpacing - 20}px;
   border-radius: 4px;
   opacity: 1;
   visibility: visible;
@@ -279,7 +279,7 @@ const DragHandler = styled.span`
 const DragableItem = styled.div`
   position: relative;
   z-index: 100;
-  box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px ${dimensions.unitSpacing}px -3px rgba(0, 0, 0, 0.5);
   background-color: ${colors.bgLight};
 
   &:hover ${DragHandler} {
@@ -289,7 +289,7 @@ const DragableItem = styled.div`
 `;
 
 const PreviewForm = styled.div`
-  margin-top: 20px;
+  margin-top: ${dimensions.coreSpacing}px;
   overflow: hidden;
 
   ${DragableItem} {
@@ -303,7 +303,7 @@ const PreviewForm = styled.div`
 `;
 
 const FieldItem = styled.div`
-  padding: 10px;
+  padding: ${dimensions.unitSpacing}px;
 
   &:hover {
     cursor: pointer;
@@ -320,7 +320,7 @@ const FieldItem = styled.div`
     padding: 8px 14px;
     width: 100%;
     background: ${colors.colorWhite};
-    margin-top: 10px;
+    margin-top: ${dimensions.unitSpacing}px;
 
     &:focus {
       box-shadow: none;
@@ -359,10 +359,10 @@ const CarouselInner = styled.div`
     display: flex;
     flex: 1;
     justify-content: center;
-    padding: 20px 0;
+    padding: ${dimensions.coreSpacing}px 0;
 
     span {
-      padding: 10px;
+      padding: ${dimensions.unitSpacing}px;
       border-radius: 50%;
       background-color: rgb(255, 255, 255);
       border: 2px solid
@@ -420,13 +420,13 @@ const CarouselSteps = styled.div`
 
 const MarkdownWrapper = styled.div`
   position: relative;
-  background: #fafafa;
-  border: 1px solid #ddd;
+  background: ${colors.bgLight};
+  border: 1px solid ${colors.colorShadowGray};
 `;
 
 const Tabs = styled.div`
-  padding: 5px 20px;
-  border-radius: 5px;
+  padding: ${dimensions.unitSpacing / 2}px ${dimensions.coreSpacing}px;
+  border-radius: ${dimensions.unitSpacing / 2}px;
   background-color: ${props =>
     props.selected
       ? rgba(colors.colorPrimaryDark, 0.8)
@@ -460,7 +460,7 @@ const Tabs = styled.div`
 `;
 
 const ResolutionTabs = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: ${dimensions.coreSpacing}px;
   display: -webkit-inline-box;
 `;
 
@@ -468,9 +468,9 @@ const DesktopPreview = styled.div`
   background: url('/images/previews/desktop.png') no-repeat;
   background-size: 100% 100%;
   border: 1px solid ${colors.borderPrimary};
-  border-radius: 5px;
+  border-radius: ${dimensions.unitSpacing / 2}px;
   flex: 1;
-  padding-top: 30px;
+  padding-top: ${dimensions.headerSpacing - 20}px;
 `;
 
 const TabletPreview = styled.div`
@@ -478,14 +478,14 @@ const TabletPreview = styled.div`
   width: 768px;
   height: 1024px;
   margin: 0 auto;
-  padding: 80px 20px;
+  padding: 80px ${dimensions.coreSpacing}px;
 `;
 
 const MobilePreview = styled.div`
   background: url('/images/previews/mobile.png') no-repeat;
   width: 376px;
   margin: 0 auto;
-  padding: 90px 20px;
+  padding: 90px ${dimensions.coreSpacing}px;
 `;
 
 export {
