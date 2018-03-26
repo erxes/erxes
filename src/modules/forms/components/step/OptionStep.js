@@ -37,61 +37,17 @@ class OptionStep extends Component {
   }
 
   renderPreview() {
-    const {
-      calloutTitle,
-      bodyValue,
-      btnText,
-      color,
-      theme,
-      image,
-      type,
-      fields,
-      onChange,
-      onFieldEdit
-    } = this.props;
+    const { type } = this.props;
 
     if (type === 'shoutbox') {
-      return (
-        <ShoutboxPreview
-          calloutTitle={calloutTitle}
-          bodyValue={bodyValue}
-          btnText={btnText}
-          color={color}
-          theme={theme}
-          image={image}
-          fields={fields}
-          onChange={onChange}
-          onFieldEdit={onFieldEdit}
-        />
-      );
-    } else if (type === 'popup') {
-      return (
-        <PopupPreview
-          calloutTitle={calloutTitle}
-          bodyValue={bodyValue}
-          btnText={btnText}
-          color={color}
-          theme={theme}
-          image={image}
-          fields={fields}
-          onChange={onChange}
-          onFieldEdit={onFieldEdit}
-        />
-      );
+      return <ShoutboxPreview {...this.props} />;
     }
-    return (
-      <EmbeddedPreview
-        calloutTitle={calloutTitle}
-        bodyValue={bodyValue}
-        btnText={btnText}
-        color={color}
-        theme={theme}
-        image={image}
-        fields={fields}
-        onChange={onChange}
-        onFieldEdit={onFieldEdit}
-      />
-    );
+
+    if (type === 'popup') {
+      return <PopupPreview {...this.props} />;
+    }
+
+    return <EmbeddedPreview {...this.props} />;
   }
 
   render() {

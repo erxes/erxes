@@ -55,91 +55,25 @@ class FullPreviewStep extends Component {
   }
 
   onChange(value) {
-    if (value === 'desktop') {
-      this.props.onChange('preview', 'desktop');
-    } else if (value === 'tablet') {
-      this.props.onChange('preview', 'tablet');
-    } else {
-      this.props.onChange('preview', 'mobile');
-    }
+    this.props.onChange('preview', value || 'mobile');
   }
 
   onChangePreview(value) {
-    if (value === 'callout') {
-      return this.props.onChange('carousel', 'callout');
-    }
-
-    if (value === 'form') {
-      return this.props.onChange('carousel', 'form');
-    }
-
-    return this.props.onChange('carousel', 'success');
+    return this.props.onChange('carousel', value);
   }
 
   renderPreview() {
-    const {
-      calloutTitle,
-      bodyValue,
-      btnText,
-      color,
-      theme,
-      image,
-      type,
-      fields,
-      preview,
-      carousel,
-      onChange,
-      thankContent
-    } = this.props;
+    const { type } = this.props;
 
     if (type === 'shoutbox') {
-      return (
-        <ShoutboxPreview
-          calloutTitle={calloutTitle}
-          bodyValue={bodyValue}
-          btnText={btnText}
-          color={color}
-          theme={theme}
-          image={image}
-          fields={fields}
-          preview={preview}
-          carousel={carousel}
-          onChange={onChange}
-          thankContent={thankContent}
-        />
-      );
-    } else if (type === 'popup') {
-      return (
-        <PopupPreview
-          calloutTitle={calloutTitle}
-          bodyValue={bodyValue}
-          btnText={btnText}
-          color={color}
-          theme={theme}
-          image={image}
-          fields={fields}
-          preview={preview}
-          carousel={carousel}
-          onChange={onChange}
-          thankContent={thankContent}
-        />
-      );
+      return <ShoutboxPreview {...this.props} />;
     }
-    return (
-      <EmbeddedPreview
-        calloutTitle={calloutTitle}
-        bodyValue={bodyValue}
-        btnText={btnText}
-        color={color}
-        theme={theme}
-        image={image}
-        fields={fields}
-        preview={preview}
-        carousel={carousel}
-        onChange={onChange}
-        thankContent={thankContent}
-      />
-    );
+
+    if (type === 'popup') {
+      return <PopupPreview {...this.props} />;
+    }
+
+    return <EmbeddedPreview {...this.props} />;
   }
 
   renderResolution() {
@@ -157,9 +91,12 @@ class FullPreviewStep extends Component {
 
     if (preview === 'desktop') {
       return <DesktopPreview>{this.renderPreview()}</DesktopPreview>;
-    } else if (preview === 'tablet') {
+    }
+
+    if (preview === 'tablet') {
       return <TabletPreview>{this.renderPreview()}</TabletPreview>;
     }
+
     return <MobilePreview>{this.renderPreview()}</MobilePreview>;
   }
 

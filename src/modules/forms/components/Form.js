@@ -37,6 +37,7 @@ class Form extends Component {
       maxStep: 6,
       type: formData.loadType || 'shoutbox',
       preview: 'desktop',
+      brand: integration.brandId,
       title: integration.name,
       calloutTitle: form.title || 'Contact',
       bodyValue: form.description || 'Body description here',
@@ -77,9 +78,9 @@ class Form extends Component {
         description: this.state.bodyValue,
         buttonText: this.state.btnText,
         themeColor: this.state.theme || this.state.color,
-        featuredImage: this.state.logoPreviewUrl,
-        fields: this.state.fields
-      }
+        featuredImage: this.state.logoPreviewUrl
+      },
+      fields: this.state.fields
     });
   }
 
@@ -157,6 +158,7 @@ class Form extends Component {
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
+
         <TitleContainer>
           <div>Title</div>
           <FormControl
@@ -165,6 +167,7 @@ class Form extends Component {
             defaultValue={this.state.title}
           />
         </TitleContainer>
+
         <Steps active={activeStep}>
           <Step
             img="/images/icons/erxes-05.svg"
@@ -181,6 +184,7 @@ class Form extends Component {
               color={color}
             />
           </Step>
+
           <Step
             img="/images/icons/erxes-02.svg"
             title="CallOut"

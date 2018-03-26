@@ -75,9 +75,7 @@ class FormStep extends Component {
     this.onChangeOptions = this.onChangeOptions.bind(this);
     this.onChangeIsRequired = this.onChangeIsRequired.bind(this);
 
-    this.renderOptions = this.renderOptions.bind(this);
     this.footerActions = this.footerActions.bind(this);
-    this.renderOptionsTextArea = this.renderOptionsTextArea.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.onFieldEdit = this.onFieldEdit.bind(this);
   }
@@ -118,11 +116,15 @@ class FormStep extends Component {
       text: editingField.text,
       description: editingField.description,
       options: editingField.options,
+      order: 0,
       isRequired: editingField.isRequired
     };
 
     // newly created field to fields state
-    this.state.fields.push(doc);
+    this.state.fields.push({
+      _id: Math.random().toString(),
+      ...doc
+    });
 
     this.setState({ fields: this.state.fields });
   }
@@ -220,6 +222,8 @@ class FormStep extends Component {
         this.setState({ fields });
 
         reset();
+
+        this.props.onChange('fields', fields);
       };
 
       return (
@@ -238,6 +242,7 @@ class FormStep extends Component {
         </Button.Group>
       );
     }
+
     return (
       <Button
         size="small"

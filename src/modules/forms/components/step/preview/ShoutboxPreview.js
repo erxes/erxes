@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { keyframes } from 'styled-components';
 import { Button } from 'modules/common/components';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
-import { FormPreview } from './';
 import {
   WidgetPreviewStyled,
   LogoContainer,
@@ -100,16 +99,6 @@ class ShoutboxPreview extends Component {
                 )}
               <BodyContent>
                 {success && bodyValue}
-                {fields &&
-                  callout &&
-                  success && (
-                    <FormPreview
-                      fields={fields}
-                      onFieldEdit={onFieldEdit}
-                      onSort={onSort}
-                      onChange={onChange}
-                    />
-                  )}
                 {thankContent && callout && form && thankContent}
                 {btnText &&
                   success && (

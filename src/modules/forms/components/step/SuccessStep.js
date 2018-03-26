@@ -164,28 +164,17 @@ class SuccessStep extends Component {
   }
 
   renderPreview() {
-    const { type, color, theme, thankContent } = this.props;
+    const { type } = this.props;
 
     if (type === 'shoutbox') {
-      return (
-        <ShoutboxPreview
-          color={color}
-          theme={theme}
-          thankContent={thankContent}
-        />
-      );
-    } else if (type === 'popup') {
-      return (
-        <PopupPreview color={color} theme={theme} thankContent={thankContent} />
-      );
+      return <ShoutboxPreview {...this.props} />;
     }
-    return (
-      <EmbeddedPreview
-        color={color}
-        theme={theme}
-        thankContent={thankContent}
-      />
-    );
+
+    if (type === 'popup') {
+      return <PopupPreview {...this.props} />;
+    }
+
+    return <EmbeddedPreview {...this.props} />;
   }
 
   render() {

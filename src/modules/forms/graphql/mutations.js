@@ -19,8 +19,7 @@ const commonParamsDef = `
   $description: String,
   $buttonText: String,
   $themeColor: String,
-  $featuredImage: String,
-  $fields: [JSON]
+  $featuredImage: String
 `;
 
 const commonParams = `
@@ -28,8 +27,27 @@ const commonParams = `
   description: $description,
   buttonText: $buttonText,
   themeColor: $themeColor,
-  featuredImage: $featuredImage,
-  fields: $fields
+  featuredImage: $featuredImage
+`;
+
+const commonVariables = `
+  $type: String,
+  $validation: String,
+  $text: String,
+  $description: String,
+  $options: [String],
+  $isRequired: Boolean,
+  $order: Int
+`;
+
+const commonFieldParams = `
+  type: $type,
+  validation: $validation,
+  text: $text,
+  description: $description,
+  options: $options,
+  isRequired: $isRequired,
+  order: $order
 `;
 
 const integrationRemove = `
@@ -72,10 +90,47 @@ const editForm = `
   }
 `;
 
+const fieldsAdd = `
+  mutation fieldsAdd(
+    $contentType: String!,
+    $contentTypeId: String,
+    ${commonVariables}
+  ) {
+      fieldsAdd(
+        contentType: $contentType,
+        contentTypeId: $contentTypeId,
+        ${commonFieldParams}
+      ) {
+        _id
+        contentTypeId
+      }
+  }
+`;
+
+const fieldsEdit = `
+  mutation fieldsEdit($_id: String!, ${commonVariables}) {
+    fieldsEdit(_id: $_id, ${commonFieldParams}) {
+      _id
+      contentTypeId
+    }
+  }
+`;
+
+const fieldsRemove = `
+  mutation fieldsRemove($_id: String!) {
+    fieldsRemove(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 export default {
   integrationRemove,
   integrationsEditFormIntegration,
   integrationsCreateFormIntegration,
   addForm,
-  editForm
+  editForm,
+  fieldsAdd,
+  fieldsEdit,
+  fieldsRemove
 };

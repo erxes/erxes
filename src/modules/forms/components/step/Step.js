@@ -48,12 +48,15 @@ class Step extends Component {
               <StepImg>
                 <img src={img} alt="step-icon" />
               </StepImg>
+
               <StepHeaderTitle>{__(title)}</StepHeaderTitle>
             </StepHeader>
+
             {nextButton}
           </StepHeaderContainer>
           <StepContent>{children}</StepContent>
         </FullStep>
+
         <ShortStep show={!show} onClick={() => next(stepNumber)}>
           <StepImg>
             <img src={img} alt="step-icon" />

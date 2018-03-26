@@ -1,29 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'modules/common/components';
-import { FormPreview } from './';
-import {
-  Embedded,
-  PopupTitle,
-  PreviewBody,
-  BodyContent,
-  CenterContainer
-} from '../style';
+import CommonPreview from './CommonPreview';
+import { Embedded, CenterContainer } from '../style';
 
 const propTypes = {
-  calloutTitle: PropTypes.string,
-  bodyValue: PropTypes.string,
-  btnText: PropTypes.string,
-  color: PropTypes.string,
-  theme: PropTypes.string,
-  image: PropTypes.string,
-  thankContent: PropTypes.string,
-  preview: PropTypes.string,
-  carousel: PropTypes.string,
-  fields: PropTypes.array, // eslint-disable-line
-  onFieldEdit: PropTypes.func,
-  onSort: PropTypes.func,
-  onChange: PropTypes.func
+  preview: PropTypes.string
 };
 
 const Container = CenterContainer.extend`
@@ -31,66 +12,13 @@ const Container = CenterContainer.extend`
   display: block;
 `;
 
-class EmbeddedPreview extends Component {
+class EmbeddedPreview extends CommonPreview {
   render() {
-    const {
-      theme,
-      color,
-      calloutTitle,
-      bodyValue,
-      btnText,
-      image,
-      fields,
-      onFieldEdit,
-      onSort,
-      preview,
-      carousel,
-      thankContent,
-      onChange
-    } = this.props;
-
-    const success = !(carousel === 'success');
-    const form = !(carousel === 'form');
-    const callout = !(carousel === 'callout');
+    const { preview } = this.props;
 
     return (
       <Container data={preview}>
-        <Embedded>
-          <PopupTitle style={{ backgroundColor: theme ? theme : color }}>
-            {success && calloutTitle}
-          </PopupTitle>
-          <PreviewBody embedded="embedded">
-            {image &&
-              success && (
-                <div>
-                  <img src={image} alt="eee" />
-                </div>
-              )}
-            <BodyContent>
-              {success && bodyValue}
-              {fields &&
-                callout &&
-                success && (
-                  <FormPreview
-                    fields={fields}
-                    onFieldEdit={onFieldEdit}
-                    onSort={onSort}
-                    onChange={onChange}
-                  />
-                )}
-              {thankContent && callout && form && thankContent}
-              {btnText &&
-                success && (
-                  <Button
-                    btnStyle="primary"
-                    style={{ backgroundColor: theme ? theme : color }}
-                  >
-                    {btnText}
-                  </Button>
-                )}
-            </BodyContent>
-          </PreviewBody>
-        </Embedded>
+        <Embedded>{this.renderContent()}</Embedded>
       </Container>
     );
   }

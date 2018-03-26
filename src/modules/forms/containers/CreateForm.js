@@ -11,7 +11,13 @@ import { Form } from '../components';
 
 class CreateFormContainer extends Bulk {
   render() {
-    const { brandsQuery, addMutation, addFormMutation, history } = this.props;
+    const {
+      brandsQuery,
+      addMutation,
+      addFormMutation,
+      fieldsAddMutation,
+      history
+    } = this.props;
 
     if (brandsQuery.loading) {
       return false;
@@ -19,27 +25,43 @@ class CreateFormContainer extends Bulk {
 
     const brands = brandsQuery.brands || [];
 
-    const doMutation = (formMutation, mutation, variables) => {
+    const doMutation = (formMutation, mutation, fieldMutation, variables) => {
       let formId = '';
 
-      const { form, brandId, name, languageCode, formData } = variables;
+      const { form, brandId, name, languageCode, formData, fields } = variables;
 
       formMutation({
         variables: form
       })
+        .then(() => {
+          return mutation({
+            variables: { formData, brandId, name, languageCode, formId }
+          });
+        })
+
         .then(({ data }) => {
           formId = data.formsAdd._id;
 
-          mutation({
-            variables: { formData, brandId, name, languageCode, formId }
-          })
-            .then(() => {
-              Alert.success('Congrats');
-              history.push('/forms');
-            })
-            .catch(error => {
-              Alert.error(error.message);
-            });
+          const promises = [];
+
+          for (const field of fields) {
+            promises.push(
+              fieldMutation({
+                variables: {
+                  contentType: 'form',
+                  contentTypeId: formId,
+                  ...field
+                }
+              })
+            );
+          }
+
+          return Promise.all(promises);
+        })
+
+        .then(() => {
+          Alert.success('Congrats');
+          history.push('/forms');
         })
 
         .catch(error => {
@@ -49,7 +71,7 @@ class CreateFormContainer extends Bulk {
 
     // save
     const save = doc => {
-      return doMutation(addFormMutation, addMutation, doc);
+      return doMutation(addFormMutation, addMutation, fieldsAddMutation, doc);
     };
 
     const updatedProps = {
@@ -65,7 +87,10 @@ class CreateFormContainer extends Bulk {
 CreateFormContainer.propTypes = {
   brandsQuery: PropTypes.object,
   addMutation: PropTypes.func,
-  addFormMutation: PropTypes.func
+  addFormMutation: PropTypes.func,
+  fieldsAddMutation: PropTypes.func,
+  location: PropTypes.object,
+  history: PropTypes.object
 };
 
 const CreateFormWithData = compose(
@@ -80,19 +105,10 @@ const CreateFormWithData = compose(
   }),
   graphql(gql(mutations.addForm), {
     name: 'addFormMutation'
+  }),
+  graphql(gql(mutations.fieldsAdd), {
+    name: 'fieldsAddMutation'
   })
 )(CreateFormContainer);
 
-const CreateFormIntegrationContainer = props => {
-  const queryParams = queryString.parse(props.location.search);
-
-  const extendedProps = { ...props, queryParams };
-  return <CreateFormWithData {...extendedProps} />;
-};
-
-CreateFormIntegrationContainer.propTypes = {
-  location: PropTypes.object,
-  history: PropTypes.object
-};
-
-export default withRouter(CreateFormIntegrationContainer);
+export default withRouter(CreateFormWithData);

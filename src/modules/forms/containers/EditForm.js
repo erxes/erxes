@@ -14,8 +14,12 @@ class EditFormContainer extends Bulk {
     const {
       brandsQuery,
       integrationDetailQuery,
-      contentTypeId,
-      editMutation,
+      formId,
+      editIntegrationMutation,
+      addFieldMutation,
+      editFieldMutation,
+      removeFieldMutation,
+      editFormMutation,
       fieldsQuery,
       history
     } = this.props;
@@ -29,41 +33,88 @@ class EditFormContainer extends Bulk {
     }
 
     const brands = brandsQuery.brands || [];
-    const fields = [];
+    const dbFields = fieldsQuery.fields || [];
     const integration = integrationDetailQuery.integrationDetail || {};
 
-    // cloning graphql results, because in component we need to change
-    // each field's attributes and it is immutable. so making it mutable
-    fieldsQuery.fields.forEach(field => {
-      fields.push({ ...field });
-    });
+    const save = doc => {
+      const { form, brandId, name, languageCode, formData, fields } = doc;
 
-    const doMutation = (mutation, variables) => {
-      variables.formId = 'aaaa';
+      editFormMutation({ variables: { _id: formId, ...form } })
+        .then(() =>
+          editIntegrationMutation({
+            variables: {
+              _id: integration._id,
+              formData,
+              brandId,
+              name,
+              languageCode,
+              formId
+            }
+          })
+        )
 
-      mutation({
-        variables
-      })
+        .then(() => {
+          const dbFieldIds = dbFields.map(field => field._id);
+          const createFieldsData = [];
+          const updateFieldsData = [];
+          const removeFieldsData = [];
+          const existingIds = [];
+
+          for (const field of fields) {
+            // existing field
+            if (dbFieldIds.includes(field._id)) {
+              existingIds.push(field._id);
+              updateFieldsData.push(field);
+              continue;
+            }
+
+            // not existing field
+            delete field._id;
+
+            createFieldsData.push({
+              ...field,
+              contentType: 'form',
+              contentTypeId: formId
+            });
+          }
+
+          for (const dbFieldId of dbFieldIds) {
+            if (!existingIds.includes(dbFieldId)) {
+              removeFieldsData.push({ _id: dbFieldId });
+            }
+          }
+
+          const doMutation = ({ datas, mutation }) => {
+            for (const data of datas) {
+              mutation({
+                variables: data
+              });
+            }
+          };
+
+          doMutation({ datas: createFieldsData, mutation: addFieldMutation });
+          doMutation({ datas: updateFieldsData, mutation: editFieldMutation });
+          doMutation({
+            datas: removeFieldsData,
+            mutation: removeFieldMutation
+          });
+        })
+
         .then(() => {
           Alert.success('Congrats');
           history.push('/forms');
         })
+
         .catch(error => {
           Alert.error(error.message);
-          console.log(error.message);
         });
-    };
-
-    // save
-    const save = doc => {
-      return doMutation(editMutation, { ...doc, _id: contentTypeId });
     };
 
     const updatedProps = {
       ...this.props,
       brands,
       integration,
-      fields,
+      fields: dbFields.map(field => ({ ...field })),
       save
     };
 
@@ -72,11 +123,13 @@ class EditFormContainer extends Bulk {
 }
 
 EditFormContainer.propTypes = {
-  contentTypeId: PropTypes.string,
+  formId: PropTypes.string,
   fieldsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
   integrationDetailQuery: PropTypes.object,
-  editMutation: PropTypes.func
+  editMutation: PropTypes.func,
+  fieldsAddMutation: PropTypes.func,
+  editFormMutation: PropTypes.func
 };
 
 const EditFormWithData = compose(
@@ -107,7 +160,19 @@ const EditFormWithData = compose(
     })
   }),
   graphql(gql(mutations.integrationsEditFormIntegration), {
-    name: 'editMutation'
+    name: 'editIntegrationMutation'
+  }),
+  graphql(gql(mutations.fieldsAdd), {
+    name: 'addFieldMutation'
+  }),
+  graphql(gql(mutations.fieldsEdit), {
+    name: 'editFieldMutation'
+  }),
+  graphql(gql(mutations.fieldsRemove), {
+    name: 'removeFieldMutation'
+  }),
+  graphql(gql(mutations.editForm), {
+    name: 'editFormMutation'
   })
 )(EditFormContainer);
 

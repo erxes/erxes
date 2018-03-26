@@ -53,6 +53,7 @@ const propTypes = {
 class ChooseType extends Component {
   renderBox(name, image, value) {
     const { __ } = this.context;
+
     return (
       <Box
         selected={this.props.type === value}

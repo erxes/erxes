@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'modules/common/components';
-import { FormPreview } from './';
 import {
   CenterContainer,
   FormContainer,
@@ -65,16 +64,6 @@ class PopupPreview extends Component {
               )}
             <BodyContent>
               {success && bodyValue}
-              {fields &&
-                callout &&
-                success && (
-                  <FormPreview
-                    fields={fields}
-                    onFieldEdit={onFieldEdit}
-                    onSort={onSort}
-                    onChange={onChange}
-                  />
-                )}
               {thankContent && callout && form && thankContent}
               {btnText &&
                 success && (

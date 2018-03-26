@@ -299,6 +299,10 @@ const PreviewForm = styled.div`
 const FieldItem = styled.div`
   padding: 10px;
 
+  &:hover {
+    cursor: pointer;
+  }
+
   input,
   textarea,
   select {

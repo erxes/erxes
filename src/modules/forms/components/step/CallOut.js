@@ -81,7 +81,6 @@ class CallOut extends Component {
 
     this.onColorChange = this.onColorChange.bind(this);
     this.onChangeBody = this.onChangeBody.bind(this);
-    this.renderPreview = this.renderPreview.bind(this);
     this.onChangeBtn = this.onChangeBtn.bind(this);
     this.onChangeText = this.onChangeText.bind(this);
     this.onThemeChange = this.onThemeChange.bind(this);
@@ -146,52 +145,17 @@ class CallOut extends Component {
   }
 
   renderPreview() {
-    const {
-      type,
-      calloutTitle,
-      bodyValue,
-      btnText,
-      color,
-      theme,
-      image
-    } = this.props;
+    const { type } = this.props;
 
     if (type === 'shoutbox') {
-      return (
-        <ShoutboxPreview
-          calloutTitle={calloutTitle}
-          bodyValue={bodyValue}
-          btnText={btnText}
-          color={color}
-          theme={theme}
-          image={image}
-        />
-      );
+      return <ShoutboxPreview {...this.props} />;
     }
 
     if (type === 'popup') {
-      return (
-        <PopupPreview
-          calloutTitle={calloutTitle}
-          bodyValue={bodyValue}
-          btnText={btnText}
-          color={color}
-          theme={theme}
-          image={image}
-        />
-      );
+      return <PopupPreview {...this.props} />;
     }
 
-    return (
-      <EmbeddedPreview
-        calloutTitle={calloutTitle}
-        bodyValue={bodyValue}
-        btnText={btnText}
-        color={color}
-        theme={theme}
-        image={image}
-      />
-    );
+    return <EmbeddedPreview {...this.props} />;
   }
 
   renderThemeColor(value) {
@@ -208,7 +172,11 @@ class CallOut extends Component {
   renderUploadImage() {
     const { image } = this.props;
 
-    return image ? (
+    if (!image) {
+      return <input type="file" onChange={this.handleImage} />;
+    }
+
+    return (
       <div>
         <img src={image} alt="previewImage" />
         <Icon
@@ -217,8 +185,6 @@ class CallOut extends Component {
           onClick={e => this.removeImage(e.target.value)}
         />
       </div>
-    ) : (
-      <input type="file" onChange={this.handleImage} />
     );
   }
 
