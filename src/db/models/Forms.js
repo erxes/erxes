@@ -119,7 +119,11 @@ class Form {
 
           // Creating new form field if there is no _id defined
         } else {
-          await Fields.create({ ...field });
+          await Fields.create({
+            ...field,
+            contentType: FIELD_CONTENT_TYPES.FORM,
+            contentTypeId: _id,
+          });
         }
       }
     }
