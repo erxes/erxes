@@ -87,7 +87,6 @@ class CompanyDetails extends React.Component {
     const rightSidebar = (
       <Sidebar>
         <CustomerSection company={company} />
-
         <DealSection deals={company.deals || []} />
       </Sidebar>
     );
