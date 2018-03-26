@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import { Widget } from 'modules/notifications/containers';
 import { setBadge } from 'modules/common/utils';
 import { colors, dimensions } from 'modules/common/styles';
 import { Tip, Label, ContentWithPermission } from 'modules/common/components';
@@ -18,6 +19,7 @@ const LeftNavigation = styled.aside`
   bottom: 0;
 
   > a {
+    margin-top: ${dimensions.unitSpacing}px;
     line-height: ${dimensions.headerSpacing}px;
     display: flex;
     height: ${dimensions.headerSpacing}px;
@@ -38,7 +40,7 @@ const LeftNavigation = styled.aside`
 
 const Nav = styled.nav`
   display: block;
-  margin-top: ${dimensions.coreSpacing}px;
+  margin-top: ${dimensions.unitSpacing}px;
 
   > a {
     display: block;
@@ -112,6 +114,10 @@ const NavIcon = styled.i`
   &.icon-knowledge {
     background-image: url('/images/icons/nav-07.svg');
   }
+
+  &.icon-deal {
+    background-image: url('/images/icons/nav-08.svg');
+  }
 `;
 
 class Navigation extends Component {
@@ -184,6 +190,11 @@ class Navigation extends Component {
               </NavLink>
             </Tip>
           </ContentWithPermission>
+          <Tip placement="right" text={__('Deal')}>
+            <NavLink to="/deals" activeClassName="active">
+              <NavIcon className="icon-deal" />
+            </NavLink>
+          </Tip>
           <ContentWithPermission action="isOwner">
             <Tip placement="right" text={__('Settings')}>
               <NavLink to="/settings" activeClassName="active">
@@ -192,6 +203,7 @@ class Navigation extends Component {
             </Tip>
           </ContentWithPermission>
         </Nav>
+        <Widget />
       </LeftNavigation>
     );
   }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
-import { Row, RowTitle, Box, BoxName } from '../styles';
+import { Row, RowTitle, Box, BoxName, Divider } from '../styles';
 
 class Settings extends Component {
   renderBox(name, image, to) {
@@ -70,6 +70,27 @@ class Settings extends Component {
               'Properties',
               '/images/icons/erxes-01.svg',
               '/settings/properties'
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle className="secondRow">{__('Deal Settings')}</RowTitle>
+          <div>
+            {this.renderBox(
+              'General',
+              '/images/icons/erxes-06.svg',
+              '/settings/general'
+            )}
+            {this.renderBox(
+              'Boards & Pipelines',
+              '/images/icons/erxes-18.svg',
+              '/settings/deals'
+            )}
+            {this.renderBox(
+              'Product & Service',
+              '/images/icons/erxes-19.svg',
+              '/settings/product-service'
             )}
           </div>
         </Row>

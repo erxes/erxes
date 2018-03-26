@@ -9,6 +9,10 @@ const ContentBox = styled.div`
   padding: ${coreSpace};
 `;
 
+const ModuleBox = styled.div`
+  padding: ${coreSpace} 0 0 ${coreSpace};
+`;
+
 const Margined = styled.div`
   padding: ${coreSpace};
   flex: 1;
@@ -121,8 +125,8 @@ const WidgetBox = styled.div`
 const SubHeading = styled.h4`
   text-transform: uppercase;
   font-weight: ${typography.fontWeightMedium};
-  border-bottom: 1 px dotted ${colors.colorShadowGray};
-  padding-bottom: ${unitSpace};
+  border-bottom: 1px dotted ${colors.colorShadowGray};
+  padding-bottom: ${coreSpace};
   font-size: ${typography.fontSizeHeading8}px;
   margin: 0 0 ${coreSpace};
 `;
@@ -152,6 +156,7 @@ const InlineItems = styled.div`
   display: flex;
   margin-bottom: ${unitSpace};
   align-items: center;
+  justify-content: space-between;
 
   > div {
     margin-right: ${unitSpace};
@@ -164,10 +169,10 @@ const SubItem = styled.div`
 
 const Well = styled.div`
   min-height: ${coreSpace};
-  padding: ${coreSpace};
+  padding: ${unitSpace} ${coreSpace};
   margin-bottom: ${coreSpace};
-  background-color: ${colors.bgLight};
-  border: 1px solid ${colors.colorShadowGray};
+  background-color: ${colors.bgActive};
+  border-left: 2px solid ${colors.colorSecondary};
 `;
 
 const BackgroundSelector = styled.div`
@@ -361,6 +366,7 @@ const BrandName = styled.div`
 
 export {
   ContentBox,
+  ModuleBox,
   SubHeading,
   MarkdownWrapper,
   InlineItems,

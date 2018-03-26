@@ -10,11 +10,11 @@ import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 
 const EditInformationContainer = (props, context) => {
-  const { customer, customersEdit, fieldsGroupsQuery } = props;
+  const { customer, customersEdit, fieldsGroupsQuery, wide } = props;
 
   if (fieldsGroupsQuery.loading) {
     return (
-      <Sidebar full>
+      <Sidebar full wide={wide}>
         <Spinner />
       </Sidebar>
     );
@@ -24,7 +24,7 @@ const EditInformationContainer = (props, context) => {
 
   const save = (variables, callback) => {
     customersEdit({
-      variables: { _id: _id, ...variables }
+      variables: { _id, ...variables }
     })
       .then(() => {
         callback();
@@ -49,6 +49,7 @@ EditInformationContainer.propTypes = {
   customer: PropTypes.object.isRequired,
   sections: PropTypes.node,
   customersEdit: PropTypes.func.isRequired,
+  wide: PropTypes.bool,
   fieldsGroupsQuery: PropTypes.object.isRequired
 };
 
@@ -58,7 +59,12 @@ EditInformationContainer.contextTypes = {
 
 const options = ({ customer }) => ({
   refetchQueries: [
-    { query: gql`${queries.customerDetail}`, variables: { _id: customer._id } }
+    {
+      query: gql`
+        ${queries.customerDetail}
+      `,
+      variables: { _id: customer._id }
+    }
   ]
 });
 

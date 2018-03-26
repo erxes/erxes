@@ -5,8 +5,6 @@ import gql from 'graphql-tag';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries, mutations } from '../graphql';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
-import { Spinner } from 'modules/common/components';
-import { Sidebar } from 'modules/layout/components';
 import { CompanyDetails } from '../components';
 
 const CompanyDetailsContainer = (props, context) => {
@@ -17,14 +15,6 @@ const CompanyDetailsContainer = (props, context) => {
     companiesEdit,
     fieldsGroupsQuery
   } = props;
-
-  if (companyDetailQuery.loading) {
-    return (
-      <Sidebar full>
-        <Spinner />
-      </Sidebar>
-    );
-  }
 
   //refetch for display customer change
   companyDetailQuery.refetch();
@@ -39,12 +29,14 @@ const CompanyDetailsContainer = (props, context) => {
       });
   };
 
+  const companyDetail = companyDetailQuery.companyDetail || {};
+
   const updatedProps = {
     ...props,
     save,
     loadingLogs: companyActivityLogQuery.loading,
-    company: companyDetailQuery.companyDetail,
-    customFieldsData: companyDetailQuery.companyDetail.customFieldsData || {},
+    company: companyDetail,
+    customFieldsData: companyDetail.customFieldsData || {},
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     currentUser: context.currentUser,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
@@ -67,7 +59,12 @@ CompanyDetailsContainer.contextTypes = {
 
 const options = ({ id }) => ({
   refetchQueries: [
-    { query: gql`${queries.companyDetail}`, variables: { _id: id } }
+    {
+      query: gql`
+        ${queries.companyDetail}
+      `,
+      variables: { _id: id }
+    }
   ]
 });
 

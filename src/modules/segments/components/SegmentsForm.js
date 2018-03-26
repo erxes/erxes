@@ -54,6 +54,10 @@ class SegmentsForm extends Component {
           connector: 'any'
         };
 
+    if (props.segment) {
+      props.count(props.segment);
+    }
+
     this.addCondition = this.addCondition.bind(this);
     this.changeCondition = this.changeCondition.bind(this);
     this.removeCondition = this.removeCondition.bind(this);

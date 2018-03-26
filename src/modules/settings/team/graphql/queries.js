@@ -109,9 +109,9 @@ const users = `
 `;
 
 export default {
-  users,
   userDetail,
   channels,
   userActivityLog,
-  userConversations
+  userConversations,
+  users
 };

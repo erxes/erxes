@@ -46,6 +46,7 @@ const EmptyStateStyled = styled.div`
 
   a {
     margin-top: 10px;
+    align-self: center;
   }
 `;
 

@@ -8,6 +8,9 @@ import TeamMembersRoutes from './team/routes';
 import EmailRoutes from './email/routes';
 import FormsRoutes from './forms/routes';
 import IntegrationsRoutes from './integrations/routes';
+import DealRoutes from './deals/routes';
+import ProductService from './productService/routes';
+import General from './general/routes';
 import PropertiesRoutes from './properties/routes';
 import MainRoutes from './main/routes';
 import PermissionRoutes from './permissions/routes';
@@ -23,6 +26,9 @@ const routes = () => [
   <EmailRoutes key="EmailRoutes" />,
   <FormsRoutes key="FormsRoutes" />,
   <IntegrationsRoutes key="IntegrationsRoutes" />,
+  <DealRoutes key="DealRoutes" />,
+  <ProductService key="ProductService" />,
+  <General key="General" />,
   <PropertiesRoutes key="PropertiesRoutes" />,
   <PermissionRoutes key="PermissionRoutes" />,
   <UsersGroupsRoutes key="UsersGroupsRoutes" />

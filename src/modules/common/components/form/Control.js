@@ -45,7 +45,7 @@ const defaultProps = {
 
 const renderElement = (Element, attributes, type, child) => {
   return (
-    <FormLabel>
+    <FormLabel key={attributes.key ? attributes.key : null}>
       <Element {...attributes} type={type} />
       <span>
         {child && '\u00a0\u00a0'}
@@ -61,7 +61,7 @@ class FormControl extends React.Component {
     const childNode = props.children;
     const elementType = props.componentClass;
 
-    //cancel custom browser default form validation error
+    // cancel custom browser default form validation error
     const onChange = e => {
       e.target.classList.remove('form-invalid');
 
@@ -69,7 +69,8 @@ class FormControl extends React.Component {
     };
 
     const attributes = {
-      onChange: onChange,
+      onChange,
+      onKeyPress: props.onKeyPress,
       onClick: props.onClick,
       value: props.value,
       defaultValue: props.defaultValue,
@@ -86,6 +87,8 @@ class FormControl extends React.Component {
       disabled: props.disabled,
       onFocus: props.onFocus,
       autoFocus: props.autoFocus,
+      min: props.min,
+      max: props.max,
       id: props.id
     };
 
@@ -113,6 +116,17 @@ class FormControl extends React.Component {
     }
 
     if (elementType === 'radio') {
+      if (props.options) {
+        return props.options.map((option, index) => {
+          return renderElement(
+            Radio,
+            { key: index, ...attributes, ...option },
+            elementType,
+            option.childNode
+          );
+        });
+      }
+
       return renderElement(Radio, attributes, elementType, childNode);
     }
 

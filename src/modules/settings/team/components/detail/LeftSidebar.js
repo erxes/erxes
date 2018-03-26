@@ -5,12 +5,9 @@ import { Sidebar } from 'modules/layout/components';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { EditProfile } from 'modules/settings/profile/components';
 import { UserForm } from '../../containers';
-import { List, User, Links } from './styles';
-import {
-  SidebarContent,
-  SidebarCounter,
-  SidebarList
-} from 'modules/layout/styles';
+import { List } from './styles';
+import { Links, InfoWrapper } from 'modules/common/styles/styles';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -59,24 +56,16 @@ class LeftSidebar extends React.Component {
     return (
       <Sidebar wide>
         <Section>
-          <SidebarContent>
-            <User>
-              <NameCard
-                user={user}
-                avatarSize={50}
-                secondLine={this.renderLinks(links)}
-              />
-              <a tabIndex={0}>
-                <ModalTrigger
-                  title="Edit"
-                  trigger={<Icon icon="edit" />}
-                  size="lg"
-                >
-                  {form}
-                </ModalTrigger>
-              </a>
-            </User>
-          </SidebarContent>
+          <InfoWrapper>
+            <NameCard
+              user={user}
+              avatarSize={50}
+              secondLine={this.renderLinks(links)}
+            />
+            <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
+              {form}
+            </ModalTrigger>
+          </InfoWrapper>
           <SidebarList className="no-link">
             <li>
               {__('Location')}:
@@ -85,10 +74,6 @@ class LeftSidebar extends React.Component {
             <li>
               {__('Position')}:
               <SidebarCounter>{details.position || '-'}</SidebarCounter>
-            </li>
-            <li>
-              {__('Twitter Username')}:
-              <SidebarCounter>{details.twitterUsername || '-'}</SidebarCounter>
             </li>
             <li>
               {__('Mini-resume')}:

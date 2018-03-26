@@ -7,7 +7,8 @@ const propTypes = {
   trigger: PropTypes.element.isRequired,
   children: PropTypes.node.isRequired,
   size: PropTypes.string,
-  ignoreTrans: PropTypes.bool
+  ignoreTrans: PropTypes.bool,
+  dialogClassName: PropTypes.string
 };
 
 const childContextTypes = {
@@ -41,7 +42,14 @@ class ModalTrigger extends Component {
   }
 
   render() {
-    const { title, trigger, children, size, ignoreTrans } = this.props;
+    const {
+      title,
+      trigger,
+      children,
+      size,
+      ignoreTrans,
+      dialogClassName
+    } = this.props;
     const { __ } = this.context;
 
     // add onclick event to the trigger component
@@ -53,7 +61,12 @@ class ModalTrigger extends Component {
       <span>
         {triggerComponent}
 
-        <Modal bsSize={size} show={this.state.isOpen} onHide={this.closeModal}>
+        <Modal
+          dialogClassName={dialogClassName}
+          bsSize={size}
+          show={this.state.isOpen}
+          onHide={this.closeModal}
+        >
           <Modal.Header closeButton>
             <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
           </Modal.Header>
