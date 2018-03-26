@@ -82,14 +82,12 @@ const applyTemplate = async (data, templateName) => {
  * @return nodemailer transporter
 */
 export const createTransporter = async () => {
-  const { MAIL_SERVICE, MAIL_USER, MAIL_PASS } = process.env;
+  // const { MAIL_SERVICE, MAIL_USER, MAIL_PASS } = process.env;
 
   return nodemailer.createTransport({
-    service: MAIL_SERVICE,
-    auth: {
-      user: MAIL_USER,
-      pass: MAIL_PASS,
-    },
+    SES: new AWS.SES({
+      apiVersion: '2010-12-01',
+    }),
   });
 };
 
