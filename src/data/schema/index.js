@@ -95,6 +95,20 @@ import {
   mutations as ActivityLogMutations,
 } from './activityLog';
 
+import { types as DealTypes, queries as DealQueries, mutations as DealMutations } from './deal';
+
+import {
+  types as ProductTypes,
+  queries as ProductQueries,
+  mutations as ProductMutations,
+} from './product';
+
+import {
+  types as ConfigTypes,
+  queries as ConfigQueries,
+  mutations as ConfigMutations,
+} from './config';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -118,6 +132,9 @@ export const types = `
   ${InsightTypes}
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
+  ${DealTypes}
+  ${ProductTypes}
+  ${ConfigTypes}
   ${FieldGroupTypes}
 `;
 
@@ -142,6 +159,9 @@ export const queries = `
     ${KnowledgeBaseQueries}
     ${NotificationQueries}
     ${ActivityLogQueries}
+    ${DealQueries}
+    ${ProductQueries}
+    ${ConfigQueries}
     ${FieldGroupQueries}
   }
 `;
@@ -166,6 +186,9 @@ export const mutations = `
     ${KnowledgeBaseMutations}
     ${NotificationMutations}
     ${ActivityLogMutations}
+    ${DealMutations}
+    ${ProductMutations}
+    ${ConfigMutations}
     ${FieldGroupMutations}
   }
 `;
