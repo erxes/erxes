@@ -107,7 +107,7 @@ class ProductItemForm extends React.Component {
             value={productData.quantity}
             type="number"
             min="1"
-            placeholder="Quantity"
+            placeholder="0"
             name="quantity"
             onChange={e => this.props.onChangeInput(productData._id, e)}
           />
@@ -162,11 +162,11 @@ class ProductItemForm extends React.Component {
           />
 
           <ProductItemText>
-            {productData.tax.toLocaleString()} {productData.currency}
+            {(productData.tax || 0).toLocaleString()} {productData.currency}
           </ProductItemText>
 
           <ProductItemText>
-            {productData.amount.toLocaleString()} {productData.currency}
+            {(productData.amount || 0).toLocaleString()} {productData.currency}
           </ProductItemText>
         </td>
         <td>
