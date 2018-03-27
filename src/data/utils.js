@@ -82,11 +82,10 @@ const applyTemplate = async (data, templateName) => {
  * @return nodemailer transporter
 */
 export const createTransporter = async () => {
-  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } = process.env;
-  console.log('creating transporter');
+  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
 
   AWS.config.update({
-    region: 'us-east-1',
+    region: AWS_REGION,
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
   });
@@ -108,7 +107,6 @@ export const createTransporter = async () => {
  * @return {Promise}
 */
 export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
-  console.log('sendEmail has called from utils', fromEmail, toEmails);
   const { NODE_ENV } = process.env;
 
   // do not send email it is running in test mode

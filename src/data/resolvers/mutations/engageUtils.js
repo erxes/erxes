@@ -81,6 +81,7 @@ export const sendEmailCb = (messageId, mailMessageId, error) => {
 const sendViaEmail = async message => {
   const { fromUserId, segmentId, customerIds } = message;
   const { templateId, subject, content } = message.email;
+  const { AWS_CONFIG_SET } = process.env;
 
   const user = await Users.findOne({ _id: fromUserId });
   const userEmail = user.email;
@@ -112,17 +113,18 @@ const sendViaEmail = async message => {
     // send email =========
     const transporter = await createTransporter();
 
-    console.log('creating transporter in engageUtils', userEmail, customer.email);
     transporter.sendMail(
       {
         from: userEmail,
         to: customer.email,
         subject: replacedSubject,
         html: replacedContent,
+        headers: {
+          'X-SES-CONFIGURATION-SET': AWS_CONFIG_SET,
+        },
       },
       /* istanbul ignore next */
       error => {
-        console.log('showing error', error);
         sendEmailCb(message._id, mailMessageId, error);
       },
     );
