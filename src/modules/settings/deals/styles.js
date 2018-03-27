@@ -54,10 +54,16 @@ const StageItemContainer = styled.div`
   width: 100%;
   input {
     float: left;
-    width: 200px;
+    width: 185px;
+  }
+  div {
+    float: left;
+    margin-left: 30px;
+    width: 185px;
   }
   button {
     float: right;
+    margin-top: 5px;
   }
 `;
 

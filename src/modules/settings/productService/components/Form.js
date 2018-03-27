@@ -48,7 +48,7 @@ class Form extends Component {
   renderContent() {
     const product = this.props.product || {};
 
-    const types = TYPES.ALL_LIST;
+    const types = TYPES.ALL;
 
     return (
       <div>
