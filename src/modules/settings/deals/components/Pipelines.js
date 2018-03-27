@@ -1,41 +1,78 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Table } from 'modules/common/components';
+import { SortableList } from 'modules/common/components';
 import { PipelineRow } from './';
+import { PipelineContainer } from '../styles';
+import { collectOrders } from 'modules/deals/utils';
 
 const propTypes = {
   pipelines: PropTypes.array.isRequired,
   save: PropTypes.func,
+  updateOrder: PropTypes.func,
   remove: PropTypes.func
 };
 
 class Pipelines extends Component {
-  renderRow() {
-    const { pipelines, save, remove } = this.props;
+  constructor(props) {
+    super(props);
 
-    return pipelines.map(pipeline => (
+    this.onChangePipelines = this.onChangePipelines.bind(this);
+
+    this.state = { pipelines: props.pipelines };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.pipelines !== this.props.pipelines) {
+      this.setState({ pipelines: nextProps.pipelines });
+    }
+  }
+
+  onChangePipelines(pipelines) {
+    this.setState({ pipelines });
+
+    this.props.updateOrder(collectOrders(pipelines));
+  }
+
+  renderRow() {
+    const { save, remove } = this.props;
+
+    const child = pipeline => (
       <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
         save={save}
         remove={remove}
       />
-    ));
+    );
+
+    const { pipelines } = this.state;
+
+    return (
+      <SortableList
+        fields={pipelines}
+        child={child}
+        lockAxis="y"
+        useDragHandle
+        onChangeFields={this.onChangePipelines}
+      />
+    );
   }
 
   render() {
     const { __ } = this.context;
 
     return (
-      <Table>
-        <thead>
-          <tr>
-            <th>{__('Name')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRow()}</tbody>
-      </Table>
+      <PipelineContainer>
+        <ul className="head">
+          <li>
+            <span>{__('Name')}</span>
+          </li>
+          <li>
+            <span>{__('Actions')}</span>
+          </li>
+        </ul>
+        {this.renderRow()}
+      </PipelineContainer>
     );
   }
 }

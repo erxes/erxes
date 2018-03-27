@@ -3,7 +3,7 @@ const commonVariables = `
   $productsData: JSON!,
   $companyIds: [String],
   $customerIds: [String],
-  $closeDate: Date!,
+  $closeDate: Date,
   $note: String,
   $assignedUserIds: [String],
   $order: Int,

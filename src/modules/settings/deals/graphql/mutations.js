@@ -62,11 +62,20 @@ const pipelineRemove = `
   }
 `;
 
+const pipelinesUpdateOrder = `
+  mutation dealPipelinesUpdateOrder($orders: [OrderItem]) {
+    dealPipelinesUpdateOrder(orders: $orders) {
+      _id
+    }
+  }
+`;
+
 export default {
   boardAdd,
   boardEdit,
   boardRemove,
   pipelineAdd,
   pipelineEdit,
-  pipelineRemove
+  pipelineRemove,
+  pipelinesUpdateOrder
 };

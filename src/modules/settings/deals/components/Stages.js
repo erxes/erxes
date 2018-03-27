@@ -59,16 +59,14 @@ class Stages extends Component {
   }
 
   render() {
-    const child = stage => {
-      return (
-        <StageItem
-          stage={stage}
-          onChangeName={this.onChangeName}
-          remove={this.remove}
-          onKeyPress={this.onStageInputKeyPress}
-        />
-      );
-    };
+    const child = stage => (
+      <StageItem
+        stage={stage}
+        onChangeName={this.onChangeName}
+        remove={this.remove}
+        onKeyPress={this.onStageInputKeyPress}
+      />
+    );
 
     return (
       <StagesContainer>

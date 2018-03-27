@@ -15,7 +15,8 @@ const propTypes = {
   pipelines: PropTypes.array,
   boardId: PropTypes.string,
   removePipeline: PropTypes.func,
-  savePipeline: PropTypes.func
+  savePipeline: PropTypes.func,
+  pipelinesUpdateOrder: PropTypes.func
 };
 
 class Home extends Component {
@@ -52,6 +53,7 @@ class Home extends Component {
                 pipelines={pipelines}
                 save={this.props.savePipeline}
                 remove={this.props.removePipeline}
+                updateOrder={this.props.pipelinesUpdateOrder}
               />
             }
             loading={loading}

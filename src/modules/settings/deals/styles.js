@@ -1,4 +1,48 @@
 import styled from 'styled-components';
+import { colors, typography } from 'modules/common/styles';
+import { SortItem } from 'modules/common/styles/sort';
+
+const PipelineContainer = styled.div`
+  ul {
+    width: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      margin-bottom: 0;
+      border: 0;
+      border-top: 1px solid rgb(238, 238, 238);
+    }
+  }
+
+  ul.head {
+    li {
+      float: left;
+      padding: 10px 20px;
+      &:last-child {
+        float: right;
+      }
+      span {
+        text-transform: uppercase;
+        color: ${colors.colorCoreLightGray};
+        font-size: ${typography.fontSizeUppercase}px;
+        font-weight: bold;
+      }
+    }
+  }
+
+  ${SortItem} {
+    z-index: 100;
+  }
+`;
+
+const PipelineRowContainer = styled.div`
+  width: 100%;
+  > div {
+    float: right;
+  }
+`;
 
 const StagesContainer = styled.div`
   > button {
@@ -17,4 +61,9 @@ const StageItemContainer = styled.div`
   }
 `;
 
-export { StagesContainer, StageItemContainer };
+export {
+  PipelineContainer,
+  PipelineRowContainer,
+  StagesContainer,
+  StageItemContainer
+};
