@@ -16,6 +16,7 @@ const propTypes = {
 class Pipeline extends React.Component {
   renderStage(provided) {
     const { stages, pipeline } = this.props;
+    const length = stages.length;
 
     return (
       <PipelineBody innerRef={provided.innerRef} {...provided.droppableProps}>
@@ -25,6 +26,7 @@ class Pipeline extends React.Component {
               key={stage._id}
               stageId={stage._id}
               index={index}
+              length={length}
               pipelineId={pipeline._id}
               state={this.props[`stageState${stage._id}`]}
             />
