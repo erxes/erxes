@@ -31,6 +31,15 @@ const dealMutations = {
   },
 
   /**
+   * Select board
+   * @param {String} _id
+   * @return {Promise}
+   */
+  dealBoardsSelect(root, { _id }) {
+    return DealBoards.selectBoard(_id);
+  },
+
+  /**
    * Create new pipeline
    * @param {String} doc.name
    * @param {String} doc.boardId

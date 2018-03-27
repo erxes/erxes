@@ -21,11 +21,14 @@ const dealQueries = {
   },
 
   /**
-   * Get last board
+   * Get selected board
    * @return {Promise} board
    */
-  dealBoardGetLast() {
-    return DealBoards.findOne().sort({ order: 1, createdAt: -1 });
+  dealBoardGetSelected() {
+    return DealBoards.findOne({ selected: true }).sort({
+      order: 1,
+      createdAt: -1,
+    });
   },
 
   /**

@@ -75,6 +75,7 @@ const createOrUpdatePipelineStages = async (stages, pipelineId) => {
 const BoardSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
+  selected: field({ type: Boolean }),
   ...commonFields,
 });
 
@@ -95,6 +96,20 @@ class Board {
    */
   static async updateBoard(_id, doc) {
     await this.update({ _id }, { $set: doc });
+
+    return this.findOne({ _id });
+  }
+
+  /**
+   * Set select board
+   * @param  {Object} doc
+   * @return {Promise} updated board object
+   */
+  static async selectBoard(_id) {
+    // set false for previous selected board
+    await this.update({ selected: true }, { $set: { selected: false } });
+
+    await this.update({ _id }, { $set: { selected: true } });
 
     return this.findOne({ _id });
   }
