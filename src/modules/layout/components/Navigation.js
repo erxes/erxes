@@ -153,6 +153,11 @@ class Navigation extends Component {
               )}
             </NavLink>
           </Tip>
+          <Tip placement="right" text={__('Deal')}>
+            <NavLink to="/deals" activeClassName="active">
+              <NavIcon className="icon-deal" />
+            </NavLink>
+          </Tip>
           <Tip placement="right" text={__('Customers')}>
             <NavLink to="/customers" activeClassName="active">
               <NavIcon className="icon-customer" />
@@ -168,19 +173,14 @@ class Navigation extends Component {
               <NavIcon className="icon-engage" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Insights')}>
-            <NavLink to="/insights" activeClassName="active">
-              <NavIcon className="icon-insights" />
-            </NavLink>
-          </Tip>
           <Tip placement="right" text={__('Knowledge Base')}>
             <NavLink to="/knowledgeBase" activeClassName="active">
               <NavIcon className="icon-knowledge" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Deal')}>
-            <NavLink to="/deals" activeClassName="active">
-              <NavIcon className="icon-deal" />
+          <Tip placement="right" text={__('Insights')}>
+            <NavLink to="/insights" activeClassName="active">
+              <NavIcon className="icon-insights" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Settings')}>
