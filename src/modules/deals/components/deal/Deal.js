@@ -67,7 +67,7 @@ class Deal extends React.Component {
     return (
       <Draggable draggableId={deal._id} index={index}>
         {(provided, snapshot) => (
-          <div>
+          <div ref={el => (this.hover = el)}>
             <DealContainer
               innerRef={provided.innerRef}
               {...provided.draggableProps}
@@ -76,10 +76,7 @@ class Deal extends React.Component {
             >
               <CommonDeal deal={deal} />
 
-              <DealContainerHover
-                innerRef={el => (this.hover = el)}
-                onClick={this.showQuickEditForm}
-              >
+              <DealContainerHover onClick={this.showQuickEditForm}>
                 <div>
                   <Icon icon="edit" />
                 </div>

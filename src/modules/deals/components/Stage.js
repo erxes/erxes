@@ -8,7 +8,9 @@ import {
   StageAmount,
   StageBody,
   StageDropZone,
-  AddNewDeal
+  AddNewDeal,
+  Indicator,
+  IndicatorItem
 } from '../styles';
 import { Icon } from 'modules/common/components';
 import { Deal } from '../containers';
@@ -18,6 +20,7 @@ const propTypes = {
   stage: PropTypes.object.isRequired,
   deals: PropTypes.array,
   index: PropTypes.number.isRequired,
+  length: PropTypes.number.isRequired,
   saveDeal: PropTypes.func.isRequired,
   removeDeal: PropTypes.func.isRequired,
   moveDeal: PropTypes.func.isRequired
@@ -35,6 +38,14 @@ class Stage extends React.Component {
 
   showForm() {
     this.setState({ show: true });
+  }
+
+  renderIndicator() {
+    const { length, index } = this.props;
+
+    return Array(length)
+      .fill()
+      .map((e, i) => <IndicatorItem isPass={index >= i} key={i} />);
   }
 
   closeForm() {
@@ -98,7 +109,6 @@ class Stage extends React.Component {
   }
 
   render() {
-    const { __ } = this.context;
     const { stage, deals, index } = this.props;
 
     return (
@@ -111,13 +121,12 @@ class Stage extends React.Component {
               isDragging={snapshot.isDragging}
             >
               <StageHeader {...provided.dragHandleProps}>
-                <div>
-                  <h3>{stage.name}</h3>
-                  <span className="deals-count">
-                    {__('Deal')}: {deals.length}
-                  </span>
-                </div>
+                <h3>
+                  {stage.name}
+                  <span>({deals.length})</span>
+                </h3>
                 <StageAmount>{this.renderAmount(stage.amount)}</StageAmount>
+                <Indicator>{this.renderIndicator()}</Indicator>
               </StageHeader>
 
               <StageBody>

@@ -5,7 +5,8 @@ import { renderFullName } from 'modules/common/utils';
 
 const propTypes = {
   items: PropTypes.array,
-  show: PropTypes.bool
+  show: PropTypes.bool,
+  color: PropTypes.string
 };
 
 const defaultProps = {
@@ -24,7 +25,11 @@ class ItemCounter extends React.Component {
   }
 
   renderItem(item) {
-    return <li key={item._id}>{item.name || renderFullName(item)}</li>;
+    return (
+      <li style={{ background: this.props.color }} key={item._id}>
+        {item.name || renderFullName(item)}
+      </li>
+    );
   }
 
   renderOtherItems(items) {

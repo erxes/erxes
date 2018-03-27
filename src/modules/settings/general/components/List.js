@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper, ActionBar } from 'modules/layout/components';
 import Select from 'react-select-plus';
-import { FormGroup, Button } from 'modules/common/components';
-import { CURRENCIES, MEASUREMENTS } from '../constants';
-import { ContentBox, SubHeading } from '../../styles';
+import { FormGroup, Button, ControlLabel } from 'modules/common/components';
+import { CURRENCIES, MEASUREMENTS, LANGUAGES } from '../constants';
+import { ContentBox } from '../../styles';
 
 const propTypes = {
   save: PropTypes.func.isRequired,
@@ -14,16 +14,18 @@ const propTypes = {
 };
 
 class List extends Component {
-  constructor(props) {
+  constructor(props, context) {
     super(props);
 
     this.state = {
       currencies: props.currencies,
-      uom: props.uom
+      uom: props.uom,
+      language: context.currentLanguage || 'en'
     };
 
     this.onCurrenciesChange = this.onCurrenciesChange.bind(this);
     this.onUOMChange = this.onUOMChange.bind(this);
+    this.onLanguageChange = this.onLanguageChange.bind(this);
 
     this.save = this.save.bind(this);
   }
@@ -41,6 +43,11 @@ class List extends Component {
 
   onUOMChange(uom) {
     this.setState({ uom: uom.map(el => el.value) });
+  }
+
+  onLanguageChange(language) {
+    this.setState({ language });
+    this.context.changeLanguage(language.value);
   }
 
   render() {
@@ -76,8 +83,18 @@ class List extends Component {
 
     const content = (
       <ContentBox>
-        <SubHeading>{__('Currency')}</SubHeading>
         <FormGroup>
+          <ControlLabel>Language</ControlLabel>
+          <Select
+            options={LANGUAGES}
+            value={this.state.language}
+            onChange={this.onLanguageChange}
+            searchable={false}
+            clearable={false}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Currency</ControlLabel>
           <Select
             options={CURRENCIES}
             value={this.state.currencies}
@@ -87,8 +104,8 @@ class List extends Component {
           />
         </FormGroup>
 
-        <SubHeading>{__('Unit of measurement')}</SubHeading>
         <FormGroup>
+          <ControlLabel>Unit of measurement</ControlLabel>
           <Select
             options={MEASUREMENTS}
             value={this.state.uom}
@@ -112,6 +129,8 @@ class List extends Component {
 
 List.propTypes = propTypes;
 List.contextTypes = {
+  changeLanguage: PropTypes.func,
+  currentLanguage: PropTypes.string,
   __: PropTypes.func
 };
 
