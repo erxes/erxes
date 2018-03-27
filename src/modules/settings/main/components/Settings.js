@@ -24,7 +24,28 @@ class Settings extends Component {
     const content = (
       <div>
         <Row>
-          <RowTitle>{__('Account Settings')}</RowTitle>
+          <RowTitle className="secondRow">{__('General Settings')}</RowTitle>
+          <div>
+            {this.renderBox(
+              'Account default',
+              '/images/icons/erxes-16.svg',
+              '/settings/general'
+            )}
+            {this.renderBox(
+              'Team Members',
+              '/images/icons/erxes-02.svg',
+              '/settings/team'
+            )}
+            {this.renderBox(
+              'Properties',
+              '/images/icons/erxes-01.svg',
+              '/settings/properties'
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>{__('Integration Settings')}</RowTitle>
           <div>
             {this.renderBox(
               'Channels',
@@ -61,16 +82,6 @@ class Settings extends Component {
               '/images/icons/erxes-12.svg',
               '/settings/forms'
             )}
-            {this.renderBox(
-              'Team Members',
-              '/images/icons/erxes-02.svg',
-              '/settings/team'
-            )}
-            {this.renderBox(
-              'Properties',
-              '/images/icons/erxes-01.svg',
-              '/settings/properties'
-            )}
           </div>
         </Row>
         <Divider />
@@ -78,18 +89,13 @@ class Settings extends Component {
           <RowTitle className="secondRow">{__('Deal Settings')}</RowTitle>
           <div>
             {this.renderBox(
-              'General',
-              '/images/icons/erxes-06.svg',
-              '/settings/general'
-            )}
-            {this.renderBox(
               'Boards & Pipelines',
-              '/images/icons/erxes-18.svg',
+              '/images/icons/erxes-19.svg',
               '/settings/deals'
             )}
             {this.renderBox(
               'Product & Service',
-              '/images/icons/erxes-19.svg',
+              '/images/icons/erxes-13.svg',
               '/settings/product-service'
             )}
           </div>
