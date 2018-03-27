@@ -31,6 +31,7 @@ const stages = `
     dealStages(pipelineId: $pipelineId) {
       _id
       name
+      probability
       pipelineId
     }
   }
