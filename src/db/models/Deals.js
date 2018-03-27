@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { field } from './utils';
+import { PROBABILITY } from '../../data/constants';
 
 // Schema for common fields
 const commonFields = {
@@ -192,6 +193,10 @@ class Pipeline {
 const StageSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
+  probability: field({
+    type: String,
+    enum: PROBABILITY.ALL,
+  }), // Win probability
   pipelineId: field({ type: String }),
   ...commonFields,
 });
