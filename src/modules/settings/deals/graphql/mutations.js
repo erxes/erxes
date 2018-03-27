@@ -28,6 +28,12 @@ const boardRemove = `
   }
 `;
 
+const boardSelect = `
+  mutation dealBoardsSelect($_id: String!) {
+    dealBoardsSelect(_id: $_id)
+  }
+`;
+
 const commonPipelineParamsDef = `
   $name: String!,
   $boardId: String!,
@@ -74,6 +80,7 @@ export default {
   boardAdd,
   boardEdit,
   boardRemove,
+  boardSelect,
   pipelineAdd,
   pipelineEdit,
   pipelineRemove,

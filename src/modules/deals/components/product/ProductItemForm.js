@@ -104,7 +104,7 @@ class ProductItemForm extends React.Component {
         </td>
         <td>
           <FormControl
-            value={productData.quantity}
+            defaultValue={productData.quantity}
             type="number"
             min="1"
             placeholder="0"
@@ -118,7 +118,7 @@ class ProductItemForm extends React.Component {
         </td>
         <td>
           <FormControl
-            value={productData.unitPrice}
+            defaultValue={productData.unitPrice}
             type="number"
             placeholder="0"
             name="unitPrice"
@@ -136,7 +136,7 @@ class ProductItemForm extends React.Component {
           />
 
           <FormControl
-            value={productData.taxPercent}
+            defaultValue={productData.taxPercent}
             type="number"
             min="0"
             max="100"

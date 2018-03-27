@@ -10,6 +10,7 @@ const propTypes = {
   boards: PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
+  select: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired
 };
 
@@ -21,10 +22,17 @@ class Boards extends Component {
   }
 
   renderItems() {
-    const { boards, remove, save } = this.props;
+    const { boards, remove, save, select } = this.props;
 
     return boards.map(board => (
-      <BoardRow key={board._id} board={board} remove={remove} save={save} />
+      <BoardRow
+        key={board._id}
+        selected={board.selected}
+        board={board}
+        remove={remove}
+        save={save}
+        select={select}
+      />
     ));
   }
 

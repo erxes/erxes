@@ -147,33 +147,33 @@ const BoardDetailContainer = compose(
  * We will use this component when there is no current board id
  * in query string
  */
-const LastBoard = props => {
-  const { boardGetLastQuery } = props;
+const SelectedBoard = props => {
+  const { boardGetSelectedQuery } = props;
 
-  if (boardGetLastQuery.loading) {
+  if (boardGetSelectedQuery.loading) {
     return <Spinner />;
   }
 
-  const lastBoard = boardGetLastQuery.dealBoardGetLast;
+  const selectedBoard = boardGetSelectedQuery.dealBoardGetSelected;
 
   const extendedProps = {
     ...props,
-    currentBoard: lastBoard
+    currentBoard: selectedBoard
   };
 
   return <BoardContainer {...extendedProps} />;
 };
 
-LastBoard.propTypes = {
-  boardGetLastQuery: PropTypes.object
+SelectedBoard.propTypes = {
+  boardGetSelectedQuery: PropTypes.object
 };
 
-const LastBoardContainer = compose(
-  graphql(gql(queries.boardGetLast), {
-    name: 'boardGetLastQuery',
+const SelectedBoardContainer = compose(
+  graphql(gql(queries.boardGetSelected), {
+    name: 'boardGetSelectedQuery',
     options: () => ({ fetchPolicy: 'network-only' })
   })
-)(LastBoard);
+)(SelectedBoard);
 
 /*
  * Main board component
@@ -191,7 +191,7 @@ const Board = props => {
     return <BoardDetailContainer {...extentedProps} />;
   }
 
-  return <LastBoardContainer {...props} />;
+  return <SelectedBoardContainer {...props} />;
 };
 
 Board.propTypes = {
