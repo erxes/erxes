@@ -24,11 +24,13 @@ const dealQueries = {
    * Get selected board
    * @return {Promise} board
    */
-  dealBoardGetSelected() {
-    return DealBoards.findOne({ selected: true }).sort({
-      order: 1,
-      createdAt: -1,
-    });
+  async dealBoardGetSelected() {
+    const selectedBoard = await DealBoards.findOne({ selected: true });
+
+    if (selectedBoard) return selectedBoard;
+
+    // if no selected board, return last board
+    return DealBoards.findOne().sort({ createdAt: -1 });
   },
 
   /**
