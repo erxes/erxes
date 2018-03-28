@@ -2,8 +2,8 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { userFactory, formFactory, fieldFactory } from '../db/factories';
-import { Forms, Users, Fields } from '../db/models';
+import { userFactory, customerFactory, formFactory, fieldFactory } from '../db/factories';
+import { Customers, Forms, Users, Fields } from '../db/models';
 import toBeType from 'jest-tobetype';
 
 expect.extend(toBeType);
@@ -96,14 +96,25 @@ describe('form remove', async () => {
 
   afterEach(async () => {
     await Forms.remove({});
+    await Fields.remove({});
+    await Customers.remove({});
   });
 
   test('check if form removal is working successfully', async () => {
+    const customer = await customerFactory({});
+
+    await fieldFactory({ contentType: 'customer', contentTypeId: customer._id });
+    await fieldFactory({ contentType: 'form', contentTypeId: _form._id });
+    await fieldFactory({ contentType: 'form', contentTypeId: _form._id });
+    await fieldFactory({ contentType: 'form', contentTypeId: _form._id });
+
     await Forms.removeForm(_form._id);
 
     const formCount = await Forms.find({}).count();
+    const fieldsCount = await Fields.find({}).count();
 
     expect(formCount).toBe(0);
+    expect(fieldsCount).toBe(1);
   });
 });
 

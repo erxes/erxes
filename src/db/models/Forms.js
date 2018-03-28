@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { Integrations, Fields } from './';
+import { Fields } from './';
 import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import { field } from './utils';
 
@@ -93,14 +93,10 @@ class Form {
    * Remove a form
    * @param {string} _id - Form document id
    * @return {Promise}
-   * @throws {Error} throws Error if this form has fields or if used in an integration
    */
   static async removeForm(_id) {
-    const integrationCount = await Integrations.find({ formId: _id }).count();
-
-    if (integrationCount > 0) {
-      throw new Error('You cannot delete this form. This form used in integration.');
-    }
+    // remove fields
+    await Fields.remove({ contentType: 'form', contentTypeId: _id });
 
     return this.remove({ _id });
   }
