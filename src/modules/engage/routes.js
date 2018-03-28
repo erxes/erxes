@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { MessageList, EngageForm } from './containers';
+import queryString from 'query-string';
+import { MessageList, MessageForm } from './containers';
 
 const routes = () => [
   <Route key="/engage/home" exact path="/engage" component={MessageList} />,
@@ -9,8 +10,9 @@ const routes = () => [
     key="/engage/messages/create"
     exact
     path="/engage/messages/create"
-    component={() => {
-      return <EngageForm />;
+    component={({ location }) => {
+      const queryParams = queryString.parse(location.search);
+      return <MessageForm kind={queryParams.kind} />;
     }}
   />,
 
@@ -19,7 +21,7 @@ const routes = () => [
     exact
     path="/engage/messages/edit/:_id"
     component={({ match }) => {
-      return <EngageForm messageId={match.params._id} />;
+      return <MessageForm messageId={match.params._id} />;
     }}
   />
 ];

@@ -16,10 +16,16 @@ class Segments extends Component {
     super(props);
 
     this.state = {
-      chosenSegment: props.defaultValue
+      chosenSegment: ''
     };
 
     this.onClickSegment = this.onClickSegment.bind(this);
+  }
+
+  componentDidMount() {
+    if (this.props.defaultValue !== '') {
+      this.setState({ chosenSegment: this.props.defaultValue });
+    }
   }
 
   onClickSegment(segmentId) {

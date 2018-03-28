@@ -15,25 +15,10 @@ class MessageListContainer extends Bulk {
       queryParams,
       tagsQuery,
       engageMessagesQuery,
-      engageMessagesTotalCountQuery,
-      engagesListConfigQuery,
-      history,
-      location
+      engageMessagesTotalCountQuery
     } = this.props;
 
-    let columnsConfig = engagesListConfigQuery.fieldsDefaultColumnsConfig || [];
-
-    // load config from local storage
-    const localConfig = localStorage.getItem('erxes_engage_columns_config');
-
-    if (localConfig) {
-      columnsConfig = JSON.parse(localConfig);
-    }
-
     const updatedProps = {
-      columnsConfig,
-      history,
-      location,
       kind: queryParams.kind,
       messages: engageMessagesQuery.engageMessages || [],
       totalCount: engageMessagesTotalCountQuery.engageMessagesTotalCount || 0,
@@ -53,7 +38,6 @@ MessageListContainer.propTypes = {
   type: PropTypes.string,
   queryParams: PropTypes.object,
   engageMessagesQuery: PropTypes.object,
-  engagesListConfigQuery: PropTypes.object,
   engageMessagesTotalCountQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
   loading: PropTypes.bool
@@ -89,12 +73,6 @@ const MessageListContainerWithData = compose(
       variables: {
         type: TAG_TYPES.ENGAGE_MESSAGE
       }
-    })
-  }),
-  graphql(gql(queries.engagesListConfig), {
-    name: 'engagesListConfigQuery',
-    options: () => ({
-      notifyOnNetworkStatusChange: true
     })
   })
 )(MessageListContainer);
