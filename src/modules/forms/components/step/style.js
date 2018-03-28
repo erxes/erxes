@@ -401,6 +401,10 @@ const DesktopPreview = styled.div`
   border-radius: ${dimensions.unitSpacing / 2}px;
   flex: 1;
   padding-top: ${dimensions.headerSpacing - 20}px;
+
+  ${PreviewBody} {
+    max-height: 300px;
+  }
 `;
 
 const TabletPreview = styled.div`
@@ -416,6 +420,10 @@ const MobilePreview = styled.div`
   width: 376px;
   margin: 0 auto;
   padding: 90px ${dimensions.coreSpacing}px;
+
+  ${PreviewBody} {
+    max-height: 250px;
+  }
 `;
 
 const StepItem = styled.div`
