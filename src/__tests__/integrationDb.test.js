@@ -8,11 +8,12 @@ import {
   brandFactory,
   integrationFactory,
   formFactory,
+  fieldFactory,
   userFactory,
   conversationMessageFactory,
   conversationFactory,
 } from '../db/factories';
-import { Integrations, Brands, Users, Forms, ConversationMessages } from '../db/models';
+import { Integrations, Brands, Users, Forms, Fields, ConversationMessages } from '../db/models';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -208,15 +209,20 @@ describe('edit form integration', () => {
 
 describe('remove integration model method test', () => {
   let _brand;
+  let _form;
   let _integration;
   let _conversation;
 
   beforeEach(async () => {
     _brand = await brandFactory({});
 
+    _form = await formFactory({});
+    await fieldFactory({ contentType: 'form', contentTypeId: _form._id });
+
     _integration = await integrationFactory({
       name: 'form integration test',
       brandId: _brand._id,
+      formId: _form._id,
       kind: 'form',
     });
 
@@ -231,15 +237,17 @@ describe('remove integration model method test', () => {
     await Integrations.remove({});
     await Users.remove({});
     await ConversationMessages.remove({});
+    await Forms.remove({});
+    await Fields.remove({});
   });
 
   test('test if remove form integration model method is working successfully', async () => {
     await Integrations.removeIntegration({ _id: _integration._id });
 
-    const integrationCount = await Integrations.find({}).count();
-
-    expect(integrationCount).toEqual(0);
+    expect(await Integrations.find({}).count()).toEqual(0);
     expect(await ConversationMessages.find({}).count()).toBe(0);
+    expect(await Forms.find({}).count()).toBe(0);
+    expect(await Fields.find({}).count()).toBe(0);
   });
 });
 
