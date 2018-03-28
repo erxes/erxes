@@ -49,6 +49,18 @@ export const closeModal = () => {
     setting: connection.setting,
     closeModal: true,
   }, '*');
+
+  // Increasing view count
+  client.mutate({
+    mutation: gql`
+      mutation formIncreaseViewCount($formId: String!) {
+        formIncreaseViewCount(formId: $formId)
+      }`,
+
+    variables: {
+      formId: connection.data.formId,
+    },
+  });
 };
 
 
