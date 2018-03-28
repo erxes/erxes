@@ -37,8 +37,10 @@ class EditFormContainer extends Component {
     const save = doc => {
       const { form, brandId, name, languageCode, formData, fields } = doc;
 
+      // edit form
       editFormMutation({ variables: { _id: formId, ...form } })
         .then(() =>
+          // edit integration
           editIntegrationMutation({
             variables: {
               _id: integration._id,
@@ -52,45 +54,44 @@ class EditFormContainer extends Component {
         )
 
         .then(() => {
-          const promises = [];
-
           const dbFieldIds = dbFields.map(field => field._id);
+          const existingIds = [];
           const createFieldsData = [];
           const updateFieldsData = [];
           const removeFieldsData = [];
-          const existingIds = [];
 
+          // collect fields ================
           for (const field of fields) {
-            // existing field
+            // collect fields to update
             if (dbFieldIds.includes(field._id)) {
               existingIds.push(field._id);
               updateFieldsData.push(field);
               continue;
             }
 
-            // not existing field
+            // collect fields to create
             delete field._id;
 
-            promises.push(
-              createFieldsData.push({
-                ...field,
-                contentType: 'form',
-                contentTypeId: formId
-              })
-            );
+            createFieldsData.push({
+              ...field,
+              contentType: 'form',
+              contentTypeId: formId
+            });
           }
 
+          // collect fields to remove
           for (const dbFieldId of dbFieldIds) {
             if (!existingIds.includes(dbFieldId)) {
-              promises.push(removeFieldsData.push({ _id: dbFieldId }));
+              removeFieldsData.push({ _id: dbFieldId });
             }
           }
 
+          // save fields ===================
+          const promises = [];
+
           const doMutation = ({ datas, mutation }) => {
             for (const data of datas) {
-              mutation({
-                variables: data
-              });
+              promises.push(mutation({ variables: data }));
             }
           };
 

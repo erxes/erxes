@@ -13,7 +13,7 @@ const propTypes = {
   image: PropTypes.string,
   thankContent: PropTypes.string,
   carousel: PropTypes.string,
-  fields: PropTypes.array, // eslint-disable-line
+  fields: PropTypes.array,
   onFieldEdit: PropTypes.func,
   onSort: PropTypes.func,
   onChange: PropTypes.func

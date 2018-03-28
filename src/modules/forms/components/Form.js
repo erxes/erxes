@@ -62,6 +62,7 @@ class Form extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
+
     const { brand, calloutTitle, title } = this.state;
     const { __ } = this.context;
 
@@ -118,6 +119,7 @@ class Form extends Component {
         </Button>
       </Link>
     );
+
     return (
       <Button.Group>
         {cancelButton}
@@ -167,8 +169,8 @@ class Form extends Component {
     } = this.state;
 
     const { integration, brands } = this.props;
-
     const { __ } = this.context;
+
     const formData = integration && integration.formData;
     const brand = integration && (integration.brand || {});
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
