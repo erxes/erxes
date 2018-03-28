@@ -4,16 +4,27 @@ export const types = `
     title: String
     code: String
     description: String
+    buttonText: String
+    themeColor: String
+    featuredImage: String
     createdUserId: String
     createdDate: Date
+    viewCount: Int
+    contactsGathered: Int
   }
 `;
 
+const commonFields = `
+  title: String!,
+  description: String,
+  buttonText: String,
+  themeColor: String,
+  featuredImage: String,
+`;
+
 export const mutations = `
-  formsAdd(title: String!, description: String): Form
-  formsEdit(_id: String!, title: String!, description: String): Form
-  formsRemove(_id: String!): String
-  formsDuplicate(_id: String!): Form
+  formsAdd(${commonFields}): Form
+  formsEdit(_id: String!, ${commonFields} ): Form
 `;
 
 export const queries = `
