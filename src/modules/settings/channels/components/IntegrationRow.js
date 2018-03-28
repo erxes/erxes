@@ -10,7 +10,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import { Form, Messenger } from 'modules/settings/integrations/containers';
+import { Messenger } from 'modules/settings/integrations/containers';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
@@ -67,24 +67,12 @@ class IntegrationRow extends Component {
       );
     }
 
-    if (kind === KIND_CHOICES.FORM) {
-      return (
-        <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Form integration={integration} refetch={refetch} />
-        </ModalTrigger>
-      );
-    }
-
     return null;
   }
 
   getTypeName() {
     const kind = this.props.integration.kind;
     let type = 'default';
-
-    if (kind === KIND_CHOICES.FORM) {
-      type = 'form';
-    }
 
     if (kind === KIND_CHOICES.TWITTER) {
       type = 'twitter';
