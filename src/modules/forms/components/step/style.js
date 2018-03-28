@@ -44,11 +44,6 @@ const Preview = styled.div`
   padding: ${dimensions.coreSpacing}px;
 `;
 
-const Title = styled.label`
-  display: block;
-  margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;
-`;
-
 const CenterContainer = styled.div`
   display: flex;
   flex: 1;
@@ -130,7 +125,6 @@ const BackgroundSelector = styled.li`
     background: ${colors.borderPrimary};
     border-radius: 50%;
     line-height: ${dimensions.headerSpacing - 20}px;
-    border: 1px solid ${colors.bgMain};
   }
 
   &:first-child {
@@ -404,7 +398,7 @@ const ResolutionTabs = styled.div`
 
 const DesktopPreview = styled.div`
   background: url('/images/previews/desktop.png') no-repeat;
-  background-size: 100% 100%;
+  background-size: cover;
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
   flex: 1;
@@ -431,7 +425,6 @@ export {
   FlexItem,
   LeftItem,
   Preview,
-  Title,
   CenterContainer,
   FormContainer,
   PreviewBody,

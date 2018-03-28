@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormGroup } from 'modules/common/components';
+import {
+  FormControl,
+  FormGroup,
+  ControlLabel
+} from 'modules/common/components';
 import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
-import { FlexItem, LeftItem, Preview, Title } from './style';
+import { FlexItem, LeftItem, Preview } from './style';
 
 const propTypes = {
   type: PropTypes.string,
@@ -41,12 +45,12 @@ class SuccessStep extends Component {
     this.props.onChange(name, value);
   }
 
-  renderEmailFields(formData, __) {
+  renderEmailFields(formData) {
     if (this.state.successAction === 'email') {
       return (
         <div>
           <FormGroup>
-            <Title>{__('From email')}</Title>
+            <ControlLabel>From email</ControlLabel>
             <FormControl
               type="text"
               id="fromEmail"
@@ -56,7 +60,7 @@ class SuccessStep extends Component {
           </FormGroup>
 
           <FormGroup>
-            <Title>{__('User email title')}</Title>
+            <ControlLabel>User email title</ControlLabel>
             <FormControl
               type="text"
               id="userEmailTitle"
@@ -68,7 +72,7 @@ class SuccessStep extends Component {
           </FormGroup>
 
           <FormGroup>
-            <Title>{__('User email content')}</Title>
+            <ControlLabel>User email content</ControlLabel>
             <FormControl
               componentClass="textarea"
               type="text"
@@ -81,7 +85,7 @@ class SuccessStep extends Component {
           </FormGroup>
 
           <FormGroup>
-            <Title>{__('Admin emails')}</Title>
+            <ControlLabel>Admin emails</ControlLabel>
             <FormControl
               type="text"
               defaultValue={formData.adminEmails}
@@ -93,7 +97,7 @@ class SuccessStep extends Component {
           </FormGroup>
 
           <FormGroup>
-            <Title>{__('Admin email title')}</Title>
+            <ControlLabel>Admin email title</ControlLabel>
             <FormControl
               type="text"
               defaultValue={formData.adminEmailTitle}
@@ -105,7 +109,7 @@ class SuccessStep extends Component {
           </FormGroup>
 
           <FormGroup>
-            <Title>{__('Admin email content')}</Title>
+            <ControlLabel>Admin email content</ControlLabel>
             <FormControl
               componentClass="textarea"
               type="text"
@@ -121,12 +125,12 @@ class SuccessStep extends Component {
     }
   }
 
-  renderRedirectUrl(formData, __) {
+  renderRedirectUrl(formData) {
     if (this.state.successAction === 'redirect') {
       return (
         <div>
           <FormGroup>
-            <Title>{__('Redirect url')}</Title>
+            <ControlLabel>Redirect url</ControlLabel>
             <FormControl
               type="text"
               defaultValue={formData.redirectUrl}
@@ -156,39 +160,42 @@ class SuccessStep extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     const { thankContent } = this.props;
     const formData = this.props.formData || {};
 
     return (
       <FlexItem>
         <LeftItem>
-          <Title>{__('On success')}</Title>
-          <FormControl
-            componentClass="select"
-            defaultValue={formData.successAction}
-            onChange={this.handleSuccessActionChange}
-            id="successAction"
-          >
-            <option />
-            <option>email</option>
-            <option>redirect</option>
-            <option>onPage</option>
-          </FormControl>
+          <FormGroup>
+            <ControlLabel>On success</ControlLabel>
+            <FormControl
+              componentClass="select"
+              defaultValue={formData.successAction}
+              onChange={this.handleSuccessActionChange}
+              id="successAction"
+            >
+              <option />
+              <option>email</option>
+              <option>redirect</option>
+              <option>onPage</option>
+            </FormControl>
+          </FormGroup>
 
-          {this.renderEmailFields(formData, __)}
-          {this.renderRedirectUrl(formData, __)}
+          {this.renderEmailFields(formData)}
+          {this.renderRedirectUrl(formData)}
 
-          <Title>{__('Thank content')}</Title>
-          <FormControl
-            id="thankContent"
-            type="text"
-            componentClass="textarea"
-            defaultValue={thankContent}
-            onChange={e =>
-              this.onChangeFunction('thankContent', e.target.value)
-            }
-          />
+          <FormGroup>
+            <ControlLabel>Thank content</ControlLabel>
+            <FormControl
+              id="thankContent"
+              type="text"
+              componentClass="textarea"
+              defaultValue={thankContent}
+              onChange={e =>
+                this.onChangeFunction('thankContent', e.target.value)
+              }
+            />
+          </FormGroup>
         </LeftItem>
 
         <Preview>{this.renderPreview()}</Preview>

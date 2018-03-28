@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl } from 'modules/common/components';
+import {
+  FormControl,
+  FormGroup,
+  ControlLabel
+} from 'modules/common/components';
 import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
-import { FlexItem, LeftItem, Preview, Title } from './style';
+import { FlexItem, LeftItem, Preview } from './style';
 
 const propTypes = {
   type: PropTypes.string,
@@ -46,39 +50,42 @@ class OptionStep extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     const { brands, brand = {} } = this.props;
 
     return (
       <FlexItem>
         <LeftItem>
-          <Title>{__('Brand')}</Title>
-          <FormControl
-            componentClass="select"
-            defaultValue={brand._id}
-            id="selectBrand"
-            onChange={e => this.onChangeFunction('brand', e.target.value)}
-          >
-            <option />
-            {brands &&
-              brands.map(brand => (
-                <option key={brand._id} value={brand._id}>
-                  {brand.name}
-                </option>
-              ))}
-          </FormControl>
+          <FormGroup>
+            <ControlLabel>Brand</ControlLabel>
+            <FormControl
+              componentClass="select"
+              defaultValue={brand._id}
+              id="selectBrand"
+              onChange={e => this.onChangeFunction('brand', e.target.value)}
+            >
+              <option />
+              {brands &&
+                brands.map(brand => (
+                  <option key={brand._id} value={brand._id}>
+                    {brand.name}
+                  </option>
+                ))}
+            </FormControl>
+          </FormGroup>
 
-          <Title>{__('Language')}</Title>
-          <FormControl
-            componentClass="select"
-            defaultValue={'en'}
-            id="languageCode"
-            onChange={e => this.onChangeFunction('language', e.target.value)}
-          >
-            <option />
-            <option value="mn">Монгол</option>
-            <option value="en">English</option>
-          </FormControl>
+          <FormGroup>
+            <ControlLabel>Language</ControlLabel>
+            <FormControl
+              componentClass="select"
+              defaultValue={'en'}
+              id="languageCode"
+              onChange={e => this.onChangeFunction('language', e.target.value)}
+            >
+              <option />
+              <option value="mn">Монгол</option>
+              <option value="en">English</option>
+            </FormControl>
+          </FormGroup>
         </LeftItem>
 
         <Preview>{this.renderPreview()}</Preview>

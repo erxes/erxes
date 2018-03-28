@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
+import { FormGroup, ControlLabel } from 'modules/common/components';
 import { dimensions, colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-import { FlexItem, LeftItem, Preview, Title, BoxRow } from './style';
+import { FlexItem, LeftItem, Preview, BoxRow } from './style';
 
 const Box = styled.div`
   text-align: center;
@@ -92,27 +93,29 @@ class ChooseType extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     return (
       <FlexItem>
         <LeftItem>
-          <Title>{__('Choose a flow type')}</Title>
-          <BoxRow>
-            {this.renderBox(
-              'ShoutBox',
-              '/images/icons/shoutbox.svg',
-              'shoutbox'
-            )}
-            {this.renderBox('Popup', '/images/icons/expand.svg', 'popup')}
-          </BoxRow>
-          <BoxRow type="odd">
-            {this.renderBox(
-              'Embedded',
-              '/images/icons/computer.svg',
-              'embedded'
-            )}
-            <div />
-          </BoxRow>
+          <FormGroup>
+            <ControlLabel>Choose a flow type</ControlLabel>
+            <BoxRow>
+              {this.renderBox(
+                'ShoutBox',
+                '/images/icons/shoutbox.svg',
+                'shoutbox'
+              )}
+              {this.renderBox('Popup', '/images/icons/expand.svg', 'popup')}
+            </BoxRow>
+
+            <BoxRow type="odd">
+              {this.renderBox(
+                'Embedded',
+                '/images/icons/computer.svg',
+                'embedded'
+              )}
+              <div />
+            </BoxRow>
+          </FormGroup>
         </LeftItem>
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>

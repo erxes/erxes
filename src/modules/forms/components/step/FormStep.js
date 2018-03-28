@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { FormGroup, FormControl, Button } from 'modules/common/components';
+import {
+  FormGroup,
+  FormControl,
+  Button,
+  ControlLabel
+} from 'modules/common/components';
 import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
 import { colors, dimensions } from 'modules/common/styles';
-import { FlexItem, LeftItem, Preview, Title } from './style';
+import { FlexItem, LeftItem, Preview } from './style';
 
 const Fields = styled.ul`
   list-style: none;
@@ -228,7 +233,6 @@ class FormStep extends Component {
 
   renderOptionsTextArea() {
     const { editingField, chosenFieldType } = this.state;
-    const { __ } = this.context;
 
     if (
       !['select', 'check', 'radio'].includes(
@@ -240,7 +244,7 @@ class FormStep extends Component {
 
     return (
       <FormGroup>
-        <Title htmlFor="type">{__('Options:')}</Title>
+        <ControlLabel htmlFor="type">Options:</ControlLabel>
 
         <FormControl
           id="options"
@@ -261,7 +265,7 @@ class FormStep extends Component {
     return (
       <Fields>
         <FormGroup>
-          <Title htmlFor="type">{__('Type:')}</Title>
+          <ControlLabel htmlFor="type">Type:</ControlLabel>
 
           <FormControl
             id="type"
@@ -282,7 +286,7 @@ class FormStep extends Component {
         </FormGroup>
 
         <FormGroup>
-          <Title htmlFor="validation">{__('Validation:')}</Title>
+          <ControlLabel htmlFor="validation">Validation:</ControlLabel>
 
           <FormControl
             id="validation"
@@ -298,7 +302,7 @@ class FormStep extends Component {
         </FormGroup>
 
         <FormGroup>
-          <Title htmlFor="text">{__('Text:')}</Title>
+          <ControlLabel htmlFor="text">Text:</ControlLabel>
           <FormControl
             id="text"
             type="text"
@@ -308,7 +312,7 @@ class FormStep extends Component {
         </FormGroup>
 
         <FormGroup>
-          <Title htmlFor="description">{__('Description:')}</Title>
+          <ControlLabel htmlFor="description">Description:</ControlLabel>
           <FormControl
             id="description"
             componentClass="textarea"

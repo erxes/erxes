@@ -4,14 +4,18 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import styled from 'styled-components';
 import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
-import { FormControl, Icon } from 'modules/common/components';
+import {
+  FormControl,
+  FormGroup,
+  ControlLabel,
+  Icon
+} from 'modules/common/components';
 import { dimensions, colors } from 'modules/common/styles';
 import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
 import {
   FlexItem,
   LeftItem,
   Preview,
-  Title,
   ColorPick,
   ColorPicker,
   Picker,
@@ -182,33 +186,41 @@ class CallOut extends Component {
     return (
       <FlexItem>
         <LeftItem>
-          <Title>{__('Callout title')}</Title>
-          <FormControl
-            id="callout-title"
-            type="text"
-            value={this.props.calloutTitle}
-            onChange={e =>
-              this.onChangeFunction('calloutTitle', e.target.value)
-            }
-          />
+          <FormGroup>
+            <ControlLabel>Callout title</ControlLabel>
+            <FormControl
+              id="callout-title"
+              type="text"
+              value={this.props.calloutTitle}
+              onChange={e =>
+                this.onChangeFunction('calloutTitle', e.target.value)
+              }
+            />
+          </FormGroup>
 
-          <Title>{__('Callout body')}</Title>
-          <FormControl
-            id="callout-body"
-            type="text"
-            value={this.props.bodyValue}
-            onChange={e => this.onChangeFunction('bodyValue', e.target.value)}
-          />
+          <FormGroup>
+            <ControlLabel>Callout body</ControlLabel>
+            <FormControl
+              id="callout-body"
+              type="text"
+              value={this.props.bodyValue}
+              onChange={e => this.onChangeFunction('bodyValue', e.target.value)}
+            />
+          </FormGroup>
 
-          <Title>{__('Callout button text')}</Title>
-          <FormControl
-            id="callout-btn-text"
-            value={this.props.btnText}
-            onChange={e => this.onChangeFunction('btnText', e.target.value)}
-          />
+          <FormGroup>
+            <ControlLabel>Callout button text</ControlLabel>
+            <FormControl
+              id="callout-btn-text"
+              value={this.props.btnText}
+              onChange={e => this.onChangeFunction('btnText', e.target.value)}
+            />
+          </FormGroup>
 
-          <Title>{__('Theme color')}</Title>
-          <p>{__('Try some of these colors:')}</p>
+          <FormGroup>
+            <ControlLabel>Theme color</ControlLabel>
+            <p>{__('Try some of these colors:')}</p>
+          </FormGroup>
 
           <ColorPick>
             {this.renderThemeColor('#04A9F5')}
@@ -229,11 +241,14 @@ class CallOut extends Component {
             </OverlayTrigger>
           </ColorPick>
 
-          <Title>{__('Featured image')}</Title>
-          <ImageWrapper>
-            <ImageContent>{this.renderUploadImage()}</ImageContent>
-          </ImageWrapper>
+          <FormGroup>
+            <ControlLabel>Featured image</ControlLabel>
+            <ImageWrapper>
+              <ImageContent>{this.renderUploadImage()}</ImageContent>
+            </ImageWrapper>
+          </FormGroup>
         </LeftItem>
+
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>
     );
