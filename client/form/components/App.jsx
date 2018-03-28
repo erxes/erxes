@@ -11,13 +11,14 @@ const propTypes = {
   onModalClose: PropTypes.func,
 };
 
-function App({ isShoutboxFormVisible, loadType, onModalClose }) {
+function App({ isShoutboxFormVisible, loadType, onModalClose, uiOptions }) {
   const widgetClasses = classNames('shoutbox-form', { opened: isShoutboxFormVisible });
+  
   if (loadType === 'shoutbox') {
     return (
       <div className={widgetClasses}>
         <Form />
-        <ShoutboxLauncher />
+        <ShoutboxLauncher color={uiOptions.themeColor} />
       </div>
     );
   }

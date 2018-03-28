@@ -2,7 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { iconRight, iconExit } from '../../icons/Icons';
+import { iconRight } from '../../icons/Icons';
 import { TopBar } from '../containers';
 
 class AccquireInformation extends React.Component {

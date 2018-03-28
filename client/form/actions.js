@@ -73,7 +73,8 @@ export const connect = (brandCode, formCode) =>
           integrationName,
           languageCode,
           formId,
-          formData
+          formData,
+          uiOptions
         }
       }`,
 

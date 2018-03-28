@@ -140,6 +140,11 @@ $break-medium: 500px;
     list-style: none;
     position: relative;
 
+    .erxes-description {
+      margin-bottom: 5px;
+      color: #555;
+    }
+
     .btn {
       background: $main-color;
       outline: 0;
