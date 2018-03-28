@@ -47,6 +47,7 @@ class DealForm extends React.Component {
     const deal = props.deal || {};
 
     this.state = {
+      disabled: false,
       amount: deal.amount || {},
       // Deal datas
       companies: deal.companies || [],
@@ -145,7 +146,18 @@ class DealForm extends React.Component {
       order: deal ? deal.order : dealsLength
     };
 
-    this.props.saveDeal(doc, () => this.props.close(), this.props.deal);
+    // before save, disable save button
+    this.setState({ disabled: true });
+
+    this.props.saveDeal(
+      doc,
+      () => {
+        this.props.close();
+        // after save, enable save button
+        this.setState({ disabled: false });
+      },
+      this.props.deal
+    );
   }
 
   renderProductModal(productsData, products) {
@@ -314,19 +326,16 @@ class DealForm extends React.Component {
         <Footer>
           <Button
             btnStyle="simple"
-            onClick={() => {
-              this.props.close();
-            }}
+            onClick={() => this.props.close()}
             icon="close"
           >
             Close
           </Button>
 
           <Button
+            disabled={this.state.disabled}
             btnStyle="success"
-            onClick={() => {
-              this.save();
-            }}
+            onClick={this.save}
             icon="checkmark"
           >
             Save
