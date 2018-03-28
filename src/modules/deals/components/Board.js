@@ -16,11 +16,12 @@ const propTypes = {
   boards: PropTypes.array,
   pipelines: PropTypes.array,
   onDragEnd: PropTypes.func,
-  states: PropTypes.object
+  states: PropTypes.object,
+  loading: PropTypes.bool
 };
 
 class Board extends React.Component {
-  renderBoard() {
+  renderBoards() {
     const { currentBoard, boards } = this.props;
 
     if (boards.length === 1) {
@@ -48,8 +49,8 @@ class Board extends React.Component {
     });
   }
 
-  renderPipeline() {
-    const { states, pipelines, currentBoard } = this.props;
+  renderPipelines() {
+    const { states, pipelines, currentBoard, loading } = this.props;
 
     const stageStates = {};
 
@@ -59,7 +60,7 @@ class Board extends React.Component {
       }
     });
 
-    if (pipelines.length === 0) {
+    if (pipelines.length === 0 && !loading) {
       return (
         <EmptyState
           linkUrl={`/settings/deals?boardId=${currentBoard._id}`}
@@ -114,7 +115,7 @@ class Board extends React.Component {
             </Button>
           </DropdownToggle>
 
-          <Dropdown.Menu>{this.renderBoard()}</Dropdown.Menu>
+          <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
         </Dropdown>
       </BarItems>
     );
@@ -125,7 +126,7 @@ class Board extends React.Component {
 
     const content = (
       <DragDropContext onDragEnd={onDragEnd}>
-        {this.renderPipeline()}
+        {this.renderPipelines()}
       </DragDropContext>
     );
 

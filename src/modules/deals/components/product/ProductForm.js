@@ -38,8 +38,7 @@ class ProductForm extends React.Component {
     this.state = {
       total: {},
       discount: {},
-      tax: {},
-      products: props.products || []
+      tax: {}
     };
   }
 
@@ -47,7 +46,9 @@ class ProductForm extends React.Component {
     this.updateTotal();
 
     // initial product item
-    this.addProductItem();
+    if (this.props.productsData.length === 0) {
+      this.addProductItem();
+    }
   }
 
   addProductItem() {

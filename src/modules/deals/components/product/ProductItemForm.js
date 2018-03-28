@@ -7,7 +7,7 @@ import {
   Button
 } from 'modules/common/components';
 import Select from 'react-select-plus';
-import { DealButton, ItemName, ProductItemText } from '../../styles';
+import { DealButton, ProductItemText } from '../../styles';
 import { selectConfigOptions } from '../../utils';
 import { ProductChooser } from '../../containers';
 import { CURRENCIES, MEASUREMENTS } from 'modules/settings/general/constants';
@@ -24,19 +24,32 @@ const propTypes = {
 };
 
 class ProductItemForm extends React.Component {
-  renderProductModal(productData) {
+  renderProductServiceTrigger(product) {
     const { __ } = this.context;
 
-    const productServiceTrigger = (
-      <DealButton>
+    let content = (
+      <div>
         {__('Product & Service')} <Icon icon="plus" />
-      </DealButton>
+      </div>
     );
 
+    // if product selected
+    if (product) {
+      content = (
+        <div>
+          {product.name} <Icon icon="edit" />
+        </div>
+      );
+    }
+
+    return <DealButton>{content}</DealButton>;
+  }
+
+  renderProductModal(productData) {
     return (
       <ModalTrigger
         title="Choose product & service"
-        trigger={productServiceTrigger}
+        trigger={this.renderProductServiceTrigger(productData.product)}
         size="large"
       >
         <ProductChooser
@@ -56,22 +69,13 @@ class ProductItemForm extends React.Component {
     );
   }
 
-  renderProduct(product) {
-    if (!product) return null;
-
-    return <ItemName>{product.name}</ItemName>;
-  }
-
   render() {
     const { __ } = this.context;
     const { uom, currencies, productData } = this.props;
 
     return (
       <tr key={productData._id}>
-        <td>
-          {this.renderProduct(productData.product)}
-          {this.renderProductModal(productData)}
-        </td>
+        <td>{this.renderProductModal(productData)}</td>
         <td>
           <Select
             name="uom"
@@ -104,7 +108,7 @@ class ProductItemForm extends React.Component {
         </td>
         <td>
           <FormControl
-            value={productData.quantity}
+            defaultValue={productData.quantity}
             type="number"
             min="1"
             placeholder="0"
@@ -118,7 +122,7 @@ class ProductItemForm extends React.Component {
         </td>
         <td>
           <FormControl
-            value={productData.unitPrice}
+            defaultValue={productData.unitPrice}
             type="number"
             placeholder="0"
             name="unitPrice"
@@ -136,7 +140,7 @@ class ProductItemForm extends React.Component {
           />
 
           <FormControl
-            value={productData.taxPercent}
+            defaultValue={productData.taxPercent}
             type="number"
             min="0"
             max="100"

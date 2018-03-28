@@ -72,7 +72,7 @@ class DealMoveFormContainer extends React.Component {
     const { boardId, pipelineId } = this.state;
 
     if (boardsQuery.loading || pipelinesQuery.loading || stagesQuery.loading) {
-      return <Spinner />;
+      return <Spinner objective />;
     }
 
     const boards = boardsQuery.dealBoards;
