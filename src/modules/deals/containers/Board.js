@@ -68,8 +68,12 @@ class BoardContainer extends React.Component {
   render() {
     const { boardsQuery, pipelinesQuery } = this.props;
 
+    if (pipelinesQuery.loading) {
+      return <Spinner />;
+    }
+
     const boards = boardsQuery.dealBoards || [];
-    const pipelines = pipelinesQuery.dealPipelines || [];
+    const pipelines = pipelinesQuery.dealPipelines;
 
     const extendedProps = {
       ...this.props,
