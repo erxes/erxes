@@ -61,7 +61,7 @@ describe('Test deals mutations', () => {
     check(dealMutations.dealBoardsRemove);
 
     // select
-    check(dealMutations.dealBoardsSelect);
+    check(dealMutations.dealBoardsSetDefault);
 
     // add
     check(dealMutations.dealPipelinesAdd);
@@ -139,12 +139,12 @@ describe('Test deals mutations', () => {
     expect(DealBoards.removeBoard.mock.calls.length).toBe(1);
   });
 
-  test('Select board', async () => {
-    DealBoards.selectBoard = jest.fn();
+  test('Set default board', async () => {
+    DealBoards.setDefaultBoard = jest.fn();
 
-    await dealMutations.dealBoardsSelect({}, { _id: board.id }, { user });
+    await dealMutations.dealBoardsSetDefault({}, { _id: board.id }, { user });
 
-    expect(DealBoards.selectBoard.mock.calls.length).toBe(1);
+    expect(DealBoards.setDefaultBoard.mock.calls.length).toBe(1);
   });
 
   test('Create pipeline', async () => {

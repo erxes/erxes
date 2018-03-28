@@ -31,12 +31,12 @@ const dealMutations = {
   },
 
   /**
-   * Select board
+   * Set default board
    * @param {String} _id
    * @return {Promise}
    */
-  dealBoardsSelect(root, { _id }) {
-    return DealBoards.selectBoard(_id);
+  dealBoardsSetDefault(root, { _id }) {
+    return DealBoards.setDefaultBoard(_id);
   },
 
   /**

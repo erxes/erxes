@@ -75,7 +75,10 @@ const createOrUpdatePipelineStages = async (stages, pipelineId) => {
 const BoardSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
-  selected: field({ type: Boolean }),
+  isDefault: field({
+    type: Boolean,
+    default: false,
+  }),
   ...commonFields,
 });
 
@@ -101,15 +104,15 @@ class Board {
   }
 
   /**
-   * Set select board
+   * Set default board
    * @param  {Object} doc
    * @return {Promise} updated board object
    */
-  static async selectBoard(_id) {
-    // set false for previous selected board
-    await this.update({ selected: true }, { $set: { selected: false } });
+  static async setDefaultBoard(_id) {
+    // set false for previous default board
+    await this.update({ isDefault: true }, { $set: { isDefault: false } });
 
-    await this.update({ _id }, { $set: { selected: true } });
+    await this.update({ _id }, { $set: { isDefault: true } });
 
     return this.findOne({ _id });
   }

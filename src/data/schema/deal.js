@@ -7,7 +7,7 @@ export const types = `
   type DealBoard {
     _id: String!
     name: String!
-    selected: Boolean
+    isDefault: Boolean
     ${commonTypes}
   }
 
@@ -47,7 +47,7 @@ export const types = `
 
 export const queries = `
   dealBoards: [DealBoard]
-  dealBoardGetSelected: DealBoard
+  dealBoardGetDefault: DealBoard
   dealBoardDetail(_id: String!): DealBoard
   dealPipelines(boardId: String!): [DealPipeline]
   dealStages(pipelineId: String!): [DealStage]
@@ -74,10 +74,10 @@ const dealStageMutationParams = `
 `;
 
 export const mutations = `
-  dealBoardsAdd(name: String!, selected: Boolean): DealBoard
-  dealBoardsEdit(_id: String!, name: String!, selected: Boolean): DealBoard
+  dealBoardsAdd(name: String!): DealBoard
+  dealBoardsEdit(_id: String!, name: String!): DealBoard
   dealBoardsRemove(_id: String!): String
-  dealBoardsSelect(_id: String!): String
+  dealBoardsSetDefault(_id: String!): String
 
   dealPipelinesAdd(name: String!, boardId: String!, stages: JSON): DealPipeline
   dealPipelinesEdit(_id: String!, name: String!, boardId: String!, stages: JSON): DealPipeline

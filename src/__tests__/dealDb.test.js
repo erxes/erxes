@@ -81,6 +81,12 @@ describe('Test deals model', () => {
     expect(isDeleted).toBeTruthy();
   });
 
+  test('Set default board', async () => {
+    const updatedBoard = await DealBoards.setDefaultBoard(board._id);
+
+    expect(updatedBoard.isDefault).toBeTruthy();
+  });
+
   test('Remove board not found', async () => {
     expect.assertions(1);
 

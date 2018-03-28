@@ -21,13 +21,13 @@ const dealQueries = {
   },
 
   /**
-   * Get selected board
+   * Get defalut board
    * @return {Promise} board
    */
-  async dealBoardGetSelected() {
-    const selectedBoard = await DealBoards.findOne({ selected: true });
+  async dealBoardGetDefault() {
+    const defaultBoard = await DealBoards.findOne({ isDefault: true });
 
-    if (selectedBoard) return selectedBoard;
+    if (defaultBoard) return defaultBoard;
 
     // if no selected board, return last board
     return DealBoards.findOne().sort({ createdAt: -1 });
