@@ -24,27 +24,32 @@ const propTypes = {
 };
 
 class ProductItemForm extends React.Component {
-  renderProductModal(productData) {
+  renderProductServiceTrigger(product) {
     const { __ } = this.context;
 
-    const productServiceTrigger = (
-      <DealButton>
-        {productData.product ? (
-          <div>
-            {productData.product.name} <Icon icon="edit" />
-          </div>
-        ) : (
-          <div>
-            {__('Product & Service')} <Icon icon="plus" />
-          </div>
-        )}
-      </DealButton>
+    let content = (
+      <div>
+        {__('Product & Service')} <Icon icon="plus" />
+      </div>
     );
 
+    // if product selected
+    if (product) {
+      content = (
+        <div>
+          {product.name} <Icon icon="edit" />
+        </div>
+      );
+    }
+
+    return <DealButton>{content}</DealButton>;
+  }
+
+  renderProductModal(productData) {
     return (
       <ModalTrigger
         title="Choose product & service"
-        trigger={productServiceTrigger}
+        trigger={this.renderProductServiceTrigger(productData.product)}
         size="large"
       >
         <ProductChooser
