@@ -38,8 +38,7 @@ class ProductForm extends React.Component {
     this.state = {
       total: {},
       discount: {},
-      tax: {},
-      products: props.products || []
+      tax: {}
     };
   }
 
