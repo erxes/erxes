@@ -28,9 +28,9 @@ const boardRemove = `
   }
 `;
 
-const boardSelect = `
-  mutation dealBoardsSelect($_id: String!) {
-    dealBoardsSelect(_id: $_id)
+const boardSetDefault = `
+  mutation dealBoardsSetDefault($_id: String!) {
+    dealBoardsSetDefault(_id: $_id)
   }
 `;
 
@@ -80,7 +80,7 @@ export default {
   boardAdd,
   boardEdit,
   boardRemove,
-  boardSelect,
+  boardSetDefault,
   pipelineAdd,
   pipelineEdit,
   pipelineRemove,

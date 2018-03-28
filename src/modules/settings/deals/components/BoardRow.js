@@ -10,8 +10,8 @@ const propTypes = {
   board: PropTypes.object.isRequired,
   remove: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
-  select: PropTypes.func.isRequired,
-  selected: PropTypes.bool
+  setDefault: PropTypes.func.isRequired,
+  isDefault: PropTypes.bool
 };
 
 class BoardRow extends Component {
@@ -19,19 +19,12 @@ class BoardRow extends Component {
     super(props);
 
     this.remove = this.remove.bind(this);
-    this.star = this.star.bind(this);
   }
 
   remove() {
     const { board } = this.props;
 
     this.props.remove(board._id);
-  }
-
-  star() {
-    const { board } = this.props;
-
-    this.props.select(board._id);
   }
 
   renderEditAction() {
@@ -57,12 +50,16 @@ class BoardRow extends Component {
   }
 
   render() {
-    const { board, selected } = this.props;
+    const { board, isDefault } = this.props;
 
     return (
-      <BoardRowContainer selected={selected}>
+      <BoardRowContainer isDefault={isDefault}>
         <SidebarListItem key={board._id}>
-          <Button btnStyle="link" onClick={this.star} icon="star" />
+          <Button
+            btnStyle="link"
+            onClick={this.props.setDefault.bind(this, board._id)}
+            icon="star"
+          />
           <Link to={`?boardId=${board._id}`}>{board.name}</Link>
           <ActionButtons>
             {this.renderEditAction()}

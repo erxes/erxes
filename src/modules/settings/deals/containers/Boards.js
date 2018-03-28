@@ -13,7 +13,7 @@ class BoardsContainer extends React.Component {
       addMutation,
       editMutation,
       removeMutation,
-      selectMutation
+      setDefaultMutation
     } = this.props;
 
     const { __ } = this.context;
@@ -62,9 +62,9 @@ class BoardsContainer extends React.Component {
         });
     };
 
-    // set select
-    const select = _id => {
-      selectMutation({
+    // set default
+    const setDefault = _id => {
+      setDefaultMutation({
         variables: { _id }
       })
         .then(() => {
@@ -82,7 +82,7 @@ class BoardsContainer extends React.Component {
       boards,
       save,
       remove,
-      select,
+      setDefault,
       loading: boardsQuery.loading
     };
 
@@ -115,7 +115,7 @@ export default compose(
   graphql(gql(mutations.boardRemove), {
     name: 'removeMutation'
   }),
-  graphql(gql(mutations.boardSelect), {
-    name: 'selectMutation'
+  graphql(gql(mutations.boardSetDefault), {
+    name: 'setDefaultMutation'
   })
 )(BoardsContainer);
