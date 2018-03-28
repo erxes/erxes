@@ -7,7 +7,7 @@ import {
   Button
 } from 'modules/common/components';
 import Select from 'react-select-plus';
-import { DealButton, ItemName, ProductItemText } from '../../styles';
+import { DealButton, ProductItemText } from '../../styles';
 import { selectConfigOptions } from '../../utils';
 import { ProductChooser } from '../../containers';
 import { CURRENCIES, MEASUREMENTS } from 'modules/settings/general/constants';
@@ -29,7 +29,15 @@ class ProductItemForm extends React.Component {
 
     const productServiceTrigger = (
       <DealButton>
-        {__('Product & Service')} <Icon icon="plus" />
+        {productData.product ? (
+          <div>
+            {productData.product.name} <Icon icon="edit" />
+          </div>
+        ) : (
+          <div>
+            {__('Product & Service')} <Icon icon="plus" />
+          </div>
+        )}
       </DealButton>
     );
 
@@ -56,22 +64,13 @@ class ProductItemForm extends React.Component {
     );
   }
 
-  renderProduct(product) {
-    if (!product) return null;
-
-    return <ItemName>{product.name}</ItemName>;
-  }
-
   render() {
     const { __ } = this.context;
     const { uom, currencies, productData } = this.props;
 
     return (
       <tr key={productData._id}>
-        <td>
-          {this.renderProduct(productData.product)}
-          {this.renderProductModal(productData)}
-        </td>
+        <td>{this.renderProductModal(productData)}</td>
         <td>
           <Select
             name="uom"
