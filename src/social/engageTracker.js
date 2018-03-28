@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import AWS from 'aws-sdk';
 
 const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
@@ -13,33 +14,40 @@ const sns = new AWS.SNS();
 const validateType = message => {
   const { type = '' } = message;
 
-  switch (type) {
-    case 'SubscriptionConfirmation': {
-      const params = {
-        Token: message.Token,
-        TopicArn: message.TopicArn,
-      };
+  if (type === 'SubscriptionConfirmation') {
+    const params = {
+      Token: message.Token,
+      TopicArn: message.TopicArn,
+    };
 
-      sns.confirmSubscription(params, function(err, data) {
-        if (err)
-          console.log(err, err.stack); // an error occurred
-        else console.log(data); // successful response
-      });
-      break;
+    sns.confirmSubscription(params, function(err) {
+      if (err)
+        console.log(err, err.stack); // an error occurred
+      else console.log('SNS subscription confirmed successfully'); // successful response
+    });
+  } else {
+    const { Message } = message;
+    const { eventType } = Message;
+    console.log(Message);
+
+    switch (eventType) {
+      case 'Open': {
+        break;
+      }
+
+      case 'Delivery': {
+        break;
+      }
+
+      case 'Send': {
+        break;
+      }
     }
-
-    default:
-      console.log(message);
-      break;
   }
 };
 
 const reqMiddleware = () => {
   return (req, res, next) => {
-    // if (req.headers['x-amz-sns-message-type']) {
-    //   req.headers['content-type'] = 'application/json;charset=UTF-8';
-    // }
-
     const chunks = [];
 
     req.setEncoding('utf8');
