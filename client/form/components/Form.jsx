@@ -179,6 +179,7 @@ Form.propTypes = {
 
   form: PropTypes.shape({
     title: PropTypes.string,
+    description: PropTypes.string,
     buttonText: PropTypes.string,
     themeColor: PropTypes.string,
     featuredImage: PropTypes.string,

@@ -27,6 +27,7 @@ Form.propTypes = {
   data: PropTypes.shape({
     form: PropTypes.shape({
       title: PropTypes.string,
+      description: PropTypes.string,
       buttonText: PropTypes.string,
       themeColor: PropTypes.string,
       featuredImage: PropTypes.string,
@@ -70,9 +71,10 @@ const FormWithData = graphql(
     query form($formId: String) {
       form(formId: $formId) {
         title
-        buttonText,
-        themeColor,
-        featuredImage,
+        description
+        buttonText
+        themeColor
+        featuredImage
 
         fields {
           _id
