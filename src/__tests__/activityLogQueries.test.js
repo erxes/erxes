@@ -41,11 +41,15 @@ describe('activityLogs', () => {
       { user: _user },
     );
 
+    expect(await ActivityLogs.find({}).count()).toBe(1);
+
     // create conversation
     await mutations.activityLogsAddConversationLog(null, {
       customerId: customer._id,
       conversationId: _conversation._id,
     });
+
+    expect(await ActivityLogs.find({}).count()).toBe(2);
 
     // create internal note
     const internalNote = await mutations.internalNotesAdd(
@@ -57,6 +61,8 @@ describe('activityLogs', () => {
       },
       { user: _user },
     );
+
+    expect(await ActivityLogs.find({}).count()).toBe(3);
 
     const nameEqualsConditions = [
       {
@@ -75,6 +81,8 @@ describe('activityLogs', () => {
 
     // create segment log
     await cronJobs.createActivityLogsFromSegments();
+
+    expect(await ActivityLogs.find({}).count()).toBe(4);
 
     const query = `
       query activityLogsCustomer($_id: String!) {
