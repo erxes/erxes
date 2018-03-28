@@ -24,8 +24,8 @@ export const toggleShoutbox = (isVisible) => {
     // Increasing view count
     client.mutate({
       mutation: gql`
-        mutation increaseViewCount($formId: String!) {
-          increaseViewCount(formId: $formId)
+        mutation formIncreaseViewCount($formId: String!) {
+          formIncreaseViewCount(formId: $formId)
         }`,
 
       variables: {
