@@ -72,12 +72,14 @@ export default class Form extends React.Component {
 
   renderForm() {
     const { __ } = this.context;
+    const { form, integrationName } = this.props;
+
     return (
       <div className="erxes-form">
         <div className="erxes-topbar thiner">
           <div className="erxes-middle">
             <div className="erxes-topbar-title">
-              <div>{this.props.integrationName}</div>
+              <div>{form.title || integrationName}</div>
             </div>
           </div>
         </div>
@@ -89,7 +91,7 @@ export default class Form extends React.Component {
             onClick={this.onSubmit}
             className="btn btn-block"
           >
-            {__('Send')}
+            {form.buttonText || __('Send')}
           </button>
         </div>
       </div>
@@ -177,6 +179,9 @@ Form.propTypes = {
 
   form: PropTypes.shape({
     title: PropTypes.string,
+    buttonText: PropTypes.string,
+    themeColor: PropTypes.string,
+    featuredImage: PropTypes.string,
 
     fields: PropTypes.arrayOf(PropTypes.shape({
       _id: PropTypes.string.isRequired,
