@@ -5,10 +5,10 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
 import { Spinner } from 'modules/common/components';
-import { Board as BoardComponent } from '../components';
+import { Board } from '../components';
 import { queries } from '../graphql';
 
-class Container extends React.Component {
+class BoardContainer extends React.Component {
   constructor(props) {
     super(props);
 
@@ -68,38 +68,35 @@ class Container extends React.Component {
   render() {
     const { boardsQuery, pipelinesQuery } = this.props;
 
-    if (boardsQuery.loading || pipelinesQuery.loading) {
-      return <Spinner />;
-    }
-
-    const boards = boardsQuery.dealBoards;
-    const pipelines = pipelinesQuery.dealPipelines;
+    const boards = boardsQuery.dealBoards || [];
+    const pipelines = pipelinesQuery.dealPipelines || [];
 
     const extendedProps = {
       ...this.props,
       states: this.state,
       onDragEnd: this.onDragEnd,
       boards,
-      pipelines
+      pipelines,
+      loading: pipelinesQuery.loading
     };
 
-    return <BoardComponent {...extendedProps} />;
+    return <Board {...extendedProps} />;
   }
 }
 
-Container.propTypes = {
+BoardContainer.propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
   currentBoard: PropTypes.object,
   history: PropTypes.object
 };
 
-Container.childContextTypes = {
+BoardContainer.childContextTypes = {
   move: PropTypes.func,
   boardId: PropTypes.string
 };
 
-const BoardContainer = compose(
+const BoardContainerWithData = compose(
   graphql(gql(queries.boards), {
     name: 'boardsQuery'
   }),
@@ -107,10 +104,10 @@ const BoardContainer = compose(
     name: 'pipelinesQuery',
     options: ({ currentBoard }) => ({
       variables: { boardId: currentBoard ? currentBoard._id : '' },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'cache-and-network'
     })
   })
-)(Container);
+)(BoardContainer);
 
 const BoardDetail = props => {
   const { boardDetailQuery } = props;
@@ -126,7 +123,7 @@ const BoardDetail = props => {
     currentBoard
   };
 
-  return <BoardContainer {...extendedProps} />;
+  return <BoardContainerWithData {...extendedProps} />;
 };
 
 BoardDetail.propTypes = {
@@ -161,7 +158,7 @@ const DefaultBoard = props => {
     currentBoard: defaultBoard
   };
 
-  return <BoardContainer {...extendedProps} />;
+  return <BoardContainerWithData {...extendedProps} />;
 };
 
 DefaultBoard.propTypes = {
@@ -178,7 +175,7 @@ const DefaultBoardContainer = compose(
 /*
  * Main board component
  */
-const Board = props => {
+const MainContainer = props => {
   const { history } = props;
   const currentBoardId = routerUtils.getParam(history, 'id');
 
@@ -194,8 +191,8 @@ const Board = props => {
   return <DefaultBoardContainer {...props} />;
 };
 
-Board.propTypes = {
+MainContainer.propTypes = {
   history: PropTypes.object
 };
 
-export default withRouter(Board);
+export default withRouter(MainContainer);

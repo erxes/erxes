@@ -7,12 +7,10 @@ import {
   Icon,
   DropdownToggle
 } from 'modules/common/components';
-import { Messenger, Form, Facebook } from '../containers';
+import { Messenger, Facebook } from '../containers';
 
 function AddIntegration(props, { __ }) {
   const triggerMessenger = <MenuItem>{__('Messenger')}</MenuItem>;
-
-  const triggerForm = <MenuItem>{__('Form')}</MenuItem>;
 
   const triggerFb = <MenuItem>{__('Facebook page')}</MenuItem>;
 
@@ -26,10 +24,6 @@ function AddIntegration(props, { __ }) {
       <Dropdown.Menu>
         <ModalTrigger title="Add messenger" trigger={triggerMessenger}>
           <Messenger />
-        </ModalTrigger>
-
-        <ModalTrigger title="Add form" trigger={triggerForm}>
-          <Form />
         </ModalTrigger>
 
         <ModalTrigger title="Add facebook page" trigger={triggerFb}>

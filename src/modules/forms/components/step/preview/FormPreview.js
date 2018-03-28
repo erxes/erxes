@@ -6,9 +6,9 @@ import {
   SortableHandle,
   arrayMove
 } from 'react-sortable-hoc';
-import { EmptyState, Icon } from 'modules/common/components';
-import FieldPreview from './FieldPreview';
-import { DragableItem, DragHandler, PreviewForm } from '../styles';
+import { Icon } from 'modules/common/components';
+import { PreviewForm, DragableItem, DragHandler } from '../style';
+import { FieldPreview } from './';
 
 const DragHandle = SortableHandle(() => (
   <DragHandler>
@@ -35,14 +35,10 @@ const SortableList = SortableContainer(({ fields, onEdit }) => (
         onEdit={onEdit}
       />
     ))}
-
-    {fields.length === 0 ? (
-      <EmptyState icon="clipboard" text="No items" size="full" />
-    ) : null}
   </PreviewForm>
 ));
 
-class FieldsPreview extends Component {
+class FormPreview extends Component {
   constructor(props) {
     super(props);
 
@@ -62,13 +58,13 @@ class FieldsPreview extends Component {
   }
 
   onSortEnd({ oldIndex, newIndex }) {
-    const reorderedFields = arrayMove(this.state.fields, oldIndex, newIndex);
+    const reOrderedFields = arrayMove(this.state.fields, oldIndex, newIndex);
 
     this.setState({
-      fields: reorderedFields
+      fields: reOrderedFields
     });
 
-    this.props.onSort(reorderedFields);
+    this.props.onChange('fields', this.state.fields);
   }
 
   render() {
@@ -83,10 +79,11 @@ class FieldsPreview extends Component {
   }
 }
 
-FieldsPreview.propTypes = {
-  fields: PropTypes.array.isRequired, // eslint-disable-line
-  onFieldEdit: PropTypes.func.isRequired,
-  onSort: PropTypes.func.isRequired
+FormPreview.propTypes = {
+  fields: PropTypes.array, // eslint-disable-line
+  onFieldEdit: PropTypes.func,
+  onSort: PropTypes.func,
+  onChange: PropTypes.func
 };
 
-export default FieldsPreview;
+export default FormPreview;

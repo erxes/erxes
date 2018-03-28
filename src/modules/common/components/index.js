@@ -35,6 +35,7 @@ import SortableList from './SortableList';
 import ImageWithPreview from './ImageWithPreview';
 import IntegrationIcon from './IntegrationIcon';
 import Chooser from './Chooser';
+
 // TODO remove
 const pagination = {};
 

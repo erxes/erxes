@@ -77,11 +77,6 @@ class Settings extends Component {
               '/images/icons/erxes-08.svg',
               '/settings/emails'
             )}
-            {this.renderBox(
-              'Forms',
-              '/images/icons/erxes-12.svg',
-              '/settings/forms'
-            )}
           </div>
         </Row>
         <Divider />

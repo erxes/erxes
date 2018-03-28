@@ -7,12 +7,16 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import {
+  ModalFooter,
+  FormWrapper,
+  FormColumn,
+  ColumnTitle
+} from 'modules/common/styles/styles';
 import {
   CUSTOMER_LEAD_STATUS_TYPES,
   CUSTOMER_LIFECYCLE_STATE_TYPES
 } from '../../constants';
-import { FormWrapper, FormColumn, ColumnTitle } from '../../styles';
 
 const propTypes = {
   customer: PropTypes.object,
@@ -103,7 +107,6 @@ class CustomerForm extends React.Component {
 
     return (
       <form onSubmit={e => this.action(e)}>
-        <ColumnTitle>{__('Basics')}</ColumnTitle>
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('First Name', {

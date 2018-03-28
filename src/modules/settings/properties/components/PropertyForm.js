@@ -121,7 +121,6 @@ class PropertyForm extends Component {
     const optionValue = document.getElementById('optionValue').value;
 
     this.setState({ options: [...options, optionValue] });
-
     this.handleCancelAddingOption();
   }
 
