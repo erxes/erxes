@@ -9,6 +9,7 @@ const propTypes = {
   isShoutboxFormVisible: PropTypes.bool.isRequired,
   loadType: PropTypes.string.isRequired,
   onModalClose: PropTypes.func,
+  uiOptions: PropTypes.object,
 };
 
 function App({ isShoutboxFormVisible, loadType, onModalClose, uiOptions }) {
