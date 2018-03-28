@@ -25,6 +25,19 @@ const propTypes = {
   defaultValue: PropTypes.object
 };
 
+const Flex = FlexItem.extend`
+  > * {
+    flex: 1;
+  }
+  > *:nth-child(n + 2) {
+    margin-left: 20px;
+  }
+`;
+
+const PreviewStyle = styled.div`
+  padding: 0 20px;
+`;
+
 class EmailForm extends Component {
   constructor(props) {
     super(props);
@@ -90,10 +103,9 @@ class EmailForm extends Component {
       EMAIL_CONTENT_CLASS
     );
     // render editor to content
-
     if (contentContainer.length > 0) {
       ReactDom.render(
-        <div
+        <PreviewStyle
           dangerouslySetInnerHTML={{
             __html: this.props.defaultValue.message
           }}
@@ -129,43 +141,47 @@ class EmailForm extends Component {
               />
             </EditorWrapper>
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>From:</ControlLabel>
-            <FormControl
-              componentClass="select"
-              onChange={e => this.changeUser(e.target.value)}
-              defaultValue={this.state.fromUser}
-            >
-              <option />{' '}
-              {this.props.users.map(u => (
-                <option key={u._id} value={u._id}>
-                  {u.fullName || u.username}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Email subject:</ControlLabel>
-            <FormControl
-              onChange={e => this.changeContent('subject', e.target.value)}
-              defaultValue={this.state.email.subject}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Email template:</ControlLabel>
-            <FormControl
-              componentClass="select"
-              onChange={e => this.templateChange(e.target.value)}
-              defaultValue={this.state.email.templateId}
-            >
-              <option />{' '}
-              {this.props.templates.map(t => (
-                <option key={t._id} value={t._id}>
-                  {t.name}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
+          <div>
+            <Flex>
+              <FormGroup>
+                <ControlLabel>From:</ControlLabel>
+                <FormControl
+                  componentClass="select"
+                  onChange={e => this.changeUser(e.target.value)}
+                  defaultValue={this.state.fromUser}
+                >
+                  <option />{' '}
+                  {this.props.users.map(u => (
+                    <option key={u._id} value={u._id}>
+                      {u.fullName || u.username}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Email subject:</ControlLabel>
+                <FormControl
+                  onChange={e => this.changeContent('subject', e.target.value)}
+                  defaultValue={this.state.email.subject}
+                />
+              </FormGroup>
+            </Flex>
+            <FormGroup>
+              <ControlLabel>Email template:</ControlLabel>
+              <FormControl
+                componentClass="select"
+                onChange={e => this.templateChange(e.target.value)}
+                defaultValue={this.state.email.templateId}
+              >
+                <option />{' '}
+                {this.props.templates.map(t => (
+                  <option key={t._id} value={t._id}>
+                    {t.name}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+          </div>
         </FlexPad>
         <Divider />
         <FlexItem v="center" h="center" overflow="auto">

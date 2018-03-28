@@ -105,6 +105,7 @@ const FlexItem = styled.div`
   display: flex;
   height: 100%;
   flex: ${props => (props.count ? props.count : 1)};
+  flex-wrap: ${props => (props.wrap ? props.wrap : 'nowrap')};
   ${props => {
     if (props.overflow) {
       return `

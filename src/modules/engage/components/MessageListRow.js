@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import _ from 'lodash';
 import {
   Tip,
   ActionButtons,
@@ -11,10 +12,11 @@ import {
   Icon,
   Tags
 } from 'modules/common/components';
-import { EngageTitle, HelperText } from '../styles';
+import { HelperText, EngageTitle } from '../styles';
 import { MESSAGE_KINDS } from 'modules/engage/constants';
 
 const propTypes = {
+  columnsConfig: PropTypes.array.isRequired,
   message: PropTypes.object.isRequired,
   edit: PropTypes.func.isRequired,
   remove: PropTypes.func.isRequired,
@@ -95,59 +97,72 @@ class Row extends React.Component {
     ));
   }
 
-  render() {
+  renderValue(name, counter) {
+    const { message } = this.props;
+    const { __ } = this.context;
+
     let status = <Label lblStyle="default">Sending</Label>;
     let successCount = 0;
     let failedCount = 0;
 
-    const { message, remove } = this.props;
-
-    const deliveryReports = Object.values(message.deliveryReports || {});
-    const totalCount = deliveryReports.length;
-    const { __ } = this.context;
-
-    deliveryReports.forEach(report => {
-      if (report.status === 'sent') {
-        successCount++;
-      }
-
-      if (report.status === 'failed') {
-        failedCount++;
-      }
-    });
-
-    if (totalCount === successCount + failedCount) {
-      status = <Label lblStyle="success">Sent</Label>;
-    }
-
-    return (
-      <tr key={message._id}>
-        <td>
-          <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
-        </td>
-        <td>
+    if (name === 'title') {
+      return (
+        <td key={counter}>
           <EngageTitle onClick={this.props.edit}>{message.title}</EngageTitle>
           {message.isDraft ? <Label lblStyle="primary">Draft</Label> : null}
           {this.renderRules()}
         </td>
-        <td className="text-normal">
+      );
+    }
+    if (name === 'from') {
+      return (
+        <td className="text-normal" key={counter}>
           <NameCard user={message.fromUser} avatarSize={30} singleLine />
         </td>
-        <td>{status}</td>
-        <td className="text-primary">
+      );
+    } else if (name === 'status') {
+      return <td key={counter}>{status}</td>;
+    } else if (name === 'total') {
+      const deliveryReports = Object.values(message.deliveryReports || {});
+      const totalCount = deliveryReports.length;
+
+      deliveryReports.forEach(report => {
+        if (report.status === 'sent') {
+          successCount++;
+        }
+
+        if (report.status === 'failed') {
+          failedCount++;
+        }
+      });
+
+      if (totalCount === successCount + failedCount) {
+        status = <Label lblStyle="success">Sent</Label>;
+      }
+
+      return (
+        <td className="text-primary" key={counter}>
           <Icon icon="cube" />
           <b> {totalCount}</b>
         </td>
-        <td className="text-success">
+      );
+    } else if (name === 'sent') {
+      return (
+        <td className="text-success" key={counter}>
           <Icon icon="paper-airplane" />
           <b> {successCount}</b>
         </td>
-        <td className="text-warning">
+      );
+    } else if (name === 'failed') {
+      return (
+        <td className="text-warning" key={counter}>
           <Icon icon="alert-circled" />
           <b> {failedCount}</b>
         </td>
-
-        <td>
+      );
+    } else if (name === 'type') {
+      return (
+        <td key={counter}>
           {message.email ? (
             <div>
               <Icon icon="email" /> {__('Email')}
@@ -158,15 +173,40 @@ class Row extends React.Component {
             </div>
           )}
         </td>
-        <td>
+      );
+    } else if (name === 'created date') {
+      return (
+        <td key={counter}>
           <Icon icon="calendar" />{' '}
           {moment(message.createdDate).format('DD MMM YYYY')}
         </td>
-
-        <td>
+      );
+    } else if (name === 'tags') {
+      return (
+        <td key={counter}>
           <Tags tags={message.getTags} limit={3} />
         </td>
+      );
+    } else if (name === 'brand') {
+      return (
+        <td key={counter}>{message.getBrand ? message.getBrand.name : ''}</td>
+      );
+    }
 
+    return <td key={counter}>{_.get(message, name)}</td>;
+  }
+
+  render() {
+    const { message, columnsConfig, remove } = this.props;
+    const { __ } = this.context;
+
+    let counter = 0;
+    return (
+      <tr key={message._id}>
+        <td>
+          <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
+        </td>
+        {columnsConfig.map(({ name }) => this.renderValue(name, counter++))}
         <td>
           <ActionButtons>
             {this.renderLinks()}

@@ -8,7 +8,8 @@ const propTypes = {
   users: PropTypes.array,
   method: PropTypes.string,
   templates: PropTypes.array,
-  defaultValue: PropTypes.object
+  defaultValue: PropTypes.object,
+  kind: PropTypes.string
 };
 
 class MessageStep extends Component {
@@ -19,8 +20,15 @@ class MessageStep extends Component {
       users,
       method,
       templates,
-      defaultValue
+      defaultValue,
+      kind
     } = this.props;
+
+    let hasKind = true;
+
+    if (kind === 'visitorAuto') {
+      hasKind = false;
+    }
 
     if (method === 'email') {
       return (
@@ -39,7 +47,7 @@ class MessageStep extends Component {
         changeMessenger={changeState}
         defaultValue={defaultValue}
         users={users}
-        hasKind={true}
+        hasKind={hasKind}
       />
     );
   }
