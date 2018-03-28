@@ -95,7 +95,7 @@ BoardsContainer.propTypes = {
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
   removeMutation: PropTypes.func,
-  selectMutation: PropTypes.func
+  setDefaultMutation: PropTypes.func
 };
 
 BoardsContainer.contextTypes = {
