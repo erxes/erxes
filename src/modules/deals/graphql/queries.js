@@ -7,9 +7,9 @@ const boards = `
   }
 `;
 
-const boardGetSelected = `
-  query dealBoardGetSelected {
-    dealBoardGetSelected {
+const boardGetDefault = `
+  query dealBoardGetDefault {
+    dealBoardGetDefault {
       _id
       name
     }
@@ -118,7 +118,7 @@ const users = `
 
 export default {
   boards,
-  boardGetSelected,
+  boardGetDefault,
   boardDetail,
   pipelines,
   stages,

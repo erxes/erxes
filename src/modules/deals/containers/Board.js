@@ -147,33 +147,33 @@ const BoardDetailContainer = compose(
  * We will use this component when there is no current board id
  * in query string
  */
-const SelectedBoard = props => {
-  const { boardGetSelectedQuery } = props;
+const DefaultBoard = props => {
+  const { boardGetDefaultQuery } = props;
 
-  if (boardGetSelectedQuery.loading) {
+  if (boardGetDefaultQuery.loading) {
     return <Spinner />;
   }
 
-  const selectedBoard = boardGetSelectedQuery.dealBoardGetSelected;
+  const defaultBoard = boardGetDefaultQuery.dealBoardGetDefault;
 
   const extendedProps = {
     ...props,
-    currentBoard: selectedBoard
+    currentBoard: defaultBoard
   };
 
   return <BoardContainer {...extendedProps} />;
 };
 
-SelectedBoard.propTypes = {
-  boardGetSelectedQuery: PropTypes.object
+DefaultBoard.propTypes = {
+  boardGetDefaultQuery: PropTypes.object
 };
 
-const SelectedBoardContainer = compose(
-  graphql(gql(queries.boardGetSelected), {
-    name: 'boardGetSelectedQuery',
+const DefaultBoardContainer = compose(
+  graphql(gql(queries.boardGetDefault), {
+    name: 'boardGetDefaultQuery',
     options: () => ({ fetchPolicy: 'network-only' })
   })
-)(SelectedBoard);
+)(DefaultBoard);
 
 /*
  * Main board component
@@ -191,7 +191,7 @@ const Board = props => {
     return <BoardDetailContainer {...extentedProps} />;
   }
 
-  return <SelectedBoardContainer {...props} />;
+  return <DefaultBoardContainer {...props} />;
 };
 
 Board.propTypes = {

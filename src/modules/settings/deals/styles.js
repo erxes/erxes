@@ -10,7 +10,7 @@ const BoardRowContainer = styled.div`
       float: left;
       padding: 12px 15px 12px 20px;
       i {
-        color: ${props => props.selected && colors.starColor};
+        color: ${props => props.isDefault && colors.starColor};
       }
     }
     a {
