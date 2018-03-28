@@ -28,9 +28,10 @@ const propTypes = {
 };
 
 class Form extends Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
+    const { __ } = context;
     const integration = props.integration || {};
     const formData = integration && (integration.formData || {});
     const form = integration && (integration.form || {});
@@ -43,10 +44,10 @@ class Form extends Component {
       preview: 'desktop',
       brand: integration.brandId,
       title: integration.name,
-      calloutTitle: form.title || 'Contact',
-      bodyValue: form.description || 'Body description here',
-      thankContent: formData.thankContent || 'Thank you.',
-      btnText: form.buttonText || 'Send',
+      calloutTitle: form.title || __('Contact'),
+      bodyValue: form.description || __('Body description here'),
+      thankContent: formData.thankContent || __('Thank you.'),
+      btnText: form.buttonText || __('Send'),
       theme: form.themeColor,
       logoPreviewUrl: form.featuredImage,
       fields: fields || []
