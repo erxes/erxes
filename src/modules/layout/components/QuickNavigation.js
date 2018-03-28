@@ -38,21 +38,10 @@ const NavItem = styled.div`
 `;
 
 const QuickNavigation = ({ logout }, context) => {
-  const { currentUser, changeLanguage, currentLanguage, __ } = context;
+  const { currentUser, __ } = context;
 
   return (
     <nav>
-      <NavItem>
-        <Dropdown id="dropdown-lang" onSelect={e => changeLanguage(e)}>
-          <DropdownToggle bsRole="toggle">
-            {currentLanguage || 'EN'} <Icon icon="chevron-down" size={10} />
-          </DropdownToggle>
-          <Dropdown.Menu>
-            <MenuItem eventKey="en">en</MenuItem>
-            <MenuItem eventKey="mn">mn</MenuItem>
-          </Dropdown.Menu>
-        </Dropdown>
-      </NavItem>
       <NavItem>
         <Dropdown id="dropdown-user" pullRight>
           <DropdownToggle bsRole="toggle">
@@ -124,8 +113,6 @@ QuickNavigation.propTypes = {
 
 QuickNavigation.contextTypes = {
   currentUser: PropTypes.object,
-  changeLanguage: PropTypes.func,
-  currentLanguage: PropTypes.string,
   __: PropTypes.func
 };
 

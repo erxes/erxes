@@ -70,22 +70,22 @@ class QuickEdit extends React.Component {
           <DealForm saveDeal={saveDeal} close={close} deal={deal} />
 
           <RightControls>
-            <Button btnStyle="link" onClick={this.toggleMove}>
+            <Button onClick={this.toggleMove} icon="android-arrow-forward">
               Move
             </Button>
 
-            <Button btnStyle="link" onClick={this.copy}>
+            <Button onClick={this.copy} icon="android-folder-open">
               Copy
             </Button>
 
             <Button
-              btnStyle="link"
+              icon="android-delete"
               onClick={() => this.props.removeDeal(this.props.deal._id)}
             >
               Delete
             </Button>
 
-            <Button btnStyle="link" onClick={close}>
+            <Button icon="android-close" onClick={close}>
               Close
             </Button>
           </RightControls>

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
   FormGroup,
@@ -7,7 +7,12 @@ import {
 } from 'modules/common/components';
 import { timezones } from 'modules/settings/integrations/constants';
 import { Alert, uploadHandler } from 'modules/common/utils';
-import { ProfileWrapper, ProfileColumn, ColumnTitle } from '../styles';
+import {
+  FormWrapper,
+  FormColumn,
+  ColumnTitle
+} from 'modules/common/styles/styles';
+import { Avatar } from '../styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -62,9 +67,8 @@ class UserCommonInfos extends Component {
     const { avatarPreviewStyle, avatarPreviewUrl } = this.state;
 
     return (
-      <ProfileWrapper>
-        <ProfileColumn>
-          <ColumnTitle>{__('Basics')}</ColumnTitle>
+      <Fragment>
+        <Avatar>
           <FormGroup>
             <ControlLabel>Photo</ControlLabel>
             <img
@@ -74,105 +78,115 @@ class UserCommonInfos extends Component {
             />
             <FormControl type="file" onChange={this.handleImageChange} />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>Name</ControlLabel>
-            <FormControl
-              type="text"
-              id="fullName"
-              defaultValue={details.fullName || ''}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Username</ControlLabel>
-            <FormControl
-              type="text"
-              id="username"
-              defaultValue={user.username}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Email</ControlLabel>
-            <FormControl type="text" id="email" defaultValue={user.email} />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Description</ControlLabel>
-            <FormControl
-              type="text"
-              id="description"
-              componentClass="textarea"
-              defaultValue={details.description || ''}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Position</ControlLabel>
-            <FormControl
-              type="text"
-              id="position"
-              defaultValue={details.position || ''}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Location</ControlLabel>
-            <FormControl
-              componentClass="select"
-              defaultValue={details.location}
-              id="user-location"
-              options={timezones}
-            />
-          </FormGroup>
-        </ProfileColumn>
-        <ProfileColumn>
-          <ColumnTitle>{__('Links')}</ColumnTitle>
-          <FormGroup>
-            <ControlLabel>LinkedIn</ControlLabel>
-            <FormControl
-              type="text"
-              id="linkedin"
-              defaultValue={links.linkedIn || ''}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Twitter</ControlLabel>
-            <FormControl
-              type="text"
-              id="twitter"
-              defaultValue={links.twitter || ''}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Facebook</ControlLabel>
-            <FormControl
-              type="text"
-              id="facebook"
-              defaultValue={links.facebook || ''}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Youtube</ControlLabel>
-            <FormControl
-              type="text"
-              id="youtube"
-              defaultValue={links.youtube || ''}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Github</ControlLabel>
-            <FormControl
-              type="text"
-              id="github"
-              defaultValue={links.github || ''}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Website</ControlLabel>
-            <FormControl
-              type="text"
-              id="website"
-              defaultValue={links.website || ''}
-            />
-          </FormGroup>
-        </ProfileColumn>
-      </ProfileWrapper>
+        </Avatar>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Name</ControlLabel>
+              <FormControl
+                type="text"
+                id="fullName"
+                defaultValue={details.fullName || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Email</ControlLabel>
+              <FormControl type="text" id="email" defaultValue={user.email} />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+              <FormControl
+                type="text"
+                id="description"
+                componentClass="textarea"
+                defaultValue={details.description || ''}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Username</ControlLabel>
+              <FormControl
+                type="text"
+                id="username"
+                defaultValue={user.username}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Position</ControlLabel>
+              <FormControl
+                type="text"
+                id="position"
+                defaultValue={details.position || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Location</ControlLabel>
+              <FormControl
+                componentClass="select"
+                defaultValue={details.location}
+                id="user-location"
+                options={timezones}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+        <ColumnTitle>{__('Links')}</ColumnTitle>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>LinkedIn</ControlLabel>
+              <FormControl
+                type="text"
+                id="linkedin"
+                defaultValue={links.linkedIn || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Twitter</ControlLabel>
+              <FormControl
+                type="text"
+                id="twitter"
+                defaultValue={links.twitter || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Facebook</ControlLabel>
+              <FormControl
+                type="text"
+                id="facebook"
+                defaultValue={links.facebook || ''}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Youtube</ControlLabel>
+              <FormControl
+                type="text"
+                id="youtube"
+                defaultValue={links.youtube || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Github</ControlLabel>
+              <FormControl
+                type="text"
+                id="github"
+                defaultValue={links.github || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Website</ControlLabel>
+              <FormControl
+                type="text"
+                id="website"
+                defaultValue={links.website || ''}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+      </Fragment>
     );
   }
 }

@@ -107,6 +107,10 @@ const NavIcon = styled.i`
     background-image: url('/images/icons/nav-05.svg');
   }
 
+  &.icon-form {
+    background-image: url('/images/icons/nav-09.svg');
+  }
+
   &.icon-settings {
     background-image: url('/images/icons/nav-06.svg');
   }
@@ -155,6 +159,13 @@ class Navigation extends Component {
               </NavLink>
             </Tip>
           </ContentWithPermission>
+          <ContentWithPermission action="isOwner">
+            <Tip placement="right" text={__('Deal')}>
+              <NavLink to="/deals" activeClassName="active">
+                <NavIcon className="icon-deal" />
+              </NavLink>
+            </Tip>
+          </ContentWithPermission>
           <ContentWithPermission action="showCustomerList">
             <Tip placement="right" text={__('Customers')}>
               <NavLink to="/customers" activeClassName="active">
@@ -169,17 +180,17 @@ class Navigation extends Component {
               </NavLink>
             </Tip>
           </ContentWithPermission>
+          <ContentWithPermission action="isOwner">
+            <Tip placement="right" text={__('Forms')}>
+              <NavLink to="/forms" activeClassName="active">
+                <NavIcon className="icon-form" />
+              </NavLink>
+            </Tip>
+          </ContentWithPermission>
           <ContentWithPermission action="showEngageMessageList">
             <Tip placement="right" text={__('Engage')}>
               <NavLink to="/engage" activeClassName="active">
                 <NavIcon className="icon-engage" />
-              </NavLink>
-            </Tip>
-          </ContentWithPermission>
-          <ContentWithPermission action="showVolumeReport">
-            <Tip placement="right" text={__('Insights')}>
-              <NavLink to="/insights" activeClassName="active">
-                <NavIcon className="icon-insights" />
               </NavLink>
             </Tip>
           </ContentWithPermission>
@@ -190,12 +201,14 @@ class Navigation extends Component {
               </NavLink>
             </Tip>
           </ContentWithPermission>
-          <Tip placement="right" text={__('Deal')}>
-            <NavLink to="/deals" activeClassName="active">
-              <NavIcon className="icon-deal" />
-            </NavLink>
-          </Tip>
-          <ContentWithPermission action="isOwner">
+          <ContentWithPermission action="showVolumeReport">
+            <Tip placement="right" text={__('Insights')}>
+              <NavLink to="/insights" activeClassName="active">
+                <NavIcon className="icon-insights" />
+              </NavLink>
+            </Tip>
+          </ContentWithPermission>
+          <ContentWithPermission action="showCustomerList">
             <Tip placement="right" text={__('Settings')}>
               <NavLink to="/settings" activeClassName="active">
                 <NavIcon className="icon-settings" />

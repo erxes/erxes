@@ -97,10 +97,12 @@ class DealForm extends React.Component {
 
     productsData.forEach(data => {
       // products
-      if (data.product && data.currency && data.quantity && data.unitPrice) {
-        // calculating deal amount
-        if (!amount[data.currency]) amount[data.currency] = data.amount;
-        else amount[data.currency] += data.amount;
+      if (data.product) {
+        if (data.currency) {
+          // calculating deal amount
+          if (!amount[data.currency]) amount[data.currency] = data.amount || 0;
+          else amount[data.currency] += data.amount || 0;
+        }
 
         // collecting data for ItemCounter component
         products.push(data.product);
@@ -130,16 +132,12 @@ class DealForm extends React.Component {
       return Alert.error(__('Please, select product & service'));
     }
 
-    if (!closeDate) {
-      return Alert.error(__('Please, select a close date'));
-    }
-
     const { deal, stageId, dealsLength } = this.props;
 
     const doc = {
       companyIds: companies.map(company => company._id),
       customerIds: customers.map(customer => customer._id),
-      closeDate: new Date(closeDate),
+      closeDate: closeDate ? new Date(closeDate) : null,
       note,
       productsData,
       assignedUserIds,
@@ -282,6 +280,7 @@ class DealForm extends React.Component {
             dateFormat="YYYY/MM/DD"
             timeFormat={false}
             value={closeDate}
+            closeOnSelect
             onChange={this.onDateInputChange.bind(this)}
           />
         </FormGroup>

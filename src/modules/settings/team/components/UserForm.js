@@ -8,6 +8,7 @@ import {
 import Select from 'react-select-plus';
 import { UserCommonInfos } from 'modules/auth/components';
 import { Form as CommonForm } from '../../common/components';
+import { ColumnTitle } from 'modules/common/styles/styles';
 
 class UserForm extends CommonForm {
   constructor(props, context) {
@@ -127,17 +128,7 @@ class UserForm extends CommonForm {
     return (
       <div>
         <UserCommonInfos user={user} onAvatarUpload={this.onAvatarUpload} />
-
-        <FormGroup>
-          <ControlLabel>Password</ControlLabel>
-          <FormControl id="password" type="password" />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Password confirmation</ControlLabel>
-          <FormControl id="password-confirmation" type="password" />
-        </FormGroup>
-
+        <ColumnTitle>{__('Other')}</ColumnTitle>
         <FormGroup>
           <ControlLabel>Role</ControlLabel>
 
@@ -152,7 +143,20 @@ class UserForm extends CommonForm {
         </FormGroup>
 
         {this.renderChannels()}
+
         {this.renderGroups()}
+
+        <br />
+
+        <FormGroup>
+          <ControlLabel>Password</ControlLabel>
+          <FormControl id="password" type="password" />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Password confirmation</ControlLabel>
+          <FormControl id="password-confirmation" type="password" />
+        </FormGroup>
       </div>
     );
   }

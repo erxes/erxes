@@ -7,7 +7,6 @@ import StageItem from './StageItem';
 const propTypes = {
   onChangeStages: PropTypes.func.isRequired,
   pipelineId: PropTypes.string.isRequired,
-  boardId: PropTypes.string.isRequired,
   stages: PropTypes.array.isRequired
 };
 
@@ -17,15 +16,16 @@ class Stages extends Component {
 
     this.add = this.add.bind(this);
     this.remove = this.remove.bind(this);
-    this.onChangeName = this.onChangeName.bind(this);
+    this.onChange = this.onChange.bind(this);
     this.onStageInputKeyPress = this.onStageInputKeyPress.bind(this);
   }
 
-  onChangeName(_id, e) {
+  onChange(_id, e) {
     const { stages } = this.props;
+    const type = e.target.name;
 
     const stage = stages.find(s => s._id === _id);
-    stage.name = e.target.value;
+    stage[type] = e.target.value;
 
     this.props.onChangeStages(stages);
   }
@@ -36,8 +36,7 @@ class Stages extends Component {
     stages.push({
       _id: Math.random(),
       name: '',
-      pipelineId: this.props.pipelineId,
-      boardId: this.props.boardId
+      pipelineId: this.props.pipelineId
     });
 
     this.props.onChangeStages(stages);
@@ -59,16 +58,14 @@ class Stages extends Component {
   }
 
   render() {
-    const child = stage => {
-      return (
-        <StageItem
-          stage={stage}
-          onChangeName={this.onChangeName}
-          remove={this.remove}
-          onKeyPress={this.onStageInputKeyPress}
-        />
-      );
-    };
+    const child = stage => (
+      <StageItem
+        stage={stage}
+        onChange={this.onChange}
+        remove={this.remove}
+        onKeyPress={this.onStageInputKeyPress}
+      />
+    );
 
     return (
       <StagesContainer>

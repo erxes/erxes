@@ -62,7 +62,7 @@ class Boards extends Component {
           data={<List>{this.renderItems()}</List>}
           loading={loading}
           count={boards.length}
-          emptyText="There is no board."
+          emptyText="There is no board"
           emptyImage="/images/robots/robot-05.svg"
         />
       </LeftSidebar>

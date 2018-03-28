@@ -171,6 +171,11 @@ export const CURRENCIES = [
   { value: 'ZWL', label: 'Zimbabwean Dollar' }
 ];
 
+export const LANGUAGES = [
+  { label: 'Mongolian', value: 'mn' },
+  { label: 'English', value: 'en' }
+];
+
 export const MEASUREMENTS = [
   { label: 'Bag BG', value: 'BG' },
   { label: 'Barrel BA', value: 'BA' },

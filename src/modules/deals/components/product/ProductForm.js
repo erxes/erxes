@@ -43,18 +43,25 @@ class ProductForm extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.updateTotal();
+
+    // initial product item
+    this.addProductItem();
+  }
+
   addProductItem() {
     const { productsData } = this.props;
 
     productsData.push({
       _id: Math.random().toString(),
       quantity: 1,
-      unitPrice: 0,
-      tax: 0,
-      taxPercent: 0,
-      discount: 0,
-      discountPercent: 0,
-      amount: 0
+      unitPrice: '',
+      tax: '',
+      taxPercent: '',
+      discount: '',
+      discountPercent: '',
+      amount: ''
     });
 
     this.props.onChangeProductsData(productsData);
@@ -66,6 +73,8 @@ class ProductForm extends React.Component {
     const removedProductsData = productsData.filter(p => p._id !== _id);
 
     this.props.onChangeProductsData(removedProductsData);
+
+    this.updateTotal();
   }
 
   updateTotal() {
@@ -77,15 +86,15 @@ class ProductForm extends React.Component {
 
     productsData.forEach(p => {
       if (p.currency) {
-        if (total[p.currency]) {
-          total[p.currency] += p.amount;
-          tax[p.currency] += p.tax;
-          discount[p.currency] += p.discount;
-        } else {
-          total[p.currency] = p.amount;
-          tax[p.currency] = p.tax;
-          discount[p.currency] = p.discount;
+        if (!total[p.currency]) {
+          total[p.currency] = 0;
+          tax[p.currency] = 0;
+          discount[p.currency] = 0;
         }
+
+        total[p.currency] += p.amount || 0;
+        tax[p.currency] += p.tax || 0;
+        discount[p.currency] += p.discount || 0;
       }
     });
 
@@ -151,9 +160,15 @@ class ProductForm extends React.Component {
 
       product.tax = (amount - product.discount || 0) * product.taxPercent / 100;
       product.amount = amount - (product.discount || 0) + (product.tax || 0);
-
-      this.updateTotal();
+    } else {
+      product.tax = 0;
+      product.taxPercent = 0;
+      product.discount = 0;
+      product.discountPercent = 0;
+      product.amount = 0;
     }
+
+    this.updateTotal();
 
     this.props.onChangeProductsData(productsData);
   }

@@ -20,13 +20,6 @@ const propTypes = {
 };
 
 class Board extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.renderBoard = this.renderBoard.bind(this);
-    this.renderPipeline = this.renderPipeline.bind(this);
-  }
-
   renderBoard() {
     const { currentBoard, boards } = this.props;
 
@@ -103,7 +96,7 @@ class Board extends React.Component {
               linkUrl="/settings/deals"
               linkText="Create one"
               size="full"
-              text="There is no board."
+              text="There is no board"
               image="/images/robots/robot-05.svg"
             />
           }

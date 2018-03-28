@@ -62,9 +62,7 @@ const Links = styled.div`
   text-align: center;
 `;
 
-const ProfileWrapper = styled.div`
-  display: flex;
-
+const Avatar = styled.div`
   img {
     display: block;
     width: 100px;
@@ -73,18 +71,26 @@ const ProfileWrapper = styled.div`
   }
 `;
 
+const ProfileWrapper = styled.div`
+  display: flex;
+`;
+
 const ProfileColumn = styled.div`
   flex: 1;
-  padding: 0 20px;
+  padding-right: 40px;
+
+  &:last-of-type {
+    padding: 0;
+  }
 `;
 
 const ColumnTitle = styled.h4`
   text-transform: uppercase;
   font-weight: ${typography.fontWeightMedium};
-  border-bottom: 1 px dotted ${colors.colorShadowGray};
-  padding-bottom: ${dimensions.unitSpacing};
-  font-size: ${typography.fontSizeHeading8}px;
-  margin: 0 0 ${dimensions.coreSpacing};
+  border-bottom: 1px dotted ${colors.colorShadowGray};
+  padding-bottom: ${dimensions.unitSpacing}px;
+  font-size: 14px;
+  margin: ${dimensions.coreSpacing}px 0;
 `;
 
-export { AuthBox, Links, ProfileWrapper, ProfileColumn, ColumnTitle };
+export { AuthBox, Links, ProfileWrapper, ProfileColumn, ColumnTitle, Avatar };

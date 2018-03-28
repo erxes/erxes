@@ -11,7 +11,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { KIND_CHOICES } from '../constants';
-import { Form, Messenger } from '../containers';
+import { Messenger } from '../containers';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
@@ -82,24 +82,12 @@ class Row extends Component {
       );
     }
 
-    if (kind === KIND_CHOICES.FORM) {
-      return (
-        <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Form integration={integration} refetch={refetch} />
-        </ModalTrigger>
-      );
-    }
-
     return null;
   }
 
   getTypeName() {
     const kind = this.props.integration.kind;
     let type = 'defult';
-
-    if (kind === KIND_CHOICES.FORM) {
-      type = 'form';
-    }
 
     if (kind === KIND_CHOICES.TWITTER) {
       type = 'twitter';

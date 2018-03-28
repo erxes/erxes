@@ -33,7 +33,8 @@ class HomeWithCurrent extends React.Component {
       boardId,
       addPipelineMutation,
       editPipelineMutation,
-      removePipelineMutation
+      removePipelineMutation,
+      pipelinesUpdateOrderMutation
     } = this.props;
 
     const { __ } = this.context;
@@ -81,6 +82,14 @@ class HomeWithCurrent extends React.Component {
         });
     };
 
+    const pipelinesUpdateOrder = orders => {
+      pipelinesUpdateOrderMutation({
+        variables: { orders }
+      }).catch(error => {
+        Alert.error(error.message);
+      });
+    };
+
     const extendedProps = {
       ...this.props,
       pipelines,
@@ -89,7 +98,8 @@ class HomeWithCurrent extends React.Component {
       loading: pipelinesQuery.loading,
       boardId,
       removePipeline,
-      savePipeline
+      savePipeline,
+      pipelinesUpdateOrder
     };
 
     return <Home {...extendedProps} />;
@@ -103,7 +113,8 @@ HomeWithCurrent.propTypes = {
   boardId: PropTypes.string,
   addPipelineMutation: PropTypes.func,
   editPipelineMutation: PropTypes.func,
-  removePipelineMutation: PropTypes.func
+  removePipelineMutation: PropTypes.func,
+  pipelinesUpdateOrderMutation: PropTypes.func
 };
 
 HomeWithCurrent.contextTypes = {
@@ -114,7 +125,8 @@ const HomeContainer = compose(
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
     options: ({ boardId }) => ({
-      variables: { boardId: boardId || '' }
+      variables: { boardId: boardId || '' },
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(mutations.pipelineAdd), {
@@ -125,6 +137,9 @@ const HomeContainer = compose(
   }),
   graphql(gql(mutations.pipelineRemove), {
     name: 'removePipelineMutation'
+  }),
+  graphql(gql(mutations.pipelinesUpdateOrder), {
+    name: 'pipelinesUpdateOrderMutation'
   })
 )(HomeWithCurrent);
 
