@@ -64,7 +64,6 @@ class CreateFormContainer extends Component {
 
         .catch(error => {
           Alert.error(error.message);
-          console.log(Object.error.message);
         });
     };
 

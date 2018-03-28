@@ -44,7 +44,7 @@ class Form extends Component {
       preview: 'desktop',
       brand: integration.brandId,
       title: integration.name,
-      calloutTitle: form.title || __('Contact'),
+      calloutTitle: form.title,
       bodyValue: form.description || __('Body description here'),
       thankContent: formData.thankContent || __('Thank you.'),
       btnText: form.buttonText || __('Send'),
@@ -177,7 +177,7 @@ class Form extends Component {
 
         <Steps active={activeStep}>
           <Step
-            img="/images/icons/erxes-05.svg"
+            img="/images/icons/erxes-04.svg"
             title="Type"
             next={this.next}
             nextButton={this.renderNextButton()}
@@ -193,7 +193,7 @@ class Form extends Component {
           </Step>
 
           <Step
-            img="/images/icons/erxes-02.svg"
+            img="/images/icons/erxes-03.svg"
             title="CallOut"
             next={this.next}
             nextButton={this.renderNextButton()}
@@ -210,7 +210,7 @@ class Form extends Component {
             />
           </Step>
           <Step
-            img="/images/icons/erxes-08.svg"
+            img="/images/icons/erxes-12.svg"
             title="Form"
             next={this.next}
             nextButton={this.renderNextButton()}
@@ -228,7 +228,7 @@ class Form extends Component {
             />
           </Step>
           <Step
-            img="/images/icons/erxes-08.svg"
+            img="/images/icons/erxes-06.svg"
             title="Options"
             next={this.next}
             nextButton={this.renderNextButton()}
@@ -248,7 +248,7 @@ class Form extends Component {
             />
           </Step>
           <Step
-            img="/images/icons/erxes-08.svg"
+            img="/images/icons/erxes-13.svg"
             title="Thank content"
             next={this.next}
             nextButton={this.renderNextButton()}
@@ -264,7 +264,7 @@ class Form extends Component {
             />
           </Step>
           <Step
-            img="/images/icons/erxes-08.svg"
+            img="/images/icons/erxes-14.svg"
             title="Full Preview"
             next={this.next}
             nextButton={this.renderSaveButton()}
