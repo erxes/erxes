@@ -7,8 +7,12 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
-import { FormWrapper, FormColumn, ColumnTitle } from 'modules/customers/styles';
+import {
+  ModalFooter,
+  FormWrapper,
+  FormColumn,
+  ColumnTitle
+} from 'modules/common/styles/styles';
 import {
   COMPANY_INDUSTRY_TYPES,
   COMPANY_LEAD_STATUS_TYPES,
@@ -115,7 +119,6 @@ class CompanyForm extends React.Component {
 
     return (
       <form onSubmit={e => this.action(e)}>
-        <ColumnTitle>{__('Basics')}</ColumnTitle>
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('Name', {

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors, typography, dimensions } from 'modules/common/styles';
+import { colors } from 'modules/common/styles';
 
 const columnSizing = '20px';
 const borderRadius = '2px';
@@ -145,40 +145,6 @@ const InfoDetail = styled.p`
   color: ${colors.colorCoreGray};
 `;
 
-const FormWrapper = styled.div`
-  display: flex;
-  padding-bottom: 20px;
-
-  &:last-of-type {
-    padding: 0;
-  }
-
-  img {
-    display: block;
-    width: 100px;
-    height: 100px;
-    border-radius: 50px;
-  }
-`;
-
-const FormColumn = styled.div`
-  flex: 1;
-  padding-right: 40px;
-
-  &:last-of-type {
-    padding: 0;
-  }
-`;
-
-const ColumnTitle = styled.h4`
-  text-transform: uppercase;
-  font-weight: ${typography.fontWeightMedium};
-  border-bottom: 1px dotted ${colors.colorShadowGray};
-  padding-bottom: ${dimensions.unitSpacing}px;
-  font-size: 14px;
-  margin: 0 0 ${dimensions.coreSpacing}px;
-`;
-
 export {
   Columns,
   Column,
@@ -188,8 +154,5 @@ export {
   SubContent,
   InfoTitle,
   InfoDetail,
-  Info,
-  FormWrapper,
-  FormColumn,
-  ColumnTitle
+  Info
 };
