@@ -5,9 +5,10 @@ import classNames from 'classnames';
 const propTypes = {
   onClick: PropTypes.func.isRequired,
   isFormVisible: PropTypes.bool.isRequired,
+  color: PropTypes.string
 };
 
-function Launcher({ isFormVisible, onClick }) {
+function Launcher({ isFormVisible, onClick, color }) {
   const clickHandler = () => {
     onClick(isFormVisible);
   };
@@ -17,7 +18,7 @@ function Launcher({ isFormVisible, onClick }) {
   });
 
   return (
-    <div className={launcherClasses} onClick={clickHandler} />
+    <div style={{ backgroundColor: color }} className={launcherClasses} onClick={clickHandler} />
   );
 }
 

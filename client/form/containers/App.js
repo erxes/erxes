@@ -7,6 +7,7 @@ import { connection } from '../connection';
 const mapStateToProps = state => ({
   isShoutboxFormVisible: state.isShoutboxFormVisible,
   loadType: connection.data.formData.loadType,
+  uiOptions: connection.data.uiOptions
 });
 
 

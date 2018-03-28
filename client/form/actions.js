@@ -20,6 +20,20 @@ export const toggleShoutbox = (isVisible) => {
     isVisible: !isVisible,
   }, '*');
 
+  if(!isVisible) {
+    // Increasing view count
+    client.mutate({
+      mutation: gql`
+        mutation formIncreaseViewCount($formId: String!) {
+          formIncreaseViewCount(formId: $formId)
+        }`,
+
+      variables: {
+        formId: connection.data.formId,
+      },
+    });
+  }
+
   return {
     type: SHOUTBOX_FORM_TOGGLE,
     isVisible: !isVisible,
@@ -35,6 +49,18 @@ export const closeModal = () => {
     setting: connection.setting,
     closeModal: true,
   }, '*');
+
+  // Increasing view count
+  client.mutate({
+    mutation: gql`
+      mutation formIncreaseViewCount($formId: String!) {
+        formIncreaseViewCount(formId: $formId)
+      }`,
+
+    variables: {
+      formId: connection.data.formId,
+    },
+  });
 };
 
 
@@ -47,7 +73,8 @@ export const connect = (brandCode, formCode) =>
           integrationName,
           languageCode,
           formId,
-          formData
+          formData,
+          uiOptions
         }
       }`,
 
