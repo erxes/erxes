@@ -42,14 +42,6 @@ class IntegrationsSidebar extends React.Component {
             </li>
             <li>
               <Link
-                className={this.getClassName('form')}
-                to="/settings/integrations?kind=form"
-              >
-                {__('Form')}
-              </Link>
-            </li>
-            <li>
-              <Link
                 className={this.getClassName('twitter')}
                 to="/settings/integrations?kind=twitter"
               >
