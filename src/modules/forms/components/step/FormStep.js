@@ -1,22 +1,69 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import {
-  ControlLabel,
-  Button,
   FormGroup,
-  FormControl
+  FormControl,
+  Button,
+  ControlLabel
 } from 'modules/common/components';
-import { Wrapper } from 'modules/layout/components';
-import FieldsPreview from './FieldsPreview';
-import { ContentBox, BuildFooter } from '../styles';
+import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
+import { colors, dimensions } from 'modules/common/styles';
+import { FlexItem, LeftItem, Preview } from './style';
+
+const Fields = styled.ul`
+  list-style: none;
+  padding: 0;
+
+  button {
+    color: ${colors.colorSecondary};
+    font-weight: 500;
+  }
+`;
+
+const FlexColumn = styled.div`
+  display: flex;
+  min-width: 43.33333%;
+  flex-direction: column;
+  justify-content: space-between;
+
+  ${LeftItem} {
+    flex: 1;
+  }
+`;
+
+const Footer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 ${dimensions.coreSpacing}px;
+  background: ${colors.bgLight};
+  height: ${dimensions.headerSpacing}px;
+  border-top: 1px solid ${colors.borderPrimary};
+
+  label {
+    margin-bottom: 0;
+    margin-right: ${dimensions.coreSpacing}px;
+  }
+`;
+
+const propTypes = {
+  type: PropTypes.string,
+  calloutTitle: PropTypes.string,
+  btnText: PropTypes.string,
+  bodyValue: PropTypes.string,
+  color: PropTypes.string,
+  theme: PropTypes.string,
+  image: PropTypes.string,
+  onChange: PropTypes.func,
+  fields: PropTypes.array
+};
 
 const editingFieldDefaultValue = {
   isRequired: false
 };
 
-class Manage extends Component {
+class FormStep extends Component {
   constructor(props) {
     super(props);
 
@@ -26,20 +73,29 @@ class Manage extends Component {
       editingField: editingFieldDefaultValue
     };
 
-    // attribute change events
+    this.onChangeFunction = this.onChangeFunction.bind(this);
     this.onChangeType = this.onChangeType.bind(this);
-    this.onChangeValidation = this.onChangeValidation.bind(this);
-    this.onChangeText = this.onChangeText.bind(this);
-    this.onChangeDescription = this.onChangeDescription.bind(this);
-    this.onChangeOptions = this.onChangeOptions.bind(this);
-    this.onChangeIsRequired = this.onChangeIsRequired.bind(this);
 
+    this.footerActions = this.footerActions.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.onFieldEdit = this.onFieldEdit.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
     this.setState({ fields: nextProps.fields });
+  }
+
+  onChangeType(e) {
+    this.setState({ chosenFieldType: e.target.value });
+    this.setChanges('type', e.target.value);
+  }
+
+  onFieldEdit(field) {
+    this.setState({ editingField: field });
+  }
+
+  onChangeFunction(name, value) {
+    this.setChanges(name, value);
   }
 
   onSubmit(e) {
@@ -53,50 +109,17 @@ class Manage extends Component {
       text: editingField.text,
       description: editingField.description,
       options: editingField.options,
+      order: 0,
       isRequired: editingField.isRequired
     };
 
-    if (editingField._id) {
-      return this.props.editField(editingField._id, doc);
-    }
-
-    return this.props.addField(doc, fieldId => {
-      // newly created field to fields state
-      doc._id = fieldId;
-
-      this.state.fields.push(doc);
-
-      this.setState({ fields: this.state.fields });
+    // newly created field to fields state
+    this.state.fields.push({
+      _id: Math.random().toString(),
+      ...doc
     });
-  }
 
-  onFieldEdit(field) {
-    this.setState({ editingField: field });
-  }
-
-  onChangeType(e) {
-    this.setState({ chosenFieldType: e.target.value });
-    this.setChanges('type', e.target.value);
-  }
-
-  onChangeValidation(e) {
-    this.setChanges('validation', e.target.value);
-  }
-
-  onChangeText(e) {
-    this.setChanges('text', e.target.value);
-  }
-
-  onChangeDescription(e) {
-    this.setChanges('description', e.target.value);
-  }
-
-  onChangeOptions(e) {
-    this.setChanges('options', e.target.value.split('\n'));
-  }
-
-  onChangeIsRequired(e) {
-    this.setChanges('isRequired', e.target.checked);
+    this.setState({ fields: this.state.fields });
   }
 
   setChanges(attributeName, value) {
@@ -105,6 +128,38 @@ class Manage extends Component {
     editingField[attributeName] = value;
 
     this.setState({ editingField });
+  }
+
+  renderPreview() {
+    const { type } = this.props;
+
+    if (type === 'shoutbox') {
+      return (
+        <ShoutboxPreview
+          {...this.props}
+          fields={this.state.fields}
+          onFieldEdit={this.onFieldEdit}
+        />
+      );
+    }
+
+    if (type === 'popup') {
+      return (
+        <PopupPreview
+          {...this.props}
+          fields={this.state.fields}
+          onFieldEdit={this.onFieldEdit}
+        />
+      );
+    }
+
+    return (
+      <EmbeddedPreview
+        {...this.props}
+        fields={this.state.fields}
+        onFieldEdit={this.onFieldEdit}
+      />
+    );
   }
 
   renderButtons() {
@@ -123,11 +178,9 @@ class Manage extends Component {
         const fields = this.state.fields.filter(field => field._id !== _id);
 
         this.setState({ fields });
-
-        // remove field from db
-        this.props.deleteField(_id);
-
         reset();
+
+        this.props.onChange('fields', fields);
       };
 
       return (
@@ -143,14 +196,6 @@ class Manage extends Component {
           <Button size="small" btnStyle="primary" onClick={reset} icon="plus">
             New
           </Button>
-          <Button
-            size="small"
-            onClick={this.onSubmit}
-            btnStyle="success"
-            icon="checkmark"
-          >
-            Save
-          </Button>
         </Button.Group>
       );
     }
@@ -164,6 +209,25 @@ class Manage extends Component {
       >
         Add
       </Button>
+    );
+  }
+
+  footerActions() {
+    const { __ } = this.context;
+
+    return (
+      <Footer>
+        <FormControl
+          checked={this.state.editingField.isRequired || false}
+          id="isRequired"
+          componentClass="checkbox"
+          onChange={e => this.onChangeFunction('isRequired', e.target.checked)}
+        >
+          {__('This item is required')}
+        </FormControl>
+
+        {this.renderButtons()}
+      </Footer>
     );
   }
 
@@ -186,18 +250,20 @@ class Manage extends Component {
           id="options"
           componentClass="textarea"
           value={(editingField.options || []).join('\n')}
-          onChange={this.onChangeOptions}
+          onChange={e =>
+            this.onChangeFunction('options', e.target.value.split('\n'))
+          }
         />
       </FormGroup>
     );
   }
 
-  renderForm() {
+  renderOptions() {
     const editingField = this.state.editingField;
     const { __ } = this.context;
 
     return (
-      <ContentBox>
+      <Fields>
         <FormGroup>
           <ControlLabel htmlFor="type">Type:</ControlLabel>
 
@@ -226,7 +292,7 @@ class Manage extends Component {
             id="validation"
             componentClass="select"
             value={editingField.validation || ''}
-            onChange={this.onChangeValidation}
+            onChange={e => this.onChangeFunction('validation', e.target.value)}
           >
             <option />
             <option value="email">{__('Email')}</option>
@@ -241,7 +307,7 @@ class Manage extends Component {
             id="text"
             type="text"
             value={editingField.text || ''}
-            onChange={this.onChangeText}
+            onChange={e => this.onChangeFunction('text', e.target.value)}
           />
         </FormGroup>
 
@@ -251,72 +317,32 @@ class Manage extends Component {
             id="description"
             componentClass="textarea"
             value={editingField.description || ''}
-            onChange={this.onChangeDescription}
+            onChange={e => this.onChangeFunction('description', e.target.value)}
           />
         </FormGroup>
 
         {this.renderOptionsTextArea()}
-      </ContentBox>
+      </Fields>
     );
   }
 
   render() {
-    const { __ } = this.context;
-    const breadcrumb = [{ title: __('Manage fields') }];
-
-    const Sidebar = Wrapper.Sidebar;
-
-    const footerActions = (
-      <BuildFooter>
-        <FormControl
-          checked={this.state.editingField.isRequired || false}
-          id="isRequired"
-          componentClass="checkbox"
-          onChange={this.onChangeIsRequired}
-        >
-          {__('This item is required')}
-        </FormControl>
-
-        {this.renderButtons()}
-      </BuildFooter>
-    );
-
-    const preview = (
-      <Sidebar
-        half
-        full
-        header={<Sidebar.Header>{__('Preview')}</Sidebar.Header>}
-      >
-        <FieldsPreview
-          fields={this.state.fields}
-          onFieldEdit={this.onFieldEdit}
-          onSort={this.props.onSort}
-        />
-      </Sidebar>
-    );
-
     return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        rightSidebar={preview}
-        actionBar={<Wrapper.ActionBar left={__('Build')} />}
-        footer={footerActions}
-        content={this.renderForm()}
-      />
+      <FlexItem>
+        <FlexColumn>
+          <LeftItem>{this.renderOptions()}</LeftItem>
+          {this.footerActions()}
+        </FlexColumn>
+
+        <Preview>{this.renderPreview()}</Preview>
+      </FlexItem>
     );
   }
 }
 
-Manage.propTypes = {
-  addField: PropTypes.func.isRequired,
-  editField: PropTypes.func.isRequired,
-  deleteField: PropTypes.func.isRequired,
-  onSort: PropTypes.func.isRequired,
-  fields: PropTypes.array.isRequired // eslint-disable-line
-};
-
-Manage.contextTypes = {
+FormStep.propTypes = propTypes;
+FormStep.contextTypes = {
   __: PropTypes.func
 };
 
-export default Manage;
+export default FormStep;

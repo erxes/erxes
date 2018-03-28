@@ -7,6 +7,7 @@ import CustomersRoutes from './modules/customers/routes';
 import CompaniesRoutes from './modules/companies/routes';
 import InsightsRoutes from './modules/insights/routes';
 import EngageRoutes from './modules/engage/routes';
+import FormRoutes from './modules/forms/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
 import SettingsRoutes from './modules/settings/routes';
 import InboxRoutes from './modules/inbox/routes';
@@ -31,6 +32,7 @@ const renderRoutes = currentUser => {
         <InsightsRoutes />
         <EngageRoutes />
         <KnowledgeBaseRoutes />
+        <FormRoutes />
         <SettingsRoutes />
         <TagsRoutes />
         <NotificationRoutes />

@@ -179,7 +179,7 @@ export default class GenerateField extends Component {
       <FormGroup>
         <ControlLabel htmlFor={field._id} ignoreTrans>
           {field.text}
-          {field.isRequired ? <span className="required">*</span> : null}:
+          {field.isRequired ? <span className="required">*</span> : null}
         </ControlLabel>
 
         {field.description ? (
