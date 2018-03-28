@@ -161,7 +161,7 @@ class ProductForm extends React.Component {
       }
 
       product.tax = (amount - product.discount || 0) * product.taxPercent / 100;
-      product.amount = amount - (product.discount || 0) - (product.tax || 0);
+      product.amount = amount - (product.discount || 0) + (product.tax || 0);
     } else {
       product.tax = 0;
       product.taxPercent = 0;
