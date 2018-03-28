@@ -91,10 +91,28 @@ const fields = `
   }
 `;
 
+const fieldsCombinedByContentType = `
+  query fieldsCombinedByContentType($contentType: String!) {
+    fieldsCombinedByContentType(contentType: $contentType)
+  }
+`;
+
+const fieldsDefaultColumnsConfig = `
+  query fieldsDefaultColumnsConfig($contentType: String!) {
+    fieldsDefaultColumnsConfig(contentType: $contentType) {
+      name
+      label
+      order
+    }
+  }
+`;
+
 export default {
   integrations,
   integrationDetail,
   integrationsCount,
   fields,
-  brands
+  brands,
+  fieldsCombinedByContentType,
+  fieldsDefaultColumnsConfig
 };
