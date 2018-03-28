@@ -139,7 +139,8 @@ const StageBody = styled.div`
 `;
 
 const StageDropZone = styled.div`
-  height: 100%;
+  min-height: 100%;
+  min-height: calc(100% - 10px);
 
   > div:not(.deals) {
     background: #eee;
@@ -158,7 +159,6 @@ const AddNewDeal = styled.a`
   font-size: 14px;
   transition: all 0.3s ease;
   cursor: pointer;
-  margin-bottom: 10px;
 
   &:hover {
     background: ${colors.bgLight};

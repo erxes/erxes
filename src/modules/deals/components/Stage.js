@@ -30,14 +30,9 @@ class Stage extends React.Component {
   constructor(props) {
     super(props);
 
-    this.showForm = this.showForm.bind(this);
-    this.closeForm = this.closeForm.bind(this);
+    this.toggleForm = this.toggleForm.bind(this);
 
     this.state = { show: false };
-  }
-
-  showForm() {
-    this.setState({ show: true });
   }
 
   renderIndicator() {
@@ -48,8 +43,8 @@ class Stage extends React.Component {
       .map((e, i) => <IndicatorItem isPass={index >= i} key={i} />);
   }
 
-  closeForm() {
-    this.setState({ show: false });
+  toggleForm() {
+    this.setState({ show: !this.state.show });
   }
 
   renderAmount(amount) {
@@ -62,16 +57,17 @@ class Stage extends React.Component {
     ));
   }
 
-  renderDealForm(show) {
-    if (show) {
+  renderDealForm() {
+    if (this.state.show) {
       const { stage, deals } = this.props;
 
       return (
         <DealForm
           stageId={stage._id}
-          close={this.closeForm.bind(this)}
+          close={this.toggleForm}
           dealsLength={deals.length}
           saveDeal={this.props.saveDeal}
+          scrollBottom={this.scrollBottom}
         />
       );
     }
@@ -79,7 +75,7 @@ class Stage extends React.Component {
     const { __ } = this.context;
 
     return (
-      <AddNewDeal onClick={this.showForm.bind(this)}>
+      <AddNewDeal onClick={this.toggleForm}>
         <Icon icon="plus" /> {__('Add a deal')}
       </AddNewDeal>
     );
@@ -103,7 +99,7 @@ class Stage extends React.Component {
           ))}
         </div>
         {provided.placeholder}
-        {this.renderDealForm(this.state.show)}
+        {this.renderDealForm()}
       </StageDropZone>
     );
   }
