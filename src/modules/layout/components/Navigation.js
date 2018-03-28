@@ -108,7 +108,7 @@ const NavIcon = styled.i`
   }
 
   &.icon-form {
-    background-image: url('/images/icons/nav-04.svg');
+    background-image: url('/images/icons/nav-09.svg');
   }
 
   &.icon-settings {
@@ -172,6 +172,11 @@ class Navigation extends Component {
               <NavIcon className="icon-company" />
             </NavLink>
           </Tip>
+          <Tip placement="right" text={__('Forms')}>
+            <NavLink to="/forms" activeClassName="active">
+              <NavIcon className="icon-form" />
+            </NavLink>
+          </Tip>
           <Tip placement="right" text={__('Engage')}>
             <NavLink to="/engage" activeClassName="active">
               <NavIcon className="icon-engage" />
@@ -180,11 +185,6 @@ class Navigation extends Component {
           <Tip placement="right" text={__('Knowledge Base')}>
             <NavLink to="/knowledgeBase" activeClassName="active">
               <NavIcon className="icon-knowledge" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Forms')}>
-            <NavLink to="/forms" activeClassName="active">
-              <NavIcon className="icon-form" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Insights')}>
