@@ -1,19 +1,66 @@
 /* eslint-env jest */
 
-import tagQueries from '../data/resolvers/queries/tags';
+import { Tags } from '../db/models';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { tagsFactory } from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
+
+const generateData = params => {
+  const { n, type } = params;
+  const promises = [];
+
+  let i = 1;
+
+  while (i <= n) {
+    promises.push(tagsFactory({ type }));
+
+    i++;
+  }
+
+  return Promise.all(promises);
+};
 
 describe('tagQueries', () => {
-  test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(1);
+  afterEach(async () => {
+    // Clearing test data
+    await Tags.remove({});
+  });
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, {});
-      } catch (e) {
-        expect(e.message).toBe('Login required');
+  test('Tags', async () => {
+    const type = 'customer';
+
+    // Creating test data
+    await generateData({ n: 3, type });
+
+    const query = `
+      query tags($type: String) {
+        tags(type: $type) {
+          _id
+        }
       }
-    };
+    `;
 
-    expectError(tagQueries.tags);
+    const response = await graphqlRequest(query, 'tags', { type });
+
+    expect(response.length).toBe(3);
+  });
+
+  test('Tag detail', async () => {
+    const tag = await tagsFactory({ type: 'customer' });
+
+    const query = `
+      query tagDetail($_id: String!) {
+        tagDetail(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(query, 'tagDetail', { _id: tag._id });
+
+    expect(response._id).toBe(tag._id);
   });
 });

@@ -104,6 +104,7 @@ export const brandFactory = (params = {}) => {
     code: params.code || faker.random.word(),
     userId: Random.id(),
     description: params.description || faker.random.word(),
+    createdAt: new Date(),
     emailConfig: {
       type: 'simple',
       template: faker.random.word(),
@@ -326,7 +327,7 @@ export const channelFactory = async (params = {}) => {
       name: faker.random.word(),
       description: faker.lorem.sentence,
       integrationIds: [],
-      memberIds: [user._id],
+      memberIds: params.userId || [user._id],
       userId: user._id,
       conversationCount: 0,
       openConversationCount: 0,
