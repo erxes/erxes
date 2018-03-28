@@ -4,6 +4,7 @@ export default `
   status
   assignedUserId
   createdAt
+  updatedAt
   assignedUser {
     _id
     username
@@ -31,7 +32,6 @@ export default `
     _id
     firstName
     lastName
-    name
     email
     phone
     isUser
@@ -40,6 +40,27 @@ export default `
     companies {
       _id
       name
+      website
+    }
+
+    owner {
+      details {
+        fullName
+      }
+    }
+    position
+    department
+    leadStatus
+    lifecycleState
+    hasAuthority
+    description
+    doNotDisturb
+    links {
+      linkedIn
+      twitter
+      facebook
+      youtube
+      github
       website
     }
 

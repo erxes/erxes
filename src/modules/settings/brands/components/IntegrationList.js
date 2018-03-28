@@ -22,13 +22,14 @@ class IntegrationList extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <Table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Kind</th>
-            <th>Actions</th>
+            <th>{__('Name')}</th>
+            <th>{__('Kind')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -38,5 +39,8 @@ class IntegrationList extends Component {
 }
 
 IntegrationList.propTypes = propTypes;
+IntegrationList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default IntegrationList;

@@ -18,6 +18,7 @@ const StyledTable = styled.table`
       color: ${colors.textPrimary};
       padding: ${dimensions.unitSpacing}px;
       display: table-cell;
+      vertical-align: ${props.alignTop && 'top'};
 
       & ${FormLabel}, & ${Input} {
         margin: 0px;

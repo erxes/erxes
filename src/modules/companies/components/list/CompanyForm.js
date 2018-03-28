@@ -1,18 +1,35 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
+import Select from 'react-select-plus';
 import {
   Button,
   FormGroup,
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import {
+  ModalFooter,
+  FormWrapper,
+  FormColumn,
+  ColumnTitle
+} from 'modules/common/styles/styles';
+import {
+  COMPANY_INDUSTRY_TYPES,
+  COMPANY_LEAD_STATUS_TYPES,
+  COMPANY_LIFECYCLE_STATE_TYPES,
+  COMPANY_BUSINESS_TYPES
+} from '../../constants';
 
 const propTypes = {
-  addCompany: PropTypes.func.isRequired
+  action: PropTypes.func.isRequired,
+  company: PropTypes.object,
+  users: PropTypes.array,
+  companies: PropTypes.array,
+  companiesQuery: PropTypes.object
 };
 
 const contextTypes = {
+  __: PropTypes.func.isRequired,
   closeModal: PropTypes.func.isRequired
 };
 
@@ -20,42 +37,226 @@ class CompanyForm extends React.Component {
   constructor(props) {
     super(props);
 
-    this.addCompany = this.addCompany.bind(this);
+    const { company = {} } = props;
+
+    this.state = {
+      parentCompanyId: company.parentCompanyId || '',
+      ownerId: company.ownerId || '',
+      doNotDisturb: company.doNotDisturb || 'No'
+    };
+
+    this.action = this.action.bind(this);
+    this.renderFormGroup = this.renderFormGroup.bind(this);
   }
 
-  addCompany(e) {
+  action(e) {
     e.preventDefault();
-    const name = document.getElementById('company-name');
-    const website = document.getElementById('company-website');
 
-    this.props.addCompany({
+    this.props.action({
       doc: {
-        name: name.value,
-        website: website.value
-      },
-
-      callback: () => {
-        name.value = '';
-        website.value = '';
-        if (document.activeElement.name === 'close') this.context.closeModal();
+        name: document.getElementById('company-name').value,
+        size: document.getElementById('company-size').value,
+        industry: document.getElementById('company-industry').value,
+        plan: document.getElementById('company-plan').value,
+        parentCompanyId: this.state.parentCompanyId,
+        email: document.getElementById('company-email').value,
+        ownerId: this.state.ownerId,
+        phone: document.getElementById('company-phone').value,
+        leadStatus: document.getElementById('company-leadStatus').value,
+        lifecycleState: document.getElementById('company-lifecycleState').value,
+        businessType: document.getElementById('company-businessType').value,
+        description: document.getElementById('company-description').value,
+        employees: document.getElementById('company-employees').value,
+        doNotDisturb: this.state.doNotDisturb,
+        links: {
+          linkedIn: document.getElementById('company-linkedIn').value,
+          twitter: document.getElementById('company-twitter').value,
+          facebook: document.getElementById('company-facebook').value,
+          github: document.getElementById('company-github').value,
+          youtube: document.getElementById('company-youtube').value,
+          website: document.getElementById('company-website').value
+        }
       }
     });
+
+    this.context.closeModal();
+  }
+
+  generateCompanyParams(companies) {
+    return companies.map(company => ({
+      value: company._id,
+      label: company.name || ''
+    }));
+  }
+
+  generateUserParams(users) {
+    return users.map(user => ({
+      value: user._id,
+      label: user.details.fullName || ''
+    }));
+  }
+
+  generateConstantParams(constants) {
+    return constants.map(constant => ({
+      value: constant,
+      label: constant
+    }));
+  }
+
+  renderFormGroup(label, props) {
+    return (
+      <FormGroup>
+        <ControlLabel>{label}</ControlLabel>
+        <FormControl {...props} />
+      </FormGroup>
+    );
   }
 
   render() {
+    const { __ } = this.context;
+    const { company = {}, companies, users } = this.props;
+    const { links = {} } = company;
+
     return (
-      <form onSubmit={e => this.addCompany(e)}>
-        <FormGroup>
-          <ControlLabel>Name</ControlLabel>
-          <FormControl id="company-name" type="text" autoFocus required />
-        </FormGroup>
+      <form onSubmit={e => this.action(e)}>
+        <FormWrapper>
+          <FormColumn>
+            {this.renderFormGroup('Name', {
+              id: 'company-name',
+              autoFocus: true,
+              defaultValue: company.name || '',
+              required: true
+            })}
+            {this.renderFormGroup('Industry', {
+              id: 'company-industry',
+              componentClass: 'select',
+              defaultValue: company.industry || '',
+              options: this.generateConstantParams(COMPANY_INDUSTRY_TYPES)
+            })}
+            <FormGroup>
+              <ControlLabel>Parent Company</ControlLabel>
+              <Select
+                placeholder="Search..."
+                onChange={selectedOption => {
+                  this.setState({ parentCompanyId: selectedOption.value });
+                }}
+                value={this.state.parentCompanyId}
+                options={this.generateCompanyParams(companies)}
+              />
+            </FormGroup>
+            {this.renderFormGroup('Plan', {
+              id: 'company-plan',
+              defaultValue: company.plan || ''
+            })}
+            {this.renderFormGroup('Lead Status', {
+              id: 'company-leadStatus',
+              componentClass: 'select',
+              defaultValue: company.leadStatus || '',
+              options: this.generateConstantParams(COMPANY_LEAD_STATUS_TYPES)
+            })}
+            {this.renderFormGroup('Business Type', {
+              id: 'company-businessType',
+              componentClass: 'select',
+              defaultValue: company.businessType || '',
+              options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
+            })}
+            {this.renderFormGroup('Employees count', {
+              id: 'company-employees',
+              defaultValue: company.employees || 0
+            })}
+          </FormColumn>
+          <FormColumn>
+            {this.renderFormGroup('Email', {
+              id: 'company-email',
+              defaultValue: company.email || ''
+            })}
+            {this.renderFormGroup('Size', {
+              id: 'company-size',
+              defaultValue: company.size || 0
+            })}
+            <FormGroup>
+              <ControlLabel>Owner</ControlLabel>
+              <Select
+                placeholder="Search..."
+                onChange={selectedOption => {
+                  this.setState({ ownerId: selectedOption.value });
+                }}
+                value={this.state.ownerId}
+                options={this.generateUserParams(users)}
+              />
+            </FormGroup>
+            {this.renderFormGroup('Phone', {
+              id: 'company-phone',
+              defaultValue: company.phone || ''
+            })}
+            {this.renderFormGroup('Lifecycle State', {
+              id: 'company-lifecycleState',
+              componentClass: 'select',
+              defaultValue: company.lifecycleState || '',
+              options: this.generateConstantParams(
+                COMPANY_LIFECYCLE_STATE_TYPES
+              )
+            })}
+            {this.renderFormGroup('Description', {
+              id: 'company-description',
+              defaultValue: company.description || ''
+            })}
+            {this.renderFormGroup('Do not disturb', {
+              componentClass: 'radio',
+              options: [
+                {
+                  childNode: 'Yes',
+                  value: 'Yes',
+                  checked: this.state.doNotDisturb === 'Yes',
+                  onChange: e => this.setState({ doNotDisturb: e.target.value })
+                },
+                {
+                  childNode: 'No',
+                  value: 'No',
+                  checked: this.state.doNotDisturb === 'No',
+                  onChange: e => this.setState({ doNotDisturb: e.target.value })
+                }
+              ]
+            })}
+          </FormColumn>
+        </FormWrapper>
+        <ColumnTitle>{__('Links')}</ColumnTitle>
+        <FormWrapper>
+          <FormColumn>
+            {this.renderFormGroup('LinkedIn', {
+              id: 'company-linkedIn',
+              defaultValue: links.linkedIn || ''
+            })}
 
-        <FormGroup>
-          <ControlLabel>Website</ControlLabel>
-          <FormControl id="company-website" type="text" required />
-        </FormGroup>
+            {this.renderFormGroup('Twitter', {
+              id: 'company-twitter',
+              defaultValue: links.twitter || ''
+            })}
 
-        <Modal.Footer>
+            {this.renderFormGroup('Facebook', {
+              id: 'company-facebook',
+              defaultValue: links.facebook || ''
+            })}
+          </FormColumn>
+          <FormColumn>
+            {this.renderFormGroup('Github', {
+              id: 'company-github',
+              defaultValue: links.github || ''
+            })}
+
+            {this.renderFormGroup('Youtube', {
+              id: 'company-youtube',
+              defaultValue: links.youtube || ''
+            })}
+
+            {this.renderFormGroup('Website', {
+              id: 'company-website',
+              defaultValue: links.website || ''
+            })}
+          </FormColumn>
+        </FormWrapper>
+
+        <ModalFooter>
           <Button
             btnStyle="simple"
             onClick={() => {
@@ -67,13 +268,9 @@ class CompanyForm extends React.Component {
           </Button>
 
           <Button btnStyle="success" type="submit" icon="checkmark">
-            Save & New
+            Save
           </Button>
-
-          <Button btnStyle="primary" type="submit" name="close" icon="close">
-            Save & Close
-          </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

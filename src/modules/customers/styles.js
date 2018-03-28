@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors } from '../common/styles';
+import { colors } from 'modules/common/styles';
 
 const columnSizing = '20px';
 const borderRadius = '2px';

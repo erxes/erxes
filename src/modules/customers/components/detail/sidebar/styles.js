@@ -1,100 +1,11 @@
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 
-const AboutList = styled.ul`
-  margin: 0;
-  padding: 0;
-  list-style: none;
-
-  li {
-    padding: 6px 0px;
-    color: ${colors.textPrimary};
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-decoration: none;
-    outline: 0;
-    width: 100%;
-
-    &:first-child {
-      padding-top: 0;
-    }
-
-    &:last-child {
-      padding-bottom: ${dimensions.unitSpacing}px;
-    }
-  }
-
-  > span {
-    font-size: 12px;
-    text-align: right;
-    color: #888;
-    margin-top: 2px;
-    position: absolute;
-    right: ${dimensions.coreSpacing}px;
-  }
-`;
-
-const Aboutvalues = styled.span`
-  font-size: 12px;
-  text-align: right;
-  color: ${colors.colorCoreGray};
-  margin-top: 2px;
-  position: absolute;
-  right: ${dimensions.coreSpacing}px;
-  width: 60%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  &:hover {
-    i {
-      visibility: visible;
-    }
-  }
-
-  i {
-    visibility: hidden;
-    margin-left: 6px;
-    color: ${colors.colorCoreGray};
-    text-decoration: none;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
-  a {
-    &:hover {
-      cursor: pointer;
-    }
-  }
-`;
-
 const BlockValue = styled.div`
   font-size: 12px;
   color: ${colors.colorCoreGray};
   margin-top: 5px;
   white-space: normal;
-`;
-
-const NameWrapper = styled.div`
-  padding-top: ${dimensions.coreSpacing}px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  .cutomer-name {
-    flex: 1;
-    word-break: break-word;
-  }
-
-  a {
-    cursor: pointer;
-  }
-`;
-
-const AboutWrapper = styled.div`
-  margin-top: ${dimensions.coreSpacing}px;
 `;
 
 const CompanyWrapper = styled.div`
@@ -107,6 +18,10 @@ const CompanyWrapper = styled.div`
 
   &:first-of-type {
     border-top: none;
+  }
+
+  a {
+    font-size: 12px;
   }
 
   span {
@@ -140,18 +55,7 @@ const CompanyWrapper = styled.div`
 `;
 
 const ButtonWrapper = styled.div`
-  button {
-    float: right;
-    margin-left: 5px;
-  }
+  text-align: right;
 `;
 
-export {
-  AboutList,
-  Aboutvalues,
-  BlockValue,
-  NameWrapper,
-  AboutWrapper,
-  CompanyWrapper,
-  ButtonWrapper
-};
+export { BlockValue, CompanyWrapper, ButtonWrapper };

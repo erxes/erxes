@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { dimensions, colors } from 'modules/common/styles';
+import { dimensions, colors, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 
 const FullContent = styled.div`
@@ -13,6 +13,7 @@ const FullContent = styled.div`
 const BoxRoot = styled.div`
   text-align: center;
   display: inline-block;
+  float: left;
   background: ${colors.colorLightBlue};
   box-shadow: 0 8px 5px ${rgba(colors.colorCoreGray, 0.08)};
   margin-right: ${dimensions.coreSpacing}px;
@@ -59,4 +60,85 @@ const BoxRoot = styled.div`
   }
 `;
 
-export { BoxRoot, FullContent };
+const InfoWrapper = styled.div`
+  padding: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  .name {
+    flex: 1;
+    word-break: break-word;
+  }
+
+  i {
+    transition: all 0.3s ease;
+    color: ${colors.colorCoreLightGray};
+
+    &:hover {
+      cursor: pointer;
+      color: ${colors.colorCoreGray};
+    }
+  }
+`;
+
+const Links = styled.div`
+  a {
+    color: ${colors.colorCoreLightGray};
+    margin-right: 10px;
+
+    &:hover {
+      color: ${colors.colorCoreGray};
+    }
+
+    i {
+      font-size: 14px;
+    }
+  }
+`;
+
+const FormWrapper = styled.div`
+  display: flex;
+
+  img {
+    display: block;
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+  }
+`;
+
+const FormColumn = styled.div`
+  flex: 1;
+  padding-right: 40px;
+
+  &:last-of-type {
+    padding: 0;
+  }
+`;
+
+const ColumnTitle = styled.h4`
+  text-transform: uppercase;
+  font-weight: ${typography.fontWeightMedium};
+  border-bottom: 1px dotted ${colors.colorShadowGray};
+  padding: ${dimensions.unitSpacing}px 0;
+  font-size: 14px;
+  margin: ${dimensions.unitSpacing}px 0 ${dimensions.coreSpacing}px 0;
+`;
+
+const ModalFooter = styled.div`
+  text-align: right;
+  margin-top: 40px;
+`;
+
+export {
+  BoxRoot,
+  FullContent,
+  ModalFooter,
+  InfoWrapper,
+  Links,
+  FormWrapper,
+  FormColumn,
+  ColumnTitle
+};

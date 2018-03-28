@@ -10,11 +10,7 @@ const CustomerDetailsContainer = (props, context) => {
 
   const updatedProps = {
     ...props,
-    customer: customerDetailQuery.customerDetail || {
-      customFieldsData: [],
-      companies: [],
-      getTags: []
-    },
+    customer: customerDetailQuery.customerDetail || {},
     loadingLogs: customerActivityLogQuery.loading,
     activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
     currentUser: context.currentUser

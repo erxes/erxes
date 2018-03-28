@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Wrapper } from 'modules/layout/components';
+import { Wrapper, Sidebar } from 'modules/layout/components';
 import {
   DataWithLoader,
   Tabs,
@@ -9,10 +9,13 @@ import {
   Icon
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
-import { EditInformation } from 'modules/customers/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
-import { hasAnyActivity } from 'modules/customers/utils';
+import { renderFullName } from 'modules/common/utils';
+import { DealSection } from 'modules/deals/components';
+import { EditInformation } from '../../containers';
+import { CompanySection } from '../';
+import { hasAnyActivity } from '../../utils';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -62,7 +65,7 @@ class CustomerDetails extends React.Component {
             <ActivityList
               user={currentUser}
               activities={activityLogsCustomer}
-              target={customer}
+              target={customer.firstName}
               type={currentTab} //show logs filtered by type
             />
           }
@@ -76,10 +79,11 @@ class CustomerDetails extends React.Component {
   render() {
     const { currentTab } = this.state;
     const { customer } = this.props;
+    const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Customers', link: '/customers' },
-      { title: customer.name || customer.email || 'N/A' }
+      { title: __('Customers'), link: '/customers' },
+      { title: renderFullName(customer) }
     ];
 
     const content = (
@@ -87,7 +91,7 @@ class CustomerDetails extends React.Component {
         <WhiteBoxRoot>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> New note
+              <Icon icon="compose" /> {__('New note')}
             </TabTitle>
           </Tabs>
 
@@ -99,19 +103,19 @@ class CustomerDetails extends React.Component {
             className={currentTab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}
           >
-            Activity
+            {__('Activity')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
             onClick={() => this.onTabClick('notes')}
           >
-            Notes
+            {__('Notes')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'conversations' ? 'active' : ''}
             onClick={() => this.onTabClick('conversations')}
           >
-            Conversation
+            {__('Conversation')}
           </TabTitle>
         </Tabs>
 
@@ -119,10 +123,18 @@ class CustomerDetails extends React.Component {
       </div>
     );
 
+    const rightSidebar = (
+      <Sidebar>
+        <CompanySection customer={customer} />
+        <DealSection deals={customer.deals || []} />
+      </Sidebar>
+    );
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<EditInformation customer={customer} />}
+        leftSidebar={<EditInformation wide customer={customer} />}
+        rightSidebar={rightSidebar}
         content={content}
         transparent={true}
       />
@@ -131,5 +143,8 @@ class CustomerDetails extends React.Component {
 }
 
 CustomerDetails.propTypes = propTypes;
+CustomerDetails.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(CustomerDetails);

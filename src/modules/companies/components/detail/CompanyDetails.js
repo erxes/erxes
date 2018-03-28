@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Wrapper } from 'modules/layout/components';
+import { Wrapper, Sidebar } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
 import {
   DataWithLoader,
@@ -12,12 +12,13 @@ import {
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
+import CustomerSection from './CustomerSection';
+import { DealSection } from 'modules/deals/components';
 import { hasAnyActivity } from 'modules/customers/utils';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
-  customFields: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired,
+  fieldsGroups: PropTypes.array.isRequired,
   queryParams: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
   companyActivityLog: PropTypes.array.isRequired,
@@ -62,7 +63,7 @@ class CompanyDetails extends React.Component {
             <ActivityList
               user={currentUser}
               activities={companyActivityLog}
-              target={company}
+              target={company.name}
               type={currentTab} //show logs filtered by type
             />
           }
@@ -76,18 +77,26 @@ class CompanyDetails extends React.Component {
   render() {
     const { currentTab } = this.state;
     const { company } = this.props;
+    const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Companies', link: '/companies' },
+      { title: __('Companies'), link: '/companies' },
       { title: company.name || company.email || 'N/A' }
     ];
+
+    const rightSidebar = (
+      <Sidebar>
+        <CustomerSection company={company} />
+        <DealSection deals={company.deals || []} />
+      </Sidebar>
+    );
 
     const content = (
       <div>
         <WhiteBox>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> New note
+              <Icon icon="compose" /> {__('New note')}
             </TabTitle>
           </Tabs>
 
@@ -99,19 +108,19 @@ class CompanyDetails extends React.Component {
             className={currentTab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}
           >
-            Activity
+            {__('Activity')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
             onClick={() => this.onTabClick('notes')}
           >
-            Notes
+            {__('Notes')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'conversations' ? 'active' : ''}
             onClick={() => this.onTabClick('conversations')}
           >
-            Conversation
+            {__('Conversation')}
           </TabTitle>
         </Tabs>
 
@@ -123,6 +132,7 @@ class CompanyDetails extends React.Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<LeftSidebar {...this.props} />}
+        rightSidebar={rightSidebar}
         content={content}
         transparent={true}
       />
@@ -131,5 +141,8 @@ class CompanyDetails extends React.Component {
 }
 
 CompanyDetails.propTypes = propTypes;
+CompanyDetails.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(CompanyDetails);

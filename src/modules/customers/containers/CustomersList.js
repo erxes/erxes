@@ -14,12 +14,11 @@ import { CustomersList } from '../components';
 class CustomerListContainer extends Bulk {
   render() {
     const {
-      customersQuery,
+      customersMainQuery,
       brandsQuery,
       tagsQuery,
       customerCountsQuery,
       customersListConfigQuery,
-      customersAdd,
       customersRemove,
       customersMerge,
       history
@@ -35,28 +34,13 @@ class CustomerListContainer extends Bulk {
       columnsConfig = JSON.parse(localConfig);
     }
 
-    // add customer
-    const addCustomer = ({ doc, callback }) => {
-      customersAdd({
-        variables: doc
-      })
-        .then(() => {
-          customersQuery.refetch();
-          Alert.success('Success');
-          callback();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
-
     const removeCustomers = ({ customerIds }) => {
       customersRemove({
         variables: { customerIds }
       })
         .then(() => {
           this.emptyBulk();
-          customersQuery.refetch();
+          customersMainQuery.refetch();
           Alert.success('Success');
           // callback();
         })
@@ -74,7 +58,7 @@ class CustomerListContainer extends Bulk {
       })
         .then(data => {
           Alert.success('Success');
-          customersQuery.refetch();
+          customersMainQuery.refetch();
           callback();
           history.push(`/customers/details/${data.data.customersMerge._id}`);
         })
@@ -84,18 +68,23 @@ class CustomerListContainer extends Bulk {
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
+    const { list = [], totalCount = 0 } =
+      customersMainQuery.customersMain || {};
+
+    const counts = customerCountsQuery.customerCounts || {
+      byBrand: {},
+      byIntegrationType: {},
+      bySegment: {},
+      byTag: {}
+    };
 
     const updatedProps = {
       ...this.props,
       columnsConfig,
-
-      customers: customersQuery.customers || [],
-      counts: customerCountsQuery.customerCounts || {
-        all: 0,
-        byBrand: {},
-        byIntegrationType: {},
-        bySegment: {},
-        byTag: {}
+      customers: list,
+      counts: {
+        all: totalCount,
+        ...counts
       },
       brands: brandsQuery.brands || [],
       integrations: KIND_CHOICES.ALL_LIST,
@@ -105,9 +94,8 @@ class CustomerListContainer extends Bulk {
       toggleBulk: this.toggleBulk,
       toggleAll: this.toggleAll,
       searchValue,
-      loading: customersQuery.loading,
+      loading: customersMainQuery.loading,
       loadingTags: tagsQuery.loading,
-      addCustomer,
       mergeCustomers,
       removeCustomers,
       basicInfos: Object.assign({}, CUSTOMER_BASIC_INFO, CUSTOMER_DATAS)
@@ -126,8 +114,8 @@ CustomerListContainer.propTypes = {
 };
 
 export default compose(
-  graphql(gql(queries.customers), {
-    name: 'customersQuery',
+  graphql(gql(queries.customersMain), {
+    name: 'customersMainQuery',
     options: ({ queryParams }) => {
       return {
         variables: {
@@ -178,9 +166,6 @@ export default compose(
     })
   }),
   // mutations
-  graphql(gql(mutations.customersAdd), {
-    name: 'customersAdd'
-  }),
   graphql(gql(mutations.customersRemove), {
     name: 'customersRemove'
   }),

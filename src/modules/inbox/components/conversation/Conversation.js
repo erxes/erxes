@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { Spinner } from 'modules/common/components';
 import Message from './Message';
+import { TwitterConversation } from './TwitterConversation';
 
 const propTypes = {
   conversation: PropTypes.object,
@@ -53,12 +54,6 @@ const File = styled.span`
 `;
 
 class Conversation extends Component {
-  constructor(props) {
-    super(props);
-
-    this.renderPreview = this.renderPreview.bind(this);
-  }
-
   renderPreview() {
     const { attachmentPreview } = this.props;
 
@@ -78,7 +73,18 @@ class Conversation extends Component {
     return null;
   }
 
-  render() {
+  isStuff(conversation, firstMessage, currentMessage) {
+    if (conversation.twitterData) {
+      const firstTwitterData = firstMessage.customer.twitterData;
+      const currentTwitterData = currentMessage.customer.twitterData;
+
+      return firstTwitterData.id_str !== currentTwitterData.id_str;
+    }
+
+    return currentMessage.userId;
+  }
+
+  renderMessages() {
     const { conversation, scrollBottom } = this.props;
 
     if (!conversation) {
@@ -86,6 +92,7 @@ class Conversation extends Component {
     }
 
     const messages = conversation.messages || [];
+    const firstMessage = messages.length && messages[0];
     const rows = [];
 
     let tempId;
@@ -99,7 +106,7 @@ class Conversation extends Component {
               : message.customerId === tempId
           }
           message={message}
-          staff={!message.customerId}
+          staff={this.isStuff(conversation, firstMessage, message)}
           key={message._id}
           scrollBottom={scrollBottom}
         />
@@ -107,10 +114,30 @@ class Conversation extends Component {
 
       tempId = message.userId ? message.userId : message.customerId;
     });
+    return rows;
+  }
 
+  renderConversation() {
+    const { conversation, scrollBottom } = this.props;
+    const twitterData = conversation.twitterData;
+    const isTweet = twitterData && !twitterData.isDirectMessage;
+
+    if (isTweet) {
+      return (
+        <TwitterConversation
+          conversation={conversation}
+          scrollBottom={scrollBottom}
+        />
+      );
+    }
+
+    return this.renderMessages();
+  }
+
+  render() {
     return (
       <Wrapper>
-        {rows}
+        {this.renderConversation()}
         {this.renderPreview()}
       </Wrapper>
     );

@@ -32,8 +32,9 @@ class Row extends React.Component {
   }
 
   renderLink(text, className, onClick) {
+    const { __ } = this.context;
     return (
-      <Tip text={text} key={`${text}-${this.props.message._id}`}>
+      <Tip text={__(text)} key={`${text}-${this.props.message._id}`}>
         <Button btnStyle="link" onClick={onClick} icon={className} />
       </Tip>
     );
@@ -103,6 +104,7 @@ class Row extends React.Component {
 
     const deliveryReports = Object.values(message.deliveryReports || {});
     const totalCount = deliveryReports.length;
+    const { __ } = this.context;
 
     deliveryReports.forEach(report => {
       if (report.status === 'sent') {
@@ -148,11 +150,11 @@ class Row extends React.Component {
         <td>
           {message.email ? (
             <div>
-              <Icon icon="email" /> Email
+              <Icon icon="email" /> {__('Email')}
             </div>
           ) : (
             <div>
-              <Icon icon="chatbox" /> Messenger
+              <Icon icon="chatbox" /> {__('Messenger')}
             </div>
           )}
         </td>
@@ -169,7 +171,7 @@ class Row extends React.Component {
           <ActionButtons>
             {this.renderLinks()}
 
-            <Tip text="Delete">
+            <Tip text={__('Delete')}>
               <Button btnStyle="link" onClick={remove} icon="close" />
             </Tip>
           </ActionButtons>
@@ -180,5 +182,8 @@ class Row extends React.Component {
 }
 
 Row.propTypes = propTypes;
+Row.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Row;

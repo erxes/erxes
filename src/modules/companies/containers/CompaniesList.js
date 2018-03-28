@@ -13,10 +13,9 @@ import { COMPANY_INFO } from '../constants';
 class CompanyListContainer extends Bulk {
   render() {
     const {
-      companiesQuery,
+      companiesMainQuery,
       companiesListConfigQuery,
       companyCountsQuery,
-      companiesAdd,
       tagsQuery,
       companiesRemove,
       companiesMerge,
@@ -33,28 +32,13 @@ class CompanyListContainer extends Bulk {
       columnsConfig = JSON.parse(localConfig);
     }
 
-    // add company
-    const addCompany = ({ doc, callback }) => {
-      companiesAdd({
-        variables: doc
-      })
-        .then(() => {
-          companiesQuery.refetch();
-          Alert.success('Success');
-          callback();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
-
     const removeCompanies = ({ companyIds }) => {
       companiesRemove({
         variables: { companyIds }
       })
         .then(() => {
           this.emptyBulk();
-          companiesQuery.refetch();
+          companiesMainQuery.refetch();
           Alert.success('Success');
         })
         .catch(e => {
@@ -71,7 +55,7 @@ class CompanyListContainer extends Bulk {
       })
         .then(data => {
           Alert.success('Success');
-          companiesQuery.refetch();
+          companiesMainQuery.refetch();
           callback();
           history.push(`/companies/details/${data.data.companiesMerge._id}`);
         })
@@ -81,23 +65,27 @@ class CompanyListContainer extends Bulk {
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
+    const { list = [], totalCount = 0 } =
+      companiesMainQuery.companiesMain || {};
+
+    const counts = companyCountsQuery.companyCounts || {
+      byBrand: {},
+      byIntegrationType: {},
+      bySegment: {},
+      byTag: {}
+    };
 
     const updatedProps = {
       ...this.props,
       columnsConfig,
-
-      counts: companyCountsQuery.companyCounts || {
-        all: 0,
-        byBrand: {},
-        byIntegrationType: {},
-        bySegment: {},
-        byTag: {}
+      counts: {
+        all: totalCount,
+        ...counts
       },
       tags: tagsQuery.tags || [],
       searchValue,
-      companies: companiesQuery.companies || [],
-      addCompany,
-      loading: companiesQuery.loading,
+      companies: list,
+      loading: companiesMainQuery.loading,
       bulk: this.state.bulk || [],
       emptyBulk: this.emptyBulk,
       toggleBulk: this.toggleBulk,
@@ -114,17 +102,16 @@ class CompanyListContainer extends Bulk {
 
 CompanyListContainer.propTypes = {
   queryParams: PropTypes.object,
-  companiesQuery: PropTypes.object,
+  companiesMainQuery: PropTypes.object,
   companyCountsQuery: PropTypes.object,
   companiesListConfigQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
-  companiesAdd: PropTypes.func,
   loading: PropTypes.bool
 };
 
 export default compose(
-  graphql(gql(queries.companies), {
-    name: 'companiesQuery',
+  graphql(gql(queries.companiesMain), {
+    name: 'companiesMainQuery',
     options: ({ queryParams }) => ({
       variables: {
         page: queryParams.page,
@@ -167,9 +154,6 @@ export default compose(
     })
   }),
   // mutations
-  graphql(gql(mutations.companiesAdd), {
-    name: 'companiesAdd'
-  }),
   graphql(gql(mutations.companiesRemove), {
     name: 'companiesRemove'
   }),

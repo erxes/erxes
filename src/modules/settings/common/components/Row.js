@@ -28,8 +28,9 @@ class Row extends Component {
   }
 
   renderRemoveAction() {
+    const { __ } = this.context;
     return (
-      <Tip text="Delete">
+      <Tip text={__('Delete')}>
         <Button btnStyle="link" onClick={this.remove} icon="close" />
       </Tip>
     );
@@ -37,10 +38,11 @@ class Row extends Component {
 
   renderEditAction() {
     const { object, save } = this.props;
+    const { __ } = this.context;
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -66,5 +68,8 @@ class Row extends Component {
 }
 
 Row.propTypes = propTypes;
+Row.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Row;

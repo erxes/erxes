@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries, mutations } from '../graphql';
+import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import { CompanyDetails } from '../components';
 
 const CompanyDetailsContainer = (props, context) => {
@@ -11,7 +13,7 @@ const CompanyDetailsContainer = (props, context) => {
     companyDetailQuery,
     companyActivityLogQuery,
     companiesEdit,
-    fieldsQuery
+    fieldsGroupsQuery
   } = props;
 
   //refetch for display customer change
@@ -27,17 +29,17 @@ const CompanyDetailsContainer = (props, context) => {
       });
   };
 
+  const companyDetail = companyDetailQuery.companyDetail || {};
+
   const updatedProps = {
     ...props,
     save,
     loadingLogs: companyActivityLogQuery.loading,
-    company: companyDetailQuery.companyDetail || {
-      customers: [],
-      customFieldsData: {}
-    },
+    company: companyDetail,
+    customFieldsData: companyDetail.customFieldsData || {},
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     currentUser: context.currentUser,
-    customFields: fieldsQuery.fields || []
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
 
   return <CompanyDetails {...updatedProps} />;
@@ -46,7 +48,7 @@ const CompanyDetailsContainer = (props, context) => {
 CompanyDetailsContainer.propTypes = {
   id: PropTypes.string,
   companyDetailQuery: PropTypes.object,
-  fieldsQuery: PropTypes.object,
+  fieldsGroupsQuery: PropTypes.object,
   companiesEdit: PropTypes.func,
   companyActivityLogQuery: PropTypes.object
 };
@@ -54,6 +56,17 @@ CompanyDetailsContainer.propTypes = {
 CompanyDetailsContainer.contextTypes = {
   currentUser: PropTypes.object
 };
+
+const options = ({ id }) => ({
+  refetchQueries: [
+    {
+      query: gql`
+        ${queries.companyDetail}
+      `,
+      variables: { _id: id }
+    }
+  ]
+});
 
 export default compose(
   graphql(gql(queries.companyDetail), {
@@ -72,10 +85,16 @@ export default compose(
       }
     })
   }),
-  graphql(gql(queries.fields), {
-    name: 'fieldsQuery'
+  graphql(gql(fieldQueries.fieldsGroups), {
+    name: 'fieldsGroupsQuery',
+    options: () => ({
+      variables: {
+        contentType: FIELDS_GROUPS_CONTENT_TYPES.COMPANY
+      }
+    })
   }),
   graphql(gql(mutations.companiesEdit), {
-    name: 'companiesEdit'
+    name: 'companiesEdit',
+    options
   })
 )(CompanyDetailsContainer);

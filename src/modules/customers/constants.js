@@ -52,7 +52,14 @@ export const CUSTOMER_BASIC_INFO = {
   firstName: 'First Name',
   lastName: 'Last Name',
   email: 'E-mail',
-  phone: 'Phone'
+  phone: 'Phone',
+  position: 'Position',
+  department: 'Department',
+  leadStatus: 'Lead Status',
+  lifecycleState: 'Lifecycle state',
+  hasAuthority: 'Has Authority',
+  description: 'Description',
+  doNotDisturb: 'Do not disturb'
 };
 
 export const CUSTOMER_DATAS = {
@@ -61,3 +68,27 @@ export const CUSTOMER_DATAS = {
   facebookData: 'Facebook Data',
   visitorContactInfo: 'Visitor contact info'
 };
+
+export const CUSTOMER_LEAD_STATUS_TYPES = [
+  '',
+  'New',
+  'Open',
+  'In Progress',
+  'Open Deal',
+  'Unqualified',
+  'Attempted to contact',
+  'Connected',
+  'Bad Timing'
+];
+
+export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
+  '',
+  'Subscriber',
+  'Lead',
+  'Marketing Qualified Lead',
+  'Sales Qualified Lead',
+  'Opportunity',
+  'Customer',
+  'Evangelist',
+  'Other'
+];

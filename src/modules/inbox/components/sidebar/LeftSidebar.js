@@ -48,9 +48,10 @@ class LeftSidebar extends Bulk {
   }
 
   renderTrigger(text) {
+    const { __ } = this.context;
     return (
       <PopoverButton>
-        {text} <Icon icon="ios-arrow-down" />
+        {__(text)} <Icon icon="ios-arrow-down" />
       </PopoverButton>
     );
   }
@@ -58,6 +59,7 @@ class LeftSidebar extends Bulk {
   renderSidebarHeader() {
     const { channels, counts, conversations } = this.props;
     const { bulk } = this.state;
+    const { __ } = this.context;
 
     if (bulk.length > 0) {
       return (
@@ -69,7 +71,7 @@ class LeftSidebar extends Bulk {
                 this.toggleAll(conversations, 'conversations');
               }}
             >
-              Select all
+              {__('Select all')}
             </FormControl>
           </LeftItem>
 
@@ -100,6 +102,7 @@ class LeftSidebar extends Bulk {
           fields={channels}
           counts={counts.byChannels}
           paramKey="channelId"
+          searchable
         />
         <StatusFilterPopover counts={counts} />
       </Sidebar.Header>
@@ -117,6 +120,7 @@ class LeftSidebar extends Bulk {
           popoverTitle="Filter by brand"
           placement="top"
           paramKey="brandId"
+          searchable
         />
 
         <FilterPopover
@@ -136,6 +140,7 @@ class LeftSidebar extends Bulk {
           popoverTitle="Filter by tag"
           placement="top"
           icon="pricetag"
+          searchable
         />
       </Sidebar.Footer>
     );
@@ -179,5 +184,8 @@ class LeftSidebar extends Bulk {
 }
 
 LeftSidebar.propTypes = propTypes;
+LeftSidebar.contextTypes = {
+  __: PropTypes.func
+};
 
 export default LeftSidebar;

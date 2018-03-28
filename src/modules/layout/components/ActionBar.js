@@ -5,12 +5,12 @@ import { ContentHeader, HeaderItems } from '../styles';
 const propTypes = {
   left: PropTypes.node,
   right: PropTypes.node,
-  invert: PropTypes.bool
+  background: PropTypes.string
 };
 
-function ActionBar({ left, right, invert }) {
+function ActionBar({ left, right, background }) {
   return (
-    <ContentHeader invert={invert}>
+    <ContentHeader background={background || 'bgLight'}>
       {left && <HeaderItems>{left}</HeaderItems>}
       {right && <HeaderItems rightAligned>{right}</HeaderItems>}
     </ContentHeader>

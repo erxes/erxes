@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import { Button } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   object: PropTypes.object,
@@ -9,7 +9,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class Form extends Component {
@@ -39,7 +40,7 @@ class Form extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.object || {})}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -52,7 +53,7 @@ class Form extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

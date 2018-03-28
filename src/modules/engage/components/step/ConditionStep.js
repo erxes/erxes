@@ -18,6 +18,10 @@ const propTypes = {
   changeRules: PropTypes.func.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class ConditionStep extends Component {
   constructor(props) {
     super(props);
@@ -79,7 +83,7 @@ class ConditionStep extends Component {
 
     return (
       <FormGroup key={rule._id}>
-        <ControlLabel>{rule.text}:</ControlLabel>
+        <ControlLabel>{rule.text}</ControlLabel>
         <InlineForm>
           <FormControl
             componentClass="select"
@@ -132,5 +136,6 @@ class ConditionStep extends Component {
 }
 
 ConditionStep.propTypes = propTypes;
+ConditionStep.contextTypes = contextTypes;
 
 export default ConditionStep;

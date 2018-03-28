@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Table } from 'modules/common/components';
 import { List } from '../../common/components';
 import { Row } from '../containers';
@@ -20,15 +21,16 @@ class FormList extends List {
   }
 
   renderContent() {
+    const { __ } = this.context;
     return (
       <Table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Code</th>
-            <th>Description</th>
-            <th width="135">Created At</th>
-            <th width="180">Actions</th>
+            <th>{__('Name')}</th>
+            <th>{__('Code')}</th>
+            <th>{__('Description')}</th>
+            <th width="135">{__('Created At')}</th>
+            <th width="180">{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
@@ -37,8 +39,13 @@ class FormList extends List {
   }
 
   breadcrumb() {
-    return [{ title: 'Settings', link: '/settings' }, { title: 'Forms' }];
+    const { __ } = this.context;
+    return [{ title: __('Settings'), link: '/settings' }, { title: 'Forms' }];
   }
 }
+
+FormList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default FormList;

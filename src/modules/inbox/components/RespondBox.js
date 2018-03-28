@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Icon, Tip, FormControl } from 'modules/common/components';
@@ -29,7 +31,7 @@ class RespondBox extends Component {
     super(props);
 
     this.state = {
-      isInactive: !this.checkIsActie(props.conversation),
+      isInactive: !this.checkIsActive(props.conversation),
       editorKey: 'editor',
       isInternal: false,
       attachments: [],
@@ -56,7 +58,9 @@ class RespondBox extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.conversation.customer !== nextProps.conversation.customer) {
-      this.setState({ isInactive: !this.checkIsActie(nextProps.conversation) });
+      this.setState({
+        isInactive: !this.checkIsActive(nextProps.conversation)
+      });
     }
   }
 
@@ -70,7 +74,7 @@ class RespondBox extends Component {
     this.setState({ mentionedUserIds });
   }
 
-  checkIsActie(conversation) {
+  checkIsActive(conversation) {
     return (
       conversation.integration.kind !== 'messenger' ||
       (conversation.customer.messengerData &&
@@ -136,13 +140,16 @@ class RespondBox extends Component {
     });
   }
 
+  cleanText(text) {
+    return text.replace(/&nbsp;/g, ' ');
+  }
+
   addMessage() {
     const { conversation, sendMessage } = this.props;
     const { isInternal, attachments, content, mentionedUserIds } = this.state;
-
     const message = {
       conversationId: conversation._id,
-      content: content || ' ',
+      content: this.cleanText(content) || ' ',
       internal: isInternal,
       attachments,
       mentionedUserIds
@@ -195,11 +202,14 @@ class RespondBox extends Component {
   }
 
   renderMask() {
+    const { __ } = this.context;
+
     if (this.state.isInactive) {
       return (
         <Mask onClick={this.hideMask}>
-          Customer is offline. Click to hide and send messages and they will
-          receive them the next time they are online.
+          {__(
+            'Customer is offline. Click to hide and send messages and they will receive them the next time they are online.'
+          )}
         </Mask>
       );
     }
@@ -210,6 +220,7 @@ class RespondBox extends Component {
   render() {
     const { isInternal, responseTemplate } = this.state;
     const { responseTemplates, conversation } = this.props;
+    const { __ } = this.context;
 
     const integration = conversation.integration || {};
 
@@ -220,9 +231,10 @@ class RespondBox extends Component {
           componentClass="checkbox"
           onChange={this.toggleForm}
         >
-          Internal note
+          {__('Internal note')}
         </FormControl>
-        <Tip text="Attach file">
+
+        <Tip text={__('Attach file')}>
           <label>
             <Icon icon="android-attach" size={17} />
             <input type="file" onChange={this.handleFileInput} />
@@ -253,9 +265,11 @@ class RespondBox extends Component {
       type = 'note';
     }
 
-    let placeholder = `To send your ${
-      type
-    } press [Enter] and [Shift + Enter] to add a new line …`;
+    let placeholder = __(
+      `To send your ${
+        type
+      } press [Enter] and [Shift + Enter] to add a new line ...`
+    );
 
     return (
       <MaskWrapper>
@@ -285,5 +299,8 @@ class RespondBox extends Component {
 }
 
 RespondBox.propTypes = propTypes;
+RespondBox.contextTypes = {
+  __: PropTypes.func
+};
 
 export default RespondBox;

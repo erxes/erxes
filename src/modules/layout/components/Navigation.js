@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import { Widget } from 'modules/notifications/containers';
 import { setBadge } from 'modules/common/utils';
 import { colors, dimensions } from 'modules/common/styles';
 import { Tip, Label } from 'modules/common/components';
@@ -18,6 +19,7 @@ const LeftNavigation = styled.aside`
   bottom: 0;
 
   > a {
+    margin-top: ${dimensions.unitSpacing}px;
     line-height: ${dimensions.headerSpacing}px;
     display: flex;
     height: ${dimensions.headerSpacing}px;
@@ -38,7 +40,7 @@ const LeftNavigation = styled.aside`
 
 const Nav = styled.nav`
   display: block;
-  margin-top: ${dimensions.coreSpacing}px;
+  margin-top: ${dimensions.unitSpacing}px;
 
   > a {
     display: block;
@@ -112,6 +114,10 @@ const NavIcon = styled.i`
   &.icon-knowledge {
     background-image: url('/images/icons/nav-07.svg');
   }
+
+  &.icon-deal {
+    background-image: url('/images/icons/nav-08.svg');
+  }
 `;
 
 class Navigation extends Component {
@@ -130,53 +136,60 @@ class Navigation extends Component {
 
   render() {
     const { unreadConversationsCount } = this.props;
+    const { __ } = this.context;
     return (
       <LeftNavigation>
         <NavLink to="/" activeClassName="active">
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
-          <Tip placement="right" text="Inbox">
+          <Tip placement="right" text={__('Inbox')}>
             <NavLink to="/inbox" activeClassName="active">
               <NavIcon className="icon-inbox" />
               {unreadConversationsCount !== 0 && (
-                <Label shake lblStyle="danger">
+                <Label shake lblStyle="danger" ignoreTrans>
                   {unreadConversationsCount}
                 </Label>
               )}
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Customers">
+          <Tip placement="right" text={__('Deal')}>
+            <NavLink to="/deals" activeClassName="active">
+              <NavIcon className="icon-deal" />
+            </NavLink>
+          </Tip>
+          <Tip placement="right" text={__('Customers')}>
             <NavLink to="/customers" activeClassName="active">
               <NavIcon className="icon-customer" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Companies">
+          <Tip placement="right" text={__('Companies')}>
             <NavLink to="/companies" activeClassName="active">
               <NavIcon className="icon-company" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Engage">
+          <Tip placement="right" text={__('Engage')}>
             <NavLink to="/engage" activeClassName="active">
               <NavIcon className="icon-engage" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Insights">
-            <NavLink to="/insights" activeClassName="active">
-              <NavIcon className="icon-insights" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text="Knowledge Base">
+          <Tip placement="right" text={__('Knowledge Base')}>
             <NavLink to="/knowledgeBase" activeClassName="active">
               <NavIcon className="icon-knowledge" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text="Settings">
+          <Tip placement="right" text={__('Insights')}>
+            <NavLink to="/insights" activeClassName="active">
+              <NavIcon className="icon-insights" />
+            </NavLink>
+          </Tip>
+          <Tip placement="right" text={__('Settings')}>
             <NavLink to="/settings" activeClassName="active">
               <NavIcon className="icon-settings" />
             </NavLink>
           </Tip>
         </Nav>
+        <Widget />
       </LeftNavigation>
     );
   }
@@ -184,6 +197,10 @@ class Navigation extends Component {
 
 Navigation.propTypes = {
   unreadConversationsCount: PropTypes.number
+};
+
+Navigation.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Navigation;

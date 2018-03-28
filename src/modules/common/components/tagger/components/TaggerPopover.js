@@ -11,9 +11,16 @@ const propTypes = {
   container: PropTypes.element
 };
 
-function TaggerPopover({ targets, type, trigger, afterSave, container }) {
+const contextTypes = {
+  __: PropTypes.func
+};
+
+function TaggerPopover(
+  { targets, type, trigger, afterSave, container },
+  { __ }
+) {
   const popover = (
-    <Popover id="tags-popover" title="Choose your tags">
+    <Popover id="tags-popover" title={__('Choose your tags')}>
       <Tagger
         targets={targets}
         type={type}
@@ -37,5 +44,6 @@ function TaggerPopover({ targets, type, trigger, afterSave, container }) {
 }
 
 TaggerPopover.propTypes = propTypes;
+TaggerPopover.contextTypes = contextTypes;
 
 export default TaggerPopover;

@@ -46,6 +46,7 @@ const EmptyStateStyled = styled.div`
 
   a {
     margin-top: 10px;
+    align-self: center;
   }
 `;
 
@@ -58,11 +59,15 @@ EmptyState.propTypes = {
   linkText: PropTypes.string
 };
 
-function EmptyState({ text, icon, image, size, linkUrl, linkText }) {
+EmptyState.contextTypes = {
+  __: PropTypes.func
+};
+
+function EmptyState({ text, icon, image, size, linkUrl, linkText }, { __ }) {
   return (
     <EmptyStateStyled size={size}>
       {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
-      {text}
+      {__(text)}
       {linkUrl && linkText ? (
         <Button btnStyle="simple" size="small" href={linkUrl}>
           {linkText}

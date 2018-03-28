@@ -3,11 +3,7 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import {
-  QuickButton,
-  SidebarList,
-  SidebarCounter
-} from 'modules/layout/styles';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import {
   DropdownToggle,
   Icon,
@@ -23,9 +19,8 @@ const propTypes = {
   loading: PropTypes.bool.isRequired
 };
 
-function Segments({ history, contentType, counts, segments, loading }) {
+function Segments({ history, contentType, counts, segments, loading }, { __ }) {
   const { Section, Header } = Wrapper.Sidebar;
-
   const orderedSegments = [];
 
   segments.forEach(segment => {
@@ -54,11 +49,11 @@ function Segments({ history, contentType, counts, segments, loading }) {
           >
             {segment.subOf ? '\u00a0\u00a0' : null}
             <Icon
-              icon="ios-circle-filled"
+              icon="record"
               size={10}
               style={{
                 color: segment.color,
-                marginRight: '10px'
+                marginRight: '5px'
               }}
             />{' '}
             {segment.name}
@@ -71,7 +66,7 @@ function Segments({ history, contentType, counts, segments, loading }) {
 
   return (
     <Section>
-      <Header spaceBottom>Filter by segments</Header>
+      <Header spaceBottom>{__('Filter by segments')}</Header>
 
       <Section.QuickButtons>
         <Dropdown
@@ -81,31 +76,31 @@ function Segments({ history, contentType, counts, segments, loading }) {
           style={{ verticalAlign: 'top', float: 'left' }}
         >
           <DropdownToggle bsRole="toggle">
-            <QuickButton>
+            <a>
               <Icon icon="gear-a" />
-            </QuickButton>
+            </a>
           </DropdownToggle>
           <Dropdown.Menu>
             <MenuItem
               onClick={() => history.push(`/segments/new/${contentType}`)}
             >
-              New segment
+              {__('New segment')}
             </MenuItem>
             <MenuItem onClick={() => history.push(`/segments/${contentType}`)}>
-              Manage segments
+              {__('Manage segments')}
             </MenuItem>
           </Dropdown.Menu>
         </Dropdown>
 
         {router.getParam(history, 'segment') ? (
-          <QuickButton
+          <a
             tabIndex={0}
             onClick={() => {
               router.setParams(history, { segment: null });
             }}
           >
             <Icon icon="close-circled" />
-          </QuickButton>
+          </a>
         ) : null}
       </Section.QuickButtons>
 
@@ -123,5 +118,8 @@ function Segments({ history, contentType, counts, segments, loading }) {
 }
 
 Segments.propTypes = propTypes;
+Segments.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(Segments);

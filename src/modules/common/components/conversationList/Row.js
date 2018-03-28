@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import strip from 'strip';
-import { NameCard, FormControl, Tags } from '../';
+import { NameCard, FormControl, Tags, IntegrationIcon } from '../';
 import {
   RowItem,
   RowContent,
@@ -36,6 +36,7 @@ class Row extends Component {
     this.onClickCheckBox = this.onClickCheckBox.bind(this);
     this.renderCheckbox = this.renderCheckbox.bind(this);
     this.renderFullName = this.renderFullName.bind(this);
+    this.getVisitorInfo = this.getVisitorInfo.bind(this);
   }
 
   toggleBulk(e) {
@@ -74,9 +75,23 @@ class Row extends Component {
     return null;
   }
 
+  getVisitorInfo(customer) {
+    if (customer.visitorContactInfo) {
+      const visitor = customer.visitorContactInfo;
+
+      return (
+        this.renderFullName(visitor) ||
+        visitor.lastName ||
+        visitor.email ||
+        visitor.phone
+      );
+    }
+    return null;
+  }
+
   render() {
     const { conversation, isRead, isActive, bulk } = this.props;
-    const { createdAt, content } = conversation;
+    const { createdAt, updatedAt, content } = conversation;
     const customer = conversation.customer || {};
     const integration = conversation.integration || {};
     const brand = integration.brand || {};
@@ -100,7 +115,18 @@ class Row extends Component {
           <FlexContent>
             <MainInfo>
               {isExistingCustomer && (
-                <NameCard.Avatar size={40} customer={customer} />
+                <NameCard.Avatar
+                  size={40}
+                  customer={customer}
+                  icon={
+                    <IntegrationIcon
+                      integration={integration}
+                      customer={customer}
+                      facebookData={conversation.facebookData}
+                      twitterData={conversation.twitterData}
+                    />
+                  }
+                />
               )}
               <FlexContent>
                 <CustomerName>
@@ -109,6 +135,7 @@ class Row extends Component {
                       this.renderFullName(customer) ||
                       customer.email ||
                       customer.phone ||
+                      this.getVisitorInfo(customer) ||
                       'Unnamed')}
                 </CustomerName>
                 <SmallTextOneLine>
@@ -121,7 +148,7 @@ class Row extends Component {
           </FlexContent>
         </RowContent>
         <SmallText>
-          {moment(createdAt)
+          {moment(updatedAt || createdAt)
             .subtract(2, 'minutes')
             .fromNow()}
           {assignedUser && (
