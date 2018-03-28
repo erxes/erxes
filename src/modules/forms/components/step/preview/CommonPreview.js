@@ -73,6 +73,7 @@ class CommonPreview extends Component {
             {btnText &&
               success && (
                 <Button
+                  ignoreTrans
                   btnStyle="primary"
                   style={{ backgroundColor: theme ? theme : color }}
                 >
