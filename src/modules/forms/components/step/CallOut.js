@@ -187,7 +187,6 @@ class CallOut extends Component {
             id="callout-title"
             type="text"
             value={this.props.calloutTitle}
-            defaultValue={__('Write title here')}
             onChange={e =>
               this.onChangeFunction('calloutTitle', e.target.value)
             }

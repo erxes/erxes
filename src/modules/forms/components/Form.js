@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { Alert } from 'modules/common/utils';
 import {
   Button,
   Icon,
@@ -44,7 +45,7 @@ class Form extends Component {
       preview: 'desktop',
       brand: integration.brandId,
       title: integration.name,
-      calloutTitle: form.title,
+      calloutTitle: form.title || __('Contact'),
       bodyValue: form.description || __('Body description here'),
       thankContent: formData.thankContent || __('Thank you.'),
       btnText: form.buttonText || __('Send'),
@@ -61,10 +62,20 @@ class Form extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
+    const { brand, calloutTitle, title } = this.state;
+    const { __ } = this.context;
+
+    if (!title) {
+      return Alert.error(__('Write title'));
+    }
+
+    if (!brand) {
+      return Alert.error(__('Choose brand'));
+    }
 
     this.props.save({
-      name: this.state.title,
-      brandId: this.state.brand,
+      name: title,
+      brandId: brand,
       languageCode: this.state.language,
       formData: {
         loadType: this.state.type,
@@ -79,7 +90,7 @@ class Form extends Component {
         redirectUrl: this.state.redirectUrl
       },
       form: {
-        title: this.state.calloutTitle,
+        title: calloutTitle,
         description: this.state.bodyValue,
         buttonText: this.state.btnText,
         themeColor: this.state.theme || this.state.color,
