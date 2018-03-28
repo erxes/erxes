@@ -41,7 +41,7 @@ describe('Test deals mutations', () => {
   });
 
   test('Check login required', async () => {
-    expect.assertions(17);
+    expect.assertions(18);
 
     const check = async fn => {
       try {
@@ -59,6 +59,9 @@ describe('Test deals mutations', () => {
 
     // remove
     check(dealMutations.dealBoardsRemove);
+
+    // select
+    check(dealMutations.dealBoardsSetDefault);
 
     // add
     check(dealMutations.dealPipelinesAdd);
@@ -134,6 +137,14 @@ describe('Test deals mutations', () => {
     await dealMutations.dealBoardsRemove({}, { _id: board.id }, { user });
 
     expect(DealBoards.removeBoard.mock.calls.length).toBe(1);
+  });
+
+  test('Set default board', async () => {
+    DealBoards.setDefaultBoard = jest.fn();
+
+    await dealMutations.dealBoardsSetDefault({}, { _id: board.id }, { user });
+
+    expect(DealBoards.setDefaultBoard.mock.calls.length).toBe(1);
   });
 
   test('Create pipeline', async () => {
