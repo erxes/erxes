@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { Integrations, Fields } from './';
-import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import { field } from './utils';
 
 // schema for form document
@@ -87,59 +85,6 @@ class Form {
     );
 
     return this.findOne({ _id });
-  }
-
-  /**
-   * Remove a form
-   * @param {string} _id - Form document id
-   * @return {Promise}
-   * @throws {Error} throws Error if this form has fields or if used in an integration
-   */
-  static async removeForm(_id) {
-    const integrationCount = await Integrations.find({ formId: _id }).count();
-
-    if (integrationCount > 0) {
-      throw new Error('You cannot delete this form. This form used in integration.');
-    }
-
-    return this.remove({ _id });
-  }
-
-  /**
-   * Duplicates form and form fields of the form
-   * @param {string} _id - form id
-   * @return {Field} - returns the duplicated copy of the form
-   */
-  static async duplicate(_id) {
-    const form = await this.findOne({ _id });
-
-    // duplicate form ===================
-    const newForm = await this.createForm(
-      {
-        title: `${form.title} duplicated`,
-        description: form.description,
-      },
-      form.createdUserId,
-    );
-
-    // duplicate fields ===================
-    const fields = await Fields.find({ contentTypeId: _id });
-
-    for (let field of fields) {
-      await Fields.createField({
-        contentType: FIELD_CONTENT_TYPES.FORM,
-        contentTypeId: newForm._id,
-        type: field.type,
-        validation: field.validation,
-        text: field.text,
-        description: field.description,
-        options: field.options,
-        isRequired: field.isRequired,
-        order: field.order,
-      });
-    }
-
-    return newForm;
   }
 }
 

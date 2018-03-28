@@ -25,8 +25,6 @@ const commonFields = `
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
-  formsRemove(_id: String!): String
-  formsDuplicate(_id: String!): Form
 `;
 
 export const queries = `
