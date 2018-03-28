@@ -34,7 +34,6 @@ import DataWithLoader from './DataWithLoader';
 import SortableList from './SortableList';
 import ImageWithPreview from './ImageWithPreview';
 import IntegrationIcon from './IntegrationIcon';
-import { Step, Steps } from './step';
 import Chooser from './Chooser';
 
 // TODO remove
@@ -77,8 +76,6 @@ export {
   Tabs,
   TabList,
   TabTitle,
-  Step,
-  Steps,
   ConfirmDialog,
   DataWithLoader,
   SortableList,

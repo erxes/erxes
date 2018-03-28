@@ -108,7 +108,7 @@ class Row extends Component {
         <td>{form.viewCount || 0}</td>
         <td>{form.contactsGathered / form.viewCount || '0.00'} %</td>
         <td>{form.contactsGathered || 0}</td>
-        <td>{moment(form.createdDate).format('ll')}</td>
+        <td width="10%">{moment(form.createdDate).format('ll')}</td>
         <td width="10%">
           <ActionButtons>
             {this.manageAction(integration)}

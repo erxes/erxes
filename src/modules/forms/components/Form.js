@@ -3,20 +3,16 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Alert } from 'modules/common/utils';
-import {
-  Button,
-  Icon,
-  FormControl,
-  Step,
-  Steps
-} from 'modules/common/components';
+import { Button, Icon, FormControl } from 'modules/common/components';
 import {
   ChooseType,
   CallOut,
   SuccessStep,
   OptionStep,
   FormStep,
-  FullPreviewStep
+  FullPreviewStep,
+  Step,
+  Steps
 } from './step';
 import { StepWrapper, TitleContainer } from '../styles';
 
