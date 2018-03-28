@@ -38,7 +38,7 @@
   "Activity": "Үйлдэл",
   "Basic info": "Ерөнхий мэдээлэл",
   "Size": "Хэмжээ",
-  "Industry": "Байгууллага",
+  "Industry": "Үйл ажиллагааны чиглэл",
   "Website": "Цахим хуудас",
   "Plan": "Төлөвлөгөө",
   "About": "Тухай",
@@ -249,7 +249,7 @@
   "No copyable code": "Хуулах боломжгүй код",
   "Manage Knowledge Base": "Мэдлэгийн сан тохируулах",
   "Add Category": "Категори нэмэх",
-  "Add Article": "Гарчиг нэмэх",
+  "Add Article": "Асуулт нэмэх",
   "Customer engagement. Redefined.": "Customer engagement. Redefined.",
   "erxes is an AI meets open source messaging platform for sales and marketing teams.":
     "Хиймэл оюун ухаанд суурилсан борлуулалт, хэрэглэгчтэй харилцах, маркетингийн багт зориулсан нээлттэй эхийн платформ",
