@@ -69,7 +69,6 @@ const FormContainer = styled.div`
   background-color: ${colors.colorWhite};
   margin: auto;
   width: 60%;
-  max-height: 400px;
   overflow: hidden;
   z-index: 1;
   animation: ${fadeIn} 0.5s linear;
@@ -152,7 +151,6 @@ const Picker = styled.div`
 
 const PreviewWrapper = styled.div`
   padding: 0 !important;
-  max-height: 400px;
   overflow: auto;
 `;
 
