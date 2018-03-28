@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
-import { Row, RowTitle, Box, BoxName } from '../styles';
+import { Row, RowTitle, Box, BoxName, Divider } from '../styles';
 
 class Settings extends Component {
   renderBox(name, image, to) {
@@ -24,7 +24,28 @@ class Settings extends Component {
     const content = (
       <div>
         <Row>
-          <RowTitle>{__('Account Settings')}</RowTitle>
+          <RowTitle className="secondRow">{__('General Settings')}</RowTitle>
+          <div>
+            {this.renderBox(
+              'Account default',
+              '/images/icons/erxes-16.svg',
+              '/settings/general'
+            )}
+            {this.renderBox(
+              'Team Members',
+              '/images/icons/erxes-02.svg',
+              '/settings/team'
+            )}
+            {this.renderBox(
+              'Properties',
+              '/images/icons/erxes-01.svg',
+              '/settings/properties'
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>{__('Integration Settings')}</RowTitle>
           <div>
             {this.renderBox(
               'Channels',
@@ -61,15 +82,21 @@ class Settings extends Component {
               '/images/icons/erxes-12.svg',
               '/settings/forms'
             )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle className="secondRow">{__('Deal Settings')}</RowTitle>
+          <div>
             {this.renderBox(
-              'Team Members',
-              '/images/icons/erxes-02.svg',
-              '/settings/team'
+              'Boards & Pipelines',
+              '/images/icons/erxes-19.svg',
+              '/settings/deals'
             )}
             {this.renderBox(
-              'Properties',
-              '/images/icons/erxes-01.svg',
-              '/settings/properties'
+              'Product & Service',
+              '/images/icons/erxes-13.svg',
+              '/settings/product-service'
             )}
           </div>
         </Row>

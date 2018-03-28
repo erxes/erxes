@@ -61,7 +61,7 @@ class FormControl extends React.Component {
     const childNode = props.children;
     const elementType = props.componentClass;
 
-    //cancel custom browser default form validation error
+    // cancel custom browser default form validation error
     const onChange = e => {
       e.target.classList.remove('form-invalid');
 
@@ -69,7 +69,8 @@ class FormControl extends React.Component {
     };
 
     const attributes = {
-      onChange: onChange,
+      onChange,
+      onKeyPress: props.onKeyPress,
       onClick: props.onClick,
       value: props.value,
       defaultValue: props.defaultValue,
@@ -86,6 +87,8 @@ class FormControl extends React.Component {
       disabled: props.disabled,
       onFocus: props.onFocus,
       autoFocus: props.autoFocus,
+      min: props.min,
+      max: props.max,
       id: props.id
     };
 
