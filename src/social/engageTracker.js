@@ -72,7 +72,7 @@ const createConfigSetEvent = (configSet, topicArn) =>
             'delivery',
             'open',
             'click',
-            'renderFailure',
+            'renderingFailure',
           ],
           Name: 'aws-ses',
           Enabled: true,
