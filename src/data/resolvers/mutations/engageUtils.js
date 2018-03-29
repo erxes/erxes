@@ -121,6 +121,7 @@ const sendViaEmail = async message => {
         html: replacedContent,
         headers: {
           'X-SES-CONFIGURATION-SET': AWS_CONFIG_SET,
+          EngageMessageId: message._id,
         },
       },
       /* istanbul ignore next */

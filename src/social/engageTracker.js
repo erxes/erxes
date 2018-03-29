@@ -10,6 +10,41 @@ AWS.config.update({
 });
 
 const sns = new AWS.SNS();
+const ses = new AWS.SES();
+
+const hasTopic = () => {
+  sns.listTopics({}, (err, data) => {
+    if (err) console.log(err);
+
+    console.log(data);
+
+    const { Topics } = data;
+
+    Topics.forEach(topic => {
+      if (topic === 'sns-topic-erxes') {
+        return true;
+      }
+    });
+  });
+
+  return false;
+};
+
+const hasSubscription = () => {
+  sns.listSubscriptionsByTopic({ TopicArn: 'sns-subscription-erxes' }, (err, data) => {
+    if (err)
+      console.log(err, err.stack); // an error occurred
+    else console.log(data); // successful response
+  });
+};
+
+const hasConfigSet = () => {
+  ses.listConfigurationSets({}, (err, data) => {
+    if (err)
+      console.log(err, err.stack); // an error occurred
+    else console.log(data); // successful response
+  });
+};
 
 const validateType = message => {
   const { type = '' } = message;
@@ -71,7 +106,15 @@ const reqMiddleware = () => {
   };
 };
 
+const init = () => {
+  console.log(hasTopic().toString());
+  console.log(hasSubscription());
+  console.log(hasConfigSet());
+};
+
 export const trackEngages = expressApp => {
+  init();
+
   expressApp.use(reqMiddleware());
 
   expressApp.get(`/service/engage/tracker`, (req, res) => {
