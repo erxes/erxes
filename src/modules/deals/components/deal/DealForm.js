@@ -152,9 +152,10 @@ class DealForm extends React.Component {
     this.props.saveDeal(
       doc,
       () => {
-        this.props.close();
         // after save, enable save button
         this.setState({ disabled: false });
+
+        this.props.close();
       },
       this.props.deal
     );
