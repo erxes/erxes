@@ -166,17 +166,17 @@ const init = () => {
       subscribe(result.TopicArn)
         .then(result => {
           console.log('Successfully subscribed to the topic', result.SubscriptionArn);
-
-          createConfigSetEvent(configSet, result.TopicArn)
-            .then(result => {
-              console.log('Successfully created config set event destination', result);
-            })
-            .catch(error => {
-              console.log('createConfigSetEvent error', error);
-            });
         })
         .catch(error => {
           console.log('subscribe error', error);
+        });
+
+      createConfigSetEvent(configSet, result.TopicArn)
+        .then(result => {
+          console.log('Successfully created config set event destination', result);
+        })
+        .catch(error => {
+          console.log('createConfigSetEvent error', error);
         });
     })
     .catch(error => {
