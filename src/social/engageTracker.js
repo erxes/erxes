@@ -16,7 +16,9 @@ const createTopic = () =>
   new Promise((resolve, reject) =>
     sns.createTopic(
       {
-        Name: 'aws-ses',
+        ConfigurationSet: {
+          Name: 'aws-ses',
+        },
       },
       (error, result) => {
         if (error) return reject(error);
@@ -75,7 +77,7 @@ const createConfigSetEvent = (configSet, topicArn) =>
           Name: 'aws-ses',
           Enabled: true,
           SNSDestination: {
-            TopicArn: topicArn,
+            TopicARN: topicArn,
           },
         },
       },
@@ -147,6 +149,8 @@ const reqMiddleware = () => {
 };
 
 const init = () => {
+  let configSet = 'aws-ses';
+
   createConfigSet()
     .then(result => {
       console.log('Successfully created config set', result);
@@ -163,7 +167,7 @@ const init = () => {
         .then(result => {
           console.log('Successfully subscribed to the topic', result.SubscriptionArn);
 
-          createConfigSetEvent()
+          createConfigSetEvent(configSet, result.TopicArn)
             .then(result => {
               console.log('Successfully created config set event destination', result);
             })
