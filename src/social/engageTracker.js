@@ -12,39 +12,80 @@ AWS.config.update({
 const sns = new AWS.SNS();
 const ses = new AWS.SES();
 
-const hasTopic = () => {
-  sns.listTopics({}, (err, data) => {
-    if (err) console.log(err);
+const createTopic = () =>
+  new Promise((resolve, reject) =>
+    sns.createTopic(
+      {
+        Name: 'aws-ses',
+      },
+      (error, result) => {
+        if (error) return reject(error);
 
-    console.log(data);
+        return resolve(result);
+      },
+    ),
+  );
 
-    const { Topics } = data;
+const subscribe = topicArn =>
+  new Promise((resolve, reject) =>
+    sns.subscribe(
+      {
+        TopicArn: topicArn,
+        Protocol: 'http',
+        Endpoint: 'http://34.204.2.252:3300/service/engage/tracker',
+      },
+      (error, result) => {
+        if (error) return reject(error);
 
-    Topics.forEach(topic => {
-      if (topic === 'sns-topic-erxes') {
-        return true;
-      }
-    });
-  });
+        return resolve(result);
+      },
+    ),
+  );
 
-  return false;
-};
+const createConfigSet = () =>
+  new Promise((resolve, reject) =>
+    ses.createConfigurationSet(
+      {
+        Name: 'aws-ses',
+      },
+      (error, result) => {
+        if (error) return reject(error);
 
-const hasSubscription = () => {
-  sns.listSubscriptionsByTopic({ TopicArn: 'sns-subscription-erxes' }, (err, data) => {
-    if (err)
-      console.log(err, err.stack); // an error occurred
-    else console.log(data); // successful response
-  });
-};
+        return resolve(result);
+      },
+    ),
+  );
 
-const hasConfigSet = () => {
-  ses.listConfigurationSets({}, (err, data) => {
-    if (err)
-      console.log(err, err.stack); // an error occurred
-    else console.log(data); // successful response
-  });
-};
+const createConfigSetEvent = (configSet, topicArn) =>
+  new Promise((resolve, reject) =>
+    ses.createConfigurationSetEventDestination(
+      {
+        ConfigurationSetName: configSet,
+        EventDestination: {
+          MatchingEventTypes: [
+            'send',
+            'reject',
+            'bounce',
+            'complaint',
+            'delivery',
+            'open',
+            'click',
+            'renderFailure',
+          ],
+          Name: 'aws-ses',
+          Enabled: true,
+          SNSDestination: {
+            TopicArn: topicArn,
+          },
+        },
+      },
+      (error, result) => {
+        if (error) return reject(error);
+
+        return resolve(result);
+      },
+    ),
+  );
 
 const validateType = message => {
   const { type = '' } = message;
@@ -55,15 +96,14 @@ const validateType = message => {
       TopicArn: message.TopicArn,
     };
 
-    sns.confirmSubscription(params, function(err) {
+    sns.confirmSubscription(params, err => {
       if (err)
-        console.log(err, err.stack); // an error occurred
+        return console.log('SNS subscription confirmation error', err); // an error occurred
       else console.log('SNS subscription confirmed successfully'); // successful response
     });
   } else {
     const { Message } = message;
     const { eventType } = Message;
-    console.log(Message);
 
     switch (eventType) {
       case 'Open': {
@@ -96,7 +136,7 @@ const reqMiddleware = () => {
         message = JSON.parse(chunks.join(''));
       } catch (e) {
         // catch a JSON parsing error
-        console.log(e.message);
+        console.log('JSON Parse error', e.message);
       }
 
       validateType(message);
@@ -107,9 +147,37 @@ const reqMiddleware = () => {
 };
 
 const init = () => {
-  console.log(hasTopic().toString());
-  console.log(hasSubscription());
-  console.log(hasConfigSet());
+  createConfigSet()
+    .then(result => {
+      console.log('Successfully created config set', result);
+    })
+    .catch(error => {
+      console.log('createConfigSet error', error);
+    });
+
+  createTopic()
+    .then(result => {
+      console.log('Successfully created topic', result.TopicArn);
+
+      subscribe(result.TopicArn)
+        .then(result => {
+          console.log('Successfully subscribed to the topic', result.SubscriptionArn);
+
+          createConfigSetEvent()
+            .then(result => {
+              console.log('Successfully created config set event destination', result);
+            })
+            .catch(error => {
+              console.log('createConfigSetEvent error', error);
+            });
+        })
+        .catch(error => {
+          console.log('subscribe error', error);
+        });
+    })
+    .catch(error => {
+      console.log('createTopic error', error);
+    });
 };
 
 export const trackEngages = expressApp => {
