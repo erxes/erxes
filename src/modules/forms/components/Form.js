@@ -40,9 +40,10 @@ class Form extends Component {
       type: formData.loadType || 'shoutbox',
       preview: 'desktop',
       brand: integration.brandId,
+      language: integration.languageCode,
       title: integration.name,
       calloutTitle: form.title || __('Contact'),
-      bodyValue: form.description || __('Body description here'),
+      bodyValue: form.description,
       thankContent: formData.thankContent || __('Thank you.'),
       btnText: form.buttonText || __('Send'),
       theme: form.themeColor,
@@ -161,6 +162,8 @@ class Form extends Component {
       fields,
       preview,
       carousel,
+      language,
+      title,
       successAction
     } = this.state;
 
@@ -180,7 +183,7 @@ class Form extends Component {
           <FormControl
             required
             onChange={e => this.onChange('title', e.target.value)}
-            defaultValue={this.state.title}
+            defaultValue={title}
           />
         </TitleContainer>
 
@@ -198,6 +201,7 @@ class Form extends Component {
               btnText={btnText}
               bodyValue={bodyValue}
               color={color}
+              theme={theme}
             />
           </Step>
 
@@ -254,6 +258,7 @@ class Form extends Component {
               image={logoPreviewUrl}
               brands={brands}
               fields={fields}
+              language={language}
             />
           </Step>
           <Step

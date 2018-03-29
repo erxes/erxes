@@ -228,7 +228,7 @@ class CallOut extends Component {
             {this.renderThemeColor('#fd3259')}
             {this.renderThemeColor('#67C682')}
             {this.renderThemeColor('#F5C22B')}
-            {this.renderThemeColor('#888')}
+            {this.renderThemeColor('#000')}
             <OverlayTrigger
               trigger="click"
               rootClose

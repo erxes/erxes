@@ -6,10 +6,16 @@ import { queries, mutations } from '../graphql';
 import { List } from '../components';
 
 const ListContainer = props => {
-  const { integrationsQuery, integrationsCountQuery, removeMutation } = props;
+  const {
+    integrationsQuery,
+    integrationsCountQuery,
+    usersQuery,
+    removeMutation
+  } = props;
 
   const integrationsCount = integrationsCountQuery.integrationsTotalCount || 0;
   const integrations = integrationsQuery.integrations || [];
+  const members = usersQuery.users || [];
 
   const remove = (_id, callback) => {
     removeMutation({
@@ -27,6 +33,7 @@ const ListContainer = props => {
     ...this.props,
     integrations,
     integrationsCount,
+    members,
     remove,
     loading: integrationsQuery.loading
   };
@@ -37,6 +44,7 @@ const ListContainer = props => {
 ListContainer.propTypes = {
   integrationsCountQuery: PropTypes.object,
   integrationsQuery: PropTypes.object,
+  usersQuery: PropTypes.object,
   removeMutation: PropTypes.func
 };
 
@@ -63,6 +71,9 @@ export default compose(
         fetchPolicy: 'network-only'
       };
     }
+  }),
+  graphql(gql(queries.users), {
+    name: 'usersQuery'
   }),
   graphql(gql(mutations.integrationRemove), {
     name: 'removeMutation'

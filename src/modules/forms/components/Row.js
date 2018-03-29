@@ -40,6 +40,7 @@ const TableRow = styled.tr`
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
+  members: PropTypes.array.isRequired,
   remove: PropTypes.func
 };
 
@@ -64,27 +65,36 @@ class Row extends Component {
     });
   }
 
-  renderEditAction(integration) {
-    const { __ } = this.context;
-
-    return (
-      <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
-        <Button btnStyle="link">
-          <Tip text={__('Edit')}>
-            <Icon icon="edit" />
-          </Tip>
-        </Button>
-      </Link>
+  renderUser(createdUserId) {
+    return this.props.members.map(
+      user =>
+        user._id === createdUserId && (
+          <div key={user._id}>{user.details.fullName}</div>
+        )
     );
   }
 
   manageAction(integration) {
     const { __ } = this.context;
 
+    return (
+      <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
+        <Button btnStyle="link">
+          <Tip text={__('Manage')}>
+            <Icon icon="gear-a" />
+          </Tip>
+        </Button>
+      </Link>
+    );
+  }
+
+  renderEditAction(integration) {
+    const { __ } = this.context;
+
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Install code')}>
-          <Icon icon="navicon-round" />
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );
@@ -100,15 +110,17 @@ class Row extends Component {
     const { integration } = this.props;
     const { __ } = this.context;
     const form = integration.form || {};
+    const createdUserId = form.createdUserId;
 
     return (
       <TableRow>
         <td>{integration.name}</td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>{form.viewCount || 0}</td>
-        <td>{form.contactsGathered / form.viewCount || '0.00'} %</td>
+        <td>{form.contactsGathered / form.viewCount * 100 || '0.00'} %</td>
         <td>{form.contactsGathered || 0}</td>
         <td width="10%">{moment(form.createdDate).format('ll')}</td>
+        <td width="15%">{this.renderUser(createdUserId)}</td>
         <td width="10%">
           <ActionButtons>
             {this.manageAction(integration)}

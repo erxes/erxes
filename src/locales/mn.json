@@ -365,7 +365,7 @@
   "Email appearance": "Имэйлийн харагдах байдал",
   "Brand Name": "Брэндийн Нэр",
   "Current template": "Одоогийн тэмплэйт",
-  "Created At": "Үүсгэсэн",
+  "Created at": "Үүсгэсэн он сар",
   "Manage Fields": "Талбар тохируулах",
   "Duplicate": "Хуулбарлах",
   "Code": "Код",
@@ -626,5 +626,7 @@
   "Thank you.": "Баярлалаа.",
   "Choose brand": "Брэндээ сонгоно уу",
   "Write title": "Гарчигаа бичнэ үү",
-  "Contact": "Холбоо барих"
+  "Contact": "Холбоо барих",
+  "Created by": "Үүсгэсэн хэрэглэгч",
+  "Manage": "Тохируулах"
 }

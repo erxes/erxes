@@ -360,7 +360,7 @@
   "Email appearance": "Email appearance",
   "Brand Name": "Brand Name",
   "Current template": "Current template",
-  "Created At": "Created At",
+  "Created at": "Created at",
   "Manage Fields": "Manage Fields",
   "Duplicate": "Duplicate",
   "Code": "Code",
@@ -623,5 +623,7 @@
   "Thank you.": "Thank you.",
   "Choose brand": "Choose brand",
   "Write title": "Write title",
-  "Contact": "Contact"
+  "Contact": "Contact",
+  "Created by": "Created by",
+  "Manage": "Manage"
 }

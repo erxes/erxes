@@ -15,6 +15,7 @@ const propTypes = {
   bodyValue: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
+  language: PropTypes.string,
   image: PropTypes.string,
   onChange: PropTypes.func,
   fields: PropTypes.array,
@@ -50,7 +51,7 @@ class OptionStep extends Component {
   }
 
   render() {
-    const { brands, brand = {} } = this.props;
+    const { brands, language, brand = {} } = this.props;
 
     return (
       <FlexItem>
@@ -77,7 +78,7 @@ class OptionStep extends Component {
             <ControlLabel>Language</ControlLabel>
             <FormControl
               componentClass="select"
-              defaultValue={'en'}
+              defaultValue={language}
               id="languageCode"
               onChange={e => this.onChangeFunction('language', e.target.value)}
             >

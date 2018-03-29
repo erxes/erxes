@@ -12,7 +12,8 @@ const Box = styled.div`
   background: ${colors.colorLightBlue};
   box-shadow: ${props =>
     props.selected && `0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)}`};
-  border: 1px solid ${colors.borderPrimary};
+  border: 1px solid
+    ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};
   border-radius: ${dimensions.unitSpacing / 2}px;
   padding: ${dimensions.coreSpacing * 2}px;
   transition: all 0.25s ease;
@@ -98,24 +99,24 @@ class ChooseType extends Component {
         <LeftItem>
           <FormGroup>
             <ControlLabel>Choose a flow type</ControlLabel>
-            <BoxRow>
-              {this.renderBox(
-                'ShoutBox',
-                '/images/icons/shoutbox.svg',
-                'shoutbox'
-              )}
-              {this.renderBox('Popup', '/images/icons/expand.svg', 'popup')}
-            </BoxRow>
-
-            <BoxRow type="odd">
-              {this.renderBox(
-                'Embedded',
-                '/images/icons/computer.svg',
-                'embedded'
-              )}
-              <div />
-            </BoxRow>
           </FormGroup>
+          <BoxRow>
+            {this.renderBox(
+              'ShoutBox',
+              '/images/icons/shoutbox.svg',
+              'shoutbox'
+            )}
+            {this.renderBox('Popup', '/images/icons/expand.svg', 'popup')}
+          </BoxRow>
+
+          <BoxRow type="odd">
+            {this.renderBox(
+              'Embedded',
+              '/images/icons/computer.svg',
+              'embedded'
+            )}
+            <div />
+          </BoxRow>
         </LeftItem>
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>

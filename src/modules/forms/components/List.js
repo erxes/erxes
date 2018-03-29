@@ -12,6 +12,7 @@ import { Row } from '/';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
+  members: PropTypes.array.isRequired,
   integrationsCount: PropTypes.number.isRequired,
   loading: PropTypes.bool,
   remove: PropTypes.func
@@ -19,10 +20,15 @@ const propTypes = {
 
 class List extends Component {
   renderRow() {
-    const { integrations, remove } = this.props;
+    const { integrations, members, remove } = this.props;
 
     return integrations.map(integration => (
-      <Row key={integration._id} integration={integration} remove={remove} />
+      <Row
+        key={integration._id}
+        integration={integration}
+        members={members}
+        remove={remove}
+      />
     ));
   }
 
@@ -47,8 +53,9 @@ class List extends Component {
             <th>{__('Views')}</th>
             <th>{__('Conversion rate')}</th>
             <th>{__('Contacts gathered')}</th>
-            <th>{__('Created At')}</th>
-            <th width="5%" />
+            <th>{__('Created at')}</th>
+            <th>{__('Created by')}</th>
+            <th />
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>

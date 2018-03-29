@@ -19,6 +19,7 @@ const integrations = `
         code
         description
         createdDate
+        createdUserId
         buttonText
         themeColor
         featuredImage
@@ -50,6 +51,7 @@ const integrationDetail = `
         code
         description
         createdDate
+        createdUserId
         buttonText
         themeColor
         featuredImage
@@ -107,12 +109,25 @@ const fieldsDefaultColumnsConfig = `
   }
 `;
 
+const users = `
+  query users {
+    users {
+      _id
+      details {
+        avatar
+        fullName
+      }
+    }
+  }
+`;
+
 export default {
   integrations,
   integrationDetail,
   integrationsCount,
   fields,
   brands,
+  users,
   fieldsCombinedByContentType,
   fieldsDefaultColumnsConfig
 };
