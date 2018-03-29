@@ -16,9 +16,7 @@ const createTopic = () =>
   new Promise((resolve, reject) =>
     sns.createTopic(
       {
-        ConfigurationSet: {
-          Name: 'aws-ses',
-        },
+        Name: 'aws-ses',
       },
       (error, result) => {
         if (error) return reject(error);
@@ -48,7 +46,9 @@ const createConfigSet = () =>
   new Promise((resolve, reject) =>
     ses.createConfigurationSet(
       {
-        Name: 'aws-ses',
+        ConfigurationSet: {
+          Name: 'aws-ses',
+        },
       },
       (error, result) => {
         if (error) return reject(error);
