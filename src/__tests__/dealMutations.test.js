@@ -1,7 +1,7 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
 import { DealBoards, DealPipelines, DealStages, Deals } from '../db/models';
 import {
   dealBoardFactory,
@@ -10,14 +10,35 @@ import {
   dealFactory,
   userFactory,
 } from '../db/factories';
-import dealMutations from '../data/resolvers/mutations/deals';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
 describe('Test deals mutations', () => {
-  let board, pipeline, stage, deal, user;
+  let board, pipeline, stage, deal, context, user;
+
+  const commonPipelineParamDefs = `
+    $name: String!,
+    $boardId: String!,
+    $stages: JSON
+  `;
+
+  const commonPipelineParams = `
+    name: $name
+    boardId: $boardId
+    stages: $stages
+  `;
+
+  const commonStageParamDefs = `
+    $name: String!,
+    $pipelineId: String!
+  `;
+
+  const commonStageParams = `
+    name: $name
+    pipelineId: $pipelineId
+  `;
 
   beforeEach(async () => {
     // Creating test data
@@ -29,7 +50,9 @@ describe('Test deals mutations', () => {
 
     deal = await dealFactory({ stageId: stage._id });
 
-    user = await userFactory();
+    user = await userFactory({ role: 'admin' });
+
+    context = { user };
   });
 
   afterEach(async () => {
@@ -40,289 +63,378 @@ describe('Test deals mutations', () => {
     await Deals.remove({});
   });
 
-  test('Check login required', async () => {
-    expect.assertions(18);
-
-    const check = async fn => {
-      try {
-        await fn({}, {}, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
-      }
-    };
-
-    // add
-    check(dealMutations.dealBoardsAdd);
-
-    // edit
-    check(dealMutations.dealBoardsEdit);
-
-    // remove
-    check(dealMutations.dealBoardsRemove);
-
-    // select
-    check(dealMutations.dealBoardsSetDefault);
-
-    // add
-    check(dealMutations.dealPipelinesAdd);
-
-    // edit
-    check(dealMutations.dealPipelinesEdit);
-
-    // update order
-    check(dealMutations.dealPipelinesUpdateOrder);
-
-    // remove
-    check(dealMutations.dealPipelinesRemove);
-
-    // add
-    check(dealMutations.dealStagesAdd);
-
-    // edit
-    check(dealMutations.dealStagesEdit);
-
-    // change
-    check(dealMutations.dealStagesChange);
-
-    // update order
-    check(dealMutations.dealStagesUpdateOrder);
-
-    // remove
-    check(dealMutations.dealStagesRemove);
-
-    // add
-    check(dealMutations.dealsAdd);
-
-    // edit
-    check(dealMutations.dealsEdit);
-
-    // change
-    check(dealMutations.dealsChange);
-
-    // update order
-    check(dealMutations.dealsUpdateOrder);
-
-    // remove
-    check(dealMutations.dealsRemove);
-  });
-
   test('Create board', async () => {
-    const boardDoc = { name: 'deal board' };
+    const args = { name: 'deal board' };
 
-    DealBoards.createBoard = jest.fn();
+    const mutation = `
+      mutation dealBoardsAdd($name: String!) {
+        dealBoardsAdd(name: $name) {
+          _id
+          name
+        }
+      }
+    `;
 
-    await dealMutations.dealBoardsAdd({}, boardDoc, { user });
+    const createdBoard = await graphqlRequest(mutation, 'dealBoardsAdd', args, context);
 
-    expect(DealBoards.createBoard).toBeCalledWith({
-      ...boardDoc,
-      userId: user._id,
-    });
-    expect(DealBoards.createBoard.mock.calls.length).toBe(1);
+    expect(createdBoard.name).toEqual(args.name);
   });
 
   test('Update board', async () => {
-    const updateDoc = { name: 'board title' };
+    const args = { _id: board._id, name: 'deal board' };
 
-    DealBoards.updateBoard = jest.fn();
+    const mutation = `
+      mutation dealBoardsEdit($_id: String!, $name: String!) {
+        dealBoardsEdit(name: $name, _id: $_id) {
+          _id
+          name
+        }
+      }
+    `;
 
-    await dealMutations.dealBoardsEdit(null, { _id: board._id, ...updateDoc }, { user });
+    const updatedBoard = await graphqlRequest(mutation, 'dealBoardsEdit', args, context);
 
-    expect(DealBoards.updateBoard).toBeCalledWith(board._id, updateDoc);
-    expect(DealBoards.updateBoard.mock.calls.length).toBe(1);
+    expect(updatedBoard.name).toEqual(args.name);
   });
 
   test('Remove board', async () => {
-    DealBoards.removeBoard = jest.fn();
+    // disconnect pipeline connected to board
+    await DealPipelines.update({}, { $set: { boardId: 'fakeBoardId' } });
 
-    await dealMutations.dealBoardsRemove({}, { _id: board.id }, { user });
+    const mutation = `
+      mutation dealBoardsRemove($_id: String!) {
+        dealBoardsRemove(_id: $_id)
+      }
+    `;
 
-    expect(DealBoards.removeBoard.mock.calls.length).toBe(1);
+    await graphqlRequest(mutation, 'dealBoardsRemove', { _id: board._id }, context);
+
+    expect(await DealBoards.findOne({ _id: board._id })).toBe(null);
   });
 
   test('Set default board', async () => {
-    DealBoards.setDefaultBoard = jest.fn();
+    const mutation = `
+      mutation dealBoardsSetDefault($_id: String!) {
+        dealBoardsSetDefault(_id: $_id)
+      }
+    `;
 
-    await dealMutations.dealBoardsSetDefault({}, { _id: board.id }, { user });
+    await graphqlRequest(mutation, 'dealBoardsSetDefault', { _id: board._id }, context);
 
-    expect(DealBoards.setDefaultBoard.mock.calls.length).toBe(1);
+    const updatedBoard = await DealBoards.findOne({ _id: board._id });
+
+    expect(updatedBoard.isDefault).toBeTruthy();
   });
 
   test('Create pipeline', async () => {
-    const pipelineDoc = { name: 'deal pipeline', boardId: board._id };
+    const args = {
+      name: 'deal pipeline',
+      boardId: board._id,
+      stages: [
+        {
+          _id: stage._id,
+          name: stage.name,
+        },
+      ],
+    };
 
-    DealPipelines.createPipeline = jest.fn();
+    const mutation = `
+      mutation dealPipelinesAdd(${commonPipelineParamDefs}) {
+        dealPipelinesAdd(${commonPipelineParams}) {
+          _id
+          name
+          boardId
+        }
+      }
+    `;
 
-    await dealMutations.dealPipelinesAdd({}, { stages: [], ...pipelineDoc }, { user });
+    const createdPipeline = await graphqlRequest(mutation, 'dealPipelinesAdd', args, context);
 
-    expect(DealPipelines.createPipeline).toBeCalledWith(
-      {
-        ...pipelineDoc,
-        userId: user._id,
-      },
-      [],
-    );
-    expect(DealPipelines.createPipeline.mock.calls.length).toBe(1);
+    // stage connected to pipeline
+    const stageToPipeline = await DealStages.findOne({ _id: stage._id });
+
+    expect(createdPipeline._id).toEqual(stageToPipeline.pipelineId);
+    expect(createdPipeline.name).toEqual(args.name);
+    expect(createdPipeline.boardId).toEqual(board._id);
   });
 
   test('Update pipeline', async () => {
-    const updateDoc = { name: 'pipeline title', boardId: 'fakeId' };
+    const args = {
+      _id: pipeline._id,
+      name: 'deal pipeline',
+      boardId: board._id,
+      stages: [
+        {
+          _id: stage._id,
+          name: stage.name,
+        },
+      ],
+    };
 
-    DealPipelines.updatePipeline = jest.fn();
+    const mutation = `
+      mutation dealPipelinesEdit($_id: String!, ${commonPipelineParamDefs}) {
+        dealPipelinesEdit(_id: $_id, ${commonPipelineParams}) {
+          _id
+          name
+          boardId
+        }
+      }
+    `;
 
-    await dealMutations.dealPipelinesEdit(
-      null,
-      { _id: pipeline._id, ...updateDoc, stages: [] },
-      { user },
-    );
+    const updatedPipeline = await graphqlRequest(mutation, 'dealPipelinesEdit', args, context);
 
-    expect(DealPipelines.updatePipeline).toBeCalledWith(pipeline._id, updateDoc, []);
-    expect(DealPipelines.updatePipeline.mock.calls.length).toBe(1);
+    // stage connected to pipeline
+    const stageToPipeline = await DealStages.findOne({ _id: stage._id });
+
+    expect(updatedPipeline._id).toEqual(stageToPipeline.pipelineId);
+    expect(updatedPipeline.name).toEqual(args.name);
+    expect(updatedPipeline.boardId).toEqual(board._id);
   });
 
   test('Pipeline update orders', async () => {
     const pipelineToUpdate = await dealPipelineFactory();
 
-    const orders = [{ _id: pipeline._id, order: 9 }, { _id: pipelineToUpdate._id, order: 3 }];
+    const args = {
+      orders: [{ _id: pipeline._id, order: 9 }, { _id: pipelineToUpdate._id, order: 3 }],
+    };
 
-    DealPipelines.updateOrder = jest.fn();
+    const mutation = `
+      mutation dealPipelinesUpdateOrder($orders: [OrderItem]) {
+        dealPipelinesUpdateOrder(orders: $orders) {
+          _id
+          order
+        }
+      }
+    `;
 
-    await dealMutations.dealPipelinesUpdateOrder(null, { orders }, { user });
+    const [updatedPipeline, updatedPipelineToOrder] = await graphqlRequest(
+      mutation,
+      'dealPipelinesUpdateOrder',
+      args,
+      context,
+    );
 
-    expect(DealPipelines.updateOrder).toBeCalledWith(orders);
-    expect(DealPipelines.updateOrder.mock.calls.length).toBe(1);
+    expect(updatedPipeline.order).toBe(3);
+    expect(updatedPipelineToOrder.order).toBe(9);
   });
 
   test('Remove pipeline', async () => {
-    DealPipelines.removePipeline = jest.fn();
+    // disconnect stages connected to pipeline
+    await DealStages.update({}, { $set: { pipelineId: 'fakePipelineId' } });
 
-    await dealMutations.dealPipelinesRemove({}, { _id: pipeline.id }, { user });
+    const mutation = `
+      mutation dealPipelinesRemove($_id: String!) {
+        dealPipelinesRemove(_id: $_id)
+      }
+    `;
 
-    expect(DealPipelines.removePipeline.mock.calls.length).toBe(1);
+    await graphqlRequest(mutation, 'dealPipelinesRemove', { _id: pipeline._id }, context);
+
+    expect(await DealPipelines.findOne({ _id: pipeline._id })).toBe(null);
   });
 
   test('Create stage', async () => {
-    const stageDoc = {
+    const args = {
       name: 'deal stage',
       pipelineId: pipeline._id,
     };
 
-    DealStages.createStage = jest.fn();
+    const mutation = `
+      mutation dealStagesAdd(${commonStageParamDefs}) {
+        dealStagesAdd(${commonStageParams}) {
+          _id
+          name
+          pipelineId
+        }
+      }
+    `;
 
-    await dealMutations.dealStagesAdd({}, stageDoc, { user });
+    const createdStage = await graphqlRequest(mutation, 'dealStagesAdd', args, context);
 
-    expect(DealStages.createStage).toBeCalledWith({
-      ...stageDoc,
-      userId: user._id,
-    });
-    expect(DealStages.createStage.mock.calls.length).toBe(1);
+    expect(createdStage.name).toEqual(args.name);
+    expect(createdStage.pipelineId).toEqual(pipeline._id);
   });
 
   test('Update stage', async () => {
-    const updateDoc = { name: 'stage title', boardId: 'fakeId' };
+    const args = {
+      _id: stage._id,
+      name: 'deal stage',
+      pipelineId: pipeline._id,
+    };
 
-    DealStages.updateStage = jest.fn();
+    const mutation = `
+      mutation dealStagesEdit($_id: String!, ${commonStageParamDefs}) {
+        dealStagesEdit(_id: $_id, ${commonStageParams}) {
+          _id
+          name
+          pipelineId
+        }
+      }
+    `;
 
-    await dealMutations.dealStagesEdit(null, { _id: stage._id, ...updateDoc }, { user });
+    const updatedStage = await graphqlRequest(mutation, 'dealStagesEdit', args, context);
 
-    expect(DealStages.updateStage).toBeCalledWith(stage._id, updateDoc);
-    expect(DealStages.updateStage.mock.calls.length).toBe(1);
+    expect(updatedStage.name).toEqual(args.name);
+    expect(updatedStage.pipelineId).toEqual(pipeline._id);
   });
 
   test('Change stage', async () => {
-    DealStages.changeStage = jest.fn();
+    const args = {
+      _id: stage._id,
+      pipelineId: 'fakePipelineId',
+    };
 
-    await dealMutations.dealStagesChange(
-      null,
-      { _id: stage._id, pipelineId: pipeline._id },
-      { user },
-    );
+    const mutation = `
+      mutation dealStagesChange($_id: String!, $pipelineId: String!) {
+        dealStagesChange(_id: $_id, pipelineId: $pipelineId) {
+          _id
+          pipelineId
+        }
+      }
+    `;
 
-    expect(DealStages.changeStage).toBeCalledWith(stage._id, pipeline._id);
-    expect(DealStages.changeStage.mock.calls.length).toBe(1);
+    const updatedStage = await graphqlRequest(mutation, 'dealStagesChange', args, context);
+
+    expect(updatedStage.pipelineId).toEqual(args.pipelineId);
   });
 
   test('Stage update orders', async () => {
-    const stageToUpdate = await dealPipelineFactory();
+    const stageToUpdate = await dealStageFactory();
 
-    const orders = [{ _id: stage._id, order: 9 }, { _id: stageToUpdate._id, order: 3 }];
+    const args = {
+      orders: [{ _id: stage._id, order: 9 }, { _id: stageToUpdate._id, order: 3 }],
+    };
 
-    DealStages.updateOrder = jest.fn();
+    const mutation = `
+      mutation dealStagesUpdateOrder($orders: [OrderItem]) {
+        dealStagesUpdateOrder(orders: $orders) {
+          _id
+          order
+        }
+      }
+    `;
 
-    await dealMutations.dealStagesUpdateOrder(null, { orders }, { user });
+    const [updatedStage, updatedStageToOrder] = await graphqlRequest(
+      mutation,
+      'dealStagesUpdateOrder',
+      args,
+      context,
+    );
 
-    expect(DealStages.updateOrder).toBeCalledWith(orders);
-    expect(DealStages.updateOrder.mock.calls.length).toBe(1);
+    expect(updatedStage.order).toBe(3);
+    expect(updatedStageToOrder.order).toBe(9);
   });
 
   test('Remove stage', async () => {
-    DealStages.removeStage = jest.fn();
+    // disconnect deals connected to stage
+    await Deals.update({}, { $set: { stageId: 'fakeStageId' } });
 
-    await dealMutations.dealStagesRemove({}, { _id: stage.id }, { user });
+    const mutation = `
+      mutation dealStagesRemove($_id: String!) {
+        dealStagesRemove(_id: $_id)
+      }
+    `;
 
-    expect(DealStages.removeStage.mock.calls.length).toBe(1);
+    await graphqlRequest(mutation, 'dealStagesRemove', { _id: stage._id }, context);
+
+    expect(await DealStages.findOne({ _id: stage._id })).toBe(null);
   });
 
   test('Create deal', async () => {
-    const dealDoc = {
-      stageId: deal.stageId,
-      companyId: deal.companyId,
-      amount: deal.amount,
-      closeDate: deal.closeDate,
-      note: deal.note,
-      assignedUserIds: deal.assignedUserIds,
-    };
+    const args = { stageId: stage._id };
 
-    Deals.createDeal = jest.fn();
+    const mutation = `
+      mutation dealsAdd($stageId: String!) {
+        dealsAdd(stageId: $stageId) {
+          _id
+          stageId
+        }
+      }
+    `;
 
-    await dealMutations.dealsAdd({}, dealDoc, { user });
+    const createdDeal = await graphqlRequest(mutation, 'dealsAdd', args, context);
 
-    expect(Deals.createDeal).toBeCalledWith({
-      ...dealDoc,
-      userId: user._id,
-    });
-    expect(Deals.createDeal.mock.calls.length).toBe(1);
+    expect(createdDeal.stageId).toEqual(stage._id);
   });
 
   test('Update deal', async () => {
-    const updateDoc = { boardId: 'fakeId' };
+    const args = {
+      _id: deal._id,
+      stageId: stage._id,
+    };
 
-    Deals.updateDeal = jest.fn();
+    const mutation = `
+      mutation dealsEdit($_id: String!, $stageId: String!) {
+        dealsEdit(_id: $_id, stageId: $stageId) {
+          _id
+          stageId
+        }
+      }
+    `;
 
-    await dealMutations.dealsEdit(null, { _id: deal._id, ...updateDoc }, { user });
+    const updatedDeal = await graphqlRequest(mutation, 'dealsEdit', args, context);
 
-    expect(Deals.updateDeal).toBeCalledWith(deal._id, updateDoc);
-    expect(Deals.updateDeal.mock.calls.length).toBe(1);
+    expect(updatedDeal.stageId).toEqual(stage._id);
   });
 
   test('Change deal', async () => {
-    const updateDoc = { stageId: stage._id };
+    const args = {
+      _id: deal._id,
+      stageId: 'fakeStageId',
+    };
 
-    Deals.updateDeal = jest.fn();
+    const mutation = `
+      mutation dealsChange($_id: String!, $stageId: String!) {
+        dealsChange(_id: $_id, stageId: $stageId) {
+          _id
+          stageId
+        }
+      }
+    `;
 
-    await dealMutations.dealsChange(null, { _id: deal._id, ...updateDoc }, { user });
+    const updatedDeal = await graphqlRequest(mutation, 'dealsChange', args, context);
 
-    expect(Deals.updateDeal).toBeCalledWith(deal._id, updateDoc);
-    expect(Deals.updateDeal.mock.calls.length).toBe(1);
+    expect(updatedDeal.stageId).toEqual(args.stageId);
   });
 
   test('Deal update orders', async () => {
-    const dealToUpdate = await dealPipelineFactory();
+    const dealToStage = await dealFactory();
 
-    const orders = [{ _id: deal._id, order: 9 }, { _id: dealToUpdate._id, order: 3 }];
+    const args = {
+      orders: [{ _id: deal._id, order: 9 }, { _id: dealToStage._id, order: 3 }],
+    };
 
-    Deals.updateOrder = jest.fn();
+    const mutation = `
+      mutation dealsUpdateOrder($orders: [OrderItem]) {
+        dealsUpdateOrder(orders: $orders) {
+          _id
+          order
+        }
+      }
+    `;
 
-    await dealMutations.dealsUpdateOrder(null, { orders }, { user });
+    const [updatedDeal, updatedDealToOrder] = await graphqlRequest(
+      mutation,
+      'dealsUpdateOrder',
+      args,
+      context,
+    );
 
-    expect(Deals.updateOrder).toBeCalledWith(orders);
-    expect(Deals.updateOrder.mock.calls.length).toBe(1);
+    expect(updatedDeal.order).toBe(3);
+    expect(updatedDealToOrder.order).toBe(9);
   });
 
   test('Remove deal', async () => {
-    Deals.removeDeal = jest.fn();
+    const mutation = `
+      mutation dealsRemove($_id: String!) {
+        dealsRemove(_id: $_id) {
+          _id
+        }
+      }
+    `;
 
-    await dealMutations.dealsRemove({}, { _id: deal.id }, { user });
+    await graphqlRequest(mutation, 'dealsRemove', { _id: deal._id }, context);
 
-    expect(Deals.removeDeal.mock.calls.length).toBe(1);
+    expect(await Deals.findOne({ _id: deal._id })).toBe(null);
   });
 });
