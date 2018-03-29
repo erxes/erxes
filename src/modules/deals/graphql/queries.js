@@ -39,6 +39,7 @@ const stages = `
   query dealStages($pipelineId: String!) {
     dealStages(pipelineId: $pipelineId) {
       _id
+      name
     }
   }
 `;
