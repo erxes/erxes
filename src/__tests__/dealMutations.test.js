@@ -16,7 +16,7 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('Test deals mutations', () => {
-  let board, pipeline, stage, deal, context, user;
+  let board, pipeline, stage, deal, context;
 
   const commonPipelineParamDefs = `
     $name: String!,
@@ -43,16 +43,10 @@ describe('Test deals mutations', () => {
   beforeEach(async () => {
     // Creating test data
     board = await dealBoardFactory();
-
     pipeline = await dealPipelineFactory({ boardId: board._id });
-
     stage = await dealStageFactory({ pipelineId: pipeline._id });
-
     deal = await dealFactory({ stageId: stage._id });
-
-    user = await userFactory({ role: 'admin' });
-
-    context = { user };
+    context = { user: await userFactory({ role: 'admin' }) };
   });
 
   afterEach(async () => {
