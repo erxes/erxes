@@ -95,7 +95,33 @@ const validateType = async message => {
         break;
       }
 
+      case 'Bounce': {
+        await EngageMessages.updateStats(header.value, 'bounce');
+        break;
+      }
+
+      case 'Complaint': {
+        await EngageMessages.updateStats(header.value, 'complaint');
+        break;
+      }
+
       case 'Send': {
+        await EngageMessages.updateStats(header.value, 'send');
+        break;
+      }
+
+      case 'Reject': {
+        await EngageMessages.updateStats(header.value, 'reject');
+        break;
+      }
+
+      case 'Click': {
+        await EngageMessages.updateStats(header.value, 'click');
+        break;
+      }
+
+      case 'Rendering Failure': {
+        await EngageMessages.updateStats(header.value, 'renderingFailure');
         break;
       }
     }
