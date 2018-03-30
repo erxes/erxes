@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import AWS from 'aws-sdk';
 
-const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, MAIN_APP_DOMAIN } = process.env;
 
 AWS.config.update({
   accessKeyId: AWS_ACCESS_KEY_ID,
@@ -32,7 +32,7 @@ const subscribe = topicArn =>
       {
         TopicArn: topicArn,
         Protocol: 'http',
-        Endpoint: 'http://34.204.2.252:3300/service/engage/tracker',
+        Endpoint: `${MAIN_APP_DOMAIN}/service/engage/tracker`,
       },
       (error, result) => {
         if (error) return reject(error);
@@ -42,21 +42,38 @@ const subscribe = topicArn =>
     ),
   );
 
-const createConfigSet = () =>
-  new Promise((resolve, reject) =>
-    ses.createConfigurationSet(
-      {
-        ConfigurationSet: {
-          Name: 'aws-ses',
-        },
-      },
-      (error, result) => {
-        if (error) return reject(error);
+const hasConfigSet = () => {
+  ses.listConfigurationSets({}, (error, result) => {
+    if (error) console.log(error);
+    else {
+      const { ConfigurationSets } = result;
 
-        return resolve(result);
+      ConfigurationSets.forEach(configSet => {
+        if (configSet.Name === 'aws-ses') {
+          return true;
+        }
+      });
+
+      return false;
+    }
+  });
+};
+
+const createConfigSet = () => console.log(hasConfigSet().toString());
+new Promise((resolve, reject) =>
+  ses.createConfigurationSet(
+    {
+      ConfigurationSet: {
+        Name: 'aws-ses',
       },
-    ),
-  );
+    },
+    (error, result) => {
+      if (error) return reject(error);
+
+      return resolve(result);
+    },
+  ),
+);
 
 const createConfigSetEvent = (configSet, topicArn) =>
   new Promise((resolve, reject) =>
