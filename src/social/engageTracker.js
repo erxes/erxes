@@ -82,18 +82,16 @@ const validateType = message => {
     const { eventType, mail } = obj;
     const { headers } = mail;
 
-    const engageMessageId = headers.filter(obj => {
-      return (obj.name = 'Engagemessageid');
-    });
+    const header = headers.find(obj => obj.name === 'Engagemessageid');
 
     switch (eventType) {
       case 'Open': {
-        EngageMessages.updateStats(engageMessageId, 'open');
+        EngageMessages.updateStats(header.value, 'open');
         break;
       }
 
       case 'Delivery': {
-        EngageMessages.updateStats(engageMessageId, 'delivery');
+        EngageMessages.updateStats(header.value, 'delivery');
         break;
       }
 

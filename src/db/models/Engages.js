@@ -264,7 +264,7 @@ class Message {
   static async updateStats(engageMessageId, stat) {
     const engageMessageObj = await this.findOne({ _id: engageMessageId });
 
-    if (engageMessageObj.stat) {
+    if (!engageMessageObj.stat) {
       await this.update({ _id: engageMessageId }, { $set: { stat: { [stat]: 0 } } });
     }
 
