@@ -63,9 +63,9 @@ const createConfigSetEvent = (configSet, topicArn) =>
     .promise();
 
 const validateType = message => {
-  const { type = '' } = message;
+  const { Type = '' } = message;
 
-  if (type === 'SubscriptionConfirmation') {
+  if (Type === 'SubscriptionConfirmation') {
     const params = {
       Token: message.Token,
       TopicArn: message.TopicArn,
