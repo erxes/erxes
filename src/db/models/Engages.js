@@ -86,7 +86,7 @@ const EngageMessageSchema = mongoose.Schema({
   email: field({ type: EmailSchema }),
   messenger: field({ type: MessengerSchema }),
   deliveryReports: field({ type: Object }),
-  stats: field({ type: StatsSchema }),
+  stats: field({ type: StatsSchema, default: {} }),
 });
 
 class Message {
@@ -265,10 +265,10 @@ class Message {
     const engageMessageObj = await this.findOne({ _id: engageMessageId });
 
     if (!engageMessageObj.stat) {
-      await this.update({ _id: engageMessageId }, { $set: { stat: { [stat]: 0 } } });
+      await this.update({ _id: engageMessageId }, { $set: { stats: { [stat]: 0 } } });
     }
 
-    return await this.update({ _id: engageMessageId }, { $inc: { [`stat.${stat}`]: 1 } });
+    return await this.update({ _id: engageMessageId }, { $inc: { [`stats.${stat}`]: 1 } });
   }
 }
 

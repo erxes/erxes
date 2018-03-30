@@ -62,7 +62,7 @@ const createConfigSetEvent = (configSet, topicArn) =>
     })
     .promise();
 
-const validateType = message => {
+const validateType = async message => {
   const { Type = '', Message = {} } = message;
 
   if (Type === 'SubscriptionConfirmation') {
@@ -86,12 +86,12 @@ const validateType = message => {
 
     switch (eventType) {
       case 'Open': {
-        EngageMessages.updateStats(header.value, 'open');
+        await EngageMessages.updateStats(header.value, 'open');
         break;
       }
 
       case 'Delivery': {
-        EngageMessages.updateStats(header.value, 'delivery');
+        await EngageMessages.updateStats(header.value, 'delivery');
         break;
       }
 
