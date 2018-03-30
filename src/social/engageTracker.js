@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 import AWS from 'aws-sdk';
+import { Engages } from 'db/models';
 
-const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, MAIN_APP_DOMAIN } = process.env;
+const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
 
 AWS.config.update({
   accessKeyId: AWS_ACCESS_KEY_ID,
@@ -13,98 +14,53 @@ const sns = new AWS.SNS();
 const ses = new AWS.SES();
 
 const createTopic = () =>
-  new Promise((resolve, reject) =>
-    sns.createTopic(
-      {
-        Name: 'aws-ses',
-      },
-      (error, result) => {
-        if (error) return reject(error);
-
-        return resolve(result);
-      },
-    ),
-  );
+  sns
+    .createTopic({
+      Name: 'aws-ses',
+    })
+    .promise();
 
 const subscribe = topicArn =>
-  new Promise((resolve, reject) =>
-    sns.subscribe(
-      {
-        TopicArn: topicArn,
-        Protocol: 'http',
-        Endpoint: `${MAIN_APP_DOMAIN}/service/engage/tracker`,
-      },
-      (error, result) => {
-        if (error) return reject(error);
+  sns
+    .subscribe({
+      TopicArn: topicArn,
+      Protocol: 'http',
+      Endpoint: `http://34.204.2.252/service/engage/tracker`,
+    })
+    .promise();
 
-        return resolve(result);
-      },
-    ),
-  );
-
-const hasConfigSet = () => {
-  ses.listConfigurationSets({}, (error, result) => {
-    if (error) console.log(error);
-    else {
-      const { ConfigurationSets } = result;
-
-      ConfigurationSets.forEach(configSet => {
-        if (configSet.Name === 'aws-ses') {
-          return true;
-        }
-      });
-
-      return false;
-    }
-  });
-};
-
-const createConfigSet = () => console.log(hasConfigSet().toString());
-new Promise((resolve, reject) =>
-  ses.createConfigurationSet(
-    {
+const createConfigSet = () =>
+  ses
+    .createConfigurationSet({
       ConfigurationSet: {
         Name: 'aws-ses',
       },
-    },
-    (error, result) => {
-      if (error) return reject(error);
-
-      return resolve(result);
-    },
-  ),
-);
+    })
+    .promise();
 
 const createConfigSetEvent = (configSet, topicArn) =>
-  new Promise((resolve, reject) =>
-    ses.createConfigurationSetEventDestination(
-      {
-        ConfigurationSetName: configSet,
-        EventDestination: {
-          MatchingEventTypes: [
-            'send',
-            'reject',
-            'bounce',
-            'complaint',
-            'delivery',
-            'open',
-            'click',
-            'renderingFailure',
-          ],
-          Name: 'aws-ses',
-          Enabled: true,
-          SNSDestination: {
-            TopicARN: topicArn,
-          },
+  ses
+    .createConfigurationSetEventDestination({
+      ConfigurationSetName: configSet,
+      EventDestination: {
+        MatchingEventTypes: [
+          'send',
+          'reject',
+          'bounce',
+          'complaint',
+          'delivery',
+          'open',
+          'click',
+          'renderingFailure',
+        ],
+        Name: 'aws-ses',
+        Enabled: true,
+        SNSDestination: {
+          TopicARN: topicArn,
         },
       },
-      (error, result) => {
-        if (error) return reject(error);
-
-        return resolve(result);
-      },
-    ),
-  );
+    })
+    .promise();
 
 const validateType = message => {
   const { type = '' } = message;
@@ -126,6 +82,7 @@ const validateType = message => {
 
     switch (eventType) {
       case 'Open': {
+        // Engages.updateStats('123', 'open');
         break;
       }
 
@@ -173,7 +130,8 @@ const init = () => {
       console.log('Successfully created config set', result);
     })
     .catch(error => {
-      console.log('createConfigSet error', error);
+      if (error.code === 'ConfigurationSetAlreadyExists') console.log('Config set already created');
+      else console.log(error);
     });
 
   createTopic()
@@ -193,7 +151,9 @@ const init = () => {
           console.log('Successfully created config set event destination', result);
         })
         .catch(error => {
-          console.log('createConfigSetEvent error', error);
+          if (error.code === 'EventDestinationAlreadyExists')
+            console.log('Event destination already created');
+          else console.log(error);
         });
     })
     .catch(error => {

@@ -49,6 +49,19 @@ const MessengerSchema = mongoose.Schema(
   { _id: false },
 );
 
+const StatsSchema = mongoose.Schema(
+  {
+    open: field({ type: Number }),
+    click: field({ type: Number }),
+    complaint: field({ type: Number }),
+    delivery: field({ type: Number }),
+    bounce: field({ type: Number }),
+    reject: field({ type: Number }),
+    renderingFailure: field({ type: Number }),
+  },
+  { _id: false },
+);
+
 const EngageMessageSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   kind: field({ type: String }),
@@ -73,6 +86,7 @@ const EngageMessageSchema = mongoose.Schema({
   email: field({ type: EmailSchema }),
   messenger: field({ type: MessengerSchema }),
   deliveryReports: field({ type: Object }),
+  stats: field({ type: StatsSchema }),
 });
 
 class Message {
@@ -239,6 +253,16 @@ class Message {
     );
 
     return this.updateMany({ customerIds: customerId }, { $pull: { customerIds: customerId } });
+  }
+
+  static async updateStats(engageMessageId, stat) {
+    const engageMessageObj = await this.findOne({ _id: engageMessageId });
+
+    if (engageMessageObj.stat) {
+      await this.update({ _id: engageMessageId }, { $set: { stat: { [stat]: 0 } } });
+    }
+
+    await this.update({ _id: engageMessageId }, { $inc: { [`stat.${stat}`]: 1 } });
   }
 }
 
