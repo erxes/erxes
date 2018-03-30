@@ -25,7 +25,7 @@ const subscribe = topicArn =>
     .subscribe({
       TopicArn: topicArn,
       Protocol: 'http',
-      Endpoint: `http://34.204.2.252:3300/service/engage/tracker`,
+      Endpoint: 'http://34.204.2.252:3300/service/engage/tracker',
     })
     .promise();
 
@@ -65,7 +65,7 @@ const createConfigSetEvent = (configSet, topicArn) =>
 const validateType = message => {
   const { Type = '' } = message;
 
-  if (Type === 'SubscriptionConfirmation') {
+  if (message.Type && Type === 'SubscriptionConfirmation') {
     const params = {
       Token: message.Token,
       TopicArn: message.TopicArn,
@@ -76,9 +76,9 @@ const validateType = message => {
         return console.log('SNS subscription confirmation error', err); // an error occurred
       else console.log('SNS subscription confirmed successfully'); // successful response
     });
-  } else {
+  } else if (message.Type) {
     const { Message } = message;
-    const { eventType, headers = {} } = Message;
+    const { eventType, headers = [] } = Message;
 
     const engageMessageId = headers.filter(obj => {
       return (obj.name = 'Engagemessageid');
@@ -172,10 +172,6 @@ export const trackEngages = expressApp => {
   init();
 
   expressApp.use(reqMiddleware());
-
-  expressApp.get(`/service/engage/tracker`, (req, res) => {
-    res.end('success');
-  });
 
   expressApp.post(`/service/engage/tracker`, (req, res) => {
     res.end('success');
