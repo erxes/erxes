@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import AWS from 'aws-sdk';
-import { Engages } from '../db/models';
+import { EngageMessages } from '../db/models';
 
 const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
 
@@ -63,9 +63,9 @@ const createConfigSetEvent = (configSet, topicArn) =>
     .promise();
 
 const validateType = message => {
-  const { Type = '' } = message;
+  const { Type = '', Message = {} } = message;
 
-  if (message.Type && Type === 'SubscriptionConfirmation') {
+  if (Type === 'SubscriptionConfirmation') {
     const params = {
       Token: message.Token,
       TopicArn: message.TopicArn,
@@ -76,24 +76,24 @@ const validateType = message => {
         return console.log('SNS subscription confirmation error', err); // an error occurred
       else console.log('SNS subscription confirmed successfully'); // successful response
     });
-  } else if (message.Type) {
-    const { Message } = message;
-    const { eventType, headers = [] } = Message;
+  } else {
+    const obj = JSON.parse(Message);
+
+    const { eventType, mail } = obj;
+    const { headers } = mail;
 
     const engageMessageId = headers.filter(obj => {
       return (obj.name = 'Engagemessageid');
     });
 
-    console.log(Message, engageMessageId, eventType);
-
     switch (eventType) {
       case 'Open': {
-        Engages.updateStats(engageMessageId, 'open');
+        EngageMessages.updateStats(engageMessageId, 'open');
         break;
       }
 
       case 'Delivery': {
-        Engages.updateStats(engageMessageId, 'delivery');
+        EngageMessages.updateStats(engageMessageId, 'delivery');
         break;
       }
 
