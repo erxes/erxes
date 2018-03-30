@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import AWS from 'aws-sdk';
-import { Engages } from 'db/models';
+import { Engages } from '../db/models';
 
 const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
 
@@ -78,15 +78,20 @@ const validateType = message => {
     });
   } else {
     const { Message } = message;
-    const { eventType } = Message;
+    const { eventType, headers } = Message;
+
+    const engageMessageId = headers.filter(obj => {
+      return (obj.name = 'Engagemessageid');
+    });
 
     switch (eventType) {
       case 'Open': {
-        // Engages.updateStats('123', 'open');
+        Engages.updateStats(engageMessageId, 'open');
         break;
       }
 
       case 'Delivery': {
+        Engages.updateStats(engageMessageId, 'delivery');
         break;
       }
 
