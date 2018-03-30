@@ -243,7 +243,7 @@ class Message {
   /**
    * Removes customer Engages
    * @param {String} customerId - Customer id to remove
-   * @return {Promise} Updated internal notes
+   * @return {Promise} Updated engage messages
    */
   static async removeCustomerEngages(customerId) {
     // Removing customer from engage messages
@@ -255,6 +255,12 @@ class Message {
     return this.updateMany({ customerIds: customerId }, { $pull: { customerIds: customerId } });
   }
 
+  /**
+   * Increase engage message stat by 1
+   * @param {String} engageMessageId - Engage message id to update
+   * @param {String} stat - Engage message stat name to increase
+   * @return {Promise} Updated engage message
+   */
   static async updateStats(engageMessageId, stat) {
     const engageMessageObj = await this.findOne({ _id: engageMessageId });
 
@@ -262,7 +268,7 @@ class Message {
       await this.update({ _id: engageMessageId }, { $set: { stat: { [stat]: 0 } } });
     }
 
-    await this.update({ _id: engageMessageId }, { $inc: { [`stat.${stat}`]: 1 } });
+    return await this.update({ _id: engageMessageId }, { $inc: { [`stat.${stat}`]: 1 } });
   }
 }
 

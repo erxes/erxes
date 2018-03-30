@@ -25,7 +25,7 @@ const subscribe = topicArn =>
     .subscribe({
       TopicArn: topicArn,
       Protocol: 'http',
-      Endpoint: `http://34.204.2.252/service/engage/tracker`,
+      Endpoint: `http://34.204.2.252:3000/service/engage/tracker`,
     })
     .promise();
 
@@ -83,6 +83,8 @@ const validateType = message => {
     const engageMessageId = headers.filter(obj => {
       return (obj.name = 'Engagemessageid');
     });
+
+    console.log(engageMessageId, eventType);
 
     switch (eventType) {
       case 'Open': {
