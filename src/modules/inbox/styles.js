@@ -323,7 +323,7 @@ const TemplateContent = styled.div`
 const AttachmentIndicator = styled.div`
   display: flex;
   flex-direction: row;
-  margin: 0 15px;
+  margin: 0 15px 10px 15px;
   color: ${rgba(colors.colorWhite, 0.7)};
 `;
 
@@ -341,7 +341,7 @@ const Attachment = styled.div`
   }
 `;
 
-const AttachmentPreview = styled.div`
+const AttachmentThumb = styled.div`
   margin-right: 5px;
 `;
 
@@ -444,7 +444,7 @@ export {
   TemplateContent,
   PopoverFooter,
   Attachment,
-  AttachmentPreview,
+  AttachmentThumb,
   AttachmentIndicator,
   PreviewImg,
   FileName,
