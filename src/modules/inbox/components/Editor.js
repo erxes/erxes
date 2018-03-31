@@ -373,6 +373,7 @@ export default class Editor extends Component {
       keyBindingFn: this.keyBindingFn,
       onUpArrow: this.onUpArrow,
       onDownArrow: this.onDownArrow,
+      handleFileInput: this.props.handleFileInput,
       plugins,
       pluginContent
     };
@@ -393,5 +394,6 @@ Editor.propTypes = {
   showMentions: PropTypes.bool,
   responseTemplate: PropTypes.string,
   responseTemplates: PropTypes.array,
+  handleFileInput: PropTypes.func,
   mentions: PropTypes.object // eslint-disable-line
 };

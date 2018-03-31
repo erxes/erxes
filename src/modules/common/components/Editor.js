@@ -161,6 +161,7 @@ export class ErxesEditor extends Component {
 
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.onTab = this.onTab.bind(this);
+    this.handlePastedFile = this.handlePastedFile.bind(this);
     this.toggleBlockType = this.toggleBlockType.bind(this);
     this.toggleInlineStyle = this.toggleInlineStyle.bind(this);
   }
@@ -195,6 +196,12 @@ export class ErxesEditor extends Component {
     const { onChange, editorState } = this.props;
 
     onChange(RichUtils.toggleInlineStyle(editorState, inlineStyle));
+  }
+
+  handlePastedFile(e) {
+    if (this.props.handleFileInput) {
+      this.props.handleFileInput(e);
+    }
   }
 
   render() {
@@ -247,6 +254,7 @@ export class ErxesEditor extends Component {
             ref="editor"
             plugins={this.props.plugins}
             spellCheck
+            handlePastedFiles={this.handlePastedFile}
           />
         </div>
         {this.props.pluginContent}
@@ -265,6 +273,7 @@ ErxesEditor.propTypes = {
   keyBindingFn: PropTypes.func,
   onUpArrow: PropTypes.func,
   onDownArrow: PropTypes.func,
+  handleFileInput: PropTypes.func,
   placeholder: PropTypes.string
 };
 
