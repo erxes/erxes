@@ -7,35 +7,34 @@ import { PipelineContainer, PipelineHeader, PipelineBody } from '../styles';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
-  stages: PropTypes.array,
-  collectDeals: PropTypes.func,
-  dealResult: PropTypes.object,
-  addToDeals: PropTypes.func
+  stages: PropTypes.array
+};
+
+const defaultProps = {
+  stages: []
 };
 
 class Pipeline extends React.Component {
-  renderStage(provided) {
+  renderStages(provided) {
     const { stages, pipeline } = this.props;
-    const length = stages.length;
+
+    if (stages.length === 0) {
+      return <EmptyState size="full" text="No stage" icon="map" />;
+    }
 
     return (
-      <PipelineBody innerRef={provided.innerRef} {...provided.droppableProps}>
-        <div>
-          {stages.map((stage, index) => (
-            <Stage
-              key={stage._id}
-              stageId={stage._id}
-              index={index}
-              length={length}
-              pipelineId={pipeline._id}
-              state={this.props[`stageState${stage._id}`]}
-            />
-          ))}
-        </div>
-        {stages.length === 0 && (
-          <EmptyState size="full" text="No stage" icon="map" />
-        )}
-      </PipelineBody>
+      <div>
+        {stages.map((stage, index) => (
+          <Stage
+            key={stage._id}
+            stageId={stage._id}
+            index={index}
+            length={stages.length}
+            pipelineId={pipeline._id}
+            state={this.props[`stageState${stage._id}`]}
+          />
+        ))}
+      </div>
     );
   }
 
@@ -53,7 +52,14 @@ class Pipeline extends React.Component {
           direction="horizontal"
           droppableId={pipeline._id}
         >
-          {provided => this.renderStage(provided)}
+          {provided => (
+            <PipelineBody
+              innerRef={provided.innerRef}
+              {...provided.droppableProps}
+            >
+              {this.renderStages()}
+            </PipelineBody>
+          )}
         </Droppable>
       </PipelineContainer>
     );
@@ -63,3 +69,4 @@ class Pipeline extends React.Component {
 export default Pipeline;
 
 Pipeline.propTypes = propTypes;
+Pipeline.defaultProps = defaultProps;

@@ -24,8 +24,8 @@ import { selectUserOptions } from '../../utils';
 
 const propTypes = {
   deal: PropTypes.object,
-  close: PropTypes.func.isRequired,
-  saveDeal: PropTypes.func.isRequired,
+  close: PropTypes.func,
+  saveDeal: PropTypes.func,
   stageId: PropTypes.string,
   users: PropTypes.array,
   dealsLength: PropTypes.number
@@ -319,7 +319,7 @@ class DealForm extends React.Component {
             )}
             multi
             removeSelected={true}
-            options={selectUserOptions(users)}
+            options={selectUserOptions(users || [])}
           />
         </FormGroup>
 

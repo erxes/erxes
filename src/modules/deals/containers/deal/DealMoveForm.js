@@ -58,13 +58,13 @@ class DealMoveFormContainer extends React.Component {
     const moveDoc = {
       source: { _id: deal.stageId, index: deal.order },
       destination: { _id: doc.stageId, index: 0 },
-      itemId: doc._id,
+      itemId: deal._id,
       type: 'stage'
     };
 
     this.context.move(moveDoc);
 
-    this.props.moveDeal(doc);
+    this.props.moveDeal({ _id: deal._id, ...doc });
   }
 
   render() {

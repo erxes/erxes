@@ -48,14 +48,13 @@ class ItemCounter extends React.Component {
 
   render() {
     const { items } = this.props;
-    const length = items.length;
 
-    if (length === 0) return null;
+    if (!items || items.length === 0) return null;
 
     return (
       <ItemCounterContainer>
         {this.renderItem(items[0])}
-        {length > 1 ? this.renderOtherItems(items) : null}
+        {items.length > 1 ? this.renderOtherItems(items) : null}
       </ItemCounterContainer>
     );
   }

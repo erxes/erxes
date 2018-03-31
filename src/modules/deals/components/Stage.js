@@ -19,11 +19,15 @@ import { DealForm } from '../containers';
 const propTypes = {
   stage: PropTypes.object.isRequired,
   deals: PropTypes.array,
-  index: PropTypes.number.isRequired,
-  length: PropTypes.number.isRequired,
-  saveDeal: PropTypes.func.isRequired,
-  removeDeal: PropTypes.func.isRequired,
-  moveDeal: PropTypes.func.isRequired
+  index: PropTypes.number,
+  length: PropTypes.number,
+  saveDeal: PropTypes.func,
+  removeDeal: PropTypes.func,
+  moveDeal: PropTypes.func
+};
+
+const defaultProps = {
+  deals: []
 };
 
 class Stage extends React.Component {
@@ -81,7 +85,7 @@ class Stage extends React.Component {
     );
   }
 
-  renderDeal(provided) {
+  renderDeals(provided) {
     const { deals, saveDeal, removeDeal, moveDeal } = this.props;
 
     return (
@@ -127,7 +131,7 @@ class Stage extends React.Component {
 
               <StageBody>
                 <Droppable droppableId={stage._id} type="stage">
-                  {dropProvided => this.renderDeal(dropProvided)}
+                  {dropProvided => this.renderDeals(dropProvided)}
                 </Droppable>
               </StageBody>
             </StageContainer>

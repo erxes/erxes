@@ -16,18 +16,12 @@ class DealMoveForm extends React.Component {
   }
 
   move() {
-    const { deal } = this.props;
-    const { stageId } = this.state;
     const { __ } = this.context;
+    const { stageId } = this.state;
 
     if (!stageId) return Alert.error(__('No stage'));
 
-    const doc = {
-      stageId,
-      _id: deal._id
-    };
-
-    this.props.moveDeal(doc);
+    this.props.moveDeal({ stageId });
   }
 
   onChangeStage(stage) {
@@ -65,7 +59,7 @@ class DealMoveForm extends React.Component {
               __('Choose a board'),
               boardId,
               board => this.props.onChangeBoard(board),
-              selectOptions(boards)
+              selectOptions(boards || [])
             )}
           </FormGroup>
 
@@ -74,7 +68,7 @@ class DealMoveForm extends React.Component {
               __('Choose a pipeline'),
               pipelineId,
               pipeline => this.props.onChangePipeline(pipeline),
-              selectOptions(pipelines)
+              selectOptions(pipelines || [])
             )}
           </FormGroup>
 
@@ -83,7 +77,7 @@ class DealMoveForm extends React.Component {
               __('Choose a stage'),
               this.state.stageId,
               stage => this.onChangeStage(stage),
-              selectOptions(stages)
+              selectOptions(stages || [])
             )}
           </FormGroup>
 
@@ -103,17 +97,16 @@ class DealMoveForm extends React.Component {
 }
 
 const propTypes = {
-  deal: PropTypes.object.isRequired,
-  boards: PropTypes.array.isRequired,
-  pipelines: PropTypes.array.isRequired,
-  stages: PropTypes.array.isRequired,
-  boardId: PropTypes.string.isRequired,
   stageId: PropTypes.string,
-  pipelineId: PropTypes.string.isRequired,
-  close: PropTypes.func.isRequired,
-  onChangeBoard: PropTypes.func.isRequired,
-  onChangePipeline: PropTypes.func.isRequired,
-  moveDeal: PropTypes.func.isRequired
+  boards: PropTypes.array,
+  pipelines: PropTypes.array,
+  stages: PropTypes.array,
+  boardId: PropTypes.string,
+  pipelineId: PropTypes.string,
+  close: PropTypes.func,
+  onChangeBoard: PropTypes.func,
+  onChangePipeline: PropTypes.func,
+  moveDeal: PropTypes.func
 };
 
 DealMoveForm.propTypes = propTypes;
