@@ -263,12 +263,6 @@ class Message {
    * @return {Promise} Updated engage message
    */
   static async updateStats(engageMessageId, stat) {
-    const engageMessageObj = await this.findOne({ _id: engageMessageId });
-
-    if (!engageMessageObj.stat) {
-      await this.update({ _id: engageMessageId }, { $set: { stats: { [stat]: 0 } } });
-    }
-
     return await this.update({ _id: engageMessageId }, { $inc: { [`stats.${stat}`]: 1 } });
   }
 }

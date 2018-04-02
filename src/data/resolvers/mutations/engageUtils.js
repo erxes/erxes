@@ -1,3 +1,5 @@
+import AWS from 'aws-sdk';
+import nodemailer from 'nodemailer';
 import {
   EngageMessages,
   Customers,
@@ -16,7 +18,21 @@ import {
 } from '../../constants';
 import Random from 'meteor-random';
 import QueryBuilder from '../queries/segmentQueryBuilder';
-import { createTransporter } from '../../utils';
+
+const createTransporter = async () => {
+  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+
+  AWS.config.update({
+    region: AWS_REGION,
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  });
+  return nodemailer.createTransport({
+    SES: new AWS.SES({
+      apiVersion: '2010-12-01',
+    }),
+  });
+};
 
 /**
  * Dynamic content tags
@@ -61,17 +77,6 @@ const findCustomers = async ({ customerIds, segmentId }) => {
   }
 
   return await Customers.find(customerQuery);
-};
-
-/*
- * Send email callback
- */
-export const sendEmailCb = (messageId, mailMessageId, error) => {
-  // set new status
-  const status = error ? 'failed' : 'sent';
-
-  // update status
-  EngageMessages.changeDeliveryReportStatus(messageId, mailMessageId, status);
 };
 
 /**
@@ -122,11 +127,12 @@ const sendViaEmail = async message => {
         headers: {
           'X-SES-CONFIGURATION-SET': AWS_CONFIG_SET,
           EngageMessageId: message._id,
+          MailMessageId: mailMessageId,
         },
       },
       /* istanbul ignore next */
       error => {
-        sendEmailCb(message._id, mailMessageId, error);
+        throw new Error(error);
       },
     );
   }

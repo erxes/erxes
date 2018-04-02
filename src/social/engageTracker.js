@@ -2,7 +2,13 @@
 import AWS from 'aws-sdk';
 import { EngageMessages } from '../db/models';
 
-const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+const {
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_REGION,
+  AWS_CONFIG_SET,
+  AWS_ENDPOINT,
+} = process.env;
 
 AWS.config.update({
   accessKeyId: AWS_ACCESS_KEY_ID,
@@ -16,7 +22,7 @@ const ses = new AWS.SES();
 const createTopic = () =>
   sns
     .createTopic({
-      Name: 'aws-ses',
+      Name: AWS_CONFIG_SET,
     })
     .promise();
 
@@ -25,7 +31,7 @@ const subscribe = topicArn =>
     .subscribe({
       TopicArn: topicArn,
       Protocol: 'http',
-      Endpoint: 'http://34.204.2.252:3300/service/engage/tracker',
+      Endpoint: AWS_ENDPOINT,
     })
     .promise();
 
@@ -33,7 +39,7 @@ const createConfigSet = () =>
   ses
     .createConfigurationSet({
       ConfigurationSet: {
-        Name: 'aws-ses',
+        Name: AWS_CONFIG_SET,
       },
     })
     .promise();
@@ -53,7 +59,7 @@ const createConfigSetEvent = (configSet, topicArn) =>
           'click',
           'renderingFailure',
         ],
-        Name: 'aws-ses',
+        Name: AWS_CONFIG_SET,
         Enabled: true,
         SNSDestination: {
           TopicARN: topicArn,
@@ -82,60 +88,65 @@ const validateType = async message => {
     const { eventType, mail } = obj;
     const { headers } = mail;
 
-    const header = headers.find(obj => obj.name === 'Engagemessageid');
+    const engageMessageId = headers.find(obj => obj.name === 'Engagemessageid');
+    const mailId = headers.find(obj => obj.name === 'Mailmessageid');
 
-    switch (eventType) {
-      case 'Open': {
-        await EngageMessages.updateStats(header.value, 'open');
-        break;
-      }
+    const type = eventType.toLowerCase();
 
-      case 'Delivery': {
-        await EngageMessages.updateStats(header.value, 'delivery');
-        break;
-      }
+    await EngageMessages.updateStats(engageMessageId.value, type);
 
-      case 'Bounce': {
-        await EngageMessages.updateStats(header.value, 'bounce');
-        break;
-      }
-
-      case 'Complaint': {
-        await EngageMessages.updateStats(header.value, 'complaint');
-        break;
-      }
-
-      case 'Send': {
-        await EngageMessages.updateStats(header.value, 'send');
-        break;
-      }
-
-      case 'Reject': {
-        await EngageMessages.updateStats(header.value, 'reject');
-        break;
-      }
-
-      case 'Click': {
-        await EngageMessages.updateStats(header.value, 'click');
-        break;
-      }
-
-      case 'Rendering Failure': {
-        await EngageMessages.updateStats(header.value, 'renderingFailure');
-        break;
-      }
-    }
+    await EngageMessages.changeDeliveryReportStatus(engageMessageId.value, mailId.value, type);
   }
 };
 
-const reqMiddleware = () => {
-  return (req, res, next) => {
+const init = () => {
+  let topicArn = '';
+
+  createTopic()
+    .then(result => {
+      topicArn = result.TopicArn;
+
+      return subscribe(topicArn);
+    })
+    .then(() => {
+      console.log('Successfully subscribed to the topic');
+
+      return createConfigSet();
+    })
+    .catch(error => {
+      if (error.code === 'ConfigurationSetAlreadyExists') console.log('Config set already created');
+      else console.log(error);
+    })
+    .then(() => {
+      console.log('Successfully created config set');
+
+      return createConfigSetEvent(AWS_CONFIG_SET, topicArn);
+    })
+    .then(() => {
+      console.log('Successfully created config set event destination');
+    })
+    .catch(error => {
+      if (error.code === 'EventDestinationAlreadyExists')
+        console.log('Event destination already created');
+      else console.log(error);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+};
+
+export const trackEngages = expressApp => {
+  init();
+
+  expressApp.post(`/service/engage/tracker`, (req, res) => {
     const chunks = [];
 
     req.setEncoding('utf8');
+
     req.on('data', chunk => {
       chunks.push(chunk);
     });
+
     req.on('end', () => {
       let message;
 
@@ -149,55 +160,6 @@ const reqMiddleware = () => {
       validateType(message);
     });
 
-    next();
-  };
-};
-
-const init = () => {
-  let configSet = 'aws-ses';
-
-  createConfigSet()
-    .then(result => {
-      console.log('Successfully created config set', result);
-    })
-    .catch(error => {
-      if (error.code === 'ConfigurationSetAlreadyExists') console.log('Config set already created');
-      else console.log(error);
-    });
-
-  createTopic()
-    .then(result => {
-      console.log('Successfully created topic', result.TopicArn);
-
-      subscribe(result.TopicArn)
-        .then(result => {
-          console.log('Successfully subscribed to the topic', result.SubscriptionArn);
-        })
-        .catch(error => {
-          console.log('subscribe error', error);
-        });
-
-      createConfigSetEvent(configSet, result.TopicArn)
-        .then(result => {
-          console.log('Successfully created config set event destination', result);
-        })
-        .catch(error => {
-          if (error.code === 'EventDestinationAlreadyExists')
-            console.log('Event destination already created');
-          else console.log(error);
-        });
-    })
-    .catch(error => {
-      console.log('createTopic error', error);
-    });
-};
-
-export const trackEngages = expressApp => {
-  init();
-
-  expressApp.use(reqMiddleware());
-
-  expressApp.post(`/service/engage/tracker`, (req, res) => {
     res.end('success');
   });
 };

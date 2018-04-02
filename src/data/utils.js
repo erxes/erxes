@@ -82,17 +82,14 @@ const applyTemplate = async (data, templateName) => {
  * @return nodemailer transporter
 */
 export const createTransporter = async () => {
-  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+  const { MAIL_SERVICE, MAIL_USER, MAIL_PASS } = process.env;
 
-  AWS.config.update({
-    region: AWS_REGION,
-    accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
-  });
   return nodemailer.createTransport({
-    SES: new AWS.SES({
-      apiVersion: '2010-12-01',
-    }),
+    service: MAIL_SERVICE,
+    auth: {
+      user: MAIL_USER,
+      pass: MAIL_PASS,
+    },
   });
 };
 
