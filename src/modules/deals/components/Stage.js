@@ -1,20 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
+import { Icon, ModalTrigger } from 'modules/common/components';
+import { Deal, DealForm } from '../containers';
+import { AddNew } from '../styles/deal';
 import {
-  StageWrapper,
-  StageContainer,
-  StageHeader,
-  StageAmount,
-  StageBody,
-  StageDropZone,
-  AddNewDeal,
+  Wrapper,
+  Container,
+  Header,
+  Body,
+  Amount,
   Indicator,
-  IndicatorItem
-} from '../styles';
-import { Icon } from 'modules/common/components';
-import { Deal } from '../containers';
-import { DealForm } from '../containers';
+  IndicatorItem,
+  DropZone
+} from '../styles/stage';
 
 const propTypes = {
   stage: PropTypes.object.isRequired,
@@ -27,26 +26,6 @@ const propTypes = {
 };
 
 class Stage extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.toggleForm = this.toggleForm.bind(this);
-
-    this.state = { show: false };
-  }
-
-  renderIndicator() {
-    const { length, index } = this.props;
-
-    return Array(length)
-      .fill()
-      .map((e, i) => <IndicatorItem isPass={index >= i} key={i} />);
-  }
-
-  toggleForm() {
-    this.setState({ show: !this.state.show });
-  }
-
   renderAmount(amount) {
     if (Object.keys(amount).length === 0) return <li>0</li>;
 
@@ -57,35 +36,40 @@ class Stage extends React.Component {
     ));
   }
 
-  renderDealForm() {
-    if (this.state.show) {
-      const { stage, deals } = this.props;
-
-      return (
-        <DealForm
-          stageId={stage._id}
-          close={this.toggleForm}
-          dealsLength={deals.length}
-          saveDeal={this.props.saveDeal}
-          scrollBottom={this.scrollBottom}
-        />
-      );
-    }
-
+  showDealForm() {
     const { __ } = this.context;
+    const { stage, deals } = this.props;
+
+    const trigger = (
+      <AddNew>
+        <Icon icon="plus" /> {__('Add a deal')}
+      </AddNew>
+    );
 
     return (
-      <AddNewDeal onClick={this.toggleForm}>
-        <Icon icon="plus" /> {__('Add a deal')}
-      </AddNewDeal>
+      <ModalTrigger title="Add a deal" trigger={trigger}>
+        <DealForm
+          stageId={stage._id}
+          length={deals.length}
+          saveDeal={this.props.saveDeal}
+        />
+      </ModalTrigger>
     );
+  }
+
+  renderIndicator() {
+    const { length, index } = this.props;
+
+    return Array(length)
+      .fill()
+      .map((e, i) => <IndicatorItem isPass={index >= i} key={i} />);
   }
 
   renderDeal(provided) {
     const { deals, saveDeal, removeDeal, moveDeal } = this.props;
 
     return (
-      <StageDropZone innerRef={provided.innerRef}>
+      <DropZone innerRef={provided.innerRef}>
         <div className="deals">
           {deals.map((deal, index) => (
             <Deal
@@ -99,8 +83,8 @@ class Stage extends React.Component {
           ))}
         </div>
         {provided.placeholder}
-        {this.renderDealForm()}
-      </StageDropZone>
+        {this.showDealForm()}
+      </DropZone>
     );
   }
 
@@ -110,28 +94,28 @@ class Stage extends React.Component {
     return (
       <Draggable draggableId={stage._id} index={index}>
         {(provided, snapshot) => (
-          <StageWrapper>
-            <StageContainer
+          <Wrapper>
+            <Container
               innerRef={provided.innerRef}
               {...provided.draggableProps}
               isDragging={snapshot.isDragging}
             >
-              <StageHeader {...provided.dragHandleProps}>
+              <Header {...provided.dragHandleProps}>
                 <h3>
                   {stage.name}
                   <span>({deals.length})</span>
                 </h3>
-                <StageAmount>{this.renderAmount(stage.amount)}</StageAmount>
+                <Amount>{this.renderAmount(stage.amount)}</Amount>
                 <Indicator>{this.renderIndicator()}</Indicator>
-              </StageHeader>
+              </Header>
 
-              <StageBody>
+              <Body>
                 <Droppable droppableId={stage._id} type="stage">
                   {dropProvided => this.renderDeal(dropProvided)}
                 </Droppable>
-              </StageBody>
-            </StageContainer>
-          </StageWrapper>
+              </Body>
+            </Container>
+          </Wrapper>
         )}
       </Draggable>
     );

@@ -67,6 +67,7 @@ const dealDetail = `
   query dealDetail($_id: String!) {
     dealDetail(_id: $_id) {
       _id
+      name
       stageId
       companies {
         _id
@@ -81,7 +82,7 @@ const dealDetail = `
       productsData
       amount
       closeDate
-      note
+      description
       assignedUsers {
         _id
         email

@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
-import { QuickEdit, CommonDeal } from '../';
-import { Icon } from 'modules/common/components';
-import { DealContainer, DealContainerHover } from '../../styles';
+import { ModalTrigger, Icon } from 'modules/common/components';
+import { DealForm } from '../../containers';
+import { CommonDeal } from '../';
+import { Container, ContainerHover } from '../../styles/deal';
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
@@ -14,61 +15,37 @@ const propTypes = {
 };
 
 class Deal extends React.Component {
-  constructor(props) {
-    super(props);
+  showEditForm() {
+    const { deal, saveDeal, removeDeal, moveDeal } = this.props;
 
-    this.showQuickEditForm = this.showQuickEditForm.bind(this);
-    this.closeQuickEditForm = this.closeQuickEditForm.bind(this);
+    const trigger = (
+      <ContainerHover>
+        <div>
+          <Icon icon="edit" />
+        </div>
+      </ContainerHover>
+    );
 
-    this.state = {
-      showQuickEdit: false,
-      top: 0,
-      left: 0,
-      bottom: 0
-    };
-  }
-
-  closeQuickEditForm() {
-    this.setState({ showQuickEdit: false });
-  }
-
-  showQuickEditForm() {
-    const info = this.hover.getBoundingClientRect();
-
-    let top = info.top;
-
-    this.setState({
-      showQuickEdit: true,
-      top,
-      left: info.left
-    });
+    return (
+      <ModalTrigger title="Edit deal" trigger={trigger} dialogClassName="full">
+        <DealForm
+          deal={deal}
+          saveDeal={saveDeal}
+          moveDeal={moveDeal}
+          removeDeal={removeDeal}
+        />
+      </ModalTrigger>
+    );
   }
 
   render() {
-    const { deal, saveDeal, removeDeal, moveDeal, index } = this.props;
-
-    if (this.state.showQuickEdit) {
-      const { top, bottom, left } = this.state;
-
-      return (
-        <QuickEdit
-          top={top}
-          bottom={bottom}
-          left={left}
-          close={this.closeQuickEditForm}
-          deal={deal}
-          saveDeal={saveDeal}
-          removeDeal={removeDeal}
-          moveDeal={moveDeal}
-        />
-      );
-    }
+    const { deal, index } = this.props;
 
     return (
       <Draggable draggableId={deal._id} index={index}>
         {(provided, snapshot) => (
-          <div ref={el => (this.hover = el)}>
-            <DealContainer
+          <div>
+            <Container
               innerRef={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
@@ -76,12 +53,8 @@ class Deal extends React.Component {
             >
               <CommonDeal deal={deal} />
 
-              <DealContainerHover onClick={this.showQuickEditForm}>
-                <div>
-                  <Icon icon="edit" />
-                </div>
-              </DealContainerHover>
-            </DealContainer>
+              {this.showEditForm()}
+            </Container>
             {provided.placeholder}
           </div>
         )}

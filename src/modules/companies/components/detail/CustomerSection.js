@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
 import { ModalTrigger, Icon, EmptyState } from 'modules/common/components';
+import { renderFullName } from 'modules/common/utils';
 import { CustomerAssociate } from 'modules/customers/containers';
 import { CustomersWrapper, CustomerWrapper } from '../../styles';
 
@@ -14,13 +15,6 @@ function CustomerSection({ company }, { __ }) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
   const customers = company.customers || [];
-
-  const renderFullName = customer => {
-    if (customer.firstName || customer.lastName) {
-      return (customer.firstName || '') + ' ' + (customer.lastName || '');
-    }
-    return customer.email || customer.phone || 'N/A';
-  };
 
   return (
     <Section>

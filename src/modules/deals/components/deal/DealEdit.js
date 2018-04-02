@@ -2,13 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { DealForm } from '../../containers';
 import { Button } from 'modules/common/components';
-import { QuickEditContainer, RightControls } from '../../styles';
+import { EditContainer, RightControls } from '../../styles/deal';
 import { DealMoveForm } from '../../containers';
 
 const propTypes = {
-  top: PropTypes.number,
-  bottom: PropTypes.number,
-  left: PropTypes.number,
   close: PropTypes.func,
   saveDeal: PropTypes.func,
   removeDeal: PropTypes.func,
@@ -16,7 +13,7 @@ const propTypes = {
   deal: PropTypes.object
 };
 
-class QuickEdit extends React.Component {
+class DealEdit extends React.Component {
   constructor(props) {
     super(props);
 
@@ -62,12 +59,12 @@ class QuickEdit extends React.Component {
   }
 
   render() {
-    const { deal, top, bottom, left, close, saveDeal } = this.props;
+    const { deal, close, saveDeal } = this.props;
 
     return (
-      <QuickEditContainer top={top} bottom={bottom} left={left}>
+      <EditContainer>
         <div>
-          <DealForm saveDeal={saveDeal} close={close} deal={deal} />
+          <DealForm saveDeal={saveDeal} deal={deal} />
 
           <RightControls>
             <Button onClick={this.toggleMove} icon="android-arrow-forward">
@@ -92,15 +89,15 @@ class QuickEdit extends React.Component {
 
           {this.renderMoveForm(this.state.showMove)}
         </div>
-      </QuickEditContainer>
+      </EditContainer>
     );
   }
 }
 
-QuickEdit.propTypes = propTypes;
-QuickEdit.contextTypes = {
+DealEdit.propTypes = propTypes;
+DealEdit.contextTypes = {
   boardId: PropTypes.string,
   pipelineId: PropTypes.string
 };
 
-export default QuickEdit;
+export default DealEdit;

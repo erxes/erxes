@@ -4,7 +4,7 @@ import Select from 'react-select-plus';
 import { Button, FormGroup } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { selectOptions } from '../../utils';
-import { DealMoveFormContainer, Footer } from '../../styles';
+import { MoveFormContainer, FormFooter } from '../../styles/deal';
 
 class DealMoveForm extends React.Component {
   constructor(props) {
@@ -58,7 +58,7 @@ class DealMoveForm extends React.Component {
     const { boards, pipelines, stages, boardId, pipelineId } = this.props;
 
     return (
-      <DealMoveFormContainer>
+      <MoveFormContainer>
         <form>
           <FormGroup>
             {this.renderSelect(
@@ -87,7 +87,7 @@ class DealMoveForm extends React.Component {
             )}
           </FormGroup>
 
-          <Footer>
+          <FormFooter>
             <Button btnStyle="simple" onClick={this.props.close} icon="close">
               Close
             </Button>
@@ -95,9 +95,9 @@ class DealMoveForm extends React.Component {
             <Button btnStyle="success" onClick={this.move} icon="checkmark">
               Move
             </Button>
-          </Footer>
+          </FormFooter>
         </form>
-      </DealMoveFormContainer>
+      </MoveFormContainer>
     );
   }
 }

@@ -77,6 +77,8 @@ class StageContainer extends React.Component {
       dealsQuery
     } = this.props;
 
+    console.log('doc: ', doc);
+
     const { deals } = this.state;
     const { __ } = this.context;
 

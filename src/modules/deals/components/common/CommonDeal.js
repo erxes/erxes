@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Icon } from 'modules/common/components';
-import { DealFooter, DealDate, DealAmount } from '../../styles';
 import { ItemCounter, UserCounter } from '../';
+import { Date, Amount, Footer } from '../../styles/deal';
 
 const propTypes = {
   deal: PropTypes.object.isRequired
@@ -14,9 +14,9 @@ class Deal extends React.Component {
     if (!closeDate) return null;
 
     return (
-      <DealDate>
+      <Date>
         <Icon icon="android-time" /> {moment(closeDate).format('YYYY-MM-DD')}
-      </DealDate>
+      </Date>
     );
   }
 
@@ -24,13 +24,13 @@ class Deal extends React.Component {
     if (Object.keys(amount).length === 0) return null;
 
     return (
-      <DealAmount>
+      <Amount>
         {Object.keys(amount).map(key => (
           <p key={key}>
             {amount[key].toLocaleString()} <span>{key}</span>
           </p>
         ))}
-      </DealAmount>
+      </Amount>
     );
   }
 
@@ -40,16 +40,17 @@ class Deal extends React.Component {
 
     return (
       <div>
+        <span>{deal.name}</span>
         <ItemCounter items={products} />
         <ItemCounter color="#F7CE53" items={deal.companies || []} />
         <ItemCounter color="#3CCC38" items={deal.customers || []} />
 
-        <DealFooter>
+        <Footer>
           {this.renderAmount(deal.amount || {})}
           {this.renderDate(deal.closeDate)}
 
           <UserCounter users={deal.assignedUsers || []} />
-        </DealFooter>
+        </Footer>
       </div>
     );
   }

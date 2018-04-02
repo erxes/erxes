@@ -8,27 +8,39 @@ import {
   Icon,
   FormGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
+  Tabs,
+  TabTitle
 } from 'modules/common/components';
+import { Form as NoteForm } from 'modules/internalNotes/containers';
+import { Sidebar } from 'modules/layout/components';
+import { WhiteBox } from 'modules/layout/styles';
 import { Alert } from 'modules/common/utils';
 import { CompanyChooser } from 'modules/companies/containers';
 import { CustomerChooser } from 'modules/customers/containers';
-import {
-  DealFormContainer,
-  DealButton,
-  DealFormAmount,
-  Footer
-} from '../../styles';
 import { ProductForm, ItemCounter } from '../';
 import { selectUserOptions } from '../../utils';
+import {
+  Button as DealButton,
+  FormAmount,
+  FormContainer,
+  FormFooter,
+  FormBody,
+  Left,
+  Right
+} from '../../styles/deal';
 
 const propTypes = {
   deal: PropTypes.object,
-  close: PropTypes.func.isRequired,
   saveDeal: PropTypes.func.isRequired,
   stageId: PropTypes.string,
   users: PropTypes.array,
-  dealsLength: PropTypes.number
+  length: PropTypes.number
+};
+
+const contextTypes = {
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class DealForm extends React.Component {
@@ -117,7 +129,10 @@ class DealForm extends React.Component {
     this.setState({ productsData: filteredProductsData, products, amount });
   }
 
-  save() {
+  save(e) {
+    e.preventDefault();
+
+    const { deal, stageId, length } = this.props;
     const {
       companies,
       customers,
@@ -126,25 +141,32 @@ class DealForm extends React.Component {
       note,
       assignedUserIds
     } = this.state;
-
     const { __ } = this.context;
 
-    if (productsData.length === 0) {
-      return Alert.error(__('Please, select product & service'));
-    }
+    const name = document.getElementById('name').value;
 
-    const { deal, stageId, dealsLength } = this.props;
-
-    const doc = {
-      companyIds: companies.map(company => company._id),
-      customerIds: customers.map(customer => customer._id),
-      closeDate: closeDate ? new Date(closeDate) : null,
-      note,
-      productsData,
-      assignedUserIds,
-      stageId: deal ? deal.stageId : stageId,
-      order: deal ? deal.order : dealsLength
+    let doc = {
+      name,
+      stageId,
+      order: length
     };
+
+    // edit
+    if (deal) {
+      if (productsData.length === 0) {
+        return Alert.error(__('Please, select product & service'));
+      }
+
+      doc = {
+        name,
+        companyIds: companies.map(company => company._id),
+        customerIds: customers.map(customer => customer._id),
+        closeDate: closeDate ? new Date(closeDate) : null,
+        note,
+        productsData,
+        assignedUserIds
+      };
+    }
 
     // before save, disable save button
     this.setState({ disabled: true });
@@ -155,7 +177,7 @@ class DealForm extends React.Component {
         // after save, enable save button
         this.setState({ disabled: false });
 
-        this.props.close();
+        this.context.closeModal();
       },
       this.props.deal
     );
@@ -239,20 +261,40 @@ class DealForm extends React.Component {
     return (
       <FormGroup>
         <ControlLabel>Amount</ControlLabel>
-        <DealFormAmount>
+        <FormAmount>
           {Object.keys(amount).map(key => (
             <p key={key}>
               {amount[key].toLocaleString()} {key}
             </p>
           ))}
-        </DealFormAmount>
+        </FormAmount>
       </FormGroup>
     );
   }
 
-  render() {
+  renderTab() {
+    const { deal } = this.props;
     const { __ } = this.context;
-    const { users } = this.props;
+
+    return (
+      <WhiteBox>
+        <Tabs>
+          <TabTitle className="active">
+            <Icon icon="compose" /> {__('New note')}
+          </TabTitle>
+        </Tabs>
+
+        <NoteForm contentType="deal" contentTypeId={deal._id} />
+      </WhiteBox>
+    );
+  }
+
+  renderSidebar() {
+    return <Sidebar />;
+  }
+
+  renderFormContent() {
+    const { deal, users } = this.props;
     const {
       companies,
       customers,
@@ -261,11 +303,25 @@ class DealForm extends React.Component {
       products,
       productsData,
       amount,
-      note
+      note,
+      name
     } = this.state;
+    const { __ } = this.context;
+
+    const nameField = (
+      <FormGroup>
+        <ControlLabel>Name</ControlLabel>
+        <FormControl id="name" value={name} required />
+      </FormGroup>
+    );
+
+    // When add, only show name
+    if (!deal) return nameField;
 
     return (
-      <DealFormContainer>
+      <div>
+        {nameField}
+
         {this.renderProductModal(productsData, products)}
 
         <FormGroup>
@@ -324,10 +380,23 @@ class DealForm extends React.Component {
           />
         </FormGroup>
 
-        <Footer>
+        <FormBody>
+          <Left>{this.renderTab()}</Left>
+          <Right>{this.renderSidebar()}</Right>
+        </FormBody>
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <FormContainer onSubmit={e => this.save(e)}>
+        {this.renderFormContent()}
+
+        <FormFooter>
           <Button
             btnStyle="simple"
-            onClick={() => this.props.close()}
+            onClick={this.context.closeModal}
             icon="close"
           >
             Close
@@ -336,20 +405,18 @@ class DealForm extends React.Component {
           <Button
             disabled={this.state.disabled}
             btnStyle="success"
-            onClick={this.save}
             icon="checkmark"
+            type="submit"
           >
             Save
           </Button>
-        </Footer>
-      </DealFormContainer>
+        </FormFooter>
+      </FormContainer>
     );
   }
 }
 
 DealForm.propTypes = propTypes;
-DealForm.contextTypes = {
-  __: PropTypes.func
-};
+DealForm.contextTypes = contextTypes;
 
 export default DealForm;
