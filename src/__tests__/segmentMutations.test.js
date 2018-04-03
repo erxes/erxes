@@ -52,7 +52,8 @@ describe('Segments mutations', () => {
   });
 
   test('Add segment', async () => {
-    const { contentType, name, description, subOf, color, connector } = _segment;
+    const { contentType, name, description, color, connector } = _segment;
+    const subOf = _segment.subOf || faker.random.word();
     const args = {
       contentType,
       name,
@@ -97,7 +98,8 @@ describe('Segments mutations', () => {
   });
 
   test('segmentsEdit', async () => {
-    const { _id, name, description, subOf, color, connector } = _segment;
+    const { _id, name, description, color, connector } = _segment;
+    const subOf = _segment.subOf || faker.random.word();
     const args = {
       _id,
       name,
