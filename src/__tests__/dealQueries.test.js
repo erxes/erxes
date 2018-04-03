@@ -15,7 +15,7 @@ describe('dealQueries', () => {
     };
 
     expectError(dealQueries.dealBoards);
-    expectError(dealQueries.dealBoardGetLast);
+    expectError(dealQueries.dealBoardGetDefault);
     expectError(dealQueries.dealBoardDetail);
     expectError(dealQueries.dealPipelines);
     expectError(dealQueries.dealStages);

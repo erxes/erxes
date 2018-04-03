@@ -11,9 +11,11 @@ export default {
       data.forEach(product => {
         const type = product.currency;
 
-        if (!amountsMap[type]) amountsMap[type] = 0;
+        if (type) {
+          if (!amountsMap[type]) amountsMap[type] = 0;
 
-        amountsMap[type] += product.amount || 0;
+          amountsMap[type] += product.amount || 0;
+        }
       });
     });
 

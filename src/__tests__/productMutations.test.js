@@ -1,83 +1,108 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
-import { Products, Users } from '../db/models';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { Products } from '../db/models';
 import { productFactory, userFactory } from '../db/factories';
-import productsMutations from '../data/resolvers/mutations/products';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
 describe('Test products mutations', () => {
-  let product;
-  let user;
-  let doc;
+  let product, context;
+
+  const commonParamDefs = `
+    $name: String!,
+    $type: String!,
+    $description: String,
+    $sku: String
+  `;
+
+  const commonParams = `
+    name: $name
+    type: $type
+    description: $description,
+    sku: $sku
+  `;
 
   beforeEach(async () => {
     // Creating test data
     product = await productFactory({ type: 'product' });
-    user = await userFactory();
-
-    doc = {
-      name: product.name,
-      type: product.type,
-      sku: product.sku,
-      description: product.description,
-    };
+    context = { user: await userFactory({ role: 'admin' }) };
   });
 
   afterEach(async () => {
     // Clearing test data
     await Products.remove({});
-    await Users.remove({});
-  });
-
-  test('Check login required', async () => {
-    expect.assertions(3);
-
-    const check = async fn => {
-      try {
-        await fn({}, {}, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
-      }
-    };
-
-    // add
-    check(productsMutations.productsAdd);
-
-    // edit
-    check(productsMutations.productsEdit);
-
-    // remove
-    check(productsMutations.productsRemove);
   });
 
   test('Create product', async () => {
-    Products.createProduct = jest.fn();
+    const args = {
+      name: product.name,
+      type: product.type,
+      sku: product.sku,
+      description: product.description,
+    };
 
-    await productsMutations.productsAdd({}, doc, { user });
+    const mutation = `
+      mutation productsAdd(${commonParamDefs}) {
+        productsAdd(${commonParams}) {
+          _id
+          name
+          type
+          description
+          sku
+        }
+      }
+    `;
 
-    expect(Products.createProduct).toBeCalledWith(doc);
-    expect(Products.createProduct.mock.calls.length).toBe(1);
+    const createdProduct = await graphqlRequest(mutation, 'productsAdd', args, context);
+
+    expect(createdProduct.name).toEqual(args.name);
+    expect(createdProduct.type).toEqual(args.type);
+    expect(createdProduct.description).toEqual(args.description);
+    expect(createdProduct.sku).toEqual(args.sku);
   });
 
   test('Update product', async () => {
-    Products.updateProduct = jest.fn();
+    const args = {
+      _id: product._id,
+      name: product.name,
+      type: product.type,
+      sku: product.sku,
+      description: product.description,
+    };
 
-    await productsMutations.productsEdit(null, { _id: product._id, ...doc }, { user });
+    const mutation = `
+      mutation productsEdit($_id: String!, ${commonParamDefs}) {
+        productsEdit(_id: $_id, ${commonParams}) {
+          _id
+          name
+          type
+          description
+          sku
+        }
+      }
+    `;
 
-    expect(Products.updateProduct).toBeCalledWith(product._id, doc);
-    expect(Products.updateProduct.mock.calls.length).toBe(1);
+    const updatedProduct = await graphqlRequest(mutation, 'productsEdit', args, context);
+
+    expect(updatedProduct.name).toEqual(args.name);
+    expect(updatedProduct.type).toEqual(args.type);
+    expect(updatedProduct.description).toEqual(args.description);
+    expect(updatedProduct.sku).toEqual(args.sku);
   });
 
   test('Remove product', async () => {
-    Products.removeProduct = jest.fn();
+    const mutation = `
+      mutation productsRemove($_id: String!) {
+        productsRemove(_id: $_id)
+      }
+    `;
 
-    await productsMutations.productsRemove({}, { _id: product.id }, { user });
+    await graphqlRequest(mutation, 'productsRemove', { _id: product._id }, context);
 
-    expect(Products.removeProduct.mock.calls.length).toBe(1);
+    expect(await Products.findOne({ _id: product._id })).toBe(null);
   });
 });
