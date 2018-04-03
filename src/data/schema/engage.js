@@ -13,6 +13,7 @@ export const types = `
     createdDate: Date
     messengerReceivedCustomerIds: [String]
     tagIds: [String]
+    stats: JSON
 
     email: JSON
     messenger: JSON
