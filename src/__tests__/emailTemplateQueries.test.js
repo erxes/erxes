@@ -1,20 +1,58 @@
 /* eslint-env jest */
+/* eslint-disable no-underscore-dangle */
 
-import emailTemplateQueries from '../data/resolvers/queries/emailTemplates';
+import { EmailTemplates } from '../db/models';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { emailTemplateFactory } from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
 
 describe('emailTemplateQueries', () => {
-  test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(2);
+  afterEach(async () => {
+    // Clearing test data
+    await EmailTemplates.remove({});
+  });
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, {});
-      } catch (e) {
-        expect(e.message).toBe('Login required');
-      }
+  test('Email templates', async () => {
+    // Creating test data
+    await emailTemplateFactory();
+    await emailTemplateFactory();
+    await emailTemplateFactory();
+
+    const args = {
+      page: 1,
+      perPage: 2,
     };
 
-    expectError(emailTemplateQueries.emailTemplates);
-    expectError(emailTemplateQueries.emailTemplatesTotalCount);
+    const qry = `
+      query emailTemplates($page: Int $perPage: Int) {
+        emailTemplates(page: $page perPage: $perPage) {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'emailTemplates', args);
+
+    expect(response.length).toBe(2);
+  });
+
+  test('Get email template total count', async () => {
+    const qry = `
+      query emailTemplatesTotalCount {
+        emailTemplatesTotalCount
+      }
+    `;
+
+    // Creating test data
+    await emailTemplateFactory();
+    await emailTemplateFactory();
+    await emailTemplateFactory();
+
+    const response = await graphqlRequest(qry, 'emailTemplatesTotalCount');
+
+    expect(response).toBe(3);
   });
 });
