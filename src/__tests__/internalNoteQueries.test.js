@@ -26,6 +26,13 @@ describe('internalNoteQueries', () => {
       query internalNotes($contentType: String! $contentTypeId: String) {
         internalNotes(contentType: $contentType contentTypeId: $contentTypeId) {
           _id
+          contentType
+          contentTypeId
+          content
+          createdUserId
+          createdDate
+
+          createdUser { _id }
         }
       }
     `;

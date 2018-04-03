@@ -24,6 +24,16 @@ describe('segmentQueries', () => {
       query segments($contentType: String!) {
         segments(contentType: $contentType) {
           _id
+          contentType
+          name
+          description
+          subOf
+          color
+          connector
+          conditions
+
+          getParentSegment { _id }
+          getSubSegments { _id }
         }
       }
     `;

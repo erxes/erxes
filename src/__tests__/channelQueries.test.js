@@ -29,7 +29,15 @@ describe('channelQueries', () => {
       query channels($page: Int $perPage: Int $memberIds: [String]) {
         channels(page: $page perPage: $perPage memberIds: $memberIds) {
           _id
+          name
+          description
+          integrationIds
           memberIds
+          createdAt
+          userId
+          conversationCount
+          openConversationCount
+          integrations { _id }
         }
       }
     `;

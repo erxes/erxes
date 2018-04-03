@@ -36,11 +36,45 @@ describe('customerQueries', () => {
     query customers(${commonParamDefs}) {
       customers(${commonParams}) {
         _id
+        integrationId
         firstName
         lastName
         email
         phone
+        isUser
+        createdAt
         tagIds
+        remoteAddress
+        internalNotes
+        location
+        visitorContactInfo
+        customFieldsData
+        messengerData
+        twitterData
+        facebookData
+        ownerId
+        position
+        department
+        leadStatus
+        lifecycleState
+        hasAuthority
+        description
+        doNotDisturb
+        links {
+          linkedIn
+          twitter
+          facebook
+          youtube
+          github
+          website
+        }
+        companies { _id }
+        conversations { _id }
+        deals { _id }
+        getIntegrationData
+        getMessengerCustomData
+        getTags { _id }
+        owner { _id }
       }
     }
   `;

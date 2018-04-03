@@ -29,6 +29,20 @@ describe('fieldQueries', () => {
       query fields($contentType: String! $contentTypeId: String) {
         fields(contentType: $contentType contentTypeId: $contentTypeId) {
           _id
+          contentType
+          contentTypeId
+          type
+          validation
+          text
+          description
+          options
+          isRequired
+          order
+          isVisible
+          isDefinedByErxes
+          groupId
+          lastUpdatedUser { _id }
+          lastUpdatedUserId
         }
       }
     `;

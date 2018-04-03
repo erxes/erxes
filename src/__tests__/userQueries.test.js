@@ -26,6 +26,27 @@ describe('userQueries', () => {
       query users($page: Int $perPage: Int) {
         users(page: $page perPage: $perPage) {
           _id
+          username
+          email
+          role
+          details {
+            avatar
+            fullName
+            position
+            location
+            description
+            twitterUsername
+          }
+          links {
+            linkedIn
+            twitter
+            facebook
+            github
+            youtube
+            website
+          }
+          emailSignatures
+          getNotificationByEmail
         }
       }
     `;

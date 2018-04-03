@@ -37,11 +37,42 @@ describe('companyQueries', () => {
     query companies(${commonParamDefs}) {
       companies(${commonParams}) {
         _id
-        tagIds
         name
+        size
         website
         industry
         plan
+
+        parentCompanyId
+        email
+        ownerId
+        phone
+        leadStatus
+        lifecycleState
+        businessType
+        description
+        employees
+        doNotDisturb
+        links {
+          linkedIn
+          twitter
+          facebook
+          github
+          youtube
+          website
+        }
+        owner { _id }
+        parentCompany { _id }
+
+        lastSeenAt
+        sessionCount
+        tagIds
+
+        customFieldsData
+
+        customers { _id }
+        deals { _id }
+        getTags { _id }
       }
     }
   `;

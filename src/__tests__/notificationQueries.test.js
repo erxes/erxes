@@ -64,7 +64,14 @@ describe('notificationsQueries', () => {
       query notifications(${commonParamDefs}) {
         notifications(${commonParams}) {
           _id
+          notifType
           title
+          link
+          content
+          createdUser { _id }
+          receiver
+          date
+          isRead
         }
       }
     `;

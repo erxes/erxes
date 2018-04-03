@@ -29,6 +29,16 @@ describe('formQueries', () => {
       query forms($page: Int $perPage: Int) {
         forms(page: $page perPage: $perPage) {
           _id
+          title
+          code
+          description
+          buttonText
+          themeColor
+          featuredImage
+          createdUserId
+          createdDate
+          viewCount
+          contactsGathered
         }
       }
     `;

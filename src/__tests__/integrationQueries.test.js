@@ -29,6 +29,21 @@ describe('integrationQueries', () => {
         brandId: $brandId
       ) {
         _id
+        kind
+        name
+        brandId
+        languageCode
+        code
+        formId
+        formData
+        messengerData
+        twitterData
+        facebookData
+        uiOptions
+
+        brand { _id }
+        form { _id }
+        channels { _id }
       }
     }
   `;

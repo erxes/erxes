@@ -24,6 +24,12 @@ describe('responseTemplateQueries', () => {
       query responseTemplates($page: Int $perPage: Int) {
         responseTemplates(page: $page perPage: $perPage) {
           _id
+          name
+          brandId
+          content
+
+          brand { _id }
+          files
         }
       }
     `;

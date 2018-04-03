@@ -24,6 +24,26 @@ describe('engageQueries', () => {
         ids: $ids
       ) {
         _id
+        kind
+        segmentId
+        customerIds
+        title
+        fromUserId
+        method
+        isDraft
+        isLive
+        stopDate
+        createdDate
+        messengerReceivedCustomerIds
+        tagIds
+
+        email
+        messenger
+        deliveryReports
+
+        segment { _id }
+        fromUser { _id }
+        getTags { _id }
       }
     }
   `;

@@ -30,6 +30,16 @@ describe('knowledgeBaseQueries', () => {
       query knowledgeBaseTopics($page: Int $perPage: Int) {
         knowledgeBaseTopics(page: $page perPage: $perPage) {
           _id
+          title
+          description
+          categories { _id }
+          brand { _id }
+          color
+          languageCode
+          createdBy
+          createdDate
+          modifiedBy
+          modifiedDate
         }
       }
     `;
@@ -100,6 +110,39 @@ describe('knowledgeBaseQueries', () => {
           topicIds: $topicIds
         ) {
           _id
+          title
+          description
+          articles {
+            _id
+            title
+            summary
+            content
+            status
+            createdBy
+            createdUser { _id }
+            createdDate
+            modifiedBy
+            modifiedDate
+          }
+          icon
+          createdBy
+          createdDate
+          modifiedBy
+          modifiedDate
+
+          firstTopic {
+            _id
+            title
+            description
+            categories { _id }
+            brand { _id }
+            color
+            languageCode
+            createdBy
+            createdDate
+            modifiedBy
+            modifiedDate
+          }
         }
       }
     `;
@@ -176,6 +219,15 @@ describe('knowledgeBaseQueries', () => {
           categoryIds: $categoryIds
         ) {
           _id
+          title
+          summary
+          content
+          status
+          createdBy
+          createdUser { _id }
+          createdDate
+          modifiedBy
+          modifiedDate
         }
       }
     `;

@@ -29,6 +29,13 @@ describe('brandQueries', () => {
       query brands($page: Int $perPage: Int) {
         brands(page: $page perPage: $perPage) {
           _id
+          name
+          description
+          code
+          userId
+          createdAt
+          emailConfig
+          integrations { _id }
         }
       }
     `;
