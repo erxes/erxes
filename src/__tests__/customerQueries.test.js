@@ -84,6 +84,7 @@ describe('customerQueries', () => {
     await customerFactory();
     await customerFactory();
     await customerFactory();
+    await customerFactory();
 
     const args = { page: 1, perPage: 3 };
     const responses = await graphqlRequest(qryCustomers, 'customers', args);
@@ -96,6 +97,8 @@ describe('customerQueries', () => {
     const customer2 = await customerFactory();
     const customer3 = await customerFactory();
 
+    await customerFactory();
+    await customerFactory();
     await customerFactory();
 
     const ids = [customer1._id, customer2._id, customer3._id];
@@ -182,74 +185,6 @@ describe('customerQueries', () => {
 
     expect(responses.list.length).toBe(3);
     expect(responses.totalCount).toBe(4);
-  });
-
-  test('Main customers filtered by ids', async () => {
-    const customer1 = await customerFactory();
-    const customer2 = await customerFactory();
-    const customer3 = await customerFactory();
-
-    await customerFactory();
-
-    const ids = [customer1._id, customer2._id, customer3._id];
-
-    const responses = await graphqlRequest(qryCustomersMain, 'customersMain', { ids });
-
-    expect(responses.list.length).toBe(3);
-    expect(responses.totalCount).toBe(3);
-  });
-
-  test('Main customers filtered by tag', async () => {
-    const tag = await tagsFactory();
-
-    await customerFactory();
-    await customerFactory();
-    await customerFactory({ tagIds: tag._id });
-    await customerFactory({ tagIds: tag._id });
-
-    const tagResponse = await Tags.findOne({}, '_id');
-
-    const responses = await graphqlRequest(qryCustomersMain, 'customersMain', {
-      tag: tagResponse._id,
-    });
-
-    expect(responses.list.length).toBe(2);
-    expect(responses.totalCount).toBe(2);
-  });
-
-  test('Main customers filtered by segment', async () => {
-    await customerFactory({ firstName });
-
-    const args = {
-      contentType: 'customer',
-      conditions: {
-        field: 'firstName',
-        operator: 'c',
-        value: firstName,
-        type: 'string',
-      },
-    };
-
-    const segment = await segmentFactory(args);
-
-    const response = await graphqlRequest(qryCustomersMain, 'customersMain', {
-      segment: segment._id,
-    });
-
-    expect(response.list.length).toBe(1);
-    expect(response.totalCount).toBe(1);
-  });
-
-  test('Main customers filtered by search value', async () => {
-    await customerFactory({ firstName });
-
-    // customers by firstName =============
-    const responses = await graphqlRequest(qryCustomersMain, 'customersMain', {
-      searchValue: firstName,
-    });
-
-    expect(responses.list.length).toBe(1);
-    expect(responses.totalCount).toBe(1);
   });
 
   test('Count customers', async () => {

@@ -84,6 +84,7 @@ describe('companyQueries', () => {
     await companyFactory({});
     await companyFactory({});
     await companyFactory({});
+    await companyFactory({});
 
     const args = { page: 1, perPage: 3 };
     const responses = await graphqlRequest(qryCompanies, 'companies', args);
@@ -96,6 +97,8 @@ describe('companyQueries', () => {
     const company2 = await companyFactory({});
     const company3 = await companyFactory({});
 
+    await companyFactory({});
+    await companyFactory({});
     await companyFactory({});
 
     const ids = [company1._id, company2._id, company3._id];
@@ -122,6 +125,8 @@ describe('companyQueries', () => {
 
   test('Companies filtered by segment', async () => {
     await companyFactory({ name });
+    await companyFactory();
+    await companyFactory();
 
     const args = {
       contentType: 'company',
@@ -182,74 +187,6 @@ describe('companyQueries', () => {
 
     expect(responses.list.length).toBe(3);
     expect(responses.totalCount).toBe(4);
-  });
-
-  test('Main companies filtered by ids', async () => {
-    const company1 = await companyFactory({});
-    const company2 = await companyFactory({});
-    const company3 = await companyFactory({});
-
-    await companyFactory({});
-
-    const ids = [company1._id, company2._id, company3._id];
-
-    const responses = await graphqlRequest(qryCompaniesMain, 'companiesMain', { ids });
-
-    expect(responses.list.length).toBe(3);
-    expect(responses.totalCount).toBe(3);
-  });
-
-  test('Main companies filtered by tag', async () => {
-    const tag = await tagsFactory();
-
-    await companyFactory();
-    await companyFactory();
-    await companyFactory({ tagIds: tag._id });
-    await companyFactory({ tagIds: tag._id });
-
-    const tagResponse = await Tags.findOne({}, '_id');
-
-    const responses = await graphqlRequest(qryCompaniesMain, 'companiesMain', {
-      tag: tagResponse._id,
-    });
-
-    expect(responses.list.length).toBe(2);
-    expect(responses.totalCount).toBe(2);
-  });
-
-  test('Main companies filtered by segment', async () => {
-    await companyFactory({ name });
-
-    const args = {
-      contentType: 'company',
-      conditions: {
-        field: 'name',
-        operator: 'c',
-        value: name,
-        type: 'string',
-      },
-    };
-
-    const segment = await segmentFactory(args);
-
-    const response = await graphqlRequest(qryCompaniesMain, 'companiesMain', {
-      segment: segment._id,
-    });
-
-    expect(response.list.length).toBe(1);
-    expect(response.totalCount).toBe(1);
-  });
-
-  test('Main companies filtered by search value', async () => {
-    await companyFactory({ name });
-
-    // companies by name =============
-    const responses = await graphqlRequest(qryCompaniesMain, 'companiesMain', {
-      searchValue: name,
-    });
-
-    expect(responses.list.length).toBe(1);
-    expect(responses.totalCount).toBe(1);
   });
 
   test('Count companies', async () => {
