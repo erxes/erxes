@@ -2,40 +2,27 @@
 import AWS from 'aws-sdk';
 import { EngageMessages } from '../db/models';
 
-const {
-  AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY,
-  AWS_REGION,
-  AWS_CONFIG_SET,
-  AWS_ENDPOINT,
-} = process.env;
+const getApi = type => {
+  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
 
-AWS.config.update({
-  accessKeyId: AWS_ACCESS_KEY_ID,
-  secretAccessKey: AWS_SECRET_ACCESS_KEY,
-  region: AWS_REGION,
-});
+  AWS.config.update({
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    region: AWS_REGION,
+  });
 
-const sns = new AWS.SNS();
-const ses = new AWS.SES();
+  if (type === 'ses') {
+    return new AWS.SES();
+  }
 
-// export const isVerifiedEmail = async email => {
-//   let isVerified = false;
-//
-//   new Promise(async (resolve, reject) => {
-//     await ses
-//       .listVerifiedEmailAddresses()
-//       .promise()
-//       .then(result => {
-//         const { VerifiedEmailAddresses = [] } = result;
-//
-//         if (VerifiedEmailAddresses.includes(email)) isVerified = true;
-//       });
-//
-//     if (isVerified) resolve(true);
-//     else reject(new Error('Emnail not verified, please verify email'));
-//   });
-// };
+  return new AWS.SNS();
+};
+
+export const verifiedEmails = () => {
+  return getApi('ses')
+    .listVerifiedEmailAddresses()
+    .promise();
+};
 
 const handleMessage = async message => {
   const obj = JSON.parse(message);
@@ -54,9 +41,15 @@ const handleMessage = async message => {
 };
 
 const init = () => {
+  const { AWS_CONFIG_SET = '', AWS_ENDPOINT = '' } = process.env;
+
+  if (AWS_CONFIG_SET === '' || AWS_ENDPOINT === '') {
+    return console.log('Couldnt locate configs on AWS SES');
+  }
+
   let topicArn = '';
 
-  sns
+  getApi('sns')
     .createTopic({
       Name: AWS_CONFIG_SET,
     })
@@ -64,7 +57,7 @@ const init = () => {
     .then(result => {
       topicArn = result.TopicArn;
 
-      return sns
+      return getApi('sns')
         .subscribe({
           TopicArn: topicArn,
           Protocol: 'http',
@@ -75,7 +68,7 @@ const init = () => {
     .then(() => {
       console.log('Successfully subscribed to the topic');
 
-      return ses
+      return getApi('ses')
         .createConfigurationSet({
           ConfigurationSet: {
             Name: AWS_CONFIG_SET,
@@ -89,7 +82,7 @@ const init = () => {
     .then(() => {
       console.log('Successfully created config set');
 
-      return ses
+      return getApi('ses')
         .createConfigurationSetEventDestination({
           ConfigurationSetName: AWS_CONFIG_SET,
           EventDestination: {
@@ -119,9 +112,6 @@ const init = () => {
 
 export const trackEngages = expressApp => {
   init();
-  // isVerifiedEmail('asd123@gmail.com')
-  // .then(console.log('success'))
-  // .catch(e=> console.log('caught it', e));
 
   expressApp.post(`/service/engage/tracker`, (req, res) => {
     const chunks = [];
@@ -138,7 +128,7 @@ export const trackEngages = expressApp => {
       const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 
       if (Type === 'SubscriptionConfirmation') {
-        return sns.confirmSubscription({ Token, TopicArn });
+        return getApi('sns').confirmSubscription({ Token, TopicArn });
       }
 
       handleMessage(Message);

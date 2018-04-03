@@ -1,8 +1,8 @@
-import { EngageMessages } from '../../../db/models';
+import { EngageMessages, Users } from '../../../db/models';
 import { MESSAGE_KINDS } from '../../constants';
 import { send } from './engageUtils';
 import { moduleRequireLogin } from '../../permissions';
-import { isVerifiedEmail } from '../../../social/engageTracker';
+import { verifiedEmails } from '../../../social/engageTracker';
 
 const engageMutations = {
   /**
@@ -21,14 +21,32 @@ const engageMutations = {
    * @return {Promise} message object
    */
   async engageMessageAdd(root, doc) {
-    const engageMessage = await EngageMessages.createEngageMessage(doc);
+    // Checking if configs exist
+    const { AWS_CONFIG_SET = '', AWS_ENDPOINT = '' } = process.env;
 
-    // if manual and live then send immediately
-    if (doc.kind === MESSAGE_KINDS.MANUAL && doc.isLive) {
-      await send(engageMessage);
+    if (AWS_CONFIG_SET === '' || AWS_ENDPOINT === '') {
+      throw new Error('Couldnt locate configs on AWS SES');
     }
 
-    return engageMessage;
+    // Checking if user's email verified or not
+    const { fromUserId } = doc;
+    const user = await Users.findOne({ _id: fromUserId });
+
+    return verifiedEmails().then(async result => {
+      const { VerifiedEmailAddresses = [] } = result;
+
+      // If verified creates engagemessage
+      if (VerifiedEmailAddresses.includes(user.email)) {
+        const engageMessage = await EngageMessages.createEngageMessage(doc);
+
+        // if manual and live then send immediately
+        if (doc.kind === MESSAGE_KINDS.MANUAL && doc.isLive) {
+          await send(engageMessage);
+        }
+
+        return engageMessage;
+      } else throw new Error('Email not verified');
+    });
   },
 
   /**
@@ -84,12 +102,6 @@ const engageMutations = {
    */
   async engageMessageSetLiveManual(root, _id) {
     const engageMessage = await EngageMessages.engageMessageSetLive(_id);
-
-    isVerifiedEmail()
-      .then(await send(engageMessage))
-      .catch(e => {
-        throw new Error(e.message);
-      });
 
     return engageMessage;
   },
