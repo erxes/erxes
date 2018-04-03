@@ -31,6 +31,11 @@ import {
   KnowledgeBaseCategories,
   KnowledgeBaseArticles,
   ActivityLogs,
+  DealBoards,
+  DealPipelines,
+  DealStages,
+  Deals,
+  Products,
   FieldsGroups,
 } from './models';
 
@@ -401,7 +406,60 @@ export const activityLogFactory = params => {
   return ActivityLogs.createDoc({ ...doc, ...params }, faker.random.word());
 };
 
-export const fieldGroupFactory = async (params = {}) => {
+export const dealBoardFactory = () => {
+  const board = new DealBoards({
+    name: faker.random.word(),
+    userId: Random.id(),
+  });
+
+  return board.save();
+};
+
+export const dealPipelineFactory = (params = {}) => {
+  const pipeline = new DealPipelines({
+    name: faker.random.word(),
+    boardId: params.boardId || faker.random.word(),
+  });
+
+  return pipeline.save();
+};
+
+export const dealStageFactory = (params = {}) => {
+  const stage = new DealStages({
+    name: faker.random.word(),
+    pipelineId: params.pipelineId || faker.random.word(),
+  });
+
+  return stage.save();
+};
+
+export const dealFactory = (params = {}) => {
+  const deal = new Deals({
+    ...params,
+    stageId: params.stageId || faker.random.word(),
+    companyId: faker.random.word(),
+    amount: faker.random.number(),
+    closeDate: new Date(),
+    note: faker.random.word(),
+    assignedUserIds: [faker.random.word()],
+  });
+
+  return deal.save();
+};
+
+export const productFactory = (params = {}) => {
+  const product = new Products({
+    name: params.name || faker.random.word(),
+    type: params.type || faker.random.word(),
+    description: params.description || faker.random.word(),
+    sku: faker.random.word(),
+    createdAt: new Date(),
+  });
+
+  return product.save();
+};
+
+export const fieldGroupFactory = async params => {
   const doc = {
     name: faker.random.word(),
     contentType: params.contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,

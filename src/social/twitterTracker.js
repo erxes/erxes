@@ -4,9 +4,9 @@ import { TwitMap, receiveTimelineInformation, receiveDirectMessageInformation } 
 import { Integrations } from '../db/models';
 import { INTEGRATION_KIND_CHOICES } from '../data/constants';
 
-const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_REDIRECT_URL } = process.env;
-
 const trackIntegration = integration => {
+  const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET } = process.env;
+
   // Twit instance
   const twit = new Twit({
     consumer_key: TWITTER_CONSUMER_KEY,
@@ -33,22 +33,26 @@ const trackIntegration = integration => {
 };
 
 // twitter oauth ===============
-const oauth = new OAuth(
-  'https://api.twitter.com/oauth/request_token',
-  'https://api.twitter.com/oauth/access_token',
-  TWITTER_CONSUMER_KEY,
-  TWITTER_CONSUMER_SECRET,
-  '1.0A',
-  TWITTER_REDIRECT_URL,
-  'HMAC-SHA1',
-);
+const getOauth = () => {
+  const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_REDIRECT_URL } = process.env;
+
+  return new OAuth(
+    'https://api.twitter.com/oauth/request_token',
+    'https://api.twitter.com/oauth/access_token',
+    TWITTER_CONSUMER_KEY,
+    TWITTER_CONSUMER_SECRET,
+    '1.0A',
+    TWITTER_REDIRECT_URL,
+    'HMAC-SHA1',
+  );
+};
 
 /*
  * Get access token using oauth_token, oauth_verifier
  */
 const getAccessToken = ({ oauth_token, oauth_verifier }) =>
   new Promise((resolve, reject) =>
-    oauth.getOAuthAccessToken(
+    getOauth().getOAuthAccessToken(
       oauth_token,
       '',
       oauth_verifier,
@@ -71,7 +75,7 @@ const authenticate = async queryParams => {
 
   // get account info
   const response = await new Promise((resolve, reject) =>
-    oauth.get(
+    getOauth().get(
       'https://api.twitter.com/1.1/account/verify_credentials.json',
       accessToken,
       accessTokenSecret,
@@ -101,7 +105,7 @@ const authenticate = async queryParams => {
  */
 const getTwitterAuthorizeUrl = () =>
   new Promise((resolve, reject) =>
-    oauth.getOAuthRequestToken((e, oauth_token) => {
+    getOauth().getOAuthRequestToken((e, oauth_token) => {
       if (e) {
         return reject(e.message);
       }

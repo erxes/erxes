@@ -311,7 +311,9 @@ class User {
 
     const createToken = await jwt.sign({ user }, secret, { expiresIn: '20m' });
 
-    const createRefreshToken = await jwt.sign({ user }, secret, { expiresIn: '7d' });
+    const createRefreshToken = await jwt.sign({ user }, secret, {
+      expiresIn: '7d',
+    });
 
     return [createToken, createRefreshToken];
   }
@@ -355,7 +357,9 @@ class User {
    * @return {Object} - generated tokens
    */
   static async login({ email, password }) {
-    const user = await Users.findOne({ email: { $regex: new RegExp(email, 'i') } });
+    const user = await Users.findOne({
+      email: { $regex: new RegExp(email, 'i') },
+    });
 
     if (!user) {
       // user with provided email not found

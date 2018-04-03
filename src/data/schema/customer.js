@@ -42,6 +42,7 @@ export const types = `
     links: CustomerLinks
     companies: [Company]
     conversations: [Conversation]
+    deals: [Deal]
     getIntegrationData: JSON
     getMessengerCustomData: JSON
     getTags: [Tag]
