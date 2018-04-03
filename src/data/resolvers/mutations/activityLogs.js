@@ -1,4 +1,4 @@
-import { ActivityLogs, Customers, Companies, Conversations } from '../../../db/models';
+import { ActivityLogs, Customers, Companies, Conversations, Deals } from '../../../db/models';
 
 export default {
   /**
@@ -37,5 +37,17 @@ export default {
   async activityLogsAddCompanyLog(root, { _id }) {
     const company = await Companies.findOne({ _id });
     return ActivityLogs.createCompanyRegistrationLog(company);
+  },
+
+  /**
+   * Creates deal registration log for the given deal
+   * @param {Object} root
+   * @param {Object} doc - input data
+   * @param {string} doc._id - Deal id
+   * @return {Promise} return Promise resolving created ActivityLog document
+   */
+  async activityLogsAddDealLog(root, { _id }) {
+    const deal = await Deals.findOne({ _id });
+    return ActivityLogs.createDealRegistrationLog(deal);
   },
 };

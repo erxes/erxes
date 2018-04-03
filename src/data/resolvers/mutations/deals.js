@@ -1,4 +1,4 @@
-import { DealBoards, DealPipelines, DealStages, Deals } from '../../../db/models';
+import { DealBoards, DealPipelines, DealStages, Deals, ActivityLogs } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
 
 const dealMutations = {
@@ -140,8 +140,10 @@ const dealMutations = {
    * @param {String} doc.stageId
    * @return {Promise} newly created deal object
    */
-  dealsAdd(root, doc, { user }) {
-    return Deals.createDeal({ userId: user._id, ...doc });
+  async dealsAdd(root, doc, { user }) {
+    const deal = await Deals.createDeal({ userId: user._id, ...doc });
+    await ActivityLogs.createDealRegistrationLog(deal, user);
+    return deal;
   },
 
   /**
