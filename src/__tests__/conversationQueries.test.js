@@ -131,6 +131,8 @@ describe('conversationQueries', () => {
 
   test('Conversations filtered by channel', async () => {
     await conversationFactory({ integrationId: integration._id });
+    await conversationFactory();
+    await conversationFactory();
 
     const responses = await graphqlRequest(qryConversations, 'conversations', {
       channelId: channel._id,
@@ -141,6 +143,8 @@ describe('conversationQueries', () => {
 
   test('Conversations filtered by brand', async () => {
     await conversationFactory({ integrationId: integration._id });
+    await conversationFactory();
+    await conversationFactory();
 
     const responses = await graphqlRequest(qryConversations, 'conversations', {
       brandId: brand._id,
@@ -154,6 +158,9 @@ describe('conversationQueries', () => {
       integrationId: integration._id,
       participatedUserIds: [user._id],
     });
+
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
 
     const responses = await graphqlRequest(
       qryConversations,
@@ -171,6 +178,16 @@ describe('conversationQueries', () => {
       integrationId: integration._id,
     });
 
+    await conversationFactory({
+      status: 'new',
+      integrationId: integration._id,
+    });
+
+    await conversationFactory({
+      status: 'new',
+      integrationId: integration._id,
+    });
+
     const responses = await graphqlRequest(
       qryConversations,
       'conversations',
@@ -182,6 +199,16 @@ describe('conversationQueries', () => {
   });
 
   test('Conversations filtered by unassigned', async () => {
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id,
+    });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id,
+    });
+
     await conversationFactory({
       integrationId: integration._id,
       assignedUserId: user._id,
@@ -206,6 +233,9 @@ describe('conversationQueries', () => {
       integrationId: integration._id,
     });
 
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+
     await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
@@ -221,7 +251,12 @@ describe('conversationQueries', () => {
   });
 
   test('Conversations filtered by integration type', async () => {
+    const integration1 = await integrationFactory({ kind: 'form' });
+    const integration2 = await integrationFactory({ kind: 'form' });
+
     await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration1._id });
+    await conversationFactory({ integrationId: integration2._id });
 
     const responses = await graphqlRequest(
       qryConversations,
@@ -238,6 +273,9 @@ describe('conversationQueries', () => {
 
     await conversationFactory({ tagIds: [tag._id], integrationId: integration._id });
 
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+
     const responses = await graphqlRequest(
       qryConversations,
       'conversations',
@@ -249,7 +287,13 @@ describe('conversationQueries', () => {
   });
 
   test('Count conversations by channel', async () => {
+    const integration1 = await integrationFactory({});
+
+    // conversation with channel
     await conversationFactory({ integrationId: integration._id });
+
+    await conversationFactory({ integrationId: integration1._id });
+    await conversationFactory({ integrationId: integration1._id });
 
     const response = await graphqlRequest(qryCount, 'conversationCounts', {
       channelId: channel._id,
@@ -259,7 +303,13 @@ describe('conversationQueries', () => {
   });
 
   test('Count conversations by brand', async () => {
+    const integration1 = await integrationFactory({});
+
+    // conversation with brand
     await conversationFactory({ integrationId: integration._id });
+
+    await conversationFactory({ integrationId: integration1._id });
+    await conversationFactory({ integrationId: integration1._id });
 
     const response = await graphqlRequest(qryCount, 'conversationCounts', { brandId: brand._id });
 
@@ -267,6 +317,16 @@ describe('conversationQueries', () => {
   });
 
   test('Count conversations by unassigned', async () => {
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id,
+    });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id,
+    });
+
     await conversationFactory({
       integrationId: integration._id,
       assignedUserId: user._id,
@@ -292,6 +352,9 @@ describe('conversationQueries', () => {
       participatedUserIds: [user._id],
     });
 
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+
     const response = await graphqlRequest(
       qryCount,
       'conversationCounts',
@@ -303,9 +366,10 @@ describe('conversationQueries', () => {
   });
 
   test('Count conversations by starred', async () => {
-    const conversation = await conversationFactory({
-      integrationId: integration._id,
-    });
+    const conversation = await conversationFactory({ integrationId: integration._id });
+
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
 
     await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
@@ -327,6 +391,16 @@ describe('conversationQueries', () => {
       status: 'closed',
     });
 
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new',
+    });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new',
+    });
+
     const response = await graphqlRequest(
       qryCount,
       'conversationCounts',
@@ -338,9 +412,14 @@ describe('conversationQueries', () => {
   });
 
   test('Count conversations by integration type', async () => {
-    await conversationFactory({
-      integrationId: integration._id,
-    });
+    const integration1 = await integrationFactory({ kind: 'form' });
+    const integration2 = await integrationFactory({ kind: 'form' });
+
+    // conversation with integration type 'messenger'
+    await conversationFactory({ integrationId: integration._id });
+
+    await conversationFactory({ integrationId: integration1._id });
+    await conversationFactory({ integrationId: integration2._id });
 
     let response = await graphqlRequest(
       qryCount,
@@ -362,6 +441,9 @@ describe('conversationQueries', () => {
       integrationId: integration._id,
     });
 
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+
     const response = await graphqlRequest(
       qryCount,
       'conversationCounts',
@@ -373,7 +455,14 @@ describe('conversationQueries', () => {
   });
 
   test('Get total count of conversations by channel', async () => {
+    const integration1 = await integrationFactory({});
+    const integration2 = await integrationFactory({});
+
+    // integration with channel
     await conversationFactory({ integrationId: integration._id });
+
+    await conversationFactory({ integrationId: integration1._id });
+    await conversationFactory({ integrationId: integration2._id });
 
     const response = await graphqlRequest(qryTotalCount, 'conversationsTotalCount', {
       channelId: channel._id,
@@ -383,7 +472,14 @@ describe('conversationQueries', () => {
   });
 
   test('Get total count of conversations by brand', async () => {
+    const integration1 = await integrationFactory({});
+    const integration2 = await integrationFactory({});
+
+    // integration with brand
     await conversationFactory({ integrationId: integration._id });
+
+    await conversationFactory({ integrationId: integration1._id });
+    await conversationFactory({ integrationId: integration2._id });
 
     const response = await graphqlRequest(qryTotalCount, 'conversationsTotalCount', {
       brandId: brand._id,
@@ -395,6 +491,16 @@ describe('conversationQueries', () => {
   test('Get total count of conversations by unassigned', async () => {
     await conversationFactory({
       integrationId: integration._id,
+    });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id,
+    });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id,
     });
 
     await conversationFactory({
@@ -418,6 +524,9 @@ describe('conversationQueries', () => {
       participatedUserIds: [user._id],
     });
 
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+
     const response = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
@@ -432,6 +541,9 @@ describe('conversationQueries', () => {
     const conversation = await conversationFactory({
       integrationId: integration._id,
     });
+
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
 
     await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
@@ -453,6 +565,16 @@ describe('conversationQueries', () => {
       status: 'closed',
     });
 
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new',
+    });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new',
+    });
+
     const response = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
@@ -464,9 +586,14 @@ describe('conversationQueries', () => {
   });
 
   test('Get total count of conversations by integration type', async () => {
-    await conversationFactory({
-      integrationId: integration._id,
-    });
+    const integration1 = await integrationFactory({ kind: 'form' });
+    const integration2 = await integrationFactory({ kind: 'form' });
+
+    // integration with type messenger
+    await conversationFactory({ integrationId: integration._id });
+
+    await conversationFactory({ integrationId: integration1._id });
+    await conversationFactory({ integrationId: integration2._id });
 
     const response = await graphqlRequest(
       qryTotalCount,
@@ -486,6 +613,9 @@ describe('conversationQueries', () => {
       integrationId: integration._id,
     });
 
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+
     const response = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
@@ -497,6 +627,8 @@ describe('conversationQueries', () => {
   });
 
   test('Conversation detail', async () => {
+    await conversationFactory({ integrationId: integration._id });
+
     const conversation = await conversationFactory({
       integrationId: integration._id,
     });
@@ -513,7 +645,12 @@ describe('conversationQueries', () => {
 
   test('Get last conversation by channel', async () => {
     await conversationFactory({ integrationId: integration._id });
+
     const conversation = await conversationFactory({ integrationId: integration._id });
+    const integration1 = await integrationFactory({});
+
+    await conversationFactory({ integrationId: integration1._id });
+    await conversationFactory({ integrationId: integration1._id });
 
     const response = await graphqlRequest(
       qryGetLast,
@@ -542,6 +679,12 @@ describe('conversationQueries', () => {
   test('Get last conversation by unassigned', async () => {
     await conversationFactory({
       integrationId: integration._id,
+      assignedUserId: user._id,
+    });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id,
     });
 
     await conversationFactory({
@@ -564,10 +707,9 @@ describe('conversationQueries', () => {
   });
 
   test('Get last conversation by participting', async () => {
-    await conversationFactory({
-      integrationId: integration._id,
-      participatedUserIds: [user._id],
-    });
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
 
     const conversation = await conversationFactory({
       integrationId: integration._id,
@@ -585,9 +727,9 @@ describe('conversationQueries', () => {
   });
 
   test('Get last conversation by starred', async () => {
-    await conversationFactory({
-      integrationId: integration._id,
-    });
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
 
     const conversation = await conversationFactory({
       integrationId: integration._id,
@@ -613,6 +755,11 @@ describe('conversationQueries', () => {
       status: 'closed',
     });
 
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'closed',
+    });
+
     const conversation = await conversationFactory({
       integrationId: integration._id,
       status: 'closed',
@@ -629,6 +776,7 @@ describe('conversationQueries', () => {
   });
 
   test('Get last conversations by integration type', async () => {
+    await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
     const conversation = await conversationFactory({
@@ -647,6 +795,11 @@ describe('conversationQueries', () => {
 
   test('Get last conversations by tag', async () => {
     const tag = await tagsFactory({ type: 'conversation' });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      tagIds: [tag._id],
+    });
 
     await conversationFactory({
       integrationId: integration._id,
