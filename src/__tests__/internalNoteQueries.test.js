@@ -9,21 +9,6 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-const generateData = params => {
-  const { n, args } = params;
-  const promises = [];
-
-  let i = 1;
-
-  while (i <= n) {
-    promises.push(internalNoteFactory(args));
-
-    i++;
-  }
-
-  return Promise.all(promises);
-};
-
 describe('internalNoteQueries', () => {
   afterEach(async () => {
     // Clearing test data
@@ -31,15 +16,13 @@ describe('internalNoteQueries', () => {
   });
 
   test('Internal notes', async () => {
-    const args = {
-      contentType: 'customer',
-      contentTypeId: faker.random.number(),
-    };
-
     // Creating test data
-    await generateData({ n: 5, args });
+    const contentTypeId = faker.random.number();
 
-    const query = `
+    await internalNoteFactory({ contentType: 'company', contentTypeId });
+    await internalNoteFactory({ contentType: 'customer', contentTypeId });
+
+    const qry = `
       query internalNotes($contentType: String! $contentTypeId: String) {
         internalNotes(contentType: $contentType contentTypeId: $contentTypeId) {
           _id
@@ -47,8 +30,20 @@ describe('internalNoteQueries', () => {
       }
     `;
 
-    const responses = await graphqlRequest(query, 'internalNotes', args);
+    // customer ===========================
+    let responses = await graphqlRequest(qry, 'internalNotes', {
+      contentType: 'company',
+      contentTypeId,
+    });
 
-    expect(responses.length).toBe(5);
+    expect(responses.length).toBe(1);
+
+    // company ============================
+    responses = await graphqlRequest(qry, 'internalNotes', {
+      contentType: 'company',
+      contentTypeId,
+    });
+
+    expect(responses.length).toBe(1);
   });
 });

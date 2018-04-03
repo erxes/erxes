@@ -8,21 +8,6 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-const generateData = params => {
-  const { n, userId } = params;
-  const promises = [];
-
-  let i = 1;
-
-  while (i <= n) {
-    promises.push(channelFactory(userId && { userId }));
-
-    i++;
-  }
-
-  return Promise.all(promises);
-};
-
 describe('channelQueries', () => {
   afterEach(async () => {
     // Clearing test data
@@ -33,32 +18,37 @@ describe('channelQueries', () => {
   test('Channels', async () => {
     const user = await userFactory({});
 
-    const args = {
-      page: 1,
-      perPage: 10,
-      memberIds: [user._id],
-    };
+    await channelFactory({ userId: user._id });
+    await channelFactory({ userId: user._id });
+    await channelFactory();
+    await channelFactory();
 
-    await generateData({ n: 3, userId: user._id });
-
-    const query = `
+    const qry = `
       query channels($page: Int $perPage: Int $memberIds: [String]) {
         channels(page: $page perPage: $perPage memberIds: $memberIds) {
           _id
+          memberIds
         }
       }
     `;
 
-    const responses = await graphqlRequest(query, 'channels', args);
+    // channels response ==================
+    let args = { page: 1, perPage: 4 };
+    let responses = await graphqlRequest(qry, 'channels', args);
 
-    expect(responses.length).toBe(3);
+    expect(responses.length).toBe(4);
+
+    // channels response by memberIds =====
+    responses = await graphqlRequest(qry, 'channels', { memberIds: [user._id] });
+
+    expect(responses.length).toBe(2);
   });
 
   test('Channel details', async () => {
     // Create test data
     const channel = await channelFactory();
 
-    const query = `
+    const qry = `
       query channelDetail($_id: String!) {
         channelDetail(_id: $_id) {
           _id
@@ -66,33 +56,38 @@ describe('channelQueries', () => {
       }
     `;
 
-    const responses = await graphqlRequest(query, 'channelDetail', { _id: channel._id });
+    const responses = await graphqlRequest(qry, 'channelDetail', { _id: channel._id });
 
     expect(responses._id).toBe(channel._id);
   });
 
   test('Get channel total count', async () => {
     // Create test data
-    await generateData({ n: 4 });
+    await channelFactory();
+    await channelFactory();
+    await channelFactory();
 
-    const query = `
+    const qry = `
       query channelsTotalCount {
         channelsTotalCount
       }
     `;
 
-    const responses = await graphqlRequest(query, 'channelsTotalCount');
+    const responses = await graphqlRequest(qry, 'channelsTotalCount');
 
-    expect(responses).toBe(4);
+    expect(responses).toBe(3);
   });
 
   test('Get last channel', async () => {
     // Create test data
-    await generateData({ n: 4 });
+    await channelFactory();
+    await channelFactory();
+    await channelFactory();
+    await channelFactory();
 
     const channel = await channelFactory();
 
-    const query = `
+    const qry = `
       query channelsGetLast {
         channelsGetLast {
           _id
@@ -100,7 +95,7 @@ describe('channelQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'channelsGetLast');
+    const response = await graphqlRequest(qry, 'channelsGetLast');
 
     expect(response._id).toBe(channel._id);
   });

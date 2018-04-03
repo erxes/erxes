@@ -8,21 +8,6 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-const generateData = params => {
-  const { n, type } = params;
-  const promises = [];
-
-  let i = 1;
-
-  while (i <= n) {
-    promises.push(tagsFactory({ type }));
-
-    i++;
-  }
-
-  return Promise.all(promises);
-};
-
 describe('tagQueries', () => {
   afterEach(async () => {
     // Clearing test data
@@ -30,12 +15,13 @@ describe('tagQueries', () => {
   });
 
   test('Tags', async () => {
-    const type = 'customer';
-
     // Creating test data
-    await generateData({ n: 3, type });
+    await tagsFactory({ type: 'customer' });
+    await tagsFactory({ type: 'customer' });
+    await tagsFactory({ type: 'company' });
+    await tagsFactory({ type: 'company' });
 
-    const query = `
+    const qry = `
       query tags($type: String) {
         tags(type: $type) {
           _id
@@ -43,15 +29,21 @@ describe('tagQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'tags', { type });
+    // customer ======================
+    let response = await graphqlRequest(qry, 'tags', { type: 'customer' });
 
-    expect(response.length).toBe(3);
+    expect(response.length).toBe(2);
+
+    // company =======================
+    response = await graphqlRequest(qry, 'tags', { type: 'company' });
+
+    expect(response.length).toBe(2);
   });
 
   test('Tag detail', async () => {
     const tag = await tagsFactory({ type: 'customer' });
 
-    const query = `
+    const qry = `
       query tagDetail($_id: String!) {
         tagDetail(_id: $_id) {
           _id
@@ -59,7 +51,7 @@ describe('tagQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'tagDetail', { _id: tag._id });
+    const response = await graphqlRequest(qry, 'tagDetail', { _id: tag._id });
 
     expect(response._id).toBe(tag._id);
   });

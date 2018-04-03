@@ -12,34 +12,6 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-const generateData = params => {
-  const { n, name, args } = params;
-  const promises = [];
-
-  let factory;
-  let i = 1;
-
-  switch (name) {
-    case 'topic':
-      factory = knowledgeBaseTopicFactory;
-      break;
-    case 'article':
-      factory = knowledgeBaseArticleFactory;
-      break;
-    case 'category':
-      factory = knowledgeBaseCategoryFactory;
-      break;
-  }
-
-  while (i <= n) {
-    promises.push(factory(args));
-
-    i++;
-  }
-
-  return Promise.all(promises);
-};
-
 describe('knowledgeBaseQueries', () => {
   afterEach(async () => {
     // Clearing test data
@@ -50,9 +22,11 @@ describe('knowledgeBaseQueries', () => {
 
   test('Knowledge base topics', async () => {
     // Creating test data
-    await generateData({ n: 3, name: 'topic' });
+    await knowledgeBaseTopicFactory();
+    await knowledgeBaseTopicFactory();
+    await knowledgeBaseTopicFactory();
 
-    const query = `
+    const qry = `
       query knowledgeBaseTopics($page: Int $perPage: Int) {
         knowledgeBaseTopics(page: $page perPage: $perPage) {
           _id
@@ -60,7 +34,7 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'knowledgeBaseTopics', { page: 1, perPage: 5 });
+    const response = await graphqlRequest(qry, 'knowledgeBaseTopics', { page: 1, perPage: 5 });
 
     expect(response.length).toBe(3);
   });
@@ -68,7 +42,7 @@ describe('knowledgeBaseQueries', () => {
   test('Knowledge base topic detail', async () => {
     const knowledgeBaseTopic = await knowledgeBaseTopicFactory();
 
-    const query = `
+    const qry = `
       query knowledgeBaseTopicDetail($_id: String!) {
         knowledgeBaseTopicDetail(_id: $_id) {
           _id
@@ -76,7 +50,7 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'knowledgeBaseTopicDetail', {
+    const response = await graphqlRequest(qry, 'knowledgeBaseTopicDetail', {
       _id: knowledgeBaseTopic._id,
     });
 
@@ -85,15 +59,17 @@ describe('knowledgeBaseQueries', () => {
 
   test('Get total count of knowledge base topic', async () => {
     // Creating test data
-    await generateData({ n: 3, name: 'topic' });
+    await knowledgeBaseTopicFactory();
+    await knowledgeBaseTopicFactory();
+    await knowledgeBaseTopicFactory();
 
-    const query = `
+    const qry = `
       query knowledgeBaseTopicsTotalCount {
         knowledgeBaseTopicsTotalCount
       }
     `;
 
-    const response = await graphqlRequest(query, 'knowledgeBaseTopicsTotalCount');
+    const response = await graphqlRequest(qry, 'knowledgeBaseTopicsTotalCount');
 
     expect(response).toBe(3);
   });
@@ -102,11 +78,9 @@ describe('knowledgeBaseQueries', () => {
     const topic = await knowledgeBaseTopicFactory();
 
     // Creating test data
-    await generateData({
-      n: 3,
-      name: 'category',
-      args: { topicIds: [topic._id] },
-    });
+    await knowledgeBaseCategoryFactory({ topicIds: [topic._id] });
+    await knowledgeBaseCategoryFactory({ topicIds: [topic._id] });
+    await knowledgeBaseCategoryFactory({});
 
     const args = {
       page: 1,
@@ -114,7 +88,7 @@ describe('knowledgeBaseQueries', () => {
       topicIds: topic._id,
     };
 
-    const query = `
+    const qry = `
       query knowledgeBaseCategories(
         $page: Int
         $perPage: Int
@@ -130,9 +104,9 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const responses = await graphqlRequest(query, 'knowledgeBaseCategories', args);
+    const responses = await graphqlRequest(qry, 'knowledgeBaseCategories', args);
 
-    expect(responses.length).toBe(3);
+    expect(responses.length).toBe(2);
   });
 
   test('Knowledge base category detail', async () => {
@@ -140,7 +114,7 @@ describe('knowledgeBaseQueries', () => {
 
     const category = await knowledgeBaseCategoryFactory({ topicIds: [topic._id] });
 
-    const query = `
+    const qry = `
       query knowledgeBaseCategoryDetail($_id: String!) {
         knowledgeBaseCategoryDetail(_id: $_id) {
           _id
@@ -148,7 +122,7 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'knowledgeBaseCategoryDetail', {
+    const response = await graphqlRequest(qry, 'knowledgeBaseCategoryDetail', {
       _id: category._id,
     });
 
@@ -159,34 +133,30 @@ describe('knowledgeBaseQueries', () => {
     const topic = await knowledgeBaseTopicFactory();
 
     // Creating test data
-    await generateData({
-      n: 3,
-      name: 'category',
-      args: { topicIds: [topic._id] },
-    });
+    await knowledgeBaseCategoryFactory({ topicIds: [topic._id] });
+    await knowledgeBaseCategoryFactory({ topicIds: [topic._id] });
+    await knowledgeBaseCategoryFactory();
 
-    const query = `
+    const qry = `
       query knowledgeBaseCategoriesTotalCount($topicIds: [String]) {
         knowledgeBaseCategoriesTotalCount(topicIds: $topicIds)
       }
     `;
 
-    const response = await graphqlRequest(query, 'knowledgeBaseCategoriesTotalCount', {
+    const response = await graphqlRequest(qry, 'knowledgeBaseCategoriesTotalCount', {
       topicIds: topic._id,
     });
 
-    expect(response).toBe(3);
+    expect(response).toBe(2);
   });
 
   test('Knowledge base articles', async () => {
     const category = await knowledgeBaseCategoryFactory();
 
     // Creating test data
-    await generateData({
-      n: 3,
-      name: 'article',
-      args: { categoryIds: [category._id] },
-    });
+    await knowledgeBaseArticleFactory({ categoryIds: [category._id] });
+    await knowledgeBaseArticleFactory({ categoryIds: [category._id] });
+    await knowledgeBaseArticleFactory({});
 
     const args = {
       page: 1,
@@ -194,7 +164,7 @@ describe('knowledgeBaseQueries', () => {
       categoryIds: [category._id],
     };
 
-    const query = `
+    const qry = `
       query knowledgeBaseArticles(
         $page: Int
         $perPage: Int
@@ -210,9 +180,9 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const responses = await graphqlRequest(query, 'knowledgeBaseArticles', args);
+    const responses = await graphqlRequest(qry, 'knowledgeBaseArticles', args);
 
-    expect(responses.length).toBe(3);
+    expect(responses.length).toBe(2);
   });
 
   test('Knowledge base article detail', async () => {
@@ -220,7 +190,7 @@ describe('knowledgeBaseQueries', () => {
 
     const article = await knowledgeBaseArticleFactory({ categoryIds: [category._id] });
 
-    const query = `
+    const qry = `
       query knowledgeBaseArticleDetail($_id: String!) {
         knowledgeBaseArticleDetail(_id: $_id) {
           _id
@@ -228,7 +198,7 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'knowledgeBaseArticleDetail', {
+    const response = await graphqlRequest(qry, 'knowledgeBaseArticleDetail', {
       _id: article._id,
     });
 
@@ -239,22 +209,20 @@ describe('knowledgeBaseQueries', () => {
     const category = await knowledgeBaseCategoryFactory();
 
     // Creating test data
-    await generateData({
-      n: 3,
-      name: 'article',
-      args: { categoryIds: [category._id] },
-    });
+    await knowledgeBaseArticleFactory({ categoryIds: [category._id] });
+    await knowledgeBaseArticleFactory({ categoryIds: [category._id] });
+    await knowledgeBaseArticleFactory({});
 
-    const query = `
+    const qry = `
       query knowledgeBaseArticlesTotalCount($categoryIds: [String]) {
         knowledgeBaseArticlesTotalCount(categoryIds: $categoryIds)
       }
     `;
 
-    const response = await graphqlRequest(query, 'knowledgeBaseArticlesTotalCount', {
+    const response = await graphqlRequest(qry, 'knowledgeBaseArticlesTotalCount', {
       categoryIds: [category._id],
     });
 
-    expect(response).toBe(3);
+    expect(response).toBe(2);
   });
 });

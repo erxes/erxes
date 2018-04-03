@@ -9,20 +9,6 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-const generateData = n => {
-  const promises = [];
-
-  let i = 1;
-
-  while (i <= n) {
-    promises.push(brandFactory());
-
-    i++;
-  }
-
-  return Promise.all(promises);
-};
-
 describe('brandQueries', () => {
   afterEach(async () => {
     // Clearing test data
@@ -35,9 +21,11 @@ describe('brandQueries', () => {
       perPage: 5,
     };
 
-    await generateData(5);
+    await brandFactory();
+    await brandFactory();
+    await brandFactory();
 
-    const query = `
+    const qry = `
       query brands($page: Int $perPage: Int) {
         brands(page: $page perPage: $perPage) {
           _id
@@ -45,13 +33,13 @@ describe('brandQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'brands', args);
+    const response = await graphqlRequest(qry, 'brands', args);
 
-    expect(response.length).toBe(5);
+    expect(response.length).toBe(3);
   });
 
   test('Brand detail', async () => {
-    const query = `
+    const qry = `
       query brandDetail($_id: String!) {
         brandDetail(_id: $_id) {
           _id
@@ -61,27 +49,29 @@ describe('brandQueries', () => {
 
     const brand = await brandFactory();
 
-    const response = await graphqlRequest(query, 'brandDetail', { _id: brand._id });
+    const response = await graphqlRequest(qry, 'brandDetail', { _id: brand._id });
 
     expect(response._id).toBe(brand._id);
   });
 
   test('Get brand total count', async () => {
-    const query = `
+    const qry = `
       query brandsTotalCount {
         brandsTotalCount
       }
     `;
 
-    await generateData(5);
+    await brandFactory();
+    await brandFactory();
+    await brandFactory();
 
-    const brandsCount = await graphqlRequest(query, 'brandsTotalCount');
+    const brandsCount = await graphqlRequest(qry, 'brandsTotalCount');
 
-    expect(brandsCount).toBe(5);
+    expect(brandsCount).toBe(3);
   });
 
   test('Get last brand', async () => {
-    const query = `
+    const qry = `
       query brandsGetLast {
         brandsGetLast {
           _id
@@ -89,11 +79,13 @@ describe('brandQueries', () => {
       }
     `;
 
-    await generateData(4);
+    await brandFactory();
+    await brandFactory();
+    await brandFactory();
 
     const brand = await brandFactory();
 
-    const lastBrand = await graphqlRequest(query, 'brandsGetLast');
+    const lastBrand = await graphqlRequest(qry, 'brandsGetLast');
 
     expect(lastBrand._id).toBe(brand._id);
   });

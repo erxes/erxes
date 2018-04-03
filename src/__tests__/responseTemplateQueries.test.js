@@ -8,20 +8,6 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-const generateData = n => {
-  const promises = [];
-
-  let i = 1;
-
-  while (i <= n) {
-    promises.push(responseTemplateFactory());
-
-    i++;
-  }
-
-  return Promise.all(promises);
-};
-
 describe('responseTemplateQueries', () => {
   afterEach(async () => {
     // Clearing test data
@@ -30,9 +16,11 @@ describe('responseTemplateQueries', () => {
 
   test('Response templates', async () => {
     // Creating test data
-    await generateData(3);
+    await responseTemplateFactory();
+    await responseTemplateFactory();
+    await responseTemplateFactory();
 
-    const query = `
+    const qry = `
       query responseTemplates($page: Int $perPage: Int) {
         responseTemplates(page: $page perPage: $perPage) {
           _id
@@ -40,22 +28,24 @@ describe('responseTemplateQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'responseTemplates', { page: 1, perPage: 5 });
+    const response = await graphqlRequest(qry, 'responseTemplates', { page: 1, perPage: 5 });
 
     expect(response.length).toBe(3);
   });
 
   test('Get total count of response template', async () => {
     // Creating test data
-    await generateData(3);
+    await responseTemplateFactory();
+    await responseTemplateFactory();
+    await responseTemplateFactory();
 
-    const query = `
+    const qry = `
       query responseTemplatesTotalCount {
         responseTemplatesTotalCount
       }
     `;
 
-    const response = await graphqlRequest(query, 'responseTemplatesTotalCount');
+    const response = await graphqlRequest(qry, 'responseTemplatesTotalCount');
 
     expect(response).toBe(3);
   });

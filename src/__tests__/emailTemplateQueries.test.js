@@ -9,20 +9,6 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-const generateData = n => {
-  const promises = [];
-
-  let i = 1;
-
-  while (i <= n) {
-    promises.push(emailTemplateFactory());
-
-    i++;
-  }
-
-  return Promise.all(promises);
-};
-
 describe('emailTemplateQueries', () => {
   afterEach(async () => {
     // Clearing test data
@@ -31,14 +17,16 @@ describe('emailTemplateQueries', () => {
 
   test('Email templates', async () => {
     // Creating test data
-    await generateData(3);
+    await emailTemplateFactory();
+    await emailTemplateFactory();
+    await emailTemplateFactory();
 
     const args = {
       page: 1,
       perPage: 5,
     };
 
-    const query = `
+    const qry = `
       query emailTemplates($page: Int $perPage: Int) {
         emailTemplates(page: $page perPage: $perPage) {
           _id
@@ -46,22 +34,24 @@ describe('emailTemplateQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'emailTemplates', args);
+    const response = await graphqlRequest(qry, 'emailTemplates', args);
 
     expect(response.length).toBe(3);
   });
 
   test('Get email template total count', async () => {
-    const query = `
+    const qry = `
       query emailTemplatesTotalCount {
         emailTemplatesTotalCount
       }
     `;
 
     // Creating test data
-    await generateData(3);
+    await emailTemplateFactory();
+    await emailTemplateFactory();
+    await emailTemplateFactory();
 
-    const response = await graphqlRequest(query, 'emailTemplatesTotalCount');
+    const response = await graphqlRequest(qry, 'emailTemplatesTotalCount');
 
     expect(response).toBe(3);
   });

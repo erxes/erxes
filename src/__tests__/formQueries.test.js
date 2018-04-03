@@ -8,20 +8,6 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-const generateData = n => {
-  const promises = [];
-
-  let i = 1;
-
-  while (i <= n) {
-    promises.push(formFactory({}));
-
-    i++;
-  }
-
-  return Promise.all(promises);
-};
-
 describe('formQueries', () => {
   afterEach(async () => {
     // Clearing test data
@@ -30,14 +16,16 @@ describe('formQueries', () => {
 
   test('Forms', async () => {
     // Creating test data
-    await generateData(3);
+    await formFactory({});
+    await formFactory({});
+    await formFactory({});
 
     const args = {
       page: 1,
       perPage: 5,
     };
 
-    const query = `
+    const qry = `
       query forms($page: Int $perPage: Int) {
         forms(page: $page perPage: $perPage) {
           _id
@@ -45,7 +33,7 @@ describe('formQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'forms', args);
+    const response = await graphqlRequest(qry, 'forms', args);
 
     expect(response.length).toBe(3);
   });
@@ -53,7 +41,7 @@ describe('formQueries', () => {
   test('Form detail', async () => {
     const form = await formFactory({});
 
-    const query = `
+    const qry = `
       query formDetail($_id: String!) {
         formDetail(_id: $_id) {
           _id
@@ -61,22 +49,24 @@ describe('formQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'formDetail', { _id: form._id });
+    const response = await graphqlRequest(qry, 'formDetail', { _id: form._id });
 
     expect(response._id).toBe(form._id);
   });
 
   test('Get total count of form', async () => {
     // Creating test data
-    await generateData(3);
+    await formFactory({});
+    await formFactory({});
+    await formFactory({});
 
-    const query = `
+    const qry = `
       query formsTotalCount {
         formsTotalCount
       }
     `;
 
-    const response = await graphqlRequest(query, 'formsTotalCount');
+    const response = await graphqlRequest(qry, 'formsTotalCount');
 
     expect(response).toBe(3);
   });
