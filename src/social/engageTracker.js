@@ -19,124 +19,109 @@ AWS.config.update({
 const sns = new AWS.SNS();
 const ses = new AWS.SES();
 
-const createTopic = () =>
-  sns
-    .createTopic({
-      Name: AWS_CONFIG_SET,
-    })
-    .promise();
+// export const isVerifiedEmail = async email => {
+//   let isVerified = false;
+//
+//   new Promise(async (resolve, reject) => {
+//     await ses
+//       .listVerifiedEmailAddresses()
+//       .promise()
+//       .then(result => {
+//         const { VerifiedEmailAddresses = [] } = result;
+//
+//         if (VerifiedEmailAddresses.includes(email)) isVerified = true;
+//       });
+//
+//     if (isVerified) resolve(true);
+//     else reject(new Error('Emnail not verified, please verify email'));
+//   });
+// };
 
-const subscribe = topicArn =>
-  sns
-    .subscribe({
-      TopicArn: topicArn,
-      Protocol: 'http',
-      Endpoint: AWS_ENDPOINT,
-    })
-    .promise();
+const handleMessage = async message => {
+  const obj = JSON.parse(message);
 
-const createConfigSet = () =>
-  ses
-    .createConfigurationSet({
-      ConfigurationSet: {
-        Name: AWS_CONFIG_SET,
-      },
-    })
-    .promise();
+  const { eventType, mail } = obj;
+  const { headers } = mail;
 
-const createConfigSetEvent = (configSet, topicArn) =>
-  ses
-    .createConfigurationSetEventDestination({
-      ConfigurationSetName: configSet,
-      EventDestination: {
-        MatchingEventTypes: [
-          'send',
-          'reject',
-          'bounce',
-          'complaint',
-          'delivery',
-          'open',
-          'click',
-          'renderingFailure',
-        ],
-        Name: AWS_CONFIG_SET,
-        Enabled: true,
-        SNSDestination: {
-          TopicARN: topicArn,
-        },
-      },
-    })
-    .promise();
+  const engageMessageId = headers.find(obj => obj.name === 'Engagemessageid');
+  const mailId = headers.find(obj => obj.name === 'Mailmessageid');
 
-const validateType = async message => {
-  const { Type = '', Message = {} } = message;
+  const type = eventType.toLowerCase();
 
-  if (Type === 'SubscriptionConfirmation') {
-    const params = {
-      Token: message.Token,
-      TopicArn: message.TopicArn,
-    };
+  await EngageMessages.updateStats(engageMessageId.value, type);
 
-    sns.confirmSubscription(params, err => {
-      if (err)
-        return console.log('SNS subscription confirmation error', err); // an error occurred
-      else console.log('SNS subscription confirmed successfully'); // successful response
-    });
-  } else {
-    const obj = JSON.parse(Message);
-
-    const { eventType, mail } = obj;
-    const { headers } = mail;
-
-    const engageMessageId = headers.find(obj => obj.name === 'Engagemessageid');
-    const mailId = headers.find(obj => obj.name === 'Mailmessageid');
-
-    const type = eventType.toLowerCase();
-
-    await EngageMessages.updateStats(engageMessageId.value, type);
-
-    await EngageMessages.changeDeliveryReportStatus(engageMessageId.value, mailId.value, type);
-  }
+  await EngageMessages.changeDeliveryReportStatus(engageMessageId.value, mailId.value, type);
 };
 
 const init = () => {
   let topicArn = '';
 
-  createTopic()
+  sns
+    .createTopic({
+      Name: AWS_CONFIG_SET,
+    })
+    .promise()
     .then(result => {
       topicArn = result.TopicArn;
 
-      return subscribe(topicArn);
+      return sns
+        .subscribe({
+          TopicArn: topicArn,
+          Protocol: 'http',
+          Endpoint: AWS_ENDPOINT,
+        })
+        .promise();
     })
     .then(() => {
       console.log('Successfully subscribed to the topic');
 
-      return createConfigSet();
+      return ses
+        .createConfigurationSet({
+          ConfigurationSet: {
+            Name: AWS_CONFIG_SET,
+          },
+        })
+        .promise();
     })
     .catch(error => {
-      if (error.code === 'ConfigurationSetAlreadyExists') console.log('Config set already created');
-      else console.log(error);
+      console.log(error.message);
     })
     .then(() => {
       console.log('Successfully created config set');
 
-      return createConfigSetEvent(AWS_CONFIG_SET, topicArn);
-    })
-    .then(() => {
-      console.log('Successfully created config set event destination');
+      return ses
+        .createConfigurationSetEventDestination({
+          ConfigurationSetName: AWS_CONFIG_SET,
+          EventDestination: {
+            MatchingEventTypes: [
+              'send',
+              'reject',
+              'bounce',
+              'complaint',
+              'delivery',
+              'open',
+              'click',
+              'renderingFailure',
+            ],
+            Name: AWS_CONFIG_SET,
+            Enabled: true,
+            SNSDestination: {
+              TopicARN: topicArn,
+            },
+          },
+        })
+        .promise();
     })
     .catch(error => {
-      if (error.code === 'EventDestinationAlreadyExists')
-        console.log('Event destination already created');
-      else console.log(error);
-    })
-    .catch(error => {
-      console.log(error);
+      console.log(error.message);
     });
 };
 
 export const trackEngages = expressApp => {
   init();
+  // isVerifiedEmail('asd123@gmail.com')
+  // .then(console.log('success'))
+  // .catch(e=> console.log('caught it', e));
 
   expressApp.post(`/service/engage/tracker`, (req, res) => {
     const chunks = [];
@@ -148,16 +133,15 @@ export const trackEngages = expressApp => {
     });
 
     req.on('end', () => {
-      let message;
+      const message = JSON.parse(chunks.join(''));
 
-      try {
-        message = JSON.parse(chunks.join(''));
-      } catch (e) {
-        // catch a JSON parsing error
-        console.log('JSON Parse error', e.message);
+      const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
+
+      if (Type === 'SubscriptionConfirmation') {
+        return sns.confirmSubscription({ Token, TopicArn });
       }
 
-      validateType(message);
+      handleMessage(Message);
     });
 
     res.end('success');

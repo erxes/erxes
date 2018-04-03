@@ -118,23 +118,17 @@ const sendViaEmail = async message => {
     // send email =========
     const transporter = await createTransporter();
 
-    transporter.sendMail(
-      {
-        from: userEmail,
-        to: customer.email,
-        subject: replacedSubject,
-        html: replacedContent,
-        headers: {
-          'X-SES-CONFIGURATION-SET': AWS_CONFIG_SET,
-          EngageMessageId: message._id,
-          MailMessageId: mailMessageId,
-        },
+    transporter.sendMail({
+      from: userEmail,
+      to: customer.email,
+      subject: replacedSubject,
+      html: replacedContent,
+      headers: {
+        'X-SES-CONFIGURATION-SET': AWS_CONFIG_SET,
+        EngageMessageId: message._id,
+        MailMessageId: mailMessageId,
       },
-      /* istanbul ignore next */
-      error => {
-        throw new Error(error);
-      },
-    );
+    });
   }
 };
 

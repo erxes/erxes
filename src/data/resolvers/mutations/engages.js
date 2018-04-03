@@ -2,6 +2,7 @@ import { EngageMessages } from '../../../db/models';
 import { MESSAGE_KINDS } from '../../constants';
 import { send } from './engageUtils';
 import { moduleRequireLogin } from '../../permissions';
+import { isVerifiedEmail } from '../../../social/engageTracker';
 
 const engageMutations = {
   /**
@@ -84,7 +85,11 @@ const engageMutations = {
   async engageMessageSetLiveManual(root, _id) {
     const engageMessage = await EngageMessages.engageMessageSetLive(_id);
 
-    await send(engageMessage);
+    isVerifiedEmail()
+      .then(await send(engageMessage))
+      .catch(e => {
+        throw new Error(e.message);
+      });
 
     return engageMessage;
   },
