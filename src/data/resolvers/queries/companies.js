@@ -72,8 +72,6 @@ const companyQueries = {
   async companyCounts(root, args) {
     const counts = {
       bySegment: {},
-      byBrand: {},
-      byIntegrationType: {},
       byTag: {},
     };
 

@@ -51,6 +51,53 @@ describe('conversationQueries', () => {
     query conversations(${commonParamDefs}) {
       conversations(${commonParams}) {
         _id
+        content
+        integrationId
+        customerId
+        userId
+        assignedUserId
+        participatedUserIds
+        readUserIds
+        createdAt
+        updatedAt
+        status
+        messageCount
+        number
+        tagIds
+        twitterData
+        facebookData
+
+        messages {
+          _id
+          content
+          attachments
+          mentionedUserIds
+          conversationId
+          internal
+          customerId
+          userId
+          createdAt
+          isCustomerRead
+          engageData {
+            messageId
+            brandId
+            content
+            fromUserId
+            kind
+            sentAs
+          }
+          formWidgetData
+          twitterData
+          user { _id }
+          customer { _id }
+        }
+        tags { _id }
+        customer { _id }
+        integration { _id }
+        user { _id }
+        assignedUser { _id }
+        participatedUsers { _id }
+        participatorCount
       }
     }
   `;
@@ -645,178 +692,10 @@ describe('conversationQueries', () => {
 
   test('Get last conversation by channel', async () => {
     await conversationFactory({ integrationId: integration._id });
-
+    await conversationFactory({ integrationId: integration._id });
     const conversation = await conversationFactory({ integrationId: integration._id });
-    const integration1 = await integrationFactory({});
 
-    await conversationFactory({ integrationId: integration1._id });
-    await conversationFactory({ integrationId: integration1._id });
-
-    const response = await graphqlRequest(
-      qryGetLast,
-      'conversationsGetLast',
-      { channelId: channel._id },
-      { user },
-    );
-
-    expect(response._id).toBe(conversation._id);
-  });
-
-  test('Get last conversation by brand', async () => {
-    await conversationFactory({ integrationId: integration._id });
-    const brand = await conversationFactory({ integrationId: integration._id });
-
-    const response = await graphqlRequest(
-      qryGetLast,
-      'conversationsGetLast',
-      { brandId: brand._id },
-      { user },
-    );
-
-    expect(response._id).toBe(brand._id);
-  });
-
-  test('Get last conversation by unassigned', async () => {
-    await conversationFactory({
-      integrationId: integration._id,
-      assignedUserId: user._id,
-    });
-
-    await conversationFactory({
-      integrationId: integration._id,
-      assignedUserId: user._id,
-    });
-
-    await conversationFactory({
-      integrationId: integration._id,
-      assignedUserId: user._id,
-    });
-
-    const conversation = await conversationFactory({
-      integrationId: integration._id,
-    });
-
-    const response = await graphqlRequest(
-      qryGetLast,
-      'conversationsGetLast',
-      { unassigned: 'true' },
-      { user },
-    );
-
-    expect(response._id).toBe(conversation._id);
-  });
-
-  test('Get last conversation by participting', async () => {
-    await conversationFactory({ integrationId: integration._id });
-    await conversationFactory({ integrationId: integration._id });
-    await conversationFactory({ integrationId: integration._id });
-
-    const conversation = await conversationFactory({
-      integrationId: integration._id,
-      participatedUserIds: [user._id],
-    });
-
-    const response = await graphqlRequest(
-      qryGetLast,
-      'conversationsGetLast',
-      { participating: 'true' },
-      { user },
-    );
-
-    expect(response._id).toBe(conversation._id);
-  });
-
-  test('Get last conversation by starred', async () => {
-    await conversationFactory({ integrationId: integration._id });
-    await conversationFactory({ integrationId: integration._id });
-    await conversationFactory({ integrationId: integration._id });
-
-    const conversation = await conversationFactory({
-      integrationId: integration._id,
-    });
-
-    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
-
-    const updatedUser = await Users.findOne({ _id: user._id });
-
-    const response = await graphqlRequest(
-      qryGetLast,
-      'conversationsGetLast',
-      { starred: 'true' },
-      { user: updatedUser },
-    );
-
-    expect(response._id).toBe(conversation._id);
-  });
-
-  test('Get last conversations by status', async () => {
-    await conversationFactory({
-      integrationId: integration._id,
-      status: 'closed',
-    });
-
-    await conversationFactory({
-      integrationId: integration._id,
-      status: 'closed',
-    });
-
-    const conversation = await conversationFactory({
-      integrationId: integration._id,
-      status: 'closed',
-    });
-
-    const response = await graphqlRequest(
-      qryGetLast,
-      'conversationsGetLast',
-      { status: 'closed' },
-      { user },
-    );
-
-    expect(response._id).toBe(conversation._id);
-  });
-
-  test('Get last conversations by integration type', async () => {
-    await conversationFactory({ integrationId: integration._id });
-    await conversationFactory({ integrationId: integration._id });
-
-    const conversation = await conversationFactory({
-      integrationId: integration._id,
-    });
-
-    const response = await graphqlRequest(
-      qryGetLast,
-      'conversationsGetLast',
-      { integrationType: 'messenger' },
-      { user },
-    );
-
-    expect(response._id).toBe(conversation._id);
-  });
-
-  test('Get last conversations by tag', async () => {
-    const tag = await tagsFactory({ type: 'conversation' });
-
-    await conversationFactory({
-      integrationId: integration._id,
-      tagIds: [tag._id],
-    });
-
-    await conversationFactory({
-      integrationId: integration._id,
-      tagIds: [tag._id],
-    });
-
-    const conversation = await conversationFactory({
-      integrationId: integration._id,
-      tagIds: [tag._id],
-    });
-
-    const response = await graphqlRequest(
-      qryGetLast,
-      'conversationsGetLast',
-      { tag: tag._id },
-      { user },
-    );
+    const response = await graphqlRequest(qryGetLast, 'conversationsGetLast', {}, { user });
 
     expect(response._id).toBe(conversation._id);
   });

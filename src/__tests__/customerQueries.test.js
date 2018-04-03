@@ -125,6 +125,7 @@ describe('customerQueries', () => {
 
   test('Customers filtered by segment', async () => {
     await customerFactory({ firstName });
+    await customerFactory({});
 
     const args = {
       contentType: 'customer',

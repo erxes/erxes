@@ -129,6 +129,7 @@ describe('integrationQueries', () => {
   test('Integrations filtered by search value', async () => {
     // default value of kind is 'messenger' in factory
     await integrationFactory({ name });
+    await integrationFactory({});
 
     const responses = await graphqlRequest(qryIntegrations, 'integrations', { searchValue: name });
 
