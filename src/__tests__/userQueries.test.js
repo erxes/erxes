@@ -20,6 +20,7 @@ describe('userQueries', () => {
     await userFactory({});
     await userFactory({});
     await userFactory({});
+    await userFactory({});
 
     const qry = `
       query users($page: Int $perPage: Int) {
@@ -32,7 +33,7 @@ describe('userQueries', () => {
     const response = await graphqlRequest(qry, 'users', { page: 1, perPage: 2 });
 
     // 1 in graphRequest + above 3
-    expect(response.length).toBe(3);
+    expect(response.length).toBe(2);
   });
 
   test('User detail', async () => {

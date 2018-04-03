@@ -115,15 +115,16 @@ describe('conversationQueries', () => {
   });
 
   test('Conversations filtered by ids', async () => {
-    await conversationFactory();
-    await conversationFactory();
+    const conversation1 = await conversationFactory();
+    const conversation2 = await conversationFactory();
+    const conversation3 = await conversationFactory();
+
     await conversationFactory();
     await conversationFactory();
 
-    const conversations = await Conversations.find({});
-    const ids = conversations.map(conversation => conversation._id);
+    const ids = [conversation1._id, conversation2._id, conversation3._id];
 
-    const responses = await graphqlRequest(qryConversations, 'conversations', { ids, limit: 3 });
+    const responses = await graphqlRequest(qryConversations, 'conversations', { ids });
 
     expect(responses.length).toBe(3);
   });
