@@ -2,8 +2,8 @@
 /* eslint-disable no-underscore-dangle */
 
 import faker from 'faker';
+import sinon from 'sinon';
 import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { sendEmailCb } from '../data/resolvers/mutations/engageUtils';
 import {
   EngageMessages,
   Users,
@@ -28,6 +28,7 @@ import {
   conversationFactory,
   conversationMessageFactory,
 } from '../db/factories';
+import { awsRequests } from '../social/engageTracker.js';
 
 beforeAll(() => connect());
 
@@ -173,6 +174,22 @@ describe('engage message mutation tests', () => {
       }
     `;
 
+    try {
+      await graphqlRequest(mutation, 'engageMessageAdd', _doc, context);
+    } catch (e) {
+      expect(JSON.parse(JSON.stringify(e))[0].message).toBe('Email not verified');
+    }
+
+    const user = await Users.findOne({ _id: _doc.fromUserId });
+
+    const sandbox = sinon.sandbox.create();
+
+    sandbox.stub(awsRequests, 'getVerifiedEmails').callsFake(() => {
+      return new Promise(resolve => {
+        return resolve({ VerifiedEmailAddresses: [user.email] });
+      });
+    });
+
     const engageMessage = await graphqlRequest(mutation, 'engageMessageAdd', _doc, context);
 
     const tags = engageMessage.getTags.map(tag => tag._id);
@@ -194,6 +211,7 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.segment._id).toBe(_doc.segmentId);
     expect(engageMessage.fromUser._id).toBe(_doc.fromUserId);
     expect(engageMessage.tagIds).toEqual(_doc.tagIds);
+    awsRequests.getVerifiedEmails.restore();
   });
 
   test('Edit engage message', async () => {
@@ -301,9 +319,6 @@ describe('engage message mutation tests', () => {
         }
       }
     `;
-
-    const mailMessageId = faker.random.number();
-    await sendEmailCb(_message._id, mailMessageId);
 
     const engageMessage = await graphqlRequest(
       mutation,

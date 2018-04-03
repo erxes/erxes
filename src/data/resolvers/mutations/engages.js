@@ -2,7 +2,7 @@ import { EngageMessages, Users } from '../../../db/models';
 import { MESSAGE_KINDS } from '../../constants';
 import { send } from './engageUtils';
 import { moduleRequireLogin } from '../../permissions';
-import { verifiedEmails } from '../../../social/engageTracker';
+import { awsRequests } from '../../../social/engageTracker';
 
 const engageMutations = {
   /**
@@ -32,7 +32,7 @@ const engageMutations = {
     const { fromUserId } = doc;
     const user = await Users.findOne({ _id: fromUserId });
 
-    return verifiedEmails().then(async result => {
+    return awsRequests.getVerifiedEmails().then(async result => {
       const { VerifiedEmailAddresses = [] } = result;
 
       // If verified creates engagemessage

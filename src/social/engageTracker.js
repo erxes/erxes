@@ -18,12 +18,6 @@ const getApi = type => {
   return new AWS.SNS();
 };
 
-export const verifiedEmails = () => {
-  return getApi('ses')
-    .listVerifiedEmailAddresses()
-    .promise();
-};
-
 const handleMessage = async message => {
   const obj = JSON.parse(message);
 
@@ -136,4 +130,12 @@ export const trackEngages = expressApp => {
 
     res.end('success');
   });
+};
+
+export const awsRequests = {
+  getVerifiedEmails() {
+    return getApi('ses')
+      .listVerifiedEmailAddresses()
+      .promise();
+  },
 };
