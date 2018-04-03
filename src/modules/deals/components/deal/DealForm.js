@@ -38,7 +38,7 @@ const propTypes = {
   deal: PropTypes.object,
   saveDeal: PropTypes.func.isRequired,
   removeDeal: PropTypes.func.isRequired,
-  moveDeal: PropTypes.func.isRequired,
+  moveDeal: PropTypes.func,
   stageId: PropTypes.string,
   users: PropTypes.array,
   length: PropTypes.number,
