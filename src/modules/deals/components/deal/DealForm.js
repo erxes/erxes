@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Datetime from 'react-datetime';
 import Select from 'react-select-plus';
 import {
+  DataWithLoader,
   Button,
   ModalTrigger,
   Icon,
@@ -13,11 +14,14 @@ import {
   TabTitle
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
+import { ActivityList } from 'modules/activityLogs/components';
 import { Sidebar } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
 import { Alert } from 'modules/common/utils';
-import { CompanyChooser } from 'modules/companies/containers';
-import { CustomerChooser } from 'modules/customers/containers';
+import { CompanySection } from 'modules/companies/components';
+import { CustomerSection } from 'modules/customers/components';
+import { hasAnyActivity } from 'modules/customers/utils';
+import { DealMove } from '../../containers';
 import { ProductForm, ItemCounter } from '../';
 import { selectUserOptions } from '../../utils';
 import {
@@ -33,13 +37,20 @@ import {
 const propTypes = {
   deal: PropTypes.object,
   saveDeal: PropTypes.func.isRequired,
+  removeDeal: PropTypes.func.isRequired,
+  moveDeal: PropTypes.func.isRequired,
   stageId: PropTypes.string,
   users: PropTypes.array,
-  length: PropTypes.number
+  length: PropTypes.number,
+  dealActivityLog: PropTypes.array,
+  loadingLogs: PropTypes.bool
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
+  currentUser: PropTypes.object,
+  boardId: PropTypes.string,
+  pipelineId: PropTypes.string,
   __: PropTypes.func
 };
 
@@ -47,6 +58,7 @@ class DealForm extends React.Component {
   constructor(props) {
     super(props);
 
+    this.onTabClick = this.onTabClick.bind(this);
     this.onChangeCompany = this.onChangeCompany.bind(this);
     this.onChangeCustomer = this.onChangeCustomer.bind(this);
     this.onDateInputChange = this.onDateInputChange.bind(this);
@@ -55,22 +67,28 @@ class DealForm extends React.Component {
     this.onChangeUsers = this.onChangeUsers.bind(this);
     this.saveProductsData = this.saveProductsData.bind(this);
     this.save = this.save.bind(this);
+    this.copy = this.copy.bind(this);
 
     const deal = props.deal || {};
 
     this.state = {
       disabled: false,
+      currentTab: 'activity',
       amount: deal.amount || {},
       // Deal datas
       companies: deal.companies || [],
       customers: deal.customers || [],
       closeDate: deal.closeDate,
-      note: deal.note || '',
+      description: deal.description || '',
       productsData: deal.products ? deal.products.map(p => ({ ...p })) : [],
       // collecting data for ItemCounter component
       products: deal.products ? deal.products.map(p => p.product) : [],
       assignedUserIds: (deal.assignedUsers || []).map(user => user._id)
     };
+  }
+
+  onTabClick(currentTab) {
+    this.setState({ currentTab });
   }
 
   onChangeCompany(companies) {
@@ -91,10 +109,6 @@ class DealForm extends React.Component {
 
   onChangeProducts(products) {
     this.setState({ products });
-  }
-
-  onChangeNote(e) {
-    this.setState({ note: e.target.value });
   }
 
   onChangeUsers(users) {
@@ -129,21 +143,22 @@ class DealForm extends React.Component {
     this.setState({ productsData: filteredProductsData, products, amount });
   }
 
-  save(e) {
-    e.preventDefault();
-
+  save() {
     const { deal, stageId, length } = this.props;
     const {
       companies,
       customers,
       closeDate,
       productsData,
-      note,
       assignedUserIds
     } = this.state;
     const { __ } = this.context;
 
     const name = document.getElementById('name').value;
+
+    if (!name) {
+      return Alert.error(__('Enter name'));
+    }
 
     let doc = {
       name,
@@ -162,8 +177,9 @@ class DealForm extends React.Component {
         companyIds: companies.map(company => company._id),
         customerIds: customers.map(customer => customer._id),
         closeDate: closeDate ? new Date(closeDate) : null,
-        note,
+        description: document.getElementById('description').value,
         productsData,
+        stageId: deal.stageId,
         assignedUserIds
       };
     }
@@ -181,6 +197,20 @@ class DealForm extends React.Component {
       },
       this.props.deal
     );
+  }
+
+  copy() {
+    const { deal } = this.props;
+
+    // copied doc
+    const doc = {
+      ...deal,
+      assignedUserIds: deal.assignedUsers.map(user => user._id),
+      companyIds: deal.companies.map(company => company._id),
+      customerIds: deal.customers.map(customer => customer._id)
+    };
+
+    this.props.saveDeal(doc, () => this.context.closeModal());
   }
 
   renderProductModal(productsData, products) {
@@ -209,52 +239,6 @@ class DealForm extends React.Component {
     );
   }
 
-  renderCompanyModal(companies) {
-    const { __ } = this.context;
-
-    const companyTrigger = (
-      <DealButton>
-        {__('Choose a company')} <Icon icon="plus" />
-      </DealButton>
-    );
-
-    return (
-      <ModalTrigger
-        size="large"
-        title="Select company"
-        trigger={companyTrigger}
-      >
-        <CompanyChooser
-          data={{ firstName: 'Deal', companies }}
-          onSelect={this.onChangeCompany}
-        />
-      </ModalTrigger>
-    );
-  }
-
-  renderCustomerModal(customers) {
-    const { __ } = this.context;
-
-    const customerTrigger = (
-      <DealButton>
-        {__('Choose a customer')} <Icon icon="plus" />
-      </DealButton>
-    );
-
-    return (
-      <ModalTrigger
-        size="large"
-        title="Select customer"
-        trigger={customerTrigger}
-      >
-        <CustomerChooser
-          data={{ name: 'Deal', customers }}
-          onSelect={this.onChangeCustomer}
-        />
-      </ModalTrigger>
-    );
-  }
-
   renderAmount(amount) {
     if (Object.keys(amount).length === 0) return null;
 
@@ -272,72 +256,156 @@ class DealForm extends React.Component {
     );
   }
 
+  renderTabContent() {
+    const { currentTab } = this.state;
+    const { dealActivityLog, deal, loadingLogs } = this.props;
+    const { currentUser } = this.context;
+
+    return (
+      <div
+        style={
+          !hasAnyActivity(dealActivityLog)
+            ? { position: 'relative', height: '400px' }
+            : {}
+        }
+      >
+        <DataWithLoader
+          loading={loadingLogs}
+          count={!loadingLogs && hasAnyActivity(dealActivityLog) ? 1 : 0}
+          data={
+            <ActivityList
+              user={currentUser}
+              activities={dealActivityLog}
+              target={deal.name}
+              type={currentTab} //show logs filtered by type
+            />
+          }
+          emptyText="No Activities"
+          emptyImage="/images/robots/robot-03.svg"
+        />
+      </div>
+    );
+  }
+
   renderTab() {
     const { deal } = this.props;
+    const { currentTab } = this.state;
     const { __ } = this.context;
 
     return (
-      <WhiteBox>
-        <Tabs>
-          <TabTitle className="active">
-            <Icon icon="compose" /> {__('New note')}
-          </TabTitle>
-        </Tabs>
+      <Left>
+        <div>
+          <WhiteBox>
+            <Tabs>
+              <TabTitle className="active">
+                <Icon icon="compose" /> {__('New note')}
+              </TabTitle>
+            </Tabs>
 
-        <NoteForm contentType="deal" contentTypeId={deal._id} />
-      </WhiteBox>
+            <NoteForm contentType="deal" contentTypeId={deal._id} />
+          </WhiteBox>
+          <Tabs grayBorder>
+            <TabTitle
+              className={currentTab === 'activity' ? 'active' : ''}
+              onClick={() => this.onTabClick('activity')}
+            >
+              {__('Activity')}
+            </TabTitle>
+            <TabTitle
+              className={currentTab === 'notes' ? 'active' : ''}
+              onClick={() => this.onTabClick('notes')}
+            >
+              {__('Notes')}
+            </TabTitle>
+          </Tabs>
+
+          {this.renderTabContent()}
+        </div>
+      </Left>
     );
   }
 
   renderSidebar() {
-    return <Sidebar />;
+    const { customers, companies } = this.state;
+    const { deal } = this.props;
+
+    return (
+      <Right>
+        <Sidebar>
+          <CompanySection
+            name="Deal"
+            companies={companies}
+            onSelect={this.onChangeCompany}
+          />
+
+          <CustomerSection
+            name="Deal"
+            customers={customers}
+            onSelect={this.onChangeCustomer}
+          />
+
+          <Button onClick={this.copy} icon="android-folder-open">
+            Copy
+          </Button>
+
+          <Button
+            icon="android-delete"
+            onClick={() => this.props.removeDeal(deal._id)}
+          >
+            Delete
+          </Button>
+        </Sidebar>
+      </Right>
+    );
+  }
+
+  renderDealMove() {
+    const { deal, moveDeal } = this.props;
+    const { boardId, pipelineId } = this.context;
+
+    return (
+      <DealMove
+        deal={deal}
+        boardId={boardId}
+        pipelineId={pipelineId}
+        moveDeal={moveDeal}
+      />
+    );
   }
 
   renderFormContent() {
     const { deal, users } = this.props;
     const {
-      companies,
-      customers,
       assignedUserIds,
       closeDate,
       products,
       productsData,
-      amount,
-      note,
-      name
+      amount
     } = this.state;
     const { __ } = this.context;
 
-    const nameField = (
+    const nameField = name => (
       <FormGroup>
         <ControlLabel>Name</ControlLabel>
-        <FormControl id="name" value={name} required />
+        <FormControl id="name" defaultValue={name || ''} required />
       </FormGroup>
     );
 
     // When add, only show name
-    if (!deal) return nameField;
+    if (!deal) return nameField();
+
+    const { name, description } = deal;
 
     return (
       <div>
-        {nameField}
+        {this.renderDealMove()}
+
+        {nameField(name)}
 
         {this.renderProductModal(productsData, products)}
 
         <FormGroup>
           <ItemCounter items={products} show />
-        </FormGroup>
-
-        {this.renderCompanyModal(companies)}
-
-        <FormGroup>
-          <ItemCounter items={companies} show />
-        </FormGroup>
-
-        {this.renderCustomerModal(customers)}
-
-        <FormGroup>
-          <ItemCounter items={customers} show />
         </FormGroup>
 
         {this.renderAmount(amount)}
@@ -355,11 +423,11 @@ class DealForm extends React.Component {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Note</ControlLabel>
+          <ControlLabel>Description</ControlLabel>
           <FormControl
+            id="description"
             componentClass="textarea"
-            value={note}
-            onChange={this.onChangeNote.bind(this)}
+            defaultValue={description}
           />
         </FormGroup>
 
@@ -381,8 +449,8 @@ class DealForm extends React.Component {
         </FormGroup>
 
         <FormBody>
-          <Left>{this.renderTab()}</Left>
-          <Right>{this.renderSidebar()}</Right>
+          {this.renderTab()}
+          {this.renderSidebar()}
         </FormBody>
       </div>
     );
@@ -390,7 +458,7 @@ class DealForm extends React.Component {
 
   render() {
     return (
-      <FormContainer onSubmit={e => this.save(e)}>
+      <FormContainer>
         {this.renderFormContent()}
 
         <FormFooter>
@@ -407,6 +475,7 @@ class DealForm extends React.Component {
             btnStyle="success"
             icon="checkmark"
             type="submit"
+            onClick={this.save}
           >
             Save
           </Button>

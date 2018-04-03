@@ -52,6 +52,7 @@ class Stage extends React.Component {
           stageId={stage._id}
           length={deals.length}
           saveDeal={this.props.saveDeal}
+          removeDeal={this.props.removeDeal}
         />
       </ModalTrigger>
     );

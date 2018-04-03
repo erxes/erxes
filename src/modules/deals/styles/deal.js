@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { colors, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-import { coreHeight, stageWidth } from './deminsions';
+import { coreHeight } from './deminsions';
 
 const AddNew = styled.a`
   display: block;
@@ -51,7 +51,6 @@ const Container = styled.div`
   border-radius: 5px;
   border: 1px solid ${colors.borderPrimary};
   background-color: ${colors.bgLight};
-  position: relative;
   transition: box-shadow 0.3s ease-in-out;
   box-shadow: ${props =>
     props.isDragging
@@ -100,7 +99,7 @@ const FormAmount = styled.div`
   }
 `;
 
-const FormContainer = styled.form`
+const FormContainer = styled.div`
   padding: 20px;
   border-radius: 5px;
   border: 1px dashed ${colors.colorShadowGray};
@@ -144,60 +143,13 @@ const Button = styled.div`
   }
 `;
 
-const EditContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 70px;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  background: ${rgba(colors.colorCoreDarkGray, 0.5)};
-
-  > div {
-    position: absolute;
-    top: ${props => props.top && `${props.top}px`};
-    bottom: 10px;
-    left: ${props => `${props.left - 70}px`};
-
-    ${FormContainer} {
-      float: left;
-      width: ${stageWidth - 30}px;
-      overflow: auto;
-      max-height: 100%;
-    }
-  }
-`;
-
-const MoveFormContainer = styled.div`
-  position: absolute;
-  top: 32px;
-  left: ${stageWidth - 20}px;
-  background: ${colors.colorWhite};
-  width: 240px;
-  padding: 20px;
-`;
-
-const RightControls = styled.div`
-  float: left;
-  margin-left: 10px;
-
-  button {
-    display: block;
-    background: ${rgba(colors.colorCoreDarkGray, 0.9)};
-    margin: 0 0 10px 0;
-    color: ${colors.colorWhite};
-    text-transform: none;
-  }
-`;
-
 const FormFooter = styled.div`
   text-align: right;
   margin-top: 20px;
 `;
 
 const Footer = styled.div`
-  tion: relative;
-  ing-right: 40px;
+  position: relative;
 `;
 
 const FormBody = styled.div`
@@ -206,11 +158,71 @@ const FormBody = styled.div`
 
 const Left = styled.div`
   display: flex;
+  flex: 1;
+  margin-right: 20px;
+  > div {
+    width: 100%;
+  }
 `;
 
 const Right = styled.div`
   display: flex;
   width: 300px;
+
+  button {
+    width: 100%;
+    margin-bottom: 20px;
+    margin-left: 0;
+    padding: 15px;
+    background: ${colors.colorWhite};
+    color: ${colors.textPrimary};
+    text-align: left;
+    border-radius: 0;
+    text-transform: none;
+    font-weight: 500px;
+    font-size: 13px;
+    &:hover {
+      color: ${colors.textPrimary};
+    }
+  }
+`;
+
+const MoveContainer = styled.div`
+  display: flex;
+  margin-bottom: 20px;
+`;
+
+const MoveFormContainer = styled.div`
+  float: left;
+  margin: 12px 100px 0 0;
+  position: relative;
+  form {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 300px;
+    padding: 20px;
+    z-index: 100;
+    background: ${colors.colorWhite};
+  }
+`;
+
+const Stages = styled.ul`
+  float: left;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+`;
+
+const StageItem = styled.li`
+  float: left;
+  padding-right: 100px;
+  i {
+    font-size: 30px;
+    color: ${props =>
+      props.isPass ? colors.colorCoreTeal : colors.colorShadowGray};
+  }
 `;
 
 export {
@@ -226,9 +238,10 @@ export {
   FormContainer,
   MoveFormContainer,
   FormFooter,
-  EditContainer,
-  RightControls,
   FormBody,
   Left,
-  Right
+  Right,
+  MoveContainer,
+  Stages,
+  StageItem
 };

@@ -40,7 +40,7 @@ class Deal extends React.Component {
 
     return (
       <div>
-        <span>{deal.name}</span>
+        <h4>{deal.name}</h4>
         <ItemCounter items={products} />
         <ItemCounter color="#F7CE53" items={deal.companies || []} />
         <ItemCounter color="#3CCC38" items={deal.customers || []} />

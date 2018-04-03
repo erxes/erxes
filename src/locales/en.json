@@ -560,6 +560,7 @@
   "Note": "Note",
   "Assigned to": "Assigned to",
   "Move": "Move",
+  "Move deal": "Move deal",
   "Copy": "Copy",
   "Close date": "Close date",
   "Choose product & service": "Choose product & service",
@@ -584,6 +585,8 @@
   "Edit pipeline": "Edit pipeline",
   "Add stage": "Add stage",
   "Board": "Board",
+  "Pipeline": "Pipeline",
+  "Stage": "Stage",
   "Add a deal": "Add a deal",
   "Edit deal": "Edit deal",
   "Add Product / Service": "Add Product / Service",
@@ -626,5 +629,6 @@
   "Thank you.": "Thank you.",
   "Choose brand": "Choose brand",
   "Write title": "Write title",
-  "Contact": "Contact"
+  "Contact": "Contact",
+  "Enter name": "Enter name"
 }

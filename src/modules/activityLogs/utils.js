@@ -36,6 +36,10 @@ const ICON_AND_COLOR_TABLE = {
   'company-create': {
     icon: 'android-bar',
     color: '#6569DF'
+  },
+  'deal-create': {
+    icon: 'android-bar',
+    color: '#6569DF'
   }
 };
 
@@ -78,8 +82,9 @@ export default class {
 
       const iconAndColor = this._getIconAndColor(item.action);
       const hasContent =
-        !['company-create', 'customer-create'].includes(item.action) &&
-        item.content !== '[object Object]';
+        !['company-create', 'deal-create', 'customer-create'].includes(
+          item.action
+        ) && item.content !== '[object Object]';
 
       const caption = this._getCaption({
         action: item.action,
@@ -161,16 +166,13 @@ export default class {
         );
         break;
 
-      case 'company-create':
+      default:
         caption = (
           <span>
             {source} created {target}
           </span>
         );
         break;
-
-      default:
-        caption = action;
     }
 
     return caption;

@@ -12,7 +12,7 @@ import {
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
-import CustomerSection from './CustomerSection';
+import { CustomerAssociate } from 'modules/customers/containers';
 import { DealSection } from 'modules/deals/components';
 import { hasAnyActivity } from 'modules/customers/utils';
 
@@ -86,7 +86,7 @@ class CompanyDetails extends React.Component {
 
     const rightSidebar = (
       <Sidebar>
-        <CustomerSection company={company} />
+        <CustomerAssociate data={company} />
         <DealSection deals={company.deals || []} />
       </Sidebar>
     );

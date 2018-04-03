@@ -40,6 +40,7 @@ const stages = `
     dealStages(pipelineId: $pipelineId) {
       _id
       name
+      order
     }
   }
 `;
@@ -72,6 +73,7 @@ const dealDetail = `
       companies {
         _id
         name
+        website
       }
       customers {
         _id
@@ -117,6 +119,31 @@ const users = `
   }
 `;
 
+const activityLogsDeal = `
+  query activityLogsDeal($_id: String!) {
+    activityLogsDeal(_id: $_id) {
+      date {
+        year
+        month
+      }
+      list {
+        id
+        action
+        content
+        createdAt
+        by {
+          _id
+          type
+          details {
+            avatar
+            fullName
+          }
+        }
+      }
+    }
+  }
+`;
+
 export default {
   boards,
   boardGetDefault,
@@ -127,5 +154,6 @@ export default {
   deals,
   dealDetail,
   productDetail,
-  users
+  users,
+  activityLogsDeal
 };

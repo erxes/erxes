@@ -3,8 +3,7 @@ import Pipeline from './Pipeline';
 import Stage from './Stage';
 import Deal from './deal/Deal';
 import DealForm from './deal/DealForm';
-import DealEdit from './deal/DealEdit';
-import DealMoveForm from './deal/DealMoveForm';
+import DealMove from './deal/DealMove';
 import ProductForm from './product/ProductForm';
 import ProductItemForm from './product/ProductItemForm';
 import ItemCounter from './common/ItemCounter';
@@ -18,11 +17,10 @@ export {
   Stage,
   Deal,
   DealForm,
-  DealEdit,
   ItemCounter,
   CommonDeal,
   UserCounter,
-  DealMoveForm,
+  DealMove,
   ProductForm,
   ProductItemForm,
   DealSection
