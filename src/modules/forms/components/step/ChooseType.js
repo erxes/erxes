@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
+import {
+  EmbeddedPreview,
+  PopupPreview,
+  ShoutboxPreview,
+  DropdownPreview,
+  SlideLeftPreview,
+  SlideRightPreview
+} from './preview';
 import { FormGroup, ControlLabel } from 'modules/common/components';
 import { dimensions, colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
@@ -47,7 +54,7 @@ const propTypes = {
   type: PropTypes.string,
   onChange: PropTypes.func,
   title: PropTypes.string,
-  btnText: PropTypes.string,
+  formBtnText: PropTypes.string,
   bodyValue: PropTypes.string,
   color: PropTypes.string
 };
@@ -90,6 +97,18 @@ class ChooseType extends Component {
       return <PopupPreview {...this.props} />;
     }
 
+    if (type === 'dropdown') {
+      return <DropdownPreview {...this.props} />;
+    }
+
+    if (type === 'slidein-left') {
+      return <SlideLeftPreview {...this.props} />;
+    }
+
+    if (type === 'slidein-right') {
+      return <SlideRightPreview {...this.props} />;
+    }
+
     return <EmbeddedPreview {...this.props} />;
   }
 
@@ -103,19 +122,36 @@ class ChooseType extends Component {
           <BoxRow>
             {this.renderBox(
               'ShoutBox',
-              '/images/icons/shoutbox.svg',
+              '/images/icons/icon-01.svg',
               'shoutbox'
             )}
-            {this.renderBox('Popup', '/images/icons/expand.svg', 'popup')}
+            {this.renderBox('Popup', '/images/icons/icon-02.svg', 'popup')}
           </BoxRow>
 
-          <BoxRow type="odd">
+          <BoxRow>
             {this.renderBox(
               'Embedded',
-              '/images/icons/computer.svg',
+              '/images/icons/icon-03.svg',
               'embedded'
             )}
-            <div />
+            {this.renderBox(
+              'Dropdown',
+              '/images/icons/icon-04.svg',
+              'dropdown'
+            )}
+          </BoxRow>
+
+          <BoxRow>
+            {this.renderBox(
+              'Slide-in Left',
+              '/images/icons/icon-05.svg',
+              'slidein-left'
+            )}
+            {this.renderBox(
+              'Slide-in Right',
+              '/images/icons/icon-06.svg',
+              'slidein-right'
+            )}
           </BoxRow>
         </LeftItem>
         <Preview>{this.renderPreview()}</Preview>

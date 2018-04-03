@@ -7,7 +7,14 @@ import {
   Button,
   ControlLabel
 } from 'modules/common/components';
-import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
+import {
+  EmbeddedPreview,
+  PopupPreview,
+  ShoutboxPreview,
+  DropdownPreview,
+  SlideLeftPreview,
+  SlideRightPreview
+} from './preview';
 import { colors, dimensions } from 'modules/common/styles';
 import { FlexItem, LeftItem, Preview } from './style';
 
@@ -50,11 +57,10 @@ const Footer = styled.div`
 const propTypes = {
   type: PropTypes.string,
   calloutTitle: PropTypes.string,
-  btnText: PropTypes.string,
+  formBtnText: PropTypes.string,
   bodyValue: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
-  image: PropTypes.string,
   onChange: PropTypes.func,
   fields: PropTypes.array
 };
@@ -74,6 +80,7 @@ class FormStep extends Component {
     };
 
     this.onChangeFunction = this.onChangeFunction.bind(this);
+    this.onChangeState = this.onChangeState.bind(this);
     this.onChangeType = this.onChangeType.bind(this);
 
     this.footerActions = this.footerActions.bind(this);
@@ -96,6 +103,11 @@ class FormStep extends Component {
 
   onChangeFunction(name, value) {
     this.setChanges(name, value);
+  }
+
+  onChangeState(name, value) {
+    this.setState({ [name]: value });
+    this.props.onChange(name, value);
   }
 
   onSubmit(e) {
@@ -146,6 +158,36 @@ class FormStep extends Component {
     if (type === 'popup') {
       return (
         <PopupPreview
+          {...this.props}
+          fields={this.state.fields}
+          onFieldEdit={this.onFieldEdit}
+        />
+      );
+    }
+
+    if (type === 'dropdown') {
+      return (
+        <DropdownPreview
+          {...this.props}
+          fields={this.state.fields}
+          onFieldEdit={this.onFieldEdit}
+        />
+      );
+    }
+
+    if (type === 'slidein-left') {
+      return (
+        <SlideLeftPreview
+          {...this.props}
+          fields={this.state.fields}
+          onFieldEdit={this.onFieldEdit}
+        />
+      );
+    }
+
+    if (type === 'slidein-right') {
+      return (
+        <SlideRightPreview
           {...this.props}
           fields={this.state.fields}
           onFieldEdit={this.onFieldEdit}
@@ -322,6 +364,15 @@ class FormStep extends Component {
         </FormGroup>
 
         {this.renderOptionsTextArea()}
+
+        <FormGroup>
+          <ControlLabel>Form button text</ControlLabel>
+          <FormControl
+            id="form-btn-text"
+            value={this.props.formBtnText}
+            onChange={e => this.onChangeState('formBtnText', e.target.value)}
+          />
+        </FormGroup>
       </Fields>
     );
   }

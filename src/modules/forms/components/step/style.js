@@ -59,6 +59,7 @@ const CenterContainer = styled.div`
 const Embedded = styled.div`
   flex: 1;
   margin: ${dimensions.coreSpacing}px;
+  background: ${colors.bgLight};
   padding: ${dimensions.unitSpacing / 2}px;
   box-shadow: 0 0 ${dimensions.unitSpacing}px ${colors.bgMain} inset;
 `;
@@ -68,13 +69,13 @@ const FormContainer = styled.div`
   border-radius: ${dimensions.unitSpacing / 2}px;
   background-color: ${colors.colorWhite};
   margin: auto;
-  width: 60%;
+  width: 70%;
   overflow: hidden;
   z-index: 1;
   animation: ${fadeIn} 0.5s linear;
 `;
 
-const PopupTitle = styled.div`
+const PreviewTitle = styled.div`
   padding: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorSecondary};
   color: ${colors.colorWhite};
@@ -87,7 +88,7 @@ const PreviewBody = styled.div`
   display: flex;
   overflow: auto;
   max-height: ${props => (props.embedded ? '500px' : '300px')};
-  background: ${colors.bgLight};
+  background-color: ${colors.bgLight};
 
   img {
     max-width: 100px;
@@ -102,6 +103,10 @@ const PreviewBody = styled.div`
 
 const BodyContent = styled.div`
   flex: 1;
+`;
+
+const ThankContent = styled.div`
+  text-align: center;
 `;
 
 const BodyText = styled.span`
@@ -152,6 +157,39 @@ const Picker = styled.div`
 const PreviewWrapper = styled.div`
   padding: 0 !important;
   overflow: auto;
+`;
+
+const DropdownContent = styled.div`
+  flex: 1;
+  box-shadow: 0 5px 8px ${colors.darkShadow};
+  background: ${colors.bgLight};
+  border-bottom: 2px solid ${colors.colorBlack};
+
+  ${PreviewWrapper} {
+    align-items: center;
+    justify-content: center;
+
+    ${PreviewBody} {
+      padding: 10px 20px;
+    }
+
+    button {
+      margin: 10px 0;
+    }
+  }
+`;
+
+const SlideLeftContent = styled.div`
+  position: absolute;
+  max-width: 50%;
+  background: ${colors.bgLight};
+  bottom: 0;
+  left: 0;
+  box-shadow: 3px 0px 5px rgba(0, 0, 0, 0.25);
+
+  ${PreviewTitle} {
+    text-align: inherit;
+  }
 `;
 
 const FormBody = styled.div`
@@ -496,7 +534,7 @@ export {
   CenterContainer,
   FormContainer,
   PreviewBody,
-  PopupTitle,
+  PreviewTitle,
   BodyText,
   ColorPick,
   ColorPicker,
@@ -506,6 +544,7 @@ export {
   OverlayTrigger,
   BodyContent,
   Embedded,
+  DropdownContent,
   FormBody,
   BoxRow,
   PreviewForm,
@@ -528,5 +567,7 @@ export {
   StepImg,
   StepHeaderTitle,
   StepContent,
-  ShortStep
+  ShortStep,
+  SlideLeftContent,
+  ThankContent
 };

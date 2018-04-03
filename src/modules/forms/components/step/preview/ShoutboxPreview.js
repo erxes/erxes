@@ -46,17 +46,16 @@ const Widget = Messenger.extend`
 `;
 
 const propTypes = {
-  preview: PropTypes.string,
   theme: PropTypes.string,
   color: PropTypes.string
 };
 
 class ShoutboxPreview extends CommonPreview {
   render() {
-    const { preview, theme, color } = this.props;
+    const { theme, color } = this.props;
 
     return (
-      <ShoutBox data={preview}>
+      <ShoutBox>
         <Widget>
           <WidgetPreview className="engage-message type-default">
             {this.renderContent()}

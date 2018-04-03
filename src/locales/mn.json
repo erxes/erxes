@@ -542,6 +542,7 @@
   "Callout title": "Харагдах байдалын гарчиг",
   "Callout body": "Харагдах байдалын тайлбар",
   "Callout button text": "Харагдах байдалын товчлуурын текст",
+  "Form button text": "Формын товчлуурын текст",
   "Theme color": "Товчлуурын арын өнгө",
   "Featured image": "Зураг",
   "Full Preview": "Урьдчилан харах",
@@ -628,5 +629,8 @@
   "Write title": "Гарчигаа бичнэ үү",
   "Contact": "Холбоо барих",
   "Created by": "Үүсгэсэн хэрэглэгч",
-  "Manage": "Тохируулах"
+  "Manage": "Тохируулах",
+  "Dropdown": "Унадаг баннер",
+  "Slide-in Left": "Зүүн талаас",
+  "Slide-in Right": "Баруун талаас"
 }

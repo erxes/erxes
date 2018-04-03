@@ -5,7 +5,14 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
+import {
+  EmbeddedPreview,
+  PopupPreview,
+  ShoutboxPreview,
+  DropdownPreview,
+  SlideLeftPreview,
+  SlideRightPreview
+} from './preview';
 import { FlexItem, LeftItem, Preview } from './style';
 
 const propTypes = {
@@ -154,6 +161,18 @@ class SuccessStep extends Component {
 
     if (type === 'popup') {
       return <PopupPreview {...this.props} />;
+    }
+
+    if (type === 'dropdown') {
+      return <DropdownPreview {...this.props} />;
+    }
+
+    if (type === 'slidein-left') {
+      return <SlideLeftPreview {...this.props} />;
+    }
+
+    if (type === 'slidein-right') {
+      return <SlideRightPreview {...this.props} />;
     }
 
     return <EmbeddedPreview {...this.props} />;

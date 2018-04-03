@@ -1,6 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
+import {
+  EmbeddedPreview,
+  PopupPreview,
+  ShoutboxPreview,
+  DropdownPreview,
+  SlideLeftPreview,
+  SlideRightPreview
+} from './preview';
 import {
   FlexItem,
   Preview,
@@ -73,6 +80,18 @@ class FullPreviewStep extends Component {
 
     if (type === 'popup') {
       return <PopupPreview {...this.props} />;
+    }
+
+    if (type === 'dropdown') {
+      return <DropdownPreview {...this.props} />;
+    }
+
+    if (type === 'slidein-left') {
+      return <SlideLeftPreview {...this.props} />;
+    }
+
+    if (type === 'slidein-right') {
+      return <SlideRightPreview {...this.props} />;
     }
 
     return <EmbeddedPreview {...this.props} />;

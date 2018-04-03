@@ -45,7 +45,8 @@ class Form extends Component {
       calloutTitle: form.title || __('Contact'),
       bodyValue: form.description,
       thankContent: formData.thankContent || __('Thank you.'),
-      btnText: form.buttonText || __('Send'),
+      formBtnText: form.buttonText || __('Subscribe'),
+      calloutBtnText: form.buttonText || __('Send'),
       theme: form.themeColor,
       logoPreviewUrl: form.featuredImage,
       fields: fields || []
@@ -90,7 +91,7 @@ class Form extends Component {
       form: {
         title: calloutTitle,
         description: this.state.bodyValue,
-        buttonText: this.state.btnText,
+        buttonText: this.state.formBtnText,
         themeColor: this.state.theme || this.state.color,
         featuredImage: this.state.logoPreviewUrl
       },
@@ -153,7 +154,7 @@ class Form extends Component {
       activeStep,
       calloutTitle,
       type,
-      btnText,
+      calloutBtnText,
       bodyValue,
       color,
       theme,
@@ -164,7 +165,8 @@ class Form extends Component {
       carousel,
       language,
       title,
-      successAction
+      successAction,
+      formBtnText
     } = this.state;
 
     const { integration, brands } = this.props;
@@ -198,7 +200,7 @@ class Form extends Component {
               onChange={this.onChange}
               type={type}
               calloutTitle={calloutTitle}
-              btnText={btnText}
+              formBtnText={formBtnText}
               bodyValue={bodyValue}
               color={color}
               theme={theme}
@@ -215,7 +217,7 @@ class Form extends Component {
               onChange={this.onChange}
               type={type}
               calloutTitle={calloutTitle}
-              btnText={btnText}
+              formBtnText={formBtnText}
               bodyValue={bodyValue}
               color={color}
               theme={theme}
@@ -231,13 +233,12 @@ class Form extends Component {
             <FormStep
               onChange={this.onChange}
               calloutTitle={calloutTitle}
-              btnText={btnText}
+              formBtnText={formBtnText}
               bodyValue={bodyValue}
               type={type}
               color={color}
               theme={theme}
               fields={fields}
-              image={logoPreviewUrl}
             />
           </Step>
           <Step
@@ -249,13 +250,12 @@ class Form extends Component {
             <OptionStep
               onChange={this.onChange}
               calloutTitle={calloutTitle}
-              btnText={btnText}
+              formBtnText={formBtnText}
               bodyValue={bodyValue}
               type={type}
               color={color}
               brand={brand}
               theme={theme}
-              image={logoPreviewUrl}
               brands={brands}
               fields={fields}
               language={language}
@@ -286,7 +286,8 @@ class Form extends Component {
             <FullPreviewStep
               onChange={this.onChange}
               calloutTitle={calloutTitle}
-              btnText={btnText}
+              formBtnText={formBtnText}
+              calloutBtnText={calloutBtnText}
               bodyValue={bodyValue}
               type={type}
               color={color}

@@ -4,6 +4,9 @@ import EmbeddedPreview from './EmbeddedPreview';
 import PopupPreview from './PopupPreview';
 import FormPreview from './FormPreview';
 import FieldPreview from './FieldPreview';
+import DropdownPreview from './DropdownPreview';
+import SlideLeftPreview from './SlideLeftPreview';
+import SlideRightPreview from './SlideRightPreview';
 
 export {
   CommonPreview,
@@ -11,5 +14,8 @@ export {
   EmbeddedPreview,
   PopupPreview,
   FormPreview,
-  FieldPreview
+  FieldPreview,
+  DropdownPreview,
+  SlideLeftPreview,
+  SlideRightPreview
 };

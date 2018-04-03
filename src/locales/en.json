@@ -539,6 +539,7 @@
   "Callout title": "Callout title",
   "Callout body": "Callout body",
   "Callout button text": "Callout button text",
+  "Form button text": "Form button text",
   "Theme color": "Theme color",
   "Featured image": "Featured image",
   "Full Preview": "Full Preview",
@@ -625,5 +626,8 @@
   "Write title": "Write title",
   "Contact": "Contact",
   "Created by": "Created by",
-  "Manage": "Manage"
+  "Manage": "Manage",
+  "Dropdown": "Dropdown",
+  "Slide-in Left": "Slide-in Left",
+  "Slide-in Right": "Slide-in Right"
 }

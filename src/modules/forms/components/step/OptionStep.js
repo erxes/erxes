@@ -1,12 +1,29 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { ChromePicker } from 'react-color';
 import {
   FormControl,
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
-import { FlexItem, LeftItem, Preview } from './style';
+import {
+  EmbeddedPreview,
+  PopupPreview,
+  ShoutboxPreview,
+  DropdownPreview,
+  SlideLeftPreview,
+  SlideRightPreview
+} from './preview';
+import {
+  FlexItem,
+  LeftItem,
+  Preview,
+  ColorPick,
+  ColorPicker,
+  Picker,
+  BackgroundSelector
+} from './style';
 
 const propTypes = {
   type: PropTypes.string,
@@ -16,7 +33,6 @@ const propTypes = {
   color: PropTypes.string,
   theme: PropTypes.string,
   language: PropTypes.string,
-  image: PropTypes.string,
   onChange: PropTypes.func,
   fields: PropTypes.array,
   brand: PropTypes.object,
@@ -29,11 +45,30 @@ class OptionStep extends Component {
     super(props);
 
     this.renderPreview = this.renderPreview.bind(this);
+    this.onColorChange = this.onColorChange.bind(this);
     this.onChangeFunction = this.onChangeFunction.bind(this);
   }
 
   onChangeFunction(name, value) {
     this.props.onChange(name, value);
+  }
+
+  onColorChange(e) {
+    this.setState({ color: e.hex, theme: '#000' }, () => {
+      this.props.onChange('color', e.hex);
+      this.props.onChange('theme', '');
+    });
+  }
+
+  renderThemeColor(value) {
+    return (
+      <BackgroundSelector
+        selected={this.props.theme === value}
+        onClick={() => this.onChangeFunction('theme', value)}
+      >
+        <div style={{ backgroundColor: value }} />
+      </BackgroundSelector>
+    );
   }
 
   renderPreview() {
@@ -47,12 +82,30 @@ class OptionStep extends Component {
       return <PopupPreview {...this.props} />;
     }
 
+    if (type === 'dropdown') {
+      return <DropdownPreview {...this.props} />;
+    }
+
+    if (type === 'slidein-left') {
+      return <SlideLeftPreview {...this.props} />;
+    }
+
+    if (type === 'slidein-right') {
+      return <SlideRightPreview {...this.props} />;
+    }
+
     return <EmbeddedPreview {...this.props} />;
   }
 
   render() {
     const { brands, language, brand = {} } = this.props;
+    const { __ } = this.context;
 
+    const popoverTop = (
+      <Popover id="color-picker">
+        <ChromePicker color={this.props.color} onChange={this.onColorChange} />
+      </Popover>
+    );
     return (
       <FlexItem>
         <LeftItem>
@@ -87,6 +140,30 @@ class OptionStep extends Component {
               <option value="en">English</option>
             </FormControl>
           </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Theme color</ControlLabel>
+            <p>{__('Try some of these colors:')}</p>
+          </FormGroup>
+
+          <ColorPick>
+            {this.renderThemeColor('#04A9F5')}
+            {this.renderThemeColor('#392a6f')}
+            {this.renderThemeColor('#fd3259')}
+            {this.renderThemeColor('#67C682')}
+            {this.renderThemeColor('#F5C22B')}
+            {this.renderThemeColor('#000')}
+            <OverlayTrigger
+              trigger="click"
+              rootClose
+              placement="bottom"
+              overlay={popoverTop}
+            >
+              <ColorPicker>
+                <Picker style={{ backgroundColor: this.props.theme }} />
+              </ColorPicker>
+            </OverlayTrigger>
+          </ColorPick>
         </LeftItem>
 
         <Preview>{this.renderPreview()}</Preview>
