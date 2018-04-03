@@ -23,7 +23,8 @@ export const TAG_TYPES = {
   CUSTOMER: 'customer',
   ENGAGE_MESSAGE: 'engageMessage',
   COMPANY: 'company',
-  ALL: ['conversation', 'customer', 'engageMessage', 'company'],
+  FORM: 'form',
+  ALL: ['conversation', 'customer', 'engageMessage', 'company', 'form'],
 };
 
 export const FACEBOOK_DATA_KINDS = {
@@ -347,3 +348,18 @@ export const COMPANY_INDUSTRY_TYPES = [
   'Transportation',
   'TV / Movies / Music',
 ];
+
+export const PROBABILITY = {
+  TEN: '10%',
+  TWENTY: '20%',
+  THIRTY: '30%',
+  FOURTY: '40%',
+  FIFTY: '50%',
+  SIXTY: '60%',
+  SEVENTY: '70%',
+  EIGHTY: '80%',
+  NINETY: '90%',
+  WON: 'Won',
+  LOST: 'Lost',
+  ALL: ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', 'Won', 'Lost'],
+};

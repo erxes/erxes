@@ -1,8 +1,19 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { Integrations, Fields } from './';
+import { Fields } from './';
 import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import { field } from './utils';
+
+const CalloutSchema = mongoose.Schema(
+  {
+    title: field({ type: String, optional: true }),
+    body: field({ type: String, optional: true }),
+    buttonText: field({ type: String, optional: true }),
+    featuredImage: field({ type: String, optional: true }),
+    skip: field({ type: Boolean, optional: true }),
+  },
+  { _id: false },
+);
 
 // schema for form document
 const FormSchema = mongoose.Schema({
@@ -14,13 +25,14 @@ const FormSchema = mongoose.Schema({
   }),
   buttonText: field({ type: String, optional: true }),
   themeColor: field({ type: String, optional: true }),
-  featuredImage: field({ type: String, optional: true }),
   code: field({ type: String }),
   createdUserId: field({ type: String }),
   createdDate: field({
     type: Date,
     default: Date.now,
   }),
+  callout: field({ type: CalloutSchema, default: {} }),
+  tagIds: field({ type: [String], optional: true }),
   viewCount: field({ type: Number }),
   contactsGathered: field({ type: Number }),
 });
@@ -76,13 +88,13 @@ class Form {
    * @param {string} object.description - Form description
    * @param {string} object.buttonText - Form submit button text
    * @param {string} object.themeColor - Form theme color
-   * @param {string} object.featuredImage - Form featured image
+   * @param {string} object.callout - Form's callout component
    * @return {Promise} returns Promise resolving updated Form document
    */
-  static async updateForm(_id, { title, description, buttonText, themeColor, featuredImage }) {
+  static async updateForm(_id, { title, description, buttonText, themeColor, callout }) {
     await this.update(
       { _id },
-      { $set: { title, description, buttonText, themeColor, featuredImage } },
+      { $set: { title, description, buttonText, themeColor, callout } },
       { runValidators: true },
     );
 
@@ -93,14 +105,10 @@ class Form {
    * Remove a form
    * @param {string} _id - Form document id
    * @return {Promise}
-   * @throws {Error} throws Error if this form has fields or if used in an integration
    */
   static async removeForm(_id) {
-    const integrationCount = await Integrations.find({ formId: _id }).count();
-
-    if (integrationCount > 0) {
-      throw new Error('You cannot delete this form. This form used in integration.');
-    }
+    // remove fields
+    await Fields.remove({ contentType: 'form', contentTypeId: _id });
 
     return this.remove({ _id });
   }

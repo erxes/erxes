@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { field } from './utils';
+import { PROBABILITY } from '../../data/constants';
 
 // Schema for common fields
 const commonFields = {
@@ -74,6 +75,10 @@ const createOrUpdatePipelineStages = async (stages, pipelineId) => {
 const BoardSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
+  isDefault: field({
+    type: Boolean,
+    default: false,
+  }),
   ...commonFields,
 });
 
@@ -94,6 +99,20 @@ class Board {
    */
   static async updateBoard(_id, doc) {
     await this.update({ _id }, { $set: doc });
+
+    return this.findOne({ _id });
+  }
+
+  /**
+   * Set default board
+   * @param  {Object} doc
+   * @return {Promise} updated board object
+   */
+  static async setDefaultBoard(_id) {
+    // set false for previous default board
+    await this.update({ isDefault: true }, { $set: { isDefault: false } });
+
+    await this.update({ _id }, { $set: { isDefault: true } });
 
     return this.findOne({ _id });
   }
@@ -192,6 +211,10 @@ class Pipeline {
 const StageSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
+  probability: field({
+    type: String,
+    enum: PROBABILITY.ALL,
+  }), // Win probability
   pipelineId: field({ type: String }),
   ...commonFields,
 });

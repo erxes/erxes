@@ -1,4 +1,12 @@
 export const types = `
+  type Callout {
+    title: String,
+    body: String,
+    buttonText: String,
+    featuredImage: String,
+    skip: Boolean
+  }
+
   type Form {
     _id: String!
     title: String
@@ -6,7 +14,7 @@ export const types = `
     description: String
     buttonText: String
     themeColor: String
-    featuredImage: String
+    callout: Callout
     createdUserId: String
     createdDate: Date
     viewCount: Int
@@ -19,14 +27,12 @@ const commonFields = `
   description: String,
   buttonText: String,
   themeColor: String,
-  featuredImage: String,
+  callout: JSON
 `;
 
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
-  formsRemove(_id: String!): String
-  formsDuplicate(_id: String!): Form
 `;
 
 export const queries = `

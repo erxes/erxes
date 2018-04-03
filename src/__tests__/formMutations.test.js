@@ -80,32 +80,4 @@ describe('form and formField mutations', () => {
     expect(form.title).toBe(args.title);
     expect(form.description).toBe(args.description);
   });
-
-  test('Remove form', async () => {
-    const mutation = `
-      mutation formsRemove($_id: String!) {
-        formsRemove(_id: $_id)
-      }
-    `;
-
-    await graphqlRequest(mutation, 'formsRemove', { _id: _form._id }, context);
-
-    expect(await Forms.findOne({ _id: _form._id })).toBe(null);
-  });
-
-  test('Duplicate form', async () => {
-    const mutation = `
-      mutation formsDuplicate($_id: String!) {
-        formsDuplicate(_id: $_id) {
-          _id
-          title
-        }
-      }
-    `;
-
-    const form = await graphqlRequest(mutation, 'formsDuplicate', { _id: _form._id }, context);
-
-    expect(form.title).toBe(_form.title + ` duplicated`);
-    expect(form.type).toBe(_form.type);
-  });
 });

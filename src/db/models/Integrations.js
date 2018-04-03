@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import 'mongoose-type-email';
 import { ConversationMessages, Conversations } from './';
-import { Customers } from './';
+import { Customers, Forms } from './';
 import {
   LANGUAGE_CHOICES,
   KIND_CHOICES,
@@ -280,22 +280,27 @@ class Integration {
    * @return {Promise}
    */
   static async removeIntegration(_id) {
+    const integration = await this.findOne({ _id });
+
+    // remove conversations =================
     const conversations = await Conversations.find({ integrationId: _id }, { _id: true });
+    const conversationIds = conversations.map(conv => conv._id);
 
-    const conversationIds = [];
-
-    conversations.forEach(c => {
-      conversationIds.push(c._id);
-    });
-
-    // Remove messages
     await ConversationMessages.remove({ conversationId: { $in: conversationIds } });
-
-    // Remove conversations
     await Conversations.remove({ integrationId: _id });
 
-    // Remove customers
-    await Customers.remove({ integrationId: _id });
+    // Remove customers ==================
+    const customers = await Customers.find({ integrationId: _id });
+    const customerIds = customers.map(cus => cus._id);
+
+    for (const customerId of customerIds) {
+      await Customers.removeCustomer(customerId);
+    }
+
+    // Remove form & fields
+    if (integration.formId) {
+      await Forms.removeForm(integration.formId);
+    }
 
     return this.remove({ _id });
   }

@@ -1,43 +1,36 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
-import { Configs } from '../db/models';
-import configsMutations from '../data/resolvers/mutations/configs';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { userFactory } from '../db/factories';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
 describe('Test configs mutations', () => {
-  afterEach(async () => {
-    // Clearing test data
-    await Configs.remove({});
-  });
+  test('Insert config', async () => {
+    const context = { user: await userFactory({ role: 'admin' }) };
 
-  test('Check login required', async () => {
-    expect.assertions(1);
-
-    const check = async fn => {
-      try {
-        await fn({}, {}, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
-      }
+    const args = {
+      code: 'dealUOM',
+      value: ['MNT'],
     };
 
-    // insert
-    check(configsMutations.configsInsert);
-  });
+    const mutation = `
+      mutation configsInsert($code: String!, $value: [String]!) {
+        configsInsert(code: $code, value: $value) {
+          _id
+          code
+          value
+        }
+      }
+    `;
 
-  test('Insert config', async () => {
-    const doc = { code: 'dealUOM', value: [] };
+    const config = await graphqlRequest(mutation, 'configsInsert', args, context);
 
-    Configs.createOrUpdateConfig = jest.fn();
-
-    await configsMutations.configsInsert({}, doc, { user: { _id: 'userId' } });
-
-    expect(Configs.createOrUpdateConfig).toBeCalledWith(doc);
-    expect(Configs.createOrUpdateConfig.mock.calls.length).toBe(1);
+    expect(config.config).toEqual(args.config);
+    expect(config.value.length).toEqual(1);
+    expect(config.value[0]).toEqual('MNT');
   });
 });
