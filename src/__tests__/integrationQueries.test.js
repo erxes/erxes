@@ -61,14 +61,13 @@ describe('integrationQueries', () => {
     await integrationFactory({});
     await integrationFactory({});
     await integrationFactory({});
-    await integrationFactory({});
 
     const responses = await graphqlRequest(qryIntegrations, 'integrations', {
       page: 1,
-      perPage: 5,
+      perPage: 3,
     });
 
-    expect(responses.length).toBe(5);
+    expect(responses.length).toBe(3);
   });
 
   test('Integrations filtered by kind', async () => {
@@ -99,12 +98,12 @@ describe('integrationQueries', () => {
   });
 
   test('Integrations filtered by channel', async () => {
-    await integrationFactory({ kind: 'twitter' });
-    await integrationFactory({ kind: 'twitter' });
+    const integration1 = await integrationFactory({ kind: 'twitter' });
+    const integration2 = await integrationFactory({ kind: 'twitter' });
+
     await integrationFactory({ kind: 'twitter' });
 
-    const integrations = await Integrations.find({}, { _id: 1 }).limit(2);
-    const integrationIds = integrations.map(integration => integration._id);
+    const integrationIds = [integration1._id, integration2._id];
 
     const channel = await channelFactory({ integrationIds });
 
@@ -120,6 +119,7 @@ describe('integrationQueries', () => {
 
     await integrationFactory({ kind: 'messenger', brandId: brand._id });
     await integrationFactory({ kind: 'form', brandId: brand._id });
+    await integrationFactory({ kind: 'form' });
 
     const responses = await graphqlRequest(qryIntegrations, 'integrations', { brandId: brand._id });
 
@@ -179,12 +179,12 @@ describe('integrationQueries', () => {
   });
 
   test('Get total count of integrations by channel', async () => {
-    await integrationFactory({});
-    await integrationFactory({});
+    const integration1 = await integrationFactory({});
+    const integration2 = await integrationFactory({});
+
     await integrationFactory({});
 
-    const integrations = await Integrations.find({}, { _id: 1 }).limit(3);
-    const integrationIds = integrations.map(integration => integration._id);
+    const integrationIds = [integration1._id, integration2._id];
 
     const channel = await channelFactory({ integrationIds });
 
@@ -192,7 +192,7 @@ describe('integrationQueries', () => {
       channelId: channel._id,
     });
 
-    expect(response).toBe(3);
+    expect(response).toBe(2);
   });
 
   test('Get total count of integrations by brand', async () => {
@@ -200,6 +200,7 @@ describe('integrationQueries', () => {
 
     await integrationFactory({ kind: 'messenger', brandId: brand._id });
     await integrationFactory({ kind: 'form', brandId: brand._id });
+    await integrationFactory({ kind: 'form' });
 
     const response = await graphqlRequest(qryCount, 'integrationsTotalCount', {
       brandId: brand._id,

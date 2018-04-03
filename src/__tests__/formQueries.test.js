@@ -22,7 +22,7 @@ describe('formQueries', () => {
 
     const args = {
       page: 1,
-      perPage: 5,
+      perPage: 2,
     };
 
     const qry = `
@@ -35,7 +35,7 @@ describe('formQueries', () => {
 
     const response = await graphqlRequest(qry, 'forms', args);
 
-    expect(response.length).toBe(3);
+    expect(response.length).toBe(2);
   });
 
   test('Form detail', async () => {

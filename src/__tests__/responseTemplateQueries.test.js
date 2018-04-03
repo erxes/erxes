@@ -28,9 +28,9 @@ describe('responseTemplateQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'responseTemplates', { page: 1, perPage: 5 });
+    const response = await graphqlRequest(qry, 'responseTemplates', { page: 1, perPage: 2 });
 
-    expect(response.length).toBe(3);
+    expect(response.length).toBe(2);
   });
 
   test('Get total count of response template', async () => {

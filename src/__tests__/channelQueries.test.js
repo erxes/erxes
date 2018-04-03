@@ -82,8 +82,6 @@ describe('channelQueries', () => {
     // Create test data
     await channelFactory();
     await channelFactory();
-    await channelFactory();
-    await channelFactory();
 
     const channel = await channelFactory();
 

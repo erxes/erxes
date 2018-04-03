@@ -18,7 +18,7 @@ describe('brandQueries', () => {
   test('Brands', async () => {
     const args = {
       page: 1,
-      perPage: 5,
+      perPage: 2,
     };
 
     await brandFactory();
@@ -35,7 +35,7 @@ describe('brandQueries', () => {
 
     const response = await graphqlRequest(qry, 'brands', args);
 
-    expect(response.length).toBe(3);
+    expect(response.length).toBe(2);
   });
 
   test('Brand detail', async () => {
@@ -79,7 +79,6 @@ describe('brandQueries', () => {
       }
     `;
 
-    await brandFactory();
     await brandFactory();
     await brandFactory();
 

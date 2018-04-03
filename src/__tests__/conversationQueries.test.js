@@ -123,9 +123,9 @@ describe('conversationQueries', () => {
     const conversations = await Conversations.find({});
     const ids = conversations.map(conversation => conversation._id);
 
-    const responses = await graphqlRequest(qryConversations, 'conversations', { ids, limit: 4 });
+    const responses = await graphqlRequest(qryConversations, 'conversations', { ids, limit: 3 });
 
-    expect(responses.length).toBe(4);
+    expect(responses.length).toBe(3);
   });
 
   test('Conversations filtered by channel', async () => {

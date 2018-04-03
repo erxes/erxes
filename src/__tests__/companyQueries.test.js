@@ -70,7 +70,7 @@ describe('companyQueries', () => {
 
   const name = 'companyName';
   const website = faker.internet.url();
-  const plan = faker.random.word();
+  const plan = 'plan';
 
   afterEach(async () => {
     // Clearing test data
@@ -84,32 +84,32 @@ describe('companyQueries', () => {
     await companyFactory({});
     await companyFactory({});
     await companyFactory({});
-    await companyFactory({});
 
-    const args = { page: 1, perPage: 5 };
+    const args = { page: 1, perPage: 3 };
     const responses = await graphqlRequest(qryCompanies, 'companies', args);
 
-    expect(responses.length).toBe(5);
+    expect(responses.length).toBe(3);
   });
 
   test('Companies filtered by ids', async () => {
-    await companyFactory({});
-    await companyFactory({});
-    await companyFactory({});
-    await companyFactory({});
+    const company1 = await companyFactory({});
+    const company2 = await companyFactory({});
+    const company3 = await companyFactory({});
+
     await companyFactory({});
 
-    const companies = await Companies.find({});
-    const ids = companies.map(company => company._id);
+    const ids = [company1._id, company2._id, company3._id];
 
     const responses = await graphqlRequest(qryCompanies, 'companies', { ids });
 
-    expect(responses.length).toBe(5);
+    expect(responses.length).toBe(3);
   });
 
   test('Companies filtered by tag', async () => {
     const tag = await tagsFactory();
 
+    await companyFactory();
+    await companyFactory();
     await companyFactory({ tagIds: tag._id });
     await companyFactory({ tagIds: tag._id });
 
@@ -176,34 +176,34 @@ describe('companyQueries', () => {
     await companyFactory({});
     await companyFactory({});
     await companyFactory({});
-    await companyFactory({});
 
-    const args = { page: 1, perPage: 5 };
+    const args = { page: 1, perPage: 3 };
     const responses = await graphqlRequest(qryCompaniesMain, 'companiesMain', args);
 
-    expect(responses.list.length).toBe(5);
-    expect(responses.totalCount).toBe(5);
+    expect(responses.list.length).toBe(3);
+    expect(responses.totalCount).toBe(4);
   });
 
   test('Main companies filtered by ids', async () => {
-    await companyFactory({});
-    await companyFactory({});
-    await companyFactory({});
-    await companyFactory({});
+    const company1 = await companyFactory({});
+    const company2 = await companyFactory({});
+    const company3 = await companyFactory({});
+
     await companyFactory({});
 
-    const companies = await Companies.find({});
-    const ids = companies.map(company => company._id);
+    const ids = [company1._id, company2._id, company3._id];
 
     const responses = await graphqlRequest(qryCompaniesMain, 'companiesMain', { ids });
 
-    expect(responses.list.length).toBe(5);
-    expect(responses.totalCount).toBe(5);
+    expect(responses.list.length).toBe(3);
+    expect(responses.totalCount).toBe(3);
   });
 
   test('Main companies filtered by tag', async () => {
     const tag = await tagsFactory();
 
+    await companyFactory();
+    await companyFactory();
     await companyFactory({ tagIds: tag._id });
     await companyFactory({ tagIds: tag._id });
 
@@ -242,37 +242,14 @@ describe('companyQueries', () => {
 
   test('Main companies filtered by search value', async () => {
     await companyFactory({ name });
-    await companyFactory({ website });
-    await companyFactory({ plan });
-    await companyFactory({ industry: 'Banks' });
 
     // companies by name =============
-    let responses = await graphqlRequest(qryCompaniesMain, 'companiesMain', { searchValue: name });
+    const responses = await graphqlRequest(qryCompaniesMain, 'companiesMain', {
+      searchValue: name,
+    });
 
     expect(responses.list.length).toBe(1);
     expect(responses.totalCount).toBe(1);
-    expect(responses.list[0].name).toBe(name);
-
-    // companies by website ===========
-    responses = await graphqlRequest(qryCompaniesMain, 'companiesMain', { searchValue: website });
-
-    expect(responses.list.length).toBe(1);
-    expect(responses.totalCount).toBe(1);
-    expect(responses.list[0].website).toBe(website);
-
-    // companies by industry ==========
-    responses = await graphqlRequest(qryCompaniesMain, 'companiesMain', { searchValue: 'Banks' });
-
-    expect(responses.list.length).toBe(1);
-    expect(responses.totalCount).toBe(1);
-    expect(responses.list[0].industry).toBe('Banks');
-
-    // companies by plan ==============
-    responses = await graphqlRequest(qryCompaniesMain, 'companiesMain', { searchValue: plan });
-
-    expect(responses.list.length).toBe(1);
-    expect(responses.totalCount).toBe(1);
-    expect(responses.list[0].plan).toBe(plan);
   });
 
   test('Count companies', async () => {

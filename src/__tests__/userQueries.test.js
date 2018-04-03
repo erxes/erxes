@@ -29,10 +29,10 @@ describe('userQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'users', { page: 1, perPage: 5 });
+    const response = await graphqlRequest(qry, 'users', { page: 1, perPage: 2 });
 
     // 1 in graphRequest + above 3
-    expect(response.length).toBe(4);
+    expect(response.length).toBe(3);
   });
 
   test('User detail', async () => {

@@ -34,9 +34,9 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'knowledgeBaseTopics', { page: 1, perPage: 5 });
+    const response = await graphqlRequest(qry, 'knowledgeBaseTopics', { page: 1, perPage: 2 });
 
-    expect(response.length).toBe(3);
+    expect(response.length).toBe(2);
   });
 
   test('Knowledge base topic detail', async () => {

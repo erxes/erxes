@@ -84,32 +84,32 @@ describe('customerQueries', () => {
     await customerFactory();
     await customerFactory();
     await customerFactory();
-    await customerFactory();
 
-    const args = { page: 1, perPage: 5 };
+    const args = { page: 1, perPage: 3 };
     const responses = await graphqlRequest(qryCustomers, 'customers', args);
 
-    expect(responses.length).toBe(5);
+    expect(responses.length).toBe(3);
   });
 
   test('Customers filtered by ids', async () => {
-    await customerFactory();
-    await customerFactory();
-    await customerFactory();
-    await customerFactory();
+    const customer1 = await customerFactory();
+    const customer2 = await customerFactory();
+    const customer3 = await customerFactory();
+
     await customerFactory();
 
-    const customers = await Customers.find({});
-    const ids = await customers.map(customer => customer._id);
+    const ids = [customer1._id, customer2._id, customer3._id];
 
     const responses = await graphqlRequest(qryCustomers, 'customers', { ids });
 
-    expect(responses.length).toBe(5);
+    expect(responses.length).toBe(3);
   });
 
   test('Customers filtered by tag', async () => {
     const tag = await tagsFactory();
 
+    await customerFactory();
+    await customerFactory();
     await customerFactory({ tagIds: tag._id });
     await customerFactory({ tagIds: tag._id });
 
@@ -176,34 +176,34 @@ describe('customerQueries', () => {
     await customerFactory();
     await customerFactory();
     await customerFactory();
-    await customerFactory();
 
-    const args = { page: 1, perPage: 5 };
+    const args = { page: 1, perPage: 3 };
     const responses = await graphqlRequest(qryCustomersMain, 'customersMain', args);
 
-    expect(responses.list.length).toBe(5);
-    expect(responses.totalCount).toBe(5);
+    expect(responses.list.length).toBe(3);
+    expect(responses.totalCount).toBe(4);
   });
 
   test('Main customers filtered by ids', async () => {
-    await customerFactory();
-    await customerFactory();
-    await customerFactory();
-    await customerFactory();
+    const customer1 = await customerFactory();
+    const customer2 = await customerFactory();
+    const customer3 = await customerFactory();
+
     await customerFactory();
 
-    const customers = await Customers.find({});
-    const ids = customers.map(customer => customer._id);
+    const ids = [customer1._id, customer2._id, customer3._id];
 
     const responses = await graphqlRequest(qryCustomersMain, 'customersMain', { ids });
 
-    expect(responses.list.length).toBe(5);
-    expect(responses.totalCount).toBe(5);
+    expect(responses.list.length).toBe(3);
+    expect(responses.totalCount).toBe(3);
   });
 
   test('Main customers filtered by tag', async () => {
     const tag = await tagsFactory();
 
+    await customerFactory();
+    await customerFactory();
     await customerFactory({ tagIds: tag._id });
     await customerFactory({ tagIds: tag._id });
 
@@ -242,39 +242,14 @@ describe('customerQueries', () => {
 
   test('Main customers filtered by search value', async () => {
     await customerFactory({ firstName });
-    await customerFactory({ lastName });
-    await customerFactory({ phone });
-    await customerFactory({ email });
 
     // customers by firstName =============
-    let responses = await graphqlRequest(qryCustomersMain, 'customersMain', {
+    const responses = await graphqlRequest(qryCustomersMain, 'customersMain', {
       searchValue: firstName,
     });
 
     expect(responses.list.length).toBe(1);
     expect(responses.totalCount).toBe(1);
-    expect(responses.list[0].firstName).toBe(firstName);
-
-    // customers by lastName ===========
-    responses = await graphqlRequest(qryCustomersMain, 'customersMain', { searchValue: lastName });
-
-    expect(responses.list.length).toBe(1);
-    expect(responses.totalCount).toBe(1);
-    expect(responses.list[0].lastName).toBe(lastName);
-
-    // customers by email ==========
-    responses = await graphqlRequest(qryCustomersMain, 'customersMain', { searchValue: email });
-
-    expect(responses.list.length).toBe(1);
-    expect(responses.totalCount).toBe(1);
-    expect(responses.list[0].email).toBe(email);
-
-    // customers by phone ==============
-    responses = await graphqlRequest(qryCustomersMain, 'customersMain', { searchValue: phone });
-
-    expect(responses.list.length).toBe(1);
-    expect(responses.totalCount).toBe(1);
-    expect(responses.list[0].phone).toBe(phone);
   });
 
   test('Count customers', async () => {

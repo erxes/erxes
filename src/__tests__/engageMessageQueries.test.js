@@ -42,18 +42,17 @@ describe('engageQueries', () => {
   });
 
   test('Engage messages filtered by ids', async () => {
-    await engageMessageFactory({});
-    await engageMessageFactory({});
-    await engageMessageFactory({});
-    await engageMessageFactory({});
+    const engageMessage1 = await engageMessageFactory({});
+    const engageMessage2 = await engageMessageFactory({});
+    const engageMessage3 = await engageMessageFactory({});
+
     await engageMessageFactory({});
 
-    const engageMessages = await EngageMessages.find({});
-    const ids = engageMessages.map(message => message._id);
+    const ids = [engageMessage1._id, engageMessage2._id, engageMessage3._id];
 
     const responses = await graphqlRequest(qryEngageMessages, 'engageMessages', { ids });
 
-    expect(responses.length).toBe(5);
+    expect(responses.length).toBe(3);
   });
 
   test('Engage messages filtered by kind', async () => {
@@ -110,6 +109,8 @@ describe('engageQueries', () => {
   test('Engage messages filtered by tag', async () => {
     const tag = await tagsFactory();
 
+    await engageMessageFactory();
+    await engageMessageFactory();
     await engageMessageFactory({ tagIds: [tag._id] });
     await engageMessageFactory({ tagIds: [tag._id] });
 
@@ -185,6 +186,8 @@ describe('engageQueries', () => {
     const tag = await tagsFactory();
 
     // default value of isLive, isDraft are 'false'
+    await engageMessageFactory({ kind: 'auto' });
+    await engageMessageFactory({ kind: 'auto' });
     await engageMessageFactory({ kind: 'auto', tagIds: [tag._id] });
     await engageMessageFactory({ kind: 'auto', tagIds: [tag._id] });
 
@@ -207,8 +210,6 @@ describe('engageQueries', () => {
     await engageMessageFactory({});
     await engageMessageFactory({});
     await engageMessageFactory({});
-    await engageMessageFactory({});
-    await engageMessageFactory({});
 
     const qry = `
       query engageMessagesTotalCount {
@@ -218,6 +219,6 @@ describe('engageQueries', () => {
 
     const response = await graphqlRequest(qry, 'engageMessagesTotalCount');
 
-    expect(response).toBe(5);
+    expect(response).toBe(3);
   });
 });
