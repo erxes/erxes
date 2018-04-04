@@ -13,6 +13,7 @@ import { selectOptions } from '../../utils';
 import {
   MoveContainer,
   MoveFormContainer,
+  PipelineName,
   Stages,
   StageItem,
   FormFooter
@@ -114,12 +115,18 @@ class DealMoveForm extends React.Component {
         </FormGroup>
 
         <FormFooter>
-          <Button btnStyle="simple" onClick={this.toggleForm} icon="close">
+          <Button
+            size="small"
+            btnStyle="simple"
+            onClick={this.toggleForm}
+            icon="close"
+          >
             Close
           </Button>
 
           <Button
             btnStyle="success"
+            size="small"
             onClick={() => {
               this.move();
               this.toggleForm();
@@ -167,9 +174,9 @@ class DealMoveForm extends React.Component {
     return (
       <MoveContainer>
         <MoveFormContainer>
-          <div onClick={this.toggleForm}>
+          <PipelineName onClick={this.toggleForm}>
             {currentPipeline.name} <Icon icon="ios-arrow-down" />
-          </div>
+          </PipelineName>
 
           {this.renderForm()}
         </MoveFormContainer>
