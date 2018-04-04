@@ -121,6 +121,7 @@ class Row extends Component {
         <td>{form.contactsGathered || 0}</td>
         <td width="10%">{moment(form.createdDate).format('ll')}</td>
         <td width="15%">{this.renderUser(createdUserId)}</td>
+        <td />
         <td width="10%">
           <ActionButtons>
             {this.manageAction(integration)}

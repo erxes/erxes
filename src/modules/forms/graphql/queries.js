@@ -22,9 +22,15 @@ const integrations = `
         createdUserId
         buttonText
         themeColor
-        featuredImage
         contactsGathered
         viewCount
+        callout {
+          title
+          body
+          buttonText
+          featuredImage
+          skip
+        }
       }
     }
   }
@@ -54,7 +60,15 @@ const integrationDetail = `
         createdUserId
         buttonText
         themeColor
-        featuredImage
+        contactsGathered
+        viewCount
+        callout {
+          title
+          body
+          buttonText
+          featuredImage
+          skip
+        }
       }
     }
   }

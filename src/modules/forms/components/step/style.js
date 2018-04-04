@@ -34,6 +34,12 @@ const LeftItem = styled.div`
   flex: 0 0 33.33333%;
   min-width: 43.33333%;
   padding: ${dimensions.coreSpacing}px;
+  opacity: ${props => props.deactive && '0.3'};
+  cursor: ${props => props.deactive && 'not-allowed'};
+
+  input:disabled {
+    cursor: not-allowed;
+  }
 `;
 
 const Preview = styled.div`
@@ -526,6 +532,32 @@ const ShortStep = styled.div`
   flex-direction: column;
 `;
 
+const Footer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 ${dimensions.coreSpacing}px;
+  background: ${colors.bgLight};
+  height: ${dimensions.headerSpacing}px;
+  border-top: 1px solid ${colors.borderPrimary};
+
+  label {
+    margin-bottom: 0;
+    margin-right: ${dimensions.coreSpacing}px;
+  }
+`;
+
+const FlexColumn = styled.div`
+  display: flex;
+  min-width: 43.33333%;
+  flex-direction: column;
+  justify-content: space-between;
+
+  ${LeftItem} {
+    flex: 1;
+  }
+`;
+
 export {
   StepStatus,
   FlexItem,
@@ -569,5 +601,7 @@ export {
   StepContent,
   ShortStep,
   SlideLeftContent,
-  ThankContent
+  ThankContent,
+  Footer,
+  FlexColumn
 };

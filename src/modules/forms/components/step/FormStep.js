@@ -15,8 +15,8 @@ import {
   SlideLeftPreview,
   SlideRightPreview
 } from './preview';
-import { colors, dimensions } from 'modules/common/styles';
-import { FlexItem, LeftItem, Preview } from './style';
+import { colors } from 'modules/common/styles';
+import { FlexItem, FlexColumn, LeftItem, Footer, Preview } from './style';
 
 const Fields = styled.ul`
   list-style: none;
@@ -28,37 +28,11 @@ const Fields = styled.ul`
   }
 `;
 
-const FlexColumn = styled.div`
-  display: flex;
-  min-width: 43.33333%;
-  flex-direction: column;
-  justify-content: space-between;
-
-  ${LeftItem} {
-    flex: 1;
-  }
-`;
-
-const Footer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0 ${dimensions.coreSpacing}px;
-  background: ${colors.bgLight};
-  height: ${dimensions.headerSpacing}px;
-  border-top: 1px solid ${colors.borderPrimary};
-
-  label {
-    margin-bottom: 0;
-    margin-right: ${dimensions.coreSpacing}px;
-  }
-`;
-
 const propTypes = {
   type: PropTypes.string,
-  calloutTitle: PropTypes.string,
+  formTitle: PropTypes.string,
   formBtnText: PropTypes.string,
-  bodyValue: PropTypes.string,
+  formDesc: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
   onChange: PropTypes.func,
@@ -306,6 +280,24 @@ class FormStep extends Component {
 
     return (
       <Fields>
+        <FormGroup>
+          <ControlLabel>Form title</ControlLabel>
+          <FormControl
+            id="form-btn-text"
+            value={this.props.formTitle}
+            onChange={e => this.onChangeState('formTitle', e.target.value)}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Form description</ControlLabel>
+          <FormControl
+            id="form-btn-text"
+            value={this.props.formDesc}
+            onChange={e => this.onChangeState('formDesc', e.target.value)}
+          />
+        </FormGroup>
+
         <FormGroup>
           <ControlLabel htmlFor="type">Type:</ControlLabel>
 

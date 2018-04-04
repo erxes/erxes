@@ -53,10 +53,11 @@ const Box = styled.div`
 const propTypes = {
   type: PropTypes.string,
   onChange: PropTypes.func,
-  title: PropTypes.string,
-  formBtnText: PropTypes.string,
+  calloutTitle: PropTypes.string,
+  calloutBtnText: PropTypes.string,
   bodyValue: PropTypes.string,
-  color: PropTypes.string
+  color: PropTypes.string,
+  theme: PropTypes.string
 };
 
 class ChooseType extends Component {

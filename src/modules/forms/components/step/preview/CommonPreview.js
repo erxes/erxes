@@ -34,7 +34,7 @@ class CommonPreview extends Component {
       calloutTitle,
       bodyValue,
       formBtnText,
-      // calloutBtnText,
+      calloutBtnText,
       image,
       fields,
       onFieldEdit,
@@ -93,6 +93,16 @@ class CommonPreview extends Component {
                   style={{ backgroundColor: theme ? theme : color }}
                 >
                   {formBtnText}
+                </Button>
+              )}
+            {calloutBtnText &&
+              success && (
+                <Button
+                  ignoreTrans
+                  btnStyle="primary"
+                  style={{ backgroundColor: theme ? theme : color }}
+                >
+                  {calloutBtnText}
                 </Button>
               )}
           </BodyContent>

@@ -13,6 +13,7 @@ import { Row } from '/';
 const propTypes = {
   integrations: PropTypes.array.isRequired,
   members: PropTypes.array.isRequired,
+  tags: PropTypes.array,
   integrationsCount: PropTypes.number.isRequired,
   loading: PropTypes.bool,
   remove: PropTypes.func
@@ -55,6 +56,7 @@ class List extends Component {
             <th>{__('Contacts gathered')}</th>
             <th>{__('Created at')}</th>
             <th>{__('Created by')}</th>
+            <th>{__('Tags')}</th>
             <th />
           </tr>
         </thead>
@@ -62,9 +64,16 @@ class List extends Component {
       </Table>
     );
 
+    const sidebar = (
+      <Wrapper.Sidebar>
+        <div>Tags</div>
+      </Wrapper.Sidebar>
+    );
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={[{ title: __('Forms') }]} />}
+        leftSidebar={sidebar}
         actionBar={<Wrapper.ActionBar right={actionBarRight} />}
         footer={<Pagination count={integrationsCount} />}
         content={

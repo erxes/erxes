@@ -17,7 +17,7 @@ import {
   SlideLeftPreview,
   SlideRightPreview
 } from './preview';
-import { FlexItem, LeftItem, Preview } from './style';
+import { FlexItem, FlexColumn, LeftItem, Footer, Preview } from './style';
 
 const ImageWrapper = styled.div`
   border: 1px dashed ${colors.borderDarker};
@@ -71,22 +71,38 @@ const propTypes = {
   image: PropTypes.string
 };
 
+const defaultValue = {
+  isSkip: false
+};
+
 class CallOut extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       logo: '',
-      logoPreviewStyle: {}
+      logoPreviewStyle: {},
+      defaultValue: defaultValue
     };
 
     this.onChangeFunction = this.onChangeFunction.bind(this);
+    this.onChangeState = this.onChangeState.bind(this);
+    this.footerActions = this.footerActions.bind(this);
     this.handleImage = this.handleImage.bind(this);
     this.removeImage = this.removeImage.bind(this);
   }
 
   onChangeFunction(name, value) {
     this.setState({ [name]: value });
+    this.props.onChange(name, value);
+  }
+
+  onChangeState(name, value) {
+    const { defaultValue } = this.state;
+
+    defaultValue[name] = value;
+
+    this.setState({ defaultValue });
     this.props.onChange(name, value);
   }
 
@@ -146,10 +162,10 @@ class CallOut extends Component {
   }
 
   renderUploadImage() {
-    const { image } = this.props;
+    const { image, skip } = this.props;
 
     if (!image) {
-      return <input type="file" onChange={this.handleImage} />;
+      return <input type="file" onChange={this.handleImage} disabled={skip} />;
     }
 
     return (
@@ -164,50 +180,77 @@ class CallOut extends Component {
     );
   }
 
+  footerActions() {
+    const { __ } = this.context;
+
+    return (
+      <Footer>
+        <FormControl
+          checked={this.state.defaultValue.isSkip || false}
+          id="isSkip"
+          componentClass="checkbox"
+          onChange={e => this.onChangeState('isSkip', e.target.checked)}
+        >
+          {__('Skip callOut')}
+        </FormControl>
+      </Footer>
+    );
+  }
+
   render() {
+    const { skip } = this.props;
+
     return (
       <FlexItem>
-        <LeftItem>
-          <FormGroup>
-            <ControlLabel>Callout title</ControlLabel>
-            <FormControl
-              id="callout-title"
-              type="text"
-              value={this.props.calloutTitle}
-              onChange={e =>
-                this.onChangeFunction('calloutTitle', e.target.value)
-              }
-            />
-          </FormGroup>
+        <FlexColumn>
+          <LeftItem deactive={skip}>
+            <FormGroup>
+              <ControlLabel>Callout title</ControlLabel>
+              <FormControl
+                id="callout-title"
+                type="text"
+                value={this.props.calloutTitle}
+                disabled={skip}
+                onChange={e =>
+                  this.onChangeFunction('calloutTitle', e.target.value)
+                }
+              />
+            </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Callout body</ControlLabel>
-            <FormControl
-              id="callout-body"
-              type="text"
-              value={this.props.bodyValue}
-              onChange={e => this.onChangeFunction('bodyValue', e.target.value)}
-            />
-          </FormGroup>
+            <FormGroup>
+              <ControlLabel>Callout body</ControlLabel>
+              <FormControl
+                id="callout-body"
+                type="text"
+                value={this.props.bodyValue}
+                disabled={skip}
+                onChange={e =>
+                  this.onChangeFunction('bodyValue', e.target.value)
+                }
+              />
+            </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Callout button text</ControlLabel>
-            <FormControl
-              id="callout-btn-text"
-              value={this.props.calloutBtnText}
-              onChange={e =>
-                this.onChangeFunction('calloutBtnText', e.target.value)
-              }
-            />
-          </FormGroup>
+            <FormGroup>
+              <ControlLabel>Callout button text</ControlLabel>
+              <FormControl
+                id="callout-btn-text"
+                value={this.props.calloutBtnText}
+                disabled={skip}
+                onChange={e =>
+                  this.onChangeFunction('calloutBtnText', e.target.value)
+                }
+              />
+            </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Featured image</ControlLabel>
-            <ImageWrapper>
-              <ImageContent>{this.renderUploadImage()}</ImageContent>
-            </ImageWrapper>
-          </FormGroup>
-        </LeftItem>
+            <FormGroup>
+              <ControlLabel>Featured image</ControlLabel>
+              <ImageWrapper>
+                <ImageContent>{this.renderUploadImage()}</ImageContent>
+              </ImageWrapper>
+            </FormGroup>
+          </LeftItem>
+          {this.footerActions()}
+        </FlexColumn>
 
         <Preview>{this.renderPreview()}</Preview>
       </FlexItem>

@@ -27,9 +27,9 @@ import {
 
 const propTypes = {
   type: PropTypes.string,
-  calloutTitle: PropTypes.string,
-  btnText: PropTypes.string,
-  bodyValue: PropTypes.string,
+  formTitle: PropTypes.string,
+  formBtnText: PropTypes.string,
+  formDesc: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
   language: PropTypes.string,

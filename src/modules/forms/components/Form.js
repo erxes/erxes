@@ -32,24 +32,27 @@ class Form extends Component {
     const integration = props.integration || {};
     const formData = integration && (integration.formData || {});
     const form = integration && (integration.form || {});
+    const callout = form.callout || {};
     const fields = props.fields || [];
 
     this.state = {
       activeStep: 1,
       maxStep: 6,
       type: formData.loadType || 'shoutbox',
-      preview: 'desktop',
       brand: integration.brandId,
       language: integration.languageCode,
       title: integration.name,
-      calloutTitle: form.title || __('Contact'),
-      bodyValue: form.description,
+      calloutTitle: callout.title || __('Contact'),
+      formTitle: form.title || __('Contact'),
+      bodyValue: callout.description || '',
+      formDesc: form.description || '',
       thankContent: formData.thankContent || __('Thank you.'),
-      formBtnText: form.buttonText || __('Subscribe'),
+      formBtnText: form.buttonText || __('Send'),
       calloutBtnText: form.buttonText || __('Send'),
       theme: form.themeColor,
       logoPreviewUrl: form.featuredImage,
-      fields: fields || []
+      fields: fields || [],
+      isSkip: callout.skip || false
     };
 
     this.next = this.next.bind(this);
@@ -89,11 +92,17 @@ class Form extends Component {
         redirectUrl: this.state.redirectUrl
       },
       form: {
-        title: calloutTitle,
-        description: this.state.bodyValue,
+        title: this.state.formTitle,
+        description: this.state.formDesc,
         buttonText: this.state.formBtnText,
         themeColor: this.state.theme || this.state.color,
-        featuredImage: this.state.logoPreviewUrl
+        callOut: {
+          title: calloutTitle,
+          body: this.state.bodyValue,
+          buttonText: this.state.calloutBtnText,
+          featuredImage: this.state.logoPreviewUrl,
+          skip: this.state.isSkip
+        }
       },
       fields: this.state.fields
     });
@@ -153,9 +162,11 @@ class Form extends Component {
     const {
       activeStep,
       calloutTitle,
+      formTitle,
       type,
       calloutBtnText,
       bodyValue,
+      formDesc,
       color,
       theme,
       logoPreviewUrl,
@@ -166,7 +177,8 @@ class Form extends Component {
       language,
       title,
       successAction,
-      formBtnText
+      formBtnText,
+      isSkip
     } = this.state;
 
     const { integration, brands } = this.props;
@@ -200,7 +212,7 @@ class Form extends Component {
               onChange={this.onChange}
               type={type}
               calloutTitle={calloutTitle}
-              formBtnText={formBtnText}
+              calloutBtnText={calloutBtnText}
               bodyValue={bodyValue}
               color={color}
               theme={theme}
@@ -217,11 +229,12 @@ class Form extends Component {
               onChange={this.onChange}
               type={type}
               calloutTitle={calloutTitle}
-              formBtnText={formBtnText}
+              calloutBtnText={calloutBtnText}
               bodyValue={bodyValue}
               color={color}
               theme={theme}
               image={logoPreviewUrl}
+              skip={isSkip}
             />
           </Step>
           <Step
@@ -232,9 +245,9 @@ class Form extends Component {
           >
             <FormStep
               onChange={this.onChange}
-              calloutTitle={calloutTitle}
+              formTitle={formTitle}
               formBtnText={formBtnText}
-              bodyValue={bodyValue}
+              formDesc={formDesc}
               type={type}
               color={color}
               theme={theme}
@@ -249,9 +262,9 @@ class Form extends Component {
           >
             <OptionStep
               onChange={this.onChange}
-              calloutTitle={calloutTitle}
+              formTitle={formTitle}
               formBtnText={formBtnText}
-              bodyValue={bodyValue}
+              formDesc={formDesc}
               type={type}
               color={color}
               brand={brand}
@@ -286,16 +299,19 @@ class Form extends Component {
             <FullPreviewStep
               onChange={this.onChange}
               calloutTitle={calloutTitle}
+              formTitle={formTitle}
               formBtnText={formBtnText}
               calloutBtnText={calloutBtnText}
               bodyValue={bodyValue}
+              formDesc={formDesc}
               type={type}
               color={color}
               theme={theme}
               image={logoPreviewUrl}
               fields={fields}
-              preview={preview}
+              preview={preview || 'desktop'}
               thankContent={thankContent}
+              skip={isSkip}
               carousel={carousel || 'callout'}
             />
           </Step>
