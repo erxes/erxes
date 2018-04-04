@@ -33,9 +33,7 @@ const engageMutations = {
 
     const user = await Users.findOne({ _id: fromUserId });
 
-    const emails = await awsRequests.getVerifiedEmails();
-
-    const { VerifiedEmailAddresses = [] } = emails;
+    const { VerifiedEmailAddresses = [] } = await awsRequests.getVerifiedEmails();
 
     // If verified creates engagemessage
     if (!VerifiedEmailAddresses.includes(user.email)) {
