@@ -55,7 +55,7 @@ const init = () => {
         .subscribe({
           TopicArn: topicArn,
           Protocol: 'http',
-          Endpoint: AWS_ENDPOINT,
+          Endpoint: `${AWS_ENDPOINT}/service/engage/tracker`,
         })
         .promise();
     })
