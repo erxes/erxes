@@ -38,7 +38,9 @@ const engageMutations = {
     const { VerifiedEmailAddresses = [] } = emails;
 
     // If verified creates engagemessage
-    if (!VerifiedEmailAddresses.includes(user.email)) throw new Error('Email not verified');
+    if (!VerifiedEmailAddresses.includes(user.email)) {
+      throw new Error('Email not verified');
+    }
 
     const engageMessage = await EngageMessages.createEngageMessage(doc);
 
