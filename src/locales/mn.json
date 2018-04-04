@@ -628,5 +628,12 @@
   "Thank you.": "Баярлалаа.",
   "Choose brand": "Брэндээ сонгоно уу",
   "Write title": "Гарчигаа бичнэ үү",
-  "Contact": "Холбоо барих"
+  "Contact": "Холбоо барих",
+  "Delivered": "Хүргэгдсэн",
+  "Opened": "Нээгдсэн",
+  "Clicked": "Дарсан",
+  "Complaint": "Гомдол",
+  "Bounce": "Үсэрсэн",
+  "Rendering Failure": "Хөрвүүлэлтын алдаа",
+  "Rejected": "Татгалзсан"
 }
