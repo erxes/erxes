@@ -22,6 +22,7 @@ const engageMessages = `
         }
       }
       tagIds
+      stats
       getTags {
         _id
         name
