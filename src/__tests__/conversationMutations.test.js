@@ -12,8 +12,8 @@ import {
   integrationFactory,
   customerFactory,
 } from '../db/factories';
-import { TwitMap } from '../social/twitter';
-import { twitRequest } from '../social/twitterTracker';
+import { TwitMap } from '../trackers/twitter';
+import { twitRequest } from '../trackers/twitterTracker';
 import utils from '../data/utils';
 
 beforeAll(() => connect());

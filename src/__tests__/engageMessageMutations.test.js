@@ -29,7 +29,7 @@ import {
   conversationMessageFactory,
 } from '../db/factories';
 import * as engageUtils from '../data/resolvers/mutations/engageUtils';
-import { awsRequests } from '../social/engageTracker.js';
+import { awsRequests } from '../trackers/engageTracker.js';
 
 beforeAll(() => connect());
 
@@ -143,7 +143,7 @@ describe('engage message mutation tests', () => {
     await ConversationMessages.remove({});
   });
 
-  test('Engage utils send via messenger', async () => {
+  test('Engage utils send via messenger: integration not found', async () => {
     expect.assertions(1);
 
     try {
@@ -164,38 +164,38 @@ describe('engage message mutation tests', () => {
     }
   });
 
-  test('Add engage message', async () => {
-    const mutation = `
-      mutation engageMessageAdd(${commonParamDefs}) {
-        engageMessageAdd(${commonParams}) {
-          kind
-          segmentId
-          customerIds
-          title
-          fromUserId
-          method
-          isDraft
-          stopDate
-          isLive
-          stopDate
-          messengerReceivedCustomerIds
-          tagIds
-          email
-          messenger
-          deliveryReports
-          segment {
-            _id
-          }
-          fromUser {
-            _id
-          }
-          getTags {
-            _id
-          }
+  const engageMessageAddMutation = `
+    mutation engageMessageAdd(${commonParamDefs}) {
+      engageMessageAdd(${commonParams}) {
+        kind
+        segmentId
+        customerIds
+        title
+        fromUserId
+        method
+        isDraft
+        stopDate
+        isLive
+        stopDate
+        messengerReceivedCustomerIds
+        tagIds
+        email
+        messenger
+        deliveryReports
+        segment {
+          _id
+        }
+        fromUser {
+          _id
+        }
+        getTags {
+          _id
         }
       }
-    `;
+    }
+  `;
 
+  test('Add engage message', async () => {
     process.env.AWS_CONFIG_SET = 'aws-ses';
     process.env.AWS_ENDPOINT = '123';
 
@@ -211,7 +211,12 @@ describe('engage message mutation tests', () => {
 
     engageUtils.send = jest.fn();
 
-    const engageMessage = await graphqlRequest(mutation, 'engageMessageAdd', _doc, context);
+    const engageMessage = await graphqlRequest(
+      engageMessageAddMutation,
+      'engageMessageAdd',
+      _doc,
+      context,
+    );
 
     const tags = engageMessage.getTags.map(tag => tag._id);
 
@@ -238,80 +243,18 @@ describe('engage message mutation tests', () => {
   });
 
   test('Engage add without aws config', async () => {
-    const mutation = `
-      mutation engageMessageAdd(${commonParamDefs}) {
-        engageMessageAdd(${commonParams}) {
-          kind
-          segmentId
-          customerIds
-          title
-          fromUserId
-          method
-          isDraft
-          stopDate
-          isLive
-          stopDate
-          messengerReceivedCustomerIds
-          tagIds
-          email
-          messenger
-          deliveryReports
-          segment {
-            _id
-          }
-          fromUser {
-            _id
-          }
-          getTags {
-            _id
-          }
-        }
-      }
-    `;
-
     expect.assertions(1);
 
     try {
       // mock settings
       process.env.AWS_CONFIG_SET = '';
-      await graphqlRequest(mutation, 'engageMessageAdd', _doc, context);
+      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc, context);
     } catch (e) {
       expect(e.toString()).toBe('GraphQLError: Could not locate configs on AWS SES');
     }
   });
 
   test('Engage add with unverified email', async () => {
-    const mutation = `
-      mutation engageMessageAdd(${commonParamDefs}) {
-        engageMessageAdd(${commonParams}) {
-          kind
-          segmentId
-          customerIds
-          title
-          fromUserId
-          method
-          isDraft
-          stopDate
-          isLive
-          stopDate
-          messengerReceivedCustomerIds
-          tagIds
-          email
-          messenger
-          deliveryReports
-          segment {
-            _id
-          }
-          fromUser {
-            _id
-          }
-          getTags {
-            _id
-          }
-        }
-      }
-    `;
-
     expect.assertions(1);
 
     process.env.AWS_CONFIG_SET = 'aws-ses';
@@ -326,7 +269,7 @@ describe('engage message mutation tests', () => {
     });
 
     try {
-      await graphqlRequest(mutation, 'engageMessageAdd', _doc, context);
+      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc, context);
     } catch (e) {
       expect(e.toString()).toBe('GraphQLError: Email not verified');
     }

@@ -18,8 +18,10 @@ const getApi = type => {
   return new AWS.SNS();
 };
 
-// Receives notification from amazon simple notification service
-// And updates engage message status and stats
+/*
+ *  Receives notification from amazon simple notification service
+ *  And updates engage message status and stats
+ */
 const handleMessage = async message => {
   const obj = JSON.parse(message);
 
@@ -45,9 +47,12 @@ const init = () => {
 
   let topicArn = '';
 
+  // Automatically creating aws configs
   getApi('sns')
+    // Create Topic
     .createTopic({ Name: AWS_CONFIG_SET })
     .promise()
+    // Subscribing to the topic
     .then(result => {
       topicArn = result.TopicArn;
 
@@ -59,6 +64,7 @@ const init = () => {
         })
         .promise();
     })
+    // Creating configuration set
     .then(() => {
       console.log('Successfully subscribed to the topic');
 
@@ -73,6 +79,7 @@ const init = () => {
     .catch(error => {
       console.log(error.message);
     })
+    // Creating event destination for configuration set
     .then(() => {
       console.log('Successfully created config set');
 

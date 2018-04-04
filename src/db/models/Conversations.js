@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
-import { TwitterResponseSchema } from '../../social/schemas';
+import { TwitterResponseSchema } from '../../trackers/schemas';
 import { Users, ConversationMessages } from '../../db/models';
 import { field } from './utils';
 

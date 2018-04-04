@@ -1,6 +1,6 @@
 import strip from 'strip';
 import mongoose from 'mongoose';
-import { TwitterResponseSchema } from '../../social/schemas';
+import { TwitterResponseSchema } from '../../trackers/schemas';
 import { Conversations } from './';
 import { field } from './utils';
 

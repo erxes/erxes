@@ -4,7 +4,7 @@ import faker from 'faker';
 import { Integrations, Channels, Brands } from '../db/models';
 import { graphqlRequest, connect, disconnect } from '../db/connection';
 import { integrationFactory, channelFactory, brandFactory } from '../db/factories';
-import { socUtils } from '../social/twitterTracker';
+import { socUtils } from '../trackers/twitterTracker';
 
 beforeAll(() => connect());
 

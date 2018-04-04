@@ -2,7 +2,7 @@ import { EngageMessages, Users } from '../../../db/models';
 import { MESSAGE_KINDS } from '../../constants';
 import { send } from './engageUtils';
 import { moduleRequireLogin } from '../../permissions';
-import { awsRequests } from '../../../social/engageTracker';
+import { awsRequests } from '../../../trackers/engageTracker';
 
 const engageMutations = {
   /**
@@ -38,16 +38,16 @@ const engageMutations = {
     const { VerifiedEmailAddresses = [] } = emails;
 
     // If verified creates engagemessage
-    if (VerifiedEmailAddresses.includes(user.email)) {
-      const engageMessage = await EngageMessages.createEngageMessage(doc);
+    if (!VerifiedEmailAddresses.includes(user.email)) throw new Error('Email not verified');
 
-      // if manual and live then send immediately
-      if (doc.kind === MESSAGE_KINDS.MANUAL && doc.isLive) {
-        await send(engageMessage);
-      }
+    const engageMessage = await EngageMessages.createEngageMessage(doc);
 
-      return engageMessage;
-    } else throw new Error('Email not verified');
+    // if manual and live then send immediately
+    if (doc.kind === MESSAGE_KINDS.MANUAL && doc.isLive) {
+      await send(engageMessage);
+    }
+
+    return engageMessage;
   },
 
   /**

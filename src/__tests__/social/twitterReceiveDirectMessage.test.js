@@ -11,7 +11,7 @@ import {
   Customers,
   Integrations,
 } from '../../db/models';
-import { receiveDirectMessageInformation } from '../../social/twitter';
+import { receiveDirectMessageInformation } from '../../trackers/twitter';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());

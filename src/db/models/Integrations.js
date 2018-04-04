@@ -10,7 +10,7 @@ import {
   MESSENGER_DATA_AVAILABILITY,
 } from '../../data/constants';
 
-import { TwitterSchema, FacebookSchema } from '../../social/schemas';
+import { TwitterSchema, FacebookSchema } from '../../trackers/schemas';
 import { field } from './utils';
 
 // subdocument schema for MessengerOnlineHours
