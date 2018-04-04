@@ -40,5 +40,5 @@ export const mutations = `
 export const queries = `
   forms(page: Int, perPage: Int): [Form]
   formDetail(_id: String!): Form
-  formsTotalCount: Int
+  formsTotalCount: JSON
 `;
