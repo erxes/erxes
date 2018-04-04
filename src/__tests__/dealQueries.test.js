@@ -46,7 +46,7 @@ describe('dealQueries', () => {
     customers {
       _id
     }
-    products  
+    products
     productsData
     assignedUsers {
       _id
