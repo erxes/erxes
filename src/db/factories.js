@@ -7,6 +7,7 @@ import {
   ACTIVITY_TYPES,
   ACTIVITY_ACTIONS,
   FIELDS_GROUPS_CONTENT_TYPES,
+  PRODUCT_TYPES,
 } from '../data/constants';
 import {
   Users,
@@ -36,6 +37,7 @@ import {
   DealStages,
   Deals,
   Products,
+  Configs,
   FieldsGroups,
 } from './models';
 
@@ -271,9 +273,10 @@ export const integrationFactory = async (params = {}) => {
     messengerData: { welcomeMessage: 'welcome', notifyCustomer: true },
     twitterData: params.twitterData || {},
     facebookData: params.facebookData || {},
-    formData: params.formData === 'form'
-      ? params.formData
-      : kind === 'form' ? { thankContent: 'thankContent' } : null,
+    formData:
+      params.formData === 'form'
+        ? params.formData
+        : kind === 'form' ? { thankContent: 'thankContent' } : null,
   };
 
   return Integrations.create(doc);
@@ -406,10 +409,11 @@ export const activityLogFactory = params => {
   return ActivityLogs.createDoc({ ...doc, ...params }, faker.random.word());
 };
 
-export const dealBoardFactory = () => {
+export const dealBoardFactory = (params = {}) => {
   const board = new DealBoards({
     name: faker.random.word(),
     userId: Random.id(),
+    isDefault: params.isDefault || faker.random.boolean(),
   });
 
   return board.save();
@@ -436,11 +440,13 @@ export const dealStageFactory = (params = {}) => {
 export const dealFactory = (params = {}) => {
   const deal = new Deals({
     ...params,
+    name: faker.random.word(),
     stageId: params.stageId || faker.random.word(),
-    companyId: faker.random.word(),
-    amount: faker.random.number(),
+    companyIds: [faker.random.word()],
+    customerIds: [faker.random.word()],
+    amount: faker.random.objectElement(),
     closeDate: new Date(),
-    note: faker.random.word(),
+    description: faker.random.word(),
     assignedUserIds: [faker.random.word()],
   });
 
@@ -450,13 +456,23 @@ export const dealFactory = (params = {}) => {
 export const productFactory = (params = {}) => {
   const product = new Products({
     name: params.name || faker.random.word(),
-    type: params.type || faker.random.word(),
+    type: params.type || PRODUCT_TYPES.PRODUCT,
     description: params.description || faker.random.word(),
     sku: faker.random.word(),
     createdAt: new Date(),
   });
 
   return product.save();
+};
+
+export const configFactory = (params = {}) => {
+  const config = new Configs({
+    ...params,
+    code: faker.random.word(),
+    value: [faker.random.word()],
+  });
+
+  return config.save();
 };
 
 export const fieldGroupFactory = async params => {
