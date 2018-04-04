@@ -135,6 +135,17 @@ const users = `
   }
 `;
 
+const tags = `
+  query tags($type: String) {
+    tags(type: $type) {
+      _id
+      name
+      type
+      colorCode
+    }
+  }
+`;
+
 export default {
   integrations,
   integrationDetail,
@@ -142,6 +153,7 @@ export default {
   fields,
   brands,
   users,
+  tags,
   fieldsCombinedByContentType,
   fieldsDefaultColumnsConfig
 };

@@ -96,7 +96,7 @@ class Form extends Component {
         description: this.state.formDesc,
         buttonText: this.state.formBtnText,
         themeColor: this.state.theme || this.state.color,
-        callOut: {
+        callout: {
           title: calloutTitle,
           body: this.state.bodyValue,
           buttonText: this.state.calloutBtnText,

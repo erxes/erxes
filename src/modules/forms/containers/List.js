@@ -10,6 +10,7 @@ const ListContainer = props => {
     integrationsQuery,
     integrationsCountQuery,
     usersQuery,
+    tagsQuery,
     removeMutation
   } = props;
 
@@ -35,7 +36,8 @@ const ListContainer = props => {
     integrationsCount,
     members,
     remove,
-    loading: integrationsQuery.loading
+    loading: integrationsQuery.loading,
+    tags: tagsQuery.tags || []
   };
 
   return <List {...updatedProps} />;
@@ -45,6 +47,7 @@ ListContainer.propTypes = {
   integrationsCountQuery: PropTypes.object,
   integrationsQuery: PropTypes.object,
   usersQuery: PropTypes.object,
+  tagsQuery: PropTypes.object,
   removeMutation: PropTypes.func
 };
 
@@ -74,6 +77,16 @@ export default compose(
   }),
   graphql(gql(queries.users), {
     name: 'usersQuery'
+  }),
+  graphql(gql(queries.tags), {
+    name: 'tagsQuery',
+    options: () => ({
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only',
+      variables: {
+        type: 'form'
+      }
+    })
   }),
   graphql(gql(mutations.integrationRemove), {
     name: 'removeMutation'

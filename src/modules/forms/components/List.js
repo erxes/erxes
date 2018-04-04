@@ -9,6 +9,7 @@ import {
   DataWithLoader
 } from 'modules/common/components';
 import { Row } from '/';
+import { Tags as Tag } from '../containers';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
@@ -34,7 +35,7 @@ class List extends Component {
   }
 
   render() {
-    const { integrationsCount, loading } = this.props;
+    const { integrationsCount, loading, tags } = this.props;
     const { __ } = this.context;
 
     const actionBarRight = (
@@ -66,7 +67,7 @@ class List extends Component {
 
     const sidebar = (
       <Wrapper.Sidebar>
-        <div>Tags</div>
+        <Tag tags={tags} manageUrl="tags/form" />
       </Wrapper.Sidebar>
     );
 
