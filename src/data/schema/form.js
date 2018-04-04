@@ -19,6 +19,8 @@ export const types = `
     createdDate: Date
     viewCount: Int
     contactsGathered: Int
+    tagIds: [String]
+    getTags: [Tag]
   }
 `;
 
