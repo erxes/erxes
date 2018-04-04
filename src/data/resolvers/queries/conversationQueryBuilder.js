@@ -122,7 +122,7 @@ export default class Builder {
   // filter by participating
   participatingFilter() {
     return {
-      participatedUserIds: this.user._id,
+      participatedUserIds: { $in: [this.user._id] },
     };
   }
 
@@ -130,8 +130,8 @@ export default class Builder {
   starredFilter() {
     let ids = [];
 
-    if (this.user && this.user.details) {
-      ids = this.user.details.starredConversationIds || [];
+    if (this.user) {
+      ids = this.user.starredConversationIds || [];
     }
 
     return {
@@ -163,7 +163,7 @@ export default class Builder {
   // filter by tag
   tagFilter(tagId) {
     return {
-      tagIds: tagId,
+      tagIds: [tagId],
     };
   }
 
