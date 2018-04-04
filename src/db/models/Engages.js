@@ -58,7 +58,7 @@ const StatsSchema = mongoose.Schema(
     bounce: field({ type: Number }),
     reject: field({ type: Number }),
     send: field({ type: Number }),
-    renderingFailure: field({ type: Number }),
+    renderingfailure: field({ type: Number }),
   },
   { _id: false },
 );

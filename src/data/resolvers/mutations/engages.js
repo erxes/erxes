@@ -103,6 +103,8 @@ const engageMutations = {
   async engageMessageSetLiveManual(root, _id) {
     const engageMessage = await EngageMessages.engageMessageSetLive(_id);
 
+    await send(engageMessage);
+
     return engageMessage;
   },
 };

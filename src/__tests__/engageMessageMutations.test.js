@@ -28,6 +28,7 @@ import {
   conversationFactory,
   conversationMessageFactory,
 } from '../db/factories';
+import { send } from '../data/resolvers/mutations/engageUtils';
 import { awsRequests } from '../social/engageTracker.js';
 
 beforeAll(() => connect());
@@ -212,6 +213,27 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.fromUser._id).toBe(_doc.fromUserId);
     expect(engageMessage.tagIds).toEqual(_doc.tagIds);
     awsRequests.getVerifiedEmails.restore();
+  });
+
+  test('Engage utils send via messenger', async () => {
+    expect.assertions(1);
+
+    try {
+      await send({
+        _id: _message._id,
+        method: 'messenger',
+        title: 'Send via messenger',
+        fromUserId: _user._id,
+        segmentId: _segment._id,
+        isLive: true,
+        messenger: {
+          brandId: '',
+          content: 'content',
+        },
+      });
+    } catch (e) {
+      expect(e.message).toEqual('Integration not found');
+    }
   });
 
   test('Edit engage message', async () => {
