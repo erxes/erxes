@@ -129,15 +129,17 @@ export const trackEngages = expressApp => {
       const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 
       if (Type === 'SubscriptionConfirmation') {
-        return await getApi('sns')
+        await getApi('sns')
           .confirmSubscription({ Token, TopicArn })
           .promise();
+
+        return res.end('success');
       }
 
       handleMessage(Message);
     });
 
-    res.end('success');
+    return res.end('success');
   });
 };
 
