@@ -1,5 +1,6 @@
-import { Forms } from '../../../db/models';
+import { Forms, Tags } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
+import { TAG_TYPES } from '../../constants';
 import { paginate } from './utils';
 
 const formQueries = {
@@ -27,8 +28,26 @@ const formQueries = {
    * Get all forms count. We will use it in pager
    * @return {Promise} total count
    */
-  formsTotalCount() {
-    return Forms.find({}).count();
+  async formsTotalCount() {
+    const counts = {
+      byTag: {},
+      total: 0,
+    };
+
+    const count = query => {
+      return Forms.find(query).count();
+    };
+
+    // Count customers by tag
+    const tags = await Tags.find({ type: TAG_TYPES.FORM });
+
+    for (let tag of tags) {
+      counts.byTag[tag._id] = await count({ tagIds: tag._id });
+    }
+
+    counts.total = await Forms.find({}).count();
+
+    return counts;
   },
 };
 

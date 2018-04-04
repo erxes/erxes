@@ -61,7 +61,7 @@ class Form {
    * @param {string} doc.description - Form description
    * @param {string} doc.buttonText - Form submit button text
    * @param {string} doc.themeColor - Form theme color
-   * @param {string} doc.featuredImage - Form featured image
+   * @param {Object} doc.callout - Form's callout component detail
    * @param {Date} doc.createdDate - Form creation date
    * @param {Object|string} createdUser - The user who is creating this form,
    * can be both user id or user object
@@ -88,7 +88,7 @@ class Form {
    * @param {string} object.description - Form description
    * @param {string} object.buttonText - Form submit button text
    * @param {string} object.themeColor - Form theme color
-   * @param {string} object.callout - Form's callout component
+   * @param {Object} object.callout - Form's callout component detail
    * @return {Promise} returns Promise resolving updated Form document
    */
   static async updateForm(_id, { title, description, buttonText, themeColor, callout }) {
