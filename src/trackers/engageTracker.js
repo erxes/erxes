@@ -59,7 +59,7 @@ const init = () => {
       return getApi('sns')
         .subscribe({
           TopicArn: topicArn,
-          Protocol: 'http',
+          Protocol: 'https',
           Endpoint: `${AWS_ENDPOINT}/service/engage/tracker`,
         })
         .promise();
