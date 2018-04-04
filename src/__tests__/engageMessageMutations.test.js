@@ -273,6 +273,8 @@ describe('engage message mutation tests', () => {
     } catch (e) {
       expect(e.toString()).toBe('GraphQLError: Email not verified');
     }
+
+    awsRequests.getVerifiedEmails.restore();
   });
 
   test('Edit engage message', async () => {
