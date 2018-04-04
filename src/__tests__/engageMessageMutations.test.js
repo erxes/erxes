@@ -2,8 +2,8 @@
 /* eslint-disable no-underscore-dangle */
 
 import faker from 'faker';
+import sinon from 'sinon';
 import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { sendEmailCb } from '../data/resolvers/mutations/engageUtils';
 import {
   EngageMessages,
   Users,
@@ -28,6 +28,8 @@ import {
   conversationFactory,
   conversationMessageFactory,
 } from '../db/factories';
+import * as engageUtils from '../data/resolvers/mutations/engageUtils';
+import { awsRequests } from '../trackers/engageTracker.js';
 
 beforeAll(() => connect());
 
@@ -141,42 +143,84 @@ describe('engage message mutation tests', () => {
     await ConversationMessages.remove({});
   });
 
-  test('Add engage message', async () => {
-    const mutation = `
-      mutation engageMessageAdd(${commonParamDefs}) {
-        engageMessageAdd(${commonParams}) {
-          kind
-          segmentId
-          customerIds
-          title
-          fromUserId
-          method
-          isDraft
-          stopDate
-          isLive
-          stopDate
-          messengerReceivedCustomerIds
-          tagIds
-          email
-          messenger
-          deliveryReports
-          segment {
-            _id
-          }
-          fromUser {
-            _id
-          }
-          getTags {
-            _id
-          }
+  test('Engage utils send via messenger: integration not found', async () => {
+    expect.assertions(1);
+
+    try {
+      await engageUtils.send({
+        _id: _message._id,
+        method: 'messenger',
+        title: 'Send via messenger',
+        fromUserId: _user._id,
+        segmentId: _segment._id,
+        isLive: true,
+        messenger: {
+          brandId: '',
+          content: 'content',
+        },
+      });
+    } catch (e) {
+      expect(e.message).toEqual('Integration not found');
+    }
+  });
+
+  const engageMessageAddMutation = `
+    mutation engageMessageAdd(${commonParamDefs}) {
+      engageMessageAdd(${commonParams}) {
+        kind
+        segmentId
+        customerIds
+        title
+        fromUserId
+        method
+        isDraft
+        stopDate
+        isLive
+        stopDate
+        messengerReceivedCustomerIds
+        tagIds
+        email
+        messenger
+        deliveryReports
+        segment {
+          _id
+        }
+        fromUser {
+          _id
+        }
+        getTags {
+          _id
         }
       }
-    `;
+    }
+  `;
 
-    const engageMessage = await graphqlRequest(mutation, 'engageMessageAdd', _doc, context);
+  test('Add engage message', async () => {
+    process.env.AWS_CONFIG_SET = 'aws-ses';
+    process.env.AWS_ENDPOINT = '123';
+
+    const user = await Users.findOne({ _id: _doc.fromUserId });
+
+    const sandbox = sinon.sandbox.create();
+
+    sandbox.stub(awsRequests, 'getVerifiedEmails').callsFake(() => {
+      return new Promise(resolve => {
+        return resolve({ VerifiedEmailAddresses: [user.email] });
+      });
+    });
+
+    engageUtils.send = jest.fn();
+
+    const engageMessage = await graphqlRequest(
+      engageMessageAddMutation,
+      'engageMessageAdd',
+      _doc,
+      context,
+    );
 
     const tags = engageMessage.getTags.map(tag => tag._id);
 
+    expect(engageUtils.send).toHaveBeenCalled();
     expect(engageMessage.kind).toBe(_doc.kind);
     expect(new Date(engageMessage.stopDate)).toEqual(_doc.stopDate);
     expect(engageMessage.segmentId).toBe(_doc.segmentId);
@@ -194,6 +238,43 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.segment._id).toBe(_doc.segmentId);
     expect(engageMessage.fromUser._id).toBe(_doc.fromUserId);
     expect(engageMessage.tagIds).toEqual(_doc.tagIds);
+    awsRequests.getVerifiedEmails.restore();
+    engageUtils.send.mockRestore();
+  });
+
+  test('Engage add without aws config', async () => {
+    expect.assertions(1);
+
+    try {
+      // mock settings
+      process.env.AWS_CONFIG_SET = '';
+      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc, context);
+    } catch (e) {
+      expect(e.toString()).toBe('GraphQLError: Could not locate configs on AWS SES');
+    }
+  });
+
+  test('Engage add with unverified email', async () => {
+    expect.assertions(1);
+
+    process.env.AWS_CONFIG_SET = 'aws-ses';
+    process.env.AWS_ENDPOINT = '123';
+
+    const sandbox = sinon.sandbox.create();
+
+    sandbox.stub(awsRequests, 'getVerifiedEmails').callsFake(() => {
+      return new Promise(resolve => {
+        return resolve({ VerifiedEmailAddresses: [] });
+      });
+    });
+
+    try {
+      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc, context);
+    } catch (e) {
+      expect(e.toString()).toBe('GraphQLError: Email not verified');
+    }
+
+    awsRequests.getVerifiedEmails.restore();
   });
 
   test('Edit engage message', async () => {
@@ -302,9 +383,6 @@ describe('engage message mutation tests', () => {
       }
     `;
 
-    const mailMessageId = faker.random.number();
-    await sendEmailCb(_message._id, mailMessageId);
-
     const engageMessage = await graphqlRequest(
       mutation,
       'engageMessageSetPause',
@@ -353,6 +431,8 @@ describe('engage message mutation tests', () => {
       }
     `;
 
+    engageUtils.send = jest.fn();
+
     const engageMessage = await graphqlRequest(
       mutation,
       'engageMessageSetLiveManual',
@@ -360,6 +440,7 @@ describe('engage message mutation tests', () => {
       context,
     );
 
+    expect(engageUtils.send).toHaveBeenCalled();
     expect(engageMessage.isLive).toBe(true);
     expect(conversation.userId).toBe(conversationObj.userId);
     expect(conversation.customerId).toBe(conversationObj.customerId);
@@ -370,5 +451,6 @@ describe('engage message mutation tests', () => {
     expect(conversationMessage.userId).toBe(conversationMessageObj.userId);
     expect(conversationMessage.customerId).toBe(conversationMessageObj.customerId);
     expect(conversationMessage.content).toBe(conversationMessageObj.content);
+    engageUtils.send.mockRestore();
   });
 });

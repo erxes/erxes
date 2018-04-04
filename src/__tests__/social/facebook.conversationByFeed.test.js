@@ -2,8 +2,8 @@
 
 import sinon from 'sinon';
 import { connect, disconnect } from '../../db/connection';
-import { SaveWebhookResponse } from '../../social/facebook';
-import { graphRequest } from '../../social/facebookTracker';
+import { SaveWebhookResponse } from '../../trackers/facebook';
+import { graphRequest } from '../../trackers/facebookTracker';
 import { Customers, Conversations, ConversationMessages, ActivityLogs } from '../../db/models';
 import { integrationFactory, conversationMessageFactory } from '../../db/factories';
 import { CONVERSATION_STATUSES } from '../../data/constants';

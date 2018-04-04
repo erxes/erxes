@@ -6,8 +6,8 @@ import sinon from 'sinon';
 import { connect, disconnect } from '../../db/connection';
 import { integrationFactory, conversationFactory, customerFactory } from '../../db/factories';
 import { Conversations, ConversationMessages, Customers, Integrations } from '../../db/models';
-import { TwitMap, tweetReply } from '../../social/twitter';
-import { twitRequest } from '../../social/twitterTracker';
+import { TwitMap, tweetReply } from '../../trackers/twitter';
+import { twitRequest } from '../../trackers/twitterTracker';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
