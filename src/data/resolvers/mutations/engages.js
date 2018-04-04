@@ -25,28 +25,29 @@ const engageMutations = {
     const { AWS_CONFIG_SET = '', AWS_ENDPOINT = '' } = process.env;
 
     if (AWS_CONFIG_SET === '' || AWS_ENDPOINT === '') {
-      throw new Error('Couldnt locate configs on AWS SES');
+      throw new Error('Could not locate configs on AWS SES');
     }
 
     // Checking if user's email verified or not
     const { fromUserId } = doc;
+
     const user = await Users.findOne({ _id: fromUserId });
 
-    return awsRequests.getVerifiedEmails().then(async result => {
-      const { VerifiedEmailAddresses = [] } = result;
+    const emails = await awsRequests.getVerifiedEmails();
 
-      // If verified creates engagemessage
-      if (VerifiedEmailAddresses.includes(user.email)) {
-        const engageMessage = await EngageMessages.createEngageMessage(doc);
+    const { VerifiedEmailAddresses = [] } = emails;
 
-        // if manual and live then send immediately
-        if (doc.kind === MESSAGE_KINDS.MANUAL && doc.isLive) {
-          await send(engageMessage);
-        }
+    // If verified creates engagemessage
+    if (VerifiedEmailAddresses.includes(user.email)) {
+      const engageMessage = await EngageMessages.createEngageMessage(doc);
 
-        return engageMessage;
-      } else throw new Error('Email not verified');
-    });
+      // if manual and live then send immediately
+      if (doc.kind === MESSAGE_KINDS.MANUAL && doc.isLive) {
+        await send(engageMessage);
+      }
+
+      return engageMessage;
+    } else throw new Error('Email not verified');
   },
 
   /**

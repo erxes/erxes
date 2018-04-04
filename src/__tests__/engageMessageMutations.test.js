@@ -196,11 +196,8 @@ describe('engage message mutation tests', () => {
       }
     `;
 
-    try {
-      await graphqlRequest(mutation, 'engageMessageAdd', _doc, context);
-    } catch (e) {
-      expect(e.toString()).toBe('GraphQLError: Email not verified');
-    }
+    process.env.AWS_CONFIG_SET = 'aws-ses';
+    process.env.AWS_ENDPOINT = '123';
 
     const user = await Users.findOne({ _id: _doc.fromUserId });
 
@@ -238,13 +235,100 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.tagIds).toEqual(_doc.tagIds);
     awsRequests.getVerifiedEmails.restore();
     engageUtils.send.mockRestore();
+  });
+
+  test('Engage add without aws config', async () => {
+    const mutation = `
+      mutation engageMessageAdd(${commonParamDefs}) {
+        engageMessageAdd(${commonParams}) {
+          kind
+          segmentId
+          customerIds
+          title
+          fromUserId
+          method
+          isDraft
+          stopDate
+          isLive
+          stopDate
+          messengerReceivedCustomerIds
+          tagIds
+          email
+          messenger
+          deliveryReports
+          segment {
+            _id
+          }
+          fromUser {
+            _id
+          }
+          getTags {
+            _id
+          }
+        }
+      }
+    `;
+
+    expect.assertions(1);
 
     try {
       // mock settings
       process.env.AWS_CONFIG_SET = '';
       await graphqlRequest(mutation, 'engageMessageAdd', _doc, context);
     } catch (e) {
-      expect(e.toString()).toBe('GraphQLError: Couldnt locate configs on AWS SES');
+      expect(e.toString()).toBe('GraphQLError: Could not locate configs on AWS SES');
+    }
+  });
+
+  test('Engage add with unverified email', async () => {
+    const mutation = `
+      mutation engageMessageAdd(${commonParamDefs}) {
+        engageMessageAdd(${commonParams}) {
+          kind
+          segmentId
+          customerIds
+          title
+          fromUserId
+          method
+          isDraft
+          stopDate
+          isLive
+          stopDate
+          messengerReceivedCustomerIds
+          tagIds
+          email
+          messenger
+          deliveryReports
+          segment {
+            _id
+          }
+          fromUser {
+            _id
+          }
+          getTags {
+            _id
+          }
+        }
+      }
+    `;
+
+    expect.assertions(1);
+
+    process.env.AWS_CONFIG_SET = 'aws-ses';
+    process.env.AWS_ENDPOINT = '123';
+
+    const sandbox = sinon.sandbox.create();
+
+    sandbox.stub(awsRequests, 'getVerifiedEmails').callsFake(() => {
+      return new Promise(resolve => {
+        return resolve({ VerifiedEmailAddresses: [] });
+      });
+    });
+
+    try {
+      await graphqlRequest(mutation, 'engageMessageAdd', _doc, context);
+    } catch (e) {
+      expect(e.toString()).toBe('GraphQLError: Email not verified');
     }
   });
 

@@ -27,10 +27,9 @@ const createTransporter = async () => {
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
   });
+
   return nodemailer.createTransport({
-    SES: new AWS.SES({
-      apiVersion: '2010-12-01',
-    }),
+    SES: new AWS.SES({ apiVersion: '2010-12-01' }),
   });
 };
 

@@ -18,6 +18,8 @@ const getApi = type => {
   return new AWS.SNS();
 };
 
+// Receives notification from amazon simple notification service
+// And updates engage message status and stats
 const handleMessage = async message => {
   const obj = JSON.parse(message);
 
@@ -44,9 +46,7 @@ const init = () => {
   let topicArn = '';
 
   getApi('sns')
-    .createTopic({
-      Name: AWS_CONFIG_SET,
-    })
+    .createTopic({ Name: AWS_CONFIG_SET })
     .promise()
     .then(result => {
       topicArn = result.TopicArn;
