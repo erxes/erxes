@@ -16,7 +16,7 @@ import {
   createOrUpdateTimelineConversation,
   createOrUpdateTimelineMessage,
   receiveTimelineInformation,
-} from '../../social/twitter';
+} from '../../trackers/twitter';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
