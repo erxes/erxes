@@ -19,8 +19,8 @@ const getApi = type => {
 };
 
 /*
- *  Receives notification from amazon simple notification service
- *  And updates engage message status and stats
+ * Receives notification from amazon simple notification service
+ * And updates engage message status and stats
  */
 const handleMessage = async message => {
   const obj = JSON.parse(message);
