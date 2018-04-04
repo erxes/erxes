@@ -630,5 +630,12 @@
   "Choose brand": "Choose brand",
   "Write title": "Write title",
   "Contact": "Contact",
-  "Enter name": "Enter name"
+  "Enter name": "Enter name",
+  "Delivered": "Delivered",
+  "Opened": "Opened",
+  "Clicked": "Clicked",
+  "Complaint": "Complaint",
+  "Bounce": "Bounce",
+  "Rendering Failure": "Rendering Failure",
+  "Rejected": "Rejected"
 }

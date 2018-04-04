@@ -22,6 +22,7 @@ const engageMessages = `
         }
       }
       tagIds
+      stats
       getTags {
         _id
         name
@@ -58,6 +59,7 @@ const engageDetailFields = `
   stopDate
   createdDate
   messenger
+  stats
 `;
 
 const engageMessageDetail = `
