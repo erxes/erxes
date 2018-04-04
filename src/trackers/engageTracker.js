@@ -123,13 +123,15 @@ export const trackEngages = expressApp => {
       chunks.push(chunk);
     });
 
-    req.on('end', () => {
+    req.on('end', async () => {
       const message = JSON.parse(chunks.join(''));
 
       const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 
       if (Type === 'SubscriptionConfirmation') {
-        return getApi('sns').confirmSubscription({ Token, TopicArn });
+        return await getApi('sns')
+          .confirmSubscription({ Token, TopicArn })
+          .promise();
       }
 
       handleMessage(Message);
