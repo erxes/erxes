@@ -32,11 +32,6 @@ function SettingsSidebar(props, { __ }) {
               {__('Email appearance')}
             </NavLink>
           </li>
-          <li>
-            <NavLink activeClassName="active" to="/settings/forms">
-              {__('Forms')}
-            </NavLink>
-          </li>
         </SidebarList>
       </Sidebar.Section>
     </Sidebar>
