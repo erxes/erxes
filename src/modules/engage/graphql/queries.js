@@ -59,6 +59,7 @@ const engageDetailFields = `
   stopDate
   createdDate
   messenger
+  stats
 `;
 
 const engageMessageDetail = `

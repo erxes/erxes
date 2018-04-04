@@ -625,5 +625,12 @@
   "Thank you.": "Thank you.",
   "Choose brand": "Choose brand",
   "Write title": "Write title",
-  "Contact": "Contact"
+  "Contact": "Contact",
+  "Delivered": "Delivered",
+  "Opened": "Opened",
+  "Clicked": "Clicked",
+  "Complaint": "Complaint",
+  "Bounce": "Bounce",
+  "Rendering Failure": "Rendering Failure",
+  "Rejected": "Rejected"
 }

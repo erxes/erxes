@@ -111,14 +111,14 @@ class List extends React.Component {
               <th>{__('From')}</th>
               <th>{__('Status')}</th>
               <th>{__('Total')}</th>
-              <th>Sent</th>
-              <th>Delivered</th>
-              <th>Opened</th>
-              <th>Clicked</th>
-              <th>Complaint</th>
-              <th>Bounce</th>
-              <th>Rendering Failure</th>
-              <th>Rejected</th>
+              <th>{__('Sent')}</th>
+              <th>{__('Delivered')}</th>
+              <th>{__('Opened')}</th>
+              <th>{__('Clicked')}</th>
+              <th>{__('Complaint')}</th>
+              <th>{__('Bounce')}</th>
+              <th>{__('Rendering Failure')}</th>
+              <th>{__('Rejected')}</th>
               <th>{__('Type')}</th>
               <th>{__('Created date')}</th>
               <th>{__('Tags')}</th>
