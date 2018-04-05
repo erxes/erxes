@@ -1,8 +1,9 @@
-import gql from 'graphql-tag';
 import { queries as companyQueries } from 'modules/companies/graphql';
-import client from 'apolloClient';
-import { Alert } from 'modules/common/utils';
+import { queries as customerQueries } from 'modules/customers/graphql';
 import { queries as userQueries } from 'modules/settings/team/graphql';
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import { Alert } from 'modules/common/utils';
 
 const searchCompany = (searchValue, callback) => {
   client
@@ -12,6 +13,20 @@ const searchCompany = (searchValue, callback) => {
     })
     .then(response => {
       callback && callback(response.data.companies);
+    })
+    .catch(error => {
+      Alert.error(error.message);
+    });
+};
+
+const searchCustomer = (searchValue, callback) => {
+  client
+    .query({
+      query: gql(customerQueries.customers),
+      variables: { searchValue, page: 1, perPage: 10 }
+    })
+    .then(response => {
+      callback && callback(response.data.customers);
     })
     .catch(error => {
       Alert.error(error.message);
@@ -32,4 +47,4 @@ const searchUser = (searchValue, callback) => {
     });
 };
 
-export { searchCompany, searchUser };
+export { searchCompany, searchCustomer, searchUser };

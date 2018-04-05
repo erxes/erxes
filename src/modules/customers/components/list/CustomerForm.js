@@ -13,6 +13,7 @@ import {
   FormColumn,
   ColumnTitle
 } from 'modules/common/styles/styles';
+import { searchUser } from 'modules/common/utils';
 import {
   CUSTOMER_LEAD_STATUS_TYPES,
   CUSTOMER_LIFECYCLE_STATE_TYPES
@@ -20,8 +21,7 @@ import {
 
 const propTypes = {
   customer: PropTypes.object,
-  action: PropTypes.func.isRequired,
-  users: PropTypes.array
+  action: PropTypes.func.isRequired
 };
 
 const contextTypes = {
@@ -37,7 +37,8 @@ class CustomerForm extends React.Component {
     this.state = {
       ownerId: customer.ownerId || '',
       doNotDisturb: customer.doNotDisturb || 'No',
-      hasAuthority: customer.hasAuthority || 'No'
+      hasAuthority: customer.hasAuthority || 'No',
+      users: []
     };
 
     this.renderFormGroup = this.renderFormGroup.bind(this);
@@ -102,8 +103,9 @@ class CustomerForm extends React.Component {
 
   render() {
     const { __, closeModal } = this.context;
-    const { customer = {}, users } = this.props;
+    const { customer = {} } = this.props;
     const { links = {} } = customer;
+    const { users } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>
@@ -127,6 +129,9 @@ class CustomerForm extends React.Component {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search..."
+                onInputChange={value =>
+                  searchUser(value, users => this.setState({ users }))
+                }
                 onChange={selectedOption => {
                   this.setState({ ownerId: selectedOption.value });
                 }}

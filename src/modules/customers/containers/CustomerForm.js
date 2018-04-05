@@ -3,17 +3,11 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
-import { queries as userQueries } from 'modules/settings/team/graphql';
 import { Alert } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { CustomerForm } from '../components';
 
 const CustomerFormContainer = props => {
-  const { customersEdit, customer, customersAdd, usersQuery } = props;
-
-  if (usersQuery.loading) {
-    return <Spinner />;
-  }
+  const { customersEdit, customer, customersAdd } = props;
 
   let action = ({ doc }) => {
     customersAdd({ variables: doc })
@@ -39,7 +33,6 @@ const CustomerFormContainer = props => {
 
   const updatedProps = {
     ...props,
-    users: usersQuery.users || [],
     action
   };
 
@@ -48,7 +41,6 @@ const CustomerFormContainer = props => {
 
 CustomerFormContainer.propTypes = {
   customer: PropTypes.object,
-  usersQuery: PropTypes.object,
   customersEdit: PropTypes.func,
   customersAdd: PropTypes.func
 };
@@ -60,14 +52,22 @@ CustomerFormContainer.contextTypes = {
 const options = ({ customer }) => {
   if (!customer) {
     return {
-      refetchQueries: [{ query: gql`${queries.customersMain}` }]
+      refetchQueries: [
+        {
+          query: gql`
+            ${queries.customersMain}
+          `
+        }
+      ]
     };
   }
 
   return {
     refetchQueries: [
       {
-        query: gql`${queries.customerDetail}`,
+        query: gql`
+          ${queries.customerDetail}
+        `,
         variables: { _id: customer._id }
       }
     ]
@@ -75,9 +75,6 @@ const options = ({ customer }) => {
 };
 
 export default compose(
-  graphql(gql(userQueries.users), {
-    name: 'usersQuery'
-  }),
   graphql(gql(mutations.customersEdit), {
     name: 'customersEdit',
     options

@@ -4,7 +4,7 @@ import parse from 'ua-parser-js';
 import { Sidebar } from 'modules/layout/components';
 import { Button } from 'modules/common/components';
 import { ManageGroups } from 'modules/settings/properties/components';
-import { BasicInfo } from 'modules/customers/components/detail/sidebar';
+import { BasicInfo } from 'modules/customers/containers';
 import { BlockValue } from './styles';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
