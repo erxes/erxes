@@ -76,6 +76,14 @@ const Nav = styled.nav`
     &.active {
       background: rgba(0, 0, 0, 0.13);
     }
+
+    @media (max-height: 760px) {
+      height: ${dimensions.headerSpacing}px;
+
+      i {
+        margin-top: 15px;
+      }
+    }
   }
 `;
 
@@ -126,7 +134,8 @@ const NavIcon = styled.i`
 
 class Navigation extends Component {
   componentDidUpdate() {
-    setBadge(this.props.unreadConversationsCount);
+    const { __ } = this.context;
+    setBadge(this.props.unreadConversationsCount, __('Inbox'));
   }
 
   componentWillReceiveProps(nextProps) {

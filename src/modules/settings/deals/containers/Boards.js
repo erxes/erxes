@@ -12,7 +12,8 @@ class BoardsContainer extends React.Component {
       boardsQuery,
       addMutation,
       editMutation,
-      removeMutation
+      removeMutation,
+      setDefaultMutation
     } = this.props;
 
     const { __ } = this.context;
@@ -61,11 +62,27 @@ class BoardsContainer extends React.Component {
         });
     };
 
+    // set default
+    const setDefault = _id => {
+      setDefaultMutation({
+        variables: { _id }
+      })
+        .then(() => {
+          boardsQuery.refetch();
+
+          Alert.success(__('Successfully selected.'));
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
+
     const extendedProps = {
       ...this.props,
       boards,
       save,
       remove,
+      setDefault,
       loading: boardsQuery.loading
     };
 
@@ -77,7 +94,8 @@ BoardsContainer.propTypes = {
   boardsQuery: PropTypes.object,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
-  removeMutation: PropTypes.func
+  removeMutation: PropTypes.func,
+  setDefaultMutation: PropTypes.func
 };
 
 BoardsContainer.contextTypes = {
@@ -96,5 +114,8 @@ export default compose(
   }),
   graphql(gql(mutations.boardRemove), {
     name: 'removeMutation'
+  }),
+  graphql(gql(mutations.boardSetDefault), {
+    name: 'setDefaultMutation'
   })
 )(BoardsContainer);

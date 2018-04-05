@@ -11,7 +11,7 @@ class DealContainer extends React.Component {
     const { dealDetailQuery } = this.props;
 
     if (dealDetailQuery.loading) {
-      return <Spinner />;
+      return <Spinner objective />;
     }
 
     const deal = dealDetailQuery.dealDetail;

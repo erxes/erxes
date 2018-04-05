@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Stage } from '../containers';
 import { EmptyState } from 'modules/common/components';
 import { Droppable } from 'react-beautiful-dnd';
-import { PipelineContainer, PipelineHeader, PipelineBody } from '../styles';
+import { Container, Header, Body } from '../styles/pipeline';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
@@ -19,7 +19,7 @@ class Pipeline extends React.Component {
     const length = stages.length;
 
     return (
-      <PipelineBody innerRef={provided.innerRef} {...provided.droppableProps}>
+      <Body innerRef={provided.innerRef} {...provided.droppableProps}>
         <div>
           {stages.map((stage, index) => (
             <Stage
@@ -35,7 +35,7 @@ class Pipeline extends React.Component {
         {stages.length === 0 && (
           <EmptyState size="full" text="No stage" icon="map" />
         )}
-      </PipelineBody>
+      </Body>
     );
   }
 
@@ -43,10 +43,10 @@ class Pipeline extends React.Component {
     const { pipeline } = this.props;
 
     return (
-      <PipelineContainer>
-        <PipelineHeader>
+      <Container>
+        <Header>
           <h2>{pipeline.name}</h2>
-        </PipelineHeader>
+        </Header>
 
         <Droppable
           type="pipeline"
@@ -55,7 +55,7 @@ class Pipeline extends React.Component {
         >
           {provided => this.renderStage(provided)}
         </Droppable>
-      </PipelineContainer>
+      </Container>
     );
   }
 }

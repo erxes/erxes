@@ -65,9 +65,7 @@ const integrationsCreateFormIntegration = `
 `;
 
 const integrationsEditFormIntegration = `
-  mutation integrationsEditFormIntegration($_id: String!, ${
-    commonFormParamsDef
-  }) {
+  mutation integrationsEditFormIntegration($_id: String!, ${commonFormParamsDef}) {
     integrationsEditFormIntegration(_id: $_id, ${commonFormParams}) {
       _id
     }

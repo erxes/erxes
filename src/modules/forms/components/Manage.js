@@ -13,9 +13,9 @@ class Manage extends Component {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${process.env.REACT_APP_CDN_HOST}/build/${
-      type
-    }Widget.bundle.js";
+        script.src = "${
+          process.env.REACT_APP_CDN_HOST
+        }/build/${type}Widget.bundle.js";
         script.async = true;
 
         var entry = document.getElementsByTagName('script')[0];

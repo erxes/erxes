@@ -10,7 +10,7 @@ import {
   RespondBoxStyled,
   EditorActions,
   Attachment,
-  AttachmentPreview,
+  AttachmentThumb,
   AttachmentIndicator,
   PreviewImg,
   FileName,
@@ -48,7 +48,6 @@ class RespondBox extends Component {
 
     // on shift + enter press in editor
     this.onShifEnter = this.onShifEnter.bind(this);
-
     this.onSend = this.onSend.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.hideMask = this.hideMask.bind(this);
@@ -111,9 +110,13 @@ class RespondBox extends Component {
   }
 
   handleFileInput(e) {
-    e.preventDefault();
-
-    const file = e.target.files[0];
+    let file = null;
+    if (e.target) {
+      e.preventDefault();
+      file = e.target.files[0];
+    } else {
+      file = e[0];
+    }
 
     uploadHandler({
       file,
@@ -183,13 +186,13 @@ class RespondBox extends Component {
         <AttachmentIndicator>
           {attachments.map(attachment => (
             <Attachment key={attachment.name}>
-              <AttachmentPreview>
+              <AttachmentThumb>
                 {attachment.type.startsWith('image') && (
                   <PreviewImg
                     style={{ backgroundImage: `url('${attachment.url}')` }}
                   />
                 )}
-              </AttachmentPreview>
+              </AttachmentThumb>
               <FileName>{attachment.name}</FileName>
               <div>({Math.round(attachment.size / 1000)}kB)</div>
             </Attachment>
@@ -288,6 +291,7 @@ class RespondBox extends Component {
             showMentions={isInternal}
             responseTemplate={responseTemplate}
             responseTemplates={responseTemplates}
+            handleFileInput={this.handleFileInput}
           />
 
           {this.renderIncicator()}

@@ -1,40 +1,62 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Datetime from 'react-datetime';
 import Select from 'react-select-plus';
 import {
+  DataWithLoader,
   Button,
-  ModalTrigger,
   Icon,
   FormGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
+  Tabs,
+  TabTitle
 } from 'modules/common/components';
+import { Form as NoteForm } from 'modules/internalNotes/containers';
+import { ActivityList } from 'modules/activityLogs/components';
+import { WhiteBox } from 'modules/layout/styles';
 import { Alert } from 'modules/common/utils';
-import { CompanyChooser } from 'modules/companies/containers';
-import { CustomerChooser } from 'modules/customers/containers';
-import {
-  DealFormContainer,
-  DealButton,
-  DealFormAmount,
-  Footer
-} from '../../styles';
-import { ProductForm, ItemCounter } from '../';
+import { CompanySection } from 'modules/companies/components';
+import { CustomerSection } from 'modules/customers/components';
+import ServiceSection from './ServiceSection';
+import { hasAnyActivity } from 'modules/customers/utils';
+import { DealMove } from '../../containers';
 import { selectUserOptions } from '../../utils';
+import {
+  HeaderContentSmall,
+  HeaderRow,
+  HeaderContent,
+  FormFooter,
+  FormBody,
+  Left,
+  Right
+} from '../../styles/deal';
 
 const propTypes = {
   deal: PropTypes.object,
-  close: PropTypes.func.isRequired,
   saveDeal: PropTypes.func.isRequired,
+  removeDeal: PropTypes.func.isRequired,
+  moveDeal: PropTypes.func,
   stageId: PropTypes.string,
   users: PropTypes.array,
-  dealsLength: PropTypes.number
+  length: PropTypes.number,
+  dealActivityLog: PropTypes.array,
+  loadingLogs: PropTypes.bool
+};
+
+const contextTypes = {
+  closeModal: PropTypes.func.isRequired,
+  currentUser: PropTypes.object,
+  boardId: PropTypes.string,
+  pipelineId: PropTypes.string,
+  __: PropTypes.func
 };
 
 class DealForm extends React.Component {
   constructor(props) {
     super(props);
 
+    this.onTabClick = this.onTabClick.bind(this);
     this.onChangeCompany = this.onChangeCompany.bind(this);
     this.onChangeCustomer = this.onChangeCustomer.bind(this);
     this.onDateInputChange = this.onDateInputChange.bind(this);
@@ -43,21 +65,28 @@ class DealForm extends React.Component {
     this.onChangeUsers = this.onChangeUsers.bind(this);
     this.saveProductsData = this.saveProductsData.bind(this);
     this.save = this.save.bind(this);
+    this.copy = this.copy.bind(this);
 
     const deal = props.deal || {};
 
     this.state = {
+      disabled: false,
+      currentTab: 'activity',
       amount: deal.amount || {},
       // Deal datas
       companies: deal.companies || [],
       customers: deal.customers || [],
       closeDate: deal.closeDate,
-      note: deal.note || '',
+      description: deal.description || '',
       productsData: deal.products ? deal.products.map(p => ({ ...p })) : [],
       // collecting data for ItemCounter component
       products: deal.products ? deal.products.map(p => p.product) : [],
       assignedUserIds: (deal.assignedUsers || []).map(user => user._id)
     };
+  }
+
+  onTabClick(currentTab) {
+    this.setState({ currentTab });
   }
 
   onChangeCompany(companies) {
@@ -78,10 +107,6 @@ class DealForm extends React.Component {
 
   onChangeProducts(products) {
     this.setState({ products });
-  }
-
-  onChangeNote(e) {
-    this.setState({ note: e.target.value });
   }
 
   onChangeUsers(users) {
@@ -117,229 +142,320 @@ class DealForm extends React.Component {
   }
 
   save() {
+    const { deal, stageId, length } = this.props;
     const {
       companies,
       customers,
       closeDate,
       productsData,
-      note,
       assignedUserIds
     } = this.state;
-
     const { __ } = this.context;
 
-    if (productsData.length === 0) {
-      return Alert.error(__('Please, select product & service'));
+    const name = document.getElementById('name').value;
+
+    if (!name) {
+      return Alert.error(__('Enter name'));
     }
 
-    const { deal, stageId, dealsLength } = this.props;
-
-    const doc = {
-      companyIds: companies.map(company => company._id),
-      customerIds: customers.map(customer => customer._id),
-      closeDate: closeDate ? new Date(closeDate) : null,
-      note,
-      productsData,
-      assignedUserIds,
-      stageId: deal ? deal.stageId : stageId,
-      order: deal ? deal.order : dealsLength
+    let doc = {
+      name,
+      stageId,
+      order: length
     };
 
-    this.props.saveDeal(doc, () => this.props.close(), this.props.deal);
-  }
+    // edit
+    if (deal) {
+      if (productsData.length === 0) {
+        return Alert.error(__('Please, select product & service'));
+      }
 
-  renderProductModal(productsData, products) {
-    const { __ } = this.context;
+      doc = {
+        name,
+        companyIds: companies.map(company => company._id),
+        customerIds: customers.map(customer => customer._id),
+        closeDate: closeDate ? new Date(closeDate) : null,
+        description: document.getElementById('description').value,
+        productsData,
+        stageId: deal.stageId,
+        assignedUserIds
+      };
+    }
 
-    const productTrigger = (
-      <DealButton>
-        {__('Product & Service')} <Icon icon="plus" />
-      </DealButton>
-    );
+    // before save, disable save button
+    this.setState({ disabled: true });
 
-    return (
-      <ModalTrigger
-        title="New Product & Service"
-        trigger={productTrigger}
-        dialogClassName="full"
-      >
-        <ProductForm
-          onChangeProductsData={this.onChangeProductsData}
-          onChangeProducts={this.onChangeProducts}
-          productsData={productsData}
-          products={products}
-          saveProductsData={this.saveProductsData}
-        />
-      </ModalTrigger>
-    );
-  }
+    this.props.saveDeal(
+      doc,
+      () => {
+        // after save, enable save button
+        this.setState({ disabled: false });
 
-  renderCompanyModal(companies) {
-    const { __ } = this.context;
-
-    const companyTrigger = (
-      <DealButton>
-        {__('Choose a company')} <Icon icon="plus" />
-      </DealButton>
-    );
-
-    return (
-      <ModalTrigger
-        size="large"
-        title="Select company"
-        trigger={companyTrigger}
-      >
-        <CompanyChooser
-          data={{ firstName: 'Deal', companies }}
-          onSelect={this.onChangeCompany}
-        />
-      </ModalTrigger>
+        this.context.closeModal();
+      },
+      this.props.deal
     );
   }
 
-  renderCustomerModal(customers) {
-    const { __ } = this.context;
+  copy() {
+    const { deal } = this.props;
 
-    const customerTrigger = (
-      <DealButton>
-        {__('Choose a customer')} <Icon icon="plus" />
-      </DealButton>
-    );
+    // copied doc
+    const doc = {
+      ...deal,
+      assignedUserIds: deal.assignedUsers.map(user => user._id),
+      companyIds: deal.companies.map(company => company._id),
+      customerIds: deal.customers.map(customer => customer._id)
+    };
 
-    return (
-      <ModalTrigger
-        size="large"
-        title="Select customer"
-        trigger={customerTrigger}
-      >
-        <CustomerChooser
-          data={{ name: 'Deal', customers }}
-          onSelect={this.onChangeCustomer}
-        />
-      </ModalTrigger>
-    );
+    this.props.saveDeal(doc, () => this.context.closeModal());
   }
 
   renderAmount(amount) {
     if (Object.keys(amount).length === 0) return null;
 
     return (
-      <FormGroup>
+      <HeaderContentSmall>
         <ControlLabel>Amount</ControlLabel>
-        <DealFormAmount>
-          {Object.keys(amount).map(key => (
-            <p key={key}>
-              {amount[key].toLocaleString()} {key}
-            </p>
-          ))}
-        </DealFormAmount>
-      </FormGroup>
+        {Object.keys(amount).map(key => (
+          <p key={key}>
+            {amount[key].toLocaleString()} {key}
+          </p>
+        ))}
+      </HeaderContentSmall>
+    );
+  }
+
+  renderTabContent() {
+    const { currentTab } = this.state;
+    const { dealActivityLog, deal, loadingLogs } = this.props;
+    const { currentUser } = this.context;
+
+    return (
+      <div
+        style={
+          !hasAnyActivity(dealActivityLog)
+            ? { position: 'relative', height: '400px' }
+            : {}
+        }
+      >
+        <DataWithLoader
+          loading={loadingLogs}
+          count={!loadingLogs && hasAnyActivity(dealActivityLog) ? 1 : 0}
+          data={
+            <ActivityList
+              user={currentUser}
+              activities={dealActivityLog}
+              target={deal.name}
+              type={currentTab} //show logs filtered by type
+            />
+          }
+          emptyText="No Activities"
+          emptyImage="/images/robots/robot-03.svg"
+        />
+      </div>
+    );
+  }
+
+  renderTab() {
+    const { deal } = this.props;
+    const { currentTab } = this.state;
+    const { __ } = this.context;
+
+    return (
+      <Left>
+        <WhiteBox>
+          <Tabs>
+            <TabTitle className="active">
+              <Icon icon="compose" /> {__('New note')}
+            </TabTitle>
+          </Tabs>
+
+          <NoteForm contentType="deal" contentTypeId={deal._id} />
+        </WhiteBox>
+        <Tabs grayBorder>
+          <TabTitle
+            className={currentTab === 'activity' ? 'active' : ''}
+            onClick={() => this.onTabClick('activity')}
+          >
+            {__('Activity')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'notes' ? 'active' : ''}
+            onClick={() => this.onTabClick('notes')}
+          >
+            {__('Notes')}
+          </TabTitle>
+        </Tabs>
+
+        {this.renderTabContent()}
+      </Left>
+    );
+  }
+
+  renderSidebar() {
+    const { customers, companies, products, productsData } = this.state;
+    const { deal } = this.props;
+
+    return (
+      <Right>
+        <ServiceSection
+          onChangeProductsData={this.onChangeProductsData}
+          onChangeProducts={this.onChangeProducts}
+          productsData={productsData}
+          products={products}
+          saveProductsData={this.saveProductsData}
+        />
+
+        <CompanySection
+          name="Deal"
+          companies={companies}
+          onSelect={this.onChangeCompany}
+        />
+
+        <CustomerSection
+          name="Deal"
+          customers={customers}
+          onSelect={this.onChangeCustomer}
+        />
+
+        <Button onClick={this.copy} icon="checkmark">
+          Copy
+        </Button>
+
+        <Button icon="close" onClick={() => this.props.removeDeal(deal._id)}>
+          Delete
+        </Button>
+      </Right>
+    );
+  }
+
+  renderDealMove() {
+    const { deal, moveDeal } = this.props;
+    const { boardId, pipelineId } = this.context;
+
+    return (
+      <DealMove
+        deal={deal}
+        boardId={boardId}
+        pipelineId={pipelineId}
+        moveDeal={moveDeal}
+      />
+    );
+  }
+
+  renderFormContent() {
+    const { deal, users } = this.props;
+    const { closeDate, amount, assignedUserIds } = this.state;
+    const { __ } = this.context;
+
+    const nameField = name => (
+      <HeaderContent>
+        <ControlLabel>Name</ControlLabel>
+        <FormControl id="name" defaultValue={name || ''} required />
+      </HeaderContent>
+    );
+
+    // When add, only show name
+    if (!deal) return nameField();
+
+    const { name, description } = deal;
+
+    return (
+      <div>
+        <HeaderRow>
+          {nameField(name)}
+
+          {this.renderAmount(amount)}
+        </HeaderRow>
+
+        <HeaderRow>
+          <HeaderContent>{this.renderDealMove()}</HeaderContent>
+
+          <HeaderContentSmall>
+            <FormGroup>
+              <ControlLabel>Close date</ControlLabel>
+              <Datetime
+                inputProps={{ placeholder: __('Click to select a date') }}
+                dateFormat="YYYY/MM/DD"
+                timeFormat={false}
+                value={closeDate}
+                closeOnSelect
+                onChange={this.onDateInputChange.bind(this)}
+              />
+            </FormGroup>
+          </HeaderContentSmall>
+        </HeaderRow>
+
+        <FormBody>
+          <Left>
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+              <FormControl
+                id="description"
+                componentClass="textarea"
+                defaultValue={description}
+              />
+            </FormGroup>
+          </Left>
+          <Right>
+            <FormGroup>
+              <ControlLabel>Assigned to</ControlLabel>
+              <Select
+                placeholder={__('Choose users')}
+                value={assignedUserIds}
+                onChange={this.onChangeUsers}
+                optionRenderer={option => (
+                  <div className="simple-option">
+                    <span>{option.label}</span>
+                  </div>
+                )}
+                multi
+                removeSelected={true}
+                options={selectUserOptions(users)}
+              />
+            </FormGroup>
+          </Right>
+        </FormBody>
+
+        <FormBody>
+          {this.renderTab()}
+          {this.renderSidebar()}
+        </FormBody>
+      </div>
     );
   }
 
   render() {
-    const { __ } = this.context;
-    const { users } = this.props;
-    const {
-      companies,
-      customers,
-      assignedUserIds,
-      closeDate,
-      products,
-      productsData,
-      amount,
-      note
-    } = this.state;
-
     return (
-      <DealFormContainer>
-        {this.renderProductModal(productsData, products)}
+      <Fragment>
+        {this.renderFormContent()}
 
-        <FormGroup>
-          <ItemCounter items={products} show />
-        </FormGroup>
-
-        {this.renderCompanyModal(companies)}
-
-        <FormGroup>
-          <ItemCounter items={companies} show />
-        </FormGroup>
-
-        {this.renderCustomerModal(customers)}
-
-        <FormGroup>
-          <ItemCounter items={customers} show />
-        </FormGroup>
-
-        {this.renderAmount(amount)}
-
-        <FormGroup>
-          <ControlLabel>Close date</ControlLabel>
-          <Datetime
-            inputProps={{ placeholder: __('Click to select a date') }}
-            dateFormat="YYYY/MM/DD"
-            timeFormat={false}
-            value={closeDate}
-            closeOnSelect
-            onChange={this.onDateInputChange.bind(this)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Note</ControlLabel>
-          <FormControl
-            componentClass="textarea"
-            value={note}
-            onChange={this.onChangeNote.bind(this)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Assigned to</ControlLabel>
-          <Select
-            placeholder={__('Choose users')}
-            value={assignedUserIds}
-            onChange={this.onChangeUsers}
-            optionRenderer={option => (
-              <div className="simple-option">
-                <span>{option.label}</span>
-              </div>
-            )}
-            multi
-            removeSelected={true}
-            options={selectUserOptions(users)}
-          />
-        </FormGroup>
-
-        <Footer>
+        <FormFooter>
           <Button
             btnStyle="simple"
-            onClick={() => {
-              this.props.close();
-            }}
+            onClick={this.context.closeModal}
             icon="close"
           >
             Close
           </Button>
 
           <Button
+            disabled={this.state.disabled}
             btnStyle="success"
-            onClick={() => {
-              this.save();
-            }}
             icon="checkmark"
+            type="submit"
+            onClick={this.save}
           >
             Save
           </Button>
-        </Footer>
-      </DealFormContainer>
+        </FormFooter>
+      </Fragment>
     );
   }
 }
 
 DealForm.propTypes = propTypes;
-DealForm.contextTypes = {
-  __: PropTypes.func
-};
+DealForm.contextTypes = contextTypes;
 
 export default DealForm;

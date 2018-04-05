@@ -14,7 +14,7 @@ import { WhiteBoxRoot } from 'modules/layout/styles';
 import { renderFullName } from 'modules/common/utils';
 import { DealSection } from 'modules/deals/components';
 import { EditInformation } from '../../containers';
-import { CompanySection } from '../';
+import { CompanyAssociate } from 'modules/companies/containers';
 import { hasAnyActivity } from '../../utils';
 
 const propTypes = {
@@ -125,7 +125,7 @@ class CustomerDetails extends React.Component {
 
     const rightSidebar = (
       <Sidebar>
-        <CompanySection customer={customer} />
+        <CompanyAssociate data={customer} />
         <DealSection deals={customer.deals || []} />
       </Sidebar>
     );

@@ -15,7 +15,7 @@ import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems, SidebarCounter } from 'modules/layout/styles';
 import ConversationDetails from './sidebar/ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
-import { CompanySection } from 'modules/customers/components';
+import { CompanyAssociate } from 'modules/companies/containers';
 
 import {
   PopoverButton,
@@ -80,16 +80,16 @@ class Inbox extends Component {
 
   renderRightSidebar(currentConversation) {
     if (currentConversation._id) {
+      const customer = currentConversation.customer || {};
+
       return (
         <EditInformation
           conversation={currentConversation}
           sectionTop={
             <ConversationDetails conversation={currentConversation} />
           }
-          sectionBottom={
-            <CompanySection customer={currentConversation.customer} />
-          }
-          customer={currentConversation.customer}
+          sectionBottom={<CompanyAssociate data={customer} />}
+          customer={customer}
           refetch={this.props.refetch}
           otherProperties={this.renderMessengerData()}
         />

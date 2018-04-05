@@ -1,11 +1,40 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { UserCounterContainer } from '../../styles';
+import styled from 'styled-components';
 import { Tip } from 'modules/common/components';
+import { colors } from 'modules/common/styles';
 
 const propTypes = {
   users: PropTypes.array
 };
+
+const UserCounterContainer = styled.ul`
+  margin-bottom: 0;
+  list-style: none;
+  padding: 0;
+  flex-shrink: 0;
+  align-self: flex-end;
+
+  li {
+    float: left;
+    border: 2px solid ${colors.colorWhite};
+    width: 28px;
+    height: 28px;
+    line-height: 26px;
+    border-radius: 14px;
+    background: ${colors.colorCoreLightGray};
+    text-align: center;
+    color: ${colors.colorWhite};
+    overflow: hidden;
+    margin-left: -12px;
+    font-size: 10px;
+
+    img {
+      width: 100%;
+      vertical-align: top;
+    }
+  }
+`;
 
 class UserCounter extends React.Component {
   constructor(props) {

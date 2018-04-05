@@ -7,7 +7,7 @@ import {
   queries as companyQueries
 } from 'modules/companies/graphql';
 import { Alert } from 'modules/common/utils';
-import { CustomerChooser } from './';
+import { CustomerSection } from '../components';
 
 const CustomerAssociate = props => {
   const { companiesEditCustomers, data } = props;
@@ -29,10 +29,12 @@ const CustomerAssociate = props => {
 
   const extendedProps = {
     ...props,
+    name: data.name,
+    customers: data.customers,
     onSelect: customers => save(customers)
   };
 
-  return <CustomerChooser {...extendedProps} />;
+  return <CustomerSection {...extendedProps} />;
 };
 
 CustomerAssociate.propTypes = {
