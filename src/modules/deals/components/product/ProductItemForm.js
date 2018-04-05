@@ -7,10 +7,11 @@ import {
   Button
 } from 'modules/common/components';
 import Select from 'react-select-plus';
-import { DealButton, ProductItemText } from '../../styles';
+import { ItemText } from '../../styles/product';
 import { selectConfigOptions } from '../../utils';
 import { ProductChooser } from '../../containers';
 import { CURRENCIES, MEASUREMENTS } from 'modules/settings/general/constants';
+import { Button as DealButton } from '../../styles/deal';
 
 const propTypes = {
   uom: PropTypes.array,
@@ -116,13 +117,13 @@ class ProductItemForm extends React.Component {
             onChange={e => this.props.onChangeInput(productData._id, e)}
           />
 
-          <ProductItemText align="right">{__('Discount')}</ProductItemText>
+          <ItemText align="right">{__('Discount')}</ItemText>
 
-          <ProductItemText align="right">{__('Tax')}</ProductItemText>
+          <ItemText align="right">{__('Tax')}</ItemText>
         </td>
         <td>
           <FormControl
-            defaultValue={productData.unitPrice}
+            defaultValue={productData.unitPrice || ''}
             type="number"
             placeholder="0"
             name="unitPrice"
@@ -130,7 +131,7 @@ class ProductItemForm extends React.Component {
           />
 
           <FormControl
-            value={productData.discountPercent}
+            value={productData.discountPercent || ''}
             type="number"
             min="0"
             max="100"
@@ -140,7 +141,7 @@ class ProductItemForm extends React.Component {
           />
 
           <FormControl
-            defaultValue={productData.taxPercent}
+            defaultValue={productData.taxPercent || ''}
             type="number"
             min="0"
             max="100"
@@ -149,29 +150,29 @@ class ProductItemForm extends React.Component {
             onChange={e => this.props.onChangeInput(productData._id, e)}
           />
 
-          <ProductItemText>{__('Total')}</ProductItemText>
+          <ItemText>{__('Total')}</ItemText>
         </td>
         <td>
-          <ProductItemText>
+          <ItemText>
             {(productData.quantity * productData.unitPrice).toLocaleString()}{' '}
             {productData.currency}
-          </ProductItemText>
+          </ItemText>
 
           <FormControl
-            value={productData.discount}
+            value={productData.discount || ''}
             type="number"
             placeholder="0"
             name="discount"
             onChange={e => this.props.onChangeInput(productData._id, e)}
           />
 
-          <ProductItemText>
+          <ItemText>
             {(productData.tax || 0).toLocaleString()} {productData.currency}
-          </ProductItemText>
+          </ItemText>
 
-          <ProductItemText>
+          <ItemText>
             {(productData.amount || 0).toLocaleString()} {productData.currency}
-          </ProductItemText>
+          </ItemText>
         </td>
         <td>
           <Button

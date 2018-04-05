@@ -2,12 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Table, EmptyState } from 'modules/common/components';
 import { ProductItemForm } from '../../containers';
-import {
-  ProductFormContainer,
-  ProductFooter,
-  FooterInfo,
-  AddProduct
-} from '../../styles';
+import { FormContainer, Add, Footer, FooterInfo } from '../../styles/product';
 import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
@@ -223,7 +218,7 @@ class ProductForm extends React.Component {
     const products = this.props.productsData;
 
     return (
-      <ProductFormContainer>
+      <FormContainer>
         <Table alignTop={true}>
           <thead>
             <tr>
@@ -252,7 +247,7 @@ class ProductForm extends React.Component {
           </tbody>
         </Table>
 
-        <AddProduct>
+        <Add>
           <Button
             btnStyle="success"
             onClick={this.addProductItem}
@@ -261,8 +256,8 @@ class ProductForm extends React.Component {
           >
             Add Product / Service
           </Button>
-        </AddProduct>
-        <ProductFooter>
+        </Add>
+        <Footer>
           <FooterInfo>
             <table>
               <tbody>
@@ -302,8 +297,8 @@ class ProductForm extends React.Component {
               Save
             </Button>
           </ModalFooter>
-        </ProductFooter>
-      </ProductFormContainer>
+        </Footer>
+      </FormContainer>
     );
   }
 }

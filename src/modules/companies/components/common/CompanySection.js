@@ -4,17 +4,22 @@ import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
 import { ModalTrigger, Icon, Tip, EmptyState } from 'modules/common/components';
 import { urlParser } from 'modules/common/utils';
-import { CompanyAssociate } from 'modules/companies/containers';
-import { CompanyWrapper } from './styles';
+import { CompanyChooser } from '../../containers';
+import { CompanyWrapper } from '../../styles';
 
 const propTypes = {
-  customer: PropTypes.object.isRequired
+  name: PropTypes.string,
+  companies: PropTypes.array,
+  onSelect: PropTypes.func
 };
 
-function CompanySection({ customer }, { __ }) {
+const defaultProps = {
+  companies: []
+};
+
+function CompanySection({ name, companies, onSelect }, { __ }) {
   const { Section } = Sidebar;
   const { Title } = Sidebar.Section;
-  const companies = customer.companies || [];
 
   const companyTrigger = (
     <a>
@@ -27,7 +32,7 @@ function CompanySection({ customer }, { __ }) {
       <Title>{__('Companies')}</Title>
       <Section.QuickButtons>
         <ModalTrigger title="Associate" trigger={companyTrigger} size="lg">
-          <CompanyAssociate data={customer} />
+          <CompanyChooser data={{ name, companies }} onSelect={onSelect} />
         </ModalTrigger>
       </Section.QuickButtons>
       {companies.map((company, index) => (
@@ -55,5 +60,6 @@ CompanySection.propTypes = propTypes;
 CompanySection.contextTypes = {
   __: PropTypes.func
 };
+CompanySection.defaultProps = defaultProps;
 
 export default CompanySection;

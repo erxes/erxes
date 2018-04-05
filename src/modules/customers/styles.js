@@ -145,6 +145,41 @@ const InfoDetail = styled.p`
   color: ${colors.colorCoreGray};
 `;
 
+const SectionBody = styled.div`
+  i {
+    color: #aaaeb3;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+`;
+
+const SectionBodyItem = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
+  padding: 10px 20px;
+
+  span {
+    display: inline-block;
+    width: 100%;
+  }
+
+  i {
+    color: #aaaeb3;
+    position: absolute;
+    right: 20px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+  ul {
+    li {
+      margin-left: 20px;
+    }
+  }
+`;
+
 export {
   Columns,
   Column,
@@ -154,5 +189,7 @@ export {
   SubContent,
   InfoTitle,
   InfoDetail,
-  Info
+  Info,
+  SectionBody,
+  SectionBodyItem
 };

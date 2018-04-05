@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ItemCounterContainer } from '../../styles';
+import styled from 'styled-components';
 import { renderFullName } from 'modules/common/utils';
+import { colors } from 'modules/common/styles';
 
 const propTypes = {
   items: PropTypes.array,
@@ -12,6 +13,29 @@ const propTypes = {
 const defaultProps = {
   show: false
 };
+
+const ItemCounterContainer = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+  overflow: hidden;
+
+  > li {
+    float: left;
+    border-radius: 12px;
+    padding: 3px 10px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    color: ${colors.colorWhite};
+    background: ${colors.colorCoreBlue};
+    text-transform: uppercase;
+    font-size: 9px;
+  }
+  .remained-count {
+    background: #a3a7ac;
+  }
+`;
 
 class ItemCounter extends React.Component {
   constructor(props) {

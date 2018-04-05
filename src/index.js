@@ -7,7 +7,6 @@ import apolloClient from './apolloClient';
 
 import 'ionicons/css/ionicons.min.css';
 import 'react-datetime/css/react-datetime.css';
-import 'react-select-plus/dist/react-select-plus.css';
 import 'react-toggle/style.css';
 // global style
 import 'modules/common/styles/global-styles.js';

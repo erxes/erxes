@@ -3,7 +3,7 @@ import CustomerForm from './list/CustomerForm';
 import CustomersList from './list/CustomersList';
 import CustomerDetails from './detail/CustomerDetails';
 import CommonMerge from './detail/CommonMerge';
-import CompanySection from './detail/sidebar/CompanySection';
+import CustomerSection from './common/CustomerSection';
 
 export {
   CustomerRow,
@@ -11,5 +11,5 @@ export {
   CustomersList,
   CustomerDetails,
   CommonMerge,
-  CompanySection
+  CustomerSection
 };
