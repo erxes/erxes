@@ -68,14 +68,16 @@ CompanyFromContainer.contextTypes = {
 const options = ({ company }) => {
   if (!company) {
     return {
-      refetchQueries: [{ query: gql`${queries.companiesMain}` }]
+      refetchQueries: ['companiesMain', 'companies']
     };
   }
 
   return {
     refetchQueries: [
       {
-        query: gql`${queries.companyDetail}`,
+        query: gql`
+          ${queries.companyDetail}
+        `,
         variables: { _id: company._id }
       }
     ]

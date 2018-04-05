@@ -6,7 +6,7 @@ import { AvatarWrapper } from 'modules/activityLogs/styles';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
 import { Links, InfoWrapper } from 'modules/common/styles/styles';
-import { CustomerForm } from '../../../containers';
+import { CustomerForm } from 'modules/customers/containers';
 
 const propTypes = {
   customer: PropTypes.object.isRequired
