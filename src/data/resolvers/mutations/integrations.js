@@ -1,5 +1,5 @@
 import { Integrations } from '../../../db/models';
-import { socUtils } from '../../../social/twitterTracker';
+import { socUtils } from '../../../trackers/twitterTracker';
 import { requireLogin, requireAdmin } from '../../permissions';
 
 const integrationMutations = {

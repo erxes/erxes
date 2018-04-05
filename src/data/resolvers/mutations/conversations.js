@@ -1,8 +1,8 @@
 import { _ } from 'underscore';
 import strip from 'strip';
 import { Conversations, ConversationMessages, Integrations, Customers } from '../../../db/models';
-import { tweetReply, tweet, retweet, favorite } from '../../../social/twitter';
-import { facebookReply } from '../../../social/facebook';
+import { tweetReply, tweet, retweet, favorite } from '../../../trackers/twitter';
+import { facebookReply } from '../../../trackers/facebook';
 import { NOTIFICATION_TYPES } from '../../constants';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
 import { requireLogin } from '../../permissions';

@@ -2,8 +2,8 @@
 
 import sinon from 'sinon';
 import { connect, disconnect } from '../../db/connection';
-import { facebookReply } from '../../social/facebook';
-import { graphRequest } from '../../social/facebookTracker';
+import { facebookReply } from '../../trackers/facebook';
+import { graphRequest } from '../../trackers/facebookTracker';
 import { Integrations, Conversations, ConversationMessages } from '../../db/models';
 import { integrationFactory, conversationFactory } from '../../db/factories';
 import { FACEBOOK_DATA_KINDS } from '../../data/constants';
