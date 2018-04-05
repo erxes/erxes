@@ -27,7 +27,7 @@ class Deal extends React.Component {
     );
 
     return (
-      <ModalTrigger title="Edit deal" trigger={trigger} dialogClassName="full">
+      <ModalTrigger title="Edit deal" trigger={trigger} size="lg">
         <DealForm
           deal={deal}
           saveDeal={saveDeal}

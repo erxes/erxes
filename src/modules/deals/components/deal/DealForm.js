@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Datetime from 'react-datetime';
 import Select from 'react-select-plus';
 import {
   DataWithLoader,
   Button,
-  ModalTrigger,
   Icon,
   FormGroup,
   FormControl,
@@ -15,19 +14,18 @@ import {
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
-import { Sidebar } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
 import { Alert } from 'modules/common/utils';
 import { CompanySection } from 'modules/companies/components';
 import { CustomerSection } from 'modules/customers/components';
+import ServiceSection from './ServiceSection';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { DealMove } from '../../containers';
-import { ProductForm, ItemCounter } from '../';
 import { selectUserOptions } from '../../utils';
 import {
-  Button as DealButton,
-  FormAmount,
-  FormContainer,
+  HeaderContentSmall,
+  HeaderRow,
+  HeaderContent,
   FormFooter,
   FormBody,
   Left,
@@ -213,46 +211,18 @@ class DealForm extends React.Component {
     this.props.saveDeal(doc, () => this.context.closeModal());
   }
 
-  renderProductModal(productsData, products) {
-    const { __ } = this.context;
-
-    const productTrigger = (
-      <DealButton>
-        {__('Product & Service')} <Icon icon="plus" />
-      </DealButton>
-    );
-
-    return (
-      <ModalTrigger
-        title="New Product & Service"
-        trigger={productTrigger}
-        dialogClassName="full"
-      >
-        <ProductForm
-          onChangeProductsData={this.onChangeProductsData}
-          onChangeProducts={this.onChangeProducts}
-          productsData={productsData}
-          products={products}
-          saveProductsData={this.saveProductsData}
-        />
-      </ModalTrigger>
-    );
-  }
-
   renderAmount(amount) {
     if (Object.keys(amount).length === 0) return null;
 
     return (
-      <FormGroup>
+      <HeaderContentSmall>
         <ControlLabel>Amount</ControlLabel>
-        <FormAmount>
-          {Object.keys(amount).map(key => (
-            <p key={key}>
-              {amount[key].toLocaleString()} {key}
-            </p>
-          ))}
-        </FormAmount>
-      </FormGroup>
+        {Object.keys(amount).map(key => (
+          <p key={key}>
+            {amount[key].toLocaleString()} {key}
+          </p>
+        ))}
+      </HeaderContentSmall>
     );
   }
 
@@ -294,67 +264,68 @@ class DealForm extends React.Component {
 
     return (
       <Left>
-        <div>
-          <WhiteBox>
-            <Tabs>
-              <TabTitle className="active">
-                <Icon icon="compose" /> {__('New note')}
-              </TabTitle>
-            </Tabs>
-
-            <NoteForm contentType="deal" contentTypeId={deal._id} />
-          </WhiteBox>
-          <Tabs grayBorder>
-            <TabTitle
-              className={currentTab === 'activity' ? 'active' : ''}
-              onClick={() => this.onTabClick('activity')}
-            >
-              {__('Activity')}
-            </TabTitle>
-            <TabTitle
-              className={currentTab === 'notes' ? 'active' : ''}
-              onClick={() => this.onTabClick('notes')}
-            >
-              {__('Notes')}
+        <WhiteBox>
+          <Tabs>
+            <TabTitle className="active">
+              <Icon icon="compose" /> {__('New note')}
             </TabTitle>
           </Tabs>
 
-          {this.renderTabContent()}
-        </div>
+          <NoteForm contentType="deal" contentTypeId={deal._id} />
+        </WhiteBox>
+        <Tabs grayBorder>
+          <TabTitle
+            className={currentTab === 'activity' ? 'active' : ''}
+            onClick={() => this.onTabClick('activity')}
+          >
+            {__('Activity')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'notes' ? 'active' : ''}
+            onClick={() => this.onTabClick('notes')}
+          >
+            {__('Notes')}
+          </TabTitle>
+        </Tabs>
+
+        {this.renderTabContent()}
       </Left>
     );
   }
 
   renderSidebar() {
-    const { customers, companies } = this.state;
+    const { customers, companies, products, productsData } = this.state;
     const { deal } = this.props;
 
     return (
       <Right>
-        <Sidebar>
-          <CompanySection
-            name="Deal"
-            companies={companies}
-            onSelect={this.onChangeCompany}
-          />
+        <ServiceSection
+          onChangeProductsData={this.onChangeProductsData}
+          onChangeProducts={this.onChangeProducts}
+          productsData={productsData}
+          products={products}
+          saveProductsData={this.saveProductsData}
+        />
 
-          <CustomerSection
-            name="Deal"
-            customers={customers}
-            onSelect={this.onChangeCustomer}
-          />
+        <CompanySection
+          name="Deal"
+          companies={companies}
+          onSelect={this.onChangeCompany}
+        />
 
-          <Button onClick={this.copy} icon="android-folder-open">
-            Copy
-          </Button>
+        <CustomerSection
+          name="Deal"
+          customers={customers}
+          onSelect={this.onChangeCustomer}
+        />
 
-          <Button
-            icon="android-delete"
-            onClick={() => this.props.removeDeal(deal._id)}
-          >
-            Delete
-          </Button>
-        </Sidebar>
+        <Button onClick={this.copy} icon="checkmark">
+          Copy
+        </Button>
+
+        <Button icon="close" onClick={() => this.props.removeDeal(deal._id)}>
+          Delete
+        </Button>
       </Right>
     );
   }
@@ -375,20 +346,14 @@ class DealForm extends React.Component {
 
   renderFormContent() {
     const { deal, users } = this.props;
-    const {
-      assignedUserIds,
-      closeDate,
-      products,
-      productsData,
-      amount
-    } = this.state;
+    const { closeDate, amount, assignedUserIds } = this.state;
     const { __ } = this.context;
 
     const nameField = name => (
-      <FormGroup>
+      <HeaderContent>
         <ControlLabel>Name</ControlLabel>
         <FormControl id="name" defaultValue={name || ''} required />
-      </FormGroup>
+      </HeaderContent>
     );
 
     // When add, only show name
@@ -398,55 +363,60 @@ class DealForm extends React.Component {
 
     return (
       <div>
-        {this.renderDealMove()}
+        <HeaderRow>
+          {nameField(name)}
 
-        {nameField(name)}
+          {this.renderAmount(amount)}
+        </HeaderRow>
 
-        {this.renderProductModal(productsData, products)}
+        <HeaderRow>
+          <HeaderContent>{this.renderDealMove()}</HeaderContent>
 
-        <FormGroup>
-          <ItemCounter items={products} show />
-        </FormGroup>
+          <HeaderContentSmall>
+            <FormGroup>
+              <ControlLabel>Close date</ControlLabel>
+              <Datetime
+                inputProps={{ placeholder: __('Click to select a date') }}
+                dateFormat="YYYY/MM/DD"
+                timeFormat={false}
+                value={closeDate}
+                closeOnSelect
+                onChange={this.onDateInputChange.bind(this)}
+              />
+            </FormGroup>
+          </HeaderContentSmall>
+        </HeaderRow>
 
-        {this.renderAmount(amount)}
-
-        <FormGroup>
-          <ControlLabel>Close date</ControlLabel>
-          <Datetime
-            inputProps={{ placeholder: __('Click to select a date') }}
-            dateFormat="YYYY/MM/DD"
-            timeFormat={false}
-            value={closeDate}
-            closeOnSelect
-            onChange={this.onDateInputChange.bind(this)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Description</ControlLabel>
-          <FormControl
-            id="description"
-            componentClass="textarea"
-            defaultValue={description}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Assigned to</ControlLabel>
-          <Select
-            placeholder={__('Choose users')}
-            value={assignedUserIds}
-            onChange={this.onChangeUsers}
-            optionRenderer={option => (
-              <div className="simple-option">
-                <span>{option.label}</span>
-              </div>
-            )}
-            multi
-            removeSelected={true}
-            options={selectUserOptions(users)}
-          />
-        </FormGroup>
+        <FormBody>
+          <Left>
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+              <FormControl
+                id="description"
+                componentClass="textarea"
+                defaultValue={description}
+              />
+            </FormGroup>
+          </Left>
+          <Right>
+            <FormGroup>
+              <ControlLabel>Assigned to</ControlLabel>
+              <Select
+                placeholder={__('Choose users')}
+                value={assignedUserIds}
+                onChange={this.onChangeUsers}
+                optionRenderer={option => (
+                  <div className="simple-option">
+                    <span>{option.label}</span>
+                  </div>
+                )}
+                multi
+                removeSelected={true}
+                options={selectUserOptions(users)}
+              />
+            </FormGroup>
+          </Right>
+        </FormBody>
 
         <FormBody>
           {this.renderTab()}
@@ -458,7 +428,7 @@ class DealForm extends React.Component {
 
   render() {
     return (
-      <FormContainer>
+      <Fragment>
         {this.renderFormContent()}
 
         <FormFooter>
@@ -480,7 +450,7 @@ class DealForm extends React.Component {
             Save
           </Button>
         </FormFooter>
-      </FormContainer>
+      </Fragment>
     );
   }
 }

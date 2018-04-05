@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors, typography } from 'modules/common/styles';
+import { colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { coreHeight } from './deminsions';
 
@@ -64,6 +64,11 @@ const Container = styled.div`
   &:hover ${ContainerHover} {
     opacity: 1;
   }
+
+  h4 {
+    margin-top: 0;
+    font-size: 13px;
+  }
 `;
 
 const SectionContainer = styled.div`
@@ -73,16 +78,23 @@ const SectionContainer = styled.div`
 
 const Date = styled.span`
   font-size: 11px;
-  background: ${rgba(colors.colorCoreRed, 0.8)};
-  color: #fff;
-  padding: 1px 5px;
-  border-radius: 2px;
+`;
+
+const HeaderRow = styled.div`
+  display: flex;
+  margin-bottom: 40px;
+`;
+
+const HeaderContent = styled.div`
+  flex: 1;
 `;
 
 const Amount = styled.div`
   margin-top: 10px;
+  font-weight: bold;
+
   p {
-    margin-om: 0;
+    margin-bottom: 0;
 
     span {
       font-size: 10px;
@@ -91,37 +103,36 @@ const Amount = styled.div`
   }
 `;
 
-const FormAmount = styled.div`
-  margin-top: 10px;
+const HeaderContentSmall = styled.div`
+  text-align: right;
+  margin-left: 20px;
+  min-width: 160px;
+  flex-shrink: 0;
+
   p {
-    margin-bottom: 0;
+    font-size: 16px;
+    margin-bottom: 5px;
     font-weight: bold;
   }
-`;
 
-const FormContainer = styled.div`
-  padding: 20px;
-  border-radius: 5px;
-  border: 1px dashed ${colors.colorShadowGray};
-  background-color: #f6f6f6;
+  label {
+    margin-right: 0;
+  }
 
-  .form-control {
+  input.form-control {
     box-shadow: none;
     border-radius: 0;
     border: none;
     background: none;
-    border-bottom: 1px solid ${colors.colorShadowGray};
-    padding: 17px 14px;
-    font-size: ${typography.fontSizeBody}px;
+    text-align: right;
+    border: none !important;
+    padding: 0 !important;
+    height: 20px;
+    width: 160px;
 
     &:focus {
       box-shadow: none;
-      border-color: ${colors.colorSecondary};
     }
-  }
-
-  textarea {
-    height: 62px;
   }
 `;
 
@@ -157,30 +168,32 @@ const FormBody = styled.div`
 `;
 
 const Left = styled.div`
-  display: flex;
-  flex: 1;
   margin-right: 20px;
-  > div {
-    width: 100%;
-  }
+  flex: 1;
 `;
 
 const Right = styled.div`
-  display: flex;
-  width: 300px;
+  width: 280px;
 
   button {
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     margin-left: 0;
-    padding: 15px;
+    padding: 15px 20px;
     background: ${colors.colorWhite};
     color: ${colors.textPrimary};
     text-align: left;
     border-radius: 0;
     text-transform: none;
-    font-weight: 500px;
+    font-weight: 500;
     font-size: 13px;
+    box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
+
+    i {
+      color: ${colors.colorPrimary};
+      margin-right: 5px;
+    }
+
     &:hover {
       color: ${colors.textPrimary};
     }
@@ -190,12 +203,13 @@ const Right = styled.div`
 const MoveContainer = styled.div`
   display: flex;
   margin-bottom: 20px;
+  align-items: center;
 `;
 
 const MoveFormContainer = styled.div`
-  float: left;
-  margin: 12px 100px 0 0;
+  margin-right: 20px;
   position: relative;
+
   form {
     position: absolute;
     top: 30px;
@@ -203,25 +217,61 @@ const MoveFormContainer = styled.div`
     width: 300px;
     padding: 20px;
     z-index: 100;
+    box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
     background: ${colors.colorWhite};
   }
 `;
 
+const PipelineName = styled.div`
+  font-weight: bold;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 const Stages = styled.ul`
-  float: left;
+  flex: 1;
   list-style: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   margin: 0;
   padding: 0;
   overflow: hidden;
 `;
 
 const StageItem = styled.li`
-  float: left;
-  padding-right: 100px;
+  flex: 1;
+  text-align: right;
+  position: relative;
+
+  &:first-child:before {
+    display: none;
+  }
+
+  &:before {
+    content: '';
+    height: 2px;
+    background: ${props =>
+      props.isPass ? colors.colorSecondary : colors.colorShadowGray};
+    width: 100%;
+    top: 50%;
+    margin-top: -2px;
+    left: -0;
+    position: absolute;
+  }
+
+  a {
+    position: relative;
+    z-index: 10;
+    background: ${colors.bgLight};
+  }
+
   i {
     font-size: 30px;
     color: ${props =>
-      props.isPass ? colors.colorCoreTeal : colors.colorShadowGray};
+      props.isPass ? colors.colorSecondary : colors.colorShadowGray};
   }
 `;
 
@@ -232,11 +282,13 @@ export {
   ContainerHover,
   Footer,
   Date,
+  HeaderRow,
+  HeaderContent,
   Amount,
-  FormAmount,
+  HeaderContentSmall,
   Button,
-  FormContainer,
   MoveFormContainer,
+  PipelineName,
   FormFooter,
   FormBody,
   Left,
