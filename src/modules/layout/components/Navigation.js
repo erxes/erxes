@@ -76,6 +76,14 @@ const Nav = styled.nav`
     &.active {
       background: rgba(0, 0, 0, 0.13);
     }
+
+    @media (max-height: 760px) {
+      height: ${dimensions.headerSpacing}px;
+
+      i {
+        margin-top: 15px;
+      }
+    }
   }
 `;
 
