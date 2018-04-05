@@ -1,10 +1,10 @@
 import styled, { css } from 'styled-components';
 import { colors } from 'modules/common/styles';
-import { stageWidth, stageHeight } from './deminsions';
+import { stageWidth, stageHeight, borderRadius } from './deminsions';
 
 const Wrapper = styled.div`
   display: flex;
-  border-right: 1px solid ${colors.colorShadowGray};
+  border-right: 1px solid ${colors.borderPrimary};
   flex-direction: column;
   width: ${stageWidth}px;
   max-height: ${stageHeight};
@@ -48,7 +48,7 @@ const Header = styled.div`
   &:before {
     border-top: 15px solid transparent;
     border-bottom: 15px solid transparent;
-    border-left: 10px solid ${colors.colorShadowGray};
+    border-left: 10px solid ${colors.borderPrimary};
     right: -10px;
     margin-top: -15px;
   }
@@ -58,6 +58,7 @@ const Header = styled.div`
     font-size: 12px;
     line-height: inherit;
     text-transform: uppercase;
+    font-weight: bold;
 
     span {
       color: ${colors.colorCoreGray};
@@ -98,6 +99,7 @@ const Body = styled.div`
   padding: 10px;
   height: 100%;
   overflow: auto;
+  background: ${colors.bgLight};
 `;
 
 const DropZone = styled.div`
@@ -105,8 +107,9 @@ const DropZone = styled.div`
   min-height: calc(100% - 10px);
 
   > div:not(.deals) {
-    background: #eee;
-    border-radius: 5px;
+    background: ${colors.borderPrimary};
+    border-radius: ${borderRadius};
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
   }
 `;
 
@@ -126,7 +129,7 @@ const Indicator = styled.div`
 const IndicatorItem = styled.div`
   flex: 1;
   background: ${props =>
-    props.isPass ? colors.colorCoreTeal : colors.colorShadowGray};
+    props.isPass ? colors.colorSecondary : colors.colorShadowGray};
   height: 4px;
   border-radius: 10px;
 `;

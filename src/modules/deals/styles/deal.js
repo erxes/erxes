@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-import { coreHeight } from './deminsions';
+import { coreHeight, borderRadius } from './deminsions';
 
 const AddNew = styled.a`
   display: block;
@@ -9,14 +9,14 @@ const AddNew = styled.a`
   line-height: ${coreHeight - 2}px;
   text-align: center;
   border: 1px dashed ${colors.colorShadowGray};
-  border-radius: 5px;
+  border-radius: ${borderRadius};
   color: ${rgba(colors.colorCoreDarkGray, 0.9)};
   font-size: 14px;
   transition: all 0.3s ease;
   cursor: pointer;
 
   &:hover {
-    background: ${colors.bgLight};
+    background: ${colors.colorWhite};
   }
 
   i {
@@ -30,36 +30,25 @@ const ContainerHover = styled.div`
   z-index: 1;
   top: 0;
   right: 0;
-  width: 40px;
-  height: 40px;
+  left: 0;
+  bottom: 0;
   transition: all 0.3s ease;
   cursor: pointer;
-
-  > div {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 15px;
-  }
 `;
 
 const Container = styled.div`
   position: relative;
   overflow: hidden;
   margin-bottom: 10px;
-  padding: 15px;
-  border-radius: 5px;
-  border: 1px solid ${colors.borderPrimary};
-  background-color: ${colors.bgLight};
-  transition: box-shadow 0.3s ease-in-out;
+  padding: 10px;
+  outline: 0;
+  border-radius: ${borderRadius};
+  background-color: ${colors.colorWhite};
+  transition: all 0.3s ease-in-out;
   box-shadow: ${props =>
     props.isDragging
-      ? `0 0 20px 2px rgba(0, 0, 0, 0.15)`
-      : '0 1px 5px 0 rgba(45, 60, 80, 0.1)'};
-
-  &:hover {
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.15);
-  }
+      ? `10px 15px 35px 4px rgba(0, 0, 0, 0.2)`
+      : '0 1px 2px 0 rgba(0, 0, 0, 0.2)'};
 
   &:hover ${ContainerHover} {
     opacity: 1;
@@ -67,7 +56,10 @@ const Container = styled.div`
 
   h4 {
     margin-top: 0;
-    font-size: 13px;
+    font-weight: normal;
+    font-size: 14px;
+    margin-bottom: 5px;
+    padding-right: 40px;
   }
 `;
 
@@ -76,8 +68,14 @@ const SectionContainer = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
 `;
 
-const Date = styled.span`
+const DealDate = styled.span`
   font-size: 11px;
+  color: ${colors.colorCoreGray};
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 10;
+  cursor: help;
 `;
 
 const HeaderRow = styled.div`
@@ -87,20 +85,6 @@ const HeaderRow = styled.div`
 
 const HeaderContent = styled.div`
   flex: 1;
-`;
-
-const Amount = styled.div`
-  margin-top: 10px;
-  font-weight: bold;
-
-  p {
-    margin-bottom: 0;
-
-    span {
-      font-size: 10px;
-      font-weight: bold;
-    }
-  }
 `;
 
 const HeaderContentSmall = styled.div`
@@ -161,6 +145,12 @@ const FormFooter = styled.div`
 
 const Footer = styled.div`
   position: relative;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const FooterContent = styled.div`
+  flex: 1;
 `;
 
 const FormBody = styled.div`
@@ -275,16 +265,38 @@ const StageItem = styled.li`
   }
 `;
 
+const ItemList = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+  overflow: hidden;
+
+  > li {
+    float: left;
+    line-height: 18px;
+
+    &:after {
+      content: ', ';
+      margin-right: 5px;
+    }
+
+    &:last-child:after {
+      display: none;
+    }
+  }
+`;
+
 export {
   AddNew,
   Container,
   SectionContainer,
   ContainerHover,
   Footer,
-  Date,
+  FooterContent,
+  DealDate,
   HeaderRow,
   HeaderContent,
-  Amount,
   HeaderContentSmall,
   Button,
   MoveFormContainer,
@@ -295,5 +307,6 @@ export {
   Right,
   MoveContainer,
   Stages,
+  ItemList,
   StageItem
 };

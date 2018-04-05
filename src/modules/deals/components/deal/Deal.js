@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
-import { ModalTrigger, Icon } from 'modules/common/components';
+import { ModalTrigger } from 'modules/common/components';
 import { DealForm } from '../../containers';
 import { CommonDeal } from '../';
 import { Container, ContainerHover } from '../../styles/deal';
@@ -18,16 +18,8 @@ class Deal extends React.Component {
   showEditForm() {
     const { deal, saveDeal, removeDeal, moveDeal } = this.props;
 
-    const trigger = (
-      <ContainerHover>
-        <div>
-          <Icon icon="edit" />
-        </div>
-      </ContainerHover>
-    );
-
     return (
-      <ModalTrigger title="Edit deal" trigger={trigger} size="lg">
+      <ModalTrigger title="Edit deal" trigger={<ContainerHover />} size="lg">
         <DealForm
           deal={deal}
           saveDeal={saveDeal}
@@ -44,7 +36,7 @@ class Deal extends React.Component {
     return (
       <Draggable draggableId={deal._id} index={index}>
         {(provided, snapshot) => (
-          <div>
+          <Fragment>
             <Container
               innerRef={provided.innerRef}
               {...provided.draggableProps}
@@ -56,7 +48,7 @@ class Deal extends React.Component {
               {this.showEditForm()}
             </Container>
             {provided.placeholder}
-          </div>
+          </Fragment>
         )}
       </Draggable>
     );
