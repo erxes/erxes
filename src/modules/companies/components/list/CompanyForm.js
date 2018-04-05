@@ -13,6 +13,7 @@ import {
   FormColumn,
   ColumnTitle
 } from 'modules/common/styles/styles';
+import { searchCompany, searchUser } from 'modules/common/utils';
 import {
   COMPANY_INDUSTRY_TYPES,
   COMPANY_LEAD_STATUS_TYPES,
@@ -22,10 +23,7 @@ import {
 
 const propTypes = {
   action: PropTypes.func.isRequired,
-  company: PropTypes.object,
-  users: PropTypes.array,
-  companies: PropTypes.array,
-  companiesQuery: PropTypes.object
+  company: PropTypes.object
 };
 
 const contextTypes = {
@@ -42,7 +40,9 @@ class CompanyForm extends React.Component {
     this.state = {
       parentCompanyId: company.parentCompanyId || '',
       ownerId: company.ownerId || '',
-      doNotDisturb: company.doNotDisturb || 'No'
+      doNotDisturb: company.doNotDisturb || 'No',
+      companies: [],
+      users: []
     };
 
     this.action = this.action.bind(this);
@@ -114,8 +114,9 @@ class CompanyForm extends React.Component {
 
   render() {
     const { __ } = this.context;
-    const { company = {}, companies, users } = this.props;
+    const { company = {} } = this.props;
     const { links = {} } = company;
+    const { companies, users } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>
@@ -137,6 +138,11 @@ class CompanyForm extends React.Component {
               <ControlLabel>Parent Company</ControlLabel>
               <Select
                 placeholder="Search..."
+                onInputChange={value =>
+                  searchCompany(value, companies =>
+                    this.setState({ companies })
+                  )
+                }
                 onChange={selectedOption => {
                   this.setState({ parentCompanyId: selectedOption.value });
                 }}
@@ -178,6 +184,9 @@ class CompanyForm extends React.Component {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search..."
+                onInputChange={value =>
+                  searchUser(value, users => this.setState({ users }))
+                }
                 onChange={selectedOption => {
                   this.setState({ ownerId: selectedOption.value });
                 }}
