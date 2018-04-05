@@ -45,6 +45,7 @@ class TaggerSection extends Component {
     const tags = data.getTags || [];
     const { Title, QuickButtons } = Sidebar.Section;
     const { __ } = this.context;
+
     return (
       <Sidebar.Section>
         <Title>{__('Tags')}</Title>
