@@ -633,5 +633,11 @@
   "Choose brand": "Брэндээ сонгоно уу",
   "Write title": "Гарчигаа бичнэ үү",
   "Contact": "Холбоо барих",
-  "Enter name": "Нэрээ оруулна уу"
+  "Enter name": "Нэрээ оруулна уу",
+  "Delivered": "Хүргэгдсэн",
+  "Clicked": "Дарсан",
+  "Complaint": "Гомдол",
+  "Bounce": "Үсэрсэн",
+  "Rendering Failure": "Хөрвүүлэлтын алдаа",
+  "Rejected": "Татгалзсан"
 }
