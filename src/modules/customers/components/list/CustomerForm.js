@@ -92,6 +92,10 @@ class CustomerForm extends React.Component {
     }));
   }
 
+  getVisitorInfo(customer, key) {
+    return customer.visitorContactInfo && customer.visitorContactInfo[key];
+  }
+
   renderFormGroup(label, props) {
     return (
       <FormGroup>
@@ -121,7 +125,8 @@ class CustomerForm extends React.Component {
             {this.renderFormGroup('Email', {
               id: 'customer-email',
               type: 'email',
-              defaultValue: customer.email || '',
+              defaultValue:
+                customer.email || this.getVisitorInfo(customer, 'email') || '-',
               required: true
             })}
 
@@ -167,7 +172,8 @@ class CustomerForm extends React.Component {
 
             {this.renderFormGroup('Phone', {
               id: 'customer-phone',
-              defaultValue: customer.phone || ''
+              defaultValue:
+                customer.phone || this.getVisitorInfo(customer, 'phone') || '-'
             })}
 
             {this.renderFormGroup('Position', {
