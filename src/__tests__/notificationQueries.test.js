@@ -1,7 +1,6 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import faker from 'faker';
 import { Users, Notifications, NotificationConfigurations } from '../db/models';
 import { graphqlRequest, connect, disconnect } from '../db/connection';
 import {
@@ -42,8 +41,8 @@ describe('notificationsQueries', () => {
     const user = await userFactory({});
     const receiver = await userFactory({});
 
-    const title1 = faker.random.word();
-    const title2 = faker.random.word();
+    const title1 = 'title1';
+    const title2 = 'title2';
 
     // Creating test data
     await notificationFactory({

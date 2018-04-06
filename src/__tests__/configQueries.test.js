@@ -1,19 +1,30 @@
 /* eslint-env jest */
 
-import configQueries from '../data/resolvers/queries/configs';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { configFactory } from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
 
 describe('configQueries', () => {
-  test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(1);
+  test('config detail', async () => {
+    const config = await configFactory();
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, {});
-      } catch (e) {
-        expect(e.message).toBe('Login required');
+    const args = { code: config.code };
+
+    const qry = `
+      query configsDetail($code: String!) {
+        configsDetail(code: $code) {
+          _id
+          code
+          value
+        }
       }
-    };
+    `;
 
-    expectError(configQueries.configsDetail);
+    const response = await graphqlRequest(qry, 'configsDetail', args);
+
+    expect(response.code).toBe(config.code);
   });
 });

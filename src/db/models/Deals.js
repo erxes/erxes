@@ -306,11 +306,12 @@ const ProductSchema = mongoose.Schema(
 // Deal schema
 const DealSchema = mongoose.Schema({
   _id: field({ pkey: true }),
+  name: field({ type: String }),
   productsData: field({ type: [ProductSchema] }),
   companyIds: field({ type: [String] }),
   customerIds: field({ type: [String] }),
   closeDate: field({ type: Date }),
-  note: field({ type: String, optional: true }),
+  description: field({ type: String, optional: true }),
   assignedUserIds: field({ type: [String] }),
   stageId: field({ type: String }),
   ...commonFields,
