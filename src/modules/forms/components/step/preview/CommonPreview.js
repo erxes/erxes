@@ -12,7 +12,9 @@ import {
 
 const propTypes = {
   calloutTitle: PropTypes.string,
+  formTitle: PropTypes.string,
   bodyValue: PropTypes.string,
+  formDesc: PropTypes.string,
   formBtnText: PropTypes.string,
   calloutBtnText: PropTypes.string,
   color: PropTypes.string,
@@ -32,6 +34,8 @@ class CommonPreview extends Component {
       theme,
       color,
       calloutTitle,
+      formTitle,
+      formDesc,
       bodyValue,
       formBtnText,
       calloutBtnText,
@@ -51,7 +55,8 @@ class CommonPreview extends Component {
     return (
       <PreviewWrapper>
         <PreviewTitle style={{ backgroundColor: theme ? theme : color }}>
-          {success && calloutTitle}
+          {success && form && calloutTitle}
+          {success && callout && formTitle}
         </PreviewTitle>
 
         <PreviewBody embedded="embedded">
@@ -63,7 +68,8 @@ class CommonPreview extends Component {
             )}
 
           <BodyContent>
-            {success && bodyValue}
+            {success && form && bodyValue}
+            {success && callout && formDesc}
 
             {fields &&
               callout &&

@@ -186,7 +186,7 @@ class CallOut extends Component {
     return (
       <Footer>
         <FormControl
-          checked={this.state.defaultValue.isSkip || false}
+          checked={this.props.skip || false}
           id="isSkip"
           componentClass="checkbox"
           onChange={e => this.onChangeState('isSkip', e.target.checked)}
@@ -252,7 +252,7 @@ class CallOut extends Component {
           {this.footerActions()}
         </FlexColumn>
 
-        <Preview>{this.renderPreview()}</Preview>
+        <Preview>{!skip && this.renderPreview()}</Preview>
       </FlexItem>
     );
   }

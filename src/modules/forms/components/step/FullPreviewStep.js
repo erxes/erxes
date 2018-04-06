@@ -23,8 +23,11 @@ import {
 const propTypes = {
   type: PropTypes.string,
   calloutTitle: PropTypes.string,
-  btnText: PropTypes.string,
+  formTitle: PropTypes.string,
+  formBtnText: PropTypes.string,
+  calloutBtnText: PropTypes.string,
   bodyValue: PropTypes.string,
+  formDesc: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
   image: PropTypes.string,
@@ -129,7 +132,7 @@ class FullPreviewStep extends Component {
           {this.renderResolutionPreview()}
           <CarouselSteps>
             <ol>
-              {this.carouseItems('CallOut', 'callout')}
+              {!this.props.skip && this.carouseItems('CallOut', 'callout')}
               {this.carouseItems('Form', 'form')}
               {this.carouseItems('Success', 'success')}
             </ol>

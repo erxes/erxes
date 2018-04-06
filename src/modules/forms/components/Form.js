@@ -187,6 +187,7 @@ class Form extends Component {
     const formData = integration && integration.formData;
     const brand = integration && (integration.brand || {});
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
+    const constant = isSkip ? 'form' : 'callout';
 
     return (
       <StepWrapper>
@@ -312,7 +313,7 @@ class Form extends Component {
               preview={preview || 'desktop'}
               thankContent={thankContent}
               skip={isSkip}
-              carousel={carousel || 'callout'}
+              carousel={carousel || constant}
             />
           </Step>
         </Steps>

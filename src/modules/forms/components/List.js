@@ -47,7 +47,7 @@ class List extends Component {
     );
 
     const content = (
-      <Table hover>
+      <Table whiteSpace="nowrap" hover>
         <thead>
           <tr>
             <th>{__('Name')}</th>
