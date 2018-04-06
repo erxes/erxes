@@ -152,7 +152,7 @@ class OptionStep extends Component {
             {this.renderThemeColor('#fd3259')}
             {this.renderThemeColor('#67C682')}
             {this.renderThemeColor('#F5C22B')}
-            {this.renderThemeColor('#000')}
+            {this.renderThemeColor('#2d2d32')}
             <OverlayTrigger
               trigger="click"
               rootClose

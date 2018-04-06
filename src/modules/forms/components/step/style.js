@@ -343,25 +343,24 @@ const CarouselInner = styled.div`
       background-color: rgb(255, 255, 255);
       border: 2px solid
         ${props =>
-          props.selected ? colors.colorPrimary : colors.borderPrimary};
+          props.selected ? colors.colorPrimary : colors.colorShadowGray};
 
       &:hover {
         cursor: pointer;
+        border-color: ${props => !props.selected && colors.borderPrimary};
       }
     }
 
     &:before {
       flex: 1 1 100%;
       display: inline-block;
-      border-top: 2px solid
-        ${props => (props.selected ? colors.colorPrimary : colors.borderDarker)};
+      border-top: 2px solid ${colors.borderDarker};
       content: ' ';
       width: 100%;
     }
 
     &:after {
-      border-top: 2px solid
-        ${props => (props.selected ? colors.colorPrimary : colors.borderDarker)};
+      border-top: 2px solid ${colors.borderDarker};
       content: ' ';
       width: 100%;
     }
