@@ -3,14 +3,29 @@ import { moduleRequireLogin } from '../../permissions';
 import { TAG_TYPES } from '../../constants';
 import { paginate } from './utils';
 
+const listQuery = async params => {
+  let selector = {};
+
+  // Filter by tag
+  if (params.tag) {
+    selector.tagIds = params.tag;
+  }
+
+  return selector;
+};
+
 const formQueries = {
   /**
    * Forms list
    * @param {Object} args - Search params
+   * @param {Object} args.tag - Tag id to filter
    * @return {Promise} sorted forms list
    */
-  forms(root, args) {
-    const forms = paginate(Forms.find({}), args);
+  async forms(root, args) {
+    const selector = await listQuery(args);
+
+    const forms = paginate(Forms.find(selector));
+
     return forms.sort({ name: 1 });
   },
 
