@@ -23,7 +23,7 @@ const ICON_AND_COLOR_TABLE = {
   },
   'segment-create': {
     icon: 'funnel',
-    color: '#04A9F5'
+    color: '#6569DF'
   },
   'conversation-create': {
     icon: 'android-chat',
@@ -31,11 +31,15 @@ const ICON_AND_COLOR_TABLE = {
   },
   'internal_note-create': {
     icon: 'clipboard',
-    color: '#F5C22B'
+    color: '#F7CE53'
   },
   'company-create': {
     icon: 'android-bar',
-    color: '#04A9F5'
+    color: '#6569DF'
+  },
+  'deal-create': {
+    icon: 'android-bar',
+    color: '#6569DF'
   }
 };
 
@@ -54,7 +58,7 @@ export default class {
 
     this.queryData = activities;
     this.currentUser = user;
-    this.target = target || {};
+    this.target = target || 'N/A';
   }
 
   /**
@@ -78,8 +82,9 @@ export default class {
 
       const iconAndColor = this._getIconAndColor(item.action);
       const hasContent =
-        !['company-create', 'customer-create'].includes(item.action) &&
-        item.content !== '[object Object]';
+        !['company-create', 'deal-create', 'customer-create'].includes(
+          item.action
+        ) && item.content !== '[object Object]';
 
       const caption = this._getCaption({
         action: item.action,
@@ -124,7 +129,7 @@ export default class {
   _getCaption({ action, by, id }) {
     let caption;
     const source = <strong>{this._getUserName(by)}</strong>;
-    const target = <strong>{this.target.firstName || this.target.name}</strong>;
+    const target = <strong>{this.target}</strong>;
 
     switch (action) {
       case 'customer-create':
@@ -161,16 +166,13 @@ export default class {
         );
         break;
 
-      case 'company-create':
+      default:
         caption = (
           <span>
             {source} created {target}
           </span>
         );
         break;
-
-      default:
-        caption = action;
     }
 
     return caption;

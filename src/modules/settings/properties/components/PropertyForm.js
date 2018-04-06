@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   ControlLabel,
   FormGroup,
@@ -9,6 +8,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { TypeList, AddOption, Actions } from '../styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   add: PropTypes.func.isRequired,
@@ -121,7 +121,6 @@ class PropertyForm extends Component {
     const optionValue = document.getElementById('optionValue').value;
 
     this.setState({ options: [...options, optionValue] });
-
     this.handleCancelAddingOption();
   }
 
@@ -203,43 +202,7 @@ class PropertyForm extends Component {
     return (
       <form onSubmit={this.onSubmit}>
         <FormGroup>
-          <ControlLabel htmlFor="type">Type:</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            value={type}
-            onChange={this.onTypeChange}
-          >
-            <option />
-            <option value="input">Input</option>
-            <option value="textarea">Text area</option>
-            <option value="select">Select</option>
-            <option value="check">Checkbox</option>
-            <option value="radio">Radio button</option>
-            <option value="email">Email</option>
-            <option value="firstName">First name</option>
-            <option value="lastName">Last name</option>
-          </FormControl>
-        </FormGroup>
-        {this.renderOptions()}
-
-        <FormGroup>
-          <ControlLabel htmlFor="validation">Validation:</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            id="validation"
-            defaultValue={field.validation || ''}
-          >
-            <option />
-            <option value="email">Email</option>
-            <option value="number">Number</option>
-            <option value="date">Date</option>
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel htmlFor="text">Text:</ControlLabel>
+          <ControlLabel htmlFor="text">Name:</ControlLabel>
           <FormControl type="text" id="text" defaultValue={field.text || ''} />
         </FormGroup>
 
@@ -269,7 +232,40 @@ class PropertyForm extends Component {
           </FormControl>
         </FormGroup>
 
-        <Modal.Footer>
+        <FormGroup>
+          <ControlLabel htmlFor="type">Type:</ControlLabel>
+
+          <FormControl
+            componentClass="select"
+            value={type}
+            onChange={this.onTypeChange}
+          >
+            <option />
+            <option value="input">Input</option>
+            <option value="textarea">Text area</option>
+            <option value="select">Select</option>
+            <option value="check">Checkbox</option>
+            <option value="radio">Radio button</option>
+          </FormControl>
+        </FormGroup>
+        {this.renderOptions()}
+
+        <FormGroup>
+          <ControlLabel htmlFor="validation">Validation:</ControlLabel>
+
+          <FormControl
+            componentClass="select"
+            id="validation"
+            defaultValue={field.validation || ''}
+          >
+            <option />
+            <option value="email">Email</option>
+            <option value="number">Number</option>
+            <option value="date">Date</option>
+          </FormControl>
+        </FormGroup>
+
+        <ModalFooter>
           <Button
             btnStyle="simple"
             onClick={() => {
@@ -283,7 +279,7 @@ class PropertyForm extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

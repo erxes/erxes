@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Wrapper } from 'modules/layout/components';
+import { Wrapper, Sidebar } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
 import {
   DataWithLoader,
@@ -12,12 +12,13 @@ import {
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
+import { CustomerAssociate } from 'modules/customers/containers';
+import { DealSection } from 'modules/deals/components';
 import { hasAnyActivity } from 'modules/customers/utils';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
   fieldsGroups: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
   companyActivityLog: PropTypes.array.isRequired,
@@ -62,7 +63,7 @@ class CompanyDetails extends React.Component {
             <ActivityList
               user={currentUser}
               activities={companyActivityLog}
-              target={company}
+              target={company.name}
               type={currentTab} //show logs filtered by type
             />
           }
@@ -82,6 +83,13 @@ class CompanyDetails extends React.Component {
       { title: __('Companies'), link: '/companies' },
       { title: company.name || company.email || 'N/A' }
     ];
+
+    const rightSidebar = (
+      <Sidebar>
+        <CustomerAssociate data={company} />
+        <DealSection deals={company.deals || []} />
+      </Sidebar>
+    );
 
     const content = (
       <div>
@@ -124,6 +132,7 @@ class CompanyDetails extends React.Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<LeftSidebar {...this.props} />}
+        rightSidebar={rightSidebar}
         content={content}
         transparent={true}
       />

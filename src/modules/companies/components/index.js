@@ -3,5 +3,13 @@ import CompanyForm from './list/CompanyForm';
 import CompaniesList from './list/CompaniesList';
 import CompanyDetails from './detail/CompanyDetails';
 import BasicInfo from './detail/BasicInfo';
+import CompanySection from './common/CompanySection';
 
-export { CompanyRow, CompaniesList, CompanyDetails, CompanyForm, BasicInfo };
+export {
+  CompanyRow,
+  CompaniesList,
+  CompanyDetails,
+  CompanyForm,
+  BasicInfo,
+  CompanySection
+};

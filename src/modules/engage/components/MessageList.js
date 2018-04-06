@@ -112,7 +112,13 @@ class List extends React.Component {
               <th>{__('Status')}</th>
               <th>{__('Total')}</th>
               <th>{__('Sent')}</th>
-              <th>{__('Failed')}</th>
+              <th>{__('Delivered')}</th>
+              <th>{__('Opened')}</th>
+              <th>{__('Clicked')}</th>
+              <th>{__('Complaint')}</th>
+              <th>{__('Bounce')}</th>
+              <th>{__('Rendering Failure')}</th>
+              <th>{__('Rejected')}</th>
               <th>{__('Type')}</th>
               <th>{__('Created date')}</th>
               <th>{__('Tags')}</th>

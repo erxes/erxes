@@ -1,7 +1,15 @@
 import React from 'react';
+import { withRouter } from 'react-router';
+import styled from 'styled-components';
+import { NameCard } from 'modules/common/components';
 import { Row as CommonRow } from '../../common/components';
 import { UserForm } from '../containers';
-import { NameCard } from 'modules/common/components';
+
+const UserAvatar = styled.td`
+  &:hover {
+    cursor: pointer;
+  }
+`;
 
 class Row extends CommonRow {
   constructor(props) {
@@ -25,14 +33,18 @@ class Row extends CommonRow {
   }
 
   render() {
-    const { object } = this.props;
+    const { object, history } = this.props;
     const { email } = object;
 
     return (
       <tr>
-        <td>
+        <UserAvatar
+          onClick={() => {
+            history.push(`team/details/${object._id}`);
+          }}
+        >
           <NameCard user={object} avatarSize={30} singleLine />
-        </td>
+        </UserAvatar>
         <td>{email}</td>
         <td>{this.renderRole()}</td>
 
@@ -42,4 +54,4 @@ class Row extends CommonRow {
   }
 }
 
-export default Row;
+export default withRouter(Row);

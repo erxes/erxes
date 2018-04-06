@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import { Button } from 'modules/common/components';
 import { ContentBox } from '../../styles';
 import SelectBrand from './SelectBrand';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 class Twitter extends Component {
   constructor(props, context) {
@@ -26,11 +26,11 @@ class Twitter extends Component {
         <form onSubmit={this.handleSubmit}>
           <SelectBrand brands={this.props.brands} />
 
-          <Modal.Footer>
+          <ModalFooter>
             <Button btnStyle="success" type="submit" icon="checkmark">
               Save
             </Button>
-          </Modal.Footer>
+          </ModalFooter>
         </form>
       </ContentBox>
     );

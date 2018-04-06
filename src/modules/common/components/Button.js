@@ -131,7 +131,7 @@ function Button({ ...props }, { __ }) {
 
   let content = props.children;
 
-  if (typeof content === 'string' && __) {
+  if (!props.ignoreTrans && typeof content === 'string' && __) {
     content = __(content);
   }
 
@@ -174,6 +174,7 @@ Button.propTypes = {
   ]),
   size: PropTypes.oneOf(['large', 'medium', 'small']),
   disabled: PropTypes.bool,
+  ignoreTrans: PropTypes.bool,
   block: PropTypes.bool,
   icon: PropTypes.string
 };

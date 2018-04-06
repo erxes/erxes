@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import { Widget } from 'modules/notifications/containers';
 import { setBadge } from 'modules/common/utils';
 import { colors, dimensions } from 'modules/common/styles';
 import { Tip, Label } from 'modules/common/components';
@@ -18,6 +19,7 @@ const LeftNavigation = styled.aside`
   bottom: 0;
 
   > a {
+    margin-top: ${dimensions.unitSpacing}px;
     line-height: ${dimensions.headerSpacing}px;
     display: flex;
     height: ${dimensions.headerSpacing}px;
@@ -38,7 +40,7 @@ const LeftNavigation = styled.aside`
 
 const Nav = styled.nav`
   display: block;
-  margin-top: ${dimensions.coreSpacing}px;
+  margin-top: ${dimensions.unitSpacing}px;
 
   > a {
     display: block;
@@ -74,6 +76,14 @@ const Nav = styled.nav`
     &.active {
       background: rgba(0, 0, 0, 0.13);
     }
+
+    @media (max-height: 760px) {
+      height: ${dimensions.headerSpacing}px;
+
+      i {
+        margin-top: 15px;
+      }
+    }
   }
 `;
 
@@ -105,6 +115,10 @@ const NavIcon = styled.i`
     background-image: url('/images/icons/nav-05.svg');
   }
 
+  &.icon-form {
+    background-image: url('/images/icons/nav-09.svg');
+  }
+
   &.icon-settings {
     background-image: url('/images/icons/nav-06.svg');
   }
@@ -112,11 +126,16 @@ const NavIcon = styled.i`
   &.icon-knowledge {
     background-image: url('/images/icons/nav-07.svg');
   }
+
+  &.icon-deal {
+    background-image: url('/images/icons/nav-08.svg');
+  }
 `;
 
 class Navigation extends Component {
   componentDidUpdate() {
-    setBadge(this.props.unreadConversationsCount);
+    const { __ } = this.context;
+    setBadge(this.props.unreadConversationsCount, __('Inbox'));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -147,6 +166,11 @@ class Navigation extends Component {
               )}
             </NavLink>
           </Tip>
+          <Tip placement="right" text={__('Deal')}>
+            <NavLink to="/deals" activeClassName="active">
+              <NavIcon className="icon-deal" />
+            </NavLink>
+          </Tip>
           <Tip placement="right" text={__('Customers')}>
             <NavLink to="/customers" activeClassName="active">
               <NavIcon className="icon-customer" />
@@ -157,19 +181,24 @@ class Navigation extends Component {
               <NavIcon className="icon-company" />
             </NavLink>
           </Tip>
+          <Tip placement="right" text={__('Forms')}>
+            <NavLink to="/forms" activeClassName="active">
+              <NavIcon className="icon-form" />
+            </NavLink>
+          </Tip>
           <Tip placement="right" text={__('Engage')}>
             <NavLink to="/engage" activeClassName="active">
               <NavIcon className="icon-engage" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Insights')}>
-            <NavLink to="/insights" activeClassName="active">
-              <NavIcon className="icon-insights" />
-            </NavLink>
-          </Tip>
           <Tip placement="right" text={__('Knowledge Base')}>
             <NavLink to="/knowledgeBase" activeClassName="active">
               <NavIcon className="icon-knowledge" />
+            </NavLink>
+          </Tip>
+          <Tip placement="right" text={__('Insights')}>
+            <NavLink to="/insights" activeClassName="active">
+              <NavIcon className="icon-insights" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Settings')}>
@@ -178,6 +207,7 @@ class Navigation extends Component {
             </NavLink>
           </Tip>
         </Nav>
+        <Widget />
       </LeftNavigation>
     );
   }

@@ -15,6 +15,7 @@ import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems, SidebarCounter } from 'modules/layout/styles';
 import ConversationDetails from './sidebar/ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
+import { CompanyAssociate } from 'modules/companies/containers';
 
 import {
   PopoverButton,
@@ -40,8 +41,15 @@ class Inbox extends Component {
     this.scrollBottom();
   }
 
-  componentDidUpdate() {
-    this.scrollBottom();
+  componentDidUpdate(prevProps) {
+    const { currentConversation } = this.props;
+    const prevConversation = prevProps.currentConversation;
+    if (
+      currentConversation.messageCount !== prevConversation.messageCount ||
+      currentConversation._id !== prevConversation._id
+    ) {
+      this.scrollBottom();
+    }
   }
 
   scrollBottom() {
@@ -72,11 +80,16 @@ class Inbox extends Component {
 
   renderRightSidebar(currentConversation) {
     if (currentConversation._id) {
+      const customer = currentConversation.customer || {};
+
       return (
         <EditInformation
           conversation={currentConversation}
-          sections={<ConversationDetails conversation={currentConversation} />}
-          customer={currentConversation.customer}
+          sectionTop={
+            <ConversationDetails conversation={currentConversation} />
+          }
+          sectionBottom={<CompanyAssociate data={customer} />}
+          customer={customer}
           refetch={this.props.refetch}
           otherProperties={this.renderMessengerData()}
         />
@@ -157,7 +170,11 @@ class Inbox extends Component {
     );
 
     const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} invert />
+      <Wrapper.ActionBar
+        right={actionBarRight}
+        left={actionBarLeft}
+        background="colorWhite"
+      />
     );
 
     const content = (

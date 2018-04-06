@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import {
@@ -12,14 +11,14 @@ import {
 } from 'modules/common/components';
 import { MarkdownWrapper } from '../../styles';
 import SelectBrand from './SelectBrand';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 class Common extends Component {
   static installCodeIncludeScript(type) {
-    // TODO
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${process.env.REACT_APP_CDN_HOST}/${
+        script.src = "${process.env.REACT_APP_CDN_HOST}/build/${
       type
     }Widget.bundle.js";
         script.async = true;
@@ -34,6 +33,7 @@ class Common extends Component {
     super(props, context);
 
     let code = '';
+
     // showed install code automatically in edit mode
     if (props.integration) {
       const brand = props.integration.brand || '';
@@ -71,7 +71,8 @@ class Common extends Component {
 
     this.props.save({
       name: document.getElementById('integration-name').value,
-      brandId: document.getElementById('selectBrand').value
+      brandId: document.getElementById('selectBrand').value,
+      languageCode: document.getElementById('languageCode').value
     });
   }
 
@@ -96,6 +97,20 @@ class Common extends Component {
           onChange={this.handleBrandChange}
         />
 
+        <FormGroup>
+          <ControlLabel>Language</ControlLabel>
+
+          <FormControl
+            componentClass="select"
+            defaultValue={integration.languageCode || 'en'}
+            id="languageCode"
+          >
+            <option />
+            <option value="mn">Монгол</option>
+            <option value="en">English</option>
+          </FormControl>
+        </FormGroup>
+
         {this.extraContent && this.extraContent()}
 
         <FormGroup>
@@ -117,7 +132,7 @@ class Common extends Component {
           </MarkdownWrapper>
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             icon="close"
@@ -128,7 +143,7 @@ class Common extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

@@ -2,20 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
-import { Sidebar } from 'modules/layout/components';
 import { queries } from '../graphql';
 import { CustomerDetails } from '../components';
+import { Spinner } from 'modules/common/components';
 
 const CustomerDetailsContainer = (props, context) => {
   const { customerDetailQuery, customerActivityLogQuery } = props;
 
   if (customerDetailQuery.loading) {
-    return (
-      <Sidebar full>
-        <Spinner />
-      </Sidebar>
-    );
+    return <Spinner />;
   }
 
   const updatedProps = {

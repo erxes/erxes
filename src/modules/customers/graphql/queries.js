@@ -16,6 +16,28 @@ const customerFields = `
     twitterData
     facebookData
 
+    ownerId
+    position
+    department
+    leadStatus
+    lifecycleState
+    hasAuthority
+    description
+    doNotDisturb
+    links {
+      linkedIn
+      twitter
+      facebook
+      github
+      youtube
+      website
+    }
+    owner {
+      details {
+        fullName
+      }
+    }
+
     tagIds
     getTags {
       _id
@@ -113,6 +135,29 @@ const customerDetail = `
           colorCode
         }
         readUserIds
+      }
+      deals {
+        _id
+        companies {
+          _id
+          name
+        }
+        customers {
+          _id
+          firstName
+          email
+        }
+        products
+        amount
+        closeDate
+        assignedUsers {
+          _id
+          email
+          details {
+            fullName
+            avatar
+          }
+        }
       }
     }
   }

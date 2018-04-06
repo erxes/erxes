@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Wrapper } from 'modules/layout/components';
+import { Wrapper, Sidebar } from 'modules/layout/components';
 import {
   DataWithLoader,
   Tabs,
@@ -9,10 +9,13 @@ import {
   Icon
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
-import { EditInformation } from 'modules/customers/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
-import { hasAnyActivity } from 'modules/customers/utils';
+import { renderFullName } from 'modules/common/utils';
+import { DealSection } from 'modules/deals/components';
+import { EditInformation } from '../../containers';
+import { CompanyAssociate } from 'modules/companies/containers';
+import { hasAnyActivity } from '../../utils';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -62,7 +65,7 @@ class CustomerDetails extends React.Component {
             <ActivityList
               user={currentUser}
               activities={activityLogsCustomer}
-              target={customer}
+              target={customer.firstName}
               type={currentTab} //show logs filtered by type
             />
           }
@@ -80,7 +83,7 @@ class CustomerDetails extends React.Component {
 
     const breadcrumb = [
       { title: __('Customers'), link: '/customers' },
-      { title: customer.name || customer.email || 'N/A' }
+      { title: renderFullName(customer) }
     ];
 
     const content = (
@@ -120,10 +123,18 @@ class CustomerDetails extends React.Component {
       </div>
     );
 
+    const rightSidebar = (
+      <Sidebar>
+        <CompanyAssociate data={customer} />
+        <DealSection deals={customer.deals || []} />
+      </Sidebar>
+    );
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<EditInformation customer={customer} />}
+        leftSidebar={<EditInformation wide customer={customer} />}
+        rightSidebar={rightSidebar}
         content={content}
         transparent={true}
       />

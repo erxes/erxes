@@ -55,8 +55,8 @@ const tagMutation = gql`
 `;
 
 const queries = {
-  customer: 'customers',
-  company: 'companies',
+  customer: 'customersMain',
+  company: 'companiesMain',
   engageMessage: 'engageMessages'
 };
 

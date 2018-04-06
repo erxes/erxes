@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
-import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   ControlLabel,
@@ -14,6 +13,7 @@ import {
   createStateFromHTML
 } from 'modules/common/components/Editor';
 import { EditorWrapper } from 'modules/engage/styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   article: PropTypes.object,
@@ -154,7 +154,7 @@ class ArticleForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.article || {})}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -167,7 +167,7 @@ class ArticleForm extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

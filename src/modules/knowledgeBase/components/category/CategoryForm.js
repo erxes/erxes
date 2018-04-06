@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   ControlLabel,
@@ -10,6 +9,7 @@ import {
 } from 'modules/common/components';
 import Ionicons from 'react-ionicons';
 import { icons } from '../../icons.constant';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   currentTopicId: PropTypes.string,
@@ -129,7 +129,7 @@ class CategoryForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.category || {})}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -142,7 +142,7 @@ class CategoryForm extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }
