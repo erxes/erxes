@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { BarItems } from 'modules/layout/styles';
 import {
   Button,
   Table,
   Pagination,
+  TaggerPopover,
   DataWithLoader
 } from 'modules/common/components';
 import { Row } from '/';
@@ -15,18 +17,22 @@ const propTypes = {
   integrations: PropTypes.array.isRequired,
   members: PropTypes.array.isRequired,
   tags: PropTypes.array,
+  bulk: PropTypes.array.isRequired,
+  emptyBulk: PropTypes.func.isRequired,
   integrationsCount: PropTypes.number.isRequired,
+  toggleBulk: PropTypes.func.isRequired,
   loading: PropTypes.bool,
   remove: PropTypes.func
 };
 
 class List extends Component {
   renderRow() {
-    const { integrations, members, remove } = this.props;
+    const { integrations, members, remove, toggleBulk } = this.props;
 
     return integrations.map(integration => (
       <Row
         key={integration._id}
+        toggleBulk={toggleBulk}
         integration={integration}
         members={members}
         remove={remove}
@@ -35,8 +41,29 @@ class List extends Component {
   }
 
   render() {
-    const { integrationsCount, loading, tags } = this.props;
+    const { integrationsCount, loading, tags, bulk, emptyBulk } = this.props;
     const { __ } = this.context;
+
+    let actionBarLeft = null;
+
+    if (bulk.length > 0) {
+      const tagButton = (
+        <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+          Tag
+        </Button>
+      );
+
+      actionBarLeft = (
+        <BarItems>
+          <TaggerPopover
+            type="form"
+            afterSave={emptyBulk}
+            targets={bulk}
+            trigger={tagButton}
+          />
+        </BarItems>
+      );
+    }
 
     const actionBarRight = (
       <Link to="/forms/create">
@@ -46,10 +73,21 @@ class List extends Component {
       </Link>
     );
 
+    const actionBar = (
+      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+    );
+
+    const sidebar = (
+      <Wrapper.Sidebar>
+        <Tag tags={tags} manageUrl="tags/form" />
+      </Wrapper.Sidebar>
+    );
+
     const content = (
       <Table whiteSpace="nowrap" hover>
         <thead>
           <tr>
+            <th />
             <th>{__('Name')}</th>
             <th>{__('Brand')}</th>
             <th>{__('Views')}</th>
@@ -65,17 +103,11 @@ class List extends Component {
       </Table>
     );
 
-    const sidebar = (
-      <Wrapper.Sidebar>
-        <Tag tags={tags} manageUrl="tags/form" />
-      </Wrapper.Sidebar>
-    );
-
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={[{ title: __('Forms') }]} />}
         leftSidebar={sidebar}
-        actionBar={<Wrapper.ActionBar right={actionBarRight} />}
+        actionBar={actionBar}
         footer={<Pagination count={integrationsCount} />}
         content={
           <DataWithLoader

@@ -4,7 +4,14 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Alert, confirm } from 'modules/common/utils';
-import { Tip, Button, Icon, ModalTrigger } from 'modules/common/components';
+import {
+  Tip,
+  Button,
+  Icon,
+  ModalTrigger,
+  FormControl,
+  Tags
+} from 'modules/common/components';
 import { Manage } from './';
 
 const ActionButtons = styled.div`
@@ -41,6 +48,7 @@ const TableRow = styled.tr`
 const propTypes = {
   integration: PropTypes.object.isRequired,
   members: PropTypes.array.isRequired,
+  toggleBulk: PropTypes.func,
   remove: PropTypes.func
 };
 
@@ -107,21 +115,34 @@ class Row extends Component {
   }
 
   render() {
-    const { integration } = this.props;
+    const { integration, toggleBulk } = this.props;
     const { __ } = this.context;
     const form = integration.form || {};
     const createdUserId = form.createdUserId;
+    const tags = form.getTags || [];
+    const str = form.contactsGathered / form.viewCount * 100 || '0.00';
+
+    const onChange = e => {
+      if (toggleBulk) {
+        toggleBulk(form, e.target.checked);
+      }
+    };
 
     return (
       <TableRow>
+        <td>
+          <FormControl componentClass="checkbox" onChange={onChange} />
+        </td>
         <td>{integration.name}</td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>{form.viewCount || 0}</td>
-        <td>{form.contactsGathered / form.viewCount * 100 || '0.00'} %</td>
+        <td>{str.substring(0, 4)} %</td>
         <td>{form.contactsGathered || 0}</td>
         <td>{moment(form.createdDate).format('ll')}</td>
         <td>{this.renderUser(createdUserId)}</td>
-        <td />
+        <td>
+          <Tags tags={tags} limit={2} />
+        </td>
         <td>
           <ActionButtons>
             {this.manageAction(integration)}

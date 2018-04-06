@@ -2,46 +2,53 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Bulk } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { List } from '../components';
 
-const ListContainer = props => {
-  const {
-    integrationsQuery,
-    integrationsCountQuery,
-    usersQuery,
-    tagsQuery,
-    removeMutation
-  } = props;
+class ListContainer extends Bulk {
+  render() {
+    const {
+      integrationsQuery,
+      integrationsCountQuery,
+      usersQuery,
+      tagsQuery,
+      removeMutation
+    } = this.props;
 
-  const integrationsCount = integrationsCountQuery.integrationsTotalCount || 0;
-  const integrations = integrationsQuery.integrations || [];
-  const members = usersQuery.users || [];
+    const integrationsCount =
+      integrationsCountQuery.integrationsTotalCount || 0;
+    const integrations = integrationsQuery.integrations || [];
+    const members = usersQuery.users || [];
 
-  const remove = (_id, callback) => {
-    removeMutation({
-      variables: { _id }
-    }).then(() => {
-      // refresh queries
-      integrationsQuery.refetch();
-      integrationsCountQuery.refetch();
+    const remove = (_id, callback) => {
+      removeMutation({
+        variables: { _id }
+      }).then(() => {
+        // refresh queries
+        integrationsQuery.refetch();
+        integrationsCountQuery.refetch();
 
-      callback();
-    });
-  };
+        callback();
+      });
+    };
 
-  const updatedProps = {
-    ...this.props,
-    integrations,
-    integrationsCount,
-    members,
-    remove,
-    loading: integrationsQuery.loading,
-    tags: tagsQuery.tags || []
-  };
+    const updatedProps = {
+      ...this.props,
+      integrations,
+      integrationsCount,
+      members,
+      remove,
+      loading: integrationsQuery.loading,
+      bulk: this.state.bulk || [],
+      emptyBulk: this.emptyBulk,
+      toggleBulk: this.toggleBulk,
+      tags: tagsQuery.tags || []
+    };
 
-  return <List {...updatedProps} />;
-};
+    return <List {...updatedProps} />;
+  }
+}
 
 ListContainer.propTypes = {
   integrationsCountQuery: PropTypes.object,
@@ -60,6 +67,7 @@ export default compose(
         variables: {
           page: queryParams.page,
           perPage: queryParams.perPage || 20,
+          tag: queryParams.tag,
           kind: 'form'
         },
         fetchPolicy: 'network-only'

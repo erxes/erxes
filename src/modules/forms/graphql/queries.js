@@ -24,6 +24,12 @@ const integrations = `
         themeColor
         contactsGathered
         viewCount
+        tagIds
+        getTags {
+          _id
+          name
+          colorCode
+        }
         callout {
           title
           body
