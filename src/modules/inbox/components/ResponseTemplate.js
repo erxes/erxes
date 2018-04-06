@@ -140,8 +140,6 @@ class ResponseTemplate extends Component {
     const { brands, content, brandId } = this.props;
     const { __ } = this.context;
 
-    console.log(brandId);
-
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
         <Tip text={__('Save as template')}>
