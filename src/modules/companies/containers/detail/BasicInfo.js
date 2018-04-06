@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries, mutations } from 'modules/companies/graphql';
+import { mutations } from 'modules/companies/graphql';
 import { BasicInfo } from 'modules/companies/components';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router-dom';
@@ -18,7 +18,7 @@ const BasicInfoContainer = props => {
     })
       .then(() => {
         Alert.success('Success');
-        history.push(`/companies`);
+        history.push(`/companies?updated`);
       })
       .catch(e => {
         Alert.error(e.message);
@@ -61,26 +61,12 @@ BasicInfoContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-const options = () => {
-  return {
-    refetchQueries: [
-      {
-        query: gql`
-          ${queries.companiesMain}
-        `
-      }
-    ]
-  };
-};
-
 export default compose(
   // mutations
   graphql(gql(mutations.companiesRemove), {
-    name: 'companiesRemove',
-    options
+    name: 'companiesRemove'
   }),
   graphql(gql(mutations.companiesMerge), {
-    name: 'companiesMerge',
-    options
+    name: 'companiesMerge'
   })
 )(withRouter(BasicInfoContainer));

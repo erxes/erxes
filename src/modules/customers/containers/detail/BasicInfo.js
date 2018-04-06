@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries, mutations } from 'modules/customers/graphql';
+import { mutations } from 'modules/customers/graphql';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router-dom';
@@ -18,7 +18,7 @@ const BasicInfoContainer = props => {
     })
       .then(() => {
         Alert.success('Success');
-        history.push(`/customers`);
+        history.push(`/customers?updated`);
       })
       .catch(e => {
         Alert.error(e.message);
@@ -61,26 +61,12 @@ BasicInfoContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-const options = () => {
-  return {
-    refetchQueries: [
-      {
-        query: gql`
-          ${queries.customersMain}
-        `
-      }
-    ]
-  };
-};
-
 export default compose(
   // mutations
   graphql(gql(mutations.customersRemove), {
-    name: 'customersRemove',
-    options
+    name: 'customersRemove'
   }),
   graphql(gql(mutations.customersMerge), {
-    name: 'customersMerge',
-    options
+    name: 'customersMerge'
   })
 )(withRouter(BasicInfoContainer));

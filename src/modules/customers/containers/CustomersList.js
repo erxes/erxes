@@ -10,6 +10,7 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../constants';
 import { mutations, queries } from '../graphql';
 import { CustomersList } from '../components';
+import { router } from 'modules/common/utils';
 
 class CustomerListContainer extends Bulk {
   render() {
@@ -23,6 +24,8 @@ class CustomerListContainer extends Bulk {
       customersMerge,
       history
     } = this.props;
+
+    router.refetchIfUpdated(history, customersMainQuery);
 
     let columnsConfig =
       customersListConfigQuery.fieldsDefaultColumnsConfig || [];
