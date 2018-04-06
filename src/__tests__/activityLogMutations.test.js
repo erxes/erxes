@@ -2,8 +2,8 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { ActivityLogs, Customers, Conversations, Companies } from '../db/models';
-import { customerFactory, conversationFactory, companyFactory } from '../db/factories';
+import { ActivityLogs, Customers, Conversations, Companies, Deals } from '../db/models';
+import { customerFactory, conversationFactory, companyFactory, dealFactory } from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -13,12 +13,14 @@ describe('ActivityLog creation on Customer creation', () => {
   let _customer;
   let _company;
   let _conversation;
+  let _deal;
 
   beforeEach(async () => {
     // Creating test data
     _customer = await customerFactory();
     _company = await companyFactory();
     _conversation = await conversationFactory();
+    _deal = await dealFactory();
   });
 
   afterEach(async () => {
@@ -27,6 +29,7 @@ describe('ActivityLog creation on Customer creation', () => {
     await Conversations.remove({});
     await Customers.remove({});
     await Companies.remove({});
+    await Deals.remove({});
   });
 
   test('Add conversation log', async () => {
@@ -66,9 +69,13 @@ describe('ActivityLog creation on Customer creation', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'activityLogsAddCustomerLog', { _id: _customer._id });
+    await graphqlRequest(mutation, 'activityLogsAddCustomerLog', {
+      _id: _customer._id,
+    });
 
-    const customerLog = await ActivityLogs.findOne({ 'activity.id': _customer._id });
+    const customerLog = await ActivityLogs.findOne({
+      'activity.id': _customer._id,
+    });
 
     expect(customerLog).toBeDefined();
   });
@@ -82,10 +89,34 @@ describe('ActivityLog creation on Customer creation', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'activityLogsAddCompanyLog', { _id: _company._id });
+    await graphqlRequest(mutation, 'activityLogsAddCompanyLog', {
+      _id: _company._id,
+    });
 
-    const companyLog = await ActivityLogs.findOne({ 'activity.id': _company._id });
+    const companyLog = await ActivityLogs.findOne({
+      'activity.id': _company._id,
+    });
 
     expect(companyLog).toBeDefined();
+  });
+
+  test('Add deal log', async () => {
+    const mutation = `
+      mutation activityLogsAddDealLog($_id: String!) {
+        activityLogsAddDealLog(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    await graphqlRequest(mutation, 'activityLogsAddDealLog', {
+      _id: _deal._id,
+    });
+
+    const dealLog = await ActivityLogs.findOne({
+      'activity.id': _deal._id,
+    });
+
+    expect(dealLog).toBeDefined();
   });
 });

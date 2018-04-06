@@ -56,7 +56,7 @@ export const fieldsMutations = `
 `;
 
 export const fieldsGroupsTypes = `
-type FieldsGroup {
+  type FieldsGroup {
     _id: String!
     name: String
     contentType: String

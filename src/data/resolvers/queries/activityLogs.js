@@ -1,9 +1,10 @@
-import { Customers, Companies, Users } from '../../../db/models';
+import { Customers, Companies, Users, Deals } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
 import {
   CustomerMonthActivityLogBuilder,
   CompanyMonthActivityLogBuilder,
   UserMonthActivityLogBuilder,
+  DealMonthActivityLogBuilder,
 } from './activityLogUtils';
 
 const activityLogQueries = {
@@ -45,6 +46,18 @@ const activityLogQueries = {
 
     const userMonthActivityLogBuilder = new UserMonthActivityLogBuilder(user);
     return userMonthActivityLogBuilder.build();
+  },
+
+  /**
+   * Get activity logs for deal
+   * @param {String} _id - deal id
+   * @return {Promise} Promise resolving array of ActivityLogForMonth
+   */
+  async activityLogsDeal(root, { _id }) {
+    const deal = await Deals.findOne({ _id });
+
+    const dealMonthActivityLogBuilder = new DealMonthActivityLogBuilder(deal);
+    return dealMonthActivityLogBuilder.build();
   },
 };
 

@@ -104,8 +104,16 @@ export class UserMonthActivityLogBuilder extends BaseMonthActivityBuilder {
   }
 }
 
+export class DealMonthActivityLogBuilder extends BaseMonthActivityBuilder {
+  constructor(coc) {
+    super(coc);
+    this.cocContentType = COC_CONTENT_TYPES.DEAL;
+  }
+}
+
 export default {
   CustomerMonthActivityLogBuilder,
   CompanyMonthActivityLogBuilder,
   UserMonthActivityLogBuilder,
+  DealMonthActivityLogBuilder,
 };

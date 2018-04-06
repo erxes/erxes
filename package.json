@@ -22,7 +22,8 @@
     "precommit": "lint-staged",
     "test": "jest --runInBand --coverage",
     "loadInitialData": "babel-node ./src/initialData.js",
-    "customCommand": "babel-node ./src/customCommand.js"
+    "customCommand": "babel-node ./src/commands/custom.js",
+    "engageSubscriptions": "babel-node ./src/commands/engageSubscriptions.js"
   },
   "lint-staged": {
     "*.js": [

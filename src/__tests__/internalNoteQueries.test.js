@@ -1,19 +1,56 @@
 /* eslint-env jest */
 
-import internalNoteQueries from '../data/resolvers/queries/internalNotes';
+import faker from 'faker';
+import { InternalNotes } from '../db/models';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { internalNoteFactory } from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
 
 describe('internalNoteQueries', () => {
-  test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(1);
+  afterEach(async () => {
+    // Clearing test data
+    await InternalNotes.remove({});
+  });
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, {});
-      } catch (e) {
-        expect(e.message).toBe('Login required');
+  test('Internal notes', async () => {
+    // Creating test data
+    const contentTypeId = faker.random.number();
+
+    await internalNoteFactory({ contentType: 'company', contentTypeId });
+    await internalNoteFactory({ contentType: 'customer', contentTypeId });
+
+    const qry = `
+      query internalNotes($contentType: String! $contentTypeId: String) {
+        internalNotes(contentType: $contentType contentTypeId: $contentTypeId) {
+          _id
+          contentType
+          contentTypeId
+          content
+          createdUserId
+          createdDate
+
+          createdUser { _id }
+        }
       }
-    };
+    `;
 
-    expectError(internalNoteQueries.internalNotes);
+    // customer ===========================
+    let responses = await graphqlRequest(qry, 'internalNotes', {
+      contentType: 'company',
+      contentTypeId,
+    });
+
+    expect(responses.length).toBe(1);
+
+    // company ============================
+    responses = await graphqlRequest(qry, 'internalNotes', {
+      contentType: 'company',
+      contentTypeId,
+    });
+
+    expect(responses.length).toBe(1);
   });
 });

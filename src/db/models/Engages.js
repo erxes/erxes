@@ -49,6 +49,20 @@ const MessengerSchema = mongoose.Schema(
   { _id: false },
 );
 
+const StatsSchema = mongoose.Schema(
+  {
+    open: field({ type: Number }),
+    click: field({ type: Number }),
+    complaint: field({ type: Number }),
+    delivery: field({ type: Number }),
+    bounce: field({ type: Number }),
+    reject: field({ type: Number }),
+    send: field({ type: Number }),
+    renderingfailure: field({ type: Number }),
+  },
+  { _id: false },
+);
+
 const EngageMessageSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   kind: field({ type: String }),
@@ -73,6 +87,7 @@ const EngageMessageSchema = mongoose.Schema({
   email: field({ type: EmailSchema }),
   messenger: field({ type: MessengerSchema }),
   deliveryReports: field({ type: Object }),
+  stats: field({ type: StatsSchema, default: {} }),
 });
 
 class Message {
@@ -229,7 +244,7 @@ class Message {
   /**
    * Removes customer Engages
    * @param {String} customerId - Customer id to remove
-   * @return {Promise} Updated internal notes
+   * @return {Promise} Updated engage messages
    */
   static async removeCustomerEngages(customerId) {
     // Removing customer from engage messages
@@ -239,6 +254,16 @@ class Message {
     );
 
     return this.updateMany({ customerIds: customerId }, { $pull: { customerIds: customerId } });
+  }
+
+  /**
+   * Increase engage message stat by 1
+   * @param {String} engageMessageId - Engage message id to update
+   * @param {String} stat - Engage message stat name to increase
+   * @return {Promise} Updated engage message
+   */
+  static async updateStats(engageMessageId, stat) {
+    return await this.update({ _id: engageMessageId }, { $inc: { [`stats.${stat}`]: 1 } });
   }
 }
 

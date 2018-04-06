@@ -7,8 +7,8 @@ import {
   ACTIVITY_TYPES,
   ACTIVITY_ACTIONS,
   FIELDS_GROUPS_CONTENT_TYPES,
+  PRODUCT_TYPES,
 } from '../data/constants';
-
 import {
   Users,
   Integrations,
@@ -37,6 +37,7 @@ import {
   DealStages,
   Deals,
   Products,
+  Configs,
   FieldsGroups,
 } from './models';
 
@@ -79,13 +80,14 @@ export const tagsFactory = (params = { type: 'engageMessage' }) => {
 
 export const engageMessageFactory = (params = {}) => {
   const engageMessage = new EngageMessages({
-    kind: 'manual',
+    kind: params.kind || 'manual',
     method: 'messenger',
     title: faker.random.word(),
-    fromUserId: params.userId || faker.random.word(),
+    fromUserId: params.userId || faker.random.uuid(),
     segmentId: params.segmentId || faker.random.word(),
-    isLive: true,
-    isDraft: false,
+    tagIds: params.tagIds || [],
+    isLive: params.isLive || false,
+    isDraft: params.isDraft || false,
     messenger: {
       brandId: faker.random.word(),
       content: faker.random.word(),
@@ -109,6 +111,7 @@ export const brandFactory = (params = {}) => {
     code: params.code || faker.random.word(),
     userId: Random.id(),
     description: params.description || faker.random.word(),
+    createdAt: new Date(),
     emailConfig: {
       type: 'simple',
       template: faker.random.word(),
@@ -150,10 +153,10 @@ export const segmentFactory = (params = {}) => {
   ];
 
   const segment = new Segments({
-    contentType: COC_CONTENT_TYPES.CUSTOMER || params.contentType,
+    contentType: params.contentType || COC_CONTENT_TYPES.CUSTOMER,
     name: faker.random.word(),
     description: params.description || faker.random.word(),
-    subOf: params.subOf || 'DFSAFDFDSFDSF',
+    subOf: params.subOf,
     color: params.color || '#ffff',
     connector: params.connector || 'any',
     conditions: params.conditions || defaultConditions,
@@ -165,7 +168,7 @@ export const segmentFactory = (params = {}) => {
 export const internalNoteFactory = (params = {}) => {
   const internalNote = new InternalNotes({
     contentType: params.contentType || COC_CONTENT_TYPES.CUSTOMER,
-    contentTypeId: params.contentTypeId || 'DFASFDFSDAFDF',
+    contentTypeId: params.contentTypeId || faker.random.uuid(),
     content: params.content || faker.random.word(),
   });
 
@@ -179,6 +182,7 @@ export const companyFactory = (params = {}) => {
     industry: params.industry || 'Airlines',
     website: params.website || faker.internet.domainName(),
     tagIds: params.tagIds || [faker.random.number()],
+    plan: params.plan || faker.random.word(),
   });
 
   return company.save();
@@ -205,7 +209,7 @@ export const fieldFactory = async (params = {}) => {
 
   const field = new Fields({
     contentType: params.contentType || 'form',
-    contentTypeId: params.contentTypeId || 'DFAFDASFDASFDSFDASFASF',
+    contentTypeId: params.contentTypeId || faker.random.uuid(),
     type: params.type || 'input',
     validation: params.validation || 'number',
     text: params.text || faker.random.word(),
@@ -262,7 +266,7 @@ export const integrationFactory = async (params = {}) => {
   const kind = params.kind || 'messenger';
 
   const doc = {
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     kind,
     brandId: params.brandId || Random.id(),
     formId: params.formId || Random.id(),
@@ -331,8 +335,8 @@ export const channelFactory = async (params = {}) => {
     {
       name: faker.random.word(),
       description: faker.lorem.sentence,
-      integrationIds: [],
-      memberIds: [user._id],
+      integrationIds: params.integrationIds || [],
+      memberIds: params.userId || [user._id],
       userId: user._id,
       conversationCount: 0,
       openConversationCount: 0,
@@ -405,10 +409,11 @@ export const activityLogFactory = params => {
   return ActivityLogs.createDoc({ ...doc, ...params }, faker.random.word());
 };
 
-export const dealBoardFactory = () => {
+export const dealBoardFactory = (params = {}) => {
   const board = new DealBoards({
     name: faker.random.word(),
     userId: Random.id(),
+    isDefault: params.isDefault || faker.random.boolean(),
   });
 
   return board.save();
@@ -435,11 +440,13 @@ export const dealStageFactory = (params = {}) => {
 export const dealFactory = (params = {}) => {
   const deal = new Deals({
     ...params,
+    name: faker.random.word(),
     stageId: params.stageId || faker.random.word(),
-    companyId: faker.random.word(),
-    amount: faker.random.number(),
+    companyIds: [faker.random.word()],
+    customerIds: [faker.random.word()],
+    amount: faker.random.objectElement(),
     closeDate: new Date(),
-    note: faker.random.word(),
+    description: faker.random.word(),
     assignedUserIds: [faker.random.word()],
   });
 
@@ -449,7 +456,7 @@ export const dealFactory = (params = {}) => {
 export const productFactory = (params = {}) => {
   const product = new Products({
     name: params.name || faker.random.word(),
-    type: params.type || faker.random.word(),
+    type: params.type || PRODUCT_TYPES.PRODUCT,
     description: params.description || faker.random.word(),
     sku: faker.random.word(),
     createdAt: new Date(),
@@ -458,10 +465,20 @@ export const productFactory = (params = {}) => {
   return product.save();
 };
 
+export const configFactory = (params = {}) => {
+  const config = new Configs({
+    ...params,
+    code: faker.random.word(),
+    value: [faker.random.word()],
+  });
+
+  return config.save();
+};
+
 export const fieldGroupFactory = async params => {
   const doc = {
     name: faker.random.word(),
-    contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
+    contentType: params.contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
     description: faker.random.word(),
     order: 1,
     isVisible: true,

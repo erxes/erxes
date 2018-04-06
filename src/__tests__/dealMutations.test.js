@@ -40,6 +40,16 @@ describe('Test deals mutations', () => {
     pipelineId: $pipelineId
   `;
 
+  const commonDealParamDefs = `
+    $name: String!,
+    $stageId: String!
+  `;
+
+  const commonDealParams = `
+    name: $name
+    stageId: $stageId
+  `;
+
   beforeEach(async () => {
     // Creating test data
     board = await dealBoardFactory();
@@ -335,12 +345,16 @@ describe('Test deals mutations', () => {
   });
 
   test('Create deal', async () => {
-    const args = { stageId: stage._id };
+    const args = {
+      name: deal.name,
+      stageId: stage._id,
+    };
 
     const mutation = `
-      mutation dealsAdd($stageId: String!) {
-        dealsAdd(stageId: $stageId) {
+      mutation dealsAdd(${commonDealParamDefs}) {
+        dealsAdd(${commonDealParams}) {
           _id
+          name
           stageId
         }
       }
@@ -354,13 +368,15 @@ describe('Test deals mutations', () => {
   test('Update deal', async () => {
     const args = {
       _id: deal._id,
+      name: deal.name,
       stageId: stage._id,
     };
 
     const mutation = `
-      mutation dealsEdit($_id: String!, $stageId: String!) {
-        dealsEdit(_id: $_id, stageId: $stageId) {
+      mutation dealsEdit($_id: String!, ${commonDealParamDefs}) {
+        dealsEdit(_id: $_id, ${commonDealParams}) {
           _id
+          name
           stageId
         }
       }
