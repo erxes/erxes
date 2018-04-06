@@ -56,6 +56,15 @@ class ResponseTemplate extends Component {
     this.filterByBrand = this.filterByBrand.bind(this);
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.brandId !== this.props.brandId) {
+      this.setState({
+        brandId: this.props.brandId,
+        options: this.filterByBrand(this.props.brandId)
+      });
+    }
+  }
+
   onSave(brandId, name) {
     const doc = {
       brandId,
@@ -130,6 +139,8 @@ class ResponseTemplate extends Component {
   render() {
     const { brands, content, brandId } = this.props;
     const { __ } = this.context;
+
+    console.log(brandId);
 
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
