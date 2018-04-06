@@ -16,15 +16,40 @@ const StepContainer = styled.div`
 `;
 
 class Steps extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      activeStep: 1,
+      maxStep: 6
+    };
+
+    this.next = this.next.bind(this);
+  }
+
+  next(stepNumber) {
+    const { activeStep, maxStep } = this.state;
+    // console.log(stepNumber)
+    if (stepNumber === 0) {
+      if (activeStep <= maxStep) {
+        this.setState({ activeStep: activeStep + 1 });
+      }
+    } else {
+      this.setState({ activeStep: stepNumber });
+    }
+  }
+
   render() {
-    let { children, active } = this.props;
+    let { children } = this.props;
     //cloning step's children with default state
+
     return (
       <StepContainer>
         {React.Children.map(children, (child, index) => {
           return React.cloneElement(child, {
             stepNumber: index + 1,
-            active
+            active: this.state.activeStep,
+            next: this.next
           });
         })}
       </StepContainer>

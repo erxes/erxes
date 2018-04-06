@@ -3,16 +3,14 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Alert } from 'modules/common/utils';
-import { Button, Icon, FormControl } from 'modules/common/components';
+import { Button, FormControl, Step, Steps } from 'modules/common/components';
 import {
   ChooseType,
   CallOut,
   SuccessStep,
   OptionStep,
   FormStep,
-  FullPreviewStep,
-  Step,
-  Steps
+  FullPreviewStep
 } from './step';
 import { StepWrapper, TitleContainer } from '../styles';
 
@@ -37,7 +35,6 @@ class Form extends Component {
 
     this.state = {
       activeStep: 1,
-      maxStep: 6,
       type: formData.loadType || 'shoutbox',
       brand: integration.brandId,
       language: integration.languageCode,
@@ -55,7 +52,6 @@ class Form extends Component {
       isSkip: callout.skip || false
     };
 
-    this.next = this.next.bind(this);
     this.onChange = this.onChange.bind(this);
     this.renderSaveButton = this.renderSaveButton.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -108,16 +104,6 @@ class Form extends Component {
     });
   }
 
-  renderNextButton() {
-    const { __ } = this.context;
-
-    return (
-      <Button btnStyle="primary" size="small" onClick={() => this.next(0)}>
-        {__('Next')} <Icon icon="ios-arrow-forward" />
-      </Button>
-    );
-  }
-
   renderSaveButton() {
     const cancelButton = (
       <Link to="/forms">
@@ -140,18 +126,6 @@ class Form extends Component {
         </Button>
       </Button.Group>
     );
-  }
-
-  next(stepNumber) {
-    const { activeStep, maxStep } = this.state;
-
-    if (stepNumber === 0) {
-      if (activeStep <= maxStep) {
-        this.setState({ activeStep: activeStep + 1 });
-      }
-    } else {
-      this.setState({ activeStep: stepNumber });
-    }
   }
 
   onChange(key, value) {
@@ -203,12 +177,7 @@ class Form extends Component {
         </TitleContainer>
 
         <Steps active={activeStep}>
-          <Step
-            img="/images/icons/erxes-04.svg"
-            title="Type"
-            next={this.next}
-            nextButton={this.renderNextButton()}
-          >
+          <Step img="/images/icons/erxes-04.svg" title="Type">
             <ChooseType
               onChange={this.onChange}
               type={type}
@@ -220,12 +189,7 @@ class Form extends Component {
             />
           </Step>
 
-          <Step
-            img="/images/icons/erxes-03.svg"
-            title="CallOut"
-            next={this.next}
-            nextButton={this.renderNextButton()}
-          >
+          <Step img="/images/icons/erxes-03.svg" title="CallOut">
             <CallOut
               onChange={this.onChange}
               type={type}
@@ -238,12 +202,7 @@ class Form extends Component {
               skip={isSkip}
             />
           </Step>
-          <Step
-            img="/images/icons/erxes-12.svg"
-            title="Form"
-            next={this.next}
-            nextButton={this.renderNextButton()}
-          >
+          <Step img="/images/icons/erxes-12.svg" title="Form">
             <FormStep
               onChange={this.onChange}
               formTitle={formTitle}
@@ -255,12 +214,7 @@ class Form extends Component {
               fields={fields}
             />
           </Step>
-          <Step
-            img="/images/icons/erxes-06.svg"
-            title="Options"
-            next={this.next}
-            nextButton={this.renderNextButton()}
-          >
+          <Step img="/images/icons/erxes-06.svg" title="Options">
             <OptionStep
               onChange={this.onChange}
               formTitle={formTitle}
@@ -275,12 +229,7 @@ class Form extends Component {
               language={language}
             />
           </Step>
-          <Step
-            img="/images/icons/erxes-13.svg"
-            title="Thank content"
-            next={this.next}
-            nextButton={this.renderNextButton()}
-          >
+          <Step img="/images/icons/erxes-13.svg" title="Thank content">
             <SuccessStep
               onChange={this.onChange}
               thankContent={thankContent}
@@ -294,7 +243,6 @@ class Form extends Component {
           <Step
             img="/images/icons/erxes-14.svg"
             title="Full Preview"
-            next={this.next}
             nextButton={this.renderSaveButton()}
           >
             <FullPreviewStep
