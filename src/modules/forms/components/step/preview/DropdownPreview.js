@@ -1,7 +1,13 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { keyframes } from 'styled-components';
 import CommonPreview from './CommonPreview';
 import { DropdownContent, CenterContainer } from '../style';
+
+const propTypes = {
+  color: PropTypes.string,
+  theme: PropTypes.string
+};
 
 const sliderTop = keyframes`
   0% {
@@ -24,16 +30,24 @@ const Dropdown = DropdownContent.extend`
   position: relative;
   transition: all 0.2s linear;
   flex: inherit;
+  border-bottom-style: solid;
+  border-width: 2px;
 `;
 
 class DropdownPreview extends CommonPreview {
   render() {
+    const { theme, color } = this.props;
+
     return (
       <Container>
-        <Dropdown>{this.renderContent()}</Dropdown>
+        <Dropdown style={{ borderColor: theme ? theme : color }}>
+          {this.renderContent()}
+        </Dropdown>
       </Container>
     );
   }
 }
+
+DropdownPreview.propTypes = propTypes;
 
 export default DropdownPreview;

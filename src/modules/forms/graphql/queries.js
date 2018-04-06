@@ -146,6 +146,12 @@ const tags = `
   }
 `;
 
+const formsCount = `
+  query formsTotalCount {
+    formsTotalCount
+  }
+`;
+
 export default {
   integrations,
   integrationDetail,
@@ -154,6 +160,7 @@ export default {
   brands,
   users,
   tags,
+  formsCount,
   fieldsCombinedByContentType,
   fieldsDefaultColumnsConfig
 };

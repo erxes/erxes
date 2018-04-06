@@ -1,17 +1,20 @@
 import React from 'react';
-import { withRouter } from 'react-router';
-import queryString from 'query-string';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { queries } from '../graphql';
 import { CountsByTag } from 'modules/common/components';
 
 const TagContainer = props => {
   const { countsQuery } = props;
 
+  if (countsQuery.loading) {
+    return false;
+  }
+
   const updatedProps = {
     ...props,
-    counts: countsQuery.engageMessageCounts || {},
+    counts: countsQuery.formsTotalCount.byTag || {},
     loading: countsQuery.loading
   };
 
@@ -23,27 +26,8 @@ TagContainer.propTypes = {
   loading: PropTypes.bool
 };
 
-export default withRouter(
-  compose(
-    graphql(
-      gql`
-        query tagCounts($kind: String) {
-          engageMessageCounts(name: "tag", kind: $kind)
-        }
-      `,
-      {
-        name: 'countsQuery',
-        options: ({ location }) => {
-          const queryParams = queryString.parse(location.search);
-
-          return {
-            variables: {
-              kind: queryParams.kind || '',
-              status: queryParams.status || ''
-            }
-          };
-        }
-      }
-    )
-  )(TagContainer)
-);
+export default compose(
+  graphql(gql(queries.formsCount), {
+    name: 'countsQuery'
+  })
+)(TagContainer);

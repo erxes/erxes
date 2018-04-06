@@ -64,10 +64,13 @@ const CenterContainer = styled.div`
 
 const Embedded = styled.div`
   flex: 1;
-  margin: ${dimensions.coreSpacing}px;
+  position: absolute;
+  top: 14%;
+  left: 9%;
+  width: 64%;
   background: ${colors.bgLight};
   padding: ${dimensions.unitSpacing / 2}px;
-  box-shadow: 0 0 ${dimensions.unitSpacing}px ${colors.bgMain} inset;
+  box-shadow: 0 0 ${dimensions.unitSpacing}px ${colors.colorShadowGray} inset;
 `;
 
 const FormContainer = styled.div`
@@ -169,7 +172,6 @@ const DropdownContent = styled.div`
   flex: 1;
   box-shadow: 0 5px 8px ${colors.darkShadow};
   background: ${colors.bgLight};
-  border-bottom: 2px solid ${colors.colorBlack};
 
   ${PreviewWrapper} {
     align-items: center;
@@ -187,7 +189,7 @@ const DropdownContent = styled.div`
 
 const SlideLeftContent = styled.div`
   position: absolute;
-  max-width: 50%;
+  width: 50%;
   background: ${colors.bgLight};
   bottom: 0;
   left: 0;

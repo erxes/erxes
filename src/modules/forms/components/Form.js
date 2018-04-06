@@ -49,7 +49,7 @@ class Form extends Component {
       thankContent: formData.thankContent || __('Thank you.'),
       formBtnText: form.buttonText || __('Send'),
       calloutBtnText: callout.buttonText || __('Send'),
-      theme: form.themeColor,
+      theme: form.themeColor || '#6569DF',
       logoPreviewUrl: form.featuredImage,
       fields: fields || [],
       isSkip: callout.skip || false
