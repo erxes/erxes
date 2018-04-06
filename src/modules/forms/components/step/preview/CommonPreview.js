@@ -86,7 +86,8 @@ class CommonPreview extends Component {
               )}
 
             {formBtnText &&
-              success && (
+              success &&
+              callout && (
                 <Button
                   ignoreTrans
                   btnStyle="primary"
@@ -96,7 +97,8 @@ class CommonPreview extends Component {
                 </Button>
               )}
             {calloutBtnText &&
-              success && (
+              success &&
+              form && (
                 <Button
                   ignoreTrans
                   btnStyle="primary"
