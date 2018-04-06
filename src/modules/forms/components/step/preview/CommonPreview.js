@@ -61,7 +61,8 @@ class CommonPreview extends Component {
 
         <PreviewBody embedded="embedded">
           {image &&
-            success && (
+            success &&
+            form && (
               <div>
                 <img src={image} alt="eee" />
               </div>
@@ -84,12 +85,7 @@ class CommonPreview extends Component {
 
             {thankContent &&
               callout &&
-              form && (
-                <ThankContent>
-                  {thankContent}
-                  <Button btnStyle="link">Close</Button>
-                </ThankContent>
-              )}
+              form && <ThankContent>{thankContent}</ThankContent>}
 
             {formBtnText &&
               success &&

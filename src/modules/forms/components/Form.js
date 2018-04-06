@@ -48,9 +48,9 @@ class Form extends Component {
       formDesc: form.description || '',
       thankContent: formData.thankContent || __('Thank you.'),
       formBtnText: form.buttonText || __('Send'),
-      calloutBtnText: callout.buttonText || __('Send'),
+      calloutBtnText: callout.buttonText || 'Start',
       theme: form.themeColor || '#6569DF',
-      logoPreviewUrl: form.featuredImage,
+      logoPreviewUrl: callout.featuredImage,
       fields: fields || [],
       isSkip: callout.skip || false
     };

@@ -32,7 +32,7 @@ const ShoutBox = MessengerPreview.extend`
 
 const WidgetPreview = WidgetPreviewStyled.extend`
   width: 100%;
-  max-height: 100%;
+  max-height: 500px;
 `;
 
 const Widget = Messenger.extend`

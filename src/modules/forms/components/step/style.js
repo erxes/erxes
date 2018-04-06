@@ -56,7 +56,7 @@ const CenterContainer = styled.div`
   position: relative;
   align-items: center;
   justify-content: center;
-  min-height: 500px;
+  height: 100%;
   background: url('/images/previews/preview.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
@@ -189,7 +189,7 @@ const DropdownContent = styled.div`
 
 const SlideLeftContent = styled.div`
   position: absolute;
-  width: 50%;
+  width: 60%;
   background: ${colors.bgLight};
   bottom: 0;
   left: 0;
@@ -442,7 +442,6 @@ const ResolutionTabs = styled.div`
 
 const DesktopPreview = styled.div`
   background: url('/images/previews/desktop.png') no-repeat;
-  background-size: cover;
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
   flex: 1;
@@ -464,6 +463,7 @@ const TabletPreview = styled.div`
 const MobilePreview = styled.div`
   background: url('/images/previews/mobile.png') no-repeat;
   width: 376px;
+  height: 650px;
   margin: 0 auto;
   padding: 90px ${dimensions.coreSpacing}px;
 
