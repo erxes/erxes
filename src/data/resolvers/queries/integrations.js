@@ -1,4 +1,4 @@
-import { Channels, Integrations } from '../../../db/models';
+import { Channels, Integrations, Forms } from '../../../db/models';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { getConfig, getPageList } from '../../../trackers/facebook';
 import { moduleRequireLogin } from '../../permissions';
@@ -11,7 +11,7 @@ import { paginate } from './utils';
  * @param {String} brandId - Brand id
  * @return generated query
  */
-const generateFilterQuery = async ({ kind, channelId, brandId, searchValue }) => {
+const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag }) => {
   const query = {};
 
   if (kind) {
@@ -31,6 +31,17 @@ const generateFilterQuery = async ({ kind, channelId, brandId, searchValue }) =>
 
   if (searchValue) {
     query.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  if (tag) {
+    const forms = await Forms.find({ tagIds: tag });
+    const formIds = [];
+
+    for (let form of forms) {
+      formIds.push(form._id);
+    }
+
+    query.formId = { $in: formIds };
   }
 
   return query;

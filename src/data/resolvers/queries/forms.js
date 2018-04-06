@@ -53,7 +53,7 @@ const formQueries = {
       return Forms.find(query).count();
     };
 
-    // Count customers by tag
+    // Count forms by tag
     const tags = await Tags.find({ type: TAG_TYPES.FORM });
 
     for (let tag of tags) {

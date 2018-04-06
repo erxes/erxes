@@ -69,7 +69,8 @@ export const queries = `
     kind: String,
     searchValue: String,
     channelId: String,
-    brandId: String
+    brandId: String,
+    tag: String
   ): [Integration]
 
   integrationDetail(_id: String!): Integration
