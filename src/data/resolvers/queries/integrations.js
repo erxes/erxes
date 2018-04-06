@@ -1,6 +1,6 @@
 import { Channels, Integrations } from '../../../db/models';
-import { socUtils } from '../../../social/twitterTracker';
-import { getConfig, getPageList } from '../../../social/facebook';
+import { socUtils } from '../../../trackers/twitterTracker';
+import { getConfig, getPageList } from '../../../trackers/facebook';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 

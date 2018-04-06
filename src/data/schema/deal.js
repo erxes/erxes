@@ -29,13 +29,14 @@ export const types = `
 
   type Deal {
     _id: String!
+    name: String!
     stageId: String!
-    companyIds: [String]!
-    customerIds: [String]!
+    companyIds: [String]
+    customerIds: [String]
     assignedUserIds: [String]
     amount: JSON
     closeDate: Date
-    note: String
+    description: String
     companies: [Company]
     customers: [Customer]
     products: JSON
@@ -57,12 +58,13 @@ export const queries = `
 `;
 
 const dealMutationParams = `
+  name: String!,
   stageId: String!,
   assignedUserIds: [String],
   companyIds: [String],
   customerIds: [String],
   closeDate: Date,
-  note: String,
+  description: String,
   order: Int,
   productsData: JSON
 `;

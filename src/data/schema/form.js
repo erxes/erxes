@@ -38,7 +38,7 @@ export const mutations = `
 `;
 
 export const queries = `
-  forms(page: Int, perPage: Int): [Form]
+  forms(page: Int, perPage: Int, tag: String): [Form]
   formDetail(_id: String!): Form
   formsTotalCount: JSON
 `;

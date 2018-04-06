@@ -16,7 +16,10 @@ const conversationQueries = {
     }
 
     // initiate query builder
-    const qb = new QueryBuilder(params, { _id: user._id });
+    const qb = new QueryBuilder(params, {
+      _id: user._id,
+      starredConversationIds: user.starredConversationIds,
+    });
 
     await qb.buildAllQueries();
 
@@ -43,7 +46,10 @@ const conversationQueries = {
       byTags: {},
     };
 
-    const qb = new QueryBuilder(params, { _id: user._id });
+    const qb = new QueryBuilder(params, {
+      _id: user._id,
+      starredConversationIds: user.starredConversationIds,
+    });
 
     await qb.buildAllQueries();
 
@@ -159,7 +165,10 @@ const conversationQueries = {
    */
   async conversationsTotalCount(root, params, { user }) {
     // initiate query builder
-    const qb = new QueryBuilder(params, { _id: user._id });
+    const qb = new QueryBuilder(params, {
+      _id: user._id,
+      starredConversationIds: user.starredConversationIds,
+    });
 
     await qb.buildAllQueries();
 
@@ -173,7 +182,10 @@ const conversationQueries = {
    */
   async conversationsGetLast(root, params, { user }) {
     // initiate query builder
-    const qb = new QueryBuilder(params, { _id: user._id });
+    const qb = new QueryBuilder(params, {
+      _id: user._id,
+      starredConversationIds: user.starredConversationIds,
+    });
 
     await qb.buildAllQueries();
 

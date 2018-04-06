@@ -1,21 +1,98 @@
 /* eslint-env jest */
+/* eslint-disable no-underscore-dangle */
 
-import brandQueries from '../data/resolvers/queries/brands';
+import { Brands } from '../db/models';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { brandFactory } from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
 
 describe('brandQueries', () => {
-  test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(3);
+  afterEach(async () => {
+    // Clearing test data
+    await Brands.remove({});
+  });
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, {});
-      } catch (e) {
-        expect(e.message).toBe('Login required');
-      }
+  test('Brands', async () => {
+    const args = {
+      page: 1,
+      perPage: 2,
     };
 
-    expectError(brandQueries.brands);
-    expectError(brandQueries.brandDetail);
-    expectError(brandQueries.brandsTotalCount);
+    await brandFactory();
+    await brandFactory();
+    await brandFactory();
+
+    const qry = `
+      query brands($page: Int $perPage: Int) {
+        brands(page: $page perPage: $perPage) {
+          _id
+          name
+          description
+          code
+          userId
+          createdAt
+          emailConfig
+          integrations { _id }
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'brands', args);
+
+    expect(response.length).toBe(2);
+  });
+
+  test('Brand detail', async () => {
+    const qry = `
+      query brandDetail($_id: String!) {
+        brandDetail(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const brand = await brandFactory();
+
+    const response = await graphqlRequest(qry, 'brandDetail', { _id: brand._id });
+
+    expect(response._id).toBe(brand._id);
+  });
+
+  test('Get brand total count', async () => {
+    const qry = `
+      query brandsTotalCount {
+        brandsTotalCount
+      }
+    `;
+
+    await brandFactory();
+    await brandFactory();
+    await brandFactory();
+
+    const brandsCount = await graphqlRequest(qry, 'brandsTotalCount');
+
+    expect(brandsCount).toBe(3);
+  });
+
+  test('Get last brand', async () => {
+    const qry = `
+      query brandsGetLast {
+        brandsGetLast {
+          _id
+        }
+      }
+    `;
+
+    await brandFactory();
+    await brandFactory();
+
+    const brand = await brandFactory();
+
+    const lastBrand = await graphqlRequest(qry, 'brandsGetLast');
+
+    expect(lastBrand._id).toBe(brand._id);
   });
 });

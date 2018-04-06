@@ -1,19 +1,63 @@
 /* eslint-env jest */
 
-import productQueries from '../data/resolvers/queries/products';
+import { Products } from '../db/models';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { productFactory } from '../db/factories';
+import { PRODUCT_TYPES } from '../data/constants';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
 
 describe('productQueries', () => {
-  test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(1);
+  afterEach(async () => {
+    // Clearing test data
+    await Products.remove({});
+  });
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, {});
-      } catch (e) {
-        expect(e.message).toBe('Login required');
-      }
+  test('Products', async () => {
+    const args = {
+      page: 1,
+      perPage: 2,
     };
 
-    expectError(productQueries.products);
+    await productFactory();
+    await productFactory();
+    await productFactory();
+
+    const qry = `
+      query products($page: Int $perPage: Int) {
+        products(page: $page perPage: $perPage) {
+          _id
+          name
+          type
+          description
+          sku
+          createdAt
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'products', args);
+
+    expect(response.length).toBe(2);
+  });
+
+  test('Products total count', async () => {
+    const args = { type: PRODUCT_TYPES.PRODUCT };
+
+    await productFactory({ type: PRODUCT_TYPES.PRODUCT });
+    await productFactory({ type: PRODUCT_TYPES.SERVICE });
+    await productFactory({ type: PRODUCT_TYPES.PRODUCT });
+
+    const qry = `
+      query productsTotalCount($type: String) {
+        productsTotalCount(type: $type)
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'productsTotalCount', args);
+
+    expect(response).toBe(2);
   });
 });

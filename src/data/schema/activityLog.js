@@ -36,10 +36,12 @@ export const queries = `
   activityLogsCustomer(_id: String!): [ActivityLogForMonth]
   activityLogsCompany(_id: String!): [ActivityLogForMonth]
   activityLogsUser(_id: String!): [ActivityLogForMonth]
+  activityLogsDeal(_id: String!): [ActivityLogForMonth]
 `;
 
 export const mutations = `
   activityLogsAddConversationLog(customerId: String!, conversationId: String!): ActivityLog
   activityLogsAddCustomerLog(_id: String!): ActivityLog
   activityLogsAddCompanyLog(_id: String!): ActivityLog
+  activityLogsAddDealLog(_id: String!): ActivityLog
 `;

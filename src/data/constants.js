@@ -178,7 +178,8 @@ export const COC_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   USER: 'user',
-  ALL: ['customer', 'company', 'user'],
+  DEAL: 'deal',
+  ALL: ['customer', 'company', 'user', 'deal'],
 };
 
 export const ROLES = {
@@ -198,8 +199,9 @@ export const ACTIVITY_TYPES = {
   INTERNAL_NOTE: 'internal_note',
   CONVERSATION: 'conversation',
   SEGMENT: 'segment',
+  DEAL: 'deal',
 
-  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment'],
+  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment', 'deal'],
 };
 
 export const ACTIVITY_ACTIONS = {
@@ -214,8 +216,9 @@ export const ACTIVITY_PERFORMER_TYPES = {
   SYSTEM: 'SYSTEM',
   USER: 'USER',
   CUSTOMER: 'CUSTOMER',
+  DEAL: 'DEAL',
 
-  ALL: ['SYSTEM', 'USER', 'CUSTOMER'],
+  ALL: ['SYSTEM', 'USER', 'CUSTOMER', 'DEAL'],
 };
 
 export const PRODUCT_TYPES = {
