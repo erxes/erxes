@@ -33,9 +33,6 @@ class ResetPassword extends Component {
     const { __ } = this.context;
     return (
       <AuthBox>
-        <div className="logo">
-          <img src="/images/logo-light.png" alt="erxes" />
-        </div>
         <h2>{__('Set your new password')}</h2>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>

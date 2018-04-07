@@ -32,7 +32,7 @@ const AuthBox = styled.div`
         cursor: default;
       }
       i {
-        color: ${colors.colorPrimaryLight};
+        color: ${colors.colorPrimary};
       }
     }
     input {
@@ -54,7 +54,7 @@ const AuthBox = styled.div`
 
   button[type='submit'] {
     transition: background 0.2s ease;
-    background-color: ${colors.colorPrimaryLight};
+    background-color: ${colors.colorPrimary};
     color: #fff;
     text-transform: uppercase;
     font-weight: 600;
@@ -69,7 +69,7 @@ const AuthBox = styled.div`
     :active.focus,
     :active:focus,
     :focus {
-      background-color: ${darken(colors.colorPrimary, 40)} !important;
+      background-color: ${darken(colors.colorPrimaryDark, 40)} !important;
       color: #fff;
     }
   }

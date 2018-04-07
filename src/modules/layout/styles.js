@@ -335,7 +335,7 @@ const Authlayout = styled.div`
   a.go-to-home {
     background-color: ${colors.colorWhite};
     padding: 15px 35px;
-    color: ${colors.colorPrimaryLight};
+    color: ${colors.colorPrimary};
     float: right;
     border-radius: 5px;
     font-size: 12px;
@@ -367,11 +367,10 @@ const AuthDescription = styled.div`
     font-size: 24px;
     margin-bottom: 15px;
     color: ${colors.colorWhite};
-
     font-weight: 900;
   }
   p {
-    color: rgba(${colors.colorWhite}, 0.7);
+    color: rgba(255, 255, 255, 0.7);
     margin-bottom: 50px;
     font-size: 16px;
     line-height: 1.8em;
