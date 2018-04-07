@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Bulk } from 'modules/common/components';
+import { Bulk, Spinner } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { List } from '../components';
 
@@ -16,8 +16,12 @@ class ListContainer extends Bulk {
       removeMutation
     } = this.props;
 
+    if (integrationsQuery.loading || integrationsCountQuery.loading) {
+      return <Spinner />;
+    }
+
     const integrationsCount =
-      integrationsCountQuery.integrationsTotalCount || 0;
+      integrationsCountQuery.integrationsTotalCount.byKind.form || 0;
     const integrations = integrationsQuery.integrations || [];
     const members = usersQuery.users || [];
 
@@ -75,13 +79,7 @@ export default compose(
     }
   }),
   graphql(gql(queries.integrationsCount), {
-    name: 'integrationsCountQuery',
-    options: () => {
-      return {
-        variables: { kind: 'form' },
-        fetchPolicy: 'network-only'
-      };
-    }
+    name: 'integrationsCountQuery'
   }),
   graphql(gql(queries.users), {
     name: 'usersQuery'
@@ -92,7 +90,7 @@ export default compose(
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       variables: {
-        type: 'form'
+        type: 'integration'
       }
     })
   }),

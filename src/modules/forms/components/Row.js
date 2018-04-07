@@ -88,12 +88,12 @@ class Row extends Component {
     const { __ } = this.context;
     const form = integration.form || {};
     const createdUserId = form.createdUserId;
-    const tags = form.getTags || [];
+    const tags = integration.tags || [];
     const str = form.contactsGathered / form.viewCount * 100 || '0.00';
 
     const onChange = e => {
       if (toggleBulk) {
-        toggleBulk(form, e.target.checked);
+        toggleBulk(integration, e.target.checked);
       }
     };
 

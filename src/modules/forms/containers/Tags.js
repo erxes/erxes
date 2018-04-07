@@ -3,18 +3,18 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { queries } from '../graphql';
-import { CountsByTag } from 'modules/common/components';
+import { CountsByTag, Spinner } from 'modules/common/components';
 
 const TagContainer = props => {
   const { countsQuery } = props;
 
   if (countsQuery.loading) {
-    return false;
+    return <Spinner />;
   }
 
   const updatedProps = {
     ...props,
-    counts: countsQuery.formsTotalCount.byTag || {},
+    counts: countsQuery.integrationsTotalCount.byTag || {},
     loading: countsQuery.loading
   };
 
@@ -27,7 +27,7 @@ TagContainer.propTypes = {
 };
 
 export default compose(
-  graphql(gql(queries.formsCount), {
+  graphql(gql(queries.integrationsCount), {
     name: 'countsQuery'
   })
 )(TagContainer);

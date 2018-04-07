@@ -13,6 +13,12 @@ const integrations = `
       languageCode
       formData
       formId
+      tags {
+        _id
+        name
+        colorCode
+      }
+      tagIds
       form {
         _id
         title
@@ -24,12 +30,6 @@ const integrations = `
         themeColor
         contactsGathered
         viewCount
-        tagIds
-        getTags {
-          _id
-          name
-          colorCode
-        }
         callout {
           title
           body
@@ -57,6 +57,12 @@ const integrationDetail = `
       code
       formId
       formData
+      tagIds
+      tags {
+        _id
+        name
+        colorCode
+      }
       form {
         _id
         title
@@ -93,8 +99,8 @@ const brands = `
 `;
 
 const integrationsCount = `
-  query totalIntegrationsCount($kind: String) {
-    integrationsTotalCount(kind: $kind)
+  query integrationsTotalCount {
+    integrationsTotalCount
   }
 `;
 
@@ -152,12 +158,6 @@ const tags = `
   }
 `;
 
-const formsCount = `
-  query formsTotalCount {
-    formsTotalCount
-  }
-`;
-
 export default {
   integrations,
   integrationDetail,
@@ -166,7 +166,6 @@ export default {
   brands,
   users,
   tags,
-  formsCount,
   fieldsCombinedByContentType,
   fieldsDefaultColumnsConfig
 };

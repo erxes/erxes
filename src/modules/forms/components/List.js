@@ -56,7 +56,7 @@ class List extends Component {
       actionBarLeft = (
         <BarItems>
           <TaggerPopover
-            type="form"
+            type="integration"
             afterSave={emptyBulk}
             targets={bulk}
             trigger={tagButton}
@@ -79,7 +79,7 @@ class List extends Component {
 
     const sidebar = (
       <Wrapper.Sidebar>
-        <Tag tags={tags} manageUrl="tags/form" />
+        <Tag tags={tags} manageUrl="tags/integration" />
       </Wrapper.Sidebar>
     );
 
