@@ -3,7 +3,6 @@ import channels from './channels';
 import brands from './brands';
 import integrations from './integrations';
 import { fieldQueries as fields, fieldsGroupQueries as fieldsgroups } from './fields';
-import forms from './forms';
 import responseTemplates from './responseTemplates';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
@@ -27,7 +26,6 @@ export default {
   ...brands,
   ...integrations,
   ...fields,
-  ...forms,
   ...responseTemplates,
   ...emailTemplates,
   ...engages,
