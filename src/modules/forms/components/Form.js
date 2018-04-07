@@ -32,7 +32,7 @@ class Form extends Component {
     const form = integration && (integration.form || {});
     const callout = form.callout || {};
     const fields = props.fields || [];
-    console.log(formData);
+
     this.state = {
       activeStep: 1,
       type: formData.loadType || 'shoutbox',
