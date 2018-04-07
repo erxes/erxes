@@ -64,6 +64,9 @@ export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
   POPUP: 'popup',
   EMBEDDED: 'embedded',
+  DROPDOWN: 'dropdown',
+  SLIDEINLEFT: 'slideInLeft',
+  SLIDEINRIGHT: 'slideInRight',
   ALL: ['', 'shoutbox', 'popup', 'embedded'],
 };
 
