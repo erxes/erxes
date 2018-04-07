@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 
-import { Users, Brands, Integrations, Channels } from './db/models';
+import { Users, Brands, Integrations, Channels, Forms } from './db/models';
+
 import {
   customerFactory,
   companyFactory,
@@ -9,7 +10,11 @@ import {
   conversationFactory,
   responseTemplateFactory,
   formFactory,
+  fieldFactory,
   conversationMessageFactory,
+  knowledgeBaseCategoryFactory,
+  knowledgeBaseTopicFactory,
+  knowledgeBaseArticleFactory,
 } from './db/factories';
 import { connect, disconnect } from './db/connection';
 
@@ -59,13 +64,25 @@ export const importData = async () => {
   }
 
   // create form integration ====================
-  const form = await formFactory({ createdUserId: user._id });
+  const form = await formFactory({
+    createdUserId: user._id,
+  });
+
+  await Forms.update({ _id: form._id }, { $set: { code: 'mRgzZw' } });
+
+  await fieldFactory({ contentType: 'form', contentTypeId: form._id });
+  await fieldFactory({ contentType: 'form', contentTypeId: form._id });
+  await fieldFactory({ contentType: 'form', contentTypeId: form._id });
 
   const formIntegration = await Integrations.createIntegration({
     name: 'Form',
     kind: 'form',
     brandId: brand._id,
     formId: form._id,
+    formData: {
+      loadType: 'embedded',
+      thankContent: 'thankContent',
+    },
   });
 
   await Channels.createChannel(
@@ -76,6 +93,16 @@ export const importData = async () => {
     },
     user._id,
   );
+
+  // knowledgebase =========
+  const kbCategory = await knowledgeBaseCategoryFactory({}, user._id);
+
+  await knowledgeBaseTopicFactory(
+    { _id: 'bxnJ8CFa5Snh69diH', categoryIds: [kbCategory._id] },
+    user._id,
+  );
+
+  await knowledgeBaseArticleFactory({ categoryIds: [kbCategory._id] }, user._id);
 
   disconnect();
 };
