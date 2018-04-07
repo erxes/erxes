@@ -96,7 +96,7 @@ class List extends Component {
             <th>{__('Created at')}</th>
             <th>{__('Created by')}</th>
             <th>{__('Tags')}</th>
-            <th />
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>

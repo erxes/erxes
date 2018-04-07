@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -10,40 +9,10 @@ import {
   Icon,
   ModalTrigger,
   FormControl,
-  Tags
+  Tags,
+  ActionButtons
 } from 'modules/common/components';
 import { Manage } from './';
-
-const ActionButtons = styled.div`
-  display: flex;
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 0;
-  overflow: hidden;
-  align-items: center;
-  transition: all 0.3s ease;
-
-  * {
-    padding: 0;
-    margin-left: 20px;
-
-    &:first-child {
-      margin-left: 0;
-    }
-  }
-`;
-
-const TableRow = styled.tr`
-  &:hover {
-    ${ActionButtons} {
-      width: auto;
-      position: inherit;
-      justify-content: flex-end;
-    }
-  }
-`;
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
@@ -129,7 +98,7 @@ class Row extends Component {
     };
 
     return (
-      <TableRow>
+      <tr>
         <td>
           <FormControl componentClass="checkbox" onChange={onChange} />
         </td>
@@ -152,7 +121,7 @@ class Row extends Component {
             </Tip>
           </ActionButtons>
         </td>
-      </TableRow>
+      </tr>
     );
   }
 }

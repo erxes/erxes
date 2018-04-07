@@ -94,9 +94,9 @@ class SuccessStep extends Component {
           <FormGroup>
             <ControlLabel>Admin emails</ControlLabel>
             <FormControl
-              type="text"
-              defaultValue={formData.adminEmails}
               id="adminEmails"
+              type="text"
+              defaultValue={formData.adminEmails.join(',')}
               onChange={e =>
                 this.onChangeFunction('adminEmails', e.target.value)
               }

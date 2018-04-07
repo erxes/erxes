@@ -19,7 +19,7 @@ import {
 } from './preview';
 import { FlexItem, FlexColumn, LeftItem, Footer, Preview } from './style';
 
-const Space = dimensions.unitSpacing + dimensions.coreSpacing;
+const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
 const ImageWrapper = styled.div`
   border: 1px dashed ${colors.borderDarker};
@@ -44,13 +44,13 @@ const ImageContent = styled.div`
     cursor: pointer;
     position: absolute;
     right: 150px;
-    top: ${Space}px;
-    width: ${Space}px;
-    height: ${Space}px;
+    top: ${Space};
+    width: ${Space};
+    height: ${Space};
     display: block;
-    border-radius: ${Space}px;
+    border-radius: ${Space};
     text-align: center;
-    line-height: ${Space}px;
+    line-height: ${Space};
     background: rgba(255, 255, 255, 0.5);
     transition: all ease 0.3s;
   }
