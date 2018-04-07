@@ -52,16 +52,8 @@ describe('integrationQueries', () => {
   `;
 
   const qryCount = `
-    query integrationsTotalCount(
-      $kind: String
-      $channelId: String
-      $brandId: String
-    ) {
-      integrationsTotalCount(
-        kind: $kind
-        channelId: $channelId
-        brandId: $brandId
-      )
+    query integrationsTotalCount {
+      integrationsTotalCount
     }
   `;
 
@@ -93,7 +85,7 @@ describe('integrationQueries', () => {
     await integrationFactory({});
     await integrationFactory({});
 
-    const tagObj = await tagsFactory({ type: TAG_TYPES.FORM });
+    const tagObj = await tagsFactory({ type: TAG_TYPES.INTEGRATION });
     await integrationFactory({ tagIds: [tagObj._id] });
 
     const responses = await graphqlRequest(qryIntegrations, 'integrations', {
@@ -194,24 +186,24 @@ describe('integrationQueries', () => {
     await integrationFactory({ kind: 'facebook' });
 
     // messenger =========================
-    let response = await graphqlRequest(qryCount, 'integrationsTotalCount', { kind: 'messenger' });
+    let response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
-    expect(response).toBe(1);
+    expect(response.byKind['messenger']).toBe(1);
 
     // form =============================
-    response = await graphqlRequest(qryCount, 'integrationsTotalCount', { kind: 'form' });
+    response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
-    expect(response).toBe(1);
+    expect(response.byKind['form']).toBe(1);
 
     // facebook ==========================
-    response = await graphqlRequest(qryCount, 'integrationsTotalCount', { kind: 'facebook' });
+    response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
-    expect(response).toBe(1);
+    expect(response.byKind['twitter']).toBe(1);
 
     // twitter ===========================
-    response = await graphqlRequest(qryCount, 'integrationsTotalCount', { kind: 'twitter' });
+    response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
-    expect(response).toBe(1);
+    expect(response.byKind['facebook']).toBe(1);
   });
 
   test('Get total count of integrations by channel', async () => {
@@ -224,11 +216,9 @@ describe('integrationQueries', () => {
 
     const channel = await channelFactory({ integrationIds });
 
-    const response = await graphqlRequest(qryCount, 'integrationsTotalCount', {
-      channelId: channel._id,
-    });
+    const response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
-    expect(response).toBe(2);
+    expect(response.byChannel[channel._id]).toBe(2);
   });
 
   test('Get total count of integrations by brand', async () => {
@@ -238,11 +228,9 @@ describe('integrationQueries', () => {
     await integrationFactory({ kind: 'form', brandId: brand._id });
     await integrationFactory({ kind: 'form' });
 
-    const response = await graphqlRequest(qryCount, 'integrationsTotalCount', {
-      brandId: brand._id,
-    });
+    const response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
-    expect(response).toBe(2);
+    expect(response.byBrand[brand._id]).toBe(2);
   });
 
   test('Integration get twitter auth url', async () => {
