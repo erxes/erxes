@@ -67,7 +67,7 @@ export const FORM_LOAD_TYPES = {
   DROPDOWN: 'dropdown',
   SLIDEINLEFT: 'slideInLeft',
   SLIDEINRIGHT: 'slideInRight',
-  ALL: ['', 'shoutbox', 'popup', 'embedded'],
+  ALL: ['', 'shoutbox', 'popup', 'embedded', 'dropdown', 'slideInLeft', 'slideInRight'],
 };
 
 export const FORM_SUCCESS_ACTIONS = {
