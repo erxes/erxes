@@ -53,7 +53,7 @@ const integrationQueries = {
     const query = await generateFilterQuery(args);
     const integrations = paginate(Integrations.find(query), args);
 
-    return integrations.sort({ createdAt: -1 });
+    return integrations.sort({ name: 1 });
   },
 
   /**
