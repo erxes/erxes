@@ -1,9 +1,16 @@
 /* eslint-env jest */
 
 import faker from 'faker';
+import { TAG_TYPES } from '../data/constants';
 import { Integrations, Channels, Brands } from '../db/models';
 import { graphqlRequest, connect, disconnect } from '../db/connection';
-import { integrationFactory, channelFactory, brandFactory } from '../db/factories';
+import {
+  integrationFactory,
+  channelFactory,
+  brandFactory,
+  formFactory,
+  tagsFactory,
+} from '../db/factories';
 import { socUtils } from '../trackers/twitterTracker';
 
 beforeAll(() => connect());
@@ -19,6 +26,7 @@ describe('integrationQueries', () => {
       $searchValue: String
       $channelId: String
       $brandId: String
+      $tag: String
     ) {
       integrations(
         page: $page
@@ -27,6 +35,7 @@ describe('integrationQueries', () => {
         searchValue: $searchValue
         channelId: $channelId
         brandId: $brandId
+        tag: $tag
       ) {
         _id
         kind
@@ -83,6 +92,24 @@ describe('integrationQueries', () => {
     });
 
     expect(responses.length).toBe(3);
+  });
+
+  test('Integrations filtered by form tag', async () => {
+    await integrationFactory({});
+    await integrationFactory({});
+    await integrationFactory({});
+
+    const tagObj = await tagsFactory({ type: TAG_TYPES.FORM });
+    const formObj = await formFactory({ tagIds: [tagObj._id] });
+    await integrationFactory({ formId: formObj._id });
+
+    const responses = await graphqlRequest(qryIntegrations, 'integrations', {
+      page: 1,
+      perPage: 20,
+      tag: tagObj._id,
+    });
+
+    expect(responses.length).toBe(1);
   });
 
   test('Integrations filtered by kind', async () => {

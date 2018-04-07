@@ -4,6 +4,7 @@ import { Fields } from './';
 import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import { field } from './utils';
 
+// schema for form's callout component
 const CalloutSchema = mongoose.Schema(
   {
     title: field({ type: String, optional: true }),

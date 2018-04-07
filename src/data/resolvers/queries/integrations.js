@@ -4,11 +4,12 @@ import { getConfig, getPageList } from '../../../trackers/facebook';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
-/*
+/**
  * Common helper for integrations & integrationsTotalCount
  * @param {String} kind - Messenger, Facebook etc ...
  * @param {String} channelId - Channel id
  * @param {String} brandId - Brand id
+ * @param {String} tag - Form tag id
  * @return generated query
  */
 const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag }) => {
@@ -33,14 +34,17 @@ const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag 
     query.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
 
+  // filtering integrations by form tag
   if (tag) {
     const forms = await Forms.find({ tagIds: tag });
     const formIds = [];
 
+    // getting formIds with correct tag
     for (let form of forms) {
       formIds.push(form._id);
     }
 
+    // filtering by formId
     query.formId = { $in: formIds };
   }
 
