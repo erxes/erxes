@@ -349,7 +349,7 @@ export const channelFactory = async (params = {}) => {
   return Channels.create(obj);
 };
 
-export const knowledgeBaseTopicFactory = params => {
+export const knowledgeBaseTopicFactory = (params = {}, userId) => {
   const doc = {
     title: faker.random.word(),
     description: faker.lorem.sentence,
@@ -357,16 +357,20 @@ export const knowledgeBaseTopicFactory = params => {
     catgoryIds: [faker.random.word()],
   };
 
+  if (params._id) {
+    doc._id = params._id;
+  }
+
   return KnowledgeBaseTopics.createDoc(
     {
       ...doc,
       ...params,
     },
-    faker.random.word(),
+    userId || faker.random.word(),
   );
 };
 
-export const knowledgeBaseCategoryFactory = (params = {}) => {
+export const knowledgeBaseCategoryFactory = (params = {}, userId) => {
   const doc = {
     title: faker.random.word(),
     description: faker.lorem.sentence,
@@ -374,10 +378,10 @@ export const knowledgeBaseCategoryFactory = (params = {}) => {
     icon: faker.random.word(),
   };
 
-  return KnowledgeBaseCategories.createDoc({ ...doc, ...params }, faker.random.word());
+  return KnowledgeBaseCategories.createDoc({ ...doc, ...params }, userId || faker.random.word());
 };
 
-export const knowledgeBaseArticleFactory = params => {
+export const knowledgeBaseArticleFactory = (params, userId) => {
   const doc = {
     title: faker.random.word(),
     summary: faker.lorem.sentence,
@@ -386,10 +390,10 @@ export const knowledgeBaseArticleFactory = params => {
     categoryIds: params.categoryIds || [],
   };
 
-  return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, faker.random.word());
+  return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, userId || faker.random.word());
 };
 
-export const activityLogFactory = params => {
+export const activityLogFactory = (params, userId) => {
   const doc = {
     activity: {
       type: ACTIVITY_TYPES.INTERNAL_NOTE,
@@ -407,7 +411,7 @@ export const activityLogFactory = params => {
     },
   };
 
-  return ActivityLogs.createDoc({ ...doc, ...params }, faker.random.word());
+  return ActivityLogs.createDoc({ ...doc, ...params }, userId || faker.random.word());
 };
 
 export const dealBoardFactory = (params = {}) => {
