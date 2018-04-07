@@ -24,20 +24,26 @@ class AuthLayout extends React.Component {
 
     return (
       <Authlayout>
+        <a
+          className="go-to-home"
+          target="_blank"
+          rel="noopener noreferrer"
+          href="http://erxes.io/"
+        >
+          Go to home page
+        </a>
         <AuthContent>
           <Grid>
-            <Col md={7}>
+            <Col md={6} mdOffset={3}>
               <AuthDescription>
-                <img src="/images/logo.png" alt="erxes" />
                 <h1>Customer engagement. Redefined.</h1>
                 <p>
                   erxes is an AI meets open source messaging platform for sales
-                  and marketing teams.
+                  and marketing
                 </p>
-                <a href="http://erxes.io/">« Go to home page</a>
               </AuthDescription>
+              {content}
             </Col>
-            <Col md={5}>{content}</Col>
           </Grid>
         </AuthContent>
       </Authlayout>

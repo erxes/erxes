@@ -16,6 +16,13 @@ const Label = styled.label`
   margin-bottom: 5px;
 `;
 
+//browser default form invalid styling
+const formInvalid = `
+  &.form-invalid {
+    border-bottom: 1px solid ${colors.colorCoreRed};
+  }
+`;
+
 const Formgroup = styled.div`
   margin-bottom: 20px;
 
@@ -25,7 +32,7 @@ const Formgroup = styled.div`
 `;
 
 const Input = styled.input`
-  display: block;
+  ${formInvalid} display: block;
   border: none;
   width: 100%;
   height: ${textInputHeight};
@@ -57,7 +64,7 @@ const Input = styled.input`
 `;
 
 const SelectWrapper = styled.div`
-  overflow: hidden;
+  ${formInvalid} overflow: hidden;
   border-bottom: 1px solid ${colors.colorShadowGray};
   width: 100%;
   height: ${textInputHeight};
@@ -83,6 +90,8 @@ const SelectWrapper = styled.div`
 `;
 
 const Select = Input.withComponent('select').extend`
+  ${formInvalid}
+
   border: none;
   height: ${textInputHeight};
   padding: 0 ${dimensions.unitSpacing}px;
@@ -91,7 +100,9 @@ const Select = Input.withComponent('select').extend`
 `;
 
 const Textarea = Input.withComponent('textarea').extend`
-	height: 80px;
+  ${formInvalid}
+
+  height: 80px;
 `;
 
 const FormLabel = styled.label`
@@ -106,7 +117,7 @@ const FormLabel = styled.label`
 `;
 
 const inputStyle = styled.input`
-  border: 0 !important;
+  ${formInvalid} border: 0 !important;
   clip: rect(1px, 1px, 1px, 1px) !important;
   clip-path: inset(50%) !important;
   height: 1px !important;

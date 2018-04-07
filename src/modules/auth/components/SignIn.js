@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Button, FormControl, FormGroup } from 'modules/common/components';
+import { FormGroup, FormControl, InputGroup, Button } from 'react-bootstrap';
+import { Icon } from 'modules/common/components';
 import { AuthBox, Links } from '../styles';
 
 const propTypes = {
@@ -43,33 +44,49 @@ class SignIn extends Component {
   render() {
     return (
       <AuthBox>
-        <h2>Sign In</h2>
+        <div className="logo">
+          <img src="/images/logo-light.png" alt="erxes" />
+        </div>
+
         <form onSubmit={this.login}>
           <FormGroup>
-            <FormControl
-              type="email"
-              placeholder="your@email.com"
-              value={this.state.email}
-              required
-              onChange={this.handleEmailChange}
-            />
+            <InputGroup>
+              <InputGroup.Button>
+                <Button>
+                  <Icon icon="person" />
+                </Button>
+              </InputGroup.Button>
+              <FormControl
+                type="email"
+                placeholder="demo@erxes.io"
+                required
+                onChange={this.handleEmailChange}
+                onFocus={this.handleOnFocus}
+              />
+            </InputGroup>
           </FormGroup>
           <FormGroup>
-            <FormControl
-              type="password"
-              placeholder="password"
-              value={this.state.password}
-              required
-              onChange={this.handlePasswordChange}
-            />
+            <InputGroup>
+              <InputGroup.Button>
+                <Button>
+                  <Icon icon="android-lock" />
+                </Button>
+              </InputGroup.Button>
+              <FormControl
+                type="password"
+                placeholder="demo"
+                required
+                onChange={this.handlePasswordChange}
+              />
+            </InputGroup>
           </FormGroup>
+          <Links>
+            <Link to="/forgot-password">Forgot password?</Link>
+          </Links>
           <Button type="submit" block>
             Sign in
           </Button>
         </form>
-        <Links>
-          <Link to="/forgot-password">Forgot password?</Link>
-        </Links>
       </AuthBox>
     );
   }

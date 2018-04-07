@@ -18,6 +18,7 @@ import CompanyRow from './CompanyRow';
 import { CompanyForm } from '../';
 import { ManageColumns } from '../../../fields/containers';
 import { CommonMerge } from 'modules/customers/components';
+import { CompaniesTableWrapper } from 'modules/companies/styles';
 
 const propTypes = {
   companies: PropTypes.array.isRequired,
@@ -36,7 +37,8 @@ const propTypes = {
   removeCompanies: PropTypes.func.isRequired,
   loadingTags: PropTypes.bool.isRequired,
   mergeCompanies: PropTypes.func.isRequired,
-  basicInfos: PropTypes.object.isRequired
+  basicInfos: PropTypes.object.isRequired,
+  queryParams: PropTypes.object
 };
 
 class CompaniesList extends React.Component {
@@ -100,11 +102,12 @@ class CompaniesList extends React.Component {
       tags,
       loadingTags,
       mergeCompanies,
-      basicInfos
+      basicInfos,
+      queryParams
     } = this.props;
 
     const mainContent = (
-      <div>
+      <CompaniesTableWrapper>
         <Table whiteSpace="nowrap" bordered hover>
           <thead>
             <tr>
@@ -132,7 +135,7 @@ class CompaniesList extends React.Component {
             ))}
           </tbody>
         </Table>
-      </div>
+      </CompaniesTableWrapper>
     );
 
     const addTrigger = (
@@ -231,7 +234,9 @@ class CompaniesList extends React.Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
+        }
         actionBar={actionBar}
         footer={<Pagination count={counts.all} />}
         leftSidebar={

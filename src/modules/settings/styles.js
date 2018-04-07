@@ -302,7 +302,8 @@ const SidebarListItem = styled.li`
     background: ${props => !props.isActive && colors.bgLight};
 
     ${ActionButtons} {
-      width: ${dimensions.headerSpacing}px;
+      width: auto;
+      padding-right: ${dimensions.coreSpacing}px;
     }
   }
 `;

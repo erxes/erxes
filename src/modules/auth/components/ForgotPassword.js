@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Button, FormControl, FormGroup } from 'modules/common/components';
+import { FormGroup, FormControl, InputGroup, Button } from 'react-bootstrap';
+import { Icon } from 'modules/common/components';
 import { AuthBox, Links } from '../styles';
 
 const propTypes = {
@@ -38,24 +39,33 @@ class ForgotPassword extends Component {
   render() {
     return (
       <AuthBox>
-        <h2>Reset your password</h2>
+        <div className="logo">
+          <img src="/images/logo-light.png" alt="erxes" />
+        </div>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
-            <FormControl
-              type="email"
-              placeholder="registered@email.com"
-              value={this.state.email}
-              required
-              onChange={this.handleEmailChange}
-            />
+            <InputGroup>
+              <InputGroup.Button>
+                <Button>
+                  <Icon icon="android-lock" />
+                </Button>
+              </InputGroup.Button>
+              <FormControl
+                type="email"
+                placeholder="registered@email.com"
+                value={this.state.email}
+                required
+                onChange={this.handleEmailChange}
+              />
+            </InputGroup>
           </FormGroup>
+          <Links>
+            <Link to="/sign-in">Sign in</Link>
+          </Links>
           <Button type="submit" block>
             Email me the instruction
           </Button>
         </form>
-        <Links>
-          <Link to="/sign-in">Sign in</Link>
-        </Links>
       </AuthBox>
     );
   }

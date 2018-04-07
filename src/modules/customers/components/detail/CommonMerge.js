@@ -156,12 +156,17 @@ class CommonMerge extends Component {
         <FormControl
           onChange={e => this.handleInputChange(e, property)}
           value={data[property] || ''}
+          required={['firstName', 'email', 'name', 'website'].includes(
+            property
+          )} //required fields
         />
       </FormGroup>
     );
   }
 
-  save() {
+  save(e) {
+    e.preventDefault();
+
     const { datas } = this.props;
     const data = { ...this.state.data };
     const ids = [];
@@ -264,7 +269,7 @@ class CommonMerge extends Component {
     const { datas } = this.props;
 
     return (
-      <div>
+      <form onSubmit={this.save}>
         <Columns>
           {datas.map(data => {
             return (
@@ -287,11 +292,11 @@ class CommonMerge extends Component {
           >
             Cancel
           </Button>
-          <Button onClick={this.save} btnStyle="success" icon="checkmark">
+          <Button type="submit" btnStyle="success" icon="checkmark">
             Save
           </Button>
         </Modal.Footer>
-      </div>
+      </form>
     );
   }
 }
