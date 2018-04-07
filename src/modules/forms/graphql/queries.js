@@ -1,6 +1,6 @@
 const integrations = `
-  query integrations($perPage: Int, $page: Int, $kind: String) {
-    integrations(perPage: $perPage, page: $page, kind: $kind) {
+  query integrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
+    integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag) {
       _id
       brandId
       name

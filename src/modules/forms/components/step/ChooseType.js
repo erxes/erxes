@@ -76,14 +76,6 @@ class ChooseType extends Component {
   }
 
   onChange(value) {
-    if (value === 'shoutbox') {
-      return this.props.onChange('type', 'shoutbox');
-    }
-
-    if (value === 'popup') {
-      return this.props.onChange('type', 'popup');
-    }
-
     return this.props.onChange('type', value);
   }
 
@@ -102,11 +94,11 @@ class ChooseType extends Component {
       return <DropdownPreview {...this.props} />;
     }
 
-    if (type === 'slidein-left') {
+    if (type === 'slideInLeft') {
       return <SlideLeftPreview {...this.props} />;
     }
 
-    if (type === 'slidein-right') {
+    if (type === 'slideInRight') {
       return <SlideRightPreview {...this.props} />;
     }
 
@@ -146,12 +138,12 @@ class ChooseType extends Component {
             {this.renderBox(
               'Slide-in Left',
               '/images/icons/icon-05.svg',
-              'slidein-left'
+              'slideInLeft'
             )}
             {this.renderBox(
               'Slide-in Right',
               '/images/icons/icon-06.svg',
-              'slidein-right'
+              'slideInRight'
             )}
           </BoxRow>
         </LeftItem>

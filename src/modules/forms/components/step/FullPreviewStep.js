@@ -89,11 +89,11 @@ class FullPreviewStep extends Component {
       return <DropdownPreview {...this.props} />;
     }
 
-    if (type === 'slidein-left') {
+    if (type === 'slideInLeft') {
       return <SlideLeftPreview {...this.props} />;
     }
 
-    if (type === 'slidein-right') {
+    if (type === 'slideInRight') {
       return <SlideRightPreview {...this.props} />;
     }
 

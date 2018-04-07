@@ -149,7 +149,7 @@ class FormStep extends Component {
       );
     }
 
-    if (type === 'slidein-left') {
+    if (type === 'slideInLeft') {
       return (
         <SlideLeftPreview
           {...this.props}
@@ -159,7 +159,7 @@ class FormStep extends Component {
       );
     }
 
-    if (type === 'slidein-right') {
+    if (type === 'slideInRight') {
       return (
         <SlideRightPreview
           {...this.props}
