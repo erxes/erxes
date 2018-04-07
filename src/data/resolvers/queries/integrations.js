@@ -1,4 +1,4 @@
-import { Channels, Integrations, Forms } from '../../../db/models';
+import { Channels, Integrations } from '../../../db/models';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { getConfig, getPageList } from '../../../trackers/facebook';
 import { moduleRequireLogin } from '../../permissions';
@@ -34,18 +34,9 @@ const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag 
     query.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
 
-  // filtering integrations by form tag
+  // filtering integrations by tag
   if (tag) {
-    const forms = await Forms.find({ tagIds: tag });
-    const formIds = [];
-
-    // getting formIds with correct tag
-    for (let form of forms) {
-      formIds.push(form._id);
-    }
-
-    // filtering by formId
-    query.formId = { $in: formIds };
+    query.tagIds = tag;
   }
 
   return query;

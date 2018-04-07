@@ -7,6 +7,8 @@ export const types = `
     languageCode: String
     code: String
     formId: String
+    tagIds: [String]
+    tag: [Tag]
     formData: JSON
     messengerData: JSON
     twitterData: JSON
