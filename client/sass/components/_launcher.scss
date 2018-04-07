@@ -7,17 +7,17 @@
   height: 56px;
   cursor: pointer;
   position: fixed;
-  z-index: 9999;
+  z-index: $z-index-above;
   bottom: 8px;
   right: 8px;
   box-shadow: 0 0 10px 0 rgba($black, 0.2);
   transition: box-shadow 0.3s ease-in-out, background 0.3s ease-in;
   background-image: url('/static/images/widget-logo.png');
-  background-size: 20px;
+  background-size: 20px !important;
   background-position: center;
   background-repeat: no-repeat;
   background-color: $main-color;
-
+  
   span {
     position: absolute;
     width: 20px;
@@ -46,15 +46,15 @@
 
   @media screen and (max-width: $break-small) {
     &.close {
-      border-radius: 4px;
-      box-shadow: none;
       display: block;
       height: 40px;
+      width: 40px;
+      border-radius: 4px;
       line-height: 40px;
       right: 10px;
       top: 15px;
-      width: 40px;
-      z-index: 1000000000;
+      box-shadow: none;
+      z-index: $z-index-above;
 
       &:hover {
         background-color: rgba($black, 0.2);
