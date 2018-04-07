@@ -59,15 +59,9 @@ class PipelineForm extends Component {
     };
   }
 
-  renderStages(pipeline) {
-    if (!pipeline) return null;
-
+  renderStages() {
     return (
-      <Stages
-        stages={this.state.stages}
-        onChangeStages={this.onChangeStages}
-        pipelineId={pipeline._id}
-      />
+      <Stages stages={this.state.stages} onChangeStages={this.onChangeStages} />
     );
   }
 
@@ -88,7 +82,7 @@ class PipelineForm extends Component {
             required
           />
         </FormGroup>
-        {this.renderStages(pipeline)}
+        {this.renderStages()}
       </div>
     );
   }

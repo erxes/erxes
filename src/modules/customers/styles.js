@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors, typography, dimensions } from 'modules/common/styles';
+import { colors } from 'modules/common/styles';
 
 const columnSizing = '20px';
 const borderRadius = '2px';
@@ -145,38 +145,39 @@ const InfoDetail = styled.p`
   color: ${colors.colorCoreGray};
 `;
 
-const FormWrapper = styled.div`
-  display: flex;
-  padding-bottom: 20px;
+const SectionBody = styled.div`
+  i {
+    color: #aaaeb3;
 
-  &:last-of-type {
-    padding: 0;
-  }
-
-  img {
-    display: block;
-    width: 100px;
-    height: 100px;
-    border-radius: 50px;
+    &:hover {
+      cursor: pointer;
+    }
   }
 `;
 
-const FormColumn = styled.div`
-  flex: 1;
-  padding-right: 40px;
+const SectionBodyItem = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
+  padding: 10px 20px;
 
-  &:last-of-type {
-    padding: 0;
+  span {
+    display: inline-block;
+    width: 100%;
   }
-`;
 
-const ColumnTitle = styled.h4`
-  text-transform: uppercase;
-  font-weight: ${typography.fontWeightMedium};
-  border-bottom: 1px dotted ${colors.colorShadowGray};
-  padding-bottom: ${dimensions.unitSpacing}px;
-  font-size: 14px;
-  margin: 0 0 ${dimensions.coreSpacing}px;
+  i {
+    color: #aaaeb3;
+    position: absolute;
+    right: 20px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+  ul {
+    li {
+      margin-left: 20px;
+    }
+  }
 `;
 
 export {
@@ -189,7 +190,6 @@ export {
   InfoTitle,
   InfoDetail,
   Info,
-  FormWrapper,
-  FormColumn,
-  ColumnTitle
+  SectionBody,
+  SectionBodyItem
 };

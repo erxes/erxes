@@ -75,7 +75,7 @@ injectGlobal`
     height: 50px;
     border: 0;
     border-radius: 2px;
-    background: #392a6f;
+    background: #673FBD;
   }
 
   .modal-header .close {
@@ -85,7 +85,7 @@ injectGlobal`
   .modal-title {
     font-size: 16px;
     font-weight: normal;
-    color: #cfcfcf;
+    color: #fff;
   }
 
   .modal-body {
@@ -271,22 +271,25 @@ injectGlobal`
     box-shadow: none;
   }
 
-  .is-open .Select-arrow {
+  .Select.is-open .Select-arrow {
     border-top-color: #777777;
   }
 
-  .is-open > .Select-control {
+  .Select.is-focused > .Select-control,
+  .Select.is-open > .Select-control {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
     border-color: ${colors.colorSecondary};
     background: none;
   }
 
-  .is-focused:not(.is-open) > .Select-control {
+  .Select.is-focused:not(.is-open) > .Select-control {
     box-shadow: none;
+    background: none;
+    border-color: #6569DF;
   }
 
-  .is-focused .Select-input > input {
+  .Select.is-focused .Select-input > input {
     padding: 10px 0 12px;
   }
 

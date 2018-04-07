@@ -7,9 +7,9 @@ const boards = `
   }
 `;
 
-const boardGetLast = `
-  query dealBoardGetLast {
-    dealBoardGetLast {
+const boardGetDefault = `
+  query dealBoardGetDefault {
+    dealBoardGetDefault {
       _id
       name
     }
@@ -40,6 +40,7 @@ const stages = `
     dealStages(pipelineId: $pipelineId) {
       _id
       name
+      order
     }
   }
 `;
@@ -67,10 +68,12 @@ const dealDetail = `
   query dealDetail($_id: String!) {
     dealDetail(_id: $_id) {
       _id
+      name
       stageId
       companies {
         _id
         name
+        website
       }
       customers {
         _id
@@ -81,7 +84,7 @@ const dealDetail = `
       productsData
       amount
       closeDate
-      note
+      description
       assignedUsers {
         _id
         email
@@ -116,9 +119,34 @@ const users = `
   }
 `;
 
+const activityLogsDeal = `
+  query activityLogsDeal($_id: String!) {
+    activityLogsDeal(_id: $_id) {
+      date {
+        year
+        month
+      }
+      list {
+        id
+        action
+        content
+        createdAt
+        by {
+          _id
+          type
+          details {
+            avatar
+            fullName
+          }
+        }
+      }
+    }
+  }
+`;
+
 export default {
   boards,
-  boardGetLast,
+  boardGetDefault,
   boardDetail,
   pipelines,
   stages,
@@ -126,5 +154,6 @@ export default {
   deals,
   dealDetail,
   productDetail,
-  users
+  users,
+  activityLogsDeal
 };

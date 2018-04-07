@@ -75,7 +75,11 @@ class BasicInfo extends React.Component {
             {this.renderLinks(links)}
           </div>
 
-          <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
+          <ModalTrigger
+            title="Edit basic info"
+            trigger={<Icon icon="edit" />}
+            size="lg"
+          >
             <CustomerForm size="lg" customer={customer} />
           </ModalTrigger>
         </InfoWrapper>

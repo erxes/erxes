@@ -5,10 +5,10 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
 import { Spinner } from 'modules/common/components';
-import { Board as BoardComponent } from '../components';
+import { Board } from '../components';
 import { queries } from '../graphql';
 
-class Container extends React.Component {
+class BoardContainer extends React.Component {
   constructor(props) {
     super(props);
 
@@ -68,11 +68,11 @@ class Container extends React.Component {
   render() {
     const { boardsQuery, pipelinesQuery } = this.props;
 
-    if (boardsQuery.loading || pipelinesQuery.loading) {
+    if (pipelinesQuery.loading) {
       return <Spinner />;
     }
 
-    const boards = boardsQuery.dealBoards;
+    const boards = boardsQuery.dealBoards || [];
     const pipelines = pipelinesQuery.dealPipelines;
 
     const extendedProps = {
@@ -80,26 +80,27 @@ class Container extends React.Component {
       states: this.state,
       onDragEnd: this.onDragEnd,
       boards,
-      pipelines
+      pipelines,
+      loading: pipelinesQuery.loading
     };
 
-    return <BoardComponent {...extendedProps} />;
+    return <Board {...extendedProps} />;
   }
 }
 
-Container.propTypes = {
+BoardContainer.propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
   currentBoard: PropTypes.object,
   history: PropTypes.object
 };
 
-Container.childContextTypes = {
+BoardContainer.childContextTypes = {
   move: PropTypes.func,
   boardId: PropTypes.string
 };
 
-const BoardContainer = compose(
+const BoardContainerWithData = compose(
   graphql(gql(queries.boards), {
     name: 'boardsQuery'
   }),
@@ -107,10 +108,10 @@ const BoardContainer = compose(
     name: 'pipelinesQuery',
     options: ({ currentBoard }) => ({
       variables: { boardId: currentBoard ? currentBoard._id : '' },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'cache-and-network'
     })
   })
-)(Container);
+)(BoardContainer);
 
 const BoardDetail = props => {
   const { boardDetailQuery } = props;
@@ -126,7 +127,7 @@ const BoardDetail = props => {
     currentBoard
   };
 
-  return <BoardContainer {...extendedProps} />;
+  return <BoardContainerWithData {...extendedProps} />;
 };
 
 BoardDetail.propTypes = {
@@ -147,38 +148,38 @@ const BoardDetailContainer = compose(
  * We will use this component when there is no current board id
  * in query string
  */
-const LastBoard = props => {
-  const { boardGetLastQuery } = props;
+const DefaultBoard = props => {
+  const { boardGetDefaultQuery } = props;
 
-  if (boardGetLastQuery.loading) {
+  if (boardGetDefaultQuery.loading) {
     return <Spinner />;
   }
 
-  const lastBoard = boardGetLastQuery.dealBoardGetLast;
+  const defaultBoard = boardGetDefaultQuery.dealBoardGetDefault;
 
   const extendedProps = {
     ...props,
-    currentBoard: lastBoard
+    currentBoard: defaultBoard
   };
 
-  return <BoardContainer {...extendedProps} />;
+  return <BoardContainerWithData {...extendedProps} />;
 };
 
-LastBoard.propTypes = {
-  boardGetLastQuery: PropTypes.object
+DefaultBoard.propTypes = {
+  boardGetDefaultQuery: PropTypes.object
 };
 
-const LastBoardContainer = compose(
-  graphql(gql(queries.boardGetLast), {
-    name: 'boardGetLastQuery',
+const DefaultBoardContainer = compose(
+  graphql(gql(queries.boardGetDefault), {
+    name: 'boardGetDefaultQuery',
     options: () => ({ fetchPolicy: 'network-only' })
   })
-)(LastBoard);
+)(DefaultBoard);
 
 /*
  * Main board component
  */
-const Board = props => {
+const MainContainer = props => {
   const { history } = props;
   const currentBoardId = routerUtils.getParam(history, 'id');
 
@@ -191,11 +192,11 @@ const Board = props => {
     return <BoardDetailContainer {...extentedProps} />;
   }
 
-  return <LastBoardContainer {...props} />;
+  return <DefaultBoardContainer {...props} />;
 };
 
-Board.propTypes = {
+MainContainer.propTypes = {
   history: PropTypes.object
 };
 
-export default withRouter(Board);
+export default withRouter(MainContainer);

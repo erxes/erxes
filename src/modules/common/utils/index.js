@@ -20,12 +20,12 @@ const setTitle = (title, force) => {
   }
 };
 
-const setBadge = count => {
+const setBadge = (count, title) => {
   const favicon = document.getElementById('favicon');
 
   if (count) {
-    if (document.title.includes('Inbox')) {
-      setTitle(`(${count}) Inbox`);
+    if (document.title.includes(title)) {
+      setTitle(`(${count}) ${title}`);
     }
 
     return (favicon.href = '/favicon-unread.png');

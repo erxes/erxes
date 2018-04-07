@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { dimensions, colors } from 'modules/common/styles';
+import { dimensions, colors, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 
 const FullContent = styled.div`
@@ -98,9 +98,47 @@ const Links = styled.div`
   }
 `;
 
+const FormWrapper = styled.div`
+  display: flex;
+
+  img {
+    display: block;
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+  }
+`;
+
+const FormColumn = styled.div`
+  flex: 1;
+  padding-right: 40px;
+
+  &:last-of-type {
+    padding: 0;
+  }
+`;
+
+const ColumnTitle = styled.h4`
+  text-transform: uppercase;
+  font-weight: ${typography.fontWeightMedium};
+  border-bottom: 1px dotted ${colors.colorShadowGray};
+  padding: ${dimensions.unitSpacing}px 0;
+  font-size: 14px;
+  margin: ${dimensions.unitSpacing}px 0 ${dimensions.coreSpacing}px 0;
+`;
+
 const ModalFooter = styled.div`
   text-align: right;
   margin-top: 40px;
 `;
 
-export { BoxRoot, FullContent, ModalFooter, InfoWrapper, Links };
+export {
+  BoxRoot,
+  FullContent,
+  ModalFooter,
+  InfoWrapper,
+  Links,
+  FormWrapper,
+  FormColumn,
+  ColumnTitle
+};

@@ -51,6 +51,9 @@ const socialFacebook = '#3A5999';
 const socialFacebookMessenger = '#1472FB';
 const socialTwitter = '#1DA1F2';
 
+// Star color
+const starColor = '#f2b01e';
+
 export default {
   colorPrimary,
   colorPrimaryDark,
@@ -92,5 +95,7 @@ export default {
 
   socialFacebook,
   socialFacebookMessenger,
-  socialTwitter
+  socialTwitter,
+
+  starColor
 };

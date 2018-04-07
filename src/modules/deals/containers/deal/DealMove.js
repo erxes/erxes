@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { DealMoveForm } from '../../components';
+import { DealMove } from '../../components';
 import { queries } from '../../graphql';
 
-class DealMoveFormContainer extends React.Component {
+class DealMoveContainer extends React.Component {
   constructor(props) {
     super(props);
 
@@ -68,39 +68,30 @@ class DealMoveFormContainer extends React.Component {
   }
 
   render() {
-    const { deal, boardsQuery, pipelinesQuery, stagesQuery } = this.props;
+    const { boardsQuery, pipelinesQuery, stagesQuery } = this.props;
     const { boardId, pipelineId } = this.state;
 
     if (boardsQuery.loading || pipelinesQuery.loading || stagesQuery.loading) {
-      return <Spinner />;
+      return <Spinner objective />;
     }
 
     const boards = boardsQuery.dealBoards;
     const pipelines = pipelinesQuery.dealPipelines;
     const stages = stagesQuery.dealStages;
 
-    let filteredStages = stages;
-
-    if (this.props.pipelineId === pipelineId) {
-      filteredStages = stages.filter(stage => stage._id !== deal.stageId);
-    }
-
-    const stageId = filteredStages.length > 0 ? filteredStages[0]._id : null;
-
     const extendedProps = {
       ...this.props,
       boards,
       pipelines,
-      stages: filteredStages,
+      stages,
       boardId,
-      stageId,
       pipelineId,
       onChangeBoard: this.onChangeBoard,
       onChangePipeline: this.onChangePipeline,
       moveDeal: this.moveDeal
     };
 
-    return <DealMoveForm {...extendedProps} />;
+    return <DealMove {...extendedProps} />;
   }
 }
 
@@ -114,8 +105,8 @@ const propTypes = {
   pipelineId: PropTypes.string
 };
 
-DealMoveFormContainer.propTypes = propTypes;
-DealMoveFormContainer.contextTypes = {
+DealMoveContainer.propTypes = propTypes;
+DealMoveContainer.contextTypes = {
   move: PropTypes.func
 };
 
@@ -139,4 +130,4 @@ export default compose(
       }
     })
   })
-)(DealMoveFormContainer);
+)(DealMoveContainer);
