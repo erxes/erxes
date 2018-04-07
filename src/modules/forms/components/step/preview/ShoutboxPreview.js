@@ -57,7 +57,7 @@ class ShoutboxPreview extends CommonPreview {
     return (
       <ShoutBox>
         <Widget>
-          <WidgetPreview className="engage-message type-default">
+          <WidgetPreview className="type-default">
             {this.renderContent()}
           </WidgetPreview>
           <LogoContainer style={{ backgroundColor: theme ? theme : color }}>
