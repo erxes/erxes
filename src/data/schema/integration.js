@@ -8,7 +8,7 @@ export const types = `
     code: String
     formId: String
     tagIds: [String]
-    tag: [Tag]
+    tags: [Tag]
     formData: JSON
     messengerData: JSON
     twitterData: JSON
