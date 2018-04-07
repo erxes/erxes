@@ -33,6 +33,7 @@ const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag 
     query.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
 
+  // filtering integrations by form tag
   if (tag) {
     const forms = await Forms.find({ tagIds: tag });
     const formIds = [];

@@ -40,8 +40,8 @@ const formQueries = {
   },
 
   /**
-   * Get all forms count. We will use it in pager
-   * @return {Promise} total count
+   * Form's filtered and total counts
+   * @return {Promise} object containing counts
    */
   async formsTotalCount() {
     const counts = {
@@ -60,6 +60,7 @@ const formQueries = {
       counts.byTag[tag._id] = await count({ tagIds: tag._id });
     }
 
+    // Total count of form
     counts.total = await Forms.find({}).count();
 
     return counts;
