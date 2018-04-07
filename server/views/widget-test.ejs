@@ -2,33 +2,41 @@
 <html lang="en">
   <head>
     <style>
-      [data-erxes-embed] {
-        width: 60%;
+      [data-erxes-kbase] {
         height: 400px;
         min-height: 100%;
-        margin: 0 auto;
         position: relative;
+        margin-top: 100px !important;
+        margin-bottom: 100px !important;
+      }
+
+      .erxes-embed-iframe {
+        margin-top: 100px !important;
+        margin-bottom: 100px !important;
+        height: 500px !important;
       }
     </style>
   </head>
   <body>
-    <div data-erxes-embed="PyvtddA7XMvSJugyq"></div>
-    <button data-erxes-modal="PyvtddA7XMvSJugyq">Contact us</button>
-    <div data-erxes-modal>Contact us second handler</div>
+    <div data-erxes-kbase></div>
+
     <script>
       window.erxesSettings = {
         forms: [{
-          brand_id: "Wtmpph",
-          form_id: "PyvtddA7XMvSJugyq",
+          brand_id: "YDEdKj",
+          form_id: "mRgzZw",
         }],
         messenger: {
-          brand_id: "YDEdKj", // "ovCMBR",
+          brand_id: "YDEdKj",
           email: "lombo@yahoo.com",
           companyData: {
             id: "123",
             name: "Intercorp",
             plan: "pro",
           }
+        },
+        knowledgeBase: {
+          topic_id: "bxnJ8CFa5Snh69diH"
         },
       };
     (function() {
@@ -43,6 +51,15 @@
     (function() {
       var script = document.createElement('script');
       script.src = "build/formWidget.bundle.js";
+      script.async = true;
+
+      var entry = document.getElementsByTagName('script')[0];
+      entry.parentNode.insertBefore(script, entry);
+    })();
+
+    (function() {
+      var script = document.createElement('script');
+      script.src = "build/knowledgeBaseWidget.bundle.js";
       script.async = true;
 
       var entry = document.getElementsByTagName('script')[0];
