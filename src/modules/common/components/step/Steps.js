@@ -29,7 +29,7 @@ class Steps extends Component {
 
   next(stepNumber) {
     const { activeStep, maxStep } = this.state;
-    // console.log(stepNumber)
+
     if (stepNumber === 0) {
       if (activeStep <= maxStep) {
         this.setState({ activeStep: activeStep + 1 });
