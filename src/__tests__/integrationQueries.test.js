@@ -4,13 +4,7 @@ import faker from 'faker';
 import { TAG_TYPES } from '../data/constants';
 import { Integrations, Channels, Brands } from '../db/models';
 import { graphqlRequest, connect, disconnect } from '../db/connection';
-import {
-  integrationFactory,
-  channelFactory,
-  brandFactory,
-  formFactory,
-  tagsFactory,
-} from '../db/factories';
+import { integrationFactory, channelFactory, brandFactory, tagsFactory } from '../db/factories';
 import { socUtils } from '../trackers/twitterTracker';
 
 beforeAll(() => connect());
@@ -94,14 +88,13 @@ describe('integrationQueries', () => {
     expect(responses.length).toBe(3);
   });
 
-  test('Integrations filtered by form tag', async () => {
+  test('Integrations filtered by tag', async () => {
     await integrationFactory({});
     await integrationFactory({});
     await integrationFactory({});
 
     const tagObj = await tagsFactory({ type: TAG_TYPES.FORM });
-    const formObj = await formFactory({ tagIds: [tagObj._id] });
-    await integrationFactory({ formId: formObj._id });
+    await integrationFactory({ tagIds: [tagObj._id] });
 
     const responses = await graphqlRequest(qryIntegrations, 'integrations', {
       page: 1,

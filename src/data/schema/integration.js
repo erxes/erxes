@@ -76,7 +76,7 @@ export const queries = `
   ): [Integration]
 
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount(kind: String, channelId: String, brandId: String): Int
+  integrationsTotalCount: JSON
   integrationGetTwitterAuthUrl: String
   integrationFacebookAppsList: [JSON]
   integrationFacebookPagesList(appId: String): [JSON]

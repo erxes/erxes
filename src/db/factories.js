@@ -277,18 +277,18 @@ export const integrationFactory = async (params = {}) => {
       params.formData === 'form'
         ? params.formData
         : kind === 'form' ? { thankContent: 'thankContent' } : null,
+    tagIds: params.tagIds || [],
   };
 
   return Integrations.create(doc);
 };
 
-export const formFactory = async ({ title, code, description, createdUserId, tagIds }) => {
+export const formFactory = async ({ title, code, description, createdUserId }) => {
   return Forms.createForm(
     {
       title: title || faker.random.word(),
       description: description || faker.random.word(),
       code: code || Random.id(),
-      tagIds: tagIds || [],
     },
     createdUserId || (await userFactory({})),
   );

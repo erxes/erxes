@@ -1,4 +1,5 @@
-import { Channels, Integrations } from '../../../db/models';
+import { TAG_TYPES, KIND_CHOICES } from '../../constants';
+import { Channels, Integrations, Tags, Brands } from '../../../db/models';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { getConfig, getPageList } from '../../../trackers/facebook';
 import { moduleRequireLogin } from '../../permissions';
@@ -70,9 +71,49 @@ const integrationQueries = {
    * Get all integrations count. We will use it in pager
    * @return {Promise} total count
    */
-  async integrationsTotalCount(root, args) {
-    const query = await generateFilterQuery(args);
-    return Integrations.find(query).count();
+  async integrationsTotalCount() {
+    const counts = {
+      total: 0,
+      byTag: {},
+      byChannel: {},
+      byBrand: {},
+      byKind: {},
+    };
+
+    const count = query => {
+      return Integrations.find(query).count();
+    };
+
+    // Counting integrations by tag
+    const tags = await Tags.find({ type: TAG_TYPES.INTEGRATION });
+
+    for (let tag of tags) {
+      counts.byTag[tag._id] = await count({ tagIds: tag._id });
+    }
+
+    // Counting integrations by kind
+    for (let kind of KIND_CHOICES.ALL) {
+      counts.byKind[kind] = await count({ kind });
+    }
+
+    // Counting integrations by channel
+    const channels = await Channels.find({});
+
+    for (let channel of channels) {
+      counts.byChannel[channel._id] = await count({ _id: { $in: channel.integrationIds } });
+    }
+
+    // Counting integrations by brand
+    const brands = await Brands.find({});
+
+    for (let brand of brands) {
+      counts.byBrand[brand._id] = await count({ brandId: brand._id });
+    }
+
+    // Counting all integrations without any filter
+    counts.total = await count({});
+
+    return counts;
   },
 
   /**
