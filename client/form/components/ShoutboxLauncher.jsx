@@ -13,7 +13,7 @@ function Launcher({ isFormVisible, onClick, color }) {
     onClick(isFormVisible);
   };
 
-  const launcherClasses = classNames('shoutbox-launcher', {
+  const launcherClasses = classNames('erxes-launcher', {
     'close': isFormVisible
   });
 

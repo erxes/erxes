@@ -1,12 +1,12 @@
-@import '../../sass/_variables';
-@import '../../sass/_mixin';
+@import 'client/sass/variables';
+@import 'client/sass/mixin';
 
-@import 'base/variables';
-@import 'base/base';
+@import 'client/sass/base/base';
 
-@import 'components/launcher';
+@import 'client/sass/components/launcher';
+@import 'client/sass/components/topbar';
+
 @import 'components/messenger';
-@import 'components/topbar';
 @import 'components/conversations';
 @import 'components/messages';
 @import 'components/message-sender';

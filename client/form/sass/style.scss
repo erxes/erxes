@@ -1,13 +1,13 @@
 
 @import '~react-datepicker/dist/react-datepicker.css';
 
-@import '../../sass/_variables';
-@import '../../sass/_mixin';
+@import 'client/sass/variables';
+@import 'client/sass/mixin';
 
-@import 'base/variables';
-@import 'base/base';
+@import 'client/sass/base/base';
+
+@import 'client/sass/components/launcher';
 
 @import 'components/form';
 @import 'components/datepicker';
 @import 'components/topbar';
-@import 'components/shoutbox-launcher';

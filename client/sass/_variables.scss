@@ -8,10 +8,20 @@ $black: #000;
 $red: #f74040;
 $grey: #f5f4f6;
 $grey-light: #eee;
-$text-color: #686868;
-$text-color-light: #888;
 $border-color: #ddd;
 
+$input-bg: #ebeef3;
+$transparent-white: rgba(255, 255, 255, 0.3);
+
+$text-color: #686868;
+$text-color-light: #888;
 
 // Dimensions
+$core-spacing: 20px;
 $border-radius: 4px;
+$break-small: 415px;
+$break-medium: 500px;
+
+
+// z index
+$z-index-above: 100000;
