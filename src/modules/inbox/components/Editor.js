@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 import createMentionPlugin, {
   defaultSuggestionsFilter
 } from 'bat-draft-js-mention-plugin';
-import { EditorState, ContentState, getDefaultKeyBinding } from 'draft-js';
+import {
+  EditorState,
+  ContentState,
+  getDefaultKeyBinding,
+  Modifier
+} from 'draft-js';
 import strip from 'strip';
 import _ from 'underscore';
 import highlighter from 'fuzzysearch-highlight';
@@ -225,7 +230,17 @@ export default class Editor extends Component {
       selectedTemplate.content
     );
 
-    editorState = EditorState.moveFocusToEnd(editorState);
+    const selection = EditorState.moveSelectionToEnd(
+      editorState
+    ).getSelection();
+    const contentState = Modifier.insertText(
+      editorState.getCurrentContent(),
+      selection,
+      ' '
+    );
+    const es = EditorState.push(editorState, contentState, 'insert-characters');
+
+    editorState = EditorState.moveFocusToEnd(es);
 
     this.setState({ editorState, templatesState: null });
   }
@@ -373,6 +388,7 @@ export default class Editor extends Component {
       keyBindingFn: this.keyBindingFn,
       onUpArrow: this.onUpArrow,
       onDownArrow: this.onDownArrow,
+      handleFileInput: this.props.handleFileInput,
       plugins,
       pluginContent
     };
@@ -393,5 +409,6 @@ Editor.propTypes = {
   showMentions: PropTypes.bool,
   responseTemplate: PropTypes.string,
   responseTemplates: PropTypes.array,
+  handleFileInput: PropTypes.func,
   mentions: PropTypes.object // eslint-disable-line
 };

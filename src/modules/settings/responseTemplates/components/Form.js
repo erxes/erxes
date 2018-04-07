@@ -49,6 +49,7 @@ class Form extends CommonForm {
   }
 
   renderContent(resTemplate) {
+    const { __ } = this.context;
     const { brands } = this.props;
     const props = {
       editorState: this.state.editorState,
@@ -63,7 +64,7 @@ class Form extends CommonForm {
 
           <FormControl
             componentClass="select"
-            placeholder="Select Brand"
+            placeholder={__('Select Brand')}
             defaultValue={resTemplate.brandId}
             id="template-brand-id"
           >

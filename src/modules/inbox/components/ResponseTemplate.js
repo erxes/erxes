@@ -56,6 +56,15 @@ class ResponseTemplate extends Component {
     this.filterByBrand = this.filterByBrand.bind(this);
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.brandId !== this.props.brandId) {
+      this.setState({
+        brandId: this.props.brandId,
+        options: this.filterByBrand(this.props.brandId)
+      });
+    }
+  }
+
   onSave(brandId, name) {
     const doc = {
       brandId,
@@ -129,10 +138,11 @@ class ResponseTemplate extends Component {
 
   render() {
     const { brands, content, brandId } = this.props;
+    const { __ } = this.context;
 
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
-        <Tip text="Save as template">
+        <Tip text={__('Save as template')}>
           <Icon icon="log-in" size={17} />
         </Tip>
       </Button>
@@ -142,14 +152,14 @@ class ResponseTemplate extends Component {
       <Popover
         className="popover-template"
         id="templates-popover"
-        title="Response Templates"
+        title={__('Response Templates')}
       >
         <PopoverHeader>
           <InlineHeader>
             <InlineColumn>
               <FormControl
                 type="text"
-                placeholder="Search..."
+                placeholder={__('Search...')}
                 onChange={this.filterItems}
                 autoFocus
               />
@@ -157,7 +167,7 @@ class ResponseTemplate extends Component {
             <InlineColumn>
               <FormControl
                 componentClass="select"
-                placeholder="Select Brand"
+                placeholder={__('Select Brand')}
                 onChange={this.onFilter}
                 defaultValue={this.state.brandId}
               >
@@ -177,7 +187,9 @@ class ResponseTemplate extends Component {
         <PopoverFooter>
           <PopoverList center>
             <li>
-              <Link to="/settings/response-templates">Manage templates</Link>
+              <Link to="/settings/response-templates">
+                {__('Manage templates')}
+              </Link>
             </li>
           </PopoverList>
         </PopoverFooter>
@@ -194,7 +206,7 @@ class ResponseTemplate extends Component {
           ref="overlay"
         >
           <Button btnStyle="link">
-            <Tip text="Response template">
+            <Tip text={__('Response template')}>
               <Icon icon="clipboard" size={17} />
             </Tip>
           </Button>
@@ -212,5 +224,8 @@ class ResponseTemplate extends Component {
 }
 
 ResponseTemplate.propTypes = propTypes;
+ResponseTemplate.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ResponseTemplate;

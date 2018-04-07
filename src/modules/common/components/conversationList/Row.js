@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import strip from 'strip';
-import { NameCard, FormControl, Tags } from '../';
+import { NameCard, FormControl, Tags, IntegrationIcon } from '../';
 import {
   RowItem,
   RowContent,
@@ -91,7 +91,7 @@ class Row extends Component {
 
   render() {
     const { conversation, isRead, isActive, bulk } = this.props;
-    const { createdAt, content } = conversation;
+    const { createdAt, updatedAt, content } = conversation;
     const customer = conversation.customer || {};
     const integration = conversation.integration || {};
     const brand = integration.brand || {};
@@ -115,7 +115,18 @@ class Row extends Component {
           <FlexContent>
             <MainInfo>
               {isExistingCustomer && (
-                <NameCard.Avatar size={40} customer={customer} />
+                <NameCard.Avatar
+                  size={40}
+                  customer={customer}
+                  icon={
+                    <IntegrationIcon
+                      integration={integration}
+                      customer={customer}
+                      facebookData={conversation.facebookData}
+                      twitterData={conversation.twitterData}
+                    />
+                  }
+                />
               )}
               <FlexContent>
                 <CustomerName>
@@ -137,7 +148,7 @@ class Row extends Component {
           </FlexContent>
         </RowContent>
         <SmallText>
-          {moment(createdAt)
+          {moment(updatedAt || createdAt)
             .subtract(2, 'minutes')
             .fromNow()}
           {assignedUser && (

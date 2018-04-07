@@ -48,6 +48,7 @@ export default compose(
         integrations(page: $page, perPage: $perPage, kind: $kind) {
           _id
           brandId
+          languageCode
           name
           kind
           brand {
@@ -56,6 +57,7 @@ export default compose(
             code
           }
           formData
+          twitterData
           formId
           form {
             _id

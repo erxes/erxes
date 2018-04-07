@@ -1,6 +1,5 @@
 const customerFields = `
     _id
-    name
     firstName
     lastName
     email
@@ -16,6 +15,28 @@ const customerFields = `
     messengerData
     twitterData
     facebookData
+
+    ownerId
+    position
+    department
+    leadStatus
+    lifecycleState
+    hasAuthority
+    description
+    doNotDisturb
+    links {
+      linkedIn
+      twitter
+      facebook
+      github
+      youtube
+      website
+    }
+    owner {
+      details {
+        fullName
+      }
+    }
 
     tagIds
     getTags {
@@ -47,6 +68,18 @@ const customers = `
   query customers(${listParamsDef}) {
     customers(${listParamsValue}) {
       ${customerFields}
+    }
+  }
+`;
+
+const customersMain = `
+  query customersMain(${listParamsDef}) {
+    customersMain(${listParamsValue}) {
+      list {
+        ${customerFields}
+      }
+
+      totalCount
     }
   }
 `;
@@ -103,6 +136,29 @@ const customerDetail = `
         }
         readUserIds
       }
+      deals {
+        _id
+        companies {
+          _id
+          name
+        }
+        customers {
+          _id
+          firstName
+          email
+        }
+        products
+        amount
+        closeDate
+        assignedUsers {
+          _id
+          email
+          details {
+            fullName
+            avatar
+          }
+        }
+      }
     }
   }
 `;
@@ -122,21 +178,6 @@ const tags = `
       _id
       name
       colorCode
-    }
-  }
-`;
-
-const fields = `
-  query {
-    fields(contentType: "customer") {
-      _id
-      type
-      validation
-      text
-      description
-      options
-      isRequired
-      order
     }
   }
 `;
@@ -178,11 +219,11 @@ const activityLogsCustomer = `
 
 export default {
   customers,
+  customersMain,
   customerCounts,
   customerDetail,
   brands,
   tags,
-  fields,
   customersListConfig,
   activityLogsCustomer
 };

@@ -42,12 +42,13 @@ class SignIn extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <AuthBox>
         <div className="logo">
           <img src="/images/logo-light.png" alt="erxes" />
         </div>
-
+        <h2>{__('Sign in')}</h2>
         <form onSubmit={this.login}>
           <FormGroup>
             <InputGroup>
@@ -58,7 +59,7 @@ class SignIn extends Component {
               </InputGroup.Button>
               <FormControl
                 type="email"
-                placeholder="demo@erxes.io"
+                placeholder={__('your@email.com')}
                 required
                 onChange={this.handleEmailChange}
                 onFocus={this.handleOnFocus}
@@ -93,5 +94,8 @@ class SignIn extends Component {
 }
 
 SignIn.propTypes = propTypes;
+SignIn.contextTypes = {
+  __: PropTypes.func
+};
 
 export default SignIn;

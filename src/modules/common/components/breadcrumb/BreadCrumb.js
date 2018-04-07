@@ -19,11 +19,13 @@ const propTypes = {
 
 class BreadCrumb extends Component {
   setTabTitle() {
+    const { __ } = this.context;
     const { breadcrumbs } = this.props;
     const page = breadcrumbs.pop();
+
     setTitle(
       page.title,
-      page.title === 'Inbox' && document.title.startsWith('(1)')
+      page.title === `${__('Inbox')}` && document.title.startsWith('(1)')
     );
   }
 
@@ -49,5 +51,8 @@ class BreadCrumb extends Component {
 }
 
 BreadCrumb.propTypes = propTypes;
+BreadCrumb.contextTypes = {
+  __: PropTypes.func
+};
 
 export default BreadCrumb;

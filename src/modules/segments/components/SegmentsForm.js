@@ -54,6 +54,10 @@ class SegmentsForm extends Component {
           connector: 'any'
         };
 
+    if (props.segment) {
+      props.count(props.segment);
+    }
+
     this.addCondition = this.addCondition.bind(this);
     this.changeCondition = this.changeCondition.bind(this);
     this.removeCondition = this.removeCondition.bind(this);
@@ -148,6 +152,7 @@ class SegmentsForm extends Component {
   renderConditions() {
     const { contentType, fields } = this.props;
     const selectedFieldIds = this.state.conditions.map(c => c.field);
+    const { __ } = this.context;
 
     // Exclude fields that are already selected
     const changedFields = fields.filter(
@@ -157,16 +162,16 @@ class SegmentsForm extends Component {
     return (
       <ConditionWrapper>
         <FormGroup>
-          Users who match
+          {__('Users who match')}
           <FormControl
             componentClass="select"
             value={this.state.connector}
             onChange={this.handleConnectorChange}
           >
-            <option value="any">any</option>
-            <option value="all">all</option>
+            <option value="any">{__('any')}</option>
+            <option value="all">{__('all')}</option>
           </FormControl>
-          of the below conditions
+          {__('of the below conditions')}
         </FormGroup>
         <Conditions
           contentType={contentType}
@@ -241,10 +246,11 @@ class SegmentsForm extends Component {
 
   render() {
     const { contentType, segment, total } = this.props;
+    const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Segments', link: `/segments/${contentType}` },
-      { title: segment ? 'Edit segment' : 'New segment' }
+      { title: __('Segments'), link: `/segments/${contentType}` },
+      { title: segment ? __('Edit segment') : __('New segment') }
     ];
 
     const content = (
@@ -252,7 +258,7 @@ class SegmentsForm extends Component {
         <FlexContent>
           <FlexItem count={3}>
             <SegmentContainer>
-              <SegmentTitle>Filters</SegmentTitle>
+              <SegmentTitle>{__('Filters')}</SegmentTitle>
 
               {this.renderConditions()}
               <ContentSpace />
@@ -264,7 +270,7 @@ class SegmentsForm extends Component {
             <ResultCount>
               <Icon icon="person-stalker" /> {total.byFakeSegment}
             </ResultCount>
-            User(s) will recieve this message
+            {__('User(s) will recieve this message')}
           </SegmentResult>
         </FlexContent>
       </SegmentWrapper>
@@ -303,5 +309,8 @@ class SegmentsForm extends Component {
 }
 
 SegmentsForm.propTypes = propTypes;
+SegmentsForm.contextTypes = {
+  __: PropTypes.func
+};
 
 export default SegmentsForm;

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Table } from 'modules/common/components';
 import { List } from '../../common/components';
 import { Form } from '../containers';
@@ -20,13 +21,14 @@ class ResponseTemplateList extends List {
   }
 
   renderContent() {
+    const { __ } = this.context;
     return (
       <Table>
         <thead>
           <tr>
-            <th>Brand</th>
-            <th>Name</th>
-            <th>Actions</th>
+            <th>{__('Brand')}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
@@ -35,11 +37,16 @@ class ResponseTemplateList extends List {
   }
 
   breadcrumb() {
+    const { __ } = this.context;
     return [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Response templates' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Response templates') }
     ];
   }
 }
+
+ResponseTemplateList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ResponseTemplateList;

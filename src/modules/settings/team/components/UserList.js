@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Table } from 'modules/common/components';
 import { List } from '../../common/components';
 import { UserForm } from '../containers';
@@ -9,6 +10,7 @@ class UserList extends List {
     super(props);
 
     this.title = 'New user';
+    this.size = 'lg';
   }
 
   renderRow(props) {
@@ -20,14 +22,15 @@ class UserList extends List {
   }
 
   renderContent() {
+    const { __ } = this.context;
     return (
       <Table>
         <thead>
           <tr>
-            <th>Full name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Actions</th>
+            <th>{__('Full name')}</th>
+            <th>{__('Email')}</th>
+            <th>{__('Role')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
@@ -36,11 +39,16 @@ class UserList extends List {
   }
 
   breadcrumb() {
+    const { __ } = this.context;
     return [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Team members' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Team members') }
     ];
   }
 }
+
+UserList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default UserList;

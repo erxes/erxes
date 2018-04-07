@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EmptyState } from 'modules/common/components';
+import { EmptyState, Icon } from 'modules/common/components';
 import { Timeline, ActivityTitle } from '../styles';
 import ActivityLogProcessor from '../utils';
 import ActivityItem from './ActivityItem';
@@ -8,7 +8,7 @@ import ActivityItem from './ActivityItem';
 const propTypes = {
   activities: PropTypes.array,
   user: PropTypes.object,
-  target: PropTypes.object,
+  target: PropTypes.string,
   type: PropTypes.string
 };
 
@@ -19,7 +19,9 @@ class ActivityList extends React.Component {
     return (
       <div key={activity.title}>
         {activities.length ? (
-          <ActivityTitle>{activity.title}</ActivityTitle>
+          <ActivityTitle>
+            <Icon icon="calendar" /> {activity.title}
+          </ActivityTitle>
         ) : null}
         {activities.map(rowData => ActivityItem(rowData))}
       </div>

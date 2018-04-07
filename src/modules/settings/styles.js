@@ -9,6 +9,10 @@ const ContentBox = styled.div`
   padding: ${coreSpace};
 `;
 
+const ModuleBox = styled.div`
+  padding: ${coreSpace} 0 0 ${coreSpace};
+`;
+
 const Margined = styled.div`
   padding: ${coreSpace};
   flex: 1;
@@ -86,14 +90,14 @@ const LogoSpan = styled.span`
 
 const ColorPick = styled.div`
   border-radius: 4px;
-  display: inline-block;
+  display: ${props => (props.full ? 'block' : 'inline-block')};
   padding: 5px;
   border: 1px solid ${colors.colorShadowGray};
   cursor: pointer;
 `;
 
 const ColorPicker = styled.div`
-  width: 80px;
+  width: ${props => (props.full ? '100%' : '80px')};
   height: 15px;
 `;
 
@@ -121,8 +125,8 @@ const WidgetBox = styled.div`
 const SubHeading = styled.h4`
   text-transform: uppercase;
   font-weight: ${typography.fontWeightMedium};
-  border-bottom: 1 px dotted ${colors.colorShadowGray};
-  padding-bottom: ${unitSpace};
+  border-bottom: 1px dotted ${colors.colorShadowGray};
+  padding-bottom: ${coreSpace};
   font-size: ${typography.fontSizeHeading8}px;
   margin: 0 0 ${coreSpace};
 `;
@@ -152,6 +156,7 @@ const InlineItems = styled.div`
   display: flex;
   margin-bottom: ${unitSpace};
   align-items: center;
+  justify-content: space-between;
 
   > div {
     margin-right: ${unitSpace};
@@ -164,10 +169,10 @@ const SubItem = styled.div`
 
 const Well = styled.div`
   min-height: ${coreSpace};
-  padding: ${coreSpace};
+  padding: ${unitSpace} ${coreSpace};
   margin-bottom: ${coreSpace};
-  background-color: ${colors.bgLight};
-  border: 1px solid ${colors.colorShadowGray};
+  background-color: ${colors.bgActive};
+  border-left: 2px solid ${colors.colorSecondary};
 `;
 
 const BackgroundSelector = styled.div`
@@ -308,6 +313,38 @@ const SidebarListItem = styled.li`
   }
 `;
 
+const CollapseRow = styled.div`
+  font-size: ${coreSpace};
+  position: relative;
+  justify-content: space-between;
+  padding: ${dimensions.coreSpacing}px 0;
+
+  &:hover {
+    ${ActionButtons} {
+      width: auto;
+
+      span {
+        line-height: 0;
+      }
+
+      i {
+        margin-left: ${dimensions.coreSpacing}px;
+        font-size: ${typography.fontSizeHeading7 - 2}px;
+      }
+    }
+  }
+`;
+
+const TableRow = styled.tr`
+  &:hover {
+    ${ActionButtons} {
+      width: auto;
+      position: inherit;
+      justify-content: flex-end;
+    }
+  }
+`;
+
 const RightButton = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
@@ -329,6 +366,7 @@ const BrandName = styled.div`
 
 export {
   ContentBox,
+  ModuleBox,
   SubHeading,
   MarkdownWrapper,
   InlineItems,
@@ -345,10 +383,12 @@ export {
   ColorPicker,
   LogoContainer,
   LogoSpan,
+  TableRow,
   FlexRow,
   SidebarListItem,
   IntegrationName,
   RightButton,
   ActionButtons,
+  CollapseRow,
   BrandName
 };

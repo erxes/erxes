@@ -32,10 +32,11 @@ class CategoryRow extends Component {
 
   renderEditAction() {
     const { category, topicIds } = this.props;
+    const { __ } = this.context;
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -50,6 +51,7 @@ class CategoryRow extends Component {
 
   render() {
     const { category, isActive } = this.props;
+    const { __ } = this.context;
 
     return (
       <CategoryItem key={category._id} isActive={isActive}>
@@ -57,7 +59,7 @@ class CategoryRow extends Component {
         <CountArticle>{category.articles.length}</CountArticle>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text="Delete">
+          <Tip text={__('Delete')}>
             <Button btnStyle="link" onClick={this.remove} icon="close" />
           </Tip>
         </ActionButtons>
@@ -67,5 +69,8 @@ class CategoryRow extends Component {
 }
 
 CategoryRow.propTypes = propTypes;
+CategoryRow.contextTypes = {
+  __: PropTypes.func
+};
 
 export default CategoryRow;

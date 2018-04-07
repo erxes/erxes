@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
   ControlLabel,
   FormControl
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 class ChooseBrand extends Component {
   constructor(props) {
@@ -38,6 +38,7 @@ class ChooseBrand extends Component {
 
   render() {
     const integration = this.props.integration || {};
+    const { __ } = this.context;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -55,7 +56,7 @@ class ChooseBrand extends Component {
           <ControlLabel>Brand</ControlLabel>
           <FormControl
             componentClass="select"
-            placeholder="Select Brand"
+            placeholder={__('Select Brand')}
             defaultValue={integration.brandId}
             onChange={this.handleBrandChange}
             id="selectBrand"
@@ -69,7 +70,7 @@ class ChooseBrand extends Component {
           </FormControl>
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             icon="close"
@@ -80,7 +81,7 @@ class ChooseBrand extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }
@@ -93,7 +94,8 @@ ChooseBrand.propTypes = {
 };
 
 ChooseBrand.contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 export default ChooseBrand;

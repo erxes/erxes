@@ -4,14 +4,18 @@ const conversationMessageAdd = `
     $content: String!,
     $mentionedUserIds: [String],
     $internal: Boolean,
-    $attachments: [JSON]
+    $attachments: [JSON],
+    $tweetReplyToId: String,
+    $tweetReplyToScreenName: String
   ) {
     conversationMessageAdd(
       conversationId: $conversationId,
       content: $content,
       mentionedUserIds: $mentionedUserIds,
       internal: $internal,
-      attachments: $attachments
+      attachments: $attachments,
+      tweetReplyToId: $tweetReplyToId,
+      tweetReplyToScreenName: $tweetReplyToScreenName
     ) {
       _id
       content
@@ -28,6 +32,42 @@ const markAsRead = `
     ) {
       _id
     }
+  }
+`;
+
+const favoriteTweet = `
+  mutation conversationsFavorite(
+    $integrationId: String,
+    $id: String
+  ) {
+    conversationsFavorite(
+      integrationId: $integrationId,
+      id: $id,
+    )
+  }
+`;
+
+const retweetTweet = `
+  mutation conversationsRetweet(
+    $integrationId: String,
+    $id: String
+  ) {
+    conversationsRetweet(
+      integrationId: $integrationId,
+      id: $id,
+    )
+  }
+`;
+
+const tweet = `
+  mutation conversationsTweet(
+    $integrationId: String,
+    $text: String
+  ) {
+    conversationsTweet(
+      integrationId: $integrationId,
+      text: $text
+    )
   }
 `;
 
@@ -80,5 +120,8 @@ export default {
   conversationsAssign,
   conversationsUnassign,
   saveResponseTemplate,
-  markAsRead
+  markAsRead,
+  favoriteTweet,
+  retweetTweet,
+  tweet
 };

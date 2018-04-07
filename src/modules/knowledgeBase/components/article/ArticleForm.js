@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
-import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   ControlLabel,
@@ -14,6 +13,7 @@ import {
   createStateFromHTML
 } from 'modules/common/components/Editor';
 import { EditorWrapper } from 'modules/engage/styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   article: PropTypes.object,
@@ -22,7 +22,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class ArticleForm extends Component {
@@ -88,6 +89,7 @@ class ArticleForm extends Component {
   }
 
   renderContent(article) {
+    const { __ } = this.context;
     const props = {
       editorState: this.state.editorState,
       onChange: this.onChange,
@@ -127,7 +129,7 @@ class ArticleForm extends Component {
           <FormControl
             id="knowledgebase-article-status"
             componentClass="select"
-            placeholder="select"
+            placeholder={__('select')}
             onChange={e => {
               this.setState({ status: e.target.value });
             }}
@@ -152,7 +154,7 @@ class ArticleForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.article || {})}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -165,7 +167,7 @@ class ArticleForm extends Component {
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

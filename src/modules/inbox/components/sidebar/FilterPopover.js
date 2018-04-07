@@ -12,7 +12,8 @@ const propTypes = {
   counts: PropTypes.object,
   paramKey: PropTypes.string.isRequired,
   placement: PropTypes.string,
-  icon: PropTypes.string
+  icon: PropTypes.string,
+  searchable: PropTypes.bool
 };
 
 const defaultProps = {
@@ -20,6 +21,17 @@ const defaultProps = {
 };
 
 class FilterPopover extends Component {
+  constructor(props) {
+    super(props);
+
+    this.update = this.update.bind(this);
+  }
+
+  // rerender component
+  update() {
+    this.forceUpdate();
+  }
+
   render() {
     const {
       buttonText,
@@ -28,17 +40,21 @@ class FilterPopover extends Component {
       fields,
       paramKey,
       counts,
-      icon
+      icon,
+      searchable
     } = this.props;
+    const { __ } = this.context;
 
     const popover = (
-      <Popover id="filter-popover" title={popoverTitle}>
+      <Popover id="filter-popover" title={__(popoverTitle)}>
         <FilterByParams
           fields={fields}
           paramKey={paramKey}
           counts={counts}
           icon={icon}
           loading={false}
+          searchable={searchable}
+          update={this.update}
         />
       </Popover>
     );
@@ -52,10 +68,11 @@ class FilterPopover extends Component {
         placement={placement}
         overlay={popover}
         container={this}
+        shouldUpdatePosition
         rootClose
       >
         <PopoverButton>
-          {buttonText}
+          {__(buttonText)}
           <Icon
             icon={placement === 'top' ? 'ios-arrow-up' : 'ios-arrow-down'}
           />
@@ -67,5 +84,8 @@ class FilterPopover extends Component {
 
 FilterPopover.propTypes = propTypes;
 FilterPopover.defaultProps = defaultProps;
+FilterPopover.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(FilterPopover);

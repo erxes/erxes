@@ -11,12 +11,20 @@ const AvatarStyled = styled.span`
   float: left;
   padding: 0;
   text-align: center;
+  position: relative;
+
   background: ${props =>
     (props.isUser && colors.colorCoreGreen) ||
     (props.messenger && colors.colorPrimary) ||
-    (props.twitter && colors.colorCoreYellow) ||
-    (props.facebook && colors.colorSecondary) ||
-    colors.colorCoreRed};
+    (props.twitter && colors.socialTwitter) ||
+    (props.facebook && colors.socialFacebook) ||
+    colors.colorSecondary};
+
+  > span {
+    position: absolute;
+    right: -5px;
+    bottom: -2px;
+  }
 
   a {
     color: ${colors.colorWhite};
@@ -30,8 +38,10 @@ const AvatarStyled = styled.span`
   }
 `;
 
-const DefaultAvatar = styled.div`
-  background: url('/images/avatar.svg') center no-repeat;
+const AvatarImage = styled.div`
+  background: url(${props =>
+      props.image ? props.image : '/images/avatar.svg'})
+    center no-repeat;
   background-size: cover;
 `;
 
@@ -46,9 +56,9 @@ class Avatar extends Component {
     };
   }
 
-  renderImage(src, alt) {
+  renderImage(src) {
     const { size } = this.props;
-    return <img src={src} alt={alt} style={this.generateStyle(size)} />;
+    return <AvatarImage image={src} style={this.generateStyle(size)} />;
   }
 
   generateTypes() {
@@ -78,7 +88,7 @@ class Avatar extends Component {
         .join('.')
         .toUpperCase()
     ) : (
-      <DefaultAvatar style={this.generateStyle(size)} />
+      <AvatarImage style={this.generateStyle(size)} />
     );
 
     return <div style={this.generateStyle(size)}>{initials}</div>;
@@ -88,11 +98,11 @@ class Avatar extends Component {
     if (customer.firstName && customer.lastName) {
       return `${customer.firstName} ${customer.lastName}`;
     }
-    return customer.firstName || customer.lastName || null;
+    return customer.firstName || customer.lastName || customer.name || null;
   }
 
   render() {
-    const { user, customer } = this.props;
+    const { user, customer, icon } = this.props;
     let avatar;
     let fullName;
 
@@ -103,7 +113,9 @@ class Avatar extends Component {
     } else if (customer) {
       avatar =
         customer.avatar ||
-        (customer.facebookData && customer.facebookData.profilePic);
+        (customer.facebookData && customer.facebookData.profilePic) ||
+        (customer.twitterData && customer.twitterData.profile_image_url) ||
+        (customer.twitterData && customer.twitterData.profileImageUrl);
       fullName = this.renderName(customer);
     }
 
@@ -112,10 +124,9 @@ class Avatar extends Component {
     return (
       <AvatarStyled {...this.generateTypes()}>
         <Element to={customer && `/customers/details/${customer._id}`}>
-          {avatar
-            ? this.renderImage(avatar, fullName)
-            : this.renderInitials(fullName)}
+          {avatar ? this.renderImage(avatar) : this.renderInitials(fullName)}
         </Element>
+        {icon}
       </AvatarStyled>
     );
   }
@@ -124,7 +135,8 @@ class Avatar extends Component {
 Avatar.propTypes = {
   user: PropTypes.object,
   customer: PropTypes.object,
-  size: PropTypes.number
+  size: PropTypes.number,
+  icon: PropTypes.node
 };
 
 export default Avatar;

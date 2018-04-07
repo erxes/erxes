@@ -1,44 +1,5 @@
 import styled from 'styled-components';
-import { colors } from '../common/styles';
-
-const CustomerWrapper = styled.div`
-  border-top: 1px solid ${colors.borderPrimary};
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-left: 20px;
-  padding-right: 20px;
-  width: 100%;
-
-  span {
-    display: inline-block;
-    width: 100%;
-  }
-
-  i {
-    color: #aaaeb3;
-    position: absolute;
-    right: 20px;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-  ul {
-    li {
-      margin-left: 20px;
-    }
-  }
-`;
-
-const CustomersWrapper = styled.div`
-  i {
-    color: #aaaeb3;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-`;
+import { colors, dimensions } from '../common/styles';
 
 const CompaniesTableWrapper = styled.div`
   td {
@@ -49,4 +10,58 @@ const CompaniesTableWrapper = styled.div`
   }
 `;
 
-export { CustomersWrapper, CustomerWrapper, CompaniesTableWrapper };
+const CompanyLogo = styled.div`
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  margin-right: 20px;
+  background: ${colors.colorSecondary};
+`;
+
+const CompanyWrapper = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: ${dimensions.coreSpacing}px;
+  padding-right: ${dimensions.coreSpacing}px;
+  width: 100%;
+
+  &:first-of-type {
+    border-top: none;
+  }
+
+  a {
+    font-size: 12px;
+  }
+
+  span {
+    display: inline-block;
+
+    &:last-child {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+
+  i {
+    color: #aaaeb3;
+    position: absolute;
+    right: ${dimensions.coreSpacing}px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+  ul {
+    li {
+      margin-left: ${dimensions.coreSpacing}px;
+    }
+  }
+`;
+
+export { CompaniesTableWrapper, CompanyLogo, CompanyWrapper };

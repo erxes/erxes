@@ -38,6 +38,10 @@ const propTypes = {
   segment: PropTypes.string
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class SegmentStep extends Component {
   constructor(props) {
     super(props);
@@ -82,6 +86,7 @@ class SegmentStep extends Component {
 
   render() {
     const show = this.state.createSegment;
+    const { __ } = this.context;
 
     return (
       <FlexItem>
@@ -94,7 +99,7 @@ class SegmentStep extends Component {
               value={false}
               checked={this.state.createSegment === false}
             >
-              Choose segment
+              {__('Choose segment')}
             </FormControl>
             <FormControl
               componentClass="radio"
@@ -103,7 +108,7 @@ class SegmentStep extends Component {
               checked={this.state.createSegment === true}
               value={true}
             >
-              Create segment
+              {__('Create segment')}
             </FormControl>
           </RadioContainer>
           {this.renderSegments(show)}
@@ -121,7 +126,9 @@ class SegmentStep extends Component {
         <FlexItem direction="column" v="center" h="center">
           <CustomerCounts>
             <Icon icon="person-stalker" size={50} />
-            <p>{this.props.counts[this.state.segment] || 0} customers</p>
+            <p>
+              {this.props.counts[this.state.segment] || 0} {__('customers')}
+            </p>
           </CustomerCounts>
         </FlexItem>
       </FlexItem>
@@ -130,5 +137,6 @@ class SegmentStep extends Component {
 }
 
 SegmentStep.propTypes = propTypes;
+SegmentStep.contextTypes = contextTypes;
 
 export default SegmentStep;

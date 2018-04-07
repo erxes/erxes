@@ -30,11 +30,13 @@ class ResetPassword extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <AuthBox>
         <div className="logo">
           <img src="/images/logo-light.png" alt="erxes" />
         </div>
+        <h2>{__('Set your new password')}</h2>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
             <InputGroup>
@@ -45,7 +47,7 @@ class ResetPassword extends Component {
               </InputGroup.Button>
               <FormControl
                 type="password"
-                placeholder="new password"
+                placeholder={__('new password')}
                 required
                 onChange={this.handlePasswordChange}
               />
@@ -61,5 +63,8 @@ class ResetPassword extends Component {
 }
 
 ResetPassword.propTypes = propTypes;
+ResetPassword.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ResetPassword;
