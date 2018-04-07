@@ -58,7 +58,7 @@ const queries = {
   customer: 'customersMain',
   company: 'companiesMain',
   engageMessage: 'engageMessages',
-  form: 'integrations'
+  integration: 'integrations'
 };
 
 export default compose(
