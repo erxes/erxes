@@ -1,12 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-import {
-  Users,
-  Brands,
-  Integrations,
-  Channels
-} from './db/models';
+import { Users, Brands, Integrations, Channels } from './db/models';
 import {
   customerFactory,
   companyFactory,
@@ -14,53 +9,75 @@ import {
   conversationFactory,
   responseTemplateFactory,
   formFactory,
-  conversationMessageFactory
-} from './db/factories'
+  conversationMessageFactory,
+} from './db/factories';
 import { connect, disconnect } from './db/connection';
-
 
 export const importData = async () => {
   connect();
 
+  // create admin user
   const user = await Users.createUser({
     username: 'admin',
     password: 'admin123',
     email: 'admin@erxes.io',
+    isOwner: true,
     role: 'admin',
-    details: {}
+    details: {
+      fullName: 'Admin',
+    },
   });
 
+  // messenger integration =================
   const brand = await Brands.createBrand({
     name: 'Local publisher',
-    code: 'YDEdKj'
+    code: 'YDEdKj',
   });
 
-  const integration = await Integrations.createIntegration({
+  const messengerIntegration = await Integrations.createIntegration({
     name: 'Messenger for Local publisher',
     kind: 'messenger',
-    brandId: brand._id
+    brandId: brand._id,
   });
 
-  await Channels.createChannel({
-    name: 'Sales',
-    integrationIds: [integration._id]
-  }, user._id);
+  // create customers & companies & conversations ================
+  for (let i = 1; i <= 10; i++) {
+    const company = await companyFactory();
+    const customer = await customerFactory({ companyIds: [company._id] });
+    await segmentsFactory();
 
-  for(let i=1; i<=10; i++){
-      const company = await companyFactory();
-      const customer = await customerFactory({companyIds: [company._id]});
-      await segmentsFactory();
+    const conversation = await conversationFactory({
+      customerId: customer._id,
+      integrationId: messengerIntegration._id,
+    });
 
-      const conversation = await conversationFactory({customerId: customer._id,
-                                                      integrationId: integration._id});
-      await conversationMessageFactory({conversationId: conversation._id});
-      if( i > 7 ){
-        await responseTemplateFactory({brandId: brand._id});
-      }
+    await conversationMessageFactory({ conversationId: conversation._id });
+
+    if (i > 7) {
+      await responseTemplateFactory({ brandId: brand._id });
+    }
   }
-  await formFactory({ createdUserId: user._id });
+
+  // create form integration ====================
+  const form = await formFactory({ createdUserId: user._id });
+
+  const formIntegration = await Integrations.createIntegration({
+    name: 'Form',
+    kind: 'form',
+    brandId: brand._id,
+    formId: form._id,
+  });
+
+  await Channels.createChannel(
+    {
+      name: 'Sales',
+      integrationIds: [messengerIntegration._id, formIntegration._id],
+      memberIds: [user._id],
+    },
+    user._id,
+  );
+
   disconnect();
 };
-
 
 importData();
