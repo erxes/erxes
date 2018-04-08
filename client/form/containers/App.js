@@ -49,25 +49,26 @@ class App extends React.Component {
     if (loadType === 'dropdown') {
       parentClass = 'erxes-dropdown-iframe';
       containerClass = 'container-dropdown';
-      
+
       if (isCalloutVisible) {
         containerClass += ' call-out';
-      } 
+      }
     }
 
     if (loadType === 'embedded') {
       parentClass = 'erxes-embedded-iframe';
       containerClass = 'container-embedded';
+
       if (isFormVisible) {
         parentClass += ' visible-form';
-      } 
+      }
     }
 
-    if (loadType === 'slideInRight' || loadType === 'slideInLeft' || loadType === 'dropdown') {
+    if (['slideInRight', 'slideInLeft', 'dropdown'].includes(loadType)) {
       if (isFormVisible) {
         parentClass += ' visible-form';
         containerClass += ' visible-form';
-      } 
+      }
     }
 
     if (loadType === 'shoutbox') {
@@ -76,6 +77,7 @@ class App extends React.Component {
       } else {
         parentClass = 'erxes-shoutbox-iframe erxes-hidden';
       }
+
       containerClass = 'container-shoutbox';
     }
 
