@@ -34,7 +34,6 @@ const propTypes = {
   preview: PropTypes.string,
   onChange: PropTypes.func,
   fields: PropTypes.array,
-  integration: PropTypes.object,
   carousel: PropTypes.string,
   thankContent: PropTypes.string
 };

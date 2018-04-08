@@ -50,7 +50,7 @@ function List({ tags, type, remove, save }, { __ }) {
             <Link to="/tags/company">{__('Company')}</Link>
           </li>
           <li>
-            <Link to="/tags/form">{__('Form')}</Link>
+            <Link to="/tags/integration">{__('Integration')}</Link>
           </li>
         </Dropdown.Menu>
       </Dropdown>
