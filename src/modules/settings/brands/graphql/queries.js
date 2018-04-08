@@ -60,8 +60,8 @@ const brandsCount = `
 `;
 
 const integrationsCount = `
-  query totalIntegrationsCount($brandId: String) {
-    integrationsTotalCount(brandId: $brandId)
+  query totalIntegrationsCount {
+    integrationsTotalCount
   }
 `;
 
