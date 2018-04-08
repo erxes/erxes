@@ -100,7 +100,10 @@ const brands = `
 
 const integrationsCount = `
   query integrationsTotalCount {
-    integrationsTotalCount
+    integrationsTotalCount {
+      byKind
+      byTag
+    }
   }
 `;
 

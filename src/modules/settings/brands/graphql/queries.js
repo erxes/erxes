@@ -61,7 +61,9 @@ const brandsCount = `
 
 const integrationsCount = `
   query totalIntegrationsCount {
-    integrationsTotalCount
+    integrationsTotalCount {
+      byBrand
+    }
   }
 `;
 

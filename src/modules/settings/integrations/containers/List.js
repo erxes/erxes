@@ -103,7 +103,10 @@ export default compose(
   graphql(
     gql`
       query totalIntegrationsCount {
-        integrationsTotalCount
+        integrationsTotalCount {
+          total
+          byKind
+        }
       }
     `,
     {
