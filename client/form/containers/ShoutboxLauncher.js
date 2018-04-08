@@ -3,7 +3,7 @@ import { toggleShoutbox } from '../actions';
 import { ShoutboxLauncher } from '../components';
 
 const mapStateToProps = state => ({
-  isFormVisible: state.isShoutboxFormVisible,
+  isFormVisible: state.isFormVisible,
 });
 
 const mapDisptachToProps = dispatch => ({

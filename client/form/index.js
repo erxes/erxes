@@ -14,9 +14,10 @@ widgetConnect({
   },
 
   connectMutation: (event) => {
-    const setting = event.data.setting;
+    const { setting, hasPopupHandlers } = event.data;
 
     connection.setting = setting;
+    connection.hasPopupHandlers = hasPopupHandlers;
 
     // call connect mutation
     return connect(setting.brand_id, setting.form_id);
@@ -32,20 +33,6 @@ widgetConnect({
 
     // set language
     setLocale(data.formConnect.languageCode);
-
-    window.addEventListener('message', (event) => {
-      if (event.data.fromPublisher) {
-        // receive show popup command from publisher
-        if (event.data.action === 'show') {
-          document.querySelector('.modal-form').className = 'modal-form open';
-        }
-
-        // receive hide popup command from publisher
-        if (event.data.action === 'hide') {
-          document.querySelector('.modal-form').className = 'modal-form';
-        }
-      }
-    });
   },
 
   AppContainer: App,

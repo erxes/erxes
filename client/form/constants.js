@@ -1,4 +1,9 @@
-export const SHOUTBOX_FORM_TOGGLE = 'SHOUTBOX_FORM_TOGGLE';
+export const SHOW_CALLOUT = 'SHOW_CALLOUT';
+export const HIDE_CALLOUT = 'HIDE_CALLOUT';
+export const SHOW_FORM = 'SHOW_FORM';
+export const HIDE_FORM = 'HIDE_FORM';
+export const SHOW_POPUP = 'SHOW_POPUP';
+export const HIDE_POPUP = 'HIDE_POPUP';
 export const SUCCESS = 'SUCCESS';
 export const ERROR = 'ERROR';
 export const FORM_SUBMIT = 'FORM_SUBMIT';

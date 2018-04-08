@@ -74,7 +74,6 @@ const FormWithData = graphql(
         description
         buttonText
         themeColor
-        featuredImage
 
         fields {
           _id

@@ -1,6 +1,11 @@
 import gql from 'graphql-tag';
 import {
-  SHOUTBOX_FORM_TOGGLE,
+  HIDE_CALLOUT,
+  SHOW_CALLOUT,
+  SHOW_FORM,
+  HIDE_FORM,
+  SHOW_POPUP,
+  HIDE_POPUP,
   SUCCESS,
   ERROR,
   FORM_SUBMIT,
@@ -10,16 +15,55 @@ import {
 import client from '../apollo-client';
 import { connection } from './connection';
 
-export const toggleShoutbox = (isVisible) => {
+/*
+ * Send message to iframe's parent
+ */
+export const postMessage = (options) => {
   // notify parent window launcher state
   window.parent.postMessage({
     fromErxes: true,
     fromForms: true,
     setting: connection.setting,
-    fromShoutbox: true,
-    isVisible: !isVisible,
+    ...options
   }, '*');
+};
 
+
+/*
+ * Decide which component will render initially
+ */
+export const init = () => (dispatch) => {
+  const { data, hasPopupHandlers } = connection;
+  const { formData } = data;
+  const { loadType, callout } = formData;
+
+  // if there is popup handler then do not show it initially
+  if (loadType === 'popup' && hasPopupHandlers) {
+    return null;
+  }
+
+  dispatch({ type: SHOW_POPUP });
+
+  // If load type is shoutbox then hide form component initially
+  if (callout.skip && loadType !== 'shoutbox') {
+    return dispatch({ type: SHOW_FORM });
+  }
+
+  return dispatch({ type: SHOW_CALLOUT });
+};
+
+/*
+ * Will be called when user click callout's submit button
+ */
+export const showForm = () => (dispatch) => {
+  dispatch({ type: HIDE_CALLOUT });
+  dispatch({ type: SHOW_FORM });
+};
+
+/*
+ * Toggle circle button. Hide callout and show or hide form
+ */
+export const toggleShoutbox = (isVisible) => (dispatch) => {
   if(!isVisible) {
     // Increasing view count
     client.mutate({
@@ -34,21 +78,32 @@ export const toggleShoutbox = (isVisible) => {
     });
   }
 
-  return {
-    type: SHOUTBOX_FORM_TOGGLE,
-    isVisible: !isVisible,
-  };
+  dispatch({ type: HIDE_CALLOUT });
+  dispatch({ type: isVisible ? HIDE_FORM : SHOW_FORM });
 };
 
+/*
+ * When load type is popup, Show popup and show one of callout and form
+ */
+export const showPopup = () => (dispatch) => {
+  const { data } = connection;
+  const { formData } = data;
+  const { callout } = formData;
 
-export const closeModal = () => {
-  // notify parent window that close modal
-  window.parent.postMessage({
-    fromErxes: true,
-    fromForms: true,
-    setting: connection.setting,
-    closeModal: true,
-  }, '*');
+  dispatch({ type: SHOW_POPUP });
+
+  if (callout.skip) {
+    return dispatch({ type: SHOW_FORM });
+  }
+
+  return dispatch({ type: SHOW_CALLOUT });
+};
+
+/*
+ * When load type is popup, Hide popup
+ */
+export const closePopup = () => (dispatch) => {
+  dispatch({ type: HIDE_POPUP });
 
   // Increasing view count
   client.mutate({
@@ -63,7 +118,9 @@ export const closeModal = () => {
   });
 };
 
-
+/*
+ * Get integration info using brand code and form code
+ */
 export const connect = (brandCode, formCode) =>
   client.mutate({
     mutation: gql`
@@ -74,7 +131,6 @@ export const connect = (brandCode, formCode) =>
           languageCode,
           formId,
           formData,
-          uiOptions
         }
       }`,
 
@@ -84,6 +140,10 @@ export const connect = (brandCode, formCode) =>
     },
   });
 
+
+/*
+ * Save user submissions
+ */
 export const saveForm = doc => (dispatch) => {
   const submissions = Object.keys(doc).map((fieldId) => {
     const { value, text, type, validation } = doc[fieldId];
@@ -133,6 +193,9 @@ export const saveForm = doc => (dispatch) => {
   });
 };
 
+/*
+ * Redisplay form component after submission
+ */
 export const createNew = () => (dispatch) => {
   dispatch({
     type: CREATE_NEW,
@@ -140,6 +203,9 @@ export const createNew = () => (dispatch) => {
   });
 };
 
+/*
+ * Send email to submitted user after successfull submission
+ */
 export const sendEmail = (toEmails, fromEmail, title, content) => () => {
   client.mutate({
     mutation: gql`

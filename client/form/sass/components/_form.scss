@@ -248,3 +248,49 @@
     }
   }
 }
+
+.container-popup {
+  width: 100%;
+  min-height: 100%;
+  position: absolute;
+  background-color: #000; /* Fallback color */
+  background-color: rgba(0, 0, 0, .6); /* Black w/ opacity */
+  @include prefix((
+    transition: opacity .15s linear
+  ), webkit moz ms o);
+
+  .erxes-form {
+    margin: 50px auto;
+    width: 500px;
+    @include prefix((
+      transition: transform 0.3s ease
+    ), webkit moz ms o);
+
+    @include prefix((
+      transform: translate(0,-25%)
+    ), webkit moz ms o);
+
+    @media screen and (max-width: $break-medium) {
+      width: 100%;
+      margin: 0;
+    }
+  }
+}
+
+.container-slide-in-left {
+  float: left;
+  width: 100%;
+}
+
+.container-slide-in-right {
+  float: right;
+  width: 100%;
+}
+
+.container-shoutbox {
+  float: right;
+  width: 100%;
+  display: block;
+  margin-right: 50px;
+  margin-bottom: 50px;
+}

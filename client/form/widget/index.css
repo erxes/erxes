@@ -1,7 +1,4 @@
 [id^=erxes-container] {
-  position: fixed;
-  bottom: 0px;
-  right: 0px;
   z-index: 1000000000;
   border: none;
 }
@@ -33,52 +30,6 @@
   z-index: -1;
 }
 
-.erxes-embed-iframe {
-  position: initial !important;
-  margin: 0 auto;
-  height: 100%;
-}
-
-.erxes-embed-iframe > iframe {
-  width: 100%;
-  margin: 0 auto;
-  height: 100%;
-}
-
-.erxes-modal-iframe > iframe{
-  position: fixed; /* Stay in place */
-  z-index: 1000000; /* Sit on top */
-  left: 0;
-  top: 0;
-  min-width: 100%; /* Full width */
-  min-height: 100%; /* Full height */
-  border: none;
-}
-
-.erxes-shoutbox-iframe > iframe {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  z-index: 100000000;
-}
-
-.erxes-shoutbox-form-hidden > iframe {
-  width: 72px;
-  height: 72px;
-}
-
-.erxes-shoutbox-form-shown {
-  width: 416px;
-  height: calc(100% - 20px);
-  max-height: 660px;
-}
-
-.erxes-shoutbox-form-shown > iframe {
-  width: 100%;
-  height: 100%;
-  position: absolute !important;
-}
-
 .hidden {
   display: none !important;
 }
@@ -87,15 +38,6 @@
   [id^=erxes-container] {
     width: 100%;
     max-height: none;
-  }
-
-  .erxes-shoutbox-form-shown {
-    height: 100%;
-  }
-
-  .erxes-shoutbox-iframe > iframe {
-    bottom: 0;
-    right: 0;
   }
 
   [id^=erxes-iframe] {
@@ -122,4 +64,49 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+.erxes-modal-iframe {
+  position: fixed; /* Stay in place */
+  z-index: 1000000; /* Sit on top */
+  left: 0;
+  top: 0;
+  min-width: 100%; /* Full width */
+  min-height: 100vh; /* Full height */
+  border: none;
+  height: 100%;
+}
+
+.erxes-embed-iframe {
+  position: initial !important;
+  margin: 0 auto;
+  height: 100%;
+}
+
+.erxes-slide-left-iframe {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  width: 370px;
+}
+
+.erxes-slide-right-iframe {
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  width: 370px;
+}
+
+.erxes-dropdown-iframe {
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.erxes-shoutbox-iframe {
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  width: 470px;
+  height: 300px;
 }
