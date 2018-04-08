@@ -20,6 +20,14 @@ export const types = `
     channels: [Channel]
   }
 
+  type integrationsTotalCount {
+    total: Int
+    byTag: JSON
+    byChannel: JSON
+    byBrand: JSON
+    byKind: JSON
+  }
+
   input IntegrationFormData {
     loadType: String
     successAction: String
@@ -76,7 +84,7 @@ export const queries = `
   ): [Integration]
 
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount: JSON
+  integrationsTotalCount: integrationsTotalCount
   integrationGetTwitterAuthUrl: String
   integrationFacebookAppsList: [JSON]
   integrationFacebookPagesList(appId: String): [JSON]
