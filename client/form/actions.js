@@ -114,6 +114,8 @@ export const showPopup = () => (dispatch) => {
  */
 export const closePopup = () => (dispatch) => {
   dispatch({ type: HIDE_POPUP });
+  dispatch({ type: HIDE_CALLOUT });
+  dispatch({ type: HIDE_FORM });
 
   // Increasing view count
   client.mutate({
