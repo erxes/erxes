@@ -648,7 +648,8 @@ export const KIND_CHOICES = {
   MESSENGER: 'messenger',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  ALL_LIST: ['messenger', 'twitter', 'facebook']
+  FORM: 'form',
+  ALL_LIST: ['messenger', 'twitter', 'facebook', 'form']
 };
 
 export const FORM_LOAD_TYPES = {
