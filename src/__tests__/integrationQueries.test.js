@@ -53,7 +53,13 @@ describe('integrationQueries', () => {
 
   const qryCount = `
     query integrationsTotalCount {
-      integrationsTotalCount
+      integrationsTotalCount {
+        total
+        byTag
+        byKind
+        byBrand
+        byChannel
+      }
     }
   `;
 
