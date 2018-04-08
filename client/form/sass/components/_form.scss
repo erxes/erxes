@@ -246,8 +246,8 @@
 
 // dropdown
 .container-dropdown {
-  
   box-shadow: 0 3px 18px -2px rgba(0, 0, 0, 0.2);
+
   &.call-out {
     .erxes-form-content {
       display: flex;
@@ -280,15 +280,37 @@
   }
 }
 
+// slide in
+.container-slide-in-left,
+.container-slide-in-right {
+  display: block;
+  max-height: 480px;
+  position: absolute;
+  bottom: 5px;
+  height: 100%;
+  border-radius: 4px;
+  width: calc(100% - 10px);
+  z-index: 9998;
+
+  .erxes-form {
+    background: $white;
+    max-height: 100%;
+    user-select: none;
+    box-shadow: 0 3px 18px -2px rgba($black, 0.2);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    height: auto;
+  }
+}
 
 .container-slide-in-left {
-  float: left;
-  width: 100%;
+  right: 5px;
 }
 
 .container-slide-in-right {
-  float: right;
-  width: 100%;
+  left: 5px;
 }
 
 // shoutbox form

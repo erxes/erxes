@@ -53,15 +53,21 @@ class App extends React.Component {
       if (isCalloutVisible) {
         containerClass += ' call-out';
       } 
-      if (isFormVisible) {
-        parentClass += ' visible-form';
-        containerClass += ' visible-form';
-      } 
     }
 
     if (loadType === 'embedded') {
       parentClass = 'erxes-embedded-iframe';
       containerClass = 'container-embedded';
+      if (isFormVisible) {
+        parentClass += ' visible-form';
+      } 
+    }
+
+    if (loadType === 'slideInRight' || loadType === 'slideInLeft' || loadType === 'dropdown') {
+      if (isFormVisible) {
+        parentClass += ' visible-form';
+        containerClass += ' visible-form';
+      } 
     }
 
     if (loadType === 'shoutbox') {
