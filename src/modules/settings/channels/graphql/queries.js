@@ -78,7 +78,9 @@ const channelsCount = `
 
 const integrationsCount = `
   query totalIntegrationsCount {
-    integrationsTotalCount
+    integrationsTotalCount {
+      byChannel
+    }
   }
 `;
 
