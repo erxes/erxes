@@ -97,6 +97,11 @@ export const showPopup = () => (dispatch) => {
 
   dispatch({ type: SHOW_POPUP });
 
+  // if there is no callout setting then show form
+  if (!callout) {
+    return dispatch({ type: SHOW_FORM });
+  }
+
   if (callout.skip) {
     return dispatch({ type: SHOW_FORM });
   }
