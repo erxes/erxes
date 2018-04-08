@@ -44,6 +44,11 @@ export const init = () => (dispatch) => {
 
   dispatch({ type: SHOW_POPUP });
 
+  // if there is no callout setting then show form
+  if (!callout) {
+    return dispatch({ type: SHOW_FORM });
+  }
+
   // If load type is shoutbox then hide form component initially
   if (callout.skip && loadType !== 'shoutbox') {
     return dispatch({ type: SHOW_FORM });

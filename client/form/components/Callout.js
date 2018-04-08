@@ -10,6 +10,7 @@ const propTypes = {
 
 function Callout({ formData, onSubmit, color }) {
   const { callout } = formData || {};
+
   const { skip, title, buttonText, body } = callout;
 
   if (skip) {
