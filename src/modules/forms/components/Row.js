@@ -89,7 +89,12 @@ class Row extends Component {
     const form = integration.form || {};
     const createdUserId = form.createdUserId;
     const tags = integration.tags || [];
-    const str = form.contactsGathered / form.viewCount * 100 || '0.00';
+
+    let percentage = '0.00';
+
+    if (form.contactsGathered && form.viewCount) {
+      percentage = form.contactsGathered / form.viewCount * 100;
+    }
 
     const onChange = e => {
       if (toggleBulk) {
@@ -105,7 +110,7 @@ class Row extends Component {
         <td>{integration.name}</td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>{form.viewCount || 0}</td>
-        <td>{str.substring(0, 4)} %</td>
+        <td>{percentage} %</td>
         <td>{form.contactsGathered || 0}</td>
         <td>{moment(form.createdDate).format('ll')}</td>
         <td>{this.renderUser(createdUserId)}</td>
