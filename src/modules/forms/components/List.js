@@ -7,6 +7,7 @@ import {
   Button,
   Table,
   Pagination,
+  FormControl,
   TaggerPopover,
   DataWithLoader
 } from 'modules/common/components';
@@ -21,11 +22,23 @@ const propTypes = {
   emptyBulk: PropTypes.func.isRequired,
   integrationsCount: PropTypes.number.isRequired,
   toggleBulk: PropTypes.func.isRequired,
+  toggleAll: PropTypes.func.isRequired,
   loading: PropTypes.bool,
   remove: PropTypes.func
 };
 
 class List extends Component {
+  constructor(props) {
+    super(props);
+
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange() {
+    const { toggleAll, integrations } = this.props;
+    toggleAll(integrations, 'integrations');
+  }
+
   renderRow() {
     const { integrations, members, remove, toggleBulk } = this.props;
 
@@ -87,7 +100,9 @@ class List extends Component {
       <Table whiteSpace="nowrap" hover>
         <thead>
           <tr>
-            <th />
+            <th>
+              <FormControl componentClass="checkbox" onChange={this.onChange} />
+            </th>
             <th>{__('Name')}</th>
             <th>{__('Brand')}</th>
             <th>{__('Views')}</th>
@@ -99,7 +114,7 @@ class List extends Component {
             <th>{__('Actions')}</th>
           </tr>
         </thead>
-        <tbody>{this.renderRow()}</tbody>
+        <tbody id="integrations">{this.renderRow()}</tbody>
       </Table>
     );
 
