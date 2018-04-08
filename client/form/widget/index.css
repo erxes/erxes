@@ -97,10 +97,26 @@
   width: 370px;
 }
 
+
+/* dropdown */
 .erxes-dropdown-iframe {
   position: fixed;
-  top: 0px;
-  width: 100%;
+  left: 0;
+  right: 0;
+  top: 0;
+  animation-delay: 1s;
+  -webkit-animation-delay: 1s;
+  animation: fadeInDown 0.3s;
+  -webkit-animation: fadeInDown 0.3s;
+  -webkit-animation-duration: 0.3s;
+  animation-duration: 0.3s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+.erxes-dropdown-iframe.visible-form {
+  height: 300px;
+  box-shadow: 0 3px 18px -2px rgba(0, 0, 0, 0.2);
 }
 
 /* shoutbox */
@@ -123,4 +139,37 @@
 .erxes-shoutbox-iframe.erxes-hidden {
   width: 72px;
   height: 72px;
+}
+
+@-webkit-keyframes fadeInDown {
+  from {
+    opacity: 0;
+    -webkit-transform: translate3d(0, -100%, 0);
+    transform: translate3d(0, -100%, 0);
+  }
+
+  to {
+    opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    -webkit-transform: translate3d(0, -100%, 0);
+    transform: translate3d(0, -100%, 0);
+  }
+
+  to {
+    opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.fadeInDown {
+  -webkit-animation-name: fadeInDown;
+  animation-name: fadeInDown;
 }

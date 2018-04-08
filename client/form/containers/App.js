@@ -49,6 +49,14 @@ class App extends React.Component {
     if (loadType === 'dropdown') {
       parentClass = 'erxes-dropdown-iframe';
       containerClass = 'container-dropdown';
+      
+      if (isCalloutVisible) {
+        containerClass += ' call-out';
+      } 
+      if (isFormVisible) {
+        parentClass += ' visible-form';
+        containerClass += ' visible-form';
+      } 
     }
 
     if (loadType === 'embedded') {
