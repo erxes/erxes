@@ -97,6 +97,10 @@ class Row extends Component {
       type = 'facebook';
     }
 
+    if (kind === KIND_CHOICES.FORM) {
+      type = 'form';
+    }
+
     return type;
   }
 
