@@ -55,10 +55,10 @@ const tagMutation = gql`
 `;
 
 const queries = {
-  customer: 'customersMain',
-  company: 'companiesMain',
-  engageMessage: 'engageMessages',
-  integration: 'integrations'
+  customer: ['customersMain', 'customerCounts'],
+  company: ['companiesMain', 'companyCounts'],
+  engageMessage: ['engageMessages', 'engageMessagesTotalCount'],
+  integration: ['integrations', 'integrationsTotalCount']
 };
 
 export default compose(
@@ -71,7 +71,7 @@ export default compose(
   graphql(tagMutation, {
     name: 'tagMutation',
     options: props => ({
-      refetchQueries: [queries[props.type] || `${props.type}`]
+      refetchQueries: queries[props.type] || [`${props.type}`]
     })
   })
 )(TaggerContainer);
