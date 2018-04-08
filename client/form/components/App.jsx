@@ -44,9 +44,10 @@ class App extends React.Component {
 
   renderCallout() {
     const { isCalloutVisible, formData } = this.props;
+    const { themeColor } = formData;
 
     if (isCalloutVisible) {
-      return <Callout formData={formData} />
+      return <Callout color={themeColor} formData={formData} />
     }
 
     return null;

@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { TopBar } from './';
 
 const propTypes = {
   formData: PropTypes.object,
   onSubmit: PropTypes.func,
+  color: PropTypes.string
 };
 
-function Callout({ formData, onSubmit }) {
+function Callout({ formData, onSubmit, color }) {
   const { callout } = formData || {};
   const { skip, title, buttonText, body } = callout;
 
@@ -16,17 +18,11 @@ function Callout({ formData, onSubmit }) {
 
   return (
     <div className="erxes-form">
-      <div className="erxes-topbar thiner">
-        <div className="erxes-middle">
-          <div className="erxes-topbar-title">
-            <div>{title}</div>
-          </div>
-        </div>
-      </div>
+      <TopBar title={title} color={color} />
       <div className="erxes-form-content">
-        {body}
-
+        <div className="erxes-callout-body">{body}</div>
         <button
+          style={{ background: color }}
           type="button"
           className="btn btn-block"
           onClick={onSubmit}

@@ -10,9 +10,7 @@ const contextTypes = {
   __: PropTypes.func
 };
 
-function TopBar({ title, color }, {__}) {
-
-
+function TopBar({ title, color }) {
   return (
     <div className="erxes-topbar thiner" style={{ backgroundColor: color }}>
       <div className="erxes-middle">

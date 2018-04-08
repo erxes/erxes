@@ -57,18 +57,20 @@ class App extends React.Component {
     }
 
     if (loadType === 'shoutbox') {
-      parentClass = 'erxes-shoutbox-iframe';
+      if (isCalloutVisible || isFormVisible) {
+        parentClass = 'erxes-shoutbox-iframe';
+      } else {
+        parentClass = 'erxes-shoutbox-iframe erxes-hidden';
+      }
       containerClass = 'container-shoutbox';
     }
 
-    if (isFormVisible || isCalloutVisible) {
-      postMessage({
-        action: 'changeContainerClass',
-        className: parentClass,
-      });
+    postMessage({
+      action: 'changeContainerClass',
+      className: parentClass,
+    });
 
-      extendedProps.containerClass = containerClass;
-    }
+    extendedProps.containerClass = containerClass;
 
     return <DumbApp {...extendedProps} />;
   }

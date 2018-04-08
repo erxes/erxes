@@ -103,10 +103,24 @@
   width: 100%;
 }
 
+/* shoutbox */
 .erxes-shoutbox-iframe {
   position: fixed;
   bottom: 0px;
   right: 0px;
-  width: 470px;
-  height: 300px;
+  width: 416px;
+  height: 100%;
+  max-height: 560px;
+}
+
+.erxes-shoutbox-iframe > iframe {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 100000000;
+}
+
+.erxes-shoutbox-iframe.erxes-hidden {
+  width: 72px;
+  height: 72px;
 }
