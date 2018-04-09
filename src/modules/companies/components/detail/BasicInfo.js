@@ -7,10 +7,12 @@ import { Links, InfoWrapper } from 'modules/common/styles/styles';
 import { confirm } from 'modules/common/utils';
 import { CompanyForm } from '../../containers';
 import { CompanyLogo } from '../../styles';
-import { CompanyTargetMergeModal } from 'modules/companies/components';
+import { TargetMergeModal } from 'modules/customers/components';
 import { Action } from 'modules/customers/styles';
 import { Dropdown } from 'react-bootstrap';
 import { DropdownToggle, Button } from 'modules/common/components';
+import { searchCompany } from 'modules/common/utils';
+import { COMPANY_INFO } from 'modules/companies/constants';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -78,7 +80,12 @@ class BasicInfo extends React.Component {
           </DropdownToggle>
           <Dropdown.Menu>
             <li>
-              <CompanyTargetMergeModal onSave={merge} company={company} />
+              <TargetMergeModal
+                onSave={merge}
+                object={company}
+                searchObject={searchCompany}
+                basicInfos={COMPANY_INFO}
+              />
             </li>
             <li>
               <a onClick={() => confirm().then(() => remove())}>

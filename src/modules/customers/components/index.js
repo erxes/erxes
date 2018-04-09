@@ -4,7 +4,7 @@ import CustomersList from './list/CustomersList';
 import CustomerDetails from './detail/CustomerDetails';
 import CommonMerge from './detail/CommonMerge';
 import CustomerSection from './common/CustomerSection';
-import CustomerTargetMergeModal from './detail/CustomerTargetMergeModal';
+import TargetMergeModal from './detail/TargetMergeModal';
 
 export {
   CustomerRow,
@@ -13,5 +13,5 @@ export {
   CustomerDetails,
   CommonMerge,
   CustomerSection,
-  CustomerTargetMergeModal
+  TargetMergeModal
 };

@@ -10,7 +10,12 @@ import { CustomerForm } from 'modules/customers/containers';
 import { Action } from 'modules/customers/styles';
 import { DropdownToggle, Button } from 'modules/common/components';
 import { Dropdown } from 'react-bootstrap';
-import { CustomerTargetMergeModal } from 'modules/customers/components';
+import { TargetMergeModal } from 'modules/customers/components';
+import { searchCustomer } from 'modules/common/utils';
+import {
+  CUSTOMER_BASIC_INFO,
+  CUSTOMER_DATAS
+} from 'modules/customers/constants';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -78,7 +83,16 @@ class BasicInfo extends React.Component {
           </DropdownToggle>
           <Dropdown.Menu>
             <li>
-              <CustomerTargetMergeModal onSave={merge} customer={customer} />
+              <TargetMergeModal
+                onSave={merge}
+                object={customer}
+                searchObject={searchCustomer}
+                basicInfos={Object.assign(
+                  {},
+                  CUSTOMER_BASIC_INFO,
+                  CUSTOMER_DATAS
+                )}
+              />
             </li>
             <li>
               <a>{__('Opt out of email')}</a>
