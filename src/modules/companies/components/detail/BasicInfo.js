@@ -34,7 +34,7 @@ class BasicInfo extends React.Component {
   renderLink(link, icon) {
     if (link) {
       return (
-        <a href={link} target="_blank">
+        <a target="_blank" href={`//${link}`}>
           <Icon icon={icon} />
         </a>
       );
