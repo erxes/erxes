@@ -43,6 +43,7 @@ class CustomerForm extends React.Component {
 
     this.renderFormGroup = this.renderFormGroup.bind(this);
     this.action = this.action.bind(this);
+    this.handleUserSearch = this.handleUserSearch.bind(this);
   }
 
   action(e) {
@@ -92,6 +93,10 @@ class CustomerForm extends React.Component {
     }));
   }
 
+  handleUserSearch(value) {
+    searchUser(value, users => this.setState({ users }));
+  }
+
   getVisitorInfo(customer, key) {
     return customer.visitorContactInfo && customer.visitorContactInfo[key];
   }
@@ -134,11 +139,12 @@ class CustomerForm extends React.Component {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search..."
-                onInputChange={value =>
-                  searchUser(value, users => this.setState({ users }))
-                }
+                onFocus={() => users.length < 1 && this.handleUserSearch('')}
+                onInputChange={this.handleUserSearch}
                 onChange={selectedOption => {
-                  this.setState({ ownerId: selectedOption.value });
+                  this.setState({
+                    ownerId: selectedOption ? selectedOption.value : null
+                  });
                 }}
                 value={this.state.ownerId}
                 options={this.generateUserParams(users)}
