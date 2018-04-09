@@ -28,6 +28,7 @@ class Row extends React.Component {
   constructor(props) {
     super(props);
 
+    this.renderRemoveButton = this.renderRemoveButton.bind(this);
     this.toggleBulk = this.toggleBulk.bind(this);
   }
 
@@ -67,6 +68,18 @@ class Row extends React.Component {
         'Set live',
         'paper-airplane',
         this.props.setLiveManual
+      );
+    }
+  }
+
+  renderRemoveButton(message, onClick) {
+    const { __ } = this.context;
+
+    if (message.kind === 'auto') {
+      return (
+        <Tip text={__('Delete')}>
+          <Button btnStyle="link" onClick={onClick} icon="close" />
+        </Tip>
       );
     }
   }
@@ -181,10 +194,7 @@ class Row extends React.Component {
         <td>
           <ActionButtons>
             {this.renderLinks()}
-
-            <Tip text={__('Delete')}>
-              <Button btnStyle="link" onClick={remove} icon="close" />
-            </Tip>
+            {this.renderRemoveButton(message, remove)}
           </ActionButtons>
         </td>
       </tr>
