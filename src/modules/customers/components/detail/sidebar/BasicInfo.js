@@ -95,9 +95,6 @@ class BasicInfo extends React.Component {
               />
             </li>
             <li>
-              <a>{__('Opt out of email')}</a>
-            </li>
-            <li>
               <a onClick={() => confirm().then(() => remove())}>
                 {__('Delete')}
               </a>
