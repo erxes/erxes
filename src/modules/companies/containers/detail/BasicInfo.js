@@ -25,10 +25,10 @@ const BasicInfoContainer = props => {
       });
   };
 
-  const merge = ({ targetId, data }) => {
+  const merge = ({ ids, data }) => {
     companiesMerge({
       variables: {
-        companyIds: [_id, targetId],
+        companyIds: ids,
         companyFields: data
       }
     })
