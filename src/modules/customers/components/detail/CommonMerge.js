@@ -278,7 +278,7 @@ class CommonMerge extends Component {
         <Columns>
           {datas.map(data => {
             return (
-              <Column key={data._id} className="multiple">
+              <Column key={data._id || Math.random()} className="multiple">
                 <Title>{renderFullName(data)}</Title>
                 <ul>{this.renderDatas(data)}</ul>
               </Column>
