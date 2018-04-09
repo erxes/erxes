@@ -49,7 +49,7 @@ class Form extends Component {
       theme: form.themeColor || '#6569DF',
       logoPreviewUrl: callout.featuredImage,
       fields: fields || [],
-      isSkip: callout.skip || false
+      isSkip: callout.skip === null ? true : callout.skip
     };
 
     this.onChange = this.onChange.bind(this);
