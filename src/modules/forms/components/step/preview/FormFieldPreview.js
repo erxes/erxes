@@ -58,11 +58,17 @@ class FormFieldPreview extends Component {
   }
 
   onSortEnd({ oldIndex, newIndex }) {
-    const reOrderedFields = arrayMove(this.state.fields, oldIndex, newIndex);
+    const reOrderedFields = arrayMove(this.state.fields, newIndex, oldIndex);
+    const fields = [];
 
-    this.setState({
-      fields: reOrderedFields
+    reOrderedFields.forEach((field, index) => {
+      fields.push({
+        ...field,
+        order: index
+      });
     });
+
+    this.setState({ fields });
 
     this.props.onChange('fields', this.state.fields);
   }
