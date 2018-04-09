@@ -142,7 +142,9 @@ const dealMutations = {
    */
   async dealsAdd(root, doc, { user }) {
     const deal = await Deals.createDeal({ userId: user._id, ...doc });
+
     await ActivityLogs.createDealRegistrationLog(deal, user);
+
     return deal;
   },
 
