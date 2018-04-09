@@ -170,7 +170,7 @@ class Row extends React.Component {
         </td>
 
         <td>
-          <Tags tags={message.getTags} limit={3} />
+          <Tags tags={message.getTags} limit={1} />
         </td>
 
         <td>
