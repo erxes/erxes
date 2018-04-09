@@ -47,6 +47,9 @@ class CompanyForm extends React.Component {
 
     this.action = this.action.bind(this);
     this.renderFormGroup = this.renderFormGroup.bind(this);
+    this.handleCompanySearch = this.handleCompanySearch.bind(this);
+    this.handleUserSearch = this.handleUserSearch.bind(this);
+    this.handleSelect = this.handleSelect.bind(this);
   }
 
   action(e) {
@@ -103,6 +106,18 @@ class CompanyForm extends React.Component {
     }));
   }
 
+  handleSelect(selectedOption, name) {
+    this.setState({ [name]: selectedOption ? selectedOption.value : null });
+  }
+
+  handleCompanySearch(value) {
+    searchCompany(value, companies => this.setState({ companies }));
+  }
+
+  handleUserSearch(value) {
+    searchUser(value, users => this.setState({ users }));
+  }
+
   renderFormGroup(label, props) {
     return (
       <FormGroup>
@@ -138,14 +153,13 @@ class CompanyForm extends React.Component {
               <ControlLabel>Parent Company</ControlLabel>
               <Select
                 placeholder="Search..."
-                onInputChange={value =>
-                  searchCompany(value, companies =>
-                    this.setState({ companies })
-                  )
+                onFocus={() =>
+                  companies.length < 1 && this.handleCompanySearch('')
                 }
-                onChange={selectedOption => {
-                  this.setState({ parentCompanyId: selectedOption.value });
-                }}
+                onInputChange={this.handleCompanySearch}
+                onChange={option =>
+                  this.handleSelect(option, 'parentCompanyId')
+                }
                 value={this.state.parentCompanyId}
                 options={this.generateCompanyParams(companies)}
               />
@@ -184,12 +198,9 @@ class CompanyForm extends React.Component {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search..."
-                onInputChange={value =>
-                  searchUser(value, users => this.setState({ users }))
-                }
-                onChange={selectedOption => {
-                  this.setState({ ownerId: selectedOption.value });
-                }}
+                onFocus={() => users.length < 1 && this.handleUserSearch('')}
+                onInputChange={this.handleUserSearch}
+                onChange={option => this.handleSelect(option, 'ownerId')}
                 value={this.state.ownerId}
                 options={this.generateUserParams(users)}
               />

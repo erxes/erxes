@@ -1,7 +1,7 @@
 import React from 'react';
 import Select from 'react-select-plus';
 import PropTypes from 'prop-types';
-import { ModalTrigger } from 'modules/common/components';
+import { ModalTrigger, EmptyState } from 'modules/common/components';
 import { CommonMerge } from '../';
 
 const propTypes = {
@@ -21,6 +21,11 @@ class TargetMergeModal extends React.Component {
     };
 
     this.onSelect = this.onSelect.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
+  }
+
+  handleSearch(value) {
+    this.props.searchObject(value, objects => this.setState({ objects }));
   }
 
   generateOptions(objects) {
@@ -40,6 +45,9 @@ class TargetMergeModal extends React.Component {
     const { object, onSave, basicInfos } = this.props;
     const { selectedObject } = this.state;
 
+    if (!selectedObject._id)
+      return <EmptyState icon="search" text="Please select one to merge" />;
+
     return (
       <CommonMerge
         datas={[object, selectedObject]}
@@ -51,14 +59,12 @@ class TargetMergeModal extends React.Component {
 
   renderSelect() {
     const { objects } = this.state;
-    const { searchObject } = this.props;
 
     return (
       <Select
         placeholder="Search..."
-        onInputChange={value =>
-          searchObject(value, objects => this.setState({ objects }))
-        }
+        onInputChange={this.handleSearch}
+        onFocus={() => objects.length < 1 && this.handleSearch('')}
         onChange={this.onSelect}
         options={this.generateOptions(objects)}
       />
