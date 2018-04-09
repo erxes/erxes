@@ -14,6 +14,14 @@ export default class Form extends React.Component {
     this.state = { doc: this.resetDocState() };
   }
 
+  componentDidMount() {
+    this.props.setHeight();
+  }
+
+  componentDidUpdate() {
+    this.props.setHeight();
+  }
+  
   componentWillUpdate(nextProps) {
     const currentStatus = this.props.currentStatus.status;
     const nextStatus = nextProps.currentStatus.status;
@@ -196,6 +204,7 @@ Form.propTypes = {
   onSubmit: PropTypes.func,
   onCreateNew: PropTypes.func,
   sendEmail: PropTypes.func,
+  setHeight: PropTypes.func
 };
 
 Form.contextTypes = {

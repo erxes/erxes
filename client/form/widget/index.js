@@ -117,5 +117,9 @@ window.addEventListener('message', (event) => {
     container.className = data.className;
   }
 
+  if (data.action === 'changeContainerStyle') {
+    container.style = data.style;
+  }
+
   return null;
 });

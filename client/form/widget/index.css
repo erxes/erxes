@@ -51,43 +51,39 @@
   z-index: 1000000; /* Sit on top */
   left: 0;
   top: 0;
+  bottom: 0;
   min-width: 100%; /* Full width */
-  min-height: 100vh; /* Full height */
   border: none;
-  height: 100%;
+  height: 100% !important;
 }
 
 .erxes-slide-right-iframe,
 .erxes-slide-left-iframe {
   position: fixed;
-  bottom: 0;
+  bottom: 5px;
+  border-radius: 4px;
   width: 380px;
-  height: 200px;
-  max-height: 480px;
+  max-height: 100%;
+  max-height: calc(100% - 10px);
   animation-delay: 1s;
   -webkit-animation-delay: 1s;
   -webkit-animation-duration: 0.3s;
   animation-duration: 0.3s;
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
-}
-
-.erxes-slide-left-iframe.visible-form,
-.erxes-slide-right-iframe.visible-form {
-  height: 480px;
-  box-shadow: none;
+  box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.3);
 }
 
  /* slide in left */
 .erxes-slide-left-iframe {
-  left: 0;
+  left: 5px;
   animation: fadeInLeft 0.3s;
   -webkit-animation: fadeInLeft 0.3s;
 }
 
 /* slide in right */
 .erxes-slide-right-iframe {
-  right: 0;
+  right: 5px;
   animation: fadeInRight 0.3s;
   -webkit-animation: fadeInRight 0.3s;
 }
@@ -97,17 +93,8 @@
   position: initial !important;
   margin: 0 auto;
   height: 100%;
-  box-shadow: 0 3px 18px -2px rgba(0, 0, 0, 0.2);
-}
-
-.erxes-embedded-iframe.visible-form {
-  height: 480px;
-  box-shadow: none;
-}
-
-.erxes-embedded-iframe.visible-form > iframe {
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 3px 18px -2px rgba(0, 0, 0, 0.2);
 }
 
 /* dropdown */
@@ -118,17 +105,14 @@
   top: 0;
   animation-delay: 1s;
   -webkit-animation-delay: 1s;
-  animation: fadeInDown 0.3s;
-  -webkit-animation: fadeInDown 0.3s;
+  animation: fadeInDown;
+  -webkit-animation: fadeInDown;
   -webkit-animation-duration: 0.3s;
   animation-duration: 0.3s;
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
-}
-
-.erxes-dropdown-iframe.visible-form {
-  height: 300px;
-  box-shadow: 0 3px 18px -2px rgba(0, 0, 0, 0.2);
+  max-height: 100%;
+  box-shadow: 0 3px 20px -2px rgba(0, 0, 0, 0.3);
 }
 
 /* shoutbox */
@@ -138,21 +122,13 @@
   right: 0px;
   width: 416px;
   height: 100%;
-  max-height: 560px;
-}
-
-.erxes-shoutbox-iframe > iframe {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  z-index: 100000000;
+  max-height: 100%;
+  max-height: calc(100% - 10px);
 }
 
 .erxes-shoutbox-iframe.erxes-hidden {
-  width: 72px;
-  height: 72px;
+  width: 96px;
 }
-
 
 /* animations */
 @keyframes spin {

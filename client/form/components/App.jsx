@@ -9,6 +9,7 @@ const propTypes = {
   containerClass:PropTypes.string,
   init: PropTypes.func,
   closePopup: PropTypes.func,
+  setHeight: PropTypes.func,
   formData: PropTypes.object,
 };
 
@@ -21,7 +22,7 @@ class App extends React.Component {
     const { formData, closePopup } = this.props;
     const { loadType } = formData;
 
-    if (loadType !== 'popup') {
+    if (loadType === 'shoutbox') {
       return null;
     }
 
@@ -33,21 +34,21 @@ class App extends React.Component {
   }
 
   renderForm() {
-    const { isFormVisible } = this.props;
+    const { isFormVisible, setHeight } = this.props;
 
     if (isFormVisible) {
-      return <Form />
+      return <Form setHeight={setHeight} />
     }
 
     return null;
   }
 
   renderCallout() {
-    const { isCalloutVisible, formData } = this.props;
+    const { isCalloutVisible, formData, setHeight } = this.props;
     const { themeColor } = formData;
 
     if (isCalloutVisible) {
-      return <Callout color={themeColor} formData={formData} />
+      return <Callout setHeight={setHeight} color={themeColor} formData={formData} />
     }
 
     return null;
@@ -68,13 +69,13 @@ class App extends React.Component {
     const { containerClass } = this.props;
 
     return (
-      <div>
+      <div id="erxes-container">
         <div className={containerClass}>
           {this.renderCloseButton()}
           {this.renderCallout()}
           {this.renderForm()}
+          {this.renderShoutboxLauncher()}
         </div>
-        {this.renderShoutboxLauncher()}
       </div>
     )
   }

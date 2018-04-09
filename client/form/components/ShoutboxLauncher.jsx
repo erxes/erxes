@@ -14,7 +14,7 @@ function Launcher({ isFormVisible, onClick, color }) {
   };
 
   const launcherClasses = classNames('erxes-launcher', {
-    'close': isFormVisible
+    'close-launcher': isFormVisible
   });
 
   return (

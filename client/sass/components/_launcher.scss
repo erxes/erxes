@@ -33,7 +33,7 @@
     font-size: 10px;
   }
 
-  &.close {
+  &.close, &.close-launcher {
     background-image: url('/static/images/close.svg') !important;
     background-position: 50%;
     background-size: inherit;
@@ -45,7 +45,7 @@
   }
 
   @media screen and (max-width: $break-small) {
-    &.close {
+    &.close, &.close-launcher {
       display: block;
       height: 40px;
       width: 40px;

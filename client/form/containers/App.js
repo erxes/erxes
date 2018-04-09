@@ -17,11 +17,23 @@ class App extends React.Component {
     });
   }
 
+  setHeight() {
+    const elementsHeight = document.getElementById('erxes-container').clientHeight;
+    postMessage({
+      action: 'changeContainerStyle',
+      style: `height: ${elementsHeight}px;`,
+    });
+  }
+
+  componentDidUpdate() {
+    this.setHeight();
+  }
+
   render() {
     const { isPopupVisible, isFormVisible, isCalloutVisible, formData } = this.props;
     const { loadType } = formData;
 
-    const extendedProps = { ...this.props };
+    const extendedProps = { ...this.props, setHeight: this.setHeight };
 
     let parentClass;
     let containerClass;
@@ -58,17 +70,6 @@ class App extends React.Component {
     if (loadType === 'embedded') {
       parentClass = 'erxes-embedded-iframe';
       containerClass = 'container-embedded';
-
-      if (isFormVisible) {
-        parentClass += ' visible-form';
-      }
-    }
-
-    if (['slideInRight', 'slideInLeft', 'dropdown'].includes(loadType)) {
-      if (isFormVisible) {
-        parentClass += ' visible-form';
-        containerClass += ' visible-form';
-      }
     }
 
     if (loadType === 'shoutbox') {
@@ -96,6 +97,7 @@ const mapStateToProps = state => ({
   isPopupVisible: state.isPopupVisible,
   isFormVisible: state.isFormVisible,
   isCalloutVisible: state.isCalloutVisible,
+  currentStatus: state.currentStatus,
   formData: connection.data.formData,
 });
 

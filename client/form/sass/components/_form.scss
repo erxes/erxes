@@ -1,3 +1,32 @@
+#erxes-container {
+  overflow: hidden;
+
+  .close {
+    outline: 0;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    border-radius: $border-radius;
+    z-index: 9999999999;
+    right: 5px;
+    top: 15px;
+
+    @include prefix((
+      transition: all .3s ease-in-out
+    ), webkit moz ms o);
+
+    @include prefix((
+      transform: translate(0, -25%)
+    ), webkit moz ms o);
+
+    &:hover {
+      background-color: rgba($black, .2);
+      cursor: pointer;
+    }
+  }
+}
+
 // modal form
 .modal-form {
   width: 100%;
@@ -45,30 +74,10 @@
   }
 
   .close {
-    outline: 0;
-    position: absolute;
-    right: 50%;
+    right: 50% !important;
+    top: 65px !important;
     margin-right: -240px;
-    top: 55px;
-    width: 40px;
-    height: 40px;
-    text-align: center;
-    border-radius: $border-radius;
-    z-index: 9999999999;
-
-    @include prefix((
-      transition: all .3s ease-in-out
-    ), webkit moz ms o);
-
-    @include prefix((
-      transform: translate(0, -25%)
-    ), webkit moz ms o);
-
-    &:hover {
-      background-color: rgba($black, .2);
-      cursor: pointer;
-    }
-
+  
     @media screen and (max-width: $break-medium) {
       margin-right: auto;
       right: 10px;
@@ -131,6 +140,8 @@
   .erxes-callout-body {
     margin-bottom: 10px;
     color: #555;
+    width: 100%;
+    display: block;
   }
 
   .form-group {
@@ -246,8 +257,6 @@
 
 // dropdown
 .container-dropdown {
-  box-shadow: 0 3px 18px -2px rgba(0, 0, 0, 0.2);
-
   &.call-out {
     .erxes-form-content {
       display: flex;
@@ -257,24 +266,11 @@
       .erxes-callout-body {
         margin-bottom: 0;
         margin-right: 20px;
+        width: auto;
       }
     
       .btn.btn-block {
         width: auto;
-      }
-    }
-  }
-
-  &.visible-form {
-    height: 300px;
-
-    .erxes-form-content {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    
-      .btn.btn-block {
-        flex-shrink: 0;
       }
     }
   }
@@ -283,65 +279,43 @@
 // slide in
 .container-slide-in-left,
 .container-slide-in-right {
-  display: block;
-  max-height: 480px;
-  position: absolute;
-  bottom: 5px;
-  height: 100%;
-  border-radius: 4px;
-  width: calc(100% - 10px);
-  z-index: 9998;
+  max-width: 380px;
 
   .erxes-form {
     background: $white;
-    max-height: 100%;
     user-select: none;
-    box-shadow: 0 3px 18px -2px rgba($black, 0.2);
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    height: auto;
   }
-}
-
-.container-slide-in-left {
-  right: 5px;
-}
-
-.container-slide-in-right {
-  left: 5px;
 }
 
 // shoutbox form
 .container-shoutbox {
   display: block;
-  bottom: 86px;
-  height: calc(100% - 110px);
-  max-height: 480px;
-  position: absolute;
-  right: 8px;
   border-radius: 4px;
-  width: calc(100% - 36px);
-  z-index: 9998;
+  width: 100%;
+  margin-bottom: 96px;
+  max-width: 416px;
 
   .erxes-form {
-    background: $white;
-    max-height: 100%;
     user-select: none;
-    box-shadow: 0 3px 18px -2px rgba($black, 0.2);
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    height: auto;
+    box-shadow: 0 3px 20px -2px rgba(0, 0, 0, 0.3);
+    margin-left: 10px;
+    margin-right: 20px;
+    animation: fadeInUp;
+    -webkit-animation: fadeInUp;
+    -webkit-animation-duration: 0.3s;
+    animation-duration: 0.3s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+  }
 
-    @media screen and (max-width: $break-small) {
-      width: 100%;
-      max-height: none;
-      height: 100%;
-      right: 0;
-      bottom: 0;
-    }
+  .erxes-launcher {
+    bottom: 20px;
+    right: 20px;
+    animation: bounceIn;
+    -webkit-animation: bounceIn;
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
   }
 }
