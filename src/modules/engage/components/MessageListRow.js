@@ -99,7 +99,7 @@ class Row extends React.Component {
     let status = <Label lblStyle="default">Sending</Label>;
 
     const { message, remove } = this.props;
-    const { stats = {} } = message;
+    const { stats = {}, brand = {} } = message;
 
     const deliveryReports = Object.values(message.deliveryReports || {});
     const totalCount = deliveryReports.length;
@@ -164,6 +164,11 @@ class Row extends React.Component {
             </div>
           )}
         </td>
+
+        <td>
+          <b>{brand ? brand.name : '-'}</b>
+        </td>
+
         <td>
           <Icon icon="calendar" />{' '}
           {moment(message.createdDate).format('DD MMM YYYY')}
