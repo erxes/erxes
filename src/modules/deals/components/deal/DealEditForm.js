@@ -3,24 +3,16 @@ import PropTypes from 'prop-types';
 import Datetime from 'react-datetime';
 import Select from 'react-select-plus';
 import {
-  DataWithLoader,
   Button,
-  Icon,
   FormGroup,
   FormControl,
-  ControlLabel,
-  Tabs,
-  TabTitle
+  ControlLabel
 } from 'modules/common/components';
-import { Form as NoteForm } from 'modules/internalNotes/containers';
-import { ActivityList } from 'modules/activityLogs/components';
-import { WhiteBox } from 'modules/layout/styles';
 import { Alert } from 'modules/common/utils';
 import { CompanySection } from 'modules/companies/components';
 import { CustomerSection } from 'modules/customers/components';
 import ServiceSection from './ServiceSection';
-import { hasAnyActivity } from 'modules/customers/utils';
-import { DealMove } from '../../containers';
+import { DealMove, Tab } from '../../containers';
 import { selectUserOptions } from '../../utils';
 import {
   HeaderContentSmall,
@@ -35,28 +27,22 @@ import {
 const propTypes = {
   deal: PropTypes.object,
   saveDeal: PropTypes.func.isRequired,
-  removeDeal: PropTypes.func.isRequired,
+  removeDeal: PropTypes.func,
   moveDeal: PropTypes.func,
-  stageId: PropTypes.string,
   users: PropTypes.array,
-  length: PropTypes.number,
   dealActivityLog: PropTypes.array,
   loadingLogs: PropTypes.bool
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
-  currentUser: PropTypes.object,
-  boardId: PropTypes.string,
-  pipelineId: PropTypes.string,
   __: PropTypes.func
 };
 
-class DealForm extends React.Component {
+class DealEditForm extends React.Component {
   constructor(props) {
     super(props);
 
-    this.onTabClick = this.onTabClick.bind(this);
     this.onChangeCompany = this.onChangeCompany.bind(this);
     this.onChangeCustomer = this.onChangeCustomer.bind(this);
     this.onDateInputChange = this.onDateInputChange.bind(this);
@@ -71,7 +57,6 @@ class DealForm extends React.Component {
 
     this.state = {
       disabled: false,
-      currentTab: 'activity',
       amount: deal.amount || {},
       // Deal datas
       companies: deal.companies || [],
@@ -83,10 +68,6 @@ class DealForm extends React.Component {
       products: deal.products ? deal.products.map(p => p.product) : [],
       assignedUserIds: (deal.assignedUsers || []).map(user => user._id)
     };
-  }
-
-  onTabClick(currentTab) {
-    this.setState({ currentTab });
   }
 
   onChangeCompany(companies) {
@@ -142,7 +123,7 @@ class DealForm extends React.Component {
   }
 
   save() {
-    const { deal, stageId, length } = this.props;
+    const { deal } = this.props;
     const {
       companies,
       customers,
@@ -158,29 +139,20 @@ class DealForm extends React.Component {
       return Alert.error(__('Enter name'));
     }
 
-    let doc = {
-      name,
-      stageId,
-      order: length
-    };
-
-    // edit
-    if (deal) {
-      if (productsData.length === 0) {
-        return Alert.error(__('Please, select product & service'));
-      }
-
-      doc = {
-        name,
-        companyIds: companies.map(company => company._id),
-        customerIds: customers.map(customer => customer._id),
-        closeDate: closeDate ? new Date(closeDate) : null,
-        description: document.getElementById('description').value,
-        productsData,
-        stageId: deal.stageId,
-        assignedUserIds
-      };
+    if (productsData.length === 0) {
+      return Alert.error(__('Please, select product & service'));
     }
+
+    const doc = {
+      name,
+      companyIds: companies.map(company => company._id),
+      customerIds: customers.map(customer => customer._id),
+      closeDate: closeDate ? new Date(closeDate) : null,
+      description: document.getElementById('description').value,
+      productsData,
+      stageId: deal.stageId,
+      assignedUserIds
+    };
 
     // before save, disable save button
     this.setState({ disabled: true });
@@ -226,73 +198,6 @@ class DealForm extends React.Component {
     );
   }
 
-  renderTabContent() {
-    const { currentTab } = this.state;
-    const { dealActivityLog, deal, loadingLogs } = this.props;
-    const { currentUser } = this.context;
-
-    return (
-      <div
-        style={
-          !hasAnyActivity(dealActivityLog)
-            ? { position: 'relative', height: '400px' }
-            : {}
-        }
-      >
-        <DataWithLoader
-          loading={loadingLogs}
-          count={!loadingLogs && hasAnyActivity(dealActivityLog) ? 1 : 0}
-          data={
-            <ActivityList
-              user={currentUser}
-              activities={dealActivityLog}
-              target={deal.name}
-              type={currentTab} //show logs filtered by type
-            />
-          }
-          emptyText="No Activities"
-          emptyImage="/images/robots/robot-03.svg"
-        />
-      </div>
-    );
-  }
-
-  renderTab() {
-    const { deal } = this.props;
-    const { currentTab } = this.state;
-    const { __ } = this.context;
-
-    return (
-      <Left>
-        <WhiteBox>
-          <Tabs>
-            <TabTitle className="active">
-              <Icon icon="compose" /> {__('New note')}
-            </TabTitle>
-          </Tabs>
-
-          <NoteForm contentType="deal" contentTypeId={deal._id} />
-        </WhiteBox>
-        <Tabs grayBorder>
-          <TabTitle
-            className={currentTab === 'activity' ? 'active' : ''}
-            onClick={() => this.onTabClick('activity')}
-          >
-            {__('Activity')}
-          </TabTitle>
-          <TabTitle
-            className={currentTab === 'notes' ? 'active' : ''}
-            onClick={() => this.onTabClick('notes')}
-          >
-            {__('Notes')}
-          </TabTitle>
-        </Tabs>
-
-        {this.renderTabContent()}
-      </Left>
-    );
-  }
-
   renderSidebar() {
     const { customers, companies, products, productsData } = this.state;
     const { deal } = this.props;
@@ -332,16 +237,8 @@ class DealForm extends React.Component {
 
   renderDealMove() {
     const { deal, moveDeal } = this.props;
-    const { boardId, pipelineId } = this.context;
 
-    return (
-      <DealMove
-        deal={deal}
-        boardId={boardId}
-        pipelineId={pipelineId}
-        moveDeal={moveDeal}
-      />
-    );
+    return <DealMove deal={deal} moveDeal={moveDeal} />;
   }
 
   renderFormContent() {
@@ -349,22 +246,15 @@ class DealForm extends React.Component {
     const { closeDate, amount, assignedUserIds } = this.state;
     const { __ } = this.context;
 
-    const nameField = name => (
-      <HeaderContent>
-        <ControlLabel>Name</ControlLabel>
-        <FormControl id="name" defaultValue={name || ''} required />
-      </HeaderContent>
-    );
-
-    // When add, only show name
-    if (!deal) return nameField();
-
     const { name, description } = deal;
 
     return (
       <div>
         <HeaderRow>
-          {nameField(name)}
+          <HeaderContent>
+            <ControlLabel>Name</ControlLabel>
+            <FormControl id="name" defaultValue={name} required />
+          </HeaderContent>
 
           {this.renderAmount(amount)}
         </HeaderRow>
@@ -419,7 +309,7 @@ class DealForm extends React.Component {
         </FormBody>
 
         <FormBody>
-          {this.renderTab()}
+          <Tab deal={deal} />
           {this.renderSidebar()}
         </FormBody>
       </div>
@@ -455,7 +345,7 @@ class DealForm extends React.Component {
   }
 }
 
-DealForm.propTypes = propTypes;
-DealForm.contextTypes = contextTypes;
+DealEditForm.propTypes = propTypes;
+DealEditForm.contextTypes = contextTypes;
 
-export default DealForm;
+export default DealEditForm;

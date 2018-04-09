@@ -12,7 +12,7 @@ import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import { renderFullName } from 'modules/common/utils';
-import { DealSection } from 'modules/deals/components';
+import { DealSection } from 'modules/deals/containers';
 import { EditInformation } from '../../containers';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { hasAnyActivity } from '../../utils';
@@ -126,7 +126,7 @@ class CustomerDetails extends React.Component {
     const rightSidebar = (
       <Sidebar>
         <CompanyAssociate data={customer} />
-        <DealSection deals={customer.deals || []} />
+        <DealSection customerId={customer._id} />
       </Sidebar>
     );
 

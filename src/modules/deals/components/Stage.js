@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { Icon, ModalTrigger } from 'modules/common/components';
-import { Deal, DealForm } from '../containers';
+import { Deal, DealAddForm } from './';
 import { AddNew } from '../styles/deal';
 import {
   Wrapper,
@@ -38,7 +38,7 @@ class Stage extends React.Component {
 
   showDealForm() {
     const { __ } = this.context;
-    const { stage, deals } = this.props;
+    const { stage } = this.props;
 
     const trigger = (
       <AddNew>
@@ -48,12 +48,7 @@ class Stage extends React.Component {
 
     return (
       <ModalTrigger title="Add a deal" trigger={trigger}>
-        <DealForm
-          stageId={stage._id}
-          length={deals.length}
-          saveDeal={this.props.saveDeal}
-          removeDeal={this.props.removeDeal}
-        />
+        <DealAddForm stageId={stage._id} saveDeal={this.props.saveDeal} />
       </ModalTrigger>
     );
   }

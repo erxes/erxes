@@ -1,9 +1,12 @@
 import Board from './Board';
 import Pipeline from './Pipeline';
 import Stage from './Stage';
-import Deal from './deal/Deal';
-import DealForm from './deal/DealForm';
+import CommonDeal from './deal/CommonDeal';
+import DealEditForm from './deal/DealEditForm';
 import DealMove from './deal/DealMove';
+import DealSection from './deal/DealSection';
+import WithAction from './deal/WithAction';
+import Tab from './deal/editForm/Tab';
 import ProductChooser from './product/ProductChooser';
 import ProductItemForm from './product/ProductItemForm';
 
@@ -11,9 +14,12 @@ export {
   Board,
   Stage,
   Pipeline,
-  Deal,
-  DealForm,
+  CommonDeal,
+  DealMove,
+  DealSection,
+  WithAction,
+  Tab,
+  DealEditForm,
   ProductChooser,
-  ProductItemForm,
-  DealMove
+  ProductItemForm
 };

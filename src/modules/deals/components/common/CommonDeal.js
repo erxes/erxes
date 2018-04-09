@@ -1,15 +1,42 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Icon } from 'modules/common/components';
+import { ModalTrigger, Icon } from 'modules/common/components';
+import { DealEditForm } from '../../containers';
 import { ItemCounter, UserCounter } from '../';
-import { Date, Amount, Footer } from '../../styles/deal';
+import { Date, Amount, Footer, ContainerHover } from '../../styles/deal';
 
 const propTypes = {
-  deal: PropTypes.object.isRequired
+  deal: PropTypes.object.isRequired,
+  saveDeal: PropTypes.func.isRequired,
+  removeDeal: PropTypes.func.isRequired,
+  moveDeal: PropTypes.func.isRequired
 };
 
 class Deal extends React.Component {
+  showEditForm() {
+    const { deal, saveDeal, removeDeal, moveDeal } = this.props;
+
+    const trigger = (
+      <ContainerHover>
+        <div>
+          <Icon icon="edit" />
+        </div>
+      </ContainerHover>
+    );
+
+    return (
+      <ModalTrigger title="Edit deal" trigger={trigger} size="lg">
+        <DealEditForm
+          deal={deal}
+          saveDeal={saveDeal}
+          moveDeal={moveDeal}
+          removeDeal={removeDeal}
+        />
+      </ModalTrigger>
+    );
+  }
+
   renderDate(closeDate) {
     if (!closeDate) return null;
 
@@ -36,11 +63,12 @@ class Deal extends React.Component {
 
   render() {
     const { deal } = this.props;
-    const products = deal.products.map(p => p.product);
+    const products = (deal.products || []).map(p => p.product);
 
     return (
-      <div>
+      <Fragment>
         <h4>{deal.name}</h4>
+
         <ItemCounter items={products} />
         <ItemCounter color="#F7CE53" items={deal.companies || []} />
         <ItemCounter color="#3CCC38" items={deal.customers || []} />
@@ -51,7 +79,9 @@ class Deal extends React.Component {
 
           <UserCounter users={deal.assignedUsers || []} />
         </Footer>
-      </div>
+
+        {this.showEditForm()}
+      </Fragment>
     );
   }
 }

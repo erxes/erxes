@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
-import { ModalTrigger, Icon } from 'modules/common/components';
-import { DealForm } from '../../containers';
-import { CommonDeal } from '../';
-import { Container, ContainerHover } from '../../styles/deal';
+import { CommonDeal } from '../../containers';
+import { Container } from '../../styles/deal';
 
 const propTypes = {
-  deal: PropTypes.object.isRequired,
+  dealId: PropTypes.string.isRequired,
   index: PropTypes.number.isRequired,
   saveDeal: PropTypes.func.isRequired,
   removeDeal: PropTypes.func.isRequired,
@@ -15,34 +13,11 @@ const propTypes = {
 };
 
 class Deal extends React.Component {
-  showEditForm() {
-    const { deal, saveDeal, removeDeal, moveDeal } = this.props;
-
-    const trigger = (
-      <ContainerHover>
-        <div>
-          <Icon icon="edit" />
-        </div>
-      </ContainerHover>
-    );
-
-    return (
-      <ModalTrigger title="Edit deal" trigger={trigger} size="lg">
-        <DealForm
-          deal={deal}
-          saveDeal={saveDeal}
-          moveDeal={moveDeal}
-          removeDeal={removeDeal}
-        />
-      </ModalTrigger>
-    );
-  }
-
   render() {
-    const { deal, index } = this.props;
+    const { dealId, saveDeal, removeDeal, moveDeal, index } = this.props;
 
     return (
-      <Draggable draggableId={deal._id} index={index}>
+      <Draggable draggableId={dealId} index={index}>
         {(provided, snapshot) => (
           <div>
             <Container
@@ -51,9 +26,12 @@ class Deal extends React.Component {
               {...provided.dragHandleProps}
               isDragging={snapshot.isDragging}
             >
-              <CommonDeal deal={deal} />
-
-              {this.showEditForm()}
+              <CommonDeal
+                dealId={dealId}
+                saveDeal={saveDeal}
+                removeDeal={removeDeal}
+                moveDeal={moveDeal}
+              />
             </Container>
             {provided.placeholder}
           </div>
