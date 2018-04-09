@@ -25,7 +25,7 @@ class SuccessStep extends Component {
     const formData = props.formData || [];
 
     this.state = {
-      successAction: formData.successAction
+      successAction: formData.successAction || 'onPage'
     };
 
     this.onChangeFunction = this.onChangeFunction.bind(this);
@@ -144,9 +144,31 @@ class SuccessStep extends Component {
     }
   }
 
-  render() {
+  renderThankContent() {
     const { thankContent } = this.props;
+    const { successAction } = this.state;
+
+    if (successAction === 'onPage') {
+      return (
+        <FormGroup>
+          <ControlLabel>Thank content</ControlLabel>
+          <FormControl
+            id="thankContent"
+            type="text"
+            componentClass="textarea"
+            defaultValue={thankContent}
+            onChange={e =>
+              this.onChangeFunction('thankContent', e.target.value)
+            }
+          />
+        </FormGroup>
+      );
+    }
+  }
+
+  render() {
     const formData = this.props.formData || {};
+    const { successAction } = this.state;
 
     return (
       <FlexItem>
@@ -155,7 +177,7 @@ class SuccessStep extends Component {
             <ControlLabel>On success</ControlLabel>
             <FormControl
               componentClass="select"
-              defaultValue={formData.successAction}
+              defaultValue={successAction}
               onChange={this.handleSuccessActionChange}
               id="successAction"
             >
@@ -168,19 +190,7 @@ class SuccessStep extends Component {
 
           {this.renderEmailFields(formData)}
           {this.renderRedirectUrl(formData)}
-
-          <FormGroup>
-            <ControlLabel>Thank content</ControlLabel>
-            <FormControl
-              id="thankContent"
-              type="text"
-              componentClass="textarea"
-              defaultValue={thankContent}
-              onChange={e =>
-                this.onChangeFunction('thankContent', e.target.value)
-              }
-            />
-          </FormGroup>
+          {this.renderThankContent()}
         </LeftItem>
 
         <Preview>
