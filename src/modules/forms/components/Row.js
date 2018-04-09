@@ -94,6 +94,7 @@ class Row extends Component {
 
     if (form.contactsGathered && form.viewCount) {
       percentage = form.contactsGathered / form.viewCount * 100;
+      percentage = percentage.toString();
     }
 
     const onChange = e => {
@@ -110,7 +111,7 @@ class Row extends Component {
         <td>{integration.name}</td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>{form.viewCount || 0}</td>
-        <td>{percentage} %</td>
+        <td>{percentage.substring(0, 4)} %</td>
         <td>{form.contactsGathered || 0}</td>
         <td>{moment(form.createdDate).format('ll')}</td>
         <td>{this.renderUser(createdUserId)}</td>
