@@ -23,7 +23,8 @@ const propTypes = {
   otherProperties: PropTypes.node,
   fieldsGroups: PropTypes.array.isRequired,
   customFieldsData: PropTypes.object,
-  wide: PropTypes.bool
+  wide: PropTypes.bool,
+  refetch: PropTypes.func
 };
 
 class LeftSidebar extends ManageGroups {
@@ -130,7 +131,7 @@ class LeftSidebar extends ManageGroups {
   }
 
   render() {
-    const { customer, wide } = this.props;
+    const { customer, wide, refetch } = this.props;
 
     return (
       <Sidebar wide={wide} footer={this.renderSidebarFooter()}>
@@ -143,7 +144,7 @@ class LeftSidebar extends ManageGroups {
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
-        <TaggerSection data={customer} type="customer" />
+        <TaggerSection data={customer} type="customer" afterSave={refetch} />
       </Sidebar>
     );
   }
