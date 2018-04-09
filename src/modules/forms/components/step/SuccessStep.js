@@ -5,14 +5,7 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import {
-  EmbeddedPreview,
-  PopupPreview,
-  ShoutboxPreview,
-  DropdownPreview,
-  SlideLeftPreview,
-  SlideRightPreview
-} from './preview';
+import { SuccessPreview } from './preview';
 import { FlexItem, LeftItem, Preview } from './style';
 
 const propTypes = {
@@ -35,7 +28,6 @@ class SuccessStep extends Component {
       successAction: formData.successAction
     };
 
-    this.renderPreview = this.renderPreview.bind(this);
     this.onChangeFunction = this.onChangeFunction.bind(this);
     this.handleSuccessActionChange = this.handleSuccessActionChange.bind(this);
   }
@@ -152,32 +144,6 @@ class SuccessStep extends Component {
     }
   }
 
-  renderPreview() {
-    const { type } = this.props;
-
-    if (type === 'shoutbox') {
-      return <ShoutboxPreview {...this.props} />;
-    }
-
-    if (type === 'popup') {
-      return <PopupPreview {...this.props} />;
-    }
-
-    if (type === 'dropdown') {
-      return <DropdownPreview {...this.props} />;
-    }
-
-    if (type === 'slideInLeft') {
-      return <SlideLeftPreview {...this.props} />;
-    }
-
-    if (type === 'slideInRight') {
-      return <SlideRightPreview {...this.props} />;
-    }
-
-    return <EmbeddedPreview {...this.props} />;
-  }
-
   render() {
     const { thankContent } = this.props;
     const formData = this.props.formData || {};
@@ -217,7 +183,9 @@ class SuccessStep extends Component {
           </FormGroup>
         </LeftItem>
 
-        <Preview>{this.renderPreview()}</Preview>
+        <Preview>
+          <SuccessPreview {...this.props} />
+        </Preview>
       </FlexItem>
     );
   }

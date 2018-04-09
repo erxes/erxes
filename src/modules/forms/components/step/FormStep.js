@@ -7,14 +7,7 @@ import {
   Button,
   ControlLabel
 } from 'modules/common/components';
-import {
-  EmbeddedPreview,
-  PopupPreview,
-  ShoutboxPreview,
-  DropdownPreview,
-  SlideLeftPreview,
-  SlideRightPreview
-} from './preview';
+import { FormPreview } from './preview';
 import { colors } from 'modules/common/styles';
 import { FlexItem, FlexColumn, LeftItem, Footer, Preview } from './style';
 
@@ -114,68 +107,6 @@ class FormStep extends Component {
     editingField[attributeName] = value;
 
     this.setState({ editingField });
-  }
-
-  renderPreview() {
-    const { type } = this.props;
-
-    if (type === 'shoutbox') {
-      return (
-        <ShoutboxPreview
-          {...this.props}
-          fields={this.state.fields}
-          onFieldEdit={this.onFieldEdit}
-        />
-      );
-    }
-
-    if (type === 'popup') {
-      return (
-        <PopupPreview
-          {...this.props}
-          fields={this.state.fields}
-          onFieldEdit={this.onFieldEdit}
-        />
-      );
-    }
-
-    if (type === 'dropdown') {
-      return (
-        <DropdownPreview
-          {...this.props}
-          fields={this.state.fields}
-          onFieldEdit={this.onFieldEdit}
-        />
-      );
-    }
-
-    if (type === 'slideInLeft') {
-      return (
-        <SlideLeftPreview
-          {...this.props}
-          fields={this.state.fields}
-          onFieldEdit={this.onFieldEdit}
-        />
-      );
-    }
-
-    if (type === 'slideInRight') {
-      return (
-        <SlideRightPreview
-          {...this.props}
-          fields={this.state.fields}
-          onFieldEdit={this.onFieldEdit}
-        />
-      );
-    }
-
-    return (
-      <EmbeddedPreview
-        {...this.props}
-        fields={this.state.fields}
-        onFieldEdit={this.onFieldEdit}
-      />
-    );
   }
 
   renderButtons() {
@@ -377,7 +308,13 @@ class FormStep extends Component {
           {this.footerActions()}
         </FlexColumn>
 
-        <Preview>{this.renderPreview()}</Preview>
+        <Preview>
+          <FormPreview
+            {...this.props}
+            fields={this.state.fields}
+            onFieldEdit={this.onFieldEdit}
+          />
+        </Preview>
       </FlexItem>
     );
   }

@@ -1,14 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import {
-  EmbeddedPreview,
-  PopupPreview,
-  ShoutboxPreview,
-  DropdownPreview,
-  SlideLeftPreview,
-  SlideRightPreview
-} from './preview';
+import { CalloutPreview } from './preview';
 import { FormGroup, ControlLabel } from 'modules/common/components';
 import { dimensions, colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
@@ -79,32 +72,6 @@ class ChooseType extends Component {
     return this.props.onChange('type', value);
   }
 
-  renderPreview() {
-    const { type } = this.props;
-
-    if (type === 'shoutbox') {
-      return <ShoutboxPreview {...this.props} />;
-    }
-
-    if (type === 'popup') {
-      return <PopupPreview {...this.props} />;
-    }
-
-    if (type === 'dropdown') {
-      return <DropdownPreview {...this.props} />;
-    }
-
-    if (type === 'slideInLeft') {
-      return <SlideLeftPreview {...this.props} />;
-    }
-
-    if (type === 'slideInRight') {
-      return <SlideRightPreview {...this.props} />;
-    }
-
-    return <EmbeddedPreview {...this.props} />;
-  }
-
   render() {
     return (
       <FlexItem>
@@ -147,7 +114,9 @@ class ChooseType extends Component {
             )}
           </BoxRow>
         </LeftItem>
-        <Preview>{this.renderPreview()}</Preview>
+        <Preview>
+          <CalloutPreview {...this.props} />
+        </Preview>
       </FlexItem>
     );
   }

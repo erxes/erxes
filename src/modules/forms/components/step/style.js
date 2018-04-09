@@ -48,6 +48,16 @@ const Preview = styled.div`
   flex-direction: column;
   border-left: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.coreSpacing}px;
+  background: url('/images/previews/preview.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+`;
+
+const FullPreview = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: ${dimensions.coreSpacing}px;
 `;
 
 const CenterContainer = styled.div`
@@ -57,17 +67,14 @@ const CenterContainer = styled.div`
   align-items: center;
   justify-content: center;
   height: 100%;
-  background: url('/images/previews/preview.png');
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
 `;
 
 const Embedded = styled.div`
   flex: 1;
   position: absolute;
-  top: 14%;
-  left: 9%;
-  width: 64%;
+  top: 10%;
+  left: 6%;
+  width: 68%;
   background: ${colors.bgLight};
   padding: ${dimensions.unitSpacing / 2}px;
   box-shadow: 0 0 ${dimensions.unitSpacing}px ${colors.colorShadowGray} inset;
@@ -534,5 +541,6 @@ export {
   SlideLeftContent,
   ThankContent,
   Footer,
+  FullPreview,
   FlexColumn
 };

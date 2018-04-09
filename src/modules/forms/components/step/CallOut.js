@@ -9,14 +9,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { dimensions, colors } from 'modules/common/styles';
-import {
-  EmbeddedPreview,
-  PopupPreview,
-  ShoutboxPreview,
-  DropdownPreview,
-  SlideLeftPreview,
-  SlideRightPreview
-} from './preview';
+import { CalloutPreview } from './preview';
 import { FlexItem, FlexColumn, LeftItem, Footer, Preview } from './style';
 
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
@@ -70,7 +63,8 @@ const propTypes = {
   bodyValue: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
-  image: PropTypes.string
+  image: PropTypes.string,
+  skip: PropTypes.bool
 };
 
 const defaultValue = {
@@ -135,32 +129,6 @@ class CallOut extends Component {
         this.props.onChange('logoPreviewUrl', result);
       }
     });
-  }
-
-  renderPreview() {
-    const { type } = this.props;
-
-    if (type === 'shoutbox') {
-      return <ShoutboxPreview {...this.props} />;
-    }
-
-    if (type === 'popup') {
-      return <PopupPreview {...this.props} />;
-    }
-
-    if (type === 'dropdown') {
-      return <DropdownPreview {...this.props} />;
-    }
-
-    if (type === 'slideInLeft') {
-      return <SlideLeftPreview {...this.props} />;
-    }
-
-    if (type === 'slideInRight') {
-      return <SlideRightPreview {...this.props} />;
-    }
-
-    return <EmbeddedPreview {...this.props} />;
   }
 
   renderUploadImage() {
@@ -254,7 +222,7 @@ class CallOut extends Component {
           {this.footerActions()}
         </FlexColumn>
 
-        <Preview>{!skip && this.renderPreview()}</Preview>
+        <Preview>{!skip && <CalloutPreview {...this.props} />}</Preview>
       </FlexItem>
     );
   }

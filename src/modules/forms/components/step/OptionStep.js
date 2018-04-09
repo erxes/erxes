@@ -7,14 +7,7 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import {
-  EmbeddedPreview,
-  PopupPreview,
-  ShoutboxPreview,
-  DropdownPreview,
-  SlideLeftPreview,
-  SlideRightPreview
-} from './preview';
+import { FormPreview } from './preview';
 import {
   FlexItem,
   LeftItem,
@@ -44,7 +37,6 @@ class OptionStep extends Component {
   constructor(props) {
     super(props);
 
-    this.renderPreview = this.renderPreview.bind(this);
     this.onColorChange = this.onColorChange.bind(this);
     this.onChangeFunction = this.onChangeFunction.bind(this);
   }
@@ -69,32 +61,6 @@ class OptionStep extends Component {
         <div style={{ backgroundColor: value }} />
       </BackgroundSelector>
     );
-  }
-
-  renderPreview() {
-    const { type } = this.props;
-
-    if (type === 'shoutbox') {
-      return <ShoutboxPreview {...this.props} />;
-    }
-
-    if (type === 'popup') {
-      return <PopupPreview {...this.props} />;
-    }
-
-    if (type === 'dropdown') {
-      return <DropdownPreview {...this.props} />;
-    }
-
-    if (type === 'slideInLeft') {
-      return <SlideLeftPreview {...this.props} />;
-    }
-
-    if (type === 'slideInRight') {
-      return <SlideRightPreview {...this.props} />;
-    }
-
-    return <EmbeddedPreview {...this.props} />;
   }
 
   render() {
@@ -166,7 +132,9 @@ class OptionStep extends Component {
           </ColorPick>
         </LeftItem>
 
-        <Preview>{this.renderPreview()}</Preview>
+        <Preview>
+          <FormPreview {...this.props} />
+        </Preview>
       </FlexItem>
     );
   }
