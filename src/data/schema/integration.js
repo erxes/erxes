@@ -7,6 +7,8 @@ export const types = `
     languageCode: String
     code: String
     formId: String
+    tagIds: [String]
+    tags: [Tag]
     formData: JSON
     messengerData: JSON
     twitterData: JSON
@@ -16,6 +18,14 @@ export const types = `
     brand: Brand
     form: Form
     channels: [Channel]
+  }
+
+  type integrationsTotalCount {
+    total: Int
+    byTag: JSON
+    byChannel: JSON
+    byBrand: JSON
+    byKind: JSON
   }
 
   input IntegrationFormData {
@@ -69,11 +79,12 @@ export const queries = `
     kind: String,
     searchValue: String,
     channelId: String,
-    brandId: String
+    brandId: String,
+    tag: String
   ): [Integration]
 
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount(kind: String, channelId: String, brandId: String): Int
+  integrationsTotalCount: integrationsTotalCount
   integrationGetTwitterAuthUrl: String
   integrationFacebookAppsList: [JSON]
   integrationFacebookPagesList(appId: String): [JSON]

@@ -1,4 +1,4 @@
-import { Channels, Brands, Forms } from '../../db/models';
+import { Channels, Brands, Forms, Tags } from '../../db/models';
 
 export default {
   brand(integration) {
@@ -11,5 +11,8 @@ export default {
 
   channels(integration) {
     return Channels.find({ integrationIds: { $in: [integration._id] } });
+  },
+  tags(integration) {
+    return Tags.find({ _id: { $in: integration.tagIds || [] } });
   },
 };

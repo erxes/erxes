@@ -4,6 +4,18 @@ import { Fields } from './';
 import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import { field } from './utils';
 
+// schema for form's callout component
+const CalloutSchema = mongoose.Schema(
+  {
+    title: field({ type: String, optional: true }),
+    body: field({ type: String, optional: true }),
+    buttonText: field({ type: String, optional: true }),
+    featuredImage: field({ type: String, optional: true }),
+    skip: field({ type: Boolean, optional: true }),
+  },
+  { _id: false },
+);
+
 // schema for form document
 const FormSchema = mongoose.Schema({
   _id: field({ pkey: true }),
@@ -14,13 +26,13 @@ const FormSchema = mongoose.Schema({
   }),
   buttonText: field({ type: String, optional: true }),
   themeColor: field({ type: String, optional: true }),
-  featuredImage: field({ type: String, optional: true }),
   code: field({ type: String }),
   createdUserId: field({ type: String }),
   createdDate: field({
     type: Date,
     default: Date.now,
   }),
+  callout: field({ type: CalloutSchema, default: {} }),
   viewCount: field({ type: Number }),
   contactsGathered: field({ type: Number }),
 });
@@ -49,7 +61,7 @@ class Form {
    * @param {string} doc.description - Form description
    * @param {string} doc.buttonText - Form submit button text
    * @param {string} doc.themeColor - Form theme color
-   * @param {string} doc.featuredImage - Form featured image
+   * @param {Object} doc.callout - Form's callout component detail
    * @param {Date} doc.createdDate - Form creation date
    * @param {Object|string} createdUser - The user who is creating this form,
    * can be both user id or user object
@@ -76,13 +88,13 @@ class Form {
    * @param {string} object.description - Form description
    * @param {string} object.buttonText - Form submit button text
    * @param {string} object.themeColor - Form theme color
-   * @param {string} object.featuredImage - Form featured image
+   * @param {Object} object.callout - Form's callout component detail
    * @return {Promise} returns Promise resolving updated Form document
    */
-  static async updateForm(_id, { title, description, buttonText, themeColor, featuredImage }) {
+  static async updateForm(_id, { title, description, buttonText, themeColor, callout }) {
     await this.update(
       { _id },
-      { $set: { title, description, buttonText, themeColor, featuredImage } },
+      { $set: { title, description, buttonText, themeColor, callout } },
       { runValidators: true },
     );
 

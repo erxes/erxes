@@ -277,6 +277,7 @@ export const integrationFactory = async (params = {}) => {
       params.formData === 'form'
         ? params.formData
         : kind === 'form' ? { thankContent: 'thankContent' } : null,
+    tagIds: params.tagIds || [],
   };
 
   return Integrations.create(doc);
