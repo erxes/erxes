@@ -36,8 +36,11 @@ const ContainerHover = styled.div`
   cursor: pointer;
 `;
 
-const Container = styled.div`
+const ContainerOut = styled.div`
   position: relative;
+`;
+
+const Container = styled.div`
   overflow: hidden;
   margin-bottom: 10px;
   padding: 10px;
@@ -289,6 +292,7 @@ const ItemList = styled.ul`
 
 export {
   AddNew,
+  ContainerOut,
   Container,
   SectionContainer,
   ContainerHover,

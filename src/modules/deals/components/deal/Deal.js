@@ -4,7 +4,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import { ModalTrigger } from 'modules/common/components';
 import { DealForm } from '../../containers';
 import { CommonDeal } from '../';
-import { Container, ContainerHover } from '../../styles/deal';
+import { ContainerOut, Container, ContainerHover } from '../../styles/deal';
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
@@ -34,7 +34,7 @@ class Deal extends React.Component {
     const { deal, index } = this.props;
 
     return (
-      <Fragment>
+      <ContainerOut>
         <Draggable draggableId={deal._id} index={index}>
           {(provided, snapshot) => (
             <Fragment>
@@ -50,8 +50,9 @@ class Deal extends React.Component {
             </Fragment>
           )}
         </Draggable>
+
         {this.showEditForm()}
-      </Fragment>
+      </ContainerOut>
     );
   }
 }
