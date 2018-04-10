@@ -13,12 +13,12 @@ class Callout extends Component {
   componentDidMount() {
     this.props.setHeight();
   }
-  
+
   render() {
     const { formData, onSubmit, color } = this.props;
     const { callout } = formData || {};
     const { skip, title, buttonText, body } = callout;
-    
+
     if (skip) {
       return null;
     }

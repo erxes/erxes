@@ -21,7 +21,7 @@ export default class Form extends React.Component {
   componentDidUpdate() {
     this.props.setHeight();
   }
-  
+
   componentWillUpdate(nextProps) {
     const currentStatus = this.props.currentStatus.status;
     const nextStatus = nextProps.currentStatus.status;
