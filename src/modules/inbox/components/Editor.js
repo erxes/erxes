@@ -359,7 +359,7 @@ export default class Editor extends Component {
         ContentState.createFromText('')
       );
 
-      this.setState({ editorState });
+      this.setState({ editorState: EditorState.moveFocusToEnd(editorState) });
 
       return null;
     }
