@@ -650,5 +650,7 @@
   "Bounce": "Үсэрсэн",
   "Rendering Failure": "Хөрвүүлэлтын алдаа",
   "Rejected": "Татгалзсан",
-  "No customer": "Харилцагч байхгүй байна"
+  "No customer": "Харилцагч байхгүй байна",
+  "Action": "Үйлдэл",
+  "Please select one to merge": "Нэгийг сонгоно уу"
 }

@@ -646,5 +646,7 @@
   "Complaint": "Complaint",
   "Bounce": "Bounce",
   "Rendering Failure": "Rendering Failure",
-  "Rejected": "Rejected"
+  "Rejected": "Rejected",
+  "Action": "Action",
+  "Please select one to merge": "Please select one to merge"
 }

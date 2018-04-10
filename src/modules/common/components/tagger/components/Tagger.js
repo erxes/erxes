@@ -91,7 +91,7 @@ class Tagger extends Component {
 
     tag(param, error => {
       if (error) {
-        return Alert.error(error.reason);
+        return Alert.error(error.message);
       }
 
       const message =

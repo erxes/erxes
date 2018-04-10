@@ -13,6 +13,7 @@ import {
   FormColumn,
   ColumnTitle
 } from 'modules/common/styles/styles';
+import { searchUser } from 'modules/common/utils';
 import {
   CUSTOMER_LEAD_STATUS_TYPES,
   CUSTOMER_LIFECYCLE_STATE_TYPES
@@ -20,8 +21,7 @@ import {
 
 const propTypes = {
   customer: PropTypes.object,
-  action: PropTypes.func.isRequired,
-  users: PropTypes.array
+  action: PropTypes.func.isRequired
 };
 
 const contextTypes = {
@@ -37,11 +37,13 @@ class CustomerForm extends React.Component {
     this.state = {
       ownerId: customer.ownerId || '',
       doNotDisturb: customer.doNotDisturb || 'No',
-      hasAuthority: customer.hasAuthority || 'No'
+      hasAuthority: customer.hasAuthority || 'No',
+      users: []
     };
 
     this.renderFormGroup = this.renderFormGroup.bind(this);
     this.action = this.action.bind(this);
+    this.handleUserSearch = this.handleUserSearch.bind(this);
   }
 
   action(e) {
@@ -91,6 +93,14 @@ class CustomerForm extends React.Component {
     }));
   }
 
+  handleUserSearch(value) {
+    searchUser(value, users => this.setState({ users }));
+  }
+
+  getVisitorInfo(customer, key) {
+    return customer.visitorContactInfo && customer.visitorContactInfo[key];
+  }
+
   renderFormGroup(label, props) {
     return (
       <FormGroup>
@@ -102,8 +112,9 @@ class CustomerForm extends React.Component {
 
   render() {
     const { __, closeModal } = this.context;
-    const { customer = {}, users } = this.props;
+    const { customer = {} } = this.props;
     const { links = {} } = customer;
+    const { users } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>
@@ -119,7 +130,8 @@ class CustomerForm extends React.Component {
             {this.renderFormGroup('Email', {
               id: 'customer-email',
               type: 'email',
-              defaultValue: customer.email || '',
+              defaultValue:
+                customer.email || this.getVisitorInfo(customer, 'email') || '-',
               required: true
             })}
 
@@ -127,8 +139,12 @@ class CustomerForm extends React.Component {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search..."
+                onFocus={() => users.length < 1 && this.handleUserSearch('')}
+                onInputChange={this.handleUserSearch}
                 onChange={selectedOption => {
-                  this.setState({ ownerId: selectedOption.value });
+                  this.setState({
+                    ownerId: selectedOption ? selectedOption.value : null
+                  });
                 }}
                 value={this.state.ownerId}
                 options={this.generateUserParams(users)}
@@ -162,7 +178,8 @@ class CustomerForm extends React.Component {
 
             {this.renderFormGroup('Phone', {
               id: 'customer-phone',
-              defaultValue: customer.phone || ''
+              defaultValue:
+                customer.phone || this.getVisitorInfo(customer, 'phone') || '-'
             })}
 
             {this.renderFormGroup('Position', {

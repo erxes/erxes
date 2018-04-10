@@ -13,6 +13,7 @@ import {
   FormColumn,
   ColumnTitle
 } from 'modules/common/styles/styles';
+import { searchCompany, searchUser } from 'modules/common/utils';
 import {
   COMPANY_INDUSTRY_TYPES,
   COMPANY_LEAD_STATUS_TYPES,
@@ -22,10 +23,7 @@ import {
 
 const propTypes = {
   action: PropTypes.func.isRequired,
-  company: PropTypes.object,
-  users: PropTypes.array,
-  companies: PropTypes.array,
-  companiesQuery: PropTypes.object
+  company: PropTypes.object
 };
 
 const contextTypes = {
@@ -42,11 +40,16 @@ class CompanyForm extends React.Component {
     this.state = {
       parentCompanyId: company.parentCompanyId || '',
       ownerId: company.ownerId || '',
-      doNotDisturb: company.doNotDisturb || 'No'
+      doNotDisturb: company.doNotDisturb || 'No',
+      companies: [],
+      users: []
     };
 
     this.action = this.action.bind(this);
     this.renderFormGroup = this.renderFormGroup.bind(this);
+    this.handleCompanySearch = this.handleCompanySearch.bind(this);
+    this.handleUserSearch = this.handleUserSearch.bind(this);
+    this.handleSelect = this.handleSelect.bind(this);
   }
 
   action(e) {
@@ -103,6 +106,18 @@ class CompanyForm extends React.Component {
     }));
   }
 
+  handleSelect(selectedOption, name) {
+    this.setState({ [name]: selectedOption ? selectedOption.value : null });
+  }
+
+  handleCompanySearch(value) {
+    searchCompany(value, companies => this.setState({ companies }));
+  }
+
+  handleUserSearch(value) {
+    searchUser(value, users => this.setState({ users }));
+  }
+
   renderFormGroup(label, props) {
     return (
       <FormGroup>
@@ -114,8 +129,9 @@ class CompanyForm extends React.Component {
 
   render() {
     const { __ } = this.context;
-    const { company = {}, companies, users } = this.props;
+    const { company = {} } = this.props;
     const { links = {} } = company;
+    const { companies, users } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>
@@ -137,9 +153,13 @@ class CompanyForm extends React.Component {
               <ControlLabel>Parent Company</ControlLabel>
               <Select
                 placeholder="Search..."
-                onChange={selectedOption => {
-                  this.setState({ parentCompanyId: selectedOption.value });
-                }}
+                onFocus={() =>
+                  companies.length < 1 && this.handleCompanySearch('')
+                }
+                onInputChange={this.handleCompanySearch}
+                onChange={option =>
+                  this.handleSelect(option, 'parentCompanyId')
+                }
                 value={this.state.parentCompanyId}
                 options={this.generateCompanyParams(companies)}
               />
@@ -178,9 +198,9 @@ class CompanyForm extends React.Component {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search..."
-                onChange={selectedOption => {
-                  this.setState({ ownerId: selectedOption.value });
-                }}
+                onFocus={() => users.length < 1 && this.handleUserSearch('')}
+                onInputChange={this.handleUserSearch}
+                onChange={option => this.handleSelect(option, 'ownerId')}
                 value={this.state.ownerId}
                 options={this.generateUserParams(users)}
               />
