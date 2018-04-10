@@ -276,9 +276,9 @@ class CommonMerge extends Component {
     return (
       <form onSubmit={this.save}>
         <Columns>
-          {datas.map(data => {
+          {datas.map((data, index) => {
             return (
-              <Column key={data._id || Math.random()} className="multiple">
+              <Column key={index} className="multiple">
                 <Title>{renderFullName(data)}</Title>
                 <ul>{this.renderDatas(data)}</ul>
               </Column>
