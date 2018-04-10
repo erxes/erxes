@@ -34,23 +34,24 @@ class Deal extends React.Component {
     const { deal, index } = this.props;
 
     return (
-      <Draggable draggableId={deal._id} index={index}>
-        {(provided, snapshot) => (
-          <Fragment>
-            <Container
-              innerRef={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-              isDragging={snapshot.isDragging}
-            >
-              <CommonDeal deal={deal} />
-
-              {this.showEditForm()}
-            </Container>
-            {provided.placeholder}
-          </Fragment>
-        )}
-      </Draggable>
+      <Fragment>
+        <Draggable draggableId={deal._id} index={index}>
+          {(provided, snapshot) => (
+            <Fragment>
+              <Container
+                innerRef={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                isDragging={snapshot.isDragging}
+              >
+                <CommonDeal deal={deal} />
+              </Container>
+              {provided.placeholder}
+            </Fragment>
+          )}
+        </Draggable>
+        {this.showEditForm()}
+      </Fragment>
     );
   }
 }
