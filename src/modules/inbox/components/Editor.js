@@ -348,6 +348,7 @@ export default class Editor extends Component {
 
         return null;
       }
+
       // call parent's method to save content
       this.props.onShifEnter();
 
