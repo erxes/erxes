@@ -49,6 +49,9 @@ function List({ tags, type, remove, save }, { __ }) {
           <li>
             <Link to="/tags/company">{__('Company')}</Link>
           </li>
+          <li>
+            <Link to="/tags/integration">{__('Integration')}</Link>
+          </li>
         </Dropdown.Menu>
       </Dropdown>
       <ModalTrigger title="Add tag" trigger={trigger}>

@@ -47,8 +47,13 @@ injectGlobal`
     color: #F7CE53 !important;
   }
   /* override */
+  .modal {
+    z-index: 5050;
+  }
+
   .modal-backdrop {
     background-color: #30435C;
+    z-index: 5040;
   } !important
 
   .modal-backdrop.in {
@@ -151,6 +156,9 @@ injectGlobal`
   }
 
   /* tooltip */
+  .tooltip {
+    z-index: 5060;
+  }
 
   .tooltip-inner {
     background-color: #393C40;

@@ -34,6 +34,12 @@ const LeftItem = styled.div`
   flex: 0 0 33.33333%;
   min-width: 43.33333%;
   padding: ${dimensions.coreSpacing}px;
+  opacity: ${props => props.deactive && '0.3'};
+  cursor: ${props => props.deactive && 'not-allowed'};
+
+  input:disabled {
+    cursor: not-allowed;
+  }
 `;
 
 const Preview = styled.div`
@@ -41,6 +47,16 @@ const Preview = styled.div`
   display: flex;
   flex-direction: column;
   border-left: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.coreSpacing}px;
+  background: url('/images/previews/preview.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+`;
+
+const FullPreview = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   padding: ${dimensions.coreSpacing}px;
 `;
 
@@ -50,17 +66,18 @@ const CenterContainer = styled.div`
   position: relative;
   align-items: center;
   justify-content: center;
-  min-height: 500px;
-  background: url('/images/previews/preview.png');
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
+  height: 100%;
 `;
 
 const Embedded = styled.div`
   flex: 1;
-  margin: ${dimensions.coreSpacing}px;
+  position: absolute;
+  top: 10%;
+  left: 6%;
+  width: 68%;
+  background: ${colors.bgLight};
   padding: ${dimensions.unitSpacing / 2}px;
-  box-shadow: 0 0 ${dimensions.unitSpacing}px ${colors.bgMain} inset;
+  box-shadow: 0 0 ${dimensions.unitSpacing}px ${colors.colorShadowGray} inset;
 `;
 
 const FormContainer = styled.div`
@@ -68,13 +85,13 @@ const FormContainer = styled.div`
   border-radius: ${dimensions.unitSpacing / 2}px;
   background-color: ${colors.colorWhite};
   margin: auto;
-  width: 60%;
+  width: 70%;
   overflow: hidden;
   z-index: 1;
   animation: ${fadeIn} 0.5s linear;
 `;
 
-const PopupTitle = styled.div`
+const PreviewTitle = styled.div`
   padding: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorSecondary};
   color: ${colors.colorWhite};
@@ -87,7 +104,7 @@ const PreviewBody = styled.div`
   display: flex;
   overflow: auto;
   max-height: ${props => (props.embedded ? '500px' : '300px')};
-  background: ${colors.bgLight};
+  background-color: ${colors.bgLight};
 
   img {
     max-width: 100px;
@@ -102,6 +119,10 @@ const PreviewBody = styled.div`
 
 const BodyContent = styled.div`
   flex: 1;
+`;
+
+const ThankContent = styled.div`
+  text-align: center;
 `;
 
 const BodyText = styled.span`
@@ -152,6 +173,38 @@ const Picker = styled.div`
 const PreviewWrapper = styled.div`
   padding: 0 !important;
   overflow: auto;
+`;
+
+const DropdownContent = styled.div`
+  flex: 1;
+  box-shadow: 0 5px 8px ${colors.darkShadow};
+  background: ${colors.bgLight};
+
+  ${PreviewWrapper} {
+    align-items: center;
+    justify-content: center;
+
+    ${PreviewBody} {
+      padding: 10px 20px;
+    }
+
+    button {
+      margin: 10px 0;
+    }
+  }
+`;
+
+const SlideLeftContent = styled.div`
+  position: absolute;
+  width: 60%;
+  background: ${colors.bgLight};
+  bottom: 0;
+  left: 0;
+  box-shadow: 3px 0px 5px rgba(0, 0, 0, 0.25);
+
+  ${PreviewTitle} {
+    text-align: inherit;
+  }
 `;
 
 const FormBody = styled.div`
@@ -297,25 +350,24 @@ const CarouselInner = styled.div`
       background-color: rgb(255, 255, 255);
       border: 2px solid
         ${props =>
-          props.selected ? colors.colorPrimary : colors.borderPrimary};
+          props.selected ? colors.colorPrimary : colors.colorShadowGray};
 
       &:hover {
         cursor: pointer;
+        border-color: ${props => !props.selected && colors.borderPrimary};
       }
     }
 
     &:before {
       flex: 1 1 100%;
       display: inline-block;
-      border-top: 2px solid
-        ${props => (props.selected ? colors.colorPrimary : colors.borderDarker)};
+      border-top: 2px solid ${colors.borderDarker};
       content: ' ';
       width: 100%;
     }
 
     &:after {
-      border-top: 2px solid
-        ${props => (props.selected ? colors.colorPrimary : colors.borderDarker)};
+      border-top: 2px solid ${colors.borderDarker};
       content: ' ';
       width: 100%;
     }
@@ -396,7 +448,6 @@ const ResolutionTabs = styled.div`
 
 const DesktopPreview = styled.div`
   background: url('/images/previews/desktop.png') no-repeat;
-  background-size: cover;
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
   flex: 1;
@@ -418,6 +469,7 @@ const TabletPreview = styled.div`
 const MobilePreview = styled.div`
   background: url('/images/previews/mobile.png') no-repeat;
   width: 376px;
+  height: 650px;
   margin: 0 auto;
   padding: 90px ${dimensions.coreSpacing}px;
 
@@ -426,66 +478,30 @@ const MobilePreview = styled.div`
   }
 `;
 
-const StepItem = styled.div`
-  transition: all 0.3s;
-  width: ${props => (props.show ? '100%' : '70px')};
-  box-shadow: 0 0 4px ${colors.colorShadowGray};
-`;
-
-const FullStep = styled.div`
-  background: ${colors.colorWhite};
-  height: 100%;
-  width: 100%;
-  transition: all 0.3s;
-  display: ${props => (props.show ? 'block' : 'none')};
-`;
-
-const StepHeaderContainer = styled.div`
-  height: 55px;
+const Footer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   padding: 0 ${dimensions.coreSpacing}px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   background: ${colors.bgLight};
-  border-bottom: 1px solid ${colors.borderPrimary};
-`;
+  height: ${dimensions.headerSpacing}px;
+  border-top: 1px solid ${colors.borderPrimary};
 
-const StepHeader = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const StepImg = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 35px;
-  width: 35px;
-  > img {
-    max-width: 100%;
-    max-height: 100%;
+  label {
+    margin-bottom: 0;
+    margin-right: ${dimensions.coreSpacing}px;
   }
 `;
 
-const StepHeaderTitle = styled.div`
-  margin-left: ${dimensions.unitSpacing}px;
-`;
-
-const StepContent = styled.div`
-  width: 100%;
-  height: calc(100% - 55px);
-  overflow: hidden;
-`;
-
-const ShortStep = styled.div`
-  width: 70px;
-  height: 100%;
-  background: ${colors.bgLight};
-  cursor: pointer;
-  display: ${props => (props.show ? 'flex' : 'none')};
-  align-items: center;
-  padding: ${dimensions.unitSpacing}px 0;
+const FlexColumn = styled.div`
+  display: flex;
+  min-width: 43.33333%;
   flex-direction: column;
+  justify-content: space-between;
+
+  ${LeftItem} {
+    flex: 1;
+  }
 `;
 
 export {
@@ -496,7 +512,7 @@ export {
   CenterContainer,
   FormContainer,
   PreviewBody,
-  PopupTitle,
+  PreviewTitle,
   BodyText,
   ColorPick,
   ColorPicker,
@@ -506,6 +522,7 @@ export {
   OverlayTrigger,
   BodyContent,
   Embedded,
+  DropdownContent,
   FormBody,
   BoxRow,
   PreviewForm,
@@ -521,12 +538,9 @@ export {
   Tabs,
   CarouselInner,
   PreviewWrapper,
-  StepItem,
-  FullStep,
-  StepHeaderContainer,
-  StepHeader,
-  StepImg,
-  StepHeaderTitle,
-  StepContent,
-  ShortStep
+  SlideLeftContent,
+  ThankContent,
+  Footer,
+  FullPreview,
+  FlexColumn
 };

@@ -1,8 +1,15 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { Button, EmptyState } from 'modules/common/components';
+import { MarkdownWrapper } from '../styles';
+
+const ModalFooter = styled.div`
+  text-align: right;
+  margin-top: 40px;
+`;
 
 const propTypes = {
   integration: PropTypes.object.isRequired
@@ -61,19 +68,31 @@ class Manage extends Component {
   render() {
     return (
       <div>
-        <ReactMarkdown source={this.state.code} />
-        {this.state.code ? (
-          <CopyToClipboard
-            text={this.state.code}
-            onCopy={() => this.setState({ copied: true })}
+        <MarkdownWrapper>
+          <ReactMarkdown source={this.state.code} />
+          {this.state.code ? (
+            <CopyToClipboard
+              text={this.state.code}
+              onCopy={() => this.setState({ copied: true })}
+            >
+              <Button size="small" btnStyle="primary" icon="ios-copy-outline">
+                {this.state.copied ? 'Copied' : 'Copy to clipboard'}
+              </Button>
+            </CopyToClipboard>
+          ) : (
+            <EmptyState icon="code" text="No copyable code" size="small" />
+          )}
+        </MarkdownWrapper>
+
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            icon="close"
+            onClick={() => this.context.closeModal()}
           >
-            <Button size="small" btnStyle="primary" icon="ios-copy-outline">
-              {this.state.copied ? 'Copied' : 'Copy to clipboard'}
-            </Button>
-          </CopyToClipboard>
-        ) : (
-          <EmptyState icon="code" text="No copyable code" size="small" />
-        )}
+            Cancel
+          </Button>
+        </ModalFooter>
       </div>
     );
   }
@@ -81,6 +100,7 @@ class Manage extends Component {
 
 Manage.propTypes = propTypes;
 Manage.contextTypes = {
+  closeModal: PropTypes.func.isRequired,
   __: PropTypes.func
 };
 

@@ -27,7 +27,7 @@ import {
   HeaderRow,
   HeaderContent,
   FormFooter,
-  FormBody,
+  FlexContent,
   Left,
   Right
 } from '../../styles/deal';
@@ -387,7 +387,7 @@ class DealForm extends React.Component {
           </HeaderContentSmall>
         </HeaderRow>
 
-        <FormBody>
+        <FlexContent>
           <Left>
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
@@ -416,12 +416,12 @@ class DealForm extends React.Component {
               />
             </FormGroup>
           </Right>
-        </FormBody>
+        </FlexContent>
 
-        <FormBody>
+        <FlexContent>
           {this.renderTab()}
           {this.renderSidebar()}
-        </FormBody>
+        </FlexContent>
       </div>
     );
   }

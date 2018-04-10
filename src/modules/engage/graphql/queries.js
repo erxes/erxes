@@ -8,6 +8,9 @@ const engageMessages = `
       isLive
       createdDate
       kind
+      brand {
+        name
+      }
       segment {
         _id
         name
@@ -60,6 +63,9 @@ const engageDetailFields = `
   createdDate
   messenger
   stats
+  brand {
+    name
+  }
 `;
 
 const engageMessageDetail = `

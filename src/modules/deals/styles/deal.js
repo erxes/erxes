@@ -3,6 +3,10 @@ import { colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { coreHeight, borderRadius } from './deminsions';
 
+const FlexContent = styled.div`
+  display: flex;
+`;
+
 const AddNew = styled.a`
   display: block;
   height: ${coreHeight}px;
@@ -62,7 +66,7 @@ const Container = styled.div`
     font-weight: normal;
     font-size: 14px;
     margin-bottom: 5px;
-    padding-right: 40px;
+    flex: 1;
   }
 `;
 
@@ -74,15 +78,13 @@ const SectionContainer = styled.div`
 const DealDate = styled.span`
   font-size: 11px;
   color: ${colors.colorCoreGray};
-  position: absolute;
-  right: 10px;
-  top: 10px;
   z-index: 10;
   cursor: help;
+  margin-left: 5px;
+  flex-shrink: 0;
 `;
 
-const HeaderRow = styled.div`
-  display: flex;
+const HeaderRow = FlexContent.extend`
   margin-bottom: 40px;
 `;
 
@@ -146,9 +148,8 @@ const FormFooter = styled.div`
   margin-top: 20px;
 `;
 
-const Footer = styled.div`
+const SpaceContent = FlexContent.extend`
   position: relative;
-  display: flex;
   justify-content: space-between;
 `;
 
@@ -156,17 +157,18 @@ const FooterContent = styled.div`
   flex: 1;
 `;
 
-const FormBody = styled.div`
-  display: flex;
-`;
-
 const Left = styled.div`
   margin-right: 20px;
   flex: 1;
+
+  textarea {
+    resize: none;
+  }
 `;
 
 const Right = styled.div`
   width: 280px;
+  flex-shrink: 0;
 
   button {
     width: 100%;
@@ -193,7 +195,7 @@ const Right = styled.div`
   }
 `;
 
-const MoveContainer = styled.div`
+const MoveContainer = FlexContent.extend`
   display: flex;
   margin-bottom: 20px;
   align-items: center;
@@ -258,6 +260,7 @@ const StageItem = styled.li`
   a {
     position: relative;
     z-index: 10;
+    cursor: pointer;
     background: ${colors.bgLight};
   }
 
@@ -296,7 +299,7 @@ export {
   Container,
   SectionContainer,
   ContainerHover,
-  Footer,
+  SpaceContent,
   FooterContent,
   DealDate,
   HeaderRow,
@@ -306,7 +309,7 @@ export {
   MoveFormContainer,
   PipelineName,
   FormFooter,
-  FormBody,
+  FlexContent,
   Left,
   Right,
   MoveContainer,
