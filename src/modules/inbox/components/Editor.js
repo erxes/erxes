@@ -348,6 +348,7 @@ export default class Editor extends Component {
 
         return null;
       }
+
       // call parent's method to save content
       this.props.onShifEnter();
 
@@ -359,7 +360,7 @@ export default class Editor extends Component {
         ContentState.createFromText('')
       );
 
-      this.setState({ editorState });
+      this.setState({ editorState: EditorState.moveFocusToEnd(editorState) });
 
       return null;
     }
