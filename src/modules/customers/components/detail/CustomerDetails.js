@@ -23,7 +23,8 @@ const propTypes = {
   queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired,
   loadingLogs: PropTypes.bool,
-  history: PropTypes.object
+  history: PropTypes.object,
+  refetch: PropTypes.func
 };
 
 class CustomerDetails extends React.Component {
@@ -78,7 +79,7 @@ class CustomerDetails extends React.Component {
 
   render() {
     const { currentTab } = this.state;
-    const { customer } = this.props;
+    const { customer, refetch } = this.props;
     const { __ } = this.context;
 
     const breadcrumb = [
@@ -133,7 +134,9 @@ class CustomerDetails extends React.Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<EditInformation wide customer={customer} />}
+        leftSidebar={
+          <EditInformation wide customer={customer} refetch={refetch} />
+        }
         rightSidebar={rightSidebar}
         content={content}
         transparent={true}

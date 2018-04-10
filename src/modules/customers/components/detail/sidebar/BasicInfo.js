@@ -4,12 +4,23 @@ import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
-import { renderFullName } from 'modules/common/utils';
+import { renderFullName, confirm } from 'modules/common/utils';
 import { Links, InfoWrapper } from 'modules/common/styles/styles';
-import { CustomerForm } from '../../../containers';
+import { CustomerForm } from 'modules/customers/containers';
+import { Action } from 'modules/customers/styles';
+import { DropdownToggle, Button } from 'modules/common/components';
+import { Dropdown } from 'react-bootstrap';
+import { TargetMergeModal } from 'modules/customers/components';
+import { searchCustomer } from 'modules/common/utils';
+import {
+  CUSTOMER_BASIC_INFO,
+  CUSTOMER_DATAS
+} from 'modules/customers/constants';
 
 const propTypes = {
-  customer: PropTypes.object.isRequired
+  customer: PropTypes.object.isRequired,
+  remove: PropTypes.func.isRequired,
+  merge: PropTypes.func.isRequired
 };
 
 class BasicInfo extends React.Component {
@@ -58,6 +69,42 @@ class BasicInfo extends React.Component {
     );
   }
 
+  renderAction() {
+    const { __ } = this.context;
+    const { remove, merge, customer } = this.props;
+
+    return (
+      <Action>
+        <Dropdown id="dropdown-engage">
+          <DropdownToggle bsRole="toggle">
+            <Button btnStyle="simple" size="medium" icon="chevron-down">
+              {__('Action')}
+            </Button>
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <li>
+              <TargetMergeModal
+                onSave={merge}
+                object={customer}
+                searchObject={searchCustomer}
+                basicInfos={Object.assign(
+                  {},
+                  CUSTOMER_BASIC_INFO,
+                  CUSTOMER_DATAS
+                )}
+              />
+            </li>
+            <li>
+              <a onClick={() => confirm().then(() => remove())}>
+                {__('Delete')}
+              </a>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
+      </Action>
+    );
+  }
+
   renderInfo() {
     const { customer } = this.props;
     const { links = {}, isUser } = customer;
@@ -83,6 +130,8 @@ class BasicInfo extends React.Component {
             <CustomerForm size="lg" customer={customer} />
           </ModalTrigger>
         </InfoWrapper>
+
+        {this.renderAction()}
 
         <SidebarList className="no-link">
           {this.renderRow(

@@ -9,6 +9,7 @@ import { mutations, queries } from '../graphql';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { CompaniesList } from '../components';
 import { COMPANY_INFO } from '../constants';
+import { router } from 'modules/common/utils';
 
 class CompanyListContainer extends Bulk {
   render() {
@@ -21,6 +22,8 @@ class CompanyListContainer extends Bulk {
       companiesMerge,
       history
     } = this.props;
+
+    router.refetchIfUpdated(history, companiesMainQuery);
 
     let columnsConfig =
       companiesListConfigQuery.fieldsDefaultColumnsConfig || [];
