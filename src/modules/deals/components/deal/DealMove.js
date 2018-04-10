@@ -201,8 +201,7 @@ const propTypes = {
 
 DealMoveForm.propTypes = propTypes;
 DealMoveForm.contextTypes = {
-  __: PropTypes.func,
-  closeModal: PropTypes.func.isRequired
+  __: PropTypes.func
 };
 
 export default DealMoveForm;

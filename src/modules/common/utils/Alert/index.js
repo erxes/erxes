@@ -13,7 +13,7 @@ const AlertWrapper = styled.div.attrs({
   transform: translateX(-50%);
   width: auto;
   background: transparent;
-  z-index: 2000;
+  z-index: 5080;
   font-size: 14px;
 `;
 
