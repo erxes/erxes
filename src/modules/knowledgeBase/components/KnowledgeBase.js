@@ -19,9 +19,14 @@ const propTypes = {
 class KnowledgeBase extends Component {
   breadcrumb() {
     const { __ } = this.context;
+
+    const currentCategory = this.props.currentCategory || {};
+    const currentKnowledgeBase = currentCategory.firstTopic || {};
+
     return [
       { title: __('Knowledge base'), link: '/knowledgeBase' },
-      { title: `${this.props.currentCategory.title || ''}` }
+      { title: `${currentKnowledgeBase.title || 'No Category'}` },
+      { title: `${currentCategory.title || ''}` }
     ];
   }
 

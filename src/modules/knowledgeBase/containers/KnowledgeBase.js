@@ -20,6 +20,10 @@ class KnowledgeBase extends React.Component {
   render() {
     const { categoryDetailQuery, location, articlesCountQuery } = this.props;
 
+    if (categoryDetailQuery.loading) {
+      return false;
+    }
+
     const extendedProps = {
       ...this.props,
       queryParams: queryString.parse(location.search),

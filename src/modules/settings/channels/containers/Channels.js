@@ -4,6 +4,7 @@ import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
 import { router as routerUtils } from 'modules/common/utils';
 import { queries } from '../graphql';
 import { Channels } from '../components';
@@ -18,7 +19,16 @@ class ChannelsWithCurrent extends React.Component {
   }
 
   render() {
-    const { channelDetailQuery, location, integrationsCountQuery } = this.props;
+    const {
+      channelDetailQuery,
+      location,
+      integrationsCountQuery,
+      currentChannelId
+    } = this.props;
+
+    if (integrationsCountQuery.loading) {
+      return <Spinner />;
+    }
 
     const extendedProps = {
       ...this.props,
@@ -26,7 +36,10 @@ class ChannelsWithCurrent extends React.Component {
       currentChannel: channelDetailQuery.channelDetail || {},
       loading: channelDetailQuery.loading,
       refetch: channelDetailQuery.refetch,
-      integrationsCount: integrationsCountQuery.integrationsTotalCount || 0
+      integrationsCount:
+        integrationsCountQuery.integrationsTotalCount.byChannel[
+          currentChannelId
+        ] || 0
     };
 
     return <Channels {...extendedProps} />;
