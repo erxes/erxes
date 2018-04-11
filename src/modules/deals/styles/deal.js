@@ -28,22 +28,6 @@ const AddNew = styled.a`
   }
 `;
 
-const ContainerHover = styled.div`
-  position: absolute;
-  opacity: 0;
-  z-index: 1;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  transition: all 0.3s ease;
-  cursor: pointer;
-`;
-
-const ContainerOut = styled.div`
-  position: relative;
-`;
-
 const Container = styled.div`
   overflow: hidden;
   margin-bottom: 10px;
@@ -56,10 +40,6 @@ const Container = styled.div`
     props.isDragging
       ? `10px 15px 35px 4px rgba(0, 0, 0, 0.2)`
       : '0 1px 2px 0 rgba(0, 0, 0, 0.2)'};
-
-  &:hover ${ContainerHover} {
-    opacity: 1;
-  }
 
   h4 {
     margin-top: 0;
@@ -295,10 +275,8 @@ const ItemList = styled.ul`
 
 export {
   AddNew,
-  ContainerOut,
   Container,
   SectionContainer,
-  ContainerHover,
   SpaceContent,
   FooterContent,
   DealDate,
