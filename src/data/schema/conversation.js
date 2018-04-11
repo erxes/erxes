@@ -57,6 +57,11 @@ export const types = `
     customer: Customer
   }
 
+  type ConversationMessageListResponse {
+    list: [ConversationMessage]
+    totalCount: Float
+  }
+
   type ConversationChangedResponse {
     conversationId: String!
     type: String!
@@ -94,6 +99,7 @@ const filterParams = `
 
 export const queries = `
   conversations(${filterParams}): [Conversation]
+  conversationMessages(conversationId: String! skip: Int): ConversationMessageListResponse
   conversationCounts(${filterParams}): JSON
   conversationsTotalCount(${filterParams}): Int
   conversationDetail(_id: String!): Conversation

@@ -6,6 +6,7 @@ import {
   userFactory,
   integrationFactory,
   conversationFactory,
+  conversationMessageFactory,
   channelFactory,
   tagsFactory,
   brandFactory,
@@ -159,6 +160,44 @@ describe('conversationQueries', () => {
     await Channels.remove({});
     await Tags.remove({});
     await Integrations.remove({});
+  });
+
+  test('Conversation messages with skip', async () => {
+    const conversation = await conversationFactory();
+
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+
+    const qry = `
+      query conversationMessages($conversationId: String! $skip: Int) {
+        conversationMessages(conversationId: $conversationId skip: $skip) {
+          list {
+            _id
+          }
+          totalCount
+        }
+      }
+    `;
+
+    const responses = await graphqlRequest(qry, 'conversationMessages', {
+      conversationId: conversation._id,
+      skip: 3,
+    });
+
+    expect(responses.list.length).toBe(10);
+    expect(responses.totalCount).toBe(14);
   });
 
   test('Conversations filtered by ids', async () => {
