@@ -1,4 +1,4 @@
-import { Channels, Brands, Conversations, Tags } from '../../../db/models';
+import { Channels, Brands, Conversations, ConversationMessages, Tags } from '../../../db/models';
 import { CONVERSATION_STATUSES, INTEGRATION_KIND_CHOICES } from '../../constants';
 import QueryBuilder from './conversationQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
@@ -23,7 +23,28 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
-    return Conversations.find(qb.mainQuery()).sort({ updatedAt: -1 }).limit(params.limit);
+    return Conversations.find(qb.mainQuery())
+      .sort({ updatedAt: -1 })
+      .limit(params.limit);
+  },
+
+  /**
+   * Get conversation messages
+   * @param {String} args._id
+   * @param {Integer} args.skip
+   * @return {Promise} filtered messages list by given parameters
+   */
+  async conversationMessages(root, { _id, skip }) {
+    const selector = { conversationId: _id };
+
+    const list = await ConversationMessages.find({ conversationId: _id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(10);
+
+    const totalCount = await ConversationMessages.find(selector).count();
+
+    return { list, totalCount };
   },
 
   /**
