@@ -1,5 +1,5 @@
-import { connect, disconnect } from './db/connection';
-import { Companies, Deals } from './db/models';
+import { connect, disconnect } from '../db/connection';
+import { Companies, Deals } from '../db/models';
 
 export const customCommand = async () => {
   connect();

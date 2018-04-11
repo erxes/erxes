@@ -14,6 +14,7 @@ export const types = `
     messengerReceivedCustomerIds: [String]
     tagIds: [String]
     stats: JSON
+    brand: Brand
 
     email: JSON
     messenger: JSON

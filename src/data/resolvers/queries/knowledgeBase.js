@@ -67,7 +67,7 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseArticles(root, args) {
     const query = await articlesQuery(args);
-    const articles = KnowledgeBaseArticles.find(query).sort({ modifiedDate: -1 });
+    const articles = KnowledgeBaseArticles.find(query).sort({ createdData: -1 });
 
     return paginate(articles, args);
   },

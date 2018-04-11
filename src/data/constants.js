@@ -23,7 +23,8 @@ export const TAG_TYPES = {
   CUSTOMER: 'customer',
   ENGAGE_MESSAGE: 'engageMessage',
   COMPANY: 'company',
-  ALL: ['conversation', 'customer', 'engageMessage', 'company'],
+  INTEGRATION: 'integration',
+  ALL: ['conversation', 'customer', 'engageMessage', 'company', 'integration'],
 };
 
 export const FACEBOOK_DATA_KINDS = {
@@ -63,7 +64,10 @@ export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
   POPUP: 'popup',
   EMBEDDED: 'embedded',
-  ALL: ['', 'shoutbox', 'popup', 'embedded'],
+  DROPDOWN: 'dropdown',
+  SLIDEINLEFT: 'slideInLeft',
+  SLIDEINRIGHT: 'slideInRight',
+  ALL: ['', 'shoutbox', 'popup', 'embedded', 'dropdown', 'slideInLeft', 'slideInRight'],
 };
 
 export const FORM_SUCCESS_ACTIONS = {

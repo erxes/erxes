@@ -6,7 +6,6 @@ import ResponseTemplate from './responseTemplate';
 import Integration from './integration';
 import Channel from './channel';
 import Brand from './brand';
-import Form from './form';
 import EngageMessage from './engage';
 import InternalNote from './internalNote';
 import Customer from './customer';
@@ -31,7 +30,6 @@ export default {
   Integration,
   Channel,
   Brand,
-  Form,
   InternalNote,
   Customer,
   Company,
