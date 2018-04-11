@@ -121,7 +121,7 @@ const IntegrationSchema = mongoose.Schema({
     enum: LANGUAGE_CHOICES,
     optional: true,
   }),
-
+  tagIds: field({ type: [String], optional: true }),
   formId: field({ type: String }),
   formData: field({ type: FormDataSchema }),
   messengerData: field({ type: MessengerDataSchema }),

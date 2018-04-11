@@ -10,7 +10,7 @@ const formMutations = {
    * @param {string} doc.description - Form description
    * @param {string} doc.buttonText - Form submit button text
    * @param {string} doc.themeColor - Form theme color
-   * @param {string} doc.featuredImage - Form featured image
+   * @param {Object} doc.callout - Form's callout component detail
    * @param {Object} doc.user - The user who created this form
    * @return {Promise} return Promise resolving Form document
    */
@@ -27,7 +27,7 @@ const formMutations = {
    * @param {string} object2.description - Form description
    * @param {string} object2.buttonText - Form submit button text
    * @param {string} object2.themeColor - Form theme color
-   * @param {string} object2.featuredImage - Form featured image
+   * @param {Object} object2.callout - Form's callout component detail
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user who is making this action
    * @return {Promise} return Promise resolving Form document

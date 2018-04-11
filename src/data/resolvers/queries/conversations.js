@@ -23,7 +23,9 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
-    return Conversations.find(qb.mainQuery()).sort({ updatedAt: -1 }).limit(params.limit);
+    return Conversations.find(qb.mainQuery())
+      .sort({ updatedAt: -1 })
+      .limit(params.limit);
   },
 
   /**

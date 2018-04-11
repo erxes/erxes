@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import mongoose from 'mongoose';
 import { TAG_TYPES } from '../../data/constants';
-import { Customers, Conversations, EngageMessages, Companies } from '.';
+import { Customers, Conversations, EngageMessages, Companies, Integrations } from '.';
 import { field } from './utils';
 
 const TagSchema = mongoose.Schema({
@@ -134,6 +134,7 @@ class Tag {
     count += await Conversations.find({ tagIds: { $in: ids } }).count();
     count += await EngageMessages.find({ tagIds: { $in: ids } }).count();
     count += await Companies.find({ tagIds: { $in: ids } }).count();
+    count += await Integrations.find({ tagIds: { $in: ids } }).count();
 
     if (count > 0) throw new Error("Can't remove a tag with tagged object(s)");
 
@@ -159,6 +160,10 @@ class Tag {
         break;
       case 'company':
         collection = Companies;
+        break;
+      case 'integration':
+        collection = Integrations;
+        break;
     }
 
     await tagObject({

@@ -1,4 +1,12 @@
 export const types = `
+  type Callout {
+    title: String,
+    body: String,
+    buttonText: String,
+    featuredImage: String,
+    skip: Boolean
+  }
+
   type Form {
     _id: String!
     title: String
@@ -6,11 +14,13 @@ export const types = `
     description: String
     buttonText: String
     themeColor: String
-    featuredImage: String
+    callout: Callout
     createdUserId: String
     createdDate: Date
     viewCount: Int
     contactsGathered: Int
+    tagIds: [String]
+    getTags: [Tag]
   }
 `;
 
@@ -19,16 +29,10 @@ const commonFields = `
   description: String,
   buttonText: String,
   themeColor: String,
-  featuredImage: String,
+  callout: JSON
 `;
 
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
-`;
-
-export const queries = `
-  forms(page: Int, perPage: Int): [Form]
-  formDetail(_id: String!): Form
-  formsTotalCount: Int
 `;
