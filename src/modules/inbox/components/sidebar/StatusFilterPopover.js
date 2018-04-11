@@ -1,23 +1,50 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
+import gql from 'graphql-tag';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { Icon } from 'modules/common/components';
+import { withApollo } from 'react-apollo';
+import { Icon, Spinner } from 'modules/common/components';
+import { router } from 'modules/common/utils';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { PopoverButton } from '../../styles';
-import { router } from 'modules/common/utils';
+import { queries } from '../../graphql';
+import { generateParams } from '../../utils';
+import { LoaderWrapper } from './styles';
 
 const propTypes = {
-  counts: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired
+  history: PropTypes.object.isRequired,
+  client: PropTypes.object
 };
 
 class StatusFilterPopover extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      counts: {},
+      loading: true
+    };
+
     this.clearStatusFilter = this.clearStatusFilter.bind(this);
+    this.onClick = this.onClick.bind(this);
+    this.renderPopover = this.renderPopover.bind(this);
     this.renderSingleFilter = this.renderSingleFilter.bind(this);
+  }
+
+  onClick() {
+    const { client } = this.props;
+
+    client
+      .query({
+        query: gql(queries.conversationCounts),
+        variables: queryParams => {
+          generateParams(queryParams);
+        }
+      })
+      .then(({ data, loading }) => {
+        this.setState({ counts: data.conversationCounts, loading });
+      });
   }
 
   clearStatusFilter() {
@@ -54,11 +81,21 @@ class StatusFilterPopover extends Component {
     );
   }
 
-  render() {
-    const { counts } = this.props;
+  renderPopover() {
+    const { loading, counts } = this.state;
     const { __ } = this.context;
 
-    const popover = (
+    if (loading) {
+      return (
+        <Popover id="filter-popover" title={__('Filter by status')}>
+          <LoaderWrapper>
+            <Spinner />
+          </LoaderWrapper>
+        </Popover>
+      );
+    }
+
+    return (
       <Popover id="filter-popover" title={__('Filter by status')}>
         <SidebarList>
           {this.renderSingleFilter(
@@ -86,6 +123,10 @@ class StatusFilterPopover extends Component {
         </SidebarList>
       </Popover>
     );
+  }
+
+  render() {
+    const { __ } = this.context;
 
     return (
       <OverlayTrigger
@@ -94,11 +135,11 @@ class StatusFilterPopover extends Component {
         }}
         trigger="click"
         placement="bottom"
-        overlay={popover}
+        overlay={this.renderPopover()}
         container={this}
         rootClose
       >
-        <PopoverButton>
+        <PopoverButton onClick={() => this.onClick()}>
           {__('Status')}
           <Icon icon="ios-arrow-down" />
         </PopoverButton>
@@ -112,4 +153,4 @@ StatusFilterPopover.contextTypes = {
   __: PropTypes.func
 };
 
-export default withRouter(StatusFilterPopover);
+export default withApollo(withRouter(StatusFilterPopover));
