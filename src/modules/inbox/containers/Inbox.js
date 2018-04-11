@@ -192,7 +192,7 @@ const ConversationDetailContainer = compose(
       return {
         notifyOnNetworkStatusChange: true,
         fetchPolicy: 'cache-and-network',
-        variables: { _id: currentConversationId }
+        variables: { conversationId: currentConversationId }
       };
     }
   }),

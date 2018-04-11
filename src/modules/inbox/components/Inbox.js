@@ -56,7 +56,10 @@ class Inbox extends Component {
       this.scrollBottom();
     }
 
-    if (conversationMessages.list !== prevConversationMessages.list) {
+    if (
+      conversationMessages.list !== prevConversationMessages.list &&
+      this.node.scrollTop === 0
+    ) {
       this.scrollHalf();
     }
   }
@@ -71,7 +74,6 @@ class Inbox extends Component {
 
   onScroll(e) {
     if (e.target.scrollTop === 0) {
-      // fetch more messages
       this.props.onFetchMore();
     }
   }

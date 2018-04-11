@@ -39,17 +39,13 @@ const conversationDetail = `
   query conversationDetail($_id: String!) {
     conversationDetail(_id: $_id) {
       ${conversationFields}
-
-      messages {
-        ${messageFields}
-      }
     }
   }
 `;
 
 const conversationMessages = `
-  query conversationMessages($_id: String!, $skip: Int) {
-    conversationMessages(_id: $_id skip: $skip) {
+  query conversationMessages($conversationId: String!, $skip: Int) {
+    conversationMessages(conversationId: $conversationId skip: $skip) {
       list {
         ${messageFields}
       }
