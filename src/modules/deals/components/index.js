@@ -6,7 +6,6 @@ import DealForm from './deal/DealForm';
 import DealMove from './deal/DealMove';
 import ProductForm from './product/ProductForm';
 import ProductItemForm from './product/ProductItemForm';
-import ItemCounter from './common/ItemCounter';
 import Items from './common/Items';
 import CommonDeal from './common/CommonDeal';
 import UserCounter from './common/UserCounter';
@@ -18,7 +17,6 @@ export {
   Stage,
   Deal,
   DealForm,
-  ItemCounter,
   Items,
   CommonDeal,
   UserCounter,

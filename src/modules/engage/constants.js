@@ -1,5 +1,7 @@
 export const EMAIL_CONTENT_CLASS = 'erxes-email-content';
-export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></div>`;
+export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${
+  EMAIL_CONTENT_CLASS
+}"></div>`;
 
 export const MESSAGE_KINDS = {
   AUTO: 'auto',
@@ -31,6 +33,12 @@ export const statusFilters = [
   { key: 'draft', value: 'Draft' },
   { key: 'paused', value: 'Paused' },
   { key: 'yours', value: 'Your messages' }
+];
+
+export const MESSAGE_KIND_FILTERS = [
+  { name: 'auto', text: 'Auto' },
+  { name: 'visitorAuto', text: 'Visitor auto' },
+  { name: 'manual', text: 'Manual' }
 ];
 
 export const MESSENGER_KINDS = {

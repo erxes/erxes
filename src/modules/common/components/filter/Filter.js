@@ -63,6 +63,7 @@ function Filter({ queryParams = {}, history }) {
       {renderFilterParam('integrationType')}
       {renderFilterWithData('tag', 'tag')}
       {renderFilterWithData('segment', 'segment')}
+      {renderFilterParam('kind')}
     </Filters>
   );
 }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
+import { CalloutPreview } from './preview';
 import { FormGroup, ControlLabel } from 'modules/common/components';
 import { dimensions, colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
@@ -12,7 +12,8 @@ const Box = styled.div`
   background: ${colors.colorLightBlue};
   box-shadow: ${props =>
     props.selected && `0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)}`};
-  border: 1px solid ${colors.borderPrimary};
+  border: 1px solid
+    ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};
   border-radius: ${dimensions.unitSpacing / 2}px;
   padding: ${dimensions.coreSpacing * 2}px;
   transition: all 0.25s ease;
@@ -45,10 +46,11 @@ const Box = styled.div`
 const propTypes = {
   type: PropTypes.string,
   onChange: PropTypes.func,
-  title: PropTypes.string,
-  btnText: PropTypes.string,
+  calloutTitle: PropTypes.string,
+  calloutBtnText: PropTypes.string,
   bodyValue: PropTypes.string,
-  color: PropTypes.string
+  color: PropTypes.string,
+  theme: PropTypes.string
 };
 
 class ChooseType extends Component {
@@ -67,29 +69,7 @@ class ChooseType extends Component {
   }
 
   onChange(value) {
-    if (value === 'shoutbox') {
-      return this.props.onChange('type', 'shoutbox');
-    }
-
-    if (value === 'popup') {
-      return this.props.onChange('type', 'popup');
-    }
-
     return this.props.onChange('type', value);
-  }
-
-  renderPreview() {
-    const { type } = this.props;
-
-    if (type === 'shoutbox') {
-      return <ShoutboxPreview {...this.props} />;
-    }
-
-    if (type === 'popup') {
-      return <PopupPreview {...this.props} />;
-    }
-
-    return <EmbeddedPreview {...this.props} />;
   }
 
   render() {
@@ -98,26 +78,45 @@ class ChooseType extends Component {
         <LeftItem>
           <FormGroup>
             <ControlLabel>Choose a flow type</ControlLabel>
-            <BoxRow>
-              {this.renderBox(
-                'ShoutBox',
-                '/images/icons/shoutbox.svg',
-                'shoutbox'
-              )}
-              {this.renderBox('Popup', '/images/icons/expand.svg', 'popup')}
-            </BoxRow>
-
-            <BoxRow type="odd">
-              {this.renderBox(
-                'Embedded',
-                '/images/icons/computer.svg',
-                'embedded'
-              )}
-              <div />
-            </BoxRow>
           </FormGroup>
+          <BoxRow>
+            {this.renderBox(
+              'ShoutBox',
+              '/images/icons/icon-01.svg',
+              'shoutbox'
+            )}
+            {this.renderBox('Popup', '/images/icons/icon-02.svg', 'popup')}
+          </BoxRow>
+
+          <BoxRow>
+            {this.renderBox(
+              'Embedded',
+              '/images/icons/icon-03.svg',
+              'embedded'
+            )}
+            {this.renderBox(
+              'Dropdown',
+              '/images/icons/icon-04.svg',
+              'dropdown'
+            )}
+          </BoxRow>
+
+          <BoxRow>
+            {this.renderBox(
+              'Slide-in Left',
+              '/images/icons/icon-05.svg',
+              'slideInLeft'
+            )}
+            {this.renderBox(
+              'Slide-in Right',
+              '/images/icons/icon-06.svg',
+              'slideInRight'
+            )}
+          </BoxRow>
         </LeftItem>
-        <Preview>{this.renderPreview()}</Preview>
+        <Preview>
+          <CalloutPreview {...this.props} />
+        </Preview>
       </FlexItem>
     );
   }

@@ -28,6 +28,7 @@ class Row extends React.Component {
   constructor(props) {
     super(props);
 
+    this.renderRemoveButton = this.renderRemoveButton.bind(this);
     this.toggleBulk = this.toggleBulk.bind(this);
   }
 
@@ -71,6 +72,18 @@ class Row extends React.Component {
     }
   }
 
+  renderRemoveButton(message, onClick) {
+    const { __ } = this.context;
+
+    if (message.kind === 'auto') {
+      return (
+        <Tip text={__('Delete')}>
+          <Button btnStyle="link" onClick={onClick} icon="close" />
+        </Tip>
+      );
+    }
+  }
+
   toggleBulk(e) {
     this.props.toggleBulk(this.props.message, e.target.checked);
   }
@@ -99,7 +112,7 @@ class Row extends React.Component {
     let status = <Label lblStyle="default">Sending</Label>;
 
     const { message, remove } = this.props;
-    const { stats = {} } = message;
+    const { stats = {}, brand = {} } = message;
 
     const deliveryReports = Object.values(message.deliveryReports || {});
     const totalCount = deliveryReports.length;
@@ -164,22 +177,24 @@ class Row extends React.Component {
             </div>
           )}
         </td>
+
+        <td>
+          <b>{brand ? brand.name : '-'}</b>
+        </td>
+
         <td>
           <Icon icon="calendar" />{' '}
           {moment(message.createdDate).format('DD MMM YYYY')}
         </td>
 
         <td>
-          <Tags tags={message.getTags} limit={3} />
+          <Tags tags={message.getTags} limit={1} />
         </td>
 
         <td>
           <ActionButtons>
             {this.renderLinks()}
-
-            <Tip text={__('Delete')}>
-              <Button btnStyle="link" onClick={remove} icon="close" />
-            </Tip>
+            {this.renderRemoveButton(message, remove)}
           </ActionButtons>
         </td>
       </tr>

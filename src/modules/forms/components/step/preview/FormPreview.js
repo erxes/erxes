@@ -1,89 +1,54 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  SortableContainer,
-  SortableElement,
-  SortableHandle,
-  arrayMove
-} from 'react-sortable-hoc';
-import { Icon } from 'modules/common/components';
-import { PreviewForm, DragableItem, DragHandler } from '../style';
-import { FieldPreview } from './';
+import CommonPreview from './CommonPreview';
+import { FormFieldPreview } from './';
 
-const DragHandle = SortableHandle(() => (
-  <DragHandler>
-    <Icon icon="arrow-move" />
-  </DragHandler>
-));
-
-const FieldPreviewWrapper = props => (
-  <DragableItem>
-    <DragHandle />
-    <FieldPreview {...props} />
-  </DragableItem>
-);
-
-const SortableItem = SortableElement(FieldPreviewWrapper);
-
-const SortableList = SortableContainer(({ fields, onEdit }) => (
-  <PreviewForm>
-    {fields.map((field, index) => (
-      <SortableItem
-        key={`item-${index}`}
-        index={index}
-        field={field}
-        onEdit={onEdit}
-      />
-    ))}
-  </PreviewForm>
-));
+const propTypes = {
+  formTitle: PropTypes.string,
+  formDesc: PropTypes.string,
+  formBtnText: PropTypes.string,
+  color: PropTypes.string,
+  theme: PropTypes.string,
+  fields: PropTypes.array,
+  onFieldEdit: PropTypes.func,
+  onChange: PropTypes.func,
+  type: PropTypes.string
+};
 
 class FormPreview extends Component {
-  constructor(props) {
-    super(props);
-
-    this.onSortEnd = this.onSortEnd.bind(this);
-
-    this.state = {
-      fields: props.fields
-    };
-  }
-
-  componentWillUpdate(nextProps) {
-    if (this.state.fields.length !== nextProps.fields.length) {
-      this.setState({
-        fields: nextProps.fields
-      });
-    }
-  }
-
-  onSortEnd({ oldIndex, newIndex }) {
-    const reOrderedFields = arrayMove(this.state.fields, oldIndex, newIndex);
-
-    this.setState({
-      fields: reOrderedFields
-    });
-
-    this.props.onChange('fields', this.state.fields);
-  }
-
   render() {
+    const {
+      formTitle,
+      formDesc,
+      formBtnText,
+      color,
+      theme,
+      fields,
+      onFieldEdit,
+      onChange,
+      type
+    } = this.props;
+
     return (
-      <SortableList
-        fields={this.state.fields}
-        onEdit={this.props.onFieldEdit}
-        onSortEnd={this.onSortEnd}
-        useDragHandle
-      />
+      <CommonPreview
+        title={formTitle}
+        theme={theme}
+        color={color}
+        btnText={formBtnText}
+        btnStyle="primary"
+        bodyValue={formDesc}
+        type={type}
+      >
+        <FormFieldPreview
+          fields={fields}
+          onFieldEdit={onFieldEdit}
+          onChange={onChange}
+        />
+      </CommonPreview>
     );
   }
 }
 
-FormPreview.propTypes = {
-  fields: PropTypes.array, // eslint-disable-line
-  onFieldEdit: PropTypes.func,
-  onSort: PropTypes.func,
-  onChange: PropTypes.func
-};
+FormPreview.propTypes = propTypes;
 
 export default FormPreview;
