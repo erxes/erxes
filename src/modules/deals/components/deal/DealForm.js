@@ -29,7 +29,10 @@ import {
   FormFooter,
   FlexContent,
   Left,
-  Right
+  Right,
+  Avatar,
+  SelectValue,
+  SelectOption
 } from '../../styles/deal';
 
 const propTypes = {
@@ -356,13 +359,27 @@ class DealForm extends React.Component {
       </HeaderContent>
     );
 
+    const userValue = option => (
+      <SelectValue>
+        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+        {option.label}
+      </SelectValue>
+    );
+
+    const userOption = option => (
+      <SelectOption className="simple-option">
+        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+        <span>{option.label}</span>
+      </SelectOption>
+    );
+
     // When add, only show name
     if (!deal) return nameField();
 
     const { name, description } = deal;
 
     return (
-      <div>
+      <Fragment>
         <HeaderRow>
           {nameField(name)}
 
@@ -405,14 +422,11 @@ class DealForm extends React.Component {
                 placeholder={__('Choose users')}
                 value={assignedUserIds}
                 onChange={this.onChangeUsers}
-                optionRenderer={option => (
-                  <div className="simple-option">
-                    <span>{option.label}</span>
-                  </div>
-                )}
-                multi
+                optionRenderer={userOption}
+                valueRenderer={userValue}
                 removeSelected={true}
                 options={selectUserOptions(users)}
+                multi
               />
             </FormGroup>
           </Right>
@@ -422,7 +436,7 @@ class DealForm extends React.Component {
           {this.renderTab()}
           {this.renderSidebar()}
         </FlexContent>
-      </div>
+      </Fragment>
     );
   }
 
@@ -444,7 +458,6 @@ class DealForm extends React.Component {
             disabled={this.state.disabled}
             btnStyle="success"
             icon="checkmark"
-            type="submit"
             onClick={this.save}
           >
             Save

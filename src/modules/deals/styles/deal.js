@@ -273,6 +273,34 @@ const ItemList = styled.ul`
   }
 `;
 
+const SelectValue = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: -7px;
+  padding-left: 25px;
+
+  img {
+    position: absolute;
+    left: 0;
+  }
+`;
+
+const SelectOption = styled.div`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+const Avatar = styled.img`
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: ${colors.bgActive};
+  float: left;
+  margin-right: 5px;
+`;
+
 export {
   AddNew,
   Container,
@@ -293,5 +321,8 @@ export {
   MoveContainer,
   Stages,
   ItemList,
-  StageItem
+  StageItem,
+  SelectOption,
+  SelectValue,
+  Avatar
 };

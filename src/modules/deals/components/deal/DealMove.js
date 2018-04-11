@@ -56,7 +56,7 @@ class DealMoveForm extends React.Component {
   }
 
   changeStage(stageId) {
-    this.setState({ stageId }, () => this.move());
+    this.setState({ stageId }, this.move);
   }
 
   renderSelect(placeholder, value, onChange, options) {
