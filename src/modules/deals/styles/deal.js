@@ -3,6 +3,10 @@ import { colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { coreHeight, borderRadius } from './deminsions';
 
+const FlexContent = styled.div`
+  display: flex;
+`;
+
 const AddNew = styled.a`
   display: block;
   height: ${coreHeight}px;
@@ -24,20 +28,7 @@ const AddNew = styled.a`
   }
 `;
 
-const ContainerHover = styled.div`
-  position: absolute;
-  opacity: 0;
-  z-index: 1;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  transition: all 0.3s ease;
-  cursor: pointer;
-`;
-
 const Container = styled.div`
-  position: relative;
   overflow: hidden;
   margin-bottom: 10px;
   padding: 10px;
@@ -50,16 +41,12 @@ const Container = styled.div`
       ? `10px 15px 35px 4px rgba(0, 0, 0, 0.2)`
       : '0 1px 2px 0 rgba(0, 0, 0, 0.2)'};
 
-  &:hover ${ContainerHover} {
-    opacity: 1;
-  }
-
   h4 {
     margin-top: 0;
     font-weight: normal;
     font-size: 14px;
     margin-bottom: 5px;
-    padding-right: 40px;
+    flex: 1;
   }
 `;
 
@@ -71,15 +58,13 @@ const SectionContainer = styled.div`
 const DealDate = styled.span`
   font-size: 11px;
   color: ${colors.colorCoreGray};
-  position: absolute;
-  right: 10px;
-  top: 10px;
   z-index: 10;
   cursor: help;
+  margin-left: 5px;
+  flex-shrink: 0;
 `;
 
-const HeaderRow = styled.div`
-  display: flex;
+const HeaderRow = FlexContent.extend`
   margin-bottom: 40px;
 `;
 
@@ -143,9 +128,8 @@ const FormFooter = styled.div`
   margin-top: 20px;
 `;
 
-const Footer = styled.div`
+const SpaceContent = FlexContent.extend`
   position: relative;
-  display: flex;
   justify-content: space-between;
 `;
 
@@ -153,17 +137,18 @@ const FooterContent = styled.div`
   flex: 1;
 `;
 
-const FormBody = styled.div`
-  display: flex;
-`;
-
 const Left = styled.div`
   margin-right: 20px;
   flex: 1;
+
+  textarea {
+    resize: none;
+  }
 `;
 
 const Right = styled.div`
   width: 280px;
+  flex-shrink: 0;
 
   button {
     width: 100%;
@@ -190,7 +175,7 @@ const Right = styled.div`
   }
 `;
 
-const MoveContainer = styled.div`
+const MoveContainer = FlexContent.extend`
   display: flex;
   margin-bottom: 20px;
   align-items: center;
@@ -255,6 +240,7 @@ const StageItem = styled.li`
   a {
     position: relative;
     z-index: 10;
+    cursor: pointer;
     background: ${colors.bgLight};
   }
 
@@ -287,12 +273,39 @@ const ItemList = styled.ul`
   }
 `;
 
+const SelectValue = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: -7px;
+  padding-left: 25px;
+
+  img {
+    position: absolute;
+    left: 0;
+  }
+`;
+
+const SelectOption = styled.div`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+const Avatar = styled.img`
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: ${colors.bgActive};
+  float: left;
+  margin-right: 5px;
+`;
+
 export {
   AddNew,
   Container,
   SectionContainer,
-  ContainerHover,
-  Footer,
+  SpaceContent,
   FooterContent,
   DealDate,
   HeaderRow,
@@ -302,11 +315,14 @@ export {
   MoveFormContainer,
   PipelineName,
   FormFooter,
-  FormBody,
+  FlexContent,
   Left,
   Right,
   MoveContainer,
   Stages,
   ItemList,
-  StageItem
+  StageItem,
+  SelectOption,
+  SelectValue,
+  Avatar
 };

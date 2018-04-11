@@ -15,7 +15,8 @@ export function selectConfigOptions(array, CONSTANT) {
 export function selectUserOptions(array) {
   return array.map(item => ({
     value: item._id,
-    label: item.details.fullName || item.email
+    label: item.details.fullName || item.email,
+    avatar: item.details.avatar
   }));
 }
 

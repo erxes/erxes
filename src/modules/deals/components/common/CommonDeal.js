@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Tip } from 'modules/common/components';
 import { UserCounter, Items } from '../';
-import { DealDate, Footer, ItemList, FooterContent } from '../../styles/deal';
+import {
+  DealDate,
+  SpaceContent,
+  ItemList,
+  FooterContent
+} from '../../styles/deal';
 import { Amount } from '../../styles/stage';
 
 const propTypes = {
@@ -45,9 +50,12 @@ class Deal extends React.Component {
 
     return (
       <Fragment>
-        <h4>{deal.name}</h4>
-        {this.renderDate(deal.closeDate)}
-        <Footer>
+        <SpaceContent>
+          <h4>{deal.name}</h4>
+          {this.renderDate(deal.closeDate)}
+        </SpaceContent>
+
+        <SpaceContent>
           <FooterContent>
             <ItemList>
               <Items items={products} />
@@ -59,7 +67,7 @@ class Deal extends React.Component {
             {this.renderAmount(deal.amount || {})}
           </FooterContent>
           <UserCounter users={deal.assignedUsers || []} />
-        </Footer>
+        </SpaceContent>
       </Fragment>
     );
   }

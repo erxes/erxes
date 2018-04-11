@@ -649,5 +649,8 @@
   "Complaint": "Гомдол",
   "Bounce": "Үсэрсэн",
   "Rendering Failure": "Хөрвүүлэлтын алдаа",
-  "Rejected": "Татгалзсан"
+  "Rejected": "Татгалзсан",
+  "No customer": "Харилцагч байхгүй байна",
+  "Action": "Үйлдэл",
+  "Please select one to merge": "Нэгийг сонгоно уу"
 }

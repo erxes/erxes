@@ -1,6 +1,6 @@
 // check if valid url
 const isValidURL = url => {
-  var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi; //eslint-disable-line
+  var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,6}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi; //eslint-disable-line
   var regex = new RegExp(expression);
 
   if (!regex.test(url)) {

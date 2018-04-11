@@ -45,7 +45,7 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
           </SectionBodyItem>
         ))}
         {customers.length === 0 && (
-          <EmptyState icon="person" text="No customers" />
+          <EmptyState icon="person" text="No customer" />
         )}
       </SectionBody>
     </Section>

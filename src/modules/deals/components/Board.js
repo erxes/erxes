@@ -72,10 +72,11 @@ class Board extends React.Component {
       );
     }
 
-    return pipelines.map(pipeline => (
+    return pipelines.map((pipeline, index) => (
       <Pipeline
         key={pipeline._id}
         {...stageStates}
+        expanded={index < 2}
         state={states[`pipelineState${pipeline._id}`]}
         pipeline={pipeline}
       />
