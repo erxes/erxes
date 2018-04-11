@@ -56,7 +56,7 @@ class DealMoveForm extends React.Component {
   }
 
   changeStage(stageId) {
-    this.setState({ stageId }, () => this.move());
+    this.setState({ stageId }, this.move);
   }
 
   renderSelect(placeholder, value, onChange, options) {
@@ -201,8 +201,7 @@ const propTypes = {
 
 DealMoveForm.propTypes = propTypes;
 DealMoveForm.contextTypes = {
-  __: PropTypes.func,
-  closeModal: PropTypes.func.isRequired
+  __: PropTypes.func
 };
 
 export default DealMoveForm;

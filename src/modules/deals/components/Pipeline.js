@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Stage } from '../containers';
-import { EmptyState } from 'modules/common/components';
+import { EmptyState, Button } from 'modules/common/components';
 import { Droppable } from 'react-beautiful-dnd';
 import { Container, Header, Body } from '../styles/pipeline';
 
@@ -10,10 +10,21 @@ const propTypes = {
   stages: PropTypes.array,
   collectDeals: PropTypes.func,
   dealResult: PropTypes.object,
-  addToDeals: PropTypes.func
+  addToDeals: PropTypes.func,
+  expanded: PropTypes.bool
 };
 
 class Pipeline extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      expanded: props.expanded
+    };
+
+    this.togglePipeline = this.togglePipeline.bind(this);
+  }
+
   renderStage(provided) {
     const { stages, pipeline } = this.props;
     const length = stages.length;
@@ -39,22 +50,46 @@ class Pipeline extends React.Component {
     );
   }
 
+  renderPipelineBody() {
+    const { pipeline } = this.props;
+
+    if (!this.state.expanded) {
+      return null;
+    }
+
+    return (
+      <Droppable
+        type="pipeline"
+        direction="horizontal"
+        droppableId={pipeline._id}
+      >
+        {provided => this.renderStage(provided)}
+      </Droppable>
+    );
+  }
+
+  togglePipeline() {
+    this.setState({ expanded: !this.state.expanded });
+  }
+
   render() {
     const { pipeline } = this.props;
+    const { expanded } = this.state;
 
     return (
       <Container>
         <Header>
           <h2>{pipeline.name}</h2>
+          <div>
+            <Button
+              size="small"
+              btnStyle="primary"
+              onClick={this.togglePipeline}
+              icon={expanded ? 'chevron-up' : 'chevron-down'}
+            />
+          </div>
         </Header>
-
-        <Droppable
-          type="pipeline"
-          direction="horizontal"
-          droppableId={pipeline._id}
-        >
-          {provided => this.renderStage(provided)}
-        </Droppable>
+        {this.renderPipelineBody()}
       </Container>
     );
   }

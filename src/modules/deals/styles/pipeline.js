@@ -17,13 +17,16 @@ const Header = styled.div`
   padding: 0 20px;
   background: ${colors.bgLight};
   border-bottom: 1px solid ${colors.colorShadowGray};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   h2 {
     margin: 0;
     padding: 0;
     line-height: ${coreHeight - 2}px;
-    font-weight: normal;
-    font-size: 13px;
+    font-weight: bold;
+    font-size: 14px;
     color: ${colors.colorCoreDarkGray};
   }
 `;
