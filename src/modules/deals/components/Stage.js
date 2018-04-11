@@ -21,8 +21,7 @@ const propTypes = {
   index: PropTypes.number.isRequired,
   length: PropTypes.number.isRequired,
   saveDeal: PropTypes.func.isRequired,
-  removeDeal: PropTypes.func.isRequired,
-  moveDeal: PropTypes.func.isRequired
+  removeDeal: PropTypes.func.isRequired
 };
 
 class Stage extends React.Component {
@@ -67,7 +66,7 @@ class Stage extends React.Component {
   }
 
   renderDeal(provided) {
-    const { deals, saveDeal, removeDeal, moveDeal } = this.props;
+    const { deals, saveDeal, removeDeal } = this.props;
 
     return (
       <DropZone innerRef={provided.innerRef}>
@@ -79,7 +78,6 @@ class Stage extends React.Component {
               dealId={deal._id}
               saveDeal={saveDeal}
               removeDeal={removeDeal}
-              moveDeal={moveDeal}
             />
           ))}
         </div>

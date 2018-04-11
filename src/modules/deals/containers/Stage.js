@@ -14,7 +14,6 @@ class StageContainer extends React.Component {
 
     this.saveDeal = this.saveDeal.bind(this);
     this.removeDeal = this.removeDeal.bind(this);
-    this.moveDeal = this.moveDeal.bind(this);
 
     const { deals } = props;
 
@@ -141,25 +140,6 @@ class StageContainer extends React.Component {
     });
   }
 
-  // move deal
-  moveDeal(doc) {
-    const { dealsChangeMutation, stageDetailQuery, dealsQuery } = this.props;
-    const { __ } = this.context;
-
-    dealsChangeMutation({
-      variables: doc
-    })
-      .then(() => {
-        Alert.success(__('Successfully moved.'));
-
-        stageDetailQuery.refetch();
-        dealsQuery.refetch();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  }
-
   render() {
     const { stageDetailQuery } = this.props;
 
@@ -172,7 +152,6 @@ class StageContainer extends React.Component {
       deals: this.state.deals,
       saveDeal: this.saveDeal,
       removeDeal: this.removeDeal,
-      moveDeal: this.moveDeal,
       stage: stageDetailQuery.dealStageDetail
     };
 

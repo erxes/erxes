@@ -10,22 +10,16 @@ const propTypes = {
   deal: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
   saveDeal: PropTypes.func.isRequired,
-  removeDeal: PropTypes.func.isRequired,
-  moveDeal: PropTypes.func.isRequired
+  removeDeal: PropTypes.func.isRequired
 };
 
 class Deal extends React.Component {
   showEditForm(trigger) {
-    const { deal, saveDeal, removeDeal, moveDeal } = this.props;
+    const { deal, saveDeal, removeDeal } = this.props;
 
     return (
       <ModalTrigger title="Edit deal" trigger={trigger} size="lg">
-        <DealForm
-          deal={deal}
-          saveDeal={saveDeal}
-          moveDeal={moveDeal}
-          removeDeal={removeDeal}
-        />
+        <DealForm deal={deal} saveDeal={saveDeal} removeDeal={removeDeal} />
       </ModalTrigger>
     );
   }
