@@ -20,19 +20,26 @@ class ConversationDetail extends Component {
       routerUtils.setParams(history, { _id: this.props.currentConversationId });
     }
 
-    const { currentConversationId, conversationDetailQuery } = nextProps;
+    const {
+      currentConversationId,
+      conversationDetailQuery,
+      conversationMessagesQuery
+    } = nextProps;
 
     if (conversationDetailQuery.loading) {
       return;
     }
 
-    conversationDetailQuery.subscribeToMore({
+    conversationMessagesQuery.subscribeToMore({
       document: gql(subscriptions.conversationMessageInserted),
       variables: { _id: currentConversationId },
       updateQuery: (prev, { subscriptionData }) => {
         const message = subscriptionData.data.conversationMessageInserted;
-        const conversationDetail = prev.conversationDetail;
-        const messages = conversationDetail.messages;
+        const messages = prev.conversationMessages.list;
+
+        let totalCount = prev.conversationMessages.totalCount;
+
+        totalCount++;
 
         if (currentConversationId !== this.props.currentConversationId) {
           return prev;
@@ -46,12 +53,13 @@ class ConversationDetail extends Component {
         }
 
         // add new message to messages list
-        const next = Object.assign({}, prev, {
-          conversationDetail: Object.assign({
-            ...conversationDetail,
-            messages: [...messages, message]
-          })
-        });
+        const next = {
+          conversationMessages: {
+            ...prev.conversationMessages,
+            list: [message, ...messages],
+            totalCount
+          }
+        };
 
         return next;
       }
@@ -92,19 +100,26 @@ class ConversationDetail extends Component {
     const {
       currentConversationId,
       conversationDetailQuery,
+      conversationMessagesQuery,
       markAsReadMutation
     } = this.props;
 
     const { currentUser } = this.context;
-    const loading = conversationDetailQuery.loading;
+
+    const loadingDetail = conversationDetailQuery.loading;
+    const loadingMessages = conversationMessagesQuery.loading;
+
     const currentConversation =
       conversationDetailQuery.conversationDetail || {};
+    const conversationMessages =
+      conversationMessagesQuery.conversationMessages || {};
 
     // mark as read
     const readUserIds = currentConversation.readUserIds || [];
 
     if (
-      !loading &&
+      !loadingDetail &&
+      !loadingMessages &&
       !readUserIds.includes(currentUser._id) &&
       currentConversationId
     ) {
@@ -115,11 +130,36 @@ class ConversationDetail extends Component {
       });
     }
 
+    const onFetchMore = () => {
+      const { conversationMessages, fetchMore } = conversationMessagesQuery;
+
+      fetchMore({
+        variables: {
+          skip: conversationMessages.list.length
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          return {
+            conversationMessages: {
+              ...prev.conversationMessages,
+              list: [
+                ...prev.conversationMessages.list,
+                ...fetchMoreResult.conversationMessages.list
+              ],
+              totalCount: fetchMoreResult.conversationMessages.totalCount
+            }
+          };
+        }
+      });
+    };
+
     const updatedProps = {
       ...this.props,
       currentConversationId,
       currentConversation,
-      loading,
+      conversationMessages,
+      loadingDetail,
+      loadingMessages,
+      onFetchMore,
       refetch: conversationDetailQuery.refetch
     };
 
@@ -129,6 +169,7 @@ class ConversationDetail extends Component {
 
 ConversationDetail.propTypes = {
   conversationDetailQuery: PropTypes.object,
+  conversationMessagesQuery: PropTypes.object,
   currentConversationId: PropTypes.string.isRequired,
   markAsReadMutation: PropTypes.func.isRequired,
   history: PropTypes.object
@@ -137,6 +178,16 @@ ConversationDetail.propTypes = {
 const ConversationDetailContainer = compose(
   graphql(gql(queries.conversationDetail), {
     name: 'conversationDetailQuery',
+    options: ({ currentConversationId }) => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        fetchPolicy: 'cache-and-network',
+        variables: { _id: currentConversationId }
+      };
+    }
+  }),
+  graphql(gql(queries.conversationMessages), {
+    name: 'conversationMessagesQuery',
     options: ({ currentConversationId }) => {
       return {
         notifyOnNetworkStatusChange: true,

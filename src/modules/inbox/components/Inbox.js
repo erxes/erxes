@@ -35,25 +35,45 @@ class Inbox extends Component {
 
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
+    this.scrollHalf = this.scrollHalf.bind(this);
+    this.onScroll = this.onScroll.bind(this);
   }
 
   componentDidMount() {
     this.scrollBottom();
+
+    this.node.addEventListener('scroll', this.onScroll);
   }
 
   componentDidUpdate(prevProps) {
-    const { currentConversation } = this.props;
+    const { currentConversation, conversationMessages } = this.props;
     const prevConversation = prevProps.currentConversation;
+    const prevConversationMessages = prevProps.conversationMessages;
     if (
       currentConversation.messageCount !== prevConversation.messageCount ||
       currentConversation._id !== prevConversation._id
     ) {
       this.scrollBottom();
     }
+
+    if (conversationMessages.list !== prevConversationMessages.list) {
+      this.scrollHalf();
+    }
   }
 
   scrollBottom() {
     this.node.scrollTop = this.node.scrollHeight;
+  }
+
+  scrollHalf() {
+    this.node.scrollTop = this.node.scrollHeight / 2;
+  }
+
+  onScroll(e) {
+    if (e.target.scrollTop === 0) {
+      // fetch more messages
+      this.props.onFetchMore();
+    }
   }
 
   setAttachmentPreview(attachmentPreview) {
@@ -79,6 +99,8 @@ class Inbox extends Component {
   }
 
   renderRightSidebar(currentConversation) {
+    const { loadingDetail, loadingMessages } = this.props;
+
     if (currentConversation._id) {
       const customer = currentConversation.customer || {};
 
@@ -98,7 +120,7 @@ class Inbox extends Component {
 
     return (
       <Wrapper.Sidebar full>
-        {this.props.loading && <Spinner />}
+        {loadingDetail && loadingMessages && <Spinner />}
       </Wrapper.Sidebar>
     );
   }
@@ -108,9 +130,11 @@ class Inbox extends Component {
       queryParams,
       currentConversationId,
       currentConversation,
+      conversationMessages,
       onChangeConversation,
       refetch,
-      loading
+      loadingDetail,
+      loadingMessages
     } = this.props;
     const { __ } = this.context;
     const tags = currentConversation.tags || [];
@@ -185,10 +209,11 @@ class Inbox extends Component {
       >
         <Conversation
           conversation={currentConversation}
+          conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
           scrollBottom={this.scrollBottom}
         />
-        {loading && <Spinner />}
+        {loadingDetail && loadingMessages && <Spinner />}
       </ConversationWrapper>
     );
 
@@ -226,10 +251,13 @@ Inbox.propTypes = {
   queryParams: PropTypes.object,
   refetch: PropTypes.func,
   title: PropTypes.string,
+  onFetchMore: PropTypes.func,
   onChangeConversation: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
-  loading: PropTypes.bool
+  conversationMessages: PropTypes.object,
+  loadingDetail: PropTypes.bool,
+  loadingMessages: PropTypes.bool
 };
 
 Inbox.contextTypes = {

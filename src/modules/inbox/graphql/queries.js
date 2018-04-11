@@ -47,6 +47,17 @@ const conversationDetail = `
   }
 `;
 
+const conversationMessages = `
+  query conversationMessages($_id: String!, $skip: Int) {
+    conversationMessages(_id: $_id skip: $skip) {
+      list {
+        ${messageFields}
+      }
+      totalCount
+    }
+  }
+`;
+
 const userList = `
   query objects {
     users {
@@ -137,6 +148,7 @@ const responseTemplateList = `
 export default {
   conversationList,
   conversationDetail,
+  conversationMessages,
   userList,
   channelList,
   brandList,
