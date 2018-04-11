@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 
@@ -58,7 +58,7 @@ class ModalTrigger extends Component {
     });
 
     return (
-      <span>
+      <Fragment>
         {triggerComponent}
 
         <Modal
@@ -72,7 +72,7 @@ class ModalTrigger extends Component {
           </Modal.Header>
           <Modal.Body>{children}</Modal.Body>
         </Modal>
-      </span>
+      </Fragment>
     );
   }
 }

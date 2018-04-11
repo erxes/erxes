@@ -114,6 +114,7 @@ const users = `
       email
       details {
         fullName
+        avatar
       }
     }
   }

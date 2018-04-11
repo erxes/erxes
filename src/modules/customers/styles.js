@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 
 const columnSizing = '20px';
 const borderRadius = '2px';
@@ -180,6 +180,13 @@ const SectionBodyItem = styled.div`
   }
 `;
 
+const Action = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: ${dimensions.coreSpacing}px;
+`;
+
 export {
   Columns,
   Column,
@@ -191,5 +198,6 @@ export {
   InfoDetail,
   Info,
   SectionBody,
-  SectionBodyItem
+  SectionBodyItem,
+  Action
 };

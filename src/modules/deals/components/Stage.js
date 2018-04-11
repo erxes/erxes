@@ -38,7 +38,7 @@ class Stage extends React.Component {
 
   showDealForm() {
     const { __ } = this.context;
-    const { stage, deals } = this.props;
+    const { stage, deals, saveDeal, removeDeal } = this.props;
 
     const trigger = (
       <AddNew>
@@ -51,8 +51,8 @@ class Stage extends React.Component {
         <DealForm
           stageId={stage._id}
           length={deals.length}
-          saveDeal={this.props.saveDeal}
-          removeDeal={this.props.removeDeal}
+          saveDeal={saveDeal}
+          removeDeal={removeDeal}
         />
       </ModalTrigger>
     );
