@@ -35,6 +35,42 @@ const conversationList = `
   }
 `;
 
+const sidebarConversations = `
+  query objects(${listParamsDef}) {
+    conversations(${listParamsValue}) {
+      _id
+      content
+      updatedAt
+      assignedUser {
+        _id
+        details {
+          avatar
+        }
+      }
+      integration {
+        _id
+        kind
+        brand {
+          _id
+          name
+        }
+        channels {
+          _id
+          name
+        }
+      }
+      customer {
+        _id
+        firstName
+        lastName
+        email
+        phone
+      }
+      readUserIds
+    }
+  }
+`;
+
 const conversationDetail = `
   query conversationDetail($_id: String!) {
     conversationDetail(_id: $_id) {
@@ -143,6 +179,7 @@ const responseTemplateList = `
 
 export default {
   conversationList,
+  sidebarConversations,
   conversationDetail,
   conversationMessages,
   userList,

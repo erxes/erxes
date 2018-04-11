@@ -55,7 +55,7 @@ const generateOptions = queryParams => ({
 });
 
 export default compose(
-  graphql(gql(queries.conversationList), {
+  graphql(gql(queries.sidebarConversations), {
     name: 'conversationsQuery',
     options: ({ queryParams }) => ({
       notifyOnNetworkStatusChange: true,
