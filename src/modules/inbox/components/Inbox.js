@@ -101,7 +101,7 @@ class Inbox extends Component {
   }
 
   renderRightSidebar(currentConversation) {
-    const { loadingDetail, loadingMessages } = this.props;
+    const { loading } = this.props;
 
     if (currentConversation._id) {
       const customer = currentConversation.customer || {};
@@ -120,11 +120,7 @@ class Inbox extends Component {
       );
     }
 
-    return (
-      <Wrapper.Sidebar full>
-        {loadingDetail && loadingMessages && <Spinner />}
-      </Wrapper.Sidebar>
-    );
+    return <Wrapper.Sidebar full>{loading && <Spinner />}</Wrapper.Sidebar>;
   }
 
   render() {
@@ -135,9 +131,9 @@ class Inbox extends Component {
       conversationMessages,
       onChangeConversation,
       refetch,
-      loadingDetail,
-      loadingMessages
+      loading
     } = this.props;
+
     const { __ } = this.context;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
@@ -215,7 +211,7 @@ class Inbox extends Component {
           attachmentPreview={this.state.attachmentPreview}
           scrollBottom={this.scrollBottom}
         />
-        {loadingDetail && loadingMessages && <Spinner />}
+        {loading && <Spinner />}
       </ConversationWrapper>
     );
 
@@ -258,8 +254,7 @@ Inbox.propTypes = {
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
   conversationMessages: PropTypes.object,
-  loadingDetail: PropTypes.bool,
-  loadingMessages: PropTypes.bool
+  loading: PropTypes.bool
 };
 
 Inbox.contextTypes = {

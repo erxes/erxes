@@ -13,6 +13,7 @@ class ConversationDetail extends Component {
   componentWillReceiveProps(nextProps) {
     const { history } = this.props;
 
+    // add current conversation's _id to url
     if (
       !routerUtils.getParam(history, '_id') &&
       this.props.currentConversationId
@@ -65,15 +66,6 @@ class ConversationDetail extends Component {
       }
     });
 
-    // listen for conversation changes like status, assignee
-    conversationDetailQuery.subscribeToMore({
-      document: gql(subscriptions.conversationChanged),
-      variables: { _id: currentConversationId },
-      updateQuery: () => {
-        this.props.conversationDetailQuery.refetch();
-      }
-    });
-
     // listen for customer connection
     const conversation = conversationDetailQuery.conversationDetail;
 
@@ -83,10 +75,9 @@ class ConversationDetail extends Component {
       conversationDetailQuery.subscribeToMore({
         document: gql(subscriptions.customerConnectionChanged),
         variables: { _id: customerId },
-        updateQuery: (prev, { subscriptionData }) => {
+        updateQuery: (prev, { subscriptionData: { data } }) => {
           const prevConversation = prev.conversationDetail;
-          const customerConnection =
-            subscriptionData.data.customerConnectionChanged;
+          const customerConnection = data.customerConnectionChanged;
 
           if (prevConversation.customer._id === customerConnection._id) {
             this.props.conversationDetailQuery.refetch();
@@ -94,6 +85,28 @@ class ConversationDetail extends Component {
         }
       });
     }
+  }
+
+  onFetchMore() {
+    const { conversationMessages, fetchMore } = this.conversationMessagesQuery;
+
+    fetchMore({
+      variables: {
+        skip: conversationMessages.list.length
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        return {
+          conversationMessages: {
+            ...prev.conversationMessages,
+            list: [
+              ...prev.conversationMessages.list,
+              ...fetchMoreResult.conversationMessages.list
+            ],
+            totalCount: fetchMoreResult.conversationMessages.totalCount
+          }
+        };
+      }
+    });
   }
 
   render() {
@@ -106,20 +119,18 @@ class ConversationDetail extends Component {
 
     const { currentUser } = this.context;
 
-    const loadingDetail = conversationDetailQuery.loading;
-    const loadingMessages = conversationMessagesQuery.loading;
+    const loading =
+      conversationDetailQuery.loading || conversationMessagesQuery.loading;
 
     const currentConversation =
       conversationDetailQuery.conversationDetail || {};
     const conversationMessages =
       conversationMessagesQuery.conversationMessages || {};
-
-    // mark as read
     const readUserIds = currentConversation.readUserIds || [];
 
+    // mark as read ============
     if (
-      !loadingDetail &&
-      !loadingMessages &&
+      !loading &&
       !readUserIds.includes(currentUser._id) &&
       currentConversationId
     ) {
@@ -130,36 +141,13 @@ class ConversationDetail extends Component {
       });
     }
 
-    const onFetchMore = () => {
-      const { conversationMessages, fetchMore } = conversationMessagesQuery;
-
-      fetchMore({
-        variables: {
-          skip: conversationMessages.list.length
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          return {
-            conversationMessages: {
-              ...prev.conversationMessages,
-              list: [
-                ...prev.conversationMessages.list,
-                ...fetchMoreResult.conversationMessages.list
-              ],
-              totalCount: fetchMoreResult.conversationMessages.totalCount
-            }
-          };
-        }
-      });
-    };
-
     const updatedProps = {
       ...this.props,
       currentConversationId,
       currentConversation,
       conversationMessages,
-      loadingDetail,
-      loadingMessages,
-      onFetchMore,
+      loading,
+      onFetchMore: this.onFetchMore,
       refetch: conversationDetailQuery.refetch
     };
 
