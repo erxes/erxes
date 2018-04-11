@@ -99,7 +99,7 @@ const filterParams = `
 
 export const queries = `
   conversations(${filterParams}): [Conversation]
-  conversationMessages(_id: String! skip: Int): ConversationMessageListResponse
+  conversationMessages(conversationId: String! skip: Int): ConversationMessageListResponse
   conversationCounts(${filterParams}): JSON
   conversationsTotalCount(${filterParams}): Int
   conversationDetail(_id: String!): Conversation

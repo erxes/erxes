@@ -34,10 +34,10 @@ const conversationQueries = {
    * @param {Integer} args.skip
    * @return {Promise} filtered messages list by given parameters
    */
-  async conversationMessages(root, { _id, skip }) {
-    const selector = { conversationId: _id };
+  async conversationMessages(root, { conversationId, skip }) {
+    const selector = { conversationId };
 
-    const list = await ConversationMessages.find({ conversationId: _id })
+    const list = await ConversationMessages.find(selector)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(10);
