@@ -19,4 +19,8 @@ const LeftItem = styled.div`
   }
 `;
 
-export { RightItems, LeftItem };
+const LoaderWrapper = styled.div`
+  padding: 20px;
+`;
+
+export { RightItems, LeftItem, LoaderWrapper };
