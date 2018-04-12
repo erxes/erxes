@@ -386,6 +386,9 @@ export class SaveWebhookResponse {
         internal: false,
       });
 
+      // updating conversation content
+      await Conversations.update({ _id: conversation._id }, { $set: { content } });
+
       // notify subscription server new message
       const message = await ConversationMessages.findOne({ _id: messageId });
 
