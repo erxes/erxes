@@ -181,8 +181,8 @@ describe('conversationQueries', () => {
     await conversationMessageFactory({ conversationId: conversation._id });
 
     const qry = `
-      query conversationMessages($conversationId: String! $skip: Int) {
-        conversationMessages(conversationId: $conversationId skip: $skip) {
+      query conversationMessages($conversationId: String! $skip: Int $limit: Int) {
+        conversationMessages(conversationId: $conversationId skip: $skip limit: $limit) {
           list {
             _id
           }
@@ -194,6 +194,7 @@ describe('conversationQueries', () => {
     const responses = await graphqlRequest(qry, 'conversationMessages', {
       conversationId: conversation._id,
       skip: 3,
+      limit: 10,
     });
 
     expect(responses.list.length).toBe(10);
