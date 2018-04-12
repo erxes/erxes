@@ -32,9 +32,7 @@ class Form extends Component {
   onChangeInput(e) {
     const { name, value } = e.target;
 
-    this.setState({
-      [name]: value
-    });
+    this.setState({ [name]: value });
   }
 
   save(e) {

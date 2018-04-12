@@ -15,7 +15,7 @@ const propTypes = {
   deal: PropTypes.object.isRequired
 };
 
-class Deal extends React.Component {
+class CommonDeal extends React.Component {
   renderDate(closeDate) {
     if (!closeDate) return null;
 
@@ -46,7 +46,7 @@ class Deal extends React.Component {
 
   render() {
     const { deal } = this.props;
-    const products = deal.products.map(p => p.product);
+    const products = (deal.products || []).map(p => p.product);
 
     return (
       <Fragment>
@@ -73,6 +73,6 @@ class Deal extends React.Component {
   }
 }
 
-Deal.propTypes = propTypes;
+CommonDeal.propTypes = propTypes;
 
-export default Deal;
+export default CommonDeal;

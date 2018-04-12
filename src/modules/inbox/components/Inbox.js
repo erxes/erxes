@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import {
@@ -16,6 +16,7 @@ import { BarItems, SidebarCounter } from 'modules/layout/styles';
 import ConversationDetails from './sidebar/ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
 import { CompanyAssociate } from 'modules/companies/containers';
+import { DealSection } from 'modules/deals/containers';
 
 import {
   PopoverButton,
@@ -79,6 +80,15 @@ class Inbox extends Component {
     return null;
   }
 
+  renderSectionBottom(customer) {
+    return (
+      <Fragment>
+        <CompanyAssociate data={customer} />
+        <DealSection customerId={customer._id} />
+      </Fragment>
+    );
+  }
+
   renderRightSidebar(currentConversation) {
     const { loading } = this.props;
 
@@ -91,7 +101,7 @@ class Inbox extends Component {
           sectionTop={
             <ConversationDetails conversation={currentConversation} />
           }
-          sectionBottom={<CompanyAssociate data={customer} />}
+          sectionBottom={this.renderSectionBottom(customer)}
           customer={customer}
           refetch={this.props.refetch}
           otherProperties={this.renderMessengerData()}

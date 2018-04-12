@@ -13,7 +13,7 @@ import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
 import { CustomerAssociate } from 'modules/customers/containers';
-import { DealSection } from 'modules/deals/components';
+import { DealSection } from 'modules/deals/containers';
 import { hasAnyActivity } from 'modules/customers/utils';
 
 const propTypes = {
@@ -87,7 +87,7 @@ class CompanyDetails extends React.Component {
     const rightSidebar = (
       <Sidebar>
         <CustomerAssociate data={company} />
-        <DealSection deals={company.deals || []} />
+        <DealSection companyId={company._id} />
       </Sidebar>
     );
 

@@ -14,7 +14,7 @@ class DealMoveContainer extends React.Component {
     this.onChangePipeline = this.onChangePipeline.bind(this);
     this.onChangeStage = this.onChangeStage.bind(this);
 
-    const { boardId, pipelineId, deal: { stageId } } = props;
+    const { deal: { boardId, pipelineId, stageId } } = props;
 
     this.state = {
       stageId,
@@ -92,8 +92,6 @@ const propTypes = {
   pipelinesQuery: PropTypes.object,
   stagesQuery: PropTypes.object,
   deal: PropTypes.object,
-  boardId: PropTypes.string,
-  pipelineId: PropTypes.string,
   onChangeStage: PropTypes.func
 };
 
@@ -105,7 +103,7 @@ export default compose(
   }),
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
-    options: ({ boardId }) => ({
+    options: ({ deal: { boardId } }) => ({
       variables: {
         boardId
       }
@@ -113,7 +111,7 @@ export default compose(
   }),
   graphql(gql(queries.stages), {
     name: 'stagesQuery',
-    options: ({ pipelineId }) => ({
+    options: ({ deal: { pipelineId } }) => ({
       variables: {
         pipelineId
       }

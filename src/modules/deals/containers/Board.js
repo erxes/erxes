@@ -27,9 +27,7 @@ class BoardContainer extends React.Component {
   }
 
   getChildContext() {
-    const { currentBoard } = this.props;
-
-    return { move: this.move, boardId: currentBoard ? currentBoard._id : '' };
+    return { move: this.move };
   }
 
   move({ source, destination, itemId, type }) {
@@ -56,6 +54,8 @@ class BoardContainer extends React.Component {
 
     // dropped outside the list
     if (!destination) return;
+
+    this.setState({});
 
     this.move({
       source: { _id: source.droppableId, index: source.index },
@@ -92,8 +92,7 @@ BoardContainer.propTypes = {
 };
 
 BoardContainer.childContextTypes = {
-  move: PropTypes.func,
-  boardId: PropTypes.string
+  move: PropTypes.func
 };
 
 const BoardContainerWithData = compose(
