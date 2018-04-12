@@ -46,8 +46,7 @@ class ConversationDetail extends Component {
         }
 
         const message = subscriptionData.data.conversationMessageInserted;
-        const messages = prev.conversationMessages.list;
-        const totalCount = prev.conversationMessages.totalCount;
+        const messages = prev.conversationMessages;
 
         // check whether or not already inserted
         const prevEntry = messages.find(m => m._id === message._id);
@@ -58,11 +57,7 @@ class ConversationDetail extends Component {
 
         // add new message to messages list
         const next = {
-          conversationMessages: {
-            ...prev.conversationMessages,
-            list: [message, ...messages],
-            totalCount: totalCount + 1
-          }
+          conversationMessages: [...messages, message]
         };
 
         return next;
@@ -112,7 +107,7 @@ class ConversationDetail extends Component {
     const loading = detailQuery.loading || messagesQuery.loading;
 
     const currentConversation = detailQuery.conversationDetail || {};
-    const conversationMessages = messagesQuery.conversationMessages || {};
+    const conversationMessages = messagesQuery.conversationMessages || [];
     const readUserIds = currentConversation.readUserIds || [];
 
     // mark as read ============

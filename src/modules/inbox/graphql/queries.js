@@ -96,10 +96,7 @@ const conversationDetailMarkAsRead = `
 const conversationMessages = `
   query conversationMessages($conversationId: String!, $skip: Int) {
     conversationMessages(conversationId: $conversationId skip: $skip) {
-      list {
-        ${messageFields}
-      }
-      totalCount
+      ${messageFields}
     }
   }
 `;

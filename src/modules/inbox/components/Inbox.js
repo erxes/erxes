@@ -232,7 +232,7 @@ Inbox.propTypes = {
   onChangeConversation: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
-  conversationMessages: PropTypes.object,
+  conversationMessages: PropTypes.array,
   loading: PropTypes.bool
 };
 

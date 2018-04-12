@@ -7,7 +7,7 @@ import { TwitterConversation } from './TwitterConversation';
 
 const propTypes = {
   conversation: PropTypes.object,
-  conversationMessages: PropTypes.object,
+  conversationMessages: PropTypes.array,
   attachmentPreview: PropTypes.object,
   scrollBottom: PropTypes.func.isRequired
 };
@@ -40,9 +40,9 @@ class Conversation extends Component {
       return null;
     }
 
-    let messagesList = conversationMessages.list || [];
+    let messagesList = conversationMessages || [];
 
-    const messages = messagesList.slice().reverse();
+    const messages = messagesList.slice();
     const firstMessage = messages.length && messages[0];
     const rows = [];
 
