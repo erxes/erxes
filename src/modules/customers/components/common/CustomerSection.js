@@ -21,6 +21,17 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
+  const mailTo = email => {
+    if (email) {
+      return (
+        <a target="_blank" href={`mailto:${email}`}>
+          {email}
+        </a>
+      );
+    }
+    return null;
+  };
+
   return (
     <Section>
       <Title>{__('Customers')}</Title>
@@ -29,7 +40,11 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
         <ModalTrigger
           title="Associate"
           size="lg"
-          trigger={<Icon icon="plus" />}
+          trigger={
+            <a>
+              <Icon icon="plus" />
+            </a>
+          }
         >
           <CustomerChooser data={{ name, customers }} onSelect={onSelect} />
         </ModalTrigger>
@@ -40,8 +55,8 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
             <Link to={`/customers/details/${customer._id}`}>
               <Icon icon="android-arrow-forward" />
             </Link>
-            <span>{__('Name')}: </span>
             <span>{renderFullName(customer)}</span>
+            {mailTo(customer.email)}
           </SectionBodyItem>
         ))}
         {customers.length === 0 && (

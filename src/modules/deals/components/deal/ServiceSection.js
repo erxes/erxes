@@ -39,7 +39,11 @@ function ServiceSection(
         <ModalTrigger
           title="New Product & Service"
           dialogClassName="full"
-          trigger={<Icon icon="plus" />}
+          trigger={
+            <a>
+              <Icon icon="plus" />
+            </a>
+          }
         >
           <ProductForm
             onChangeProductsData={onChangeProductsData}

@@ -173,6 +173,11 @@ const SectionBodyItem = styled.div`
       cursor: pointer;
     }
   }
+
+  a {
+    font-size: 12px;
+  }
+
   ul {
     li {
       margin-left: 20px;
