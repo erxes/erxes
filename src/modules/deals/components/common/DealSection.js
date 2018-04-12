@@ -9,14 +9,15 @@ const propTypes = {
   deals: PropTypes.array.isRequired,
   customerId: PropTypes.string,
   companyId: PropTypes.string,
-  saveDeal: PropTypes.func
+  saveDeal: PropTypes.func,
+  removeDeal: PropTypes.func
 };
 
 class DealSection extends React.Component {
   render() {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Sidebar.Section;
-    const { saveDeal, customerId, companyId, deals } = this.props;
+    const { saveDeal, removeDeal, customerId, companyId, deals } = this.props;
     const { __ } = this.context;
 
     return (
@@ -36,7 +37,12 @@ class DealSection extends React.Component {
 
         <SectionContainer>
           {deals.map((deal, index) => (
-            <Deal key={index} dealId={deal._id} saveDeal={saveDeal} />
+            <Deal
+              key={index}
+              dealId={deal._id}
+              saveDeal={saveDeal}
+              removeDeal={removeDeal}
+            />
           ))}
 
           {deals.length === 0 && <EmptyState icon="briefcase" text="No deal" />}

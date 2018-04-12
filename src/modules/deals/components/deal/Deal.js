@@ -16,11 +16,16 @@ const propTypes = {
 
 class Deal extends React.Component {
   showEditForm(trigger) {
-    const { deal, saveDeal, removeDeal } = this.props;
+    const { deal, index, saveDeal, removeDeal } = this.props;
 
     return (
       <ModalTrigger title="Edit deal" trigger={trigger} size="lg">
-        <DealEditForm deal={deal} saveDeal={saveDeal} removeDeal={removeDeal} />
+        <DealEditForm
+          deal={deal}
+          saveDeal={saveDeal}
+          removeDeal={removeDeal}
+          index={index}
+        />
       </ModalTrigger>
     );
   }
@@ -40,11 +45,7 @@ class Deal extends React.Component {
                   {...provided.dragHandleProps}
                   isDragging={snapshot.isDragging}
                 >
-                  <CommonDeal
-                    deal={deal}
-                    saveDeal={saveDeal}
-                    removeDeal={removeDeal}
-                  />
+                  <CommonDeal deal={deal} />
                 </Container>
                 {provided.placeholder}
               </Fragment>

@@ -28,12 +28,13 @@ import {
 } from '../../styles/deal';
 
 const propTypes = {
-  deal: PropTypes.object,
+  deal: PropTypes.object.isRequired,
   saveDeal: PropTypes.func.isRequired,
   removeDeal: PropTypes.func,
   users: PropTypes.array,
   dealActivityLog: PropTypes.array,
-  loadingLogs: PropTypes.bool
+  loadingLogs: PropTypes.bool,
+  index: PropTypes.number
 };
 
 const contextTypes = {
@@ -48,6 +49,7 @@ class DealEditForm extends React.Component {
     super(props);
 
     this.onTabClick = this.onTabClick.bind(this);
+    this.onChangeInput = this.onChangeInput.bind(this);
     this.onChangeStage = this.onChangeStage.bind(this);
     this.onChangeCompany = this.onChangeCompany.bind(this);
     this.onChangeCustomer = this.onChangeCustomer.bind(this);
@@ -59,9 +61,10 @@ class DealEditForm extends React.Component {
     this.save = this.save.bind(this);
     this.copy = this.copy.bind(this);
 
-    const deal = props.deal || {};
+    const deal = props.deal;
 
     this.state = {
+      name: deal.name,
       stageId: deal.stageId,
       disabled: false,
       amount: deal.amount || {},
@@ -77,12 +80,18 @@ class DealEditForm extends React.Component {
     };
   }
 
-  onChangeStage(stageId) {
-    this.setState({ stageId });
-  }
-
   onTabClick(currentTab) {
     this.setState({ currentTab });
+  }
+
+  onChangeInput(e) {
+    const { name, value } = e.target;
+
+    this.setState({ [name]: value });
+  }
+
+  onChangeStage(stageId) {
+    this.setState({ stageId });
   }
 
   onChangeCompany(companies) {
@@ -140,6 +149,8 @@ class DealEditForm extends React.Component {
   save() {
     const { deal } = this.props;
     const {
+      name,
+      description,
       companies,
       customers,
       closeDate,
@@ -147,8 +158,6 @@ class DealEditForm extends React.Component {
       assignedUserIds
     } = this.state;
     const { __ } = this.context;
-
-    const name = document.getElementById('name').value;
 
     if (!name) {
       return Alert.error(__('Enter name'));
@@ -163,7 +172,7 @@ class DealEditForm extends React.Component {
       companyIds: companies.map(company => company._id),
       customerIds: customers.map(customer => customer._id),
       closeDate: closeDate ? new Date(closeDate) : null,
-      description: document.getElementById('description').value,
+      description,
       productsData,
       stageId: deal.stageId,
       assignedUserIds
@@ -178,23 +187,21 @@ class DealEditForm extends React.Component {
         // after save, enable save button
         this.setState({ disabled: false });
 
-        if (deal) {
-          const { move } = this.context;
-
-          // if changed stageId, update ui
-          if (move && deal.stageId !== this.state.stageId) {
-            const moveDoc = {
-              source: { _id: deal.stageId, index: deal.order },
-              destination: { _id: this.state.stageId, index: 0 },
-              itemId: deal._id,
-              type: 'stage'
-            };
-
-            move(moveDoc);
-          }
-        }
-
         this.context.closeModal();
+
+        const { move } = this.context;
+
+        // if changed stageId, update ui
+        if (move && deal.stageId !== this.state.stageId) {
+          const moveDoc = {
+            source: { _id: deal.stageId, index: this.props.index },
+            destination: { _id: this.state.stageId, index: 0 },
+            itemId: deal._id,
+            type: 'stage'
+          };
+
+          move(moveDoc);
+        }
       },
       this.props.deal
     );
@@ -274,15 +281,14 @@ class DealEditForm extends React.Component {
 
   renderFormContent() {
     const { deal, users } = this.props;
-    const { closeDate, amount, assignedUserIds } = this.state;
+    const {
+      name,
+      description,
+      closeDate,
+      amount,
+      assignedUserIds
+    } = this.state;
     const { __ } = this.context;
-
-    const nameField = name => (
-      <HeaderContent>
-        <ControlLabel>Name</ControlLabel>
-        <FormControl id="name" defaultValue={name || ''} required />
-      </HeaderContent>
-    );
 
     const userValue = option => (
       <SelectValue>
@@ -298,16 +304,17 @@ class DealEditForm extends React.Component {
       </SelectOption>
     );
 
-    // When add, only show name
-    if (!deal) return nameField();
-    const { name, description } = deal;
-
     return (
       <Fragment>
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
-            <FormControl id="name" defaultValue={name} required />
+            <FormControl
+              name="name"
+              defaultValue={name}
+              required
+              onChange={this.onChangeInput}
+            />
           </HeaderContent>
 
           {this.renderAmount(amount)}
@@ -336,9 +343,10 @@ class DealEditForm extends React.Component {
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
-                id="description"
+                name="description"
                 componentClass="textarea"
                 defaultValue={description}
+                onChange={this.onChangeInput}
               />
             </FormGroup>
           </Left>

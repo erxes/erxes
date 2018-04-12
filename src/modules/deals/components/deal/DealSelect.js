@@ -1,8 +1,9 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import { FormGroup, ControlLabel } from 'modules/common/components';
 import { selectOptions } from '../../utils';
+import { SelectContainer } from '../../styles/deal';
 
 class DealSelect extends React.Component {
   renderSelect(placeholder, value, onChange, options) {
@@ -39,7 +40,7 @@ class DealSelect extends React.Component {
     } = this.props;
 
     return (
-      <Fragment>
+      <SelectContainer>
         <FormGroup>
           <ControlLabel>Board</ControlLabel>
           {this.renderSelect(
@@ -69,7 +70,7 @@ class DealSelect extends React.Component {
             selectOptions(stages)
           )}
         </FormGroup>
-      </Fragment>
+      </SelectContainer>
     );
   }
 }

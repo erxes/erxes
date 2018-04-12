@@ -55,6 +55,8 @@ class BoardContainer extends React.Component {
     // dropped outside the list
     if (!destination) return;
 
+    this.setState({});
+
     this.move({
       source: { _id: source.droppableId, index: source.index },
       destination: { _id: destination.droppableId, index: destination.index },

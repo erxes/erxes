@@ -80,7 +80,6 @@ class Inbox extends Component {
   }
 
   renderSectionBottom(customer) {
-    console.log('customer: ', customer);
     return (
       <Fragment>
         <CompanyAssociate data={customer} />
