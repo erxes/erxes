@@ -65,6 +65,7 @@ class Conversation extends Component {
 
       tempId = message.userId ? message.userId : message.customerId;
     });
+
     return rows;
   }
 
@@ -87,6 +88,7 @@ class Conversation extends Component {
 
   render() {
     const { attachmentPreview, scrollBottom } = this.props;
+
     return (
       <Wrapper>
         {this.renderConversation()}

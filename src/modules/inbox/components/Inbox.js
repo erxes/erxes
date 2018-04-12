@@ -109,8 +109,7 @@ class Inbox extends Component {
       currentConversation,
       conversationMessages,
       onChangeConversation,
-      refetch,
-      loading
+      refetch
     } = this.props;
 
     const { __ } = this.context;
@@ -190,7 +189,6 @@ class Inbox extends Component {
           attachmentPreview={this.state.attachmentPreview}
           scrollBottom={this.scrollBottom}
         />
-        {loading && <Spinner />}
       </ConversationWrapper>
     );
 
