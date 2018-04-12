@@ -4,8 +4,8 @@ import { withRouter } from 'react-router';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { Board } from '../components';
+import { Spinner } from 'modules/common/components';
 import { queries } from '../graphql';
 
 class BoardContainer extends React.Component {
@@ -68,12 +68,8 @@ class BoardContainer extends React.Component {
   render() {
     const { boardsQuery, pipelinesQuery } = this.props;
 
-    if (pipelinesQuery.loading) {
-      return <Spinner />;
-    }
-
     const boards = boardsQuery.dealBoards || [];
-    const pipelines = pipelinesQuery.dealPipelines;
+    const pipelines = pipelinesQuery.dealPipelines || [];
 
     const extendedProps = {
       ...this.props,
@@ -152,7 +148,7 @@ const DefaultBoard = props => {
   const { boardGetDefaultQuery } = props;
 
   if (boardGetDefaultQuery.loading) {
-    return <Spinner />;
+    return null;
   }
 
   const defaultBoard = boardGetDefaultQuery.dealBoardGetDefault;

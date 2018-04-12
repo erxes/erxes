@@ -23,7 +23,7 @@ class UserCommonInfos extends Component {
   constructor(props) {
     super(props);
 
-    const defaultAvatar = '/images/avatar-colored.png';
+    const defaultAvatar = '/images/avatar-colored.svg';
 
     this.state = {
       avatarPreviewUrl: this.props.user.details.avatar || defaultAvatar,

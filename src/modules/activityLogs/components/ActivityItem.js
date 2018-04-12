@@ -1,35 +1,37 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { NameCard, Icon } from 'modules/common/components';
+import { NameCard, Icon, Tip } from 'modules/common/components';
 import {
   ActivityRow,
   AvatarWrapper,
-  ActivityWrapper,
-  ActivityCaption,
   ActivityContent,
   ActivityDate,
-  ActivityIcon
+  ActivityIcon,
+  FlexContent,
+  FlexBody
 } from 'modules/activityLogs/styles';
 
 const ActivityItem = data => {
-  const formatDate = date => {
-    return moment(date).fromNow();
-  };
-
   return (
     <ActivityRow key={Math.random()}>
       <ActivityIcon color={data.color}>
         <Icon icon={data.icon || ''} />
       </ActivityIcon>
-      <ActivityWrapper>
-        <AvatarWrapper>
-          <NameCard.Avatar user={data.by} size={40} />
-        </AvatarWrapper>
-        <ActivityCaption>{data.caption}</ActivityCaption>
-        <ActivityDate>{formatDate(data.date)}</ActivityDate>
+      <Fragment>
+        <FlexContent>
+          <AvatarWrapper>
+            <NameCard.Avatar user={data.by} size={40} />
+          </AvatarWrapper>
+          <FlexBody>
+            <div>{data.caption}</div>
+          </FlexBody>
+          <Tip text={moment(data.date).format('lll')}>
+            <ActivityDate>{moment(data.date).fromNow()}</ActivityDate>
+          </Tip>
+        </FlexContent>
         {data.content && <ActivityContent>{data.content}</ActivityContent>}
-      </ActivityWrapper>
+      </Fragment>
     </ActivityRow>
   );
 };

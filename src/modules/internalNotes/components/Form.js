@@ -24,7 +24,6 @@ const EditorWrapper = styled.div`
   position: relative;
 
   textarea {
-    min-height: 100px;
     border-bottom: none;
     box-sizing: border-box;
     padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px

@@ -82,6 +82,7 @@ const Amount = styled.ul`
     span {
       font-weight: bold;
       font-size: 10px;
+      color: ${colors.colorCoreBlue};
     }
 
     &:after {

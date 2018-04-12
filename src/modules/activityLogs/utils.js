@@ -149,7 +149,7 @@ export default class {
       case 'internal_note-create':
         caption = (
           <span>
-            {source} left a note about {target}
+            {source} left a note on {target}
           </span>
         );
         break;

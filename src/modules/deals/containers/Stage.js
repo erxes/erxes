@@ -5,7 +5,6 @@ import gql from 'graphql-tag';
 import { Stage } from '../components';
 import { queries, mutations } from '../graphql';
 import { Alert, confirm } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { collectOrders } from '../utils';
 
 class StageContainer extends React.Component {
@@ -143,16 +142,12 @@ class StageContainer extends React.Component {
   render() {
     const { stageDetailQuery } = this.props;
 
-    if (stageDetailQuery.loading) {
-      return <Spinner />;
-    }
-
     const extendedProps = {
       ...this.props,
       deals: this.state.deals,
       saveDeal: this.saveDeal,
       removeDeal: this.removeDeal,
-      stage: stageDetailQuery.dealStageDetail
+      stage: stageDetailQuery.dealStageDetail || {}
     };
 
     return <Stage {...extendedProps} />;
@@ -210,10 +205,10 @@ class StageWithDeals extends React.Component {
     const { dealsQuery } = this.props;
 
     if (dealsQuery.loading) {
-      return <Spinner />;
+      return null;
     }
 
-    const deals = dealsQuery.deals;
+    const deals = dealsQuery.deals || [];
 
     const extendedProps = {
       ...this.props,
