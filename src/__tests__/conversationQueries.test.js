@@ -169,36 +169,22 @@ describe('conversationQueries', () => {
     await conversationMessageFactory({ conversationId: conversation._id });
     await conversationMessageFactory({ conversationId: conversation._id });
     await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
 
     const qry = `
       query conversationMessages($conversationId: String! $skip: Int $limit: Int) {
         conversationMessages(conversationId: $conversationId skip: $skip limit: $limit) {
-          list {
-            _id
-          }
-          totalCount
+          _id
         }
       }
     `;
 
     const responses = await graphqlRequest(qry, 'conversationMessages', {
       conversationId: conversation._id,
-      skip: 3,
-      limit: 10,
+      skip: 1,
+      limit: 3,
     });
 
-    expect(responses.list.length).toBe(10);
-    expect(responses.totalCount).toBe(14);
+    expect(responses.length).toBe(3);
   });
 
   test('Conversations filtered by ids', async () => {
