@@ -7,7 +7,9 @@ import { userFactory } from '../db/factories';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-beforeAll(() => connect());
+beforeAll(() => {
+  connect(), Users.collection.ensureIndex({ email: 1 }, { unique: true });
+});
 
 afterAll(() => disconnect());
 
@@ -42,6 +44,7 @@ describe('User db utils', () => {
       await Users.createUser({
         password: 'password',
         details: { twitterUsername: 'twitter' },
+        email: 'asdas@asdas.com',
       });
     } catch (e) {
       expect(e.message).toBe('Duplicated twitter username');
@@ -51,6 +54,7 @@ describe('User db utils', () => {
     createdUser = await Users.createUser({
       password: 'password',
       details: { twitterUsername: 'other twitter' },
+      email: 'asdsad@qweqwe.com',
     });
 
     expect(createdUser.details.twitterUsername).toBe('other twitter');
@@ -64,12 +68,13 @@ describe('User db utils', () => {
       details: { ..._user.details.toJSON(), twitterUsername: 'twitter' },
       links: { ..._user.links.toJSON() },
       password: testPassword,
+      email: 'qwerty@qwerty.com',
     });
 
     expect(userObj).toBeDefined();
     expect(userObj._id).toBeDefined();
     expect(userObj.username).toBe(_user.username);
-    expect(userObj.email).toBe(_user.email);
+    expect(userObj.email).toBe('qwerty@qwerty.com');
     expect(userObj.role).toBe(_user.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(_user.details.position);
@@ -86,7 +91,7 @@ describe('User db utils', () => {
 
     // try with password ============
     await Users.updateUser(_user._id, {
-      email: updateDoc.email,
+      email: '123@gmail.com',
       username: updateDoc.username,
       password: testPassword,
       details: { ...updateDoc._doc.details.toJSON(), twitterUsername: 'tw' },
@@ -96,7 +101,7 @@ describe('User db utils', () => {
     let userObj = await Users.findOne({ _id: _user._id });
 
     expect(userObj.username).toBe(updateDoc.username);
-    expect(userObj.email).toBe(updateDoc.email);
+    expect(userObj.email).toBe('123@gmail.com');
     expect(userObj.role).toBe(userObj.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(updateDoc.details.position);
@@ -107,8 +112,7 @@ describe('User db utils', () => {
 
     // try without password ============
     await Users.updateUser(_user._id, {
-      email: updateDoc.email,
-      username: updateDoc.username,
+      username: 'qwe',
       details: { ...updateDoc._doc.details.toJSON(), twitterUsername: 'tw' },
     });
 
@@ -129,7 +133,7 @@ describe('User db utils', () => {
     const updateDoc = await userFactory();
 
     await Users.editProfile(_user._id, {
-      email: updateDoc.email,
+      email: 'testEmail@yahoo.com',
       username: updateDoc.username,
       details: updateDoc._doc.details,
       links: updateDoc._doc.links,
@@ -138,7 +142,7 @@ describe('User db utils', () => {
     const userObj = await Users.findOne({ _id: _user._id });
 
     expect(userObj.username).toBe(updateDoc.username);
-    expect(userObj.email).toBe(updateDoc.email);
+    expect(userObj.email).toBe('testEmail@yahoo.com');
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.twitterUsername).toBe(updateDoc.details.twitterUsername);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
