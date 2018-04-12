@@ -10,34 +10,44 @@ import { queries, mutations, subscriptions } from '../graphql';
 import { generateParams } from '../utils';
 
 class ConversationDetail extends Component {
+  constructor(props, context) {
+    super(props, context);
+
+    this.subscriptions = {};
+  }
+
   componentWillReceiveProps(nextProps) {
     const { history } = this.props;
+    const prevCurrentId = this.props.currentId;
 
     // add current conversation's _id to url
-    if (!routerUtils.getParam(history, '_id') && this.props.currentId) {
-      routerUtils.setParams(history, { _id: this.props.currentId });
+    if (!routerUtils.getParam(history, '_id') && prevCurrentId) {
+      routerUtils.setParams(history, { _id: prevCurrentId });
     }
 
     const { currentId, detailQuery, messagesQuery } = nextProps;
 
-    if (detailQuery.loading) {
+    if (detailQuery.loading || messagesQuery.loading) {
       return;
     }
+
+    if (this.subscriptions[currentId]) {
+      return;
+    }
+
+    this.subscriptions[currentId] = true;
 
     messagesQuery.subscribeToMore({
       document: gql(subscriptions.conversationMessageInserted),
       variables: { _id: currentId },
       updateQuery: (prev, { subscriptionData }) => {
-        const message = subscriptionData.data.conversationMessageInserted;
-        const messages = prev.conversationMessages.list;
-
-        let totalCount = prev.conversationMessages.totalCount;
-
-        totalCount++;
-
         if (currentId !== this.props.currentId) {
           return prev;
         }
+
+        const message = subscriptionData.data.conversationMessageInserted;
+        const messages = prev.conversationMessages.list;
+        const totalCount = prev.conversationMessages.totalCount;
 
         // check whether or not already inserted
         const prevEntry = messages.find(m => m._id === message._id);
@@ -51,7 +61,7 @@ class ConversationDetail extends Component {
           conversationMessages: {
             ...prev.conversationMessages,
             list: [message, ...messages],
-            totalCount
+            totalCount: totalCount + 1
           }
         };
 
@@ -161,23 +171,17 @@ ConversationDetail.propTypes = {
 const ConversationDetailContainer = compose(
   graphql(gql(queries.conversationDetail), {
     name: 'detailQuery',
-    options: ({ currentId }) => {
-      return {
-        notifyOnNetworkStatusChange: true,
-        fetchPolicy: 'cache-and-network',
-        variables: { _id: currentId }
-      };
-    }
+    options: ({ currentId }) => ({
+      variables: { _id: currentId },
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql(gql(queries.conversationMessages), {
     name: 'messagesQuery',
-    options: ({ currentId }) => {
-      return {
-        notifyOnNetworkStatusChange: true,
-        fetchPolicy: 'cache-and-network',
-        variables: { conversationId: currentId }
-      };
-    }
+    options: ({ currentId }) => ({
+      variables: { conversationId: currentId },
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql(gql(mutations.markAsRead), {
     name: 'markAsReadMutation',
@@ -233,8 +237,8 @@ const LastConversationContainer = compose(
   graphql(gql(queries.lastConversation), {
     name: 'lastConversationQuery',
     options: ({ queryParams }) => ({
-      notifyOnNetworkStatusChange: true,
-      variables: generateParams(queryParams)
+      variables: generateParams(queryParams),
+      fetchPolicy: 'network-only'
     })
   })
 )(LastConversation);
