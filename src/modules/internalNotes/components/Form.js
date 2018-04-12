@@ -24,10 +24,10 @@ const EditorWrapper = styled.div`
   position: relative;
 
   textarea {
-    height: 100px;
     border-bottom: none;
     box-sizing: border-box;
-    padding-left: ${dimensions.coreSpacing}px;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px
+      ${dimensions.coreSpacing * 1.5}px;
   }
 `;
 
@@ -37,17 +37,25 @@ class Form extends Component {
 
     this.state = {
       content: '',
-      Editing: false
+      editing: false
     };
 
     this.handleChange = this.handleChange.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.onSend = this.onSend.bind(this);
     this.cancelEditing = this.cancelEditing.bind(this);
   }
 
   handleChange(e) {
     e.preventDefault();
-    this.setState({ content: e.target.value, Editing: true });
+    this.setState({ content: e.target.value, editing: true });
+  }
+
+  handleKeyDown(e) {
+    if (e.keyCode === 13 && e.shiftKey === false && this.state.content !== '') {
+      e.preventDefault();
+      this.onSend();
+    }
   }
 
   onSend() {
@@ -56,11 +64,11 @@ class Form extends Component {
   }
 
   cancelEditing() {
-    this.setState({ content: '', Editing: false });
+    this.setState({ content: '', editing: false });
   }
 
   renderFooter() {
-    if (!this.state.Editing) return null;
+    if (!this.state.editing) return null;
     return (
       <EditorActions>
         <Button

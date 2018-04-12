@@ -22,7 +22,8 @@ const propTypes = {
   index: PropTypes.number.isRequired,
   length: PropTypes.number.isRequired,
   saveDeal: PropTypes.func.isRequired,
-  removeDeal: PropTypes.func.isRequired
+  removeDeal: PropTypes.func.isRequired,
+  stageId: PropTypes.string
 };
 
 class Stage extends React.Component {
@@ -85,10 +86,10 @@ class Stage extends React.Component {
   }
 
   render() {
-    const { stage, deals, index } = this.props;
+    const { stage, deals, index, stageId } = this.props;
 
     return (
-      <Draggable draggableId={stage._id} index={index}>
+      <Draggable draggableId={stageId} index={index}>
         {(provided, snapshot) => (
           <Wrapper>
             <Container
@@ -106,7 +107,7 @@ class Stage extends React.Component {
               </Header>
 
               <Body>
-                <Droppable droppableId={stage._id} type="stage">
+                <Droppable droppableId={stageId} type="stage">
                   {dropProvided => this.renderDeal(dropProvided)}
                 </Droppable>
               </Body>

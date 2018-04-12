@@ -6,7 +6,8 @@ import {
   NotificationSeeAll,
   NotificationArea,
   NotificationList,
-  NotificationWrapper
+  NotificationWrapper,
+  PopoverContent
 } from './styles';
 import { NotificationRow } from './';
 
@@ -41,21 +42,22 @@ class NotificationsLatest extends Component {
     );
 
     const emptyContent = (
-      <EmptyState
-        icon="android-notifications"
-        text={__('Coming soon')}
-        size="small"
-      />
+      <PopoverContent>
+        <EmptyState
+          text={__('Coming soon')}
+          image="/images/robots/robot-05.svg"
+        />
+      </PopoverContent>
     );
 
     const content = () => {
       if (notifCount === 0) {
         return emptyContent;
       }
-      return mainContent;
+      return <NotificationWrapper>{mainContent}</NotificationWrapper>;
     };
 
-    return <NotificationWrapper>{content()}</NotificationWrapper>;
+    return content();
   }
 }
 

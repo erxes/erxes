@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
@@ -11,15 +11,16 @@ import {
   TabTitle,
   Icon,
   DataWithLoader,
-  LoadMore
+  LoadMore,
+  Tip
 } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
 import {
   ActivityRow,
-  ActivityWrapper,
   AvatarWrapper,
-  ActivityCaption,
-  ActivityDate
+  ActivityDate,
+  FlexContent,
+  FlexBody
 } from 'modules/activityLogs/styles';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
@@ -53,26 +54,32 @@ class UserDetails extends React.Component {
   renderConversation(conversation, user) {
     return (
       <ActivityRow key={conversation._id}>
-        <ActivityWrapper>
-          <AvatarWrapper>
-            <NameCard.Avatar user={user} size={50} />
-          </AvatarWrapper>
+        <Fragment>
+          <FlexContent>
+            <AvatarWrapper>
+              <NameCard.Avatar user={user} size={50} />
+            </AvatarWrapper>
 
-          <ActivityCaption>
-            {user.details.fullName} participated in a
-            <Link to={`/inbox?_id=${conversation._id}`}>
-              <strong> conversation </strong>
-            </Link>
-            with{' '}
-            <Link to={`/customers/details/${conversation.customer._id}`}>
-              <strong>{renderFullName(conversation.customer)}</strong>
-            </Link>
-          </ActivityCaption>
+            <FlexBody>
+              <div>
+                {user.details.fullName} participated in a
+                <Link to={`/inbox?_id=${conversation._id}`}>
+                  <strong> conversation </strong>
+                </Link>
+                with{' '}
+                <Link to={`/customers/details/${conversation.customer._id}`}>
+                  <strong>{renderFullName(conversation.customer)}</strong>
+                </Link>
+              </div>
+            </FlexBody>
 
-          <ActivityDate>
-            {moment(conversation.createdAt).fromNow()}
-          </ActivityDate>
-        </ActivityWrapper>
+            <Tip text={moment(conversation.createdAt).format('lll')}>
+              <ActivityDate>
+                {moment(conversation.createdAt).fromNow()}
+              </ActivityDate>
+            </Tip>
+          </FlexContent>
+        </Fragment>
       </ActivityRow>
     );
   }

@@ -89,20 +89,16 @@ class Board extends React.Component {
 
     const { currentBoard, onDragEnd } = this.props;
 
+    let content = null;
+
     if (!currentBoard) {
-      return (
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          content={
-            <EmptyState
-              linkUrl="/settings/deals"
-              linkText="Create one"
-              size="full"
-              text="There is no board"
-              image="/images/robots/robot-05.svg"
-            />
-          }
-          transparent
+      content = (
+        <EmptyState
+          linkUrl="/settings/deals"
+          linkText="Create one"
+          size="full"
+          text="There is no board"
+          image="/images/robots/robot-05.svg"
         />
       );
     }
@@ -125,7 +121,7 @@ class Board extends React.Component {
       <Wrapper.ActionBar left={actionBarLeft} background="transparent" />
     );
 
-    const content = (
+    content = (
       <DragDropContext onDragEnd={onDragEnd}>
         {this.renderPipelines()}
       </DragDropContext>

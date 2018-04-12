@@ -5,7 +5,7 @@ import { Sidebar } from 'modules/layout/components';
 import { ModalTrigger, Icon, Tip, EmptyState } from 'modules/common/components';
 import { urlParser } from 'modules/common/utils';
 import { CompanyChooser } from '../../containers';
-import { CompanyWrapper } from '../../styles';
+import { SectionBody, SectionBodyItem } from 'modules/customers/styles';
 
 const propTypes = {
   name: PropTypes.string,
@@ -35,23 +35,24 @@ function CompanySection({ name, companies, onSelect }, { __ }) {
           <CompanyChooser data={{ name, companies }} onSelect={onSelect} />
         </ModalTrigger>
       </Section.QuickButtons>
-      {companies.map((company, index) => (
-        <CompanyWrapper key={index}>
-          <Link to={`/companies/details/${company._id}`}>
-            <Icon icon="android-open" />
-          </Link>
-          <div>{company.name || 'N/A'}</div>
-          <Tip text={company.website || ''}>
-            <a target="_blank" href={`//${company.website}`}>
-              {urlParser.extractRootDomain(company.website)}
-            </a>
-          </Tip>
-        </CompanyWrapper>
-      ))}
-
-      {companies.length === 0 && (
-        <EmptyState icon="briefcase" text="No company" />
-      )}
+      <SectionBody>
+        {companies.map((company, index) => (
+          <SectionBodyItem key={index}>
+            <Link to={`/companies/details/${company._id}`}>
+              <Icon icon="android-open" />
+            </Link>
+            <span>{company.name || 'N/A'}</span>
+            <Tip text={company.website || ''}>
+              <a target="_blank" href={`//${company.website}`}>
+                {urlParser.extractRootDomain(company.website)}
+              </a>
+            </Tip>
+          </SectionBodyItem>
+        ))}
+        {companies.length === 0 && (
+          <EmptyState icon="briefcase" text="No company" />
+        )}
+      </SectionBody>
     </Section>
   );
 }

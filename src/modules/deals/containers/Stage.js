@@ -5,7 +5,6 @@ import gql from 'graphql-tag';
 import { Stage } from '../components';
 import { queries, mutations } from '../graphql';
 import { Alert, confirm } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { collectOrders } from '../utils';
 
 class StageContainer extends React.Component {
@@ -142,10 +141,6 @@ class StageContainer extends React.Component {
 
   render() {
     const { stageDetailQuery } = this.props;
-
-    if (stageDetailQuery.loading) {
-      return <Spinner objective />;
-    }
 
     const extendedProps = {
       ...this.props,
