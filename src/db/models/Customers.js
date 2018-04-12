@@ -206,6 +206,21 @@ class Customer {
       if (previousEntry.length > 0) {
         throw new Error('Duplicated phone');
       }
+
+      delete query['facebookData.id'];
+    }
+
+    // Checking if customer has facebook data
+    if (customerFields.facebookData) {
+      query['facebookData.id'] = customerFields.facebookData.id;
+      previousEntry = await this.find(query);
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated facebook');
+      }
+
+      delete query['facebookData.id'];
     }
   }
 
