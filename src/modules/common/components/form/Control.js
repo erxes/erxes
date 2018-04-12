@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Textarea from './Textarea';
 import {
   Input,
   Select,
   SelectWrapper,
-  Textarea,
   FormLabel,
   Radio,
   Checkbox
@@ -135,7 +135,7 @@ class FormControl extends React.Component {
     }
 
     if (elementType === 'textarea') {
-      return <Textarea {...attributes} />;
+      return <Textarea {...props} />;
     }
 
     return <Input {...attributes} />;

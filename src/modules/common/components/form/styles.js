@@ -99,10 +99,11 @@ const Select = Input.withComponent('select').extend`
   -webkit-appearance: none;
 `;
 
-const Textarea = Input.withComponent('textarea').extend`
+const TextArea = Input.withComponent('textarea').extend`
   ${formInvalid}
-
-  height: 80px;
+  transition: none;
+  max-height: ${props => props.maxHeight && `${props.maxHeight}px`};
+  min-height: 80px;
 `;
 
 const FormLabel = styled.label`
@@ -177,10 +178,10 @@ const inputStyle = styled.input`
       background-color: ${colors.colorWhite};
       position: absolute;
       top: 56%;
-      left: calc(${inputPadding} + ${inputBorderWidth} + ${inputScale}/2);
+      left: calc(${inputPadding} + ${inputBorderWidth} + ${inputScale} / 2);
       width: calc(${inputHeight} - ${inputScale});
       height: calc(${inputHeight} - ${inputScale});
-      margin-top: calc((${inputHeight} - ${inputScale})/-2);
+      margin-top: calc((${inputHeight} - ${inputScale}) / -2);
       transform: scale(0);
       transform-origin: 51%;
       transition: transform 200ms ease-out;
@@ -270,7 +271,7 @@ export {
   Input,
   SelectWrapper,
   Select,
-  Textarea,
+  TextArea,
   Radio,
   Checkbox,
   FormLabel,
