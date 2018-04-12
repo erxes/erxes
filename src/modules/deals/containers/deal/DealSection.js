@@ -4,9 +4,7 @@ import { DealSection } from '../../components';
 import { WithAction } from '../../containers';
 
 const DealSectionContainer = props => {
-  const { customerId } = props;
-
-  const DealSectionWithAction = WithAction(DealSection, { customerId });
+  const DealSectionWithAction = WithAction(DealSection, props);
 
   return <DealSectionWithAction />;
 };

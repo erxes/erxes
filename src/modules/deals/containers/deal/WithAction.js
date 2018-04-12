@@ -6,14 +6,13 @@ import { queries, mutations } from '../../graphql';
 import { Alert, confirm } from 'modules/common/utils';
 import { Spinner } from 'modules/common/components';
 
-export default function WithAction(WrappedComponent, param) {
+export default function WithAction(WrappedComponent, params) {
   const WithAction = class extends React.Component {
     constructor(props) {
       super(props);
 
       this.saveDeal = this.saveDeal.bind(this);
       this.removeDeal = this.removeDeal.bind(this);
-      this.moveDeal = this.moveDeal.bind(this);
     }
 
     // create or update deal
@@ -67,26 +66,6 @@ export default function WithAction(WrappedComponent, param) {
       });
     }
 
-    // move deal
-    moveDeal(doc, callback) {
-      const { dealsChangeMutation, dealsQuery } = this.props;
-      const { __ } = this.context;
-
-      dealsChangeMutation({
-        variables: doc
-      })
-        .then(() => {
-          Alert.success(__('Successfully moved.'));
-
-          dealsQuery.refetch();
-
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    }
-
     render() {
       const { dealsQuery } = this.props;
 
@@ -95,10 +74,10 @@ export default function WithAction(WrappedComponent, param) {
       }
 
       const extendedProps = {
+        ...params,
         ...this.props,
         saveDeal: this.saveDeal,
         removeDeal: this.removeDeal,
-        moveDeal: this.moveDeal,
         deals: dealsQuery.deals
       };
 
@@ -135,9 +114,9 @@ export default function WithAction(WrappedComponent, param) {
       name: 'dealsQuery',
       options: () => ({
         variables: {
-          stageId: param.stageId || '',
-          customerId: param.customerId || '',
-          companyId: param.companyId || ''
+          stageId: params.stageId || '',
+          customerId: params.customerId || '',
+          companyId: params.companyId || ''
         }
       })
     })

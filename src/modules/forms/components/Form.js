@@ -3,16 +3,14 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Alert } from 'modules/common/utils';
-import { Button, Icon, FormControl } from 'modules/common/components';
+import { Button, FormControl, Step, Steps } from 'modules/common/components';
 import {
   ChooseType,
   CallOut,
   SuccessStep,
   OptionStep,
   FormStep,
-  FullPreviewStep,
-  Step,
-  Steps
+  FullPreviewStep
 } from './step';
 import { StepWrapper, TitleContainer } from '../styles';
 
@@ -32,25 +30,28 @@ class Form extends Component {
     const integration = props.integration || {};
     const formData = integration && (integration.formData || {});
     const form = integration && (integration.form || {});
+    const callout = form.callout || {};
     const fields = props.fields || [];
 
     this.state = {
       activeStep: 1,
-      maxStep: 6,
       type: formData.loadType || 'shoutbox',
-      preview: 'desktop',
       brand: integration.brandId,
+      language: integration.languageCode,
       title: integration.name,
-      calloutTitle: form.title || __('Contact'),
-      bodyValue: form.description || __('Body description here'),
+      calloutTitle: callout.title || __('Title'),
+      formTitle: form.title || __('Contact'),
+      bodyValue: callout.body || '',
+      formDesc: form.description || '',
       thankContent: formData.thankContent || __('Thank you.'),
-      btnText: form.buttonText || __('Send'),
-      theme: form.themeColor,
-      logoPreviewUrl: form.featuredImage,
-      fields: fields || []
+      formBtnText: form.buttonText || __('Send'),
+      calloutBtnText: callout.buttonText || 'Start',
+      theme: form.themeColor || '#6569DF',
+      logoPreviewUrl: callout.featuredImage,
+      fields: fields || [],
+      isSkip: callout.skip === null ? true : callout.skip
     };
 
-    this.next = this.next.bind(this);
     this.onChange = this.onChange.bind(this);
     this.renderSaveButton = this.renderSaveButton.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -87,24 +88,20 @@ class Form extends Component {
         redirectUrl: this.state.redirectUrl
       },
       form: {
-        title: calloutTitle,
-        description: this.state.bodyValue,
-        buttonText: this.state.btnText,
+        title: this.state.formTitle,
+        description: this.state.formDesc,
+        buttonText: this.state.formBtnText,
         themeColor: this.state.theme || this.state.color,
-        featuredImage: this.state.logoPreviewUrl
+        callout: {
+          title: calloutTitle,
+          body: this.state.bodyValue,
+          buttonText: this.state.calloutBtnText,
+          featuredImage: this.state.logoPreviewUrl,
+          skip: this.state.isSkip
+        }
       },
       fields: this.state.fields
     });
-  }
-
-  renderNextButton() {
-    const { __ } = this.context;
-
-    return (
-      <Button btnStyle="primary" size="small" onClick={() => this.next(0)}>
-        {__('Next')} <Icon icon="ios-arrow-forward" />
-      </Button>
-    );
   }
 
   renderSaveButton() {
@@ -131,18 +128,6 @@ class Form extends Component {
     );
   }
 
-  next(stepNumber) {
-    const { activeStep, maxStep } = this.state;
-
-    if (stepNumber === 0) {
-      if (activeStep <= maxStep) {
-        this.setState({ activeStep: activeStep + 1 });
-      }
-    } else {
-      this.setState({ activeStep: stepNumber });
-    }
-  }
-
   onChange(key, value) {
     this.setState({ [key]: value });
   }
@@ -151,9 +136,11 @@ class Form extends Component {
     const {
       activeStep,
       calloutTitle,
+      formTitle,
       type,
-      btnText,
+      calloutBtnText,
       bodyValue,
+      formDesc,
       color,
       theme,
       logoPreviewUrl,
@@ -161,7 +148,11 @@ class Form extends Component {
       fields,
       preview,
       carousel,
-      successAction
+      language,
+      title,
+      successAction,
+      formBtnText,
+      isSkip
     } = this.state;
 
     const { integration, brands } = this.props;
@@ -170,6 +161,7 @@ class Form extends Component {
     const formData = integration && integration.formData;
     const brand = integration && (integration.brand || {});
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
+    const constant = isSkip ? 'form' : 'callout';
 
     return (
       <StepWrapper>
@@ -180,94 +172,68 @@ class Form extends Component {
           <FormControl
             required
             onChange={e => this.onChange('title', e.target.value)}
-            defaultValue={this.state.title}
+            defaultValue={title}
           />
         </TitleContainer>
 
         <Steps active={activeStep}>
-          <Step
-            img="/images/icons/erxes-04.svg"
-            title="Type"
-            next={this.next}
-            nextButton={this.renderNextButton()}
-          >
+          <Step img="/images/icons/erxes-04.svg" title="Type">
             <ChooseType
               onChange={this.onChange}
               type={type}
               calloutTitle={calloutTitle}
-              btnText={btnText}
+              calloutBtnText={calloutBtnText}
               bodyValue={bodyValue}
               color={color}
+              theme={theme}
             />
           </Step>
 
-          <Step
-            img="/images/icons/erxes-03.svg"
-            title="CallOut"
-            next={this.next}
-            nextButton={this.renderNextButton()}
-          >
+          <Step img="/images/icons/erxes-03.svg" title="CallOut">
             <CallOut
               onChange={this.onChange}
               type={type}
               calloutTitle={calloutTitle}
-              btnText={btnText}
+              calloutBtnText={calloutBtnText}
               bodyValue={bodyValue}
               color={color}
               theme={theme}
               image={logoPreviewUrl}
+              skip={isSkip}
             />
           </Step>
-          <Step
-            img="/images/icons/erxes-12.svg"
-            title="Form"
-            next={this.next}
-            nextButton={this.renderNextButton()}
-          >
+          <Step img="/images/icons/erxes-12.svg" title="Form">
             <FormStep
               onChange={this.onChange}
-              calloutTitle={calloutTitle}
-              btnText={btnText}
-              bodyValue={bodyValue}
+              formTitle={formTitle}
+              formBtnText={formBtnText}
+              formDesc={formDesc}
               type={type}
               color={color}
               theme={theme}
               fields={fields}
-              image={logoPreviewUrl}
             />
           </Step>
-          <Step
-            img="/images/icons/erxes-06.svg"
-            title="Options"
-            next={this.next}
-            nextButton={this.renderNextButton()}
-          >
+          <Step img="/images/icons/erxes-06.svg" title="Options">
             <OptionStep
               onChange={this.onChange}
-              calloutTitle={calloutTitle}
-              btnText={btnText}
-              bodyValue={bodyValue}
+              formTitle={formTitle}
+              formBtnText={formBtnText}
+              formDesc={formDesc}
               type={type}
               color={color}
               brand={brand}
               theme={theme}
-              image={logoPreviewUrl}
               brands={brands}
               fields={fields}
+              language={language}
             />
           </Step>
-          <Step
-            img="/images/icons/erxes-13.svg"
-            title="Thank content"
-            next={this.next}
-            nextButton={this.renderNextButton()}
-          >
+          <Step img="/images/icons/erxes-13.svg" title="Thank content">
             <SuccessStep
               onChange={this.onChange}
               thankContent={thankContent}
               type={type}
-              color={color}
-              theme={theme}
               successAction={successAction}
               formData={formData}
             />
@@ -275,22 +241,25 @@ class Form extends Component {
           <Step
             img="/images/icons/erxes-14.svg"
             title="Full Preview"
-            next={this.next}
             nextButton={this.renderSaveButton()}
           >
             <FullPreviewStep
               onChange={this.onChange}
               calloutTitle={calloutTitle}
-              btnText={btnText}
+              formTitle={formTitle}
+              formBtnText={formBtnText}
+              calloutBtnText={calloutBtnText}
               bodyValue={bodyValue}
+              formDesc={formDesc}
               type={type}
               color={color}
               theme={theme}
               image={logoPreviewUrl}
               fields={fields}
-              preview={preview}
+              preview={preview || 'desktop'}
               thankContent={thankContent}
-              carousel={carousel || 'callout'}
+              skip={isSkip}
+              carousel={carousel || constant}
             />
           </Step>
         </Steps>

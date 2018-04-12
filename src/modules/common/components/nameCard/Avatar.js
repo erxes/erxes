@@ -12,6 +12,7 @@ const AvatarStyled = styled.span`
   padding: 0;
   text-align: center;
   position: relative;
+  color: ${colors.colorWhite};
 
   background: ${props =>
     (props.isUser && colors.colorCoreGreen) ||

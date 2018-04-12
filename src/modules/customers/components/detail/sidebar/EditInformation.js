@@ -4,7 +4,7 @@ import parse from 'ua-parser-js';
 import { Sidebar } from 'modules/layout/components';
 import { Button } from 'modules/common/components';
 import { ManageGroups } from 'modules/settings/properties/components';
-import { BasicInfo } from 'modules/customers/components/detail/sidebar';
+import { BasicInfo } from 'modules/customers/containers';
 import { BlockValue } from './styles';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
@@ -23,7 +23,8 @@ const propTypes = {
   otherProperties: PropTypes.node,
   fieldsGroups: PropTypes.array.isRequired,
   customFieldsData: PropTypes.object,
-  wide: PropTypes.bool
+  wide: PropTypes.bool,
+  refetch: PropTypes.func
 };
 
 class LeftSidebar extends ManageGroups {
@@ -130,7 +131,7 @@ class LeftSidebar extends ManageGroups {
   }
 
   render() {
-    const { customer, wide } = this.props;
+    const { customer, wide, refetch } = this.props;
 
     return (
       <Sidebar wide={wide} footer={this.renderSidebarFooter()}>
@@ -143,7 +144,7 @@ class LeftSidebar extends ManageGroups {
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
-        <TaggerSection data={customer} type="customer" />
+        <TaggerSection data={customer} type="customer" afterSave={refetch} />
       </Sidebar>
     );
   }

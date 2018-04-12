@@ -50,7 +50,8 @@ EditInformationContainer.propTypes = {
   sections: PropTypes.node,
   customersEdit: PropTypes.func.isRequired,
   wide: PropTypes.bool,
-  fieldsGroupsQuery: PropTypes.object.isRequired
+  fieldsGroupsQuery: PropTypes.object.isRequired,
+  query: PropTypes.object
 };
 
 EditInformationContainer.contextTypes = {

@@ -3,23 +3,11 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
-import { queries as userQueries } from 'modules/settings/team/graphql';
 import { Alert } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { CompanyForm } from '../components';
 
 const CompanyFromContainer = props => {
-  const {
-    companiesEdit,
-    company,
-    companiesAdd,
-    companiesQuery,
-    usersQuery
-  } = props;
-
-  if (companiesQuery.loading || usersQuery.loading) {
-    return <Spinner />;
-  }
+  const { companiesEdit, company, companiesAdd } = props;
 
   let action = ({ doc }) => {
     companiesAdd({ variables: doc })
@@ -45,8 +33,6 @@ const CompanyFromContainer = props => {
 
   const updatedProps = {
     ...props,
-    companies: companiesQuery.companies || [],
-    users: usersQuery.users || [],
     action
   };
 
@@ -55,7 +41,6 @@ const CompanyFromContainer = props => {
 
 CompanyFromContainer.propTypes = {
   company: PropTypes.object,
-  companiesQuery: PropTypes.object,
   usersQuery: PropTypes.object,
   companiesEdit: PropTypes.func,
   companiesAdd: PropTypes.func
@@ -68,14 +53,16 @@ CompanyFromContainer.contextTypes = {
 const options = ({ company }) => {
   if (!company) {
     return {
-      refetchQueries: [{ query: gql`${queries.companiesMain}` }]
+      refetchQueries: ['companiesMain', 'companies']
     };
   }
 
   return {
     refetchQueries: [
       {
-        query: gql`${queries.companyDetail}`,
+        query: gql`
+          ${queries.companyDetail}
+        `,
         variables: { _id: company._id }
       }
     ]
@@ -83,12 +70,6 @@ const options = ({ company }) => {
 };
 
 export default compose(
-  graphql(gql(queries.companies), {
-    name: 'companiesQuery'
-  }),
-  graphql(gql(userQueries.users), {
-    name: 'usersQuery'
-  }),
   graphql(gql(mutations.companiesEdit), {
     name: 'companiesEdit',
     options

@@ -123,7 +123,7 @@ class ProductItemForm extends React.Component {
         </td>
         <td>
           <FormControl
-            defaultValue={productData.unitPrice}
+            defaultValue={productData.unitPrice || ''}
             type="number"
             placeholder="0"
             name="unitPrice"
@@ -131,7 +131,7 @@ class ProductItemForm extends React.Component {
           />
 
           <FormControl
-            value={productData.discountPercent}
+            value={productData.discountPercent || ''}
             type="number"
             min="0"
             max="100"
@@ -141,7 +141,7 @@ class ProductItemForm extends React.Component {
           />
 
           <FormControl
-            defaultValue={productData.taxPercent}
+            defaultValue={productData.taxPercent || ''}
             type="number"
             min="0"
             max="100"
@@ -159,7 +159,7 @@ class ProductItemForm extends React.Component {
           </ItemText>
 
           <FormControl
-            value={productData.discount}
+            value={productData.discount || ''}
             type="number"
             placeholder="0"
             name="discount"

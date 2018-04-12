@@ -1,23 +1,29 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import Datetime from 'react-datetime';
-import Select from 'react-select-plus';
-import {
-  DataWithLoader,
-  Button,
-  Icon,
-  FormGroup,
-  FormControl,
-  ControlLabel,
-  Tabs,
-  TabTitle
-} from 'modules/common/components';
+import { Button, FormControl, ControlLabel } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { HeaderRow, HeaderContent, FormFooter } from '../../styles/deal';
+import { DealSelect } from '../';
 
 const propTypes = {
-  saveDeal: PropTypes.func.isRequired,
-  stageId: PropTypes.string
+  saveDeal: PropTypes.func,
+  customerId: PropTypes.string,
+  companyId: PropTypes.string,
+  boards: PropTypes.array,
+  pipelines: PropTypes.array,
+  stages: PropTypes.array,
+  boardId: PropTypes.string,
+  pipelineId: PropTypes.string,
+  stageId: PropTypes.string,
+  showSelect: PropTypes.bool,
+  toggleForm: PropTypes.func,
+  onChangeBoard: PropTypes.func,
+  onChangePipeline: PropTypes.func,
+  onChangeStage: PropTypes.func
+};
+
+const defaultProps = {
+  showSelect: false
 };
 
 const contextTypes = {
@@ -29,24 +35,32 @@ class DealAddForm extends React.Component {
   constructor(props) {
     super(props);
 
+    this.onChangeName = this.onChangeName.bind(this);
     this.save = this.save.bind(this);
 
-    this.state = { disabled: false };
+    this.state = {
+      disabled: false,
+      name: ''
+    };
   }
 
-  save() {
-    const { stageId } = this.props;
-    const { __ } = this.context;
+  onChangeName(e) {
+    this.setState({ name: e.target.value });
+  }
 
-    const name = document.getElementById('name').value;
+  save(e) {
+    e.preventDefault();
 
-    if (!name) {
-      return Alert.error(__('Enter name'));
-    }
+    const { name } = this.state;
+    const { stageId, customerId, companyId } = this.props;
+
+    if (!stageId) return Alert('No stage');
 
     const doc = {
       name,
-      stageId
+      stageId,
+      customerIds: customerId ? [customerId] : [],
+      companyIds: companyId ? [companyId] : []
     };
 
     // before save, disable save button
@@ -60,13 +74,47 @@ class DealAddForm extends React.Component {
     });
   }
 
+  renderSelect() {
+    const {
+      boards,
+      pipelines,
+      stages,
+      boardId,
+      pipelineId,
+      stageId,
+      onChangeBoard,
+      onChangePipeline,
+      onChangeStage,
+      showSelect
+    } = this.props;
+
+    if (!showSelect) return null;
+
+    return (
+      <DealSelect
+        show={showSelect}
+        boards={boards}
+        pipelines={pipelines}
+        stages={stages}
+        boardId={boardId}
+        pipelineId={pipelineId}
+        stageId={stageId}
+        onChangeBoard={onChangeBoard}
+        onChangePipeline={onChangePipeline}
+        onChangeStage={onChangeStage}
+      />
+    );
+  }
+
   render() {
     return (
-      <Fragment>
+      <form onSubmit={e => this.save(e)}>
+        {this.renderSelect()}
+
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
-            <FormControl id="name" required />
+            <FormControl required onChange={this.onChangeName} />
           </HeaderContent>
         </HeaderRow>
 
@@ -84,17 +132,17 @@ class DealAddForm extends React.Component {
             btnStyle="success"
             icon="checkmark"
             type="submit"
-            onClick={this.save}
           >
             Save
           </Button>
         </FormFooter>
-      </Fragment>
+      </form>
     );
   }
 }
 
 DealAddForm.propTypes = propTypes;
+DealAddForm.defaultProps = defaultProps;
 DealAddForm.contextTypes = contextTypes;
 
 export default DealAddForm;

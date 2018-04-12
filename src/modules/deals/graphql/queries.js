@@ -70,12 +70,8 @@ const dealDetail = `
       _id
       name
       stageId
-      pipeline {
-        _id
-      }
-      board {
-        _id
-      }
+      pipelineId
+      boardId
       companies {
         _id
         name
@@ -120,6 +116,7 @@ const users = `
       email
       details {
         fullName
+        avatar
       }
     }
   }

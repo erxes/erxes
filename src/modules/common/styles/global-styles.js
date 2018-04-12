@@ -47,6 +47,7 @@ injectGlobal`
     color: #F7CE53 !important;
   }
   /* override */
+
   .modal-backdrop {
     background-color: #30435C;
   } !important
@@ -151,7 +152,6 @@ injectGlobal`
   }
 
   /* tooltip */
-
   .tooltip-inner {
     background-color: #393C40;
     border-radius: 0;
@@ -348,7 +348,7 @@ injectGlobal`
   .Select--multi .Select-value-icon:hover,
   .Select--multi .Select-value-icon:focus,
   .Select--multi .Select-value-icon:active {
-    background-color: #0876a9;
+    background-color: rgba(0, 0, 0, 0.2);
     color: #fff;
   }
 

@@ -19,16 +19,18 @@ import {
   HeaderRow,
   HeaderContent,
   FormFooter,
-  FormBody,
+  FlexContent,
   Left,
-  Right
+  Right,
+  Avatar,
+  SelectValue,
+  SelectOption
 } from '../../styles/deal';
 
 const propTypes = {
   deal: PropTypes.object,
   saveDeal: PropTypes.func.isRequired,
   removeDeal: PropTypes.func,
-  moveDeal: PropTypes.func,
   users: PropTypes.array,
   dealActivityLog: PropTypes.array,
   loadingLogs: PropTypes.bool
@@ -36,6 +38,8 @@ const propTypes = {
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
+  move: PropTypes.func,
+  currentUser: PropTypes.object,
   __: PropTypes.func
 };
 
@@ -43,6 +47,8 @@ class DealEditForm extends React.Component {
   constructor(props) {
     super(props);
 
+    this.onTabClick = this.onTabClick.bind(this);
+    this.onChangeStage = this.onChangeStage.bind(this);
     this.onChangeCompany = this.onChangeCompany.bind(this);
     this.onChangeCustomer = this.onChangeCustomer.bind(this);
     this.onDateInputChange = this.onDateInputChange.bind(this);
@@ -56,6 +62,7 @@ class DealEditForm extends React.Component {
     const deal = props.deal || {};
 
     this.state = {
+      stageId: deal.stageId,
       disabled: false,
       amount: deal.amount || {},
       // Deal datas
@@ -68,6 +75,14 @@ class DealEditForm extends React.Component {
       products: deal.products ? deal.products.map(p => p.product) : [],
       assignedUserIds: (deal.assignedUsers || []).map(user => user._id)
     };
+  }
+
+  onChangeStage(stageId) {
+    this.setState({ stageId });
+  }
+
+  onTabClick(currentTab) {
+    this.setState({ currentTab });
   }
 
   onChangeCompany(companies) {
@@ -163,6 +178,22 @@ class DealEditForm extends React.Component {
         // after save, enable save button
         this.setState({ disabled: false });
 
+        if (deal) {
+          const { move } = this.context;
+
+          // if changed stageId, update ui
+          if (move && deal.stageId !== this.state.stageId) {
+            const moveDoc = {
+              source: { _id: deal.stageId, index: deal.order },
+              destination: { _id: this.state.stageId, index: 0 },
+              itemId: deal._id,
+              type: 'stage'
+            };
+
+            move(moveDoc);
+          }
+        }
+
         this.context.closeModal();
       },
       this.props.deal
@@ -236,9 +267,9 @@ class DealEditForm extends React.Component {
   }
 
   renderDealMove() {
-    const { deal, moveDeal } = this.props;
+    const { deal } = this.props;
 
-    return <DealMove deal={deal} moveDeal={moveDeal} />;
+    return <DealMove deal={deal} onChangeStage={this.onChangeStage} />;
   }
 
   renderFormContent() {
@@ -246,10 +277,33 @@ class DealEditForm extends React.Component {
     const { closeDate, amount, assignedUserIds } = this.state;
     const { __ } = this.context;
 
+    const nameField = name => (
+      <HeaderContent>
+        <ControlLabel>Name</ControlLabel>
+        <FormControl id="name" defaultValue={name || ''} required />
+      </HeaderContent>
+    );
+
+    const userValue = option => (
+      <SelectValue>
+        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+        {option.label}
+      </SelectValue>
+    );
+
+    const userOption = option => (
+      <SelectOption className="simple-option">
+        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+        <span>{option.label}</span>
+      </SelectOption>
+    );
+
+    // When add, only show name
+    if (!deal) return nameField();
     const { name, description } = deal;
 
     return (
-      <div>
+      <Fragment>
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
@@ -277,7 +331,7 @@ class DealEditForm extends React.Component {
           </HeaderContentSmall>
         </HeaderRow>
 
-        <FormBody>
+        <FlexContent>
           <Left>
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
@@ -295,24 +349,21 @@ class DealEditForm extends React.Component {
                 placeholder={__('Choose users')}
                 value={assignedUserIds}
                 onChange={this.onChangeUsers}
-                optionRenderer={option => (
-                  <div className="simple-option">
-                    <span>{option.label}</span>
-                  </div>
-                )}
-                multi
+                optionRenderer={userOption}
+                valueRenderer={userValue}
                 removeSelected={true}
                 options={selectUserOptions(users)}
+                multi
               />
             </FormGroup>
           </Right>
-        </FormBody>
+        </FlexContent>
 
-        <FormBody>
+        <FlexContent>
           <Tab deal={deal} />
           {this.renderSidebar()}
-        </FormBody>
-      </div>
+        </FlexContent>
+      </Fragment>
     );
   }
 
@@ -334,7 +385,6 @@ class DealEditForm extends React.Component {
             disabled={this.state.disabled}
             btnStyle="success"
             icon="checkmark"
-            type="submit"
             onClick={this.save}
           >
             Save

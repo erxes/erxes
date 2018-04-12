@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Button, Icon } from 'modules/common/components';
 import {
   StepItem,
   FullStep,
@@ -9,7 +10,7 @@ import {
   StepHeaderTitle,
   StepContent,
   ShortStep
-} from './style';
+} from './styles';
 
 const propTypes = {
   stepNumber: PropTypes.number,
@@ -22,6 +23,20 @@ const propTypes = {
 };
 
 class Step extends Component {
+  renderNextButton() {
+    const { __ } = this.context;
+
+    return (
+      <Button
+        btnStyle="primary"
+        size="small"
+        onClick={() => this.props.next(0)}
+      >
+        {__('Next')} <Icon icon="ios-arrow-forward" />
+      </Button>
+    );
+  }
+
   render() {
     const { __ } = this.context;
     const {
@@ -52,7 +67,7 @@ class Step extends Component {
               <StepHeaderTitle>{__(title)}</StepHeaderTitle>
             </StepHeader>
 
-            {nextButton}
+            {nextButton || this.renderNextButton()}
           </StepHeaderContainer>
           <StepContent>{children}</StepContent>
         </FullStep>

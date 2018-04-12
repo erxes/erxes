@@ -9,25 +9,25 @@ const propTypes = {
 };
 
 const UserCounterContainer = styled.ul`
-  position: absolute;
-  right: 0;
   margin-bottom: 0;
   list-style: none;
   padding: 0;
-  bottom: -2px;
+  flex-shrink: 0;
+  align-self: flex-end;
 
   li {
     float: left;
     border: 2px solid ${colors.colorWhite};
     width: 28px;
     height: 28px;
-    line-height: 24px;
+    line-height: 26px;
     border-radius: 14px;
-    background: #a3a7ac;
+    background: ${colors.colorCoreLightGray};
     text-align: center;
     color: ${colors.colorWhite};
     overflow: hidden;
     margin-left: -12px;
+    font-size: 10px;
 
     img {
       width: 100%;

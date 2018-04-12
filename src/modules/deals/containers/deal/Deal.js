@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { CommonDeal } from '../../components';
+import { Deal } from '../../components';
 import { queries } from '../../graphql';
 import { Spinner } from 'modules/common/components';
 
-class CommonDealContainer extends React.Component {
+class DealContainer extends React.Component {
   render() {
     const { dealDetailQuery } = this.props;
 
@@ -21,7 +21,7 @@ class CommonDealContainer extends React.Component {
       deal
     };
 
-    return <CommonDeal {...extendedProps} />;
+    return <Deal {...extendedProps} />;
   }
 }
 
@@ -29,7 +29,7 @@ const propTypes = {
   dealDetailQuery: PropTypes.object
 };
 
-CommonDealContainer.propTypes = propTypes;
+DealContainer.propTypes = propTypes;
 
 export default compose(
   graphql(gql(queries.dealDetail), {
@@ -40,4 +40,4 @@ export default compose(
       }
     })
   })
-)(CommonDealContainer);
+)(DealContainer);

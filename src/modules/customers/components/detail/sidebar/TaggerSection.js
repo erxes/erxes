@@ -7,7 +7,8 @@ import { EmptyState, Tagger, Icon } from 'modules/common/components';
 
 const propTypes = {
   data: PropTypes.object.isRequired,
-  type: PropTypes.string.isRequired
+  type: PropTypes.string.isRequired,
+  afterSave: PropTypes.func
 };
 
 class TaggerSection extends Component {
@@ -41,10 +42,11 @@ class TaggerSection extends Component {
   }
 
   render() {
-    const { data, type } = this.props;
+    const { data, type, afterSave } = this.props;
     const tags = data.getTags || [];
     const { Title, QuickButtons } = Sidebar.Section;
     const { __ } = this.context;
+
     return (
       <Sidebar.Section>
         <Title>{__('Tags')}</Title>
@@ -62,6 +64,7 @@ class TaggerSection extends Component {
               targets={[data]}
               className="sidebar-accordion"
               event="onClick"
+              afterSave={afterSave}
             />
           </div>
         </Collapse>

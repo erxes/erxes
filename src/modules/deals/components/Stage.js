@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { Icon, ModalTrigger } from 'modules/common/components';
-import { Deal, DealAddForm } from './';
+import { Deal } from '../containers';
+import { DealAddForm } from './';
 import { AddNew } from '../styles/deal';
 import {
   Wrapper,
@@ -21,8 +22,7 @@ const propTypes = {
   index: PropTypes.number.isRequired,
   length: PropTypes.number.isRequired,
   saveDeal: PropTypes.func.isRequired,
-  removeDeal: PropTypes.func.isRequired,
-  moveDeal: PropTypes.func.isRequired
+  removeDeal: PropTypes.func.isRequired
 };
 
 class Stage extends React.Component {
@@ -38,7 +38,7 @@ class Stage extends React.Component {
 
   showDealForm() {
     const { __ } = this.context;
-    const { stage } = this.props;
+    const { stage, saveDeal } = this.props;
 
     const trigger = (
       <AddNew>
@@ -48,7 +48,7 @@ class Stage extends React.Component {
 
     return (
       <ModalTrigger title="Add a deal" trigger={trigger}>
-        <DealAddForm stageId={stage._id} saveDeal={this.props.saveDeal} />
+        <DealAddForm stageId={stage._id} saveDeal={saveDeal} />
       </ModalTrigger>
     );
   }
@@ -62,7 +62,7 @@ class Stage extends React.Component {
   }
 
   renderDeal(provided) {
-    const { deals, saveDeal, removeDeal, moveDeal } = this.props;
+    const { deals, saveDeal, removeDeal } = this.props;
 
     return (
       <DropZone innerRef={provided.innerRef}>
@@ -74,7 +74,7 @@ class Stage extends React.Component {
               dealId={deal._id}
               saveDeal={saveDeal}
               removeDeal={removeDeal}
-              moveDeal={moveDeal}
+              draggable
             />
           ))}
         </div>
@@ -101,7 +101,7 @@ class Stage extends React.Component {
                   {stage.name}
                   <span>({deals.length})</span>
                 </h3>
-                <Amount>{this.renderAmount(stage.amount)}</Amount>
+                <Amount>{this.renderAmount(stage.amount || {})}</Amount>
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
 
