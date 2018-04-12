@@ -40,7 +40,7 @@ LeftSidebar.propTypes = {
 
 const generateOptions = queryParams => ({
   ...queryParams,
-  limit: queryParams.limit || 20
+  limit: queryParams.limit || 10
 });
 
 export default compose(

@@ -66,6 +66,11 @@ const sidebarConversations = `
         email
         phone
       }
+      tagIds
+      tags {
+        _id
+        name
+      }
       readUserIds
     }
   }
