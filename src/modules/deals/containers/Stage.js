@@ -5,7 +5,6 @@ import gql from 'graphql-tag';
 import { Stage } from '../components';
 import { queries, mutations } from '../graphql';
 import { Alert, confirm } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { collectOrders } from '../utils';
 
 class StageContainer extends React.Component {
@@ -14,7 +13,6 @@ class StageContainer extends React.Component {
 
     this.saveDeal = this.saveDeal.bind(this);
     this.removeDeal = this.removeDeal.bind(this);
-    this.moveDeal = this.moveDeal.bind(this);
 
     const { deals } = props;
 
@@ -141,39 +139,15 @@ class StageContainer extends React.Component {
     });
   }
 
-  // move deal
-  moveDeal(doc) {
-    const { dealsChangeMutation, stageDetailQuery, dealsQuery } = this.props;
-    const { __ } = this.context;
-
-    dealsChangeMutation({
-      variables: doc
-    })
-      .then(() => {
-        Alert.success(__('Successfully moved.'));
-
-        stageDetailQuery.refetch();
-        dealsQuery.refetch();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  }
-
   render() {
     const { stageDetailQuery } = this.props;
-
-    if (stageDetailQuery.loading) {
-      return <Spinner />;
-    }
 
     const extendedProps = {
       ...this.props,
       deals: this.state.deals,
       saveDeal: this.saveDeal,
       removeDeal: this.removeDeal,
-      moveDeal: this.moveDeal,
-      stage: stageDetailQuery.dealStageDetail
+      stage: stageDetailQuery.dealStageDetail || {}
     };
 
     return <Stage {...extendedProps} />;
@@ -231,10 +205,10 @@ class StageWithDeals extends React.Component {
     const { dealsQuery } = this.props;
 
     if (dealsQuery.loading) {
-      return <Spinner />;
+      return null;
     }
 
-    const deals = dealsQuery.deals;
+    const deals = dealsQuery.deals || [];
 
     const extendedProps = {
       ...this.props,

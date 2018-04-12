@@ -22,7 +22,7 @@ const propTypes = {
   length: PropTypes.number.isRequired,
   saveDeal: PropTypes.func.isRequired,
   removeDeal: PropTypes.func.isRequired,
-  moveDeal: PropTypes.func.isRequired
+  stageId: PropTypes.string
 };
 
 class Stage extends React.Component {
@@ -67,7 +67,7 @@ class Stage extends React.Component {
   }
 
   renderDeal(provided) {
-    const { deals, saveDeal, removeDeal, moveDeal } = this.props;
+    const { deals, saveDeal, removeDeal } = this.props;
 
     return (
       <DropZone innerRef={provided.innerRef}>
@@ -79,7 +79,6 @@ class Stage extends React.Component {
               dealId={deal._id}
               saveDeal={saveDeal}
               removeDeal={removeDeal}
-              moveDeal={moveDeal}
             />
           ))}
         </div>
@@ -90,10 +89,10 @@ class Stage extends React.Component {
   }
 
   render() {
-    const { stage, deals, index } = this.props;
+    const { stage, deals, index, stageId } = this.props;
 
     return (
-      <Draggable draggableId={stage._id} index={index}>
+      <Draggable draggableId={stageId} index={index}>
         {(provided, snapshot) => (
           <Wrapper>
             <Container
@@ -106,12 +105,12 @@ class Stage extends React.Component {
                   {stage.name}
                   <span>({deals.length})</span>
                 </h3>
-                <Amount>{this.renderAmount(stage.amount)}</Amount>
+                <Amount>{this.renderAmount(stage.amount || [])}</Amount>
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
 
               <Body>
-                <Droppable droppableId={stage._id} type="stage">
+                <Droppable droppableId={stageId} type="stage">
                   {dropProvided => this.renderDeal(dropProvided)}
                 </Droppable>
               </Body>

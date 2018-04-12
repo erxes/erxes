@@ -47,6 +47,7 @@ const Container = styled.div`
     font-size: 14px;
     margin-bottom: 5px;
     flex: 1;
+    line-height: 1.4;
   }
 `;
 

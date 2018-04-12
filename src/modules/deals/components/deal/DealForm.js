@@ -39,7 +39,6 @@ const propTypes = {
   deal: PropTypes.object,
   saveDeal: PropTypes.func.isRequired,
   removeDeal: PropTypes.func.isRequired,
-  moveDeal: PropTypes.func,
   stageId: PropTypes.string,
   users: PropTypes.array,
   length: PropTypes.number,
@@ -49,6 +48,7 @@ const propTypes = {
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
+  move: PropTypes.func.isRequired,
   currentUser: PropTypes.object,
   boardId: PropTypes.string,
   pipelineId: PropTypes.string,
@@ -60,6 +60,7 @@ class DealForm extends React.Component {
     super(props);
 
     this.onTabClick = this.onTabClick.bind(this);
+    this.onChangeStage = this.onChangeStage.bind(this);
     this.onChangeCompany = this.onChangeCompany.bind(this);
     this.onChangeCustomer = this.onChangeCustomer.bind(this);
     this.onDateInputChange = this.onDateInputChange.bind(this);
@@ -73,6 +74,7 @@ class DealForm extends React.Component {
     const deal = props.deal || {};
 
     this.state = {
+      stageId: deal.stageId,
       disabled: false,
       currentTab: 'activity',
       amount: deal.amount || {},
@@ -86,6 +88,10 @@ class DealForm extends React.Component {
       products: deal.products ? deal.products.map(p => p.product) : [],
       assignedUserIds: (deal.assignedUsers || []).map(user => user._id)
     };
+  }
+
+  onChangeStage(stageId) {
+    this.setState({ stageId });
   }
 
   onTabClick(currentTab) {
@@ -173,6 +179,8 @@ class DealForm extends React.Component {
         return Alert.error(__('Please, select product & service'));
       }
 
+      const stageId = this.state.stageId;
+
       doc = {
         name,
         companyIds: companies.map(company => company._id),
@@ -180,7 +188,7 @@ class DealForm extends React.Component {
         closeDate: closeDate ? new Date(closeDate) : null,
         description: document.getElementById('description').value,
         productsData,
-        stageId: deal.stageId,
+        stageId,
         assignedUserIds
       };
     }
@@ -193,6 +201,20 @@ class DealForm extends React.Component {
       () => {
         // after save, enable save button
         this.setState({ disabled: false });
+
+        if (deal) {
+          // if changed stageId, update ui
+          if (deal.stageId !== this.state.stageId) {
+            const moveDoc = {
+              source: { _id: deal.stageId, index: deal.order },
+              destination: { _id: this.state.stageId, index: 0 },
+              itemId: deal._id,
+              type: 'stage'
+            };
+
+            this.context.move(moveDoc);
+          }
+        }
 
         this.context.closeModal();
       },
@@ -334,7 +356,7 @@ class DealForm extends React.Component {
   }
 
   renderDealMove() {
-    const { deal, moveDeal } = this.props;
+    const { deal } = this.props;
     const { boardId, pipelineId } = this.context;
 
     return (
@@ -342,7 +364,7 @@ class DealForm extends React.Component {
         deal={deal}
         boardId={boardId}
         pipelineId={pipelineId}
-        moveDeal={moveDeal}
+        onChangeStage={this.onChangeStage}
       />
     );
   }
