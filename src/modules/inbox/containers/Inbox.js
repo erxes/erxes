@@ -10,33 +10,43 @@ import { queries, mutations, subscriptions } from '../graphql';
 import { generateParams } from '../utils';
 
 class ConversationDetail extends Component {
+  constructor(props, context) {
+    super(props, context);
+
+    this.subscriptions = {};
+  }
+
   componentWillReceiveProps(nextProps) {
     const { history } = this.props;
+    const prevCurrentId = this.props.currentId;
 
-    if (
-      !routerUtils.getParam(history, '_id') &&
-      this.props.currentConversationId
-    ) {
-      routerUtils.setParams(history, { _id: this.props.currentConversationId });
+    // add current conversation's _id to url
+    if (!routerUtils.getParam(history, '_id') && prevCurrentId) {
+      routerUtils.setParams(history, { _id: prevCurrentId });
     }
 
-    const { currentConversationId, conversationDetailQuery } = nextProps;
+    const { currentId, detailQuery, messagesQuery } = nextProps;
 
-    if (conversationDetailQuery.loading) {
+    if (detailQuery.loading || messagesQuery.loading) {
       return;
     }
 
-    conversationDetailQuery.subscribeToMore({
-      document: gql(subscriptions.conversationMessageInserted),
-      variables: { _id: currentConversationId },
-      updateQuery: (prev, { subscriptionData }) => {
-        const message = subscriptionData.data.conversationMessageInserted;
-        const conversationDetail = prev.conversationDetail;
-        const messages = conversationDetail.messages;
+    if (this.subscriptions[currentId]) {
+      return;
+    }
 
-        if (currentConversationId !== this.props.currentConversationId) {
+    this.subscriptions[currentId] = true;
+
+    messagesQuery.subscribeToMore({
+      document: gql(subscriptions.conversationMessageInserted),
+      variables: { _id: currentId },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (currentId !== this.props.currentId) {
           return prev;
         }
+
+        const message = subscriptionData.data.conversationMessageInserted;
+        const messages = prev.conversationMessages;
 
         // check whether or not already inserted
         const prevEntry = messages.find(m => m._id === message._id);
@@ -46,42 +56,38 @@ class ConversationDetail extends Component {
         }
 
         // add new message to messages list
-        const next = Object.assign({}, prev, {
-          conversationDetail: Object.assign({
-            ...conversationDetail,
-            messages: [...messages, message]
-          })
-        });
+        const next = {
+          conversationMessages: [...messages, message]
+        };
 
         return next;
       }
     });
 
     // listen for conversation changes like status, assignee
-    conversationDetailQuery.subscribeToMore({
+    detailQuery.subscribeToMore({
       document: gql(subscriptions.conversationChanged),
-      variables: { _id: currentConversationId },
+      variables: { _id: currentId },
       updateQuery: () => {
-        this.props.conversationDetailQuery.refetch();
+        this.props.detailQuery.refetch();
       }
     });
 
     // listen for customer connection
-    const conversation = conversationDetailQuery.conversationDetail;
+    const conversation = detailQuery.conversationDetail;
 
     if (conversation && conversation.integration.kind === 'messenger') {
       const customerId = conversation.customer._id;
 
-      conversationDetailQuery.subscribeToMore({
+      detailQuery.subscribeToMore({
         document: gql(subscriptions.customerConnectionChanged),
         variables: { _id: customerId },
-        updateQuery: (prev, { subscriptionData }) => {
+        updateQuery: (prev, { subscriptionData: { data } }) => {
           const prevConversation = prev.conversationDetail;
-          const customerConnection =
-            subscriptionData.data.customerConnectionChanged;
+          const customerConnection = data.customerConnectionChanged;
 
           if (prevConversation.customer._id === customerConnection._id) {
-            this.props.conversationDetailQuery.refetch();
+            this.props.detailQuery.refetch();
           }
         }
       });
@@ -90,24 +96,22 @@ class ConversationDetail extends Component {
 
   render() {
     const {
-      currentConversationId,
-      conversationDetailQuery,
+      currentId,
+      detailQuery,
+      messagesQuery,
       markAsReadMutation
     } = this.props;
 
     const { currentUser } = this.context;
-    const loading = conversationDetailQuery.loading;
-    const currentConversation =
-      conversationDetailQuery.conversationDetail || {};
 
-    // mark as read
+    const loading = detailQuery.loading || messagesQuery.loading;
+
+    const currentConversation = detailQuery.conversationDetail || {};
+    const conversationMessages = messagesQuery.conversationMessages || [];
     const readUserIds = currentConversation.readUserIds || [];
 
-    if (
-      !loading &&
-      !readUserIds.includes(currentUser._id) &&
-      currentConversationId
-    ) {
+    // mark as read ============
+    if (!loading && !readUserIds.includes(currentUser._id) && currentId) {
       markAsReadMutation({
         variables: { _id: currentConversation._id }
       }).catch(e => {
@@ -117,10 +121,11 @@ class ConversationDetail extends Component {
 
     const updatedProps = {
       ...this.props,
-      currentConversationId,
+      currentConversationId: currentId,
       currentConversation,
+      conversationMessages,
       loading,
-      refetch: conversationDetailQuery.refetch
+      refetch: detailQuery.refetch
     };
 
     return <InboxComponent {...updatedProps} />;
@@ -128,38 +133,36 @@ class ConversationDetail extends Component {
 }
 
 ConversationDetail.propTypes = {
-  conversationDetailQuery: PropTypes.object,
-  currentConversationId: PropTypes.string.isRequired,
+  detailQuery: PropTypes.object,
+  messagesQuery: PropTypes.object,
+  currentId: PropTypes.string.isRequired,
   markAsReadMutation: PropTypes.func.isRequired,
   history: PropTypes.object
 };
 
 const ConversationDetailContainer = compose(
   graphql(gql(queries.conversationDetail), {
-    name: 'conversationDetailQuery',
-    options: ({ currentConversationId }) => {
-      return {
-        notifyOnNetworkStatusChange: true,
-        fetchPolicy: 'cache-and-network',
-        variables: { _id: currentConversationId }
-      };
-    }
+    name: 'detailQuery',
+    options: ({ currentId }) => ({
+      variables: { _id: currentId },
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql(gql(queries.conversationMessages), {
+    name: 'messagesQuery',
+    options: ({ currentId }) => ({
+      variables: { conversationId: currentId },
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql(gql(mutations.markAsRead), {
     name: 'markAsReadMutation',
-    options: ({ currentConversationId }) => {
+    options: ({ currentId }) => {
       return {
         refetchQueries: [
           {
-            query: gql`
-              query conversationDetail($_id: String!) {
-                conversationDetail(_id: $_id) {
-                  _id
-                  readUserIds
-                }
-              }
-            `,
-            variables: { _id: currentConversationId }
+            query: gql(queries.conversationDetailMarkAsRead),
+            variables: { _id: currentId }
           },
           { query: gql(queries.unreadConversationsCount) }
         ]
@@ -181,11 +184,11 @@ const LastConversation = props => {
 
   const lastConversation = lastConversationQuery.conversationsGetLast || {};
 
-  const currentConversationId = lastConversation._id || '';
+  const currentId = lastConversation._id || '';
 
   const updatedProps = {
     ...props,
-    currentConversationId
+    currentId
   };
 
   return <ConversationDetailContainer {...updatedProps} />;
@@ -199,8 +202,8 @@ const LastConversationContainer = compose(
   graphql(gql(queries.lastConversation), {
     name: 'lastConversationQuery',
     options: ({ queryParams }) => ({
-      notifyOnNetworkStatusChange: true,
-      variables: generateParams(queryParams)
+      variables: generateParams(queryParams),
+      fetchPolicy: 'network-only'
     })
   })
 )(LastConversation);
@@ -223,7 +226,7 @@ const Inbox = props => {
   };
 
   if (_id) {
-    updatedProps.currentConversationId = _id;
+    updatedProps.currentId = _id;
 
     return <ConversationDetailContainer {...updatedProps} />;
   }

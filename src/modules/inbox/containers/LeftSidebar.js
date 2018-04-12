@@ -4,21 +4,10 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import { LeftSidebar as LeftSidebarComponent } from '../components';
-import { queries, subscriptions } from '../graphql';
+import { queries } from '../graphql';
 import { generateParams } from '../utils';
 
 class LeftSidebar extends Component {
-  componentWillMount() {
-    this.props.conversationsQuery.subscribeToMore({
-      // listen for all conversation changes
-      document: gql(subscriptions.conversationsChanged),
-
-      updateQuery: () => {
-        this.props.conversationsQuery.refetch();
-      }
-    });
-  }
-
   render() {
     const { conversationsQuery, totalCountQuery } = this.props;
 
@@ -51,15 +40,15 @@ LeftSidebar.propTypes = {
 
 const generateOptions = queryParams => ({
   ...queryParams,
-  limit: queryParams.limit || 20
+  limit: queryParams.limit || 10
 });
 
 export default compose(
   graphql(gql(queries.sidebarConversations), {
     name: 'conversationsQuery',
     options: ({ queryParams }) => ({
-      notifyOnNetworkStatusChange: true,
-      variables: generateParams(queryParams)
+      variables: generateParams(queryParams),
+      pollInterval: 3000
     })
   }),
   graphql(gql(queries.totalConversationsCount), {

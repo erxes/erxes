@@ -44,6 +44,7 @@ class Inbox extends Component {
   componentDidUpdate(prevProps) {
     const { currentConversation } = this.props;
     const prevConversation = prevProps.currentConversation;
+
     if (
       currentConversation.messageCount !== prevConversation.messageCount ||
       currentConversation._id !== prevConversation._id
@@ -79,6 +80,8 @@ class Inbox extends Component {
   }
 
   renderRightSidebar(currentConversation) {
+    const { loading } = this.props;
+
     if (currentConversation._id) {
       const customer = currentConversation.customer || {};
 
@@ -96,11 +99,7 @@ class Inbox extends Component {
       );
     }
 
-    return (
-      <Wrapper.Sidebar full>
-        {this.props.loading && <Spinner />}
-      </Wrapper.Sidebar>
-    );
+    return <Wrapper.Sidebar full>{loading && <Spinner />}</Wrapper.Sidebar>;
   }
 
   render() {
@@ -108,10 +107,12 @@ class Inbox extends Component {
       queryParams,
       currentConversationId,
       currentConversation,
+      conversationMessages,
       onChangeConversation,
       refetch,
       loading
     } = this.props;
+
     const { __ } = this.context;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
@@ -185,6 +186,7 @@ class Inbox extends Component {
       >
         <Conversation
           conversation={currentConversation}
+          conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
           scrollBottom={this.scrollBottom}
         />
@@ -226,9 +228,11 @@ Inbox.propTypes = {
   queryParams: PropTypes.object,
   refetch: PropTypes.func,
   title: PropTypes.string,
+  onFetchMore: PropTypes.func,
   onChangeConversation: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
+  conversationMessages: PropTypes.array,
   loading: PropTypes.bool
 };
 

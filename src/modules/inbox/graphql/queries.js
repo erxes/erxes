@@ -66,6 +66,11 @@ const sidebarConversations = `
         email
         phone
       }
+      tagIds
+      tags {
+        _id
+        name
+      }
       readUserIds
     }
   }
@@ -75,10 +80,23 @@ const conversationDetail = `
   query conversationDetail($_id: String!) {
     conversationDetail(_id: $_id) {
       ${conversationFields}
+    }
+  }
+`;
 
-      messages {
-        ${messageFields}
-      }
+const conversationDetailMarkAsRead = `
+  query conversationDetail($_id: String!) {
+    conversationDetail(_id: $_id) {
+      _id
+      readUserIds
+    }
+  }
+`;
+
+const conversationMessages = `
+  query conversationMessages($conversationId: String!, $skip: Int) {
+    conversationMessages(conversationId: $conversationId skip: $skip) {
+      ${messageFields}
     }
   }
 `;
@@ -174,6 +192,8 @@ export default {
   conversationList,
   sidebarConversations,
   conversationDetail,
+  conversationDetailMarkAsRead,
+  conversationMessages,
   userList,
   channelList,
   brandList,
