@@ -35,47 +35,26 @@ class Inbox extends Component {
 
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
-    this.scrollHalf = this.scrollHalf.bind(this);
-    this.onScroll = this.onScroll.bind(this);
   }
 
   componentDidMount() {
     this.scrollBottom();
-
-    this.node.addEventListener('scroll', this.onScroll);
   }
 
   componentDidUpdate(prevProps) {
-    const { currentConversation, conversationMessages } = this.props;
+    const { currentConversation } = this.props;
     const prevConversation = prevProps.currentConversation;
-    const prevConversationMessages = prevProps.conversationMessages;
+
     if (
       currentConversation.messageCount !== prevConversation.messageCount ||
       currentConversation._id !== prevConversation._id
     ) {
       this.scrollBottom();
     }
-
-    if (
-      conversationMessages.list !== prevConversationMessages.list &&
-      this.node.scrollTop === 0
-    ) {
-      this.scrollHalf();
-    }
   }
 
   scrollBottom() {
     this.node.scrollTop = this.node.scrollHeight;
-  }
-
-  scrollHalf() {
-    this.node.scrollTop = this.node.scrollHeight / 2;
-  }
-
-  onScroll(e) {
-    if (e.target.scrollTop === 0) {
-      this.props.onFetchMore();
-    }
   }
 
   setAttachmentPreview(attachmentPreview) {

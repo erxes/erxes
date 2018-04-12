@@ -84,6 +84,15 @@ const conversationDetail = `
   }
 `;
 
+const conversationDetailMarkAsRead = `
+  query conversationDetail($_id: String!) {
+    conversationDetail(_id: $_id) {
+      _id
+      readUserIds
+    }
+  }
+`;
+
 const conversationMessages = `
   query conversationMessages($conversationId: String!, $skip: Int) {
     conversationMessages(conversationId: $conversationId skip: $skip) {
@@ -186,6 +195,7 @@ export default {
   conversationList,
   sidebarConversations,
   conversationDetail,
+  conversationDetailMarkAsRead,
   conversationMessages,
   userList,
   channelList,

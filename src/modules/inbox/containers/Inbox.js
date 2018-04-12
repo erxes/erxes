@@ -99,28 +99,6 @@ class ConversationDetail extends Component {
     }
   }
 
-  onFetchMore() {
-    const { conversationMessages, fetchMore } = this.messagesQuery;
-
-    fetchMore({
-      variables: {
-        skip: conversationMessages.list.length
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        return {
-          conversationMessages: {
-            ...prev.conversationMessages,
-            list: [
-              ...prev.conversationMessages.list,
-              ...fetchMoreResult.conversationMessages.list
-            ],
-            totalCount: fetchMoreResult.conversationMessages.totalCount
-          }
-        };
-      }
-    });
-  }
-
   render() {
     const {
       currentId,
@@ -152,7 +130,6 @@ class ConversationDetail extends Component {
       currentConversation,
       conversationMessages,
       loading,
-      onFetchMore: this.onFetchMore,
       refetch: detailQuery.refetch
     };
 
@@ -189,14 +166,7 @@ const ConversationDetailContainer = compose(
       return {
         refetchQueries: [
           {
-            query: gql`
-              query conversationDetail($_id: String!) {
-                conversationDetail(_id: $_id) {
-                  _id
-                  readUserIds
-                }
-              }
-            `,
+            query: gql(queries.conversationDetailMarkAsRead),
             variables: { _id: currentId }
           },
           { query: gql(queries.unreadConversationsCount) }
