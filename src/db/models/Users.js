@@ -105,7 +105,7 @@ class User {
     const doc = { username, email, password, role, details, links };
 
     // change password
-    if (password) {
+    if (password || password !== '') {
       doc.password = await this.generatePassword(password);
 
       // if there is no password specified then leave password field alone
