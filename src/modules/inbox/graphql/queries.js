@@ -94,8 +94,8 @@ const conversationDetailMarkAsRead = `
 `;
 
 const conversationMessages = `
-  query conversationMessages($conversationId: String!, $skip: Int) {
-    conversationMessages(conversationId: $conversationId skip: $skip) {
+  query conversationMessages($conversationId: String!) {
+    conversationMessages(conversationId: $conversationId) {
       ${messageFields}
     }
   }

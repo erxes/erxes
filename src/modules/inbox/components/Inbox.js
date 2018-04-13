@@ -42,14 +42,11 @@ class Inbox extends Component {
     this.scrollBottom();
   }
 
-  componentDidUpdate(prevProps) {
-    const { currentConversation } = this.props;
-    const prevConversation = prevProps.currentConversation;
+  componentDidUpdate() {
+    const twitterData = this.props.currentConversation.twitterData;
+    const isTweet = twitterData && !twitterData.isDirectMessage;
 
-    if (
-      currentConversation.messageCount !== prevConversation.messageCount ||
-      currentConversation._id !== prevConversation._id
-    ) {
+    if (!isTweet) {
       this.scrollBottom();
     }
   }
