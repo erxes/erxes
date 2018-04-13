@@ -196,7 +196,7 @@ describe('engage message mutation tests', () => {
   `;
 
   test('Add engage message', async () => {
-    process.env.AWS_CONFIG_SET = 'aws-ses';
+    process.env.AWS_SES_CONFIG_SET = 'aws-ses';
     process.env.AWS_ENDPOINT = '123';
 
     const user = await Users.findOne({ _id: _doc.fromUserId });
