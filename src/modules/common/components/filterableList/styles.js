@@ -73,6 +73,7 @@ const PopoverFooter = styled.div`
 
   ${PopoverList} {
     padding-bottom: 0;
+    padding-top: 0;
   }
 
   a {

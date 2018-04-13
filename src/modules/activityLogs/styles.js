@@ -48,6 +48,7 @@ const FlexBody = styled.div`
 
 const AvatarWrapper = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
+  position: relative;
 
   a {
     float: none;

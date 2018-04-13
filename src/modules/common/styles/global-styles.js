@@ -134,6 +134,8 @@ injectGlobal`
     padding: 3px 20px;
     color: #444;
     white-space: nowrap;
+    float: none;
+    margin: 0;
   }
 
   .dropdown-menu > li > a {
@@ -224,12 +226,12 @@ injectGlobal`
   .popover-content {
     padding: 0;
     position: relative;
+    min-width: 260px;
   }
 
   .popover-content ul {
     max-height: 280px;
     overflow: auto;
-    min-width: 260px;
   }
 
   .popover-content li a i {

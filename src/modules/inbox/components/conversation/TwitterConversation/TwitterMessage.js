@@ -54,9 +54,7 @@ class TwitterMessage extends Component {
     return (
       <Tip text={moment(messageDate).format('lll')}>
         <Time href={`https://twitter.com/statuses/${idStr}`} target="_blank">
-          {moment(messageDate)
-            .subtract(2, 'minutes')
-            .fromNow()}
+          {moment(messageDate).fromNow()}
         </Time>
       </Tip>
     );

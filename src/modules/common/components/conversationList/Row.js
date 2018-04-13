@@ -148,9 +148,7 @@ class Row extends Component {
           </FlexContent>
         </RowContent>
         <SmallText>
-          {moment(updatedAt || createdAt)
-            .subtract(2, 'minutes')
-            .fromNow()}
+          {moment(updatedAt || createdAt).fromNow()}
           {assignedUser && (
             <AssigneeWrapper>
               <AssigneeImg
