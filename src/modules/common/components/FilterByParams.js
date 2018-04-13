@@ -97,7 +97,7 @@ class FilterByParams extends Component {
         loading={loading}
         count={fields.length}
         data={this.renderItems()}
-        emptyText="no tags"
+        emptyText="No tags"
         emptyIcon="pricetag"
         size="small"
         objective={true}

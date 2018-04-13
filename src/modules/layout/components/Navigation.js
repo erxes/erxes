@@ -41,6 +41,12 @@ const LeftNavigation = styled.aside`
 const Nav = styled.nav`
   display: block;
   margin-top: ${dimensions.unitSpacing}px;
+  height: calc(100% - 130px);
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   > a {
     display: block;

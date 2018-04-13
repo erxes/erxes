@@ -122,7 +122,7 @@ class Inbox extends Component {
         {tags.length ? (
           <Tags tags={tags} limit={1} />
         ) : (
-          <Label lblStyle="default">no tags</Label>
+          <Label lblStyle="default">No tags</Label>
         )}
         <Icon icon="ios-arrow-down" />
       </PopoverButton>

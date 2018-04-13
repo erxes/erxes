@@ -21,11 +21,7 @@ class Deal extends React.Component {
 
     return (
       <Tip text={moment(closeDate).format('YYYY-MM-DD')}>
-        <DealDate>
-          {moment(closeDate)
-            .subtract(2, 'minutes')
-            .fromNow()}
-        </DealDate>
+        <DealDate>{moment(closeDate).fromNow()}</DealDate>
       </Tip>
     );
   }
