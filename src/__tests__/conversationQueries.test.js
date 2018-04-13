@@ -65,7 +65,7 @@ describe('conversationQueries', () => {
         messageCount
         number
         tagIds
-        twitterData
+        twitterData { id }
         facebookData
 
         messages {
@@ -88,7 +88,7 @@ describe('conversationQueries', () => {
             sentAs
           }
           formWidgetData
-          twitterData
+          twitterData { id }
           user { _id }
           customer { _id }
         }

@@ -1,4 +1,33 @@
 export const types = `
+  type TwitterData {
+    id: Float
+    id_str: String
+    created_at: Date
+    isDirectMessage: Boolean
+
+    entities: JSON
+    extended_entities: JSON
+    extended_tweet: JSON
+
+    sender_id: Float
+    sender_id_str: String
+    recipient_id: Float
+    recipient_id_str: String
+
+    in_reply_to_status_id: Float
+    in_reply_to_status_id_str: String
+    in_reply_to_user_id: Float
+    in_reply_to_user_id_str: String
+    in_reply_to_screen_name: String
+    is_quote_status: Boolean
+    favorited: Boolean
+    retweeted: Boolean
+    quote_count: Float
+    reply_count: Float
+    retweet_count: Float
+    favorite_count: Float
+  }
+
   type Conversation {
     _id: String!
     content: String
@@ -14,7 +43,7 @@ export const types = `
     messageCount: Int
     number: Int
     tagIds: [String]
-    twitterData: JSON
+    twitterData: TwitterData
     facebookData: JSON
 
     messages: [ConversationMessage]
@@ -50,7 +79,7 @@ export const types = `
     isCustomerRead: Boolean
     engageData: EngageData
     formWidgetData: JSON
-    twitterData: JSON
+    twitterData: TwitterData
     facebookData: JSON
 
     user: User
