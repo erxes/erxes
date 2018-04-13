@@ -1,4 +1,12 @@
-import { Products, Companies, Customers, Users } from '../../db/models';
+import {
+  Products,
+  Companies,
+  Customers,
+  Users,
+  DealStages,
+  DealPipelines,
+  DealBoards,
+} from '../../db/models';
 
 export default {
   companies(deal) {
@@ -46,5 +54,23 @@ export default {
 
   assignedUsers(deal) {
     return Users.find({ _id: { $in: deal.assignedUserIds } });
+  },
+
+  async pipelineId(deal) {
+    const stage = await DealStages.findOne({ _id: deal.stageId });
+
+    const pipeline = await DealPipelines.findOne({ _id: stage.pipelineId });
+
+    return pipeline._id;
+  },
+
+  async boardId(deal) {
+    const stage = await DealStages.findOne({ _id: deal.stageId });
+
+    const pipeline = await DealPipelines.findOne({ _id: stage.pipelineId });
+
+    const board = await DealBoards.findOne({ _id: pipeline.boardId });
+
+    return board._id;
   },
 };
