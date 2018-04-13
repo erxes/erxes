@@ -50,7 +50,7 @@ const RespondBoxContainer = (props, context) => {
       variables,
       optimisticResponse,
       update: (proxy, { data: { conversationMessageAdd } }) => {
-        if (!conversation.integration.kind === 'messenger') {
+        if (conversation.integration.kind !== 'messenger') {
           return;
         }
 
