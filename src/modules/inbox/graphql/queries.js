@@ -72,7 +72,12 @@ const sidebarConversations = `
         name
       }
       readUserIds
-      twitterData
+      twitterData {
+        isDirectMessage
+      }
+      facebookData {
+        kind
+      }
     }
   }
 `;
