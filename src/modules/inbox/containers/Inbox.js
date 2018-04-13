@@ -18,6 +18,8 @@ class ConversationDetail extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { history } = this.props;
+    const { currentUser } = this.context;
+
     const prevCurrentId = this.props.currentId;
 
     // add current conversation's _id to url
@@ -41,11 +43,22 @@ class ConversationDetail extends Component {
       document: gql(subscriptions.conversationMessageInserted),
       variables: { _id: currentId },
       updateQuery: (prev, { subscriptionData }) => {
+        const message = subscriptionData.data.conversationMessageInserted;
+        const conversation = detailQuery.conversationDetail;
+
+        // current user's message is being showed after insert message
+        // mutation. So to prevent from duplication we are ignoring current
+        // user's messages from subscription
+        const isMessenger = conversation.integration.kind === 'messenger';
+
+        if (isMessenger && message.userId === currentUser._id) {
+          return;
+        }
+
         if (currentId !== this.props.currentId) {
           return prev;
         }
 
-        const message = subscriptionData.data.conversationMessageInserted;
         const messages = prev.conversationMessages;
 
         // check whether or not already inserted
