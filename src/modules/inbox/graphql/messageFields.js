@@ -35,7 +35,16 @@ export default `
     retweet_count
     favorite_count
   }
-  facebookData
+  facebookData {
+    postId
+    commentId
+    parentId
+    messageId
+    item
+    photoId
+    videoId
+    link
+  }
   user {
     _id
     username

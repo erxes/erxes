@@ -102,6 +102,8 @@ export default `
     id_str
     isDirectMessage
   }
-  facebookData
+  facebookData {
+    kind
+  }
   readUserIds
 `;

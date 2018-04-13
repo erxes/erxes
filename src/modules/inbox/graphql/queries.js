@@ -75,6 +75,9 @@ const sidebarConversations = `
       twitterData {
         isDirectMessage
       }
+      facebookData {
+        kind
+      }
     }
   }
 `;
