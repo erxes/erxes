@@ -106,16 +106,6 @@ const RichEditorControls = styled.div`
   }
 `;
 
-const MentionedPerson = styled.span`
-  cursor: pointer;
-  display: inline-block;
-  font-weight: bold;
-  padding-left: 2px;
-  padding-right: 2px;
-  border-radius: 4px;
-  text-decoration: none;
-`;
-
 const ResponseSuggestions = styled.ul`
   position: absolute;
   left: 0px;
@@ -428,7 +418,6 @@ export {
   RichEditorRoot,
   RichEditorControlsRoot,
   RichEditorControls,
-  MentionedPerson,
   ResponseSuggestions,
   ResponseSuggestionItem,
   EditorActions,

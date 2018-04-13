@@ -324,7 +324,7 @@ export default class Editor extends Component {
 
       content = content.replace(
         re,
-        `<MentionedPerson data-user-id='${m._id}'>@${m.name}</MentionedPerson>`
+        `<b data-user-id='${m._id}'>@${m.name}</b>`
       );
     });
 

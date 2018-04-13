@@ -158,19 +158,20 @@ class RespondBox extends Component {
       mentionedUserIds
     };
 
-    sendMessage(message, error => {
-      if (error) {
-        return Alert.error(error.message);
-      }
+    if (this.state.content) {
+      sendMessage(message, error => {
+        if (error) {
+          return Alert.error(error.message);
+        }
 
-      // clear attachments
-      return this.setState({ attachments: [] });
-    });
-
-    this.setState({
-      // clear mentioned user ids
-      mentionedUserIds: []
-    });
+        // clear attachments, content, mentioned user ids
+        return this.setState({
+          attachments: [],
+          content: '',
+          mentionedUserIds: []
+        });
+      });
+    }
   }
 
   toggleForm() {
@@ -269,9 +270,7 @@ class RespondBox extends Component {
     }
 
     let placeholder = __(
-      `To send your ${
-        type
-      } press [Enter] and [Shift + Enter] to add a new line ...`
+      `To send your ${type} press [Enter] and [Shift + Enter] to add a new line ...`
     );
 
     return (
