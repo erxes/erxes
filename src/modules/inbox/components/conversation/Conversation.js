@@ -7,7 +7,7 @@ import { TwitterConversation } from './TwitterConversation';
 
 const propTypes = {
   conversation: PropTypes.object,
-  conversationMessages: PropTypes.array,
+  conversationMessages: PropTypes.array.isRequired,
   attachmentPreview: PropTypes.object,
   scrollBottom: PropTypes.func.isRequired
 };
@@ -70,7 +70,7 @@ class Conversation extends Component {
   }
 
   renderConversation() {
-    const { conversation, scrollBottom } = this.props;
+    const { conversation, scrollBottom, conversationMessages } = this.props;
     const twitterData = conversation.twitterData;
     const isTweet = twitterData && !twitterData.isDirectMessage;
 
@@ -79,6 +79,7 @@ class Conversation extends Component {
         <TwitterConversation
           conversation={conversation}
           scrollBottom={scrollBottom}
+          conversationMessages={conversationMessages}
         />
       );
     }
