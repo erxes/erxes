@@ -1,4 +1,27 @@
 export const types = `
+  type ConversationFacebookData {
+    kind: String
+    senderName: String
+    senderId: String
+    recipientId: String
+    postId: String
+    pageId: String
+  }
+
+  type ConversationMessageFacebookData {
+    postId: String
+    commentId: String
+    parentId: String
+    messageId: String
+    item: String
+    photoId: String
+    videoId: String
+    link: String
+    reactionType: String
+    senderId: String
+    senderName: String
+  }
+
   type TwitterData {
     id: Float
     id_str: String
@@ -44,7 +67,7 @@ export const types = `
     number: Int
     tagIds: [String]
     twitterData: TwitterData
-    facebookData: JSON
+    facebookData: ConversationFacebookData
 
     messages: [ConversationMessage]
     tags: [Tag]
@@ -80,7 +103,7 @@ export const types = `
     engageData: EngageData
     formWidgetData: JSON
     twitterData: TwitterData
-    facebookData: JSON
+    facebookData: ConversationMessageFacebookData
 
     user: User
     customer: Customer

@@ -66,7 +66,7 @@ describe('conversationQueries', () => {
         number
         tagIds
         twitterData { id }
-        facebookData
+        facebookData { kind }
 
         messages {
           _id
