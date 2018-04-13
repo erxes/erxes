@@ -72,6 +72,7 @@ const sidebarConversations = `
         name
       }
       readUserIds
+      twitterData
     }
   }
 `;
