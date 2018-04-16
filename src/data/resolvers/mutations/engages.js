@@ -25,9 +25,9 @@ const engageMutations = {
 
     if (method === METHODS.EMAIL) {
       // Checking if configs exist
-      const { AWS_CONFIG_SET = '', AWS_ENDPOINT = '' } = process.env;
+      const { AWS_SES_CONFIG_SET = '', AWS_SES_ENDPOINT = '' } = process.env;
 
-      if (AWS_CONFIG_SET === '' || AWS_ENDPOINT === '') {
+      if (AWS_SES_CONFIG_SET === '' || AWS_SES_ENDPOINT === '') {
         throw new Error('Could not locate configs on AWS SES');
       }
 

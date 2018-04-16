@@ -196,8 +196,8 @@ describe('engage message mutation tests', () => {
   `;
 
   test('Add engage message', async () => {
-    process.env.AWS_CONFIG_SET = 'aws-ses';
-    process.env.AWS_ENDPOINT = '123';
+    process.env.AWS_SES_CONFIG_SET = 'aws-ses';
+    process.env.AWS_SES_ENDPOINT = '123';
 
     const user = await Users.findOne({ _id: _doc.fromUserId });
 
@@ -247,7 +247,7 @@ describe('engage message mutation tests', () => {
 
     try {
       // mock settings
-      process.env.AWS_CONFIG_SET = '';
+      process.env.AWS_SES_CONFIG_SET = '';
       await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc, context);
     } catch (e) {
       expect(e.toString()).toBe('GraphQLError: Could not locate configs on AWS SES');
@@ -257,8 +257,8 @@ describe('engage message mutation tests', () => {
   test('Engage add with unverified email', async () => {
     expect.assertions(1);
 
-    process.env.AWS_CONFIG_SET = 'aws-ses';
-    process.env.AWS_ENDPOINT = '123';
+    process.env.AWS_SES_CONFIG_SET = 'aws-ses';
+    process.env.AWS_SES_ENDPOINT = '123';
 
     const sandbox = sinon.sandbox.create();
 

@@ -3,11 +3,11 @@ import AWS from 'aws-sdk';
 import { EngageMessages } from '../db/models';
 
 export const getApi = type => {
-  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+  const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
 
   AWS.config.update({
-    accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    accessKeyId: AWS_SES_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
     region: AWS_REGION,
   });
 

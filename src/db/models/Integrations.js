@@ -39,9 +39,9 @@ const MessengerDataSchema = mongoose.Schema(
       type: String,
       optional: true,
     }),
-    welcomeMessage: field({ type: String }),
-    awayMessage: field({ type: String }),
-    thankYouMessage: field({ type: String }),
+    welcomeMessage: field({ type: String, optional: true }),
+    awayMessage: field({ type: String, optional: true }),
+    thankYouMessage: field({ type: String, optional: true }),
   },
   { _id: false },
 );

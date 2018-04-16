@@ -34,17 +34,17 @@ const conversationQueries = {
    * @param {Integer} args.skip
    * @return {Promise} filtered messages list by given parameters
    */
-  async conversationMessages(root, { conversationId, skip }) {
-    const selector = { conversationId };
+  conversationMessages(root, { conversationId, skip, limit }) {
+    const query = { conversationId };
 
-    const list = await ConversationMessages.find(selector)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(10);
+    if (skip && limit) {
+      return ConversationMessages.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(10);
+    }
 
-    const totalCount = await ConversationMessages.find(selector).count();
-
-    return { list, totalCount };
+    return ConversationMessages.find(query).sort({ createdAt: 1 });
   },
 
   /**

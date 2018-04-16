@@ -65,8 +65,8 @@ describe('conversationQueries', () => {
         messageCount
         number
         tagIds
-        twitterData
-        facebookData
+        twitterData { id }
+        facebookData { kind }
 
         messages {
           _id
@@ -88,7 +88,7 @@ describe('conversationQueries', () => {
             sentAs
           }
           formWidgetData
-          twitterData
+          twitterData { id }
           user { _id }
           customer { _id }
         }
@@ -169,35 +169,22 @@ describe('conversationQueries', () => {
     await conversationMessageFactory({ conversationId: conversation._id });
     await conversationMessageFactory({ conversationId: conversation._id });
     await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
-    await conversationMessageFactory({ conversationId: conversation._id });
 
     const qry = `
-      query conversationMessages($conversationId: String! $skip: Int) {
-        conversationMessages(conversationId: $conversationId skip: $skip) {
-          list {
-            _id
-          }
-          totalCount
+      query conversationMessages($conversationId: String! $skip: Int $limit: Int) {
+        conversationMessages(conversationId: $conversationId skip: $skip limit: $limit) {
+          _id
         }
       }
     `;
 
     const responses = await graphqlRequest(qry, 'conversationMessages', {
       conversationId: conversation._id,
-      skip: 3,
+      skip: 1,
+      limit: 3,
     });
 
-    expect(responses.list.length).toBe(10);
-    expect(responses.totalCount).toBe(14);
+    expect(responses.length).toBe(3);
   });
 
   test('Conversations filtered by ids', async () => {

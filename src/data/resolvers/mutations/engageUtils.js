@@ -20,12 +20,12 @@ import Random from 'meteor-random';
 import QueryBuilder from '../queries/segmentQueryBuilder';
 
 const createTransporter = async () => {
-  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+  const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
 
   AWS.config.update({
     region: AWS_REGION,
-    accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    accessKeyId: AWS_SES_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
   });
 
   return nodemailer.createTransport({
@@ -85,7 +85,7 @@ const findCustomers = async ({ customerIds, segmentId }) => {
 const sendViaEmail = async message => {
   const { fromUserId, segmentId, customerIds } = message;
   const { templateId, subject, content } = message.email;
-  const { AWS_CONFIG_SET } = process.env;
+  const { AWS_SES_CONFIG_SET } = process.env;
 
   const user = await Users.findOne({ _id: fromUserId });
   const userEmail = user.email;
@@ -123,7 +123,7 @@ const sendViaEmail = async message => {
       subject: replacedSubject,
       html: replacedContent,
       headers: {
-        'X-SES-CONFIGURATION-SET': AWS_CONFIG_SET,
+        'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET,
         EngageMessageId: message._id,
         MailMessageId: mailMessageId,
       },
