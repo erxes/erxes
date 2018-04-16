@@ -98,7 +98,12 @@ export default `
     name
     colorCode
   }
-  twitterData
-  facebookData
+  twitterData {
+    id_str
+    isDirectMessage
+  }
+  facebookData {
+    kind
+  }
   readUserIds
 `;
