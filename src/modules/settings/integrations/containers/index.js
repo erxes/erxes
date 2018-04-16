@@ -4,6 +4,7 @@ import Twitter from './Twitter';
 import Facebook from './Facebook';
 import MessengerAppearance from './MessengerAppearance';
 import MessengerConfigs from './MessengerConfigs';
+import Filter from './Filter';
 
 export {
   List,
@@ -11,5 +12,6 @@ export {
   Twitter,
   Facebook,
   MessengerAppearance,
-  MessengerConfigs
+  MessengerConfigs,
+  Filter
 };

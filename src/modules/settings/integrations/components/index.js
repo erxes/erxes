@@ -7,6 +7,7 @@ import Facebook from './Facebook';
 import MessengerAppearance from './MessengerAppearance';
 import MessengerConfigs from './MessengerConfigs';
 import WidgetPreview from './widgetPreview/WidgetPreview';
+import Filter from './Filter';
 
 export {
   List,
@@ -17,5 +18,6 @@ export {
   Facebook,
   MessengerAppearance,
   MessengerConfigs,
-  WidgetPreview
+  WidgetPreview,
+  Filter
 };
