@@ -32,19 +32,19 @@ class BoardContainer extends React.Component {
 
   move({ source, destination, itemId, type }) {
     this.setState({
-      // remove from list
-      [`${type}State${source._id}`]: {
-        type: 'removeItem',
-        index: source.index
-      }
-    });
-
-    this.setState({
       // add to list
       [`${type}State${destination._id}`]: {
         type: 'addItem',
         index: destination.index,
         itemId
+      }
+    });
+
+    this.setState({
+      // remove from list
+      [`${type}State${source._id}`]: {
+        type: 'removeItem',
+        index: source.index
       }
     });
   }
@@ -54,8 +54,6 @@ class BoardContainer extends React.Component {
 
     // dropped outside the list
     if (!destination) return;
-
-    this.setState({});
 
     this.move({
       source: { _id: source.droppableId, index: source.index },

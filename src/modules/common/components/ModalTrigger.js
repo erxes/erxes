@@ -37,8 +37,14 @@ class ModalTrigger extends Component {
     this.setState({ isOpen: true });
   }
 
+  afterCloseModal(callback) {
+    callback();
+  }
+
   closeModal() {
     this.setState({ isOpen: false });
+
+    this.afterCloseModal();
   }
 
   render() {

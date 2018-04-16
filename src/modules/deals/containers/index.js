@@ -6,8 +6,7 @@ import DealAddForm from './deal/DealAddForm';
 import DealEditForm from './deal/DealEditForm';
 import DealMove from './deal/DealMove';
 import DealSection from './deal/DealSection';
-import WithAction from './deal/WithAction';
-import WithChoose from './deal/WithChoose';
+import WithSelect from './deal/WithSelect';
 import Tab from './deal/editForm/Tab';
 import ProductChooser from './product/ProductChooser';
 import ProductItemForm from './product/ProductItemForm';
@@ -19,8 +18,7 @@ export {
   Deal,
   DealMove,
   DealSection,
-  WithAction,
-  WithChoose,
+  WithSelect,
   Tab,
   DealAddForm,
   DealEditForm,

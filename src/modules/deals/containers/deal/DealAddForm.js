@@ -4,14 +4,14 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { DealAddForm } from '../../components';
-import { WithChoose } from '../';
+import { WithSelect } from '../';
 import { queries } from '../../graphql';
 
 class DealAddFormContainer extends React.Component {
   render() {
-    const WithChooseDealMove = WithChoose(DealAddForm, this.props);
+    const WithSelectDealMove = WithSelect(DealAddForm, this.props);
 
-    return <WithChooseDealMove />;
+    return <WithSelectDealMove />;
   }
 }
 

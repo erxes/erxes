@@ -92,6 +92,21 @@ class DealEditForm extends React.Component {
 
   onChangeStage(stageId) {
     this.setState({ stageId });
+
+    const { move } = this.context;
+    const { deal } = this.props;
+
+    // if changed stageId, update ui
+    if (move && deal.stageId !== stageId) {
+      const moveDoc = {
+        source: { _id: deal.stageId, index: this.props.index },
+        destination: { _id: stageId, index: 0 },
+        itemId: deal._id,
+        type: 'stage'
+      };
+
+      move(moveDoc);
+    }
   }
 
   onChangeCompany(companies) {
@@ -188,20 +203,6 @@ class DealEditForm extends React.Component {
         this.setState({ disabled: false });
 
         this.context.closeModal();
-
-        const { move } = this.context;
-
-        // if changed stageId, update ui
-        if (move && deal.stageId !== this.state.stageId) {
-          const moveDoc = {
-            source: { _id: deal.stageId, index: this.props.index },
-            destination: { _id: this.state.stageId, index: 0 },
-            itemId: deal._id,
-            type: 'stage'
-          };
-
-          move(moveDoc);
-        }
       },
       this.props.deal
     );
