@@ -1,4 +1,56 @@
 export const types = `
+  type ConversationFacebookData {
+    kind: String
+    senderName: String
+    senderId: String
+    recipientId: String
+    postId: String
+    pageId: String
+  }
+
+  type ConversationMessageFacebookData {
+    postId: String
+    commentId: String
+    parentId: String
+    messageId: String
+    item: String
+    photoId: String
+    videoId: String
+    link: String
+    reactionType: String
+    senderId: String
+    senderName: String
+  }
+
+  type TwitterData {
+    id: Float
+    id_str: String
+    created_at: Date
+    isDirectMessage: Boolean
+
+    entities: JSON
+    extended_entities: JSON
+    extended_tweet: JSON
+
+    sender_id: Float
+    sender_id_str: String
+    recipient_id: Float
+    recipient_id_str: String
+
+    in_reply_to_status_id: Float
+    in_reply_to_status_id_str: String
+    in_reply_to_user_id: Float
+    in_reply_to_user_id_str: String
+    in_reply_to_screen_name: String
+    is_quote_status: Boolean
+    favorited: Boolean
+    retweeted: Boolean
+    quote_count: Float
+    reply_count: Float
+    retweet_count: Float
+    favorite_count: Float
+  }
+
   type Conversation {
     _id: String!
     content: String
@@ -14,8 +66,8 @@ export const types = `
     messageCount: Int
     number: Int
     tagIds: [String]
-    twitterData: JSON
-    facebookData: JSON
+    twitterData: TwitterData
+    facebookData: ConversationFacebookData
 
     messages: [ConversationMessage]
     tags: [Tag]
@@ -50,16 +102,11 @@ export const types = `
     isCustomerRead: Boolean
     engageData: EngageData
     formWidgetData: JSON
-    twitterData: JSON
-    facebookData: JSON
+    twitterData: TwitterData
+    facebookData: ConversationMessageFacebookData
 
     user: User
     customer: Customer
-  }
-
-  type ConversationMessageListResponse {
-    list: [ConversationMessage]
-    totalCount: Float
   }
 
   type ConversationChangedResponse {
@@ -99,7 +146,13 @@ const filterParams = `
 
 export const queries = `
   conversations(${filterParams}): [Conversation]
-  conversationMessages(conversationId: String! skip: Int): ConversationMessageListResponse
+
+  conversationMessages(
+    conversationId: String!
+    skip: Int
+    limit: Int
+  ): [ConversationMessage]
+
   conversationCounts(${filterParams}): JSON
   conversationsTotalCount(${filterParams}): Int
   conversationDetail(_id: String!): Conversation
