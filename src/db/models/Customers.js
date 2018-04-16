@@ -173,54 +173,48 @@ class Customer {
 
     // Checking if customer has email
     if (customerFields.email) {
-      query.email = customerFields.email;
-      previousEntry = await this.find(query);
+      previousEntry = await this.find({ ...query, email: customerFields.email });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated email');
       }
-
-      delete query.email;
     }
 
     // Checking if customer has twitter data
     if (customerFields.twitterData) {
-      query['twitterData.id'] = customerFields.twitterData.id;
-      previousEntry = await this.find(query);
+      previousEntry = await this.find({
+        ...query,
+        ['twitterData.id']: customerFields.twitterData.id,
+      });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated twitter');
       }
-
-      delete query['twitterData.id'];
     }
 
     // Checking if customer has phone
     if (customerFields.phone) {
-      query.phone = customerFields.phone;
-      previousEntry = await this.find(query);
+      previousEntry = await this.find({ ...query, phone: customerFields.phone });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated phone');
       }
-
-      delete query['facebookData.id'];
     }
 
     // Checking if customer has facebook data
     if (customerFields.facebookData) {
-      query['facebookData.id'] = customerFields.facebookData.id;
-      previousEntry = await this.find(query);
+      previousEntry = await this.find({
+        ...query,
+        ['facebookData.id']: customerFields.facebookData.id,
+      });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated facebook');
       }
-
-      delete query['facebookData.id'];
     }
   }
 

@@ -84,6 +84,31 @@ describe('User db utils', () => {
     expect(userObj.links.toJSON()).toEqual(_user.links.toJSON());
   });
 
+  test('Create user with empty string password', async () => {
+    try {
+      await Users.createUser({
+        ..._user._doc,
+        details: { ..._user.details.toJSON(), twitterUsername: 'twitter' },
+        password: '',
+        email: '123@qwerty.com',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Password can not be empty');
+    }
+  });
+
+  test('Update user with empty string password', async () => {
+    // try with empty password ============
+    await Users.updateUser(_user._id, {
+      password: '',
+      details: { ..._user.details.toJSON(), twitterUsername: 'twitter' },
+    });
+
+    let userObj = await Users.findOne({ _id: _user._id });
+
+    expect(bcrypt.compare(_user.password, userObj.password)).toBeTruthy();
+  });
+
   test('Update user', async () => {
     const updateDoc = await userFactory();
 

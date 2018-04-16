@@ -79,6 +79,11 @@ class User {
   static async createUser({ username, email, password, role, details, links }) {
     await this.checkDuplications({ twitterUsername: details.twitterUsername });
 
+    // empty string password validation
+    if (password === '') {
+      throw new Error('Password can not be empty');
+    }
+
     return this.create({
       username,
       email,
