@@ -36,7 +36,7 @@ widgetConnect({
     });
   },
 
-  connectCallback: async (data) => {
+  connectCallback: (data) => {
     const messengerData = data.messengerConnect;
 
     if (!messengerData.integrationId) {
