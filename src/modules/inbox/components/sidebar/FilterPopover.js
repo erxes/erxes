@@ -130,9 +130,7 @@ class FilterPopover extends Component {
       >
         <PopoverButton onClick={() => this.onClick()}>
           {__(buttonText)}
-          <Icon
-            icon={placement === 'top' ? 'ios-arrow-up' : 'ios-arrow-down'}
-          />
+          <Icon erxes icon={placement === 'top' ? 'uparrow-2' : 'downarrow'} />
         </PopoverButton>
       </OverlayTrigger>
     );

@@ -77,7 +77,7 @@ class BasicInfo extends React.Component {
       <Action>
         <Dropdown id="dropdown-engage">
           <DropdownToggle bsRole="toggle">
-            <Button btnStyle="simple" size="medium" icon="chevron-down">
+            <Button btnStyle="simple" size="medium" icon="downarrow">
               {__('Action')}
             </Button>
           </DropdownToggle>

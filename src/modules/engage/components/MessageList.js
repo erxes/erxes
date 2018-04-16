@@ -76,7 +76,7 @@ class List extends React.Component {
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="plus">
-            {__('New message')} <Icon icon="chevron-down" />
+            {__('New message')} <Icon erxes icon="downarrow" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>

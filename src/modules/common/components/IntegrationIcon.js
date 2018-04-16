@@ -11,7 +11,7 @@ const RoundedBackground = styled.span`
   text-align: center;
   display: flex;
   justify-content: center;
-  border: 2px solid ${colors.colorWhite};
+  border: 1px solid ${colors.colorWhite};
   background: ${props =>
     (props.type === 'form' && colors.colorCoreYellow) ||
     (props.type === 'messenger' && colors.colorSecondary) ||
@@ -22,6 +22,7 @@ const RoundedBackground = styled.span`
   i {
     color: ${colors.colorWhite};
     font-size: 11px;
+    line-height: 18px;
   }
 
   img {
@@ -37,29 +38,19 @@ class IntegrationIcon extends Component {
     switch (integration.kind) {
       case 'facebook':
         icon =
-          facebookData && facebookData.kind === 'feed' ? (
-            <Icon icon="social-facebook" />
-          ) : (
-            <img src="/images/icons/messenger.svg" alt="messenger" />
-          );
+          facebookData && facebookData.kind === 'feed'
+            ? 'facebook-logo'
+            : 'facebook-messenger-logo';
         break;
       case 'twitter':
         icon =
-          twitterData && twitterData.isDirectMessage ? (
-            <Icon icon="social-twitter" />
-          ) : (
-            <Icon icon="at" />
-          );
+          twitterData && twitterData.isDirectMessage ? 'twitter' : 'arroba';
         break;
       case 'messenger':
-        icon = customer.isUser ? (
-          <Icon icon="android-chat" />
-        ) : (
-          <Icon icon="android-textsms" />
-        );
+        icon = customer.isUser ? 'speech-bubble-1' : 'speech-bubble-2';
         break;
       default:
-        icon = <Icon icon="document-text" />;
+        icon = 'file';
     }
     return icon;
   }
@@ -69,7 +60,7 @@ class IntegrationIcon extends Component {
 
     return (
       <RoundedBackground type={integration.kind}>
-        {this.getIcon()}
+        <Icon erxes icon={this.getIcon()} />
       </RoundedBackground>
     );
   }

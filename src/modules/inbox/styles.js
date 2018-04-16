@@ -17,7 +17,9 @@ const PopoverButton = styled.div`
   i {
     margin-left: 5px;
     margin-right: 0;
+    font-size: 10px;
     transition: all ease 0.3s;
+    color: ${colors.colorCoreGray};
   }
 
   &[aria-describedby] {
@@ -154,6 +156,7 @@ const ResponseTemplateStyled = styled.div`
 
   button {
     margin-right: 10px;
+    margin-left: 0;
     padding: 0;
   }
 

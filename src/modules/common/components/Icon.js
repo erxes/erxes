@@ -7,12 +7,18 @@ const IconStyle = styled.i`
 `;
 
 function Icon({ ...props }) {
-  return <IconStyle {...props} className={`ion-${props.icon}`} />;
+  return (
+    <IconStyle
+      {...props}
+      className={props.erxes ? `icon-${props.icon}` : `ion-${props.icon}`}
+    />
+  );
 }
 
 Icon.propTypes = {
   icon: PropTypes.string.isRequired,
-  size: PropTypes.number
+  size: PropTypes.number,
+  erxes: PropTypes.bool
 };
 
 export default Icon;

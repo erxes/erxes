@@ -89,7 +89,7 @@ class Properties extends Component {
       <Dropdown id="dropdown-knowledgebase" className="quick-button" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="plus">
-            {__('Add Group & Field ')} <Icon icon="chevron-down" />
+            {__('Add Group & Field ')} <Icon erxes icon="downarrow" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
