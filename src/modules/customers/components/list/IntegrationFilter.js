@@ -5,16 +5,14 @@ import { Wrapper } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { DataWithLoader } from 'modules/common/components';
 import { router } from 'modules/common/utils';
-import { KIND_CHOICES } from '../constants';
+import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 
 const propTypes = {
   history: PropTypes.object,
-  counts: PropTypes.object.isRequired,
-  integrations: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired
+  counts: PropTypes.object.isRequired
 };
 
-function Integrations({ history, counts, integrations, loading }, { __ }) {
+function IntegrationFilter({ history, counts }, { __ }) {
   const { Section, Header } = Wrapper.Sidebar;
 
   const data = (
@@ -46,8 +44,8 @@ function Integrations({ history, counts, integrations, loading }, { __ }) {
 
       <DataWithLoader
         data={data}
-        loading={loading}
-        count={integrations.length}
+        loading={false}
+        count={KIND_CHOICES.ALL_LIST.length}
         emptyText="No integrations"
         emptyIcon="pie-graph"
         size="small"
@@ -57,9 +55,9 @@ function Integrations({ history, counts, integrations, loading }, { __ }) {
   );
 }
 
-Integrations.propTypes = propTypes;
-Integrations.contextTypes = {
+IntegrationFilter.propTypes = propTypes;
+IntegrationFilter.contextTypes = {
   __: PropTypes.func
 };
 
-export default withRouter(Integrations);
+export default withRouter(IntegrationFilter);

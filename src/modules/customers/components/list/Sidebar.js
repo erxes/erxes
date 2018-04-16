@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { CountsByTag } from 'modules/common/components';
 import Segments from 'modules/segments/containers/Filter';
-import { Filter as BrandFilter } from 'modules/settings/brands/containers';
-import { Filter as IntegrationFilter } from 'modules/settings/integrations/containers';
+import { BrandFilter } from '../../containers';
+import { IntegrationFilter } from '../';
 
 const propTypes = {
   counts: PropTypes.object.isRequired,

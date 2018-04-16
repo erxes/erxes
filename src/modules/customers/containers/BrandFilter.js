@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Filter } from '../components';
-import { queries } from '../graphql';
+import { queries } from 'modules/settings/brands/graphql';
+import { BrandFilter } from '../components';
 
-const FilterContainer = props => {
+const BrandFilterContainer = props => {
   const { brandsQuery } = props;
 
   const updatedProps = {
@@ -14,10 +14,10 @@ const FilterContainer = props => {
     loading: brandsQuery.loading
   };
 
-  return <Filter {...updatedProps} />;
+  return <BrandFilter {...updatedProps} />;
 };
 
-FilterContainer.propTypes = {
+BrandFilterContainer.propTypes = {
   brandsQuery: PropTypes.object
 };
 
@@ -25,4 +25,4 @@ export default compose(
   graphql(gql(queries.brands), {
     name: 'brandsQuery'
   })
-)(FilterContainer);
+)(BrandFilterContainer);
