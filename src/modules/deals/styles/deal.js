@@ -302,6 +302,13 @@ const Avatar = styled.img`
   margin-right: 5px;
 `;
 
+const AddContainer = styled.form`
+  ${SelectContainer} {
+    position: relative;
+    width: 100%;
+  }
+`;
+
 export {
   AddNew,
   Container,
@@ -326,5 +333,6 @@ export {
   StageItem,
   SelectOption,
   SelectValue,
-  Avatar
+  Avatar,
+  AddContainer
 };

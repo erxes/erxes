@@ -15,19 +15,15 @@ const propTypes = {
 };
 
 class Deal extends React.Component {
-  onClosed() {}
-
   showEditForm(trigger) {
     const { deal, index, saveDeal, removeDeal } = this.props;
-
-    console.log('isOpen: ', this.context.isOpen);
 
     return (
       <ModalTrigger
         title="Edit deal"
         trigger={trigger}
         size="lg"
-        onClosed={this.onClosed}
+        isOpen={this.context.isOpen}
       >
         <DealEditForm
           deal={deal}

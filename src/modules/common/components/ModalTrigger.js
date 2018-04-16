@@ -23,7 +23,7 @@ class ModalTrigger extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { isOpen: false };
+    this.state = { isOpen: props.isOpen || false };
 
     this.openModal = this.openModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
@@ -37,14 +37,8 @@ class ModalTrigger extends Component {
     this.setState({ isOpen: true });
   }
 
-  afterCloseModal(callback) {
-    callback();
-  }
-
   closeModal() {
     this.setState({ isOpen: false });
-
-    this.afterCloseModal();
   }
 
   render() {

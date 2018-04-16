@@ -48,15 +48,9 @@ class DealEditForm extends React.Component {
   constructor(props) {
     super(props);
 
+    this.onChangeField = this.onChangeField.bind(this);
+    this.changeStage = this.changeStage.bind(this);
     this.onTabClick = this.onTabClick.bind(this);
-    this.onChangeInput = this.onChangeInput.bind(this);
-    this.onChangeStage = this.onChangeStage.bind(this);
-    this.onChangeCompany = this.onChangeCompany.bind(this);
-    this.onChangeCustomer = this.onChangeCustomer.bind(this);
-    this.onDateInputChange = this.onDateInputChange.bind(this);
-    this.onChangeProductsData = this.onChangeProductsData.bind(this);
-    this.onChangeProducts = this.onChangeProducts.bind(this);
-    this.onChangeUsers = this.onChangeUsers.bind(this);
     this.saveProductsData = this.saveProductsData.bind(this);
     this.save = this.save.bind(this);
     this.copy = this.copy.bind(this);
@@ -84,13 +78,11 @@ class DealEditForm extends React.Component {
     this.setState({ currentTab });
   }
 
-  onChangeInput(e) {
-    const { name, value } = e.target;
-
+  onChangeField(name, value) {
     this.setState({ [name]: value });
   }
 
-  onChangeStage(stageId) {
+  changeStage(stageId) {
     this.setState({ stageId });
 
     const { move } = this.context;
@@ -105,32 +97,8 @@ class DealEditForm extends React.Component {
         type: 'stage'
       };
 
-      move(moveDoc);
+      move(moveDoc, true);
     }
-  }
-
-  onChangeCompany(companies) {
-    this.setState({ companies });
-  }
-
-  onChangeCustomer(customers) {
-    this.setState({ customers });
-  }
-
-  onDateInputChange(closeDate) {
-    this.setState({ closeDate });
-  }
-
-  onChangeProductsData(productsData) {
-    this.setState({ productsData });
-  }
-
-  onChangeProducts(products) {
-    this.setState({ products });
-  }
-
-  onChangeUsers(users) {
-    this.setState({ assignedUserIds: users.map(user => user.value) });
   }
 
   saveProductsData() {
@@ -174,13 +142,10 @@ class DealEditForm extends React.Component {
     } = this.state;
     const { __ } = this.context;
 
-    if (!name) {
-      return Alert.error(__('Enter name'));
-    }
+    if (!name) return Alert.error(__('Enter name'));
 
-    if (productsData.length === 0) {
+    if (productsData.length === 0)
       return Alert.error(__('Please, select product & service'));
-    }
 
     const doc = {
       name,
@@ -206,6 +171,10 @@ class DealEditForm extends React.Component {
       },
       this.props.deal
     );
+  }
+
+  remove(_id) {
+    this.props.removeDeal(_id, () => this.context.closeModal());
   }
 
   copy() {
@@ -244,8 +213,12 @@ class DealEditForm extends React.Component {
     return (
       <Right>
         <ServiceSection
-          onChangeProductsData={this.onChangeProductsData}
-          onChangeProducts={this.onChangeProducts}
+          onChangeProductsData={productsData =>
+            this.onChangeField('productsData', productsData)
+          }
+          onChangeProducts={products =>
+            this.onChangeField('products', products)
+          }
           productsData={productsData}
           products={products}
           saveProductsData={this.saveProductsData}
@@ -254,20 +227,20 @@ class DealEditForm extends React.Component {
         <CompanySection
           name="Deal"
           companies={companies}
-          onSelect={this.onChangeCompany}
+          onSelect={companies => this.onChangeField('companies', companies)}
         />
 
         <CustomerSection
           name="Deal"
           customers={customers}
-          onSelect={this.onChangeCustomer}
+          onSelect={customers => this.onChangeField('customers', customers)}
         />
 
         <Button onClick={this.copy} icon="checkmark">
           Copy
         </Button>
 
-        <Button icon="close" onClick={() => this.props.removeDeal(deal._id)}>
+        <Button icon="close" onClick={() => this.remove(deal._id)}>
           Delete
         </Button>
       </Right>
@@ -277,7 +250,7 @@ class DealEditForm extends React.Component {
   renderDealMove() {
     const { deal } = this.props;
 
-    return <DealMove deal={deal} onChangeStage={this.onChangeStage} />;
+    return <DealMove deal={deal} changeStage={this.changeStage} />;
   }
 
   renderFormContent() {
@@ -311,10 +284,9 @@ class DealEditForm extends React.Component {
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
             <FormControl
-              name="name"
               defaultValue={name}
               required
-              onChange={this.onChangeInput}
+              onChange={e => this.onChangeField('name', e.target.value)}
             />
           </HeaderContent>
 
@@ -333,7 +305,9 @@ class DealEditForm extends React.Component {
                 timeFormat={false}
                 value={closeDate}
                 closeOnSelect
-                onChange={this.onDateInputChange.bind(this)}
+                onChange={closeDate =>
+                  this.onChangeField('closeDate', closeDate)
+                }
               />
             </FormGroup>
           </HeaderContentSmall>
@@ -344,10 +318,11 @@ class DealEditForm extends React.Component {
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
-                name="description"
                 componentClass="textarea"
                 defaultValue={description}
-                onChange={this.onChangeInput}
+                onChange={e =>
+                  this.onChangeField('description', e.target.value)
+                }
               />
             </FormGroup>
           </Left>
@@ -357,7 +332,12 @@ class DealEditForm extends React.Component {
               <Select
                 placeholder={__('Choose users')}
                 value={assignedUserIds}
-                onChange={this.onChangeUsers}
+                onChange={users =>
+                  this.onChangeField(
+                    'assignedUserIds',
+                    users.map(user => user.value)
+                  )
+                }
                 optionRenderer={userOption}
                 valueRenderer={userValue}
                 removeSelected={true}

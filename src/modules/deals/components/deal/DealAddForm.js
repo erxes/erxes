@@ -2,7 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, FormControl, ControlLabel } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { HeaderRow, HeaderContent, FormFooter } from '../../styles/deal';
+import {
+  AddContainer,
+  HeaderRow,
+  HeaderContent,
+  FormFooter
+} from '../../styles/deal';
 import { DealSelect } from '../';
 
 const propTypes = {
@@ -91,24 +96,28 @@ class DealAddForm extends React.Component {
     if (!showSelect) return null;
 
     return (
-      <DealSelect
-        show={showSelect}
-        boards={boards}
-        pipelines={pipelines}
-        stages={stages}
-        boardId={boardId}
-        pipelineId={pipelineId}
-        stageId={stageId}
-        onChangeBoard={onChangeBoard}
-        onChangePipeline={onChangePipeline}
-        onChangeStage={onChangeStage}
-      />
+      <HeaderRow>
+        <HeaderContent>
+          <DealSelect
+            show={showSelect}
+            boards={boards}
+            pipelines={pipelines}
+            stages={stages}
+            boardId={boardId}
+            pipelineId={pipelineId}
+            stageId={stageId}
+            onChangeBoard={onChangeBoard}
+            onChangePipeline={onChangePipeline}
+            onChangeStage={onChangeStage}
+          />
+        </HeaderContent>
+      </HeaderRow>
     );
   }
 
   render() {
     return (
-      <form onSubmit={e => this.save(e)}>
+      <AddContainer onSubmit={e => this.save(e)}>
         {this.renderSelect()}
 
         <HeaderRow>
@@ -136,7 +145,7 @@ class DealAddForm extends React.Component {
             Save
           </Button>
         </FormFooter>
-      </form>
+      </AddContainer>
     );
   }
 }

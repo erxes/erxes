@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default function WithSelect(WrappedComponent, params) {
+export default function withSelect(WrappedComponent, params) {
   const WithSelect = class extends React.Component {
     constructor(props) {
       super(props);
@@ -43,8 +43,10 @@ export default function WithSelect(WrappedComponent, params) {
       });
     }
 
-    onChangeStage(stageId) {
-      this.setState({ stageId });
+    onChangeStage(stageId, callback) {
+      this.setState({ stageId }, () => {
+        if (callback) callback();
+      });
     }
 
     render() {

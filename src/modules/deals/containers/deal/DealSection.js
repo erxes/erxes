@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
 import { queries, mutations } from '../../graphql';
-import { Alert, confirm } from 'modules/common/utils';
 import { DealSection } from '../../components';
+import { saveDeal as save, removeDeal as remove } from '../../utils';
 
 class DealSectionContainer extends React.Component {
   constructor(props) {
@@ -18,66 +17,41 @@ class DealSectionContainer extends React.Component {
   // create or update deal
   saveDeal(doc, callback, deal) {
     const { addMutation, editMutation, dealsQuery } = this.props;
-
     const { __ } = this.context;
 
-    let mutation = addMutation;
-
-    // if edit mode
-    if (deal) {
-      mutation = editMutation;
-      doc._id = deal._id;
-    }
-
-    mutation({
-      variables: doc
-    })
-      .then(() => {
-        Alert.success(__('Successfully saved.'));
-
-        dealsQuery.refetch();
-
+    save(
+      doc,
+      { addMutation, editMutation, dealsQuery },
+      { __ },
+      () => {
         callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+      },
+      deal
+    );
   }
 
   // remove deal
-  removeDeal(_id) {
+  removeDeal(_id, callback) {
     const { removeMutation, dealsQuery } = this.props;
     const { __ } = this.context;
 
-    confirm().then(() => {
-      removeMutation({
-        variables: { _id }
-      })
-        .then(() => {
-          Alert.success(__('Successfully deleted.'));
-
-          dealsQuery.refetch();
-
-          // callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    });
+    remove(_id, { removeMutation, dealsQuery }, { __ }, callback);
   }
 
   render() {
     const { dealsQuery } = this.props;
 
     if (dealsQuery.loading) {
-      return <Spinner />;
+      return null;
     }
+
+    const deals = dealsQuery.deals || [];
 
     const extendedProps = {
       ...this.props,
+      deals,
       saveDeal: this.saveDeal,
-      removeDeal: this.removeDeal,
-      deals: dealsQuery.deals
+      removeDeal: this.removeDeal
     };
 
     return <DealSection {...extendedProps} />;
@@ -85,10 +59,10 @@ class DealSectionContainer extends React.Component {
 }
 
 DealSectionContainer.propTypes = {
+  deals: PropTypes.array,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
   removeMutation: PropTypes.func,
-  dealsChangeMutation: PropTypes.func,
   dealsQuery: PropTypes.object
 };
 
@@ -109,10 +83,10 @@ export default compose(
   }),
   graphql(gql(queries.deals), {
     name: 'dealsQuery',
-    options: ({ customerId, companyId }) => ({
+    options: ({ customerId = '', companyId = '' }) => ({
       variables: {
-        customerId: customerId || '',
-        companyId: companyId || ''
+        customerId,
+        companyId
       }
     })
   })

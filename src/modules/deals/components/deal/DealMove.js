@@ -11,8 +11,20 @@ import {
 import { DealSelect } from '../';
 
 class DealMove extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.toggleForm = this.toggleForm.bind(this);
+
+    this.state = { show: false };
+  }
+
+  toggleForm() {
+    this.setState({ show: !this.state.show });
+  }
+
   renderStages() {
-    const { stages, stageId, onChangeStage } = this.props;
+    const { stages, stageId, changeStage } = this.props;
 
     let isPass = true;
 
@@ -22,7 +34,7 @@ class DealMove extends React.Component {
           const item = (
             <StageItem key={s._id} isPass={isPass}>
               <Tip text={s.name}>
-                <a onClick={() => onChangeStage(s._id)}>
+                <a onClick={() => changeStage(s._id)}>
                   <Icon icon="ios-checkmark" />
                 </a>
               </Tip>
@@ -48,8 +60,7 @@ class DealMove extends React.Component {
       onChangeBoard,
       onChangePipeline,
       onChangeStage,
-      show,
-      toggleForm
+      changeStage
     } = this.props;
 
     const currentPipeline = pipelines.find(p => p._id === pipelineId) || {};
@@ -57,12 +68,12 @@ class DealMove extends React.Component {
     return (
       <MoveContainer>
         <MoveFormContainer>
-          <PipelineName onClick={toggleForm}>
+          <PipelineName onClick={this.toggleForm}>
             {currentPipeline.name} <Icon icon="ios-arrow-down" />
           </PipelineName>
 
           <DealSelect
-            show={show}
+            show={this.state.show}
             boards={boards}
             pipelines={pipelines}
             stages={stages}
@@ -72,6 +83,8 @@ class DealMove extends React.Component {
             onChangeBoard={onChangeBoard}
             onChangePipeline={onChangePipeline}
             onChangeStage={onChangeStage}
+            changeStage={changeStage}
+            toggleForm={this.toggleForm}
           />
         </MoveFormContainer>
 
@@ -89,11 +102,10 @@ const propTypes = {
   boardId: PropTypes.string.isRequired,
   pipelineId: PropTypes.string,
   stageId: PropTypes.string,
-  show: PropTypes.bool,
-  toggleForm: PropTypes.func.isRequired,
   onChangeBoard: PropTypes.func.isRequired,
   onChangePipeline: PropTypes.func.isRequired,
-  onChangeStage: PropTypes.func.isRequired
+  onChangeStage: PropTypes.func.isRequired,
+  changeStage: PropTypes.func.isRequired
 };
 
 DealMove.propTypes = propTypes;

@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
 import { router as routerUtils } from 'modules/common/utils';
 import { Board } from '../components';
-import { Spinner } from 'modules/common/components';
 import { queries } from '../graphql';
 
 class BoardContainer extends React.Component {
@@ -15,7 +15,9 @@ class BoardContainer extends React.Component {
     this.move = this.move.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
 
-    this.state = {};
+    this.state = {
+      isOpen: false
+    };
   }
 
   componentWillReceiveProps() {
@@ -27,10 +29,10 @@ class BoardContainer extends React.Component {
   }
 
   getChildContext() {
-    return { move: this.move };
+    return { move: this.move, isOpen: this.state.isOpen };
   }
 
-  move({ source, destination, itemId, type }) {
+  move({ source, destination, itemId, type }, isOpen) {
     this.setState({
       // add to list
       [`${type}State${destination._id}`]: {
@@ -47,6 +49,8 @@ class BoardContainer extends React.Component {
         index: source.index
       }
     });
+
+    this.setState({ isOpen });
   }
 
   onDragEnd(result) {
@@ -90,7 +94,8 @@ BoardContainer.propTypes = {
 };
 
 BoardContainer.childContextTypes = {
-  move: PropTypes.func
+  move: PropTypes.func,
+  isOpen: PropTypes.bool
 };
 
 const BoardContainerWithData = compose(
