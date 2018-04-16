@@ -15,6 +15,8 @@ import {
   getLocalStorageItem,
 } from '../connection';
 
+import { getBrowserInfo } from '../../utils';
+
 import client from '../../apollo-client';
 
 export const connect = variables =>
@@ -22,12 +24,12 @@ export const connect = variables =>
   client.mutate({
     mutation: gql`
       mutation connect($brandCode: String!, $email: String, $phone: String,
-        $isUser: Boolean, $browserInfo: JSON!, $data: JSON,
+        $isUser: Boolean, $data: JSON,
         $companyData: JSON, $cachedCustomerId: String) {
 
         messengerConnect(brandCode: $brandCode, email: $email, phone: $phone,
           isUser: $isUser, data: $data, companyData: $companyData,
-          browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId) {
+          cachedCustomerId: $cachedCustomerId) {
 
           integrationId,
           messengerData,
@@ -39,6 +41,19 @@ export const connect = variables =>
 
     variables,
   });
+
+export const saveBrowserInfo = async variables => {
+  variables.browserInfo = await getBrowserInfo();
+
+  client.mutate({
+    mutation: gql`
+      mutation saveBrowserInfo($customerId: String! $browserInfo: JSON!) {
+        saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo)
+      }
+    `,
+    variables,
+  });
+};
 
 export const toggle = (isVisible) => {
   // notify parent window launcher state

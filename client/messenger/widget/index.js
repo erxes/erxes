@@ -6,7 +6,6 @@
 
 // css
 import './index.css';
-import { getBrowserInfo } from '../../utils';
 
 // check is mobile
 const isMobile =
@@ -86,14 +85,11 @@ iframe = document.querySelector(`#${iframeId}`);
 iframe.onload = async () => {
   iframe.style.display = 'block';
 
-  const browserInfo = await getBrowserInfo();
-
   iframe.contentWindow.postMessage(
     {
       fromPublisher: true,
       setting: {
-        ...window.erxesSettings.messenger,
-        browserInfo,
+        ...window.erxesSettings.messenger
       },
     },
     '*'

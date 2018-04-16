@@ -4,9 +4,11 @@ import { connect } from 'react-redux';
 import { App as DumbApp } from '../components';
 import { postMessage, init, closePopup, showPopup } from '../actions';
 import { connection } from '../connection';
+import { getBrowserInfo } from '../../utils';
 
 class App extends React.Component {
   componentDidMount() {
+    this.setBrowserInfo();
     window.addEventListener('message', (event) => {
       if (event.data.fromPublisher) {
         // receive show popup command from publisher
@@ -15,6 +17,10 @@ class App extends React.Component {
         }
       }
     });
+  }
+
+  async setBrowserInfo() {
+    connection.browserInfo = await getBrowserInfo();
   }
 
   setHeight() {
