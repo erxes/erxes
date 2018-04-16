@@ -65,6 +65,7 @@ const sidebarConversations = `
         lastName
         email
         phone
+        visitorContactInfo
       }
       tagIds
       tags {
