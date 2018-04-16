@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import IntegrationList from './IntegrationList';
 import ManageIntegrationForm from './ManageIntegrationForm';
 import ChooseBrand from './ChooseBrand';
+import Filter from './Filter';
 
 export {
   Brands,
@@ -11,5 +12,6 @@ export {
   Sidebar,
   IntegrationList,
   ManageIntegrationForm,
-  ChooseBrand
+  ChooseBrand,
+  Filter
 };

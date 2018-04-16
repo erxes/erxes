@@ -6,6 +6,7 @@ import ManageIntegrationForm from './ManageIntegrationForm';
 import BrandRow from './BrandRow';
 import BrandForm from './BrandForm';
 import ChooseBrand from './ChooseBrand';
+import Filter from './Filter';
 
 export {
   Brands,
@@ -15,5 +16,6 @@ export {
   ManageIntegrationForm,
   BrandRow,
   BrandForm,
-  ChooseBrand
+  ChooseBrand,
+  Filter
 };
