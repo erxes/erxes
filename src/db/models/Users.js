@@ -24,7 +24,6 @@ const DetailSchema = mongoose.Schema(
     position: field({ type: String }),
     location: field({ type: String, optional: true }),
     description: field({ type: String, optional: true }),
-    twitterUsername: field({ type: String, optional: true }),
   },
   { _id: false },
 );
@@ -77,8 +76,6 @@ class User {
    * @return {Promise} newly created user object
    */
   static async createUser({ username, email, password, role, details, links }) {
-    await this.checkDuplications({ twitterUsername: details.twitterUsername });
-
     // empty string password validation
     if (password === '') {
       throw new Error('Password can not be empty');
@@ -102,11 +99,6 @@ class User {
    * @return {Promise} updated user info
    */
   static async updateUser(_id, { username, email, password, role, details, links }) {
-    await this.checkDuplications({
-      userId: _id,
-      twitterUsername: details.twitterUsername,
-    });
-
     const doc = { username, email, password, role, details, links };
 
     // change password
@@ -166,22 +158,6 @@ class User {
    */
   static removeUser(_id) {
     return Users.remove({ _id });
-  }
-
-  /*
-   * Check duplications
-   */
-  static async checkDuplications({ userId, twitterUsername }) {
-    if (twitterUsername) {
-      const previousEntry = await Users.findOne({
-        _id: { $ne: userId },
-        'details.twitterUsername': twitterUsername,
-      });
-
-      if (previousEntry) {
-        throw new Error('Duplicated twitter username');
-      }
-    }
   }
 
   /*

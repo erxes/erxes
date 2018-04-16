@@ -26,46 +26,12 @@ describe('User db utils', () => {
     await Users.remove({});
   });
 
-  test('Create user: twitter handler duplication', async () => {
-    expect.assertions(3);
-
-    _user.details.twitterUsername = undefined;
-    await _user.save();
-
-    // don not check duplication when there is not twitter username specified
-    let createdUser = await Users.createUser({ password: 'password', details: {} });
-    expect(createdUser.details.twitterUsername).toBe(undefined);
-
-    // duplicated ==================
-    _user.details.twitterUsername = 'twitter';
-    await _user.save();
-
-    try {
-      await Users.createUser({
-        password: 'password',
-        details: { twitterUsername: 'twitter' },
-        email: 'asdas@asdas.com',
-      });
-    } catch (e) {
-      expect(e.message).toBe('Duplicated twitter username');
-    }
-
-    // not duplicated ==========
-    createdUser = await Users.createUser({
-      password: 'password',
-      details: { twitterUsername: 'other twitter' },
-      email: 'asdsad@qweqwe.com',
-    });
-
-    expect(createdUser.details.twitterUsername).toBe('other twitter');
-  });
-
   test('Create user', async () => {
     const testPassword = 'test';
 
     const userObj = await Users.createUser({
       ..._user._doc,
-      details: { ..._user.details.toJSON(), twitterUsername: 'twitter' },
+      details: { ..._user.details.toJSON() },
       links: { ..._user.links.toJSON() },
       password: testPassword,
       email: 'qwerty@qwerty.com',
@@ -78,7 +44,6 @@ describe('User db utils', () => {
     expect(userObj.role).toBe(_user.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(_user.details.position);
-    expect(userObj.details.twitterUsername).toBe('twitter');
     expect(userObj.details.fullName).toBe(_user.details.fullName);
     expect(userObj.details.avatar).toBe(_user.details.avatar);
     expect(userObj.links.toJSON()).toEqual(_user.links.toJSON());
@@ -88,7 +53,7 @@ describe('User db utils', () => {
     try {
       await Users.createUser({
         ..._user._doc,
-        details: { ..._user.details.toJSON(), twitterUsername: 'twitter' },
+        details: { ..._user.details.toJSON() },
         password: '',
         email: '123@qwerty.com',
       });
@@ -101,7 +66,7 @@ describe('User db utils', () => {
     // try with empty password ============
     await Users.updateUser(_user._id, {
       password: '',
-      details: { ..._user.details.toJSON(), twitterUsername: 'twitter' },
+      details: { ..._user.details.toJSON() },
     });
 
     let userObj = await Users.findOne({ _id: _user._id });
@@ -119,7 +84,7 @@ describe('User db utils', () => {
       email: '123@gmail.com',
       username: updateDoc.username,
       password: testPassword,
-      details: { ...updateDoc._doc.details.toJSON(), twitterUsername: 'tw' },
+      details: { ...updateDoc._doc.details.toJSON() },
       links: { ...updateDoc._doc.links.toJSON() },
     });
 
@@ -130,7 +95,6 @@ describe('User db utils', () => {
     expect(userObj.role).toBe(userObj.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(updateDoc.details.position);
-    expect(userObj.details.twitterUsername).toBe('tw');
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
     expect(userObj.links.toJSON()).toEqual(updateDoc.links.toJSON());
@@ -138,7 +102,7 @@ describe('User db utils', () => {
     // try without password ============
     await Users.updateUser(_user._id, {
       username: 'qwe',
-      details: { ...updateDoc._doc.details.toJSON(), twitterUsername: 'tw' },
+      details: { ...updateDoc._doc.details.toJSON() },
     });
 
     userObj = await Users.findOne({ _id: _user._id });
@@ -169,7 +133,6 @@ describe('User db utils', () => {
     expect(userObj.username).toBe(updateDoc.username);
     expect(userObj.email).toBe('testEmail@yahoo.com');
     expect(userObj.details.position).toBe(updateDoc.details.position);
-    expect(userObj.details.twitterUsername).toBe(updateDoc.details.twitterUsername);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
     expect(userObj.links.toJSON()).toEqual(updateDoc.links.toJSON());
