@@ -19,12 +19,7 @@ class Deal extends React.Component {
     const { deal, index, saveDeal, removeDeal } = this.props;
 
     return (
-      <ModalTrigger
-        title="Edit deal"
-        trigger={trigger}
-        size="lg"
-        isOpen={this.context.isOpen}
-      >
+      <ModalTrigger title="Edit deal" trigger={trigger} size="lg">
         <DealEditForm
           deal={deal}
           saveDeal={saveDeal}
@@ -75,8 +70,5 @@ class Deal extends React.Component {
 }
 
 Deal.propTypes = propTypes;
-Deal.contextTypes = {
-  isOpen: PropTypes.bool
-};
 
 export default Deal;

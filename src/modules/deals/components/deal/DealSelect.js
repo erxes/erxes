@@ -37,8 +37,7 @@ class DealSelect extends React.Component {
       onChangeBoard,
       onChangePipeline,
       onChangeStage,
-      toggleForm,
-      changeStage
+      callback
     } = this.props;
 
     return (
@@ -68,11 +67,7 @@ class DealSelect extends React.Component {
           {this.renderSelect(
             __('Choose a stage'),
             stageId,
-            stage =>
-              onChangeStage(stage.value, () => {
-                changeStage(stage.value);
-                toggleForm();
-              }),
+            stage => onChangeStage(stage.value, callback),
             selectOptions(stages)
           )}
         </FormGroup>
@@ -92,8 +87,7 @@ const propTypes = {
   onChangeBoard: PropTypes.func.isRequired,
   onChangePipeline: PropTypes.func.isRequired,
   onChangeStage: PropTypes.func.isRequired,
-  toggleForm: PropTypes.func.isRequired,
-  changeStage: PropTypes.func.isRequired
+  callback: PropTypes.func
 };
 
 DealSelect.propTypes = propTypes;

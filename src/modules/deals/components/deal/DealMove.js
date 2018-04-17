@@ -63,6 +63,11 @@ class DealMove extends React.Component {
       changeStage
     } = this.props;
 
+    const callback = stageId => {
+      changeStage(stageId);
+      this.toggleForm();
+    };
+
     const currentPipeline = pipelines.find(p => p._id === pipelineId) || {};
 
     return (
@@ -83,8 +88,7 @@ class DealMove extends React.Component {
             onChangeBoard={onChangeBoard}
             onChangePipeline={onChangePipeline}
             onChangeStage={onChangeStage}
-            changeStage={changeStage}
-            toggleForm={this.toggleForm}
+            callback={callback}
           />
         </MoveFormContainer>
 

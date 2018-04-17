@@ -305,7 +305,11 @@ const Avatar = styled.img`
 const AddContainer = styled.form`
   ${SelectContainer} {
     position: relative;
+    top: 0;
     width: 100%;
+    padding: 0;
+    background: none;
+    box-shadow: none;
   }
 `;
 

@@ -49,7 +49,6 @@ class DealEditForm extends React.Component {
     super(props);
 
     this.onChangeField = this.onChangeField.bind(this);
-    this.changeStage = this.changeStage.bind(this);
     this.onTabClick = this.onTabClick.bind(this);
     this.saveProductsData = this.saveProductsData.bind(this);
     this.save = this.save.bind(this);
@@ -82,25 +81,6 @@ class DealEditForm extends React.Component {
     this.setState({ [name]: value });
   }
 
-  changeStage(stageId) {
-    this.setState({ stageId });
-
-    const { move } = this.context;
-    const { deal } = this.props;
-
-    // if changed stageId, update ui
-    if (move && deal.stageId !== stageId) {
-      const moveDoc = {
-        source: { _id: deal.stageId, index: this.props.index },
-        destination: { _id: stageId, index: 0 },
-        itemId: deal._id,
-        type: 'stage'
-      };
-
-      move(moveDoc, true);
-    }
-  }
-
   saveProductsData() {
     const { productsData } = this.state;
     const products = [];
@@ -130,7 +110,6 @@ class DealEditForm extends React.Component {
   }
 
   save() {
-    const { deal } = this.props;
     const {
       name,
       description,
@@ -138,6 +117,7 @@ class DealEditForm extends React.Component {
       customers,
       closeDate,
       productsData,
+      stageId,
       assignedUserIds
     } = this.state;
     const { __ } = this.context;
@@ -154,7 +134,7 @@ class DealEditForm extends React.Component {
       closeDate: closeDate ? new Date(closeDate) : null,
       description,
       productsData,
-      stageId: deal.stageId,
+      stageId,
       assignedUserIds
     };
 
@@ -171,6 +151,21 @@ class DealEditForm extends React.Component {
       },
       this.props.deal
     );
+
+    const { move } = this.context;
+    const { deal } = this.props;
+
+    // if changed stageId, update ui
+    if (move && deal.stageId !== stageId) {
+      const moveDoc = {
+        source: { _id: deal.stageId, index: this.props.index },
+        destination: { _id: stageId, index: 0 },
+        itemId: deal._id,
+        type: 'stage'
+      };
+
+      move(moveDoc);
+    }
   }
 
   remove(_id) {
@@ -249,8 +244,15 @@ class DealEditForm extends React.Component {
 
   renderDealMove() {
     const { deal } = this.props;
+    const { stageId } = this.state;
 
-    return <DealMove deal={deal} changeStage={this.changeStage} />;
+    return (
+      <DealMove
+        deal={deal}
+        stageId={stageId}
+        changeStage={stageId => this.onChangeField('stageId', stageId)}
+      />
+    );
   }
 
   renderFormContent() {

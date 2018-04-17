@@ -15,9 +15,7 @@ class BoardContainer extends React.Component {
     this.move = this.move.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
 
-    this.state = {
-      isOpen: false
-    };
+    this.state = {};
   }
 
   componentWillReceiveProps() {
@@ -29,10 +27,10 @@ class BoardContainer extends React.Component {
   }
 
   getChildContext() {
-    return { move: this.move, isOpen: this.state.isOpen };
+    return { move: this.move };
   }
 
-  move({ source, destination, itemId, type }, isOpen) {
+  move({ source, destination, itemId, type }) {
     this.setState({
       // add to list
       [`${type}State${destination._id}`]: {
@@ -49,8 +47,6 @@ class BoardContainer extends React.Component {
         index: source.index
       }
     });
-
-    this.setState({ isOpen });
   }
 
   onDragEnd(result) {

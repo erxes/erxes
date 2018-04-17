@@ -7,17 +7,18 @@ import { DealMove } from '../../components';
 import { queries } from '../../graphql';
 
 const propTypes = {
-  deal: PropTypes.object
+  deal: PropTypes.object,
+  stageId: PropTypes.string
 };
 
 class DealMoveContainer extends React.Component {
   render() {
-    const { deal } = this.props;
+    const { deal, stageId } = this.props;
 
     const updatedProps = {
       ...this.props,
       boardId: deal.boardId,
-      stageId: deal.stageId,
+      stageId,
       pipelineId: deal.pipelineId
     };
 

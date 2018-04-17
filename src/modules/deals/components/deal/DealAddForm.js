@@ -96,22 +96,18 @@ class DealAddForm extends React.Component {
     if (!showSelect) return null;
 
     return (
-      <HeaderRow>
-        <HeaderContent>
-          <DealSelect
-            show={showSelect}
-            boards={boards}
-            pipelines={pipelines}
-            stages={stages}
-            boardId={boardId}
-            pipelineId={pipelineId}
-            stageId={stageId}
-            onChangeBoard={onChangeBoard}
-            onChangePipeline={onChangePipeline}
-            onChangeStage={onChangeStage}
-          />
-        </HeaderContent>
-      </HeaderRow>
+      <DealSelect
+        show={showSelect}
+        boards={boards}
+        pipelines={pipelines}
+        stages={stages}
+        boardId={boardId}
+        pipelineId={pipelineId}
+        stageId={stageId}
+        onChangeBoard={onChangeBoard}
+        onChangePipeline={onChangePipeline}
+        onChangeStage={onChangeStage}
+      />
     );
   }
 

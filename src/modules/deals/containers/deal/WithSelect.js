@@ -45,7 +45,7 @@ export default function withSelect(WrappedComponent, params) {
 
     onChangeStage(stageId, callback) {
       this.setState({ stageId }, () => {
-        if (callback) callback();
+        if (callback) callback(stageId);
       });
     }
 
