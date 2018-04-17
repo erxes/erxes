@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { Icon, ModalTrigger } from 'modules/common/components';
-import { Deal, DealForm } from '../containers';
+import { Deal } from '../containers';
+import { DealAddForm } from './';
 import { AddNew } from '../styles/deal';
 import {
   Wrapper,
@@ -38,7 +39,7 @@ class Stage extends React.Component {
 
   showDealForm() {
     const { __ } = this.context;
-    const { stage, deals, saveDeal, removeDeal } = this.props;
+    const { stage, saveDeal } = this.props;
 
     const trigger = (
       <AddNew>
@@ -48,12 +49,7 @@ class Stage extends React.Component {
 
     return (
       <ModalTrigger title="Add a deal" trigger={trigger}>
-        <DealForm
-          stageId={stage._id}
-          length={deals.length}
-          saveDeal={saveDeal}
-          removeDeal={removeDeal}
-        />
+        <DealAddForm stageId={stage._id} saveDeal={saveDeal} />
       </ModalTrigger>
     );
   }
@@ -79,6 +75,7 @@ class Stage extends React.Component {
               dealId={deal._id}
               saveDeal={saveDeal}
               removeDeal={removeDeal}
+              draggable
             />
           ))}
         </div>
@@ -105,7 +102,7 @@ class Stage extends React.Component {
                   {stage.name}
                   <span>({deals.length})</span>
                 </h3>
-                <Amount>{this.renderAmount(stage.amount || [])}</Amount>
+                <Amount>{this.renderAmount(stage.amount || {})}</Amount>
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
 

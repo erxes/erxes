@@ -89,16 +89,20 @@ class Board extends React.Component {
 
     const { currentBoard, onDragEnd } = this.props;
 
-    let content = null;
-
     if (!currentBoard) {
-      content = (
-        <EmptyState
-          linkUrl="/settings/deals"
-          linkText="Create one"
-          size="full"
-          text="There is no board"
-          image="/images/robots/robot-05.svg"
+      return (
+        <Wrapper
+          header={<Wrapper.Header breadcrumb={breadcrumb} />}
+          content={
+            <EmptyState
+              linkUrl="/settings/deals"
+              linkText="Create one"
+              size="full"
+              text="There is no board"
+              image="/images/robots/robot-05.svg"
+            />
+          }
+          transparent
         />
       );
     }
@@ -108,7 +112,7 @@ class Board extends React.Component {
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
-              {currentBoard.name} <Icon icon="ios-arrow-down" />
+              {currentBoard && currentBoard.name} <Icon icon="ios-arrow-down" />
             </Button>
           </DropdownToggle>
 
@@ -121,7 +125,7 @@ class Board extends React.Component {
       <Wrapper.ActionBar left={actionBarLeft} background="transparent" />
     );
 
-    content = (
+    const content = (
       <DragDropContext onDragEnd={onDragEnd}>
         {this.renderPipelines()}
       </DragDropContext>
