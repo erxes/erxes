@@ -12,13 +12,18 @@ import { Sidebar } from 'modules/layout/components';
 const EditInformationContainer = (props, context) => {
   const {
     customerId,
+    customer,
     customersEdit,
     fieldsGroupsQuery,
     customerDetailQuery,
     wide
   } = props;
 
-  if (fieldsGroupsQuery.loading || customerDetailQuery.loading) {
+  const customerDetailQueryLoading = customerId
+    ? customerDetailQuery.loading
+    : false;
+
+  if (fieldsGroupsQuery.loading || customerDetailQueryLoading) {
     return (
       <Sidebar full wide={wide}>
         <Spinner />
@@ -38,11 +43,16 @@ const EditInformationContainer = (props, context) => {
       });
   };
 
+  const customerDetail = customer || {};
+  const customFieldsData = customerDetail.customFieldsData || {};
+
   const updatedProps = {
     ...props,
     save,
-    customer: customerDetailQuery.customerDetail || {},
-    customFieldsData: customerDetailQuery.customerDetail.customFieldsData || {},
+    customer: customerId ? customerDetailQuery.customerDetail : customerDetail,
+    customFieldsData: customerId
+      ? customerDetailQuery.customerDetail.customFieldsData
+      : customFieldsData,
     currentUser: context.currentUser,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
@@ -51,12 +61,13 @@ const EditInformationContainer = (props, context) => {
 };
 
 EditInformationContainer.propTypes = {
-  customerId: PropTypes.string.isRequired,
+  customerId: PropTypes.string,
   sections: PropTypes.node,
   customersEdit: PropTypes.func.isRequired,
   wide: PropTypes.bool,
+  customer: PropTypes.object,
   fieldsGroupsQuery: PropTypes.object.isRequired,
-  customerDetailQuery: PropTypes.object.isRequired,
+  customerDetailQuery: PropTypes.object,
   query: PropTypes.object
 };
 
@@ -86,6 +97,7 @@ export default compose(
   }),
   graphql(gql(queries.customerDetail), {
     name: 'customerDetailQuery',
+    skip: ({ customerId }) => (customerId ? false : true),
     options: ({ customerId }) => ({
       variables: {
         _id: customerId
