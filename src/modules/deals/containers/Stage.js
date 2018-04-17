@@ -153,6 +153,16 @@ StageContainer.contextTypes = {
 };
 
 const StageContainerWithData = compose(
+  // mutation
+  graphql(gql(mutations.dealsAdd), {
+    name: 'addMutation'
+  }),
+  graphql(gql(mutations.dealsEdit), {
+    name: 'editMutation'
+  }),
+  graphql(gql(mutations.dealsRemove), {
+    name: 'removeMutation'
+  }),
   graphql(gql(queries.stageDetail), {
     name: 'stageDetailQuery',
     options: ({ stageId }) => ({
@@ -193,16 +203,6 @@ StageWithDeals.propTypes = {
 };
 
 export default compose(
-  // mutation
-  graphql(gql(mutations.dealsAdd), {
-    name: 'addMutation'
-  }),
-  graphql(gql(mutations.dealsEdit), {
-    name: 'editMutation'
-  }),
-  graphql(gql(mutations.dealsRemove), {
-    name: 'removeMutation'
-  }),
   graphql(gql(queries.deals), {
     name: 'dealsQuery',
     options: ({ stageId }) => ({
