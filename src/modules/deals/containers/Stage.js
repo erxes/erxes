@@ -141,7 +141,6 @@ StageContainer.propTypes = {
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
   removeMutation: PropTypes.func,
-  dealsChange: PropTypes.func,
   dealsChangeMutation: PropTypes.func,
   dealsUpdateOrder: PropTypes.func,
   stageDetailQuery: PropTypes.object,

@@ -90,8 +90,7 @@ BoardContainer.propTypes = {
 };
 
 BoardContainer.childContextTypes = {
-  move: PropTypes.func,
-  isOpen: PropTypes.bool
+  move: PropTypes.func
 };
 
 const BoardContainerWithData = compose(

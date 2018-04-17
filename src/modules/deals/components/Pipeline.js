@@ -26,7 +26,7 @@ class Pipeline extends React.Component {
   }
 
   renderStage(provided) {
-    const { stages, pipeline } = this.props;
+    const { stages } = this.props;
     const length = stages.length;
 
     return (
@@ -38,7 +38,6 @@ class Pipeline extends React.Component {
               stageId={stage._id}
               index={index}
               length={length}
-              pipelineId={pipeline._id}
               state={this.props[`stageState${stage._id}`]}
             />
           ))}
