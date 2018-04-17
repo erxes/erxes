@@ -135,7 +135,7 @@ class CustomerDetails extends React.Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={
-          <EditInformation wide customer={customer} refetch={refetch} />
+          <EditInformation wide customerId={customer._id} refetch={refetch} />
         }
         rightSidebar={rightSidebar}
         content={content}

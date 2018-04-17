@@ -10,9 +10,15 @@ import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 
 const EditInformationContainer = (props, context) => {
-  const { customer, customersEdit, fieldsGroupsQuery, wide } = props;
+  const {
+    customerId,
+    customersEdit,
+    fieldsGroupsQuery,
+    customerDetailQuery,
+    wide
+  } = props;
 
-  if (fieldsGroupsQuery.loading) {
+  if (fieldsGroupsQuery.loading || customerDetailQuery.loading) {
     return (
       <Sidebar full wide={wide}>
         <Spinner />
@@ -20,11 +26,9 @@ const EditInformationContainer = (props, context) => {
     );
   }
 
-  const { _id } = customer;
-
   const save = (variables, callback) => {
     customersEdit({
-      variables: { _id, ...variables }
+      variables: { customerId, ...variables }
     })
       .then(() => {
         callback();
@@ -37,7 +41,8 @@ const EditInformationContainer = (props, context) => {
   const updatedProps = {
     ...props,
     save,
-    customFieldsData: customer.customFieldsData || {},
+    customer: customerDetailQuery.customerDetail || {},
+    customFieldsData: customerDetailQuery.customerDetail.customFieldsData || {},
     currentUser: context.currentUser,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
@@ -46,11 +51,12 @@ const EditInformationContainer = (props, context) => {
 };
 
 EditInformationContainer.propTypes = {
-  customer: PropTypes.object.isRequired,
+  customerId: PropTypes.string.isRequired,
   sections: PropTypes.node,
   customersEdit: PropTypes.func.isRequired,
   wide: PropTypes.bool,
   fieldsGroupsQuery: PropTypes.object.isRequired,
+  customerDetailQuery: PropTypes.object.isRequired,
   query: PropTypes.object
 };
 
@@ -58,13 +64,13 @@ EditInformationContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-const options = ({ customer }) => ({
+const options = ({ customerId }) => ({
   refetchQueries: [
     {
       query: gql`
         ${queries.customerDetail}
       `,
-      variables: { _id: customer._id }
+      variables: { _id: customerId }
     }
   ]
 });
@@ -75,6 +81,14 @@ export default compose(
     options: () => ({
       variables: {
         contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER
+      }
+    })
+  }),
+  graphql(gql(queries.customerDetail), {
+    name: 'customerDetailQuery',
+    options: ({ customerId }) => ({
+      variables: {
+        _id: customerId
       }
     })
   }),
