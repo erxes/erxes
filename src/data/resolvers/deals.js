@@ -56,12 +56,10 @@ export default {
     return Users.find({ _id: { $in: deal.assignedUserIds } });
   },
 
-  async pipelineId(deal) {
+  async pipeline(deal) {
     const stage = await DealStages.findOne({ _id: deal.stageId });
 
-    const pipeline = await DealPipelines.findOne({ _id: stage.pipelineId });
-
-    return pipeline._id;
+    return DealPipelines.findOne({ _id: stage.pipelineId });
   },
 
   async boardId(deal) {

@@ -21,8 +21,8 @@ const dealQueries = {
   },
 
   /**
-   * Get defalut board
-   * @return {Promise} board
+   * Get default board
+   * @return {Promise} default board
    */
   async dealBoardGetDefault() {
     const defaultBoard = await DealBoards.findOne({ isDefault: true });
@@ -37,10 +37,18 @@ const dealQueries = {
    * Deal Pipelines list
    * @param {Object} args
    * @param {String} args.boardId
-   * @return {Promise}  filtered pipeline objects by boardId
+   * @return {Promise} filtered pipeline objects by boardId
    */
   dealPipelines(root, { boardId }) {
     return DealPipelines.find({ boardId }).sort({ order: 1, createdAt: -1 });
+  },
+
+  /**
+   * Get last pipeline by boardId
+   * @return {Promise} last pipeline
+   */
+  async dealPipelineGetLast(root, { boardId }) {
+    return DealPipelines.findOne({ boardId }).sort({ createdAt: -1 });
   },
 
   /**
