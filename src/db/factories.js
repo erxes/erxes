@@ -47,7 +47,6 @@ export const userFactory = (params = {}) => {
     details: {
       fullName: params.fullName || faker.random.word(),
       avatar: params.avatar || faker.image.imageUrl(),
-      twitterUsername: params.twitterUsername || faker.internet.userName(),
       position: params.position || 'admin',
     },
     links: {
@@ -276,7 +275,9 @@ export const integrationFactory = async (params = {}) => {
     formData:
       params.formData === 'form'
         ? params.formData
-        : kind === 'form' ? { thankContent: 'thankContent' } : null,
+        : kind === 'form'
+          ? { thankContent: 'thankContent' }
+          : null,
     tagIds: params.tagIds || [],
   };
 

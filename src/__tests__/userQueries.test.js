@@ -35,7 +35,6 @@ describe('userQueries', () => {
             position
             location
             description
-            twitterUsername
           }
           links {
             linkedIn
