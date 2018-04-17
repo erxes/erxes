@@ -66,6 +66,36 @@ const UserSchema = mongoose.Schema({
 });
 
 class User {
+  /**
+   * Checking if user has duplicated properties
+   * @param  {Object} userFields - User fields to check duplications
+   * @param  {String[]} idsToExclude - User ids to exclude
+   * @return {Promise} - Result
+   */
+  static async checkDuplication(userFields, idsToExclude) {
+    const query = {};
+    let previousEntry = null;
+
+    // Adding exclude operator to the query
+    if (idsToExclude) {
+      if (idsToExclude instanceof Array) {
+        query._id = { $nin: idsToExclude };
+      } else {
+        query._id = { $ne: idsToExclude };
+      }
+    }
+
+    // Checking if user has email
+    if (userFields.email) {
+      previousEntry = await this.find({ ...query, email: userFields.email });
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated email');
+      }
+    }
+  }
+
   static getSecret() {
     return 'dfjklsafjjekjtejifjidfjsfd';
   }
@@ -80,6 +110,9 @@ class User {
     if (password === '') {
       throw new Error('Password can not be empty');
     }
+
+    // Checking duplicated email
+    await this.checkDuplication({ email });
 
     return this.create({
       username,
@@ -100,6 +133,9 @@ class User {
    */
   static async updateUser(_id, { username, email, password, role, details, links }) {
     const doc = { username, email, password, role, details, links };
+
+    // Checking duplicated email
+    await this.checkDuplication({ email }, _id);
 
     // change password
     if (password) {
@@ -122,6 +158,9 @@ class User {
    * @return {Promise} - Updated user
    */
   static async editProfile(_id, { username, email, details, links }) {
+    // Checking duplicated email
+    await this.checkDuplication({ email }, _id);
+
     await this.update({ _id }, { $set: { username, email, details, links } });
 
     return this.findOne({ _id });

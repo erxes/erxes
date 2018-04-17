@@ -74,6 +74,44 @@ describe('User db utils', () => {
     }
   });
 
+  test('Create, update user and editProfile with duplicated email', async () => {
+    expect.assertions(3);
+
+    const user = await userFactory({ email: 'test@email.com' });
+
+    // create with duplicated email
+    try {
+      await Users.createUser({
+        ..._user._doc,
+        details: { ..._user.details.toJSON() },
+        password: '123',
+        email: user.email,
+      });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
+    // update with duplicated email
+    try {
+      await Users.updateUser(_user._id, {
+        details: { ..._user.details.toJSON() },
+        email: user.email,
+      });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
+    // edit profile with duplicated email
+    try {
+      await Users.editProfile(_user._id, {
+        details: { ..._user.details.toJSON() },
+        email: user.email,
+      });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+  });
+
   test('Update user', async () => {
     const updateDoc = await userFactory();
 
