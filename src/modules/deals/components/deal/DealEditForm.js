@@ -250,7 +250,7 @@ class DealEditForm extends React.Component {
       <DealMove
         deal={deal}
         stageId={stageId}
-        changeStage={stageId => this.onChangeField('stageId', stageId)}
+        onChangeStage={stageId => this.onChangeField('stageId', stageId)}
       />
     );
   }

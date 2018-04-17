@@ -8,7 +8,7 @@ import {
   Stages,
   StageItem
 } from '../../styles/deal';
-import { DealSelect } from '../';
+import { DealSelect } from '../../containers';
 
 class DealMove extends React.Component {
   constructor(props) {
@@ -16,7 +16,18 @@ class DealMove extends React.Component {
 
     this.toggleForm = this.toggleForm.bind(this);
 
-    this.state = { show: false };
+    const { deal: { pipeline, boardId } } = props;
+
+    this.state = {
+      show: false,
+      stages: props.stages,
+      pipelineId: pipeline._id,
+      boardId
+    };
+  }
+
+  onChangeField(name, value) {
+    this.setState({ [name]: value });
   }
 
   toggleForm() {
@@ -24,7 +35,8 @@ class DealMove extends React.Component {
   }
 
   renderStages() {
-    const { stages, stageId, changeStage } = this.props;
+    const { stageId, onChangeStage } = this.props;
+    const { stages } = this.state;
 
     let isPass = true;
 
@@ -34,7 +46,7 @@ class DealMove extends React.Component {
           const item = (
             <StageItem key={s._id} isPass={isPass}>
               <Tip text={s.name}>
-                <a onClick={() => changeStage(s._id)}>
+                <a onClick={() => onChangeStage(s._id)}>
                   <Icon icon="ios-checkmark" />
                 </a>
               </Tip>
@@ -49,47 +61,40 @@ class DealMove extends React.Component {
     );
   }
 
+  renderDealSelect() {
+    if (!this.state.show) return null;
+
+    const { stageId, onChangeStage } = this.props;
+
+    const { boardId, pipelineId } = this.state;
+
+    return (
+      <DealSelect
+        stageId={stageId}
+        boardId={boardId}
+        pipelineId={pipelineId}
+        callback={() => this.toggleForm()}
+        onChangeStage={onChangeStage}
+        onChangeStages={stages => this.onChangeField('stages', stages)}
+        onChangePipeline={pipelineId =>
+          this.onChangeField('pipelineId', pipelineId)
+        }
+        onChangeBoard={boardId => this.onChangeField('boardId', boardId)}
+      />
+    );
+  }
+
   render() {
-    const {
-      boards,
-      pipelines,
-      stages,
-      boardId,
-      pipelineId,
-      stageId,
-      onChangeBoard,
-      onChangePipeline,
-      onChangeStage,
-      changeStage
-    } = this.props;
-
-    const callback = stageId => {
-      changeStage(stageId);
-      this.toggleForm();
-    };
-
-    const currentPipeline = pipelines.find(p => p._id === pipelineId) || {};
+    const { deal: { pipeline } } = this.props;
 
     return (
       <MoveContainer>
         <MoveFormContainer>
           <PipelineName onClick={this.toggleForm}>
-            {currentPipeline.name} <Icon icon="ios-arrow-down" />
+            {pipeline.name} <Icon icon="ios-arrow-down" />
           </PipelineName>
 
-          <DealSelect
-            show={this.state.show}
-            boards={boards}
-            pipelines={pipelines}
-            stages={stages}
-            boardId={boardId}
-            pipelineId={pipelineId}
-            stageId={stageId}
-            onChangeBoard={onChangeBoard}
-            onChangePipeline={onChangePipeline}
-            onChangeStage={onChangeStage}
-            callback={callback}
-          />
+          {this.renderDealSelect()}
         </MoveFormContainer>
 
         {this.renderStages()}
@@ -100,16 +105,9 @@ class DealMove extends React.Component {
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
-  boards: PropTypes.array.isRequired,
-  pipelines: PropTypes.array.isRequired,
-  stages: PropTypes.array.isRequired,
-  boardId: PropTypes.string.isRequired,
-  pipelineId: PropTypes.string,
   stageId: PropTypes.string,
-  onChangeBoard: PropTypes.func.isRequired,
-  onChangePipeline: PropTypes.func.isRequired,
-  onChangeStage: PropTypes.func.isRequired,
-  changeStage: PropTypes.func.isRequired
+  stages: PropTypes.array,
+  onChangeStage: PropTypes.func.isRequired
 };
 
 DealMove.propTypes = propTypes;

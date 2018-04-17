@@ -8,23 +8,19 @@ import {
   HeaderContent,
   FormFooter
 } from '../../styles/deal';
-import { DealSelect } from '../';
+import { DealSelect } from '../../containers';
 
 const propTypes = {
-  saveDeal: PropTypes.func,
+  saveDeal: PropTypes.func.isRequired,
   customerId: PropTypes.string,
   companyId: PropTypes.string,
-  boards: PropTypes.array,
-  pipelines: PropTypes.array,
-  stages: PropTypes.array,
+  boardsQuery: PropTypes.object,
+  pipelinesQuery: PropTypes.object,
+  stagesQuery: PropTypes.object,
   boardId: PropTypes.string,
   pipelineId: PropTypes.string,
   stageId: PropTypes.string,
-  showSelect: PropTypes.bool,
-  toggleForm: PropTypes.func,
-  onChangeBoard: PropTypes.func,
-  onChangePipeline: PropTypes.func,
-  onChangeStage: PropTypes.func
+  showSelect: PropTypes.bool
 };
 
 const defaultProps = {
@@ -40,26 +36,28 @@ class DealAddForm extends React.Component {
   constructor(props) {
     super(props);
 
-    this.onChangeName = this.onChangeName.bind(this);
     this.save = this.save.bind(this);
 
     this.state = {
       disabled: false,
-      name: ''
+      name: '',
+      boardId: props.boardId || '',
+      pipelineId: '',
+      stageId: props.stageId || ''
     };
   }
 
-  onChangeName(e) {
-    this.setState({ name: e.target.value });
+  onChangeField(name, value) {
+    this.setState({ [name]: value });
   }
 
   save(e) {
     e.preventDefault();
 
-    const { name } = this.state;
-    const { stageId, customerId, companyId } = this.props;
+    const { name, stageId } = this.state;
+    const { customerId, companyId } = this.props;
 
-    if (!stageId) return Alert('No stage');
+    if (!stageId) return Alert.error('No stage');
 
     const doc = {
       name,
@@ -80,33 +78,21 @@ class DealAddForm extends React.Component {
   }
 
   renderSelect() {
-    const {
-      boards,
-      pipelines,
-      stages,
-      boardId,
-      pipelineId,
-      stageId,
-      onChangeBoard,
-      onChangePipeline,
-      onChangeStage,
-      showSelect
-    } = this.props;
+    const { showSelect } = this.props;
+    const { stageId, pipelineId, boardId } = this.state;
 
     if (!showSelect) return null;
 
     return (
       <DealSelect
-        show={showSelect}
-        boards={boards}
-        pipelines={pipelines}
-        stages={stages}
-        boardId={boardId}
-        pipelineId={pipelineId}
         stageId={stageId}
-        onChangeBoard={onChangeBoard}
-        onChangePipeline={onChangePipeline}
-        onChangeStage={onChangeStage}
+        pipelineId={pipelineId}
+        boardId={boardId}
+        onChangeStage={stageId => this.onChangeField('stageId', stageId)}
+        onChangePipeline={pipelineId =>
+          this.onChangeField('pipelineId', pipelineId)
+        }
+        onChangeBoard={boardId => this.onChangeField('boardId', boardId)}
       />
     );
   }
@@ -119,7 +105,10 @@ class DealAddForm extends React.Component {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
-            <FormControl required onChange={this.onChangeName} />
+            <FormControl
+              required
+              onChange={e => this.onChangeField('name', e.target.value)}
+            />
           </HeaderContent>
         </HeaderRow>
 

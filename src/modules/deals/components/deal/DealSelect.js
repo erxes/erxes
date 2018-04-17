@@ -24,8 +24,6 @@ class DealSelect extends React.Component {
   }
 
   render() {
-    if (!this.props.show) return null;
-
     const { __ } = this.context;
     const {
       boards,
@@ -83,7 +81,6 @@ const propTypes = {
   boardId: PropTypes.string.isRequired,
   pipelineId: PropTypes.string,
   stageId: PropTypes.string,
-  show: PropTypes.bool,
   onChangeBoard: PropTypes.func.isRequired,
   onChangePipeline: PropTypes.func.isRequired,
   onChangeStage: PropTypes.func.isRequired,
