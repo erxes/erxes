@@ -21,7 +21,6 @@ const engageMessages = `
           avatar
           fullName
           position
-          twitterUsername
         }
       }
       tagIds
@@ -85,7 +84,6 @@ const users = `
         avatar
         fullName
         position
-        twitterUsername
       }
     }
   }
@@ -100,7 +98,6 @@ const userDetail = `
         avatar
         fullName
         position
-        twitterUsername
       }
       email
     }
