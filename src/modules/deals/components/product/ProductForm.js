@@ -281,7 +281,7 @@ class ProductForm extends React.Component {
             <Button
               btnStyle="simple"
               onClick={() => this.context.closeModal()}
-              icon="close"
+              icon="cancel-1"
             >
               Close
             </Button>
@@ -292,7 +292,7 @@ class ProductForm extends React.Component {
                 this.props.saveProductsData();
                 this.context.closeModal();
               }}
-              icon="checkmark"
+              icon="checked-1"
             >
               Save
             </Button>

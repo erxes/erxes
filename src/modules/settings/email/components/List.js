@@ -27,7 +27,7 @@ class List extends React.Component {
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text="Edit">
-          <Icon icon="edit" />
+          <Icon erxes icon="edit" />
         </Tip>
       </Button>
     );

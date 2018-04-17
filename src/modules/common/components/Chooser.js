@@ -99,7 +99,7 @@ class CommonChooser extends Component {
     return (
       <li key={data._id} onClick={() => this.handleChange(icon, data)}>
         {this.props.renderName(data)}
-        <Icon icon={icon} />
+        <Icon erxes icon={icon} />
       </li>
     );
   }
@@ -107,7 +107,7 @@ class CommonChooser extends Component {
   renderSelected(selectedDatas) {
     if (selectedDatas.length) {
       return (
-        <ul>{selectedDatas.map(data => this.renderRow(data, 'close'))}</ul>
+        <ul>{selectedDatas.map(data => this.renderRow(data, 'cancel'))}</ul>
       );
     }
 
@@ -142,7 +142,7 @@ class CommonChooser extends Component {
                     size="small"
                     btnStyle="primary"
                     onClick={this.loadMore}
-                    icon="checkmark"
+                    icon="checked"
                   >
                     Load More
                   </Button>
@@ -167,15 +167,11 @@ class CommonChooser extends Component {
               <Button
                 btnStyle="simple"
                 onClick={() => this.context.closeModal()}
-                icon="close"
+                icon="cancel-1"
               >
                 Cancel
               </Button>
-              <Button
-                btnStyle="success"
-                onClick={this.onSelect}
-                icon="checkmark"
-              >
+              <Button btnStyle="success" onClick={this.onSelect} icon="checked">
                 Select
               </Button>
             </div>

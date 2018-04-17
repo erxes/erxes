@@ -81,7 +81,7 @@ const ButtonStyled = styled.button`
       cursor: pointer;
       box-shadow: ${types[props.btnStyle] === types.link
         ? 'none'
-        : `0 0 4px 0 ${colors.borderDarker}`};
+        : `0 0 4px 0 ${colors.darkShadow}`};
       color: ${colors.colorWhite};
       color: ${types[props.btnStyle].color && darken(colors.colorCoreGray, 24)};
       text-decoration: none;

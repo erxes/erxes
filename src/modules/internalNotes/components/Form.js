@@ -75,7 +75,7 @@ class Form extends Component {
           onClick={this.cancelEditing}
           btnStyle="simple"
           size="small"
-          icon="close"
+          icon="cancel-1"
         >
           Discard
         </Button>

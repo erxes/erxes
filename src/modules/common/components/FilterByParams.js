@@ -22,10 +22,6 @@ const PopoverContent = styled.div`
   > input {
     padding: 10px 20px;
   }
-
-  ${SidebarList} {
-    padding-top: 10px;
-  }
 `;
 
 class FilterByParams extends Component {
@@ -76,7 +72,11 @@ class FilterByParams extends Component {
                   }}
                 >
                   {icon ? (
-                    <Icon icon={icon} style={{ color: field.colorCode }} />
+                    <Icon
+                      erxes
+                      icon={icon}
+                      style={{ color: field.colorCode }}
+                    />
                   ) : null}{' '}
                   {field.name}
                   <SidebarCounter>{counts[field._id]}</SidebarCounter>

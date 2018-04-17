@@ -108,7 +108,7 @@ class Board extends React.Component {
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
-              {currentBoard.name} <Icon icon="ios-arrow-down" />
+              {currentBoard.name} <Icon erxes icon="downarrow" />
             </Button>
           </DropdownToggle>
 

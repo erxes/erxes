@@ -45,11 +45,7 @@ class Row extends React.Component {
     const msg = this.props.message;
     const edit = this.renderLink('Edit', 'edit', this.props.edit);
     const pause = this.renderLink('Pause', 'pause', this.props.setPause);
-    const live = this.renderLink(
-      'Set live',
-      'paper-airplane',
-      this.props.setLive
-    );
+    const live = this.renderLink('Set live', 'play', this.props.setLive);
 
     if (msg.kind !== MESSAGE_KINDS.MANUAL) {
       if (msg.isDraft) {
@@ -64,11 +60,7 @@ class Row extends React.Component {
     }
 
     if (msg.isDraft) {
-      return this.renderLink(
-        'Set live',
-        'paper-airplane',
-        this.props.setLiveManual
-      );
+      return this.renderLink('Set live', 'play', this.props.setLiveManual);
     }
   }
 
@@ -78,7 +70,7 @@ class Row extends React.Component {
     if (message.kind === 'auto') {
       return (
         <Tip text={__('Delete')}>
-          <Button btnStyle="link" onClick={onClick} icon="close" />
+          <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
         </Tip>
       );
     }
@@ -94,7 +86,7 @@ class Row extends React.Component {
     if (message.segment) {
       return (
         <HelperText>
-          <Icon icon="pie-graph" /> {message.segment.name}
+          <Icon erxes icon="piechart" /> {message.segment.name}
         </HelperText>
       );
     }
@@ -103,7 +95,7 @@ class Row extends React.Component {
 
     return rules.map(rule => (
       <HelperText key={rule._id}>
-        <Icon icon="pie-graph" /> {rule.text} {rule.condition} {rule.value}
+        <Icon erxes icon="piechart" /> {rule.text} {rule.condition} {rule.value}
       </HelperText>
     ));
   }
@@ -137,7 +129,7 @@ class Row extends React.Component {
         </td>
         <td>{status}</td>
         <td className="text-primary">
-          <Icon icon="cube" />
+          <Icon erxes icon="cube" />
           <b> {totalCount}</b>
         </td>
 
@@ -169,11 +161,11 @@ class Row extends React.Component {
         <td>
           {message.email ? (
             <div>
-              <Icon icon="email" /> {__('Email')}
+              <Icon erxes icon="email-3" /> {__('Email')}
             </div>
           ) : (
             <div>
-              <Icon icon="chatbox" /> {__('Messenger')}
+              <Icon erxes icon="chat" /> {__('Messenger')}
             </div>
           )}
         </td>
@@ -183,7 +175,7 @@ class Row extends React.Component {
         </td>
 
         <td>
-          <Icon icon="calendar" />{' '}
+          <Icon erxes icon="calendar" />{' '}
           {moment(message.createdDate).format('DD MMM YYYY')}
         </td>
 

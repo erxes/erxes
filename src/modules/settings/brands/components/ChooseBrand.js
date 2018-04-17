@@ -73,12 +73,12 @@ class ChooseBrand extends Component {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            icon="close"
+            icon="cancel-1"
             onClick={() => this.context.closeModal()}
           >
             Cancel
           </Button>
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

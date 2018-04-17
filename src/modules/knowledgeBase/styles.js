@@ -148,7 +148,7 @@ const Row = styled.div`
 
   &:hover {
     ${ActionButtons} {
-      width: ${dimensions.headerSpacing - dimensions.coreSpacing}px;
+      width: ${dimensions.coreSpacing * 2}px;
       right: ${dimensions.coreSpacing}px;
     }
   }

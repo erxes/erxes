@@ -60,12 +60,12 @@ class Sidebar extends Component {
 
     const addChannel = (
       <RightButton>
-        <Icon icon="plus" />
+        <Icon erxes icon="plus" />
       </RightButton>
     );
 
     return (
-      <Header uppercase bold>
+      <Header uppercase>
         {__('Channels')}
         <ModalTrigger title="New Channel" trigger={addChannel}>
           {this.renderChannelForm({ save, members })}

@@ -28,7 +28,7 @@ function Row({ tag, type, count, remove, save }, { __ }) {
   const editTrigger = (
     <Button btnStyle="link">
       <Tip text={__('Edit')}>
-        <Icon icon="edit" />
+        <Icon erxes icon="edit" />
       </Tip>
     </Button>
   );

@@ -52,7 +52,7 @@ class Boards extends Component {
     );
 
     return (
-      <Header uppercase bold>
+      <Header uppercase>
         {__('Board')}
         <ModalTrigger title="New Board" trigger={addBoard}>
           {this.renderBoardForm({ save })}

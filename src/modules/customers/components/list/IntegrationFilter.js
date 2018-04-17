@@ -40,7 +40,7 @@ function IntegrationFilter({ history, counts }, { __ }) {
 
   return (
     <Section>
-      <Header spaceBottom>{__('Filter by integrations')}</Header>
+      <Header uppercase>{__('Filter by integrations')}</Header>
 
       <DataWithLoader
         data={data}

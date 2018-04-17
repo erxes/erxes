@@ -63,13 +63,13 @@ class PropertyRow extends React.Component {
       <ActionButtons>
         <ModalTrigger
           title="Edit Property"
-          trigger={<Icon icon="edit" />}
+          trigger={<Icon erxes icon="edit" />}
           size="lg"
         >
           {form}
         </ModalTrigger>
         <Icon
-          icon="close"
+          icon="cancel-1"
           onClick={() =>
             confirm().then(() => {
               remove({ _id: data._id });

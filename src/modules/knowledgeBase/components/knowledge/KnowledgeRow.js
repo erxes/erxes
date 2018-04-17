@@ -65,7 +65,7 @@ class KnowledgeRow extends Component {
               pullRight
             >
               <DropdownToggle bsRole="toggle">
-                <Icon icon="gear-a" />
+                <Icon erxes icon="settings" />
               </DropdownToggle>
               <Dropdown.Menu>
                 <ModalTrigger

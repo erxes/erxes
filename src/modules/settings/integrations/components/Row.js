@@ -49,7 +49,7 @@ class Row extends Component {
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')}>
-          <Icon icon="edit" />
+          <Icon erxes icon="edit" />
         </Tip>
       </Button>
     );
@@ -63,7 +63,7 @@ class Row extends Component {
                 integration._id
               }`}
             >
-              <Button btnStyle="link" icon="paintbucket" />
+              <Button btnStyle="link" icon="paintpalette" />
             </Link>
           </Tip>
 
@@ -71,7 +71,7 @@ class Row extends Component {
             <Link
               to={`/settings/integrations/messenger/configs/${integration._id}`}
             >
-              <Button btnStyle="link" icon="gear-a" />
+              <Button btnStyle="link" icon="settings" />
             </Link>
           </Tip>
 
@@ -131,7 +131,7 @@ class Row extends Component {
               <Button
                 btnStyle="link"
                 onClick={this.removeIntegration}
-                icon="close"
+                icon="cancel-1"
               />
             </Tip>
           </ActionButtons>

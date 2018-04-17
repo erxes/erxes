@@ -58,7 +58,7 @@ class Row extends Component {
       <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')}>
-            <Icon icon="gear-a" />
+            <Icon erxes icon="settings" />
           </Tip>
         </Button>
       </Link>
@@ -71,7 +71,7 @@ class Row extends Component {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Install code')}>
-          <Icon icon="edit" />
+          <Icon erxes icon="copy" />
         </Tip>
       </Button>
     );
@@ -123,7 +123,7 @@ class Row extends Component {
             {this.manageAction(integration)}
             {this.renderEditAction(integration)}
             <Tip text={__('Delete')}>
-              <Button btnStyle="link" onClick={this.remove} icon="close" />
+              <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
             </Tip>
           </ActionButtons>
         </td>

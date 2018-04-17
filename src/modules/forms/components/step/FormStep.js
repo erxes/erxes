@@ -136,7 +136,7 @@ class FormStep extends Component {
             size="small"
             btnStyle="danger"
             onClick={onDelete}
-            icon="close"
+            icon="cancel-1"
           >
             Delete
           </Button>

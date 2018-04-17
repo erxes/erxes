@@ -20,7 +20,7 @@ class ActivityList extends React.Component {
       <div key={activity.title}>
         {activities.length ? (
           <ActivityTitle>
-            <Icon icon="calendar" /> {activity.title}
+            <Icon erxes icon="calendar" /> {activity.title}
           </ActivityTitle>
         ) : null}
         {activities.map(rowData => ActivityItem(rowData))}

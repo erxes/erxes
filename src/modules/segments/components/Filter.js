@@ -49,7 +49,8 @@ function Segments({ history, contentType, counts, segments, loading }, { __ }) {
           >
             {segment.subOf ? '\u00a0\u00a0' : null}
             <Icon
-              icon="record"
+              erxes
+              icon="piechart"
               size={10}
               style={{
                 color: segment.color,
@@ -66,7 +67,9 @@ function Segments({ history, contentType, counts, segments, loading }, { __ }) {
 
   return (
     <Section>
-      <Header spaceBottom>{__('Filter by segments')}</Header>
+      <Header spaceBottom uppercase>
+        {__('Filter by segments')}
+      </Header>
 
       <Section.QuickButtons>
         <Dropdown
@@ -77,7 +80,7 @@ function Segments({ history, contentType, counts, segments, loading }, { __ }) {
         >
           <DropdownToggle bsRole="toggle">
             <a>
-              <Icon icon="gear-a" />
+              <Icon erxes icon="settings" />
             </a>
           </DropdownToggle>
           <Dropdown.Menu>
@@ -99,7 +102,7 @@ function Segments({ history, contentType, counts, segments, loading }, { __ }) {
               router.setParams(history, { segment: null });
             }}
           >
-            <Icon icon="close-circled" />
+            <Icon erxes icon="cancel-1" />
           </a>
         ) : null}
       </Section.QuickButtons>

@@ -65,9 +65,9 @@ const AvatarWrapper = styled.div`
     text-align: center;
     border-radius: ${dimensions.unitSpacing}px;
     color: ${colors.colorWhite};
-    line-height: 15px;
+    line-height: 16px;
     font-size: ${dimensions.unitSpacing}px;
-    border: 2px solid ${colors.colorWhite};
+    border: 1px solid ${colors.colorWhite};
   }
 `;
 
@@ -75,7 +75,6 @@ const ActivityIcon = styled.span`
   display: inline-block;
   position: absolute;
   background-color: ${props => props.color};
-  font-size: calc(${iconWrapperWidth} * 0.25);
   height: calc(${iconWrapperWidth} * 0.4);
   width: calc(${iconWrapperWidth} * 0.4);
   line-height: calc(${iconWrapperWidth} * 0.4);

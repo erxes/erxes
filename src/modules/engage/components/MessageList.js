@@ -44,7 +44,7 @@ class List extends React.Component {
 
     const tagButton = (
       <Button btnStyle="simple" size="small">
-        {__('Tag')} <Icon icon="ios-arrow-down" />
+        {__('Tag')} <Icon erxes icon="downarrow" />
       </Button>
     );
 

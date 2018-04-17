@@ -18,27 +18,27 @@ const MONTHS = [
 
 const ICON_AND_COLOR_TABLE = {
   'customer-create': {
-    icon: 'android-bar',
+    icon: 'adduser',
     color: '#A389D4'
   },
   'segment-create': {
-    icon: 'funnel',
+    icon: 'filter',
     color: '#6569DF'
   },
   'conversation-create': {
-    icon: 'android-chat',
+    icon: 'chat',
     color: '#F44236'
   },
   'internal_note-create': {
-    icon: 'clipboard',
+    icon: 'pushpin',
     color: '#F7CE53'
   },
   'company-create': {
-    icon: 'android-bar',
+    icon: 'briefcase',
     color: '#6569DF'
   },
   'deal-create': {
-    icon: 'android-bar',
+    icon: 'piggy-bank',
     color: '#6569DF'
   }
 };

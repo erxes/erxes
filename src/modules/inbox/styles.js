@@ -371,6 +371,8 @@ const AssignTrigger = styled.div`
     margin-right: 0;
     transition: all ease 0.3s;
     line-height: 30px;
+    color: ${colors.colorCoreGray};
+    font-size: 10px;
     display: inline-block;
   }
 

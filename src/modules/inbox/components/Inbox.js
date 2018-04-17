@@ -121,7 +121,7 @@ class Inbox extends Component {
         ) : (
           <Label lblStyle="default">No tags</Label>
         )}
-        <Icon icon="ios-arrow-down" />
+        <Icon erxes icon="downarrow" />
       </PopoverButton>
     );
 
@@ -136,7 +136,7 @@ class Inbox extends Component {
             Member
           </Button>
         )}
-        <Icon icon="ios-arrow-down" size={13} />
+        <Icon erxes icon="downarrow" />
       </AssignTrigger>
     );
 

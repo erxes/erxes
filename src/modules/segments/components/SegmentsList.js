@@ -54,7 +54,7 @@ function SegmentsList({ contentType, segments, removeSegment }, { __ }) {
                     onClick={() => {
                       remove(segment._id);
                     }}
-                    icon="close"
+                    icon="cancel-1"
                   />
                 </Tip>
               </ActionButtons>

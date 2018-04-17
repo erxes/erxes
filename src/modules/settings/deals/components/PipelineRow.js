@@ -35,7 +35,7 @@ class PipelineRow extends Component {
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text="Edit">
-          <Icon icon="edit" />
+          <Icon erxes icon="edit" />
         </Tip>
       </Button>
     );
@@ -46,7 +46,7 @@ class PipelineRow extends Component {
           <PipelineForm pipeline={pipeline} save={save} />
         </ModalTrigger>
         <Tip text="Delete">
-          <Button btnStyle="link" onClick={this.remove} icon="close" />
+          <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
         </Tip>
       </ActionButtons>
     );

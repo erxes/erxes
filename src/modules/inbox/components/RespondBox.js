@@ -240,7 +240,7 @@ class RespondBox extends Component {
 
         <Tip text={__('Attach file')}>
           <label>
-            <Icon erxes icon="clip" />
+            <Icon erxes icon="upload-2" />
             <input type="file" onChange={this.handleFileInput} />
           </label>
         </Tip>
@@ -256,7 +256,7 @@ class RespondBox extends Component {
           onClick={this.onSend}
           btnStyle="success"
           size="small"
-          icon="play"
+          icon="send"
         >
           Send
         </Button>

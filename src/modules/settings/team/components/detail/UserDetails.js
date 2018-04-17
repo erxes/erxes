@@ -148,7 +148,7 @@ class UserDetails extends React.Component {
         <WhiteBoxRoot>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> {__('New note')}
+              <Icon erxes icon="edit-1" /> {__('New note')}
             </TabTitle>
           </Tabs>
 

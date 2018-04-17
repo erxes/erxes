@@ -35,7 +35,7 @@ class TaggerSection extends Component {
 
     return tags.map(({ _id, colorCode, name }) => (
       <li key={_id}>
-        <Icon icon="pricetag icon" style={{ color: colorCode }} />
+        <Icon erxes icon="tag icon" style={{ color: colorCode }} />
         {name}
       </li>
     ));
@@ -53,7 +53,7 @@ class TaggerSection extends Component {
 
         <QuickButtons>
           <a tabIndex={0} onClick={this.toggleTagger}>
-            <Icon icon="gear-a" />
+            <Icon erxes icon="settings" />
           </a>
         </QuickButtons>
 

@@ -36,7 +36,7 @@
     "draft-js": "^0.10.4",
     "draft-js-export-html": "^1.2.0",
     "draft-js-plugins-editor": "^2.0.3",
-    "erxes-icon": "^1.0.0",
+    "erxes-icon": "^1.0.2",
     "fuzzysearch-highlight": "^1.0.3",
     "graphql": "^0.12.3",
     "graphql-tag": "^2.6.1",

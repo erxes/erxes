@@ -109,11 +109,11 @@ class ManageIntegrationForm extends Component {
 
   getIconByKind(integration) {
     const kind = integration.kind;
-    let icon = 'android-chat';
+    let icon = 'chat';
 
-    kind === KIND_CHOICES.FORM && (icon = 'document-text');
-    kind === KIND_CHOICES.TWITTER && (icon = 'social-twitter');
-    kind === KIND_CHOICES.FACEBOOK && (icon = 'social-facebook');
+    kind === KIND_CHOICES.FORM && (icon = 'file');
+    kind === KIND_CHOICES.TWITTER && (icon = 'twitter');
+    kind === KIND_CHOICES.FACEBOOK && (icon = 'facebook');
 
     return icon;
   }
@@ -139,7 +139,7 @@ class ManageIntegrationForm extends Component {
             className={`label-${this.getTypeName(integration)} round`}
             ignoreTrans
           >
-            <Icon icon={this.getIconByKind(integration)} />
+            <Icon erxes icon={this.getIconByKind(integration)} />
           </Label>
         </Tip>
         <BrandName>{brand.name}</BrandName>
@@ -171,7 +171,7 @@ class ManageIntegrationForm extends Component {
                     size="small"
                     btnStyle="primary"
                     onClick={this.loadMore}
-                    icon="checkmark"
+                    icon="checked-1"
                   >
                     Load More
                   </Button>
@@ -187,7 +187,7 @@ class ManageIntegrationForm extends Component {
             </Title>
             <ul>
               {selectedIntegrations.map(integration =>
-                this.renderRow(integration, 'close')
+                this.renderRow(integration, 'cancel-1')
               )}
             </ul>
           </Column>
@@ -195,12 +195,12 @@ class ManageIntegrationForm extends Component {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            icon="close"
+            icon="cancel-1"
             onClick={() => this.context.closeModal()}
           >
             Cancel
           </Button>
-          <Button btnStyle="success" icon="checkmark" onClick={this.save}>
+          <Button btnStyle="success" icon="checked-1" onClick={this.save}>
             Save
           </Button>
         </ModalFooter>

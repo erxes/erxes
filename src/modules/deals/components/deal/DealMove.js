@@ -114,7 +114,7 @@ class DealMoveForm extends React.Component {
       <MoveContainer>
         <MoveFormContainer>
           <PipelineName onClick={toggleForm}>
-            {currentPipeline.name} <Icon icon="ios-arrow-down" />
+            {currentPipeline.name} <Icon erxes icon="downarrow" />
           </PipelineName>
 
           {this.renderForm()}

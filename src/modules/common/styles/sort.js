@@ -49,7 +49,7 @@ const DragHandler = styled.div`
   justify-content: center;
 
   i {
-    font-size: 24px;
+    font-size: 16px;
     color: ${colors.colorLightGray};
   }
 `;

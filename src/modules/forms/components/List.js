@@ -61,7 +61,7 @@ class List extends Component {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+        <Button btnStyle="simple" size="small" icon="downarrow">
           Tag
         </Button>
       );

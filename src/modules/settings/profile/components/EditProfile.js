@@ -51,7 +51,7 @@ class EditProfile extends Component {
 
   render() {
     const saveButton = (
-      <Button btnStyle="success" icon="checkmark">
+      <Button btnStyle="success" icon="checked-1">
         Save
       </Button>
     );
@@ -68,7 +68,7 @@ class EditProfile extends Component {
             btnStyle="simple"
             type="button"
             onClick={() => this.context.closeModal()}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>

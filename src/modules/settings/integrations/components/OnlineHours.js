@@ -107,7 +107,7 @@ class OnlineHours extends Component {
         />
 
         <Button className="shrinked" btnStyle="link" onClick={remove}>
-          <Icon icon="close" />
+          <Icon icon="cancel-1" />
         </Button>
       </FlexRow>
     );

@@ -42,7 +42,7 @@ class NotificationListRow extends Component {
         <MarkRead>
           <Tip text={__('Mark as read')}>
             <span onClick={this.markAsRead}>
-              <Icon icon="android-radio-button-off" />
+              <Icon erxes icon="checked" />
             </span>
           </Tip>
         </MarkRead>

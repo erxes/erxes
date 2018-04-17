@@ -293,11 +293,11 @@ class CommonMerge extends Component {
           <Button
             btnStyle="simple"
             onClick={() => this.context.closeModal()}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
-          <Button type="submit" btnStyle="success" icon="checkmark">
+          <Button type="submit" btnStyle="success" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

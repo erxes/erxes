@@ -117,7 +117,7 @@ class KnowledgeForm extends Component {
                 text={this.state.code}
                 onCopy={() => this.setState({ copied: true })}
               >
-                <Button size="small" btnStyle="primary" icon="ios-copy-outline">
+                <Button size="small" btnStyle="primary" icon="copy">
                   {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                 </Button>
               </CopyToClipboard>
@@ -249,7 +249,7 @@ class KnowledgeForm extends Component {
             btnStyle="simple"
             type="button"
             onClick={onClick}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
@@ -258,12 +258,12 @@ class KnowledgeForm extends Component {
               btnStyle="danger"
               type="button"
               onClick={this.remove}
-              icon="close"
+              icon="cancel-1"
             >
               Delete
             </Button>
           )}
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

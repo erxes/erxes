@@ -16,7 +16,7 @@ const ActivityItem = data => {
   return (
     <ActivityRow key={Math.random()}>
       <ActivityIcon color={data.color}>
-        <Icon icon={data.icon || ''} />
+        <Icon erxes icon={data.icon || ''} />
       </ActivityIcon>
       <Fragment>
         <FlexContent>

@@ -177,7 +177,7 @@ class PropertyForm extends Component {
     return (
       <li key={index}>
         {option}
-        <Icon icon="close" onClick={() => this.handleRemoveOption(index)} />
+        <Icon icon="cancel-1" onClick={() => this.handleRemoveOption(index)} />
       </li>
     );
   }
@@ -271,12 +271,12 @@ class PropertyForm extends Component {
             onClick={() => {
               this.context.closeModal();
             }}
-            icon="close"
+            icon="cancel-1"
           >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>
