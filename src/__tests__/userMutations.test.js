@@ -24,7 +24,6 @@ const args = {
     position: faker.name.jobTitle(),
     location: faker.address.streetName(),
     description: faker.random.word(),
-    twitterUsername: faker.internet.userName(),
   },
   links: {
     linkedIn: faker.internet.userName(),
@@ -173,7 +172,6 @@ describe('User mutations', () => {
             location
             position
             description
-            twitterUsername
           }
           links {
             linkedIn
@@ -200,7 +198,6 @@ describe('User mutations', () => {
     expect(user.details.location).toBe(doc.details.location);
     expect(user.details.position).toBe(doc.details.position);
     expect(user.details.description).toBe(doc.details.description);
-    expect(user.details.twitterUsername).toBe(doc.details.twitterUsername);
     expect(user.links.linkedIn).toBe(doc.links.linkedIn);
     expect(user.links.twitter).toBe(doc.links.twitter);
     expect(user.links.facebook).toBe(doc.links.facebook);
@@ -244,7 +241,6 @@ describe('User mutations', () => {
             location
             position
             description
-            twitterUsername
           }
           links {
             linkedIn
@@ -271,7 +267,6 @@ describe('User mutations', () => {
     expect(user.details.location).toBe(doc.details.location);
     expect(user.details.position).toBe(doc.details.position);
     expect(user.details.description).toBe(doc.details.description);
-    expect(user.details.twitterUsername).toBe(doc.details.twitterUsername);
     expect(user.links.linkedIn).toBe(doc.links.linkedIn);
     expect(user.links.twitter).toBe(doc.links.twitter);
     expect(user.links.facebook).toBe(doc.links.facebook);
@@ -304,7 +299,6 @@ describe('User mutations', () => {
             location
             position
             description
-            twitterUsername
           }
           links {
             linkedIn
@@ -327,7 +321,6 @@ describe('User mutations', () => {
     expect(user.details.location).toBe(args.details.location);
     expect(user.details.position).toBe(args.details.position);
     expect(user.details.description).toBe(args.details.description);
-    expect(user.details.twitterUsername).toBe(args.details.twitterUsername);
     expect(user.links.linkedIn).toBe(args.links.linkedIn);
     expect(user.links.twitter).toBe(args.links.twitter);
     expect(user.links.facebook).toBe(args.links.facebook);
