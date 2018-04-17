@@ -62,16 +62,16 @@ describe('User db utils', () => {
     }
   });
 
-  test('Update user with empty string password', async () => {
+  test('Change user password with empty string', async () => {
+    expect.assertions(1);
+    const user = await userFactory({});
+
     // try with empty password ============
-    await Users.updateUser(_user._id, {
-      password: '',
-      details: { ..._user.details.toJSON() },
-    });
-
-    let userObj = await Users.findOne({ _id: _user._id });
-
-    expect(bcrypt.compare(_user.password, userObj.password)).toBeTruthy();
+    try {
+      await Users.changePassword({ _id: user._id, currentPassword: 'admin', newPassword: '' });
+    } catch (e) {
+      expect(e.message).toBe('Password can not be empty');
+    }
   });
 
   test('Update user', async () => {

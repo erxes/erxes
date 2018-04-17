@@ -102,7 +102,7 @@ class User {
     const doc = { username, email, password, role, details, links };
 
     // change password
-    if (password && password !== '') {
+    if (password) {
       doc.password = await this.generatePassword(password);
 
       // if there is no password specified then leave password field alone
@@ -226,6 +226,11 @@ class User {
    * @return {Promise} - Updated user information
    */
   static async changePassword({ _id, currentPassword, newPassword }) {
+    // Password can not be empty string
+    if (newPassword === '') {
+      throw new Error('Password can not be empty');
+    }
+
     const user = await this.findOne({ _id });
 
     // check current password ============
