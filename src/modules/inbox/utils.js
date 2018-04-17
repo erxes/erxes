@@ -7,5 +7,7 @@ export const generateParams = queryParams => ({
   tag: queryParams.tag,
   integrationType: queryParams.integrationType,
   participating: queryParams.participating,
-  starred: queryParams.starred
+  starred: queryParams.starred,
+  startDate: queryParams.startDate,
+  endDate: queryParams.endDate
 });
