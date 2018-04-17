@@ -64,6 +64,7 @@ function Filter({ queryParams = {}, history }) {
       {renderFilterWithData('tag', 'tag')}
       {renderFilterWithData('segment', 'segment')}
       {renderFilterParam('kind')}
+      {renderFilterWithData('brand', 'brand')}
     </Filters>
   );
 }

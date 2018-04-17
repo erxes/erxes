@@ -127,7 +127,9 @@ export default compose(
           segment: queryParams.segment,
           tag: queryParams.tag,
           ids: queryParams.ids,
-          searchValue: queryParams.searchValue
+          searchValue: queryParams.searchValue,
+          brand: queryParams.brand,
+          integration: queryParams.integrationType
         },
         notifyOnNetworkStatusChange: true
       };

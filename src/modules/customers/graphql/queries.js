@@ -52,7 +52,9 @@ const listParamsDef = `
   $segment: String,
   $tag: String,
   $ids: [String],
-  $searchValue: String
+  $searchValue: String,
+  $brand: String,
+  $integration: String
 `;
 
 const listParamsValue = `
@@ -61,7 +63,9 @@ const listParamsValue = `
   segment: $segment,
   tag: $tag,
   ids: $ids,
-  searchValue: $searchValue
+  searchValue: $searchValue,
+  brand: $brand,
+  integration: $integration
 `;
 
 const customers = `
