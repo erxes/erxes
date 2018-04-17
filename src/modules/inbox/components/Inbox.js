@@ -89,7 +89,7 @@ class Inbox extends Component {
             <ConversationDetails conversation={currentConversation} />
           }
           sectionBottom={<CompanyAssociate data={customer} />}
-          customer={customer}
+          customerId={customer._id}
           refetch={this.props.refetch}
           otherProperties={this.renderMessengerData()}
         />
