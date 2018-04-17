@@ -118,7 +118,6 @@ const userList = `
         avatar
         fullName
         position
-        twitterUsername
       }
     }
   }
