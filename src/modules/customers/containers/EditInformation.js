@@ -75,13 +75,13 @@ EditInformationContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-const options = ({ customerId }) => ({
+const options = ({ customerId, customer }) => ({
   refetchQueries: [
     {
       query: gql`
         ${queries.customerDetail}
       `,
-      variables: { _id: customerId }
+      variables: { _id: customerId || customer._id }
     }
   ]
 });
