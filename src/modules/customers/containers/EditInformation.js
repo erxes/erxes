@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
-import { queries, mutations } from '../graphql';
+import { queries } from '../graphql';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import { EditInformation } from '../components/detail/sidebar';
 import { Spinner } from 'modules/common/components';
@@ -13,15 +13,20 @@ const EditInformationContainer = (props, context) => {
   const {
     customerId,
     customer,
-    customersEdit,
     fieldsGroupsQuery,
     customerDetailQuery,
     wide
   } = props;
 
-  const customerDetailQueryLoading = customerId
-    ? customerDetailQuery.loading
-    : false;
+  let customerDetailQueryLoading = false,
+    customerDetail = customer || {};
+
+  if (customerId) {
+    customerDetailQueryLoading = customerDetailQuery.loading;
+    customerDetail = customerDetailQuery.customerDetail || {};
+  }
+
+  const customFieldsData = customerDetail.customFieldsData || {};
 
   if (fieldsGroupsQuery.loading || customerDetailQueryLoading) {
     return (
@@ -31,28 +36,10 @@ const EditInformationContainer = (props, context) => {
     );
   }
 
-  const save = (variables, callback) => {
-    customersEdit({
-      variables: { customerId, ...variables }
-    })
-      .then(() => {
-        callback();
-      })
-      .catch(e => {
-        callback(e);
-      });
-  };
-
-  const customerDetail = customer || {};
-  const customFieldsData = customerDetail.customFieldsData || {};
-
   const updatedProps = {
     ...props,
-    save,
-    customer: customerId ? customerDetailQuery.customerDetail : customerDetail,
-    customFieldsData: customerId
-      ? customerDetailQuery.customerDetail.customFieldsData
-      : customFieldsData,
+    customer: customerDetail,
+    customFieldsData: customFieldsData,
     currentUser: context.currentUser,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
@@ -63,7 +50,6 @@ const EditInformationContainer = (props, context) => {
 EditInformationContainer.propTypes = {
   customerId: PropTypes.string,
   sections: PropTypes.node,
-  customersEdit: PropTypes.func.isRequired,
   wide: PropTypes.bool,
   customer: PropTypes.object,
   fieldsGroupsQuery: PropTypes.object.isRequired,
@@ -74,17 +60,6 @@ EditInformationContainer.propTypes = {
 EditInformationContainer.contextTypes = {
   currentUser: PropTypes.object
 };
-
-const options = ({ customerId, customer }) => ({
-  refetchQueries: [
-    {
-      query: gql`
-        ${queries.customerDetail}
-      `,
-      variables: { _id: customerId || customer._id }
-    }
-  ]
-});
 
 export default compose(
   graphql(gql(fieldQueries.fieldsGroups), {
@@ -103,10 +78,5 @@ export default compose(
         _id: customerId
       }
     })
-  }),
-  // mutations
-  graphql(gql(mutations.customersEdit), {
-    name: 'customersEdit',
-    options
   })
 )(EditInformationContainer);
