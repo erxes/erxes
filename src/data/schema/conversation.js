@@ -142,6 +142,8 @@ const filterParams = `
   participating: String
   starred: String
   ids: [String]
+  startDate: String
+  endDate: String
 `;
 
 export const queries = `
