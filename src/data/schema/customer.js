@@ -61,7 +61,9 @@ const queryParams = `
   segment: String,
   tag: String,
   ids: [String],
-  searchValue: String
+  searchValue: String,
+  brand: String,
+  integration: String
 `;
 
 export const queries = `
