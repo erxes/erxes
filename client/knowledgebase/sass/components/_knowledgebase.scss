@@ -85,6 +85,11 @@
     align-self: center;
     text-align: center;
     margin-right: 25px;
+
+    i {
+      font-size: 42px;
+      color: $text-color-light; 
+    }
   }
 
   .topic-content {
@@ -153,7 +158,7 @@
   color: $text-color;
   padding: 5px 0;
 
-  svg {
+  i {
     margin-right: 5px;
   }
 

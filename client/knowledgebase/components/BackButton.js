@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Ionicons from 'react-ionicons';
 
 const propTypes = {
   onClickHandler: PropTypes.func.isRequired,
@@ -14,7 +13,7 @@ const contextTypes = {
 function BackButton({ onClickHandler, text }, {__}) {
   return (
     <button onClick={onClickHandler} className="back">
-      <Ionicons icon="ion-chevron-left" fontSize="10px" color="#888" />
+      <i className="icon-leftarrow-2" />
       {__(text)}
     </button>
   );
