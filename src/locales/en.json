@@ -648,5 +648,7 @@
   "Rendering Failure": "Rendering Failure",
   "Rejected": "Rejected",
   "Action": "Action",
-  "Please select one to merge": "Please select one to merge"
+  "Please select one to merge": "Please select one to merge",
+  "Filter by date": "Filter by date",
+  "Filter": "Filter"
 }

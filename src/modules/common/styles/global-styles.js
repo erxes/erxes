@@ -186,6 +186,7 @@ injectGlobal`
     color: #444;
     font-weight: inherit;
     box-shadow: 0 0 20px 3px rgba(0, 0, 0, 0.15);
+    max-width: 310px;
   }
 
   .popover.bottom > .arrow {
@@ -472,7 +473,7 @@ injectGlobal`
     border-bottom: 7px solid #6569DF;
   }
 
-  .rdtPicker td.rdtActive, 
+  .rdtPicker td.rdtActive,
   .rdtPicker td.rdtActive:hover {
     background-color: #6569DF;
   }

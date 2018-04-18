@@ -1,8 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Datetime from 'react-datetime';
-import moment from 'moment';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { toggleCheckBoxes } from 'modules/common/utils';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { Sidebar } from 'modules/layout/components';
@@ -13,14 +10,13 @@ import {
   ConversationList,
   LoadMore,
   TaggerPopover,
-  EmptyState,
-  Button
+  EmptyState
 } from 'modules/common/components';
 import { FilterPopover, StatusFilterPopover, AssignBoxPopover } from '../';
 import { Resolver } from 'modules/inbox/containers';
-import { router } from 'modules/common/utils';
 import { PopoverButton } from '../../styles';
 import { LeftItem, RightItems } from './styles';
+import DateFilter from './DateFilter';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
@@ -38,26 +34,8 @@ class LeftSidebar extends Bulk {
   constructor(props) {
     super(props);
 
-    this.state = {
-      startDate: props.queryParams.startDate
-        ? moment(props.queryParams.startDate)
-        : '',
-      endDate: props.queryParams.endDate
-        ? moment(props.queryParams.endDate)
-        : '',
-      bulk: [],
-      showDateFilter: false
-    };
-
     this.resetBulk = this.resetBulk.bind(this);
     this.renderTrigger = this.renderTrigger.bind(this);
-    this.renderPopover = this.renderPopover.bind(this);
-    this.renderDateFilter = this.renderDateFilter.bind(this);
-    this.onDateChange = this.onDateChange.bind(this);
-  }
-
-  onDateChange(type, date) {
-    this.setState({ [type]: date });
   }
 
   refetch() {
@@ -69,18 +47,6 @@ class LeftSidebar extends Bulk {
     toggleCheckBoxes('conversations', false);
   }
 
-  filterByDate() {
-    const { startDate, endDate } = this.state;
-
-    const formattedStartDate = moment(startDate).format('YYYY-MM-DD HH:mm');
-    const formattedEndDate = moment(endDate).format('YYYY-MM-DD HH:mm');
-
-    router.setParams(this.props.history, {
-      startDate: formattedStartDate,
-      endDate: formattedEndDate
-    });
-  }
-
   renderTrigger(text) {
     const { __ } = this.context;
     return (
@@ -90,60 +56,8 @@ class LeftSidebar extends Bulk {
     );
   }
 
-  renderPopover() {
-    const { __ } = this.context;
-    const props = {
-      inputProps: { placeholder: __('Click to select a date') },
-      timeFormat: 'HH:mm',
-      dateFormat: 'YYYY/MM/DD'
-    };
-
-    return (
-      <Popover id="filter-popover">
-        <div style={{ display: 'inline-block' }}>
-          <div style={{ display: 'block' }}>
-            <Datetime
-              {...props}
-              value={this.state.startDate}
-              onChange={date => this.onDateChange('startDate', date)}
-            />
-          </div>
-          <div style={{ display: 'block' }}>
-            <Datetime
-              {...props}
-              value={this.state.endDate}
-              onChange={date => this.onDateChange('endDate', date)}
-            />
-          </div>
-        </div>
-
-        <Button onClick={() => this.filterByDate()}> ok </Button>
-      </Popover>
-    );
-  }
-
-  renderDateFilter() {
-    return (
-      <OverlayTrigger
-        ref={overlayTrigger => {
-          this.overlayTrigger = overlayTrigger;
-        }}
-        trigger="click"
-        placement="bottom"
-        overlay={this.renderPopover()}
-        container={this}
-        shouldUpdatePosition
-        rootClose
-      >
-        <PopoverButton>
-          Date <Icon icon="calendar" />
-        </PopoverButton>
-      </OverlayTrigger>
-    );
-  }
-
   renderSidebarHeader() {
-    const { conversations } = this.props;
+    const { conversations, queryParams, history } = this.props;
     const { bulk } = this.state;
     const { __ } = this.context;
 
@@ -193,7 +107,7 @@ class LeftSidebar extends Bulk {
           paramKey="channelId"
           searchable
         />
-        {this.renderDateFilter()}
+        <DateFilter queryParams={queryParams} history={history} />
         <StatusFilterPopover />
       </Sidebar.Header>
     );

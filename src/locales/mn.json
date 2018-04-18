@@ -652,5 +652,7 @@
   "Rejected": "Татгалзсан",
   "No customer": "Харилцагч байхгүй байна",
   "Action": "Үйлдэл",
-  "Please select one to merge": "Нэгийг сонгоно уу"
+  "Please select one to merge": "Нэгийг сонгоно уу",
+  "Filter by date": "Oн сараар шүүх",
+  "Filter": "Шүүх"
 }
