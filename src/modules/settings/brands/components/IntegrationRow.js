@@ -32,7 +32,7 @@ class IntegrationRow extends Component {
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')}>
-          <Icon erxes icon="edit" />
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );
@@ -47,7 +47,7 @@ class IntegrationRow extends Component {
               }`}
             >
               <Button btnStyle="link">
-                <Icon erxes icon="paintpalette" />
+                <Icon icon="paintpalette" />
               </Button>
             </Link>
           </Tip>
@@ -55,7 +55,7 @@ class IntegrationRow extends Component {
           <Tip text={__('Hours, Availability & Other configs')}>
             <Link to={`integrations/messenger/configs/${integration._id}`}>
               <Button btnStyle="link">
-                <Icon erxes icon="settings" />
+                <Icon icon="settings" />
               </Button>
             </Link>
           </Tip>

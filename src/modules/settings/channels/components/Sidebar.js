@@ -60,7 +60,7 @@ class Sidebar extends Component {
 
     const addChannel = (
       <RightButton>
-        <Icon erxes icon="add" />
+        <Icon icon="add" />
       </RightButton>
     );
 

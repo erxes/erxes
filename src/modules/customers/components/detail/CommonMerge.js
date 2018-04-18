@@ -142,7 +142,7 @@ class CommonMerge extends Component {
         ) : (
           <InfoDetail>{property[propertyName] || 'N/A'}</InfoDetail>
         )}
-        <Icon erxes icon={icon} />
+        <Icon icon={icon} />
       </li>
     );
   }

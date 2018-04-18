@@ -58,7 +58,7 @@ class Sidebar extends Component {
 
     const addBrand = (
       <RightButton>
-        <Icon erxes icon="add" />
+        <Icon icon="add" />
       </RightButton>
     );
 

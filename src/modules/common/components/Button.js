@@ -138,7 +138,7 @@ function Button({ ...props }, { __ }) {
   if (props.icon) {
     return (
       <Element {...props}>
-        <Icon erxes icon={props.icon} />
+        <Icon icon={props.icon} />
         {content && <span>{content}</span>}
       </Element>
     );

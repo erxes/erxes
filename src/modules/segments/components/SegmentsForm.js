@@ -268,7 +268,7 @@ class SegmentsForm extends Component {
 
           <SegmentResult>
             <ResultCount>
-              <Icon erxes icon="users" /> {total.byFakeSegment}
+              <Icon icon="users" /> {total.byFakeSegment}
             </ResultCount>
             {__('User(s) will recieve this message')}
           </SegmentResult>

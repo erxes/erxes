@@ -60,7 +60,7 @@ class CategoryForm extends Component {
   renderOption(option) {
     return (
       <div className="icon-option">
-        <Icon erxes icon={option.value} />
+        <Icon icon={option.value} />
         {option.label}
       </div>
     );

@@ -121,7 +121,7 @@ class Inbox extends Component {
         ) : (
           <Label lblStyle="default">No tags</Label>
         )}
-        <Icon erxes icon="downarrow" />
+        <Icon icon="downarrow" />
       </PopoverButton>
     );
 
@@ -136,7 +136,7 @@ class Inbox extends Component {
             Member
           </Button>
         )}
-        <Icon erxes icon="downarrow" />
+        <Icon icon="downarrow" />
       </AssignTrigger>
     );
 

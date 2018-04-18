@@ -92,7 +92,7 @@ class DealMoveForm extends React.Component {
             <StageItem key={s._id} isPass={isPass}>
               <Tip text={s.name}>
                 <a onClick={() => onChangeStage(s._id)}>
-                  <Icon erxes icon="checked-1" />
+                  <Icon icon="checked-1" />
                 </a>
               </Tip>
             </StageItem>
@@ -114,7 +114,7 @@ class DealMoveForm extends React.Component {
       <MoveContainer>
         <MoveFormContainer>
           <PipelineName onClick={toggleForm}>
-            {currentPipeline.name} <Icon erxes icon="downarrow" />
+            {currentPipeline.name} <Icon icon="downarrow" size={10} />
           </PipelineName>
 
           {this.renderForm()}

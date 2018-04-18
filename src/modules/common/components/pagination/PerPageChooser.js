@@ -26,7 +26,7 @@ const PerPageChooser = ({ history }, { __ }) => {
     <Dropdown id="per-page-chooser" className="dropup">
       <DropdownToggle bsRole="toggle">
         <PerPageButton>
-          {currentPerPage} {__('per page')} <Icon erxes icon="uparrow-2" />
+          {currentPerPage} {__('per page')} <Icon icon="uparrow-2" />
         </PerPageButton>
       </DropdownToggle>
       <Dropdown.Menu>

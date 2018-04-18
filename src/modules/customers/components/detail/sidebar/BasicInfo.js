@@ -38,7 +38,7 @@ class BasicInfo extends React.Component {
     if (link) {
       return (
         <a href={link} target="_blank">
-          <Icon erxes icon={icon} />
+          <Icon icon={icon} />
         </a>
       );
     }
@@ -114,7 +114,7 @@ class BasicInfo extends React.Component {
         <InfoWrapper>
           <AvatarWrapper isUser={isUser}>
             <NameCard.Avatar customer={customer} size={50} />
-            {isUser ? <Icon erxes icon="check" /> : <Icon erxes icon="minus" />}
+            {isUser ? <Icon icon="check" /> : <Icon icon="minus" />}
           </AvatarWrapper>
 
           <div className="name">
@@ -124,7 +124,7 @@ class BasicInfo extends React.Component {
 
           <ModalTrigger
             title="Edit basic info"
-            trigger={<Icon erxes icon="edit" />}
+            trigger={<Icon icon="edit" />}
             size="lg"
           >
             <CustomerForm size="lg" customer={customer} />

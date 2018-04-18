@@ -71,7 +71,7 @@ class TwitterMessage extends Component {
           title="Reply tweet"
           trigger={
             <Count>
-              <Icon erxes icon="chat" /> Reply • {twitterData.reply_count || 0}
+              <Icon icon="chat" /> Reply • {twitterData.reply_count || 0}
             </Count>
           }
         >
@@ -86,8 +86,7 @@ class TwitterMessage extends Component {
           title="Retweet"
           trigger={
             <Count retweeted={retweeted}>
-              <Icon erxes icon="repeat" /> Retweet •{' '}
-              {twitterData.retweet_count || 0}
+              <Icon icon="repeat" /> Retweet • {twitterData.retweet_count || 0}
             </Count>
           }
         >
@@ -99,15 +98,13 @@ class TwitterMessage extends Component {
           />
         </ModalTrigger>
         <Count favorited={favorited} onClick={this.favoriteTweet}>
-          <Icon erxes icon="heart" /> Favorite •{' '}
-          {twitterData.favorite_count || 0}
+          <Icon icon="heart" /> Favorite • {twitterData.favorite_count || 0}
         </Count>
         <ModalTrigger
           title="Twitter quote"
           trigger={
             <Count>
-              <Icon erxes icon="rightquote" /> Quote •{' '}
-              {twitterData.quote_count || 0}
+              <Icon icon="rightquote" /> Quote • {twitterData.quote_count || 0}
             </Count>
           }
         >

@@ -35,7 +35,7 @@ class BasicInfo extends React.Component {
     if (link) {
       return (
         <a target="_blank" href={`//${link}`}>
-          <Icon erxes icon={icon} />
+          <Icon icon={icon} />
         </a>
       );
     }
@@ -112,7 +112,7 @@ class BasicInfo extends React.Component {
           </div>
           <ModalTrigger
             title="Edit basic info"
-            trigger={<Icon erxes icon="edit" />}
+            trigger={<Icon icon="edit" />}
             size="lg"
           >
             <CompanyForm company={company} />

@@ -67,7 +67,7 @@ class ConfirmDialog extends React.Component {
       >
         <ModalBody>
           <IconWrapper>
-            <Icon erxes icon="information" />
+            <Icon icon="information" />
           </IconWrapper>
           {confirmation}
         </ModalBody>

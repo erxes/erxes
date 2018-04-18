@@ -47,7 +47,7 @@ class Boards extends Component {
 
     const addBoard = (
       <RightButton>
-        <Icon erxes icon="add" />
+        <Icon icon="add" />
       </RightButton>
     );
 

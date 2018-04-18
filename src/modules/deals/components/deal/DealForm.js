@@ -292,7 +292,7 @@ class DealForm extends React.Component {
         <WhiteBox>
           <Tabs>
             <TabTitle className="active">
-              <Icon erxes icon="edit-1" /> {__('New note')}
+              <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
           </Tabs>
 

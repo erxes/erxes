@@ -63,7 +63,7 @@ class PropertyRow extends React.Component {
       <ActionButtons>
         <ModalTrigger
           title="Edit Property"
-          trigger={<Icon erxes icon="edit" />}
+          trigger={<Icon icon="edit" />}
           size="lg"
         >
           {form}

@@ -30,7 +30,7 @@ class ProductItemForm extends React.Component {
 
     let content = (
       <div>
-        {__('Product & Service')} <Icon erxes icon="add" />
+        {__('Product & Service')} <Icon icon="add" />
       </div>
     );
 
@@ -38,7 +38,7 @@ class ProductItemForm extends React.Component {
     if (product) {
       content = (
         <div>
-          {product.name} <Icon erxes icon="edit" />
+          {product.name} <Icon icon="edit" />
         </div>
       );
     }

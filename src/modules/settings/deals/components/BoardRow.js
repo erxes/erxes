@@ -33,7 +33,7 @@ class BoardRow extends Component {
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text="Edit">
-          <Icon erxes icon="edit" />
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );

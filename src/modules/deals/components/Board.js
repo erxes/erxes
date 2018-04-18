@@ -30,7 +30,7 @@ class Board extends React.Component {
       return (
         <li>
           <Link to="/settings/deals">
-            <Icon erxes icon="add" /> {__('Create another board')}
+            <Icon icon="add" /> {__('Create another board')}
           </Link>
         </li>
       );
@@ -108,7 +108,7 @@ class Board extends React.Component {
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
-              {currentBoard.name} <Icon erxes icon="downarrow" size={10} />
+              {currentBoard.name} <Icon icon="downarrow" size={10} />
             </Button>
           </DropdownToggle>
 

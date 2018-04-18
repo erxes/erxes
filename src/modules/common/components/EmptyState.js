@@ -66,7 +66,7 @@ EmptyState.contextTypes = {
 function EmptyState({ text, icon, image, size, linkUrl, linkText }, { __ }) {
   return (
     <EmptyStateStyled size={size}>
-      {icon ? <Icon erxes icon={icon} /> : <img src={image} alt={text} />}
+      {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
       {__(text)}
       {linkUrl && linkText ? (
         <Button btnStyle="simple" size="small" href={linkUrl}>

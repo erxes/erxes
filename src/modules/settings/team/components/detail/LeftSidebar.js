@@ -21,7 +21,7 @@ class LeftSidebar extends React.Component {
     if (link) {
       return (
         <a href={link} target="_blank">
-          <Icon erxes icon={icon} />
+          <Icon icon={icon} />
         </a>
       );
     }
@@ -62,11 +62,7 @@ class LeftSidebar extends React.Component {
               avatarSize={50}
               secondLine={this.renderLinks(links)}
             />
-            <ModalTrigger
-              title="Edit"
-              trigger={<Icon erxes icon="edit" />}
-              size="lg"
-            >
+            <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
               {form}
             </ModalTrigger>
           </InfoWrapper>

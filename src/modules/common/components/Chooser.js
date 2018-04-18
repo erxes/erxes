@@ -99,7 +99,7 @@ class CommonChooser extends Component {
     return (
       <li key={data._id} onClick={() => this.handleChange(icon, data)}>
         {this.props.renderName(data)}
-        <Icon erxes icon={icon} />
+        <Icon icon={icon} />
       </li>
     );
   }

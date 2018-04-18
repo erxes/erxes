@@ -48,7 +48,7 @@ class LeftSidebar extends Bulk {
     const { __ } = this.context;
     return (
       <PopoverButton>
-        {__(text)} <Icon erxes icon="downarrow" />
+        {__(text)} <Icon icon="downarrow" />
       </PopoverButton>
     );
   }

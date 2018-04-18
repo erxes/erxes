@@ -86,7 +86,7 @@ class Row extends React.Component {
     if (message.segment) {
       return (
         <HelperText>
-          <Icon erxes icon="piechart" /> {message.segment.name}
+          <Icon icon="piechart" /> {message.segment.name}
         </HelperText>
       );
     }
@@ -95,7 +95,7 @@ class Row extends React.Component {
 
     return rules.map(rule => (
       <HelperText key={rule._id}>
-        <Icon erxes icon="piechart" /> {rule.text} {rule.condition} {rule.value}
+        <Icon icon="piechart" /> {rule.text} {rule.condition} {rule.value}
       </HelperText>
     ));
   }
@@ -129,7 +129,7 @@ class Row extends React.Component {
         </td>
         <td>{status}</td>
         <td className="text-primary">
-          <Icon erxes icon="cube" />
+          <Icon icon="cube" />
           <b> {totalCount}</b>
         </td>
 
@@ -161,11 +161,11 @@ class Row extends React.Component {
         <td>
           {message.email ? (
             <div>
-              <Icon erxes icon="email-3" /> {__('Email')}
+              <Icon icon="email-3" /> {__('Email')}
             </div>
           ) : (
             <div>
-              <Icon erxes icon="chat" /> {__('Messenger')}
+              <Icon icon="chat" /> {__('Messenger')}
             </div>
           )}
         </td>
@@ -175,7 +175,7 @@ class Row extends React.Component {
         </td>
 
         <td>
-          <Icon erxes icon="calendar" />{' '}
+          <Icon icon="calendar" />{' '}
           {moment(message.createdDate).format('DD MMM YYYY')}
         </td>
 

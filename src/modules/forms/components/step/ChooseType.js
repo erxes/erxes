@@ -62,7 +62,7 @@ class ChooseType extends Component {
         selected={this.props.type === value}
         onClick={() => this.onChange(value)}
       >
-        <Icon erxes icon={icon} />
+        <Icon icon={icon} />
         <span>{__(name)}</span>
       </Box>
     );

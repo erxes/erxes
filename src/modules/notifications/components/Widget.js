@@ -71,11 +71,11 @@ class Widget extends Component {
         <PopoverHeader>
           <Toggler onClick={this.toggle} activeFirst={isActive}>
             <Toggle isActive={isActive}>
-              <Icon erxes icon="head-1" /> {__('AI')}
+              <Icon icon="head-1" /> {__('AI')}
             </Toggle>
             <Toggle isActive={!isActive}>
               <NotifCount>
-                <Icon erxes icon="alarm" />
+                <Icon icon="alarm" />
                 {this.renderUnreadCount()}
               </NotifCount>
               {__('Notifications')}

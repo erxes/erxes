@@ -72,11 +72,7 @@ class FilterByParams extends Component {
                   }}
                 >
                   {icon ? (
-                    <Icon
-                      erxes
-                      icon={icon}
-                      style={{ color: field.colorCode }}
-                    />
+                    <Icon icon={icon} style={{ color: field.colorCode }} />
                   ) : null}{' '}
                   {field.name}
                   <SidebarCounter>{counts[field._id]}</SidebarCounter>

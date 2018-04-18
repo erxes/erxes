@@ -44,7 +44,7 @@ class List extends React.Component {
 
     const tagButton = (
       <Button btnStyle="simple" size="small">
-        {__('Tag')} <Icon erxes icon="downarrow" />
+        {__('Tag')} <Icon icon="downarrow" />
       </Button>
     );
 
@@ -76,7 +76,7 @@ class List extends React.Component {
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="add">
-            {__('New message')} <Icon erxes icon="downarrow" />
+            {__('New message')} <Icon icon="downarrow" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>

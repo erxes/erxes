@@ -33,7 +33,7 @@ function List({ tags, type, remove, save }, { __ }) {
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="simple" size="small">
-            {__('Customize ')} <Icon erxes icon="downarrow" />
+            {__('Customize ')} <Icon icon="downarrow" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>

@@ -49,7 +49,6 @@ function Segments({ history, contentType, counts, segments, loading }, { __ }) {
           >
             {segment.subOf ? '\u00a0\u00a0' : null}
             <Icon
-              erxes
               icon="piechart"
               size={10}
               style={{
@@ -80,7 +79,7 @@ function Segments({ history, contentType, counts, segments, loading }, { __ }) {
         >
           <DropdownToggle bsRole="toggle">
             <a>
-              <Icon erxes icon="settings" />
+              <Icon icon="settings" />
             </a>
           </DropdownToggle>
           <Dropdown.Menu>
@@ -102,7 +101,7 @@ function Segments({ history, contentType, counts, segments, loading }, { __ }) {
               router.setParams(history, { segment: null });
             }}
           >
-            <Icon erxes icon="cancel-1" />
+            <Icon icon="cancel-1" />
           </a>
         ) : null}
       </Section.QuickButtons>

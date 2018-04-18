@@ -42,7 +42,7 @@ class Stage extends React.Component {
 
     const trigger = (
       <AddNew>
-        <Icon erxes icon="add" /> {__('Add a deal')}
+        <Icon icon="add" /> {__('Add a deal')}
       </AddNew>
     );
 

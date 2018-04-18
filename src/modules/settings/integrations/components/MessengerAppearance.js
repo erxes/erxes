@@ -163,7 +163,6 @@ class Appearance extends Component {
                 >
                   <label>
                     <Icon
-                      erxes
                       icon="upload icon"
                       size={30}
                       style={{ backgroundColor: this.state.color }}

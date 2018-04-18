@@ -143,7 +143,7 @@ class ResponseTemplate extends Component {
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
         <Tip text={__('Save as template')}>
-          <Icon erxes icon="download-3" />
+          <Icon icon="download-3" />
         </Tip>
       </Button>
     );
@@ -207,7 +207,7 @@ class ResponseTemplate extends Component {
         >
           <Button btnStyle="link">
             <Tip text={__('Response template')}>
-              <Icon erxes icon="clipboard-1" />
+              <Icon icon="clipboard-1" />
             </Tip>
           </Button>
         </OverlayTrigger>

@@ -143,11 +143,11 @@ class ManageIntegrationForm extends Component {
             className={`label-${this.getTypeName(integration)} round`}
             ignoreTrans
           >
-            <Icon erxes icon={this.getIconByKind(integration)} />
+            <Icon icon={this.getIconByKind(integration)} />
           </Label>
         </Tip>
         <BrandName>{brand.name}</BrandName>
-        <Icon erxes icon={icon} />
+        <Icon icon={icon} />
       </li>
     );
 

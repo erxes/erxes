@@ -91,11 +91,11 @@ class Attachment extends Component {
     return (
       <Fragment>
         <FileWrapper key="wrapper">
-          <Icon erxes icon={icon} /> <span>{name}</span>
+          <Icon icon={icon} /> <span>{name}</span>
         </FileWrapper>
         <Overlay key="overlay" href={this.props.attachment.url} target="_blank">
           <div>
-            <Icon erxes icon="download" />
+            <Icon icon="download" />
           </div>
         </Overlay>
       </Fragment>

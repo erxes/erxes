@@ -47,7 +47,7 @@ class IntegrationIcon extends Component {
           twitterData && twitterData.isDirectMessage ? 'twitter' : 'arroba';
         break;
       case 'messenger':
-        icon = customer.isUser ? 'speech-bubble-1' : 'speech-bubble-2';
+        icon = customer.isUser ? 'chat' : 'speech-bubble-2';
         break;
       default:
         icon = 'file';
@@ -60,7 +60,7 @@ class IntegrationIcon extends Component {
 
     return (
       <RoundedBackground type={integration.kind}>
-        <Icon erxes icon={this.getIcon()} />
+        <Icon icon={this.getIcon()} />
       </RoundedBackground>
     );
   }

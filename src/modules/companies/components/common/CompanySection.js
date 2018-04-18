@@ -23,7 +23,7 @@ function CompanySection({ name, companies, onSelect }, { __ }) {
 
   const companyTrigger = (
     <a>
-      <Icon erxes icon="add" />
+      <Icon icon="add" />
     </a>
   );
 
@@ -39,7 +39,7 @@ function CompanySection({ name, companies, onSelect }, { __ }) {
         {companies.map((company, index) => (
           <SectionBodyItem key={index}>
             <Link to={`/companies/details/${company._id}`}>
-              <Icon erxes icon="logout-2" />
+              <Icon icon="logout-2" />
             </Link>
             <span>{company.name || 'N/A'}</span>
             <Tip text={company.website || ''}>

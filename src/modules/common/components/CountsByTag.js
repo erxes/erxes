@@ -27,7 +27,7 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }, { __ }) {
 
       <Section.QuickButtons>
         <Link to={manageUrl}>
-          <Icon erxes icon="settings" />
+          <Icon icon="settings" />
         </Link>
 
         {router.getParam(history, 'tag') ? (
@@ -37,7 +37,7 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }, { __ }) {
               router.setParams(history, { tag: null });
             }}
           >
-            <Icon erxes icon="cancel-1" />
+            <Icon icon="cancel-1" />
           </a>
         ) : null}
       </Section.QuickButtons>

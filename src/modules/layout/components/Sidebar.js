@@ -53,7 +53,7 @@ class Section extends Component {
     const icon = this.state.collapse ? 'uparrow' : 'downarrow';
     return (
       <SidebarToggle tabIndex={0} onClick={this.toggleCollapse}>
-        <Icon erxes icon={icon} />
+        <Icon icon={icon} />
       </SidebarToggle>
     );
   }

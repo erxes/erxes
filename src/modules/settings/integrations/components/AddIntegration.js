@@ -18,7 +18,7 @@ function AddIntegration(props, { __ }) {
     <Dropdown id="dropdown-integration" pullRight>
       <DropdownToggle bsRole="toggle">
         <Button btnStyle="success" size="small" icon="add">
-          {__('Add integrations')} <Icon erxes icon="downarrow" />
+          {__('Add integrations')} <Icon icon="downarrow" />
         </Button>
       </DropdownToggle>
       <Dropdown.Menu>

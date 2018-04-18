@@ -49,7 +49,7 @@ const QuickNavigation = ({ logout }, context) => {
               <UserInfo>
                 {currentUser.details.fullName}
                 <NameCard.Avatar user={currentUser} size={30} />
-                <Icon erxes icon="downarrow" size={10} />
+                <Icon icon="downarrow" size={10} />
               </UserInfo>
             </UserHelper>
           </DropdownToggle>

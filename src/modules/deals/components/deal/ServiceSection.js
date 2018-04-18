@@ -41,7 +41,7 @@ function ServiceSection(
           dialogClassName="full"
           trigger={
             <a>
-              <Icon erxes icon="add" />
+              <Icon icon="add" />
             </a>
           }
         >

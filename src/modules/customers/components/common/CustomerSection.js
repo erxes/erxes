@@ -42,7 +42,7 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
           size="lg"
           trigger={
             <a>
-              <Icon erxes icon="add" />
+              <Icon icon="add" />
             </a>
           }
         >
@@ -53,7 +53,7 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
         {customers.map((customer, index) => (
           <SectionBodyItem key={index}>
             <Link to={`/customers/details/${customer._id}`}>
-              <Icon erxes icon="logout-2" />
+              <Icon icon="logout-2" />
             </Link>
             <span>{renderFullName(customer)}</span>
             {mailTo(customer.email)}
