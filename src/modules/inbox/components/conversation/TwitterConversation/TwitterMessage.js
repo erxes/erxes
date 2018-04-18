@@ -71,7 +71,7 @@ class TwitterMessage extends Component {
           title="Reply tweet"
           trigger={
             <Count>
-              <Icon icon="chatbubble" /> Reply • {twitterData.reply_count || 0}
+              <Icon icon="chat" /> Reply • {twitterData.reply_count || 0}
             </Count>
           }
         >
@@ -86,7 +86,7 @@ class TwitterMessage extends Component {
           title="Retweet"
           trigger={
             <Count retweeted={retweeted}>
-              <Icon icon="loop" /> Retweet • {twitterData.retweet_count || 0}
+              <Icon icon="repeat" /> Retweet • {twitterData.retweet_count || 0}
             </Count>
           }
         >
@@ -104,7 +104,7 @@ class TwitterMessage extends Component {
           title="Twitter quote"
           trigger={
             <Count>
-              <Icon icon="quote" /> Quote • {twitterData.quote_count || 0}
+              <Icon icon="rightquote" /> Quote • {twitterData.quote_count || 0}
             </Count>
           }
         >

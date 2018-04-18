@@ -5,9 +5,9 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button
+  Button,
+  Icon
 } from 'modules/common/components';
-import Ionicons from 'react-ionicons';
 import { icons } from '../../icons.constant';
 import { ModalFooter } from 'modules/common/styles/styles';
 
@@ -60,7 +60,7 @@ class CategoryForm extends Component {
   renderOption(option) {
     return (
       <div className="icon-option">
-        <Ionicons icon={option.value} />
+        <Icon icon={option.value} />
         {option.label}
       </div>
     );
@@ -134,12 +134,12 @@ class CategoryForm extends Component {
             btnStyle="simple"
             type="button"
             onClick={onClick}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

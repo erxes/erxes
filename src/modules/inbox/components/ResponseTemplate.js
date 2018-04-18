@@ -114,7 +114,7 @@ class ResponseTemplate extends Component {
     const { options, key } = this.state;
 
     if (options.length === 0) {
-      return <EmptyState icon="clipboard" text="No templates" size="full" />;
+      return <EmptyState icon="clipboard-1" text="No templates" size="full" />;
     }
 
     return options.map(item => {
@@ -143,7 +143,7 @@ class ResponseTemplate extends Component {
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
         <Tip text={__('Save as template')}>
-          <Icon icon="log-in" size={17} />
+          <Icon icon="download-3" />
         </Tip>
       </Button>
     );
@@ -207,7 +207,7 @@ class ResponseTemplate extends Component {
         >
           <Button btnStyle="link">
             <Tip text={__('Response template')}>
-              <Icon icon="clipboard" size={17} />
+              <Icon icon="clipboard-1" />
             </Tip>
           </Button>
         </OverlayTrigger>

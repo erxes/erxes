@@ -42,14 +42,14 @@ class PasswordConfirmation extends Component {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            icon="close"
+            icon="cancel-1"
             onClick={() => this.context.closeModal()}
           >
             Cancel
           </Button>
           <Button
             btnStyle="success"
-            icon="checkmark"
+            icon="checked-1"
             onClick={e => this.submit(e)}
           >
             Save

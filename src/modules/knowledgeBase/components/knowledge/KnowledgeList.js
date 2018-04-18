@@ -72,12 +72,12 @@ class KnowledgeList extends Component {
 
     const trigger = (
       <RightButton>
-        <Icon icon="plus" />
+        <Icon icon="add" />
       </RightButton>
     );
 
     return (
-      <Header bold uppercase>
+      <Header uppercase>
         {__('Knowledge base')}
         <ModalTrigger title="Add Knowledge base" trigger={trigger}>
           {this.renderForm({ save })}

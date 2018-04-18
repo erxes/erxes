@@ -35,7 +35,7 @@ class Channels extends Component {
     ];
 
     const trigger = (
-      <Button btnStyle="success" size="small" icon="wrench">
+      <Button btnStyle="success" size="small" icon="computer">
         Manage integration
       </Button>
     );

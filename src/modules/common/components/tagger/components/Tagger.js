@@ -62,7 +62,7 @@ class Tagger extends Component {
       return {
         _id,
         title: name,
-        iconClass: 'ion-pricetag',
+        iconClass: 'icon-tag',
         iconColor: colorCode,
         selectedBy: state
       };

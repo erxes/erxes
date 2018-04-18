@@ -18,11 +18,7 @@ class Sidebar extends Component {
     const { __ } = this.context;
     const { Header } = LeftSidebar;
 
-    return (
-      <Header uppercase bold>
-        {__('Properties')}
-      </Header>
-    );
+    return <Header uppercase>{__('Properties')}</Header>;
   }
 
   getClassName(type) {

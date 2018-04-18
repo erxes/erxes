@@ -27,7 +27,9 @@ class DealSection extends React.Component {
             </Container>
           ))}
 
-          {deals.length === 0 && <EmptyState icon="briefcase" text="No deal" />}
+          {deals.length === 0 && (
+            <EmptyState icon="piggy-bank" text="No deal" />
+          )}
         </SectionContainer>
       </Section>
     );

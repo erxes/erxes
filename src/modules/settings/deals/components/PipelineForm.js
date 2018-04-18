@@ -96,13 +96,13 @@ class PipelineForm extends Component {
           <Button
             btnStyle="simple"
             type="button"
-            icon="close"
+            icon="cancel-1"
             onClick={() => this.context.closeModal()}
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" icon="checkmark" type="submit">
+          <Button btnStyle="success" icon="checked-1" type="submit">
             Save
           </Button>
         </Modal.Footer>

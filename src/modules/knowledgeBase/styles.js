@@ -39,8 +39,8 @@ const RightButton = styled.div`
 
 const DropIcon = styled.span`
   &:after {
-    content: '\f123';
-    font-family: 'Ionicons';
+    content: '\\e827';
+    font-family: 'erxes';
     float: right;
     transition: all ease 0.3s;
     transform: ${props => props.isOpen && `rotate(180deg)`};
@@ -148,7 +148,7 @@ const Row = styled.div`
 
   &:hover {
     ${ActionButtons} {
-      width: ${dimensions.headerSpacing - dimensions.coreSpacing}px;
+      width: ${dimensions.coreSpacing * 2}px;
       right: ${dimensions.coreSpacing}px;
     }
   }
