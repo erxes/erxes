@@ -52,7 +52,6 @@ export default `
       avatar
       fullName
       position
-      twitterUsername
     }
   }
   customer {

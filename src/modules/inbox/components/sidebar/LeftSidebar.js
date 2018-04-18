@@ -51,7 +51,7 @@ class LeftSidebar extends Bulk {
     const { __ } = this.context;
     return (
       <PopoverButton>
-        {__(text)} <Icon icon="ios-arrow-down" />
+        {__(text)} <Icon icon="downarrow" />
       </PopoverButton>
     );
   }
@@ -149,7 +149,7 @@ class LeftSidebar extends Bulk {
           paramKey="tag"
           popoverTitle="Filter by tag"
           placement="top"
-          icon="pricetag"
+          icon="tag"
           searchable
         />
       </Sidebar.Footer>

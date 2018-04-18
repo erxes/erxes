@@ -125,7 +125,7 @@ class SegmentStep extends Component {
         <Divider />
         <FlexItem direction="column" v="center" h="center">
           <CustomerCounts>
-            <Icon icon="person-stalker" size={50} />
+            <Icon icon="users" size={50} />
             <p>
               {this.props.counts[this.state.segment] || 0} {__('customers')}
             </p>

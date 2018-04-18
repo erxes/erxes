@@ -292,7 +292,7 @@ class DealForm extends React.Component {
         <WhiteBox>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> {__('New note')}
+              <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
           </Tabs>
 
@@ -344,11 +344,11 @@ class DealForm extends React.Component {
           onSelect={this.onChangeCustomer}
         />
 
-        <Button onClick={this.copy} icon="checkmark">
+        <Button onClick={this.copy} icon="checked-1">
           Copy
         </Button>
 
-        <Button icon="close" onClick={() => this.props.removeDeal(deal._id)}>
+        <Button icon="cancel-1" onClick={() => this.props.removeDeal(deal._id)}>
           Delete
         </Button>
       </Right>
@@ -471,7 +471,7 @@ class DealForm extends React.Component {
           <Button
             btnStyle="simple"
             onClick={this.context.closeModal}
-            icon="close"
+            icon="cancel-1"
           >
             Close
           </Button>
@@ -479,7 +479,7 @@ class DealForm extends React.Component {
           <Button
             disabled={this.state.disabled}
             btnStyle="success"
-            icon="checkmark"
+            icon="checked-1"
             onClick={this.save}
           >
             Save

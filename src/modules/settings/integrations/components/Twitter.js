@@ -27,7 +27,7 @@ class Twitter extends Component {
           <SelectBrand brands={this.props.brands} />
 
           <ModalFooter>
-            <Button btnStyle="success" type="submit" icon="checkmark">
+            <Button btnStyle="success" type="submit" icon="checked-1">
               Save
             </Button>
           </ModalFooter>

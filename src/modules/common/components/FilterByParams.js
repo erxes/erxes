@@ -22,10 +22,6 @@ const PopoverContent = styled.div`
   > input {
     padding: 10px 20px;
   }
-
-  ${SidebarList} {
-    padding-top: 10px;
-  }
 `;
 
 class FilterByParams extends Component {
@@ -49,7 +45,7 @@ class FilterByParams extends Component {
     const { key } = this.state;
 
     if (fields.length === 0) {
-      return <EmptyState icon="clipboard" text="No templates" size="full" />;
+      return <EmptyState icon="clipboard-1" text="No templates" size="full" />;
     }
 
     return (
@@ -98,7 +94,7 @@ class FilterByParams extends Component {
         count={fields.length}
         data={this.renderItems()}
         emptyText="No tags"
-        emptyIcon="pricetag"
+        emptyIcon="tag"
         size="small"
         objective={true}
       />

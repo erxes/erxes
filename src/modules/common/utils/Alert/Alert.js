@@ -5,24 +5,24 @@ import Icon from 'modules/common/components/Icon';
 import { colors, typography, dimensions } from 'modules/common/styles';
 
 const types = {
-  info: {
+  information: {
     background: colors.colorSecondary,
     icon: 'information'
   },
 
   warning: {
     background: colors.colorCoreYellow,
-    icon: 'alert'
+    icon: 'clock'
   },
 
   error: {
     background: colors.colorCoreRed,
-    icon: 'close'
+    icon: 'cancel-1'
   },
 
   success: {
     background: colors.colorCoreGreen,
-    icon: 'checkmark'
+    icon: 'checked-1'
   }
 };
 
@@ -96,5 +96,5 @@ AlertStyled.propTypes = {
 };
 
 AlertStyled.defaultProps = {
-  type: 'info'
+  type: 'information'
 };

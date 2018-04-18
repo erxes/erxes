@@ -23,7 +23,7 @@ function CompanySection({ name, companies, onSelect }, { __ }) {
 
   const companyTrigger = (
     <a>
-      <Icon icon="plus" />
+      <Icon icon="add" />
     </a>
   );
 
@@ -39,7 +39,7 @@ function CompanySection({ name, companies, onSelect }, { __ }) {
         {companies.map((company, index) => (
           <SectionBodyItem key={index}>
             <Link to={`/companies/details/${company._id}`}>
-              <Icon icon="android-open" />
+              <Icon icon="logout-2" />
             </Link>
             <span>{company.name || 'N/A'}</span>
             <Tip text={company.website || ''}>

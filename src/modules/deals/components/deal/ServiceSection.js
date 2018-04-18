@@ -41,7 +41,7 @@ function ServiceSection(
           dialogClassName="full"
           trigger={
             <a>
-              <Icon icon="plus" />
+              <Icon icon="add" />
             </a>
           }
         >
@@ -61,7 +61,7 @@ function ServiceSection(
           </SectionBodyItem>
         ))}
         {products.length === 0 && (
-          <EmptyState icon="ribbon-b" text="No items" />
+          <EmptyState icon="shopping-bag" text="No items" />
         )}
       </SectionBody>
     </Section>

@@ -34,7 +34,7 @@ function Conditions(
         >
           <h4>
             <Label ignoreTrans>
-              {__('Parent segment conditions')} <Icon icon="android-open" />
+              {__('Parent segment conditions')} <Icon icon="logout-2" />
             </Label>
           </h4>
           <br />

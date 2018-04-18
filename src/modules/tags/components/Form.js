@@ -92,11 +92,11 @@ class Form extends Component {
         </FormGroup>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={onClick} icon="close">
+          <Button btnStyle="simple" onClick={onClick} icon="cancel-1">
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

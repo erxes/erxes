@@ -36,10 +36,10 @@
     "draft-js": "^0.10.4",
     "draft-js-export-html": "^1.2.0",
     "draft-js-plugins-editor": "^2.0.3",
+    "erxes-icon": "^1.0.3",
     "fuzzysearch-highlight": "^1.0.3",
     "graphql": "^0.12.3",
     "graphql-tag": "^2.6.1",
-    "ionicons": "2.0.1",
     "moment": "2.19.3",
     "query-string": "^5.0.0",
     "react": "^16.2.0",
@@ -50,17 +50,13 @@
     "react-datetime": "^2.11.1",
     "react-dom": "^16.0.0",
     "react-intl": "^2.4.0",
-    "react-ionicons": "^1.5.9",
     "react-markdown": "^2.5.0",
-    "react-redux": "^5.0.6",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "react-select-plus": "^1.0.0-rc.5",
     "react-sortable-hoc": "^0.6.8",
     "react-toggle": "^4.0.2",
     "recharts": "1.0.0-beta.2",
-    "redux": "^3.7.2",
-    "redux-thunk": "^2.2.0",
     "scriptjs": "^2.5.8",
     "strip": "^3.0.0",
     "styled-components": "^3.1.6",
@@ -90,14 +86,14 @@
     "postinstall": "opencollective postinstall"
   },
   "devDependencies": {
-    "opencollective": "^1.0.3",
-    "react-scripts": "1.0.15",
-    "lint-staged": "^4.3.0",
     "@storybook/addon-actions": "^3.2.12",
     "@storybook/addon-knobs": "^3.2.12",
     "@storybook/addon-links": "^3.2.12",
     "@storybook/react": "^3.2.12",
     "husky": "^0.14.3",
-    "prettier": "^1.8.2"
+    "lint-staged": "^4.3.0",
+    "opencollective": "^1.0.3",
+    "prettier": "^1.8.2",
+    "react-scripts": "1.0.15"
   }
 }

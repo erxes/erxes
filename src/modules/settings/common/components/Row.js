@@ -31,7 +31,7 @@ class Row extends Component {
     const { __ } = this.context;
     return (
       <Tip text={__('Delete')}>
-        <Button btnStyle="link" onClick={this.remove} icon="close" />
+        <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
       </Tip>
     );
   }

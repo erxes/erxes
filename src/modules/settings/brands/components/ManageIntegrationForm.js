@@ -98,11 +98,11 @@ class ManageIntegrationForm extends Component {
 
   getIconByKind(integration) {
     const kind = integration.kind;
-    let icon = 'android-chat';
+    let icon = 'chat';
 
-    kind === KIND_CHOICES.FORM && (icon = 'document-text');
-    kind === KIND_CHOICES.TWITTER && (icon = 'social-twitter');
-    kind === KIND_CHOICES.FACEBOOK && (icon = 'social-facebook');
+    kind === KIND_CHOICES.FORM && (icon = 'file');
+    kind === KIND_CHOICES.TWITTER && (icon = 'twitter');
+    kind === KIND_CHOICES.FACEBOOK && (icon = 'facebook');
 
     return icon;
   }
@@ -110,7 +110,7 @@ class ManageIntegrationForm extends Component {
   handleChange(type, integration) {
     const { integrations } = this.state;
 
-    if (type === 'plus') {
+    if (type === 'add') {
       this.setState({
         integrations: [...integrations, integration]
       });
@@ -126,7 +126,7 @@ class ManageIntegrationForm extends Component {
     const brand = integration.brand || {};
 
     if (
-      icon === 'plus' &&
+      icon === 'add' &&
       this.state.integrations.some(e => e._id === integration._id)
     ) {
       return null;
@@ -151,7 +151,7 @@ class ManageIntegrationForm extends Component {
       </li>
     );
 
-    if (icon === 'plus') {
+    if (icon === 'add') {
       return addTrigger;
     }
     return (
@@ -184,7 +184,7 @@ class ManageIntegrationForm extends Component {
             />
             <ul>
               {allIntegrations.map(integration =>
-                this.renderRow(integration, 'plus')
+                this.renderRow(integration, 'add')
               )}
               {this.state.hasMore && (
                 <LoadMore>
@@ -192,7 +192,7 @@ class ManageIntegrationForm extends Component {
                     size="small"
                     btnStyle="primary"
                     onClick={this.loadMore}
-                    icon="checkmark"
+                    icon="checked-1"
                   >
                     Load More
                   </Button>
@@ -207,7 +207,7 @@ class ManageIntegrationForm extends Component {
             </Title>
             <ul>
               {selectedIntegrations.map(integration =>
-                this.renderRow(integration, 'close')
+                this.renderRow(integration, 'minus-circle')
               )}
             </ul>
           </Column>
@@ -215,12 +215,12 @@ class ManageIntegrationForm extends Component {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            icon="close"
+            icon="cancel-1"
             onClick={() => this.context.closeModal()}
           >
             Cancel
           </Button>
-          <Button btnStyle="success" icon="checkmark" onClick={this.save}>
+          <Button btnStyle="success" icon="checked-1" onClick={this.save}>
             Save
           </Button>
         </ModalFooter>

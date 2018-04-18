@@ -11,7 +11,6 @@ const notificationFields = `
       avatar
       fullName
       position
-      twitterUsername
     }
     email
   }

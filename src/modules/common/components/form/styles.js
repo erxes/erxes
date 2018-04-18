@@ -74,11 +74,12 @@ const SelectWrapper = styled.div`
     position: absolute;
     right: 10px;
     top: 12px;
-    content: '\f123';
-    font-size: 12px;
+    content: '\\e827';
+    font-size: 10px;
     display: inline-block;
-    font-family: 'Ionicons';
+    font-family: 'erxes';
     speak: none;
+    color: ${colors.colorCoreGray};
     font-style: normal;
     font-weight: normal;
     font-variant: normal;

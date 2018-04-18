@@ -67,7 +67,7 @@ class ConfirmDialog extends React.Component {
       >
         <ModalBody>
           <IconWrapper>
-            <Icon icon="ios-information-outline" />
+            <Icon icon="information" />
           </IconWrapper>
           {confirmation}
         </ModalBody>
@@ -76,7 +76,7 @@ class ConfirmDialog extends React.Component {
             size="small"
             btnStyle="simple"
             onClick={this.dismiss}
-            icon="close"
+            icon="cancel-1"
           >
             {cancelLabel}
           </Button>
@@ -84,7 +84,7 @@ class ConfirmDialog extends React.Component {
             size="small"
             btnStyle="success"
             onClick={this.proceed}
-            icon="checkmark"
+            icon="checked-1"
           >
             {okLabel}
           </Button>

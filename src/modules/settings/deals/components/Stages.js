@@ -74,7 +74,7 @@ class Stages extends Component {
           useDragHandle
           onChangeFields={this.props.onChangeStages}
         />
-        <Button onClick={this.add} btnStyle="success" size="small" icon="plus">
+        <Button onClick={this.add} btnStyle="success" size="small" icon="add">
           Add stage
         </Button>
       </StagesContainer>

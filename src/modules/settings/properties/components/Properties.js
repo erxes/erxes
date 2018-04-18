@@ -48,7 +48,7 @@ class Properties extends Component {
     if (fieldsGroups.length === 0) {
       return (
         <EmptyState
-          icon="android-more-horizontal"
+          icon="circular"
           text="There arent't any groups and fields"
         />
       );
@@ -88,8 +88,8 @@ class Properties extends Component {
     return (
       <Dropdown id="dropdown-knowledgebase" className="quick-button" pullRight>
         <DropdownToggle bsRole="toggle">
-          <Button btnStyle="success" size="small" icon="plus">
-            {__('Add Group & Field ')} <Icon icon="chevron-down" />
+          <Button btnStyle="success" size="small" icon="add">
+            {__('Add Group & Field ')} <Icon icon="downarrow" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
