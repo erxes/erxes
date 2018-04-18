@@ -24,10 +24,12 @@ class DateFilter extends React.Component {
     this.state = {
       startDate: props.queryParams.startDate
         ? moment(props.queryParams.startDate)
-        : '',
+        : moment()
+            .subtract('days', 1)
+            .format('YYYY-MM-DD HH:mm'),
       endDate: props.queryParams.endDate
         ? moment(props.queryParams.endDate)
-        : '',
+        : moment().format('YYYY-MM-DD HH:mm'),
       totalConversationsCount: 0
     };
 
