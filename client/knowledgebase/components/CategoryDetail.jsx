@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Ionicons from 'react-ionicons';
 import { Articles, ItemMeta } from '../components';
 
 const propTypes = {
@@ -12,7 +11,7 @@ function CategoryDetail({category}) {
     <div className="category-container">
       <div className="flex-item spaced">
         <div className="topic-icon">
-          <Ionicons icon={category.icon} fontSize="46px" color="#818a88" />
+          <i className={`icon-${category.icon}`} />
         </div>
         <div className="topic-content">
           <h1>{category.title}</h1>

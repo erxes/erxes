@@ -7,6 +7,7 @@ import { ApolloProvider } from 'react-apollo';
 import { KnowledgeBase } from './containers';
 import { connection } from './connection';
 import reducers from './reducers';
+import 'erxes-icon/css/erxes.min.css';
 import './sass/style.scss';
 
 window.addEventListener('message', (event) => {
