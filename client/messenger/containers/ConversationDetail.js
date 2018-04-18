@@ -21,6 +21,13 @@ class ConversationDetail extends React.Component {
         const conversationDetail = prev.conversationDetail;
         const messages = conversationDetail.messages;
 
+        // check whether or not already inserted
+        const prevEntry = messages.find(m => m._id === message._id);
+
+        if (prevEntry) {
+          return prev;
+        }
+
         // do not show internal messages
         if (message.internal) {
           return prev;

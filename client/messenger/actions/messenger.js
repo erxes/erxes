@@ -42,13 +42,20 @@ export const connect = variables =>
     variables,
   });
 
-export const saveBrowserInfo = async variables => {
-  variables.browserInfo = await getBrowserInfo();
+export const saveBrowserInfo = async () => {
+  const browserInfo = await getBrowserInfo();
+
+  const variables = {
+    customerId: connection.data.customerId,
+    browserInfo
+  };
 
   client.mutate({
     mutation: gql`
       mutation saveBrowserInfo($customerId: String! $browserInfo: JSON!) {
-        saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo)
+        saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
+          _id
+        }
       }
     `,
     variables,

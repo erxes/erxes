@@ -7,7 +7,7 @@ import { App as DumbApp } from '../components';
 class App extends React.Component {
   componentDidMount() {
     // call save browser info mutation
-    saveBrowserInfo({ customerId: connection.data.customerId });
+    saveBrowserInfo();
   }
 
   render() {

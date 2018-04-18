@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { SENDING_ATTACHMENT, ATTACHMENT_SENT, ASK_GET_NOTIFIED, MESSAGE_SENT } from '../constants';
 import { connection, getLocalStorageItem } from '../connection';
 import { changeConversation } from './messenger';
+import queries from '../containers/graphql';
 import client from '../../apollo-client';
 import uploadHandler from '../../uploadHandler';
 
@@ -36,6 +37,45 @@ export const sendMessage = (message, attachments) =>
     // current conversation
     const currentConversationId = state.activeConversation;
 
+    let optimisticResponse;
+    let update;
+
+    if (currentConversationId) {
+      optimisticResponse = {
+        __typename: 'Mutation',
+        insertMessage: {
+          __typename: 'ConversationMessage',
+          _id: Math.round(Math.random() * -1000000),
+          conversationId: currentConversationId,
+          customerId: connection.data.customerId,
+          user: null,
+          content: message,
+          createdAt: Number(new Date()),
+          attachments: attachments || [],
+          internal: false,
+          engageData: null
+        }
+      };
+
+      update = (proxy, { data: { insertMessage } }) => {
+        const message = insertMessage;
+
+        const selector = {
+          query: gql(queries.conversationDetailQuery),
+          variables: { _id: message.conversationId }
+        };
+
+        // Read data from our cache for this query
+        const data = proxy.readQuery(selector);
+
+        // Add our message from the mutation to the end
+        data.conversationDetail.messages.push(message);
+
+        // Write out data back to the cache
+        proxy.writeQuery({ ...selector, data });
+      }
+    }
+
     return client.mutate({
       mutation: gql`
         mutation insertMessage(${connection.queryVariables}, $message: String,
@@ -45,15 +85,44 @@ export const sendMessage = (message, attachments) =>
             conversationId: $conversationId, attachments: $attachments) {
             _id
             conversationId
+            customerId
+            user {
+              _id
+              details {
+                avatar
+                fullName
+              }
+            }
+            content
+            createdAt
+            attachments
+            internal
+            engageData {
+              messageId
+              brandId
+              content
+              fromUserId
+              fromUser {
+                details {
+                  avatar
+                  fullName
+                }
+              }
+              kind
+              sentAs
+            }
           }
         }`,
 
       variables: {
-        ...connection.data,
+        integrationId: connection.data.integrationId,
+        customerId: connection.data.customerId,
         conversationId: currentConversationId,
         message,
         attachments,
       },
+      optimisticResponse,
+      update,
     })
 
     // after mutation
