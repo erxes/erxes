@@ -24,7 +24,6 @@ const DetailSchema = mongoose.Schema(
     position: field({ type: String }),
     location: field({ type: String, optional: true }),
     description: field({ type: String, optional: true }),
-    twitterUsername: field({ type: String, optional: true }),
   },
   { _id: false },
 );
@@ -67,6 +66,36 @@ const UserSchema = mongoose.Schema({
 });
 
 class User {
+  /**
+   * Checking if user has duplicated properties
+   * @param  {Object} userFields - User fields to check duplications
+   * @param  {String[]} idsToExclude - User ids to exclude
+   * @return {Promise} - Result
+   */
+  static async checkDuplication(userFields, idsToExclude) {
+    const query = {};
+    let previousEntry = null;
+
+    // Adding exclude operator to the query
+    if (idsToExclude) {
+      if (idsToExclude instanceof Array) {
+        query._id = { $nin: idsToExclude };
+      } else {
+        query._id = { $ne: idsToExclude };
+      }
+    }
+
+    // Checking if user has email
+    if (userFields.email) {
+      previousEntry = await this.find({ ...query, email: userFields.email });
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated email');
+      }
+    }
+  }
+
   static getSecret() {
     return 'dfjklsafjjekjtejifjidfjsfd';
   }
@@ -77,7 +106,13 @@ class User {
    * @return {Promise} newly created user object
    */
   static async createUser({ username, email, password, role, details, links }) {
-    await this.checkDuplications({ twitterUsername: details.twitterUsername });
+    // empty string password validation
+    if (password === '') {
+      throw new Error('Password can not be empty');
+    }
+
+    // Checking duplicated email
+    await this.checkDuplication({ email });
 
     return this.create({
       username,
@@ -97,12 +132,10 @@ class User {
    * @return {Promise} updated user info
    */
   static async updateUser(_id, { username, email, password, role, details, links }) {
-    await this.checkDuplications({
-      userId: _id,
-      twitterUsername: details.twitterUsername,
-    });
-
     const doc = { username, email, password, role, details, links };
+
+    // Checking duplicated email
+    await this.checkDuplication({ email }, _id);
 
     // change password
     if (password) {
@@ -125,6 +158,9 @@ class User {
    * @return {Promise} - Updated user
    */
   static async editProfile(_id, { username, email, details, links }) {
+    // Checking duplicated email
+    await this.checkDuplication({ email }, _id);
+
     await this.update({ _id }, { $set: { username, email, details, links } });
 
     return this.findOne({ _id });
@@ -161,22 +197,6 @@ class User {
    */
   static removeUser(_id) {
     return Users.remove({ _id });
-  }
-
-  /*
-   * Check duplications
-   */
-  static async checkDuplications({ userId, twitterUsername }) {
-    if (twitterUsername) {
-      const previousEntry = await Users.findOne({
-        _id: { $ne: userId },
-        'details.twitterUsername': twitterUsername,
-      });
-
-      if (previousEntry) {
-        throw new Error('Duplicated twitter username');
-      }
-    }
   }
 
   /*
@@ -245,6 +265,11 @@ class User {
    * @return {Promise} - Updated user information
    */
   static async changePassword({ _id, currentPassword, newPassword }) {
+    // Password can not be empty string
+    if (newPassword === '') {
+      throw new Error('Password can not be empty');
+    }
+
     const user = await this.findOne({ _id });
 
     // check current password ============

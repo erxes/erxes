@@ -5,7 +5,6 @@ export const types = `
     position: String
     location: String
     description: String
-    twitterUsername: String
   }
 
   input UserLinks {
@@ -28,7 +27,6 @@ export const types = `
     position: String
     location: String
     description: String
-    twitterUsername: String
   }
 
   type UserLinksType {
