@@ -75,7 +75,7 @@ class List extends React.Component {
     const actionBarRight = (
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
-          <Button btnStyle="success" size="small" icon="plus">
+          <Button btnStyle="success" size="small" icon="add">
             {__('New message')} <Icon erxes icon="downarrow" />
           </Button>
         </DropdownToggle>

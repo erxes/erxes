@@ -163,7 +163,8 @@ class Appearance extends Component {
                 >
                   <label>
                     <Icon
-                      icon="ios-upload-outline icon"
+                      erxes
+                      icon="upload icon"
                       size={30}
                       style={{ backgroundColor: this.state.color }}
                     />

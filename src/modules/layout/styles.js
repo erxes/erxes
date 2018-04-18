@@ -185,7 +185,7 @@ const SidebarToggle = styled.a`
 const HelperButtons = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
-  top: 16px;
+  top: 15px;
 
   a {
     float: left;

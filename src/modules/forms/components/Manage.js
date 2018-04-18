@@ -80,7 +80,7 @@ class Manage extends Component {
               </Button>
             </CopyToClipboard>
           ) : (
-            <EmptyState icon="code" text="No copyable code" size="small" />
+            <EmptyState icon="copy" text="No copyable code" size="small" />
           )}
         </MarkdownWrapper>
 

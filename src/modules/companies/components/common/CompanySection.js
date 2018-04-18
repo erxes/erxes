@@ -23,7 +23,7 @@ function CompanySection({ name, companies, onSelect }, { __ }) {
 
   const companyTrigger = (
     <a>
-      <Icon erxes icon="plus" />
+      <Icon erxes icon="add" />
     </a>
   );
 

@@ -30,7 +30,7 @@ class TaggerSection extends Component {
 
   renderTags(tags) {
     if (!tags.length) {
-      return <EmptyState icon="pricetags" text="Not tagged yet" size="small" />;
+      return <EmptyState icon="tag" text="Not tagged yet" size="small" />;
     }
 
     return tags.map(({ _id, colorCode, name }) => (

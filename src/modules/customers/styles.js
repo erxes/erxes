@@ -147,7 +147,7 @@ const InfoDetail = styled.p`
 
 const SectionBody = styled.div`
   i {
-    color: #aaaeb3;
+    color: ${colors.colorCoreLightGray};
 
     &:hover {
       cursor: pointer;
@@ -162,10 +162,11 @@ const SectionBodyItem = styled.div`
   span {
     display: inline-block;
     width: 100%;
+    padding-right: ${dimensions.coreSpacing}px;
   }
 
   i {
-    color: #aaaeb3;
+    color: ${colors.colorCoreLightGray};
     position: absolute;
     right: 20px;
 

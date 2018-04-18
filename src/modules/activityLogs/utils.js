@@ -26,7 +26,7 @@ const ICON_AND_COLOR_TABLE = {
     color: '#6569DF'
   },
   'conversation-create': {
-    icon: 'chat',
+    icon: 'speech-bubble-3',
     color: '#F44236'
   },
   'internal_note-create': {

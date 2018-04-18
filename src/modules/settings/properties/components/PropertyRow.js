@@ -120,7 +120,7 @@ class PropertyRow extends React.Component {
     if (fields.length === 0) {
       return (
         <EmptyState
-          icon="android-more-horizontal"
+          icon="circular"
           text="There arent't any fields in this group"
         />
       );

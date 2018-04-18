@@ -80,7 +80,7 @@ class List extends Component {
 
     const actionBarRight = (
       <Link to="/forms/create">
-        <Button btnStyle="success" size="small" icon="plus">
+        <Button btnStyle="success" size="small" icon="add">
           Create form
         </Button>
       </Link>

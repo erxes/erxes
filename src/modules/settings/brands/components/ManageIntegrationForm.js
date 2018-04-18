@@ -110,7 +110,7 @@ class ManageIntegrationForm extends Component {
   handleChange(type, integration) {
     const { integrations } = this.state;
 
-    if (type === 'plus') {
+    if (type === 'add') {
       this.setState({
         integrations: [...integrations, integration]
       });
@@ -126,7 +126,7 @@ class ManageIntegrationForm extends Component {
     const brand = integration.brand || {};
 
     if (
-      icon === 'plus' &&
+      icon === 'add' &&
       this.state.integrations.some(e => e._id === integration._id)
     ) {
       return null;
@@ -151,7 +151,7 @@ class ManageIntegrationForm extends Component {
       </li>
     );
 
-    if (icon === 'plus') {
+    if (icon === 'add') {
       return addTrigger;
     }
     return (
@@ -184,7 +184,7 @@ class ManageIntegrationForm extends Component {
             />
             <ul>
               {allIntegrations.map(integration =>
-                this.renderRow(integration, 'plus')
+                this.renderRow(integration, 'add')
               )}
               {this.state.hasMore && (
                 <LoadMore>
@@ -207,7 +207,7 @@ class ManageIntegrationForm extends Component {
             </Title>
             <ul>
               {selectedIntegrations.map(integration =>
-                this.renderRow(integration, 'close')
+                this.renderRow(integration, 'minus-circle')
               )}
             </ul>
           </Column>

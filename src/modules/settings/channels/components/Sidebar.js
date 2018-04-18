@@ -60,7 +60,7 @@ class Sidebar extends Component {
 
     const addChannel = (
       <RightButton>
-        <Icon erxes icon="plus" />
+        <Icon erxes icon="add" />
       </RightButton>
     );
 
@@ -86,7 +86,7 @@ class Sidebar extends Component {
         {loading && <Spinner />}
         {!loading &&
           channelsTotalCount === 0 && (
-            <EmptyState icon="briefcase" text="There is no channel" />
+            <EmptyState icon="sitemap" text="There is no channel" />
           )}
       </LeftSidebar>
     );

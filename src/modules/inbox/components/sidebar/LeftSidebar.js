@@ -145,7 +145,7 @@ class LeftSidebar extends Bulk {
           paramKey="tag"
           popoverTitle="Filter by tag"
           placement="top"
-          icon="pricetag"
+          icon="tag"
           searchable
         />
       </Sidebar.Footer>

@@ -140,7 +140,7 @@ class FormStep extends Component {
           >
             Delete
           </Button>
-          <Button size="small" btnStyle="primary" onClick={reset} icon="plus">
+          <Button size="small" btnStyle="primary" onClick={reset} icon="add">
             New
           </Button>
         </Button.Group>
@@ -152,7 +152,7 @@ class FormStep extends Component {
         size="small"
         onClick={this.onSubmit}
         btnStyle="primary"
-        icon="plus"
+        icon="add"
       >
         Add
       </Button>

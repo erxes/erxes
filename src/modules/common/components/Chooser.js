@@ -64,7 +64,7 @@ class CommonChooser extends Component {
   handleChange(type, data) {
     const { datas } = this.state;
 
-    if (type === 'plus') {
+    if (type === 'add') {
       if (this.props.limit && this.props.limit === datas.length) {
         return;
       }
@@ -92,7 +92,7 @@ class CommonChooser extends Component {
   }
 
   renderRow(data, icon) {
-    if (icon === 'plus' && this.state.datas.some(e => e._id === data._id)) {
+    if (icon === 'add' && this.state.datas.some(e => e._id === data._id)) {
       return null;
     }
 
@@ -107,11 +107,13 @@ class CommonChooser extends Component {
   renderSelected(selectedDatas) {
     if (selectedDatas.length) {
       return (
-        <ul>{selectedDatas.map(data => this.renderRow(data, 'cancel'))}</ul>
+        <ul>
+          {selectedDatas.map(data => this.renderRow(data, 'minus-circle'))}
+        </ul>
       );
     }
 
-    return <EmptyState text="No items added" icon="ios-list-outline" />;
+    return <EmptyState text="No items added" icon="list-2" />;
   }
 
   render() {
@@ -135,7 +137,7 @@ class CommonChooser extends Component {
               onChange={e => this.search(e)}
             />
             <ul>
-              {datas.map(data => this.renderRow(data, 'plus'))}
+              {datas.map(data => this.renderRow(data, 'add'))}
               {this.state.loadmore && (
                 <LoadMore>
                   <Button

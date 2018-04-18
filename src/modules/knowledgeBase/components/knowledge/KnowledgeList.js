@@ -72,7 +72,7 @@ class KnowledgeList extends Component {
 
     const trigger = (
       <RightButton>
-        <Icon erxes icon="plus" />
+        <Icon erxes icon="add" />
       </RightButton>
     );
 

@@ -125,7 +125,7 @@ class OnlineHours extends Component {
           className="shrinked"
           btnStyle="link"
           onClick={this.addTime}
-          icon="plus"
+          icon="add"
         >
           Add another time
         </Button>

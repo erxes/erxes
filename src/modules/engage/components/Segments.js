@@ -59,14 +59,18 @@ class Segments extends Component {
             >
               <a tabIndex={0} onClick={() => this.onClickSegment(segment._id)}>
                 {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-                <Icon icon="pie-graph icon" style={{ color: segment.color }} />
+                <Icon
+                  erxes
+                  icon="piechart icon"
+                  style={{ color: segment.color }}
+                />
                 {segment.name}
                 <SidebarCounter>{counts[segment._id]}</SidebarCounter>
               </a>
             </Segmentli>
           ))
         ) : (
-          <EmptyState icon="pie-graph" text="No segments" size="small" />
+          <EmptyState icon="piechart" text="No segments" size="small" />
         )}
       </SidebarList>
     );

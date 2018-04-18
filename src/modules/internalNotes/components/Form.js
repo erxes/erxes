@@ -83,7 +83,7 @@ class Form extends Component {
           onClick={this.onSend}
           btnStyle="success"
           size="small"
-          icon="android-send"
+          icon="send"
         >
           Save
         </Button>

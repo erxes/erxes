@@ -92,7 +92,7 @@ class DealMoveForm extends React.Component {
             <StageItem key={s._id} isPass={isPass}>
               <Tip text={s.name}>
                 <a onClick={() => onChangeStage(s._id)}>
-                  <Icon icon="ios-checkmark" />
+                  <Icon erxes icon="checked-1" />
                 </a>
               </Tip>
             </StageItem>

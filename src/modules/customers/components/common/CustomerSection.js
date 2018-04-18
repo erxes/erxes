@@ -42,7 +42,7 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
           size="lg"
           trigger={
             <a>
-              <Icon erxes icon="plus" />
+              <Icon erxes icon="add" />
             </a>
           }
         >
@@ -60,7 +60,7 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
           </SectionBodyItem>
         ))}
         {customers.length === 0 && (
-          <EmptyState icon="person" text="No customer" />
+          <EmptyState icon="user-5" text="No customer" />
         )}
       </SectionBody>
     </Section>

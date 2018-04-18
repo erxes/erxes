@@ -138,7 +138,7 @@ class CompaniesList extends React.Component {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         Add company
       </Button>
     );

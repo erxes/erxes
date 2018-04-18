@@ -21,7 +21,7 @@ class LeftSidebar extends React.Component {
     if (link) {
       return (
         <a href={link} target="_blank">
-          <Icon icon={icon} />
+          <Icon erxes icon={icon} />
         </a>
       );
     }
@@ -30,11 +30,11 @@ class LeftSidebar extends React.Component {
   renderLinks(links) {
     return (
       <Links>
-        {this.renderLink(links.linkedIn, 'linkedin-logo')}
-        {this.renderLink(links.twitter, 'twitter')}
         {this.renderLink(links.facebook, 'facebook')}
-        {this.renderLink(links.github, 'reddit-logo')}
+        {this.renderLink(links.twitter, 'twitter')}
+        {this.renderLink(links.linkedIn, 'linkedin-logo')}
         {this.renderLink(links.youtube, 'youtube')}
+        {this.renderLink(links.github, 'github')}
         {this.renderLink(links.website, 'earthgrid')}
       </Links>
     );

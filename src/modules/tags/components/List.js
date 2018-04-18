@@ -23,7 +23,7 @@ const propTypes = {
 
 function List({ tags, type, remove, save }, { __ }) {
   const trigger = (
-    <Button btnStyle="success" size="small" icon="plus">
+    <Button btnStyle="success" size="small" icon="add">
       Add tag
     </Button>
   );

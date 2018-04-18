@@ -34,7 +34,7 @@ class KnowledgeBase extends Component {
     const { articlesCount, loading, queryParams, currentCategory } = this.props;
 
     const trigger = (
-      <Button btnStyle="success" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         Add Article
       </Button>
     );

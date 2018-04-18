@@ -85,7 +85,7 @@ class CommonMerge extends Component {
         return this.renderMergedDataInputs(property, index);
       }
       return this.renderProperty(
-        'close',
+        'minus-cirlce',
         { [property]: data[property] },
         index
       );
@@ -117,7 +117,7 @@ class CommonMerge extends Component {
     return Object.keys(data).map(property => {
       if (basicInfos[property] && data[property])
         return this.renderProperty(
-          'plus',
+          'add',
           { [property]: data[property] },
           property
         );
@@ -142,7 +142,7 @@ class CommonMerge extends Component {
         ) : (
           <InfoDetail>{property[propertyName] || 'N/A'}</InfoDetail>
         )}
-        <Icon icon={icon} />
+        <Icon erxes icon={icon} />
       </li>
     );
   }
@@ -206,7 +206,7 @@ class CommonMerge extends Component {
     const data = { ...this.state.data };
     const propertyName = Object.keys(property);
 
-    if (type === 'plus') {
+    if (type === 'add') {
       data[propertyName] = property[propertyName];
     } else {
       delete data[propertyName];

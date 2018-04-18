@@ -69,7 +69,7 @@ class List extends Component {
             loading={loading}
             count={totalCount}
             emptyText="There is no data."
-            emptyIcon="ios-copy"
+            emptyIcon="list-1"
           />
         }
       />

@@ -58,7 +58,7 @@ class Row extends Component {
       <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')}>
-            <Icon erxes icon="settings" />
+            <Icon erxes icon="edit" />
           </Tip>
         </Button>
       </Link>

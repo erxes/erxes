@@ -168,7 +168,7 @@ class PropertyForm extends Component {
 
     return (
       <AddOption onClick={this.handleAddOption}>
-        <Icon icon="plus" /> {__('Add an option')}
+        <Icon erxes icon="add" /> {__('Add an option')}
       </AddOption>
     );
   }
@@ -177,7 +177,11 @@ class PropertyForm extends Component {
     return (
       <li key={index}>
         {option}
-        <Icon icon="cancel-1" onClick={() => this.handleRemoveOption(index)} />
+        <Icon
+          erxes
+          icon="cancel-1"
+          onClick={() => this.handleRemoveOption(index)}
+        />
       </li>
     );
   }
