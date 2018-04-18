@@ -143,7 +143,7 @@ class DateFilter extends React.Component {
         rootClose
       >
         <PopoverButton>
-          Date <Icon icon="ios-arrow-down" />
+          Date <Icon icon="downarrow" />
         </PopoverButton>
       </OverlayTrigger>
     );
