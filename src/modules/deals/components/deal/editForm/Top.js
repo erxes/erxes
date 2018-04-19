@@ -26,11 +26,11 @@ const propTypes = {
   name: PropTypes.string,
   description: PropTypes.string,
   closeDate: PropTypes.string,
-  amount: PropTypes.number,
-  stageId: PropTypes.number,
+  amount: PropTypes.object,
+  stageId: PropTypes.string,
   assignedUserIds: PropTypes.array,
   users: PropTypes.array,
-  onChangeField: PropTypes.array
+  onChangeField: PropTypes.func
 };
 
 const contextTypes = {

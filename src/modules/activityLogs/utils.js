@@ -147,11 +147,7 @@ export default class {
         break;
 
       case 'internal_note-create':
-        caption = (
-          <span>
-            {source} left a note on {target}
-          </span>
-        );
+        caption = <span>{source} left a note</span>;
         break;
 
       case 'conversation-create':
