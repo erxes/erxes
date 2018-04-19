@@ -65,7 +65,7 @@ function Segments({ history, contentType, counts, segments, loading }, { __ }) {
   );
 
   return (
-    <Section>
+    <Section collapsible={segments.length > 5}>
       <Header spaceBottom uppercase>
         {__('Filter by segments')}
       </Header>
