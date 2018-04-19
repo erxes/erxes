@@ -63,7 +63,6 @@ const Nav = styled.nav`
       min-height: 19px;
     }
 
-    &:hover,
     &.active {
       background: rgba(0, 0, 0, 0.13);
 
@@ -72,10 +71,16 @@ const Nav = styled.nav`
       }
     }
 
-    &:focus,
-    &:hover {
+    &:focus {
       outline: 0;
+    }
+
+    &:hover {
       background: rgba(0, 0, 0, 0.05);
+
+      i {
+        opacity: 1;
+      }
     }
 
     @media (max-height: 760px) {
