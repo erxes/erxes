@@ -38,7 +38,7 @@ function Brands({ history, counts, brands, loading }, { __ }) {
   );
 
   return (
-    <Section>
+    <Section collapsible>
       <Header uppercase>{__('Filter by brand')}</Header>
 
       <DataWithLoader
