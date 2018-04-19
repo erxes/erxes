@@ -44,14 +44,6 @@ const dealQueries = {
   },
 
   /**
-   * Get last pipeline by boardId
-   * @return {Promise} last pipeline
-   */
-  async dealPipelineGetLast(root, { boardId }) {
-    return DealPipelines.findOne({ boardId }).sort({ createdAt: -1 });
-  },
-
-  /**
    * Deal Stages list
    * @param {Object} args
    * @param {String} args.pipelineId

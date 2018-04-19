@@ -53,7 +53,6 @@ export const queries = `
   dealBoardGetDefault: DealBoard
   dealBoardDetail(_id: String!): DealBoard
   dealPipelines(boardId: String!): [DealPipeline]
-  dealPipelineGetLast(boardId: String!): DealPipeline
   dealStages(pipelineId: String!): [DealStage]
   dealStageDetail(_id: String!): DealStage
   deals(stageId: String, customerId: String, companyId: String): [Deal]
