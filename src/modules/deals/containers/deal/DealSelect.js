@@ -107,7 +107,7 @@ const DealSectionGetLastPipelineContainer = props => {
 
   const extendedProps = {
     ...props,
-    pipelineId: pipeline._id
+    pipelineId: pipeline ? pipeline._id : null
   };
 
   return <DealSelectWithData {...extendedProps} />;

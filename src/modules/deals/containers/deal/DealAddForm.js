@@ -16,7 +16,7 @@ const DealAddFormContainer = props => {
 
   const extendedProps = {
     ...props,
-    boardId: board._id
+    boardId: board ? board._id : null
   };
 
   return <DealAddForm {...extendedProps} />;
