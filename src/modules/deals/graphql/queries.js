@@ -35,15 +35,6 @@ const pipelines = `
   }
 `;
 
-const pipelineGetLast = `
-  query dealPipelineGetLast($boardId: String!) {
-    dealPipelineGetLast(boardId: $boardId) {
-      _id
-      name
-    }
-  }
-`;
-
 const stages = `
   query dealStages($pipelineId: String!) {
     dealStages(pipelineId: $pipelineId) {
@@ -164,7 +155,6 @@ export default {
   boardGetDefault,
   boardDetail,
   pipelines,
-  pipelineGetLast,
   stages,
   stageDetail,
   deals,

@@ -78,69 +78,20 @@ DealSelectContainer.propTypes = {
   onChangeStages: PropTypes.func
 };
 
-const DealSelectWithData = compose(
+export default compose(
   graphql(gql(queries.boards), {
     name: 'boardsQuery'
   }),
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
     options: ({ boardId }) => ({
-      variables: { boardId }
+      variables: { boardId: boardId || '' }
     })
   }),
   graphql(gql(queries.stages), {
     name: 'stagesQuery',
     options: ({ pipelineId }) => ({
-      variables: { pipelineId }
+      variables: { pipelineId: pipelineId || '' }
     })
   })
 )(DealSelectContainer);
-
-const DealSectionGetLastPipelineContainer = props => {
-  const { pipelineGetLastQuery } = props;
-
-  if (pipelineGetLastQuery.loading) {
-    return null;
-  }
-
-  const pipeline = pipelineGetLastQuery.dealPipelineGetLast;
-
-  const extendedProps = {
-    ...props,
-    pipelineId: pipeline ? pipeline._id : null
-  };
-
-  return <DealSelectWithData {...extendedProps} />;
-};
-
-DealSectionGetLastPipelineContainer.propTypes = {
-  pipelineGetLastQuery: PropTypes.object
-};
-
-const DealSectionGetLastPipeline = compose(
-  graphql(gql(queries.pipelineGetLast), {
-    name: 'pipelineGetLastQuery',
-    options: ({ boardId }) => ({
-      variables: {
-        boardId
-      }
-    })
-  })
-)(DealSectionGetLastPipelineContainer);
-
-const MainContainer = props => {
-  const { pipelineId } = props;
-
-  if (!pipelineId) {
-    return <DealSectionGetLastPipeline {...props} />;
-  }
-
-  return <DealSelectWithData {...props} />;
-};
-
-MainContainer.propTypes = {
-  boardId: PropTypes.string,
-  pipelineId: PropTypes.string
-};
-
-export default MainContainer;

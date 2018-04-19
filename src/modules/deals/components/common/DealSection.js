@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
 import { ModalTrigger, EmptyState, Icon } from 'modules/common/components';
-import { Deal, DealAddForm } from '../../containers';
+import { Deal } from '../../containers';
+import { DealAddForm } from '../';
 import { SectionContainer } from '../../styles/deal';
 
 const propTypes = {
