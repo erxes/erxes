@@ -19,13 +19,11 @@ const LeftNavigation = styled.aside`
   bottom: 0;
 
   > a {
-    margin-top: ${dimensions.unitSpacing}px;
-    line-height: ${dimensions.headerSpacing}px;
     display: flex;
+    margin-top: ${dimensions.unitSpacing}px;
     height: ${dimensions.headerSpacing}px;
     justify-content: center;
     align-items: center;
-    color: #fff;
 
     img {
       max-height: 28px;
@@ -44,10 +42,6 @@ const Nav = styled.nav`
   height: calc(100% - 130px);
   overflow: auto;
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
   > a {
     display: block;
     height: ${dimensions.headerSpacing + 10}px;
@@ -56,7 +50,6 @@ const Nav = styled.nav`
     transition: all 0.3s ease;
 
     i {
-      margin-top: 20px;
       opacity: 0.8;
       transition: all 0.3s ease;
     }
@@ -72,15 +65,17 @@ const Nav = styled.nav`
 
     &:hover,
     &.active {
-      opacity: 1;
+      background: rgba(0, 0, 0, 0.13);
 
       i {
         opacity: 1;
       }
     }
 
-    &.active {
-      background: rgba(0, 0, 0, 0.13);
+    &:focus,
+    &:hover {
+      outline: 0;
+      background: rgba(0, 0, 0, 0.05);
     }
 
     @media (max-height: 760px) {
@@ -91,12 +86,16 @@ const Nav = styled.nav`
       }
     }
   }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const NavIcon = styled.i`
   font-size: 16px;
   line-height: ${dimensions.headerSpacing + 10}px;
-  color: #fff;
+  color: ${colors.colorWhite};
 `;
 
 class Navigation extends Component {
@@ -119,7 +118,7 @@ class Navigation extends Component {
     const { __ } = this.context;
     return (
       <LeftNavigation>
-        <NavLink to="/" activeClassName="active">
+        <NavLink to="/">
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
