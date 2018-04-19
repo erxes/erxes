@@ -42,7 +42,6 @@ export default commonListComposer({
             position
             description
             location
-            twitterUsername
           }
           links {
             linkedIn

@@ -17,6 +17,7 @@ injectGlobal`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
 
     > #root {
       display: flex;
@@ -116,7 +117,7 @@ injectGlobal`
   /* dropdow */
 
   .dropdown-menu {
-    margin-top: 0;
+    margin-top: 0 !important;
     border-radius: 0;
     border: none;
     font-size: 13px;
@@ -273,9 +274,7 @@ injectGlobal`
     box-shadow: none;
   }
 
-  .Select.is-open .Select-arrow {
-    border-top-color: #777777;
-  }
+  
 
   .Select.is-focused > .Select-control,
   .Select.is-open > .Select-control {
@@ -305,6 +304,7 @@ injectGlobal`
   .Select-clear {
     font-size: 20px;
     line-height: 1.4;
+    margin-top: 1px;
   }
 
   .Select-clear-zone:hover {
@@ -370,8 +370,20 @@ injectGlobal`
     padding-right: 10px;
   }
 
-  .Select-arrow-zone:hover > .Select-arrow {
-    border-top-color: #777777;
+  .Select-arrow-zone > .Select-arrow {
+    border: none;
+    margin-right: 10px;
+  }
+
+  .Select .Select-arrow:before {
+    font-family: 'erxes';
+    font-size: 10px;
+    content: '\\e827';
+    color: #888;
+  }
+
+  .Select.is-open .Select-arrow:before {
+    content: '\\e89a';
   }
 
   .Select-menu-outer {
@@ -650,9 +662,10 @@ injectGlobal`
     display: flex;
     align-items: center;
   }
-  .icon-option svg {
+  .icon-option i {
     margin-right: 10px;
-    fill: #6569DF;
+    font-size: 20px;
+    color: #5629B6;
   }
 
   /* scrollbar */

@@ -12,7 +12,6 @@ export default `
       avatar
       fullName
       position
-      twitterUsername
     }
   }
   integration {
@@ -89,7 +88,6 @@ export default `
       avatar
       fullName
       position
-      twitterUsername
     }
   }
   tagIds

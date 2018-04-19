@@ -112,12 +112,12 @@ class PropertyGroupForm extends React.Component {
             onClick={() => {
               this.context.closeModal();
             }}
-            icon="close"
+            icon="cancel-1"
           >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

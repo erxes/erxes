@@ -117,10 +117,17 @@ const SidebarHeader = styled.div`
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   text-transform: ${props => props.uppercase && 'uppercase'};
-  font-weight: ${props => props.bold && typography.fontWeightMedium};
+  font-weight: ${props => (props.bold ? 'bold' : 'normal')};
   display: flex;
+  font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
   justify-content: space-between;
+`;
+
+const SidebarTitle = SidebarHeader.withComponent('h3').extend`
+  padding: 0 ${dimensions.coreSpacing}px;
+  margin: 0 0 -1px 0;
+  text-transform: uppercase;
 `;
 
 const SidebarMainContent = styled.div`
@@ -153,6 +160,10 @@ const SidebarBox = styled.div`
 
 const BoxContent = styled.div`
   flex: 1;
+
+  ul {
+    margin-top: 10px;
+  }
 `;
 
 const SidebarToggle = styled.a`
@@ -174,7 +185,7 @@ const SidebarToggle = styled.a`
 const HelperButtons = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
-  top: 16px;
+  top: 15px;
 
   a {
     float: left;
@@ -197,16 +208,8 @@ const HelperButtons = styled.div`
   }
 `;
 
-const SidebarTitle = styled.h3`
-  font-size: ${typography.fontSizeHeading8}px;
-  font-weight: ${typography.fontWeightMedium};
-  text-transform: uppercase;
-  padding: ${dimensions.coreSpacing}px;
-  margin: 0;
-`;
-
 const SidebarContent = styled.div`
-  padding: 0px ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
 `;
 
 const SidebarList = styled.ul`

@@ -12,7 +12,6 @@ const userDetail = `
         position
         location
         description
-        twitterUsername
       }
       links {
         linkedIn
@@ -94,7 +93,6 @@ const users = `
         position
         description
         location
-        twitterUsername
       }
       links {
         linkedIn

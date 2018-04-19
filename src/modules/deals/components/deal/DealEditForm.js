@@ -231,11 +231,11 @@ class DealEditForm extends React.Component {
           onSelect={customers => this.onChangeField('customers', customers)}
         />
 
-        <Button onClick={this.copy} icon="checkmark">
+        <Button onClick={this.copy} icon="checked-1">
           Copy
         </Button>
 
-        <Button icon="close" onClick={() => this.remove(deal._id)}>
+        <Button icon="cancel-1" onClick={() => this.props.removeDeal(deal._id)}>
           Delete
         </Button>
       </Right>
@@ -367,7 +367,7 @@ class DealEditForm extends React.Component {
           <Button
             btnStyle="simple"
             onClick={this.context.closeModal}
-            icon="close"
+            icon="cancel-1"
           >
             Close
           </Button>
@@ -375,7 +375,7 @@ class DealEditForm extends React.Component {
           <Button
             disabled={this.state.disabled}
             btnStyle="success"
-            icon="checkmark"
+            icon="checked-1"
             onClick={this.save}
           >
             Save

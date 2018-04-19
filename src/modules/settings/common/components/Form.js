@@ -45,12 +45,12 @@ class Form extends Component {
             btnStyle="simple"
             type="button"
             onClick={onClick}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

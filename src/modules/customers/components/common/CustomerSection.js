@@ -42,7 +42,7 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
           size="lg"
           trigger={
             <a>
-              <Icon icon="plus" />
+              <Icon icon="add" />
             </a>
           }
         >
@@ -53,14 +53,14 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
         {customers.map((customer, index) => (
           <SectionBodyItem key={index}>
             <Link to={`/customers/details/${customer._id}`}>
-              <Icon icon="android-arrow-forward" />
+              <Icon icon="logout-2" />
             </Link>
             <span>{renderFullName(customer)}</span>
             {mailTo(customer.email)}
           </SectionBodyItem>
         ))}
         {customers.length === 0 && (
-          <EmptyState icon="person" text="No customer" />
+          <EmptyState icon="user-5" text="No customer" />
         )}
       </SectionBody>
     </Section>

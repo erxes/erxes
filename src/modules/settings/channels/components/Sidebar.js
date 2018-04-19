@@ -60,12 +60,12 @@ class Sidebar extends Component {
 
     const addChannel = (
       <RightButton>
-        <Icon icon="plus" />
+        <Icon icon="add" />
       </RightButton>
     );
 
     return (
-      <Header uppercase bold>
+      <Header uppercase>
         {__('Channels')}
         <ModalTrigger title="New Channel" trigger={addChannel}>
           {this.renderChannelForm({ save, members })}
@@ -86,7 +86,7 @@ class Sidebar extends Component {
         {loading && <Spinner />}
         {!loading &&
           channelsTotalCount === 0 && (
-            <EmptyState icon="briefcase" text="There is no channel" />
+            <EmptyState icon="sitemap" text="There is no channel" />
           )}
       </LeftSidebar>
     );

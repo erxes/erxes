@@ -30,7 +30,7 @@ class ProductItemForm extends React.Component {
 
     let content = (
       <div>
-        {__('Product & Service')} <Icon icon="plus" />
+        {__('Product & Service')} <Icon icon="add" />
       </div>
     );
 
@@ -177,7 +177,7 @@ class ProductItemForm extends React.Component {
         <td>
           <Button
             btnStyle="danger"
-            icon="close"
+            icon="cancel-1"
             size="small"
             onClick={this.props.removeProductItem.bind(this, productData._id)}
           />

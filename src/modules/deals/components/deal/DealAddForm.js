@@ -56,8 +56,9 @@ class DealAddForm extends React.Component {
 
     const { name, stageId } = this.state;
     const { customerId, companyId } = this.props;
+    const { __ } = this.context;
 
-    if (!stageId) return Alert.error('No stage');
+    if (!stageId) return Alert.error(__('No stage'));
 
     const doc = {
       name,

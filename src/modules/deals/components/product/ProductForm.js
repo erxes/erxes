@@ -200,10 +200,7 @@ class ProductForm extends React.Component {
       return (
         <tr>
           <td colSpan="7">
-            <EmptyState
-              text="No product or services"
-              icon="information-circled"
-            />
+            <EmptyState text="No product or services" icon="shoppingcart" />
           </td>
         </tr>
       );
@@ -251,7 +248,7 @@ class ProductForm extends React.Component {
           <Button
             btnStyle="success"
             onClick={this.addProductItem}
-            icon="plus"
+            icon="add"
             size="large"
           >
             Add Product / Service
@@ -281,7 +278,7 @@ class ProductForm extends React.Component {
             <Button
               btnStyle="simple"
               onClick={() => this.context.closeModal()}
-              icon="close"
+              icon="cancel-1"
             >
               Close
             </Button>
@@ -292,7 +289,7 @@ class ProductForm extends React.Component {
                 this.props.saveProductsData();
                 this.context.closeModal();
               }}
-              icon="checkmark"
+              icon="checked-1"
             >
               Save
             </Button>

@@ -54,7 +54,7 @@ function SegmentsList({ contentType, segments, removeSegment }, { __ }) {
                     onClick={() => {
                       remove(segment._id);
                     }}
-                    icon="close"
+                    icon="cancel-1"
                   />
                 </Tip>
               </ActionButtons>
@@ -67,7 +67,7 @@ function SegmentsList({ contentType, segments, removeSegment }, { __ }) {
 
   const actionBarRight = (
     <Link to={`/segments/new/${contentType}`}>
-      <Button btnStyle="success" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         New segment
       </Button>
     </Link>

@@ -65,6 +65,7 @@ const sidebarConversations = `
         lastName
         email
         phone
+        isUser
         visitorContactInfo
       }
       tagIds
@@ -118,7 +119,6 @@ const userList = `
         avatar
         fullName
         position
-        twitterUsername
       }
     }
   }

@@ -99,11 +99,15 @@ class Signature extends Component {
             />
           </FormGroup>
           <ModalFooter>
-            <Button btnStyle="simple" onClick={() => closeModal()} icon="close">
+            <Button
+              btnStyle="simple"
+              onClick={() => closeModal()}
+              icon="cancel-1"
+            >
               Close
             </Button>
 
-            <Button btnStyle="success" type="submit" icon="checkmark">
+            <Button btnStyle="success" type="submit" icon="checked-1">
               Save
             </Button>
           </ModalFooter>

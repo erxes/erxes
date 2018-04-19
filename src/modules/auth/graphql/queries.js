@@ -10,7 +10,6 @@ const currentUser = `
         position
         location
         description
-        twitterUsername
       }
       links {
         linkedIn

@@ -47,7 +47,7 @@ class DealMove extends React.Component {
             <StageItem key={s._id} isPass={isPass}>
               <Tip text={s.name}>
                 <a onClick={() => onChangeStage(s._id)}>
-                  <Icon icon="ios-checkmark" />
+                  <Icon icon="checked-1" />
                 </a>
               </Tip>
             </StageItem>
@@ -91,7 +91,7 @@ class DealMove extends React.Component {
       <MoveContainer>
         <MoveFormContainer>
           <PipelineName onClick={this.toggleForm}>
-            {pipeline.name} <Icon icon="ios-arrow-down" />
+            {pipeline.name} <Icon icon="downarrow" size={10} />
           </PipelineName>
 
           {this.renderDealSelect()}

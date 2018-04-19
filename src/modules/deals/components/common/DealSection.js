@@ -20,12 +20,18 @@ class DealSection extends React.Component {
     const { saveDeal, removeDeal, customerId, companyId, deals } = this.props;
     const { __ } = this.context;
 
+    const trigger = (
+      <a>
+        <Icon icon="add" />
+      </a>
+    );
+
     return (
       <Section>
         <Title>{__('Deals')}</Title>
 
         <QuickButtons>
-          <ModalTrigger title="Add a deal" trigger={<Icon icon="plus" />}>
+          <ModalTrigger title="Add a deal" trigger={trigger}>
             <DealAddForm
               saveDeal={saveDeal}
               customerId={customerId}
@@ -45,7 +51,9 @@ class DealSection extends React.Component {
             />
           ))}
 
-          {deals.length === 0 && <EmptyState icon="briefcase" text="No deal" />}
+          {deals.length === 0 && (
+            <EmptyState icon="piggy-bank" text="No deal" />
+          )}
         </SectionContainer>
       </Section>
     );
