@@ -65,7 +65,6 @@ class DealMove extends React.Component {
     if (!this.state.show) return null;
 
     const { stageId, onChangeStage } = this.props;
-
     const { boardId, pipelineId } = this.state;
 
     return (

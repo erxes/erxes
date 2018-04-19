@@ -6,6 +6,7 @@ import DealEditForm from './deal/DealEditForm';
 import DealAddForm from './deal/DealAddForm';
 import DealMove from './deal/DealMove';
 import DealSelect from './deal/DealSelect';
+import ProductSection from './deal/ProductSection';
 import ProductForm from './product/ProductForm';
 import ProductItemForm from './product/ProductItemForm';
 import Items from './common/Items';
@@ -25,6 +26,7 @@ export {
   UserCounter,
   DealMove,
   DealSelect,
+  ProductSection,
   ProductForm,
   ProductItemForm,
   DealSection

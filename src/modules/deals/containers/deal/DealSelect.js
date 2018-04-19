@@ -34,9 +34,10 @@ class DealSelectContainer extends React.Component {
     stagesQuery.refetch({ pipelineId }).then(({ data }) => {
       const stages = data.dealStages;
 
-      if (stages.length > 0 && onChangeStages) {
-        onChangeStages(stages);
+      if (stages.length > 0) {
         this.onChangeStage(stages[0]._id);
+
+        if (onChangeStages) onChangeStages(stages);
       }
     });
   }
@@ -84,14 +85,14 @@ export default compose(
   }),
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
-    options: ({ boardId }) => ({
-      variables: { boardId: boardId || '' }
+    options: ({ boardId = '' }) => ({
+      variables: { boardId }
     })
   }),
   graphql(gql(queries.stages), {
     name: 'stagesQuery',
-    options: ({ pipelineId }) => ({
-      variables: { pipelineId: pipelineId || '' }
+    options: ({ pipelineId = '' }) => ({
+      variables: { pipelineId }
     })
   })
 )(DealSelectContainer);

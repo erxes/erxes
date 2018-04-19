@@ -18,7 +18,7 @@ const defaultProps = {
   products: []
 };
 
-function ServiceSection(
+function ProductSection(
   {
     products,
     productsData,
@@ -68,10 +68,10 @@ function ServiceSection(
   );
 }
 
-ServiceSection.propTypes = propTypes;
-ServiceSection.contextTypes = {
+ProductSection.propTypes = propTypes;
+ProductSection.contextTypes = {
   __: PropTypes.func
 };
-ServiceSection.defaultProps = defaultProps;
+ProductSection.defaultProps = defaultProps;
 
-export default ServiceSection;
+export default ProductSection;

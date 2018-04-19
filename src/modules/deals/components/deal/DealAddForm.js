@@ -23,10 +23,6 @@ const propTypes = {
   showSelect: PropTypes.bool
 };
 
-const defaultProps = {
-  showSelect: false
-};
-
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
   __: PropTypes.func
@@ -40,10 +36,10 @@ class DealAddForm extends React.Component {
 
     this.state = {
       disabled: false,
-      name: '',
-      boardId: props.boardId || '',
+      boardId: '',
       pipelineId: '',
-      stageId: props.stageId || ''
+      stageId: props.stageId || '',
+      name: ''
     };
   }
 
@@ -54,11 +50,13 @@ class DealAddForm extends React.Component {
   save(e) {
     e.preventDefault();
 
-    const { name, stageId } = this.state;
-    const { customerId, companyId } = this.props;
-    const { __ } = this.context;
+    const { stageId, name } = this.state;
+    const { customerId, companyId, saveDeal } = this.props;
+    const { __, closeModal } = this.context;
 
     if (!stageId) return Alert.error(__('No stage'));
+
+    if (!name) return Alert.error(__('Enter name'));
 
     const doc = {
       name,
@@ -70,19 +68,20 @@ class DealAddForm extends React.Component {
     // before save, disable save button
     this.setState({ disabled: true });
 
-    this.props.saveDeal(doc, () => {
+    saveDeal(doc, () => {
       // after save, enable save button
       this.setState({ disabled: false });
 
-      this.context.closeModal();
+      closeModal();
     });
   }
 
   renderSelect() {
     const { showSelect } = this.props;
-    const { stageId, pipelineId, boardId } = this.state;
 
     if (!showSelect) return null;
+
+    const { stageId, pipelineId, boardId } = this.state;
 
     return (
       <DealSelect
@@ -107,7 +106,6 @@ class DealAddForm extends React.Component {
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
             <FormControl
-              required
               onChange={e => this.onChangeField('name', e.target.value)}
             />
           </HeaderContent>
@@ -137,7 +135,6 @@ class DealAddForm extends React.Component {
 }
 
 DealAddForm.propTypes = propTypes;
-DealAddForm.defaultProps = defaultProps;
 DealAddForm.contextTypes = contextTypes;
 
 export default DealAddForm;

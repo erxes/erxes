@@ -1,31 +1,10 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import Datetime from 'react-datetime';
-import Select from 'react-select-plus';
-import {
-  Button,
-  FormGroup,
-  FormControl,
-  ControlLabel
-} from 'modules/common/components';
+import { Button } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { CompanySection } from 'modules/companies/components';
-import { CustomerSection } from 'modules/customers/components';
-import ServiceSection from './ServiceSection';
-import { DealMove, Tab } from '../../containers';
-import { selectUserOptions } from '../../utils';
-import {
-  HeaderContentSmall,
-  HeaderRow,
-  HeaderContent,
-  FormFooter,
-  FlexContent,
-  Left,
-  Right,
-  Avatar,
-  SelectValue,
-  SelectOption
-} from '../../styles/deal';
+import { Tab } from '../../containers';
+import { Top, Sidebar } from './editForm';
+import { FormFooter, FlexContent } from '../../styles/deal';
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
@@ -49,7 +28,6 @@ class DealEditForm extends React.Component {
     super(props);
 
     this.onChangeField = this.onChangeField.bind(this);
-    this.onTabClick = this.onTabClick.bind(this);
     this.saveProductsData = this.saveProductsData.bind(this);
     this.save = this.save.bind(this);
     this.copy = this.copy.bind(this);
@@ -71,10 +49,6 @@ class DealEditForm extends React.Component {
       products: deal.products ? deal.products.map(p => p.product) : [],
       assignedUserIds: (deal.assignedUsers || []).map(user => user._id)
     };
-  }
-
-  onTabClick(currentTab) {
-    this.setState({ currentTab });
   }
 
   onChangeField(name, value) {
@@ -120,7 +94,8 @@ class DealEditForm extends React.Component {
       stageId,
       assignedUserIds
     } = this.state;
-    const { __ } = this.context;
+    const { __, closeModal, move } = this.context;
+    const { deal, index } = this.props;
 
     if (!name) return Alert.error(__('Enter name'));
 
@@ -147,18 +122,15 @@ class DealEditForm extends React.Component {
         // after save, enable save button
         this.setState({ disabled: false });
 
-        this.context.closeModal();
+        closeModal();
       },
-      this.props.deal
+      deal
     );
-
-    const { move } = this.context;
-    const { deal } = this.props;
 
     // if changed stageId, update ui
     if (move && deal.stageId !== stageId) {
       const moveDoc = {
-        source: { _id: deal.stageId, index: this.props.index },
+        source: { _id: deal.stageId, index },
         destination: { _id: stageId, index: 0 },
         itemId: deal._id,
         type: 'stage'
@@ -186,173 +158,48 @@ class DealEditForm extends React.Component {
     this.props.saveDeal(doc, () => this.context.closeModal());
   }
 
-  renderAmount(amount) {
-    if (Object.keys(amount).length === 0) return null;
-
-    return (
-      <HeaderContentSmall>
-        <ControlLabel>Amount</ControlLabel>
-        {Object.keys(amount).map(key => (
-          <p key={key}>
-            {amount[key].toLocaleString()} {key}
-          </p>
-        ))}
-      </HeaderContentSmall>
-    );
-  }
-
-  renderSidebar() {
-    const { customers, companies, products, productsData } = this.state;
-    const { deal } = this.props;
-
-    return (
-      <Right>
-        <ServiceSection
-          onChangeProductsData={productsData =>
-            this.onChangeField('productsData', productsData)
-          }
-          onChangeProducts={products =>
-            this.onChangeField('products', products)
-          }
-          productsData={productsData}
-          products={products}
-          saveProductsData={this.saveProductsData}
-        />
-
-        <CompanySection
-          name="Deal"
-          companies={companies}
-          onSelect={companies => this.onChangeField('companies', companies)}
-        />
-
-        <CustomerSection
-          name="Deal"
-          customers={customers}
-          onSelect={customers => this.onChangeField('customers', customers)}
-        />
-
-        <Button onClick={this.copy} icon="checked-1">
-          Copy
-        </Button>
-
-        <Button icon="cancel-1" onClick={() => this.props.removeDeal(deal._id)}>
-          Delete
-        </Button>
-      </Right>
-    );
-  }
-
-  renderDealMove() {
-    const { deal } = this.props;
-    const { stageId } = this.state;
-
-    return (
-      <DealMove
-        deal={deal}
-        stageId={stageId}
-        onChangeStage={stageId => this.onChangeField('stageId', stageId)}
-      />
-    );
-  }
-
   renderFormContent() {
-    const { deal, users } = this.props;
+    const { deal, users, removeDeal } = this.props;
+
     const {
       name,
+      stageId,
       description,
       closeDate,
       amount,
-      assignedUserIds
+      assignedUserIds,
+      customers,
+      companies,
+      products,
+      productsData
     } = this.state;
-    const { __ } = this.context;
-
-    const userValue = option => (
-      <SelectValue>
-        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
-        {option.label}
-      </SelectValue>
-    );
-
-    const userOption = option => (
-      <SelectOption className="simple-option">
-        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
-        <span>{option.label}</span>
-      </SelectOption>
-    );
 
     return (
       <Fragment>
-        <HeaderRow>
-          <HeaderContent>
-            <ControlLabel>Name</ControlLabel>
-            <FormControl
-              defaultValue={name}
-              required
-              onChange={e => this.onChangeField('name', e.target.value)}
-            />
-          </HeaderContent>
-
-          {this.renderAmount(amount)}
-        </HeaderRow>
-
-        <HeaderRow>
-          <HeaderContent>{this.renderDealMove()}</HeaderContent>
-
-          <HeaderContentSmall>
-            <FormGroup>
-              <ControlLabel>Close date</ControlLabel>
-              <Datetime
-                inputProps={{ placeholder: __('Click to select a date') }}
-                dateFormat="YYYY/MM/DD"
-                timeFormat={false}
-                value={closeDate}
-                closeOnSelect
-                onChange={closeDate =>
-                  this.onChangeField('closeDate', closeDate)
-                }
-              />
-            </FormGroup>
-          </HeaderContentSmall>
-        </HeaderRow>
-
-        <FlexContent>
-          <Left>
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl
-                componentClass="textarea"
-                defaultValue={description}
-                onChange={e =>
-                  this.onChangeField('description', e.target.value)
-                }
-              />
-            </FormGroup>
-          </Left>
-          <Right>
-            <FormGroup>
-              <ControlLabel>Assigned to</ControlLabel>
-              <Select
-                placeholder={__('Choose users')}
-                value={assignedUserIds}
-                onChange={users =>
-                  this.onChangeField(
-                    'assignedUserIds',
-                    users.map(user => user.value)
-                  )
-                }
-                optionRenderer={userOption}
-                valueRenderer={userValue}
-                removeSelected={true}
-                options={selectUserOptions(users)}
-                multi
-              />
-            </FormGroup>
-          </Right>
-        </FlexContent>
+        <Top
+          name={name}
+          description={description}
+          closeDate={closeDate}
+          amount={amount}
+          assignedUserIds={assignedUserIds}
+          users={users}
+          stageId={stageId}
+          deal={deal}
+          onChangeField={this.onChangeField}
+        />
 
         <FlexContent>
           <Tab deal={deal} />
-          {this.renderSidebar()}
+          <Sidebar
+            customers={customers}
+            companies={companies}
+            products={products}
+            productsData={productsData}
+            deal={deal}
+            onChangeField={this.onChangeField}
+            removeDeal={removeDeal}
+            saveProductsData={this.saveProductsData}
+          />
         </FlexContent>
       </Fragment>
     );
