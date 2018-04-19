@@ -4,7 +4,7 @@ import { coreHeight } from './deminsions';
 
 const Container = styled.div`
   background-color: ${colors.colorWhite};
-  box-shadow: 0 0 8px 0px ${colors.colorShadowGray};
+  box-shadow: 0 0 8px 0 ${colors.shadowPrimary};
 
   &:not(:first-child) {
     margin-top: 20px;
@@ -28,6 +28,11 @@ const Header = styled.div`
     font-weight: bold;
     font-size: 14px;
     color: ${colors.colorCoreDarkGray};
+
+    i {
+      color: ${colors.colorPrimaryDark};
+      margin-right: 5px;
+    }
   }
 `;
 

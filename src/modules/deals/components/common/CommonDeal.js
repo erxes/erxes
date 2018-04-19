@@ -54,11 +54,11 @@ class CommonDeal extends React.Component {
         <SpaceContent>
           <FooterContent>
             <ItemList>
-              <Items items={products} />
+              <Items color="#63D2D6" items={products} />
             </ItemList>
             <ItemList>
-              <Items items={deal.customers || []} />
-              <Items uppercase items={deal.companies || []} />
+              <Items color="#F7CE53" items={deal.customers || []} />
+              <Items color="#F7CE53" uppercase items={deal.companies || []} />
             </ItemList>
             {this.renderAmount(deal.amount || {})}
           </FooterContent>

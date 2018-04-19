@@ -38,7 +38,7 @@ function Brands({ history, counts, brands, loading }, { __ }) {
   );
 
   return (
-    <Section collapsible>
+    <Section collapsible={brands.length > 5}>
       <Header uppercase>{__('Filter by brand')}</Header>
 
       <DataWithLoader

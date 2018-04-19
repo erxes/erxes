@@ -115,7 +115,7 @@ class DealAddForm extends React.Component {
           <Button
             btnStyle="simple"
             onClick={this.context.closeModal}
-            icon="close"
+            icon="cancel-1"
           >
             Close
           </Button>
@@ -123,7 +123,7 @@ class DealAddForm extends React.Component {
           <Button
             disabled={this.state.disabled}
             btnStyle="success"
-            icon="checkmark"
+            icon="checked-1"
             type="submit"
           >
             Save

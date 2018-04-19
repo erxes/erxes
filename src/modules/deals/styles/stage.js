@@ -55,7 +55,7 @@ const Header = styled.div`
 
   h3 {
     margin: 0;
-    font-size: 12px;
+    font-size: 11px;
     line-height: inherit;
     text-transform: uppercase;
     font-weight: bold;
@@ -82,7 +82,6 @@ const Amount = styled.ul`
     span {
       font-weight: bold;
       font-size: 10px;
-      color: ${colors.colorCoreBlue};
     }
 
     &:after {
@@ -132,7 +131,7 @@ const IndicatorItem = styled.div`
   background: ${props =>
     props.isPass ? colors.colorSecondary : colors.colorShadowGray};
   height: 4px;
-  border-radius: 10px;
+  border-radius: 2px;
 `;
 
 export {
