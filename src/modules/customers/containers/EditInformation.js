@@ -18,8 +18,8 @@ const EditInformationContainer = (props, context) => {
     wide
   } = props;
 
-  let customerDetailQueryLoading = false,
-    customerDetail = customer || {};
+  let customerDetailQueryLoading = false;
+  let customerDetail = customer || {};
 
   if (customerId) {
     customerDetailQueryLoading = customerDetailQuery.loading;
