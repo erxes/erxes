@@ -17,7 +17,6 @@ import {
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired,
   sectionTop: PropTypes.node,
   sectionBottom: PropTypes.node,
   otherProperties: PropTypes.node,
@@ -135,7 +134,7 @@ class LeftSidebar extends ManageGroups {
 
     return (
       <Sidebar wide={wide} footer={this.renderSidebarFooter()}>
-        <BasicInfo customer={customer} save={this.props.save} />
+        <BasicInfo customer={customer} />
         {this.props.sectionTop && this.props.sectionTop}
         {this.renderGroups()}
         {this.props.sectionBottom && this.props.sectionBottom}
