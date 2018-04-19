@@ -24,7 +24,7 @@ class LeftSidebar extends ManageGroups {
           btnStyle="simple"
           size="small"
           onClick={this.cancelEditing}
-          icon="close"
+          icon="cancel-1"
         >
           Discard
         </Button>
@@ -32,7 +32,7 @@ class LeftSidebar extends ManageGroups {
           btnStyle="success"
           size="small"
           onClick={this.save}
-          icon="checkmark"
+          icon="checked-1"
         >
           Save
         </Button>

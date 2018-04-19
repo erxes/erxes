@@ -69,7 +69,7 @@ class PropertyRow extends React.Component {
           {form}
         </ModalTrigger>
         <Icon
-          icon="close"
+          icon="cancel-1"
           onClick={() =>
             confirm().then(() => {
               remove({ _id: data._id });
@@ -120,7 +120,7 @@ class PropertyRow extends React.Component {
     if (fields.length === 0) {
       return (
         <EmptyState
-          icon="android-more-horizontal"
+          icon="circular"
           text="There arent't any fields in this group"
         />
       );

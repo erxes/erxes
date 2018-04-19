@@ -240,7 +240,7 @@ class RespondBox extends Component {
 
         <Tip text={__('Attach file')}>
           <label>
-            <Icon icon="android-attach" size={17} />
+            <Icon icon="upload-2" />
             <input type="file" onChange={this.handleFileInput} />
           </label>
         </Tip>
@@ -256,7 +256,7 @@ class RespondBox extends Component {
           onClick={this.onSend}
           btnStyle="success"
           size="small"
-          icon="android-send"
+          icon="send"
         >
           Send
         </Button>
@@ -270,7 +270,9 @@ class RespondBox extends Component {
     }
 
     let placeholder = __(
-      `To send your ${type} press [Enter] and [Shift + Enter] to add a new line ...`
+      `To send your ${
+        type
+      } press [Enter] and [Shift + Enter] to add a new line ...`
     );
 
     return (

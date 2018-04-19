@@ -12,7 +12,7 @@ import { FieldPreview } from './';
 
 const DragHandle = SortableHandle(() => (
   <DragHandler>
-    <Icon icon="arrow-move" />
+    <Icon icon="move" />
   </DragHandler>
 ));
 

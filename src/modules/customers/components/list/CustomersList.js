@@ -140,7 +140,7 @@ class CustomersList extends React.Component {
     const { __ } = this.context;
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         Add customer
       </Button>
     );
@@ -158,7 +158,7 @@ class CustomersList extends React.Component {
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
-              {__('Customize ')} <Icon icon="ios-arrow-down" />
+              {__('Customize ')} <Icon icon="downarrow" />
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>
@@ -193,7 +193,7 @@ class CustomersList extends React.Component {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+        <Button btnStyle="simple" size="small" icon="downarrow">
           Tag
         </Button>
       );
@@ -223,7 +223,7 @@ class CustomersList extends React.Component {
           <Button
             btnStyle="danger"
             size="small"
-            icon="close"
+            icon="cancel-1"
             onClick={() =>
               confirm().then(() => {
                 this.removeCustomers(bulk);

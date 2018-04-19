@@ -63,7 +63,7 @@ class List extends Component {
         right={
           <Button.Group>
             <Link to="/settings/">
-              <Button size="small" btnStyle="simple" icon="close">
+              <Button size="small" btnStyle="simple" icon="cancel-1">
                 Cancel
               </Button>
             </Link>
@@ -72,7 +72,7 @@ class List extends Component {
               size="small"
               btnStyle="success"
               onClick={this.save}
-              icon="checkmark"
+              icon="checked-1"
             >
               Save
             </Button>

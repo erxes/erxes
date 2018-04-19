@@ -93,7 +93,7 @@ class Facebook extends Component {
         </FormGroup>
 
         <ModalFooter>
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

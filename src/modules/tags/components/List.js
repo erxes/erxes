@@ -23,7 +23,7 @@ const propTypes = {
 
 function List({ tags, type, remove, save }, { __ }) {
   const trigger = (
-    <Button btnStyle="success" size="small" icon="plus">
+    <Button btnStyle="success" size="small" icon="add">
       Add tag
     </Button>
   );
@@ -33,7 +33,7 @@ function List({ tags, type, remove, save }, { __ }) {
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="simple" size="small">
-            {__('Customize ')} <Icon icon="ios-arrow-down" />
+            {__('Customize ')} <Icon icon="downarrow" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>

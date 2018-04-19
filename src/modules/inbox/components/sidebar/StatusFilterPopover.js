@@ -141,7 +141,7 @@ class StatusFilterPopover extends Component {
       >
         <PopoverButton onClick={() => this.onClick()}>
           {__('Status')}
-          <Icon icon="ios-arrow-down" />
+          <Icon icon="downarrow" />
         </PopoverButton>
       </OverlayTrigger>
     );

@@ -45,7 +45,7 @@ class StageItem extends Component {
           <Button
             btnStyle="link"
             onClick={remove.bind(this, stage._id)}
-            icon="close"
+            icon="cancel-1"
           />
         </Tip>
       </StageItemContainer>

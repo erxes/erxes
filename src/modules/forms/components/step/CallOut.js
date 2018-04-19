@@ -142,7 +142,7 @@ class CallOut extends Component {
       <div>
         <img src={image} alt="previewImage" />
         <Icon
-          icon="close"
+          icon="cancel-1"
           size={15}
           onClick={e => this.removeImage(e.target.value)}
         />

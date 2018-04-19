@@ -84,6 +84,8 @@ const InfoWrapper = styled.div`
 `;
 
 const Links = styled.div`
+  margin-top: 5px;
+
   a {
     color: ${colors.colorCoreLightGray};
     margin-right: 10px;

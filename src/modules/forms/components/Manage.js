@@ -75,19 +75,19 @@ class Manage extends Component {
               text={this.state.code}
               onCopy={() => this.setState({ copied: true })}
             >
-              <Button size="small" btnStyle="primary" icon="ios-copy-outline">
+              <Button size="small" btnStyle="primary" icon="copy">
                 {this.state.copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>
           ) : (
-            <EmptyState icon="code" text="No copyable code" size="small" />
+            <EmptyState icon="copy" text="No copyable code" size="small" />
           )}
         </MarkdownWrapper>
 
         <ModalFooter>
           <Button
             btnStyle="simple"
-            icon="close"
+            icon="cancel-1"
             onClick={() => this.context.closeModal()}
           >
             Cancel

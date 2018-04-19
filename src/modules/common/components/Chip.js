@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon } from 'modules/common/components';
 import { colors } from '../styles';
 
 const closeSize = '20px';
@@ -49,9 +48,7 @@ function Chip({ ...props }) {
   return (
     <ChipItem normal={props.normal}>
       {props.children}
-      <Remove onClick={props.onClickClose}>
-        <Icon icon="android-close" />
-      </Remove>
+      <Remove onClick={props.onClickClose}>×</Remove>
     </ChipItem>
   );
 }

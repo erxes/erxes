@@ -17,6 +17,7 @@ injectGlobal`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
 
     > #root {
       display: flex;
@@ -116,7 +117,7 @@ injectGlobal`
   /* dropdow */
 
   .dropdown-menu {
-    margin-top: 0;
+    margin-top: 0 !important;
     border-radius: 0;
     border: none;
     font-size: 13px;
@@ -155,24 +156,40 @@ injectGlobal`
 
   /* tooltip */
   .tooltip-inner {
-    background-color: #393C40;
-    border-radius: 0;
+    background-color: #fff;
+    color: #373737;
+    box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.23);
   }
 
-  .tooltip.bottom .tooltip-arrow {
-    border-bottom-color: #393C40;
+  .tooltip.bottom .tooltip-arrow, {
+    border-bottom-color: #fff;
   }
 
   .tooltip.top .tooltip-arrow {
-    border-top-color: #393C40;
+    border-top-color: #fff;
   }
 
   .tooltip.left .tooltip-arrow {
-    border-left-color: #393C40;
+    border-left-color: #fff;
   }
 
   .tooltip.right .tooltip-arrow {
-    border-right-color: #393C40;
+    border-right-color: #fff;
+    border-width: 0px 10px 13px 0;
+    margin-top: 0;
+    top: 0 !important;
+  }
+
+  .tooltip.right .tooltip-inner {
+    border-top-left-radius: 0;
+  }
+
+  .tooltip.in {
+    opacity: 1;
+  }
+
+  .tooltip.right {
+    padding: 0 5px 0 6px;
   }
 
   /* popover */
@@ -273,9 +290,7 @@ injectGlobal`
     box-shadow: none;
   }
 
-  .Select.is-open .Select-arrow {
-    border-top-color: #777777;
-  }
+  
 
   .Select.is-focused > .Select-control,
   .Select.is-open > .Select-control {
@@ -305,6 +320,7 @@ injectGlobal`
   .Select-clear {
     font-size: 20px;
     line-height: 1.4;
+    margin-top: 1px;
   }
 
   .Select-clear-zone:hover {
@@ -370,8 +386,20 @@ injectGlobal`
     padding-right: 10px;
   }
 
-  .Select-arrow-zone:hover > .Select-arrow {
-    border-top-color: #777777;
+  .Select-arrow-zone > .Select-arrow {
+    border: none;
+    margin-right: 10px;
+  }
+
+  .Select .Select-arrow:before {
+    font-family: 'erxes';
+    font-size: 10px;
+    content: '\\e827';
+    color: #888;
+  }
+
+  .Select.is-open .Select-arrow:before {
+    content: '\\e89a';
   }
 
   .Select-menu-outer {
@@ -650,9 +678,10 @@ injectGlobal`
     display: flex;
     align-items: center;
   }
-  .icon-option svg {
+  .icon-option i {
     margin-right: 10px;
-    fill: #6569DF;
+    font-size: 20px;
+    color: #5629B6;
   }
 
   /* scrollbar */

@@ -58,12 +58,12 @@ class Sidebar extends Component {
 
     const addBrand = (
       <RightButton>
-        <Icon icon="plus" />
+        <Icon icon="add" />
       </RightButton>
     );
 
     return (
-      <Header uppercase bold>
+      <Header uppercase>
         {__('Brands')}
         <ModalTrigger title="New Brand" trigger={addBrand}>
           {this.renderBrandForm({ save })}

@@ -44,7 +44,7 @@ class Pipeline extends React.Component {
           ))}
         </div>
         {stages.length === 0 && (
-          <EmptyState size="full" text="No stage" icon="map" />
+          <EmptyState size="full" text="No stage" icon="layout" />
         )}
       </Body>
     );
@@ -85,7 +85,7 @@ class Pipeline extends React.Component {
               size="small"
               btnStyle="primary"
               onClick={this.togglePipeline}
-              icon={expanded ? 'chevron-up' : 'chevron-down'}
+              icon={expanded ? 'uparrow-2' : 'downarrow'}
             />
           </div>
         </Header>

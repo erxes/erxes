@@ -63,14 +63,14 @@ const Actions = styled.div`
 
 const DropIcon = styled.span`
   &:after {
-    content: '\f125';
-    font-family: 'Ionicons';
-    float: left;
+    content: '\\e827';
+    font-family: 'erxes';
+    display: inline-block;
     color: ${colors.colorPrimaryDark};
     font-size: ${dimensions.coreSpacing - 2}px;
     margin-right: ${coreSpace};
     transition: all ease 0.3s;
-    transform: ${props => props.isOpen && `rotate(90deg)`};
+    transform: ${props => props.isOpen && `rotate(180deg)`};
   }
 `;
 

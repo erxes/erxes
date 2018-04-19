@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { CalloutPreview } from './preview';
-import { FormGroup, ControlLabel } from 'modules/common/components';
+import { FormGroup, ControlLabel, Icon } from 'modules/common/components';
 import { dimensions, colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { FlexItem, LeftItem, Preview, BoxRow } from './style';
@@ -16,14 +16,14 @@ const Box = styled.div`
     ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};
   border-radius: ${dimensions.unitSpacing / 2}px;
   padding: ${dimensions.coreSpacing * 2}px;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
   width: 50%;
   margin-right: 20px;
   margin-bottom: 20px;
 
-  img {
-    width: 40px;
-    transition: all 0.5s ease;
+  i {
+    font-size: 36px;
+    color: ${colors.colorSecondary};
   }
 
   span {
@@ -54,7 +54,7 @@ const propTypes = {
 };
 
 class ChooseType extends Component {
-  renderBox(name, image, value) {
+  renderBox(name, icon, value) {
     const { __ } = this.context;
 
     return (
@@ -62,7 +62,7 @@ class ChooseType extends Component {
         selected={this.props.type === value}
         onClick={() => this.onChange(value)}
       >
-        <img src={image} alt={name} />
+        <Icon icon={icon} />
         <span>{__(name)}</span>
       </Box>
     );
@@ -80,38 +80,18 @@ class ChooseType extends Component {
             <ControlLabel>Choose a flow type</ControlLabel>
           </FormGroup>
           <BoxRow>
-            {this.renderBox(
-              'ShoutBox',
-              '/images/icons/icon-01.svg',
-              'shoutbox'
-            )}
-            {this.renderBox('Popup', '/images/icons/icon-02.svg', 'popup')}
+            {this.renderBox('ShoutBox', 'speech-bubble-3', 'shoutbox')}
+            {this.renderBox('Popup', 'expand', 'popup')}
           </BoxRow>
 
           <BoxRow>
-            {this.renderBox(
-              'Embedded',
-              '/images/icons/icon-03.svg',
-              'embedded'
-            )}
-            {this.renderBox(
-              'Dropdown',
-              '/images/icons/icon-04.svg',
-              'dropdown'
-            )}
+            {this.renderBox('Embedded', 'computer', 'embedded')}
+            {this.renderBox('Dropdown', 'downarrow', 'dropdown')}
           </BoxRow>
 
           <BoxRow>
-            {this.renderBox(
-              'Slide-in Left',
-              '/images/icons/icon-05.svg',
-              'slideInLeft'
-            )}
-            {this.renderBox(
-              'Slide-in Right',
-              '/images/icons/icon-06.svg',
-              'slideInRight'
-            )}
+            {this.renderBox('Slide-in Left', 'logout-2', 'slideInLeft')}
+            {this.renderBox('Slide-in Right', 'logout-1', 'slideInRight')}
           </BoxRow>
         </LeftItem>
         <Preview>
