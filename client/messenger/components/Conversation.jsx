@@ -11,8 +11,7 @@ const propTypes = {
   user: PropTypes.object,
   data: PropTypes.object,
   isNew: PropTypes.bool,
-  isOnline: PropTypes.bool,
-  color: PropTypes.string,
+  isOnline: PropTypes.bool
 };
 
 const contextTypes = {
@@ -42,7 +41,7 @@ class Conversation extends React.Component {
     const { user, isOnline } = this.props;
 
     if (user) {
-      const defaultImage = '/static/images/user.png';
+      const defaultImage = '/static/images/default-avatar.svg';
       const details = user.details || {};
       const avatar = details.avatar || defaultImage;
 
@@ -83,15 +82,13 @@ class Conversation extends React.Component {
       isNew,
       goToConversationList,
       data,
-      isOnline,
-      color,
+      isOnline
     } = this.props;
     const { __ } = this.context;
     const placeholder = isNew ? __('Send a message') : __('Write a reply');
-    const style = { border: `1px solid ${color}` };
 
     return (
-      <div onClick={this.onClick} className="erxes-messenger" style={style}>
+      <div onClick={this.onClick} className="erxes-messenger">
         <TopBar
           middle={this.renderTitle()}
           buttonIcon={iconLeft}

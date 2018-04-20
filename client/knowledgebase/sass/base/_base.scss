@@ -1,31 +1,14 @@
-body {
-  margin: 0;
-  box-sizing: border-box;
-}
-
 .erxes-widget-kb {
-  margin: 0;
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
+  font-size: $font-size;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  margin: 0;
 
-  button, input, textarea {
+  button,
+  input,
+  textarea {
     font-family: 'Roboto', Helvetica, Arial, sans-serif;
-  }
-
-  &.opened .erxes-form {
-    @include prefix((
-      opacity: 1
-    ), webkit moz ms o);
-    visibility: visible;
-  }
-
-  &.opened .erxes-messenger {
-    @include prefix((
-      opacity: 1
-    ), webkit moz ms o);
-    visibility: visible;
   }
 }

@@ -6,8 +6,7 @@ import { ConversationItem, TopBar } from '../containers';
 const propTypes = {
   conversations: PropTypes.array.isRequired,
   createConversation: PropTypes.func.isRequired,
-  goToConversation: PropTypes.func.isRequired,
-  color: PropTypes.string,
+  goToConversation: PropTypes.func.isRequired
 };
 
 const contextTypes = {
@@ -17,8 +16,7 @@ const contextTypes = {
 function ConversationList({
   conversations,
   createConversation,
-  goToConversation,
-  color,
+  goToConversation
 }, {__}) {
   const title = (
     <div className="erxes-topbar-title">
@@ -28,7 +26,7 @@ function ConversationList({
   );
 
   return (
-    <div className="erxes-messenger" style={{ border: `1px solid ${color}` }}>
+    <div className="erxes-messenger">
       <TopBar
         middle={title}
         buttonIcon={iconPlus}

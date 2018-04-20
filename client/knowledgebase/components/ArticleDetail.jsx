@@ -19,16 +19,18 @@ export default function ArticleDetail({ data }, {__}) {
         <div className="avatars">
           <img
             alt={author.details.fullName}
-            src={author.details.avatar || '/static/images/userDefaultIcon.png'}
+            src={author.details.avatar || '/static/images/default-avatar.svg'}
           />
         </div>
         <div>
           <div>
-            {__('Written by')} <span>{author.details.fullName}</span>
+            {__('Written by')}: <span>{author.details.fullName}</span>
           </div>
           <div>
             {data.modifiedDate ? __('Modified ') : __('Created ')}
-            {moment(data.modifiedDate ? data.modifiedDate : data.createdDate).fromNow()}
+            <span>
+              {moment(data.modifiedDate ? data.modifiedDate : data.createdDate).format('lll')}
+            </span>
           </div>
         </div>
       </div>
