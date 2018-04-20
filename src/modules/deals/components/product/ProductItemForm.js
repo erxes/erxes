@@ -16,7 +16,7 @@ import { Button as DealButton } from '../../styles/deal';
 const propTypes = {
   uom: PropTypes.array,
   currencies: PropTypes.array,
-  productsData: PropTypes.object.isRequired,
+  productsData: PropTypes.array.isRequired,
   productData: PropTypes.object.isRequired,
   removeProductItem: PropTypes.func.isRequired,
   onChangeProductsData: PropTypes.func.isRequired,

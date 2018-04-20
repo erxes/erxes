@@ -25,6 +25,7 @@ class DealSelect extends React.Component {
 
   render() {
     const { __ } = this.context;
+
     const {
       boards,
       pipelines,

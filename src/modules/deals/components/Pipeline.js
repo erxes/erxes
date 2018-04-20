@@ -25,26 +25,31 @@ class Pipeline extends React.Component {
     this.togglePipeline = this.togglePipeline.bind(this);
   }
 
-  renderStage(provided) {
+  renderStages(provided) {
     const { stages } = this.props;
     const length = stages.length;
 
+    let content = (
+      <div>
+        {stages.map((stage, index) => (
+          <Stage
+            key={stage._id}
+            stageId={stage._id}
+            index={index}
+            length={length}
+            state={this.props[`stageState${stage._id}`]}
+          />
+        ))}
+      </div>
+    );
+
+    if (stages.length === 0) {
+      content = <EmptyState size="full" text="No stage" icon="layout" />;
+    }
+
     return (
       <Body innerRef={provided.innerRef} {...provided.droppableProps}>
-        <div>
-          {stages.map((stage, index) => (
-            <Stage
-              key={stage._id}
-              stageId={stage._id}
-              index={index}
-              length={length}
-              state={this.props[`stageState${stage._id}`]}
-            />
-          ))}
-        </div>
-        {stages.length === 0 && (
-          <EmptyState size="full" text="No stage" icon="layout" />
-        )}
+        {content}
       </Body>
     );
   }
@@ -62,7 +67,7 @@ class Pipeline extends React.Component {
         direction="horizontal"
         droppableId={pipeline._id}
       >
-        {provided => this.renderStage(provided)}
+        {provided => this.renderStages(provided)}
       </Droppable>
     );
   }

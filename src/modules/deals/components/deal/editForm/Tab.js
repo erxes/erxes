@@ -90,6 +90,7 @@ class Tab extends React.Component {
           >
             {__('Activity')}
           </TabTitle>
+
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
             onClick={() => this.onTabClick('notes')}

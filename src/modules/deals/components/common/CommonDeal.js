@@ -9,6 +9,7 @@ import {
   ItemList,
   FooterContent
 } from '../../styles/deal';
+
 import { Amount } from '../../styles/stage';
 
 const propTypes = {

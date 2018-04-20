@@ -94,6 +94,7 @@ class DealEditForm extends React.Component {
       stageId,
       assignedUserIds
     } = this.state;
+
     const { __, closeModal, move } = this.context;
     const { deal, index } = this.props;
 

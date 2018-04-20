@@ -59,7 +59,6 @@ class StageContainer extends React.Component {
       })
         .then(() => {
           stageDetailQuery.refetch();
-          this.props.dealsQuery.refetch();
         })
         .catch(error => {
           Alert.error(error.message);
@@ -77,6 +76,7 @@ class StageContainer extends React.Component {
       editMutation,
       dealsQuery
     } = this.props;
+
     const { deals } = this.state;
     const { __ } = this.context;
 
