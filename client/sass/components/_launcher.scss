@@ -3,7 +3,7 @@
   background-image: url('/static/images/widget-logo.png');
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 20px !important;
+  background-size: $core-spacing !important;
   border-radius: 28px;
   bottom: 8px;
   box-shadow: 0 0 10px 0 rgba($black, .2);
@@ -24,13 +24,13 @@
     color: $white;
     display: block;
     font-size: 10px;
-    height: 20px;
-    line-height: 20px;
+    height: $core-spacing;
+    line-height: $core-spacing;
     position: absolute;
     right: -2px;
     text-align: center;
     top: -5px;
-    width: 20px;
+    width: $core-spacing;
   }
 
   &.close,
@@ -51,11 +51,11 @@
       border-radius: 4px;
       box-shadow: none;
       display: block;
-      height: 40px;
-      line-height: 40px;
+      height: $core-spacing * 2;
+      line-height: $core-spacing * 2;
       right: 10px;
       top: 15px;
-      width: 40px;
+      width: $core-spacing * 2;
       z-index: $z-index-above;
 
       &:hover {

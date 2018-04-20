@@ -45,7 +45,7 @@ class AccquireInformation extends React.Component {
     const style = { border: `1px solid ${color}` };
 
     return (
-      <div className="erxes-messenger accquire-information" style={style}>
+      <div className="erxes-messenger accquire-information">
         <TopBar middle={title} />
 
         <div className="content">
@@ -53,6 +53,7 @@ class AccquireInformation extends React.Component {
             <span
               className={type === 'email' ? 'current' : ''}
               onClick={() => this.onTypeChange('email')}
+              style={{ borderColor: color }}
             >
               {__('Email')}
             </span>
@@ -60,6 +61,7 @@ class AccquireInformation extends React.Component {
             <span
               className={type === 'phone' ? 'current' : ''}
               onClick={() => this.onTypeChange('phone')}
+              style={{ borderColor: color }}
             >
               {__('SMS')}
             </span>
@@ -71,7 +73,7 @@ class AccquireInformation extends React.Component {
               placeholder={
                 type === 'email' ? __('email@domain.com') : __('phone number')
               }
-              style={{ borderColor: color }}
+              style={style}
             />
 
             <button

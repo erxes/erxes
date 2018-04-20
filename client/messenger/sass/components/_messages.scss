@@ -29,23 +29,23 @@
   }
 
   &.bg-1 {
-    background-image: url('/static/images/bg-1.png');
     @include bg-option;
+    background-image: url('/static/images/bg-1.png');
   }
 
   &.bg-2 {
-    background-image: url('/static/images/bg-2.png');
     @include bg-option;
+    background-image: url('/static/images/bg-2.png');
   }
 
   &.bg-3 {
-    background-image: url('/static/images/bg-3.png');
     @include bg-option;
+    background-image: url('/static/images/bg-3.png');
   }
 
   &.bg-4 {
-    background-image: url('/static/images/bg-4.png');
     @include bg-option;
+    background-image: url('/static/images/bg-4.png');
   }
 }
 
@@ -66,7 +66,7 @@
     margin-left: 50px;
   }
 
-  &~.erxes-spacial-message {
+  & ~.erxes-spacial-message {
     margin-top: 15px;
   }
 }
@@ -122,7 +122,7 @@
 
   ul {
     list-style-type: disc;
-    padding-left: 20px;
+    padding-left: $core-spacing;
 
     li {
       margin-bottom: 5px;
@@ -132,7 +132,7 @@
 
   ol {
     list-style-type: decimal;
-    padding-left: 20px;
+    padding-left: $core-spacing;
 
     li {
       margin-bottom: 5px;
@@ -150,21 +150,21 @@
     border-left: 5px solid $border-color;
     font-size: 16px;
     margin: 0;
-    padding: 10px 20px;
+    padding: $core-spacing / 2 $core-spacing;
   }
 
   pre {
+    background-color: $grey;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    color: lighten($black, 30%);
     display: block;
-    margin: 0;
     font-size: 13px;
     line-height: 1.42857143;
-    color: #333;
+    margin: 0;
     padding: 9.5px;
     word-break: break-all;
     word-wrap: break-word;
-    background-color: #f5f5f5;
-    border: 1px solid #ccc;
-    border-radius: 4px;
   }
 
   a {
@@ -174,14 +174,14 @@
 }
 
 .file-wrapper {
-  position: relative;
-  padding: 16px 20px;
+  @include prefix((transition: border .3s ease-in-out), webkit moz ms o);
+  background: lighten($grey, 10%);
   border: 1px solid transparent;
   border-radius: $border-radius;
-  padding-left: 40px;
   color: $text-color;
-  background: lighten($grey, 10%);
-  @include prefix((transition: border .3s ease-in-out), webkit moz ms o);
+  padding: 16px $core-spacing;
+  padding-left: 40px;
+  position: relative;
 
   svg {
     height: 30px;
@@ -220,13 +220,13 @@
 }
 
 .erxes-avatar {
-  width: 40px;
-  height: 40px;
   border-radius: 50%;
+  bottom: 20px;
+  height: 40px;
+  left: 0;
   overflow: hidden;
   position: absolute;
-  left: 0;
-  bottom: 20px;
+  width: 40px;
 
   img {
     height: 100%;
@@ -236,13 +236,13 @@
 
 .btn-resend {
   background: $white;
-  outline: 0;
   border: 0;
   border-radius: $border-radius;
   color: $text-color;
-  padding: 5px 15px;
-  margin-top: 5px;
   cursor: pointer;
+  margin-top: 5px;
+  outline: 0;
+  padding: 5px 15px;
 
   &:focus,
   &:hover {

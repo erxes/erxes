@@ -35,12 +35,12 @@
   border-radius: $border-radius;
   cursor: pointer;
   display: block;
-  height: 40px;
-  line-height: 40px;
+  height: $core-spacing * 2;
+  line-height: $core-spacing * 2;
   position: absolute;
   text-align: center;
   top: 15px;
-  width: 40px;
+  width: $core-spacing * 2;
 
   &:hover {
     background-color: rgba($black, .2);
@@ -53,11 +53,11 @@
   text-align: left;
 
   img {
-    border-radius: 20px;
+    border-radius: $core-spacing;
     float: left;
-    height: 40px;
+    height: $core-spacing * 2;
     overflow: hidden;
-    width: 40px;
+    width: $core-spacing * 2;
   }
 
   > div {
@@ -65,7 +65,6 @@
   }
 
   .erxes-staff-name {
-    font-size: 15px;
     font-weight: 600;
     padding-top: 3px;
   }
@@ -77,7 +76,7 @@
 
   .erxes-state {
     > span {
-      border-radius: 4px;
+      border-radius: $border-radius;
       display: inline-block;
       height: 8px;
       margin-bottom: 1px;
@@ -92,17 +91,15 @@
       background-color: $border-color;
     }
   }
-
 }
 
 .erxes-topbar-title {
-  font-size: 15px;
   font-weight: 600;
   line-height: 1.2em;
   margin-top: 18px;
 
   span {
-    font-size: 14px;
+    font-size: $font-size;
     font-weight: 300;
   }
 }

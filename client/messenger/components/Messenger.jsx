@@ -15,13 +15,13 @@ const propTypes = {
 function Messenger({ activeRoute, color }) {
   switch (activeRoute) {
     case 'conversationDetail':
-      return <ConversationDetail color={color} />;
+      return <ConversationDetail />;
 
     case 'conversationCreate':
-      return <ConversationCreate isNew color={color} />;
+      return <ConversationCreate isNew />;
 
     case 'conversationList':
-      return <ConversationList color={color} />;
+      return <ConversationList />;
 
     // get user's contact information
     case 'accquireInformation':

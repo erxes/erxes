@@ -46,7 +46,7 @@ export default class Article extends React.Component {
           <div className="avatars">
             <img
               alt={author.details.fullName}
-              src={author.details.avatar || '/static/images/userDefaultIcon.png'}
+              src={author.details.avatar || '/static/images/default-avatar.svg'}
             />
           </div>
           <div>

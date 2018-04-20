@@ -18,7 +18,7 @@ function ItemMeta({ category }, {__}) {
       <img
         alt={author.details.fullName}
         key={author.details.fullName}
-        src={author.details.avatar || '/static/images/userDefaultIcon.png'}
+        src={author.details.avatar || '/static/images/default-avatar.svg'}
       />,
     );
   }
