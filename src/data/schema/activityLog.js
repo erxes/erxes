@@ -13,7 +13,6 @@ export const types = `
     avatar: String
     fullName: String
     position: String
-    twitterUsername: String
   }
 
   type ActivityLogActionPerformer {

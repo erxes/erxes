@@ -8,7 +8,7 @@ const segmentQueries = {
    * @return {Promise} segment objects
    */
   segments(root, { contentType }) {
-    return Segments.find({ contentType });
+    return Segments.find({ contentType }).sort({ name: 1 });
   },
 
   /**

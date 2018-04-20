@@ -196,6 +196,7 @@ describe('facebook integration: save webhook response', () => {
     expect(newMessage.customerId).toBe(customer._id);
     expect(newMessage.internal).toBe(false);
     expect(newMessage.content).toBe(messageText);
+    expect(newMessage.content).toBe(conversation.content);
 
     // receiving already saved info ========================
     saveWebhookResponse.data = {
