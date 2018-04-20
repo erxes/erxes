@@ -21,8 +21,8 @@ const dealQueries = {
   },
 
   /**
-   * Get defalut board
-   * @return {Promise} board
+   * Get default board
+   * @return {Promise} default board
    */
   async dealBoardGetDefault() {
     const defaultBoard = await DealBoards.findOne({ isDefault: true });
@@ -37,7 +37,7 @@ const dealQueries = {
    * Deal Pipelines list
    * @param {Object} args
    * @param {String} args.boardId
-   * @return {Promise}  filtered pipeline objects by boardId
+   * @return {Promise} filtered pipeline objects by boardId
    */
   dealPipelines(root, { boardId }) {
     return DealPipelines.find({ boardId }).sort({ order: 1, createdAt: -1 });
@@ -67,10 +67,20 @@ const dealQueries = {
    * Deals list
    * @param {Object} args
    * @param {String} args.stageId
-   * @return {Promise} filtered deals objects by stageId
+   * @param {String} args.customerId
+   * @param {String} args.companyId
+   * @return {Promise} filtered deals objects
    */
-  deals(root, { stageId }) {
-    return Deals.find({ stageId }).sort({ order: 1, createdAt: -1 });
+  deals(root, { stageId, customerId, companyId }) {
+    const filter = {};
+
+    if (stageId) filter.stageId = stageId;
+
+    if (customerId) filter.customerIds = { $in: [customerId] };
+
+    if (companyId) filter.companyIds = { $in: [companyId] };
+
+    return Deals.find(filter).sort({ order: 1, createdAt: -1 });
   },
 
   /**
