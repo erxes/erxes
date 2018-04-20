@@ -6,7 +6,8 @@ import { renderFullName } from 'modules/common/utils';
 
 const propTypes = {
   items: PropTypes.array,
-  uppercase: PropTypes.bool
+  uppercase: PropTypes.bool,
+  color: PropTypes.string
 };
 
 const defaultProps = {
@@ -26,22 +27,23 @@ const Item = styled.li`
     float: left;
     margin-right: 5px;
     border-radius: 1px;
-    background: ${colors.colorShadowGray};
+    background: ${props =>
+      props.color ? `${props.color}` : `${colors.colorShadowGray}`};
   }
 `;
 
 class Items extends React.Component {
-  renderItem(item, uppercase) {
+  renderItem(item, uppercase, color) {
     return (
-      <Item uppercase={uppercase} key={item._id}>
+      <Item uppercase={uppercase} key={item._id} color={color}>
         {item.name || renderFullName(item)}
       </Item>
     );
   }
 
   renderItems(items) {
-    const { uppercase } = this.props;
-    return items.map(item => this.renderItem(item, uppercase));
+    const { uppercase, color } = this.props;
+    return items.map(item => this.renderItem(item, uppercase, color));
   }
 
   render() {

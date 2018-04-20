@@ -88,6 +88,10 @@ const ButtonStyled = styled.button`
     }
   `};
 
+  a {
+    color: ${colors.colorWhite};
+  }
+
   &.shrinked {
     padding: 8px 0;
   }
@@ -105,9 +109,7 @@ const ButtonStyled = styled.button`
   }
 `;
 
-const Link = ButtonStyled.withComponent('a');
-
-const ButtonLink = Link.extend`
+const ButtonLink = ButtonStyled.withComponent('a').extend`
   text-decoration: inherit;
   text-align: center;
   pointer-events: ${props => props.disabled && 'none'};

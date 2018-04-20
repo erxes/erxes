@@ -1,12 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { Link } from 'react-router-dom';
 import { Dropdown } from 'react-bootstrap';
+import { DragDropContext } from 'react-beautiful-dnd';
 import { Wrapper } from 'modules/layout/components';
 import { EmptyState } from 'modules/common/components';
-import { DragDropContext } from 'react-beautiful-dnd';
-
 import { Pipeline } from '../containers';
 import { BarItems } from 'modules/layout/styles';
 import { Button, DropdownToggle, Icon } from 'modules/common/components';
@@ -89,16 +87,20 @@ class Board extends React.Component {
 
     const { currentBoard, onDragEnd } = this.props;
 
-    let content = null;
-
     if (!currentBoard) {
-      content = (
-        <EmptyState
-          linkUrl="/settings/deals"
-          linkText="Create one"
-          size="full"
-          text="There is no board"
-          image="/images/robots/robot-05.svg"
+      return (
+        <Wrapper
+          header={<Wrapper.Header breadcrumb={breadcrumb} />}
+          content={
+            <EmptyState
+              linkUrl="/settings/deals"
+              linkText="Create one"
+              size="full"
+              text="There is no board"
+              image="/images/robots/robot-05.svg"
+            />
+          }
+          transparent
         />
       );
     }
@@ -107,21 +109,30 @@ class Board extends React.Component {
       <BarItems>
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
-            <Button btnStyle="simple" size="small">
-              {currentBoard.name} <Icon icon="downarrow" size={10} />
+            <Button btnStyle="primary" icon="downarrow" ignoreTrans>
+              {currentBoard && currentBoard.name}
             </Button>
           </DropdownToggle>
-
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
         </Dropdown>
       </BarItems>
     );
 
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} background="transparent" />
+    const actionBarRight = (
+      <Button btnStyle="success" icon="settings">
+        <Link to="/settings/deals">{__('Manage Board & Pipeline')}</Link>
+      </Button>
     );
 
-    content = (
+    const actionBar = (
+      <Wrapper.ActionBar
+        left={actionBarLeft}
+        right={actionBarRight}
+        background="transparent"
+      />
+    );
+
+    const content = (
       <DragDropContext onDragEnd={onDragEnd}>
         {this.renderPipelines()}
       </DragDropContext>

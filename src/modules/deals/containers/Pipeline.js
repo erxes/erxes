@@ -57,12 +57,6 @@ class PipelineContainer extends React.Component {
     }
   }
 
-  getChildContext() {
-    const { pipeline } = this.props;
-
-    return { pipelineId: pipeline._id };
-  }
-
   render() {
     const extendedProps = {
       ...this.props,
@@ -81,9 +75,6 @@ PipelineContainer.propTypes = {
   stagesChange: PropTypes.func,
   stagesUpdateOrderMutation: PropTypes.func,
   stagesChangeMutation: PropTypes.func
-};
-PipelineContainer.childContextTypes = {
-  pipelineId: PropTypes.string
 };
 
 const PipelineContainerWithData = compose(
