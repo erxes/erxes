@@ -46,7 +46,7 @@ function ItemMeta({ category }, {__}) {
       </div>
       <div>
         <div>
-          {__('There are ')} {category.numOfArticles} {__('articles in this category')}
+          {__('There are ')} <span>{category.numOfArticles}</span> {__('articles in this category')}
         </div>
         <div>
           {__('Written by')} <span>{text}</span>

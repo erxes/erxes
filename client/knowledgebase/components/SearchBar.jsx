@@ -25,6 +25,7 @@ export default class SearchBar extends React.Component {
     return (
       <div className="erxes-searchbar" style={color ? { backgroundColor: color } : {}}>
         <div className="erxes-knowledge-container">
+          <i className="icon-search" />
           <input value={searchStr} onChange={this.handleSearchInput} />
         </div>
       </div>

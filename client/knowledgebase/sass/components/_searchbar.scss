@@ -1,31 +1,38 @@
 .erxes-searchbar {
-  overflow: hidden;
-  flex-shrink: 0;
-  color: $white;
-  padding: 25px;
   background: $main-color;
   border-top-left-radius: $border-radius;
   border-top-right-radius: $border-radius;
+  color: $white;
+  flex-shrink: 0;
+  overflow: hidden;
+  padding: $kb-spacing;
+
+  i {
+    color: $white;
+    font-size: 18px;
+    left: 20px;
+    position: absolute;
+    top: 10px;
+  }
 
   input {
-    display: block;
-    padding: 16px 16px 16px 48px;
-    border: none;
     background-color: $transparent-white;
-    box-sizing : border-box;
-    min-width: 100%;
-    max-width: 100%;
-    font-weight: normal;
-    border-radius: $border-radius;
-    outline: 0;
-    color: $white;
-    background-image: url($icon-search);
     background-position: 16px 14px;
     background-repeat: no-repeat;
-    transition: background 0.3s;
+    border: 0;
+    border-radius: $border-radius;
+    box-sizing: border-box;
+    color: $white;
+    display: block;
+    font-weight: normal;
+    max-width: 100%;
+    min-width: 100%;
+    outline: 0;
+    padding: 16px 16px 16px 48px;
+    transition: background .3s;
 
     &:focus {
-      background-color: rgba(255, 255, 255, 0.4);
+      background-color: rgba($transparent-white, .4);
     }
   }
 }

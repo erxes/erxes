@@ -10,8 +10,8 @@
   z-index: $z-index-above;
   bottom: 8px;
   right: 8px;
-  box-shadow: 0 0 10px 0 rgba($black, 0.2);
-  transition: box-shadow 0.3s ease-in-out, background 0.3s ease-in;
+  box-shadow: 0 0 10px 0 rgba($black, .2);
+  transition: box-shadow .3s ease-in-out, background .3s ease-in;
   background-image: url('/static/images/widget-logo.png');
   background-size: 20px !important;
   background-position: center;
@@ -57,7 +57,7 @@
       z-index: $z-index-above;
 
       &:hover {
-        background-color: rgba($black, 0.2);
+        background-color: rgba($black, .2);
       }
     }
   }
