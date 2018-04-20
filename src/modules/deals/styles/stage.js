@@ -2,14 +2,6 @@ import styled, { css } from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { stageWidth, stageHeight, borderRadius } from './deminsions';
 
-const Wrapper = styled.div`
-  display: flex;
-  border-right: 1px solid ${colors.borderPrimary};
-  flex-direction: column;
-  width: ${stageWidth}px;
-  max-height: ${stageHeight};
-`;
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -64,6 +56,20 @@ const Header = styled.div`
       color: ${colors.colorCoreGray};
       margin-left: 5px;
       font-size: 90%;
+    }
+  }
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  border-right: 1px solid ${colors.borderPrimary};
+  flex-direction: column;
+  width: ${stageWidth}px;
+  max-height: ${stageHeight};
+
+  &:last-of-type {
+    ${Header}:before, ${Header}:after {
+      border: none;
     }
   }
 `;
