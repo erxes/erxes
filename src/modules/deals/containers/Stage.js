@@ -4,8 +4,12 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Stage } from '../components';
 import { queries, mutations } from '../graphql';
-import { Alert, confirm } from 'modules/common/utils';
-import { collectOrders } from '../utils';
+import { Alert } from 'modules/common/utils';
+import {
+  collectOrders,
+  saveDeal as save,
+  removeDeal as remove
+} from '../utils';
 
 class StageContainer extends React.Component {
   constructor(props) {
@@ -25,7 +29,6 @@ class StageContainer extends React.Component {
         state: { type, index, itemId },
         stageId,
         stageDetailQuery,
-        dealsQuery,
         dealsChangeMutation,
         dealsUpdateOrderMutation
       } = nextProps;
@@ -56,7 +59,6 @@ class StageContainer extends React.Component {
       })
         .then(() => {
           stageDetailQuery.refetch();
-          dealsQuery.refetch();
         })
         .catch(error => {
           Alert.error(error.message);
@@ -69,29 +71,20 @@ class StageContainer extends React.Component {
   // create or update deal
   saveDeal(doc, callback, deal) {
     const {
+      stageDetailQuery,
       addMutation,
       editMutation,
-      stageDetailQuery,
       dealsQuery
     } = this.props;
 
     const { deals } = this.state;
     const { __ } = this.context;
 
-    let mutation = addMutation;
-
-    // if edit mode
-    if (deal) {
-      mutation = editMutation;
-      doc._id = deal._id;
-    }
-
-    mutation({
-      variables: doc
-    })
-      .then(({ data }) => {
-        Alert.success(__('Successfully saved.'));
-
+    save(
+      doc,
+      { addMutation, editMutation, dealsQuery },
+      { __ },
+      data => {
         // if edit mode
         if (deal) {
           const index = deals.findIndex(d => d._id === data.dealsEdit._id);
@@ -104,38 +97,25 @@ class StageContainer extends React.Component {
         this.setState({ deals });
 
         stageDetailQuery.refetch();
-        dealsQuery.refetch();
 
         callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+      },
+      deal
+    );
   }
 
   // remove deal
   removeDeal(_id) {
-    const { removeMutation, stageDetailQuery, dealsQuery } = this.props;
+    const { stageDetailQuery, removeMutation, dealsQuery } = this.props;
     const { deals } = this.state;
     const { __ } = this.context;
 
-    confirm().then(() => {
-      removeMutation({
-        variables: { _id }
-      })
-        .then(({ data: { dealsRemove } }) => {
-          Alert.success(__('Successfully deleted.'));
+    remove(_id, { removeMutation, dealsQuery }, { __ }, dealsRemove => {
+      this.setState({
+        deals: deals.filter(el => el._id !== dealsRemove._id)
+      });
 
-          this.setState({
-            deals: deals.filter(el => el._id !== dealsRemove._id)
-          });
-
-          stageDetailQuery.refetch();
-          dealsQuery.refetch();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+      stageDetailQuery.refetch();
     });
   }
 
@@ -161,7 +141,6 @@ StageContainer.propTypes = {
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
   removeMutation: PropTypes.func,
-  dealsChange: PropTypes.func,
   dealsChangeMutation: PropTypes.func,
   dealsUpdateOrder: PropTypes.func,
   stageDetailQuery: PropTypes.object,

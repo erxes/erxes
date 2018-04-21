@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Stage } from '../containers';
-import { EmptyState, Button } from 'modules/common/components';
 import { Droppable } from 'react-beautiful-dnd';
+import { EmptyState, Button, Icon } from 'modules/common/components';
+import { Stage } from '../containers';
 import { Container, Header, Body } from '../styles/pipeline';
 
 const propTypes = {
@@ -25,27 +25,31 @@ class Pipeline extends React.Component {
     this.togglePipeline = this.togglePipeline.bind(this);
   }
 
-  renderStage(provided) {
-    const { stages, pipeline } = this.props;
+  renderStages(provided) {
+    const { stages } = this.props;
     const length = stages.length;
+
+    let content = (
+      <div>
+        {stages.map((stage, index) => (
+          <Stage
+            key={stage._id}
+            stageId={stage._id}
+            index={index}
+            length={length}
+            state={this.props[`stageState${stage._id}`]}
+          />
+        ))}
+      </div>
+    );
+
+    if (stages.length === 0) {
+      content = <EmptyState size="full" text="No stage" icon="layout" />;
+    }
 
     return (
       <Body innerRef={provided.innerRef} {...provided.droppableProps}>
-        <div>
-          {stages.map((stage, index) => (
-            <Stage
-              key={stage._id}
-              stageId={stage._id}
-              index={index}
-              length={length}
-              pipelineId={pipeline._id}
-              state={this.props[`stageState${stage._id}`]}
-            />
-          ))}
-        </div>
-        {stages.length === 0 && (
-          <EmptyState size="full" text="No stage" icon="layout" />
-        )}
+        {content}
       </Body>
     );
   }
@@ -63,7 +67,7 @@ class Pipeline extends React.Component {
         direction="horizontal"
         droppableId={pipeline._id}
       >
-        {provided => this.renderStage(provided)}
+        {provided => this.renderStages(provided)}
       </Droppable>
     );
   }
@@ -79,7 +83,9 @@ class Pipeline extends React.Component {
     return (
       <Container>
         <Header>
-          <h2>{pipeline.name}</h2>
+          <h2>
+            <Icon icon="verticalalignment" /> {pipeline.name}
+          </h2>
           <div>
             <Button
               size="small"

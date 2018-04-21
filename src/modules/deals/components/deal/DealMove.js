@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select-plus';
-import { FormGroup, ControlLabel, Tip, Icon } from 'modules/common/components';
-import { selectOptions } from '../../utils';
+import { Tip, Icon } from 'modules/common/components';
 import {
   MoveContainer,
   MoveFormContainer,
@@ -10,78 +8,35 @@ import {
   Stages,
   StageItem
 } from '../../styles/deal';
+import { DealSelect } from '../../containers';
 
-class DealMoveForm extends React.Component {
-  renderSelect(placeholder, value, onChange, options) {
-    return (
-      <Select
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        optionRenderer={option => (
-          <div className="simple-option">
-            <span>{option.label}</span>
-          </div>
-        )}
-        options={options}
-        clearable={false}
-      />
-    );
+class DealMove extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.toggleForm = this.toggleForm.bind(this);
+
+    const { deal: { pipeline, boardId } } = props;
+
+    this.state = {
+      show: false,
+      stages: props.stages,
+      pipelineId: pipeline._id,
+      boardId
+    };
   }
 
-  renderForm() {
-    if (!this.props.show) return null;
+  onChangeField(name, value) {
+    this.setState({ [name]: value });
+  }
 
-    const { __ } = this.context;
-    const {
-      boards,
-      pipelines,
-      stages,
-      boardId,
-      pipelineId,
-      stageId,
-      onChangeBoard,
-      onChangePipeline,
-      onChangeStage
-    } = this.props;
-
-    return (
-      <form>
-        <FormGroup>
-          <ControlLabel>Board</ControlLabel>
-          {this.renderSelect(
-            __('Choose a board'),
-            boardId,
-            board => onChangeBoard(board.value),
-            selectOptions(boards)
-          )}
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Pipeline</ControlLabel>
-          {this.renderSelect(
-            __('Choose a pipeline'),
-            pipelineId,
-            pipeline => onChangePipeline(pipeline.value),
-            selectOptions(pipelines)
-          )}
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Stage</ControlLabel>
-          {this.renderSelect(
-            __('Choose a stage'),
-            stageId,
-            stage => onChangeStage(stage.value, true),
-            selectOptions(stages)
-          )}
-        </FormGroup>
-      </form>
-    );
+  toggleForm() {
+    this.setState({ show: !this.state.show });
   }
 
   renderStages() {
-    const { stages, stageId, onChangeStage } = this.props;
+    const { stageId, onChangeStage } = this.props;
+    const { stages } = this.state;
 
     let isPass = true;
 
@@ -106,18 +61,39 @@ class DealMoveForm extends React.Component {
     );
   }
 
+  renderDealSelect() {
+    if (!this.state.show) return null;
+
+    const { stageId, onChangeStage } = this.props;
+    const { boardId, pipelineId } = this.state;
+
+    return (
+      <DealSelect
+        stageId={stageId}
+        boardId={boardId}
+        pipelineId={pipelineId}
+        callback={() => this.toggleForm()}
+        onChangeStage={onChangeStage}
+        onChangeStages={stages => this.onChangeField('stages', stages)}
+        onChangePipeline={pipelineId =>
+          this.onChangeField('pipelineId', pipelineId)
+        }
+        onChangeBoard={boardId => this.onChangeField('boardId', boardId)}
+      />
+    );
+  }
+
   render() {
-    const { pipelines, pipelineId, toggleForm } = this.props;
-    const currentPipeline = pipelines.find(p => p._id === pipelineId) || {};
+    const { deal: { pipeline } } = this.props;
 
     return (
       <MoveContainer>
         <MoveFormContainer>
-          <PipelineName onClick={toggleForm}>
-            {currentPipeline.name} <Icon icon="downarrow" size={10} />
+          <PipelineName onClick={this.toggleForm}>
+            {pipeline.name} <Icon icon="downarrow" size={10} />
           </PipelineName>
 
-          {this.renderForm()}
+          {this.renderDealSelect()}
         </MoveFormContainer>
 
         {this.renderStages()}
@@ -128,22 +104,14 @@ class DealMoveForm extends React.Component {
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
-  boards: PropTypes.array.isRequired,
-  pipelines: PropTypes.array.isRequired,
-  stages: PropTypes.array.isRequired,
-  boardId: PropTypes.string.isRequired,
-  pipelineId: PropTypes.string,
   stageId: PropTypes.string,
-  show: PropTypes.bool,
-  toggleForm: PropTypes.func.isRequired,
-  onChangeBoard: PropTypes.func.isRequired,
-  onChangePipeline: PropTypes.func.isRequired,
+  stages: PropTypes.array,
   onChangeStage: PropTypes.func.isRequired
 };
 
-DealMoveForm.propTypes = propTypes;
-DealMoveForm.contextTypes = {
+DealMove.propTypes = propTypes;
+DealMove.contextTypes = {
   __: PropTypes.func
 };
 
-export default DealMoveForm;
+export default DealMove;
