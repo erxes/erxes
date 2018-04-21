@@ -1,8 +1,11 @@
 .erxes-messenger {
+  @include prefix((
+    opacity: 0
+  ), webkit moz ms o);
   background: $white;
-  border-radius: 4px;
+  border-radius: $border-radius;
   bottom: 86px;
-  box-shadow: 0 0 15px 0 rgba(0, 0, 0, .3);
+  box-shadow: 0 2px 15px 2px rgba($black, .2);
   display: flex;
   flex-direction: column;
   height: calc(100% - 95px);
@@ -10,21 +13,18 @@
   overflow: hidden;
   position: absolute;
   right: 8px;
-  @include prefix((
-    opacity: 0
-  ), webkit moz ms o);
   transition: opacity .3s ease-in-out, bottom .3s ease-in-out;
   visibility: hidden;
   width: calc(100% - 36px);
   z-index: 9998;
 
   @media screen and (max-width: $break-small) {
+    border: none !important;
     bottom: 0;
     height: 100%;
     max-height: none;
     right: 0;
     width: 100%;
-    border: none !important;
   }
 }
 
@@ -34,16 +34,14 @@
   .content {
     padding: 20px 40px;
 
-    .type {
-      span {
-        cursor: pointer;
-        display: inline-block;
-        margin-right: 10px;
+    .type span{
+      cursor: pointer;
+      display: inline-block;
+      margin-right: 10px;
 
-        &.current {
-          border-bottom: 1px solid;
-          font-weight: bold;
-        }
+      &.current {
+        border-bottom: 1px solid;
+        font-weight: bold;
       }
     }
 
@@ -56,12 +54,11 @@
       input {
         -webkit-appearance: none;
         border: 1px solid $main-color;
-        border-radius:0;
         border-bottom-left-radius: $border-radius;
         border-top-left-radius: $border-radius;
         box-sizing: border-box;
         flex: 1;
-        font-size: 14px;
+        font-size: $font-size;
         height: 34px;
         outline: 0;
         padding: 10px;

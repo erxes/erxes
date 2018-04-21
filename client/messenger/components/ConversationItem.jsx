@@ -22,7 +22,7 @@ function ConversationItem(
   const participatedUser = conversation.participatedUsers[0];
   const avatar =
     (participatedUser && participatedUser.details.avatar) ||
-    '/static/images/user.png';
+    '/static/images/default-avatar.svg';
   const fullName =
     (participatedUser && participatedUser.details.fullName) ||
     __('Support staff');
@@ -35,7 +35,7 @@ function ConversationItem(
       onClick={() => {
         goToConversation(_id);
       }}>
-      <img className="erxes-list-avatar" src={avatar} alt="" />
+      <img className="erxes-list-avatar" src={avatar} alt={fullName} />
       <div className="erxes-right-side">
         <div className="erxes-date">
           {moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}

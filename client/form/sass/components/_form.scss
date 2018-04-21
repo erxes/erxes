@@ -32,43 +32,42 @@
   width: 100%;
   min-height: 100%;
   position: absolute;
-  background-color: #000; /* Fallback color */
-  background-color: rgba(0, 0, 0, .6); /* Black w/ opacity */
+  background-color: rgba($black, .6);
   @include prefix((
     transition: opacity .15s linear
   ), webkit moz ms o);
 
   .erxes-form {
+    @include prefix((
+      transition: transform .3s ease
+    ), webkit moz ms o);
+
+    @include prefix((
+      transform: translate(0, -25%)
+    ), webkit moz ms o);
+
     margin: 50px auto;
     width: 500px;
-    @include prefix((
-      transition: transform 0.3s ease
-    ), webkit moz ms o);
-
-    @include prefix((
-      transform: translate(0,-25%)
-    ), webkit moz ms o);
 
     @media screen and (max-width: $break-medium) {
-      width: 100%;
       margin: 0;
+      width: 100%;
     }
   }
 
   &.open {
-    background-color: #000; /* Fallback color */
-    background-color: rgba(0, 0, 0, .6); /* Black w/ opacity */
+    background-color: rgba($black, .6);
     opacity: 1;
 
     .erxes-form {
       @include prefix((
-        transform: translate(0,0)
+        transform: translate(0, 0)
       ), webkit moz ms o);
     }
 
     .close {
       @include prefix((
-        transform: translate(0,0)
+        transform: translate(0, 0)
       ), webkit moz ms o);
     }
   }
@@ -89,7 +88,7 @@
 .erxes-form {
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
   margin: 0;
-  font-size: 14px;
+  font-size: $font-size;
   line-height: 1.5;
   height: 100%;
   display: flex;
@@ -109,8 +108,8 @@
     position: relative;
 
     .erxes-description {
+      color: lighten($black, 36%);
       margin-bottom: 5px;
-      color: #555;
     }
 
     .btn {
@@ -121,6 +120,7 @@
       color: $white;
       padding: 10px 20px;
       cursor: pointer;
+
       @include prefix((
         transition: background .3s ease-in-out
       ), webkit moz ms o);
@@ -131,15 +131,15 @@
       }
 
       &.btn-block {
-        width: 100%;
         display: block;
+        width: 100%;
       }
     }
   }
 
   .erxes-callout-body {
     margin-bottom: 10px;
-    color: #555;
+    color: lighten($black, 36%);
     width: 100%;
     display: block;
   }
@@ -148,8 +148,8 @@
     margin-bottom: 15px;
 
     .control-label {
-      max-width: 100%;
       font-weight: 500;
+      max-width: 100%;
 
       > .required {
         margin-left: 2px;
@@ -157,9 +157,9 @@
     }
 
     .description {
-      color: #666;
-      font-size: 13px;
+      color: $text-color;
       display: block;
+      font-size: 13px;
     }
 
     .form-control {
@@ -169,7 +169,7 @@
       padding: 6px 12px;
       line-height: 1.42857143;
       margin-top: 8px;
-      background-color: #fff;
+      background-color: $white;
       background-image: none;
       border: 1px solid $border-color;
       outline: 0;
@@ -228,50 +228,49 @@
 }
 
 .container-popup {
-  width: 100%;
-  min-height: 100%;
-  position: absolute;
-  background-color: #000; /* Fallback color */
-  background-color: rgba(0, 0, 0, .6); /* Black w/ opacity */
   @include prefix((
     transition: opacity .15s linear
   ), webkit moz ms o);
 
+  background-color: rgba($black, .6);
+  min-height: 100%;
+  position: absolute;
+  width: 100%;
+
   .erxes-form {
+    @include prefix((
+      transition: transform .3s ease
+    ), webkit moz ms o);
+
+    @include prefix((
+      transform: translate(0, -25%)
+    ), webkit moz ms o);
+
     margin: 50px auto;
     width: 500px;
-    @include prefix((
-      transition: transform 0.3s ease
-    ), webkit moz ms o);
-
-    @include prefix((
-      transform: translate(0,-25%)
-    ), webkit moz ms o);
 
     @media screen and (max-width: $break-medium) {
-      width: 100%;
       margin: 0;
+      width: 100%;
     }
   }
 }
 
 // dropdown
-.container-dropdown {
-  &.call-out {
-    .erxes-form-content {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-  
-      .erxes-callout-body {
-        margin-bottom: 0;
-        margin-right: 20px;
-        width: auto;
-      }
-    
-      .btn.btn-block {
-        width: auto;
-      }
+.container-dropdown.call-out {
+  .erxes-form-content {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    .erxes-callout-body {
+      margin-bottom: 0;
+      margin-right: 20px;
+      width: auto;
+    }
+
+    .btn.btn-block {
+      width: auto;
     }
   }
 }
@@ -297,13 +296,13 @@
 
   .erxes-form {
     user-select: none;
-    box-shadow: 0 5px 13px -2px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 5px 13px -2px rgba($black, .25);
     margin-left: 10px;
     margin-right: 20px;
     animation: fadeInUp;
     -webkit-animation: fadeInUp;
-    -webkit-animation-duration: 0.3s;
-    animation-duration: 0.3s;
+    -webkit-animation-duration: .3s;
+    animation-duration: .3s;
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
   }
@@ -313,8 +312,8 @@
     right: 20px;
     animation: bounceIn;
     -webkit-animation: bounceIn;
-    -webkit-animation-duration: 0.5s;
-    animation-duration: 0.5s;
+    -webkit-animation-duration: .5s;
+    animation-duration: .5s;
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
   }

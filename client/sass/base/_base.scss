@@ -1,14 +1,15 @@
 body {
+  box-sizing: border-box;
   margin: 0;
 }
 
 .erxes-widget {
-  margin: 0;
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
+  font-size: $font-size;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  margin: 0;
 
   button,
   input,

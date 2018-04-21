@@ -39,23 +39,25 @@ export default class Article extends React.Component {
     const { author } = article;
 
     return (
-      <a href="" className="erxes-kb-item" onClick={this.handleOnClick}>
+      <a className="erxes-kb-item" onClick={this.handleOnClick}>
         <h3>{article.title}</h3>
         <p>{article.summary}</p>
         <div className="item-meta flex-item">
           <div className="avatars">
             <img
               alt={author.details.fullName}
-              src={author.details.avatar || '/static/images/userDefaultIcon.png'}
+              src={author.details.avatar || '/static/images/default-avatar.svg'}
             />
           </div>
           <div>
             <div>
-              {__('Written by')} <span>{author.details.fullName}</span>
+              {__('Written by')}: <span>{author.details.fullName}</span>
             </div>
             <div>
               {article.modifiedDate ? __('Modified ') : __('Created ')}
-              {moment(article.modifiedDate ? article.modifiedDate : article.createdDate).fromNow()}
+              <span>
+                {moment(article.modifiedDate ? article.modifiedDate : article.createdDate).format('lll')}
+              </span>
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
-@import '../../sass/_variables';
-@import '../../sass/_mixin';
+@import 'client/sass/variables';
+@import 'client/sass/mixin';
 
-@import 'base/variables';
+@import 'client/sass/base/base';
+
 @import 'base/base';
 
 @import 'components/searchbar';
 @import 'components/knowledgebase';
-@import 'components/launcher';
