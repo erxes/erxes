@@ -40,6 +40,7 @@ export const sendMessage = (message, attachments) =>
     let optimisticResponse;
     let update;
 
+    // generate optimistic response
     if (currentConversationId) {
       optimisticResponse = {
         __typename: 'Mutation',
