@@ -9,6 +9,7 @@ const ProductSchema = mongoose.Schema({
   type: field({
     type: String,
     enum: PRODUCT_TYPES.ALL,
+    default: PRODUCT_TYPES.PRODUCT,
   }),
   description: field({ type: String, optional: true }),
   sku: field({ type: String, optional: true }), // Stock Keeping Unit

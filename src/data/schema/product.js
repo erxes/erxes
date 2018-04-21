@@ -11,7 +11,7 @@ export const types = `
 
 const params = `
   name: String!,
-  type: String!,
+  type: String,
   description: String,
   sku: String,
 `;
