@@ -12,8 +12,8 @@ export const getBrowserInfo = async () => {
     location = await response.json();
 
     location = {
+      navigator: {},
       ...location,
-      nagivator: {},
     }
 
   } catch (e) {
