@@ -5,13 +5,14 @@ import translation from '../locales';
 
 export const getBrowserInfo = async () => {
   let location;
-try {
+
+  try {
     const response = await fetch('https://freegeoip.net/json/');
 
     location = await response.json();
   } catch (e) {
     console.log(e.message); // eslint-disable-line
-    location = {};
+    location = { navigator: {} };
   }
 
   return {
