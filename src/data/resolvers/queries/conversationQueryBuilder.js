@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import { Integrations, Channels } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../constants';
+import { fixDate } from './insightUtils';
 
 export default class Builder {
   constructor(params, user = null) {
@@ -167,6 +168,15 @@ export default class Builder {
     };
   }
 
+  dateFilter(startDate, endDate) {
+    return {
+      createdAt: {
+        $gte: fixDate(startDate),
+        $lte: fixDate(endDate),
+      },
+    };
+  }
+
   /*
    * prepare all queries. do not do any action
    */
@@ -184,6 +194,7 @@ export default class Builder {
       integrations: {},
 
       participating: {},
+      createdAt: {},
     };
 
     // filter by channel
@@ -223,6 +234,10 @@ export default class Builder {
     if (this.params.integrationType) {
       this.queries.integrationType = await this.integrationTypeFilter(this.params.integrationType);
     }
+
+    if (this.params.startDate && this.params.endDate) {
+      this.queries.createdAt = this.dateFilter(this.params.startDate, this.params.endDate);
+    }
   }
 
   mainQuery() {
@@ -235,6 +250,7 @@ export default class Builder {
       ...this.queries.status,
       ...this.queries.starred,
       ...this.queries.tag,
+      ...this.queries.createdAt,
     };
   }
 }
