@@ -11,14 +11,9 @@ export const getBrowserInfo = async () => {
 
     location = await response.json();
 
-    location = {
-      navigator: {},
-      ...location,
-    }
-
   } catch (e) {
     console.log(e.message); // eslint-disable-line
-    location = { navigator: {} };
+    location = {};
   }
 
   return {
