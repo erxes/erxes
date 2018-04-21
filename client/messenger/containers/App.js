@@ -17,7 +17,7 @@ class App extends React.Component {
 
 const mapStateToProps = state => ({
   isMessengerVisible: state.isVisible,
-  uiOptions: connection.uiOptions || {}
+  uiOptions: connection.data.uiOptions || {}
 });
 
 export default connect(mapStateToProps)(App);
