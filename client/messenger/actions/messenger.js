@@ -158,18 +158,8 @@ export const endConversation = () => (dispatch) => {
 
   client.mutate({
     mutation: gql`
-      mutation endConversation(
-        $customerId: String
-        $brandCode: String!
-        $browserInfo: JSON!
-        $data: JSON
-      ) {
-        endConversation(
-          customerId: $customerId
-          brandCode: $brandCode
-          browserInfo: $browserInfo
-          data: $data
-        ) {
+      mutation endConversation($customerId: String $brandCode: String!  $data: JSON) {
+        endConversation(customerId: $customerId brandCode: $brandCode data: $data) {
           customerId
         }
       }`,
@@ -178,7 +168,6 @@ export const endConversation = () => (dispatch) => {
       customerId: data.customerId,
       brandCode: setting.brand_id,
       data: setting.data,
-      browserInfo: setting.browserInfo,
     },
   })
 
@@ -198,5 +187,7 @@ export const endConversation = () => (dispatch) => {
     dispatch({ type: CHANGE_CONVERSATION, conversationId: '' });
     dispatch({ type: END_CONVERSATION });
     dispatch({ type: CHANGE_ROUTE, route: 'accquireInformation' });
+
+    saveBrowserInfo();
   });
 };
