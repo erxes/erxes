@@ -78,39 +78,20 @@ export const sendMessage = (message, attachments) =>
 
     return client.mutate({
       mutation: gql`
-        mutation insertMessage(${connection.queryVariables}, $message: String,
-            $conversationId: String, $attachments: [JSON]) {
+        mutation insertMessage(
+            ${connection.queryVariables}
+            $message: String
+            $conversationId: String
+            $attachments: [JSON]
+          ) {
 
-          insertMessage(${connection.queryParams}, message: $message,
-            conversationId: $conversationId, attachments: $attachments) {
-            _id
-            conversationId
-            customerId
-            user {
-              _id
-              details {
-                avatar
-                fullName
-              }
-            }
-            content
-            createdAt
-            attachments
-            internal
-            engageData {
-              messageId
-              brandId
-              content
-              fromUserId
-              fromUser {
-                details {
-                  avatar
-                  fullName
-                }
-              }
-              kind
-              sentAs
-            }
+          insertMessage(
+            ${connection.queryParams}
+            message: $message
+            conversationId: $conversationId
+            attachments: $attachments
+          ) {
+            ${queries.messageFields}
           }
         }`,
 
