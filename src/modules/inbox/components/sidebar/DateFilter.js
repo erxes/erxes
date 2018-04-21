@@ -26,10 +26,8 @@ class DateFilter extends React.Component {
     const { startDate, endDate } = props.queryParams;
 
     this.state = {
-      startDate: moment()
-        .subtract('days', 1)
-        .format(format),
-      endDate: moment().format(format),
+      startDate: null,
+      endDate: null,
       totalConversationsCount: 0
     };
 
@@ -94,7 +92,7 @@ class DateFilter extends React.Component {
     const { totalConversationsCount } = this.state;
 
     const props = {
-      inputProps: { placeholder: __('Click to select a date') },
+      inputProps: { placeholder: __('Select a date') },
       timeFormat: 'HH:mm',
       dateFormat: 'YYYY/MM/DD',
       closeOnSelect: true
