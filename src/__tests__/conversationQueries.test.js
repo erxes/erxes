@@ -1,5 +1,6 @@
 /* eslint-env jest */
 
+import moment from 'moment';
 import { Users, Channels, Brands, Tags, Integrations, Conversations } from '../db/models';
 import { graphqlRequest, connect, disconnect } from '../db/connection';
 import {
@@ -33,6 +34,8 @@ describe('conversationQueries', () => {
     $participating: String
     $starred: String
     $ids: [String]
+    $startDate: String
+    $endDate: String
   `;
 
   const commonParams = `
@@ -46,6 +49,8 @@ describe('conversationQueries', () => {
     participating: $participating
     starred: $starred
     ids: $ids
+    startDate: $startDate
+    endDate: $endDate
   `;
 
   const qryConversations = `
@@ -357,6 +362,74 @@ describe('conversationQueries', () => {
     );
 
     expect(responses.length).toBe(1);
+  });
+
+  test('Conversations filtered by date', async () => {
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+
+    // Overriding conversation createdAt field with custom date
+    let startDate = moment('2018-04-03 10:00');
+    let endDate = moment('2018-04-03 18:00');
+
+    await Conversations.create({
+      integrationId: integration._id,
+      customerId: '12312',
+      content: '123312123',
+      createdAt: new Date(moment(startDate).add(5, 'hours')),
+      status: 'new',
+      number: 3,
+      messageCount: 0,
+    });
+
+    // From 10 to 18 hours should be only 1 conversation
+    let responses = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      {
+        startDate,
+        endDate,
+      },
+      { user },
+    );
+
+    expect(responses.length).toBe(1);
+
+    // Overriding conversation createdAt field with custom date
+    startDate = moment(startDate.add(8, 'hours'));
+    endDate = moment(endDate.add(8, 'hours'));
+
+    await Conversations.create({
+      integrationId: integration._id,
+      customerId: '12312',
+      content: '123312123',
+      createdAt: new Date(moment(startDate).add(5, 'hours')),
+      status: 'new',
+      number: 4,
+      messageCount: 0,
+    });
+
+    // From 18 to 24 hours should be only 1 conversation
+    responses = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { startDate, endDate },
+      { user },
+    );
+
+    expect(responses.length).toBe(1);
+
+    // 2 conversations created today filtering by day
+    const today = moment().format('YYYY-MM-DD HH:mm');
+
+    responses = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { startDate: today, endDate: moment(today).add(1, 'days') },
+      { user },
+    );
+
+    expect(responses.length).toBe(2);
   });
 
   test('Count conversations by channel', async () => {
