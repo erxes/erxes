@@ -7,6 +7,7 @@ import {
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
   END_CONVERSATION,
+  ENGAGE_MESSAGES_CREATED,
 } from '../constants';
 
 import {
@@ -42,7 +43,7 @@ export const connect = variables =>
     variables,
   });
 
-export const saveBrowserInfo = async () => {
+export const saveBrowserInfo = () => async (dispatch) => {
   const browserInfo = await getBrowserInfo();
 
   const variables = {
@@ -52,13 +53,21 @@ export const saveBrowserInfo = async () => {
 
   client.mutate({
     mutation: gql`
-      mutation saveBrowserInfo($customerId: String! $browserInfo: JSON!) {
+      mutation saveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
         saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
           _id
         }
       }
     `,
     variables,
+  })
+
+  .then(({ data: { saveBrowserInfo }}) => {
+    const engageConversations = saveBrowserInfo;
+
+    if (engageConversations.length > 0) {
+      dispatch({ type: ENGAGE_MESSAGES_CREATED });
+    }
   });
 };
 

@@ -6,6 +6,7 @@ import {
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
   END_CONVERSATION,
+  ENGAGE_MESSAGES_CREATED,
 } from '../constants';
 
 import {
@@ -87,12 +88,21 @@ const isConversationEnded = (state = false, action) => {
   return state;
 };
 
+const isEngageMessagesCreated = (state = false, action) => {
+  if (action.type === ENGAGE_MESSAGES_CREATED) {
+    return true;
+  }
+
+  return state;
+};
+
 const messenger = {
   isVisible,
   activeRoute,
   activeConversation,
   isAttachingFile,
   isConversationEnded,
+  isEngageMessagesCreated,
 };
 
 export default messenger;
