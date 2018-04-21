@@ -7,7 +7,6 @@
 
 // css
 import './index.css';
-import { getBrowserInfo } from '../../utils';
 
 // add meta to head
 const meta = document.createElement('meta');
@@ -76,11 +75,8 @@ const formSettings = window.erxesSettings.forms || [];
 // create iframes and save with index
 const iframesMapping = {};
 
-getBrowserInfo().then((browserInfo) => {
-  formSettings.forEach((formSetting) => {
-    formSetting.browserInfo = browserInfo;
-    iframesMapping[JSON.stringify(formSetting)] = createIframe(formSetting);
-  });
+formSettings.forEach(formSetting => {
+  iframesMapping[JSON.stringify(formSetting)] = createIframe(formSetting);
 });
 
 // listen for messages from widget

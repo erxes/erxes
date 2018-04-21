@@ -33,7 +33,6 @@ widgetConnect({
       name: setting.name,
       data: setting.data,
       companyData: setting.companyData,
-      browserInfo: setting.browserInfo,
     });
   },
 

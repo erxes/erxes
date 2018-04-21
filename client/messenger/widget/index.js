@@ -6,7 +6,6 @@
 
 // css
 import './index.css';
-import { getBrowserInfo } from '../../utils';
 
 // check is mobile
 const isMobile =
@@ -19,6 +18,7 @@ let generatedContent = '';
 
 if (isMobile) {
   const viewportMeta = document.querySelector('meta[name="viewport"]');
+
   if (!viewportMeta) {
     // add meta
     const meta = document.createElement('meta');
@@ -36,6 +36,7 @@ if (isMobile) {
 
 function disableZoom() {
   const viewportMeta = document.querySelector('meta[name="viewport"]');
+
   if (viewportMeta && generatedContent) {
     viewportMeta.content = generatedContent;
   } else {
@@ -47,6 +48,7 @@ function disableZoom() {
 
 function revertViewPort() {
   const viewportMeta = document.querySelector('meta[name="viewport"]');
+
   if (viewportMeta) {
     viewportMeta.content = viewportContent;
   }
@@ -54,7 +56,9 @@ function revertViewPort() {
 
 function uniqueString(str) {
   str = str.replace(/[ ]/g, '').split(',');
+
   const result = [];
+
   for (let i = 0; i < str.length; i++) {
     if (result.indexOf(str[i]) == -1) result.push(str[i]);
   }
@@ -72,6 +76,7 @@ erxesContainer.className = 'erxes-messenger-hidden';
 
 // add iframe
 let iframe = document.createElement('iframe');
+
 iframe.id = iframeId;
 iframe.src = `${ROOT_URL}/messenger`;
 iframe.style.display = 'none';
@@ -86,14 +91,11 @@ iframe = document.querySelector(`#${iframeId}`);
 iframe.onload = async () => {
   iframe.style.display = 'block';
 
-  const browserInfo = await getBrowserInfo();
-
   iframe.contentWindow.postMessage(
     {
       fromPublisher: true,
       setting: {
-        ...window.erxesSettings.messenger,
-        browserInfo,
+        ...window.erxesSettings.messenger
       },
     },
     '*'

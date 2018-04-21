@@ -15,6 +15,8 @@ import {
   getLocalStorageItem,
 } from '../connection';
 
+import { getBrowserInfo } from '../../utils';
+
 import client from '../../apollo-client';
 
 export const connect = variables =>
@@ -22,12 +24,12 @@ export const connect = variables =>
   client.mutate({
     mutation: gql`
       mutation connect($brandCode: String!, $email: String, $phone: String,
-        $isUser: Boolean, $browserInfo: JSON!, $data: JSON,
+        $isUser: Boolean, $data: JSON,
         $companyData: JSON, $cachedCustomerId: String) {
 
         messengerConnect(brandCode: $brandCode, email: $email, phone: $phone,
           isUser: $isUser, data: $data, companyData: $companyData,
-          browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId) {
+          cachedCustomerId: $cachedCustomerId) {
 
           integrationId,
           messengerData,
@@ -39,6 +41,26 @@ export const connect = variables =>
 
     variables,
   });
+
+export const saveBrowserInfo = async () => {
+  const browserInfo = await getBrowserInfo();
+
+  const variables = {
+    customerId: connection.data.customerId,
+    browserInfo
+  };
+
+  client.mutate({
+    mutation: gql`
+      mutation saveBrowserInfo($customerId: String! $browserInfo: JSON!) {
+        saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
+          _id
+        }
+      }
+    `,
+    variables,
+  });
+};
 
 export const toggle = (isVisible) => {
   // notify parent window launcher state
@@ -136,18 +158,8 @@ export const endConversation = () => (dispatch) => {
 
   client.mutate({
     mutation: gql`
-      mutation endConversation(
-        $customerId: String
-        $brandCode: String!
-        $browserInfo: JSON!
-        $data: JSON
-      ) {
-        endConversation(
-          customerId: $customerId
-          brandCode: $brandCode
-          browserInfo: $browserInfo
-          data: $data
-        ) {
+      mutation endConversation($customerId: String $brandCode: String!  $data: JSON) {
+        endConversation(customerId: $customerId brandCode: $brandCode data: $data) {
           customerId
         }
       }`,
@@ -156,7 +168,6 @@ export const endConversation = () => (dispatch) => {
       customerId: data.customerId,
       brandCode: setting.brand_id,
       data: setting.data,
-      browserInfo: setting.browserInfo,
     },
   })
 
@@ -176,5 +187,7 @@ export const endConversation = () => (dispatch) => {
     dispatch({ type: CHANGE_CONVERSATION, conversationId: '' });
     dispatch({ type: END_CONVERSATION });
     dispatch({ type: CHANGE_ROUTE, route: 'accquireInformation' });
+
+    saveBrowserInfo();
   });
 };

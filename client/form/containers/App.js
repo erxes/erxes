@@ -4,9 +4,15 @@ import { connect } from 'react-redux';
 import { App as DumbApp } from '../components';
 import { postMessage, init, closePopup, showPopup } from '../actions';
 import { connection } from '../connection';
+import { getBrowserInfo } from '../../utils';
 
 class App extends React.Component {
   componentDidMount() {
+    // save browser info in connection for later in use in saveForm
+    getBrowserInfo().then((browserInfo) => {
+      connection.browserInfo = browserInfo
+    });
+
     window.addEventListener('message', (event) => {
       if (event.data.fromPublisher) {
         // receive show popup command from publisher
@@ -19,6 +25,7 @@ class App extends React.Component {
 
   setHeight() {
     const elementsHeight = document.getElementById('erxes-container').clientHeight;
+
     postMessage({
       action: 'changeContainerStyle',
       style: `height: ${elementsHeight}px;`,

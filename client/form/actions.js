@@ -189,7 +189,7 @@ export const saveForm = doc => (dispatch) => {
     variables: {
       integrationId: connection.data.integrationId,
       formId: connection.data.formId,
-      browserInfo: connection.setting.browserInfo,
+      browserInfo: connection.browserInfo,
       submissions,
     },
   })
