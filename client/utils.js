@@ -10,6 +10,12 @@ export const getBrowserInfo = async () => {
     const response = await fetch('https://freegeoip.net/json/');
 
     location = await response.json();
+
+    location = {
+      ...location,
+      nagivator: {},
+    }
+
   } catch (e) {
     console.log(e.message); // eslint-disable-line
     location = { navigator: {} };
