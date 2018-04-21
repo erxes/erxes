@@ -17,21 +17,29 @@ const propTypes = {
   client: PropTypes.object
 };
 
+const format = 'YYYY-MM-DD HH:mm';
+
 class DateFilter extends React.Component {
   constructor(props) {
     super(props);
 
+    const { startDate, endDate } = props.queryParams;
+
     this.state = {
-      startDate: props.queryParams.startDate
-        ? moment(props.queryParams.startDate)
-        : moment()
-            .subtract('days', 1)
-            .format('YYYY-MM-DD HH:mm'),
-      endDate: props.queryParams.endDate
-        ? moment(props.queryParams.endDate)
-        : moment().format('YYYY-MM-DD HH:mm'),
+      startDate: moment()
+        .subtract('days', 1)
+        .format(format),
+      endDate: moment().format(format),
       totalConversationsCount: 0
     };
+
+    if (startDate) {
+      this.state.startDate = moment(startDate);
+    }
+
+    if (endDate) {
+      this.state.endDate = moment(endDate);
+    }
 
     this.renderPopover = this.renderPopover.bind(this);
     this.refetchCountQuery = this.refetchCountQuery.bind(this);
@@ -70,8 +78,8 @@ class DateFilter extends React.Component {
   filterByDate() {
     const { startDate, endDate } = this.state;
 
-    const formattedStartDate = moment(startDate).format('YYYY-MM-DD HH:mm');
-    const formattedEndDate = moment(endDate).format('YYYY-MM-DD HH:mm');
+    const formattedStartDate = moment(startDate).format(format);
+    const formattedEndDate = moment(endDate).format(format);
 
     router.setParams(this.props.history, {
       startDate: formattedStartDate,
