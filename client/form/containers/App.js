@@ -8,7 +8,11 @@ import { getBrowserInfo } from '../../utils';
 
 class App extends React.Component {
   componentDidMount() {
-    this.setBrowserInfo();
+    // save browser info in connection for later in use in saveForm
+    getBrowserInfo().then((browserInfo) => {
+      connection.browserInfo = browserInfo
+    });
+
     window.addEventListener('message', (event) => {
       if (event.data.fromPublisher) {
         // receive show popup command from publisher
@@ -19,12 +23,9 @@ class App extends React.Component {
     });
   }
 
-  async setBrowserInfo() {
-    connection.browserInfo = await getBrowserInfo();
-  }
-
   setHeight() {
     const elementsHeight = document.getElementById('erxes-container').clientHeight;
+
     postMessage({
       action: 'changeContainerStyle',
       style: `height: ${elementsHeight}px;`,
