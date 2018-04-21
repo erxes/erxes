@@ -12,6 +12,8 @@ const listParamsDef = `
   $participating: String
   $starred: String
   $ids: [String]
+  $startDate: String
+  $endDate: String
 `;
 
 const listParamsValue = `
@@ -25,6 +27,8 @@ const listParamsValue = `
   participating: $participating
   starred: $starred
   ids: $ids
+  startDate: $startDate
+  endDate: $endDate
 `;
 
 const conversationList = `

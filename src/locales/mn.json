@@ -434,6 +434,7 @@
   "Choose integrations": "Интеграци сонгох",
   "Choose brands": "Брэнд сонгох",
   "Click to select a date": "Энд дарж огноо сонгоно уу",
+  "Select a date": "Огноо сонгоно уу",
   "Choose users": "Хэрэглэгч сонгох",
   "Select Brand": "Брэнд сонгох",
   "Write here Welcome message.": "Зурвасаа энд бичнэ үү.",
@@ -653,5 +654,6 @@
   "Rejected": "Татгалзсан",
   "No customer": "Харилцагч байхгүй байна",
   "Action": "Үйлдэл",
-  "Please select one to merge": "Нэгийг сонгоно уу"
+  "Please select one to merge": "Нэгийг сонгоно уу",
+  "Filter by date": "Oн сараар шүүх"
 }
