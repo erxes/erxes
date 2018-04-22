@@ -25,11 +25,10 @@ class PipelineForm extends Component {
   constructor(props) {
     super(props);
 
-    this.generateDoc = this.generateDoc.bind(this);
     this.save = this.save.bind(this);
     this.onChangeStages = this.onChangeStages.bind(this);
-    this.renderStages = this.renderStages.bind(this);
-    this.renderContent = this.renderContent.bind(this);
+    this.generateDoc = this.generateDoc.bind(this);
+
     this.state = { stages: (props.stages || []).map(stage => ({ ...stage })) };
   }
 
@@ -40,11 +39,9 @@ class PipelineForm extends Component {
   save(e) {
     e.preventDefault();
 
-    this.props.save(
-      this.generateDoc(),
-      () => this.context.closeModal(),
-      this.props.pipeline
-    );
+    const { save, pipeline } = this.props;
+
+    save(this.generateDoc(), () => this.context.closeModal(), pipeline);
   }
 
   generateDoc() {
@@ -59,16 +56,9 @@ class PipelineForm extends Component {
     };
   }
 
-  renderStages() {
-    return (
-      <Stages stages={this.state.stages} onChangeStages={this.onChangeStages} />
-    );
-  }
-
   renderContent() {
-    const { pipeline } = this.props;
-
-    const object = pipeline || {};
+    const { pipeline = {} } = this.props;
+    const { stages } = this.state;
 
     return (
       <div>
@@ -77,12 +67,13 @@ class PipelineForm extends Component {
 
           <FormControl
             id="pipeline-name"
-            defaultValue={object.name}
+            defaultValue={pipeline.name}
             type="text"
             required
           />
         </FormGroup>
-        {this.renderStages()}
+
+        <Stages stages={stages} onChangeStages={this.onChangeStages} />
       </div>
     );
   }

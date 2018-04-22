@@ -1,6 +1,11 @@
 import styled, { keyframes } from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import {
+  SortableWrapper,
+  SortItem,
+  DragHandler
+} from 'modules/common/styles/sort';
 
 const fadeIn = keyframes`
   from {
@@ -119,6 +124,51 @@ const PreviewBody = styled.div`
 
 const BodyContent = styled.div`
   flex: 1;
+
+  ${SortableWrapper} {
+    overflow: hidden;
+    height: auto;
+
+    ${SortItem} {
+      background: none;
+      margin: 0;
+      padding: 0;
+      border: 0;
+
+      > div {
+        width: 100%;
+      }
+
+      ${DragHandler} {
+        position: absolute;
+        top: ${dimensions.unitSpacing / 2}px;
+        right: ${dimensions.unitSpacing}px;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: ${dimensions.headerSpacing - 20}px;
+        height: ${dimensions.headerSpacing - 20}px;
+        border-radius: 4px;
+        opacity: 0;
+        visibility: visible;
+        border: 1px solid ${colors.borderPrimary};
+        box-shadow: 0 0 4px ${colors.shadowPrimary};
+        transition: all 0.3s ease;
+
+        i {
+          margin: 0;
+          font-size: 16px;
+        }
+      }
+
+      &:hover {
+        ${DragHandler} {
+          opacity: 1;
+        }
+      }
+    }
+  }
 `;
 
 const ThankContent = styled.div`
@@ -235,62 +285,15 @@ const OverlayTrigger = styled.div`
   position: absolute;
 `;
 
-const DragHandler = styled.span`
-  cursor: move;
-  position: absolute;
-  top: ${dimensions.unitSpacing / 2}px;
-  right: ${dimensions.unitSpacing}px;
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: ${dimensions.headerSpacing - 20}px;
-  height: ${dimensions.headerSpacing - 20}px;
-  border-radius: 4px;
-  opacity: 1;
-  visibility: visible;
-  border: 1px solid ${colors.borderPrimary};
-  box-shadow: 0 0 4px ${colors.shadowPrimary};
-  transition: all 0.3s ease;
-
-  i {
-    margin: 0;
-    font-size: 16px;
-  }
-`;
-
 const DragableItem = styled.div`
   position: relative;
   z-index: 100;
   box-shadow: 0 2px ${dimensions.unitSpacing}px -3px rgba(0, 0, 0, 0.5);
   background-color: ${colors.bgLight};
-
-  &:hover ${DragHandler} {
-    opacity: 1;
-    visibility: visible;
-  }
-`;
-
-const PreviewForm = styled.div`
-  margin-top: ${dimensions.coreSpacing}px;
-  overflow: hidden;
-
-  ${DragableItem} {
-    box-shadow: none;
-  }
-
-  ${DragHandler} {
-    opacity: 0;
-    visibility: hidden;
-  }
 `;
 
 const FieldItem = styled.div`
   padding: ${dimensions.unitSpacing}px;
-
-  &:hover {
-    cursor: pointer;
-  }
 
   input,
   textarea,
@@ -525,7 +528,6 @@ export {
   DropdownContent,
   FormBody,
   BoxRow,
-  PreviewForm,
   DragableItem,
   DragHandler,
   FieldItem,

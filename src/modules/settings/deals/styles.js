@@ -25,25 +25,13 @@ const BoardRowContainer = styled.div`
 
 const PipelineContainer = styled.div`
   ul {
-    width: 100%;
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 0 0 0 20px;
 
-    li {
-      margin-bottom: 0;
-      border: 0;
-      border-top: 1px solid rgb(238, 238, 238);
-    }
-  }
-
-  ul.head {
     li {
       float: left;
-      padding: 10px 20px;
-      &:last-child {
-        float: right;
-      }
+      padding: 10px 20px 10px 0;
       span {
         text-transform: uppercase;
         color: ${colors.colorCoreLightGray};
@@ -55,13 +43,16 @@ const PipelineContainer = styled.div`
 
   ${SortItem} {
     z-index: 100;
+    margin-bottom: 0;
+    border: 0;
+    border-top: 1px solid rgb(238, 238, 238);
   }
 `;
 
 const PipelineRowContainer = styled.div`
   width: 100%;
-  > div {
-    float: right;
+  label {
+    padding: 0 20px 0 5px;
   }
 `;
 

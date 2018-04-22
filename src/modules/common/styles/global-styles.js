@@ -58,7 +58,8 @@ injectGlobal`
   }
 
   .modal-dialog {
-    margin: 50px auto;
+    padding: 50px 0;
+    margin: 0 auto;
   }
 
   .modal-dialog.full {

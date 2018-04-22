@@ -1,21 +1,36 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { SortableList } from 'modules/common/components';
+import { Wrapper } from 'modules/layout/components';
+import {
+  DataWithLoader,
+  SortableList,
+  ModalTrigger,
+  Button,
+  FormControl
+} from 'modules/common/components';
+import { collectOrders } from 'modules/deals/utils';
+import { BarItems } from 'modules/layout/styles';
+import { PipelineForm } from '../containers';
 import { PipelineRow } from './';
 import { PipelineContainer } from '../styles';
-import { collectOrders } from 'modules/deals/utils';
 
 const propTypes = {
-  pipelines: PropTypes.array.isRequired,
+  pipelines: PropTypes.array,
   save: PropTypes.func,
   updateOrder: PropTypes.func,
-  remove: PropTypes.func
+  remove: PropTypes.func,
+  toggleBulk: PropTypes.func.isRequired,
+  toggleAll: PropTypes.func,
+  bulk: PropTypes.array,
+  boardId: PropTypes.string,
+  loading: PropTypes.bool
 };
 
 class Pipelines extends Component {
   constructor(props) {
     super(props);
 
+    this.toggleAll = this.toggleAll.bind(this);
     this.onChangePipelines = this.onChangePipelines.bind(this);
 
     this.state = { pipelines: props.pipelines };
@@ -27,21 +42,26 @@ class Pipelines extends Component {
     }
   }
 
+  toggleAll() {
+    const { toggleAll, pipelines } = this.props;
+
+    toggleAll(pipelines, 'pipelines');
+  }
+
   onChangePipelines(pipelines) {
     this.setState({ pipelines });
 
     this.props.updateOrder(collectOrders(pipelines));
   }
 
-  renderRow() {
-    const { save, remove } = this.props;
+  renderRows() {
+    const { toggleBulk } = this.props;
 
     const child = pipeline => (
       <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
-        save={save}
-        remove={remove}
+        toggleBulk={toggleBulk}
       />
     );
 
@@ -51,28 +71,94 @@ class Pipelines extends Component {
       <SortableList
         fields={pipelines}
         child={child}
-        lockAxis="y"
-        useDragHandle
         onChangeFields={this.onChangePipelines}
+        showDragHandler={false}
       />
+    );
+  }
+
+  remove(pipelines) {
+    const pipeline = pipelines[0];
+
+    this.props.remove(pipeline._id);
+  }
+
+  renderEdit(pipelines) {
+    const pipeline = pipelines[0];
+    const { save } = this.props;
+
+    const trigger = (
+      <Button btnStyle="success" size="small" icon="edit">
+        Edit
+      </Button>
+    );
+
+    return (
+      <ModalTrigger title="Edit pipeline" trigger={trigger}>
+        <PipelineForm pipeline={pipeline} save={save} />
+      </ModalTrigger>
     );
   }
 
   render() {
     const { __ } = this.context;
+    const { boardId, save, remove, pipelines, loading, bulk } = this.props;
+
+    const leftActionBar = bulk.length > 0 && (
+      <BarItems>
+        {this.renderEdit(bulk)}
+
+        <Button
+          btnStyle="danger"
+          size="small"
+          icon="cancel-1"
+          onClick={() => remove(bulk)}
+        >
+          Remove
+        </Button>
+      </BarItems>
+    );
+
+    const trigger = (
+      <Button btnStyle="success" size="small" icon="add">
+        Add pipeline
+      </Button>
+    );
+
+    const rightActionBar = boardId && (
+      <ModalTrigger title="Add pipeline" trigger={trigger}>
+        <PipelineForm boardId={boardId} save={save} />
+      </ModalTrigger>
+    );
+
+    const data = (
+      <Fragment>
+        <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
+        <PipelineContainer>
+          <ul>
+            <li>
+              <FormControl
+                componentClass="checkbox"
+                onChange={this.toggleAll}
+              />
+            </li>
+            <li>
+              <span>{__('Pipeline')}</span>
+            </li>
+          </ul>
+          <div id="pipelines">{this.renderRows()}</div>
+        </PipelineContainer>
+      </Fragment>
+    );
 
     return (
-      <PipelineContainer>
-        <ul className="head">
-          <li>
-            <span>{__('Name')}</span>
-          </li>
-          <li>
-            <span>{__('Actions')}</span>
-          </li>
-        </ul>
-        {this.renderRow()}
-      </PipelineContainer>
+      <DataWithLoader
+        data={data}
+        loading={loading}
+        count={pipelines.length}
+        emptyText="There is no pipeline in this board."
+        emptyImage="/images/robots/robot-05.svg"
+      />
     );
   }
 }

@@ -35,6 +35,15 @@ const setBadge = (count, title) => {
   favicon.href = '/favicon.png';
 };
 
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+
+  return result;
+};
+
 export {
   Alert,
   uploadHandler,
@@ -49,5 +58,6 @@ export {
   setBadge,
   searchCompany,
   searchUser,
-  searchCustomer
+  searchCustomer,
+  reorder
 };

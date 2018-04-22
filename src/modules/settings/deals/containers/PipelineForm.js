@@ -2,26 +2,28 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Bulk, Spinner } from 'modules/common/components';
 import { queries } from '../graphql';
 import { PipelineForm } from '../components';
-import { Spinner } from 'modules/common/components';
 
-const EditPipelineFormContainer = props => {
-  const { stagesQuery } = props;
+class EditPipelineFormContainer extends Bulk {
+  render() {
+    const { stagesQuery } = this.props;
 
-  if (stagesQuery.loading) {
-    return <Spinner />;
+    if (stagesQuery.loading) {
+      return <Spinner />;
+    }
+
+    const stages = stagesQuery.dealStages;
+
+    const extendedProps = {
+      ...this.props,
+      stages
+    };
+
+    return <PipelineForm {...extendedProps} />;
   }
-
-  const stages = stagesQuery.dealStages;
-
-  const extendedProps = {
-    ...props,
-    stages
-  };
-
-  return <PipelineForm {...extendedProps} />;
-};
+}
 
 EditPipelineFormContainer.propTypes = {
   stagesQuery: PropTypes.object
