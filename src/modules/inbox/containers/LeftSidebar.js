@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { withRouter } from 'react-router';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import { LeftSidebar as LeftSidebarComponent } from '../components';
 import { queries } from '../graphql';
@@ -35,7 +36,8 @@ class LeftSidebar extends Component {
 
 LeftSidebar.propTypes = {
   conversationsQuery: PropTypes.object,
-  totalCountQuery: PropTypes.object
+  totalCountQuery: PropTypes.object,
+  history: PropTypes.object
 };
 
 const generateOptions = queryParams => ({
@@ -58,4 +60,4 @@ export default compose(
       variables: generateOptions(queryParams)
     })
   })
-)(LeftSidebar);
+)(withRouter(LeftSidebar));

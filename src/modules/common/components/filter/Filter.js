@@ -18,13 +18,15 @@ const Filters = styled.div`
 
 function Filter({ queryParams = {}, history }) {
   const onClickClose = paramKey => {
-    router.setParams(history, { [paramKey]: null });
+    for (let key of paramKey) {
+      router.setParams(history, { [key]: null });
+    }
   };
 
   const renderFilterParam = (paramKey, bool) => {
     if (queryParams[paramKey]) {
       return (
-        <Chip onClickClose={() => onClickClose(paramKey)}>
+        <Chip onClickClose={() => onClickClose([paramKey])}>
           {bool ? paramKey : queryParams[paramKey]}
         </Chip>
       );
@@ -46,8 +48,21 @@ function Filter({ queryParams = {}, history }) {
       const ChipText = createChipText(graphqlQuery, id);
 
       return (
-        <Chip normal onClickClose={() => onClickClose(paramKey)}>
+        <Chip normal onClickClose={() => onClickClose([paramKey])}>
           <ChipText />
+        </Chip>
+      );
+    }
+  };
+
+  const renderFilterWithDate = () => {
+    if (queryParams.startDate && queryParams.endDate) {
+      return (
+        <Chip
+          normal
+          onClickClose={() => onClickClose(['startDate', 'endDate'])}
+        >
+          {queryParams.startDate} - {queryParams.endDate}
         </Chip>
       );
     }
@@ -65,6 +80,7 @@ function Filter({ queryParams = {}, history }) {
       {renderFilterWithData('segment', 'segment')}
       {renderFilterParam('kind')}
       {renderFilterWithData('brand', 'brand')}
+      {renderFilterWithDate()}
     </Filters>
   );
 }
