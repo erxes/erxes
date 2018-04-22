@@ -138,7 +138,7 @@ class CustomerForm extends React.Component {
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
               <Select
-                placeholder="Search..."
+                placeholder={__('Search')}
                 onFocus={() => users.length < 1 && this.handleUserSearch('')}
                 onInputChange={this.handleUserSearch}
                 onChange={selectedOption => {

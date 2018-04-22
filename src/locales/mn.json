@@ -1,5 +1,4 @@
 {
-  "Search ...": "Хайх...",
   "Are you sure?": "Та энэ үйлдлийг хийхдээ итгэлтэй байна уу? ",
   "Yes, I am": "Тийм",
   "No, Cancel": "Үгүй",
@@ -223,7 +222,7 @@
   "Participating": "Оролцсон",
   "Resolved": "Шийдэгдсэн",
   "View more": "Дэлгэрэнгүй үзэх",
-  "Customer is offline. Click to hide and send messages and they will receive them the next time they are online.":
+  "Customer is offline Click to hide and send messages and they will receive them the next time they are online":
     "Хэрэглэгч офлайн байна. Зурвас нуух болон илгээх дарж дараагийн удаа харилцагч онлайнаар хүлээж авна.",
   "No templates": "Тэмплэйт байхгүй байна",
   "Save as template": "Тэмплэйт - р хадгалах",
@@ -425,10 +424,10 @@
   "Youtube": "Юүтүб",
   "Github": "Гитхаб",
   "Edit response": "Хариултыг засах",
-  "To send your message press [Enter] and [Shift + Enter] to add a new line ...":
-    "Тэмдэглэлээ илгээхийн тулд [Enter] шинэ мөр нэмэх бол [Shift + Enter] дарна уу ...",
-  "To send your note press [Enter] and [Shift + Enter] to add a new line ...":
-    "Тэмдэглэлээ илгээхийн тулд [Enter] шинэ мөр нэмэх бол  [Shift + Enter] дарна уу ...",
+  "To send your message press Enter and Shift + Enter to add a new line":
+    "Тэмдэглэлээ илгээхийн тулд Enter шинэ мөр нэмэх бол Shift + Enter дарна уу",
+  "To send your note press Enter and Shift + Enter to add a new line":
+    "Тэмдэглэлээ илгээхийн тулд Enter шинэ мөр нэмэх бол Shift + Enter дарна уу",
   "Type to search": "Энд бичиж хайна уу",
   "Members": "Гишүүд",
   "Choose integrations": "Интеграци сонгох",
@@ -447,12 +446,12 @@
   "Select": "Сонгох",
   "select": "сонгох",
   "Choose members": "Гишүүд сонгох",
-  "Search...": "Хайлт...",
+  "Search": "Хайлт",
   "your@email.com": "your@email.com",
   "password": "нууц үг",
   "registered@email.com": "registered@email.com",
   "new password": "шинэ нууц үг",
-  "Start typing to leave a note ...": "Тэмдэглэл бичиж эхлэх ...",
+  "Start typing to leave a note": "Тэмдэглэл бичиж эхлэх ...",
   "Re-type password": "Нууц үгээ дахин оруулна уу",
   "Name:": "Нэр:",
   "Size:": "Хэмжээ:",
