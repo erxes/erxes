@@ -13,6 +13,7 @@ import {
   FullPreviewStep
 } from './step';
 import { StepWrapper, TitleContainer } from '../styles';
+import VALIDATION_ERROR from '../constants';
 
 const propTypes = {
   integration: PropTypes.object,
@@ -57,23 +58,35 @@ class Form extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  isValid(name, message) {
+    const { __ } = this.context;
+
+    const field = this.state[name];
+
+    if (!field || field.length === 0) {
+      Alert.error(__(message));
+
+      return false;
+    }
+  }
+
   handleSubmit(e) {
     e.preventDefault();
 
-    const { brand, calloutTitle, title } = this.state;
-    const { __ } = this.context;
+    // form fields validation
+    const result = Object.keys(this.state).map(name => {
+      if (`${name}` in VALIDATION_ERROR) {
+        return this.isValid(name, VALIDATION_ERROR[name]);
+      }
+    });
 
-    if (!title) {
-      return Alert.error(__('Write title'));
-    }
-
-    if (!brand) {
-      return Alert.error(__('Choose brand'));
+    if (result.includes(false)) {
+      return;
     }
 
     this.props.save({
-      name: title,
-      brandId: brand,
+      name: this.state.title,
+      brandId: this.state.brand,
       languageCode: this.state.language,
       formData: {
         loadType: this.state.type,
@@ -93,7 +106,7 @@ class Form extends Component {
         buttonText: this.state.formBtnText,
         themeColor: this.state.theme || this.state.color,
         callout: {
-          title: calloutTitle,
+          title: this.state.calloutTitle,
           body: this.state.bodyValue,
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logoPreviewUrl,
