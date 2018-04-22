@@ -58,12 +58,12 @@ class DateFilter extends React.Component {
   }
 
   refetchCountQuery() {
-    const { client } = this.props;
+    const { client, queryParams } = this.props;
 
     client
       .query({
         query: gql(queries.totalConversationsCount),
-        variables: { ...this.state }
+        variables: { ...queryParams }
       })
 
       .then(({ data }) => {
