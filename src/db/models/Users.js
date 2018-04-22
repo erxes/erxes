@@ -383,7 +383,10 @@ class User {
    */
   static async login({ email, password }) {
     const user = await Users.findOne({
-      email: { $regex: new RegExp(email, 'i') },
+      $or: [
+        { email: { $regex: new RegExp(email, 'i') } },
+        { username: { $regex: new RegExp(email, 'i') } },
+      ],
     });
 
     if (!user) {
