@@ -58,12 +58,12 @@ class DateFilter extends React.Component {
   }
 
   refetchCountQuery() {
-    const { client } = this.props;
+    const { client, queryParams } = this.props;
 
     client
       .query({
         query: gql(queries.totalConversationsCount),
-        variables: { ...this.state }
+        variables: { ...queryParams }
       })
 
       .then(({ data }) => {
@@ -121,7 +121,9 @@ class DateFilter extends React.Component {
 
           <FlexRow>
             <FlexItem>
-              <span>Total conversations: {totalConversationsCount}</span>
+              <span>
+                {__('Total conversations')}: {totalConversationsCount}
+              </span>
             </FlexItem>
           </FlexRow>
 
@@ -136,6 +138,8 @@ class DateFilter extends React.Component {
   }
 
   render() {
+    const { __ } = this.context;
+
     return (
       <OverlayTrigger
         ref={overlayTrigger => {
@@ -149,7 +153,7 @@ class DateFilter extends React.Component {
         rootClose
       >
         <PopoverButton>
-          Date <Icon icon="downarrow" />
+          {__('Date')} <Icon icon="downarrow" />
         </PopoverButton>
       </OverlayTrigger>
     );

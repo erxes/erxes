@@ -19,7 +19,6 @@ const VALIDATION_ERROR = {
   calloutTitle: 'Write call out title',
   calloutBtnText: 'Write call out button text',
   bodyValue: 'Write body value',
-  logoPreviewUrl: 'Insert logo preview url ',
   fields: 'Insert fields'
 };
 
