@@ -70,24 +70,28 @@ StyleButton.propTypes = {
 };
 
 const BLOCK_TYPES = [
-  { label: <b>H</b>, style: 'header-three', title: 'Heading' },
   {
-    label: <i className="ion-quote" />,
+    label: <i className="icon-fontsize" />,
+    style: 'header-three',
+    title: 'Heading'
+  },
+  {
+    label: <i className="icon-rightquote" />,
     style: 'blockquote',
     title: 'Blockquote'
   },
   {
-    label: <i className="ion-ios-circle-filled" />,
+    label: <i className="icon-list-2" />,
     style: 'unordered-list-item',
     title: 'Unordered list'
   },
   {
-    label: <i className="ion-pound" />,
+    label: <i className="icon-list" />,
     style: 'ordered-list-item',
     title: 'Ordered list'
   },
   {
-    label: <i className="ion-code" />,
+    label: <i className="icon-superscript" />,
     style: 'code-block',
     title: 'Code Block'
   }
@@ -124,9 +128,13 @@ BlockStyleControls.propTypes = {
 };
 
 const INLINE_STYLES = [
-  { label: <b>B</b>, style: 'BOLD', title: 'Bold' },
-  { label: <i>I</i>, style: 'ITALIC', title: 'Italic' },
-  { label: <u>U</u>, style: 'UNDERLINE', title: 'Underline' }
+  { label: <i className="icon-bold" />, style: 'BOLD', title: 'Bold' },
+  { label: <i className="icon-italic" />, style: 'ITALIC', title: 'Italic' },
+  {
+    label: <i className="icon-underline" />,
+    style: 'UNDERLINE',
+    title: 'Underline'
+  }
 ];
 
 const InlineStyleControls = ({ onToggle, editorState }) => {
@@ -161,6 +169,7 @@ export class ErxesEditor extends Component {
 
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.onTab = this.onTab.bind(this);
+    this.handlePastedFile = this.handlePastedFile.bind(this);
     this.toggleBlockType = this.toggleBlockType.bind(this);
     this.toggleInlineStyle = this.toggleInlineStyle.bind(this);
   }
@@ -195,6 +204,12 @@ export class ErxesEditor extends Component {
     const { onChange, editorState } = this.props;
 
     onChange(RichUtils.toggleInlineStyle(editorState, inlineStyle));
+  }
+
+  handlePastedFile(e) {
+    if (this.props.handleFileInput) {
+      this.props.handleFileInput(e);
+    }
   }
 
   render() {
@@ -247,6 +262,7 @@ export class ErxesEditor extends Component {
             ref="editor"
             plugins={this.props.plugins}
             spellCheck
+            handlePastedFiles={this.handlePastedFile}
           />
         </div>
         {this.props.pluginContent}
@@ -265,6 +281,7 @@ ErxesEditor.propTypes = {
   keyBindingFn: PropTypes.func,
   onUpArrow: PropTypes.func,
   onDownArrow: PropTypes.func,
+  handleFileInput: PropTypes.func,
   placeholder: PropTypes.string
 };
 

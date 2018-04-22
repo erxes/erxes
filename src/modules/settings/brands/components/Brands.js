@@ -24,15 +24,16 @@ class Brands extends Component {
       queryParams,
       loading
     } = this.props;
+    const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Brands', link: '/settings/brands' },
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Brands'), link: '/settings/brands' },
       { title: `${currentBrand.name || ''}` }
     ];
 
     const trigger = (
-      <Button btnStyle="success" size="small" icon="wrench">
+      <Button btnStyle="success" size="small" icon="computer">
         Manage integration
       </Button>
     );
@@ -74,5 +75,8 @@ class Brands extends Component {
 }
 
 Brands.propTypes = propTypes;
+Brands.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Brands;

@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { colors } from 'modules/common/styles';
-import { Spinner } from 'modules/common/components';
 import Message from './Message';
+import AttachmentPreview from './AttachmentPreview';
+import { TwitterConversation } from './TwitterConversation';
 
 const propTypes = {
   conversation: PropTypes.object,
+  conversationMessages: PropTypes.array.isRequired,
   attachmentPreview: PropTypes.object,
   scrollBottom: PropTypes.func.isRequired
 };
@@ -20,72 +21,29 @@ const Wrapper = styled.div`
   }
 `;
 
-const Preview = styled.div`
-  max-width: 360px;
-  padding: 10px;
-  background: ${colors.colorSecondary};
-  margin-left: auto;
-  margin-right: 55px;
-  display: inline-block;
-  float: right;
-  box-shadow: 0 1px 1px 0 ${colors.darkShadow};
-  border-radius: 7px;
-  position: relative;
-
-  > div {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    margin-left: -12px;
-    margin-top: -12px;
-  }
-
-  img {
-    max-width: 100%;
-    opacity: 0.7;
-  }
-`;
-
-const File = styled.span`
-  width: 80px;
-  height: 50px;
-  display: block;
-`;
-
 class Conversation extends Component {
-  constructor(props) {
-    super(props);
+  isStuff(conversation, firstMessage, currentMessage) {
+    if (conversation.twitterData) {
+      const firstTwitterData = firstMessage.customer.twitterData;
+      const currentTwitterData = currentMessage.customer.twitterData;
 
-    this.renderPreview = this.renderPreview.bind(this);
-  }
-
-  renderPreview() {
-    const { attachmentPreview } = this.props;
-
-    if (attachmentPreview && attachmentPreview.data) {
-      return (
-        <Preview>
-          {attachmentPreview.type.startsWith('image') ? (
-            <img alt={attachmentPreview.name} src={attachmentPreview.data} />
-          ) : (
-            <File />
-          )}
-          <Spinner />
-        </Preview>
-      );
+      return firstTwitterData.id_str !== currentTwitterData.id_str;
     }
 
-    return null;
+    return currentMessage.userId ? true : false;
   }
 
-  render() {
-    const { conversation, scrollBottom } = this.props;
+  renderMessages() {
+    const { conversation, conversationMessages, scrollBottom } = this.props;
 
     if (!conversation) {
       return null;
     }
 
-    const messages = conversation.messages || [];
+    let messagesList = conversationMessages || [];
+
+    const messages = messagesList.slice();
+    const firstMessage = messages.length && messages[0];
     const rows = [];
 
     let tempId;
@@ -99,7 +57,7 @@ class Conversation extends Component {
               : message.customerId === tempId
           }
           message={message}
-          staff={!message.customerId}
+          staff={this.isStuff(conversation, firstMessage, message)}
           key={message._id}
           scrollBottom={scrollBottom}
         />
@@ -108,10 +66,37 @@ class Conversation extends Component {
       tempId = message.userId ? message.userId : message.customerId;
     });
 
+    return rows;
+  }
+
+  renderConversation() {
+    const { conversation, scrollBottom, conversationMessages } = this.props;
+    const twitterData = conversation.twitterData;
+    const isTweet = twitterData && !twitterData.isDirectMessage;
+
+    if (isTweet) {
+      return (
+        <TwitterConversation
+          conversation={conversation}
+          scrollBottom={scrollBottom}
+          conversationMessages={conversationMessages}
+        />
+      );
+    }
+
+    return this.renderMessages();
+  }
+
+  render() {
+    const { attachmentPreview, scrollBottom } = this.props;
+
     return (
       <Wrapper>
-        {rows}
-        {this.renderPreview()}
+        {this.renderConversation()}
+        <AttachmentPreview
+          scrollBottom={scrollBottom}
+          attachmentPreview={attachmentPreview}
+        />
       </Wrapper>
     );
   }

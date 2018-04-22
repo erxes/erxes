@@ -646,10 +646,10 @@ export const timezones = [
 
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
-  FORM: 'form',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  ALL_LIST: ['messenger', 'form', 'twitter', 'facebook']
+  FORM: 'form',
+  ALL_LIST: ['messenger', 'twitter', 'facebook', 'form']
 };
 
 export const FORM_LOAD_TYPES = {

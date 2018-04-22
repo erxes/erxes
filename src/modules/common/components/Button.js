@@ -81,11 +81,16 @@ const ButtonStyled = styled.button`
       cursor: pointer;
       box-shadow: ${types[props.btnStyle] === types.link
         ? 'none'
-        : `0 0 4px 0 ${colors.borderDarker}`};
+        : `0 0 4px 0 ${colors.darkShadow}`};
+      color: ${colors.colorWhite};
       color: ${types[props.btnStyle].color && darken(colors.colorCoreGray, 24)};
       text-decoration: none;
     }
   `};
+
+  a {
+    color: ${colors.colorWhite};
+  }
 
   &.shrinked {
     padding: 8px 0;
@@ -104,9 +109,7 @@ const ButtonStyled = styled.button`
   }
 `;
 
-const Link = ButtonStyled.withComponent('a');
-
-const ButtonLink = Link.extend`
+const ButtonLink = ButtonStyled.withComponent('a').extend`
   text-decoration: inherit;
   text-align: center;
   pointer-events: ${props => props.disabled && 'none'};
@@ -125,19 +128,25 @@ const ButtonGroup = styled.div`
   }
 `;
 
-function Button({ ...props }) {
+function Button({ ...props }, { __ }) {
   const Element = props.href ? ButtonLink : ButtonStyled;
+
+  let content = props.children;
+
+  if (!props.ignoreTrans && typeof content === 'string' && __) {
+    content = __(content);
+  }
 
   if (props.icon) {
     return (
       <Element {...props}>
         <Icon icon={props.icon} />
-        {props.children && <span>{props.children}</span>}
+        {content && <span>{content}</span>}
       </Element>
     );
   }
 
-  return <Element {...props}>{props.children}</Element>;
+  return <Element {...props}>{content}</Element>;
 }
 
 function Group({ children }) {
@@ -167,8 +176,13 @@ Button.propTypes = {
   ]),
   size: PropTypes.oneOf(['large', 'medium', 'small']),
   disabled: PropTypes.bool,
+  ignoreTrans: PropTypes.bool,
   block: PropTypes.bool,
   icon: PropTypes.string
+};
+
+Button.contextTypes = {
+  __: PropTypes.func
 };
 
 Button.defaultProps = {

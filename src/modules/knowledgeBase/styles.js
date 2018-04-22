@@ -39,8 +39,8 @@ const RightButton = styled.div`
 
 const DropIcon = styled.span`
   &:after {
-    content: '\f123';
-    font-family: 'Ionicons';
+    content: '\\e827';
+    font-family: 'erxes';
     float: right;
     transition: all ease 0.3s;
     transform: ${props => props.isOpen && `rotate(180deg)`};
@@ -117,12 +117,12 @@ const CategoryItem = styled.li`
 
   &:hover {
     cursor: pointer;
-    background: ${props => !props.isActive && colors.bgHover};
+    background: ${colors.colorWhite};
 
     ${ActionButtons} {
-      width: ${dimensions.headerSpacing}px;
-      background: ${props =>
-        props.isActive ? colors.bgActive : colors.bgHover};
+      width: 50px;
+      padding-right: ${dimensions.coreSpacing}px;
+      background: ${colors.colorWhite};
     }
   }
 `;
@@ -148,7 +148,7 @@ const Row = styled.div`
 
   &:hover {
     ${ActionButtons} {
-      width: ${dimensions.headerSpacing - dimensions.coreSpacing}px;
+      width: ${dimensions.coreSpacing * 2}px;
       right: ${dimensions.coreSpacing}px;
     }
   }

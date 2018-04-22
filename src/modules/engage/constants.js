@@ -33,6 +33,12 @@ export const statusFilters = [
   { key: 'yours', value: 'Your messages' }
 ];
 
+export const MESSAGE_KIND_FILTERS = [
+  { name: 'auto', text: 'Auto' },
+  { name: 'visitorAuto', text: 'Visitor auto' },
+  { name: 'manual', text: 'Manual' }
+];
+
 export const MESSENGER_KINDS = {
   CHAT: 'chat',
   NOTE: 'note',

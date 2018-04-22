@@ -1,5 +1,5 @@
 export const generateParams = queryParams => ({
-  limit: queryParams.limit || 20,
+  limit: queryParams.limit || 10,
   channelId: queryParams.channelId,
   status: queryParams.status,
   unassigned: queryParams.unassigned,
@@ -7,5 +7,7 @@ export const generateParams = queryParams => ({
   tag: queryParams.tag,
   integrationType: queryParams.integrationType,
   participating: queryParams.participating,
-  starred: queryParams.starred
+  starred: queryParams.starred,
+  startDate: queryParams.startDate,
+  endDate: queryParams.endDate
 });

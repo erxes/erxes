@@ -23,6 +23,10 @@ const propTypes = {
   topicsCount: PropTypes.number.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class KnowledgeList extends Component {
   constructor(props) {
     super(props);
@@ -64,16 +68,17 @@ class KnowledgeList extends Component {
   renderSidebarHeader() {
     const { Header } = Sidebar;
     const { save } = this.props;
+    const { __ } = this.context;
 
     const trigger = (
       <RightButton>
-        <Icon icon="plus" />
+        <Icon icon="add" />
       </RightButton>
     );
 
     return (
-      <Header bold uppercase>
-        Knowledge base
+      <Header uppercase>
+        {__('Knowledge base')}
         <ModalTrigger title="Add Knowledge base" trigger={trigger}>
           {this.renderForm({ save })}
         </ModalTrigger>
@@ -111,5 +116,6 @@ class KnowledgeList extends Component {
 }
 
 KnowledgeList.propTypes = propTypes;
+KnowledgeList.contextTypes = contextTypes;
 
 export default KnowledgeList;

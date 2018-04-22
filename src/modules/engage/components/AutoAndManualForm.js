@@ -1,169 +1,202 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-
+import { StepWrapper, TitleContainer } from './step/style';
+import { FormControl } from 'modules/common/components';
+import { ChannelStep, SegmentStep, MessageStep, Steps, Step } from './step';
 import FormBase from './FormBase';
-import EmailForm from './EmailForm';
-import MessengerForm from './MessengerForm';
-import Segments from './Segments';
-import { EngageBox, ButtonBox } from '../styles';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
-  templates: PropTypes.array,
-  brands: PropTypes.array,
-  counts: PropTypes.object
+  headSegments: PropTypes.array.isRequired,
+  segmentFields: PropTypes.array.isRequired,
+  segmentAdd: PropTypes.func.isRequired,
+  templates: PropTypes.array.isRequired,
+  customerCounts: PropTypes.object.isRequired,
+  count: PropTypes.func.isRequired,
+  message: PropTypes.object
 };
-
-/*
- * Base form for Regular auto & manual
- */
 
 class AutoAndManualForm extends FormBase {
   constructor(props) {
     super(props);
 
     const message = props.message || {};
+    let content = message.messenger ? message.messenger.content : '';
+    content = message.email ? message.email.content : content;
+    const messenger = message.messenger || {};
+    const email = message.email || {};
+    const validate = message.title ? false : true;
 
     this.state = {
-      emailContent: '',
-      messengerContent: '',
+      activeStep: 1,
+      maxStep: 3,
+      validate: {
+        step1: false,
+        step2: validate,
+        step3: validate
+      },
       method: message.method || 'email',
-      fromUser: message.fromUserId || '',
-      chosenSegment: message.segmentId || ''
+      title: message.title || null,
+      segment: message.segmentId || '',
+      message: content,
+      fromUser: message.fromUserId,
+      messenger: {
+        brandId: messenger.brandId || '',
+        kind: messenger.kind || '',
+        sentAs: messenger.sentAs || ''
+      },
+      email: {
+        templateId: email.templateId || '',
+        subject: email.subject || ''
+      }
     };
 
-    // binds
-    this.onEmailContentChange = this.onEmailContentChange.bind(this);
-    this.onMessengerContentChange = this.onMessengerContentChange.bind(this);
-    this.onChangeSegment = this.onChangeSegment.bind(this);
+    this.next = this.next.bind(this);
+    this.changeState = this.changeState.bind(this);
+  }
+
+  validate() {
+    const step3 = this.state[this.state.method];
+    let validate = { ...this.state.validate };
+    validate['step2'] = false;
+    validate['step3'] = false;
+
+    if (this.state.segment === '') {
+      validate['step2'] = true;
+    }
+
+    Object.keys(step3).map(key => {
+      if (step3[key] === '') {
+        validate['step3'] = true;
+      }
+      return false;
+    });
+
+    this.setState({ validate });
   }
 
   generateDoc(e) {
     e.preventDefault();
 
-    const method = this.state.method;
-
     const doc = {
-      segmentId: this.state.chosenSegment,
-      title: document.getElementById('title').value,
-      fromUserId: document.getElementById('fromUserId').value,
-      method
+      segmentId: this.state.segment,
+      title: this.state.title,
+      fromUserId: this.state.fromUser,
+      method: this.state.method
     };
 
     if (this.state.method === 'email') {
       doc.email = {
-        templateId: document.getElementById('emailTemplateId').value,
-        subject: document.getElementById('emailSubject').value,
-        content: this.state.emailContent
+        templateId: this.state.email.templateId,
+        subject: this.state.email.subject,
+        content: this.state.message
       };
-    }
-
-    if (this.state.method === 'messenger') {
+    } else if (this.state.method === 'messenger') {
       doc.messenger = {
-        brandId: document.getElementById('brandId').value,
-        kind: document.getElementById('messengerKind').value,
-        sentAs: document.getElementById('messengerSentAs').value,
-        content: this.state.messengerContent
+        brandId: this.state.messenger.brandId,
+        kind: this.state.messenger.kind,
+        sentAs: this.state.messenger.sentAs,
+        content: this.state.message
       };
     }
 
     return doc;
   }
 
-  onEmailContentChange(content) {
-    this.setState({ emailContent: content });
+  changeState(key, value) {
+    this.setState({ [key]: value });
   }
 
-  onMessengerContentChange(content) {
-    this.setState({ messengerContent: content });
-  }
+  next(stepNumber) {
+    const { activeStep, maxStep } = this.state;
+    this.validate();
 
-  onClickBox(method) {
-    this.setState({ method });
-  }
-
-  onChangeSegment(value) {
-    this.setState({ chosenSegment: value });
-  }
-
-  renderChannelType() {
-    const method = this.state.method;
-
-    return (
-      <EngageBox>
-        <ButtonBox
-          selected={method === 'email'}
-          onClick={() => this.onClickBox('email')}
-        >
-          <span>Email</span>
-          <p>
-            Delivered to a user s email inbox <br />Customize with your own
-            templates
-          </p>
-        </ButtonBox>
-
-        <ButtonBox
-          selected={method === 'messenger'}
-          onClick={() => this.onClickBox('messenger')}
-        >
-          <span>Messenger</span>
-          <p>
-            Delivered inside your app<br />Reach active users
-          </p>
-        </ButtonBox>
-      </EngageBox>
-    );
-  }
-
-  renderSidebarExtra() {
-    const message = this.getMessage();
-
-    const { Section } = Wrapper.Sidebar;
-    const { Title } = Wrapper.Sidebar.Section;
-
-    return (
-      <div>
-        <Segments
-          segments={this.props.segments}
-          defaultSegment={message.segmentId}
-          onChangeSegments={this.onChangeSegment}
-          counts={this.props.counts}
-        />
-
-        <Section>
-          <Title>Channel</Title>
-          {this.renderChannelType()}
-        </Section>
-      </div>
-    );
-  }
-
-  renderContent() {
-    const message = this.getMessage();
-
-    if (this.state.method === 'email') {
-      return (
-        <EmailForm
-          message={message}
-          templates={this.props.templates}
-          onContentChange={this.onEmailContentChange}
-        />
-      );
+    if (stepNumber === 0) {
+      if (activeStep <= maxStep) {
+        this.setState({ activeStep: activeStep + 1 });
+      }
+    } else {
+      this.setState({ activeStep: stepNumber });
     }
+  }
+
+  render() {
+    const {
+      activeStep,
+      maxStep,
+      validate,
+      messenger,
+      email,
+      fromUser,
+      message
+    } = this.state;
+    const defaultMessageStepValue = { messenger, email, fromUser, message };
+    const { __ } = this.context;
 
     return (
-      <MessengerForm
-        showMessengerType
-        message={message}
-        fromUser={this.state.fromUser}
-        onContentChange={this.onMessengerContentChange}
-        brands={this.props.brands}
-      />
+      <StepWrapper>
+        <Wrapper.Header breadcrumb={this.renderTitle()} />
+        <TitleContainer>
+          <div>{__('Title')}</div>
+          <FormControl
+            required
+            onChange={e => this.changeState('title', e.target.value)}
+            defaultValue={this.state.title}
+          />
+        </TitleContainer>
+        <Steps maxStep={maxStep} active={activeStep} validate={validate}>
+          <Step
+            img="/images/icons/erxes-05.svg"
+            title="Choose channel"
+            next={this.next}
+          >
+            <ChannelStep
+              changeMethod={this.changeState}
+              method={this.state.method}
+            />
+          </Step>
+          <Step
+            img="/images/icons/erxes-02.svg"
+            title="Who is this message for?"
+            next={this.next}
+          >
+            <SegmentStep
+              changeSegment={this.changeState}
+              segments={this.props.segments}
+              headSegments={this.props.headSegments}
+              segmentFields={this.props.segmentFields}
+              segmentAdd={this.props.segmentAdd}
+              counts={this.props.customerCounts}
+              count={this.props.count}
+              segment={this.state.segment}
+            />
+          </Step>
+          <Step
+            img="/images/icons/erxes-08.svg"
+            title="Compose your message"
+            save={this.save}
+            next={this.next}
+            message={this.props.message}
+          >
+            <MessageStep
+              brands={this.props.brands}
+              changeState={this.changeState}
+              users={this.props.users}
+              method={this.state.method}
+              templates={this.props.templates}
+              defaultValue={defaultMessageStepValue}
+            />
+          </Step>
+        </Steps>
+      </StepWrapper>
     );
   }
 }
 
 AutoAndManualForm.propTypes = propTypes;
+AutoAndManualForm.contextTypes = {
+  __: PropTypes.func
+};
 
 export default AutoAndManualForm;

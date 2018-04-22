@@ -20,11 +20,15 @@ const propTypes = {
   save: PropTypes.func.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class KnowledgeRow extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { detailed: true };
+    this.state = { detailed: false };
     this.toggle = this.toggle.bind(this);
     this.renderKnowledgeBaseForm = this.renderKnowledgeBaseForm.bind(this);
   }
@@ -46,8 +50,9 @@ class KnowledgeRow extends Component {
       queryParams,
       articlesCount
     } = this.props;
-    const addCategory = <MenuItem>Add category</MenuItem>;
-    const manageTopic = <MenuItem>Manage Knowledge Base</MenuItem>;
+    const { __ } = this.context;
+    const addCategory = <MenuItem>{__('Add category')}</MenuItem>;
+    const manageTopic = <MenuItem>{__('Manage Knowledge Base')}</MenuItem>;
 
     return (
       <SidebarContent key={topic._id}>
@@ -60,7 +65,7 @@ class KnowledgeRow extends Component {
               pullRight
             >
               <DropdownToggle bsRole="toggle">
-                <Icon icon="gear-a" />
+                <Icon icon="settings" />
               </DropdownToggle>
               <Dropdown.Menu>
                 <ModalTrigger
@@ -91,5 +96,6 @@ class KnowledgeRow extends Component {
 }
 
 KnowledgeRow.propTypes = propTypes;
+KnowledgeRow.contextTypes = contextTypes;
 
 export default KnowledgeRow;

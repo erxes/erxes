@@ -15,15 +15,15 @@ import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
-import { CompanyForm } from '../';
-import { ManageColumns } from '../../../fields/containers';
+import { CompanyForm } from '../../containers';
+import { ManageColumns } from 'modules/settings/properties/containers';
 import { CommonMerge } from 'modules/customers/components';
+import { CompaniesTableWrapper } from 'modules/companies/styles';
 
 const propTypes = {
   companies: PropTypes.array.isRequired,
   counts: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
-  addCompany: PropTypes.func.isRequired,
   history: PropTypes.object,
   location: PropTypes.object,
   loading: PropTypes.bool.isRequired,
@@ -36,7 +36,8 @@ const propTypes = {
   removeCompanies: PropTypes.func.isRequired,
   loadingTags: PropTypes.bool.isRequired,
   mergeCompanies: PropTypes.func.isRequired,
-  basicInfos: PropTypes.object.isRequired
+  basicInfos: PropTypes.object.isRequired,
+  queryParams: PropTypes.object
 };
 
 class CompaniesList extends React.Component {
@@ -92,7 +93,6 @@ class CompaniesList extends React.Component {
       history,
       location,
       loading,
-      addCompany,
       counts,
       toggleBulk,
       bulk,
@@ -100,11 +100,13 @@ class CompaniesList extends React.Component {
       tags,
       loadingTags,
       mergeCompanies,
-      basicInfos
+      basicInfos,
+      queryParams
     } = this.props;
+    const { __ } = this.context;
 
     const mainContent = (
-      <div>
+      <CompaniesTableWrapper>
         <Table whiteSpace="nowrap" bordered hover>
           <thead>
             <tr>
@@ -115,9 +117,9 @@ class CompaniesList extends React.Component {
                 />
               </th>
               {columnsConfig.map(({ name, label }) => (
-                <th key={name}>{label}</th>
+                <th key={name}>{__(label)}</th>
               ))}
-              <th>Tags</th>
+              <th>{__('Tags')}</th>
             </tr>
           </thead>
           <tbody id="companies">
@@ -132,11 +134,11 @@ class CompaniesList extends React.Component {
             ))}
           </tbody>
         </Table>
-      </div>
+      </CompaniesTableWrapper>
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         Add company
       </Button>
     );
@@ -157,7 +159,7 @@ class CompaniesList extends React.Component {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+        <Button btnStyle="simple" size="small" icon="downarrow">
           Tag
         </Button>
       );
@@ -188,7 +190,7 @@ class CompaniesList extends React.Component {
           <Button
             btnStyle="danger"
             size="small"
-            icon="close"
+            icon="cancel-1"
             onClick={() =>
               confirm().then(() => {
                 this.removeCompanies(bulk);
@@ -205,7 +207,7 @@ class CompaniesList extends React.Component {
       <BarItems>
         <FormControl
           type="text"
-          placeholder="Type to search.."
+          placeholder={__('Type to search')}
           onChange={e => this.search(e)}
           value={this.state.searchValue}
           autoFocus
@@ -218,8 +220,8 @@ class CompaniesList extends React.Component {
             contentType="company"
           />
         </ModalTrigger>
-        <ModalTrigger title="New company" trigger={addTrigger}>
-          <CompanyForm addCompany={addCompany} />
+        <ModalTrigger title="New company" trigger={addTrigger} size="lg">
+          <CompanyForm />
         </ModalTrigger>
       </BarItems>
     );
@@ -227,11 +229,13 @@ class CompaniesList extends React.Component {
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
     );
-    const breadcrumb = [{ title: `Companies (${counts.all})` }];
+    const breadcrumb = [{ title: __(`Companies`) + ` (${counts.all})` }];
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
+        }
         actionBar={actionBar}
         footer={<Pagination count={counts.all} />}
         leftSidebar={
@@ -252,5 +256,8 @@ class CompaniesList extends React.Component {
 }
 
 CompaniesList.propTypes = propTypes;
+CompaniesList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(CompaniesList);

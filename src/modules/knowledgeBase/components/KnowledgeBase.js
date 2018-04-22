@@ -18,9 +18,15 @@ const propTypes = {
 
 class KnowledgeBase extends Component {
   breadcrumb() {
+    const { __ } = this.context;
+
+    const currentCategory = this.props.currentCategory || {};
+    const currentKnowledgeBase = currentCategory.firstTopic || {};
+
     return [
-      { title: 'Knowledge base', link: '/knowledgeBase' },
-      { title: `${this.props.currentCategory.title || ''}` }
+      { title: __('Knowledge base'), link: '/knowledgeBase' },
+      { title: `${currentKnowledgeBase.title || 'No Category'}` },
+      { title: `${currentCategory.title || ''}` }
     ];
   }
 
@@ -28,7 +34,7 @@ class KnowledgeBase extends Component {
     const { articlesCount, loading, queryParams, currentCategory } = this.props;
 
     const trigger = (
-      <Button btnStyle="success" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         Add Article
       </Button>
     );
@@ -81,5 +87,8 @@ class KnowledgeBase extends Component {
 }
 
 KnowledgeBase.propTypes = propTypes;
+KnowledgeBase.contextTypes = {
+  __: PropTypes.func
+};
 
 export default KnowledgeBase;

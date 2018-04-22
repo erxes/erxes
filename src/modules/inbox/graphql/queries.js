@@ -12,6 +12,8 @@ const listParamsDef = `
   $participating: String
   $starred: String
   $ids: [String]
+  $startDate: String
+  $endDate: String
 `;
 
 const listParamsValue = `
@@ -25,6 +27,8 @@ const listParamsValue = `
   participating: $participating
   starred: $starred
   ids: $ids
+  startDate: $startDate
+  endDate: $endDate
 `;
 
 const conversationList = `
@@ -35,14 +39,76 @@ const conversationList = `
   }
 `;
 
+const sidebarConversations = `
+  query objects(${listParamsDef}) {
+    conversations(${listParamsValue}) {
+      _id
+      content
+      updatedAt
+      assignedUser {
+        _id
+        details {
+          avatar
+        }
+      }
+      integration {
+        _id
+        kind
+        brand {
+          _id
+          name
+        }
+        channels {
+          _id
+          name
+        }
+      }
+      customer {
+        _id
+        firstName
+        lastName
+        email
+        phone
+        isUser
+        visitorContactInfo
+      }
+      tagIds
+      tags {
+        _id
+        name
+      }
+      readUserIds
+      twitterData {
+        isDirectMessage
+      }
+      facebookData {
+        kind
+      }
+    }
+  }
+`;
+
 const conversationDetail = `
   query conversationDetail($_id: String!) {
     conversationDetail(_id: $_id) {
       ${conversationFields}
+    }
+  }
+`;
 
-      messages {
-        ${messageFields}
-      }
+const conversationDetailMarkAsRead = `
+  query conversationDetail($_id: String!) {
+    conversationDetail(_id: $_id) {
+      _id
+      readUserIds
+    }
+  }
+`;
+
+const conversationMessages = `
+  query conversationMessages($conversationId: String!) {
+    conversationMessages(conversationId: $conversationId) {
+      ${messageFields}
     }
   }
 `;
@@ -57,7 +123,6 @@ const userList = `
         avatar
         fullName
         position
-        twitterUsername
       }
     }
   }
@@ -136,7 +201,10 @@ const responseTemplateList = `
 
 export default {
   conversationList,
+  sidebarConversations,
   conversationDetail,
+  conversationDetailMarkAsRead,
+  conversationMessages,
   userList,
   channelList,
   brandList,

@@ -18,17 +18,16 @@ class IntegrationsSidebar extends React.Component {
 
   render() {
     const { Section, Header } = Wrapper.Sidebar;
+    const { __ } = this.context;
 
     return (
       <Wrapper.Sidebar>
         <Section>
-          <Header bold uppercase>
-            Integrations
-          </Header>
+          <Header uppercase>{__('Integrations')}</Header>
           <SidebarList>
             <li>
               <Link className={this.getClassName()} to="/settings/integrations">
-                All
+                {__('All')}
               </Link>
             </li>
             <li>
@@ -36,15 +35,7 @@ class IntegrationsSidebar extends React.Component {
                 className={this.getClassName('messenger')}
                 to="/settings/integrations?kind=messenger"
               >
-                Messenger
-              </Link>
-            </li>
-            <li>
-              <Link
-                className={this.getClassName('form')}
-                to="/settings/integrations?kind=form"
-              >
-                Form
+                {__('Messenger')}
               </Link>
             </li>
             <li>
@@ -52,7 +43,7 @@ class IntegrationsSidebar extends React.Component {
                 className={this.getClassName('twitter')}
                 to="/settings/integrations?kind=twitter"
               >
-                Twitter
+                {__('Twitter')}
               </Link>
             </li>
             <li>
@@ -60,7 +51,7 @@ class IntegrationsSidebar extends React.Component {
                 className={this.getClassName('facebook')}
                 to="/settings/integrations?kind=facebook"
               >
-                Facebook
+                {__('Facebook')}
               </Link>
             </li>
           </SidebarList>
@@ -73,6 +64,10 @@ class IntegrationsSidebar extends React.Component {
 IntegrationsSidebar.propTypes = {
   currentIntegrationKind: PropTypes.string,
   history: PropTypes.object
+};
+
+IntegrationsSidebar.contextTypes = {
+  __: PropTypes.func
 };
 
 const SidebarContainer = props => {

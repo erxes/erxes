@@ -19,9 +19,10 @@ class AddConditionButton extends Component {
   addCondition(items, id) {
     const [type] = Object.keys(types);
     const [operator] = operators[type];
+    const title = items.find(item => item._id === id).title;
 
     this.props.addCondition({
-      field: id,
+      field: title,
       value: '',
       operator: operator.value,
       dateUnit: dateUnits.days,
@@ -52,7 +53,7 @@ class AddConditionButton extends Component {
         container={this}
         rootClose
       >
-        <Button btnStyle="success" size="small" icon="plus">
+        <Button btnStyle="success" size="small" icon="add">
           Add a condition
         </Button>
       </OverlayTrigger>

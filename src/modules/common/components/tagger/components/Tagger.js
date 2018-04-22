@@ -17,6 +17,10 @@ const propTypes = {
   tag: PropTypes.func.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class Tagger extends Component {
   constructor(props) {
     super(props);
@@ -58,7 +62,7 @@ class Tagger extends Component {
       return {
         _id,
         title: name,
-        iconClass: 'ion-pricetag',
+        iconClass: 'icon-tag',
         iconColor: colorCode,
         selectedBy: state
       };
@@ -87,7 +91,7 @@ class Tagger extends Component {
 
     tag(param, error => {
       if (error) {
-        return Alert.error(error.reason);
+        return Alert.error(error.message);
       }
 
       const message =
@@ -107,10 +111,11 @@ class Tagger extends Component {
       return <Spinner objective />;
     }
 
+    const { __ } = this.context;
     const { className, event, type } = this.props;
     const links = [
       {
-        title: 'Manage tags',
+        title: __('Manage tags'),
         href: `/tags/${type}`
       }
     ];
@@ -127,5 +132,6 @@ class Tagger extends Component {
 }
 
 Tagger.propTypes = propTypes;
+Tagger.contextTypes = contextTypes;
 
 export default Tagger;

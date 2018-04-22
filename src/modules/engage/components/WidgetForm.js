@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   ControlLabel,
   FormGroup,
@@ -10,6 +9,7 @@ import {
 import { METHODS } from 'modules/engage/constants';
 import Editor from './Editor';
 import { EditorWrapper, Recipients, Recipient } from '../styles';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 class WidgetForm extends Component {
   constructor(props) {
@@ -153,6 +153,7 @@ class WidgetForm extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     return (
       <form onSubmit={this.save}>
         {this.renderCustomers()}
@@ -161,8 +162,8 @@ class WidgetForm extends Component {
           <ControlLabel>Channel:</ControlLabel>
 
           <FormControl componentClass="select" onChange={this.onChannelChange}>
-            <option value="email">Email</option>
-            <option value="messenger">Messenger</option>
+            <option value="email">{__('Email')}</option>
+            <option value="messenger">{__('Messenger')}</option>
           </FormControl>
         </FormGroup>
 
@@ -181,11 +182,11 @@ class WidgetForm extends Component {
           </EditorWrapper>
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button type="submit" btnStyle="success">
             Send
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }
@@ -201,7 +202,8 @@ WidgetForm.propTypes = {
 };
 
 WidgetForm.contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 export default WidgetForm;

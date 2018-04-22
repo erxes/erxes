@@ -31,10 +31,11 @@ class ChannelRow extends Component {
 
   renderEditAction() {
     const { channel, save, members } = this.props;
+    const { __ } = this.context;
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -105,7 +106,7 @@ class ChannelRow extends Component {
         <ActionButtons>
           {this.renderEditAction()}
           <Tip text="Delete">
-            <Button btnStyle="link" onClick={this.remove} icon="close" />
+            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>
       </SidebarListItem>
@@ -114,5 +115,8 @@ class ChannelRow extends Component {
 }
 
 ChannelRow.propTypes = propTypes;
+ChannelRow.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ChannelRow;

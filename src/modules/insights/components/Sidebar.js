@@ -1,16 +1,17 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
 
-function Sidebar() {
+function Sidebar(props, { __ }) {
   const Sidebar = Wrapper.Sidebar;
   const { Title } = Sidebar.Section;
 
   return (
     <Sidebar>
       <Sidebar.Section>
-        <Title>Insights</Title>
+        <Title>{__('Insights')}</Title>
         <SidebarList>
           <li>
             <NavLink
@@ -18,12 +19,12 @@ function Sidebar() {
               exact
               to="/insights/volume-report"
             >
-              Volume Report
+              {__('Volume Report')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/insights/response-report">
-              Response Report
+              {__('Response Report')}
             </NavLink>
           </li>
           <li>
@@ -31,12 +32,12 @@ function Sidebar() {
               activeClassName="active"
               to="/insights/response-close-report"
             >
-              Response Close Report
+              {__('Response Close Report')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/insights/first-response">
-              First Response Report
+              {__('First Response Report')}
             </NavLink>
           </li>
         </SidebarList>
@@ -44,5 +45,9 @@ function Sidebar() {
     </Sidebar>
   );
 }
+
+Sidebar.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Sidebar;

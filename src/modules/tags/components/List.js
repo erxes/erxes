@@ -21,9 +21,9 @@ const propTypes = {
   save: PropTypes.func.isRequired
 };
 
-function List({ tags, type, remove, save }) {
+function List({ tags, type, remove, save }, { __ }) {
   const trigger = (
-    <Button btnStyle="success" size="small" icon="plus">
+    <Button btnStyle="success" size="small" icon="add">
       Add tag
     </Button>
   );
@@ -33,21 +33,24 @@ function List({ tags, type, remove, save }) {
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="simple" size="small">
-            Customize <Icon icon="ios-arrow-down" />
+            {__('Customize ')} <Icon icon="downarrow" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
           <li>
-            <Link to="/tags/engageMessage">Engage Message</Link>
+            <Link to="/tags/engageMessage">{__('Engage Message')}</Link>
           </li>
           <li>
-            <Link to="/tags/conversation">Conversation</Link>
+            <Link to="/tags/conversation">{__('Conversation')}</Link>
           </li>
           <li>
-            <Link to="/tags/customer">Customer</Link>
+            <Link to="/tags/customer">{__('Customer')}</Link>
           </li>
           <li>
-            <Link to="/tags/company">Company</Link>
+            <Link to="/tags/company">{__('Company')}</Link>
+          </li>
+          <li>
+            <Link to="/tags/integration">{__('Integration')}</Link>
           </li>
         </Dropdown.Menu>
       </Dropdown>
@@ -62,9 +65,9 @@ function List({ tags, type, remove, save }) {
     <Table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Item counts</th>
-          <th>Actions</th>
+          <th>{__('Name')}</th>
+          <th>{__('Item counts')}</th>
+          <th>{__('Actions')}</th>
         </tr>
       </thead>
       <tbody>
@@ -82,7 +85,10 @@ function List({ tags, type, remove, save }) {
     </Table>
   );
 
-  const breadcrumb = [{ title: 'Tags', link: '/tags' }, { title: type }];
+  const breadcrumb = [
+    { title: __('Tags'), link: '/tags' },
+    { title: __(type) }
+  ];
 
   return (
     <Wrapper
@@ -94,5 +100,8 @@ function List({ tags, type, remove, save }) {
 }
 
 List.propTypes = propTypes;
+List.contextTypes = {
+  __: PropTypes.func
+};
 
 export default List;

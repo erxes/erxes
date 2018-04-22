@@ -9,7 +9,7 @@ const propTypes = {
   customer: PropTypes.object.isRequired
 };
 
-function MessengerSection({ customer }) {
+function MessengerSection({ customer }, { __ }) {
   const { messengerData } = customer;
 
   if (!messengerData) {
@@ -20,10 +20,10 @@ function MessengerSection({ customer }) {
 
   return (
     <Sidebar.Section>
-      <Title>Messenger usage</Title>
+      <Title>{__('Messenger usage')}</Title>
       <SidebarList className="no-link">
         <li>
-          Status
+          {__('Status')}
           <SidebarCounter>
             {messengerData.isActive ? (
               <Label lblStyle="success">Online</Label>
@@ -33,13 +33,13 @@ function MessengerSection({ customer }) {
           </SidebarCounter>
         </li>
         <li>
-          Last online
+          {__('Last online')}
           <SidebarCounter>
             {moment(messengerData.lastSeenAt).format('lll')}
           </SidebarCounter>
         </li>
         <li>
-          Session count
+          {__('Session count')}
           <SidebarCounter>{messengerData.sessionCount}</SidebarCounter>
         </li>
       </SidebarList>
@@ -48,5 +48,8 @@ function MessengerSection({ customer }) {
 }
 
 MessengerSection.propTypes = propTypes;
+MessengerSection.contextTypes = {
+  __: PropTypes.func
+};
 
 export default MessengerSection;

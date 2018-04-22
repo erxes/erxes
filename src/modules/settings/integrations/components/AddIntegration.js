@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import {
   ModalTrigger,
@@ -6,20 +7,18 @@ import {
   Icon,
   DropdownToggle
 } from 'modules/common/components';
-import { Messenger, Form, Facebook } from '../containers';
+import { Messenger, Facebook } from '../containers';
 
-function AddIntegration() {
-  const triggerMessenger = <MenuItem>Messenger</MenuItem>;
+function AddIntegration(props, { __ }) {
+  const triggerMessenger = <MenuItem>{__('Messenger')}</MenuItem>;
 
-  const triggerForm = <MenuItem>Form</MenuItem>;
-
-  const triggerFb = <MenuItem>Facebook page</MenuItem>;
+  const triggerFb = <MenuItem>{__('Facebook page')}</MenuItem>;
 
   return (
     <Dropdown id="dropdown-integration" pullRight>
       <DropdownToggle bsRole="toggle">
-        <Button btnStyle="success" size="small" icon="plus">
-          Add integrations <Icon icon="chevron-down" />
+        <Button btnStyle="success" size="small" icon="add">
+          {__('Add integrations')} <Icon icon="downarrow" />
         </Button>
       </DropdownToggle>
       <Dropdown.Menu>
@@ -27,18 +26,20 @@ function AddIntegration() {
           <Messenger />
         </ModalTrigger>
 
-        <ModalTrigger title="Add form" trigger={triggerForm}>
-          <Form />
-        </ModalTrigger>
-
         <ModalTrigger title="Add facebook page" trigger={triggerFb}>
           <Facebook />
         </ModalTrigger>
 
-        <MenuItem href="/settings/integrations/twitter">Twitter</MenuItem>
+        <MenuItem href="/settings/integrations/twitter">
+          {__('Twitter')}
+        </MenuItem>
       </Dropdown.Menu>
     </Dropdown>
   );
 }
+
+AddIntegration.contextTypes = {
+  __: PropTypes.func
+};
 
 export default AddIntegration;

@@ -62,7 +62,7 @@ const SegmentsFormContainer = props => {
     ...props,
     fields,
     segment,
-    headSegments,
+    headSegments: headSegments.filter(s => s.contentType === contentType),
     create,
     count,
     total: customerCounts.customerCounts || {},

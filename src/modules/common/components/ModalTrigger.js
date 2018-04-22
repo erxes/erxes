@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 
@@ -6,11 +6,17 @@ const propTypes = {
   title: PropTypes.string.isRequired,
   trigger: PropTypes.element.isRequired,
   children: PropTypes.node.isRequired,
-  size: PropTypes.string
+  size: PropTypes.string,
+  ignoreTrans: PropTypes.bool,
+  dialogClassName: PropTypes.string
 };
 
 const childContextTypes = {
   closeModal: PropTypes.func.isRequired
+};
+
+const contextTypes = {
+  __: PropTypes.func
 };
 
 class ModalTrigger extends Component {
@@ -36,7 +42,15 @@ class ModalTrigger extends Component {
   }
 
   render() {
-    const { title, trigger, children, size } = this.props;
+    const {
+      title,
+      trigger,
+      children,
+      size,
+      ignoreTrans,
+      dialogClassName
+    } = this.props;
+    const { __ } = this.context;
 
     // add onclick event to the trigger component
     const triggerComponent = React.cloneElement(trigger, {
@@ -44,21 +58,27 @@ class ModalTrigger extends Component {
     });
 
     return (
-      <span>
+      <Fragment>
         {triggerComponent}
 
-        <Modal bsSize={size} show={this.state.isOpen} onHide={this.closeModal}>
+        <Modal
+          dialogClassName={dialogClassName}
+          bsSize={size}
+          show={this.state.isOpen}
+          onHide={this.closeModal}
+        >
           <Modal.Header closeButton>
-            <Modal.Title>{title}</Modal.Title>
+            <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
           </Modal.Header>
           <Modal.Body>{children}</Modal.Body>
         </Modal>
-      </span>
+      </Fragment>
     );
   }
 }
 
 ModalTrigger.propTypes = propTypes;
+ModalTrigger.contextTypes = contextTypes;
 ModalTrigger.childContextTypes = childContextTypes;
 
 export default ModalTrigger;

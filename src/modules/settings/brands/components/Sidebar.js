@@ -22,6 +22,10 @@ const propTypes = {
   brandsTotalCount: PropTypes.number.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class Sidebar extends Component {
   constructor(props) {
     super(props);
@@ -50,16 +54,17 @@ class Sidebar extends Component {
   renderSidebarHeader() {
     const { save } = this.props;
     const { Header } = LeftSidebar;
+    const { __ } = this.context;
 
     const addBrand = (
       <RightButton>
-        <Icon icon="plus" />
+        <Icon icon="add" />
       </RightButton>
     );
 
     return (
-      <Header uppercase bold>
-        Brands
+      <Header uppercase>
+        {__('Brands')}
         <ModalTrigger title="New Brand" trigger={addBrand}>
           {this.renderBrandForm({ save })}
         </ModalTrigger>
@@ -90,5 +95,6 @@ class Sidebar extends Component {
 }
 
 Sidebar.propTypes = propTypes;
+Sidebar.contextTypes = contextTypes;
 
 export default Sidebar;

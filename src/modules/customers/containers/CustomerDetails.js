@@ -4,17 +4,23 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { queries } from '../graphql';
 import { CustomerDetails } from '../components';
+import { Spinner } from 'modules/common/components';
 
 const CustomerDetailsContainer = (props, context) => {
   const { customerDetailQuery, customerActivityLogQuery } = props;
 
+  if (customerDetailQuery.loading) {
+    return <Spinner />;
+  }
+
+  const refetch = () => {
+    customerDetailQuery.refetch();
+  };
+
   const updatedProps = {
     ...props,
-    customer: customerDetailQuery.customerDetail || {
-      customFieldsData: [],
-      companies: [],
-      getTags: []
-    },
+    refetch,
+    customer: customerDetailQuery.customerDetail,
     loadingLogs: customerActivityLogQuery.loading,
     activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
     currentUser: context.currentUser

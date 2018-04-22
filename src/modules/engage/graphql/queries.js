@@ -8,6 +8,9 @@ const engageMessages = `
       isLive
       createdDate
       kind
+      brand {
+        name
+      }
       segment {
         _id
         name
@@ -18,10 +21,10 @@ const engageMessages = `
           avatar
           fullName
           position
-          twitterUsername
         }
       }
       tagIds
+      stats
       getTags {
         _id
         name
@@ -58,6 +61,10 @@ const engageDetailFields = `
   stopDate
   createdDate
   messenger
+  stats
+  brand {
+    name
+  }
 `;
 
 const engageMessageDetail = `
@@ -77,7 +84,6 @@ const users = `
         avatar
         fullName
         position
-        twitterUsername
       }
     }
   }
@@ -92,7 +98,6 @@ const userDetail = `
         avatar
         fullName
         position
-        twitterUsername
       }
       email
     }
@@ -164,6 +169,34 @@ const brands = `
   }
 `;
 
+const segmentDetail = `
+  query segmentDetail($_id: String) {
+    segmentDetail(_id: $_id) {
+      ${segmentFields}
+      getSubSegments {
+        ${segmentFields}
+      }
+    }
+  }
+`;
+
+const headSegments = `
+  query headSegments {
+    segmentsGetHeads {
+      ${segmentFields}
+      getSubSegments {
+        ${segmentFields}
+      }
+    }
+  }
+`;
+
+const combinedFields = `
+  query fieldsCombinedByContentType {
+    fieldsCombinedByContentType(contentType: "customer")
+  }
+`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -174,5 +207,8 @@ export default {
   brands,
   tags,
   emailTemplates,
-  customerCounts
+  customerCounts,
+  segmentDetail,
+  headSegments,
+  combinedFields
 };

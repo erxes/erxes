@@ -1,61 +1,81 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import ReactDom from 'react-dom';
+import PropTypes from 'prop-types';
 import {
-  FormGroup,
+  FormControl,
   ControlLabel,
-  FormControl
+  FormGroup
 } from 'modules/common/components';
-import { FormWrapper, EditorWrapper, FormHeader } from '../styles';
-
-import {
-  EMAIL_CONTENT_PLACEHOLDER,
-  EMAIL_CONTENT_CLASS
-} from 'modules/engage/constants';
-
+import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import Editor from './Editor';
+import { EditorWrapper } from '../styles';
+import { FlexItem, Divider, FlexPad } from './step/style';
+import styled from 'styled-components';
+
+const PreviewContainer = styled.div`
+  margin: 20px;
+  height: 100%;
+  p {
+    padding: 20px;
+  }
+`;
 
 const propTypes = {
-  message: PropTypes.object.isRequired,
-  templates: PropTypes.array.isRequired,
-  onContentChange: PropTypes.func.isRequired
+  changeEmail: PropTypes.func,
+  message: PropTypes.string,
+  users: PropTypes.array,
+  templates: PropTypes.array,
+  defaultValue: PropTypes.object
 };
 
 class EmailForm extends Component {
   constructor(props) {
     super(props);
 
-    const message = props.message || {};
-    const email = message.email || {};
+    const message = this.props.defaultValue || {};
 
-    // current template
-    let currentTemplate = EMAIL_CONTENT_PLACEHOLDER;
-
-    if (email.templateId) {
-      currentTemplate = this.findTemplate(email.templateId);
-    }
-
-    // states
-    this.state = { currentTemplate };
-
-    // binds
-    this.onContentChange = this.onContentChange.bind(this);
-    this.onTemplateChange = this.onTemplateChange.bind(this);
-  }
-
-  onTemplateChange(e) {
-    this.setState({ currentTemplate: this.findTemplate(e.target.value) });
+    this.state = {
+      fromUser: message.fromUser,
+      currentTemplate: '',
+      message: message.message,
+      email: {
+        subject: message.email.subject,
+        templateId: message.email.templateId
+      }
+    };
   }
 
   componentDidMount() {
-    this.renderBuilder();
+    this.templateChange(this.props.defaultValue.email.templateId);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // only after current template change
-    if (this.state.currentTemplate !== prevState.currentTemplate) {
+    if (
+      this.props.defaultValue.message !== prevProps.defaultValue.message ||
+      this.state.currentTemplate !== prevState.currentTemplate
+    ) {
       this.renderBuilder();
     }
+  }
+
+  changeContent(key, value) {
+    let email = {
+      ...this.state.email
+    };
+    email[key] = value;
+    this.setState({ email });
+    this.props.changeEmail('email', email);
+  }
+
+  changeUser(fromUser) {
+    this.setState({ fromUser });
+    this.props.changeEmail('fromUser', fromUser);
+  }
+
+  templateChange(value) {
+    this.changeContent('templateId', value);
+    this.setState({ currentTemplate: this.findTemplate(value) });
+    this.renderBuilder();
   }
 
   findTemplate(id) {
@@ -72,69 +92,89 @@ class EmailForm extends Component {
     const contentContainer = document.getElementsByClassName(
       EMAIL_CONTENT_CLASS
     );
-    const { message } = this.props;
-    const email = message.email || {};
-
     // render editor to content
+
     if (contentContainer.length > 0) {
       ReactDom.render(
-        <Editor defaultValue={email.content} onChange={this.onContentChange} />,
+        <div
+          dangerouslySetInnerHTML={{
+            __html: this.props.defaultValue.message
+          }}
+        />,
         contentContainer[0]
       );
     }
   }
 
-  onContentChange(content) {
-    this.props.onContentChange(content);
-  }
-
-  renderHeader() {
-    const { message, templates } = this.props;
-    const email = message.email || {};
-
-    return (
-      <FormHeader>
-        <FormGroup>
-          <ControlLabel>Email subject:</ControlLabel>
-          <FormControl
-            id="emailSubject"
-            defaultValue={email.subject}
-            required
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Email template:</ControlLabel>
-          <FormControl
-            id="emailTemplateId"
-            componentClass="select"
-            onChange={this.onTemplateChange}
-            defaultValue={email.templateId}
-          >
-            <option />
-            {templates.map(t => (
-              <option key={t._id} value={t._id}>
-                {t.name}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-      </FormHeader>
-    );
+  renderMessage() {
+    if (this.state.currentTemplate !== '') {
+      return (
+        <PreviewContainer
+          dangerouslySetInnerHTML={{
+            __html: this.state.currentTemplate
+          }}
+        />
+      );
+    }
+    return null;
   }
 
   render() {
     return (
-      <FormWrapper>
-        {this.renderHeader()}
-
-        <ControlLabel>Message:</ControlLabel>
-        <EditorWrapper>
-          <div
-            dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }}
-          />
-        </EditorWrapper>
-      </FormWrapper>
+      <FlexItem>
+        <FlexPad direction="column" overflow="auto">
+          <FormGroup>
+            <ControlLabel>Message:</ControlLabel>
+            <EditorWrapper>
+              <Editor
+                onChange={this.props.changeEmail}
+                defaultValue={this.state.message}
+              />
+            </EditorWrapper>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>From:</ControlLabel>
+            <FormControl
+              componentClass="select"
+              onChange={e => this.changeUser(e.target.value)}
+              defaultValue={this.state.fromUser}
+            >
+              <option />{' '}
+              {this.props.users.map(u => (
+                <option key={u._id} value={u._id}>
+                  {u.fullName || u.username}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Email subject:</ControlLabel>
+            <FormControl
+              onChange={e => this.changeContent('subject', e.target.value)}
+              defaultValue={this.state.email.subject}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Email template:</ControlLabel>
+            <FormControl
+              componentClass="select"
+              onChange={e => this.templateChange(e.target.value)}
+              defaultValue={this.state.email.templateId}
+            >
+              <option />{' '}
+              {this.props.templates.map(t => (
+                <option key={t._id} value={t._id}>
+                  {t.name}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+        </FlexPad>
+        <Divider />
+        <FlexItem v="center" h="center" overflow="auto">
+          {this.renderMessage()}
+        </FlexItem>
+      </FlexItem>
     );
   }
 }

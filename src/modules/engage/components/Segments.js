@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { EmptyState, Icon } from 'modules/common/components';
 import { Segmentli } from '../styles';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
-  onChangeSegments: PropTypes.func.isRequired,
-  defaultSegment: PropTypes.string,
-  counts: PropTypes.object
+  changeSegments: PropTypes.func.isRequired,
+  counts: PropTypes.object,
+  defaultValue: PropTypes.string
 };
 
 class Segments extends Component {
@@ -17,24 +16,30 @@ class Segments extends Component {
     super(props);
 
     this.state = {
-      chosenSegment: props.defaultSegment || ''
+      chosenSegment: ''
     };
 
     this.onClickSegment = this.onClickSegment.bind(this);
   }
 
+  componentDidMount() {
+    if (this.props.defaultValue !== '') {
+      this.setState({ chosenSegment: this.props.defaultValue });
+    }
+  }
+
   onClickSegment(segmentId) {
     if (segmentId === this.state.chosenSegment) {
       this.setState({ chosenSegment: '' });
+      this.props.changeSegments('');
     } else {
-      this.props.onChangeSegments(segmentId);
+      this.props.changeSegments(segmentId);
       this.setState({ chosenSegment: segmentId });
     }
   }
 
   render() {
     const { segments, counts } = this.props;
-    const { Section } = Wrapper.Sidebar;
 
     const orderedSegments = [];
 
@@ -45,34 +50,25 @@ class Segments extends Component {
     });
 
     return (
-      <Section collapsible={segments.length > 5}>
-        <Section.Title>Choose segment</Section.Title>
-        <SidebarList>
-          {orderedSegments.length ? (
-            orderedSegments.map(segment => (
-              <Segmentli
-                key={segment._id}
-                chosen={this.state.chosenSegment === segment._id}
-              >
-                <a
-                  tabIndex={0}
-                  onClick={() => this.onClickSegment(segment._id)}
-                >
-                  {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-                  <Icon
-                    icon="pie-graph icon"
-                    style={{ color: segment.color }}
-                  />
-                  {segment.name}
-                  <SidebarCounter>{counts[segment._id]}</SidebarCounter>
-                </a>
-              </Segmentli>
-            ))
-          ) : (
-            <EmptyState icon="pie-graph" text="No segments" size="small" />
-          )}
-        </SidebarList>
-      </Section>
+      <SidebarList>
+        {orderedSegments.length ? (
+          orderedSegments.map(segment => (
+            <Segmentli
+              key={segment._id}
+              chosen={this.state.chosenSegment === segment._id}
+            >
+              <a tabIndex={0} onClick={() => this.onClickSegment(segment._id)}>
+                {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
+                <Icon icon="piechart icon" style={{ color: segment.color }} />
+                {segment.name}
+                <SidebarCounter>{counts[segment._id]}</SidebarCounter>
+              </a>
+            </Segmentli>
+          ))
+        ) : (
+          <EmptyState icon="piechart" text="No segments" size="small" />
+        )}
+      </SidebarList>
     );
   }
 }

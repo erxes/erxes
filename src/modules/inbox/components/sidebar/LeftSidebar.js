@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { toggleCheckBoxes } from 'modules/common/utils';
+import { TAG_TYPES } from 'modules/tags/constants';
 import { Sidebar } from 'modules/layout/components';
 import {
   Bulk,
@@ -15,19 +16,18 @@ import { FilterPopover, StatusFilterPopover, AssignBoxPopover } from '../';
 import { Resolver } from 'modules/inbox/containers';
 import { PopoverButton } from '../../styles';
 import { LeftItem, RightItems } from './styles';
+import DateFilter from './DateFilter';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
   currentConversationId: PropTypes.string,
-  channels: PropTypes.array.isRequired,
-  brands: PropTypes.array.isRequired,
-  tags: PropTypes.array.isRequired,
   integrations: PropTypes.array.isRequired,
   onChangeConversation: PropTypes.func.isRequired,
-  counts: PropTypes.object.isRequired,
   totalCount: PropTypes.number.isRequired,
   refetch: PropTypes.func,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  queryParams: PropTypes.object,
+  history: PropTypes.object
 };
 
 class LeftSidebar extends Bulk {
@@ -48,16 +48,18 @@ class LeftSidebar extends Bulk {
   }
 
   renderTrigger(text) {
+    const { __ } = this.context;
     return (
       <PopoverButton>
-        {text} <Icon icon="ios-arrow-down" />
+        {__(text)} <Icon icon="downarrow" />
       </PopoverButton>
     );
   }
 
   renderSidebarHeader() {
-    const { channels, counts, conversations } = this.props;
+    const { conversations, queryParams, history } = this.props;
     const { bulk } = this.state;
+    const { __ } = this.context;
 
     if (bulk.length > 0) {
       return (
@@ -68,8 +70,9 @@ class LeftSidebar extends Bulk {
               onChange={() => {
                 this.toggleAll(conversations, 'conversations');
               }}
-            />
-            Select all
+            >
+              {__('Select all')}
+            </FormControl>
           </LeftItem>
 
           <RightItems>
@@ -96,32 +99,38 @@ class LeftSidebar extends Bulk {
         <FilterPopover
           buttonText="# Channel"
           popoverTitle="Filter by channel"
-          fields={channels}
-          counts={counts.byChannels}
+          query={{
+            queryName: 'channelList',
+            dataName: 'channels'
+          }}
+          counts="byChannels"
           paramKey="channelId"
+          searchable
         />
-        <StatusFilterPopover counts={counts} />
+        <DateFilter queryParams={queryParams} history={history} />
+        <StatusFilterPopover />
       </Sidebar.Header>
     );
   }
 
   renderSidebarFooter() {
-    const { brands, tags, counts, integrations } = this.props;
+    const { integrations } = this.props;
     return (
       <Sidebar.Footer>
         <FilterPopover
           buttonText="Brand"
-          fields={brands}
-          counts={counts.byBrands}
+          query={{ queryName: 'brandList', dataName: 'brands' }}
+          counts="byBrands"
           popoverTitle="Filter by brand"
           placement="top"
           paramKey="brandId"
+          searchable
         />
 
         <FilterPopover
           buttonText="Integration"
           fields={integrations}
-          counts={counts.byIntegrationTypes}
+          counts="byIntegrationTypes"
           paramKey="integrationType"
           popoverTitle="Filter by integrations"
           placement="top"
@@ -129,12 +138,19 @@ class LeftSidebar extends Bulk {
 
         <FilterPopover
           buttonText="Tag"
-          fields={tags}
-          counts={counts.byTags}
+          query={{
+            queryName: 'tagList',
+            dataName: 'tags',
+            variables: {
+              type: TAG_TYPES.CONVERSATION
+            }
+          }}
+          counts="byTags"
           paramKey="tag"
           popoverTitle="Filter by tag"
           placement="top"
-          icon="pricetag"
+          icon="tag"
+          searchable
         />
       </Sidebar.Footer>
     );
@@ -178,5 +194,8 @@ class LeftSidebar extends Bulk {
 }
 
 LeftSidebar.propTypes = propTypes;
+LeftSidebar.contextTypes = {
+  __: PropTypes.func
+};
 
 export default LeftSidebar;

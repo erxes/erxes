@@ -24,6 +24,7 @@ class NotificationListRow extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { notification } = this.props;
     const { isRead, createdUser } = notification;
 
@@ -39,9 +40,9 @@ class NotificationListRow extends Component {
           />
         </NotifBody>
         <MarkRead>
-          <Tip text="Mark as Read">
+          <Tip text={__('Mark as read')}>
             <span onClick={this.markAsRead}>
-              <Icon icon="android-radio-button-off" />
+              <Icon icon="checked" />
             </span>
           </Tip>
         </MarkRead>
@@ -55,6 +56,10 @@ NotificationListRow.propTypes = {
   notification: PropTypes.object.isRequired,
   markAsRead: PropTypes.func.isRequired,
   createdUser: PropTypes.object
+};
+
+NotificationListRow.contextTypes = {
+  __: PropTypes.func
 };
 
 export default withRouter(NotificationListRow);

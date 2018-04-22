@@ -9,7 +9,8 @@ const propTypes = {
   condensed: PropTypes.bool,
   hover: PropTypes.bool,
   responsive: PropTypes.bool,
-  whiteSpace: PropTypes.string
+  whiteSpace: PropTypes.string,
+  alignTop: PropTypes.bool
 };
 
 const defaultProps = {
@@ -18,7 +19,8 @@ const defaultProps = {
   bordered: false,
   condensed: false,
   hover: false,
-  responsive: false
+  responsive: false,
+  alignTop: false
 };
 
 function Table(props) {

@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
   ControlLabel,
   FormControl
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   tag: PropTypes.object,
@@ -91,15 +91,15 @@ class Form extends Component {
           />
         </FormGroup>
 
-        <Modal.Footer>
-          <Button btnStyle="simple" onClick={onClick} icon="close">
+        <ModalFooter>
+          <Button btnStyle="simple" onClick={onClick} icon="cancel-1">
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }
