@@ -146,7 +146,10 @@ const SidebarBox = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 8px 1px ${colors.shadowPrimary}`};
-  padding-bottom: ${dimensions.unitSpacing}px;
+  padding-bottom: ${props =>
+    props.collapsible
+      ? `${dimensions.coreSpacing}px`
+      : `${dimensions.unitSpacing}px`};
   position: ${props => (props.full ? 'initial' : 'relative')};
   justify-content: center;
   transition: max-height 0.4s;
@@ -167,19 +170,23 @@ const BoxContent = styled.div`
 `;
 
 const SidebarToggle = styled.a`
-  outline: 0;
   width: 100%;
-  color: ${colors.colorShadowGray};
+  color: ${colors.colorCoreGray};
   position: absolute;
   bottom: 0;
   text-align: center;
-  font-size: ${typography.fontSizeHeading8}px;
-  background: linear-gradient(
-    0deg,
-    white 0%,
-    white 51%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  padding: 2px 0;
+  font-size: 10px;
+  background: ${colors.bgLight};
+  border-top: 1px solid ${colors.borderPrimary};
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &:focus {
+    outline: 0;
+  }
 `;
 
 const HelperButtons = styled.div`

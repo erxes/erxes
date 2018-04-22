@@ -16,6 +16,7 @@ import { FilterPopover, StatusFilterPopover, AssignBoxPopover } from '../';
 import { Resolver } from 'modules/inbox/containers';
 import { PopoverButton } from '../../styles';
 import { LeftItem, RightItems } from './styles';
+import DateFilter from './DateFilter';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
@@ -24,7 +25,9 @@ const propTypes = {
   onChangeConversation: PropTypes.func.isRequired,
   totalCount: PropTypes.number.isRequired,
   refetch: PropTypes.func,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  queryParams: PropTypes.object,
+  history: PropTypes.object
 };
 
 class LeftSidebar extends Bulk {
@@ -54,7 +57,7 @@ class LeftSidebar extends Bulk {
   }
 
   renderSidebarHeader() {
-    const { conversations } = this.props;
+    const { conversations, queryParams, history } = this.props;
     const { bulk } = this.state;
     const { __ } = this.context;
 
@@ -104,6 +107,7 @@ class LeftSidebar extends Bulk {
           paramKey="channelId"
           searchable
         />
+        <DateFilter queryParams={queryParams} history={history} />
         <StatusFilterPopover />
       </Sidebar.Header>
     );

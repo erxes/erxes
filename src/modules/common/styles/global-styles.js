@@ -156,24 +156,40 @@ injectGlobal`
 
   /* tooltip */
   .tooltip-inner {
-    background-color: #393C40;
-    border-radius: 0;
+    background-color: #fff;
+    color: #373737;
+    box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.23);
   }
 
-  .tooltip.bottom .tooltip-arrow {
-    border-bottom-color: #393C40;
+  .tooltip.bottom .tooltip-arrow, {
+    border-bottom-color: #fff;
   }
 
   .tooltip.top .tooltip-arrow {
-    border-top-color: #393C40;
+    border-top-color: #fff;
   }
 
   .tooltip.left .tooltip-arrow {
-    border-left-color: #393C40;
+    border-left-color: #fff;
   }
 
   .tooltip.right .tooltip-arrow {
-    border-right-color: #393C40;
+    border-right-color: #fff;
+    border-width: 0px 10px 13px 0;
+    margin-top: 0;
+    top: 0 !important;
+  }
+
+  .tooltip.right .tooltip-inner {
+    border-top-left-radius: 0;
+  }
+
+  .tooltip.in {
+    opacity: 1;
+  }
+
+  .tooltip.right {
+    padding: 0 5px 0 6px;
   }
 
   /* popover */
@@ -187,6 +203,7 @@ injectGlobal`
     color: #444;
     font-weight: inherit;
     box-shadow: 0 0 20px 3px rgba(0, 0, 0, 0.15);
+    max-width: 310px;
   }
 
   .popover.bottom > .arrow {
@@ -484,7 +501,7 @@ injectGlobal`
     border-bottom: 7px solid #6569DF;
   }
 
-  .rdtPicker td.rdtActive, 
+  .rdtPicker td.rdtActive,
   .rdtPicker td.rdtActive:hover {
     background-color: #6569DF;
   }

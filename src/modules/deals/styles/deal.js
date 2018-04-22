@@ -185,17 +185,17 @@ const MoveContainer = FlexContent.extend`
 const MoveFormContainer = styled.div`
   margin-right: 20px;
   position: relative;
+`;
 
-  form {
-    position: absolute;
-    top: 30px;
-    left: 0;
-    width: 300px;
-    padding: 20px;
-    z-index: 100;
-    box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
-    background: ${colors.colorWhite};
-  }
+const SelectContainer = styled.div`
+  position: absolute;
+  top: 30px;
+  left: 0;
+  width: 300px;
+  padding: 20px;
+  z-index: 100;
+  box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
+  background: ${colors.colorWhite};
 `;
 
 const PipelineName = styled.div`
@@ -302,6 +302,17 @@ const Avatar = styled.img`
   margin-right: 5px;
 `;
 
+const AddContainer = styled.form`
+  ${SelectContainer} {
+    position: relative;
+    top: 0;
+    width: 100%;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+`;
+
 export {
   AddNew,
   Container,
@@ -314,6 +325,7 @@ export {
   HeaderContentSmall,
   Button,
   MoveFormContainer,
+  SelectContainer,
   PipelineName,
   FormFooter,
   FlexContent,
@@ -325,5 +337,6 @@ export {
   StageItem,
   SelectOption,
   SelectValue,
-  Avatar
+  Avatar,
+  AddContainer
 };

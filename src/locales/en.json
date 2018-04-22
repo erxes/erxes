@@ -428,6 +428,7 @@
   "Members": "Members",
   "Choose integrations": "Choose integrations",
   "Choose brands": "Choose brands",
+  "Select a date": "Select a date",
   "Click to select a date": "Click to select a date",
   "Choose users": "Choose users",
   "Select Brand": "Select Brand",
@@ -578,6 +579,7 @@
   "Choose a customer": "Choose a customer",
   "Choose a board": "Choose a board",
   "Choose a pipeline": "Choose a pipeline",
+  "Manage Board & Pipeline": "Manage Board & Pipeline",
   "Choose a stage": "Choose a stage",
   "Deal Settings": "Deal Settings",
   "Boards & Pipelines": "Boards & Pipelines",
@@ -648,5 +650,6 @@
   "Rendering Failure": "Rendering Failure",
   "Rejected": "Rejected",
   "Action": "Action",
-  "Please select one to merge": "Please select one to merge"
+  "Please select one to merge": "Please select one to merge",
+  "Filter by date": "Filter by date"
 }
