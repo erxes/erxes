@@ -152,7 +152,7 @@ class CompanyForm extends React.Component {
             <FormGroup>
               <ControlLabel>Parent Company</ControlLabel>
               <Select
-                placeholder="Search..."
+                placeholder={__('Search')}
                 onFocus={() =>
                   companies.length < 1 && this.handleCompanySearch('')
                 }
@@ -197,7 +197,7 @@ class CompanyForm extends React.Component {
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
               <Select
-                placeholder="Search..."
+                placeholder="Search"
                 onFocus={() => users.length < 1 && this.handleUserSearch('')}
                 onInputChange={this.handleUserSearch}
                 onChange={option => this.handleSelect(option, 'ownerId')}

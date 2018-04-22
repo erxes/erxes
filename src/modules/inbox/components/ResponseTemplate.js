@@ -159,7 +159,7 @@ class ResponseTemplate extends Component {
             <InlineColumn>
               <FormControl
                 type="text"
-                placeholder={__('Search...')}
+                placeholder={__('Search')}
                 onChange={this.filterItems}
                 autoFocus
               />
