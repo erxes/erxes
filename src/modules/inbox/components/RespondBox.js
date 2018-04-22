@@ -270,9 +270,7 @@ class RespondBox extends Component {
     }
 
     let placeholder = __(
-      `To send your ${
-        type
-      } press [Enter] and [Shift + Enter] to add a new line ...`
+      `To send your ${type} press Enter and Shift + Enter to add a new line ...`
     );
 
     return (
