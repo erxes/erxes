@@ -54,7 +54,8 @@ const listParamsDef = `
   $ids: [String],
   $searchValue: String,
   $brand: String,
-  $integration: String
+  $integration: String,
+  $form: String
 `;
 
 const listParamsValue = `
@@ -66,6 +67,7 @@ const listParamsValue = `
   searchValue: $searchValue,
   brand: $brand,
   integration: $integration
+  form: $form
 `;
 
 const customers = `

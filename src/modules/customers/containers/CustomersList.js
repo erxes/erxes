@@ -129,7 +129,8 @@ export default compose(
           ids: queryParams.ids,
           searchValue: queryParams.searchValue,
           brand: queryParams.brand,
-          integration: queryParams.integrationType
+          integration: queryParams.integrationType,
+          form: queryParams.form
         },
         notifyOnNetworkStatusChange: true
       };
@@ -144,7 +145,8 @@ export default compose(
         tag: queryParams.tag,
         segment: queryParams.segment,
         ids: queryParams.ids,
-        searchValue: queryParams.searchValue
+        searchValue: queryParams.searchValue,
+        form: queryParams.form
       },
       notifyOnNetworkStatusChange: true
     })
