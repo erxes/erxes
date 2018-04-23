@@ -118,7 +118,7 @@ const ResponseSuggestions = styled.ul`
   width: 100%;
   list-style-type: none;
   background: ${colors.colorWhite};
-  box-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 -3px 20px -2px ${colors.darkShadow};
 `;
 
 const ResponseSuggestionItem = styled.li`
@@ -130,11 +130,11 @@ const ResponseSuggestionItem = styled.li`
   text-overflow: ellipsis;
 
   :hover {
-    background-color: #f6f8fb;
+    background-color: ${colors.bgUnread};
   }
 
   strong {
-    color: #ec8d17;
+    color: ${colors.colorCoreRed};
   }
 `;
 
@@ -220,7 +220,7 @@ const InlineHeaderSpan = styled.span`
 `;
 
 const PopoverHeader = styled.div`
-  background-color: #f7f7f7;
+  background-color: ${colors.bgLight};
   padding: 5px;
 
   input[type='text'] {
@@ -236,7 +236,7 @@ const PopoverHeader = styled.div`
 
 const PopoverFooter = styled.div`
   padding: 5px 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid ${colors.borderPrimary};
   align-self: flex-end;
   width: 100%;
 `;
@@ -265,7 +265,7 @@ const PopoverList = styled.ul`
     }
 
     a {
-      color: #383838;
+      color: ${colors.colorCoreDarkGray};
     }
   }
 `;
@@ -285,7 +285,7 @@ const PopoverBody = styled.div`
       white-space: normal;
       font-size: 12px;
       padding: 10px 20px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid ${colors.borderPrimary};
 
       &:hover {
         cursor: pointer;

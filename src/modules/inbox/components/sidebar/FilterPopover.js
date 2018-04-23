@@ -91,7 +91,7 @@ class FilterPopover extends Component {
       return (
         <Popover id="filter-popover" title={__(popoverTitle)}>
           <LoaderWrapper>
-            <Spinner />
+            <Spinner objective />
           </LoaderWrapper>
         </Popover>
       );

@@ -4,7 +4,7 @@ import { Wrapper } from 'modules/layout/components';
 import { Button } from 'modules/common/components';
 import { ContentBox } from '../../styles';
 import SelectBrand from './SelectBrand';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 class Twitter extends Component {
   constructor(props, context) {

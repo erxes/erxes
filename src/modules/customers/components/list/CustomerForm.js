@@ -12,7 +12,7 @@ import {
   FormWrapper,
   FormColumn,
   ColumnTitle
-} from 'modules/common/styles/styles';
+} from 'modules/common/styles/main';
 import { searchUser } from 'modules/common/utils';
 import {
   CUSTOMER_LEAD_STATUS_TYPES,

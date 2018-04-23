@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { BoxRoot, FullContent } from 'modules/common/styles/styles';
+import { BoxRoot, FullContent } from 'modules/common/styles/main';
 import { colors } from 'modules/common/styles';
 import { METHODS } from 'modules/engage/constants';
 

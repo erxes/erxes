@@ -9,7 +9,7 @@ import {
 import { METHODS } from 'modules/engage/constants';
 import Editor from './Editor';
 import { EditorWrapper, Recipients, Recipient } from '../styles';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 class WidgetForm extends Component {
   constructor(props) {
