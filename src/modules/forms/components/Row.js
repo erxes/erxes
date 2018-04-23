@@ -112,7 +112,11 @@ class Row extends Component {
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>{form.viewCount || 0}</td>
         <td>{percentage.substring(0, 4)} %</td>
-        <td>{form.contactsGathered || 0}</td>
+        <td>
+          <Link to={`/customers?form=${integration.formId}`}>
+            {form.contactsGathered || 0}
+          </Link>
+        </td>
         <td>{moment(form.createdDate).format('ll')}</td>
         <td>{this.renderUser(createdUserId)}</td>
         <td>
