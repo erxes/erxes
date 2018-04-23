@@ -7,8 +7,8 @@ import {
   ModalTrigger,
   EmptyState
 } from 'modules/common/components';
-import { Footer, LoadMore, Title, Columns, Column } from '../styles/chooser';
-import { ModalFooter } from '../styles/styles';
+import { Footer, Title, Columns, Column } from '../styles/chooser';
+import { ModalFooter, CenterContent } from '../styles/main';
 
 const propTypes = {
   data: PropTypes.object.isRequired,
@@ -139,7 +139,7 @@ class CommonChooser extends Component {
             <ul>
               {datas.map(data => this.renderRow(data, 'add'))}
               {this.state.loadmore && (
-                <LoadMore>
+                <CenterContent>
                   <Button
                     size="small"
                     btnStyle="primary"
@@ -148,7 +148,7 @@ class CommonChooser extends Component {
                   >
                     Load More
                   </Button>
-                </LoadMore>
+                </CenterContent>
               )}
             </ul>
           </Column>

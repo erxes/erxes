@@ -8,15 +8,9 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
-import {
-  Title,
-  Columns,
-  Column,
-  InfoTitle,
-  InfoDetail,
-  Info
-} from '../../styles';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
+import { Title, Columns, Column } from 'modules/common/styles/chooser';
+import { InfoTitle, InfoDetail, Info } from '../../styles';
 
 const propTypes = {
   datas: PropTypes.array.isRequired,

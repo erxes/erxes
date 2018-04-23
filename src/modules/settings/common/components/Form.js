@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   object: PropTypes.object,

@@ -8,7 +8,7 @@ import {
 import Select from 'react-select-plus';
 import { UserCommonInfos } from 'modules/auth/components';
 import { Form as CommonForm } from '../../common/components';
-import { ColumnTitle } from 'modules/common/styles/styles';
+import { ColumnTitle } from 'modules/common/styles/main';
 
 class UserForm extends CommonForm {
   constructor(props, context) {

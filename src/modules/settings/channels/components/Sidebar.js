@@ -81,7 +81,7 @@ class Sidebar extends Component {
       <LeftSidebar full header={this.renderSidebarHeader()}>
         <List>
           {this.renderItems()}
-          <LoadMore all={channelsTotalCount} />
+          <LoadMore all={channelsTotalCount} loading={loading} />
         </List>
         {loading && <Spinner />}
         {!loading &&

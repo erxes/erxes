@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Label, Icon } from 'modules/common/components';
+import { Link } from 'react-router-dom';
+import { Button } from 'modules/common/components';
 import Condition from './Condition';
 
 const propTypes = {
@@ -25,21 +26,29 @@ function Conditions(
   },
   { __ }
 ) {
+  const parent = () => {
+    if (parentSegmentId) {
+      return (
+        <Fragment>
+          <Link
+            to={`/segments/edit/${contentType}/${parentSegmentId}`}
+            target="_blank"
+          >
+            <Button icon="eye" ignoreTrans>
+              {__('Parent segment conditions')}
+            </Button>
+          </Link>
+          <hr />
+        </Fragment>
+      );
+    }
+
+    return null;
+  };
+
   return (
-    <div>
-      {parentSegmentId ? (
-        <a
-          href={`/segments/edit/${contentType}/${parentSegmentId}`}
-          target="_blank"
-        >
-          <h4>
-            <Label ignoreTrans>
-              {__('Parent segment conditions')} <Icon icon="logout-2" />
-            </Label>
-          </h4>
-          <br />
-        </a>
-      ) : null}
+    <Fragment>
+      {parent()}
       {conditions.map(condition => (
         <Condition
           condition={condition}
@@ -48,7 +57,7 @@ function Conditions(
           key={condition.field}
         />
       ))}
-    </div>
+    </Fragment>
   );
 }
 

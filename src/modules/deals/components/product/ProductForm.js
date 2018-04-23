@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button, Table, EmptyState } from 'modules/common/components';
 import { ProductItemForm } from '../../containers';
 import { FormContainer, Add, Footer, FooterInfo } from '../../styles/product';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   onChangeProductsData: PropTypes.func.isRequired,
