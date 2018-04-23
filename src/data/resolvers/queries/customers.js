@@ -1,9 +1,18 @@
 import _ from 'underscore';
-import { Brands, Tags, Integrations, Customers, Segments, Forms } from '../../../db/models';
+import {
+  Brands,
+  Tags,
+  Integrations,
+  Customers,
+  Segments,
+  Forms,
+  Conversations,
+} from '../../../db/models';
 import { TAG_TYPES, INTEGRATION_KIND_CHOICES, COC_CONTENT_TYPES } from '../../constants';
 import QueryBuilder from './segmentQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
+import { fixDate } from './insightUtils';
 
 const listQuery = async params => {
   // exclude empty customers =========
@@ -76,6 +85,28 @@ const listQuery = async params => {
     const formObj = await Forms.findOne({ _id: params.form });
 
     selector = { _id: { $in: formObj.submittedCustomerIds || [] } };
+
+    if (params.startDate && params.endDate) {
+      const customerIds = [];
+
+      const integrationObj = await Integrations.findOne({
+        formId: formObj._id,
+      });
+
+      const conversations = await Conversations.find({
+        integrationId: integrationObj._id,
+        createdAt: {
+          $gte: fixDate(params.startDate),
+          $lte: fixDate(params.endDate),
+        },
+      });
+
+      for (let conversation of conversations) {
+        customerIds.push(conversation.customerId);
+      }
+
+      selector = { _id: { $in: customerIds } };
+    }
   }
 
   return selector;
