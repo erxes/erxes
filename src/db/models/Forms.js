@@ -35,6 +35,7 @@ const FormSchema = mongoose.Schema({
   callout: field({ type: CalloutSchema, default: {} }),
   viewCount: field({ type: Number }),
   contactsGathered: field({ type: Number }),
+  submittedCustomerIds: field({ type: [String] }),
 });
 
 class Form {
