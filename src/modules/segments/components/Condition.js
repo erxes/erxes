@@ -149,7 +149,7 @@ class Condition extends Component {
             <Button
               btnStyle="danger"
               size="small"
-              icon="close"
+              icon="cancel-1"
               onClick={this.removeCondition}
             />
           </FlexRightItem>

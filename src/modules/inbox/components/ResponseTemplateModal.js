@@ -65,7 +65,7 @@ class ResponseTemplateModal extends Component {
         </FormGroup>
 
         <ModalFooter>
-          <Button onClick={this.onSave} btnStyle="success" icon="checkmark">
+          <Button onClick={this.onSave} btnStyle="success" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

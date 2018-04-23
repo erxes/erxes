@@ -22,7 +22,8 @@ const propTypes = {
   refetch: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
-  loading: PropTypes.bool.isRequired
+  loading: PropTypes.bool.isRequired,
+  queryParams: PropTypes.object
 };
 
 class List extends React.Component {
@@ -43,7 +44,7 @@ class List extends React.Component {
 
     const tagButton = (
       <Button btnStyle="simple" size="small">
-        {__('Tag')} <Icon icon="ios-arrow-down" />
+        {__('Tag')} <Icon icon="downarrow" />
       </Button>
     );
 
@@ -66,15 +67,16 @@ class List extends React.Component {
       tags,
       toggleBulk,
       refetch,
-      loading
+      loading,
+      queryParams
     } = this.props;
     const { __ } = this.context;
 
     const actionBarRight = (
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
-          <Button btnStyle="success" size="small" icon="plus">
-            {__('New message')} <Icon icon="chevron-down" />
+          <Button btnStyle="success" size="small" icon="add">
+            {__('New message')} <Icon icon="downarrow" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
@@ -112,8 +114,15 @@ class List extends React.Component {
               <th>{__('Status')}</th>
               <th>{__('Total')}</th>
               <th>{__('Sent')}</th>
-              <th>{__('Failed')}</th>
+              <th>{__('Delivered')}</th>
+              <th>{__('Opened')}</th>
+              <th>{__('Clicked')}</th>
+              <th>{__('Complaint')}</th>
+              <th>{__('Bounce')}</th>
+              <th>{__('Rendering Failure')}</th>
+              <th>{__('Rejected')}</th>
               <th>{__('Type')}</th>
+              <th>{__('Brand')}</th>
               <th>{__('Created date')}</th>
               <th>{__('Tags')}</th>
               <th>{__('Actions')}</th>
@@ -143,7 +152,12 @@ class List extends React.Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: __('Engage') }]} />}
+        header={
+          <Wrapper.Header
+            breadcrumb={[{ title: __('Engage') }]}
+            queryParams={queryParams}
+          />
+        }
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

@@ -28,6 +28,7 @@ class Row extends React.Component {
   constructor(props) {
     super(props);
 
+    this.renderRemoveButton = this.renderRemoveButton.bind(this);
     this.toggleBulk = this.toggleBulk.bind(this);
   }
 
@@ -44,11 +45,7 @@ class Row extends React.Component {
     const msg = this.props.message;
     const edit = this.renderLink('Edit', 'edit', this.props.edit);
     const pause = this.renderLink('Pause', 'pause', this.props.setPause);
-    const live = this.renderLink(
-      'Set live',
-      'paper-airplane',
-      this.props.setLive
-    );
+    const live = this.renderLink('Set live', 'play', this.props.setLive);
 
     if (msg.kind !== MESSAGE_KINDS.MANUAL) {
       if (msg.isDraft) {
@@ -63,10 +60,18 @@ class Row extends React.Component {
     }
 
     if (msg.isDraft) {
-      return this.renderLink(
-        'Set live',
-        'paper-airplane',
-        this.props.setLiveManual
+      return this.renderLink('Set live', 'play', this.props.setLiveManual);
+    }
+  }
+
+  renderRemoveButton(message, onClick) {
+    const { __ } = this.context;
+
+    if (message.kind === 'auto') {
+      return (
+        <Tip text={__('Delete')}>
+          <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
+        </Tip>
       );
     }
   }
@@ -81,7 +86,7 @@ class Row extends React.Component {
     if (message.segment) {
       return (
         <HelperText>
-          <Icon icon="pie-graph" /> {message.segment.name}
+          <Icon icon="piechart" /> {message.segment.name}
         </HelperText>
       );
     }
@@ -90,33 +95,22 @@ class Row extends React.Component {
 
     return rules.map(rule => (
       <HelperText key={rule._id}>
-        <Icon icon="pie-graph" /> {rule.text} {rule.condition} {rule.value}
+        <Icon icon="piechart" /> {rule.text} {rule.condition} {rule.value}
       </HelperText>
     ));
   }
 
   render() {
     let status = <Label lblStyle="default">Sending</Label>;
-    let successCount = 0;
-    let failedCount = 0;
 
     const { message, remove } = this.props;
+    const { stats = {}, brand = {} } = message;
 
     const deliveryReports = Object.values(message.deliveryReports || {});
     const totalCount = deliveryReports.length;
     const { __ } = this.context;
 
-    deliveryReports.forEach(report => {
-      if (report.status === 'sent') {
-        successCount++;
-      }
-
-      if (report.status === 'failed') {
-        failedCount++;
-      }
-    });
-
-    if (totalCount === successCount + failedCount) {
+    if (totalCount === stats.send) {
       status = <Label lblStyle="success">Sent</Label>;
     }
 
@@ -138,42 +132,61 @@ class Row extends React.Component {
           <Icon icon="cube" />
           <b> {totalCount}</b>
         </td>
-        <td className="text-success">
-          <Icon icon="paper-airplane" />
-          <b> {successCount}</b>
+
+        <td>
+          <b>{stats.send || 0}</b>
         </td>
-        <td className="text-warning">
-          <Icon icon="alert-circled" />
-          <b> {failedCount}</b>
+        <td>
+          <b>{stats.delivery || 0}</b>
+        </td>
+        <td>
+          <b>{stats.open || 0}</b>
+        </td>
+        <td>
+          <b>{stats.click || 0}</b>
+        </td>
+        <td>
+          <b>{stats.complaint || 0}</b>
+        </td>
+        <td>
+          <b>{stats.bounce || 0}</b>
+        </td>
+        <td>
+          <b>{stats.renderingfailure || 0}</b>
+        </td>
+        <td>
+          <b>{stats.reject || 0}</b>
         </td>
 
         <td>
           {message.email ? (
             <div>
-              <Icon icon="email" /> {__('Email')}
+              <Icon icon="email-3" /> {__('Email')}
             </div>
           ) : (
             <div>
-              <Icon icon="chatbox" /> {__('Messenger')}
+              <Icon icon="chat" /> {__('Messenger')}
             </div>
           )}
         </td>
+
+        <td>
+          <b>{brand ? brand.name : '-'}</b>
+        </td>
+
         <td>
           <Icon icon="calendar" />{' '}
           {moment(message.createdDate).format('DD MMM YYYY')}
         </td>
 
         <td>
-          <Tags tags={message.getTags} limit={3} />
+          <Tags tags={message.getTags} limit={1} />
         </td>
 
         <td>
           <ActionButtons>
             {this.renderLinks()}
-
-            <Tip text={__('Delete')}>
-              <Button btnStyle="link" onClick={remove} icon="close" />
-            </Tip>
+            {this.renderRemoveButton(message, remove)}
           </ActionButtons>
         </td>
       </tr>

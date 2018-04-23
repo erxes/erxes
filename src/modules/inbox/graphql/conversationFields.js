@@ -12,7 +12,6 @@ export default `
       avatar
       fullName
       position
-      twitterUsername
     }
   }
   integration {
@@ -89,7 +88,6 @@ export default `
       avatar
       fullName
       position
-      twitterUsername
     }
   }
   tagIds
@@ -98,7 +96,12 @@ export default `
     name
     colorCode
   }
-  twitterData
-  facebookData
+  twitterData {
+    id_str
+    isDirectMessage
+  }
+  facebookData {
+    kind
+  }
   readUserIds
 `;

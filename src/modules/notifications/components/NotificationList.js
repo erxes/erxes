@@ -54,7 +54,7 @@ class NotificationList extends Component {
           btnStyle="primary"
           size="small"
           onClick={this.markAllRead.bind(this, true)}
-          icon="checkmark"
+          icon="checked-1"
         >
           Mark Page Read
         </Button>
@@ -62,7 +62,7 @@ class NotificationList extends Component {
           btnStyle="success"
           size="small"
           onClick={this.markAllRead.bind(this, false)}
-          icon="checkmark"
+          icon="checked-1"
         >
           Mark All Read
         </Button>

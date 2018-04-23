@@ -163,7 +163,7 @@ class Appearance extends Component {
                 >
                   <label>
                     <Icon
-                      icon="ios-upload-outline icon"
+                      icon="upload icon"
                       size={30}
                       style={{ backgroundColor: this.state.color }}
                     />
@@ -187,7 +187,7 @@ class Appearance extends Component {
         right={
           <Button.Group>
             <Link to="/settings/integrations">
-              <Button size="small" btnStyle="simple" icon="close">
+              <Button size="small" btnStyle="simple" icon="cancel-1">
                 Cancel
               </Button>
             </Link>
@@ -196,7 +196,7 @@ class Appearance extends Component {
               size="small"
               btnStyle="success"
               onClick={this.save}
-              icon="checkmark"
+              icon="checked-1"
             >
               Save
             </Button>

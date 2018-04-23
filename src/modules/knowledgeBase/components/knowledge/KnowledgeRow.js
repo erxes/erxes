@@ -28,7 +28,7 @@ class KnowledgeRow extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { detailed: true };
+    this.state = { detailed: false };
     this.toggle = this.toggle.bind(this);
     this.renderKnowledgeBaseForm = this.renderKnowledgeBaseForm.bind(this);
   }
@@ -65,7 +65,7 @@ class KnowledgeRow extends Component {
               pullRight
             >
               <DropdownToggle bsRole="toggle">
-                <Icon icon="gear-a" />
+                <Icon icon="settings" />
               </DropdownToggle>
               <Dropdown.Menu>
                 <ModalTrigger

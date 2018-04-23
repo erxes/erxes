@@ -7,7 +7,7 @@ const IconStyle = styled.i`
 `;
 
 function Icon({ ...props }) {
-  return <IconStyle {...props} className={`ion-${props.icon}`} />;
+  return <IconStyle {...props} className={`icon-${props.icon}`} />;
 }
 
 Icon.propTypes = {

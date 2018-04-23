@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import {
@@ -15,7 +15,8 @@ import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems, SidebarCounter } from 'modules/layout/styles';
 import ConversationDetails from './sidebar/ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
-import { CompanySection } from 'modules/customers/components';
+import { CompanyAssociate } from 'modules/companies/containers';
+import { DealSection } from 'modules/deals/containers';
 
 import {
   PopoverButton,
@@ -41,13 +42,11 @@ class Inbox extends Component {
     this.scrollBottom();
   }
 
-  componentDidUpdate(prevProps) {
-    const { currentConversation } = this.props;
-    const prevConversation = prevProps.currentConversation;
-    if (
-      currentConversation.messageCount !== prevConversation.messageCount ||
-      currentConversation._id !== prevConversation._id
-    ) {
+  componentDidUpdate() {
+    const twitterData = this.props.currentConversation.twitterData;
+    const isTweet = twitterData && !twitterData.isDirectMessage;
+
+    if (!isTweet) {
       this.scrollBottom();
     }
   }
@@ -78,29 +77,36 @@ class Inbox extends Component {
     return null;
   }
 
+  renderSectionBottom(customer) {
+    return (
+      <Fragment>
+        <CompanyAssociate data={customer} />
+        <DealSection customerId={customer._id} />
+      </Fragment>
+    );
+  }
+
   renderRightSidebar(currentConversation) {
+    const { loading } = this.props;
+
     if (currentConversation._id) {
+      const customer = currentConversation.customer || {};
+
       return (
         <EditInformation
           conversation={currentConversation}
           sectionTop={
             <ConversationDetails conversation={currentConversation} />
           }
-          sectionBottom={
-            <CompanySection customer={currentConversation.customer} />
-          }
-          customer={currentConversation.customer}
+          sectionBottom={this.renderSectionBottom(customer)}
+          customer={customer}
           refetch={this.props.refetch}
           otherProperties={this.renderMessengerData()}
         />
       );
     }
 
-    return (
-      <Wrapper.Sidebar full>
-        {this.props.loading && <Spinner />}
-      </Wrapper.Sidebar>
-    );
+    return <Wrapper.Sidebar full>{loading && <Spinner />}</Wrapper.Sidebar>;
   }
 
   render() {
@@ -108,10 +114,11 @@ class Inbox extends Component {
       queryParams,
       currentConversationId,
       currentConversation,
+      conversationMessages,
       onChangeConversation,
-      refetch,
-      loading
+      refetch
     } = this.props;
+
     const { __ } = this.context;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
@@ -122,9 +129,9 @@ class Inbox extends Component {
         {tags.length ? (
           <Tags tags={tags} limit={1} />
         ) : (
-          <Label lblStyle="default">no tags</Label>
+          <Label lblStyle="default">No tags</Label>
         )}
-        <Icon icon="ios-arrow-down" />
+        <Icon icon="downarrow" />
       </PopoverButton>
     );
 
@@ -139,7 +146,7 @@ class Inbox extends Component {
             Member
           </Button>
         )}
-        <Icon icon="ios-arrow-down" size={13} />
+        <Icon icon="downarrow" />
       </AssignTrigger>
     );
 
@@ -185,10 +192,10 @@ class Inbox extends Component {
       >
         <Conversation
           conversation={currentConversation}
+          conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
           scrollBottom={this.scrollBottom}
         />
-        {loading && <Spinner />}
       </ConversationWrapper>
     );
 
@@ -226,9 +233,11 @@ Inbox.propTypes = {
   queryParams: PropTypes.object,
   refetch: PropTypes.func,
   title: PropTypes.string,
+  onFetchMore: PropTypes.func,
   onChangeConversation: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
+  conversationMessages: PropTypes.array,
   loading: PropTypes.bool
 };
 

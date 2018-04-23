@@ -12,8 +12,8 @@ import {
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
-import CustomerSection from './CustomerSection';
-import { DealSection } from 'modules/deals/components';
+import { CustomerAssociate } from 'modules/customers/containers';
+import { DealSection } from 'modules/deals/containers';
 import { hasAnyActivity } from 'modules/customers/utils';
 
 const propTypes = {
@@ -86,8 +86,8 @@ class CompanyDetails extends React.Component {
 
     const rightSidebar = (
       <Sidebar>
-        <CustomerSection company={company} />
-        <DealSection deals={company.deals || []} />
+        <CustomerAssociate data={company} />
+        <DealSection companyId={company._id} />
       </Sidebar>
     );
 
@@ -96,7 +96,7 @@ class CompanyDetails extends React.Component {
         <WhiteBox>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> {__('New note')}
+              <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
           </Tabs>
 

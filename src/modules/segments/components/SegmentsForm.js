@@ -268,7 +268,7 @@ class SegmentsForm extends Component {
 
           <SegmentResult>
             <ResultCount>
-              <Icon icon="person-stalker" /> {total.byFakeSegment}
+              <Icon icon="users" /> {total.byFakeSegment}
             </ResultCount>
             {__('User(s) will recieve this message')}
           </SegmentResult>
@@ -281,7 +281,7 @@ class SegmentsForm extends Component {
         right={
           <Button.Group>
             <Link to={`/segments/${contentType}`}>
-              <Button size="small" btnStyle="simple" icon="close">
+              <Button size="small" btnStyle="simple" icon="cancel-1">
                 Cancel
               </Button>
             </Link>
@@ -289,7 +289,7 @@ class SegmentsForm extends Component {
               size="small"
               btnStyle="success"
               onClick={this.save}
-              icon="checkmark"
+              icon="checked-1"
             >
               Save
             </Button>

@@ -95,7 +95,7 @@ class Attachment extends Component {
         </FileWrapper>
         <Overlay key="overlay" href={this.props.attachment.url} target="_blank">
           <div>
-            <Icon icon="android-download" />
+            <Icon icon="download" />
           </div>
         </Overlay>
       </Fragment>
@@ -138,7 +138,7 @@ class Attachment extends Component {
       case 'xlsx':
       case 'ppt':
       case 'pptx':
-        filePreview = this.renderOtherFile(name, 'document-text');
+        filePreview = this.renderOtherFile(name, 'file');
         break;
       case 'mp4':
       case 'avi':
@@ -146,13 +146,13 @@ class Attachment extends Component {
         break;
       case 'mp3':
       case 'wav':
-        filePreview = this.renderOtherFile(name, 'volume-mediu');
+        filePreview = this.renderOtherFile(name, 'music');
         break;
       case 'zip':
-        filePreview = this.renderOtherFile(name, 'android-archive');
+        filePreview = this.renderOtherFile(name, 'cube');
         break;
       default:
-        filePreview = this.renderOtherFile(name, 'document');
+        filePreview = this.renderOtherFile(name, 'clipboard-1');
     }
     return filePreview;
   }

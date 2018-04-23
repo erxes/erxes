@@ -7,9 +7,9 @@ import {
   Button,
   ControlLabel
 } from 'modules/common/components';
-import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
-import { colors, dimensions } from 'modules/common/styles';
-import { FlexItem, LeftItem, Preview } from './style';
+import { FormPreview } from './preview';
+import { colors } from 'modules/common/styles';
+import { FlexItem, FlexColumn, LeftItem, Footer, Preview } from './style';
 
 const Fields = styled.ul`
   list-style: none;
@@ -21,40 +21,13 @@ const Fields = styled.ul`
   }
 `;
 
-const FlexColumn = styled.div`
-  display: flex;
-  min-width: 43.33333%;
-  flex-direction: column;
-  justify-content: space-between;
-
-  ${LeftItem} {
-    flex: 1;
-  }
-`;
-
-const Footer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0 ${dimensions.coreSpacing}px;
-  background: ${colors.bgLight};
-  height: ${dimensions.headerSpacing}px;
-  border-top: 1px solid ${colors.borderPrimary};
-
-  label {
-    margin-bottom: 0;
-    margin-right: ${dimensions.coreSpacing}px;
-  }
-`;
-
 const propTypes = {
   type: PropTypes.string,
-  calloutTitle: PropTypes.string,
-  btnText: PropTypes.string,
-  bodyValue: PropTypes.string,
+  formTitle: PropTypes.string,
+  formBtnText: PropTypes.string,
+  formDesc: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
-  image: PropTypes.string,
   onChange: PropTypes.func,
   fields: PropTypes.array
 };
@@ -74,6 +47,7 @@ class FormStep extends Component {
     };
 
     this.onChangeFunction = this.onChangeFunction.bind(this);
+    this.onChangeState = this.onChangeState.bind(this);
     this.onChangeType = this.onChangeType.bind(this);
 
     this.footerActions = this.footerActions.bind(this);
@@ -96,6 +70,11 @@ class FormStep extends Component {
 
   onChangeFunction(name, value) {
     this.setChanges(name, value);
+  }
+
+  onChangeState(name, value) {
+    this.setState({ [name]: value });
+    this.props.onChange(name, value);
   }
 
   onSubmit(e) {
@@ -130,38 +109,6 @@ class FormStep extends Component {
     this.setState({ editingField });
   }
 
-  renderPreview() {
-    const { type } = this.props;
-
-    if (type === 'shoutbox') {
-      return (
-        <ShoutboxPreview
-          {...this.props}
-          fields={this.state.fields}
-          onFieldEdit={this.onFieldEdit}
-        />
-      );
-    }
-
-    if (type === 'popup') {
-      return (
-        <PopupPreview
-          {...this.props}
-          fields={this.state.fields}
-          onFieldEdit={this.onFieldEdit}
-        />
-      );
-    }
-
-    return (
-      <EmbeddedPreview
-        {...this.props}
-        fields={this.state.fields}
-        onFieldEdit={this.onFieldEdit}
-      />
-    );
-  }
-
   renderButtons() {
     const _id = this.state.editingField._id;
 
@@ -189,11 +136,11 @@ class FormStep extends Component {
             size="small"
             btnStyle="danger"
             onClick={onDelete}
-            icon="close"
+            icon="cancel-1"
           >
             Delete
           </Button>
-          <Button size="small" btnStyle="primary" onClick={reset} icon="plus">
+          <Button size="small" btnStyle="primary" onClick={reset} icon="add">
             New
           </Button>
         </Button.Group>
@@ -205,7 +152,7 @@ class FormStep extends Component {
         size="small"
         onClick={this.onSubmit}
         btnStyle="primary"
-        icon="plus"
+        icon="add"
       >
         Add
       </Button>
@@ -265,6 +212,24 @@ class FormStep extends Component {
     return (
       <Fields>
         <FormGroup>
+          <ControlLabel>Form title</ControlLabel>
+          <FormControl
+            id="form-btn-text"
+            value={this.props.formTitle}
+            onChange={e => this.onChangeState('formTitle', e.target.value)}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Form description</ControlLabel>
+          <FormControl
+            id="form-btn-text"
+            value={this.props.formDesc}
+            onChange={e => this.onChangeState('formDesc', e.target.value)}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel htmlFor="type">Type:</ControlLabel>
 
           <FormControl
@@ -322,6 +287,15 @@ class FormStep extends Component {
         </FormGroup>
 
         {this.renderOptionsTextArea()}
+
+        <FormGroup>
+          <ControlLabel>Form button text</ControlLabel>
+          <FormControl
+            id="form-btn-text"
+            value={this.props.formBtnText}
+            onChange={e => this.onChangeState('formBtnText', e.target.value)}
+          />
+        </FormGroup>
       </Fields>
     );
   }
@@ -334,7 +308,13 @@ class FormStep extends Component {
           {this.footerActions()}
         </FlexColumn>
 
-        <Preview>{this.renderPreview()}</Preview>
+        <Preview>
+          <FormPreview
+            {...this.props}
+            fields={this.state.fields}
+            onFieldEdit={this.onFieldEdit}
+          />
+        </Preview>
       </FlexItem>
     );
   }

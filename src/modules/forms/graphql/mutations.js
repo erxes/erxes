@@ -19,7 +19,7 @@ const commonParamsDef = `
   $description: String,
   $buttonText: String,
   $themeColor: String,
-  $featuredImage: String
+  $callout: JSON
 `;
 
 const commonParams = `
@@ -27,7 +27,7 @@ const commonParams = `
   description: $description,
   buttonText: $buttonText,
   themeColor: $themeColor,
-  featuredImage: $featuredImage
+  callout: $callout
 `;
 
 const commonVariables = `
@@ -65,7 +65,9 @@ const integrationsCreateFormIntegration = `
 `;
 
 const integrationsEditFormIntegration = `
-  mutation integrationsEditFormIntegration($_id: String!, ${commonFormParamsDef}) {
+  mutation integrationsEditFormIntegration($_id: String!, ${
+    commonFormParamsDef
+  }) {
     integrationsEditFormIntegration(_id: $_id, ${commonFormParams}) {
       _id
     }

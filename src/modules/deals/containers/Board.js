@@ -1,10 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { router as routerUtils } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { Board } from '../components';
 import { queries } from '../graphql';
 
@@ -18,18 +15,8 @@ class BoardContainer extends React.Component {
     this.state = {};
   }
 
-  componentWillReceiveProps() {
-    const { history, currentBoard } = this.props;
-
-    if (!routerUtils.getParam(history, 'id') && currentBoard) {
-      routerUtils.setParams(history, { id: currentBoard._id });
-    }
-  }
-
   getChildContext() {
-    const { currentBoard } = this.props;
-
-    return { move: this.move, boardId: currentBoard ? currentBoard._id : '' };
+    return { move: this.move };
   }
 
   move({ source, destination, itemId, type }) {
@@ -66,20 +53,14 @@ class BoardContainer extends React.Component {
   }
 
   render() {
-    const { boardsQuery, pipelinesQuery } = this.props;
+    const { pipelinesQuery } = this.props;
 
-    if (pipelinesQuery.loading) {
-      return <Spinner />;
-    }
-
-    const boards = boardsQuery.dealBoards || [];
-    const pipelines = pipelinesQuery.dealPipelines;
+    const pipelines = pipelinesQuery.dealPipelines || [];
 
     const extendedProps = {
       ...this.props,
       states: this.state,
       onDragEnd: this.onDragEnd,
-      boards,
       pipelines,
       loading: pipelinesQuery.loading
     };
@@ -89,21 +70,14 @@ class BoardContainer extends React.Component {
 }
 
 BoardContainer.propTypes = {
-  boardsQuery: PropTypes.object,
-  pipelinesQuery: PropTypes.object,
-  currentBoard: PropTypes.object,
-  history: PropTypes.object
+  pipelinesQuery: PropTypes.object
 };
 
 BoardContainer.childContextTypes = {
-  move: PropTypes.func,
-  boardId: PropTypes.string
+  move: PropTypes.func
 };
 
-const BoardContainerWithData = compose(
-  graphql(gql(queries.boards), {
-    name: 'boardsQuery'
-  }),
+export default compose(
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
     options: ({ currentBoard }) => ({
@@ -112,91 +86,3 @@ const BoardContainerWithData = compose(
     })
   })
 )(BoardContainer);
-
-const BoardDetail = props => {
-  const { boardDetailQuery } = props;
-
-  if (boardDetailQuery.loading) {
-    return <Spinner />;
-  }
-
-  const currentBoard = boardDetailQuery.dealBoardDetail;
-
-  const extendedProps = {
-    ...props,
-    currentBoard
-  };
-
-  return <BoardContainerWithData {...extendedProps} />;
-};
-
-BoardDetail.propTypes = {
-  boardDetailQuery: PropTypes.object
-};
-
-const BoardDetailContainer = compose(
-  graphql(gql(queries.boardDetail), {
-    name: 'boardDetailQuery',
-    options: ({ currentBoardId }) => ({
-      fetchPolicy: 'network-only',
-      variables: { _id: currentBoardId || '' }
-    })
-  })
-)(BoardDetail);
-
-/*
- * We will use this component when there is no current board id
- * in query string
- */
-const DefaultBoard = props => {
-  const { boardGetDefaultQuery } = props;
-
-  if (boardGetDefaultQuery.loading) {
-    return <Spinner />;
-  }
-
-  const defaultBoard = boardGetDefaultQuery.dealBoardGetDefault;
-
-  const extendedProps = {
-    ...props,
-    currentBoard: defaultBoard
-  };
-
-  return <BoardContainerWithData {...extendedProps} />;
-};
-
-DefaultBoard.propTypes = {
-  boardGetDefaultQuery: PropTypes.object
-};
-
-const DefaultBoardContainer = compose(
-  graphql(gql(queries.boardGetDefault), {
-    name: 'boardGetDefaultQuery',
-    options: () => ({ fetchPolicy: 'network-only' })
-  })
-)(DefaultBoard);
-
-/*
- * Main board component
- */
-const MainContainer = props => {
-  const { history } = props;
-  const currentBoardId = routerUtils.getParam(history, 'id');
-
-  if (currentBoardId) {
-    const extentedProps = {
-      ...props,
-      currentBoardId
-    };
-
-    return <BoardDetailContainer {...extentedProps} />;
-  }
-
-  return <DefaultBoardContainer {...props} />;
-};
-
-MainContainer.propTypes = {
-  history: PropTypes.object
-};
-
-export default withRouter(MainContainer);

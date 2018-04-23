@@ -36,7 +36,7 @@ class Section extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { collapse: false, maxHeight: 220 };
+    this.state = { collapse: false, maxHeight: 240 };
 
     this.toggleCollapse = this.toggleCollapse.bind(this);
     this.renderCollapseButton = this.renderCollapseButton.bind(this);
@@ -45,12 +45,13 @@ class Section extends Component {
   toggleCollapse() {
     this.setState({
       collapse: !this.state.collapse,
-      maxHeight: this.state.collapse ? 220 : this.node.clientHeight + 20
+      maxHeight: this.state.collapse ? 240 : this.node.clientHeight + 20
     });
   }
 
   renderCollapseButton() {
-    const icon = this.state.collapse ? 'chevron-up' : 'chevron-down';
+    const icon = this.state.collapse ? 'uparrow-2' : 'downarrow';
+
     return (
       <SidebarToggle tabIndex={0} onClick={this.toggleCollapse}>
         <Icon icon={icon} />
@@ -64,16 +65,17 @@ class Section extends Component {
     const height = {
       maxHeight: collapsible && this.state.maxHeight
     };
+
     return (
       <SidebarBox
-        collapsible
+        collapsible={collapsible}
         style={height}
         noShadow={noShadow}
         noBackground={noBackground}
         full={full}
       >
         <BoxContent
-          ref={node => {
+          innerRef={node => {
             this.node = node;
           }}
         >

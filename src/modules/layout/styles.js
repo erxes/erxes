@@ -117,10 +117,17 @@ const SidebarHeader = styled.div`
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   text-transform: ${props => props.uppercase && 'uppercase'};
-  font-weight: ${props => props.bold && typography.fontWeightMedium};
+  font-weight: ${props => (props.bold ? 'bold' : 'normal')};
   display: flex;
+  font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
   justify-content: space-between;
+`;
+
+const SidebarTitle = SidebarHeader.withComponent('h3').extend`
+  padding: 0 ${dimensions.coreSpacing}px;
+  margin: 0 0 -1px 0;
+  text-transform: uppercase;
 `;
 
 const SidebarMainContent = styled.div`
@@ -139,7 +146,10 @@ const SidebarBox = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 8px 1px ${colors.shadowPrimary}`};
-  padding-bottom: ${dimensions.unitSpacing}px;
+  padding-bottom: ${props =>
+    props.collapsible
+      ? `${dimensions.coreSpacing}px`
+      : `${dimensions.unitSpacing}px`};
   position: ${props => (props.full ? 'initial' : 'relative')};
   justify-content: center;
   transition: max-height 0.4s;
@@ -153,28 +163,36 @@ const SidebarBox = styled.div`
 
 const BoxContent = styled.div`
   flex: 1;
+
+  ul {
+    margin-top: 10px;
+  }
 `;
 
 const SidebarToggle = styled.a`
-  outline: 0;
   width: 100%;
-  color: ${colors.colorShadowGray};
+  color: ${colors.colorCoreGray};
   position: absolute;
   bottom: 0;
   text-align: center;
-  font-size: ${typography.fontSizeHeading8}px;
-  background: linear-gradient(
-    0deg,
-    white 0%,
-    white 51%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  padding: 2px 0;
+  font-size: 10px;
+  background: ${colors.bgLight};
+  border-top: 1px solid ${colors.borderPrimary};
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &:focus {
+    outline: 0;
+  }
 `;
 
 const HelperButtons = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
-  top: 16px;
+  top: 15px;
 
   a {
     float: left;
@@ -197,16 +215,8 @@ const HelperButtons = styled.div`
   }
 `;
 
-const SidebarTitle = styled.h3`
-  font-size: ${typography.fontSizeHeading8}px;
-  font-weight: ${typography.fontWeightMedium};
-  text-transform: uppercase;
-  padding: ${dimensions.coreSpacing}px;
-  margin: 0;
-`;
-
 const SidebarContent = styled.div`
-  padding: 0px ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
 `;
 
 const SidebarList = styled.ul`

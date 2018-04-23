@@ -158,19 +158,20 @@ class RespondBox extends Component {
       mentionedUserIds
     };
 
-    sendMessage(message, error => {
-      if (error) {
-        return Alert.error(error.message);
-      }
+    if (this.state.content) {
+      sendMessage(message, error => {
+        if (error) {
+          return Alert.error(error.message);
+        }
 
-      // clear attachments
-      return this.setState({ attachments: [] });
-    });
-
-    this.setState({
-      // clear mentioned user ids
-      mentionedUserIds: []
-    });
+        // clear attachments, content, mentioned user ids
+        return this.setState({
+          attachments: [],
+          content: '',
+          mentionedUserIds: []
+        });
+      });
+    }
   }
 
   toggleForm() {
@@ -211,7 +212,7 @@ class RespondBox extends Component {
       return (
         <Mask onClick={this.hideMask}>
           {__(
-            'Customer is offline. Click to hide and send messages and they will receive them the next time they are online.'
+            'Customer is offline Click to hide and send messages and they will receive them the next time they are online'
           )}
         </Mask>
       );
@@ -239,7 +240,7 @@ class RespondBox extends Component {
 
         <Tip text={__('Attach file')}>
           <label>
-            <Icon icon="android-attach" size={17} />
+            <Icon icon="upload-2" />
             <input type="file" onChange={this.handleFileInput} />
           </label>
         </Tip>
@@ -255,7 +256,7 @@ class RespondBox extends Component {
           onClick={this.onSend}
           btnStyle="success"
           size="small"
-          icon="android-send"
+          icon="send"
         >
           Send
         </Button>
@@ -269,9 +270,7 @@ class RespondBox extends Component {
     }
 
     let placeholder = __(
-      `To send your ${
-        type
-      } press [Enter] and [Shift + Enter] to add a new line ...`
+      `To send your ${type} press Enter and Shift + Enter to add a new line`
     );
 
     return (

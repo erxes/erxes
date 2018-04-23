@@ -81,12 +81,16 @@ const ButtonStyled = styled.button`
       cursor: pointer;
       box-shadow: ${types[props.btnStyle] === types.link
         ? 'none'
-        : `0 0 4px 0 ${colors.borderDarker}`};
+        : `0 0 4px 0 ${colors.darkShadow}`};
       color: ${colors.colorWhite};
       color: ${types[props.btnStyle].color && darken(colors.colorCoreGray, 24)};
       text-decoration: none;
     }
   `};
+
+  a {
+    color: ${colors.colorWhite};
+  }
 
   &.shrinked {
     padding: 8px 0;
@@ -105,9 +109,7 @@ const ButtonStyled = styled.button`
   }
 `;
 
-const Link = ButtonStyled.withComponent('a');
-
-const ButtonLink = Link.extend`
+const ButtonLink = ButtonStyled.withComponent('a').extend`
   text-decoration: inherit;
   text-align: center;
   pointer-events: ${props => props.disabled && 'none'};

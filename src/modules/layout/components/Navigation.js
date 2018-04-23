@@ -19,13 +19,11 @@ const LeftNavigation = styled.aside`
   bottom: 0;
 
   > a {
-    margin-top: ${dimensions.unitSpacing}px;
-    line-height: ${dimensions.headerSpacing}px;
     display: flex;
+    margin-top: ${dimensions.unitSpacing}px;
     height: ${dimensions.headerSpacing}px;
     justify-content: center;
     align-items: center;
-    color: #fff;
 
     img {
       max-height: 28px;
@@ -41,6 +39,8 @@ const LeftNavigation = styled.aside`
 const Nav = styled.nav`
   display: block;
   margin-top: ${dimensions.unitSpacing}px;
+  height: calc(100% - 130px);
+  overflow: auto;
 
   > a {
     display: block;
@@ -50,7 +50,6 @@ const Nav = styled.nav`
     transition: all 0.3s ease;
 
     i {
-      margin-top: 20px;
       opacity: 0.8;
       transition: all 0.3s ease;
     }
@@ -64,64 +63,44 @@ const Nav = styled.nav`
       min-height: 19px;
     }
 
-    &:hover,
     &.active {
-      opacity: 1;
+      background: rgba(0, 0, 0, 0.13);
 
       i {
         opacity: 1;
       }
     }
 
-    &.active {
-      background: rgba(0, 0, 0, 0.13);
+    &:focus {
+      outline: 0;
     }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+
+      i {
+        opacity: 1;
+      }
+    }
+
+    @media (max-height: 760px) {
+      height: ${dimensions.headerSpacing}px;
+
+      i {
+        line-height: ${dimensions.headerSpacing}px;
+      }
+    }
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 `;
 
 const NavIcon = styled.i`
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 18px;
-  height: 18px;
-  display: inline-block;
-
-  &.icon-inbox {
-    background-image: url('/images/icons/nav-01.svg');
-  }
-
-  &.icon-customer {
-    background-image: url('/images/icons/nav-02.svg');
-  }
-
-  &.icon-company {
-    background-image: url('/images/icons/nav-03.svg');
-  }
-
-  &.icon-engage {
-    background-image: url('/images/icons/nav-04.svg');
-  }
-
-  &.icon-insights {
-    background-image: url('/images/icons/nav-05.svg');
-  }
-
-  &.icon-form {
-    background-image: url('/images/icons/nav-09.svg');
-  }
-
-  &.icon-settings {
-    background-image: url('/images/icons/nav-06.svg');
-  }
-
-  &.icon-knowledge {
-    background-image: url('/images/icons/nav-07.svg');
-  }
-
-  &.icon-deal {
-    background-image: url('/images/icons/nav-08.svg');
-  }
+  font-size: 16px;
+  line-height: ${dimensions.headerSpacing + 10}px;
+  color: ${colors.colorWhite};
 `;
 
 class Navigation extends Component {
@@ -144,13 +123,13 @@ class Navigation extends Component {
     const { __ } = this.context;
     return (
       <LeftNavigation>
-        <NavLink to="/" activeClassName="active">
+        <NavLink to="/">
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
           <Tip placement="right" text={__('Inbox')}>
             <NavLink to="/inbox" activeClassName="active">
-              <NavIcon className="icon-inbox" />
+              <NavIcon className="icon-chat" />
               {unreadConversationsCount !== 0 && (
                 <Label shake lblStyle="danger" ignoreTrans>
                   {unreadConversationsCount}
@@ -160,37 +139,37 @@ class Navigation extends Component {
           </Tip>
           <Tip placement="right" text={__('Deal')}>
             <NavLink to="/deals" activeClassName="active">
-              <NavIcon className="icon-deal" />
+              <NavIcon className="icon-piggy-bank" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Customers')}>
             <NavLink to="/customers" activeClassName="active">
-              <NavIcon className="icon-customer" />
+              <NavIcon className="icon-users" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Companies')}>
             <NavLink to="/companies" activeClassName="active">
-              <NavIcon className="icon-company" />
+              <NavIcon className="icon-briefcase" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Forms')}>
             <NavLink to="/forms" activeClassName="active">
-              <NavIcon className="icon-form" />
+              <NavIcon className="icon-laptop" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Engage')}>
             <NavLink to="/engage" activeClassName="active">
-              <NavIcon className="icon-engage" />
+              <NavIcon className="icon-megaphone" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Knowledge Base')}>
             <NavLink to="/knowledgeBase" activeClassName="active">
-              <NavIcon className="icon-knowledge" />
+              <NavIcon className="icon-clipboard" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Insights')}>
             <NavLink to="/insights" activeClassName="active">
-              <NavIcon className="icon-insights" />
+              <NavIcon className="icon-pie-chart" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Settings')}>

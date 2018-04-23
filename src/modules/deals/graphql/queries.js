@@ -40,6 +40,7 @@ const stages = `
     dealStages(pipelineId: $pipelineId) {
       _id
       name
+      order
     }
   }
 `;
@@ -56,8 +57,8 @@ const stageDetail = `
 `;
 
 const deals = `
-  query deals($stageId: String!) {
-    deals(stageId: $stageId) {
+  query deals($stageId: String, $customerId: String, $companyId: String) {
+    deals(stageId: $stageId, customerId: $customerId, companyId: $companyId) {
       _id
     }
   }
@@ -67,10 +68,17 @@ const dealDetail = `
   query dealDetail($_id: String!) {
     dealDetail(_id: $_id) {
       _id
+      name
       stageId
+      pipeline {
+        _id
+        name
+      }
+      boardId
       companies {
         _id
         name
+        website
       }
       customers {
         _id
@@ -81,7 +89,7 @@ const dealDetail = `
       productsData
       amount
       closeDate
-      note
+      description
       assignedUsers {
         _id
         email
@@ -111,6 +119,32 @@ const users = `
       email
       details {
         fullName
+        avatar
+      }
+    }
+  }
+`;
+
+const activityLogsDeal = `
+  query activityLogsDeal($_id: String!) {
+    activityLogsDeal(_id: $_id) {
+      date {
+        year
+        month
+      }
+      list {
+        id
+        action
+        content
+        createdAt
+        by {
+          _id
+          type
+          details {
+            avatar
+            fullName
+          }
+        }
       }
     }
   }
@@ -126,5 +160,6 @@ export default {
   deals,
   dealDetail,
   productDetail,
-  users
+  users,
+  activityLogsDeal
 };

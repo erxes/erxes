@@ -85,7 +85,7 @@ class CommonMerge extends Component {
         return this.renderMergedDataInputs(property, index);
       }
       return this.renderProperty(
-        'close',
+        'minus-cirlce',
         { [property]: data[property] },
         index
       );
@@ -117,7 +117,7 @@ class CommonMerge extends Component {
     return Object.keys(data).map(property => {
       if (basicInfos[property] && data[property])
         return this.renderProperty(
-          'plus',
+          'add',
           { [property]: data[property] },
           property
         );
@@ -206,7 +206,7 @@ class CommonMerge extends Component {
     const data = { ...this.state.data };
     const propertyName = Object.keys(property);
 
-    if (type === 'plus') {
+    if (type === 'add') {
       data[propertyName] = property[propertyName];
     } else {
       delete data[propertyName];
@@ -276,9 +276,9 @@ class CommonMerge extends Component {
     return (
       <form onSubmit={this.save}>
         <Columns>
-          {datas.map(data => {
+          {datas.map((data, index) => {
             return (
-              <Column key={data._id} className="multiple">
+              <Column key={index} className="multiple">
                 <Title>{renderFullName(data)}</Title>
                 <ul>{this.renderDatas(data)}</ul>
               </Column>
@@ -293,11 +293,11 @@ class CommonMerge extends Component {
           <Button
             btnStyle="simple"
             onClick={() => this.context.closeModal()}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
-          <Button type="submit" btnStyle="success" icon="checkmark">
+          <Button type="submit" btnStyle="success" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

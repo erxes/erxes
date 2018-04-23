@@ -1,6 +1,6 @@
 const integrations = `
-  query integrations($perPage: Int, $page: Int, $kind: String) {
-    integrations(perPage: $perPage, page: $page, kind: $kind) {
+  query integrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
+    integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag) {
       _id
       brandId
       name
@@ -13,17 +13,30 @@ const integrations = `
       languageCode
       formData
       formId
+      tags {
+        _id
+        name
+        colorCode
+      }
+      tagIds
       form {
         _id
         title
         code
         description
         createdDate
+        createdUserId
         buttonText
         themeColor
-        featuredImage
         contactsGathered
         viewCount
+        callout {
+          title
+          body
+          buttonText
+          featuredImage
+          skip
+        }
       }
     }
   }
@@ -44,15 +57,30 @@ const integrationDetail = `
       code
       formId
       formData
+      tagIds
+      tags {
+        _id
+        name
+        colorCode
+      }
       form {
         _id
         title
         code
         description
         createdDate
+        createdUserId
         buttonText
         themeColor
-        featuredImage
+        contactsGathered
+        viewCount
+        callout {
+          title
+          body
+          buttonText
+          featuredImage
+          skip
+        }
       }
     }
   }
@@ -71,8 +99,11 @@ const brands = `
 `;
 
 const integrationsCount = `
-  query totalIntegrationsCount($kind: String) {
-    integrationsTotalCount(kind: $kind)
+  query integrationsTotalCount {
+    integrationsTotalCount {
+      byKind
+      byTag
+    }
   }
 `;
 
@@ -107,12 +138,37 @@ const fieldsDefaultColumnsConfig = `
   }
 `;
 
+const users = `
+  query users {
+    users {
+      _id
+      details {
+        avatar
+        fullName
+      }
+    }
+  }
+`;
+
+const tags = `
+  query tags($type: String) {
+    tags(type: $type) {
+      _id
+      name
+      type
+      colorCode
+    }
+  }
+`;
+
 export default {
   integrations,
   integrationDetail,
   integrationsCount,
   fields,
   brands,
+  users,
+  tags,
   fieldsCombinedByContentType,
   fieldsDefaultColumnsConfig
 };

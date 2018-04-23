@@ -34,6 +34,7 @@ class ConversationDetails extends Component {
 
     return null;
   }
+
   render() {
     const { Title } = Sidebar.Section;
     const { __ } = this.context;

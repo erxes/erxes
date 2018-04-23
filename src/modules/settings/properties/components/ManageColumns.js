@@ -123,7 +123,7 @@ class ManageColumns extends Component {
             type="button"
             btnStyle="simple"
             onClick={closeModal}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
@@ -132,7 +132,7 @@ class ManageColumns extends Component {
             type="submit"
             onClick={closeModal}
             btnStyle="success"
-            icon="checkmark"
+            icon="checked-1"
           >
             Submit
           </Button>

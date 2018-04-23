@@ -34,6 +34,9 @@ const Column = styled.div`
       border: 1px solid ${borderDarker};
       border-radius: ${borderRadius};
       transition: all 0.3s ease;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
 
       > i {
         position: absolute;

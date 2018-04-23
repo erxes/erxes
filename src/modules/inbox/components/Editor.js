@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 import createMentionPlugin, {
   defaultSuggestionsFilter
 } from 'bat-draft-js-mention-plugin';
-import { EditorState, ContentState, getDefaultKeyBinding } from 'draft-js';
+import {
+  EditorState,
+  ContentState,
+  getDefaultKeyBinding,
+  Modifier
+} from 'draft-js';
 import strip from 'strip';
 import _ from 'underscore';
 import highlighter from 'fuzzysearch-highlight';
@@ -225,7 +230,17 @@ export default class Editor extends Component {
       selectedTemplate.content
     );
 
-    editorState = EditorState.moveFocusToEnd(editorState);
+    const selection = EditorState.moveSelectionToEnd(
+      editorState
+    ).getSelection();
+    const contentState = Modifier.insertText(
+      editorState.getCurrentContent(),
+      selection,
+      ' '
+    );
+    const es = EditorState.push(editorState, contentState, 'insert-characters');
+
+    editorState = EditorState.moveFocusToEnd(es);
 
     this.setState({ editorState, templatesState: null });
   }
@@ -309,7 +324,7 @@ export default class Editor extends Component {
 
       content = content.replace(
         re,
-        `<MentionedPerson data-user-id='${m._id}'>@${m.name}</MentionedPerson>`
+        `<b data-user-id='${m._id}'>@${m.name}</b>`
       );
     });
 
@@ -333,6 +348,7 @@ export default class Editor extends Component {
 
         return null;
       }
+
       // call parent's method to save content
       this.props.onShifEnter();
 
@@ -344,7 +360,7 @@ export default class Editor extends Component {
         ContentState.createFromText('')
       );
 
-      this.setState({ editorState });
+      this.setState({ editorState: EditorState.moveFocusToEnd(editorState) });
 
       return null;
     }

@@ -6,7 +6,6 @@ import StageItem from './StageItem';
 
 const propTypes = {
   onChangeStages: PropTypes.func.isRequired,
-  pipelineId: PropTypes.string.isRequired,
   stages: PropTypes.array.isRequired
 };
 
@@ -35,8 +34,7 @@ class Stages extends Component {
 
     stages.push({
       _id: Math.random(),
-      name: '',
-      pipelineId: this.props.pipelineId
+      name: ''
     });
 
     this.props.onChangeStages(stages);
@@ -76,7 +74,7 @@ class Stages extends Component {
           useDragHandle
           onChangeFields={this.props.onChangeStages}
         />
-        <Button onClick={this.add} btnStyle="success" size="small" icon="plus">
+        <Button onClick={this.add} btnStyle="success" size="small" icon="add">
           Add stage
         </Button>
       </StagesContainer>

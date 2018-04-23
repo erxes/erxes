@@ -22,31 +22,29 @@ class Form extends Component {
   constructor(props) {
     super(props);
 
-    this.generateDoc = this.generateDoc.bind(this);
-    this.save = this.save.bind(this);
+    this.onChangeInput = this.onChangeInput.bind(this);
+
+    const product = props.product;
+
+    this.state = { type: !product ? TYPES.PRODUCT : '', ...product };
+  }
+
+  onChangeInput(e) {
+    const { name, value } = e.target;
+
+    this.setState({ [name]: value });
   }
 
   save(e) {
     e.preventDefault();
 
-    this.props.save(
-      this.generateDoc(),
-      () => this.context.closeModal(),
-      this.props.product
-    );
-  }
+    const doc = this.state;
 
-  generateDoc() {
-    return {
-      name: document.getElementById('name').value,
-      type: document.getElementById('type').value,
-      description: document.getElementById('description').value,
-      sku: document.getElementById('sku').value
-    };
+    this.props.save(doc, () => this.context.closeModal(), this.props.product);
   }
 
   renderContent() {
-    const product = this.props.product || {};
+    const { name, type, description, sku } = this.state;
 
     const types = TYPES.ALL;
 
@@ -56,9 +54,10 @@ class Form extends Component {
           <ControlLabel>Name</ControlLabel>
 
           <FormControl
-            id="name"
-            defaultValue={product.name}
+            name="name"
+            defaultValue={name}
             type="text"
+            onChange={this.onChangeInput}
             required
           />
         </FormGroup>
@@ -68,9 +67,9 @@ class Form extends Component {
 
           <FormControl
             componentClass="select"
-            id="type"
-            defaultValue={product.type}
-            required
+            name="type"
+            defaultValue={type}
+            onChange={this.onChangeInput}
           >
             {types.map((type, index) => (
               <option key={index} value={type}>
@@ -84,17 +83,23 @@ class Form extends Component {
           <ControlLabel>Description</ControlLabel>
 
           <FormControl
-            id="description"
+            name="description"
             componentClass="textarea"
             rows={5}
-            defaultValue={product.description}
+            defaultValue={description}
+            onChange={this.onChangeInput}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>SKU</ControlLabel>
 
-          <FormControl id="sku" type="text" defaultValue={product.sku} />
+          <FormControl
+            name="sku"
+            type="text"
+            defaultValue={sku}
+            onChange={this.onChangeInput}
+          />
         </FormGroup>
       </div>
     );
@@ -102,19 +107,19 @@ class Form extends Component {
 
   render() {
     return (
-      <form onSubmit={this.save}>
+      <form onSubmit={e => this.save(e)}>
         {this.renderContent(this.props.product || {})}
 
         <Modal.Footer>
           <Button
             btnStyle="simple"
             onClick={() => this.context.closeModal()}
-            icon="close"
+            icon="cancel-1"
           >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </Modal.Footer>

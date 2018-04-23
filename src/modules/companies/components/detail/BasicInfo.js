@@ -4,11 +4,20 @@ import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { Icon, ModalTrigger } from 'modules/common/components';
 import { Links, InfoWrapper } from 'modules/common/styles/styles';
+import { confirm } from 'modules/common/utils';
 import { CompanyForm } from '../../containers';
 import { CompanyLogo } from '../../styles';
+import { TargetMergeModal } from 'modules/customers/components';
+import { Action } from 'modules/customers/styles';
+import { Dropdown } from 'react-bootstrap';
+import { DropdownToggle, Button } from 'modules/common/components';
+import { searchCompany } from 'modules/common/utils';
+import { COMPANY_INFO } from 'modules/companies/constants';
 
 const propTypes = {
-  company: PropTypes.object.isRequired
+  company: PropTypes.object.isRequired,
+  remove: PropTypes.func,
+  merge: PropTypes.func
 };
 
 const contextTypes = {
@@ -25,7 +34,7 @@ class BasicInfo extends React.Component {
   renderLink(link, icon) {
     if (link) {
       return (
-        <a href={link} target="_blank">
+        <a target="_blank" href={`//${link}`}>
           <Icon icon={icon} />
         </a>
       );
@@ -36,12 +45,12 @@ class BasicInfo extends React.Component {
   renderLinks(links) {
     return (
       <Links>
-        {this.renderLink(links.linkedIn, 'social-linkedin')}
-        {this.renderLink(links.twitter, 'social-twitter')}
-        {this.renderLink(links.facebook, 'social-facebook')}
-        {this.renderLink(links.github, 'social-github')}
-        {this.renderLink(links.youtube, 'social-youtube')}
-        {this.renderLink(links.website, 'android-globe')}
+        {this.renderLink(links.facebook, 'facebook')}
+        {this.renderLink(links.twitter, 'twitter')}
+        {this.renderLink(links.linkedIn, 'linkedin-logo')}
+        {this.renderLink(links.youtube, 'youtube')}
+        {this.renderLink(links.github, 'github')}
+        {this.renderLink(links.website, 'earthgrid')}
       </Links>
     );
   }
@@ -54,6 +63,38 @@ class BasicInfo extends React.Component {
         {__(`${label}`)}:
         <SidebarCounter>{value || '-'}</SidebarCounter>
       </li>
+    );
+  }
+
+  renderAction() {
+    const { __ } = this.context;
+    const { remove, merge, company } = this.props;
+
+    return (
+      <Action>
+        <Dropdown id="dropdown-engage">
+          <DropdownToggle bsRole="toggle">
+            <Button btnStyle="simple" size="medium" icon="downarrow">
+              {__('Action')}
+            </Button>
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <li>
+              <TargetMergeModal
+                onSave={merge}
+                object={company}
+                searchObject={searchCompany}
+                basicInfos={COMPANY_INFO}
+              />
+            </li>
+            <li>
+              <a onClick={() => confirm().then(() => remove())}>
+                {__('Delete')}
+              </a>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
+      </Action>
     );
   }
 
@@ -77,6 +118,8 @@ class BasicInfo extends React.Component {
             <CompanyForm company={company} />
           </ModalTrigger>
         </InfoWrapper>
+
+        {this.renderAction()}
 
         <SidebarList className="no-link">
           {this.renderRow('Size', company.size)}

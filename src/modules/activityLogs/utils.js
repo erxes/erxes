@@ -18,23 +18,27 @@ const MONTHS = [
 
 const ICON_AND_COLOR_TABLE = {
   'customer-create': {
-    icon: 'android-bar',
+    icon: 'adduser',
     color: '#A389D4'
   },
   'segment-create': {
-    icon: 'funnel',
+    icon: 'filter',
     color: '#6569DF'
   },
   'conversation-create': {
-    icon: 'android-chat',
+    icon: 'speech-bubble-3',
     color: '#F44236'
   },
   'internal_note-create': {
-    icon: 'clipboard',
+    icon: 'pushpin',
     color: '#F7CE53'
   },
   'company-create': {
-    icon: 'android-bar',
+    icon: 'briefcase',
+    color: '#6569DF'
+  },
+  'deal-create': {
+    icon: 'piggy-bank',
     color: '#6569DF'
   }
 };
@@ -78,8 +82,9 @@ export default class {
 
       const iconAndColor = this._getIconAndColor(item.action);
       const hasContent =
-        !['company-create', 'customer-create'].includes(item.action) &&
-        item.content !== '[object Object]';
+        !['company-create', 'deal-create', 'customer-create'].includes(
+          item.action
+        ) && item.content !== '[object Object]';
 
       const caption = this._getCaption({
         action: item.action,
@@ -142,11 +147,7 @@ export default class {
         break;
 
       case 'internal_note-create':
-        caption = (
-          <span>
-            {source} left a note about {target}
-          </span>
-        );
+        caption = <span>{source} left a note</span>;
         break;
 
       case 'conversation-create':
@@ -161,16 +162,13 @@ export default class {
         );
         break;
 
-      case 'company-create':
+      default:
         caption = (
           <span>
             {source} created {target}
           </span>
         );
         break;
-
-      default:
-        caption = action;
     }
 
     return caption;

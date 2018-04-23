@@ -38,7 +38,7 @@ class ActivityList extends React.Component {
       return (
         <EmptyState
           text="There aren’t any activities at the moment."
-          icon="android-more-horizontal"
+          icon="clock"
         />
       );
     }

@@ -14,7 +14,7 @@ const Timeline = styled.div`
     height: 100%;
     position: absolute;
     z-index: 1;
-    left: calc(${iconWrapperWidth}/2);
+    left: calc(${iconWrapperWidth} / 2);
   }
 `;
 
@@ -36,13 +36,18 @@ const ActivityRow = WhiteBox.extend`
   }
 `;
 
-const ActivityWrapper = styled.div`
-  overflow: auto;
+const FlexContent = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const FlexBody = styled.div`
+  flex: 1;
+  align-self: center;
 `;
 
 const AvatarWrapper = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
-  float: left;
   position: relative;
 
   a {
@@ -60,9 +65,9 @@ const AvatarWrapper = styled.div`
     text-align: center;
     border-radius: ${dimensions.unitSpacing}px;
     color: ${colors.colorWhite};
-    line-height: 15px;
+    line-height: 16px;
     font-size: ${dimensions.unitSpacing}px;
-    border: 2px solid ${colors.colorWhite};
+    border: 1px solid ${colors.colorWhite};
   }
 `;
 
@@ -70,7 +75,6 @@ const ActivityIcon = styled.span`
   display: inline-block;
   position: absolute;
   background-color: ${props => props.color};
-  font-size: calc(${iconWrapperWidth} * 0.25);
   height: calc(${iconWrapperWidth} * 0.4);
   width: calc(${iconWrapperWidth} * 0.4);
   line-height: calc(${iconWrapperWidth} * 0.4);
@@ -86,20 +90,19 @@ const ActivityIcon = styled.span`
   }
 `;
 
-const ActivityCaption = styled.div`
-  padding-top: 5px;
-  line-height: 1;
-`;
-
 const ActivityDate = styled.div`
-  color: ${colors.colorCoreLightGray};
+  color: ${colors.colorCoreGray};
   font-weight: ${typography.fontWeightLight};
+  font-size: 12px;
+  margin-left: 5px;
+  cursor: help;
 `;
 
 const ActivityContent = styled.div`
-  border-top: 1px solid ${colors.borderPrimary};
-  margin-top: ${dimensions.coreSpacing}px;
-  padding-top: ${dimensions.unitSpacing}px;
+  margin-top: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  background: ${colors.bgInternal};
+  box-shadow: 0 1px 2px 0 ${colors.darkShadow};
 `;
 
 const IconWrapper = styled.div`
@@ -116,9 +119,9 @@ export {
   ActivityRow,
   ActivityIcon,
   AvatarWrapper,
-  ActivityWrapper,
-  ActivityCaption,
   ActivityDate,
   ActivityContent,
-  IconWrapper
+  IconWrapper,
+  FlexContent,
+  FlexBody
 };

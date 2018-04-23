@@ -12,9 +12,9 @@ import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import { renderFullName } from 'modules/common/utils';
-import { DealSection } from 'modules/deals/components';
+import { DealSection } from 'modules/deals/containers';
 import { EditInformation } from '../../containers';
-import { CompanySection } from '../';
+import { CompanyAssociate } from 'modules/companies/containers';
 import { hasAnyActivity } from '../../utils';
 
 const propTypes = {
@@ -23,7 +23,8 @@ const propTypes = {
   queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired,
   loadingLogs: PropTypes.bool,
-  history: PropTypes.object
+  history: PropTypes.object,
+  refetch: PropTypes.func
 };
 
 class CustomerDetails extends React.Component {
@@ -78,7 +79,7 @@ class CustomerDetails extends React.Component {
 
   render() {
     const { currentTab } = this.state;
-    const { customer } = this.props;
+    const { customer, refetch } = this.props;
     const { __ } = this.context;
 
     const breadcrumb = [
@@ -91,7 +92,7 @@ class CustomerDetails extends React.Component {
         <WhiteBoxRoot>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> {__('New note')}
+              <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
           </Tabs>
 
@@ -125,15 +126,17 @@ class CustomerDetails extends React.Component {
 
     const rightSidebar = (
       <Sidebar>
-        <CompanySection customer={customer} />
-        <DealSection deals={customer.deals || []} />
+        <CompanyAssociate data={customer} />
+        <DealSection customerId={customer._id} />
       </Sidebar>
     );
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<EditInformation wide customer={customer} />}
+        leftSidebar={
+          <EditInformation wide customer={customer} refetch={refetch} />
+        }
         rightSidebar={rightSidebar}
         content={content}
         transparent={true}

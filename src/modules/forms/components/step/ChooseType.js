@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
-import { FormGroup, ControlLabel } from 'modules/common/components';
+import { CalloutPreview } from './preview';
+import { FormGroup, ControlLabel, Icon } from 'modules/common/components';
 import { dimensions, colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { FlexItem, LeftItem, Preview, BoxRow } from './style';
@@ -12,17 +12,18 @@ const Box = styled.div`
   background: ${colors.colorLightBlue};
   box-shadow: ${props =>
     props.selected && `0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)}`};
-  border: 1px solid ${colors.borderPrimary};
+  border: 1px solid
+    ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};
   border-radius: ${dimensions.unitSpacing / 2}px;
   padding: ${dimensions.coreSpacing * 2}px;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
   width: 50%;
   margin-right: 20px;
   margin-bottom: 20px;
 
-  img {
-    width: 40px;
-    transition: all 0.5s ease;
+  i {
+    font-size: 36px;
+    color: ${colors.colorSecondary};
   }
 
   span {
@@ -45,14 +46,15 @@ const Box = styled.div`
 const propTypes = {
   type: PropTypes.string,
   onChange: PropTypes.func,
-  title: PropTypes.string,
-  btnText: PropTypes.string,
+  calloutTitle: PropTypes.string,
+  calloutBtnText: PropTypes.string,
   bodyValue: PropTypes.string,
-  color: PropTypes.string
+  color: PropTypes.string,
+  theme: PropTypes.string
 };
 
 class ChooseType extends Component {
-  renderBox(name, image, value) {
+  renderBox(name, icon, value) {
     const { __ } = this.context;
 
     return (
@@ -60,36 +62,14 @@ class ChooseType extends Component {
         selected={this.props.type === value}
         onClick={() => this.onChange(value)}
       >
-        <img src={image} alt={name} />
+        <Icon icon={icon} />
         <span>{__(name)}</span>
       </Box>
     );
   }
 
   onChange(value) {
-    if (value === 'shoutbox') {
-      return this.props.onChange('type', 'shoutbox');
-    }
-
-    if (value === 'popup') {
-      return this.props.onChange('type', 'popup');
-    }
-
     return this.props.onChange('type', value);
-  }
-
-  renderPreview() {
-    const { type } = this.props;
-
-    if (type === 'shoutbox') {
-      return <ShoutboxPreview {...this.props} />;
-    }
-
-    if (type === 'popup') {
-      return <PopupPreview {...this.props} />;
-    }
-
-    return <EmbeddedPreview {...this.props} />;
   }
 
   render() {
@@ -98,26 +78,25 @@ class ChooseType extends Component {
         <LeftItem>
           <FormGroup>
             <ControlLabel>Choose a flow type</ControlLabel>
-            <BoxRow>
-              {this.renderBox(
-                'ShoutBox',
-                '/images/icons/shoutbox.svg',
-                'shoutbox'
-              )}
-              {this.renderBox('Popup', '/images/icons/expand.svg', 'popup')}
-            </BoxRow>
-
-            <BoxRow type="odd">
-              {this.renderBox(
-                'Embedded',
-                '/images/icons/computer.svg',
-                'embedded'
-              )}
-              <div />
-            </BoxRow>
           </FormGroup>
+          <BoxRow>
+            {this.renderBox('ShoutBox', 'speech-bubble-3', 'shoutbox')}
+            {this.renderBox('Popup', 'expand', 'popup')}
+          </BoxRow>
+
+          <BoxRow>
+            {this.renderBox('Embedded', 'computer', 'embedded')}
+            {this.renderBox('Dropdown', 'downarrow', 'dropdown')}
+          </BoxRow>
+
+          <BoxRow>
+            {this.renderBox('Slide-in Left', 'logout-2', 'slideInLeft')}
+            {this.renderBox('Slide-in Right', 'logout-1', 'slideInRight')}
+          </BoxRow>
         </LeftItem>
-        <Preview>{this.renderPreview()}</Preview>
+        <Preview>
+          <CalloutPreview {...this.props} />
+        </Preview>
       </FlexItem>
     );
   }

@@ -47,7 +47,7 @@ class IntegrationRow extends Component {
               }`}
             >
               <Button btnStyle="link">
-                <Icon icon="paintbucket" />
+                <Icon icon="paintpalette" />
               </Button>
             </Link>
           </Tip>
@@ -55,7 +55,7 @@ class IntegrationRow extends Component {
           <Tip text={__('Hours, Availability & Other configs')}>
             <Link to={`integrations/messenger/configs/${integration._id}`}>
               <Button btnStyle="link">
-                <Icon icon="gear-a" />
+                <Icon icon="settings" />
               </Button>
             </Link>
           </Tip>
@@ -80,6 +80,10 @@ class IntegrationRow extends Component {
 
     if (kind === KIND_CHOICES.FACEBOOK) {
       type = 'facebook';
+    }
+
+    if (kind === KIND_CHOICES.FORM) {
+      type = 'form';
     }
 
     return type;

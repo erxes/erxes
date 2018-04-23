@@ -12,7 +12,7 @@ const TabCaption = styled.span`
   display: inline-block;
   color: ${colors.textSecondary};
   font-weight: ${typography.fontWeightRegular};
-  padding: calc(${dimensions.coreSpacing}px * 0.6) ${dimensions.coreSpacing}px;
+  padding: 15px ${dimensions.coreSpacing}px;
   position: relative;
   transition: color 0.3s ease;
 

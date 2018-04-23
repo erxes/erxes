@@ -17,6 +17,7 @@ injectGlobal`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
 
     > #root {
       display: flex;
@@ -47,6 +48,7 @@ injectGlobal`
     color: #F7CE53 !important;
   }
   /* override */
+
   .modal-backdrop {
     background-color: #30435C;
   } !important
@@ -75,7 +77,7 @@ injectGlobal`
     height: 50px;
     border: 0;
     border-radius: 2px;
-    background: #392a6f;
+    background: #673FBD;
   }
 
   .modal-header .close {
@@ -85,7 +87,7 @@ injectGlobal`
   .modal-title {
     font-size: 16px;
     font-weight: normal;
-    color: #cfcfcf;
+    color: #fff;
   }
 
   .modal-body {
@@ -115,7 +117,7 @@ injectGlobal`
   /* dropdow */
 
   .dropdown-menu {
-    margin-top: 0;
+    margin-top: 0 !important;
     border-radius: 0;
     border: none;
     font-size: 13px;
@@ -133,6 +135,8 @@ injectGlobal`
     padding: 3px 20px;
     color: #444;
     white-space: nowrap;
+    float: none;
+    margin: 0;
   }
 
   .dropdown-menu > li > a {
@@ -151,26 +155,41 @@ injectGlobal`
   }
 
   /* tooltip */
-
   .tooltip-inner {
-    background-color: #393C40;
-    border-radius: 0;
+    background-color: #fff;
+    color: #373737;
+    box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.23);
   }
 
-  .tooltip.bottom .tooltip-arrow {
-    border-bottom-color: #393C40;
+  .tooltip.bottom .tooltip-arrow, {
+    border-bottom-color: #fff;
   }
 
   .tooltip.top .tooltip-arrow {
-    border-top-color: #393C40;
+    border-top-color: #fff;
   }
 
   .tooltip.left .tooltip-arrow {
-    border-left-color: #393C40;
+    border-left-color: #fff;
   }
 
   .tooltip.right .tooltip-arrow {
-    border-right-color: #393C40;
+    border-right-color: #fff;
+    border-width: 0px 10px 13px 0;
+    margin-top: 0;
+    top: 0 !important;
+  }
+
+  .tooltip.right .tooltip-inner {
+    border-top-left-radius: 0;
+  }
+
+  .tooltip.in {
+    opacity: 1;
+  }
+
+  .tooltip.right {
+    padding: 0 5px 0 6px;
   }
 
   /* popover */
@@ -184,6 +203,7 @@ injectGlobal`
     color: #444;
     font-weight: inherit;
     box-shadow: 0 0 20px 3px rgba(0, 0, 0, 0.15);
+    max-width: 310px;
   }
 
   .popover.bottom > .arrow {
@@ -224,12 +244,12 @@ injectGlobal`
   .popover-content {
     padding: 0;
     position: relative;
+    min-width: 260px;
   }
 
   .popover-content ul {
     max-height: 280px;
     overflow: auto;
-    min-width: 260px;
   }
 
   .popover-content li a i {
@@ -271,22 +291,23 @@ injectGlobal`
     box-shadow: none;
   }
 
-  .is-open .Select-arrow {
-    border-top-color: #777777;
-  }
+  
 
-  .is-open > .Select-control {
+  .Select.is-focused > .Select-control,
+  .Select.is-open > .Select-control {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
     border-color: ${colors.colorSecondary};
     background: none;
   }
 
-  .is-focused:not(.is-open) > .Select-control {
+  .Select.is-focused:not(.is-open) > .Select-control {
     box-shadow: none;
+    background: none;
+    border-color: #6569DF;
   }
 
-  .is-focused .Select-input > input {
+  .Select.is-focused .Select-input > input {
     padding: 10px 0 12px;
   }
 
@@ -300,6 +321,7 @@ injectGlobal`
   .Select-clear {
     font-size: 20px;
     line-height: 1.4;
+    margin-top: 1px;
   }
 
   .Select-clear-zone:hover {
@@ -345,7 +367,7 @@ injectGlobal`
   .Select--multi .Select-value-icon:hover,
   .Select--multi .Select-value-icon:focus,
   .Select--multi .Select-value-icon:active {
-    background-color: #0876a9;
+    background-color: rgba(0, 0, 0, 0.2);
     color: #fff;
   }
 
@@ -365,8 +387,20 @@ injectGlobal`
     padding-right: 10px;
   }
 
-  .Select-arrow-zone:hover > .Select-arrow {
-    border-top-color: #777777;
+  .Select-arrow-zone > .Select-arrow {
+    border: none;
+    margin-right: 10px;
+  }
+
+  .Select .Select-arrow:before {
+    font-family: 'erxes';
+    font-size: 10px;
+    content: '\\e827';
+    color: #888;
+  }
+
+  .Select.is-open .Select-arrow:before {
+    content: '\\e89a';
   }
 
   .Select-menu-outer {
@@ -467,7 +501,7 @@ injectGlobal`
     border-bottom: 7px solid #6569DF;
   }
 
-  .rdtPicker td.rdtActive, 
+  .rdtPicker td.rdtActive,
   .rdtPicker td.rdtActive:hover {
     background-color: #6569DF;
   }
@@ -645,9 +679,10 @@ injectGlobal`
     display: flex;
     align-items: center;
   }
-  .icon-option svg {
+  .icon-option i {
     margin-right: 10px;
-    fill: #6569DF;
+    font-size: 20px;
+    color: #5629B6;
   }
 
   /* scrollbar */

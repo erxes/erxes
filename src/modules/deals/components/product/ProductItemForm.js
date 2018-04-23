@@ -7,29 +7,83 @@ import {
   Button
 } from 'modules/common/components';
 import Select from 'react-select-plus';
-import { DealButton, ProductItemText } from '../../styles';
+import { ItemText } from '../../styles/product';
 import { selectConfigOptions } from '../../utils';
 import { ProductChooser } from '../../containers';
 import { CURRENCIES, MEASUREMENTS } from 'modules/settings/general/constants';
+import { Button as DealButton } from '../../styles/deal';
 
 const propTypes = {
   uom: PropTypes.array,
   currencies: PropTypes.array,
+  productsData: PropTypes.array.isRequired,
   productData: PropTypes.object.isRequired,
   removeProductItem: PropTypes.func.isRequired,
-  onChangeProduct: PropTypes.func.isRequired,
-  onChangeCurrency: PropTypes.func.isRequired,
-  onChangeUom: PropTypes.func.isRequired,
-  onChangeInput: PropTypes.func.isRequired
+  onChangeProductsData: PropTypes.func.isRequired,
+  updateTotal: PropTypes.func.isRequired
 };
 
 class ProductItemForm extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.onChangeField = this.onChangeField.bind(this);
+    this.calculateAmount = this.calculateAmount.bind(this);
+  }
+
+  calculateAmount(type, productData) {
+    const amount = productData.unitPrice * productData.quantity;
+
+    if (amount > 0) {
+      switch (type) {
+        case 'discount': {
+          productData.discountPercent = productData.discount * 100 / amount;
+          break;
+        }
+        case 'discountPercent': {
+          productData.discount = amount * productData.discountPercent / 100;
+          break;
+        }
+        default: {
+          productData.discountPercent = productData.discount * 100 / amount;
+          productData.discount = amount * productData.discountPercent / 100;
+        }
+      }
+
+      productData.tax =
+        (amount - productData.discount || 0) * productData.taxPercent / 100;
+      productData.amount =
+        amount - (productData.discount || 0) + (productData.tax || 0);
+    } else {
+      productData.tax = 0;
+      productData.taxPercent = 0;
+      productData.discount = 0;
+      productData.discountPercent = 0;
+      productData.amount = 0;
+    }
+
+    this.props.updateTotal();
+  }
+
+  onChangeField(type, value, _id) {
+    const { productsData } = this.props;
+
+    const productData = productsData.find(p => p._id === _id);
+    productData[type] = value;
+
+    if (type !== 'product' && type !== 'uom') {
+      this.calculateAmount(type, productData);
+    }
+
+    this.props.onChangeProductsData(productsData);
+  }
+
   renderProductServiceTrigger(product) {
     const { __ } = this.context;
 
     let content = (
       <div>
-        {__('Product & Service')} <Icon icon="plus" />
+        {__('Product & Service')} <Icon icon="add" />
       </div>
     );
 
@@ -57,7 +111,7 @@ class ProductItemForm extends React.Component {
             const product =
               products && products.length === 1 ? products[0] : null;
 
-            this.props.onChangeProduct(product, productData._id);
+            this.onChangeField('product', product, productData._id);
           }}
           data={{
             name: 'Product',
@@ -81,7 +135,9 @@ class ProductItemForm extends React.Component {
             name="uom"
             placeholder={__('Choose')}
             value={productData.uom}
-            onChange={value => this.props.onChangeUom(value, productData._id)}
+            onChange={uom =>
+              this.onChangeField('uom', uom ? uom.value : '', productData._id)
+            }
             optionRenderer={option => (
               <div className="simple-option">
                 <span>{option.label}</span>
@@ -95,8 +151,12 @@ class ProductItemForm extends React.Component {
             name="currency"
             placeholder={__('Choose')}
             value={productData.currency}
-            onChange={value =>
-              this.props.onChangeCurrency(value, productData._id)
+            onChange={currency =>
+              this.onChangeField(
+                'currency',
+                currency ? currency.value : '',
+                productData._id
+              )
             }
             optionRenderer={option => (
               <div className="simple-option">
@@ -113,70 +173,80 @@ class ProductItemForm extends React.Component {
             min="1"
             placeholder="0"
             name="quantity"
-            onChange={e => this.props.onChangeInput(productData._id, e)}
+            onChange={e =>
+              this.onChangeField(e.target.name, e.target.value, productData._id)
+            }
           />
 
-          <ProductItemText align="right">{__('Discount')}</ProductItemText>
+          <ItemText align="right">{__('Discount')}</ItemText>
 
-          <ProductItemText align="right">{__('Tax')}</ProductItemText>
+          <ItemText align="right">{__('Tax')}</ItemText>
         </td>
         <td>
           <FormControl
-            defaultValue={productData.unitPrice}
+            defaultValue={productData.unitPrice || ''}
             type="number"
             placeholder="0"
             name="unitPrice"
-            onChange={e => this.props.onChangeInput(productData._id, e)}
+            onChange={e =>
+              this.onChangeField(e.target.name, e.target.value, productData._id)
+            }
           />
 
           <FormControl
-            value={productData.discountPercent}
+            value={productData.discountPercent || ''}
             type="number"
             min="0"
             max="100"
             placeholder="0"
             name="discountPercent"
-            onChange={e => this.props.onChangeInput(productData._id, e)}
+            onChange={e =>
+              this.onChangeField(e.target.name, e.target.value, productData._id)
+            }
           />
 
           <FormControl
-            defaultValue={productData.taxPercent}
+            defaultValue={productData.taxPercent || ''}
             type="number"
             min="0"
             max="100"
             placeholder="0"
             name="taxPercent"
-            onChange={e => this.props.onChangeInput(productData._id, e)}
+            onChange={e =>
+              this.onChangeField(e.target.name, e.target.value, productData._id)
+            }
           />
 
-          <ProductItemText>{__('Total')}</ProductItemText>
+          <ItemText>{__('Total')}</ItemText>
         </td>
         <td>
-          <ProductItemText>
+          <ItemText>
             {(productData.quantity * productData.unitPrice).toLocaleString()}{' '}
             {productData.currency}
-          </ProductItemText>
+          </ItemText>
 
           <FormControl
-            value={productData.discount}
+            value={productData.discount || ''}
             type="number"
             placeholder="0"
             name="discount"
-            onChange={e => this.props.onChangeInput(productData._id, e)}
+            onChange={e =>
+              this.onChangeField(e.target.name, e.target.value, productData._id)
+            }
           />
 
-          <ProductItemText>
+          <ItemText>
             {(productData.tax || 0).toLocaleString()} {productData.currency}
-          </ProductItemText>
+          </ItemText>
 
-          <ProductItemText>
+          <ItemText>
             {(productData.amount || 0).toLocaleString()} {productData.currency}
-          </ProductItemText>
+          </ItemText>
         </td>
         <td>
           <Button
             btnStyle="danger"
-            icon="close"
+            icon="cancel-1"
             size="small"
             onClick={this.props.removeProductItem.bind(this, productData._id)}
           />

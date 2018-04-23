@@ -11,7 +11,7 @@ import { SortableWrapper, SortItem, DragHandler } from '../styles/sort';
 
 const DragHandle = SortableHandle(() => (
   <DragHandler>
-    <Icon icon="android-more-vertical" />
+    <Icon icon="move" />
   </DragHandler>
 ));
 

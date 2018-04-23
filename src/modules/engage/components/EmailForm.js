@@ -15,6 +15,9 @@ import styled from 'styled-components';
 const PreviewContainer = styled.div`
   margin: 20px;
   height: 100%;
+  p {
+    padding: 20px;
+  }
 `;
 
 const propTypes = {

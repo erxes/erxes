@@ -7,6 +7,7 @@ import { TwitterConversation } from './TwitterConversation';
 
 const propTypes = {
   conversation: PropTypes.object,
+  conversationMessages: PropTypes.array.isRequired,
   attachmentPreview: PropTypes.object,
   scrollBottom: PropTypes.func.isRequired
 };
@@ -33,13 +34,15 @@ class Conversation extends Component {
   }
 
   renderMessages() {
-    const { conversation, scrollBottom } = this.props;
+    const { conversation, conversationMessages, scrollBottom } = this.props;
 
     if (!conversation) {
       return null;
     }
 
-    const messages = conversation.messages || [];
+    let messagesList = conversationMessages || [];
+
+    const messages = messagesList.slice();
     const firstMessage = messages.length && messages[0];
     const rows = [];
 
@@ -62,11 +65,12 @@ class Conversation extends Component {
 
       tempId = message.userId ? message.userId : message.customerId;
     });
+
     return rows;
   }
 
   renderConversation() {
-    const { conversation, scrollBottom } = this.props;
+    const { conversation, scrollBottom, conversationMessages } = this.props;
     const twitterData = conversation.twitterData;
     const isTweet = twitterData && !twitterData.isDirectMessage;
 
@@ -75,6 +79,7 @@ class Conversation extends Component {
         <TwitterConversation
           conversation={conversation}
           scrollBottom={scrollBottom}
+          conversationMessages={conversationMessages}
         />
       );
     }
@@ -84,6 +89,7 @@ class Conversation extends Component {
 
   render() {
     const { attachmentPreview, scrollBottom } = this.props;
+
     return (
       <Wrapper>
         {this.renderConversation()}

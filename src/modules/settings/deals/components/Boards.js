@@ -47,12 +47,12 @@ class Boards extends Component {
 
     const addBoard = (
       <RightButton>
-        <Icon icon="plus" />
+        <Icon icon="add" />
       </RightButton>
     );
 
     return (
-      <Header uppercase bold>
+      <Header uppercase>
         {__('Board')}
         <ModalTrigger title="New Board" trigger={addBoard}>
           {this.renderBoardForm({ save })}

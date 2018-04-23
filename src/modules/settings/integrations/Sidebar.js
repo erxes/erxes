@@ -23,9 +23,7 @@ class IntegrationsSidebar extends React.Component {
     return (
       <Wrapper.Sidebar>
         <Section>
-          <Header bold uppercase>
-            {__('Integrations')}
-          </Header>
+          <Header uppercase>{__('Integrations')}</Header>
           <SidebarList>
             <li>
               <Link className={this.getClassName()} to="/settings/integrations">

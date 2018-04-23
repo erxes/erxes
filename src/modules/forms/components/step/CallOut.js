@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
 import styled from 'styled-components';
-import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
 import {
   FormControl,
@@ -11,16 +9,10 @@ import {
   Icon
 } from 'modules/common/components';
 import { dimensions, colors } from 'modules/common/styles';
-import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
-import {
-  FlexItem,
-  LeftItem,
-  Preview,
-  ColorPick,
-  ColorPicker,
-  Picker,
-  BackgroundSelector
-} from './style';
+import { CalloutPreview } from './preview';
+import { FlexItem, FlexColumn, LeftItem, Footer, Preview } from './style';
+
+const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
 const ImageWrapper = styled.div`
   border: 1px dashed ${colors.borderDarker};
@@ -45,13 +37,13 @@ const ImageContent = styled.div`
     cursor: pointer;
     position: absolute;
     right: 150px;
-    top: 30px;
-    width: 30px;
-    height: 30px;
+    top: ${Space};
+    width: ${Space};
+    height: ${Space};
     display: block;
-    border-radius: 30px;
+    border-radius: ${Space};
     text-align: center;
-    line-height: 30px;
+    line-height: ${Space};
     background: rgba(255, 255, 255, 0.5);
     transition: all ease 0.3s;
   }
@@ -67,11 +59,16 @@ const propTypes = {
   type: PropTypes.string,
   onChange: PropTypes.func,
   calloutTitle: PropTypes.string,
-  btnText: PropTypes.string,
+  calloutBtnText: PropTypes.string,
   bodyValue: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
-  image: PropTypes.string
+  image: PropTypes.string,
+  skip: PropTypes.bool
+};
+
+const defaultValue = {
+  isSkip: false
 };
 
 class CallOut extends Component {
@@ -80,11 +77,13 @@ class CallOut extends Component {
 
     this.state = {
       logo: '',
-      logoPreviewStyle: {}
+      logoPreviewStyle: {},
+      defaultValue: defaultValue
     };
 
     this.onChangeFunction = this.onChangeFunction.bind(this);
-    this.onColorChange = this.onColorChange.bind(this);
+    this.onChangeState = this.onChangeState.bind(this);
+    this.footerActions = this.footerActions.bind(this);
     this.handleImage = this.handleImage.bind(this);
     this.removeImage = this.removeImage.bind(this);
   }
@@ -94,11 +93,13 @@ class CallOut extends Component {
     this.props.onChange(name, value);
   }
 
-  onColorChange(e) {
-    this.setState({ color: e.hex, theme: '#000' }, () => {
-      this.props.onChange('color', e.hex);
-      this.props.onChange('theme', '');
-    });
+  onChangeState(name, value) {
+    const { defaultValue } = this.state;
+
+    defaultValue[name] = value;
+
+    this.setState({ defaultValue });
+    this.props.onChange(name, value);
   }
 
   removeImage(value) {
@@ -130,43 +131,18 @@ class CallOut extends Component {
     });
   }
 
-  renderPreview() {
-    const { type } = this.props;
-
-    if (type === 'shoutbox') {
-      return <ShoutboxPreview {...this.props} />;
-    }
-
-    if (type === 'popup') {
-      return <PopupPreview {...this.props} />;
-    }
-
-    return <EmbeddedPreview {...this.props} />;
-  }
-
-  renderThemeColor(value) {
-    return (
-      <BackgroundSelector
-        selected={this.props.theme === value}
-        onClick={() => this.onChangeFunction('theme', value)}
-      >
-        <div style={{ backgroundColor: value }} />
-      </BackgroundSelector>
-    );
-  }
-
   renderUploadImage() {
-    const { image } = this.props;
+    const { image, skip } = this.props;
 
     if (!image) {
-      return <input type="file" onChange={this.handleImage} />;
+      return <input type="file" onChange={this.handleImage} disabled={skip} />;
     }
 
     return (
       <div>
         <img src={image} alt="previewImage" />
         <Icon
-          icon="close"
+          icon="cancel-1"
           size={15}
           onClick={e => this.removeImage(e.target.value)}
         />
@@ -174,82 +150,79 @@ class CallOut extends Component {
     );
   }
 
-  render() {
+  footerActions() {
     const { __ } = this.context;
 
-    const popoverTop = (
-      <Popover id="color-picker">
-        <ChromePicker color={this.props.color} onChange={this.onColorChange} />
-      </Popover>
+    return (
+      <Footer>
+        <FormControl
+          checked={this.props.skip || false}
+          id="isSkip"
+          componentClass="checkbox"
+          onChange={e => this.onChangeState('isSkip', e.target.checked)}
+        >
+          {__('Skip callOut')}
+        </FormControl>
+      </Footer>
     );
+  }
+
+  render() {
+    const { skip } = this.props;
 
     return (
       <FlexItem>
-        <LeftItem>
-          <FormGroup>
-            <ControlLabel>Callout title</ControlLabel>
-            <FormControl
-              id="callout-title"
-              type="text"
-              value={this.props.calloutTitle}
-              onChange={e =>
-                this.onChangeFunction('calloutTitle', e.target.value)
-              }
-            />
-          </FormGroup>
+        <FlexColumn>
+          <LeftItem deactive={skip}>
+            <FormGroup>
+              <ControlLabel>Callout title</ControlLabel>
+              <FormControl
+                id="callout-title"
+                type="text"
+                value={this.props.calloutTitle}
+                disabled={skip}
+                onChange={e =>
+                  this.onChangeFunction('calloutTitle', e.target.value)
+                }
+              />
+            </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Callout body</ControlLabel>
-            <FormControl
-              id="callout-body"
-              type="text"
-              value={this.props.bodyValue}
-              onChange={e => this.onChangeFunction('bodyValue', e.target.value)}
-            />
-          </FormGroup>
+            <FormGroup>
+              <ControlLabel>Callout body</ControlLabel>
+              <FormControl
+                id="callout-body"
+                type="text"
+                value={this.props.bodyValue}
+                disabled={skip}
+                onChange={e =>
+                  this.onChangeFunction('bodyValue', e.target.value)
+                }
+              />
+            </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Callout button text</ControlLabel>
-            <FormControl
-              id="callout-btn-text"
-              value={this.props.btnText}
-              onChange={e => this.onChangeFunction('btnText', e.target.value)}
-            />
-          </FormGroup>
+            <FormGroup>
+              <ControlLabel>Callout button text</ControlLabel>
+              <FormControl
+                id="callout-btn-text"
+                value={this.props.calloutBtnText}
+                disabled={skip}
+                onChange={e =>
+                  this.onChangeFunction('calloutBtnText', e.target.value)
+                }
+              />
+            </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Theme color</ControlLabel>
-            <p>{__('Try some of these colors:')}</p>
-          </FormGroup>
+            <FormGroup>
+              <ControlLabel>Featured image</ControlLabel>
+              <ImageWrapper>
+                <ImageContent>{this.renderUploadImage()}</ImageContent>
+              </ImageWrapper>
+            </FormGroup>
+          </LeftItem>
+          {this.footerActions()}
+        </FlexColumn>
 
-          <ColorPick>
-            {this.renderThemeColor('#04A9F5')}
-            {this.renderThemeColor('#392a6f')}
-            {this.renderThemeColor('#fd3259')}
-            {this.renderThemeColor('#67C682')}
-            {this.renderThemeColor('#F5C22B')}
-            {this.renderThemeColor('#888')}
-            <OverlayTrigger
-              trigger="click"
-              rootClose
-              placement="bottom"
-              overlay={popoverTop}
-            >
-              <ColorPicker>
-                <Picker style={{ backgroundColor: this.props.theme }} />
-              </ColorPicker>
-            </OverlayTrigger>
-          </ColorPick>
-
-          <FormGroup>
-            <ControlLabel>Featured image</ControlLabel>
-            <ImageWrapper>
-              <ImageContent>{this.renderUploadImage()}</ImageContent>
-            </ImageWrapper>
-          </FormGroup>
-        </LeftItem>
-
-        <Preview>{this.renderPreview()}</Preview>
+        <Preview>{!skip && <CalloutPreview {...this.props} />}</Preview>
       </FlexItem>
     );
   }

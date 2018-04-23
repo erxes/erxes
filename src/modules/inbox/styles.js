@@ -17,7 +17,9 @@ const PopoverButton = styled.div`
   i {
     margin-left: 5px;
     margin-right: 0;
+    font-size: 10px;
     transition: all ease 0.3s;
+    color: ${colors.colorCoreGray};
   }
 
   &[aria-describedby] {
@@ -106,16 +108,6 @@ const RichEditorControls = styled.div`
   }
 `;
 
-const MentionedPerson = styled.span`
-  cursor: pointer;
-  display: inline-block;
-  font-weight: bold;
-  padding-left: 2px;
-  padding-right: 2px;
-  border-radius: 4px;
-  text-decoration: none;
-`;
-
 const ResponseSuggestions = styled.ul`
   position: absolute;
   left: 0px;
@@ -164,6 +156,7 @@ const ResponseTemplateStyled = styled.div`
 
   button {
     margin-right: 10px;
+    margin-left: 0;
     padding: 0;
   }
 
@@ -378,6 +371,8 @@ const AssignTrigger = styled.div`
     margin-right: 0;
     transition: all ease 0.3s;
     line-height: 30px;
+    color: ${colors.colorCoreGray};
+    font-size: 10px;
     display: inline-block;
   }
 
@@ -428,7 +423,6 @@ export {
   RichEditorRoot,
   RichEditorControlsRoot,
   RichEditorControls,
-  MentionedPerson,
   ResponseSuggestions,
   ResponseSuggestionItem,
   EditorActions,

@@ -4,7 +4,7 @@ import { Sidebar } from 'modules/layout/components';
 import { Button } from 'modules/common/components';
 import { ManageGroups } from 'modules/settings/properties/components';
 import { TaggerSection } from 'modules/customers/components/detail/sidebar';
-import BasicInfo from './BasicInfo';
+import { BasicInfo } from 'modules/companies/containers';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -24,7 +24,7 @@ class LeftSidebar extends ManageGroups {
           btnStyle="simple"
           size="small"
           onClick={this.cancelEditing}
-          icon="close"
+          icon="cancel-1"
         >
           Discard
         </Button>
@@ -32,7 +32,7 @@ class LeftSidebar extends ManageGroups {
           btnStyle="success"
           size="small"
           onClick={this.save}
-          icon="checkmark"
+          icon="checked-1"
         >
           Save
         </Button>

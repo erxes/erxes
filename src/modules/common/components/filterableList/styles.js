@@ -44,7 +44,7 @@ const PopoverList = styled.ul`
     }
 
     &:before {
-      font-family: Ionicons;
+      font-family: 'erxes';
       font-size: ${dimensions.unitSpacing}px;
       width: 15px;
       height: 15px;
@@ -58,11 +58,11 @@ const PopoverList = styled.ul`
     }
 
     &.all:before {
-      content: '\f121';
+      content: '\\e80f';
     }
 
     &.some:before {
-      content: '\f209';
+      content: '\\e856';
     }
   }
 `;
@@ -73,6 +73,7 @@ const PopoverFooter = styled.div`
 
   ${PopoverList} {
     padding-bottom: 0;
+    padding-top: 0;
   }
 
   a {

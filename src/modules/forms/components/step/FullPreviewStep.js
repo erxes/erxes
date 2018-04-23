@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { EmbeddedPreview, PopupPreview, ShoutboxPreview } from './preview';
+import { CalloutPreview, FormPreview, SuccessPreview } from './preview';
 import {
   FlexItem,
-  Preview,
+  FullPreview,
   ResolutionTabs,
   DesktopPreview,
   TabletPreview,
@@ -16,17 +16,20 @@ import {
 const propTypes = {
   type: PropTypes.string,
   calloutTitle: PropTypes.string,
-  btnText: PropTypes.string,
+  formTitle: PropTypes.string,
+  formBtnText: PropTypes.string,
+  calloutBtnText: PropTypes.string,
   bodyValue: PropTypes.string,
+  formDesc: PropTypes.string,
   color: PropTypes.string,
   theme: PropTypes.string,
   image: PropTypes.string,
   preview: PropTypes.string,
   onChange: PropTypes.func,
   fields: PropTypes.array,
-  integration: PropTypes.object,
   carousel: PropTypes.string,
-  thankContent: PropTypes.string
+  thankContent: PropTypes.string,
+  skip: PropTypes.bool
 };
 
 class FullPreviewStep extends Component {
@@ -64,20 +67,6 @@ class FullPreviewStep extends Component {
     return this.props.onChange('carousel', value);
   }
 
-  renderPreview() {
-    const { type } = this.props;
-
-    if (type === 'shoutbox') {
-      return <ShoutboxPreview {...this.props} />;
-    }
-
-    if (type === 'popup') {
-      return <PopupPreview {...this.props} />;
-    }
-
-    return <EmbeddedPreview {...this.props} />;
-  }
-
   renderResolution() {
     return (
       <ResolutionTabs>
@@ -86,6 +75,20 @@ class FullPreviewStep extends Component {
         {this.renderTabs('Mobile', 'mobile')}
       </ResolutionTabs>
     );
+  }
+
+  renderPreview() {
+    const { carousel } = this.props;
+
+    if (carousel === 'callout') {
+      return <CalloutPreview {...this.props} />;
+    }
+
+    if (carousel === 'form') {
+      return <FormPreview {...this.props} />;
+    }
+
+    return <SuccessPreview {...this.props} />;
   }
 
   renderResolutionPreview() {
@@ -105,17 +108,17 @@ class FullPreviewStep extends Component {
   render() {
     return (
       <FlexItem>
-        <Preview>
+        <FullPreview>
           {this.renderResolution()}
           {this.renderResolutionPreview()}
           <CarouselSteps>
             <ol>
-              {this.carouseItems('CallOut', 'callout')}
+              {!this.props.skip && this.carouseItems('CallOut', 'callout')}
               {this.carouseItems('Form', 'form')}
               {this.carouseItems('Success', 'success')}
             </ol>
           </CarouselSteps>
-        </Preview>
+        </FullPreview>
       </FlexItem>
     );
   }

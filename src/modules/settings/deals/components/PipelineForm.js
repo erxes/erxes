@@ -59,15 +59,9 @@ class PipelineForm extends Component {
     };
   }
 
-  renderStages(pipeline) {
-    if (!pipeline) return null;
-
+  renderStages() {
     return (
-      <Stages
-        stages={this.state.stages}
-        onChangeStages={this.onChangeStages}
-        pipelineId={pipeline._id}
-      />
+      <Stages stages={this.state.stages} onChangeStages={this.onChangeStages} />
     );
   }
 
@@ -88,7 +82,7 @@ class PipelineForm extends Component {
             required
           />
         </FormGroup>
-        {this.renderStages(pipeline)}
+        {this.renderStages()}
       </div>
     );
   }
@@ -102,13 +96,13 @@ class PipelineForm extends Component {
           <Button
             btnStyle="simple"
             type="button"
-            icon="close"
+            icon="cancel-1"
             onClick={() => this.context.closeModal()}
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" icon="checkmark" type="submit">
+          <Button btnStyle="success" icon="checked-1" type="submit">
             Save
           </Button>
         </Modal.Footer>

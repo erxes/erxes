@@ -1,45 +1,23 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Alert, confirm } from 'modules/common/utils';
-import { Tip, Button, Icon, ModalTrigger } from 'modules/common/components';
+import {
+  Tip,
+  Button,
+  Icon,
+  ModalTrigger,
+  FormControl,
+  Tags,
+  ActionButtons
+} from 'modules/common/components';
 import { Manage } from './';
-
-const ActionButtons = styled.div`
-  display: flex;
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 0;
-  overflow: hidden;
-  align-items: center;
-  transition: all 0.3s ease;
-
-  * {
-    padding: 0;
-    margin-left: 20px;
-
-    &:first-child {
-      margin-left: 0;
-    }
-  }
-`;
-
-const TableRow = styled.tr`
-  &:hover {
-    ${ActionButtons} {
-      width: auto;
-      position: inherit;
-      justify-content: flex-end;
-    }
-  }
-`;
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
+  members: PropTypes.array.isRequired,
+  toggleBulk: PropTypes.func,
   remove: PropTypes.func
 };
 
@@ -64,13 +42,22 @@ class Row extends Component {
     });
   }
 
-  renderEditAction(integration) {
+  renderUser(createdUserId) {
+    return this.props.members.map(
+      user =>
+        user._id === createdUserId && (
+          <div key={user._id}>{user.details.fullName}</div>
+        )
+    );
+  }
+
+  manageAction(integration) {
     const { __ } = this.context;
 
     return (
       <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
         <Button btnStyle="link">
-          <Tip text={__('Edit')}>
+          <Tip text={__('Manage')}>
             <Icon icon="edit" />
           </Tip>
         </Button>
@@ -78,13 +65,13 @@ class Row extends Component {
     );
   }
 
-  manageAction(integration) {
+  renderEditAction(integration) {
     const { __ } = this.context;
 
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Install code')}>
-          <Icon icon="navicon-round" />
+          <Icon icon="copy" />
         </Tip>
       </Button>
     );
@@ -97,28 +84,50 @@ class Row extends Component {
   }
 
   render() {
-    const { integration } = this.props;
+    const { integration, toggleBulk } = this.props;
     const { __ } = this.context;
     const form = integration.form || {};
+    const createdUserId = form.createdUserId;
+    const tags = integration.tags || [];
+
+    let percentage = '0.00';
+
+    if (form.contactsGathered && form.viewCount) {
+      percentage = form.contactsGathered / form.viewCount * 100;
+      percentage = percentage.toString();
+    }
+
+    const onChange = e => {
+      if (toggleBulk) {
+        toggleBulk(integration, e.target.checked);
+      }
+    };
 
     return (
-      <TableRow>
+      <tr>
+        <td>
+          <FormControl componentClass="checkbox" onChange={onChange} />
+        </td>
         <td>{integration.name}</td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>{form.viewCount || 0}</td>
-        <td>{form.contactsGathered / form.viewCount || '0.00'} %</td>
+        <td>{percentage.substring(0, 4)} %</td>
         <td>{form.contactsGathered || 0}</td>
-        <td width="10%">{moment(form.createdDate).format('ll')}</td>
-        <td width="10%">
+        <td>{moment(form.createdDate).format('ll')}</td>
+        <td>{this.renderUser(createdUserId)}</td>
+        <td>
+          <Tags tags={tags} limit={2} />
+        </td>
+        <td>
           <ActionButtons>
             {this.manageAction(integration)}
             {this.renderEditAction(integration)}
             <Tip text={__('Delete')}>
-              <Button btnStyle="link" onClick={this.remove} icon="close" />
+              <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
             </Tip>
           </ActionButtons>
         </td>
-      </TableRow>
+      </tr>
     );
   }
 }
