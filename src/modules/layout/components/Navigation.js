@@ -66,6 +66,17 @@ const Nav = styled.nav`
     &.active {
       background: rgba(0, 0, 0, 0.13);
 
+      &:before {
+        content: '';
+        width: 2px;
+        background: ${colors.colorCoreTeal};
+        position: absolute;
+        display: block;
+        left: 0;
+        top: 0;
+        bottom: 0;
+      }
+
       i {
         opacity: 1;
       }
