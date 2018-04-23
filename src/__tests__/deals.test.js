@@ -2,79 +2,116 @@
 
 import React from 'react';
 import { shallow } from 'enzyme';
-import { Board, Pipeline, Stage, ItemCounter } from 'modules/deals/components';
+import {
+  Home,
+  Board,
+  Pipeline,
+  Stage,
+  Deal,
+  DealAddForm,
+  DealEditForm,
+  DealMove,
+  DealSelect,
+  ProductSection,
+  ProductForm,
+  ProductItemForm,
+  CommonDeal,
+  DealSection,
+  Items,
+  UserCounter
+} from 'modules/deals/components';
 
-const context = { __: value => value };
+import { Sidebar, Tab, Top } from 'modules/deals/components/deal/editForm';
 
 describe('Deals', () => {
+  const context = {
+    __: value => value,
+    closeModal: () => {}
+  };
+
+  const deal = { _id: 'dealId:', name: 'Deal 1' };
+
   describe('Render components', () => {
+    test('Rendering home', () => {
+      shallow(<Home />, { context });
+    });
+
     test('Rendering board', () => {
       shallow(<Board />, { context });
     });
 
-    test('Render board when no currentBoard', () => {
-      const wrapper = shallow(<Board />, { context });
-
-      expect(wrapper.find('Wrapper').length).toEqual(1);
-    });
-
-    test('Render board when no currentBoard', () => {
-      const currentBoard = { _id: 'id 1', name: 'board 1' };
-
-      const wrapper = shallow(<Board currentBoard={currentBoard} />, {
-        context
-      });
-
-      expect(wrapper.find('Wrapper').length).toEqual(1);
-    });
-
     test('Rendering pipeline', () => {
-      const pipeline = { _id: 'pipelineId:', name: 'Pipelne 1' };
+      const pipeline = { _id: 'pipelineId', name: 'Pipelne 1' };
 
       shallow(<Pipeline pipeline={pipeline} />);
     });
 
     test('Rendering stage', () => {
-      const stage = { _id: 'stageId:', name: 'Stage 1' };
+      const stage = { _id: 'stageId', name: 'Stage 1' };
 
       shallow(<Stage stage={stage} />);
     });
-  }),
-    describe('ItemCounter', () => {
-      test('Renders empty when no items', () => {
-        const wrapper = shallow(<ItemCounter />, { context });
 
-        expect(wrapper.isEmptyRender()).toBeTruthy();
-      });
-
-      test('Renders empty when items length is zero', () => {
-        const wrapper = shallow(<ItemCounter items={[]} />, { context });
-
-        expect(wrapper.isEmptyRender()).toBeTruthy();
-      });
-
-      test('Count li', () => {
-        const items = [
-          { _id: 'id 1', name: 'name 1' },
-          { _id: 'id 2', name: 'name 2' },
-          { _id: 'id 3', name: 'name 3' },
-          { _id: 'id 4', name: 'name 4' }
-        ];
-
-        const wrapper = shallow(<ItemCounter items={items} show />, {
-          context
-        });
-
-        expect(wrapper.find('li').length).toEqual(4);
-
-        wrapper.setState({ show: false });
-
-        expect(wrapper.find('li').length).toEqual(2);
-        expect(wrapper.find('.remained-count').text()).toBe('+3');
-
-        wrapper.setProps({ items: [{ _id: 'id 1', name: 'name 1' }] });
-
-        expect(wrapper.find('li').length).toEqual(1);
-      });
+    test('Rendering deal', () => {
+      shallow(<Deal deal={deal} />);
     });
+
+    test('Rendering common deal', () => {
+      shallow(<CommonDeal deal={deal} />);
+    });
+
+    test('Rendering deal add form', () => {
+      shallow(<DealAddForm />, { context });
+    });
+
+    test('Rendering deal edit form', () => {
+      shallow(<DealEditForm deal={deal} />, { context });
+    });
+
+    test('Rendering deal move', () => {
+      shallow(<DealMove deal={deal} />, { context });
+    });
+
+    test('Rendering deal select', () => {
+      shallow(<DealSelect />, { context });
+    });
+
+    test('Rendering product section', () => {
+      shallow(<ProductSection onChangeProductsData={() => {}} />, { context });
+    });
+
+    test('Rendering product form', () => {
+      shallow(<ProductForm onChangeProductsData={() => {}} />, { context });
+    });
+
+    test('Rendering product item', () => {
+      const productData = { _id: '_id' };
+
+      shallow(<ProductItemForm productData={productData} />, { context });
+    });
+
+    test('Rendering deal section', () => {
+      shallow(<DealSection />, { context });
+    });
+
+    test('Rendering items', () => {
+      shallow(<Items />);
+    });
+
+    test('Rendering user counter', () => {
+      shallow(<UserCounter />);
+    });
+
+    test('Rendering sidebar', () => {
+      shallow(<Sidebar deal={deal} />);
+    });
+
+    test('Rendering tab', () => {
+      shallow(<Tab deal={deal} />, { context });
+    });
+
+    test('Rendering top', () => {
+      shallow(<Top deal={deal} />, { context });
+    });
+  });
 });

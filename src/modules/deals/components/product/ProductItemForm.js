@@ -16,11 +16,11 @@ import { Button as DealButton } from '../../styles/deal';
 const propTypes = {
   uom: PropTypes.array,
   currencies: PropTypes.array,
-  productsData: PropTypes.array.isRequired,
+  productsData: PropTypes.array,
   productData: PropTypes.object.isRequired,
-  removeProductItem: PropTypes.func.isRequired,
-  onChangeProductsData: PropTypes.func.isRequired,
-  updateTotal: PropTypes.func.isRequired
+  removeProductItem: PropTypes.func,
+  onChangeProductsData: PropTypes.func,
+  updateTotal: PropTypes.func
 };
 
 class ProductItemForm extends React.Component {
@@ -66,7 +66,7 @@ class ProductItemForm extends React.Component {
   }
 
   onChangeField(type, value, _id) {
-    const { productsData } = this.props;
+    const { productsData, onChangeProductsData } = this.props;
 
     const productData = productsData.find(p => p._id === _id);
     productData[type] = value;
@@ -75,7 +75,7 @@ class ProductItemForm extends React.Component {
       this.calculateAmount(type, productData);
     }
 
-    this.props.onChangeProductsData(productsData);
+    onChangeProductsData(productsData);
   }
 
   renderProductServiceTrigger(product) {
@@ -125,7 +125,7 @@ class ProductItemForm extends React.Component {
 
   render() {
     const { __ } = this.context;
-    const { uom, currencies, productData } = this.props;
+    const { uom, currencies, productData, removeProductItem } = this.props;
 
     return (
       <tr key={productData._id}>
@@ -248,7 +248,7 @@ class ProductItemForm extends React.Component {
             btnStyle="danger"
             icon="cancel-1"
             size="small"
-            onClick={this.props.removeProductItem.bind(this, productData._id)}
+            onClick={() => removeProductItem(productData._id)}
           />
         </td>
       </tr>

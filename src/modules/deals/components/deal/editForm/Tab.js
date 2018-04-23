@@ -13,7 +13,7 @@ import { WhiteBox } from 'modules/layout/styles';
 import { Left } from '../../../styles/deal';
 
 const propTypes = {
-  deal: PropTypes.object,
+  deal: PropTypes.object.isRequired,
   dealActivityLog: PropTypes.array,
   loadingLogs: PropTypes.bool
 };
@@ -21,6 +21,11 @@ const propTypes = {
 const contextTypes = {
   __: PropTypes.func,
   currentUser: PropTypes.object
+};
+
+const defaultProps = {
+  dealActivityLog: [],
+  loadingLogs: false
 };
 
 class Tab extends React.Component {
@@ -106,6 +111,7 @@ class Tab extends React.Component {
 }
 
 Tab.propTypes = propTypes;
+Tab.defaultProps = defaultProps;
 Tab.contextTypes = contextTypes;
 
 export default Tab;

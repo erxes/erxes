@@ -22,7 +22,7 @@ import {
 } from '../../../styles/deal';
 
 const propTypes = {
-  deal: PropTypes.object,
+  deal: PropTypes.object.isRequired,
   name: PropTypes.string,
   description: PropTypes.string,
   closeDate: PropTypes.string,
@@ -104,7 +104,7 @@ class Top extends React.Component {
             />
           </HeaderContent>
 
-          {this.renderAmount(amount)}
+          {this.renderAmount(amount || {})}
         </HeaderRow>
 
         <HeaderRow>
