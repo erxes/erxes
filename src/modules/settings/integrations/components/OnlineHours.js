@@ -106,7 +106,7 @@ class OnlineHours extends Component {
           clearable={false}
         />
 
-        <Button className="shrinked" btnStyle="link" onClick={remove}>
+        <Button size="small" btnStyle="danger" onClick={remove}>
           <Icon icon="cancel-1" />
         </Button>
       </FlexRow>
@@ -122,8 +122,8 @@ class OnlineHours extends Component {
           this.renderOnlineHour(onlineHour)
         )}
         <Button
-          className="shrinked"
-          btnStyle="link"
+          btnStyle="success"
+          size="small"
           onClick={this.addTime}
           icon="add"
         >
