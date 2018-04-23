@@ -18,6 +18,12 @@ const propTypes = {
   loading: PropTypes.bool
 };
 
+const defaultProps = {
+  boards: [],
+  pipelines: [],
+  states: {}
+};
+
 class Board extends React.Component {
   renderBoards() {
     const { currentBoard, boards } = this.props;
@@ -50,14 +56,6 @@ class Board extends React.Component {
   renderPipelines() {
     const { states, pipelines, currentBoard, loading } = this.props;
 
-    const stageStates = {};
-
-    Object.keys(states).forEach(key => {
-      if (key.startsWith('stageState')) {
-        stageStates[key] = states[key];
-      }
-    });
-
     if (pipelines.length === 0 && !loading) {
       return (
         <EmptyState
@@ -70,7 +68,15 @@ class Board extends React.Component {
       );
     }
 
-    return pipelines.map((pipeline, index) => (
+    const stageStates = {};
+
+    Object.keys(states).forEach(key => {
+      if (key.startsWith('stageState')) {
+        stageStates[key] = states[key];
+      }
+    });
+
+    return pipelines.map(pipeline => (
       <Pipeline
         key={pipeline._id}
         {...stageStates}
@@ -150,6 +156,7 @@ class Board extends React.Component {
 }
 
 Board.propTypes = propTypes;
+Board.defaultProps = defaultProps;
 Board.contextTypes = {
   __: PropTypes.func
 };

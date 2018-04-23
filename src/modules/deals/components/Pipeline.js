@@ -8,9 +8,6 @@ import { Container, Header, Body } from '../styles/pipeline';
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
   stages: PropTypes.array,
-  collectDeals: PropTypes.func,
-  dealResult: PropTypes.object,
-  addToDeals: PropTypes.func,
   expanded: PropTypes.bool
 };
 
