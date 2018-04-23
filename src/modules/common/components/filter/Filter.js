@@ -33,14 +33,14 @@ function Filter({ queryParams = {}, history }) {
     }
   };
 
-  const renderFilterWithData = (paramKey, type) => {
+  const renderFilterWithData = (paramKey, type, fields = '_id name') => {
     if (queryParams[paramKey]) {
       const id = queryParams[paramKey];
+
       const graphqlQuery = gql`
           query ${type}Detail($id: String!) {
             ${type}Detail(_id: $id) {
-              _id
-              name
+              ${fields}
             }
           }
         `;
@@ -81,6 +81,7 @@ function Filter({ queryParams = {}, history }) {
       {renderFilterParam('kind')}
       {renderFilterWithData('brand', 'brand')}
       {renderFilterWithDate()}
+      {renderFilterWithData('form', 'form', '_id title')}
     </Filters>
   );
 }
