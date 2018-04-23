@@ -21,6 +21,7 @@ export const types = `
     contactsGathered: Int
     tagIds: [String]
     getTags: [Tag]
+    submittedCustomerIds: [String]
   }
 `;
 
@@ -30,6 +31,10 @@ const commonFields = `
   buttonText: String,
   themeColor: String,
   callout: JSON
+`;
+
+export const queries = `
+  formDetail(_id: String!): Form
 `;
 
 export const mutations = `

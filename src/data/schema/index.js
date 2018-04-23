@@ -41,7 +41,7 @@ import {
   fieldsGroupsQueries as FieldGroupQueries,
 } from './field';
 
-import { types as FormTypes, mutations as FormMutatons } from './form';
+import { types as FormTypes, mutations as FormMutatons, queries as FormQueries } from './form';
 
 import {
   types as EngageTypes,
@@ -148,6 +148,7 @@ export const queries = `
     ${EmailTemplateQueries}
     ${FieldQueries}
     ${EngageQueries}
+    ${FormQueries}
     ${TagQueries}
     ${InternalNoteQueries}
     ${CompanyQueries}
