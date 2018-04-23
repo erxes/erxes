@@ -122,6 +122,7 @@ const customerQueries = {
       byIntegrationType: {},
       byTag: {},
       byFakeSegment: 0,
+      byForm: {},
     };
 
     const selector = await listQuery(params);
@@ -170,6 +171,16 @@ const customerQueries = {
 
     for (let tag of tags) {
       counts.byTag[tag._id] = await count({ tagIds: tag._id });
+    }
+
+    // Count customers by submitted form
+    const forms = await Forms.find({});
+
+    for (let form of forms) {
+      const formObj = await Forms.findOne({ _id: form._id });
+      const { submittedCustomerIds = [] } = formObj;
+
+      counts.byForm[form._id] = submittedCustomerIds.length;
     }
 
     return counts;
