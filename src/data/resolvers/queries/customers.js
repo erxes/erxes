@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { Brands, Tags, Integrations, Customers, Segments } from '../../../db/models';
+import { Brands, Tags, Integrations, Customers, Segments, Forms } from '../../../db/models';
 import { TAG_TYPES, INTEGRATION_KIND_CHOICES, COC_CONTENT_TYPES } from '../../constants';
 import QueryBuilder from './segmentQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
@@ -69,6 +69,13 @@ const listQuery = async params => {
   // filter directly using ids
   if (params.ids) {
     selector = { _id: { $in: params.ids } };
+  }
+
+  // filter customers by submitted form
+  if (params.form) {
+    const formObj = await Forms.findOne({ _id: params.form });
+
+    selector = { _id: { $in: formObj.submittedCustomerIds || [] } };
   }
 
   return selector;
