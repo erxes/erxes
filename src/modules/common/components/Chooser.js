@@ -144,7 +144,7 @@ class CommonChooser extends Component {
                     size="small"
                     btnStyle="primary"
                     onClick={this.loadMore}
-                    icon="checked"
+                    icon="checked-1"
                   >
                     Load More
                   </Button>
@@ -173,7 +173,11 @@ class CommonChooser extends Component {
               >
                 Cancel
               </Button>
-              <Button btnStyle="success" onClick={this.onSelect} icon="checked">
+              <Button
+                btnStyle="success"
+                onClick={this.onSelect}
+                icon="checked-1"
+              >
                 Select
               </Button>
             </div>
