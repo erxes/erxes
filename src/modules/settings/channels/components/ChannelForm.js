@@ -7,6 +7,7 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
@@ -38,8 +39,16 @@ class ChannelForm extends Component {
   save(e) {
     e.preventDefault();
 
+    const { __ } = this.context;
+    const fields = this.generateDoc();
+
+    if (!fields.doc.name) return Alert.error(__('Write name'));
+    if (!fields.doc.description) return Alert.error(__('Write description'));
+    if (fields.doc.memberIds.length === 0)
+      return Alert.error(__('Choose member'));
+
     this.props.save(
-      this.generateDoc(),
+      fields,
       () => {
         this.context.closeModal();
       },

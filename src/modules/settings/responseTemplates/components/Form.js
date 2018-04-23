@@ -43,7 +43,8 @@ class Form extends CommonForm {
       doc: {
         brandId: document.getElementById('template-brand-id').value,
         name: document.getElementById('template-name').value,
-        content: this.getContent(this.state.editorState)
+        content: this.getContent(this.state.editorState),
+        formType: 'response-template'
       }
     };
   }

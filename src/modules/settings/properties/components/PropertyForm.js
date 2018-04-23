@@ -7,6 +7,7 @@ import {
   Button,
   Icon
 } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { TypeList, AddOption, Actions } from '../styles';
 import { ModalFooter } from 'modules/common/styles/styles';
 
@@ -73,12 +74,21 @@ class PropertyForm extends Component {
 
   onSubmit(e) {
     e.preventDefault();
+
+    const { __ } = this.context;
+
     const groupId = document.getElementById('groupId').value;
     const validation = document.getElementById('validation').value;
     const text = document.getElementById('text').value;
     const description = document.getElementById('description').value;
 
     const { type, options } = this.state;
+
+    if (!groupId) return Alert.error(__('Select group'));
+    if (!text) return Alert.error(__('Write name'));
+    if (!description) return Alert.error(__('Write description'));
+    if (!validation) return Alert.error(__('Choose validation'));
+    if (!type) return Alert.error(__('Choose type'));
 
     const doc = {
       type,

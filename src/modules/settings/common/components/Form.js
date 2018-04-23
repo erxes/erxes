@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Alert } from 'modules/common/utils';
 import { Button } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/styles';
 
@@ -23,8 +24,33 @@ class Form extends Component {
   save(e) {
     e.preventDefault();
 
+    const { __ } = this.context;
+    const fields = this.generateDoc();
+
+    const type = fields.doc.formType;
+
+    if (type === 'team') {
+      if (fields.doc.channelIds.length === 0)
+        return Alert.error(__('Choose channel'));
+      if (!fields.doc.details.description)
+        return Alert.error(__('Write description'));
+      if (!fields.doc.details.fullName)
+        return Alert.error(__('Write full name'));
+      if (!fields.doc.details.location)
+        return Alert.error(__('Choose location'));
+      if (!fields.doc.details.position)
+        return Alert.error(__('Write position'));
+      if (!fields.doc.email) return Alert.error(__('Write email'));
+      if (!fields.doc.username) return Alert.error(__('Write username'));
+    }
+
+    if (type === 'email-template') {
+      if (!fields.doc.name) return Alert.error(__('Write name'));
+      if (!fields.doc.content) return Alert.error(__('Write content'));
+    }
+
     this.props.save(
-      this.generateDoc(),
+      fields,
       () => {
         this.context.closeModal();
       },

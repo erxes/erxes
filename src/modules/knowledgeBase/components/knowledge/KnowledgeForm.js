@@ -16,6 +16,7 @@ import {
   ColorPick,
   ColorPicker
 } from 'modules/settings/styles';
+import { Alert } from 'modules/common/utils';
 import SelectBrand from '../SelectBrand';
 import { ModalFooter } from 'modules/common/styles/styles';
 
@@ -27,7 +28,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class KnowledgeForm extends Component {
@@ -62,8 +64,18 @@ class KnowledgeForm extends Component {
   save(e) {
     e.preventDefault();
 
+    const { __ } = this.context;
+    const fields = this.generateDoc();
+
+    if (!fields.doc.doc.title) return Alert.error(__('Write title'));
+    if (!fields.doc.doc.description)
+      return Alert.error(__('Write description'));
+    if (!fields.doc.doc.brandId) return Alert.error(__('Choose brand'));
+    if (!fields.doc.doc.languageCode) return Alert.error(__('Choose language'));
+    if (!fields.doc.doc.color) return Alert.error(__('Choose color'));
+
     this.props.save(
-      this.generateDoc(),
+      fields,
       () => {
         this.context.closeModal();
       },

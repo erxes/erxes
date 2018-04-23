@@ -6,6 +6,7 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
@@ -14,7 +15,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class BrandForm extends Component {
@@ -27,6 +29,11 @@ class BrandForm extends Component {
 
   save(e) {
     e.preventDefault();
+
+    const { __ } = this.context;
+    const fields = this.generateDoc();
+
+    if (!fields.doc.description) return Alert.error(__('Write description'));
 
     this.props.save(
       this.generateDoc(),

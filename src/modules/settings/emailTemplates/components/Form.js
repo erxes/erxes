@@ -11,7 +11,8 @@ class Form extends CommonForm {
     return {
       doc: {
         name: document.getElementById('template-name').value,
-        content: document.getElementById('template-content').value
+        content: document.getElementById('template-content').value,
+        formType: 'email-template'
       }
     };
   }

@@ -9,6 +9,7 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { ModalFooter } from 'modules/common/styles/styles';
 
 class Facebook extends Component {
@@ -39,12 +40,24 @@ class Facebook extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    this.props.save({
+    const { __ } = this.context;
+
+    const fields = this.generateDoc();
+
+    if (!fields.brandId) return Alert.error(__('Choose brand'));
+    if (!fields.appId) return Alert.error(__('Choose app'));
+    if (fields.pageIds.length === 0) return Alert.error(__('Select page'));
+
+    this.props.save(fields);
+  }
+
+  generateDoc() {
+    return {
       name: document.getElementById('name').value,
       brandId: document.getElementById('selectBrand').value,
       appId: document.getElementById('app').value,
       pageIds: this.collectCheckboxValues('pages')
-    });
+    };
   }
 
   render() {

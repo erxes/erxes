@@ -89,7 +89,8 @@ class UserForm extends CommonForm {
           youtube: document.getElementById('youtube').value,
           github: document.getElementById('github').value,
           website: document.getElementById('website').value
-        }
+        },
+        formType: 'team'
       }
     };
   }

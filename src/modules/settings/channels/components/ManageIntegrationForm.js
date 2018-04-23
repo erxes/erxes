@@ -7,6 +7,7 @@ import {
   Tip,
   Label
 } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { LoadMore, Title, Columns, Column } from 'modules/customers/styles';
 import { BrandName, IntegrationName } from '../../styles';
@@ -45,8 +46,12 @@ class ManageIntegrationForm extends Component {
   }
 
   save() {
+    const { __ } = this.context;
+
     const { integrations } = this.state;
     const ids = [];
+
+    if (integrations.length === 0) return Alert.error(__('Choose integration'));
 
     integrations.forEach(integration => {
       ids.push(integration._id.toString());

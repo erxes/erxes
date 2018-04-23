@@ -10,6 +10,7 @@ import {
 } from 'modules/common/components';
 import { icons } from '../../icons.constant';
 import { ModalFooter } from 'modules/common/styles/styles';
+import { Alert } from 'modules/common/utils';
 
 const propTypes = {
   currentTopicId: PropTypes.string,
@@ -18,7 +19,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class CategoryForm extends Component {
@@ -37,8 +39,15 @@ class CategoryForm extends Component {
   save(e) {
     e.preventDefault();
 
+    const { __ } = this.context;
+    const fields = this.generateDoc();
+
+    if (!fields.doc.doc.description)
+      return Alert.error(__('Write description'));
+    if (!fields.doc.doc.icon) return Alert.error(__('Choose icon'));
+
     this.props.save(
-      this.generateDoc(),
+      fields,
       () => {
         this.context.closeModal();
       },

@@ -7,6 +7,7 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { TYPES } from '../constants';
 
 const propTypes = {
@@ -15,7 +16,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class Form extends Component {
@@ -38,7 +40,13 @@ class Form extends Component {
   save(e) {
     e.preventDefault();
 
+    const { __ } = this.context;
     const doc = this.state;
+
+    if (!doc.name) return Alert.error(__('Write name'));
+    if (!doc.description) return Alert.error(__('Write description'));
+    if (!doc.type) return Alert.error(__('Choose type'));
+    if (!doc.sku) return Alert.error(__('Write sku'));
 
     this.props.save(doc, () => this.context.closeModal(), this.props.product);
   }

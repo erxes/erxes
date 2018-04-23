@@ -13,7 +13,6 @@ import {
   FullPreviewStep
 } from './step';
 import { StepWrapper, TitleContainer } from '../styles';
-import VALIDATION_ERROR from '../constants';
 
 const propTypes = {
   integration: PropTypes.object,
@@ -58,30 +57,81 @@ class Form extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  isValid(name, message) {
-    const { __ } = this.context;
-
-    const field = this.state[name];
-
-    if (!field || field.length === 0) {
-      Alert.error(__(message));
-
-      return false;
-    }
-  }
-
   handleSubmit(e) {
     e.preventDefault();
 
-    // form fields validation
-    const result = Object.keys(this.state).map(name => {
-      if (`${name}` in VALIDATION_ERROR) {
-        return this.isValid(name, VALIDATION_ERROR[name]);
-      }
-    });
+    const { __ } = this.context;
 
-    if (result.includes(false)) {
-      return;
+    if (!this.state.title) {
+      return Alert.error(__('Write title'));
+    }
+
+    if (!this.state.brand) {
+      return Alert.error(__('Choose brand'));
+    }
+
+    if (!this.state.language) {
+      return Alert.error(__('Choose language'));
+    }
+
+    if (!this.state.type) {
+      return Alert.error(__('Choose type'));
+    }
+
+    if (!this.state.userEmailTitle) {
+      return Alert.error(__('Write user email title'));
+    }
+
+    if (!this.state.userEmailContent) {
+      return Alert.error(__('Write user email content'));
+    }
+
+    if (!this.state.adminEmails) {
+      return Alert.error(__('Write admin emails'));
+    }
+
+    if (!this.state.adminEmailTitle) {
+      return Alert.error(__('Write admin email title'));
+    }
+
+    if (!this.state.adminEmailContent) {
+      return Alert.error(__('Write admin email content'));
+    }
+
+    if (!this.state.thankContent) {
+      return Alert.error(__('Write thank content'));
+    }
+
+    if (!this.state.redirectUrl) {
+      return Alert.error(__('Write redirect url'));
+    }
+
+    if (!this.state.formTitle) {
+      return Alert.error(__('Write form title'));
+    }
+
+    if (!this.state.formDesc) {
+      return Alert.error(__('Write form description'));
+    }
+
+    if (!this.state.formBtnText) {
+      return Alert.error(__('Write form button text'));
+    }
+
+    if (!this.state.theme) {
+      return Alert.error(__('Choose theme'));
+    }
+
+    if (!this.state.calloutTitle) {
+      return Alert.error(__('Write callout title'));
+    }
+
+    if (!this.state.bodyValue) {
+      return Alert.error(__('Write body value'));
+    }
+
+    if (!this.state.calloutBtnText) {
+      return Alert.error(__('Write callout button text'));
     }
 
     this.props.save({

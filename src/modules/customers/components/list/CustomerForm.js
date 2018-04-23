@@ -141,6 +141,7 @@ class CustomerForm extends React.Component {
                 placeholder={__('Search')}
                 onFocus={() => users.length < 1 && this.handleUserSearch('')}
                 onInputChange={this.handleUserSearch}
+                required
                 onChange={selectedOption => {
                   this.setState({
                     ownerId: selectedOption ? selectedOption.value : null
@@ -153,12 +154,14 @@ class CustomerForm extends React.Component {
 
             {this.renderFormGroup('Department', {
               id: 'customer-department',
+              required: true,
               defaultValue: customer.department || ''
             })}
 
             {this.renderFormGroup('Lifecycle State', {
               id: 'customer-lifecycleState',
               componentClass: 'select',
+              required: true,
               defaultValue: customer.lifecycleState || '',
               options: this.generateConstantParams(
                 CUSTOMER_LIFECYCLE_STATE_TYPES
@@ -167,28 +170,33 @@ class CustomerForm extends React.Component {
 
             {this.renderFormGroup('Description', {
               id: 'customer-description',
+              required: true,
               defaultValue: customer.description || ''
             })}
           </FormColumn>
           <FormColumn>
             {this.renderFormGroup('Last Name', {
               id: 'customer-lastname',
+              required: true,
               defaultValue: customer.lastName || ''
             })}
 
             {this.renderFormGroup('Phone', {
               id: 'customer-phone',
+              required: true,
               defaultValue:
                 customer.phone || this.getVisitorInfo(customer, 'phone') || '-'
             })}
 
             {this.renderFormGroup('Position', {
               id: 'customer-position',
+              required: true,
               defaultValue: customer.position || ''
             })}
 
             {this.renderFormGroup('Lead Status', {
               id: 'customer-leadStatus',
+              required: true,
               componentClass: 'select',
               defaultValue: customer.leadStatus || '',
               options: this.generateConstantParams(CUSTOMER_LEAD_STATUS_TYPES)

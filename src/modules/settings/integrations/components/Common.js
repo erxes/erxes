@@ -9,6 +9,7 @@ import {
   FormControl,
   EmptyState
 } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { MarkdownWrapper } from '../../styles';
 import SelectBrand from './SelectBrand';
 import { ModalFooter } from 'modules/common/styles/styles';
@@ -67,13 +68,24 @@ class Common extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
+    const { __ } = this.context;
+
+    const fields = this.generateDoc();
+
+    if (!fields.brandId) return Alert.error(__('Choose brand'));
+    if (!fields.languageCode) return Alert.error(__('Choose language'));
+
     this.context.closeModal();
 
-    this.props.save({
+    this.props.save(fields);
+  }
+
+  generateDoc() {
+    return {
       name: document.getElementById('integration-name').value,
       brandId: document.getElementById('selectBrand').value,
       languageCode: document.getElementById('languageCode').value
-    });
+    };
   }
 
   render() {

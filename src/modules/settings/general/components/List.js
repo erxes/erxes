@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper, ActionBar } from 'modules/layout/components';
+import { Alert } from 'modules/common/utils';
 import Select from 'react-select-plus';
 import { FormGroup, Button, ControlLabel } from 'modules/common/components';
 import { CURRENCIES, MEASUREMENTS, LANGUAGES } from '../constants';
@@ -32,6 +33,13 @@ class List extends Component {
 
   save(e) {
     e.preventDefault();
+
+    const { __ } = this.context;
+
+    if (this.state.currencies.length === 0)
+      return Alert.error(__('Select currency'));
+    if (this.state.uom.length === 0)
+      return Alert.error(__('Select unit of measurement'));
 
     this.props.save('dealCurrency', this.state.currencies);
     this.props.save('dealUOM', this.state.uom);

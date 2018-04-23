@@ -146,6 +146,7 @@ class CompanyForm extends React.Component {
             {this.renderFormGroup('Industry', {
               id: 'company-industry',
               componentClass: 'select',
+              required: true,
               defaultValue: company.industry || '',
               options: this.generateConstantParams(COMPANY_INDUSTRY_TYPES)
             })}
@@ -153,6 +154,7 @@ class CompanyForm extends React.Component {
               <ControlLabel>Parent Company</ControlLabel>
               <Select
                 placeholder={__('Search')}
+                required
                 onFocus={() =>
                   companies.length < 1 && this.handleCompanySearch('')
                 }
@@ -166,16 +168,19 @@ class CompanyForm extends React.Component {
             </FormGroup>
             {this.renderFormGroup('Plan', {
               id: 'company-plan',
+              required: true,
               defaultValue: company.plan || ''
             })}
             {this.renderFormGroup('Lead Status', {
               id: 'company-leadStatus',
               componentClass: 'select',
+              required: true,
               defaultValue: company.leadStatus || '',
               options: this.generateConstantParams(COMPANY_LEAD_STATUS_TYPES)
             })}
             {this.renderFormGroup('Business Type', {
               id: 'company-businessType',
+              required: true,
               componentClass: 'select',
               defaultValue: company.businessType || '',
               options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
@@ -188,16 +193,19 @@ class CompanyForm extends React.Component {
           <FormColumn>
             {this.renderFormGroup('Email', {
               id: 'company-email',
+              required: true,
               defaultValue: company.email || ''
             })}
             {this.renderFormGroup('Size', {
               id: 'company-size',
+              required: true,
               defaultValue: company.size || 0
             })}
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search"
+                required
                 onFocus={() => users.length < 1 && this.handleUserSearch('')}
                 onInputChange={this.handleUserSearch}
                 onChange={option => this.handleSelect(option, 'ownerId')}
@@ -207,11 +215,13 @@ class CompanyForm extends React.Component {
             </FormGroup>
             {this.renderFormGroup('Phone', {
               id: 'company-phone',
+              required: true,
               defaultValue: company.phone || ''
             })}
             {this.renderFormGroup('Lifecycle State', {
               id: 'company-lifecycleState',
               componentClass: 'select',
+              required: true,
               defaultValue: company.lifecycleState || '',
               options: this.generateConstantParams(
                 COMPANY_LIFECYCLE_STATE_TYPES
@@ -219,6 +229,7 @@ class CompanyForm extends React.Component {
             })}
             {this.renderFormGroup('Description', {
               id: 'company-description',
+              required: true,
               defaultValue: company.description || ''
             })}
             {this.renderFormGroup('Do not disturb', {

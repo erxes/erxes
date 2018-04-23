@@ -113,6 +113,7 @@ class ArticleForm extends Component {
           <FormControl
             id="knowledgebase-article-summary"
             type="text"
+            required
             defaultValue={article.summary}
           />
         </FormGroup>
