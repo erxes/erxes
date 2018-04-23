@@ -1,5 +1,4 @@
 {
-  "Search ...": "Search ...",
   "Are you sure?": "Are you sure?",
   "Yes, I am": "Yes, I am",
   "No, Cancel": "No, Cancel",
@@ -420,14 +419,15 @@
   "Youtube": "Youtube",
   "Github": "Github",
   "Edit response": "Edit response",
-  "To send your message press [Enter] and [Shift + Enter] to add a new line ...":
-    "To send your message press [Enter] and [Shift + Enter] to add a new line ...",
-  "To send your note press [Enter] and [Shift + Enter] to add a new line ...":
-    "To send your note press [Enter] and [Shift + Enter] to add a new line ...",
+  "To send your message press Enter and Shift + Enter to add a new line":
+    "To send your message press Enter and Shift + Enter to add a new line",
+  "To send your note press Enter and Shift + Enter to add a new line":
+    "To send your note press Enter and Shift + Enter to add a new line",
   "Type to search": "Type to search",
   "Members": "Members",
   "Choose integrations": "Choose integrations",
   "Choose brands": "Choose brands",
+  "Select a date": "Select a date",
   "Click to select a date": "Click to select a date",
   "Choose users": "Choose users",
   "Select Brand": "Select Brand",
@@ -441,12 +441,12 @@
   "Select": "Select",
   "select": "select",
   "Choose members": "Choose members",
-  "Search...": "Search...",
+  "Search": "Search",
   "your@email.com": "your@email.com",
   "password": "password",
   "registered@email.com": "registered@email.com",
   "new password": "new password",
-  "Start typing to leave a note ...": "Start typing to leave a note ...",
+  "Start typing to leave a note": "Start typing to leave a note",
   "Re-type password": "Re-type password",
   "Name:": "Name:",
   "Size:": "Size:",
@@ -649,5 +649,7 @@
   "Rendering Failure": "Rendering Failure",
   "Rejected": "Rejected",
   "Action": "Action",
-  "Please select one to merge": "Please select one to merge"
+  "Please select one to merge": "Please select one to merge",
+  "Filter by date": "Filter by date",
+  "Total conversations": "Total conversations"
 }

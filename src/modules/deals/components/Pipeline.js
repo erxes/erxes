@@ -11,6 +11,10 @@ const propTypes = {
   expanded: PropTypes.bool
 };
 
+const defaultProps = {
+  stages: []
+};
+
 class Pipeline extends React.Component {
   constructor(props) {
     super(props);
@@ -101,3 +105,4 @@ class Pipeline extends React.Component {
 export default Pipeline;
 
 Pipeline.propTypes = propTypes;
+Pipeline.defaultProps = defaultProps;

@@ -40,16 +40,16 @@
     "fuzzysearch-highlight": "^1.0.3",
     "graphql": "^0.12.3",
     "graphql-tag": "^2.6.1",
+    "i18n-react": "^0.6.4",
     "moment": "2.19.3",
     "query-string": "^5.0.0",
     "react": "^16.2.0",
     "react-apollo": "2.0.4",
-    "react-beautiful-dnd": "^7.1.0",
+    "react-beautiful-dnd": "^6.0.1",
     "react-bootstrap": "^0.31.3",
     "react-copy-to-clipboard": "^5.0.1",
     "react-datetime": "^2.11.1",
     "react-dom": "^16.0.0",
-    "react-intl": "^2.4.0",
     "react-markdown": "^2.5.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
@@ -96,6 +96,6 @@
     "lint-staged": "^4.3.0",
     "opencollective": "^1.0.3",
     "prettier": "^1.8.2",
-    "react-scripts": "1.0.15"
+    "react-scripts": "1.1.4"
   }
 }

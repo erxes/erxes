@@ -98,7 +98,7 @@ class Form extends Component {
         <form onKeyDown={this.handleKeyDown} onChange={this.handleChange}>
           <FormControl
             componentClass="textarea"
-            placeholder={__('Start typing to leave a note ...')}
+            placeholder={__('Start typing to leave a note')}
             value={this.state.content}
           />
           {this.renderFooter()}

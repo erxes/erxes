@@ -40,6 +40,7 @@ const stages = `
     dealStages(pipelineId: $pipelineId) {
       _id
       name
+      order
     }
   }
 `;
