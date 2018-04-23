@@ -11,7 +11,7 @@ import {
   FormWrapper,
   FormColumn,
   ColumnTitle
-} from 'modules/common/styles/styles';
+} from 'modules/common/styles/main';
 import { Avatar } from '../styles';
 
 const propTypes = {

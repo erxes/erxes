@@ -9,7 +9,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { icons } from '../../icons.constant';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   currentTopicId: PropTypes.string,

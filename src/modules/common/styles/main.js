@@ -12,7 +12,6 @@ const FullContent = styled.div`
 
 const BoxRoot = styled.div`
   text-align: center;
-  display: inline-block;
   float: left;
   background: ${colors.colorLightBlue};
   box-shadow: 0 8px 5px ${rgba(colors.colorCoreGray, 0.08)};
@@ -134,6 +133,11 @@ const ModalFooter = styled.div`
   margin-top: 40px;
 `;
 
+const CenterContent = styled.div`
+  text-align: center;
+  margin-top: 10px;
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -142,5 +146,6 @@ export {
   Links,
   FormWrapper,
   FormColumn,
-  ColumnTitle
+  ColumnTitle,
+  CenterContent
 };

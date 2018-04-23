@@ -6,7 +6,7 @@ import {
   ControlLabel,
   FormControl
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 class ChooseBrand extends Component {
   constructor(props) {

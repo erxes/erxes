@@ -8,7 +8,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { TypeList, AddOption, Actions } from '../styles';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   add: PropTypes.func.isRequired,
