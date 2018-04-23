@@ -19,6 +19,7 @@ import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
+import DateFilter from '../common/DateFilter';
 import CustomerRow from './CustomerRow';
 import { CommonMerge } from '../';
 import { CustomerForm } from '../../containers';
@@ -144,7 +145,13 @@ class CustomersList extends React.Component {
         Add customer
       </Button>
     );
+
     const editColumns = <a>{__('Edit columns')}</a>;
+
+    const dateFilter = queryParams.form && (
+      <DateFilter queryParams={queryParams} history={history} />
+    );
+
     const actionBarRight = (
       <BarItems>
         <FormControl
@@ -155,6 +162,9 @@ class CustomersList extends React.Component {
           autoFocus
           onFocus={e => this.moveCursorAtTheEnd(e)}
         />
+
+        {dateFilter}
+
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
@@ -178,6 +188,7 @@ class CustomersList extends React.Component {
             </li>
           </Dropdown.Menu>
         </Dropdown>
+
         <ModalTrigger title="New customer" trigger={addTrigger} size="lg">
           <CustomerForm size="lg" />
         </ModalTrigger>

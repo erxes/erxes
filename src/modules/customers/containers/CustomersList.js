@@ -131,7 +131,9 @@ export default compose(
           searchValue: queryParams.searchValue,
           brand: queryParams.brand,
           integration: queryParams.integrationType,
-          form: queryParams.form
+          form: queryParams.form,
+          startDate: queryParams.startDate,
+          endDate: queryParams.endDate
         },
         notifyOnNetworkStatusChange: true
       };
@@ -147,7 +149,9 @@ export default compose(
         segment: queryParams.segment,
         ids: queryParams.ids,
         searchValue: queryParams.searchValue,
-        form: queryParams.form
+        form: queryParams.form,
+        startDate: queryParams.startDate,
+        endDate: queryParams.endDate
       },
       notifyOnNetworkStatusChange: true
     })

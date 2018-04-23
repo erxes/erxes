@@ -55,7 +55,9 @@ const listParamsDef = `
   $searchValue: String,
   $brand: String,
   $integration: String,
-  $form: String
+  $form: String,
+  $startDate: String,
+  $endDate: String
 `;
 
 const listParamsValue = `
@@ -67,7 +69,9 @@ const listParamsValue = `
   searchValue: $searchValue,
   brand: $brand,
   integration: $integration
-  form: $form
+  form: $form,
+  startDate: $startDate,
+  endDate: $endDate
 `;
 
 const customers = `
