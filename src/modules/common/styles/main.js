@@ -138,6 +138,11 @@ const CenterContent = styled.div`
   margin-top: 10px;
 `;
 
+const ActivityContent = styled.div`
+  position: relative;
+  height: ${props => props.isEmpty && '360px'};
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -147,5 +152,6 @@ export {
   FormWrapper,
   FormColumn,
   ColumnTitle,
-  CenterContent
+  CenterContent,
+  ActivityContent
 };
