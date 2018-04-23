@@ -35,6 +35,7 @@ const commonFields = `
 
 export const queries = `
   formDetail(_id: String!): Form
+  forms: [Form]
 `;
 
 export const mutations = `
