@@ -78,7 +78,8 @@ class CustomerListContainer extends Bulk {
       byBrand: {},
       byIntegrationType: {},
       bySegment: {},
-      byTag: {}
+      byTag: {},
+      byForm: {}
     };
 
     const updatedProps = {
