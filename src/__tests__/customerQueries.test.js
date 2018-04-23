@@ -1,9 +1,17 @@
 /* eslint-env jest */
 
 import faker from 'faker';
-import { Customers, Segments, Tags } from '../db/models';
+import moment from 'moment';
+import { Customers, Segments, Tags, Conversations } from '../db/models';
 import { graphqlRequest, connect, disconnect } from '../db/connection';
-import { customerFactory, tagsFactory, segmentFactory } from '../db/factories';
+import {
+  customerFactory,
+  tagsFactory,
+  segmentFactory,
+  formFactory,
+  conversationFactory,
+  integrationFactory,
+} from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -20,7 +28,10 @@ describe('customerQueries', () => {
     $segment: String,
     $tag: String,
     $ids: [String],
-    $searchValue: String
+    $searchValue: String,
+    $form: String,
+    $startDate: String,
+    $endDate: String
   `;
 
   const commonParams = `
@@ -29,7 +40,10 @@ describe('customerQueries', () => {
     segment: $segment
     tag: $tag
     ids: $ids
-    searchValue: $searchValue
+    searchValue: $searchValue,
+    form: $form,
+    startDate: $startDate,
+    endDate: $endDate
   `;
 
   const qryCustomers = `
@@ -294,5 +308,69 @@ describe('customerQueries', () => {
     const response = await graphqlRequest(qry, 'customerDetail', { _id: customer._id });
 
     expect(response._id).toBe(customer._id);
+  });
+
+  test('Customer filtered by submitted form', async () => {
+    const customer = await customerFactory();
+    const form = await formFactory({ submittedCustomerIds: [customer._id] });
+
+    const testCustomer = await customerFactory();
+    const testForm = await formFactory({ submittedCustomerIds: [customer._id, testCustomer._id] });
+
+    let responses = await graphqlRequest(qryCustomersMain, 'customersMain', { form: form._id });
+    expect(responses.list.length).toBe(1);
+
+    responses = await graphqlRequest(qryCustomersMain, 'customersMain', { form: testForm._id });
+    expect(responses.list.length).toBe(2);
+  });
+
+  test('Customer filtered by submitted form with startDate and endDate', async () => {
+    const customer = await customerFactory();
+    const form = await formFactory({ submittedCustomerIds: [customer._id] });
+    const integration = await integrationFactory({ formId: form._id });
+
+    // Creating conversation for today's date with form
+    await conversationFactory({
+      integrationId: integration._id,
+      customerId: customer._id,
+    });
+
+    const startDate = moment('2018-04-03 10:00');
+    const endDate = moment('2018-04-03 18:00');
+
+    // Overriding createdAt field of conversation
+    await Conversations.create({
+      integrationId: integration._id,
+      customerId: customer._id,
+      content: '123312123',
+      createdAt: new Date(moment(startDate).add(5, 'hours')),
+      status: 'new',
+      number: 4,
+      messageCount: 0,
+    });
+
+    await Conversations.create({
+      integrationId: integration._id,
+      customerId: customer._id,
+      content: '123312123',
+      createdAt: new Date(moment(endDate).add(5, 'days')),
+      status: 'new',
+      number: 5,
+      messageCount: 0,
+    });
+
+    const args = {
+      startDate,
+      endDate,
+      form: form._id,
+    };
+
+    let responses = await graphqlRequest(qryCustomersMain, 'customersMain', args);
+
+    /* So far we created 3 forms, 1 today, 1 at 2018-04-03 15:000 and the last one 2018-04-08 18:00
+     * We are searching inbetween date of 2018-04-03: 10:00 and 2018-04-03: 18:00
+     * Only 1 form submitted during that time
+     */
+    expect(responses.list.length).toBe(1);
   });
 });
