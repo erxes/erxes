@@ -4,7 +4,7 @@ import _ from 'underscore';
 import Sidebar from 'modules/settings/Sidebar';
 import { Button, Pagination } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import { NotificationListRow } from './';
+import { NotificationRow } from './';
 import { NotifList } from './styles';
 
 class NotificationList extends Component {
@@ -39,7 +39,7 @@ class NotificationList extends Component {
     const content = (
       <NotifList>
         {notifications.map((notif, key) => (
-          <NotificationListRow
+          <NotificationRow
             notification={notif}
             key={key}
             markAsRead={markAsRead}
