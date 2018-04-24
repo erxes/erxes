@@ -3,20 +3,23 @@ import PropTypes from 'prop-types';
 import Datetime from 'react-datetime';
 import moment from 'moment';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
+import gql from 'graphql-tag';
 import { withApollo } from 'react-apollo';
 import { Icon, Button } from 'modules/common/components';
 import { router } from 'modules/common/utils';
+import { PopoverButton } from 'modules/inbox/styles';
 import {
   FlexRow,
   FlexItem,
   DateFilters
 } from 'modules/inbox/components/sidebar/styles';
-import { PopoverButton } from 'modules/inbox/styles';
 
 const propTypes = {
   queryParams: PropTypes.object,
   history: PropTypes.object,
-  client: PropTypes.object
+  client: PropTypes.object,
+  countQuery: PropTypes.string,
+  countQueryParam: PropTypes.string
 };
 
 const format = 'YYYY-MM-DD HH:mm';
@@ -29,7 +32,8 @@ class DateFilter extends React.Component {
 
     this.state = {
       startDate: null,
-      endDate: null
+      endDate: null,
+      totalCount: 0
     };
 
     if (startDate) {
@@ -41,12 +45,40 @@ class DateFilter extends React.Component {
     }
 
     this.renderPopover = this.renderPopover.bind(this);
+    this.refetchCountQuery = this.refetchCountQuery.bind(this);
+    this.renderCount = this.renderCount.bind(this);
     this.onDateChange = this.onDateChange.bind(this);
     this.filterByDate = this.filterByDate.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { queryParams } = nextProps;
+
+    if (nextProps.countQuery) {
+      if (queryParams.startDate && queryParams.endDate) {
+        this.refetchCountQuery();
+      }
+    }
+  }
+
   onDateChange(type, date) {
     this.setState({ [type]: date });
+  }
+
+  refetchCountQuery() {
+    const { client, queryParams, countQuery, countQueryParam } = this.props;
+
+    client
+      .query({
+        query: gql(countQuery),
+        variables: { ...queryParams }
+      })
+
+      .then(({ data }) => {
+        this.setState({
+          totalCount: data[countQueryParam]
+        });
+      });
   }
 
   filterByDate() {
@@ -59,6 +91,29 @@ class DateFilter extends React.Component {
       startDate: formattedStartDate,
       endDate: formattedEndDate
     });
+
+    if (this.props.countQuery) {
+      this.refetchCountQuery();
+    }
+  }
+
+  renderCount() {
+    const { totalCount } = this.state;
+    const { __ } = this.context;
+
+    if (this.props.countQuery) {
+      return (
+        <FlexRow>
+          <FlexItem>
+            <span>
+              {__('Total')}: {totalCount}
+            </span>
+          </FlexItem>
+        </FlexRow>
+      );
+    }
+
+    return null;
   }
 
   renderPopover() {
@@ -91,6 +146,8 @@ class DateFilter extends React.Component {
               />
             </FlexItem>
           </FlexRow>
+
+          {this.renderCount()}
 
           <FlexRow>
             <Button btnStyle="simple" onClick={() => this.filterByDate()}>

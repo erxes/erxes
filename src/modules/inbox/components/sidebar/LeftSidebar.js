@@ -10,13 +10,14 @@ import {
   ConversationList,
   LoadMore,
   TaggerPopover,
-  EmptyState
+  EmptyState,
+  DateFilter
 } from 'modules/common/components';
 import { FilterPopover, StatusFilterPopover, AssignBoxPopover } from '../';
 import { Resolver } from 'modules/inbox/containers';
 import { PopoverButton } from '../../styles';
 import { LeftItem, RightItems } from './styles';
-import DateFilter from './DateFilter';
+import { queries } from '../../graphql';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
@@ -107,7 +108,12 @@ class LeftSidebar extends Bulk {
           paramKey="channelId"
           searchable
         />
-        <DateFilter queryParams={queryParams} history={history} />
+        <DateFilter
+          queryParams={queryParams}
+          history={history}
+          countQuery={queries.totalConversationsCount}
+          countQueryParam="conversationsTotalCount"
+        />
         <StatusFilterPopover />
       </Sidebar.Header>
     );

@@ -13,13 +13,13 @@ import {
   Icon,
   Table,
   FormControl,
-  DataWithLoader
+  DataWithLoader,
+  DateFilter
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
-import DateFilter from '../common/DateFilter';
 import CustomerRow from './CustomerRow';
 import { CommonMerge } from '../';
 import { CustomerForm } from '../../containers';
