@@ -92,6 +92,13 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/erxes/sponsor/8/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/8/avatar.svg"></a>
 <a href="https://opencollective.com/erxes/sponsor/9/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/9/avatar.svg"></a>
 
+## In-kind sponsors
+
+<a href="https://www.cloudflare.com/" target="_blank"><img src="https://goo.gl/s9g9xa" width="64px;" height="64px;"></a>
+<a href="https://www.browserstack.com/" target="_blank"><img src="https://goo.gl/gRZcYS" width="64px;" height="64px;"></a>
+<a href="https://www.saucelabs.com/" target="_blank"><img src="https://goo.gl/zdWNrJ" width="64px;" height="64px;"></a>
+<a href="https://www.transifex.com/" target="_blank"><img src="https://goo.gl/TzDdC5" width="64px;" height="64px;"></a>
+
 ## Copyright & License
 Copyright (c) 2018 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE.md)
 
