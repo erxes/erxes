@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Form } from 'react-bootstrap';
 import {
   Button,
   Icon,
@@ -194,7 +193,7 @@ class SegmentsForm extends Component {
     return (
       <FlexContent>
         <FlexItem count={3}>
-          <Form onSubmit={this.save}>
+          <form onSubmit={this.save}>
             <FormGroup>
               <ControlLabel>Name</ControlLabel>
               <FormControl
@@ -239,7 +238,7 @@ class SegmentsForm extends Component {
                 onChange={this.handleColorChange}
               />
             </FormGroup>
-          </Form>
+          </form>
         </FlexItem>
         <FlexItem count={2} />
       </FlexContent>

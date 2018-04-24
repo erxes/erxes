@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Form } from 'react-bootstrap';
 import {
   Button,
   ControlLabel,
@@ -176,7 +175,7 @@ class SegmentsForm extends Component {
     return (
       <FlexContent>
         <FlexItem>
-          <Form onSubmit={this.save}>
+          <form onSubmit={this.save}>
             <FormGroup>
               <ControlLabel>Name</ControlLabel>
               <FormControl
@@ -229,7 +228,7 @@ class SegmentsForm extends Component {
             >
               Save
             </Button>
-          </Form>
+          </form>
         </FlexItem>
       </FlexContent>
     );
