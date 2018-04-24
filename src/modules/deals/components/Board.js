@@ -7,21 +7,16 @@ import { Pipeline } from '../containers';
 const propTypes = {
   currentBoard: PropTypes.object,
   pipelines: PropTypes.array,
-  onDragEnd: PropTypes.func,
   states: PropTypes.object,
+  onDragEnd: PropTypes.func,
   loading: PropTypes.bool
-};
-
-const defaultProps = {
-  pipelines: [],
-  states: {}
 };
 
 class Board extends React.Component {
   renderPipelines() {
     const { states, pipelines, currentBoard, loading } = this.props;
 
-    if (pipelines.length === 0 && !loading) {
+    if (pipelines && pipelines.length === 0 && !loading) {
       return (
         <EmptyState
           linkUrl={`/settings/deals?boardId=${currentBoard._id}`}
@@ -35,11 +30,13 @@ class Board extends React.Component {
 
     const stageStates = {};
 
-    Object.keys(states).forEach(key => {
-      if (key.startsWith('stageState')) {
-        stageStates[key] = states[key];
-      }
-    });
+    if (states) {
+      Object.keys(states).forEach(key => {
+        if (key.startsWith('stageState')) {
+          stageStates[key] = states[key];
+        }
+      });
+    }
 
     return pipelines.map((pipeline, index) => (
       <Pipeline
@@ -76,7 +73,6 @@ class Board extends React.Component {
 }
 
 Board.propTypes = propTypes;
-Board.defaultProps = defaultProps;
 Board.contextTypes = {
   __: PropTypes.func
 };

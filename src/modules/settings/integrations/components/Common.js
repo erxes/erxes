@@ -11,7 +11,7 @@ import {
 } from 'modules/common/components';
 import { MarkdownWrapper } from '../../styles';
 import SelectBrand from './SelectBrand';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 class Common extends Component {
   static installCodeIncludeScript(type) {

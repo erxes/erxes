@@ -5,7 +5,7 @@ import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { renderFullName, confirm } from 'modules/common/utils';
-import { Links, InfoWrapper } from 'modules/common/styles/styles';
+import { Links, InfoWrapper } from 'modules/common/styles/main';
 import { CustomerForm } from 'modules/customers/containers';
 import { Action } from 'modules/customers/styles';
 import { DropdownToggle, Button } from 'modules/common/components';

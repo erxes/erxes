@@ -7,18 +7,39 @@ import { DealAddForm } from '../';
 import { SectionContainer } from '../../styles/deal';
 
 const propTypes = {
-  deals: PropTypes.array.isRequired,
+  deals: PropTypes.array,
   customerId: PropTypes.string,
   companyId: PropTypes.string,
   saveDeal: PropTypes.func,
   removeDeal: PropTypes.func
 };
 
+const defaultProps = {
+  deals: []
+};
+
 class DealSection extends React.Component {
+  renderDeals() {
+    const { saveDeal, removeDeal, deals } = this.props;
+
+    if (deals.length === 0) {
+      return <EmptyState icon="piggy-bank" text="No deal" />;
+    }
+
+    return deals.map((deal, index) => (
+      <Deal
+        key={index}
+        dealId={deal._id}
+        saveDeal={saveDeal}
+        removeDeal={removeDeal}
+      />
+    ));
+  }
+
   render() {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Sidebar.Section;
-    const { saveDeal, removeDeal, customerId, companyId, deals } = this.props;
+    const { saveDeal, customerId, companyId } = this.props;
     const { __ } = this.context;
 
     const trigger = (
@@ -42,20 +63,7 @@ class DealSection extends React.Component {
           </ModalTrigger>
         </QuickButtons>
 
-        <SectionContainer>
-          {deals.map((deal, index) => (
-            <Deal
-              key={index}
-              dealId={deal._id}
-              saveDeal={saveDeal}
-              removeDeal={removeDeal}
-            />
-          ))}
-
-          {deals.length === 0 && (
-            <EmptyState icon="piggy-bank" text="No deal" />
-          )}
-        </SectionContainer>
+        <SectionContainer>{this.renderDeals()}</SectionContainer>
       </Section>
     );
   }
@@ -65,5 +73,6 @@ DealSection.propTypes = propTypes;
 DealSection.contextTypes = {
   __: PropTypes.func
 };
+DealSection.defaultProps = defaultProps;
 
 export default DealSection;

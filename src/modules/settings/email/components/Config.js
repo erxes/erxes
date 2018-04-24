@@ -7,7 +7,7 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   brand: PropTypes.object.isRequired,

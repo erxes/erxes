@@ -25,6 +25,7 @@ import {
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import LeftSidebar from './LeftSidebar';
+import { ActivityContent } from 'modules/common/styles/main';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -93,6 +94,7 @@ class UserDetails extends React.Component {
       user,
       totalConversationCount
     } = this.props;
+    const hasActivity = hasAnyActivity(activityLogsUser);
 
     if (currentTab === 'conversation') {
       return (
@@ -107,16 +109,10 @@ class UserDetails extends React.Component {
     }
 
     return (
-      <div
-        style={
-          !hasAnyActivity(activityLogsUser)
-            ? { position: 'relative', height: '400px' }
-            : {}
-        }
-      >
+      <ActivityContent isEmpty={!hasActivity}>
         <DataWithLoader
           loading={loadingLogs}
-          count={!loadingLogs && hasAnyActivity(activityLogsUser) > 0 ? 1 : 0}
+          count={!loadingLogs && hasActivity > 0 ? 1 : 0}
           data={
             <ActivityList
               user={currentUser}
@@ -128,7 +124,7 @@ class UserDetails extends React.Component {
           emptyText="Empty Notes"
           emptyImage="/images/robots/robot-03.svg"
         />
-      </div>
+      </ActivityContent>
     );
   }
 

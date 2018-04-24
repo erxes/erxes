@@ -16,6 +16,7 @@ import { DealSection } from 'modules/deals/containers';
 import { EditInformation } from '../../containers';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { hasAnyActivity } from '../../utils';
+import { ActivityContent } from 'modules/common/styles/main';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -49,19 +50,13 @@ class CustomerDetails extends React.Component {
       customer
     } = this.props;
 
+    const hasActivity = hasAnyActivity(activityLogsCustomer);
+
     return (
-      <div
-        style={
-          !hasAnyActivity(activityLogsCustomer)
-            ? { position: 'relative', height: '400px' }
-            : {}
-        }
-      >
+      <ActivityContent isEmpty={!hasActivity}>
         <DataWithLoader
           loading={loadingLogs}
-          count={
-            !loadingLogs && hasAnyActivity(activityLogsCustomer) > 0 ? 1 : 0
-          }
+          count={!loadingLogs && hasActivity > 0 ? 1 : 0}
           data={
             <ActivityList
               user={currentUser}
@@ -73,7 +68,7 @@ class CustomerDetails extends React.Component {
           emptyText="No Activities"
           emptyImage="/images/robots/robot-03.svg"
         />
-      </div>
+      </ActivityContent>
     );
   }
 

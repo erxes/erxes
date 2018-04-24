@@ -12,7 +12,7 @@ import {
   FormWrapper,
   FormColumn,
   ColumnTitle
-} from 'modules/common/styles/styles';
+} from 'modules/common/styles/main';
 import { searchCompany, searchUser } from 'modules/common/utils';
 import {
   COMPANY_INDUSTRY_TYPES,

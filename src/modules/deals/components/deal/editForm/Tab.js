@@ -11,9 +11,10 @@ import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBox } from 'modules/layout/styles';
 import { Left } from '../../../styles/deal';
+import { ActivityContent } from 'modules/common/styles/main';
 
 const propTypes = {
-  deal: PropTypes.object,
+  deal: PropTypes.object.isRequired,
   dealActivityLog: PropTypes.array,
   loadingLogs: PropTypes.bool
 };
@@ -21,6 +22,11 @@ const propTypes = {
 const contextTypes = {
   __: PropTypes.func,
   currentUser: PropTypes.object
+};
+
+const defaultProps = {
+  dealActivityLog: [],
+  loadingLogs: false
 };
 
 class Tab extends React.Component {
@@ -40,18 +46,13 @@ class Tab extends React.Component {
     const { currentTab } = this.state;
     const { dealActivityLog, deal, loadingLogs } = this.props;
     const { currentUser } = this.context;
+    const hasActivity = hasAnyActivity(dealActivityLog);
 
     return (
-      <div
-        style={
-          !hasAnyActivity(dealActivityLog)
-            ? { position: 'relative', height: '400px' }
-            : {}
-        }
-      >
+      <ActivityContent isEmpty={!hasActivity}>
         <DataWithLoader
           loading={loadingLogs}
-          count={!loadingLogs && hasAnyActivity(dealActivityLog) ? 1 : 0}
+          count={!loadingLogs && hasActivity ? 1 : 0}
           data={
             <ActivityList
               user={currentUser}
@@ -63,7 +64,7 @@ class Tab extends React.Component {
           emptyText="No Activities"
           emptyImage="/images/robots/robot-03.svg"
         />
-      </div>
+      </ActivityContent>
     );
   }
 
@@ -106,6 +107,7 @@ class Tab extends React.Component {
 }
 
 Tab.propTypes = propTypes;
+Tab.defaultProps = defaultProps;
 Tab.contextTypes = contextTypes;
 
 export default Tab;

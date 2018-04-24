@@ -11,7 +11,7 @@ import {
 import { DealSelect } from '../../containers';
 
 const propTypes = {
-  saveDeal: PropTypes.func.isRequired,
+  saveDeal: PropTypes.func,
   customerId: PropTypes.string,
   companyId: PropTypes.string,
   boardsQuery: PropTypes.object,

@@ -76,15 +76,15 @@ class DealSelect extends React.Component {
 }
 
 const propTypes = {
-  boards: PropTypes.array.isRequired,
-  pipelines: PropTypes.array.isRequired,
-  stages: PropTypes.array.isRequired,
-  boardId: PropTypes.string.isRequired,
+  boards: PropTypes.array,
+  pipelines: PropTypes.array,
+  stages: PropTypes.array,
+  boardId: PropTypes.string,
   pipelineId: PropTypes.string,
   stageId: PropTypes.string,
-  onChangeBoard: PropTypes.func.isRequired,
-  onChangePipeline: PropTypes.func.isRequired,
-  onChangeStage: PropTypes.func.isRequired,
+  onChangeBoard: PropTypes.func,
+  onChangePipeline: PropTypes.func,
+  onChangeStage: PropTypes.func,
   callback: PropTypes.func
 };
 

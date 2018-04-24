@@ -23,8 +23,8 @@ const types = {
   },
   simple: {
     background: colors.colorWhite,
-    borderColor: colors.colorShadowGray,
-    color: colors.colorCoreLightGray
+    borderColor: colors.borderDarker,
+    color: colors.colorCoreGray
   },
   link: {
     background: 'transparent',
@@ -35,18 +35,15 @@ const types = {
 const sizes = {
   large: {
     padding: '10px 30px',
-    fontSize: '14px',
-    lineHeight: '1.333333'
+    fontSize: '13px'
   },
   medium: {
     padding: '7px 20px',
-    fontSize: '12px',
-    lineHeight: '1.3'
+    fontSize: '12px'
   },
   small: {
     padding: '5px 15px',
-    fontSize: '10px',
-    lineHeight: '1.5'
+    fontSize: '10px'
   }
 };
 
@@ -56,44 +53,40 @@ const ButtonStyled = styled.button`
   transition: all 0.3s ease;
   text-transform: uppercase;
   outline: 0;
-  display: inline-block;
-  color: ${colors.colorWhite};
 
   ${props => css`
     padding: ${sizes[props.size].padding};
-    display: ${props.block && 'block'};
-    width: ${props.block && '100%'};
-    border: ${types[props.btnStyle].borderColor
+    background: ${types[props.btnStyle].background};
+    font-size: ${sizes[props.size].fontSize};
+    color: ${types[props.btnStyle].color
+      ? types[props.btnStyle].color
+      : colors.colorWhite};
+    border: ${props.btnStyle === 'simple'
       ? `1px solid ${colors.borderDarker}`
       : 'none'};
-    background: ${types[props.btnStyle].background};
-    color: ${types[props.btnStyle].color};
-    font-size: ${sizes[props.size].fontSize};
-    line-height: ${sizes[props.size].lineHeight};
+    display: ${props.block && 'block'};
+    width: ${props.block && '100%'};
+    box-shadow: 0 1px 16px 0 ${lighten(types[props.btnStyle].background, 45)};
+
+    &:hover {
+      cursor: pointer;
+      text-decoration: none;
+      color: ${types[props.btnStyle].color
+        ? darken(colors.colorCoreGray, 24)
+        : colors.colorWhite};
+      box-shadow: ${props.btnStyle !== 'link' &&
+        `0 2px 15px 0 ${colors.darkShadow}`};
+    }
 
     &:disabled {
       cursor: not-allowed !important;
       background: ${lighten(types[props.btnStyle].background, 30)};
       color: ${lighten(types[props.btnStyle].color, 20)};
     }
-
-    &:hover {
-      cursor: pointer;
-      box-shadow: ${types[props.btnStyle] === types.link
-        ? 'none'
-        : `0 0 4px 0 ${colors.darkShadow}`};
-      color: ${colors.colorWhite};
-      color: ${types[props.btnStyle].color && darken(colors.colorCoreGray, 24)};
-      text-decoration: none;
-    }
   `};
 
   a {
     color: ${colors.colorWhite};
-  }
-
-  &.shrinked {
-    padding: 8px 0;
   }
 
   & + button,
@@ -112,9 +105,13 @@ const ButtonStyled = styled.button`
 const ButtonLink = ButtonStyled.withComponent('a').extend`
   text-decoration: inherit;
   text-align: center;
-  pointer-events: ${props => props.disabled && 'none'};
-  background: ${props =>
-    props.disabled && lighten(types[props.btnStyle].background, 30)};
+  
+  ${props =>
+    props.disabled &&
+    css`
+      pointer-events: none;
+      background: lighten(types[props.btnStyle].background, 30);
+    `};
 `;
 
 const ButtonGroup = styled.div`

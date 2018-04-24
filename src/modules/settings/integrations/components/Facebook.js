@@ -9,7 +9,7 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 class Facebook extends Component {
   constructor(props, context) {
