@@ -4,7 +4,6 @@ import { EmptyState } from 'modules/common/components';
 import { Link } from 'react-router-dom';
 import {
   NotificationSeeAll,
-  NotificationArea,
   NotificationList,
   NotificationWrapper,
   PopoverContent
@@ -24,17 +23,15 @@ class NotificationsLatest extends Component {
 
     const mainContent = (
       <Fragment>
-        <NotificationArea>
-          <NotificationList>
-            {notifications.map((notif, key) => (
-              <NotificationRow
-                notification={notif}
-                key={key}
-                markAsRead={markAsRead}
-              />
-            ))}
-          </NotificationList>
-        </NotificationArea>
+        <NotificationList>
+          {notifications.map((notif, key) => (
+            <NotificationRow
+              notification={notif}
+              key={key}
+              markAsRead={markAsRead}
+            />
+          ))}
+        </NotificationList>
         <NotificationSeeAll>
           <Link to="/notifications">{__('See all')}</Link>
         </NotificationSeeAll>
