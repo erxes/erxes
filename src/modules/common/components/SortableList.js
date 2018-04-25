@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Icon } from 'modules/common/components';
@@ -57,17 +57,20 @@ class SortableList extends Component {
     return (
       <Draggable draggableId={field._id} index={index} key={index}>
         {(provided, snapshot) => (
-          <SortItem
-            innerRef={provided.innerRef}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            isDragging={snapshot.isDragging}
-            isModal={isModal}
-          >
-            {this.renderDragHandler()}
+          <Fragment>
+            <SortItem
+              innerRef={provided.innerRef}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+              isDragging={snapshot.isDragging}
+              isModal={isModal}
+            >
+              {this.renderDragHandler()}
 
-            {child(field)}
-          </SortItem>
+              {child(field)}
+            </SortItem>
+            {provided.placeholder}
+          </Fragment>
         )}
       </Draggable>
     );

@@ -126,8 +126,8 @@ const BodyContent = styled.div`
   flex: 1;
 
   ${SortableWrapper} {
-    overflow: hidden;
-    height: auto;
+    overflow: visible;
+    max-height: none;
 
     ${SortItem} {
       background: none;
