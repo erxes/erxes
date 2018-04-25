@@ -92,6 +92,8 @@ class Stage extends React.Component {
   render() {
     const { stage, deals, index, stageId } = this.props;
 
+    console.log('stage: ', stage.name);
+
     return (
       <Draggable draggableId={stageId} index={index}>
         {(provided, snapshot) => (

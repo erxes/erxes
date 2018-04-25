@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
 import { router as routerUtils } from 'modules/common/utils';
 import { Home } from '../components';
 import { queries } from '../graphql';
@@ -47,7 +46,7 @@ const BoardDetail = props => {
   const { boardDetailQuery } = props;
 
   if (boardDetailQuery.loading) {
-    return <Spinner />;
+    return null;
   }
 
   const currentBoard = boardDetailQuery.dealBoardDetail;
@@ -68,7 +67,6 @@ const BoardDetailContainer = compose(
   graphql(gql(queries.boardDetail), {
     name: 'boardDetailQuery',
     options: ({ currentBoardId }) => ({
-      fetchPolicy: 'network-only',
       variables: { _id: currentBoardId || '' }
     })
   })
@@ -101,8 +99,7 @@ DefaultBoard.propTypes = {
 
 const DefaultBoardContainer = compose(
   graphql(gql(queries.boardGetDefault), {
-    name: 'boardGetDefaultQuery',
-    options: () => ({ fetchPolicy: 'network-only' })
+    name: 'boardGetDefaultQuery'
   })
 )(DefaultBoard);
 
