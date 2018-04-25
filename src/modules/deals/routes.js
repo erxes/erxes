@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import { Board } from './containers';
+import { Home } from './containers';
 
 const routes = () => [
   <Route
@@ -9,7 +9,7 @@ const routes = () => [
     path="/deals"
     render={() => <Redirect to="/deals/board" />}
   />,
-  <Route key="deals/board" exact path="/deals/board" component={Board} />
+  <Route key="deals/board" exact path="/deals/board" component={Home} />
 ];
 
 export default routes;

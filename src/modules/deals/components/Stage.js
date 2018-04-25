@@ -19,11 +19,15 @@ import {
 const propTypes = {
   stage: PropTypes.object.isRequired,
   deals: PropTypes.array,
-  index: PropTypes.number.isRequired,
-  length: PropTypes.number.isRequired,
-  saveDeal: PropTypes.func.isRequired,
-  removeDeal: PropTypes.func.isRequired,
+  index: PropTypes.number,
+  length: PropTypes.number,
+  saveDeal: PropTypes.func,
+  removeDeal: PropTypes.func,
   stageId: PropTypes.string
+};
+
+const defaultProps = {
+  deals: []
 };
 
 class Stage extends React.Component {
@@ -125,3 +129,4 @@ Stage.propTypes = propTypes;
 Stage.contextTypes = {
   __: PropTypes.func
 };
+Stage.defaultProps = defaultProps;

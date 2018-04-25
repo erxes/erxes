@@ -1,3 +1,4 @@
+import Home from './Home';
 import Board from './Board';
 import Pipeline from './Pipeline';
 import Stage from './Stage';
@@ -15,6 +16,7 @@ import UserCounter from './common/UserCounter';
 import DealSection from './common/DealSection';
 
 export {
+  Home,
   Board,
   Pipeline,
   Stage,

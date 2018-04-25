@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { Stage } from '../components';
 import { queries, mutations } from '../graphql';
-import { Alert } from 'modules/common/utils';
 import {
   collectOrders,
   saveDeal as save,
@@ -121,6 +122,10 @@ class StageContainer extends React.Component {
 
   render() {
     const { stageDetailQuery } = this.props;
+
+    if (stageDetailQuery.loading) {
+      return <Spinner />;
+    }
 
     const extendedProps = {
       ...this.props,

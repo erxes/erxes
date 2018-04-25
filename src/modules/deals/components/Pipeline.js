@@ -8,19 +8,18 @@ import { Container, Header, Body } from '../styles/pipeline';
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
   stages: PropTypes.array,
-  collectDeals: PropTypes.func,
-  dealResult: PropTypes.object,
-  addToDeals: PropTypes.func,
   expanded: PropTypes.bool
+};
+
+const defaultProps = {
+  stages: []
 };
 
 class Pipeline extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      expanded: props.expanded
-    };
+    this.state = { expanded: props.expanded };
 
     this.togglePipeline = this.togglePipeline.bind(this);
   }
@@ -29,19 +28,23 @@ class Pipeline extends React.Component {
     const { stages } = this.props;
     const length = stages.length;
 
-    let content = (
-      <div>
-        {stages.map((stage, index) => (
-          <Stage
-            key={stage._id}
-            stageId={stage._id}
-            index={index}
-            length={length}
-            state={this.props[`stageState${stage._id}`]}
-          />
-        ))}
-      </div>
-    );
+    const stagesContent = [];
+
+    for (let index = 0; index < stages.length; index++) {
+      const stage = stages[index];
+
+      stagesContent.push(
+        <Stage
+          key={stage._id}
+          stageId={stage._id}
+          index={index}
+          length={length}
+          state={this.props[`stageState${stage._id}`]}
+        />
+      );
+    }
+
+    let content = <div> {stagesContent} </div>;
 
     if (stages.length === 0) {
       content = <EmptyState size="full" text="No stage" icon="layout" />;
@@ -104,3 +107,4 @@ class Pipeline extends React.Component {
 export default Pipeline;
 
 Pipeline.propTypes = propTypes;
+Pipeline.defaultProps = defaultProps;

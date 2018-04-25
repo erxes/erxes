@@ -17,16 +17,17 @@ const AlertWrapper = styled.div.attrs({
   font-size: 14px;
 `;
 
-this.alertcount = 0;
+let alertcount = 0;
+let timeout;
 
 const createAlert = (type, text) => {
-  this.alertcount++;
-  if (this.timeout) {
-    clearTimeout(this.timeout);
+  alertcount++;
+  if (timeout) {
+    clearTimeout(timeout);
   }
 
-  this.timeout = setTimeout(() => {
-    this.alertcount = 0;
+  timeout = setTimeout(() => {
+    alertcount = 0;
     if (document.getElementById('alert-container')) {
       document.body.removeChild(document.getElementById('alert-container'));
     }
@@ -36,7 +37,7 @@ const createAlert = (type, text) => {
     const wrapper = document.getElementById('alert-wrapper');
 
     ReactDOM.render(
-      <AlertStyled key={this.alertcount} type={type} text={text} />,
+      <AlertStyled key={alertcount} type={type} text={text} />,
       wrapper
     );
   } else {
@@ -48,7 +49,7 @@ const createAlert = (type, text) => {
     const wrapper = document.getElementById('alert-wrapper');
 
     ReactDOM.render(
-      <AlertStyled key={this.alertcount} type={type} text={text} />,
+      <AlertStyled key={alertcount} type={type} text={text} />,
       wrapper
     );
   }

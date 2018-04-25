@@ -7,11 +7,11 @@ import { ProductSection } from '../../';
 import { Right } from '../../../styles/deal';
 
 const propTypes = {
+  deal: PropTypes.object.isRequired,
   customers: PropTypes.array,
   companies: PropTypes.array,
   products: PropTypes.array,
   productsData: PropTypes.array,
-  deal: PropTypes.object,
   onChangeField: PropTypes.func,
   removeDeal: PropTypes.func,
   saveProductsData: PropTypes.func
