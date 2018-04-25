@@ -50,7 +50,7 @@
     "react-copy-to-clipboard": "^5.0.1",
     "react-datetime": "^2.11.1",
     "react-dom": "^16.0.0",
-    "react-markdown": "^2.5.0",
+    "react-markdown": "^3.3.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "react-select-plus": "^1.0.0-rc.5",
