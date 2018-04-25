@@ -1,30 +1,26 @@
-/* eslint-disable */
 import React from 'react';
 import { Route } from 'react-router-dom';
-// import {
-//   VolumeReport,
-//   ResponseReport,
-//   FirstResponse,
-//   ResponseCloseReport,
-//   Reports
-// } from './containers';
-// import { InsightPage } from './components';
 
-import asyncComponent from 'modules/layout/components/AsyncComponent';
+import asyncComponent from './components/AsyncComponent';
 
 const AsyncVolumeReport = asyncComponent(() =>
   import('./containers/VolumeReport')
-); // eslint-disable-line
+);
+
 const AsyncResponseReport = asyncComponent(() =>
   import('./containers/ResponseReport')
 );
+
 const AsyncFirstResponse = asyncComponent(() =>
   import('./containers/FirstResponse')
 );
+
 const AsyncResponseCloseReport = asyncComponent(() =>
   import('./containers/ResponseCloseReport')
 );
+
 const AsyncReports = asyncComponent(() => import('./containers/Reports'));
+
 const AsyncInsightPage = asyncComponent(() =>
   import('./components/InsightPage')
 );
