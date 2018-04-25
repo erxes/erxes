@@ -31,7 +31,7 @@ const PipelineContainer = styled.div`
 
     li {
       float: left;
-      padding: 10px 20px 10px 0;
+      padding: 10px 20px 10px 40px;
       span {
         text-transform: uppercase;
         color: ${colors.colorCoreLightGray};

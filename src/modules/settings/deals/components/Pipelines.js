@@ -5,8 +5,7 @@ import {
   DataWithLoader,
   SortableList,
   ModalTrigger,
-  Button,
-  FormControl
+  Button
 } from 'modules/common/components';
 import { collectOrders } from 'modules/deals/utils';
 import { BarItems } from 'modules/layout/styles';
@@ -20,7 +19,6 @@ const propTypes = {
   updateOrder: PropTypes.func,
   remove: PropTypes.func,
   toggleBulk: PropTypes.func.isRequired,
-  toggleAll: PropTypes.func,
   bulk: PropTypes.array,
   boardId: PropTypes.string,
   loading: PropTypes.bool
@@ -30,7 +28,6 @@ class Pipelines extends Component {
   constructor(props) {
     super(props);
 
-    this.toggleAll = this.toggleAll.bind(this);
     this.onChangePipelines = this.onChangePipelines.bind(this);
 
     this.state = { pipelines: props.pipelines };
@@ -40,12 +37,6 @@ class Pipelines extends Component {
     if (nextProps.pipelines !== this.props.pipelines) {
       this.setState({ pipelines: nextProps.pipelines });
     }
-  }
-
-  toggleAll() {
-    const { toggleAll, pipelines } = this.props;
-
-    toggleAll(pipelines, 'pipelines');
   }
 
   onChangePipelines(pipelines) {
@@ -136,12 +127,6 @@ class Pipelines extends Component {
         <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
         <PipelineContainer>
           <ul>
-            <li>
-              <FormControl
-                componentClass="checkbox"
-                onChange={this.toggleAll}
-              />
-            </li>
             <li>
               <span>{__('Pipeline')}</span>
             </li>
