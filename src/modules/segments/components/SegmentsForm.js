@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Wrapper } from 'modules/layout/components';
 import {
   Button,
   Icon,
@@ -8,7 +9,6 @@ import {
   FormGroup,
   FormControl
 } from 'modules/common/components';
-import { Wrapper } from 'modules/layout/components';
 import { FlexContent, FlexItem, ContentSpace } from 'modules/layout/styles';
 import Conditions from './Conditions';
 import AddConditionButton from './AddConditionButton';

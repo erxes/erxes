@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { colors } from '../styles';
 import { rgba, darken } from '../styles/color';
-import Rotate from '../utils/animateRotate';
+import { rotate } from 'modules/common/utils/animations';
 
 const WrapperLoader = styled.div`
   position: fixed;
@@ -20,7 +20,7 @@ const MainLoader = styled.div`
   margin: 14px auto;
   width: 20px;
   height: 20px;
-  animation: ${Rotate} 0.75s linear infinite;
+  animation: ${rotate} 0.75s linear infinite;
   border: 2px solid ${colors.colorWhite};
   border-top-color: ${rgba(colors.colorBlack, 0.2)};
   border-right-color: ${rgba(colors.colorBlack, 0.2)};
