@@ -17,10 +17,6 @@ const propTypes = {
   loading: PropTypes.bool
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired
-};
-
 class PipelineForm extends Component {
   constructor(props) {
     super(props);
@@ -79,30 +75,41 @@ class PipelineForm extends Component {
   }
 
   render() {
+    const { pipeline } = this.props;
+
+    if (!pipeline) {
+      return null;
+    }
+
     return (
-      <form onSubmit={this.save}>
-        {this.renderContent()}
+      <Modal show>
+        <form onSubmit={this.save}>
+          <Modal.Header>Edit pipeline</Modal.Header>
 
-        <Modal.Footer>
-          <Button
-            btnStyle="simple"
-            type="button"
-            icon="cancel-1"
-            onClick={() => this.context.closeModal()}
-          >
-            Cancel
-          </Button>
+          <Modal.Body>
+            {this.renderContent()}
 
-          <Button btnStyle="success" icon="checked-1" type="submit">
-            Save
-          </Button>
-        </Modal.Footer>
-      </form>
+            <Modal.Footer>
+              <Button
+                btnStyle="simple"
+                type="button"
+                icon="cancel-1"
+                onClick={() => this.closeModal()}
+              >
+                Cancel
+              </Button>
+
+              <Button btnStyle="success" icon="checked-1" type="submit">
+                Save
+              </Button>
+            </Modal.Footer>
+          </Modal.Body>
+        </form>
+      </Modal>
     );
   }
 }
 
 PipelineForm.propTypes = propTypes;
-PipelineForm.contextTypes = contextTypes;
 
 export default PipelineForm;

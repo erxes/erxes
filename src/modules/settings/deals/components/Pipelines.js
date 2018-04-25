@@ -8,7 +8,6 @@ import {
   Button
 } from 'modules/common/components';
 import { collectOrders } from 'modules/deals/utils';
-import { BarItems } from 'modules/layout/styles';
 import { PipelineForm } from '../containers';
 import { PipelineRow } from './';
 import { PipelineContainer } from '../styles';
@@ -18,8 +17,6 @@ const propTypes = {
   save: PropTypes.func,
   updateOrder: PropTypes.func,
   remove: PropTypes.func,
-  toggleBulk: PropTypes.func.isRequired,
-  bulk: PropTypes.array,
   boardId: PropTypes.string,
   loading: PropTypes.bool
 };
@@ -30,7 +27,11 @@ class Pipelines extends Component {
 
     this.onChangePipelines = this.onChangePipelines.bind(this);
 
-    this.state = { pipelines: props.pipelines };
+    this.state = {
+      showEditForm: false,
+      currentPipeline: null,
+      pipelines: props.pipelines
+    };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -45,14 +46,16 @@ class Pipelines extends Component {
     this.props.updateOrder(collectOrders(pipelines));
   }
 
-  renderRows() {
-    const { toggleBulk } = this.props;
+  onRowEdit(pipeline) {
+    this.setState({ currentPipeline: pipeline, showEditForm: true });
+  }
 
+  renderRows() {
     const child = pipeline => (
       <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
-        toggleBulk={toggleBulk}
+        onEdit={() => this.onRowEdit(pipeline)}
       />
     );
 
@@ -74,41 +77,10 @@ class Pipelines extends Component {
     this.props.remove(pipeline._id);
   }
 
-  renderEdit(pipelines) {
-    const pipeline = pipelines[0];
-    const { save } = this.props;
-
-    const trigger = (
-      <Button btnStyle="success" size="small" icon="edit">
-        Edit
-      </Button>
-    );
-
-    return (
-      <ModalTrigger title="Edit pipeline" trigger={trigger}>
-        <PipelineForm pipeline={pipeline} save={save} />
-      </ModalTrigger>
-    );
-  }
-
   render() {
     const { __ } = this.context;
-    const { boardId, save, remove, pipelines, loading, bulk } = this.props;
-
-    const leftActionBar = bulk.length > 0 && (
-      <BarItems>
-        {this.renderEdit(bulk)}
-
-        <Button
-          btnStyle="danger"
-          size="small"
-          icon="cancel-1"
-          onClick={() => remove(bulk)}
-        >
-          Remove
-        </Button>
-      </BarItems>
-    );
+    const { boardId, save, pipelines, loading } = this.props;
+    const { currentPipeline } = this.state;
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="add">
@@ -124,13 +96,15 @@ class Pipelines extends Component {
 
     const data = (
       <Fragment>
-        <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
+        <Wrapper.ActionBar right={rightActionBar} />
         <PipelineContainer>
           <ul>
             <li>
               <span>{__('Pipeline')}</span>
             </li>
           </ul>
+
+          <PipelineForm pipeline={currentPipeline} />
           <div id="pipelines">{this.renderRows()}</div>
         </PipelineContainer>
       </Fragment>
