@@ -86,7 +86,7 @@ const ActivityIcon = styled.span`
 
   & i {
     margin: 0;
-    color: #fff;
+    color: ${colors.colorWhite};
   }
 `;
 
