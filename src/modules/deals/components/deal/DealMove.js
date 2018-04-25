@@ -20,8 +20,8 @@ class DealMove extends React.Component {
 
     this.state = {
       show: false,
-      stages: props.stages,
-      pipelineId: pipeline._id,
+      stages: props.stages || [],
+      pipelineId: pipeline && pipeline._id,
       boardId
     };
   }
@@ -90,7 +90,7 @@ class DealMove extends React.Component {
       <MoveContainer>
         <MoveFormContainer>
           <PipelineName onClick={this.toggleForm}>
-            {pipeline.name} <Icon icon="downarrow" size={10} />
+            {pipeline && pipeline.name} <Icon icon="downarrow" size={10} />
           </PipelineName>
 
           {this.renderDealSelect()}
@@ -104,9 +104,9 @@ class DealMove extends React.Component {
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
-  stageId: PropTypes.string,
   stages: PropTypes.array,
-  onChangeStage: PropTypes.func.isRequired
+  stageId: PropTypes.string,
+  onChangeStage: PropTypes.func
 };
 
 DealMove.propTypes = propTypes;

@@ -7,7 +7,7 @@ import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   onChangeProductsData: PropTypes.func.isRequired,
-  saveProductsData: PropTypes.func.isRequired,
+  saveProductsData: PropTypes.func,
   productsData: PropTypes.array,
   products: PropTypes.array
 };
@@ -15,6 +15,10 @@ const propTypes = {
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
   __: PropTypes.func
+};
+
+const defaultProps = {
+  productsData: []
 };
 
 class ProductForm extends React.Component {
@@ -32,7 +36,7 @@ class ProductForm extends React.Component {
     };
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.updateTotal();
 
     // initial product item
@@ -42,7 +46,7 @@ class ProductForm extends React.Component {
   }
 
   addProductItem() {
-    const { productsData } = this.props;
+    const { productsData, onChangeProductsData } = this.props;
 
     productsData.push({
       _id: Math.random().toString(),
@@ -55,15 +59,15 @@ class ProductForm extends React.Component {
       amount: ''
     });
 
-    this.props.onChangeProductsData(productsData);
+    onChangeProductsData(productsData);
   }
 
   removeProductItem(_id) {
-    const { productsData } = this.props;
+    const { productsData, onChangeProductsData } = this.props;
 
     const removedProductsData = productsData.filter(p => p._id !== _id);
 
-    this.props.onChangeProductsData(removedProductsData);
+    onChangeProductsData(removedProductsData);
 
     this.updateTotal();
   }
@@ -102,8 +106,10 @@ class ProductForm extends React.Component {
     ));
   }
 
-  renderEmpty(products) {
-    if (products.length === 0) {
+  renderContent() {
+    const { productsData, onChangeProductsData } = this.props;
+
+    if (productsData.length === 0) {
       return (
         <tr>
           <td colSpan="7">
@@ -113,13 +119,22 @@ class ProductForm extends React.Component {
       );
     }
 
-    return null;
+    return productsData.map(productData => (
+      <ProductItemForm
+        key={productData._id}
+        productData={productData}
+        removeProductItem={this.removeProductItem}
+        productsData={productsData}
+        onChangeProductsData={onChangeProductsData}
+        updateTotal={this.updateTotal}
+      />
+    ));
   }
 
   render() {
     const { __ } = this.context;
     const { total, tax, discount } = this.state;
-    const { productsData, saveProductsData, onChangeProductsData } = this.props;
+    const { saveProductsData } = this.props;
 
     return (
       <FormContainer>
@@ -135,19 +150,7 @@ class ProductForm extends React.Component {
               <th />
             </tr>
           </thead>
-          <tbody>
-            {productsData.map(productData => (
-              <ProductItemForm
-                key={productData._id}
-                productData={productData}
-                removeProductItem={this.removeProductItem}
-                productsData={productsData}
-                onChangeProductsData={onChangeProductsData}
-                updateTotal={this.updateTotal}
-              />
-            ))}
-            {this.renderEmpty(productsData)}
-          </tbody>
+          <tbody>{this.renderContent()}</tbody>
         </Table>
 
         <Add>
@@ -207,6 +210,7 @@ class ProductForm extends React.Component {
 }
 
 ProductForm.propTypes = propTypes;
+ProductForm.defaultProps = defaultProps;
 ProductForm.contextTypes = contextTypes;
 
 export default ProductForm;

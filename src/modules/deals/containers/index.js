@@ -1,3 +1,4 @@
+import Home from './Home';
 import Board from './Board';
 import Pipeline from './Pipeline';
 import Stage from './Stage';
@@ -11,6 +12,7 @@ import ProductChooser from './product/ProductChooser';
 import ProductItemForm from './product/ProductItemForm';
 
 export {
+  Home,
   Board,
   Stage,
   Pipeline,
