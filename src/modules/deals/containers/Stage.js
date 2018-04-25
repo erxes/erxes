@@ -122,10 +122,6 @@ class StageContainer extends React.Component {
   render() {
     const { stageDetailQuery } = this.props;
 
-    if (stageDetailQuery.loading) {
-      return null;
-    }
-
     const extendedProps = {
       ...this.props,
       deals: this.state.deals,

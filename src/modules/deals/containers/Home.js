@@ -45,10 +45,6 @@ const HomeContainerWithData = compose(
 const BoardDetail = props => {
   const { boardDetailQuery } = props;
 
-  if (boardDetailQuery.loading) {
-    return null;
-  }
-
   const currentBoard = boardDetailQuery.dealBoardDetail;
 
   const extendedProps = {
@@ -66,8 +62,8 @@ BoardDetail.propTypes = {
 const BoardDetailContainer = compose(
   graphql(gql(queries.boardDetail), {
     name: 'boardDetailQuery',
-    options: ({ currentBoardId }) => ({
-      variables: { _id: currentBoardId || '' }
+    options: ({ currentBoardId = '' }) => ({
+      variables: { _id: currentBoardId }
     })
   })
 )(BoardDetail);
@@ -78,10 +74,6 @@ const BoardDetailContainer = compose(
  */
 const DefaultBoard = props => {
   const { boardGetDefaultQuery } = props;
-
-  if (boardGetDefaultQuery.loading) {
-    return null;
-  }
 
   const defaultBoard = boardGetDefaultQuery.dealBoardGetDefault;
 
