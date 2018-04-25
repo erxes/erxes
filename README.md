@@ -44,9 +44,9 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 ## In-kind sponsors
 
 <a href="https://www.cloudflare.com/" target="_blank"><img src="https://goo.gl/dNGXtv" width="128px;" height="64px;"></a>
-<a href="https://www.browserstack.com/" target="_blank"><img src="https://goo.gl/8wE1E2" width="150px;&nbsp;" height="64px;\n"></a>
-<a href="https://www.saucelabs.com/" target="_blank"><img src="https://goo.gl/LjtaoE"  width="128px;" height="64px;"></a>
-<a href="https://www.transifex.com/" target="_blank"><img src="https://goo.gl/LykJ3g" width="150px;" height="64px;"></a>
+<a href="https://www.browserstack.com/" target="_blank"><img src="https://goo.gl/g1sszy" width="150px;&nbsp;" height="64px;\n"></a>
+<a href="https://www.saucelabs.com/" target="_blank"><img src="https://goo.gl/mkswvP"  width="128px;" height="64px;"></a>
+<a href="https://www.transifex.com/" target="_blank"><img src="https://goo.gl/7hvMxG" width="150px;" height="64px;"></a>
 
 ## Copyright & License
 Copyright (c) 2018 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE.md)
