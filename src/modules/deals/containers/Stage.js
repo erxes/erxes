@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { Stage } from '../components';
 import { queries, mutations } from '../graphql';
@@ -124,7 +123,7 @@ class StageContainer extends React.Component {
     const { stageDetailQuery } = this.props;
 
     if (stageDetailQuery.loading) {
-      return <Spinner />;
+      return null;
     }
 
     const extendedProps = {
