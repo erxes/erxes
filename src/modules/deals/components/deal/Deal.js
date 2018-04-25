@@ -65,7 +65,7 @@ class Deal extends React.Component {
   render() {
     const content = this.renderContent();
 
-    return <Fragment>{this.showEditForm(content)}</Fragment>;
+    return this.showEditForm(content);
   }
 }
 
