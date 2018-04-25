@@ -33,8 +33,6 @@ class Deal extends React.Component {
   renderContent() {
     const { draggable, index, deal, saveDeal, removeDeal } = this.props;
 
-    console.log('deal: ', deal.name);
-
     if (draggable) {
       return (
         <div>

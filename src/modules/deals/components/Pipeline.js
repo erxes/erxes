@@ -60,8 +60,6 @@ class Pipeline extends React.Component {
   renderPipelineBody() {
     const { pipeline } = this.props;
 
-    console.log('pipeline: ', pipeline.name);
-
     if (!this.state.expanded) {
       return null;
     }
