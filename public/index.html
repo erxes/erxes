@@ -18,6 +18,9 @@
     <!-- Latest bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/react-select-plus/dist/react-select-plus.css">
+    
+    <!-- for blank page -->
+    <link rel="stylesheet" href="/style.css">
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -33,6 +36,12 @@
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div class="loading-content">
+        <img src="/images/robots/robot-05.svg" alt="erxes robot" />
+        <img class="erxes-logo" src="/images/logo-dark.png" alt="erxes logo" />
+        <div>Loading please wait</div>
+      </div>
+    </div>
   </body>
 </html>

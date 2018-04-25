@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { HelpBlock } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
@@ -72,7 +71,7 @@ class Config extends Component {
           rows={20}
           onChange={this.handleTemplateChange}
         />
-        <HelpBlock>{__('Use html template here')}</HelpBlock>
+        <span>{__('Use html template here')}</span>
       </FormGroup>
     );
 

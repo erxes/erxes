@@ -28,14 +28,12 @@ class NotificationRow extends Component {
     const classes = classNames({ unread: !isRead });
 
     return (
-      <li className={classes}>
-        <div onClick={this.markAsRead}>
-          <NameCard
-            user={createdUser}
-            firstLine={notification.title}
-            secondLine={moment(notification.date).format('DD MMM YYYY, HH:mm')}
-          />
-        </div>
+      <li className={classes} onClick={this.markAsRead}>
+        <NameCard
+          user={createdUser}
+          firstLine={notification.title}
+          secondLine={moment(notification.date).format('DD MMM YYYY, HH:mm')}
+        />
       </li>
     );
   }

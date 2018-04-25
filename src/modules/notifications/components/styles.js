@@ -8,10 +8,6 @@ const NotificationWrapper = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
 `;
 
-const NotificationArea = styled.div`
-  max-height: 420px !important;
-`;
-
 const NotificationSeeAll = styled.div`
   position: absolute;
   bottom: 0;
@@ -20,25 +16,9 @@ const NotificationSeeAll = styled.div`
   height: 30px;
 
   a {
-    padding: 5px 20px;
+    padding: 5px ${dimensions.coreSpacing}px;
     display: block;
     text-align: center;
-  }
-`;
-
-const MarkRead = styled.div`
-  visibility: hidden;
-
-  span:hover {
-    cursor: pointer;
-  }
-`;
-
-const NotifBody = styled.div`
-  flex: 1;
-
-  &:hover {
-    cursor: pointer;
   }
 `;
 
@@ -51,48 +31,16 @@ const NotifList = styled.ul`
     padding: ${dimensions.coreSpacing}px;
     border-bottom: 1px solid ${colors.bgActive};
     position: relative;
-    display: flex;
-    align-items: center;
-
-    &.unread {
-      background: ${colors.bgUnread};
-
-      ${MarkRead} {
-        visibility: visible;
-      }
-    }
-  }
-`;
-
-const NotificationList = styled.ul`
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  max-height: 420px !important;
-
-  li {
-    padding: 0 !important;
-    border-bottom: 1px solid ${colors.bgActive};
 
     &:last-child {
-      border: 0;
-    }
-
-    > div {
-      display: block;
-      padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-      color: ${colors.darkShadow};
+      border: none;
     }
 
     &.unread {
       background: ${colors.bgUnread};
     }
 
-    &:hover {
-      background: ${colors.bgLight};
-      cursor: pointer;
-    }
-
+    &:hover,
     &:focus {
       background: ${colors.bgLight};
       cursor: pointer;
@@ -100,9 +48,17 @@ const NotificationList = styled.ul`
   }
 `;
 
+const NotificationList = NotifList.extend`
+  max-height: 420px !important;
+
+  li {
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  }
+`;
+
 const NotifButton = styled.div`
   position: absolute;
-  padding: 15px 20px 20px;
+  padding: 15px ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
   bottom: 0;
   cursor: pointer;
   text-align: center;
@@ -114,7 +70,7 @@ const NotifButton = styled.div`
   }
 
   img {
-    width: 20px;
+    width: ${dimensions.coreSpacing}px;
   }
 
   span {
@@ -197,13 +153,10 @@ const NotifCount = styled.div`
 
 export {
   NotifList,
-  NotificationArea,
   NotificationList,
   NotificationWrapper,
   NotificationSeeAll,
   NotifButton,
-  MarkRead,
-  NotifBody,
   PopoverHeader,
   PopoverContent,
   Toggler,

@@ -15,7 +15,7 @@ const AvatarStyled = styled.span`
   color: ${colors.colorWhite};
 
   background: ${props =>
-    (props.isUser && colors.colorCoreGreen) ||
+    (props.isUser && colors.colorCoreTeal) ||
     (props.messenger && colors.colorPrimary) ||
     (props.twitter && colors.socialTwitter) ||
     (props.facebook && colors.socialFacebook) ||
