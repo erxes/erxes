@@ -8,18 +8,16 @@ import { FormFooter, FlexContent } from '../../styles/deal';
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
-  saveDeal: PropTypes.func.isRequired,
+  saveDeal: PropTypes.func,
   removeDeal: PropTypes.func,
   users: PropTypes.array,
   dealActivityLog: PropTypes.array,
-  loadingLogs: PropTypes.bool,
   index: PropTypes.number
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired,
   move: PropTypes.func,
-  currentUser: PropTypes.object,
   __: PropTypes.func
 };
 

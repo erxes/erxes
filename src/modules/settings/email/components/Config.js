@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { HelpBlock } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   brand: PropTypes.object.isRequired,
@@ -72,7 +71,7 @@ class Config extends Component {
           rows={20}
           onChange={this.handleTemplateChange}
         />
-        <HelpBlock>{__('Use html template here')}</HelpBlock>
+        <span>{__('Use html template here')}</span>
       </FormGroup>
     );
 

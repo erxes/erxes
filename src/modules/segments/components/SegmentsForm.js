@@ -1,7 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Form } from 'react-bootstrap';
 import {
   Button,
   Icon,
@@ -160,31 +159,33 @@ class SegmentsForm extends Component {
     );
 
     return (
-      <ConditionWrapper>
-        <FormGroup>
-          {__('Users who match')}
-          <FormControl
-            componentClass="select"
-            value={this.state.connector}
-            onChange={this.handleConnectorChange}
-          >
-            <option value="any">{__('any')}</option>
-            <option value="all">{__('all')}</option>
-          </FormControl>
-          {__('of the below conditions')}
-        </FormGroup>
-        <Conditions
-          contentType={contentType}
-          parentSegmentId={this.state.subOf}
-          conditions={this.state.conditions}
-          changeCondition={this.changeCondition}
-          removeCondition={this.removeCondition}
-        />
+      <Fragment>
+        <ConditionWrapper>
+          <FormGroup>
+            {__('Users who match')}
+            <FormControl
+              componentClass="select"
+              value={this.state.connector}
+              onChange={this.handleConnectorChange}
+            >
+              <option value="any">{__('any')}</option>
+              <option value="all">{__('all')}</option>
+            </FormControl>
+            {__('of the below conditions')}
+          </FormGroup>
+          <Conditions
+            contentType={contentType}
+            parentSegmentId={this.state.subOf}
+            conditions={this.state.conditions}
+            changeCondition={this.changeCondition}
+            removeCondition={this.removeCondition}
+          />
+        </ConditionWrapper>
         <AddConditionButton
           fields={changedFields}
           addCondition={this.addCondition}
         />
-      </ConditionWrapper>
+      </Fragment>
     );
   }
 
@@ -192,7 +193,7 @@ class SegmentsForm extends Component {
     return (
       <FlexContent>
         <FlexItem count={3}>
-          <Form onSubmit={this.save}>
+          <form onSubmit={this.save}>
             <FormGroup>
               <ControlLabel>Name</ControlLabel>
               <FormControl
@@ -237,7 +238,7 @@ class SegmentsForm extends Component {
                 onChange={this.handleColorChange}
               />
             </FormGroup>
-          </Form>
+          </form>
         </FlexItem>
         <FlexItem count={2} />
       </FlexContent>

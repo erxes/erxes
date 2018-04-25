@@ -13,7 +13,7 @@ const TopBar = styled.div`
   flex-shrink: 0;
   padding: 0 ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
-  box-shadow: 0 0 4px ${colors.colorShadowGray};
+  box-shadow: 0 1px 6px ${colors.colorShadowGray};
   position: fixed;
   left: 0;
   right: 0;

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { Icon, ModalTrigger } from 'modules/common/components';
-import { Links, InfoWrapper } from 'modules/common/styles/styles';
+import { Links, InfoWrapper } from 'modules/common/styles/main';
 import { confirm } from 'modules/common/utils';
 import { CompanyForm } from '../../containers';
 import { CompanyLogo } from '../../styles';

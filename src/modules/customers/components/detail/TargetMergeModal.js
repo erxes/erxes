@@ -62,7 +62,7 @@ class TargetMergeModal extends React.Component {
 
     return (
       <Select
-        placeholder="Search..."
+        placeholder="Search"
         onInputChange={this.handleSearch}
         onFocus={() => objects.length < 1 && this.handleSearch('')}
         onChange={this.onSelect}

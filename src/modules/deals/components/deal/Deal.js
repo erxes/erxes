@@ -8,7 +8,7 @@ import { Container } from '../../styles/deal';
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
-  saveDeal: PropTypes.func.isRequired,
+  saveDeal: PropTypes.func,
   index: PropTypes.number,
   removeDeal: PropTypes.func,
   draggable: PropTypes.bool

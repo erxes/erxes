@@ -7,7 +7,7 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   channel: PropTypes.object,

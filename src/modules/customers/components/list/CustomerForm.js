@@ -12,7 +12,7 @@ import {
   FormWrapper,
   FormColumn,
   ColumnTitle
-} from 'modules/common/styles/styles';
+} from 'modules/common/styles/main';
 import { searchUser } from 'modules/common/utils';
 import {
   CUSTOMER_LEAD_STATUS_TYPES,
@@ -138,7 +138,7 @@ class CustomerForm extends React.Component {
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
               <Select
-                placeholder="Search..."
+                placeholder={__('Search')}
                 onFocus={() => users.length < 1 && this.handleUserSearch('')}
                 onInputChange={this.handleUserSearch}
                 onChange={selectedOption => {

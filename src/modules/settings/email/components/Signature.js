@@ -7,7 +7,7 @@ import {
   Button
 } from 'modules/common/components';
 import { Well } from '../../styles';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,

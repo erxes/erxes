@@ -17,7 +17,7 @@ import {
   ColorPicker
 } from 'modules/settings/styles';
 import SelectBrand from '../SelectBrand';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   topic: PropTypes.object,

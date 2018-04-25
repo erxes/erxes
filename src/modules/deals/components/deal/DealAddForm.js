@@ -11,7 +11,7 @@ import {
 import { DealSelect } from '../../containers';
 
 const propTypes = {
-  saveDeal: PropTypes.func.isRequired,
+  saveDeal: PropTypes.func,
   customerId: PropTypes.string,
   companyId: PropTypes.string,
   boardsQuery: PropTypes.object,
@@ -106,6 +106,7 @@ class DealAddForm extends React.Component {
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
             <FormControl
+              autoFocus
               onChange={e => this.onChangeField('name', e.target.value)}
             />
           </HeaderContent>
