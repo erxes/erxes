@@ -20,25 +20,4 @@ const TitleContainer = styled.div`
   }
 `;
 
-const MarkdownWrapper = styled.div`
-  position: relative;
-  background: ${colors.bgLight};
-  border: 1px solid ${colors.colorShadowGray};
-
-  > div {
-    background: none;
-  }
-
-  button {
-    position: absolute;
-    right: ${dimensions.coreSpacing}px;
-    top: ${dimensions.coreSpacing}px;
-  }
-
-  pre {
-    border: none;
-    background: none;
-  }
-`;
-
-export { StepWrapper, TitleContainer, MarkdownWrapper };
+export { StepWrapper, TitleContainer };

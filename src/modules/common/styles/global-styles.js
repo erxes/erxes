@@ -196,7 +196,7 @@ injectGlobal`
   /* popover */
 
   .popover {
-    font-family: 'Montserrat','Helvetica Neue','Helvetica','Arial', sans-serif;
+    font-family: 'Montserrat', 'PT Sans Caption', 'Arial',  sans-serif;
     border: none;
     border-radius: 0;
     font-size: inherit;

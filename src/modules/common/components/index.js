@@ -28,7 +28,7 @@ import TextDivider from './TextDivider';
 import CountsByTag from './CountsByTag';
 import FilterByParams from './FilterByParams';
 import Table from './table';
-import Editor from './Editor';
+import Editor from './editor/Editor';
 import { Tabs, TabList, TabTitle } from './tabs';
 import ConfirmDialog from './ConfirmDialog';
 import DataWithLoader from './DataWithLoader';

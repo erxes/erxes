@@ -143,12 +143,21 @@ const ActivityContent = styled.div`
   height: ${props => props.isEmpty && '360px'};
 `;
 
+const Well = styled.div`
+  min-height: ${dimensions.coreSpacing};
+  padding: ${dimensions.unitSpacing} ${dimensions.coreSpacing};
+  margin-bottom: ${dimensions.coreSpacing};
+  background-color: ${colors.bgActive};
+  border-left: 2px solid ${colors.colorSecondary};
+`;
+
 export {
   BoxRoot,
   FullContent,
   ModalFooter,
   InfoWrapper,
   Links,
+  Well,
   FormWrapper,
   FormColumn,
   ColumnTitle,
