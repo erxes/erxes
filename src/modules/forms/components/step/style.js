@@ -1,20 +1,12 @@
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import { fadeIn } from 'modules/common/utils/animations';
 import {
   SortableWrapper,
   SortItem,
   DragHandler
 } from 'modules/common/styles/sort';
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`;
 
 const BoxRow = styled.div`
   display: flex;

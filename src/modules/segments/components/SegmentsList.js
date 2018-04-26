@@ -43,7 +43,7 @@ function SegmentsList({ contentType, segments, removeSegment }, { __ }) {
         {parentSegments.map(segment => (
           <tr key={segment._id}>
             <td>
-              {segment.subOf ? '\u2014\u2014' : null} {segment.name}
+              {segment.subOf ? '\u00a0\u00a0' : null} {segment.name}
             </td>
             <td>{segment.description}</td>
             <td>

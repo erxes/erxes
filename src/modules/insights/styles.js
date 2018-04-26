@@ -92,9 +92,7 @@ const SummaryItem = styled.div`
   margin-bottom: 30px;
   padding: 12px;
   background: ${colors.bgLight};
-  box-shadow: 0 3px 1px -2px ${rgba(colors.colorBlack, 0.12)},
-    0 2px 2px 0 ${rgba(colors.colorBlack, 0.12)},
-    0 1px 5px 0 ${rgba(colors.colorBlack, 0.12)};
+  box-shadow: 0 3px 15px 0 ${rgba(colors.colorBlack, 0.2)};
 `;
 
 const SummaryTitle = styled.div`
