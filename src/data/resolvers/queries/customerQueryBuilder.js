@@ -9,7 +9,7 @@ export default class Builder {
     this.user = user;
   }
 
-  // filter by tag
+  // filter by segment
   async segmentFilter(segmentId) {
     const segment = await Segments.findOne({ _id: segmentId });
     const query = QueryBuilder.segments(segment);
@@ -17,18 +17,21 @@ export default class Builder {
     return query;
   }
 
+  // filter by brand
   async brandFilter(brandId) {
     const integrations = await Integrations.find({ brandId });
 
     return { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
-  async integrationKindFilter(kind) {
+  // filter by integration kind
+  async integrationTypeFilter(kind) {
     const integrations = await Integrations.find({ kind });
 
     return { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
+  // filter by integration
   async integrationFilter(integration) {
     const integrations = await Integrations.find({
       kind: integration,
@@ -46,10 +49,12 @@ export default class Builder {
     return { integrationId: { $in: intersectionedIds } };
   }
 
+  // filter by tag
   async tagFilter(tag) {
     return { tagIds: [tag] };
   }
 
+  // filter by search value
   async searchFilter(value) {
     const fields = [
       { firstName: new RegExp(`.*${value}.*`, 'i') },
@@ -61,10 +66,12 @@ export default class Builder {
     return { $or: fields };
   }
 
+  // filter by id
   async idsFilter(ids) {
     return { _id: { $in: ids } };
   }
 
+  // filter by form
   async formFilter(formId, startDate, endDate) {
     const formObj = await Forms.findOne({ _id: formId });
     const { submissions = [] } = formObj;
@@ -131,7 +138,7 @@ export default class Builder {
 
     // filter by integration kind
     if (this.params.integrationType) {
-      this.queries.integrationType = await this.integrationKindFilter(this.params.integrationType);
+      this.queries.integrationType = await this.integrationTypeFilter(this.params.integrationType);
     }
 
     // filter by form

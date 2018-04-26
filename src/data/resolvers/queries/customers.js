@@ -66,6 +66,7 @@ const customerQueries = {
       contentType: COC_CONTENT_TYPES.CUSTOMER,
     });
 
+    // Count customers by segment
     for (let s of segments) {
       counts.bySegment[s._id] = await count(await qb.segmentFilter(s._id));
     }
