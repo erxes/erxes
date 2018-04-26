@@ -71,9 +71,7 @@ class ManageColumns extends Component {
   }
 
   onChangeFields(fields) {
-    this.setState({
-      fields
-    });
+    this.setState({ fields });
   }
 
   render() {
@@ -112,10 +110,9 @@ class ManageColumns extends Component {
 
         <SortableList
           fields={this.state.fields}
-          lockAxis="y"
           child={child}
-          useDragHandle
           onChangeFields={this.onChangeFields}
+          isModal={true}
         />
 
         <Footer>

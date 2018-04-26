@@ -1,24 +1,37 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { SortableList } from 'modules/common/components';
+import { Wrapper } from 'modules/layout/components';
+import {
+  DataWithLoader,
+  SortableList,
+  Button
+} from 'modules/common/components';
+import { collectOrders } from 'modules/deals/utils';
+import { PipelineForm } from '../containers';
 import { PipelineRow } from './';
 import { PipelineContainer } from '../styles';
-import { collectOrders } from 'modules/deals/utils';
 
 const propTypes = {
-  pipelines: PropTypes.array.isRequired,
+  pipelines: PropTypes.array,
   save: PropTypes.func,
   updateOrder: PropTypes.func,
-  remove: PropTypes.func
+  remove: PropTypes.func,
+  boardId: PropTypes.string,
+  loading: PropTypes.bool
 };
 
 class Pipelines extends Component {
   constructor(props) {
     super(props);
 
+    this.closeModal = this.closeModal.bind(this);
     this.onChangePipelines = this.onChangePipelines.bind(this);
 
-    this.state = { pipelines: props.pipelines };
+    this.state = {
+      showModal: false,
+      currentPipeline: null,
+      pipelines: props.pipelines
+    };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -27,21 +40,37 @@ class Pipelines extends Component {
     }
   }
 
+  closeModal() {
+    this.setState({ showModal: false });
+  }
+
+  addPipeline() {
+    this.setState({
+      showModal: true,
+      currentPipeline: null
+    });
+  }
+
+  editPipeline(pipeline) {
+    this.setState({
+      showModal: true,
+      currentPipeline: pipeline
+    });
+  }
+
   onChangePipelines(pipelines) {
     this.setState({ pipelines });
 
     this.props.updateOrder(collectOrders(pipelines));
   }
 
-  renderRow() {
-    const { save, remove } = this.props;
-
+  renderRows() {
     const child = pipeline => (
       <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
-        save={save}
-        remove={remove}
+        edit={() => this.editPipeline(pipeline)}
+        remove={this.props.remove}
       />
     );
 
@@ -51,8 +80,6 @@ class Pipelines extends Component {
       <SortableList
         fields={pipelines}
         child={child}
-        lockAxis="y"
-        useDragHandle
         onChangeFields={this.onChangePipelines}
       />
     );
@@ -60,19 +87,51 @@ class Pipelines extends Component {
 
   render() {
     const { __ } = this.context;
+    const { boardId, save, pipelines, loading } = this.props;
+    const { currentPipeline, showModal } = this.state;
+
+    const rightActionBar = (
+      <Button
+        btnStyle="success"
+        size="small"
+        icon="add"
+        onClick={() => this.addPipeline()}
+      >
+        Add pipeline
+      </Button>
+    );
+
+    const data = (
+      <Fragment>
+        <Wrapper.ActionBar right={rightActionBar} />
+        <PipelineContainer>
+          <ul>
+            <li>
+              <span>{__('Pipeline')}</span>
+            </li>
+          </ul>
+
+          <PipelineForm
+            boardId={boardId}
+            save={save}
+            pipeline={currentPipeline}
+            show={showModal}
+            closeModal={this.closeModal}
+          />
+
+          {this.renderRows()}
+        </PipelineContainer>
+      </Fragment>
+    );
 
     return (
-      <PipelineContainer>
-        <ul className="head">
-          <li>
-            <span>{__('Name')}</span>
-          </li>
-          <li>
-            <span>{__('Actions')}</span>
-          </li>
-        </ul>
-        {this.renderRow()}
-      </PipelineContainer>
+      <DataWithLoader
+        data={data}
+        loading={loading}
+        count={pipelines.length}
+        emptyText="There is no pipeline in this board."
+        emptyImage="/images/robots/robot-05.svg"
+      />
     );
   }
 }

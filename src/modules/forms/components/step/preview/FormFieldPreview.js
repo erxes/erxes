@@ -1,48 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  SortableContainer,
-  SortableElement,
-  SortableHandle,
-  arrayMove
-} from 'react-sortable-hoc';
-import { Icon } from 'modules/common/components';
-import { PreviewForm, DragableItem, DragHandler } from '../style';
+import { SortableList } from 'modules/common/components';
 import { FieldPreview } from './';
-
-const DragHandle = SortableHandle(() => (
-  <DragHandler>
-    <Icon icon="move" />
-  </DragHandler>
-));
-
-const FieldPreviewWrapper = props => (
-  <DragableItem>
-    <DragHandle />
-    <FieldPreview {...props} />
-  </DragableItem>
-);
-
-const SortableItem = SortableElement(FieldPreviewWrapper);
-
-const SortableList = SortableContainer(({ fields, onEdit }) => (
-  <PreviewForm>
-    {fields.map((field, index) => (
-      <SortableItem
-        key={`item-${index}`}
-        index={index}
-        field={field}
-        onEdit={onEdit}
-      />
-    ))}
-  </PreviewForm>
-));
 
 class FormFieldPreview extends Component {
   constructor(props) {
     super(props);
 
-    this.onSortEnd = this.onSortEnd.bind(this);
+    this.onChangeFields = this.onChangeFields.bind(this);
 
     this.state = {
       fields: props.fields
@@ -57,8 +22,7 @@ class FormFieldPreview extends Component {
     }
   }
 
-  onSortEnd({ oldIndex, newIndex }) {
-    const reOrderedFields = arrayMove(this.state.fields, newIndex, oldIndex);
+  onChangeFields(reOrderedFields) {
     const fields = [];
 
     reOrderedFields.forEach((field, index) => {
@@ -74,12 +38,21 @@ class FormFieldPreview extends Component {
   }
 
   render() {
+    const child = field => {
+      return (
+        <FieldPreview
+          key={field._id}
+          onEdit={this.props.onFieldEdit}
+          field={field}
+        />
+      );
+    };
+
     return (
       <SortableList
+        child={child}
         fields={this.state.fields}
-        onEdit={this.props.onFieldEdit}
-        onSortEnd={this.onSortEnd}
-        useDragHandle
+        onChangeFields={this.onChangeFields}
       />
     );
   }

@@ -41,10 +41,6 @@ class DealSectionContainer extends React.Component {
   render() {
     const { dealsQuery } = this.props;
 
-    if (dealsQuery.loading) {
-      return null;
-    }
-
     const deals = dealsQuery.deals || [];
 
     const extendedProps = {
