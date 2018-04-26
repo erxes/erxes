@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 import { colors } from '../common/styles';
 import { rgba, darken } from '../common/styles/color';
+import {
+  PopoverList as RootList,
+  PopoverFooter as RootFooter
+} from 'modules/common/components/filterableList/styles';
 
 const PopoverButton = styled.div`
   display: inline-block;
@@ -159,35 +163,17 @@ const PopoverHeader = styled.div`
   }
 `;
 
-const PopoverFooter = styled.div`
-  padding: 5px 0;
-  border-top: 1px solid ${colors.borderPrimary};
+const PopoverFooter = RootFooter.extend`
   align-self: flex-end;
   width: 100%;
 `;
 
-const PopoverList = styled.ul`
-  max-height: 275px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  overflow: auto;
+const PopoverList = RootList.extend`
   position: relative;
+  padding: 0;
 
   li {
-    position: relative;
-    display: block;
-    overflow: hidden;
-    padding: 5px 20px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-size: 13px;
     text-align: ${props => props.center && 'center'};
-
-    &:hover,
-    &:focus {
-      background: ${colors.bgLight};
-    }
 
     a {
       color: ${colors.colorCoreDarkGray};
