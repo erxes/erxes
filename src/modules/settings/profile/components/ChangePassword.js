@@ -6,7 +6,7 @@ import {
   FormControl,
   Button
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   save: PropTypes.func.isRequired

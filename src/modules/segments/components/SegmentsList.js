@@ -2,7 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Tip, ActionButtons, Button, Table } from 'modules/common/components';
+import {
+  Tip,
+  ActionButtons,
+  Button,
+  Table,
+  Label
+} from 'modules/common/components';
 
 const propTypes = {
   contentType: PropTypes.string.isRequired,
@@ -37,10 +43,14 @@ function SegmentsList({ contentType, segments, removeSegment }, { __ }) {
         {parentSegments.map(segment => (
           <tr key={segment._id}>
             <td>
-              {segment.subOf ? '\u2014\u2014' : null} {segment.name}
+              {segment.subOf ? '\u00a0\u00a0' : null} {segment.name}
             </td>
             <td>{segment.description}</td>
-            <td>{segment.color}</td>
+            <td>
+              <Label style={{ backgroundColor: segment.color }}>
+                {segment.color}
+              </Label>
+            </td>
             <td>
               <ActionButtons>
                 <Tip text={__('Edit')}>

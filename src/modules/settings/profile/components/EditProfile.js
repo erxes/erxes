@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button, ModalTrigger } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
 import { PasswordConfirmation } from './';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   currentUser: PropTypes.object.isRequired,

@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Alert } from 'modules/common/utils';
 import { Stage } from '../components';
 import { queries, mutations } from '../graphql';
-import { Alert } from 'modules/common/utils';
 import {
   collectOrders,
   saveDeal as save,

@@ -1,7 +1,6 @@
 import _ from 'underscore';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox } from 'react-bootstrap';
 import SelectBrand from './SelectBrand';
 import {
   Button,
@@ -9,7 +8,7 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 class Facebook extends Component {
   constructor(props, context) {
@@ -85,9 +84,14 @@ class Facebook extends Component {
 
           {pages.map(page => (
             <div key={page.id}>
-              <Checkbox name="pages" key={page.id} value={page.id}>
+              <FormControl
+                componentClass="checkbox"
+                name="pages"
+                key={page.id}
+                value={page.id}
+              >
                 {page.name}
-              </Checkbox>
+              </FormControl>
             </div>
           ))}
         </FormGroup>

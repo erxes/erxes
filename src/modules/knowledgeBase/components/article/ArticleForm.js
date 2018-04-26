@@ -11,9 +11,9 @@ import {
   ErxesEditor,
   toHTML,
   createStateFromHTML
-} from 'modules/common/components/Editor';
+} from 'modules/common/components/editor/Editor';
 import { EditorWrapper } from 'modules/engage/styles';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   article: PropTypes.object,

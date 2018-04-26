@@ -8,9 +8,9 @@ import {
   Label
 } from 'modules/common/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import { LoadMore, Title, Columns, Column } from 'modules/customers/styles';
+import { Title, Columns, Column } from 'modules/common/styles/chooser';
+import { ModalFooter, CenterContent } from 'modules/common/styles/main';
 import { BrandName, IntegrationName } from '../../styles';
-import { ModalFooter } from 'modules/common/styles/styles';
 
 const propTypes = {
   currentChannel: PropTypes.object,
@@ -166,7 +166,7 @@ class ManageIntegrationForm extends Component {
                 this.renderRow(integration, 'add')
               )}
               {this.state.hasMore && (
-                <LoadMore>
+                <CenterContent>
                   <Button
                     size="small"
                     btnStyle="primary"
@@ -175,7 +175,7 @@ class ManageIntegrationForm extends Component {
                   >
                     Load More
                   </Button>
-                </LoadMore>
+                </CenterContent>
               )}
             </ul>
           </Column>

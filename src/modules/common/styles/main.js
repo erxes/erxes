@@ -12,7 +12,6 @@ const FullContent = styled.div`
 
 const BoxRoot = styled.div`
   text-align: center;
-  display: inline-block;
   float: left;
   background: ${colors.colorLightBlue};
   box-shadow: 0 8px 5px ${rgba(colors.colorCoreGray, 0.08)};
@@ -134,13 +133,34 @@ const ModalFooter = styled.div`
   margin-top: 40px;
 `;
 
+const CenterContent = styled.div`
+  text-align: center;
+  margin-top: 10px;
+`;
+
+const ActivityContent = styled.div`
+  position: relative;
+  height: ${props => props.isEmpty && '360px'};
+`;
+
+const Well = styled.div`
+  min-height: ${dimensions.coreSpacing};
+  padding: ${dimensions.unitSpacing} ${dimensions.coreSpacing};
+  margin-bottom: ${dimensions.coreSpacing};
+  background-color: ${colors.bgActive};
+  border-left: 2px solid ${colors.colorSecondary};
+`;
+
 export {
   BoxRoot,
   FullContent,
   ModalFooter,
   InfoWrapper,
   Links,
+  Well,
   FormWrapper,
   FormColumn,
-  ColumnTitle
+  ColumnTitle,
+  CenterContent,
+  ActivityContent
 };

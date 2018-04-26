@@ -89,7 +89,7 @@ class StatusFilterPopover extends Component {
       return (
         <Popover id="filter-popover" title={__('Filter by status')}>
           <LoaderWrapper>
-            <Spinner />
+            <Spinner objective />
           </LoaderWrapper>
         </Popover>
       );

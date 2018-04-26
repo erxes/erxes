@@ -91,7 +91,7 @@ class StagesWithPipeline extends React.Component {
     const { stagesQuery } = this.props;
 
     if (stagesQuery.loading) {
-      return <Spinner objective />;
+      return <Spinner />;
     }
 
     const stages = stagesQuery.dealStages;

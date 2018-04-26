@@ -41,71 +41,8 @@ const ConversationWrapper = styled.div`
   background: ${colors.bgLight};
 `;
 
-const RichEditorRoot = styled.div`
-  font-size: 14px;
-
-  .RichEditor-editor {
-    border-top: 1px solid ${colors.borderPrimary};
-    cursor: text;
-
-    .public-DraftEditorPlaceholder-root {
-      padding: 15px 20px;
-      position: absolute;
-      color: ${colors.colorCoreGray};
-      font-size: 13px;
-    }
-
-    .public-DraftEditorPlaceholder-inner {
-      color: ${colors.colorCoreLightGray};
-    }
-
-    .public-DraftEditor-content {
-      font-size: 13px;
-      min-height: 100px;
-      padding: 15px 20px;
-    }
-  }
-
-  .RichEditor-controls {
-    float: left;
-    font-size: 14px;
-    user-select: none;
-    margin-bottom: 5px;
-  }
-`;
-
-const RichEditorControlsRoot = styled.div`
-  overflow: hidden;
-  padding: 7px 20px 0;
-`;
-
 const RichEditorRight = styled.div`
   float: right;
-`;
-
-const RichEditorControls = styled.div`
-  float: left;
-  font-size: 14px;
-  user-select: none;
-  margin-bottom: 5px;
-
-  .RichEditor-styleButton {
-    color: ${colors.colorCoreGray};
-    cursor: pointer;
-    margin-right: 16px;
-    padding: 2px 0;
-    display: inline-block;
-    min-width: 10px;
-    text-align: center;
-
-    &:hover {
-      color: ${rgba(colors.colorPrimary, 0.7)};
-    }
-  }
-
-  .RichEditor-activeButton {
-    color: ${colors.colorPrimary};
-  }
 `;
 
 const ResponseSuggestions = styled.ul`
@@ -118,7 +55,7 @@ const ResponseSuggestions = styled.ul`
   width: 100%;
   list-style-type: none;
   background: ${colors.colorWhite};
-  box-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 -3px 20px -2px ${colors.darkShadow};
 `;
 
 const ResponseSuggestionItem = styled.li`
@@ -130,25 +67,21 @@ const ResponseSuggestionItem = styled.li`
   text-overflow: ellipsis;
 
   :hover {
-    background-color: #f6f8fb;
+    background-color: ${colors.bgUnread};
   }
 
   strong {
-    color: #ec8d17;
+    color: ${colors.colorCoreRed};
   }
 `;
 
 const RespondBoxStyled = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
   position: relative;
   transition: background 0.3s ease;
   background: ${props =>
     props.isInternal ? colors.bgInternal : colors.colorWhite};
-
   filter: ${props => props.isInactive && 'blur(2px)'};
-
-  ${RichEditorRoot} {
-    border-top: 1px solid ${colors.borderPrimary};
-  }
 `;
 
 const ResponseTemplateStyled = styled.div`
@@ -185,7 +118,6 @@ const EditorActions = styled.div`
     &:first-of-type {
       position: absolute;
       left: 20px;
-      bottom: 20px;
     }
   }
 
@@ -220,23 +152,16 @@ const InlineHeaderSpan = styled.span`
 `;
 
 const PopoverHeader = styled.div`
-  background-color: #f7f7f7;
-  padding: 5px;
+  background-color: ${colors.bgLight};
 
   input[type='text'] {
-    padding: 4px 8px;
-    font-size: 13px;
-
-    &:focus {
-      border-color: ${colors.borderDarker};
-      box-shadow: none;
-    }
+    padding: 4px 8px 4px 20px;
   }
 `;
 
 const PopoverFooter = styled.div`
   padding: 5px 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid ${colors.borderPrimary};
   align-self: flex-end;
   width: 100%;
 `;
@@ -265,7 +190,7 @@ const PopoverList = styled.ul`
     }
 
     a {
-      color: #383838;
+      color: ${colors.colorCoreDarkGray};
     }
   }
 `;
@@ -285,17 +210,10 @@ const PopoverBody = styled.div`
       white-space: normal;
       font-size: 12px;
       padding: 10px 20px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid ${colors.borderPrimary};
 
       &:hover {
         cursor: pointer;
-      }
-    }
-
-    .linked {
-      li {
-        padding: 0;
-        border-bottom: 0;
       }
     }
   }
@@ -420,9 +338,6 @@ export {
   PopoverButton,
   ConversationWrapper,
   RespondBoxStyled,
-  RichEditorRoot,
-  RichEditorControlsRoot,
-  RichEditorControls,
   ResponseSuggestions,
   ResponseSuggestionItem,
   EditorActions,

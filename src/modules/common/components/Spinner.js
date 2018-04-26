@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import Rotate from '../utils/animateRotate';
+import { rotate } from 'modules/common/utils/animations';
 import { colors } from '../styles';
 
 const size = 26;
@@ -31,7 +31,7 @@ const LineMask = styled.div`
   opacity: 0.8;
 
   &.one {
-    animation: ${Rotate} 1.8s -1.4s infinite linear;
+    animation: ${rotate} 1.8s -1.4s infinite linear;
 
     ${Line} {
       box-shadow: inset 0 0 0 2px ${colors.colorCoreYellow};
@@ -39,7 +39,7 @@ const LineMask = styled.div`
   }
 
   &.two {
-    animation: ${Rotate} 1.6s -1s infinite linear;
+    animation: ${rotate} 1.6s -1s infinite linear;
 
     ${Line} {
       box-shadow: inset 0 0 0 2px ${colors.colorPrimary};
@@ -47,7 +47,7 @@ const LineMask = styled.div`
   }
 
   &.three {
-    animation: ${Rotate} 1.8s -0.5s infinite linear;
+    animation: ${rotate} 1.8s -0.5s infinite linear;
 
     ${Line} {
       box-shadow: inset 0 0 0 2px ${colors.colorCoreRed};
@@ -55,7 +55,7 @@ const LineMask = styled.div`
   }
 
   &.four {
-    animation: ${Rotate} 1.6s infinite linear;
+    animation: ${rotate} 1.6s infinite linear;
 
     ${Line} {
       box-shadow: inset 0 0 0 2px ${colors.colorSecondary};

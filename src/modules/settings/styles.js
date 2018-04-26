@@ -167,14 +167,6 @@ const SubItem = styled.div`
   margin-bottom: ${coreSpace};
 `;
 
-const Well = styled.div`
-  min-height: ${coreSpace};
-  padding: ${unitSpace} ${coreSpace};
-  margin-bottom: ${coreSpace};
-  background-color: ${colors.bgActive};
-  border-left: 2px solid ${colors.colorSecondary};
-`;
-
 const BackgroundSelector = styled.div`
   border: 3px solid transparent;
   margin-right: 15px;
@@ -371,7 +363,6 @@ export {
   MarkdownWrapper,
   InlineItems,
   SubItem,
-  Well,
   Margined,
   WidgetApperance,
   WidgetPreviewStyled,

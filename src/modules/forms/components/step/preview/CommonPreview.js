@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { keyframes } from 'styled-components';
+import {
+  slideDown,
+  slideLeft,
+  slideRight
+} from 'modules/common/utils/animations';
 import { Button } from 'modules/common/components';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import {
@@ -21,50 +25,6 @@ import {
   Embedded
 } from '../style';
 
-const slideright = keyframes`
-  0% {
-    transform: translateX(-20px);
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-`;
-
-const sliderTop = keyframes`
-  0% {
-    opacity: 0.7;
-    height: 0px;
-  }
-  100% {
-    opacity: 1;
-    height: auto;
-  }
-`;
-
-const sliderleft = keyframes`
-  0% {
-    transform: translateX(-20px);
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-`;
-
-const sliderRight = keyframes`
-  0% {
-    transform: translateX(20px);
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-`;
-
 const ShoutBox = MessengerPreview.extend`
   height: 100%;
   min-height: 470px;
@@ -78,7 +38,7 @@ const WidgetPreview = WidgetPreviewStyled.extend`
 `;
 
 const Widget = Messenger.extend`
-  animation: ${slideright} 0.5s linear;
+  animation: ${slideRight} 0.5s linear;
   background: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0) 30%,
@@ -93,7 +53,7 @@ const Container = CenterContainer.extend`
 `;
 
 const Dropdown = DropdownContent.extend`
-  animation: ${sliderTop} 0.5s linear;
+  animation: ${slideDown} 0.5s linear;
   position: relative;
   transition: all 0.2s linear;
   flex: inherit;
@@ -102,7 +62,7 @@ const Dropdown = DropdownContent.extend`
 `;
 
 const SlideLeft = SlideLeftContent.extend`
-  animation: ${sliderleft} 0.5s linear;
+  animation: ${slideLeft} 0.5s linear;
 `;
 
 const SlideRightContent = SlideLeftContent.extend`
@@ -111,7 +71,7 @@ const SlideRightContent = SlideLeftContent.extend`
 `;
 
 const SlideRight = SlideRightContent.extend`
-  animation: ${sliderRight} 0.5s linear;
+  animation: ${slideRight} 0.5s linear;
   box-shadow: -3px 0px 5px rgba(0, 0, 0, 0.25);
 `;
 

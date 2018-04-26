@@ -8,19 +8,18 @@ import { Container, Header, Body } from '../styles/pipeline';
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
   stages: PropTypes.array,
-  collectDeals: PropTypes.func,
-  dealResult: PropTypes.object,
-  addToDeals: PropTypes.func,
   expanded: PropTypes.bool
+};
+
+const defaultProps = {
+  stages: []
 };
 
 class Pipeline extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      expanded: props.expanded
-    };
+    this.state = { expanded: props.expanded };
 
     this.togglePipeline = this.togglePipeline.bind(this);
   }
@@ -104,3 +103,4 @@ class Pipeline extends React.Component {
 export default Pipeline;
 
 Pipeline.propTypes = propTypes;
+Pipeline.defaultProps = defaultProps;

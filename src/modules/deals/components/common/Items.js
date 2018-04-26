@@ -11,7 +11,8 @@ const propTypes = {
 };
 
 const defaultProps = {
-  uppercase: false
+  uppercase: false,
+  items: []
 };
 
 const Item = styled.li`

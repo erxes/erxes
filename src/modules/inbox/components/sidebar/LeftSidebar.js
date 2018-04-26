@@ -167,8 +167,8 @@ class LeftSidebar extends Bulk {
       conversations,
       onChangeConversation,
       currentConversationId,
-      totalCount,
-      loading
+      loading,
+      totalCount
     } = this.props;
 
     return (
@@ -193,7 +193,7 @@ class LeftSidebar extends Bulk {
               image="/images/robots/robot-02.svg"
             />
           )}
-        <LoadMore all={totalCount} />
+        <LoadMore all={totalCount} loading={loading} />
       </Sidebar>
     );
   }

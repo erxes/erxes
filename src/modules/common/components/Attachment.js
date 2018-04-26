@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, ImageWithPreview } from 'modules/common/components';
 
+const sizing = 30;
+
 const Overlay = styled.a`
   opacity: 0;
   width: 100%;
@@ -17,11 +19,11 @@ const Overlay = styled.a`
   > div {
     position: absolute;
     color: #fff;
-    width: 30px;
-    height: 30px;
+    width: ${sizing}px;
+    height: ${sizing}px;
     text-align: center;
-    border-radius: 15px;
-    line-height: 28px;
+    border-radius: ${sizing / 2}px;
+    line-height: ${sizing - 2}pxpx;
     left: 50%;
     top: 50%;
     border: 1px solid #fff;
