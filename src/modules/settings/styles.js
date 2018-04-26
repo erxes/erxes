@@ -133,8 +133,9 @@ const SubHeading = styled.h4`
 
 const MarkdownWrapper = styled.div`
   position: relative;
-  background: ${colors.bgLight};
+  background: ${colors.colorWhite};
   border: 1px solid ${colors.colorShadowGray};
+  border-radius: 2px;
 
   > div {
     background: none;
@@ -149,6 +150,7 @@ const MarkdownWrapper = styled.div`
   pre {
     border: none;
     background: none;
+    margin: 0;
   }
 `;
 

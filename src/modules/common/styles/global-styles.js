@@ -156,6 +156,10 @@ injectGlobal`
   }
 
   /* tooltip */
+  .tooltip {
+    font-family: 'Montserrat', 'PT Sans Caption', 'Arial',  sans-serif;
+  }
+
   .tooltip-inner {
     background-color: ${colors.colorWhite};
     color: ${colors.colorCoreDarkGray};
@@ -663,6 +667,11 @@ injectGlobal`
     border-top: 1px solid ${colors.borderPrimary};
     border-bottom: 1px solid ${colors.borderPrimary};
     margin-bottom: 10px;
+
+    ul {
+      padding-top: 0;
+      max-height: none;
+    }
   }
 
   .sidebar-accordion .popover-header {
