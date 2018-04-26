@@ -1,15 +1,10 @@
-import React, { Component } from 'react';
-import styled from 'styled-components';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { Button, EmptyState } from 'modules/common/components';
-import { MarkdownWrapper } from '../styles';
-
-const ModalFooter = styled.div`
-  text-align: right;
-  margin-top: 40px;
-`;
+import { MarkdownWrapper } from 'modules/settings/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   integration: PropTypes.object.isRequired
@@ -67,7 +62,7 @@ class Manage extends Component {
 
   render() {
     return (
-      <div>
+      <Fragment>
         <MarkdownWrapper>
           <ReactMarkdown source={this.state.code} />
           {this.state.code ? (
@@ -93,7 +88,7 @@ class Manage extends Component {
             Cancel
           </Button>
         </ModalFooter>
-      </div>
+      </Fragment>
     );
   }
 }
