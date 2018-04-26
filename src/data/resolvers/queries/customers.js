@@ -49,7 +49,7 @@ const customerQueries = {
       byForm: {},
     };
 
-    const selector = await buildQuery(params);
+    let selector = await buildQuery(params);
 
     const count = query => {
       const findQuery = Object.assign({}, selector, query);
@@ -101,10 +101,9 @@ const customerQueries = {
     const forms = await Forms.find({});
 
     for (let form of forms) {
-      const formObj = await Forms.findOne({ _id: form._id });
-      const { submissions = [] } = formObj;
+      selector = await buildQuery({ ...params, form: form._id });
 
-      counts.byForm[form._id] = submissions.length;
+      counts.byForm[form._id] = await count(selector);
     }
 
     return counts;
