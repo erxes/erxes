@@ -35,6 +35,7 @@ const Container = styled.div`
   outline: 0;
   border-radius: ${borderRadius};
   background-color: ${colors.colorWhite};
+  transition: box-shadow 0.3s ease-in-out;
   box-shadow: ${props =>
     props.isDragging
       ? `10px 15px 35px 4px rgba(0, 0, 0, 0.2)`
