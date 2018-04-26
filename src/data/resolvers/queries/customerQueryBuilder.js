@@ -3,86 +3,79 @@ import moment from 'moment';
 import { Integrations, Segments, Forms } from '../../../db/models';
 import QueryBuilder from './segmentQueryBuilder';
 
-export const buildQuery = async params => {
-  // exclude empty customers =========
-  // for engage purpose we are creating this kind of customer
-  const emptySelector = { $in: [null, ''] };
+export default class Builder {
+  constructor(params, user = null) {
+    this.params = params;
+    this.user = user;
+  }
 
-  let selector = {
-    $nor: [
-      {
-        firstName: emptySelector,
-        lastName: emptySelector,
-        email: emptySelector,
-        visitorContactInfo: null,
-      },
-    ],
-  };
-
-  // Filter by segments
-  if (params.segment) {
-    const segment = await Segments.findOne({ _id: params.segment });
+  // filter by tag
+  async segmentFilter(segmentId) {
+    const segment = await Segments.findOne({ _id: segmentId });
     const query = QueryBuilder.segments(segment);
-    Object.assign(selector, query);
+
+    return query;
   }
 
-  // filter by brand
-  if (params.brand) {
-    const integrations = await Integrations.find({ brandId: params.brand });
-    selector.integrationId = { $in: integrations.map(i => i._id) };
+  async brandFilter(brandId) {
+    const integrations = await Integrations.find({ brandId });
+
+    return { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
-  // filter by integration
-  if (params.integration) {
+  async integrationKindFilter(kind) {
+    const integrations = await Integrations.find({ kind });
+
+    return { integrationId: { $in: integrations.map(i => i._id) } };
+  }
+
+  async integrationFilter(integration) {
     const integrations = await Integrations.find({
-      kind: params.integration,
+      kind: integration,
     });
     /**
      * Since both of brand and integration filters use a same integrationId field
      * we need to intersect two arrays of integration ids.
      */
     const ids = integrations.map(i => i._id);
-    const intersectionedIds = selector.integrationId
-      ? _.intersection(ids, selector.integrationId.$in)
+
+    const intersectionedIds = this.queries.integrationId
+      ? _.intersection(ids, this.queries.integrationId.$in)
       : ids;
 
-    selector.integrationId = { $in: intersectionedIds };
+    return { integrationId: { $in: intersectionedIds } };
   }
 
-  // Filter by tag
-  if (params.tag) {
-    selector.tagIds = params.tag;
+  async tagFilter(tag) {
+    return { tagIds: [tag] };
   }
 
-  // search =========
-  if (params.searchValue) {
+  async searchFilter(value) {
     const fields = [
-      { firstName: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { lastName: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { email: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { phone: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { firstName: new RegExp(`.*${value}.*`, 'i') },
+      { lastName: new RegExp(`.*${value}.*`, 'i') },
+      { email: new RegExp(`.*${value}.*`, 'i') },
+      { phone: new RegExp(`.*${value}.*`, 'i') },
     ];
 
-    selector = { $or: fields };
+    return { $or: fields };
   }
 
-  let ids = [];
-
-  // filter directly using ids
-  if (params.ids) {
-    ids = [...params.ids];
+  async idsFilter(ids) {
+    return { _id: { $in: ids } };
   }
 
-  // filter customers by submitted form
-  if (params.form) {
-    const formObj = await Forms.findOne({ _id: params.form });
+  async formFilter(formId, startDate, endDate) {
+    const formObj = await Forms.findOne({ _id: formId });
+    const { submissions = [] } = formObj;
+    const ids = [];
 
-    for (let submission of formObj.submissions) {
+    for (let submission of submissions) {
       const { customerId, submittedAt } = submission;
 
       // Collecting customerIds inbetween dates only
-      if (params.startDate && params.endDate) {
-        if (moment(submittedAt).isBetween(moment(params.startDate), moment(params.endDate))) {
+      if (startDate && endDate) {
+        if (moment(submittedAt).isBetween(moment(startDate), moment(endDate))) {
           if (!ids.includes(customerId)) {
             ids.push(customerId);
           }
@@ -93,11 +86,89 @@ export const buildQuery = async params => {
         ids.push(customerId);
       }
     }
+
+    return { _id: { $in: ids } };
+  }
+  /*
+   * prepare all queries. do not do any action
+   */
+  async buildAllQueries() {
+    this.queries = {
+      segment: {},
+      tag: {},
+      ids: {},
+      searchValue: {},
+      brand: {},
+      integration: {},
+      form: {},
+      integrationType: {},
+    };
+
+    // filter by segment
+    if (this.params.segment) {
+      this.queries.segment = await this.segmentFilter(this.params.segment);
+    }
+
+    // filter by tag
+    if (this.params.tag) {
+      this.queries.tag = await this.tagFilter(this.params.tag);
+    }
+
+    // filter by ids
+    if (this.params.ids) {
+      this.queries.ids = await this.idsFilter(this.params.ids);
+    }
+
+    // filter by searchValue
+    if (this.params.segment) {
+      this.queries.segment = await this.segmentFilter(this.params.segment);
+    }
+
+    // filter by brand
+    if (this.params.brand) {
+      this.queries.brand = await this.brandFilter(this.params.brand);
+    }
+
+    // filter by integration kind
+    if (this.params.integrationType) {
+      this.queries.integrationType = await this.integrationKindFilter(this.params.integrationType);
+    }
+
+    // filter by form
+    if (this.params.form) {
+      this.queries.form = await this.formFilter(this.params.form);
+
+      if (this.params.startDate && this.params.endDate) {
+        this.queries.form = await this.formFilter(
+          this.params.form,
+          this.params.startDate,
+          this.params.endDate,
+        );
+      }
+    }
+
+    // filter by integration
+    if (this.params.integration) {
+      this.queries.integration = await this.integrationFilter(this.params.integration);
+    }
+
+    // filter by search value
+    if (this.params.searchValue) {
+      this.queries.searchValue = await this.searchFilter(this.params.searchValue);
+    }
   }
 
-  if (params.ids || params.form) {
-    selector._id = { $in: ids };
+  mainQuery() {
+    return {
+      ...this.queries.segment,
+      ...this.queries.tag,
+      ...this.queries.ids,
+      ...this.queries.segment,
+      ...this.queries.brand,
+      ...this.queries.integrationType,
+      ...this.queries.form,
+      ...this.queries.integration,
+      ...this.queries.searchValue,
+    };
   }
-
-  return selector;
-};
+}
