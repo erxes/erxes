@@ -1,8 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Filter, Sidebar } from './';
-import { InsightTitle, InsightWrapper } from '../styles';
+import { Spinner } from 'modules/common/components';
+import { Filter, Sidebar, PunchCard } from './';
+import {
+  InsightTitle,
+  InsightWrapper,
+  InsightRow,
+  LoaderWrapper
+} from '../styles';
 
 const propTypes = {
   brands: PropTypes.array.isRequired,
@@ -32,6 +38,21 @@ class CommonReport extends Component {
         {__(title)}
         {time ? <span>({time})</span> : null}
       </InsightTitle>
+    );
+  }
+
+  renderPunchCard(loading, punch, width) {
+    return (
+      <InsightRow>
+        {this.renderTitle('Punch card')}
+        {!loading.punch ? (
+          <PunchCard data={punch} width={width} />
+        ) : (
+          <LoaderWrapper>
+            <Spinner objective />
+          </LoaderWrapper>
+        )}
+      </InsightRow>
     );
   }
 

@@ -57,16 +57,7 @@ class ResponseReport extends CommonReport {
           />
         </InsightRow>
 
-        <InsightRow>
-          {this.renderTitle('Punch card')}
-          {!loading.punch ? (
-            <PunchCard data={punch} width={width} />
-          ) : (
-            <LoaderWrapper>
-              <Spinner objective />
-            </LoaderWrapper>
-          )}
-        </InsightRow>
+        {this.renderPunchCard(loading, punch, width)}
 
         <InsightRow>
           {this.renderTitle('Response by team members')}

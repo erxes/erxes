@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Spinner } from 'modules/common/components';
 import CommonReport from './CommonReport';
-import { Chart, Summary, PunchCard, Insights } from './';
-import { InsightRow, InsightContent, LoaderWrapper } from '../styles';
+import { Chart, Summary, Insights } from './';
+import { InsightRow, InsightContent } from '../styles';
 
 const propTypes = {
   insights: PropTypes.array.isRequired,
@@ -57,16 +56,7 @@ class VolumeReport extends CommonReport {
           />
         </InsightRow>
 
-        <InsightRow>
-          {this.renderTitle('Punch card')}
-          {!loading.punch ? (
-            <PunchCard data={punch} width={width} />
-          ) : (
-            <LoaderWrapper>
-              <Spinner objective />
-            </LoaderWrapper>
-          )}
-        </InsightRow>
+        {this.renderPunchCard(loading, punch, width)}
 
         <InsightRow>
           {this.renderTitle('Insights')}
