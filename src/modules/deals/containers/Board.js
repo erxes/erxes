@@ -81,8 +81,7 @@ export default compose(
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
     options: ({ currentBoard }) => ({
-      variables: { boardId: currentBoard ? currentBoard._id : '' },
-      fetchPolicy: 'cache-and-network'
+      variables: { boardId: currentBoard ? currentBoard._id : '' }
     })
   })
 )(BoardContainer);
