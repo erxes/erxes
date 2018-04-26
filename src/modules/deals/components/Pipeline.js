@@ -28,23 +28,19 @@ class Pipeline extends React.Component {
     const { stages } = this.props;
     const length = stages.length;
 
-    const stagesContent = [];
-
-    for (let index = 0; index < stages.length; index++) {
-      const stage = stages[index];
-
-      stagesContent.push(
-        <Stage
-          key={stage._id}
-          stageId={stage._id}
-          index={index}
-          length={length}
-          state={this.props[`stageState${stage._id}`]}
-        />
-      );
-    }
-
-    let content = <div> {stagesContent} </div>;
+    let content = (
+      <div>
+        {stages.map((stage, index) => (
+          <Stage
+            key={stage._id}
+            stageId={stage._id}
+            index={index}
+            length={length}
+            state={this.props[`stageState${stage._id}`]}
+          />
+        ))}
+      </div>
+    );
 
     if (stages.length === 0) {
       content = <EmptyState size="full" text="No stage" icon="layout" />;

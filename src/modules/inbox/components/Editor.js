@@ -16,7 +16,7 @@ import {
   ErxesEditor,
   toHTML,
   createStateFromHTML
-} from 'modules/common/components/Editor';
+} from 'modules/common/components/editor/Editor';
 
 import { ResponseSuggestions, ResponseSuggestionItem } from '../styles';
 

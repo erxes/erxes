@@ -58,7 +58,8 @@ injectGlobal`
   }
 
   .modal-dialog {
-    margin: 50px auto;
+    padding: 50px 0;
+    margin: 0 auto;
   }
 
   .modal-dialog.full {
@@ -155,6 +156,10 @@ injectGlobal`
   }
 
   /* tooltip */
+  .tooltip {
+    font-family: 'Montserrat', 'PT Sans Caption', 'Arial',  sans-serif;
+  }
+
   .tooltip-inner {
     background-color: ${colors.colorWhite};
     color: ${colors.colorCoreDarkGray};
@@ -195,7 +200,7 @@ injectGlobal`
   /* popover */
 
   .popover {
-    font-family: 'Montserrat','Helvetica Neue','Helvetica','Arial', sans-serif;
+    font-family: 'Montserrat', 'PT Sans Caption', 'Arial',  sans-serif;
     border: none;
     border-radius: 0;
     font-size: inherit;
@@ -662,6 +667,11 @@ injectGlobal`
     border-top: 1px solid ${colors.borderPrimary};
     border-bottom: 1px solid ${colors.borderPrimary};
     margin-bottom: 10px;
+
+    ul {
+      padding-top: 0;
+      max-height: none;
+    }
   }
 
   .sidebar-accordion .popover-header {

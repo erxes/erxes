@@ -133,8 +133,9 @@ const SubHeading = styled.h4`
 
 const MarkdownWrapper = styled.div`
   position: relative;
-  background: ${colors.bgLight};
+  background: ${colors.colorWhite};
   border: 1px solid ${colors.colorShadowGray};
+  border-radius: 2px;
 
   > div {
     background: none;
@@ -149,6 +150,7 @@ const MarkdownWrapper = styled.div`
   pre {
     border: none;
     background: none;
+    margin: 0;
   }
 `;
 
@@ -165,14 +167,6 @@ const InlineItems = styled.div`
 
 const SubItem = styled.div`
   margin-bottom: ${coreSpace};
-`;
-
-const Well = styled.div`
-  min-height: ${coreSpace};
-  padding: ${unitSpace} ${coreSpace};
-  margin-bottom: ${coreSpace};
-  background-color: ${colors.bgActive};
-  border-left: 2px solid ${colors.colorSecondary};
 `;
 
 const BackgroundSelector = styled.div`
@@ -371,7 +365,6 @@ export {
   MarkdownWrapper,
   InlineItems,
   SubItem,
-  Well,
   Margined,
   WidgetApperance,
   WidgetPreviewStyled,

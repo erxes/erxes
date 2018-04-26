@@ -4,11 +4,11 @@ import styled from 'styled-components';
 import { Tip } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 
-const Spacing = 30;
+const spacing = 30;
 
 const ParticipatorWrapper = styled.div`
   display: inline-block;
-  margin-left: ${Spacing}px;
+  margin-left: ${spacing}px;
 
   &:hover {
     cursor: pointer;
@@ -16,8 +16,8 @@ const ParticipatorWrapper = styled.div`
 `;
 
 const ParticipatorImg = styled.img`
-  width: ${Spacing}px;
-  height: ${Spacing}px;
+  width: ${spacing}px;
+  height: ${spacing}px;
   border-radius: 15px;
   display: inline-block;
   border: 2px solid ${colors.colorWhite};
@@ -30,7 +30,7 @@ const More = ParticipatorImg.withComponent('span').extend`
   vertical-align: middle;
   font-size: 10px;
   background: ${colors.colorCoreLightGray};
-  line-height: ${Spacing - 2}px;
+  line-height: ${spacing - 2}px;
 `;
 
 class Participators extends Component {

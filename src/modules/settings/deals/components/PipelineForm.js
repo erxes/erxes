@@ -10,14 +10,11 @@ import {
 import { Stages } from './';
 
 const propTypes = {
+  show: PropTypes.bool,
   boardId: PropTypes.string,
   pipeline: PropTypes.object,
   stages: PropTypes.array,
   save: PropTypes.func.isRequired,
-  loading: PropTypes.bool
-};
-
-const contextTypes = {
   closeModal: PropTypes.func.isRequired
 };
 
@@ -25,11 +22,10 @@ class PipelineForm extends Component {
   constructor(props) {
     super(props);
 
-    this.generateDoc = this.generateDoc.bind(this);
     this.save = this.save.bind(this);
     this.onChangeStages = this.onChangeStages.bind(this);
-    this.renderStages = this.renderStages.bind(this);
-    this.renderContent = this.renderContent.bind(this);
+    this.generateDoc = this.generateDoc.bind(this);
+
     this.state = { stages: (props.stages || []).map(stage => ({ ...stage })) };
   }
 
@@ -40,11 +36,9 @@ class PipelineForm extends Component {
   save(e) {
     e.preventDefault();
 
-    this.props.save(
-      this.generateDoc(),
-      () => this.context.closeModal(),
-      this.props.pipeline
-    );
+    const { save, closeModal, pipeline } = this.props;
+
+    save(this.generateDoc(), () => closeModal(), pipeline);
   }
 
   generateDoc() {
@@ -59,16 +53,9 @@ class PipelineForm extends Component {
     };
   }
 
-  renderStages() {
-    return (
-      <Stages stages={this.state.stages} onChangeStages={this.onChangeStages} />
-    );
-  }
-
   renderContent() {
     const { pipeline } = this.props;
-
-    const object = pipeline || {};
+    const { stages } = this.state;
 
     return (
       <div>
@@ -77,41 +64,56 @@ class PipelineForm extends Component {
 
           <FormControl
             id="pipeline-name"
-            defaultValue={object.name}
+            defaultValue={pipeline ? pipeline.name : ''}
             type="text"
+            autoFocus
             required
           />
         </FormGroup>
-        {this.renderStages()}
+
+        <Stages stages={stages} onChangeStages={this.onChangeStages} />
       </div>
     );
   }
 
   render() {
+    const { show, pipeline, closeModal } = this.props;
+
+    if (!show) return null;
+
     return (
-      <form onSubmit={this.save}>
-        {this.renderContent()}
+      <Modal show={show} onHide={closeModal}>
+        <form onSubmit={this.save}>
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {pipeline ? 'Edit pipeline' : 'Add pipeline'}
+            </Modal.Title>
+          </Modal.Header>
 
-        <Modal.Footer>
-          <Button
-            btnStyle="simple"
-            type="button"
-            icon="cancel-1"
-            onClick={() => this.context.closeModal()}
-          >
-            Cancel
-          </Button>
+          <Modal.Body>
+            {this.renderContent()}
 
-          <Button btnStyle="success" icon="checked-1" type="submit">
-            Save
-          </Button>
-        </Modal.Footer>
-      </form>
+            <Modal.Footer>
+              <Button
+                btnStyle="simple"
+                type="button"
+                icon="cancel-1"
+                onClick={() => closeModal()}
+              >
+                Cancel
+              </Button>
+
+              <Button btnStyle="success" icon="checked-1" type="submit">
+                Save
+              </Button>
+            </Modal.Footer>
+          </Modal.Body>
+        </form>
+      </Modal>
     );
   }
 }
 
 PipelineForm.propTypes = propTypes;
-PipelineForm.contextTypes = contextTypes;
 
 export default PipelineForm;
