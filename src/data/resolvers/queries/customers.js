@@ -102,9 +102,9 @@ const customerQueries = {
 
     for (let form of forms) {
       const formObj = await Forms.findOne({ _id: form._id });
-      const { submittedCustomerIds = [] } = formObj;
+      const { submissions = [] } = formObj;
 
-      counts.byForm[form._id] = submittedCustomerIds.length;
+      counts.byForm[form._id] = submissions.length;
     }
 
     return counts;

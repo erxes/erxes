@@ -1,7 +1,13 @@
 import _ from 'underscore';
-import { Integrations, Segments, Forms, Conversations } from '../../../db/models';
+import moment from 'moment';
+import {
+  Integrations,
+  Segments,
+  Forms,
+  // Conversations
+} from '../../../db/models';
 import QueryBuilder from './segmentQueryBuilder';
-import { fixDate } from './insightUtils';
+// import { fixDate } from './insightUtils';
 
 export const buildQuery = async params => {
   // exclude empty customers =========
@@ -73,31 +79,26 @@ export const buildQuery = async params => {
 
   // filter customers by submitted form
   if (params.form) {
+    let customerIds = [];
+
     const formObj = await Forms.findOne({ _id: params.form });
 
-    selector = { _id: { $in: formObj.submittedCustomerIds || [] } };
+    for (let submission of formObj.submissions) {
+      const { customerId, submittedAt } = submission;
 
-    if (params.startDate && params.endDate) {
-      const customerIds = [];
-
-      const integrationObj = await Integrations.findOne({
-        formId: formObj._id,
-      });
-
-      const conversations = await Conversations.find({
-        integrationId: integrationObj._id,
-        createdAt: {
-          $gte: fixDate(params.startDate),
-          $lte: fixDate(params.endDate),
-        },
-      });
-
-      for (let conversation of conversations) {
-        customerIds.push(conversation.customerId);
+      if (params.startDate && params.endDate) {
+        if (moment(submittedAt).isBetween(moment(params.startDate), moment(params.endDate))) {
+          customerIds.push(customerId);
+        }
+      } else {
+        customerIds.push(customerId);
       }
-
-      selector = { _id: { $in: customerIds } };
     }
+
+    // Removing duplicated customerIds from array
+    customerIds = Array.from(new Set(customerIds));
+
+    selector = { _id: { $in: customerIds } };
   }
 
   return selector;
