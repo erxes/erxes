@@ -1,11 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import {
-  DataWithLoader,
-  SortableList,
-  Button
-} from 'modules/common/components';
+import { EmptyState, SortableList, Button } from 'modules/common/components';
 import { collectOrders } from 'modules/deals/utils';
 import { PipelineForm } from '../containers';
 import { PipelineRow } from './';
@@ -16,8 +12,7 @@ const propTypes = {
   save: PropTypes.func,
   updateOrder: PropTypes.func,
   remove: PropTypes.func,
-  boardId: PropTypes.string,
-  loading: PropTypes.bool
+  boardId: PropTypes.string
 };
 
 class Pipelines extends Component {
@@ -85,9 +80,35 @@ class Pipelines extends Component {
     );
   }
 
-  render() {
+  renderContent() {
     const { __ } = this.context;
-    const { boardId, save, pipelines, loading } = this.props;
+    const { pipelines } = this.props;
+
+    if (pipelines.length === 0) {
+      return (
+        <EmptyState
+          size="full"
+          text="There is no pipeline in this board."
+          image="/images/robots/robot-05.svg"
+        />
+      );
+    }
+
+    return (
+      <PipelineContainer>
+        <ul>
+          <li>
+            <span>{__('Pipeline')}</span>
+          </li>
+        </ul>
+
+        {this.renderRows()}
+      </PipelineContainer>
+    );
+  }
+
+  render() {
+    const { boardId, save } = this.props;
     const { currentPipeline, showModal } = this.state;
 
     const rightActionBar = (
@@ -101,37 +122,19 @@ class Pipelines extends Component {
       </Button>
     );
 
-    const data = (
+    return (
       <Fragment>
         <Wrapper.ActionBar right={rightActionBar} />
-        <PipelineContainer>
-          <ul>
-            <li>
-              <span>{__('Pipeline')}</span>
-            </li>
-          </ul>
+        {this.renderContent()}
 
-          <PipelineForm
-            boardId={boardId}
-            save={save}
-            pipeline={currentPipeline}
-            show={showModal}
-            closeModal={this.closeModal}
-          />
-
-          {this.renderRows()}
-        </PipelineContainer>
+        <PipelineForm
+          boardId={boardId}
+          save={save}
+          pipeline={currentPipeline}
+          show={showModal}
+          closeModal={this.closeModal}
+        />
       </Fragment>
-    );
-
-    return (
-      <DataWithLoader
-        data={data}
-        loading={loading}
-        count={pipelines.length}
-        emptyText="There is no pipeline in this board."
-        emptyImage="/images/robots/robot-05.svg"
-      />
     );
   }
 }
