@@ -1,13 +1,7 @@
 import _ from 'underscore';
 import moment from 'moment';
-import {
-  Integrations,
-  Segments,
-  Forms,
-  // Conversations
-} from '../../../db/models';
+import { Integrations, Segments, Forms } from '../../../db/models';
 import QueryBuilder from './segmentQueryBuilder';
-// import { fixDate } from './insightUtils';
 
 export const buildQuery = async params => {
   // exclude empty customers =========
@@ -72,15 +66,15 @@ export const buildQuery = async params => {
     selector = { $or: fields };
   }
 
+  let ids = [];
+
   // filter directly using ids
   if (params.ids) {
-    selector = { _id: { $in: params.ids } };
+    ids = [...params.ids];
   }
 
   // filter customers by submitted form
   if (params.form) {
-    let customerIds = [];
-
     const formObj = await Forms.findOne({ _id: params.form });
 
     for (let submission of formObj.submissions) {
@@ -89,19 +83,20 @@ export const buildQuery = async params => {
       // Collecting customerIds inbetween dates only
       if (params.startDate && params.endDate) {
         if (moment(submittedAt).isBetween(moment(params.startDate), moment(params.endDate))) {
-          customerIds.push(customerId);
+          if (!ids.includes(customerId)) {
+            ids.push(customerId);
+          }
         }
 
         // If date is not specified collecting all customers
       } else {
-        customerIds.push(customerId);
+        ids.push(customerId);
       }
     }
+  }
 
-    // Removing duplicated customerIds from array
-    customerIds = Array.from(new Set(customerIds));
-
-    selector = { _id: { $in: customerIds } };
+  if (params.ids || params.form) {
+    selector._id = { $in: ids };
   }
 
   return selector;

@@ -21,7 +21,6 @@ export const types = `
     contactsGathered: Int
     tagIds: [String]
     getTags: [Tag]
-    submittedCustomerIds: [String]
   }
 `;
 
