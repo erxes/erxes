@@ -4,7 +4,6 @@ import { Wrapper } from 'modules/layout/components';
 import {
   DataWithLoader,
   SortableList,
-  ModalTrigger,
   Button
 } from 'modules/common/components';
 import { collectOrders } from 'modules/deals/utils';
@@ -25,10 +24,11 @@ class Pipelines extends Component {
   constructor(props) {
     super(props);
 
+    this.closeModal = this.closeModal.bind(this);
     this.onChangePipelines = this.onChangePipelines.bind(this);
 
     this.state = {
-      showEditForm: false,
+      showModal: false,
       currentPipeline: null,
       pipelines: props.pipelines
     };
@@ -40,14 +40,28 @@ class Pipelines extends Component {
     }
   }
 
+  closeModal() {
+    this.setState({ showModal: false });
+  }
+
+  addPipeline() {
+    this.setState({
+      showModal: true,
+      currentPipeline: null
+    });
+  }
+
+  editPipeline(pipeline) {
+    this.setState({
+      showModal: true,
+      currentPipeline: pipeline
+    });
+  }
+
   onChangePipelines(pipelines) {
     this.setState({ pipelines });
 
     this.props.updateOrder(collectOrders(pipelines));
-  }
-
-  onRowEdit(pipeline) {
-    this.setState({ currentPipeline: pipeline, showEditForm: true });
   }
 
   renderRows() {
@@ -55,7 +69,8 @@ class Pipelines extends Component {
       <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
-        onEdit={() => this.onRowEdit(pipeline)}
+        edit={() => this.editPipeline(pipeline)}
+        remove={this.props.remove}
       />
     );
 
@@ -71,27 +86,20 @@ class Pipelines extends Component {
     );
   }
 
-  remove(pipelines) {
-    const pipeline = pipelines[0];
-
-    this.props.remove(pipeline._id);
-  }
-
   render() {
     const { __ } = this.context;
     const { boardId, save, pipelines, loading } = this.props;
-    const { currentPipeline } = this.state;
+    const { currentPipeline, showModal } = this.state;
 
-    const trigger = (
-      <Button btnStyle="success" size="small" icon="add">
+    const rightActionBar = (
+      <Button
+        btnStyle="success"
+        size="small"
+        icon="add"
+        onClick={() => this.addPipeline()}
+      >
         Add pipeline
       </Button>
-    );
-
-    const rightActionBar = boardId && (
-      <ModalTrigger title="Add pipeline" trigger={trigger}>
-        <PipelineForm boardId={boardId} save={save} />
-      </ModalTrigger>
     );
 
     const data = (
@@ -104,8 +112,15 @@ class Pipelines extends Component {
             </li>
           </ul>
 
-          <PipelineForm pipeline={currentPipeline} />
-          <div id="pipelines">{this.renderRows()}</div>
+          <PipelineForm
+            boardId={boardId}
+            save={save}
+            pipeline={currentPipeline}
+            show={showModal}
+            closeModal={this.closeModal}
+          />
+
+          {this.renderRows()}
         </PipelineContainer>
       </Fragment>
     );

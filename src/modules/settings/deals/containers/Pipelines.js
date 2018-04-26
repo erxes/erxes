@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
-import { Bulk } from 'modules/common/components';
 import { Pipelines } from '../components';
 import { queries, mutations } from '../graphql';
 
-class PipelinesContainer extends Bulk {
+class PipelinesContainer extends React.Component {
   render() {
     const {
       pipelinesQuery,
@@ -22,14 +21,12 @@ class PipelinesContainer extends Bulk {
     const pipelines = pipelinesQuery.dealPipelines || [];
 
     // remove action
-    const remove = _ids => {
+    const remove = _id => {
       confirm().then(() => {
         removePipelineMutation({
-          variables: { _ids }
+          variables: { _id }
         })
           .then(() => {
-            this.emptyBulk();
-
             pipelinesQuery.refetch();
 
             Alert.success(__('Successfully deleted.'));
@@ -74,9 +71,6 @@ class PipelinesContainer extends Bulk {
 
     const extendedProps = {
       ...this.props,
-      bulk: this.state.bulk || [],
-      emptyBulk: this.emptyBulk,
-      toggleBulk: this.toggleBulk,
       pipelines,
       refetch: pipelinesQuery.refetch,
       loading: pipelinesQuery.loading,

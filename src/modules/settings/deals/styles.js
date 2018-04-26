@@ -27,11 +27,11 @@ const PipelineContainer = styled.div`
   ul {
     list-style: none;
     margin: 0;
-    padding: 0 0 0 20px;
+    padding: 0;
 
     li {
       float: left;
-      padding: 10px 20px 10px 40px;
+      padding: 10px 20px;
       span {
         text-transform: uppercase;
         color: ${colors.colorCoreLightGray};
@@ -46,6 +46,8 @@ const PipelineContainer = styled.div`
     margin-bottom: 0;
     border: 0;
     border-top: 1px solid rgb(238, 238, 238);
+    padding-left: 20px;
+    padding-right: 20px;
   }
 `;
 
@@ -53,6 +55,9 @@ const PipelineRowContainer = styled.div`
   width: 100%;
   label {
     padding: 0 20px 0 5px;
+  }
+  > div {
+    float: right;
   }
 `;
 

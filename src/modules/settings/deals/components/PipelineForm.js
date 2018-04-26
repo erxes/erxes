@@ -10,11 +10,12 @@ import {
 import { Stages } from './';
 
 const propTypes = {
+  show: PropTypes.bool,
   boardId: PropTypes.string,
   pipeline: PropTypes.object,
   stages: PropTypes.array,
   save: PropTypes.func.isRequired,
-  loading: PropTypes.bool
+  closeModal: PropTypes.func.isRequired
 };
 
 class PipelineForm extends Component {
@@ -35,9 +36,9 @@ class PipelineForm extends Component {
   save(e) {
     e.preventDefault();
 
-    const { save, pipeline } = this.props;
+    const { save, closeModal, pipeline } = this.props;
 
-    save(this.generateDoc(), () => this.context.closeModal(), pipeline);
+    save(this.generateDoc(), () => closeModal(), pipeline);
   }
 
   generateDoc() {
@@ -53,7 +54,7 @@ class PipelineForm extends Component {
   }
 
   renderContent() {
-    const { pipeline = {} } = this.props;
+    const { pipeline } = this.props;
     const { stages } = this.state;
 
     return (
@@ -63,8 +64,9 @@ class PipelineForm extends Component {
 
           <FormControl
             id="pipeline-name"
-            defaultValue={pipeline.name}
+            defaultValue={pipeline ? pipeline.name : ''}
             type="text"
+            autoFocus
             required
           />
         </FormGroup>
@@ -75,16 +77,18 @@ class PipelineForm extends Component {
   }
 
   render() {
-    const { pipeline } = this.props;
+    const { show, pipeline, closeModal } = this.props;
 
-    if (!pipeline) {
-      return null;
-    }
+    if (!show) return null;
 
     return (
-      <Modal show>
+      <Modal show={show} onHide={closeModal}>
         <form onSubmit={this.save}>
-          <Modal.Header>Edit pipeline</Modal.Header>
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {pipeline ? 'Edit pipeline' : 'Add pipeline'}
+            </Modal.Title>
+          </Modal.Header>
 
           <Modal.Body>
             {this.renderContent()}
@@ -94,7 +98,7 @@ class PipelineForm extends Component {
                 btnStyle="simple"
                 type="button"
                 icon="cancel-1"
-                onClick={() => this.closeModal()}
+                onClick={() => closeModal()}
               >
                 Cancel
               </Button>

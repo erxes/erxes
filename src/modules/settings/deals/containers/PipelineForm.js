@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Bulk, Spinner } from 'modules/common/components';
+import { Spinner } from 'modules/common/components';
 import { queries } from '../graphql';
 import { PipelineForm } from '../components';
 
-class EditPipelineFormContainer extends Bulk {
+class EditPipelineFormContainer extends React.Component {
   render() {
     const { stagesQuery } = this.props;
 
