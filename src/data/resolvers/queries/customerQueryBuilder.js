@@ -86,10 +86,13 @@ export const buildQuery = async params => {
     for (let submission of formObj.submissions) {
       const { customerId, submittedAt } = submission;
 
+      // Collecting customerIds inbetween dates only
       if (params.startDate && params.endDate) {
         if (moment(submittedAt).isBetween(moment(params.startDate), moment(params.endDate))) {
           customerIds.push(customerId);
         }
+
+        // If date is not specified collecting all customers
       } else {
         customerIds.push(customerId);
       }
