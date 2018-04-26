@@ -81,7 +81,6 @@ class Pipelines extends Component {
         fields={pipelines}
         child={child}
         onChangeFields={this.onChangePipelines}
-        showDragHandler={false}
       />
     );
   }
