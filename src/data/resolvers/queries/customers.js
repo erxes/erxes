@@ -83,9 +83,9 @@ const customerQueries = {
       counts.byBrand[brand._id] = await count(await qb.brandFilter(brand._id));
     }
 
-    // Count customers by integration
+    // Count customers by integration kind
     for (let kind of INTEGRATION_KIND_CHOICES.ALL) {
-      counts.byIntegrationType[kind] = await count(await qb.integrationKindFilter(kind));
+      counts.byIntegrationType[kind] = await count(await qb.integrationTypeFilter(kind));
     }
 
     // Count customers by tag
