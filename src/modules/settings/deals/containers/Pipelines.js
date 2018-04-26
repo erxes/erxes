@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
+import { Spinner } from 'modules/common/components';
 import { Pipelines } from '../components';
 import { queries, mutations } from '../graphql';
 
@@ -18,7 +19,11 @@ class PipelinesContainer extends React.Component {
 
     const { __ } = this.context;
 
-    const pipelines = pipelinesQuery.dealPipelines || [];
+    if (pipelinesQuery.loading) {
+      return <Spinner />;
+    }
+
+    const pipelines = pipelinesQuery.dealPipelines;
 
     // remove action
     const remove = _id => {
