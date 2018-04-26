@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Spinner } from 'modules/common/components';
-import { Filter, Sidebar, PunchCard } from './';
+import { Filter, Sidebar, Chart, PunchCard } from './';
 import {
   InsightTitle,
   InsightWrapper,
@@ -41,17 +41,34 @@ class CommonReport extends Component {
     );
   }
 
+  renderTrend(name, loading, trend, width) {
+    return (
+      <InsightRow
+        innerRef={node => {
+          this.wrapper = node;
+        }}
+      >
+        {this.renderTitle(name)}
+        <Chart loading={loading.main} width={width} height={320} data={trend} />
+      </InsightRow>
+    );
+  }
+
   renderPunchCard(loading, punch, width) {
+    let content = (
+      <LoaderWrapper>
+        <Spinner objective />
+      </LoaderWrapper>
+    );
+
+    if (!loading.punch) {
+      content = <PunchCard data={punch} width={width} />;
+    }
+
     return (
       <InsightRow>
         {this.renderTitle('Punch card')}
-        {!loading.punch ? (
-          <PunchCard data={punch} width={width} />
-        ) : (
-          <LoaderWrapper>
-            <Spinner objective />
-          </LoaderWrapper>
-        )}
+        {content}
       </InsightRow>
     );
   }
@@ -72,8 +89,7 @@ class CommonReport extends Component {
   }
 
   renderBreadCrumnb() {
-    const { __ } = this.context;
-    return [{ title: __('Insights'), link: '/insight' }];
+    return null;
   }
 
   render() {

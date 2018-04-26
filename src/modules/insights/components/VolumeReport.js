@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CommonReport from './CommonReport';
-import { Chart, Summary, Insights } from './';
+import { Summary, Insights } from './';
 import { InsightRow, InsightContent } from '../styles';
 
 const propTypes = {
@@ -42,19 +42,7 @@ class VolumeReport extends CommonReport {
           <Summary loading={loading.main} data={summary} />
         </InsightRow>
 
-        <InsightRow
-          innerRef={node => {
-            this.wrapper = node;
-          }}
-        >
-          {this.renderTitle('Volume Trend')}
-          <Chart
-            loading={loading.main}
-            width={width}
-            height={320}
-            data={trend}
-          />
-        </InsightRow>
+        {this.renderTrend('Volume Trend', loading, trend, width)}
 
         {this.renderPunchCard(loading, punch, width)}
 

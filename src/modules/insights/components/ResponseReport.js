@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Spinner } from 'modules/common/components';
 import CommonReport from './CommonReport';
-import { Chart, Summary, TeamMembers, PunchCard } from './';
-import { InsightContent, InsightRow, LoaderWrapper } from '../styles';
+import { Summary, TeamMembers } from './';
+import { InsightContent, InsightRow } from '../styles';
 
 const propTypes = {
   teamMembers: PropTypes.array.isRequired,
@@ -43,19 +42,7 @@ class ResponseReport extends CommonReport {
           <Summary loading={loading.main} data={summary} />
         </InsightRow>
 
-        <InsightRow
-          innerRef={node => {
-            this.wrapper = node;
-          }}
-        >
-          {this.renderTitle('Response Trend')}
-          <Chart
-            loading={loading.main}
-            width={width}
-            height={300}
-            data={trend}
-          />
-        </InsightRow>
+        {this.renderTrend('Response Trend', loading, trend, width)}
 
         {this.renderPunchCard(loading, punch, width)}
 
