@@ -368,7 +368,9 @@ describe('customerQueries', () => {
 
     args = {
       startDate,
-      endDate: moment(endDate).add(25, 'days'),
+      endDate: moment(endDate)
+        .add(25, 'days')
+        .format('YYYY-MM-DD HH:mm'),
       form: form._id,
     };
 
