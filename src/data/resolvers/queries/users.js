@@ -2,6 +2,21 @@ import { Users, Conversations } from '../../../db/models';
 import { requireLogin } from '../../permissions';
 import { paginate } from './utils';
 
+const queryBuilder = async params => {
+  let selector = {};
+
+  if (params.searchValue) {
+    const fields = [
+      { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') },
+    ];
+
+    selector = { $or: fields };
+  }
+
+  return selector;
+};
+
 const userQueries = {
   /**
    * Users list
@@ -10,8 +25,10 @@ const userQueries = {
    * @param {Object} object3.user - User making this request
    * @return {Promise} sorted and filtered users objects
    */
-  users(root, args) {
-    const users = paginate(Users.find({}), args);
+  async users(root, args) {
+    const selector = await queryBuilder(args);
+
+    const users = paginate(Users.find(selector), args);
     return users.sort({ username: 1 });
   },
 
