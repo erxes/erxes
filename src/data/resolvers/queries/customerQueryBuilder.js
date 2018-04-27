@@ -9,6 +9,21 @@ export default class Builder {
     this.user = user;
   }
 
+  defaultFilters() {
+    const emptySelector = { $in: [null, ''] };
+
+    return {
+      $nor: [
+        {
+          firstName: emptySelector,
+          lastName: emptySelector,
+          email: emptySelector,
+          visitorContactInfo: null,
+        },
+      ],
+    };
+  }
+
   // filter by segment
   async segmentFilter(segmentId) {
     const segment = await Segments.findOne({ _id: segmentId });
@@ -99,6 +114,7 @@ export default class Builder {
    */
   async buildAllQueries() {
     this.queries = {
+      default: this.defaultFilters(),
       segment: {},
       tag: {},
       ids: {},
@@ -165,6 +181,7 @@ export default class Builder {
 
   mainQuery() {
     return {
+      ...this.queries.default,
       ...this.queries.segment,
       ...this.queries.tag,
       ...this.queries.ids,
