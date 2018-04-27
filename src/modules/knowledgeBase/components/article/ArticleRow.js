@@ -13,10 +13,8 @@ import {
   Row,
   ArticleTitle,
   ArticleColumn,
-  ArticleAuthor,
-  ArticleSummary,
+  ArticleMeta,
   ActionButtons,
-  AuthorImg,
   AuthorName
 } from '../../styles';
 
@@ -40,11 +38,11 @@ class ArticleRow extends Component {
     this.props.remove(this.props.article._id);
   }
 
-  renderEditAction() {
+  renderEditAction(editTrigger) {
     const { article, queryParams, currentCategoryId, topicIds } = this.props;
     const { __ } = this.context;
 
-    const editTrigger = (
+    const editButton = (
       <Button btnStyle="link">
         <Tip text={__('Edit')}>
           <Icon icon="edit" />
@@ -53,7 +51,11 @@ class ArticleRow extends Component {
     );
 
     return (
-      <ModalTrigger size="large" title="Edit" trigger={editTrigger}>
+      <ModalTrigger
+        size="large"
+        title="Edit"
+        trigger={editTrigger ? editTrigger : editButton}
+      >
         <ArticleForm
           article={article}
           queryParams={queryParams}
@@ -69,16 +71,23 @@ class ArticleRow extends Component {
     const user = article.createdUser;
     const { __ } = this.context;
 
+    const title = (
+      <ArticleTitle>
+        {article.title}
+        {article.status === 'draft' && (
+          <Label lblStyle="simple">{article.status}</Label>
+        )}
+      </ArticleTitle>
+    );
+
     return (
       <Row>
         <ArticleColumn>
-          <ArticleTitle>{article.title}</ArticleTitle>
-          {article.status === 'draft' && (
-            <Label lblStyle="simple">{article.status}</Label>
-          )}
-          <ArticleSummary>{article.summary}</ArticleSummary>
-          <ArticleAuthor>
-            <AuthorImg
+          {this.renderEditAction(title)}
+          <p>{article.summary}</p>
+          <ArticleMeta>
+            <img
+              alt={user.details.fullName || 'author'}
               src={
                 article.createdUser.details.avatar ||
                 '/images/avatar-colored.svg'
@@ -88,8 +97,9 @@ class ArticleRow extends Component {
             <AuthorName>
               {user.details.fullName || user.username || user.email}
             </AuthorName>
-            {__('Created')} {moment(article.createdDate).format('ll')}
-          </ArticleAuthor>
+            <Icon icon="wallclock" /> {__('Created')}{' '}
+            {moment(article.createdDate).format('ll')}
+          </ArticleMeta>
         </ArticleColumn>
         <ActionButtons>
           {this.renderEditAction()}

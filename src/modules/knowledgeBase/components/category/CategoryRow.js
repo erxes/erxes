@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Tip, Button, Icon, ModalTrigger } from 'modules/common/components';
 import { CategoryForm } from '../../containers';
-import { CategoryItem, ActionButtons, CountArticle } from '../../styles';
+import { CategoryItem, ActionButtons } from '../../styles';
 
 const propTypes = {
   topicIds: PropTypes.string,
@@ -55,8 +55,9 @@ class CategoryRow extends Component {
 
     return (
       <CategoryItem key={category._id} isActive={isActive}>
-        <Link to={`?id=${category._id}`}>{category.title}</Link>
-        <CountArticle>{category.articles.length}</CountArticle>
+        <Link to={`?id=${category._id}`}>
+          {category.title} <span>({category.articles.length})</span>
+        </Link>
         <ActionButtons>
           {this.renderEditAction()}
           <Tip text={__('Delete')}>
