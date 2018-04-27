@@ -93,10 +93,7 @@ class Segments extends React.Component {
               <Icon
                 icon="piechart"
                 size={10}
-                style={{
-                  color: segment.color,
-                  marginRight: '5px'
-                }}
+                style={{ color: segment.color, marginRight: '5px' }}
               />{' '}
               {segment.name}
               <SidebarCounter>{counts[segment._id]}</SidebarCounter>
