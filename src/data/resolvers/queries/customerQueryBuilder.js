@@ -81,11 +81,9 @@ export default class Builder {
       const { customerId, submittedAt } = submission;
 
       // Collecting customerIds inbetween dates only
-      if (startDate && endDate) {
-        if (moment(submittedAt).isBetween(moment(startDate), moment(endDate))) {
-          if (!ids.includes(customerId)) {
-            ids.push(customerId);
-          }
+      if (startDate && endDate && !ids.includes(customerId)) {
+        if (moment(submittedAt).isBetween(startDate, endDate)) {
+          ids.push(customerId);
         }
 
         // If date is not specified collecting all customers
