@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Icon, ModalTrigger, DataWithLoader } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 import { KnowledgeForm } from '../../containers';
+import { HelperButtons } from 'modules/layout/styles';
 import { KnowledgeRow } from './';
-import { RightButton } from '../../styles';
 
 const propTypes = {
   queryParams: PropTypes.object,
@@ -81,9 +81,11 @@ class KnowledgeList extends Component {
     const { __ } = this.context;
 
     const trigger = (
-      <RightButton>
-        <Icon icon="add" />
-      </RightButton>
+      <HelperButtons>
+        <a>
+          <Icon icon="add" />
+        </a>
+      </HelperButtons>
     );
 
     return (

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Tip, Button, Icon, ModalTrigger } from 'modules/common/components';
 import { CategoryForm } from '../../containers';
-import { CategoryItem, ActionButtons } from '../../styles';
+import { CategoryItem, ActionButtons } from './styles';
 
 const propTypes = {
   topicIds: PropTypes.string,

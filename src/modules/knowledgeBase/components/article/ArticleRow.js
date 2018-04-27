@@ -10,13 +10,13 @@ import {
 } from 'modules/common/components';
 import { ArticleForm } from '../../containers';
 import {
-  Row,
+  RowArticle,
   ArticleTitle,
   ArticleColumn,
   ArticleMeta,
-  ActionButtons,
-  AuthorName
-} from '../../styles';
+  AuthorName,
+  ActionButtons
+} from './styles';
 
 const propTypes = {
   article: PropTypes.object.isRequired,
@@ -81,7 +81,7 @@ class ArticleRow extends Component {
     );
 
     return (
-      <Row>
+      <RowArticle>
         <ArticleColumn>
           {this.renderEditAction(title)}
           <p>{article.summary}</p>
@@ -107,7 +107,7 @@ class ArticleRow extends Component {
             <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>
-      </Row>
+      </RowArticle>
     );
   }
 }

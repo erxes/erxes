@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Icon, DropdownToggle, ModalTrigger } from 'modules/common/components';
 import { CategoryList, KnowledgeForm, CategoryForm } from '../../containers';
+import { DropIcon } from '../../styles';
 import {
   KnowledgeBaseRow,
   SectionHead,
   SectionTitle,
-  RowRightSide,
-  DropIcon
-} from '../../styles';
+  RowActions
+} from './styles';
 
 const propTypes = {
   queryParams: PropTypes.object.isRequired,
@@ -50,7 +50,7 @@ class KnowledgeRow extends Component {
     const manageTopic = <MenuItem>{__('Manage Knowledge Base')}</MenuItem>;
 
     return (
-      <RowRightSide>
+      <RowActions>
         <Dropdown id="dropdown-knowledgebase" pullRight>
           <DropdownToggle bsRole="toggle">
             <Icon icon="settings" />
@@ -65,7 +65,7 @@ class KnowledgeRow extends Component {
           </Dropdown.Menu>
         </Dropdown>
         <DropIcon onClick={this.toggle} isOpen={this.state.detailed} />
-      </RowRightSide>
+      </RowActions>
     );
   }
 
