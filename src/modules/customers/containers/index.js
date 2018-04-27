@@ -6,6 +6,7 @@ import CustomerChooser from './CustomerChooser';
 import CustomerForm from './CustomerForm';
 import BasicInfo from './detail/BasicInfo';
 import BrandFilter from './BrandFilter';
+import FormFilter from './FormFilter';
 
 export {
   CustomersList,
@@ -15,5 +16,6 @@ export {
   CustomerChooser,
   CustomerForm,
   BasicInfo,
-  BrandFilter
+  BrandFilter,
+  FormFilter
 };

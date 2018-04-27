@@ -36,6 +36,7 @@ import SortableList from './SortableList';
 import ImageWithPreview from './ImageWithPreview';
 import IntegrationIcon from './IntegrationIcon';
 import Chooser from './Chooser';
+import DateFilter from './DateFilter';
 
 // TODO remove
 const pagination = {};
@@ -85,5 +86,6 @@ export {
   SortableList,
   ImageWithPreview,
   IntegrationIcon,
-  Chooser
+  Chooser,
+  DateFilter
 };
