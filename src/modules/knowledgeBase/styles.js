@@ -1,25 +1,17 @@
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 
-const SidebarContent = styled.div`
-  flex: 1;
-  margin-bottom: ${dimensions.unitSpacing - 5}px;
-  background: ${colors.colorWhite};
-  box-shadow: 0 0 4px ${colors.shadowPrimary};
-
-  &:last-child {
-    margin-bottom: ${dimensions.headerSpacing}px;
-  }
+const KnowledgeBaseRow = styled.div`
+  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
-const RowRightSide = styled.span`
+const RowRightSide = styled.div`
   font-size: 12px;
   color: ${colors.colorCoreGray};
-  right: ${dimensions.coreSpacing}px;
-  position: absolute;
+  padding-right: ${dimensions.coreSpacing}px;
 
   i {
-    padding: ${dimensions.unitSpacing}px;
+    padding: ${dimensions.unitSpacing}px 0;
   }
 
   &:hover {
@@ -43,6 +35,7 @@ const DropIcon = styled.span`
     font-family: 'erxes';
     float: right;
     transition: all ease 0.3s;
+    margin-left: ${dimensions.unitSpacing}px;
     transform: ${props => props.isOpen && `rotate(180deg)`};
   }
 `;
@@ -50,43 +43,27 @@ const DropIcon = styled.span`
 const SectionHead = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
 `;
 
 const SectionTitle = styled.div`
   flex: 1;
   cursor: pointer;
-  padding: 10px 50px 10px 20px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-`;
+  padding: 10px 20px;
 
-const CountArticle = styled.span`
-  color: ${colors.colorCoreGray};
-  display: flex;
-  position: absolute;
-  right: ${dimensions.coreSpacing}px;
-  top: 0;
-  align-items: center;
-  bottom: 0;
-`;
-
-const Categories = styled.ul`
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  transition: all ease 0.3s;
+  span {
+    display: block;
+    font-size: 12px;
+    color: ${colors.colorCoreGray};
+  }
 `;
 
 const ActionButtons = styled.div`
   display: flex;
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 0;
   overflow: hidden;
   align-items: center;
-  transition: width 0.3s ease;
-  background: transparent;
+  transition: transform 0.3s ease;
+  transform: translate(80px);
 
   * {
     padding: 0;
@@ -98,16 +75,34 @@ const ActionButtons = styled.div`
   }
 `;
 
+const Categories = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid ${colors.borderPrimary};
+`;
+
 const CategoryItem = styled.li`
   position: relative;
   background: ${props => (props.isActive ? colors.bgActive : colors.bgLight)};
+  border-bottom: 1px solid ${colors.borderPrimary};
+  display: flex;
+  padding-right: 20px;
+  overflow: hidden;
 
   a {
-    padding: 10px 40px;
+    padding: 10px 0 10px 40px;
     white-space: normal;
     display: block;
     color: ${colors.textPrimary};
     position: relative;
+    flex: 1;
+    max-width: 100%;
+    overflow: hidden;
+
+    span {
+      color: ${colors.colorCoreGray};
+    }
 
     &:focus {
       color: inherit;
@@ -115,28 +110,25 @@ const CategoryItem = styled.li`
     }
   }
 
+  &:last-child {
+    border: none;
+  }
+
   &:hover {
-    cursor: pointer;
     background: ${colors.colorWhite};
 
     ${ActionButtons} {
-      width: 50px;
-      padding-right: ${dimensions.coreSpacing}px;
-      background: ${colors.colorWhite};
+      transform: translate(0px);
     }
   }
-`;
-
-const Articles = styled.div`
-  flex: 1;
 `;
 
 const Row = styled.div`
   background-color: ${colors.colorWhite};
   margin-bottom: ${dimensions.unitSpacing}px;
-  border-radius: 2px;
-  padding: 20px;
-  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.12);
+  padding: 20px 20px 20px 30px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
   position: relative;
   display: flex;
   justify-content: space-between;
@@ -148,67 +140,66 @@ const Row = styled.div`
 
   &:hover {
     ${ActionButtons} {
-      width: ${dimensions.coreSpacing * 2}px;
-      right: ${dimensions.coreSpacing}px;
+      transform: translate(0px);
     }
   }
 `;
 
-const ArticleTitle = styled.span`
-  font-weight: 600;
+const ArticleTitle = styled.h5`
+  font-weight: bold;
   font-size: 14px;
-  margin-right: ${dimensions.unitSpacing}px;
+  margin: 0 0 ${dimensions.unitSpacing}px;
+
+  span {
+    margin-left: ${dimensions.unitSpacing}px;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const ArticleColumn = styled.div`
-  position: relative;
-  padding-right: ${dimensions.coreSpacing * 2}px;
   flex: 1;
 `;
 
-const ArticleAuthor = styled.div`
+const ArticleMeta = styled.div`
   font-size: 11px;
   color: ${colors.colorCoreGray};
   display: flex;
   align-items: center;
+
+  img {
+    width: ${dimensions.coreSpacing}px;
+    height: ${dimensions.coreSpacing}px;
+    line-height: ${dimensions.coreSpacing}px;
+    border-radius: ${dimensions.coreSpacing / 2}px;
+  }
+
+  i,
+  img {
+    margin-right: ${dimensions.unitSpacing / 2}px;
+  }
 `;
 
 const AuthorName = styled.span`
   font-weight: 500;
   color: ${colors.colorCoreDarkGray};
-  padding: 0 20px 0 5px;
-`;
-
-const AuthorImg = styled.img`
-  width: ${dimensions.coreSpacing}px;
-  height: ${dimensions.coreSpacing}px;
-  line-height: ${dimensions.coreSpacing}px;
-  border-radius: ${dimensions.coreSpacing / 2}px;
-  border: 1px solid ${colors.borderPrimary};
-  margin-right: 5px;
-`;
-
-const ArticleSummary = styled.p`
-  flex: 1;
-  margin-top: 10px;
+  margin: 0 20px 0 5px;
 `;
 
 export {
-  SidebarContent,
+  KnowledgeBaseRow,
   RowRightSide,
   CategoryItem,
   ActionButtons,
-  CountArticle,
   SectionHead,
   SectionTitle,
   Categories,
-  Articles,
   ArticleTitle,
   ArticleColumn,
-  ArticleAuthor,
+  ArticleMeta,
   AuthorName,
-  ArticleSummary,
-  AuthorImg,
   DropIcon,
   RightButton,
   Row

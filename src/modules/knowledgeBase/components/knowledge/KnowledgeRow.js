@@ -4,7 +4,7 @@ import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Icon, DropdownToggle, ModalTrigger } from 'modules/common/components';
 import { CategoryList, KnowledgeForm, CategoryForm } from '../../containers';
 import {
-  SidebarContent,
+  KnowledgeBaseRow,
   SectionHead,
   SectionTitle,
   RowRightSide,
@@ -28,59 +28,58 @@ class KnowledgeRow extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { detailed: false };
+    this.state = { detailed: this.isExpanded() };
     this.toggle = this.toggle.bind(this);
-    this.renderKnowledgeBaseForm = this.renderKnowledgeBaseForm.bind(this);
-  }
-
-  renderKnowledgeBaseForm(props) {
-    return <KnowledgeForm {...props} />;
   }
 
   toggle() {
     this.setState({ detailed: !this.state.detailed });
   }
 
-  render() {
-    const {
-      topic,
-      save,
-      remove,
-      currentCategoryId,
-      queryParams,
-      articlesCount
-    } = this.props;
+  isExpanded() {
+    const { currentCategoryId, topic } = this.props;
+    const categories = topic.categories || [];
+
+    return categories.some(c => c['_id'] === currentCategoryId);
+  }
+
+  renderManage() {
+    const { topic, save, remove } = this.props;
     const { __ } = this.context;
     const addCategory = <MenuItem>{__('Add category')}</MenuItem>;
     const manageTopic = <MenuItem>{__('Manage Knowledge Base')}</MenuItem>;
 
     return (
-      <SidebarContent key={topic._id}>
+      <RowRightSide>
+        <Dropdown id="dropdown-knowledgebase" pullRight>
+          <DropdownToggle bsRole="toggle">
+            <Icon icon="settings" />
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <ModalTrigger title="Manage Knowledge Base" trigger={manageTopic}>
+              <KnowledgeForm save={save} topic={topic} remove={remove} />
+            </ModalTrigger>
+            <ModalTrigger title="Add Category" trigger={addCategory}>
+              <CategoryForm topicIds={topic._id} />
+            </ModalTrigger>
+          </Dropdown.Menu>
+        </Dropdown>
+        <DropIcon onClick={this.toggle} isOpen={this.state.detailed} />
+      </RowRightSide>
+    );
+  }
+
+  render() {
+    const { topic, currentCategoryId, queryParams, articlesCount } = this.props;
+
+    return (
+      <KnowledgeBaseRow key={topic._id}>
         <SectionHead>
-          <SectionTitle onClick={this.toggle}>{topic.title}</SectionTitle>
-          <RowRightSide>
-            <Dropdown
-              id="dropdown-knowledgebase"
-              className="quick-button"
-              pullRight
-            >
-              <DropdownToggle bsRole="toggle">
-                <Icon icon="settings" />
-              </DropdownToggle>
-              <Dropdown.Menu>
-                <ModalTrigger
-                  title="Manage Knowledge Base"
-                  trigger={manageTopic}
-                >
-                  {this.renderKnowledgeBaseForm({ save, topic, remove })}
-                </ModalTrigger>
-                <ModalTrigger title="Add Category" trigger={addCategory}>
-                  <CategoryForm topicIds={topic._id} />
-                </ModalTrigger>
-              </Dropdown.Menu>
-            </Dropdown>
-            <DropIcon onClick={this.toggle} isOpen={this.state.detailed} />
-          </RowRightSide>
+          <SectionTitle onClick={this.toggle}>
+            {topic.title}
+            <span>{topic.description}</span>
+          </SectionTitle>
+          {this.renderManage()}
         </SectionHead>
         {this.state.detailed && (
           <CategoryList
@@ -90,7 +89,7 @@ class KnowledgeRow extends Component {
             queryParams={queryParams}
           />
         )}
-      </SidebarContent>
+      </KnowledgeBaseRow>
     );
   }
 }
