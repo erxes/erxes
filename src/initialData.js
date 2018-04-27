@@ -24,7 +24,7 @@ export const importData = async () => {
   // create admin user
   const user = await Users.createUser({
     username: 'admin',
-    password: 'admin123',
+    password: 'p4$$w0rd',
     email: 'admin@erxes.io',
     isOwner: true,
     role: 'admin',
