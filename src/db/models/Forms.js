@@ -16,6 +16,15 @@ const CalloutSchema = mongoose.Schema(
   { _id: false },
 );
 
+// schema for form submission details
+const SubmissionSchema = mongoose.Schema(
+  {
+    customerId: field({ type: String }),
+    submittedAt: field({ type: Date }),
+  },
+  { _id: false },
+);
+
 // schema for form document
 const FormSchema = mongoose.Schema({
   _id: field({ pkey: true }),
@@ -35,6 +44,7 @@ const FormSchema = mongoose.Schema({
   callout: field({ type: CalloutSchema, default: {} }),
   viewCount: field({ type: Number }),
   contactsGathered: field({ type: Number }),
+  submissions: field({ type: [SubmissionSchema] }),
 });
 
 class Form {

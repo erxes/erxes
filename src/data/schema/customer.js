@@ -63,7 +63,10 @@ const queryParams = `
   ids: [String],
   searchValue: String,
   brand: String,
-  integration: String
+  integration: String,
+  form: String,
+  startDate: String,
+  endDate: String
 `;
 
 export const queries = `

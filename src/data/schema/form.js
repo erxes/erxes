@@ -32,6 +32,11 @@ const commonFields = `
   callout: JSON
 `;
 
+export const queries = `
+  formDetail(_id: String!): Form
+  forms: [Form]
+`;
+
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form

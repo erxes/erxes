@@ -6,6 +6,7 @@ import { fieldQueries as fields, fieldsGroupQueries as fieldsgroups } from './fi
 import responseTemplates from './responseTemplates';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
+import forms from './forms';
 import tags from './tags';
 import internalNotes from './internalNotes';
 import customers from './customers';
@@ -29,6 +30,7 @@ export default {
   ...responseTemplates,
   ...emailTemplates,
   ...engages,
+  ...forms,
   ...tags,
   ...internalNotes,
   ...customers,

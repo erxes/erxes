@@ -1,9 +1,10 @@
 /* eslint-env jest */
 
 import faker from 'faker';
+import moment from 'moment';
 import { Customers, Segments, Tags } from '../db/models';
 import { graphqlRequest, connect, disconnect } from '../db/connection';
-import { customerFactory, tagsFactory, segmentFactory } from '../db/factories';
+import { customerFactory, tagsFactory, segmentFactory, formFactory } from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -20,7 +21,10 @@ describe('customerQueries', () => {
     $segment: String,
     $tag: String,
     $ids: [String],
-    $searchValue: String
+    $searchValue: String,
+    $form: String,
+    $startDate: String,
+    $endDate: String
   `;
 
   const commonParams = `
@@ -29,7 +33,10 @@ describe('customerQueries', () => {
     segment: $segment
     tag: $tag
     ids: $ids
-    searchValue: $searchValue
+    searchValue: $searchValue,
+    form: $form,
+    startDate: $startDate,
+    endDate: $endDate
   `;
 
   const qryCustomers = `
@@ -294,5 +301,81 @@ describe('customerQueries', () => {
     const response = await graphqlRequest(qry, 'customerDetail', { _id: customer._id });
 
     expect(response._id).toBe(customer._id);
+  });
+
+  test('Customer filtered by submitted form', async () => {
+    const customer = await customerFactory();
+    let submissions = [{ customerId: customer._id, submittedAt: new Date() }];
+    const form = await formFactory({ submissions });
+
+    const testCustomer = await customerFactory();
+
+    submissions = [
+      { customerId: testCustomer._id, submittedAt: new Date() },
+      { customerId: customer._id, submittedAt: new Date() },
+    ];
+
+    const testForm = await formFactory({ submissions });
+
+    let responses = await graphqlRequest(qryCustomersMain, 'customersMain', {
+      form: form._id,
+    });
+
+    expect(responses.list.length).toBe(1);
+
+    responses = await graphqlRequest(qryCustomersMain, 'customersMain', {
+      form: testForm._id,
+    });
+
+    expect(responses.list.length).toBe(2);
+  });
+
+  test('Customer filtered by submitted form with startDate and endDate', async () => {
+    const customer = await customerFactory();
+    const customer1 = await customerFactory();
+    const customer2 = await customerFactory();
+
+    const startDate = '2018-04-03 10:00';
+    const endDate = '2018-04-03 18:00';
+
+    // Creating 3 submissions for form
+    const submissions = [
+      {
+        customerId: customer._id,
+        submittedAt: new Date(moment(startDate).add(5, 'days')),
+      },
+      {
+        customerId: customer1._id,
+        submittedAt: new Date(moment(startDate).add(20, 'days')),
+      },
+      {
+        customerId: customer2._id,
+        submittedAt: new Date(moment(startDate).add(1, 'hours')),
+      },
+    ];
+
+    const form = await formFactory({ submissions });
+
+    let args = {
+      startDate,
+      endDate,
+      form: form._id,
+    };
+
+    let responses = await graphqlRequest(qryCustomersMain, 'customersMain', args);
+
+    expect(responses.list.length).toBe(1);
+
+    args = {
+      startDate,
+      endDate: moment(endDate)
+        .add(25, 'days')
+        .format('YYYY-MM-DD HH:mm'),
+      form: form._id,
+    };
+
+    responses = await graphqlRequest(qryCustomersMain, 'customersMain', args);
+
+    expect(responses.list.length).toBe(3);
   });
 });
