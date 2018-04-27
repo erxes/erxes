@@ -5,34 +5,37 @@ import gql from 'graphql-tag';
 import { FormFilter } from '../components';
 
 const FormFilterContainer = props => {
-  const { formsQuery } = props;
+  const { integrationsQuery } = props;
 
   const updatedProps = {
     ...props,
-    forms: formsQuery.forms || [],
-    loading: formsQuery.loading
+    integrations: integrationsQuery.integrations || [],
+    loading: integrationsQuery.loading
   };
 
   return <FormFilter {...updatedProps} />;
 };
 
 FormFilterContainer.propTypes = {
-  formsQuery: PropTypes.object,
+  integrationsQuery: PropTypes.object,
   counts: PropTypes.object
 };
 
 export default compose(
   graphql(
     gql`
-      query forms {
-        forms {
+      query integrations {
+        integrations(kind: "form") {
           _id
-          title
+          name
+          form {
+            _id
+          }
         }
       }
     `,
     {
-      name: 'formsQuery'
+      name: 'integrationsQuery'
     }
   )
 )(FormFilterContainer);
