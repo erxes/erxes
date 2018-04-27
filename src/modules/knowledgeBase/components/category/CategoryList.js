@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { CategoryRow } from './';
-import { Categories } from '../../styles';
+import { Categories } from './styles';
 
 const propTypes = {
   currentCategoryId: PropTypes.string,
