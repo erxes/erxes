@@ -9,7 +9,7 @@ erxes is an AI meets open source messaging platform for sales and marketing team
 
 ## Documentation
   * <a href="https://github.com/erxes/erxes/wiki/Requirements">Requirements</a> <br>
-  * <a href="https://github.com/erxes/erxes/wiki/Installation-instructions">Installation instruction</a> <br>
+  * <a href="https://github.com/erxes/erxes/wiki/Installation">Installation instruction</a> <br>
   * <a href="https://github.com/erxes/erxes/wiki/Use-erxes-with-Docker">Use erxes with Docker</a> <br>
   * <a href="https://www.transifex.com/erxes-inc/erxes/">Translate erxes at Transifex</a> <br>
 
