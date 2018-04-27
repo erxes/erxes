@@ -25,7 +25,7 @@ export default compose(
   graphql(
     gql`
       query integrations {
-        integrations {
+        integrations(kind: "form") {
           _id
           name
           form {
