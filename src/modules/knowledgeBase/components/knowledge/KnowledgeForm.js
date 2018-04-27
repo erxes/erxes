@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
@@ -169,7 +169,7 @@ class KnowledgeForm extends Component {
     );
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -198,20 +198,6 @@ class KnowledgeForm extends Component {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Language</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            defaultValue={topic.languageCode || 'en'}
-            id="languageCode"
-          >
-            <option />
-            <option value="mn">Монгол</option>
-            <option value="en">English</option>
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
           <ControlLabel>Choose a custom color</ControlLabel>
           <div>
             <OverlayTrigger
@@ -229,8 +215,23 @@ class KnowledgeForm extends Component {
             </OverlayTrigger>
           </div>
         </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Language</ControlLabel>
+
+          <FormControl
+            componentClass="select"
+            defaultValue={topic.languageCode || 'en'}
+            id="languageCode"
+          >
+            <option />
+            <option value="mn">Монгол</option>
+            <option value="en">English</option>
+          </FormControl>
+        </FormGroup>
+
         {this.renderInstallCode()}
-      </div>
+      </Fragment>
     );
   }
 
