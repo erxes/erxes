@@ -4,7 +4,13 @@ import faker from 'faker';
 import moment from 'moment';
 import { Customers, Segments, Tags } from '../db/models';
 import { graphqlRequest, connect, disconnect } from '../db/connection';
-import { customerFactory, tagsFactory, segmentFactory, formFactory } from '../db/factories';
+import {
+  customerFactory,
+  tagsFactory,
+  segmentFactory,
+  formFactory,
+  integrationFactory,
+} from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -377,5 +383,16 @@ describe('customerQueries', () => {
     responses = await graphqlRequest(qryCustomersMain, 'customersMain', args);
 
     expect(responses.list.length).toBe(3);
+  });
+
+  test('Customer filtered by default selector', async () => {
+    const integration = await integrationFactory({});
+    await Customers.createCustomer({ integrationId: integration._id });
+    await customerFactory();
+    await customerFactory();
+
+    const responses = await graphqlRequest(qryCustomersMain, 'customersMain', {});
+
+    expect(responses.list.length).toBe(2);
   });
 });
