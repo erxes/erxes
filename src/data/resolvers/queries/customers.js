@@ -99,13 +99,9 @@ const customerQueries = {
     const forms = await Forms.find({});
 
     for (let form of forms) {
-      if (params.startDate && params.endDate) {
-        counts.byForm[form._id] = await count(
-          await qb.formFilter(form._id, params.startDate, params.endDate),
-        );
-      } else {
-        counts.byForm[form._id] = await count(await qb.formFilter(form._id));
-      }
+      counts.byForm[form._id] = await count(
+        await qb.formFilter(form._id, params.startDate, params.endDate),
+      );
     }
 
     return counts;
