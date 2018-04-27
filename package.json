@@ -55,7 +55,7 @@
     "react-redux": "^5.0.6",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
-    "react-scripts": "1.0.15",
+    "react-scripts": "1.1.1",
     "react-select-plus": "^1.0.0-rc.5",
     "react-sortable-hoc": "^0.6.8",
     "react-toggle": "^4.0.2",
