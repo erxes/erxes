@@ -1,7 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { ArticleRow } from '/';
-import { Articles } from '../../styles';
+import { ArticleRow } from './';
 
 const propTypes = {
   articles: PropTypes.array.isRequired,
@@ -22,7 +21,7 @@ class ArticleList extends Component {
     } = this.props;
 
     return (
-      <Articles>
+      <Fragment>
         {articles.map(article => (
           <ArticleRow
             key={article._id}
@@ -33,7 +32,7 @@ class ArticleList extends Component {
             remove={remove}
           />
         ))}
-      </Articles>
+      </Fragment>
     );
   }
 }

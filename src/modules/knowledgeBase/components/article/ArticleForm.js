@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
 import {
@@ -97,7 +97,7 @@ class ArticleForm extends Component {
     };
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -142,7 +142,7 @@ class ArticleForm extends Component {
             ))}
           </FormControl>
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 

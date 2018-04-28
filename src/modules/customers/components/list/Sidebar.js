@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { CountsByTag } from 'modules/common/components';
 import Segments from 'modules/segments/containers/Filter';
-import { BrandFilter } from '../../containers';
+import { BrandFilter, FormFilter } from '../../containers';
 import { IntegrationFilter } from '../';
 
 const propTypes = {
@@ -24,6 +24,7 @@ function Sidebar({ counts, tags, loading }) {
       />
       <IntegrationFilter counts={counts.byIntegrationType} />
       <BrandFilter counts={counts.byBrand} />
+      <FormFilter counts={counts.byForm} />
     </Wrapper.Sidebar>
   );
 }
