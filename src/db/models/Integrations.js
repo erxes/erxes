@@ -26,6 +26,7 @@ const MessengerOnlineHoursSchema = mongoose.Schema(
 // subdocument schema for MessengerData
 const MessengerDataSchema = mongoose.Schema(
   {
+    supporterIds: field({ type: [String] }),
     notifyCustomer: field({ type: Boolean }),
     availabilityMethod: field({
       type: String,
