@@ -7,13 +7,16 @@ import { Spinner } from 'modules/common/components';
 import { MessengerConfigs } from '../components';
 
 const MessengerConfigsContainer = props => {
-  const { integrationDetailQuery, saveMutation } = props;
+  const { usersQuery, integrationDetailQuery, saveMutation } = props;
 
-  if (integrationDetailQuery.loading) {
+  if (integrationDetailQuery.loading || usersQuery.loading) {
     return <Spinner />;
   }
 
+  const users = usersQuery.users;
   const integration = integrationDetailQuery.integrationDetail;
+
+  const messengerData = integration.messengerData;
 
   const save = doc => {
     saveMutation({
@@ -29,10 +32,9 @@ const MessengerConfigsContainer = props => {
 
   const updatedProps = {
     ...props,
-    prevOptions: integration.messengerData || {},
-    save,
-    // TODO
-    user: {}
+    prevOptions: messengerData || {},
+    teamMembers: users || [],
+    save
   };
 
   return <MessengerConfigs {...updatedProps} />;
@@ -40,10 +42,27 @@ const MessengerConfigsContainer = props => {
 
 MessengerConfigsContainer.propTypes = {
   integrationDetailQuery: PropTypes.object,
+  usersQuery: PropTypes.object,
   saveMutation: PropTypes.func
 };
 
 export default compose(
+  graphql(
+    gql`
+      query objects {
+        users {
+          _id
+          details {
+            avatar
+            fullName
+          }
+        }
+      }
+    `,
+    {
+      name: 'usersQuery'
+    }
+  ),
   graphql(
     gql`
       query integrationDetail($_id: String!) {

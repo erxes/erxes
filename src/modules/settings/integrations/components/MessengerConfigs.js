@@ -28,7 +28,11 @@ class Configs extends Component {
       onlineHours: props.prevOptions.onlineHours || [],
       welcomeMessage: props.prevOptions.welcomeMessage || '',
       awayMessage: props.prevOptions.awayMessage || '',
-      thankYouMessage: props.prevOptions.thankYouMessage || ''
+      thankYouMessage: props.prevOptions.thankYouMessage || '',
+      supporterIds: this.generateSupporterOptions(
+        props.teamMembers,
+        props.prevOptions.supporterIds || []
+      )
     };
 
     this.save = this.save.bind(this);
@@ -40,6 +44,7 @@ class Configs extends Component {
     this.onWelcomeMessageChange = this.onWelcomeMessageChange.bind(this);
     this.onAwayMessageChange = this.onAwayMessageChange.bind(this);
     this.onThankYouMessageChange = this.onThankYouMessageChange.bind(this);
+    this.onTeamMembersChange = this.onTeamMembersChange.bind(this);
   }
 
   onMethodChange(e) {
@@ -74,10 +79,35 @@ class Configs extends Component {
     this.setState({ thankYouMessage: e.target.value });
   }
 
+  onTeamMembersChange(ids) {
+    const supporterIds = ids.split(',');
+
+    this.setState({ supporterIds });
+  }
+
   save(e) {
     e.preventDefault();
 
     this.props.save(this.state);
+  }
+
+  generateSupporterOptions(members = [], filterIds = []) {
+    const options = [];
+
+    for (const member of members) {
+      const option = {
+        value: member._id,
+        label: member.details.fullName
+      };
+
+      if (filterIds.length === 0) {
+        options.push(option);
+      } else if (filterIds.includes(member._id)) {
+        options.push(option);
+      }
+    }
+
+    return options;
   }
 
   renderOnlineHours() {
@@ -202,6 +232,19 @@ class Configs extends Component {
               />
             </FormGroup>
 
+            <FormGroup>
+              <ControlLabel>Supporters</ControlLabel>
+
+              <Select
+                value={this.state.supporterIds}
+                options={this.generateSupporterOptions(this.props.teamMembers)}
+                onChange={this.onTeamMembersChange}
+                clearable={false}
+                multi
+                simpleValue
+              />
+            </FormGroup>
+
             <SubHeading>{__('Other configs')}</SubHeading>
 
             <FormGroup>
@@ -264,6 +307,7 @@ class Configs extends Component {
 
 Configs.propTypes = {
   prevOptions: PropTypes.object.isRequired, // eslint-disable-line
+  teamMembers: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired
 };
 
