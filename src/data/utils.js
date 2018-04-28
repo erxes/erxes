@@ -1,3 +1,4 @@
+import xlsxPopulate from 'xlsx-populate';
 import AWS from 'aws-sdk';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
@@ -182,6 +183,22 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
       },
     },
   });
+};
+
+export const readTemplate = async name => {
+  const workbook = await xlsxPopulate.fromFileAsync(
+    `${__dirname}/../private/templates/${name}.xlsx`,
+  );
+
+  return { workbook, sheet: workbook.sheet(0) };
+};
+
+export const generateXlsx = async (workbook, name) => {
+  const url = `templateOutputs/${name}.xlsx`;
+
+  await workbook.toFileAsync(`${__dirname}/../private/${url}`);
+
+  return `localhost:3300/static/${url}`;
 };
 
 export default {

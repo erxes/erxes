@@ -4,6 +4,7 @@ import QueryBuilder from './segmentQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 import BuildQuery from './customerQueryBuilder';
+import { customersExport } from './customersExport';
 
 const CUSTOMERS_SORT = { 'messengerData.lastSeenAt': -1 };
 
@@ -132,6 +133,21 @@ const customerQueries = {
    */
   customerDetail(root, { _id }) {
     return Customers.findOne({ _id });
+  },
+
+  /**
+   * Export customers to xls file
+   * @param {Object} args - Query params
+   * @return {String} ffile url
+   */
+  async customersExport(root, params) {
+    const qb = new BuildQuery(params);
+
+    await qb.buildAllQueries();
+
+    const customers = await Customers.find(qb.mainQuery()).sort(CUSTOMERS_SORT);
+
+    return customersExport(customers);
   },
 };
 

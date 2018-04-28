@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 
+import path from 'path';
 import dotenv from 'dotenv';
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -29,6 +30,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(cors());
+
+app.use('/static', express.static(path.join(__dirname, 'private')));
 
 // file upload
 app.post('/upload-file', async (req, res) => {

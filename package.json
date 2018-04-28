@@ -75,7 +75,8 @@
     "subscriptions-transport-ws": "^0.9.6",
     "twit": "^2.2.9",
     "underscore": "^1.8.3",
-    "validator": "^9.0.0"
+    "validator": "^9.0.0",
+    "xlsx-populate": "^1.14.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",
