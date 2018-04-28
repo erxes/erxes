@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
+import client from 'apolloClient';
 import {
   DropdownToggle,
   TaggerPopover,
@@ -16,7 +17,7 @@ import {
   DataWithLoader,
   DateFilter
 } from 'modules/common/components';
-import { router, confirm } from 'modules/common/utils';
+import { router, confirm, Alert } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
@@ -24,6 +25,8 @@ import CustomerRow from './CustomerRow';
 import { CommonMerge } from '../';
 import { CustomerForm } from '../../containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
+import { queries } from '../../graphql';
+import gql from 'graphql-tag';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
@@ -58,6 +61,7 @@ class CustomersList extends React.Component {
     this.onChange = this.onChange.bind(this);
     this.removeCustomers = this.removeCustomers.bind(this);
     this.search = this.search.bind(this);
+    this.exportCustomers = this.exportCustomers.bind(this);
   }
 
   onChange() {
@@ -72,6 +76,22 @@ class CustomersList extends React.Component {
       customerIds.push(customer._id);
     });
     this.props.removeCustomers({ customerIds });
+  }
+
+  exportCustomers() {
+    const { queryParams } = this.props;
+
+    client
+      .query({
+        query: gql(queries.customersExport),
+        variables: { ...queryParams }
+      })
+      .then(({ data }) => {
+        console.log(data);
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
   }
 
   renderContent() {
@@ -164,6 +184,13 @@ class CustomersList extends React.Component {
         />
 
         {dateFilter}
+        <Button
+          onClick={() => this.exportCustomers()}
+          btnStyle="simple"
+          size="small"
+        >
+          Export customer
+        </Button>
 
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
