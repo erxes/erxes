@@ -64,7 +64,7 @@ class ConversationDetail extends React.Component {
   render() {
     let {
       conversationDetailQuery,
-      conversationLastStaffQuery,
+      messengerSupportersQuery,
       isMessengerOnlineQuery,
     } = this.props;
 
@@ -73,7 +73,7 @@ class ConversationDetail extends React.Component {
     const extendedProps = {
       ...this.props,
       messages: conversationDetail.messages || [],
-      user: conversationLastStaffQuery.conversationLastStaff || {},
+      users: messengerSupportersQuery.messengerSupporters || [],
       isOnline: isMessengerOnlineQuery.isMessengerOnline || false,
       data: connection.data,
     };
@@ -119,7 +119,7 @@ const query = compose(
 ConversationDetail.propTypes = {
   conversationId: PropTypes.string,
   conversationDetailQuery: PropTypes.object,
-  conversationLastStaffQuery: PropTypes.object,
+  messengerSupportersQuery: PropTypes.object,
   isMessengerOnlineQuery: PropTypes.object,
   endConversation: PropTypes.func,
 }

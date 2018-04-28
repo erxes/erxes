@@ -8,7 +8,7 @@ import { MessagesList, MessageSender, TopBar } from '../containers';
 const propTypes = {
   messages: PropTypes.array.isRequired,
   goToConversationList: PropTypes.func.isRequired,
-  user: PropTypes.object,
+  users: PropTypes.array,
   data: PropTypes.object,
   isNew: PropTypes.bool,
   isOnline: PropTypes.bool
@@ -38,12 +38,10 @@ class Conversation extends React.Component {
 
   renderTitle() {
     const { __ } = this.context;
-    const { user, isOnline } = this.props;
+    const { users, isOnline } = this.props;
 
-    if (user) {
+    if (users.length !== 0) {
       const defaultImage = '/static/images/default-avatar.svg';
-      const details = user.details || {};
-      const avatar = details.avatar || defaultImage;
 
       const state = (
         <div className="erxes-staff-company">
@@ -59,13 +57,20 @@ class Conversation extends React.Component {
         </div>
       );
 
-      return (
-        <div className="erxes-staff-profile">
-          <img src={avatar} alt={details.fullName} />
-          <div className="erxes-staff-name">{details.fullName}</div>
-          {state}
-        </div>
-      );
+      const supporters = users.map(user => {
+        const details = user.details || {};
+        const avatar = defaultImage;
+
+        return (
+          <div key={user._id} className="erxes-staff-profile">
+            <img src={avatar} alt={details.fullName} />
+            <div className="erxes-staff-name">{details.fullName}</div>
+            {state}
+          </div>
+        );
+      });
+
+      return supporters;
     }
 
     return (

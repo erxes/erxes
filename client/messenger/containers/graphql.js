@@ -40,10 +40,10 @@ const conversationDetailQuery = `
   }
 `;
 
-const conversationLastStaffQuery = `
-  query ($_id: String) {
-    conversationLastStaff(_id: $_id) {
-      _id,
+const messengerSupportersQuery = `
+  query ($integrationId: String!) {
+    messengerSupporters(integrationId: $integrationId) {
+      _id
       details {
         avatar
         fullName
@@ -91,7 +91,7 @@ const conversationChanged = `
 export default {
   messageFields,
   conversationDetailQuery,
-  conversationLastStaffQuery,
+  messengerSupportersQuery,
   isMessengerOnlineQuery,
   unreadCountQuery,
   conversationMessageInserted,
