@@ -24,7 +24,6 @@ class Condition extends Component {
     this.handleInputValue = this.handleInputValue.bind(this);
     this.handleValue = this.handleValue.bind(this);
     this.removeCondition = this.removeCondition.bind(this);
-    this.renderValueInput = this.renderValueInput.bind(this);
 
     // debounce text input
     this.changeCondition = debounce(this.props.changeCondition, 350);
@@ -63,43 +62,52 @@ class Condition extends Component {
   }
 
   renderValueInput() {
+    const { type, value } = this.state;
+
+    return (
+      <FormControl
+        name="value"
+        type={type === 'number' ? 'number' : 'text'}
+        value={value}
+        onChange={this.handleValue}
+      />
+    );
+  }
+
+  renderSelect(name, value, obj) {
     const { __ } = this.context;
-    const { type, operator } = this.state;
+
+    return (
+      <FormControl
+        name={name}
+        componentClass="select"
+        placeholder={__('select')}
+        value={value}
+        onChange={this.handleInputValue}
+      >
+        {Object.keys(obj).map(key => (
+          <option value={key} key={key}>
+            {obj[key]}
+          </option>
+        ))}
+      </FormControl>
+    );
+  }
+
+  renderInput() {
+    const { type, operator, dateUnit } = this.state;
     const currentOperator = operators[type].find(o => o.value === operator);
 
     if (!currentOperator || currentOperator.noInput) {
       return null;
     }
 
-    const valueInput = (
-      <FormControl
-        name="value"
-        type={type === 'number' ? 'number' : 'text'}
-        value={this.state.value}
-        onChange={this.handleValue}
-      />
-    );
-
-    const dateUnitInput = (
-      <FormControl
-        name="dateUnit"
-        componentClass="select"
-        placeholder={__('select')}
-        value={this.state.dateUnit}
-        onChange={this.handleInputValue}
-      >
-        {Object.keys(dateUnits).map(key => (
-          <option value={key} key={key}>
-            {dateUnits[key]}
-          </option>
-        ))}
-      </FormControl>
-    );
-
     return (
       <span>
-        {valueInput}
-        {type === 'date' ? dateUnitInput : null}
+        {this.renderValueInput()}
+        {type === 'date'
+          ? this.renderSelect('dateUnit', dateUnit, dateUnits)
+          : null}
         {type === 'date' && (operator === 'wlt' || operator === 'wmt')
           ? ' ago'
           : null}
@@ -107,9 +115,28 @@ class Condition extends Component {
     );
   }
 
+  renderOperator() {
+    const { __ } = this.context;
+
+    return (
+      <FormControl
+        name="operator"
+        componentClass="select"
+        placeholder={__('select')}
+        value={this.state.operator}
+        onChange={this.handleInputValue}
+      >
+        {operators[this.state.type].map(c => (
+          <option value={c.value} key={c.value}>
+            {c.name}
+          </option>
+        ))}
+      </FormControl>
+    );
+  }
+
   render() {
     const { condition } = this.props;
-    const { __ } = this.context;
 
     return (
       <ConditionItem>
@@ -117,35 +144,10 @@ class Condition extends Component {
         <br />
         <FlexContent>
           <FlexItem>
-            <FormControl
-              name="operator"
-              componentClass="select"
-              placeholder={__('select')}
-              value={this.state.operator}
-              onChange={this.handleInputValue}
-            >
-              {operators[this.state.type].map(c => (
-                <option value={c.value} key={c.value}>
-                  {c.name}
-                </option>
-              ))}
-            </FormControl>{' '}
-            {this.renderValueInput()}
+            {this.renderOperator()} {this.renderInput()}
           </FlexItem>
           <FlexRightItem>
-            <FormControl
-              name="type"
-              componentClass="select"
-              placeholder={__('select')}
-              value={this.state.type}
-              onChange={this.handleInputValue}
-            >
-              {Object.keys(types).map(key => (
-                <option value={key} key={key}>
-                  {types[key]}
-                </option>
-              ))}
-            </FormControl>
+            {this.renderSelect('type', this.state.type, types)}
             <Button
               btnStyle="danger"
               size="small"
