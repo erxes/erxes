@@ -1,10 +1,8 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import {
-  VolumeReport,
-  ResponseReport,
-  FirstResponse,
-  ResponseCloseReport,
+  VolumeAndReponseReport,
+  FirstAndCloseResponseReport,
   Reports
 } from './containers';
 import { InsightPage } from './components';
@@ -15,7 +13,7 @@ const routes = () => [
     exact
     path="/insights/response-report"
     component={() => {
-      return <Reports component={ResponseReport} />;
+      return <Reports type="response" component={VolumeAndReponseReport} />;
     }}
   />,
 
@@ -24,7 +22,7 @@ const routes = () => [
     exact
     path="/insights/response-close-report"
     component={() => {
-      return <Reports component={ResponseCloseReport} />;
+      return <Reports type="close" component={FirstAndCloseResponseReport} />;
     }}
   />,
 
@@ -33,7 +31,7 @@ const routes = () => [
     exact
     path="/insights/first-response"
     component={() => {
-      return <Reports component={FirstResponse} />;
+      return <Reports type="first" component={FirstAndCloseResponseReport} />;
     }}
   />,
 
@@ -42,7 +40,7 @@ const routes = () => [
     exact
     path="/insights/volume-report"
     component={() => {
-      return <Reports component={VolumeReport} />;
+      return <Reports type="volume" component={VolumeAndReponseReport} />;
     }}
   />,
 
