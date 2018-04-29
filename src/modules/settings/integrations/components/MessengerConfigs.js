@@ -24,7 +24,7 @@ class Configs extends Component {
     const {
       notifyCustomer,
       availabilityMethod,
-      supporterIds,
+      supporterIds = [],
       isOnline,
       timezone,
       onlineHours,
