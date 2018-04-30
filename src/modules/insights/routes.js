@@ -1,13 +1,29 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import {
-  VolumeReport,
-  ResponseReport,
-  FirstResponse,
-  ResponseCloseReport,
-  Reports
-} from './containers';
-import { InsightPage } from './components';
+
+import asyncComponent from './components/AsyncComponent';
+
+const AsyncVolumeReport = asyncComponent(() =>
+  import('./containers/VolumeReport')
+);
+
+const AsyncResponseReport = asyncComponent(() =>
+  import('./containers/ResponseReport')
+);
+
+const AsyncFirstResponse = asyncComponent(() =>
+  import('./containers/FirstResponse')
+);
+
+const AsyncResponseCloseReport = asyncComponent(() =>
+  import('./containers/ResponseCloseReport')
+);
+
+const AsyncReports = asyncComponent(() => import('./containers/Reports'));
+
+const AsyncInsightPage = asyncComponent(() =>
+  import('./components/InsightPage')
+);
 
 const routes = () => [
   <Route
@@ -15,7 +31,7 @@ const routes = () => [
     exact
     path="/insights/response-report"
     component={() => {
-      return <Reports component={ResponseReport} />;
+      return <AsyncReports component={AsyncResponseReport} />;
     }}
   />,
 
@@ -24,7 +40,7 @@ const routes = () => [
     exact
     path="/insights/response-close-report"
     component={() => {
-      return <Reports component={ResponseCloseReport} />;
+      return <AsyncReports component={AsyncResponseCloseReport} />;
     }}
   />,
 
@@ -33,7 +49,7 @@ const routes = () => [
     exact
     path="/insights/first-response"
     component={() => {
-      return <Reports component={FirstResponse} />;
+      return <AsyncReports component={AsyncFirstResponse} />;
     }}
   />,
 
@@ -42,11 +58,11 @@ const routes = () => [
     exact
     path="/insights/volume-report"
     component={() => {
-      return <Reports component={VolumeReport} />;
+      return <AsyncReports component={AsyncVolumeReport} />;
     }}
   />,
 
-  <Route key="/insights" exact path="/insights" component={InsightPage} />
+  <Route key="/insights" exact path="/insights" component={AsyncInsightPage} />
 ];
 
 export default routes;
