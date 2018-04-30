@@ -3,7 +3,7 @@ import AWS from 'aws-sdk';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
 import Handlebars from 'handlebars';
-import { Notifications, Users } from '../db/models';
+import { Notifications, Users, Customers } from '../db/models';
 
 /*
  * Save binary data to amazon s3
@@ -202,7 +202,7 @@ export const importXlsFile = file => {
   });
 };
 
-const importCustomers = sheet => {
+const importCustomers = async sheet => {
   const rows = sheet.usedRange().value();
   const customers = [];
 
@@ -224,9 +224,9 @@ const importCustomers = sheet => {
     customers.push(customer);
   });
 
-  // for(let customer of customers) {
-  //   Customers.createCustomer(customer);
-  // }
+  for (let customer of customers) {
+    await Customers.createCustomer(customer);
+  }
 };
 
 export const readTemplate = async name => {
