@@ -150,7 +150,7 @@ export const generateTimeIntervals = (start, end) => {
  */
 export const generateUserChartData = async ({ userId, userMessages, duration, startTime }) => {
   const user = await Users.findOne({ _id: userId });
-  const userData = generateChartData(userMessages, 7, duration, startTime);
+  const userData = generateChartData(userMessages, 4, duration, startTime);
 
   if (!user) {
     return {
