@@ -1,15 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip
-} from 'recharts';
+import { ResponsiveLine } from '@nivo/line';
 import { Spinner } from 'modules/common/components';
 import { ChartWrapper, LoaderWrapper } from '../styles';
+import { colors } from 'modules/common/styles';
 
 const propTypes = {
   data: PropTypes.array.isRequired,
@@ -20,8 +14,7 @@ const propTypes = {
 
 class Chart extends React.Component {
   render() {
-    const { data, width, height, loading } = this.props;
-    const textStyle = { textTransform: 'capitalize' };
+    const { data, height, loading } = this.props;
 
     if (loading) {
       return (
@@ -31,25 +24,32 @@ class Chart extends React.Component {
       );
     }
 
+    const chartData = [{ id: 'count', color: '#eee', data }];
+
     return (
-      <ChartWrapper>
-        <AreaChart width={width} height={height} data={data}>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <CartesianGrid strokeDasharray="1 3" />
-          <Tooltip
-            wrapperStyle={{ borderRadius: '4px' }}
-            itemStyle={textStyle}
-          />
-          <Area
-            type="monotone"
-            dataKey="count"
-            stroke="#a174e2"
-            strokeWidth={2}
-            fill="#ba91f7"
-            activeDot={{ r: 5 }}
-          />
-        </AreaChart>
+      <ChartWrapper height={height}>
+        <ResponsiveLine
+          data={chartData}
+          margin={{
+            top: 30,
+            right: 30,
+            bottom: 30,
+            left: 30
+          }}
+          colors={[colors.colorPrimary]}
+          enableArea={true}
+          enableGridX={false}
+          minY="auto"
+          dotSize={8}
+          dotBorderWidth={1}
+          dotBorderColor="#ffffff"
+          dotLabel="y"
+          dotLabelYOffset={-12}
+          animate={true}
+          motionStiffness={90}
+          motionDamping={15}
+          curve="monotoneX"
+        />
       </ChartWrapper>
     );
   }

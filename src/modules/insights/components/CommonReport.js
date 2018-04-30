@@ -49,7 +49,7 @@ class CommonReport extends Component {
         }}
       >
         {this.renderTitle(name)}
-        <Chart loading={loading.main} width={width} height={320} data={trend} />
+        <Chart loading={loading.main} height={360} data={trend} />
       </InsightRow>
     );
   }

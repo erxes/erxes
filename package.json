@@ -19,6 +19,8 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@nivo/line": "^0.33.0",
+    "@nivo/pie": "^0.33.0",
     "add-graphql-subscriptions": "^1.0.1",
     "apollo-cache-inmemory": "^1.1.5",
     "apollo-client": "^2.2.1",
@@ -55,7 +57,6 @@
     "react-router-dom": "^4.2.2",
     "react-select-plus": "^1.0.0-rc.5",
     "react-toggle": "^4.0.2",
-    "recharts": "1.0.0-beta.2",
     "scriptjs": "^2.5.8",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",
