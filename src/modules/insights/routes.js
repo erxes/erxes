@@ -1,22 +1,13 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-
 import asyncComponent from './components/AsyncComponent';
 
-const AsyncVolumeReport = asyncComponent(() =>
-  import('./containers/VolumeReport')
+const AsyncVolumeAndResponseReport = asyncComponent(() =>
+  import('./containers/VolumeAndResponseReport')
 );
 
-const AsyncResponseReport = asyncComponent(() =>
-  import('./containers/ResponseReport')
-);
-
-const AsyncFirstResponse = asyncComponent(() =>
-  import('./containers/FirstResponse')
-);
-
-const AsyncResponseCloseReport = asyncComponent(() =>
-  import('./containers/ResponseCloseReport')
+const AsyncFirstAndCloseResponseReport = asyncComponent(() =>
+  import('./containers/FirstAndCloseResponseReport')
 );
 
 const AsyncReports = asyncComponent(() => import('./containers/Reports'));
@@ -31,7 +22,12 @@ const routes = () => [
     exact
     path="/insights/response-report"
     component={() => {
-      return <AsyncReports component={AsyncResponseReport} />;
+      return (
+        <AsyncReports
+          type="response"
+          component={AsyncVolumeAndResponseReport}
+        />
+      );
     }}
   />,
 
@@ -40,7 +36,12 @@ const routes = () => [
     exact
     path="/insights/response-close-report"
     component={() => {
-      return <AsyncReports component={AsyncResponseCloseReport} />;
+      return (
+        <AsyncReports
+          type="close"
+          component={AsyncFirstAndCloseResponseReport}
+        />
+      );
     }}
   />,
 
@@ -49,7 +50,12 @@ const routes = () => [
     exact
     path="/insights/first-response"
     component={() => {
-      return <AsyncReports component={AsyncFirstResponse} />;
+      return (
+        <AsyncReports
+          type="first"
+          component={AsyncFirstAndCloseResponseReport}
+        />
+      );
     }}
   />,
 
@@ -58,7 +64,9 @@ const routes = () => [
     exact
     path="/insights/volume-report"
     component={() => {
-      return <AsyncReports component={AsyncVolumeReport} />;
+      return (
+        <AsyncReports type="volume" component={AsyncVolumeAndResponseReport} />
+      );
     }}
   />,
 
