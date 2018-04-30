@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { iconAttach } from '../../icons/Icons';
 
 const propTypes = {
@@ -11,7 +12,7 @@ const propTypes = {
   onTextInputBlur: PropTypes.func.isRequired,
 };
 
-class MessageSender extends Component {
+class MessageSender extends React.Component {
   constructor(props) {
     super(props);
 

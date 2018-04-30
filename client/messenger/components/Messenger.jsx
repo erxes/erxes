@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import {
   ConversationList,
   ConversationCreate,
@@ -20,7 +21,7 @@ function Messenger({ activeRoute, color }) {
       return <ConversationCreate isNew color={color} />;
 
     case 'conversationList':
-      return <ConversationList color={color} />;
+      return <ConversationList />;
 
     // get user's contact information
     case 'accquireInformation':

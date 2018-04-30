@@ -1,6 +1,6 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
 
 const propTypes = {
   onClick: PropTypes.func.isRequired,
@@ -9,7 +9,12 @@ const propTypes = {
   uiOptions: PropTypes.object,
 };
 
-function Launcher({ isMessengerVisible, onClick, notificationCount, uiOptions }) {
+function Launcher({
+  isMessengerVisible,
+  onClick,
+  notificationCount,
+  uiOptions,
+}) {
   const clickHandler = () => {
     onClick(isMessengerVisible);
   };
@@ -25,7 +30,11 @@ function Launcher({ isMessengerVisible, onClick, notificationCount, uiOptions })
     <div
       className={launcherClasses}
       onClick={clickHandler}
-      style={{ backgroundColor: color, backgroundImage: `url(${logo || defaultLogo})` }}
+      style={{
+        backgroundColor: color,
+        backgroundImage: `url(${logo || defaultLogo})`,
+        backgroundSize: logo ? '' : '20px',
+      }}
     >
       {notificationCount ? <span>{notificationCount}</span> : null}
     </div>

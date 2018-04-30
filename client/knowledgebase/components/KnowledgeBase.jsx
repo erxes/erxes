@@ -9,13 +9,17 @@ import {
   CONTENT_TYPE_ARTICLE,
   CONTENT_TYPE_SEARCH,
 } from '../constants';
-import classNames from 'classnames';
 
 const propTypes = {
   displayType: PropTypes.object, // eslint-disable-line
   onSwitchToTopicDisplay: PropTypes.func,
   onSwitchToCategoryDisplay: PropTypes.func,
   onUpdateSearchString: PropTypes.func,
+  color: PropTypes.string,
+};
+
+const contextTypes = {
+  __: PropTypes.func
 };
 
 export default class KnowledgeBase extends React.Component {
@@ -46,6 +50,7 @@ export default class KnowledgeBase extends React.Component {
   }
 
   renderContent() {
+    const { __ } = this.context;
     const { displayType } = this.props;
     if (displayType.displayType === CONTENT_TYPE_TOPIC) {
       return (
@@ -56,7 +61,7 @@ export default class KnowledgeBase extends React.Component {
     if (displayType.displayType === CONTENT_TYPE_CATEGORY) {
       return (
         <div>
-          <BackButton onClickHandler={this.onTopicClickHandler} text="Back to categories" />
+          <BackButton onClickHandler={this.onTopicClickHandler} text={__('Back to categories')} />
           <CategoryDetail category={displayType.category} />
         </div>
       );
@@ -69,7 +74,7 @@ export default class KnowledgeBase extends React.Component {
             onClickHandler={displayType.data.category != null ?
               this.onCategoryClickHandler : this.onTopicClickHandler}
             text={displayType.data.category != null ?
-              'Back to articles' : 'Back to top'}
+              __('Back to articles') : __('Back to top')}
           />
           <ArticleDetail data={displayType.data} />
         </div>
@@ -88,15 +93,14 @@ export default class KnowledgeBase extends React.Component {
   }
 
   render() {
-    const { displayType } = this.props;
-    const widgetClasses = classNames('erxes-widget-kb');
+    const { displayType, color } = this.props;
     const { topicData } = displayType;
     const searchStr = topicData && topicData.searchStr || '';
 
     return (
-      <div className={widgetClasses}>
+      <div className="erxes-widget-kb">
         <div>
-          <SearchBar searchStr={searchStr}/>
+          <SearchBar searchStr={searchStr} color={color} />
           <div className="erxes-content">
             <div className="erxes-knowledge-container">
               {this.renderContent()}
@@ -109,3 +113,4 @@ export default class KnowledgeBase extends React.Component {
 }
 
 KnowledgeBase.propTypes = propTypes;
+KnowledgeBase.contextTypes = contextTypes;

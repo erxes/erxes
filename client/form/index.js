@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
 
 import widgetConnect from '../widgetConnect';
+import { setLocale } from '../utils';
 import { connection } from './connection';
 import { connect } from './actions';
 import reducers from './reducers';
@@ -13,9 +14,10 @@ widgetConnect({
   },
 
   connectMutation: (event) => {
-    const setting = event.data.setting;
+    const { setting, hasPopupHandlers } = event.data;
 
     connection.setting = setting;
+    connection.hasPopupHandlers = hasPopupHandlers;
 
     // call connect mutation
     return connect(setting.brand_id, setting.form_id);
@@ -29,19 +31,8 @@ widgetConnect({
     // save connection info
     connection.data = data.formConnect;
 
-    window.addEventListener('message', (event) => {
-      if (event.data.fromPublisher) {
-        // receive show popup command from publisher
-        if (event.data.action === 'show') {
-          document.querySelector('.modal-form').className = 'modal-form open';
-        }
-
-        // receive hide popup command from publisher
-        if (event.data.action === 'hide') {
-          document.querySelector('.modal-form').className = 'modal-form';
-        }
-      }
-    });
+    // set language
+    setLocale(data.formConnect.languageCode);
   },
 
   AppContainer: App,

@@ -7,6 +7,7 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from './connection';
+import { setLocale } from '../utils';
 import reducers from './reducers';
 import { App } from './containers';
 import { connect } from './actions/messenger';
@@ -32,7 +33,6 @@ widgetConnect({
       name: setting.name,
       data: setting.data,
       companyData: setting.companyData,
-      browserInfo: setting.browserInfo,
     });
   },
 
@@ -45,6 +45,9 @@ widgetConnect({
 
     // save connection info
     connection.data = messengerData;
+
+    // set language
+    setLocale(messengerData.languageCode);
 
     // save customer id to identify visitor next time
     setLocalStorageItem('customerId', messengerData.customerId);

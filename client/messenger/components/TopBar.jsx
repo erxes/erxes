@@ -1,4 +1,6 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { iconExit } from '../../icons/Icons';
 
 const propTypes = {
@@ -9,6 +11,12 @@ const propTypes = {
   endConversation: PropTypes.func,
   isChat: PropTypes.bool,
   isConversationEnded: PropTypes.bool,
+  isExpanded: PropTypes.bool,
+  onToggle: PropTypes.func,
+};
+
+const contextTypes = {
+  __: PropTypes.func
 };
 
 function TopBar({
@@ -19,10 +27,16 @@ function TopBar({
     isChat,
     isConversationEnded,
     endConversation,
-  }) {
+    isExpanded,
+    onToggle
+  }, {__}) {
+
+  const topBarClassNames = classNames('erxes-topbar', {
+    'expanded': isExpanded
+  });
 
   const onEndConversation = () => {
-    if (confirm('Do you want to end this conversation ?')) {
+    if (confirm(__('Do you want to end this conversation ?'))) {
       endConversation();
     }
   };
@@ -44,11 +58,25 @@ function TopBar({
     return null;
   };
 
+  const renderLeftButton = () => {
+    if (onButtonClick) {
+      return (
+        <a
+          href="#"
+          className="topbar-button left"
+          onClick={onButtonClick}
+        >
+          {buttonIcon}
+        </a>
+      );
+    }
+
+    return null;
+  };
+
   return (
-    <div className="erxes-topbar" style={{ backgroundColor: color }}>
-      <a href="" className="topbar-button left" onClick={onButtonClick} >
-        {buttonIcon}
-      </a>
+    <div onClick={onToggle} className={topBarClassNames} style={{ backgroundColor: color }}>
+      {renderLeftButton()}
       <div className="erxes-middle">
         {middle}
       </div>
@@ -58,6 +86,7 @@ function TopBar({
 }
 
 TopBar.propTypes = propTypes;
+TopBar.contextTypes = contextTypes;
 
 TopBar.defaultProps = {
   middle: null,

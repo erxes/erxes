@@ -1,27 +1,41 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { iconLeft } from '../../icons/Icons';
 import { MessagesList, MessageSender, TopBar } from '../containers';
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
   goToConversationList: PropTypes.func.isRequired,
-  user: PropTypes.object,
+  users: PropTypes.array,
   data: PropTypes.object,
   isNew: PropTypes.bool,
   isOnline: PropTypes.bool,
-  color: PropTypes.string,
+  color: PropTypes.string
 };
 
-class Conversation extends Component {
+const contextTypes = {
+  __: PropTypes.func
+}
+
+class Conversation extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { isFocused: false };
+    this.state = { isFocused: false, expanded: false };
 
     this.onClick = this.onClick.bind(this);
     this.onTextInputBlur = this.onTextInputBlur.bind(this);
+    this.toggle = this.toggle.bind(this);
+  }
+
+  toggle() {
+    const { users } = this.props;
+
+    if(users.length !== 0) {
+      this.setState({ expanded: !this.state.expanded });
+    }
   }
 
   onClick() {
@@ -32,36 +46,70 @@ class Conversation extends Component {
     this.setState({ isFocused: false });
   }
 
+  renderUserInfo(user, type) {
+    const { color } = this.props;
+    const defaultImage = '/static/images/default-avatar.svg';
+    const details = user.details || {};
+    const avatar = details.avatar || defaultImage;
+
+    if(type === 'avatar') {
+      return <img key={user._id} style={{ borderColor: color }} src={avatar} alt={details.fullName} />;
+    }
+
+    if(type === 'name') {
+      return <span key={user._id}>{details.fullName} </span>;
+    }
+
+    return (
+      <div key={user._id} className="erxes-staff-profile">
+        <img src={avatar} alt={details.fullName} />
+        <div className="erxes-staff-name">{details.fullName}</div>
+        {type}
+      </div>
+    );
+  }
+
   renderTitle() {
-    const { user, isOnline } = this.props;
+    const { __ } = this.context;
+    const { users, isOnline } = this.props;
 
-    if (user) {
-      const defaultImage = '/static/images/user.png';
-      const details = user.details || {};
-      const avatar = details.avatar || defaultImage;
-
+    if (users.length !== 0) {
       const state = (
         <div className="erxes-staff-company">
-          { isOnline ?
-            <div className="erxes-state online"><span /> Online</div> :
-            <div className="erxes-state offline"><span /> Offline</div>
-          }
+          {isOnline ? (
+            <div className="erxes-state online">
+              <span /> {__('Online')}
+            </div>
+          ) : (
+            <div className="erxes-state offline">
+              <span /> {__("Offline")}
+            </div>
+          )}
         </div>
       );
 
+      const avatars =  users.map(user => this.renderUserInfo(user, 'avatar'));
+      const names =  users.map(user => this.renderUserInfo(user, 'name'));
+      const supporters = users.map(user => this.renderUserInfo(user, state));
+
       return (
-        <div className="erxes-staff-profile">
-          <img src={avatar} alt={details.fullName} />
-          <div className="erxes-staff-name">{details.fullName}</div>
-          {state}
+        <div>
+          <div className="erxes-avatars">
+            <div className="erxes-avatars-wrapper">{avatars}</div>
+            <div className="erxers-names-wrapper">{names}</div>
+            {state}
+          </div>
+          <div className="erxes-staffs">
+            {supporters}
+          </div>
         </div>
       );
     }
 
     return (
       <div className="erxes-topbar-title">
-        <div>Conversation</div>
-        <span>with Support staff</span>
+        <div>{__('Conversation')}</div>
+        <span>{__('with Support staff')}</span>
       </div>
     );
   }
@@ -72,18 +120,18 @@ class Conversation extends Component {
       isNew,
       goToConversationList,
       data,
-      isOnline,
-      color,
+      isOnline
     } = this.props;
-
-    const placeholder = isNew ? 'Send a message ...' : 'Write a reply ...';
-    const style = { border: `1px solid ${color}` };
+    const { __ } = this.context;
+    const placeholder = isNew ? __('Send a message') : __('Write a reply');
 
     return (
-      <div onClick={this.onClick} className="erxes-messenger" style={style}>
+      <div onClick={this.onClick} className="erxes-messenger">
         <TopBar
           middle={this.renderTitle()}
           buttonIcon={iconLeft}
+          onToggle={this.toggle}
+          isExpanded={this.state.expanded}
           onButtonClick={goToConversationList}
         />
 
@@ -99,6 +147,7 @@ class Conversation extends Component {
 }
 
 Conversation.propTypes = propTypes;
+Conversation.contextTypes = contextTypes;
 
 Conversation.defaultProps = {
   user: {},

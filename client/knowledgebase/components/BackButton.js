@@ -1,21 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Ionicons from 'react-ionicons';
 
 const propTypes = {
   onClickHandler: PropTypes.func.isRequired,
-  text: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired
 };
 
-function BackButton({ onClickHandler, text }) {
+const contextTypes = {
+  __: PropTypes.func
+}
+
+function BackButton({ onClickHandler, text }, {__}) {
   return (
     <button onClick={onClickHandler} className="back">
-      <Ionicons icon="ion-chevron-left" fontSize="10px" color="#888" />
-      {text}
+      <i className="icon-leftarrow-2" />
+      {__(text)}
     </button>
   );
 }
 
 BackButton.propTypes = propTypes;
+BackButton.contextTypes = contextTypes;
 
 export default BackButton;

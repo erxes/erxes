@@ -42,6 +42,10 @@ export default {
         use: ['style-loader', 'css-loader'],
       },
       {
+        test: /\.(png|woff|woff2|eot|ttf|svg)$/, 
+        loader: 'url-loader?limit=100000'
+      }, 
+      {
         test: /\.scss$/,
         use: ['style-loader', 'css-loader', 'sass-loader'],
         exclude: /node_modules/,
@@ -50,7 +54,7 @@ export default {
   },
 
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: ['.js', '.jsx', '.json'],
   },
 
   plugins: [

@@ -1,5 +1,10 @@
 import {
-  SHOUTBOX_FORM_TOGGLE,
+  SHOW_CALLOUT,
+  HIDE_CALLOUT,
+  SHOW_FORM,
+  HIDE_FORM,
+  SHOW_POPUP,
+  HIDE_POPUP,
   INITIAL,
   ERROR,
   SUCCESS,
@@ -7,11 +12,42 @@ import {
   CREATE_NEW,
 } from './constants';
 
-// Indicates messenger box's visibility.
-const isShoutboxFormVisible = (state = false, action) => {
+// Is popup visible
+const isPopupVisible = (state = false, action) => {
   switch (action.type) {
-    case SHOUTBOX_FORM_TOGGLE:
-      return action.isVisible;
+    case HIDE_POPUP:
+      return false;
+
+    case SHOW_POPUP:
+      return true;
+
+    default:
+      return state;
+  }
+};
+
+// Is form visible
+const isFormVisible = (state = false, action) => {
+  switch (action.type) {
+    case HIDE_FORM:
+      return false;
+
+    case SHOW_FORM:
+      return true;
+
+    default:
+      return state;
+  }
+};
+
+// Is callout visible
+const isCalloutVisible = (state = false, action) => {
+  switch (action.type) {
+    case SHOW_CALLOUT:
+      return true;
+
+    case HIDE_CALLOUT:
+      return false;
 
     default:
       return state;
@@ -46,7 +82,9 @@ const currentStatus = (state = { status: INITIAL }, action) => {
 };
 
 const form = {
-  isShoutboxFormVisible,
+  isPopupVisible,
+  isFormVisible,
+  isCalloutVisible,
   currentStatus,
 };
 

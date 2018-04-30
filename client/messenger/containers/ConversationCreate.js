@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { compose } from 'react-apollo';
 import { connection } from '../connection';
@@ -8,12 +9,12 @@ import conversationCommonQueries from './conversationCommonQueries';
 
 class ConversationCreate extends React.Component {
   render() {
-    let { conversationLastStaffQuery, isMessengerOnlineQuery } = this.props;
+    let { messengerSupportersQuery, isMessengerOnlineQuery } = this.props;
 
     const extendedProps = {
       ...this.props,
       messages: [],
-      user: conversationLastStaffQuery.conversationLastStaff || {},
+      users: messengerSupportersQuery.messengerSupporters || [],
       isOnline: isMessengerOnlineQuery.isMessengerOnline || false,
       data: connection.data,
     };
@@ -32,7 +33,7 @@ const mapDisptachToProps = dispatch => ({
 const query = compose(...conversationCommonQueries());
 
 ConversationCreate.propTypes = {
-  conversationLastStaffQuery: PropTypes.object,
+  messengerSupportersQuery: PropTypes.object,
   isMessengerOnlineQuery: PropTypes.object,
 }
 

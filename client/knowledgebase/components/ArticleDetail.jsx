@@ -6,7 +6,11 @@ const propTypes = {
   data: PropTypes.object, // eslint-disable-line
 };
 
-export default function ArticleDetail({ data }) {
+const contextTypes = {
+  __: PropTypes.func
+};
+
+export default function ArticleDetail({ data }, {__}) {
   const { author } = data;
   return (
     <div className="erxes-kb-item detail">
@@ -15,25 +19,28 @@ export default function ArticleDetail({ data }) {
         <div className="avatars">
           <img
             alt={author.details.fullName}
-            src={author.details.avatar || '/static/images/userDefaultIcon.png'}
+            src={author.details.avatar || '/static/images/default-avatar.svg'}
           />
         </div>
         <div>
           <div>
-            Written by <span>{author.details.fullName}</span>
+            {__('Written by')}: <span>{author.details.fullName}</span>
           </div>
           <div>
-            {data.modifiedDate ? 'Modified ' : 'Created '}
-            {moment(data.modifiedDate ? data.modifiedDate : data.createdDate).fromNow()}
+            {data.modifiedDate ? __('Modified ') : __('Created ')}
+            <span>
+              {moment(data.modifiedDate ? data.modifiedDate : data.createdDate).format('lll')}
+            </span>
           </div>
         </div>
       </div>
       <div className="erxes-article-content">
         <p>{data.summary}</p>
-        <p>{data.content}</p>
+        <p dangerouslySetInnerHTML={{__html: data.content}}/>
       </div>
     </div>
   );
 }
 
 ArticleDetail.propTypes = propTypes;
+ArticleDetail.contextTypes = contextTypes;

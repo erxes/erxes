@@ -1,12 +1,13 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400&subset=cyrillic-ext');
+@import 'client/sass/variables';
+@import 'client/sass/mixin';
 
-@import 'base/variables';
-@import 'base/mixins';
-@import 'base/base';
+@import 'client/sass/base/base';
 
-@import 'components/launcher';
-@import 'components/messenger';
+@import 'client/sass/components/launcher';
+@import 'client/sass/components/topbar';
+
 @import 'components/topbar';
+@import 'components/messenger';
 @import 'components/conversations';
 @import 'components/messages';
 @import 'components/message-sender';

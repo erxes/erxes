@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400&subset=cyrillic-ext');
+
+// Colors
+$main-color: #7754b3;
+$grey-light: #eee;
+$border-color: #ddd;
+$text-color: #686868;
+$text-color-light: #888;
+
+$white: #fff;
+$black: #000;
+$red: #f74040;
+$grey: #f5f4f6;
+$green: #67b04f;
+
+$transparent-white: rgba(255, 255, 255, .3);
+
+// Backgrounds
+$bg-color: #faf9fb;
+$input-bg: #ebeef3;
+
+// Dimensions
+$core-spacing: 20px;
+$border-radius: 4px;
+$break-small: 415px;
+$break-medium: 500px;
+$kb-spacing: 20px;
+$font-size: 14px;
+
+// z index
+$z-index-above: 100000;

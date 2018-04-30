@@ -66,6 +66,8 @@ const getKbTopicQuery = `
     knowledgeBaseTopicsDetail(topicId: $topicId) {
       title
       description
+      color
+      languageCode
       categories {
         _id
         title

@@ -1,9 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import DatePicker from 'react-datepicker';
-import moment from 'moment';
-
 
 export default class Field extends React.Component {
   static renderSelect(options = [], attrs = {}) {
@@ -125,13 +123,14 @@ export default class Field extends React.Component {
   }
 
   renderDatepicker() {
+    const { __ } = this.context;
     return (
       <DatePicker
         selected={this.state.dateValue}
         onChange={this.onDateChange}
         className="form-control"
         dateFormat="YYYY/MM/DD"
-        placeholderText="Click to select a date"
+        placeholderText={__('Click to select a date')}
       />
     );
   }
@@ -186,4 +185,8 @@ Field.propTypes = {
   field: PropTypes.object, // eslint-disable-line
   error: PropTypes.object, // eslint-disable-line
   onChange: PropTypes.func,
+};
+
+Field.contextTypes = {
+  __: PropTypes.func
 };

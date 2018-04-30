@@ -1,108 +1,106 @@
 .erxes-topbar {
-  background: $main-color;
-  overflow: hidden;
-  width: 100%;
-  height: 70px;
-  text-align: center;
-  flex-shrink: 0;
-  color: $white;
-  border-top-left-radius: $border-radius;
-  border-top-right-radius: $border-radius;
+  min-height: 70px;
 
-  .topbar-button {
-    &.left {
-      left: 15px;
+  .erxes-staffs {
+    display: none;
+  }
+
+  &.expanded {
+    height: auto;
+
+    .erxes-avatars {
+      display: none;
     }
 
-    &.right {
-      right: 15px;
+    .erxes-staffs {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .erxes-middle {
+      display: block;
+    }
+
+    .erxes-staff-profile {
+      flex: 1;
+      flex-shrink: 0;
+      margin: 15px 0;
+      text-align: center;
+
+      img {
+        float: none;
+      }
+    }
+
+    .erxes-staff-name {
+      font-size: 13px;
+      font-weight: normal;
+      margin: 0;
+    }
+
+    .erxes-staff-company {
+      height: 8px;
+      left: calc(50% + 10px);
+      line-height: 8px;
+      margin: 0;
+      overflow: hidden;
+      position: absolute;
+      top: 30px;
+      width: 8px;
     }
   }
 
   .erxes-middle {
-    display: inline-block;
+    @include prefix((
+      transition: background .3s ease-in-out
+    ), webkit moz ms o);
+    margin: 0 70px;
+    min-height: 100%;
+    padding: 0 15px;
 
-    @media screen and (max-width: $break-small) {
-      padding-right: 30px;
+    &:hover {
+      background: rgba($black, .1);
+      cursor: pointer;
     }
   }
 }
 
-.topbar-button {
-  position: absolute;
-  top: 15px;
-  text-align: center;
-  cursor: pointer;
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
-  border-radius: $border-radius;
-  display: block;
-  @include prefix((
-    transition: background .3s ease-in-out
-  ), webkit moz ms o);
-
-  &:hover {
-    background-color: rgba($black, .2);
-  }
-}
-
-.erxes-staff-profile {
-  margin-top: 15px;
+.erxes-avatars {
+  margin: 15px 0;
+  overflow: hidden;
   text-align: left;
-  line-height: 1.3em;
 
-  img {
+  .erxes-avatars-wrapper {
     float: left;
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    overflow: hidden;
-  }
+    margin-right: 10px;
 
-  > div {
-    margin-left: 50px;
-  }
-
-  .erxes-staff-name {
-    font-size: 15px;
-    font-weight: 600;
-    padding-top: 3px;
-  }
-
-  .erxes-staff-company {
-    font-size: 13px;
-    font-weight: 300;
-  }
-
-  .erxes-state {
-    > span {
-      width: 8px;
-      height: 8px;
-      border-radius: 4px;
+    img {
+      border: 2px solid $main-color;
+      border-radius: $core-spacing;
       display: inline-block;
-      margin-bottom: 1px;
-    }
+      height: ($core-spacing * 2) - 4;
+      position: relative;
+      width: ($core-spacing * 2) - 4;
 
-    &.online span {
-      background-color: #67b04f;
-    }
-
-    &.offline span {
-      background-color: $border-gray;
+      &:last-of-type {
+        margin-left: -15px;
+      }
+  
+      &:first-of-type {
+        margin: 0;
+        z-index: 2;
+      }
     }
   }
 
-}
-
-.erxes-topbar-title {
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.2em;
-  margin-top: 18px;
-
-  span {
-    font-size: 14px;
-    font-weight: 300;
+  .erxers-names-wrapper {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 3px;
+    max-height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
   }
 }

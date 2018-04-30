@@ -5,12 +5,12 @@ import graphqlTypes from './graphql';
 const generate = () => {
   return [
     graphql(
-      gql(graphqlTypes.conversationLastStaffQuery),
+      gql(graphqlTypes.messengerSupportersQuery),
       {
-        name: 'conversationLastStaffQuery',
-        options: ownProps => ({
+        name: 'messengerSupportersQuery',
+        options: () => ({
           variables: {
-            _id: ownProps.conversationId,
+            integrationId: connection.data.integrationId,
           },
           fetchPolicy: 'network-only',
         }),

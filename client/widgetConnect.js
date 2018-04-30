@@ -1,9 +1,12 @@
+/* global FileReader */
+
 /* eslint-disable react/jsx-filename-extension */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import client, { createStore } from './apollo-client';
+import TranslationWrapper from './TranslationWrapper';
 
 // base connect function for all widgets
 const widgetConnect = (params) => {
@@ -23,32 +26,36 @@ const widgetConnect = (params) => {
 
     // call connect mutation
     connectMutation(event)
+      .then(({ data }) => {
+        // check connection and save connection info
+        connectCallback(data);
 
-    .then(({ data }) => {
-      // check connection and save connection info
-      connectCallback(data);
+        // notify parent window that connected
+        window.parent.postMessage(
+          {
+            fromErxes: true,
+            ...postParams,
+            action: 'connected',
+            connectionInfo: data,
+            setting: event.data.setting,
+          },
+          '*',
+        );
 
-      // notify parent window that connected
-      window.parent.postMessage({
-        fromErxes: true,
-        ...postParams,
-        action: 'connected',
-        connectionInfo: data,
-        setting: event.data.setting,
-      }, '*');
+        // render root react component
+        ReactDOM.render(
+          <ApolloProvider store={createStore(reducers)} client={client}>
+            <TranslationWrapper>
+              <AppContainer />
+            </TranslationWrapper>
+          </ApolloProvider>,
+          document.getElementById('root'),
+        );
+      })
 
-      // render root react component
-      ReactDOM.render(
-        <ApolloProvider store={createStore(reducers)} client={client}>
-          <AppContainer />
-        </ApolloProvider>,
-        document.getElementById('root'),
-      );
-    })
-
-    .catch((error) => {
-      console.log(error); // eslint-disable-line
-    });
+      .catch((error) => {
+        console.log(error); // eslint-disable-line
+      });
   });
 };
 

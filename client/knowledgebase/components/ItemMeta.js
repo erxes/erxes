@@ -5,7 +5,11 @@ const propTypes = {
   category: PropTypes.object.isRequired,
 };
 
-function ItemMeta({ category }) {
+const contextTypes = {
+  __: PropTypes.func
+};
+
+function ItemMeta({ category }, {__}) {
   const { authors } = category;
   let text = '';
 
@@ -14,7 +18,7 @@ function ItemMeta({ category }) {
       <img
         alt={author.details.fullName}
         key={author.details.fullName}
-        src={author.details.avatar || '/static/images/userDefaultIcon.png'}
+        src={author.details.avatar || '/static/images/default-avatar.svg'}
       />,
     );
   }
@@ -42,10 +46,10 @@ function ItemMeta({ category }) {
       </div>
       <div>
         <div>
-          There are {category.numOfArticles} articles in this category
+          {__('There are ')} <span>{category.numOfArticles}</span> {__('articles in this category')}
         </div>
         <div>
-          Written by <span>{text}</span>
+          {__('Written by')} <span>{text}</span>
         </div>
       </div>
     </div>
@@ -53,5 +57,6 @@ function ItemMeta({ category }) {
 }
 
 ItemMeta.propTypes = propTypes;
+ItemMeta.contextTypes = contextTypes;
 
 export default ItemMeta;

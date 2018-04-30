@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Ionicons from 'react-ionicons';
 import { ItemMeta } from '../components';
 
 const propTypes = {
@@ -29,7 +28,7 @@ export default class Category extends React.Component {
       <div className="erxes-kb-item">
         <a className="flex-item" href="" onClick={this.handleOnClick}>
           <div className="topic-icon">
-            <Ionicons icon={category.icon} fontSize="46px" color="#888" />
+            <i className={`icon-${category.icon}`} />
           </div>
           <div className="topic-content">
             <h3>{category.title}</h3>

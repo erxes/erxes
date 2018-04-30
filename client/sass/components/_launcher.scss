@@ -1,0 +1,66 @@
+.erxes-launcher {
+  background-color: $main-color;
+  background-image: url('/static/images/widget-logo.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: $core-spacing !important;
+  border-radius: 28px;
+  bottom: 8px;
+  box-shadow: 0 0 10px 0 rgba($black, .2);
+  color: $white;
+  cursor: pointer;
+  height: 56px;
+  line-height: 56px;
+  position: fixed;
+  right: 8px;
+  text-align: center;
+  transition: box-shadow .3s ease-in-out, background .3s ease-in;
+  width: 56px;
+  z-index: $z-index-above;
+
+  span {
+    background: $red;
+    border-radius: 10px;
+    color: $white;
+    display: block;
+    font-size: 10px;
+    height: $core-spacing;
+    line-height: $core-spacing;
+    position: absolute;
+    right: -2px;
+    text-align: center;
+    top: -5px;
+    width: $core-spacing;
+  }
+
+  &.close,
+  &.close-launcher {
+    background-image: url('/static/images/close.svg') !important;
+    background-position: 50%;
+    background-size: inherit;
+    transition: background .3s ease-in-out;
+  }
+
+  &:hover {
+    box-shadow: 0 0 12px 0 rgba($black, .3);
+  }
+
+  @media screen and (max-width: $break-small) {
+    &.close,
+    &.close-launcher {
+      border-radius: 4px;
+      box-shadow: none;
+      display: block;
+      height: $core-spacing * 2;
+      line-height: $core-spacing * 2;
+      right: 10px;
+      top: 15px;
+      width: $core-spacing * 2;
+      z-index: $z-index-above;
+
+      &:hover {
+        background-color: rgba($black, .2);
+      }
+    }
+  }
+}

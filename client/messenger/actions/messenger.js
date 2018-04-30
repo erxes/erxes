@@ -7,6 +7,7 @@ import {
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
   END_CONVERSATION,
+  ENGAGE_MESSAGES_CREATED,
 } from '../constants';
 
 import {
@@ -15,6 +16,8 @@ import {
   getLocalStorageItem,
 } from '../connection';
 
+import { getBrowserInfo } from '../../utils';
+
 import client from '../../apollo-client';
 
 export const connect = variables =>
@@ -22,15 +25,16 @@ export const connect = variables =>
   client.mutate({
     mutation: gql`
       mutation connect($brandCode: String!, $email: String, $phone: String,
-        $name: String, $isUser: Boolean, $browserInfo: JSON!, $data: JSON,
+        $isUser: Boolean, $data: JSON,
         $companyData: JSON, $cachedCustomerId: String) {
 
         messengerConnect(brandCode: $brandCode, email: $email, phone: $phone,
-          name: $name, isUser: $isUser, data: $data, companyData: $companyData,
-          browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId) {
+          isUser: $isUser, data: $data, companyData: $companyData,
+          cachedCustomerId: $cachedCustomerId) {
 
           integrationId,
           messengerData,
+          languageCode,
           uiOptions,
           customerId,
         }
@@ -38,6 +42,34 @@ export const connect = variables =>
 
     variables,
   });
+
+export const saveBrowserInfo = () => async (dispatch) => {
+  const browserInfo = await getBrowserInfo();
+
+  const variables = {
+    customerId: connection.data.customerId,
+    browserInfo
+  };
+
+  client.mutate({
+    mutation: gql`
+      mutation saveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
+        saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
+          _id
+        }
+      }
+    `,
+    variables,
+  })
+
+  .then(({ data: { saveBrowserInfo }}) => {
+    const engageConversations = saveBrowserInfo;
+
+    if (engageConversations.length > 0) {
+      dispatch({ type: ENGAGE_MESSAGES_CREATED });
+    }
+  });
+};
 
 export const toggle = (isVisible) => {
   // notify parent window launcher state
@@ -126,6 +158,7 @@ export const saveGetNotified = ({ type, value }) => (dispatch) => {
 
 export const endConversation = () => (dispatch) => {
   const setting = connection.setting;
+  const data = connection.data;
 
   // ignore this action for inapp
   if (setting.email) {
@@ -134,16 +167,16 @@ export const endConversation = () => (dispatch) => {
 
   client.mutate({
     mutation: gql`
-      mutation endConversation($brandCode: String!, $browserInfo: JSON!, $data: JSON) {
-        endConversation(brandCode: $brandCode, browserInfo: $browserInfo, data: $data) {
+      mutation endConversation($customerId: String $brandCode: String!  $data: JSON) {
+        endConversation(customerId: $customerId brandCode: $brandCode data: $data) {
           customerId
         }
       }`,
 
     variables: {
+      customerId: data.customerId,
       brandCode: setting.brand_id,
       data: setting.data,
-      browserInfo: setting.browserInfo,
     },
   })
 
@@ -163,5 +196,7 @@ export const endConversation = () => (dispatch) => {
     dispatch({ type: CHANGE_CONVERSATION, conversationId: '' });
     dispatch({ type: END_CONVERSATION });
     dispatch({ type: CHANGE_ROUTE, route: 'accquireInformation' });
+
+    saveBrowserInfo();
   });
 };

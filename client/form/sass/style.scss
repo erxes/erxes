@@ -1,10 +1,14 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400&subset=cyrillic-ext');
+
 @import '~react-datepicker/dist/react-datepicker.css';
 
-@import 'base/variables';
-@import 'base/base';
+@import 'client/sass/variables';
+@import 'client/sass/mixin';
 
+@import 'client/sass/base/base';
+
+@import 'client/sass/components/launcher';
+
+@import 'components/animations';
 @import 'components/form';
 @import 'components/datepicker';
 @import 'components/topbar';
-@import 'components/shoutbox-launcher';

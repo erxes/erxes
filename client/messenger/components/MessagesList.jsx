@@ -1,7 +1,7 @@
-import React, { PropTypes, Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Message } from '../containers';
-
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
@@ -9,7 +9,7 @@ const propTypes = {
   data: PropTypes.object,
 };
 
-class MessagesList extends Component {
+class MessagesList extends React.Component {
   componentDidMount() {
     this.node.scrollTop = this.node.scrollHeight;
     this.makeClickableLink();
@@ -17,7 +17,8 @@ class MessagesList extends Component {
 
   componentWillUpdate() {
     const { node } = this;
-    this.shouldScrollBottom = node.scrollHeight - (node.scrollTop + node.offsetHeight) < 30;
+    this.shouldScrollBottom =
+      node.scrollHeight - (node.scrollTop + node.offsetHeight) < 30;
   }
 
   componentDidUpdate() {
@@ -29,7 +30,7 @@ class MessagesList extends Component {
 
   makeClickableLink() {
     const links = document.querySelectorAll('#erxes-messages a');
-    for(const node of links) {
+    for (const node of links) {
       node.target = '_blank';
     }
   }
@@ -65,20 +66,19 @@ class MessagesList extends Component {
     const uiOptions = data.uiOptions || {};
     const bg = uiOptions.wallpaper;
     const messengerData = data.messengerData;
-    const messagesClasses = classNames('erxes-messages-list', { [`bg-${bg}`]: bg });
+    const messagesClasses = classNames('erxes-messages-list', {
+      [`bg-${bg}`]: bg,
+    });
 
     return (
       <ul
         id="erxes-messages"
         className={messagesClasses}
-        ref={(node) => { this.node = node; }}
-      >
+        ref={(node) => {
+          this.node = node;
+        }}>
         {this.renderWelcomeMessage(messengerData)}
-        {
-          messages.map(message =>
-            <Message key={message._id} {...message} />,
-          )
-        }
+        {messages.map((message) => <Message key={message._id} {...message} />)}
         {this.renderAwayMessage(messengerData)}
       </ul>
     );

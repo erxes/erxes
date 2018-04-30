@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { gql, graphql } from 'react-apollo';
 import { Notifier as DumbNotifier } from '../components';
@@ -10,6 +11,12 @@ import NotificationSubscriber from './NotificationSubscriber';
 import graphqlTypes from './graphql';
 
 class Notifier extends NotificationSubscriber {
+  componentWillUpdate(nextProps) {
+    if (this.props.isEngageMessagesCreated !== nextProps.isEngageMessagesCreated) {
+      this.props.data.refetch();
+    }
+  }
+
   render() {
     if (this.props.data.loading) {
       return null;
@@ -33,8 +40,13 @@ class Notifier extends NotificationSubscriber {
   }
 }
 
+Notifier.propTypes = {
+  isEngageMessagesCreated: PropTypes.bool,
+}
+
 const mapStateToProps = state => ({
   isMessengerVisible: state.isVisible,
+  isEngageMessagesCreated: state.isEngageMessagesCreated,
 });
 
 const mapDisptachToProps = dispatch => ({

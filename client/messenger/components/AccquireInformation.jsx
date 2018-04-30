@@ -1,11 +1,11 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-import React, { PropTypes, Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { iconRight } from '../../icons/Icons';
 import { TopBar } from '../containers';
 
-
-class AccquireInformation extends Component {
+class AccquireInformation extends React.Component {
   constructor(props) {
     super(props);
 
@@ -31,20 +31,21 @@ class AccquireInformation extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { color } = this.props;
     const { type } = this.state;
 
     const title = (
       <div className="erxes-topbar-title">
-        <div>Contact</div>
-        <span>Give us your contact information</span>
+        <div>{__('Contact')}</div>
+        <span>{__('Give us your contact information')}</span>
       </div>
     );
 
     const style = { border: `1px solid ${color}` };
 
     return (
-      <div className="erxes-messenger accquire-information" style={style}>
+      <div className="erxes-messenger accquire-information">
         <TopBar middle={title} />
 
         <div className="content">
@@ -52,23 +53,27 @@ class AccquireInformation extends Component {
             <span
               className={type === 'email' ? 'current' : ''}
               onClick={() => this.onTypeChange('email')}
+              style={{ borderColor: color }}
             >
-              Email
+              {__('Email')}
             </span>
 
             <span
               className={type === 'phone' ? 'current' : ''}
               onClick={() => this.onTypeChange('phone')}
+              style={{ borderColor: color }}
             >
-              SMS
+              {__('SMS')}
             </span>
           </p>
 
           <form className="form" onSubmit={this.save}>
             <input
               onChange={this.onValueChange}
-              placeholder={type === 'email' ? 'email@domain.com' : 'phone number ...'}
-              style={{ borderColor: color }}
+              placeholder={
+                type === 'email' ? __('email@domain.com') : __('phone number')
+              }
+              style={style}
             />
 
             <button
@@ -88,6 +93,10 @@ class AccquireInformation extends Component {
 AccquireInformation.propTypes = {
   color: PropTypes.string,
   save: PropTypes.func,
+};
+
+AccquireInformation.contextTypes = {
+  __: PropTypes.func
 };
 
 export default AccquireInformation;

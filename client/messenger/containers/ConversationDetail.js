@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { compose, gql, graphql } from 'react-apollo';
 import { connection } from '../connection';
@@ -19,6 +20,13 @@ class ConversationDetail extends React.Component {
         const message = subscriptionData.data.conversationMessageInserted;
         const conversationDetail = prev.conversationDetail;
         const messages = conversationDetail.messages;
+
+        // check whether or not already inserted
+        const prevEntry = messages.find(m => m._id === message._id);
+
+        if (prevEntry) {
+          return prev;
+        }
 
         // do not show internal messages
         if (message.internal) {
@@ -56,7 +64,7 @@ class ConversationDetail extends React.Component {
   render() {
     let {
       conversationDetailQuery,
-      conversationLastStaffQuery,
+      messengerSupportersQuery,
       isMessengerOnlineQuery,
     } = this.props;
 
@@ -65,7 +73,7 @@ class ConversationDetail extends React.Component {
     const extendedProps = {
       ...this.props,
       messages: conversationDetail.messages || [],
-      user: conversationLastStaffQuery.conversationLastStaff || {},
+      users: messengerSupportersQuery.messengerSupporters || [],
       isOnline: isMessengerOnlineQuery.isMessengerOnline || false,
       data: connection.data,
     };
@@ -111,7 +119,7 @@ const query = compose(
 ConversationDetail.propTypes = {
   conversationId: PropTypes.string,
   conversationDetailQuery: PropTypes.object,
-  conversationLastStaffQuery: PropTypes.object,
+  messengerSupportersQuery: PropTypes.object,
   isMessengerOnlineQuery: PropTypes.object,
   endConversation: PropTypes.func,
 }

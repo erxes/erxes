@@ -57,6 +57,10 @@ ajv-keywords@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-2.1.0.tgz#a296e17f7bfae7c1ce4f7e0de53d29cb32162df0"
 
+ajv-keywords@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-3.1.0.tgz#ac2b27939c543e95d2c06e7f7f5c27be4aa543be"
+
 ajv@^4.7.0, ajv@^4.9.1:
   version "4.11.8"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-4.11.8.tgz#82ffb02b29e662ae53bdc20af15947706739c536"
@@ -72,6 +76,15 @@ ajv@^5.0.0, ajv@^5.1.0, ajv@^5.1.5:
     fast-deep-equal "^1.0.0"
     json-schema-traverse "^0.3.0"
     json-stable-stringify "^1.0.1"
+
+ajv@^6.1.0:
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.4.0.tgz#d3aff78e9277549771daf0164cff48482b754fc6"
+  dependencies:
+    fast-deep-equal "^1.0.0"
+    fast-json-stable-stringify "^2.0.0"
+    json-schema-traverse "^0.3.0"
+    uri-js "^3.0.2"
 
 align-text@^0.1.1, align-text@^0.1.3:
   version "0.1.4"
@@ -1364,14 +1377,6 @@ create-hmac@^1.1.0, create-hmac@^1.1.2, create-hmac@^1.1.4:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-create-react-class@^15.5.x, create-react-class@^15.6.0:
-  version "15.6.0"
-  resolved "https://registry.yarnpkg.com/create-react-class/-/create-react-class-15.6.0.tgz#ab448497c26566e1e29413e883207d57cfe7bed4"
-  dependencies:
-    fbjs "^0.8.9"
-    loose-envify "^1.3.1"
-    object-assign "^4.1.1"
-
 cross-spawn@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-3.0.1.tgz#1256037ecb9f0c5f79e3d6ef135e30770184b982"
@@ -1722,6 +1727,10 @@ error-ex@^1.2.0:
   resolved "https://registry.yarnpkg.com/error-ex/-/error-ex-1.3.1.tgz#f855a86ce61adc4e8621c3cda21e7a7612c3a8dc"
   dependencies:
     is-arrayish "^0.2.1"
+
+erxes-icon@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/erxes-icon/-/erxes-icon-1.0.3.tgz#6051360c97a63744b2139f7eab469b32bbb29d09"
 
 es-abstract@^1.7.0:
   version "1.8.2"
@@ -2077,6 +2086,10 @@ fast-deep-equal@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-1.0.0.tgz#96256a3bc975595eb36d82e9929d060d893439ff"
 
+fast-json-stable-stringify@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.0.0.tgz#d5142c0caee6b1189f87d3a76111064f86c8bbf2"
+
 fast-levenshtein@~2.0.4:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
@@ -2085,7 +2098,7 @@ fastparse@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/fastparse/-/fastparse-1.1.1.tgz#d1e2643b38a94d7583b479060e6c4affc94071f8"
 
-fbjs@^0.8.1, fbjs@^0.8.4:
+fbjs@^0.8.16:
   version "0.8.16"
   resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.16.tgz#5e67432f550dc41b572bf55847b8aca64e5337db"
   dependencies:
@@ -2122,6 +2135,13 @@ file-entry-cache@^2.0.0:
   dependencies:
     flat-cache "^1.2.1"
     object-assign "^4.0.1"
+
+file-loader@^1.1.11:
+  version "1.1.11"
+  resolved "https://registry.yarnpkg.com/file-loader/-/file-loader-1.1.11.tgz#6fe886449b0f2a936e43cabaac0cdbfb369506f8"
+  dependencies:
+    loader-utils "^1.0.2"
+    schema-utils "^0.4.5"
 
 filename-regex@^2.0.0:
   version "2.0.1"
@@ -2591,6 +2611,10 @@ http-signature@~1.2.0:
 https-browserify@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-0.0.1.tgz#3f91365cabe60b77ed0ebba24b454e3e09d95a82"
+
+i18n-react@^0.6.3:
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/i18n-react/-/i18n-react-0.6.3.tgz#2730074344607c919c063080341ecc2980b66017"
 
 iconv-lite@0.4.19, iconv-lite@~0.4.13:
   version "0.4.19"
@@ -3333,6 +3357,10 @@ mime@1.3.4:
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/mime/-/mime-1.3.4.tgz#115f9e3b6b3daf2959983cb38f149a2d40eb5d53"
 
+mime@^2.0.3:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/mime/-/mime-2.3.1.tgz#b1621c54d63b97c47d3cfe7f7215f7d64517c369"
+
 mimic-fn@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/mimic-fn/-/mimic-fn-1.1.0.tgz#e667783d92e89dbd342818b5230b9d62a672ad18"
@@ -3387,9 +3415,9 @@ mixin-object@^2.0.1:
   dependencies:
     minimist "0.0.8"
 
-moment@^2.17.1:
-  version "2.18.1"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.18.1.tgz#c36193dd3ce1c2eed2adb7c802dbbc77a81b1c0f"
+moment@^2.21.0:
+  version "2.21.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.21.0.tgz#2a114b51d2a6ec9e6d83cf803f838a878d8a023a"
 
 move-concurrently@^1.0.1:
   version "1.0.1"
@@ -3867,6 +3895,10 @@ pluralize@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-1.2.1.tgz#d1a21483fd22bb41e58a12fa3421823140897c45"
 
+popper.js@^1.14.1:
+  version "1.14.3"
+  resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.14.3.tgz#1438f98d046acf7b4d78cd502bf418ac64d4f095"
+
 postcss-calc@^5.2.0:
   version "5.3.1"
   resolved "https://registry.yarnpkg.com/postcss-calc/-/postcss-calc-5.3.1.tgz#77bae7ca928ad85716e2fda42f261bf7c1d65b5e"
@@ -4151,12 +4183,20 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@15.5.10, prop-types@^15.5.10, prop-types@^15.5.8:
+prop-types@^15.5.10, prop-types@^15.5.8:
   version "15.5.10"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.10.tgz#2797dfc3126182e3a95e3dfbb2e893ddd7456154"
   dependencies:
     fbjs "^0.8.9"
     loose-envify "^1.3.1"
+
+prop-types@^15.6.0, prop-types@^15.6.1:
+  version "15.6.1"
+  resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.6.1.tgz#36644453564255ddda391191fb3a125cbdf654ca"
+  dependencies:
+    fbjs "^0.8.16"
+    loose-envify "^1.3.1"
+    object-assign "^4.1.1"
 
 proxy-addr@~1.1.5:
   version "1.1.5"
@@ -4211,6 +4251,10 @@ punycode@1.3.2:
 punycode@^1.2.4, punycode@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
+
+punycode@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.0.tgz#5f863edc89b96db09074bad7947bf09056ca4e7d"
 
 q@^1.1.2:
   version "1.5.0"
@@ -4290,46 +4334,34 @@ react-apollo@^1.4.15:
     object-assign "^4.0.1"
     prop-types "^15.5.8"
 
-react-datepicker@^0.46.0:
-  version "0.46.0"
-  resolved "https://registry.yarnpkg.com/react-datepicker/-/react-datepicker-0.46.0.tgz#dd0c58efde9931964a248854e073151374fc937f"
+react-datepicker@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/react-datepicker/-/react-datepicker-1.4.1.tgz#ee171b71d9853e56f9eece5fc3186402f4648683"
   dependencies:
     classnames "^2.2.5"
-    moment "^2.17.1"
-    prop-types "^15.5.8"
-    react-onclickoutside "^5.11.1"
-    tether "^1.4.0"
+    prop-types "^15.6.0"
+    react-onclickoutside "^6.7.1"
+    react-popper "^0.9.1"
 
-react-dom@15.4.2:
-  version "15.4.2"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.4.2.tgz#015363f05b0a1fd52ae9efdd3a0060d90695208f"
+react-dom@^16.3.2:
+  version "16.3.2"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.3.2.tgz#cb90f107e09536d683d84ed5d4888e9640e0e4df"
   dependencies:
-    fbjs "^0.8.1"
+    fbjs "^0.8.16"
     loose-envify "^1.1.0"
-    object-assign "^4.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.0"
 
-react-dom@^15.4.1:
-  version "15.6.1"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.6.1.tgz#2cb0ed4191038e53c209eb3a79a23e2a4cf99470"
-  dependencies:
-    fbjs "^0.8.9"
-    loose-envify "^1.1.0"
-    object-assign "^4.1.0"
-    prop-types "^15.5.10"
+react-onclickoutside@^6.7.1:
+  version "6.7.1"
+  resolved "https://registry.yarnpkg.com/react-onclickoutside/-/react-onclickoutside-6.7.1.tgz#6a5b5b8b4eae6b776259712c89c8a2b36b17be93"
 
-react-ionicons@^1.5.9:
-  version "1.5.9"
-  resolved "https://registry.yarnpkg.com/react-ionicons/-/react-ionicons-1.5.9.tgz#3822f406b1cb0ea43ffd35b942d5d4bb4286cdba"
+react-popper@^0.9.1:
+  version "0.9.5"
+  resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-0.9.5.tgz#02a24ef3eec33af9e54e8358ab70eb0e331edd05"
   dependencies:
-    prop-types "15.5.10"
-    react "15.4.2"
-    react-dom "15.4.2"
-
-react-onclickoutside@^5.11.1:
-  version "5.11.1"
-  resolved "https://registry.yarnpkg.com/react-onclickoutside/-/react-onclickoutside-5.11.1.tgz#00314e52567cf55faba94cabbacd119619070623"
-  dependencies:
-    create-react-class "^15.5.x"
+    popper.js "^1.14.1"
+    prop-types "^15.6.1"
 
 react-redux@^5.0.1:
   version "5.0.6"
@@ -4342,23 +4374,14 @@ react-redux@^5.0.1:
     loose-envify "^1.1.0"
     prop-types "^15.5.10"
 
-react@15.4.2:
-  version "15.4.2"
-  resolved "https://registry.yarnpkg.com/react/-/react-15.4.2.tgz#41f7991b26185392ba9bae96c8889e7e018397ef"
+react@^16.3.2:
+  version "16.3.2"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.3.2.tgz#fdc8420398533a1e58872f59091b272ce2f91ea9"
   dependencies:
-    fbjs "^0.8.4"
+    fbjs "^0.8.16"
     loose-envify "^1.1.0"
-    object-assign "^4.1.0"
-
-react@^15.4.2:
-  version "15.6.1"
-  resolved "https://registry.yarnpkg.com/react/-/react-15.6.1.tgz#baa8434ec6780bde997cdc380b79cd33b96393df"
-  dependencies:
-    create-react-class "^15.6.0"
-    fbjs "^0.8.9"
-    loose-envify "^1.1.0"
-    object-assign "^4.1.0"
-    prop-types "^15.5.10"
+    object-assign "^4.1.1"
+    prop-types "^15.6.0"
 
 read-pkg-up@^1.0.1:
   version "1.0.1"
@@ -4699,6 +4722,13 @@ schema-utils@^0.3.0:
   resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-0.3.0.tgz#f5877222ce3e931edae039f17eb3716e7137f8cf"
   dependencies:
     ajv "^5.0.0"
+
+schema-utils@^0.4.3, schema-utils@^0.4.5:
+  version "0.4.5"
+  resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-0.4.5.tgz#21836f0608aac17b78f9e3e24daff14a5ca13a3e"
+  dependencies:
+    ajv "^6.1.0"
+    ajv-keywords "^3.1.0"
 
 scss-tokenizer@^0.2.3:
   version "0.2.3"
@@ -5107,10 +5137,6 @@ term-size@^1.2.0:
   dependencies:
     execa "^0.7.0"
 
-tether@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/tether/-/tether-1.4.0.tgz#0f9fa171f75bf58485d8149e94799d7ae74d1c1a"
-
 text-table@~0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
@@ -5307,6 +5333,20 @@ update-notifier@^2.2.0:
     latest-version "^3.0.0"
     semver-diff "^2.0.0"
     xdg-basedir "^3.0.0"
+
+uri-js@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/uri-js/-/uri-js-3.0.2.tgz#f90b858507f81dea4dcfbb3c4c3dbfa2b557faaa"
+  dependencies:
+    punycode "^2.1.0"
+
+url-loader@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/url-loader/-/url-loader-1.0.1.tgz#61bc53f1f184d7343da2728a1289ef8722ea45ee"
+  dependencies:
+    loader-utils "^1.1.0"
+    mime "^2.0.3"
+    schema-utils "^0.4.3"
 
 url-parse-lax@^1.0.0:
   version "1.0.0"

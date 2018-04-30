@@ -1,48 +1,84 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { iconClose } from '../../icons/Icons';
-import { Form, ShoutboxLauncher } from '../containers';
-
+import { Callout, Form, ShoutboxLauncher } from '../containers';
 
 const propTypes = {
-  isShoutboxFormVisible: PropTypes.bool.isRequired,
-  loadType: PropTypes.string.isRequired,
-  onModalClose: PropTypes.func,
+  isFormVisible: PropTypes.bool,
+  isCalloutVisible: PropTypes.bool,
+  containerClass:PropTypes.string,
+  init: PropTypes.func,
+  closePopup: PropTypes.func,
+  setHeight: PropTypes.func,
+  formData: PropTypes.object,
 };
 
-function App({ isShoutboxFormVisible, loadType, onModalClose }) {
-  const widgetClasses = classNames('shoutbox-form', { opened: isShoutboxFormVisible });
-  if (loadType === 'shoutbox') {
+class App extends React.Component {
+  componentDidMount() {
+    this.props.init();
+  }
+
+  renderCloseButton() {
+    const { formData, closePopup } = this.props;
+    const { loadType } = formData;
+
+    if (loadType === 'shoutbox') {
+      return null;
+    }
+
     return (
-      <div className={widgetClasses}>
-        <Form />
-        <ShoutboxLauncher />
-      </div>
-    );
+      <a className="close" onClick={closePopup} title="Close">
+        {iconClose}
+      </a>
+    )
   }
 
-  if (loadType === 'embedded') {
-    return <Form />;
+  renderForm() {
+    const { isFormVisible, setHeight } = this.props;
+
+    if (isFormVisible) {
+      return <Form setHeight={setHeight} />
+    }
+
+    return null;
   }
 
-  if (loadType === 'popup') {
+  renderCallout() {
+    const { isCalloutVisible, formData, setHeight } = this.props;
+    const { themeColor } = formData;
+
+    if (isCalloutVisible) {
+      return <Callout setHeight={setHeight} color={themeColor} formData={formData} />
+    }
+
+    return null;
+  }
+
+  renderShoutboxLauncher() {
+    const { formData } = this.props;
+    const { loadType, themeColor } = formData;
+
+    if (loadType === 'shoutbox') {
+      return <ShoutboxLauncher color={themeColor} />
+    }
+
+    return null;
+  }
+
+  render() {
+    const { containerClass } = this.props;
+
     return (
-      <div className="modal-form">
-        <a
-          href=""
-          className="close"
-          onClick={onModalClose}
-          title="Close"
-        >
-          {iconClose}
-        </a>
-        <Form />
+      <div id="erxes-container">
+        <div className={containerClass}>
+          {this.renderCloseButton()}
+          {this.renderCallout()}
+          {this.renderForm()}
+          {this.renderShoutboxLauncher()}
+        </div>
       </div>
-    );
+    )
   }
-
-  return null;
 }
 
 App.propTypes = propTypes;

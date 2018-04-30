@@ -1,5 +1,7 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Field from './Field';
+import { TopBar } from './';
 import { SUCCESS, INITIAL } from '../constants';
 
 export default class Form extends React.Component {
@@ -10,6 +12,14 @@ export default class Form extends React.Component {
     this.onFieldValueChange = this.onFieldValueChange.bind(this);
 
     this.state = { doc: this.resetDocState() };
+  }
+
+  componentDidMount() {
+    this.props.setHeight();
+  }
+
+  componentDidUpdate() {
+    this.props.setHeight();
   }
 
   componentWillUpdate(nextProps) {
@@ -69,52 +79,46 @@ export default class Form extends React.Component {
     });
   }
 
-  renderForm() {
+  renderForm(color) {
+    const { __ } = this.context;
+    const { form, integrationName } = this.props;
+
     return (
       <div className="erxes-form">
-        <div className="erxes-topbar thiner">
-          <div className="erxes-middle">
-            <div className="erxes-topbar-title">
-              <div>{this.props.integrationName}</div>
-            </div>
-          </div>
-        </div>
+        <TopBar title={form.title || integrationName} color={color} />
         <div className="erxes-form-content">
+          <div className="erxes-description">{form.description}</div>
           {this.renderFields()}
 
           <button
+            style={{ background: color }}
             type="button"
             onClick={this.onSubmit}
             className="btn btn-block"
           >
-            Send
+            {form.buttonText || __('Send')}
           </button>
         </div>
       </div>
     );
   }
 
-  renderSuccessForm(thankContent) {
+  renderSuccessForm(thankContent, color) {
     const { integrationName, onCreateNew } = this.props;
+    const { __ } = this.context;
 
     return (
       <div className="erxes-form">
-        <div className="erxes-topbar thiner">
-          <div className="erxes-middle">
-            <div className="erxes-topbar-title">
-              <div>{integrationName}</div>
-            </div>
-          </div>
-        </div>
+        <TopBar title={integrationName} color={color} />
         <div className="erxes-form-content">
           <div className="erxes-result">
             <span>
               {
-                thankContent ||
-                'Thanks for your message. We will respond as soon as we can.'
+                __(thankContent) ||
+                __('Thanks for your message. We will respond as soon as we can.')
               }
             </span>
-            <button className="btn" onClick={onCreateNew}>Create new</button>
+            <button style={{ background: color }} className="btn" onClick={onCreateNew}>{__('Create new')}</button>
           </div>
         </div>
       </div>
@@ -123,6 +127,7 @@ export default class Form extends React.Component {
 
   render() {
     const { form, currentStatus, sendEmail, formConfig } = this.props;
+    const color = form.themeColor || '';
 
     if (currentStatus.status === SUCCESS) {
       const {
@@ -157,10 +162,10 @@ export default class Form extends React.Component {
         }
       }
 
-      return this.renderSuccessForm(thankContent);
+      return this.renderSuccessForm(thankContent, color);
     }
 
-    return this.renderForm();
+    return this.renderForm(color);
   }
 }
 
@@ -174,6 +179,10 @@ Form.propTypes = {
 
   form: PropTypes.shape({
     title: PropTypes.string,
+    description: PropTypes.string,
+    buttonText: PropTypes.string,
+    themeColor: PropTypes.string,
+    featuredImage: PropTypes.string,
 
     fields: PropTypes.arrayOf(PropTypes.shape({
       _id: PropTypes.string.isRequired,
@@ -195,4 +204,9 @@ Form.propTypes = {
   onSubmit: PropTypes.func,
   onCreateNew: PropTypes.func,
   sendEmail: PropTypes.func,
+  setHeight: PropTypes.func
+};
+
+Form.contextTypes = {
+  __: PropTypes.func
 };

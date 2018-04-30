@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { gql, graphql } from 'react-apollo';
 import { connection } from '../connection';
@@ -26,6 +27,10 @@ Form.propTypes = {
   data: PropTypes.shape({
     form: PropTypes.shape({
       title: PropTypes.string,
+      description: PropTypes.string,
+      buttonText: PropTypes.string,
+      themeColor: PropTypes.string,
+      featuredImage: PropTypes.string,
 
       fields: PropTypes.arrayOf(PropTypes.shape({
         _id: PropTypes.string.isRequired,
@@ -66,6 +71,9 @@ const FormWithData = graphql(
     query form($formId: String) {
       form(formId: $formId) {
         title
+        description
+        buttonText
+        themeColor
 
         fields {
           _id

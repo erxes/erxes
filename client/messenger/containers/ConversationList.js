@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { gql, graphql } from 'react-apollo';
 import { connection } from '../connection';
@@ -6,7 +7,7 @@ import { readMessages } from '../actions/messages';
 import { changeRoute, changeConversation } from '../actions/messenger';
 import { ConversationList as DumbConversationList } from '../components';
 
-class ConversationList extends Component {
+class ConversationList extends React.Component {
   componentDidUpdate() {
     if (this.props.isConversationEnded) {
       this.props.data.refetch();
