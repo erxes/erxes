@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
-import client from 'apolloClient';
+
 import {
   DropdownToggle,
   TaggerPopover,
@@ -17,7 +17,7 @@ import {
   DataWithLoader,
   DateFilter
 } from 'modules/common/components';
-import { router, confirm, Alert, uploadHandler } from 'modules/common/utils';
+import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
@@ -25,8 +25,6 @@ import CustomerRow from './CustomerRow';
 import { CommonMerge } from '../';
 import { CustomerForm } from '../../containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
-import { queries } from '../../graphql';
-import gql from 'graphql-tag';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
@@ -47,7 +45,9 @@ const propTypes = {
   removeCustomers: PropTypes.func.isRequired,
   mergeCustomers: PropTypes.func.isRequired,
   basicInfos: PropTypes.object.isRequired,
-  queryParams: PropTypes.object
+  queryParams: PropTypes.object,
+  exportCustomers: PropTypes.func,
+  handleXlsUpload: PropTypes.func
 };
 
 class CustomersList extends React.Component {
@@ -61,7 +61,6 @@ class CustomersList extends React.Component {
     this.onChange = this.onChange.bind(this);
     this.removeCustomers = this.removeCustomers.bind(this);
     this.search = this.search.bind(this);
-    this.exportCustomers = this.exportCustomers.bind(this);
   }
 
   onChange() {
@@ -76,43 +75,6 @@ class CustomersList extends React.Component {
       customerIds.push(customer._id);
     });
     this.props.removeCustomers({ customerIds });
-  }
-
-  exportCustomers() {
-    const { queryParams } = this.props;
-
-    client
-      .query({
-        query: gql(queries.customersExport),
-        variables: { ...queryParams }
-      })
-      .then(({ data }) => {
-        const myWindow = window.open(data.customersExport, '_blank');
-
-        setTimeout(() => {
-          myWindow.close();
-        }, 1000);
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  }
-
-  handleXlsUpload(e) {
-    const xlsFile = e.target.files[0];
-
-    uploadHandler({
-      type: 'import',
-      file: xlsFile,
-
-      beforeUpload: () => {},
-
-      afterUpload: () => {},
-
-      afterRead: ({ result }) => {
-        console.log(result);
-      }
-    });
   }
 
   renderContent() {
@@ -177,7 +139,9 @@ class CustomersList extends React.Component {
       basicInfos,
       location,
       history,
-      queryParams
+      queryParams,
+      exportCustomers,
+      handleXlsUpload
     } = this.props;
     const { __ } = this.context;
 
@@ -205,9 +169,9 @@ class CustomersList extends React.Component {
         />
 
         {dateFilter}
-        <FormControl type="file" onChange={this.handleXlsUpload} />
+        <FormControl type="file" onChange={handleXlsUpload} />
         <Button
-          onClick={() => this.exportCustomers()}
+          onClick={() => exportCustomers()}
           btnStyle="simple"
           size="small"
         >

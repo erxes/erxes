@@ -1,10 +1,11 @@
 import React from 'react';
+import client from 'apolloClient';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, uploadHandler } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../constants';
@@ -70,6 +71,39 @@ class CustomerListContainer extends Bulk {
         });
     };
 
+    const exportCustomers = () => {
+      const { queryParams } = this.props;
+
+      client
+        .query({
+          query: gql(queries.customersExport),
+          variables: { ...queryParams }
+        })
+        .then(({ data }) => {
+          const myWindow = window.open(data.customersExport, '_blank');
+
+          setTimeout(() => {
+            myWindow.close();
+          }, 1000);
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
+
+    const handleXlsUpload = e => {
+      const xlsFile = e.target.files[0];
+
+      uploadHandler({
+        type: 'import',
+        file: xlsFile,
+        afterUpload: () => {
+          customersMainQuery.refetch();
+        },
+        afterRead: () => {}
+      });
+    };
+
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } =
       customersMainQuery.customersMain || {};
@@ -90,6 +124,8 @@ class CustomerListContainer extends Bulk {
         all: totalCount,
         ...counts
       },
+      exportCustomers,
+      handleXlsUpload,
       brands: brandsQuery.brands || [],
       integrations: KIND_CHOICES.ALL_LIST,
       tags: tagsQuery.tags || [],
