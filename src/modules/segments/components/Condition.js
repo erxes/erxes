@@ -20,13 +20,14 @@ class Condition extends Component {
   constructor(props) {
     super(props);
 
-    this.state = this.props.condition;
     this.handleInputValue = this.handleInputValue.bind(this);
     this.handleValue = this.handleValue.bind(this);
     this.removeCondition = this.removeCondition.bind(this);
 
     // debounce text input
     this.changeCondition = debounce(this.props.changeCondition, 350);
+
+    this.state = this.props.condition;
   }
 
   handleInputValue(e) {
@@ -61,7 +62,7 @@ class Condition extends Component {
     this.props.removeCondition(this.props.condition.field);
   }
 
-  renderValueInput() {
+  renderInput() {
     const { type, value } = this.state;
 
     return (
@@ -94,7 +95,7 @@ class Condition extends Component {
     );
   }
 
-  renderInput() {
+  renderCurrentOperator() {
     const { type, operator, dateUnit } = this.state;
     const currentOperator = operators[type].find(o => o.value === operator);
 
@@ -102,15 +103,20 @@ class Condition extends Component {
       return null;
     }
 
+    const date =
+      type === 'date'
+        ? this.renderSelect('dateUnit', dateUnit, dateUnits)
+        : null;
+    const ago =
+      type === 'date' && (operator === 'wlt' || operator === 'wmt')
+        ? 'ago'
+        : null;
+
     return (
       <span>
-        {this.renderValueInput()}
-        {type === 'date'
-          ? this.renderSelect('dateUnit', dateUnit, dateUnits)
-          : null}
-        {type === 'date' && (operator === 'wlt' || operator === 'wmt')
-          ? ' ago'
-          : null}
+        {this.renderInput()}
+        {date}
+        {ago}
       </span>
     );
   }
@@ -144,7 +150,8 @@ class Condition extends Component {
         <br />
         <FlexContent>
           <FlexItem>
-            {this.renderOperator()} {this.renderInput()}
+            {this.renderOperator()}
+            {this.renderCurrentOperator()}
           </FlexItem>
           <FlexRightItem>
             {this.renderSelect('type', this.state.type, types)}

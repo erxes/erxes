@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown, MenuItem } from 'react-bootstrap';
+import { Dropdown } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import {
@@ -53,12 +54,16 @@ class Segments extends React.Component {
             </a>
           </DropdownToggle>
           <Dropdown.Menu>
-            <MenuItem href={`/segments/new/${contentType}`}>
-              {__('New segment')}
-            </MenuItem>
-            <MenuItem href={`/segments/new/${contentType}`}>
-              {__('Manage segments')}
-            </MenuItem>
+            <li>
+              <Link to={`/segments/new/${contentType}`}>
+                {__('New segment')}
+              </Link>
+            </li>
+            <li>
+              <Link to={`/segments/new/${contentType}`}>
+                {__('Manage segments')}
+              </Link>
+            </li>
           </Dropdown.Menu>
         </Dropdown>
 
