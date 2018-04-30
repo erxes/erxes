@@ -3,10 +3,11 @@ import { readTemplate, generateXlsx } from '../../utils';
 /**
  * Export customers
  * @param {[Object]} customers - Filtered customers
+ *
  * @return {String} - file url
  */
 export const customersExport = async customers => {
-  // read template
+  // Reads default template
   const { workbook, sheet } = await readTemplate('customers');
 
   let rowIndex = 1;

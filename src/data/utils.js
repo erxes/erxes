@@ -186,7 +186,7 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
 };
 
 /**
- * Receive and saves xls file in private/xlsImports folder
+ * Receives and saves xls file in private/xlsImports folder
  * and imports customers to the database
  * @param {Object} file - File data to save
  *
@@ -215,7 +215,7 @@ export const importXlsFile = async file => {
 };
 
 /**
- * Read customers from xls file and save into database
+ * Read customers from xls file and saves into database
  * @param {Object} sheet - Xls file sheet
 */
 const importCustomers = async sheet => {
@@ -249,7 +249,7 @@ const importCustomers = async sheet => {
 
 /**
  * Reads default template from xls file
- * @param {String} name - Temlpate file name
+ * @param {String} name - Template file name
  *
  * @return {Object} Xls workbook and sheet
 */

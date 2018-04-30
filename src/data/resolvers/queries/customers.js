@@ -137,6 +137,7 @@ const customerQueries = {
 
   /**
    * Export customers to xls file
+   *
    * @param {Object} args - Query params
    * @return {String} File url
    */
