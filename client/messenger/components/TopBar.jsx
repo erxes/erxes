@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { iconExit } from '../../icons/Icons';
 
 const propTypes = {
@@ -10,6 +11,8 @@ const propTypes = {
   endConversation: PropTypes.func,
   isChat: PropTypes.bool,
   isConversationEnded: PropTypes.bool,
+  isExpanded: PropTypes.bool,
+  onToggle: PropTypes.func,
 };
 
 const contextTypes = {
@@ -24,7 +27,13 @@ function TopBar({
     isChat,
     isConversationEnded,
     endConversation,
+    isExpanded,
+    onToggle
   }, {__}) {
+
+  const topBarClassNames = classNames('erxes-topbar', {
+    'expanded': isExpanded
+  });
 
   const onEndConversation = () => {
     if (confirm(__('Do you want to end this conversation ?'))) {
@@ -66,7 +75,7 @@ function TopBar({
   };
 
   return (
-    <div className="erxes-topbar" style={{ backgroundColor: color }}>
+    <div onClick={onToggle} className={topBarClassNames} style={{ backgroundColor: color }}>
       {renderLeftButton()}
       <div className="erxes-middle">
         {middle}
