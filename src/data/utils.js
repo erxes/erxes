@@ -185,7 +185,7 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
   });
 };
 
-export const importXlsFile = file => {
+export const importXlsFile = async file => {
   const readStream = fs.createReadStream(file.path);
 
   const downloadDir = `${__dirname}/../private/xlsImports/${file.name}`;
@@ -196,10 +196,10 @@ export const importXlsFile = file => {
   pipe.on('finish', async () => {
     const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
 
-    importCustomers(workbook.sheet(0));
-
-    return file.name;
+    await importCustomers(workbook.sheet(0));
   });
+
+  return file.name;
 };
 
 const importCustomers = async sheet => {
