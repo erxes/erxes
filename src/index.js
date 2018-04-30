@@ -15,7 +15,7 @@ import { connect } from './db/connection';
 import { userMiddleware } from './auth';
 import schema from './data';
 import { pubsub } from './data/resolvers/subscriptions';
-import { uploadFile } from './data/utils';
+import { uploadFile, importXlsFile } from './data/utils';
 import { init } from './startup';
 
 // load environment variables
@@ -41,6 +41,17 @@ app.post('/upload-file', async (req, res) => {
     const url = await uploadFile(response.file);
 
     return res.end(url);
+  });
+});
+
+// file import
+app.post('/import-file', async (req, res) => {
+  const form = new formidable.IncomingForm();
+
+  form.parse(req, async (err, fields, response) => {
+    const fileName = await importXlsFile(response.file);
+
+    return res.end(fileName);
   });
 });
 

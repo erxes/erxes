@@ -185,6 +185,50 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
   });
 };
 
+export const importXlsFile = file => {
+  const readStream = fs.createReadStream(file.path);
+
+  const downloadDir = `${__dirname}/../private/xlsImports/${file.name}`;
+
+  const writeStream = fs.createWriteStream(downloadDir);
+  const pipe = readStream.pipe(writeStream);
+
+  pipe.on('finish', async () => {
+    const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
+
+    importCustomers(workbook.sheet(0));
+
+    return file.name;
+  });
+};
+
+const importCustomers = sheet => {
+  const rows = sheet.usedRange().value();
+  const customers = [];
+
+  rows.forEach(row => {
+    const customer = {
+      firstName: row[0] || '',
+      lastName: row[1] || '',
+      email: row[2] || '',
+      phone: row[3] || 0,
+      position: row[4] || '',
+      department: row[5] || '',
+      leadStatus: row[6] || '',
+      lifecycleState: row[7] || '',
+      hasAuthority: row[8] || 'No',
+      description: row[9] || '',
+      doNotDisturb: row[10] || 'No',
+    };
+
+    customers.push(customer);
+  });
+
+  // for(let customer of customers) {
+  //   Customers.createCustomer(customer);
+  // }
+};
+
 export const readTemplate = async name => {
   const workbook = await xlsxPopulate.fromFileAsync(
     `${__dirname}/../private/xlsTemplates/${name}.xlsx`,
