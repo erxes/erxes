@@ -1,7 +1,7 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import { Dropdown, MenuItem } from 'react-bootstrap';
+import { Dropdown } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import {
@@ -9,67 +9,38 @@ import {
   Icon,
   DataWithLoader
 } from 'modules/common/components';
-import { router } from 'modules/common/utils';
 
 const propTypes = {
-  history: PropTypes.object,
+  currentSegment: PropTypes.string,
+  setSegment: PropTypes.func,
+  removeSegment: PropTypes.func,
   contentType: PropTypes.string.isRequired,
   counts: PropTypes.object.isRequired,
   segments: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired
 };
 
-function Segments({ history, contentType, counts, segments, loading }, { __ }) {
-  const { Section, Header } = Wrapper.Sidebar;
-  const orderedSegments = [];
+class Segments extends React.Component {
+  renderCancelBtn() {
+    const { currentSegment, removeSegment } = this.props;
 
-  segments.forEach(segment => {
-    if (!segment.subOf) {
-      orderedSegments.push(segment, ...segment.getSubSegments);
+    if (!currentSegment) {
+      return null;
     }
-  });
 
-  const data = (
-    <SidebarList>
-      {orderedSegments.map(segment => (
-        <li
-          key={segment._id}
-          className={segment.subOf ? 'child-segment' : null}
-        >
-          <a
-            tabIndex={0}
-            className={
-              router.getParam(history, 'segment') === segment._id
-                ? 'active'
-                : ''
-            }
-            onClick={() => {
-              router.setParams(history, { segment: segment._id });
-            }}
-          >
-            {segment.subOf ? '\u00a0\u00a0' : null}
-            <Icon
-              icon="piechart"
-              size={10}
-              style={{
-                color: segment.color,
-                marginRight: '5px'
-              }}
-            />{' '}
-            {segment.name}
-            <SidebarCounter>{counts[segment._id]}</SidebarCounter>
-          </a>
-        </li>
-      ))}
-    </SidebarList>
-  );
+    return (
+      <a tabIndex={0} onClick={() => removeSegment()}>
+        <Icon icon="cancel-1" />
+      </a>
+    );
+  }
 
-  return (
-    <Section collapsible={segments.length > 5}>
-      <Header spaceBottom uppercase>
-        {__('Filter by segments')}
-      </Header>
+  renderQuickBtns() {
+    const { contentType } = this.props;
+    const { Section } = Wrapper.Sidebar;
+    const { __ } = this.context;
 
+    return (
       <Section.QuickButtons>
         <Dropdown
           id="dropdown-user"
@@ -83,40 +54,87 @@ function Segments({ history, contentType, counts, segments, loading }, { __ }) {
             </a>
           </DropdownToggle>
           <Dropdown.Menu>
-            <MenuItem
-              onClick={() => history.push(`/segments/new/${contentType}`)}
-            >
-              {__('New segment')}
-            </MenuItem>
-            <MenuItem onClick={() => history.push(`/segments/${contentType}`)}>
-              {__('Manage segments')}
-            </MenuItem>
+            <li>
+              <Link to={`/segments/new/${contentType}`}>
+                {__('New segment')}
+              </Link>
+            </li>
+            <li>
+              <Link to={`/segments/new/${contentType}`}>
+                {__('Manage segments')}
+              </Link>
+            </li>
           </Dropdown.Menu>
         </Dropdown>
 
-        {router.getParam(history, 'segment') ? (
-          <a
-            tabIndex={0}
-            onClick={() => {
-              router.setParams(history, { segment: null });
-            }}
-          >
-            <Icon icon="cancel-1" />
-          </a>
-        ) : null}
+        {this.renderCancelBtn()}
       </Section.QuickButtons>
+    );
+  }
 
-      <DataWithLoader
-        data={data}
-        loading={loading}
-        count={segments.length}
-        emptyText="No segments"
-        emptyIcon="pie-graph"
-        size="small"
-        objective={true}
-      />
-    </Section>
-  );
+  renderData() {
+    const { counts, segments, currentSegment, setSegment } = this.props;
+    const orderedSegments = [];
+
+    segments.forEach(segment => {
+      if (!segment.subOf) {
+        orderedSegments.push(segment, ...segment.getSubSegments);
+      }
+    });
+
+    return (
+      <SidebarList>
+        {orderedSegments.map(segment => (
+          <li
+            key={segment._id}
+            className={segment.subOf ? 'child-segment' : null}
+          >
+            <a
+              tabIndex={0}
+              className={currentSegment === segment._id ? 'active' : ''}
+              onClick={() => setSegment(segment._id)}
+            >
+              {segment.subOf ? '\u00a0\u00a0' : null}
+              <Icon
+                icon="piechart"
+                size={10}
+                style={{ color: segment.color, marginRight: '5px' }}
+              />{' '}
+              {segment.name}
+              <SidebarCounter>{counts[segment._id]}</SidebarCounter>
+            </a>
+          </li>
+        ))}
+      </SidebarList>
+    );
+  }
+
+  render() {
+    const { segments, loading } = this.props;
+    const { __ } = this.context;
+
+    const { Section, Header } = Wrapper.Sidebar;
+
+    return (
+      <Section collapsible={segments.length > 5}>
+        <Header spaceBottom uppercase>
+          {__('Filter by segments')}
+        </Header>
+
+        {this.renderQuickBtns()}
+
+        <DataWithLoader
+          data={this.renderData()}
+          loading={loading}
+          count={segments.length}
+          emptyText="No segments"
+          emptyIcon="pie-graph"
+          size="small"
+          objective={true}
+        />
+      </Section>
+    );
+  }
 }
 
 Segments.propTypes = propTypes;
@@ -124,4 +142,4 @@ Segments.contextTypes = {
   __: PropTypes.func
 };
 
-export default withRouter(Segments);
+export default Segments;

@@ -6,6 +6,7 @@ import {
   ControlLabel,
   FormControl
 } from 'modules/common/components';
+import { generateRandomColorCode } from 'modules/common/utils';
 import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
@@ -19,12 +20,6 @@ const contextTypes = {
 };
 
 class Form extends Component {
-  static generateRandomColorCode() {
-    return `#${Math.random()
-      .toString(16)
-      .slice(2, 8)}`;
-  }
-
   constructor(props, context) {
     super(props, context);
 
@@ -32,7 +27,7 @@ class Form extends Component {
 
     this.state = {
       name: tag ? tag.name : '',
-      colorCode: tag ? tag.colorCode : Form.generateRandomColorCode()
+      colorCode: tag ? tag.colorCode : generateRandomColorCode()
     };
 
     this.submit = this.submit.bind(this);
