@@ -11,9 +11,15 @@ const ChipText = props => {
   const brand = query.brandDetail;
   const channel = query.channelDetail;
   const tag = query.tagDetail;
+  const segment = query.segmentDetail;
+  const form = query.formDetail;
 
   return (
-    (brand && brand.name) || (channel && channel.name) || (tag && tag.name)
+    (brand && brand.name) ||
+    (channel && channel.name) ||
+    (tag && tag.name) ||
+    (segment && segment.name) ||
+    (form && form.title)
   );
 };
 

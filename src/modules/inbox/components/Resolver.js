@@ -37,7 +37,7 @@ class Resolver extends Component {
     );
 
     const buttonText = allNotClosed ? 'Resolve' : 'Open';
-    const icon = allNotClosed ? 'checkmark' : 'refresh';
+    const icon = allNotClosed ? 'checked' : 'refresh';
 
     const btnAttrs = {
       size: 'small',

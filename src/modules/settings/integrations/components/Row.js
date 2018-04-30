@@ -11,7 +11,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { KIND_CHOICES } from '../constants';
-import { Form, Messenger } from '../containers';
+import { Messenger } from '../containers';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
@@ -42,12 +42,13 @@ class Row extends Component {
   }
 
   renderExtraLinks() {
+    const { __ } = this.context;
     const { integration, refetch } = this.props;
     const kind = integration.kind;
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -56,21 +57,21 @@ class Row extends Component {
     if (kind === KIND_CHOICES.MESSENGER) {
       return (
         <ActionButtons>
-          <Tip text="Appearance">
+          <Tip text={__('Appearance')}>
             <Link
               to={`/settings/integrations/messenger/appearance/${
                 integration._id
               }`}
             >
-              <Button btnStyle="link" icon="paintbucket" />
+              <Button btnStyle="link" icon="paintpalette" />
             </Link>
           </Tip>
 
-          <Tip text="Hours, Availability & Other configs">
+          <Tip text={__('Hours, Availability & Other configs')}>
             <Link
               to={`/settings/integrations/messenger/configs/${integration._id}`}
             >
-              <Button btnStyle="link" icon="gear-a" />
+              <Button btnStyle="link" icon="settings" />
             </Link>
           </Tip>
 
@@ -81,24 +82,12 @@ class Row extends Component {
       );
     }
 
-    if (kind === KIND_CHOICES.FORM) {
-      return (
-        <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Form integration={integration} refetch={refetch} />
-        </ModalTrigger>
-      );
-    }
-
     return null;
   }
 
   getTypeName() {
     const kind = this.props.integration.kind;
     let type = 'defult';
-
-    if (kind === KIND_CHOICES.FORM) {
-      type = 'form';
-    }
 
     if (kind === KIND_CHOICES.TWITTER) {
       type = 'twitter';
@@ -108,15 +97,26 @@ class Row extends Component {
       type = 'facebook';
     }
 
+    if (kind === KIND_CHOICES.FORM) {
+      type = 'form';
+    }
+
     return type;
   }
 
   render() {
-    const integration = this.props.integration;
+    const { __ } = this.context;
+    const { integration } = this.props;
+    const twitterData = (integration || {}).twitterData || {};
 
     return (
       <tr>
-        <td>{integration.name}</td>
+        <td>
+          {integration.name}
+          {integration.kind === 'twitter' &&
+            ` (${twitterData.info && twitterData.info.screen_name})`}
+        </td>
+
         <td>
           <Label className={`label-${this.getTypeName()}`}>
             {integration.kind}
@@ -127,11 +127,11 @@ class Row extends Component {
         <td>
           <ActionButtons>
             {this.renderExtraLinks()}
-            <Tip text="Delete">
+            <Tip text={__('Delete')}>
               <Button
                 btnStyle="link"
                 onClick={this.removeIntegration}
-                icon="close"
+                icon="cancel-1"
               />
             </Tip>
           </ActionButtons>
@@ -142,5 +142,8 @@ class Row extends Component {
 }
 
 Row.propTypes = propTypes;
+Row.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Row;

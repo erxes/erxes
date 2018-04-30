@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
 import { Sidebar } from 'modules/layout/components';
-import { QuickButton, SidebarList } from 'modules/layout/styles';
+import { SidebarList } from 'modules/layout/styles';
 import { EmptyState, Tagger, Icon } from 'modules/common/components';
 
 const propTypes = {
   data: PropTypes.object.isRequired,
-  type: PropTypes.string.isRequired
+  type: PropTypes.string.isRequired,
+  afterSave: PropTypes.func
 };
 
 class TaggerSection extends Component {
@@ -29,29 +30,31 @@ class TaggerSection extends Component {
 
   renderTags(tags) {
     if (!tags.length) {
-      return <EmptyState icon="pricetags" text="Not tagged yet" size="small" />;
+      return <EmptyState icon="tag" text="Not tagged yet" size="small" />;
     }
 
     return tags.map(({ _id, colorCode, name }) => (
       <li key={_id}>
-        <Icon icon="pricetag icon" style={{ color: colorCode }} />
+        <Icon icon="tag icon" style={{ color: colorCode }} />
         {name}
       </li>
     ));
   }
 
   render() {
-    const { data, type } = this.props;
+    const { data, type, afterSave } = this.props;
     const tags = data.getTags || [];
     const { Title, QuickButtons } = Sidebar.Section;
+    const { __ } = this.context;
+
     return (
       <Sidebar.Section>
-        <Title>Tags</Title>
+        <Title>{__('Tags')}</Title>
 
         <QuickButtons>
-          <QuickButton tabIndex={0} onClick={this.toggleTagger}>
-            <Icon icon="gear-a" />
-          </QuickButton>
+          <a tabIndex={0} onClick={this.toggleTagger}>
+            <Icon icon="settings" />
+          </a>
         </QuickButtons>
 
         <Collapse in={this.state.isTaggerVisible}>
@@ -61,6 +64,7 @@ class TaggerSection extends Component {
               targets={[data]}
               className="sidebar-accordion"
               event="onClick"
+              afterSave={afterSave}
             />
           </div>
         </Collapse>
@@ -72,5 +76,8 @@ class TaggerSection extends Component {
 }
 
 TaggerSection.propTypes = propTypes;
+TaggerSection.contextTypes = {
+  __: PropTypes.func
+};
 
 export default TaggerSection;

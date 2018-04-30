@@ -1,23 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Wrapper } from 'modules/layout/components';
+import { Wrapper, Sidebar } from 'modules/layout/components';
 import {
-  EmptyState,
-  Icon,
+  DataWithLoader,
   Tabs,
   TabTitle,
-  DataWithLoader
+  Icon
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
-import { EditInformation } from 'modules/customers/containers';
-import {
-  ActivityList,
-  InternalNotes,
-  ConversationList
-} from 'modules/activityLogs/components';
+import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
-import { DetailContent, SubContent } from 'modules/customers/styles';
+import { renderFullName } from 'modules/common/utils';
+import { DealSection } from 'modules/deals/containers';
+import { EditInformation } from '../../containers';
+import { CompanyAssociate } from 'modules/companies/containers';
+import { hasAnyActivity } from '../../utils';
+import { ActivityContent } from 'modules/common/styles/main';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -25,7 +24,8 @@ const propTypes = {
   queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired,
   loadingLogs: PropTypes.bool,
-  history: PropTypes.object
+  history: PropTypes.object,
+  refetch: PropTypes.func
 };
 
 class CustomerDetails extends React.Component {
@@ -43,72 +43,51 @@ class CustomerDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, activityLogsCustomer, loadingLogs } = this.props;
+    const {
+      currentUser,
+      activityLogsCustomer,
+      loadingLogs,
+      customer
+    } = this.props;
 
-    if (currentTab === 'activity') {
-      return (
+    const hasActivity = hasAnyActivity(activityLogsCustomer);
+
+    return (
+      <ActivityContent isEmpty={!hasActivity}>
         <DataWithLoader
           loading={loadingLogs}
-          count={activityLogsCustomer.length}
+          count={!loadingLogs && hasActivity > 0 ? 1 : 0}
           data={
             <ActivityList
               user={currentUser}
               activities={activityLogsCustomer}
+              target={customer.firstName}
+              type={currentTab} //show logs filtered by type
             />
           }
           emptyText="No Activities"
           emptyImage="/images/robots/robot-03.svg"
         />
-      );
-    }
-
-    if (currentTab === 'notes') {
-      return <InternalNotes activityLog={activityLogsCustomer} />;
-    }
-
-    if (currentTab === 'conversations') {
-      return this.renderConversations();
-    }
-  }
-
-  renderConversations() {
-    const { customer, activityLogsCustomer, history } = this.props;
-    const conversations = customer.conversations;
-
-    return (
-      <SubContent>
-        {conversations.length ? (
-          <ConversationList
-            activityLog={activityLogsCustomer}
-            detail={customer}
-            history={history}
-          />
-        ) : (
-          <EmptyState
-            text="There aren’t any conversations."
-            image="/images/robots/robot-02.svg"
-            full
-          />
-        )}
-      </SubContent>
+      </ActivityContent>
     );
   }
 
   render() {
     const { currentTab } = this.state;
-    const { customer } = this.props;
+    const { customer, refetch } = this.props;
+    const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Customers', link: '/customers' },
-      { title: customer.name || customer.email || 'N/A' }
+      { title: __('Customers'), link: '/customers' },
+      { title: renderFullName(customer) }
     ];
 
     const content = (
-      <DetailContent>
+      <div>
         <WhiteBoxRoot>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> New note
+              <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
           </Tabs>
 
@@ -120,30 +99,40 @@ class CustomerDetails extends React.Component {
             className={currentTab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}
           >
-            Activity
+            {__('Activity')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
             onClick={() => this.onTabClick('notes')}
           >
-            Notes
+            {__('Notes')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'conversations' ? 'active' : ''}
             onClick={() => this.onTabClick('conversations')}
           >
-            Conversation
+            {__('Conversation')}
           </TabTitle>
         </Tabs>
 
         {this.renderTabContent()}
-      </DetailContent>
+      </div>
+    );
+
+    const rightSidebar = (
+      <Sidebar>
+        <CompanyAssociate data={customer} />
+        <DealSection customerId={customer._id} />
+      </Sidebar>
     );
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<EditInformation customer={customer} />}
+        leftSidebar={
+          <EditInformation wide customer={customer} refetch={refetch} />
+        }
+        rightSidebar={rightSidebar}
         content={content}
         transparent={true}
       />
@@ -152,5 +141,8 @@ class CustomerDetails extends React.Component {
 }
 
 CustomerDetails.propTypes = propTypes;
+CustomerDetails.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(CustomerDetails);

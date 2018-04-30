@@ -12,14 +12,18 @@ const propTypes = {
   defaultValue: PropTypes.string
 };
 
-const SelectBrand = ({ brands, onChange, defaultValue }) => (
+const contextTypes = {
+  __: PropTypes.func
+};
+
+const SelectBrand = ({ brands, onChange, defaultValue }, { __ }) => (
   <FormGroup>
     <ControlLabel>Brand</ControlLabel>
 
     <FormControl
       id="selectBrand"
       componentClass="select"
-      placeholder="Select Brand"
+      placeholder={__('Select Brand')}
       defaultValue={defaultValue}
       onChange={onChange}
     >
@@ -34,5 +38,6 @@ const SelectBrand = ({ brands, onChange, defaultValue }) => (
 );
 
 SelectBrand.propTypes = propTypes;
+SelectBrand.contextTypes = contextTypes;
 
 export default SelectBrand;

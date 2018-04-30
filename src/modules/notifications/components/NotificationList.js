@@ -4,7 +4,7 @@ import _ from 'underscore';
 import Sidebar from 'modules/settings/Sidebar';
 import { Button, Pagination } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import { NotificationListRow } from './';
+import { NotificationRow } from './';
 import { NotifList } from './styles';
 
 class NotificationList extends Component {
@@ -34,11 +34,12 @@ class NotificationList extends Component {
 
   render() {
     const { notifications, count, markAsRead } = this.props;
+    const { __ } = this.context;
 
     const content = (
       <NotifList>
         {notifications.map((notif, key) => (
-          <NotificationListRow
+          <NotificationRow
             notification={notif}
             key={key}
             markAsRead={markAsRead}
@@ -47,13 +48,13 @@ class NotificationList extends Component {
       </NotifList>
     );
 
-    const actionBarLeft = (
+    const actionBarRight = (
       <div>
         <Button
           btnStyle="primary"
           size="small"
           onClick={this.markAllRead.bind(this, true)}
-          icon="checkmark"
+          icon="checked-1"
         >
           Mark Page Read
         </Button>
@@ -61,18 +62,20 @@ class NotificationList extends Component {
           btnStyle="success"
           size="small"
           onClick={this.markAllRead.bind(this, false)}
-          icon="checkmark"
+          icon="checked-1"
         >
           Mark All Read
         </Button>
       </div>
     );
 
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+    const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Notifications' }]} />}
+        header={
+          <Wrapper.Header breadcrumb={[{ title: __('Notifications') }]} />
+        }
         leftSidebar={<Sidebar />}
         actionBar={actionBar}
         content={content}
@@ -86,6 +89,10 @@ NotificationList.propTypes = {
   notifications: PropTypes.array.isRequired,
   markAsRead: PropTypes.func.isRequired,
   count: PropTypes.number.isRequired
+};
+
+NotificationList.contextTypes = {
+  __: PropTypes.func
 };
 
 export default NotificationList;

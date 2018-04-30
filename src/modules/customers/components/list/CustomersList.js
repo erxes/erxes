@@ -13,15 +13,17 @@ import {
   Icon,
   Table,
   FormControl,
-  DataWithLoader
+  DataWithLoader,
+  DateFilter
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
-import { CustomerForm, CommonMerge } from '../';
-import { ManageColumns } from 'modules/fields/containers';
+import { CommonMerge } from '../';
+import { CustomerForm } from '../../containers';
+import { ManageColumns } from 'modules/settings/properties/containers';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
@@ -34,7 +36,6 @@ const propTypes = {
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
-  addCustomer: PropTypes.func.isRequired,
   location: PropTypes.object,
   history: PropTypes.object,
   loading: PropTypes.bool.isRequired,
@@ -42,7 +43,8 @@ const propTypes = {
   loadingTags: PropTypes.bool.isRequired,
   removeCustomers: PropTypes.func.isRequired,
   mergeCustomers: PropTypes.func.isRequired,
-  basicInfos: PropTypes.object.isRequired
+  basicInfos: PropTypes.object.isRequired,
+  queryParams: PropTypes.object
 };
 
 class CustomersList extends React.Component {
@@ -74,6 +76,7 @@ class CustomersList extends React.Component {
 
   renderContent() {
     const { customers, columnsConfig, toggleBulk, history } = this.props;
+    const { __ } = this.context;
 
     return (
       <Table whiteSpace="nowrap" hover bordered>
@@ -83,9 +86,9 @@ class CustomersList extends React.Component {
               <FormControl componentClass="checkbox" onChange={this.onChange} />
             </th>
             {columnsConfig.map(({ name, label }) => (
-              <th key={name}>{label}</th>
+              <th key={name}>{__(label)}</th>
             ))}
-            <th>Tags</th>
+            <th>{__('Tags')}</th>
           </tr>
         </thead>
         <tbody id="customers">
@@ -124,7 +127,6 @@ class CustomersList extends React.Component {
     const {
       counts,
       bulk,
-      addCustomer,
       tags,
       emptyBulk,
       loading,
@@ -133,29 +135,40 @@ class CustomersList extends React.Component {
       mergeCustomers,
       basicInfos,
       location,
-      history
+      history,
+      queryParams
     } = this.props;
+    const { __ } = this.context;
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         Add customer
       </Button>
     );
-    const editColumns = <a>Edit columns</a>;
+
+    const editColumns = <a>{__('Edit columns')}</a>;
+
+    const dateFilter = queryParams.form && (
+      <DateFilter queryParams={queryParams} history={history} />
+    );
+
     const actionBarRight = (
       <BarItems>
         <FormControl
           type="text"
-          placeholder="Type to search.."
+          placeholder={__('Type to search')}
           onChange={e => this.search(e)}
           value={this.state.searchValue}
           autoFocus
           onFocus={e => this.moveCursorAtTheEnd(e)}
         />
+
+        {dateFilter}
+
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
-              Customize <Icon icon="ios-arrow-down" />
+              {__('Customize ')} <Icon icon="downarrow" />
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>
@@ -169,12 +182,15 @@ class CustomersList extends React.Component {
               </ModalTrigger>
             </li>
             <li>
-              <Link to="/fields/manage/customer">Properties</Link>
+              <Link to="/settings/properties?type=customer">
+                {__('Properties')}
+              </Link>
             </li>
           </Dropdown.Menu>
         </Dropdown>
-        <ModalTrigger title="New customer" trigger={addTrigger}>
-          <CustomerForm addCustomer={addCustomer} />
+
+        <ModalTrigger title="New customer" trigger={addTrigger} size="lg">
+          <CustomerForm size="lg" />
         </ModalTrigger>
       </BarItems>
     );
@@ -188,7 +204,7 @@ class CustomersList extends React.Component {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+        <Button btnStyle="simple" size="small" icon="downarrow">
           Tag
         </Button>
       );
@@ -218,7 +234,7 @@ class CustomersList extends React.Component {
           <Button
             btnStyle="danger"
             size="small"
-            icon="close"
+            icon="cancel-1"
             onClick={() =>
               confirm().then(() => {
                 this.removeCustomers(bulk);
@@ -235,11 +251,13 @@ class CustomersList extends React.Component {
       <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
     );
 
-    const breadcrumb = [{ title: `Customers (${counts.all})` }];
+    const breadcrumb = [{ title: __(`Customers`) + ` (${counts.all})` }];
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
+        }
         actionBar={actionBar}
         footer={<Pagination count={counts.all} />}
         leftSidebar={
@@ -260,5 +278,8 @@ class CustomersList extends React.Component {
 }
 
 CustomersList.propTypes = propTypes;
+CustomersList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(CustomersList);

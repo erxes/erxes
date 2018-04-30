@@ -26,6 +26,7 @@ class MessageListContainer extends Bulk {
       bulk: this.state.bulk,
       toggleBulk: this.toggleBulk,
       emptyBulk: this.emptyBulk,
+      queryParams: queryParams,
       refetch: engageMessagesQuery.refetch,
       loading: engageMessagesQuery.loading
     };
@@ -50,6 +51,8 @@ const MessageListContainerWithData = compose(
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       variables: {
+        page: queryParams.page,
+        perPage: queryParams.perPage || 20,
         kind: queryParams.kind,
         status: queryParams.status,
         tag: queryParams.tag,

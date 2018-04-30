@@ -10,7 +10,6 @@ class Row extends CommonRow {
   render() {
     const { object } = this.props;
     const brand = object.brand || {};
-    console.log(object);
 
     return (
       <tr>

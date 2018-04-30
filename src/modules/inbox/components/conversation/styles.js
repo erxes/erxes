@@ -3,13 +3,28 @@ import { colors, dimensions } from 'modules/common/styles';
 
 const MessageContent = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  border-radius: 7px;
+  border-radius: 20px;
+  border-bottom-left-radius: 2px;
   background: ${colors.colorWhite};
   background: ${props =>
     props.internal ? colors.bgInternal : props.staff && colors.colorSecondary};
   word-break: break-word;
   box-shadow: 0 1px 1px 0 ${colors.darkShadow};
   color: ${props => props.staff && !props.internal && colors.colorWhite};
+  text-align: left;
+
+  ${props => {
+    if (props.staff) {
+      return `
+        border-bottom-right-radius: 2px;
+        border-bottom-left-radius: 20px;
+      `;
+    }
+  }};
+
+  a {
+    color: ${props => props.staff && colors.colorWhite};
+  }
 
   p {
     margin: 0;
@@ -21,6 +36,7 @@ const MessageContent = styled.div`
 
   img {
     max-width: 100%;
+    border-radius: 2px;
   }
 
   ul,
@@ -44,8 +60,8 @@ const MessageContent = styled.div`
 `;
 
 const MessageItem = styled.div`
-  margin-bottom: ${dimensions.unitSpacing}px;
-  padding-right: ${dimensions.coreSpacing}%;
+  margin-top: ${props => (props.isSame ? dimensions.unitSpacing - 5 : 20)}px;
+  padding-right: 17%;
   display: flex;
   flex-direction: row;
   position: relative;
@@ -54,21 +70,40 @@ const MessageItem = styled.div`
   > span {
     position: absolute;
     right: ${props => props.staff && '0'};
+    bottom: 0;
   }
 
   ${props => {
     if (props.staff) {
       return `
         padding-right: 0;
-        padding-left: ${dimensions.coreSpacing}%;
+        padding-left: 17%;
         text-align: right;
         flex-direction: row-reverse;
       `;
     }
   }};
 
+  &.same {
+    ${MessageContent} {
+      border-top-left-radius: ${props => !props.staff && '2px'};
+      border-top-right-radius: ${props => props.staff && '2px'};
+    }
+
+    &:last-of-type {
+      ${MessageContent} {
+        border-bottom-right-radius: ${props => props.staff && '20px'};
+        border-bottom-left-radius: ${props => !props.staff && '20px'};
+      }
+    }
+  }
+
   &.attachment ${MessageContent} {
-    padding: ${dimensions.unitSpacing}px;
+    padding: ${dimensions.coreSpacing}px;
+
+    > span {
+      margin-bottom: 5px;
+    }
 
     br {
       display: none;
@@ -88,12 +123,17 @@ const MessageItem = styled.div`
 
 const MessageBody = styled.div`
   margin: ${props => (props.staff ? '0 55px 0 0' : '0 0 0 55px')};
+  display: flex;
+  flex-direction: ${props => (props.staff ? 'row-reverse' : 'row')};
+  align-items: center;
 
   footer {
+    flex-shrink: 0;
     font-size: 11px;
     display: inline-block;
-    margin-top: 5px;
-    color: ${colors.colorCoreGray};
+    color: ${colors.colorCoreLightGray};
+    margin: 0 10px;
+    cursor: pointer;
   }
 `;
 

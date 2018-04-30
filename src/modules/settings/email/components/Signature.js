@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ActionBar, Wrapper } from 'modules/layout/components';
 import {
   ControlLabel,
-  Button,
   FormGroup,
-  FormControl
+  FormControl,
+  Button
 } from 'modules/common/components';
-import { ContentBox, SubHeading, Well } from '../../styles';
-import Sidebar from 'modules/settings/Sidebar';
+import { ModalFooter, Well } from 'modules/common/styles/main';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,
@@ -57,17 +55,20 @@ class Signature extends Component {
     e.preventDefault();
 
     this.props.save(this.state.signatures);
+
+    this.context.closeModal();
   }
 
   render() {
     const current = this.getCurrent() || {};
+    const { __, closeModal } = this.context;
 
     const content = (
-      <ContentBox>
-        <SubHeading>Email signatures</SubHeading>
+      <div>
         <Well>
-          Signatures are only included in response emails. <br />
-          You can use Markdown to format your signature.
+          {__('Signatures are only included in response emails.')}
+          <br />
+          {__('You can use Markdown to format your signature.')}
         </Well>
 
         <form id="signature-form" onSubmit={this.handleSubmit}>
@@ -96,40 +97,31 @@ class Signature extends Component {
               value={current.content}
             />
           </FormGroup>
+          <ModalFooter>
+            <Button
+              btnStyle="simple"
+              onClick={() => closeModal()}
+              icon="cancel-1"
+            >
+              Close
+            </Button>
+
+            <Button btnStyle="success" type="submit" icon="checked-1">
+              Save
+            </Button>
+          </ModalFooter>
         </form>
-      </ContentBox>
+      </div>
     );
 
-    const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Signature template' }
-    ];
-
-    const actionFooter = (
-      <ActionBar
-        right={
-          <Button
-            btnStyle="success"
-            onClick={this.handleSubmit}
-            icon="checkmark"
-          >
-            Save
-          </Button>
-        }
-      />
-    );
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        footer={actionFooter}
-        content={content}
-      />
-    );
+    return content;
   }
 }
 
 Signature.propTypes = propTypes;
+Signature.contextTypes = {
+  __: PropTypes.func,
+  closeModal: PropTypes.func
+};
 
 export default Signature;

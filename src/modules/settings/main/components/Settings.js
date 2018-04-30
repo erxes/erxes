@@ -1,27 +1,51 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
-import { Row, RowTitle, Box, Divider, BoxName } from '../styles';
+import { Row, RowTitle, Box, BoxName, Divider } from '../styles';
 
 class Settings extends Component {
   renderBox(name, image, to) {
+    const { __ } = this.context;
     return (
       <Box>
         <Link to={to}>
           <img src={image} alt={name} />
-          <BoxName>{name}</BoxName>
+          <BoxName>{__(name)}</BoxName>
         </Link>
       </Box>
     );
   }
 
   render() {
-    const breadcrumb = [{ title: 'Settings', link: '/settings' }];
+    const { __ } = this.context;
+    const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
 
     const content = (
       <div>
         <Row>
-          <RowTitle>Account Settings</RowTitle>
+          <RowTitle className="secondRow">{__('General Settings')}</RowTitle>
+          <div>
+            {this.renderBox(
+              'Account default',
+              '/images/icons/erxes-16.svg',
+              '/settings/general'
+            )}
+            {this.renderBox(
+              'Team Members',
+              '/images/icons/erxes-02.svg',
+              '/settings/team'
+            )}
+            {this.renderBox(
+              'Properties',
+              '/images/icons/erxes-01.svg',
+              '/settings/properties'
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>{__('Integration Settings')}</RowTitle>
           <div>
             {this.renderBox(
               'Channels',
@@ -53,41 +77,21 @@ class Settings extends Component {
               '/images/icons/erxes-08.svg',
               '/settings/emails'
             )}
-            {this.renderBox(
-              'Forms',
-              '/images/icons/erxes-12.svg',
-              '/settings/forms'
-            )}
-            {this.renderBox(
-              'Team Members',
-              '/images/icons/erxes-02.svg',
-              '/settings/team'
-            )}
           </div>
         </Row>
         <Divider />
         <Row>
-          <RowTitle className="secondRow">Personal Settings</RowTitle>
+          <RowTitle className="secondRow">{__('Deal Settings')}</RowTitle>
           <div>
             {this.renderBox(
-              'Profile',
-              '/images/icons/erxes-01.svg',
-              '/settings/profile'
+              'Boards & Pipelines',
+              '/images/icons/erxes-19.svg',
+              '/settings/deals'
             )}
             {this.renderBox(
-              'Change password',
+              'Product & Service',
               '/images/icons/erxes-13.svg',
-              '/settings/change-password'
-            )}
-            {this.renderBox(
-              'Email Signature',
-              '/images/icons/erxes-07.svg',
-              '/settings/emails/signatures'
-            )}
-            {this.renderBox(
-              'Notification',
-              '/images/icons/erxes-11.svg',
-              '/settings/notification-settings'
+              '/settings/product-service'
             )}
           </div>
         </Row>
@@ -103,5 +107,9 @@ class Settings extends Component {
     );
   }
 }
+
+Settings.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Settings;

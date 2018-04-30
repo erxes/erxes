@@ -5,6 +5,34 @@ const companyFields = `
   industry
   website
   plan
+
+  parentCompanyId
+  email
+  ownerId
+  phone
+  leadStatus
+  lifecycleState
+  businessType
+  description
+  employees
+  doNotDisturb
+  links {
+    linkedIn
+    twitter
+    facebook
+    github
+    youtube
+    website
+  }
+  owner {
+    details {
+      fullName
+    }
+  }
+  parentCompany {
+    name
+  }
+
   customFieldsData
   tagIds
   getTags {
@@ -40,6 +68,18 @@ export const companies = `
   }
 `;
 
+export const companiesMain = `
+  query companiesMain(${listParamsDef}) {
+    companiesMain(${listParamsValue}) {
+      list {
+        ${companyFields}
+      }
+
+      totalCount
+    }
+  }
+`;
+
 export const companyCounts = `
   query companyCounts(${listParamsDef}) {
     companyCounts(${listParamsValue})
@@ -50,13 +90,35 @@ export const companyDetail = `
   query companyDetail($_id: String!) {
     companyDetail(_id: $_id) {
       ${companyFields}
-
       customers {
         _id
         firstName
         lastName
         email
         phone
+      }
+      deals {
+        _id
+        companies {
+          _id
+          name
+        }
+        customers {
+          _id
+          firstName
+          email
+        }
+        products
+        amount
+        closeDate
+        assignedUsers {
+          _id
+          email
+          details {
+            fullName
+            avatar
+          }
+        }
       }
     }
   }
@@ -68,21 +130,6 @@ const tags = `
       _id
       name
       colorCode
-    }
-  }
-`;
-
-export const fields = `
-  query {
-    fields(contentType: "company") {
-      _id
-      type
-      validation
-      text
-      description
-      options
-      isRequired
-      order
     }
   }
 `;
@@ -124,9 +171,9 @@ const activityLogsCompany = `
 
 export default {
   companies,
+  companiesMain,
   companyCounts,
   companyDetail,
-  fields,
   tags,
   companiesListConfig,
   activityLogsCompany

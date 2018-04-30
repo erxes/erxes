@@ -1,41 +1,31 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
+import { slideDown } from 'modules/common/utils/animations';
 import Icon from 'modules/common/components/Icon';
 import { colors, typography, dimensions } from 'modules/common/styles';
 
 const types = {
-  info: {
+  information: {
     background: colors.colorSecondary,
     icon: 'information'
   },
 
   warning: {
     background: colors.colorCoreYellow,
-    icon: 'alert'
+    icon: 'clock'
   },
 
   error: {
     background: colors.colorCoreRed,
-    icon: 'close'
+    icon: 'cancel-1'
   },
 
   success: {
     background: colors.colorCoreGreen,
-    icon: 'checkmark'
+    icon: 'checked-1'
   }
 };
-
-const slidedown = keyframes`
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0%);
-    opacity: 1;
-  }
-`;
 
 const AlertItem = styled.div`
   display: table;
@@ -46,8 +36,8 @@ const AlertItem = styled.div`
   z-index: 10;
   font-weight: ${typography.fontWeightLight};
   background-color: ${props => types[props.type].background};
-  animation-name: ${slidedown};
-  animation-duration: 0.5s;
+  animation-name: ${slideDown};
+  animation-duration: 0.3s;
   animation-timing-function: ease;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 
@@ -96,5 +86,5 @@ AlertStyled.propTypes = {
 };
 
 AlertStyled.defaultProps = {
-  type: 'info'
+  type: 'information'
 };

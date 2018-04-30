@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Tip, Button, Icon, ModalTrigger } from 'modules/common/components';
 import { CategoryForm } from '../../containers';
-import { CategoryItem, ActionButtons, CountArticle } from '../../styles';
+import { CategoryItem, ActionButtons } from './styles';
 
 const propTypes = {
   topicIds: PropTypes.string,
@@ -32,10 +32,11 @@ class CategoryRow extends Component {
 
   renderEditAction() {
     const { category, topicIds } = this.props;
+    const { __ } = this.context;
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -50,15 +51,17 @@ class CategoryRow extends Component {
 
   render() {
     const { category, isActive } = this.props;
+    const { __ } = this.context;
 
     return (
       <CategoryItem key={category._id} isActive={isActive}>
-        <Link to={`?id=${category._id}`}>{category.title}</Link>
-        <CountArticle>{category.articles.length}</CountArticle>
+        <Link to={`?id=${category._id}`}>
+          {category.title} <span>({category.articles.length})</span>
+        </Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text="Delete">
-            <Button btnStyle="link" onClick={this.remove} icon="close" />
+          <Tip text={__('Delete')}>
+            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>
       </CategoryItem>
@@ -67,5 +70,8 @@ class CategoryRow extends Component {
 }
 
 CategoryRow.propTypes = propTypes;
+CategoryRow.contextTypes = {
+  __: PropTypes.func
+};
 
 export default CategoryRow;

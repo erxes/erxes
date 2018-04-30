@@ -1,7 +1,6 @@
 import _ from 'underscore';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Checkbox } from 'react-bootstrap';
 import SelectBrand from './SelectBrand';
 import {
   Button,
@@ -9,6 +8,7 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
 
 class Facebook extends Component {
   constructor(props, context) {
@@ -47,6 +47,7 @@ class Facebook extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { apps, pages, brands } = this.props;
 
     return (
@@ -64,7 +65,7 @@ class Facebook extends Component {
 
           <FormControl
             componentClass="select"
-            placeholder="Select app"
+            placeholder={__('Select app')}
             onChange={this.onAppChange}
             id="app"
           >
@@ -83,18 +84,23 @@ class Facebook extends Component {
 
           {pages.map(page => (
             <div key={page.id}>
-              <Checkbox name="pages" key={page.id} value={page.id}>
+              <FormControl
+                componentClass="checkbox"
+                name="pages"
+                key={page.id}
+                value={page.id}
+              >
                 {page.name}
-              </Checkbox>
+              </FormControl>
             </div>
           ))}
         </FormGroup>
 
-        <Modal.Footer>
-          <Button btnStyle="success" type="submit" icon="checkmark">
+        <ModalFooter>
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }
@@ -106,6 +112,10 @@ Facebook.propTypes = {
   brands: PropTypes.array.isRequired,
   apps: PropTypes.array.isRequired,
   pages: PropTypes.array.isRequired
+};
+
+Facebook.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Facebook;

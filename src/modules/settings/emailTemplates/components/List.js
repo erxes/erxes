@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Table } from 'modules/common/components';
 import { List } from '../../common/components';
 import Form from './Form';
@@ -20,13 +21,14 @@ class EmailTemplateList extends List {
   }
 
   renderContent() {
+    const { __ } = this.context;
     return (
       <Table>
         <thead>
           <tr>
             <th width="140" />
-            <th>Name</th>
-            <th>Actions</th>
+            <th>{__('Name')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
@@ -35,11 +37,16 @@ class EmailTemplateList extends List {
   }
 
   breadcrumb() {
+    const { __ } = this.context;
     return [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Email templates' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Email templates') }
     ];
   }
 }
+
+EmailTemplateList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default EmailTemplateList;

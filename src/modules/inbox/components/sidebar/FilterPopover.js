@@ -1,18 +1,26 @@
 import React, { Component } from 'react';
+import { withApollo } from 'react-apollo';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
+import gql from 'graphql-tag';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { FilterByParams, Icon } from 'modules/common/components';
+import { FilterByParams, Icon, Spinner } from 'modules/common/components';
+import { queries } from '../../graphql';
 import { PopoverButton } from '../../styles';
+import { generateParams } from '../../utils';
+import { LoaderWrapper } from './styles';
 
 const propTypes = {
-  fields: PropTypes.array.isRequired,
+  query: PropTypes.object,
+  fields: PropTypes.array,
   popoverTitle: PropTypes.string.isRequired,
   buttonText: PropTypes.string.isRequired,
-  counts: PropTypes.object,
+  counts: PropTypes.string,
   paramKey: PropTypes.string.isRequired,
   placement: PropTypes.string,
-  icon: PropTypes.string
+  icon: PropTypes.string,
+  searchable: PropTypes.bool,
+  client: PropTypes.object
 };
 
 const defaultProps = {
@@ -20,28 +28,93 @@ const defaultProps = {
 };
 
 class FilterPopover extends Component {
-  render() {
-    const {
-      buttonText,
-      popoverTitle,
-      placement,
-      fields,
-      paramKey,
-      counts,
-      icon
-    } = this.props;
+  constructor(props) {
+    super(props);
 
-    const popover = (
-      <Popover id="filter-popover" title={popoverTitle}>
+    let loading = true;
+
+    if (props.fields) {
+      loading = false;
+    }
+
+    this.state = {
+      fields: props.fields || [],
+      counts: {},
+      loading
+    };
+
+    this.renderPopover = this.renderPopover.bind(this);
+    this.onClick = this.onClick.bind(this);
+    this.update = this.update.bind(this);
+  }
+
+  // rerender component
+  update() {
+    this.forceUpdate();
+  }
+
+  onClick() {
+    const { client, query, counts } = this.props;
+
+    if (query) {
+      const { queryName, dataName, variables = {} } = query;
+
+      client
+        .query({
+          query: gql(queries[queryName]),
+          variables
+        })
+        .then(({ data }) => {
+          this.setState({ fields: data[dataName] });
+        });
+    }
+
+    client
+      .query({
+        query: gql(queries.conversationCounts),
+        variables: queryParams => {
+          generateParams(queryParams);
+        }
+      })
+      .then(({ data, loading }) => {
+        this.setState({ counts: data.conversationCounts[counts], loading });
+      });
+  }
+
+  renderPopover() {
+    const { popoverTitle, paramKey, icon, searchable } = this.props;
+    const { counts } = this.state;
+    const { __ } = this.context;
+    const { fields, loading } = this.state;
+
+    if (loading) {
+      return (
+        <Popover id="filter-popover" title={__(popoverTitle)}>
+          <LoaderWrapper>
+            <Spinner objective />
+          </LoaderWrapper>
+        </Popover>
+      );
+    }
+
+    return (
+      <Popover id="filter-popover" title={__(popoverTitle)}>
         <FilterByParams
           fields={fields}
           paramKey={paramKey}
           counts={counts}
           icon={icon}
           loading={false}
+          searchable={searchable}
+          update={this.update}
         />
       </Popover>
     );
+  }
+
+  render() {
+    const { buttonText, placement } = this.props;
+    const { __ } = this.context;
 
     return (
       <OverlayTrigger
@@ -50,15 +123,14 @@ class FilterPopover extends Component {
         }}
         trigger="click"
         placement={placement}
-        overlay={popover}
+        overlay={this.renderPopover()}
         container={this}
+        shouldUpdatePosition
         rootClose
       >
-        <PopoverButton>
-          {buttonText}
-          <Icon
-            icon={placement === 'top' ? 'ios-arrow-up' : 'ios-arrow-down'}
-          />
+        <PopoverButton onClick={() => this.onClick()}>
+          {__(buttonText)}
+          <Icon icon={placement === 'top' ? 'uparrow-2' : 'downarrow'} />
         </PopoverButton>
       </OverlayTrigger>
     );
@@ -67,5 +139,8 @@ class FilterPopover extends Component {
 
 FilterPopover.propTypes = propTypes;
 FilterPopover.defaultProps = defaultProps;
+FilterPopover.contextTypes = {
+  __: PropTypes.func
+};
 
-export default withRouter(FilterPopover);
+export default withApollo(withRouter(FilterPopover));

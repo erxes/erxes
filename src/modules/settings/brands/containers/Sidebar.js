@@ -50,7 +50,7 @@ const SidebarContainer = props => {
       .then(() => {
         brandsQuery.refetch();
 
-        Alert.success('Successfully saved!');
+        Alert.success('Successfully saved.');
 
         callback();
       })

@@ -71,10 +71,11 @@ export default withRouter(
 
     graphql(
       gql`
-        mutation add($name: String!, $brandId: String!) {
+        mutation add($name: String!, $brandId: String!, $languageCode: String) {
           integrationsCreateMessengerIntegration(
             name: $name
             brandId: $brandId
+            languageCode: $languageCode
           ) {
             _id
           }
@@ -87,11 +88,17 @@ export default withRouter(
 
     graphql(
       gql`
-        mutation edit($_id: String!, $name: String!, $brandId: String!) {
+        mutation edit(
+          $_id: String!
+          $name: String!
+          $brandId: String!
+          $languageCode: String
+        ) {
           integrationsEditMessengerIntegration(
             _id: $_id
             name: $name
             brandId: $brandId
+            languageCode: $languageCode
           ) {
             _id
           }

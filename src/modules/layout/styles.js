@@ -1,5 +1,6 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { colors, dimensions, typography } from '../common/styles';
+import { lighten } from '../common/styles/color';
 
 const UserHelper = styled.div`
   height: 50px;
@@ -33,6 +34,10 @@ const Contents = styled.div`
   margin: ${dimensions.coreSpacing}px;
   margin-right: 0;
   max-height: 100%;
+
+  @-moz-document url-prefix() {
+    overflow: hidden;
+  }
 `;
 
 const MainContent = styled.section`
@@ -41,7 +46,7 @@ const MainContent = styled.section`
   flex-direction: column;
   min-width: 480px;
   box-shadow: ${props =>
-    !props.transparent && `0 0 4px ${colors.shadowPrimary}`};
+    !props.transparent && `0 0 8px 1px ${colors.shadowPrimary}`};
   margin-right: ${dimensions.coreSpacing}px;
 `;
 
@@ -57,9 +62,11 @@ const ContentBox = styled.div`
 `;
 
 const ContentHeader = styled.div`
-  background: ${props => (props.invert ? colors.colorWhite : colors.bgLight)};
+  background: ${props =>
+    props.background === 'transparent' ? 'none' : colors[props.background]};
   min-height: ${dimensions.headerSpacing}px;
-  padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
+  padding: ${props =>
+    props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`};
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;
   justify-content: space-between;
@@ -99,7 +106,7 @@ const SideContent = styled.section`
   margin-right: ${dimensions.coreSpacing}px;
   background: ${props => (props.full ? colors.colorWhite : 'none')};
   box-shadow: ${props =>
-    props.full ? `0 0 4px ${colors.shadowPrimary}` : 'none'};
+    props.full ? `0 0 8px 1px ${colors.shadowPrimary}` : 'none'};
 `;
 
 const SidebarHeader = styled.div`
@@ -110,10 +117,17 @@ const SidebarHeader = styled.div`
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   text-transform: ${props => props.uppercase && 'uppercase'};
-  font-weight: ${props => props.bold && typography.fontWeightMedium};
+  font-weight: ${props => (props.bold ? 'bold' : 'normal')};
   display: flex;
+  font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
   justify-content: space-between;
+`;
+
+const SidebarTitle = SidebarHeader.withComponent('h3').extend`
+  padding: 0 ${dimensions.coreSpacing}px;
+  margin: 0 0 -1px 0;
+  text-transform: uppercase;
 `;
 
 const SidebarMainContent = styled.div`
@@ -131,8 +145,11 @@ const SidebarBox = styled.div`
   background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
-    props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
-  padding-bottom: ${dimensions.unitSpacing}px;
+    props.noShadow ? 'none' : `0 0 8px 1px ${colors.shadowPrimary}`};
+  padding-bottom: ${props =>
+    props.collapsible
+      ? `${dimensions.coreSpacing}px`
+      : `${dimensions.unitSpacing}px`};
   position: ${props => (props.full ? 'initial' : 'relative')};
   justify-content: center;
   transition: max-height 0.4s;
@@ -146,53 +163,46 @@ const SidebarBox = styled.div`
 
 const BoxContent = styled.div`
   flex: 1;
+
+  ul {
+    margin-top: 10px;
+  }
 `;
 
 const SidebarToggle = styled.a`
-  outline: 0;
   width: 100%;
-  color: ${colors.colorShadowGray};
+  color: ${colors.colorCoreGray};
   position: absolute;
   bottom: 0;
   text-align: center;
-  font-size: ${typography.fontSizeHeading8}px;
-  background: linear-gradient(
-    0deg,
-    white 0%,
-    white 51%,
-    rgba(255, 255, 255, 0) 100%
-  );
-`;
+  padding: 2px 0;
+  font-size: 10px;
+  background: ${colors.bgLight};
+  border-top: 1px solid ${colors.borderPrimary};
 
-const QuickButton = styled.a`
-  float: left;
-  color: ${colors.colorCoreLightGray};
-  text-transform: none;
-  cursor: pointer;
-  margin-left: ${dimensions.unitSpacing}px;
-  font-size: ${typography.fontSizeHeading8}px;
-  font-weight: ${typography.fontWeightLight};
-  outline: 0;
+  &:hover {
+    cursor: pointer;
+  }
 
-  > i {
-    font-size: 14px;
-    margin-right: 0;
-
-    &:hover {
-      color: ${colors.colorCoreBlack};
-    }
+  &:focus {
+    outline: 0;
   }
 `;
 
 const HelperButtons = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
-  top: 16px;
+  top: 15px;
 
   a {
+    float: left;
     color: ${colors.colorCoreLightGray};
+    text-transform: none;
     cursor: pointer;
+    margin-left: ${dimensions.unitSpacing}px;
     font-size: ${typography.fontSizeHeading8}px;
+    font-weight: ${typography.fontWeightLight};
+    outline: 0;
 
     > i {
       font-size: 14px;
@@ -205,16 +215,8 @@ const HelperButtons = styled.div`
   }
 `;
 
-const SidebarTitle = styled.h3`
-  font-size: ${typography.fontSizeHeading8}px;
-  font-weight: ${typography.fontWeightMedium};
-  text-transform: uppercase;
-  padding: ${dimensions.coreSpacing}px;
-  margin: 0;
-`;
-
 const SidebarContent = styled.div`
-  padding: 0px ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
 `;
 
 const SidebarList = styled.ul`
@@ -225,6 +227,11 @@ const SidebarList = styled.ul`
   li.child-segment {
     border-bottom: none;
     background-color: ${colors.bgLight};
+
+    > span {
+      background-color: ${colors.bgLight};
+      box-shadow: -2px 0 10px 2px ${colors.bgLight};
+    }
   }
 
   &.no-link li,
@@ -238,6 +245,8 @@ const SidebarList = styled.ul`
     text-decoration: none;
     outline: 0;
     position: relative;
+    border-left: 2px solid transparent;
+    transition: background 0.3s ease;
 
     > i {
       margin-right: 5px;
@@ -249,7 +258,11 @@ const SidebarList = styled.ul`
       background: ${colors.bgActive};
       text-decoration: none;
       outline: 0;
-      color: ${colors.colorCoreBlack};
+      color: ${lighten(colors.textPrimary, 40)};
+    }
+
+    &.active {
+      border-left: 2px solid ${colors.colorSecondary};
     }
   }
 
@@ -261,19 +274,32 @@ const SidebarList = styled.ul`
 
 const SidebarCounter = styled.span`
   font-size: ${typography.fontSizeHeading8}px;
-  text-align: right;
+  text-align: ${props => (props.nowrap ? 'left' : 'right')};
   color: ${colors.colorCoreGray};
   margin-top: 2px;
-  position: absolute;
+  position: ${props => !props.nowrap && 'absolute'};
   right: ${dimensions.coreSpacing}px;
-  max-width: 60%;
+  max-width: ${props => (props.nowrap ? '100%' : '60%')};
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-left: ${props => (props.nowrap ? '0' : '10px')};
 
   a {
     padding: 0;
     color: ${colors.linkPrimary};
   }
+
+  span {
+    float: right;
+    margin-left: 5px;
+  }
+
+  ${props =>
+    props.nowrap &&
+    css`
+      display: block;
+      white-space: normal;
+    `};
 `;
 
 const FlexContent = styled.div`
@@ -294,7 +320,7 @@ const FlexRightItem = styled.div`
 const WhiteBoxRoot = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorWhite};
-  box-shadow: 0 0 4px ${colors.shadowPrimary};
+  box-shadow: 0 0 8px 1px ${colors.shadowPrimary};
 `;
 
 const WhiteBox = WhiteBoxRoot.extend`
@@ -339,13 +365,13 @@ const AuthDescription = styled.div`
     color: ${colors.colorWhite};
   }
   p {
-    color: ${colors.colorPrimary};
+    color: rgba(255, 255, 255, 0.7);
     margin-bottom: 50px;
     font-size: 16px;
     line-height: 1.8em;
   }
   a {
-    color: ${colors.colorPrimary};
+    color: rgba(255, 255, 255, 0.7);
   }
   .not-found {
     margin-top: 0;
@@ -372,7 +398,6 @@ export {
   SidebarToggle,
   SidebarCounter,
   HelperButtons,
-  QuickButton,
   SidebarTitle,
   UserHelper,
   SidebarList,

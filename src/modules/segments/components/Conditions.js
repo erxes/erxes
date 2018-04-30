@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { Fragment, Component } from 'react';
 import PropTypes from 'prop-types';
-import { Label, Icon } from 'modules/common/components';
+import { Link } from 'react-router-dom';
+import { Button } from 'modules/common/components';
 import Condition from './Condition';
 
 const propTypes = {
@@ -11,40 +12,52 @@ const propTypes = {
   contentType: PropTypes.string
 };
 
-function Conditions({
-  conditions,
-  changeCondition,
-  removeCondition,
-  contentType,
-  parentSegmentId
-}) {
-  return (
-    <div>
-      {parentSegmentId ? (
-        <a
-          href={`/segments/edit/${contentType}/${parentSegmentId}`}
+const contextTypes = {
+  __: PropTypes.func
+};
+
+class Conditions extends Component {
+  renderParent() {
+    const { contentType, parentSegmentId } = this.props;
+    const { __ } = this.context;
+
+    if (!parentSegmentId) return null;
+
+    return (
+      <Fragment>
+        <Link
+          to={`/segments/edit/${contentType}/${parentSegmentId}`}
           target="_blank"
         >
-          <h4>
-            <Label>
-              Parent segment conditions <Icon icon="android-open" />
-            </Label>
-          </h4>
-          <br />
-        </a>
-      ) : null}
-      {conditions.map(condition => (
-        <Condition
-          condition={condition}
-          changeCondition={changeCondition}
-          removeCondition={removeCondition}
-          key={condition.field}
-        />
-      ))}
-    </div>
-  );
+          <Button icon="eye" ignoreTrans>
+            {__('Parent segment conditions')}
+          </Button>
+        </Link>
+        <hr />
+      </Fragment>
+    );
+  }
+
+  render() {
+    const { conditions, changeCondition, removeCondition } = this.props;
+
+    return (
+      <Fragment>
+        {this.renderParent()}
+        {conditions.map(condition => (
+          <Condition
+            condition={condition}
+            changeCondition={changeCondition}
+            removeCondition={removeCondition}
+            key={condition.field}
+          />
+        ))}
+      </Fragment>
+    );
+  }
 }
 
 Conditions.propTypes = propTypes;
+Conditions.contextTypes = contextTypes;
 
 export default Conditions;

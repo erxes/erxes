@@ -46,7 +46,7 @@ class List extends React.Component {
         </td>
         <td>
           <ActionButtons>
-            <ModalTrigger title={title} trigger={editTrigger}>
+            <ModalTrigger title={title} trigger={editTrigger} ignoreTrans>
               <Config brandId={_id} refetch={refetch} />
             </ModalTrigger>
           </ActionButtons>
@@ -57,14 +57,15 @@ class List extends React.Component {
 
   render() {
     const { brands } = this.props;
+    const { __ } = this.context;
 
     const content = (
       <Table>
         <thead>
           <tr>
-            <th>Brand Name</th>
-            <th>Current template</th>
-            <th>Actions</th>
+            <th>{__('Brand Name')}</th>
+            <th>{__('Current template')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{brands.map(brand => this.renderRow(brand))}</tbody>
@@ -72,8 +73,8 @@ class List extends React.Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Email appearance' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Email appearance') }
     ];
 
     return (
@@ -87,5 +88,8 @@ class List extends React.Component {
 }
 
 List.propTypes = propTypes;
+List.contextTypes = {
+  __: PropTypes.func
+};
 
 export default List;

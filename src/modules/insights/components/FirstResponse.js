@@ -19,9 +19,10 @@ class FirstResponse extends CommonReport {
   }
 
   renderBreadCrumnb() {
+    const { __ } = this.context;
     return [
-      { title: 'Insights', link: '/insight' },
-      { title: 'First Response Report' }
+      { title: __('Insights'), link: '/insight' },
+      { title: __('First Response Report') }
     ];
   }
 

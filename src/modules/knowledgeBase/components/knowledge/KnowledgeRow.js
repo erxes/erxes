@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Icon, DropdownToggle, ModalTrigger } from 'modules/common/components';
 import { CategoryList, KnowledgeForm, CategoryForm } from '../../containers';
+import { DropIcon } from '../../styles';
 import {
-  SidebarContent,
+  KnowledgeBaseRow,
   SectionHead,
   SectionTitle,
-  RowRightSide,
-  DropIcon
-} from '../../styles';
+  RowActions
+} from './styles';
 
 const propTypes = {
   queryParams: PropTypes.object.isRequired,
@@ -20,62 +20,66 @@ const propTypes = {
   save: PropTypes.func.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class KnowledgeRow extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { detailed: true };
+    this.state = { detailed: this.isExpanded() };
     this.toggle = this.toggle.bind(this);
-    this.renderKnowledgeBaseForm = this.renderKnowledgeBaseForm.bind(this);
-  }
-
-  renderKnowledgeBaseForm(props) {
-    return <KnowledgeForm {...props} />;
   }
 
   toggle() {
     this.setState({ detailed: !this.state.detailed });
   }
 
-  render() {
-    const {
-      topic,
-      save,
-      remove,
-      currentCategoryId,
-      queryParams,
-      articlesCount
-    } = this.props;
-    const addCategory = <MenuItem>Add category</MenuItem>;
-    const manageTopic = <MenuItem>Manage Knowledge Base</MenuItem>;
+  isExpanded() {
+    const { currentCategoryId, topic } = this.props;
+    const categories = topic.categories || [];
+
+    return categories.some(c => c['_id'] === currentCategoryId);
+  }
+
+  renderManage() {
+    const { topic, save, remove } = this.props;
+    const { __ } = this.context;
+    const addCategory = <MenuItem>{__('Add category')}</MenuItem>;
+    const manageTopic = <MenuItem>{__('Manage Knowledge Base')}</MenuItem>;
 
     return (
-      <SidebarContent key={topic._id}>
+      <RowActions>
+        <Dropdown id="dropdown-knowledgebase" pullRight>
+          <DropdownToggle bsRole="toggle">
+            <Icon icon="settings" />
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <ModalTrigger title="Manage Knowledge Base" trigger={manageTopic}>
+              <KnowledgeForm save={save} topic={topic} remove={remove} />
+            </ModalTrigger>
+            <ModalTrigger title="Add Category" trigger={addCategory}>
+              <CategoryForm topicIds={topic._id} />
+            </ModalTrigger>
+          </Dropdown.Menu>
+        </Dropdown>
+        <DropIcon onClick={this.toggle} isOpen={this.state.detailed} />
+      </RowActions>
+    );
+  }
+
+  render() {
+    const { topic, currentCategoryId, queryParams, articlesCount } = this.props;
+
+    return (
+      <KnowledgeBaseRow key={topic._id}>
         <SectionHead>
-          <SectionTitle onClick={this.toggle}>{topic.title}</SectionTitle>
-          <RowRightSide>
-            <Dropdown
-              id="dropdown-knowledgebase"
-              className="quick-button"
-              pullRight
-            >
-              <DropdownToggle bsRole="toggle">
-                <Icon icon="gear-a" />
-              </DropdownToggle>
-              <Dropdown.Menu>
-                <ModalTrigger
-                  title="Manage Knowledge Base"
-                  trigger={manageTopic}
-                >
-                  {this.renderKnowledgeBaseForm({ save, topic, remove })}
-                </ModalTrigger>
-                <ModalTrigger title="Add Category" trigger={addCategory}>
-                  <CategoryForm topicIds={topic._id} />
-                </ModalTrigger>
-              </Dropdown.Menu>
-            </Dropdown>
-            <DropIcon onClick={this.toggle} isOpen={this.state.detailed} />
-          </RowRightSide>
+          <SectionTitle onClick={this.toggle}>
+            {topic.title}
+            <span>{topic.description}</span>
+          </SectionTitle>
+          {this.renderManage()}
         </SectionHead>
         {this.state.detailed && (
           <CategoryList
@@ -85,11 +89,12 @@ class KnowledgeRow extends Component {
             queryParams={queryParams}
           />
         )}
-      </SidebarContent>
+      </KnowledgeBaseRow>
     );
   }
 }
 
 KnowledgeRow.propTypes = propTypes;
+KnowledgeRow.contextTypes = contextTypes;
 
 export default KnowledgeRow;

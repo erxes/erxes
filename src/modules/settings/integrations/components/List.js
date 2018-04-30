@@ -36,15 +36,16 @@ class List extends Component {
 
   render() {
     const { totalCount, loading } = this.props;
+    const { __ } = this.context;
 
     const content = (
       <Table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Kind</th>
-            <th>Brand</th>
-            <th width="183">Actions</th>
+            <th>{__('Name')}</th>
+            <th>{__('Kind')}</th>
+            <th>{__('Brand')}</th>
+            <th width="183">{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderIntegrations()}</tbody>
@@ -52,8 +53,8 @@ class List extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Integrations' }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Integrations') }
     ];
 
     return (
@@ -68,7 +69,7 @@ class List extends Component {
             loading={loading}
             count={totalCount}
             emptyText="There is no data."
-            emptyIcon="ios-copy"
+            emptyIcon="list-1"
           />
         }
       />
@@ -77,5 +78,8 @@ class List extends Component {
 }
 
 List.propTypes = propTypes;
+List.contextTypes = {
+  __: PropTypes.func
+};
 
 export default List;

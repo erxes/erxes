@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 import createMentionPlugin, {
   defaultSuggestionsFilter
 } from 'bat-draft-js-mention-plugin';
-import { EditorState, ContentState, getDefaultKeyBinding } from 'draft-js';
+import {
+  EditorState,
+  ContentState,
+  getDefaultKeyBinding,
+  Modifier
+} from 'draft-js';
 import strip from 'strip';
 import _ from 'underscore';
 import highlighter from 'fuzzysearch-highlight';
@@ -11,7 +16,7 @@ import {
   ErxesEditor,
   toHTML,
   createStateFromHTML
-} from 'modules/common/components/Editor';
+} from 'modules/common/components/editor/Editor';
 
 import { ResponseSuggestions, ResponseSuggestionItem } from '../styles';
 
@@ -225,7 +230,17 @@ export default class Editor extends Component {
       selectedTemplate.content
     );
 
-    editorState = EditorState.moveFocusToEnd(editorState);
+    const selection = EditorState.moveSelectionToEnd(
+      editorState
+    ).getSelection();
+    const contentState = Modifier.insertText(
+      editorState.getCurrentContent(),
+      selection,
+      ' '
+    );
+    const es = EditorState.push(editorState, contentState, 'insert-characters');
+
+    editorState = EditorState.moveFocusToEnd(es);
 
     this.setState({ editorState, templatesState: null });
   }
@@ -309,7 +324,7 @@ export default class Editor extends Component {
 
       content = content.replace(
         re,
-        `<MentionedPerson data-user-id='${m._id}'>@${m.name}</MentionedPerson>`
+        `<b data-user-id='${m._id}'>@${m.name}</b>`
       );
     });
 
@@ -320,30 +335,34 @@ export default class Editor extends Component {
   }
 
   keyBindingFn(e) {
+    // handle new line
+    if (e.key === 'Enter' && e.shiftKey) {
+      return getDefaultKeyBinding(e);
+    }
+
+    // handle enter  in editor
     if (e.key === 'Enter') {
+      // select response template
       if (this.state.templatesState) {
         this.onSelectTemplate();
 
         return null;
       }
 
-      // handle shift + enter in editor
-      if (e.metaKey || e.ctrlKey) {
-        // call parent's method to save content
-        this.props.onShifEnter();
+      // call parent's method to save content
+      this.props.onShifEnter();
 
-        // clear content
-        const state = this.state.editorState;
+      // clear content
+      const state = this.state.editorState;
 
-        const editorState = EditorState.push(
-          state,
-          ContentState.createFromText('')
-        );
+      const editorState = EditorState.push(
+        state,
+        ContentState.createFromText('')
+      );
 
-        this.setState({ editorState });
+      this.setState({ editorState: EditorState.moveFocusToEnd(editorState) });
 
-        return null;
-      }
+      return null;
     }
 
     return getDefaultKeyBinding(e);
@@ -370,6 +389,7 @@ export default class Editor extends Component {
       keyBindingFn: this.keyBindingFn,
       onUpArrow: this.onUpArrow,
       onDownArrow: this.onDownArrow,
+      handleFileInput: this.props.handleFileInput,
       plugins,
       pluginContent
     };
@@ -390,5 +410,6 @@ Editor.propTypes = {
   showMentions: PropTypes.bool,
   responseTemplate: PropTypes.string,
   responseTemplates: PropTypes.array,
+  handleFileInput: PropTypes.func,
   mentions: PropTypes.object // eslint-disable-line
 };

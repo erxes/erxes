@@ -2,12 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
 import { List } from '../components';
 
 const ListContainer = props => {
-  const { listQuery, totalCountQuery, removeMutation } = props;
+  const { listQuery, totalCountQuery, removeMutation, queryParams } = props;
 
-  const totalCount = totalCountQuery.integrationsTotalCount || 0;
+  if (totalCountQuery.loading) {
+    return <Spinner />;
+  }
+
+  let totalCount = totalCountQuery.integrationsTotalCount.total;
+
+  if (queryParams.kind) {
+    totalCount =
+      totalCountQuery.integrationsTotalCount.byKind[queryParams.kind];
+  }
+
   const integrations = listQuery.integrations || [];
 
   const removeIntegration = (_id, callback) => {
@@ -38,7 +49,8 @@ ListContainer.propTypes = {
   totalCountQuery: PropTypes.object,
   listQuery: PropTypes.object,
   removeMutation: PropTypes.func,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  queryParams: PropTypes.object
 };
 
 export default compose(
@@ -48,6 +60,7 @@ export default compose(
         integrations(page: $page, perPage: $perPage, kind: $kind) {
           _id
           brandId
+          languageCode
           name
           kind
           brand {
@@ -56,7 +69,14 @@ export default compose(
             code
           }
           formData
+          twitterData
           formId
+          tagIds
+          tags {
+            _id
+            colorCode
+            name
+          }
           form {
             _id
             title
@@ -82,20 +102,15 @@ export default compose(
   ),
   graphql(
     gql`
-      query totalIntegrationsCount($kind: String) {
-        integrationsTotalCount(kind: $kind)
+      query totalIntegrationsCount {
+        integrationsTotalCount {
+          total
+          byKind
+        }
       }
     `,
     {
-      name: 'totalCountQuery',
-      options: ({ queryParams }) => {
-        return {
-          variables: {
-            kind: queryParams.kind
-          },
-          fetchPolicy: 'network-only'
-        };
-      }
+      name: 'totalCountQuery'
     }
   ),
   graphql(

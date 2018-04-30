@@ -23,7 +23,7 @@ function isTimeStamp(value) {
 
 function formatValue(value) {
   if (typeof value === 'boolean') {
-    return value.toString();
+    return value ? 'Yes' : 'No';
   }
 
   if (
@@ -33,7 +33,7 @@ function formatValue(value) {
     return moment(value).fromNow();
   }
 
-  return value || 'N/A';
+  return value || '-';
 }
 
 function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {

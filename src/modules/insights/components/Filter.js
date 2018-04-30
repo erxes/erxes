@@ -15,6 +15,10 @@ const propTypes = {
   history: PropTypes.object
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class Filter extends React.Component {
   constructor(props) {
     super(props);
@@ -56,13 +60,14 @@ class Filter extends React.Component {
   }
 
   renderIntegrations() {
+    const { __ } = this.context;
     const integrations = INTEGRATIONS_TYPES.ALL_LIST;
 
     return (
       <FlexItem>
         <ControlLabel>Integrations</ControlLabel>
         <Select
-          placeholder="Choose integrations"
+          placeholder={__('Choose integrations')}
           value={this.state.integrationType}
           onChange={value => this.onTypeChange(value)}
           optionRenderer={option => (
@@ -77,13 +82,14 @@ class Filter extends React.Component {
   }
 
   renderBrands() {
+    const { __ } = this.context;
     const { brands } = this.props;
     return (
       <FlexItem>
         <ControlLabel>Brands</ControlLabel>
 
         <Select
-          placeholder="Choose brands"
+          placeholder={__('Choose brands')}
           value={this.state.brandId}
           onChange={value => this.onBrandChange(value)}
           optionRenderer={option => (
@@ -98,15 +104,16 @@ class Filter extends React.Component {
   }
 
   render() {
+    const { __ } = this.context;
     const props = {
-      inputProps: { placeholder: 'Click to select a date' },
+      inputProps: { placeholder: __('Click to select a date') },
       timeFormat: 'HH:mm',
       dateFormat: 'YYYY/MM/DD'
     };
 
     return (
       <InsightFilter>
-        <InsightTitle>Filter</InsightTitle>
+        <InsightTitle>{__('Filter')}</InsightTitle>
         <FlexRow>
           {this.renderIntegrations()}
           {this.renderBrands()}
@@ -135,5 +142,6 @@ class Filter extends React.Component {
 }
 
 Filter.propTypes = propTypes;
+Filter.contextTypes = contextTypes;
 
 export default Filter;

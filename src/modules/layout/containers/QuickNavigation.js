@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { QuickNavigation } from '../components';
 import consts from 'consts';
 
-const QuickNavigationContainer = (props, { currentUser }) => {
+const QuickNavigationContainer = props => {
   const { LOGIN_TOKEN_KEY, LOGIN_REFRESH_TOKEN_KEY } = consts;
 
   const logout = () => {
@@ -16,9 +16,7 @@ const QuickNavigationContainer = (props, { currentUser }) => {
 
   const updatedProps = {
     ...props,
-
-    logout,
-    currentUser
+    logout
   };
 
   return <QuickNavigation {...updatedProps} />;
@@ -26,10 +24,6 @@ const QuickNavigationContainer = (props, { currentUser }) => {
 
 QuickNavigationContainer.propTypes = {
   history: PropTypes.object
-};
-
-QuickNavigationContainer.contextTypes = {
-  currentUser: PropTypes.object
 };
 
 export default QuickNavigationContainer;

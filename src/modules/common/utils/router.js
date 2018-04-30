@@ -50,8 +50,22 @@ const removeParams = (history, ...queryNames) => {
   history.push(`${location.pathname}?${stringified}`);
 };
 
+/**
+ * @param {Object} query
+ */
+const refetchIfUpdated = (history, query) => {
+  if (history.location.search.includes('updated')) {
+    // refetch query if path has refetch param
+    query.refetch();
+
+    //clear refetch param
+    removeParams(history, 'updated');
+  }
+};
+
 export default {
   setParams,
   getParam,
-  removeParams
+  removeParams,
+  refetchIfUpdated
 };

@@ -1,26 +1,29 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon } from 'modules/common/components';
+import { Icon, ImageWithPreview } from 'modules/common/components';
 
-const Overlay = styled.div`
+const sizing = 30;
+
+const Overlay = styled.a`
   opacity: 0;
   width: 100%;
   height: 100%;
   position: absolute;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
   left: 0;
   top: 0;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 
   > div {
     position: absolute;
     color: #fff;
-    width: 30px;
-    height: 30px;
+    width: ${sizing}px;
+    height: ${sizing}px;
     text-align: center;
-    border-radius: 15px;
-    line-height: 28px;
+    border-radius: ${sizing / 2}px;
+    line-height: ${sizing - 2}pxpx;
     left: 50%;
     top: 50%;
     border: 1px solid #fff;
@@ -33,10 +36,9 @@ const Overlay = styled.div`
   }
 `;
 
-const DownloadAttachment = styled.a`
+const AttachmentWrapper = styled.div`
   display: inline-block;
   position: relative;
-  cursor: pointer;
   max-width: 360px;
   transition: all ease 0.3s;
   color: inherit;
@@ -57,6 +59,8 @@ const FileWrapper = styled.div`
   min-width: 120px;
   min-height: 36px;
   line-height: 36px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
 
   i {
     font-size: 26px;
@@ -87,9 +91,16 @@ class Attachment extends Component {
 
   renderOtherFile(name, icon) {
     return (
-      <FileWrapper>
-        <Icon icon={icon} /> <span>{name}</span>
-      </FileWrapper>
+      <Fragment>
+        <FileWrapper key="wrapper">
+          <Icon icon={icon} /> <span>{name}</span>
+        </FileWrapper>
+        <Overlay key="overlay" href={this.props.attachment.url} target="_blank">
+          <div>
+            <Icon icon="download" />
+          </div>
+        </Overlay>
+      </Fragment>
     );
   }
 
@@ -100,7 +111,7 @@ class Attachment extends Component {
   renderAtachment({ attachment }) {
     if (attachment.type.startsWith('image')) {
       return (
-        <img
+        <ImageWithPreview
           onLoad={this.onLoadImage}
           alt={attachment.url}
           src={attachment.url}
@@ -117,7 +128,9 @@ class Attachment extends Component {
       case 'png':
       case 'jpeg':
       case 'jpg':
-        filePreview = <img alt={url} src={url} />;
+        filePreview = (
+          <ImageWithPreview alt={url} src={url} onLoad={this.onLoadImage} />
+        );
         break;
       case 'doc':
       case 'docx':
@@ -127,7 +140,7 @@ class Attachment extends Component {
       case 'xlsx':
       case 'ppt':
       case 'pptx':
-        filePreview = this.renderOtherFile(name, 'document-text');
+        filePreview = this.renderOtherFile(name, 'file');
         break;
       case 'mp4':
       case 'avi':
@@ -135,29 +148,21 @@ class Attachment extends Component {
         break;
       case 'mp3':
       case 'wav':
-        filePreview = this.renderOtherFile(name, 'volume-mediu');
+        filePreview = this.renderOtherFile(name, 'music');
         break;
       case 'zip':
-        filePreview = this.renderOtherFile(name, 'android-archive');
+        filePreview = this.renderOtherFile(name, 'cube');
         break;
       default:
-        filePreview = this.renderOtherFile(name, 'document');
+        filePreview = this.renderOtherFile(name, 'clipboard-1');
     }
     return filePreview;
   }
 
   render() {
     const props = this.props;
-    return (
-      <DownloadAttachment href={props.attachment.url} target="_blank">
-        {this.renderAtachment(props)}
-        <Overlay>
-          <div>
-            <Icon icon="android-download" />
-          </div>
-        </Overlay>
-      </DownloadAttachment>
-    );
+
+    return <AttachmentWrapper>{this.renderAtachment(props)}</AttachmentWrapper>;
   }
 }
 

@@ -1,44 +1,83 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  FormControl,
-  Button,
-  FormGroup,
-  ControlLabel
-} from 'modules/common/components';
-import { EngageBox, InlineForm } from '../styles';
-
-import {
-  VISITOR_AUDIENCE_RULES,
-  RULE_CONDITIONS,
-  METHODS,
-  MESSAGE_KINDS
-} from 'modules/engage/constants';
-
 import { Wrapper } from 'modules/layout/components';
-
-import FormBase from './FormBase';
 import MessengerForm from './MessengerForm';
+import { StepWrapper, TitleContainer } from './step/style';
+import { FormControl } from 'modules/common/components';
+import { ConditionStep, Steps, Step } from './step';
+import { METHODS, MESSAGE_KINDS } from 'modules/engage/constants';
+import FormBase from './FormBase';
 
 const propTypes = {
-  brands: PropTypes.array
+  message: PropTypes.object
+};
+
+const contextTypes = {
+  __: PropTypes.func
 };
 
 class VisitorForm extends FormBase {
   constructor(props) {
     super(props);
 
-    const message = props.message || {};
-    const messenger = message.messenger ? message.messenger : {};
-    const rules = messenger.rules
-      ? messenger.rules.map(rule => ({ ...rule }))
-      : [];
+    const message = props.message.messenger || {};
+    const rules = message.rules ? message.rules.map(rule => ({ ...rule })) : [];
+    const validate = props.message.messenger ? false : true;
 
-    this.state = { messengerContent: '', rules };
+    this.state = {
+      maxStep: 2,
+      activeStep: 1,
+      validate: {
+        step1: validate,
+        step2: validate
+      },
+      method: METHODS.MESSENGER,
+      title: props.message.title || '',
+      message: message.content || '',
+      fromUser: props.message.fromUserId || '',
+      rules,
+      messenger: {
+        brandId: message.brandId || '',
+        sentAs: message.sentAs || ''
+      }
+    };
 
-    // binds
-    this.onMessengerContentChange = this.onMessengerContentChange.bind(this);
-    this.addRule = this.addRule.bind(this);
+    this.next = this.next.bind(this);
+    this.changeState = this.changeState.bind(this);
+  }
+
+  next(stepNumber) {
+    const { activeStep, maxStep } = this.state;
+    this.validate();
+    if (stepNumber === 0) {
+      if (activeStep <= maxStep) {
+        this.setState({ activeStep: activeStep + 1 });
+      }
+    } else {
+      this.setState({ activeStep: stepNumber });
+    }
+  }
+
+  validate() {
+    const step1 = this.state.rules;
+    const step2 = this.state.messenger;
+    let validate = { ...this.state.validate };
+
+    validate['step1'] = false;
+    validate['step2'] = false;
+
+    if (step1.length < 1) {
+      validate['step1'] = true;
+    }
+
+    Object.keys(step2).map(key => {
+      if (step2[key] === '') {
+        validate['step2'] = true;
+      }
+      return false;
+    });
+
+    this.setState({ validate });
   }
 
   generateDoc(e) {
@@ -46,143 +85,80 @@ class VisitorForm extends FormBase {
 
     const doc = {
       kind: MESSAGE_KINDS.VISITOR_AUTO,
-      title: document.getElementById('title').value,
-      fromUserId: document.getElementById('fromUserId').value,
+      title: this.state.title,
+      fromUserId: this.state.fromUser,
       method: METHODS.MESSENGER,
       messenger: {
         rules: this.state.rules,
-        brandId: document.getElementById('brandId').value,
-        sentAs: document.getElementById('messengerSentAs').value,
-        content: this.state.messengerContent
+        brandId: this.state.messenger.brandId,
+        sentAs: this.state.messenger.sentAs,
+        content: this.state.message
       }
     };
 
     return doc;
   }
 
-  onMessengerContentChange(content) {
-    this.setState({ messengerContent: content });
+  changeState(key, value) {
+    this.setState({ [key]: value });
   }
 
-  addRule(e) {
-    const rules = this.state.rules;
-
-    const selectedOption = e.target.options[e.target.selectedIndex];
-
-    if (selectedOption.value) {
-      rules.push({
-        _id: Math.random().toString(),
-        kind: selectedOption.value,
-        text: selectedOption.text,
-        condition: '',
-        value: ''
-      });
-
-      this.setState({ rules });
-    }
-  }
-
-  renderRule(rule) {
-    const remove = () => {
-      let rules = this.state.rules;
-
-      rules = rules.filter(r => r._id !== rule._id);
-
-      this.setState({ rules });
-    };
-
-    const changeProp = (name, value) => {
-      const rules = this.state.rules;
-
-      // find current editing one
-      const currentRule = rules.find(r => r._id === rule._id);
-
-      // set new value
-      currentRule[name] = value;
-
-      this.setState({ rules });
-    };
-
-    const onChangeValue = e => {
-      changeProp('value', e.target.value);
-    };
-
-    const onChangeCondition = e => {
-      changeProp('condition', e.target.value);
-    };
+  render() {
+    const {
+      activeStep,
+      maxStep,
+      validate,
+      messenger,
+      fromUser,
+      message,
+      rules
+    } = this.state;
+    const { __ } = this.context;
+    const defaultMessengerValue = { messenger, fromUser, message, rules };
 
     return (
-      <FormGroup key={rule._id}>
-        <ControlLabel>{rule.text}:</ControlLabel>
-        <InlineForm>
+      <StepWrapper>
+        <Wrapper.Header breadcrumb={this.renderTitle()} />
+        <TitleContainer>
+          <div>{__('Title')}</div>
           <FormControl
-            componentClass="select"
-            defaultValue={rule.condition}
-            onChange={onChangeCondition}
+            onChange={e => this.changeState('title', e.target.value)}
+            defaultValue={this.state.title}
+          />
+        </TitleContainer>
+        <Steps maxStep={maxStep} active={activeStep} validate={validate}>
+          <Step
+            img="/images/icons/erxes-02.svg"
+            title="Who is this message for?"
+            next={this.next}
           >
-            {RULE_CONDITIONS[rule.kind].map((cond, index) => (
-              <option key={index} value={cond.value}>
-                {cond.text}
-              </option>
-            ))}
-          </FormControl>
-
-          <FormControl
-            type="text"
-            value={rule.value}
-            onChange={onChangeValue}
-          />
-
-          <Button
-            size="small"
-            onClick={remove}
-            btnStyle="danger"
-            icon="close"
-          />
-        </InlineForm>
-      </FormGroup>
-    );
-  }
-
-  renderSidebarExtra() {
-    const { Section } = Wrapper.Sidebar;
-
-    return (
-      <Section>
-        <EngageBox>
-          <FormGroup>
-            <ControlLabel>Add rule</ControlLabel>
-            <FormControl componentClass="select" onChange={this.addRule}>
-              {VISITOR_AUDIENCE_RULES.map((rule, index) => (
-                <option key={index} value={rule.value}>
-                  {rule.text}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
-
-          <FormGroup>
-            {this.state.rules.map(rule => this.renderRule(rule))}
-          </FormGroup>
-        </EngageBox>
-      </Section>
-    );
-  }
-
-  renderContent() {
-    const message = this.getMessage();
-
-    return (
-      <MessengerForm
-        message={message}
-        fromUser={this.state.fromUser || ''}
-        onContentChange={this.onMessengerContentChange}
-        brands={this.props.brands}
-      />
+            <ConditionStep
+              rules={this.state.rules}
+              changeRules={this.changeState}
+            />
+          </Step>
+          <Step
+            img="/images/icons/erxes-08.svg"
+            title="Compose your message"
+            save={this.save}
+            next={this.next}
+            message={this.props.message}
+          >
+            <MessengerForm
+              brands={this.props.brands}
+              changeMessenger={this.changeState}
+              users={this.props.users}
+              hasKind={false}
+              defaultValue={defaultMessengerValue}
+            />
+          </Step>
+        </Steps>
+      </StepWrapper>
     );
   }
 }
 
 VisitorForm.propTypes = propTypes;
+VisitorForm.contextTypes = contextTypes;
 
 export default VisitorForm;

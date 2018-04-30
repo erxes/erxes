@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   FormControl,
   ControlLabel,
   Button
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   brand: PropTypes.object,
@@ -84,20 +84,20 @@ class BrandForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent()}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
-            icon="close"
+            icon="cancel-1"
             onClick={onClick}
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" icon="checkmark" type="submit">
+          <Button btnStyle="success" icon="checked-1" type="submit">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

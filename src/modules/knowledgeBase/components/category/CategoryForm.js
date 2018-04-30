@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button
+  Button,
+  Icon
 } from 'modules/common/components';
-import Ionicons from 'react-ionicons';
 import { icons } from '../../icons.constant';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   currentTopicId: PropTypes.string,
@@ -60,7 +60,7 @@ class CategoryForm extends Component {
   renderOption(option) {
     return (
       <div className="icon-option">
-        <Ionicons icon={option.value} />
+        <Icon icon={option.value} />
         {option.label}
       </div>
     );
@@ -86,7 +86,7 @@ class CategoryForm extends Component {
 
   renderContent(category = {}) {
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -117,7 +117,7 @@ class CategoryForm extends Component {
             valueRenderer={this.renderOption}
           />
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 
@@ -129,20 +129,20 @@ class CategoryForm extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.category || {})}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
             onClick={onClick}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

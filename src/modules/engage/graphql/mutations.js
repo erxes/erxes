@@ -76,11 +76,36 @@ const messageRemove = `
   }
 `;
 
+const segmentsAdd = `
+  mutation segmentsAdd(
+    $name: String!,
+    $description: String,
+    $subOf: String,
+    $color: String,
+    $connector: String,
+    $conditions: [SegmentCondition],
+  ) {
+
+    segmentsAdd(
+      contentType: "customer",
+      name: $name,
+      description: $description,
+      subOf: $subOf,
+      color: $color,
+      connector: $connector,
+      conditions: $conditions,
+    ) {
+      _id
+    }
+  }
+`;
+
 export default {
   setPause,
   setLive,
   setLiveManual,
   messageRemove,
   messagesAdd,
-  messagesEdit
+  messagesEdit,
+  segmentsAdd
 };

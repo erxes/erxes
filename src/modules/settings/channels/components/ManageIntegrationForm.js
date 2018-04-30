@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   FormControl,
   Button,
@@ -9,7 +8,8 @@ import {
   Label
 } from 'modules/common/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import { LoadMore, Title, Columns, Column } from 'modules/customers/styles';
+import { Title, Columns, Column } from 'modules/common/styles/chooser';
+import { ModalFooter, CenterContent } from 'modules/common/styles/main';
 import { BrandName, IntegrationName } from '../../styles';
 
 const propTypes = {
@@ -22,7 +22,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  __: PropTypes.func
 };
 
 class ManageIntegrationForm extends Component {
@@ -68,7 +69,7 @@ class ManageIntegrationForm extends Component {
   handleChange(type, integration) {
     const { integrations } = this.state;
 
-    if (type === 'plus') {
+    if (type === 'add') {
       this.setState({
         integrations: [...integrations, integration]
       });
@@ -108,11 +109,11 @@ class ManageIntegrationForm extends Component {
 
   getIconByKind(integration) {
     const kind = integration.kind;
-    let icon = 'android-chat';
+    let icon = 'chat';
 
-    kind === KIND_CHOICES.FORM && (icon = 'document-text');
-    kind === KIND_CHOICES.TWITTER && (icon = 'social-twitter');
-    kind === KIND_CHOICES.FACEBOOK && (icon = 'social-facebook');
+    kind === KIND_CHOICES.FORM && (icon = 'file');
+    kind === KIND_CHOICES.TWITTER && (icon = 'twitter');
+    kind === KIND_CHOICES.FACEBOOK && (icon = 'facebook');
 
     return icon;
   }
@@ -121,7 +122,7 @@ class ManageIntegrationForm extends Component {
     const brand = integration.brand || {};
 
     if (
-      icon === 'plus' &&
+      icon === 'add' &&
       this.state.integrations.some(e => e._id === integration._id)
     ) {
       return null;
@@ -134,7 +135,10 @@ class ManageIntegrationForm extends Component {
       >
         <IntegrationName>{integration.name}</IntegrationName>
         <Tip text={this.getTypeName(integration)}>
-          <Label className={`label-${this.getTypeName(integration)} round`}>
+          <Label
+            className={`label-${this.getTypeName(integration)} round`}
+            ignoreTrans
+          >
             <Icon icon={this.getIconByKind(integration)} />
           </Label>
         </Tip>
@@ -145,6 +149,7 @@ class ManageIntegrationForm extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { allIntegrations, currentChannel } = this.props;
     const selectedIntegrations = this.state.integrations;
 
@@ -153,51 +158,52 @@ class ManageIntegrationForm extends Component {
         <Columns>
           <Column>
             <FormControl
-              placeholder="Type to search"
+              placeholder={__('Type to search')}
               onChange={e => this.search(e)}
             />
             <ul>
               {allIntegrations.map(integration =>
-                this.renderRow(integration, 'plus')
+                this.renderRow(integration, 'add')
               )}
               {this.state.hasMore && (
-                <LoadMore>
+                <CenterContent>
                   <Button
                     size="small"
                     btnStyle="primary"
                     onClick={this.loadMore}
-                    icon="checkmark"
+                    icon="checked-1"
                   >
                     Load More
                   </Button>
-                </LoadMore>
+                </CenterContent>
               )}
             </ul>
           </Column>
           <Column>
             <Title full>
-              {currentChannel.name}&apos;s integration
+              {currentChannel.name}
+              {__('`s integration')}
               <span>({selectedIntegrations.length})</span>
             </Title>
             <ul>
               {selectedIntegrations.map(integration =>
-                this.renderRow(integration, 'close')
+                this.renderRow(integration, 'minus-circle')
               )}
             </ul>
           </Column>
         </Columns>
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
-            icon="close"
+            icon="cancel-1"
             onClick={() => this.context.closeModal()}
           >
             Cancel
           </Button>
-          <Button btnStyle="success" icon="checkmark" onClick={this.save}>
+          <Button btnStyle="success" icon="checked-1" onClick={this.save}>
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </div>
     );
   }

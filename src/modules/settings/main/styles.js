@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 import { dimensions, colors, typography } from 'modules/common/styles';
-import { BoxRoot } from 'modules/common/styles/styles';
+import { BoxRoot } from 'modules/common/styles/main';
 
-const rowTitleSize = 210;
+const rowTitleSize = 230;
+const boxSize = 150;
 
 const Row = styled.div`
   display: flex;
@@ -19,11 +20,12 @@ const RowTitle = styled.h3`
   margin: 0 0 ${dimensions.coreSpacing}px;
   color: ${colors.colorCoreDarkGray};
   flex-shrink: 0;
-  min-width: ${rowTitleSize}px;
+  width: ${rowTitleSize}px;
 `;
 
 const Box = BoxRoot.extend`
-  width: 150px;
+  width: ${boxSize}px;
+  height: ${boxSize}px;
 `;
 
 const Divider = styled.div`

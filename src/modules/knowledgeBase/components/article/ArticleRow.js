@@ -10,15 +10,13 @@ import {
 } from 'modules/common/components';
 import { ArticleForm } from '../../containers';
 import {
-  Row,
+  RowArticle,
   ArticleTitle,
   ArticleColumn,
-  ArticleAuthor,
-  ArticleSummary,
-  ActionButtons,
-  AuthorImg,
-  AuthorName
-} from '../../styles';
+  ArticleMeta,
+  AuthorName,
+  ActionButtons
+} from './styles';
 
 const propTypes = {
   article: PropTypes.object.isRequired,
@@ -40,19 +38,24 @@ class ArticleRow extends Component {
     this.props.remove(this.props.article._id);
   }
 
-  renderEditAction() {
+  renderEditAction(editTrigger) {
     const { article, queryParams, currentCategoryId, topicIds } = this.props;
+    const { __ } = this.context;
 
-    const editTrigger = (
+    const editButton = (
       <Button btnStyle="link">
-        <Tip text="Edit">
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>
     );
 
     return (
-      <ModalTrigger size="large" title="Edit" trigger={editTrigger}>
+      <ModalTrigger
+        size="large"
+        title="Edit"
+        trigger={editTrigger ? editTrigger : editButton}
+      >
         <ArticleForm
           article={article}
           queryParams={queryParams}
@@ -66,40 +69,52 @@ class ArticleRow extends Component {
   render() {
     const { article } = this.props;
     const user = article.createdUser;
+    const { __ } = this.context;
+
+    const title = (
+      <ArticleTitle>
+        {article.title}
+        {article.status === 'draft' && (
+          <Label lblStyle="simple">{article.status}</Label>
+        )}
+      </ArticleTitle>
+    );
 
     return (
-      <Row>
+      <RowArticle>
         <ArticleColumn>
-          <ArticleTitle>{article.title}</ArticleTitle>
-          {article.status === 'draft' && (
-            <Label lblStyle="simple">{article.status}</Label>
-          )}
-          <ArticleSummary>{article.summary}</ArticleSummary>
-          <ArticleAuthor>
-            <AuthorImg
+          {this.renderEditAction(title)}
+          <p>{article.summary}</p>
+          <ArticleMeta>
+            <img
+              alt={user.details.fullName || 'author'}
               src={
                 article.createdUser.details.avatar ||
                 '/images/avatar-colored.svg'
               }
             />
-            Written By
+            {__('Written By')}
             <AuthorName>
               {user.details.fullName || user.username || user.email}
             </AuthorName>
-            Created {moment(article.createdDate).format('ll')}
-          </ArticleAuthor>
+            <Icon icon="wallclock" /> {__('Created')}{' '}
+            {moment(article.createdDate).format('ll')}
+          </ArticleMeta>
         </ArticleColumn>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text="Delete">
-            <Button btnStyle="link" onClick={this.remove} icon="close" />
+          <Tip text={__('Delete')}>
+            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>
-      </Row>
+      </RowArticle>
     );
   }
 }
 
 ArticleRow.propTypes = propTypes;
+ArticleRow.contextTypes = {
+  __: PropTypes.func
+};
 
 export default ArticleRow;

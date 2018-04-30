@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import moment from 'moment';
 import {
   Button,
@@ -9,14 +8,9 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
-import {
-  Title,
-  Columns,
-  Column,
-  InfoTitle,
-  InfoDetail,
-  Info
-} from '../../styles';
+import { ModalFooter } from 'modules/common/styles/main';
+import { Title, Columns, Column } from 'modules/common/styles/chooser';
+import { InfoTitle, InfoDetail, Info } from '../../styles';
 
 const propTypes = {
   datas: PropTypes.array.isRequired,
@@ -25,7 +19,8 @@ const propTypes = {
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func
+  closeModal: PropTypes.func,
+  __: PropTypes.func
 };
 
 class CommonMerge extends Component {
@@ -84,7 +79,7 @@ class CommonMerge extends Component {
         return this.renderMergedDataInputs(property, index);
       }
       return this.renderProperty(
-        'close',
+        'minus-cirlce',
         { [property]: data[property] },
         index
       );
@@ -116,7 +111,7 @@ class CommonMerge extends Component {
     return Object.keys(data).map(property => {
       if (basicInfos[property] && data[property])
         return this.renderProperty(
-          'plus',
+          'add',
           { [property]: data[property] },
           property
         );
@@ -156,12 +151,17 @@ class CommonMerge extends Component {
         <FormControl
           onChange={e => this.handleInputChange(e, property)}
           value={data[property] || ''}
+          required={['firstName', 'email', 'name', 'website'].includes(
+            property
+          )} //required fields
         />
       </FormGroup>
     );
   }
 
-  save() {
+  save(e) {
+    e.preventDefault();
+
     const { datas } = this.props;
     const data = { ...this.state.data };
     const ids = [];
@@ -200,7 +200,7 @@ class CommonMerge extends Component {
     const data = { ...this.state.data };
     const propertyName = Object.keys(property);
 
-    if (type === 'plus') {
+    if (type === 'add') {
       data[propertyName] = property[propertyName];
     } else {
       delete data[propertyName];
@@ -228,33 +228,36 @@ class CommonMerge extends Component {
   }
 
   renderMessengerData(data) {
+    const { __ } = this.context;
     return (
       <Info>
-        <InfoTitle>Last seen at:</InfoTitle>
+        <InfoTitle>{__('Last seen at')}:</InfoTitle>
         <InfoDetail>{moment(data.lastSeenAt).format('lll')}</InfoDetail>
-        <InfoTitle>Session count:</InfoTitle>
+        <InfoTitle>{__('Session count')}:</InfoTitle>
         <InfoDetail>{data.sessionCount}</InfoDetail>
       </Info>
     );
   }
 
   renderTwitterData(data) {
+    const { __ } = this.context;
     return (
       <Info>
-        <InfoTitle>Name: </InfoTitle>
+        <InfoTitle>{__('Name')}: </InfoTitle>
         <InfoDetail>{data.name}</InfoDetail>
-        <InfoTitle>Screen name: </InfoTitle>
+        <InfoTitle>{__('Screen name')}: </InfoTitle>
         <InfoDetail>{data.screenName}</InfoDetail>
       </Info>
     );
   }
 
   renderVisitorContactInfo(data) {
+    const { __ } = this.context;
     return (
       <Info>
-        <InfoTitle>E-mail: </InfoTitle>
+        <InfoTitle>{__('E-mail')}: </InfoTitle>
         <InfoDetail>{data.email}</InfoDetail>
-        <InfoTitle>Phone: </InfoTitle>
+        <InfoTitle>{__('Phone')}: </InfoTitle>
         <InfoDetail>{data.phone}</InfoDetail>
       </Info>
     );
@@ -262,36 +265,37 @@ class CommonMerge extends Component {
 
   render() {
     const { datas } = this.props;
+    const { __ } = this.context;
 
     return (
-      <div>
+      <form onSubmit={this.save}>
         <Columns>
-          {datas.map(data => {
+          {datas.map((data, index) => {
             return (
-              <Column key={data._id} className="multiple">
+              <Column key={index} className="multiple">
                 <Title>{renderFullName(data)}</Title>
                 <ul>{this.renderDatas(data)}</ul>
               </Column>
             );
           })}
           <Column>
-            <Title>Merged Info</Title>
+            <Title>{__('Merged Info')}</Title>
             <ul>{this.renderMergedData()}</ul>
           </Column>
         </Columns>
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             onClick={() => this.context.closeModal()}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
-          <Button onClick={this.save} btnStyle="success" icon="checkmark">
+          <Button type="submit" btnStyle="success" icon="checked-1">
             Save
           </Button>
-        </Modal.Footer>
-      </div>
+        </ModalFooter>
+      </form>
     );
   }
 }

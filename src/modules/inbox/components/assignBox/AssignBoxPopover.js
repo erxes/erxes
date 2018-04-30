@@ -29,8 +29,9 @@ class AssignBoxPopover extends Component {
 
   render() {
     const { targets, trigger, container } = this.props;
+    const { __ } = this.context;
     const popover = (
-      <Popover id="assign-popover" title="Choose person">
+      <Popover id="assign-popover" title={__('Choose person')}>
         <AssignBox
           targets={targets}
           event="onClick"
@@ -57,5 +58,8 @@ class AssignBoxPopover extends Component {
 }
 
 AssignBoxPopover.propTypes = propTypes;
+AssignBoxPopover.contextTypes = {
+  __: PropTypes.func
+};
 
 export default AssignBoxPopover;

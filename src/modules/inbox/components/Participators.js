@@ -4,11 +4,11 @@ import styled from 'styled-components';
 import { Tip } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 
-const Spacing = 30;
+const spacing = 30;
 
 const ParticipatorWrapper = styled.div`
   display: inline-block;
-  margin-left: ${Spacing}px;
+  margin-left: ${spacing}px;
 
   &:hover {
     cursor: pointer;
@@ -16,8 +16,8 @@ const ParticipatorWrapper = styled.div`
 `;
 
 const ParticipatorImg = styled.img`
-  width: ${Spacing}px;
-  height: ${Spacing}px;
+  width: ${spacing}px;
+  height: ${spacing}px;
   border-radius: 15px;
   display: inline-block;
   border: 2px solid ${colors.colorWhite};
@@ -30,7 +30,7 @@ const More = ParticipatorImg.withComponent('span').extend`
   vertical-align: middle;
   font-size: 10px;
   background: ${colors.colorCoreLightGray};
-  line-height: ${Spacing - 2}px;
+  line-height: ${spacing - 2}px;
 `;
 
 class Participators extends Component {
@@ -52,6 +52,7 @@ class Participators extends Component {
     const { participatedUsers, limit } = this.props;
     const { toggle } = this.state;
     const length = participatedUsers.length;
+    const { __ } = this.context;
 
     const Trigger = user => (
       <Tip key={user._id} placement="top" text={user.details.fullName || ''}>
@@ -63,7 +64,7 @@ class Participators extends Component {
     );
 
     const Tooltip = (
-      <Tip placement="top" text="View more">
+      <Tip placement="top" text={__('View more')}>
         <More>{`+${length - limit}`}</More>
       </Tip>
     );
@@ -82,6 +83,10 @@ class Participators extends Component {
 Participators.propTypes = {
   participatedUsers: PropTypes.array.isRequired,
   limit: PropTypes.number
+};
+
+Participators.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Participators;

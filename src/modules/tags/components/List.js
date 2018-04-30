@@ -1,18 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Dropdown } from 'react-bootstrap';
-import {
-  ModalTrigger,
-  Button,
-  Icon,
-  Table,
-  DropdownToggle
-} from 'modules/common/components';
-import { BarItems } from 'modules/layout/styles';
+import { ModalTrigger, Button, Table } from 'modules/common/components';
 import Row from './Row';
 import Form from './Form';
+import Sidebar from './Sidebar';
 
 const propTypes = {
   tags: PropTypes.array.isRequired,
@@ -21,40 +13,17 @@ const propTypes = {
   save: PropTypes.func.isRequired
 };
 
-function List({ tags, type, remove, save }) {
+function List({ tags, type, remove, save }, { __ }) {
   const trigger = (
-    <Button btnStyle="success" size="small" icon="plus">
+    <Button btnStyle="success" size="small" icon="add">
       Add tag
     </Button>
   );
 
   const actionBarRight = (
-    <BarItems>
-      <Dropdown id="dropdown-engage" pullRight>
-        <DropdownToggle bsRole="toggle">
-          <Button btnStyle="simple" size="small">
-            Customize <Icon icon="ios-arrow-down" />
-          </Button>
-        </DropdownToggle>
-        <Dropdown.Menu>
-          <li>
-            <Link to="/tags/engageMessage">Engage Message</Link>
-          </li>
-          <li>
-            <Link to="/tags/conversation">Conversation</Link>
-          </li>
-          <li>
-            <Link to="/tags/customer">Customer</Link>
-          </li>
-          <li>
-            <Link to="/tags/company">Company</Link>
-          </li>
-        </Dropdown.Menu>
-      </Dropdown>
-      <ModalTrigger title="Add tag" trigger={trigger}>
-        <Form type={type} save={save} />
-      </ModalTrigger>
-    </BarItems>
+    <ModalTrigger title="Add tag" trigger={trigger}>
+      <Form type={type} save={save} />
+    </ModalTrigger>
   );
 
   const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
@@ -62,9 +31,9 @@ function List({ tags, type, remove, save }) {
     <Table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Item counts</th>
-          <th>Actions</th>
+          <th>{__('Name')}</th>
+          <th>{__('Item counts')}</th>
+          <th>{__('Actions')}</th>
         </tr>
       </thead>
       <tbody>
@@ -82,17 +51,24 @@ function List({ tags, type, remove, save }) {
     </Table>
   );
 
-  const breadcrumb = [{ title: 'Tags', link: '/tags' }, { title: type }];
+  const breadcrumb = [
+    { title: __('Tags'), link: '/tags' },
+    { title: __(type) }
+  ];
 
   return (
     <Wrapper
       header={<Wrapper.Header breadcrumb={breadcrumb} />}
       actionBar={actionBar}
       content={content}
+      leftSidebar={<Sidebar />}
     />
   );
 }
 
 List.propTypes = propTypes;
+List.contextTypes = {
+  __: PropTypes.func
+};
 
 export default List;

@@ -1,24 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Wrapper } from 'modules/layout/components';
+import { Wrapper, Sidebar } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
-import { Tabs, TabTitle, Icon } from 'modules/common/components';
-import { Form as NoteForm } from 'modules/internalNotes/containers';
 import {
-  ActivityList,
-  InternalNotes,
-  ConversationList
-} from 'modules/activityLogs/components';
+  DataWithLoader,
+  Tabs,
+  TabTitle,
+  Icon
+} from 'modules/common/components';
+import { Form as NoteForm } from 'modules/internalNotes/containers';
+import { ActivityList } from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
+import { CustomerAssociate } from 'modules/customers/containers';
+import { DealSection } from 'modules/deals/containers';
+import { hasAnyActivity } from 'modules/customers/utils';
+import { ActivityContent } from 'modules/common/styles/main';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
-  customFields: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired,
+  fieldsGroups: PropTypes.array.isRequired,
   queryParams: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
   companyActivityLog: PropTypes.array.isRequired,
+  loadingLogs: PropTypes.bool.isRequired,
   history: PropTypes.object
 };
 
@@ -37,52 +42,57 @@ class CompanyDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, companyActivityLog } = this.props;
-
-    if (currentTab === 'activity') {
-      return (
-        <ActivityList user={currentUser} activities={companyActivityLog} />
-      );
-    }
-
-    if (currentTab === 'notes') {
-      return <InternalNotes activityLog={companyActivityLog} />;
-    }
-
-    if (currentTab === 'conversations') {
-      return this.renderConversations();
-    }
-  }
-
-  renderConversations() {
-    const { companyActivityLog, company, history } = this.props;
+    const {
+      currentUser,
+      companyActivityLog,
+      company,
+      loadingLogs
+    } = this.props;
+    const hasActivity = hasAnyActivity(companyActivityLog);
 
     return (
-      <WhiteBox>
-        <ConversationList
-          activityLog={companyActivityLog}
-          detail={company}
-          history={history}
+      <ActivityContent isEmpty={!hasActivity}>
+        <DataWithLoader
+          loading={loadingLogs}
+          count={!loadingLogs && hasActivity ? 1 : 0}
+          data={
+            <ActivityList
+              user={currentUser}
+              activities={companyActivityLog}
+              target={company.name}
+              type={currentTab} //show logs filtered by type
+            />
+          }
+          emptyText="No Activities"
+          emptyImage="/images/robots/robot-03.svg"
         />
-      </WhiteBox>
+      </ActivityContent>
     );
   }
 
   render() {
     const { currentTab } = this.state;
     const { company } = this.props;
+    const { __ } = this.context;
 
     const breadcrumb = [
-      { title: 'Companies', link: '/companies' },
+      { title: __('Companies'), link: '/companies' },
       { title: company.name || company.email || 'N/A' }
     ];
+
+    const rightSidebar = (
+      <Sidebar>
+        <CustomerAssociate data={company} />
+        <DealSection companyId={company._id} />
+      </Sidebar>
+    );
 
     const content = (
       <div>
         <WhiteBox>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> New note
+              <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
           </Tabs>
 
@@ -94,19 +104,19 @@ class CompanyDetails extends React.Component {
             className={currentTab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}
           >
-            Activity
+            {__('Activity')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
             onClick={() => this.onTabClick('notes')}
           >
-            Notes
+            {__('Notes')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'conversations' ? 'active' : ''}
             onClick={() => this.onTabClick('conversations')}
           >
-            Conversation
+            {__('Conversation')}
           </TabTitle>
         </Tabs>
 
@@ -118,6 +128,7 @@ class CompanyDetails extends React.Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<LeftSidebar {...this.props} />}
+        rightSidebar={rightSidebar}
         content={content}
         transparent={true}
       />
@@ -126,5 +137,8 @@ class CompanyDetails extends React.Component {
 }
 
 CompanyDetails.propTypes = propTypes;
+CompanyDetails.contextTypes = {
+  __: PropTypes.func
+};
 
 export default withRouter(CompanyDetails);

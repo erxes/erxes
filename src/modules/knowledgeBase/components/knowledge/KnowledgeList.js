@@ -1,15 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Icon,
-  ModalTrigger,
-  EmptyState,
-  Spinner
-} from 'modules/common/components';
+import { Icon, ModalTrigger, DataWithLoader } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 import { KnowledgeForm } from '../../containers';
+import { HelperButtons } from 'modules/layout/styles';
 import { KnowledgeRow } from './';
-import { RightButton } from '../../styles';
 
 const propTypes = {
   queryParams: PropTypes.object,
@@ -23,6 +18,10 @@ const propTypes = {
   topicsCount: PropTypes.number.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class KnowledgeList extends Component {
   constructor(props) {
     super(props);
@@ -34,7 +33,7 @@ class KnowledgeList extends Component {
     return <KnowledgeForm {...props} />;
   }
 
-  renderSidebarList() {
+  renderTopics() {
     const {
       topics,
       remove,
@@ -45,7 +44,7 @@ class KnowledgeList extends Component {
     } = this.props;
 
     return (
-      <div>
+      <Fragment>
         {topics.map(topic => (
           <KnowledgeRow
             currentCategoryId={currentCategoryId}
@@ -57,23 +56,41 @@ class KnowledgeList extends Component {
             save={save}
           />
         ))}
-      </div>
+      </Fragment>
+    );
+  }
+
+  renderSidebarList() {
+    const { loading, topicsCount } = this.props;
+
+    return (
+      <DataWithLoader
+        loading={loading}
+        count={topicsCount}
+        data={this.renderTopics()}
+        emptyText="Add knowledge base."
+        emptyImage="/images/robots/robot-03.svg"
+        size="small"
+      />
     );
   }
 
   renderSidebarHeader() {
     const { Header } = Sidebar;
     const { save } = this.props;
+    const { __ } = this.context;
 
     const trigger = (
-      <RightButton>
-        <Icon icon="plus" />
-      </RightButton>
+      <HelperButtons>
+        <a>
+          <Icon icon="add" />
+        </a>
+      </HelperButtons>
     );
 
     return (
-      <Header bold uppercase>
-        Knowledge base
+      <Header uppercase>
+        {__('Knowledge base')}
         <ModalTrigger title="Add Knowledge base" trigger={trigger}>
           {this.renderForm({ save })}
         </ModalTrigger>
@@ -81,35 +98,16 @@ class KnowledgeList extends Component {
     );
   }
 
-  showEmptyState() {
-    const { topicsCount, loading } = this.props;
-
-    return (
-      !loading &&
-      topicsCount === 0 && (
-        <EmptyState
-          image="/images/robots/robot-03.svg"
-          text="Add knowledge base."
-        />
-      )
-    );
-  }
-
   render() {
-    const { loading } = this.props;
-
     return (
-      <Sidebar wide header={this.renderSidebarHeader()}>
-        <Sidebar.Section noBackground noShadow full>
-          {this.renderSidebarList()}
-          {loading && <Spinner />}
-          {this.showEmptyState()}
-        </Sidebar.Section>
+      <Sidebar full wide header={this.renderSidebarHeader()}>
+        {this.renderSidebarList()}
       </Sidebar>
     );
   }
 }
 
 KnowledgeList.propTypes = propTypes;
+KnowledgeList.contextTypes = contextTypes;
 
 export default KnowledgeList;

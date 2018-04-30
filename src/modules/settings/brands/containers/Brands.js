@@ -4,6 +4,7 @@ import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
 import { router as routerUtils } from 'modules/common/utils';
 import { queries } from '../graphql';
 import { Brands } from '../components';
@@ -18,14 +19,25 @@ class CurrentBrands extends Component {
   }
 
   render() {
-    const { brandDetailQuery, location, integrationsCountQuery } = this.props;
+    const {
+      brandDetailQuery,
+      location,
+      integrationsCountQuery,
+      currentBrandId
+    } = this.props;
+
+    if (integrationsCountQuery.loading) {
+      return <Spinner />;
+    }
 
     const extendedProps = {
       ...this.props,
       queryParams: queryString.parse(location.search),
       currentBrand: brandDetailQuery.brandDetail || {},
       loading: brandDetailQuery.loading,
-      integrationsCount: integrationsCountQuery.integrationsTotalCount || 0
+      integrationsCount:
+        integrationsCountQuery.integrationsTotalCount.byBrand[currentBrandId] ||
+        0
     };
 
     return <Brands {...extendedProps} />;
@@ -49,10 +61,7 @@ const BrandsDetailContainer = compose(
     })
   }),
   graphql(gql(queries.integrationsCount), {
-    name: 'integrationsCountQuery',
-    options: ({ currentBrandId }) => ({
-      variables: { brandId: currentBrandId || '' }
-    })
+    name: 'integrationsCountQuery'
   })
 )(CurrentBrands);
 

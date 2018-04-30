@@ -19,7 +19,7 @@ import {
 } from './styles';
 import { WidgetPreviewStyled } from 'modules/settings/styles';
 
-function WidgetPreview({ color, wallpaper, user }) {
+function WidgetPreview({ color, wallpaper, user }, { __ }) {
   const avatar =
     (user.details && user.details.avatar) || '/images/avatar-colored.svg';
   const fullName = (user.details && user.details.fullName) || 'Support staff';
@@ -34,32 +34,33 @@ function WidgetPreview({ color, wallpaper, user }) {
             <ErxesStaffName>{fullName}</ErxesStaffName>
             <ErxesState>
               <StateSpan />
-              Online
+              {__('Online')}
             </ErxesState>
           </ErxesStaffProfile>
         </ErxesMiddle>
       </ErxesTopbar>
       <ErxesMessagesList className={backgroundClasses}>
         <ErxesWelcomeMessage>
-          We welcome you warmly to erxes and look forward to a long term healthy
-          working association with us.
+          {__(
+            'We welcome you warmly to erxes and look forward to a long term healthy working association with us.'
+          )}
         </ErxesWelcomeMessage>
         <li>
           <ErxesAvatar>
             <img src={avatar} alt="avatar" />
           </ErxesAvatar>
-          <ErxesMessage>Hi, any questions?</ErxesMessage>
-          <ErxesDate>1 hour ago</ErxesDate>
+          <ErxesMessage>{__('Hi, any questions?')}</ErxesMessage>
+          <ErxesDate>{__('1 hour ago')}</ErxesDate>
         </li>
         <ErxesFromCustomer>
           <FromCustomer style={{ backgroundColor: color }}>
-            We need your help!
+            {__('We need your help!')}
           </FromCustomer>
-          <ErxesDate>6 minutes ago</ErxesDate>
+          <ErxesDate>{__('6 minutes ago')}</ErxesDate>
         </ErxesFromCustomer>
       </ErxesMessagesList>
       <ErxesMessageSender>
-        <span>Write a reply ...</span>
+        <span>{__('Write a reply ...')}</span>
       </ErxesMessageSender>
     </WidgetPreviewStyled>
   );
@@ -69,6 +70,10 @@ WidgetPreview.propTypes = {
   color: PropTypes.string.isRequired,
   wallpaper: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired // eslint-disable-line
+};
+
+WidgetPreview.contextTypes = {
+  __: PropTypes.func
 };
 
 export default WidgetPreview;

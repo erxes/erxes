@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
   ModalTrigger,
   Button,
@@ -8,12 +7,17 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   onSave: PropTypes.func.isRequired,
   brands: PropTypes.array,
   trigger: PropTypes.node,
   brandId: PropTypes.string.isRequired
+};
+
+const contextTypes = {
+  __: PropTypes.func
 };
 
 class ResponseTemplateModal extends Component {
@@ -33,6 +37,7 @@ class ResponseTemplateModal extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { brands, trigger, brandId } = this.props;
 
     return (
@@ -43,7 +48,7 @@ class ResponseTemplateModal extends Component {
           <FormControl
             id="template-brand-id"
             componentClass="select"
-            placeholder="Select Brand"
+            placeholder={__('Select Brand')}
             defaultValue={brandId}
           >
             {brands.map(brand => (
@@ -59,16 +64,17 @@ class ResponseTemplateModal extends Component {
           <FormControl id="template-name" type="text" required />
         </FormGroup>
 
-        <Modal.Footer>
-          <Button onClick={this.onSave} btnStyle="success" icon="checkmark">
+        <ModalFooter>
+          <Button onClick={this.onSave} btnStyle="success" icon="checked-1">
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </ModalTrigger>
     );
   }
 }
 
 ResponseTemplateModal.propTypes = propTypes;
+ResponseTemplateModal.contextTypes = contextTypes;
 
 export default ResponseTemplateModal;

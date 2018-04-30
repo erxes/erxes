@@ -7,70 +7,81 @@ import { SegmentsForm } from '../components';
 import { mutations, queries } from '../graphql';
 import { queries as customerQueries } from 'modules/customers/graphql';
 
-const SegmentsFormContainer = props => {
-  const {
-    contentType,
-    segmentDetailQuery,
-    headSegmentsQuery,
-    combinedFieldsQuery,
-    segmentsAdd,
-    segmentsEdit,
-    history,
-    customerCounts
-  } = props;
+class SegmentsFormContainer extends React.Component {
+  constructor(props) {
+    super(props);
 
-  if (
-    segmentDetailQuery.loading ||
-    headSegmentsQuery.loading ||
-    combinedFieldsQuery.loading
-  ) {
-    return null;
+    this.create = this.create.bind(this);
+    this.edit = this.edit.bind(this);
+    this.count = this.count.bind(this);
   }
 
-  const fields = combinedFieldsQuery.fieldsCombinedByContentType.map(
-    ({ name, label }) => ({
-      _id: name,
-      title: label,
-      selectedBy: 'none'
-    })
-  );
+  create({ doc }) {
+    const { contentType, segmentsAdd, history } = this.props;
 
-  const segment = segmentDetailQuery.segmentDetail;
-  const headSegments = headSegmentsQuery.segmentsGetHeads;
-
-  const create = ({ doc }) => {
     segmentsAdd({ variables: { contentType, ...doc } }).then(() => {
       Alert.success('Success');
       history.push(`/segments/${contentType}`);
     });
-  };
+  }
 
-  const edit = ({ id, doc }) => {
+  edit({ id, doc }) {
+    const { contentType, segmentsEdit, history } = this.props;
+
     segmentsEdit({ variables: { _id: id, ...doc } }).then(() => {
       Alert.success('Success');
       history.push(`/segments/${contentType}`);
     });
-  };
+  }
 
-  const count = segment => {
-    customerCounts.refetch({
-      byFakeSegment: segment
-    });
-  };
+  count(segment) {
+    const { customerCounts } = this.props;
 
-  const updatedProps = {
-    ...props,
-    fields,
-    segment,
-    headSegments,
-    create,
-    count,
-    total: customerCounts.customerCounts || {},
-    edit
-  };
+    customerCounts.refetch({ byFakeSegment: segment });
+  }
 
-  return <SegmentsForm {...updatedProps} />;
-};
+  render() {
+    const {
+      contentType,
+      segmentDetailQuery,
+      headSegmentsQuery,
+      combinedFieldsQuery,
+      customerCounts
+    } = this.props;
+
+    if (
+      segmentDetailQuery.loading ||
+      headSegmentsQuery.loading ||
+      combinedFieldsQuery.loading
+    ) {
+      return null;
+    }
+
+    const fields = combinedFieldsQuery.fieldsCombinedByContentType.map(
+      ({ name, label }) => ({
+        _id: name,
+        title: label,
+        selectedBy: 'none'
+      })
+    );
+
+    const segment = segmentDetailQuery.segmentDetail;
+    const headSegments = headSegmentsQuery.segmentsGetHeads;
+
+    const updatedProps = {
+      ...this.props,
+      fields,
+      segment,
+      headSegments: headSegments.filter(s => s.contentType === contentType),
+      create: this.create,
+      count: this.count,
+      total: customerCounts.customerCounts || {},
+      edit: this.edit
+    };
+
+    return <SegmentsForm {...updatedProps} />;
+  }
+}
 
 SegmentsFormContainer.propTypes = {
   contentType: PropTypes.string,

@@ -10,7 +10,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import { Form, Messenger } from 'modules/settings/integrations/containers';
+import { Messenger } from 'modules/settings/integrations/containers';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
@@ -26,11 +26,12 @@ class IntegrationRow extends Component {
 
   renderExtraLinks() {
     const { integration, refetch } = this.props;
+    const { __ } = this.context;
     const kind = integration.kind;
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -39,22 +40,22 @@ class IntegrationRow extends Component {
     if (kind === KIND_CHOICES.MESSENGER) {
       return (
         <ActionButtons>
-          <Tip text="Appearance">
+          <Tip text={__('Appearance')}>
             <Link
               to={`/settings/integrations/messenger/appearance/${
                 integration._id
               }`}
             >
               <Button btnStyle="link">
-                <Icon icon="paintbucket" />
+                <Icon icon="paintpalette" />
               </Button>
             </Link>
           </Tip>
 
-          <Tip text="Hours, Availability & Other configs">
+          <Tip text={__('Hours, Availability & Other configs')}>
             <Link to={`integrations/messenger/configs/${integration._id}`}>
               <Button btnStyle="link">
-                <Icon icon="gear-a" />
+                <Icon icon="settings" />
               </Button>
             </Link>
           </Tip>
@@ -66,14 +67,6 @@ class IntegrationRow extends Component {
       );
     }
 
-    if (kind === KIND_CHOICES.FORM) {
-      return (
-        <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Form integration={integration} refetch={refetch} />
-        </ModalTrigger>
-      );
-    }
-
     return null;
   }
 
@@ -81,16 +74,16 @@ class IntegrationRow extends Component {
     const kind = this.props.integration.kind;
     let type = 'default';
 
-    if (kind === KIND_CHOICES.FORM) {
-      type = 'form';
-    }
-
     if (kind === KIND_CHOICES.TWITTER) {
       type = 'twitter';
     }
 
     if (kind === KIND_CHOICES.FACEBOOK) {
       type = 'facebook';
+    }
+
+    if (kind === KIND_CHOICES.FORM) {
+      type = 'form';
     }
 
     return type;
@@ -116,5 +109,8 @@ class IntegrationRow extends Component {
 }
 
 IntegrationRow.propTypes = propTypes;
+IntegrationRow.contextTypes = {
+  __: PropTypes.func
+};
 
 export default IntegrationRow;

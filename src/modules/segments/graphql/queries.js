@@ -1,5 +1,6 @@
 const segmentFields = `
   _id
+  contentType
   name
   description
   subOf

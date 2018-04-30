@@ -23,6 +23,10 @@ const propTypes = {
   channelsTotalCount: PropTypes.number.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class Sidebar extends Component {
   constructor(props) {
     super(props);
@@ -50,18 +54,19 @@ class Sidebar extends Component {
   }
 
   renderSidebarHeader() {
+    const { __ } = this.context;
     const { save, members } = this.props;
     const { Header } = LeftSidebar;
 
     const addChannel = (
       <RightButton>
-        <Icon icon="plus" />
+        <Icon icon="add" />
       </RightButton>
     );
 
     return (
-      <Header uppercase bold>
-        Channels
+      <Header uppercase>
+        {__('Channels')}
         <ModalTrigger title="New Channel" trigger={addChannel}>
           {this.renderChannelForm({ save, members })}
         </ModalTrigger>
@@ -76,12 +81,12 @@ class Sidebar extends Component {
       <LeftSidebar full header={this.renderSidebarHeader()}>
         <List>
           {this.renderItems()}
-          <LoadMore all={channelsTotalCount} />
+          <LoadMore all={channelsTotalCount} loading={loading} />
         </List>
         {loading && <Spinner />}
         {!loading &&
           channelsTotalCount === 0 && (
-            <EmptyState icon="briefcase" text="There is no channel" />
+            <EmptyState icon="sitemap" text="There is no channel" />
           )}
       </LeftSidebar>
     );
@@ -89,5 +94,6 @@ class Sidebar extends Component {
 }
 
 Sidebar.propTypes = propTypes;
+Sidebar.contextTypes = contextTypes;
 
 export default Sidebar;

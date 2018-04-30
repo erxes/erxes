@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Tip, ActionButtons, Button, Table } from 'modules/common/components';
+import {
+  Tip,
+  ActionButtons,
+  Button,
+  Table,
+  Label
+} from 'modules/common/components';
 
 const propTypes = {
   contentType: PropTypes.string.isRequired,
@@ -10,80 +16,100 @@ const propTypes = {
   removeSegment: PropTypes.func.isRequired
 };
 
-function SegmentsList({ contentType, segments, removeSegment }) {
-  const remove = id => {
-    removeSegment(id);
-  };
+class SegmentsList extends Component {
+  renderActionButtons(segment) {
+    const { contentType, removeSegment } = this.props;
+    const { __ } = this.context;
 
-  const parentSegments = [];
+    return (
+      <ActionButtons>
+        <Tip text={__('Edit')}>
+          <Link to={`/segments/edit/${contentType}/${segment._id}`}>
+            <Button btnStyle="link" icon="edit" />
+          </Link>
+        </Tip>
+        <Tip text={__('Delete')}>
+          <Button
+            btnStyle="link"
+            onClick={() => {
+              removeSegment(segment._id);
+            }}
+            icon="cancel-1"
+          />
+        </Tip>
+      </ActionButtons>
+    );
+  }
 
-  segments.forEach(segment => {
-    if (!segment.subOf) {
-      parentSegments.push(segment, ...segment.getSubSegments);
-    }
-  });
+  renderContent() {
+    const { segments } = this.props;
+    const { __ } = this.context;
 
-  const content = (
-    <Table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Color</th>
-          <th />
-        </tr>
-      </thead>
-      <tbody>
-        {parentSegments.map(segment => (
-          <tr key={segment._id}>
-            <td>
-              {segment.subOf ? '\u2014\u2014' : null} {segment.name}
-            </td>
-            <td>{segment.description}</td>
-            <td>{segment.color}</td>
-            <td>
-              <ActionButtons>
-                <Tip text="Edit">
-                  <Link to={`/segments/edit/${contentType}/${segment._id}`}>
-                    <Button btnStyle="link" icon="edit" />
-                  </Link>
-                </Tip>
-                <Tip text="Delete">
-                  <Button
-                    btnStyle="link"
-                    onClick={() => {
-                      remove(segment._id);
-                    }}
-                    icon="close"
-                  />
-                </Tip>
-              </ActionButtons>
-            </td>
+    const parentSegments = [];
+
+    segments.forEach(segment => {
+      if (!segment.subOf) {
+        parentSegments.push(segment, ...segment.getSubSegments);
+      }
+    });
+
+    return (
+      <Table>
+        <thead>
+          <tr>
+            <th>{__('Name')}</th>
+            <th>{__('Description')}</th>
+            <th>{__('Color')}</th>
+            <th />
           </tr>
-        ))}
-      </tbody>
-    </Table>
-  );
+        </thead>
+        <tbody>
+          {parentSegments.map(segment => (
+            <tr key={segment._id}>
+              <td>
+                {segment.subOf ? '\u00a0\u00a0' : null} {segment.name}
+              </td>
+              <td>{segment.description}</td>
+              <td>
+                <Label style={{ backgroundColor: segment.color }}>
+                  {segment.color}
+                </Label>
+              </td>
+              <td>{this.renderActionButtons(segment)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    );
+  }
 
-  const actionBarRight = (
-    <Link to={`/segments/new/${contentType}`}>
-      <Button btnStyle="success" size="small" icon="plus">
-        New segment
-      </Button>
-    </Link>
-  );
+  render() {
+    const { contentType } = this.props;
+    const { __ } = this.context;
 
-  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+    const actionBarRight = (
+      <Link to={`/segments/new/${contentType}`}>
+        <Button btnStyle="success" size="small" icon="add">
+          New segment
+        </Button>
+      </Link>
+    );
 
-  return (
-    <Wrapper
-      header={<Wrapper.Header breadcrumb={[{ title: 'Segments' }]} />}
-      actionBar={actionBar}
-      content={content}
-    />
-  );
+    const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={[{ title: __('Segments') }]} />}
+        actionBar={actionBar}
+        content={this.renderContent()}
+      />
+    );
+  }
 }
 
 SegmentsList.propTypes = propTypes;
+SegmentsList.contextTypes = {
+  __: PropTypes.func
+};
 
 export default SegmentsList;

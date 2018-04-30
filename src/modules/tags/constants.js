@@ -3,5 +3,12 @@ export const TAG_TYPES = {
   CUSTOMER: 'customer',
   ENGAGE_MESSAGE: 'engageMessage',
   COMPANY: 'company',
-  ALL_LIST: ['conversation', 'customer', 'engageMessage', 'company']
+  INTEGRATION: 'integration',
+  ALL_LIST: [
+    'conversation',
+    'customer',
+    'engageMessage',
+    'company',
+    'integration'
+  ]
 };

@@ -15,8 +15,9 @@ const ModalBody = styled.div`
 
 const ModalFooter = styled.div`
   padding: 11px ${dimensions.coreSpacing}px;
-  background: ${colors.bgLight};
+  background: ${colors.colorWhite};
   border-top: 1px solid ${colors.borderPrimary};
+  border-radius: 4px;
   display: flex;
   justify-content: space-around;
 `;
@@ -67,7 +68,7 @@ class ConfirmDialog extends React.Component {
       >
         <ModalBody>
           <IconWrapper>
-            <Icon icon="ios-information-outline" />
+            <Icon icon="information" />
           </IconWrapper>
           {confirmation}
         </ModalBody>
@@ -76,7 +77,7 @@ class ConfirmDialog extends React.Component {
             size="small"
             btnStyle="simple"
             onClick={this.dismiss}
-            icon="close"
+            icon="cancel-1"
           >
             {cancelLabel}
           </Button>
@@ -84,7 +85,7 @@ class ConfirmDialog extends React.Component {
             size="small"
             btnStyle="success"
             onClick={this.proceed}
-            icon="checkmark"
+            icon="checked-1"
           >
             {okLabel}
           </Button>

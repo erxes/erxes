@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ConfirmDialog from '../../components/ConfirmDialog';
 
-const createConfirmation = (Component, unmountDelay = 1000) => {
+const createConfirmation = (unmountDelay = 1000) => {
   return props => {
     const wrapper = document.body.appendChild(document.createElement('div'));
     const promise = new Promise(proceed => {

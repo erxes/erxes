@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Toggle from 'react-toggle';
-import { Wrapper } from 'modules/layout/components';
-import { ContentBox, SubHeading, InlineItems, SubItem } from '../../styles';
-import Sidebar from 'modules/settings/Sidebar';
+import { ModuleBox, SubHeading, InlineItems, SubItem } from '../../styles';
 
 class NotificationSettings extends Component {
   constructor(props) {
@@ -44,6 +42,7 @@ class NotificationSettings extends Component {
   renderNotifType(type, key) {
     return (
       <InlineItems key={key}>
+        {type.text}
         <Toggle
           value={type.name}
           checked={this.isChecked(type)}
@@ -53,7 +52,6 @@ class NotificationSettings extends Component {
             unchecked: null
           }}
         />
-        {type.text}
       </InlineItems>
     );
   }
@@ -70,10 +68,12 @@ class NotificationSettings extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const content = (
-      <ContentBox>
-        <SubHeading>Notifications</SubHeading>
+      <div>
+        <SubHeading>{__('Notifications')}</SubHeading>
         <InlineItems>
+          {__('Get notification by email')}
           <Toggle
             defaultChecked={this.props.getNotificationByEmail}
             onChange={this.onEmailConfigChange}
@@ -82,28 +82,16 @@ class NotificationSettings extends Component {
               unchecked: null
             }}
           />
-          Get notification by email
         </InlineItems>
-        <ContentBox>
+        <ModuleBox>
           {this.props.modules.map((module, index) =>
             this.renderModule(module, index)
           )}
-        </ContentBox>
-      </ContentBox>
+        </ModuleBox>
+      </div>
     );
 
-    const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: 'Notification settings' }
-    ];
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        content={content}
-      />
-    );
+    return content;
   }
 }
 
@@ -119,6 +107,10 @@ NotificationSettings.propTypes = {
 
   // previously configured value
   getNotificationByEmail: PropTypes.bool.isRequired
+};
+
+NotificationSettings.contextTypes = {
+  __: PropTypes.func
 };
 
 export default NotificationSettings;

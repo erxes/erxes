@@ -1,8 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Filter, Sidebar } from './';
-import { InsightTitle, InsightWrapper } from '../styles';
+import { Spinner } from 'modules/common/components';
+import { Filter, Sidebar, Chart, PunchCard } from './';
+import {
+  InsightTitle,
+  InsightWrapper,
+  InsightRow,
+  LoaderWrapper
+} from '../styles';
 
 const propTypes = {
   brands: PropTypes.array.isRequired,
@@ -26,11 +32,44 @@ class CommonReport extends Component {
   }
 
   renderTitle(title, time) {
+    const { __ } = this.context;
     return (
       <InsightTitle>
-        {title}
+        {__(title)}
         {time ? <span>({time})</span> : null}
       </InsightTitle>
+    );
+  }
+
+  renderTrend(name, loading, trend, width) {
+    return (
+      <InsightRow
+        innerRef={node => {
+          this.wrapper = node;
+        }}
+      >
+        {this.renderTitle(name)}
+        <Chart loading={loading.main} width={width} height={320} data={trend} />
+      </InsightRow>
+    );
+  }
+
+  renderPunchCard(loading, punch, width) {
+    let content = (
+      <LoaderWrapper>
+        <Spinner objective />
+      </LoaderWrapper>
+    );
+
+    if (!loading.punch) {
+      content = <PunchCard data={punch} width={width} />;
+    }
+
+    return (
+      <InsightRow>
+        {this.renderTitle('Punch card')}
+        {content}
+      </InsightRow>
     );
   }
 
@@ -50,7 +89,7 @@ class CommonReport extends Component {
   }
 
   renderBreadCrumnb() {
-    return [{ title: 'Insights', link: '/insight' }];
+    return null;
   }
 
   render() {
@@ -65,5 +104,8 @@ class CommonReport extends Component {
 }
 
 CommonReport.propTypes = propTypes;
+CommonReport.contextTypes = {
+  __: PropTypes.func
+};
 
 export default CommonReport;

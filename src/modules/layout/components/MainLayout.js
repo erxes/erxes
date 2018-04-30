@@ -1,5 +1,4 @@
 import React from 'react';
-import moment from 'moment';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Layout } from '../styles';
@@ -13,27 +12,9 @@ const propTypes = {
 
 class MainLayout extends React.Component {
   getChildContext() {
-    return { currentUser: this.props.currentUser };
-  }
-
-  componentWillMount() {
-    moment.updateLocale('en', {
-      relativeTime: {
-        future: 'in %s',
-        past: '%s ',
-        s: 's',
-        m: 'm',
-        mm: '%d m',
-        h: 'h',
-        hh: '%d h',
-        d: 'd',
-        dd: '%d d',
-        M: 'a mth',
-        MM: '%d mths',
-        y: 'y',
-        yy: '%d y'
-      }
-    });
+    return {
+      currentUser: this.props.currentUser
+    };
   }
 
   componentDidMount() {
@@ -42,10 +23,24 @@ class MainLayout extends React.Component {
     if (!currentUser) {
       history.push('/sign-in');
     }
+
+    //browser default form validation event listener
+    document.addEventListener(
+      'invalid',
+      (function() {
+        return function(e) {
+          //prevent the browser from showing default error hint
+          e.preventDefault();
+
+          e.target.classList.add('form-invalid');
+        };
+      })(),
+      true
+    );
   }
 
   render() {
-    const { children, currentUser } = this.props;
+    const { currentUser, children } = this.props;
 
     return (
       <Layout>

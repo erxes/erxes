@@ -28,7 +28,7 @@ class Appearance extends Component {
     super(props);
 
     this.state = {
-      color: props.prevOptions.color || '#04A9F5',
+      color: props.prevOptions.color || '#6569DF',
       wallpaper: props.prevOptions.wallpaper || '1',
       logo: props.prevOptions.logo,
       logoPreviewStyle: {},
@@ -105,13 +105,14 @@ class Appearance extends Component {
     );
 
     const { logoPreviewStyle, logoPreviewUrl } = this.state;
+    const { __ } = this.context;
 
     const content = (
       <Margined>
         <WidgetApperance className="type-box">
           <WidgetSettings>
             <WidgetBox>
-              <SubHeading>Choose a custom color</SubHeading>
+              <SubHeading>{__('Choose a custom color')}</SubHeading>
               <OverlayTrigger
                 trigger="click"
                 rootClose
@@ -125,7 +126,7 @@ class Appearance extends Component {
             </WidgetBox>
 
             <WidgetBox>
-              <SubHeading>Choose a wallpaper</SubHeading>
+              <SubHeading>{__('Choose a wallpaper')}</SubHeading>
 
               <WidgetBackgrounds>
                 {this.renderWallpaperSelect('1')}
@@ -137,7 +138,7 @@ class Appearance extends Component {
             </WidgetBox>
 
             <WidgetBox>
-              <SubHeading>Choose a logo</SubHeading>
+              <SubHeading>{__('Choose a logo')}</SubHeading>
 
               <input type="file" onChange={this.handleLogoChange} />
             </WidgetBox>
@@ -150,7 +151,7 @@ class Appearance extends Component {
                 wallpaper={this.state.wallpaper}
                 user={this.props.user}
               />
-              <Tip text="Choose a logo">
+              <Tip text={__('Choose a logo')}>
                 <LogoContainer
                   style={Object.assign(
                     {
@@ -162,7 +163,7 @@ class Appearance extends Component {
                 >
                   <label>
                     <Icon
-                      icon="ios-upload-outline icon"
+                      icon="upload icon"
                       size={30}
                       style={{ backgroundColor: this.state.color }}
                     />
@@ -177,8 +178,8 @@ class Appearance extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/integrations' },
-      { title: 'Integrations' }
+      { title: __('Settings'), link: '/settings/integrations' },
+      { title: __('Integrations') }
     ];
 
     const actionBar = (
@@ -186,7 +187,7 @@ class Appearance extends Component {
         right={
           <Button.Group>
             <Link to="/settings/integrations">
-              <Button size="small" btnStyle="simple" icon="close">
+              <Button size="small" btnStyle="simple" icon="cancel-1">
                 Cancel
               </Button>
             </Link>
@@ -195,7 +196,7 @@ class Appearance extends Component {
               size="small"
               btnStyle="success"
               onClick={this.save}
-              icon="checkmark"
+              icon="checked-1"
             >
               Save
             </Button>
@@ -219,6 +220,10 @@ Appearance.propTypes = {
   prevOptions: PropTypes.object.isRequired, // eslint-disable-line
   user: PropTypes.object.isRequired, // eslint-disable-line
   save: PropTypes.func.isRequired
+};
+
+Appearance.contextTypes = {
+  __: PropTypes.func
 };
 
 export default Appearance;

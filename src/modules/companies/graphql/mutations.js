@@ -1,34 +1,74 @@
+const commonFields = `
+  $name: String,
+  $size: Int,
+  $industry: String,
+  $plan: String,
+  $parentCompanyId: String,
+  $email: String,
+  $ownerId: String,
+  $phone: String,
+  $leadStatus: String,
+  $lifecycleState: String,
+  $businessType: String,
+  $description: String,
+  $employees: Int,
+  $doNotDisturb: String,
+  $links: JSON
+  $customFieldsData: JSON
+`;
+
+const commonVariables = `
+  name: $name,
+  size: $size,
+  industry: $industry,
+  plan: $plan,
+  parentCompanyId: $parentCompanyId,
+  email: $email,
+  ownerId: $ownerId,
+  phone: $phone,
+  leadStatus: $leadStatus,
+  lifecycleState: $lifecycleState,
+  businessType: $businessType,
+  description: $description,
+  employees: $employees,
+  doNotDisturb: $doNotDisturb,
+  links: $links
+  customFieldsData: $customFieldsData
+`;
+
 const companiesAdd = `
-  mutation companiesAdd($name: String!, $website: String) {
-    companiesAdd(name: $name, website: $website) {
+  mutation companiesAdd(${commonFields}) {
+    companiesAdd(${commonVariables}) {
       _id
     }
   }
 `;
 
 const companiesEdit = `
-  mutation companiesEdit(
-    $_id: String!,
-    $name: String!,
-    $size: Int,
-    $industry: String,
-    $website: String,
-    $plan: String,
-    $customFieldsData: JSON
-    $tagIds: [String]
-  ) {
-
-    companiesEdit(
-      _id: $_id,
-      name: $name,
-      size: $size,
-      industry: $industry,
-      website: $website,
-      plan: $plan,
-      tagIds: $tagIds,
-      customFieldsData: $customFieldsData
-    ) {
+  mutation companiesEdit($_id: String!, ${commonFields}) {
+    companiesEdit(_id: $_id, ${commonVariables}) {
       name
+      size
+      industry
+      plan
+      parentCompanyId
+      email
+      ownerId
+      phone
+      leadStatus
+      lifecycleState
+      businessType
+      description
+      employees
+      doNotDisturb
+      links {
+        linkedIn
+        twitter
+        facebook
+        github
+        youtube
+        website
+      }
     }
   }
 `;

@@ -2,16 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries, mutations } from '../graphql';
+import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import { EditInformation } from '../components/detail/sidebar';
 import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 
 const EditInformationContainer = (props, context) => {
-  const { customer, customersEdit, fieldsQuery } = props;
-  if (fieldsQuery.loading) {
+  const { customer, customersEdit, fieldsGroupsQuery, wide } = props;
+
+  if (fieldsGroupsQuery.loading) {
     return (
-      <Sidebar full>
+      <Sidebar full wide={wide}>
         <Spinner />
       </Sidebar>
     );
@@ -21,7 +24,7 @@ const EditInformationContainer = (props, context) => {
 
   const save = (variables, callback) => {
     customersEdit({
-      variables: { _id: _id, ...variables }
+      variables: { _id, ...variables }
     })
       .then(() => {
         callback();
@@ -34,8 +37,9 @@ const EditInformationContainer = (props, context) => {
   const updatedProps = {
     ...props,
     save,
+    customFieldsData: customer.customFieldsData || {},
     currentUser: context.currentUser,
-    customFields: fieldsQuery.fields
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
 
   return <EditInformation {...updatedProps} />;
@@ -44,8 +48,10 @@ const EditInformationContainer = (props, context) => {
 EditInformationContainer.propTypes = {
   customer: PropTypes.object.isRequired,
   sections: PropTypes.node,
-  fieldsQuery: PropTypes.object.isRequired,
-  customersEdit: PropTypes.func.isRequired
+  customersEdit: PropTypes.func.isRequired,
+  wide: PropTypes.bool,
+  fieldsGroupsQuery: PropTypes.object.isRequired,
+  query: PropTypes.object
 };
 
 EditInformationContainer.contextTypes = {
@@ -54,15 +60,22 @@ EditInformationContainer.contextTypes = {
 
 const options = ({ customer }) => ({
   refetchQueries: [
-    { query: gql`${queries.customerDetail}`, variables: { _id: customer._id } }
+    {
+      query: gql`
+        ${queries.customerDetail}
+      `,
+      variables: { _id: customer._id }
+    }
   ]
 });
 
 export default compose(
-  graphql(gql(queries.fields), {
-    name: 'fieldsQuery',
+  graphql(gql(fieldQueries.fieldsGroups), {
+    name: 'fieldsGroupsQuery',
     options: () => ({
-      notifyOnNetworkStatusChange: true
+      variables: {
+        contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER
+      }
     })
   }),
   // mutations

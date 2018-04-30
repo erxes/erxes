@@ -16,6 +16,13 @@ const Label = styled.label`
   margin-bottom: 5px;
 `;
 
+//browser default form invalid styling
+const formInvalid = `
+  &.form-invalid {
+    border-bottom: 1px solid ${colors.colorCoreRed};
+  }
+`;
+
 const Formgroup = styled.div`
   margin-bottom: 20px;
 
@@ -25,7 +32,7 @@ const Formgroup = styled.div`
 `;
 
 const Input = styled.input`
-  display: block;
+  ${formInvalid} display: block;
   border: none;
   width: 100%;
   height: ${textInputHeight};
@@ -57,7 +64,7 @@ const Input = styled.input`
 `;
 
 const SelectWrapper = styled.div`
-  overflow: hidden;
+  ${formInvalid} overflow: hidden;
   border-bottom: 1px solid ${colors.colorShadowGray};
   width: 100%;
   height: ${textInputHeight};
@@ -67,11 +74,12 @@ const SelectWrapper = styled.div`
     position: absolute;
     right: 10px;
     top: 12px;
-    content: '\f123';
-    font-size: 12px;
+    content: '\\e827';
+    font-size: 10px;
     display: inline-block;
-    font-family: 'Ionicons';
+    font-family: 'erxes';
     speak: none;
+    color: ${colors.colorCoreGray};
     font-style: normal;
     font-weight: normal;
     font-variant: normal;
@@ -83,6 +91,8 @@ const SelectWrapper = styled.div`
 `;
 
 const Select = Input.withComponent('select').extend`
+  ${formInvalid}
+
   border: none;
   height: ${textInputHeight};
   padding: 0 ${dimensions.unitSpacing}px;
@@ -90,8 +100,11 @@ const Select = Input.withComponent('select').extend`
   -webkit-appearance: none;
 `;
 
-const Textarea = Input.withComponent('textarea').extend`
-	height: 80px;
+const TextArea = Input.withComponent('textarea').extend`
+  ${formInvalid}
+  transition: none;
+  max-height: ${props => props.maxHeight && `${props.maxHeight}px`};
+  min-height: 80px;
 `;
 
 const FormLabel = styled.label`
@@ -106,7 +119,7 @@ const FormLabel = styled.label`
 `;
 
 const inputStyle = styled.input`
-  border: 0 !important;
+  ${formInvalid} border: 0 !important;
   clip: rect(1px, 1px, 1px, 1px) !important;
   clip-path: inset(50%) !important;
   height: 1px !important;
@@ -166,10 +179,10 @@ const inputStyle = styled.input`
       background-color: ${colors.colorWhite};
       position: absolute;
       top: 56%;
-      left: calc(${inputPadding} + ${inputBorderWidth} + ${inputScale}/2);
+      left: calc(${inputPadding} + ${inputBorderWidth} + ${inputScale} / 2);
       width: calc(${inputHeight} - ${inputScale});
       height: calc(${inputHeight} - ${inputScale});
-      margin-top: calc((${inputHeight} - ${inputScale})/-2);
+      margin-top: calc((${inputHeight} - ${inputScale}) / -2);
       transform: scale(0);
       transform-origin: 51%;
       transition: transform 200ms ease-out;
@@ -259,7 +272,7 @@ export {
   Input,
   SelectWrapper,
   Select,
-  Textarea,
+  TextArea,
   Radio,
   Checkbox,
   FormLabel,

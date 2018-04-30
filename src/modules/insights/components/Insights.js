@@ -22,7 +22,7 @@ class Insights extends React.Component {
     const width = (wrapperWidth || 400) * 0.5;
     const height = width * 0.5;
 
-    const COLORS = ['#A389D4', '#F5C22B', '#1dcaff', '#3B5998', '#ccc'];
+    const COLORS = ['#A389D4', '#F7CE53', '#1dcaff', '#3B5998', '#ccc'];
     const classNames = ['default', 'form', 'twitter', 'facebook', 'primary'];
 
     const RADIAN = Math.PI / 180;

@@ -14,6 +14,10 @@ const propTypes = {
   clear: PropTypes.func.isRequired
 };
 
+const contextTypes = {
+  __: PropTypes.func
+};
+
 class AssignBox extends Component {
   constructor(props) {
     super(props);
@@ -95,10 +99,11 @@ class AssignBox extends Component {
 
   render() {
     const { event, className } = this.props;
+    const { __ } = this.context;
 
     const links = [
       {
-        title: 'Remove assignee',
+        title: __('Remove assignee'),
         href: '#',
         onClick: this.removeAssignee
       }
@@ -117,5 +122,6 @@ class AssignBox extends Component {
 }
 
 AssignBox.propTypes = propTypes;
+AssignBox.contextTypes = contextTypes;
 
 export default AssignBox;

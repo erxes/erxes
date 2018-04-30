@@ -38,7 +38,6 @@ const routes = () => [
 
   <Route
     key="/service/oauth/twitter_callback"
-    exact
     path="/service/oauth/twitter_callback"
     component={({ history, location }) => {
       const queryParams = queryString.parse(location.search);

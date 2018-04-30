@@ -28,10 +28,15 @@ class FacebookContainer extends Component {
           appId
         }
       })
+
       .then(({ data, loading }) => {
         if (!loading) {
           this.setState({ pages: data.integrationFacebookPagesList });
         }
+      })
+
+      .catch(error => {
+        Alert.error(error.message);
       });
   }
 

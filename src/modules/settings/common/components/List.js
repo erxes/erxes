@@ -43,7 +43,7 @@ class List extends Component {
     const { totalCount, save, loading } = this.props;
 
     const trigger = (
-      <Button btnStyle="success" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         {this.title}
       </Button>
     );
