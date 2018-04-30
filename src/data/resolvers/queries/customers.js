@@ -138,7 +138,7 @@ const customerQueries = {
   /**
    * Export customers to xls file
    * @param {Object} args - Query params
-   * @return {String} ffile url
+   * @return {String} File url
    */
   async customersExport(root, params) {
     const qb = new BuildQuery(params);

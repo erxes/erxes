@@ -185,24 +185,41 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
   });
 };
 
+/**
+ * Receive and saves xls file in private/xlsImports folder
+ * and imports customers to the database
+ * @param {Object} file - File data to save
+ *
+ * @return {String} File name
+*/
 export const importXlsFile = async file => {
   const readStream = fs.createReadStream(file.path);
 
+  // Directory to save file
   const downloadDir = `${__dirname}/../private/xlsImports/${file.name}`;
 
+  // Creating streams
   const writeStream = fs.createWriteStream(downloadDir);
   const pipe = readStream.pipe(writeStream);
 
+  // After finished saving hook
   pipe.on('finish', async () => {
+    // After finished saving instantly create and load workbook from xls
     const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
 
+    // Importing customers
     await importCustomers(workbook.sheet(0));
   });
 
   return file.name;
 };
 
+/**
+ * Read customers from xls file and save into database
+ * @param {Object} sheet - Xls file sheet
+*/
 const importCustomers = async sheet => {
+  // Getting all used rows on the sheet
   const rows = sheet.usedRange().value();
   const customers = [];
 
@@ -224,12 +241,20 @@ const importCustomers = async sheet => {
     customers.push(customer);
   });
 
+  // Saving customers into database
   for (let customer of customers) {
     await Customers.createCustomer(customer);
   }
 };
 
+/**
+ * Reads default template from xls file
+ * @param {String} name - Temlpate file name
+ *
+ * @return {Object} Xls workbook and sheet
+*/
 export const readTemplate = async name => {
+  // Generating workbook on existing template
   const workbook = await xlsxPopulate.fromFileAsync(
     `${__dirname}/../private/xlsTemplates/${name}.xlsx`,
   );
@@ -237,10 +262,19 @@ export const readTemplate = async name => {
   return { workbook, sheet: workbook.sheet(0) };
 };
 
+/**
+ * Generates downloadable xls file on the url
+ * @param {Object} workbook - Xls file workbook
+ * @param {String} name - Xls file name
+ *
+ * @return {String} Url to download xls file
+*/
 export const generateXlsx = async (workbook, name) => {
+  // Url to download xls file
   const url = `xlsTemplateOutputs/${name}.xlsx`;
   const { DOMAIN } = process.env;
 
+  // Saving xls workbook to the directory
   await workbook.toFileAsync(`${__dirname}/../private/${url}`);
 
   return `${DOMAIN}:3300/static/${url}`;
