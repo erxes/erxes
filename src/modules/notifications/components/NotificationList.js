@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'underscore';
 import Sidebar from 'modules/settings/Sidebar';
 import { Button, Pagination } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
@@ -21,7 +20,7 @@ class NotificationList extends Component {
 
     const { bulk } = this.state;
 
-    _.each(this.props.notifications, notification => {
+    this.props.notifications.forEach(notification => {
       if (!notification.isRead) {
         bulk.push(notification._id);
       }

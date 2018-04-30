@@ -4,7 +4,6 @@
 
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import _ from 'underscore';
 import strip from 'strip';
 import PropTypes from 'prop-types';
 import { Popover, OverlayTrigger } from 'react-bootstrap';
@@ -86,7 +85,7 @@ class ResponseTemplate extends Component {
     const responseTemplates = this.props.responseTemplates;
 
     // find response template using event key
-    const responseTemplate = _.find(responseTemplates, t => t._id === eventKey);
+    const responseTemplate = responseTemplates.find(t => t._id === eventKey);
 
     // hide selector
     this.refs.overlay.hide();
@@ -100,8 +99,7 @@ class ResponseTemplate extends Component {
   }
 
   filterByBrand(brandId) {
-    return _.filter(
-      this.props.responseTemplates,
+    return this.props.responseTemplates.filter(
       option => option.brandId === brandId
     );
   }
