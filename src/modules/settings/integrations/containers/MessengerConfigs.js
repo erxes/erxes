@@ -49,7 +49,7 @@ MessengerConfigsContainer.propTypes = {
 export default compose(
   graphql(
     gql`
-      query objects {
+      query users {
         users {
           _id
           details {
