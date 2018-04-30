@@ -17,7 +17,7 @@ import {
   DataWithLoader,
   DateFilter
 } from 'modules/common/components';
-import { router, confirm, Alert } from 'modules/common/utils';
+import { router, confirm, Alert, uploadHandler } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
@@ -87,11 +87,32 @@ class CustomersList extends React.Component {
         variables: { ...queryParams }
       })
       .then(({ data }) => {
-        console.log(data);
+        const myWindow = window.open(data.customersExport, '_blank');
+
+        setTimeout(() => {
+          myWindow.close();
+        }, 1000);
       })
       .catch(error => {
         Alert.error(error.message);
       });
+  }
+
+  handleXlsUpload(e) {
+    const xlsFile = e.target.files[0];
+
+    uploadHandler({
+      type: 'import',
+      file: xlsFile,
+
+      beforeUpload: () => {},
+
+      afterUpload: () => {},
+
+      afterRead: ({ result }) => {
+        console.log(result);
+      }
+    });
   }
 
   renderContent() {
@@ -184,6 +205,7 @@ class CustomersList extends React.Component {
         />
 
         {dateFilter}
+        <FormControl type="file" onChange={this.handleXlsUpload} />
         <Button
           onClick={() => this.exportCustomers()}
           btnStyle="simple"

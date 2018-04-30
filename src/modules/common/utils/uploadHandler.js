@@ -7,11 +7,16 @@ const uploadHandler = params => {
     afterUpload,
 
     // for preview purpose
-    afterRead
+    afterRead,
+    type
   } = params;
 
   const { REACT_APP_API_URL } = process.env;
-  const url = `${REACT_APP_API_URL}/upload-file`;
+  let url = `${REACT_APP_API_URL}/upload-file`;
+
+  if (type === 'import') {
+    url = `${REACT_APP_API_URL}/import-file`;
+  }
 
   // initiate upload file reader
   const uploadReader = new FileReader();
