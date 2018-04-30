@@ -78,6 +78,7 @@
     "precommit": "lint-staged",
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "compress": "gzip -r build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "storybook": "start-storybook -p 9009 -s public",
