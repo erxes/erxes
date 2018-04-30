@@ -1,13 +1,5 @@
-import VolumeReport from './VolumeReport';
-import ResponseReport from './ResponseReport';
-import FirstResponse from './FirstResponse';
-import ResponseCloseReport from './ResponseCloseReport';
+import VolumeAndReponseReport from './VolumeAndReponseReport';
+import FirstAndCloseResponseReport from './FirstAndCloseResponseReport';
 import Reports from './Reports';
 
-export {
-  VolumeReport,
-  ResponseReport,
-  FirstResponse,
-  ResponseCloseReport,
-  Reports
-};
+export { VolumeAndReponseReport, FirstAndCloseResponseReport, Reports };

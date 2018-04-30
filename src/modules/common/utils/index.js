@@ -43,6 +43,12 @@ const reorder = (list, startIndex, endIndex) => {
   return result;
 };
 
+const generateRandomColorCode = () => {
+  return `#${Math.random()
+    .toString(16)
+    .slice(2, 8)}`;
+};
+
 export {
   Alert,
   uploadHandler,
@@ -57,5 +63,6 @@ export {
   searchCompany,
   searchUser,
   searchCustomer,
-  reorder
+  reorder,
+  generateRandomColorCode
 };
