@@ -21,6 +21,7 @@ class Configs extends Component {
     super(props);
 
     const { prevOptions, teamMembers } = props;
+
     const {
       notifyCustomer,
       availabilityMethod,
@@ -42,7 +43,7 @@ class Configs extends Component {
       availabilityMethod: availabilityMethod || 'manual',
       isOnline: isOnline || false,
       timezone: timezone || '',
-      onlineHours: onlineHours || [],
+      onlineHours: (onlineHours || []).map(h => ({ _id: Math.random(), ...h })),
       welcomeMessage: welcomeMessage || '',
       awayMessage: awayMessage || '',
       thankYouMessage: thankYouMessage || '',
@@ -111,7 +112,7 @@ class Configs extends Component {
 
     return (
       <OnlineHours
-        prevOptions={this.props.prevOptions.onlineHours}
+        prevOptions={this.state.onlineHours}
         onChange={this.onOnlineHoursChange}
       />
     );
@@ -143,6 +144,7 @@ class Configs extends Component {
 
   render() {
     const { __ } = this.context;
+
     const content = (
       <ContentBox>
         <Row>
