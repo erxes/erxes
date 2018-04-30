@@ -1,6 +1,7 @@
 export const types = `
   type InsightData {
-    name: String
+    id: String
+    label: String
     value: Int
   }
 `;

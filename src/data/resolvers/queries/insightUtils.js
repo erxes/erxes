@@ -23,6 +23,15 @@ export const generateMessageSelector = async (
     const integrationIds = await Integrations.find(integrationSelector).select('_id');
     const conversationIds = await Conversations.find({
       ...conversationSelector,
+      $or: [
+        {
+          userId: { $exists: true },
+          messageCount: { $gt: 1 },
+        },
+        {
+          userId: { $exists: false },
+        },
+      ],
       integrationId: { $in: integrationIds },
     }).select('_id');
 
@@ -55,7 +64,7 @@ export const generateMessageSelector = async (
  * @return {[Object]} Chart data
  */
 export const generateChartData = (collection, loopCount, duration, startTime) => {
-  const results = [];
+  const results = [{ x: formatTime(moment(startTime), 'YYYY-MM-DD'), y: 0 }];
   let begin = 0;
   let end = 0;
   let count = 0;
@@ -67,13 +76,13 @@ export const generateChartData = (collection, loopCount, duration, startTime) =>
   for (let i = 0; i < loopCount; i++) {
     end = startTime + divider * (i + 1);
     begin = end - divider;
-    dateText = moment(begin).format('YYYY-MM-DD');
+    dateText = formatTime(moment(end), 'YYYY-MM-DD');
 
     // messages count between begin and end time.
     count = collection.filter(message => begin < message.createdAt && message.createdAt < end)
       .length;
 
-    results.push({ name: dateText, count });
+    results.push({ x: dateText, y: count });
   }
 
   return results;
@@ -141,7 +150,7 @@ export const generateTimeIntervals = (start, end) => {
  */
 export const generateUserChartData = async ({ userId, userMessages, duration, startTime }) => {
   const user = await Users.findOne({ _id: userId });
-  const userData = generateChartData(userMessages, 5, duration, startTime);
+  const userData = generateChartData(userMessages, 7, duration, startTime);
 
   if (!user) {
     return {
@@ -158,8 +167,8 @@ export const generateUserChartData = async ({ userId, userMessages, duration, st
   };
 };
 
-export const formatTime = time => {
-  return time.format('YYYY-MM-DD HH:mm:ss');
+export const formatTime = (time, format = 'YYYY-MM-DD HH:mm:ss') => {
+  return time.format(format);
 };
 
 export const getTime = time => {
@@ -184,8 +193,7 @@ export const fixDates = (startValue, endValue) => {
   // convert given value or get today
   const endDate = fixDate(endValue);
 
-  const year = moment(endDate).year();
-  const startDateDefaultValue = moment(endDate).year(year - 1);
+  const startDateDefaultValue = moment(endDate).add(-7, 'days');
 
   // convert given value or generate from endDate
   const startDate = fixDate(startValue, startDateDefaultValue);
@@ -236,7 +244,7 @@ export const generateResponseData = async (
   startTime,
 ) => {
   // preparing trend chart data
-  const trend = generateChartData(responsData, 10, duration, startTime);
+  const trend = generateChartData(responsData, 7, duration, startTime);
 
   // Average response time for all messages
   const time = parseInt(allResponseTime / responsData.length);

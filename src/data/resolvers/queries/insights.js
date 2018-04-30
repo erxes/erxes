@@ -45,14 +45,23 @@ const insightQueries = {
       );
 
       insights.push({
-        name: kind,
+        id: kind,
+        label: kind,
 
         // find conversation counts of given integrations
-        value: await Conversations.find({
-          messageCount: { $ne: null },
+        value: await Conversations.count({
           createdAt: { $gte: start, $lte: end },
           integrationId: { $in: integrationIds },
-        }).count(),
+          $or: [
+            {
+              userId: { $exists: true },
+              messageCount: { $gt: 1 },
+            },
+            {
+              userId: { $exists: false },
+            },
+          ],
+        }),
       });
     }
 
@@ -147,7 +156,7 @@ const insightQueries = {
     const insightData = {
       teamMembers: [],
       summary: [],
-      trend: generateChartData(messages, 10, duration, startTime),
+      trend: generateChartData(messages, 7, duration, startTime),
     };
 
     if (type === 'response') {
@@ -197,7 +206,7 @@ const insightQueries = {
             startTime,
           }),
 
-          time: responseTime > 0 ? parseInt(responseTime / count) : null,
+          time: Math.abs(parseInt(responseTime / count)),
         });
       }
     }
@@ -213,7 +222,7 @@ const insightQueries = {
 
       insightData.summary.push({
         title: summary.title,
-        count: await ConversationMessages.find(messageSelector).count(),
+        count: await ConversationMessages.count(messageSelector),
       });
     }
 
@@ -282,7 +291,7 @@ const insightQueries = {
       // checking wheter or not this is actual conversation
       if (userMessage && clientMessage) {
         responseTime = getTime(userMessage.createdAt) - getTime(clientMessage.createdAt);
-        responseTime = parseInt(responseTime / 1000);
+        responseTime = Math.abs(parseInt(responseTime / 1000));
 
         const userId = userMessage.userId;
 
