@@ -4,6 +4,9 @@ body {
 }
 
 .erxes-widget {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
   font-size: $font-size;
   -moz-osx-font-smoothing: grayscale;
@@ -11,6 +14,7 @@ body {
   line-height: 1.5;
   margin: 0;
 
+  
   button,
   input,
   textarea {

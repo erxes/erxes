@@ -50,6 +50,7 @@
 .erxes-staff-profile {
   line-height: 1.3em;
   margin-top: 15px;
+  position: relative;
   text-align: left;
 
   img {
@@ -73,23 +74,25 @@
     font-size: 13px;
     font-weight: 300;
   }
+}
 
-  .erxes-state {
-    > span {
-      border-radius: $border-radius;
-      display: inline-block;
-      height: 8px;
-      margin-bottom: 1px;
-      width: 8px;
-    }
+.erxes-state {
+  font-size: 11px;
 
-    &.online span {
-      background-color: $green;
-    }
+  > span {
+    border-radius: $border-radius;
+    display: inline-block;
+    height: 8px;
+    margin-bottom: 1px;
+    width: 8px;
+  }
 
-    &.offline span {
-      background-color: $border-color;
-    }
+  &.online span {
+    background-color: $green;
+  }
+
+  &.offline span {
+    background-color: $border-color;
   }
 }
 

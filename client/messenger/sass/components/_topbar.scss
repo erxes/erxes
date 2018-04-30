@@ -1,0 +1,106 @@
+.erxes-topbar {
+  min-height: 70px;
+
+  .erxes-staffs {
+    display: none;
+  }
+
+  &.expanded {
+    height: auto;
+
+    .erxes-avatars {
+      display: none;
+    }
+
+    .erxes-staffs {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .erxes-middle {
+      display: block;
+    }
+
+    .erxes-staff-profile {
+      flex: 1;
+      flex-shrink: 0;
+      margin: 15px 0;
+      text-align: center;
+
+      img {
+        float: none;
+      }
+    }
+
+    .erxes-staff-name {
+      font-size: 13px;
+      font-weight: normal;
+      margin: 0;
+    }
+
+    .erxes-staff-company {
+      height: 8px;
+      left: calc(50% + 10px);
+      line-height: 8px;
+      margin: 0;
+      overflow: hidden;
+      position: absolute;
+      top: 30px;
+      width: 8px;
+    }
+  }
+
+  .erxes-middle {
+    @include prefix((
+      transition: background .3s ease-in-out
+    ), webkit moz ms o);
+    margin: 0 70px;
+    min-height: 100%;
+    padding: 0 15px;
+
+    &:hover {
+      background: rgba($black, .1);
+      cursor: pointer;
+    }
+  }
+}
+
+.erxes-avatars {
+  margin: 15px 0;
+  overflow: hidden;
+  text-align: left;
+
+  .erxes-avatars-wrapper {
+    float: left;
+    margin-right: 10px;
+
+    img {
+      border: 2px solid $main-color;
+      border-radius: $core-spacing;
+      display: inline-block;
+      height: ($core-spacing * 2) - 4;
+      position: relative;
+      width: ($core-spacing * 2) - 4;
+
+      &:last-of-type {
+        margin-left: -15px;
+      }
+  
+      &:first-of-type {
+        margin: 0;
+        z-index: 2;
+      }
+    }
+  }
+
+  .erxers-names-wrapper {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 3px;
+    max-height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+  }
+}

@@ -15,10 +15,10 @@ const propTypes = {
 function Messenger({ activeRoute, color }) {
   switch (activeRoute) {
     case 'conversationDetail':
-      return <ConversationDetail />;
+      return <ConversationDetail color={color} />;
 
     case 'conversationCreate':
-      return <ConversationCreate isNew />;
+      return <ConversationCreate isNew color={color} />;
 
     case 'conversationList':
       return <ConversationList />;
