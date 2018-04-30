@@ -61,7 +61,7 @@ const channelMutations = {
    * @return {Promise} return Promise resolving the updated Channel document
    */
   async channelsEdit(root, { _id, ...doc }) {
-    const channel = Channels.updateChannel(_id, doc);
+    const channel = await Channels.updateChannel(_id, doc);
 
     await sendChannelNotifications(channel);
 

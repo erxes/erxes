@@ -23,12 +23,12 @@ describe('test activityLogsCronJob', () => {
         type: 'string',
         dateUnit: 'days',
         value: 'John Smith',
-        operator: 'e',
-        field: 'name',
+        operator: 'c',
+        field: 'firstName',
       },
     ];
 
-    const customer = await customerFactory({ name: 'john smith' });
+    const customer = await customerFactory({ firstName: 'john smith' });
     const segment = await segmentFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       conditions: nameEqualsConditions,
@@ -62,12 +62,12 @@ describe('test activityLogsCronJob', () => {
         type: 'string',
         dateUnit: 'days',
         value: 'jane smith',
-        operator: 'e',
-        field: 'name',
+        operator: 'c',
+        field: 'firstName',
       },
     ];
 
-    await customerFactory({ name: 'jane smith' });
+    await customerFactory({ firstName: 'jane smith' });
     await segmentFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       conditions: nameEqualsConditions2,

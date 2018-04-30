@@ -68,13 +68,29 @@ const userMutations = {
    * @return {Promise} - Newly created user
    */
   async usersAdd(root, args) {
-    const { username, password, passwordConfirmation, email, role, channelIds, details } = args;
+    const {
+      username,
+      password,
+      passwordConfirmation,
+      email,
+      role,
+      channelIds,
+      details,
+      links,
+    } = args;
 
     if (password !== passwordConfirmation) {
       throw new Error('Incorrect password confirmation');
     }
 
-    const createdUser = await Users.createUser({ username, password, email, role, details });
+    const createdUser = await Users.createUser({
+      username,
+      password,
+      email,
+      role,
+      details,
+      links,
+    });
 
     // add new user to channels
     await Channels.updateUserChannels(channelIds, createdUser._id);
@@ -113,6 +129,7 @@ const userMutations = {
       role,
       channelIds,
       details,
+      links,
     } = args;
 
     if (password && password !== passwordConfirmation) {
@@ -120,7 +137,14 @@ const userMutations = {
     }
 
     // TODO check isOwner
-    const updatedUser = await Users.updateUser(_id, { username, password, email, role, details });
+    const updatedUser = await Users.updateUser(_id, {
+      username,
+      password,
+      email,
+      role,
+      details,
+      links,
+    });
 
     // add new user to channels
     await Channels.updateUserChannels(channelIds, _id);
@@ -133,7 +157,7 @@ const userMutations = {
    * @param {Object} args - User profile doc
    * @return {Promise} - Updated user
    */
-  async usersEditProfile(root, { username, email, password, details }, { user }) {
+  async usersEditProfile(root, { username, email, password, details, links }, { user }) {
     const userOnDb = await Users.findOne({ _id: user._id });
     const valid = await Users.comparePassword(password, userOnDb.password);
 
@@ -142,7 +166,7 @@ const userMutations = {
       throw new Error('Invalid password');
     }
 
-    return Users.editProfile(user._id, { username, email, details });
+    return Users.editProfile(user._id, { username, email, details, links });
   },
 
   /*

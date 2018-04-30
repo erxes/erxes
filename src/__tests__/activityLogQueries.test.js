@@ -5,7 +5,7 @@ import { connect, disconnect } from '../db/connection';
 import { COC_CONTENT_TYPES } from '../data/constants';
 import mutations from '../data/resolvers/mutations';
 import { userFactory, segmentFactory, conversationFactory, customerFactory } from '../db/factories';
-import { ActivityLogs } from '../db/models';
+import { ActivityLogs, Customers, Segments } from '../db/models';
 import schema from '../data';
 import cronJobs from '../cronJobs';
 
@@ -23,8 +23,10 @@ describe('activityLogs', () => {
     _conversation = await conversationFactory({});
   });
 
-  afterEach(() => {
-    return ActivityLogs.remove({});
+  afterEach(async () => {
+    await ActivityLogs.remove({});
+    await Customers.remove({});
+    await Segments.remove({});
   });
 
   test('customerActivityLog', async () => {
@@ -32,18 +34,22 @@ describe('activityLogs', () => {
     const customer = await mutations.customersAdd(
       null,
       {
-        name: 'test user',
+        firstName: 'firstName',
         email: 'test@test.test',
         phone: '123456789',
       },
       { user: _user },
     );
 
+    expect(await ActivityLogs.find({}).count()).toBe(1);
+
     // create conversation
     await mutations.activityLogsAddConversationLog(null, {
       customerId: customer._id,
       conversationId: _conversation._id,
     });
+
+    expect(await ActivityLogs.find({}).count()).toBe(2);
 
     // create internal note
     const internalNote = await mutations.internalNotesAdd(
@@ -56,13 +62,15 @@ describe('activityLogs', () => {
       { user: _user },
     );
 
+    expect(await ActivityLogs.find({}).count()).toBe(3);
+
     const nameEqualsConditions = [
       {
         type: 'string',
         dateUnit: 'days',
-        value: 'Test user',
-        operator: 'e',
-        field: 'name',
+        value: 'firstName',
+        operator: 'c',
+        field: 'firstName',
       },
     ];
 
@@ -73,6 +81,8 @@ describe('activityLogs', () => {
 
     // create segment log
     await cronJobs.createActivityLogsFromSegments();
+
+    expect(await ActivityLogs.find({}).count()).toBe(4);
 
     const query = `
       query activityLogsCustomer($_id: String!) {
@@ -108,21 +118,21 @@ describe('activityLogs', () => {
     let logs = result.data.activityLogsCustomer;
 
     // test values ==============
-    expect(logs[0].list[0].id).toBe(segment._id);
     expect(logs[0].list[0].action).toBe('segment-create');
+    expect(logs[0].list[0].id).toBe(segment._id);
     expect(logs[0].list[0].content).toBe(segment.name);
 
-    expect(logs[0].list[1].id).toBe(internalNote._id);
     expect(logs[0].list[1].action).toBe('internal_note-create');
+    expect(logs[0].list[1].id).toBe(internalNote._id);
     expect(logs[0].list[1].content).toBe(internalNote.content);
 
-    expect(logs[0].list[2].id).toBe(_conversation._id);
     expect(logs[0].list[2].action).toBe('conversation-create');
+    expect(logs[0].list[2].id).toBe(_conversation._id);
     expect(logs[0].list[2].content).toBe(_conversation.content);
 
-    expect(logs[0].list[3].id).toBe(customer._id);
     expect(logs[0].list[3].action).toBe('customer-create');
-    expect(logs[0].list[3].content).toBe(customer.name);
+    expect(logs[0].list[3].id).toBe(customer._id);
+    expect(logs[0].list[3].content).toBe(`${customer.firstName || ''} ${customer.lastName || ''}`);
 
     // change activity log 'createdAt' values ===================
     await ActivityLogs.update(
@@ -202,7 +212,9 @@ describe('activityLogs', () => {
 
     expect(logs[yearMonthLength - 1].list[februaryLogLength - 2].id).toBe(customer._id);
     expect(logs[yearMonthLength - 1].list[februaryLogLength - 2].action).toBe('customer-create');
-    expect(logs[yearMonthLength - 1].list[februaryLogLength - 2].content).toBe(customer.name);
+    expect(logs[yearMonthLength - 1].list[februaryLogLength - 2].content).toBe(
+      customer.getFullName(),
+    );
   });
 
   test('companyActivityLog', async () => {

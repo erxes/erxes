@@ -8,4 +8,8 @@ export default {
   categories(topic) {
     return KnowledgeBaseCategories.find({ _id: { $in: topic.categoryIds } });
   },
+
+  color(topic) {
+    return topic.color ? topic.color : '';
+  },
 };

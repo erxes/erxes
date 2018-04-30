@@ -1,20 +1,58 @@
 /* eslint-env jest */
 
-import responseTemplateQueries from '../data/resolvers/queries/responseTemplates';
+import { ResponseTemplates } from '../db/models';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { responseTemplateFactory } from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
 
 describe('responseTemplateQueries', () => {
-  test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(2);
+  afterEach(async () => {
+    // Clearing test data
+    await ResponseTemplates.remove({});
+  });
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, {});
-      } catch (e) {
-        expect(e.message).toBe('Login required');
+  test('Response templates', async () => {
+    // Creating test data
+    await responseTemplateFactory();
+    await responseTemplateFactory();
+    await responseTemplateFactory();
+
+    const qry = `
+      query responseTemplates($page: Int $perPage: Int) {
+        responseTemplates(page: $page perPage: $perPage) {
+          _id
+          name
+          brandId
+          content
+
+          brand { _id }
+          files
+        }
       }
-    };
+    `;
 
-    expectError(responseTemplateQueries.responseTemplates);
-    expectError(responseTemplateQueries.responseTemplatesTotalCount);
+    const response = await graphqlRequest(qry, 'responseTemplates', { page: 1, perPage: 2 });
+
+    expect(response.length).toBe(2);
+  });
+
+  test('Get total count of response template', async () => {
+    // Creating test data
+    await responseTemplateFactory();
+    await responseTemplateFactory();
+    await responseTemplateFactory();
+
+    const qry = `
+      query responseTemplatesTotalCount {
+        responseTemplatesTotalCount
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'responseTemplatesTotalCount');
+
+    expect(response).toBe(3);
   });
 });

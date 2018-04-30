@@ -3,19 +3,39 @@ export const types = `
     avatar: String
     fullName: String
     position: String
-    twitterUsername: String
+    location: String
+    description: String
+  }
+
+  input UserLinks {
+    linkedIn: String
+    twitter: String
+    facebook: String
+    youtube: String
+    github: String
+    website: String
+  }
+
+  input EmailSignature {
+    brandId: String
+    signature: String
   }
 
   type UserDetailsType {
     avatar: String
     fullName: String
     position: String
-    twitterUsername: String
+    location: String
+    description: String
   }
 
-  input EmailSignature {
-    brandId: String
-    signature: String
+  type UserLinksType {
+    linkedIn: String
+    twitter: String
+    facebook: String
+    github: String
+    youtube: String
+    website: String
   }
 
   type User {
@@ -24,6 +44,7 @@ export const types = `
     email: String
     role: String
     details: UserDetailsType
+    links: UserLinksType
     emailSignatures: JSON
     getNotificationByEmail: Boolean
   }
@@ -32,13 +53,19 @@ export const types = `
     token: String!
     refreshToken: String!
   }
+
+  type UserConversationListResponse {
+    list: [Conversation],
+    totalCount: Float,
+  }
 `;
 
 export const queries = `
-  users(page: Int, perPage: Int): [User]
+  users(page: Int, perPage: Int, searchValue: String): [User]
   userDetail(_id: String): User
   usersTotalCount: Int
   currentUser: User
+  userConversations(_id: String, perPage: Int): UserConversationListResponse
 `;
 
 const commonParams = `
@@ -46,6 +73,7 @@ const commonParams = `
   email: String!,
   role: String!
   details: UserDetails,
+  links: UserLinks,
   channelIds: [String],
   password: String!,
   passwordConfirmation: String!
@@ -62,6 +90,7 @@ export const mutations = `
     username: String!,
     email: String!,
     details: UserDetails,
+    links: UserLinks
     password: String!
   ): User
 

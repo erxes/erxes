@@ -29,7 +29,7 @@ const generateDoc = () => ({
   name: 'name',
   website: 'http://company.com',
   size: 1,
-  industry: 'industry',
+  industry: 'Airlines',
   plan: 'pro',
 });
 
@@ -215,7 +215,7 @@ describe('Companies model tests', () => {
       name: 'Test name',
       website: 'Test webiste',
       size: 230,
-      industry: 'Test industry',
+      industry: 'Airlines',
       plan: 'Test plan',
     };
 

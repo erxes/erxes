@@ -2,8 +2,8 @@
 
 import sinon from 'sinon';
 import { connect, disconnect } from '../../db/connection';
-import { SaveWebhookResponse } from '../../social/facebook';
-import { graphRequest } from '../../social/facebookTracker';
+import { SaveWebhookResponse } from '../../trackers/facebook';
+import { graphRequest } from '../../trackers/facebookTracker';
 import { ActivityLogs, Conversations, Customers, ConversationMessages } from '../../db/models';
 import { integrationFactory } from '../../db/factories';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
@@ -138,6 +138,7 @@ describe('facebook integration: save webhook response', () => {
     expect(conversation.facebookData.pageId).toBe(pageId);
 
     // check customer field values
+    expect(customer.createdAt).toBeDefined();
     expect(customer.integrationId).toBe(integration._id);
     expect(customer.firstName).toBe('Dombo Gombo'); // from mocked get info above
     expect(customer.facebookData.id).toBe(senderId);
@@ -195,6 +196,7 @@ describe('facebook integration: save webhook response', () => {
     expect(newMessage.customerId).toBe(customer._id);
     expect(newMessage.internal).toBe(false);
     expect(newMessage.content).toBe(messageText);
+    expect(newMessage.content).toBe(conversation.content);
 
     // receiving already saved info ========================
     saveWebhookResponse.data = {

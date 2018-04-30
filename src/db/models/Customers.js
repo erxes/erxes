@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { CUSTOMER_LEAD_STATUS_TYPES, CUSTOMER_LIFECYCLE_STATE_TYPES } from '../../data/constants';
 import { Fields, Companies, ActivityLogs, Conversations, InternalNotes, EngageMessages } from './';
 import { field } from './utils';
 
@@ -31,15 +32,15 @@ const messengerSchema = mongoose.Schema(
   {
     lastSeenAt: field({
       type: Date,
-      label: 'Messenger: Last online',
+      label: 'Last seen at',
     }),
     sessionCount: field({
       type: Number,
-      label: 'Messenger: Session count',
+      label: 'Session count',
     }),
     isActive: field({
       type: Boolean,
-      label: 'Messenger: Is online',
+      label: 'Is online',
     }),
     customData: field({
       type: Object,
@@ -50,30 +51,18 @@ const messengerSchema = mongoose.Schema(
 );
 
 /*
- * twitter schema
+ * Twitter schema
+ * Saving fields with underscores because, we want to store it exactly
+ * like twitter response so that we can use it in findParentTweets helper to
+ * not send extra request to twitter
  */
 const twitterSchema = mongoose.Schema(
   {
-    id: field({
-      type: Number,
-      label: 'Twitter: ID (Number)',
-    }),
-    idStr: field({
-      type: String,
-      label: 'Twitter: ID (String)',
-    }),
-    name: field({
-      type: String,
-      label: 'Twitter: Name',
-    }),
-    screenName: field({
-      type: String,
-      label: 'Twitter: Screen name',
-    }),
-    profileImageUrl: field({
-      type: String,
-      label: 'Twitter: Profile photo',
-    }),
+    id: field({ type: Number, label: 'Twitter ID (Number)' }),
+    id_str: field({ type: String, label: 'Twitter ID' }),
+    name: field({ type: String, label: 'Twitter name' }),
+    screen_name: field({ type: String, label: 'Twitter screen name' }),
+    profile_image_url: field({ type: String, label: 'Twitter photo' }),
   },
   { _id: false },
 );
@@ -85,13 +74,25 @@ const facebookSchema = mongoose.Schema(
   {
     id: field({
       type: String,
-      label: 'Facebook: ID',
+      label: 'Facebook ID',
     }),
     profilePic: field({
       type: String,
       optional: true,
-      label: 'Facebook: Profile photo',
+      label: 'Facebook photo',
     }),
+  },
+  { _id: false },
+);
+
+const LinkSchema = mongoose.Schema(
+  {
+    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
+    twitter: field({ type: String, optional: true, label: 'Twitter' }),
+    facebook: field({ type: String, optional: true, label: 'Facebook' }),
+    github: field({ type: String, optional: true, label: 'Github' }),
+    youtube: field({ type: String, optional: true, label: 'Youtube' }),
+    website: field({ type: String, optional: true, label: 'Website' }),
   },
   { _id: false },
 );
@@ -99,11 +100,34 @@ const facebookSchema = mongoose.Schema(
 const CustomerSchema = mongoose.Schema({
   _id: field({ pkey: true }),
 
-  name: field({ type: String, optional: true }),
   firstName: field({ type: String, label: 'First name', optional: true }),
   lastName: field({ type: String, label: 'Last name', optional: true }),
   email: field({ type: String, label: 'Email', optional: true }),
   phone: field({ type: String, label: 'Phone', optional: true }),
+
+  ownerId: field({ type: String, optional: true }),
+  position: field({ type: String, optional: true, label: 'Position' }),
+  department: field({ type: String, optional: true, label: 'Department' }),
+
+  leadStatus: field({
+    type: String,
+    enum: CUSTOMER_LEAD_STATUS_TYPES,
+    optional: true,
+    label: 'Lead Status',
+  }),
+
+  lifecycleState: field({
+    type: String,
+    enum: CUSTOMER_LIFECYCLE_STATE_TYPES,
+    optional: true,
+    label: 'Lifecycle State',
+  }),
+
+  hasAuthority: field({ type: String, optional: true, label: 'Has authority' }),
+  description: field({ type: String, optional: true, label: 'Description' }),
+  doNotDisturb: field({ type: String, optional: true, label: 'Do not disturb' }),
+  links: field({ type: LinkSchema, default: {} }),
+
   isUser: field({ type: Boolean, label: 'Is user', optional: true }),
   createdAt: field({ type: Date, label: 'Created at' }),
 
@@ -124,6 +148,10 @@ const CustomerSchema = mongoose.Schema({
 });
 
 class Customer {
+  getFullName() {
+    return `${this.firstName || ''} ${this.lastName || ''}`;
+  }
+
   /**
    * Checking if customer has duplicated unique properties
    * @param  {Object} customerFields - Customer fields to check duplications
@@ -145,8 +173,7 @@ class Customer {
 
     // Checking if customer has email
     if (customerFields.email) {
-      query.email = customerFields.email;
-      previousEntry = await this.find(query);
+      previousEntry = await this.find({ ...query, email: customerFields.email });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
@@ -154,14 +181,39 @@ class Customer {
       }
     }
 
-    // Checking if cuostomer has twitter data
+    // Checking if customer has twitter data
     if (customerFields.twitterData) {
-      query['twitterData.id'] = customerFields.twitterData.id;
-      previousEntry = await this.find(query);
+      previousEntry = await this.find({
+        ...query,
+        ['twitterData.id']: customerFields.twitterData.id,
+      });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated twitter');
+      }
+    }
+
+    // Checking if customer has phone
+    if (customerFields.phone) {
+      previousEntry = await this.find({ ...query, phone: customerFields.phone });
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated phone');
+      }
+    }
+
+    // Checking if customer has facebook data
+    if (customerFields.facebookData) {
+      previousEntry = await this.find({
+        ...query,
+        ['facebookData.id']: customerFields.facebookData.id,
+      });
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated facebook');
       }
     }
   }
@@ -178,6 +230,8 @@ class Customer {
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
 
+    doc.createdAt = new Date();
+
     return this.create(doc);
   }
 
@@ -191,8 +245,10 @@ class Customer {
     // Checking duplicated fields of customer
     await this.checkDuplication(doc, _id);
 
-    // clean custom field values
-    doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+    if (doc.customFieldsData) {
+      // clean custom field values
+      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+    }
 
     await this.update({ _id }, { $set: doc });
 

@@ -1,5 +1,5 @@
 import { Forms } from '../../../db/models';
-import { requireAdmin, requireLogin } from '../../permissions';
+import { requireAdmin } from '../../permissions';
 
 const formMutations = {
   /**
@@ -8,6 +8,9 @@ const formMutations = {
    * @param {Object} doc - Form object
    * @param {string} doc.title - Form title
    * @param {string} doc.description - Form description
+   * @param {string} doc.buttonText - Form submit button text
+   * @param {string} doc.themeColor - Form theme color
+   * @param {Object} doc.callout - Form's callout component detail
    * @param {Object} doc.user - The user who created this form
    * @return {Promise} return Promise resolving Form document
    */
@@ -22,6 +25,9 @@ const formMutations = {
    * @param {string} object2._id - Form id
    * @param {string} object2.title - Form title
    * @param {string} object2.description - Form description
+   * @param {string} object2.buttonText - Form submit button text
+   * @param {string} object2.themeColor - Form theme color
+   * @param {Object} object2.callout - Form's callout component detail
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user who is making this action
    * @return {Promise} return Promise resolving Form document
@@ -29,37 +35,9 @@ const formMutations = {
   formsEdit(root, { _id, ...doc }) {
     return Forms.updateForm(_id, doc);
   },
-
-  /**
-   * Remove a form
-   * @param {Object} root
-   * @param {string} object2 - Graphql input data
-   * @param {string} object2._id - Form id
-   * @param {Object} object3 - The middleware data
-   * @param {Object} object3.user - The user making this action
-   * @return {Promise}
-   */
-  formsRemove(root, { _id }) {
-    return Forms.removeForm(_id);
-  },
-
-  /**
-   * Duplicates the form and its fields
-   * @param {Object} root
-   * @param {Object} object2 - Graphql input data
-   * @param {string} object2._id - Form id
-   * @param {Object} object3 - Middleware data
-   * @param {Object} object3.user - The user making this action
-   * @return {Promise} return Promise resolving the new duplication Form document
-   */
-  formsDuplicate(root, { _id }) {
-    return Forms.duplicate(_id);
-  },
 };
 
 requireAdmin(formMutations, 'formsAdd');
 requireAdmin(formMutations, 'formsEdit');
-requireAdmin(formMutations, 'formsRemove');
-requireLogin(formMutations, 'formsDuplicate');
 
 export default formMutations;

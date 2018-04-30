@@ -1,16 +1,16 @@
 import { Forms } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
-import { paginate } from './utils';
-
 const formQueries = {
   /**
    * Forms list
    * @param {Object} args - Search params
+   * @param {String} args.tag - Tag id to filter
    * @return {Promise} sorted forms list
    */
-  forms(root, args) {
-    const forms = paginate(Forms.find({}), args);
-    return forms.sort({ name: 1 });
+  async forms() {
+    const forms = Forms.find({});
+
+    return forms.sort({ title: 1 });
   },
 
   /**
@@ -21,14 +21,6 @@ const formQueries = {
    */
   formDetail(root, { _id }) {
     return Forms.findOne({ _id });
-  },
-
-  /**
-   * Get all forms count. We will use it in pager
-   * @return {Promise} total count
-   */
-  formsTotalCount() {
-    return Forms.find({}).count();
   },
 };
 

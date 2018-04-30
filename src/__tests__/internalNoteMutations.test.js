@@ -1,33 +1,25 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import faker from 'faker';
-import { connect, disconnect } from '../db/connection';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { InternalNotes, Users } from '../db/models';
 import { userFactory, internalNoteFactory } from '../db/factories';
-import internalNoteMutations from '../data/resolvers/mutations/internalNotes';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-/*
- * Generate test data
- */
-const doc = {
-  contentType: 'customer',
-  contentTypeId: 'DFDFAFSFSDDSF',
-  content: faker.random.word(),
-};
-
 describe('InternalNotes mutations', () => {
   let _user;
   let _internalNote;
+  let context;
 
   beforeEach(async () => {
     // Creating test data
     _user = await userFactory();
     _internalNote = await internalNoteFactory();
+
+    context = { user: _user };
   });
 
   afterEach(async () => {
@@ -36,56 +28,71 @@ describe('InternalNotes mutations', () => {
     await Users.remove({});
   });
 
-  test('Check login required', async () => {
-    expect.assertions(3);
+  test('Add internal note', async () => {
+    const { contentType, contentTypeId, content } = _internalNote;
+    const args = { contentType, contentTypeId, content };
 
-    const check = async fn => {
-      try {
-        await fn({}, {}, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
+    const mutation = `
+      mutation internalNotesAdd(
+        $contentType: String!
+        $contentTypeId: String
+        $content: String
+      ) {
+        internalNotesAdd(
+          contentType: $contentType
+          contentTypeId: $contentTypeId
+          content: $content
+        ) {
+          contentType
+          contentTypeId
+          content
+        }
       }
-    };
+    `;
 
-    // add
-    check(internalNoteMutations.internalNotesAdd);
+    const internalNote = await graphqlRequest(mutation, 'internalNotesAdd', args, context);
 
-    // edit
-    check(internalNoteMutations.internalNotesEdit);
-
-    // add company
-    check(internalNoteMutations.internalNotesRemove);
+    expect(internalNote.contentType).toBe(args.contentType);
+    expect(internalNote.contentTypeId).toBe(args.contentTypeId);
+    expect(internalNote.content).toBe(args.content);
   });
 
-  test('Create internalNote', async () => {
-    InternalNotes.createInternalNote = jest.fn(() => ({
-      _id: 'testInternalNoteId',
-      contentType: 'customer',
-      contentTypeId: 'customer',
-    }));
+  test('Edit internal note', async () => {
+    const { _id, content } = _internalNote;
+    const args = { _id, content };
 
-    await internalNoteMutations.internalNotesAdd({}, doc, { user: _user });
+    const mutation = `
+      mutation internalNotesEdit(
+        $_id: String!
+        $content: String
+      ) {
+        internalNotesEdit(
+          _id: $_id
+          content: $content
+        ) {
+          _id
+          content
+        }
+      }
+    `;
 
-    expect(InternalNotes.createInternalNote).toBeCalledWith(doc, _user);
+    const internalNote = await graphqlRequest(mutation, 'internalNotesEdit', args, context);
+
+    expect(internalNote._id).toBe(args._id);
+    expect(internalNote.content).toBe(args.content);
   });
 
-  test('Edit internalNote valid', async () => {
-    InternalNotes.updateInternalNote = jest.fn();
+  test('Remove internal note', async () => {
+    const mutation = `
+      mutation internalNotesRemove($_id: String!) {
+        internalNotesRemove(_id: $_id) {
+          _id
+        }
+      }
+    `;
 
-    await internalNoteMutations.internalNotesEdit(
-      {},
-      { _id: _internalNote._id, ...doc },
-      { user: _user },
-    );
+    await graphqlRequest(mutation, 'internalNotesRemove', { _id: _internalNote._id }, context);
 
-    expect(InternalNotes.updateInternalNote).toBeCalledWith(_internalNote._id, doc);
-  });
-
-  test('Remove internalNote valid', async () => {
-    InternalNotes.removeInternalNote = jest.fn();
-
-    await internalNoteMutations.internalNotesRemove({}, { _id: _internalNote.id }, { user: _user });
-
-    expect(InternalNotes.removeInternalNote).toBeCalledWith(_internalNote.id);
+    expect(await InternalNotes.findOne({ _id: _internalNote._id })).toBe(null);
   });
 });

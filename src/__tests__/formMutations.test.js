@@ -1,91 +1,83 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import formMutations from '../data/resolvers/mutations/forms';
-import { Forms } from '../db/models';
-import { ROLES } from '../data/constants';
+import faker from 'faker';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { Forms, Users } from '../db/models';
+import { userFactory, formFactory } from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
+
+/*
+ * Generate test data
+ */
+const args = {
+  title: faker.random.word(),
+  description: faker.random.word(),
+};
 
 describe('form and formField mutations', () => {
-  const _formId = 'formId';
+  let _user;
+  let _form;
+  let context;
 
-  const _user = { _id: 'fakeId', role: ROLES.CONTRIBUTOR };
-  const _adminUser = { _id: 'fakeId', role: ROLES.ADMIN };
+  const commonParamDefs = `
+    $title: String!
+    $description: String
+  `;
 
-  test(`test if Error('Login required') exception is working as intended`, () => {
-    expect.assertions(4);
+  const commonParams = `
+    title: $title
+    description: $description
+  `;
 
-    // Login required ==================
-    expect(() => formMutations.formsAdd(null, {}, {})).toThrowError('Login required');
-    expect(() => formMutations.formsEdit(null, {}, {})).toThrowError('Login required');
-    expect(() => formMutations.formsRemove(null, {}, {})).toThrowError('Login required');
-    expect(() => formMutations.formsDuplicate(null, {}, {})).toThrowError('Login required');
+  beforeEach(async () => {
+    // Creating test data
+    _user = await userFactory({ role: 'admin' });
+    _form = await formFactory({});
+
+    context = { user: _user };
   });
 
-  test(`test if Error('Permission required') exception is working as intended`, () => {
-    expect.assertions(3);
+  afterEach(async () => {
+    // Clearing test data
+    await Users.remove({});
+    await Forms.remove({});
+  });
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, { user: _user });
-      } catch (e) {
-        expect(e.message).toBe('Permission required');
+  test('Add form', async () => {
+    const mutation = `
+      mutation formsAdd(${commonParamDefs}) {
+        formsAdd(${commonParams}) {
+          title
+          description
+        }
       }
-    };
+    `;
 
-    // Login required ==================
-    expectError(formMutations.formsAdd);
-    expectError(formMutations.formsEdit);
-    expectError(formMutations.formsRemove);
+    const form = await graphqlRequest(mutation, 'formsAdd', args, context);
+
+    expect(form.title).toBe(args.title);
+    expect(form.description).toBe(args.description);
   });
 
-  test(`test mutations.formsAdd`, async () => {
-    Forms.createForm = jest.fn();
+  test('Edit form', async () => {
+    const mutation = `
+      mutation formsEdit($_id: String! ${commonParamDefs}) {
+        formsEdit(_id: $_id ${commonParams}) {
+          _id
+          title
+          description
+        }
+      }
+    `;
 
-    const doc = {
-      title: 'Test form',
-      description: 'Test form description',
-    };
+    const form = await graphqlRequest(mutation, 'formsEdit', { _id: _form._id, ...args }, context);
 
-    await formMutations.formsAdd(null, doc, { user: _adminUser });
-
-    expect(Forms.createForm).toBeCalledWith(doc, _adminUser);
-    expect(Forms.createForm.mock.calls.length).toBe(1);
-  });
-
-  test('test mutations.formsUpdate', async () => {
-    const doc = {
-      _id: _formId,
-      title: 'Test form 2',
-      description: 'Test form description 2',
-    };
-
-    Forms.updateForm = jest.fn();
-
-    await formMutations.formsEdit(null, doc, { user: _adminUser });
-
-    const formId = _formId;
-    delete doc._id;
-
-    expect(Forms.updateForm).toBeCalledWith(formId, doc);
-    expect(Forms.updateForm.mock.calls.length).toBe(1);
-  });
-
-  test('test mutations.formsRemove', async () => {
-    Forms.removeForm = jest.fn();
-
-    await formMutations.formsRemove(null, { _id: _formId }, { user: _adminUser });
-
-    expect(Forms.removeForm).toBeCalledWith(_formId);
-  });
-
-  test('test mutations.formsDuplicate', async () => {
-    const fakeId = 'fakeFormid';
-
-    Forms.duplicate = jest.fn();
-
-    await formMutations.formsDuplicate(null, { _id: fakeId }, { user: _user });
-
-    expect(Forms.duplicate).toBeCalledWith(fakeId);
-    expect(Forms.duplicate.mock.calls.length).toBe(1);
+    expect(form._id).toBe(_form._id);
+    expect(form.title).toBe(args.title);
+    expect(form.description).toBe(args.description);
   });
 });

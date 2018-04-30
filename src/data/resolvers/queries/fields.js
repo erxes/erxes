@@ -1,5 +1,5 @@
-import { Companies, Customers, Fields } from '../../../db/models';
-import { FIELD_CONTENT_TYPES } from '../../../data/constants';
+import { Companies, Customers, Fields, FieldsGroups } from '../../../db/models';
+import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES } from '../../../data/constants';
 import { moduleRequireLogin } from '../../permissions';
 
 const fieldQueries = {
@@ -95,7 +95,8 @@ const fieldQueries = {
   fieldsDefaultColumnsConfig(root, { contentType }) {
     if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
       return [
-        { name: 'name', label: 'Name', order: 1 },
+        { name: 'firstName', label: 'First name', order: 1 },
+        { name: 'lastName', label: 'Last name', order: 1 },
         { name: 'email', label: 'Email', order: 2 },
         { name: 'phone', label: 'Phone', order: 3 },
       ];
@@ -119,4 +120,23 @@ const fieldQueries = {
 
 moduleRequireLogin(fieldQueries);
 
-export default fieldQueries;
+const fieldsGroupQueries = {
+  /**
+   * Fields group list
+   * @param {String} contentType - Filter by content type
+   *
+   * @return {Promise} Filtered fields group list
+   */
+  fieldsGroups(root, { contentType }) {
+    const query = {};
+
+    // querying by content type
+    query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
+
+    return FieldsGroups.find(query).sort({ order: 1 });
+  },
+};
+
+moduleRequireLogin(fieldsGroupQueries);
+
+export { fieldQueries, fieldsGroupQueries };

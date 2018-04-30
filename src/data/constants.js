@@ -1,6 +1,8 @@
 export const EMAIL_CONTENT_CLASS = 'erxes-email-content';
 export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></div>`;
 
+export const LANGUAGE_CHOICES = ['', 'mn', 'en'];
+
 export const CONVERSATION_STATUSES = {
   NEW: 'new',
   OPEN: 'open',
@@ -21,7 +23,8 @@ export const TAG_TYPES = {
   CUSTOMER: 'customer',
   ENGAGE_MESSAGE: 'engageMessage',
   COMPANY: 'company',
-  ALL: ['conversation', 'customer', 'engageMessage', 'company'],
+  INTEGRATION: 'integration',
+  ALL: ['conversation', 'customer', 'engageMessage', 'company', 'integration'],
 };
 
 export const FACEBOOK_DATA_KINDS = {
@@ -61,7 +64,10 @@ export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
   POPUP: 'popup',
   EMBEDDED: 'embedded',
-  ALL: ['', 'shoutbox', 'popup', 'embedded'],
+  DROPDOWN: 'dropdown',
+  SLIDEINLEFT: 'slideInLeft',
+  SLIDEINRIGHT: 'slideInRight',
+  ALL: ['', 'shoutbox', 'popup', 'embedded', 'dropdown', 'slideInLeft', 'slideInRight'],
 };
 
 export const FORM_SUCCESS_ACTIONS = {
@@ -174,7 +180,9 @@ export const FIELD_CONTENT_TYPES = {
 export const COC_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
-  ALL: ['customer', 'company'],
+  USER: 'user',
+  DEAL: 'deal',
+  ALL: ['customer', 'company', 'user', 'deal'],
 };
 
 export const ROLES = {
@@ -194,8 +202,9 @@ export const ACTIVITY_TYPES = {
   INTERNAL_NOTE: 'internal_note',
   CONVERSATION: 'conversation',
   SEGMENT: 'segment',
+  DEAL: 'deal',
 
-  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment'],
+  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment', 'deal'],
 };
 
 export const ACTIVITY_ACTIONS = {
@@ -210,6 +219,153 @@ export const ACTIVITY_PERFORMER_TYPES = {
   SYSTEM: 'SYSTEM',
   USER: 'USER',
   CUSTOMER: 'CUSTOMER',
+  DEAL: 'DEAL',
 
-  ALL: ['SYSTEM', 'USER', 'CUSTOMER'],
+  ALL: ['SYSTEM', 'USER', 'CUSTOMER', 'DEAL'],
+};
+
+export const PRODUCT_TYPES = {
+  PRODUCT: 'product',
+  SERVICE: 'service',
+  ALL: ['product', 'service'],
+};
+
+export const FIELDS_GROUPS_CONTENT_TYPES = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  ALL: ['customer', 'company'],
+};
+
+export const CUSTOMER_LEAD_STATUS_TYPES = [
+  '',
+  'New',
+  'Open',
+  'In Progress',
+  'Open Deal',
+  'Unqualified',
+  'Attempted to Contact',
+  'Connected',
+  'Bad Timing',
+];
+
+export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
+  '',
+  'Subscriber',
+  'Lead',
+  'Marketing Qualified Lead',
+  'Sales Qualified Lead',
+  'Opportunity',
+  'Customer',
+  'Evangelist',
+  'Other',
+];
+
+export const COMPANY_LEAD_STATUS_TYPES = [
+  '',
+  'New',
+  'Open',
+  'In Progress',
+  'Open Deal',
+  'Unqualified',
+  'Attempted to contact',
+  'Connected',
+  'Bad Timing',
+];
+
+export const COMPANY_LIFECYCLE_STATE_TYPES = [
+  '',
+  'Subscriber',
+  'Lead',
+  'Marketing Qualified Lead',
+  'Sales Qualified Lead',
+  'Opportunity',
+  'Customer',
+  'Evangelist',
+  'Other',
+];
+
+export const COMPANY_BUSINESS_TYPES = [
+  '',
+  'Analyst',
+  'Competitor',
+  'Customer',
+  'Integrator',
+  'Investor',
+  'Partner',
+  'Press',
+  'Prospect',
+  'Reseller',
+  'Other',
+];
+
+export const COMPANY_INDUSTRY_TYPES = [
+  '',
+  'Advertising/Public Relations',
+  'Aerospace, Defense Contractors',
+  'Agriculture',
+  'Airlines',
+  'Alcoholic Beverages',
+  'Alternative Energy Production & Services',
+  'Architectural Services',
+  'Attorneys/Law Firms',
+  'Automotive',
+  'Banks',
+  'Bars & Restaurants',
+  'Books, Magazines & Newspapers',
+  'Builders/General Contractors',
+  'Business Services',
+  'Car Manufacturers',
+  'Coal Mining',
+  'Colleges, Universities & Schools',
+  'Commercial TV & Radio Stations',
+  'Computer Software',
+  'Construction',
+  'Dairy',
+  'Doctors & Other Health Professionals',
+  'Education',
+  'Energy & Natural Resources',
+  'Finance, Insurance & Real Estate',
+  'Food & Beverage',
+  'Foundations, Philanthropists & Non-Profits',
+  'Health',
+  'Hotels, Motels & Tourism',
+  'Insurance',
+  'Internet',
+  'Lawyers / Law Firms',
+  'Meat processing & products',
+  'Medical Supplies',
+  'Mining',
+  'Mortgage Bankers & Brokers',
+  'Music Production',
+  'Natural Gas Pipelines',
+  'Nursing Homes/Hospitals',
+  'Phone Companies',
+  'Postal Unions',
+  'Printing & Publishing',
+  'Private Equity & Investment Firms',
+  'Publishing & Printing',
+  'Real Estate',
+  'Retail Sales',
+  'Schools/Education',
+  'Sports, Professional',
+  'Telecom Services & Equipment',
+  'Textiles',
+  'Tobacco',
+  'Transportation',
+  'TV / Movies / Music',
+];
+
+export const PROBABILITY = {
+  TEN: '10%',
+  TWENTY: '20%',
+  THIRTY: '30%',
+  FOURTY: '40%',
+  FIFTY: '50%',
+  SIXTY: '60%',
+  SEVENTY: '70%',
+  EIGHTY: '80%',
+  NINETY: '90%',
+  WON: 'Won',
+  LOST: 'Lost',
+  ALL: ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', 'Won', 'Lost'],
 };

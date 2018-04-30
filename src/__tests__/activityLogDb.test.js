@@ -16,6 +16,7 @@ import {
   companyFactory,
   conversationFactory,
   segmentFactory,
+  dealFactory,
 } from '../db/factories';
 
 beforeAll(() => connect());
@@ -235,7 +236,7 @@ describe('ActivityLogs model methods', () => {
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.CUSTOMER,
       action: ACTIVITY_ACTIONS.CREATE,
-      content: customer.name,
+      content: customer.getFullName(),
       id: customer._id,
     });
     expect(aLog.coc.toObject()).toEqual({
@@ -263,6 +264,28 @@ describe('ActivityLogs model methods', () => {
     expect(aLog.coc.toObject()).toEqual({
       type: COC_CONTENT_TYPES.COMPANY,
       id: company._id,
+    });
+  });
+
+  test(`createDealRegistrationLog`, async () => {
+    const deal = await dealFactory({});
+    const user = await userFactory({});
+
+    const aLog = await ActivityLogs.createDealRegistrationLog(deal, user);
+
+    expect(aLog.performedBy.toObject()).toEqual({
+      type: ACTIVITY_PERFORMER_TYPES.USER,
+      id: user._id,
+    });
+    expect(aLog.activity.toObject()).toEqual({
+      type: ACTIVITY_TYPES.DEAL,
+      action: ACTIVITY_ACTIONS.CREATE,
+      content: deal.name,
+      id: deal._id,
+    });
+    expect(aLog.coc.toObject()).toEqual({
+      type: COC_CONTENT_TYPES.DEAL,
+      id: deal._id,
     });
   });
 

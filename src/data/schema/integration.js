@@ -4,8 +4,11 @@ export const types = `
     kind: String!
     name: String!
     brandId: String!
+    languageCode: String
     code: String
     formId: String
+    tagIds: [String]
+    tags: [Tag]
     formData: JSON
     messengerData: JSON
     twitterData: JSON
@@ -15,6 +18,14 @@ export const types = `
     brand: Brand
     form: Form
     channels: [Channel]
+  }
+
+  type integrationsTotalCount {
+    total: Int
+    byTag: JSON
+    byChannel: JSON
+    byBrand: JSON
+    byKind: JSON
   }
 
   input IntegrationFormData {
@@ -52,6 +63,7 @@ export const types = `
     welcomeMessage: String
     awayMessage: String
     thankYouMessage: String
+    supporterIds: [String]
   }
 
   input MessengerUiOptions {
@@ -68,11 +80,12 @@ export const queries = `
     kind: String,
     searchValue: String,
     channelId: String,
-    brandId: String
+    brandId: String,
+    tag: String
   ): [Integration]
 
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount(kind: String, channelId: String, brandId: String): Int
+  integrationsTotalCount: integrationsTotalCount
   integrationGetTwitterAuthUrl: String
   integrationFacebookAppsList: [JSON]
   integrationFacebookPagesList(appId: String): [JSON]
@@ -81,12 +94,16 @@ export const queries = `
 export const mutations = `
   integrationsCreateMessengerIntegration(
     name: String!,
-    brandId: String!): Integration
+    brandId: String!,
+    languageCode: String
+    ): Integration
 
   integrationsEditMessengerIntegration(
     _id: String!,
     name: String!,
-    brandId: String!): Integration
+    brandId: String!,
+    languageCode: String
+  ): Integration
 
   integrationsSaveMessengerAppearanceData(
     _id: String!,
@@ -99,6 +116,7 @@ export const mutations = `
   integrationsCreateFormIntegration(
     name: String!,
     brandId: String!,
+    languageCode: String,
     formId: String!,
     formData: IntegrationFormData!): Integration
 
@@ -118,6 +136,7 @@ export const mutations = `
     _id: String!
     name: String!,
     brandId: String!,
+    languageCode: String,
     formId: String!,
     formData: IntegrationFormData!): Integration
 

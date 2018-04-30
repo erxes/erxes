@@ -13,38 +13,20 @@ import {
 } from '../../db/models';
 
 import {
-  receiveTimeLineResponse,
-  receiveMentionReply,
-  createConversationByMention,
-} from '../../social/twitter';
+  createOrUpdateTimelineConversation,
+  createOrUpdateTimelineMessage,
+  receiveTimelineInformation,
+} from '../../trackers/twitter';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe('receive timeline response', () => {
+describe('createOrUpdateTimelineConversation', () => {
   let _integration;
-
-  const data = {
-    in_reply_to_status_id: 1,
-    entities: {
-      user_mentions: [],
-    },
-    user: {
-      id: 1,
-    },
-  };
-
-  const twitterUser = {
-    id: 2442424242,
-    id_str: '2442424242',
-    name: 'username',
-    screen_name: 'screen name',
-    profile_image_url: 'profile_image_url',
-  };
 
   beforeEach(async () => {
     _integration = await integrationFactory({
-      twitterData: { id: 1 },
+      twitterData: { info: { id: 1 } },
     });
   });
 
@@ -56,130 +38,206 @@ describe('receive timeline response', () => {
     await ActivityLogs.remove({});
   });
 
-  test('receive mention reply', async () => {
-    const tweetId = 2424244244;
+  const data = {
+    created_at: 'Wed Feb 28 03:18:21 +0000 2018',
 
-    // create conversation
-    await conversationFactory({
-      integrationId: _integration._id,
-      status: CONVERSATION_STATUSES.NEW,
-      twitterData: {
-        id: tweetId,
-        isDirectMessage: false,
-      },
-    });
+    // tweet id
+    id: 242424242424,
+    id_str: '242424242424',
 
-    // replying to old tweet
-    await receiveMentionReply(_integration, {
-      in_reply_to_status_id: tweetId,
-      user: twitterUser,
-    });
+    text: '@test hi',
+    in_reply_to_status_id: null,
+    in_reply_to_status_id_str: null,
+    in_reply_to_user_id: 800236126610935800,
+    in_reply_to_user_id_str: '800236126610935808',
+    in_reply_to_screen_name: 'Dombo84986356',
 
-    // must not created new conversation
-    expect(await Conversations.find().count()).toEqual(1);
+    // tweeted user's info
+    user: {
+      id: 2424242424,
+      id_str: '24242424242',
+      name: 'username',
+      screen_name: 'b_batamar',
+      profile_image_url: 'profile_image_url',
+    },
+    is_quote_status: false,
+    quote_count: 0,
+    reply_count: 0,
+    retweet_count: 0,
+    favorite_count: 0,
+    entities: {
+      hashtags: [],
+      urls: [],
+      user_mentions: [{ id: 1 }],
+      symbols: [],
+      media: [[Object]],
+    },
+    extended_entities: { media: [[Object]] },
+    favorited: false,
+    retweeted: false,
+  };
 
-    const conversation = await Conversations.findOne({});
-
-    // status must updated as open
-    expect(conversation.status).toEqual(CONVERSATION_STATUSES.OPEN);
-  });
-
-  test('mention', async () => {
-    let tweetText = '@test hi';
-    const tweetId = 242424242424;
-    const tweetIdStr = '242424242424';
-    const screenName = 'screen_name';
-    const userName = 'username';
-    const profileImageUrl = 'profile_image_url';
-    const twitterUserId = 24242424242;
-    const twitterUserIdStr = '24242424242';
-
-    // regular tweet
-    const data = {
-      text: tweetText,
-      // tweeted user's info
-      user: {
-        id: twitterUserId,
-        id_str: twitterUserIdStr,
-        name: userName,
-        screen_name: screenName,
-        profile_image_url: profileImageUrl,
-      },
-
-      // tweet id
-      id: tweetId,
-      id_str: tweetIdStr,
-    };
-
+  test('createOrUpdateTimelineConversation', async () => {
     // call action
-    await createConversationByMention(_integration, data);
+    await createOrUpdateTimelineConversation(_integration._id, data);
 
     expect(await Conversations.find().count()).toBe(1); // 1 conversation
     expect(await Customers.find().count()).toBe(1); // 1 customer
-    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
 
     let conversation = await Conversations.findOne();
     const customer = await Customers.findOne();
-    const message = await ConversationMessages.findOne();
 
     // check conversation field values
     expect(conversation.createdAt).toBeDefined();
     expect(conversation.integrationId).toBe(_integration._id);
     expect(conversation.customerId).toBe(customer._id);
     expect(conversation.status).toBe(CONVERSATION_STATUSES.NEW);
-    expect(conversation.content).toBe(tweetText);
-    expect(conversation.twitterData.id).toBe(tweetId);
-    expect(conversation.twitterData.idStr).toBe(tweetIdStr);
-    expect(conversation.twitterData.screenName).toBe(screenName);
+    expect(conversation.content).toBe('@test hi');
+    expect(conversation.twitterData.id).toBe(242424242424);
+    expect(conversation.twitterData.id_str).toBe('242424242424');
+
     expect(conversation.twitterData.isDirectMessage).toBe(false);
+    expect(conversation.twitterData.in_reply_to_status_id).toBe(null);
+    expect(conversation.twitterData.in_reply_to_status_id_str).toBe(null);
+    expect(conversation.twitterData.in_reply_to_user_id).toBe(800236126610935800);
+    expect(conversation.twitterData.in_reply_to_user_id_str).toBe('800236126610935808');
+    expect(conversation.twitterData.in_reply_to_screen_name).toBe('Dombo84986356');
+    expect(conversation.twitterData.is_quote_status).toBe(false);
+    expect(conversation.twitterData.favorited).toBe(false);
+    expect(conversation.twitterData.retweeted).toBe(false);
+    expect(conversation.twitterData.quote_count).toBe(0);
+    expect(conversation.twitterData.reply_count).toBe(0);
+    expect(conversation.twitterData.retweet_count).toBe(0);
+    expect(conversation.twitterData.favorite_count).toBe(0);
 
     // check customer field values
+    expect(customer.createdAt).toBeDefined();
     expect(customer.integrationId).toBe(_integration._id);
-    expect(customer.twitterData.id).toBe(twitterUserId);
-    expect(customer.twitterData.idStr).toBe(twitterUserIdStr);
-    expect(customer.twitterData.name).toBe(userName);
-    expect(customer.twitterData.screenName).toBe(screenName);
-    expect(customer.twitterData.profileImageUrl).toBe(profileImageUrl);
+    expect(customer.twitterData.id).toBe(2424242424);
+    expect(customer.twitterData.id_str).toBe('24242424242');
+    expect(customer.twitterData.name).toBe('username');
+    expect(customer.twitterData.profile_image_url).toBe('profile_image_url');
 
     // 1 log
     expect(await ActivityLogs.find().count()).toBe(1);
 
+    // second call =================
+    const updatedData = {
+      ...data,
+      text: 'updated',
+      quote_count: 1,
+      reply_count: 1,
+    };
+
+    await Conversations.update({ _id: conversation._id }, { $set: { status: 'closed' } });
+
+    // call
+    await createOrUpdateTimelineConversation(_integration._id, updatedData);
+
+    expect(await Conversations.find().count()).toBe(1); // 1 conversation
+    expect(await Customers.find().count()).toBe(1); // 1 customer
+    expect(await ActivityLogs.find().count()).toBe(1); // 1 log
+
+    conversation = await Conversations.findOne();
+
+    // check updated field values
+    expect(conversation.status).toBe('open');
+    expect(conversation.content).toBe('updated');
+    expect(conversation.twitterData.quote_count).toBe(1);
+    expect(conversation.twitterData.reply_count).toBe(1);
+  });
+
+  test('createOrUpdateTimelineMessage', async () => {
+    const _conversation = await conversationFactory({ integrationId: _integration._id });
+
+    // call action
+    await createOrUpdateTimelineMessage(_conversation, data);
+
+    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
+    expect(await Customers.find().count()).toBe(1); // 1 customer
+
+    let message = await ConversationMessages.findOne();
+    const customer = await Customers.findOne();
+
     // check message field values
     expect(message.createdAt).toBeDefined();
-    expect(message.conversationId).toBe(conversation._id);
     expect(message.customerId).toBe(customer._id);
-    expect(message.internal).toBe(false);
-    expect(message.content).toBe(tweetText);
+    expect(message.content).toBe('@test hi');
+    expect(message.twitterData.id).toBe(242424242424);
+    expect(message.twitterData.id_str).toBe('242424242424');
+
+    expect(message.twitterData.isDirectMessage).toBe(false);
+    expect(message.twitterData.in_reply_to_status_id).toBe(null);
+    expect(message.twitterData.in_reply_to_status_id_str).toBe(null);
+    expect(message.twitterData.in_reply_to_user_id).toBe(800236126610935800);
+    expect(message.twitterData.in_reply_to_user_id_str).toBe('800236126610935808');
+    expect(message.twitterData.in_reply_to_screen_name).toBe('Dombo84986356');
+    expect(message.twitterData.is_quote_status).toBe(false);
+    expect(message.twitterData.favorited).toBe(false);
+    expect(message.twitterData.retweeted).toBe(false);
+    expect(message.twitterData.quote_count).toBe(0);
+    expect(message.twitterData.reply_count).toBe(0);
+    expect(message.twitterData.retweet_count).toBe(0);
+    expect(message.twitterData.favorite_count).toBe(0);
+
+    // check customer field values
+    expect(customer.createdAt).toBeDefined();
+    expect(customer.integrationId).toBe(_integration._id);
+    expect(customer.twitterData.id).toBe(2424242424);
+    expect(customer.twitterData.id_str).toBe('24242424242');
+    expect(customer.twitterData.name).toBe('username');
+    expect(customer.twitterData.profile_image_url).toBe('profile_image_url');
+
+    // 1 log
+    expect(await ActivityLogs.find().count()).toBe(1);
+
+    // second call =================
+    const updatedData = {
+      ...data,
+      text: 'updated',
+      quote_count: 1,
+      reply_count: 1,
+    };
+
+    // call
+    await createOrUpdateTimelineMessage(_conversation, updatedData);
+
+    expect(await Conversations.find().count()).toBe(1); // 1 conversation
+    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
+    expect(await Customers.find().count()).toBe(1); // 1 customer
+    expect(await ActivityLogs.find().count()).toBe(1); // 1 log
+
+    message = await ConversationMessages.findOne();
+
+    // check updated field values
+    expect(message.content).toBe('updated');
+    expect(message.twitterData.quote_count).toBe(1);
+    expect(message.twitterData.reply_count).toBe(1);
+
+    // third  call =================
+    const newData = {
+      ...data,
+      id: 1,
+      id_str: 'id_str',
+      text: 'new',
+    };
+
+    // call
+    await createOrUpdateTimelineMessage(_conversation, newData);
+
+    expect(await Conversations.find().count()).toBe(1); // 1 conversation
+    expect(await ConversationMessages.find().count()).toBe(2); // 2 message
+    expect(await Customers.find().count()).toBe(1); // 1 customer
+    expect(await ActivityLogs.find().count()).toBe(1); // 1 log
   });
 
-  test('receive reply', async () => {
-    // non existing conversation =========
-    await receiveTimeLineResponse(_integration, data);
-    expect(await ConversationMessages.count()).toBe(0);
+  test('receive', async () => {
+    // call action
+    await receiveTimelineInformation(_integration, data);
 
-    // existing conversation ===========
-    await conversationFactory({ twitterData: { id: 1 } });
-
-    await receiveTimeLineResponse(_integration, data);
-
-    expect(await ConversationMessages.count()).toBe(1);
-  });
-
-  test('user mentions', async () => {
-    data.in_reply_to_status_id = null;
-    data.entities.user_mentions = [{ id: 1 }];
-
-    await receiveTimeLineResponse(_integration, data);
-
-    expect(await ConversationMessages.count()).toBe(1);
-  });
-
-  test('check deleted integration', async () => {
-    const response = await receiveTimeLineResponse({
-      _id: 'DFAFDFSD',
-      twitterData: {},
-    });
-
-    expect(response).toBe(null);
+    expect(await Conversations.find().count()).toBe(1); // 1 conversation
+    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
+    expect(await Customers.find().count()).toBe(1); // 1 customer
+    expect(await ActivityLogs.find().count()).toBe(1); // 1 log
   });
 });

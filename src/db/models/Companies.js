@@ -1,6 +1,24 @@
 import mongoose from 'mongoose';
+import {
+  COMPANY_LEAD_STATUS_TYPES,
+  COMPANY_LIFECYCLE_STATE_TYPES,
+  COMPANY_BUSINESS_TYPES,
+  COMPANY_INDUSTRY_TYPES,
+} from '../../data/constants';
 import { Fields, Customers, ActivityLogs, InternalNotes } from './';
 import { field } from './utils';
+
+const LinkSchema = mongoose.Schema(
+  {
+    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
+    twitter: field({ type: String, optional: true, label: 'Twitter' }),
+    facebook: field({ type: String, optional: true, label: 'Facebook' }),
+    github: field({ type: String, optional: true, label: 'Github' }),
+    youtube: field({ type: String, optional: true, label: 'Youtube' }),
+    website: field({ type: String, optional: true, label: 'Website' }),
+  },
+  { _id: false },
+);
 
 const CompanySchema = mongoose.Schema({
   _id: field({ pkey: true }),
@@ -18,6 +36,7 @@ const CompanySchema = mongoose.Schema({
 
   industry: field({
     type: String,
+    enum: COMPANY_INDUSTRY_TYPES,
     label: 'Industry',
     optional: true,
   }),
@@ -33,6 +52,37 @@ const CompanySchema = mongoose.Schema({
     label: 'Plan',
     optional: true,
   }),
+
+  parentCompanyId: field({ type: String, optional: true, label: 'Parent Company' }),
+  email: field({ type: String, optional: true, label: 'Email' }),
+  ownerId: field({ type: String, optional: true, label: 'Owner' }),
+  phone: field({ type: String, optional: true, label: 'Phone' }),
+
+  leadStatus: field({
+    type: String,
+    enum: COMPANY_LEAD_STATUS_TYPES,
+    optional: true,
+    label: 'Lead Status',
+  }),
+
+  lifecycleState: field({
+    type: String,
+    enum: COMPANY_LIFECYCLE_STATE_TYPES,
+    optional: true,
+    label: 'Lifecycle State',
+  }),
+
+  businessType: field({
+    type: String,
+    enum: COMPANY_BUSINESS_TYPES,
+    optional: true,
+    label: 'Business Type',
+  }),
+
+  description: field({ type: String, optional: true }),
+  employees: field({ type: Number, optional: true, label: 'Employees' }),
+  doNotDisturb: field({ type: String, optional: true, label: 'Do not disturb' }),
+  links: field({ type: LinkSchema, default: {} }),
 
   lastSeenAt: field({
     type: Date,
@@ -110,8 +160,10 @@ class Company {
     // Checking duplicated fields of company
     await this.checkDuplication(doc, [_id]);
 
-    // clean custom field values
-    doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+    if (doc.customFieldsData) {
+      // clean custom field values
+      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+    }
 
     await this.update({ _id }, { $set: doc });
 
@@ -122,10 +174,11 @@ class Company {
    * Create new customer and add to customer's customer list
    * @return {Promise} newly created customer
    */
-  static async addCustomer({ _id, name, email }) {
+  static async addCustomer({ _id, firstName, lastName, email }) {
     // create customer
-    return await Customers.createCustomer({
-      name,
+    return Customers.createCustomer({
+      firstName,
+      lastName,
       email,
       companyIds: [_id],
     });

@@ -1,139 +1,122 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
-import mutations from '../data/resolvers/mutations';
-import {
-  ROLES,
-  ACTIVITY_TYPES,
-  ACTIVITY_ACTIONS,
-  COC_CONTENT_TYPES,
-  ACTIVITY_PERFORMER_TYPES,
-} from '../data/constants';
-import { ActivityLogs, Customers, Companies } from '../db/models';
-import { userFactory, customerFactory } from '../db/factories';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { ActivityLogs, Customers, Conversations, Companies, Deals } from '../db/models';
+import { customerFactory, conversationFactory, companyFactory, dealFactory } from '../db/factories';
 
 beforeAll(() => connect());
+
 afterAll(() => disconnect());
 
 describe('ActivityLog creation on Customer creation', () => {
+  let _customer;
+  let _company;
+  let _conversation;
+  let _deal;
+
+  beforeEach(async () => {
+    // Creating test data
+    _customer = await customerFactory();
+    _company = await companyFactory();
+    _conversation = await conversationFactory();
+    _deal = await dealFactory();
+  });
+
   afterEach(async () => {
+    // Clearing test data
     await ActivityLogs.remove({});
+    await Conversations.remove({});
     await Customers.remove({});
     await Companies.remove({});
+    await Deals.remove({});
   });
 
-  test(`createCompanyRegistrationLog`, async () => {
-    const customerDoc = {
-      name: 'Reggina',
+  test('Add conversation log', async () => {
+    const args = {
+      customerId: _customer._id,
+      conversationId: _conversation._id,
     };
 
-    const user = await userFactory({ role: ROLES.CONTRIBUTOR });
+    const mutation = `
+      mutation activityLogsAddConversationLog(
+        $customerId: String!
+        $conversationId: String!
+      ) {
+        activityLogsAddConversationLog(
+          customerId: $customerId
+          conversationId: $conversationId
+        ) {
+          _id
+        }
+      }
+    `;
 
-    const customer = await mutations.customersAdd(null, customerDoc, { user });
+    const activityLogId = await graphqlRequest(mutation, 'activityLogsAddConversationLog', args);
 
-    expect(await ActivityLogs.find().count()).toBe(1);
-    const aLog = await ActivityLogs.findOne({});
-    expect(aLog).toBeDefined();
+    const activityLog = await ActivityLogs.findOne({ _id: activityLogId });
 
-    expect(aLog.activity.type).toBe(COC_CONTENT_TYPES.CUSTOMER);
-    expect(aLog.activity.id).toBe(customer._id);
-    expect(aLog.coc.type).toBe(COC_CONTENT_TYPES.CUSTOMER);
-    expect(aLog.coc.id).toBe(customer._id);
+    expect(activityLog.coc.id).toBe(args.customerId);
+    expect(activityLog.activity.id).toBe(args.conversationId);
   });
 
-  test(`createCompanyRegistrationLog`, async () => {
-    const customer = await customerFactory({});
+  test('Add customer log', async () => {
+    const mutation = `
+      mutation activityLogsAddCustomerLog($_id: String!) {
+        activityLogsAddCustomerLog(_id: $_id) {
+          _id
+        }
+      }
+    `;
 
-    const addCompanyDoc = {
-      _id: customer._id,
-      name: 'Reggina',
-      website: 'http://www.test.com',
-    };
+    await graphqlRequest(mutation, 'activityLogsAddCustomerLog', {
+      _id: _customer._id,
+    });
 
-    const user = await userFactory({ role: ROLES.CONTRIBUTOR });
+    const customerLog = await ActivityLogs.findOne({
+      'activity.id': _customer._id,
+    });
 
-    const company = await mutations.customersAddCompany(null, addCompanyDoc, { user });
-
-    expect(await ActivityLogs.find().count()).toBe(1);
-    const aLog = await ActivityLogs.findOne({});
-    expect(aLog).toBeDefined();
-
-    expect(aLog.activity.type).toBe(COC_CONTENT_TYPES.COMPANY);
-    expect(aLog.activity.id).toBe(company._id);
-    expect(aLog.coc.type).toBe(COC_CONTENT_TYPES.COMPANY);
-    expect(aLog.coc.id).toBe(company._id);
+    expect(customerLog).toBeDefined();
   });
 
-  test(`createInternalNote`, async () => {
-    const user = await userFactory({ role: ROLES.CONTRIBUTOR });
-    const customer = await customerFactory({});
+  test('Add company log', async () => {
+    const mutation = `
+      mutation activityLogsAddCompanyLog($_id: String!) {
+        activityLogsAddCompanyLog(_id: $_id) {
+          _id
+        }
+      }
+    `;
 
-    const internalNote = await mutations.internalNotesAdd(
-      null,
-      {
-        contentType: COC_CONTENT_TYPES.CUSTOMER,
-        contentTypeId: customer._id,
-        content: 'test string',
-      },
-      { user },
-    );
+    await graphqlRequest(mutation, 'activityLogsAddCompanyLog', {
+      _id: _company._id,
+    });
 
-    expect(await ActivityLogs.find().count()).toBe(1);
+    const companyLog = await ActivityLogs.findOne({
+      'activity.id': _company._id,
+    });
 
-    const aLog = await ActivityLogs.findOne({});
-
-    expect(aLog).toBeDefined();
-    expect(aLog.activity.type).toBe(ACTIVITY_TYPES.INTERNAL_NOTE);
-    expect(aLog.activity.id).toBe(internalNote._id);
-    expect(aLog.coc.type).toBe(COC_CONTENT_TYPES.CUSTOMER);
-    expect(aLog.coc.id).toBe(customer._id);
+    expect(companyLog).toBeDefined();
   });
 
-  test(`activityLogsAddCustomerLog`, async () => {
-    const customerDoc = {
-      name: 'test customer',
-      _id: 'testCustomerId',
-    };
+  test('Add deal log', async () => {
+    const mutation = `
+      mutation activityLogsAddDealLog($_id: String!) {
+        activityLogsAddDealLog(_id: $_id) {
+          _id
+        }
+      }
+    `;
 
-    Customers.findOne = jest.fn(() => customerDoc);
-
-    const aLog = await mutations.activityLogsAddCustomerLog(null, { _id: customerDoc._id });
-
-    expect(aLog.activity.toObject()).toEqual({
-      type: ACTIVITY_TYPES.CUSTOMER,
-      action: ACTIVITY_ACTIONS.CREATE,
-      id: customerDoc._id,
-      content: customerDoc.name,
+    await graphqlRequest(mutation, 'activityLogsAddDealLog', {
+      _id: _deal._id,
     });
-    expect(aLog.coc.toObject()).toEqual({
-      type: COC_CONTENT_TYPES.CUSTOMER,
-      id: customerDoc._id,
-    });
-    expect(aLog.performedBy.toObject()).toEqual({
-      type: ACTIVITY_PERFORMER_TYPES.SYSTEM,
-    });
-  });
 
-  test(`activityLogsAddCompanyLog`, async () => {
-    const companyDoc = { _id: 'testCompanyId', name: 'test company' };
-
-    Companies.findOne = jest.fn(() => companyDoc);
-
-    const aLog = await mutations.activityLogsAddCompanyLog(null, { _id: companyDoc._id });
-
-    expect(aLog.activity.toObject()).toEqual({
-      type: ACTIVITY_TYPES.COMPANY,
-      action: ACTIVITY_ACTIONS.CREATE,
-      content: companyDoc.name,
-      id: companyDoc._id,
+    const dealLog = await ActivityLogs.findOne({
+      'activity.id': _deal._id,
     });
-    expect(aLog.coc.toObject()).toEqual({
-      type: COC_CONTENT_TYPES.COMPANY,
-      id: companyDoc._id,
-    });
-    expect(aLog.performedBy.toObject()).toEqual({
-      type: ACTIVITY_PERFORMER_TYPES.SYSTEM,
-    });
+
+    expect(dealLog).toBeDefined();
   });
 });

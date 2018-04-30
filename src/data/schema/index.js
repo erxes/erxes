@@ -32,9 +32,16 @@ import {
   mutations as EmailTemplateMutations,
 } from './emailTemplate';
 
-import { types as FieldTypes, queries as FieldQueries, mutations as FieldMutations } from './field';
+import {
+  fieldsTypes as FieldTypes,
+  fieldsQueries as FieldQueries,
+  fieldsMutations as FieldMutations,
+  fieldsGroupsTypes as FieldGroupTypes,
+  fieldsGroupsMutations as FieldGroupMutations,
+  fieldsGroupsQueries as FieldGroupQueries,
+} from './field';
 
-import { types as FormTypes, queries as FormQueries, mutations as FormMutatons } from './form';
+import { types as FormTypes, mutations as FormMutatons, queries as FormQueries } from './form';
 
 import {
   types as EngageTypes,
@@ -88,6 +95,20 @@ import {
   mutations as ActivityLogMutations,
 } from './activityLog';
 
+import { types as DealTypes, queries as DealQueries, mutations as DealMutations } from './deal';
+
+import {
+  types as ProductTypes,
+  queries as ProductQueries,
+  mutations as ProductMutations,
+} from './product';
+
+import {
+  types as ConfigTypes,
+  queries as ConfigQueries,
+  mutations as ConfigMutations,
+} from './config';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -111,6 +132,10 @@ export const types = `
   ${InsightTypes}
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
+  ${DealTypes}
+  ${ProductTypes}
+  ${ConfigTypes}
+  ${FieldGroupTypes}
 `;
 
 export const queries = `
@@ -122,8 +147,8 @@ export const queries = `
     ${ResponseTemplateQueries}
     ${EmailTemplateQueries}
     ${FieldQueries}
-    ${FormQueries}
     ${EngageQueries}
+    ${FormQueries}
     ${TagQueries}
     ${InternalNoteQueries}
     ${CompanyQueries}
@@ -134,6 +159,10 @@ export const queries = `
     ${KnowledgeBaseQueries}
     ${NotificationQueries}
     ${ActivityLogQueries}
+    ${DealQueries}
+    ${ProductQueries}
+    ${ConfigQueries}
+    ${FieldGroupQueries}
   }
 `;
 
@@ -157,6 +186,10 @@ export const mutations = `
     ${KnowledgeBaseMutations}
     ${NotificationMutations}
     ${ActivityLogMutations}
+    ${DealMutations}
+    ${ProductMutations}
+    ${ConfigMutations}
+    ${FieldGroupMutations}
   }
 `;
 

@@ -16,8 +16,10 @@ class BaseMonthActivityBuilder {
    * @param {int} month - Month [0..11]
    * @return {int} returns number of days in the given month
    */
-  getDaysInMonth(year, month) {
-    return new Date(year, month, 0).getDate();
+  getIntervalEnd(year, month) {
+    const date = new Date(year, month, 0);
+    date.setDate(date.getDate() + 1);
+    return date;
   }
 
   /**
@@ -44,13 +46,13 @@ class BaseMonthActivityBuilder {
         },
         interval: {
           start: new Date(year, month, 1),
-          end: new Date(year, month, this.getDaysInMonth(year, month)),
+          end: this.getIntervalEnd(year, month + 1),
         },
       });
 
       month++;
 
-      if ((month + 1) % 12 == 0) {
+      if (month % 12 == 0) {
         month = 0;
         year++;
       }
@@ -95,7 +97,23 @@ export class CompanyMonthActivityLogBuilder extends BaseMonthActivityBuilder {
   }
 }
 
+export class UserMonthActivityLogBuilder extends BaseMonthActivityBuilder {
+  constructor(coc) {
+    super(coc);
+    this.cocContentType = COC_CONTENT_TYPES.USER;
+  }
+}
+
+export class DealMonthActivityLogBuilder extends BaseMonthActivityBuilder {
+  constructor(coc) {
+    super(coc);
+    this.cocContentType = COC_CONTENT_TYPES.DEAL;
+  }
+}
+
 export default {
   CustomerMonthActivityLogBuilder,
   CompanyMonthActivityLogBuilder,
+  UserMonthActivityLogBuilder,
+  DealMonthActivityLogBuilder,
 };

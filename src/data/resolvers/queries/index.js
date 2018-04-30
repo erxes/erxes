@@ -2,11 +2,11 @@ import users from './users';
 import channels from './channels';
 import brands from './brands';
 import integrations from './integrations';
-import fields from './fields';
-import forms from './forms';
+import { fieldQueries as fields, fieldsGroupQueries as fieldsgroups } from './fields';
 import responseTemplates from './responseTemplates';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
+import forms from './forms';
 import tags from './tags';
 import internalNotes from './internalNotes';
 import customers from './customers';
@@ -17,6 +17,9 @@ import insights from './insights';
 import knowledgeBase from './knowledgeBase';
 import notifications from './notifications';
 import activityLogs from './activityLogs';
+import deals from './deals';
+import products from './products';
+import configs from './configs';
 
 export default {
   ...users,
@@ -24,10 +27,10 @@ export default {
   ...brands,
   ...integrations,
   ...fields,
-  ...forms,
   ...responseTemplates,
   ...emailTemplates,
   ...engages,
+  ...forms,
   ...tags,
   ...internalNotes,
   ...customers,
@@ -38,4 +41,8 @@ export default {
   ...knowledgeBase,
   ...notifications,
   ...activityLogs,
+  ...deals,
+  ...products,
+  ...configs,
+  ...fieldsgroups,
 };

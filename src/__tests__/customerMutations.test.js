@@ -1,23 +1,87 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
+import faker from 'faker';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { Customers, Users } from '../db/models';
 import { userFactory, customerFactory } from '../db/factories';
-import customerMutations from '../data/resolvers/mutations/customers';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
+/*
+ * Generate test data
+ */
+const args = {
+  firstName: faker.name.findName(),
+  lastName: faker.name.findName(),
+  email: faker.internet.email(),
+  phone: faker.phone.phoneNumber(),
+  ownerId: faker.random.word(),
+  position: faker.random.word(),
+  department: faker.random.word(),
+  leadStatus: 'Connected',
+  lifecycleState: 'Customer',
+  hasAuthority: faker.random.word(),
+  description: faker.random.word(),
+  doNotDisturb: faker.random.word(),
+  links: {
+    linkedIn: 'linkedIn',
+    twitter: 'twitter',
+    facebook: 'facebook',
+    youtube: 'youtube',
+    github: 'github',
+    website: 'website',
+  },
+  customFieldsData: {},
+};
+
 describe('Customers mutations', () => {
   let _user;
   let _customer;
+  let context;
+
+  const commonParamDefs = `
+    $firstName: String
+    $lastName: String
+    $email: String
+    $phone: String
+    $ownerId: String
+    $position: String
+    $department: String
+    $leadStatus: String
+    $lifecycleState:  String
+    $hasAuthority: String
+    $description: String
+    $doNotDisturb: String
+    $links: JSON
+    $customFieldsData: JSON
+  `;
+
+  const commonParams = `
+    firstName: $firstName
+    lastName: $lastName
+    email: $email
+    phone: $phone
+    ownerId: $ownerId
+    position: $position
+    department: $department
+    leadStatus: $leadStatus
+    lifecycleState: $lifecycleState
+    hasAuthority: $hasAuthority
+    description: $description
+    doNotDisturb: $doNotDisturb
+    links: $links
+    customFieldsData: $customFieldsData
+  `;
 
   beforeEach(async () => {
     // Creating test data
     _user = await userFactory();
     _customer = await customerFactory();
+
+    context = { user: _user };
   });
 
   afterEach(async () => {
@@ -26,116 +90,180 @@ describe('Customers mutations', () => {
     await Customers.remove({});
   });
 
-  test('Check login required', async () => {
-    expect.assertions(6);
-
-    const check = async fn => {
-      try {
-        await fn({}, {}, {}, {}, {}, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
+  test('Add customer', async () => {
+    const mutation = `
+      mutation customersAdd(${commonParamDefs}){
+        customersAdd(${commonParams}) {
+          firstName
+          lastName
+          email
+          phone
+          ownerId
+          position
+          department
+          leadStatus
+          lifecycleState
+          hasAuthority
+          description
+          doNotDisturb
+          links {
+            linkedIn
+            twitter
+            facebook
+            youtube
+            github
+            website
+          }
+          customFieldsData
+        }
       }
-    };
+    `;
 
-    // add
-    check(customerMutations.customersAdd);
+    const customer = await graphqlRequest(mutation, 'customersAdd', args, context);
 
-    // edit
-    check(customerMutations.customersEdit);
-
-    // add company
-    check(customerMutations.customersAddCompany);
-
-    // edit customer companies
-    check(customerMutations.customersEditCompanies);
-
-    // merge customers
-    check(customerMutations.customersMerge);
-
-    // remove customers
-    check(customerMutations.customersRemove);
+    expect(customer.firstName).toBe(args.firstName);
+    expect(customer.lastName).toBe(args.lastName);
+    expect(customer.email).toBe(args.email);
+    expect(customer.phone).toBe(args.phone);
+    expect(customer.ownerId).toBe(args.ownerId);
+    expect(customer.position).toBe(args.position);
+    expect(customer.department).toBe(args.department);
+    expect(customer.leadStatus).toBe(args.leadStatus);
+    expect(customer.lifecycleState).toBe(args.lifecycleState);
+    expect(customer.hasAuthority).toBe(args.hasAuthority);
+    expect(customer.description).toBe(args.description);
+    expect(customer.doNotDisturb).toBe(args.doNotDisturb);
+    expect(customer.links).toEqual(args.links);
+    expect(customer.customFieldsData).toEqual(args.customFieldsData);
   });
 
-  test('Create customer', async () => {
-    Customers.createCustomer = jest.fn(() => {
-      return {
-        name: 'name',
-        _id: 'fakeCustomerId',
-      };
-    });
+  test('Edit customer', async () => {
+    const mutation = `
+      mutation customersEdit($_id: String! ${commonParamDefs}){
+        customersEdit(_id: $_id ${commonParams}) {
+          _id
+          firstName
+          lastName
+          email
+          phone
+          ownerId
+          position
+          department
+          leadStatus
+          lifecycleState
+          hasAuthority
+          description
+          doNotDisturb
+          links {
+            linkedIn
+            twitter
+            facebook
+            youtube
+            github
+            website
+          }
+          customFieldsData
+        }
+      }
+    `;
 
-    const doc = { name: 'name', email: 'dombo@yahoo.com' };
-
-    await customerMutations.customersAdd({}, doc, { user: _user });
-
-    expect(Customers.createCustomer).toBeCalledWith(doc);
-  });
-
-  test('Edit customer valid', async () => {
-    const doc = {
-      name: 'Dombo',
-      email: 'dombo@yahoo.com',
-      phone: '242442200',
-    };
-
-    Customers.updateCustomer = jest.fn();
-
-    await customerMutations.customersEdit({}, { _id: _customer._id, ...doc }, { user: _user });
-
-    expect(Customers.updateCustomer).toBeCalledWith(_customer._id, doc);
-  });
-
-  test('Add company', async () => {
-    Customers.addCompany = jest.fn(() => {
-      return {
-        name: 'name',
-        _id: 'fakeCustomerId',
-      };
-    });
-
-    const doc = { name: 'name', website: 'http://company.com' };
-
-    await customerMutations.customersAddCompany({}, doc, { user: _user });
-
-    expect(Customers.addCompany).toBeCalledWith(doc);
-  });
-
-  test('Update Customer Companies', async () => {
-    Customers.updateCompanies = jest.fn();
-
-    const companyIds = ['companyid1', 'companyid2', 'companyid3'];
-
-    await customerMutations.customersEditCompanies(
-      {},
-      { _id: _customer._id, companyIds },
-      { user: _user },
+    const customer = await graphqlRequest(
+      mutation,
+      'customersEdit',
+      { _id: _customer._id, ...args },
+      context,
     );
 
-    expect(Customers.updateCompanies).toBeCalledWith(_customer._id, companyIds);
+    expect(customer._id).toBe(_customer._id);
+    expect(customer.firstName).toBe(args.firstName);
+    expect(customer.lastName).toBe(args.lastName);
+    expect(customer.email).toBe(args.email);
+    expect(customer.phone).toBe(args.phone);
+    expect(customer.ownerId).toBe(args.ownerId);
+    expect(customer.position).toBe(args.position);
+    expect(customer.department).toBe(args.department);
+    expect(customer.leadStatus).toBe(args.leadStatus);
+    expect(customer.lifecycleState).toBe(args.lifecycleState);
+    expect(customer.hasAuthority).toBe(args.hasAuthority);
+    expect(customer.description).toBe(args.description);
+    expect(customer.doNotDisturb).toBe(args.doNotDisturb);
+    expect(customer.links).toEqual(args.links);
+    expect(customer.customFieldsData).toBe(null);
   });
 
-  test('Merging customers', async () => {
-    Customers.mergeCustomers = jest.fn();
+  test('Add company to customer', async () => {
+    const args = {
+      _id: _customer._id,
+      name: faker.company.companyName(),
+      website: faker.internet.url,
+    };
 
-    const customerIds = ['customerid1', 'customerid2'];
-    const customerFields = await customerFactory({});
+    const mutation = `
+      mutation customersAddCompany($_id: String! $name: String! $website: String) {
+        customersAddCompany(_id: $_id name: $name website: $website) {
+          _id
+        }
+      }
+    `;
 
-    await customerMutations.customersMerge({}, { customerIds, customerFields }, { user: _user });
+    const company = await graphqlRequest(mutation, 'customersAddCompany', args, context);
 
-    expect(Customers.mergeCustomers).toBeCalledWith(customerIds, customerFields);
+    const customer = await Customers.findOne({ _id: args._id });
+
+    expect(customer.companyIds).toContain(company._id);
   });
 
-  test('Customer remove', async () => {
-    Customers.removeCustomer = jest.fn();
+  test('Edit company of customer', async () => {
+    const args = {
+      _id: _customer._id,
+      companyIds: [faker.random.uuid()],
+    };
 
-    const newCustomer = await customerFactory({});
+    const mutation = `
+      mutation customersEditCompanies($_id: String! $companyIds: [String]) {
+        customersEditCompanies(_id: $_id companyIds: $companyIds) {
+          _id
+        }
+      }
+    `;
 
-    await customerMutations.customersRemove(
-      {},
-      { customerIds: [newCustomer._id] },
-      { user: _user },
-    );
+    await graphqlRequest(mutation, 'customersEditCompanies', args, context);
 
-    expect(Customers.removeCustomer).toBeCalledWith(newCustomer._id);
+    const customer = await Customers.findOne({ _id: args._id });
+
+    expect(customer.companyIds).toContain(args.companyIds);
+  });
+
+  test('Remove customer', async () => {
+    const mutation = `
+      mutation customersRemove($customerIds: [String]) {
+        customersRemove(customerIds: $customerIds)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'customersRemove', { customerIds: [_customer._id] }, context);
+
+    expect(await Customers.find({ _id: { $in: [_customer._id] } })).toEqual([]);
+  });
+
+  test('Merge customer', async () => {
+    const args = {
+      customerIds: [_customer._id],
+      customerFields: {
+        firstName: faker.name.firstName(),
+      },
+    };
+
+    const mutation = `
+      mutation customersMerge($customerIds: [String] $customerFields: JSON) {
+        customersMerge(customerIds: $customerIds customerFields: $customerFields) {
+          firstName
+        }
+      }
+    `;
+
+    const customer = await graphqlRequest(mutation, 'customersMerge', args, context);
+
+    expect(customer.firstName).toBe(args.customerFields.firstName);
   });
 });

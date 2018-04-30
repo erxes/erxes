@@ -1,142 +1,118 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { Channels } from '../db/models';
-import { ROLES } from '../data/constants';
-import { NOTIFICATION_TYPES } from '../data/constants';
-import channelMutations from '../data/resolvers/mutations/channels';
-import utils from '../data/utils';
+import { Users, Channels, Integrations } from '../db/models';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { userFactory, channelFactory, integrationFactory } from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
 
 describe('mutations', () => {
-  const _channelId = 'fakeChannelId';
-  const _user = { _id: 'fakeId', role: ROLES.CONTRIBUTOR };
-  const _adminUser = { _id: 'fakeId', role: ROLES.ADMIN };
+  let _channel;
+  let _user;
+  let _integration;
+  let context;
 
-  test(`test if Error('Login required') error is working as intended`, async () => {
-    expect.assertions(3);
+  beforeEach(async () => {
+    // Creating test data
+    _channel = await channelFactory();
+    _integration = await integrationFactory();
+    _user = await userFactory({ role: 'admin' });
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, {});
-      } catch (e) {
-        expect(e.message).toBe('Login required');
+    context = { user: _user };
+  });
+
+  afterEach(async () => {
+    // Clearing test data
+    await Channels.remove({});
+    await Integrations.remove({});
+    await Users.remove({});
+  });
+
+  const commonParamDefs = `
+    $name: String!
+    $description: String!
+    $memberIds: [String]
+    $integrationIds: [String]
+  `;
+
+  const commonParams = `
+    name: $name
+    description: $description
+    memberIds: $memberIds
+    integrationIds: $integrationIds
+  `;
+
+  test('Add channel', async () => {
+    const args = {
+      name: _channel.name,
+      description: _channel.description,
+      memberIds: [_user._id],
+      integrationIds: [_integration._id],
+    };
+
+    const mutation = `
+      mutation channelsAdd(${commonParamDefs}) {
+        channelsAdd(${commonParams}) {
+          name
+          description
+          memberIds
+          integrationIds
+        }
       }
-    };
+    `;
 
-    expectError(channelMutations.channelsAdd);
-    expectError(channelMutations.channelsEdit);
-    expectError(channelMutations.channelsRemove);
+    const channel = await graphqlRequest(mutation, 'channelsAdd', args, context);
+
+    expect(channel.name).toBe(args.name);
+    expect(channel.description).toBe(args.description);
+    expect(channel.memberIds).toEqual(args.memberIds);
+    expect(channel.integrationIds).toEqual(args.integrationIds);
   });
 
-  test(`test if Error('Permission required') error is working as intended`, async () => {
-    expect.assertions(3);
+  test('Edit channel', async () => {
+    const member = await userFactory();
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, { user: _user });
-      } catch (e) {
-        expect(e.message).toBe('Permission required');
+    const args = {
+      _id: _channel._id,
+      name: _channel.name,
+      description: _channel.description,
+      memberIds: [member._id],
+      integrationIds: [_integration._id],
+    };
+
+    const mutation = `
+      mutation channelsEdit($_id: String!, ${commonParamDefs}) {
+        channelsEdit(_id: $_id, ${commonParams}) {
+          _id
+          name
+          description
+          memberIds
+          integrationIds
+        }
       }
-    };
+    `;
 
-    expectError(channelMutations.channelsAdd);
-    expectError(channelMutations.channelsEdit);
-    expectError(channelMutations.channelsRemove);
+    const channel = await graphqlRequest(mutation, 'channelsEdit', args, context);
+
+    expect(channel._id).toBe(args._id);
+    expect(channel.name).toBe(args.name);
+    expect(channel.description).toBe(args.description);
+    expect(channel.memberIds).toEqual([member._id]);
+    expect(channel.integrationIds).toEqual(args.integrationIds);
   });
 
-  test('test mutations.channelsAdd', async () => {
-    let doc = {
-      name: 'Channel test',
-      description: 'test channel descripion',
-      memberIds: ['fakeUserId2'],
-      integrationIds: ['fakeIntegrationId'],
-    };
+  test('Remove channel', async () => {
+    const mutation = `
+      mutation channelsRemove($_id: String!) {
+        channelsRemove(_id: $_id)
+      }
+    `;
 
-    const channel = {
-      _id: 'fakeChannelId',
-      name: 'Test channel',
-      userId: 'fakeUserId',
-      memberIds: ['memberId1', 'memberdId2'],
-    };
+    await graphqlRequest(mutation, 'channelsRemove', { _id: _channel._id }, context);
 
-    const content = `You have invited to '${channel.name}' channel.`;
-
-    const sendNotificationDoc = {
-      createdUser: channel.userId,
-      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
-      title: content,
-      content,
-      link: `/inbox/${channel._id}`,
-
-      // exclude current user
-      receivers: (channel.memberIds || []).filter(id => id !== channel.userId),
-    };
-
-    Channels.createChannel = jest.fn(() => channel);
-
-    jest.spyOn(utils, 'sendNotification').mockImplementation(() => ({}));
-
-    await channelMutations.channelsAdd(null, doc, { user: _adminUser });
-
-    expect(Channels.createChannel).toBeCalledWith(doc, _adminUser);
-    expect(Channels.createChannel.mock.calls.length).toBe(1);
-
-    expect(utils.sendNotification).toBeCalledWith(sendNotificationDoc);
-    expect(utils.sendNotification.mock.calls.length).toBe(1);
-  });
-
-  test('test mutations.channelsUpdate', async () => {
-    const doc = {
-      name: 'Channel test 1',
-      description: 'Channel test description 1',
-      memberIds: ['fakeUserId2'],
-      integrationIds: ['integrationIds1'],
-    };
-
-    const channel = {
-      _id: 'fakeChannelId',
-      name: 'Test channel',
-      userId: 'fakeUserId',
-      memberIds: ['memberId1', 'memberdId2'],
-    };
-
-    const content = `You have invited to '${channel.name}' channel.`;
-
-    const sendNotificationDoc = {
-      createdUser: channel.userId,
-      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
-      title: content,
-      content,
-      link: `/inbox/${channel._id}`,
-
-      // exclude current user
-      receivers: (channel.memberIds || []).filter(id => id !== channel.userId),
-    };
-
-    Channels.updateChannel = jest.fn(() => channel);
-
-    await channelMutations.channelsEdit(
-      null,
-      {
-        ...doc,
-        _id: _channelId,
-      },
-      { user: _adminUser },
-    );
-
-    expect(Channels.updateChannel).toBeCalledWith(_channelId, doc);
-    expect(Channels.updateChannel.mock.calls.length).toBe(1);
-
-    expect(utils.sendNotification).toBeCalledWith(sendNotificationDoc);
-    expect(utils.sendNotification.mock.calls.length).toBe(2);
-  });
-
-  test('test mutations.channelsRemove', async () => {
-    Channels.removeChannel = jest.fn();
-
-    await channelMutations.channelsRemove(null, { _id: _channelId }, { user: _adminUser });
-
-    expect(Channels.removeChannel).toBeCalledWith(_channelId);
-    expect(Channels.removeChannel.mock.calls.length).toEqual(1);
+    expect(await Channels.findOne({ _id: _channel._id })).toBe(null);
   });
 });

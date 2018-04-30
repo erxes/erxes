@@ -1,4 +1,4 @@
-import { Channels, Brands, Conversations, Tags } from '../../../db/models';
+import { Channels, Brands, Conversations, ConversationMessages, Tags } from '../../../db/models';
 import { CONVERSATION_STATUSES, INTEGRATION_KIND_CHOICES } from '../../constants';
 import QueryBuilder from './conversationQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
@@ -16,13 +16,35 @@ const conversationQueries = {
     }
 
     // initiate query builder
-    const qb = new QueryBuilder(params, { _id: user._id });
+    const qb = new QueryBuilder(params, {
+      _id: user._id,
+      starredConversationIds: user.starredConversationIds,
+    });
 
     await qb.buildAllQueries();
 
     return Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
       .limit(params.limit);
+  },
+
+  /**
+   * Get conversation messages
+   * @param {String} args._id
+   * @param {Integer} args.skip
+   * @return {Promise} filtered messages list by given parameters
+   */
+  conversationMessages(root, { conversationId, skip, limit }) {
+    const query = { conversationId };
+
+    if (skip && limit) {
+      return ConversationMessages.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(10);
+    }
+
+    return ConversationMessages.find(query).sort({ createdAt: 1 });
   },
 
   /**
@@ -43,7 +65,10 @@ const conversationQueries = {
       byTags: {},
     };
 
-    const qb = new QueryBuilder(params, { _id: user._id });
+    const qb = new QueryBuilder(params, {
+      _id: user._id,
+      starredConversationIds: user.starredConversationIds,
+    });
 
     await qb.buildAllQueries();
 
@@ -159,7 +184,10 @@ const conversationQueries = {
    */
   async conversationsTotalCount(root, params, { user }) {
     // initiate query builder
-    const qb = new QueryBuilder(params, { _id: user._id });
+    const qb = new QueryBuilder(params, {
+      _id: user._id,
+      starredConversationIds: user.starredConversationIds,
+    });
 
     await qb.buildAllQueries();
 
@@ -173,7 +201,10 @@ const conversationQueries = {
    */
   async conversationsGetLast(root, params, { user }) {
     // initiate query builder
-    const qb = new QueryBuilder(params, { _id: user._id });
+    const qb = new QueryBuilder(params, {
+      _id: user._id,
+      starredConversationIds: user.starredConversationIds,
+    });
 
     await qb.buildAllQueries();
 

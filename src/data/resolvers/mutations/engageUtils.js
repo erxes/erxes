@@ -1,3 +1,5 @@
+import AWS from 'aws-sdk';
+import nodemailer from 'nodemailer';
 import {
   EngageMessages,
   Customers,
@@ -16,7 +18,20 @@ import {
 } from '../../constants';
 import Random from 'meteor-random';
 import QueryBuilder from '../queries/segmentQueryBuilder';
-import { createTransporter } from '../../utils';
+
+const createTransporter = async () => {
+  const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+
+  AWS.config.update({
+    region: AWS_REGION,
+    accessKeyId: AWS_SES_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
+  });
+
+  return nodemailer.createTransport({
+    SES: new AWS.SES({ apiVersion: '2010-12-01' }),
+  });
+};
 
 /**
  * Dynamic content tags
@@ -63,17 +78,6 @@ const findCustomers = async ({ customerIds, segmentId }) => {
   return await Customers.find(customerQuery);
 };
 
-/*
- * Send email callback
- */
-export const sendEmailCb = (messageId, mailMessageId, error) => {
-  // set new status
-  const status = error ? 'failed' : 'sent';
-
-  // update status
-  EngageMessages.changeDeliveryReportStatus(messageId, mailMessageId, status);
-};
-
 /**
  * Send via email
  * @param {Object} engage message object
@@ -81,6 +85,7 @@ export const sendEmailCb = (messageId, mailMessageId, error) => {
 const sendViaEmail = async message => {
   const { fromUserId, segmentId, customerIds } = message;
   const { templateId, subject, content } = message.email;
+  const { AWS_SES_CONFIG_SET } = process.env;
 
   const user = await Users.findOne({ _id: fromUserId });
   const userEmail = user.email;
@@ -112,16 +117,17 @@ const sendViaEmail = async message => {
     // send email =========
     const transporter = await createTransporter();
 
-    transporter.sendMail(
-      {
-        from: userEmail,
-        to: customer.email,
-        subject: replacedSubject,
-        html: replacedContent,
+    transporter.sendMail({
+      from: userEmail,
+      to: customer.email,
+      subject: replacedSubject,
+      html: replacedContent,
+      headers: {
+        'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET,
+        EngageMessageId: message._id,
+        MailMessageId: mailMessageId,
       },
-      /* istanbul ignore next */
-      error => sendEmailCb(message._id, mailMessageId, error),
-    );
+    });
   }
 };
 

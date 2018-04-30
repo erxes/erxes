@@ -1,62 +1,70 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
-import { Notifications, NotificationConfigurations } from '../db/models';
-import notificationMutations from '../data/resolvers/mutations/notifications';
-import { userFactory } from '../db/factories';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { Notifications } from '../db/models';
+import { userFactory, notificationFactory } from '../db/factories';
 import { Users } from '../db/models';
 
 beforeAll(() => connect());
+
 afterAll(() => disconnect());
 
 describe('testing mutations', () => {
   let _user;
+  let _notification;
+  let context;
 
   beforeEach(async () => {
+    // Creating test data
     _user = await userFactory({});
+    _notification = await notificationFactory({ createdUser: _user });
+    context = { user: _user };
   });
 
   afterEach(async () => {
+    // Clearing test data
     await Users.remove({});
+    await Notifications.remove({});
   });
 
-  test('test if `logging required` error is working as intended', () => {
-    expect.assertions(2);
-
-    // Login required ==================
-    expect(() => notificationMutations.notificationsSaveConfig(null, {}, {})).toThrowError(
-      'Login required',
-    );
-
-    expect(() => notificationMutations.notificationsMarkAsRead(null, {}, {})).toThrowError(
-      'Login required',
-    );
-  });
-
-  test('testing if notification configuration is saved and updated successfully', async () => {
-    NotificationConfigurations.createOrUpdateConfiguration = jest.fn();
-
-    const doc = {
+  test('Save notification config', async () => {
+    const args = {
       notifType: 'conversationAddMessage',
       isAllowed: true,
-      user: _user._id,
     };
 
-    await notificationMutations.notificationsSaveConfig(null, doc, { user: _user });
+    const mutation = `
+      mutation notificationsSaveConfig($notifType: String! $isAllowed: Boolean) {
+        notificationsSaveConfig(notifType: $notifType isAllowed: $isAllowed) {
+          notifType
+          isAllowed
+        }
+      }
+    `;
 
-    expect(NotificationConfigurations.createOrUpdateConfiguration).toBeCalledWith(doc, _user);
-    expect(NotificationConfigurations.createOrUpdateConfiguration.mock.calls.length).toBe(1);
+    const notification = await graphqlRequest(mutation, 'notificationsSaveConfig', args, context);
+
+    expect(notification.notifType).toBe(args.notifType);
+    expect(notification.isAllowed).toBe(args.isAllowed);
   });
 
-  test('testing if notifications are being marked as read successfully', async () => {
-    Notifications.markAsRead = jest.fn();
+  test('Mark as read notification', async () => {
+    const mutation = `
+      mutation notificationsMarkAsRead($_ids: [String]) {
+        notificationsMarkAsRead(_ids: $_ids)
+      }
+    `;
 
-    const args = { _ids: ['11111', '22222'] };
+    await graphqlRequest(
+      mutation,
+      'notificationsMarkAsRead',
+      { _ids: [_notification._id] },
+      context,
+    );
 
-    await notificationMutations.notificationsMarkAsRead(null, args, { user: _user });
+    const [notification] = await Notifications.find({ _id: { $in: _notification._id } });
 
-    expect(Notifications.markAsRead).toBeCalledWith(args['_ids'], _user._id);
-    expect(Notifications.markAsRead.mock.calls.length).toBe(1);
+    expect(notification.isRead).toBe(true);
   });
 });

@@ -1,48 +1,8 @@
 import mongoose from 'mongoose';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
+import { TwitterResponseSchema } from '../../trackers/schemas';
 import { Users, ConversationMessages } from '../../db/models';
 import { field } from './utils';
-
-const TwitterDirectMessageSchema = mongoose.Schema(
-  {
-    senderId: field({
-      type: Number,
-    }),
-    senderIdStr: field({
-      type: String,
-    }),
-    recipientId: field({
-      type: Number,
-    }),
-    recipientIdStr: field({
-      type: String,
-    }),
-  },
-  { _id: false },
-);
-
-// Twitter schema
-const TwitterSchema = mongoose.Schema(
-  {
-    id: field({
-      type: Number,
-      optional: true,
-    }),
-    idStr: field({
-      type: String,
-    }),
-    screenName: field({
-      type: String,
-    }),
-    isDirectMessage: field({
-      type: Boolean,
-    }),
-    directMessage: field({
-      type: TwitterDirectMessageSchema,
-    }),
-  },
-  { _id: false },
-);
 
 // facebook schema
 const FacebookSchema = mongoose.Schema(
@@ -105,7 +65,7 @@ const ConversationSchema = mongoose.Schema({
 
   // number of total conversations
   number: field({ type: Number }),
-  twitterData: field({ type: TwitterSchema }),
+  twitterData: field({ type: TwitterResponseSchema }),
   facebookData: field({ type: FacebookSchema }),
 });
 

@@ -7,7 +7,9 @@ import { userFactory } from '../db/factories';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-beforeAll(() => connect());
+beforeAll(() => {
+  connect(), Users.collection.ensureIndex({ email: 1 }, { unique: true });
+});
 
 afterAll(() => disconnect());
 
@@ -24,57 +26,90 @@ describe('User db utils', () => {
     await Users.remove({});
   });
 
-  test('Create user: twitter handler duplication', async () => {
-    expect.assertions(3);
-
-    _user.details.twitterUsername = undefined;
-    await _user.save();
-
-    // don not check duplication when there is not twitter username specified
-    let createdUser = await Users.createUser({ password: 'password', details: {} });
-    expect(createdUser.details.twitterUsername).toBe(undefined);
-
-    // duplicated ==================
-    _user.details.twitterUsername = 'twitter';
-    await _user.save();
-
-    try {
-      await Users.createUser({
-        password: 'password',
-        details: { twitterUsername: 'twitter' },
-      });
-    } catch (e) {
-      expect(e.message).toBe('Duplicated twitter username');
-    }
-
-    // not duplicated ==========
-    createdUser = await Users.createUser({
-      password: 'password',
-      details: { twitterUsername: 'other twitter' },
-    });
-
-    expect(createdUser.details.twitterUsername).toBe('other twitter');
-  });
-
   test('Create user', async () => {
     const testPassword = 'test';
 
     const userObj = await Users.createUser({
       ..._user._doc,
-      details: { ..._user.details.toJSON(), twitterUsername: 'twitter' },
+      details: { ..._user.details.toJSON() },
+      links: { ..._user.links.toJSON() },
       password: testPassword,
+      email: 'qwerty@qwerty.com',
     });
 
     expect(userObj).toBeDefined();
     expect(userObj._id).toBeDefined();
     expect(userObj.username).toBe(_user.username);
-    expect(userObj.email).toBe(_user.email);
+    expect(userObj.email).toBe('qwerty@qwerty.com');
     expect(userObj.role).toBe(_user.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(_user.details.position);
-    expect(userObj.details.twitterUsername).toBe('twitter');
     expect(userObj.details.fullName).toBe(_user.details.fullName);
     expect(userObj.details.avatar).toBe(_user.details.avatar);
+    expect(userObj.links.toJSON()).toEqual(_user.links.toJSON());
+  });
+
+  test('Create user with empty string password', async () => {
+    try {
+      await Users.createUser({
+        ..._user._doc,
+        details: { ..._user.details.toJSON() },
+        password: '',
+        email: '123@qwerty.com',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Password can not be empty');
+    }
+  });
+
+  test('Change user password with empty string', async () => {
+    expect.assertions(1);
+    const user = await userFactory({});
+
+    // try with empty password ============
+    try {
+      await Users.changePassword({ _id: user._id, currentPassword: 'admin', newPassword: '' });
+    } catch (e) {
+      expect(e.message).toBe('Password can not be empty');
+    }
+  });
+
+  test('Create, update user and editProfile with duplicated email', async () => {
+    expect.assertions(3);
+
+    const user = await userFactory({ email: 'test@email.com' });
+
+    // create with duplicated email
+    try {
+      await Users.createUser({
+        ..._user._doc,
+        details: { ..._user.details.toJSON() },
+        password: '123',
+        email: user.email,
+      });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
+    // update with duplicated email
+    try {
+      await Users.updateUser(_user._id, {
+        details: { ..._user.details.toJSON() },
+        email: user.email,
+      });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
+    // edit profile with duplicated email
+    try {
+      await Users.editProfile(_user._id, {
+        details: { ..._user.details.toJSON() },
+        email: user.email,
+      });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
   });
 
   test('Update user', async () => {
@@ -84,28 +119,28 @@ describe('User db utils', () => {
 
     // try with password ============
     await Users.updateUser(_user._id, {
-      email: updateDoc.email,
+      email: '123@gmail.com',
       username: updateDoc.username,
       password: testPassword,
-      details: { ...updateDoc._doc.details.toJSON(), twitterUsername: 'tw' },
+      details: { ...updateDoc._doc.details.toJSON() },
+      links: { ...updateDoc._doc.links.toJSON() },
     });
 
     let userObj = await Users.findOne({ _id: _user._id });
 
     expect(userObj.username).toBe(updateDoc.username);
-    expect(userObj.email).toBe(updateDoc.email);
+    expect(userObj.email).toBe('123@gmail.com');
     expect(userObj.role).toBe(userObj.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(updateDoc.details.position);
-    expect(userObj.details.twitterUsername).toBe('tw');
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
+    expect(userObj.links.toJSON()).toEqual(updateDoc.links.toJSON());
 
     // try without password ============
     await Users.updateUser(_user._id, {
-      email: updateDoc.email,
-      username: updateDoc.username,
-      details: { ...updateDoc._doc.details.toJSON(), twitterUsername: 'tw' },
+      username: 'qwe',
+      details: { ...updateDoc._doc.details.toJSON() },
     });
 
     userObj = await Users.findOne({ _id: _user._id });
@@ -125,19 +160,20 @@ describe('User db utils', () => {
     const updateDoc = await userFactory();
 
     await Users.editProfile(_user._id, {
-      email: updateDoc.email,
+      email: 'testEmail@yahoo.com',
       username: updateDoc.username,
       details: updateDoc._doc.details,
+      links: updateDoc._doc.links,
     });
 
     const userObj = await Users.findOne({ _id: _user._id });
 
     expect(userObj.username).toBe(updateDoc.username);
-    expect(userObj.email).toBe(updateDoc.email);
+    expect(userObj.email).toBe('testEmail@yahoo.com');
     expect(userObj.details.position).toBe(updateDoc.details.position);
-    expect(userObj.details.twitterUsername).toBe(updateDoc.details.twitterUsername);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
+    expect(userObj.links.toJSON()).toEqual(updateDoc.links.toJSON());
   });
 
   test('Config email signature', async () => {

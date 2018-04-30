@@ -270,19 +270,20 @@ class ActivityLog {
    * @return {Promise} Return Promise resolving created ActivityLog
    */
   static createCustomerRegistrationLog(customer, user) {
-    const performer =
-      (user &&
-        user._id && {
-          type: ACTIVITY_PERFORMER_TYPES.USER,
-          id: user._id,
-        }) ||
-      null;
+    let performer = null;
+
+    if (user && user._id) {
+      performer = {
+        type: ACTIVITY_PERFORMER_TYPES.USER,
+        id: user._id,
+      };
+    }
 
     return this.createDoc({
       activity: {
         type: ACTIVITY_TYPES.CUSTOMER,
         action: ACTIVITY_ACTIONS.CREATE,
-        content: customer.name,
+        content: customer.getFullName(),
         id: customer._id,
       },
       coc: {
@@ -300,13 +301,14 @@ class ActivityLog {
    * @return {Promise} Return Promise resolving created ActivityLog
    */
   static createCompanyRegistrationLog(company, user) {
-    const performer =
-      (user &&
-        user._id && {
-          type: ACTIVITY_PERFORMER_TYPES.USER,
-          id: user._id,
-        }) ||
-      null;
+    let performer = null;
+
+    if (user && user._id) {
+      performer = {
+        type: ACTIVITY_PERFORMER_TYPES.USER,
+        id: user._id,
+      };
+    }
 
     return this.createDoc({
       activity: {
@@ -324,6 +326,37 @@ class ActivityLog {
   }
 
   /**
+   * Creates a deal company registration log
+   * @param {Company} deal - Deal document
+   * @param {user} user - User document
+   * @return {Promise} Return Promise resolving created ActivityLog
+   */
+  static createDealRegistrationLog(deal, user) {
+    let performer = null;
+
+    if (user && user._id) {
+      performer = {
+        type: ACTIVITY_PERFORMER_TYPES.USER,
+        id: user._id,
+      };
+    }
+
+    return this.createDoc({
+      activity: {
+        type: ACTIVITY_TYPES.DEAL,
+        action: ACTIVITY_ACTIONS.CREATE,
+        content: deal.name,
+        id: deal._id,
+      },
+      coc: {
+        type: COC_CONTENT_TYPES.DEAL,
+        id: deal._id,
+      },
+      performer,
+    });
+  }
+
+  /**
    * Transfers customers' activity logs to another customer
    * @param {String} newCustomerId - Customer id to set
    * @param {String[]} customerIds - Old customer ids to change
@@ -334,12 +367,16 @@ class ActivityLog {
       // Updating every activity log of customer
       await this.updateMany(
         { coc: { id: customerId, type: COC_CONTENT_TYPES.CUSTOMER } },
-        { $set: { coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } } },
+        {
+          $set: { coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } },
+        },
       );
     }
 
     // Returning updated list of activity logs of new customer
-    return this.find({ coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } });
+    return this.find({
+      coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId },
+    });
   }
 
   /**
@@ -382,7 +419,9 @@ class ActivityLog {
     }
 
     // Returning updated list of activity logs of new company
-    return this.find({ coc: { type: COC_CONTENT_TYPES.COMPANY, id: newCompanyId } });
+    return this.find({
+      coc: { type: COC_CONTENT_TYPES.COMPANY, id: newCompanyId },
+    });
   }
 }
 

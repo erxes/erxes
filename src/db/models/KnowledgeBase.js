@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { PUBLISH_STATUSES } from '../../data/constants';
+import { PUBLISH_STATUSES, LANGUAGE_CHOICES } from '../../data/constants';
 import { field } from './utils';
 
 // Schema for common fields
@@ -249,10 +249,20 @@ const TopicSchema = mongoose.Schema({
   title: field({ type: String }),
   description: field({ type: String }),
   brandId: field({ type: String }),
+
   categoryIds: field({
     type: [String],
     required: false,
   }),
+
+  color: field({ type: String }),
+
+  languageCode: field({
+    type: String,
+    enum: LANGUAGE_CHOICES,
+    optional: true,
+  }),
+
   ...commonFields,
 });
 

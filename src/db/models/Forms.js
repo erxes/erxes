@@ -1,8 +1,29 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { Integrations, Fields } from './';
+import { Fields } from './';
 import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import { field } from './utils';
+
+// schema for form's callout component
+const CalloutSchema = mongoose.Schema(
+  {
+    title: field({ type: String, optional: true }),
+    body: field({ type: String, optional: true }),
+    buttonText: field({ type: String, optional: true }),
+    featuredImage: field({ type: String, optional: true }),
+    skip: field({ type: Boolean, optional: true }),
+  },
+  { _id: false },
+);
+
+// schema for form submission details
+const SubmissionSchema = mongoose.Schema(
+  {
+    customerId: field({ type: String }),
+    submittedAt: field({ type: Date }),
+  },
+  { _id: false },
+);
 
 // schema for form document
 const FormSchema = mongoose.Schema({
@@ -12,12 +33,18 @@ const FormSchema = mongoose.Schema({
     type: String,
     optional: true,
   }),
+  buttonText: field({ type: String, optional: true }),
+  themeColor: field({ type: String, optional: true }),
   code: field({ type: String }),
   createdUserId: field({ type: String }),
   createdDate: field({
     type: Date,
     default: Date.now,
   }),
+  callout: field({ type: CalloutSchema, default: {} }),
+  viewCount: field({ type: Number }),
+  contactsGathered: field({ type: Number }),
+  submissions: field({ type: [SubmissionSchema] }),
 });
 
 class Form {
@@ -42,6 +69,9 @@ class Form {
    * @param {Object} doc - Form object
    * @param {string} doc.title - Form title
    * @param {string} doc.description - Form description
+   * @param {string} doc.buttonText - Form submit button text
+   * @param {string} doc.themeColor - Form theme color
+   * @param {Object} doc.callout - Form's callout component detail
    * @param {Date} doc.createdDate - Form creation date
    * @param {Object|string} createdUser - The user who is creating this form,
    * can be both user id or user object
@@ -66,10 +96,18 @@ class Form {
    * @param {Object} object - Form object
    * @param {string} object.title - Form title
    * @param {string} object.description - Form description
+   * @param {string} object.buttonText - Form submit button text
+   * @param {string} object.themeColor - Form theme color
+   * @param {Object} object.callout - Form's callout component detail
    * @return {Promise} returns Promise resolving updated Form document
    */
-  static async updateForm(_id, { title, description }) {
-    await this.update({ _id }, { $set: { title, description } }, { runValidators: true });
+  static async updateForm(_id, { title, description, buttonText, themeColor, callout }) {
+    await this.update(
+      { _id },
+      { $set: { title, description, buttonText, themeColor, callout } },
+      { runValidators: true },
+    );
+
     return this.findOne({ _id });
   }
 
@@ -77,20 +115,10 @@ class Form {
    * Remove a form
    * @param {string} _id - Form document id
    * @return {Promise}
-   * @throws {Error} throws Error if this form has fields or if used in an integration
    */
   static async removeForm(_id) {
-    const fieldCount = await Fields.find({ contentTypeId: _id }).count();
-
-    if (fieldCount > 0) {
-      throw new Error('You cannot delete this form. This form has some fields.');
-    }
-
-    const integrationCount = await Integrations.find({ formId: _id }).count();
-
-    if (integrationCount > 0) {
-      throw new Error('You cannot delete this form. This form used in integration.');
-    }
+    // remove fields
+    await Fields.remove({ contentType: 'form', contentTypeId: _id });
 
     return this.remove({ _id });
   }

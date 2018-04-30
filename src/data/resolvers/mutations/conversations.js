@@ -1,8 +1,8 @@
 import { _ } from 'underscore';
 import strip from 'strip';
 import { Conversations, ConversationMessages, Integrations, Customers } from '../../../db/models';
-import { tweetReply } from '../../../social/twitter';
-import { facebookReply } from '../../../social/facebook';
+import { tweetReply, tweet, retweet, favorite } from '../../../trackers/twitter';
+import { facebookReply } from '../../../trackers/facebook';
 import { NOTIFICATION_TYPES } from '../../constants';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
 import { requireLogin } from '../../permissions';
@@ -64,15 +64,24 @@ const conversationsChanged = async (_ids, type) => {
  * @param  {String} conversationId
  */
 export const conversationMessageCreated = async (message, conversationId) => {
-  // subscribe
+  // subscribe message created
   pubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
   });
 
   const conversation = await Conversations.findOne({ _id: conversationId });
 
+  // subscribe conversation changed
   pubsub.publish('conversationsChanged', {
     conversationsChanged: { customerId: conversation.customerId, type: 'newMessage' },
+  });
+
+  // subscribe customer connected
+  // We are calling this subscription when customer connect. But sometimes
+  // somehow connection is being lost, So we are forcing this customer as connected
+  // when new message
+  pubsub.publish('customerConnectionChanged', {
+    customerConnectionChanged: { _id: conversation.customerId, status: 'connected' },
   });
 
   // notify notification subscription
@@ -97,14 +106,14 @@ const conversationMutations = {
   async conversationSubscribeMessageCreated(root, { _id }) {
     const message = await ConversationMessages.findOne({ _id });
 
-    conversationMessageCreated(message, message.conversationId);
+    return conversationMessageCreated(message, message.conversationId);
   },
 
   /*
    * Calling this mutation from widget api run read state subscription
    */
   async conversationSubscribeChanged(root, { _ids, type }) {
-    conversationsChanged(_ids, type);
+    return conversationsChanged(_ids, type);
   },
 
   /**
@@ -146,7 +155,13 @@ const conversationMutations = {
 
     // send reply to twitter
     if (kind === KIND_CHOICES.TWITTER) {
-      await tweetReply(conversation, strip(doc.content));
+      await tweetReply({
+        conversation,
+        text: strip(doc.content),
+        toId: doc.tweetReplyToId,
+        toScreenName: doc.tweetReplyToScreenName,
+      });
+
       return null;
     }
 
@@ -178,6 +193,42 @@ const conversationMutations = {
     await conversationMessageCreated(message, doc.conversationId);
 
     return message;
+  },
+
+  /**
+   * Tweet
+   *
+   * @param {String} doc.integrationId
+   * @param {String} doc.text
+   *
+   * @return {Promise} - twitter response
+   */
+  async conversationsTweet(root, doc) {
+    return tweet(doc);
+  },
+
+  /**
+   * Retweet
+   *
+   * @param {String} doc.integrationId - Integration id
+   * @param {String} doc.id - Tweet id
+   *
+   * @return {Promise} - twitter response
+   */
+  async conversationsRetweet(root, doc) {
+    return retweet(doc);
+  },
+
+  /**
+   * Favorite
+   *
+   * @param {String} doc.integrationId
+   * @param {String} doc.id
+   *
+   * @return {Promise} - twitter response
+   */
+  async conversationsFavorite(root, doc) {
+    return favorite(doc);
   },
 
   /**

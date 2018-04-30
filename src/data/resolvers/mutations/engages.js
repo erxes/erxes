@@ -1,7 +1,8 @@
-import { EngageMessages } from '../../../db/models';
-import { MESSAGE_KINDS } from '../../constants';
+import { EngageMessages, Users } from '../../../db/models';
+import { MESSAGE_KINDS, METHODS } from '../../constants';
 import { send } from './engageUtils';
 import { moduleRequireLogin } from '../../permissions';
+import { awsRequests } from '../../../trackers/engageTracker';
 
 const engageMutations = {
   /**
@@ -20,6 +21,26 @@ const engageMutations = {
    * @return {Promise} message object
    */
   async engageMessageAdd(root, doc) {
+    const { method, fromUserId } = doc;
+
+    if (method === METHODS.EMAIL) {
+      // Checking if configs exist
+      const { AWS_SES_CONFIG_SET = '', AWS_SES_ENDPOINT = '' } = process.env;
+
+      if (AWS_SES_CONFIG_SET === '' || AWS_SES_ENDPOINT === '') {
+        throw new Error('Could not locate configs on AWS SES');
+      }
+
+      const user = await Users.findOne({ _id: fromUserId });
+
+      const { VerifiedEmailAddresses = [] } = await awsRequests.getVerifiedEmails();
+
+      // If verified creates engagemessage
+      if (!VerifiedEmailAddresses.includes(user.email)) {
+        throw new Error('Email not verified');
+      }
+    }
+
     const engageMessage = await EngageMessages.createEngageMessage(doc);
 
     // if manual and live then send immediately

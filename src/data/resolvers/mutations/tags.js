@@ -40,7 +40,7 @@ const tagMutations = {
   * @param {[String]} tagIds
   */
   tagsTag(root, { type, targetIds, tagIds }) {
-    Tags.tagsTag(type, targetIds, tagIds);
+    return Tags.tagsTag(type, targetIds, tagIds);
   },
 };
 

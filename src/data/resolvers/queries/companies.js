@@ -1,6 +1,6 @@
-import { Companies, Segments } from '../../../db/models';
+import { Companies, Segments, Tags } from '../../../db/models';
 import QueryBuilder from './segmentQueryBuilder';
-import { COC_CONTENT_TYPES } from '../../constants';
+import { TAG_TYPES, COC_CONTENT_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
@@ -30,23 +30,38 @@ const listQuery = async params => {
     selector.tagIds = params.tag;
   }
 
+  // filter directly using ids
+  if (params.ids) {
+    selector = { _id: { $in: params.ids } };
+  }
+
   return selector;
 };
 
 const companyQueries = {
   /**
    * Companies list
-   * @param {Object} args - Query params
+   * @param {Object} args
    * @return {Promise} filtered companies list by given parameters
    */
-  async companies(root, { ids, ...params }) {
-    if (params.ids) {
-      return paginate(Companies.find({ _id: { $in: ids } }), params);
-    }
-
-    let selector = await listQuery(params);
+  async companies(root, params) {
+    const selector = await listQuery(params);
 
     return paginate(Companies.find(selector), params);
+  },
+
+  /**
+   * Companies for only main list
+   * @param {Object} args
+   * @return {Promise} filtered companies list by given parameters
+   */
+  async companiesMain(root, params) {
+    const selector = await listQuery(params);
+
+    const list = await paginate(Companies.find(selector), params);
+    const totalCount = await Companies.find(selector).count();
+
+    return { list, totalCount };
   },
 
   /**
@@ -57,19 +72,15 @@ const companyQueries = {
   async companyCounts(root, args) {
     const counts = {
       bySegment: {},
-      byBrand: {},
-      byIntegrationType: {},
       byTag: {},
     };
+
     const selector = await listQuery(args);
 
     const count = query => {
       const findQuery = Object.assign({}, selector, query);
       return Companies.find(findQuery).count();
     };
-
-    // Count current filtered companies
-    counts.all = await count(selector);
 
     // Count companies by segments
     const segments = await Segments.find({
@@ -78,6 +89,13 @@ const companyQueries = {
 
     for (let s of segments) {
       counts.bySegment[s._id] = await count(QueryBuilder.segments(s));
+    }
+
+    // Count companies by tag
+    const tags = await Tags.find({ type: TAG_TYPES.COMPANY });
+
+    for (let tag of tags) {
+      counts.byTag[tag._id] = await count({ tagIds: tag._id });
     }
 
     return counts;

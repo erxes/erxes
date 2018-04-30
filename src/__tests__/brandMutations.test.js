@@ -1,127 +1,141 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { Brands } from '../db/models';
-import { ROLES } from '../data/constants';
-import brandMutations from '../data/resolvers/mutations/brands';
+import { Users, Brands, Integrations } from '../db/models';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { userFactory, brandFactory, integrationFactory } from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
 
 describe('Brands mutations', () => {
-  const _brand = {
-    _id: 'fakeBrandId',
-    code: 'fakeBrandCode',
-    name: 'fakeBrandName',
-  };
-  const _user = { _id: 'fakeId', role: ROLES.CONTRIBUTOR };
-  const _adminUser = { _id: 'fakeId', role: ROLES.ADMIN };
+  let _brand;
+  let _user;
+  let _integration;
+  let context;
 
-  test('Check login required mutations', async () => {
-    const checkLogin = async (fn, args) => {
-      try {
-        await fn({}, args, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
-      }
-    };
+  const commonParamDefs = `
+    $name: String!
+    $description: String!
+  `;
 
-    expect.assertions(4);
+  const commonParams = `
+    name: $name
+    description: $description
+  `;
 
-    // brands add
-    checkLogin(brandMutations.brandsAdd, { code: _brand.code, name: _brand.name });
+  beforeEach(async () => {
+    // Creating test data
+    _brand = await brandFactory();
+    _user = await userFactory({ role: 'admin' });
+    _integration = await integrationFactory();
 
-    // brands edit
-    checkLogin(brandMutations.brandsEdit, { _id: _brand._id });
-
-    // brands remove
-    checkLogin(brandMutations.brandsRemove, { _id: _brand._id });
-
-    // brands update email config
-    checkLogin(brandMutations.brandsConfigEmail, { _id: _brand._id });
+    context = { user: _user };
   });
 
-  test(`test if Error('Permission required') error is working as intended`, async () => {
-    const checkLogin = async (fn, args) => {
-      try {
-        await fn({}, args, { user: _user });
-      } catch (e) {
-        expect(e.message).toEqual('Permission required');
-      }
-    };
-
-    expect.assertions(4);
-
-    // brands add
-    checkLogin(brandMutations.brandsAdd, { code: _brand.code, name: _brand.name });
-
-    // brands edit
-    checkLogin(brandMutations.brandsEdit, { _id: _brand._id });
-
-    // brands remove
-    checkLogin(brandMutations.brandsRemove, { _id: _brand._id });
-
-    // brands update email config
-    checkLogin(brandMutations.brandsConfigEmail, { _id: _brand._id });
+  afterEach(async () => {
+    // Clearing test data
+    await Brands.remove({});
+    await Users.remove({});
+    await Integrations.remove({});
   });
 
   test('Create brand', async () => {
-    const _doc = {
-      code: _brand.code,
+    const args = {
       name: _brand.name,
       description: _brand.description,
     };
 
-    Brands.createBrand = jest.fn();
+    const mutation = `
+      mutation brandsAdd(${commonParamDefs}) {
+        brandsAdd(${commonParams}) {
+          _id
+          name
+          description
+        }
+      }
+    `;
 
-    await brandMutations.brandsAdd({}, _doc, { user: _adminUser });
+    const brand = await graphqlRequest(mutation, 'brandsAdd', args, context);
 
-    expect(Brands.createBrand.mock.calls.length).toBe(1);
-    expect(Brands.createBrand).toBeCalledWith({ userId: _adminUser._id, ..._doc });
+    expect(brand.name).toEqual(args.name);
+    expect(brand.description).toEqual(args.description);
   });
 
   test('Update brand', async () => {
-    Brands.updateBrand = jest.fn();
-
-    const _doc = {
-      code: 'test',
-      name: 'test',
-      description: 'test',
+    const args = {
+      _id: _brand._id,
+      name: 'name',
+      description: 'Soem texte',
     };
 
-    // update brand object
-    await brandMutations.brandsEdit({}, { _id: _brand._id, ..._doc }, { user: _adminUser });
+    const mutation = `
+      mutation brandsEdit($_id: String!, ${commonParamDefs}) {
+        brandsEdit(_id: $_id, ${commonParams}) {
+          _id
+          name
+          description
+        }
+      }
+    `;
 
-    expect(Brands.updateBrand.mock.calls.length).toBe(1);
-    expect(Brands.updateBrand).toBeCalledWith(_brand._id, _doc);
+    const brand = await graphqlRequest(mutation, 'brandsEdit', args, context);
+
+    expect(brand.name).toBe(args.name);
+    expect(brand.description).toBe(args.description);
   });
 
-  test('Delete brand', async () => {
-    Brands.removeBrand = jest.fn();
+  test('Remove brand', async () => {
+    const mutation = `
+      mutation brandsRemove($_id: String!) {
+        brandsRemove(_id: $_id)
+      }
+    `;
 
-    await brandMutations.brandsRemove({}, { _id: _brand._id }, { user: _adminUser });
-    expect(Brands.removeBrand.mock.calls.length).toBe(1);
-    expect(Brands.removeBrand).toBeCalledWith(_brand._id);
+    await graphqlRequest(mutation, 'brandsRemove', { _id: _brand._id }, context);
+
+    expect(await Brands.findOne({ _id: _brand._id })).toBe(null);
   });
 
-  test('Update brand email config', async () => {
-    Brands.updateEmailConfig = jest.fn();
+  test('Config email brand', async () => {
+    const args = {
+      _id: _brand._id,
+      emailConfig: _brand.emailConfig,
+    };
 
-    await brandMutations.brandsConfigEmail(
-      {},
-      { _id: _brand._id, emailConfig: _brand.emailConfig },
-      { user: _adminUser },
-    );
+    const mutation = `
+      mutation brandsConfigEmail($_id: String!, $emailConfig: JSON) {
+        brandsConfigEmail(_id: $_id, emailConfig: $emailConfig){
+          _id
+          emailConfig
+        }
+      }
+    `;
 
-    expect(Brands.updateEmailConfig.mock.calls.length).toBe(1);
-    expect(Brands.updateEmailConfig).toBeCalledWith(_brand._id, _brand.emailConfig);
+    const brand = await graphqlRequest(mutation, 'brandsConfigEmail', args, context);
+
+    expect(brand._id).toBe(args._id);
+    expect(brand.emailConfig.toJSON()).toEqual(args.emailConfig.toJSON());
   });
 
-  test('Manage integrations', async () => {
-    Brands.manageIntegrations = jest.fn();
+  test('Manage brand integrations', async () => {
+    const args = {
+      _id: _brand._id,
+      integrationIds: [_integration._id],
+    };
 
-    const args = { _id: _brand._id, integrationIds: ['_id1', '_id2'] };
+    const mutation = `
+      mutation brandsManageIntegrations($_id: String!, $integrationIds: [String]!) {
+        brandsManageIntegrations(_id: $_id, integrationIds: $integrationIds) {
+          _id
+          brandId
+        }
+      }
+    `;
 
-    await brandMutations.brandsManageIntegrations({}, args, { user: _adminUser });
+    const [integration] = await graphqlRequest(mutation, 'brandsManageIntegrations', args, context);
 
-    expect(Brands.manageIntegrations.mock.calls.length).toBe(1);
-    expect(Brands.manageIntegrations).toBeCalledWith(args);
+    expect(integration.brandId).toBe(args._id);
   });
 });

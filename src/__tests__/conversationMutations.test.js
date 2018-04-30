@@ -1,9 +1,9 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import Twit from 'twit';
 import sinon from 'sinon';
-import { connect, disconnect } from '../db/connection';
+import faker from 'faker';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { Conversations, ConversationMessages, Users, Customers, Integrations } from '../db/models';
 import {
   conversationFactory,
@@ -12,24 +12,26 @@ import {
   integrationFactory,
   customerFactory,
 } from '../db/factories';
-import conversationMutations from '../data/resolvers/mutations/conversations';
-import { TwitMap } from '../social/twitter';
-import { twitRequest } from '../social/twitterTracker';
-import { graphRequest } from '../social/facebookTracker';
+import { TwitMap } from '../trackers/twitter';
+import { twitRequest } from '../trackers/twitterTracker';
 import utils from '../data/utils';
-import { FACEBOOK_DATA_KINDS } from '../data/constants';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
+const toJSON = value => {
+  return JSON.stringify(value);
+};
+
 describe('Conversation message mutations', () => {
   let _conversation;
   let _conversationMessage;
   let _user;
-  let _doc;
   let _integration;
+  let _integrationTwitter;
   let _customer;
+  let context;
 
   beforeEach(async () => {
     // Creating test data
@@ -38,14 +40,14 @@ describe('Conversation message mutations', () => {
     _user = await userFactory();
     _customer = await customerFactory();
     _integration = await integrationFactory({ kind: 'form' });
-
+    _integrationTwitter = await integrationFactory({ kind: 'twitter' });
     _conversation.integrationId = _integration._id;
     _conversation.customerId = _customer._id;
     _conversation.assignedUserId = _user._id;
+
     await _conversation.save();
 
-    _doc = { ..._conversationMessage._doc, conversationId: _conversation._id };
-    delete _doc['_id'];
+    context = { user: _user };
   });
 
   afterEach(async () => {
@@ -62,342 +64,333 @@ describe('Conversation message mutations', () => {
     }
   });
 
-  test('Conversation login required functions', async () => {
-    const checkLogin = async (fn, args) => {
-      try {
-        await fn({}, args, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
-      }
+  test('Add conversation message', async () => {
+    const args = {
+      conversationId: _conversation._id,
+      content: _conversationMessage.content,
+      mentionedUserIds: [_user._id],
+      internal: false,
+      attachments: [{}],
+      tweetReplyToId: faker.random.number(),
+      tweetReplyToScreenName: faker.name.firstName(),
     };
 
-    const _ids = { _ids: [_conversation._id] };
+    const mutation = `
+      mutation conversationMessageAdd(
+        $conversationId: String
+        $content: String
+        $mentionedUserIds: [String]
+        $internal: Boolean
+        $attachments: [JSON]
+        $tweetReplyToId: String
+        $tweetReplyToScreenName: String
+      ) {
+        conversationMessageAdd(
+          conversationId: $conversationId
+          content: $content
+          mentionedUserIds: $mentionedUserIds
+          internal: $internal
+          attachments: $attachments
+          tweetReplyToId: $tweetReplyToId
+          tweetReplyToScreenName: $tweetReplyToScreenName
+        ) {
+          conversationId
+          content
+          mentionedUserIds
+          internal
+          attachments
+        }
+      }
+    `;
 
-    expect.assertions(8);
+    const conversation = await graphqlRequest(mutation, 'conversationMessageAdd', args);
 
-    // add message
-    checkLogin(conversationMutations.conversationMessageAdd, _doc);
-
-    // assign
-    checkLogin(conversationMutations.conversationsAssign, {
-      conversationIds: [_conversation._id],
-      assignedUserId: _user._id,
-    });
-
-    // assign
-    checkLogin(conversationMutations.conversationsUnassign, {
-      conversationIds: [_conversation._id],
-      assignedUserId: _user._id,
-    });
-
-    // change status
-    checkLogin(conversationMutations.conversationsChangeStatus, _ids);
-
-    // conversation star
-    checkLogin(conversationMutations.conversationsStar, _ids);
-
-    // conversation unstar
-    checkLogin(conversationMutations.conversationsUnstar, _ids);
-
-    // add or remove participated users
-    checkLogin(conversationMutations.conversationsToggleParticipate, _ids);
-
-    // mark conversation as read
-    checkLogin(conversationMutations.conversationMarkAsRead, _ids);
+    expect(conversation.content).toBe(args.content);
+    expect(conversation.attachments).toEqual([{}]);
+    expect(toJSON(conversation.mentionedUserIds)).toEqual(toJSON(args.mentionedUserIds));
+    expect(conversation.conversationId).toBe(args.conversationId);
+    expect(conversation.internal).toBe(args.internal);
   });
 
-  test('Add conversation message', async () => {
-    expect.assertions(7);
+  test('Tweet conversation', async () => {
+    const twit = {};
 
-    ConversationMessages.addMessage = jest.fn(() => ({
-      _id: 'messageObject',
-    }));
+    TwitMap[_integrationTwitter._id] = twit;
 
-    const spyNotification = jest.spyOn(utils, 'sendNotification');
-    const spyEmail = jest.spyOn(utils, 'sendEmail');
-
-    await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
-
-    expect(ConversationMessages.addMessage.mock.calls.length).toBe(1);
-    expect(ConversationMessages.addMessage).toBeCalledWith(_doc, _user._id);
-
-    expect(spyNotification.mock.calls.length).toBe(1);
-
-    // send notifincation
-    expect(spyNotification).toBeCalledWith({
-      createdUser: _user._id,
-      notifType: 'conversationAddMessage',
-      title: 'You have a new message.',
-      content: _doc.content,
-      link: `/inbox?_id=${_conversation._id}`,
-      receivers: [],
-    });
-
-    // integration kind form test
-    _doc['internal'] = false;
-    await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
-
-    expect(spyEmail.mock.calls.length).toBe(1);
-
-    // send email
-    expect(spyEmail).toBeCalledWith({
-      to: _customer.email,
-      title: 'Reply',
-      template: {
-        data: _doc.content,
-      },
-    });
-
-    try {
-      // integration not found test
-      _conversation.integrationId = 'test';
-      await _conversation.save();
-      await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
-    } catch (e) {
-      expect(e.message).toEqual('Integration not found');
-    }
-  });
-
-  test('Add conversation message: twitter reply', async () => {
-    // mock utils functions ===============
-    ConversationMessages.addMessage = jest.fn(() => ({ _id: 'messageObject' }));
-    jest.spyOn(utils, 'sendNotification');
-    jest.spyOn(utils, 'sendEmail');
-
-    // mock Twit instance
-    const twit = new Twit({
-      consumer_key: 'consumer_key',
-      consumer_secret: 'consumer_secret',
-      access_token: 'access_token',
-      access_token_secret: 'token_secret',
-    });
+    const args = {
+      integrationId: _integrationTwitter._id,
+      text: faker.random.word(),
+    };
 
     // mock twitter request
     const sandbox = sinon.sandbox.create();
+
     const stub = sandbox.stub(twitRequest, 'post').callsFake(() => {
       return new Promise(resolve => {
         resolve({});
       });
     });
 
-    // creating doc ===================
-    const integration = await integrationFactory({ kind: 'twitter' });
-    const conversation = await conversationFactory({
-      integrationId: integration._id,
-      twitterData: {
-        isDirectMessage: true,
-        directMessage: {
-          senderIdStr: 'sender_id',
-        },
-      },
-    });
+    const mutation = `
+      mutation conversationsTweet($integrationId: String $text: String) {
+        conversationsTweet(integrationId: $integrationId text: $text)
+      }
+    `;
 
-    TwitMap[integration._id] = twit;
-
-    _doc.conversationId = conversation._id;
-    _doc.internal = false;
-
-    // call mutation
-    await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
+    await graphqlRequest(mutation, 'conversationsTweet', args);
 
     // check twit post params
     expect(
-      stub.calledWith(twit, 'direct_messages/new', {
-        user_id: 'sender_id',
-        text: _doc.content,
+      stub.calledWith(twit, 'statuses/update', {
+        status: args.text,
       }),
     ).toBe(true);
+
+    stub.restore();
   });
 
-  test('Add conversation message: facebook reply', async () => {
-    // mock settings
-    process.env.FACEBOOK = JSON.stringify([
-      {
-        id: '1',
-        name: 'name',
-        accessToken: 'access_token',
-      },
-    ]);
+  test('Retweet conversation', async () => {
+    const twit = {};
 
-    // mock utils functions ===============
-    ConversationMessages.addMessage = jest.fn(() => ({ _id: 'messageObject' }));
-    jest.spyOn(utils, 'sendNotification');
-    jest.spyOn(utils, 'sendEmail');
+    const args = {
+      integrationId: _integrationTwitter._id,
+      id: '123',
+    };
 
-    // mock graph api requests
-    const getStub = sinon
-      .stub(graphRequest, 'get')
-      .callsFake(() => ({ access_token: 'access_token' }));
+    TwitMap[_integrationTwitter._id] = twit;
 
-    const postStub = sinon.stub(graphRequest, 'post').callsFake(() => ({ id: 'id' }));
+    // mock twitter request
+    const sandbox = sinon.sandbox.create();
 
-    // factories ============
-    const integration = await integrationFactory({
-      kind: 'facebook',
-      facebookData: {
-        appId: '1',
-      },
+    // mock retweet request
+    const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({
+          retweeted_status: {
+            id_str: '123',
+          },
+        });
+      });
     });
 
-    const conversation = await conversationFactory({
-      integrationId: integration._id,
-      facebookData: {
-        kind: FACEBOOK_DATA_KINDS.FEED,
-        senderId: 'senderId',
-        pageId: 'id',
-        postId: 'postId',
-      },
+    // mock get tweet object request
+    const getStub = sandbox.stub(twitRequest, 'get').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({});
+      });
     });
 
-    _doc.conversationId = conversation._id;
-    _doc.internal = false;
+    const mutation = `
+      mutation conversationsRetweet($integrationId: String $id: String) {
+        conversationsRetweet(integrationId: $integrationId id: $id)
+      }
+    `;
 
-    // call mutation
-    await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
+    await graphqlRequest(mutation, 'conversationsRetweet', args);
 
-    // check stub ==============
-    expect(postStub.called).toBe(true);
+    // check twit post params
+    expect(
+      postStub.calledWith(twit, 'statuses/retweet/:id', {
+        id: args.id,
+      }),
+    ).toBe(true);
 
-    const [arg1, arg2, arg3] = postStub.firstCall.args;
-
-    expect(arg1).toBe('postId/comments');
-    expect(arg2).toBe('access_token');
-    expect(arg3).toEqual({ message: _doc.content });
-
-    getStub.restore();
     postStub.restore();
+    getStub.restore();
   });
 
-  // if user assigned to conversation
-  test('Assign conversation to employee', async () => {
-    Conversations.assignUserConversation = jest.fn(() => [_conversation]);
+  test('Favorite tweet', async () => {
+    const twit = {};
 
-    const spyNotification = jest.spyOn(utils, 'sendNotification');
+    const args = {
+      integrationId: _integrationTwitter._id,
+      id: '123',
+    };
 
-    await conversationMutations.conversationsAssign(
-      {},
-      { conversationIds: [_conversation._id], assignedUserId: _user._id },
-      { user: _user },
-    );
+    TwitMap[_integrationTwitter._id] = twit;
 
-    expect(Conversations.assignUserConversation.mock.calls.length).toBe(1);
-    expect(Conversations.assignUserConversation).toBeCalledWith([_conversation._id], _user._id);
+    // mock twitter request
+    const sandbox = sinon.sandbox.create();
 
-    const content = 'Assigned user has changed';
-
-    // send notifincation
-    expect(spyNotification).toBeCalledWith({
-      createdUser: _user._id,
-      notifType: 'conversationAssigneeChange',
-      title: content,
-      content,
-      link: `/inbox?_id=${_conversation._id}`,
-      receivers: [],
+    // mock retweet request
+    const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({
+          id_str: '123',
+        });
+      });
     });
+
+    // mock get tweet object request
+    const getStub = sandbox.stub(twitRequest, 'get').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({});
+      });
+    });
+
+    const mutation = `
+      mutation conversationsFavorite($integrationId: String $id: String) {
+        conversationsFavorite(integrationId: $integrationId id: $id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'conversationsFavorite', args);
+
+    // check twit post params
+    expect(
+      postStub.calledWith(twit, 'favorites/create', {
+        id: args.id,
+      }),
+    ).toBe(true);
+
+    postStub.restore();
+    getStub.restore();
   });
 
-  test('Unassign employee from conversation', async () => {
-    Conversations.unassignUserConversation = jest.fn();
+  test('Assign conversation', async () => {
+    const args = {
+      conversationIds: [_conversation._id],
+      assignedUserId: _user._id,
+    };
 
-    // assign employee before unassign
-    await conversationMutations.conversationsAssign(
-      {},
-      { conversationIds: [_conversation._id], assignedUserId: _user._id },
-      { user: _user },
-    );
+    const mutation = `
+      mutation conversationsAssign(
+        $conversationIds: [String]!
+        $assignedUserId: String
+      ) {
+        conversationsAssign(
+          conversationIds: $conversationIds
+          assignedUserId: $assignedUserId
+        ) {
+          assignedUser {
+            _id
+          }
+        }
+      }
+    `;
 
-    // unassign
-    await conversationMutations.conversationsUnassign(
-      {},
-      { _ids: [_conversation._id] },
-      { user: _user },
-    );
+    const [conversation] = await graphqlRequest(mutation, 'conversationsAssign', args, context);
 
-    expect(Conversations.unassignUserConversation.mock.calls.length).toBe(1);
-    expect(Conversations.unassignUserConversation).toBeCalledWith([_conversation._id]);
+    expect(conversation.assignedUser._id).toEqual(args.assignedUserId);
+  });
+
+  test('Unassign conversation', async () => {
+    const mutation = `
+      mutation conversationsUnassign($_ids: [String]!) {
+        conversationsUnassign(_ids: $_ids) {
+          assignedUser {
+            _id
+          }
+        }
+      }
+    `;
+
+    const [conversation] = await graphqlRequest(mutation, 'conversationsUnassign', {
+      _ids: [_conversation._id],
+    });
+
+    expect(conversation.assignedUser).toBe(null);
   });
 
   test('Change conversation status', async () => {
-    Conversations.changeStatusConversation = jest.fn();
+    const args = {
+      _ids: [_conversation._id],
+      status: 'closed',
+    };
 
-    const status = 'closed';
-    await conversationMutations.conversationsChangeStatus(
-      {},
-      { _ids: [_conversation._id], status: status },
-      { user: _user },
-    );
+    const mutation = `
+      mutation conversationsChangeStatus($_ids: [String]!, $status: String!) {
+        conversationsChangeStatus(_ids: $_ids, status: $status) {
+          status
+        }
+      }
+    `;
 
-    expect(Conversations.changeStatusConversation.mock.calls.length).toBe(1);
-    expect(Conversations.changeStatusConversation).toBeCalledWith(
-      [_conversation._id],
-      status,
-      _user._id,
-    );
+    const [conversation] = await graphqlRequest(mutation, 'conversationsChangeStatus', args);
+
+    expect(conversation.status).toEqual(args.status);
   });
 
-  test('Conversation star', async () => {
-    Conversations.starConversation = jest.fn();
+  test('Star conversation', async () => {
+    const mutation = `
+      mutation conversationsStar($_ids: [String]!) {
+        conversationsStar(_ids: $_ids) {
+          _id
+        }
+      }
+    `;
 
-    // assign employee before unassign
-    await conversationMutations.conversationsStar(
-      {},
+    const userId = await graphqlRequest(
+      mutation,
+      'conversationsStar',
       { _ids: [_conversation._id] },
-      { user: _user },
+      context,
     );
 
-    expect(Conversations.starConversation.mock.calls.length).toBe(1);
-    expect(Conversations.starConversation).toBeCalledWith([_conversation._id], _user._id);
+    const user = await Users.findOne({ _id: userId });
+
+    expect(user.starredConversationIds).toContain([_conversation._id]);
   });
 
-  test('Conversation unstar', async () => {
-    Conversations.unstarConversation = jest.fn();
+  test('Unstar conversation', async () => {
+    const mutation = `
+      mutation conversationsUnstar($_ids: [String]!) {
+        conversationsUnstar(_ids: $_ids) {
+          _id
+        }
+      }
+    `;
 
-    const ids = [_conversation._id];
-
-    // unstar
-    await conversationMutations.conversationsUnstar({}, { _ids: ids }, { user: _user });
-
-    expect(Conversations.unstarConversation.mock.calls.length).toBe(1);
-    expect(Conversations.unstarConversation).toBeCalledWith([_conversation._id], _user._id);
-  });
-
-  test('Toggle participated users in conversation ', async () => {
-    Conversations.toggleParticipatedUsers = jest.fn();
-
-    // make sure participated users are empty
-    expect(_conversation.participatedUserIds.length).toBe(0);
-    await conversationMutations.conversationsToggleParticipate(
-      {},
+    const userId = await graphqlRequest(
+      mutation,
+      'conversationsUnstar',
       { _ids: [_conversation._id] },
-      { user: _user },
+      context,
     );
 
-    expect(Conversations.toggleParticipatedUsers.mock.calls.length).toBe(1);
-    expect(Conversations.toggleParticipatedUsers).toBeCalledWith([_conversation._id], _user._id);
+    const user = await Users.findOne({ _id: userId });
+
+    expect(user.starredConversationIds).not.toContain([_conversation._id]);
   });
 
-  test('Conversation mark as read', async () => {
-    Conversations.markAsReadConversation = jest.fn();
+  test('Toggle conversation participate', async () => {
+    const mutation = `
+      mutation conversationsToggleParticipate($_ids: [String]!) {
+        conversationsToggleParticipate(_ids: $_ids) {
+          _id
+        }
+      }
+    `;
 
-    await conversationMutations.conversationMarkAsRead(
-      {},
+    const [conversationIds] = await graphqlRequest(
+      mutation,
+      'conversationsToggleParticipate',
+      { _ids: [_conversation._id] },
+      context,
+    );
+
+    const [conversation] = await Conversations.find({ _id: { $in: conversationIds } });
+
+    expect(conversation.participatedUserIds).toContain(_user._id);
+  });
+
+  test('Mark conversation as read', async () => {
+    const mutation = `
+      mutation conversationMarkAsRead($_id: String) {
+        conversationMarkAsRead(_id: $_id) {
+          _id
+          readUserIds
+        }
+      }
+    `;
+
+    const conversation = await graphqlRequest(
+      mutation,
+      'conversationMarkAsRead',
       { _id: _conversation._id },
-      { user: _user },
+      context,
     );
 
-    expect(Conversations.markAsReadConversation.mock.calls.length).toBe(1);
-    expect(Conversations.markAsReadConversation).toBeCalledWith(_conversation._id, _user._id);
-  });
-
-  test('subscription call for widget api', async () => {
-    await conversationMutations.conversationSubscribeMessageCreated(
-      {},
-      { _id: _conversationMessage._id },
-    );
-
-    await conversationMutations.conversationSubscribeChanged(
-      {},
-      { _ids: ['_id'], type: 'readState' },
-    );
+    expect(conversation.readUserIds).toContain(_user._id);
   });
 });

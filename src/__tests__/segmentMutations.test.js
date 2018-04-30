@@ -1,43 +1,48 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
+import faker from 'faker';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { Segments, Users } from '../db/models';
 import { userFactory, segmentFactory } from '../db/factories';
-import segmentMutations from '../data/resolvers/mutations/segments';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-/*
- * Generate test data
- */
-const doc = {
-  name: 'New users',
-  description: 'New users',
-  subOf: 'DFSAFDSAFDFFFD',
-  color: '#fdfdfd',
-  connector: 'any',
-  conditions: [
-    {
-      field: 'messengerData.sessionCount',
-      operator: 'e',
-      value: '10',
-      dateUnit: 'days',
-      type: 'string',
-    },
-  ],
+const toJSON = value => {
+  return JSON.stringify(value);
 };
 
 describe('Segments mutations', () => {
   let _user;
   let _segment;
+  let context;
+
+  const commonParamDefs = `
+    $name: String!
+    $description: String
+    $subOf: String
+    $color: String
+    $connector: String
+    $conditions: [SegmentCondition]
+  `;
+
+  const commonParams = `
+    name: $name
+    description: $description
+    subOf: $subOf
+    color: $color
+    connector: $connector
+    conditions: $conditions
+  `;
 
   beforeEach(async () => {
     // Creating test data
     _user = await userFactory();
     _segment = await segmentFactory();
+
+    context = { user: _user };
   });
 
   afterEach(async () => {
@@ -46,48 +51,107 @@ describe('Segments mutations', () => {
     await Users.remove({});
   });
 
-  test('Check login required', async () => {
-    expect.assertions(3);
-
-    const check = async fn => {
-      try {
-        await fn({}, {}, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
-      }
+  test('Add segment', async () => {
+    const { contentType, name, description, color, connector } = _segment;
+    const subOf = _segment.subOf || faker.random.word();
+    const args = {
+      contentType,
+      name,
+      description,
+      subOf,
+      color,
+      connector,
+      conditions: [
+        {
+          field: faker.random.word(),
+          operator: faker.random.word(),
+          value: faker.random.word(),
+          dateUnit: faker.random.word(),
+          type: faker.random.word(),
+        },
+      ],
     };
 
-    // add
-    check(segmentMutations.segmentsAdd);
+    const mutation = `
+      mutation segmentsAdd($contentType: String! ${commonParamDefs}) {
+        segmentsAdd(contentType: $contentType ${commonParams}) {
+          contentType
+          name
+          description
+          subOf
+          color
+          connector
+          conditions
+        }
+      }
+    `;
 
-    // edit
-    check(segmentMutations.segmentsEdit);
+    const segment = await graphqlRequest(mutation, 'segmentsAdd', args, context);
 
-    // add company
-    check(segmentMutations.segmentsRemove);
+    expect(segment.contentType).toBe(args.contentType);
+    expect(segment.name).toBe(args.name);
+    expect(segment.description).toBe(args.description);
+    expect(segment.subOf).toBe(args.subOf);
+    expect(segment.color).toBe(args.color);
+    expect(segment.connector).toBe(args.connector);
+    expect(toJSON(segment.conditions)).toEqual(toJSON(args.conditions));
   });
 
-  test('Create segment', async () => {
-    Segments.createSegment = jest.fn();
+  test('segmentsEdit', async () => {
+    const { _id, name, description, color, connector } = _segment;
+    const subOf = _segment.subOf || faker.random.word();
+    const args = {
+      _id,
+      name,
+      description,
+      subOf,
+      color,
+      connector,
+      conditions: [
+        {
+          type: faker.random.word(),
+          dateUnit: faker.random.word(),
+          value: faker.random.word(),
+          operator: faker.random.word(),
+          field: faker.random.word(),
+        },
+      ],
+    };
 
-    await segmentMutations.segmentsAdd({}, doc, { user: _user });
+    const mutation = `
+      mutation segmentsEdit($_id: String! ${commonParamDefs}) {
+        segmentsEdit(_id: $_id ${commonParams}) {
+          _id
+          name
+          description
+          subOf
+          color
+          connector
+          conditions
+        }
+      }
+    `;
 
-    expect(Segments.createSegment).toBeCalledWith(doc);
+    const segment = await graphqlRequest(mutation, 'segmentsEdit', args, context);
+
+    expect(segment._id).toBe(args._id);
+    expect(segment.name).toBe(args.name);
+    expect(segment.description).toBe(args.description);
+    expect(segment.subOf).toBe(args.subOf);
+    expect(segment.color).toBe(args.color);
+    expect(segment.connector).toBe(args.connector);
+    expect(toJSON(segment.conditions)).toEqual(toJSON(args.conditions));
   });
 
-  test('Edit segment valid', async () => {
-    Segments.updateSegment = jest.fn();
+  test('Remove segment', async () => {
+    const mutation = `
+      mutation segmentsRemove($_id: String!) {
+        segmentsRemove(_id: $_id)
+      }
+    `;
 
-    await segmentMutations.segmentsEdit({}, { _id: _segment._id, ...doc }, { user: _user });
+    await graphqlRequest(mutation, 'segmentsRemove', { _id: _segment._id }, context);
 
-    expect(Segments.updateSegment).toBeCalledWith(_segment._id, doc);
-  });
-
-  test('Remove segment valid', async () => {
-    Segments.removeSegment = jest.fn();
-
-    await segmentMutations.segmentsRemove({}, { _id: _segment.id }, { user: _user });
-
-    expect(Segments.removeSegment).toBeCalledWith(_segment.id);
+    expect(await Segments.findOne({ _id: _segment._id })).toBe(null);
   });
 });

@@ -52,7 +52,6 @@ describe('Customers model tests', () => {
     }
 
     const doc = {
-      name: 'name',
       email: 'dombo@yahoo.com',
       firstName: 'firstName',
       lastName: 'lastName',
@@ -60,7 +59,7 @@ describe('Customers model tests', () => {
 
     const customerObj = await Customers.createCustomer(doc);
 
-    expect(customerObj.name).toBe(doc.name);
+    expect(customerObj.createdAt).toBeDefined();
     expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.lastName).toBe(doc.lastName);
     expect(customerObj.email).toBe(doc.email);
@@ -74,7 +73,7 @@ describe('Customers model tests', () => {
     });
 
     const doc = {
-      name: 'Dombo',
+      firstName: 'Dombo',
       email: 'dombo@yahoo.com',
       phone: '242442200',
     };
@@ -97,7 +96,7 @@ describe('Customers model tests', () => {
 
     const customerObj = await Customers.updateCustomer(_customer._id, doc);
 
-    expect(customerObj.name).toBe(doc.name);
+    expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.email).toBe(doc.email);
     expect(customerObj.phone).toBe(doc.phone);
   });

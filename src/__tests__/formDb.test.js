@@ -2,8 +2,8 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { userFactory, formFactory, fieldFactory, integrationFactory } from '../db/factories';
-import { Forms, Users, Fields, Integrations } from '../db/models';
+import { userFactory, customerFactory, formFactory, fieldFactory } from '../db/factories';
+import { Customers, Forms, Users, Fields } from '../db/models';
 import toBeType from 'jest-tobetype';
 
 expect.extend(toBeType);
@@ -96,70 +96,25 @@ describe('form remove', async () => {
 
   afterEach(async () => {
     await Forms.remove({});
+    await Fields.remove({});
+    await Customers.remove({});
   });
 
   test('check if form removal is working successfully', async () => {
+    const customer = await customerFactory({});
+
+    await fieldFactory({ contentType: 'customer', contentTypeId: customer._id });
+    await fieldFactory({ contentType: 'form', contentTypeId: _form._id });
+    await fieldFactory({ contentType: 'form', contentTypeId: _form._id });
+    await fieldFactory({ contentType: 'form', contentTypeId: _form._id });
+
     await Forms.removeForm(_form._id);
 
     const formCount = await Forms.find({}).count();
+    const fieldsCount = await Fields.find({}).count();
 
     expect(formCount).toBe(0);
-  });
-});
-
-describe('test exception in remove form method', async () => {
-  let _user;
-  let _form;
-
-  beforeEach(async () => {
-    _user = await userFactory({});
-
-    _form = await formFactory({
-      title: 'Test form',
-      description: 'Test form description',
-      createdUserId: _user._id,
-    });
-  });
-
-  afterEach(async () => {
-    await Users.remove({});
-    await Forms.remove({});
-    await Fields.remove({});
-    await Integrations.remove({});
-  });
-
-  test('check if errors are being thrown as intended', async () => {
-    expect.assertions(2);
-
-    await fieldFactory({
-      contentTypeId: _form._id,
-      type: 'input',
-      validation: 'number',
-      text: 'form field text',
-      description: 'form field description',
-    });
-
-    try {
-      await Forms.removeForm(_form._id);
-    } catch (e) {
-      expect(e.message).toEqual('You cannot delete this form. This form has some fields.');
-    }
-
-    await Fields.remove({});
-
-    await integrationFactory({
-      formId: _form._id,
-      formData: {
-        loadType: 'shoutbox',
-        fromEmail: 'test@erxes.io',
-      },
-    });
-
-    try {
-      await Forms.removeForm(_form._id);
-    } catch (e) {
-      expect(e.message).toEqual('You cannot delete this form. This form used in integration.');
-    }
+    expect(fieldsCount).toBe(1);
   });
 });
 

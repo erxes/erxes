@@ -66,6 +66,8 @@ server.listen(PORT, () => {
       subscribe,
       schema,
 
+      keepAlive: 10000,
+
       onConnect(connectionParams, webSocket) {
         webSocket.on('message', message => {
           const parsedMessage = JSON.parse(message).id || {};

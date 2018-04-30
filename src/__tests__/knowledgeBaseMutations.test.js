@@ -1,217 +1,344 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import knowledgeBaseMutations from '../data/resolvers/mutations/knowledgeBase';
-import { KnowledgeBaseTopics, KnowledgeBaseCategories, KnowledgeBaseArticles } from '../db/models';
+import faker from 'faker';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import {
+  KnowledgeBaseTopics,
+  KnowledgeBaseCategories,
+  KnowledgeBaseArticles,
+  Users,
+  Brands,
+} from '../db/models';
+
+import {
+  brandFactory,
+  userFactory,
+  knowledgeBaseTopicFactory,
+  knowledgeBaseCategoryFactory,
+  knowledgeBaseArticleFactory,
+} from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
+
+/*
+ * Generated test data
+ */
+const topicArgs = {
+  title: faker.random.word(),
+  description: faker.random.word(),
+  color: faker.commerce.color(),
+  languageCode: 'en',
+};
+
+const categoryArgs = {
+  title: faker.random.word(),
+  description: faker.random.word(),
+  icon: faker.random.word(),
+};
+
+const articleArgs = {
+  title: faker.random.word(),
+  summary: faker.random.word(),
+  status: 'draft',
+  content: faker.random.word(),
+};
 
 describe('mutations', () => {
-  let _user = {
-    _id: 'fakeUserId',
-  };
+  let _knowledgeBaseTopic;
+  let _knowledgeBaseCategory;
+  let _knowledgeBaseArticle;
+  let _brand;
+  let _user;
+  let context;
 
-  test(`test if Error('Login required') error is working as intended`, async () => {
-    expect.assertions(9);
+  beforeEach(async () => {
+    // Creating test data
+    _knowledgeBaseTopic = await knowledgeBaseTopicFactory();
+    _knowledgeBaseCategory = await knowledgeBaseCategoryFactory();
+    _knowledgeBaseArticle = await knowledgeBaseArticleFactory({});
+    _brand = await brandFactory();
+    _user = await userFactory();
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, {});
-      } catch (e) {
-        expect(e.message).toBe('Login required');
-      }
+    context = { user: _user };
+  });
+
+  afterEach(async () => {
+    // Clearing test data
+    await KnowledgeBaseTopics.remove({});
+    await KnowledgeBaseCategories.remove({});
+    await KnowledgeBaseArticles.remove({});
+    await Users.remove({});
+    await Brands.remove({});
+  });
+
+  test('Add knowledge base topic', async () => {
+    const doc = {
+      categoryIds: _knowledgeBaseCategory._id,
+      brandId: _brand._id,
+      ...topicArgs,
     };
 
-    expectError(knowledgeBaseMutations.knowledgeBaseTopicsAdd);
-    expectError(knowledgeBaseMutations.knowledgeBaseTopicsEdit);
-    expectError(knowledgeBaseMutations.knowledgeBaseTopicsRemove);
+    const mutation = `
+      mutation knowledgeBaseTopicsAdd($doc: KnowledgeBaseTopicDoc!) {
+        knowledgeBaseTopicsAdd(doc: $doc) {
+          title
+          description
+          color
+          brand {
+            _id
+          }
+          languageCode
+          categories {
+            _id
+          }
+        }
+      }
+    `;
 
-    expectError(knowledgeBaseMutations.knowledgeBaseCategoriesAdd);
-    expectError(knowledgeBaseMutations.knowledgeBaseCategoriesEdit);
-    expectError(knowledgeBaseMutations.knowledgeBaseCategoriesRemove);
+    const knowledgeBaseTopic = await graphqlRequest(
+      mutation,
+      'knowledgeBaseTopicsAdd',
+      { doc },
+      context,
+    );
 
-    expectError(knowledgeBaseMutations.knowledgeBaseArticlesAdd);
-    expectError(knowledgeBaseMutations.knowledgeBaseArticlesEdit);
-    expectError(knowledgeBaseMutations.knowledgeBaseArticlesRemove);
+    expect(knowledgeBaseTopic.title).toBe(doc.title);
+    expect(knowledgeBaseTopic.description).toBe(doc.description);
+    expect(knowledgeBaseTopic.color).toBe(doc.color);
+    expect(knowledgeBaseTopic.brand._id).toBe(doc.brandId);
+    expect(knowledgeBaseTopic.languageCode).toBe(doc.languageCode);
+    expect(knowledgeBaseTopic.categories[0]._id).toEqual(doc.categoryIds);
   });
 
-  describe('topic mutations', () => {
-    test('topicsAdd', () => {
-      KnowledgeBaseTopics.createDoc = jest.fn();
+  test('Edit knowledge base topic', async () => {
+    const doc = {
+      categoryIds: _knowledgeBaseCategory._id,
+      brandId: _brand._id,
+      ...topicArgs,
+    };
 
-      const doc = {
-        doc: {
-          title: 'Test topic title',
-          description: 'Test topic description',
-          categoryIds: ['fakeCategoryId'],
-          brandId: 'fakeBrandId',
-        },
-      };
+    const mutation = `
+      mutation knowledgeBaseTopicsEdit($_id: String! $doc: KnowledgeBaseTopicDoc!) {
+        knowledgeBaseTopicsEdit(_id: $_id doc: $doc) {
+          _id
+          title
+          description
+          color
+          brand {
+            _id
+          }
+          languageCode
+          categories {
+            _id
+          }
+        }
+      }
+    `;
 
-      knowledgeBaseMutations.knowledgeBaseTopicsAdd(null, doc, { user: _user });
+    const knowledgeBaseTopic = await graphqlRequest(
+      mutation,
+      'knowledgeBaseTopicsEdit',
+      { _id: _knowledgeBaseTopic._id, doc },
+      context,
+    );
 
-      expect(KnowledgeBaseTopics.createDoc).toBeCalledWith(doc.doc, _user._id);
-      expect(KnowledgeBaseTopics.createDoc.mock.calls.length).toBe(1);
-
-      KnowledgeBaseTopics.createDoc.mockRestore();
-    });
-
-    test('topicsEdit', () => {
-      KnowledgeBaseTopics.updateDoc = jest.fn();
-
-      const doc = {
-        title: 'Test topic title',
-        description: 'Test topic description',
-        categoryIds: ['fakeCategoryId'],
-        brandId: 'fakeBrandId',
-      };
-
-      const updateDoc = {
-        _id: 'fakeTopicId',
-        doc,
-      };
-
-      knowledgeBaseMutations.knowledgeBaseTopicsEdit(null, updateDoc, { user: _user });
-
-      expect(KnowledgeBaseTopics.updateDoc).toBeCalledWith(updateDoc._id, doc, _user._id);
-      expect(KnowledgeBaseTopics.updateDoc.mock.calls.length).toBe(1);
-
-      KnowledgeBaseTopics.updateDoc.mockRestore();
-    });
-
-    test('topicsRemove', () => {
-      KnowledgeBaseTopics.removeDoc = jest.fn();
-
-      const fakeTopicId = 'fakeTopicId';
-
-      knowledgeBaseMutations.knowledgeBaseTopicsRemove(null, { _id: fakeTopicId }, { user: _user });
-
-      expect(KnowledgeBaseTopics.removeDoc).toBeCalledWith(fakeTopicId);
-      expect(KnowledgeBaseTopics.removeDoc.mock.calls.length).toBe(1);
-
-      KnowledgeBaseTopics.removeDoc.mockRestore();
-    });
+    expect(knowledgeBaseTopic._id).toBe(_knowledgeBaseTopic._id);
+    expect(knowledgeBaseTopic.title).toBe(doc.title);
+    expect(knowledgeBaseTopic.description).toBe(doc.description);
+    expect(knowledgeBaseTopic.color).toBe(doc.color);
+    expect(knowledgeBaseTopic.brand._id).toBe(doc.brandId);
+    expect(knowledgeBaseTopic.languageCode).toBe(doc.languageCode);
+    expect(knowledgeBaseTopic.categories[0]._id).toEqual(doc.categoryIds);
   });
 
-  describe('category mutaions', () => {
-    test('categoriesAdd', () => {
-      KnowledgeBaseCategories.createDoc = jest.fn();
+  test('Remove knowledge base topic', async () => {
+    const _id = _knowledgeBaseTopic._id;
 
-      const doc = {
-        title: 'Test topic title',
-        description: 'Test topic description',
-        categoryIds: ['fakeCategoryId'],
-        brandId: 'fakeBrandId',
-        topicIds: ['testTopicIdA', 'testTopicIdB'],
-      };
+    const mutation = `
+      mutation knowledgeBaseTopicsRemove($_id: String!) {
+        knowledgeBaseTopicsRemove(_id: $_id)
+      }
+    `;
 
-      knowledgeBaseMutations.knowledgeBaseCategoriesAdd(null, { doc }, { user: _user });
+    await graphqlRequest(mutation, 'knowledgeBaseTopicsRemove', { _id }, context);
 
-      expect(KnowledgeBaseCategories.createDoc).toBeCalledWith(doc, _user._id);
-      expect(KnowledgeBaseCategories.createDoc.mock.calls.length).toBe(1);
-
-      KnowledgeBaseCategories.createDoc.mockRestore();
-    });
-
-    test('categoriesEdit', () => {
-      KnowledgeBaseCategories.updateDoc = jest.fn();
-
-      const doc = {
-        title: 'Test category title',
-        description: 'Test category description',
-        articles: ['fakeArticleId'],
-        icon: 'fake icon',
-        topicIds: ['testTopicIdA', 'testTopicIdB'],
-      };
-
-      const updateDoc = {
-        _id: 'fakeCategoryId',
-        doc,
-      };
-
-      knowledgeBaseMutations.knowledgeBaseCategoriesEdit(null, updateDoc, { user: _user });
-
-      expect(KnowledgeBaseCategories.updateDoc).toBeCalledWith(updateDoc._id, doc, _user._id);
-      expect(KnowledgeBaseCategories.updateDoc.mock.calls.length).toBe(1);
-
-      KnowledgeBaseCategories.updateDoc.mockRestore();
-    });
-
-    test('categoriesRemove', () => {
-      KnowledgeBaseCategories.removeDoc = jest.fn();
-
-      const fakeCategoryId = 'fakeCategoryId';
-
-      knowledgeBaseMutations.knowledgeBaseCategoriesRemove(
-        null,
-        { _id: fakeCategoryId },
-        { user: _user },
-      );
-
-      expect(KnowledgeBaseCategories.removeDoc).toBeCalledWith(fakeCategoryId);
-      expect(KnowledgeBaseCategories.removeDoc.mock.calls.length).toBe(1);
-
-      KnowledgeBaseCategories.removeDoc.mockRestore();
-    });
+    expect(await KnowledgeBaseTopics.findOne({ _id })).toBe(null);
   });
 
-  describe('article mutations', () => {
-    test('articlesAdd', () => {
-      KnowledgeBaseArticles.createDoc = jest.fn();
+  test('Add knowledge base category', async () => {
+    const doc = {
+      articleIds: [_knowledgeBaseArticle._id],
+      topicIds: _knowledgeBaseTopic._id,
+      ...categoryArgs,
+    };
 
-      const doc = {
-        title: 'Test article title',
-        summary: 'Test article summary',
-        content: 'Test article content',
-        status: 'Test article status',
-        categoryIds: ['testCategoryIdA', 'testCategoryIdB'],
-      };
+    const mutation = `
+      mutation knowledgeBaseCategoriesAdd($doc: KnowledgeBaseCategoryDoc!) {
+        knowledgeBaseCategoriesAdd(doc: $doc) {
+          title
+          description
+          icon
+          articles {
+            _id
+          }
+          firstTopic {
+            _id
+          }
+        }
+      }
+    `;
 
-      knowledgeBaseMutations.knowledgeBaseArticlesAdd(null, { doc }, { user: _user });
+    const knowledgeBaseCategory = await graphqlRequest(
+      mutation,
+      'knowledgeBaseCategoriesAdd',
+      { doc },
+      context,
+    );
 
-      expect(KnowledgeBaseArticles.createDoc).toBeCalledWith(doc, _user._id);
-      expect(KnowledgeBaseArticles.createDoc.mock.calls.length).toBe(1);
+    expect(knowledgeBaseCategory.title).toBe(doc.title);
+    expect(knowledgeBaseCategory.description).toBe(doc.description);
+    expect(knowledgeBaseCategory.icon).toBe(doc.icon);
 
-      KnowledgeBaseArticles.createDoc.mockRestore();
-    });
+    const articleIds = knowledgeBaseCategory.articles.map(a => a._id);
+    expect(doc.articleIds).toEqual(articleIds);
 
-    test('articlesEdit', () => {
-      KnowledgeBaseArticles.updateDoc = jest.fn();
+    expect(knowledgeBaseCategory.firstTopic._id).toBe(doc.topicIds);
+  });
 
-      const doc = {
-        title: 'Test article title',
-        summary: 'Test article summary',
-        content: 'Test article content',
-        status: 'Test article status',
-        categoryIds: ['testCategoryIdA', 'testCategoryIdB'],
-      };
+  test('Edit knowledge base category', async () => {
+    const doc = {
+      articleIds: [_knowledgeBaseArticle._id],
+      topicIds: _knowledgeBaseTopic._id,
+      ...categoryArgs,
+    };
 
-      const updateDoc = {
-        _id: 'fakeArticleId',
-        doc,
-      };
+    const mutation = `
+      mutation knowledgeBaseCategoriesEdit($_id: String! $doc: KnowledgeBaseCategoryDoc!) {
+        knowledgeBaseCategoriesEdit(_id: $_id doc: $doc) {
+          _id
+          title
+          description
+          icon
+          articles {
+            _id
+          }
+          firstTopic {
+            _id
+          }
+        }
+      }
+    `;
 
-      knowledgeBaseMutations.knowledgeBaseArticlesEdit(null, updateDoc, { user: _user });
+    const knowledgeBaseCategory = await graphqlRequest(
+      mutation,
+      'knowledgeBaseCategoriesEdit',
+      { _id: _knowledgeBaseCategory._id, doc },
+      context,
+    );
 
-      expect(KnowledgeBaseArticles.updateDoc).toBeCalledWith(updateDoc._id, doc, _user._id);
-      expect(KnowledgeBaseArticles.updateDoc.mock.calls.length).toBe(1);
+    expect(knowledgeBaseCategory._id).toBe(_knowledgeBaseCategory._id);
+    expect(knowledgeBaseCategory.title).toBe(doc.title);
+    expect(knowledgeBaseCategory.description).toBe(doc.description);
+    expect(knowledgeBaseCategory.icon).toBe(doc.icon);
 
-      KnowledgeBaseArticles.updateDoc.mockRestore();
-    });
+    const articleIds = knowledgeBaseCategory.articles.map(a => a._id);
+    expect(doc.articleIds).toEqual(articleIds);
 
-    test('articlesRemove', () => {
-      KnowledgeBaseArticles.removeDoc = jest.fn();
+    expect(knowledgeBaseCategory.firstTopic._id).toBe(doc.topicIds);
+  });
 
-      const fakeArticleId = 'fakeArticleId';
+  test('Remove knowledge base category', async () => {
+    const _id = _knowledgeBaseCategory._id;
 
-      knowledgeBaseMutations.knowledgeBaseArticlesRemove(
-        null,
-        { _id: fakeArticleId },
-        { user: _user },
-      );
+    const mutation = `
+      mutation knowledgeBaseCategoriesRemove($_id: String!) {
+        knowledgeBaseCategoriesRemove(_id: $_id)
+      }
+    `;
 
-      expect(KnowledgeBaseArticles.removeDoc).toBeCalledWith(fakeArticleId);
-      expect(KnowledgeBaseArticles.removeDoc.mock.calls.length).toBe(1);
+    await graphqlRequest(mutation, 'knowledgeBaseCategoriesRemove', { _id }, context);
 
-      KnowledgeBaseArticles.removeDoc.mockRestore();
-    });
+    expect(await KnowledgeBaseCategories.findOne({ _id })).toBe(null);
+  });
+
+  test('Add knowledge base article', async () => {
+    const doc = {
+      categoryIds: [_knowledgeBaseCategory._id],
+      ...articleArgs,
+    };
+
+    const mutation = `
+      mutation knowledgeBaseArticlesAdd($doc: KnowledgeBaseArticleDoc!) {
+        knowledgeBaseArticlesAdd(doc: $doc) {
+          _id
+          title
+          summary
+          content
+          status
+        }
+      }
+    `;
+
+    const article = await graphqlRequest(mutation, 'knowledgeBaseArticlesAdd', { doc }, context);
+
+    const [category] = await KnowledgeBaseCategories.find({ _id: { $in: doc.categoryIds } });
+
+    expect(category.articleIds).toContain(article._id);
+    expect(article.title).toBe(doc.title);
+    expect(article.summary).toBe(doc.summary);
+    expect(article.content).toBe(doc.content);
+    expect(article.status).toBe(doc.status);
+  });
+
+  test('Edit knowledge base article', async () => {
+    const doc = {
+      categoryIds: [_knowledgeBaseCategory._id],
+      ...articleArgs,
+    };
+
+    const mutation = `
+      mutation knowledgeBaseArticlesEdit($_id: String! $doc: KnowledgeBaseArticleDoc!) {
+        knowledgeBaseArticlesEdit(_id: $_id doc: $doc) {
+          _id
+          title
+          summary
+          content
+          status
+        }
+      }
+    `;
+
+    const article = await graphqlRequest(
+      mutation,
+      'knowledgeBaseArticlesEdit',
+      { _id: _knowledgeBaseArticle._id, doc },
+      context,
+    );
+
+    const [category] = await KnowledgeBaseCategories.find({ _id: { $in: doc.categoryIds } });
+
+    expect(category.articleIds).toContain(article._id);
+    expect(article._id).toBe(_knowledgeBaseArticle._id);
+    expect(article.title).toBe(doc.title);
+    expect(article.summary).toBe(doc.summary);
+    expect(article.content).toBe(doc.content);
+    expect(article.status).toBe(doc.status);
+  });
+
+  test('Remove knowledge base article', async () => {
+    const _id = _knowledgeBaseArticle._id;
+
+    const mutation = `
+      mutation knowledgeBaseArticlesRemove($_id: String!) {
+        knowledgeBaseArticlesRemove(_id: $_id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'knowledgeBaseArticlesRemove', { _id }, context);
+
+    expect(await KnowledgeBaseArticles.findOne({ _id })).toBe(null);
   });
 });

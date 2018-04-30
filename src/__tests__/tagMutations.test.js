@@ -1,10 +1,9 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { Tags, Users, EngageMessages } from '../db/models';
 import { tagsFactory, userFactory, engageMessageFactory } from '../db/factories';
-import tagsMutations from '../data/resolvers/mutations/tags';
 
 beforeAll(() => connect());
 
@@ -15,12 +14,27 @@ describe('Test tags mutations', () => {
   let _user;
   let _message;
   let doc;
+  let context;
+
+  const commonParamDefs = `
+    $name: String!
+    $type: String!
+    $colorCode: String
+  `;
+
+  const commonParams = `
+    name: $name
+    type: $type
+    colorCode: $colorCode
+  `;
 
   beforeEach(async () => {
     // Creating test data
     _tag = await tagsFactory();
     _user = await userFactory();
     _message = await engageMessageFactory({});
+
+    context = { user: _user };
 
     doc = {
       name: `${_tag.name}1`,
@@ -36,63 +50,81 @@ describe('Test tags mutations', () => {
     await EngageMessages.remove({});
   });
 
-  test('Check login required', async () => {
-    expect.assertions(4);
-
-    const check = async fn => {
-      try {
-        await fn({}, {}, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
+  test('Add tag', async () => {
+    const mutation = `
+      mutation tagsAdd(${commonParamDefs}) {
+        tagsAdd(${commonParams}) {
+          name
+          type
+          colorCode
+        }
       }
-    };
+    `;
 
-    // add
-    check(tagsMutations.tagsAdd);
+    const tag = await graphqlRequest(mutation, 'tagsAdd', doc, context);
 
-    // edit
-    check(tagsMutations.tagsEdit);
-
-    // remove
-    check(tagsMutations.tagsRemove);
-
-    // tags tag
-    check(tagsMutations.tagsTag);
+    expect(tag.name).toBe(doc.name);
+    expect(tag.type).toBe(doc.type);
+    expect(tag.colorCode).toBe(doc.colorCode);
   });
 
-  test('Create tag', async () => {
-    Tags.createTag = jest.fn();
-    await tagsMutations.tagsAdd({}, doc, { user: _user });
+  test('Edit tag', async () => {
+    const mutation = `
+      mutation tagsEdit($_id: String! ${commonParamDefs}){
+        tagsEdit(_id: $_id ${commonParams}) {
+          _id
+          name
+          type
+          colorCode
+        }
+      }
+    `;
 
-    expect(Tags.createTag).toBeCalledWith(doc);
-    expect(Tags.createTag.mock.calls.length).toBe(1);
-  });
+    const tag = await graphqlRequest(mutation, 'tagsEdit', { _id: _tag._id, ...doc }, context);
 
-  test('Update tag', async () => {
-    Tags.updateTag = jest.fn();
-    await tagsMutations.tagsEdit(null, { _id: _tag._id, ...doc }, { user: _user });
-
-    expect(Tags.updateTag).toBeCalledWith(_tag._id, doc);
-    expect(Tags.updateTag.mock.calls.length).toBe(1);
+    expect(tag._id).toBe(_tag._id);
+    expect(tag.name).toBe(doc.name);
+    expect(tag.type).toBe(doc.type);
+    expect(tag.colorCode).toBe(doc.colorCode);
   });
 
   test('Remove tag', async () => {
-    Tags.removeTag = jest.fn();
-    await tagsMutations.tagsRemove({}, { ids: [_tag.id] }, { user: _user });
+    const mutation = `
+      mutation tagsRemove($ids: [String!]!) {
+        tagsRemove(ids: $ids)
+      }
+    `;
 
-    expect(Tags.removeTag.mock.calls.length).toBe(1);
+    await graphqlRequest(mutation, 'tagsRemove', { ids: [_tag._id] }, context);
+
+    expect(await Tags.find({ _id: { $in: [_tag._id] } })).toEqual([]);
   });
 
-  test('Tags tag', async () => {
-    Tags.tagsTag = jest.fn();
-    const tagObj = {
+  test('Tag tags', async () => {
+    const args = {
       type: 'engageMessage',
       targetIds: [_message._id],
       tagIds: [_tag._id],
     };
 
-    await tagsMutations.tagsTag({}, tagObj, { user: _user });
+    const mutation = `
+      mutation tagsTag(
+        $type: String!
+        $targetIds: [String!]!
+        $tagIds: [String!]!
+      ) {
+         tagsTag(
+         type: $type
+         targetIds: $targetIds
+         tagIds: $tagIds
+        )
+      }
+    `;
 
-    expect(Tags.tagsTag.mock.calls.length).toBe(1);
+    await graphqlRequest(mutation, 'tagsTag', args, context);
+
+    const engageMessage = await EngageMessages.findOne({ _id: _message._id });
+
+    expect(engageMessage.tagIds).toContain(args.tagIds);
   });
 });

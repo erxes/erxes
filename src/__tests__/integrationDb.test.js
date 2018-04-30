@@ -8,11 +8,12 @@ import {
   brandFactory,
   integrationFactory,
   formFactory,
+  fieldFactory,
   userFactory,
   conversationMessageFactory,
   conversationFactory,
 } from '../db/factories';
-import { Integrations, Brands, Users, Forms, ConversationMessages } from '../db/models';
+import { Integrations, Brands, Users, Forms, Fields, ConversationMessages } from '../db/models';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -66,7 +67,7 @@ describe('messenger integration model edit method', () => {
     const doc = {
       name: 'Integration test 2',
       brandId: _brand2._id,
-      kind: 'new kind',
+      kind: KIND_CHOICES.MESSENGER,
     };
 
     const updatedIntegration = await Integrations.updateMessengerIntegration(_integration._id, doc);
@@ -208,15 +209,20 @@ describe('edit form integration', () => {
 
 describe('remove integration model method test', () => {
   let _brand;
+  let _form;
   let _integration;
   let _conversation;
 
   beforeEach(async () => {
     _brand = await brandFactory({});
 
+    _form = await formFactory({});
+    await fieldFactory({ contentType: 'form', contentTypeId: _form._id });
+
     _integration = await integrationFactory({
       name: 'form integration test',
       brandId: _brand._id,
+      formId: _form._id,
       kind: 'form',
     });
 
@@ -231,15 +237,17 @@ describe('remove integration model method test', () => {
     await Integrations.remove({});
     await Users.remove({});
     await ConversationMessages.remove({});
+    await Forms.remove({});
+    await Fields.remove({});
   });
 
   test('test if remove form integration model method is working successfully', async () => {
     await Integrations.removeIntegration({ _id: _integration._id });
 
-    const integrationCount = await Integrations.find({}).count();
-
-    expect(integrationCount).toEqual(0);
+    expect(await Integrations.find({}).count()).toEqual(0);
     expect(await ConversationMessages.find({}).count()).toBe(0);
+    expect(await Forms.find({}).count()).toBe(0);
+    expect(await Fields.find({}).count()).toBe(0);
   });
 });
 
@@ -414,11 +422,13 @@ describe('social integration test', () => {
   });
 
   test('create twitter integration', async () => {
+    expect.assertions(5);
+
     const doc = {
       name: 'name',
       brandId: _brand._id,
       twitterData: {
-        id: 1,
+        info: { id: 1 },
         token: 'token',
         tokenSecret: 'tokenSecret',
       },
@@ -430,6 +440,12 @@ describe('social integration test', () => {
     expect(integration.brandId).toBe(doc.brandId);
     expect(integration.kind).toBe(KIND_CHOICES.TWITTER);
     expect(integration.twitterData.toJSON()).toEqual(doc.twitterData);
+
+    try {
+      await Integrations.createTwitterIntegration(doc);
+    } catch (e) {
+      expect(e.message).toBe('Already added');
+    }
   });
 
   test('create facebook integration', async () => {

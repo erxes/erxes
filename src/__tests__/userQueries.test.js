@@ -1,21 +1,138 @@
 /* eslint-env jest */
 
-import userQueries from '../data/resolvers/queries/users';
+import { Users, Conversations } from '../db/models';
+import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { userFactory, conversationFactory } from '../db/factories';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
 
 describe('userQueries', () => {
-  test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(3);
+  afterEach(async () => {
+    // Clearing test data
+    await Users.remove({});
+    await Conversations.remove({});
+  });
 
-    const expectError = async func => {
-      try {
-        await func(null, {}, {});
-      } catch (e) {
-        expect(e.message).toBe('Login required');
+  test('Users', async () => {
+    // Creating test data
+    await userFactory({});
+    await userFactory({});
+    await userFactory({});
+    await userFactory({});
+
+    const qry = `
+      query users($page: Int $perPage: Int) {
+        users(page: $page perPage: $perPage) {
+          _id
+          username
+          email
+          role
+          details {
+            avatar
+            fullName
+            position
+            location
+            description
+          }
+          links {
+            linkedIn
+            twitter
+            facebook
+            github
+            youtube
+            website
+          }
+          emailSignatures
+          getNotificationByEmail
+        }
       }
+    `;
+
+    const response = await graphqlRequest(qry, 'users', { page: 1, perPage: 2 });
+
+    // 1 in graphRequest + above 3
+    expect(response.length).toBe(2);
+  });
+
+  test('User detail', async () => {
+    const user = await userFactory({});
+
+    const qry = `
+      query userDetail($_id: String) {
+        userDetail(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'userDetail', { _id: user._id });
+
+    expect(response._id).toBe(user._id);
+  });
+
+  test('Get total count of users', async () => {
+    // Creating test data
+    await userFactory({});
+    await userFactory({});
+    await userFactory({});
+
+    const qry = `
+      query usersTotalCount {
+        usersTotalCount
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'usersTotalCount');
+
+    // 1 in graphRequest + above 3
+    expect(response).toBe(4);
+  });
+
+  test('Current user', async () => {
+    const user = await userFactory({});
+
+    const qry = `
+      query currentUser {
+        currentUser {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'currentUser', {}, { user });
+
+    expect(response._id).toBe(user._id);
+  });
+
+  test('User conversations', async () => {
+    const user = await userFactory({});
+
+    // Creating test data
+    await conversationFactory({ participatedUserIds: [user._id] });
+    await conversationFactory({ participatedUserIds: [user._id] });
+    await conversationFactory({});
+
+    const args = {
+      _id: user._id,
+      perPage: 5,
     };
 
-    expectError(userQueries.users);
-    expectError(userQueries.userDetail);
-    expectError(userQueries.usersTotalCount);
+    const qry = `
+      query userConversations($_id: String $perPage: Int) {
+        userConversations(_id: $_id perPage: $perPage) {
+          list {
+            _id
+          }
+          totalCount
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'userConversations', args);
+
+    expect(response.list.length).toBe(2);
+    expect(response.totalCount).toBe(2);
   });
 });

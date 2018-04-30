@@ -34,6 +34,5 @@ export const mutations = `
     description: String,
     memberIds: [String],
     integrationIds: [String]): Channel
-
-  channelsRemove(_id: String!): String
+    channelsRemove(_id: String!): String
 `;

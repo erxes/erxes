@@ -1,4 +1,4 @@
-import { Segments, Users, Tags } from '../../db/models';
+import { Segments, Users, Tags, Brands } from '../../db/models';
 
 export default {
   segment(engageMessage) {
@@ -11,5 +11,12 @@ export default {
 
   getTags(engageMessage) {
     return Tags.find({ _id: { $in: engageMessage.tagIds || [] } });
+  },
+  brand(engageMessage) {
+    const { messenger = {} } = engageMessage;
+
+    if (messenger.brandId) {
+      return Brands.findOne({ _id: messenger.brandId });
+    }
   },
 };

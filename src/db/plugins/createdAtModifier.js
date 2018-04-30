@@ -7,6 +7,7 @@ export const createdAtModifier = schema => {
     if (this.createdAt == undefined) {
       this.createdAt = new Date();
     }
+
     next();
   });
 };

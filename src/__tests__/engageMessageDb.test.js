@@ -167,4 +167,21 @@ describe('engage messages model tests', () => {
     expect(engageMessages).toHaveLength(0);
     expect(messengerReceivedCustomerIds).toHaveLength(0);
   });
+
+  test('increaseStat', async () => {
+    const engageMessage = await engageMessageFactory({});
+
+    await EngageMessages.updateStats(engageMessage._id, 'open');
+
+    let engageMessageObj = await EngageMessages.findOne({ _id: engageMessage._id });
+
+    expect(engageMessageObj.stats.toJSON()).toBeDefined();
+    expect(engageMessageObj.stats.toJSON()).toEqual({ open: 1 });
+
+    await EngageMessages.updateStats(engageMessage._id, 'open');
+
+    engageMessageObj = await EngageMessages.findOne({ _id: engageMessage._id });
+
+    expect(engageMessageObj.stats.toJSON()).toEqual({ open: 2 });
+  });
 });

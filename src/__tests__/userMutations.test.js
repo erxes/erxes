@@ -1,168 +1,209 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
-import { ROLES } from '../data/constants';
-import { Users, Channels } from '../db/models';
-import { userFactory, channelFactory } from '../db/factories';
-import userMutations from '../data/resolvers/mutations/users';
+import faker from 'faker';
+import bcrypt from 'bcrypt';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { Users, Channels, Brands } from '../db/models';
+import { userFactory, channelFactory, brandFactory } from '../db/factories';
 import utils from '../data/utils';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
+/*
+ * Generated test data
+ */
+const args = {
+  username: faker.internet.userName(),
+  email: faker.internet.email(),
+  details: {
+    avatar: faker.image.avatar(),
+    fullName: faker.name.findName(),
+    position: faker.name.jobTitle(),
+    location: faker.address.streetName(),
+    description: faker.random.word(),
+  },
+  links: {
+    linkedIn: faker.internet.userName(),
+    twitter: faker.internet.userName(),
+    facebook: faker.internet.userName(),
+    github: faker.internet.userName(),
+    youtube: faker.internet.userName(),
+    website: faker.internet.url(),
+  },
+  password: 'pass',
+};
+
+const toJSON = value => {
+  return JSON.stringify(value);
+};
+
 describe('User mutations', () => {
-  const user = { _id: 'DFAFDFDFD', role: ROLES.CONTRIBUTOR };
-  const _adminUser = { _id: 'fakeId', role: ROLES.ADMIN };
+  let _user;
+  let _admin;
+  let _channel;
+  let _brand;
+
+  let context;
+
+  const commonParamDefs = `
+    $username: String!
+    $email: String!
+    $role: String!
+    $details: UserDetails
+    $links: UserLinks
+    $channelIds: [String]
+    $password: String!
+    $passwordConfirmation: String!
+  `;
+
+  const commonParams = `
+    username: $username
+    email: $email
+    role: $role
+    details: $details
+    links: $links
+    channelIds: $channelIds
+    password: $password
+    passwordConfirmation: $passwordConfirmation
+  `;
+
+  beforeEach(async () => {
+    // Creating test data
+    _user = await userFactory();
+    _admin = await userFactory({ role: 'admin' });
+    _channel = await channelFactory();
+    _brand = await brandFactory();
+
+    context = { user: _user };
+  });
 
   afterEach(async () => {
     // Clearing test data
     await Users.remove({});
+    await Brands.remove({});
     await Channels.remove({});
   });
 
   test('Login', async () => {
-    Users.login = jest.fn();
+    const mutation = `
+      mutation login($email: String! $password: String!) {
+        login(email: $email password: $password) {
+          token
+          refreshToken
+        }
+      }
+    `;
 
-    const doc = { email: 'test@erxes.io', password: 'password' };
+    const user = await graphqlRequest(mutation, 'login', { email: _user.email, password: 'pass' });
 
-    await userMutations.login({}, doc);
-
-    expect(Users.login).toBeCalledWith(doc);
+    expect(user.token).toBeDefined();
   });
 
   test('Forgot password', async () => {
-    Users.forgotPassword = jest.fn();
+    const mutation = `
+      mutation forgotPassword($email: String!) {
+        forgotPassword(email: $email)
+      }
+    `;
 
-    const doc = { email: 'test@erxes.io' };
+    await graphqlRequest(mutation, 'forgotPassword', { email: _user.email });
 
-    await userMutations.forgotPassword({}, doc);
+    const user = await Users.findOne({ email: _user.email });
 
-    expect(Users.forgotPassword).toBeCalledWith(doc.email);
+    expect(user.resetPasswordToken).toBeDefined();
   });
 
   test('Reset password', async () => {
-    Users.resetPassword = jest.fn();
+    // create the random token
+    const token = 'token';
+    const user = await userFactory({});
 
-    const doc = { token: '2424920429402', newPassword: 'newPassword' };
+    await Users.update(
+      { _id: user._id },
+      {
+        $set: {
+          resetPasswordToken: token,
+          resetPasswordExpires: Date.now() + 86400000,
+        },
+      },
+    );
 
-    await userMutations.resetPassword({}, doc);
-
-    expect(Users.resetPassword).toBeCalledWith(doc);
-  });
-
-  test('Change password', async () => {
-    Users.changePassword = jest.fn();
-
-    const doc = {
-      currentPassword: 'currentPassword',
+    const args = {
+      token,
       newPassword: 'newPassword',
     };
 
-    const user = { _id: 'DFAFASD' };
-
-    await userMutations.usersChangePassword({}, doc, { user });
-
-    expect(Users.changePassword).toBeCalledWith({ _id: user._id, ...doc });
-  });
-
-  test('Login required checks', async () => {
-    const checkLogin = async (fn, args) => {
-      try {
-        await fn({}, args, {});
-      } catch (e) {
-        expect(e.message).toEqual('Login required');
+    const mutation = `
+      mutation resetPassword($token: String! $newPassword: String!) {
+        resetPassword(token: $token newPassword: $newPassword)
       }
-    };
+    `;
 
-    expect.assertions(7);
+    await graphqlRequest(mutation, 'resetPassword', args);
 
-    // users change password
-    checkLogin(userMutations.usersChangePassword, {});
+    const updatedUser = await Users.findOne({ _id: user._id });
 
-    // users add
-    checkLogin(userMutations.usersAdd, {});
-
-    // users edit
-    checkLogin(userMutations.usersEdit, {});
-
-    // users edit profile
-    checkLogin(userMutations.usersEditProfile, {});
-
-    // users remove
-    checkLogin(userMutations.usersRemove, {});
-
-    // users config email signatures
-    checkLogin(userMutations.usersConfigEmailSignatures, {});
-
-    // users config get notification by email
-    checkLogin(userMutations.usersConfigGetNotificationByEmail, {});
+    expect(bcrypt.compare(args.newPassword, updatedUser.password)).toBeTruthy();
   });
 
-  test(`test if Error('Permission required') error is working as intended`, async () => {
-    const checkLogin = async fn => {
-      try {
-        await fn({}, {}, { user });
-      } catch (e) {
-        expect(e.message).toEqual('Permission required');
-      }
-    };
-
-    expect.assertions(1);
-
-    // users remove
-    checkLogin(userMutations.usersRemove);
-  });
-
-  test('Users add & edit: wrong password confirmation', async () => {
-    expect.assertions(2);
-
+  test('Add user', async () => {
     const doc = {
-      password: 'password',
-      passwordConfirmation: 'wrong',
+      ...args,
+      role: 'contributor',
+      passwordConfirmation: 'pass',
+      channelIds: [_channel._id],
     };
 
-    try {
-      await userMutations.usersAdd({}, doc, { user });
-    } catch (e) {
-      expect(e.message).toBe('Incorrect password confirmation');
-    }
-
-    try {
-      await userMutations.usersEdit({}, doc, { user });
-    } catch (e) {
-      expect(e.message).toBe('Incorrect password confirmation');
-    }
-  });
-
-  test('Users add', async () => {
-    const user = { _id: 'DFAFDFDFD' };
-    const channelIds = ['DFAFSDFDSAF', 'DFFADSFDSFD'];
-
-    Users.createUser = jest.fn(() => ({ _id: '_id' }));
-    Channels.updateUserChannels = jest.fn();
     const spyEmail = jest.spyOn(utils, 'sendEmail');
 
-    const doc = {
-      username: 'username',
-      password: 'password',
-      email: 'info@erxes.io',
-      role: 'admin',
-      details: {},
-    };
+    const mutation = `
+      mutation usersAdd(${commonParamDefs}) {
+        usersAdd(${commonParams}) {
+          _id
+          username
+          email
+          role
+          details {
+            fullName
+            avatar
+            location
+            position
+            description
+          }
+          links {
+            linkedIn
+            twitter
+            facebook
+            github
+            youtube
+            website
+          }
+        }
+      }
+    `;
 
-    await userMutations.usersAdd(
-      {},
-      { ...doc, passwordConfirmation: 'password', channelIds },
-      { user },
-    );
+    const user = await graphqlRequest(mutation, 'usersAdd', doc, context);
 
-    // create user call
-    expect(Users.createUser).toBeCalledWith(doc);
+    const channel = await Channels.findOne({ _id: _channel._id });
 
-    // update user channels call
-    expect(Channels.updateUserChannels).toBeCalledWith(channelIds, '_id');
+    expect(channel.memberIds).toContain(user._id);
+    expect(user.username).toBe(doc.username);
+    expect(user.email).toBe(doc.email.toLowerCase());
+    expect(user.role).toBe(doc.role);
+    expect(user.details.fullName).toBe(doc.details.fullName);
+    expect(user.details.avatar).toBe(doc.details.avatar);
+    expect(user.details.location).toBe(doc.details.location);
+    expect(user.details.position).toBe(doc.details.position);
+    expect(user.details.description).toBe(doc.details.description);
+    expect(user.links.linkedIn).toBe(doc.links.linkedIn);
+    expect(user.links.twitter).toBe(doc.links.twitter);
+    expect(user.links.facebook).toBe(doc.links.facebook);
+    expect(user.links.github).toBe(doc.links.github);
+    expect(user.links.youtube).toBe(doc.links.youtube);
+    expect(user.links.website).toBe(doc.links.website);
 
     // send email call
     expect(spyEmail).toBeCalledWith({
@@ -179,133 +220,198 @@ describe('User mutations', () => {
     });
   });
 
-  test('Users edit', async () => {
-    const creatingUser = { _id: 'DFAFDFDFD' };
-    const channelIds = ['DFAFSDFDSAF', 'DFFADSFDSFD'];
-
-    Users.updateUser = jest.fn();
-    Channels.updateUserChannels = jest.fn();
-
-    const userId = 'DFAFDSFSDFDSF';
+  test('Edit user', async () => {
     const doc = {
-      username: 'username',
-      password: 'password',
-      email: 'info@erxes.io',
-      role: 'admin',
-      details: {},
+      ...args,
+      role: 'contributor',
+      passwordConfirmation: 'pass',
+      channelIds: [_channel._id],
     };
 
-    await userMutations.usersEdit(
-      {},
-      { ...doc, _id: userId, passwordConfirmation: 'password', channelIds },
-      { user: creatingUser },
+    const mutation = `
+      mutation usersEdit($_id: String! ${commonParamDefs}) {
+        usersEdit(_id: $_id ${commonParams}) {
+          _id
+          username
+          email
+          role
+          details {
+            fullName
+            avatar
+            location
+            position
+            description
+          }
+          links {
+            linkedIn
+            twitter
+            facebook
+            github
+            youtube
+            website
+          }
+        }
+      }
+    `;
+
+    const user = await graphqlRequest(mutation, 'usersEdit', { _id: _user._id, ...doc }, context);
+
+    const channel = await Channels.findOne({ _id: _channel._id });
+
+    expect(channel.memberIds).toContain(user._id);
+    expect(user.username).toBe(doc.username);
+    expect(user.email.toLowerCase()).toBe(doc.email.toLowerCase());
+    expect(user.role).toBe(doc.role);
+    expect(user.details.fullName).toBe(doc.details.fullName);
+    expect(user.details.avatar).toBe(doc.details.avatar);
+    expect(user.details.location).toBe(doc.details.location);
+    expect(user.details.position).toBe(doc.details.position);
+    expect(user.details.description).toBe(doc.details.description);
+    expect(user.links.linkedIn).toBe(doc.links.linkedIn);
+    expect(user.links.twitter).toBe(doc.links.twitter);
+    expect(user.links.facebook).toBe(doc.links.facebook);
+    expect(user.links.github).toBe(doc.links.github);
+    expect(user.links.youtube).toBe(doc.links.youtube);
+    expect(user.links.website).toBe(doc.links.website);
+  });
+
+  test('Edit user profile', async () => {
+    const mutation = `
+      mutation usersEditProfile(
+        $username: String!
+        $email: String!
+        $details: UserDetails
+        $links: UserLinks
+        $password: String!
+      ) {
+        usersEditProfile(
+          username: $username
+          email: $email
+          details: $details
+          links: $links
+          password: $password
+        ) {
+          username
+          email
+          details {
+            fullName
+            avatar
+            location
+            position
+            description
+          }
+          links {
+            linkedIn
+            twitter
+            facebook
+            github
+            youtube
+            website
+          }
+        }
+      }
+    `;
+
+    const user = await graphqlRequest(mutation, 'usersEditProfile', args, context);
+
+    expect(user.username).toBe(args.username);
+    expect(user.email.toLowerCase()).toBe(args.email.toLowerCase());
+    expect(user.details.fullName).toBe(args.details.fullName);
+    expect(user.details.avatar).toBe(args.details.avatar);
+    expect(user.details.location).toBe(args.details.location);
+    expect(user.details.position).toBe(args.details.position);
+    expect(user.details.description).toBe(args.details.description);
+    expect(user.links.linkedIn).toBe(args.links.linkedIn);
+    expect(user.links.twitter).toBe(args.links.twitter);
+    expect(user.links.facebook).toBe(args.links.facebook);
+    expect(user.links.github).toBe(args.links.github);
+    expect(user.links.youtube).toBe(args.links.youtube);
+    expect(user.links.website).toBe(args.links.website);
+  });
+
+  test('Change user password', async () => {
+    const args = {
+      currentPassword: 'pass',
+      newPassword: 'pass1',
+    };
+
+    const previousPassword = _user.password;
+
+    const mutation = `
+      mutation usersChangePassword(
+        $currentPassword: String!
+        $newPassword: String!
+      ) {
+        usersChangePassword(
+          currentPassword: $currentPassword
+          newPassword: $newPassword
+        ) {
+          _id
+        }
+      }
+    `;
+
+    await graphqlRequest(mutation, 'usersChangePassword', args, context);
+
+    const user = await Users.findOne({ _id: _user._id });
+
+    expect(user.password).not.toBe(previousPassword);
+  });
+
+  test('Remove user', async () => {
+    const mutation = `
+      mutation usersRemove($_id: String!) {
+        usersRemove(_id: $_id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'usersRemove', { _id: _user._id }, { user: _admin });
+
+    expect(await Users.findOne({ _id: _user._id })).toBe(null);
+  });
+
+  test('Config user email signature', async () => {
+    const args = [
+      {
+        signature: faker.random.word(),
+        brandId: _brand._id,
+      },
+    ];
+
+    const mutation = `
+      mutation usersConfigEmailSignatures($signatures: [EmailSignature]) {
+        usersConfigEmailSignatures(signatures: $signatures) {
+          emailSignatures
+        }
+      }
+    `;
+
+    const user = await graphqlRequest(
+      mutation,
+      'usersConfigEmailSignatures',
+      { signatures: args },
+      context,
     );
 
-    // update user call
-    expect(Users.updateUser).toBeCalledWith(userId, doc);
-
-    // update user channels call
-    expect(Channels.updateUserChannels).toBeCalledWith(channelIds, userId);
+    expect(toJSON(user.emailSignatures)).toEqual(toJSON(args));
   });
 
-  test('Users edit profile: invalid password', async () => {
-    expect.assertions(1);
+  test('Config user get notification by email', async () => {
+    const mutation = `
+      mutation usersConfigGetNotificationByEmail($isAllowed: Boolean) {
+        usersConfigGetNotificationByEmail(isAllowed: $isAllowed) {
+          getNotificationByEmail
+        }
+      }
+    `;
 
-    const user = await userFactory({ password: 'p' });
+    const user = await graphqlRequest(
+      mutation,
+      'usersConfigGetNotificationByEmail',
+      { isAllowed: true },
+      context,
+    );
 
-    try {
-      await userMutations.usersEditProfile({}, { password: 'password' }, { user });
-    } catch (e) {
-      expect(e.message).toBe('Invalid password');
-    }
-  });
-
-  test('Users edit profile: successfull', async () => {
-    const user = await userFactory({});
-
-    Users.editProfile = jest.fn();
-
-    const doc = {
-      username: 'username',
-      email: 'info@erxes.io',
-      details: {
-        fullName: 'fullName',
-        twitterUsername: 'twitterUsername',
-        position: 'position',
-      },
-    };
-
-    await userMutations.usersEditProfile({}, { ...doc, password: 'pass' }, { user });
-
-    expect(Users.editProfile).toBeCalledWith(user._id, doc);
-  });
-
-  test('Users remove: can not delete owner', async () => {
-    expect.assertions(1);
-
-    const owner = await userFactory({ isOwner: true });
-
-    try {
-      await userMutations.usersRemove({}, { _id: owner._id }, { user: _adminUser });
-    } catch (e) {
-      expect(e.message).toBe('Can not remove owner');
-    }
-  });
-
-  test('Users remove: can not remove user who created some channels', async () => {
-    expect.assertions(1);
-
-    const userToRemove = await userFactory({});
-    await channelFactory({ userId: userToRemove._id });
-
-    try {
-      await userMutations.usersRemove({}, { _id: userToRemove._id }, { user: _adminUser });
-    } catch (e) {
-      expect(e.message).toBe('You cannot delete this user. This user belongs other channel.');
-    }
-  });
-
-  test('Users remove: can not remove user who involved some channels', async () => {
-    expect.assertions(1);
-
-    const userToRemove = await userFactory({});
-    await channelFactory({ memberIds: ['DFAFSFDSFDS', userToRemove._id] });
-
-    try {
-      await userMutations.usersRemove({}, { _id: userToRemove._id }, { user: _adminUser });
-    } catch (e) {
-      expect(e.message).toBe('You cannot delete this user. This user belongs other channel.');
-    }
-  });
-
-  test('Users remove: successful', async () => {
-    const removeUser = await userFactory({});
-    const removeUserId = removeUser._id;
-
-    await userMutations.usersRemove({}, { _id: removeUserId }, { user: _adminUser });
-
-    // ensure removed
-    expect(await Users.findOne({ _id: removeUserId })).toBe(null);
-  });
-
-  test('User config email signatures', async () => {
-    const user = await userFactory({});
-    const signatures = [{ brandId: 'DFADF', signature: 'signature' }];
-
-    Users.configEmailSignatures = jest.fn();
-
-    await userMutations.usersConfigEmailSignatures({}, { signatures }, { user });
-
-    expect(Users.configEmailSignatures).toBeCalledWith(user._id, signatures);
-  });
-
-  test('User config get notification by email', async () => {
-    const user = await userFactory({});
-
-    Users.configGetNotificationByEmail = jest.fn();
-
-    await userMutations.usersConfigGetNotificationByEmail({}, { isAllowed: true }, { user });
-
-    expect(Users.configGetNotificationByEmail).toBeCalledWith(user._id, true);
+    expect(user.getNotificationByEmail).toBeDefined();
   });
 });

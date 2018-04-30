@@ -4,10 +4,18 @@ export const types = `
     status: String!
   }
 
+  type CustomerLinks {
+    linkedIn: String
+    twitter: String
+    facebook: String
+    youtube: String
+    github: String
+    website: String
+  }
+
   type Customer {
     _id: String!
     integrationId: String
-    name: String
     firstName: String
     lastName: String
     email: String
@@ -23,12 +31,27 @@ export const types = `
     messengerData: JSON
     twitterData: JSON
     facebookData: JSON
-
+    ownerId: String
+    position: String
+    department: String
+    leadStatus: String
+    lifecycleState: String
+    hasAuthority: String
+    description: String
+    doNotDisturb: String
+    links: CustomerLinks
     companies: [Company]
     conversations: [Conversation]
+    deals: [Deal]
     getIntegrationData: JSON
     getMessengerCustomData: JSON
     getTags: [Tag]
+    owner: User
+  }
+
+  type CustomersListResponse {
+    list: [Customer],
+    totalCount: Float,
   }
 `;
 
@@ -38,10 +61,16 @@ const queryParams = `
   segment: String,
   tag: String,
   ids: [String],
-  searchValue: String
+  searchValue: String,
+  brand: String,
+  integration: String,
+  form: String,
+  startDate: String,
+  endDate: String
 `;
 
 export const queries = `
+  customersMain(${queryParams}): CustomersListResponse
   customers(${queryParams}): [Customer]
   customerCounts(${queryParams}, byFakeSegment: JSON): JSON
   customerDetail(_id: String!): Customer
@@ -53,6 +82,15 @@ const fields = `
   lastName: String
   email: String
   phone: String
+  ownerId: String
+  position: String
+  department: String
+  leadStatus: String
+  lifecycleState:  String
+  hasAuthority: String
+  description: String
+  doNotDisturb: String
+  links: JSON
   customFieldsData: JSON
 `;
 
