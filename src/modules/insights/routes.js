@@ -50,7 +50,12 @@ const routes = () => [
     exact
     path="/insights/first-response"
     component={() => {
-      return <AsyncReports component={AsyncFirstAndCloseResponseReport} />;
+      return (
+        <AsyncReports
+          type="first"
+          component={AsyncFirstAndCloseResponseReport}
+        />
+      );
     }}
   />,
 
