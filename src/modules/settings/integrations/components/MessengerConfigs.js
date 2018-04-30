@@ -82,10 +82,12 @@ class Configs extends Component {
   }
 
   onTeamMembersChange(options) {
-    this.setState({
-      supporters: options,
-      supporterIds: options.map(option => option.value)
-    });
+    if (options.length < 3) {
+      this.setState({
+        supporters: options,
+        supporterIds: options.map(option => option.value)
+      });
+    }
   }
 
   save(e) {
@@ -236,10 +238,11 @@ class Configs extends Component {
               <ControlLabel>Supporters</ControlLabel>
 
               <Select
+                closeOnSelect={false}
                 value={this.state.supporters}
                 options={this.generateSupporterOptions(this.props.teamMembers)}
                 onChange={this.onTeamMembersChange}
-                clearable={false}
+                clearable={true}
                 multi
               />
             </FormGroup>

@@ -121,6 +121,8 @@ class OnlineHours extends Component {
         {this.state.onlineHours.map(onlineHour =>
           this.renderOnlineHour(onlineHour)
         )}
+
+        <br />
         <Button
           btnStyle="success"
           size="small"
