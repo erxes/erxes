@@ -20,64 +20,89 @@ class Configs extends Component {
   constructor(props) {
     super(props);
 
+    const { prevOptions, teamMembers } = props;
+
+    const {
+      notifyCustomer,
+      availabilityMethod,
+      supporterIds = [],
+      isOnline,
+      timezone,
+      onlineHours,
+      welcomeMessage,
+      awayMessage,
+      thankYouMessage
+    } = prevOptions;
+
+    const selectedMembers = teamMembers.filter(member =>
+      supporterIds.includes(member._id)
+    );
+
     this.state = {
-      notifyCustomer: props.prevOptions.notifyCustomer || false,
-      availabilityMethod: props.prevOptions.availabilityMethod || 'manual',
-      isOnline: props.prevOptions.isOnline || false,
-      timezone: props.prevOptions.timezone || '',
-      onlineHours: props.prevOptions.onlineHours || [],
-      welcomeMessage: props.prevOptions.welcomeMessage || '',
-      awayMessage: props.prevOptions.awayMessage || '',
-      thankYouMessage: props.prevOptions.thankYouMessage || ''
+      notifyCustomer: notifyCustomer || false,
+      availabilityMethod: availabilityMethod || 'manual',
+      isOnline: isOnline || false,
+      timezone: timezone || '',
+      onlineHours: (onlineHours || []).map(h => ({ _id: Math.random(), ...h })),
+      welcomeMessage: welcomeMessage || '',
+      awayMessage: awayMessage || '',
+      thankYouMessage: thankYouMessage || '',
+      supporterIds: supporterIds || [],
+      supporters: this.generateSupporterOptions(selectedMembers)
     };
 
     this.save = this.save.bind(this);
-    this.onMethodChange = this.onMethodChange.bind(this);
-    this.onNotifyCustomerChange = this.onNotifyCustomerChange.bind(this);
-    this.onIsOnlineChange = this.onIsOnlineChange.bind(this);
-    this.onTimezoneChange = this.onTimezoneChange.bind(this);
     this.onOnlineHoursChange = this.onOnlineHoursChange.bind(this);
-    this.onWelcomeMessageChange = this.onWelcomeMessageChange.bind(this);
-    this.onAwayMessageChange = this.onAwayMessageChange.bind(this);
-    this.onThankYouMessageChange = this.onThankYouMessageChange.bind(this);
+    this.onTeamMembersChange = this.onTeamMembersChange.bind(this);
+    this.onSelectChange = this.onSelectChange.bind(this);
+    this.onInputChange = this.onInputChange.bind(this);
+    this.onToggleChange = this.onToggleChange.bind(this);
   }
 
-  onMethodChange(e) {
-    this.setState({ availabilityMethod: e.target.value });
+  onSelectChange(e, name) {
+    let value = '';
+
+    if (e) {
+      value = e.value;
+    }
+
+    this.setState({ [name]: value });
   }
 
-  onNotifyCustomerChange(e) {
-    this.setState({ notifyCustomer: e.target.checked });
+  onInputChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
   }
 
-  onIsOnlineChange(e) {
-    this.setState({ isOnline: e.target.checked });
-  }
-
-  onTimezoneChange(e) {
-    this.setState({ timezone: e.value });
+  onToggleChange(e) {
+    this.setState({ [e.target.name]: e.target.checked });
   }
 
   onOnlineHoursChange(onlineHours) {
     this.setState({ onlineHours });
   }
 
-  onWelcomeMessageChange(e) {
-    this.setState({ welcomeMessage: e.target.value });
-  }
-
-  onAwayMessageChange(e) {
-    this.setState({ awayMessage: e.target.value });
-  }
-
-  onThankYouMessageChange(e) {
-    this.setState({ thankYouMessage: e.target.value });
+  onTeamMembersChange(options) {
+    this.setState({
+      supporters: options,
+      supporterIds: options.map(option => option.value)
+    });
   }
 
   save(e) {
     e.preventDefault();
 
-    this.props.save(this.state);
+    const variables = { ...this.state };
+
+    delete variables.supporters;
+
+    this.props.save(variables);
+  }
+
+  generateSupporterOptions(members = []) {
+    return members.map(member => ({
+      value: member._id,
+      label: member.details.fullName
+    }));
   }
 
   renderOnlineHours() {
@@ -87,7 +112,7 @@ class Configs extends Component {
 
     return (
       <OnlineHours
-        prevOptions={this.props.prevOptions.onlineHours}
+        prevOptions={this.state.onlineHours}
         onChange={this.onOnlineHoursChange}
       />
     );
@@ -104,8 +129,9 @@ class Configs extends Component {
         <div>
           <Toggle
             className="wide"
+            name="isOnline"
             checked={this.state.isOnline}
-            onChange={this.onIsOnlineChange}
+            onChange={this.onToggleChange}
             icons={{
               checked: <span>Yes</span>,
               unchecked: <span>No</span>
@@ -118,6 +144,7 @@ class Configs extends Component {
 
   render() {
     const { __ } = this.context;
+
     const content = (
       <ContentBox>
         <Row>
@@ -131,8 +158,9 @@ class Configs extends Component {
                 componentClass="textarea"
                 placeholder={__('Write here Welcome message.')}
                 rows={3}
+                name="welcomeMessage"
                 value={this.state.welcomeMessage}
-                onChange={this.onWelcomeMessageChange}
+                onChange={this.onInputChange}
               />
             </FormGroup>
 
@@ -145,8 +173,9 @@ class Configs extends Component {
                 componentClass="textarea"
                 placeholder={__('Write here Away message.')}
                 rows={3}
+                name="awayMessage"
                 value={this.state.awayMessage}
-                onChange={this.onAwayMessageChange}
+                onChange={this.onInputChange}
               />
             </FormGroup>
 
@@ -157,8 +186,9 @@ class Configs extends Component {
                 componentClass="textarea"
                 placeholder={__('Write here Thank you message.')}
                 rows={3}
+                name="thankYouMessage"
                 value={this.state.thankYouMessage}
-                onChange={this.onThankYouMessageChange}
+                onChange={this.onInputChange}
               />
             </FormGroup>
           </Col>
@@ -166,22 +196,22 @@ class Configs extends Component {
             <SubHeading>{__('Hours & Availability')}</SubHeading>
             <FormGroup>
               <FormControl
-                name="method"
+                name="availabilityMethod"
                 value="manual"
                 componentClass="radio"
                 checked={this.state.availabilityMethod === 'manual'}
-                onChange={this.onMethodChange}
+                onChange={this.onInputChange}
                 inline
               >
                 {__('Turn online/offline manually')}
               </FormControl>
 
               <FormControl
-                name="method"
+                name="availabilityMethod"
                 value="auto"
                 componentClass="radio"
                 checked={this.state.availabilityMethod === 'auto'}
-                onChange={this.onMethodChange}
+                onChange={this.onInputChange}
                 inline
               >
                 {__('Set to follow your schedule')}
@@ -197,8 +227,20 @@ class Configs extends Component {
               <Select
                 value={this.state.timezone}
                 options={timezones}
-                onChange={this.onTimezoneChange}
+                onChange={e => this.onSelectChange(e, 'timezone')}
                 clearable={false}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Supporters</ControlLabel>
+
+              <Select
+                value={this.state.supporters}
+                options={this.generateSupporterOptions(this.props.teamMembers)}
+                onChange={this.onTeamMembersChange}
+                clearable={false}
+                multi
               />
             </FormGroup>
 
@@ -209,8 +251,9 @@ class Configs extends Component {
               <div>
                 <Toggle
                   className="wide"
+                  name="notifyCustomer"
                   checked={this.state.notifyCustomer}
-                  onChange={this.onNotifyCustomerChange}
+                  onChange={this.onToggleChange}
                   icons={{
                     checked: <span>Yes</span>,
                     unchecked: <span>No</span>
@@ -264,6 +307,7 @@ class Configs extends Component {
 
 Configs.propTypes = {
   prevOptions: PropTypes.object.isRequired, // eslint-disable-line
+  teamMembers: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired
 };
 

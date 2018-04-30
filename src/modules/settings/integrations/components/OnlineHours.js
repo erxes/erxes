@@ -36,7 +36,7 @@ class OnlineHours extends Component {
   }
 
   addTime() {
-    const onlineHours = this.state.onlineHours;
+    const onlineHours = this.state.onlineHours.slice();
 
     onlineHours.push({
       _id: Math.random().toString(),
