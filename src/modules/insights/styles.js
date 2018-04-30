@@ -76,10 +76,14 @@ const FlexItem = styled.div`
 `;
 
 const ChartWrapper = styled.div`
-  padding: 20px 20px 20px 0;
+  padding: ${dimensions.coreSpacing}px;
   border: 1px solid ${colors.borderPrimary};
   border-radius: 2px;
   background: ${colors.bgLight};
+  width: 100%;
+  height: ${props => (props.height ? `${props.height}px` : 'auto')}
+  position: relative;
+  overflow: hidden;
 `;
 
 const LoaderWrapper = ChartWrapper.extend`
@@ -103,29 +107,6 @@ const SummaryTitle = styled.div`
 const SummaryCount = styled.span`
   font-weight: bold;
   font-size: ${typography.fontSizeHeading5}px;
-`;
-
-const IntegrationKind = styled.div`
-  position: absolute;
-  z-index: 2;
-  padding-left: ${dimensions.coreSpacing}px;
-  margin-top: 60px;
-`;
-
-const KindCount = styled.span`
-  font-size: ${typography.fontSizeHeading8}px;
-  font-weight: bold;
-  margin-left: ${dimensions.unitSpacing}px;
-`;
-
-const KindItem = styled.div`
-  margin-bottom: 12px;
-
-  .label {
-    margin-right: 5px;
-    display: inline-block;
-    padding: 5px ${dimensions.unitSpacing}px;
-  }
 `;
 
 const InsightUserData = styled.div`
@@ -174,9 +155,6 @@ export {
   SummaryItem,
   SummaryTitle,
   SummaryCount,
-  IntegrationKind,
-  KindItem,
-  KindCount,
   InsightUserData,
   UserProfile,
   FullName
