@@ -187,18 +187,19 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
 
 export const readTemplate = async name => {
   const workbook = await xlsxPopulate.fromFileAsync(
-    `${__dirname}/../private/templates/${name}.xlsx`,
+    `${__dirname}/../private/xlsTemplates/${name}.xlsx`,
   );
 
   return { workbook, sheet: workbook.sheet(0) };
 };
 
 export const generateXlsx = async (workbook, name) => {
-  const url = `templateOutputs/${name}.xlsx`;
+  const url = `xlsTemplateOutputs/${name}.xlsx`;
+  const { DOMAIN } = process.env;
 
   await workbook.toFileAsync(`${__dirname}/../private/${url}`);
 
-  return `localhost:3300/static/${url}`;
+  return `${DOMAIN}:3300/static/${url}`;
 };
 
 export default {
