@@ -13,11 +13,7 @@ class DealMoveContainer extends React.Component {
   render() {
     const { stagesQuery } = this.props;
 
-    if (stagesQuery.loading) {
-      return null;
-    }
-
-    const stages = stagesQuery.dealStages;
+    const stages = stagesQuery.dealStages || [];
 
     const updatedProps = {
       ...this.props,

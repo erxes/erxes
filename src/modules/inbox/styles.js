@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 import { colors } from '../common/styles';
 import { rgba, darken } from '../common/styles/color';
+import {
+  PopoverList as RootList,
+  PopoverFooter as RootFooter
+} from 'modules/common/components/filterableList/styles';
 
 const PopoverButton = styled.div`
   display: inline-block;
@@ -41,71 +45,8 @@ const ConversationWrapper = styled.div`
   background: ${colors.bgLight};
 `;
 
-const RichEditorRoot = styled.div`
-  font-size: 14px;
-
-  .RichEditor-editor {
-    border-top: 1px solid ${colors.borderPrimary};
-    cursor: text;
-
-    .public-DraftEditorPlaceholder-root {
-      padding: 15px 20px;
-      position: absolute;
-      color: ${colors.colorCoreGray};
-      font-size: 13px;
-    }
-
-    .public-DraftEditorPlaceholder-inner {
-      color: ${colors.colorCoreLightGray};
-    }
-
-    .public-DraftEditor-content {
-      font-size: 13px;
-      min-height: 100px;
-      padding: 15px 20px;
-    }
-  }
-
-  .RichEditor-controls {
-    float: left;
-    font-size: 14px;
-    user-select: none;
-    margin-bottom: 5px;
-  }
-`;
-
-const RichEditorControlsRoot = styled.div`
-  overflow: hidden;
-  padding: 7px 20px 0;
-`;
-
 const RichEditorRight = styled.div`
   float: right;
-`;
-
-const RichEditorControls = styled.div`
-  float: left;
-  font-size: 14px;
-  user-select: none;
-  margin-bottom: 5px;
-
-  .RichEditor-styleButton {
-    color: ${colors.colorCoreGray};
-    cursor: pointer;
-    margin-right: 16px;
-    padding: 2px 0;
-    display: inline-block;
-    min-width: 10px;
-    text-align: center;
-
-    &:hover {
-      color: ${rgba(colors.colorPrimary, 0.7)};
-    }
-  }
-
-  .RichEditor-activeButton {
-    color: ${colors.colorPrimary};
-  }
 `;
 
 const ResponseSuggestions = styled.ul`
@@ -139,16 +80,12 @@ const ResponseSuggestionItem = styled.li`
 `;
 
 const RespondBoxStyled = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
   position: relative;
   transition: background 0.3s ease;
   background: ${props =>
     props.isInternal ? colors.bgInternal : colors.colorWhite};
-
   filter: ${props => props.isInactive && 'blur(2px)'};
-
-  ${RichEditorRoot} {
-    border-top: 1px solid ${colors.borderPrimary};
-  }
 `;
 
 const ResponseTemplateStyled = styled.div`
@@ -185,7 +122,6 @@ const EditorActions = styled.div`
     &:first-of-type {
       position: absolute;
       left: 20px;
-      bottom: 20px;
     }
   }
 
@@ -221,48 +157,23 @@ const InlineHeaderSpan = styled.span`
 
 const PopoverHeader = styled.div`
   background-color: ${colors.bgLight};
-  padding: 5px;
 
   input[type='text'] {
-    padding: 4px 8px;
-    font-size: 13px;
-
-    &:focus {
-      border-color: ${colors.borderDarker};
-      box-shadow: none;
-    }
+    padding: 4px 8px 4px 20px;
   }
 `;
 
-const PopoverFooter = styled.div`
-  padding: 5px 0;
-  border-top: 1px solid ${colors.borderPrimary};
+const PopoverFooter = RootFooter.extend`
   align-self: flex-end;
   width: 100%;
 `;
 
-const PopoverList = styled.ul`
-  max-height: 275px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  overflow: auto;
+const PopoverList = RootList.extend`
   position: relative;
+  padding: 0;
 
   li {
-    position: relative;
-    display: block;
-    overflow: hidden;
-    padding: 5px 20px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-size: 13px;
     text-align: ${props => props.center && 'center'};
-
-    &:hover,
-    &:focus {
-      background: ${colors.bgLight};
-    }
 
     a {
       color: ${colors.colorCoreDarkGray};
@@ -289,13 +200,6 @@ const PopoverBody = styled.div`
 
       &:hover {
         cursor: pointer;
-      }
-    }
-
-    .linked {
-      li {
-        padding: 0;
-        border-bottom: 0;
       }
     }
   }
@@ -420,9 +324,6 @@ export {
   PopoverButton,
   ConversationWrapper,
   RespondBoxStyled,
-  RichEditorRoot,
-  RichEditorControlsRoot,
-  RichEditorControls,
   ResponseSuggestions,
   ResponseSuggestionItem,
   EditorActions,

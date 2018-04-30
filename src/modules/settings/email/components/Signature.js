@@ -6,8 +6,7 @@ import {
   FormControl,
   Button
 } from 'modules/common/components';
-import { Well } from '../../styles';
-import { ModalFooter } from 'modules/common/styles/main';
+import { ModalFooter, Well } from 'modules/common/styles/main';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,

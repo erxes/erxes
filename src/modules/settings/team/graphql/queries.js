@@ -81,8 +81,8 @@ const channels = `
 `;
 
 const users = `
-  query users($page: Int, $perPage: Int) {
-    users(page: $page, perPage: $perPage) {
+  query users($page: Int, $perPage: Int, $searchValue: String) {
+    users(page: $page, perPage: $perPage, searchValue: $searchValue) {
       _id
       username
       email

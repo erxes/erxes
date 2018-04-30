@@ -1,12 +1,9 @@
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 
-const SubContent = styled.div`
-  flex: 1;
-`;
-
 const Info = styled.div`
   margin-top: 5px;
+  white-space: normal;
 
   > span {
     font-weight: normal;
@@ -50,7 +47,7 @@ const SectionBodyItem = styled.div`
   i {
     color: ${colors.colorCoreLightGray};
     position: absolute;
-    right: 20px;
+    right: ${dimensions.coreSpacing}px;
 
     &:hover {
       cursor: pointer;
@@ -61,10 +58,8 @@ const SectionBodyItem = styled.div`
     font-size: 12px;
   }
 
-  ul {
-    li {
-      margin-left: 20px;
-    }
+  ul li {
+    margin-left: ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -75,12 +70,4 @@ const Action = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
-export {
-  SubContent,
-  InfoTitle,
-  InfoDetail,
-  Info,
-  SectionBody,
-  SectionBodyItem,
-  Action
-};
+export { InfoTitle, InfoDetail, Info, SectionBody, SectionBodyItem, Action };

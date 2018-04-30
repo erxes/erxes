@@ -1,18 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Dropdown } from 'react-bootstrap';
-import {
-  ModalTrigger,
-  Button,
-  Icon,
-  Table,
-  DropdownToggle
-} from 'modules/common/components';
-import { BarItems } from 'modules/layout/styles';
+import { ModalTrigger, Button, Table } from 'modules/common/components';
 import Row from './Row';
 import Form from './Form';
+import Sidebar from './Sidebar';
 
 const propTypes = {
   tags: PropTypes.array.isRequired,
@@ -29,35 +21,9 @@ function List({ tags, type, remove, save }, { __ }) {
   );
 
   const actionBarRight = (
-    <BarItems>
-      <Dropdown id="dropdown-engage" pullRight>
-        <DropdownToggle bsRole="toggle">
-          <Button btnStyle="simple" size="small">
-            {__('Customize ')} <Icon icon="downarrow" />
-          </Button>
-        </DropdownToggle>
-        <Dropdown.Menu>
-          <li>
-            <Link to="/tags/engageMessage">{__('Engage Message')}</Link>
-          </li>
-          <li>
-            <Link to="/tags/conversation">{__('Conversation')}</Link>
-          </li>
-          <li>
-            <Link to="/tags/customer">{__('Customer')}</Link>
-          </li>
-          <li>
-            <Link to="/tags/company">{__('Company')}</Link>
-          </li>
-          <li>
-            <Link to="/tags/integration">{__('Integration')}</Link>
-          </li>
-        </Dropdown.Menu>
-      </Dropdown>
-      <ModalTrigger title="Add tag" trigger={trigger}>
-        <Form type={type} save={save} />
-      </ModalTrigger>
-    </BarItems>
+    <ModalTrigger title="Add tag" trigger={trigger}>
+      <Form type={type} save={save} />
+    </ModalTrigger>
   );
 
   const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
@@ -95,6 +61,7 @@ function List({ tags, type, remove, save }, { __ }) {
       header={<Wrapper.Header breadcrumb={breadcrumb} />}
       actionBar={actionBar}
       content={content}
+      leftSidebar={<Sidebar />}
     />
   );
 }

@@ -5,7 +5,6 @@ import { Sidebar } from 'modules/layout/components';
 import { Button } from 'modules/common/components';
 import { ManageGroups } from 'modules/settings/properties/components';
 import { BasicInfo } from 'modules/customers/containers';
-import { BlockValue } from './styles';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
 import {
@@ -34,15 +33,9 @@ class LeftSidebar extends ManageGroups {
       return (
         <li>
           {__(text)}:
-          {nowrap ? (
-            <BlockValue>
-              {value} {secondValue}
-            </BlockValue>
-          ) : (
-            <SidebarCounter>
-              {value} {secondValue}
-            </SidebarCounter>
-          )}
+          <SidebarCounter nowrap={nowrap}>
+            {value} {secondValue}
+          </SidebarCounter>
         </li>
       );
     }

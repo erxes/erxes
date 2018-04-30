@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import {
@@ -86,7 +86,7 @@ class CategoryForm extends Component {
 
   renderContent(category = {}) {
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -117,7 +117,7 @@ class CategoryForm extends Component {
             valueRenderer={this.renderOption}
           />
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 

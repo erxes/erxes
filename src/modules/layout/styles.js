@@ -274,15 +274,15 @@ const SidebarList = styled.ul`
 
 const SidebarCounter = styled.span`
   font-size: ${typography.fontSizeHeading8}px;
-  text-align: right;
+  text-align: ${props => (props.nowrap ? 'left' : 'right')};
   color: ${colors.colorCoreGray};
   margin-top: 2px;
-  position: absolute;
+  position: ${props => !props.nowrap && 'absolute'};
   right: ${dimensions.coreSpacing}px;
-  max-width: 60%;
+  max-width: ${props => (props.nowrap ? '100%' : '60%')};
   overflow: hidden;
   text-overflow: ellipsis;
-  padding-left: 10px;
+  padding-left: ${props => (props.nowrap ? '0' : '10px')};
 
   a {
     padding: 0;
@@ -297,10 +297,8 @@ const SidebarCounter = styled.span`
   ${props =>
     props.nowrap &&
     css`
-      width: 100%;
+      display: block;
       white-space: normal;
-      position: initial;
-      margin-left: 10px;
     `};
 `;
 

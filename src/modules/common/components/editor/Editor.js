@@ -11,7 +11,7 @@ import {
   RichEditorRoot,
   RichEditorControlsRoot,
   RichEditorControls
-} from 'modules/inbox/styles';
+} from './styles';
 
 function getBlockStyle(block) {
   switch (block.getType()) {

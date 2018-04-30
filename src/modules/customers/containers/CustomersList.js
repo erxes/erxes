@@ -78,7 +78,8 @@ class CustomerListContainer extends Bulk {
       byBrand: {},
       byIntegrationType: {},
       bySegment: {},
-      byTag: {}
+      byTag: {},
+      byForm: {}
     };
 
     const updatedProps = {
@@ -129,7 +130,10 @@ export default compose(
           ids: queryParams.ids,
           searchValue: queryParams.searchValue,
           brand: queryParams.brand,
-          integration: queryParams.integrationType
+          integration: queryParams.integrationType,
+          form: queryParams.form,
+          startDate: queryParams.startDate,
+          endDate: queryParams.endDate
         },
         notifyOnNetworkStatusChange: true
       };
@@ -144,7 +148,10 @@ export default compose(
         tag: queryParams.tag,
         segment: queryParams.segment,
         ids: queryParams.ids,
-        searchValue: queryParams.searchValue
+        searchValue: queryParams.searchValue,
+        form: queryParams.form,
+        startDate: queryParams.startDate,
+        endDate: queryParams.endDate
       },
       notifyOnNetworkStatusChange: true
     })

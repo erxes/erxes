@@ -1,27 +1,8 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import styled, { keyframes } from 'styled-components';
-
-const fade = keyframes`
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-`;
-
-const slidedown = keyframes`
-  0% {
-    transform: translateY(-20px);
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-`;
+import styled from 'styled-components';
+import { fadeIn, slideDown } from 'modules/common/utils/animations';
 
 const PreviewWrapper = styled.div`
   position: fixed;
@@ -36,7 +17,7 @@ const PreviewWrapper = styled.div`
   align-items: center;
   transition: all 0.3s;
   z-index: 100;
-  animation-name: ${fade};
+  animation-name: ${fadeIn};
   animation-duration: 0.3s;
   animation-timing-function: ease;
   cursor: zoom-out;
@@ -48,7 +29,7 @@ const PreviewWrapper = styled.div`
     max-height: 80vh;
     box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
     transition: max-width 0.1s ease, max-height 0.1s ease;
-    animation-name: ${slidedown};
+    animation-name: ${slideDown};
     animation-duration: 0.3s;
     animation-timing-function: ease;
   }

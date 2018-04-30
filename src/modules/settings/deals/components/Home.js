@@ -1,27 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import {
-  DataWithLoader,
-  Button,
-  ModalTrigger
-} from 'modules/common/components';
-import { Boards, PipelineForm } from '../containers';
-import { Pipelines } from './';
+import { Boards, Pipelines } from '../containers';
 
 const propTypes = {
-  queryParams: PropTypes.object,
-  loading: PropTypes.bool,
-  pipelines: PropTypes.array,
-  boardId: PropTypes.string,
-  removePipeline: PropTypes.func,
-  savePipeline: PropTypes.func,
-  pipelinesUpdateOrder: PropTypes.func
+  boardId: PropTypes.string
 };
 
 class Home extends Component {
   render() {
-    const { loading, pipelines, boardId } = this.props;
+    const { boardId } = this.props;
     const { __ } = this.context;
 
     const breadcrumb = [
@@ -29,39 +17,11 @@ class Home extends Component {
       { title: __('Deal') }
     ];
 
-    const trigger = (
-      <Button btnStyle="success" size="small" icon="add">
-        Add pipeline
-      </Button>
-    );
-
-    const rightActionBar = boardId && (
-      <ModalTrigger title="Add pipeline" trigger={trigger}>
-        <PipelineForm boardId={boardId} save={this.props.savePipeline} />
-      </ModalTrigger>
-    );
-
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={<Wrapper.ActionBar right={rightActionBar} />}
         leftSidebar={<Boards />}
-        content={
-          <DataWithLoader
-            data={
-              <Pipelines
-                pipelines={pipelines}
-                save={this.props.savePipeline}
-                remove={this.props.removePipeline}
-                updateOrder={this.props.pipelinesUpdateOrder}
-              />
-            }
-            loading={loading}
-            count={pipelines.length}
-            emptyText="There is no pipeline in this board."
-            emptyImage="/images/robots/robot-05.svg"
-          />
-        }
+        content={<Pipelines boardId={boardId} />}
       />
     );
   }

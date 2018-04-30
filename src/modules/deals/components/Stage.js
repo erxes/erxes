@@ -66,7 +66,7 @@ class Stage extends React.Component {
       .map((e, i) => <IndicatorItem isPass={index >= i} key={i} />);
   }
 
-  renderDeal(provided) {
+  renderDeals(provided) {
     const { deals, saveDeal, removeDeal } = this.props;
 
     return (
@@ -112,7 +112,7 @@ class Stage extends React.Component {
 
               <Body>
                 <Droppable droppableId={stageId} type="stage">
-                  {dropProvided => this.renderDeal(dropProvided)}
+                  {dropProvided => this.renderDeals(dropProvided)}
                 </Droppable>
               </Body>
             </Container>

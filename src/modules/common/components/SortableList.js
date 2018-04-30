@@ -1,65 +1,103 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import {
-  SortableContainer,
-  SortableElement,
-  SortableHandle,
-  arrayMove
-} from 'react-sortable-hoc';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Icon } from 'modules/common/components';
 import { SortableWrapper, SortItem, DragHandler } from '../styles/sort';
-
-const DragHandle = SortableHandle(() => (
-  <DragHandler>
-    <Icon icon="move" />
-  </DragHandler>
-));
-
-const SortableItem = SortableElement(({ field }) => (
-  <SortItem>
-    <DragHandle />
-    {field}
-  </SortItem>
-));
-
-const Sortable = SortableContainer(({ fields, child }) => {
-  return (
-    <SortableWrapper>
-      {fields.map((field, index) => (
-        <SortableItem key={index} index={index} field={child(field)} />
-      ))}
-    </SortableWrapper>
-  );
-});
+import { reorder } from '../utils';
 
 const propTypes = {
   fields: PropTypes.array,
   child: PropTypes.func,
-  onChangeFields: PropTypes.func
+  onChangeFields: PropTypes.func,
+  isModal: PropTypes.bool,
+  showDragHandler: PropTypes.bool
+};
+
+const defaultProps = {
+  showDragHandler: true
 };
 
 class SortableList extends Component {
   constructor(props) {
     super(props);
 
-    this.onSortEnd = this.onSortEnd.bind(this);
+    this.onDragEnd = this.onDragEnd.bind(this);
   }
 
-  onSortEnd({ oldIndex, newIndex }) {
-    const reOrderedFields = arrayMove(this.props.fields, oldIndex, newIndex);
-    this.props.onChangeFields(reOrderedFields);
+  onDragEnd(result) {
+    const { destination, source } = result;
+
+    // dropped outside the list
+    if (!destination) return;
+
+    if (destination.index === source.index) {
+      return;
+    }
+
+    const { fields, onChangeFields } = this.props;
+
+    const reorderedFields = reorder(fields, source.index, destination.index);
+
+    onChangeFields(reorderedFields);
+  }
+
+  renderDragHandler() {
+    if (!this.props.showDragHandler) return;
+
+    return (
+      <DragHandler>
+        <Icon icon="move" />
+      </DragHandler>
+    );
+  }
+
+  renderField(field, index) {
+    const { child, isModal } = this.props;
+
+    return (
+      <Draggable draggableId={field._id} index={index} key={index}>
+        {(provided, snapshot) => (
+          <Fragment>
+            <SortItem
+              innerRef={provided.innerRef}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+              isDragging={snapshot.isDragging}
+              isModal={isModal}
+            >
+              {this.renderDragHandler()}
+
+              {child(field)}
+            </SortItem>
+            {provided.placeholder}
+          </Fragment>
+        )}
+      </Draggable>
+    );
+  }
+
+  renderFields(provided) {
+    const { fields } = this.props;
+
+    return (
+      <SortableWrapper innerRef={provided.innerRef}>
+        {fields.map((field, index) => this.renderField(field, index))}
+      </SortableWrapper>
+    );
   }
 
   render() {
-    const extendedProps = {
-      ...this.props,
-      onSortEnd: this.onSortEnd
-    };
-
-    return <Sortable {...extendedProps} />;
+    return (
+      <DragDropContext onDragEnd={this.onDragEnd}>
+        <Droppable droppableId="droppableId" type="ITEMS">
+          {provided => this.renderFields(provided)}
+        </Droppable>
+      </DragDropContext>
+    );
   }
 }
 
 SortableList.propTypes = propTypes;
+SortableList.defaultProps = defaultProps;
 
 export default SortableList;

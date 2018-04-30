@@ -31,7 +31,7 @@ class Deal extends React.Component {
   }
 
   renderContent() {
-    const { draggable, index, deal, saveDeal, removeDeal } = this.props;
+    const { draggable, index, deal } = this.props;
 
     if (draggable) {
       return (
@@ -57,7 +57,7 @@ class Deal extends React.Component {
 
     return (
       <Container>
-        <CommonDeal deal={deal} saveDeal={saveDeal} removeDeal={removeDeal} />
+        <CommonDeal deal={deal} />
       </Container>
     );
   }
@@ -65,7 +65,7 @@ class Deal extends React.Component {
   render() {
     const content = this.renderContent();
 
-    return <Fragment>{this.showEditForm(content)}</Fragment>;
+    return this.showEditForm(content);
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
 import {
@@ -11,7 +11,7 @@ import {
   ErxesEditor,
   toHTML,
   createStateFromHTML
-} from 'modules/common/components/Editor';
+} from 'modules/common/components/editor/Editor';
 import { EditorWrapper } from 'modules/engage/styles';
 import { ModalFooter } from 'modules/common/styles/main';
 
@@ -97,7 +97,7 @@ class ArticleForm extends Component {
     };
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -142,7 +142,7 @@ class ArticleForm extends Component {
             ))}
           </FormControl>
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 

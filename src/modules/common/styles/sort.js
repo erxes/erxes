@@ -1,35 +1,30 @@
 import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 
-const SortItem = styled.li`
+const SortItem = styled.div`
   background: ${colors.colorWhite};
   border: 1px solid ${colors.borderPrimary};
   border-radius: 2px;
   display: block;
-  padding: 10px 20px 10px 40px;
+  padding: 10px 15px;
   margin-bottom: 5px;
   z-index: 2000;
-  list-style: none;
   position: relative;
   display: flex;
   justify-content: space-between;
-  box-shadow: 0 2px 8px ${colors.shadowPrimary};
-
+  box-shadow: ${props =>
+    props.isDragging ? `0 2px 8px ${colors.shadowPrimary}` : 'none'};
+  left: ${props =>
+    props.isDragging && props.isModal ? '40px!important' : 'auto'};
   &:last-child {
     margin: 0;
   }
 `;
 
-const SortableWrapper = styled.ul`
-  padding: 0px;
-  margin: 0;
-  list-style-type: none;
+const SortableWrapper = styled.div`
+  width: 100%;
   max-height: 420px;
   overflow: auto;
-
-  ${SortItem} {
-    box-shadow: none;
-  }
 
   label {
     margin: 0;
@@ -37,14 +32,9 @@ const SortableWrapper = styled.ul`
 `;
 
 const DragHandler = styled.div`
-  cursor: row-resize;
-  position: absolute;
   display: flex;
-  left: 10px;
-  top: 0;
-  bottom: 0;
-  z-index: 100;
   width: 20px;
+  margin-right: 10px;
   align-items: center;
   justify-content: center;
 
