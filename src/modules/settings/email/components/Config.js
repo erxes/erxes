@@ -76,34 +76,32 @@ class Config extends Component {
     );
 
     return (
-      <div className="margined">
-        <form id="configure-email-form" onSubmit={this.configureEmail}>
-          <FormGroup>
-            <ControlLabel>Choose your email template type</ControlLabel>
-            <FormControl
-              componentClass="select"
-              placeholder={__('select')}
-              onChange={this.handleTypeChange}
-              value={type}
-            >
-              <option value="simple">{__('Simple')}</option>
-              <option value="custom">{__('Custom')}</option>
-            </FormControl>
-          </FormGroup>
+      <form id="configure-email-form" onSubmit={this.configureEmail}>
+        <FormGroup>
+          <ControlLabel>Choose your email template type</ControlLabel>
+          <FormControl
+            componentClass="select"
+            placeholder={__('select')}
+            onChange={this.handleTypeChange}
+            value={type}
+          >
+            <option value="simple">{__('Simple')}</option>
+            <option value="custom">{__('Custom')}</option>
+          </FormControl>
+        </FormGroup>
 
-          {this.state.type === 'custom' ? templateControl : false}
+        {this.state.type === 'custom' ? templateControl : false}
 
-          <ModalFooter>
-            <Button btnStyle="simple" onClick={onClick} icon="cancel-1">
-              Cancel
-            </Button>
+        <ModalFooter>
+          <Button btnStyle="simple" onClick={onClick} icon="cancel-1">
+            Cancel
+          </Button>
 
-            <Button btnStyle="success" type="submit" icon="checked-1">
-              Save
-            </Button>
-          </ModalFooter>
-        </form>
-      </div>
+          <Button btnStyle="success" type="submit" icon="checked-1">
+            Save
+          </Button>
+        </ModalFooter>
+      </form>
     );
   }
 }

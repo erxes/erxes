@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Sidebar as LeftSidebar } from 'modules/layout/components';
+import { Sidebar } from 'modules/layout/components';
 import { DataWithLoader, ModalTrigger, Icon } from 'modules/common/components';
 import { SidebarList as List } from 'modules/layout/styles';
 import { RightButton } from '../../styles';
@@ -43,7 +43,7 @@ class Boards extends Component {
   renderSidebarHeader() {
     const { __ } = this.context;
     const { save } = this.props;
-    const { Header } = LeftSidebar;
+    const { Header } = Sidebar;
 
     const addBoard = (
       <RightButton>
@@ -65,15 +65,17 @@ class Boards extends Component {
     const { loading, boards } = this.props;
 
     return (
-      <LeftSidebar full header={this.renderSidebarHeader()}>
-        <DataWithLoader
-          data={<List>{this.renderItems()}</List>}
-          loading={loading}
-          count={boards.length}
-          emptyText="There is no board"
-          emptyImage="/images/robots/robot-05.svg"
-        />
-      </LeftSidebar>
+      <Sidebar header={this.renderSidebarHeader()}>
+        <Sidebar.Section>
+          <DataWithLoader
+            data={<List>{this.renderItems()}</List>}
+            loading={loading}
+            count={boards.length}
+            emptyText="There is no board"
+            emptyImage="/images/robots/robot-05.svg"
+          />
+        </Sidebar.Section>
+      </Sidebar>
     );
   }
 }

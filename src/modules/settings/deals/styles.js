@@ -3,23 +3,21 @@ import { colors, typography } from 'modules/common/styles';
 import { SortItem } from 'modules/common/styles/sort';
 import { SidebarListItem } from '../styles';
 
-const BoardRowContainer = styled.div`
-  ${SidebarListItem} {
-    overflow: hidden;
-    > button {
-      float: left;
-      padding: 12px 15px 12px 20px;
-      i {
-        color: ${props => props.isDefault && colors.starColor};
-      }
+const BoardItem = SidebarListItem.extend`
+  overflow: hidden;
+
+  > button {
+    padding: 10px 15px 10px 20px;
+
+    i {
+      color: ${props => props.isDefault && colors.starColor};
     }
-    a {
-      float: left;
-      width: 80%;
-      padding: 10px 20px 10px 0;
-      margin-left: 0;
-      border-left: 0;
-    }
+  }
+
+  a {
+    padding: 10px 20px 10px 0;
+    margin-left: 0;
+    border-left: 0;
   }
 `;
 
@@ -85,7 +83,7 @@ const StageItemContainer = styled.div`
 `;
 
 export {
-  BoardRowContainer,
+  BoardItem,
   PipelineContainer,
   PipelineRowContainer,
   StagesContainer,

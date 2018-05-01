@@ -7,11 +7,7 @@ import {
 } from 'modules/common/utils/animations';
 import { Button } from 'modules/common/components';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
-import {
-  WidgetPreviewStyled,
-  LogoContainer,
-  LogoSpan
-} from 'modules/settings/styles';
+import { WidgetPreviewStyled, LogoContainer } from 'modules/settings/styles';
 import {
   PreviewTitle,
   PreviewBody,
@@ -139,7 +135,7 @@ class CommonPreview extends Component {
               {this.renderContent()}
             </WidgetPreview>
             <LogoContainer style={{ backgroundColor: theme ? theme : color }}>
-              <LogoSpan>1</LogoSpan>
+              <span>1</span>
             </LogoContainer>
           </Widget>
         </ShoutBox>

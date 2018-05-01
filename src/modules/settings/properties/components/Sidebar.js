@@ -33,25 +33,27 @@ class Sidebar extends Component {
   render() {
     const { __ } = this.context;
     return (
-      <LeftSidebar full header={this.renderSidebarHeader()}>
-        <List>
-          <li>
-            <Link
-              className={this.getClassName('customer')}
-              to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER}`}
-            >
-              {__('Customer Properties')}
-            </Link>
-          </li>
-          <li>
-            <Link
-              className={this.getClassName('company')}
-              to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.COMPANY}`}
-            >
-              {__('Company Properties')}
-            </Link>
-          </li>
-        </List>
+      <LeftSidebar header={this.renderSidebarHeader()}>
+        <LeftSidebar.Section>
+          <List>
+            <li>
+              <Link
+                className={this.getClassName('customer')}
+                to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER}`}
+              >
+                {__('Customer Properties')}
+              </Link>
+            </li>
+            <li>
+              <Link
+                className={this.getClassName('company')}
+                to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.COMPANY}`}
+              >
+                {__('Company Properties')}
+              </Link>
+            </li>
+          </List>
+        </LeftSidebar.Section>
       </LeftSidebar>
     );
   }

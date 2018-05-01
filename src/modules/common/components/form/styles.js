@@ -29,6 +29,12 @@ const Formgroup = styled.div`
   label {
     margin-right: ${dimensions.unitSpacing}px;
   }
+
+  p {
+    font-size: 12px;
+    color: ${colors.colorCoreGray};
+    margin: 0;
+  }
 `;
 
 const Input = styled.input`
