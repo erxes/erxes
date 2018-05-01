@@ -43,7 +43,7 @@ export const reorder = (list, startIndex, endIndex) => {
   return result;
 };
 
-const generateRandomColorCode = () => {
+export const generateRandomColorCode = () => {
   return `#${Math.random()
     .toString(16)
     .slice(2, 8)}`;
@@ -79,6 +79,5 @@ export {
   colorParser,
   searchCompany,
   searchUser,
-  searchCustomer,
-  generateRandomColorCode
+  searchCustomer
 };
