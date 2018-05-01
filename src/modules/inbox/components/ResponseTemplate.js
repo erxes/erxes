@@ -1,7 +1,3 @@
-/* eslint-disable no-underscore-dangle, react/no-string-refs,
-  jsx-a11y/no-static-element-interactions, react/no-multi-comp,
-  react/forbid-prop-types */
-
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import strip from 'strip';

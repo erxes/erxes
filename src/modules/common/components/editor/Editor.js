@@ -1,4 +1,4 @@
-/* eslint-disable no-underscore-dangle, react/no-string-refs,
+/* eslint-disable react/no-string-refs,
   jsx-a11y/no-static-element-interactions, react/no-multi-comp,
   react/forbid-prop-types */
 
