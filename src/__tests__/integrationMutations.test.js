@@ -165,6 +165,7 @@ describe('mutations', () => {
 
   test('Save messenger integration config', async () => {
     const messengerData = {
+      supporterIds: [_user.id],
       notifyCustomer: false,
       isOnline: false,
       availabilityMethod: 'auto',
