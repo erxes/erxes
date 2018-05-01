@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StagesContainer } from '../styles';
 import { Button, SortableList } from 'modules/common/components';
 import StageItem from './StageItem';
+import { StageList } from '../styles';
 
 const propTypes = {
   onChangeStages: PropTypes.func.isRequired,
@@ -17,6 +17,12 @@ class Stages extends Component {
     this.add = this.add.bind(this);
     this.remove = this.remove.bind(this);
     this.onStageInputKeyPress = this.onStageInputKeyPress.bind(this);
+  }
+
+  componentDidMount() {
+    if (this.props.stages.length === 0) {
+      this.add();
+    }
   }
 
   onChange(_id, e) {
@@ -66,7 +72,7 @@ class Stages extends Component {
     );
 
     return (
-      <StagesContainer>
+      <StageList>
         <SortableList
           fields={this.props.stages}
           child={child}
@@ -76,7 +82,7 @@ class Stages extends Component {
         <Button onClick={this.add} btnStyle="success" size="small" icon="add">
           Add stage
         </Button>
-      </StagesContainer>
+      </StageList>
     );
   }
 }

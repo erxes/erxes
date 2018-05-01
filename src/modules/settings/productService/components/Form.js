@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import {
@@ -49,7 +49,7 @@ class Form extends Component {
     const types = TYPES.ALL;
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -101,7 +101,7 @@ class Form extends Component {
             onChange={this.onChangeInput}
           />
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 

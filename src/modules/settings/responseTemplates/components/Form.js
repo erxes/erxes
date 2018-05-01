@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { EditorState } from 'draft-js';
 import {
   FormGroup,
@@ -57,7 +57,7 @@ class Form extends CommonForm {
     };
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Brand</ControlLabel>
 
@@ -89,7 +89,7 @@ class Form extends CommonForm {
           <ControlLabel>Content</ControlLabel>
           <ErxesEditor bordered {...props} />
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 }

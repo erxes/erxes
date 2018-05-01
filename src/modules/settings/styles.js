@@ -201,44 +201,6 @@ const BackgroundSelector = styled.div`
   }
 `;
 
-const FlexRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  .flex-item {
-    flex: 1;
-    margin-left: 20px;
-
-    &:first-child {
-      margin: 0;
-    }
-
-    input[type='checkbox'] {
-      display: inline-block;
-      height: auto;
-      width: auto;
-      margin-right: 5px;
-    }
-  }
-
-  span {
-    margin: 0 5px;
-
-    .Select-value-label {
-      color: ${colors.colorLightGray} !important;
-    }
-  }
-
-  button {
-    margin-left: 10px;
-  }
-
-  & + div {
-    margin-top: 10px;
-  }
-`;
-
 const SidebarListItem = styled.li`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
@@ -278,16 +240,6 @@ const SidebarListItem = styled.li`
   }
 `;
 
-const RightButton = styled.div`
-  position: absolute;
-  right: ${dimensions.coreSpacing}px;
-  top: ${dimensions.coreSpacing - 5}px;
-
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
 const IntegrationName = styled.span`
   margin-right: ${dimensions.unitSpacing}px;
 `;
@@ -311,10 +263,8 @@ export {
   ColorPick,
   ColorPicker,
   LogoContainer,
-  FlexRow,
   SidebarListItem,
   IntegrationName,
-  RightButton,
   ActionButtons,
   BrandName
 };

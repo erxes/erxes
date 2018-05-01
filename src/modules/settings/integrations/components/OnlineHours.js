@@ -8,7 +8,7 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import { FlexRow } from '../../styles';
+import { FlexRow } from '../styles';
 
 class OnlineHours extends Component {
   constructor(props) {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Toggle from 'react-toggle';
 import { ModuleBox, SubHeading, InlineItems, SubItem } from '../../styles';
@@ -70,7 +70,7 @@ class NotificationSettings extends Component {
   render() {
     const { __ } = this.context;
     const content = (
-      <div>
+      <Fragment>
         <SubHeading>{__('Notifications')}</SubHeading>
         <InlineItems>
           {__('Get notification by email')}
@@ -88,7 +88,7 @@ class NotificationSettings extends Component {
             this.renderModule(module, index)
           )}
         </ModuleBox>
-      </div>
+      </Fragment>
     );
 
     return content;

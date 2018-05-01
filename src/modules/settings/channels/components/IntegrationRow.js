@@ -9,8 +9,8 @@ import {
   Button,
   Icon
 } from 'modules/common/components';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { Messenger } from 'modules/settings/integrations/containers';
+import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,

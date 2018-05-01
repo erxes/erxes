@@ -10,7 +10,7 @@ const BoardItem = SidebarListItem.extend`
     padding: 10px 15px 10px 20px;
 
     i {
-      color: ${props => props.isDefault && colors.starColor};
+      color: ${props => props.isDefault && colors.colorCoreYellow};
     }
   }
 
@@ -22,63 +22,46 @@ const BoardItem = SidebarListItem.extend`
 `;
 
 const PipelineContainer = styled.div`
-  ul {
-    list-style: none;
+  h3 {
+    text-transform: uppercase;
+    color: ${colors.colorCoreLightGray};
+    font-size: ${typography.fontSizeUppercase}px;
+    padding: 10px 20px;
     margin: 0;
-    padding: 0;
-
-    li {
-      float: left;
-      padding: 10px 20px;
-      span {
-        text-transform: uppercase;
-        color: ${colors.colorCoreLightGray};
-        font-size: ${typography.fontSizeUppercase}px;
-        font-weight: bold;
-      }
-    }
   }
 
   ${SortItem} {
     z-index: 100;
-    margin-bottom: 0;
+    margin-bottom: -1px;
     border: 0;
-    border-top: 1px solid rgb(238, 238, 238);
+    border-top: 1px solid ${colors.borderPrimary};
+    border-bottom: 1px solid ${colors.borderPrimary};
     padding-left: 20px;
     padding-right: 20px;
   }
 `;
 
 const PipelineRowContainer = styled.div`
-  width: 100%;
-  label {
-    padding: 0 20px 0 5px;
-  }
-  > div {
-    float: right;
-  }
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
 `;
 
-const StagesContainer = styled.div`
+const StageList = styled.div`
   > button {
-    margin-top: 20px;
+    margin-top: 10px;
+  }
+
+  ${SortItem} {
+    padding: 5px 15px;
   }
 `;
 
-const StageItemContainer = styled.div`
-  width: 100%;
-  input {
-    float: left;
-    width: 185px;
-  }
-  div {
-    float: left;
-    margin-left: 30px;
-    width: 185px;
-  }
-  button {
-    float: right;
-    margin-top: 5px;
+const StageItemContainer = PipelineRowContainer.extend`
+  align-items: center;
+
+  > *:not(button) {
+    margin-right: 10px;
   }
 `;
 
@@ -86,6 +69,6 @@ export {
   BoardItem,
   PipelineContainer,
   PipelineRowContainer,
-  StagesContainer,
+  StageList,
   StageItemContainer
 };

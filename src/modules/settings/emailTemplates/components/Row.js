@@ -1,6 +1,6 @@
 import React from 'react';
-import { Row as CommonRow } from '../../common/components';
 import styled from 'styled-components';
+import { Row as CommonRow } from '../../common/components';
 import Form from './Form';
 
 const IframePreview = styled.div`
