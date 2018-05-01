@@ -1,3 +1,5 @@
+/* eslint-disable react/no-string-refs */
+
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import strip from 'strip';
