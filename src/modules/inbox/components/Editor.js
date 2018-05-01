@@ -10,7 +10,6 @@ import {
   Modifier
 } from 'draft-js';
 import strip from 'strip';
-import _ from 'underscore';
 import highlighter from 'fuzzysearch-highlight';
 import {
   ErxesEditor,
@@ -51,10 +50,11 @@ const MentionEntry = props => {
 
 const extractEntries = mention => {
   const entries = mention._root.entries;
-  const keys = _.map(entries, entry => entry[0]);
-  const values = _.map(entries, entry => entry[1]);
 
-  return _.object(keys, values);
+  return entries.reduce(
+    (result, [key, val]) => ({ ...result, [key]: val }),
+    {}
+  );
 };
 
 // response templates
@@ -311,7 +311,7 @@ export default class Editor extends Component {
     const finalMentions = [];
 
     // replace mention content
-    _.each(this.state.collectedMentions, m => {
+    this.state.collectedMentions.forEach(m => {
       const toFind = `@${m.name}`;
       const re = new RegExp(toFind, 'g');
 
@@ -329,7 +329,7 @@ export default class Editor extends Component {
     });
 
     // send mentioned user to parent
-    this.props.onAddMention(_.pluck(finalMentions, '_id'));
+    this.props.onAddMention(finalMentions.map(mention => mention._id));
 
     return content;
   }

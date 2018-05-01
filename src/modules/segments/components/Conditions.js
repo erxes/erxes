@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Button } from 'modules/common/components';
@@ -16,49 +16,45 @@ const contextTypes = {
   __: PropTypes.func
 };
 
-function Conditions(
-  {
-    conditions,
-    changeCondition,
-    removeCondition,
-    contentType,
-    parentSegmentId
-  },
-  { __ }
-) {
-  const parent = () => {
-    if (parentSegmentId) {
-      return (
-        <Fragment>
-          <Link
-            to={`/segments/edit/${contentType}/${parentSegmentId}`}
-            target="_blank"
-          >
-            <Button icon="eye" ignoreTrans>
-              {__('Parent segment conditions')}
-            </Button>
-          </Link>
-          <hr />
-        </Fragment>
-      );
-    }
+class Conditions extends Component {
+  renderParent() {
+    const { contentType, parentSegmentId } = this.props;
+    const { __ } = this.context;
 
-    return null;
-  };
+    if (!parentSegmentId) return null;
 
-  return (
-    <Fragment>
-      {parent()}
-      {conditions.map(condition => (
-        <Condition
-          condition={condition}
-          changeCondition={changeCondition}
-          removeCondition={removeCondition}
-          key={condition.field}
-        />
-      ))}
-    </Fragment>
-  );
+    return (
+      <Fragment>
+        <Link
+          to={`/segments/edit/${contentType}/${parentSegmentId}`}
+          target="_blank"
+        >
+          <Button icon="eye" ignoreTrans>
+            {__('Parent segment conditions')}
+          </Button>
+        </Link>
+        <hr />
+      </Fragment>
+    );
+  }
+
+  render() {
+    const { conditions, changeCondition, removeCondition } = this.props;
+
+    return (
+      <Fragment>
+        {this.renderParent()}
+        {conditions.map(condition => (
+          <Condition
+            condition={condition}
+            changeCondition={changeCondition}
+            removeCondition={removeCondition}
+            key={condition.field}
+          />
+        ))}
+      </Fragment>
+    );
+  }
 }
 
 Conditions.propTypes = propTypes;

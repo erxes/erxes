@@ -1,13 +1,20 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import {
-  VolumeReport,
-  ResponseReport,
-  FirstResponse,
-  ResponseCloseReport,
-  Reports
-} from './containers';
-import { InsightPage } from './components';
+import asyncComponent from './components/AsyncComponent';
+
+const AsyncVolumeAndResponseReport = asyncComponent(() =>
+  import('./containers/VolumeAndResponseReport')
+);
+
+const AsyncFirstAndCloseResponseReport = asyncComponent(() =>
+  import('./containers/FirstAndCloseResponseReport')
+);
+
+const AsyncReports = asyncComponent(() => import('./containers/Reports'));
+
+const AsyncInsightPage = asyncComponent(() =>
+  import('./components/InsightPage')
+);
 
 const routes = () => [
   <Route
@@ -15,7 +22,12 @@ const routes = () => [
     exact
     path="/insights/response-report"
     component={() => {
-      return <Reports component={ResponseReport} />;
+      return (
+        <AsyncReports
+          type="response"
+          component={AsyncVolumeAndResponseReport}
+        />
+      );
     }}
   />,
 
@@ -24,7 +36,12 @@ const routes = () => [
     exact
     path="/insights/response-close-report"
     component={() => {
-      return <Reports component={ResponseCloseReport} />;
+      return (
+        <AsyncReports
+          type="close"
+          component={AsyncFirstAndCloseResponseReport}
+        />
+      );
     }}
   />,
 
@@ -33,7 +50,12 @@ const routes = () => [
     exact
     path="/insights/first-response"
     component={() => {
-      return <Reports component={FirstResponse} />;
+      return (
+        <AsyncReports
+          type="first"
+          component={AsyncFirstAndCloseResponseReport}
+        />
+      );
     }}
   />,
 
@@ -42,11 +64,13 @@ const routes = () => [
     exact
     path="/insights/volume-report"
     component={() => {
-      return <Reports component={VolumeReport} />;
+      return (
+        <AsyncReports type="volume" component={AsyncVolumeAndResponseReport} />
+      );
     }}
   />,
 
-  <Route key="/insights" exact path="/insights" component={InsightPage} />
+  <Route key="/insights" exact path="/insights" component={AsyncInsightPage} />
 ];
 
 export default routes;

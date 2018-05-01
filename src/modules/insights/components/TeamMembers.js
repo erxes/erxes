@@ -13,13 +13,11 @@ import {
 
 const propTypes = {
   datas: PropTypes.array.isRequired,
-  width: PropTypes.number,
   loading: PropTypes.bool
 };
 
 class TeamMembers extends React.Component {
   renderChart(userData, index) {
-    const { width } = this.props;
     const data = userData.data ? userData.data : userData;
 
     return (
@@ -38,7 +36,7 @@ class TeamMembers extends React.Component {
               <span>&nbsp; ({convertTime(userData.time)})</span>
             ) : null}
           </UserProfile>
-          <Chart width={width * 0.45} height={200} data={data.graph} />
+          <Chart height={240} data={data.graph} />
         </InsightUserData>
       </Col>
     );

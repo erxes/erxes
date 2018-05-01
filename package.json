@@ -1,6 +1,6 @@
 {
   "name": "erxes",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "description": "erxes is an AI meets open source messaging platform for sales and marketing teams.",
   "homepage": "https://erxes.io",
   "repository": {
@@ -19,6 +19,8 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@nivo/line": "^0.33.0",
+    "@nivo/pie": "^0.33.0",
     "add-graphql-subscriptions": "^1.0.1",
     "apollo-cache-inmemory": "^1.1.5",
     "apollo-client": "^2.2.1",
@@ -55,13 +57,11 @@
     "react-router-dom": "^4.2.2",
     "react-select-plus": "^1.0.0-rc.5",
     "react-toggle": "^4.0.2",
-    "recharts": "1.0.0-beta.2",
     "scriptjs": "^2.5.8",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",
     "subscriptions-transport-ws": "0.8.3",
-    "ua-parser-js": "^0.7.17",
-    "underscore": "^1.8.3"
+    "ua-parser-js": "^0.7.17"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
@@ -78,6 +78,7 @@
     "precommit": "lint-staged",
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "compress": "gzip -5 --keep -r build/static/js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "storybook": "start-storybook -p 9009 -s public",

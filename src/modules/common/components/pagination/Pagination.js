@@ -1,17 +1,19 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import _ from 'underscore';
 import { router } from 'modules/common/utils';
 import { Icon } from 'modules/common/components';
 import { PaginationWrapper, PaginationList } from './styles';
 import PerPageChooser from './PerPageChooser';
+import { range, intersection, union, difference } from '../../utils';
 
 // pages calculation
 const generatePages = (pageCount, currentPage) => {
   const w = 4;
 
-  let pages = _.range(1, pageCount + 1);
+  // Create an array with pageCount numbers, starting from 1
+  let pages = range(1, pageCount);
+
   let diff;
   let first = pages.slice(0, w);
 
@@ -33,9 +35,9 @@ const generatePages = (pageCount, currentPage) => {
 
   pages = [];
 
-  if (_.intersection(first, current).length === 0) {
+  if (intersection(first, current).length === 0) {
     pages = pages.concat(first);
-    diff = current[0] - _.last(first);
+    diff = current[0] - first[first.length - 1];
 
     if (diff === 2) {
       pages.push(current[0] - 1);
@@ -45,11 +47,11 @@ const generatePages = (pageCount, currentPage) => {
 
     pages = pages.concat(current);
   } else {
-    pages = _.union(first, current);
+    pages = union(first, current);
   }
 
-  if (_.intersection(current, last).length === 0) {
-    diff = last[0] - _.last(pages);
+  if (intersection(current, last).length === 0) {
+    diff = last[0] - pages[pages.length - 1];
 
     if (diff === 2) {
       pages.push(last[0] - 1);
@@ -59,7 +61,7 @@ const generatePages = (pageCount, currentPage) => {
 
     pages = pages.concat(last);
   } else {
-    diff = _.difference(last, current);
+    diff = difference(last, current);
     pages = pages.concat(diff);
   }
 

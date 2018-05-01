@@ -36,7 +36,7 @@ class OnlineHours extends Component {
   }
 
   addTime() {
-    const onlineHours = this.state.onlineHours;
+    const onlineHours = this.state.onlineHours.slice();
 
     onlineHours.push({
       _id: Math.random().toString(),
@@ -121,6 +121,8 @@ class OnlineHours extends Component {
         {this.state.onlineHours.map(onlineHour =>
           this.renderOnlineHour(onlineHour)
         )}
+
+        <br />
         <Button
           btnStyle="success"
           size="small"

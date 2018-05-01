@@ -6,7 +6,7 @@ const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
 
 const ContentBox = styled.div`
-  padding: ${coreSpace};
+  padding: ${dimensions.coreSpacing * 2}px;
 `;
 
 const ModuleBox = styled.div`
