@@ -7,7 +7,6 @@ import {
 } from 'modules/common/components';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import Editor from './Editor';
-import { EditorWrapper } from '../styles';
 import { MessengerPreview } from '../containers';
 import { FlexItem, Divider, FlexPad } from './step/style';
 
@@ -77,12 +76,10 @@ class MessengerForm extends Component {
         <FlexPad overflow="auto" direction="column">
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
-            <EditorWrapper>
-              <Editor
-                onChange={this.props.changeMessenger}
-                defaultValue={this.props.defaultValue.message}
-              />
-            </EditorWrapper>
+            <Editor
+              onChange={this.props.changeMessenger}
+              defaultValue={this.props.defaultValue.message}
+            />
           </FormGroup>
           <FormGroup>
             <ControlLabel>From:</ControlLabel>

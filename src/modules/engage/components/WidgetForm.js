@@ -8,7 +8,7 @@ import {
 } from 'modules/common/components';
 import { METHODS } from 'modules/engage/constants';
 import Editor from './Editor';
-import { EditorWrapper, Recipients, Recipient } from '../styles';
+import { Recipients, Recipient } from '../styles';
 import { ModalFooter } from 'modules/common/styles/main';
 
 class WidgetForm extends Component {
@@ -177,9 +177,7 @@ class WidgetForm extends Component {
 
         <FormGroup>
           <ControlLabel>Content:</ControlLabel>
-          <EditorWrapper>
-            <Editor onChange={this.onContentChange} />
-          </EditorWrapper>
+          <Editor onChange={this.onContentChange} />
         </FormGroup>
 
         <ModalFooter>
