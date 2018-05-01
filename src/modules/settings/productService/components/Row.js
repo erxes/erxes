@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
   Button,
   Tip,
+  Label,
   Icon,
   ModalTrigger,
   ActionButtons
@@ -62,7 +63,7 @@ class Row extends Component {
         <td>{product.name}</td>
         <td>{product.type}</td>
         <td>{product.description}</td>
-        <td>{product.sku}</td>
+        <td>{product.sku && <Label>{product.sku}</Label>}</td>
         <td width="5%">
           <ActionButtons>
             {this.renderEditAction()}

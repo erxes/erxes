@@ -1,10 +1,10 @@
-import React from 'react';
-import { Form as CommonForm } from '../../common/components';
+import React, { Fragment } from 'react';
 import {
   FormGroup,
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { Form as CommonForm } from '../../common/components';
 
 class Form extends CommonForm {
   generateDoc() {
@@ -18,7 +18,7 @@ class Form extends CommonForm {
 
   renderContent(emailTemplate) {
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -41,7 +41,7 @@ class Form extends CommonForm {
             defaultValue={emailTemplate.content}
           />
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 }

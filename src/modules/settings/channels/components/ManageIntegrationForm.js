@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
   FormControl,
@@ -154,7 +154,7 @@ class ManageIntegrationForm extends Component {
     const selectedIntegrations = this.state.integrations;
 
     return (
-      <div>
+      <Fragment>
         <Columns>
           <Column>
             <FormControl
@@ -204,7 +204,7 @@ class ManageIntegrationForm extends Component {
             Save
           </Button>
         </ModalFooter>
-      </div>
+      </Fragment>
     );
   }
 }
