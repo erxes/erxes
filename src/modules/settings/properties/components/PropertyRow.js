@@ -4,14 +4,14 @@ import { Collapse } from 'react-bootstrap';
 import Toggle from 'react-toggle';
 import {
   Table,
-  Icon,
   ModalTrigger,
-  EmptyState
+  EmptyState,
+  ActionButtons,
+  Button
 } from 'modules/common/components';
 import { confirm, Alert } from 'modules/common/utils';
 import { PropertyGroupForm, PropertyForm } from '../containers';
-import { DropIcon, FieldType } from '../styles';
-import { ActionButtons, CollapseRow, TableRow } from '../../styles';
+import { DropIcon, FieldType, CollapseRow } from '../styles';
 
 const propTypes = {
   group: PropTypes.object.isRequired,
@@ -63,12 +63,12 @@ class PropertyRow extends React.Component {
       <ActionButtons>
         <ModalTrigger
           title="Edit Property"
-          trigger={<Icon icon="edit" />}
-          size="lg"
+          trigger={<Button btnStyle="link" icon="edit" />}
         >
           {form}
         </ModalTrigger>
-        <Icon
+        <Button
+          btnStyle="link"
           icon="cancel-1"
           onClick={() =>
             confirm().then(() => {
@@ -84,7 +84,7 @@ class PropertyRow extends React.Component {
     const { removeProperty, queryParams } = this.props;
 
     return (
-      <TableRow key={field._id}>
+      <tr key={field._id}>
         <td width="40%">
           {field.text}
           <FieldType>{field.type}</FieldType>
@@ -111,7 +111,7 @@ class PropertyRow extends React.Component {
             <PropertyForm field={field} queryParams={queryParams} />
           )}
         </td>
-      </TableRow>
+      </tr>
     );
   }
 
@@ -148,18 +148,16 @@ class PropertyRow extends React.Component {
     return (
       <li key={group._id}>
         <CollapseRow>
-          <DropIcon
-            isOpen={this.state.collapse}
-            onClick={this.handleCollapse}
-          />
-          <span onClick={this.handleCollapse}>{group.name}</span>
+          <div style={{ flex: 1 }} onClick={this.handleCollapse}>
+            <DropIcon isOpen={this.state.collapse} />
+            {group.name} <span>{group.description}</span>
+          </div>
           {this.renderActionButtons(
             group,
             removePropertyGroup,
             <PropertyGroupForm group={group} queryParams={queryParams} />
           )}
         </CollapseRow>
-
         <Collapse in={this.state.collapse}>
           <div>{this.renderTable(fields)}</div>
         </Collapse>

@@ -31,7 +31,7 @@ const BoxRoot = styled.div`
   }
 
   img {
-    width: 75px;
+    width: 83px;
     transition: all 0.5s ease;
   }
 

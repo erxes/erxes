@@ -11,7 +11,6 @@ import {
   createStateFromHTML
 } from 'modules/common/components/editor/Editor';
 import { Form as CommonForm } from '../../common/components';
-import { EditorWrapper } from 'modules/engage/styles';
 
 class Form extends CommonForm {
   constructor(props) {
@@ -88,9 +87,7 @@ class Form extends CommonForm {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <EditorWrapper>
-            <ErxesEditor {...props} />
-          </EditorWrapper>
+          <ErxesEditor bordered {...props} />
         </FormGroup>
       </div>
     );

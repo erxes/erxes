@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Tip, Icon, ModalTrigger } from 'modules/common/components';
+import {
+  Button,
+  Tip,
+  Icon,
+  ModalTrigger,
+  ActionButtons
+} from 'modules/common/components';
 import { Form } from './';
-import { ActionButtons, TableRow } from '../../styles';
 
 const propTypes = {
   product: PropTypes.object.isRequired,
@@ -53,7 +58,7 @@ class Row extends Component {
     const { product } = this.props;
 
     return (
-      <TableRow>
+      <tr>
         <td>{product.name}</td>
         <td>{product.type}</td>
         <td>{product.description}</td>
@@ -67,7 +72,7 @@ class Row extends Component {
             </Tip>
           </ActionButtons>
         </td>
-      </TableRow>
+      </tr>
     );
   }
 }

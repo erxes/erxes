@@ -31,32 +31,6 @@ const FormHeader = styled.div`
   margin-bottom: ${coreSpace};
 `;
 
-const EditorWrapper = styled.div`
-  flex: 1;
-  min-height: 160px;
-  border: 1px solid ${colors.colorShadowGray};
-  margin-top: ${dimensions.unitSpacing}px;
-
-  .RichEditor-controls-root {
-    padding: 10px ${coreSpace} 5px;
-    background: ${colors.bgLight};
-  }
-
-  .RichEditor-editor .public-DraftEditor-content {
-    padding: ${coreSpace};
-    min-height: 200px;
-    word-break: break-word;
-  }
-
-  select {
-    background: none;
-    border: none;
-    height: 24px;
-    outline: 0;
-    color: ${colors.colorCoreGray};
-  }
-`;
-
 const ButtonBox = styled.div`
   cursor: pointer;
   display: block;
@@ -225,7 +199,6 @@ export {
   EngageBox,
   ButtonBox,
   FormWrapper,
-  EditorWrapper,
   FormHeader,
   WebPreview,
   PreviewContent,

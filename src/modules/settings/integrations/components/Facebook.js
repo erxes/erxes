@@ -51,7 +51,7 @@ class Facebook extends Component {
     const { apps, pages, brands } = this.props;
 
     return (
-      <form className="margined" onSubmit={this.handleSubmit}>
+      <form onSubmit={this.handleSubmit}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 

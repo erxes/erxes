@@ -12,11 +12,9 @@ import Sidebar from '../Sidebar';
 import { WidgetPreview } from './';
 import {
   SubHeading,
-  Margined,
   WidgetApperance,
-  WidgetSettings,
   WidgetBackgrounds,
-  WidgetBox,
+  SubItem,
   ColorPick,
   BackgroundSelector,
   ColorPicker,
@@ -32,7 +30,7 @@ class Appearance extends Component {
       wallpaper: props.prevOptions.wallpaper || '1',
       logo: props.prevOptions.logo,
       logoPreviewStyle: {},
-      logoPreviewUrl: props.prevOptions.logo || '/images/logo-image.png'
+      logoPreviewUrl: props.prevOptions.logo || '/images/erxes.png'
     };
 
     this.save = this.save.bind(this);
@@ -108,73 +106,67 @@ class Appearance extends Component {
     const { __ } = this.context;
 
     const content = (
-      <Margined>
-        <WidgetApperance className="type-box">
-          <WidgetSettings>
-            <WidgetBox>
-              <SubHeading>{__('Choose a custom color')}</SubHeading>
-              <OverlayTrigger
-                trigger="click"
-                rootClose
-                placement="bottom"
-                overlay={popoverTop}
+      <WidgetApperance className="type-box">
+        <div style={{ flex: 1 }}>
+          <SubItem>
+            <SubHeading>{__('Choose a custom color')}</SubHeading>
+            <OverlayTrigger
+              trigger="click"
+              rootClose
+              placement="bottom"
+              overlay={popoverTop}
+            >
+              <ColorPick>
+                <ColorPicker style={{ backgroundColor: this.state.color }} />
+              </ColorPick>
+            </OverlayTrigger>
+          </SubItem>
+
+          <SubItem>
+            <SubHeading>{__('Choose a wallpaper')}</SubHeading>
+
+            <WidgetBackgrounds>
+              {this.renderWallpaperSelect('1')}
+              {this.renderWallpaperSelect('2')}
+              {this.renderWallpaperSelect('3')}
+              {this.renderWallpaperSelect('4')}
+              {this.renderWallpaperSelect('5')}
+            </WidgetBackgrounds>
+          </SubItem>
+
+          <SubItem>
+            <SubHeading>{__('Choose a logo')}</SubHeading>
+
+            <input type="file" onChange={this.handleLogoChange} />
+          </SubItem>
+        </div>
+
+        <MessengerPreview>
+          <Messenger>
+            <WidgetPreview
+              color={this.state.color}
+              wallpaper={this.state.wallpaper}
+              user={this.props.user}
+            />
+            <Tip text={__('Choose a logo')}>
+              <LogoContainer
+                style={Object.assign(
+                  {
+                    backgroundColor: this.state.color,
+                    backgroundImage: `url(${logoPreviewUrl})`
+                  },
+                  logoPreviewStyle
+                )}
               >
-                <ColorPick>
-                  <ColorPicker style={{ backgroundColor: this.state.color }} />
-                </ColorPick>
-              </OverlayTrigger>
-            </WidgetBox>
-
-            <WidgetBox>
-              <SubHeading>{__('Choose a wallpaper')}</SubHeading>
-
-              <WidgetBackgrounds>
-                {this.renderWallpaperSelect('1')}
-                {this.renderWallpaperSelect('2')}
-                {this.renderWallpaperSelect('3')}
-                {this.renderWallpaperSelect('4')}
-                {this.renderWallpaperSelect('5')}
-              </WidgetBackgrounds>
-            </WidgetBox>
-
-            <WidgetBox>
-              <SubHeading>{__('Choose a logo')}</SubHeading>
-
-              <input type="file" onChange={this.handleLogoChange} />
-            </WidgetBox>
-          </WidgetSettings>
-
-          <MessengerPreview>
-            <Messenger>
-              <WidgetPreview
-                color={this.state.color}
-                wallpaper={this.state.wallpaper}
-                user={this.props.user}
-              />
-              <Tip text={__('Choose a logo')}>
-                <LogoContainer
-                  style={Object.assign(
-                    {
-                      backgroundColor: this.state.color,
-                      backgroundImage: `url(${logoPreviewUrl})`
-                    },
-                    logoPreviewStyle
-                  )}
-                >
-                  <label>
-                    <Icon
-                      icon="upload icon"
-                      size={30}
-                      style={{ backgroundColor: this.state.color }}
-                    />
-                    <input type="file" onChange={this.handleLogoChange} />
-                  </label>
-                </LogoContainer>
-              </Tip>
-            </Messenger>
-          </MessengerPreview>
-        </WidgetApperance>
-      </Margined>
+                <label style={{ backgroundColor: this.state.color }}>
+                  <Icon icon="upload" />
+                  <input type="file" onChange={this.handleLogoChange} />
+                </label>
+              </LogoContainer>
+            </Tip>
+          </Messenger>
+        </MessengerPreview>
+      </WidgetApperance>
     );
 
     const breadcrumb = [

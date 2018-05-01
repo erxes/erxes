@@ -4,6 +4,8 @@ import { rgba } from 'modules/common/styles/color';
 
 const RichEditorRoot = styled.div`
   font-size: 14px;
+  border: ${props => props.bordered && `1px solid ${colors.borderPrimary}`};
+  margin-top: ${props => props.bordered && '10px'};
 
   .RichEditor-editor {
     border-top: 1px solid ${colors.borderPrimary};
@@ -22,7 +24,7 @@ const RichEditorRoot = styled.div`
 
     .public-DraftEditor-content {
       font-size: 13px;
-      min-height: 100px;
+      min-height: ${props => (props.bordered ? '180px' : '100px')};
       padding: 15px 20px;
     }
   }
@@ -32,6 +34,14 @@ const RichEditorRoot = styled.div`
     font-size: 13px;
     user-select: none;
     margin-bottom: 5px;
+  }
+
+  select {
+    background: none;
+    border: none;
+    height: 24px;
+    outline: 0;
+    color: ${colors.colorCoreGray};
   }
 `;
 

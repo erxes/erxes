@@ -66,7 +66,7 @@ const ButtonStyled = styled.button`
       : 'none'};
     display: ${props.block && 'block'};
     width: ${props.block && '100%'};
-    box-shadow: 0 1px 16px 0 ${lighten(types[props.btnStyle].background, 45)};
+    box-shadow: 0 2px 16px 0 ${lighten(types[props.btnStyle].background, 45)};
 
     &:hover {
       cursor: pointer;

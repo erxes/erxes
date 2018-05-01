@@ -1,6 +1,6 @@
-import { EditorState, Modifier } from 'draft-js';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { EditorState, Modifier } from 'draft-js';
 import { Editor as CommonEditor } from 'modules/common/components';
 import { EMAIL_CONTENT_KEYS_FOR_SELECT } from 'modules/engage/constants';
 
@@ -86,6 +86,7 @@ export default class Editor extends Component {
   render() {
     const props = {
       ...this.props,
+      bordered: true,
       editorState: this.state.editorState,
       controls: [
         <DynamicContent

@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { BoardForm } from './';
 import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
-import { SidebarListItem, ActionButtons } from '../../styles';
-import { BoardRowContainer } from '../styles';
+import { ActionButtons } from '../../styles';
+import { BoardItem } from '../styles';
 
 const propTypes = {
   board: PropTypes.object.isRequired,
@@ -53,22 +53,20 @@ class BoardRow extends Component {
     const { board, isDefault } = this.props;
 
     return (
-      <BoardRowContainer isDefault={isDefault}>
-        <SidebarListItem key={board._id}>
-          <Button
-            btnStyle="link"
-            onClick={this.props.setDefault.bind(this, board._id)}
-            icon="star"
-          />
-          <Link to={`?boardId=${board._id}`}>{board.name}</Link>
-          <ActionButtons>
-            {this.renderEditAction()}
-            <Tip text="Delete">
-              <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
-            </Tip>
-          </ActionButtons>
-        </SidebarListItem>
-      </BoardRowContainer>
+      <BoardItem key={board._id} isDefault={isDefault}>
+        <Button
+          btnStyle="link"
+          onClick={this.props.setDefault.bind(this, board._id)}
+          icon="star"
+        />
+        <Link to={`?boardId=${board._id}`}>{board.name}</Link>
+        <ActionButtons>
+          {this.renderEditAction()}
+          <Tip text="Delete">
+            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
+          </Tip>
+        </ActionButtons>
+      </BoardItem>
     );
   }
 }

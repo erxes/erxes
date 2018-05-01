@@ -4,11 +4,7 @@ import strip from 'strip';
 
 import { NameCard } from 'modules/common/components';
 import { WebPreview, PreviewContent, Messenger } from '../styles';
-import {
-  WidgetPreviewStyled,
-  LogoContainer,
-  LogoSpan
-} from 'modules/settings/styles';
+import { WidgetPreviewStyled, LogoContainer } from 'modules/settings/styles';
 
 const propTypes = {
   content: PropTypes.string,
@@ -54,7 +50,7 @@ class MessengerPreview extends Component {
         <Messenger>
           {this.renderNotificationBody()}
           <LogoContainer>
-            <LogoSpan>1</LogoSpan>
+            <span>1</span>
           </LogoContainer>
         </Messenger>
       </WebPreview>
