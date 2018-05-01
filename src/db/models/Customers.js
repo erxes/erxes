@@ -384,7 +384,12 @@ class Customer {
    * @return {Promise} Success and failed counts
   */
   static async bulkInsert(sheet) {
-    const errMsgs = [];
+    const response = {
+      errMsgs: [],
+      total: 0,
+      success: 0,
+      failed: 0,
+    };
 
     // Getting all used rows on the sheet
     const rows = sheet.usedRange().value();
@@ -415,7 +420,7 @@ class Customer {
             });
 
             if (!property) {
-              errMsgs.push(`Bad column name ${column}, at the row ${rowIndex}`);
+              response.errMsgs.push(`Bad column name ${column}, at the row ${rowIndex}`);
             } else {
               // Setting value for customer property
               customer.customFieldsData[property._id] = row[colIndex];
@@ -438,14 +443,18 @@ class Customer {
     for (let customer of customers) {
       try {
         await this.createCustomer(customer);
+        response.success++;
       } catch (e) {
-        errMsgs.push(`${e.message} at the row ${rowIndex + 1}`);
+        response.failed++;
+        response.errMsgs.push(`${e.message} at the row ${rowIndex + 1}`);
       }
 
       rowIndex++;
     }
 
-    return errMsgs;
+    response.total = customers.length;
+
+    return response;
   }
 }
 

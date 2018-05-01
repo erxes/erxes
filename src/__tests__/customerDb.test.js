@@ -367,12 +367,13 @@ describe('Customers model tests', () => {
     sheet.cell(3, 3).value('customer2property1');
     sheet.cell(3, 4).value('customer2property2');
 
-    const errMsgs = await Customers.bulkInsert(sheet);
+    const response = await Customers.bulkInsert(sheet);
 
     const customers = await Customers.find({});
 
     expect(customers.length).toBe(3);
-    expect(errMsgs.length).toBe(0);
+    expect(response.errMsgs.length).toBe(0);
+    expect(response.success).toBe(2);
   });
 
   test('Xls import bulkInsert with errors', async () => {
@@ -388,9 +389,10 @@ describe('Customers model tests', () => {
     sheet.cell(3, 1).value('customer2email@yahoo.com');
     sheet.cell(3, 2).value('customer2phone');
 
-    let errMsgs = await Customers.bulkInsert(sheet);
+    let response = await Customers.bulkInsert(sheet);
 
-    expect(errMsgs.length).toBe(4);
+    expect(response.errMsgs.length).toBe(4);
+    expect(response.success).toBe(2);
 
     sheet = workbook.addSheet('newSheet');
 
@@ -403,11 +405,13 @@ describe('Customers model tests', () => {
     sheet.cell(3, 1).value('testCUstomer@gmail.com');
     sheet.cell(3, 2).value('testCustomer name');
 
-    errMsgs = await Customers.bulkInsert(sheet);
+    response = await Customers.bulkInsert(sheet);
 
     const customers = await Customers.find({});
 
     expect(customers.length).toBe(4);
-    expect(errMsgs.length).toBe(1);
+    expect(response.errMsgs.length).toBe(1);
+    expect(response.success).toBe(1);
+    expect(response.failed).toBe(1);
   });
 });
