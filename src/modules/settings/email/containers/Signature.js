@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
@@ -14,7 +13,7 @@ const SignatureContainer = (props, { currentUser }) => {
     const doc = [];
 
     // remove brandName from list
-    _.each(signatures, signature => {
+    signatures.forEach(signature => {
       if (signature.content) {
         doc.push({
           brandId: signature.brandId,
