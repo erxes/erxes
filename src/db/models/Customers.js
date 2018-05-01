@@ -403,23 +403,29 @@ class Customer {
         let colIndex = 0;
 
         for (let column of columns) {
+          // Validating basic info column name
           if (CUSTOMER_BASIC_INFOS.includes(column)) {
+            //Setting basic info value
             customer[column] = row[colIndex];
           } else {
+            // If its not basic info column, looking from custom property
             const property = await Fields.findOne({
               contentType: 'customer',
               text: column,
             });
 
             if (!property) {
-              errMsgs.push(`Bad column name at the row ${rowIndex + 1}`);
+              errMsgs.push(`Bad column name ${column}, at the row ${rowIndex}`);
             } else {
+              // Setting value for customer property
               customer.customFieldsData[property._id] = row[colIndex];
             }
           }
 
           colIndex++;
         }
+
+        // Casting into array of object
         customers.push(customer);
       }
 

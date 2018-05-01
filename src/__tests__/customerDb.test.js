@@ -374,4 +374,40 @@ describe('Customers model tests', () => {
     expect(customers.length).toBe(3);
     expect(errMsgs.length).toBe(0);
   });
+
+  test('Xls import bulkInsert with errors', async () => {
+    const workbook = await xlsxPopulate.fromBlankAsync();
+    let sheet = workbook.sheet(0);
+
+    sheet.cell(1, 1).value('No property');
+    sheet.cell(1, 2).value('Fake column name');
+
+    sheet.cell(2, 1).value('customer1email@yahoo.com');
+    sheet.cell(2, 2).value('customer1phone');
+
+    sheet.cell(3, 1).value('customer2email@yahoo.com');
+    sheet.cell(3, 2).value('customer2phone');
+
+    let errMsgs = await Customers.bulkInsert(sheet);
+
+    expect(errMsgs.length).toBe(4);
+
+    sheet = workbook.addSheet('newSheet');
+
+    sheet.cell(1, 1).value('email');
+    sheet.cell(1, 2).value('firstName');
+
+    sheet.cell(2, 1).value(_customer.email);
+    sheet.cell(2, 2).value(_customer.firstName);
+
+    sheet.cell(3, 1).value('testCUstomer@gmail.com');
+    sheet.cell(3, 2).value('testCustomer name');
+
+    errMsgs = await Customers.bulkInsert(sheet);
+
+    const customers = await Customers.find({});
+
+    expect(customers.length).toBe(4);
+    expect(errMsgs.length).toBe(1);
+  });
 });
