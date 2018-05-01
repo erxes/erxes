@@ -53,6 +53,8 @@ class UserDetails extends React.Component {
   }
 
   renderConversation(conversation, user) {
+    const details = user.details || {};
+
     return (
       <ActivityRow key={conversation._id}>
         <Fragment>
@@ -63,7 +65,7 @@ class UserDetails extends React.Component {
 
             <FlexBody>
               <div>
-                {user.details.fullName} participated in a
+                {details.fullName} participated in a
                 <Link to={`/inbox?_id=${conversation._id}`}>
                   <strong> conversation </strong>
                 </Link>
