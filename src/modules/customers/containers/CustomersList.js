@@ -97,6 +97,7 @@ class CustomerListContainer extends Bulk {
       uploadHandler({
         type: 'import',
         file: xlsFile,
+        importType: 'customers',
         afterUpload: ({ response }) => {
           const res = JSON.parse(response);
 

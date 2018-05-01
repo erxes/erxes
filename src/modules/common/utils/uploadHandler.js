@@ -5,10 +5,12 @@ const uploadHandler = params => {
 
     beforeUpload,
     afterUpload,
-
     // for preview purpose
     afterRead,
-    type
+    // import or upload type
+    type,
+    // import type customers and more
+    importType
   } = params;
 
   const { REACT_APP_API_URL } = process.env;
@@ -32,6 +34,11 @@ const uploadHandler = params => {
 
     const formData = new FormData();
     formData.append('file', file);
+
+    // Attaching import type
+    if (importType) {
+      formData.append('type', importType);
+    }
 
     fetch(url, {
       method: 'post',
