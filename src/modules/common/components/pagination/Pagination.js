@@ -5,7 +5,7 @@ import { router } from 'modules/common/utils';
 import { Icon } from 'modules/common/components';
 import { PaginationWrapper, PaginationList } from './styles';
 import PerPageChooser from './PerPageChooser';
-import { range, intersection, union, difference } from './utils';
+import { range, intersection, union, difference } from '../../utils/list';
 
 // pages calculation
 const generatePages = (pageCount, currentPage) => {
