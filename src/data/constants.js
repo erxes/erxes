@@ -260,6 +260,21 @@ export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
   'Other',
 ];
 
+export const CUSTOMER_BASIC_INFOS = [
+  'firstName',
+  'lastName',
+  'email',
+  'phone',
+  'ownerId',
+  'position',
+  'department',
+  'leadStatus',
+  'lifecycleState',
+  'hasAuthority',
+  'description',
+  'doNotDisturb',
+];
+
 export const COMPANY_LEAD_STATUS_TYPES = [
   '',
   'New',

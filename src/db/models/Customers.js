@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
-import { CUSTOMER_LEAD_STATUS_TYPES, CUSTOMER_LIFECYCLE_STATE_TYPES } from '../../data/constants';
+import {
+  CUSTOMER_LEAD_STATUS_TYPES,
+  CUSTOMER_LIFECYCLE_STATE_TYPES,
+  CUSTOMER_BASIC_INFOS,
+} from '../../data/constants';
 import { Fields, Companies, ActivityLogs, Conversations, InternalNotes, EngageMessages } from './';
 import { field } from './utils';
 
@@ -379,49 +383,63 @@ class Customer {
    *
    * @return {Promise} Success and failed counts
   */
-  static async importCustomers(sheet) {
-    const response = {
-      success: 0,
-      failed: 0,
-    };
+  static async bulkInsert(sheet) {
+    const errMsgs = [];
 
     // Getting all used rows on the sheet
     const rows = sheet.usedRange().value();
+    const columns = rows[0];
+
     const customers = [];
 
-    rows.forEach(row => {
+    let rowIndex = 0;
+
+    for (let row of rows) {
       const customer = {
-        firstName: row[0] || '',
-        lastName: row[1] || '',
-        email: row[2] || '',
-        phone: row[3] || 0,
-        position: row[4] || '',
-        department: row[5] || '',
-        leadStatus: row[6] || '',
-        lifecycleState: row[7] || '',
-        hasAuthority: row[8] || 'No',
-        description: row[9] || '',
-        doNotDisturb: row[10] || 'No',
+        customFieldsData: {},
       };
 
-      if (!customer.firstName && !customer.lastName && !customer.email && !customer.phone) {
-        response.failed++;
-      } else {
+      if (rowIndex !== 0) {
+        let colIndex = 0;
+
+        for (let column of columns) {
+          if (CUSTOMER_BASIC_INFOS.includes(column)) {
+            customer[column] = row[colIndex];
+          } else {
+            const property = await Fields.findOne({
+              contentType: 'customer',
+              text: column,
+            });
+
+            if (!property) {
+              errMsgs.push(`Bad column name at the row ${rowIndex + 1}`);
+            } else {
+              customer.customFieldsData[property._id] = row[colIndex];
+            }
+          }
+
+          colIndex++;
+        }
         customers.push(customer);
       }
-    });
+
+      rowIndex++;
+    }
 
     // Saving customers into database
+    rowIndex = 0;
+
     for (let customer of customers) {
       try {
         await this.createCustomer(customer);
-        response.success++;
       } catch (e) {
-        response.failed++;
+        errMsgs.push(`${e.message} at the row ${rowIndex + 1}`);
       }
+
+      rowIndex++;
     }
 
-    return response;
+    return errMsgs;
   }
 }
 
