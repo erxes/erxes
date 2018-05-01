@@ -1,6 +1,7 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
+import xlsxPopulate from 'xlsx-populate';
 import { connect, disconnect } from '../db/connection';
 import {
   Customers,
@@ -338,5 +339,39 @@ describe('Customers model tests', () => {
     } catch (e) {
       expect(e.message).toBe('Duplicated twitter');
     }
+  });
+
+  test('Xls import bulkInsert', async () => {
+    await fieldFactory({
+      contentType: 'customer',
+      text: 'First referred site',
+      validation: '',
+    });
+    await fieldFactory({ contentType: 'customer', text: 'Fax number', validation: '' });
+
+    const workbook = await xlsxPopulate.fromBlankAsync();
+    const sheet = workbook.sheet(0);
+
+    sheet.cell(1, 1).value('email');
+    sheet.cell(1, 2).value('phone');
+    sheet.cell(1, 3).value('First referred site');
+    sheet.cell(1, 4).value('Fax number');
+
+    sheet.cell(2, 1).value('customer1email@yahoo.com');
+    sheet.cell(2, 2).value('customer1phone');
+    sheet.cell(2, 3).value('customer1property1');
+    sheet.cell(2, 4).value('customer1property2');
+
+    sheet.cell(3, 1).value('customer2email@yahoo.com');
+    sheet.cell(3, 2).value('customer2phone');
+    sheet.cell(3, 3).value('customer2property1');
+    sheet.cell(3, 4).value('customer2property2');
+
+    const errMsgs = await Customers.bulkInsert(sheet);
+
+    const customers = await Customers.find({});
+
+    expect(customers.length).toBe(3);
+    expect(errMsgs.length).toBe(0);
   });
 });
