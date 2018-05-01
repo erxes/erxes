@@ -49,8 +49,12 @@ app.post('/import-file', async (req, res) => {
   const form = new formidable.IncomingForm();
 
   form.parse(req, async (err, fields, response) => {
-    // Getting failed, success counts from importing
-    const result = await importXlsFile(response.file);
+    let result = {};
+
+    if (fields.type === 'customers') {
+      // Getting failed, success counts from importing
+      result = await importXlsFile(response.file);
+    }
 
     res.send(result);
     res.end();
