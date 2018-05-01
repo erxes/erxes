@@ -97,7 +97,10 @@ class CustomerListContainer extends Bulk {
       uploadHandler({
         type: 'import',
         file: xlsFile,
-        afterUpload: () => {
+        afterUpload: ({ response }) => {
+          const res = JSON.parse(response);
+
+          Alert.success(`Success: ${res.success}, Failed: ${res.failed}`);
           customersMainQuery.refetch();
         },
         afterRead: () => {}
