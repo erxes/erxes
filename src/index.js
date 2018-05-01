@@ -51,10 +51,8 @@ app.post('/import-file', async (req, res) => {
   form.parse(req, async (err, fields, response) => {
     let result = {};
 
-    if (fields.type === 'customers') {
-      // Getting failed, success counts from importing
-      result = await importXlsFile(response.file);
-    }
+    // Getting failed, success counts from importing
+    result = await importXlsFile(response.file, fields.type);
 
     res.send(result);
     res.end();

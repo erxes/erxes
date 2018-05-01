@@ -192,7 +192,7 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
  *
  * @return {Promise} Success and failed counts
 */
-export const importXlsFile = async file => {
+export const importXlsFile = async (file, type) => {
   return new Promise((resolve, reject) => {
     const readStream = fs.createReadStream(file.path);
 
@@ -216,10 +216,14 @@ export const importXlsFile = async file => {
         // After finished saving instantly create and load workbook from xls
         const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
 
-        // Importing customers
-        const response = await Customers.importCustomers(workbook.sheet(0));
+        if (type === 'customers') {
+          // Importing customers
+          const response = await Customers.bulkInsert(workbook.sheet(0));
 
-        resolve(response);
+          resolve(response);
+        }
+
+        reject('Invalid import type');
       })
       .catch(e => {
         reject(e);
