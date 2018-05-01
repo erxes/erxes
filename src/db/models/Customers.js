@@ -372,6 +372,57 @@ class Customer {
 
     return customer;
   }
+
+  /**
+   * Read customers from xls file and saves into database
+   * @param {Object} sheet - Xls file sheet
+   *
+   * @return {Promise} Success and failed counts
+  */
+  static async importCustomers(sheet) {
+    const response = {
+      success: 0,
+      failed: 0,
+    };
+
+    // Getting all used rows on the sheet
+    const rows = sheet.usedRange().value();
+    const customers = [];
+
+    rows.forEach(row => {
+      const customer = {
+        firstName: row[0] || '',
+        lastName: row[1] || '',
+        email: row[2] || '',
+        phone: row[3] || 0,
+        position: row[4] || '',
+        department: row[5] || '',
+        leadStatus: row[6] || '',
+        lifecycleState: row[7] || '',
+        hasAuthority: row[8] || 'No',
+        description: row[9] || '',
+        doNotDisturb: row[10] || 'No',
+      };
+
+      if (!customer.firstName && !customer.lastName && !customer.email && !customer.phone) {
+        response.failed++;
+      } else {
+        customers.push(customer);
+      }
+    });
+
+    // Saving customers into database
+    for (let customer of customers) {
+      try {
+        await this.createCustomer(customer);
+        response.success++;
+      } catch (e) {
+        response.failed++;
+      }
+    }
+
+    return response;
+  }
 }
 
 CustomerSchema.loadClass(Customer);

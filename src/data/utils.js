@@ -190,61 +190,41 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
  * and imports customers to the database
  * @param {Object} file - File data to save
  *
- * @return {String} File name
+ * @return {Promise} Success and failed counts
 */
 export const importXlsFile = async file => {
-  const readStream = fs.createReadStream(file.path);
+  return new Promise((resolve, reject) => {
+    const readStream = fs.createReadStream(file.path);
 
-  // Directory to save file
-  const downloadDir = `${__dirname}/../private/xlsImports/${file.name}`;
+    // Directory to save file
+    const downloadDir = `${__dirname}/../private/xlsImports/${file.name}`;
 
-  // Creating streams
-  const writeStream = fs.createWriteStream(downloadDir);
-  const pipe = readStream.pipe(writeStream);
-
-  // After finished saving hook
-  pipe.on('finish', async () => {
-    // After finished saving instantly create and load workbook from xls
-    const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
-
-    // Importing customers
-    await importCustomers(workbook.sheet(0));
-  });
-
-  return file.name;
-};
-
-/**
- * Read customers from xls file and saves into database
- * @param {Object} sheet - Xls file sheet
-*/
-const importCustomers = async sheet => {
-  // Getting all used rows on the sheet
-  const rows = sheet.usedRange().value();
-  const customers = [];
-
-  rows.forEach(row => {
-    const customer = {
-      firstName: row[0] || '',
-      lastName: row[1] || '',
-      email: row[2] || '',
-      phone: row[3] || 0,
-      position: row[4] || '',
-      department: row[5] || '',
-      leadStatus: row[6] || '',
-      lifecycleState: row[7] || '',
-      hasAuthority: row[8] || 'No',
-      description: row[9] || '',
-      doNotDisturb: row[10] || 'No',
+    // Converting pipe into promise
+    const pipe = stream => {
+      return new Promise((resolve, reject) => {
+        stream.on('finish', resolve);
+        stream.on('error', reject);
+      });
     };
 
-    customers.push(customer);
-  });
+    // Creating streams
+    const writeStream = fs.createWriteStream(downloadDir);
+    const stream = readStream.pipe(writeStream);
 
-  // Saving customers into database
-  for (let customer of customers) {
-    await Customers.createCustomer(customer);
-  }
+    pipe(stream)
+      .then(async () => {
+        // After finished saving instantly create and load workbook from xls
+        const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
+
+        // Importing customers
+        const response = await Customers.importCustomers(workbook.sheet(0));
+
+        resolve(response);
+      })
+      .catch(e => {
+        reject(e);
+      });
+  });
 };
 
 /**

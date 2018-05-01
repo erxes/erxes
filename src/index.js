@@ -49,9 +49,11 @@ app.post('/import-file', async (req, res) => {
   const form = new formidable.IncomingForm();
 
   form.parse(req, async (err, fields, response) => {
-    const fileName = await importXlsFile(response.file);
+    // Getting failed, success counts from importing
+    const result = await importXlsFile(response.file);
 
-    return res.end(fileName);
+    res.send(result);
+    res.end();
   });
 });
 
@@ -93,7 +95,10 @@ server.listen(PORT, () => {
 
             // notify as connected
             pubsub.publish('customerConnectionChanged', {
-              customerConnectionChanged: { _id: customerId, status: 'connected' },
+              customerConnectionChanged: {
+                _id: customerId,
+                status: 'connected',
+              },
             });
           }
         });
@@ -110,7 +115,10 @@ server.listen(PORT, () => {
 
           // notify as disconnected
           pubsub.publish('customerConnectionChanged', {
-            customerConnectionChanged: { _id: customerId, status: 'disconnected' },
+            customerConnectionChanged: {
+              _id: customerId,
+              status: 'disconnected',
+            },
           });
         }
       },
