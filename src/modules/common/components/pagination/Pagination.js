@@ -1,12 +1,11 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import _ from 'underscore';
 import { router } from 'modules/common/utils';
 import { Icon } from 'modules/common/components';
 import { PaginationWrapper, PaginationList } from './styles';
 import PerPageChooser from './PerPageChooser';
-import { range, intersection } from './utils';
+import { range, intersection, union, difference } from './utils';
 
 // pages calculation
 const generatePages = (pageCount, currentPage) => {
@@ -48,7 +47,7 @@ const generatePages = (pageCount, currentPage) => {
 
     pages = pages.concat(current);
   } else {
-    pages = _.union(first, current);
+    pages = union(first, current);
   }
 
   if (intersection(current, last).length === 0) {
@@ -62,7 +61,7 @@ const generatePages = (pageCount, currentPage) => {
 
     pages = pages.concat(last);
   } else {
-    diff = _.difference(last, current);
+    diff = difference(last, current);
     pages = pages.concat(diff);
   }
 
