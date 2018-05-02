@@ -370,6 +370,22 @@ export const COMPANY_INDUSTRY_TYPES = [
   'TV / Movies / Music',
 ];
 
+export const COMPANY_BASIC_INFOS = [
+  'name',
+  'size',
+  'industry',
+  'website',
+  'plan',
+  'email',
+  'phone',
+  'leadStatus',
+  'lifecycleState',
+  'businessType',
+  'description',
+  'employees',
+  'doNotDisturb',
+];
+
 export const PROBABILITY = {
   TEN: '10%',
   TWENTY: '20%',

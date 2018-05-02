@@ -1,11 +1,8 @@
 import mongoose from 'mongoose';
-import {
-  CUSTOMER_LEAD_STATUS_TYPES,
-  CUSTOMER_LIFECYCLE_STATE_TYPES,
-  CUSTOMER_BASIC_INFOS,
-} from '../../data/constants';
+import { CUSTOMER_LEAD_STATUS_TYPES, CUSTOMER_LIFECYCLE_STATE_TYPES } from '../../data/constants';
 import { Fields, Companies, ActivityLogs, Conversations, InternalNotes, EngageMessages } from './';
 import { field } from './utils';
+import Coc from './Coc';
 
 /* location schema */
 const locationSchema = mongoose.Schema(
@@ -151,7 +148,13 @@ const CustomerSchema = mongoose.Schema({
   visitorContactInfo: field({ type: VisitorContactSchema, optional: true }),
 });
 
-class Customer {
+class Customer extends Coc {
+  constructor() {
+    super();
+
+    this.type = 'customer';
+  }
+
   getFullName() {
     return `${this.firstName || ''} ${this.lastName || ''}`;
   }
@@ -383,79 +386,90 @@ class Customer {
    *
    * @return {Promise} Success and failed counts
   */
-  static async bulkInsert(sheet) {
-    const response = {
-      errMsgs: [],
-      total: 0,
-      success: 0,
-      failed: 0,
-    };
-
-    // Getting all used rows on the sheet
-    const rows = sheet.usedRange().value();
-    const columns = rows[0];
-
-    const customers = [];
-
-    let rowIndex = 0;
-
-    for (let row of rows) {
-      const customer = {
-        customFieldsData: {},
-      };
-
-      if (rowIndex !== 0) {
-        let colIndex = 0;
-
-        for (let column of columns) {
-          // Validating basic info column name
-          if (CUSTOMER_BASIC_INFOS.includes(column)) {
-            //Setting basic info value
-            customer[column] = row[colIndex];
-          } else {
-            // If its not basic info column, looking from custom property
-            const property = await Fields.findOne({
-              contentType: 'customer',
-              text: column,
-            });
-
-            if (!property) {
-              response.errMsgs.push(`Bad column name ${column}, at the row ${rowIndex}`);
-            } else {
-              // Setting value for customer property
-              customer.customFieldsData[property._id] = row[colIndex];
-            }
-          }
-
-          colIndex++;
-        }
-
-        // Casting into array of object
-        customers.push(customer);
-      }
-
-      rowIndex++;
-    }
-
-    // Saving customers into database
-    rowIndex = 0;
-
-    for (let customer of customers) {
-      try {
-        await this.createCustomer(customer);
-        response.success++;
-      } catch (e) {
-        response.failed++;
-        response.errMsgs.push(`${e.message} at the row ${rowIndex + 1}`);
-      }
-
-      rowIndex++;
-    }
-
-    response.total = customers.length;
-
-    return response;
-  }
+  // static async bulkInsert(sheet) {
+  //   const response = {
+  //     errMsgs: [],
+  //     total: 0,
+  //     success: 0,
+  //     failed: 0
+  //   };
+  //
+  //   const checkFieldNames = async fieldNames => {
+  //     for (let field of fieldNames) {
+  //       const fieldObj = await Fields.find({ text: field });
+  //
+  //       if (!CUSTOMER_BASIC_INFOS.includes(field) || !fieldObj) {
+  //         response.errMsgs.push(`Bad column name ${field}`);
+  //       }
+  //     }
+  //   };
+  //
+  //   await checkFieldNames();
+  //
+  //   if (response.errMsgs.length > 0) {
+  //     return response;
+  //   }
+  //
+  //   // Getting all used rows on the sheet
+  //   const rows = sheet.usedRange().value();
+  //   const columns = rows[0];
+  //
+  //   const customers = [];
+  //
+  //   let rowIndex = 0;
+  //
+  //   for (let row of rows) {
+  //     const customer = {
+  //       customFieldsData: {}
+  //     };
+  //
+  //     if (rowIndex !== 0) {
+  //       let colIndex = 0;
+  //
+  //       for (let column of columns) {
+  //         // Validating basic info column name
+  //         if (CUSTOMER_BASIC_INFOS.includes(column)) {
+  //           //Setting basic info value
+  //           customer[column] = row[colIndex];
+  //         } else {
+  //           // If its not basic info column, looking from custom property
+  //           const property = await Fields.findOne({
+  //             contentType: 'customer',
+  //             text: column
+  //           });
+  //           // Setting value for customer property
+  //           customer.customFieldsData[property._id] = row[colIndex];
+  //         }
+  //
+  //         colIndex++;
+  //       }
+  //
+  //       // Casting into array of object
+  //       customers.push(customer);
+  //     }
+  //
+  //     rowIndex++;
+  //   }
+  //
+  //   // Saving customers into database
+  //   rowIndex = 0;
+  //
+  //   for (let customer of customers) {
+  //     try {
+  //       await this.createCustomer(customer);
+  //       response.success++;
+  //     } catch (e) {
+  //       response.failed++;
+  //       response.errMsgs.push(`${e.message} at the row ${rowIndex + 1}`);
+  //     }
+  //
+  //     rowIndex++;
+  //   }
+  //
+  //   response.total = customers.length;
+  //
+  //   return response;
+  // }
 }
 
 CustomerSchema.loadClass(Customer);

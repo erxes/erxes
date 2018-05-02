@@ -9,6 +9,7 @@ import Tags from './Tags';
 import { Fields, FieldsGroups } from './Fields';
 import Forms from './Forms';
 import InternalNotes from './InternalNotes';
+import Coc from './Coc';
 import Customers from './Customers';
 import Companies from './Companies';
 import Segments from './Segments';
@@ -38,6 +39,7 @@ export {
   Fields,
   Segments,
   InternalNotes,
+  Coc,
   Customers,
   Companies,
   Conversations,

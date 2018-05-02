@@ -217,8 +217,19 @@ export const importXlsFile = async (file, type) => {
         const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
 
         if (type === 'customers') {
+          const usedSheets = workbook
+            .sheet(0)
+            .usedRange()
+            .value();
+
+          // Getting columns
+          const fieldNames = usedSheets[0];
+
+          // Removing column
+          usedSheets.shift();
+
           // Importing customers
-          const response = await Customers.bulkInsert(workbook.sheet(0));
+          const response = await Customers.bulkInsert(fieldNames, usedSheets);
 
           resolve(response);
         }
