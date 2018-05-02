@@ -4,11 +4,16 @@ export const types = `
     success: String!
     failed: String
     total: String
-    customerIds: String
+    ids: [String]
+    cocContentType: String
 
     importedDate: Date
     importedUser: User
   }
+`;
+
+export const queries = `
+  formDetail(perPage: Int, page: Int): Form
 `;
 
 export const mutations = `
