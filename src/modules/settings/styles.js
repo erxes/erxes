@@ -240,15 +240,6 @@ const SidebarListItem = styled.li`
   }
 `;
 
-const IntegrationName = styled.span`
-  margin-right: ${dimensions.unitSpacing}px;
-`;
-
-const BrandName = styled.div`
-  font-size: 11px;
-  color: ${colors.colorCoreGray};
-`;
-
 export {
   ContentBox,
   ModuleBox,
@@ -264,7 +255,5 @@ export {
   ColorPicker,
   LogoContainer,
   SidebarListItem,
-  IntegrationName,
-  ActionButtons,
-  BrandName
+  ActionButtons
 };

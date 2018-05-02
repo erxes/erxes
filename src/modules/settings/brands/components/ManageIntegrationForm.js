@@ -8,11 +8,11 @@ import {
   Label,
   ModalTrigger
 } from 'modules/common/components';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import { Title, Columns, Column } from 'modules/common/styles/chooser';
-import { BrandName, IntegrationName } from '../../styles';
 import { ChooseBrand } from '../containers';
+import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { ModalFooter, CenterContent } from 'modules/common/styles/main';
+import { Title, Columns, Column } from 'modules/common/styles/chooser';
+import { BrandName, IntegrationName } from '../styles';
 
 const propTypes = {
   currentBrand: PropTypes.object,

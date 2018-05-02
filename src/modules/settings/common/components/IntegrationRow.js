@@ -2,19 +2,20 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
-  ModalTrigger,
   ActionButtons,
+  ModalTrigger,
   Tip,
   Label,
   Button,
   Icon
 } from 'modules/common/components';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { Messenger } from 'modules/settings/integrations/containers';
+import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
-  refetch: PropTypes.func
+  refetch: PropTypes.func.isRequired,
+  showBrand: PropTypes.bool
 };
 
 class IntegrationRow extends Component {
@@ -90,7 +91,7 @@ class IntegrationRow extends Component {
   }
 
   render() {
-    const { integration } = this.props;
+    const { integration, showBrand } = this.props;
 
     return (
       <tr>
@@ -100,6 +101,9 @@ class IntegrationRow extends Component {
             {integration.kind}
           </Label>
         </td>
+        {showBrand && (
+          <td>{integration.brand ? integration.brand.name : ''}</td>
+        )}
         <td>
           <ActionButtons>{this.renderExtraLinks()}</ActionButtons>
         </td>

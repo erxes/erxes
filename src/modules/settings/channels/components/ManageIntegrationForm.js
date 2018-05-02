@@ -10,7 +10,7 @@ import {
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { Title, Columns, Column } from 'modules/common/styles/chooser';
 import { ModalFooter, CenterContent } from 'modules/common/styles/main';
-import { BrandName, IntegrationName } from '../../styles';
+import { BrandName, IntegrationName } from '../../brands/styles';
 
 const propTypes = {
   currentChannel: PropTypes.object,

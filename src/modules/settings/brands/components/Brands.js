@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Sidebar, IntegrationList, ManageIntegrationForm } from '../containers';
 import {
   Pagination,
   DataWithLoader,
   Button,
   ModalTrigger
 } from 'modules/common/components';
+import { Sidebar, ManageIntegrationForm } from '../containers';
+import { IntegrationList } from '../../common/containers';
 
 const propTypes = {
   integrationsCount: PropTypes.number.isRequired,
