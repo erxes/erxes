@@ -243,16 +243,13 @@ export const importXlsFile = async (file, type, { user }) => {
 };
 
 /**
- * Reads default template from xls file
- * @param {String} name - Template file name
+ * Creates blank workbook
  *
  * @return {Object} Xls workbook and sheet
 */
-export const readTemplate = async name => {
-  // Generating workbook on existing template
-  const workbook = await xlsxPopulate.fromFileAsync(
-    `${__dirname}/../private/xlsTemplates/${name}.xlsx`,
-  );
+export const createXlsFile = async () => {
+  // Generating blank workbook
+  const workbook = await xlsxPopulate.fromBlankAsync();
 
   return { workbook, sheet: workbook.sheet(0) };
 };

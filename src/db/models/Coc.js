@@ -15,7 +15,7 @@ class Coc {
       ids: [],
       success: 0,
       total: fieldValues.length,
-      cocContentType: 'customer',
+      cocContentType: this.getCocType(),
       failed: 0,
     };
 
@@ -55,7 +55,7 @@ class Coc {
         } else {
           // If its not basic info column, looking from custom property
           const property = await Fields.findOne({
-            contentType: 'customer',
+            contentType: this.getCocType(),
             text: column,
           });
 

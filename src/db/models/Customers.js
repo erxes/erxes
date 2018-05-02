@@ -157,6 +157,10 @@ class Customer extends Coc {
     return CUSTOMER_BASIC_INFOS;
   }
 
+  static getCocType() {
+    return 'customer';
+  }
+
   getFullName() {
     return `${this.firstName || ''} ${this.lastName || ''}`;
   }
