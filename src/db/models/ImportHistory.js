@@ -15,7 +15,8 @@ const ImportHistorySchema = mongoose.Schema({
   total: field({
     type: Number,
   }),
-  customerIds: field({ type: [String] }),
+  ids: field({ type: [String] }),
+  cocContentType: field({ type: String }),
   importedUserId: field({
     type: String,
   }),

@@ -1,91 +1,91 @@
-import { Fields } from './';
+import { Fields, ImportHistory } from './';
 
 class Coc {
   /**
-   * Read customers from xls file and saves into database
-   * @param {Object} sheet - Xls file sheet
+   * Imports coc with basic fields and custom properties
+   * @param {String[]} fieldNames - Coc field names
+   * @param {String[]} fieldValues - Coc field values
    *
-   * @return {Promise} Success and failed counts
+   * @return {Promise} Result based on failed and successfully imported stats
   */
-  static async bulkInsert(fieldNames, fieldValues) {
-    console.log(this.getBasicInfos());
+  static async bulkInsert(fieldNames, fieldValues, { user }) {
+    const errMsgs = [];
 
-    const response = {
-      errMsgs: [],
-      total: 0,
+    const history = {
+      ids: [],
       success: 0,
+      total: fieldValues.length,
+      cocContentType: 'customer',
       failed: 0,
     };
 
+    // Checking field names, All field names must be configured correctly
     const checkFieldNames = async fieldNames => {
       for (let field of fieldNames) {
         const fieldObj = await Fields.find({ text: field });
 
-        if (!this.basicInfos.includes(field) || !fieldObj) {
-          response.errMsgs.push(`Bad column name ${field}`);
+        if (!this.getBasicInfos().includes(field) && !fieldObj) {
+          errMsgs.push(`Bad column name ${field}`);
         }
       }
     };
 
-    // await checkFieldNames();
+    await checkFieldNames(fieldNames);
 
-    if (response.errMsgs.length > 0) {
-      return response;
+    // If field name configured wrong, immediately sending error message
+    if (errMsgs.length > 0) {
+      return errMsgs;
     }
-
-    const customers = [];
 
     let rowIndex = 0;
 
+    // Iterating field values
     for (let row of fieldValues) {
-      const customer = {
+      const coc = {
         customFieldsData: {},
       };
-
       let colIndex = 0;
 
+      // Iterating for field names
       for (let column of fieldNames) {
         // Validating basic info column name
-        if (this.basicInfos.includes(column)) {
+        if (this.getBasicInfos().includes(column)) {
           //Setting basic info value
-          customer[column] = row[colIndex];
+          coc[column] = row[colIndex];
         } else {
           // If its not basic info column, looking from custom property
           const property = await Fields.findOne({
             contentType: 'customer',
             text: column,
           });
-          // Setting value for customer property
-          customer.customFieldsData[property._id] = row[colIndex];
+
+          // Setting value for property
+          coc.customFieldsData[property._id] = row[colIndex];
         }
 
         colIndex++;
       }
 
-      // Casting into array of object
-      customers.push(customer);
+      // Creating coc model
+      await this.createCustomer(coc)
+        .then(coc => {
+          // Increasing success count
+          history.success++;
+          history.ids.push(coc._id);
+        })
+        .catch(e => {
+          // Increasing failed count and pushing into error message
+          history.failed++;
+          errMsgs.push(`${e.message} at the row ${rowIndex + 1}`);
+        });
 
       rowIndex++;
     }
 
-    // Saving customers into database
-    rowIndex = 0;
+    // Whether successfull or not creating import history
+    await ImportHistory.createHistory(history, user._id);
 
-    for (let customer of customers) {
-      try {
-        await this.createCustomer(customer);
-        response.success++;
-      } catch (e) {
-        response.failed++;
-        response.errMsgs.push(`${e.message} at the row ${rowIndex + 1}`);
-      }
-
-      rowIndex++;
-    }
-
-    response.total = customers.length;
-
-    return response;
+    return errMsgs;
   }
 }
 
