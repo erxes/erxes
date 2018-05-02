@@ -31,6 +31,10 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
+app.use(userMiddleware);
+
+app.use('/graphql', graphqlExpress(req => ({ schema, context: { user: req.user } })));
+
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
 // file upload
@@ -47,19 +51,12 @@ app.post('/upload-file', async (req, res) => {
 // file import
 app.post('/import-file', async (req, res) => {
   const form = new formidable.IncomingForm();
-
   form.parse(req, async (err, fields, response) => {
     // Sending response from importXlsFile
-    res.send(await importXlsFile(response.file, fields.type));
+    res.send(await importXlsFile(response.file, fields.type, { user: req.user }));
     res.end();
   });
 });
-
-app.use(
-  '/graphql',
-  userMiddleware,
-  graphqlExpress(req => ({ schema, context: { user: req.user } })),
-);
 
 // Wrap the Express server
 const server = createServer(app);
