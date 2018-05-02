@@ -11,7 +11,7 @@ const importHistoryQueries = {
    * @return {Promise} filtered histories' list by given parameters
    */
   importHistories(root, { type, ...args }) {
-    return paginate(ImportHistory.find({ cocContentType: type }), args);
+    return paginate(ImportHistory.find({ contentType: type }), args);
   },
 };
 

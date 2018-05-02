@@ -16,7 +16,7 @@ const ImportHistorySchema = mongoose.Schema({
     type: Number,
   }),
   ids: field({ type: [String] }),
-  cocContentType: field({ type: String }),
+  contentType: field({ type: String }),
   importedUserId: field({
     type: String,
   }),
@@ -30,8 +30,9 @@ class ImportHistory {
    *
    * @param {Number} success - Successfully imported customers
    * @param {Number} failed - Failed counts
-   * @param {Number} total - total customers in xls file
-   * @param {String[]} customerIds - imported customerIds
+   * @param {Number} total - Total customers in xls file
+   * @param {String} contentType - Coc type
+   * @param {String[]} customerIds - Imported customerIds
    *
    * @return {Promise} newly created history object
    */

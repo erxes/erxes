@@ -5,7 +5,7 @@ export const types = `
     failed: String
     total: String
     ids: [String]
-    cocContentType: String
+    contentType: String
 
     importedDate: Date
     importedUser: User
@@ -17,6 +17,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  importHistoriesAdd(success: Int, failed: Int, total: Int, customerIds: [String]): ImportHistory
   importHistoriesRemove(_id: String!): ImportHistory
 `;
