@@ -25,6 +25,7 @@ import ActivityLogs from './ActivityLogs';
 import { DealBoards, DealPipelines, DealStages, Deals } from './Deals';
 import Products from './Products';
 import Configs from './Configs';
+import ImportHistory from './ImportHistory';
 
 export {
   Users,
@@ -57,4 +58,5 @@ export {
   Products,
   Configs,
   FieldsGroups,
+  ImportHistory,
 };

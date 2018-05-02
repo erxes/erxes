@@ -1,150 +1,68 @@
 import mongoose from 'mongoose';
 import { field } from './utils';
-import { COC_CONTENT_TYPES } from '../../data/constants';
+import { Customers } from './';
 /*
- * internal note schema
+ * Xls import history
  */
-const InternalNoteSchema = mongoose.Schema({
+const ImportHistorySchema = mongoose.Schema({
   _id: field({ pkey: true }),
-  contentType: field({
-    type: String,
-    enum: COC_CONTENT_TYPES.ALL,
+  success: field({
+    type: Number,
   }),
-  contentTypeId: field({ type: String }),
-  content: field({
+  failed: field({
+    type: Number,
+  }),
+  total: field({
+    type: Number,
+  }),
+  customerIds: field({ type: [String] }),
+  importedUserId: field({
     type: String,
   }),
-  createdUserId: field({
-    type: String,
-  }),
-  createdDate: field({
+  importedDate: field({
     type: Date,
   }),
 });
 
-class InternalNote {
-  /* Create new internalNote
+class ImportHistory {
+  /** Create new history
    *
-   * @param {String} contentType form, customer, company
-   * @param {String} contentTypeId when contentType is form, it will be
-   * formId
+   * @param {Number} success - Successfully imported customers
+   * @param {Number} failed - Failed counts
+   * @param {Number} total - total customers in xls file
+   * @param {String[]} customerIds - imported customerIds
    *
-   * @return {Promise} newly created internalNote object
+   * @return {Promise} newly created history object
    */
-  static async createInternalNote({ contentType, contentTypeId, ...fields }, user) {
+  static async createHistory(doc, user) {
     return this.create({
-      contentType,
-      contentTypeId,
-      createdUserId: user._id,
-      createdDate: new Date(),
-      ...fields,
+      importedUserId: user._id,
+      importedDate: new Date(),
+      ...doc,
     });
   }
 
-  /*
-   * Update internalNote
-   * @param {String} _id - internalNote id to update
-   * @param {Object} doc - internalNote values to update
-   * @return {Promise} Updated internalNote object
-   */
-  static async updateInternalNote(_id, doc) {
-    await this.update({ _id }, { $set: doc });
-
-    return this.findOne({ _id });
-  }
-
-  /*
+  /**
    * Remove internalNote
    * @param {String} _id - internalNote id to remove
+   *
    * @return {Promise}
    */
-  static async removeInternalNote(_id) {
-    const internalNoteObj = await this.findOne({ _id });
+  static async removeHistory(_id) {
+    const historyObj = this.findOne({ _id });
 
-    if (!internalNoteObj) throw new Error(`InternalNote not found with id ${_id}`);
+    const { customerIds = [] } = historyObj;
 
-    return internalNoteObj.remove();
-  }
-
-  /**
-   * Transfers customers' internal notes to another customer
-   * @param {String} newCustomerId - Customer id to set
-   * @param {String[]} customerIds - Old customer ids to change
-   * @return {Promise} Updated list of internal notes of new customer
-   */
-  static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
-      // Updating every internal notes of customer
-      await this.updateMany(
-        {
-          contentType: COC_CONTENT_TYPES.CUSTOMER,
-          contentTypeId: customerId,
-        },
-        { contentTypeId: newCustomerId },
-      );
+      await Customers.remove({ _id: customerId });
     }
 
-    // Returning updated list of internal notes of new customer
-    return this.find({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: newCustomerId,
-    });
-  }
-
-  /**
-   * Removing customers' internal notes
-   * @param {String} customerId - Customer id of customer to remove
-   * @return {Promise} Result
-   */
-  static async removeCustomerInternalNotes(customerId) {
-    // Removing every internal ntoes of customer
-    return this.remove({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customerId,
-    });
-  }
-
-  /**
-   * Removing companies' internal notes
-   * @param {String} companyId - Company id of company to remove
-   * @return {Promise} Result
-   */
-  static async removeCompanyInternalNotes(companyId) {
-    // Removing every internal notes of company
-    return this.remove({
-      contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: companyId,
-    });
-  }
-
-  /**
-   * Transfers companies' internal notes to another company
-   * @param {String} newCompanyId - Company ids to set
-   * @param {String[]} OldCompanyIds - Old company ids to change
-   * @return {Promise} Updated list of internal notes of new company
-   */
-  static async changeCompany(newCompanyId, oldCompanyIds) {
-    for (let companyId of oldCompanyIds) {
-      // Updating every internal notes of company
-      await this.updateMany(
-        {
-          contentType: COC_CONTENT_TYPES.COMPANY,
-          contentTypeId: companyId,
-        },
-        { contentTypeId: newCompanyId },
-      );
-    }
-
-    // Returning updated list of internal notes of new company
-    return this.find({
-      contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: newCompanyId,
-    });
+    return this.remove({ _id });
   }
 }
 
-InternalNoteSchema.loadClass(InternalNote);
+ImportHistorySchema.loadClass(ImportHistory);
 
-const InternalNotes = mongoose.model('internal_notes', InternalNoteSchema);
+const ImportHistories = mongoose.model('import_history', ImportHistorySchema);
 
-export default InternalNotes;
+export default ImportHistories;
