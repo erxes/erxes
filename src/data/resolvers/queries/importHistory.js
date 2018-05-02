@@ -4,12 +4,14 @@ import { paginate } from './utils';
 
 const importHistoryQueries = {
   /**
-   * Channels list
+   * Import history list
    * @param {Object} args - Search params
-   * @return {Promise} filtered channels list by given parameters
+   * @param {Object} args.type - coc type
+   *
+   * @return {Promise} filtered histories' list by given parameters
    */
-  importHistories(root, { queryParams }) {
-    return paginate(ImportHistory.find({}), queryParams);
+  importHistories(root, { type, ...args }) {
+    return paginate(ImportHistory.find({ cocContentType: type }), args);
   },
 };
 

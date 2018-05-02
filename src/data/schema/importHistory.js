@@ -13,7 +13,7 @@ export const types = `
 `;
 
 export const queries = `
-  ImportHistoryDetail(perPage: Int, page: Int): ImportHistory
+  importHistories(perPage: Int, page: Int, type: String!): [ImportHistory]
 `;
 
 export const mutations = `
