@@ -98,10 +98,14 @@ class CustomerListContainer extends Bulk {
         type: 'import',
         file: xlsFile,
         importType: 'customers',
-        afterUpload: ({ response }) => {
-          const res = JSON.parse(response);
 
-          Alert.success(`Success: ${res.success}, Failed: ${res.failed}`);
+        afterUpload: ({ response }) => {
+          if (response.length > 0) {
+            Alert.error(response[0]);
+          } else {
+            Alert.success('All customers imported successfully');
+          }
+
           customersMainQuery.refetch();
         },
         afterRead: () => {}
