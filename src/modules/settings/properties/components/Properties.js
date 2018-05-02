@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
+import { Wrapper } from 'modules/layout/components';
 import {
   ModalTrigger,
   Button,
@@ -8,7 +9,6 @@ import {
   Icon,
   EmptyState
 } from 'modules/common/components';
-import { Wrapper } from 'modules/layout/components';
 import { PropertyGroupForm, PropertyForm } from '../containers';
 import { Sidebar, PropertyRow } from './';
 import { PropertyList } from '../styles';
@@ -93,10 +93,10 @@ class Properties extends Component {
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
-          <ModalTrigger title="Add Group" trigger={addGroup} size="lg">
+          <ModalTrigger title="Add Group" trigger={addGroup}>
             <PropertyGroupForm queryParams={queryParams} />
           </ModalTrigger>
-          <ModalTrigger title="Add Property" trigger={addField} size="lg">
+          <ModalTrigger title="Add Property" trigger={addField}>
             {propertyForm}
           </ModalTrigger>
         </Dropdown.Menu>

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import {
@@ -76,7 +76,7 @@ class ChannelForm extends Component {
     const self = this;
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -112,7 +112,7 @@ class ChannelForm extends Component {
             multi
           />
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 

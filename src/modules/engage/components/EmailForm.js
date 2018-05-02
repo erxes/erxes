@@ -8,7 +8,6 @@ import {
 } from 'modules/common/components';
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import Editor from './Editor';
-import { EditorWrapper } from '../styles';
 import { FlexItem, Divider, FlexPad } from './step/style';
 import styled from 'styled-components';
 
@@ -125,12 +124,10 @@ class EmailForm extends Component {
         <FlexPad direction="column" overflow="auto">
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
-            <EditorWrapper>
-              <Editor
-                onChange={this.props.changeEmail}
-                defaultValue={this.state.message}
-              />
-            </EditorWrapper>
+            <Editor
+              onChange={this.props.changeEmail}
+              defaultValue={this.state.message}
+            />
           </FormGroup>
           <FormGroup>
             <ControlLabel>From:</ControlLabel>

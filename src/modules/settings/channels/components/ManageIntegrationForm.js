@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
   FormControl,
@@ -10,7 +10,7 @@ import {
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { Title, Columns, Column } from 'modules/common/styles/chooser';
 import { ModalFooter, CenterContent } from 'modules/common/styles/main';
-import { BrandName, IntegrationName } from '../../styles';
+import { BrandName, IntegrationName } from '../../brands/styles';
 
 const propTypes = {
   currentChannel: PropTypes.object,
@@ -154,7 +154,7 @@ class ManageIntegrationForm extends Component {
     const selectedIntegrations = this.state.integrations;
 
     return (
-      <div>
+      <Fragment>
         <Columns>
           <Column>
             <FormControl
@@ -204,7 +204,7 @@ class ManageIntegrationForm extends Component {
             Save
           </Button>
         </ModalFooter>
-      </div>
+      </Fragment>
     );
   }
 }

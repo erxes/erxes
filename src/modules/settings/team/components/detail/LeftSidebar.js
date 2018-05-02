@@ -5,9 +5,9 @@ import { Sidebar } from 'modules/layout/components';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { EditProfile } from 'modules/settings/profile/components';
 import { UserForm } from '../../containers';
-import { List } from './styles';
-import { Links, InfoWrapper } from 'modules/common/styles/main';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { Links, InfoWrapper } from 'modules/common/styles/main';
+import { List } from './styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,

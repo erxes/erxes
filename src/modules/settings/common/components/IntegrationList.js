@@ -1,22 +1,24 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Table } from 'modules/common/components';
-import { IntegrationRow } from '/';
+import { IntegrationRow } from './';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
-  refetch: PropTypes.func
+  refetch: PropTypes.func,
+  showBrand: PropTypes.bool
 };
 
 class IntegrationList extends Component {
   renderRow() {
-    const { integrations, refetch } = this.props;
+    const { integrations, refetch, showBrand } = this.props;
 
     return integrations.map(integration => (
       <IntegrationRow
         key={integration._id}
         integration={integration}
         refetch={refetch}
+        showBrand={showBrand}
       />
     ));
   }
@@ -29,7 +31,7 @@ class IntegrationList extends Component {
           <tr>
             <th>{__('Name')}</th>
             <th>{__('Kind')}</th>
-            <th>{__('Brand')}</th>
+            {this.props.showBrand && <th>{__('Brand')}</th>}
             <th>{__('Actions')}</th>
           </tr>
         </thead>

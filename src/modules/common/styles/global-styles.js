@@ -252,6 +252,11 @@ injectGlobal`
     min-width: 260px;
   }
 
+  .popover-content .chrome-picker {
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
   .popover-content ul {
     max-height: 280px;
     overflow: auto;

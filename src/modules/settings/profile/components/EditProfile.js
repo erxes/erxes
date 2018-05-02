@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Button, ModalTrigger } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
@@ -57,7 +57,7 @@ class EditProfile extends Component {
     );
 
     return (
-      <div>
+      <Fragment>
         <UserCommonInfos
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
@@ -82,7 +82,7 @@ class EditProfile extends Component {
             />
           </ModalTrigger>
         </ModalFooter>
-      </div>
+      </Fragment>
     );
   }
 }

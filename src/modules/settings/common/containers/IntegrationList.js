@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries } from '../graphql';
+import { queries } from '../../channels/graphql';
 import { IntegrationList } from '../components';
 
 const IntegrationListContainer = props => {
@@ -13,8 +13,8 @@ const IntegrationListContainer = props => {
   const updatedProps = {
     ...props,
     integrations,
-    loading: integrationsQuery.loading,
-    refetch: integrationsQuery.refetch
+    refetch: integrationsQuery.refetch,
+    loading: integrationsQuery.loading
   };
 
   return <IntegrationList {...updatedProps} />;
@@ -27,9 +27,10 @@ IntegrationListContainer.propTypes = {
 export default compose(
   graphql(gql(queries.integrations), {
     name: 'integrationsQuery',
-    options: ({ queryParams, currentBrand }) => ({
+    options: ({ queryParams, currentChannel, currentBrand }) => ({
       variables: {
-        brandId: currentBrand._id,
+        channelId: currentChannel && currentChannel._id,
+        brandId: currentBrand && currentBrand._id,
         searchValue: queryParams.searchValue,
         page: queryParams.page,
         perPage: queryParams.perPage || 20,

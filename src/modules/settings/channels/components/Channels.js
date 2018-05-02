@@ -7,7 +7,8 @@ import {
   Button,
   ModalTrigger
 } from 'modules/common/components';
-import { Sidebar, IntegrationList, ManageIntegrationForm } from '../containers';
+import { Sidebar, ManageIntegrationForm } from '../containers';
+import { IntegrationList } from '../../common/containers';
 
 const propTypes = {
   integrationsCount: PropTypes.number.isRequired,
@@ -64,6 +65,7 @@ class Channels extends Component {
                 currentChannel={currentChannel}
                 queryParams={queryParams}
                 refetch={refetch}
+                showBrand
               />
             }
             loading={loading}

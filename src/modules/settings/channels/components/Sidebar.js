@@ -8,10 +8,9 @@ import {
   LoadMore,
   Spinner
 } from 'modules/common/components';
-import { SidebarList as List } from 'modules/layout/styles';
+import { SidebarList, HelperButtons } from 'modules/layout/styles';
 import { ChannelForm } from '../containers';
 import { ChannelRow } from './';
-import { RightButton } from '../../styles';
 
 const propTypes = {
   channels: PropTypes.array.isRequired,
@@ -59,9 +58,11 @@ class Sidebar extends Component {
     const { Header } = LeftSidebar;
 
     const addChannel = (
-      <RightButton>
-        <Icon icon="add" />
-      </RightButton>
+      <HelperButtons>
+        <a>
+          <Icon icon="add" />
+        </a>
+      </HelperButtons>
     );
 
     return (
@@ -79,10 +80,10 @@ class Sidebar extends Component {
 
     return (
       <LeftSidebar full header={this.renderSidebarHeader()}>
-        <List>
+        <SidebarList>
           {this.renderItems()}
           <LoadMore all={channelsTotalCount} loading={loading} />
-        </List>
+        </SidebarList>
         {loading && <Spinner />}
         {!loading &&
           channelsTotalCount === 0 && (
