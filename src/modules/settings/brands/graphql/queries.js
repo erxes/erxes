@@ -1,29 +1,4 @@
-const integrations = `
-  query integrations($brandId: String, $perPage: Int, $page: Int, $searchValue: String) {
-    integrations(brandId: $brandId, perPage: $perPage, page: $page, searchValue: $searchValue) {
-      _id
-      brandId
-      name
-      kind
-      brand {
-        _id
-        name
-        code
-      }
-      formData
-      formId
-      form {
-        _id
-        title
-        code
-      }
-      channels {
-        _id
-        name
-      }
-    }
-  }
-`;
+import integrations from '../../common/graphql/queries';
 
 const brandDetail = `
   query brandDetail($_id: String!) {
