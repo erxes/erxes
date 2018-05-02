@@ -231,7 +231,7 @@ export const importXlsFile = async (file, type, { user }) => {
           // Importing customers
           const response = await Customers.bulkInsert(fieldNames, usedSheets, { user });
 
-          resolve({ response });
+          resolve(response);
         }
 
         reject('Invalid import type');
