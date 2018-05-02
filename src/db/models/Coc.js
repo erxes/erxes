@@ -1,4 +1,3 @@
-import { CUSTOMER_BASIC_INFOS, COMPANY_BASIC_INFOS } from '../../data/constants';
 import { Fields } from './';
 
 class Coc {
@@ -9,7 +8,7 @@ class Coc {
    * @return {Promise} Success and failed counts
   */
   static async bulkInsert(fieldNames, fieldValues) {
-    console.log('bulkInsert', this.type);
+    console.log(this.getBasicInfos());
 
     const response = {
       errMsgs: [],

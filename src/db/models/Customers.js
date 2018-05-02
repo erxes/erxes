@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
-import { CUSTOMER_LEAD_STATUS_TYPES, CUSTOMER_LIFECYCLE_STATE_TYPES } from '../../data/constants';
+import {
+  CUSTOMER_BASIC_INFOS,
+  CUSTOMER_LEAD_STATUS_TYPES,
+  CUSTOMER_LIFECYCLE_STATE_TYPES,
+} from '../../data/constants';
 import { Fields, Companies, ActivityLogs, Conversations, InternalNotes, EngageMessages } from './';
 import { field } from './utils';
 import Coc from './Coc';
@@ -149,10 +153,8 @@ const CustomerSchema = mongoose.Schema({
 });
 
 class Customer extends Coc {
-  constructor() {
-    super();
-
-    this.type = 'customer';
+  static getBasicInfos() {
+    return CUSTOMER_BASIC_INFOS;
   }
 
   getFullName() {
