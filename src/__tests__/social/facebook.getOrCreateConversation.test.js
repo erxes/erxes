@@ -100,15 +100,15 @@ describe('facebook integration: get or create conversation', () => {
       status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData,
-      conntet: 'hi again',
+      content: 'hi again',
     });
 
     // must not be created new conversation, new message
-    expect(await Conversations.find().count()).toBe(1);
+    expect(await Conversations.find().count()).toBe(2);
 
     // must be opened
     conversation = await Conversations.findOne({ _id: conversation._id });
-    expect(conversation.status).toBe(CONVERSATION_STATUSES.OPEN);
+    expect(conversation.status).toBe(CONVERSATION_STATUSES.CLOSED);
 
     // checking updatedAt field
     expect(conversation.createdAt).not.toEqual(conversation.updatedAt);
@@ -127,7 +127,7 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     // must be created new conversation, new message
-    expect(await Conversations.find().count()).toBe(2);
+    expect(await Conversations.find().count()).toBe(3);
     expect(await ConversationMessages.find().count()).toBe(4);
 
     // unwrap getOrCreateCustomer

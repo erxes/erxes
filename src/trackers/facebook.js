@@ -122,8 +122,8 @@ export class SaveWebhookResponse {
     });
 
     // create new conversation
-    if (!conversation) {
-      const conversationId = await Conversations.createConversation({
+    if (!conversation || conversation.status === CONVERSATION_STATUSES.CLOSED) {
+      const { _id } = await Conversations.createConversation({
         integrationId: this.integration._id,
         customerId: await this.getOrCreateCustomer(senderId),
         status,
@@ -136,11 +136,19 @@ export class SaveWebhookResponse {
         },
       });
 
-      conversation = await Conversations.findOne({ _id: conversationId });
-
-      // reopen conversation
+      conversation = await Conversations.findOne({ _id });
     } else {
-      conversation = await Conversations.reopen(conversation._id);
+      await Conversations.update(
+        { _id: conversation._id },
+        {
+          $set: {
+            status: CONVERSATION_STATUSES.OPEN,
+            updatedAt: new Date(),
+          },
+        },
+      );
+
+      conversation = await Conversations.findOne({ _id: conversation._id });
     }
 
     // create new message

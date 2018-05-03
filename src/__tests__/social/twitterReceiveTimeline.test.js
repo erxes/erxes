@@ -129,19 +129,19 @@ describe('createOrUpdateTimelineConversation', () => {
       reply_count: 1,
     };
 
-    await Conversations.update({ _id: conversation._id }, { $set: { status: 'closed' } });
-
     // call
     await createOrUpdateTimelineConversation(_integration._id, updatedData);
 
-    expect(await Conversations.find().count()).toBe(1); // 1 conversation
-    expect(await Customers.find().count()).toBe(1); // 1 customer
-    expect(await ActivityLogs.find().count()).toBe(1); // 1 log
+    await Conversations.update({ _id: conversation._id }, { $set: { status: 'closed' } });
+
+    expect(await Conversations.count()).toBe(1); // 1 conversation
+    expect(await Customers.count()).toBe(1); // 1 customer
+    expect(await ActivityLogs.count()).toBe(1); // 1 log
 
     conversation = await Conversations.findOne();
 
     // check updated field values
-    expect(conversation.status).toBe('open');
+    expect(conversation.status).toBe('closed');
     expect(conversation.content).toBe('updated');
     expect(conversation.twitterData.quote_count).toBe(1);
     expect(conversation.twitterData.reply_count).toBe(1);
