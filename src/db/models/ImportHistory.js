@@ -55,13 +55,15 @@ class ImportHistory {
 
     const { ids = [], contentType } = historyObj;
 
-    let collection = Customers;
+    let removeMethod = Customers.removeCustomer;
 
     if (contentType === 'company') {
-      collection = Companies;
+      removeMethod = Companies.removeCompany;
     }
 
-    await collection.remove({ _id: { $in: ids } });
+    for (let id of ids) {
+      await removeMethod(id);
+    }
 
     await this.remove({ _id });
 

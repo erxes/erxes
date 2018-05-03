@@ -221,7 +221,7 @@ class Company {
       { $pull: { companyIds: companyId } },
     );
 
-    return await this.remove({ _id: companyId });
+    return Companies.remove({ _id: companyId });
   }
 
   /**

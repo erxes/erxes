@@ -158,7 +158,7 @@ class Customer extends Coc {
   }
 
   static getCocType() {
-    return 'customer';
+    return 'Customer';
   }
 
   getFullName() {
@@ -331,7 +331,7 @@ class Customer extends Coc {
     await EngageMessages.removeCustomerEngages(customerId);
     await InternalNotes.removeCustomerInternalNotes(customerId);
 
-    return await this.remove({ _id: customerId });
+    return Customers.remove({ _id: customerId });
   }
 
   /**

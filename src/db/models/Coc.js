@@ -6,16 +6,18 @@ class Coc {
    * @param {String[]} fieldNames - Coc field names
    * @param {String[]} fieldValues - Coc field values
    *
-   * @return {Promise} Result based on failed and successfully imported stats
+   * @return {Promise} Error messages
   */
   static async bulkInsert(fieldNames, fieldValues, { user }) {
     const errMsgs = [];
+    const cocType = this.getCocType();
+    const contentType = cocType.toLowerCase();
 
     const history = {
       ids: [],
       success: 0,
       total: fieldValues.length,
-      contentType: this.getCocType(),
+      contentType,
       failed: 0,
       importedUserId: user._id,
     };
@@ -41,34 +43,34 @@ class Coc {
     let rowIndex = 0;
 
     // Iterating field values
-    for (let row of fieldValues) {
+    for (let fieldValue of fieldValues) {
       const coc = {
         customFieldsData: {},
       };
       let colIndex = 0;
 
       // Iterating for field names
-      for (let column of fieldNames) {
-        // Validating basic info column name
-        if (this.getBasicInfos().includes(column)) {
+      for (let fieldName of fieldNames) {
+        // Checking if fieldName is in basic infos
+        if (this.getBasicInfos().includes(fieldName)) {
           //Setting basic info value
-          coc[column] = row[colIndex];
+          coc[fieldName] = fieldValue[colIndex];
         } else {
-          // If its not basic info column, looking from custom property
+          // If its not in basic infos, looking from custom property
           const property = await Fields.findOne({
-            contentType: this.getCocType(),
-            text: column,
+            contentType,
+            text: fieldName,
           });
 
           // Setting value for property
-          coc.customFieldsData[property._id] = row[colIndex];
+          coc.customFieldsData[property._id] = fieldValue[colIndex];
         }
 
         colIndex++;
       }
 
       // Creating coc model
-      await this.createCustomer(coc)
+      await this[`create${cocType}`](coc)
         .then(coc => {
           // Increasing success count
           history.success++;
