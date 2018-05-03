@@ -1,3 +1,6 @@
+import { queries } from 'modules/settings/channels/graphql';
+import { queries as brandQuery } from 'modules/settings/brands/graphql';
+
 const integrations = `
   query integrations($channelId: String, $brandId: String, $perPage: Int, $page: Int, $searchValue: String) {
     integrations(channelId: $channelId, brandId: $brandId, perPage: $perPage, page: $page, searchValue: $searchValue) {
@@ -25,4 +28,9 @@ const integrations = `
   }
 `;
 
-export default integrations;
+export default {
+  integrations,
+  channelDetail: queries.channelDetail,
+  brandDetail: brandQuery.brandDetail,
+  integrationsCount: queries.integrationsCount
+};

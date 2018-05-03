@@ -1,5 +1,3 @@
-import integrations from '../../common/graphql/queries';
-
 const channelDetail = `
   query channelDetail($_id: String!) {
     channelDetail(_id: $_id) {
@@ -70,7 +68,6 @@ const channelsGetLast = `
 export default {
   users,
   channels,
-  integrations,
   channelDetail,
   channelsCount,
   channelsGetLast,
