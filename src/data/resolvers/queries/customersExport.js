@@ -45,8 +45,11 @@ export const customersExport = async customers => {
       for (let fieldId in customer.customFieldsData) {
         const propertyObj = await Fields.findOne({ _id: fieldId });
 
-        const { text } = propertyObj;
-        addCell(text, customer.customFieldsData[fieldId]);
+        if (propertyObj) {
+          const { text } = propertyObj;
+
+          addCell(text, customer.customFieldsData[fieldId]);
+        }
       }
     }
   }
