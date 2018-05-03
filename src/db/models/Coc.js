@@ -15,8 +15,9 @@ class Coc {
       ids: [],
       success: 0,
       total: fieldValues.length,
-      cocContentType: this.getCocType(),
+      contentType: this.getCocType(),
       failed: 0,
+      importedUserId: user._id,
     };
 
     // Checking field names, All field names must be configured correctly
