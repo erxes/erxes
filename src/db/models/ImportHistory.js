@@ -45,13 +45,13 @@ class ImportHistory {
   }
 
   /**
-   * Remove internalNote
-   * @param {String} _id - internalNote id to remove
+   * Remove Imported history
+   * @param {String} _id - history id to remove
    *
    * @return {Promise}
    */
   static async removeHistory(_id) {
-    const historyObj = this.findOne({ _id });
+    const historyObj = await this.findOne({ _id });
 
     const { customerIds = [] } = historyObj;
 
@@ -59,7 +59,9 @@ class ImportHistory {
       await Customers.remove({ _id: customerId });
     }
 
-    return this.remove({ _id });
+    await this.remove({ _id });
+
+    return _id;
   }
 }
 

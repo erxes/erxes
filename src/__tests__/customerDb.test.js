@@ -1,7 +1,6 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import xlsxPopulate from 'xlsx-populate';
 import { connect, disconnect } from '../db/connection';
 import {
   Customers,
@@ -9,6 +8,7 @@ import {
   Conversations,
   ConversationMessages,
   ActivityLogs,
+  ImportHistory,
 } from '../db/models';
 import {
   fieldFactory,
@@ -17,6 +17,7 @@ import {
   conversationFactory,
   internalNoteFactory,
   activityLogFactory,
+  userFactory,
 } from '../db/factories';
 import { COC_CONTENT_TYPES } from '../data/constants';
 
@@ -34,6 +35,7 @@ describe('Customers model tests', () => {
   afterEach(async () => {
     // Clearing test data
     await Customers.remove({});
+    await ImportHistory.remove({});
   });
 
   test('Create customer', async () => {
@@ -341,77 +343,65 @@ describe('Customers model tests', () => {
     }
   });
 
-  test('Xls import bulkInsert', async () => {
+  test('bulkInsert', async () => {
     await fieldFactory({
       contentType: 'customer',
       text: 'First referred site',
       validation: '',
     });
     await fieldFactory({ contentType: 'customer', text: 'Fax number', validation: '' });
+    const user = await userFactory({});
 
-    const workbook = await xlsxPopulate.fromBlankAsync();
-    const sheet = workbook.sheet(0);
+    const fieldNames = ['email', 'phone', 'First referred site', 'Fax number'];
 
-    sheet.cell(1, 1).value('email');
-    sheet.cell(1, 2).value('phone');
-    sheet.cell(1, 3).value('First referred site');
-    sheet.cell(1, 4).value('Fax number');
+    const fieldValues = [
+      ['customer1email@yahoo.com', 'customer1phone', 'customer1property1', 'customer1property2'],
+      ['customer2email@yahoo.com', 'customer2phone', 'customer2property1', 'customer2property2'],
+    ];
 
-    sheet.cell(2, 1).value('customer1email@yahoo.com');
-    sheet.cell(2, 2).value('customer1phone');
-    sheet.cell(2, 3).value('customer1property1');
-    sheet.cell(2, 4).value('customer1property2');
-
-    sheet.cell(3, 1).value('customer2email@yahoo.com');
-    sheet.cell(3, 2).value('customer2phone');
-    sheet.cell(3, 3).value('customer2property1');
-    sheet.cell(3, 4).value('customer2property2');
-
-    const response = await Customers.bulkInsert(sheet);
-
+    const response = await Customers.bulkInsert(fieldNames, fieldValues, { user });
     const customers = await Customers.find({});
+
+    const history = await ImportHistory.findOne({ importedUserId: user._id });
 
     expect(customers.length).toBe(3);
-    expect(response.errMsgs.length).toBe(0);
-    expect(response.success).toBe(2);
+    expect(response.length).toBe(0);
+    expect(history.success).toBe(2);
+    expect(history.total).toBe(2);
+    expect(history.ids.length).toBe(2);
+    expect(history.failed).toBe(0);
   });
 
-  test('Xls import bulkInsert with errors', async () => {
-    const workbook = await xlsxPopulate.fromBlankAsync();
-    let sheet = workbook.sheet(0);
+  test('bulkInsert with errors', async () => {
+    const user = await userFactory({});
+    const badFieldNames = ['badColumn name1'];
 
-    sheet.cell(1, 1).value('No property');
-    sheet.cell(1, 2).value('Fake column name');
+    let response = await Customers.bulkInsert(badFieldNames, [], { user });
+    // We sent bad column name
+    expect(response.length).toBe(1);
+    expect(response[0]).toBe('Bad column name badColumn name1');
 
-    sheet.cell(2, 1).value('customer1email@yahoo.com');
-    sheet.cell(2, 2).value('customer1phone');
+    await fieldFactory({ contentType: 'customer', text: 'Fax number', validation: '' });
+    const customer = await customerFactory({ email: 'testCustomerEmail@gmail.com' });
 
-    sheet.cell(3, 1).value('customer2email@yahoo.com');
-    sheet.cell(3, 2).value('customer2phone');
+    const fieldNames = ['email', 'firstName', 'Fax number'];
 
-    let response = await Customers.bulkInsert(sheet);
+    const fieldValues = [
+      [customer.email, 'Heyy', '12313'], // this one has duplicated email
+      ['newEmail@gmail.com', 'Ayyy', '12313'], // this one should be inserted
+      [customer.email, '', ''], // this one has duplicated email too
+    ];
 
-    expect(response.errMsgs.length).toBe(4);
-    expect(response.success).toBe(2);
+    response = await Customers.bulkInsert(fieldNames, fieldValues, { user });
 
-    sheet = workbook.addSheet('newSheet');
+    expect(response.length).toBe(2);
+    expect(response[0]).toBe('Duplicated email at the row 1');
+    expect(response[1]).toBe('Duplicated email at the row 3');
 
-    sheet.cell(1, 1).value('email');
-    sheet.cell(1, 2).value('firstName');
-
-    sheet.cell(2, 1).value(_customer.email);
-    sheet.cell(2, 2).value(_customer.firstName);
-
-    sheet.cell(3, 1).value('testCUstomer@gmail.com');
-    sheet.cell(3, 2).value('testCustomer name');
-
-    response = await Customers.bulkInsert(sheet);
-
-    const customers = await Customers.find({});
-
-    expect(customers.length).toBe(4);
-    expect(response.errMsgs.length).toBe(1);
-    expect(response.success).toBe(1);
-    expect(response.failed).toBe(1);
+    const history = await ImportHistory.findOne({ importedUserId: user._id });
+    expect(history.total).toBe(3);
+    expect(history.success).toBe(1);
+    expect(history.failed).toBe(2);
+    expect(history.ids.length).toBe(1);
   });
 });

@@ -23,7 +23,7 @@ class Coc {
     // Checking field names, All field names must be configured correctly
     const checkFieldNames = async fieldNames => {
       for (let field of fieldNames) {
-        const fieldObj = await Fields.find({ text: field });
+        const fieldObj = await Fields.findOne({ text: field });
 
         if (!this.getBasicInfos().includes(field) && !fieldObj) {
           errMsgs.push(`Bad column name ${field}`);
