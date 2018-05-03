@@ -51,10 +51,12 @@ app.post('/upload-file', async (req, res) => {
 // file import
 app.post('/import-file', async (req, res) => {
   const form = new formidable.IncomingForm();
+
   form.parse(req, async (err, fields, response) => {
-    // Sending response from importXlsFile
-    res.send(await importXlsFile(response.file, fields.type, { user: req.user }));
-    res.end();
+    await importXlsFile(response.file, fields.type, { user: req.user }).then(result => {
+      res.send(result);
+      res.end();
+    });
   });
 });
 

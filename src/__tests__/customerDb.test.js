@@ -362,8 +362,9 @@ describe('Customers model tests', () => {
     const response = await Customers.bulkInsert(fieldNames, fieldValues, { user });
     const customers = await Customers.find({});
 
-    const history = await ImportHistory.findOne({ importedUserId: user._id });
+    const history = await ImportHistory.findOne({ userId: user._id });
 
+    // Before each test we create 1 customer so it should be 3 total
     expect(customers.length).toBe(3);
     expect(response.length).toBe(0);
     expect(history.success).toBe(2);
@@ -398,7 +399,7 @@ describe('Customers model tests', () => {
     expect(response[0]).toBe('Duplicated email at the row 1');
     expect(response[1]).toBe('Duplicated email at the row 3');
 
-    const history = await ImportHistory.findOne({ importedUserId: user._id });
+    const history = await ImportHistory.findOne({ userId: user._id });
     expect(history.total).toBe(3);
     expect(history.success).toBe(1);
     expect(history.failed).toBe(2);

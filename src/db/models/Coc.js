@@ -10,8 +10,9 @@ class Coc {
   */
   static async bulkInsert(fieldNames, fieldValues, { user }) {
     const errMsgs = [];
-    const cocType = this.getTypes().cocType;
-    const contentType = this.getTypes().contentType;
+    const properties = [];
+    const cocType = this.getCocType();
+    const contentType = cocType.toLowerCase();
 
     const history = {
       ids: [],
@@ -19,13 +20,28 @@ class Coc {
       total: fieldValues.length,
       contentType,
       failed: 0,
-      importedUserId: user._id,
     };
 
     // Checking field names, All field names must be configured correctly
     const checkFieldNames = async fieldNames => {
       for (let field of fieldNames) {
+        const property = {
+          isCustomField: false,
+        };
+
         const fieldObj = await Fields.findOne({ text: field });
+
+        // Creating detailed property list
+        if (this.getBasicInfos().includes(field)) {
+          property.name = field;
+        }
+
+        if (fieldObj) {
+          property.isCustomField = true;
+          property.id = fieldObj._id;
+        }
+
+        properties.push(property);
 
         if (!this.getBasicInfos().includes(field) && !fieldObj) {
           errMsgs.push(`Bad column name ${field}`);
@@ -49,27 +65,19 @@ class Coc {
       };
       let colIndex = 0;
 
-      // Iterating for field names
-      for (let fieldName of fieldNames) {
-        // Checking if fieldName is in basic infos
-        if (this.getBasicInfos().includes(fieldName)) {
-          //Setting basic info value
-          coc[fieldName] = fieldValue[colIndex];
+      // Iterating through detailed properties
+      for (let property of properties) {
+        // Checking if it is basic info field
+        if (property.isCustomField === false) {
+          coc[property.name] = fieldValue[colIndex];
         } else {
-          // If its not in basic infos, looking from custom property
-          const property = await Fields.findOne({
-            contentType,
-            text: fieldName,
-          });
-
-          // Setting value for property
-          coc.customFieldsData[property._id] = fieldValue[colIndex];
+          coc.customFieldsData[property.id] = fieldValue[colIndex];
         }
 
         colIndex++;
       }
 
-      // Creating coc model
+      // Creating coc
       await this[`create${cocType}`](coc)
         .then(coc => {
           // Increasing success count
@@ -86,7 +94,7 @@ class Coc {
     }
 
     // Whether successfull or not creating import history
-    await ImportHistory.createHistory(history, user._id);
+    await ImportHistory.createHistory(history, user);
 
     return errMsgs;
   }

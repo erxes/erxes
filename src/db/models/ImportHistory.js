@@ -6,23 +6,13 @@ import { Customers, Companies } from './';
  */
 const ImportHistorySchema = mongoose.Schema({
   _id: field({ pkey: true }),
-  success: field({
-    type: Number,
-  }),
-  failed: field({
-    type: Number,
-  }),
-  total: field({
-    type: Number,
-  }),
+  success: field({ type: Number }),
+  failed: field({ type: Number }),
+  total: field({ type: Number }),
   ids: field({ type: [String] }),
   contentType: field({ type: String }),
-  importedUserId: field({
-    type: String,
-  }),
-  importedDate: field({
-    type: Date,
-  }),
+  userId: field({ type: String }),
+  date: field({ type: Date }),
 });
 
 class ImportHistory {
@@ -38,8 +28,8 @@ class ImportHistory {
    */
   static async createHistory(doc, user) {
     return this.create({
-      importedUserId: user._id,
-      importedDate: new Date(),
+      userId: user._id,
+      date: new Date(),
       ...doc,
     });
   }

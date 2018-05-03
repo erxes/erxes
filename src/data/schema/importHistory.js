@@ -7,8 +7,8 @@ export const types = `
     ids: [String]
     contentType: String
 
-    importedDate: Date
-    importedUser: User
+    date: Date
+    user: User
   }
 `;
 

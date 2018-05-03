@@ -157,11 +157,8 @@ class Customer extends Coc {
     return CUSTOMER_BASIC_INFOS;
   }
 
-  static getTypes() {
-    return {
-      contentType: 'customer',
-      cocType: 'Customer',
-    };
+  static getCocType() {
+    return 'Customer';
   }
 
   getFullName() {

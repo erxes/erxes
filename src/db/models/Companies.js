@@ -110,11 +110,8 @@ class Company {
     return COMPANY_BASIC_INFOS;
   }
 
-  static getTypes() {
-    return {
-      contentType: 'company',
-      cocType: 'Companies',
-    };
+  static getCocType() {
+    return 'Company';
   }
 
   /**

@@ -3,7 +3,7 @@ import AWS from 'aws-sdk';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
 import Handlebars from 'handlebars';
-import { Notifications, Users, Customers } from '../db/models';
+import { Notifications, Users, Customers, Companies } from '../db/models';
 
 /*
  * Save binary data to amazon s3
@@ -228,10 +228,19 @@ export const importXlsFile = async (file, type, { user }) => {
           // Removing column
           usedSheets.shift();
 
-          // Importing customers
-          const response = await Customers.bulkInsert(fieldNames, usedSheets, { user });
+          if (type === 'customers') {
+            // Importing customers
+            const response = await Customers.bulkInsert(fieldNames, usedSheets, { user });
 
-          resolve(response);
+            resolve(response);
+          }
+
+          if (type === 'company') {
+            // Importing companies
+            const response = await Companies.bulkInsert(fieldNames, usedSheets, { user });
+
+            resolve(response);
+          }
         }
 
         reject('Invalid import type');
