@@ -19,7 +19,7 @@ export const customersExport = async customers => {
     // Checking if existing column
     if (cols.includes(col)) {
       // If column already exists adding cell
-      sheet.cell(rowIndex, cols.indexOf(col)).value(value);
+      sheet.cell(rowIndex, cols.indexOf(col) + 1).value(value);
     } else {
       // Creating column
       sheet.cell(1, cols.length + 1).value(col);
