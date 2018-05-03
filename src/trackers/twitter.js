@@ -9,6 +9,7 @@ import {
 } from '../db/models';
 import { conversationMessageCreated } from '../data/resolvers/mutations/conversations';
 import { twitRequest, findParentTweets } from './twitterTracker';
+import { CONVERSATION_STATUSES } from '../data/constants';
 
 /*
  * Prepare data to save for conversation
@@ -134,20 +135,18 @@ export const receiveDirectMessageInformation = async (data, integration) => {
     ],
   });
 
-  if (conversation) {
+  if (conversation && conversation.status !== CONVERSATION_STATUSES.CLOSED) {
     // update some infos
     await Conversations.update(
       { _id: conversation._id },
       {
         $set: {
           content: data.text,
+          status: CONVERSATION_STATUSES.OPEN,
           updatedAt: new Date(),
         },
       },
     );
-
-    // if closed, reopen it
-    await Conversations.reopen(conversation._id);
 
     // create new message
     await createDirectMessage({ conversation, data });
@@ -269,7 +268,7 @@ export const createOrUpdateTimelineConversation = async (integrationId, tweet) =
     'twitterData.id': tweet.id,
   });
 
-  if (prevConversation) {
+  if (prevConversation && prevConversation.status !== CONVERSATION_STATUSES.CLOSED) {
     // update some infos
     await Conversations.update(
       { 'twitterData.id': tweet.id },
@@ -277,13 +276,14 @@ export const createOrUpdateTimelineConversation = async (integrationId, tweet) =
         $set: {
           twitterData: tweet,
           content: tweet.text,
+          status: CONVERSATION_STATUSES.OPEN,
           updatedAt: new Date(),
         },
       },
     );
 
-    // reopen & return updated conversation
-    return Conversations.reopen(prevConversation._id);
+    // return updated conversation
+    return Conversations.findOne({ 'twitterData.id': tweet.id });
   }
 
   return Conversations.createConversation({
