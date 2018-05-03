@@ -2,26 +2,30 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { router } from 'modules/common/utils';
+import { router, Alert } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 import gql from 'graphql-tag';
 import { Histories } from '../components';
 
 const PropertiesContainer = props => {
-  const {
-    historiesQuery,
-    history
-    // importHistoriesRemove,
-  } = props;
+  const { historiesQuery, history, importHistoriesRemove } = props;
 
   if (!router.getParam(history, 'type')) {
     router.setParams(history, { type: 'customer' });
   }
 
   const currentType = router.getParam(history, 'type');
-  console.log(historiesQuery);
-  const removeHistory = () => {
-    return null;
+
+  const removeHistory = _id => {
+    importHistoriesRemove({
+      variables: { _id }
+    })
+      .then(() => {
+        Alert.success('Successfully Removed all customers');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   const updatedProps = {
@@ -51,6 +55,9 @@ export default compose(
     })
   }),
   graphql(gql(mutations.importHistoriesRemove), {
-    name: 'importHistoriesRemove'
+    name: 'importHistoriesRemove',
+    options: {
+      refetchQueries: ['importHistories']
+    }
   })
 )(withRouter(PropertiesContainer));

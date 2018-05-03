@@ -1,11 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'modules/common/components';
+import { confirm } from 'modules/common/utils';
 
 const propTypes = {
-  history: PropTypes.object
+  history: PropTypes.object,
+  removeHistory: PropTypes.func
 };
 
-function HistoryRow({ history }) {
+function HistoryRow({ history, removeHistory }) {
   const { importedUser = {} } = history;
   const { details = {} } = importedUser;
 
@@ -16,6 +19,17 @@ function HistoryRow({ history }) {
       <td>{history.total || 1}</td>
       <td>{history.importedDate || 1}</td>
       <td>{details.fullName || '-'}</td>
+      <td>
+        <Button
+          btnStyle="link"
+          icon="cancel-1"
+          onClick={() =>
+            confirm().then(() => {
+              removeHistory(history._id);
+            })
+          }
+        />
+      </td>
     </tr>
   );
 }

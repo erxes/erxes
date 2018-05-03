@@ -24,7 +24,7 @@ class Histories extends Component {
   }
 
   renderHistories() {
-    const { histories } = this.props;
+    const { histories, removeHistory } = this.props;
 
     if (histories.length === 0) {
       return <EmptyState icon="circular" text="There arent't any imports" />;
@@ -39,11 +39,18 @@ class Histories extends Component {
             <th>Total</th>
             <th>Imported Date</th>
             <th>Imported User</th>
+            <th />
           </tr>
         </thead>
         <tbody>
           {histories.map(history => {
-            return <HistoryRow key={history._id} history={history} />;
+            return (
+              <HistoryRow
+                key={history._id}
+                history={history}
+                removeHistory={removeHistory}
+              />
+            );
           })}
         </tbody>
       </Table>
