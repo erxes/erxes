@@ -10,8 +10,8 @@ class Coc {
   */
   static async bulkInsert(fieldNames, fieldValues, { user }) {
     const errMsgs = [];
-    const cocType = this.getCocType();
-    const contentType = cocType.toLowerCase();
+    const cocType = this.getTypes().cocType;
+    const contentType = this.getTypes().contentType;
 
     const history = {
       ids: [],
