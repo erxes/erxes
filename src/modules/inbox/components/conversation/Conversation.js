@@ -23,11 +23,11 @@ const Wrapper = styled.div`
 
 class Conversation extends Component {
   isStuff(conversation, firstMessage, currentMessage) {
-    if (conversation.twitterData) {
+    if (conversation.twitterData && firstMessage.twitterData) {
       const firstTwitterData = firstMessage.customer.twitterData;
       const currentTwitterData = currentMessage.customer.twitterData;
 
-      return firstTwitterData.id_str !== currentTwitterData.id_str;
+      return firstTwitterData.id_str !== currentTwitterData.id_str || false;
     }
 
     return currentMessage.userId ? true : false;
