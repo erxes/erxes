@@ -1,5 +1,3 @@
-import integrations from '../../common/graphql/queries';
-
 const brandDetail = `
   query brandDetail($_id: String!) {
     brandDetail(_id: $_id) {
@@ -51,7 +49,6 @@ const brandsGetLast = `
 `;
 
 export default {
-  integrations,
   brandsGetLast,
   brands,
   brandDetail,

@@ -1,3 +1,4 @@
 import IntegrationList from './IntegrationList';
+import ManageIntegration from './ManageIntegration';
 
-export { IntegrationList };
+export { IntegrationList, ManageIntegration };

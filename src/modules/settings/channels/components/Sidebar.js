@@ -79,7 +79,7 @@ class Sidebar extends Component {
     const { loading, channelsTotalCount } = this.props;
 
     return (
-      <LeftSidebar full header={this.renderSidebarHeader()}>
+      <LeftSidebar wide full header={this.renderSidebarHeader()}>
         <SidebarList>
           {this.renderItems()}
           <LoadMore all={channelsTotalCount} loading={loading} />
