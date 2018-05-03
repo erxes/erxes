@@ -138,17 +138,7 @@ export class SaveWebhookResponse {
 
       conversation = await Conversations.findOne({ _id });
     } else {
-      await Conversations.update(
-        { _id: conversation._id },
-        {
-          $set: {
-            status: CONVERSATION_STATUSES.OPEN,
-            updatedAt: new Date(),
-          },
-        },
-      );
-
-      conversation = await Conversations.findOne({ _id: conversation._id });
+      conversation = await Conversations.reopen(conversation._id);
     }
 
     // create new message

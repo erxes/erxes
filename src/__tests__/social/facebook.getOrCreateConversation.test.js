@@ -103,10 +103,10 @@ describe('facebook integration: get or create conversation', () => {
       content: 'hi again',
     });
 
-    // must not be created new conversation, new message
+    // must be created new conversation, new message
     expect(await Conversations.find().count()).toBe(2);
 
-    // must be opened
+    // previous conversation must be stay intact
     conversation = await Conversations.findOne({ _id: conversation._id });
     expect(conversation.status).toBe(CONVERSATION_STATUSES.CLOSED);
 
