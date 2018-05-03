@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries } from '../../channels/graphql';
+import { queries } from '../graphql';
 import { IntegrationList } from '../components';
 
 const IntegrationListContainer = props => {

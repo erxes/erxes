@@ -7,8 +7,8 @@ import {
   Button,
   ModalTrigger
 } from 'modules/common/components';
-import { Sidebar, ManageIntegrationForm } from '../containers';
-import { IntegrationList } from '../../common/containers';
+import { Sidebar } from '../containers';
+import { IntegrationList, ManageIntegration } from '../../common/containers';
 
 const propTypes = {
   integrationsCount: PropTypes.number.isRequired,
@@ -41,7 +41,7 @@ class Brands extends Component {
 
     const rightActionBar = currentBrand._id && (
       <ModalTrigger title="Manage Integration" trigger={trigger} size="lg">
-        <ManageIntegrationForm currentBrand={currentBrand} />
+        <ManageIntegration current={currentBrand} type="brand" />
       </ModalTrigger>
     );
 

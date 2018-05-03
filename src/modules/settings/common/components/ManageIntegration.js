@@ -1,21 +1,25 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
   FormControl,
   Button,
   Icon,
   Tip,
-  Label
+  Label,
+  ModalTrigger
 } from 'modules/common/components';
+import { ChooseBrand } from '../../brands/containers';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import { Title, Columns, Column } from 'modules/common/styles/chooser';
 import { ModalFooter, CenterContent } from 'modules/common/styles/main';
-import { BrandName, IntegrationName } from '../../brands/styles';
+import { Title, Columns, Column } from 'modules/common/styles/chooser';
+import { BrandName, IntegrationName } from '../styles';
 
 const propTypes = {
-  currentChannel: PropTypes.object,
-  save: PropTypes.func.isRequired,
+  current: PropTypes.object,
+  save: PropTypes.func,
+  type: PropTypes.string,
   search: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
   allIntegrations: PropTypes.array.isRequired,
   perPage: PropTypes.number.isRequired,
   clearState: PropTypes.func.isRequired
@@ -26,14 +30,14 @@ const contextTypes = {
   __: PropTypes.func
 };
 
-class ManageIntegrationForm extends Component {
+class ManageIntegration extends Component {
   constructor(props) {
     super(props);
 
-    const currentChannel = props.currentChannel || {};
+    const current = props.current || {};
 
     this.state = {
-      integrations: currentChannel.integrations || [],
+      integrations: current.integrations || [],
       hasMore: true,
       searchValue: ''
     };
@@ -64,20 +68,6 @@ class ManageIntegrationForm extends Component {
     const { allIntegrations, perPage } = newProps;
 
     this.setState({ hasMore: allIntegrations.length === perPage });
-  }
-
-  handleChange(type, integration) {
-    const { integrations } = this.state;
-
-    if (type === 'add') {
-      this.setState({
-        integrations: [...integrations, integration]
-      });
-    } else {
-      this.setState({
-        integrations: integrations.filter(item => item !== integration)
-      });
-    }
   }
 
   search(e) {
@@ -118,17 +108,25 @@ class ManageIntegrationForm extends Component {
     return icon;
   }
 
-  renderRow(integration, icon) {
-    const brand = integration.brand || {};
+  handleChange(type, integration) {
+    const { integrations } = this.state;
 
-    if (
-      icon === 'add' &&
-      this.state.integrations.some(e => e._id === integration._id)
-    ) {
-      return null;
+    if (type === 'add') {
+      this.setState({
+        integrations: [...integrations, integration]
+      });
+    } else {
+      this.setState({
+        integrations: integrations.filter(item => item !== integration)
+      });
     }
+  }
 
-    return (
+  renderRowContent(integration, icon) {
+    const brand = integration.brand || {};
+    const { refetch, type } = this.props;
+
+    const actionTrigger = (
       <li
         key={integration._id}
         onClick={() => this.handleChange(icon, integration)}
@@ -146,15 +144,44 @@ class ManageIntegrationForm extends Component {
         <Icon icon={icon} />
       </li>
     );
+
+    if (type === 'brand' && icon !== 'add') {
+      return (
+        <ModalTrigger
+          key={integration._id}
+          title="Choose new brand"
+          trigger={actionTrigger}
+        >
+          <ChooseBrand
+            integration={integration}
+            refetch={refetch}
+            onSave={() => this.handleChange(icon, integration)}
+          />
+        </ModalTrigger>
+      );
+    }
+
+    return actionTrigger;
+  }
+
+  renderRow(integration, icon) {
+    if (
+      icon === 'add' &&
+      this.state.integrations.some(e => e._id === integration._id)
+    ) {
+      return null;
+    }
+
+    return this.renderRowContent(integration, icon);
   }
 
   render() {
     const { __ } = this.context;
-    const { allIntegrations, currentChannel } = this.props;
+    const { allIntegrations, current } = this.props;
     const selectedIntegrations = this.state.integrations;
 
     return (
-      <Fragment>
+      <div>
         <Columns>
           <Column>
             <FormControl
@@ -181,8 +208,7 @@ class ManageIntegrationForm extends Component {
           </Column>
           <Column>
             <Title full>
-              {currentChannel.name}
-              {__('`s integration')}
+              {current.name}&apos;s integration
               <span>({selectedIntegrations.length})</span>
             </Title>
             <ul>
@@ -204,12 +230,12 @@ class ManageIntegrationForm extends Component {
             Save
           </Button>
         </ModalFooter>
-      </Fragment>
+      </div>
     );
   }
 }
 
-ManageIntegrationForm.propTypes = propTypes;
-ManageIntegrationForm.contextTypes = contextTypes;
+ManageIntegration.propTypes = propTypes;
+ManageIntegration.contextTypes = contextTypes;
 
-export default ManageIntegrationForm;
+export default ManageIntegration;
