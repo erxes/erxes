@@ -6,8 +6,8 @@ const histories = `
       failed
       total
       contentType
-      importedDate
-      importedUser {
+      date
+      user {
         details {
           fullName
         }

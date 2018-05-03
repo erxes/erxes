@@ -9,15 +9,15 @@ const propTypes = {
 };
 
 function HistoryRow({ history, removeHistory }) {
-  const { importedUser = {} } = history;
-  const { details = {} } = importedUser;
+  const { user = {} } = history;
+  const { details = {} } = user;
 
   return (
     <tr>
       <td>{history.success || 0}</td>
       <td>{history.failed || 1}</td>
       <td>{history.total || 1}</td>
-      <td>{history.importedDate || 1}</td>
+      <td>{history.date || 1}</td>
       <td>{details.fullName || '-'}</td>
       <td>
         <Button
