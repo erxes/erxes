@@ -42,7 +42,7 @@ class Settings extends Component {
               '/settings/properties'
             )}
             {this.renderBox(
-              'Import Histories',
+              'Import histories',
               '/images/icons/erxes-01.svg',
               '/settings/importHistories'
             )}

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { EmptyState, Table } from 'modules/common/components';
-import Sidebar from './Sidebar';
+import Sidebar from '../../properties/components/Sidebar';
 import HistoryRow from './Row';
 
 const propTypes = {
@@ -25,6 +25,7 @@ class Histories extends Component {
 
   renderHistories() {
     const { histories, removeHistory } = this.props;
+    const { __ } = this.context;
 
     if (histories.length === 0) {
       return <EmptyState icon="circular" text="There arent't any imports" />;
@@ -34,11 +35,11 @@ class Histories extends Component {
       <Table>
         <thead>
           <tr>
-            <th>Success</th>
-            <th>Failed</th>
-            <th>Total</th>
-            <th>Imported Date</th>
-            <th>Imported User</th>
+            <th>{__('Success')}</th>
+            <th>{__('Failed')}</th>
+            <th>{__('Total')}</th>
+            <th>{__('Imported Date')}</th>
+            <th>{__('Imported User')}</th>
             <th />
           </tr>
         </thead>
@@ -70,7 +71,9 @@ class Histories extends Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar currentType={currentType} />}
+        leftSidebar={
+          <Sidebar title="Import histories" currentType={currentType} />
+        }
         content={this.renderHistories()}
       />
     );
