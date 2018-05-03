@@ -39,6 +39,7 @@ import {
   Products,
   Configs,
   FieldsGroups,
+  ImportHistory,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -275,9 +276,7 @@ export const integrationFactory = async (params = {}) => {
     formData:
       params.formData === 'form'
         ? params.formData
-        : kind === 'form'
-          ? { thankContent: 'thankContent' }
-          : null,
+        : kind === 'form' ? { thankContent: 'thankContent' } : null,
     tagIds: params.tagIds || [],
   };
 
@@ -494,4 +493,18 @@ export const fieldGroupFactory = async params => {
   const groupObj = await FieldsGroups.createGroup(doc, faker.random.word());
 
   return FieldsGroups.updateGroup(groupObj._id, params, faker.random.word());
+};
+
+export const importHistoryFactory = async params => {
+  const user = await userFactory({});
+
+  const doc = {
+    failed: params.failed || faker.random.number(),
+    total: params.total || faker.random.number(),
+    success: params.success || faker.random.number(),
+    ids: params.ids || [],
+    contentType: params.contentType || 'customer',
+  };
+
+  return ImportHistory.createHistory({ ...doc, ...params, user }, faker.random.word());
 };

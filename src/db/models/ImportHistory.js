@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { field } from './utils';
-import { Customers } from './';
+import { Customers, Companies } from './';
 /*
  * Xls import history
  */
@@ -32,7 +32,7 @@ class ImportHistory {
    * @param {Number} failed - Failed counts
    * @param {Number} total - Total customers in xls file
    * @param {String} contentType - Coc type
-   * @param {String[]} customerIds - Imported customerIds
+   * @param {String[]} ids - Imported coc ids
    *
    * @return {Promise} newly created history object
    */
@@ -53,11 +53,15 @@ class ImportHistory {
   static async removeHistory(_id) {
     const historyObj = await this.findOne({ _id });
 
-    const { customerIds = [] } = historyObj;
+    const { ids = [], contentType } = historyObj;
 
-    for (let customerId of customerIds) {
-      await Customers.remove({ _id: customerId });
+    let collection = Customers;
+
+    if (contentType === 'company') {
+      collection = Companies;
     }
+
+    await collection.remove({ _id: { $in: ids } });
 
     await this.remove({ _id });
 
