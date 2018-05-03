@@ -80,11 +80,7 @@ class CustomerListContainer extends Bulk {
           variables: { ...queryParams }
         })
         .then(({ data }) => {
-          const myWindow = window.open(data.customersExport, '_blank');
-
-          setTimeout(() => {
-            myWindow.close();
-          }, 1000);
+          window.open(data.customersExport, '_blank');
         })
         .catch(error => {
           Alert.error(error.message);
