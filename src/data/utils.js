@@ -200,12 +200,11 @@ export const importXlsFile = async (file, type, { user }) => {
     const downloadDir = `${__dirname}/../private/xlsImports/${file.name}`;
 
     // Converting pipe into promise
-    const pipe = stream => {
-      return new Promise((resolve, reject) => {
+    const pipe = stream =>
+      new Promise((resolve, reject) => {
         stream.on('finish', resolve);
         stream.on('error', reject);
       });
-    };
 
     // Creating streams
     const writeStream = fs.createWriteStream(downloadDir);
