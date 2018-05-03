@@ -23,8 +23,8 @@ describe('Import history queries', () => {
         importHistories(type: $type) {
           _id
           contentType
-          importedDate
-          importedUser {
+          date
+          user {
             details {
               fullName
             }
