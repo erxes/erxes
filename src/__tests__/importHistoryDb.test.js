@@ -17,7 +17,7 @@ describe('Import history model test', () => {
     await Users.remove({});
   });
 
-  test('Create internalNote', async () => {
+  test('Create import history', async () => {
     const customer = await customerFactory({});
     const user = await userFactory({});
 
