@@ -216,34 +216,37 @@ export const importXlsFile = async (file, type, { user }) => {
         // After finished saving instantly create and load workbook from xls
         const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
 
-        if (type === 'customers') {
-          const usedSheets = workbook
-            .sheet(0)
-            .usedRange()
-            .value();
+        const usedSheets = workbook
+          .sheet(0)
+          .usedRange()
+          .value();
 
-          // Getting columns
-          const fieldNames = usedSheets[0];
+        // Getting columns
+        const fieldNames = usedSheets[0];
 
-          // Removing column
-          usedSheets.shift();
+        let collection = null;
 
-          if (type === 'customers') {
-            // Importing customers
-            const response = await Customers.bulkInsert(fieldNames, usedSheets, { user });
+        // Removing column
+        usedSheets.shift();
 
-            resolve(response);
-          }
+        switch (type) {
+          case 'customers':
+            collection = Customers;
+            break;
 
-          if (type === 'company') {
-            // Importing companies
-            const response = await Companies.bulkInsert(fieldNames, usedSheets, { user });
+          case 'companies':
+            collection = Companies;
+            break;
 
-            resolve(response);
-          }
+          default:
+            reject('Invalid import type');
         }
 
-        reject('Invalid import type');
+        const response = await collection.bulkInsert(fieldNames, usedSheets, {
+          user,
+        });
+
+        resolve(response);
       })
       .catch(e => {
         reject(e);
