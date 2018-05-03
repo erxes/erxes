@@ -121,9 +121,10 @@ export class SaveWebhookResponse {
       ...findSelector,
     });
 
-    // create new conversation
+    // create new conversation when there is no conversation found or
+    // found conversation is closed
     if (!conversation || conversation.status === CONVERSATION_STATUSES.CLOSED) {
-      const { _id } = await Conversations.createConversation({
+      conversation = await Conversations.createConversation({
         integrationId: this.integration._id,
         customerId: await this.getOrCreateCustomer(senderId),
         status,
@@ -135,8 +136,6 @@ export class SaveWebhookResponse {
           pageId: this.currentPageId,
         },
       });
-
-      conversation = await Conversations.findOne({ _id });
     } else {
       conversation = await Conversations.reopen(conversation._id);
     }
