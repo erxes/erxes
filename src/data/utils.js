@@ -216,6 +216,8 @@ export const importXlsFile = async (file, type, { user }) => {
         // After finished saving instantly create and load workbook from xls
         const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
 
+        fs.unlink(downloadDir);
+
         const usedSheets = workbook
           .sheet(0)
           .usedRange()
