@@ -93,7 +93,9 @@ class CustomerListContainer extends Bulk {
       uploadHandler({
         type: 'import',
         file: xlsFile,
-        importType: 'customers',
+        extraFormData: [{ key: 'type', value: 'customers' }],
+        url: `${process.env.REACT_APP_API_URL}/import-file`,
+        responseType: 'json',
 
         afterUpload: ({ response }) => {
           if (response.length > 0) {

@@ -1,24 +1,15 @@
 const uploadHandler = params => {
-  const {
-    // Blob object
-    file,
+  const { REACT_APP_API_URL } = process.env;
 
+  const {
+    file,
     beforeUpload,
     afterUpload,
-    // for preview purpose
     afterRead,
-    // import or upload type
-    type,
-    // import type customers and more
-    importType
+    url = `${REACT_APP_API_URL}/upload-file`,
+    responseType = 'text',
+    extraFormData = []
   } = params;
-
-  const { REACT_APP_API_URL } = process.env;
-  let url = `${REACT_APP_API_URL}/upload-file`;
-
-  if (type === 'import') {
-    url = `${REACT_APP_API_URL}/import-file`;
-  }
 
   // initiate upload file reader
   const uploadReader = new FileReader();
@@ -35,9 +26,8 @@ const uploadHandler = params => {
     const formData = new FormData();
     formData.append('file', file);
 
-    // Attaching import type
-    if (importType) {
-      formData.append('type', importType);
+    for (const data of extraFormData) {
+      formData.append(data.key, data.value);
     }
 
     fetch(url, {
@@ -49,7 +39,7 @@ const uploadHandler = params => {
       }
     })
       .then(response => {
-        return response.text();
+        return response[responseType]();
       })
 
       .then(response => {
