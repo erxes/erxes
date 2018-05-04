@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import {
   Button,
+  Form,
   FormGroup,
   FormControl,
   ControlLabel
@@ -46,32 +47,20 @@ class CustomerForm extends React.Component {
     this.handleUserSearch = this.handleUserSearch.bind(this);
   }
 
-  action(e) {
-    e.preventDefault();
-
+  action(doc) {
     this.props.action({
       doc: {
-        firstName: document.getElementById('customer-firstname').value,
-        lastName: document.getElementById('customer-lastname').value,
-        email: document.getElementById('customer-email').value,
-        ownerId: this.state.ownerId,
-        phone: document.getElementById('customer-phone').value,
-        position: document.getElementById('customer-position').value,
-        department: document.getElementById('customer-department').value,
-        leadStatus: document.getElementById('customer-leadStatus').value,
-        lifecycleState: document.getElementById('customer-lifecycleState')
-          .value,
-        hasAuthority: this.state.hasAuthority,
-        description: document.getElementById('customer-description').value,
+        ...doc,
         doNotDisturb: this.state.doNotDisturb,
-
+        hasAuthority: this.state.hasAuthority,
+        ownerId: this.state.ownerId,
         links: {
-          linkedIn: document.getElementById('customer-linkedin').value,
-          twitter: document.getElementById('customer-twitter').value,
-          facebook: document.getElementById('customer-facebook').value,
-          github: document.getElementById('customer-github').value,
-          youtube: document.getElementById('customer-youtube').value,
-          website: document.getElementById('customer-website').value
+          linkedIn: doc.linkedIn,
+          twitter: doc.twitter,
+          facebook: doc.facebook,
+          github: doc.gitub,
+          youtube: doc.youtube,
+          website: doc.website
         }
       }
     });
@@ -117,22 +106,24 @@ class CustomerForm extends React.Component {
     const { users } = this.state;
 
     return (
-      <form onSubmit={e => this.action(e)}>
+      <Form onSubmit={e => this.action(e)}>
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('First Name', {
-              defaultValue: customer.firstName || '',
+              value: customer.firstName || '',
               autoFocus: true,
-              required: true,
-              id: 'customer-firstname'
+              name: 'firstName',
+              validations: 'isValue',
+              validationError: 'Please enter a first name'
             })}
 
             {this.renderFormGroup('Email', {
-              id: 'customer-email',
               type: 'email',
-              defaultValue:
+              value:
                 customer.email || this.getVisitorInfo(customer, 'email') || '-',
-              required: true
+              name: 'email',
+              validations: 'isEmail',
+              validationError: 'Not valid email format'
             })}
 
             <FormGroup>
@@ -152,45 +143,57 @@ class CustomerForm extends React.Component {
             </FormGroup>
 
             {this.renderFormGroup('Department', {
-              id: 'customer-department',
-              defaultValue: customer.department || ''
+              value: customer.department || '',
+              name: 'department',
+              validations: 'isValue',
+              validationError: 'Please enter a department'
             })}
 
             {this.renderFormGroup('Lifecycle State', {
-              id: 'customer-lifecycleState',
               componentClass: 'select',
-              defaultValue: customer.lifecycleState || '',
+              name: 'lifecycleState',
+              validations: {},
+              value: customer.lifecycleState || '',
               options: this.generateConstantParams(
                 CUSTOMER_LIFECYCLE_STATE_TYPES
               )
             })}
 
             {this.renderFormGroup('Description', {
-              id: 'customer-description',
-              defaultValue: customer.description || ''
+              value: customer.description || '',
+              name: 'description',
+              validations: 'isValue',
+              validationError: 'Please enter a description'
             })}
           </FormColumn>
           <FormColumn>
             {this.renderFormGroup('Last Name', {
-              id: 'customer-lastname',
-              defaultValue: customer.lastName || ''
+              value: customer.lastName || '',
+              name: 'lastName',
+              validations: 'isValue',
+              validationError: 'Please enter a last name'
             })}
 
             {this.renderFormGroup('Phone', {
-              id: 'customer-phone',
-              defaultValue:
+              name: 'phone',
+              validations: 'isValue',
+              validationError: 'Please enter a phone',
+              value:
                 customer.phone || this.getVisitorInfo(customer, 'phone') || '-'
             })}
 
             {this.renderFormGroup('Position', {
-              id: 'customer-position',
-              defaultValue: customer.position || ''
+              name: 'position',
+              validations: 'isValue',
+              validationError: 'Please enter a position',
+              value: customer.position || ''
             })}
 
             {this.renderFormGroup('Lead Status', {
-              id: 'customer-leadStatus',
               componentClass: 'select',
-              defaultValue: customer.leadStatus || '',
+              name: 'leadStatus',
+              validations: {},
+              value: customer.leadStatus || '',
               options: this.generateConstantParams(CUSTOMER_LEAD_STATUS_TYPES)
             })}
 
@@ -235,34 +238,46 @@ class CustomerForm extends React.Component {
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('LinkedIn', {
-              id: 'customer-linkedin',
-              defaultValue: links.linkedIn || ''
+              name: 'linkedin',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.linkedIn || ''
             })}
 
             {this.renderFormGroup('Twitter', {
-              id: 'customer-twitter',
-              defaultValue: links.twitter || ''
+              name: 'twitter',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.twitter || ''
             })}
 
             {this.renderFormGroup('Facebook', {
-              id: 'customer-facebook',
-              defaultValue: links.facebook || ''
+              name: 'facebook',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.facebook || ''
             })}
           </FormColumn>
           <FormColumn>
             {this.renderFormGroup('Github', {
-              id: 'customer-github',
-              defaultValue: links.github || ''
+              name: 'github',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.github || ''
             })}
 
             {this.renderFormGroup('Youtube', {
-              id: 'customer-youtube',
-              defaultValue: links.youtube || ''
+              name: 'youtube',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.youtube || ''
             })}
 
             {this.renderFormGroup('Website', {
-              id: 'customer-website',
-              defaultValue: links.website || ''
+              name: 'website',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.website || ''
             })}
           </FormColumn>
         </FormWrapper>
@@ -280,7 +295,7 @@ class CustomerForm extends React.Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }

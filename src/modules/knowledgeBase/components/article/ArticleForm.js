@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
 import {
+  Form,
   FormGroup,
   ControlLabel,
   FormControl,
@@ -40,15 +41,12 @@ class ArticleForm extends Component {
     };
 
     this.onChange = this.onChange.bind(this);
-    this.getContent = this.getContent.bind(this);
     this.save = this.save.bind(this);
   }
 
-  save(e) {
-    e.preventDefault();
-
+  save(doc) {
     this.props.save(
-      this.generateDoc(),
+      this.generateDoc(doc),
       () => {
         this.context.closeModal();
       },
@@ -56,21 +54,12 @@ class ArticleForm extends Component {
     );
   }
 
-  getCurrentStatus() {
-    const { article } = this.props;
-    if (article == null) {
-      return 'draft';
-    }
-    return article.status;
-  }
-
-  generateDoc() {
+  generateDoc(doc) {
     return {
       doc: {
         doc: {
-          title: document.getElementById('knowledgebase-article-title').value,
-          summary: document.getElementById('knowledgebase-article-summary')
-            .value,
+          title: doc.title,
+          summary: doc.summary,
           content: this.getContent(this.state.editorState),
           status: this.state.status,
           categoryIds: [this.props.currentCategoryId]
@@ -81,6 +70,14 @@ class ArticleForm extends Component {
 
   getContent(editorState) {
     return toHTML(editorState);
+  }
+
+  getCurrentStatus() {
+    const { article } = this.props;
+    if (article == null) {
+      return 'draft';
+    }
+    return article.status;
   }
 
   onChange(editorState) {
@@ -100,19 +97,20 @@ class ArticleForm extends Component {
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
-            id="knowledgebase-article-title"
+            name="title"
             type="text"
-            defaultValue={article.title}
-            required
+            validations="isValue"
+            validationError="Please enter a title"
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Summary</ControlLabel>
           <FormControl
-            id="knowledgebase-article-summary"
+            name="summary"
             type="text"
-            defaultValue={article.summary}
+            validations="isValue"
+            validationError="Please enter a summary"
           />
         </FormGroup>
 
@@ -124,8 +122,10 @@ class ArticleForm extends Component {
         <FormGroup>
           <ControlLabel>Status</ControlLabel>
           <FormControl
-            id="knowledgebase-article-status"
             componentClass="select"
+            name="status"
+            validations="isValue"
+            validationError="Please select a status"
             placeholder={__('select')}
             onChange={e => {
               this.setState({ status: e.target.value });
@@ -149,7 +149,7 @@ class ArticleForm extends Component {
     };
 
     return (
-      <form onSubmit={this.save}>
+      <Form onSubmit={this.save}>
         {this.renderContent(this.props.article || {})}
         <ModalFooter>
           <Button
@@ -165,7 +165,7 @@ class ArticleForm extends Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }

@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import {
   Button,
+  Form,
   FormGroup,
   ControlLabel,
   FormControl,
@@ -64,15 +65,13 @@ class Common extends Component {
     this.updateInstallCodeValue(e.target.value);
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-
+  handleSubmit(doc) {
     this.context.closeModal();
 
     this.props.save({
-      name: document.getElementById('integration-name').value,
-      brandId: document.getElementById('selectBrand').value,
-      languageCode: document.getElementById('languageCode').value
+      name: doc.integrationName,
+      brandId: doc.selectBrand,
+      languageCode: doc.languageCode
     });
   }
 
@@ -80,20 +79,21 @@ class Common extends Component {
     const integration = this.props.integration || {};
 
     return (
-      <form onSubmit={this.handleSubmit}>
+      <Form onSubmit={this.handleSubmit}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
           <FormControl
-            id="integration-name"
+            name="integrationName"
+            validations="isValue"
+            validationError="Please enter a name"
             type="text"
-            defaultValue={integration.name}
-            required
+            value={integration.name}
           />
         </FormGroup>
 
         <SelectBrand
           brands={this.props.brands}
-          defaultValue={integration.brandId}
+          value={integration.brandId}
           onChange={this.handleBrandChange}
         />
 
@@ -102,8 +102,10 @@ class Common extends Component {
 
           <FormControl
             componentClass="select"
-            defaultValue={integration.languageCode || 'en'}
-            id="languageCode"
+            value={integration.languageCode || 'en'}
+            validations="isValue"
+            validationError="Please select a language"
+            name="languageCode"
           >
             <option />
             <option value="mn">Монгол</option>
@@ -144,7 +146,7 @@ class Common extends Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }

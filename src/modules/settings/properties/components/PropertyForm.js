@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
   ControlLabel,
+  Form,
   FormGroup,
   FormControl,
   Button,
@@ -71,14 +72,14 @@ class PropertyForm extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  onSubmit(e) {
-    e.preventDefault();
-    const groupId = document.getElementById('groupId').value;
-    const validation = document.getElementById('validation').value;
-    const text = document.getElementById('text').value;
-    const description = document.getElementById('description').value;
+  onSubmit(args) {
+    const groupId = args.groupId;
+    const validation = args.validation;
+    const text = args.text;
+    const description = args.description;
+    const type = args.type;
 
-    const { type, options } = this.state;
+    const { options } = this.state;
 
     const doc = {
       type,
@@ -202,27 +203,37 @@ class PropertyForm extends Component {
     const { type } = this.state;
 
     return (
-      <form onSubmit={this.onSubmit}>
+      <Form onSubmit={this.onSubmit}>
         <FormGroup>
           <ControlLabel htmlFor="text">Name:</ControlLabel>
-          <FormControl type="text" id="text" defaultValue={field.text || ''} />
+          <FormControl
+            type="text"
+            name="text"
+            validations="isValue"
+            validationError="Please enter a name"
+            value={field.text || ''}
+          />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel htmlFor="description">Description:</ControlLabel>
           <FormControl
-            id="description"
+            name="description"
             componentClass="textarea"
-            defaultValue={field.description || ''}
+            validations="isValue"
+            validationError="Please enter a description"
+            value={field.description || ''}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel htmlFor="description">Group:</ControlLabel>
           <FormControl
-            id="groupId"
+            name="groupId"
             componentClass="select"
-            defaultValue={field.groupId || groups[0]._id}
+            validations="isValue"
+            validationError="Please select a group"
+            value={field.groupId || groups[0]._id}
           >
             {groups.map(group => {
               return (
@@ -239,8 +250,10 @@ class PropertyForm extends Component {
 
           <FormControl
             componentClass="select"
+            name="type"
             value={type}
-            onChange={this.onTypeChange}
+            validations="isValue"
+            validationError="Please select a type"
           >
             <option />
             <option value="input">Input</option>
@@ -257,8 +270,10 @@ class PropertyForm extends Component {
 
           <FormControl
             componentClass="select"
-            id="validation"
-            defaultValue={field.validation || ''}
+            name="validation"
+            validations="isValue"
+            validationError="Please select a validation type"
+            value={field.validation || ''}
           >
             <option />
             <option value="email">Email</option>
@@ -282,7 +297,7 @@ class PropertyForm extends Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }

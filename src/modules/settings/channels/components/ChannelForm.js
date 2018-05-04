@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import {
+  Form,
   FormGroup,
   FormControl,
   ControlLabel,
@@ -35,11 +36,9 @@ class ChannelForm extends Component {
     };
   }
 
-  save(e) {
-    e.preventDefault();
-
+  save(doc) {
     this.props.save(
-      this.generateDoc(),
+      this.generateDoc(doc),
       () => {
         this.context.closeModal();
       },
@@ -58,11 +57,11 @@ class ChannelForm extends Component {
     }));
   }
 
-  generateDoc() {
+  generateDoc(doc) {
     return {
       doc: {
-        name: document.getElementById('channel-name').value,
-        description: document.getElementById('channel-description').value,
+        name: doc.channelName,
+        description: doc.channelDescription,
         memberIds: this.collectValues(this.state.selectedMembers)
       }
     };
@@ -81,10 +80,11 @@ class ChannelForm extends Component {
           <ControlLabel>Name</ControlLabel>
 
           <FormControl
-            id="channel-name"
-            defaultValue={object.name}
+            name="channelName"
+            value={object.name}
             type="text"
-            required
+            validations="isValue"
+            validationError="Please enter a name"
           />
         </FormGroup>
 
@@ -92,10 +92,12 @@ class ChannelForm extends Component {
           <ControlLabel>Description</ControlLabel>
 
           <FormControl
-            id="channel-description"
+            name="channelDescription"
             componentClass="textarea"
+            validations="isValue"
+            validationError="Please enter a description"
             rows={5}
-            defaultValue={object.description}
+            value={object.description}
           />
         </FormGroup>
 
@@ -122,7 +124,7 @@ class ChannelForm extends Component {
     };
 
     return (
-      <form onSubmit={this.save}>
+      <Form onSubmit={this.save}>
         {this.renderContent(this.props.channel || {})}
         <ModalFooter>
           <Button
@@ -138,7 +140,7 @@ class ChannelForm extends Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }

@@ -65,30 +65,29 @@ class UserForm extends CommonForm {
     );
   }
 
-  generateDoc() {
+  generateDoc(doc) {
     return {
       doc: {
-        username: document.getElementById('username').value,
-        email: document.getElementById('email').value,
-        role: document.getElementById('role').value,
+        username: doc.username,
+        email: doc.email,
+        role: doc.role,
         details: {
           avatar: this.state.avatar,
-          position: document.getElementById('position').value,
-          fullName: document.getElementById('fullName').value,
-          location: document.getElementById('user-location').value,
-          description: document.getElementById('description').value
+          position: doc.position,
+          fullName: doc.fullName,
+          location: doc.userLocation,
+          description: doc.description
         },
         channelIds: this.collectValues(this.state.selectedChannels),
-        password: document.getElementById('password').value,
-        passwordConfirmation: document.getElementById('password-confirmation')
-          .value,
+        password: doc.password,
+        passwordConfirmation: doc.passwordConfirmation,
         links: {
-          linkedIn: document.getElementById('linkedin').value,
-          twitter: document.getElementById('twitter').value,
-          facebook: document.getElementById('facebook').value,
-          youtube: document.getElementById('youtube').value,
-          github: document.getElementById('github').value,
-          website: document.getElementById('website').value
+          linkedIn: doc.linkedin,
+          twitter: doc.twitter,
+          facebook: doc.facebook,
+          youtube: doc.youtube,
+          github: doc.github,
+          website: doc.website
         }
       }
     };
@@ -107,8 +106,10 @@ class UserForm extends CommonForm {
 
           <FormControl
             componentClass="select"
-            defaultValue={user.role}
-            id="role"
+            value={user.role}
+            validationError="Please select a role"
+            validations="isValue"
+            name="role"
           >
             <option value="admin">{__('Admin')}</option>
             <option value="contributor">{__('Contributor')}</option>
@@ -121,12 +122,22 @@ class UserForm extends CommonForm {
 
         <FormGroup>
           <ControlLabel>Password</ControlLabel>
-          <FormControl id="password" type="password" />
+          <FormControl
+            name="password"
+            validations="isValue"
+            validationError="Please provide a password"
+            type="password"
+          />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Password confirmation</ControlLabel>
-          <FormControl id="password-confirmation" type="password" />
+          <FormControl
+            name="passwordConfirmation"
+            validations="equalsField:password"
+            validationError="Password does not match"
+            type="password"
+          />
         </FormGroup>
       </div>
     );

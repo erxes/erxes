@@ -85,21 +85,31 @@ class UserCommonInfos extends Component {
               <ControlLabel>Name</ControlLabel>
               <FormControl
                 type="text"
-                id="fullName"
-                defaultValue={details.fullName || ''}
+                name="fullName"
+                validations="isValue"
+                validationError="Please enter a name"
+                value={details.fullName || ''}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Email</ControlLabel>
-              <FormControl type="text" id="email" defaultValue={user.email} />
+              <FormControl
+                type="text"
+                name="email"
+                validations="isEmail"
+                validationError="Not valid email format"
+                value={user.email}
+              />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
                 type="text"
-                id="description"
+                name="description"
+                validations="isValue"
+                validationError="Please enter a description"
                 componentClass="textarea"
-                defaultValue={details.description || ''}
+                value={details.description || ''}
               />
             </FormGroup>
           </FormColumn>
@@ -108,24 +118,30 @@ class UserCommonInfos extends Component {
               <ControlLabel>Username</ControlLabel>
               <FormControl
                 type="text"
-                id="username"
-                defaultValue={user.username}
+                name="username"
+                validations="isValue"
+                validationError="Please enter a username"
+                value={user.username}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Position</ControlLabel>
               <FormControl
                 type="text"
-                id="position"
-                defaultValue={details.position || ''}
+                name="position"
+                validations="isValue"
+                validationError="Please enter a position"
+                value={details.position || ''}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Location</ControlLabel>
               <FormControl
                 componentClass="select"
-                defaultValue={details.location}
-                id="user-location"
+                value={details.location}
+                validations="isValue"
+                validationError="Please provide your location"
+                name="userLocation"
                 options={timezones}
               />
             </FormGroup>
@@ -138,24 +154,30 @@ class UserCommonInfos extends Component {
               <ControlLabel>LinkedIn</ControlLabel>
               <FormControl
                 type="text"
-                id="linkedin"
-                defaultValue={links.linkedIn || ''}
+                name="linkedin"
+                validations="isUrl"
+                validationError="Not a valid URL format"
+                value={links.linkedIn || ''}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Twitter</ControlLabel>
               <FormControl
                 type="text"
-                id="twitter"
-                defaultValue={links.twitter || ''}
+                name="twitter"
+                validations="isUrl"
+                validationError="Not a valid URL format"
+                value={links.twitter || ''}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Facebook</ControlLabel>
               <FormControl
                 type="text"
-                id="facebook"
-                defaultValue={links.facebook || ''}
+                name="facebook"
+                validations="isUrl"
+                validationError="Not a valid URL format"
+                value={links.facebook || ''}
               />
             </FormGroup>
           </FormColumn>
@@ -164,24 +186,30 @@ class UserCommonInfos extends Component {
               <ControlLabel>Youtube</ControlLabel>
               <FormControl
                 type="text"
-                id="youtube"
-                defaultValue={links.youtube || ''}
+                name="youtube"
+                validations="isUrl"
+                validationError="Not a valid URL format"
+                value={links.youtube || ''}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Github</ControlLabel>
               <FormControl
                 type="text"
-                id="github"
-                defaultValue={links.github || ''}
+                name="github"
+                validations="isUrl"
+                validationError="Not a valid URL format"
+                value={links.github || ''}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Website</ControlLabel>
               <FormControl
                 type="text"
-                id="website"
-                defaultValue={links.website || ''}
+                name="website"
+                validations="isUrl"
+                validationError="Not a valid URL format"
+                value={links.website || ''}
               />
             </FormGroup>
           </FormColumn>

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import { withFormsy, addValidationRule } from 'formsy-react';
 import Textarea from './Textarea';
 import {
   Input,
@@ -11,12 +12,13 @@ import {
 } from './styles';
 
 const propTypes = {
+  validations: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  validationError: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  getErrorMessages: PropTypes.func,
   children: PropTypes.node,
   id: PropTypes.string,
   onChange: PropTypes.func,
   onClick: PropTypes.func,
-  defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  defaultChecked: PropTypes.bool,
   checked: PropTypes.bool,
   placeholder: PropTypes.string,
   type: PropTypes.string,
@@ -38,8 +40,6 @@ const propTypes = {
 
 const defaultProps = {
   componentClass: 'input',
-  required: false,
-  defaultChecked: false,
   disabled: false
 };
 
@@ -55,63 +55,56 @@ const renderElement = (Element, attributes, type, child) => {
   );
 };
 
-class FormControl extends React.Component {
+addValidationRule('isValue', function(values, value) {
+  return Boolean(value);
+});
+
+class EnhancedFormControl extends React.Component {
   render() {
     const props = this.props;
     const childNode = props.children;
     const elementType = props.componentClass;
 
-    // cancel custom browser default form validation error
-    const onChange = e => {
-      e.target.classList.remove('form-invalid');
+    const updatedProps = { ...props };
 
-      props.onChange && props.onChange(e);
-    };
+    delete updatedProps.children;
 
     const attributes = {
-      onChange,
-      onKeyPress: props.onKeyPress,
-      onClick: props.onClick,
-      value: props.value,
-      defaultValue: props.defaultValue,
-      [props.defaultChecked
-        ? 'defaultChecked'
-        : 'checked']: props.defaultChecked
-        ? props.defaultChecked
-        : props.checked,
-      placeholder: props.placeholder,
-      type: props.type,
-      name: props.name,
-      round: props.round,
-      required: props.required,
-      disabled: props.disabled,
-      onFocus: props.onFocus,
-      autoFocus: props.autoFocus,
-      min: props.min,
-      max: props.max,
-      id: props.id
+      ...updatedProps,
+      checked: props.checked
     };
+
+    const error =
+      typeof props.isPristine === 'function'
+        ? props.isPristine() ? null : props.getErrorMessage()
+        : null;
 
     if (elementType === 'select') {
       if (props.options) {
         return (
-          <SelectWrapper>
-            <Select {...attributes}>
-              {props.options.map((option, index) => {
-                return (
-                  <option key={index} value={option.value || ''}>
-                    {option.label || ''}
-                  </option>
-                );
-              })}
-            </Select>
-          </SelectWrapper>
+          <Fragment>
+            <SelectWrapper>
+              <Select {...attributes}>
+                {props.options.map((option, index) => {
+                  return (
+                    <option key={index} value={option.value || ''}>
+                      {option.label || ''}
+                    </option>
+                  );
+                })}
+              </Select>
+            </SelectWrapper>
+            <span>{error}</span>
+          </Fragment>
         );
       }
       return (
-        <SelectWrapper>
-          <Select {...attributes}>{childNode}</Select>
-        </SelectWrapper>
+        <Fragment>
+          <SelectWrapper>
+            <Select {...attributes}>{childNode}</Select>
+          </SelectWrapper>
+          <span>{error}</span>
+        </Fragment>
       );
     }
 
@@ -135,12 +128,51 @@ class FormControl extends React.Component {
     }
 
     if (elementType === 'textarea') {
-      return <Textarea {...props} />;
+      return (
+        <Fragment>
+          <Textarea {...props} />
+          <span>{error}</span>
+        </Fragment>
+      );
     }
 
-    return <Input {...attributes} />;
+    return (
+      <Fragment>
+        <Input {...attributes} />
+        <span>{error}</span>
+      </Fragment>
+    );
   }
 }
+
+EnhancedFormControl.propTypes = {
+  getErrorMessage: PropTypes.func,
+  isPristine: PropTypes.func
+};
+
+class WithFormsy extends React.Component {
+  render() {
+    const props = { ...this.props };
+
+    props.onChange = e => {
+      return props.setValue(e.currentTarget.value);
+    };
+
+    props.value = props.getValue() || '';
+
+    return <EnhancedFormControl {...props} />;
+  }
+}
+
+const WithFormsyContainer = withFormsy(WithFormsy);
+
+const FormControl = props => {
+  if (props.validations) {
+    return <WithFormsyContainer {...props} />;
+  }
+
+  return <EnhancedFormControl {...props} />;
+};
 
 FormControl.propTypes = propTypes;
 FormControl.defaultProps = defaultProps;

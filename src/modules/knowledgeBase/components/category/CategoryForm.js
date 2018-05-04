@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import {
+  Form,
   FormGroup,
   ControlLabel,
   FormControl,
@@ -34,11 +35,9 @@ class CategoryForm extends Component {
     this.save = this.save.bind(this);
   }
 
-  save(e) {
-    e.preventDefault();
-
+  save(doc) {
     this.props.save(
-      this.generateDoc(),
+      this.generateDoc(doc),
       () => {
         this.context.closeModal();
       },
@@ -66,17 +65,15 @@ class CategoryForm extends Component {
     );
   }
 
-  generateDoc() {
+  generateDoc(doc) {
     const { category, currentTopicId } = this.props;
 
     return {
       ...category,
       doc: {
         doc: {
-          title: document.getElementById('knowledgebase-category-title').value,
-          description: document.getElementById(
-            'knowledgebase-category-description'
-          ).value,
+          title: doc.knowledgebaseCategoryTitle,
+          description: doc.knowledgebaseCategoryDescription,
           icon: this.state.selectedIcon,
           topicIds: [currentTopicId]
         }
@@ -90,19 +87,22 @@ class CategoryForm extends Component {
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
-            id="knowledgebase-category-title"
+            name="knowledgebaseCategoryTitle"
             type="text"
-            defaultValue={category.title}
-            required
+            value={category.title}
+            validations="isValue"
+            validationError="Please select a title"
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <FormControl
-            id="knowledgebase-category-description"
+            name="knowledgebaseCategoryDescription"
             type="text"
-            defaultValue={category.description}
+            value={category.description}
+            validations="isValue"
+            validationError="Please enter a description"
           />
         </FormGroup>
 
@@ -127,7 +127,7 @@ class CategoryForm extends Component {
     };
 
     return (
-      <form onSubmit={this.save}>
+      <Form onSubmit={this.save}>
         {this.renderContent(this.props.category || {})}
         <ModalFooter>
           <Button
@@ -143,7 +143,7 @@ class CategoryForm extends Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }
