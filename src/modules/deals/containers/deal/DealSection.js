@@ -79,7 +79,7 @@ export default compose(
   }),
   graphql(gql(queries.deals), {
     name: 'dealsQuery',
-    options: ({ customerId = '', companyId = '' }) => ({
+    options: ({ customerId, companyId }) => ({
       variables: {
         customerId,
         companyId
