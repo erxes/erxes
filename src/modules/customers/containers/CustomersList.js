@@ -71,8 +71,12 @@ class CustomerListContainer extends Bulk {
         });
     };
 
-    const exportCustomers = () => {
+    const exportCustomers = bulk => {
       const { queryParams } = this.props;
+
+      if (bulk.length > 0) {
+        queryParams.ids = bulk.map(customer => customer._id);
+      }
 
       client
         .query({

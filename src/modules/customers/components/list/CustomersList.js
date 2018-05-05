@@ -171,7 +171,7 @@ class CustomersList extends React.Component {
         {dateFilter}
         <FormControl type="file" onChange={handleXlsUpload} />
         <Button
-          onClick={() => exportCustomers()}
+          onClick={() => exportCustomers(bulk)}
           btnStyle="simple"
           size="small"
         >
