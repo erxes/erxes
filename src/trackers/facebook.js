@@ -324,10 +324,7 @@ export class SaveWebhookResponse {
   async getOrCreateCustomer(fbUserId) {
     const integrationId = this.integration._id;
 
-    const customer = await Customers.findOne({
-      integrationId,
-      'facebookData.id': fbUserId,
-    });
+    const customer = await Customers.findOne({ 'facebookData.id': fbUserId });
 
     if (customer) {
       return customer._id;
