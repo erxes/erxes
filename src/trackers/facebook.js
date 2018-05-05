@@ -121,9 +121,15 @@ export class SaveWebhookResponse {
       ...findSelector,
     });
 
-    // create new conversation when there is no conversation found or
-    // found conversation is closed
-    if (!conversation || conversation.status === CONVERSATION_STATUSES.CLOSED) {
+    // We are closing our own posts automatically below. So to prevent
+    // from creation of new conversation for every comment we are checking
+    // both message count & conversation status to new conversation.
+    // And we are creating new conversations only if previous conversation has
+    // at least 2 messages and has closed status.
+    if (
+      !conversation ||
+      (conversation.messageCount > 1 && conversation.status === CONVERSATION_STATUSES.CLOSED)
+    ) {
       conversation = await Conversations.createConversation({
         integrationId: this.integration._id,
         customerId: await this.getOrCreateCustomer(senderId),
