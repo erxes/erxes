@@ -27,7 +27,16 @@ class Inbox extends Component {
 
     this.state = {
       attachmentPreview: {},
-      getCustomer: false
+      getCustomer: false,
+      queryParams: {
+        showProfile: false,
+        showCompany: false,
+        showDeviceProperty: false,
+        showMessenger: false,
+        showFacebook: false,
+        showTwitter: false,
+        showOtherProperty: false
+      }
     };
 
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
@@ -56,8 +65,12 @@ class Inbox extends Component {
     this.setState({ attachmentPreview });
   }
 
-  showSectionContent(bool) {
-    this.setState({ getCustomer: bool });
+  showSectionContent(bool, obj) {
+    const { name, val } = obj;
+    const { queryParams } = this.state;
+    queryParams[name] = val;
+
+    this.setState({ getCustomer: bool, queryParams });
   }
 
   render() {
@@ -179,9 +192,10 @@ class Inbox extends Component {
             <RightSidebar
               conversation={currentConversation}
               refetch={refetch}
-              getCustomer={this.state.getCustomer}
               showSectionContent={this.showSectionContent}
               customerId={currentConversation.customerId}
+              getCustomer={this.state.getCustomer}
+              queryParams={this.state.queryParams}
             />
           )
         }

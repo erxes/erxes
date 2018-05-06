@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Sidebar } from 'modules/layout/components';
 import { Button } from 'modules/common/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+import { BaseSection } from 'modules/common/components';
 
 const ButtonWrapper = styled.div`
   padding: 10px 20px;
@@ -20,11 +20,8 @@ function TwitterSection({ customer }, { __ }) {
     return null;
   }
 
-  const { Title } = Sidebar.Section;
-
-  return (
-    <Sidebar.Section>
-      <Title>{__('Twitter')}</Title>
+  const content = (
+    <div>
       <SidebarList className="no-link">
         <li>
           {__('Name')}
@@ -45,7 +42,16 @@ function TwitterSection({ customer }, { __ }) {
           Go to twitter
         </Button>
       </ButtonWrapper>
-    </Sidebar.Section>
+    </div>
+  );
+
+  return (
+    <BaseSection
+      title={__('Twitter')}
+      content={content}
+      isUseCustomer={true}
+      name="showTwitter"
+    />
   );
 }
 

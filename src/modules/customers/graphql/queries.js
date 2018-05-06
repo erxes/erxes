@@ -227,6 +227,101 @@ const activityLogsCustomer = `
   }
 `;
 
+const generateCustomerDetailQuery = params => {
+  const {
+    showProfile,
+    showCompany,
+    showDeviceProperty,
+    showMessenger,
+    showFacebook,
+    showTwitter,
+    showOtherProperty
+  } =
+    params || {};
+
+  let fields = `_id`;
+
+  if (showProfile) {
+    fields += `
+      firstName
+      lastName
+      email
+      phone
+      isUser
+      integrationId
+      createdAt
+      remoteAddress
+      visitorContactInfo
+
+      ownerId
+      position
+      department
+      leadStatus
+      lifecycleState
+      hasAuthority
+      description
+      doNotDisturb
+      links {
+        linkedIn
+        twitter
+        facebook
+        github
+        youtube
+        website
+      }
+      owner {
+        details {
+          fullName
+        }
+      }
+      tagIds
+      getTags {
+        _id
+        name
+        colorCode
+      }
+    `;
+  }
+
+  if (showCompany) {
+    fields += `
+      companies {
+        _id
+        name
+        website
+      }
+    `;
+  }
+
+  if (showMessenger) {
+    fields += `messengerData`;
+  }
+
+  if (showFacebook) {
+    fields += `facebookData`;
+  }
+
+  if (showTwitter) {
+    fields += `twitterData`;
+  }
+
+  if (showDeviceProperty) {
+    fields += `location`;
+  }
+
+  if (showOtherProperty) {
+    fields += `getMessengerCustomData`;
+  }
+
+  return `
+    query customerDetail($_id: String!) {
+      customerDetail(_id: $_id) {
+        ${fields}
+      }
+    }
+  `;
+};
+
 export default {
   customers,
   customersMain,
@@ -235,5 +330,6 @@ export default {
   brands,
   tags,
   customersListConfig,
-  activityLogsCustomer
+  activityLogsCustomer,
+  generateCustomerDetailQuery
 };

@@ -46,6 +46,7 @@ function MessengerSection({ customer }, { __ }) {
       title={__('Messenger usage')}
       content={content}
       isUseCustomer={true}
+      name="showMessenger"
     />
   );
 }

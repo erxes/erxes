@@ -168,6 +168,7 @@ class BasicInfo extends Component {
         title={__('Profile')}
         content={this.renderInfo()}
         isUseCustomer={true}
+        name="showProfile"
       />
     );
   }

@@ -1,16 +1,45 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { RightSidebar as RightSidebarComponent } from '../components';
 import { queries as customerQueries } from 'modules/customers/graphql';
+import client from 'apolloClient';
 
 class RightSidebar extends Component {
-  render() {
-    const { customerDetailQuery } = this.props;
-    const { customerDetail, loading = false } = customerDetailQuery || {};
+  constructor(props) {
+    super(props);
 
-    const customer = customerDetail || {};
+    this.state = { customer: {}, loading: false };
+  }
+
+  componentWillReceiveProps(props) {
+    const { customerId, getCustomer, queryParams } = props;
+
+    if (getCustomer) {
+      this.setState({ loading: true });
+
+      client
+        .query({
+          query: gql(customerQueries.generateCustomerDetailQuery(queryParams)),
+          fetchPolicy: 'network-only',
+          variables: { _id: customerId }
+        })
+        .then(({ data }) => {
+          if (data && data.customerDetail) {
+            this.setState({
+              customer: data.customerDetail,
+              loading: false
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error.message); //eslint-disable-line
+        });
+    }
+  }
+
+  render() {
+    const { customer, loading } = this.state;
 
     const updatedProps = {
       ...this.props,
@@ -28,15 +57,8 @@ RightSidebar.propTypes = {
   conversation: PropTypes.object.isRequired,
   refetch: PropTypes.func,
   showSectionContent: PropTypes.func,
-  getCustomer: PropTypes.bool
+  getCustomer: PropTypes.bool,
+  queryParams: PropTypes.object
 };
 
-export default compose(
-  graphql(gql(customerQueries.customerDetail), {
-    name: 'customerDetailQuery',
-    options: ({ customerId, getCustomer }) => ({
-      skip: !getCustomer,
-      variables: { _id: customerId }
-    })
-  })
-)(RightSidebar);
+export default RightSidebar;

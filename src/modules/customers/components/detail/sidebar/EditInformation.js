@@ -77,6 +77,7 @@ class LeftSidebar extends ManageGroups {
           title={__('Device properties')}
           content={content}
           isUseCustomer={true}
+          name="showDeviceProperty"
         />
       );
     }
@@ -98,6 +99,7 @@ class LeftSidebar extends ManageGroups {
           title={__('Other properties')}
           content={content}
           isUseCustomer={true}
+          name="showOtherProperty"
         />
       );
     }

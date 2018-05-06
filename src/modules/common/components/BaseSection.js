@@ -10,6 +10,7 @@ const propTypes = {
   quickButtons: PropTypes.node,
   extraContent: PropTypes.node,
   isUseCustomer: PropTypes.bool,
+  name: PropTypes.string,
   history: PropTypes.object
 };
 
@@ -24,12 +25,13 @@ class BaseSection extends Component {
 
   toggle() {
     const { showSectionContent } = this.context;
-    const { isUseCustomer } = this.props;
+    const { isUseCustomer, name } = this.props;
+    const val = !this.state.detailed;
 
-    this.setState({ detailed: !this.state.detailed });
+    this.setState({ detailed: val });
 
     if (showSectionContent && isUseCustomer) {
-      showSectionContent(true);
+      showSectionContent(true, { name, val });
     }
   }
 

@@ -57,6 +57,7 @@ function CompanySection({ name, companies, onSelect }, { __ }) {
       content={content}
       quickButtons={quickButtons}
       isUseCustomer={true}
+      name="showCompany"
     />
   );
 }

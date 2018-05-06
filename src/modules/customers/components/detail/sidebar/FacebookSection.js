@@ -36,6 +36,7 @@ function FacebookSection({ customer }, { __ }) {
       title={__('Facebook')}
       content={content}
       isUseCustomer={true}
+      name="showFacebook"
     />
   );
 }
