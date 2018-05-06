@@ -26,11 +26,13 @@ class Inbox extends Component {
     super(props);
 
     this.state = {
-      attachmentPreview: {}
+      attachmentPreview: {},
+      getCustomer: false
     };
 
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
+    this.showSectionContent = this.showSectionContent.bind(this);
   }
 
   componentDidMount() {
@@ -52,6 +54,10 @@ class Inbox extends Component {
 
   setAttachmentPreview(attachmentPreview) {
     this.setState({ attachmentPreview });
+  }
+
+  showSectionContent(bool) {
+    this.setState({ getCustomer: bool });
   }
 
   render() {
@@ -173,6 +179,8 @@ class Inbox extends Component {
             <RightSidebar
               conversation={currentConversation}
               refetch={refetch}
+              getCustomer={this.state.getCustomer}
+              showSectionContent={this.showSectionContent}
               customerId={currentConversation.customerId}
             />
           )

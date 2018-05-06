@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Sidebar } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+import { BaseSection } from 'modules/common/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired
@@ -14,26 +14,29 @@ function FacebookSection({ customer }, { __ }) {
     return null;
   }
 
-  const { Title } = Sidebar.Section;
+  const content = (
+    <SidebarList className="no-link">
+      <li>
+        {__('Facebook profile')}
+        <SidebarCounter>
+          <a
+            target="_blank"
+            href={`http://facebook.com/${facebookData.id}`}
+            rel="noopener noreferrer"
+          >
+            {__('[view]')}
+          </a>
+        </SidebarCounter>
+      </li>
+    </SidebarList>
+  );
 
   return (
-    <Sidebar.Section>
-      <Title>{__('Facebook')}</Title>
-      <SidebarList className="no-link">
-        <li>
-          {__('Facebook profile')}
-          <SidebarCounter>
-            <a
-              target="_blank"
-              href={`http://facebook.com/${facebookData.id}`}
-              rel="noopener noreferrer"
-            >
-              {__('[view]')}
-            </a>
-          </SidebarCounter>
-        </li>
-      </SidebarList>
-    </Sidebar.Section>
+    <BaseSection
+      title={__('Facebook')}
+      content={content}
+      isUseCustomer={true}
+    />
   );
 }
 

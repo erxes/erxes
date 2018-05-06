@@ -6,6 +6,7 @@ import { Button } from 'modules/common/components';
 import { ManageGroups } from 'modules/settings/properties/components';
 import { BasicInfo } from 'modules/customers/containers';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+import { BaseSection } from 'modules/common/components';
 
 import {
   TaggerSection,
@@ -45,34 +46,38 @@ class LeftSidebar extends ManageGroups {
 
   renderDeviceProperties() {
     const { customer } = this.props;
-    const { Section } = Sidebar;
     const { __ } = this.context;
     const location = customer.location;
 
     if (location) {
       const ua = parse(location.userAgent || ' ');
+      const content = (
+        <SidebarList className="no-link">
+          {this.renderDeviceProperty('Location', location.country)}
+          {this.renderDeviceProperty(
+            'Browser',
+            ua.browser.name,
+            ua.browser.version
+          )}
+          {this.renderDeviceProperty('Platform', ua.os.name, ua.os.version)}
+          {this.renderDeviceProperty('IP Address', location.remoteAddress)}
+          {this.renderDeviceProperty('Hostname', location.hostname)}
+          {this.renderDeviceProperty('Language', location.language)}
+          {this.renderDeviceProperty(
+            'User Agent',
+            location.userAgent,
+            null,
+            true
+          )}
+        </SidebarList>
+      );
+
       return (
-        <Section>
-          <Section.Title>{__('Device properties')}</Section.Title>
-          <SidebarList className="no-link">
-            {this.renderDeviceProperty('Location', location.country)}
-            {this.renderDeviceProperty(
-              'Browser',
-              ua.browser.name,
-              ua.browser.version
-            )}
-            {this.renderDeviceProperty('Platform', ua.os.name, ua.os.version)}
-            {this.renderDeviceProperty('IP Address', location.remoteAddress)}
-            {this.renderDeviceProperty('Hostname', location.hostname)}
-            {this.renderDeviceProperty('Language', location.language)}
-            {this.renderDeviceProperty(
-              'User Agent',
-              location.userAgent,
-              null,
-              true
-            )}
-          </SidebarList>
-        </Section>
+        <BaseSection
+          title={__('Device properties')}
+          content={content}
+          isUseCustomer={true}
+        />
       );
     }
 
@@ -81,15 +86,19 @@ class LeftSidebar extends ManageGroups {
 
   renderOtherProperties() {
     const { otherProperties } = this.props;
-    const { Section } = Sidebar;
     const { __ } = this.context;
 
     if (otherProperties) {
+      const content = (
+        <SidebarList className="no-link">{otherProperties}</SidebarList>
+      );
+
       return (
-        <Section>
-          <Section.Title>{__('Other properties')}</Section.Title>
-          <SidebarList className="no-link">{otherProperties}</SidebarList>
-        </Section>
+        <BaseSection
+          title={__('Other properties')}
+          content={content}
+          isUseCustomer={true}
+        />
       );
     }
 

@@ -12,10 +12,15 @@ const propTypes = {
   conversation: PropTypes.object.isRequired,
   customer: PropTypes.object,
   refetch: PropTypes.func,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  showSectionContent: PropTypes.func
 };
 
 class RightSidebar extends Component {
+  getChildContext() {
+    return { showSectionContent: this.props.showSectionContent };
+  }
+
   renderMessengerData() {
     const { conversation } = this.props;
     const customer = conversation.customer || {};
@@ -64,5 +69,9 @@ class RightSidebar extends Component {
 }
 
 RightSidebar.propTypes = propTypes;
+
+RightSidebar.childContextTypes = {
+  showSectionContent: PropTypes.func
+};
 
 export default RightSidebar;

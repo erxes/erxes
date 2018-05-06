@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Icon, DropdownToggle, ModalTrigger } from 'modules/common/components';
 import { CategoryList, KnowledgeForm, CategoryForm } from '../../containers';
-import { DropIcon } from '../../styles';
+import { DropIcon } from 'modules/common/styles/main';
 import {
   KnowledgeBaseRow,
   SectionHead,

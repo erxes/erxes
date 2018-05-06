@@ -151,6 +151,18 @@ const Well = styled.div`
   border-left: 2px solid ${colors.colorSecondary};
 `;
 
+const DropIcon = styled.span`
+  &:after {
+    cursor: pointer;
+    content: '\\e827';
+    font-family: 'erxes';
+    float: right;
+    transition: all ease 0.3s;
+    margin-left: ${dimensions.unitSpacing}px;
+    transform: ${props => props.isOpen && `rotate(180deg)`};
+  }
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -162,5 +174,6 @@ export {
   FormColumn,
   ColumnTitle,
   CenterContent,
-  ActivityContent
+  ActivityContent,
+  DropIcon
 };
