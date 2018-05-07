@@ -1,17 +1,15 @@
 const uploadHandler = params => {
-  const {
-    // Blob object
-    file,
+  const { REACT_APP_API_URL } = process.env;
 
+  const {
+    file,
     beforeUpload,
     afterUpload,
-
-    // for preview purpose
-    afterRead
+    afterRead,
+    url = `${REACT_APP_API_URL}/upload-file`,
+    responseType = 'text',
+    extraFormData = []
   } = params;
-
-  const { REACT_APP_API_URL } = process.env;
-  const url = `${REACT_APP_API_URL}/upload-file`;
 
   // initiate upload file reader
   const uploadReader = new FileReader();
@@ -28,12 +26,20 @@ const uploadHandler = params => {
     const formData = new FormData();
     formData.append('file', file);
 
+    for (const data of extraFormData) {
+      formData.append(data.key, data.value);
+    }
+
     fetch(url, {
       method: 'post',
-      body: formData
+      body: formData,
+      headers: {
+        'x-token': localStorage.getItem('erxesLoginToken'),
+        'x-refresh-token': localStorage.getItem('erxesLoginRefreshToken')
+      }
     })
       .then(response => {
-        return response.text();
+        return response[responseType]();
       })
 
       .then(response => {
@@ -55,10 +61,9 @@ const uploadHandler = params => {
   const reader = new FileReader();
 
   reader.onloadend = () => {
-    afterRead({
-      result: reader.result,
-      fileInfo
-    });
+    if (afterRead) {
+      afterRead({ result: reader.result, fileInfo });
+    }
   };
 
   reader.readAsDataURL(file);

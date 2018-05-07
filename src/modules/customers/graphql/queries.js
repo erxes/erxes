@@ -94,6 +94,12 @@ const customersMain = `
   }
 `;
 
+const customersExport = `
+  query customersExport(${listParamsDef}) {
+    customersExport(${listParamsValue})
+  }
+`;
+
 const customerCounts = `
   query customerCounts(${listParamsDef}, $byFakeSegment: JSON) {
     customerCounts(${listParamsValue}, byFakeSegment: $byFakeSegment)
@@ -235,5 +241,6 @@ export default {
   brands,
   tags,
   customersListConfig,
-  activityLogsCustomer
+  activityLogsCustomer,
+  customersExport
 };
