@@ -660,5 +660,9 @@
   "Supporters": "Туслах ажилтан",
   "Import histories": "Оруулсан түүх",
   "Imported Date": "Оруулсан огноо",
-  "Imported User": "Оруулсан хэрэглэгч"
+  "Imported User": "Оруулсан хэрэглэгч",
+  "Export customers": "Харилцагчид татах",
+  "Import customers": "Харилцагчид оруулах",
+  "Export companies": "Компаниуд татах",
+  "Import companies": "Компаниуд оруулах"
 }

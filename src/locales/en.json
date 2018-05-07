@@ -656,5 +656,9 @@
   "Supporters": "Supporters",
   "Import histories": "Import histories",
   "Imported Date": "Imported Date",
-  "Imported User": "Imported User"
+  "Imported User": "Imported User",
+  "Export customers": "Export customers",
+  "Import customers": "Import customers",
+  "Export companies": "Export companies",
+  "Import companies": "Import companies"
 }

@@ -169,14 +169,6 @@ class CustomersList extends React.Component {
         />
 
         {dateFilter}
-        <FormControl type="file" onChange={handleXlsUpload} />
-        <Button
-          onClick={() => exportCustomers(bulk)}
-          btnStyle="simple"
-          size="small"
-        >
-          Export customer
-        </Button>
 
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
@@ -198,6 +190,23 @@ class CustomersList extends React.Component {
               <Link to="/settings/properties?type=customer">
                 {__('Properties')}
               </Link>
+            </li>
+            <li>
+              <a onClick={() => exportCustomers(bulk)}>
+                {__('Export customers')}
+              </a>
+            </li>
+            <li>
+              <a>
+                <label style={{ fontWeight: 'normal' }}>
+                  {__('Import customers')}
+                  <input
+                    type="file"
+                    onChange={handleXlsUpload}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              </a>
             </li>
           </Dropdown.Menu>
         </Dropdown>
