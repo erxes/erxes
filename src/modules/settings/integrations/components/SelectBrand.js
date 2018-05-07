@@ -6,14 +6,14 @@ import {
   FormControl
 } from 'modules/common/components';
 
-const SelectBrand = ({ brands, onChange, defaultValue }, { __ }) => (
+const SelectBrand = ({ brands, onChange, value }, { __ }) => (
   <FormGroup>
     <ControlLabel>Brand</ControlLabel>
 
     <FormControl
       componentClass="select"
       placeholder={__('Select Brand')}
-      value={defaultValue}
+      value={value}
       onChange={onChange}
       name="selectBrand"
       validations="isValue"
@@ -32,7 +32,7 @@ const SelectBrand = ({ brands, onChange, defaultValue }, { __ }) => (
 SelectBrand.propTypes = {
   brands: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
   onChange: PropTypes.func,
-  defaultValue: PropTypes.string
+  value: PropTypes.string
 };
 
 SelectBrand.contextTypes = {
