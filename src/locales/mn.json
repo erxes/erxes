@@ -662,7 +662,7 @@
   "Please select a color code": "Өнгө сонгоно уу",
   "Please enter a password": "Нууц үг оруулна уу",
   "Please enter a new password": "Шинэ нууц үг оруулна уу",
-  "Please enter a email": "Имэйл оруулна уу",
+  "Please enter an email": "Имэйл оруулна уу",
   "Not a valid email format": "Имэйл формат тохирохгүй байна",
   "Please enter a description": "Тайлбар оруулна уу",
   "Please enter a username": "Хэрэглэгчийн нэр оруулна уу",
@@ -706,5 +706,7 @@
   "Successfully Removed all customers": "Бүх харилцагчдыг амжилттай устгалаа",
   "You can only import max 600 at a time":
     "Харилцагчид оруулах дээд хэмжээ: 600",
-  "Invalid import type": "Буруу төрөл сонгосон байна"
+  "Invalid import type": "Буруу төрөл сонгосон байна",
+  "Please enter a current password": "Одоогийн нууц үгээ оруулна уу",
+  "Please re-type password": "Нууц үгээ дахин оруулна уу"
 }

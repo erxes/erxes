@@ -23,8 +23,6 @@ class SignIn extends Component {
     };
 
     this.login = this.login.bind(this);
-    this.handleEmailChange = this.handleEmailChange.bind(this);
-    this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
 
   login(doc) {
@@ -46,7 +44,7 @@ class SignIn extends Component {
               value={this.state.email}
               name="email"
               validations="isEmail"
-              validationError="Please enter a email"
+              validationError="Please enter an email"
             />
           </FormGroup>
           <FormGroup>
