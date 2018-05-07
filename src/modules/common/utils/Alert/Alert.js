@@ -6,7 +6,7 @@ import Icon from 'modules/common/components/Icon';
 import { colors, typography, dimensions } from 'modules/common/styles';
 
 const types = {
-  information: {
+  info: {
     background: colors.colorSecondary,
     icon: 'information'
   },

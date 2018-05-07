@@ -693,5 +693,18 @@
   "Please enter a welcome message": "Анхны зурвас оруулна уу",
   "Please enter an away message": "Баяртай зурвас оруулна уу",
   "Please enter a thank you message": "Талархалын зурвас оруулна уу",
-  "Please enter a last name": "Овог оруулна уу"
+  "Please enter a last name": "Овог оруулна уу",
+  "Import histories": "Оруулсан түүх",
+  "Imported Date": "Оруулсан огноо",
+  "Imported User": "Оруулсан хэрэглэгч",
+  "Export customers": "Харилцагчид татах",
+  "Import customers": "Харилцагчид оруулах",
+  "Export companies": "Компаниуд татах",
+  "Import companies": "Компаниуд оруулах",
+  "All customers imported successfully": "Бүх харилцагчдыг амжилттай орууллаа",
+  "There aren't any imports": "Оруулсан мэдээлэл алга байна",
+  "Successfully Removed all customers": "Бүх харилцагчдыг амжилттай устгалаа",
+  "You can only import max 600 at a time":
+    "Харилцагчид оруулах дээд хэмжээ: 600",
+  "Invalid import type": "Буруу төрөл сонгосон байна"
 }
