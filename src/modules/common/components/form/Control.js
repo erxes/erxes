@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { withFormsy, addValidationRule } from 'formsy-react';
 import Textarea from './Textarea';
 import {
@@ -43,6 +44,10 @@ const defaultProps = {
   componentClass: 'input',
   disabled: false
 };
+
+const Error = styled.span`
+  color: red;
+`;
 
 const renderElement = (Element, attributes, type, child) => {
   return (
@@ -100,7 +105,7 @@ class EnhancedFormControl extends React.Component {
                 })}
               </Select>
             </SelectWrapper>
-            <span>{__(error)}</span>
+            <Error>{__(error)}</Error>
           </Fragment>
         );
       }
@@ -109,7 +114,7 @@ class EnhancedFormControl extends React.Component {
           <SelectWrapper>
             <Select {...attributes}>{childNode}</Select>
           </SelectWrapper>
-          <span>{__(error)}</span>
+          <Error>{__(error)}</Error>
         </Fragment>
       );
     }
@@ -137,7 +142,7 @@ class EnhancedFormControl extends React.Component {
       return (
         <Fragment>
           <Textarea {...props} />
-          <span>{__(error)}</span>
+          <Error>{__(error)}</Error>
         </Fragment>
       );
     }
@@ -145,7 +150,7 @@ class EnhancedFormControl extends React.Component {
     return (
       <Fragment>
         <Input {...attributes} />
-        <span>{__(error)}</span>
+        <Error>{__(error)}</Error>
       </Fragment>
     );
   }
