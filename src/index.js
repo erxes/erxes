@@ -58,7 +58,6 @@ app.post('/import-file', (req, res) => {
         res.json(result);
       })
       .catch(e => {
-        console.log(e);
         res.json(e);
       });
   });
