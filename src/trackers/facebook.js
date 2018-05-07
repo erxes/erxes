@@ -119,7 +119,7 @@ export class SaveWebhookResponse {
 
     let conversation = await Conversations.findOne({
       ...findSelector,
-    });
+    }).sort({ createdAt: -1 });
 
     // We are closing our own posts automatically below. So to prevent
     // from creation of new conversation for every comment we are checking
