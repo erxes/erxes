@@ -109,8 +109,7 @@ class CustomerListContainer extends Bulk {
           }
 
           customersMainQuery.refetch();
-        },
-        afterRead: () => {}
+        }
       });
     };
 

@@ -61,10 +61,9 @@ const uploadHandler = params => {
   const reader = new FileReader();
 
   reader.onloadend = () => {
-    afterRead({
-      result: reader.result,
-      fileInfo
-    });
+    if (afterRead) {
+      afterRead({ result: reader.result, fileInfo });
+    }
   };
 
   reader.readAsDataURL(file);
