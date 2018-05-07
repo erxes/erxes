@@ -404,5 +404,12 @@ describe('Customers model tests', () => {
     expect(history.success).toBe(1);
     expect(history.failed).toBe(2);
     expect(history.ids.length).toBe(1);
+
+    process.env.MAX_IMPORT_SIZE = 2;
+    // Max import size error
+    response = await Customers.bulkInsert(fieldNames, fieldValues, { user });
+
+    expect(response.length).toBe(1);
+    expect(response[0]).toBe(`You can only import max ${process.env.MAX_IMPORT_SIZE} at a time`);
   });
 });
