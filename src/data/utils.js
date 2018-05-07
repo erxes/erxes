@@ -214,6 +214,7 @@ export const importXlsFile = async (file, type, { user }) => {
       .then(async () => {
         // After finished saving instantly create and load workbook from xls
         const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
+
         // Deleting file after read
         fs.unlink(downloadDir);
 

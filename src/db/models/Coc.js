@@ -31,11 +31,12 @@ class Coc {
 
         const fieldObj = await Fields.findOne({ text: field });
 
-        // Creating detailed property list
+        // Collecting basic fields
         if (this.getBasicInfos().includes(field)) {
           property.name = field;
         }
 
+        // Collecting customer fields
         if (fieldObj) {
           property.isCustomField = true;
           property.id = fieldObj._id;
@@ -63,6 +64,7 @@ class Coc {
       const coc = {
         customFieldsData: {},
       };
+
       let colIndex = 0;
 
       // Iterating through detailed properties

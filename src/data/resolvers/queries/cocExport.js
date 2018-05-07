@@ -19,7 +19,6 @@ export const cocsExport = async (cocs, cocType) => {
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
 
-  let rowIndex = 1;
   const cols = [];
 
   const addCell = (col, value) => {
@@ -36,6 +35,8 @@ export const cocsExport = async (cocs, cocType) => {
       cols.push(col);
     }
   };
+
+  let rowIndex = 1;
 
   for (let coc of cocs) {
     rowIndex++;
