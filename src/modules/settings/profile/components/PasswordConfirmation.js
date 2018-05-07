@@ -24,12 +24,8 @@ class PasswordConfirmation extends Component {
     this.submit = this.submit.bind(this);
   }
 
-  submit(e) {
-    e.preventDefault();
-
-    const password = document.getElementById('password').value;
-
-    this.props.onSuccess(password);
+  submit(doc) {
+    this.props.onSuccess(doc.password);
     this.context.closeModal();
   }
 
