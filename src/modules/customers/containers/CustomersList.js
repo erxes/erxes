@@ -18,6 +18,7 @@ class CustomerListContainer extends Bulk {
     super(props);
 
     this.state = {
+      ...this.state,
       loading: false
     };
   }
@@ -35,7 +36,6 @@ class CustomerListContainer extends Bulk {
     } = this.props;
 
     const { __ } = this.context;
-    const ln = localStorage.getItem('currentLanguage');
 
     router.refetchIfUpdated(history, customersMainQuery);
 
@@ -87,6 +87,7 @@ class CustomerListContainer extends Bulk {
       if (bulk.length > 0) {
         queryParams.ids = bulk.map(customer => customer._id);
       }
+
       this.setState({ loading: true });
 
       client
@@ -117,19 +118,18 @@ class CustomerListContainer extends Bulk {
         },
 
         afterUpload: ({ response }) => {
-          this.setState({ loading: false });
-
-          if (response.length > 0) {
-            if (ln === 'mn') {
-              return Alert.error(__(response[0]));
-            }
-
-            Alert.error(response[0]);
-          } else {
-            Alert.success(__('All customers imported successfully'));
+          if (response.length === 0) {
+            customersMainQuery.refetch();
+            return Alert.success(__('All customers imported successfully'));
           }
 
-          customersMainQuery.refetch();
+          if (response[0] === 'You can only import max 600 at a time') {
+            Alert.error(__(response[0]));
+          } else {
+            Alert.error(response[0]);
+          }
+
+          this.setState({ loading: false });
         }
       });
     };
