@@ -28,7 +28,7 @@ class Histories extends Component {
     const { __ } = this.context;
 
     if (histories.length === 0) {
-      return <EmptyState icon="circular" text="There arent't any imports" />;
+      return <EmptyState icon="circular" text="There aren't any imports" />;
     }
 
     return (
