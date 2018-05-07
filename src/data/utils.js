@@ -216,7 +216,7 @@ export const importXlsFile = async (file, type, { user }) => {
         const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
 
         // Deleting file after read
-        fs.unlink(downloadDir);
+        fs.unlink(downloadDir, () => {});
 
         const usedSheets = workbook
           .sheet(0)
