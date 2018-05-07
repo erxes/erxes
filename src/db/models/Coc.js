@@ -22,6 +22,12 @@ class Coc {
       failed: 0,
     };
 
+    const { MAX_IMPORT_SIZE = 600 } = process.env;
+
+    if (fieldValues.length > MAX_IMPORT_SIZE) {
+      return [`You can only import max ${MAX_IMPORT_SIZE} at a time`];
+    }
+
     // Checking field names, All field names must be configured correctly
     const checkFieldNames = async fieldNames => {
       for (let field of fieldNames) {

@@ -197,7 +197,7 @@ export const importXlsFile = async (file, type, { user }) => {
     const readStream = fs.createReadStream(file.path);
 
     // Directory to save file
-    const downloadDir = `${__dirname}/../private/xlsImports/${file.name}`;
+    const downloadDir = `${__dirname}/../private/xlsTemplateOutputs/${file.name}`;
 
     // Converting pipe into promise
     const pipe = stream =>
@@ -222,10 +222,6 @@ export const importXlsFile = async (file, type, { user }) => {
           .sheet(0)
           .usedRange()
           .value();
-
-        if (usedSheets.length > 601) {
-          reject(['You can only import max 600 at a time']);
-        }
 
         // Getting columns
         const fieldNames = usedSheets[0];
