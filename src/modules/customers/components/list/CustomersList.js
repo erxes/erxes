@@ -204,6 +204,7 @@ class CustomersList extends React.Component {
                     type="file"
                     onChange={handleXlsUpload}
                     style={{ display: 'none' }}
+                    accept=".xlsx, .xls"
                   />
                 </label>
               </a>

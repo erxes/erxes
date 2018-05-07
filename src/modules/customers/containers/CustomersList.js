@@ -5,7 +5,7 @@ import { withRouter } from 'react-router';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
-import { Alert, uploadHandler, download } from 'modules/common/utils';
+import { Alert, uploadHandler } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../constants';
@@ -14,6 +14,14 @@ import { CustomersList } from '../components';
 import { router } from 'modules/common/utils';
 
 class CustomerListContainer extends Bulk {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      loading: false
+    };
+  }
+
   render() {
     const {
       customersMainQuery,
@@ -27,6 +35,13 @@ class CustomerListContainer extends Bulk {
     } = this.props;
 
     const { __ } = this.context;
+    const ln = localStorage.getItem('currentLanguage');
+
+    const errorMessages = {
+      'You can only import max 600 at a time':
+        'Алдаа: Харилцагч оруулах дээд хэмжээ: 600',
+      'Invalid import type': 'Буруу төрөл сонгосон байна'
+    };
 
     router.refetchIfUpdated(history, customersMainQuery);
 
@@ -79,6 +94,7 @@ class CustomerListContainer extends Bulk {
       if (bulk.length > 0) {
         queryParams.ids = bulk.map(customer => customer._id);
       }
+      this.setState({ loading: true });
 
       client
         .query({
@@ -86,7 +102,8 @@ class CustomerListContainer extends Bulk {
           variables: { ...queryParams }
         })
         .then(({ data }) => {
-          download(data.customersExport);
+          this.setState({ loading: false });
+          window.open(data.customersExport, '_blank');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -102,10 +119,19 @@ class CustomerListContainer extends Bulk {
         extraFormData: [{ key: 'type', value: 'customers' }],
         url: `${process.env.REACT_APP_API_URL}/import-file`,
         responseType: 'json',
+        beforeUpload: () => {
+          this.setState({ loading: true });
+        },
 
         afterUpload: ({ response }) => {
+          this.setState({ loading: false });
+
           if (response.length > 0) {
-            Alert.error(response[0]);
+            if (ln === 'mn') {
+              return Alert.error(errorMessages[response]);
+            }
+
+            Alert.error(response);
           } else {
             Alert.success(__('All customers imported successfully'));
           }
@@ -145,7 +171,7 @@ class CustomerListContainer extends Bulk {
       toggleBulk: this.toggleBulk,
       toggleAll: this.toggleAll,
       searchValue,
-      loading: customersMainQuery.loading,
+      loading: customersMainQuery.loading || this.state.loading,
       loadingTags: tagsQuery.loading,
       mergeCustomers,
       removeCustomers,
