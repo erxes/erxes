@@ -223,6 +223,10 @@ export const importXlsFile = async (file, type, { user }) => {
           .usedRange()
           .value();
 
+        if (usedSheets.length > 601) {
+          reject(['You can only import max 600 at a time']);
+        }
+
         // Getting columns
         const fieldNames = usedSheets[0];
 
@@ -241,7 +245,7 @@ export const importXlsFile = async (file, type, { user }) => {
             break;
 
           default:
-            reject('Invalid import type');
+            reject(['Invalid import type']);
         }
 
         const response = await collection.bulkInsert(fieldNames, usedSheets, {

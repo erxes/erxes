@@ -53,9 +53,14 @@ app.post('/import-file', (req, res) => {
   const form = new formidable.IncomingForm();
 
   form.parse(req, (err, fields, response) => {
-    importXlsFile(response.file, fields.type, { user: req.user }).then(result => {
-      res.json(result);
-    });
+    importXlsFile(response.file, fields.type, { user: req.user })
+      .then(result => {
+        res.json(result);
+      })
+      .catch(e => {
+        console.log(e);
+        res.json(e);
+      });
   });
 });
 
