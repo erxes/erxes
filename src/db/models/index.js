@@ -9,6 +9,7 @@ import Tags from './Tags';
 import { Fields, FieldsGroups } from './Fields';
 import Forms from './Forms';
 import InternalNotes from './InternalNotes';
+import Coc from './Coc';
 import Customers from './Customers';
 import Companies from './Companies';
 import Segments from './Segments';
@@ -24,6 +25,7 @@ import ActivityLogs from './ActivityLogs';
 import { DealBoards, DealPipelines, DealStages, Deals } from './Deals';
 import Products from './Products';
 import Configs from './Configs';
+import ImportHistory from './ImportHistory';
 
 export {
   Users,
@@ -38,6 +40,7 @@ export {
   Fields,
   Segments,
   InternalNotes,
+  Coc,
   Customers,
   Companies,
   Conversations,
@@ -55,4 +58,5 @@ export {
   Products,
   Configs,
   FieldsGroups,
+  ImportHistory,
 };

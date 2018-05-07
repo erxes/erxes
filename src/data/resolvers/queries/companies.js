@@ -3,6 +3,7 @@ import QueryBuilder from './segmentQueryBuilder';
 import { TAG_TYPES, COC_CONTENT_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
+import { cocsExport } from './cocExport';
 
 const listQuery = async params => {
   let selector = {};
@@ -109,6 +110,20 @@ const companyQueries = {
    */
   companyDetail(root, { _id }) {
     return Companies.findOne({ _id });
+  },
+
+  /**
+   * Export companies to xls file
+   *
+   * @param {Object} args - Query params
+   * @return {String} File url
+   */
+  async companiesExport(root, params) {
+    const selector = await listQuery(params);
+
+    const companies = await paginate(Companies.find(selector), params);
+
+    return cocsExport(companies, 'company');
   },
 };
 

@@ -260,6 +260,21 @@ export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
   'Other',
 ];
 
+export const CUSTOMER_BASIC_INFOS = [
+  'firstName',
+  'lastName',
+  'email',
+  'phone',
+  'ownerId',
+  'position',
+  'department',
+  'leadStatus',
+  'lifecycleState',
+  'hasAuthority',
+  'description',
+  'doNotDisturb',
+];
+
 export const COMPANY_LEAD_STATUS_TYPES = [
   '',
   'New',
@@ -353,6 +368,22 @@ export const COMPANY_INDUSTRY_TYPES = [
   'Tobacco',
   'Transportation',
   'TV / Movies / Music',
+];
+
+export const COMPANY_BASIC_INFOS = [
+  'name',
+  'size',
+  'industry',
+  'website',
+  'plan',
+  'email',
+  'phone',
+  'leadStatus',
+  'lifecycleState',
+  'businessType',
+  'description',
+  'employees',
+  'doNotDisturb',
 ];
 
 export const PROBABILITY = {

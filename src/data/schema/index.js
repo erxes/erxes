@@ -109,6 +109,12 @@ import {
   mutations as ConfigMutations,
 } from './config';
 
+import {
+  types as ImportHistoryTypes,
+  mutations as ImportHistoryMutations,
+  queries as ImportHistoryQueries,
+} from './importHistory';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -136,6 +142,7 @@ export const types = `
   ${ProductTypes}
   ${ConfigTypes}
   ${FieldGroupTypes}
+  ${ImportHistoryTypes}
 `;
 
 export const queries = `
@@ -163,6 +170,7 @@ export const queries = `
     ${ProductQueries}
     ${ConfigQueries}
     ${FieldGroupQueries}
+    ${ImportHistoryQueries}
   }
 `;
 
@@ -190,6 +198,7 @@ export const mutations = `
     ${ProductMutations}
     ${ConfigMutations}
     ${FieldGroupMutations}
+    ${ImportHistoryMutations}
   }
 `;
 

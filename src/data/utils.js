@@ -1,8 +1,9 @@
+import xlsxPopulate from 'xlsx-populate';
 import AWS from 'aws-sdk';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
 import Handlebars from 'handlebars';
-import { Notifications, Users } from '../db/models';
+import { Notifications, Users, Customers, Companies } from '../db/models';
 
 /*
  * Save binary data to amazon s3
@@ -182,6 +183,110 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
       },
     },
   });
+};
+
+/**
+ * Receives and saves xls file in private/xlsImports folder
+ * and imports customers to the database
+ * @param {Object} file - File data to save
+ *
+ * @return {Promise} Success and failed counts
+*/
+export const importXlsFile = async (file, type, { user }) => {
+  return new Promise((resolve, reject) => {
+    const readStream = fs.createReadStream(file.path);
+
+    // Directory to save file
+    const downloadDir = `${__dirname}/../private/xlsTemplateOutputs/${file.name}`;
+
+    // Converting pipe into promise
+    const pipe = stream =>
+      new Promise((resolve, reject) => {
+        stream.on('finish', resolve);
+        stream.on('error', reject);
+      });
+
+    // Creating streams
+    const writeStream = fs.createWriteStream(downloadDir);
+    const stream = readStream.pipe(writeStream);
+
+    pipe(stream)
+      .then(async () => {
+        // After finished saving instantly create and load workbook from xls
+        const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
+
+        // Deleting file after read
+        fs.unlink(downloadDir, () => {});
+
+        const usedRange = workbook.sheet(0).usedRange();
+
+        if (!usedRange) {
+          return reject(['Invalid file']);
+        }
+
+        const usedSheets = usedRange.value();
+
+        // Getting columns
+        const fieldNames = usedSheets[0];
+
+        let collection = null;
+
+        // Removing column
+        usedSheets.shift();
+
+        switch (type) {
+          case 'customers':
+            collection = Customers;
+            break;
+
+          case 'companies':
+            collection = Companies;
+            break;
+
+          default:
+            reject(['Invalid import type']);
+        }
+
+        const response = await collection.bulkInsert(fieldNames, usedSheets, {
+          user,
+        });
+
+        resolve(response);
+      })
+      .catch(e => {
+        reject(e);
+      });
+  });
+};
+
+/**
+ * Creates blank workbook
+ *
+ * @return {Object} Xls workbook and sheet
+*/
+export const createXlsFile = async () => {
+  // Generating blank workbook
+  const workbook = await xlsxPopulate.fromBlankAsync();
+
+  return { workbook, sheet: workbook.sheet(0) };
+};
+
+/**
+ * Generates downloadable xls file on the url
+ * @param {Object} workbook - Xls file workbook
+ * @param {String} name - Xls file name
+ *
+ * @return {String} Url to download xls file
+*/
+export const generateXlsx = async (workbook, name) => {
+  // Url to download xls file
+  const url = `xlsTemplateOutputs/${name}.xlsx`;
+  const { DOMAIN } = process.env;
+
+  // Saving xls workbook to the directory
+  await workbook.toFileAsync(`${__dirname}/../private/${url}`);
+
+  return `${DOMAIN}:3300/static/${url}`;
 };
 
 export default {

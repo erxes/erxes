@@ -19,6 +19,7 @@ import activityLogs from './activityLogs';
 import deals from './deals';
 import products from './products';
 import configs from './configs';
+import importHistory from './importHistory';
 
 export default {
   ...users,
@@ -43,4 +44,5 @@ export default {
   ...products,
   ...configs,
   ...fieldsgroups,
+  ...importHistory,
 };

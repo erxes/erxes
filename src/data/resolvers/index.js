@@ -22,6 +22,7 @@ import ActivityLogForMonth from './activityLogForMonth';
 import Deal from './deals';
 import DealStage from './dealStages';
 import { Field, FieldsGroup } from './field';
+import ImportHistory from './importHistory';
 
 export default {
   ...customScalars,
@@ -54,4 +55,5 @@ export default {
   ActivityLogForMonth,
   FieldsGroup,
   Field,
+  ImportHistory,
 };
