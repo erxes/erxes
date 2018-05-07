@@ -26,6 +26,8 @@ class CustomerListContainer extends Bulk {
       history
     } = this.props;
 
+    const { __ } = this.context;
+
     router.refetchIfUpdated(history, customersMainQuery);
 
     let columnsConfig =
@@ -105,7 +107,7 @@ class CustomerListContainer extends Bulk {
           if (response.length > 0) {
             Alert.error(response[0]);
           } else {
-            Alert.success('All customers imported successfully');
+            Alert.success(__('All customers imported successfully'));
           }
 
           customersMainQuery.refetch();
@@ -160,6 +162,10 @@ CustomerListContainer.propTypes = {
   brandsQuery: PropTypes.object,
   customerCountsQuery: PropTypes.object,
   history: PropTypes.object
+};
+
+CustomerListContainer.contextTypes = {
+  __: PropTypes.func
 };
 
 export default compose(

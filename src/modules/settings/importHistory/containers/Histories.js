@@ -7,7 +7,7 @@ import { queries, mutations } from '../graphql';
 import gql from 'graphql-tag';
 import { Histories } from '../components';
 
-const PropertiesContainer = props => {
+const HistoriesContainer = (props, { __ }) => {
   const { historiesQuery, history, importHistoriesRemove } = props;
 
   if (!router.getParam(history, 'type')) {
@@ -21,7 +21,7 @@ const PropertiesContainer = props => {
       variables: { _id }
     })
       .then(() => {
-        Alert.success('Successfully Removed all customers');
+        Alert.success(__('Successfully Removed all customers'));
       })
       .catch(e => {
         Alert.error(e.message);
@@ -38,11 +38,15 @@ const PropertiesContainer = props => {
   return <Histories {...updatedProps} />;
 };
 
-PropertiesContainer.propTypes = {
+HistoriesContainer.propTypes = {
   queryParams: PropTypes.object,
   historiesQuery: PropTypes.object,
   history: PropTypes.object,
   importHistoriesRemove: PropTypes.func
+};
+
+HistoriesContainer.contextTypes = {
+  __: PropTypes.func
 };
 
 export default compose(
@@ -60,4 +64,4 @@ export default compose(
       refetchQueries: ['importHistories']
     }
   })
-)(withRouter(PropertiesContainer));
+)(withRouter(HistoriesContainer));

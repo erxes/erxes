@@ -660,5 +660,8 @@
   "Export customers": "Export customers",
   "Import customers": "Import customers",
   "Export companies": "Export companies",
-  "Import companies": "Import companies"
+  "Import companies": "Import companies",
+  "All customers imported successfully": "All customers imported successfully",
+  "There aren't any imports": "There aren't any imports",
+  "Successfully Removed all customers": "Successfully Removed all customers"
 }

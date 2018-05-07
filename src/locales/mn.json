@@ -664,5 +664,8 @@
   "Export customers": "Харилцагчид татах",
   "Import customers": "Харилцагчид оруулах",
   "Export companies": "Компаниуд татах",
-  "Import companies": "Компаниуд оруулах"
+  "Import companies": "Компаниуд оруулах",
+  "All customers imported successfully": "Бүх харилцагчдыг амжилттай орууллаа",
+  "There aren't any imports": "Оруулсан мэдээлэл алга байна",
+  "Successfully Removed all customers": "Бүх харилцагчдыг амжилттай устгалаа"
 }
