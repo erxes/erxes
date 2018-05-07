@@ -62,8 +62,7 @@ class BrandForm extends Component {
 
           <FormControl
             name="description"
-            validations="isValue"
-            validationError="Please enter a description"
+            validations=""
             componentClass="textarea"
             rows={5}
             value={object.description}

@@ -87,8 +87,7 @@ class PropertyGroupForm extends React.Component {
           <FormControl
             type="text"
             name="description"
-            validations="isValue"
-            validationError="Please enter a description"
+            validations=""
             value={group.name || ''}
           />
         </FormGroup>

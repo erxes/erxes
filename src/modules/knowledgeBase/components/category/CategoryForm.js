@@ -101,8 +101,7 @@ class CategoryForm extends Component {
             name="knowledgebaseCategoryDescription"
             type="text"
             value={category.description}
-            validations="isValue"
-            validationError="Please enter a description"
+            validations=""
           />
         </FormGroup>
 

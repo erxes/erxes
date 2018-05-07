@@ -207,8 +207,7 @@ class SegmentsForm extends Component {
             <ControlLabel>Description</ControlLabel>
             <FormControl
               name="description"
-              validations="isValue"
-              validationError="Please enter a description"
+              validations=""
               value={description}
             />
           </FormGroup>
