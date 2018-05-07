@@ -286,7 +286,7 @@ export const generateXlsx = async (workbook, name) => {
   // Saving xls workbook to the directory
   await workbook.toFileAsync(`${__dirname}/../private/${url}`);
 
-  return `${DOMAIN}:3300/static/${url}`;
+  return `${DOMAIN}/static/${url}`;
 };
 
 export default {
