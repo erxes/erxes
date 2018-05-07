@@ -218,10 +218,13 @@ export const importXlsFile = async (file, type, { user }) => {
         // Deleting file after read
         fs.unlink(downloadDir, () => {});
 
-        const usedSheets = workbook
-          .sheet(0)
-          .usedRange()
-          .value();
+        const usedRange = workbook.sheet(0).usedRange();
+
+        if (!usedRange) {
+          return reject(['Invalid file']);
+        }
+
+        const usedSheets = usedRange.value();
 
         // Getting columns
         const fieldNames = usedSheets[0];

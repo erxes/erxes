@@ -349,6 +349,7 @@ describe('Customers model tests', () => {
       text: 'First referred site',
       validation: '',
     });
+
     await fieldFactory({ contentType: 'customer', text: 'Fax number', validation: '' });
     const user = await userFactory({});
 
