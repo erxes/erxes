@@ -663,5 +663,8 @@
   "Import companies": "Import companies",
   "All customers imported successfully": "All customers imported successfully",
   "There aren't any imports": "There aren't any imports",
-  "Successfully Removed all customers": "Successfully Removed all customers"
+  "Successfully Removed all customers": "Successfully Removed all customers",
+  "You can only import max 600 at a time":
+    "You can only import max 600 at a time",
+  "Invalid import type": "Invalid import type"
 }

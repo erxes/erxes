@@ -667,5 +667,8 @@
   "Import companies": "Компаниуд оруулах",
   "All customers imported successfully": "Бүх харилцагчдыг амжилттай орууллаа",
   "There aren't any imports": "Оруулсан мэдээлэл алга байна",
-  "Successfully Removed all customers": "Бүх харилцагчдыг амжилттай устгалаа"
+  "Successfully Removed all customers": "Бүх харилцагчдыг амжилттай устгалаа",
+  "You can only import max 600 at a time":
+    "Харилцагчид оруулах дээд хэмжээ: 600",
+  "Invalid import type": "Буруу төрөл сонгосон байна"
 }

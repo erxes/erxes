@@ -37,12 +37,6 @@ class CustomerListContainer extends Bulk {
     const { __ } = this.context;
     const ln = localStorage.getItem('currentLanguage');
 
-    const errorMessages = {
-      'You can only import max 600 at a time':
-        'Алдаа: Харилцагч оруулах дээд хэмжээ: 600',
-      'Invalid import type': 'Буруу төрөл сонгосон байна'
-    };
-
     router.refetchIfUpdated(history, customersMainQuery);
 
     let columnsConfig =
@@ -63,7 +57,6 @@ class CustomerListContainer extends Bulk {
           this.emptyBulk();
           customersMainQuery.refetch();
           Alert.success('Success');
-          // callback();
         })
         .catch(e => {
           Alert.error(e.message);
@@ -128,10 +121,10 @@ class CustomerListContainer extends Bulk {
 
           if (response.length > 0) {
             if (ln === 'mn') {
-              return Alert.error(errorMessages[response]);
+              return Alert.error(__(response[0]));
             }
 
-            Alert.error(response);
+            Alert.error(response[0]);
           } else {
             Alert.success(__('All customers imported successfully'));
           }
