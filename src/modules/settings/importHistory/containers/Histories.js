@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -7,36 +7,51 @@ import { queries, mutations } from '../graphql';
 import gql from 'graphql-tag';
 import { Histories } from '../components';
 
-const HistoriesContainer = (props, { __ }) => {
-  const { historiesQuery, history, importHistoriesRemove } = props;
+class HistoriesContainer extends Component {
+  constructor(props) {
+    super(props);
 
-  if (!router.getParam(history, 'type')) {
-    router.setParams(history, { type: 'customer' });
+    this.state = {
+      loading: false
+    };
   }
 
-  const currentType = router.getParam(history, 'type');
+  render() {
+    const { historiesQuery, history, importHistoriesRemove } = this.props;
+    const { __ } = this.context;
 
-  const removeHistory = _id => {
-    importHistoriesRemove({
-      variables: { _id }
-    })
-      .then(() => {
-        Alert.success(__('Successfully Removed all customers'));
+    if (!router.getParam(history, 'type')) {
+      router.setParams(history, { type: 'customer' });
+    }
+
+    const currentType = router.getParam(history, 'type');
+
+    const removeHistory = _id => {
+      this.setState({ loading: true });
+
+      importHistoriesRemove({
+        variables: { _id }
       })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
+        .then(() => {
+          Alert.success(__('Successfully Removed all customers'));
+          this.setState({ loading: false });
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
 
-  const updatedProps = {
-    ...props,
-    histories: historiesQuery.importHistories || [],
-    removeHistory,
-    currentType
-  };
+    const updatedProps = {
+      ...this.props,
+      histories: historiesQuery.importHistories || [],
+      loading: historiesQuery.loading || this.state.loading,
+      removeHistory,
+      currentType
+    };
 
-  return <Histories {...updatedProps} />;
-};
+    return <Histories {...updatedProps} />;
+  }
+}
 
 HistoriesContainer.propTypes = {
   queryParams: PropTypes.object,

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { EmptyState, Table } from 'modules/common/components';
+import { Table, DataWithLoader } from 'modules/common/components';
 import Sidebar from '../../properties/components/Sidebar';
 import HistoryRow from './Row';
 
@@ -9,7 +9,8 @@ const propTypes = {
   queryParams: PropTypes.object,
   currentType: PropTypes.string,
   histories: PropTypes.array,
-  removeHistory: PropTypes.func
+  removeHistory: PropTypes.func,
+  loading: PropTypes.bool
 };
 
 const contextTypes = {
@@ -26,10 +27,6 @@ class Histories extends Component {
   renderHistories() {
     const { histories, removeHistory } = this.props;
     const { __ } = this.context;
-
-    if (histories.length === 0) {
-      return <EmptyState icon="circular" text="There aren't any imports" />;
-    }
 
     return (
       <Table>
@@ -60,7 +57,7 @@ class Histories extends Component {
 
   render() {
     const { __ } = this.context;
-    const { currentType } = this.props;
+    const { currentType, histories, loading } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -74,7 +71,15 @@ class Histories extends Component {
         leftSidebar={
           <Sidebar title="Import histories" currentType={currentType} />
         }
-        content={this.renderHistories()}
+        content={
+          <DataWithLoader
+            data={this.renderHistories()}
+            loading={loading}
+            count={histories.length}
+            emptyText="There aren't any imports"
+            emptyImage="/images/robots/robot-01.svg"
+          />
+        }
       />
     );
   }
