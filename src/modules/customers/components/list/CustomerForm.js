@@ -162,8 +162,7 @@ class CustomerForm extends React.Component {
             {this.renderFormGroup('Description', {
               value: customer.description || '',
               name: 'description',
-              validations: 'isValue',
-              validationError: 'Please enter a description'
+              validations: ''
             })}
           </FormColumn>
           <FormColumn>

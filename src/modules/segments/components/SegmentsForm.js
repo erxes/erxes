@@ -175,8 +175,7 @@ class SegmentsForm extends Component {
           name="subOf"
           componentClass="select"
           value={this.state.subOf || ''}
-          validations="isValue"
-          validationError="Please select a sub segment"
+          validations=""
         >
           <option value="">[not selected]</option>
           {this.props.headSegments.map(segment => (
