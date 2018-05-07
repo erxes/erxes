@@ -5,7 +5,7 @@ import { withRouter } from 'react-router';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
-import { Alert, uploadHandler } from 'modules/common/utils';
+import { Alert, uploadHandler, download } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../constants';
@@ -86,7 +86,7 @@ class CustomerListContainer extends Bulk {
           variables: { ...queryParams }
         })
         .then(({ data }) => {
-          window.open(data.customersExport, '_blank');
+          download(data.customersExport);
         })
         .catch(error => {
           Alert.error(error.message);
