@@ -99,6 +99,7 @@ class ArticleForm extends Component {
           <FormControl
             name="title"
             type="text"
+            value={article.title}
             validations="isValue"
             validationError="Please enter a title"
           />
@@ -109,6 +110,7 @@ class ArticleForm extends Component {
           <FormControl
             name="summary"
             type="text"
+            value={article.summary}
             validations="isValue"
             validationError="Please enter a summary"
           />
@@ -125,7 +127,7 @@ class ArticleForm extends Component {
             componentClass="select"
             name="status"
             validations="isValue"
-            validationError="Please select a status"
+            validationError="Please select a brand"
             placeholder={__('select')}
             onChange={e => {
               this.setState({ status: e.target.value });
