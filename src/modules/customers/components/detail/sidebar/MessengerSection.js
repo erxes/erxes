@@ -9,14 +9,14 @@ const propTypes = {
   customer: PropTypes.object.isRequired
 };
 
-function MessengerSection({ customer }, { __ }) {
+function MessengerSection({ customer }, { __, queryParams }) {
   const { messengerData } = customer;
 
-  if (!messengerData) {
+  if (!(messengerData || queryParams)) {
     return null;
   }
 
-  const content = (
+  const content = messengerData ? (
     <SidebarList className="no-link">
       <li>
         {__('Status')}
@@ -39,7 +39,7 @@ function MessengerSection({ customer }, { __ }) {
         <SidebarCounter>{messengerData.sessionCount}</SidebarCounter>
       </li>
     </SidebarList>
-  );
+  ) : null;
 
   return (
     <BaseSection
@@ -53,7 +53,8 @@ function MessengerSection({ customer }, { __ }) {
 
 MessengerSection.propTypes = propTypes;
 MessengerSection.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
+  queryParams: PropTypes.object
 };
 
 export default MessengerSection;

@@ -13,14 +13,14 @@ const propTypes = {
   customer: PropTypes.object.isRequired
 };
 
-function TwitterSection({ customer }, { __ }) {
+function TwitterSection({ customer }, { __, queryParams }) {
   const { twitterData } = customer;
 
-  if (!twitterData) {
+  if (!(twitterData || queryParams)) {
     return null;
   }
 
-  const content = (
+  const content = twitterData ? (
     <div>
       <SidebarList className="no-link">
         <li>
@@ -43,7 +43,7 @@ function TwitterSection({ customer }, { __ }) {
         </Button>
       </ButtonWrapper>
     </div>
-  );
+  ) : null;
 
   return (
     <BaseSection
@@ -57,7 +57,8 @@ function TwitterSection({ customer }, { __ }) {
 
 TwitterSection.propTypes = propTypes;
 TwitterSection.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
+  queryParams: PropTypes.object
 };
 
 export default TwitterSection;

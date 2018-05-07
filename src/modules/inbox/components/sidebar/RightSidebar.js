@@ -13,12 +13,15 @@ const propTypes = {
   customer: PropTypes.object,
   refetch: PropTypes.func,
   loading: PropTypes.bool,
-  showSectionContent: PropTypes.func
+  showSectionContent: PropTypes.func,
+  queryParams: PropTypes.object
 };
 
 class RightSidebar extends Component {
   getChildContext() {
-    return { showSectionContent: this.props.showSectionContent };
+    const { showSectionContent, queryParams } = this.props;
+
+    return { showSectionContent, queryParams };
   }
 
   renderMessengerData() {
@@ -40,16 +43,24 @@ class RightSidebar extends Component {
   }
 
   renderSectionBottom(customer) {
+    const { showDeal } = this.props.queryParams;
+
     return (
       <Fragment>
         <CompanyAssociate data={customer} />
-        <DealSection customerId={customer._id} />
+        <DealSection customerId={showDeal ? customer._id : null} />
       </Fragment>
     );
   }
 
   render() {
-    const { loading, conversation, refetch, customer } = this.props;
+    const {
+      loading,
+      conversation,
+      refetch,
+      customer,
+      queryParams
+    } = this.props;
 
     if (customer && conversation) {
       return (
@@ -59,6 +70,7 @@ class RightSidebar extends Component {
           sectionBottom={this.renderSectionBottom(customer)}
           customer={customer}
           refetch={refetch}
+          queryParams={queryParams}
           otherProperties={this.renderMessengerData()}
         />
       );
@@ -71,7 +83,8 @@ class RightSidebar extends Component {
 RightSidebar.propTypes = propTypes;
 
 RightSidebar.childContextTypes = {
-  showSectionContent: PropTypes.func
+  showSectionContent: PropTypes.func,
+  queryParams: PropTypes.object
 };
 
 export default RightSidebar;

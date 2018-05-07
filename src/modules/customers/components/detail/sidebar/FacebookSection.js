@@ -7,14 +7,14 @@ const propTypes = {
   customer: PropTypes.object.isRequired
 };
 
-function FacebookSection({ customer }, { __ }) {
+function FacebookSection({ customer }, { __, queryParams }) {
   const { facebookData } = customer;
 
-  if (!facebookData) {
+  if (!(facebookData || queryParams)) {
     return null;
   }
 
-  const content = (
+  const content = facebookData ? (
     <SidebarList className="no-link">
       <li>
         {__('Facebook profile')}
@@ -29,7 +29,7 @@ function FacebookSection({ customer }, { __ }) {
         </SidebarCounter>
       </li>
     </SidebarList>
-  );
+  ) : null;
 
   return (
     <BaseSection
@@ -43,7 +43,8 @@ function FacebookSection({ customer }, { __ }) {
 
 FacebookSection.propTypes = propTypes;
 FacebookSection.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
+  queryParams: PropTypes.object
 };
 
 export default FacebookSection;

@@ -235,25 +235,23 @@ const generateCustomerDetailQuery = params => {
     showMessenger,
     showFacebook,
     showTwitter,
-    showOtherProperty
+    showOtherProperty,
+    showTags
   } =
     params || {};
 
   let fields = `_id`;
 
   if (showProfile) {
-    fields += `
+    fields = `
+      ${fields}
       firstName
       lastName
       email
       phone
       isUser
-      integrationId
-      createdAt
-      remoteAddress
       visitorContactInfo
 
-      ownerId
       position
       department
       leadStatus
@@ -274,17 +272,12 @@ const generateCustomerDetailQuery = params => {
           fullName
         }
       }
-      tagIds
-      getTags {
-        _id
-        name
-        colorCode
-      }
     `;
   }
 
   if (showCompany) {
-    fields += `
+    fields = `
+      ${fields}
       companies {
         _id
         name
@@ -294,23 +287,49 @@ const generateCustomerDetailQuery = params => {
   }
 
   if (showMessenger) {
-    fields += `messengerData`;
+    fields = `
+      ${fields}
+      messengerData
+    `;
   }
 
   if (showFacebook) {
-    fields += `facebookData`;
+    fields = `
+      ${fields}
+      facebookData
+    `;
   }
 
   if (showTwitter) {
-    fields += `twitterData`;
+    fields = `
+      ${fields}
+      twitterData
+    `;
   }
 
   if (showDeviceProperty) {
-    fields += `location`;
+    fields = `
+      ${fields}
+      location
+    `;
   }
 
   if (showOtherProperty) {
-    fields += `getMessengerCustomData`;
+    fields = `
+      ${fields}
+      getMessengerCustomData
+    `;
+  }
+
+  if (showTags) {
+    fields = `
+      ${fields}
+      getTags {
+        _id
+        name
+        colorCode
+      }
+    `;
   }
 
   return `

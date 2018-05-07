@@ -65,6 +65,7 @@ class DealSection extends React.Component {
         quickButtons={quickButtons}
         content={content}
         isUseCustomer={true}
+        name="showDeal"
       />
     );
   }

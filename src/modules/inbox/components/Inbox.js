@@ -31,10 +31,12 @@ class Inbox extends Component {
       queryParams: {
         showProfile: false,
         showCompany: false,
+        showDeal: false,
         showDeviceProperty: false,
         showMessenger: false,
         showFacebook: false,
         showTwitter: false,
+        showTags: false,
         showOtherProperty: false
       }
     };

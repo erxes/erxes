@@ -76,6 +76,8 @@ class TaggerSection extends Component {
         content={content}
         extraContent={extraContent}
         quickButtons={quickButtons}
+        isUseCustomer={true}
+        name="showTags"
       />
     );
   }
