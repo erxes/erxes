@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
 import { DataWithLoader, ModalTrigger, Icon } from 'modules/common/components';
-import { SidebarList as List } from 'modules/layout/styles';
-import { RightButton } from '../../styles';
+import { SidebarList as List, HelperButtons } from 'modules/layout/styles';
 import { BoardForm, BoardRow } from './';
 
 const propTypes = {
@@ -46,14 +45,17 @@ class Boards extends Component {
     const { Header } = Sidebar;
 
     const addBoard = (
-      <RightButton>
-        <Icon icon="add" />
-      </RightButton>
+      <HelperButtons>
+        <a>
+          <Icon icon="add" />
+        </a>
+      </HelperButtons>
     );
 
     return (
       <Header uppercase>
         {__('Board')}
+
         <ModalTrigger title="New Board" trigger={addBoard}>
           {this.renderBoardForm({ save })}
         </ModalTrigger>
@@ -73,6 +75,7 @@ class Boards extends Component {
             count={boards.length}
             emptyText="There is no board"
             emptyImage="/images/robots/robot-05.svg"
+            objective
           />
         </Sidebar.Section>
       </Sidebar>

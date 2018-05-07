@@ -56,8 +56,8 @@ class BoardRow extends Component {
       <BoardItem key={board._id} isDefault={isDefault}>
         <Button
           btnStyle="link"
-          onClick={this.props.setDefault.bind(this, board._id)}
           icon="star"
+          onClick={this.props.setDefault.bind(this, board._id)}
         />
         <Link to={`?boardId=${board._id}`}>{board.name}</Link>
         <ActionButtons>

@@ -96,12 +96,7 @@ class Pipelines extends Component {
 
     return (
       <PipelineContainer>
-        <ul>
-          <li>
-            <span>{__('Pipeline')}</span>
-          </li>
-        </ul>
-
+        <h3>{__('Pipeline')}</h3>
         {this.renderRows()}
       </PipelineContainer>
     );

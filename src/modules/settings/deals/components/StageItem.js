@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, Button, Tip } from 'modules/common/components';
+import { FormControl, Button } from 'modules/common/components';
 import { StageItemContainer } from '../styles';
 import { PROBABILITY } from '../constants';
 
@@ -41,13 +41,12 @@ class StageItem extends Component {
           ))}
         </FormControl>
 
-        <Tip text="Delete">
-          <Button
-            btnStyle="link"
-            onClick={remove.bind(this, stage._id)}
-            icon="cancel-1"
-          />
-        </Tip>
+        <Button
+          btnStyle="danger"
+          size="small"
+          onClick={remove.bind(this, stage._id)}
+          icon="cancel-1"
+        />
       </StageItemContainer>
     );
   }

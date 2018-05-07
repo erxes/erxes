@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import {
@@ -6,17 +6,12 @@ import {
   Label,
   Icon,
   TaggerPopover,
-  Tags,
-  Spinner
+  Tags
 } from 'modules/common/components';
-import { LeftSidebar, RespondBox, Resolver } from '../containers';
+import { LeftSidebar, RightSidebar, RespondBox, Resolver } from '../containers';
 import { AssignBoxPopover, Participators, Conversation } from './';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
-import { BarItems, SidebarCounter } from 'modules/layout/styles';
-import ConversationDetails from './sidebar/ConversationDetails';
-import { EditInformation } from 'modules/customers/containers';
-import { CompanyAssociate } from 'modules/companies/containers';
-import { DealSection } from 'modules/deals/containers';
+import { BarItems } from 'modules/layout/styles';
 
 import {
   PopoverButton,
@@ -57,56 +52,6 @@ class Inbox extends Component {
 
   setAttachmentPreview(attachmentPreview) {
     this.setState({ attachmentPreview });
-  }
-
-  renderMessengerData() {
-    const conversation = this.props.currentConversation;
-    const customer = conversation.customer || {};
-    const integration = conversation.integration || {};
-    const customData = customer.getMessengerCustomData;
-
-    if (integration.kind === 'messenger' && customData.length) {
-      return customData.map(data => (
-        <li key={data.value}>
-          {data.name}
-          <SidebarCounter>{data.value}</SidebarCounter>
-        </li>
-      ));
-    }
-
-    return null;
-  }
-
-  renderSectionBottom(customer) {
-    return (
-      <Fragment>
-        <CompanyAssociate data={customer} />
-        <DealSection customerId={customer._id} />
-      </Fragment>
-    );
-  }
-
-  renderRightSidebar(currentConversation) {
-    const { loading } = this.props;
-
-    if (currentConversation._id) {
-      const customer = currentConversation.customer || {};
-
-      return (
-        <EditInformation
-          conversation={currentConversation}
-          sectionTop={
-            <ConversationDetails conversation={currentConversation} />
-          }
-          sectionBottom={this.renderSectionBottom(customer)}
-          customer={customer}
-          refetch={this.props.refetch}
-          otherProperties={this.renderMessengerData()}
-        />
-      );
-    }
-
-    return <Wrapper.Sidebar full>{loading && <Spinner />}</Wrapper.Sidebar>;
   }
 
   render() {
@@ -223,7 +168,15 @@ class Inbox extends Component {
             onChangeConversation={onChangeConversation}
           />
         }
-        rightSidebar={this.renderRightSidebar(currentConversation)}
+        rightSidebar={
+          currentConversation._id && (
+            <RightSidebar
+              conversation={currentConversation}
+              refetch={refetch}
+              customerId={currentConversation.customerId}
+            />
+          )
+        }
       />
     );
   }

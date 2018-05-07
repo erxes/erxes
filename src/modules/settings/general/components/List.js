@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Wrapper, ActionBar } from 'modules/layout/components';
 import Select from 'react-select-plus';
+import { Wrapper, ActionBar } from 'modules/layout/components';
 import { FormGroup, Button, ControlLabel } from 'modules/common/components';
 import { CURRENCIES, MEASUREMENTS, LANGUAGES } from '../constants';
 import { ContentBox } from '../../styles';
