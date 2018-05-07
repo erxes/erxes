@@ -120,11 +120,7 @@ class CustomerListContainer extends Bulk {
         afterUpload: ({ response }) => {
           if (response.length === 0) {
             customersMainQuery.refetch();
-            return Alert.success(__('All customers imported successfully'));
-          }
-
-          if (response[0] === 'You can only import max 600 at a time') {
-            Alert.error(__(response[0]));
+            Alert.success(__('All customers imported successfully'));
           } else {
             Alert.error(response[0]);
           }
