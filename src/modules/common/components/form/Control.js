@@ -20,6 +20,7 @@ const propTypes = {
   onChange: PropTypes.func,
   onClick: PropTypes.func,
   checked: PropTypes.bool,
+  defaultChecked: PropTypes.bool,
   placeholder: PropTypes.string,
   type: PropTypes.string,
   name: PropTypes.string,
@@ -72,7 +73,11 @@ class EnhancedFormControl extends React.Component {
 
     const attributes = {
       ...updatedProps,
-      checked: props.checked
+      [props.defaultChecked
+        ? 'defaultChecked'
+        : 'checked']: props.defaultChecked
+        ? props.defaultChecked
+        : props.checked
     };
 
     const error =

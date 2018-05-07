@@ -688,5 +688,9 @@
   "Please select a validation type": "Баталгаажуулалт төрөл сонгоно уу",
   "Please select a role": "Ажил үүүрэг сонгоно уу",
   "Please provide a password": "Нууц үг бичиж өгнө үү",
-  "Password does not match": "Нууц үг таарахгүй байна"
+  "Password does not match": "Нууц үг таарахгүй байна",
+  "Please select a stage": "Тавцан сонгоно уу",
+  "Please enter a welcome message": "Анхны зурвас оруулна уу",
+  "Please enter an away message": "Баяртай зурвас оруулна уу",
+  "Please enter a thank you message": "Талархалын зурвас оруулна уу"
 }

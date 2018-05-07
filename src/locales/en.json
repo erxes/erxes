@@ -688,5 +688,9 @@
   "Please select a validation type": "Please select a validation type",
   "Please select a role": "Please select a role",
   "Please provide a password": "Please provide a password",
-  "Password does not match": "Password does not match"
+  "Password does not match": "Password does not match",
+  "Please select a stage": "Please select a state",
+  "Please enter a welcome message": "Please enter a welcome message",
+  "Please enter an away message": "Please enter an away message",
+  "Please enter a thank you message": "Please enter a thank you message"
 }
