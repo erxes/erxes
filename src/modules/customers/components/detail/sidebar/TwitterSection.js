@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Button } from 'modules/common/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import { BaseSection } from 'modules/common/components';
+import { BaseSection } from './';
 
 const ButtonWrapper = styled.div`
   padding: 10px 20px;

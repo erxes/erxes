@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
 import { SidebarList } from 'modules/layout/styles';
 import { EmptyState, Tagger, Icon } from 'modules/common/components';
-import { BaseSection } from 'modules/common/components';
+import { BaseSection } from './';
 
 const propTypes = {
   data: PropTypes.object.isRequired,

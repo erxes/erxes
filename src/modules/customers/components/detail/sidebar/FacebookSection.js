@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import { BaseSection } from 'modules/common/components';
+import { BaseSection } from './';
 
 const propTypes = {
   customer: PropTypes.object.isRequired

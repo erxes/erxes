@@ -27,18 +27,7 @@ class Inbox extends Component {
 
     this.state = {
       attachmentPreview: {},
-      getCustomer: false,
-      queryParams: {
-        showProfile: false,
-        showCompany: false,
-        showDeal: false,
-        showDeviceProperty: false,
-        showMessenger: false,
-        showFacebook: false,
-        showTwitter: false,
-        showTags: false,
-        showOtherProperty: false
-      }
+      getCustomer: Object.values(props.sectionParams).includes(true)
     };
 
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
@@ -69,10 +58,11 @@ class Inbox extends Component {
 
   showSectionContent(bool, obj) {
     const { name, val } = obj;
-    const { queryParams } = this.state;
-    queryParams[name] = val;
+    const { sectionParams, setSectionParams } = this.props;
+    sectionParams[name] = val;
 
-    this.setState({ getCustomer: bool, queryParams });
+    this.setState({ getCustomer: bool });
+    setSectionParams(sectionParams);
   }
 
   render() {
@@ -82,7 +72,8 @@ class Inbox extends Component {
       currentConversation,
       conversationMessages,
       onChangeConversation,
-      refetch
+      refetch,
+      sectionParams
     } = this.props;
 
     const { __ } = this.context;
@@ -197,7 +188,7 @@ class Inbox extends Component {
               showSectionContent={this.showSectionContent}
               customerId={currentConversation.customerId}
               getCustomer={this.state.getCustomer}
-              queryParams={this.state.queryParams}
+              queryParams={sectionParams}
             />
           )
         }
@@ -215,7 +206,9 @@ Inbox.propTypes = {
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
   conversationMessages: PropTypes.array,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  sectionParams: PropTypes.object,
+  setSectionParams: PropTypes.func
 };
 
 Inbox.contextTypes = {

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { DropIcon } from '../styles/main';
+import { DropIcon } from 'modules/common/styles/main';
 import { Sidebar } from 'modules/layout/components';
 import { withRouter } from 'react-router';
 
@@ -15,23 +15,28 @@ const propTypes = {
 };
 
 class BaseSection extends Component {
-  constructor(props) {
+  constructor(props, context) {
     super(props);
-    const { location } = props.history;
+    const { history, name } = props;
+    const { queryParams } = context;
 
-    this.state = { detailed: !(location.pathname === '/inbox') };
+    this.state = {
+      detailed:
+        !(history.location.pathname === '/inbox') ||
+        (queryParams && queryParams[name])
+    };
     this.toggle = this.toggle.bind(this);
   }
 
   toggle() {
     const { showSectionContent } = this.context;
-    const { isUseCustomer, name } = this.props;
+    const { isUseCustomer = false, name } = this.props;
     const val = !this.state.detailed;
 
     this.setState({ detailed: val });
 
-    if (showSectionContent && isUseCustomer) {
-      showSectionContent(true, { name, val });
+    if (showSectionContent) {
+      showSectionContent(isUseCustomer, { name, val });
     }
   }
 
@@ -68,7 +73,8 @@ class BaseSection extends Component {
 
 BaseSection.propTypes = propTypes;
 BaseSection.contextTypes = {
-  showSectionContent: PropTypes.func
+  showSectionContent: PropTypes.func,
+  queryParams: PropTypes.object
 };
 
 export default withRouter(BaseSection);

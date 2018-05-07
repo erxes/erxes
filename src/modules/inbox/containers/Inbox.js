@@ -132,13 +132,37 @@ class ConversationDetail extends Component {
       });
     }
 
+    const storageKey = `erxes_sidebar_section_config`;
+
+    const setSectionParams = params => {
+      localStorage.setItem(storageKey, JSON.stringify(params));
+    };
+
+    if (!localStorage.getItem(storageKey)) {
+      setSectionParams({
+        showProfile: false,
+        showCompany: false,
+        showConversationDetail: false,
+        showManageGroups: false,
+        showDeal: false,
+        showDeviceProperty: false,
+        showMessenger: false,
+        showFacebook: false,
+        showTwitter: false,
+        showTags: false,
+        showOtherProperty: false
+      });
+    }
+
     const updatedProps = {
       ...this.props,
       currentConversationId: currentId,
       currentConversation,
       conversationMessages,
       loading,
-      refetch: detailQuery.refetch
+      refetch: detailQuery.refetch,
+      sectionParams: JSON.parse(localStorage.getItem(storageKey)),
+      setSectionParams
     };
 
     return <InboxComponent {...updatedProps} />;

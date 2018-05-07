@@ -15,7 +15,7 @@ import {
   CUSTOMER_BASIC_INFO,
   CUSTOMER_DATAS
 } from 'modules/customers/constants';
-import { BaseSection } from 'modules/common/components';
+import { BaseSection } from './';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,

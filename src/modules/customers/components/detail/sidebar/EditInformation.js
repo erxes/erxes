@@ -6,13 +6,13 @@ import { Button } from 'modules/common/components';
 import { ManageGroups } from 'modules/settings/properties/components';
 import { BasicInfo } from 'modules/customers/containers';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import { BaseSection } from 'modules/common/components';
 
 import {
   TaggerSection,
   MessengerSection,
   TwitterSection,
-  FacebookSection
+  FacebookSection,
+  BaseSection
 } from './';
 
 const propTypes = {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Alert } from 'modules/common/utils';
 import { SidebarContent } from 'modules/layout/styles';
 import GenerateField from './GenerateField';
-import { BaseSection } from 'modules/common/components';
+import { BaseSection } from 'modules/customers/components';
 
 const propTypes = {
   fieldsGroups: PropTypes.array.isRequired,
@@ -89,6 +89,7 @@ class GenerateGroups extends React.Component {
           key={fieldGroup._id}
           title={fieldGroup.name}
           content={content}
+          name="showManageGroups"
         />
       );
     });

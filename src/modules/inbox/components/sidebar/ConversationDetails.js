@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { IntegrationIcon } from 'modules/common/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import { BaseSection } from 'modules/common/components';
+import { BaseSection } from 'modules/customers/components';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired
@@ -78,7 +78,13 @@ class ConversationDetails extends Component {
         </li>
       </SidebarList>
     );
-    return <BaseSection title={__('Conversation Details')} content={content} />;
+    return (
+      <BaseSection
+        title={__('Conversation Details')}
+        content={content}
+        name="showConversationDetail"
+      />
+    );
   }
 }
 

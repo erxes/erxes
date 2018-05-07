@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { Label } from 'modules/common/components';
-import { BaseSection } from 'modules/common/components';
+import { BaseSection } from './';
 
 const propTypes = {
   customer: PropTypes.object.isRequired

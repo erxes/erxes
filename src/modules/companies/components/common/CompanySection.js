@@ -5,7 +5,7 @@ import { ModalTrigger, Icon, Tip, EmptyState } from 'modules/common/components';
 import { urlParser } from 'modules/common/utils';
 import { CompanyChooser } from '../../containers';
 import { SectionBody, SectionBodyItem } from 'modules/customers/styles';
-import { BaseSection } from 'modules/common/components';
+import { BaseSection } from 'modules/customers/components';
 
 const propTypes = {
   name: PropTypes.string,

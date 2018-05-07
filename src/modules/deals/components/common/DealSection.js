@@ -4,7 +4,7 @@ import { ModalTrigger, EmptyState, Icon } from 'modules/common/components';
 import { Deal } from '../../containers';
 import { DealAddForm } from '../';
 import { SectionContainer } from '../../styles/deal';
-import { BaseSection } from 'modules/common/components';
+import { BaseSection } from 'modules/customers/components';
 
 const propTypes = {
   deals: PropTypes.array,

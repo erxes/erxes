@@ -44,7 +44,7 @@ class RightSidebar extends Component {
     const updatedProps = {
       ...this.props,
       customer,
-      loading: loading
+      loading
     };
 
     return <RightSidebarComponent {...updatedProps} />;
