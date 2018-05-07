@@ -202,7 +202,7 @@ class CustomersList extends React.Component {
                   {__('Import customers')}
                   <input
                     type="file"
-                    onChange={handleXlsUpload}
+                    onChange={e => handleXlsUpload(e)}
                     style={{ display: 'none' }}
                     accept=".xlsx, .xls"
                   />

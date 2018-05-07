@@ -68,6 +68,7 @@ export default compose(
   graphql(gql(queries.histories), {
     name: 'historiesQuery',
     options: ({ queryParams }) => ({
+      fetchPolicy: 'network-only',
       variables: {
         type: queryParams.type || 'customer'
       }

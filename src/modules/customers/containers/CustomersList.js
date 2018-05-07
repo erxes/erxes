@@ -128,6 +128,8 @@ class CustomerListContainer extends Bulk {
           this.setState({ loading: false });
         }
       });
+
+      e.target.value = null;
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
