@@ -1,14 +1,21 @@
 import { createXlsFile, generateXlsx } from '../../utils';
-import { CUSTOMER_BASIC_INFOS } from '../../constants';
+import { CUSTOMER_BASIC_INFOS, COMPANY_BASIC_INFOS } from '../../constants';
 import { Fields } from '../../../db/models';
+import moment from 'moment';
 
 /**
- * Export customers
- * @param {[Object]} customers - Filtered customers
+ * Export customers or companies
+ * @param {[Object]} coc - Filtered customers or companies
  *
  * @return {String} - file url
  */
-export const customersExport = async customers => {
+export const cocsExport = async (cocs, cocType) => {
+  let basicInfos = CUSTOMER_BASIC_INFOS;
+
+  if (cocType === 'company') {
+    basicInfos = COMPANY_BASIC_INFOS;
+  }
+
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
 
@@ -30,30 +37,29 @@ export const customersExport = async customers => {
     }
   };
 
-  for (let customer of customers) {
+  for (let coc of cocs) {
     rowIndex++;
 
-    // Iterating through customer basic infos
-    for (let info of CUSTOMER_BASIC_INFOS) {
-      if (customer[info] && customer[info] !== '') {
-        addCell(info, customer[info]);
+    // Iterating through coc basic infos
+    for (let info of basicInfos) {
+      if (coc[info] && coc[info] !== '') {
+        addCell(info, coc[info]);
       }
     }
 
-    // Iterating through customer custom properties
-    if (customer.customFieldsData) {
-      for (let fieldId in customer.customFieldsData) {
+    // Iterating through coc custom properties
+    if (coc.customFieldsData) {
+      for (let fieldId in coc.customFieldsData) {
         const propertyObj = await Fields.findOne({ _id: fieldId });
 
         if (propertyObj) {
           const { text } = propertyObj;
 
-          addCell(text, customer.customFieldsData[fieldId]);
+          addCell(text, coc.customFieldsData[fieldId]);
         }
       }
     }
   }
-
   // Write to file.
-  return generateXlsx(workbook, 'customers');
+  return generateXlsx(workbook, `${cocType} - ${moment().format('YYYY-MM-DD HH:mm')}`);
 };

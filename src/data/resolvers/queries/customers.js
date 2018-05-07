@@ -4,7 +4,7 @@ import QueryBuilder from './segmentQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 import BuildQuery from './customerQueryBuilder';
-import { customersExport } from './customersExport';
+import { cocsExport } from './cocExport';
 
 const CUSTOMERS_SORT = { 'messengerData.lastSeenAt': -1 };
 
@@ -148,7 +148,7 @@ const customerQueries = {
 
     const customers = await Customers.find(qb.mainQuery()).sort(CUSTOMERS_SORT);
 
-    return customersExport(customers);
+    return cocsExport(customers, 'customer');
   },
 };
 
