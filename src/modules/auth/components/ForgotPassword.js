@@ -17,6 +17,8 @@ class ForgotPassword extends Component {
   constructor(props) {
     super(props);
 
+    this.state = { email: '' };
+
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -42,8 +44,8 @@ class ForgotPassword extends Component {
               name="email"
               placeholder={__('registered@email.com')}
               value={this.state.email}
-              validations="isValue"
-              validationError="Please enter a password"
+              validations="isEmail"
+              validationError="Please enter an email"
             />
           </FormGroup>
           <Button type="submit" block>
