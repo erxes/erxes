@@ -233,7 +233,7 @@ class PropertyForm extends Component {
             componentClass="select"
             validations="isValue"
             validationError="Please select a group"
-            value={field.groupId || groups[0]._id}
+            value={field.groupId}
           >
             {groups.map(group => {
               return (

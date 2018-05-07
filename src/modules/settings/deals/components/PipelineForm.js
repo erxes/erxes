@@ -64,7 +64,7 @@ class PipelineForm extends Component {
           <FormControl
             name="pipelineName"
             validations="isValue"
-            validationError="This field is required"
+            validationError="Please enter a name"
             value={pipeline ? pipeline.name : ''}
             type="text"
             autoFocus

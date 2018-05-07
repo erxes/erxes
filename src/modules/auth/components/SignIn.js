@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Button, FormControl, FormGroup } from 'modules/common/components';
+import {
+  Form,
+  Button,
+  FormControl,
+  FormGroup
+} from 'modules/common/components';
 import { AuthBox, Links } from '../styles';
 
 const propTypes = {
@@ -22,22 +27,10 @@ class SignIn extends Component {
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
 
-  login(e) {
-    e.preventDefault();
-
-    const { email, password } = this.state;
+  login(doc) {
+    const { email, password } = doc;
 
     this.props.login({ email, password });
-  }
-
-  handleEmailChange(e) {
-    e.preventDefault();
-    this.setState({ email: e.target.value });
-  }
-
-  handlePasswordChange(e) {
-    e.preventDefault();
-    this.setState({ password: e.target.value });
   }
 
   render() {
@@ -45,29 +38,31 @@ class SignIn extends Component {
     return (
       <AuthBox>
         <h2>{__('Sign in')}</h2>
-        <form onSubmit={this.login}>
+        <Form onSubmit={this.login}>
           <FormGroup>
             <FormControl
               type="email"
               placeholder={__('your@email.com')}
               value={this.state.email}
-              required
-              onChange={this.handleEmailChange}
+              name="email"
+              validations="isEmail"
+              validationError="Please enter a email"
             />
           </FormGroup>
           <FormGroup>
             <FormControl
               type="password"
+              name="password"
+              validations="isValue"
+              validationError="Please enter a password"
               placeholder={__('password')}
               value={this.state.password}
-              required
-              onChange={this.handlePasswordChange}
             />
           </FormGroup>
           <Button type="submit" block>
             Sign in
           </Button>
-        </form>
+        </Form>
         <Links>
           <Link to="/forgot-password">{__('Forgot password?')}</Link>
         </Links>

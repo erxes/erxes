@@ -1,6 +1,6 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, ModalTrigger } from 'modules/common/components';
+import { Form, Button, ModalTrigger } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
 import { PasswordConfirmation } from './';
 import { ModalFooter } from 'modules/common/styles/main';
@@ -20,26 +20,26 @@ class EditProfile extends Component {
     this.state = { avatar: props.currentUser.details.avatar };
   }
 
-  handleSubmit(password) {
+  handleSubmit(doc) {
     this.props.save({
-      username: document.getElementById('username').value,
-      email: document.getElementById('email').value,
+      username: doc.username,
+      email: doc.email,
       details: {
         avatar: this.state.avatar,
-        fullName: document.getElementById('fullName').value,
-        position: document.getElementById('position').value,
-        location: document.getElementById('user-location').value,
-        description: document.getElementById('description').value
+        fullName: doc.fullName,
+        position: doc.position,
+        location: doc.userLocation,
+        description: doc.description
       },
       links: {
-        linkedIn: document.getElementById('linkedin').value,
-        twitter: document.getElementById('twitter').value,
-        facebook: document.getElementById('facebook').value,
-        youtube: document.getElementById('youtube').value,
-        github: document.getElementById('github').value,
-        website: document.getElementById('website').value
+        linkedIn: doc.linkedin,
+        twitter: doc.twitter,
+        facebook: doc.facebook,
+        youtube: doc.youtube,
+        github: doc.github,
+        website: doc.website
       },
-      password
+      password: doc.password
     });
 
     this.context.closeModal();
@@ -57,7 +57,7 @@ class EditProfile extends Component {
     );
 
     return (
-      <Fragment>
+      <Form>
         <UserCommonInfos
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
@@ -82,7 +82,7 @@ class EditProfile extends Component {
             />
           </ModalTrigger>
         </ModalFooter>
-      </Fragment>
+      </Form>
     );
   }
 }

@@ -97,7 +97,7 @@ class UserCommonInfos extends Component {
                 type="text"
                 name="email"
                 validations="isEmail"
-                validationError="Not valid email format"
+                validationError="Not a valid email format"
                 value={user.email}
               />
             </FormGroup>

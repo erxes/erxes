@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
+  Form,
   FormGroup,
   ControlLabel,
   FormControl,
@@ -34,10 +35,16 @@ class PasswordConfirmation extends Component {
 
   render() {
     return (
-      <form onSubmit={e => this.submit(e)}>
+      <Form onSubmit={e => this.submit(e)}>
         <FormGroup>
           <ControlLabel>Enter your password to Confirm</ControlLabel>
-          <FormControl autoFocus id="password" type="password" />
+          <FormControl
+            autoFocus
+            name="password"
+            validations="isValue"
+            validationError="Please enter a password"
+            type="password"
+          />
         </FormGroup>
         <ModalFooter>
           <Button
@@ -47,15 +54,11 @@ class PasswordConfirmation extends Component {
           >
             Cancel
           </Button>
-          <Button
-            btnStyle="success"
-            icon="checked-1"
-            onClick={e => this.submit(e)}
-          >
+          <Button btnStyle="success" icon="checked-1" type="submit">
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }

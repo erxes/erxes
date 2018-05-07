@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Button, FormControl, FormGroup } from 'modules/common/components';
+import {
+  Form,
+  Button,
+  FormControl,
+  FormGroup
+} from 'modules/common/components';
 import { AuthBox, Links } from '../styles';
 
 const propTypes = {
@@ -12,16 +17,11 @@ class ForgotPassword extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { email: '' };
-
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleEmailChange = this.handleEmailChange.bind(this);
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-
-    const { email } = this.state;
+  handleSubmit(doc) {
+    const email = doc.email;
 
     this.props.forgotPassword({ email }, err => {
       if (!err) {
@@ -30,30 +30,26 @@ class ForgotPassword extends Component {
     });
   }
 
-  handleEmailChange(e) {
-    e.preventDefault();
-    this.setState({ email: e.target.value });
-  }
-
   render() {
     const { __ } = this.context;
     return (
       <AuthBox>
         <h2>{__('Reset your password')}</h2>
-        <form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit}>
           <FormGroup>
             <FormControl
               type="email"
+              name="email"
               placeholder={__('registered@email.com')}
               value={this.state.email}
-              required
-              onChange={this.handleEmailChange}
+              validations="isValue"
+              validationError="Please enter a password"
             />
           </FormGroup>
           <Button type="submit" block>
             Email me the instruction
           </Button>
-        </form>
+        </Form>
         <Links>
           <Link to="/sign-in">{__('Sign in')}</Link>
         </Links>

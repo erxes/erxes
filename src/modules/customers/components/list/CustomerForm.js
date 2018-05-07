@@ -120,10 +120,10 @@ class CustomerForm extends React.Component {
             {this.renderFormGroup('Email', {
               type: 'email',
               value:
-                customer.email || this.getVisitorInfo(customer, 'email') || '-',
+                customer.email || this.getVisitorInfo(customer, 'email') || '',
               name: 'email',
               validations: 'isEmail',
-              validationError: 'Not valid email format'
+              validationError: 'Not a valid email format'
             })}
 
             <FormGroup>
@@ -179,7 +179,7 @@ class CustomerForm extends React.Component {
               validations: 'isValue',
               validationError: 'Please enter a phone',
               value:
-                customer.phone || this.getVisitorInfo(customer, 'phone') || '-'
+                customer.phone || this.getVisitorInfo(customer, 'phone') || ''
             })}
 
             {this.renderFormGroup('Position', {

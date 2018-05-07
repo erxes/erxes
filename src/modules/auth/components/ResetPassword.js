@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, FormControl, FormGroup } from 'modules/common/components';
+import {
+  Form,
+  Button,
+  FormControl,
+  FormGroup
+} from 'modules/common/components';
 import { AuthBox } from '../styles';
 
 const propTypes = {
@@ -11,21 +16,11 @@ class ResetPassword extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { newPassword: '' };
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-
-    this.props.resetPassword(this.state.newPassword);
-  }
-
-  handlePasswordChange(e) {
-    e.preventDefault();
-
-    this.setState({ newPassword: e.target.value });
+  handleSubmit(doc) {
+    this.props.resetPassword(doc.newPassword);
   }
 
   render() {
@@ -33,19 +28,20 @@ class ResetPassword extends Component {
     return (
       <AuthBox>
         <h2>{__('Set your new password')}</h2>
-        <form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit}>
           <FormGroup>
             <FormControl
+              name="password"
               type="password"
+              validations="isValue"
+              validationError="Please enter a new password"
               placeholder={__('new password')}
-              required
-              onChange={this.handlePasswordChange}
             />
           </FormGroup>
           <Button type="submit" block>
             Change password
           </Button>
-        </form>
+        </Form>
       </AuthBox>
     );
   }

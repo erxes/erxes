@@ -61,6 +61,7 @@ addValidationRule('isValue', function(values, value) {
 
 class EnhancedFormControl extends React.Component {
   render() {
+    const { __ } = this.context;
     const props = this.props;
     const childNode = props.children;
     const elementType = props.componentClass;
@@ -94,7 +95,7 @@ class EnhancedFormControl extends React.Component {
                 })}
               </Select>
             </SelectWrapper>
-            <span>{error}</span>
+            <span>{__(error)}</span>
           </Fragment>
         );
       }
@@ -103,7 +104,7 @@ class EnhancedFormControl extends React.Component {
           <SelectWrapper>
             <Select {...attributes}>{childNode}</Select>
           </SelectWrapper>
-          <span>{error}</span>
+          <span>{__(error)}</span>
         </Fragment>
       );
     }
@@ -131,7 +132,7 @@ class EnhancedFormControl extends React.Component {
       return (
         <Fragment>
           <Textarea {...props} />
-          <span>{error}</span>
+          <span>{__(error)}</span>
         </Fragment>
       );
     }
@@ -139,7 +140,7 @@ class EnhancedFormControl extends React.Component {
     return (
       <Fragment>
         <Input {...attributes} />
-        <span>{error}</span>
+        <span>{__(error)}</span>
       </Fragment>
     );
   }
@@ -148,6 +149,10 @@ class EnhancedFormControl extends React.Component {
 EnhancedFormControl.propTypes = {
   getErrorMessage: PropTypes.func,
   isPristine: PropTypes.func
+};
+
+EnhancedFormControl.contextTypes = {
+  __: PropTypes.func
 };
 
 class WithFormsy extends React.Component {

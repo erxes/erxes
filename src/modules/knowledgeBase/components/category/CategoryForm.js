@@ -91,7 +91,7 @@ class CategoryForm extends Component {
             type="text"
             value={category.title}
             validations="isValue"
-            validationError="Please select a title"
+            validationError="Please enter a title"
           />
         </FormGroup>
 

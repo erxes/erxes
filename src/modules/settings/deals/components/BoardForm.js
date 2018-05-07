@@ -56,7 +56,7 @@ class BoardForm extends Component {
           <FormControl
             name="channelName"
             validations="isValue"
-            validationError="This field is required"
+            validationError="Please enter a name"
             value={object.name}
             type="text"
           />
