@@ -58,7 +58,7 @@ class CustomerForm extends React.Component {
           linkedIn: doc.linkedIn,
           twitter: doc.twitter,
           facebook: doc.facebook,
-          github: doc.gitub,
+          github: doc.github,
           youtube: doc.youtube,
           website: doc.website
         }
@@ -238,7 +238,7 @@ class CustomerForm extends React.Component {
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('LinkedIn', {
-              name: 'linkedin',
+              name: 'linkedIn',
               validations: 'isUrl',
               validationError: 'Not a valid URL format',
               value: links.linkedIn || ''
