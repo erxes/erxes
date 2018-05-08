@@ -118,7 +118,7 @@ class Properties extends Component {
       <Wrapper
         actionBar={<Wrapper.ActionBar right={this.renderActionBar()} />}
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar currentType={currentType} />}
+        leftSidebar={<Sidebar title="Properties" currentType={currentType} />}
         content={this.renderProperties()}
       />
     );

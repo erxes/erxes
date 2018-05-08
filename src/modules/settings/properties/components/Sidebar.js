@@ -6,7 +6,8 @@ import { SidebarList as List } from 'modules/layout/styles';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 
 const propTypes = {
-  currentType: PropTypes.string
+  currentType: PropTypes.string,
+  title: PropTypes.string.isRequired
 };
 
 const contextTypes = {
@@ -14,11 +15,17 @@ const contextTypes = {
 };
 
 class Sidebar extends Component {
+  constructor(props) {
+    super(props);
+
+    this.renderSidebarHeader = this.renderSidebarHeader.bind(this);
+  }
   renderSidebarHeader() {
     const { __ } = this.context;
+    const { title } = this.props;
     const { Header } = LeftSidebar;
 
-    return <Header uppercase>{__('Properties')}</Header>;
+    return <Header uppercase>{__(title)}</Header>;
   }
 
   getClassName(type) {
@@ -41,7 +48,7 @@ class Sidebar extends Component {
                 className={this.getClassName('customer')}
                 to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER}`}
               >
-                {__('Customer Properties')}
+                {__('Customer')}
               </Link>
             </li>
             <li>
@@ -49,7 +56,7 @@ class Sidebar extends Component {
                 className={this.getClassName('company')}
                 to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.COMPANY}`}
               >
-                {__('Company Properties')}
+                {__('Company')}
               </Link>
             </li>
           </List>

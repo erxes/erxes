@@ -25,14 +25,10 @@ class Inbox extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      attachmentPreview: {},
-      getCustomer: Object.values(props.sectionParams).includes(true)
-    };
+    this.state = { attachmentPreview: {} };
 
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
-    this.showSectionContent = this.showSectionContent.bind(this);
   }
 
   componentDidMount() {
@@ -56,15 +52,6 @@ class Inbox extends Component {
     this.setState({ attachmentPreview });
   }
 
-  showSectionContent(bool, obj) {
-    const { name, val } = obj;
-    const { sectionParams, setSectionParams } = this.props;
-    sectionParams[name] = val;
-
-    this.setState({ getCustomer: bool });
-    setSectionParams(sectionParams);
-  }
-
   render() {
     const {
       queryParams,
@@ -72,8 +59,7 @@ class Inbox extends Component {
       currentConversation,
       conversationMessages,
       onChangeConversation,
-      refetch,
-      sectionParams
+      refetch
     } = this.props;
 
     const { __ } = this.context;
@@ -185,10 +171,7 @@ class Inbox extends Component {
             <RightSidebar
               conversation={currentConversation}
               refetch={refetch}
-              showSectionContent={this.showSectionContent}
               customerId={currentConversation.customerId}
-              getCustomer={this.state.getCustomer}
-              queryParams={sectionParams}
             />
           )
         }

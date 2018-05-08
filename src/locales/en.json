@@ -653,5 +653,18 @@
   "Filter by date": "Filter by date",
   "Total conversations": "Total conversations",
   "Filter by form": "Filter by form",
-  "Supporters": "Supporters"
+  "Supporters": "Supporters",
+  "Import histories": "Import histories",
+  "Imported Date": "Imported Date",
+  "Imported User": "Imported User",
+  "Export customers": "Export customers",
+  "Import customers": "Import customers",
+  "Export companies": "Export companies",
+  "Import companies": "Import companies",
+  "All customers imported successfully": "All customers imported successfully",
+  "There aren't any imports": "There aren't any imports",
+  "Successfully Removed all customers": "Successfully Removed all customers",
+  "You can only import max 600 at a time":
+    "You can only import max 600 at a time",
+  "Invalid import type": "Invalid import type"
 }

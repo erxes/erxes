@@ -32,12 +32,9 @@ class BaseSection extends Component {
     const { showSectionContent } = this.context;
     const { isUseCustomer = false, name } = this.props;
     const val = !this.state.detailed;
-
     this.setState({ detailed: val });
 
-    if (showSectionContent) {
-      showSectionContent(isUseCustomer, { name, val });
-    }
+    showSectionContent && showSectionContent(isUseCustomer, { name, val });
   }
 
   renderDropBtn() {
