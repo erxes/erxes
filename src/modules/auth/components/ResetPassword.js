@@ -31,7 +31,7 @@ class ResetPassword extends Component {
         <Form onSubmit={this.handleSubmit}>
           <FormGroup>
             <FormControl
-              name="password"
+              name="newPassword"
               type="password"
               validations="isValue"
               validationError="Please enter a new password"

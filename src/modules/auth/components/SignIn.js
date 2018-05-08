@@ -18,8 +18,7 @@ class SignIn extends Component {
     super(props);
 
     this.state = {
-      email: '',
-      password: ''
+      email: ''
     };
 
     this.login = this.login.bind(this);
