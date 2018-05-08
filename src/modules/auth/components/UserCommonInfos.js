@@ -109,7 +109,7 @@ class UserCommonInfos extends Component {
               <FormControl
                 type="text"
                 name="description"
-                validations=""
+                validations={{}}
                 componentClass="textarea"
                 value={details.description || ''}
               />

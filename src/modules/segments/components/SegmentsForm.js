@@ -175,7 +175,7 @@ class SegmentsForm extends Component {
           name="subOf"
           componentClass="select"
           value={this.state.subOf || ''}
-          validations=""
+          validations={{}}
         >
           <option value="">[not selected]</option>
           {this.props.headSegments.map(segment => (
@@ -207,7 +207,7 @@ class SegmentsForm extends Component {
             <ControlLabel>Description</ControlLabel>
             <FormControl
               name="description"
-              validations=""
+              validations={{}}
               value={description}
             />
           </FormGroup>

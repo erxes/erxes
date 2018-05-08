@@ -87,7 +87,7 @@ class PropertyGroupForm extends React.Component {
           <FormControl
             type="text"
             name="description"
-            validations=""
+            validations={{}}
             value={group.name || ''}
           />
         </FormGroup>

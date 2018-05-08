@@ -220,7 +220,7 @@ class PropertyForm extends Component {
           <FormControl
             name="description"
             componentClass="textarea"
-            validations=""
+            validations={{}}
             value={field.description || ''}
           />
         </FormGroup>

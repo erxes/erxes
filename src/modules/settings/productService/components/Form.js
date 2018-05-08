@@ -85,7 +85,7 @@ class Form extends Component {
             componentClass="textarea"
             rows={5}
             value={description}
-            validations=""
+            validations={{}}
           />
         </FormGroup>
 

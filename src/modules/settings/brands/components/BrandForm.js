@@ -62,7 +62,7 @@ class BrandForm extends Component {
 
           <FormControl
             name="description"
-            validations=""
+            validations={{}}
             componentClass="textarea"
             rows={5}
             value={object.description}

@@ -165,7 +165,7 @@ class CustomerForm extends React.Component {
             {this.renderFormGroup('Description', {
               value: customer.description || '',
               name: 'description',
-              validations: ''
+              validations: {}
             })}
           </FormColumn>
           <FormColumn>

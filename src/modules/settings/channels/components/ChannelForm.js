@@ -94,7 +94,7 @@ class ChannelForm extends Component {
           <FormControl
             name="channelDescription"
             componentClass="textarea"
-            validations=""
+            validations={{}}
             rows={5}
             value={object.description}
           />

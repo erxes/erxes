@@ -185,7 +185,7 @@ class KnowledgeForm extends Component {
             name="knowledgebaseDescription"
             type="text"
             value={topic.description}
-            validations=""
+            validations={{}}
           />
         </FormGroup>
 

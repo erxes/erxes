@@ -101,7 +101,7 @@ class CategoryForm extends Component {
             name="knowledgebaseCategoryDescription"
             type="text"
             value={category.description}
-            validations=""
+            validations={{}}
           />
         </FormGroup>
 

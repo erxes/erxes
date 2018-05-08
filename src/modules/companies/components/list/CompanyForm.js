@@ -226,7 +226,7 @@ class CompanyForm extends React.Component {
             })}
             {this.renderFormGroup('Description', {
               name: 'description',
-              validations: '',
+              validations: {},
               value: company.description || ''
             })}
             {this.renderFormGroup('Do not disturb', {
