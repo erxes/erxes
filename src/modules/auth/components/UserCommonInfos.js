@@ -153,7 +153,7 @@ class UserCommonInfos extends Component {
               <ControlLabel>LinkedIn</ControlLabel>
               <FormControl
                 type="text"
-                name="linkedin"
+                name="linkedIn"
                 validations="isUrl"
                 validationError="Not a valid URL format"
                 value={links.linkedIn || ''}
