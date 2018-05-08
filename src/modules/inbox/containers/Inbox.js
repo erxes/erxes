@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import queryString from 'query-string';
 import { Alert, router as routerUtils } from 'modules/common/utils';
 import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
 import { generateParams } from '../utils';
 
-class ConversationDetail extends Component {
+class InboxContainer extends Component {
   constructor(props, context) {
     super(props, context);
 
@@ -17,31 +15,27 @@ class ConversationDetail extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { history } = this.props;
     const { currentUser } = this.context;
+    const prevCurrentId = this.props.queryParams._id;
 
-    const prevCurrentId = this.props.currentId;
+    if (!prevCurrentId) return;
 
-    // add current conversation's _id to url
-    if (!routerUtils.getParam(history, '_id') && prevCurrentId) {
-      routerUtils.setParams(history, { _id: prevCurrentId });
-    }
-
-    const { currentId, detailQuery, messagesQuery } = nextProps;
+    const { queryParams, detailQuery, messagesQuery } = nextProps;
+    const { _id } = queryParams;
 
     if (detailQuery.loading || messagesQuery.loading) {
       return;
     }
 
-    if (this.subscriptions[currentId]) {
+    if (this.subscriptions[_id]) {
       return;
     }
 
-    this.subscriptions[currentId] = true;
+    this.subscriptions[_id] = true;
 
     messagesQuery.subscribeToMore({
       document: gql(subscriptions.conversationMessageInserted),
-      variables: { _id: currentId },
+      variables: { _id },
       updateQuery: (prev, { subscriptionData }) => {
         const message = subscriptionData.data.conversationMessageInserted;
         const conversation = detailQuery.conversationDetail;
@@ -55,7 +49,7 @@ class ConversationDetail extends Component {
           return;
         }
 
-        if (currentId !== this.props.currentId) {
+        if (_id !== prevCurrentId) {
           return prev;
         }
 
@@ -80,7 +74,7 @@ class ConversationDetail extends Component {
     // listen for conversation changes like status, assignee
     detailQuery.subscribeToMore({
       document: gql(subscriptions.conversationChanged),
-      variables: { _id: currentId },
+      variables: { _id },
       updateQuery: () => {
         this.props.detailQuery.refetch();
       }
@@ -109,22 +103,34 @@ class ConversationDetail extends Component {
 
   render() {
     const {
-      currentId,
-      detailQuery,
-      messagesQuery,
-      markAsReadMutation
+      detailQuery = {},
+      messagesQuery = {},
+      markAsReadMutation,
+      lastConversationQuery = {},
+      history,
+      queryParams
     } = this.props;
 
     const { currentUser } = this.context;
+    const lastConversation = lastConversationQuery.conversationsGetLast;
+
+    if (!queryParams._id && lastConversation) {
+      routerUtils.setParams(history, { _id: lastConversation._id });
+    }
+
+    const onChangeConversation = conversation => {
+      routerUtils.setParams(history, { _id: conversation._id });
+    };
 
     const loading = detailQuery.loading || messagesQuery.loading;
 
     const currentConversation = detailQuery.conversationDetail || {};
     const conversationMessages = messagesQuery.conversationMessages || [];
     const readUserIds = currentConversation.readUserIds || [];
+    const { _id } = queryParams;
 
     // mark as read ============
-    if (!loading && !readUserIds.includes(currentUser._id) && currentId) {
+    if (!loading && !readUserIds.includes(currentUser._id) && _id) {
       markAsReadMutation({
         variables: { _id: currentConversation._id }
       }).catch(e => {
@@ -134,122 +140,68 @@ class ConversationDetail extends Component {
 
     const updatedProps = {
       ...this.props,
-      currentConversationId: currentId,
+      currentConversationId: _id,
       currentConversation,
       conversationMessages,
       loading,
-      refetch: detailQuery.refetch
+      refetch: detailQuery.refetch,
+      onChangeConversation
     };
 
     return <InboxComponent {...updatedProps} />;
   }
 }
 
-ConversationDetail.propTypes = {
+InboxContainer.propTypes = {
   detailQuery: PropTypes.object,
   messagesQuery: PropTypes.object,
-  currentId: PropTypes.string.isRequired,
   markAsReadMutation: PropTypes.func.isRequired,
-  history: PropTypes.object
+  lastConversationQuery: PropTypes.object,
+  history: PropTypes.object,
+  queryParams: PropTypes.object
 };
 
-const ConversationDetailContainer = compose(
+InboxContainer.contextTypes = {
+  currentUser: PropTypes.object
+};
+
+export default compose(
   graphql(gql(queries.conversationDetail), {
     name: 'detailQuery',
-    options: ({ currentId }) => ({
-      variables: { _id: currentId },
+    options: ({ queryParams }) => ({
+      skip: !queryParams._id,
+      variables: { _id: queryParams._id },
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql(gql(queries.lastConversation), {
+    name: 'lastConversationQuery',
+    options: ({ queryParams }) => ({
+      skip: queryParams._id,
+      variables: generateParams(queryParams),
       fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(queries.conversationMessages), {
     name: 'messagesQuery',
-    options: ({ currentId }) => ({
-      variables: { conversationId: currentId },
+    options: ({ queryParams }) => ({
+      skip: !queryParams._id,
+      variables: { conversationId: queryParams._id },
       fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(mutations.markAsRead), {
     name: 'markAsReadMutation',
-    options: ({ currentId }) => {
+    options: ({ queryParams }) => {
       return {
         refetchQueries: [
           {
             query: gql(queries.conversationDetailMarkAsRead),
-            variables: { _id: currentId }
+            variables: { _id: queryParams._id }
           },
           { query: gql(queries.unreadConversationsCount) }
         ]
       };
     }
   })
-)(ConversationDetail);
-
-ConversationDetail.contextTypes = {
-  currentUser: PropTypes.object
-};
-
-/*
- * We will use this component when there is not current conversation id
- * in query string
- */
-const LastConversation = props => {
-  const { lastConversationQuery } = props;
-
-  const lastConversation = lastConversationQuery.conversationsGetLast || {};
-
-  const currentId = lastConversation._id || '';
-
-  const updatedProps = {
-    ...props,
-    currentId
-  };
-
-  return <ConversationDetailContainer {...updatedProps} />;
-};
-
-LastConversation.propTypes = {
-  lastConversationQuery: PropTypes.object
-};
-
-const LastConversationContainer = compose(
-  graphql(gql(queries.lastConversation), {
-    name: 'lastConversationQuery',
-    options: ({ queryParams }) => ({
-      variables: generateParams(queryParams),
-      fetchPolicy: 'network-only'
-    })
-  })
-)(LastConversation);
-
-/*
- * Main inbox component
- */
-const Inbox = props => {
-  const queryParams = queryString.parse(props.location.search);
-  const _id = queryParams._id;
-
-  const onChangeConversation = conversation => {
-    routerUtils.setParams(props.history, { _id: conversation._id });
-  };
-
-  const updatedProps = {
-    ...props,
-    queryParams,
-    onChangeConversation
-  };
-
-  if (_id) {
-    updatedProps.currentId = _id;
-
-    return <ConversationDetailContainer {...updatedProps} />;
-  }
-
-  return <LastConversationContainer {...updatedProps} />;
-};
-
-Inbox.propTypes = {
-  history: PropTypes.object,
-  location: PropTypes.object
-};
-
-export default withRouter(Inbox);
+)(InboxContainer);
