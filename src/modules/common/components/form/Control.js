@@ -90,15 +90,16 @@ class EnhancedFormControl extends React.Component {
         ? props.isPristine() ? null : props.getErrorMessage()
         : null;
 
-    let errors = [];
+    let errorMessages = [];
 
-    if (typeof error === 'object') {
-      for (const key in error) {
-        errors = <Error>{__(error[key])}</Error>;
-      }
-    } else {
-      errors = <Error>{__(error)}</Error>;
+    if (error) {
+      errorMessages =
+        typeof error === 'object' ? Object.values(error) : [error];
     }
+
+    const errors = errorMessages.map((error, index) => (
+      <Error key={index}>{__(error)}</Error>
+    ));
 
     if (elementType === 'select') {
       if (props.options) {
@@ -115,7 +116,6 @@ class EnhancedFormControl extends React.Component {
                 })}
               </Select>
             </SelectWrapper>
-            {errors}
           </Fragment>
         );
       }
