@@ -125,7 +125,7 @@ class CustomerForm extends React.Component {
               validations: { isEmail: true, isValue: true },
               validationError: {
                 isEmail: 'Not a valid email format',
-                isValue: 'Please enter a email'
+                isValue: 'Please enter an email'
               }
             })}
 

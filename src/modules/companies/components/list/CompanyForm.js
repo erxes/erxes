@@ -185,8 +185,11 @@ class CompanyForm extends React.Component {
           <FormColumn>
             {this.renderFormGroup('Email', {
               name: 'email',
-              validations: 'isEmail',
-              validationError: 'Not a valid email format',
+              validations: { isEmail: true, isValue: true },
+              validationError: {
+                isEmail: 'Not a valid email format',
+                isValue: 'Please enter an email'
+              },
               value: company.email || ''
             })}
             {this.renderFormGroup('Size', {
