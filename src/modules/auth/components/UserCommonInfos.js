@@ -96,8 +96,11 @@ class UserCommonInfos extends Component {
               <FormControl
                 type="text"
                 name="email"
-                validations="isEmail"
-                validationError="Not a valid email format"
+                validations={{ isValue: true, isEmail: true }}
+                validationError={{
+                  isValue: 'Please enter a email',
+                  isEmail: 'Not a valid email'
+                }}
                 value={user.email}
               />
             </FormGroup>

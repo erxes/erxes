@@ -45,7 +45,7 @@ const defaultProps = {
   disabled: false
 };
 
-const Error = styled.span`
+const Error = styled.div`
   color: red;
 `;
 
@@ -90,6 +90,16 @@ class EnhancedFormControl extends React.Component {
         ? props.isPristine() ? null : props.getErrorMessage()
         : null;
 
+    let errors = [];
+
+    if (typeof error === 'object') {
+      for (const key in error) {
+        errors = <Error>{__(error[key])}</Error>;
+      }
+    } else {
+      errors = <Error>{__(error)}</Error>;
+    }
+
     if (elementType === 'select') {
       if (props.options) {
         return (
@@ -105,7 +115,7 @@ class EnhancedFormControl extends React.Component {
                 })}
               </Select>
             </SelectWrapper>
-            <Error>{__(error)}</Error>
+            {errors}
           </Fragment>
         );
       }
@@ -114,7 +124,7 @@ class EnhancedFormControl extends React.Component {
           <SelectWrapper>
             <Select {...attributes}>{childNode}</Select>
           </SelectWrapper>
-          <Error>{__(error)}</Error>
+          {errors}
         </Fragment>
       );
     }
@@ -142,7 +152,7 @@ class EnhancedFormControl extends React.Component {
       return (
         <Fragment>
           <Textarea {...props} />
-          <Error>{__(error)}</Error>
+          {errors}
         </Fragment>
       );
     }
@@ -150,7 +160,7 @@ class EnhancedFormControl extends React.Component {
     return (
       <Fragment>
         <Input {...attributes} />
-        <Error>{__(error)}</Error>
+        {errors}
       </Fragment>
     );
   }

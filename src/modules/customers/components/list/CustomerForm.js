@@ -122,8 +122,11 @@ class CustomerForm extends React.Component {
               value:
                 customer.email || this.getVisitorInfo(customer, 'email') || '',
               name: 'email',
-              validations: 'isEmail',
-              validationError: 'Not a valid email format'
+              validations: { isEmail: true, isValue: true },
+              validationError: {
+                isEmail: 'Not a valid email format',
+                isValue: 'Please enter a email'
+              }
             })}
 
             <FormGroup>
