@@ -20,6 +20,9 @@ class RightSidebar extends Component {
 
   getCustomerDetail() {
     const { customerId } = this.props;
+
+    if (!customerId) return;
+
     const sectionParams = this.getSectionParams();
     this.setState({ loading: true });
 
@@ -92,8 +95,8 @@ class RightSidebar extends Component {
 
 RightSidebar.propTypes = {
   customerDetailQuery: PropTypes.object,
-  customerId: PropTypes.string.isRequired,
-  conversation: PropTypes.object.isRequired,
+  customerId: PropTypes.string,
+  conversation: PropTypes.object,
   refetch: PropTypes.func
 };
 

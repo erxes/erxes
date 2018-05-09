@@ -106,13 +106,15 @@ class InboxContainer extends Component {
       detailQuery = {},
       messagesQuery = {},
       markAsReadMutation,
-      lastConversationQuery = {},
+      lastConversationQuery,
       history,
       queryParams
     } = this.props;
 
     const { currentUser } = this.context;
-    const lastConversation = lastConversationQuery.conversationsGetLast;
+    const lastConversation = lastConversationQuery
+      ? lastConversationQuery.conversationsGetLast
+      : {};
 
     if (!queryParams._id && lastConversation) {
       routerUtils.setParams(history, { _id: lastConversation._id });
@@ -122,7 +124,9 @@ class InboxContainer extends Component {
       routerUtils.setParams(history, { _id: conversation._id });
     };
 
-    const loading = detailQuery.loading || messagesQuery.loading;
+    const loading = lastConversationQuery
+      ? lastConversationQuery.loading
+      : detailQuery.loading || messagesQuery.loading;
 
     const currentConversation = detailQuery.conversationDetail || {};
     const conversationMessages = messagesQuery.conversationMessages || [];

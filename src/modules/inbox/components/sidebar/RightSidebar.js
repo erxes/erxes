@@ -9,7 +9,7 @@ import { DealSection } from 'modules/deals/containers';
 import { Spinner } from 'modules/common/components';
 
 const propTypes = {
-  conversation: PropTypes.object.isRequired,
+  conversation: PropTypes.object,
   customer: PropTypes.object,
   refetch: PropTypes.func,
   loading: PropTypes.bool,
@@ -54,15 +54,9 @@ class RightSidebar extends Component {
   }
 
   render() {
-    const {
-      loading,
-      conversation,
-      refetch,
-      customer,
-      queryParams
-    } = this.props;
+    const { conversation, refetch, customer, queryParams } = this.props;
 
-    if (customer && conversation) {
+    if (customer._id && conversation._id) {
       return (
         <EditInformation
           conversation={conversation}
@@ -76,7 +70,9 @@ class RightSidebar extends Component {
       );
     }
 
-    return <Wrapper.Sidebar full>{loading && <Spinner />}</Wrapper.Sidebar>;
+    return (
+      <Wrapper.Sidebar full>{!customer._id && <Spinner />}</Wrapper.Sidebar>
+    );
   }
 }
 
