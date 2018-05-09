@@ -58,6 +58,7 @@ class AutoAndManualForm extends FormBase {
 
   validate() {
     const step3 = this.state[this.state.method];
+
     let validate = { ...this.state.validate };
     validate['step2'] = false;
     validate['step3'] = false;
