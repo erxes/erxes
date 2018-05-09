@@ -4,7 +4,8 @@ import gql from 'graphql-tag';
 import { RightSidebar as RightSidebarComponent } from '../components';
 import { queries as customerQueries } from 'modules/customers/graphql';
 import client from 'apolloClient';
-const storageKey = `erxes_sidebar_section_config`;
+
+const STORAGE_KEY = `erxes_sidebar_section_config`;
 
 class RightSidebar extends Component {
   constructor(props) {
@@ -24,6 +25,7 @@ class RightSidebar extends Component {
     if (!customerId) return;
 
     const sectionParams = this.getSectionParams();
+
     this.setState({ loading: true });
 
     client
@@ -46,28 +48,30 @@ class RightSidebar extends Component {
   }
 
   getSectionParams() {
-    return JSON.parse(localStorage.getItem(storageKey));
+    return JSON.parse(localStorage.getItem(STORAGE_KEY));
   }
 
   setSectionParams(params) {
-    localStorage.setItem(storageKey, JSON.stringify(params));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
   }
 
   showSectionContent(isUseCustomer, obj) {
     const { name, val } = obj;
     const sectionParams = this.getSectionParams();
+
     sectionParams[name] = val;
 
     this.setSectionParams(sectionParams);
+
     isUseCustomer && this.getCustomerDetail();
   }
 
   render() {
     const { customer, loading } = this.state;
 
-    if (!localStorage.getItem(storageKey)) {
+    if (!localStorage.getItem(STORAGE_KEY)) {
       this.setSectionParams({
-        showProfile: false,
+        showProfile: true,
         showCompany: false,
         showConversationDetail: false,
         showManageGroups: false,
