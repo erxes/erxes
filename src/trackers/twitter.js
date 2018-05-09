@@ -133,7 +133,7 @@ export const receiveDirectMessageInformation = async (data, integration) => {
         'twitterData.recipient_id': data.sender_id,
       },
     ],
-  });
+  }).sort({ createdAt: -1 });
 
   if (conversation && conversation.status !== CONVERSATION_STATUSES.CLOSED) {
     // update some infos

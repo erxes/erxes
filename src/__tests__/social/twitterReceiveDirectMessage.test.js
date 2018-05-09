@@ -190,5 +190,26 @@ describe('receive direct message response', () => {
 
     // check message fields
     expect(newMessage.content).toBe(data.text);
+
+    // close converstaion
+    await Conversations.update({}, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
+
+    // direct message
+    data.text = 'hi';
+    const conversation = await receiveDirectMessageInformation(data, _integration);
+
+    // must be created new conversation ==============
+    expect(await Conversations.count()).toBe(2);
+    expect(await ConversationMessages.count()).toBe(3);
+    expect(conv._id).not.toBe(conversation._id);
+
+    data.text = 'test';
+    const { _id } = await receiveDirectMessageInformation(data, _integration);
+
+    // must not be created new conversation ==============
+    expect(await Conversations.count()).toBe(2);
+    expect(await ConversationMessages.count()).toBe(4);
+    expect(conv._id).not.toBe(_id);
+    expect(conversation._id).toBe(_id);
   });
 });
