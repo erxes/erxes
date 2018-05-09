@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Alert } from 'modules/common/utils';
 
 const propTypes = {
   brands: PropTypes.array,
@@ -17,10 +18,18 @@ class FormBase extends Component {
   }
 
   save(type, e) {
+    const { __ } = this.context;
     const doc = this.generateDoc(e);
+
+    if (!doc.title) {
+      return Alert.error(__('Write title'));
+    }
+
     if (type === 'live') {
       this.props.save({ isLive: true, isDraft: false, ...doc });
-    } else if (type === 'draft ') {
+    }
+
+    if (type === 'draft ') {
       this.props.save({ isLive: false, isDraft: true, ...doc });
     } else {
       this.props.save(doc);
@@ -30,12 +39,17 @@ class FormBase extends Component {
   renderTitle() {
     const { __ } = this.context;
     const { kind } = this.props;
+
     let title = __('Visitor auto message');
+
     if (kind === 'auto') {
       title = __('Auto message');
-    } else if (kind === 'manual') {
+    }
+
+    if (kind === 'manual') {
       title = __('Manual message');
     }
+
     return [{ title: __('Engage'), link: '/engage' }, { title: title }];
   }
 }
