@@ -1,6 +1,5 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, Component } from 'react';
 import PropTypes from 'prop-types';
-import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
@@ -16,6 +15,7 @@ import {
   CUSTOMER_BASIC_INFO,
   CUSTOMER_DATAS
 } from 'modules/customers/constants';
+import { BaseSection } from './';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -23,7 +23,7 @@ const propTypes = {
   merge: PropTypes.func.isRequired
 };
 
-class BasicInfo extends React.Component {
+class BasicInfo extends Component {
   constructor(props) {
     super(props);
 
@@ -161,7 +161,16 @@ class BasicInfo extends React.Component {
   }
 
   render() {
-    return <Sidebar.Section>{this.renderInfo()}</Sidebar.Section>;
+    const { __ } = this.context;
+
+    return (
+      <BaseSection
+        title={__('Profile')}
+        content={this.renderInfo()}
+        isUseCustomer={true}
+        name="showProfile"
+      />
+    );
   }
 }
 

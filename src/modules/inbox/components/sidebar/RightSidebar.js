@@ -9,13 +9,22 @@ import { DealSection } from 'modules/deals/containers';
 import { Spinner } from 'modules/common/components';
 
 const propTypes = {
-  conversation: PropTypes.object.isRequired,
+  conversation: PropTypes.object,
   customer: PropTypes.object,
+  customerId: PropTypes.string,
   refetch: PropTypes.func,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  showSectionContent: PropTypes.func,
+  queryParams: PropTypes.object
 };
 
 class RightSidebar extends Component {
+  getChildContext() {
+    const { showSectionContent, queryParams } = this.props;
+
+    return { showSectionContent, queryParams };
+  }
+
   renderMessengerData() {
     const { conversation } = this.props;
     const customer = conversation.customer || {};
@@ -35,16 +44,24 @@ class RightSidebar extends Component {
   }
 
   renderSectionBottom(customer) {
+    const { showDeal } = this.props.queryParams;
+
     return (
       <Fragment>
         <CompanyAssociate data={customer} />
-        <DealSection customerId={customer._id} />
+        <DealSection customerId={showDeal ? customer._id : null} />
       </Fragment>
     );
   }
 
   render() {
-    const { loading, conversation, refetch, customer } = this.props;
+    const {
+      conversation,
+      refetch,
+      customer,
+      queryParams,
+      loading
+    } = this.props;
 
     if (customer && conversation) {
       return (
@@ -54,6 +71,7 @@ class RightSidebar extends Component {
           sectionBottom={this.renderSectionBottom(customer)}
           customer={customer}
           refetch={refetch}
+          queryParams={queryParams}
           otherProperties={this.renderMessengerData()}
         />
       );
@@ -64,5 +82,10 @@ class RightSidebar extends Component {
 }
 
 RightSidebar.propTypes = propTypes;
+
+RightSidebar.childContextTypes = {
+  showSectionContent: PropTypes.func,
+  queryParams: PropTypes.object
+};
 
 export default RightSidebar;

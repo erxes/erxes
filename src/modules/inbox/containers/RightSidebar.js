@@ -1,20 +1,96 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { RightSidebar as RightSidebarComponent } from '../components';
 import { queries as customerQueries } from 'modules/customers/graphql';
+import client from 'apolloClient';
+
+const STORAGE_KEY = `erxes_sidebar_section_config`;
 
 class RightSidebar extends Component {
-  render() {
-    const { customerDetailQuery } = this.props;
+  constructor(props) {
+    super(props);
 
-    const customer = customerDetailQuery.customerDetail;
+    this.state = { customer: {}, loading: false };
+    this.showSectionContent = this.showSectionContent.bind(this);
+  }
+
+  componentWillReceiveProps() {
+    this.getCustomerDetail();
+  }
+
+  getCustomerDetail() {
+    const { customerId } = this.props;
+
+    if (!customerId) return;
+
+    const sectionParams = this.getSectionParams();
+
+    this.setState({ loading: true });
+
+    client
+      .query({
+        query: gql(customerQueries.generateCustomerDetailQuery(sectionParams)),
+        fetchPolicy: 'network-only',
+        variables: { _id: customerId }
+      })
+      .then(({ data }) => {
+        if (data && data.customerDetail) {
+          this.setState({
+            customer: data.customerDetail,
+            loading: false
+          });
+        }
+      })
+      .catch(error => {
+        console.log(error.message); //eslint-disable-line
+      });
+  }
+
+  getSectionParams() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY));
+  }
+
+  setSectionParams(params) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
+  }
+
+  showSectionContent(isUseCustomer, obj) {
+    const { name, val } = obj;
+    const sectionParams = this.getSectionParams();
+
+    sectionParams[name] = val;
+
+    this.setSectionParams(sectionParams);
+
+    isUseCustomer && this.getCustomerDetail();
+  }
+
+  render() {
+    const { customer, loading } = this.state;
+
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      this.setSectionParams({
+        showProfile: true,
+        showCompany: false,
+        showConversationDetail: false,
+        showManageGroups: false,
+        showDeal: false,
+        showDeviceProperty: false,
+        showMessenger: false,
+        showFacebook: false,
+        showTwitter: false,
+        showTags: false,
+        showOtherProperty: false
+      });
+    }
 
     const updatedProps = {
       ...this.props,
       customer,
-      loading: customerDetailQuery.loading
+      loading,
+      showSectionContent: this.showSectionContent,
+      queryParams: this.getSectionParams()
     };
 
     return <RightSidebarComponent {...updatedProps} />;
@@ -22,17 +98,9 @@ class RightSidebar extends Component {
 }
 
 RightSidebar.propTypes = {
-  customerDetailQuery: PropTypes.object,
   customerId: PropTypes.string.isRequired,
   conversation: PropTypes.object.isRequired,
   refetch: PropTypes.func
 };
 
-export default compose(
-  graphql(gql(customerQueries.customerDetail), {
-    name: 'customerDetailQuery',
-    options: ({ customerId }) => ({
-      variables: { _id: customerId }
-    })
-  })
-)(RightSidebar);
+export default RightSidebar;

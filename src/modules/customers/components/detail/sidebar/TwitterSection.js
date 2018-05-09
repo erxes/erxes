@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Sidebar } from 'modules/layout/components';
 import { Button } from 'modules/common/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+import { BaseSection } from './';
 
 const ButtonWrapper = styled.div`
   padding: 10px 20px;
@@ -13,18 +13,15 @@ const propTypes = {
   customer: PropTypes.object.isRequired
 };
 
-function TwitterSection({ customer }, { __ }) {
+function TwitterSection({ customer }, { __, queryParams }) {
   const { twitterData } = customer;
 
-  if (!twitterData) {
+  if (!(twitterData || queryParams)) {
     return null;
   }
 
-  const { Title } = Sidebar.Section;
-
-  return (
-    <Sidebar.Section>
-      <Title>{__('Twitter')}</Title>
+  const content = twitterData ? (
+    <div>
       <SidebarList className="no-link">
         <li>
           {__('Name')}
@@ -45,13 +42,23 @@ function TwitterSection({ customer }, { __ }) {
           Go to twitter
         </Button>
       </ButtonWrapper>
-    </Sidebar.Section>
+    </div>
+  ) : null;
+
+  return (
+    <BaseSection
+      title={__('Twitter')}
+      content={content}
+      isUseCustomer={true}
+      name="showTwitter"
+    />
   );
 }
 
 TwitterSection.propTypes = propTypes;
 TwitterSection.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
+  queryParams: PropTypes.object
 };
 
 export default TwitterSection;

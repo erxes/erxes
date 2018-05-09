@@ -25,9 +25,7 @@ class Inbox extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      attachmentPreview: {}
-    };
+    this.state = { attachmentPreview: {} };
 
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
@@ -191,7 +189,9 @@ Inbox.propTypes = {
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
   conversationMessages: PropTypes.array,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  sectionParams: PropTypes.object,
+  setSectionParams: PropTypes.func
 };
 
 Inbox.contextTypes = {
