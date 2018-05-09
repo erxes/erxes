@@ -9,12 +9,18 @@ import { List } from '../components';
 class ListContainer extends Bulk {
   render() {
     const {
+      queryParams,
       integrationsQuery,
       integrationsCountQuery,
       usersQuery,
       tagsQuery,
       removeMutation
     } = this.props;
+
+    if (queryParams.refetch) {
+      integrationsQuery.refetch();
+      integrationsCountQuery.refetch();
+    }
 
     if (integrationsQuery.loading || integrationsCountQuery.loading) {
       return <Spinner />;
@@ -68,14 +74,12 @@ export default compose(
     name: 'integrationsQuery',
     options: ({ queryParams }) => {
       return {
-        notifyOnNetworkStatusChange: true,
         variables: {
           page: queryParams.page,
           perPage: queryParams.perPage || 20,
           tag: queryParams.tag,
           kind: 'form'
-        },
-        fetchPolicy: 'network-only'
+        }
       };
     }
   }),
@@ -88,8 +92,6 @@ export default compose(
   graphql(gql(queries.tags), {
     name: 'tagsQuery',
     options: () => ({
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'network-only',
       variables: {
         type: 'integration'
       }
