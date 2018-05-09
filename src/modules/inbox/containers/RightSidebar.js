@@ -98,7 +98,6 @@ class RightSidebar extends Component {
 }
 
 RightSidebar.propTypes = {
-  customerDetailQuery: PropTypes.object,
   customerId: PropTypes.string.isRequired,
   conversation: PropTypes.object.isRequired,
   refetch: PropTypes.func

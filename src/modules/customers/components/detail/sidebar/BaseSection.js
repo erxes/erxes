@@ -17,14 +17,16 @@ const propTypes = {
 class BaseSection extends Component {
   constructor(props, context) {
     super(props);
+
     const { history, name } = props;
+    const { location } = history;
     const { queryParams } = context;
 
     this.state = {
       detailed:
-        !(history.location.pathname === '/inbox') ||
-        (queryParams && queryParams[name])
+        !(location.pathname === '/inbox') || (queryParams && queryParams[name])
     };
+
     this.toggle = this.toggle.bind(this);
   }
 
@@ -32,6 +34,7 @@ class BaseSection extends Component {
     const { showSectionContent } = this.context;
     const { isUseCustomer = false, name } = this.props;
     const val = !this.state.detailed;
+
     this.setState({ detailed: val });
 
     showSectionContent && showSectionContent(isUseCustomer, { name, val });
