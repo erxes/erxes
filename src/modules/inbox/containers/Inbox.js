@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import queryString from 'query-string';
 import { Alert, router as routerUtils } from 'modules/common/utils';
 import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
@@ -169,7 +171,7 @@ InboxContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-export default compose(
+const InboxComposer = compose(
   graphql(gql(queries.conversationDetail), {
     name: 'detailQuery',
     options: ({ queryParams }) => ({
@@ -209,3 +211,21 @@ export default compose(
     }
   })
 )(InboxContainer);
+
+const Inbox = props => {
+  const queryParams = queryString.parse(props.location.search);
+
+  const updatedProps = {
+    ...props,
+    queryParams
+  };
+
+  return <InboxComposer {...updatedProps} />;
+};
+
+Inbox.propTypes = {
+  history: PropTypes.object,
+  location: PropTypes.object
+};
+
+export default withRouter(Inbox);

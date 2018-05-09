@@ -11,6 +11,7 @@ import { Spinner } from 'modules/common/components';
 const propTypes = {
   conversation: PropTypes.object,
   customer: PropTypes.object,
+  customerId: PropTypes.string,
   refetch: PropTypes.func,
   loading: PropTypes.bool,
   showSectionContent: PropTypes.func,
@@ -54,7 +55,22 @@ class RightSidebar extends Component {
   }
 
   render() {
-    const { conversation, refetch, customer, queryParams } = this.props;
+    const {
+      conversation,
+      refetch,
+      customer,
+      queryParams,
+      customerId,
+      loading
+    } = this.props;
+
+    if (!customerId || !customer._id || customerId !== customer._id) {
+      return (
+        <Wrapper.Sidebar full>
+          <Spinner />
+        </Wrapper.Sidebar>
+      );
+    }
 
     if (customer._id && conversation._id) {
       return (
@@ -70,9 +86,7 @@ class RightSidebar extends Component {
       );
     }
 
-    return (
-      <Wrapper.Sidebar full>{!customer._id && <Spinner />}</Wrapper.Sidebar>
-    );
+    return <Wrapper.Sidebar full>{loading && <Spinner />}</Wrapper.Sidebar>;
   }
 }
 
