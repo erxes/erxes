@@ -108,7 +108,7 @@ class EditFormContainer extends Component {
         .then(() => {
           fieldsQuery.refetch();
           Alert.success('Congrats');
-          history.push('/forms');
+          history.push('/forms?refetch=true');
         })
 
         .catch(error => {
