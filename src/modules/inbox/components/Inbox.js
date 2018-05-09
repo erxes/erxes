@@ -167,11 +167,13 @@ class Inbox extends Component {
           />
         }
         rightSidebar={
-          <RightSidebar
-            conversation={currentConversation}
-            refetch={refetch}
-            customerId={currentConversation.customerId}
-          />
+          currentConversation._id && (
+            <RightSidebar
+              conversation={currentConversation}
+              refetch={refetch}
+              customerId={currentConversation.customerId}
+            />
+          )
         }
       />
     );

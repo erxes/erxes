@@ -60,19 +60,10 @@ class RightSidebar extends Component {
       refetch,
       customer,
       queryParams,
-      customerId,
       loading
     } = this.props;
 
-    if (!customerId || !customer._id || customerId !== customer._id) {
-      return (
-        <Wrapper.Sidebar full>
-          <Spinner />
-        </Wrapper.Sidebar>
-      );
-    }
-
-    if (customer._id && conversation._id) {
+    if (customer && conversation) {
       return (
         <EditInformation
           conversation={conversation}
