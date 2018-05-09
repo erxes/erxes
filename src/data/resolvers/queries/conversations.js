@@ -41,7 +41,7 @@ const conversationQueries = {
       return ConversationMessages.find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(10);
+        .limit(limit);
     }
 
     return ConversationMessages.find(query).sort({ createdAt: 1 });
