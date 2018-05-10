@@ -21,8 +21,8 @@ export const getBrowserInfo = async () => {
     region: location.region_name,
     city: location.city,
     country: location.country_name,
-    url: location.pathname, // eslint-disable-line
-    hostname: location.origin, // eslint-disable-line
+    url: parent.location.pathname, // eslint-disable-line
+    hostname: parent.window.location.origin, // eslint-disable-line
     language: navigator.language, // eslint-disable-line
     userAgent: navigator.userAgent, // eslint-disable-line
   };
