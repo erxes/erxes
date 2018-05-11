@@ -25,31 +25,118 @@ class Inbox extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { attachmentPreview: {} };
+    this.state = {
+      attachmentPreview: {},
+      messages: null,
+      loadingMore: false,
+      currentId: props.currentId
+    };
 
+    this.node = React.createRef();
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
+    this.onScroll = this.onScroll.bind(this);
+    this.loadMore = this.loadMore.bind(this);
+    this.handleResultsFound = this.handleResultsFound.bind(this);
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const { currentId } = nextProps;
+
+    if (currentId !== prevState.currentId) {
+      return { messages: null, currentId };
+    }
+
+    return null;
   }
 
   componentDidMount() {
     this.scrollBottom();
   }
 
-  componentDidUpdate() {
-    const twitterData = this.props.currentConversation.twitterData;
+  getSnapshotBeforeUpdate(prevProps, prevState) {
+    const { messages } = prevState;
+
+    if (messages && messages.length < this.state.messages.length) {
+      const { current } = this.node;
+
+      return current.scrollHeight - current.scrollTop;
+    }
+
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { conversationMessages, currentConversation } = this.props;
+    const { twitterData } = currentConversation;
     const isTweet = twitterData && !twitterData.isDirectMessage;
+
+    const { current } = this.node;
+    const messageList = current.firstChild;
 
     if (!isTweet) {
       this.scrollBottom();
     }
+
+    if (snapshot !== null) {
+      const { current } = this.node;
+      current.scrollTop = current.scrollHeight - snapshot;
+    }
+
+    if (
+      current.scrollHeight > messageList.scrollHeight &&
+      messageList.scrollHeight > conversationMessages.length * 40 &&
+      conversationMessages.length > 0 &&
+      !this.state.loadingMore
+    ) {
+      this.loadMore();
+    }
+  }
+
+  onScroll() {
+    const { current } = this.node;
+
+    if (current.scrollTop === 0) this.loadMore();
   }
 
   scrollBottom() {
-    this.node.scrollTop = this.node.scrollHeight;
+    const { current } = this.node;
+    const { messages } = this.state;
+
+    if (!messages) {
+      current.scrollTop = current.scrollHeight;
+    }
   }
 
   setAttachmentPreview(attachmentPreview) {
     this.setState({ attachmentPreview });
+  }
+
+  loadMore() {
+    const {
+      loadMoreMessages,
+      conversationMessages,
+      currentId,
+      messagesTotalCount
+    } = this.props;
+
+    const messages = this.state.messages || conversationMessages;
+
+    if (
+      currentId === this.state.currentId &&
+      messages.length === messagesTotalCount
+    )
+      return;
+
+    const limit = messages.length + 1;
+    const variables = { conversationId: currentId, limit };
+
+    this.setState({ loadingMore: true });
+    loadMoreMessages(variables, this.handleResultsFound);
+  }
+
+  handleResultsFound(messages) {
+    this.setState({ messages, loadingMore: false });
   }
 
   render() {
@@ -127,16 +214,13 @@ class Inbox extends Component {
       />
     );
 
+    const { messages, attachmentPreview } = this.state;
     const content = (
-      <ConversationWrapper
-        innerRef={node => {
-          this.node = node;
-        }}
-      >
+      <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
         <Conversation
           conversation={currentConversation}
-          conversationMessages={conversationMessages}
-          attachmentPreview={this.state.attachmentPreview}
+          conversationMessages={messages || conversationMessages}
+          attachmentPreview={attachmentPreview}
           scrollBottom={this.scrollBottom}
         />
       </ConversationWrapper>
@@ -190,8 +274,9 @@ Inbox.propTypes = {
   currentConversation: PropTypes.object,
   conversationMessages: PropTypes.array,
   loading: PropTypes.bool,
-  sectionParams: PropTypes.object,
-  setSectionParams: PropTypes.func
+  currentId: PropTypes.string,
+  loadMoreMessages: PropTypes.func,
+  messagesTotalCount: PropTypes.number
 };
 
 Inbox.contextTypes = {

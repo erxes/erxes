@@ -106,10 +106,18 @@ const conversationDetailMarkAsRead = `
 `;
 
 const conversationMessages = `
-  query conversationMessages($conversationId: String!) {
-    conversationMessages(conversationId: $conversationId) {
+  query conversationMessages($conversationId: String!, $skip: Int, $limit: Int) {
+    conversationMessages(
+      conversationId: $conversationId, skip: $skip, limit: $limit
+    ) {
       ${messageFields}
     }
+  }
+`;
+
+const conversationMessagesTotalCount = `
+  query conversationMessagesTotalCount($conversationId: String!) {
+    conversationMessagesTotalCount(conversationId: $conversationId)
   }
 `;
 
@@ -205,6 +213,7 @@ export default {
   conversationDetail,
   conversationDetailMarkAsRead,
   conversationMessages,
+  conversationMessagesTotalCount,
   userList,
   channelList,
   brandList,

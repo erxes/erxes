@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
+import client from 'apolloClient';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import queryString from 'query-string';
 import { Alert, router as routerUtils } from 'modules/common/utils';
 import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
@@ -97,18 +100,37 @@ class ConversationDetail extends Component {
     }
   }
 
+  loadMoreMessages(variables, callback) {
+    client
+      .query({
+        query: gql(queries.conversationMessages),
+        fetchPolicy: 'network-only',
+        variables
+      })
+      .then(({ data }) => {
+        callback && callback(data.conversationMessages);
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  }
+
   render() {
     const {
       history,
       currentId,
       detailQuery,
       messagesQuery,
-      markAsReadMutation
+      markAsReadMutation,
+      messagesTotalCountQuery
     } = this.props;
 
     const { currentUser } = this.context;
 
-    const loading = detailQuery.loading || messagesQuery.loading;
+    const loading =
+      detailQuery.loading ||
+      messagesQuery.loading ||
+      messagesTotalCountQuery.loading;
 
     const currentConversation = detailQuery.conversationDetail || {};
     const conversationMessages = messagesQuery.conversationMessages || [];
@@ -135,6 +157,9 @@ class ConversationDetail extends Component {
       conversationMessages,
       loading,
       onChangeConversation,
+      loadMoreMessages: this.loadMoreMessages,
+      messagesTotalCount:
+        messagesTotalCountQuery.conversationMessagesTotalCount,
       refetch: detailQuery.refetch
     };
 
@@ -145,6 +170,7 @@ class ConversationDetail extends Component {
 ConversationDetail.propTypes = {
   detailQuery: PropTypes.object,
   messagesQuery: PropTypes.object,
+  messagesTotalCountQuery: PropTypes.object,
   currentId: PropTypes.string.isRequired,
   markAsReadMutation: PropTypes.func.isRequired,
   history: PropTypes.object
@@ -160,6 +186,16 @@ const ConversationDetailContainer = compose(
   }),
   graphql(gql(queries.conversationMessages), {
     name: 'messagesQuery',
+    options: ({ currentId }) => ({
+      variables: {
+        conversationId: currentId,
+        limit: 6
+      },
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql(gql(queries.conversationMessagesTotalCount), {
+    name: 'messagesTotalCountQuery',
     options: ({ currentId }) => ({
       variables: { conversationId: currentId },
       fetchPolicy: 'network-only'
@@ -187,7 +223,8 @@ ConversationDetail.contextTypes = {
 
 class WithCurrentId extends React.Component {
   componentWillReceiveProps(nextProps) {
-    const { lastConversationQuery, history, queryParams } = nextProps;
+    const { lastConversationQuery, history, location } = nextProps;
+    const queryParams = queryString.parse(location.search);
     const { _id } = queryParams;
 
     const lastConversation = lastConversationQuery
@@ -200,9 +237,12 @@ class WithCurrentId extends React.Component {
   }
 
   render() {
+    const queryParams = queryString.parse(this.props.location.search);
+
     const updatedProps = {
       ...this.props,
-      currentId: this.props.queryParams._id || ''
+      queryParams,
+      currentId: queryParams._id || ''
     };
 
     return <ConversationDetailContainer {...updatedProps} />;
@@ -212,16 +252,22 @@ class WithCurrentId extends React.Component {
 WithCurrentId.propTypes = {
   lastConversationQuery: PropTypes.object,
   history: PropTypes.object,
-  queryParams: PropTypes.object
+  location: PropTypes.object
 };
 
-export default compose(
-  graphql(gql(queries.lastConversation), {
-    name: 'lastConversationQuery',
-    options: ({ queryParams }) => ({
-      skip: queryParams._id,
-      variables: generateParams(queryParams),
-      fetchPolicy: 'network-only'
+export default withRouter(
+  compose(
+    graphql(gql(queries.lastConversation), {
+      name: 'lastConversationQuery',
+      options: ({ location }) => {
+        const queryParams = queryString.parse(location.search);
+
+        return {
+          skip: queryParams._id,
+          variables: generateParams(queryParams),
+          fetchPolicy: 'network-only'
+        };
+      }
     })
-  })
-)(WithCurrentId);
+  )(WithCurrentId)
+);
