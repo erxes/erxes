@@ -34,6 +34,7 @@ class Row extends React.Component {
 
   renderLink(text, className, onClick) {
     const { __ } = this.context;
+
     return (
       <Tip text={__(text)} key={`${text}-${this.props.message._id}`}>
         <Button btnStyle="link" onClick={onClick} icon={className} />
@@ -67,7 +68,7 @@ class Row extends React.Component {
   renderRemoveButton(message, onClick) {
     const { __ } = this.context;
 
-    if (message.kind === 'auto') {
+    if (message.kind.toLowerCase().includes('auto')) {
       return (
         <Tip text={__('Delete')}>
           <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
@@ -90,6 +91,7 @@ class Row extends React.Component {
         </HelperText>
       );
     }
+
     const messenger = message.messenger || {};
     const rules = messenger.rules || [];
 
