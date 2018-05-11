@@ -107,7 +107,7 @@ iframe.onload = async () => {
 // listen for widget toggle
 window.addEventListener('message', async (event) => {
   const data = event.data;
-  const { isVisible, purpose } = data;
+  const { isVisible, message } = data;
 
   if (data.fromErxes && data.source === 'fromMessenger') {
     if (isMobile && isVisible) {
@@ -118,31 +118,31 @@ window.addEventListener('message', async (event) => {
 
     iframe = document.querySelector(`#${iframeId}`);
 
-    if (purpose === 'messenger') {
+    if (message === 'messenger') {
       erxesContainer.className = `erxes-messenger-${
         isVisible ? 'shown' : 'hidden'
       }`;
       document.body.classList.toggle('messenger-widget-shown', isVisible);
     }
 
-    if (purpose === 'notifier') {
+    if (message === 'notifier') {
       erxesContainer.className += ` erxes-notifier-${
         isVisible ? 'shown' : 'hidden'
       }`;
     }
 
-    if (purpose === 'notifierFull') {
+    if (message === 'notifierFull') {
       erxesContainer.className += ` erxes-notifier-${
         isVisible ? 'shown' : 'hidden'
       } fullMessage`;
     }
 
-    if (purpose === 'requestingBrowserInfo') {
+    if (message === 'requestingBrowserInfo') {
       iframe.contentWindow.postMessage(
         {
           fromPublisher: true,
           source: 'fromMessenger',
-          purpose: 'sendingBrowserInfo',
+          message: 'sendingBrowserInfo',
           browserInfo: await getBrowserInfo(),
         },
         '*'

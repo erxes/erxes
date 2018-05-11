@@ -42,30 +42,33 @@ export const connect = variables =>
   });
 
 export const saveBrowserInfo = () => (dispatch) => {
-  requestBrowserInfo('fromMessenger', (browserInfo) => {
-    const variables = {
-      customerId: connection.data.customerId,
-      browserInfo
-    };
+  requestBrowserInfo({
+    source: 'fromMessenger',
+    callback: (browserInfo) => {
+      const variables = {
+        customerId: connection.data.customerId,
+        browserInfo
+      };
 
-    client.mutate({
-      mutation: gql`
-        mutation saveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
-          saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
-            _id
+      client.mutate({
+        mutation: gql`
+          mutation saveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
+            saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
+              _id
+            }
           }
+        `,
+        variables,
+      })
+
+      .then(({ data: { saveBrowserInfo }}) => {
+        const engageConversations = saveBrowserInfo;
+
+        if (engageConversations.length > 0) {
+          dispatch({ type: ENGAGE_MESSAGES_CREATED });
         }
-      `,
-      variables,
-    })
-
-    .then(({ data: { saveBrowserInfo }}) => {
-      const engageConversations = saveBrowserInfo;
-
-      if (engageConversations.length > 0) {
-        dispatch({ type: ENGAGE_MESSAGES_CREATED });
-      }
-    });
+      });
+    }
   })
 };
 
