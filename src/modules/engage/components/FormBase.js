@@ -26,14 +26,14 @@ class FormBase extends Component {
     }
 
     if (type === 'live') {
-      this.props.save({ isLive: true, isDraft: false, ...doc });
+      return this.props.save({ isLive: true, isDraft: false, ...doc });
     }
 
     if (type === 'draft ') {
-      this.props.save({ isLive: false, isDraft: true, ...doc });
-    } else {
-      this.props.save(doc);
+      return this.props.save({ isLive: false, isDraft: true, ...doc });
     }
+
+    this.props.save(doc);
   }
 
   renderTitle() {

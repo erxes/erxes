@@ -132,6 +132,7 @@ class AutoAndManualForm extends FormBase {
       fromUser,
       message
     } = this.state;
+
     const defaultMessageStepValue = { messenger, email, fromUser, message };
     const { __ } = this.context;
 
