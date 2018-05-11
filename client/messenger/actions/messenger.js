@@ -1,5 +1,3 @@
-/* global window */
-
 import gql from 'graphql-tag';
 
 import {
@@ -16,7 +14,7 @@ import {
   getLocalStorageItem,
 } from '../connection';
 
-import { getBrowserInfo } from '../../utils';
+import { postMessage, requestBrowserInfo } from '../../utils';
 
 import client from '../../apollo-client';
 
@@ -43,42 +41,37 @@ export const connect = variables =>
     variables,
   });
 
-export const saveBrowserInfo = () => async (dispatch) => {
-  const browserInfo = await getBrowserInfo();
+export const saveBrowserInfo = () => (dispatch) => {
+  requestBrowserInfo('fromMessenger', (browserInfo) => {
+    const variables = {
+      customerId: connection.data.customerId,
+      browserInfo
+    };
 
-  const variables = {
-    customerId: connection.data.customerId,
-    browserInfo
-  };
-
-  client.mutate({
-    mutation: gql`
-      mutation saveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
-        saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
-          _id
+    client.mutate({
+      mutation: gql`
+        mutation saveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
+          saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
+            _id
+          }
         }
+      `,
+      variables,
+    })
+
+    .then(({ data: { saveBrowserInfo }}) => {
+      const engageConversations = saveBrowserInfo;
+
+      if (engageConversations.length > 0) {
+        dispatch({ type: ENGAGE_MESSAGES_CREATED });
       }
-    `,
-    variables,
+    });
   })
-
-  .then(({ data: { saveBrowserInfo }}) => {
-    const engageConversations = saveBrowserInfo;
-
-    if (engageConversations.length > 0) {
-      dispatch({ type: ENGAGE_MESSAGES_CREATED });
-    }
-  });
 };
 
 export const toggle = (isVisible) => {
   // notify parent window launcher state
-  window.parent.postMessage({
-    fromErxes: true,
-    fromMessenger: true,
-    purpose: 'messenger',
-    isVisible: !isVisible,
-  }, '*');
+  postMessage('fromMessenger', 'messenger', { isVisible: !isVisible });
 
   return {
     type: MESSENGER_TOGGLE,
@@ -87,22 +80,12 @@ export const toggle = (isVisible) => {
 
 export const toggleNotifer = (isVisible) => {
   // notify state
-  window.parent.postMessage({
-    fromErxes: true,
-    fromMessenger: true,
-    purpose: 'notifier',
-    isVisible: !isVisible,
-  }, '*');
+  postMessage('fromMessenger', 'notifier', { isVisible: !isVisible });
 };
 
 export const toggleNotiferFull = (isVisible) => {
   // notify state
-  window.parent.postMessage({
-    fromErxes: true,
-    fromMessenger: true,
-    purpose: 'notifierFull',
-    isVisible: !isVisible,
-  }, '*');
+  postMessage('fromMessenger', 'notifierFull', { isVisible: !isVisible });
 };
 
 

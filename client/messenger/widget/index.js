@@ -7,6 +7,8 @@
 // css
 import './index.css';
 
+import { getBrowserInfo } from '../../utils';
+
 // check is mobile
 const isMobile =
   navigator.userAgent.match(/iPhone/i) ||
@@ -103,11 +105,11 @@ iframe.onload = async () => {
 };
 
 // listen for widget toggle
-window.addEventListener('message', event => {
+window.addEventListener('message', async (event) => {
   const data = event.data;
-  const { isVisible } = data;
+  const { isVisible, purpose } = data;
 
-  if (data.fromErxes && data.fromMessenger) {
+  if (data.fromErxes && data.source === 'fromMessenger') {
     if (isMobile && isVisible) {
       disableZoom();
     } else {
@@ -116,23 +118,35 @@ window.addEventListener('message', event => {
 
     iframe = document.querySelector(`#${iframeId}`);
 
-    if (data.purpose === 'messenger') {
+    if (purpose === 'messenger') {
       erxesContainer.className = `erxes-messenger-${
         isVisible ? 'shown' : 'hidden'
       }`;
       document.body.classList.toggle('messenger-widget-shown', isVisible);
     }
 
-    if (data.purpose === 'notifier') {
+    if (purpose === 'notifier') {
       erxesContainer.className += ` erxes-notifier-${
         isVisible ? 'shown' : 'hidden'
       }`;
     }
 
-    if (data.purpose === 'notifierFull') {
+    if (purpose === 'notifierFull') {
       erxesContainer.className += ` erxes-notifier-${
         isVisible ? 'shown' : 'hidden'
       } fullMessage`;
+    }
+
+    if (purpose === 'requestingBrowserInfo') {
+      iframe.contentWindow.postMessage(
+        {
+          fromPublisher: true,
+          source: 'fromMessenger',
+          purpose: 'sendingBrowserInfo',
+          browserInfo: await getBrowserInfo(),
+        },
+        '*'
+      );
     }
   }
 });

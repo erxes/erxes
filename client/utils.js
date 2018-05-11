@@ -21,12 +21,34 @@ export const getBrowserInfo = async () => {
     region: location.region_name,
     city: location.city,
     country: location.country_name,
-    url: parent.location.pathname, // eslint-disable-line
-    hostname: parent.window.location.origin, // eslint-disable-line
+    url: window.location.pathname, // eslint-disable-line
+    hostname: window.location.origin, // eslint-disable-line
     language: navigator.language, // eslint-disable-line
     userAgent: navigator.userAgent, // eslint-disable-line
   };
 }
+
+export const postMessage = (source, purpose, data={}) => {
+  window.parent.postMessage({
+    fromErxes: true,
+    source,
+    purpose,
+    ...data
+  }, '*');
+}
+
+export const requestBrowserInfo = (source, callback) => {
+  postMessage('fromMessenger', 'requestingBrowserInfo')
+
+  window.addEventListener('message', (event) => {
+    const data = event.data || {};
+    const { fromPublisher, purpose, browserInfo } = data;
+
+    if (fromPublisher && source === data.source && purpose === 'sendingBrowserInfo') {
+      callback(browserInfo);
+    }
+  });
+};
 
 export const setMomentLocale = (code) => {
   moment.updateLocale('en', {
