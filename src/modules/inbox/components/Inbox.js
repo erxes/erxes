@@ -57,7 +57,11 @@ class Inbox extends Component {
   getSnapshotBeforeUpdate(prevProps, prevState) {
     const { messages } = prevState;
 
-    if (messages && messages.length < this.state.messages.length) {
+    if (
+      messages &&
+      this.state.messages &&
+      messages.length < this.state.messages.length
+    ) {
       const { current } = this.node;
 
       return current.scrollHeight - current.scrollTop;
@@ -69,12 +73,13 @@ class Inbox extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { conversationMessages, currentConversation } = this.props;
     const { twitterData } = currentConversation;
+    const { messages } = this.state;
     const isTweet = twitterData && !twitterData.isDirectMessage;
 
     const { current } = this.node;
     const messageList = current.firstChild;
 
-    if (!isTweet) {
+    if (!isTweet && !messages) {
       this.scrollBottom();
     }
 
@@ -101,11 +106,8 @@ class Inbox extends Component {
 
   scrollBottom() {
     const { current } = this.node;
-    const { messages } = this.state;
 
-    if (!messages) {
-      current.scrollTop = current.scrollHeight;
-    }
+    current.scrollTop = current.scrollHeight;
   }
 
   setAttachmentPreview(attachmentPreview) {

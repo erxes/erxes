@@ -186,13 +186,17 @@ const ConversationDetailContainer = compose(
   }),
   graphql(gql(queries.conversationMessages), {
     name: 'messagesQuery',
-    options: ({ currentId }) => ({
-      variables: {
-        conversationId: currentId,
-        limit: 6
-      },
-      fetchPolicy: 'network-only'
-    })
+    options: ({ currentId }) => {
+      const count = window.innerHeight;
+
+      return {
+        variables: {
+          conversationId: currentId,
+          limit: parseInt((count - 330) / 45, 10)
+        },
+        fetchPolicy: 'network-only'
+      };
+    }
   }),
   graphql(gql(queries.conversationMessagesTotalCount), {
     name: 'messagesTotalCountQuery',
