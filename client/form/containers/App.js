@@ -2,16 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { App as DumbApp } from '../components';
-import { postMessage, init, closePopup, showPopup } from '../actions';
+import { postMessage, init, saveBrowserInfo, closePopup, showPopup } from '../actions';
 import { connection } from '../connection';
-import { getBrowserInfo } from '../../utils';
 
 class App extends React.Component {
   componentDidMount() {
-    // save browser info in connection for later in use in saveForm
-    getBrowserInfo().then((browserInfo) => {
-      connection.browserInfo = browserInfo
-    });
+    this.props.saveBrowserInfo();
 
     window.addEventListener('message', (event) => {
       if (event.data.fromPublisher) {
@@ -27,7 +23,7 @@ class App extends React.Component {
     const elementsHeight = document.getElementById('erxes-container').clientHeight;
 
     postMessage({
-      action: 'changeContainerStyle',
+      message: 'changeContainerStyle',
       style: `height: ${elementsHeight}px;`,
     });
   }
@@ -90,7 +86,7 @@ class App extends React.Component {
     }
 
     postMessage({
-      action: 'changeContainerClass',
+      message: 'changeContainerClass',
       className: parentClass,
     });
 
@@ -113,6 +109,10 @@ const mapDisptachToProps = dispatch => ({
     dispatch(init());
   },
 
+  saveBrowserInfo() {
+    dispatch(saveBrowserInfo());
+  },
+
   closePopup() {
     dispatch(closePopup());
   },
@@ -127,6 +127,7 @@ App.propTypes = {
   isPopupVisible: PropTypes.bool,
   isFormVisible: PropTypes.bool,
   isCalloutVisible: PropTypes.bool,
+  saveBrowserInfo: PropTypes.func,
   showPopup: PropTypes.func,
 }
 

@@ -28,23 +28,23 @@ export const getBrowserInfo = async () => {
   };
 }
 
-export const postMessage = (source, purpose, data={}) => {
+export const postMessage = (source, message, postData={}) => {
   window.parent.postMessage({
     fromErxes: true,
     source,
-    purpose,
-    ...data
+    message,
+    ...postData
   }, '*');
 }
 
-export const requestBrowserInfo = (source, callback) => {
-  postMessage('fromMessenger', 'requestingBrowserInfo')
+export const requestBrowserInfo = ({ source, postData={}, callback }) => {
+  postMessage(source, 'requestingBrowserInfo', postData);
 
   window.addEventListener('message', (event) => {
     const data = event.data || {};
-    const { fromPublisher, purpose, browserInfo } = data;
+    const { fromPublisher, message, browserInfo } = data;
 
-    if (fromPublisher && source === data.source && purpose === 'sendingBrowserInfo') {
+    if (fromPublisher && source === data.source && message === 'sendingBrowserInfo') {
       callback(browserInfo);
     }
   });

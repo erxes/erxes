@@ -10,7 +10,7 @@ import './sass/style.scss';
 
 widgetConnect({
   postParams: {
-    fromForms: true,
+    source: 'fromForms',
   },
 
   connectMutation: (event) => {

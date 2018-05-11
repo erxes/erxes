@@ -35,7 +35,7 @@ const widgetConnect = (params) => {
           {
             fromErxes: true,
             ...postParams,
-            action: 'connected',
+            message: 'connected',
             connectionInfo: data,
             setting: event.data.setting,
           },

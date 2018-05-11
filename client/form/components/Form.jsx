@@ -118,7 +118,12 @@ export default class Form extends React.Component {
                 __('Thanks for your message. We will respond as soon as we can.')
               }
             </span>
-            <button style={{ background: color }} className="btn" onClick={onCreateNew}>{__('Create new')}</button>
+            <button
+              style={{ background: color }}
+              className="btn"
+              onClick={onCreateNew}>
+              {__('Create new')}
+            </button>
           </div>
         </div>
       </div>
