@@ -55,13 +55,10 @@ class Inbox extends Component {
   }
 
   getSnapshotBeforeUpdate(prevProps, prevState) {
-    const { messages } = prevState;
+    const { conversationMessages } = prevProps;
+    const messages = prevState.messages || conversationMessages;
 
-    if (
-      messages &&
-      this.state.messages &&
-      messages.length < this.state.messages.length
-    ) {
+    if (this.state.messages && messages.length < this.state.messages.length) {
       const { current } = this.node;
 
       return current.scrollHeight - current.scrollTop;
@@ -71,30 +68,17 @@ class Inbox extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { conversationMessages, currentConversation } = this.props;
-    const { twitterData } = currentConversation;
-    const { messages } = this.state;
+    const { twitterData } = this.props.currentConversation;
+    const { loadingMore, messages } = this.state;
     const isTweet = twitterData && !twitterData.isDirectMessage;
 
-    const { current } = this.node;
-    const messageList = current.firstChild;
-
-    if (!isTweet && !messages) {
+    if (!isTweet && !messages && !loadingMore) {
       this.scrollBottom();
     }
 
     if (snapshot !== null) {
       const { current } = this.node;
       current.scrollTop = current.scrollHeight - snapshot;
-    }
-
-    if (
-      current.scrollHeight > messageList.scrollHeight &&
-      messageList.scrollHeight > conversationMessages.length * 40 &&
-      conversationMessages.length > 0 &&
-      !this.state.loadingMore
-    ) {
-      this.loadMore();
     }
   }
 
@@ -130,15 +114,25 @@ class Inbox extends Component {
     )
       return;
 
-    const limit = messages.length + 1;
-    const variables = { conversationId: currentId, limit };
+    if (currentId !== this.state.currentId) return;
+
+    const variables = {
+      conversationId: currentId,
+      limit: 10,
+      skip: messages.length
+    };
 
     this.setState({ loadingMore: true });
     loadMoreMessages(variables, this.handleResultsFound);
   }
 
-  handleResultsFound(messages) {
-    this.setState({ messages, loadingMore: false });
+  handleResultsFound(results) {
+    const { conversationMessages } = this.props;
+
+    this.setState({
+      messages: [...results, ...(this.state.messages || conversationMessages)],
+      loadingMore: false
+    });
   }
 
   render() {
