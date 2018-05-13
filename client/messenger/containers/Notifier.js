@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { gql, graphql } from 'react-apollo';
 import { Notifier as DumbNotifier } from '../components';
 import { changeRoute, toggle, changeConversation, toggleNotifer } from '../actions/messenger';
-import { readEngageMessage, readMessages } from '../actions/messages';
+import { readMessages } from '../actions/messages';
 
 import { connection } from '../connection';
 import NotificationSubscriber from './NotificationSubscriber';
@@ -50,7 +50,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDisptachToProps = dispatch => ({
-  readMessage({ conversationId, engageData }) {
+  readMessage({ conversationId }) {
     // show messenger
     dispatch(toggle());
 
@@ -62,11 +62,6 @@ const mapDisptachToProps = dispatch => ({
 
     // mark as read
     dispatch(readMessages(conversationId));
-
-    // if engage message then add this customer to received list
-    if (engageData) {
-      dispatch(readEngageMessage({ engageData }));
-    }
 
     toggleNotifer();
 

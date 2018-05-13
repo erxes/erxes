@@ -61,12 +61,8 @@ export const saveBrowserInfo = () => (dispatch) => {
         variables,
       })
 
-      .then(({ data: { saveBrowserInfo }}) => {
-        const engageConversations = saveBrowserInfo;
-
-        if (engageConversations.length > 0) {
-          dispatch({ type: ENGAGE_MESSAGES_CREATED });
-        }
+      .then(() => {
+        dispatch({ type: ENGAGE_MESSAGES_CREATED });
       });
     }
   })
