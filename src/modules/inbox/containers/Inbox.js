@@ -18,6 +18,8 @@ class ConversationDetail extends Component {
     super(props, context);
 
     this.subscriptions = {};
+    this.state = { messages: [], loadingMessages: false };
+    this.loadMoreMessages = this.loadMoreMessages.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -25,8 +27,20 @@ class ConversationDetail extends Component {
 
     const { currentId, detailQuery, messagesQuery } = nextProps;
 
+    if (!currentId) return;
+
+    if (currentId !== this.props.currentId) {
+      this.setState({ messages: [], loadingMessages: true });
+    }
+
     if (detailQuery.loading || messagesQuery.loading) {
       return;
+    }
+
+    const { conversationMessages } = messagesQuery;
+
+    if (conversationMessages && this.state.messages.length === 0) {
+      this.setState({ messages: conversationMessages, loadingMessages: false });
     }
 
     if (this.subscriptions[currentId]) {
@@ -69,6 +83,8 @@ class ConversationDetail extends Component {
           conversationMessages: [...messages, message]
         };
 
+        this.setState({ messages: [...this.state.messages, message] });
+
         return next;
       }
     });
@@ -103,40 +119,54 @@ class ConversationDetail extends Component {
     }
   }
 
-  loadMoreMessages(variables, callback) {
-    client
-      .query({
-        query: gql(queries.conversationMessages),
-        fetchPolicy: 'network-only',
-        variables
-      })
-      .then(({ data }) => {
-        callback && callback(data.conversationMessages);
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+  loadMoreMessages() {
+    const { currentId, messagesTotalCountQuery } = this.props;
+    const { messages } = this.state;
+    const { loading, conversationMessagesTotalCount } = messagesTotalCountQuery;
+
+    if (!loading && conversationMessagesTotalCount > messages.length) {
+      this.setState({ loadingMessages: true });
+
+      client
+        .query({
+          query: gql(queries.conversationMessages),
+          fetchPolicy: 'network-only',
+          variables: {
+            conversationId: currentId,
+            skip: messages.length,
+            limit: 10
+          }
+        })
+        .then(({ data }) => {
+          const { conversationMessages } = data;
+
+          if (conversationMessages) {
+            this.setState({
+              messages: [...conversationMessages, ...messages],
+              loadingMessages: false
+            });
+          }
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    }
   }
 
   render() {
     const {
       history,
       currentId,
-      detailQuery,
-      messagesQuery,
-      markAsReadMutation,
-      messagesTotalCountQuery
+      detailQuery = {},
+      messagesQuery = {},
+      markAsReadMutation
     } = this.props;
 
     const { currentUser } = this.context;
 
-    const loading =
-      detailQuery.loading ||
-      messagesQuery.loading ||
-      messagesTotalCountQuery.loading;
+    const loading = detailQuery.loading || messagesQuery.loading;
 
     const currentConversation = detailQuery.conversationDetail || {};
-    const conversationMessages = messagesQuery.conversationMessages || [];
     const readUserIds = currentConversation.readUserIds || [];
 
     // mark as read ============
@@ -153,18 +183,19 @@ class ConversationDetail extends Component {
       routerUtils.setParams(history, { _id: conversation._id });
     };
 
+    const { messages, loadingMessages } = this.state;
+
     const updatedProps = {
       ...this.props,
       currentConversationId: currentId,
       currentConversation,
-      conversationMessages,
+      conversationMessages: messages,
       loading,
       onChangeConversation,
       loadMoreMessages: this.loadMoreMessages,
-      messagesTotalCount:
-        messagesTotalCountQuery.conversationMessagesTotalCount,
       messageLimit,
-      refetch: detailQuery.refetch
+      refetch: detailQuery.refetch,
+      loadingMessages
     };
 
     return <InboxComponent {...updatedProps} />;
@@ -184,6 +215,7 @@ const ConversationDetailContainer = compose(
   graphql(gql(queries.conversationDetail), {
     name: 'detailQuery',
     options: ({ currentId }) => ({
+      skip: !currentId,
       variables: { _id: currentId },
       fetchPolicy: 'network-only'
     })
@@ -192,6 +224,7 @@ const ConversationDetailContainer = compose(
     name: 'messagesQuery',
     options: ({ currentId }) => {
       return {
+        skip: !currentId,
         variables: {
           conversationId: currentId,
           limit: messageLimit
@@ -203,6 +236,7 @@ const ConversationDetailContainer = compose(
   graphql(gql(queries.conversationMessagesTotalCount), {
     name: 'messagesTotalCountQuery',
     options: ({ currentId }) => ({
+      skip: !currentId,
       variables: { conversationId: currentId },
       fetchPolicy: 'network-only'
     })
@@ -229,8 +263,7 @@ ConversationDetail.contextTypes = {
 
 class WithCurrentId extends React.Component {
   componentWillReceiveProps(nextProps) {
-    const { lastConversationQuery, history, location } = nextProps;
-    const queryParams = queryString.parse(location.search);
+    const { lastConversationQuery, history, queryParams } = nextProps;
     const { _id } = queryParams;
 
     const lastConversation = lastConversationQuery
@@ -243,11 +276,10 @@ class WithCurrentId extends React.Component {
   }
 
   render() {
-    const queryParams = queryString.parse(this.props.location.search);
+    const { queryParams } = this.props;
 
     const updatedProps = {
       ...this.props,
-      queryParams,
       currentId: queryParams._id || ''
     };
 
@@ -258,7 +290,8 @@ class WithCurrentId extends React.Component {
 WithCurrentId.propTypes = {
   lastConversationQuery: PropTypes.object,
   history: PropTypes.object,
-  location: PropTypes.object
+  location: PropTypes.object,
+  queryParams: PropTypes.object
 };
 
 const Inbox = compose(
