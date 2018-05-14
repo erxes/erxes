@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import SelectBrand from './SelectBrand';
 import {
   Button,
+  Form,
   FormGroup,
   FormControl,
   ControlLabel
@@ -35,13 +36,11 @@ class Facebook extends Component {
     return values;
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-
+  handleSubmit(doc) {
     this.props.save({
-      name: document.getElementById('name').value,
-      brandId: document.getElementById('selectBrand').value,
-      appId: document.getElementById('app').value,
+      name: doc.name,
+      brandId: doc.selectBrand,
+      appId: doc.app,
       pageIds: this.collectCheckboxValues('pages')
     });
   }
@@ -51,11 +50,16 @@ class Facebook extends Component {
     const { apps, pages, brands } = this.props;
 
     return (
-      <form onSubmit={this.handleSubmit}>
+      <Form onSubmit={this.handleSubmit}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
-          <FormControl id="name" type="text" required />
+          <FormControl
+            name="name"
+            type="text"
+            validations="isValue"
+            validationError="Please enter a name"
+          />
         </FormGroup>
 
         <SelectBrand brands={brands} />
@@ -67,7 +71,9 @@ class Facebook extends Component {
             componentClass="select"
             placeholder={__('Select app')}
             onChange={this.onAppChange}
-            id="app"
+            validations="isValue"
+            validationError="Please select a app"
+            name="app"
           >
             <option value="">Select app ...</option>
 
@@ -101,7 +107,7 @@ class Facebook extends Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'modules/common/components';
+import { Form as Formsy, Button } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
@@ -20,11 +20,9 @@ class Form extends Component {
     this.save = this.save.bind(this);
   }
 
-  save(e) {
-    e.preventDefault();
-
+  save(doc) {
     this.props.save(
-      this.generateDoc(),
+      this.generateDoc(doc),
       () => {
         this.context.closeModal();
       },
@@ -38,7 +36,7 @@ class Form extends Component {
     };
 
     return (
-      <form onSubmit={this.save}>
+      <Formsy onSubmit={this.save}>
         {this.renderContent(this.props.object || {})}
         <ModalFooter>
           <Button
@@ -54,7 +52,7 @@ class Form extends Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Formsy>
     );
   }
 }

@@ -1,6 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, FormControl, ControlLabel } from 'modules/common/components';
+import {
+  Form,
+  Button,
+  FormControl,
+  ControlLabel
+} from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import {
   AddContainer,
@@ -47,16 +52,13 @@ class DealAddForm extends React.Component {
     this.setState({ [name]: value });
   }
 
-  save(e) {
-    e.preventDefault();
-
-    const { stageId, name } = this.state;
+  save(args) {
+    const { name } = args;
+    const { stageId } = this.state;
     const { customerId, companyId, saveDeal } = this.props;
     const { __, closeModal } = this.context;
 
-    if (!stageId) return Alert.error(__('No stage'));
-
-    if (!name) return Alert.error(__('Enter name'));
+    if (!stageId) return Alert.error(__('Please select a stage'));
 
     const doc = {
       name,
@@ -99,38 +101,42 @@ class DealAddForm extends React.Component {
 
   render() {
     return (
-      <AddContainer onSubmit={e => this.save(e)}>
-        {this.renderSelect()}
+      <Form onSubmit={e => this.save(e)}>
+        <AddContainer>
+          {this.renderSelect()}
 
-        <HeaderRow>
-          <HeaderContent>
-            <ControlLabel>Name</ControlLabel>
-            <FormControl
-              autoFocus
-              onChange={e => this.onChangeField('name', e.target.value)}
-            />
-          </HeaderContent>
-        </HeaderRow>
+          <HeaderRow>
+            <HeaderContent>
+              <ControlLabel>Name</ControlLabel>
+              <FormControl
+                autoFocus
+                name="name"
+                validations="isValue"
+                validationError="Please enter a name"
+              />
+            </HeaderContent>
+          </HeaderRow>
 
-        <FormFooter>
-          <Button
-            btnStyle="simple"
-            onClick={this.context.closeModal}
-            icon="cancel-1"
-          >
-            Close
-          </Button>
+          <FormFooter>
+            <Button
+              btnStyle="simple"
+              onClick={this.context.closeModal}
+              icon="cancel-1"
+            >
+              Close
+            </Button>
 
-          <Button
-            disabled={this.state.disabled}
-            btnStyle="success"
-            icon="checked-1"
-            type="submit"
-          >
-            Save
-          </Button>
-        </FormFooter>
-      </AddContainer>
+            <Button
+              disabled={this.state.disabled}
+              btnStyle="success"
+              icon="checked-1"
+              type="submit"
+            >
+              Save
+            </Button>
+          </FormFooter>
+        </AddContainer>
+      </Form>
     );
   }
 }

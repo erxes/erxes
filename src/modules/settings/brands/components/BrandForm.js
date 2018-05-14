@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
+  Form,
   FormGroup,
   FormControl,
   ControlLabel,
@@ -21,29 +22,22 @@ class BrandForm extends Component {
   constructor(props) {
     super(props);
 
-    this.generateDoc = this.generateDoc.bind(this);
     this.save = this.save.bind(this);
   }
 
-  save(e) {
-    e.preventDefault();
-
+  save(doc) {
     this.props.save(
-      this.generateDoc(),
+      {
+        doc: {
+          name: doc.name,
+          description: doc.description
+        }
+      },
       () => {
         this.context.closeModal();
       },
       this.props.brand
     );
-  }
-
-  generateDoc() {
-    return {
-      doc: {
-        name: document.getElementById('brand-name').value,
-        description: document.getElementById('brand-description').value
-      }
-    };
   }
 
   renderContent() {
@@ -55,10 +49,11 @@ class BrandForm extends Component {
           <ControlLabel>Name</ControlLabel>
 
           <FormControl
-            id="brand-name"
-            defaultValue={object.name}
+            name="name"
+            validations="isValue"
+            validationError="Please enter a name"
+            value={object.name}
             type="text"
-            required
           />
         </FormGroup>
 
@@ -66,10 +61,11 @@ class BrandForm extends Component {
           <ControlLabel>Description</ControlLabel>
 
           <FormControl
-            id="brand-description"
+            name="description"
+            validations={{}}
             componentClass="textarea"
             rows={5}
-            defaultValue={object.description}
+            value={object.description}
           />
         </FormGroup>
       </div>
@@ -82,7 +78,7 @@ class BrandForm extends Component {
     };
 
     return (
-      <form onSubmit={this.save}>
+      <Form onSubmit={this.save}>
         {this.renderContent()}
         <ModalFooter>
           <Button
@@ -98,7 +94,7 @@ class BrandForm extends Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }

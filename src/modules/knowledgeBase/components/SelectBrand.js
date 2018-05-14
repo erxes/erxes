@@ -21,10 +21,12 @@ const SelectBrand = ({ brands, onChange, defaultValue }, { __ }) => (
     <ControlLabel>Brand</ControlLabel>
 
     <FormControl
-      id="selectBrand"
+      name="selectBrand"
+      validations="isValue"
+      validationError="Please select a brand"
       componentClass="select"
       placeholder={__('Select Brand')}
-      defaultValue={defaultValue}
+      value={defaultValue}
       onChange={onChange}
     >
       <option />

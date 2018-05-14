@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Toggle from 'react-toggle';
 import {
   Button,
+  Form,
   FormGroup,
   FormControl,
   ControlLabel
@@ -40,12 +41,10 @@ class PropertyGroupForm extends React.Component {
     this.visibleHandler = this.visibleHandler.bind(this);
   }
 
-  onSubmit(e) {
-    e.preventDefault();
-
+  onSubmit(args) {
     const { isVisible } = this.state;
-    const name = document.getElementById('name').value;
-    const description = document.getElementById('description').value;
+    const name = args.name;
+    const description = args.description;
 
     const doc = {
       name,
@@ -70,15 +69,16 @@ class PropertyGroupForm extends React.Component {
     const { group = {} } = this.props;
 
     return (
-      <form onSubmit={this.onSubmit}>
+      <Form onSubmit={this.onSubmit}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
           <FormControl
             type="text"
-            id="name"
+            name="name"
             autoFocus
-            required
-            defaultValue={group.name || ''}
+            validations="isValue"
+            validationError="Please enter a name"
+            value={group.name || ''}
           />
         </FormGroup>
 
@@ -86,9 +86,9 @@ class PropertyGroupForm extends React.Component {
           <ControlLabel>Description</ControlLabel>
           <FormControl
             type="text"
-            id="description"
-            required
-            defaultValue={group.name || ''}
+            name="description"
+            validations={{}}
+            value={group.name || ''}
           />
         </FormGroup>
 
@@ -121,7 +121,7 @@ class PropertyGroupForm extends React.Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }

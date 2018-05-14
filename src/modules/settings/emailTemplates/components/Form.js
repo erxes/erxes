@@ -7,11 +7,11 @@ import {
 import { Form as CommonForm } from '../../common/components';
 
 class Form extends CommonForm {
-  generateDoc() {
+  generateDoc(doc) {
     return {
       doc: {
-        name: document.getElementById('template-name').value,
-        content: document.getElementById('template-content').value
+        name: doc.templateName,
+        content: doc.templateContent
       }
     };
   }
@@ -23,10 +23,11 @@ class Form extends CommonForm {
           <ControlLabel>Name</ControlLabel>
 
           <FormControl
-            id="template-name"
-            defaultValue={emailTemplate.name}
+            name="templateName"
+            value={emailTemplate.name}
+            validations="isValue"
+            validationError="Please enter a name"
             type="text"
-            required
           />
         </FormGroup>
 
@@ -34,11 +35,13 @@ class Form extends CommonForm {
           <ControlLabel>Content</ControlLabel>
 
           <FormControl
-            id="template-content"
+            name="templateContent"
+            validations="isValue"
+            validationError="Please enter a content"
             componentClass="textarea"
             rows={5}
             onChange={this.onTemplateChange}
-            defaultValue={emailTemplate.content}
+            value={emailTemplate.content}
           />
         </FormGroup>
       </Fragment>

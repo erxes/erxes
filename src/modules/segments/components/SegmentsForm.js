@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import {
   Button,
+  Form,
   Icon,
   ControlLabel,
   FormGroup,
@@ -37,9 +38,6 @@ class SegmentsForm extends Component {
     super(props);
 
     this.state = props.segment || {
-      name: '',
-      description: '',
-      subOf: '',
       color: generateRandomColorCode(),
       conditions: [],
       connector: 'any'
@@ -100,25 +98,24 @@ class SegmentsForm extends Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
-  save(e) {
-    e.preventDefault();
-
+  save(args) {
     const { segment, create, edit } = this.props;
 
     const submit = segment ? edit : create;
-    const {
-      name,
-      description,
-      subOf,
-      color,
-      connector,
-      conditions
-    } = this.state;
+    const { connector, conditions } = this.state;
 
-    const params = { doc: { name, description, color, connector, conditions } };
+    const params = {
+      doc: {
+        name: args.name,
+        description: args.description,
+        color: args.color || generateRandomColorCode(),
+        connector,
+        conditions
+      }
+    };
 
-    if (subOf) {
-      params.doc.subOf = subOf;
+    if (args.subOf) {
+      params.doc.subOf = args.subOf;
     }
 
     Object.assign(params, segment ? { id: segment._id } : {});
@@ -178,7 +175,7 @@ class SegmentsForm extends Component {
           name="subOf"
           componentClass="select"
           value={this.state.subOf || ''}
-          onChange={this.handleChange}
+          validations={{}}
         >
           <option value="">[not selected]</option>
           {this.props.headSegments.map(segment => (
@@ -197,35 +194,35 @@ class SegmentsForm extends Component {
     return (
       <FlexContent>
         <FlexItem count={3}>
-          <form onSubmit={this.save}>
-            <FormGroup>
-              <ControlLabel>Name</ControlLabel>
-              <FormControl
-                name="name"
-                required
-                value={name}
-                onChange={this.handleChange}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl
-                name="description"
-                value={description}
-                onChange={this.handleChange}
-              />
-            </FormGroup>
-            {this.renderSubOf()}
-            <FormGroup>
-              <ControlLabel>Color</ControlLabel>
-              <FormControl
-                name="color"
-                type="color"
-                value={color}
-                onChange={this.handleChange}
-              />
-            </FormGroup>
-          </form>
+          <FormGroup>
+            <ControlLabel>Name</ControlLabel>
+            <FormControl
+              name="name"
+              validations="isValue"
+              validationError="Please enter a name"
+              value={name}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Description</ControlLabel>
+            <FormControl
+              name="description"
+              validations={{}}
+              value={description}
+            />
+          </FormGroup>
+          {this.renderSubOf()}
+          <FormGroup>
+            <ControlLabel>Color</ControlLabel>
+            <FormControl
+              name="color"
+              validations="isValue"
+              validationError="Please enter a color"
+              type="color"
+              value={color}
+              onChange={this.handleChange}
+            />
+          </FormGroup>
         </FlexItem>
         <FlexItem count={2} />
       </FlexContent>
@@ -237,26 +234,31 @@ class SegmentsForm extends Component {
     const { __ } = this.context;
 
     return (
-      <SegmentWrapper>
-        <FlexContent>
-          <FlexItem count={3}>
-            <SegmentContainer>
-              <SegmentTitle>{__('Filters')}</SegmentTitle>
+      <Form onSubmit={this.save}>
+        <SegmentWrapper>
+          <FlexContent>
+            <FlexItem count={3}>
+              <SegmentContainer>
+                <SegmentTitle>{__('Filters')}</SegmentTitle>
 
-              {this.renderConditions()}
-              <ContentSpace />
-              {this.renderForm()}
-            </SegmentContainer>
-          </FlexItem>
+                {this.renderConditions()}
 
-          <SegmentResult>
-            <ResultCount>
-              <Icon icon="users" /> {total.byFakeSegment}
-            </ResultCount>
-            {__('User(s) will recieve this message')}
-          </SegmentResult>
-        </FlexContent>
-      </SegmentWrapper>
+                <ContentSpace />
+
+                {this.renderForm()}
+                {this.renderFooter()}
+              </SegmentContainer>
+            </FlexItem>
+
+            <SegmentResult>
+              <ResultCount>
+                <Icon icon="users" /> {total.byFakeSegment}
+              </ResultCount>
+              {__('User(s) will recieve this message')}
+            </SegmentResult>
+          </FlexContent>
+        </SegmentWrapper>
+      </Form>
     );
   }
 
@@ -275,7 +277,7 @@ class SegmentsForm extends Component {
             <Button
               size="small"
               btnStyle="success"
-              onClick={this.save}
+              type="submit"
               icon="checked-1"
             >
               Save
@@ -299,7 +301,6 @@ class SegmentsForm extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         content={this.renderContent()}
-        footer={this.renderFooter()}
       />
     );
   }

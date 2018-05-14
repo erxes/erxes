@@ -1,15 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Modal } from 'react-bootstrap';
 import {
+  Form,
   FormGroup,
   ControlLabel,
   FormControl,
   Button
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
-  onSuccess: PropTypes.func.isRequired
+  onSuccess: PropTypes.func.isRequired,
+  close: PropTypes.func.isRequired,
+  show: PropTypes.bool
 };
 
 const contextTypes = {
@@ -23,39 +26,43 @@ class PasswordConfirmation extends Component {
     this.submit = this.submit.bind(this);
   }
 
-  submit(e) {
-    e.preventDefault();
-
-    const password = document.getElementById('password').value;
-
-    this.props.onSuccess(password);
-    this.context.closeModal();
+  submit(doc) {
+    this.props.onSuccess(doc.password);
   }
 
   render() {
+    const { show, close } = this.props;
+
     return (
-      <form onSubmit={e => this.submit(e)}>
-        <FormGroup>
-          <ControlLabel>Enter your password to Confirm</ControlLabel>
-          <FormControl autoFocus id="password" type="password" />
-        </FormGroup>
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            icon="cancel-1"
-            onClick={() => this.context.closeModal()}
-          >
-            Cancel
-          </Button>
-          <Button
-            btnStyle="success"
-            icon="checked-1"
-            onClick={e => this.submit(e)}
-          >
-            Save
-          </Button>
-        </ModalFooter>
-      </form>
+      <Modal show={show} onHide={close}>
+        <Form onSubmit={this.submit}>
+          <Modal.Header closeButton>
+            <Modal.Title>Enter your password to Confirm</Modal.Title>
+          </Modal.Header>
+
+          <Modal.Body>
+            <FormGroup>
+              <ControlLabel>Enter your password to Confirm</ControlLabel>
+              <FormControl
+                autoFocus
+                name="password"
+                validations="isValue"
+                validationError="Please enter a password"
+                type="password"
+              />
+            </FormGroup>
+
+            <Modal.Footer>
+              <Button btnStyle="simple" icon="cancel-1" onClick={close}>
+                Cancel
+              </Button>
+              <Button btnStyle="success" icon="checked-1" type="submit">
+                Save
+              </Button>
+            </Modal.Footer>
+          </Modal.Body>
+        </Form>
+      </Modal>
     );
   }
 }

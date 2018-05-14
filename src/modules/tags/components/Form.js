@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
+  Form as Formsy,
   FormGroup,
   ControlLabel,
   FormControl
@@ -31,29 +32,19 @@ class Form extends Component {
     };
 
     this.submit = this.submit.bind(this);
-    this.handleName = this.handleName.bind(this);
-    this.handleColorCode = this.handleColorCode.bind(this);
   }
 
-  submit(e) {
-    e.preventDefault();
-
+  submit(doc) {
     const { tag, type, save } = this.props;
-    const { name, colorCode } = this.state;
+
+    const name = doc.name || '';
+    const colorCode = doc.colorCode || generateRandomColorCode();
 
     save({
       tag,
       doc: { name, type, colorCode },
       callback: () => this.context.closeModal()
     });
-  }
-
-  handleName(e) {
-    this.setState({ name: e.target.value });
-  }
-
-  handleColorCode(e) {
-    this.setState({ colorCode: e.target.value });
   }
 
   render() {
@@ -64,15 +55,15 @@ class Form extends Component {
     };
 
     return (
-      <form onSubmit={this.submit}>
+      <Formsy onSubmit={this.submit}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
           <FormControl
             type="text"
             value={name}
-            onChange={this.handleName}
-            required
-            id="name"
+            validations="isValue"
+            validationError="Please enter a name"
+            name="name"
           />
         </FormGroup>
 
@@ -81,8 +72,9 @@ class Form extends Component {
           <FormControl
             type="color"
             value={colorCode}
-            onChange={this.handleColorCode}
-            id="colorCode"
+            validations="isValue"
+            validationError="Please select a color code"
+            name="colorCode"
           />
         </FormGroup>
 
@@ -95,7 +87,7 @@ class Form extends Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Formsy>
     );
   }
 }

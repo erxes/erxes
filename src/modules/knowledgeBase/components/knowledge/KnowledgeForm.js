@@ -5,6 +5,7 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { ChromePicker } from 'react-color';
 import {
+  Form,
   FormGroup,
   ControlLabel,
   FormControl,
@@ -59,11 +60,9 @@ class KnowledgeForm extends Component {
     this.setState({ color: e.hex });
   }
 
-  save(e) {
-    e.preventDefault();
-
+  save(doc) {
     this.props.save(
-      this.generateDoc(),
+      this.generateDoc(doc),
       () => {
         this.context.closeModal();
       },
@@ -139,18 +138,17 @@ class KnowledgeForm extends Component {
     }
   }
 
-  generateDoc() {
+  generateDoc(doc) {
     const { topic } = this.props;
 
     return {
       ...topic,
       doc: {
         doc: {
-          title: document.getElementById('knowledgebase-title').value,
-          description: document.getElementById('knowledgebase-description')
-            .value,
-          brandId: document.getElementById('selectBrand').value,
-          languageCode: document.getElementById('languageCode').value,
+          title: doc.knowledgebaseTitle,
+          description: doc.knowledgebaseDescription,
+          brandId: doc.selectBrand,
+          languageCode: doc.languageCode,
           color: this.state.color
         }
       }
@@ -173,19 +171,21 @@ class KnowledgeForm extends Component {
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
-            id="knowledgebase-title"
+            name="knowledgebaseTitle"
             type="text"
-            defaultValue={topic.title}
-            required
+            value={topic.title}
+            validations="isValue"
+            validationError="Please enter a title"
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <FormControl
-            id="knowledgebase-description"
+            name="knowledgebaseDescription"
             type="text"
-            defaultValue={topic.description}
+            value={topic.description}
+            validations={{}}
           />
         </FormGroup>
 
@@ -221,8 +221,10 @@ class KnowledgeForm extends Component {
 
           <FormControl
             componentClass="select"
-            defaultValue={topic.languageCode || 'en'}
-            id="languageCode"
+            value={topic.languageCode || 'en'}
+            validations="isValue"
+            validationError="Please select a language"
+            name="languageCode"
           >
             <option />
             <option value="mn">Монгол</option>
@@ -243,7 +245,7 @@ class KnowledgeForm extends Component {
     };
 
     return (
-      <form onSubmit={this.save}>
+      <Form onSubmit={this.save}>
         {this.renderContent(topic || {})}
         <ModalFooter>
           <Button
@@ -268,7 +270,7 @@ class KnowledgeForm extends Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }

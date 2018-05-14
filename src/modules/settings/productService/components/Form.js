@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import {
+  Form as Formsy,
   FormGroup,
   FormControl,
   ControlLabel,
@@ -35,11 +36,7 @@ class Form extends Component {
     this.setState({ [name]: value });
   }
 
-  save(e) {
-    e.preventDefault();
-
-    const doc = this.state;
-
+  save(doc) {
     this.props.save(doc, () => this.context.closeModal(), this.props.product);
   }
 
@@ -55,10 +52,10 @@ class Form extends Component {
 
           <FormControl
             name="name"
-            defaultValue={name}
+            value={name}
+            validations="isValue"
+            validationError="Please enter a name"
             type="text"
-            onChange={this.onChangeInput}
-            required
           />
         </FormGroup>
 
@@ -68,8 +65,9 @@ class Form extends Component {
           <FormControl
             componentClass="select"
             name="type"
-            defaultValue={type}
-            onChange={this.onChangeInput}
+            value={type}
+            validations="isValue"
+            validationError="Please select a type"
           >
             {types.map((type, index) => (
               <option key={index} value={type}>
@@ -86,8 +84,8 @@ class Form extends Component {
             name="description"
             componentClass="textarea"
             rows={5}
-            defaultValue={description}
-            onChange={this.onChangeInput}
+            value={description}
+            validations={{}}
           />
         </FormGroup>
 
@@ -97,8 +95,9 @@ class Form extends Component {
           <FormControl
             name="sku"
             type="text"
-            defaultValue={sku}
-            onChange={this.onChangeInput}
+            value={sku}
+            validations="isValue"
+            validationError="Please enter a SKU"
           />
         </FormGroup>
       </Fragment>
@@ -107,7 +106,7 @@ class Form extends Component {
 
   render() {
     return (
-      <form onSubmit={e => this.save(e)}>
+      <Formsy onSubmit={e => this.save(e)}>
         {this.renderContent(this.props.product || {})}
 
         <Modal.Footer>
@@ -123,7 +122,7 @@ class Form extends Component {
             Save
           </Button>
         </Modal.Footer>
-      </form>
+      </Formsy>
     );
   }
 }

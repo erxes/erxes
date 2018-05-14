@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import {
+  Form,
   FormGroup,
   FormControl,
   ControlLabel,
@@ -33,20 +34,18 @@ class PipelineForm extends Component {
     this.setState({ stages });
   }
 
-  save(e) {
-    e.preventDefault();
-
+  save(doc) {
     const { save, closeModal, pipeline } = this.props;
 
-    save(this.generateDoc(), () => closeModal(), pipeline);
+    save(this.generateDoc(doc), () => closeModal(), pipeline);
   }
 
-  generateDoc() {
+  generateDoc(doc) {
     const { pipeline } = this.props;
 
     return {
       doc: {
-        name: document.getElementById('pipeline-name').value,
+        name: doc.pipelineName,
         boardId: pipeline ? pipeline.boardId : this.props.boardId,
         stages: this.state.stages.filter(el => el.name)
       }
@@ -63,11 +62,12 @@ class PipelineForm extends Component {
           <ControlLabel>Name</ControlLabel>
 
           <FormControl
-            id="pipeline-name"
-            defaultValue={pipeline ? pipeline.name : ''}
+            name="pipelineName"
+            validations="isValue"
+            validationError="Please enter a name"
+            value={pipeline ? pipeline.name : ''}
             type="text"
             autoFocus
-            required
           />
         </FormGroup>
 
@@ -83,7 +83,7 @@ class PipelineForm extends Component {
 
     return (
       <Modal show={show} onHide={closeModal}>
-        <form onSubmit={this.save}>
+        <Form onSubmit={this.save}>
           <Modal.Header closeButton>
             <Modal.Title>
               {pipeline ? 'Edit pipeline' : 'Add pipeline'}
@@ -107,7 +107,7 @@ class PipelineForm extends Component {
               </Button>
             </Modal.Footer>
           </Modal.Body>
-        </form>
+        </Form>
       </Modal>
     );
   }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
+  Form,
   FormGroup,
   ControlLabel,
   FormControl,
@@ -19,13 +20,11 @@ class ChangePassword extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-
+  handleSubmit(doc) {
     this.props.save({
-      currentPassword: document.getElementById('current-password').value,
-      newPassword: document.getElementById('new-password').value,
-      confirmation: document.getElementById('new-password-confirmation').value
+      currentPassword: doc.currentPassword,
+      newPassword: doc.newPassword,
+      confirmation: doc.newPasswordConfirmation
     });
 
     this.context.closeModal();
@@ -35,13 +34,15 @@ class ChangePassword extends Component {
     const { __, closeModal } = this.context;
 
     return (
-      <form onSubmit={this.handleSubmit}>
+      <Form onSubmit={this.handleSubmit}>
         <FormGroup>
           <ControlLabel>Current Password</ControlLabel>
           <FormControl
             type="password"
             placeholder={__('Current password')}
-            id="current-password"
+            validations="isValue"
+            validationError="Please enter a current password"
+            name="currentPassword"
           />
         </FormGroup>
 
@@ -52,7 +53,9 @@ class ChangePassword extends Component {
           <FormControl
             type="password"
             placeholder={__('Enter new password')}
-            id="new-password"
+            validations="isValue"
+            validationError="Please enter a new password"
+            name="newPassword"
           />
         </FormGroup>
 
@@ -61,7 +64,9 @@ class ChangePassword extends Component {
           <FormControl
             type="password"
             placeholder={__('Re-type password')}
-            id="new-password-confirmation"
+            name="newPasswordConfirmation"
+            validations="isValue"
+            validationError="Please re-type password"
           />
         </FormGroup>
         <ModalFooter>
@@ -77,7 +82,7 @@ class ChangePassword extends Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }

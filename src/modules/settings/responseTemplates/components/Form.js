@@ -37,11 +37,11 @@ class Form extends CommonForm {
     this.setState({ editorState });
   }
 
-  generateDoc() {
+  generateDoc(doc) {
     return {
       doc: {
-        brandId: document.getElementById('template-brand-id').value,
-        name: document.getElementById('template-name').value,
+        brandId: doc.templateBrandId,
+        name: doc.templateName,
         content: this.getContent(this.state.editorState)
       }
     };
@@ -64,9 +64,12 @@ class Form extends CommonForm {
           <FormControl
             componentClass="select"
             placeholder={__('Select Brand')}
-            defaultValue={resTemplate.brandId}
-            id="template-brand-id"
+            validations="isValue"
+            validationError="Please select a brand"
+            value={resTemplate.brandId}
+            name="templateBrandId"
           >
+            <option />
             {brands.map(brand => (
               <option key={brand._id} value={brand._id}>
                 {brand.name}
@@ -78,10 +81,11 @@ class Form extends CommonForm {
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
           <FormControl
-            id="template-name"
-            defaultValue={resTemplate.name}
+            name="templateName"
+            validations="isValue"
+            validationError="Please enter a name"
+            value={resTemplate.name}
             type="text"
-            required
           />
         </FormGroup>
 

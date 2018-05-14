@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { withFormsy, addValidationRule } from 'formsy-react';
 import Textarea from './Textarea';
 import {
   Input,
@@ -11,13 +13,15 @@ import {
 } from './styles';
 
 const propTypes = {
+  validations: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  validationError: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  getErrorMessages: PropTypes.func,
   children: PropTypes.node,
   id: PropTypes.string,
   onChange: PropTypes.func,
   onClick: PropTypes.func,
-  defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  defaultChecked: PropTypes.bool,
   checked: PropTypes.bool,
+  defaultChecked: PropTypes.bool,
   placeholder: PropTypes.string,
   type: PropTypes.string,
   name: PropTypes.string,
@@ -38,10 +42,12 @@ const propTypes = {
 
 const defaultProps = {
   componentClass: 'input',
-  required: false,
-  defaultChecked: false,
   disabled: false
 };
+
+const Error = styled.div`
+  color: red;
+`;
 
 const renderElement = (Element, attributes, type, child) => {
   return (
@@ -55,63 +61,71 @@ const renderElement = (Element, attributes, type, child) => {
   );
 };
 
-class FormControl extends React.Component {
+addValidationRule('isValue', function(values, value) {
+  return Boolean(value);
+});
+
+class EnhancedFormControl extends React.Component {
   render() {
+    const { __ } = this.context;
     const props = this.props;
     const childNode = props.children;
     const elementType = props.componentClass;
 
-    // cancel custom browser default form validation error
-    const onChange = e => {
-      e.target.classList.remove('form-invalid');
+    const updatedProps = { ...props };
 
-      props.onChange && props.onChange(e);
-    };
+    delete updatedProps.children;
 
     const attributes = {
-      onChange,
-      onKeyPress: props.onKeyPress,
-      onClick: props.onClick,
-      value: props.value,
-      defaultValue: props.defaultValue,
+      ...updatedProps,
       [props.defaultChecked
         ? 'defaultChecked'
         : 'checked']: props.defaultChecked
         ? props.defaultChecked
-        : props.checked,
-      placeholder: props.placeholder,
-      type: props.type,
-      name: props.name,
-      round: props.round,
-      required: props.required,
-      disabled: props.disabled,
-      onFocus: props.onFocus,
-      autoFocus: props.autoFocus,
-      min: props.min,
-      max: props.max,
-      id: props.id
+        : props.checked
     };
+
+    const error =
+      typeof props.isPristine === 'function'
+        ? props.isPristine() ? null : props.getErrorMessage()
+        : null;
+
+    let errorMessages = [];
+
+    if (error) {
+      errorMessages =
+        typeof error === 'object' ? Object.values(error) : [error];
+    }
+
+    const errors = errorMessages.map((error, index) => (
+      <Error key={index}>{__(error)}</Error>
+    ));
 
     if (elementType === 'select') {
       if (props.options) {
         return (
-          <SelectWrapper>
-            <Select {...attributes}>
-              {props.options.map((option, index) => {
-                return (
-                  <option key={index} value={option.value || ''}>
-                    {option.label || ''}
-                  </option>
-                );
-              })}
-            </Select>
-          </SelectWrapper>
+          <Fragment>
+            <SelectWrapper>
+              <Select {...attributes}>
+                {props.options.map((option, index) => {
+                  return (
+                    <option key={index} value={option.value || ''}>
+                      {option.label || ''}
+                    </option>
+                  );
+                })}
+              </Select>
+            </SelectWrapper>
+          </Fragment>
         );
       }
       return (
-        <SelectWrapper>
-          <Select {...attributes}>{childNode}</Select>
-        </SelectWrapper>
+        <Fragment>
+          <SelectWrapper>
+            <Select {...attributes}>{childNode}</Select>
+          </SelectWrapper>
+          {errors}
+        </Fragment>
       );
     }
 
@@ -135,12 +149,55 @@ class FormControl extends React.Component {
     }
 
     if (elementType === 'textarea') {
-      return <Textarea {...props} />;
+      return (
+        <Fragment>
+          <Textarea {...props} />
+          {errors}
+        </Fragment>
+      );
     }
 
-    return <Input {...attributes} />;
+    return (
+      <Fragment>
+        <Input {...attributes} />
+        {errors}
+      </Fragment>
+    );
   }
 }
+
+EnhancedFormControl.propTypes = {
+  getErrorMessage: PropTypes.func,
+  isPristine: PropTypes.func
+};
+
+EnhancedFormControl.contextTypes = {
+  __: PropTypes.func
+};
+
+class WithFormsy extends React.Component {
+  render() {
+    const props = { ...this.props };
+
+    props.onChange = e => {
+      return props.setValue(e.currentTarget.value);
+    };
+
+    props.value = props.getValue() || '';
+
+    return <EnhancedFormControl {...props} />;
+  }
+}
+
+const WithFormsyContainer = withFormsy(WithFormsy);
+
+const FormControl = props => {
+  if (props.validations) {
+    return <WithFormsyContainer {...props} />;
+  }
+
+  return <EnhancedFormControl {...props} />;
+};
 
 FormControl.propTypes = propTypes;
 FormControl.defaultProps = defaultProps;

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import {
+  Form,
   FormGroup,
   FormControl,
   ControlLabel,
@@ -26,20 +27,18 @@ class BoardForm extends Component {
     this.save = this.save.bind(this);
   }
 
-  save(e) {
-    e.preventDefault();
-
+  save(doc) {
     this.props.save(
-      this.generateDoc(),
+      this.generateDoc(doc),
       () => this.context.closeModal(),
       this.props.board
     );
   }
 
-  generateDoc() {
+  generateDoc(doc) {
     return {
       doc: {
-        name: document.getElementById('channel-name').value
+        name: doc.channelName
       }
     };
   }
@@ -55,10 +54,11 @@ class BoardForm extends Component {
           <ControlLabel>Name</ControlLabel>
 
           <FormControl
-            id="channel-name"
-            defaultValue={object.name}
+            name="channelName"
+            validations="isValue"
+            validationError="Please enter a name"
+            value={object.name}
             type="text"
-            required
           />
         </FormGroup>
       </div>
@@ -71,7 +71,7 @@ class BoardForm extends Component {
     };
 
     return (
-      <form onSubmit={this.save}>
+      <Form onSubmit={this.save}>
         {this.renderContent(this.props.board || {})}
 
         <Modal.Footer>
@@ -88,7 +88,7 @@ class BoardForm extends Component {
             Save
           </Button>
         </Modal.Footer>
-      </form>
+      </Form>
     );
   }
 }

@@ -6,6 +6,7 @@ import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
 import { ActionBar, Wrapper } from 'modules/layout/components';
 import {
+  Form,
   Button,
   FormGroup,
   FormControl,
@@ -55,7 +56,6 @@ class Configs extends Component {
     this.onOnlineHoursChange = this.onOnlineHoursChange.bind(this);
     this.onTeamMembersChange = this.onTeamMembersChange.bind(this);
     this.onSelectChange = this.onSelectChange.bind(this);
-    this.onInputChange = this.onInputChange.bind(this);
     this.onToggleChange = this.onToggleChange.bind(this);
   }
 
@@ -67,10 +67,6 @@ class Configs extends Component {
     }
 
     this.setState({ [name]: value });
-  }
-
-  onInputChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
   }
 
   onToggleChange(e) {
@@ -90,14 +86,17 @@ class Configs extends Component {
     }
   }
 
-  save(e) {
-    e.preventDefault();
-
+  save(args) {
     const variables = { ...this.state };
 
     delete variables.supporters;
 
-    this.props.save(variables);
+    const doc = {
+      ...variables,
+      ...args
+    };
+
+    this.props.save(doc);
   }
 
   generateSupporterOptions(members = []) {
@@ -132,7 +131,7 @@ class Configs extends Component {
           <Toggle
             className="wide"
             name="isOnline"
-            checked={this.state.isOnline}
+            defaultChecked={this.state.isOnline}
             onChange={this.onToggleChange}
             icons={{
               checked: <span>Yes</span>,
@@ -144,137 +143,142 @@ class Configs extends Component {
     );
   }
 
-  render() {
+  renderContent() {
     const { __ } = this.context;
 
-    const content = (
-      <ContentBox>
-        <Row>
-          <Col md={5}>
-            <SubHeading>{__('Online messaging')}</SubHeading>
+    return (
+      <Form onSubmit={this.save}>
+        <ContentBox>
+          <Row>
+            <Col md={5}>
+              <SubHeading>{__('Online messaging')}</SubHeading>
 
-            <FormGroup>
-              <ControlLabel>Welcome message</ControlLabel>
+              <FormGroup>
+                <ControlLabel>Welcome message</ControlLabel>
 
-              <FormControl
-                componentClass="textarea"
-                placeholder={__('Write here Welcome message.')}
-                rows={3}
-                name="welcomeMessage"
-                value={this.state.welcomeMessage}
-                onChange={this.onInputChange}
-              />
-            </FormGroup>
-
-            <SubHeading>{__('Offline messaging')}</SubHeading>
-
-            <FormGroup>
-              <ControlLabel>Away message</ControlLabel>
-
-              <FormControl
-                componentClass="textarea"
-                placeholder={__('Write here Away message.')}
-                rows={3}
-                name="awayMessage"
-                value={this.state.awayMessage}
-                onChange={this.onInputChange}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel>Thank you message</ControlLabel>
-
-              <FormControl
-                componentClass="textarea"
-                placeholder={__('Write here Thank you message.')}
-                rows={3}
-                name="thankYouMessage"
-                value={this.state.thankYouMessage}
-                onChange={this.onInputChange}
-              />
-            </FormGroup>
-          </Col>
-          <Col md={7}>
-            <SubHeading>{__('Hours & Availability')}</SubHeading>
-            <FormGroup>
-              <FormControl
-                name="availabilityMethod"
-                value="manual"
-                componentClass="radio"
-                checked={this.state.availabilityMethod === 'manual'}
-                onChange={this.onInputChange}
-                inline
-              >
-                {__('Turn online/offline manually')}
-              </FormControl>
-
-              <FormControl
-                name="availabilityMethod"
-                value="auto"
-                componentClass="radio"
-                checked={this.state.availabilityMethod === 'auto'}
-                onChange={this.onInputChange}
-                inline
-              >
-                {__('Set to follow your schedule')}
-              </FormControl>
-            </FormGroup>
-
-            {this.renderIsOnline()}
-            {this.renderOnlineHours()}
-
-            <FormGroup>
-              <ControlLabel>Time zone</ControlLabel>
-
-              <Select
-                value={this.state.timezone}
-                options={timezones}
-                onChange={e => this.onSelectChange(e, 'timezone')}
-                clearable={false}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel>Supporters</ControlLabel>
-
-              <Select
-                closeOnSelect={false}
-                value={this.state.supporters}
-                options={this.generateSupporterOptions(this.props.teamMembers)}
-                onChange={this.onTeamMembersChange}
-                clearable={true}
-                multi
-              />
-            </FormGroup>
-
-            <SubHeading>{__('Other configs')}</SubHeading>
-
-            <FormGroup>
-              <ControlLabel>Notify customer</ControlLabel>
-              <div>
-                <Toggle
-                  className="wide"
-                  name="notifyCustomer"
-                  checked={this.state.notifyCustomer}
-                  onChange={this.onToggleChange}
-                  icons={{
-                    checked: <span>Yes</span>,
-                    unchecked: <span>No</span>
-                  }}
+                <FormControl
+                  componentClass="textarea"
+                  placeholder={__('Write here Welcome message.')}
+                  rows={3}
+                  validations="isValue"
+                  validationError="Please enter a welcome message"
+                  name="welcomeMessage"
+                  value={this.state.welcomeMessage}
                 />
-              </div>
-            </FormGroup>
-          </Col>
-        </Row>
-      </ContentBox>
+              </FormGroup>
+
+              <SubHeading>{__('Offline messaging')}</SubHeading>
+
+              <FormGroup>
+                <ControlLabel>Away message</ControlLabel>
+
+                <FormControl
+                  componentClass="textarea"
+                  placeholder={__('Write here Away message.')}
+                  rows={3}
+                  validations="isValue"
+                  validationError="Please enter an away message"
+                  name="awayMessage"
+                  value={this.state.awayMessage}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <ControlLabel>Thank you message</ControlLabel>
+
+                <FormControl
+                  componentClass="textarea"
+                  placeholder={__('Write here Thank you message.')}
+                  rows={3}
+                  validations="isValue"
+                  validationError="Please enter a thank you message"
+                  name="thankYouMessage"
+                  value={this.state.thankYouMessage}
+                />
+              </FormGroup>
+            </Col>
+            <Col md={7}>
+              <SubHeading>{__('Hours & Availability')}</SubHeading>
+              <FormGroup>
+                <FormControl
+                  name="availabilityMethod"
+                  value="manual"
+                  componentClass="radio"
+                  defaultChecked={this.state.availabilityMethod === 'manual'}
+                  onChange={this.onInputChange}
+                  inline
+                >
+                  {__('Turn online/offline manually')}
+                </FormControl>
+
+                <FormControl
+                  name="availabilityMethod"
+                  value="auto"
+                  componentClass="radio"
+                  defaultChecked={this.state.availabilityMethod === 'auto'}
+                  onChange={this.onInputChange}
+                  inline
+                >
+                  {__('Set to follow your schedule')}
+                </FormControl>
+              </FormGroup>
+
+              {this.renderIsOnline()}
+              {this.renderOnlineHours()}
+
+              <FormGroup>
+                <ControlLabel>Time zone</ControlLabel>
+
+                <Select
+                  value={this.state.timezone}
+                  options={timezones}
+                  onChange={e => this.onSelectChange(e, 'timezone')}
+                  clearable={false}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <ControlLabel>Supporters</ControlLabel>
+
+                <Select
+                  closeOnSelect={false}
+                  value={this.state.supporters}
+                  options={this.generateSupporterOptions(
+                    this.props.teamMembers
+                  )}
+                  onChange={this.onTeamMembersChange}
+                  clearable={true}
+                  multi
+                />
+              </FormGroup>
+
+              <SubHeading>{__('Other configs')}</SubHeading>
+
+              <FormGroup>
+                <ControlLabel>Notify customer</ControlLabel>
+                <div>
+                  <Toggle
+                    className="wide"
+                    name="notifyCustomer"
+                    defaultChecked={this.state.notifyCustomer}
+                    onChange={this.onToggleChange}
+                    icons={{
+                      checked: <span>Yes</span>,
+                      unchecked: <span>No</span>
+                    }}
+                  />
+                </div>
+              </FormGroup>
+            </Col>
+          </Row>
+        </ContentBox>
+        {this.renderFooter()}
+      </Form>
     );
+  }
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings/integrations' },
-      { title: __('Integrations') }
-    ];
-
-    const actionFooter = (
+  renderFooter() {
+    return (
       <ActionBar
         right={
           <Button.Group>
@@ -287,7 +291,7 @@ class Configs extends Component {
             <Button
               size="small"
               btnStyle="success"
-              onClick={this.save}
+              type="submit"
               icon="checked-1"
             >
               Save
@@ -296,13 +300,21 @@ class Configs extends Component {
         }
       />
     );
+  }
+
+  render() {
+    const { __ } = this.context;
+
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings/integrations' },
+      { title: __('Integrations') }
+    ];
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
-        footer={actionFooter}
-        content={content}
+        content={this.renderContent()}
       />
     );
   }

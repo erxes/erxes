@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import {
   Button,
+  Form,
   FormGroup,
   FormControl,
   ControlLabel
@@ -52,32 +53,20 @@ class CompanyForm extends React.Component {
     this.handleSelect = this.handleSelect.bind(this);
   }
 
-  action(e) {
-    e.preventDefault();
-
+  action(doc) {
     this.props.action({
       doc: {
-        name: document.getElementById('company-name').value,
-        size: document.getElementById('company-size').value,
-        industry: document.getElementById('company-industry').value,
-        plan: document.getElementById('company-plan').value,
+        ...doc,
         parentCompanyId: this.state.parentCompanyId,
-        email: document.getElementById('company-email').value,
         ownerId: this.state.ownerId,
-        phone: document.getElementById('company-phone').value,
-        leadStatus: document.getElementById('company-leadStatus').value,
-        lifecycleState: document.getElementById('company-lifecycleState').value,
-        businessType: document.getElementById('company-businessType').value,
-        description: document.getElementById('company-description').value,
-        employees: document.getElementById('company-employees').value,
         doNotDisturb: this.state.doNotDisturb,
         links: {
-          linkedIn: document.getElementById('company-linkedIn').value,
-          twitter: document.getElementById('company-twitter').value,
-          facebook: document.getElementById('company-facebook').value,
-          github: document.getElementById('company-github').value,
-          youtube: document.getElementById('company-youtube').value,
-          website: document.getElementById('company-website').value
+          linkedIn: doc.linkedIn,
+          twitter: doc.twitter,
+          facebook: doc.facebook,
+          github: doc.github,
+          youtube: doc.youtube,
+          website: doc.website
         }
       }
     });
@@ -134,19 +123,21 @@ class CompanyForm extends React.Component {
     const { companies, users } = this.state;
 
     return (
-      <form onSubmit={e => this.action(e)}>
+      <Form onSubmit={e => this.action(e)}>
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('Name', {
-              id: 'company-name',
+              name: 'name',
+              validations: 'isValue',
+              validationError: 'Please enter a name',
               autoFocus: true,
-              defaultValue: company.name || '',
-              required: true
+              value: company.name || ''
             })}
             {this.renderFormGroup('Industry', {
-              id: 'company-industry',
+              name: 'industry',
+              validations: {},
               componentClass: 'select',
-              defaultValue: company.industry || '',
+              value: company.industry || '',
               options: this.generateConstantParams(COMPANY_INDUSTRY_TYPES)
             })}
             <FormGroup>
@@ -165,34 +156,47 @@ class CompanyForm extends React.Component {
               />
             </FormGroup>
             {this.renderFormGroup('Plan', {
-              id: 'company-plan',
-              defaultValue: company.plan || ''
+              name: 'plan',
+              validations: 'isValue',
+              validationError: 'Please enter a plan',
+              value: company.plan || ''
             })}
             {this.renderFormGroup('Lead Status', {
-              id: 'company-leadStatus',
+              name: 'leadStatus',
+              validations: {},
               componentClass: 'select',
-              defaultValue: company.leadStatus || '',
+              value: company.leadStatus || '',
               options: this.generateConstantParams(COMPANY_LEAD_STATUS_TYPES)
             })}
             {this.renderFormGroup('Business Type', {
-              id: 'company-businessType',
+              name: 'businessType',
+              validations: {},
               componentClass: 'select',
-              defaultValue: company.businessType || '',
+              value: company.businessType || '',
               options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
             })}
             {this.renderFormGroup('Employees count', {
-              id: 'company-employees',
-              defaultValue: company.employees || 0
+              name: 'employees',
+              validations: 'isValue',
+              validationError: 'Please enter a employees count',
+              value: company.employees || 0
             })}
           </FormColumn>
           <FormColumn>
             {this.renderFormGroup('Email', {
-              id: 'company-email',
-              defaultValue: company.email || ''
+              name: 'email',
+              validations: { isEmail: true, isValue: true },
+              validationError: {
+                isEmail: 'Not a valid email format',
+                isValue: 'Please enter an email'
+              },
+              value: company.email || ''
             })}
             {this.renderFormGroup('Size', {
-              id: 'company-size',
-              defaultValue: company.size || 0
+              name: 'size',
+              validations: 'isValue',
+              validationError: 'Please enter a size',
+              value: company.size || 0
             })}
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
@@ -206,20 +210,24 @@ class CompanyForm extends React.Component {
               />
             </FormGroup>
             {this.renderFormGroup('Phone', {
-              id: 'company-phone',
-              defaultValue: company.phone || ''
+              name: 'phone',
+              validations: 'isValue',
+              validationError: 'Please enter a phone',
+              value: company.phone || ''
             })}
             {this.renderFormGroup('Lifecycle State', {
-              id: 'company-lifecycleState',
               componentClass: 'select',
-              defaultValue: company.lifecycleState || '',
+              name: 'lifecycleState',
+              validations: {},
+              value: company.lifecycleState || '',
               options: this.generateConstantParams(
                 COMPANY_LIFECYCLE_STATE_TYPES
               )
             })}
             {this.renderFormGroup('Description', {
-              id: 'company-description',
-              defaultValue: company.description || ''
+              name: 'description',
+              validations: {},
+              value: company.description || ''
             })}
             {this.renderFormGroup('Do not disturb', {
               componentClass: 'radio',
@@ -244,34 +252,46 @@ class CompanyForm extends React.Component {
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('LinkedIn', {
-              id: 'company-linkedIn',
-              defaultValue: links.linkedIn || ''
+              name: 'linkedIn',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.linkedIn || ''
             })}
 
             {this.renderFormGroup('Twitter', {
-              id: 'company-twitter',
-              defaultValue: links.twitter || ''
+              name: 'twitter',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.twitter || ''
             })}
 
             {this.renderFormGroup('Facebook', {
-              id: 'company-facebook',
-              defaultValue: links.facebook || ''
+              name: 'facebook',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.facebook || ''
             })}
           </FormColumn>
           <FormColumn>
             {this.renderFormGroup('Github', {
-              id: 'company-github',
-              defaultValue: links.github || ''
+              name: 'github',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.github || ''
             })}
 
             {this.renderFormGroup('Youtube', {
-              id: 'company-youtube',
-              defaultValue: links.youtube || ''
+              name: 'youtube',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.youtube || ''
             })}
 
             {this.renderFormGroup('Website', {
-              id: 'company-website',
-              defaultValue: links.website || ''
+              name: 'website',
+              validations: 'isUrl',
+              validationError: 'Not a valid URL format',
+              value: links.website || ''
             })}
           </FormColumn>
         </FormWrapper>
@@ -291,7 +311,7 @@ class CompanyForm extends React.Component {
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </Form>
     );
   }
 }
