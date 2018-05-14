@@ -12,6 +12,7 @@ import { LeftSidebar, RightSidebar, RespondBox, Resolver } from '../containers';
 import { AssignBoxPopover, Participators, Conversation } from './';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems } from 'modules/layout/styles';
+import { polyfill } from 'react-lifecycles-compat';
 
 import {
   PopoverButton,
@@ -32,7 +33,6 @@ class Inbox extends Component {
       currentId: props.currentId
     };
 
-    this.node = React.createRef();
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
     this.onScroll = this.onScroll.bind(this);
@@ -59,7 +59,7 @@ class Inbox extends Component {
     const messages = prevState.messages || conversationMessages;
 
     if (this.state.messages && messages.length < this.state.messages.length) {
-      const { current } = this.node;
+      const current = this.node;
 
       return current.scrollHeight - current.scrollTop;
     }
@@ -77,19 +77,19 @@ class Inbox extends Component {
     }
 
     if (snapshot !== null) {
-      const { current } = this.node;
+      const current = this.node;
       current.scrollTop = current.scrollHeight - snapshot;
     }
   }
 
   onScroll() {
-    const { current } = this.node;
+    const current = this.node;
 
     if (current.scrollTop === 0) this.loadMore();
   }
 
   scrollBottom() {
-    const { current } = this.node;
+    const current = this.node;
 
     current.scrollTop = current.scrollHeight;
   }
@@ -212,7 +212,12 @@ class Inbox extends Component {
 
     const { messages, attachmentPreview } = this.state;
     const content = (
-      <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
+      <ConversationWrapper
+        innerRef={node => {
+          this.node = node;
+        }}
+        onScroll={this.onScroll}
+      >
         <Conversation
           conversation={currentConversation}
           conversationMessages={messages || conversationMessages}
@@ -278,5 +283,7 @@ Inbox.propTypes = {
 Inbox.contextTypes = {
   __: PropTypes.func
 };
+
+polyfill(Inbox);
 
 export default Inbox;
