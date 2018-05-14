@@ -11,7 +11,8 @@ const RespondBoxContainer = (props, context) => {
     conversation,
     usersQuery,
     addMessageMutation,
-    responseTemplatesQuery
+    responseTemplatesQuery,
+    messageLimit
   } = props;
 
   const { currentUser } = context;
@@ -58,7 +59,7 @@ const RespondBoxContainer = (props, context) => {
 
         const selector = {
           query: gql(queries.conversationMessages),
-          variables: { conversationId }
+          variables: { conversationId, limit: messageLimit }
         };
 
         // Read the data from our cache for this query.
@@ -109,7 +110,8 @@ RespondBoxContainer.propTypes = {
   object: PropTypes.object,
   addMessageMutation: PropTypes.func,
   responseTemplatesQuery: PropTypes.object,
-  usersQuery: PropTypes.object
+  usersQuery: PropTypes.object,
+  messageLimit: PropTypes.number
 };
 
 export default compose(

@@ -12,7 +12,6 @@ import { LeftSidebar, RightSidebar, RespondBox, Resolver } from '../containers';
 import { AssignBoxPopover, Participators, Conversation } from './';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems } from 'modules/layout/styles';
-import { polyfill } from 'react-lifecycles-compat';
 
 import {
   PopoverButton,
@@ -33,11 +32,16 @@ class Inbox extends Component {
       currentId: props.currentId
     };
 
+    this.node = React.createRef();
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
     this.onScroll = this.onScroll.bind(this);
     this.loadMore = this.loadMore.bind(this);
     this.handleResultsFound = this.handleResultsFound.bind(this);
+  }
+
+  componentDidMount() {
+    this.scrollBottom();
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -50,16 +54,12 @@ class Inbox extends Component {
     return null;
   }
 
-  componentDidMount() {
-    this.scrollBottom();
-  }
-
   getSnapshotBeforeUpdate(prevProps, prevState) {
     const { conversationMessages } = prevProps;
     const messages = prevState.messages || conversationMessages;
 
     if (this.state.messages && messages.length < this.state.messages.length) {
-      const current = this.node;
+      const { current } = this.node;
 
       return current.scrollHeight - current.scrollTop;
     }
@@ -68,28 +68,46 @@ class Inbox extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { twitterData } = this.props.currentConversation;
-    const { loadingMore, messages } = this.state;
+    const { currentConversation, conversationMessages } = this.props;
+    const { twitterData } = currentConversation;
     const isTweet = twitterData && !twitterData.isDirectMessage;
+    const { loadingMore, messages } = this.state;
+    const messageCount = conversationMessages.length;
+    const prevMessageCount = prevProps.conversationMessages.length;
 
     if (!isTweet && !messages && !loadingMore) {
       this.scrollBottom();
     }
 
+    if (messages && messageCount !== prevMessageCount) {
+      const newMessages = conversationMessages.slice(
+        prevMessageCount,
+        messageCount
+      );
+
+      for (let message of newMessages) {
+        const prevEntry = messages.find(m => m._id === message._id);
+
+        if (!prevEntry) this.setState({ messages: [...messages, message] });
+      }
+
+      this.scrollBottom();
+    }
+
     if (snapshot !== null) {
-      const current = this.node;
+      const { current } = this.node;
       current.scrollTop = current.scrollHeight - snapshot;
     }
   }
 
   onScroll() {
-    const current = this.node;
+    const { current } = this.node;
 
     if (current.scrollTop === 0) this.loadMore();
   }
 
   scrollBottom() {
-    const current = this.node;
+    const { current } = this.node;
 
     current.scrollTop = current.scrollHeight;
   }
@@ -142,6 +160,7 @@ class Inbox extends Component {
       currentConversation,
       conversationMessages,
       onChangeConversation,
+      messageLimit,
       refetch
     } = this.props;
 
@@ -212,12 +231,7 @@ class Inbox extends Component {
 
     const { messages, attachmentPreview } = this.state;
     const content = (
-      <ConversationWrapper
-        innerRef={node => {
-          this.node = node;
-        }}
-        onScroll={this.onScroll}
-      >
+      <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
         <Conversation
           conversation={currentConversation}
           conversationMessages={messages || conversationMessages}
@@ -241,6 +255,7 @@ class Inbox extends Component {
             <RespondBox
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
+              messageLimit={messageLimit}
             />
           )
         }
@@ -277,13 +292,12 @@ Inbox.propTypes = {
   loading: PropTypes.bool,
   currentId: PropTypes.string,
   loadMoreMessages: PropTypes.func,
-  messagesTotalCount: PropTypes.number
+  messagesTotalCount: PropTypes.number,
+  messageLimit: PropTypes.number
 };
 
 Inbox.contextTypes = {
   __: PropTypes.func
 };
-
-polyfill(Inbox);
 
 export default Inbox;

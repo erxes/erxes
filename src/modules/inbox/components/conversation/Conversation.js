@@ -15,6 +15,7 @@ const propTypes = {
 const Wrapper = styled.div`
   padding: 20px;
   overflow: hidden;
+  min-height: 80px;
 
   > div:first-child {
     margin-top: 0;

@@ -10,6 +10,9 @@ import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
 import { generateParams } from '../utils';
 
+const windowHeight = window.innerHeight;
+const messageLimit = parseInt((windowHeight - 330) / 45, 10) + 1;
+
 class ConversationDetail extends Component {
   constructor(props, context) {
     super(props, context);
@@ -160,6 +163,7 @@ class ConversationDetail extends Component {
       loadMoreMessages: this.loadMoreMessages,
       messagesTotalCount:
         messagesTotalCountQuery.conversationMessagesTotalCount,
+      messageLimit,
       refetch: detailQuery.refetch
     };
 
@@ -187,12 +191,10 @@ const ConversationDetailContainer = compose(
   graphql(gql(queries.conversationMessages), {
     name: 'messagesQuery',
     options: ({ currentId }) => {
-      const count = window.innerHeight;
-
       return {
         variables: {
           conversationId: currentId,
-          limit: parseInt((count - 330) / 45, 10)
+          limit: messageLimit
         },
         fetchPolicy: 'network-only'
       };
