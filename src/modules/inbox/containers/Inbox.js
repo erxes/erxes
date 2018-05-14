@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import client from 'apolloClient';
 import { compose, graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { withRouter } from 'react-router';
 import queryString from 'query-string';
+import gql from 'graphql-tag';
 import { Alert, router as routerUtils } from 'modules/common/utils';
 import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
@@ -259,19 +259,28 @@ WithCurrentId.propTypes = {
   location: PropTypes.object
 };
 
-export default withRouter(
-  compose(
-    graphql(gql(queries.lastConversation), {
-      name: 'lastConversationQuery',
-      options: ({ location }) => {
-        const queryParams = queryString.parse(location.search);
-
-        return {
-          skip: queryParams._id,
-          variables: generateParams(queryParams),
-          fetchPolicy: 'network-only'
-        };
-      }
+const Inbox = compose(
+  graphql(gql(queries.lastConversation), {
+    name: 'lastConversationQuery',
+    options: ({ queryParams }) => ({
+      skip: queryParams._id,
+      variables: generateParams(queryParams),
+      fetchPolicy: 'network-only'
     })
-  )(WithCurrentId)
-);
+  })
+)(WithCurrentId);
+
+const WithQueryParams = props => {
+  const { location } = props;
+  const queryParams = queryString.parse(location.search);
+
+  const extendedProps = { ...props, queryParams };
+
+  return <Inbox {...extendedProps} />;
+};
+
+WithQueryParams.propTypes = {
+  location: PropTypes.object
+};
+
+export default withRouter(WithQueryParams);
