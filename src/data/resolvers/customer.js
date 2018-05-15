@@ -1,6 +1,10 @@
-import { Companies, Conversations, Tags, Users, Deals } from '../../db/models';
+import { Companies, Conversations, Tags, Users, Deals, Integrations } from '../../db/models';
 
 export default {
+  integration(customer) {
+    return Integrations.findOne({ _id: customer.integrationId });
+  },
+
   getIntegrationData(customer) {
     return {
       messenger: customer.messengerData || {},
