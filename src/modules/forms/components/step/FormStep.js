@@ -94,7 +94,7 @@ class FormStep extends Component {
       ...doc
     });
 
-    this.setState({ fields: this.state.fields });
+    this.setState({ fields: this.state.fields, editingField: {} });
   }
 
   setChanges(attributeName, value) {
