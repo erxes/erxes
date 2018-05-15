@@ -1,6 +1,6 @@
 # erxes Inc
 
-erxes is an AI meets open source messaging platform for sales and marketing
+erxes is an AI meets open source messaging platform for sales, marketing and support
 
 <a href="https://demohome.erxes.io/">View demo</a> <b>| </b> <a href="https://github.com/erxes/erxes/archive/master.zip">Download ZIP </a> <b> | </b> <a href="https://gitter.im/erxes/Lobby">Join us on Gitter</a>
 
