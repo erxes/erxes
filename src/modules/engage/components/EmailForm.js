@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import {
@@ -9,13 +10,19 @@ import {
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import Editor from './Editor';
 import { FlexItem, Divider, FlexPad } from './step/style';
-import styled from 'styled-components';
 
 const PreviewContainer = styled.div`
   margin: 20px;
   height: 100%;
   p {
     padding: 20px;
+  }
+`;
+
+const EmailContent = styled.div`
+  p {
+    padding: 0px;
+    margin: 0px;
   }
 `;
 
@@ -95,7 +102,7 @@ class EmailForm extends Component {
     // render editor to content
     if (contentContainer.length > 0) {
       ReactDom.render(
-        <div
+        <EmailContent
           dangerouslySetInnerHTML={{
             __html: this.props.defaultValue.message
           }}
