@@ -5,12 +5,6 @@ import { connection } from '../connection';
 import graphqlTypes from './graphql';
 
 export default class NotificationSubscriber extends React.Component {
-  componentWillUpdate(nextProps) {
-    if (this.props.isEngageMessagesCreated !== nextProps.isEngageMessagesCreated) {
-      this.props.data.refetch();
-    }
-  }
-
   componentWillMount() {
     const { data } = this.props;
 
@@ -27,5 +21,4 @@ export default class NotificationSubscriber extends React.Component {
 
 NotificationSubscriber.propTypes = {
   data: PropTypes.object,
-  isEngageMessagesCreated: PropTypes.bool,
 }

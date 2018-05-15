@@ -6,7 +6,7 @@ import {
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
   END_CONVERSATION,
-  ENGAGE_MESSAGES_CREATED,
+  BROWSER_INFO_SAVED,
 } from '../constants';
 
 import {
@@ -88,8 +88,8 @@ const isConversationEnded = (state = false, action) => {
   return state;
 };
 
-const isEngageMessagesCreated = (state = false, action) => {
-  if (action.type === ENGAGE_MESSAGES_CREATED) {
+const isBrowserInfoSaved = (state = false, action) => {
+  if (action.type === BROWSER_INFO_SAVED) {
     return true;
   }
 
@@ -102,7 +102,7 @@ const messenger = {
   activeConversation,
   isAttachingFile,
   isConversationEnded,
-  isEngageMessagesCreated,
+  isBrowserInfoSaved,
 };
 
 export default messenger;

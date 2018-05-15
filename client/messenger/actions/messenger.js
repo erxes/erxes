@@ -5,7 +5,7 @@ import {
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
   END_CONVERSATION,
-  ENGAGE_MESSAGES_CREATED,
+  BROWSER_INFO_SAVED,
 } from '../constants';
 
 import {
@@ -41,7 +41,7 @@ export const connect = variables =>
     variables,
   });
 
-export const saveBrowserInfo = () => (dispatch) => {
+export const saveBrowserInfo = () => async (dispatch) => {
   requestBrowserInfo({
     source: 'fromMessenger',
     callback: (browserInfo) => {
@@ -62,7 +62,7 @@ export const saveBrowserInfo = () => (dispatch) => {
       })
 
       .then(() => {
-        dispatch({ type: ENGAGE_MESSAGES_CREATED });
+        dispatch({ type: BROWSER_INFO_SAVED });
       });
     }
   })

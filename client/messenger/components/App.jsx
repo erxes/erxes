@@ -3,13 +3,24 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Messenger, Launcher, Notifier } from '../containers';
 
-function App({ isMessengerVisible, uiOptions }) {
+function App({ isMessengerVisible, isBrowserInfoSaved, uiOptions }) {
   const widgetClasses = classNames('erxes-widget', { opened: isMessengerVisible });
+
+  const renderNotifier = () => {
+    if (isMessengerVisible) {
+      return null;
+    }
+
+    if (!isBrowserInfoSaved) {
+      return null;
+    }
+
+    return <Notifier />
+  }
 
   return (
     <div className={widgetClasses}>
-      { isMessengerVisible ? null : <Notifier /> }
-
+      {renderNotifier()}
       <Messenger />
       <Launcher uiOptions={uiOptions} />
     </div>
@@ -18,6 +29,7 @@ function App({ isMessengerVisible, uiOptions }) {
 
 App.propTypes = {
   isMessengerVisible: PropTypes.bool.isRequired,
+  isBrowserInfoSaved: PropTypes.bool,
   uiOptions: PropTypes.object,
 };
 

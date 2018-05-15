@@ -24,6 +24,7 @@ const mapDisptachToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   isMessengerVisible: state.isVisible,
+  isBrowserInfoSaved: state.isBrowserInfoSaved,
   uiOptions: connection.data.uiOptions || {}
 });
 

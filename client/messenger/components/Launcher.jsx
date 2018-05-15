@@ -1,20 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { UnreadCount } from '../containers';
 
 const propTypes = {
   onClick: PropTypes.func.isRequired,
-  notificationCount: PropTypes.number.isRequired,
   isMessengerVisible: PropTypes.bool.isRequired,
+  isBrowserInfoSaved: PropTypes.bool,
   uiOptions: PropTypes.object,
 };
 
-function Launcher({
-  isMessengerVisible,
-  onClick,
-  notificationCount,
-  uiOptions,
-}) {
+function Launcher({ isMessengerVisible, isBrowserInfoSaved, onClick, uiOptions }) {
   const clickHandler = () => {
     onClick(isMessengerVisible);
   };
@@ -36,7 +32,7 @@ function Launcher({
         backgroundSize: logo ? '' : '20px',
       }}
     >
-      {notificationCount ? <span>{notificationCount}</span> : null}
+      { isBrowserInfoSaved && <UnreadCount /> }
     </div>
   );
 }
