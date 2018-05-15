@@ -39,6 +39,8 @@ export const types = `
     hasAuthority: String
     description: String
     doNotDisturb: String
+
+    integration: Integration
     links: CustomerLinks
     companies: [Company]
     conversations: [Conversation]
