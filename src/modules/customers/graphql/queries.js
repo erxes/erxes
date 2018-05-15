@@ -246,7 +246,12 @@ const generateCustomerDetailQuery = params => {
   } =
     params || {};
 
-  let fields = `_id`;
+  let fields = `
+    _id
+    integration {
+      kind
+    }
+  `;
 
   if (showProfile) {
     fields = `

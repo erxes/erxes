@@ -136,6 +136,7 @@ class LeftSidebar extends ManageGroups {
 
   render() {
     const { customer, wide, refetch } = this.props;
+    const { kind } = customer.integration || {};
 
     return (
       <Sidebar wide={wide} footer={this.renderSidebarFooter()}>
@@ -145,9 +146,9 @@ class LeftSidebar extends ManageGroups {
         {this.props.sectionBottom && this.props.sectionBottom}
         {this.renderDeviceProperties()}
         {this.renderOtherProperties()}
-        <MessengerSection customer={customer} />
-        <TwitterSection customer={customer} />
-        <FacebookSection customer={customer} />
+        {kind === 'messenger' && <MessengerSection customer={customer} />}
+        {kind === 'twitter' && <TwitterSection customer={customer} />}
+        {kind === 'facebook' && <FacebookSection customer={customer} />}
         <TaggerSection data={customer} type="customer" afterSave={refetch} />
       </Sidebar>
     );
