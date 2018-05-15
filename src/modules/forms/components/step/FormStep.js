@@ -32,10 +32,6 @@ const propTypes = {
   fields: PropTypes.array
 };
 
-const editingFieldDefaultValue = {
-  isRequired: false
-};
-
 class FormStep extends Component {
   constructor(props) {
     super(props);
@@ -43,7 +39,7 @@ class FormStep extends Component {
     this.state = {
       fields: props.fields,
       chosenFieldType: null,
-      editingField: editingFieldDefaultValue
+      editingField: {}
     };
 
     this.onChangeFunction = this.onChangeFunction.bind(this);
@@ -115,7 +111,7 @@ class FormStep extends Component {
     if (_id) {
       // reset editing field state
       const reset = () => {
-        this.setState({ editingField: editingFieldDefaultValue });
+        this.setState({ editingField: {} });
       };
 
       const onDelete = e => {

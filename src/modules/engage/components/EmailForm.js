@@ -58,10 +58,10 @@ class EmailForm extends Component {
   }
 
   changeContent(key, value) {
-    let email = {
-      ...this.state.email
-    };
+    let email = { ...this.state.email };
+
     email[key] = value;
+
     this.setState({ email });
     this.props.changeEmail('email', email);
   }
@@ -91,8 +91,8 @@ class EmailForm extends Component {
     const contentContainer = document.getElementsByClassName(
       EMAIL_CONTENT_CLASS
     );
-    // render editor to content
 
+    // render editor to content
     if (contentContainer.length > 0) {
       ReactDom.render(
         <div
@@ -115,6 +115,7 @@ class EmailForm extends Component {
         />
       );
     }
+
     return null;
   }
 
