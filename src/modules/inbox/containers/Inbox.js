@@ -14,8 +14,10 @@ class ConversationDetail extends Component {
   constructor(props, context) {
     super(props, context);
 
-    this.subscriptions = {};
     this.state = { messages: [], loadingMessages: false };
+
+    this.subscriptions = {};
+
     this.loadMoreMessages = this.loadMoreMessages.bind(this);
     this.addMessage = this.addMessage.bind(this);
   }

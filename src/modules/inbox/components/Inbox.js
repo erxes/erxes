@@ -37,6 +37,8 @@ class Inbox extends Component {
     this.scrollBottom();
   }
 
+  // Calculating new messages's height to use later in componentDidUpdate
+  // So that we can retract cursor position to original place
   getSnapshotBeforeUpdate(prevProps, prevState) {
     const { conversationMessages } = this.props;
 
@@ -50,7 +52,15 @@ class Inbox extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { conversationMessages } = this.props;
+    const { conversationMessages, currentConversation } = this.props;
+
+    const twitterData = currentConversation.twitterData;
+    const isTweet = twitterData && !twitterData.isDirectMessage;
+
+    if (!isTweet) {
+      return null;
+    }
+
     const messageCount = conversationMessages.length;
     const prevMessageCount = prevProps.conversationMessages.length;
 
@@ -218,9 +228,7 @@ Inbox.propTypes = {
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
   conversationMessages: PropTypes.array,
-  loading: PropTypes.bool,
   loadingMessages: PropTypes.bool,
-  currentId: PropTypes.string,
   loadMoreMessages: PropTypes.func,
   addMessage: PropTypes.func
 };
