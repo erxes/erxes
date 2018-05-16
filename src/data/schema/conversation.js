@@ -155,6 +155,7 @@ export const queries = `
     limit: Int
   ): [ConversationMessage]
 
+  conversationMessagesTotalCount(conversationId: String!): Int
   conversationCounts(${filterParams}): JSON
   conversationsTotalCount(${filterParams}): Int
   conversationDetail(_id: String!): Conversation
