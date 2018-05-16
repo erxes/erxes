@@ -57,7 +57,7 @@ class Inbox extends Component {
     const twitterData = currentConversation.twitterData;
     const isTweet = twitterData && !twitterData.isDirectMessage;
 
-    if (!isTweet) {
+    if (isTweet) {
       return null;
     }
 
