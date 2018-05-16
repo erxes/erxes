@@ -6,7 +6,7 @@ import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import gql from 'graphql-tag';
 import { Alert, router as routerUtils } from 'modules/common/utils';
-import { Inbox as InboxComponent } from '../components';
+import { Inbox as InboxComponent, Empty } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
 import { generateParams } from '../utils';
 
@@ -26,8 +26,6 @@ class ConversationDetail extends Component {
     const { currentUser } = this.context;
 
     const { currentId, detailQuery, messagesQuery } = nextProps;
-
-    if (!currentId) return;
 
     if (currentId !== this.props.currentId) {
       this.setState({ messages: [], loadingMessages: true });
@@ -166,7 +164,6 @@ class ConversationDetail extends Component {
 
   render() {
     const {
-      history,
       currentId,
       detailQuery = {},
       messagesQuery = {},
@@ -189,11 +186,6 @@ class ConversationDetail extends Component {
       });
     }
 
-    // on change conversation
-    const onChangeConversation = conversation => {
-      routerUtils.setParams(history, { _id: conversation._id });
-    };
-
     const { messages, loadingMessages } = this.state;
 
     const updatedProps = {
@@ -202,7 +194,6 @@ class ConversationDetail extends Component {
       currentConversation,
       conversationMessages: messages,
       loading,
-      onChangeConversation,
       loadMoreMessages: this.loadMoreMessages,
       addMessage: this.addMessage,
       refetch: detailQuery.refetch,
@@ -227,7 +218,6 @@ const ConversationDetailContainer = compose(
   graphql(gql(queries.conversationDetail), {
     name: 'detailQuery',
     options: ({ currentId }) => ({
-      skip: !currentId,
       variables: { _id: currentId },
       fetchPolicy: 'network-only'
     })
@@ -238,7 +228,6 @@ const ConversationDetailContainer = compose(
       const windowHeight = window.innerHeight;
 
       return {
-        skip: !currentId,
         variables: {
           conversationId: currentId,
           // 330 - height of above and below sections of detail area
@@ -252,7 +241,6 @@ const ConversationDetailContainer = compose(
   graphql(gql(queries.conversationMessagesTotalCount), {
     name: 'messagesTotalCountQuery',
     options: ({ currentId }) => ({
-      skip: !currentId,
       variables: { conversationId: currentId },
       fetchPolicy: 'network-only'
     })
@@ -293,11 +281,15 @@ class WithCurrentId extends React.Component {
   }
 
   render() {
-    const { queryParams } = this.props;
+    const { queryParams: { _id } } = this.props;
+
+    if (!_id) {
+      return <Empty {...this.props} />;
+    }
 
     const updatedProps = {
       ...this.props,
-      currentId: queryParams._id || ''
+      currentId: _id
     };
 
     return <ConversationDetailContainer {...updatedProps} />;
