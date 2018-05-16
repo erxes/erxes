@@ -76,14 +76,7 @@ class ConversationDetail extends Component {
           return prev;
         }
 
-        // add new message to messages list
-        const next = {
-          conversationMessages: [...messages, message]
-        };
-
         this.setState({ messages: [...this.state.messages, message] });
-
-        return next;
       }
     });
 
@@ -246,6 +239,8 @@ const ConversationDetailContainer = compose(
         skip: !currentId,
         variables: {
           conversationId: currentId,
+          // 330 - height of above and below sections of detail area
+          // 45 -  min height of per message
           limit: parseInt((windowHeight - 330) / 45, 10) + 1
         },
         fetchPolicy: 'network-only'
