@@ -10,9 +10,6 @@ import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
 import { generateParams } from '../utils';
 
-const windowHeight = window.innerHeight;
-const messageLimit = parseInt((windowHeight - 330) / 45, 10) + 1;
-
 class ConversationDetail extends Component {
   constructor(props, context) {
     super(props, context);
@@ -20,6 +17,7 @@ class ConversationDetail extends Component {
     this.subscriptions = {};
     this.state = { messages: [], loadingMessages: false };
     this.loadMoreMessages = this.loadMoreMessages.bind(this);
+    this.addMessage = this.addMessage.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -119,6 +117,24 @@ class ConversationDetail extends Component {
     }
   }
 
+  addMessage({ variables, optimisticResponse, callback, kind }) {
+    const { addMessageMutation } = this.props;
+
+    addMessageMutation({ variables, optimisticResponse })
+      .then(({ data: { conversationMessageAdd } }) => {
+        if (kind === 'messenger') {
+          const message = conversationMessageAdd;
+
+          this.setState({ messages: [...this.state.messages, message] });
+        }
+
+        callback();
+      })
+      .catch(e => {
+        callback(e);
+      });
+  }
+
   loadMoreMessages() {
     const { currentId, messagesTotalCountQuery } = this.props;
     const { messages } = this.state;
@@ -193,7 +209,7 @@ class ConversationDetail extends Component {
       loading,
       onChangeConversation,
       loadMoreMessages: this.loadMoreMessages,
-      messageLimit,
+      addMessage: this.addMessage,
       refetch: detailQuery.refetch,
       loadingMessages
     };
@@ -208,6 +224,7 @@ ConversationDetail.propTypes = {
   messagesTotalCountQuery: PropTypes.object,
   currentId: PropTypes.string.isRequired,
   markAsReadMutation: PropTypes.func.isRequired,
+  addMessageMutation: PropTypes.func,
   history: PropTypes.object
 };
 
@@ -223,11 +240,13 @@ const ConversationDetailContainer = compose(
   graphql(gql(queries.conversationMessages), {
     name: 'messagesQuery',
     options: ({ currentId }) => {
+      const windowHeight = window.innerHeight;
+
       return {
         skip: !currentId,
         variables: {
           conversationId: currentId,
-          limit: messageLimit
+          limit: parseInt((windowHeight - 330) / 45, 10) + 1
         },
         fetchPolicy: 'network-only'
       };
@@ -254,7 +273,8 @@ const ConversationDetailContainer = compose(
         ]
       };
     }
-  })
+  }),
+  graphql(gql(mutations.conversationMessageAdd), { name: 'addMessageMutation' })
 )(ConversationDetail);
 
 ConversationDetail.contextTypes = {

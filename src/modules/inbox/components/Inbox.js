@@ -88,7 +88,7 @@ class Inbox extends Component {
       currentConversation,
       conversationMessages,
       onChangeConversation,
-      messageLimit,
+      addMessage,
       loadingMessages,
       refetch
     } = this.props;
@@ -184,7 +184,7 @@ class Inbox extends Component {
             <RespondBox
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
-              messageLimit={messageLimit}
+              addMessage={addMessage}
             />
           )
         }
@@ -222,7 +222,7 @@ Inbox.propTypes = {
   loadingMessages: PropTypes.bool,
   currentId: PropTypes.string,
   loadMoreMessages: PropTypes.func,
-  messageLimit: PropTypes.number
+  addMessage: PropTypes.func
 };
 
 Inbox.contextTypes = {
