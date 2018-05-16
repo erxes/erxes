@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
+import queryString from 'query-string';
 import gql from 'graphql-tag';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import { router as routerUtils } from 'modules/common/utils';
@@ -51,7 +53,7 @@ const generateOptions = queryParams => ({
   limit: queryParams.limit || 10
 });
 
-export default compose(
+const WithData = compose(
   graphql(gql(queries.sidebarConversations), {
     name: 'conversationsQuery',
     options: ({ queryParams }) => ({
@@ -67,3 +69,18 @@ export default compose(
     })
   })
 )(LeftSidebar);
+
+const WithQueryParams = props => {
+  const { location } = props;
+  const queryParams = queryString.parse(location.search);
+
+  const extendedProps = { ...props, queryParams };
+
+  return <WithData {...extendedProps} />;
+};
+
+WithQueryParams.propTypes = {
+  location: PropTypes.object
+};
+
+export default withRouter(WithQueryParams);

@@ -94,7 +94,6 @@ class Inbox extends Component {
   render() {
     const {
       queryParams,
-      history,
       currentConversationId,
       currentConversation,
       conversationMessages,
@@ -199,11 +198,7 @@ class Inbox extends Component {
           )
         }
         leftSidebar={
-          <LeftSidebar
-            queryParams={queryParams}
-            history={history}
-            currentConversationId={currentConversationId}
-          />
+          <LeftSidebar currentConversationId={currentConversationId} />
         }
         rightSidebar={
           currentConversation._id && (
@@ -221,7 +216,6 @@ class Inbox extends Component {
 
 Inbox.propTypes = {
   queryParams: PropTypes.object,
-  history: PropTypes.object,
   refetch: PropTypes.func,
   title: PropTypes.string,
   onFetchMore: PropTypes.func,
