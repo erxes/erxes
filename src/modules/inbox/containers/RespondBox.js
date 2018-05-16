@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { fromJS } from 'immutable';
-import { queries, mutations } from '../graphql';
+import { queries } from '../graphql';
 import { RespondBox } from '../components';
 
 const RespondBoxContainer = (props, context) => {
   const {
     conversation,
     usersQuery,
-    addMessageMutation,
+    addMessage,
     responseTemplatesQuery
   } = props;
 
@@ -46,37 +46,12 @@ const RespondBoxContainer = (props, context) => {
       };
     }
 
-    addMessageMutation({
+    addMessage({
       variables,
       optimisticResponse,
-      update: (proxy, { data: { conversationMessageAdd } }) => {
-        if (conversation.integration.kind !== 'messenger') {
-          return;
-        }
-
-        const message = conversationMessageAdd;
-
-        const selector = {
-          query: gql(queries.conversationMessages),
-          variables: { conversationId }
-        };
-
-        // Read the data from our cache for this query.
-        const data = proxy.readQuery(selector);
-
-        // Add our comment from the mutation to the end.
-        data.conversationMessages.push(message);
-
-        // Write our data back to the cache.
-        proxy.writeQuery({ ...selector, data });
-      }
-    })
-      .then(() => {
-        callback();
-      })
-      .catch(e => {
-        callback(e);
-      });
+      kind: conversation.integration.kind,
+      callback
+    });
   };
 
   const teamMembers = [];
@@ -107,15 +82,14 @@ RespondBoxContainer.contextTypes = {
 RespondBoxContainer.propTypes = {
   conversation: PropTypes.object,
   object: PropTypes.object,
-  addMessageMutation: PropTypes.func,
   responseTemplatesQuery: PropTypes.object,
-  usersQuery: PropTypes.object
+  usersQuery: PropTypes.object,
+  addMessage: PropTypes.func
 };
 
 export default compose(
   graphql(gql(queries.userList), { name: 'usersQuery' }),
   graphql(gql(queries.responseTemplateList), {
     name: 'responseTemplatesQuery'
-  }),
-  graphql(gql(mutations.conversationMessageAdd), { name: 'addMessageMutation' })
+  })
 )(RespondBoxContainer);

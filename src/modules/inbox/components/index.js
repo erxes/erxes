@@ -1,4 +1,5 @@
 import Inbox from './Inbox';
+import Empty from './Empty';
 import FilterPopover from './sidebar/FilterPopover';
 import StatusFilterPopover from './sidebar/StatusFilterPopover';
 import Conversation from './conversation/Conversation';
@@ -13,6 +14,7 @@ import Resolver from './Resolver';
 
 export {
   Inbox,
+  Empty,
   Participators,
   FilterPopover,
   LeftSidebar,

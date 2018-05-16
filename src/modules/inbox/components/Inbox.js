@@ -27,25 +27,64 @@ class Inbox extends Component {
 
     this.state = { attachmentPreview: {} };
 
+    this.node = React.createRef();
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
+    this.onScroll = this.onScroll.bind(this);
   }
 
   componentDidMount() {
     this.scrollBottom();
   }
 
-  componentDidUpdate() {
-    const twitterData = this.props.currentConversation.twitterData;
+  // Calculating new messages's height to use later in componentDidUpdate
+  // So that we can retract cursor position to original place
+  getSnapshotBeforeUpdate(prevProps, prevState) {
+    const { conversationMessages } = this.props;
+
+    if (prevProps.conversationMessages.length < conversationMessages.length) {
+      const { current } = this.node;
+
+      return current.scrollHeight - current.scrollTop;
+    }
+
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { conversationMessages, currentConversation } = this.props;
+
+    const twitterData = currentConversation.twitterData;
     const isTweet = twitterData && !twitterData.isDirectMessage;
 
-    if (!isTweet) {
+    if (isTweet) {
+      return null;
+    }
+
+    const messageCount = conversationMessages.length;
+    const prevMessageCount = prevProps.conversationMessages.length;
+
+    if (snapshot !== null) {
+      const { current } = this.node;
+      current.scrollTop = current.scrollHeight - snapshot;
+    }
+
+    if (prevMessageCount + 1 === messageCount) {
       this.scrollBottom();
     }
   }
 
+  onScroll() {
+    const { current } = this.node;
+    const { loadMoreMessages } = this.props;
+
+    if (current.scrollTop === 0) loadMoreMessages();
+  }
+
   scrollBottom() {
-    this.node.scrollTop = this.node.scrollHeight;
+    const { current } = this.node;
+
+    current.scrollTop = current.scrollHeight;
   }
 
   setAttachmentPreview(attachmentPreview) {
@@ -58,7 +97,8 @@ class Inbox extends Component {
       currentConversationId,
       currentConversation,
       conversationMessages,
-      onChangeConversation,
+      addMessage,
+      loadingMessages,
       refetch
     } = this.props;
 
@@ -128,16 +168,13 @@ class Inbox extends Component {
     );
 
     const content = (
-      <ConversationWrapper
-        innerRef={node => {
-          this.node = node;
-        }}
-      >
+      <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
         <Conversation
           conversation={currentConversation}
           conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
           scrollBottom={this.scrollBottom}
+          loading={loadingMessages}
         />
       </ConversationWrapper>
     );
@@ -156,15 +193,12 @@ class Inbox extends Component {
             <RespondBox
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
+              addMessage={addMessage}
             />
           )
         }
         leftSidebar={
-          <LeftSidebar
-            queryParams={queryParams}
-            currentConversationId={currentConversationId}
-            onChangeConversation={onChangeConversation}
-          />
+          <LeftSidebar currentConversationId={currentConversationId} />
         }
         rightSidebar={
           currentConversation._id && (
@@ -185,13 +219,12 @@ Inbox.propTypes = {
   refetch: PropTypes.func,
   title: PropTypes.string,
   onFetchMore: PropTypes.func,
-  onChangeConversation: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
   conversationMessages: PropTypes.array,
-  loading: PropTypes.bool,
-  sectionParams: PropTypes.object,
-  setSectionParams: PropTypes.func
+  loadingMessages: PropTypes.bool,
+  loadMoreMessages: PropTypes.func,
+  addMessage: PropTypes.func
 };
 
 Inbox.contextTypes = {

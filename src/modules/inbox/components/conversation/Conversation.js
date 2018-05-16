@@ -4,17 +4,20 @@ import styled from 'styled-components';
 import Message from './Message';
 import AttachmentPreview from './AttachmentPreview';
 import { TwitterConversation } from './TwitterConversation';
+import { Spinner } from 'modules/common/components';
 
 const propTypes = {
   conversation: PropTypes.object,
   conversationMessages: PropTypes.array.isRequired,
   attachmentPreview: PropTypes.object,
-  scrollBottom: PropTypes.func.isRequired
+  scrollBottom: PropTypes.func.isRequired,
+  loading: PropTypes.bool
 };
 
 const Wrapper = styled.div`
   padding: 20px;
   overflow: hidden;
+  min-height: 80px;
 
   > div:first-child {
     margin-top: 0;
@@ -88,10 +91,11 @@ class Conversation extends Component {
   }
 
   render() {
-    const { attachmentPreview, scrollBottom } = this.props;
+    const { attachmentPreview, scrollBottom, loading } = this.props;
 
     return (
       <Wrapper>
+        {loading && <Spinner objective />}
         {this.renderConversation()}
         <AttachmentPreview
           scrollBottom={scrollBottom}
