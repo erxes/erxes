@@ -2,21 +2,8 @@ import styled, { css } from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { stageWidth, stageHeight, borderRadius } from './deminsions';
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  transition: background-color 0.3s ease;
-  height: 100%;
-  ${props => css`
-    background: ${props.isDragging ? colors.colorWhite : 'none'};
-    box-shadow: ${props.isDragging
-      ? `0 0 20px 2px rgba(0, 0, 0, 0.14)`
-      : 'none'};
-  `};
-`;
-
 const Header = styled.div`
-  padding: 10px 20px;
+  padding: 10px 20px 10px 21px;
   border-bottom: 1px solid ${colors.borderPrimary};
   position: relative;
 
@@ -60,12 +47,21 @@ const Header = styled.div`
   }
 `;
 
-const Wrapper = styled.div`
+const Container = styled.div`
   display: flex;
   border-right: 1px solid ${colors.borderPrimary};
+  border-left: 1px solid ${colors.borderPrimary};
+  margin-left: -1px;
   flex-direction: column;
   width: ${stageWidth}px;
   max-height: ${stageHeight};
+  transition: background-color 0.3s ease;
+  ${props => css`
+    background: ${props.isDragging ? colors.colorWhite : 'none'};
+    box-shadow: ${props.isDragging
+      ? `0 0 20px 2px rgba(0, 0, 0, 0.14)`
+      : 'none'};
+  `};
 
   &:last-of-type {
     ${Header}:before, ${Header}:after {
@@ -102,7 +98,7 @@ const Amount = styled.ul`
 `;
 
 const Body = styled.div`
-  padding: 10px;
+  padding: 10px 10px 10px 11px;
   height: 100%;
   overflow: auto;
   background: ${colors.bgLight};
@@ -140,13 +136,4 @@ const IndicatorItem = styled.div`
   border-radius: 2px;
 `;
 
-export {
-  Wrapper,
-  Container,
-  Header,
-  Amount,
-  Body,
-  DropZone,
-  Indicator,
-  IndicatorItem
-};
+export { Container, Header, Amount, Body, DropZone, Indicator, IndicatorItem };
