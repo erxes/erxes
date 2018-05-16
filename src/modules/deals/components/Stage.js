@@ -6,7 +6,6 @@ import { Deal } from '../containers';
 import { DealAddForm } from './';
 import { AddNew } from '../styles/deal';
 import {
-  Wrapper,
   Container,
   Header,
   Body,
@@ -95,28 +94,26 @@ class Stage extends React.Component {
     return (
       <Draggable draggableId={stageId} index={index}>
         {(provided, snapshot) => (
-          <Wrapper>
-            <Container
-              innerRef={provided.innerRef}
-              {...provided.draggableProps}
-              isDragging={snapshot.isDragging}
-            >
-              <Header {...provided.dragHandleProps}>
-                <h3>
-                  {stage.name}
-                  <span>({deals.length})</span>
-                </h3>
-                <Amount>{this.renderAmount(stage.amount || {})}</Amount>
-                <Indicator>{this.renderIndicator()}</Indicator>
-              </Header>
+          <Container
+            innerRef={provided.innerRef}
+            {...provided.draggableProps}
+            isDragging={snapshot.isDragging}
+          >
+            <Header {...provided.dragHandleProps}>
+              <h3>
+                {stage.name}
+                <span>({deals.length})</span>
+              </h3>
+              <Amount>{this.renderAmount(stage.amount || {})}</Amount>
+              <Indicator>{this.renderIndicator()}</Indicator>
+            </Header>
 
-              <Body>
-                <Droppable droppableId={stageId} type="stage">
-                  {dropProvided => this.renderDeals(dropProvided)}
-                </Droppable>
-              </Body>
-            </Container>
-          </Wrapper>
+            <Body>
+              <Droppable droppableId={stageId} type="stage">
+                {dropProvided => this.renderDeals(dropProvided)}
+              </Droppable>
+            </Body>
+          </Container>
         )}
       </Draggable>
     );
