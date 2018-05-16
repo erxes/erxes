@@ -6,7 +6,7 @@ import { LeftSidebar } from '../containers';
 
 class Empty extends Component {
   render() {
-    const { queryParams, history } = this.props;
+    const { queryParams } = this.props;
 
     const { __ } = this.context;
 
@@ -26,17 +26,14 @@ class Empty extends Component {
           <Wrapper.Header queryParams={queryParams} breadcrumb={breadcrumb} />
         }
         content={content}
-        leftSidebar={
-          <LeftSidebar queryParams={queryParams} history={history} />
-        }
+        leftSidebar={<LeftSidebar />}
       />
     );
   }
 }
 
 Empty.propTypes = {
-  queryParams: PropTypes.object,
-  history: PropTypes.object
+  queryParams: PropTypes.object
 };
 
 Empty.contextTypes = {
