@@ -46,6 +46,13 @@ class CustomerForm extends React.Component {
     this.handleUserSearch = this.handleUserSearch.bind(this);
   }
 
+  componentDidMount() {
+    const { customer } = this.props;
+
+    if (customer.ownerId)
+      this.handleUserSearch(customer.owner.details.fullName);
+  }
+
   action(e) {
     e.preventDefault();
 
