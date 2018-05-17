@@ -47,7 +47,7 @@ const afterwareLink = new ApolloLink((operation, forward) => {
 
 // Network error
 const errorLink = onError(({ networkError }) => {
-  if (networkError) Alert.error('Check your internet connection');
+  if (networkError) Alert.error('Disconnect ...');
 });
 
 // Combining httpLink and warelinks altogether
