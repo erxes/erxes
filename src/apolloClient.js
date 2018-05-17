@@ -5,6 +5,8 @@ import { setContext } from 'apollo-link-context';
 import { WebSocketLink } from 'apollo-link-ws';
 import { ApolloLink, split } from 'apollo-link';
 import { getMainDefinition } from 'apollo-utilities';
+import { onError } from 'apollo-link-error';
+import { Alert } from 'modules/common/utils';
 
 const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = process.env;
 
@@ -43,9 +45,14 @@ const afterwareLink = new ApolloLink((operation, forward) => {
   });
 });
 
+// Network error
+const errorLink = onError(({ networkError }) => {
+  if (networkError) Alert.error('Check your internet connection');
+});
+
 // Combining httpLink and warelinks altogether
-const httpLinkWithMiddleware = afterwareLink.concat(
-  middlewareLink.concat(httpLink)
+const httpLinkWithMiddleware = errorLink.concat(
+  afterwareLink.concat(middlewareLink.concat(httpLink))
 );
 
 // Subscription config
