@@ -10,7 +10,6 @@ const propTypes = {
   color: PropTypes.string,
   endConversation: PropTypes.func,
   isChat: PropTypes.bool,
-  isConversationEnded: PropTypes.bool,
   isExpanded: PropTypes.bool,
   onToggle: PropTypes.func,
 };
@@ -25,7 +24,6 @@ function TopBar({
     onButtonClick,
     color,
     isChat,
-    isConversationEnded,
     endConversation,
     isExpanded,
     onToggle
@@ -42,7 +40,7 @@ function TopBar({
   };
 
   const renderEndConversation = () => {
-    if (isChat && !isConversationEnded) {
+    if (isChat) {
       return (
         <a
           href="#"

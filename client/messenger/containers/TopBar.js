@@ -3,10 +3,9 @@ import { connection } from '../connection';
 import { TopBar } from '../components';
 import { endConversation } from '../actions/messenger';
 
-const mapStateToProps = state => ({
+const mapStateToProps = () => ({
   color: connection.data.uiOptions && connection.data.uiOptions.color,
   isChat: Boolean(!connection.setting.email),
-  isConversationEnded: state.isConversationEnded,
 });
 
 const mapDispatchToProps = dispatch => ({

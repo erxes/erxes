@@ -1,11 +1,9 @@
 import {
   SENDING_ATTACHMENT,
-  MESSAGE_SENT,
   ATTACHMENT_SENT,
   MESSENGER_TOGGLE,
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
-  END_CONVERSATION,
   BROWSER_INFO_SAVED,
 } from '../constants';
 
@@ -76,18 +74,6 @@ const isAttachingFile = (state = false, action) => {
   }
 };
 
-const isConversationEnded = (state = false, action) => {
-  if (action.type === END_CONVERSATION) {
-    return true;
-  }
-
-  if (action.type === MESSAGE_SENT) {
-    return false;
-  }
-
-  return state;
-};
-
 const isBrowserInfoSaved = (state = false, action) => {
   if (action.type === BROWSER_INFO_SAVED) {
     return true;
@@ -101,7 +87,6 @@ const messenger = {
   activeRoute,
   activeConversation,
   isAttachingFile,
-  isConversationEnded,
   isBrowserInfoSaved,
 };
 

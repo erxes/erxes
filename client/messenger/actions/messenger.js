@@ -4,7 +4,6 @@ import {
   MESSENGER_TOGGLE,
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
-  END_CONVERSATION,
   BROWSER_INFO_SAVED,
 } from '../constants';
 
@@ -138,47 +137,19 @@ export const saveGetNotified = ({ type, value }) => (dispatch) => {
 };
 
 
-export const endConversation = () => (dispatch) => {
+export const endConversation = () => () => {
   const setting = connection.setting;
-  const data = connection.data;
 
   // ignore this action for inapp
   if (setting.email) {
     return;
   }
 
-  client.mutate({
-    mutation: gql`
-      mutation endConversation($customerId: String $brandCode: String!  $data: JSON) {
-        endConversation(customerId: $customerId brandCode: $brandCode data: $data) {
-          customerId
-        }
-      }`,
+  // reset local storage items
+  setLocalStorageItem('getNotifiedType', '');
+  setLocalStorageItem('getNotifiedValue', '');
+  setLocalStorageItem('lastConversationId', '');
+  setLocalStorageItem('customerId', '');
 
-    variables: {
-      customerId: data.customerId,
-      brandCode: setting.brand_id,
-      data: setting.data,
-    },
-  })
-
-  // after mutation
-  .then(({ data }) => {
-    const { customerId } = data.endConversation;
-
-    // reset local storage items
-    setLocalStorageItem('getNotifiedType', '');
-    setLocalStorageItem('getNotifiedValue', '');
-    setLocalStorageItem('lastConversationId', '');
-    setLocalStorageItem('customerId', customerId);
-
-    // update connection customerId
-    connection.data.customerId = customerId;
-
-    dispatch({ type: CHANGE_CONVERSATION, conversationId: '' });
-    dispatch({ type: END_CONVERSATION });
-    dispatch({ type: CHANGE_ROUTE, route: 'accquireInformation' });
-
-    saveBrowserInfo();
-  });
+  window.location.reload();
 };
