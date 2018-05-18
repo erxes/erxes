@@ -34,6 +34,7 @@ class RespondBox extends Component {
       isInactive: !this.checkIsActive(props.conversation),
       editorKey: 'editor',
       isInternal: false,
+      sending: false,
       attachments: [],
       responseTemplate: '',
       content: '',
@@ -53,6 +54,14 @@ class RespondBox extends Component {
     this.hideMask = this.hideMask.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { sending, content } = this.state;
+
+    if (sending && content !== prevState.content) {
+      this.setState({ sending: false });
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -158,7 +167,9 @@ class RespondBox extends Component {
       mentionedUserIds
     };
 
-    if (this.state.content) {
+    if (this.state.content && !this.state.sending) {
+      this.setState({ sending: true });
+
       sendMessage(message, error => {
         if (error) {
           return Alert.error(error.message);
@@ -168,6 +179,7 @@ class RespondBox extends Component {
         return this.setState({
           attachments: [],
           content: '',
+          sending: false,
           mentionedUserIds: []
         });
       });
