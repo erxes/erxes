@@ -236,6 +236,8 @@ class Form extends Component {
               type={type}
               successAction={successAction}
               formData={formData}
+              color={color}
+              theme={theme}
             />
           </Step>
           <Step
