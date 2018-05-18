@@ -56,7 +56,7 @@ class SignIn extends Component {
               </InputGroup.Button>
               <FormControl
                 type="email"
-                placeholder={__('your@email.com')}
+                placeholder={__('demo@erxes.io')}
                 required
                 onChange={this.handleEmailChange}
                 onFocus={this.handleOnFocus}
