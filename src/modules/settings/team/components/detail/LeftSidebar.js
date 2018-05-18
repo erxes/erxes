@@ -5,9 +5,9 @@ import { Sidebar } from 'modules/layout/components';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { EditProfile } from 'modules/settings/profile/components';
 import { UserForm } from '../../containers';
-import { List } from './styles';
-import { Links, InfoWrapper } from 'modules/common/styles/styles';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { Links, InfoWrapper } from 'modules/common/styles/main';
+import { List } from './styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -30,12 +30,12 @@ class LeftSidebar extends React.Component {
   renderLinks(links) {
     return (
       <Links>
-        {this.renderLink(links.linkedIn, 'social-linkedin')}
-        {this.renderLink(links.twitter, 'social-twitter')}
-        {this.renderLink(links.facebook, 'social-facebook')}
-        {this.renderLink(links.github, 'social-github')}
-        {this.renderLink(links.youtube, 'social-youtube')}
-        {this.renderLink(links.website, 'android-globe')}
+        {this.renderLink(links.facebook, 'facebook')}
+        {this.renderLink(links.twitter, 'twitter')}
+        {this.renderLink(links.linkedIn, 'linkedin-logo')}
+        {this.renderLink(links.youtube, 'youtube')}
+        {this.renderLink(links.github, 'github')}
+        {this.renderLink(links.website, 'earthgrid')}
       </Links>
     );
   }

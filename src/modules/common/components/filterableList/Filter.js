@@ -7,7 +7,7 @@ const propTypes = {
   onChange: PropTypes.func.isRequired
 };
 
-function Filter({ placeholder = 'Search ...', onChange }, { __ }) {
+function Filter({ placeholder = 'Search', onChange }, { __ }) {
   return (
     <FormControl
       type="text"

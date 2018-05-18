@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
@@ -11,19 +11,21 @@ import {
   TabTitle,
   Icon,
   DataWithLoader,
-  LoadMore
+  LoadMore,
+  Tip
 } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
 import {
   ActivityRow,
-  ActivityWrapper,
   AvatarWrapper,
-  ActivityCaption,
-  ActivityDate
+  ActivityDate,
+  FlexContent,
+  FlexBody
 } from 'modules/activityLogs/styles';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import LeftSidebar from './LeftSidebar';
+import { ActivityContent } from 'modules/common/styles/main';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -51,28 +53,36 @@ class UserDetails extends React.Component {
   }
 
   renderConversation(conversation, user) {
+    const details = user.details || {};
+
     return (
       <ActivityRow key={conversation._id}>
-        <ActivityWrapper>
-          <AvatarWrapper>
-            <NameCard.Avatar user={user} size={50} />
-          </AvatarWrapper>
+        <Fragment>
+          <FlexContent>
+            <AvatarWrapper>
+              <NameCard.Avatar user={user} size={50} />
+            </AvatarWrapper>
 
-          <ActivityCaption>
-            {user.details.fullName} participated in a
-            <Link to={`/inbox?_id=${conversation._id}`}>
-              <strong> conversation </strong>
-            </Link>
-            with{' '}
-            <Link to={`/customers/details/${conversation.customer._id}`}>
-              <strong>{renderFullName(conversation.customer)}</strong>
-            </Link>
-          </ActivityCaption>
+            <FlexBody>
+              <div>
+                {details.fullName} participated in a
+                <Link to={`/inbox?_id=${conversation._id}`}>
+                  <strong> conversation </strong>
+                </Link>
+                with{' '}
+                <Link to={`/customers/details/${conversation.customer._id}`}>
+                  <strong>{renderFullName(conversation.customer)}</strong>
+                </Link>
+              </div>
+            </FlexBody>
 
-          <ActivityDate>
-            {moment(conversation.createdAt).fromNow()}
-          </ActivityDate>
-        </ActivityWrapper>
+            <Tip text={moment(conversation.createdAt).format('lll')}>
+              <ActivityDate>
+                {moment(conversation.createdAt).fromNow()}
+              </ActivityDate>
+            </Tip>
+          </FlexContent>
+        </Fragment>
       </ActivityRow>
     );
   }
@@ -86,6 +96,7 @@ class UserDetails extends React.Component {
       user,
       totalConversationCount
     } = this.props;
+    const hasActivity = hasAnyActivity(activityLogsUser);
 
     if (currentTab === 'conversation') {
       return (
@@ -100,16 +111,10 @@ class UserDetails extends React.Component {
     }
 
     return (
-      <div
-        style={
-          !hasAnyActivity(activityLogsUser)
-            ? { position: 'relative', height: '400px' }
-            : {}
-        }
-      >
+      <ActivityContent isEmpty={!hasActivity}>
         <DataWithLoader
           loading={loadingLogs}
-          count={!loadingLogs && hasAnyActivity(activityLogsUser) > 0 ? 1 : 0}
+          count={!loadingLogs && hasActivity > 0 ? 1 : 0}
           data={
             <ActivityList
               user={currentUser}
@@ -121,7 +126,7 @@ class UserDetails extends React.Component {
           emptyText="Empty Notes"
           emptyImage="/images/robots/robot-03.svg"
         />
-      </div>
+      </ActivityContent>
     );
   }
 
@@ -141,7 +146,7 @@ class UserDetails extends React.Component {
         <WhiteBoxRoot>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> {__('New note')}
+              <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
           </Tabs>
 

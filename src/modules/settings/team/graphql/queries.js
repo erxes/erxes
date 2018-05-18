@@ -12,7 +12,6 @@ const userDetail = `
         position
         location
         description
-        twitterUsername
       }
       links {
         linkedIn
@@ -82,8 +81,8 @@ const channels = `
 `;
 
 const users = `
-  query users($page: Int, $perPage: Int) {
-    users(page: $page, perPage: $perPage) {
+  query users($page: Int, $perPage: Int, $searchValue: String) {
+    users(page: $page, perPage: $perPage, searchValue: $searchValue) {
       _id
       username
       email
@@ -94,7 +93,6 @@ const users = `
         position
         description
         location
-        twitterUsername
       }
       links {
         linkedIn

@@ -3,7 +3,7 @@ import { SidebarList } from 'modules/layout/styles';
 
 const List = SidebarList.extend`
   li {
-    border-top: 1px solid ${colors.borderPrimary};
+    border-bottom: 1px solid ${colors.borderPrimary};
 
     > a {
       padding: ${dimensions.unitSpacing}px 20px;
@@ -14,6 +14,10 @@ const List = SidebarList.extend`
         color: ${colors.colorCoreLightGray};
         margin: 0;
       }
+    }
+
+    &:last-child {
+      border: none;
     }
   }
 `;

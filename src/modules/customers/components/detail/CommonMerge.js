@@ -8,15 +8,9 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
-import {
-  Title,
-  Columns,
-  Column,
-  InfoTitle,
-  InfoDetail,
-  Info
-} from '../../styles';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
+import { Title, Columns, Column } from 'modules/common/styles/chooser';
+import { InfoTitle, InfoDetail, Info } from '../../styles';
 
 const propTypes = {
   datas: PropTypes.array.isRequired,
@@ -85,7 +79,7 @@ class CommonMerge extends Component {
         return this.renderMergedDataInputs(property, index);
       }
       return this.renderProperty(
-        'close',
+        'minus-cirlce',
         { [property]: data[property] },
         index
       );
@@ -117,7 +111,7 @@ class CommonMerge extends Component {
     return Object.keys(data).map(property => {
       if (basicInfos[property] && data[property])
         return this.renderProperty(
-          'plus',
+          'add',
           { [property]: data[property] },
           property
         );
@@ -206,7 +200,7 @@ class CommonMerge extends Component {
     const data = { ...this.state.data };
     const propertyName = Object.keys(property);
 
-    if (type === 'plus') {
+    if (type === 'add') {
       data[propertyName] = property[propertyName];
     } else {
       delete data[propertyName];
@@ -293,11 +287,11 @@ class CommonMerge extends Component {
           <Button
             btnStyle="simple"
             onClick={() => this.context.closeModal()}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
-          <Button type="submit" btnStyle="success" icon="checkmark">
+          <Button type="submit" btnStyle="success" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

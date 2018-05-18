@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Spinner } from 'modules/common/components';
 import CommonReport from './CommonReport';
-import { Chart, Summary, PunchCard, Insights } from './';
-import { InsightRow, InsightContent, LoaderWrapper } from '../styles';
+import { Summary, Insights } from './';
+import { InsightRow, InsightContent } from '../styles';
 
 const propTypes = {
   insights: PropTypes.array.isRequired,
@@ -43,38 +42,13 @@ class VolumeReport extends CommonReport {
           <Summary loading={loading.main} data={summary} />
         </InsightRow>
 
-        <InsightRow
-          innerRef={node => {
-            this.wrapper = node;
-          }}
-        >
-          {this.renderTitle('Volume Trend')}
-          <Chart
-            loading={loading.main}
-            width={width}
-            height={320}
-            data={trend}
-          />
-        </InsightRow>
+        {this.renderTrend('Volume Trend', loading, trend, width)}
 
-        <InsightRow>
-          {this.renderTitle('Punch card')}
-          {!loading.punch ? (
-            <PunchCard data={punch} width={width} />
-          ) : (
-            <LoaderWrapper>
-              <Spinner objective />
-            </LoaderWrapper>
-          )}
-        </InsightRow>
+        {this.renderPunchCard(loading, punch, width)}
 
         <InsightRow>
           {this.renderTitle('Insights')}
-          <Insights
-            loading={loading.insights}
-            data={insights}
-            wrapperWidth={width}
-          />
+          <Insights loading={loading.insights} data={insights} />
         </InsightRow>
       </InsightContent>
     );

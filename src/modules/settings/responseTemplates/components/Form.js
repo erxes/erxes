@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { EditorState } from 'draft-js';
 import {
   FormGroup,
@@ -9,9 +9,8 @@ import {
   ErxesEditor,
   toHTML,
   createStateFromHTML
-} from 'modules/common/components/Editor';
+} from 'modules/common/components/editor/Editor';
 import { Form as CommonForm } from '../../common/components';
-import { EditorWrapper } from 'modules/engage/styles';
 
 class Form extends CommonForm {
   constructor(props) {
@@ -58,7 +57,7 @@ class Form extends CommonForm {
     };
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Brand</ControlLabel>
 
@@ -88,11 +87,9 @@ class Form extends CommonForm {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <EditorWrapper>
-            <ErxesEditor {...props} />
-          </EditorWrapper>
+          <ErxesEditor bordered {...props} />
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 }

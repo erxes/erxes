@@ -106,7 +106,7 @@ class ConditionStep extends Component {
             size="small"
             onClick={remove}
             btnStyle="danger"
-            icon="close"
+            icon="cancel-1"
           />
         </InlineForm>
       </FormGroup>

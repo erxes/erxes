@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { Icon, ModalTrigger } from 'modules/common/components';
-import { Links, InfoWrapper } from 'modules/common/styles/styles';
+import { Links, InfoWrapper } from 'modules/common/styles/main';
 import { confirm } from 'modules/common/utils';
 import { CompanyForm } from '../../containers';
 import { CompanyLogo } from '../../styles';
@@ -45,12 +45,12 @@ class BasicInfo extends React.Component {
   renderLinks(links) {
     return (
       <Links>
-        {this.renderLink(links.linkedIn, 'social-linkedin')}
-        {this.renderLink(links.twitter, 'social-twitter')}
-        {this.renderLink(links.facebook, 'social-facebook')}
-        {this.renderLink(links.github, 'social-github')}
-        {this.renderLink(links.youtube, 'social-youtube')}
-        {this.renderLink(links.website, 'android-globe')}
+        {this.renderLink(links.facebook, 'facebook')}
+        {this.renderLink(links.twitter, 'twitter')}
+        {this.renderLink(links.linkedIn, 'linkedin-logo')}
+        {this.renderLink(links.youtube, 'youtube')}
+        {this.renderLink(links.github, 'github')}
+        {this.renderLink(links.website, 'earthgrid')}
       </Links>
     );
   }
@@ -74,7 +74,7 @@ class BasicInfo extends React.Component {
       <Action>
         <Dropdown id="dropdown-engage">
           <DropdownToggle bsRole="toggle">
-            <Button btnStyle="simple" size="medium" icon="chevron-down">
+            <Button btnStyle="simple" size="medium" icon="downarrow">
               {__('Action')}
             </Button>
           </DropdownToggle>

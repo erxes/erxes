@@ -1,6 +1,21 @@
 const engageMessages = `
-  query engageMessages($kind: String, $status: String, $tag: String, $ids: [String]) {
-    engageMessages(kind: $kind, status: $status, tag: $tag, ids: $ids) {
+  query engageMessages(
+    $kind: String
+    $status: String
+    $tag: String
+    $ids: [String]
+    $page: Int
+    $perPage: Int
+  ) {
+    engageMessages(
+      kind: $kind
+      status: $status
+      tag: $tag
+      ids: $ids
+      page: $page
+      perPage: $perPage
+    ) {
+
       _id
       title
       deliveryReports
@@ -21,7 +36,6 @@ const engageMessages = `
           avatar
           fullName
           position
-          twitterUsername
         }
       }
       tagIds
@@ -85,7 +99,6 @@ const users = `
         avatar
         fullName
         position
-        twitterUsername
       }
     }
   }
@@ -100,7 +113,6 @@ const userDetail = `
         avatar
         fullName
         position
-        twitterUsername
       }
       email
     }

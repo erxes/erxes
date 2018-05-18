@@ -107,7 +107,7 @@ class Form extends Component {
   renderSaveButton() {
     const cancelButton = (
       <Link to="/forms">
-        <Button btnStyle="simple" size="small" icon="close">
+        <Button btnStyle="simple" size="small" icon="cancel-1">
           Cancel
         </Button>
       </Link>
@@ -119,7 +119,7 @@ class Form extends Component {
         <Button
           btnStyle="success"
           size="small"
-          icon="checkmark"
+          icon="checked-1"
           onClick={this.handleSubmit}
         >
           Save

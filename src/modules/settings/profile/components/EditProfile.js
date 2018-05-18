@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Button, ModalTrigger } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
 import { PasswordConfirmation } from './';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   currentUser: PropTypes.object.isRequired,
@@ -51,13 +51,13 @@ class EditProfile extends Component {
 
   render() {
     const saveButton = (
-      <Button btnStyle="success" icon="checkmark">
+      <Button btnStyle="success" icon="checked-1">
         Save
       </Button>
     );
 
     return (
-      <div>
+      <Fragment>
         <UserCommonInfos
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
@@ -68,7 +68,7 @@ class EditProfile extends Component {
             btnStyle="simple"
             type="button"
             onClick={() => this.context.closeModal()}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
@@ -82,7 +82,7 @@ class EditProfile extends Component {
             />
           </ModalTrigger>
         </ModalFooter>
-      </div>
+      </Fragment>
     );
   }
 }

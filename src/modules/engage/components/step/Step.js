@@ -35,7 +35,7 @@ class Step extends Component {
         <Button
           btnStyle="primary"
           size="small"
-          icon="ios-arrow-forward"
+          icon="rightarrow-2"
           onClick={e => save('save', e)}
         >
           Save
@@ -47,7 +47,7 @@ class Step extends Component {
           <Button
             btnStyle="warning"
             size="small"
-            icon="ios-arrow-forward"
+            icon="rightarrow-2"
             onClick={e => save('draft', e)}
           >
             Save & Draft
@@ -55,7 +55,7 @@ class Step extends Component {
           <Button
             btnStyle="primary"
             size="small"
-            icon="ios-arrow-forward"
+            icon="rightarrow-2"
             onClick={e => save('live', e)}
           >
             Save & Live
@@ -67,7 +67,7 @@ class Step extends Component {
       <Button
         btnStyle="primary"
         size="small"
-        icon="ios-arrow-forward"
+        icon="rightarrow-2"
         onClick={() => next(0)}
       >
         Next

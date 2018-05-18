@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'underscore';
 import Sidebar from 'modules/settings/Sidebar';
 import { Button, Pagination } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import { NotificationListRow } from './';
+import { NotificationRow } from './';
 import { NotifList } from './styles';
 
 class NotificationList extends Component {
@@ -21,7 +20,7 @@ class NotificationList extends Component {
 
     const { bulk } = this.state;
 
-    _.each(this.props.notifications, notification => {
+    this.props.notifications.forEach(notification => {
       if (!notification.isRead) {
         bulk.push(notification._id);
       }
@@ -39,7 +38,7 @@ class NotificationList extends Component {
     const content = (
       <NotifList>
         {notifications.map((notif, key) => (
-          <NotificationListRow
+          <NotificationRow
             notification={notif}
             key={key}
             markAsRead={markAsRead}
@@ -54,7 +53,7 @@ class NotificationList extends Component {
           btnStyle="primary"
           size="small"
           onClick={this.markAllRead.bind(this, true)}
-          icon="checkmark"
+          icon="checked-1"
         >
           Mark Page Read
         </Button>
@@ -62,7 +61,7 @@ class NotificationList extends Component {
           btnStyle="success"
           size="small"
           onClick={this.markAllRead.bind(this, false)}
-          icon="checkmark"
+          icon="checked-1"
         >
           Mark All Read
         </Button>

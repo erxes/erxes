@@ -48,7 +48,9 @@ class VisitorForm extends FormBase {
 
   next(stepNumber) {
     const { activeStep, maxStep } = this.state;
+
     this.validate();
+
     if (stepNumber === 0) {
       if (activeStep <= maxStep) {
         this.setState({ activeStep: activeStep + 1 });
@@ -61,6 +63,7 @@ class VisitorForm extends FormBase {
   validate() {
     const step1 = this.state.rules;
     const step2 = this.state.messenger;
+
     let validate = { ...this.state.validate };
 
     validate['step1'] = false;
@@ -113,6 +116,7 @@ class VisitorForm extends FormBase {
       message,
       rules
     } = this.state;
+
     const { __ } = this.context;
     const defaultMessengerValue = { messenger, fromUser, message, rules };
 

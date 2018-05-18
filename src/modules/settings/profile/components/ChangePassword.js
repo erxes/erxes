@@ -6,7 +6,7 @@ import {
   FormControl,
   Button
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   save: PropTypes.func.isRequired
@@ -65,11 +65,15 @@ class ChangePassword extends Component {
           />
         </FormGroup>
         <ModalFooter>
-          <Button btnStyle="simple" onClick={() => closeModal()} icon="close">
+          <Button
+            btnStyle="simple"
+            onClick={() => closeModal()}
+            icon="cancel-1"
+          >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

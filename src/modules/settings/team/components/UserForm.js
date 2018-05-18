@@ -8,7 +8,7 @@ import {
 import Select from 'react-select-plus';
 import { UserCommonInfos } from 'modules/auth/components';
 import { Form as CommonForm } from '../../common/components';
-import { ColumnTitle } from 'modules/common/styles/styles';
+import { ColumnTitle } from 'modules/common/styles/main';
 
 class UserForm extends CommonForm {
   constructor(props, context) {
@@ -19,7 +19,7 @@ class UserForm extends CommonForm {
     this.collectValues = this.collectValues.bind(this);
 
     const user = props.object || { details: {} };
-    const defaultAvatar = '/images/avatar-colored.png';
+    const defaultAvatar = '/images/avatar-colored.svg';
 
     this.state = {
       avatar: user.details.avatar || defaultAvatar,

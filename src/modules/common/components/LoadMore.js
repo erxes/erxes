@@ -8,10 +8,17 @@ const propTypes = {
   history: PropTypes.object.isRequired,
   perPage: PropTypes.number,
   all: PropTypes.number.isRequired,
-  paramName: PropTypes.string
+  paramName: PropTypes.string,
+  loading: PropTypes.bool
 };
 
-function LoadMore({ history, perPage = 20, all, paramName = 'limit' }) {
+function LoadMore({
+  history,
+  perPage = 20,
+  all,
+  paramName = 'limit',
+  loading
+}) {
   const loaded = parseInt(router.getParam(history, paramName), 10) || perPage;
 
   const load = () => {
@@ -20,7 +27,7 @@ function LoadMore({ history, perPage = 20, all, paramName = 'limit' }) {
 
   return loaded < all ? (
     <Button block btnStyle="link" onClick={load}>
-      Load more
+      {loading ? 'Loading...' : 'Load more'}
     </Button>
   ) : null;
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries, mutations } from '../graphql';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
@@ -16,8 +17,9 @@ const CompanyDetailsContainer = (props, context) => {
     fieldsGroupsQuery
   } = props;
 
-  //refetch for display customer change
-  companyDetailQuery.refetch();
+  if (companyDetailQuery.loading) {
+    return <Spinner />;
+  }
 
   const save = (variables, callback) => {
     companiesEdit({ variables: { _id: id, ...variables } })
@@ -29,7 +31,7 @@ const CompanyDetailsContainer = (props, context) => {
       });
   };
 
-  const companyDetail = companyDetailQuery.companyDetail || {};
+  const companyDetail = companyDetailQuery.companyDetail;
 
   const updatedProps = {
     ...props,

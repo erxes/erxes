@@ -11,6 +11,7 @@ import DealRoutes from './deals/routes';
 import ProductService from './productService/routes';
 import General from './general/routes';
 import PropertiesRoutes from './properties/routes';
+import ImportHistory from './importHistory/routes';
 import MainRoutes from './main/routes';
 
 const routes = () => [
@@ -25,7 +26,8 @@ const routes = () => [
   <DealRoutes key="DealRoutes" />,
   <ProductService key="ProductService" />,
   <General key="General" />,
-  <PropertiesRoutes key="PropertiesRoutes" />
+  <PropertiesRoutes key="PropertiesRoutes" />,
+  <ImportHistory key="ImportHistory" />
 ];
 
 const settingsRoute = () => <Route component={routes} />;

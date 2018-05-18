@@ -3,24 +3,26 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Tip } from 'modules/common/components';
 import { UserCounter, Items } from '../';
-import { DealDate, Footer, ItemList, FooterContent } from '../../styles/deal';
+import {
+  DealDate,
+  SpaceContent,
+  ItemList,
+  FooterContent
+} from '../../styles/deal';
+
 import { Amount } from '../../styles/stage';
 
 const propTypes = {
   deal: PropTypes.object.isRequired
 };
 
-class Deal extends React.Component {
+class CommonDeal extends React.Component {
   renderDate(closeDate) {
     if (!closeDate) return null;
 
     return (
       <Tip text={moment(closeDate).format('YYYY-MM-DD')}>
-        <DealDate>
-          {moment(closeDate)
-            .subtract(2, 'minutes')
-            .fromNow()}
-        </DealDate>
+        <DealDate>{moment(closeDate).fromNow()}</DealDate>
       </Tip>
     );
   }
@@ -41,30 +43,33 @@ class Deal extends React.Component {
 
   render() {
     const { deal } = this.props;
-    const products = deal.products.map(p => p.product);
+    const products = (deal.products || []).map(p => p.product);
 
     return (
       <Fragment>
-        <h4>{deal.name}</h4>
-        {this.renderDate(deal.closeDate)}
-        <Footer>
+        <SpaceContent>
+          <h4>{deal.name}</h4>
+          {this.renderDate(deal.closeDate)}
+        </SpaceContent>
+
+        <SpaceContent>
           <FooterContent>
             <ItemList>
-              <Items items={products} />
+              <Items color="#63D2D6" items={products} />
             </ItemList>
             <ItemList>
-              <Items items={deal.customers || []} />
-              <Items uppercase items={deal.companies || []} />
+              <Items color="#F7CE53" items={deal.customers || []} />
+              <Items color="#F7CE53" uppercase items={deal.companies || []} />
             </ItemList>
             {this.renderAmount(deal.amount || {})}
           </FooterContent>
           <UserCounter users={deal.assignedUsers || []} />
-        </Footer>
+        </SpaceContent>
       </Fragment>
     );
   }
 }
 
-Deal.propTypes = propTypes;
+CommonDeal.propTypes = propTypes;
 
-export default Deal;
+export default CommonDeal;

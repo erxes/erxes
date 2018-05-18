@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Wrapper, ActionBar } from 'modules/layout/components';
 import Select from 'react-select-plus';
+import { Wrapper, ActionBar } from 'modules/layout/components';
 import { FormGroup, Button, ControlLabel } from 'modules/common/components';
 import { CURRENCIES, MEASUREMENTS, LANGUAGES } from '../constants';
 import { ContentBox } from '../../styles';
@@ -63,7 +63,7 @@ class List extends Component {
         right={
           <Button.Group>
             <Link to="/settings/">
-              <Button size="small" btnStyle="simple" icon="close">
+              <Button size="small" btnStyle="simple" icon="cancel-1">
                 Cancel
               </Button>
             </Link>
@@ -72,7 +72,7 @@ class List extends Component {
               size="small"
               btnStyle="success"
               onClick={this.save}
-              icon="checkmark"
+              icon="checked-1"
             >
               Save
             </Button>

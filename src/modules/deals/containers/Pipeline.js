@@ -57,12 +57,6 @@ class PipelineContainer extends React.Component {
     }
   }
 
-  getChildContext() {
-    const { pipeline } = this.props;
-
-    return { pipelineId: pipeline._id };
-  }
-
   render() {
     const extendedProps = {
       ...this.props,
@@ -82,9 +76,6 @@ PipelineContainer.propTypes = {
   stagesUpdateOrderMutation: PropTypes.func,
   stagesChangeMutation: PropTypes.func
 };
-PipelineContainer.childContextTypes = {
-  pipelineId: PropTypes.string
-};
 
 const PipelineContainerWithData = compose(
   graphql(gql(mutations.stagesUpdateOrder), {
@@ -100,7 +91,7 @@ class StagesWithPipeline extends React.Component {
     const { stagesQuery } = this.props;
 
     if (stagesQuery.loading) {
-      return <Spinner objective />;
+      return <Spinner />;
     }
 
     const stages = stagesQuery.dealStages;

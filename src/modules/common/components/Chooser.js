@@ -7,8 +7,8 @@ import {
   ModalTrigger,
   EmptyState
 } from 'modules/common/components';
-import { Footer, LoadMore, Title, Columns, Column } from '../styles/chooser';
-import { ModalFooter } from '../styles/styles';
+import { Footer, Title, Columns, Column } from '../styles/chooser';
+import { ModalFooter, CenterContent } from '../styles/main';
 
 const propTypes = {
   data: PropTypes.object.isRequired,
@@ -64,7 +64,7 @@ class CommonChooser extends Component {
   handleChange(type, data) {
     const { datas } = this.state;
 
-    if (type === 'plus') {
+    if (type === 'add') {
       if (this.props.limit && this.props.limit === datas.length) {
         return;
       }
@@ -92,7 +92,7 @@ class CommonChooser extends Component {
   }
 
   renderRow(data, icon) {
-    if (icon === 'plus' && this.state.datas.some(e => e._id === data._id)) {
+    if (icon === 'add' && this.state.datas.some(e => e._id === data._id)) {
       return null;
     }
 
@@ -107,11 +107,13 @@ class CommonChooser extends Component {
   renderSelected(selectedDatas) {
     if (selectedDatas.length) {
       return (
-        <ul>{selectedDatas.map(data => this.renderRow(data, 'close'))}</ul>
+        <ul>
+          {selectedDatas.map(data => this.renderRow(data, 'minus-circle'))}
+        </ul>
       );
     }
 
-    return <EmptyState text="No items added" icon="ios-list-outline" />;
+    return <EmptyState text="No items added" icon="list-2" />;
   }
 
   render() {
@@ -135,18 +137,18 @@ class CommonChooser extends Component {
               onChange={e => this.search(e)}
             />
             <ul>
-              {datas.map(data => this.renderRow(data, 'plus'))}
+              {datas.map(data => this.renderRow(data, 'add'))}
               {this.state.loadmore && (
-                <LoadMore>
+                <CenterContent>
                   <Button
                     size="small"
                     btnStyle="primary"
                     onClick={this.loadMore}
-                    icon="checkmark"
+                    icon="checked-1"
                   >
                     Load More
                   </Button>
-                </LoadMore>
+                </CenterContent>
               )}
             </ul>
           </Column>
@@ -167,14 +169,14 @@ class CommonChooser extends Component {
               <Button
                 btnStyle="simple"
                 onClick={() => this.context.closeModal()}
-                icon="close"
+                icon="cancel-1"
               >
                 Cancel
               </Button>
               <Button
                 btnStyle="success"
                 onClick={this.onSelect}
-                icon="checkmark"
+                icon="checked-1"
               >
                 Select
               </Button>

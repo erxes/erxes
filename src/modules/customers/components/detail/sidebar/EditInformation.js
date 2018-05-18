@@ -5,14 +5,14 @@ import { Sidebar } from 'modules/layout/components';
 import { Button } from 'modules/common/components';
 import { ManageGroups } from 'modules/settings/properties/components';
 import { BasicInfo } from 'modules/customers/containers';
-import { BlockValue } from './styles';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
 import {
   TaggerSection,
   MessengerSection,
   TwitterSection,
-  FacebookSection
+  FacebookSection,
+  BaseSection
 } from './';
 
 const propTypes = {
@@ -34,15 +34,9 @@ class LeftSidebar extends ManageGroups {
       return (
         <li>
           {__(text)}:
-          {nowrap ? (
-            <BlockValue>
-              {value} {secondValue}
-            </BlockValue>
-          ) : (
-            <SidebarCounter>
-              {value} {secondValue}
-            </SidebarCounter>
-          )}
+          <SidebarCounter nowrap={nowrap}>
+            {value} {secondValue}
+          </SidebarCounter>
         </li>
       );
     }
@@ -52,34 +46,39 @@ class LeftSidebar extends ManageGroups {
 
   renderDeviceProperties() {
     const { customer } = this.props;
-    const { Section } = Sidebar;
     const { __ } = this.context;
     const location = customer.location;
 
     if (location) {
       const ua = parse(location.userAgent || ' ');
+      const content = (
+        <SidebarList className="no-link">
+          {this.renderDeviceProperty('Location', location.country)}
+          {this.renderDeviceProperty(
+            'Browser',
+            ua.browser.name,
+            ua.browser.version
+          )}
+          {this.renderDeviceProperty('Platform', ua.os.name, ua.os.version)}
+          {this.renderDeviceProperty('IP Address', location.remoteAddress)}
+          {this.renderDeviceProperty('Hostname', location.hostname)}
+          {this.renderDeviceProperty('Language', location.language)}
+          {this.renderDeviceProperty(
+            'User Agent',
+            location.userAgent,
+            null,
+            true
+          )}
+        </SidebarList>
+      );
+
       return (
-        <Section>
-          <Section.Title>{__('Device properties')}</Section.Title>
-          <SidebarList className="no-link">
-            {this.renderDeviceProperty('Location', location.country)}
-            {this.renderDeviceProperty(
-              'Browser',
-              ua.browser.name,
-              ua.browser.version
-            )}
-            {this.renderDeviceProperty('Platform', ua.os.name, ua.os.version)}
-            {this.renderDeviceProperty('IP Address', location.remoteAddress)}
-            {this.renderDeviceProperty('Hostname', location.hostname)}
-            {this.renderDeviceProperty('Language', location.language)}
-            {this.renderDeviceProperty(
-              'User Agent',
-              location.userAgent,
-              null,
-              true
-            )}
-          </SidebarList>
-        </Section>
+        <BaseSection
+          title={__('Device properties')}
+          content={content}
+          isUseCustomer={true}
+          name="showDeviceProperty"
+        />
       );
     }
 
@@ -88,15 +87,20 @@ class LeftSidebar extends ManageGroups {
 
   renderOtherProperties() {
     const { otherProperties } = this.props;
-    const { Section } = Sidebar;
     const { __ } = this.context;
 
     if (otherProperties) {
+      const content = (
+        <SidebarList className="no-link">{otherProperties}</SidebarList>
+      );
+
       return (
-        <Section>
-          <Section.Title>{__('Other properties')}</Section.Title>
-          <SidebarList className="no-link">{otherProperties}</SidebarList>
-        </Section>
+        <BaseSection
+          title={__('Other properties')}
+          content={content}
+          isUseCustomer={true}
+          name="showOtherProperty"
+        />
       );
     }
 
@@ -114,7 +118,7 @@ class LeftSidebar extends ManageGroups {
           btnStyle="simple"
           size="small"
           onClick={this.cancelEditing}
-          icon="close"
+          icon="cancel-1"
         >
           Discard
         </Button>
@@ -122,7 +126,7 @@ class LeftSidebar extends ManageGroups {
           btnStyle="success"
           size="small"
           onClick={this.save}
-          icon="checkmark"
+          icon="checked-1"
         >
           Save
         </Button>
@@ -132,6 +136,7 @@ class LeftSidebar extends ManageGroups {
 
   render() {
     const { customer, wide, refetch } = this.props;
+    const { kind } = customer.integration || {};
 
     return (
       <Sidebar wide={wide} footer={this.renderSidebarFooter()}>
@@ -141,9 +146,9 @@ class LeftSidebar extends ManageGroups {
         {this.props.sectionBottom && this.props.sectionBottom}
         {this.renderDeviceProperties()}
         {this.renderOtherProperties()}
-        <MessengerSection customer={customer} />
-        <TwitterSection customer={customer} />
-        <FacebookSection customer={customer} />
+        {kind === 'messenger' && <MessengerSection customer={customer} />}
+        {kind === 'twitter' && <TwitterSection customer={customer} />}
+        {kind === 'facebook' && <FacebookSection customer={customer} />}
         <TaggerSection data={customer} type="customer" afterSave={refetch} />
       </Sidebar>
     );

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import { Board } from './containers';
+import queryString from 'query-string';
+import { Home } from './containers';
 
 const routes = () => [
   <Route
@@ -9,7 +10,16 @@ const routes = () => [
     path="/deals"
     render={() => <Redirect to="/deals/board" />}
   />,
-  <Route key="deals/board" exact path="/deals/board" component={Board} />
+  <Route
+    key="deals/board"
+    exact
+    path="/deals/board"
+    component={({ history, location }) => {
+      const queryParams = queryString.parse(location.search);
+
+      return <Home queryParams={queryParams} history={history} />;
+    }}
+  />
 ];
 
 export default routes;

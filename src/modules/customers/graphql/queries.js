@@ -52,7 +52,12 @@ const listParamsDef = `
   $segment: String,
   $tag: String,
   $ids: [String],
-  $searchValue: String
+  $searchValue: String,
+  $brand: String,
+  $integration: String,
+  $form: String,
+  $startDate: String,
+  $endDate: String
 `;
 
 const listParamsValue = `
@@ -61,7 +66,12 @@ const listParamsValue = `
   segment: $segment,
   tag: $tag,
   ids: $ids,
-  searchValue: $searchValue
+  searchValue: $searchValue,
+  brand: $brand,
+  integration: $integration
+  form: $form,
+  startDate: $startDate,
+  endDate: $endDate
 `;
 
 const customers = `
@@ -81,6 +91,12 @@ const customersMain = `
 
       totalCount
     }
+  }
+`;
+
+const customersExport = `
+  query customersExport(${listParamsDef}) {
+    customersExport(${listParamsValue})
   }
 `;
 
@@ -217,6 +233,125 @@ const activityLogsCustomer = `
   }
 `;
 
+const generateCustomerDetailQuery = params => {
+  const {
+    showProfile,
+    showCompany,
+    showDeviceProperty,
+    showMessenger,
+    showFacebook,
+    showTwitter,
+    showOtherProperty,
+    showTags
+  } =
+    params || {};
+
+  let fields = `
+    _id
+    integration {
+      kind
+    }
+  `;
+
+  if (showProfile) {
+    fields = `
+      ${fields}
+      firstName
+      lastName
+      email
+      phone
+      isUser
+      visitorContactInfo
+
+      position
+      department
+      leadStatus
+      lifecycleState
+      hasAuthority
+      description
+      doNotDisturb
+      links {
+        linkedIn
+        twitter
+        facebook
+        github
+        youtube
+        website
+      }
+      owner {
+        details {
+          fullName
+        }
+      }
+    `;
+  }
+
+  if (showCompany) {
+    fields = `
+      ${fields}
+      companies {
+        _id
+        name
+        website
+      }
+    `;
+  }
+
+  if (showMessenger) {
+    fields = `
+      ${fields}
+      messengerData
+    `;
+  }
+
+  if (showFacebook) {
+    fields = `
+      ${fields}
+      facebookData
+    `;
+  }
+
+  if (showTwitter) {
+    fields = `
+      ${fields}
+      twitterData
+    `;
+  }
+
+  if (showDeviceProperty) {
+    fields = `
+      ${fields}
+      location
+    `;
+  }
+
+  if (showOtherProperty) {
+    fields = `
+      ${fields}
+      getMessengerCustomData
+    `;
+  }
+
+  if (showTags) {
+    fields = `
+      ${fields}
+      getTags {
+        _id
+        name
+        colorCode
+      }
+    `;
+  }
+
+  return `
+    query customerDetail($_id: String!) {
+      customerDetail(_id: $_id) {
+        ${fields}
+      }
+    }
+  `;
+};
+
 export default {
   customers,
   customersMain,
@@ -225,5 +360,7 @@ export default {
   brands,
   tags,
   customersListConfig,
-  activityLogsCustomer
+  activityLogsCustomer,
+  generateCustomerDetailQuery,
+  customersExport
 };

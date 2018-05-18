@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
 import {
@@ -11,9 +11,8 @@ import {
   ErxesEditor,
   toHTML,
   createStateFromHTML
-} from 'modules/common/components/Editor';
-import { EditorWrapper } from 'modules/engage/styles';
-import { ModalFooter } from 'modules/common/styles/styles';
+} from 'modules/common/components/editor/Editor';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   article: PropTypes.object,
@@ -97,7 +96,7 @@ class ArticleForm extends Component {
     };
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -119,9 +118,7 @@ class ArticleForm extends Component {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <EditorWrapper>
-            <ErxesEditor {...props} />
-          </EditorWrapper>
+          <ErxesEditor bordered {...props} />
         </FormGroup>
 
         <FormGroup>
@@ -142,7 +139,7 @@ class ArticleForm extends Component {
             ))}
           </FormControl>
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 
@@ -159,12 +156,12 @@ class ArticleForm extends Component {
             btnStyle="simple"
             type="button"
             onClick={onClick}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

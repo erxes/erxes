@@ -1,11 +1,10 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, Component } from 'react';
 import PropTypes from 'prop-types';
-import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
 import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
 import { renderFullName, confirm } from 'modules/common/utils';
-import { Links, InfoWrapper } from 'modules/common/styles/styles';
+import { Links, InfoWrapper } from 'modules/common/styles/main';
 import { CustomerForm } from 'modules/customers/containers';
 import { Action } from 'modules/customers/styles';
 import { DropdownToggle, Button } from 'modules/common/components';
@@ -16,6 +15,7 @@ import {
   CUSTOMER_BASIC_INFO,
   CUSTOMER_DATAS
 } from 'modules/customers/constants';
+import { BaseSection } from './';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -23,7 +23,7 @@ const propTypes = {
   merge: PropTypes.func.isRequired
 };
 
-class BasicInfo extends React.Component {
+class BasicInfo extends Component {
   constructor(props) {
     super(props);
 
@@ -48,12 +48,12 @@ class BasicInfo extends React.Component {
   renderLinks(links) {
     return (
       <Links>
-        {this.renderLink(links.linkedIn, 'social-linkedin')}
-        {this.renderLink(links.twitter, 'social-twitter')}
-        {this.renderLink(links.facebook, 'social-facebook')}
-        {this.renderLink(links.github, 'social-github')}
-        {this.renderLink(links.youtube, 'social-youtube')}
-        {this.renderLink(links.website, 'android-globe')}
+        {this.renderLink(links.facebook, 'facebook')}
+        {this.renderLink(links.twitter, 'twitter')}
+        {this.renderLink(links.linkedIn, 'linkedin-logo')}
+        {this.renderLink(links.youtube, 'youtube')}
+        {this.renderLink(links.github, 'github')}
+        {this.renderLink(links.website, 'earthgrid')}
       </Links>
     );
   }
@@ -77,7 +77,7 @@ class BasicInfo extends React.Component {
       <Action>
         <Dropdown id="dropdown-engage">
           <DropdownToggle bsRole="toggle">
-            <Button btnStyle="simple" size="medium" icon="chevron-down">
+            <Button btnStyle="simple" size="medium" icon="downarrow">
               {__('Action')}
             </Button>
           </DropdownToggle>
@@ -114,7 +114,7 @@ class BasicInfo extends React.Component {
         <InfoWrapper>
           <AvatarWrapper isUser={isUser}>
             <NameCard.Avatar customer={customer} size={50} />
-            {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
+            {isUser ? <Icon icon="check" /> : <Icon icon="minus" />}
           </AvatarWrapper>
 
           <div className="name">
@@ -161,7 +161,16 @@ class BasicInfo extends React.Component {
   }
 
   render() {
-    return <Sidebar.Section>{this.renderInfo()}</Sidebar.Section>;
+    const { __ } = this.context;
+
+    return (
+      <BaseSection
+        title={__('Profile')}
+        content={this.renderInfo()}
+        isUseCustomer={true}
+        name="showProfile"
+      />
+    );
   }
 }
 

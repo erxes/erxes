@@ -3,7 +3,6 @@ import colors from './colors';
 
 const columnSizing = '20px';
 const borderRadius = '2px';
-const borderDarker = '#e6e6e6';
 
 const Columns = styled.div`
   display: flex;
@@ -31,7 +30,7 @@ const Column = styled.div`
       padding: 6px 40px 6px ${columnSizing};
       position: relative;
       margin-bottom: 6px;
-      border: 1px solid ${borderDarker};
+      border: 1px solid ${colors.borderDarker};
       border-radius: ${borderRadius};
       transition: all 0.3s ease;
       text-overflow: ellipsis;
@@ -89,9 +88,9 @@ const Title = styled.h4`
   margin: 0 0 ${columnSizing} 0;
   background: ${colors.bgActive};
   padding: 10px ${columnSizing};
+  white-space: ${props => (props.full ? 'normal' : 'nowrap')};
   font-size: 12px;
   text-transform: uppercase;
-  white-space: ${props => (props.full ? 'normal' : 'nowrap')};
   overflow: hidden;
   text-overflow: ellipsis;
 
@@ -117,9 +116,4 @@ const Footer = styled.div`
   }
 `;
 
-const LoadMore = styled.div`
-  text-align: center;
-  margin-top: 10px;
-`;
-
-export { Columns, Column, Title, Footer, LoadMore };
+export { Columns, Column, Title, Footer };

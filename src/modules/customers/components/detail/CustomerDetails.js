@@ -12,10 +12,11 @@ import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import { renderFullName } from 'modules/common/utils';
-import { DealSection } from 'modules/deals/components';
+import { DealSection } from 'modules/deals/containers';
 import { EditInformation } from '../../containers';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { hasAnyActivity } from '../../utils';
+import { ActivityContent } from 'modules/common/styles/main';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -49,19 +50,13 @@ class CustomerDetails extends React.Component {
       customer
     } = this.props;
 
+    const hasActivity = hasAnyActivity(activityLogsCustomer);
+
     return (
-      <div
-        style={
-          !hasAnyActivity(activityLogsCustomer)
-            ? { position: 'relative', height: '400px' }
-            : {}
-        }
-      >
+      <ActivityContent isEmpty={!hasActivity}>
         <DataWithLoader
           loading={loadingLogs}
-          count={
-            !loadingLogs && hasAnyActivity(activityLogsCustomer) > 0 ? 1 : 0
-          }
+          count={!loadingLogs && hasActivity > 0 ? 1 : 0}
           data={
             <ActivityList
               user={currentUser}
@@ -73,7 +68,7 @@ class CustomerDetails extends React.Component {
           emptyText="No Activities"
           emptyImage="/images/robots/robot-03.svg"
         />
-      </div>
+      </ActivityContent>
     );
   }
 
@@ -92,7 +87,7 @@ class CustomerDetails extends React.Component {
         <WhiteBoxRoot>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> {__('New note')}
+              <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
           </Tabs>
 
@@ -127,7 +122,7 @@ class CustomerDetails extends React.Component {
     const rightSidebar = (
       <Sidebar>
         <CompanyAssociate data={customer} />
-        <DealSection deals={customer.deals || []} />
+        <DealSection customerId={customer._id} />
       </Sidebar>
     );
 

@@ -13,8 +13,9 @@ import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
 import { CustomerAssociate } from 'modules/customers/containers';
-import { DealSection } from 'modules/deals/components';
+import { DealSection } from 'modules/deals/containers';
 import { hasAnyActivity } from 'modules/customers/utils';
+import { ActivityContent } from 'modules/common/styles/main';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -47,18 +48,13 @@ class CompanyDetails extends React.Component {
       company,
       loadingLogs
     } = this.props;
+    const hasActivity = hasAnyActivity(companyActivityLog);
 
     return (
-      <div
-        style={
-          !hasAnyActivity(companyActivityLog)
-            ? { position: 'relative', height: '400px' }
-            : {}
-        }
-      >
+      <ActivityContent isEmpty={!hasActivity}>
         <DataWithLoader
           loading={loadingLogs}
-          count={!loadingLogs && hasAnyActivity(companyActivityLog) ? 1 : 0}
+          count={!loadingLogs && hasActivity ? 1 : 0}
           data={
             <ActivityList
               user={currentUser}
@@ -70,7 +66,7 @@ class CompanyDetails extends React.Component {
           emptyText="No Activities"
           emptyImage="/images/robots/robot-03.svg"
         />
-      </div>
+      </ActivityContent>
     );
   }
 
@@ -87,7 +83,7 @@ class CompanyDetails extends React.Component {
     const rightSidebar = (
       <Sidebar>
         <CustomerAssociate data={company} />
-        <DealSection deals={company.deals || []} />
+        <DealSection companyId={company._id} />
       </Sidebar>
     );
 
@@ -96,7 +92,7 @@ class CompanyDetails extends React.Component {
         <WhiteBox>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> {__('New note')}
+              <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
           </Tabs>
 

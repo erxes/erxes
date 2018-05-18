@@ -16,11 +16,11 @@ const Item = styled.li`
   }
 
   & + li::before {
-    content: '\f3d3';
-    font-family: 'Ionicons';
+    content: '\\e810';
+    font-family: 'erxes';
     padding: 0 ${dimensions.unitSpacing}px;
     color: ${rgba(colors.colorCoreDarkGray, 0.7)};
-    font-size: 11px;
+    font-size: 8px;
   }
 `;
 

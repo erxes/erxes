@@ -2,29 +2,8 @@ import styled, { css } from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { stageWidth, stageHeight, borderRadius } from './deminsions';
 
-const Wrapper = styled.div`
-  display: flex;
-  border-right: 1px solid ${colors.borderPrimary};
-  flex-direction: column;
-  width: ${stageWidth}px;
-  max-height: ${stageHeight};
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  transition: background-color 0.3s ease;
-  height: 100%;
-  ${props => css`
-    background: ${props.isDragging ? colors.colorWhite : 'none'};
-    box-shadow: ${props.isDragging
-      ? `0 0 20px 2px rgba(0, 0, 0, 0.14)`
-      : 'none'};
-  `};
-`;
-
 const Header = styled.div`
-  padding: 10px 20px;
+  padding: 10px 20px 10px 21px;
   border-bottom: 1px solid ${colors.borderPrimary};
   position: relative;
 
@@ -55,7 +34,7 @@ const Header = styled.div`
 
   h3 {
     margin: 0;
-    font-size: 12px;
+    font-size: 11px;
     line-height: inherit;
     text-transform: uppercase;
     font-weight: bold;
@@ -64,6 +43,29 @@ const Header = styled.div`
       color: ${colors.colorCoreGray};
       margin-left: 5px;
       font-size: 90%;
+    }
+  }
+`;
+
+const Container = styled.div`
+  display: flex;
+  border-right: 1px solid ${colors.borderPrimary};
+  border-left: 1px solid ${colors.borderPrimary};
+  margin-left: -1px;
+  flex-direction: column;
+  width: ${stageWidth}px;
+  max-height: ${stageHeight};
+  transition: background-color 0.3s ease;
+  ${props => css`
+    background: ${props.isDragging ? colors.colorWhite : 'none'};
+    box-shadow: ${props.isDragging
+      ? `0 0 20px 2px rgba(0, 0, 0, 0.14)`
+      : 'none'};
+  `};
+
+  &:last-of-type {
+    ${Header}:before, ${Header}:after {
+      border: none;
     }
   }
 `;
@@ -96,7 +98,7 @@ const Amount = styled.ul`
 `;
 
 const Body = styled.div`
-  padding: 10px;
+  padding: 10px 10px 10px 11px;
   height: 100%;
   overflow: auto;
   background: ${colors.bgLight};
@@ -131,16 +133,7 @@ const IndicatorItem = styled.div`
   background: ${props =>
     props.isPass ? colors.colorSecondary : colors.colorShadowGray};
   height: 4px;
-  border-radius: 10px;
+  border-radius: 2px;
 `;
 
-export {
-  Wrapper,
-  Container,
-  Header,
-  Amount,
-  Body,
-  DropZone,
-  Indicator,
-  IndicatorItem
-};
+export { Container, Header, Amount, Body, DropZone, Indicator, IndicatorItem };

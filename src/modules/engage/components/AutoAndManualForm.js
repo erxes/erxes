@@ -58,6 +58,7 @@ class AutoAndManualForm extends FormBase {
 
   validate() {
     const step3 = this.state[this.state.method];
+
     let validate = { ...this.state.validate };
     validate['step2'] = false;
     validate['step3'] = false;
@@ -131,6 +132,7 @@ class AutoAndManualForm extends FormBase {
       fromUser,
       message
     } = this.state;
+
     const defaultMessageStepValue = { messenger, email, fromUser, message };
     const { __ } = this.context;
 

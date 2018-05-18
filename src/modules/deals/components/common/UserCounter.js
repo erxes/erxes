@@ -8,6 +8,10 @@ const propTypes = {
   users: PropTypes.array
 };
 
+const defaultProps = {
+  users: []
+};
+
 const UserCounterContainer = styled.ul`
   margin-bottom: 0;
   list-style: none;
@@ -90,5 +94,6 @@ class UserCounter extends React.Component {
 }
 
 UserCounter.propTypes = propTypes;
+UserCounter.defaultProps = defaultProps;
 
 export default UserCounter;

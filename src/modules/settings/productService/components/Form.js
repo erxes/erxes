@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import {
@@ -32,9 +32,7 @@ class Form extends Component {
   onChangeInput(e) {
     const { name, value } = e.target;
 
-    this.setState({
-      [name]: value
-    });
+    this.setState({ [name]: value });
   }
 
   save(e) {
@@ -51,7 +49,7 @@ class Form extends Component {
     const types = TYPES.ALL;
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -103,7 +101,7 @@ class Form extends Component {
             onChange={this.onChangeInput}
           />
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 
@@ -116,12 +114,12 @@ class Form extends Component {
           <Button
             btnStyle="simple"
             onClick={() => this.context.closeModal()}
-            icon="close"
+            icon="cancel-1"
           >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </Modal.Footer>

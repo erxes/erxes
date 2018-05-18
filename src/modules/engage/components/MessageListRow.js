@@ -34,6 +34,7 @@ class Row extends React.Component {
 
   renderLink(text, className, onClick) {
     const { __ } = this.context;
+
     return (
       <Tip text={__(text)} key={`${text}-${this.props.message._id}`}>
         <Button btnStyle="link" onClick={onClick} icon={className} />
@@ -45,11 +46,7 @@ class Row extends React.Component {
     const msg = this.props.message;
     const edit = this.renderLink('Edit', 'edit', this.props.edit);
     const pause = this.renderLink('Pause', 'pause', this.props.setPause);
-    const live = this.renderLink(
-      'Set live',
-      'paper-airplane',
-      this.props.setLive
-    );
+    const live = this.renderLink('Set live', 'play', this.props.setLive);
 
     if (msg.kind !== MESSAGE_KINDS.MANUAL) {
       if (msg.isDraft) {
@@ -64,21 +61,17 @@ class Row extends React.Component {
     }
 
     if (msg.isDraft) {
-      return this.renderLink(
-        'Set live',
-        'paper-airplane',
-        this.props.setLiveManual
-      );
+      return this.renderLink('Set live', 'play', this.props.setLiveManual);
     }
   }
 
   renderRemoveButton(message, onClick) {
     const { __ } = this.context;
 
-    if (message.kind === 'auto') {
+    if (message.kind.toLowerCase().includes('auto')) {
       return (
         <Tip text={__('Delete')}>
-          <Button btnStyle="link" onClick={onClick} icon="close" />
+          <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
         </Tip>
       );
     }
@@ -94,16 +87,17 @@ class Row extends React.Component {
     if (message.segment) {
       return (
         <HelperText>
-          <Icon icon="pie-graph" /> {message.segment.name}
+          <Icon icon="piechart" /> {message.segment.name}
         </HelperText>
       );
     }
+
     const messenger = message.messenger || {};
     const rules = messenger.rules || [];
 
     return rules.map(rule => (
       <HelperText key={rule._id}>
-        <Icon icon="pie-graph" /> {rule.text} {rule.condition} {rule.value}
+        <Icon icon="piechart" /> {rule.text} {rule.condition} {rule.value}
       </HelperText>
     ));
   }
@@ -169,11 +163,11 @@ class Row extends React.Component {
         <td>
           {message.email ? (
             <div>
-              <Icon icon="email" /> {__('Email')}
+              <Icon icon="email-3" /> {__('Email')}
             </div>
           ) : (
             <div>
-              <Icon icon="chatbox" /> {__('Messenger')}
+              <Icon icon="chat" /> {__('Messenger')}
             </div>
           )}
         </td>

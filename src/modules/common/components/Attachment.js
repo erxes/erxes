@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, ImageWithPreview } from 'modules/common/components';
 
+const sizing = 30;
+
 const Overlay = styled.a`
   opacity: 0;
   width: 100%;
@@ -17,11 +19,11 @@ const Overlay = styled.a`
   > div {
     position: absolute;
     color: #fff;
-    width: 30px;
-    height: 30px;
+    width: ${sizing}px;
+    height: ${sizing}px;
     text-align: center;
-    border-radius: 15px;
-    line-height: 28px;
+    border-radius: ${sizing / 2}px;
+    line-height: ${sizing - 2}pxpx;
     left: 50%;
     top: 50%;
     border: 1px solid #fff;
@@ -95,7 +97,7 @@ class Attachment extends Component {
         </FileWrapper>
         <Overlay key="overlay" href={this.props.attachment.url} target="_blank">
           <div>
-            <Icon icon="android-download" />
+            <Icon icon="download" />
           </div>
         </Overlay>
       </Fragment>
@@ -138,7 +140,7 @@ class Attachment extends Component {
       case 'xlsx':
       case 'ppt':
       case 'pptx':
-        filePreview = this.renderOtherFile(name, 'document-text');
+        filePreview = this.renderOtherFile(name, 'file');
         break;
       case 'mp4':
       case 'avi':
@@ -146,13 +148,13 @@ class Attachment extends Component {
         break;
       case 'mp3':
       case 'wav':
-        filePreview = this.renderOtherFile(name, 'volume-mediu');
+        filePreview = this.renderOtherFile(name, 'music');
         break;
       case 'zip':
-        filePreview = this.renderOtherFile(name, 'android-archive');
+        filePreview = this.renderOtherFile(name, 'cube');
         break;
       default:
-        filePreview = this.renderOtherFile(name, 'document');
+        filePreview = this.renderOtherFile(name, 'clipboard-1');
     }
     return filePreview;
   }

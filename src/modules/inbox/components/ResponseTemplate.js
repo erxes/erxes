@@ -1,10 +1,7 @@
-/* eslint-disable no-underscore-dangle, react/no-string-refs,
-  jsx-a11y/no-static-element-interactions, react/no-multi-comp,
-  react/forbid-prop-types */
+/* eslint-disable react/no-string-refs */
 
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import _ from 'underscore';
 import strip from 'strip';
 import PropTypes from 'prop-types';
 import { Popover, OverlayTrigger } from 'react-bootstrap';
@@ -86,7 +83,7 @@ class ResponseTemplate extends Component {
     const responseTemplates = this.props.responseTemplates;
 
     // find response template using event key
-    const responseTemplate = _.find(responseTemplates, t => t._id === eventKey);
+    const responseTemplate = responseTemplates.find(t => t._id === eventKey);
 
     // hide selector
     this.refs.overlay.hide();
@@ -100,8 +97,7 @@ class ResponseTemplate extends Component {
   }
 
   filterByBrand(brandId) {
-    return _.filter(
-      this.props.responseTemplates,
+    return this.props.responseTemplates.filter(
       option => option.brandId === brandId
     );
   }
@@ -114,7 +110,7 @@ class ResponseTemplate extends Component {
     const { options, key } = this.state;
 
     if (options.length === 0) {
-      return <EmptyState icon="clipboard" text="No templates" size="full" />;
+      return <EmptyState icon="clipboard-1" text="No templates" />;
     }
 
     return options.map(item => {
@@ -143,7 +139,7 @@ class ResponseTemplate extends Component {
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
         <Tip text={__('Save as template')}>
-          <Icon icon="log-in" size={17} />
+          <Icon icon="download-3" />
         </Tip>
       </Button>
     );
@@ -159,7 +155,7 @@ class ResponseTemplate extends Component {
             <InlineColumn>
               <FormControl
                 type="text"
-                placeholder={__('Search...')}
+                placeholder={__('Search')}
                 onChange={this.filterItems}
                 autoFocus
               />
@@ -207,7 +203,7 @@ class ResponseTemplate extends Component {
         >
           <Button btnStyle="link">
             <Tip text={__('Response template')}>
-              <Icon icon="clipboard" size={17} />
+              <Icon icon="clipboard-1" />
             </Tip>
           </Button>
         </OverlayTrigger>

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
@@ -17,7 +17,7 @@ import {
   ColorPicker
 } from 'modules/settings/styles';
 import SelectBrand from '../SelectBrand';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   topic: PropTypes.object,
@@ -117,12 +117,12 @@ class KnowledgeForm extends Component {
                 text={this.state.code}
                 onCopy={() => this.setState({ copied: true })}
               >
-                <Button size="small" btnStyle="primary" icon="ios-copy-outline">
+                <Button size="small" btnStyle="primary" icon="copy">
                   {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                 </Button>
               </CopyToClipboard>
             ) : (
-              <EmptyState icon="code" text="No copyable code" size="small" />
+              <EmptyState icon="copy" text="No copyable code" size="small" />
             )}
           </MarkdownWrapper>
         </FormGroup>
@@ -169,7 +169,7 @@ class KnowledgeForm extends Component {
     );
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -198,20 +198,6 @@ class KnowledgeForm extends Component {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Language</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            defaultValue={topic.languageCode || 'en'}
-            id="languageCode"
-          >
-            <option />
-            <option value="mn">Монгол</option>
-            <option value="en">English</option>
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
           <ControlLabel>Choose a custom color</ControlLabel>
           <div>
             <OverlayTrigger
@@ -229,8 +215,23 @@ class KnowledgeForm extends Component {
             </OverlayTrigger>
           </div>
         </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Language</ControlLabel>
+
+          <FormControl
+            componentClass="select"
+            defaultValue={topic.languageCode || 'en'}
+            id="languageCode"
+          >
+            <option />
+            <option value="mn">Монгол</option>
+            <option value="en">English</option>
+          </FormControl>
+        </FormGroup>
+
         {this.renderInstallCode()}
-      </div>
+      </Fragment>
     );
   }
 
@@ -249,7 +250,7 @@ class KnowledgeForm extends Component {
             btnStyle="simple"
             type="button"
             onClick={onClick}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
@@ -258,12 +259,12 @@ class KnowledgeForm extends Component {
               btnStyle="danger"
               type="button"
               onClick={this.remove}
-              icon="close"
+              icon="cancel-1"
             >
               Delete
             </Button>
           )}
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

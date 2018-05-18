@@ -61,7 +61,7 @@ class List extends Component {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+        <Button btnStyle="simple" size="small" icon="downarrow">
           Tag
         </Button>
       );
@@ -80,7 +80,7 @@ class List extends Component {
 
     const actionBarRight = (
       <Link to="/forms/create">
-        <Button btnStyle="success" size="small" icon="plus">
+        <Button btnStyle="success" size="small" icon="add">
           Create form
         </Button>
       </Link>

@@ -12,7 +12,7 @@ import {
   FormWrapper,
   FormColumn,
   ColumnTitle
-} from 'modules/common/styles/styles';
+} from 'modules/common/styles/main';
 import { searchUser } from 'modules/common/utils';
 import {
   CUSTOMER_LEAD_STATUS_TYPES,
@@ -44,6 +44,13 @@ class CustomerForm extends React.Component {
     this.renderFormGroup = this.renderFormGroup.bind(this);
     this.action = this.action.bind(this);
     this.handleUserSearch = this.handleUserSearch.bind(this);
+  }
+
+  componentDidMount() {
+    const { customer } = this.props;
+
+    if (customer.ownerId)
+      this.handleUserSearch(customer.owner.details.fullName);
   }
 
   action(e) {
@@ -138,7 +145,7 @@ class CustomerForm extends React.Component {
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
               <Select
-                placeholder="Search..."
+                placeholder={__('Search')}
                 onFocus={() => users.length < 1 && this.handleUserSearch('')}
                 onInputChange={this.handleUserSearch}
                 onChange={selectedOption => {
@@ -268,11 +275,15 @@ class CustomerForm extends React.Component {
         </FormWrapper>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={() => closeModal()} icon="close">
+          <Button
+            btnStyle="simple"
+            onClick={() => closeModal()}
+            icon="cancel-1"
+          >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

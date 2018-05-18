@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'underscore';
 import { toggleCheckBoxes } from 'modules/common/utils';
 
 export default class Bulk extends React.Component {
@@ -20,7 +19,7 @@ export default class Bulk extends React.Component {
     let { bulk } = this.state;
 
     // remove old entry
-    bulk = _.without(bulk, _.findWhere(bulk, { _id: conv._id }));
+    bulk = bulk.filter(el => el._id !== conv._id);
 
     if (toAdd) {
       bulk.push(conv);

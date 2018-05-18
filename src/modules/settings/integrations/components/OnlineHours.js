@@ -8,7 +8,7 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import { FlexRow } from '../../styles';
+import { FlexRow } from '../styles';
 
 class OnlineHours extends Component {
   constructor(props) {
@@ -36,7 +36,7 @@ class OnlineHours extends Component {
   }
 
   addTime() {
-    const onlineHours = this.state.onlineHours;
+    const onlineHours = this.state.onlineHours.slice();
 
     onlineHours.push({
       _id: Math.random().toString(),
@@ -106,8 +106,8 @@ class OnlineHours extends Component {
           clearable={false}
         />
 
-        <Button className="shrinked" btnStyle="link" onClick={remove}>
-          <Icon icon="close" />
+        <Button size="small" btnStyle="danger" onClick={remove}>
+          <Icon icon="cancel-1" />
         </Button>
       </FlexRow>
     );
@@ -121,11 +121,13 @@ class OnlineHours extends Component {
         {this.state.onlineHours.map(onlineHour =>
           this.renderOnlineHour(onlineHour)
         )}
+
+        <br />
         <Button
-          className="shrinked"
-          btnStyle="link"
+          btnStyle="success"
+          size="small"
           onClick={this.addTime}
-          icon="plus"
+          icon="add"
         >
           Add another time
         </Button>

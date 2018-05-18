@@ -6,7 +6,8 @@ import Message from '../Message';
 
 const propTypes = {
   conversation: PropTypes.object,
-  scrollBottom: PropTypes.func.isRequired
+  scrollBottom: PropTypes.func.isRequired,
+  conversationMessages: PropTypes.array
 };
 
 const List = styled.ul`
@@ -82,7 +83,7 @@ class TwitterConversation extends Component {
   }
 
   render() {
-    const { conversation } = this.props;
+    const { conversation, conversationMessages } = this.props;
     const integration = conversation.integration;
     const integrationId = integration && conversation.integration._id;
 
@@ -90,7 +91,7 @@ class TwitterConversation extends Component {
       return null;
     }
 
-    const messages = conversation.messages || [];
+    const messages = conversationMessages || [];
     const nestedMessages = this.renderMessages(messages, null);
 
     return (

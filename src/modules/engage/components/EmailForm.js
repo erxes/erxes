@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import {
@@ -8,15 +9,20 @@ import {
 } from 'modules/common/components';
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import Editor from './Editor';
-import { EditorWrapper } from '../styles';
 import { FlexItem, Divider, FlexPad } from './step/style';
-import styled from 'styled-components';
 
 const PreviewContainer = styled.div`
   margin: 20px;
   height: 100%;
   p {
     padding: 20px;
+  }
+`;
+
+const EmailContent = styled.div`
+  p {
+    padding: 0px;
+    margin: 0px;
   }
 `;
 
@@ -59,10 +65,10 @@ class EmailForm extends Component {
   }
 
   changeContent(key, value) {
-    let email = {
-      ...this.state.email
-    };
+    let email = { ...this.state.email };
+
     email[key] = value;
+
     this.setState({ email });
     this.props.changeEmail('email', email);
   }
@@ -92,11 +98,11 @@ class EmailForm extends Component {
     const contentContainer = document.getElementsByClassName(
       EMAIL_CONTENT_CLASS
     );
-    // render editor to content
 
+    // render editor to content
     if (contentContainer.length > 0) {
       ReactDom.render(
-        <div
+        <EmailContent
           dangerouslySetInnerHTML={{
             __html: this.props.defaultValue.message
           }}
@@ -116,6 +122,7 @@ class EmailForm extends Component {
         />
       );
     }
+
     return null;
   }
 
@@ -125,12 +132,10 @@ class EmailForm extends Component {
         <FlexPad direction="column" overflow="auto">
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
-            <EditorWrapper>
-              <Editor
-                onChange={this.props.changeEmail}
-                defaultValue={this.state.message}
-              />
-            </EditorWrapper>
+            <Editor
+              onChange={this.props.changeEmail}
+              defaultValue={this.state.message}
+            />
           </FormGroup>
           <FormGroup>
             <ControlLabel>From:</ControlLabel>

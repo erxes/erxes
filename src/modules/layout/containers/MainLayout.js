@@ -1,14 +1,10 @@
 import moment from 'moment';
+import T from 'i18n-react';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { injectIntl, IntlProvider, addLocaleData } from 'react-intl';
 import { withCurrentUser } from 'modules/auth/containers';
 import { MainLayout } from '../components';
 import translations from '../../../locales';
-import en from 'react-intl/locale-data/en';
-import mn from 'react-intl/locale-data/mn';
-
-addLocaleData([...en, ...mn]);
 
 moment.defineLocale('mn', {
   relativeTime: {
@@ -46,18 +42,10 @@ moment.updateLocale('en', {
   }
 });
 
-// load translation messages
-const messages = {
-  ...translations
-};
-
 class TranslationWrapper extends React.Component {
   getChildContext() {
-    const { intl } = this.props;
-    const { formatMessage } = intl;
-
     return {
-      __: msg => formatMessage({ id: msg })
+      __: msg => T.translate(msg)
     };
   }
 
@@ -68,7 +56,6 @@ class TranslationWrapper extends React.Component {
 }
 
 TranslationWrapper.propTypes = {
-  intl: PropTypes.object,
   children: PropTypes.object
 };
 
@@ -76,15 +63,12 @@ TranslationWrapper.childContextTypes = {
   __: PropTypes.func
 };
 
-const InjectedComponent = injectIntl(TranslationWrapper);
-
 class MainLayoutContainer extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      currentLanguage: 'en',
-      messages: messages['en']
+      currentLanguage: 'en'
     };
 
     this.changeLanguage = this.changeLanguage.bind(this);
@@ -108,21 +92,16 @@ class MainLayoutContainer extends React.Component {
 
     moment.locale(currentLanguage);
 
-    this.setState({
-      currentLanguage,
-      messages: messages[currentLanguage]
-    });
+    T.setTexts(translations[currentLanguage]);
+
+    this.setState({ currentLanguage });
   }
 
   render() {
-    const { currentLanguage, messages } = this.state;
-
     return (
-      <IntlProvider locale={currentLanguage} messages={messages}>
-        <InjectedComponent>
-          <MainLayout {...this.props} />
-        </InjectedComponent>
-      </IntlProvider>
+      <TranslationWrapper>
+        <MainLayout {...this.props} />
+      </TranslationWrapper>
     );
   }
 }

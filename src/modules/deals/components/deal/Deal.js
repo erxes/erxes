@@ -2,56 +2,70 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
 import { ModalTrigger } from 'modules/common/components';
-import { DealForm } from '../../containers';
+import { DealEditForm } from '../../containers';
 import { CommonDeal } from '../';
-import { Container, ContainerHover } from '../../styles/deal';
+import { Container } from '../../styles/deal';
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired,
-  saveDeal: PropTypes.func.isRequired,
-  removeDeal: PropTypes.func.isRequired,
-  moveDeal: PropTypes.func.isRequired
+  saveDeal: PropTypes.func,
+  index: PropTypes.number,
+  removeDeal: PropTypes.func,
+  draggable: PropTypes.bool
 };
 
 class Deal extends React.Component {
-  showEditForm() {
-    const { deal, saveDeal, removeDeal, moveDeal } = this.props;
+  showEditForm(trigger) {
+    const { deal, index, saveDeal, removeDeal } = this.props;
 
     return (
-      <ModalTrigger title="Edit deal" trigger={<ContainerHover />} size="lg">
-        <DealForm
+      <ModalTrigger title="Edit deal" trigger={trigger} size="lg">
+        <DealEditForm
           deal={deal}
           saveDeal={saveDeal}
-          moveDeal={moveDeal}
           removeDeal={removeDeal}
+          index={index}
         />
       </ModalTrigger>
     );
   }
 
-  render() {
-    const { deal, index } = this.props;
+  renderContent() {
+    const { draggable, index, deal } = this.props;
+
+    if (draggable) {
+      return (
+        <div>
+          <Draggable draggableId={deal._id} index={index}>
+            {(provided, snapshot) => (
+              <Fragment>
+                <Container
+                  innerRef={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  isDragging={snapshot.isDragging}
+                >
+                  <CommonDeal deal={deal} />
+                </Container>
+                {provided.placeholder}
+              </Fragment>
+            )}
+          </Draggable>
+        </div>
+      );
+    }
 
     return (
-      <Draggable draggableId={deal._id} index={index}>
-        {(provided, snapshot) => (
-          <Fragment>
-            <Container
-              innerRef={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-              isDragging={snapshot.isDragging}
-            >
-              <CommonDeal deal={deal} />
-
-              {this.showEditForm()}
-            </Container>
-            {provided.placeholder}
-          </Fragment>
-        )}
-      </Draggable>
+      <Container>
+        <CommonDeal deal={deal} />
+      </Container>
     );
+  }
+
+  render() {
+    const content = this.renderContent();
+
+    return this.showEditForm(content);
   }
 }
 

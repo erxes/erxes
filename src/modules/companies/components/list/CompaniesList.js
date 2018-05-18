@@ -138,7 +138,7 @@ class CompaniesList extends React.Component {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         Add company
       </Button>
     );
@@ -159,7 +159,7 @@ class CompaniesList extends React.Component {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+        <Button btnStyle="simple" size="small" icon="downarrow">
           Tag
         </Button>
       );
@@ -190,7 +190,7 @@ class CompaniesList extends React.Component {
           <Button
             btnStyle="danger"
             size="small"
-            icon="close"
+            icon="cancel-1"
             onClick={() =>
               confirm().then(() => {
                 this.removeCompanies(bulk);

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
-import { BoxRoot, FullContent } from 'modules/common/styles/styles';
+import { BoxRoot, FullContent } from 'modules/common/styles/main';
 import { colors } from 'modules/common/styles';
 
 const boxSize = 320;

@@ -1,3 +1,5 @@
+import messageFields from './messageFields';
+
 const conversationMessageAdd = `
   mutation conversationMessageAdd(
     $conversationId: String!,
@@ -17,8 +19,7 @@ const conversationMessageAdd = `
       tweetReplyToId: $tweetReplyToId,
       tweetReplyToScreenName: $tweetReplyToScreenName
     ) {
-      _id
-      content
+      ${messageFields}
     }
   }
 `;

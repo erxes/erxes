@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StagesContainer } from '../styles';
 import { Button, SortableList } from 'modules/common/components';
 import StageItem from './StageItem';
+import { StageList } from '../styles';
 
 const propTypes = {
   onChangeStages: PropTypes.func.isRequired,
@@ -13,39 +13,45 @@ class Stages extends Component {
   constructor(props) {
     super(props);
 
+    this.onChange = this.onChange.bind(this);
     this.add = this.add.bind(this);
     this.remove = this.remove.bind(this);
-    this.onChange = this.onChange.bind(this);
     this.onStageInputKeyPress = this.onStageInputKeyPress.bind(this);
   }
 
+  componentDidMount() {
+    if (this.props.stages.length === 0) {
+      this.add();
+    }
+  }
+
   onChange(_id, e) {
-    const { stages } = this.props;
-    const type = e.target.name;
+    const { name, value } = e.target;
+    const { stages, onChangeStages } = this.props;
 
     const stage = stages.find(s => s._id === _id);
-    stage[type] = e.target.value;
+    stage[name] = value;
 
-    this.props.onChangeStages(stages);
+    onChangeStages(stages);
   }
 
   add() {
-    const { stages } = this.props;
+    const { stages, onChangeStages } = this.props;
 
     stages.push({
       _id: Math.random(),
       name: ''
     });
 
-    this.props.onChangeStages(stages);
+    onChangeStages(stages);
   }
 
   remove(_id) {
-    const { stages } = this.props;
+    const { stages, onChangeStages } = this.props;
 
     const remainedStages = stages.filter(stage => stage._id !== _id);
 
-    this.props.onChangeStages(remainedStages);
+    onChangeStages(remainedStages);
   }
 
   onStageInputKeyPress(e) {
@@ -66,18 +72,17 @@ class Stages extends Component {
     );
 
     return (
-      <StagesContainer>
+      <StageList>
         <SortableList
           fields={this.props.stages}
           child={child}
-          lockAxis="y"
-          useDragHandle
           onChangeFields={this.props.onChangeStages}
+          isModal={true}
         />
-        <Button onClick={this.add} btnStyle="success" size="small" icon="plus">
+        <Button onClick={this.add} btnStyle="success" size="small" icon="add">
           Add stage
         </Button>
-      </StagesContainer>
+      </StageList>
     );
   }
 }

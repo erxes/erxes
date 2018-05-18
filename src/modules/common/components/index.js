@@ -22,13 +22,13 @@ import Tags from './Tags';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
 import ConversationList from './conversationList/ConversationList';
-import { FormControl, ControlLabel, FormGroup } from './form';
+import { FormControl, ControlLabel, FormGroup, Textarea } from './form';
 import { Step, Steps } from './step';
 import TextDivider from './TextDivider';
 import CountsByTag from './CountsByTag';
 import FilterByParams from './FilterByParams';
 import Table from './table';
-import Editor from './Editor';
+import Editor from './editor/Editor';
 import { Tabs, TabList, TabTitle } from './tabs';
 import ConfirmDialog from './ConfirmDialog';
 import DataWithLoader from './DataWithLoader';
@@ -36,6 +36,7 @@ import SortableList from './SortableList';
 import ImageWithPreview from './ImageWithPreview';
 import IntegrationIcon from './IntegrationIcon';
 import Chooser from './Chooser';
+import DateFilter from './DateFilter';
 
 // TODO remove
 const pagination = {};
@@ -69,6 +70,7 @@ export {
   FilterableList,
   DropdownToggle,
   FormControl,
+  Textarea,
   ControlLabel,
   FormGroup,
   Step,
@@ -84,5 +86,6 @@ export {
   SortableList,
   ImageWithPreview,
   IntegrationIcon,
-  Chooser
+  Chooser,
+  DateFilter
 };

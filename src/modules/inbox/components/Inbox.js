@@ -6,16 +6,12 @@ import {
   Label,
   Icon,
   TaggerPopover,
-  Tags,
-  Spinner
+  Tags
 } from 'modules/common/components';
-import { LeftSidebar, RespondBox, Resolver } from '../containers';
+import { LeftSidebar, RightSidebar, RespondBox, Resolver } from '../containers';
 import { AssignBoxPopover, Participators, Conversation } from './';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
-import { BarItems, SidebarCounter } from 'modules/layout/styles';
-import ConversationDetails from './sidebar/ConversationDetails';
-import { EditInformation } from 'modules/customers/containers';
-import { CompanyAssociate } from 'modules/companies/containers';
+import { BarItems } from 'modules/layout/styles';
 
 import {
   PopoverButton,
@@ -29,9 +25,7 @@ class Inbox extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      attachmentPreview: {}
-    };
+    this.state = { attachmentPreview: {} };
 
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
@@ -41,13 +35,11 @@ class Inbox extends Component {
     this.scrollBottom();
   }
 
-  componentDidUpdate(prevProps) {
-    const { currentConversation } = this.props;
-    const prevConversation = prevProps.currentConversation;
-    if (
-      currentConversation.messageCount !== prevConversation.messageCount ||
-      currentConversation._id !== prevConversation._id
-    ) {
+  componentDidUpdate() {
+    const twitterData = this.props.currentConversation.twitterData;
+    const isTweet = twitterData && !twitterData.isDirectMessage;
+
+    if (!isTweet) {
       this.scrollBottom();
     }
   }
@@ -60,58 +52,16 @@ class Inbox extends Component {
     this.setState({ attachmentPreview });
   }
 
-  renderMessengerData() {
-    const conversation = this.props.currentConversation;
-    const customer = conversation.customer || {};
-    const integration = conversation.integration || {};
-    const customData = customer.getMessengerCustomData;
-
-    if (integration.kind === 'messenger' && customData.length) {
-      return customData.map(data => (
-        <li key={data.value}>
-          {data.name}
-          <SidebarCounter>{data.value}</SidebarCounter>
-        </li>
-      ));
-    }
-
-    return null;
-  }
-
-  renderRightSidebar(currentConversation) {
-    if (currentConversation._id) {
-      const customer = currentConversation.customer || {};
-
-      return (
-        <EditInformation
-          conversation={currentConversation}
-          sectionTop={
-            <ConversationDetails conversation={currentConversation} />
-          }
-          sectionBottom={<CompanyAssociate data={customer} />}
-          customer={customer}
-          refetch={this.props.refetch}
-          otherProperties={this.renderMessengerData()}
-        />
-      );
-    }
-
-    return (
-      <Wrapper.Sidebar full>
-        {this.props.loading && <Spinner />}
-      </Wrapper.Sidebar>
-    );
-  }
-
   render() {
     const {
       queryParams,
       currentConversationId,
       currentConversation,
+      conversationMessages,
       onChangeConversation,
-      refetch,
-      loading
+      refetch
     } = this.props;
+
     const { __ } = this.context;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
@@ -122,9 +72,9 @@ class Inbox extends Component {
         {tags.length ? (
           <Tags tags={tags} limit={1} />
         ) : (
-          <Label lblStyle="default">no tags</Label>
+          <Label lblStyle="default">No tags</Label>
         )}
-        <Icon icon="ios-arrow-down" />
+        <Icon icon="downarrow" />
       </PopoverButton>
     );
 
@@ -139,7 +89,7 @@ class Inbox extends Component {
             Member
           </Button>
         )}
-        <Icon icon="ios-arrow-down" size={13} />
+        <Icon icon="downarrow" />
       </AssignTrigger>
     );
 
@@ -185,10 +135,10 @@ class Inbox extends Component {
       >
         <Conversation
           conversation={currentConversation}
+          conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
           scrollBottom={this.scrollBottom}
         />
-        {loading && <Spinner />}
       </ConversationWrapper>
     );
 
@@ -216,7 +166,15 @@ class Inbox extends Component {
             onChangeConversation={onChangeConversation}
           />
         }
-        rightSidebar={this.renderRightSidebar(currentConversation)}
+        rightSidebar={
+          currentConversation._id && (
+            <RightSidebar
+              conversation={currentConversation}
+              refetch={refetch}
+              customerId={currentConversation.customerId}
+            />
+          )
+        }
       />
     );
   }
@@ -226,10 +184,14 @@ Inbox.propTypes = {
   queryParams: PropTypes.object,
   refetch: PropTypes.func,
   title: PropTypes.string,
+  onFetchMore: PropTypes.func,
   onChangeConversation: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
-  loading: PropTypes.bool
+  conversationMessages: PropTypes.array,
+  loading: PropTypes.bool,
+  sectionParams: PropTypes.object,
+  setSectionParams: PropTypes.func
 };
 
 Inbox.contextTypes = {

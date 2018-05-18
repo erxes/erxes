@@ -32,7 +32,7 @@ class Step extends Component {
         size="small"
         onClick={() => this.props.next(0)}
       >
-        {__('Next')} <Icon icon="ios-arrow-forward" />
+        {__('Next')} <Icon icon="rightarrow-2" />
       </Button>
     );
   }

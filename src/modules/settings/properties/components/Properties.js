@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
+import { Wrapper } from 'modules/layout/components';
 import {
   ModalTrigger,
   Button,
@@ -8,7 +9,6 @@ import {
   Icon,
   EmptyState
 } from 'modules/common/components';
-import { Wrapper } from 'modules/layout/components';
 import { PropertyGroupForm, PropertyForm } from '../containers';
 import { Sidebar, PropertyRow } from './';
 import { PropertyList } from '../styles';
@@ -48,7 +48,7 @@ class Properties extends Component {
     if (fieldsGroups.length === 0) {
       return (
         <EmptyState
-          icon="android-more-horizontal"
+          icon="circular"
           text="There arent't any groups and fields"
         />
       );
@@ -88,15 +88,15 @@ class Properties extends Component {
     return (
       <Dropdown id="dropdown-knowledgebase" className="quick-button" pullRight>
         <DropdownToggle bsRole="toggle">
-          <Button btnStyle="success" size="small" icon="plus">
-            {__('Add Group & Field ')} <Icon icon="chevron-down" />
+          <Button btnStyle="success" size="small" icon="add">
+            {__('Add Group & Field ')} <Icon icon="downarrow" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
-          <ModalTrigger title="Add Group" trigger={addGroup} size="lg">
+          <ModalTrigger title="Add Group" trigger={addGroup}>
             <PropertyGroupForm queryParams={queryParams} />
           </ModalTrigger>
-          <ModalTrigger title="Add Property" trigger={addField} size="lg">
+          <ModalTrigger title="Add Property" trigger={addField}>
             {propertyForm}
           </ModalTrigger>
         </Dropdown.Menu>
@@ -118,7 +118,7 @@ class Properties extends Component {
       <Wrapper
         actionBar={<Wrapper.ActionBar right={this.renderActionBar()} />}
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar currentType={currentType} />}
+        leftSidebar={<Sidebar title="Properties" currentType={currentType} />}
         content={this.renderProperties()}
       />
     );

@@ -6,8 +6,7 @@ import {
   FormControl,
   Button
 } from 'modules/common/components';
-import { Well } from '../../styles';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter, Well } from 'modules/common/styles/main';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,
@@ -99,11 +98,15 @@ class Signature extends Component {
             />
           </FormGroup>
           <ModalFooter>
-            <Button btnStyle="simple" onClick={() => closeModal()} icon="close">
+            <Button
+              btnStyle="simple"
+              onClick={() => closeModal()}
+              icon="cancel-1"
+            >
               Close
             </Button>
 
-            <Button btnStyle="success" type="submit" icon="checkmark">
+            <Button btnStyle="success" type="submit" icon="checked-1">
               Save
             </Button>
           </ModalFooter>

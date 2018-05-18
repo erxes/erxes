@@ -57,8 +57,8 @@ const stageDetail = `
 `;
 
 const deals = `
-  query deals($stageId: String!) {
-    deals(stageId: $stageId) {
+  query deals($stageId: String, $customerId: String, $companyId: String) {
+    deals(stageId: $stageId, customerId: $customerId, companyId: $companyId) {
       _id
     }
   }
@@ -70,6 +70,11 @@ const dealDetail = `
       _id
       name
       stageId
+      pipeline {
+        _id
+        name
+      }
+      boardId
       companies {
         _id
         name
@@ -114,6 +119,7 @@ const users = `
       email
       details {
         fullName
+        avatar
       }
     }
   }

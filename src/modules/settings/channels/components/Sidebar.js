@@ -8,10 +8,9 @@ import {
   LoadMore,
   Spinner
 } from 'modules/common/components';
-import { SidebarList as List } from 'modules/layout/styles';
+import { SidebarList, HelperButtons } from 'modules/layout/styles';
 import { ChannelForm } from '../containers';
 import { ChannelRow } from './';
-import { RightButton } from '../../styles';
 
 const propTypes = {
   channels: PropTypes.array.isRequired,
@@ -59,13 +58,15 @@ class Sidebar extends Component {
     const { Header } = LeftSidebar;
 
     const addChannel = (
-      <RightButton>
-        <Icon icon="plus" />
-      </RightButton>
+      <HelperButtons>
+        <a>
+          <Icon icon="add" />
+        </a>
+      </HelperButtons>
     );
 
     return (
-      <Header uppercase bold>
+      <Header uppercase>
         {__('Channels')}
         <ModalTrigger title="New Channel" trigger={addChannel}>
           {this.renderChannelForm({ save, members })}
@@ -78,15 +79,15 @@ class Sidebar extends Component {
     const { loading, channelsTotalCount } = this.props;
 
     return (
-      <LeftSidebar full header={this.renderSidebarHeader()}>
-        <List>
+      <LeftSidebar wide full header={this.renderSidebarHeader()}>
+        <SidebarList>
           {this.renderItems()}
-          <LoadMore all={channelsTotalCount} />
-        </List>
+          <LoadMore all={channelsTotalCount} loading={loading} />
+        </SidebarList>
         {loading && <Spinner />}
         {!loading &&
           channelsTotalCount === 0 && (
-            <EmptyState icon="briefcase" text="There is no channel" />
+            <EmptyState icon="sitemap" text="There is no channel" />
           )}
       </LeftSidebar>
     );

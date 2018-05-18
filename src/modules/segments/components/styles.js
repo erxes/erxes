@@ -16,11 +16,11 @@ const SegmentWrapper = styled.div`
 `;
 
 const ConditionWrapper = styled.div`
-  & ${SelectWrapper} {
+  ${SelectWrapper} {
     padding-right: 20px;
   }
 
-  & ${SelectWrapper}, & ${Input} {
+  ${SelectWrapper}, ${Input} {
     display: inline-block;
     width: auto;
     vertical-align: middle;
@@ -37,6 +37,8 @@ const ConditionItem = styled.div`
   padding: ${dimensions.coreSpacing}px;
   background-color: ${colors.bgLight};
   margin-bottom: ${dimensions.coreSpacing}px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 2px;
 `;
 
 const SegmentResult = FlexItem.extend`

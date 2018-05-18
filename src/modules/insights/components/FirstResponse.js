@@ -12,12 +12,6 @@ const propTypes = {
 };
 
 class FirstResponse extends CommonReport {
-  componentDidUpdate(prevProps) {
-    if (prevProps.isLoading && !this.props.isLoading) {
-      this.calculateWidth();
-    }
-  }
-
   renderBreadCrumnb() {
     const { __ } = this.context;
     return [
@@ -28,7 +22,6 @@ class FirstResponse extends CommonReport {
 
   renderCharts() {
     const { trend, teamMembers, time, isLoading } = this.props;
-    const width = this.state.width;
 
     return (
       <InsightContent>
@@ -41,7 +34,7 @@ class FirstResponse extends CommonReport {
             'Daily First Response Resolve Rate',
             convertTime(time)
           )}
-          <Chart loading={isLoading} width={width} height={300} data={trend} />
+          <Chart loading={isLoading} height={300} data={trend} />
         </InsightRow>
 
         <InsightRow>
@@ -49,7 +42,7 @@ class FirstResponse extends CommonReport {
             'Daily First Response Resolve Rate by Team Members',
             convertTime(time)
           )}
-          <TeamMembers loading={isLoading} datas={teamMembers} width={width} />
+          <TeamMembers loading={isLoading} datas={teamMembers} />
         </InsightRow>
       </InsightContent>
     );

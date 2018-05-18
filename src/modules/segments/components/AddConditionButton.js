@@ -28,11 +28,12 @@ class AddConditionButton extends Component {
       dateUnit: dateUnits.days,
       type
     });
+
     this.overlayTrigger.hide();
   }
 
-  render() {
-    const popover = (
+  renderPopover() {
+    return (
       <Popover id="condition-popover" title="Select a field">
         <FilterableList
           items={this.props.fields}
@@ -41,7 +42,9 @@ class AddConditionButton extends Component {
         />
       </Popover>
     );
+  }
 
+  render() {
     return (
       <OverlayTrigger
         ref={overlayTrigger => {
@@ -49,11 +52,11 @@ class AddConditionButton extends Component {
         }}
         trigger="click"
         placement="bottom"
-        overlay={popover}
+        overlay={this.renderPopover()}
         container={this}
         rootClose
       >
-        <Button btnStyle="success" size="small" icon="plus">
+        <Button btnStyle="success" icon="add">
           Add a condition
         </Button>
       </OverlayTrigger>

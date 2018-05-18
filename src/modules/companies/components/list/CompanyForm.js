@@ -12,7 +12,7 @@ import {
   FormWrapper,
   FormColumn,
   ColumnTitle
-} from 'modules/common/styles/styles';
+} from 'modules/common/styles/main';
 import { searchCompany, searchUser } from 'modules/common/utils';
 import {
   COMPANY_INDUSTRY_TYPES,
@@ -50,6 +50,12 @@ class CompanyForm extends React.Component {
     this.handleCompanySearch = this.handleCompanySearch.bind(this);
     this.handleUserSearch = this.handleUserSearch.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
+  }
+
+  componentDidMount() {
+    const { company } = this.props;
+
+    if (company.ownerId) this.handleUserSearch(company.owner.details.fullName);
   }
 
   action(e) {
@@ -152,7 +158,7 @@ class CompanyForm extends React.Component {
             <FormGroup>
               <ControlLabel>Parent Company</ControlLabel>
               <Select
-                placeholder="Search..."
+                placeholder={__('Search')}
                 onFocus={() =>
                   companies.length < 1 && this.handleCompanySearch('')
                 }
@@ -197,7 +203,7 @@ class CompanyForm extends React.Component {
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
               <Select
-                placeholder="Search..."
+                placeholder="Search"
                 onFocus={() => users.length < 1 && this.handleUserSearch('')}
                 onInputChange={this.handleUserSearch}
                 onChange={option => this.handleSelect(option, 'ownerId')}
@@ -282,12 +288,12 @@ class CompanyForm extends React.Component {
             onClick={() => {
               this.context.closeModal();
             }}
-            icon="close"
+            icon="cancel-1"
           >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

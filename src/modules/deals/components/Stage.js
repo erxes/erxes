@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { Icon, ModalTrigger } from 'modules/common/components';
-import { Deal, DealForm } from '../containers';
+import { Deal } from '../containers';
+import { DealAddForm } from './';
 import { AddNew } from '../styles/deal';
 import {
-  Wrapper,
   Container,
   Header,
   Body,
@@ -18,11 +18,15 @@ import {
 const propTypes = {
   stage: PropTypes.object.isRequired,
   deals: PropTypes.array,
-  index: PropTypes.number.isRequired,
-  length: PropTypes.number.isRequired,
-  saveDeal: PropTypes.func.isRequired,
-  removeDeal: PropTypes.func.isRequired,
-  moveDeal: PropTypes.func.isRequired
+  index: PropTypes.number,
+  length: PropTypes.number,
+  saveDeal: PropTypes.func,
+  removeDeal: PropTypes.func,
+  stageId: PropTypes.string
+};
+
+const defaultProps = {
+  deals: []
 };
 
 class Stage extends React.Component {
@@ -38,22 +42,17 @@ class Stage extends React.Component {
 
   showDealForm() {
     const { __ } = this.context;
-    const { stage, deals } = this.props;
+    const { stage, saveDeal } = this.props;
 
     const trigger = (
       <AddNew>
-        <Icon icon="plus" /> {__('Add a deal')}
+        <Icon icon="add" /> {__('Add a deal')}
       </AddNew>
     );
 
     return (
       <ModalTrigger title="Add a deal" trigger={trigger}>
-        <DealForm
-          stageId={stage._id}
-          length={deals.length}
-          saveDeal={this.props.saveDeal}
-          removeDeal={this.props.removeDeal}
-        />
+        <DealAddForm stageId={stage._id} saveDeal={saveDeal} />
       </ModalTrigger>
     );
   }
@@ -66,8 +65,8 @@ class Stage extends React.Component {
       .map((e, i) => <IndicatorItem isPass={index >= i} key={i} />);
   }
 
-  renderDeal(provided) {
-    const { deals, saveDeal, removeDeal, moveDeal } = this.props;
+  renderDeals(provided) {
+    const { deals, saveDeal, removeDeal } = this.props;
 
     return (
       <DropZone innerRef={provided.innerRef}>
@@ -79,7 +78,7 @@ class Stage extends React.Component {
               dealId={deal._id}
               saveDeal={saveDeal}
               removeDeal={removeDeal}
-              moveDeal={moveDeal}
+              draggable
             />
           ))}
         </div>
@@ -90,33 +89,31 @@ class Stage extends React.Component {
   }
 
   render() {
-    const { stage, deals, index } = this.props;
+    const { stage, deals, index, stageId } = this.props;
 
     return (
-      <Draggable draggableId={stage._id} index={index}>
+      <Draggable draggableId={stageId} index={index}>
         {(provided, snapshot) => (
-          <Wrapper>
-            <Container
-              innerRef={provided.innerRef}
-              {...provided.draggableProps}
-              isDragging={snapshot.isDragging}
-            >
-              <Header {...provided.dragHandleProps}>
-                <h3>
-                  {stage.name}
-                  <span>({deals.length})</span>
-                </h3>
-                <Amount>{this.renderAmount(stage.amount)}</Amount>
-                <Indicator>{this.renderIndicator()}</Indicator>
-              </Header>
+          <Container
+            innerRef={provided.innerRef}
+            {...provided.draggableProps}
+            isDragging={snapshot.isDragging}
+          >
+            <Header {...provided.dragHandleProps}>
+              <h3>
+                {stage.name}
+                <span>({deals.length})</span>
+              </h3>
+              <Amount>{this.renderAmount(stage.amount || {})}</Amount>
+              <Indicator>{this.renderIndicator()}</Indicator>
+            </Header>
 
-              <Body>
-                <Droppable droppableId={stage._id} type="stage">
-                  {dropProvided => this.renderDeal(dropProvided)}
-                </Droppable>
-              </Body>
-            </Container>
-          </Wrapper>
+            <Body>
+              <Droppable droppableId={stageId} type="stage">
+                {dropProvided => this.renderDeals(dropProvided)}
+              </Droppable>
+            </Body>
+          </Container>
         )}
       </Draggable>
     );
@@ -129,3 +126,4 @@ Stage.propTypes = propTypes;
 Stage.contextTypes = {
   __: PropTypes.func
 };
+Stage.defaultProps = defaultProps;

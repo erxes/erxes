@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import {
@@ -7,7 +7,7 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   channel: PropTypes.object,
@@ -76,7 +76,7 @@ class ChannelForm extends Component {
     const self = this;
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -112,7 +112,7 @@ class ChannelForm extends Component {
             multi
           />
         </FormGroup>
-      </div>
+      </Fragment>
     );
   }
 
@@ -128,13 +128,13 @@ class ChannelForm extends Component {
           <Button
             btnStyle="simple"
             type="button"
-            icon="close"
+            icon="cancel-1"
             onClick={onClick}
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" icon="checkmark" type="submit">
+          <Button btnStyle="success" icon="checked-1" type="submit">
             Save
           </Button>
         </ModalFooter>

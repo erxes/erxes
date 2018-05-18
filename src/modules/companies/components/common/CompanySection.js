@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Sidebar } from 'modules/layout/components';
 import { ModalTrigger, Icon, Tip, EmptyState } from 'modules/common/components';
 import { urlParser } from 'modules/common/utils';
 import { CompanyChooser } from '../../containers';
-import { CompanyWrapper } from '../../styles';
+import { SectionBody, SectionBodyItem } from 'modules/customers/styles';
+import { BaseSection } from 'modules/customers/components';
 
 const propTypes = {
   name: PropTypes.string,
@@ -18,41 +18,47 @@ const defaultProps = {
 };
 
 function CompanySection({ name, companies, onSelect }, { __ }) {
-  const { Section } = Sidebar;
-  const { Title } = Sidebar.Section;
-
   const companyTrigger = (
     <a>
-      <Icon icon="plus" />
+      <Icon icon="add" />
     </a>
   );
 
-  return (
-    <Section>
-      <Title>{__('Companies')}</Title>
-      <Section.QuickButtons>
-        <ModalTrigger title="Associate" trigger={companyTrigger} size="lg">
-          <CompanyChooser data={{ name, companies }} onSelect={onSelect} />
-        </ModalTrigger>
-      </Section.QuickButtons>
+  const quickButtons = (
+    <ModalTrigger title="Associate" trigger={companyTrigger} size="lg">
+      <CompanyChooser data={{ name, companies }} onSelect={onSelect} />
+    </ModalTrigger>
+  );
+
+  const content = (
+    <SectionBody>
       {companies.map((company, index) => (
-        <CompanyWrapper key={index}>
+        <SectionBodyItem key={index}>
           <Link to={`/companies/details/${company._id}`}>
-            <Icon icon="android-open" />
+            <Icon icon="logout-2" />
           </Link>
-          <div>{company.name || 'N/A'}</div>
+          <span>{company.name || 'N/A'}</span>
           <Tip text={company.website || ''}>
             <a target="_blank" href={`//${company.website}`}>
               {urlParser.extractRootDomain(company.website)}
             </a>
           </Tip>
-        </CompanyWrapper>
+        </SectionBodyItem>
       ))}
-
       {companies.length === 0 && (
         <EmptyState icon="briefcase" text="No company" />
       )}
-    </Section>
+    </SectionBody>
+  );
+
+  return (
+    <BaseSection
+      title={__('Companies')}
+      content={content}
+      quickButtons={quickButtons}
+      isUseCustomer={true}
+      name="showCompany"
+    />
   );
 }
 

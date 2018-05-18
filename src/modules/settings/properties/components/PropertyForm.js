@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
   ControlLabel,
@@ -7,8 +7,8 @@ import {
   Button,
   Icon
 } from 'modules/common/components';
-import { TypeList, AddOption, Actions } from '../styles';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { TypeList, Actions } from '../styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   add: PropTypes.func.isRequired,
@@ -136,7 +136,7 @@ class PropertyForm extends Component {
     const { __ } = this.context;
     if (this.state.add) {
       return (
-        <div>
+        <Fragment>
           <FormControl
             id="optionValue"
             autoFocus
@@ -147,6 +147,7 @@ class PropertyForm extends Component {
           <Actions>
             <Button
               type="success"
+              icon="cancel-1"
               btnStyle="simple"
               size="small"
               onClick={this.handleSaveOption}
@@ -157,19 +158,20 @@ class PropertyForm extends Component {
               type="success"
               btnStyle="success"
               size="small"
+              icon="checked-1"
               onClick={this.handleSaveOption}
             >
               Save
             </Button>
           </Actions>
-        </div>
+        </Fragment>
       );
     }
 
     return (
-      <AddOption onClick={this.handleAddOption}>
-        <Icon icon="plus" /> {__('Add an option')}
-      </AddOption>
+      <Button onClick={this.handleAddOption} size="small" icon="add">
+        {__('Add an option')}
+      </Button>
     );
   }
 
@@ -177,7 +179,7 @@ class PropertyForm extends Component {
     return (
       <li key={index}>
         {option}
-        <Icon icon="close" onClick={() => this.handleRemoveOption(index)} />
+        <Icon icon="cancel-1" onClick={() => this.handleRemoveOption(index)} />
       </li>
     );
   }
@@ -271,12 +273,12 @@ class PropertyForm extends Component {
             onClick={() => {
               this.context.closeModal();
             }}
-            icon="close"
+            icon="cancel-1"
           >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </ModalFooter>

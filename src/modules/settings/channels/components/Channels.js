@@ -7,7 +7,8 @@ import {
   Button,
   ModalTrigger
 } from 'modules/common/components';
-import { Sidebar, IntegrationList, ManageIntegrationForm } from '../containers';
+import { Sidebar } from '../containers';
+import { IntegrationList, ManageIntegration } from '../../common/containers';
 
 const propTypes = {
   integrationsCount: PropTypes.number.isRequired,
@@ -35,14 +36,14 @@ class Channels extends Component {
     ];
 
     const trigger = (
-      <Button btnStyle="success" size="small" icon="wrench">
+      <Button btnStyle="success" size="small" icon="computer">
         Manage integration
       </Button>
     );
 
     const rightActionBar = currentChannel._id && (
       <ModalTrigger title="Manage Integration" trigger={trigger} size="lg">
-        <ManageIntegrationForm currentChannel={currentChannel} />
+        <ManageIntegration current={currentChannel} type="channel" />
       </ModalTrigger>
     );
 
@@ -64,6 +65,7 @@ class Channels extends Component {
                 currentChannel={currentChannel}
                 queryParams={queryParams}
                 refetch={refetch}
+                showBrand
               />
             }
             loading={loading}

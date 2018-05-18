@@ -1,17 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { colors } from '../styles';
 import { colorParser } from 'modules/common/utils';
-
-const shake = keyframes`
-  0%{transform:rotate(-10deg)}
-  28%{transform:rotate(10deg)}
-  10%{transform:rotate(20deg)}
-  18%{transform:rotate(-20deg)}
-  28%{transform:rotate(20deg)}
-  30%,100%{transform:rotate(0deg)}
-`;
+import { shake } from 'modules/common/utils/animations';
 
 const types = {
   default: {

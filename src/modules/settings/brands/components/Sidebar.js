@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
-import { SidebarList as List } from 'modules/layout/styles';
+import { SidebarList as List, HelperButtons } from 'modules/layout/styles';
 import { BrandForm } from '../containers';
 import { BrandRow } from './';
-import { RightButton } from '../../styles';
 import {
   Icon,
   ModalTrigger,
@@ -57,13 +56,15 @@ class Sidebar extends Component {
     const { __ } = this.context;
 
     const addBrand = (
-      <RightButton>
-        <Icon icon="plus" />
-      </RightButton>
+      <HelperButtons>
+        <a>
+          <Icon icon="add" />
+        </a>
+      </HelperButtons>
     );
 
     return (
-      <Header uppercase bold>
+      <Header uppercase>
         {__('Brands')}
         <ModalTrigger title="New Brand" trigger={addBrand}>
           {this.renderBrandForm({ save })}
@@ -76,10 +77,10 @@ class Sidebar extends Component {
     const { loading, brandsTotalCount } = this.props;
 
     return (
-      <LeftSidebar full header={this.renderSidebarHeader()}>
+      <LeftSidebar wide full header={this.renderSidebarHeader()}>
         <List>
           {this.renderItems()}
-          <LoadMore all={brandsTotalCount} />
+          <LoadMore all={brandsTotalCount} loading={loading} />
         </List>
         {loading && <Spinner />}
         {!loading &&

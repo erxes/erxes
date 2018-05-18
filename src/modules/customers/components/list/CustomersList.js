@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
+
 import {
   DropdownToggle,
   TaggerPopover,
@@ -13,7 +14,8 @@ import {
   Icon,
   Table,
   FormControl,
-  DataWithLoader
+  DataWithLoader,
+  DateFilter
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
@@ -43,7 +45,9 @@ const propTypes = {
   removeCustomers: PropTypes.func.isRequired,
   mergeCustomers: PropTypes.func.isRequired,
   basicInfos: PropTypes.object.isRequired,
-  queryParams: PropTypes.object
+  queryParams: PropTypes.object,
+  exportCustomers: PropTypes.func,
+  handleXlsUpload: PropTypes.func
 };
 
 class CustomersList extends React.Component {
@@ -135,16 +139,24 @@ class CustomersList extends React.Component {
       basicInfos,
       location,
       history,
-      queryParams
+      queryParams,
+      exportCustomers,
+      handleXlsUpload
     } = this.props;
     const { __ } = this.context;
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         Add customer
       </Button>
     );
+
     const editColumns = <a>{__('Edit columns')}</a>;
+
+    const dateFilter = queryParams.form && (
+      <DateFilter queryParams={queryParams} history={history} />
+    );
+
     const actionBarRight = (
       <BarItems>
         <FormControl
@@ -155,10 +167,13 @@ class CustomersList extends React.Component {
           autoFocus
           onFocus={e => this.moveCursorAtTheEnd(e)}
         />
+
+        {dateFilter}
+
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
-              {__('Customize ')} <Icon icon="ios-arrow-down" />
+              {__('Customize ')} <Icon icon="downarrow" />
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>
@@ -176,8 +191,27 @@ class CustomersList extends React.Component {
                 {__('Properties')}
               </Link>
             </li>
+            <li>
+              <a onClick={() => exportCustomers(bulk)}>
+                {__('Export customers')}
+              </a>
+            </li>
+            <li>
+              <a>
+                <label style={{ fontWeight: 'normal' }}>
+                  {__('Import customers')}
+                  <input
+                    type="file"
+                    onChange={e => handleXlsUpload(e)}
+                    style={{ display: 'none' }}
+                    accept=".xlsx, .xls"
+                  />
+                </label>
+              </a>
+            </li>
           </Dropdown.Menu>
         </Dropdown>
+
         <ModalTrigger title="New customer" trigger={addTrigger} size="lg">
           <CustomerForm size="lg" />
         </ModalTrigger>
@@ -193,7 +227,7 @@ class CustomersList extends React.Component {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+        <Button btnStyle="simple" size="small" icon="downarrow">
           Tag
         </Button>
       );
@@ -223,7 +257,7 @@ class CustomersList extends React.Component {
           <Button
             btnStyle="danger"
             size="small"
-            icon="close"
+            icon="cancel-1"
             onClick={() =>
               confirm().then(() => {
                 this.removeCustomers(bulk);

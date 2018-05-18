@@ -64,8 +64,8 @@ const PaginationList = styled.ul`
 `;
 
 const PerPageButton = styled.a`
-  font-weight: 400;
-  color: #999;
+  font-weight: normal;
+  color: ${colors.colorCoreGray};
   cursor: pointer;
   margin-left: 15px;
   position: relative;
@@ -73,6 +73,7 @@ const PerPageButton = styled.a`
 
   i {
     margin-left: 3px;
+    font-size: 10px;
   }
 `;
 

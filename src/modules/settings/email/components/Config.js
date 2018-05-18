@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { HelpBlock } from 'react-bootstrap';
 import {
   Button,
   FormGroup,
   FormControl,
   ControlLabel
 } from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
   brand: PropTypes.object.isRequired,
@@ -72,39 +71,37 @@ class Config extends Component {
           rows={20}
           onChange={this.handleTemplateChange}
         />
-        <HelpBlock>{__('Use html template here')}</HelpBlock>
+        <span>{__('Use html template here')}</span>
       </FormGroup>
     );
 
     return (
-      <div className="margined">
-        <form id="configure-email-form" onSubmit={this.configureEmail}>
-          <FormGroup>
-            <ControlLabel>Choose your email template type</ControlLabel>
-            <FormControl
-              componentClass="select"
-              placeholder={__('select')}
-              onChange={this.handleTypeChange}
-              value={type}
-            >
-              <option value="simple">{__('Simple')}</option>
-              <option value="custom">{__('Custom')}</option>
-            </FormControl>
-          </FormGroup>
+      <form id="configure-email-form" onSubmit={this.configureEmail}>
+        <FormGroup>
+          <ControlLabel>Choose your email template type</ControlLabel>
+          <FormControl
+            componentClass="select"
+            placeholder={__('select')}
+            onChange={this.handleTypeChange}
+            value={type}
+          >
+            <option value="simple">{__('Simple')}</option>
+            <option value="custom">{__('Custom')}</option>
+          </FormControl>
+        </FormGroup>
 
-          {this.state.type === 'custom' ? templateControl : false}
+        {this.state.type === 'custom' ? templateControl : false}
 
-          <ModalFooter>
-            <Button btnStyle="simple" onClick={onClick} icon="close">
-              Cancel
-            </Button>
+        <ModalFooter>
+          <Button btnStyle="simple" onClick={onClick} icon="cancel-1">
+            Cancel
+          </Button>
 
-            <Button btnStyle="success" type="submit" icon="checkmark">
-              Save
-            </Button>
-          </ModalFooter>
-        </form>
-      </div>
+          <Button btnStyle="success" type="submit" icon="checked-1">
+            Save
+          </Button>
+        </ModalFooter>
+      </form>
     );
   }
 }
