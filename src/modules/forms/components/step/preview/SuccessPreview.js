@@ -6,15 +6,23 @@ import { ThankContent } from './styles';
 const propTypes = {
   thankContent: PropTypes.string,
   onChange: PropTypes.func,
-  type: PropTypes.string
+  type: PropTypes.string,
+  color: PropTypes.string,
+  theme: PropTypes.string
 };
 
 class SuccessPreview extends Component {
   render() {
-    const { thankContent, type } = this.props;
+    const { thankContent, type, color, theme } = this.props;
 
     return (
-      <CommonPreview btnText="Cancel" btnStyle="link" theme="" type={type}>
+      <CommonPreview
+        btnText="Cancel"
+        btnStyle="link"
+        type={type}
+        theme={theme}
+        color={color}
+      >
         <ThankContent>{thankContent}</ThankContent>
       </CommonPreview>
     );

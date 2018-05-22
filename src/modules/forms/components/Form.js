@@ -234,6 +234,8 @@ class Form extends Component {
               onChange={this.onChange}
               thankContent={thankContent}
               type={type}
+              color={color}
+              theme={theme}
               successAction={successAction}
               formData={formData}
             />

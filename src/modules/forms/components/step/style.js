@@ -3,6 +3,7 @@ import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { BoxRoot } from 'modules/common/styles/main';
 import { PreviewBody } from './preview/styles';
+import { ShoutBox } from './preview/CommonPreview';
 
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
@@ -55,6 +56,7 @@ const Preview = styled.div`
   background: url('/images/previews/preview.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
+  overflow: auto;
 `;
 
 const FullPreview = styled.div`
@@ -62,6 +64,7 @@ const FullPreview = styled.div`
   display: flex;
   flex-direction: column;
   padding: ${dimensions.coreSpacing}px;
+  overflow: auto;
 `;
 
 const BackgroundSelector = styled.li`
@@ -163,6 +166,10 @@ const CarouselInner = styled.div`
     }
   }
 
+  span {
+    padding-bottom: ${dimensions.coreSpacing}px;
+  }
+
   &:first-child {
     li {
       &:before {
@@ -200,7 +207,7 @@ const DesktopPreview = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 
   ${PreviewBody} {
-    max-height: 300px;
+    max-height: 270px;
   }
 `;
 
@@ -213,7 +220,11 @@ const MobilePreview = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 
   ${PreviewBody} {
-    max-height: 250px;
+    max-height: 320px;
+  }
+
+  ${ShoutBox} {
+    min-height: 470px;
   }
 `;
 

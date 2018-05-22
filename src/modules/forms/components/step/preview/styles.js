@@ -36,7 +36,6 @@ const PreviewBody = styled.div`
 
 const PreviewWrapper = styled.div`
   padding: 0 !important;
-  overflow: auto;
 `;
 
 const DropdownContent = styled.div`
@@ -50,6 +49,7 @@ const DropdownContent = styled.div`
 
     ${PreviewBody} {
       padding: 10px 20px;
+      max-height: 350px;
     }
 
     button {
@@ -133,11 +133,15 @@ const FormContainer = styled.div`
   display: block;
   border-radius: ${dimensions.unitSpacing / 2}px;
   background-color: ${colors.colorWhite};
-  margin: auto;
+  margin: ${dimensions.coreSpacing}px auto;
   width: 70%;
   overflow: hidden;
   z-index: 1;
   animation: ${fadeIn} 0.5s linear;
+
+  ${PreviewBody} {
+    max-height: 400px;
+  }
 `;
 
 const OverlayTrigger = styled.div`
@@ -152,16 +156,17 @@ const OverlayTrigger = styled.div`
 const Embedded = styled.div`
   flex: 1;
   position: absolute;
-  top: 10%;
-  left: 6%;
-  width: 68%;
+  top: ${dimensions.unitSpacing}%;
+  left: ${dimensions.unitSpacing / 2}%;
+  width: 70%;
   background: ${colors.bgLight};
   padding: ${dimensions.unitSpacing / 2}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: 0 0 ${dimensions.unitSpacing}px ${colors.colorShadowGray} inset;
 `;
 
 const FieldItem = styled.div`
-  padding: ${dimensions.unitSpacing}px;
+  padding: 0 ${dimensions.unitSpacing}px;
 
   input,
   textarea,
