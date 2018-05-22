@@ -19,7 +19,7 @@ import {
   SlideLeftContent,
   OverlayTrigger,
   Embedded
-} from '../style';
+} from './styles';
 
 const ShoutBox = MessengerPreview.extend`
   height: 100%;

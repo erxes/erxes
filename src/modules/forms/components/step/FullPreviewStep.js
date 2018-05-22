@@ -4,7 +4,6 @@ import { CalloutPreview, FormPreview, SuccessPreview } from './preview';
 import {
   FlexItem,
   FullPreview,
-  ResolutionTabs,
   DesktopPreview,
   TabletPreview,
   MobilePreview,
@@ -67,16 +66,6 @@ class FullPreviewStep extends Component {
     return this.props.onChange('carousel', value);
   }
 
-  renderResolution() {
-    return (
-      <ResolutionTabs>
-        {this.renderTabs('Desktop', 'desktop')}
-        {this.renderTabs('Tablet', 'tablet')}
-        {this.renderTabs('Mobile', 'mobile')}
-      </ResolutionTabs>
-    );
-  }
-
   renderPreview() {
     const { carousel } = this.props;
 
@@ -109,14 +98,16 @@ class FullPreviewStep extends Component {
     return (
       <FlexItem>
         <FullPreview>
-          {this.renderResolution()}
+          <div>
+            {this.renderTabs('Desktop', 'desktop')}
+            {this.renderTabs('Tablet', 'tablet')}
+            {this.renderTabs('Mobile', 'mobile')}
+          </div>
           {this.renderResolutionPreview()}
           <CarouselSteps>
-            <ol>
-              {!this.props.skip && this.carouseItems('CallOut', 'callout')}
-              {this.carouseItems('Form', 'form')}
-              {this.carouseItems('Success', 'success')}
-            </ol>
+            {!this.props.skip && this.carouseItems('CallOut', 'callout')}
+            {this.carouseItems('Form', 'form')}
+            {this.carouseItems('Success', 'success')}
           </CarouselSteps>
         </FullPreview>
       </FlexItem>

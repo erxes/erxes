@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ChromePicker } from 'react-color';
@@ -12,7 +12,6 @@ import {
   FlexItem,
   LeftItem,
   Preview,
-  ColorPick,
   ColorPicker,
   Picker,
   BackgroundSelector
@@ -72,6 +71,7 @@ class OptionStep extends Component {
         <ChromePicker color={this.props.color} onChange={this.onColorChange} />
       </Popover>
     );
+
     return (
       <FlexItem>
         <LeftItem>
@@ -112,7 +112,7 @@ class OptionStep extends Component {
             <p>{__('Try some of these colors:')}</p>
           </FormGroup>
 
-          <ColorPick>
+          <Fragment>
             {this.renderThemeColor('#04A9F5')}
             {this.renderThemeColor('#392a6f')}
             {this.renderThemeColor('#fd3259')}
@@ -129,7 +129,7 @@ class OptionStep extends Component {
                 <Picker style={{ backgroundColor: this.props.theme }} />
               </ColorPicker>
             </OverlayTrigger>
-          </ColorPick>
+          </Fragment>
         </LeftItem>
 
         <Preview>

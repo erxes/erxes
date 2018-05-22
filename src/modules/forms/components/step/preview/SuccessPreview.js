@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import CommonPreview from './CommonPreview';
-import { ThankContent } from '../style';
+import { ThankContent } from './styles';
 
 const propTypes = {
   thankContent: PropTypes.string,
