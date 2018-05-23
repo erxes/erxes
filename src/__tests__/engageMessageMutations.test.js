@@ -21,7 +21,7 @@ import {
   brandFactory,
   userFactory,
   tagsFactory,
-  segmentsFactory,
+  segmentFactory,
   emailTemplateFactory,
   customerFactory,
   integrationFactory,
@@ -86,7 +86,7 @@ describe('engage message mutation tests', () => {
     _user = await userFactory({});
     _tag = await tagsFactory();
     _brand = await brandFactory();
-    _segment = await segmentsFactory({});
+    _segment = await segmentFactory({});
     _message = await engageMessageFactory({ userId: _user._id });
     _emailTemplate = await emailTemplateFactory({});
     _customer = await customerFactory({});

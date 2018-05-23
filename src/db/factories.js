@@ -97,14 +97,6 @@ export const engageMessageFactory = (params = {}) => {
   return engageMessage.save();
 };
 
-export const segmentsFactory = () => {
-  const segment = new Segments({
-    name: faker.random.word(),
-  });
-
-  return segment.save();
-};
-
 export const brandFactory = (params = {}) => {
   const brand = new Brands({
     name: faker.random.word(),
@@ -157,7 +149,7 @@ export const segmentFactory = (params = {}) => {
     name: faker.random.word(),
     description: params.description || faker.random.word(),
     subOf: params.subOf,
-    color: params.color || '#ffff',
+    color: params.color || '#809b87',
     connector: params.connector || 'any',
     conditions: params.conditions || defaultConditions,
   });
