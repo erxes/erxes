@@ -32,6 +32,7 @@ const contextTypes = {
 class CustomerForm extends React.Component {
   constructor(props) {
     super(props);
+
     const { customer = {} } = props;
 
     this.state = {
@@ -47,7 +48,7 @@ class CustomerForm extends React.Component {
   }
 
   componentDidMount() {
-    const { customer } = this.props;
+    const { customer = {} } = this.props;
 
     if (customer.ownerId)
       this.handleUserSearch(customer.owner.details.fullName);

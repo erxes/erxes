@@ -53,7 +53,7 @@ class CompanyForm extends React.Component {
   }
 
   componentDidMount() {
-    const { company } = this.props;
+    const { company = {} } = this.props;
 
     if (company.ownerId) this.handleUserSearch(company.owner.details.fullName);
   }
