@@ -111,13 +111,15 @@ class CommonPreview extends Component {
 
             {children}
 
-            <Button
-              ignoreTrans
-              btnStyle={btnStyle}
-              style={{ backgroundColor: theme ? theme : color }}
-            >
-              {btnText}
-            </Button>
+            {btnText && (
+              <Button
+                ignoreTrans
+                btnStyle={btnStyle}
+                style={{ backgroundColor: theme ? theme : color }}
+              >
+                {btnText}
+              </Button>
+            )}
           </BodyContent>
         </PreviewBody>
       </PreviewWrapper>
