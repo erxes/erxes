@@ -6,9 +6,9 @@ const start = () => {
   // load environment variables
   dotenv.config();
 
-  const { AWS_CONFIG_SET = '', AWS_ENDPOINT = '' } = process.env;
+  const { AWS_SES_CONFIG_SET = '', AWS_ENDPOINT = '' } = process.env;
 
-  if (AWS_CONFIG_SET === '' || AWS_ENDPOINT === '') {
+  if (AWS_SES_CONFIG_SET === '' || AWS_ENDPOINT === '') {
     console.log('Couldnt locate configs on AWS SES');
   }
 
@@ -17,7 +17,7 @@ const start = () => {
   // Automatically creating aws configs
   getApi('sns')
     // Create Topic
-    .createTopic({ Name: AWS_CONFIG_SET })
+    .createTopic({ Name: AWS_SES_CONFIG_SET })
     .promise()
     // Subscribing to the topic
     .then(result => {
@@ -38,7 +38,7 @@ const start = () => {
       return getApi('ses')
         .createConfigurationSet({
           ConfigurationSet: {
-            Name: AWS_CONFIG_SET,
+            Name: AWS_SES_CONFIG_SET,
           },
         })
         .promise();
@@ -52,7 +52,7 @@ const start = () => {
 
       return getApi('ses')
         .createConfigurationSetEventDestination({
-          ConfigurationSetName: AWS_CONFIG_SET,
+          ConfigurationSetName: AWS_SES_CONFIG_SET,
           EventDestination: {
             MatchingEventTypes: [
               'send',
@@ -64,7 +64,7 @@ const start = () => {
               'click',
               'renderingFailure',
             ],
-            Name: AWS_CONFIG_SET,
+            Name: AWS_SES_CONFIG_SET,
             Enabled: true,
             SNSDestination: {
               TopicARN: topicArn,
