@@ -60,7 +60,7 @@ class Segments extends React.Component {
               </Link>
             </li>
             <li>
-              <Link to={`/segments/new/${contentType}`}>
+              <Link to={`/segments/${contentType}`}>
                 {__('Manage segments')}
               </Link>
             </li>
