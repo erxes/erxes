@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { Button } from 'modules/common/components';
 import { confirm } from 'modules/common/utils';
 
@@ -17,7 +18,7 @@ function HistoryRow({ history, removeHistory }) {
       <td>{history.success || 0}</td>
       <td>{history.failed || 1}</td>
       <td>{history.total || 1}</td>
-      <td>{history.date || 1}</td>
+      <td>{moment(history.date).format('lll')}</td>
       <td>{details.fullName || '-'}</td>
       <td>
         <Button
