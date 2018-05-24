@@ -102,6 +102,7 @@ const InlineForm = styled.div`
 const FlexItem = styled.div`
   display: flex;
   height: 100%;
+  border-right: 1px solid ${colors.borderPrimary};
   flex: ${props => (props.count ? props.count : 1)};
   ${props => {
     if (props.overflow) {
@@ -135,6 +136,7 @@ const FlexItem = styled.div`
 
 const FlexPad = FlexItem.extend`
   padding: ${dimensions.coreSpacing}px;
+  border-right: 1px solid ${colors.borderPrimary};
 `;
 
 export {

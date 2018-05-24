@@ -169,7 +169,6 @@ class Form extends Component {
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
-
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
@@ -178,7 +177,6 @@ class Form extends Component {
             defaultValue={title}
           />
         </TitleContainer>
-
         <Steps active={activeStep}>
           <Step img="/images/icons/erxes-04.svg" title="Type">
             <ChooseType
@@ -191,7 +189,6 @@ class Form extends Component {
               theme={theme}
             />
           </Step>
-
           <Step img="/images/icons/erxes-03.svg" title="CallOut">
             <CallOut
               onChange={this.onChange}

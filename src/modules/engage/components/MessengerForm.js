@@ -9,7 +9,6 @@ import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Editor from './Editor';
 import { MessengerPreview } from '../containers';
-import { Divider } from './step/style';
 
 const propTypes = {
   brands: PropTypes.array,
@@ -71,6 +70,7 @@ class MessengerForm extends Component {
     }
     return null;
   }
+
   render() {
     return (
       <FlexItem>
@@ -129,7 +129,6 @@ class MessengerForm extends Component {
             </FormControl>
           </FormGroup>
         </FlexPad>
-        <Divider />
         <FlexPad overflow="auto">
           <MessengerPreview
             sentAs={this.state.messenger.sentAs}

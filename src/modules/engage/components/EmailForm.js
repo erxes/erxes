@@ -10,7 +10,6 @@ import {
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Editor from './Editor';
-import { Divider } from './step/style';
 
 const PreviewContainer = styled.div`
   margin: 20px;
@@ -176,7 +175,6 @@ class EmailForm extends Component {
             </FormControl>
           </FormGroup>
         </FlexPad>
-        <Divider />
         <FlexItem v="center" h="center" overflow="auto">
           {this.renderMessage()}
         </FlexItem>

@@ -27,49 +27,6 @@ const FormWrapper = styled.div`
   height: 100%;
 `;
 
-const FormHeader = styled.div`
-  margin-bottom: ${coreSpace};
-`;
-
-const ButtonBox = styled.div`
-  cursor: pointer;
-  display: block;
-  padding: ${coreSpace} ${coreSpace};
-  border: 1px solid
-    ${props => (props.selected ? colors.colorSecondary : colors.borderPrimary)};
-  border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  position: relative;
-  text-align: center;
-  margin-bottom: ${dimensions.unitSpacing}px;
-
-  &:first-child {
-    margin-bottom: ${coreSpace};
-  }
-
-  span {
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-
-  p {
-    margin-bottom: 0;
-    color: ${colors.colorCoreLightGray};
-    font-size: 12px;
-  }
-
-  &:hover {
-    ${props => {
-      if (!props.selected) {
-        return `
-          border: 1px dotted ${colors.colorSecondary};
-        `;
-      }
-    }};
-  }
-`;
-
 const PreviewContent = styled.div`
   padding: 0 ${coreSpace};
   line-height: 22px;
@@ -160,27 +117,6 @@ const Recipient = styled.div`
   font-size: 13px;
 `;
 
-const StepHeaderNumber = styled.div`
-  margin-right: 10px;
-  border-radius: 100%;
-  background: ${colors.colorPrimary};
-  height: 30px;
-  width: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${colors.colorWhite};
-`;
-
-const StepHeader = styled.div`
-  padding: 10px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${colors.bgLight};
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-`;
-
 const StepContent = styled.div`
   display: flex;
 `;
@@ -189,9 +125,7 @@ export {
   EngageTitle,
   HelperText,
   EngageBox,
-  ButtonBox,
   FormWrapper,
-  FormHeader,
   WebPreview,
   PreviewContent,
   Messenger,
@@ -199,7 +133,5 @@ export {
   Segmentli,
   Recipients,
   Recipient,
-  StepHeader,
-  StepHeaderNumber,
   StepContent
 };
