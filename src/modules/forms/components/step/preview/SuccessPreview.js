@@ -13,15 +13,14 @@ const propTypes = {
 
 class SuccessPreview extends Component {
   render() {
-    const { thankContent, type, color, theme } = this.props;
+    const { theme, color, thankContent, type } = this.props;
 
     return (
       <CommonPreview
-        btnText="Cancel"
-        btnStyle="link"
-        type={type}
+        title={thankContent}
         theme={theme}
         color={color}
+        type={type}
       >
         <ThankContent>{thankContent}</ThankContent>
       </CommonPreview>
