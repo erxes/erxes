@@ -15,6 +15,7 @@ class FormBase extends Component {
     super(props);
 
     this.save = this.save.bind(this);
+    this.changeState = this.changeState.bind(this);
   }
 
   save(type, e) {
@@ -34,6 +35,10 @@ class FormBase extends Component {
     }
 
     this.props.save(doc);
+  }
+
+  changeState(key, value) {
+    this.setState({ [key]: value });
   }
 
   renderTitle() {

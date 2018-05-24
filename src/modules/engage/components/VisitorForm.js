@@ -2,9 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import MessengerForm from './MessengerForm';
-import { StepWrapper, TitleContainer } from './step/style';
-import { FormControl } from 'modules/common/components';
-import { ConditionStep, Steps, Step } from './step';
+import {
+  FormControl,
+  Steps,
+  Step,
+  ConditionStep
+} from 'modules/common/components';
+import {
+  StepWrapper,
+  TitleContainer
+} from 'modules/common/components/step/styles';
 import { METHODS, MESSAGE_KINDS } from 'modules/engage/constants';
 import FormBase from './FormBase';
 
@@ -22,15 +29,10 @@ class VisitorForm extends FormBase {
 
     const message = props.message.messenger || {};
     const rules = message.rules ? message.rules.map(rule => ({ ...rule })) : [];
-    const validate = props.message.messenger ? false : true;
 
     this.state = {
       maxStep: 2,
       activeStep: 1,
-      validate: {
-        step1: validate,
-        step2: validate
-      },
       method: METHODS.MESSENGER,
       title: props.message.title || '',
       message: message.content || '',
@@ -41,46 +43,6 @@ class VisitorForm extends FormBase {
         sentAs: message.sentAs || ''
       }
     };
-
-    this.next = this.next.bind(this);
-    this.changeState = this.changeState.bind(this);
-  }
-
-  next(stepNumber) {
-    const { activeStep, maxStep } = this.state;
-
-    this.validate();
-
-    if (stepNumber === 0) {
-      if (activeStep <= maxStep) {
-        this.setState({ activeStep: activeStep + 1 });
-      }
-    } else {
-      this.setState({ activeStep: stepNumber });
-    }
-  }
-
-  validate() {
-    const step1 = this.state.rules;
-    const step2 = this.state.messenger;
-
-    let validate = { ...this.state.validate };
-
-    validate['step1'] = false;
-    validate['step2'] = false;
-
-    if (step1.length < 1) {
-      validate['step1'] = true;
-    }
-
-    Object.keys(step2).map(key => {
-      if (step2[key] === '') {
-        validate['step2'] = true;
-      }
-      return false;
-    });
-
-    this.setState({ validate });
   }
 
   generateDoc(e) {
@@ -102,15 +64,10 @@ class VisitorForm extends FormBase {
     return doc;
   }
 
-  changeState(key, value) {
-    this.setState({ [key]: value });
-  }
-
   render() {
     const {
       activeStep,
       maxStep,
-      validate,
       messenger,
       fromUser,
       message,
@@ -130,7 +87,7 @@ class VisitorForm extends FormBase {
             defaultValue={this.state.title}
           />
         </TitleContainer>
-        <Steps maxStep={maxStep} active={activeStep} validate={validate}>
+        <Steps maxStep={maxStep} active={activeStep}>
           <Step
             img="/images/icons/erxes-02.svg"
             title="Who is this message for?"

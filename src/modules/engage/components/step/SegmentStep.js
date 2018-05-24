@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { FormControl, Icon } from 'modules/common/components';
+import { FlexItem } from 'modules/common/components/step/styles';
 import { Segments, SegmentsForm } from '../';
-import { FlexItem, Show, Divider } from './style';
+import { Show, Divider } from './style';
 
 const RadioContainer = styled.div`
   border-bottom: 1px dotted ${colors.borderPrimary};

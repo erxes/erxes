@@ -127,14 +127,6 @@ const WebPreview = styled.div`
 const MessengerPreview = WebPreview.extend`
   min-height: 500px;
 `;
-const InlineForm = styled.div`
-  display: flex;
-  flex-direction: row;
-
-  > *:not(:first-child) {
-    margin-left: ${dimensions.unitSpacing}px;
-  }
-`;
 
 const Segmentli = styled.li`
   list-style-type: none;
@@ -204,7 +196,6 @@ export {
   PreviewContent,
   Messenger,
   MessengerPreview,
-  InlineForm,
   Segmentli,
   Recipients,
   Recipient,

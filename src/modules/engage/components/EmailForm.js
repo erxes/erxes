@@ -8,8 +8,9 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
+import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Editor from './Editor';
-import { FlexItem, Divider, FlexPad } from './step/style';
+import { Divider } from './step/style';
 
 const PreviewContainer = styled.div`
   margin: 20px;
@@ -21,7 +22,7 @@ const PreviewContainer = styled.div`
 
 const EmailContent = styled.div`
   p {
-    padding: 0px;
+    padding: 20px 40px;
     margin: 0px;
   }
 `;

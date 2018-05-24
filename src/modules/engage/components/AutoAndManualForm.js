@@ -1,9 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { StepWrapper, TitleContainer } from './step/style';
-import { FormControl } from 'modules/common/components';
-import { ChannelStep, SegmentStep, MessageStep, Steps, Step } from './step';
+import { FormControl, Step, Steps } from 'modules/common/components';
+import {
+  StepWrapper,
+  TitleContainer
+} from 'modules/common/components/step/styles';
+import { ChannelStep, SegmentStep, MessageStep } from './step';
 import FormBase from './FormBase';
 
 const propTypes = {

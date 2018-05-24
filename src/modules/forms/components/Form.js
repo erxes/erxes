@@ -12,7 +12,10 @@ import {
   FormStep,
   FullPreviewStep
 } from './step';
-import { StepWrapper, TitleContainer } from '../styles';
+import {
+  StepWrapper,
+  TitleContainer
+} from 'modules/common/components/step/styles';
 
 const propTypes = {
   integration: PropTypes.object,

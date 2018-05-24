@@ -9,13 +9,6 @@ const StepContainer = styled.div`
   }
 `;
 
-const StepWrapper = styled.div`
-  margin: ${dimensions.coreSpacing}px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
 const TitleContainer = styled.div`
   display: flex;
   align-items: center;
@@ -97,48 +90,6 @@ const ContentCenter = styled.div`
   height: 100%;
 `;
 
-const StepStatus = styled.div`
-  margin-top: 20px;
-`;
-
-const FlexItem = styled.div`
-  display: flex;
-  height: 100%;
-  flex: ${props => (props.count ? props.count : 1)};
-  ${props => {
-    if (props.overflow) {
-      return `
-        overflow: ${props.overflow};
-      `;
-    }
-  }};
-  ${props => {
-    if (props.v) {
-      return `
-        align-items: ${props.v};
-      `;
-    }
-  }};
-  ${props => {
-    if (props.h) {
-      return `
-        justify-content: ${props.h};
-      `;
-    }
-  }};
-  ${props => {
-    if (props.direction) {
-      return `
-        flex-direction: ${props.direction};
-      `;
-    }
-  }};
-`;
-
-const FlexPad = FlexItem.extend`
-  padding: ${dimensions.coreSpacing}px;
-`;
-
 const Show = styled.div`
   display: ${props => (props.show ? 'block' : 'none')};
 `;
@@ -150,7 +101,6 @@ const Divider = styled.div`
 `;
 
 export {
-  StepWrapper,
   TitleContainer,
   StepItem,
   FullStep,
@@ -160,10 +110,7 @@ export {
   StepHeaderTitle,
   StepContent,
   ShortStep,
-  StepStatus,
   ContentCenter,
-  FlexItem,
-  FlexPad,
   Show,
   Divider,
   StepContainer
