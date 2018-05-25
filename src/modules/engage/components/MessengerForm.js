@@ -91,7 +91,7 @@ class MessengerForm extends Component {
             <FormControl
               componentClass="select"
               onChange={e => this.changeUser(e.target.value)}
-              defaultValue={this.state.fromUser}
+              value={this.state.fromUser}
             >
               <option />{' '}
               {this.props.users.map(u => (
