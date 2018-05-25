@@ -34,7 +34,6 @@ class Steps extends Component {
 
   render() {
     let { children, maxStep } = this.props;
-    //cloning step's children with default state
 
     return (
       <StepContainer>
