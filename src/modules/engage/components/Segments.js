@@ -38,8 +38,30 @@ class Segments extends Component {
     }
   }
 
+  renderItems(orderedSegments) {
+    const { counts } = this.props;
+
+    if (orderedSegments.length === 0) {
+      return <EmptyState icon="piechart" text="No segments" size="small" />;
+    }
+
+    return orderedSegments.map(segment => (
+      <Segmentli
+        key={segment._id}
+        chosen={this.state.chosenSegment === segment._id}
+      >
+        <a tabIndex={0} onClick={() => this.onClickSegment(segment._id)}>
+          {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
+          <Icon icon="piechart icon" style={{ color: segment.color }} />
+          {segment.name}
+          <SidebarCounter>{counts[segment._id]}</SidebarCounter>
+        </a>
+      </Segmentli>
+    ));
+  }
+
   render() {
-    const { segments, counts } = this.props;
+    const { segments } = this.props;
 
     const orderedSegments = [];
 
@@ -49,27 +71,7 @@ class Segments extends Component {
       }
     });
 
-    return (
-      <SidebarList>
-        {orderedSegments.length ? (
-          orderedSegments.map(segment => (
-            <Segmentli
-              key={segment._id}
-              chosen={this.state.chosenSegment === segment._id}
-            >
-              <a tabIndex={0} onClick={() => this.onClickSegment(segment._id)}>
-                {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-                <Icon icon="piechart icon" style={{ color: segment.color }} />
-                {segment.name}
-                <SidebarCounter>{counts[segment._id]}</SidebarCounter>
-              </a>
-            </Segmentli>
-          ))
-        ) : (
-          <EmptyState icon="piechart" text="No segments" size="small" />
-        )}
-      </SidebarList>
-    );
+    return <SidebarList>{this.renderItems(orderedSegments)}</SidebarList>;
   }
 }
 

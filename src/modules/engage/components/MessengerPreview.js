@@ -17,15 +17,16 @@ class MessengerPreview extends Component {
     super(props);
     this.state = { fromUser: '' };
 
-    // binds
     this.renderNotificationBody = this.renderNotificationBody.bind(this);
   }
 
   renderNotificationBody() {
     const { content, sentAs } = this.props;
+
     const type = sentAs ? sentAs : 'default';
     const classNames = `engage-message type-${type}`;
     const isFullmessage = sentAs === 'fullMessage';
+
     if (sentAs !== 'badge') {
       return (
         <WidgetPreviewStyled className={classNames}>
@@ -45,6 +46,7 @@ class MessengerPreview extends Component {
 
   render() {
     const { sentAs } = this.props;
+
     return (
       <WebPreview className={`type-${sentAs}`}>
         <Messenger>

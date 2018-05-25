@@ -26,6 +26,22 @@ class FormBase extends Component {
       return Alert.error(__('Write title'));
     }
 
+    if (!doc.fromUserId) {
+      return Alert.error(__('Choose from who'));
+    }
+
+    if (!doc.messenger.brandId) {
+      return Alert.error(__('Choose brand'));
+    }
+
+    if (doc.messenger.kind && !doc.messenger.kind) {
+      return Alert.error(__('Choose message type'));
+    }
+
+    if (!doc.messenger.sentAs) {
+      return Alert.error(__('Choose from sent as'));
+    }
+
     if (type === 'live') {
       return this.props.save({ isLive: true, isDraft: false, ...doc });
     }

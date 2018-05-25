@@ -137,6 +137,7 @@ class EmailForm extends Component {
               defaultValue={this.state.message}
             />
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <FormControl
@@ -152,6 +153,7 @@ class EmailForm extends Component {
               ))}
             </FormControl>
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>Email subject:</ControlLabel>
             <FormControl
@@ -159,6 +161,7 @@ class EmailForm extends Component {
               defaultValue={this.state.email.subject}
             />
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>Email template:</ControlLabel>
             <FormControl
@@ -175,6 +178,7 @@ class EmailForm extends Component {
             </FormControl>
           </FormGroup>
         </FlexPad>
+
         <FlexItem v="center" h="center" overflow="auto">
           {this.renderMessage()}
         </FlexItem>
