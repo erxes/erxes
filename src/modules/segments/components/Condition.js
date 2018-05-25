@@ -7,6 +7,7 @@ import { FlexContent, FlexItem, FlexRightItem } from 'modules/layout/styles';
 import { ConditionItem } from './styles';
 
 const propTypes = {
+  fields: PropTypes.array.isRequired,
   condition: PropTypes.object.isRequired,
   changeCondition: PropTypes.func.isRequired,
   removeCondition: PropTypes.func.isRequired
@@ -142,11 +143,12 @@ class Condition extends Component {
   }
 
   render() {
-    const { condition } = this.props;
+    const { fields, condition } = this.props;
+    const field = fields.find(field => field === condition.field);
 
     return (
       <ConditionItem>
-        <ControlLabel ignoreTrans>{condition.field}</ControlLabel>
+        <ControlLabel ignoreTrans>{field ? field.title : ''}</ControlLabel>
         <br />
         <FlexContent>
           <FlexItem>

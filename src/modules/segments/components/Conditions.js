@@ -5,6 +5,7 @@ import { Button } from 'modules/common/components';
 import Condition from './Condition';
 
 const propTypes = {
+  fields: PropTypes.array.isRequired,
   conditions: PropTypes.array.isRequired,
   changeCondition: PropTypes.func.isRequired,
   removeCondition: PropTypes.func.isRequired,
@@ -39,13 +40,14 @@ class Conditions extends Component {
   }
 
   render() {
-    const { conditions, changeCondition, removeCondition } = this.props;
+    const { fields, conditions, changeCondition, removeCondition } = this.props;
 
     return (
       <Fragment>
         {this.renderParent()}
         {conditions.map(condition => (
           <Condition
+            fields={fields}
             condition={condition}
             changeCondition={changeCondition}
             removeCondition={removeCondition}
