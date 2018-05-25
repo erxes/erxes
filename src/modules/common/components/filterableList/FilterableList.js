@@ -76,6 +76,7 @@ class FilterableList extends Component {
 
     // onClick hook
     const { onClick } = this.props;
+
     if (onClick) onClick(items, id);
   }
 
