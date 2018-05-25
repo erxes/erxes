@@ -156,6 +156,7 @@ class SegmentsForm extends Component {
           </FormGroup>
           <Conditions
             contentType={contentType}
+            fields={fields}
             parentSegmentId={subOf}
             conditions={conditions}
             changeCondition={this.changeCondition}
