@@ -91,7 +91,7 @@ class EmailForm extends Component {
       return template.content;
     }
 
-    return '';
+    return null;
   }
 
   renderBuilder() {

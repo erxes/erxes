@@ -30,15 +30,11 @@ class FormBase extends Component {
       return Alert.error(__('Choose from who'));
     }
 
-    if (!doc.messenger.brandId) {
+    if (doc.messenger && !doc.messenger.brandId) {
       return Alert.error(__('Choose brand'));
     }
 
-    if (doc.messenger.kind && !doc.messenger.kind) {
-      return Alert.error(__('Choose message type'));
-    }
-
-    if (!doc.messenger.sentAs) {
+    if (doc.messenger && !doc.messenger.sentAs) {
       return Alert.error(__('Choose from sent as'));
     }
 
