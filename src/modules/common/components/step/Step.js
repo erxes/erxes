@@ -39,7 +39,9 @@ class Step extends Component {
           Save
         </Button>
       );
-    } else if (save) {
+    }
+
+    if (save) {
       return (
         <Button.Group>
           <Button
@@ -61,6 +63,7 @@ class Step extends Component {
         </Button.Group>
       );
     }
+
     return (
       <Button
         btnStyle="primary"
@@ -118,6 +121,7 @@ class Step extends Component {
             </StepHeader>
             {nextButton || this.renderButton()}
           </StepHeaderContainer>
+
           <StepContent>{children}</StepContent>
         </FullStep>
 
