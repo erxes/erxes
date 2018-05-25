@@ -79,6 +79,7 @@ class List extends React.Component {
             {__('New message')} <Icon icon="downarrow" />
           </Button>
         </DropdownToggle>
+
         <Dropdown.Menu>
           <li>
             <Link to={'/engage/messages/create?kind=auto'}>
@@ -104,42 +105,40 @@ class List extends React.Component {
     );
 
     const mainContent = (
-      <div>
-        <Table whiteSpace="nowrap" hover bordered>
-          <thead>
-            <tr>
-              <th />
-              <th>{__('Title')}</th>
-              <th>{__('From')}</th>
-              <th>{__('Status')}</th>
-              <th>{__('Total')}</th>
-              <th>{__('Sent')}</th>
-              <th>{__('Delivered')}</th>
-              <th>{__('Opened')}</th>
-              <th>{__('Clicked')}</th>
-              <th>{__('Complaint')}</th>
-              <th>{__('Bounce')}</th>
-              <th>{__('Rendering Failure')}</th>
-              <th>{__('Rejected')}</th>
-              <th>{__('Type')}</th>
-              <th>{__('Brand')}</th>
-              <th>{__('Created date')}</th>
-              <th>{__('Tags')}</th>
-              <th>{__('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {messages.map(message => (
-              <MessageListRow
-                toggleBulk={toggleBulk}
-                refetch={refetch}
-                key={message._id}
-                message={message}
-              />
-            ))}
-          </tbody>
-        </Table>
-      </div>
+      <Table whiteSpace="nowrap" hover bordered>
+        <thead>
+          <tr>
+            <th />
+            <th>{__('Title')}</th>
+            <th>{__('From')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Total')}</th>
+            <th>{__('Sent')}</th>
+            <th>{__('Delivered')}</th>
+            <th>{__('Opened')}</th>
+            <th>{__('Clicked')}</th>
+            <th>{__('Complaint')}</th>
+            <th>{__('Bounce')}</th>
+            <th>{__('Rendering Failure')}</th>
+            <th>{__('Rejected')}</th>
+            <th>{__('Type')}</th>
+            <th>{__('Brand')}</th>
+            <th>{__('Created date')}</th>
+            <th>{__('Tags')}</th>
+            <th>{__('Actions')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {messages.map(message => (
+            <MessageListRow
+              toggleBulk={toggleBulk}
+              refetch={refetch}
+              key={message._id}
+              message={message}
+            />
+          ))}
+        </tbody>
+      </Table>
     );
 
     const sidebar = (

@@ -80,6 +80,7 @@ class VisitorForm extends FormBase {
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={this.renderTitle()} />
+
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
@@ -87,6 +88,7 @@ class VisitorForm extends FormBase {
             defaultValue={this.state.title}
           />
         </TitleContainer>
+
         <Steps maxStep={maxStep} active={activeStep}>
           <Step
             img="/images/icons/erxes-02.svg"
@@ -98,6 +100,7 @@ class VisitorForm extends FormBase {
               changeRules={this.changeState}
             />
           </Step>
+
           <Step
             img="/images/icons/erxes-08.svg"
             title="Compose your message"

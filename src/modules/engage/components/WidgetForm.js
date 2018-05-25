@@ -80,7 +80,7 @@ class WidgetForm extends Component {
   }
 
   renderEmailContent() {
-    if (this.state.channel === 'email') {
+    if (this.state.channel !== 'email') {
       return (
         <div>
           <FormGroup>
@@ -103,10 +103,12 @@ class WidgetForm extends Component {
         </div>
       );
     }
+
+    return null;
   }
 
   renderMessengerContent() {
-    if (this.state.channel === 'messenger') {
+    if (this.state.channel !== 'messenger') {
       return (
         <div>
           <FormGroup>
@@ -150,10 +152,13 @@ class WidgetForm extends Component {
         </div>
       );
     }
+
+    return null;
   }
 
   render() {
     const { __ } = this.context;
+
     return (
       <form onSubmit={this.save}>
         {this.renderCustomers()}

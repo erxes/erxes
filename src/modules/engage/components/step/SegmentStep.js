@@ -84,6 +84,7 @@ class SegmentStep extends Component {
         </SegmentContainer>
       );
     }
+
     return null;
   }
 
@@ -104,6 +105,7 @@ class SegmentStep extends Component {
             >
               {__('Choose segment')}
             </FormControl>
+
             <FormControl
               componentClass="radio"
               onChange={() => this.createSegment(true)}
@@ -114,7 +116,9 @@ class SegmentStep extends Component {
               {__('Create segment')}
             </FormControl>
           </RadioContainer>
+
           {this.renderSegments(show)}
+
           <Show show={show}>
             <SegmentsForm
               fields={this.props.segmentFields}
@@ -125,6 +129,7 @@ class SegmentStep extends Component {
             />
           </Show>
         </FlexItem>
+
         <FlexItem direction="column" v="center" h="center">
           <CustomerCounts>
             <Icon icon="users" size={50} />

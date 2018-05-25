@@ -123,6 +123,7 @@ class SegmentsForm extends Component {
       connector,
       conditions
     } = this.state;
+
     const params = { doc: { name, description, color, connector, conditions } };
 
     if (subOf) {
@@ -156,6 +157,7 @@ class SegmentsForm extends Component {
           </FormControl>
           of the below conditions
         </FormGroup>
+
         <Conditions
           contentType="customer"
           parentSegmentId={this.state.subOf}
@@ -163,6 +165,7 @@ class SegmentsForm extends Component {
           changeCondition={this.changeCondition}
           removeCondition={this.removeCondition}
         />
+
         <AddConditionButton
           fields={changedFields}
           addCondition={this.addCondition}
@@ -186,6 +189,7 @@ class SegmentsForm extends Component {
                 onChange={this.handleNameChange}
               />
             </FormGroup>
+
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
@@ -195,6 +199,7 @@ class SegmentsForm extends Component {
                 onChange={this.handleDescriptionChange}
               />
             </FormGroup>
+
             <FormGroup>
               <ControlLabel>Sub segment of</ControlLabel>
               <FormControl
@@ -211,6 +216,7 @@ class SegmentsForm extends Component {
                 ))}
               </FormControl>
             </FormGroup>
+
             <FormGroup>
               <ControlLabel>Color</ControlLabel>
               <FormControl
@@ -220,6 +226,7 @@ class SegmentsForm extends Component {
                 onChange={this.handleColorChange}
               />
             </FormGroup>
+
             <Button
               size="small"
               btnStyle="success"

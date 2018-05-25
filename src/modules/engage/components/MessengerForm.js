@@ -38,6 +38,7 @@ class MessengerForm extends Component {
     let messenger = {
       ...this.state.messenger
     };
+
     messenger[key] = value;
     this.setState({ messenger });
     this.props.changeMessenger('messenger', messenger);
@@ -53,6 +54,7 @@ class MessengerForm extends Component {
       return (
         <FormGroup>
           <ControlLabel>Message type:</ControlLabel>
+
           <FormControl
             componentClass="select"
             onChange={e => this.changeContent('kind', e.target.value)}
@@ -68,6 +70,7 @@ class MessengerForm extends Component {
         </FormGroup>
       );
     }
+
     return null;
   }
 
@@ -82,6 +85,7 @@ class MessengerForm extends Component {
               defaultValue={this.props.defaultValue.message}
             />
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <FormControl
@@ -97,6 +101,7 @@ class MessengerForm extends Component {
               ))}
             </FormControl>
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>Brand:</ControlLabel>
             <FormControl
@@ -112,7 +117,9 @@ class MessengerForm extends Component {
               ))}
             </FormControl>
           </FormGroup>
+
           {this.renderKind(this.props.hasKind)}
+
           <FormGroup>
             <ControlLabel>Sent as:</ControlLabel>
             <FormControl
@@ -129,6 +136,7 @@ class MessengerForm extends Component {
             </FormControl>
           </FormGroup>
         </FlexPad>
+
         <FlexPad overflow="auto">
           <MessengerPreview
             sentAs={this.state.messenger.sentAs}

@@ -94,6 +94,7 @@ class AutoAndManualForm extends FormBase {
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={this.renderTitle()} />
+
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
@@ -102,6 +103,7 @@ class AutoAndManualForm extends FormBase {
             defaultValue={this.state.title}
           />
         </TitleContainer>
+
         <Steps maxStep={maxStep} active={activeStep}>
           <Step
             img="/images/icons/erxes-05.svg"
@@ -113,6 +115,7 @@ class AutoAndManualForm extends FormBase {
               method={this.state.method}
             />
           </Step>
+
           <Step
             img="/images/icons/erxes-02.svg"
             title="Who is this message for?"
@@ -129,6 +132,7 @@ class AutoAndManualForm extends FormBase {
               segment={this.state.segment}
             />
           </Step>
+
           <Step
             img="/images/icons/erxes-08.svg"
             title="Compose your message"
