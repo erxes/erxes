@@ -137,6 +137,7 @@ class SegmentsForm extends Component {
 
         <Conditions
           contentType="customer"
+          fields={fields}
           parentSegmentId={this.state.subOf}
           conditions={this.state.conditions}
           changeCondition={this.changeCondition}
