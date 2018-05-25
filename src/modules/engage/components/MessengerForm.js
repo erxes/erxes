@@ -50,28 +50,28 @@ class MessengerForm extends Component {
   }
 
   renderKind(hasKind) {
-    if (hasKind) {
-      return (
-        <FormGroup>
-          <ControlLabel>Message type:</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            onChange={e => this.changeContent('kind', e.target.value)}
-            defaultValue={this.state.messenger.kind}
-          >
-            <option />{' '}
-            {MESSENGER_KINDS.SELECT_OPTIONS.map(k => (
-              <option key={k.value} value={k.value}>
-                {k.text}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-      );
+    if (!hasKind) {
+      return null;
     }
 
-    return null;
+    return (
+      <FormGroup>
+        <ControlLabel>Message type:</ControlLabel>
+
+        <FormControl
+          componentClass="select"
+          onChange={e => this.changeContent('kind', e.target.value)}
+          defaultValue={this.state.messenger.kind}
+        >
+          <option />{' '}
+          {MESSENGER_KINDS.SELECT_OPTIONS.map(k => (
+            <option key={k.value} value={k.value}>
+              {k.text}
+            </option>
+          ))}
+        </FormControl>
+      </FormGroup>
+    );
   }
 
   render() {

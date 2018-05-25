@@ -50,10 +50,6 @@ class SegmentsForm extends Component {
     this.changeCondition = this.changeCondition.bind(this);
     this.removeCondition = this.removeCondition.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
-    this.handleColorChange = this.handleColorChange.bind(this);
-    this.handleConnectorChange = this.handleConnectorChange.bind(this);
     this.save = this.save.bind(this);
   }
 
@@ -92,26 +88,6 @@ class SegmentsForm extends Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
-  handleNameChange(e) {
-    e.preventDefault();
-    this.setState({ name: e.target.value });
-  }
-
-  handleDescriptionChange(e) {
-    e.preventDefault();
-    this.setState({ description: e.target.value });
-  }
-
-  handleColorChange(e) {
-    e.preventDefault();
-    this.setState({ color: e.target.value });
-  }
-
-  handleConnectorChange(e) {
-    e.preventDefault();
-    this.setState({ connector: e.target.value });
-  }
-
   save(e) {
     e.preventDefault();
 
@@ -148,9 +124,10 @@ class SegmentsForm extends Component {
         <FormGroup>
           Users who match
           <FormControl
+            name="connector"
             componentClass="select"
             value={this.state.connector}
-            onChange={this.handleConnectorChange}
+            onChange={this.handleChange}
           >
             <option value="any">any</option>
             <option value="all">all</option>
@@ -186,7 +163,7 @@ class SegmentsForm extends Component {
                 type="text"
                 required
                 value={this.state.name}
-                onChange={this.handleNameChange}
+                onChange={this.handleChange}
               />
             </FormGroup>
 
@@ -196,7 +173,7 @@ class SegmentsForm extends Component {
                 name="description"
                 type="text"
                 value={this.state.description || ''}
-                onChange={this.handleDescriptionChange}
+                onChange={this.handleChange}
               />
             </FormGroup>
 
@@ -223,7 +200,7 @@ class SegmentsForm extends Component {
                 name="color"
                 type="color"
                 value={this.state.color}
-                onChange={this.handleColorChange}
+                onChange={this.handleChange}
               />
             </FormGroup>
 

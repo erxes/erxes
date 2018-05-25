@@ -113,17 +113,17 @@ class EmailForm extends Component {
   }
 
   renderMessage() {
-    if (this.state.currentTemplate !== '') {
-      return (
-        <PreviewContainer
-          dangerouslySetInnerHTML={{
-            __html: this.state.currentTemplate
-          }}
-        />
-      );
+    if (!this.state.currentTemplate) {
+      return null;
     }
 
-    return null;
+    return (
+      <PreviewContainer
+        dangerouslySetInnerHTML={{
+          __html: this.state.currentTemplate
+        }}
+      />
+    );
   }
 
   render() {
