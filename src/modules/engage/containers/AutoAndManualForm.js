@@ -49,6 +49,10 @@ const AutoAndManualFormContainer = props => {
     });
   };
 
+  if (emailTemplatesQuery.loading) {
+    return null;
+  }
+
   const updatedProps = {
     ...props,
     headSegments: headSegmentsQuery.segmentsGetHeads || [],

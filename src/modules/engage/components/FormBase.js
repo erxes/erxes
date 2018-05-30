@@ -15,6 +15,7 @@ class FormBase extends Component {
     super(props);
 
     this.save = this.save.bind(this);
+    this.changeState = this.changeState.bind(this);
   }
 
   save(type, e) {
@@ -23,6 +24,18 @@ class FormBase extends Component {
 
     if (!doc.title) {
       return Alert.error(__('Write title'));
+    }
+
+    if (!doc.fromUserId) {
+      return Alert.error(__('Choose from who'));
+    }
+
+    if (doc.messenger && !doc.messenger.brandId) {
+      return Alert.error(__('Choose brand'));
+    }
+
+    if (doc.messenger && !doc.messenger.sentAs) {
+      return Alert.error(__('Choose from sent as'));
     }
 
     if (type === 'live') {
@@ -34,6 +47,10 @@ class FormBase extends Component {
     }
 
     this.props.save(doc);
+  }
+
+  changeState(key, value) {
+    this.setState({ [key]: value });
   }
 
   renderTitle() {

@@ -1,9 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { StepWrapper, TitleContainer } from './step/style';
-import { FormControl } from 'modules/common/components';
-import { ChannelStep, SegmentStep, MessageStep, Steps, Step } from './step';
+import { FormControl, Step, Steps } from 'modules/common/components';
+import {
+  StepWrapper,
+  TitleContainer
+} from 'modules/common/components/step/styles';
+import { ChannelStep, SegmentStep, MessageStep } from './step';
 import FormBase from './FormBase';
 
 const propTypes = {
@@ -26,16 +29,10 @@ class AutoAndManualForm extends FormBase {
     content = message.email ? message.email.content : content;
     const messenger = message.messenger || {};
     const email = message.email || {};
-    const validate = message.title ? false : true;
 
     this.state = {
       activeStep: 1,
       maxStep: 3,
-      validate: {
-        step1: false,
-        step2: validate,
-        step3: validate
-      },
       method: message.method || 'email',
       title: message.title || null,
       segment: message.segmentId || '',
@@ -51,30 +48,6 @@ class AutoAndManualForm extends FormBase {
         subject: email.subject || ''
       }
     };
-
-    this.next = this.next.bind(this);
-    this.changeState = this.changeState.bind(this);
-  }
-
-  validate() {
-    const step3 = this.state[this.state.method];
-
-    let validate = { ...this.state.validate };
-    validate['step2'] = false;
-    validate['step3'] = false;
-
-    if (this.state.segment === '') {
-      validate['step2'] = true;
-    }
-
-    Object.keys(step3).map(key => {
-      if (step3[key] === '') {
-        validate['step3'] = true;
-      }
-      return false;
-    });
-
-    this.setState({ validate });
   }
 
   generateDoc(e) {
@@ -105,28 +78,10 @@ class AutoAndManualForm extends FormBase {
     return doc;
   }
 
-  changeState(key, value) {
-    this.setState({ [key]: value });
-  }
-
-  next(stepNumber) {
-    const { activeStep, maxStep } = this.state;
-    this.validate();
-
-    if (stepNumber === 0) {
-      if (activeStep <= maxStep) {
-        this.setState({ activeStep: activeStep + 1 });
-      }
-    } else {
-      this.setState({ activeStep: stepNumber });
-    }
-  }
-
   render() {
     const {
       activeStep,
       maxStep,
-      validate,
       messenger,
       email,
       fromUser,
@@ -139,6 +94,7 @@ class AutoAndManualForm extends FormBase {
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={this.renderTitle()} />
+
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
@@ -147,7 +103,8 @@ class AutoAndManualForm extends FormBase {
             defaultValue={this.state.title}
           />
         </TitleContainer>
-        <Steps maxStep={maxStep} active={activeStep} validate={validate}>
+
+        <Steps maxStep={maxStep} active={activeStep}>
           <Step
             img="/images/icons/erxes-05.svg"
             title="Choose channel"
@@ -158,6 +115,7 @@ class AutoAndManualForm extends FormBase {
               method={this.state.method}
             />
           </Step>
+
           <Step
             img="/images/icons/erxes-02.svg"
             title="Who is this message for?"
@@ -174,6 +132,7 @@ class AutoAndManualForm extends FormBase {
               segment={this.state.segment}
             />
           </Step>
+
           <Step
             img="/images/icons/erxes-08.svg"
             title="Compose your message"

@@ -17,34 +17,36 @@ class MessengerPreview extends Component {
     super(props);
     this.state = { fromUser: '' };
 
-    // binds
     this.renderNotificationBody = this.renderNotificationBody.bind(this);
   }
 
   renderNotificationBody() {
     const { content, sentAs } = this.props;
+
     const type = sentAs ? sentAs : 'default';
     const classNames = `engage-message type-${type}`;
     const isFullmessage = sentAs === 'fullMessage';
-    if (sentAs !== 'badge') {
-      return (
-        <WidgetPreviewStyled className={classNames}>
-          <NameCard user={this.props.user} singleLine />
-          <PreviewContent
-            isFullmessage={isFullmessage}
-            dangerouslySetInnerHTML={{
-              __html: isFullmessage ? content : strip(content)
-            }}
-          />
-        </WidgetPreviewStyled>
-      );
+
+    if (sentAs === 'badge') {
+      return null;
     }
 
-    return null;
+    return (
+      <WidgetPreviewStyled className={classNames}>
+        <NameCard user={this.props.user} singleLine />
+        <PreviewContent
+          isFullmessage={isFullmessage}
+          dangerouslySetInnerHTML={{
+            __html: isFullmessage ? content : strip(content)
+          }}
+        />
+      </WidgetPreviewStyled>
+    );
   }
 
   render() {
     const { sentAs } = this.props;
+
     return (
       <WebPreview className={`type-${sentAs}`}>
         <Messenger>
