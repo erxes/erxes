@@ -41,12 +41,12 @@ class EmailForm extends Component {
     const message = this.props.defaultValue || {};
 
     this.state = {
-      fromUser: message.fromUser,
+      fromUser: message.fromUser || '',
       currentTemplate: '',
       message: message.message,
       email: {
-        subject: message.email.subject,
-        templateId: message.email.templateId
+        subject: message.email.subject || '',
+        templateId: message.email.templateId || ''
       }
     };
   }
@@ -143,7 +143,7 @@ class EmailForm extends Component {
             <FormControl
               componentClass="select"
               onChange={e => this.changeUser(e.target.value)}
-              defaultValue={this.state.fromUser}
+              value={this.state.fromUser}
             >
               <option />{' '}
               {this.props.users.map(u => (
@@ -167,7 +167,7 @@ class EmailForm extends Component {
             <FormControl
               componentClass="select"
               onChange={e => this.templateChange(e.target.value)}
-              defaultValue={this.state.email.templateId}
+              value={this.state.email.templateId}
             >
               <option />{' '}
               {this.props.templates.map(t => (
