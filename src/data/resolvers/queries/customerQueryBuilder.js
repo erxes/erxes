@@ -76,6 +76,8 @@ export default class Builder {
       { lastName: new RegExp(`.*${value}.*`, 'i') },
       { email: new RegExp(`.*${value}.*`, 'i') },
       { phone: new RegExp(`.*${value}.*`, 'i') },
+      { 'visitorContactInfo.email': new RegExp(`.*${value}.*`, 'i') },
+      { 'visitorContactInfo.phone': new RegExp(`.*${value}.*`, 'i') },
     ];
 
     return { $or: fields };
