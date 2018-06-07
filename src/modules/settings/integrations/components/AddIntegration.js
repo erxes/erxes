@@ -7,11 +7,9 @@ import {
   Icon,
   DropdownToggle
 } from 'modules/common/components';
-import { Messenger, Facebook } from '../containers';
+import { Facebook } from '../containers';
 
 function AddIntegration(props, { __ }) {
-  const triggerMessenger = <MenuItem>{__('Messenger')}</MenuItem>;
-
   const triggerFb = <MenuItem>{__('Facebook page')}</MenuItem>;
 
   return (
@@ -22,9 +20,9 @@ function AddIntegration(props, { __ }) {
         </Button>
       </DropdownToggle>
       <Dropdown.Menu>
-        <ModalTrigger title="Add messenger" trigger={triggerMessenger}>
-          <Messenger />
-        </ModalTrigger>
+        <MenuItem href="/settings/integrations/messenger">
+          {__('Add messenger')}
+        </MenuItem>
 
         <ModalTrigger title="Add facebook page" trigger={triggerFb}>
           <Facebook />

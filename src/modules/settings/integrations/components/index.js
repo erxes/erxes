@@ -1,4 +1,5 @@
 import List from './List';
+import CreateMessenger from './CreateMessenger';
 import Common from './Common';
 import Messenger from './Messenger';
 import AddIntegration from './AddIntegration';
@@ -10,6 +11,7 @@ import WidgetPreview from './widgetPreview/WidgetPreview';
 
 export {
   List,
+  CreateMessenger,
   Messenger,
   AddIntegration,
   Common,

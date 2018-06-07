@@ -139,6 +139,31 @@ const FlexPad = FlexItem.extend`
   border-right: 1px solid ${colors.borderPrimary};
 `;
 
+const LeftItem = styled.div`
+  overflow: auto;
+  flex: 1;
+  min-width: 43.33333%;
+  padding: ${dimensions.coreSpacing}px;
+  opacity: ${props => props.deactive && '0.3'};
+  cursor: ${props => props.deactive && 'not-allowed'};
+
+  input:disabled {
+    cursor: not-allowed;
+  }
+`;
+
+const Preview = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.coreSpacing}px;
+  background: url('/images/previews/preview.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  overflow: auto;
+`;
+
 export {
   StepContainer,
   StepItem,
@@ -153,5 +178,7 @@ export {
   TitleContainer,
   InlineForm,
   FlexItem,
-  FlexPad
+  FlexPad,
+  LeftItem,
+  Preview
 };

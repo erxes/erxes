@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { CalloutPreview } from './preview';
 import { FormGroup, ControlLabel, Icon } from 'modules/common/components';
-import { FlexItem, LeftItem, Preview, BoxRow, Box } from './style';
+import { FlexItem, BoxRow, Box } from './style';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
 
 const propTypes = {
   type: PropTypes.string,

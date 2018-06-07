@@ -8,7 +8,8 @@ import {
   ControlLabel
 } from 'modules/common/components';
 import { FormPreview } from './preview';
-import { FlexItem, FlexColumn, LeftItem, Preview } from './style';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { FlexItem, FlexColumn } from './style';
 
 const propTypes = {
   type: PropTypes.string,

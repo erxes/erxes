@@ -6,7 +6,8 @@ import {
   ControlLabel
 } from 'modules/common/components';
 import { SuccessPreview } from './preview';
-import { FlexItem, LeftItem, Preview } from './style';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { FlexItem } from './style';
 
 const propTypes = {
   type: PropTypes.string,

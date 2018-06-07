@@ -4,6 +4,7 @@ import queryString from 'query-string';
 import {
   List,
   Twitter,
+  CreateMessenger,
   MessengerAppearance,
   MessengerConfigs
 } from './containers';
@@ -27,6 +28,13 @@ const routes = () => [
       const id = match.params.integrationId;
       return <MessengerAppearance integrationId={id} />;
     }}
+  />,
+
+  <Route
+    key="/settings/integrations/messenger"
+    exact
+    path="/settings/integrations/messenger"
+    component={CreateMessenger}
   />,
 
   <Route

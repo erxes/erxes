@@ -8,14 +8,8 @@ import {
   ControlLabel
 } from 'modules/common/components';
 import { FormPreview } from './preview';
-import {
-  FlexItem,
-  LeftItem,
-  Preview,
-  ColorPicker,
-  Picker,
-  BackgroundSelector
-} from './style';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { FlexItem, ColorPicker, Picker, BackgroundSelector } from './style';
 
 const propTypes = {
   type: PropTypes.string,

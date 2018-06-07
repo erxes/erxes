@@ -34,31 +34,6 @@ const FlexItem = styled.div`
   height: 100%;
 `;
 
-const LeftItem = styled.div`
-  overflow: auto;
-  flex: 1;
-  min-width: 43.33333%;
-  padding: ${dimensions.coreSpacing}px;
-  opacity: ${props => props.deactive && '0.3'};
-  cursor: ${props => props.deactive && 'not-allowed'};
-
-  input:disabled {
-    cursor: not-allowed;
-  }
-`;
-
-const Preview = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  border-left: 1px solid ${colors.borderPrimary};
-  padding: ${dimensions.coreSpacing}px;
-  background: url('/images/previews/preview.png');
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  overflow: auto;
-`;
-
 const FullPreview = styled.div`
   flex: 1;
   display: flex;
@@ -265,8 +240,6 @@ const FlexColumn = styled.div`
 export {
   FlexItem,
   FlexColumn,
-  LeftItem,
-  Preview,
   ColorPicker,
   Picker,
   BackgroundSelector,
