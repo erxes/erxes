@@ -50,7 +50,7 @@ class ForgotPassword extends Component {
               onChange={this.handleEmailChange}
             />
           </FormGroup>
-          <Button type="submit" block>
+          <Button btnStyle="success" type="submit" block>
             Email me the instruction
           </Button>
         </form>

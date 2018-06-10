@@ -64,7 +64,7 @@ class SignIn extends Component {
               onChange={this.handlePasswordChange}
             />
           </FormGroup>
-          <Button type="submit" block>
+          <Button btnStyle="success" type="submit" block>
             Sign in
           </Button>
         </form>
