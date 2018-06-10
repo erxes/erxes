@@ -147,13 +147,11 @@ const SidebarBox = styled.div`
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 8px 1px ${colors.shadowPrimary}`};
   padding-bottom: ${props =>
-    props.collapsible
-      ? `${dimensions.coreSpacing}px`
-      : `${dimensions.unitSpacing}px`};
+    props.collapsible ? `${dimensions.unitSpacing}px` : '0'};
   position: ${props => (props.full ? 'initial' : 'relative')};
   justify-content: center;
   transition: max-height 0.4s;
-  overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
+  overflow: ${props => (props.collapsible ? 'hidden' : 'initial')};
   display: ${props => props.full && 'flex'};
 
   &:last-child {
@@ -165,7 +163,7 @@ const BoxContent = styled.div`
   flex: 1;
 
   ul {
-    margin-top: 10px;
+    padding: 10px 0;
   }
 `;
 
@@ -193,6 +191,7 @@ const HelperButtons = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
   top: 15px;
+  color: ${colors.colorCoreLightGray};
 
   a {
     float: left;
@@ -213,10 +212,6 @@ const HelperButtons = styled.div`
       }
     }
   }
-`;
-
-const SidebarContent = styled.div`
-  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
 `;
 
 const SidebarList = styled.ul`
@@ -401,7 +396,6 @@ export {
   SidebarTitle,
   UserHelper,
   SidebarList,
-  SidebarContent,
   FlexContent,
   FlexItem,
   FlexRightItem,

@@ -64,7 +64,7 @@ class Row extends Component {
         <td>{product.type}</td>
         <td>{product.description}</td>
         <td>{product.sku && <Label>{product.sku}</Label>}</td>
-        <td width="5%">
+        <td>
           <ActionButtons>
             {this.renderEditAction()}
 
