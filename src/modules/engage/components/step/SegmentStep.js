@@ -1,22 +1,21 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 import { FormControl, Icon } from 'modules/common/components';
+import { FlexItem } from 'modules/common/components/step/styles';
 import { Segments, SegmentsForm } from '../';
-import { FlexItem, Show, Divider } from './style';
 
 const RadioContainer = styled.div`
   border-bottom: 1px dotted ${colors.borderPrimary};
 
   > * {
-    padding: 20px;
-    fields: PropTypes.array.isRequired;
+    padding: ${dimensions.coreSpacing}px;
   }
 `;
 
 const SegmentContainer = styled.div`
-  padding: 20px;
+  padding: ${dimensions.coreSpacing}px;
 `;
 
 const CustomerCounts = styled.div`
@@ -25,6 +24,10 @@ const CustomerCounts = styled.div`
   > i {
     color: ${colors.colorCoreLightGray};
   }
+`;
+
+const Show = styled.div`
+  display: ${props => (props.show ? 'block' : 'none')};
 `;
 
 const propTypes = {
@@ -81,6 +84,7 @@ class SegmentStep extends Component {
         </SegmentContainer>
       );
     }
+
     return null;
   }
 
@@ -101,6 +105,7 @@ class SegmentStep extends Component {
             >
               {__('Choose segment')}
             </FormControl>
+
             <FormControl
               componentClass="radio"
               onChange={() => this.createSegment(true)}
@@ -111,7 +116,9 @@ class SegmentStep extends Component {
               {__('Create segment')}
             </FormControl>
           </RadioContainer>
+
           {this.renderSegments(show)}
+
           <Show show={show}>
             <SegmentsForm
               fields={this.props.segmentFields}
@@ -122,7 +129,7 @@ class SegmentStep extends Component {
             />
           </Show>
         </FlexItem>
-        <Divider />
+
         <FlexItem direction="column" v="center" h="center">
           <CustomerCounts>
             <Icon icon="users" size={50} />

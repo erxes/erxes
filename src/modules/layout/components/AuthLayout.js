@@ -1,8 +1,8 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import { Authlayout, AuthContent, AuthDescription } from '../styles';
 import { Grid, Col } from 'react-bootstrap';
+import { Authlayout, AuthContent, AuthDescription } from '../styles';
 
 const propTypes = {
   history: PropTypes.object,
@@ -33,7 +33,7 @@ class AuthLayout extends React.Component {
                 <h1>{__('Customer engagement. Redefined.')}</h1>
                 <p>
                   {__(
-                    'erxes is an AI meets open source messaging platform for sales and marketing teams.'
+                    'erxes is an AI meets open source messaging platform for sales and marketing and support.'
                   )}
                 </p>
                 <a href="http://erxes.io/">« Go to home page</a>

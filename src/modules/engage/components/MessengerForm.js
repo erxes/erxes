@@ -6,9 +6,9 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
+import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Editor from './Editor';
 import { MessengerPreview } from '../containers';
-import { FlexItem, Divider, FlexPad } from './step/style';
 
 const propTypes = {
   brands: PropTypes.array,
@@ -38,6 +38,7 @@ class MessengerForm extends Component {
     let messenger = {
       ...this.state.messenger
     };
+
     messenger[key] = value;
     this.setState({ messenger });
     this.props.changeMessenger('messenger', messenger);
@@ -49,27 +50,30 @@ class MessengerForm extends Component {
   }
 
   renderKind(hasKind) {
-    if (hasKind) {
-      return (
-        <FormGroup>
-          <ControlLabel>Message type:</ControlLabel>
-          <FormControl
-            componentClass="select"
-            onChange={e => this.changeContent('kind', e.target.value)}
-            defaultValue={this.state.messenger.kind}
-          >
-            <option />{' '}
-            {MESSENGER_KINDS.SELECT_OPTIONS.map(k => (
-              <option key={k.value} value={k.value}>
-                {k.text}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-      );
+    if (!hasKind) {
+      return null;
     }
-    return null;
+
+    return (
+      <FormGroup>
+        <ControlLabel>Message type:</ControlLabel>
+
+        <FormControl
+          componentClass="select"
+          onChange={e => this.changeContent('kind', e.target.value)}
+          defaultValue={this.state.messenger.kind}
+        >
+          <option />{' '}
+          {MESSENGER_KINDS.SELECT_OPTIONS.map(k => (
+            <option key={k.value} value={k.value}>
+              {k.text}
+            </option>
+          ))}
+        </FormControl>
+      </FormGroup>
+    );
   }
+
   render() {
     return (
       <FlexItem>
@@ -81,12 +85,13 @@ class MessengerForm extends Component {
               defaultValue={this.props.defaultValue.message}
             />
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <FormControl
               componentClass="select"
               onChange={e => this.changeUser(e.target.value)}
-              defaultValue={this.state.fromUser}
+              value={this.state.fromUser}
             >
               <option />{' '}
               {this.props.users.map(u => (
@@ -96,6 +101,7 @@ class MessengerForm extends Component {
               ))}
             </FormControl>
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>Brand:</ControlLabel>
             <FormControl
@@ -111,7 +117,9 @@ class MessengerForm extends Component {
               ))}
             </FormControl>
           </FormGroup>
+
           {this.renderKind(this.props.hasKind)}
+
           <FormGroup>
             <ControlLabel>Sent as:</ControlLabel>
             <FormControl
@@ -128,7 +136,7 @@ class MessengerForm extends Component {
             </FormControl>
           </FormGroup>
         </FlexPad>
-        <Divider />
+
         <FlexPad overflow="auto">
           <MessengerPreview
             sentAs={this.state.messenger.sentAs}

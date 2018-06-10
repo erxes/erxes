@@ -6,12 +6,11 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
-import { InlineForm } from '../../styles';
 import {
   VISITOR_AUDIENCE_RULES,
   RULE_CONDITIONS
 } from 'modules/engage/constants';
-import { FlexPad } from './style';
+import { InlineForm, FlexPad } from './styles';
 
 const propTypes = {
   rules: PropTypes.array.isRequired,

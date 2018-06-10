@@ -42,7 +42,7 @@ class ResetPassword extends Component {
               onChange={this.handlePasswordChange}
             />
           </FormGroup>
-          <Button type="submit" block>
+          <Button btnStyle="success" type="submit" block>
             Change password
           </Button>
         </form>

@@ -23,7 +23,7 @@ import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
 import ConversationList from './conversationList/ConversationList';
 import { FormControl, ControlLabel, FormGroup, Textarea } from './form';
-import { Step, Steps } from './step';
+import { Step, Steps, ConditionStep } from './step';
 import TextDivider from './TextDivider';
 import CountsByTag from './CountsByTag';
 import FilterByParams from './FilterByParams';
@@ -75,6 +75,7 @@ export {
   FormGroup,
   Step,
   Steps,
+  ConditionStep,
   TextDivider,
   Table,
   Editor,

@@ -19,11 +19,11 @@ import {
   SlideLeftContent,
   OverlayTrigger,
   Embedded
-} from '../style';
+} from './styles';
 
-const ShoutBox = MessengerPreview.extend`
+export const ShoutBox = MessengerPreview.extend`
   height: 100%;
-  min-height: 470px;
+  min-height: 570px;
   width: auto;
   margin-left: 0;
 `;
