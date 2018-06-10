@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components';
 import { colors, dimensions, typography } from '../common/styles';
 import { lighten } from '../common/styles/color';
+import { twinkling } from 'modules/common/utils/animations';
 
 const UserHelper = styled.div`
   height: 50px;
@@ -325,19 +326,20 @@ const WhiteBox = WhiteBoxRoot.extend`
 `;
 
 const Authlayout = styled.div`
-  background: url('/images/sign-in.jpg') no-repeat;
-  background-size: cover;
   height: 100%;
   overflow: hidden;
   position: relative;
+  background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
+    center;
   flex: 1;
 
   &:before {
     content: '';
-    background-color: rgba(69, 38, 121, 0.7);
     position: absolute;
     width: 100%;
     height: 100%;
+    background: transparent url('/images/twinkling.png') repeat top center;
+    animation: ${twinkling} 200s linear infinite;
   }
 `;
 

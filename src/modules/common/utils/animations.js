@@ -63,4 +63,14 @@ const shake = keyframes`
   30%,100%{transform:rotate(0deg)}
 `;
 
-export { rotate, fadeIn, slideDown, slideLeft, slideRight, shake };
+const twinkling = keyframes`
+  from {
+    background-position:0 0;
+  }
+
+  to {
+    background-position:-10000px 5000px;
+  }
+`;
+
+export { rotate, fadeIn, slideDown, slideLeft, slideRight, shake, twinkling };
