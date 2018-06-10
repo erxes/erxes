@@ -86,6 +86,11 @@ const DropIcon = styled.i`
   }
 `;
 
+const SidebarContent = styled.div`
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px
+    ${dimensions.unitSpacing}px;
+`;
+
 export {
   PropertyList,
   DropIcon,
@@ -93,5 +98,6 @@ export {
   Actions,
   FieldType,
   InputDescription,
-  CollapseRow
+  CollapseRow,
+  SidebarContent
 };

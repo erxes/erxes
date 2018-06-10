@@ -144,9 +144,9 @@ const ActivityContent = styled.div`
 `;
 
 const Well = styled.div`
-  min-height: ${dimensions.coreSpacing};
-  padding: ${dimensions.unitSpacing} ${dimensions.coreSpacing};
-  margin-bottom: ${dimensions.coreSpacing};
+  min-height: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
   background-color: ${colors.bgActive};
   border-left: 2px solid ${colors.colorSecondary};
 `;
