@@ -1,3 +1,3 @@
-import IntroPreview from './IntroPreview';
+import CommonPreview from './CommonPreview';
 
-export { IntroPreview };
+export { CommonPreview };

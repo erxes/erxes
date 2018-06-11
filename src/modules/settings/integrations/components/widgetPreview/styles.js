@@ -145,7 +145,8 @@ const StateSpan = styled.span`
   display: inline-block;
   margin-bottom: 1px;
   margin-right: 3px;
-  background-color: ${colors.colorCoreGreen};
+  background-color: ${props =>
+    props.state ? colors.colorCoreGreen : colors.colorLightGray};
 `;
 
 export {

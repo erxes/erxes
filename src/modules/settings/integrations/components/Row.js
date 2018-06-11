@@ -69,7 +69,7 @@ class Row extends Component {
 
           <Tip text={__('Hours, Availability & Other configs')}>
             <Link
-              to={`/settings/integrations/messenger/configs/${integration._id}`}
+              to={`/settings/integrations/editMessenger/${integration._id}`}
             >
               <Button btnStyle="link" icon="settings" />
             </Link>

@@ -1,3 +1,5 @@
 import Intro from './Intro';
+import Availability from './Availability';
+import Appearance from './Appearance';
 
-export { Intro };
+export { Intro, Availability, Appearance };

@@ -20,7 +20,7 @@ function AddIntegration(props, { __ }) {
         </Button>
       </DropdownToggle>
       <Dropdown.Menu>
-        <MenuItem href="/settings/integrations/messenger">
+        <MenuItem href="/settings/integrations/createMessenger">
           {__('Add messenger')}
         </MenuItem>
 

@@ -1,13 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import {
-  List,
-  Twitter,
-  CreateMessenger,
-  MessengerAppearance,
-  MessengerConfigs
-} from './containers';
+import { List, Twitter, CreateMessenger, MessengerConfigs } from './containers';
 
 const routes = () => [
   <Route
@@ -21,20 +15,22 @@ const routes = () => [
   />,
 
   <Route
-    key="/settings/integrations/messenger/appearance/:integrationId"
+    key="/settings/integrations/createMessenger"
     exact
-    path="/settings/integrations/messenger/appearance/:integrationId"
+    path="/settings/integrations/createMessenger"
     component={({ match }) => {
-      const id = match.params.integrationId;
-      return <MessengerAppearance integrationId={id} />;
+      const { integrationId } = match.params;
+      return <CreateMessenger integrationId={integrationId} />;
     }}
   />,
 
   <Route
-    key="/settings/integrations/messenger"
+    key="/settings/integrations/editMessenger/:_id"
     exact
-    path="/settings/integrations/messenger"
-    component={CreateMessenger}
+    path="/settings/integrations/editMessenger/:_id"
+    component={({ match }) => {
+      return <CreateMessenger integrationId={match.params._id} />;
+    }}
   />,
 
   <Route

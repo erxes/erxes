@@ -88,6 +88,7 @@ const ShortStep = styled.div`
   align-items: center;
   padding: ${dimensions.unitSpacing}px 0;
   flex-direction: column;
+  border-radius: 5px;
 `;
 
 const InlineForm = styled.div`

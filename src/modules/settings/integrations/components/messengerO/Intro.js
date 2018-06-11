@@ -1,34 +1,94 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { uploadHandler } from 'modules/common/utils';
-import { ActionBar } from 'modules/layout/components';
 import {
   FormControl,
   FormGroup,
-  ControlLabel,
-  Icon
+  ControlLabel
 } from 'modules/common/components';
-import { IntroPreview } from './preview';
-import { LeftItem, Preview } from 'modules/common/components/step/styles';
-import { WidgetApperance, SubHeading } from 'modules/settings/styles';
+import { CommonPreview } from './preview';
+import {
+  LeftItem,
+  Preview,
+  FlexItem
+} from 'modules/common/components/step/styles';
+import { SubHeading } from 'modules/settings/styles';
 
 const propTypes = {
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  color: PropTypes.string,
+  wallpaper: PropTypes.string,
+  logoPreviewStyle: PropTypes.object,
+  logoPreviewUrl: PropTypes.string,
+  welcomeMessage: PropTypes.string,
+  awayMessage: PropTypes.string,
+  thankYouMessage: PropTypes.string
 };
 
 class Intro extends Component {
   constructor(props) {
     super(props);
+
+    this.onInputChange = this.onInputChange.bind(this);
+  }
+
+  onInputChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
+    this.props.onChange(e.target.name, e.target.value);
   }
 
   render() {
+    const { __ } = this.context;
+
     return (
-      <WidgetApperance>
-        <LeftItem>hi</LeftItem>
+      <FlexItem>
+        <LeftItem>
+          <SubHeading>{__('Online messaging')}</SubHeading>
+
+          <FormGroup>
+            <ControlLabel>Welcome message</ControlLabel>
+
+            <FormControl
+              componentClass="textarea"
+              placeholder={__('Write here Welcome message.')}
+              rows={3}
+              name="welcomeMessage"
+              value={this.props.welcomeMessage}
+              onChange={this.onInputChange}
+            />
+          </FormGroup>
+
+          <SubHeading>{__('Offline messaging')}</SubHeading>
+
+          <FormGroup>
+            <ControlLabel>Away message</ControlLabel>
+
+            <FormControl
+              componentClass="textarea"
+              placeholder={__('Write here Away message.')}
+              rows={3}
+              name="awayMessage"
+              value={this.props.awayMessage}
+              onChange={this.onInputChange}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Thank you message</ControlLabel>
+
+            <FormControl
+              componentClass="textarea"
+              placeholder={__('Write here Thank you message.')}
+              rows={3}
+              name="thankYouMessage"
+              value={this.props.thankYouMessage}
+              onChange={this.onInputChange}
+            />
+          </FormGroup>
+        </LeftItem>
         <Preview>
-          <IntroPreview />
+          <CommonPreview {...this.props} />
         </Preview>
-      </WidgetApperance>
+      </FlexItem>
     );
   }
 }

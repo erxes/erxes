@@ -19,11 +19,15 @@ import {
 } from './styles';
 import { WidgetPreviewStyled } from 'modules/settings/styles';
 
-function WidgetPreview({ color, wallpaper, user }, { __ }) {
+function WidgetPreview(
+  { color, wallpaper, user, welcomeMessage, isOnline },
+  { __ }
+) {
   const avatar =
     (user.details && user.details.avatar) || '/images/avatar-colored.svg';
   const fullName = (user.details && user.details.fullName) || 'Support staff';
   const backgroundClasses = `background-${wallpaper}`;
+
   return (
     <WidgetPreviewStyled>
       <ErxesTopbar style={{ backgroundColor: color }}>
@@ -33,18 +37,14 @@ function WidgetPreview({ color, wallpaper, user }, { __ }) {
             <img src={avatar} alt={fullName} />
             <ErxesStaffName>{fullName}</ErxesStaffName>
             <ErxesState>
-              <StateSpan />
-              {__('Online')}
+              <StateSpan state={isOnline} />
+              {isOnline ? __('Online') : __('Offline')}
             </ErxesState>
           </ErxesStaffProfile>
         </ErxesMiddle>
       </ErxesTopbar>
       <ErxesMessagesList className={backgroundClasses}>
-        <ErxesWelcomeMessage>
-          {__(
-            'We welcome you warmly to erxes and look forward to a long term healthy working association with us.'
-          )}
-        </ErxesWelcomeMessage>
+        <ErxesWelcomeMessage>{welcomeMessage}</ErxesWelcomeMessage>
         <li>
           <ErxesAvatar>
             <img src={avatar} alt="avatar" />
@@ -69,7 +69,9 @@ function WidgetPreview({ color, wallpaper, user }, { __ }) {
 WidgetPreview.propTypes = {
   color: PropTypes.string.isRequired,
   wallpaper: PropTypes.string.isRequired,
-  user: PropTypes.object.isRequired // eslint-disable-line
+  user: PropTypes.object.isRequired, // eslint-disable-line,
+  welcomeMessage: PropTypes.string,
+  isOnline: PropTypes.bool
 };
 
 WidgetPreview.contextTypes = {
