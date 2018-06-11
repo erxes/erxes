@@ -89,6 +89,7 @@ class OnlineHours extends Component {
           onChange={onDayChange}
           clearable={false}
         />
+
         <span>from</span>
         <Select
           className="flex-item"
@@ -97,6 +98,7 @@ class OnlineHours extends Component {
           options={hours}
           clearable={false}
         />
+
         <span>to</span>
         <Select
           className="flex-item"

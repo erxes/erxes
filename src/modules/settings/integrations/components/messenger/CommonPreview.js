@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Tip, Icon } from 'modules/common/components';
-import { WidgetPreview } from '../../';
+import { WidgetPreview } from '../';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import { LogoContainer } from 'modules/settings/styles';
 
@@ -40,6 +40,7 @@ class CommonPreview extends Component {
             welcomeMessage={welcomeMessage}
             isOnline={isOnline}
           />
+
           <Tip text={__('Choose a logo')}>
             <LogoContainer
               style={Object.assign(

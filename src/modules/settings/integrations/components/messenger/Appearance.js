@@ -11,7 +11,7 @@ import {
   Icon
 } from 'modules/common/components';
 import SelectBrand from '../SelectBrand';
-import { CommonPreview } from './preview';
+import { CommonPreview } from './';
 import {
   LeftItem,
   Preview,

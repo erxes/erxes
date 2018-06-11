@@ -7,7 +7,7 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import { CommonPreview } from './preview';
+import { CommonPreview } from './';
 import OnlineHours from '../OnlineHours';
 import { timezones } from '../../constants';
 import {
@@ -19,7 +19,6 @@ import { SubHeading } from 'modules/settings/styles';
 
 const propTypes = {
   onChange: PropTypes.func,
-  prevOptions: PropTypes.object, // eslint-disable-line
   teamMembers: PropTypes.array.isRequired,
   isOnline: PropTypes.bool,
   availabilityMethod: PropTypes.string,

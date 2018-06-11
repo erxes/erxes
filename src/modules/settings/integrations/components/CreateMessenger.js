@@ -8,7 +8,7 @@ import {
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
-import { Intro, Availability, Appearance } from './messengerO';
+import { Intro, Availability, Appearance } from './messenger';
 
 class CreateMessenger extends Component {
   constructor(props) {
@@ -33,7 +33,6 @@ class CreateMessenger extends Component {
       availabilityMethod: configData.availabilityMethod || 'manual',
       isOnline: configData.isOnline || false,
       timezone: configData.timezone || '',
-
       onlineHours: (configData.onlineHours || []).map(h => ({
         _id: Math.random(),
         ...h
@@ -124,6 +123,7 @@ class CreateMessenger extends Component {
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
+
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
@@ -132,10 +132,12 @@ class CreateMessenger extends Component {
             defaultValue={title}
           />
         </TitleContainer>
+
         <Steps active={activeStep}>
           <Step img="/images/icons/erxes-16.svg" title="Intro">
             <Intro onChange={this.onChange} {...this.state} />
           </Step>
+
           <Step img="/images/icons/erxes-04.svg" title="Hours & Availability">
             <Availability
               {...this.state}
@@ -143,6 +145,7 @@ class CreateMessenger extends Component {
               teamMembers={this.props.teamMembers}
             />
           </Step>
+
           <Step
             img="/images/icons/erxes-06.svg"
             title="Appearance"
@@ -161,7 +164,6 @@ class CreateMessenger extends Component {
 }
 
 CreateMessenger.propTypes = {
-  prevOptions: PropTypes.object.isRequired, // eslint-disable-line
   teamMembers: PropTypes.array.isRequired,
   integration: PropTypes.object,
   brands: PropTypes.array.isRequired,

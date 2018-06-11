@@ -57,7 +57,6 @@ const CreateMessengerContainer = props => {
 
   const updatedProps = {
     ...props,
-    prevOptions: {},
     teamMembers: users || [],
     brands,
     save

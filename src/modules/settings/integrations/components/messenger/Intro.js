@@ -5,7 +5,7 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import { CommonPreview } from './preview';
+import { CommonPreview } from './';
 import {
   LeftItem,
   Preview,

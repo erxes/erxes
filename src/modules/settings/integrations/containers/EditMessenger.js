@@ -8,7 +8,7 @@ import { Alert } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 import { CreateMessenger } from '../components';
 
-const CreateMessengerContainer = props => {
+const EditMessengerContainer = props => {
   const {
     history,
     integrationId,
@@ -64,7 +64,6 @@ const CreateMessengerContainer = props => {
 
   const updatedProps = {
     ...props,
-    prevOptions: {},
     teamMembers: users || [],
     brands,
     save,
@@ -74,7 +73,7 @@ const CreateMessengerContainer = props => {
   return <CreateMessenger {...updatedProps} />;
 };
 
-CreateMessengerContainer.propTypes = {
+EditMessengerContainer.propTypes = {
   usersQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
   integrationId: PropTypes.string,
@@ -128,6 +127,6 @@ const CreateMessengerWithData = compose(
     name: 'saveAppearanceMutation',
     options: commonOptions
   })
-)(CreateMessengerContainer);
+)(EditMessengerContainer);
 
 export default withRouter(CreateMessengerWithData);
