@@ -59,7 +59,8 @@ const httpLinkWithMiddleware = errorLink.concat(
 const wsLink = new WebSocketLink({
   uri: REACT_APP_API_SUBSCRIPTION_URL,
   options: {
-    reconnect: true
+    reconnect: true,
+    timeout: 30000
   }
 });
 
