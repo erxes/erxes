@@ -28,6 +28,7 @@ export default compose(
   graphql(gql(queries.integrations), {
     name: 'integrationsQuery',
     options: ({ queryParams, currentChannel, currentBrand }) => ({
+      notifyOnNetworkStatusChange: true,
       variables: {
         channelId: currentChannel && currentChannel._id,
         brandId: currentBrand && currentBrand._id,

@@ -6,6 +6,7 @@ const integrations = `
     integrations(channelId: $channelId, brandId: $brandId, perPage: $perPage, page: $page, searchValue: $searchValue) {
       _id
       brandId
+      languageCode
       name
       kind
       brand {
@@ -14,7 +15,14 @@ const integrations = `
         code
       }
       formData
+      twitterData
       formId
+      tagIds
+      tags {
+        _id
+        colorCode
+        name
+      }
       form {
         _id
         title

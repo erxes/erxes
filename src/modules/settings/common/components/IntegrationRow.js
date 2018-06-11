@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Alert, confirm } from 'modules/common/utils';
 import {
   ActionButtons,
   ModalTrigger,
@@ -9,11 +10,12 @@ import {
   Button,
   Icon
 } from 'modules/common/components';
-import { Messenger } from 'modules/settings/integrations/containers';
+import { InstallCode } from 'modules/settings/integrations/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
+  removeIntegration: PropTypes.func,
   refetch: PropTypes.func.isRequired,
   showBrand: PropTypes.bool
 };
@@ -22,18 +24,33 @@ class IntegrationRow extends Component {
   constructor(props) {
     super(props);
 
+    this.removeIntegration = this.removeIntegration.bind(this);
     this.getTypeName = this.getTypeName.bind(this);
   }
 
+  removeIntegration() {
+    confirm().then(() => {
+      const { integration, removeIntegration } = this.props;
+
+      removeIntegration(integration._id, error => {
+        if (error) {
+          return Alert.error(error.reason);
+        }
+
+        return Alert.success('Congrats');
+      });
+    });
+  }
+
   renderExtraLinks() {
-    const { integration, refetch } = this.props;
+    const { integration, refetch, removeIntegration } = this.props;
     const { __ } = this.context;
     const kind = integration.kind;
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
-          <Icon icon="edit" />
+        <Tip text="Install code">
+          <Icon icon="copy" />
         </Tip>
       </Button>
     );
@@ -41,30 +58,30 @@ class IntegrationRow extends Component {
     if (kind === KIND_CHOICES.MESSENGER) {
       return (
         <ActionButtons>
-          <Tip text={__('Appearance')}>
-            <Link
-              to={`/settings/integrations/messenger/appearance/${
-                integration._id
-              }`}
-            >
-              <Button btnStyle="link">
-                <Icon icon="paintpalette" />
-              </Button>
-            </Link>
-          </Tip>
-
           <Tip text={__('Hours, Availability & Other configs')}>
-            <Link to={`integrations/messenger/configs/${integration._id}`}>
-              <Button btnStyle="link">
-                <Icon icon="settings" />
-              </Button>
+            <Link
+              to={`/settings/integrations/editMessenger/${integration._id}`}
+            >
+              <Button btnStyle="link" icon="settings" />
             </Link>
           </Tip>
 
-          <ModalTrigger title="Edit integration" trigger={editTrigger}>
-            <Messenger integration={integration} refetch={refetch} />
+          <ModalTrigger title="Install code" trigger={editTrigger}>
+            <InstallCode integration={integration} refetch={refetch} />
           </ModalTrigger>
         </ActionButtons>
+      );
+    }
+
+    if (removeIntegration) {
+      return (
+        <Tip text={__('Delete')}>
+          <Button
+            btnStyle="link"
+            onClick={this.removeIntegration}
+            icon="cancel-1"
+          />
+        </Tip>
       );
     }
 
@@ -92,10 +109,15 @@ class IntegrationRow extends Component {
 
   render() {
     const { integration, showBrand } = this.props;
+    const twitterData = (integration || {}).twitterData || {};
 
     return (
       <tr>
-        <td>{integration.name}</td>
+        <td>
+          {integration.name}
+          {integration.kind === 'twitter' &&
+            ` (${twitterData.info && twitterData.info.screen_name})`}
+        </td>
         <td>
           <Label className={`label-${this.getTypeName()}`}>
             {integration.kind}
