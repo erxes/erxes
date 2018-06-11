@@ -6,13 +6,14 @@ import { queries } from '../graphql';
 import { IntegrationList } from '../components';
 
 const IntegrationListContainer = props => {
-  const { integrationsQuery } = props;
+  const { integrationsQuery, removeIntegration } = props;
 
   const integrations = integrationsQuery.integrations || [];
 
   const updatedProps = {
     ...props,
     integrations,
+    removeIntegration,
     refetch: integrationsQuery.refetch,
     loading: integrationsQuery.loading
   };
@@ -21,7 +22,8 @@ const IntegrationListContainer = props => {
 };
 
 IntegrationListContainer.propTypes = {
-  integrationsQuery: PropTypes.object
+  integrationsQuery: PropTypes.object,
+  removeIntegration: PropTypes.func
 };
 
 export default compose(

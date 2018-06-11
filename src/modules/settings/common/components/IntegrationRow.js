@@ -30,20 +30,20 @@ class IntegrationRow extends Component {
 
   removeIntegration() {
     confirm().then(() => {
-      const { integration, removeIntegration } = this.props;
+      const { integration, removeIntegration, refetch } = this.props;
 
       removeIntegration(integration._id, error => {
         if (error) {
           return Alert.error(error.reason);
         }
-
+        refetch();
         return Alert.success('Congrats');
       });
     });
   }
 
   renderExtraLinks() {
-    const { integration, refetch, removeIntegration } = this.props;
+    const { integration, refetch } = this.props;
     const { __ } = this.context;
     const kind = integration.kind;
 
@@ -73,19 +73,25 @@ class IntegrationRow extends Component {
       );
     }
 
-    if (removeIntegration) {
-      return (
-        <Tip text={__('Delete')}>
-          <Button
-            btnStyle="link"
-            onClick={this.removeIntegration}
-            icon="cancel-1"
-          />
-        </Tip>
-      );
+    return null;
+  }
+
+  renderRemoveButton() {
+    const { __ } = this.context;
+
+    if (!this.props.removeIntegration) {
+      return null;
     }
 
-    return null;
+    return (
+      <Tip text={__('Delete')}>
+        <Button
+          btnStyle="link"
+          onClick={this.removeIntegration}
+          icon="cancel-1"
+        />
+      </Tip>
+    );
   }
 
   getTypeName() {
@@ -127,7 +133,10 @@ class IntegrationRow extends Component {
           <td>{integration.brand ? integration.brand.name : ''}</td>
         )}
         <td>
-          <ActionButtons>{this.renderExtraLinks()}</ActionButtons>
+          <ActionButtons>
+            {this.renderExtraLinks()}
+            {this.renderRemoveButton()}
+          </ActionButtons>
         </td>
       </tr>
     );
