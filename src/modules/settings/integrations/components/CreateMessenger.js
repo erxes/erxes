@@ -20,7 +20,7 @@ class CreateMessenger extends Component {
     console.log(integration);
     this.state = {
       title: integration.name,
-      brand: integration.brandId,
+      brandId: integration.brandId,
       languageCode: integration.languageCode,
       activeStep: 1,
       color: uiOptions.color || '#6569DF',
@@ -39,9 +39,7 @@ class CreateMessenger extends Component {
         ...h
       })),
       logoPreviewStyle: {},
-      logoPreviewUrl: props.prevOptions.logo || '/images/erxes.png',
-
-      logo: uiOptions.logo
+      logoPreviewUrl: uiOptions.logo || '/images/erxes.png'
     };
 
     this.onChange = this.onChange.bind(this);

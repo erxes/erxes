@@ -10,10 +10,10 @@ const propTypes = {
   handleLogoChange: PropTypes.func,
   color: PropTypes.string,
   logoPreviewStyle: PropTypes.object,
-  logoPreviewUrl: PropTypes.string,
   welcomeMessage: PropTypes.string,
   wallpaper: PropTypes.string,
-  isOnline: PropTypes.bool
+  isOnline: PropTypes.bool,
+  logoPreviewUrl: PropTypes.string
 };
 
 class CommonPreview extends Component {

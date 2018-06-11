@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
@@ -7,7 +7,8 @@ import { uploadHandler } from 'modules/common/utils';
 import {
   FormControl,
   FormGroup,
-  ControlLabel
+  ControlLabel,
+  Icon
 } from 'modules/common/components';
 import SelectBrand from '../SelectBrand';
 import { CommonPreview } from './preview';
@@ -28,10 +29,11 @@ import {
 const propTypes = {
   onChange: PropTypes.func,
   integration: PropTypes.object,
-  brand: PropTypes.string,
+  brandId: PropTypes.string,
   languageCode: PropTypes.string,
   brands: PropTypes.array.isRequired,
   color: PropTypes.string.isRequired,
+  logoPreviewUrl: PropTypes.string,
   wallpaper: PropTypes.string.isRequired
 };
 
@@ -47,6 +49,7 @@ class Appearance extends Component {
     this.onChangeFunction = this.onChangeFunction.bind(this);
     this.handleLogoChange = this.handleLogoChange.bind(this);
     this.handleBrandChange = this.handleBrandChange.bind(this);
+    this.removeImage = this.removeImage.bind(this);
   }
 
   onChangeFunction(name, value) {
@@ -58,6 +61,11 @@ class Appearance extends Component {
     if (brandId) {
       this.props.onChange('brandId', brandId);
     }
+  }
+
+  removeImage(value) {
+    this.setState({ logoPreviewUrl: '' });
+    this.props.onChange('logoPreviewUrl', value);
   }
 
   handleBrandChange(e) {
@@ -103,6 +111,23 @@ class Appearance extends Component {
     );
   }
 
+  renderUploadImage() {
+    if (!this.props.logoPreviewUrl) {
+      return <input type="file" onChange={this.handleLogoChange} />;
+    }
+
+    return (
+      <Fragment>
+        <img src={this.props.logoPreviewUrl} alt="previewLogo" />
+        <Icon
+          icon="cancel-1"
+          size={15}
+          onClick={e => this.removeImage(e.target.value)}
+        />
+      </Fragment>
+    );
+  }
+
   render() {
     const { __ } = this.context;
 
@@ -120,7 +145,7 @@ class Appearance extends Component {
         <LeftItem>
           <SelectBrand
             brands={this.props.brands}
-            defaultValue={this.props.brand}
+            defaultValue={this.props.brandId}
             onChange={this.handleBrandChange}
           />
 
@@ -169,8 +194,7 @@ class Appearance extends Component {
 
           <SubItem>
             <SubHeading>{__('Choose a logo')}</SubHeading>
-
-            <input type="file" onChange={this.handleLogoChange} />
+            {this.renderUploadImage()}
           </SubItem>
         </LeftItem>
         <Preview>

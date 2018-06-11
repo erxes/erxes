@@ -150,6 +150,16 @@ const InlineItems = styled.div`
 
 const SubItem = styled.div`
   margin-bottom: ${coreSpace};
+
+  img {
+    background-color: ${colors.colorLightGray};
+    max-height: 100px;
+    margin-right: 5px;
+  }
+
+  i:hover {
+    cursor: pointer;
+  }
 `;
 
 const BackgroundSelector = styled.div`
