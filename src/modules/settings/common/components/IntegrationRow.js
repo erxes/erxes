@@ -58,11 +58,11 @@ class IntegrationRow extends Component {
     if (kind === KIND_CHOICES.MESSENGER) {
       return (
         <ActionButtons>
-          <Tip text={__('Hours, Availability & Other configs')}>
+          <Tip text={__('Edit messenger integration')}>
             <Link
               to={`/settings/integrations/editMessenger/${integration._id}`}
             >
-              <Button btnStyle="link" icon="settings" />
+              <Button btnStyle="link" icon="edit" />
             </Link>
           </Tip>
 

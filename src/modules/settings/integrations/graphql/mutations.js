@@ -1,10 +1,28 @@
+const commonParamsDef = `
+  $name: String!,
+  $brandId: String!,
+  $languageCode: String
+`;
+
+const commonParams = `
+  name: $name,
+  brandId: $brandId,
+  languageCode: $languageCode
+`;
+
 const integrationsCreateMessenger = `
-  mutation integrationsCreateMessengerIntegration($name: String!, $brandId: String!, $languageCode: String) {
-    integrationsCreateMessengerIntegration(
-      name: $name
-      brandId: $brandId
-      languageCode: $languageCode
-    ) {
+  mutation integrationsCreateMessengerIntegration(${commonParamsDef}) {
+    integrationsCreateMessengerIntegration(${commonParams}) {
+      _id
+    }
+  }
+`;
+
+const integrationsEditMessenger = `
+  mutation integrationsEditMessengerIntegration($_id: String!, ${
+    commonParamsDef
+  }) {
+    integrationsEditMessengerIntegration(_id: $_id, ${commonParams}) {
       _id
     }
   }
@@ -31,6 +49,7 @@ const integrationsSaveMessengerAppearance = `
 
 export default {
   integrationsCreateMessenger,
+  integrationsEditMessenger,
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance
 };

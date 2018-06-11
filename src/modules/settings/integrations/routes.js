@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { List, Twitter, CreateMessenger } from './containers';
+import { List, Twitter, CreateMessenger, EditMessenger } from './containers';
 
 const routes = () => [
   <Route
@@ -16,7 +16,7 @@ const routes = () => [
     exact
     path="/settings/integrations/editMessenger/:_id"
     component={({ match }) => {
-      return <CreateMessenger integrationId={match.params._id} />;
+      return <EditMessenger integrationId={match.params._id} />;
     }}
   />,
 

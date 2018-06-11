@@ -11,38 +11,45 @@ import { CreateMessenger } from '../components';
 const CreateMessengerContainer = props => {
   const {
     history,
+    integrationId,
     usersQuery,
     brandsQuery,
-    saveMessengerMutation,
+    integrationDetailQuery,
+    editMessengerMutation,
     saveConfigsMutation,
     saveAppearanceMutation
   } = props;
 
-  if (usersQuery.loading || brandsQuery.loading) {
+  if (
+    integrationDetailQuery.loading ||
+    usersQuery.loading ||
+    brandsQuery.loading
+  ) {
     return <Spinner objective />;
   }
 
   const users = usersQuery.users || [];
   const brands = brandsQuery.brands || [];
+  const integration = integrationDetailQuery.integrationDetail || {};
 
   const save = doc => {
     const { name, brandId, languageCode, messengerData, uiOptions } = doc;
-    saveMessengerMutation({
-      variables: { name, brandId, languageCode }
+    editMessengerMutation({
+      variables: { _id: integrationId, name, brandId, languageCode }
     })
       .then(({ data }) => {
-        const integrationId = data.integrationsCreateMessengerIntegration._id;
+        const id = data.integrationsEditMessengerIntegration._id;
 
         return saveConfigsMutation({
-          variables: { _id: integrationId, messengerData: messengerData }
+          variables: { _id: id, messengerData: messengerData }
         });
       })
 
       .then(({ data }) => {
-        const integrationId = data.integrationsSaveMessengerConfigs._id;
+        const id = data.integrationsSaveMessengerConfigs._id;
 
         return saveAppearanceMutation({
-          variables: { _id: integrationId, uiOptions }
+          variables: { _id: id, uiOptions }
         });
       })
 
@@ -60,7 +67,8 @@ const CreateMessengerContainer = props => {
     prevOptions: {},
     teamMembers: users || [],
     brands,
-    save
+    save,
+    integration
   };
 
   return <CreateMessenger {...updatedProps} />;
@@ -69,9 +77,11 @@ const CreateMessengerContainer = props => {
 CreateMessengerContainer.propTypes = {
   usersQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
+  integrationId: PropTypes.string,
+  integrationDetailQuery: PropTypes.object,
   saveConfigsMutation: PropTypes.func,
   saveAppearanceMutation: PropTypes.func,
-  saveMessengerMutation: PropTypes.func,
+  editMessengerMutation: PropTypes.func,
   history: PropTypes.object
 };
 
@@ -97,8 +107,17 @@ const CreateMessengerWithData = compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql(gql(mutations.integrationsCreateMessenger), {
-    name: 'saveMessengerMutation',
+  graphql(gql(queries.integrationDetail), {
+    name: 'integrationDetailQuery',
+    options: ({ integrationId }) => ({
+      variables: {
+        _id: integrationId || ''
+      },
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql(gql(mutations.integrationsEditMessenger), {
+    name: 'editMessengerMutation',
     options: commonOptions
   }),
   graphql(gql(mutations.integrationsSaveMessengerConfigs), {

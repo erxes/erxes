@@ -17,7 +17,7 @@ class CreateMessenger extends Component {
     const integration = props.integration || {};
     const configData = integration && (integration.messengerData || {});
     const uiOptions = integration && (integration.uiOptions || {});
-    console.log(integration);
+
     this.state = {
       title: integration.name,
       brandId: integration.brandId,
@@ -163,7 +163,7 @@ class CreateMessenger extends Component {
 CreateMessenger.propTypes = {
   prevOptions: PropTypes.object.isRequired, // eslint-disable-line
   teamMembers: PropTypes.array.isRequired,
-  integration: PropTypes.object.isRequired,
+  integration: PropTypes.object,
   brands: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired
 };
