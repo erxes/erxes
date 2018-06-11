@@ -85,7 +85,8 @@ class RespondBox extends Component {
   checkIsActive(conversation) {
     return (
       conversation.integration.kind !== 'messenger' ||
-      (conversation.customer.messengerData &&
+      (conversation.customer &&
+        conversation.customer.messengerData &&
         conversation.customer.messengerData.isActive)
     );
   }
