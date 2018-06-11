@@ -102,7 +102,7 @@ class ConversationDetail extends Component {
           const prevConv = prev.conversationDetail;
           const customerConnection = data.customerConnectionChanged;
 
-          if (prevConv & (prevConv.customer._id === customerConnection._id)) {
+          if (prevConv && prevConv.customer._id === customerConnection._id) {
             this.props.detailQuery.refetch();
           }
         }
