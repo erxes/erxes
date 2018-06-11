@@ -11,7 +11,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { KIND_CHOICES } from '../constants';
-import { Messenger } from '../containers';
+import { InstallCode } from './';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
@@ -48,8 +48,8 @@ class Row extends Component {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
-          <Icon icon="edit" />
+        <Tip text={__('Install code')}>
+          <Icon icon="copy" />
         </Tip>
       </Button>
     );
@@ -57,16 +57,6 @@ class Row extends Component {
     if (kind === KIND_CHOICES.MESSENGER) {
       return (
         <ActionButtons>
-          <Tip text={__('Appearance')}>
-            <Link
-              to={`/settings/integrations/messenger/appearance/${
-                integration._id
-              }`}
-            >
-              <Button btnStyle="link" icon="paintpalette" />
-            </Link>
-          </Tip>
-
           <Tip text={__('Hours, Availability & Other configs')}>
             <Link
               to={`/settings/integrations/editMessenger/${integration._id}`}
@@ -75,8 +65,8 @@ class Row extends Component {
             </Link>
           </Tip>
 
-          <ModalTrigger title="Edit integration" trigger={editTrigger}>
-            <Messenger integration={integration} refetch={refetch} />
+          <ModalTrigger title="Install code" trigger={editTrigger}>
+            <InstallCode integration={integration} refetch={refetch} />
           </ModalTrigger>
         </ActionButtons>
       );

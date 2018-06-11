@@ -1,27 +1,14 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { List, Twitter, CreateMessenger, MessengerConfigs } from './containers';
+import { List, Twitter, CreateMessenger } from './containers';
 
 const routes = () => [
-  <Route
-    key="/settings/integrations/messenger/configs/:integrationId"
-    exact
-    path="/settings/integrations/messenger/configs/:integrationId"
-    component={({ match }) => {
-      const id = match.params.integrationId;
-      return <MessengerConfigs integrationId={id} />;
-    }}
-  />,
-
   <Route
     key="/settings/integrations/createMessenger"
     exact
     path="/settings/integrations/createMessenger"
-    component={({ match }) => {
-      const { integrationId } = match.params;
-      return <CreateMessenger integrationId={integrationId} />;
-    }}
+    component={CreateMessenger}
   />,
 
   <Route
