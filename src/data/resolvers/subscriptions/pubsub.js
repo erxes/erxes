@@ -1,17 +1,17 @@
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis from 'ioredis';
+import dotenv from 'dotenv';
 
-const redisConnectionListener = error => {
-  if (error) {
-    console.error(error); // eslint-disable-line no-console
-  }
-};
+// load environment variables
+dotenv.config();
+
+const { REDIS_HOST = 'localhost', REDIS_PORT = 6379 } = process.env;
 
 // Docs on the different redis options
 // https://github.com/NodeRedis/node_redis#options-object-properties
 const redisOptions = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: 6379,
+  host: REDIS_HOST,
+  port: REDIS_PORT,
   connect_timeout: 15000,
   enable_offline_queue: true,
   retry_unfulfilled_commands: true,
@@ -22,7 +22,11 @@ const redisOptions = {
 };
 
 const pubsub = new RedisPubSub({
-  connectionListener: redisConnectionListener,
+  connectionListener: error => {
+    if (error) {
+      console.error(error); // eslint-disable-line no-console
+    }
+  },
   publisher: new Redis(redisOptions),
   subscriber: new Redis(redisOptions),
 });
