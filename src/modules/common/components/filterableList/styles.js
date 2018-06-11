@@ -89,6 +89,7 @@ const AvatarImg = styled.img`
   line-height: ${dimensions.coreSpacing + 10}px;
   border-radius: ${(dimensions.coreSpacing + 10) / 2}px;
   vertical-align: middle;
+  background: ${colors.bgActive};
   margin-right: ${dimensions.unitSpacing}px;
 `;
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert } from 'modules/common/utils';
-import { SidebarContent } from 'modules/layout/styles';
+import { SidebarContent } from '../styles';
 import GenerateField from './GenerateField';
 import { BaseSection } from 'modules/customers/components';
 
