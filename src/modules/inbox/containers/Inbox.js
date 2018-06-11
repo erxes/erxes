@@ -99,11 +99,10 @@ class ConversationDetail extends Component {
         document: gql(subscriptions.customerConnectionChanged),
         variables: { _id: customerId },
         updateQuery: (prev, { subscriptionData: { data } }) => {
-          const prevConversation = prev.conversationDetail;
-          const prevCustomer = prevConversation.customer;
+          const prevConv = prev.conversationDetail;
           const customerConnection = data.customerConnectionChanged;
 
-          if (prevCustomer && prevCustomer._id === customerConnection._id) {
+          if (prevConv & (prevConv.customer._id === customerConnection._id)) {
             this.props.detailQuery.refetch();
           }
         }
