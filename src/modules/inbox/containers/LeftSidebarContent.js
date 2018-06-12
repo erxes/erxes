@@ -39,8 +39,8 @@ export default compose(
   graphql(gql(queries.sidebarConversations), {
     name: 'conversationsQuery',
     options: ({ queryParams }) => ({
-      variables: generateParams(queryParams)
-      // pollInterval: 3000
+      variables: generateParams(queryParams),
+      pollInterval: 3000
     })
   })
 )(LeftSidebarContent);

@@ -17,6 +17,7 @@ import StatusFilterPopover from './StatusFilterPopover';
 import AssignBoxPopover from '../../assignBox/AssignBoxPopover';
 
 const propTypes = {
+  currentConversationId: PropTypes.string,
   integrations: PropTypes.array.isRequired,
   queryParams: PropTypes.object,
   history: PropTypes.object
@@ -128,7 +129,12 @@ class Main extends Bulk {
   }
 
   render() {
-    const { totalCount, history, queryParams } = this.props;
+    const {
+      totalCount,
+      currentConversationId,
+      history,
+      queryParams
+    } = this.props;
     const { bulk } = this.state;
 
     return (
@@ -139,6 +145,7 @@ class Main extends Bulk {
         footer={this.renderSidebarFooter()}
       >
         <LeftSidebarContent
+          currentConversationId={currentConversationId}
           totalCount={totalCount}
           history={history}
           queryParams={queryParams}
