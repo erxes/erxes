@@ -16,7 +16,7 @@ class ConversationDetail extends Component {
 
     this.state = { messages: [], loadingMessages: false };
 
-    this.subscriptions = {};
+    this.prevSubscriptions = {};
 
     this.loadMoreMessages = this.loadMoreMessages.bind(this);
     this.addMessage = this.addMessage.bind(this);
@@ -28,6 +28,82 @@ class ConversationDetail extends Component {
     const { currentId, detailQuery, messagesQuery } = nextProps;
 
     if (currentId !== this.props.currentId) {
+      // Unsubscribe previous subscriptions ==========
+      if (this.prevSubscriptions) {
+        const {
+          detailHandler,
+          messagesHandler,
+          customerHandler
+        } = this.prevSubscriptions;
+
+        detailHandler && detailHandler();
+        messagesHandler && messagesHandler();
+        customerHandler && customerHandler();
+      }
+
+      // Start new subscriptions =============
+      this.prevSubscriptions.messagesHandler = messagesQuery.subscribeToMore({
+        document: gql(subscriptions.conversationMessageInserted),
+        variables: { _id: currentId },
+        updateQuery: (prev, { subscriptionData }) => {
+          const message = subscriptionData.data.conversationMessageInserted;
+          const conversation = detailQuery.conversationDetail;
+
+          // current user's message is being showed after insert message
+          // mutation. So to prevent from duplication we are ignoring current
+          // user's messages from subscription
+          const isMessenger = conversation.integration.kind === 'messenger';
+
+          if (isMessenger && message.userId === currentUser._id) {
+            return;
+          }
+
+          if (currentId !== this.props.currentId) {
+            return prev;
+          }
+
+          const messages = prev.conversationMessages;
+
+          // check whether or not already inserted
+          const prevEntry = messages.find(m => m._id === message._id);
+
+          if (prevEntry) {
+            return prev;
+          }
+
+          this.setState({ messages: [...this.state.messages, message] });
+        }
+      });
+
+      // listen for conversation changes like status, assignee
+      this.prevSubscriptions.detailHandler = detailQuery.subscribeToMore({
+        document: gql(subscriptions.conversationChanged),
+        variables: { _id: currentId },
+        updateQuery: () => {
+          this.props.detailQuery.refetch();
+        }
+      });
+
+      // listen for customer connection
+      const conversation = detailQuery.conversationDetail;
+
+      if (conversation && conversation.integration.kind === 'messenger') {
+        const customerId = conversation.customer._id;
+
+        this.prevSubscriptions.customerHandler = detailQuery.subscribeToMore({
+          document: gql(subscriptions.customerConnectionChanged),
+          variables: { _id: customerId },
+          updateQuery: (prev, { subscriptionData: { data } }) => {
+            const prevConv = prev.conversationDetail;
+            const customerConnection = data.customerConnectionChanged;
+
+            if (prevConv && prevConv.customer._id === customerConnection._id) {
+              this.props.detailQuery.refetch();
+            }
+          }
+        });
+      }
+
       this.setState({ messages: [], loadingMessages: true });
     }
 
@@ -40,81 +116,15 @@ class ConversationDetail extends Component {
     if (conversationMessages && this.state.messages.length === 0) {
       this.setState({ messages: conversationMessages, loadingMessages: false });
     }
-
-    if (this.subscriptions[currentId]) {
-      return;
-    }
-
-    this.subscriptions[currentId] = true;
-
-    messagesQuery.subscribeToMore({
-      document: gql(subscriptions.conversationMessageInserted),
-      variables: { _id: currentId },
-      updateQuery: (prev, { subscriptionData }) => {
-        const message = subscriptionData.data.conversationMessageInserted;
-        const conversation = detailQuery.conversationDetail;
-
-        // current user's message is being showed after insert message
-        // mutation. So to prevent from duplication we are ignoring current
-        // user's messages from subscription
-        const isMessenger = conversation.integration.kind === 'messenger';
-
-        if (isMessenger && message.userId === currentUser._id) {
-          return;
-        }
-
-        if (currentId !== this.props.currentId) {
-          return prev;
-        }
-
-        const messages = prev.conversationMessages;
-
-        // check whether or not already inserted
-        const prevEntry = messages.find(m => m._id === message._id);
-
-        if (prevEntry) {
-          return prev;
-        }
-
-        this.setState({ messages: [...this.state.messages, message] });
-      }
-    });
-
-    // listen for conversation changes like status, assignee
-    detailQuery.subscribeToMore({
-      document: gql(subscriptions.conversationChanged),
-      variables: { _id: currentId },
-      updateQuery: () => {
-        this.props.detailQuery.refetch();
-      }
-    });
-
-    // listen for customer connection
-    const conversation = detailQuery.conversationDetail;
-
-    if (conversation && conversation.integration.kind === 'messenger') {
-      const customerId = conversation.customer._id;
-
-      detailQuery.subscribeToMore({
-        document: gql(subscriptions.customerConnectionChanged),
-        variables: { _id: customerId },
-        updateQuery: (prev, { subscriptionData: { data } }) => {
-          const prevConv = prev.conversationDetail;
-          const customerConnection = data.customerConnectionChanged;
-
-          if (prevConv && prevConv.customer._id === customerConnection._id) {
-            this.props.detailQuery.refetch();
-          }
-        }
-      });
-    }
   }
 
   addMessage({ variables, optimisticResponse, callback, kind }) {
     const { addMessageMutation } = this.props;
 
     addMessageMutation({ variables, optimisticResponse })
-      .then(({ data: { conversationMessageAdd } }) => {
+      .then(({ data }) => {
+        const { conversationMessageAdd } = data;
+
         if (kind === 'messenger') {
           const message = conversationMessageAdd;
 
@@ -268,12 +278,13 @@ ConversationDetail.contextTypes = {
 
 class WithCurrentId extends React.Component {
   componentWillReceiveProps(nextProps) {
-    const { lastConversationQuery, history, queryParams } = nextProps;
-    const { _id } = queryParams;
+    const { lastConversationQuery, history, queryParams: { _id } } = nextProps;
 
-    const lastConversation = lastConversationQuery
-      ? lastConversationQuery.conversationsGetLast
-      : {};
+    let lastConversation = {};
+
+    if (lastConversationQuery) {
+      lastConversation = lastConversationQuery.conversationsGetLast;
+    }
 
     if (!_id && lastConversation) {
       routerUtils.setParams(history, { _id: lastConversation._id });
