@@ -26,7 +26,7 @@ function LoadMore({
   };
 
   return loaded < all ? (
-    <Button block btnStyle="link" onClick={load}>
+    <Button block btnStyle="link" onClick={load} icon="downarrow">
       {loading ? 'Loading...' : 'Load more'}
     </Button>
   ) : null;
