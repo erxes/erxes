@@ -20,10 +20,6 @@ const LeftItem = styled.div`
   }
 `;
 
-const LoaderWrapper = styled.div`
-  padding: 20px;
-`;
-
 const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
@@ -59,4 +55,4 @@ const DateFilters = styled.div`
   }
 `;
 
-export { RightItems, LeftItem, LoaderWrapper, FlexRow, FlexItem, DateFilters };
+export { RightItems, LeftItem, FlexRow, FlexItem, DateFilters };

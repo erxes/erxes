@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { SidebarCounter } from 'modules/layout/styles';
 import { Wrapper } from 'modules/layout/components';
+import { Spinner } from 'modules/common/components';
 import ConversationDetails from './ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { DealSection } from 'modules/deals/containers';
-import { Spinner } from 'modules/common/components';
+import { SidebarCounter } from 'modules/layout/styles';
 
 const propTypes = {
   conversation: PropTypes.object,
