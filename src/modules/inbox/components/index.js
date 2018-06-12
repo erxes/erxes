@@ -1,6 +1,6 @@
 import Inbox from './Inbox';
+import ConversationDetail from './ConversationDetail';
 import Empty from './Empty';
-import Conversation from './conversation/Conversation';
 import AssignBoxPopover from './assignBox/AssignBoxPopover';
 import LeftSidebar from './sidebar/left/Main';
 import RightSidebar from './sidebar/RightSidebar';
@@ -18,7 +18,7 @@ export {
   RightSidebar,
   RespondBox,
   ResponseTemplate,
-  Conversation,
+  ConversationDetail,
   AssignBoxPopover,
   AssignBox,
   Resolver
