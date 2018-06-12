@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import {
@@ -11,6 +11,7 @@ import {
 import { RightSidebar, RespondBox, Resolver } from '../containers';
 import Conversation from './conversation/Conversation';
 import { AssignBoxPopover, Participators } from './';
+import { MainContent, ContentBox, ContenFooter } from 'modules/layout/styles';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems } from 'modules/layout/styles';
 
@@ -179,16 +180,20 @@ export default class ConversationDetail extends Component {
     );
 
     return (
-      <div>
-        {actionBar}
-        {content}
-        {currentConversation._id && (
-          <RespondBox
-            conversation={currentConversation}
-            setAttachmentPreview={this.setAttachmentPreview}
-            addMessage={addMessage}
-          />
-        )}
+      <Fragment>
+        <MainContent>
+          {actionBar}
+          <ContentBox>{content}</ContentBox>
+          {currentConversation._id && (
+            <ContenFooter>
+              <RespondBox
+                conversation={currentConversation}
+                setAttachmentPreview={this.setAttachmentPreview}
+                addMessage={addMessage}
+              />
+            </ContenFooter>
+          )}
+        </MainContent>
         {currentConversation._id && (
           <RightSidebar
             conversation={currentConversation}
@@ -196,7 +201,7 @@ export default class ConversationDetail extends Component {
             customerId={currentConversation.customerId}
           />
         )}
-      </div>
+      </Fragment>
     );
   }
 }
