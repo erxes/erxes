@@ -21,8 +21,8 @@ const MainLoader = styled.div`
   margin-top: -${size / 2}px;
   animation: ${rotate} 0.75s linear infinite;
   border: 2px solid ${colors.borderDarker};
-  border-top-color: ${colors.colorPrimaryDark};
-  border-right-color: ${colors.colorPrimaryDark};
+  border-top-color: ${colors.colorSecondary};
+  border-right-color: ${colors.colorSecondary};
   border-radius: 100%;
 `;
 

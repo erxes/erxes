@@ -7,7 +7,6 @@ import BreadCrumb from './breadcrumb/BreadCrumb';
 import BreadCrumbItem from './breadcrumb/BreadCrumbItem';
 import Spinner from './Spinner';
 import Tip from './Tip';
-import Loader from './Loader';
 import Chip from './Chip';
 import LoadMore from './LoadMore';
 import Pagination from './pagination/Pagination';
@@ -52,7 +51,6 @@ export {
   Spinner,
   Tip,
   LoadMore,
-  Loader,
   Chip,
   Pagination,
   pagination,
