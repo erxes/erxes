@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { LoadMore, EmptyState } from 'modules/common/components';
 import ConversationList from './conversationList';
@@ -26,7 +26,7 @@ class Content extends React.Component {
     } = this.props;
 
     return (
-      <div>
+      <Fragment>
         <ConversationList
           conversations={conversations}
           onRowClick={onChangeConversation}
@@ -43,7 +43,7 @@ class Content extends React.Component {
             />
           )}
         <LoadMore all={totalCount} loading={loading} />
-      </div>
+      </Fragment>
     );
   }
 }
