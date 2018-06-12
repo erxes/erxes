@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { colors, dimensions } from '../../styles';
+import { colors, dimensions } from 'modules/common/styles';
 
 const ConversationItems = styled.ul`
   margin: 0;

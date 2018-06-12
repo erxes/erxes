@@ -21,7 +21,6 @@ import TaggerPopover from './tagger/components/TaggerPopover';
 import Tags from './Tags';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
-import ConversationList from './conversationList/ConversationList';
 import { FormControl, ControlLabel, FormGroup, Textarea } from './form';
 import { Step, Steps, ConditionStep } from './step';
 import TextDivider from './TextDivider';
@@ -60,7 +59,6 @@ export {
   ModalTrigger,
   EmptyState,
   Bulk,
-  ConversationList,
   CountsByTag,
   Filter,
   FilterByParams,

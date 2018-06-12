@@ -7,10 +7,10 @@ import { withApollo } from 'react-apollo';
 import { Icon, Spinner } from 'modules/common/components';
 import { router } from 'modules/common/utils';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import { PopoverButton } from '../../styles';
-import { queries } from '../../graphql';
-import { generateParams } from '../../utils';
-import { LoaderWrapper } from './styles';
+import { PopoverButton } from '../../../styles';
+import { queries } from '../../../graphql';
+import { generateParams } from '../../../utils';
+import { LoaderWrapper } from '../styles';
 
 const propTypes = {
   history: PropTypes.object.isRequired,
