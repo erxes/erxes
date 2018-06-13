@@ -5,10 +5,9 @@ import { withRouter } from 'react-router';
 import gql from 'graphql-tag';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { FilterByParams, Icon, Spinner } from 'modules/common/components';
-import { queries } from '../../graphql';
-import { PopoverButton } from '../../styles';
-import { generateParams } from '../../utils';
-import { LoaderWrapper } from './styles';
+import { queries } from 'modules/inbox/graphql';
+import { generateParams } from 'modules/inbox/utils';
+import { PopoverButton } from 'modules/inbox/styles';
 
 const propTypes = {
   query: PropTypes.object,
@@ -53,6 +52,10 @@ class FilterPopover extends Component {
     this.forceUpdate();
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.state !== nextState;
+  }
+
   onClick() {
     const { client, query, counts } = this.props;
 
@@ -90,9 +93,7 @@ class FilterPopover extends Component {
     if (loading) {
       return (
         <Popover id="filter-popover" title={__(popoverTitle)}>
-          <LoaderWrapper>
-            <Spinner objective />
-          </LoaderWrapper>
+          <Spinner objective />
         </Popover>
       );
     }

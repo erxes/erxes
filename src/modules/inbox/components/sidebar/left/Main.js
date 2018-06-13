@@ -1,55 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { toggleCheckBoxes } from 'modules/common/utils';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { Sidebar } from 'modules/layout/components';
 import {
   Bulk,
-  FormControl,
   Icon,
-  ConversationList,
-  LoadMore,
   TaggerPopover,
-  EmptyState,
   DateFilter
 } from 'modules/common/components';
-import { FilterPopover, StatusFilterPopover, AssignBoxPopover } from '../';
-import { Resolver } from 'modules/inbox/containers';
-import { PopoverButton } from '../../styles';
-import { LeftItem, RightItems } from './styles';
-import { queries } from '../../graphql';
+import { Resolver, LeftSidebarContent } from 'modules/inbox/containers';
+import { PopoverButton } from '../../../styles';
+import { RightItems } from '../styles';
+import { queries } from '../../../graphql';
+import FilterPopover from './FilterPopover';
+import StatusFilterPopover from './StatusFilterPopover';
+import AssignBoxPopover from '../../assignBox/AssignBoxPopover';
 
 const propTypes = {
-  conversations: PropTypes.array.isRequired,
   currentConversationId: PropTypes.string,
   integrations: PropTypes.array.isRequired,
-  onChangeConversation: PropTypes.func.isRequired,
-  totalCount: PropTypes.number.isRequired,
-  refetch: PropTypes.func,
-  loading: PropTypes.bool,
   queryParams: PropTypes.object,
   history: PropTypes.object
 };
 
-class LeftSidebar extends Bulk {
-  constructor(props) {
-    super(props);
-
-    this.resetBulk = this.resetBulk.bind(this);
-    this.renderTrigger = this.renderTrigger.bind(this);
-  }
-
-  refetch() {
-    this.props.refetch();
-  }
-
-  resetBulk() {
-    this.emptyBulk();
-    toggleCheckBoxes('conversations', false);
-  }
-
+class Main extends Bulk {
   renderTrigger(text) {
     const { __ } = this.context;
+
     return (
       <PopoverButton>
         {__(text)} <Icon icon="downarrow" />
@@ -58,24 +35,12 @@ class LeftSidebar extends Bulk {
   }
 
   renderSidebarHeader() {
-    const { conversations, queryParams, history } = this.props;
+    const { queryParams, history } = this.props;
     const { bulk } = this.state;
-    const { __ } = this.context;
 
     if (bulk.length > 0) {
       return (
         <Sidebar.Header>
-          <LeftItem>
-            <FormControl
-              componentClass="checkbox"
-              onChange={() => {
-                this.toggleAll(conversations, 'conversations');
-              }}
-            >
-              {__('Select all')}
-            </FormControl>
-          </LeftItem>
-
           <RightItems>
             <AssignBoxPopover
               targets={bulk}
@@ -121,6 +86,7 @@ class LeftSidebar extends Bulk {
 
   renderSidebarFooter() {
     const { integrations } = this.props;
+
     return (
       <Sidebar.Footer>
         <FilterPopover
@@ -164,12 +130,12 @@ class LeftSidebar extends Bulk {
 
   render() {
     const {
-      conversations,
-      onChangeConversation,
+      totalCount,
       currentConversationId,
-      loading,
-      totalCount
+      history,
+      queryParams
     } = this.props;
+    const { bulk } = this.state;
 
     return (
       <Sidebar
@@ -178,30 +144,23 @@ class LeftSidebar extends Bulk {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        <ConversationList
-          conversations={conversations}
-          onRowClick={onChangeConversation}
-          toggleBulk={this.toggleBulk}
-          bulk={this.state.bulk}
+        <LeftSidebarContent
           currentConversationId={currentConversationId}
+          totalCount={totalCount}
+          history={history}
+          queryParams={queryParams}
+          toggleRowCheckbox={this.toggleBulk}
+          selectedIds={bulk}
         />
-        {!loading &&
-          conversations.length === 0 && (
-            <EmptyState
-              text="There is no message."
-              size="full"
-              image="/images/robots/robot-02.svg"
-            />
-          )}
-        <LoadMore all={totalCount} loading={loading} />
       </Sidebar>
     );
   }
 }
 
-LeftSidebar.propTypes = propTypes;
-LeftSidebar.contextTypes = {
+Main.propTypes = propTypes;
+
+Main.contextTypes = {
   __: PropTypes.func
 };
 
-export default LeftSidebar;
+export default Main;

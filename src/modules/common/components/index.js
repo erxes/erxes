@@ -7,7 +7,6 @@ import BreadCrumb from './breadcrumb/BreadCrumb';
 import BreadCrumbItem from './breadcrumb/BreadCrumbItem';
 import Spinner from './Spinner';
 import Tip from './Tip';
-import Loader from './Loader';
 import Chip from './Chip';
 import LoadMore from './LoadMore';
 import Pagination from './pagination/Pagination';
@@ -21,7 +20,6 @@ import TaggerPopover from './tagger/components/TaggerPopover';
 import Tags from './Tags';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
-import ConversationList from './conversationList/ConversationList';
 import { FormControl, ControlLabel, FormGroup, Textarea } from './form';
 import { Step, Steps, ConditionStep } from './step';
 import TextDivider from './TextDivider';
@@ -53,14 +51,12 @@ export {
   Spinner,
   Tip,
   LoadMore,
-  Loader,
   Chip,
   Pagination,
   pagination,
   ModalTrigger,
   EmptyState,
   Bulk,
-  ConversationList,
   CountsByTag,
   Filter,
   FilterByParams,

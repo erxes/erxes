@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { IntegrationIcon } from 'modules/common/components';
-import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { BaseSection } from 'modules/customers/components';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired

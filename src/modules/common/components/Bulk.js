@@ -15,14 +15,14 @@ export default class Bulk extends React.Component {
 
   refetch() {}
 
-  toggleBulk(conv, toAdd) {
+  toggleBulk(target, toAdd) {
     let { bulk } = this.state;
 
     // remove old entry
-    bulk = bulk.filter(el => el._id !== conv._id);
+    bulk = bulk.filter(el => el._id !== target._id);
 
     if (toAdd) {
-      bulk.push(conv);
+      bulk.push(target);
     }
 
     this.setState({ bulk });

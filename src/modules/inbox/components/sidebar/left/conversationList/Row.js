@@ -2,7 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import strip from 'strip';
-import { NameCard, FormControl, Tags, IntegrationIcon } from '../';
+
+import {
+  NameCard,
+  FormControl,
+  Tags,
+  IntegrationIcon
+} from 'modules/common/components';
+
 import {
   RowItem,
   RowContent,
@@ -23,25 +30,23 @@ const propTypes = {
   isRead: PropTypes.bool,
   isActive: PropTypes.bool,
   onClick: PropTypes.func,
-  toggleBulk: PropTypes.func,
-  bulk: PropTypes.array
+  toggleCheckbox: PropTypes.func,
+  selectedIds: PropTypes.array
 };
 
 class Row extends Component {
   constructor(props) {
     super(props);
 
-    this.toggleBulk = this.toggleBulk.bind(this);
     this.onClick = this.onClick.bind(this);
     this.onClickCheckBox = this.onClickCheckBox.bind(this);
-    this.renderCheckbox = this.renderCheckbox.bind(this);
-    this.renderFullName = this.renderFullName.bind(this);
-    this.getVisitorInfo = this.getVisitorInfo.bind(this);
+    this.toggleCheckbox = this.toggleCheckbox.bind(this);
   }
 
-  toggleBulk(e) {
-    const { toggleBulk, conversation } = this.props;
-    toggleBulk(conversation, e.target.checked);
+  toggleCheckbox(e) {
+    const { toggleCheckbox, conversation } = this.props;
+
+    toggleCheckbox(conversation, e.target.checked);
   }
 
   onClick(e) {
@@ -53,13 +58,13 @@ class Row extends Component {
   }
 
   renderCheckbox() {
-    if (!this.props.toggleBulk) {
+    if (!this.props.toggleCheckbox) {
       return null;
     }
 
     return (
       <CheckBox onClick={this.onClickCheckBox}>
-        <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
+        <FormControl componentClass="checkbox" onChange={this.toggleCheckbox} />
       </CheckBox>
     );
   }
@@ -72,6 +77,7 @@ class Row extends Component {
     if (customer.firstName || customer.lastName) {
       return (customer.firstName || '') + ' ' + (customer.lastName || '');
     }
+
     return null;
   }
 
@@ -86,11 +92,12 @@ class Row extends Component {
         visitor.phone
       );
     }
+
     return null;
   }
 
   render() {
-    const { conversation, isRead, isActive, bulk } = this.props;
+    const { conversation, isRead, isActive, selectedIds = [] } = this.props;
     const { createdAt, updatedAt, content } = conversation;
     const customer = conversation.customer || {};
     const integration = conversation.integration || {};
@@ -99,18 +106,11 @@ class Row extends Component {
     const tags = conversation.tags || [];
     const assignedUser = conversation.assignedUser;
     const isExistingCustomer = customer && customer._id;
+    const isChecked = selectedIds.map(e => e._id).includes(conversation._id);
 
     return (
       <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
-        <RowContent
-          isChecked={
-            bulk
-              .map(e => {
-                return e._id;
-              })
-              .indexOf(conversation._id) > -1
-          }
-        >
+        <RowContent isChecked={isChecked}>
           {this.renderCheckbox()}
           <FlexContent>
             <MainInfo>
@@ -138,17 +138,21 @@ class Row extends Component {
                       this.getVisitorInfo(customer) ||
                       'Unnamed')}
                 </CustomerName>
+
                 <SmallTextOneLine>
                   to {brandName} via {integration && integration.kind}
                 </SmallTextOneLine>
               </FlexContent>
             </MainInfo>
+
             <MessageContent>{strip(content)}</MessageContent>
             <Tags tags={tags} limit={3} />
           </FlexContent>
         </RowContent>
+
         <SmallText>
           {moment(updatedAt || createdAt).fromNow()}
+
           {assignedUser && (
             <AssigneeWrapper>
               <AssigneeImg

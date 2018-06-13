@@ -5,19 +5,25 @@ import { ConversationItems } from './styles';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
-  toggleBulk: PropTypes.func,
-  bulk: PropTypes.array,
+  toggleRowCheckbox: PropTypes.func,
+  selectedIds: PropTypes.array,
   onRowClick: PropTypes.func,
   currentConversationId: PropTypes.string
 };
 
-function ConversationList(
-  { conversations, toggleBulk, onRowClick, currentConversationId, bulk },
-  { currentUser }
-) {
-  const starredConversationIds = currentUser
-    ? currentUser.details.starredConversationIds || []
-    : [];
+function ConversationList(props, context) {
+  const {
+    conversations,
+    toggleRowCheckbox,
+    selectedIds,
+    onRowClick,
+    currentConversationId
+  } = props;
+
+  const { currentUser } = context;
+
+  const starredConversationIds =
+    currentUser.details.starredConversationIds || [];
 
   return (
     <ConversationItems id="conversations">
@@ -32,9 +38,9 @@ function ConversationList(
             !!c.participatedUserIds &&
             c.participatedUserIds.indexOf(currentUser._id) > -1
           }
-          toggleBulk={toggleBulk}
-          bulk={bulk}
+          toggleCheckbox={toggleRowCheckbox}
           onClick={onRowClick}
+          selectedIds={selectedIds}
           currentConversationId={currentConversationId}
         />
       ))}
