@@ -109,6 +109,10 @@ class Attachment extends Component {
   }
 
   renderAtachment({ attachment }) {
+    if (!attachment.type) {
+      return null;
+    }
+
     if (attachment.type.startsWith('image')) {
       return (
         <ImageWithPreview
