@@ -7,7 +7,11 @@ erxes is an AI meets open source messaging platform for sales, marketing and sup
 ## Status  <br> 
 [![Build Status](https://travis-ci.org/erxes/erxes.svg?branch=develop)](https://travis-ci.org/erxes/erxes) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes)  [![Codeclimate Badge](https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability)](https://codeclimate.com/github/erxes/erxes/maintainability)  [![Coveralls Badge](https://coveralls.io/repos/github/erxes/erxes/badge.svg?branch=develop)](https://coveralls.io/github/erxes/erxes?branch=develop)  [![Bettercode](https://bettercodehub.com/edge/badge/erxes/erxes?branch=master)](https://bettercodehub.com/results/erxes/erxes)  [![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master) [![Dependencies checker](https://david-dm.org/erxes/erxes.svg)](https://david-dm.org/erxes/erxes) [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/erxes/erxes/develop/LICENSE.md) [![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/) [![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
 
+<a href="https://erxes.io"><img src="https://erxes.io/img/inbox.png" alt="erxes is an AI meets open source messaging platform for sales, marketing and support" align="right"></a>
+
 ## Features
+
+<img src="https://erxes.io/img/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
 erxes is an AI meets open source messaging platform built to help marketing, sales & support to connect, build trust and grow with their customers in an easy and affordable way. One of the ways we make customer engagement a lot easier is with unlimited customer service integrations such as social media platforms, messenger, email, SMS for multiple brands. This way, it’s a lot easier to respond quickly to any channels and solve problems on the go.
 
