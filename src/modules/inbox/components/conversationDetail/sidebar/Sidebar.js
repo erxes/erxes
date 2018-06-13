@@ -1,7 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { Spinner } from 'modules/common/components';
 import ConversationDetails from './ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
 import { CompanyAssociate } from 'modules/companies/containers';
@@ -11,14 +9,19 @@ import { SidebarCounter } from 'modules/layout/styles';
 const propTypes = {
   conversation: PropTypes.object,
   customer: PropTypes.object,
-  customerId: PropTypes.string,
   refetch: PropTypes.func,
-  loading: PropTypes.bool,
   showSectionContent: PropTypes.func,
   queryParams: PropTypes.object
 };
 
 class Sidebar extends Component {
+  shouldComponentUpdate(nextProps) {
+    const current = this.props.conversation;
+    const next = nextProps.conversation;
+
+    return current._id !== next._id;
+  }
+
   getChildContext() {
     const { showSectionContent, queryParams } = this.props;
 
@@ -55,29 +58,18 @@ class Sidebar extends Component {
   }
 
   render() {
-    const {
-      conversation,
-      refetch,
-      customer,
-      queryParams,
-      loading
-    } = this.props;
+    const { conversation, refetch, customer, queryParams } = this.props;
 
-    if (customer && conversation) {
-      return (
-        <EditInformation
-          conversation={conversation}
-          sectionTop={<ConversationDetails conversation={conversation} />}
-          sectionBottom={this.renderSectionBottom(customer)}
-          customer={customer}
-          refetch={refetch}
-          queryParams={queryParams}
-          otherProperties={this.renderMessengerData()}
-        />
-      );
-    }
-
-    return <Wrapper.Sidebar full>{loading && <Spinner />}</Wrapper.Sidebar>;
+    return (
+      <EditInformation
+        sectionTop={<ConversationDetails conversation={conversation} />}
+        sectionBottom={this.renderSectionBottom(customer)}
+        customer={customer}
+        refetch={refetch}
+        queryParams={queryParams}
+        otherProperties={this.renderMessengerData()}
+      />
+    );
   }
 }
 

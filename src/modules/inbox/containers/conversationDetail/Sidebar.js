@@ -20,9 +20,7 @@ class Sidebar extends Component {
   }
 
   getCustomerDetail() {
-    const { customerId } = this.props;
-
-    if (!customerId) return;
+    const { conversation } = this.props;
 
     const sectionParams = this.getSectionParams();
 
@@ -32,7 +30,7 @@ class Sidebar extends Component {
       .query({
         query: gql(customerQueries.generateCustomerDetailQuery(sectionParams)),
         fetchPolicy: 'network-only',
-        variables: { _id: customerId }
+        variables: { _id: conversation.customerId }
       })
       .then(({ data }) => {
         if (data && data.customerDetail) {
@@ -98,7 +96,6 @@ class Sidebar extends Component {
 }
 
 Sidebar.propTypes = {
-  customerId: PropTypes.string.isRequired,
   conversation: PropTypes.object.isRequired,
   refetch: PropTypes.func
 };
