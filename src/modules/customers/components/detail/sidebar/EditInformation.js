@@ -23,8 +23,7 @@ const propTypes = {
   otherProperties: PropTypes.node,
   fieldsGroups: PropTypes.array.isRequired,
   customFieldsData: PropTypes.object,
-  wide: PropTypes.bool,
-  refetch: PropTypes.func
+  wide: PropTypes.bool
 };
 
 class LeftSidebar extends ManageGroups {
@@ -135,7 +134,7 @@ class LeftSidebar extends ManageGroups {
   }
 
   render() {
-    const { customer, wide, refetch } = this.props;
+    const { customer, wide } = this.props;
     const { kind } = customer.integration || {};
 
     return (
@@ -149,7 +148,7 @@ class LeftSidebar extends ManageGroups {
         {kind === 'messenger' && <MessengerSection customer={customer} />}
         {kind === 'twitter' && <TwitterSection customer={customer} />}
         {kind === 'facebook' && <FacebookSection customer={customer} />}
-        <TaggerSection data={customer} type="customer" afterSave={refetch} />
+        <TaggerSection data={customer} type="customer" />
       </Sidebar>
     );
   }

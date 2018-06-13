@@ -9,7 +9,6 @@ import { SidebarCounter } from 'modules/layout/styles';
 const propTypes = {
   conversation: PropTypes.object,
   customer: PropTypes.object,
-  refetch: PropTypes.func,
   showSectionContent: PropTypes.func,
   queryParams: PropTypes.object
 };
@@ -51,14 +50,13 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { conversation, refetch, customer, queryParams } = this.props;
+    const { conversation, customer, queryParams } = this.props;
 
     return (
       <EditInformation
         sectionTop={<ConversationDetails conversation={conversation} />}
         sectionBottom={this.renderSectionBottom(customer)}
         customer={customer}
-        refetch={refetch}
         queryParams={queryParams}
         otherProperties={this.renderMessengerData()}
       />

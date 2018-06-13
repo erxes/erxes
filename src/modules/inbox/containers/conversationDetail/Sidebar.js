@@ -1,11 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Sidebar as DumbSidebar } from 'modules/inbox/components/conversationDetail';
 import { queries as customerQueries } from 'modules/customers/graphql';
 import client from 'apolloClient';
 
 const STORAGE_KEY = `erxes_sidebar_section_config`;
+
+const getSectionParams = () => {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY));
+};
+
+const setSectionParams = params => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
+};
 
 class Sidebar extends Component {
   constructor(props) {
@@ -20,16 +29,19 @@ class Sidebar extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const current = this.props.conversation.customerId;
-    const next = nextProps.conversation.customerId;
+    const currentDetail = this.props.customerDetailQuery;
+    const nextDetail = nextProps.customerDetailQuery;
 
-    if (current !== next) {
-      this.getCustomerDetail(next);
+    const current = currentDetail.customerDetail || {};
+    const next = nextDetail.customerDetail || {};
+
+    if (JSON.stringify(current) !== JSON.stringify(next)) {
+      this.getCustomerDetail(next._id);
     }
   }
 
   getCustomerDetail(customerId) {
-    const sectionParams = this.getSectionParams();
+    const sectionParams = getSectionParams();
 
     this.setState({ loading: true });
 
@@ -49,22 +61,14 @@ class Sidebar extends Component {
       });
   }
 
-  getSectionParams() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY));
-  }
-
-  setSectionParams(params) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
-  }
-
   showSectionContent(isUseCustomer, section) {
     const customerId = this.props.conversation.customerId;
     const { name, val } = section;
-    const sectionParams = this.getSectionParams();
+    const sectionParams = getSectionParams();
 
     sectionParams[name] = val;
 
-    this.setSectionParams(sectionParams);
+    setSectionParams(sectionParams);
 
     isUseCustomer && this.getCustomerDetail(customerId);
   }
@@ -73,7 +77,7 @@ class Sidebar extends Component {
     const { customer, loading } = this.state;
 
     if (!localStorage.getItem(STORAGE_KEY)) {
-      this.setSectionParams({
+      setSectionParams({
         showProfile: true,
         showCompany: false,
         showConversationDetail: false,
@@ -93,7 +97,7 @@ class Sidebar extends Component {
       customer,
       loading,
       showSectionContent: this.showSectionContent,
-      queryParams: this.getSectionParams()
+      queryParams: getSectionParams()
     };
 
     return <DumbSidebar {...updatedProps} />;
@@ -101,7 +105,20 @@ class Sidebar extends Component {
 }
 
 Sidebar.propTypes = {
-  conversation: PropTypes.object.isRequired
+  conversation: PropTypes.object.isRequired,
+  customerDetailQuery: PropTypes.object.isRequired
 };
 
-export default Sidebar;
+export default compose(
+  graphql(
+    gql(customerQueries.generateCustomerDetailQuery(getSectionParams())),
+    {
+      name: 'customerDetailQuery',
+      options: ({ conversation }) => ({
+        variables: {
+          _id: conversation.customerId
+        }
+      })
+    }
+  )
+)(Sidebar);
