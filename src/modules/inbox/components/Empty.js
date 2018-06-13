@@ -26,7 +26,7 @@ class Empty extends Component {
           <Wrapper.Header queryParams={queryParams} breadcrumb={breadcrumb} />
         }
         content={content}
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar queryParams={queryParams} />}
       />
     );
   }
