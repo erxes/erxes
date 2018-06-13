@@ -8,7 +8,7 @@ import {
   TaggerPopover,
   Tags
 } from 'modules/common/components';
-import { MainContent, ContentBox, ContenFooter } from 'modules/layout/styles';
+import { ContentBox, ContenFooter } from 'modules/layout/styles';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems } from 'modules/layout/styles';
 import { Resolver } from 'modules/inbox/containers';
@@ -182,19 +182,17 @@ export default class WorkArea extends Component {
 
     return (
       <Fragment>
-        <MainContent>
-          {actionBar}
-          <ContentBox>{content}</ContentBox>
-          {currentConversation._id && (
-            <ContenFooter>
-              <RespondBox
-                conversation={currentConversation}
-                setAttachmentPreview={this.setAttachmentPreview}
-                addMessage={addMessage}
-              />
-            </ContenFooter>
-          )}
-        </MainContent>
+        {actionBar}
+        <ContentBox>{content}</ContentBox>
+        {currentConversation._id && (
+          <ContenFooter>
+            <RespondBox
+              conversation={currentConversation}
+              setAttachmentPreview={this.setAttachmentPreview}
+              addMessage={addMessage}
+            />
+          </ContenFooter>
+        )}
       </Fragment>
     );
   }
