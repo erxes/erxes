@@ -18,7 +18,7 @@ const propTypes = {
   queryParams: PropTypes.object
 };
 
-class RightSidebar extends Component {
+class Sidebar extends Component {
   getChildContext() {
     const { showSectionContent, queryParams } = this.props;
 
@@ -81,11 +81,11 @@ class RightSidebar extends Component {
   }
 }
 
-RightSidebar.propTypes = propTypes;
+Sidebar.propTypes = propTypes;
 
-RightSidebar.childContextTypes = {
+Sidebar.childContextTypes = {
   showSectionContent: PropTypes.func,
   queryParams: PropTypes.object
 };
 
-export default RightSidebar;
+export default Sidebar;

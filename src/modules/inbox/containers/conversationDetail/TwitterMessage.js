@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import { mutations, queries } from '../graphql';
-import { TwitterMessage } from '../components/conversation/TwitterConversation';
+import { TwitterMessage } from 'modules/inbox/components/conversationDetail';
+import { mutations, queries } from 'modules/inbox/graphql';
 
 const TwitterMessageContainer = props => {
   const {

@@ -8,10 +8,11 @@ import {
   TaggerPopover,
   DateFilter
 } from 'modules/common/components';
-import { Resolver, LeftSidebarContent } from 'modules/inbox/containers';
-import { PopoverButton } from '../../styles';
+import { Resolver } from 'modules/inbox/containers';
+import { Content } from 'modules/inbox/containers/leftSidebar';
+import { PopoverButton } from 'modules/inbox/styles';
+import { queries } from 'modules/inbox/graphql';
 import { RightItems } from './styles';
-import { queries } from '../../graphql';
 import FilterPopover from './FilterPopover';
 import StatusFilterPopover from './StatusFilterPopover';
 import AssignBoxPopover from '../assignBox/AssignBoxPopover';
@@ -23,7 +24,7 @@ const propTypes = {
   history: PropTypes.object
 };
 
-class Main extends Bulk {
+class LeftSidebar extends Bulk {
   renderTrigger(text) {
     const { __ } = this.context;
 
@@ -135,6 +136,7 @@ class Main extends Bulk {
       history,
       queryParams
     } = this.props;
+
     const { bulk } = this.state;
 
     return (
@@ -144,7 +146,7 @@ class Main extends Bulk {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        <LeftSidebarContent
+        <Content
           currentConversationId={currentConversationId}
           totalCount={totalCount}
           history={history}
@@ -157,10 +159,10 @@ class Main extends Bulk {
   }
 }
 
-Main.propTypes = propTypes;
+LeftSidebar.propTypes = propTypes;
 
-Main.contextTypes = {
+LeftSidebar.contextTypes = {
   __: PropTypes.func
 };
 
-export default Main;
+export default LeftSidebar;

@@ -5,10 +5,10 @@ import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import gql from 'graphql-tag';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
-import { LeftSidebar as LeftSidebarComponent } from '../components';
-import { queries } from '../graphql';
+import { Sidebar as DumbSidebar } from 'modules/inbox/components/leftSidebar';
+import { queries } from 'modules/inbox/graphql';
 
-class LeftSidebar extends Component {
+class Sidebar extends Component {
   render() {
     const { totalCountQuery } = this.props;
 
@@ -25,11 +25,11 @@ class LeftSidebar extends Component {
       totalCount
     };
 
-    return <LeftSidebarComponent {...updatedProps} />;
+    return <DumbSidebar {...updatedProps} />;
   }
 }
 
-LeftSidebar.propTypes = {
+Sidebar.propTypes = {
   totalCountQuery: PropTypes.object
 };
 
@@ -46,7 +46,7 @@ const WithData = compose(
       variables: generateOptions(queryParams)
     })
   })
-)(LeftSidebar);
+)(Sidebar);
 
 const WithQueryParams = props => {
   const { location } = props;

@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
-import { RightSidebar as RightSidebarComponent } from '../components';
+import { Sidebar as DumbSidebar } from 'modules/inbox/components/conversationDetail';
 import { queries as customerQueries } from 'modules/customers/graphql';
 import client from 'apolloClient';
 
 const STORAGE_KEY = `erxes_sidebar_section_config`;
 
-class RightSidebar extends Component {
+class Sidebar extends Component {
   constructor(props) {
     super(props);
 
@@ -93,14 +93,14 @@ class RightSidebar extends Component {
       queryParams: this.getSectionParams()
     };
 
-    return <RightSidebarComponent {...updatedProps} />;
+    return <DumbSidebar {...updatedProps} />;
   }
 }
 
-RightSidebar.propTypes = {
+Sidebar.propTypes = {
   customerId: PropTypes.string.isRequired,
   conversation: PropTypes.object.isRequired,
   refetch: PropTypes.func
 };
 
-export default RightSidebar;
+export default Sidebar;

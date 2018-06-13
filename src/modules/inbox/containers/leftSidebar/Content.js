@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
-import { LeftSidebarContent as Content } from '../components';
-import { queries } from '../graphql';
-import { generateParams } from '../utils';
+import { Content } from 'modules/inbox/components/leftSidebar';
+import { queries } from 'modules/inbox/graphql';
+import { generateParams } from 'modules/inbox/utils';
 
 class LeftSidebarContent extends Component {
   render() {

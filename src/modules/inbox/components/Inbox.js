@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { LeftSidebar, ConversationDetail } from '../containers';
 import { Header } from 'modules/layout/components';
 import { Contents } from 'modules/layout/styles';
+import { ConversationDetail } from '../containers/conversationDetail';
+import { Sidebar } from '../containers/leftSidebar';
 
 export default class Inbox extends Component {
   render() {
@@ -14,7 +15,7 @@ export default class Inbox extends Component {
     return (
       <Contents>
         <Header queryParams={queryParams} breadcrumb={breadcrumb} />
-        <LeftSidebar currentConversationId={currentConversationId} />
+        <Sidebar currentConversationId={currentConversationId} />
         <ConversationDetail currentId={currentConversationId} />
       </Contents>
     );

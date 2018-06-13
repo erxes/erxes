@@ -8,20 +8,24 @@ import {
   TaggerPopover,
   Tags
 } from 'modules/common/components';
-import { RightSidebar, RespondBox, Resolver } from '../containers';
-import Conversation from './conversation/Conversation';
-import { AssignBoxPopover, Participators } from './';
 import { MainContent, ContentBox, ContenFooter } from 'modules/layout/styles';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems } from 'modules/layout/styles';
-
+import { Resolver } from 'modules/inbox/containers';
+import {
+  Sidebar,
+  RespondBox
+} from 'modules/inbox/containers/conversationDetail';
 import {
   PopoverButton,
   ConversationWrapper,
   AssignText,
   ActionBarLeft,
   AssignTrigger
-} from '../styles';
+} from 'modules/inbox/styles';
+import Conversation from './conversation/Conversation';
+import Participators from './Participators';
+import { AssignBoxPopover } from '../';
 
 export default class ConversationDetail extends Component {
   constructor(props) {
@@ -195,7 +199,7 @@ export default class ConversationDetail extends Component {
           )}
         </MainContent>
         {currentConversation._id && (
-          <RightSidebar
+          <Sidebar
             conversation={currentConversation}
             refetch={refetch}
             customerId={currentConversation.customerId}

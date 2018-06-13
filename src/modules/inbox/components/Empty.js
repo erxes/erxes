@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { EmptyState } from 'modules/common/components';
-import { LeftSidebar } from '../containers';
+import { Sidebar } from 'modules/inbox/containers/leftSidebar';
 
 class Empty extends Component {
   render() {
@@ -26,7 +26,7 @@ class Empty extends Component {
           <Wrapper.Header queryParams={queryParams} breadcrumb={breadcrumb} />
         }
         content={content}
-        leftSidebar={<LeftSidebar />}
+        leftSidebar={<Sidebar />}
       />
     );
   }

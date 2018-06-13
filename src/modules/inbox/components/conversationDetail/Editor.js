@@ -17,7 +17,10 @@ import {
   createStateFromHTML
 } from 'modules/common/components/editor/Editor';
 
-import { ResponseSuggestions, ResponseSuggestionItem } from '../styles';
+import {
+  ResponseSuggestions,
+  ResponseSuggestionItem
+} from 'modules/inbox/styles';
 
 const MentionEntry = props => {
   const { mention, theme, searchValue, ...parentProps } = props; // eslint-disable-line

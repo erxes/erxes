@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { ResponseTemplate } from '../components';
-import { mutations, queries } from '../graphql';
+import { ResponseTemplate } from 'modules/inbox/components/conversationDetail';
+import { mutations, queries } from 'modules/inbox/graphql';
 
 const ResponseTemplateContainer = props => {
   const {

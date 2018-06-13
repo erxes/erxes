@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { fromJS } from 'immutable';
-import { queries } from '../graphql';
-import { RespondBox } from '../components';
+import { RespondBox } from 'modules/inbox/components/conversationDetail';
+import { queries } from 'modules/inbox/graphql';
 
 const RespondBoxContainer = (props, context) => {
   const {

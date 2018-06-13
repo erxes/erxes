@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { TwitterMessage } from 'modules/inbox/containers';
+import { TwitterMessage } from 'modules/inbox/containers/conversationDetail';
 import Message from '../Message';
 
 const propTypes = {

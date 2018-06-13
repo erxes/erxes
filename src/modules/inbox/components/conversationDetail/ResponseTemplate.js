@@ -24,7 +24,7 @@ import {
   PopoverList,
   TemplateTitle,
   TemplateContent
-} from '../styles';
+} from 'modules/inbox/styles';
 
 const propTypes = {
   brandId: PropTypes.string.isRequired,

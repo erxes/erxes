@@ -4,10 +4,10 @@ import client from 'apolloClient';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import { ConversationDetail as DumbConversationDetail } from '../components';
-import { queries, mutations, subscriptions } from '../graphql';
+import { ConversationDetail } from 'modules/inbox/components/conversationDetail';
+import { queries, mutations, subscriptions } from 'modules/inbox/graphql';
 
-class ConversationDetail extends Component {
+class Container extends Component {
   constructor(props, context) {
     super(props, context);
 
@@ -207,11 +207,11 @@ class ConversationDetail extends Component {
       loadingMessages
     };
 
-    return <DumbConversationDetail {...updatedProps} />;
+    return <ConversationDetail {...updatedProps} />;
   }
 }
 
-ConversationDetail.propTypes = {
+Container.propTypes = {
   detailQuery: PropTypes.object,
   messagesQuery: PropTypes.object,
   messagesTotalCountQuery: PropTypes.object,
@@ -267,8 +267,8 @@ export default compose(
     }
   }),
   graphql(gql(mutations.conversationMessageAdd), { name: 'addMessageMutation' })
-)(ConversationDetail);
+)(Container);
 
-ConversationDetail.contextTypes = {
+Container.contextTypes = {
   currentUser: PropTypes.object
 };
