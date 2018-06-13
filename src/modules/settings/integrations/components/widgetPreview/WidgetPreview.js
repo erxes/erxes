@@ -20,13 +20,26 @@ import {
 } from './styles';
 
 function WidgetPreview(
-  { color, wallpaper, user, welcomeMessage, isOnline },
+  { color, wallpaper, users, supporterIds, welcomeMessage, isOnline },
   { __ }
 ) {
-  const avatar =
-    (user.details && user.details.avatar) || '/images/avatar-colored.svg';
-  console.log(user);
-  const fullName = (user.details && user.details.fullName) || 'Support staff';
+  let avatar = <img src="/images/avatar-colored.svg" alt="avatar" />;
+  let fullName = ['Support staff'];
+
+  const supporters = users.filter(user => supporterIds.includes(user._id));
+
+  if (supporters.length > 0) {
+    avatar = supporters.map(u => {
+      return (
+        <img key={u._id} src={u.details.avatar} alt={u.details.fullName} />
+      );
+    });
+  }
+
+  if (supporterIds.length > 0) {
+    fullName = supporters.map(user => user.details.fullName);
+  }
+
   const backgroundClasses = `background-${wallpaper}`;
 
   return (
@@ -35,8 +48,8 @@ function WidgetPreview(
         <TopbarButton />
         <ErxesMiddle>
           <ErxesStaffProfile>
-            <img src={avatar} alt={fullName} />
-            <ErxesStaffName>{fullName}</ErxesStaffName>
+            {avatar}
+            <ErxesStaffName>{fullName.join(', ')}</ErxesStaffName>
             <ErxesState>
               <StateSpan state={isOnline} />
               {isOnline ? __('Online') : __('Offline')}
@@ -47,9 +60,7 @@ function WidgetPreview(
       <ErxesMessagesList className={backgroundClasses}>
         <ErxesWelcomeMessage>{welcomeMessage}</ErxesWelcomeMessage>
         <li>
-          <ErxesAvatar>
-            <img src={avatar} alt="avatar" />
-          </ErxesAvatar>
+          <ErxesAvatar>{avatar}</ErxesAvatar>
           <ErxesMessage>{__('Hi, any questions?')}</ErxesMessage>
           <ErxesDate>{__('1 hour ago')}</ErxesDate>
         </li>
@@ -70,7 +81,8 @@ function WidgetPreview(
 WidgetPreview.propTypes = {
   color: PropTypes.string.isRequired,
   wallpaper: PropTypes.string.isRequired,
-  user: PropTypes.object.isRequired, // eslint-disable-line,
+  users: PropTypes.array,
+  supporterIds: PropTypes.array,
   welcomeMessage: PropTypes.string,
   isOnline: PropTypes.bool
 };

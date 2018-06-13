@@ -173,7 +173,10 @@ class CreateMessenger extends Component {
 
           <MessengerPreview>
             <Preview fullHeight>
-              <CommonPreview {...this.state} />
+              <CommonPreview
+                {...this.state}
+                teamMembers={this.props.teamMembers}
+              />
             </Preview>
           </MessengerPreview>
         </Row>

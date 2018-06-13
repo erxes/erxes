@@ -54,7 +54,8 @@ class Intro extends Component {
   generateSupporterOptions(members = []) {
     return members.map(member => ({
       value: member._id,
-      label: member.details.fullName
+      label: member.details.fullName,
+      avatar: member.details.avatar
     }));
   }
 

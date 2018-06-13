@@ -7,11 +7,13 @@ import { LogoContainer } from 'modules/settings/styles';
 
 const propTypes = {
   onChange: PropTypes.func,
+  teamMembers: PropTypes.array.isRequired,
   handleLogoChange: PropTypes.func,
   color: PropTypes.string,
   logoPreviewStyle: PropTypes.object,
   welcomeMessage: PropTypes.string,
   wallpaper: PropTypes.string,
+  supporterIds: PropTypes.array,
   isOnline: PropTypes.bool,
   logoPreviewUrl: PropTypes.string
 };
@@ -25,7 +27,9 @@ class CommonPreview extends Component {
       color,
       wallpaper,
       welcomeMessage,
-      isOnline
+      isOnline,
+      supporterIds,
+      teamMembers
     } = this.props;
 
     const { __ } = this.context;
@@ -36,7 +40,8 @@ class CommonPreview extends Component {
           <WidgetPreview
             color={color}
             wallpaper={wallpaper}
-            user={logoPreviewStyle}
+            users={teamMembers}
+            supporterIds={supporterIds}
             welcomeMessage={welcomeMessage}
             isOnline={isOnline}
           />

@@ -31,6 +31,8 @@ const ErxesStaffProfile = styled.div`
     width: 30px;
     height: 30px;
     border-radius: ${coreSpace};
+    border: 1px solid ${colors.colorWhite};
+    margin-left: -10px;
     overflow: hidden;
   }
 `;
@@ -39,13 +41,13 @@ const ErxesStaffName = styled.div`
   font-size: ${typography.fontSizeBody}px;
   font-weight: ${typography.fontWeightMedium};
   padding-top: 3px;
-  margin-left: 40px;
+  margin-left: 43px;
 `;
 
 const ErxesState = styled.div`
   font-size: ${typography.fontSizeUppercase}px;
   font-weight: ${typography.fontWeightLight};
-  margin-left: 40px;
+  margin-left: 43px;
 `;
 
 const ErxesWelcomeMessage = styled.li`
