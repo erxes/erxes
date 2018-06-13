@@ -1,25 +1,6 @@
 import styled from 'styled-components';
 import { dimensions, colors, typography } from 'modules/common/styles';
 
-const RightItems = styled.div`
-  display: flex;
-  align-items: center;
-
-  > div {
-    margin-right: 10px;
-  }
-
-  button {
-    padding: 5px 12px;
-  }
-`;
-
-const LeftItem = styled.div`
-  label {
-    margin: 0;
-  }
-`;
-
 const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
@@ -55,4 +36,4 @@ const DateFilters = styled.div`
   }
 `;
 
-export { RightItems, LeftItem, FlexRow, FlexItem, DateFilters };
+export { FlexRow, FlexItem, DateFilters };

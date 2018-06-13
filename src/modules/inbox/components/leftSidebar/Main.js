@@ -9,12 +9,12 @@ import {
   DateFilter
 } from 'modules/common/components';
 import { Resolver, LeftSidebarContent } from 'modules/inbox/containers';
-import { PopoverButton } from '../../../styles';
-import { RightItems } from '../styles';
-import { queries } from '../../../graphql';
+import { PopoverButton } from '../../styles';
+import { RightItems } from './styles';
+import { queries } from '../../graphql';
 import FilterPopover from './FilterPopover';
 import StatusFilterPopover from './StatusFilterPopover';
-import AssignBoxPopover from '../../assignBox/AssignBoxPopover';
+import AssignBoxPopover from '../assignBox/AssignBoxPopover';
 
 const propTypes = {
   currentConversationId: PropTypes.string,
