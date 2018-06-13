@@ -57,15 +57,16 @@ class Sidebar extends Component {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
   }
 
-  showSectionContent(isUseCustomer, obj) {
-    const { name, val } = obj;
+  showSectionContent(isUseCustomer, section) {
+    const customerId = this.props.conversation.customerId;
+    const { name, val } = section;
     const sectionParams = this.getSectionParams();
 
     sectionParams[name] = val;
 
     this.setSectionParams(sectionParams);
 
-    isUseCustomer && this.getCustomerDetail();
+    isUseCustomer && this.getCustomerDetail(customerId);
   }
 
   render() {
