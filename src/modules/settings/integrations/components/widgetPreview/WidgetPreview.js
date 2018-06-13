@@ -60,7 +60,9 @@ function WidgetPreview(
       <ErxesMessagesList className={backgroundClasses}>
         <ErxesWelcomeMessage>{welcomeMessage}</ErxesWelcomeMessage>
         <li>
-          <ErxesAvatar>{avatar}</ErxesAvatar>
+          <ErxesAvatar>
+            <img src="/images/avatar-colored.svg" alt="avatar" />
+          </ErxesAvatar>
           <ErxesMessage>{__('Hi, any questions?')}</ErxesMessage>
           <ErxesDate>{__('1 hour ago')}</ErxesDate>
         </li>
