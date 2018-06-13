@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import queryString from 'query-string';
 import gql from 'graphql-tag';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import { Sidebar as DumbSidebar } from 'modules/inbox/components/leftSidebar';
@@ -48,17 +47,4 @@ const WithData = compose(
   })
 )(Sidebar);
 
-const WithQueryParams = props => {
-  const { location } = props;
-  const queryParams = queryString.parse(location.search);
-
-  const extendedProps = { ...props, queryParams };
-
-  return <WithData {...extendedProps} />;
-};
-
-WithQueryParams.propTypes = {
-  location: PropTypes.object
-};
-
-export default withRouter(WithQueryParams);
+export default withRouter(WithData);

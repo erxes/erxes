@@ -10,13 +10,14 @@ class DetailContainer extends Component {
   constructor(props, context) {
     super(props, context);
 
-    this.prevSubscriptions = {};
+    this.prevSubscriptions = null;
   }
 
   componentWillReceiveProps(nextProps) {
     const { currentId, detailQuery } = nextProps;
 
-    if (currentId !== this.props.currentId) {
+    // It is first time or subsequent conversation change
+    if (!this.prevSubscriptions || currentId !== this.props.currentId) {
       // Unsubscribe previous subscriptions ==========
       if (this.prevSubscriptions) {
         const { detailHandler, customerHandler } = this.prevSubscriptions;
@@ -26,6 +27,7 @@ class DetailContainer extends Component {
       }
 
       // Start new subscriptions =============
+      this.prevSubscriptions = {};
 
       // listen for conversation changes like status, assignee
       this.prevSubscriptions.detailHandler = detailQuery.subscribeToMore({

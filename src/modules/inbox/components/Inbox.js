@@ -15,7 +15,10 @@ export default class Inbox extends Component {
     return (
       <Contents>
         <Header queryParams={queryParams} breadcrumb={breadcrumb} />
-        <Sidebar currentConversationId={currentConversationId} />
+        <Sidebar
+          queryParams={queryParams}
+          currentConversationId={currentConversationId}
+        />
         <ConversationDetail currentId={currentConversationId} />
       </Contents>
     );

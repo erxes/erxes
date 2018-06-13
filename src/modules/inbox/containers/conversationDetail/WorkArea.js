@@ -182,7 +182,9 @@ export default compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql(gql(mutations.conversationMessageAdd), { name: 'addMessageMutation' })
+  graphql(gql(mutations.conversationMessageAdd), {
+    name: 'addMessageMutation'
+  })
 )(WorkArea);
 
 WorkArea.contextTypes = {
