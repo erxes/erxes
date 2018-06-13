@@ -15,13 +15,6 @@ const propTypes = {
 };
 
 class Sidebar extends Component {
-  shouldComponentUpdate(nextProps) {
-    const current = this.props.conversation;
-    const next = nextProps.conversation;
-
-    return current._id !== next._id;
-  }
-
   getChildContext() {
     const { showSectionContent, queryParams } = this.props;
 

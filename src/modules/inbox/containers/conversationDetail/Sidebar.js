@@ -15,13 +15,20 @@ class Sidebar extends Component {
     this.showSectionContent = this.showSectionContent.bind(this);
   }
 
-  componentWillReceiveProps() {
-    this.getCustomerDetail();
+  componentDidMount() {
+    this.getCustomerDetail(this.props.conversation.customerId);
   }
 
-  getCustomerDetail() {
-    const { conversation } = this.props;
+  componentWillReceiveProps(nextProps) {
+    const current = this.props.conversation.customerId;
+    const next = nextProps.conversation.customerId;
 
+    if (current !== next) {
+      this.getCustomerDetail(next);
+    }
+  }
+
+  getCustomerDetail(customerId) {
     const sectionParams = this.getSectionParams();
 
     this.setState({ loading: true });
@@ -30,14 +37,11 @@ class Sidebar extends Component {
       .query({
         query: gql(customerQueries.generateCustomerDetailQuery(sectionParams)),
         fetchPolicy: 'network-only',
-        variables: { _id: conversation.customerId }
+        variables: { _id: customerId }
       })
       .then(({ data }) => {
         if (data && data.customerDetail) {
-          this.setState({
-            customer: data.customerDetail,
-            loading: false
-          });
+          this.setState({ customer: data.customerDetail, loading: false });
         }
       })
       .catch(error => {
@@ -96,8 +100,7 @@ class Sidebar extends Component {
 }
 
 Sidebar.propTypes = {
-  conversation: PropTypes.object.isRequired,
-  refetch: PropTypes.func
+  conversation: PropTypes.object.isRequired
 };
 
 export default Sidebar;

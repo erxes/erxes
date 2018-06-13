@@ -12,7 +12,7 @@ export default class ConversationDetail extends Component {
         <MainContent>
           <WorkArea {...this.props} />
         </MainContent>
-        {currentConversation._id && (
+        {currentConversation.customerId && (
           <Sidebar conversation={currentConversation} />
         )}
       </Fragment>
