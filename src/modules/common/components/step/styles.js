@@ -3,6 +3,7 @@ import { colors, dimensions } from 'modules/common/styles';
 
 const StepContainer = styled.div`
   display: flex;
+  flex: 1;
   height: 100%;
   > *:nth-child(n + 2) {
     margin-left: 5px;
@@ -158,10 +159,11 @@ const Preview = styled.div`
   display: flex;
   flex-direction: column;
   border-left: 1px solid ${colors.borderPrimary};
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${props => !props.fullHeight && '20px'};
   background: url('/images/previews/preview.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
+  height: ${props => props.fullHeight && '100%'};
   overflow: auto;
 `;
 

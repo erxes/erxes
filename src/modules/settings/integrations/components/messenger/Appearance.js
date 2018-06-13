@@ -4,19 +4,8 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
 import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
-import {
-  FormControl,
-  FormGroup,
-  ControlLabel,
-  Icon
-} from 'modules/common/components';
-import SelectBrand from '../SelectBrand';
-import { CommonPreview } from './';
-import {
-  LeftItem,
-  Preview,
-  FlexItem
-} from 'modules/common/components/step/styles';
+import { Icon } from 'modules/common/components';
+import { LeftItem, FlexItem } from 'modules/common/components/step/styles';
 import {
   WidgetBackgrounds,
   SubHeading,
@@ -28,10 +17,6 @@ import {
 
 const propTypes = {
   onChange: PropTypes.func,
-  integration: PropTypes.object,
-  brandId: PropTypes.string,
-  languageCode: PropTypes.string,
-  brands: PropTypes.array.isRequired,
   color: PropTypes.string.isRequired,
   logoPreviewUrl: PropTypes.string,
   wallpaper: PropTypes.string.isRequired
@@ -48,7 +33,6 @@ class Appearance extends Component {
 
     this.onChangeFunction = this.onChangeFunction.bind(this);
     this.handleLogoChange = this.handleLogoChange.bind(this);
-    this.handleBrandChange = this.handleBrandChange.bind(this);
     this.removeImage = this.removeImage.bind(this);
   }
 
@@ -57,19 +41,9 @@ class Appearance extends Component {
     this.props.onChange(name, value);
   }
 
-  updateInstallCodeValue(brandId) {
-    if (brandId) {
-      this.props.onChange('brandId', brandId);
-    }
-  }
-
   removeImage(value) {
     this.setState({ logoPreviewUrl: '' });
     this.props.onChange('logoPreviewUrl', value);
-  }
-
-  handleBrandChange(e) {
-    this.updateInstallCodeValue(e.target.value);
   }
 
   handleLogoChange(e) {
@@ -143,29 +117,6 @@ class Appearance extends Component {
     return (
       <FlexItem odd>
         <LeftItem>
-          <SelectBrand
-            brands={this.props.brands}
-            defaultValue={this.props.brandId}
-            onChange={this.handleBrandChange}
-          />
-
-          <FormGroup>
-            <ControlLabel>Language</ControlLabel>
-
-            <FormControl
-              componentClass="select"
-              id="languageCode"
-              defaultValue={this.props.languageCode}
-              onChange={e =>
-                this.onChangeFunction('languageCode', e.target.value)
-              }
-            >
-              <option />
-              <option value="mn">Монгол</option>
-              <option value="en">English</option>
-            </FormControl>
-          </FormGroup>
-
           <SubItem>
             <SubHeading>{__('Choose a custom color')}</SubHeading>
             <OverlayTrigger
@@ -197,12 +148,6 @@ class Appearance extends Component {
             {this.renderUploadImage()}
           </SubItem>
         </LeftItem>
-        <Preview>
-          <CommonPreview
-            {...this.props}
-            handleLogoChange={this.handleLogoChange}
-          />
-        </Preview>
       </FlexItem>
     );
   }

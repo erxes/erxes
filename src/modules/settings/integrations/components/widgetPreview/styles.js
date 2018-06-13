@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { dimensions, colors, typography } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
@@ -149,6 +150,20 @@ const StateSpan = styled.span`
     props.state ? colors.colorCoreGreen : colors.colorLightGray};
 `;
 
+const WidgetPreviewStyled = styled.div`
+  font-family: 'Roboto', sans-serif;
+  max-height: 460px;
+  width: 340px;
+  border-radius: 4px;
+  background: ${colors.colorWhite};
+  color: ${colors.colorWhite};
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 2px 15px 0 ${rgba(colors.colorBlack, 0.14)},
+    0 1px 6px 0 ${rgba(colors.colorBlack, 0.06)};
+`;
+
 export {
   ErxesMiddle,
   ErxesTopbar,
@@ -164,5 +179,6 @@ export {
   StateSpan,
   TopbarButton,
   ErxesStaffName,
-  ErxesStaffProfile
+  ErxesStaffProfile,
+  WidgetPreviewStyled
 };

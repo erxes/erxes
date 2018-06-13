@@ -39,4 +39,13 @@ const FlexRow = styled.div`
   }
 `;
 
-export { FlexRow };
+const Row = styled.div`
+  display: flex;
+  height: 100%;
+`;
+
+const MessengerPreview = styled.div`
+  width: 40%;
+`;
+
+export { FlexRow, Row, MessengerPreview };

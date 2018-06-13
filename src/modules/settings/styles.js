@@ -64,20 +64,6 @@ const LogoContainer = styled.div`
   }
 `;
 
-const WidgetPreviewStyled = styled.div`
-  font-family: 'Roboto', sans-serif;
-  max-height: 460px;
-  width: 340px;
-  border-radius: 4px;
-  background: ${colors.colorWhite};
-  color: ${colors.colorWhite};
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 2px 15px 0 ${rgba(colors.colorBlack, 0.14)},
-    0 1px 6px 0 ${rgba(colors.colorBlack, 0.06)};
-`;
-
 const ColorPick = styled.div`
   border-radius: 4px;
   display: ${props => (props.full ? 'block' : 'inline-block')};
@@ -258,7 +244,6 @@ export {
   InlineItems,
   SubItem,
   WidgetApperance,
-  WidgetPreviewStyled,
   WidgetBackgrounds,
   BackgroundSelector,
   ColorPick,

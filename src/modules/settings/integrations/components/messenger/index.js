@@ -1,6 +1,6 @@
 import Intro from './Intro';
 import Availability from './Availability';
 import Appearance from './Appearance';
-import CommonPreview from './CommonPreview';
+import Options from './Options';
 
-export { Intro, Availability, Appearance, CommonPreview };
+export { Intro, Availability, Appearance, Options };

@@ -15,9 +15,9 @@ import {
   ErxesMessagesList,
   ErxesState,
   FromCustomer,
-  StateSpan
+  StateSpan,
+  WidgetPreviewStyled
 } from './styles';
-import { WidgetPreviewStyled } from 'modules/settings/styles';
 
 function WidgetPreview(
   { color, wallpaper, user, welcomeMessage, isOnline },
@@ -25,6 +25,7 @@ function WidgetPreview(
 ) {
   const avatar =
     (user.details && user.details.avatar) || '/images/avatar-colored.svg';
+  console.log(user);
   const fullName = (user.details && user.details.fullName) || 'Support staff';
   const backgroundClasses = `background-${wallpaper}`;
 

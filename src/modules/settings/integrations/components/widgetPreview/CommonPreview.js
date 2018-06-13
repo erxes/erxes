@@ -31,7 +31,7 @@ class CommonPreview extends Component {
     const { __ } = this.context;
 
     return (
-      <MessengerPreview>
+      <MessengerPreview fullHeight>
         <Messenger>
           <WidgetPreview
             color={color}

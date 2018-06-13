@@ -4,11 +4,14 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Alert } from 'modules/common/utils';
 import { Step, Steps, FormControl, Button } from 'modules/common/components';
+import { CommonPreview } from './widgetPreview';
+import { Intro, Availability, Appearance, Options } from './messenger';
+import { Row, MessengerPreview } from '../styles';
 import {
   StepWrapper,
-  TitleContainer
+  TitleContainer,
+  Preview
 } from 'modules/common/components/step/styles';
-import { Intro, Availability, Appearance } from './messenger';
 
 class CreateMessenger extends Component {
   constructor(props) {
@@ -133,31 +136,47 @@ class CreateMessenger extends Component {
           />
         </TitleContainer>
 
-        <Steps active={activeStep}>
-          <Step img="/images/icons/erxes-16.svg" title="Intro">
-            <Intro onChange={this.onChange} {...this.state} />
-          </Step>
+        <Row>
+          <Steps active={activeStep}>
+            <Step img="/images/icons/erxes-16.svg" title="Intro">
+              <Intro
+                teamMembers={this.props.teamMembers}
+                onChange={this.onChange}
+                {...this.state}
+              />
+            </Step>
 
-          <Step img="/images/icons/erxes-04.svg" title="Hours & Availability">
-            <Availability
-              {...this.state}
-              onChange={this.onChange}
-              teamMembers={this.props.teamMembers}
-            />
-          </Step>
+            <Step img="/images/icons/erxes-03.svg" title="Hours & Availability">
+              <Availability onChange={this.onChange} {...this.state} />
+            </Step>
 
-          <Step
-            img="/images/icons/erxes-06.svg"
-            title="Appearance"
-            nextButton={this.renderButtons()}
-          >
-            <Appearance
-              {...this.state}
-              onChange={this.onChange}
-              brands={this.props.brands}
-            />
-          </Step>
-        </Steps>
+            <Step img="/images/icons/erxes-04.svg" title="Appearance">
+              <Appearance
+                onChange={this.onChange}
+                brands={this.props.brands}
+                {...this.state}
+              />
+            </Step>
+
+            <Step
+              img="/images/icons/erxes-06.svg"
+              title="Options"
+              nextButton={this.renderButtons()}
+            >
+              <Options
+                onChange={this.onChange}
+                brands={this.props.brands}
+                {...this.state}
+              />
+            </Step>
+          </Steps>
+
+          <MessengerPreview>
+            <Preview fullHeight>
+              <CommonPreview {...this.state} />
+            </Preview>
+          </MessengerPreview>
+        </Row>
       </StepWrapper>
     );
   }

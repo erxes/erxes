@@ -7,46 +7,25 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import { CommonPreview } from './';
 import OnlineHours from '../OnlineHours';
 import { timezones } from '../../constants';
-import {
-  LeftItem,
-  Preview,
-  FlexItem
-} from 'modules/common/components/step/styles';
-import { SubHeading } from 'modules/settings/styles';
+import { LeftItem, FlexItem } from 'modules/common/components/step/styles';
 
 const propTypes = {
   onChange: PropTypes.func,
-  teamMembers: PropTypes.array.isRequired,
   isOnline: PropTypes.bool,
   availabilityMethod: PropTypes.string,
   timezone: PropTypes.string,
-  notifyCustomer: PropTypes.bool,
-  onlineHours: PropTypes.array,
-  supporterIds: PropTypes.array
+  onlineHours: PropTypes.array
 };
 
 class Availability extends Component {
   constructor(props) {
     super(props);
 
-    const { teamMembers, supporterIds } = props;
-
-    const selectedMembers = teamMembers.filter(member =>
-      supporterIds.includes(member._id)
-    );
-
-    this.state = {
-      supporters: this.generateSupporterOptions(selectedMembers)
-    };
-
-    this.onTeamMembersChange = this.onTeamMembersChange.bind(this);
     this.onOnlineHoursChange = this.onOnlineHoursChange.bind(this);
     this.onSelectChange = this.onSelectChange.bind(this);
-    this.onToggleChange = this.onToggleChange.bind(this);
-    this.onInputChange = this.onInputChange.bind(this);
+    this.onChangeFunction = this.onChangeFunction.bind(this);
   }
 
   onSelectChange(e, name) {
@@ -60,36 +39,14 @@ class Availability extends Component {
     this.props.onChange(name, value);
   }
 
-  onInputChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
-    this.props.onChange(e.target.name, e.target.value);
+  onChangeFunction(name, value) {
+    this.setState({ [name]: value });
+    this.props.onChange(name, value);
   }
 
   onOnlineHoursChange(onlineHours) {
     this.setState({ onlineHours });
     this.props.onChange('onlineHours', onlineHours);
-  }
-
-  onTeamMembersChange(options) {
-    if (options.length < 3) {
-      this.setState({
-        supporters: options,
-        supporterIds: options.map(option => option.value)
-      });
-      this.props.onChange('supporterIds', options.map(option => option.value));
-    }
-  }
-
-  onToggleChange(e) {
-    this.setState({ [e.target.name]: e.target.checked });
-    this.props.onChange(e.target.name, e.target.checked);
-  }
-
-  generateSupporterOptions(members = []) {
-    return members.map(member => ({
-      value: member._id,
-      label: member.details.fullName
-    }));
   }
 
   renderOnlineHours() {
@@ -116,9 +73,8 @@ class Availability extends Component {
         <div>
           <Toggle
             className="wide"
-            name="isOnline"
             checked={this.props.isOnline}
-            onChange={this.onToggleChange}
+            onChange={e => this.onChangeFunction('isOnline', e.target.checked)}
             icons={{
               checked: <span>Yes</span>,
               unchecked: <span>No</span>
@@ -137,22 +93,24 @@ class Availability extends Component {
         <LeftItem>
           <FormGroup>
             <FormControl
-              name="availabilityMethod"
               value="manual"
               componentClass="radio"
               checked={this.props.availabilityMethod === 'manual'}
-              onChange={this.onInputChange}
+              onChange={e =>
+                this.onChangeFunction('availabilityMethod', e.target.value)
+              }
               inline
             >
               {__('Turn online/offline manually')}
             </FormControl>
 
             <FormControl
-              name="availabilityMethod"
               value="auto"
               componentClass="radio"
               checked={this.props.availabilityMethod === 'auto'}
-              onChange={this.onInputChange}
+              onChange={e =>
+                this.onChangeFunction('availabilityMethod', e.target.value)
+              }
               inline
             >
               {__('Set to follow your schedule')}
@@ -172,41 +130,7 @@ class Availability extends Component {
               clearable={false}
             />
           </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>Supporters</ControlLabel>
-
-            <Select
-              closeOnSelect={false}
-              value={this.state.supporters}
-              options={this.generateSupporterOptions(this.props.teamMembers)}
-              onChange={this.onTeamMembersChange}
-              clearable={true}
-              multi
-            />
-          </FormGroup>
-
-          <SubHeading>{__('Other configs')}</SubHeading>
-
-          <FormGroup>
-            <ControlLabel>Notify customer</ControlLabel>
-            <div>
-              <Toggle
-                className="wide"
-                name="notifyCustomer"
-                checked={this.props.notifyCustomer}
-                onChange={this.onToggleChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </div>
-          </FormGroup>
         </LeftItem>
-        <Preview>
-          <CommonPreview {...this.props} />
-        </Preview>
       </FlexItem>
     );
   }
