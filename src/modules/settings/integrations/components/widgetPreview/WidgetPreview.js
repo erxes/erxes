@@ -20,7 +20,15 @@ import {
 } from './styles';
 
 function WidgetPreview(
-  { color, wallpaper, users, supporterIds, welcomeMessage, isOnline },
+  {
+    color,
+    wallpaper,
+    users,
+    supporterIds,
+    welcomeMessage,
+    awayMessage,
+    isOnline
+  },
   { __ }
 ) {
   let avatar = <img src="/images/avatar-colored.svg" alt="avatar" />;
@@ -40,6 +48,14 @@ function WidgetPreview(
     fullName = supporters.map(user => user.details.fullName).join(', ');
   }
 
+  const renderMessage = message => {
+    if (!message) {
+      console.log('aa');
+      return null;
+    }
+    return <ErxesWelcomeMessage>{message}</ErxesWelcomeMessage>;
+  };
+
   const backgroundClasses = `background-${wallpaper}`;
 
   return (
@@ -58,7 +74,7 @@ function WidgetPreview(
         </ErxesMiddle>
       </ErxesTopbar>
       <ErxesMessagesList className={backgroundClasses}>
-        <ErxesWelcomeMessage>{welcomeMessage}</ErxesWelcomeMessage>
+        {renderMessage(welcomeMessage)}
         <li>
           <ErxesAvatar>
             <img src="/images/avatar-colored.svg" alt="avatar" />
@@ -72,6 +88,7 @@ function WidgetPreview(
           </FromCustomer>
           <ErxesDate>{__('6 minutes ago')}</ErxesDate>
         </ErxesFromCustomer>
+        {renderMessage(awayMessage)}
       </ErxesMessagesList>
       <ErxesMessageSender>
         <span>{__('Write a reply ...')}</span>
@@ -86,6 +103,7 @@ WidgetPreview.propTypes = {
   users: PropTypes.array,
   supporterIds: PropTypes.array,
   welcomeMessage: PropTypes.string,
+  awayMessage: PropTypes.string,
   isOnline: PropTypes.bool
 };
 

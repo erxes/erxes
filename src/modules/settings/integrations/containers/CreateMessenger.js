@@ -19,7 +19,7 @@ const CreateMessengerContainer = props => {
   } = props;
 
   if (usersQuery.loading || brandsQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner />;
   }
 
   const users = usersQuery.users || [];

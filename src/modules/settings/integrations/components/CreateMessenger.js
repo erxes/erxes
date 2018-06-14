@@ -211,6 +211,7 @@ class CreateMessenger extends Component {
                 color={color}
                 logoPreviewStyle={logoPreviewStyle}
                 welcomeMessage={welcomeMessage}
+                awayMessage={awayMessage}
                 wallpaper={wallpaper}
                 supporterIds={supporterIds}
                 isOnline={isOnline}

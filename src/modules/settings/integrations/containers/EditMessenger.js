@@ -25,7 +25,7 @@ const EditMessengerContainer = props => {
     usersQuery.loading ||
     brandsQuery.loading
   ) {
-    return <Spinner objective />;
+    return <Spinner />;
   }
 
   const users = usersQuery.users || [];

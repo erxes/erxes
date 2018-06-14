@@ -11,6 +11,7 @@ const propTypes = {
   color: PropTypes.string,
   logoPreviewStyle: PropTypes.object,
   welcomeMessage: PropTypes.string,
+  awayMessage: PropTypes.string,
   wallpaper: PropTypes.string,
   supporterIds: PropTypes.array,
   isOnline: PropTypes.bool,
@@ -25,6 +26,7 @@ class CommonPreview extends Component {
       color,
       wallpaper,
       welcomeMessage,
+      awayMessage,
       isOnline,
       supporterIds,
       teamMembers
@@ -41,6 +43,7 @@ class CommonPreview extends Component {
             users={teamMembers}
             supporterIds={supporterIds}
             welcomeMessage={welcomeMessage}
+            awayMessage={awayMessage}
             isOnline={isOnline}
           />
 
