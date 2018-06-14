@@ -9,7 +9,8 @@ import {
   Icon
 } from 'modules/common/components';
 import { CalloutPreview } from './preview';
-import { FlexItem, FlexColumn, LeftItem, Preview, ImageContent } from './style';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { FlexItem, FlexColumn, ImageContent } from './style';
 
 const propTypes = {
   type: PropTypes.string,

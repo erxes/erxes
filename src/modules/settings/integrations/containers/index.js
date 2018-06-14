@@ -1,15 +1,8 @@
 import List from './List';
-import Messenger from './Messenger';
+import CreateMessenger from './CreateMessenger';
+import EditMessenger from './EditMessenger';
 import Twitter from './Twitter';
 import Facebook from './Facebook';
-import MessengerAppearance from './MessengerAppearance';
-import MessengerConfigs from './MessengerConfigs';
+import utils from './utils';
 
-export {
-  List,
-  Messenger,
-  Twitter,
-  Facebook,
-  MessengerAppearance,
-  MessengerConfigs
-};
+export { CreateMessenger, EditMessenger, List, Twitter, Facebook, utils };

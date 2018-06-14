@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import strip from 'strip';
 
 import { NameCard } from 'modules/common/components';
+import { WidgetPreviewStyled } from 'modules/settings/integrations/components/widgetPreview/styles';
 import { WebPreview, PreviewContent, Messenger } from '../styles';
-import { WidgetPreviewStyled, LogoContainer } from 'modules/settings/styles';
+import { LogoContainer } from 'modules/settings/styles';
 
 const propTypes = {
   content: PropTypes.string,

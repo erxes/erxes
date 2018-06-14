@@ -6,8 +6,9 @@ import {
   slideRight
 } from 'modules/common/utils/animations';
 import { Button } from 'modules/common/components';
+import { WidgetPreviewStyled } from 'modules/settings/integrations/components/widgetPreview/styles';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
-import { WidgetPreviewStyled, LogoContainer } from 'modules/settings/styles';
+import { LogoContainer } from 'modules/settings/styles';
 import {
   PreviewTitle,
   PreviewBody,

@@ -3,6 +3,7 @@ import { colors, dimensions } from 'modules/common/styles';
 
 const StepContainer = styled.div`
   display: flex;
+  flex: 1;
   height: 100%;
   > *:nth-child(n + 2) {
     margin-left: 5px;
@@ -88,6 +89,7 @@ const ShortStep = styled.div`
   align-items: center;
   padding: ${dimensions.unitSpacing}px 0;
   flex-direction: column;
+  border-radius: 5px;
 `;
 
 const InlineForm = styled.div`
@@ -139,6 +141,32 @@ const FlexPad = FlexItem.extend`
   border-right: 1px solid ${colors.borderPrimary};
 `;
 
+const LeftItem = styled.div`
+  overflow: auto;
+  flex: 1;
+  min-width: 43.33333%;
+  padding: ${dimensions.coreSpacing}px;
+  opacity: ${props => props.deactive && '0.3'};
+  cursor: ${props => props.deactive && 'not-allowed'};
+
+  input:disabled {
+    cursor: not-allowed;
+  }
+`;
+
+const Preview = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid ${colors.borderPrimary};
+  padding: ${props => !props.fullHeight && '20px'};
+  background: url('/images/previews/preview.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  height: ${props => props.fullHeight && '100%'};
+  overflow: auto;
+`;
+
 export {
   StepContainer,
   StepItem,
@@ -153,5 +181,7 @@ export {
   TitleContainer,
   InlineForm,
   FlexItem,
-  FlexPad
+  FlexPad,
+  LeftItem,
+  Preview
 };

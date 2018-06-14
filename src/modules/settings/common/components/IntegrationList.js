@@ -5,13 +5,14 @@ import { IntegrationRow } from './';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
+  removeIntegration: PropTypes.func,
   refetch: PropTypes.func,
   showBrand: PropTypes.bool
 };
 
 class IntegrationList extends Component {
   renderRow() {
-    const { integrations, refetch, showBrand } = this.props;
+    const { integrations, refetch, showBrand, removeIntegration } = this.props;
 
     return integrations.map(integration => (
       <IntegrationRow
@@ -19,6 +20,7 @@ class IntegrationList extends Component {
         integration={integration}
         refetch={refetch}
         showBrand={showBrand}
+        removeIntegration={removeIntegration}
       />
     ));
   }

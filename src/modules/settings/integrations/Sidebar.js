@@ -9,7 +9,6 @@ import { router } from 'modules/common/utils';
 class IntegrationsSidebar extends React.Component {
   getClassName(kind) {
     const { currentIntegrationKind } = this.props;
-
     if (kind === currentIntegrationKind) {
       return 'active';
     }

@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-import { days, hours } from '../constants';
+import { days, hours } from '../../constants';
 import {
   Button,
   Icon,
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import { FlexRow } from '../styles';
+import { FlexRow } from '../../styles';
 
 class OnlineHours extends Component {
   constructor(props) {
@@ -89,6 +89,7 @@ class OnlineHours extends Component {
           onChange={onDayChange}
           clearable={false}
         />
+
         <span>from</span>
         <Select
           className="flex-item"
@@ -97,6 +98,7 @@ class OnlineHours extends Component {
           options={hours}
           clearable={false}
         />
+
         <span>to</span>
         <Select
           className="flex-item"

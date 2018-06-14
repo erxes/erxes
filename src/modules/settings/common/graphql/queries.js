@@ -1,11 +1,30 @@
 import { queries } from 'modules/settings/channels/graphql';
 import { queries as brandQuery } from 'modules/settings/brands/graphql';
 
+const commonParamsDef = `
+  $channelId: String,
+  $brandId: String,
+  $kind: String,
+  $perPage: Int,
+  $page: Int,
+  $searchValue: String
+`;
+
+const commonParams = `
+  channelId: $channelId,
+  brandId: $brandId,
+  kind: $kind,
+  perPage: $perPage,
+  page: $page,
+  searchValue: $searchValue
+`;
+
 const integrations = `
-  query integrations($channelId: String, $brandId: String, $perPage: Int, $page: Int, $searchValue: String) {
-    integrations(channelId: $channelId, brandId: $brandId, perPage: $perPage, page: $page, searchValue: $searchValue) {
+  query integrations(${commonParamsDef}) {
+    integrations(${commonParams}) {
       _id
       brandId
+      languageCode
       name
       kind
       brand {
@@ -14,7 +33,14 @@ const integrations = `
         code
       }
       formData
+      twitterData
       formId
+      tagIds
+      tags {
+        _id
+        colorCode
+        name
+      }
       form {
         _id
         title
