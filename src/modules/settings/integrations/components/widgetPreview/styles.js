@@ -40,6 +40,10 @@ const ErxesStaffProfile = styled.div`
 const ErxesStaffName = styled.div`
   font-size: ${typography.fontSizeBody}px;
   font-weight: ${typography.fontWeightMedium};
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   padding-top: 3px;
   margin-left: 43px;
 `;

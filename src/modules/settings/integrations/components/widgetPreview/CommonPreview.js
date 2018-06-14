@@ -8,7 +8,6 @@ import { LogoContainer } from 'modules/settings/styles';
 const propTypes = {
   onChange: PropTypes.func,
   teamMembers: PropTypes.array.isRequired,
-  handleLogoChange: PropTypes.func,
   color: PropTypes.string,
   logoPreviewStyle: PropTypes.object,
   welcomeMessage: PropTypes.string,
@@ -21,7 +20,6 @@ const propTypes = {
 class CommonPreview extends Component {
   render() {
     const {
-      handleLogoChange,
       logoPreviewStyle,
       logoPreviewUrl,
       color,
@@ -59,7 +57,7 @@ class CommonPreview extends Component {
             >
               <label style={{ backgroundColor: color }}>
                 <Icon icon="upload" />
-                <input type="file" onChange={handleLogoChange} />
+                <input type="file" />
               </label>
             </LogoContainer>
           </Tip>

@@ -7,7 +7,7 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import OnlineHours from '../OnlineHours';
+import { OnlineHours } from '/';
 import { timezones } from '../../constants';
 import { LeftItem, FlexItem } from 'modules/common/components/step/styles';
 

@@ -5,7 +5,7 @@ import { Wrapper } from 'modules/layout/components';
 import { Alert } from 'modules/common/utils';
 import { Step, Steps, FormControl, Button } from 'modules/common/components';
 import { CommonPreview } from './widgetPreview';
-import { Intro, Availability, Appearance, Options } from './messenger';
+import { Intro, Availability, Appearance, Options } from './messengerSteps';
 import { Row, MessengerPreview } from '../styles';
 import {
   StepWrapper,
@@ -114,7 +114,26 @@ class CreateMessenger extends Component {
   }
 
   render() {
-    const { activeStep, title } = this.state;
+    const {
+      activeStep,
+      title,
+      supporterIds,
+      welcomeMessage,
+      awayMessage,
+      thankYouMessage,
+      isOnline,
+      availabilityMethod,
+      onlineHours,
+      timezone,
+      color,
+      logoPreviewUrl,
+      wallpaper,
+      brandId,
+      languageCode,
+      notifyCustomer,
+      logoPreviewStyle
+    } = this.state;
+
     const { __ } = this.context;
 
     const breadcrumb = [
@@ -142,19 +161,30 @@ class CreateMessenger extends Component {
               <Intro
                 teamMembers={this.props.teamMembers}
                 onChange={this.onChange}
-                {...this.state}
+                supporterIds={supporterIds}
+                welcomeMessage={welcomeMessage}
+                awayMessage={awayMessage}
+                thankYouMessage={thankYouMessage}
               />
             </Step>
 
             <Step img="/images/icons/erxes-03.svg" title="Hours & Availability">
-              <Availability onChange={this.onChange} {...this.state} />
+              <Availability
+                onChange={this.onChange}
+                isOnline={isOnline}
+                availabilityMethod={availabilityMethod}
+                timezone={timezone}
+                onlineHours={onlineHours}
+              />
             </Step>
 
             <Step img="/images/icons/erxes-04.svg" title="Appearance">
               <Appearance
                 onChange={this.onChange}
                 brands={this.props.brands}
-                {...this.state}
+                color={color}
+                logoPreviewUrl={logoPreviewUrl}
+                wallpaper={wallpaper}
               />
             </Step>
 
@@ -166,7 +196,9 @@ class CreateMessenger extends Component {
               <Options
                 onChange={this.onChange}
                 brands={this.props.brands}
-                {...this.state}
+                brandId={brandId}
+                languageCode={languageCode}
+                notifyCustomer={notifyCustomer}
               />
             </Step>
           </Steps>
@@ -174,8 +206,15 @@ class CreateMessenger extends Component {
           <MessengerPreview>
             <Preview fullHeight>
               <CommonPreview
-                {...this.state}
+                onChange={this.onChange}
                 teamMembers={this.props.teamMembers}
+                color={color}
+                logoPreviewStyle={logoPreviewStyle}
+                welcomeMessage={welcomeMessage}
+                wallpaper={wallpaper}
+                supporterIds={supporterIds}
+                isOnline={isOnline}
+                logoPreviewUrl={logoPreviewUrl}
               />
             </Preview>
           </MessengerPreview>

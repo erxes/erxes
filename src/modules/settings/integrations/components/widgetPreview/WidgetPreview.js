@@ -24,7 +24,7 @@ function WidgetPreview(
   { __ }
 ) {
   let avatar = <img src="/images/avatar-colored.svg" alt="avatar" />;
-  let fullName = ['Support staff'];
+  let fullName = 'Support staff';
 
   const supporters = users.filter(user => supporterIds.includes(user._id));
 
@@ -37,7 +37,7 @@ function WidgetPreview(
   }
 
   if (supporterIds.length > 0) {
-    fullName = supporters.map(user => user.details.fullName);
+    fullName = supporters.map(user => user.details.fullName).join(', ');
   }
 
   const backgroundClasses = `background-${wallpaper}`;
@@ -49,7 +49,7 @@ function WidgetPreview(
         <ErxesMiddle>
           <ErxesStaffProfile>
             {avatar}
-            <ErxesStaffName>{fullName.join(', ')}</ErxesStaffName>
+            <ErxesStaffName>{fullName}</ErxesStaffName>
             <ErxesState>
               <StateSpan state={isOnline} />
               {isOnline ? __('Online') : __('Offline')}
