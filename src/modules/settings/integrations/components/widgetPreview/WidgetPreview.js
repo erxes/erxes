@@ -7,7 +7,7 @@ import {
   ErxesStaffProfile,
   ErxesStaffName,
   ErxesMessage,
-  ErxesWelcomeMessage,
+  ErxesSpacialMessage,
   ErxesAvatar,
   ErxesDate,
   ErxesMessageSender,
@@ -50,10 +50,9 @@ function WidgetPreview(
 
   const renderMessage = message => {
     if (!message) {
-      console.log('aa');
       return null;
     }
-    return <ErxesWelcomeMessage>{message}</ErxesWelcomeMessage>;
+    return <ErxesSpacialMessage>{message}</ErxesSpacialMessage>;
   };
 
   const backgroundClasses = `background-${wallpaper}`;
@@ -74,7 +73,7 @@ function WidgetPreview(
         </ErxesMiddle>
       </ErxesTopbar>
       <ErxesMessagesList className={backgroundClasses}>
-        {renderMessage(welcomeMessage)}
+        {isOnline && renderMessage(welcomeMessage)}
         <li>
           <ErxesAvatar>
             <img src="/images/avatar-colored.svg" alt="avatar" />
@@ -88,7 +87,7 @@ function WidgetPreview(
           </FromCustomer>
           <ErxesDate>{__('6 minutes ago')}</ErxesDate>
         </ErxesFromCustomer>
-        {renderMessage(awayMessage)}
+        {!isOnline && renderMessage(awayMessage)}
       </ErxesMessagesList>
       <ErxesMessageSender>
         <span>{__('Write a reply ...')}</span>

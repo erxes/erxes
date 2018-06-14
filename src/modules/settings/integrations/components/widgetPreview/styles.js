@@ -54,7 +54,7 @@ const ErxesState = styled.div`
   margin-left: 43px;
 `;
 
-const ErxesWelcomeMessage = styled.li`
+const ErxesSpacialMessage = styled.li`
   padding: 18px;
   border-radius: 4px;
   border: 1px solid ${colors.colorShadowGray};
@@ -175,7 +175,7 @@ export {
   ErxesTopbar,
   ErxesState,
   ErxesMessage,
-  ErxesWelcomeMessage,
+  ErxesSpacialMessage,
   ErxesAvatar,
   ErxesDate,
   ErxesMessageSender,
