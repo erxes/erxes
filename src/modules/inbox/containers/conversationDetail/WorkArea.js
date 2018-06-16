@@ -145,8 +145,8 @@ class WorkArea extends Component {
 
           return Object.assign({}, prev, {
             conversationMessages: [
-              ...prev.conversationMessages,
-              ...fetchMoreResult.conversationMessages
+              ...fetchMoreResult.conversationMessages,
+              ...prev.conversationMessages
             ]
           });
         }
