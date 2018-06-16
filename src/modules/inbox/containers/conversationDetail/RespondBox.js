@@ -39,39 +39,8 @@ const RespondBoxContainer = (props, context) => {
           formWidgetData: null,
           twitterData: null,
           facebookData: null,
-          user: {
-            _id: '',
-            username: '',
-            details: {
-              avatar: '',
-              fullName: '',
-              position: ''
-            }
-          },
-          customer: {
-            _id: '',
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-            isUser: '',
-            companies: {
-              _id: '',
-              name: '',
-              website: ''
-            },
-            getMessengerCustomData: null,
-            customFieldsData: null,
-            messengerData: null,
-            twitterData: null,
-            facebookData: null,
-            tagIds: [],
-            getTags: {
-              _id: '',
-              name: '',
-              colorCode: ''
-            }
-          }
+          user: null,
+          customer: null
         }
       };
     }
