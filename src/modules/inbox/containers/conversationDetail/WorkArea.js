@@ -7,6 +7,10 @@ import { Alert } from 'modules/common/utils';
 import { WorkArea as DumbWorkArea } from 'modules/inbox/components/conversationDetail';
 import { queries, mutations, subscriptions } from 'modules/inbox/graphql';
 
+// messages limit
+let limit = 10;
+let skip;
+
 class WorkArea extends Component {
   constructor(props, context) {
     super(props, context);
@@ -81,9 +85,38 @@ class WorkArea extends Component {
   }
 
   addMessage({ variables, optimisticResponse, callback, kind }) {
-    const { addMessageMutation } = this.props;
+    const { addMessageMutation, currentId } = this.props;
 
-    addMessageMutation({ variables, optimisticResponse })
+    // immidiate ui update =======
+    let update;
+
+    if (optimisticResponse) {
+      update = (proxy, { data: { conversationMessageAdd } }) => {
+        const message = conversationMessageAdd;
+
+        const variables = { conversationId: currentId, limit };
+
+        if (skip) {
+          variables.skip = skip;
+        }
+
+        const selector = {
+          query: gql(queries.conversationMessages),
+          variables
+        };
+
+        // Read the data from our cache for this query.
+        const data = proxy.readQuery(selector);
+
+        // Add our comment from the mutation to the end.
+        data.conversationMessages.push(message);
+
+        // Write our data back to the cache.
+        proxy.writeQuery({ ...selector, data });
+      };
+    }
+
+    addMessageMutation({ variables, optimisticResponse, update })
       .then(({ data }) => {
         const { conversationMessageAdd } = data;
 
@@ -108,14 +141,17 @@ class WorkArea extends Component {
     if (!loading && conversationMessagesTotalCount > messages.length) {
       this.setState({ loadingMessages: true });
 
+      limit = 10;
+      skip = messages.length;
+
       client
         .query({
           query: gql(queries.conversationMessages),
           fetchPolicy: 'network-only',
           variables: {
             conversationId: currentId,
-            skip: messages.length,
-            limit: 10
+            limit,
+            skip
           }
         })
         .then(({ data }) => {
@@ -164,12 +200,15 @@ export default compose(
     options: ({ currentId }) => {
       const windowHeight = window.innerHeight;
 
+      // 330 - height of above and below sections of detail area
+      // 45 -  min height of per message
+      limit = parseInt((windowHeight - 330) / 45, 10) + 1;
+      skip = null;
+
       return {
         variables: {
           conversationId: currentId,
-          // 330 - height of above and below sections of detail area
-          // 45 -  min height of per message
-          limit: parseInt((windowHeight - 330) / 45, 10) + 1
+          limit
         },
         fetchPolicy: 'network-only'
       };

@@ -36,12 +36,42 @@ const RespondBoxContainer = (props, context) => {
           userId: currentUser._id,
           createdAt: new Date(),
           isCustomerRead: false,
-          engageData: null,
           formWidgetData: null,
           twitterData: null,
           facebookData: null,
-          user: null,
-          customer: null
+          user: {
+            _id: '',
+            username: '',
+            details: {
+              avatar: '',
+              fullName: '',
+              position: ''
+            }
+          },
+          customer: {
+            _id: '',
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            isUser: '',
+            companies: {
+              _id: '',
+              name: '',
+              website: ''
+            },
+            getMessengerCustomData: null,
+            customFieldsData: null,
+            messengerData: null,
+            twitterData: null,
+            facebookData: null,
+            tagIds: [],
+            getTags: {
+              _id: '',
+              name: '',
+              colorCode: ''
+            }
+          }
         }
       };
     }

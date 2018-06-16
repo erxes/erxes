@@ -9,14 +9,6 @@ export default `
   userId
   createdAt
   isCustomerRead
-  engageData {
-    messageId
-    brandId
-    content
-    fromUserId
-    kind
-    sentAs
-  }
   formWidgetData
   twitterData {
     id_str
