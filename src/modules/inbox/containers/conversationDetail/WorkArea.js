@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import client from 'apolloClient';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
 import { WorkArea as DumbWorkArea } from 'modules/inbox/components/conversationDetail';
 import { queries, mutations, subscriptions } from 'modules/inbox/graphql';
 
@@ -15,7 +13,7 @@ class WorkArea extends Component {
   constructor(props, context) {
     super(props, context);
 
-    this.state = { messages: [], loadingMessages: false };
+    this.state = { loadingMessages: false };
 
     this.prevSubscriptions = {};
 
@@ -66,21 +64,14 @@ class WorkArea extends Component {
             return prev;
           }
 
-          this.setState({ messages: [...this.state.messages, message] });
+          // add new message to messages list
+          const next = {
+            conversationMessages: [...messages, message]
+          };
+
+          return next;
         }
       });
-
-      this.setState({ messages: [], loadingMessages: true });
-    }
-
-    if (messagesQuery.loading) {
-      return;
-    }
-
-    const { conversationMessages } = messagesQuery;
-
-    if (conversationMessages && this.state.messages.length === 0) {
-      this.setState({ messages: conversationMessages, loadingMessages: false });
     }
   }
 
@@ -118,14 +109,6 @@ class WorkArea extends Component {
 
     addMessageMutation({ variables, optimisticResponse, update })
       .then(({ data }) => {
-        const { conversationMessageAdd } = data;
-
-        if (kind === 'messenger') {
-          const message = conversationMessageAdd;
-
-          this.setState({ messages: [...this.state.messages, message] });
-        }
-
         callback();
       })
       .catch(e => {
@@ -134,48 +117,51 @@ class WorkArea extends Component {
   }
 
   loadMoreMessages() {
-    const { currentId, messagesTotalCountQuery } = this.props;
-    const { messages } = this.state;
-    const { loading, conversationMessagesTotalCount } = messagesTotalCountQuery;
+    const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
+    const { conversationMessagesTotalCount } = messagesTotalCountQuery;
+    const { conversationMessages } = messagesQuery;
 
-    if (!loading && conversationMessagesTotalCount > messages.length) {
+    const loading = messagesQuery.loading || messagesTotalCountQuery.loading;
+
+    if (
+      !loading &&
+      conversationMessagesTotalCount > conversationMessages.length
+    ) {
       this.setState({ loadingMessages: true });
 
       limit = 10;
-      skip = messages.length;
+      skip = conversationMessages.length;
 
-      client
-        .query({
-          query: gql(queries.conversationMessages),
-          fetchPolicy: 'network-only',
-          variables: {
-            conversationId: currentId,
-            limit,
-            skip
-          }
-        })
-        .then(({ data }) => {
-          const { conversationMessages } = data;
+      messagesQuery.fetchMore({
+        variables: {
+          conversationId: currentId,
+          limit,
+          skip
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          this.setState({ loadingMessages: false });
 
-          if (conversationMessages) {
-            this.setState({
-              messages: [...conversationMessages, ...messages],
-              loadingMessages: false
-            });
-          }
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+          if (!fetchMoreResult) return prev;
+
+          return Object.assign({}, prev, {
+            conversationMessages: [
+              ...prev.conversationMessages,
+              ...fetchMoreResult.conversationMessages
+            ]
+          });
+        }
+      });
     }
   }
 
   render() {
-    const { messages, loadingMessages } = this.state;
+    const { loadingMessages } = this.state;
+    const { messagesQuery } = this.props;
+    const conversationMessages = messagesQuery.conversationMessages || [];
 
     const updatedProps = {
       ...this.props,
-      conversationMessages: messages,
+      conversationMessages,
       loadMoreMessages: this.loadMoreMessages,
       addMessage: this.addMessage,
       loadingMessages
