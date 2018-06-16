@@ -1,10 +1,9 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
 import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
-import { Icon } from 'modules/common/components';
 import { LeftItem, FlexItem } from 'modules/common/components/step/styles';
 import {
   WidgetBackgrounds,
@@ -31,19 +30,12 @@ class Appearance extends Component {
       wallpaper: props.wallpaper
     };
 
-    this.onChangeFunction = this.onChangeFunction.bind(this);
+    this.onChange = this.onChange.bind(this);
     this.handleLogoChange = this.handleLogoChange.bind(this);
-    this.removeImage = this.removeImage.bind(this);
   }
 
-  onChangeFunction(name, value) {
-    this.setState({ [name]: value });
+  onChange(name, value) {
     this.props.onChange(name, value);
-  }
-
-  removeImage(value) {
-    this.setState({ logoPreviewUrl: '' });
-    this.props.onChange('logoPreviewUrl', value);
   }
 
   handleLogoChange(e) {
@@ -53,19 +45,16 @@ class Appearance extends Component {
       file: imageFile,
 
       beforeUpload: () => {
-        this.setState({ logoPreviewStyle: { opacity: '0.9' } });
+        this.onChange('logoPreviewStyle', { opacity: '0.7' });
       },
 
       afterUpload: ({ response }) => {
-        this.setState({
-          logo: response,
-          logoPreviewStyle: { opacity: '1' }
-        });
+        this.onChange('logo', response);
+        this.onChange('logoPreviewStyle', { opacity: '1' });
       },
 
       afterRead: ({ result }) => {
-        this.setState({ logoPreviewUrl: result });
-        this.props.onChange('logoPreviewUrl', result);
+        this.onChange('logoPreviewUrl', result);
       }
     });
   }
@@ -85,20 +74,12 @@ class Appearance extends Component {
     );
   }
 
-  renderUploadImage() {
-    if (!this.props.logoPreviewUrl) {
-      return <input type="file" onChange={this.handleLogoChange} />;
-    }
-
+  renderUploadImage(title) {
     return (
-      <Fragment>
-        <img src={this.props.logoPreviewUrl} alt="previewLogo" />
-        <Icon
-          icon="cancel-1"
-          size={15}
-          onClick={e => this.removeImage(e.target.value)}
-        />
-      </Fragment>
+      <SubItem>
+        <SubHeading>{title}</SubHeading>
+        <input type="file" onChange={this.handleLogoChange} />
+      </SubItem>
     );
   }
 
@@ -143,10 +124,7 @@ class Appearance extends Component {
             </WidgetBackgrounds>
           </SubItem>
 
-          <SubItem>
-            <SubHeading>{__('Choose a logo')}</SubHeading>
-            {this.renderUploadImage()}
-          </SubItem>
+          {this.renderUploadImage(__('Choose a logo'))}
         </LeftItem>
       </FlexItem>
     );
