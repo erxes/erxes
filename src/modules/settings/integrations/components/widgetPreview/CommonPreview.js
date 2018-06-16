@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Tip, Icon } from 'modules/common/components';
 import { WidgetPreview } from '../';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import { LogoContainer } from 'modules/settings/styles';
@@ -32,8 +31,6 @@ class CommonPreview extends Component {
       teamMembers
     } = this.props;
 
-    const { __ } = this.context;
-
     return (
       <MessengerPreview fullHeight>
         <Messenger>
@@ -47,23 +44,15 @@ class CommonPreview extends Component {
             isOnline={isOnline}
           />
 
-          <Tip text={__('Choose a logo')}>
-            <LogoContainer
-              style={Object.assign(
-                {
-                  backgroundColor: color,
-                  backgroundImage: `url(${logoPreviewUrl ||
-                    '/images/erxes.png'})`
-                },
-                logoPreviewStyle
-              )}
-            >
-              <label style={{ backgroundColor: color }}>
-                <Icon icon="upload" />
-                <input type="file" />
-              </label>
-            </LogoContainer>
-          </Tip>
+          <LogoContainer
+            style={Object.assign(
+              {
+                backgroundColor: color,
+                backgroundImage: `url(${logoPreviewUrl})`
+              },
+              logoPreviewStyle
+            )}
+          />
         </Messenger>
       </MessengerPreview>
     );
