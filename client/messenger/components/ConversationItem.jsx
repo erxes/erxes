@@ -37,8 +37,8 @@ function ConversationItem(
       }}>
       <img className="erxes-list-avatar" src={avatar} alt={fullName} />
       <div className="erxes-right-side">
-        <div className="erxes-date">
-          {moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}
+        <div className="erxes-date erxes-tooltip" data-tooltip={moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}>
+          {moment(createdAt).format('LT')}
         </div>
         <div className="erxes-name">{fullName}</div>
         <div className="erxes-last-message">{striptags(content)}</div>

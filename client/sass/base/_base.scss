@@ -60,3 +60,38 @@ body {
   top: 50%;
   width: 20px;
 }
+
+.erxes-tooltip {
+  position: relative;
+
+  &:hover {
+    cursor: pointer;
+
+    &::before {
+      opacity: 1;
+      transform: translateY(15%);
+    }
+  }
+
+  &::before {
+    @include prefix((box-shadow: $tooltip-shadow), webkit moz);
+    background: $white;
+    border-radius: $border-radius;
+    color: lighten($black, 20%);
+    content: attr(data-tooltip);
+    font-size: 12px;
+    left: auto;
+    opacity: 0;
+    padding: 5px 10px;
+    pointer-events: none;
+    position: absolute;
+    right: auto;
+    text-align: center;
+    top: 100%;
+    transform: translateY(0%);
+    transition: transform .3s cubic-bezier(.2, 1, .2, 1), opacity .2s cubic-bezier(.2, 1, .2, 1);
+    white-space: nowrap;
+    will-change: transform, opacity;
+    z-index: 1;
+  }
+}
