@@ -1,3 +1,5 @@
+@import '../animations';
+
 .erxes-launcher {
   background-color: $main-color;
   background-image: url('/static/images/widget-logo.png');
@@ -7,7 +9,7 @@
   border-radius: 28px;
   bottom: 8px;
   box-shadow: 0 0 10px 0 rgba($black, .2);
-  color: $white;
+  color: $main-color;
   cursor: pointer;
   height: 56px;
   line-height: 56px;
@@ -39,10 +41,26 @@
     background-position: 50%;
     background-size: inherit;
     transition: background .3s ease-in-out;
+
+    &::before {
+      animation: none;
+    }
   }
 
   &:hover {
     box-shadow: 0 0 12px 0 rgba($black, .3);
+  }
+
+  &::before {
+    @include animation(0, 2s, animationPulse, linear, infinite);
+    border-radius: 50%;
+    color: inherit;
+    content: '';
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
   }
 
   @media screen and (max-width: $break-small) {

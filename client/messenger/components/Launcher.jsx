@@ -28,6 +28,7 @@ function Launcher({ isMessengerVisible, isBrowserInfoSaved, onClick, uiOptions }
       onClick={clickHandler}
       style={{
         backgroundColor: color,
+        color: color,
         backgroundImage: `url(${logo || defaultLogo})`,
         backgroundSize: logo ? '' : '20px',
       }}
