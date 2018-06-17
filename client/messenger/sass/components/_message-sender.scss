@@ -6,6 +6,9 @@
   border-top: 1px solid $grey-light;
 
   textarea.reply {
+    @include prefix((
+        box-sizing: border-box !important
+      ), webkit moz ms o);
     color: $text-color;
     border: 0;
     border-radius: 3px;
@@ -20,9 +23,6 @@
     left: 0;
     top: 0;
     height: 100%;
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-            box-sizing: border-box;
 
     &:focus {
       @include prefix((
@@ -52,36 +52,8 @@
   }
 
   .loader {
-    position: absolute;
+    margin: 0;
     right: 23px;
     top: 20px;
-    border: 2px solid $grey;
-    @include prefix((
-      animation: spin 1s linear infinite
-    ), webkit moz ms o);
-    border-top: 2px solid darken($grey, 10%);
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-  }
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@-webkit-keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
   }
 }

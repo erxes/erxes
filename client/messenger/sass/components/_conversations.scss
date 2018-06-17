@@ -6,11 +6,11 @@
 }
 
 .erxes-conversation-item {
-  overflow: hidden;
-  position: relative;
   @include prefix((
     transition: background .3s ease-in-out
   ), webkit moz ms o);
+  overflow: hidden;
+  position: relative;
 
   &:hover {
     background: rgba($black, .03);

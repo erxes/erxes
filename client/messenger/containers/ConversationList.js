@@ -20,6 +20,7 @@ class ConversationList extends React.Component {
 
     const extendedProps = {
       ...this.props,
+      loading: data.loading,
       conversations,
     };
 
