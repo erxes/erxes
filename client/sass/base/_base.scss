@@ -1,12 +1,12 @@
+@import '../animations';
+
 body {
-  box-sizing: border-box;
+  @include prefix((box-sizing: border-box), webkit moz ms o);
   margin: 0;
 }
 
 .erxes-widget {
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
+  @include prefix((box-sizing: border-box), webkit moz ms o);
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
   font-size: $font-size;
   -moz-osx-font-smoothing: grayscale;
@@ -14,7 +14,6 @@ body {
   line-height: 1.5;
   margin: 0;
 
-  
   button,
   input,
   textarea {
@@ -22,9 +21,7 @@ body {
   }
 
   &.opened .erxes-form {
-    @include prefix((
-      opacity: 1
-    ), webkit moz ms o);
+    @include prefix((opacity: 1), webkit moz ms o);
     visibility: visible;
   }
 
@@ -47,5 +44,54 @@ body {
     fill: $text-color;
     height: 35px;
     stroke: $text-color;
+  }
+}
+
+.loader {
+  @include animation(0, 1s, animationSpin, linear, infinite);
+  border: 2px solid $grey;
+  border-radius: 50%;
+  border-top: 2px solid darken($grey, 15%);
+  height: 20px;
+  margin-right: -10px;
+  margin-top: -10px;
+  position: absolute;
+  right: 50%;
+  top: 50%;
+  width: 20px;
+}
+
+.erxes-tooltip {
+  position: relative;
+
+  &:hover {
+    cursor: pointer;
+
+    &::before {
+      opacity: 1;
+      transform: translateY(15%);
+    }
+  }
+
+  &::before {
+    @include prefix((box-shadow: $tooltip-shadow), webkit moz);
+    background: $white;
+    border-radius: $border-radius;
+    color: lighten($black, 20%);
+    content: attr(data-tooltip);
+    font-size: 12px;
+    left: auto;
+    opacity: 0;
+    padding: 5px 10px;
+    pointer-events: none;
+    position: absolute;
+    right: auto;
+    text-align: center;
+    top: 100%;
+    transform: translateY(0%);
+    transition: transform .3s cubic-bezier(.2, 1, .2, 1), opacity .2s cubic-bezier(.2, 1, .2, 1);
+    white-space: nowrap;
+    will-change: transform, opacity;
+    z-index: 1;
   }
 }

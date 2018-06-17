@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400&subset=cyrillic-ext');
 
 // Colors
-$main-color: #7754b3;
+$main-color: #673fbd;
 $grey-light: #eee;
 $border-color: #ddd;
 $text-color: #686868;
@@ -9,9 +9,9 @@ $text-color-light: #888;
 
 $white: #fff;
 $black: #000;
-$red: #f74040;
+$red: #ea475d;
 $grey: #f5f4f6;
-$green: #67b04f;
+$green: #3ccc38;
 
 $transparent-white: rgba(255, 255, 255, .3);
 
@@ -27,5 +27,11 @@ $break-medium: 500px;
 $kb-spacing: 20px;
 $font-size: 14px;
 
+// shadows
+$message-shadow: 0 1px 1px 0 rgba($black, .2);
+$tooltip-shadow: 0 7px 25px 5px rgba($black, .1);
+
 // z index
 $z-index-above: 100000;
+
+

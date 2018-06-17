@@ -6,7 +6,8 @@ import { ConversationItem, TopBar } from '../containers';
 const propTypes = {
   conversations: PropTypes.array.isRequired,
   createConversation: PropTypes.func.isRequired,
-  goToConversation: PropTypes.func.isRequired
+  goToConversation: PropTypes.func.isRequired,
+  loading: PropTypes.bool
 };
 
 const contextTypes = {
@@ -16,7 +17,8 @@ const contextTypes = {
 function ConversationList({
   conversations,
   createConversation,
-  goToConversation
+  goToConversation,
+  loading
 }, {__}) {
   const title = (
     <div className="erxes-topbar-title">
@@ -33,6 +35,7 @@ function ConversationList({
         onButtonClick={createConversation}
       />
       <ul className="erxes-conversation-list">
+        {loading && <div className="loader" />}
         {conversations.map(conversation => (
           <ConversationItem
             key={conversation._id}

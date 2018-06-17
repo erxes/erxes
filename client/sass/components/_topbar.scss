@@ -102,7 +102,9 @@
   margin-top: 18px;
 
   span {
+    display: block;
     font-size: $font-size;
     font-weight: 300;
+    margin-top: 3px;
   }
 }
