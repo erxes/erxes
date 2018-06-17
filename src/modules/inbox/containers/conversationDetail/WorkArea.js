@@ -107,8 +107,15 @@ class WorkArea extends Component {
           return;
         }
 
+        const messages = data.conversationMessages;
+
+        // check duplications
+        if (messages.find(m => m._id === message._id)) {
+          return;
+        }
+
         // Add our comment from the mutation to the end.
-        data.conversationMessages.push(message);
+        messages.push(message);
 
         // Write our data back to the cache.
         proxy.writeQuery({ ...selector, data });
