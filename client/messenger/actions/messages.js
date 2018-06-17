@@ -56,11 +56,16 @@ export const sendMessage = (message, attachments) =>
         // Read data from our cache for this query
         const data = proxy.readQuery(selector);
 
-        // Add our message from the mutation to the end
-        data.conversationDetail.messages.push(message);
+        const messages = data.conversationDetail.messages;
 
-        // Write out data back to the cache
-        proxy.writeQuery({ ...selector, data });
+        // check duplications
+        if (!messages.find(m => m._id === message._id)) {
+          // Add our message from the mutation to the end
+          messages.push(message);
+
+          // Write out data back to the cache
+          proxy.writeQuery({ ...selector, data });
+        }
       }
     }
 
