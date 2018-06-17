@@ -97,7 +97,15 @@ class WorkArea extends Component {
         };
 
         // Read the data from our cache for this query.
-        const data = proxy.readQuery(selector);
+        let data;
+
+        try {
+          data = proxy.readQuery(selector);
+
+          // Do not do anything while reading query somewhere else
+        } catch (e) {
+          return;
+        }
 
         // Add our comment from the mutation to the end.
         data.conversationMessages.push(message);
@@ -122,11 +130,10 @@ class WorkArea extends Component {
     const { conversationMessages } = messagesQuery;
 
     const loading = messagesQuery.loading || messagesTotalCountQuery.loading;
+    const hasMore =
+      conversationMessagesTotalCount > conversationMessages.length;
 
-    if (
-      !loading &&
-      conversationMessagesTotalCount > conversationMessages.length
-    ) {
+    if (!loading && hasMore) {
       this.setState({ loadingMessages: true });
 
       limit = 10;
@@ -143,12 +150,13 @@ class WorkArea extends Component {
 
           if (!fetchMoreResult) return prev;
 
-          return Object.assign({}, prev, {
+          return {
+            ...prev,
             conversationMessages: [
               ...fetchMoreResult.conversationMessages,
               ...prev.conversationMessages
             ]
-          });
+          };
         }
       });
     }
