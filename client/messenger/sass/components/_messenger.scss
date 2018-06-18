@@ -33,52 +33,61 @@
 
   .content {
     padding: 20px 40px;
+  }
 
-    .type span{
-      cursor: pointer;
-      display: inline-block;
-      margin-right: 10px;
+  .type span {
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 10px;
 
-      &.current {
-        border-bottom: 1px solid;
-        font-weight: bold;
+    &.current {
+      border-bottom: 1px solid;
+      font-weight: bold;
+    }
+  }
+
+  .form {
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 0;
+    margin-top: 5px;
+
+    &.invalid {
+      @include animation(0, .8s, shake, cubic-bezier(.36, .07, .19, .97), initial);
+
+      input {
+        border-color: $red !important;
       }
     }
 
-    .form {
-      display: flex;
-      flex-direction: row;
-      flex-shrink: 0;
-      margin-top: 5px;
+    input {
+      -webkit-appearance: none;
+      border: 1px solid $main-color;
+      border-bottom-left-radius: $border-radius;
+      border-top-left-radius: $border-radius;
+      box-sizing: border-box;
+      flex: 1;
+      font-size: $font-size;
+      height: 38px;
+      margin-right: 0;
+      outline: 0;
+      padding: 10px 15px;
+    }
 
-      input {
-        -webkit-appearance: none;
-        border: 1px solid $main-color;
-        border-bottom-left-radius: $border-radius;
-        border-top-left-radius: $border-radius;
-        box-sizing: border-box;
-        flex: 1;
-        font-size: $font-size;
-        height: 34px;
-        outline: 0;
-        padding: 10px;
-        margin-right: 0;
-      }
+    button {
+      background-color: $main-color;
+      border: 0;
+      border-radius: 0;
+      border-bottom-right-radius: $border-radius;
+      border-top-right-radius: $border-radius;
+      outline: 0;
+      width: 31px;
+      height: 38px;
+      padding: 4px;
+      margin: 0;
 
-      button {
-        background-color: $main-color;
-        border: 0;
-        border-radius: 0;
-        border-bottom-right-radius: 4px;
-        border-top-right-radius: 4px;
-        outline: 0;
-        width: 31px;
-        padding: 4px;
-        margin: 0;
-
-        svg {
-          margin-top: 3px;
-        }
+      svg {
+        margin-top: 3px;
       }
     }
   }
