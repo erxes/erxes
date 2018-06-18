@@ -99,7 +99,7 @@ export default class WorkArea extends Component {
       currentConversation,
       conversationMessages,
       addMessage,
-      loadingMessages,
+      loading,
       refetch
     } = this.props;
 
@@ -175,7 +175,7 @@ export default class WorkArea extends Component {
           conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
           scrollBottom={this.scrollBottom}
-          loading={loadingMessages}
+          loading={loading}
         />
       </ConversationWrapper>
     );
@@ -205,7 +205,7 @@ WorkArea.propTypes = {
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
   conversationMessages: PropTypes.array,
-  loadingMessages: PropTypes.bool,
+  loading: PropTypes.bool,
   loadMoreMessages: PropTypes.func,
   addMessage: PropTypes.func
 };

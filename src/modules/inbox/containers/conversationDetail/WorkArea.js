@@ -189,7 +189,7 @@ class WorkArea extends Component {
       conversationMessages,
       loadMoreMessages: this.loadMoreMessages,
       addMessage: this.addMessage,
-      loadingMessages
+      loading: messagesQuery.loading || loadingMessages
     };
 
     return <DumbWorkArea {...updatedProps} />;
