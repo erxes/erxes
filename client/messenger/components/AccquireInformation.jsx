@@ -45,9 +45,6 @@ class AccquireInformation extends React.Component {
     }
 
     return this.setState({ isValidated: false });
-
-    // console.log(this.isEmailValid(this.state.value));
-    // this.props.save(this.state);
   }
 
   render() {
