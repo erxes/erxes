@@ -35,14 +35,18 @@
     padding: 20px 40px;
   }
 
-  .type span {
-    cursor: pointer;
-    display: inline-block;
-    margin-right: 10px;
+  .type {
+    margin-top: 0;
 
-    &.current {
-      border-bottom: 1px solid;
-      font-weight: bold;
+    span {
+      cursor: pointer;
+      display: inline-block;
+      margin-right: 10px;
+
+      &.current {
+        border-bottom: 1px solid;
+        font-weight: bold;
+      }
     }
   }
 
