@@ -42,7 +42,7 @@ export default class WorkArea extends Component {
 
   // Calculating new messages's height to use later in componentDidUpdate
   // So that we can retract cursor position to original place
-  getSnapshotBeforeUpdate(prevProps, prevState) {
+  getSnapshotBeforeUpdate(prevProps) {
     const { conversationMessages } = this.props;
 
     if (prevProps.conversationMessages.length < conversationMessages.length) {

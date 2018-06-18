@@ -36,7 +36,6 @@ const RespondBoxContainer = (props, context) => {
           userId: currentUser._id,
           createdAt: new Date(),
           isCustomerRead: false,
-          engageData: null,
           formWidgetData: null,
           twitterData: null,
           facebookData: null,

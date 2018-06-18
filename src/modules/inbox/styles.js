@@ -42,6 +42,7 @@ const PopoverButton = styled.div`
 const ConversationWrapper = styled.div`
   height: 100%;
   overflow: auto;
+  min-height: 100px;
   background: ${colors.bgLight};
 `;
 

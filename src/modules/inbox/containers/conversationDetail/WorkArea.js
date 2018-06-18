@@ -1,19 +1,21 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import client from 'apolloClient';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
 import { WorkArea as DumbWorkArea } from 'modules/inbox/components/conversationDetail';
 import { queries, mutations, subscriptions } from 'modules/inbox/graphql';
+
+// messages limit
+let limit = 10;
+let skip;
 
 class WorkArea extends Component {
   constructor(props, context) {
     super(props, context);
 
-    this.state = { messages: [], loadingMessages: false };
+    this.state = { loadingMessages: false };
 
-    this.prevSubscriptions = {};
+    this.prevSubscription = null;
 
     this.loadMoreMessages = this.loadMoreMessages.bind(this);
     this.addMessage = this.addMessage.bind(this);
@@ -24,16 +26,15 @@ class WorkArea extends Component {
 
     const { currentId, currentConversation, messagesQuery } = nextProps;
 
-    if (currentId !== this.props.currentId) {
-      // Unsubscribe previous subscriptions ==========
-      if (this.prevSubscriptions) {
-        const { messagesHandler } = this.prevSubscriptions;
-
-        messagesHandler && messagesHandler();
+    // It is first time or subsequent conversation change
+    if (!this.prevSubscription || currentId !== this.props.currentId) {
+      // Unsubscribe previous subscription ==========
+      if (this.prevSubscription) {
+        this.prevSubscription();
       }
 
       // Start new subscriptions =============
-      this.prevSubscriptions.messagesHandler = messagesQuery.subscribeToMore({
+      this.prevSubscription = messagesQuery.subscribeToMore({
         document: gql(subscriptions.conversationMessageInserted),
         variables: { _id: currentId },
         updateQuery: (prev, { subscriptionData }) => {
@@ -62,37 +63,66 @@ class WorkArea extends Component {
             return prev;
           }
 
-          this.setState({ messages: [...this.state.messages, message] });
+          // add new message to messages list
+          const next = {
+            conversationMessages: [...messages, message]
+          };
+
+          return next;
         }
       });
-
-      this.setState({ messages: [], loadingMessages: true });
-    }
-
-    if (messagesQuery.loading) {
-      return;
-    }
-
-    const { conversationMessages } = messagesQuery;
-
-    if (conversationMessages && this.state.messages.length === 0) {
-      this.setState({ messages: conversationMessages, loadingMessages: false });
     }
   }
 
   addMessage({ variables, optimisticResponse, callback, kind }) {
-    const { addMessageMutation } = this.props;
+    const { addMessageMutation, currentId } = this.props;
 
-    addMessageMutation({ variables, optimisticResponse })
-      .then(({ data }) => {
-        const { conversationMessageAdd } = data;
+    // immidiate ui update =======
+    let update;
 
-        if (kind === 'messenger') {
-          const message = conversationMessageAdd;
+    if (optimisticResponse) {
+      update = (proxy, { data: { conversationMessageAdd } }) => {
+        const message = conversationMessageAdd;
 
-          this.setState({ messages: [...this.state.messages, message] });
+        const variables = { conversationId: currentId, limit };
+
+        if (skip) {
+          variables.skip = skip;
         }
 
+        const selector = {
+          query: gql(queries.conversationMessages),
+          variables
+        };
+
+        // Read the data from our cache for this query.
+        let data;
+
+        try {
+          data = proxy.readQuery(selector);
+
+          // Do not do anything while reading query somewhere else
+        } catch (e) {
+          return;
+        }
+
+        const messages = data.conversationMessages;
+
+        // check duplications
+        if (messages.find(m => m._id === message._id)) {
+          return;
+        }
+
+        // Add our comment from the mutation to the end.
+        messages.push(message);
+
+        // Write our data back to the cache.
+        proxy.writeQuery({ ...selector, data });
+      };
+    }
+
+    addMessageMutation({ variables, optimisticResponse, update })
+      .then(({ data }) => {
         callback();
       })
       .catch(e => {
@@ -101,45 +131,62 @@ class WorkArea extends Component {
   }
 
   loadMoreMessages() {
-    const { currentId, messagesTotalCountQuery } = this.props;
-    const { messages } = this.state;
-    const { loading, conversationMessagesTotalCount } = messagesTotalCountQuery;
+    const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
+    const { conversationMessagesTotalCount } = messagesTotalCountQuery;
+    const { conversationMessages } = messagesQuery;
 
-    if (!loading && conversationMessagesTotalCount > messages.length) {
+    const loading = messagesQuery.loading || messagesTotalCountQuery.loading;
+    const hasMore =
+      conversationMessagesTotalCount > conversationMessages.length;
+
+    if (!loading && hasMore) {
       this.setState({ loadingMessages: true });
 
-      client
-        .query({
-          query: gql(queries.conversationMessages),
-          fetchPolicy: 'network-only',
-          variables: {
-            conversationId: currentId,
-            skip: messages.length,
-            limit: 10
-          }
-        })
-        .then(({ data }) => {
-          const { conversationMessages } = data;
+      limit = 10;
+      skip = conversationMessages.length;
 
-          if (conversationMessages) {
-            this.setState({
-              messages: [...conversationMessages, ...messages],
-              loadingMessages: false
-            });
+      messagesQuery.fetchMore({
+        variables: {
+          conversationId: currentId,
+          limit,
+          skip
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          this.setState({ loadingMessages: false });
+
+          if (!fetchMoreResult) return prev;
+
+          const prevMessageIds = (prev.conversationMessages || []).map(
+            m => m._id
+          );
+          const fetchedMessages = [];
+
+          for (const message of fetchMoreResult.conversationMessages) {
+            if (!prevMessageIds.includes(message._id)) {
+              fetchedMessages.push(message);
+            }
           }
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+
+          return {
+            ...prev,
+            conversationMessages: [
+              ...fetchedMessages,
+              ...prev.conversationMessages
+            ]
+          };
+        }
+      });
     }
   }
 
   render() {
-    const { messages, loadingMessages } = this.state;
+    const { loadingMessages } = this.state;
+    const { messagesQuery } = this.props;
+    const conversationMessages = messagesQuery.conversationMessages || [];
 
     const updatedProps = {
       ...this.props,
-      conversationMessages: messages,
+      conversationMessages,
       loadMoreMessages: this.loadMoreMessages,
       addMessage: this.addMessage,
       loadingMessages
@@ -164,12 +211,15 @@ export default compose(
     options: ({ currentId }) => {
       const windowHeight = window.innerHeight;
 
+      // 330 - height of above and below sections of detail area
+      // 45 -  min height of per message
+      limit = parseInt((windowHeight - 330) / 45, 10) + 1;
+      skip = null;
+
       return {
         variables: {
           conversationId: currentId,
-          // 330 - height of above and below sections of detail area
-          // 45 -  min height of per message
-          limit: parseInt((windowHeight - 330) / 45, 10) + 1
+          limit
         },
         fetchPolicy: 'network-only'
       };
