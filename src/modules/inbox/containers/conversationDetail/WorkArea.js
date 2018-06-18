@@ -15,7 +15,7 @@ class WorkArea extends Component {
 
     this.state = { loadingMessages: false };
 
-    this.prevSubscriptions = {};
+    this.prevSubscription = null;
 
     this.loadMoreMessages = this.loadMoreMessages.bind(this);
     this.addMessage = this.addMessage.bind(this);
@@ -26,16 +26,15 @@ class WorkArea extends Component {
 
     const { currentId, currentConversation, messagesQuery } = nextProps;
 
-    if (currentId !== this.props.currentId) {
-      // Unsubscribe previous subscriptions ==========
-      if (this.prevSubscriptions) {
-        const { messagesHandler } = this.prevSubscriptions;
-
-        messagesHandler && messagesHandler();
+    // It is first time or subsequent conversation change
+    if (!this.prevSubscription || currentId !== this.props.currentId) {
+      // Unsubscribe previous subscription ==========
+      if (this.prevSubscription) {
+        this.prevSubscription();
       }
 
       // Start new subscriptions =============
-      this.prevSubscriptions.messagesHandler = messagesQuery.subscribeToMore({
+      this.prevSubscription = messagesQuery.subscribeToMore({
         document: gql(subscriptions.conversationMessageInserted),
         variables: { _id: currentId },
         updateQuery: (prev, { subscriptionData }) => {
