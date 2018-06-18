@@ -40,6 +40,7 @@ class CreateMessenger extends Component {
         _id: Math.random(),
         ...h
       })),
+      logo: uiOptions.logo,
       logoPreviewStyle: {},
       logoPreviewUrl: uiOptions.logo || '/images/erxes.png'
     };
@@ -84,7 +85,7 @@ class CreateMessenger extends Component {
       uiOptions: {
         color: this.state.color,
         wallpaper: this.state.wallpaper,
-        logo: this.state.logoPreviewUrl
+        logo: this.state.logo
       }
     });
   }
@@ -208,13 +209,13 @@ class CreateMessenger extends Component {
               <CommonPreview
                 onChange={this.onChange}
                 teamMembers={this.props.teamMembers}
-                color={color}
-                logoPreviewStyle={logoPreviewStyle}
                 welcomeMessage={welcomeMessage}
                 awayMessage={awayMessage}
-                wallpaper={wallpaper}
                 supporterIds={supporterIds}
                 isOnline={isOnline}
+                wallpaper={wallpaper}
+                color={color}
+                logoPreviewStyle={logoPreviewStyle}
                 logoPreviewUrl={logoPreviewUrl}
               />
             </Preview>
