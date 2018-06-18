@@ -13,6 +13,7 @@ export default class ConversationDetail extends Component {
     if (currentConversation.customerId) {
       return <Sidebar conversation={currentConversation} />;
     }
+
     return (
       <EmptySidebar full>
         <Spinner />
@@ -23,9 +24,10 @@ export default class ConversationDetail extends Component {
   renderContent() {
     const { currentConversation } = this.props;
 
-    if (currentConversation.customerId) {
+    if (currentConversation._id) {
       return <WorkArea {...this.props} />;
     }
+
     return (
       <ContentBox>
         <Spinner />
