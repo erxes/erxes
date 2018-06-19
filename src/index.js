@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 
-import 'newrelic';
 import path from 'path';
 import dotenv from 'dotenv';
 import express from 'express';
