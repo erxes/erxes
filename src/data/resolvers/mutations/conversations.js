@@ -89,7 +89,7 @@ export const conversationMessageCreated = async (message, conversationId) => {
 };
 
 /*
- * Send notificatio helper
+ * Send notification helper
  */
 const sendNotification = doc => {
   // send notification

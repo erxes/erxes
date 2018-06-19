@@ -67,6 +67,7 @@
     "moment": "^2.18.1",
     "mongoose": "^4.9.2",
     "mongoose-type-email": "^1.0.5",
+    "newrelic": "^4.1.5",
     "node-schedule": "^1.2.5",
     "nodemailer": "^4.1.3",
     "oauth": "^0.9.15",
