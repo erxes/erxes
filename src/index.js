@@ -85,7 +85,7 @@ server.listen(PORT, () => {
       keepAlive: 10000,
 
       onConnect(connectionParams, webSocket) {
-        webSocket.on('message', message => {
+        webSocket.on('message', async message => {
           const parsedMessage = JSON.parse(message).id || {};
 
           if (parsedMessage.type === 'messengerConnected') {
@@ -94,7 +94,7 @@ server.listen(PORT, () => {
             const customerId = webSocket.messengerData.customerId;
 
             // mark as online
-            Customers.markCustomerAsActive(customerId);
+            await Customers.markCustomerAsActive(customerId);
 
             // notify as connected
             pubsub.publish('customerConnectionChanged', {
@@ -107,14 +107,14 @@ server.listen(PORT, () => {
         });
       },
 
-      onDisconnect(webSocket) {
+      async onDisconnect(webSocket) {
         const messengerData = webSocket.messengerData;
 
         if (messengerData) {
           const customerId = messengerData.customerId;
 
           // mark as offline
-          Customers.markCustomerAsNotActive(customerId);
+          await Customers.markCustomerAsNotActive(customerId);
 
           // notify as disconnected
           pubsub.publish('customerConnectionChanged', {
