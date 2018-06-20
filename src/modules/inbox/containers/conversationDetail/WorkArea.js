@@ -51,20 +51,26 @@ class WorkArea extends Component {
           }
 
           if (currentId !== this.props.currentId) {
-            return prev;
+            return;
           }
 
           const messages = prev.conversationMessages;
+
+          // Sometimes it is becoming undefined because of left sidebar query
+          if (!messages) {
+            return;
+          }
 
           // check whether or not already inserted
           const prevEntry = messages.find(m => m._id === message._id);
 
           if (prevEntry) {
-            return prev;
+            return;
           }
 
           // add new message to messages list
           const next = {
+            ...prev,
             conversationMessages: [...messages, message]
           };
 
