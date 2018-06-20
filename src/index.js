@@ -93,6 +93,9 @@ server.listen(PORT, () => {
 
             const customerId = webSocket.messengerData.customerId;
 
+            // mark as online
+            Customers.markCustomerAsActive(customerId);
+
             // notify as connected
             pubsub.publish('customerConnectionChanged', {
               customerConnectionChanged: {

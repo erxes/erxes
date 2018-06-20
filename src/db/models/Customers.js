@@ -269,6 +269,17 @@ class Customer extends Coc {
   }
 
   /**
+   * Mark customer as active
+   * @param  {String} customerId
+   * @return {Promise} Updated customer
+   */
+  static async markCustomerAsActive(customerId) {
+    await this.update({ _id: customerId }, { $set: { 'messengerData.isActive': true } });
+
+    return this.findOne({ _id: customerId });
+  }
+
+  /**
    * Mark customer as inactive
    * @param  {String} _id
    * @return {Promise} Updated customer

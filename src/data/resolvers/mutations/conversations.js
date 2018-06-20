@@ -76,14 +76,6 @@ export const conversationMessageCreated = async (message, conversationId) => {
     conversationsChanged: { customerId: conversation.customerId, type: 'newMessage' },
   });
 
-  // subscribe customer connected
-  // We are calling this subscription when customer connect. But sometimes
-  // somehow connection is being lost, So we are forcing this customer as connected
-  // when new message
-  pubsub.publish('customerConnectionChanged', {
-    customerConnectionChanged: { _id: conversation.customerId, status: 'connected' },
-  });
-
   // notify notification subscription
   pubsub.publish('notificationsChanged');
 };
