@@ -159,6 +159,7 @@ class WorkArea extends Component {
           const prevMessageIds = (prev.conversationMessages || []).map(
             m => m._id
           );
+
           const fetchedMessages = [];
 
           for (const message of fetchMoreResult.conversationMessages) {
