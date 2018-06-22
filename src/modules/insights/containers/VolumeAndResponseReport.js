@@ -62,8 +62,8 @@ VolumenAndResponseReportContainer.propTypes = {
 export default compose(
   graphql(gql(queries.pieChart), {
     name: 'volumePieChartQuery',
-    options: ({ queryParams, type }) => ({
-      skip: type === 'response',
+    skip: ({ type }) => type === 'response',
+    options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
       variables: {
         brandId: queryParams.brandId,
