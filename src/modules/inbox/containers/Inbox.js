@@ -50,8 +50,8 @@ WithCurrentId.propTypes = {
 const WithLastConversation = compose(
   graphql(gql(queries.lastConversation), {
     name: 'lastConversationQuery',
+    skip: ({ queryParams }) => queryParams._id,
     options: ({ queryParams }) => ({
-      skip: queryParams._id,
       variables: generateParams(queryParams),
       fetchPolicy: 'network-only'
     })
