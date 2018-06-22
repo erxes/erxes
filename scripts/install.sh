@@ -24,12 +24,12 @@ if [ $UNAME = "Darwin" ] ; then
   fi
 fi
 
-echo 'Load initial data';
-yarn loadInitialData
-
-
 echo 'Create `.env.sample` from default settings file and configure it on your own:'
 cp .env.sample .env
+
+
+echo 'Load initial data';
+yarn loadInitialData
 
 CURRENT_FOLDER=${PWD##*/}
 if [ $CURRENT_FOLDER = 'erxes-app-api' ]; then
