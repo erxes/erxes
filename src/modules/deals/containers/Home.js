@@ -51,16 +51,12 @@ const MainContainer = compose(
   }),
   graphql(gql(queries.boardGetDefault), {
     name: 'boardGetDefaultQuery',
-    options: ({ queryParams }) => ({
-      skip: queryParams.id
-    })
+    skip: ({ queryParams }) => queryParams.id
   }),
   graphql(gql(queries.boardDetail), {
     name: 'boardDetailQuery',
-    options: ({ queryParams }) => ({
-      skip: !queryParams.id,
-      variables: { _id: queryParams.id }
-    })
+    skip: ({ queryParams }) => !queryParams.id,
+    options: ({ queryParams }) => ({ variables: { _id: queryParams.id } })
   })
 )(Main);
 
