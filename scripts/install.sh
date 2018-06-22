@@ -14,7 +14,7 @@ UNAME=$(uname)
 if [ $UNAME = "Linux" ] ; then
   ### Linux ###
   if ! type redis-server > /dev/null ; then
-    sudo apt install redis-server
+    sudo apt install -y redis-server
   fi
 fi
 if [ $UNAME = "Darwin" ] ; then
