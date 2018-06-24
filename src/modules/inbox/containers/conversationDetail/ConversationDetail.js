@@ -16,47 +16,54 @@ class DetailContainer extends Component {
   componentWillReceiveProps(nextProps) {
     const { currentId, detailQuery } = nextProps;
 
-    // It is first time or subsequent conversation change
-    if (!this.prevSubscriptions || currentId !== this.props.currentId) {
-      // Unsubscribe previous subscriptions ==========
-      if (this.prevSubscriptions) {
-        const { detailHandler, customerHandler } = this.prevSubscriptions;
+    // if conversation id changed. then unsubscribe previous subscriptions
+    if (this.prevSubscriptions && this.props.currentId !== currentId) {
+      const { detailHandler, customerHandler } = this.prevSubscriptions;
 
-        detailHandler && detailHandler();
-        customerHandler && customerHandler();
+      detailHandler && detailHandler();
+      customerHandler && customerHandler();
+
+      this.prevSubscriptions = null;
+    }
+
+    if (detailQuery.loading) {
+      return;
+    }
+
+    if (this.prevSubscriptions) {
+      return;
+    }
+
+    // Start new subscriptions =============
+    this.prevSubscriptions = {};
+
+    // listen for conversation changes like status, assignee
+    this.prevSubscriptions.detailHandler = detailQuery.subscribeToMore({
+      document: gql(subscriptions.conversationChanged),
+      variables: { _id: currentId },
+      updateQuery: () => {
+        this.props.detailQuery.refetch();
       }
+    });
 
-      // Start new subscriptions =============
-      this.prevSubscriptions = {};
+    // listen for customer connection
+    const conversation = detailQuery.conversationDetail;
 
-      // listen for conversation changes like status, assignee
-      this.prevSubscriptions.detailHandler = detailQuery.subscribeToMore({
-        document: gql(subscriptions.conversationChanged),
-        variables: { _id: currentId },
-        updateQuery: () => {
-          this.props.detailQuery.refetch();
+    if (conversation.integration.kind === 'messenger') {
+      const customerId = conversation.customer._id;
+
+      this.prevSubscriptions.customerHandler = detailQuery.subscribeToMore({
+        document: gql(subscriptions.customerConnectionChanged),
+        variables: { _id: customerId },
+        updateQuery: (prev, { subscriptionData: { data } }) => {
+          const prevConv = prev.conversationDetail;
+          const customerConnection = data.customerConnectionChanged;
+
+          if (prevConv && prevConv.customer._id === customerConnection._id) {
+            this.props.detailQuery.refetch();
+          }
         }
       });
-
-      // listen for customer connection
-      const conversation = detailQuery.conversationDetail;
-
-      if (conversation && conversation.integration.kind === 'messenger') {
-        const customerId = conversation.customer._id;
-
-        this.prevSubscriptions.customerHandler = detailQuery.subscribeToMore({
-          document: gql(subscriptions.customerConnectionChanged),
-          variables: { _id: customerId },
-          updateQuery: (prev, { subscriptionData: { data } }) => {
-            const prevConv = prev.conversationDetail;
-            const customerConnection = data.customerConnectionChanged;
-
-            if (prevConv && prevConv.customer._id === customerConnection._id) {
-              this.props.detailQuery.refetch();
-            }
-          }
-        });
-      }
     }
   }
 

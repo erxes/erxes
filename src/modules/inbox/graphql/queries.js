@@ -185,13 +185,7 @@ const unreadConversationsCount = `
 const lastConversation = `
   query conversationsGetLast(${listParamsDef}) {
     conversationsGetLast(${listParamsValue}) {
-      ${conversationFields}
-      messages {
-        _id
-        content
-        userId
-        customerId
-      }
+      _id
     }
   }
 `;
