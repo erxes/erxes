@@ -136,16 +136,16 @@ class BasicInfo extends Component {
         <SidebarList className="no-link">
           {this.renderRow(
             'Email',
-            customer.email || this.getVisitorInfo(customer, 'email') || '-'
+            customer.email || this.getVisitorInfo(customer, 'email') || ''
           )}
           {this.renderRow(
             'Phone',
-            customer.phone || this.getVisitorInfo(customer, 'phone') || '-'
+            customer.phone || this.getVisitorInfo(customer, 'phone') || ''
           )}
 
           {this.renderRow(
             'Owner',
-            customer.owner ? customer.owner.details.fullName : '-'
+            customer.owner ? customer.owner.details.fullName : ''
           )}
 
           {this.renderRow('Position', customer.position)}

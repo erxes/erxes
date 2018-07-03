@@ -139,7 +139,7 @@ class CustomerForm extends React.Component {
               id: 'customer-email',
               type: 'email',
               defaultValue:
-                customer.email || this.getVisitorInfo(customer, 'email') || '-',
+                customer.email || this.getVisitorInfo(customer, 'email') || '',
               required: true
             })}
 
@@ -187,7 +187,7 @@ class CustomerForm extends React.Component {
             {this.renderFormGroup('Phone', {
               id: 'customer-phone',
               defaultValue:
-                customer.phone || this.getVisitorInfo(customer, 'phone') || '-'
+                customer.phone || this.getVisitorInfo(customer, 'phone') || ''
             })}
 
             {this.renderFormGroup('Position', {
