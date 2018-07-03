@@ -36,6 +36,7 @@ class Appearance extends Component {
 
   onChange(name, value) {
     this.props.onChange(name, value);
+    this.setState({ [name]: value });
   }
 
   handleLogoChange(e) {
@@ -66,7 +67,7 @@ class Appearance extends Component {
     return (
       <BackgroundSelector
         className={selectorClass}
-        onClick={() => this.onChangeFunction('wallpaper', value)}
+        onClick={() => this.onChange('wallpaper', value)}
         style={{ borderColor: isSelected ? this.state.color : 'transparent' }}
       >
         <div className={`background-${value}`} />
@@ -90,7 +91,7 @@ class Appearance extends Component {
       <Popover id="color-picker">
         <ChromePicker
           color={this.state.color}
-          onChange={e => this.onChangeFunction('color', e.hex)}
+          onChange={e => this.onChange('color', e.hex)}
         />
       </Popover>
     );
