@@ -85,16 +85,12 @@ const applyTemplate = async (data, templateName) => {
 export const createTransporter = ({ ses }) => {
   const { MAIL_SERVICE, MAIL_USER, MAIL_PASS } = process.env;
 
-  let options = {
-    service: MAIL_SERVICE,
-    auth: {
-      user: MAIL_USER,
-      pass: MAIL_PASS,
-    },
-  };
-
   if (ses) {
     const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+
+    if (!AWS_SES_ACCESS_KEY_ID || !AWS_SES_SECRET_ACCESS_KEY) {
+      throw new Error('Invalid SES configuration');
+    }
 
     AWS.config.update({
       region: AWS_REGION,
@@ -102,12 +98,22 @@ export const createTransporter = ({ ses }) => {
       secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
     });
 
-    options = {
+    return nodemailer.createTransport({
       SES: new AWS.SES({ apiVersion: '2010-12-01' }),
-    };
+    });
   }
 
-  return nodemailer.createTransport(options);
+  if (!MAIL_SERVICE || !MAIL_USER || !MAIL_PASS) {
+    throw new Error('Invalid mail service configuration');
+  }
+
+  return nodemailer.createTransport({
+    service: MAIL_SERVICE,
+    auth: {
+      user: MAIL_USER,
+      pass: MAIL_PASS,
+    },
+  });
 };
 
 /**
@@ -128,7 +134,14 @@ export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
     return;
   }
 
-  const transporter = createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
+  // try to create transporter or throw configuration error
+  let transporter;
+
+  try {
+    transporter = createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
+  } catch (e) {
+    return console.log(e.message); // eslint-disable-line
+  }
 
   const { isCustom, data, name } = template;
 
