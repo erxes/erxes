@@ -20,11 +20,11 @@ class MainLayout extends React.Component {
   componentDidMount() {
     const { history, currentUser } = this.props;
 
-    if (!currentUser) {
+    if (history.location.pathname !== '/reset-password' && !currentUser) {
       history.push('/sign-in');
     }
 
-    //browser default form validation event listener
+    // browser default form validation event listener
     document.addEventListener(
       'invalid',
       (function() {
