@@ -83,7 +83,7 @@ const applyTemplate = async (data, templateName) => {
  * @return nodemailer transporter
 */
 export const createTransporter = ({ ses }) => {
-  const { MAIL_SERVICE, MAIL_USER, MAIL_PASS } = process.env;
+  const { MAIL_SERVICE, MAIL_PORT, MAIL_USER, MAIL_PASS } = process.env;
 
   if (ses) {
     const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
@@ -103,12 +103,13 @@ export const createTransporter = ({ ses }) => {
     });
   }
 
-  if (!MAIL_SERVICE || !MAIL_USER || !MAIL_PASS) {
+  if (!MAIL_SERVICE || !MAIL_PORT || !MAIL_USER || !MAIL_PASS) {
     throw new Error('Invalid mail service configuration');
   }
 
   return nodemailer.createTransport({
     service: MAIL_SERVICE,
+    port: MAIL_PORT,
     auth: {
       user: MAIL_USER,
       pass: MAIL_PASS,
