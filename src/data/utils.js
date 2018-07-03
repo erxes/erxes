@@ -65,7 +65,7 @@ export const readFile = filename => {
 };
 
 /**
- * SendEmail template helper
+ * Apply template
  * @param {Object} data data
  * @param {String} templateName
  * @return email with template as text
@@ -79,19 +79,35 @@ const applyTemplate = async (data, templateName) => {
 };
 
 /**
- * Create transporter
+ * Create default or ses transporter
  * @return nodemailer transporter
 */
-export const createTransporter = async () => {
+export const createTransporter = ({ ses }) => {
   const { MAIL_SERVICE, MAIL_USER, MAIL_PASS } = process.env;
 
-  return nodemailer.createTransport({
+  let options = {
     service: MAIL_SERVICE,
     auth: {
       user: MAIL_USER,
       pass: MAIL_PASS,
     },
-  });
+  };
+
+  if (ses) {
+    const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+
+    AWS.config.update({
+      region: AWS_REGION,
+      accessKeyId: AWS_SES_ACCESS_KEY_ID,
+      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
+    });
+
+    options = {
+      SES: new AWS.SES({ apiVersion: '2010-12-01' }),
+    };
+  }
+
+  return nodemailer.createTransport(options);
 };
 
 /**
@@ -105,14 +121,14 @@ export const createTransporter = async () => {
  * @return {Promise}
 */
 export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
-  const { NODE_ENV } = process.env;
+  const { NODE_ENV, DEFAULT_EMAIL_SERVICE, COMPANY_EMAIL_FROM } = process.env;
 
   // do not send email it is running in test mode
   if (NODE_ENV == 'test') {
     return;
   }
 
-  const transporter = await createTransporter();
+  const transporter = createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
 
   const { isCustom, data, name } = template;
 
@@ -125,7 +141,7 @@ export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
 
   return toEmails.map(toEmail => {
     const mailOptions = {
-      from: fromEmail,
+      from: fromEmail || COMPANY_EMAIL_FROM,
       to: toEmail,
       subject: title,
       html,
@@ -174,7 +190,6 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
 
   return sendEmail({
     toEmails,
-    fromEmail: 'no-reply@erxes.io',
     title: 'Notification',
     template: {
       name: 'notification',
@@ -189,7 +204,6 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
  * Receives and saves xls file in private/xlsImports folder
  * and imports customers to the database
  * @param {Object} file - File data to save
- *
  * @return {Promise} Success and failed counts
 */
 export const importXlsFile = async (file, type, { user }) => {

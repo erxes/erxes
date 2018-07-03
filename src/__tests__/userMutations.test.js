@@ -208,7 +208,6 @@ describe('User mutations', () => {
     // send email call
     expect(spyEmail).toBeCalledWith({
       toEmails: [doc.email],
-      fromEmail: process.env.COMPANY_EMAIL_FROM,
       subject: 'Invitation info',
       template: {
         name: 'invitation',
