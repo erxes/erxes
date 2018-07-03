@@ -169,7 +169,13 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
   const recipients = await Users.find({ _id: { $in: receivers } });
 
   // collect recipient emails
-  const toEmails = recipients.filter(recipient => recipient.getNotificationByEmail);
+  const toEmails = [];
+
+  for (const recipient of recipients) {
+    if (recipient.getNotificationByEmail && recipient.email) {
+      toEmails.push(recipient.email);
+    }
+  }
 
   // loop through receiver ids
   for (const receiverId of receivers) {
