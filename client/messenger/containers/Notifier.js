@@ -21,12 +21,9 @@ class Notifier extends NotificationSubscriber {
       return null;
     }
 
-    const uiOptions = connection.data.uiOptions || {};
-
     const extendedProps = {
       ...this.props,
       lastUnreadMessage,
-      color: uiOptions.color,
     };
 
     return <DumbNotifier {...extendedProps} />;

@@ -7,7 +7,6 @@ import { User, EngageMessage } from '../components';
 const propTypes = {
   lastUnreadMessage: PropTypes.object,
   readMessage: PropTypes.func,
-  color: PropTypes.string,
 };
 
 class Notifier extends React.Component {
@@ -39,7 +38,7 @@ class Notifier extends React.Component {
     const details = user.details || {};
 
     if (engageData) {
-      return <EngageMessage engageData={engageData} />;
+      return <EngageMessage toggle={this.showUnreadMessage} engageData={engageData} />;
     }
 
     return (
@@ -66,13 +65,12 @@ class Notifier extends React.Component {
   }
 
   render() {
-    const { lastUnreadMessage, readMessage, color } = this.props;
+    const { lastUnreadMessage, readMessage } = this.props;
 
     if (lastUnreadMessage._id) {
       return (
         <div
           className={this.renderClass()}
-          style={{ borderColor: color }}
           onClick={() => readMessage({
             conversationId: lastUnreadMessage.conversationId,
             engageData: lastUnreadMessage.engageData,

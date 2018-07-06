@@ -5,29 +5,56 @@
   border-style: solid;
   border-width: 1px;
   bottom: 83px;
-  box-shadow: 0 2px 15px 2px rgba($black, 0.2);
+  box-shadow: 0 2px 15px 2px rgba($black, .2);
   box-sizing: border-box;
   display: flex;
-  overflow: hidden;
   position: absolute;
   right: 8px;
   transition: all .3s ease-in-out;
-  width: calc(100% - 36px);
+  width: calc(100% - 46px);
   z-index: 9998;
 
   &.fullMessage {
     height: calc(100% - 110px);
   }
 
+  .close-notification {
+    background: darken($grey-light, 10%);
+    border-radius: 50%;
+    box-shadow: 0 1px 5px 0 rgba($black, .1);
+    height: 22px;
+    left: -30px;
+    opacity: 0;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    transition: all .3s ease;
+    width: 22px;
+
+    &:hover {
+      background: darken($grey-light, 20%);
+    }
+
+    svg {
+      height: 22px;
+      width: 14px;
+    }
+  }
+
   .flex-notification {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     width: 100%;
   }
 
   &:hover {
     box-shadow: 0 2px 15px 2px rgba($black, .25);
     cursor: pointer;
+
+    .close-notification {
+      opacity: 1;
+    }
   }
 
   .notification-body {
