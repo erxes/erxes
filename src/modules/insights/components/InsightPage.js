@@ -7,7 +7,7 @@ import { colors } from 'modules/common/styles';
 
 const boxSize = 320;
 
-export const Box = BoxRoot.extend`
+const Box = BoxRoot.extend`
   width: ${boxSize}px;
   border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
 
