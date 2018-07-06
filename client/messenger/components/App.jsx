@@ -18,10 +18,22 @@ function App({ isMessengerVisible, isBrowserInfoSaved, uiOptions }) {
     return <Notifier />
   }
 
+  const renderMessenger = () => {
+    if (!isMessengerVisible) {
+      return null;
+    }
+
+    if (!isBrowserInfoSaved) {
+      return null;
+    }
+
+    return <Messenger />
+  }
+
   return (
     <div className={widgetClasses}>
       {renderNotifier()}
-      <Messenger />
+      {renderMessenger()}
       <Launcher uiOptions={uiOptions} />
     </div>
   );
