@@ -4,7 +4,6 @@ import moment from 'moment';
 import classNames from 'classnames';
 import { User, Attachment } from '../components';
 
-
 const propTypes = {
   content: PropTypes.string.isRequired,
   user: PropTypes.object,

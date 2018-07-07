@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -29,7 +27,7 @@ class AccquireInformation extends React.Component {
     const reg = /^\d{8,}$/;
     return reg.test(phoneNumber.replace(/[\s()+\-\.]|ext/gi, ''));
   }
-  
+
   isEmailValid(email) {
     const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     return reg.test(email);

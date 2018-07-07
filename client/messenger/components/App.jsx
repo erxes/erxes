@@ -3,50 +3,57 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Messenger, Launcher, Notifier } from '../containers';
 
-function App({ isMessengerVisible, isBrowserInfoSaved, uiOptions }) {
-  const widgetClasses = classNames('erxes-widget', { opened: isMessengerVisible });
-
-  const renderNotifier = () => {
-    if (isMessengerVisible) {
-      return null;
-    }
-
-    if (!isBrowserInfoSaved) {
-      return null;
-    }
-
-    return <Notifier />
+export default class App extends React.Component {
+  componentDidMount() {
+    // call save browser info mutation
+    this.props.saveBrowserInfo();
   }
 
-  const renderMessenger = () => {
-    if (!isMessengerVisible) {
-      return null;
+  render() {
+    const { isMessengerVisible, isBrowserInfoSaved, uiOptions } = this.props;
+    const widgetClasses = classNames('erxes-widget', { opened: isMessengerVisible });
+
+    const renderNotifier = () => {
+      if (isMessengerVisible) {
+        return null;
+      }
+
+      if (!isBrowserInfoSaved) {
+        return null;
+      }
+
+      return <Notifier />
     }
 
-    if (!isBrowserInfoSaved) {
-      return null;
+    const renderMessenger = () => {
+      if (!isMessengerVisible) {
+        return null;
+      }
+
+      if (!isBrowserInfoSaved) {
+        return null;
+      }
+
+      return <Messenger />
     }
 
-    return <Messenger />
+    return (
+      <div className={widgetClasses}>
+        {renderNotifier()}
+        {renderMessenger()}
+        <Launcher uiOptions={uiOptions} />
+      </div>
+    );
   }
-
-  return (
-    <div className={widgetClasses}>
-      {renderNotifier()}
-      {renderMessenger()}
-      <Launcher uiOptions={uiOptions} />
-    </div>
-  );
 }
 
 App.propTypes = {
   isMessengerVisible: PropTypes.bool.isRequired,
   isBrowserInfoSaved: PropTypes.bool,
   uiOptions: PropTypes.object,
+  saveBrowserInfo: PropTypes.func,
 };
 
 App.defaultProps = {
   uiOptions: null,
 };
-
-export default App;

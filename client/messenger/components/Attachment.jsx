@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { iconAttach } from '../../icons/Icons';
 
-
 const propTypes = {
   attachment: PropTypes.object.isRequired,
 };

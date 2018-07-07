@@ -1,35 +1,25 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { AppProvider, AppConsumer } from './AppContext';
 import { connection } from '../connection';
-import { saveBrowserInfo } from '../actions/messenger';
 import { App as DumbApp } from '../components';
 
 class App extends React.Component {
-  componentDidMount() {
-    // call save browser info mutation
-    this.props.saveBrowserInfo();
-  }
-
   render() {
-    return <DumbApp {...this.props}/>
+    return (
+      <AppProvider>
+        <AppConsumer>
+          {({ isMessengerVisible, isBrowserInfoSaved, saveBrowserInfo }) =>
+            <DumbApp
+              isMessengerVisible={isMessengerVisible}
+              isBrowserInfoSaved={isBrowserInfoSaved}
+              uiOptions={connection.data.uiOptions || {}}
+              saveBrowserInfo={saveBrowserInfo}
+            />
+          }
+        </AppConsumer>
+      </AppProvider>
+    )
   }
 }
 
-const mapDisptachToProps = dispatch => ({
-  saveBrowserInfo() {
-    dispatch(saveBrowserInfo());
-  },
-});
-
-const mapStateToProps = state => ({
-  isMessengerVisible: state.isVisible,
-  isBrowserInfoSaved: state.isBrowserInfoSaved,
-  uiOptions: connection.data.uiOptions || {}
-});
-
-App.propTypes = {
-  saveBrowserInfo: PropTypes.func,
-}
-
-export default connect(mapStateToProps, mapDisptachToProps)(App);
+export default App;

@@ -1,36 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import striptags from 'striptags';
-import { toggleNotifer, toggleNotiferFull } from '../actions/messenger';
 import { User, EngageMessage } from '../components';
 
 const propTypes = {
   lastUnreadMessage: PropTypes.object,
-  readMessage: PropTypes.func,
+  readConversation: PropTypes.func,
+  showUnreadMessage: PropTypes.func,
   color: PropTypes.string,
 };
 
 class Notifier extends React.Component {
   componentDidMount() {
-    this.showUnreadMessage();
+    this.props.showUnreadMessage();
   }
 
   componentDidUpdate() {
-    this.showUnreadMessage();
-  }
-
-  showUnreadMessage() {
-    const lastUnreadMessage = this.props.lastUnreadMessage;
-
-    if (lastUnreadMessage._id) {
-      const engageData = lastUnreadMessage.engageData;
-
-      if (engageData && engageData.sentAs === 'fullMessage') {
-        toggleNotiferFull();
-      } else {
-        toggleNotifer();
-      }
-    }
+    this.props.showUnreadMessage();
   }
 
   renderNotificationBody() {
@@ -66,14 +52,14 @@ class Notifier extends React.Component {
   }
 
   render() {
-    const { lastUnreadMessage, readMessage, color } = this.props;
+    const { lastUnreadMessage, readConversation, color } = this.props;
 
     if (lastUnreadMessage._id) {
       return (
         <div
           className={this.renderClass()}
           style={{ borderColor: color }}
-          onClick={() => readMessage({
+          onClick={() => readConversation({
             conversationId: lastUnreadMessage.conversationId,
             engageData: lastUnreadMessage.engageData,
           })}

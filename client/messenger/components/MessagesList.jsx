@@ -25,11 +25,13 @@ class MessagesList extends React.Component {
     if (this.shouldScrollBottom) {
       this.node.scrollTop = this.node.scrollHeight;
     }
+
     this.makeClickableLink();
   }
 
   makeClickableLink() {
     const links = document.querySelectorAll('#erxes-messages a');
+
     for (const node of links) {
       node.target = '_blank';
     }
@@ -37,6 +39,7 @@ class MessagesList extends React.Component {
 
   renderAwayMessage(messengerData) {
     const { isOnline } = this.props;
+
     if (messengerData && !isOnline && messengerData.awayMessage) {
       return (
         <li className="erxes-spacial-message away">
@@ -50,6 +53,7 @@ class MessagesList extends React.Component {
 
   renderWelcomeMessage(messengerData) {
     const { isOnline } = this.props;
+
     if (messengerData && isOnline && messengerData.welcomeMessage) {
       return (
         <li className="erxes-spacial-message">

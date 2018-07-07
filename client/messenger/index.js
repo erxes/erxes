@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import { wsClient } from '../apollo-client';
+import gql from 'graphql-tag';
+import client, { wsLink } from '../apollo-client';
 import widgetConnect from '../widgetConnect';
 import {
   connection,
@@ -8,9 +9,8 @@ import {
   setLocalStorageItem,
 } from './connection';
 import { setLocale } from '../utils';
-import reducers from './reducers';
 import { App } from './containers';
-import { connect } from './actions/messenger';
+import graphqTypes from './graphql';
 import './sass/style.scss';
 
 widgetConnect({
@@ -19,20 +19,22 @@ widgetConnect({
 
     connection.setting = setting;
 
-    // call connect mutation
-    return connect({
-      brandCode: setting.brand_id,
-      email: setting.email,
-      phone: setting.phone,
+    return client.mutate({
+      mutation: gql(graphqTypes.connect),
+      variables: {
+        brandCode: setting.brand_id,
+        email: setting.email,
+        phone: setting.phone,
 
-      cachedCustomerId: getLocalStorageItem('customerId'),
+        cachedCustomerId: getLocalStorageItem('customerId'),
 
-      // if client passed email automatically then consider this as user
-      isUser: Boolean(setting.email),
+        // if client passed email automatically then consider this as user
+        isUser: Boolean(setting.email),
 
-      name: setting.name,
-      data: setting.data,
-      companyData: setting.companyData,
+        name: setting.name,
+        data: setting.data,
+        companyData: setting.companyData,
+      },
     });
   },
 
@@ -55,10 +57,8 @@ widgetConnect({
     // send connected message to ws server and server will save given
     // data to connection. So when connection closed, we will use
     // customerId to mark customer as not active
-    wsClient.sendMessage({ type: 'messengerConnected', value: messengerData });
+    wsLink.subscriptionClient.sendMessage({ type: 'messengerConnected', value: messengerData });
   },
 
   AppContainer: App,
-
-  reducers,
 });

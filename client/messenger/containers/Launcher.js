@@ -1,17 +1,22 @@
-import { connect } from 'react-redux';
-import { toggle, openLastConversation } from '../actions/messenger';
-import { Launcher } from '../components';
+import React from 'react';
+import { AppConsumer } from './AppContext';
+import { Launcher as DumbLauncher } from '../components';
 
-const mapStateToProps = state => ({
-  isMessengerVisible: state.isVisible,
-  isBrowserInfoSaved: state.isBrowserInfoSaved,
-});
-
-const mapDisptachToProps = dispatch => ({
-  onClick(isVisible) {
-    dispatch(openLastConversation());
-    dispatch(toggle(isVisible));
-  },
-});
-
-export default connect(mapStateToProps, mapDisptachToProps)(Launcher);
+export default class Launcher extends React.Component {
+  render() {
+    return (
+      <AppConsumer>
+        {({ isMessengerVisible, isBrowserInfoSaved, toggle }) => {
+          return (
+            <DumbLauncher
+              {...this.props}
+              isMessengerVisible={isMessengerVisible}
+              isBrowserInfoSaved={isBrowserInfoSaved}
+              onClick={toggle}
+            />
+          );
+        }}
+      </AppConsumer>
+    )
+  }
+}
