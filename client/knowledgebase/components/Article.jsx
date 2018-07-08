@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 
 const propTypes = {
-  article: PropTypes.object, // eslint-disable-line
-  category: PropTypes.object, // eslint-disable-line
-  onSwitchToArticleDisplay: PropTypes.func,
+  article: PropTypes.object,
+  onClick: PropTypes.func,
 };
 
 const contextTypes = {
@@ -15,22 +14,16 @@ const contextTypes = {
 export default class Article extends React.Component {
   constructor(props) {
     super(props);
+
     this.handleOnClick = this.handleOnClick.bind(this);
   }
 
   handleOnClick(event) {
     event.preventDefault();
-    const { article, category, onSwitchToArticleDisplay } = this.props;
-    onSwitchToArticleDisplay({
-      _id: article._id,
-      title: article.title,
-      summary: article.summary,
-      content: article.content,
-      author: article.author,
-      createdDate: article.createdDate,
-      modifiedDate: article.modifiedDate,
-      category,
-    });
+
+    const { article, onClick } = this.props;
+
+    onClick(article);
   }
 
   render() {

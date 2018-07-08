@@ -1,20 +1,10 @@
-/* eslint-disable react/jsx-filename-extension */
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { Categories as DumbCategories } from '../components';
 import queries from './graphql';
-
-const propTypes = {
-  data: PropTypes.shape({
-    knowledgeBaseTopicsDetail: PropTypes.object,
-    loading: PropTypes.bool,
-  }),
-};
 
 const Categories = (props) => {
   const extendedProps = {
@@ -29,7 +19,9 @@ const Categories = (props) => {
   return <DumbCategories {...extendedProps} />;
 };
 
-Categories.propTypes = propTypes;
+Categories.propTypes = {
+  data: PropTypes.object,
+};
 
 const CategoriesWithData = graphql(
   gql(queries.getKbTopicQuery),
@@ -43,4 +35,4 @@ const CategoriesWithData = graphql(
   },
 )(Categories);
 
-export default connect()(CategoriesWithData);
+export default CategoriesWithData;

@@ -1,19 +1,10 @@
-/* eslint-disable react/jsx-filename-extension */
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { CategoryDetail as DumbCategoryDetail } from '../components';
+import { AppConsumer } from './AppContext';
 import queries from './graphql';
-
-const propTypes = {
-  data: PropTypes.shape({
-    knowledgeBaseCategoriesDetail: PropTypes.object,
-    loading: PropTypes.bool,
-  }),
-};
 
 const CategoryDetail = (props) => {
   const extendedProps = {
@@ -28,9 +19,11 @@ const CategoryDetail = (props) => {
   return <DumbCategoryDetail {...extendedProps} />;
 };
 
-CategoryDetail.propTypes = propTypes;
+CategoryDetail.propTypes = {
+  data: PropTypes.object,
+};
 
-const CategoryDetailWithData = graphql(
+const WithData = graphql(
   gql(queries.getKbCategoryQuery),
   {
     options: (ownProps) => ({
@@ -42,4 +35,18 @@ const CategoryDetailWithData = graphql(
   },
 )(CategoryDetail);
 
-export default connect()(CategoryDetailWithData);
+const WithContext = (props) => {
+  return (
+    <AppConsumer>
+      {({ goToCategories, activeCategory }) =>
+        <WithData
+          {...props}
+          goToCategories={goToCategories}
+          category={activeCategory}
+        />
+      }
+    </AppConsumer>
+  );
+}
+
+export default WithContext;

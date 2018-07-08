@@ -5,6 +5,7 @@ import Category from './Category';
 import CategoryDetail from './CategoryDetail';
 import Articles from './Articles';
 import Article from './Article';
+import ArticleDetail from './ArticleDetail';
 
 export {
   KnowledgeBase,
@@ -14,4 +15,5 @@ export {
   CategoryDetail,
   Articles,
   Article,
+  ArticleDetail,
 };
