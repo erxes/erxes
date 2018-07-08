@@ -34,7 +34,7 @@ widgetConnect({
         brandCode: setting.brand_id,
         formCode: setting.form_id,
       },
-    });
+    })
   },
 
   connectCallback: (data) => {
