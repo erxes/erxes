@@ -22,28 +22,7 @@ const Form = (props) => {
 };
 
 Form.propTypes = {
-  data: PropTypes.shape({
-    form: PropTypes.shape({
-      title: PropTypes.string,
-      description: PropTypes.string,
-      buttonText: PropTypes.string,
-      themeColor: PropTypes.string,
-      featuredImage: PropTypes.string,
-
-      fields: PropTypes.arrayOf(PropTypes.shape({
-        _id: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
-        type: PropTypes.string,
-        check: PropTypes.string,
-        text: PropTypes.string,
-        description: PropTypes.string,
-        options: PropTypes.arrayOf(PropTypes.string),
-        isRequired: PropTypes.bool,
-        order: PropTypes.number,
-      })),
-    }),
-    loading: PropTypes.bool,
-  }),
+  data: PropTypes.object
 };
 
 const FormWithData = graphql(
@@ -84,11 +63,11 @@ const FormWithData = graphql(
 
 const WithContext = (props) => (
   <AppConsumer>
-    {({ currentStatus, onsubmit, onCreateNew, sendEmail }) =>
+    {({ currentStatus, saveForm, onCreateNew, sendEmail }) =>
       <FormWithData
         {...props}
         currentStatus={currentStatus}
-        onsubmit={onsubmit}
+        onSubmit={saveForm}
         onCreateNew={onCreateNew}
         sendEmail={sendEmail}
       />
