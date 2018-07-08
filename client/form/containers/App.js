@@ -6,12 +6,6 @@ import { AppProvider, AppConsumer } from './AppContext';
 import { postMessage, saveBrowserInfo } from './utils';
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.setHeight = this.setHeight.bind(this);
-  }
-
   componentDidMount() {
     saveBrowserInfo();
 
