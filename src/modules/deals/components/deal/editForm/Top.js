@@ -25,7 +25,7 @@ const propTypes = {
   deal: PropTypes.object.isRequired,
   name: PropTypes.string,
   description: PropTypes.string,
-  closeDate: PropTypes.string,
+  closeDate: PropTypes.number,
   amount: PropTypes.object,
   stageId: PropTypes.string,
   assignedUserIds: PropTypes.array,
