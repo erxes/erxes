@@ -1,13 +1,10 @@
-/* eslint-disable react/jsx-filename-extension */
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { connection } from '../connection';
 import { Form as DumbForm } from '../components';
-import { saveForm, createNew, sendEmail } from '../actions';
+import { AppConsumer } from './AppContext';
 
 const Form = (props) => {
   const extendedProps = {
@@ -49,24 +46,6 @@ Form.propTypes = {
   }),
 };
 
-const mapStateToProps = state => ({
-  currentStatus: state.currentStatus,
-});
-
-const mapDispatchToProps = dispatch => ({
-  onSubmit(doc) {
-    dispatch(saveForm(doc));
-  },
-
-  onCreateNew() {
-    dispatch(createNew());
-  },
-
-  sendEmail(...args) {
-    dispatch(sendEmail(...args));
-  },
-});
-
 const FormWithData = graphql(
   gql`
     query form($formId: String) {
@@ -103,4 +82,18 @@ const FormWithData = graphql(
   },
 )(Form);
 
-export default connect(mapStateToProps, mapDispatchToProps)(FormWithData);
+const WithContext = (props) => (
+  <AppConsumer>
+    {({ currentStatus, onsubmit, onCreateNew, sendEmail }) =>
+      <FormWithData
+        {...props}
+        currentStatus={currentStatus}
+        onsubmit={onsubmit}
+        onCreateNew={onCreateNew}
+        sendEmail={sendEmail}
+      />
+    }
+  </AppConsumer>
+)
+
+export default WithContext;

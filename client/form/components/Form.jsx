@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Field from './Field';
 import { TopBar } from './';
-import { SUCCESS, INITIAL } from '../constants';
 
 export default class Form extends React.Component {
   constructor(props) {
@@ -27,7 +26,7 @@ export default class Form extends React.Component {
     const nextStatus = nextProps.currentStatus.status;
 
     // after successfull save and create new button, reset doc state
-    if ((currentStatus !== nextStatus) && nextStatus === INITIAL) {
+    if ((currentStatus !== nextStatus) && nextStatus === 'INITIAL') {
       this.setState({ doc: this.resetDocState() });
     }
   }
@@ -134,7 +133,7 @@ export default class Form extends React.Component {
     const { form, currentStatus, sendEmail, formConfig } = this.props;
     const color = form.themeColor || '';
 
-    if (currentStatus.status === SUCCESS) {
+    if (currentStatus.status === 'SUCCESS') {
       const {
         successAction,
         redirectUrl,

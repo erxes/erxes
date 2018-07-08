@@ -1,15 +1,13 @@
-/* eslint-disable react/jsx-filename-extension */
-
-import { connect } from 'react-redux';
+import React from 'react';
 import { Callout } from '../components';
-import { showForm } from '../actions';
+import { AppConsumer } from './AppContext';
 
-const mapStateToProps = () => ({});
+const container = (props) => (
+  <AppConsumer>
+    {({ showForm }) =>
+      <Callout {...props} onSubmit={showForm} />
+    }
+  </AppConsumer>
+);
 
-const mapDispatchToProps = dispatch => ({
-  onSubmit() {
-    dispatch(showForm());
-  },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Callout);
+export default container;
