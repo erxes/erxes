@@ -175,36 +175,9 @@ export default class Form extends React.Component {
 
 Form.propTypes = {
   integrationName: PropTypes.string,
-
-  formConfig: PropTypes.shape({
-    successAction: PropTypes.string,
-    thankContent: PropTypes.string,
-  }),
-
-  form: PropTypes.shape({
-    title: PropTypes.string,
-    description: PropTypes.string,
-    buttonText: PropTypes.string,
-    themeColor: PropTypes.string,
-    featuredImage: PropTypes.string,
-
-    fields: PropTypes.arrayOf(PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      type: PropTypes.string,
-      check: PropTypes.string,
-      text: PropTypes.string,
-      description: PropTypes.string,
-      options: PropTypes.arrayOf(PropTypes.string),
-      isRequired: PropTypes.bool,
-      order: PropTypes.number,
-      validation: PropTypes.string,
-    })),
-  }),
-
-  currentStatus: PropTypes.shape({
-    status: PropTypes.string,
-  }),
-
+  form: PropTypes.object,
+  formConfig: PropTypes.object,
+  currentStatus: PropTypes.object,
   onSubmit: PropTypes.func,
   onCreateNew: PropTypes.func,
   sendEmail: PropTypes.func,

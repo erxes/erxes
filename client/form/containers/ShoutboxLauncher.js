@@ -2,10 +2,14 @@ import React from 'react';
 import { ShoutboxLauncher } from '../components';
 import { AppConsumer } from './AppContext';
 
-const container = () => (
+const container = (props) => (
   <AppConsumer>
     {({ isFormVisible, toggleShoutbox }) =>
-      <ShoutboxLauncher isFormVisible={isFormVisible} onClick={toggleShoutbox} />
+      <ShoutboxLauncher
+        {...props}
+        isFormVisible={isFormVisible}
+        onClick={toggleShoutbox}
+      />
     }
   </AppConsumer>
 )

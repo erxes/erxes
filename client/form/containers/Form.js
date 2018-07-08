@@ -63,12 +63,12 @@ const FormWithData = graphql(
 
 const WithContext = (props) => (
   <AppConsumer>
-    {({ currentStatus, saveForm, onCreateNew, sendEmail }) =>
+    {({ currentStatus, saveForm, createNew, sendEmail }) =>
       <FormWithData
         {...props}
         currentStatus={currentStatus}
         onSubmit={saveForm}
-        onCreateNew={onCreateNew}
+        onCreateNew={createNew}
         sendEmail={sendEmail}
       />
     }

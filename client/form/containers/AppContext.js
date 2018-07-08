@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import client from '../../apollo-client';
-import { requestBrowserInfo } from '../../utils';
 import { connection } from '../connection';
 
 const AppContext = React.createContext();
@@ -28,31 +27,6 @@ export class AppProvider extends React.Component {
     this.saveForm = this.saveForm.bind(this);
     this.createNew = this.createNew.bind(this);
     this.sendEmail = this.sendEmail.bind(this);
-  }
-
-  /*
-   * Send message to iframe's parent
-   */
-  postMessage(options) {
-    // notify parent window launcher state
-    window.parent.postMessage({
-      fromErxes: true,
-      fromForms: true,
-      setting: connection.setting,
-      ...options
-    }, '*');
-  }
-
-  saveBrowserInfo() {
-    requestBrowserInfo({
-      source:'fromForms',
-      postData: {
-        setting: connection.setting,
-      },
-      callback: (browserInfo) => {
-        connection.browserInfo = browserInfo;
-      }
-    });
   }
 
   /*
@@ -247,8 +221,6 @@ export class AppProvider extends React.Component {
       <AppContext.Provider
         value={{
           ...this.state,
-          postMessage: this.postMessage,
-          saveBrowserInfo: this.saveBrowserInfo,
           init: this.init,
           showForm: this.showForm,
           toggleShoutbox: this.toggleShoutbox,

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { App as DumbApp } from '../components';
 import { connection } from '../connection';
 import { AppProvider, AppConsumer } from './AppContext';
+import { postMessage, saveBrowserInfo } from './utils';
 
 class App extends React.Component {
   constructor(props) {
@@ -12,7 +13,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.props.saveBrowserInfo();
+    saveBrowserInfo();
 
     window.addEventListener('message', (event) => {
       if (event.data.fromPublisher) {
@@ -27,7 +28,7 @@ class App extends React.Component {
   setHeight() {
     const elementsHeight = document.getElementById('erxes-container').clientHeight;
 
-    this.props.postMessage({
+    postMessage({
       message: 'changeContainerStyle',
       style: `height: ${elementsHeight}px;`,
     });
@@ -38,7 +39,7 @@ class App extends React.Component {
   }
 
   render() {
-    const { postMessage, isPopupVisible, isFormVisible, isCalloutVisible, formData } = this.props;
+    const { isPopupVisible, isFormVisible, isCalloutVisible, formData } = this.props;
     const { loadType } = formData;
 
     const extendedProps = { ...this.props, setHeight: this.setHeight };
@@ -107,7 +108,6 @@ App.propTypes = {
   isPopupVisible: PropTypes.bool,
   isFormVisible: PropTypes.bool,
   isCalloutVisible: PropTypes.bool,
-  saveBrowserInfo: PropTypes.func,
   showPopup: PropTypes.func,
 }
 
@@ -116,8 +116,7 @@ const WithContext = (props) => (
     <AppConsumer>
       {(value) => {
         const {
-          init, saveBrowserInfo, closePopup, showPopup,
-          isPopupVisible, isFormVisible, postMessage,
+          init, closePopup, showPopup, isPopupVisible, isFormVisible,
           isCalloutVisible, currentStatus
         } = value;
 
@@ -125,8 +124,6 @@ const WithContext = (props) => (
           {...props}
           formData={connection.data.formData}
           init={init}
-          postMessage={postMessage}
-          saveBrowserInfo={saveBrowserInfo}
           closePopup={closePopup}
           showPopup={showPopup}
           isPopupVisible={isPopupVisible}
