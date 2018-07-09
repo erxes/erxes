@@ -17,10 +17,8 @@ export class AppProvider extends React.Component {
 
     let activeRoute = 'conversationList';
 
-    const { email, phone } = connection.setting;
-
     // if visitor did not give email or phone then ask
-    if (!(email || phone) && !getLocalStorageItem('getNotifiedType')) {
+    if (!this.isLoggedIn()) {
       activeRoute = 'accquireInformation';
     }
 
@@ -45,6 +43,11 @@ export class AppProvider extends React.Component {
     this.readMessages = this.readMessages.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.sendFile = this.sendFile.bind(this);
+  }
+
+  isLoggedIn() {
+    const { email, phone } = connection.setting;
+    return email || phone || getLocalStorageItem('getNotifiedType');
   }
 
   saveBrowserInfo() {
@@ -98,6 +101,11 @@ export class AppProvider extends React.Component {
   }
 
   changeRoute(route) {
+    if (route === 'conversationDetail' && !this.isLoggedIn()) {
+      // if visitor did not give email or phone then ask
+      return this.setState({ activeRoute: 'accquireInformation' });
+    }
+
     this.setState({ activeRoute: route });
   }
 
