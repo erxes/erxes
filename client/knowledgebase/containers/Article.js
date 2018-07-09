@@ -1,15 +1,13 @@
-import { connect } from 'react-redux';
+import React from 'react';
 import { Article } from '../components';
-import { switchToArticleDisplay } from '../actions';
+import { AppConsumer } from './AppContext';
 
-const mapStateToProps = (state, ownProps) => ({
-  ...ownProps,
-});
+const container = (props) => (
+  <AppConsumer>
+    {({ goToArticle }) =>
+      <Article {...props} onClick={goToArticle} />
+    }
+  </AppConsumer>
+);
 
-const mapDisptachToProps = dispatch => ({
-  onSwitchToArticleDisplay(article) {
-    dispatch(switchToArticleDisplay(article));
-  },
-});
-
-export default connect(mapStateToProps, mapDisptachToProps)(Article);
+export default container;

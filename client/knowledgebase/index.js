@@ -2,11 +2,10 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import client, { createStore } from '../apollo-client';
 import { ApolloProvider } from 'react-apollo';
+import client from '../apollo-client';
 import { KnowledgeBase } from './containers';
 import { connection } from './connection';
-import reducers from './reducers';
 import 'erxes-icon/css/erxes.min.css';
 import './sass/style.scss';
 
@@ -21,7 +20,7 @@ window.addEventListener('message', (event) => {
 
   // render root react component
   ReactDOM.render(
-    <ApolloProvider store={createStore(reducers)} client={client}>
+    <ApolloProvider client={client}>
       <KnowledgeBase />
     </ApolloProvider>,
     document.getElementById('root'),

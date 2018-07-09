@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { iconLeft } from '../../icons/Icons';
@@ -122,6 +120,7 @@ class Conversation extends React.Component {
       data,
       isOnline
     } = this.props;
+
     const { __ } = this.context;
     const placeholder = isNew ? __('Send a message') : __('Write a reply');
 
@@ -132,7 +131,10 @@ class Conversation extends React.Component {
           buttonIcon={iconLeft}
           onToggle={this.toggle}
           isExpanded={this.state.expanded}
-          onButtonClick={goToConversationList}
+          onButtonClick={(e) => {
+            e.preventDefault();
+            goToConversationList();
+          }}
         />
 
         <MessagesList isOnline={isOnline} data={data} messages={messages} />

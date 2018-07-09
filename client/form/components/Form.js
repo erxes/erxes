@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Field from './Field';
 import { TopBar } from './';
-import { SUCCESS, INITIAL } from '../constants';
 
 export default class Form extends React.Component {
   constructor(props) {
@@ -27,7 +26,7 @@ export default class Form extends React.Component {
     const nextStatus = nextProps.currentStatus.status;
 
     // after successfull save and create new button, reset doc state
-    if ((currentStatus !== nextStatus) && nextStatus === INITIAL) {
+    if ((currentStatus !== nextStatus) && nextStatus === 'INITIAL') {
       this.setState({ doc: this.resetDocState() });
     }
   }
@@ -134,7 +133,7 @@ export default class Form extends React.Component {
     const { form, currentStatus, sendEmail, formConfig } = this.props;
     const color = form.themeColor || '';
 
-    if (currentStatus.status === SUCCESS) {
+    if (currentStatus.status === 'SUCCESS') {
       const {
         successAction,
         redirectUrl,
@@ -176,36 +175,9 @@ export default class Form extends React.Component {
 
 Form.propTypes = {
   integrationName: PropTypes.string,
-
-  formConfig: PropTypes.shape({
-    successAction: PropTypes.string,
-    thankContent: PropTypes.string,
-  }),
-
-  form: PropTypes.shape({
-    title: PropTypes.string,
-    description: PropTypes.string,
-    buttonText: PropTypes.string,
-    themeColor: PropTypes.string,
-    featuredImage: PropTypes.string,
-
-    fields: PropTypes.arrayOf(PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      type: PropTypes.string,
-      check: PropTypes.string,
-      text: PropTypes.string,
-      description: PropTypes.string,
-      options: PropTypes.arrayOf(PropTypes.string),
-      isRequired: PropTypes.bool,
-      order: PropTypes.number,
-      validation: PropTypes.string,
-    })),
-  }),
-
-  currentStatus: PropTypes.shape({
-    status: PropTypes.string,
-  }),
-
+  form: PropTypes.object,
+  formConfig: PropTypes.object,
+  currentStatus: PropTypes.object,
   onSubmit: PropTypes.func,
   onCreateNew: PropTypes.func,
   sendEmail: PropTypes.func,

@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { App as DumbApp } from '../components';
-import { postMessage, init, saveBrowserInfo, closePopup, showPopup } from '../actions';
 import { connection } from '../connection';
+import { AppProvider, AppConsumer } from './AppContext';
+import { postMessage, saveBrowserInfo } from './utils';
 
 class App extends React.Component {
   componentDidMount() {
-    this.props.saveBrowserInfo();
+    saveBrowserInfo();
 
     window.addEventListener('message', (event) => {
       if (event.data.fromPublisher) {
@@ -96,39 +96,38 @@ class App extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
-  isPopupVisible: state.isPopupVisible,
-  isFormVisible: state.isFormVisible,
-  isCalloutVisible: state.isCalloutVisible,
-  currentStatus: state.currentStatus,
-  formData: connection.data.formData,
-});
-
-const mapDisptachToProps = dispatch => ({
-  init() {
-    dispatch(init());
-  },
-
-  saveBrowserInfo() {
-    dispatch(saveBrowserInfo());
-  },
-
-  closePopup() {
-    dispatch(closePopup());
-  },
-
-  showPopup() {
-    dispatch(showPopup());
-  },
-});
-
 App.propTypes = {
+  postMessage: PropTypes.func,
   formData: PropTypes.object,
   isPopupVisible: PropTypes.bool,
   isFormVisible: PropTypes.bool,
   isCalloutVisible: PropTypes.bool,
-  saveBrowserInfo: PropTypes.func,
   showPopup: PropTypes.func,
 }
 
-export default connect(mapStateToProps, mapDisptachToProps)(App);
+const WithContext = (props) => (
+  <AppProvider>
+    <AppConsumer>
+      {(value) => {
+        const {
+          init, closePopup, showPopup, isPopupVisible, isFormVisible,
+          isCalloutVisible, currentStatus
+        } = value;
+
+        return <App
+          {...props}
+          formData={connection.data.formData}
+          init={init}
+          closePopup={closePopup}
+          showPopup={showPopup}
+          isPopupVisible={isPopupVisible}
+          isFormVisible={isFormVisible}
+          isCalloutVisible={isCalloutVisible}
+          currentStatus={currentStatus}
+        />
+      }}
+    </AppConsumer>
+  </AppProvider>
+)
+
+export default WithContext;

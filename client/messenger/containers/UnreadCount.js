@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { gql, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { UnreadCount as DumbUnreadCount } from '../components';
 import { connection } from '../connection';
+import graphqTypes from '../graphql';
 import NotificationSubscriber from './NotificationSubscriber';
 
 class UnreadCount extends NotificationSubscriber {
@@ -16,12 +18,7 @@ UnreadCount.propTypes = {
 };
 
 export default graphql(
-  gql`
-    query totalUnreadCount(${connection.queryVariables}) {
-      totalUnreadCount(${connection.queryParams})
-    }
-  `,
-
+  gql(graphqTypes.totalUnreadCount),
   {
     options: () => ({
       fetchPolicy: 'network-only',

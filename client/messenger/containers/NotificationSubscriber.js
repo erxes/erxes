@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { gql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { connection } from '../connection';
-import graphqlTypes from './graphql';
+import graphqlTypes from '../graphql';
 
 export default class NotificationSubscriber extends React.Component {
   componentWillMount() {

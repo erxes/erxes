@@ -1,6 +1,8 @@
-import { gql, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+
 import { connection } from '../connection';
-import graphqlTypes from './graphql';
+import graphqlTypes from '../graphql';
 
 const generate = () => {
   return [

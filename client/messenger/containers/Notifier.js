@@ -1,13 +1,12 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { gql, graphql } from 'react-apollo';
-import { Notifier as DumbNotifier } from '../components';
-import { changeRoute, toggle, changeConversation, toggleNotifer } from '../actions/messenger';
-import { readMessages } from '../actions/messages';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
+import { Notifier as DumbNotifier } from '../components';
+import graphqlTypes from '../graphql';
 import { connection } from '../connection';
+import { AppConsumer } from './AppContext';
 import NotificationSubscriber from './NotificationSubscriber';
-import graphqlTypes from './graphql';
 
 class Notifier extends NotificationSubscriber {
   render() {
@@ -23,49 +22,39 @@ class Notifier extends NotificationSubscriber {
 
     const uiOptions = connection.data.uiOptions || {};
 
-    const extendedProps = {
-      ...this.props,
-      lastUnreadMessage,
-      color: uiOptions.color,
-    };
+    return (
+      <AppConsumer>
+        {({ isMessengerVisible, readConversation, toggleNotifierFull, toggleNotifier }) => {
+          const showUnreadMessage = () => {
+            if (lastUnreadMessage._id) {
+              const engageData = lastUnreadMessage.engageData;
 
-    return <DumbNotifier {...extendedProps} />;
+              if (engageData && engageData.sentAs === 'fullMessage') {
+                toggleNotifierFull();
+              } else {
+                toggleNotifier();
+              }
+            }
+          }
+
+          return (
+            <DumbNotifier
+              {...this.props}
+              isMessengerVisible={isMessengerVisible}
+              lastUnreadMessage={lastUnreadMessage}
+              readConversation={readConversation}
+              showUnreadMessage={showUnreadMessage}
+              color={uiOptions.color}
+            />
+          );
+        }}
+      </AppConsumer>
+    );
   }
 }
 
-const mapStateToProps = state => ({
-  isMessengerVisible: state.isVisible,
-});
-
-const mapDisptachToProps = dispatch => ({
-  readMessage({ conversationId }) {
-    // show messenger
-    dispatch(toggle());
-
-    // set current conversation
-    dispatch(changeConversation(conversationId));
-
-    // change route
-    dispatch(changeRoute('conversationDetail'));
-
-    // mark as read
-    dispatch(readMessages(conversationId));
-
-    toggleNotifer();
-
-    toggle();
-  },
-});
-
 const NotifierWithData = graphql(
-  gql`
-    query lastUnreadMessage(${connection.queryVariables}) {
-      lastUnreadMessage(${connection.queryParams}) {
-        ${graphqlTypes.messageFields}
-      }
-    }
-  `,
-
+  gql(graphqlTypes.lastUnreadMessage),
   {
     options: () => ({
       fetchPolicy: 'network-only',
@@ -74,4 +63,4 @@ const NotifierWithData = graphql(
   },
 )(Notifier);
 
-export default connect(mapStateToProps, mapDisptachToProps)(NotifierWithData);
+export default NotifierWithData;

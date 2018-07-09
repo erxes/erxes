@@ -1,16 +1,22 @@
-import { connect } from 'react-redux';
+import React from 'react';
+import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
-import { AccquireInformation } from '../components';
-import { saveGetNotified } from '../actions/messenger';
+import { AccquireInformation as DumbAccquireInformation } from '../components';
 
-const mapStateToProps = () => ({
-  color: connection.data.uiOptions && connection.data.uiOptions.color,
-});
-
-const mapDisptachToProps = dispatch => ({
-  save(params) {
-    dispatch(saveGetNotified(params));
-  },
-});
-
-export default connect(mapStateToProps, mapDisptachToProps)(AccquireInformation);
+export default class AccquireInformation extends React.Component {
+  render() {
+    return (
+      <AppConsumer>
+        {({ saveGetNotified }) => {
+          return (
+            <DumbAccquireInformation
+              {...this.props}
+              color={connection.data.uiOptions && connection.data.uiOptions.color}
+              save={saveGetNotified}
+            />
+          );
+        }}
+      </AppConsumer>
+    );
+  }
+}

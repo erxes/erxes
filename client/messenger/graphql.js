@@ -1,3 +1,5 @@
+import { connection } from './connection';
+
 const messageFields = `
   _id
   conversationId
@@ -88,6 +90,52 @@ const conversationChanged = `
   }
 `;
 
+const allConversations = `
+  query allConversations(${connection.queryVariables}) {
+    conversations(${connection.queryParams}) {
+      _id
+      content
+      createdAt
+      participatedUsers {
+        details {
+          fullName
+          avatar
+        }
+      }
+    }
+  }
+`;
+
+const totalUnreadCount = `
+  query totalUnreadCount(${connection.queryVariables}) {
+    totalUnreadCount(${connection.queryParams})
+  }
+`;
+
+const lastUnreadMessage = `
+  query lastUnreadMessage(${connection.queryVariables}) {
+    lastUnreadMessage(${connection.queryParams}) {
+      ${messageFields}
+    }
+  }
+`;
+
+const connect = `
+  mutation connect($brandCode: String!, $email: String, $phone: String,
+    $isUser: Boolean, $data: JSON,
+    $companyData: JSON, $cachedCustomerId: String) {
+    messengerConnect(brandCode: $brandCode, email: $email, phone: $phone,
+      isUser: $isUser, data: $data, companyData: $companyData,
+      cachedCustomerId: $cachedCustomerId) {
+      integrationId,
+      messengerData,
+      languageCode,
+      uiOptions,
+      customerId,
+    }
+  }
+`;
+
 export default {
   messageFields,
   conversationDetailQuery,
@@ -97,4 +145,8 @@ export default {
   conversationMessageInserted,
   conversationChanged,
   conversationsChangedSubscription,
+  allConversations,
+  totalUnreadCount,
+  lastUnreadMessage,
+  connect,
 }

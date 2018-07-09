@@ -3,22 +3,23 @@ import PropTypes from 'prop-types';
 import { ItemMeta } from '../components';
 
 const propTypes = {
-  category: PropTypes.object, // eslint-disable-line
-  onSwitchToCategoryDisplay: PropTypes.func,
+  category: PropTypes.object,
+  onClick: PropTypes.func,
 };
 
 export default class Category extends React.Component {
   constructor(props) {
     super(props);
+
     this.handleOnClick = this.handleOnClick.bind(this);
   }
 
   handleOnClick(event) {
     event.preventDefault();
-    const { category, onSwitchToCategoryDisplay } = this.props;
-    onSwitchToCategoryDisplay({
-      category,
-    });
+
+    const { category, onClick } = this.props;
+
+    onClick(category);
   }
 
   render() {

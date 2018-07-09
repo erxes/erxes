@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { gql, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { ConversationItem as DumbConversationItem } from '../components';
 import NotificationSubscriber from './NotificationSubscriber';
-import graphqTypes from './graphql';
+import graphqTypes from '../graphql';
 
 class ConversationItem extends NotificationSubscriber {
   render() {

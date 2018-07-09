@@ -1,9 +1,14 @@
-import { connect } from 'react-redux';
+import React from 'react';
 import { connection } from '../connection';
 import { Message } from '../components';
 
-const mapStateToProps = () => ({
-  color: connection.data.uiOptions && connection.data.uiOptions.color,
-});
+const container = (props) => {
+  return (
+    <Message
+      {...props}
+      color={connection.data.uiOptions && connection.data.uiOptions.color}
+    />
+  );
+};
 
-export default connect(mapStateToProps)(Message);
+export default container;

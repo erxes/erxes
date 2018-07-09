@@ -4,7 +4,6 @@ import { Article } from '../containers';
 
 const propTypes = {
   articles: PropTypes.arrayOf(PropTypes.object),
-  category: PropTypes.object,
 };
 
 export default class Articles extends React.Component {
@@ -13,12 +12,11 @@ export default class Articles extends React.Component {
   }
 
   renderArticles() {
-    const { articles, category } = this.props;
-    return articles.map(article => {
-      return (
-        <Article key={article._id} article={article} category={category} />
-      );
-    });
+    const { articles } = this.props;
+
+    return articles.map(article =>
+      <Article key={article._id} article={article} />
+    );
   }
 
   render() {
