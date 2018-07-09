@@ -33,8 +33,10 @@ function Message({ content, attachments, user, createdAt, color }) {
         {hasAttachment ? <Attachment attachment={attachments[0]} /> : null}
         <span dangerouslySetInnerHTML={{ __html: content }} />
       </div>
-      <div className="date erxes-tooltip" data-tooltip={moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}>
-        {moment(createdAt).format('LT')}
+      <div className="date">
+        <span className="erxes-tooltip" data-tooltip={moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}>
+          {moment(createdAt).format('LT')}
+        </span>
       </div>
     </li>
   );
