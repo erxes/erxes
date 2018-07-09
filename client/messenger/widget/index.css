@@ -24,6 +24,10 @@
   max-height: 680px;
 }
 
+.erxes-messenger-shown.small {
+  max-height: 310px;
+}
+
 .erxes-messenger-shown > iframe,
 .erxes-notifier-shown > iframe {
   width: 100%;

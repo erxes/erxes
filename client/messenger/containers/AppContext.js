@@ -50,6 +50,16 @@ export class AppProvider extends React.Component {
     return email || phone || getLocalStorageItem('getNotifiedType');
   }
 
+  isSmallContainer() {
+    const { activeRoute } = this.state;
+
+    if(activeRoute === 'accquireInformation') {
+      return true;
+    }
+
+    return false;
+  }
+
   saveBrowserInfo() {
     requestBrowserInfo({
       source: 'fromMessenger',
@@ -78,12 +88,12 @@ export class AppProvider extends React.Component {
   }
 
   toggle(isVisible) {
+    const { activeRoute } = this.state;
+
     // notify parent window launcher state
-    postMessage('fromMessenger', 'messenger', { isVisible: !isVisible });
+    postMessage('fromMessenger', 'messenger', { isVisible: !isVisible, isSmallContainer: this.isSmallContainer() });
 
     this.setState({ isMessengerVisible: !isVisible });
-
-    const { activeRoute } = this.state;
 
     if (activeRoute.includes('conversation')) {
       this.openLastConversation();
@@ -167,6 +177,9 @@ export class AppProvider extends React.Component {
 
       // redirect to conversation
       this.openLastConversation();
+
+      // notify parent window launcher state
+      postMessage('fromMessenger', 'messenger', { isVisible: true, isSmallContainer: this.isSmallContainer() });
     });
   }
 

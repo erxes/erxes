@@ -107,7 +107,7 @@ iframe.onload = async () => {
 // listen for widget toggle
 window.addEventListener('message', async (event) => {
   const data = event.data;
-  const { isVisible, message } = data;
+  const { isVisible, message, isSmallContainer } = data;
 
   if (data.fromErxes && data.source === 'fromMessenger') {
     if (isMobile && isVisible) {
@@ -122,6 +122,7 @@ window.addEventListener('message', async (event) => {
       erxesContainer.className = `erxes-messenger-${
         isVisible ? 'shown' : 'hidden'
       }`;
+      erxesContainer.classList.toggle('small', isSmallContainer);
       document.body.classList.toggle('messenger-widget-shown', isVisible);
     }
 

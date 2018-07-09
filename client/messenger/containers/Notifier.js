@@ -20,8 +20,6 @@ class Notifier extends NotificationSubscriber {
       return null;
     }
 
-    const uiOptions = connection.data.uiOptions || {};
-
     return (
       <AppConsumer>
         {({ isMessengerVisible, readConversation, toggleNotifierFull, toggleNotifier }) => {
@@ -44,7 +42,6 @@ class Notifier extends NotificationSubscriber {
               lastUnreadMessage={lastUnreadMessage}
               readConversation={readConversation}
               showUnreadMessage={showUnreadMessage}
-              color={uiOptions.color}
             />
           );
         }}

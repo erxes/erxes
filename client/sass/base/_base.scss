@@ -51,7 +51,7 @@ body {
   @include animation(0, 1s, animationSpin, linear, infinite);
   border: 2px solid $grey;
   border-radius: 50%;
-  border-top: 2px solid darken($grey, 15%);
+  border-top: 2px solid darken($grey, 20%);
   height: 20px;
   margin-right: -10px;
   margin-top: -10px;
@@ -59,6 +59,13 @@ body {
   right: 50%;
   top: 50%;
   width: 20px;
+
+  &.bigger {
+    height: 28px;
+    margin-right: -14px;
+    margin-top: -14px;
+    width: 28px;
+  }
 }
 
 .erxes-tooltip {

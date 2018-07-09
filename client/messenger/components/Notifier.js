@@ -7,7 +7,6 @@ const propTypes = {
   lastUnreadMessage: PropTypes.object,
   readConversation: PropTypes.func,
   showUnreadMessage: PropTypes.func,
-  color: PropTypes.string,
 };
 
 class Notifier extends React.Component {
@@ -52,13 +51,12 @@ class Notifier extends React.Component {
   }
 
   render() {
-    const { lastUnreadMessage, readConversation, color } = this.props;
+    const { lastUnreadMessage, readConversation } = this.props;
 
     if (lastUnreadMessage._id) {
       return (
         <div
           className={this.renderClass()}
-          style={{ borderColor: color }}
           onClick={() => readConversation({
             conversationId: lastUnreadMessage.conversationId,
             engageData: lastUnreadMessage.engageData,

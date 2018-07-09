@@ -35,7 +35,7 @@ function ConversationList({
         onButtonClick={createConversation}
       />
       <ul className="erxes-conversation-list">
-        {loading && <div className="loader" />}
+        {loading && <div className="loader bigger" />}
         {conversations.map(conversation => (
           <ConversationItem
             key={conversation._id}
