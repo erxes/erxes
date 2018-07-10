@@ -71,6 +71,8 @@ const sidebarConversations = `
         phone
         isUser
         visitorContactInfo
+        facebookData
+        twitterData 
       }
       tagIds
       tags {

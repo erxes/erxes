@@ -115,8 +115,7 @@ class Avatar extends Component {
       avatar =
         customer.avatar ||
         (customer.facebookData && customer.facebookData.profilePic) ||
-        (customer.twitterData && customer.twitterData.profile_image_url) ||
-        (customer.twitterData && customer.twitterData.profileImageUrl);
+        (customer.twitterData && customer.twitterData.profile_image_url);
       fullName = this.renderName(customer);
     }
 
