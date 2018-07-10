@@ -27,18 +27,18 @@ moment.defineLocale('mn', {
 moment.updateLocale('en', {
   relativeTime: {
     future: 'in %s',
-    past: '%s ',
-    s: 's',
-    m: 'm',
-    mm: '%d m',
-    h: 'h',
-    hh: '%d h',
-    d: 'd',
-    dd: '%d d',
-    M: 'a mth',
-    MM: '%d mths',
-    y: 'y',
-    yy: '%d y'
+    past: '%s ago',
+    s: '%d seconds',
+    m: 'a minute',
+    mm: '%d minutes',
+    h: 'an hour',
+    hh: '%d hours',
+    d: 'a day',
+    dd: '%d days',
+    M: 'a month',
+    MM: '%d months',
+    y: 'a year',
+    yy: '%d years'
   }
 });
 
