@@ -84,6 +84,7 @@ const dealDetail = `
         _id
         firstName
         email
+        phone
       }
       products
       productsData
