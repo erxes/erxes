@@ -7,7 +7,6 @@ import ConversationItem from './ConversationItem';
 import Conversation from './Conversation';
 import Launcher from './Launcher';
 import Notifier from './Notifier';
-import UnreadCount from './UnreadCount';
 import Message from './Message';
 import MessageSender from './MessageSender';
 import MessagesList from './MessagesList';
@@ -26,7 +25,6 @@ export {
   Conversation,
   Launcher,
   Notifier,
-  UnreadCount,
   Message,
   MessageSender,
   MessagesList,

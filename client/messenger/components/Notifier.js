@@ -4,7 +4,7 @@ import striptags from 'striptags';
 import { User, EngageMessage } from '../components';
 
 const propTypes = {
-  lastUnreadMessage: PropTypes.object,
+  message: PropTypes.object,
   readConversation: PropTypes.func,
   showUnreadMessage: PropTypes.func,
 };
@@ -19,8 +19,8 @@ class Notifier extends React.Component {
   }
 
   renderNotificationBody() {
-    const { lastUnreadMessage } = this.props;
-    const { engageData, user, content } = lastUnreadMessage;
+    const { message } = this.props;
+    const { engageData, user, content } = message;
     const details = user.details || {};
 
     if (engageData) {
@@ -41,33 +41,29 @@ class Notifier extends React.Component {
   }
 
   renderClass() {
-    const { lastUnreadMessage } = this.props;
+    const { message } = this.props;
 
-    if (lastUnreadMessage.engageData) {
-      return `erxes-notification ${lastUnreadMessage.engageData.sentAs}`;
+    if (message.engageData) {
+      return `erxes-notification ${message.engageData.sentAs}`;
     }
 
     return 'erxes-notification';
   }
 
   render() {
-    const { lastUnreadMessage, readConversation } = this.props;
+    const { message, readConversation } = this.props;
 
-    if (lastUnreadMessage._id) {
-      return (
-        <div
-          className={this.renderClass()}
-          onClick={() => readConversation({
-            conversationId: lastUnreadMessage.conversationId,
-            engageData: lastUnreadMessage.engageData,
-          })}
-        >
-          {this.renderNotificationBody()}
-        </div>
-      );
-    }
-
-    return null;
+    return (
+      <div
+        className={this.renderClass()}
+        onClick={() => readConversation({
+          conversationId: message.conversationId,
+          engageData: message.engageData,
+        })}
+      >
+        {this.renderNotificationBody()}
+      </div>
+    );
   }
 }
 

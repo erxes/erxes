@@ -5,7 +5,7 @@ import client from '../../apollo-client';
 import { postMessage, requestBrowserInfo } from '../../utils';
 import { connection, getLocalStorageItem, setLocalStorageItem } from '../connection';
 import uploadHandler from '../../uploadHandler';
-import queries from '../graphql';
+import graphqlTypes from '../graphql';
 
 const AppContext = React.createContext();
 
@@ -211,12 +211,12 @@ export class AppProvider extends React.Component {
 
   readMessages(conversationId) {
     client.mutate({
-      mutation: gql`
-        mutation readConversationMessages($conversationId: String) {
-          readConversationMessages(conversationId: $conversationId)
-        }`,
-
+      mutation: gql(graphqlTypes.readConversationMessages),
       variables: { conversationId },
+      refetchQueries: [{
+        query: gql(graphqlTypes.unreadCountQuery),
+        variables: { conversationId }
+      }]
     });
   }
 
@@ -249,7 +249,7 @@ export class AppProvider extends React.Component {
         const message = insertMessage;
 
         const selector = {
-          query: gql(queries.conversationDetailQuery),
+          query: gql(graphqlTypes.conversationDetailQuery),
           variables: { _id: message.conversationId }
         };
 
@@ -284,7 +284,7 @@ export class AppProvider extends React.Component {
             conversationId: $conversationId
             attachments: $attachments
           ) {
-            ${queries.messageFields}
+            ${graphqlTypes.messageFields}
           }
         }`,
 

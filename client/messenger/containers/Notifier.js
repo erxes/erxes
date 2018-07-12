@@ -1,31 +1,23 @@
 import React from 'react';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import PropTypes from 'prop-types';
 
 import { Notifier as DumbNotifier } from '../components';
-import graphqlTypes from '../graphql';
-import { connection } from '../connection';
 import { AppConsumer } from './AppContext';
-import NotificationSubscriber from './NotificationSubscriber';
 
-class Notifier extends NotificationSubscriber {
+export default class Notifier extends React.Component {
   render() {
-    if (this.props.data.loading) {
-      return null;
-    }
+    const { message } = this.props;
 
-    const lastUnreadMessage = this.props.data.lastUnreadMessage;
-
-    if (!lastUnreadMessage || !lastUnreadMessage._id) {
+    if (!message || !message._id) {
       return null;
     }
 
     return (
       <AppConsumer>
-        {({ isMessengerVisible, readConversation, toggleNotifierFull, toggleNotifier }) => {
+        {({ readConversation, toggleNotifierFull, toggleNotifier }) => {
           const showUnreadMessage = () => {
-            if (lastUnreadMessage._id) {
-              const engageData = lastUnreadMessage.engageData;
+            if (message._id) {
+              const engageData = message.engageData;
 
               if (engageData && engageData.sentAs === 'fullMessage') {
                 toggleNotifierFull();
@@ -38,8 +30,7 @@ class Notifier extends NotificationSubscriber {
           return (
             <DumbNotifier
               {...this.props}
-              isMessengerVisible={isMessengerVisible}
-              lastUnreadMessage={lastUnreadMessage}
+              message={message}
               readConversation={readConversation}
               showUnreadMessage={showUnreadMessage}
             />
@@ -50,14 +41,6 @@ class Notifier extends NotificationSubscriber {
   }
 }
 
-const NotifierWithData = graphql(
-  gql(graphqlTypes.lastUnreadMessage),
-  {
-    options: () => ({
-      fetchPolicy: 'network-only',
-      variables: connection.data,
-    }),
-  },
-)(Notifier);
-
-export default NotifierWithData;
+Notifier.propTypes = {
+  message: PropTypes.object,
+}

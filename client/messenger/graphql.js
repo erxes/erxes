@@ -106,17 +106,21 @@ const allConversations = `
   }
 `;
 
-const totalUnreadCount = `
-  query totalUnreadCount(${connection.queryVariables}) {
-    totalUnreadCount(${connection.queryParams})
+const unreadInfo = `
+  query unreadInfo(${connection.queryVariables}) {
+    unreadInfo(${connection.queryParams}) {
+      lastUnreadMessage {
+        ${messageFields}
+      }
+
+      totalCount
+    }
   }
 `;
 
-const lastUnreadMessage = `
-  query lastUnreadMessage(${connection.queryVariables}) {
-    lastUnreadMessage(${connection.queryParams}) {
-      ${messageFields}
-    }
+const readConversationMessages = `
+  mutation readConversationMessages($conversationId: String) {
+    readConversationMessages(conversationId: $conversationId)
   }
 `;
 
@@ -136,6 +140,14 @@ const connect = `
   }
 `;
 
+const saveBrowserInfo = `
+  mutation saveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
+    saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
+      _id
+    }
+  }
+`;
+
 export default {
   messageFields,
   conversationDetailQuery,
@@ -146,7 +158,8 @@ export default {
   conversationChanged,
   conversationsChangedSubscription,
   allConversations,
-  totalUnreadCount,
-  lastUnreadMessage,
+  unreadInfo,
   connect,
+  saveBrowserInfo,
+  readConversationMessages,
 }

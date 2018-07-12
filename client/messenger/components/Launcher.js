@@ -1,16 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { UnreadCount } from '../containers';
+import { Notifier } from '../containers';
 
-const propTypes = {
-  onClick: PropTypes.func.isRequired,
-  isMessengerVisible: PropTypes.bool.isRequired,
-  isBrowserInfoSaved: PropTypes.bool,
-  uiOptions: PropTypes.object,
-};
+function Launcher(props) {
+  const {
+    isMessengerVisible,
+    isBrowserInfoSaved,
+    onClick,
+    uiOptions,
+    lastUnreadMessage,
+    unreadCount,
+  } = props;
 
-function Launcher({ isMessengerVisible, isBrowserInfoSaved, onClick, uiOptions }) {
   const clickHandler = () => {
     onClick(isMessengerVisible);
   };
@@ -22,23 +24,50 @@ function Launcher({ isMessengerVisible, isBrowserInfoSaved, onClick, uiOptions }
   const { color, logo } = uiOptions;
   const defaultLogo = '/static/images/widget-logo.png';
 
+  const renderNotifier = () => {
+    if (!isBrowserInfoSaved || isMessengerVisible) {
+      return null;
+    }
+
+    return <Notifier message={lastUnreadMessage} />
+  }
+
+  const renderUnreadCount = () => {
+    if (!isBrowserInfoSaved || !unreadCount) {
+      return null;
+    }
+
+    return <span>{unreadCount}</span>
+  }
+
   return (
-    <div
-      className={launcherClasses}
-      onClick={clickHandler}
-      style={{
-        backgroundColor: color,
-        color: color,
-        backgroundImage: `url(${logo || defaultLogo})`,
-        backgroundSize: logo ? '' : '20px',
-      }}
-    >
-      { isBrowserInfoSaved && <UnreadCount /> }
+    <div>
+      <div
+        className={launcherClasses}
+        onClick={clickHandler}
+        style={{
+          backgroundColor: color,
+          color: color,
+          backgroundImage: `url(${logo || defaultLogo})`,
+          backgroundSize: logo ? '' : '20px',
+        }}
+      >
+        {renderUnreadCount()}
+      </div>
+
+      {renderNotifier()}
     </div>
   );
 }
 
-Launcher.propTypes = propTypes;
+Launcher.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  isMessengerVisible: PropTypes.bool.isRequired,
+  isBrowserInfoSaved: PropTypes.bool,
+  uiOptions: PropTypes.object,
+  lastUnreadMessage: PropTypes.object,
+  unreadCount: PropTypes.number,
+};
 
 Launcher.defaultProps = {
   uiOptions: null,

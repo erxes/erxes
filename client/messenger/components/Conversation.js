@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { iconLeft } from '../../icons/Icons';
-import { MessagesList, MessageSender, TopBar } from '../containers';
+import { MessageSender, TopBar } from '../containers';
+import { MessagesList } from './';
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
