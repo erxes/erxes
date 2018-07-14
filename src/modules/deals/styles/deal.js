@@ -313,6 +313,16 @@ const AddContainer = styled.form`
   }
 `;
 
+const ActionInfo = SpaceContent.extend`
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed ${colors.colorShadowGray};
+
+  span {
+    font-size: 10px;
+  }
+`;
+
 export {
   AddNew,
   Container,
@@ -338,5 +348,6 @@ export {
   SelectOption,
   SelectValue,
   Avatar,
-  AddContainer
+  AddContainer,
+  ActionInfo
 };

@@ -99,6 +99,8 @@ const dealDetail = `
           avatar
         }
       }
+      modifiedAt
+      modifiedBy
     }
   }
 `;
