@@ -163,7 +163,7 @@ class Form extends Component {
 
     const formData = integration && integration.formData;
     const brand = integration && (integration.brand || {});
-    const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
+    const breadcrumb = [{ title: __('Leads'), link: '/forms' }];
     const constant = isSkip ? 'form' : 'callout';
 
     return (
@@ -202,7 +202,7 @@ class Form extends Component {
               skip={isSkip}
             />
           </Step>
-          <Step img="/images/icons/erxes-12.svg" title="Form">
+          <Step img="/images/icons/erxes-12.svg" title={__('Lead')}>
             <FormStep
               onChange={this.onChange}
               formTitle={formTitle}

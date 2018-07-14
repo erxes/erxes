@@ -81,7 +81,7 @@ class List extends Component {
     const actionBarRight = (
       <Link to="/forms/create">
         <Button btnStyle="success" size="small" icon="add">
-          Create form
+          {__('Create lead')}
         </Button>
       </Link>
     );
@@ -120,7 +120,7 @@ class List extends Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: __('Forms') }]} />}
+        header={<Wrapper.Header breadcrumb={[{ title: __('Leads') }]} />}
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={integrationsCount} />}
@@ -129,7 +129,7 @@ class List extends Component {
             data={content}
             loading={loading}
             count={integrationsCount}
-            emptyText="There is no form."
+            emptyText="There is no lead."
             emptyImage="/images/robots/robot-03.svg"
           />
         }

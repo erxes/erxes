@@ -163,7 +163,7 @@ class Navigation extends Component {
               <NavIcon className="icon-briefcase" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Forms')}>
+          <Tip placement="right" text={__('Leads')}>
             <NavLink to="/forms" activeClassName="active">
               <NavIcon className="icon-laptop" />
             </NavLink>

@@ -43,7 +43,7 @@ function Forms({ history, counts, integrations, loading }, { __ }) {
 
   return (
     <Section collapsible={integrations.length > 5}>
-      <Header uppercase>{__('Filter by form')}</Header>
+      <Header uppercase>{__('Filter by lead')}</Header>
 
       <DataWithLoader
         data={data}
