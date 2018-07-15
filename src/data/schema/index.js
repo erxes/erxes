@@ -207,6 +207,7 @@ export const subscriptions = `
     conversationChanged(_id: String!): ConversationChangedResponse
     conversationMessageInserted(_id: String!): ConversationMessage
     conversationClientMessageInserted: ConversationMessage
+    conversationAdminMessageInserted(customerId: String!): ConversationMessage
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
   }
 `;

@@ -35,18 +35,8 @@ export const conversationNotifReceivers = (conversation, currentUserId) => {
 };
 
 /**
- * Publish created message
- * @param  {Object} message object
- * @param  {String} conversationId
- */
-export const publishMessage = message => {
-  pubsub.publish('conversationMessageInserted', {
-    conversationMessageInserted: message,
-  });
-};
-
-/**
- * Publish updated conversation
+ * Using this subscription to track conversation detail's assignee, tag, status
+ * changes
  * @param  {[String]} _ids of conversations
  * @param  {String} type of status
  */
@@ -60,6 +50,25 @@ const publishConversationsChanged = (_ids, type) => {
   return _ids;
 };
 
+/*
+ * Publish admin's message
+ * @param  {Object} message object
+ * @param  {String} conversationId
+ */
+export const publishMessage = (message, customerId) => {
+  pubsub.publish('conversationMessageInserted', {
+    conversationMessageInserted: message,
+  });
+
+  // widget is listening for this subscription to show notification
+  // customerId available means trying to notify to client
+  if (customerId) {
+    pubsub.publish('conversationAdminMessageInserted', {
+      conversationAdminMessageInserted: { ...message.toJSON(), customerId },
+    });
+  }
+};
+
 const conversationMutations = {
   /*
    * Calling this mutation from widget api run new message subscription
@@ -67,8 +76,10 @@ const conversationMutations = {
   async conversationPublishClientMessage(root, { _id }) {
     const message = await ConversationMessages.findOne({ _id });
 
+    // notifying to conversationd detail
     publishMessage(message);
 
+    // notifying to total unread count
     pubsub.publish('conversationClientMessageInserted', {
       conversationClientMessageInserted: message,
     });
@@ -103,7 +114,7 @@ const conversationMutations = {
     if (doc.internal) {
       const message = await ConversationMessages.addMessage(doc, user._id);
 
-      // notify subscription
+      // publish new message to conversation detail
       publishMessage(message);
 
       return message;
@@ -147,8 +158,8 @@ const conversationMutations = {
       await facebookReply(conversation, strip(doc.content), message._id);
     }
 
-    // notify subscription
-    publishMessage(message);
+    // Publishing both admin & client
+    publishMessage(message, conversation.customerId);
 
     return message;
   },

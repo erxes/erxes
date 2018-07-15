@@ -114,11 +114,6 @@ export const types = `
     type: String!
   }
 
-  type ConversationsChangedResponse {
-    type: String!
-    customerId: String!
-  }
-
   input ConversationMessageParams {
     content: String,
     mentionedUserIds: [String],
