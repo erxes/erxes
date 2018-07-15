@@ -29,20 +29,9 @@ export default {
   },
 
   /*
-   * Listen for any conversation changes like new message, read state, assignee
-   */
-  conversationsChanged: {
-    subscribe: withFilter(
-      () => pubsub.asyncIterator('conversationsChanged'),
-      // filter by customerId. customerId is not required.
-      // in widget we will filter all those changes by customerId
-      (payload, variables) => {
-        if (variables.customerId) {
-          return payload.conversationsChanged.customerId === variables.customerId;
-        }
-
-        return true;
-      },
-    ),
+   * Listen for new client message insertion
+  */
+  conversationClientMessageInserted: {
+    subscribe: () => pubsub.asyncIterator('conversationClientMessageInserted'),
   },
 };

@@ -7,7 +7,7 @@ import {
   Conversations,
   Integrations,
 } from '../db/models';
-import { conversationMessageCreated } from '../data/resolvers/mutations/conversations';
+import { publishMessage } from '../data/resolvers/mutations/conversations';
 import { twitRequest, findParentTweets } from './twitterTracker';
 import { CONVERSATION_STATUSES } from '../data/constants';
 
@@ -102,7 +102,7 @@ const createDirectMessage = async ({ conversation, data }) => {
   // notify subscription =========
   const message = await ConversationMessages.findOne({ _id: messageId });
 
-  await conversationMessageCreated(message, message.conversationId);
+  publishMessage(message);
 
   return messageId;
 };
@@ -250,7 +250,7 @@ export const createOrUpdateTimelineMessage = async (conversation, data) => {
   // notify subscription =========
   const message = await ConversationMessages.findOne({ _id: messageId });
 
-  await conversationMessageCreated(message, message.conversationId);
+  publishMessage(message);
 
   return messageId;
 };

@@ -206,8 +206,7 @@ export const subscriptions = `
   type Subscription {
     conversationChanged(_id: String!): ConversationChangedResponse
     conversationMessageInserted(_id: String!): ConversationMessage
-    conversationsChanged(customerId: String): ConversationsChangedResponse
-    notificationsChanged(ids: [String]): Boolean
+    conversationClientMessageInserted: ConversationMessage
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
   }
 `;

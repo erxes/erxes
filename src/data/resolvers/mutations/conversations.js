@@ -35,63 +35,43 @@ export const conversationNotifReceivers = (conversation, currentUserId) => {
 };
 
 /**
- * Publish updated conversation
- * @param  {[String]} _ids of conversations
- * @param  {String} type of status
- */
-const conversationsChanged = async (_ids, type) => {
-  for (let _id of _ids) {
-    const conversation = await Conversations.findOne({ _id });
-
-    // notify new message
-    pubsub.publish('conversationChanged', {
-      conversationChanged: { conversationId: _id, type },
-    });
-
-    if (conversation) {
-      pubsub.publish('conversationsChanged', {
-        conversationsChanged: { customerId: conversation.customerId, type },
-      });
-    }
-  }
-
-  return _ids;
-};
-
-/**
  * Publish created message
  * @param  {Object} message object
  * @param  {String} conversationId
  */
-export const conversationMessageCreated = async (message, conversationId) => {
-  // subscribe message created
+export const publishMessage = message => {
   pubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
   });
+};
 
-  const conversation = await Conversations.findOne({ _id: conversationId });
+/**
+ * Publish updated conversation
+ * @param  {[String]} _ids of conversations
+ * @param  {String} type of status
+ */
+const publishConversationsChanged = (_ids, type) => {
+  for (let _id of _ids) {
+    pubsub.publish('conversationChanged', {
+      conversationChanged: { conversationId: _id, type },
+    });
+  }
 
-  // subscribe conversation changed
-  pubsub.publish('conversationsChanged', {
-    conversationsChanged: { customerId: conversation.customerId, type: 'newMessage' },
-  });
+  return _ids;
 };
 
 const conversationMutations = {
   /*
    * Calling this mutation from widget api run new message subscription
    */
-  async conversationSubscribeMessageCreated(root, { _id }) {
+  async conversationPublishClientMessage(root, { _id }) {
     const message = await ConversationMessages.findOne({ _id });
 
-    return conversationMessageCreated(message, message.conversationId);
-  },
+    publishMessage(message);
 
-  /*
-   * Calling this mutation from widget api run read state subscription
-   */
-  async conversationSubscribeChanged(root, { _ids, type }) {
-    return conversationsChanged(_ids, type);
+    pubsub.publish('conversationClientMessageInserted', {
+      conversationClientMessageInserted: message,
+    });
   },
 
   /**
@@ -124,7 +104,7 @@ const conversationMutations = {
       const message = await ConversationMessages.addMessage(doc, user._id);
 
       // notify subscription
-      await conversationMessageCreated(message, doc.conversationId);
+      publishMessage(message);
 
       return message;
     }
@@ -168,7 +148,7 @@ const conversationMutations = {
     }
 
     // notify subscription
-    await conversationMessageCreated(message, doc.conversationId);
+    publishMessage(message);
 
     return message;
   },
@@ -222,7 +202,7 @@ const conversationMutations = {
     );
 
     // notify graphl subscription
-    await conversationsChanged(conversationIds, 'assigneeChanged');
+    publishConversationsChanged(conversationIds, 'assigneeChanged');
 
     for (let conversation of updatedConversations) {
       const content = 'Assigned user has changed';
@@ -250,7 +230,7 @@ const conversationMutations = {
     const conversations = await Conversations.unassignUserConversation(_ids);
 
     // notify graphl subscription
-    conversationsChanged(_ids, 'assigneeChanged');
+    publishConversationsChanged(_ids, 'assigneeChanged');
 
     return conversations;
   },
@@ -267,7 +247,7 @@ const conversationMutations = {
     await Conversations.changeStatusConversation(_ids, status, user._id);
 
     // notify graphl subscription
-    await conversationsChanged(_ids, status);
+    publishConversationsChanged(_ids, status);
 
     for (let conversation of conversations) {
       if (status === CONVERSATION_STATUSES.CLOSED) {
@@ -337,7 +317,7 @@ const conversationMutations = {
     const conversations = await Conversations.toggleParticipatedUsers(_ids, user._id);
 
     // notify graphl subscription
-    conversationsChanged(_ids, 'participatedStateChanged');
+    publishConversationsChanged(_ids, 'participatedStateChanged');
 
     return conversations;
   },
