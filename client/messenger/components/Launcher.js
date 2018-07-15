@@ -10,7 +10,7 @@ function Launcher(props) {
     onClick,
     uiOptions,
     lastUnreadMessage,
-    unreadCount,
+    totalUnreadCount,
   } = props;
 
   const clickHandler = () => {
@@ -33,11 +33,11 @@ function Launcher(props) {
   }
 
   const renderUnreadCount = () => {
-    if (!isBrowserInfoSaved || !unreadCount) {
+    if (!isBrowserInfoSaved || !totalUnreadCount) {
       return null;
     }
 
-    return <span>{unreadCount}</span>
+    return <span>{totalUnreadCount}</span>
   }
 
   return (
@@ -66,7 +66,7 @@ Launcher.propTypes = {
   isBrowserInfoSaved: PropTypes.bool,
   uiOptions: PropTypes.object,
   lastUnreadMessage: PropTypes.object,
-  unreadCount: PropTypes.number,
+  totalUnreadCount: PropTypes.number,
 };
 
 Launcher.defaultProps = {

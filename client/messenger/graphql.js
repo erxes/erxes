@@ -68,17 +68,23 @@ const conversationMessageInserted = `
   }
 `;
 
+const adminMessageInserted = `
+  subscription conversationAdminMessageInserted($customerId: String!) {
+    conversationAdminMessageInserted(customerId: $customerId) {
+      _id
+    }
+  }
+`;
+
 const unreadCountQuery = `
   query unreadCount($conversationId: String) {
     unreadCount(conversationId: $conversationId)
   }
 `;
 
-const conversationsChangedSubscription = `
-  subscription conversationsChanged($customerId: String) {
-    conversationsChanged(customerId: $customerId) {
-      type
-    }
+const totalUnreadCountQuery = `
+  query totalUnreadCount(${connection.queryVariables}) {
+    totalUnreadCount(${connection.queryParams})
   }
 `;
 
@@ -102,18 +108,6 @@ const allConversations = `
           avatar
         }
       }
-    }
-  }
-`;
-
-const unreadInfo = `
-  query unreadInfo(${connection.queryVariables}) {
-    unreadInfo(${connection.queryParams}) {
-      lastUnreadMessage {
-        ${messageFields}
-      }
-
-      totalCount
     }
   }
 `;
@@ -143,7 +137,7 @@ const connect = `
 const saveBrowserInfo = `
   mutation saveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
     saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
-      _id
+      ${messageFields}
     }
   }
 `;
@@ -154,11 +148,11 @@ export default {
   messengerSupportersQuery,
   isMessengerOnlineQuery,
   unreadCountQuery,
+  totalUnreadCountQuery,
   conversationMessageInserted,
+  adminMessageInserted,
   conversationChanged,
-  conversationsChangedSubscription,
   allConversations,
-  unreadInfo,
   connect,
   saveBrowserInfo,
   readConversationMessages,

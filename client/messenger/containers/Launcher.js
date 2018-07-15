@@ -9,31 +9,21 @@ import { AppConsumer } from './AppContext';
 
 class Launcher extends React.Component {
   componentWillReceiveProps(nextProps) {
-    const { data } = nextProps;
-
-    if (!this.props.data && data) {
-      // lister for all conversation changes for this customer
-      data.subscribeToMore({
-        document: gql(graphqlTypes.conversationsChangedSubscription),
+    if (!this.props.data && nextProps.data) {
+      nextProps.data.subscribeToMore({
+        document: gql(graphqlTypes.adminMessageInserted),
         variables: { customerId: connection.data.customerId },
         updateQuery: () => {
-          data.refetch();
-        },
+          nextProps.data.refetch();
+        }
       });
     }
   }
 
   render() {
-    const { unreadInfo } = this.props.data || {};
-    const { lastUnreadMessage, totalCount } = unreadInfo || {};
+    const { data={} } = this.props;
 
-    return (
-      <DumpLauncher
-        {...this.props}
-        lastUnreadMessage={lastUnreadMessage}
-        unreadCount={totalCount}
-      />
-    );
+    return <DumpLauncher {...this.props} totalUnreadCount={data.totalUnreadCount} />
   }
 }
 
@@ -42,19 +32,18 @@ Launcher.propTypes = {
 }
 
 const WithQuery = graphql(
-  gql(graphqlTypes.unreadInfo),
+  gql(graphqlTypes.totalUnreadCountQuery),
   {
-    skip: (props) => !props.isBrowserInfoSaved,
     options: () => ({
       variables: connection.data,
-      fetchPolicy: 'network-only',
     }),
-  },
+    skip: (props) => !props.isMessengerVisible
+  }
 )(Launcher);
 
 const container = (props) => (
   <AppConsumer>
-    {({ isMessengerVisible, isBrowserInfoSaved, toggle }) => {
+    {({ isMessengerVisible, isBrowserInfoSaved, toggle, lastUnreadMessage }) => {
       return (
         <WithQuery
           {...props}
@@ -62,6 +51,7 @@ const container = (props) => (
           isBrowserInfoSaved={isBrowserInfoSaved}
           onClick={toggle}
           uiOptions={connection.data.uiOptions || {}}
+          lastUnreadMessage={lastUnreadMessage}
         />
       );
     }}

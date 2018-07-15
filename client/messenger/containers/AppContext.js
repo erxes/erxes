@@ -23,6 +23,7 @@ export class AppProvider extends React.Component {
     }
 
     this.state = {
+      lastUnreadMessage: null,
       isMessengerVisible: false,
       activeRoute,
       activeConversation: '',
@@ -70,18 +71,15 @@ export class AppProvider extends React.Component {
         };
 
         client.mutate({
-          mutation: gql`
-            mutation saveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
-              saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
-                _id
-              }
-            }
-          `,
+          mutation: gql(graphqlTypes.saveBrowserInfo),
           variables,
         })
 
-        .then(() => {
-          this.setState({ isBrowserInfoSaved: true });
+        .then(({ data: { saveBrowserInfo } }) => {
+          this.setState({
+            lastUnreadMessage: saveBrowserInfo,
+            isBrowserInfoSaved: true
+          });
         });
       }
     })
@@ -91,7 +89,11 @@ export class AppProvider extends React.Component {
     const { activeRoute } = this.state;
 
     // notify parent window launcher state
-    postMessage('fromMessenger', 'messenger', { isVisible: !isVisible, isSmallContainer: this.isSmallContainer() });
+    postMessage(
+      'fromMessenger',
+      'messenger',
+      { isVisible: !isVisible, isSmallContainer: this.isSmallContainer() }
+    );
 
     this.setState({ isMessengerVisible: !isVisible });
 
@@ -123,10 +125,19 @@ export class AppProvider extends React.Component {
     // save last conversationId
     setLocalStorageItem('lastConversationId', _id);
 
-    this.setState({
+    const options = {
       activeConversation: _id,
       activeRoute: _id ? 'conversationDetail' : 'conversationCreate'
-    });
+    };
+
+    // reset last unread message
+    const { lastUnreadMessage } = this.state;
+
+    if (lastUnreadMessage && lastUnreadMessage.conversationId === _id) {
+      options.lastUnreadMessage = null;
+    }
+
+    this.setState(options);
   }
 
   goToConversation(conversationId) {
@@ -213,10 +224,16 @@ export class AppProvider extends React.Component {
     client.mutate({
       mutation: gql(graphqlTypes.readConversationMessages),
       variables: { conversationId },
-      refetchQueries: [{
-        query: gql(graphqlTypes.unreadCountQuery),
-        variables: { conversationId }
-      }]
+      refetchQueries: [
+        {
+          query: gql(graphqlTypes.unreadCountQuery),
+          variables: { conversationId }
+        },
+        {
+          query: gql(graphqlTypes.totalUnreadCountQuery),
+          variables: connection.data,
+        },
+      ]
     });
   }
 
