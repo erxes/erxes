@@ -43,7 +43,7 @@ class Settings extends Component {
             )}
             {this.renderBox(
               'Import histories',
-              '/images/icons/erxes-01.svg',
+              '/images/icons/erxes-12.svg',
               '/settings/importHistories'
             )}
           </div>
