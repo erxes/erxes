@@ -40,7 +40,7 @@ export const conversationNotifReceivers = (conversation, currentUserId) => {
  * @param  {[String]} _ids of conversations
  * @param  {String} type of status
  */
-const publishConversationsChanged = (_ids, type) => {
+export const publishConversationsChanged = (_ids, type) => {
   for (let _id of _ids) {
     pubsub.publish('conversationChanged', {
       conversationChanged: { conversationId: _id, type },
