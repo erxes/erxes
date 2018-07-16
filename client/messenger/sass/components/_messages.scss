@@ -34,22 +34,22 @@
 
   &.bg-1 {
     @include bg-option;
-    background-image: url('/static/images/bg-1.png');
+    background-image: url('https://s3.amazonaws.com/erxes/bg-1.png');
   }
 
   &.bg-2 {
     @include bg-option;
-    background-image: url('/static/images/bg-2.png');
+    background-image: url('https://s3.amazonaws.com/erxes/bg-2.png');
   }
 
   &.bg-3 {
     @include bg-option;
-    background-image: url('/static/images/bg-3.png');
+    background-image: url('https://s3.amazonaws.com/erxes/bg-3.png');
   }
 
   &.bg-4 {
     @include bg-option;
-    background-image: url('/static/images/bg-4.png');
+    background-image: url('https://s3.amazonaws.com/erxes/bg-4.png');
   }
 }
 
