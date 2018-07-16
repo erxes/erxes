@@ -302,38 +302,6 @@ const conversationMutations = {
   },
 
   /**
-   * Star conversation
-   * @param  {list} _ids of conversation
-   * @return {Promise} user object of starred conversations
-   */
-  async conversationsStar(root, { _ids }, { user }) {
-    return Conversations.starConversation(_ids, user._id);
-  },
-
-  /**
-   * Unstar conversation
-   * @param  {list} _ids of conversation
-   * @return {Promise} user object from unstarred conversations
-   */
-  async conversationsUnstar(root, { _ids }, { user }) {
-    return Conversations.unstarConversation(_ids, user._id);
-  },
-
-  /**
-   * Add or remove participed users in conversation
-   * @param  {list} _ids of conversation
-   * @return {Promise} updated conversations
-   */
-  async conversationsToggleParticipate(root, { _ids }, { user }) {
-    const conversations = await Conversations.toggleParticipatedUsers(_ids, user._id);
-
-    // notify graphl subscription
-    publishConversationsChanged(_ids, 'participatedStateChanged');
-
-    return conversations;
-  },
-
-  /**
    * Conversation mark as read
    * @param  {String} _id of conversation
    * @return {Promise} Conversation object with mark as read
@@ -347,9 +315,6 @@ requireLogin(conversationMutations, 'conversationMessageAdd');
 requireLogin(conversationMutations, 'conversationsAssign');
 requireLogin(conversationMutations, 'conversationsUnassign');
 requireLogin(conversationMutations, 'conversationsChangeStatus');
-requireLogin(conversationMutations, 'conversationsStar');
-requireLogin(conversationMutations, 'conversationsUnstar');
-requireLogin(conversationMutations, 'conversationsToggleParticipate');
 requireLogin(conversationMutations, 'conversationMarkAsRead');
 
 export default conversationMutations;

@@ -311,69 +311,6 @@ describe('Conversation message mutations', () => {
     expect(conversation.status).toEqual(args.status);
   });
 
-  test('Star conversation', async () => {
-    const mutation = `
-      mutation conversationsStar($_ids: [String]!) {
-        conversationsStar(_ids: $_ids) {
-          _id
-        }
-      }
-    `;
-
-    const userId = await graphqlRequest(
-      mutation,
-      'conversationsStar',
-      { _ids: [_conversation._id] },
-      context,
-    );
-
-    const user = await Users.findOne({ _id: userId });
-
-    expect(user.starredConversationIds).toContain([_conversation._id]);
-  });
-
-  test('Unstar conversation', async () => {
-    const mutation = `
-      mutation conversationsUnstar($_ids: [String]!) {
-        conversationsUnstar(_ids: $_ids) {
-          _id
-        }
-      }
-    `;
-
-    const userId = await graphqlRequest(
-      mutation,
-      'conversationsUnstar',
-      { _ids: [_conversation._id] },
-      context,
-    );
-
-    const user = await Users.findOne({ _id: userId });
-
-    expect(user.starredConversationIds).not.toContain([_conversation._id]);
-  });
-
-  test('Toggle conversation participate', async () => {
-    const mutation = `
-      mutation conversationsToggleParticipate($_ids: [String]!) {
-        conversationsToggleParticipate(_ids: $_ids) {
-          _id
-        }
-      }
-    `;
-
-    const [conversationIds] = await graphqlRequest(
-      mutation,
-      'conversationsToggleParticipate',
-      { _ids: [_conversation._id] },
-      context,
-    );
-
-    const [conversation] = await Conversations.find({ _id: { $in: conversationIds } });
-
-    expect(conversation.participatedUserIds).toContain(_user._id);
-  });
-
   test('Mark conversation as read', async () => {
     const mutation = `
       mutation conversationMarkAsRead($_id: String) {
