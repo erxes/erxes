@@ -22,7 +22,6 @@ function Launcher(props) {
   });
 
   const { color, logo } = uiOptions;
-  const defaultLogo = '/static/images/widget-logo.png';
 
   const renderNotifier = () => {
     if (!isBrowserInfoSaved || isMessengerVisible) {
@@ -48,7 +47,7 @@ function Launcher(props) {
         style={{
           backgroundColor: color,
           color: color,
-          backgroundImage: `url(${logo || defaultLogo})`,
+          backgroundImage: logo ? `url(${logo})` : '',
           backgroundSize: logo ? '' : '20px',
         }}
       >

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { defaultAvatar } from '../../icons/Icons';
 
 const propTypes = {
   // TODO: user must be required
@@ -8,7 +9,6 @@ const propTypes = {
 
 function User({ user }) {
   const avatar = user && user.details && user.details.avatar;
-  const defaultAvatar = '/static/images/default-avatar.svg';
 
   return (
     <div className="erxes-avatar">

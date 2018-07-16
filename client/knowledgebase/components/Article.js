@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import { defaultAvatar } from '../../icons/Icons';
 
 const propTypes = {
   article: PropTypes.object,
@@ -39,7 +40,7 @@ export default class Article extends React.Component {
           <div className="avatars">
             <img
               alt={author.details.fullName}
-              src={author.details.avatar || '/static/images/default-avatar.svg'}
+              src={author.details.avatar || defaultAvatar}
             />
           </div>
           <div>

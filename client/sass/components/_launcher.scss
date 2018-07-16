@@ -1,6 +1,6 @@
 .erxes-launcher {
   background-color: $main-color;
-  background-image: url('/static/images/widget-logo.png');
+  background-image: url($widget-logo);
   background-position: center;
   background-repeat: no-repeat;
   background-size: $core-spacing !important;
@@ -35,7 +35,7 @@
 
   &.close,
   &.close-launcher {
-    background-image: url('/static/images/close.svg') !important;
+    background-image: url($close) !important;
     background-position: 50%;
     background-size: inherit;
     transition: background .3s ease-in-out;

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { iconLeft } from '../../icons/Icons';
 import { MessageSender, TopBar } from '../containers';
 import { MessagesList } from './';
+import { defaultAvatar } from '../../icons/Icons';
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
@@ -47,9 +48,8 @@ class Conversation extends React.Component {
 
   renderUserInfo(user, type) {
     const { color } = this.props;
-    const defaultImage = '/static/images/default-avatar.svg';
     const details = user.details || {};
-    const avatar = details.avatar || defaultImage;
+    const avatar = details.avatar || defaultAvatar;
 
     if(type === 'avatar') {
       return <img key={user._id} style={{ borderColor: color }} src={avatar} alt={details.fullName} />;

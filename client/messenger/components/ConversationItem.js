@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import striptags from 'striptags';
 import classNames from 'classnames';
+import { defaultAvatar } from '../../icons/Icons';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
@@ -21,8 +22,7 @@ function ConversationItem(
   const { _id, content, createdAt } = conversation;
   const participatedUser = conversation.participatedUsers[0];
   const avatar =
-    (participatedUser && participatedUser.details.avatar) ||
-    '/static/images/default-avatar.svg';
+    (participatedUser && participatedUser.details.avatar) || defaultAvatar;
   const fullName =
     (participatedUser && participatedUser.details.fullName) ||
     __('Support staff');
