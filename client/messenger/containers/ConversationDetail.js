@@ -6,7 +6,6 @@ import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
 import { Conversation as DumbConversation } from '../components';
 import graphqlTypes from '../graphql';
-import conversationCommonQueries from './conversationCommonQueries';
 
 class ConversationDetail extends React.Component {
   componentWillMount() {
@@ -34,12 +33,13 @@ class ConversationDetail extends React.Component {
         }
 
         // add new message to messages list
-        const next = Object.assign({}, prev, {
-          conversationDetail: Object.assign({
+        const next = {
+          ...prev,
+          conversationDetail: {
             ...conversationDetail,
             messages: [...messages, message],
-          }),
-        });
+          },
+        };
 
         return next;
       },
@@ -62,20 +62,17 @@ class ConversationDetail extends React.Component {
   }
 
   render() {
-    const {
-      conversationDetailQuery,
-      messengerSupportersQuery,
-      isMessengerOnlineQuery,
-    } = this.props;
+    const { conversationDetailQuery } = this.props;
 
     const conversationDetail = conversationDetailQuery.conversationDetail || {};
+    const { messages=[], isOnline=false, supporters=[] } = conversationDetail;
 
     return (
       <DumbConversation
         {...this.props}
-        messages={conversationDetail.messages || []}
-        users={messengerSupportersQuery.messengerSupporters || []}
-        isOnline={isMessengerOnlineQuery.isMessengerOnline || false}
+        messages={messages}
+        users={supporters}
+        isOnline={isOnline}
         data={connection.data}
       />
     );
@@ -90,19 +87,17 @@ const query = compose(
       options: ownProps => ({
         variables: {
           _id: ownProps.conversationId,
+          integrationId: connection.data.integrationId,
         },
         fetchPolicy: 'network-only',
       }),
     },
   ),
-  ...conversationCommonQueries(),
 );
 
 ConversationDetail.propTypes = {
   conversationId: PropTypes.string,
   conversationDetailQuery: PropTypes.object,
-  messengerSupportersQuery: PropTypes.object,
-  isMessengerOnlineQuery: PropTypes.object,
   endConversation: PropTypes.func,
 }
 

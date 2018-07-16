@@ -267,7 +267,10 @@ export class AppProvider extends React.Component {
 
         const selector = {
           query: gql(graphqlTypes.conversationDetailQuery),
-          variables: { _id: message.conversationId }
+          variables: {
+            _id: message.conversationId,
+            integrationId: connection.data.integrationId,
+          }
         };
 
         // Read data from our cache for this query

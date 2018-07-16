@@ -1,14 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
+import graphqlTypes from '../graphql';
 import { Conversation as DumbConversation } from '../components';
-import conversationCommonQueries from './conversationCommonQueries';
 
 class ConversationCreate extends React.Component {
   render() {
-    let { messengerSupportersQuery, isMessengerOnlineQuery } = this.props;
+    const { conversationDetailQuery } = this.props;
+    const { conversationDetail={} } = conversationDetailQuery;
+    const { isOnline=false, supporters=[] } = conversationDetail;
 
     return (
       <AppConsumer>
@@ -17,8 +20,8 @@ class ConversationCreate extends React.Component {
             <DumbConversation
               {...this.props}
               messages={[]}
-              users={messengerSupportersQuery.messengerSupporters || []}
-              isOnline={isMessengerOnlineQuery.isMessengerOnline || false}
+              users={supporters}
+              isOnline={isOnline}
               data={connection.data}
               goToConversationList={goToConversationList}
             />
@@ -29,11 +32,23 @@ class ConversationCreate extends React.Component {
   }
 }
 
-const query = compose(...conversationCommonQueries());
+const query = compose(
+  graphql(
+    gql(graphqlTypes.conversationDetailQuery),
+    {
+      name: 'conversationDetailQuery',
+      options: () => ({
+        variables: {
+          integrationId: connection.data.integrationId,
+        },
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+);
 
 ConversationCreate.propTypes = {
-  messengerSupportersQuery: PropTypes.object,
-  isMessengerOnlineQuery: PropTypes.object,
+  conversationDetailQuery: PropTypes.object,
 }
 
 export default query(ConversationCreate);

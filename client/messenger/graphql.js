@@ -31,32 +31,21 @@ const messageFields = `
 
 
 const conversationDetailQuery = `
-  query ($_id: String!) {
-    conversationDetail(_id: $_id) {
-      _id
-      content
+  query ($_id: String, $integrationId: String!) {
+    conversationDetail(_id: $_id, integrationId: $integrationId) {
       messages {
         ${messageFields}
       }
-    }
-  }
-`;
 
-const messengerSupportersQuery = `
-  query ($integrationId: String!) {
-    messengerSupporters(integrationId: $integrationId) {
-      _id
-      details {
-        avatar
-        fullName
+      isOnline
+      supporters {
+        _id
+        details {
+          avatar
+          fullName
+        }
       }
     }
-  }
-`;
-
-const isMessengerOnlineQuery = `
-  query ($integrationId: String!) {
-    isMessengerOnline(integrationId: $integrationId)
   }
 `;
 
@@ -145,8 +134,6 @@ const saveBrowserInfo = `
 export default {
   messageFields,
   conversationDetailQuery,
-  messengerSupportersQuery,
-  isMessengerOnlineQuery,
   unreadCountQuery,
   totalUnreadCountQuery,
   conversationMessageInserted,
