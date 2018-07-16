@@ -1,4 +1,5 @@
 import Sidebar from './Sidebar';
-import Content from './Content';
+import ConversationList from './ConversationList';
+import ConversationItem from './ConversationItem';
 
-export { Sidebar, Content };
+export { Sidebar, ConversationList, ConversationItem };

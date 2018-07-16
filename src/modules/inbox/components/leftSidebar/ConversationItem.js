@@ -34,7 +34,7 @@ const propTypes = {
   selectedIds: PropTypes.array
 };
 
-class Row extends Component {
+class ConversationItem extends Component {
   constructor(props) {
     super(props);
 
@@ -168,6 +168,6 @@ class Row extends Component {
   }
 }
 
-Row.propTypes = propTypes;
+ConversationItem.propTypes = propTypes;
 
-export default Row;
+export default ConversationItem;

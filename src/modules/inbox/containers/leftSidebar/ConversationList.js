@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
-import { Content } from 'modules/inbox/components/leftSidebar';
+import { ConversationList } from 'modules/inbox/components/leftSidebar';
 import { queries } from 'modules/inbox/graphql';
 import { generateParams } from 'modules/inbox/utils';
 
-class LeftSidebarContent extends Component {
+class ConversationListContainer extends Component {
   render() {
     const { history, conversationsQuery } = this.props;
 
@@ -26,11 +26,11 @@ class LeftSidebarContent extends Component {
       loading: conversationsQuery.loading
     };
 
-    return <Content {...updatedProps} />;
+    return <ConversationList {...updatedProps} />;
   }
 }
 
-LeftSidebarContent.propTypes = {
+ConversationListContainer.propTypes = {
   conversationsQuery: PropTypes.object,
   history: PropTypes.object
 };
@@ -43,4 +43,4 @@ export default compose(
       pollInterval: 3000
     })
   })
-)(LeftSidebarContent);
+)(ConversationListContainer);

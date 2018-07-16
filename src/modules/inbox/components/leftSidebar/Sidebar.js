@@ -9,7 +9,7 @@ import {
   DateFilter
 } from 'modules/common/components';
 import { Resolver } from 'modules/inbox/containers';
-import { Content } from 'modules/inbox/containers/leftSidebar';
+import { ConversationList } from 'modules/inbox/containers/leftSidebar';
 import { PopoverButton } from 'modules/inbox/styles';
 import { queries } from 'modules/inbox/graphql';
 import { RightItems } from './styles';
@@ -144,7 +144,7 @@ class LeftSidebar extends Bulk {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        <Content
+        <ConversationList
           currentConversationId={currentConversationId}
           totalCount={totalCount}
           history={history}
