@@ -75,7 +75,7 @@ const ButtonStyled = styled.button`
         ? darken(colors.colorCoreGray, 24)
         : colors.colorWhite};
       box-shadow: ${props.btnStyle !== 'link' &&
-        `0 2px 15px 0 ${colors.darkShadow}`};
+        `0 2px 22px 0 ${lighten(types[props.btnStyle].background, 25)}`};
     }
 
     &:disabled {
