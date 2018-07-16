@@ -99,8 +99,7 @@ export default class WorkArea extends Component {
       currentConversation,
       conversationMessages,
       addMessage,
-      loading,
-      refetch
+      loading
     } = this.props;
 
     const { __ } = this.context;
@@ -140,7 +139,6 @@ export default class WorkArea extends Component {
           targets={[currentConversation]}
           type="conversation"
           trigger={tagTrigger}
-          afterSave={refetch}
         />
 
         <Resolver conversations={[currentConversation]} />
@@ -200,7 +198,6 @@ export default class WorkArea extends Component {
 
 WorkArea.propTypes = {
   queryParams: PropTypes.object,
-  refetch: PropTypes.func,
   title: PropTypes.string,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
