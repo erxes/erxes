@@ -9,7 +9,7 @@ import { getMainDefinition } from 'apollo-utilities';
 
 // Create an http link:
 const httpLink = createHttpLink({
-  uri: `${API_GRAPHQL_URL}/graphql`
+  uri: `${API_GRAPHQL_URL}`
 });
 
 // Subscription config
