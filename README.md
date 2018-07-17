@@ -10,8 +10,8 @@ This repository is the main web app of the erxes platform that consists of 2 oth
 
 Clone erxes repository and install its dependencies:
 ```Shell
-git clone https://github.com/erxes/erxes-app-api
-cd erxes-app-api
+git clone https://github.com/erxes/erxes-api
+cd erxes-api
 yarn install
 ```
 
