@@ -34,17 +34,28 @@ const conversationQueries = {
    * @param {Integer} args.skip
    * @return {Promise} filtered messages list by given parameters
    */
-  conversationMessages(root, { conversationId, skip, limit }) {
+  async conversationMessages(root, { conversationId, skip, limit }) {
     const query = { conversationId };
 
-    if (skip && limit) {
-      return ConversationMessages.find(query)
+    if (limit) {
+      const messages = await ConversationMessages.find(query)
         .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(10);
+        .skip(skip || 0)
+        .limit(limit);
+
+      return messages.reverse();
     }
 
     return ConversationMessages.find(query).sort({ createdAt: 1 });
+  },
+
+  /**
+   *  Get all conversation messages count. We will use it in pager
+   * @param {String} args._id
+   * @return {Promise} total count
+   */
+  async conversationMessagesTotalCount(root, { conversationId }) {
+    return ConversationMessages.count({ conversationId });
   },
 
   /**

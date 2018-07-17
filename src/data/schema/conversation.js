@@ -114,11 +114,6 @@ export const types = `
     type: String!
   }
 
-  type ConversationsChangedResponse {
-    type: String!
-    customerId: String!
-  }
-
   input ConversationMessageParams {
     content: String,
     mentionedUserIds: [String],
@@ -155,6 +150,7 @@ export const queries = `
     limit: Int
   ): [ConversationMessage]
 
+  conversationMessagesTotalCount(conversationId: String!): Int
   conversationCounts(${filterParams}): JSON
   conversationsTotalCount(${filterParams}): Int
   conversationDetail(_id: String!): Conversation
@@ -191,10 +187,6 @@ export const mutations = `
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
-  conversationsStar(_ids: [String]!): User
-  conversationsUnstar(_ids: [String]!): User
-  conversationsToggleParticipate(_ids: [String]!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
-  conversationSubscribeMessageCreated(_id: String!): String
-  conversationSubscribeChanged(_ids: [String], type: String!): String
+  conversationPublishClientMessage(_id: String!): String
 `;

@@ -61,6 +61,7 @@ export const queries = `
   companies(${queryParams}): [Company]
   companyCounts(${queryParams}): JSON
   companyDetail(_id: String!): Company
+  companiesExport(${queryParams}) : String
 `;
 
 const commonFields = `

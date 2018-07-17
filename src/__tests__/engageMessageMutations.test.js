@@ -21,7 +21,7 @@ import {
   brandFactory,
   userFactory,
   tagsFactory,
-  segmentsFactory,
+  segmentFactory,
   emailTemplateFactory,
   customerFactory,
   integrationFactory,
@@ -86,7 +86,7 @@ describe('engage message mutation tests', () => {
     _user = await userFactory({});
     _tag = await tagsFactory();
     _brand = await brandFactory();
-    _segment = await segmentsFactory({});
+    _segment = await segmentFactory({});
     _message = await engageMessageFactory({ userId: _user._id });
     _emailTemplate = await emailTemplateFactory({});
     _customer = await customerFactory({});
@@ -197,7 +197,7 @@ describe('engage message mutation tests', () => {
 
   test('Add engage message', async () => {
     process.env.AWS_SES_CONFIG_SET = 'aws-ses';
-    process.env.AWS_SES_ENDPOINT = '123';
+    process.env.AWS_ENDPOINT = '123';
 
     const user = await Users.findOne({ _id: _doc.fromUserId });
 
@@ -258,7 +258,7 @@ describe('engage message mutation tests', () => {
     expect.assertions(1);
 
     process.env.AWS_SES_CONFIG_SET = 'aws-ses';
-    process.env.AWS_SES_ENDPOINT = '123';
+    process.env.AWS_ENDPOINT = '123';
 
     const sandbox = sinon.sandbox.create();
 

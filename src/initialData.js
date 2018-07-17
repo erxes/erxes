@@ -6,7 +6,7 @@ import { Users, Brands, Integrations, Channels, Forms } from './db/models';
 import {
   customerFactory,
   companyFactory,
-  segmentsFactory,
+  segmentFactory,
   conversationFactory,
   responseTemplateFactory,
   formFactory,
@@ -49,7 +49,7 @@ export const importData = async () => {
   for (let i = 1; i <= 10; i++) {
     const company = await companyFactory();
     const customer = await customerFactory({ companyIds: [company._id] });
-    await segmentsFactory();
+    await segmentFactory();
 
     const conversation = await conversationFactory({
       customerId: customer._id,

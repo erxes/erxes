@@ -4,6 +4,7 @@ import {
   COMPANY_LIFECYCLE_STATE_TYPES,
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
+  COMPANY_BASIC_INFOS,
 } from '../../data/constants';
 import { Fields, Customers, ActivityLogs, InternalNotes } from './';
 import { field } from './utils';
@@ -105,6 +106,14 @@ const CompanySchema = mongoose.Schema({
 });
 
 class Company {
+  static getBasicInfos() {
+    return COMPANY_BASIC_INFOS;
+  }
+
+  static getCocType() {
+    return 'Company';
+  }
+
   /**
    * Checking if company has duplicated unique properties
    * @param  {Object} companyFields - Customer fields to check duplications
@@ -221,7 +230,7 @@ class Company {
       { $pull: { companyIds: companyId } },
     );
 
-    return await this.remove({ _id: companyId });
+    return Companies.remove({ _id: companyId });
   }
 
   /**

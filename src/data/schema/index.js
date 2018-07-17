@@ -109,6 +109,12 @@ import {
   mutations as ConfigMutations,
 } from './config';
 
+import {
+  types as ImportHistoryTypes,
+  mutations as ImportHistoryMutations,
+  queries as ImportHistoryQueries,
+} from './importHistory';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -136,6 +142,7 @@ export const types = `
   ${ProductTypes}
   ${ConfigTypes}
   ${FieldGroupTypes}
+  ${ImportHistoryTypes}
 `;
 
 export const queries = `
@@ -163,6 +170,7 @@ export const queries = `
     ${ProductQueries}
     ${ConfigQueries}
     ${FieldGroupQueries}
+    ${ImportHistoryQueries}
   }
 `;
 
@@ -190,6 +198,7 @@ export const mutations = `
     ${ProductMutations}
     ${ConfigMutations}
     ${FieldGroupMutations}
+    ${ImportHistoryMutations}
   }
 `;
 
@@ -197,8 +206,8 @@ export const subscriptions = `
   type Subscription {
     conversationChanged(_id: String!): ConversationChangedResponse
     conversationMessageInserted(_id: String!): ConversationMessage
-    conversationsChanged(customerId: String): ConversationsChangedResponse
-    notificationsChanged(ids: [String]): Boolean
+    conversationClientMessageInserted: ConversationMessage
+    conversationAdminMessageInserted(customerId: String!): ConversationMessage
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
   }
 `;

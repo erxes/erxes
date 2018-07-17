@@ -29,19 +29,21 @@ export default {
   },
 
   /*
-   * Listen for any conversation changes like new message, read state, assignee
-   */
-  conversationsChanged: {
-    subscribe: withFilter(
-      () => pubsub.asyncIterator('conversationsChanged'),
-      // filter by customerId. customerId is not required.
-      // in widget we will filter all those changes by customerId
-      (payload, variables) => {
-        if (variables.customerId) {
-          return payload.conversationsChanged.customerId === variables.customerId;
-        }
+   * Admin is listening for this subscription to show unread notification
+  */
+  conversationClientMessageInserted: {
+    subscribe: () => pubsub.asyncIterator('conversationClientMessageInserted'),
+  },
 
-        return true;
+  /*
+   * Widget is listening for this subscription to show unread notification
+  */
+  conversationAdminMessageInserted: {
+    subscribe: withFilter(
+      () => pubsub.asyncIterator('conversationAdminMessageInserted'),
+      // filter by conversationId
+      (payload, variables) => {
+        return payload.conversationAdminMessageInserted.customerId === variables.customerId;
       },
     ),
   },

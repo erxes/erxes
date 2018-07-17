@@ -1,6 +1,7 @@
 node_modules
 dist
 static
+src/private/xlsTemplateOutputs
 .DS_Store
 npm-debug.log*
 .env

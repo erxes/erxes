@@ -1,8 +1,9 @@
+import xlsxPopulate from 'xlsx-populate';
 import AWS from 'aws-sdk';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
 import Handlebars from 'handlebars';
-import { Notifications, Users } from '../db/models';
+import { Notifications, Users, Customers, Companies } from '../db/models';
 
 /*
  * Save binary data to amazon s3
@@ -64,7 +65,7 @@ export const readFile = filename => {
 };
 
 /**
- * SendEmail template helper
+ * Apply template
  * @param {Object} data data
  * @param {String} templateName
  * @return email with template as text
@@ -78,14 +79,37 @@ const applyTemplate = async (data, templateName) => {
 };
 
 /**
- * Create transporter
+ * Create default or ses transporter
  * @return nodemailer transporter
 */
-export const createTransporter = async () => {
-  const { MAIL_SERVICE, MAIL_USER, MAIL_PASS } = process.env;
+export const createTransporter = ({ ses }) => {
+  const { MAIL_SERVICE, MAIL_PORT, MAIL_USER, MAIL_PASS } = process.env;
+
+  if (ses) {
+    const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+
+    if (!AWS_SES_ACCESS_KEY_ID || !AWS_SES_SECRET_ACCESS_KEY) {
+      throw new Error('Invalid SES configuration');
+    }
+
+    AWS.config.update({
+      region: AWS_REGION,
+      accessKeyId: AWS_SES_ACCESS_KEY_ID,
+      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
+    });
+
+    return nodemailer.createTransport({
+      SES: new AWS.SES({ apiVersion: '2010-12-01' }),
+    });
+  }
+
+  if (!MAIL_SERVICE || !MAIL_PORT || !MAIL_USER || !MAIL_PASS) {
+    throw new Error('Invalid mail service configuration');
+  }
 
   return nodemailer.createTransport({
     service: MAIL_SERVICE,
+    port: MAIL_PORT,
     auth: {
       user: MAIL_USER,
       pass: MAIL_PASS,
@@ -104,14 +128,21 @@ export const createTransporter = async () => {
  * @return {Promise}
 */
 export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
-  const { NODE_ENV } = process.env;
+  const { NODE_ENV, DEFAULT_EMAIL_SERVICE, COMPANY_EMAIL_FROM } = process.env;
 
   // do not send email it is running in test mode
   if (NODE_ENV == 'test') {
     return;
   }
 
-  const transporter = await createTransporter();
+  // try to create transporter or throw configuration error
+  let transporter;
+
+  try {
+    transporter = createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
+  } catch (e) {
+    return console.log(e.message); // eslint-disable-line
+  }
 
   const { isCustom, data, name } = template;
 
@@ -124,7 +155,7 @@ export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
 
   return toEmails.map(toEmail => {
     const mailOptions = {
-      from: fromEmail,
+      from: fromEmail || COMPANY_EMAIL_FROM,
       to: toEmail,
       subject: title,
       html,
@@ -152,9 +183,13 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
   const recipients = await Users.find({ _id: { $in: receivers } });
 
   // collect recipient emails
-  const toEmails = recipients.map(
-    recipient => !(recipient.details && recipient.details.getNotificationByEmail === false),
-  );
+  const toEmails = [];
+
+  for (const recipient of recipients) {
+    if (recipient.getNotificationByEmail && recipient.email) {
+      toEmails.push(recipient.email);
+    }
+  }
 
   // loop through receiver ids
   for (const receiverId of receivers) {
@@ -173,7 +208,6 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
 
   return sendEmail({
     toEmails,
-    fromEmail: 'no-reply@erxes.io',
     title: 'Notification',
     template: {
       name: 'notification',
@@ -182,6 +216,109 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
       },
     },
   });
+};
+
+/**
+ * Receives and saves xls file in private/xlsImports folder
+ * and imports customers to the database
+ * @param {Object} file - File data to save
+ * @return {Promise} Success and failed counts
+*/
+export const importXlsFile = async (file, type, { user }) => {
+  return new Promise((resolve, reject) => {
+    const readStream = fs.createReadStream(file.path);
+
+    // Directory to save file
+    const downloadDir = `${__dirname}/../private/xlsTemplateOutputs/${file.name}`;
+
+    // Converting pipe into promise
+    const pipe = stream =>
+      new Promise((resolve, reject) => {
+        stream.on('finish', resolve);
+        stream.on('error', reject);
+      });
+
+    // Creating streams
+    const writeStream = fs.createWriteStream(downloadDir);
+    const stream = readStream.pipe(writeStream);
+
+    pipe(stream)
+      .then(async () => {
+        // After finished saving instantly create and load workbook from xls
+        const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
+
+        // Deleting file after read
+        fs.unlink(downloadDir, () => {});
+
+        const usedRange = workbook.sheet(0).usedRange();
+
+        if (!usedRange) {
+          return reject(['Invalid file']);
+        }
+
+        const usedSheets = usedRange.value();
+
+        // Getting columns
+        const fieldNames = usedSheets[0];
+
+        let collection = null;
+
+        // Removing column
+        usedSheets.shift();
+
+        switch (type) {
+          case 'customers':
+            collection = Customers;
+            break;
+
+          case 'companies':
+            collection = Companies;
+            break;
+
+          default:
+            reject(['Invalid import type']);
+        }
+
+        const response = await collection.bulkInsert(fieldNames, usedSheets, {
+          user,
+        });
+
+        resolve(response);
+      })
+      .catch(e => {
+        reject(e);
+      });
+  });
+};
+
+/**
+ * Creates blank workbook
+ *
+ * @return {Object} Xls workbook and sheet
+*/
+export const createXlsFile = async () => {
+  // Generating blank workbook
+  const workbook = await xlsxPopulate.fromBlankAsync();
+
+  return { workbook, sheet: workbook.sheet(0) };
+};
+
+/**
+ * Generates downloadable xls file on the url
+ * @param {Object} workbook - Xls file workbook
+ * @param {String} name - Xls file name
+ *
+ * @return {String} Url to download xls file
+*/
+export const generateXlsx = async (workbook, name) => {
+  // Url to download xls file
+  const url = `xlsTemplateOutputs/${name}.xlsx`;
+  const { DOMAIN } = process.env;
+
+  // Saving xls workbook to the directory
+  await workbook.toFileAsync(`${__dirname}/../private/${url}`);
+
+  return `${DOMAIN}/static/${url}`;
 };
 
 export default {

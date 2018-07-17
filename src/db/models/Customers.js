@@ -1,7 +1,12 @@
 import mongoose from 'mongoose';
-import { CUSTOMER_LEAD_STATUS_TYPES, CUSTOMER_LIFECYCLE_STATE_TYPES } from '../../data/constants';
+import {
+  CUSTOMER_BASIC_INFOS,
+  CUSTOMER_LEAD_STATUS_TYPES,
+  CUSTOMER_LIFECYCLE_STATE_TYPES,
+} from '../../data/constants';
 import { Fields, Companies, ActivityLogs, Conversations, InternalNotes, EngageMessages } from './';
 import { field } from './utils';
+import Coc from './Coc';
 
 /* location schema */
 const locationSchema = mongoose.Schema(
@@ -147,7 +152,15 @@ const CustomerSchema = mongoose.Schema({
   visitorContactInfo: field({ type: VisitorContactSchema, optional: true }),
 });
 
-class Customer {
+class Customer extends Coc {
+  static getBasicInfos() {
+    return CUSTOMER_BASIC_INFOS;
+  }
+
+  static getCocType() {
+    return 'Customer';
+  }
+
   getFullName() {
     return `${this.firstName || ''} ${this.lastName || ''}`;
   }
@@ -256,6 +269,17 @@ class Customer {
   }
 
   /**
+   * Mark customer as active
+   * @param  {String} customerId
+   * @return {Promise} Updated customer
+   */
+  static async markCustomerAsActive(customerId) {
+    await this.update({ _id: customerId }, { $set: { 'messengerData.isActive': true } });
+
+    return this.findOne({ _id: customerId });
+  }
+
+  /**
    * Mark customer as inactive
    * @param  {String} _id
    * @return {Promise} Updated customer
@@ -318,7 +342,7 @@ class Customer {
     await EngageMessages.removeCustomerEngages(customerId);
     await InternalNotes.removeCustomerInternalNotes(customerId);
 
-    return await this.remove({ _id: customerId });
+    return Customers.remove({ _id: customerId });
   }
 
   /**

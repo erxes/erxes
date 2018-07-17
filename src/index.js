@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 
+import path from 'path';
 import dotenv from 'dotenv';
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -14,7 +15,7 @@ import { connect } from './db/connection';
 import { userMiddleware } from './auth';
 import schema from './data';
 import { pubsub } from './data/resolvers/subscriptions';
-import { uploadFile } from './data/utils';
+import { uploadFile, importXlsFile } from './data/utils';
 import { init } from './startup';
 
 // load environment variables
@@ -30,6 +31,12 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
+app.use(userMiddleware);
+
+app.use('/graphql', graphqlExpress(req => ({ schema, context: { user: req.user } })));
+
+app.use('/static', express.static(path.join(__dirname, 'private')));
+
 // file upload
 app.post('/upload-file', async (req, res) => {
   const form = new formidable.IncomingForm();
@@ -41,11 +48,20 @@ app.post('/upload-file', async (req, res) => {
   });
 });
 
-app.use(
-  '/graphql',
-  userMiddleware,
-  graphqlExpress(req => ({ schema, context: { user: req.user } })),
-);
+// file import
+app.post('/import-file', (req, res) => {
+  const form = new formidable.IncomingForm();
+
+  form.parse(req, (err, fields, response) => {
+    importXlsFile(response.file, fields.type, { user: req.user })
+      .then(result => {
+        res.json(result);
+      })
+      .catch(e => {
+        res.json(e);
+      });
+  });
+});
 
 // Wrap the Express server
 const server = createServer(app);
@@ -69,7 +85,7 @@ server.listen(PORT, () => {
       keepAlive: 10000,
 
       onConnect(connectionParams, webSocket) {
-        webSocket.on('message', message => {
+        webSocket.on('message', async message => {
           const parsedMessage = JSON.parse(message).id || {};
 
           if (parsedMessage.type === 'messengerConnected') {
@@ -77,26 +93,35 @@ server.listen(PORT, () => {
 
             const customerId = webSocket.messengerData.customerId;
 
+            // mark as online
+            await Customers.markCustomerAsActive(customerId);
+
             // notify as connected
             pubsub.publish('customerConnectionChanged', {
-              customerConnectionChanged: { _id: customerId, status: 'connected' },
+              customerConnectionChanged: {
+                _id: customerId,
+                status: 'connected',
+              },
             });
           }
         });
       },
 
-      onDisconnect(webSocket) {
+      async onDisconnect(webSocket) {
         const messengerData = webSocket.messengerData;
 
         if (messengerData) {
           const customerId = messengerData.customerId;
 
           // mark as offline
-          Customers.markCustomerAsNotActive(customerId);
+          await Customers.markCustomerAsNotActive(customerId);
 
           // notify as disconnected
           pubsub.publish('customerConnectionChanged', {
-            customerConnectionChanged: { _id: customerId, status: 'disconnected' },
+            customerConnectionChanged: {
+              _id: customerId,
+              status: 'disconnected',
+            },
           });
         }
       },

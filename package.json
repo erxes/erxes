@@ -1,6 +1,6 @@
 {
   "name": "erxes-app-api",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-app-api",
@@ -23,6 +23,7 @@
     "test": "jest --runInBand --coverage --forceExit",
     "loadInitialData": "babel-node ./src/initialData.js",
     "customCommand": "babel-node ./src/commands/custom.js",
+    "initProject": "babel-node ./src/commands/initProject.js",
     "engageSubscriptions": "babel-node ./src/commands/engageSubscriptions.js"
   },
   "lint-staged": {
@@ -75,7 +76,8 @@
     "subscriptions-transport-ws": "^0.9.6",
     "twit": "^2.2.9",
     "underscore": "^1.8.3",
-    "validator": "^9.0.0"
+    "validator": "^9.0.0",
+    "xlsx-populate": "^1.14.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",

@@ -6,7 +6,7 @@ import { connect, disconnect } from '../db/connection';
 import { EngageMessages, Users, Segments, Customers } from '../db/models';
 import {
   userFactory,
-  segmentsFactory,
+  segmentFactory,
   engageMessageFactory,
   customerFactory,
 } from '../db/factories';
@@ -23,7 +23,7 @@ describe('engage messages model tests', () => {
 
   beforeEach(async () => {
     _user = await userFactory({});
-    _segment = await segmentsFactory({});
+    _segment = await segmentFactory({});
     _message = await engageMessageFactory({});
     _customer = await customerFactory({});
     _customer2 = await customerFactory({});

@@ -76,6 +76,8 @@ export default class Builder {
       { lastName: new RegExp(`.*${value}.*`, 'i') },
       { email: new RegExp(`.*${value}.*`, 'i') },
       { phone: new RegExp(`.*${value}.*`, 'i') },
+      { 'visitorContactInfo.email': new RegExp(`.*${value}.*`, 'i') },
+      { 'visitorContactInfo.phone': new RegExp(`.*${value}.*`, 'i') },
     ];
 
     return { $or: fields };
@@ -135,11 +137,6 @@ export default class Builder {
       this.queries.tag = await this.tagFilter(this.params.tag);
     }
 
-    // filter by ids
-    if (this.params.ids) {
-      this.queries.ids = await this.idsFilter(this.params.ids);
-    }
-
     // filter by searchValue
     if (this.params.segment) {
       this.queries.segment = await this.segmentFilter(this.params.segment);
@@ -168,6 +165,13 @@ export default class Builder {
       }
     }
 
+    /** If there are ids and form params, returning ids filter only
+     * filter by ids
+     */
+    if (this.params.ids) {
+      this.queries.ids = await this.idsFilter(this.params.ids);
+    }
+
     // filter by integration
     if (this.params.integration) {
       this.queries.integration = await this.integrationFilter(this.params.integration);
@@ -184,11 +188,11 @@ export default class Builder {
       ...this.queries.default,
       ...this.queries.segment,
       ...this.queries.tag,
-      ...this.queries.ids,
       ...this.queries.segment,
       ...this.queries.brand,
       ...this.queries.integrationType,
       ...this.queries.form,
+      ...this.queries.ids,
       ...this.queries.integration,
       ...this.queries.searchValue,
     };

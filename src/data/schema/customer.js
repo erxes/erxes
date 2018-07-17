@@ -39,6 +39,8 @@ export const types = `
     hasAuthority: String
     description: String
     doNotDisturb: String
+
+    integration: Integration
     links: CustomerLinks
     companies: [Company]
     conversations: [Conversation]
@@ -75,6 +77,7 @@ export const queries = `
   customerCounts(${queryParams}, byFakeSegment: JSON): JSON
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
+  customersExport(${queryParams}): String
 `;
 
 const fields = `

@@ -1,5 +1,6 @@
 import { Tags } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
+import { publishConversationsChanged } from './conversations';
 
 const tagMutations = {
   /**
@@ -40,6 +41,10 @@ const tagMutations = {
   * @param {[String]} tagIds
   */
   tagsTag(root, { type, targetIds, tagIds }) {
+    if (type === 'conversation') {
+      publishConversationsChanged(targetIds, 'tag');
+    }
+
     return Tags.tagsTag(type, targetIds, tagIds);
   },
 };

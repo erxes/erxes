@@ -23,13 +23,12 @@ const userMutations = {
     const token = await Users.forgotPassword(email);
 
     // send email ==============
-    const { COMPANY_EMAIL_FROM, MAIN_APP_DOMAIN } = process.env;
+    const { MAIN_APP_DOMAIN } = process.env;
 
     const link = `${MAIN_APP_DOMAIN}/reset-password?token=${token}`;
 
     utils.sendEmail({
       toEmails: [email],
-      fromEmail: COMPANY_EMAIL_FROM,
       title: 'Reset password',
       template: {
         name: 'resetPassword',
@@ -96,11 +95,8 @@ const userMutations = {
     await Channels.updateUserChannels(channelIds, createdUser._id);
 
     // send email ================
-    const { COMPANY_EMAIL_FROM } = process.env;
-
     utils.sendEmail({
       toEmails: [email],
-      fromEmail: COMPANY_EMAIL_FROM,
       subject: 'Invitation info',
       template: {
         name: 'invitation',

@@ -6,7 +6,7 @@ import {
   Customers,
 } from '../db/models';
 
-import { conversationMessageCreated } from '../data/resolvers/mutations/conversations';
+import { publishMessage } from '../data/resolvers/mutations/conversations';
 
 import {
   INTEGRATION_KIND_CHOICES,
@@ -119,11 +119,18 @@ export class SaveWebhookResponse {
 
     let conversation = await Conversations.findOne({
       ...findSelector,
-    });
+    }).sort({ createdAt: -1 });
 
-    // create new conversation
-    if (!conversation) {
-      const conversationId = await Conversations.createConversation({
+    // We are closing our own posts automatically below. So to prevent
+    // from creation of new conversation for every comment we are checking
+    // both message count & conversation status to new conversation.
+    // And we are creating new conversations only if previous conversation has
+    // at least 2 messages and has closed status.
+    if (
+      !conversation ||
+      (conversation.messageCount > 1 && conversation.status === CONVERSATION_STATUSES.CLOSED)
+    ) {
+      conversation = await Conversations.createConversation({
         integrationId: this.integration._id,
         customerId: await this.getOrCreateCustomer(senderId),
         status,
@@ -135,10 +142,6 @@ export class SaveWebhookResponse {
           pageId: this.currentPageId,
         },
       });
-
-      conversation = await Conversations.findOne({ _id: conversationId });
-
-      // reopen conversation
     } else {
       conversation = await Conversations.reopen(conversation._id);
     }
@@ -321,10 +324,7 @@ export class SaveWebhookResponse {
   async getOrCreateCustomer(fbUserId) {
     const integrationId = this.integration._id;
 
-    const customer = await Customers.findOne({
-      integrationId,
-      'facebookData.id': fbUserId,
-    });
+    const customer = await Customers.findOne({ 'facebookData.id': fbUserId });
 
     if (customer) {
       return customer._id;
@@ -392,7 +392,7 @@ export class SaveWebhookResponse {
       // notify subscription server new message
       const message = await ConversationMessages.findOne({ _id: messageId });
 
-      conversationMessageCreated(message, message.conversationId);
+      publishMessage(message);
 
       return messageId;
     }

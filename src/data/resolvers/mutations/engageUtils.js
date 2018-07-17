@@ -1,5 +1,3 @@
-import AWS from 'aws-sdk';
-import nodemailer from 'nodemailer';
 import {
   EngageMessages,
   Customers,
@@ -18,20 +16,7 @@ import {
 } from '../../constants';
 import Random from 'meteor-random';
 import QueryBuilder from '../queries/segmentQueryBuilder';
-
-const createTransporter = async () => {
-  const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
-
-  AWS.config.update({
-    region: AWS_REGION,
-    accessKeyId: AWS_SES_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
-  });
-
-  return nodemailer.createTransport({
-    SES: new AWS.SES({ apiVersion: '2010-12-01' }),
-  });
-};
+import { createTransporter } from '../../utils';
 
 /**
  * Dynamic content tags
@@ -115,7 +100,7 @@ const sendViaEmail = async message => {
     EngageMessages.addNewDeliveryReport(message._id, mailMessageId, customer._id);
 
     // send email =========
-    const transporter = await createTransporter();
+    const transporter = await createTransporter({ ses: true });
 
     transporter.sendMail({
       from: userEmail,
