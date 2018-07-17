@@ -2,13 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { mutations } from '../graphql';
 import { Alert } from 'modules/common/utils';
 import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
 import { Resolver } from '../components';
+import { mutations } from '../graphql';
+import { refetchSidebarConversationsOptions } from '../utils';
 
 const ResolverContainer = props => {
-  const { changeStatusMutation, afterResolve } = props;
+  const { changeStatusMutation } = props;
 
   // change conversation status
   const changeStatus = (conversationIds, status) => {
@@ -20,9 +21,6 @@ const ResolverContainer = props => {
           Alert.info(
             'The conversation has been reopened and restored to Inbox.'
           );
-        }
-        if (afterResolve) {
-          afterResolve();
         }
       })
       .catch(e => {
@@ -39,12 +37,12 @@ const ResolverContainer = props => {
 };
 
 ResolverContainer.propTypes = {
-  changeStatusMutation: PropTypes.func.isRequired,
-  afterResolve: PropTypes.func
+  changeStatusMutation: PropTypes.func.isRequired
 };
 
 export default compose(
   graphql(gql(mutations.conversationsChangeStatus), {
-    name: 'changeStatusMutation'
+    name: 'changeStatusMutation',
+    options: () => refetchSidebarConversationsOptions()
   })
 )(ResolverContainer);

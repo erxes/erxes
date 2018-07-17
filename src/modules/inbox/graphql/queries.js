@@ -40,7 +40,7 @@ const conversationList = `
 `;
 
 const sidebarConversations = `
-  query objects(${listParamsDef}) {
+  query conversations(${listParamsDef}) {
     conversations(${listParamsValue}) {
       _id
       content
@@ -72,7 +72,7 @@ const sidebarConversations = `
         isUser
         visitorContactInfo
         facebookData
-        twitterData 
+        twitterData
       }
       tagIds
       tags {

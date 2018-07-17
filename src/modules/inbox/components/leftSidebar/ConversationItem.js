@@ -24,16 +24,6 @@ import {
   AssigneeWrapper
 } from './styles';
 
-const propTypes = {
-  conversation: PropTypes.object.isRequired,
-  channelId: PropTypes.string,
-  isRead: PropTypes.bool,
-  isActive: PropTypes.bool,
-  onClick: PropTypes.func,
-  toggleCheckbox: PropTypes.func,
-  selectedIds: PropTypes.array
-};
-
 class ConversationItem extends Component {
   constructor(props) {
     super(props);
@@ -97,7 +87,9 @@ class ConversationItem extends Component {
   }
 
   render() {
-    const { conversation, isRead, isActive, selectedIds = [] } = this.props;
+    const { currentUser } = this.context;
+
+    const { conversation, isActive, selectedIds = [] } = this.props;
     const { createdAt, updatedAt, content } = conversation;
     const customer = conversation.customer || {};
     const integration = conversation.integration || {};
@@ -107,6 +99,10 @@ class ConversationItem extends Component {
     const assignedUser = conversation.assignedUser;
     const isExistingCustomer = customer && customer._id;
     const isChecked = selectedIds.map(e => e._id).includes(conversation._id);
+
+    const isRead =
+      conversation.readUserIds &&
+      conversation.readUserIds.indexOf(currentUser._id) > -1;
 
     return (
       <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
@@ -168,6 +164,17 @@ class ConversationItem extends Component {
   }
 }
 
-ConversationItem.propTypes = propTypes;
+ConversationItem.propTypes = {
+  conversation: PropTypes.object.isRequired,
+  channelId: PropTypes.string,
+  isActive: PropTypes.bool,
+  onClick: PropTypes.func,
+  toggleCheckbox: PropTypes.func,
+  selectedIds: PropTypes.array
+};
+
+ConversationItem.contextTypes = {
+  currentUser: PropTypes.object
+};
 
 export default ConversationItem;
