@@ -19,6 +19,10 @@
 
     &.from-customer {
       text-align: right;
+
+      .erxes-tooltip::before {
+        right: 0;
+      }
     }
 
     .date {
@@ -30,22 +34,22 @@
 
   &.bg-1 {
     @include bg-option;
-    background-image: url('/static/images/bg-1.png');
+    background-image: url('https://s3.amazonaws.com/erxes/bg-1.png');
   }
 
   &.bg-2 {
     @include bg-option;
-    background-image: url('/static/images/bg-2.png');
+    background-image: url('https://s3.amazonaws.com/erxes/bg-2.png');
   }
 
   &.bg-3 {
     @include bg-option;
-    background-image: url('/static/images/bg-3.png');
+    background-image: url('https://s3.amazonaws.com/erxes/bg-3.png');
   }
 
   &.bg-4 {
     @include bg-option;
-    background-image: url('/static/images/bg-4.png');
+    background-image: url('https://s3.amazonaws.com/erxes/bg-4.png');
   }
 }
 
@@ -73,30 +77,29 @@
 
 .erxes-message {
   background-color: $grey;
-  border-radius: $border-radius;
+  border-radius: 20px;
+  border-bottom-left-radius: 2px;
+  box-shadow: $message-shadow;
   color: $text-color;
   display: inline-block;
   margin: 0 20px 5px 50px;
-  padding: 12px 15px;
+  padding: 12px 20px;
   position: relative;
   text-align: left;
   word-break: break-word;
 
   &.from-customer {
     background-color: $main-color;
+    border-bottom-left-radius: 20px;
+    border-top-right-radius: 2px;
     color: $white;
     margin: 0 0 5px 20px;
     text-align: right;
-
-    .file-wrapper {
-      border-color: $grey;
-    }
   }
 
   &.attachment {
-    background: none !important;
+    background: $white !important;
     border: 0;
-    padding: 0;
 
     > span {
       display: none;
@@ -174,35 +177,31 @@
 }
 
 .file-wrapper {
-  @include prefix((transition: border .3s ease-in-out), webkit moz ms o);
-  background: lighten($grey, 10%);
-  border: 1px solid transparent;
-  border-radius: $border-radius;
   color: $text-color;
-  padding: 16px $core-spacing;
-  padding-left: 40px;
+  overflow: hidden;
+  padding-left: $core-spacing * 1.5;
   position: relative;
 
   svg {
-    height: 30px;
-    left: 13px;
+    height: $core-spacing;
+    left: 0;
     position: absolute;
-    top: 11px;
+    top: 0;
     width: 16px;
   }
 
   span {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
     direction: rtl;
-    text-align: left;
-    max-width: 140px;
     display: block;
+    max-width: 150px;
+    overflow: hidden;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &:hover {
-    border-color: $grey;
+    color: darken($text-color, 10%);
   }
 }
 

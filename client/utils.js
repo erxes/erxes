@@ -7,26 +7,61 @@ export const getBrowserInfo = async () => {
   let location;
 
   try {
-    const response = await fetch('https://freegeoip.net/json/');
+    const response = await fetch('http://geoip.nekudo.com/api/{ip}/{language}/{type}');
 
     location = await response.json();
-
   } catch (e) {
     console.log(e.message); // eslint-disable-line
-    location = {};
+
+    location = {
+      city: '',
+      country: {
+        name: '',
+        code: ''
+      },
+      location: {
+        accuracy_radius: 1,
+        latitude: 0,
+        longitude: 0,
+        time_zone: ''
+      },
+      ip: ''
+    };
   }
 
   return {
     remoteAddress: location.ip,
     region: location.region_name,
     city: location.city,
-    country: location.country_name,
-    url: location.pathname, // eslint-disable-line
-    hostname: location.origin, // eslint-disable-line
+    country: location.country.name,
+    url: window.location.pathname, // eslint-disable-line
+    hostname: window.location.origin, // eslint-disable-line
     language: navigator.language, // eslint-disable-line
     userAgent: navigator.userAgent, // eslint-disable-line
   };
 }
+
+export const postMessage = (source, message, postData={}) => {
+  window.parent.postMessage({
+    fromErxes: true,
+    source,
+    message,
+    ...postData
+  }, '*');
+}
+
+export const requestBrowserInfo = ({ source, postData={}, callback }) => {
+  postMessage(source, 'requestingBrowserInfo', postData);
+
+  window.addEventListener('message', (event) => {
+    const data = event.data || {};
+    const { fromPublisher, message, browserInfo } = data;
+
+    if (fromPublisher && source === data.source && message === 'sendingBrowserInfo') {
+      callback(browserInfo);
+    }
+  });
+};
 
 export const setMomentLocale = (code) => {
   moment.updateLocale('en', {

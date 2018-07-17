@@ -1,16 +1,13 @@
-import { connect } from 'react-redux';
+import React from 'react';
 import { SearchBar } from '../components';
-import { updateSearchString } from '../actions';
+import { AppConsumer } from './AppContext';
 
-const mapStateToProps = (state, ownProps) => ({
-  ...ownProps,
-});
+const container = (props) => (
+  <AppConsumer>
+    {({ search, searchString }) =>
+      <SearchBar {...props} searchString={searchString} onSearch={search} />
+    }
+  </AppConsumer>
+)
 
-const mapDisptachToProps = dispatch => ({
-  onUpdateSearchString(searchStr) {
-    dispatch(updateSearchString(searchStr));
-  },
-});
-
-
-export default connect(mapStateToProps, mapDisptachToProps)(SearchBar);
+export default container;

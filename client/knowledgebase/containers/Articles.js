@@ -1,20 +1,11 @@
-/* eslint-disable react/jsx-filename-extension */
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { Articles as DumbArticles } from '../components';
+import { AppConsumer } from './AppContext';
 import queries from './graphql';
-
-const propTypes = {
-  data: PropTypes.shape({
-    knowledgeBaseArticles: PropTypes.arrayOf(PropTypes.object),
-    loading: PropTypes.bool,
-  }),
-};
 
 const Articles = (props) => {
   const extendedProps = {
@@ -29,9 +20,11 @@ const Articles = (props) => {
   return <DumbArticles {...extendedProps} />;
 };
 
-Articles.propTypes = propTypes;
+Articles.propTypes = {
+  data: PropTypes.object
+};
 
-const ArticlesWithData = graphql(
+const WithData = graphql(
   gql(queries.kbSearchArticlesQuery),
   {
     options: (ownProps) => ({
@@ -44,4 +37,12 @@ const ArticlesWithData = graphql(
   },
 )(Articles);
 
-export default connect()(ArticlesWithData);
+const WithContext = (props) => ((
+  <AppConsumer>
+    {({ searchString }) =>
+      <WithData {...props} searchString={searchString} />
+    }
+  </AppConsumer>
+));
+
+export default WithContext;

@@ -1,94 +1,46 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { gql, graphql } from 'react-apollo';
+
 import { Notifier as DumbNotifier } from '../components';
-import { changeRoute, toggle, changeConversation, toggleNotifer } from '../actions/messenger';
-import { readEngageMessage, readMessages } from '../actions/messages';
+import { AppConsumer } from './AppContext';
 
-import { connection } from '../connection';
-import NotificationSubscriber from './NotificationSubscriber';
-import graphqlTypes from './graphql';
-
-class Notifier extends NotificationSubscriber {
-  componentWillUpdate(nextProps) {
-    if (this.props.isEngageMessagesCreated !== nextProps.isEngageMessagesCreated) {
-      this.props.data.refetch();
-    }
-  }
-
+export default class Notifier extends React.Component {
   render() {
-    if (this.props.data.loading) {
+    const { message } = this.props;
+
+    if (!message || !message._id) {
       return null;
     }
 
-    const lastUnreadMessage = this.props.data.lastUnreadMessage;
+    return (
+      <AppConsumer>
+        {({ readConversation, toggleNotifierFull, toggleNotifier }) => {
+          const showUnreadMessage = () => {
+            if (message._id) {
+              const engageData = message.engageData;
 
-    if (!lastUnreadMessage || !lastUnreadMessage._id) {
-      return null;
-    }
+              if (engageData && engageData.sentAs === 'fullMessage') {
+                toggleNotifierFull();
+              } else {
+                toggleNotifier();
+              }
+            }
+          }
 
-    const uiOptions = connection.data.uiOptions || {};
-
-    const extendedProps = {
-      ...this.props,
-      lastUnreadMessage,
-      color: uiOptions.color,
-    };
-
-    return <DumbNotifier {...extendedProps} />;
+          return (
+            <DumbNotifier
+              {...this.props}
+              message={message}
+              readConversation={readConversation}
+              showUnreadMessage={showUnreadMessage}
+            />
+          );
+        }}
+      </AppConsumer>
+    );
   }
 }
 
 Notifier.propTypes = {
-  isEngageMessagesCreated: PropTypes.bool,
+  message: PropTypes.object,
 }
-
-const mapStateToProps = state => ({
-  isMessengerVisible: state.isVisible,
-  isEngageMessagesCreated: state.isEngageMessagesCreated,
-});
-
-const mapDisptachToProps = dispatch => ({
-  readMessage({ conversationId, engageData }) {
-    // show messenger
-    dispatch(toggle());
-
-    // set current conversation
-    dispatch(changeConversation(conversationId));
-
-    // change route
-    dispatch(changeRoute('conversationDetail'));
-
-    // mark as read
-    dispatch(readMessages(conversationId));
-
-    // if engage message then add this customer to received list
-    if (engageData) {
-      dispatch(readEngageMessage({ engageData }));
-    }
-
-    toggleNotifer();
-
-    toggle();
-  },
-});
-
-const NotifierWithData = graphql(
-  gql`
-    query lastUnreadMessage(${connection.queryVariables}) {
-      lastUnreadMessage(${connection.queryParams}) {
-        ${graphqlTypes.messageFields}
-      }
-    }
-  `,
-
-  {
-    options: () => ({
-      fetchPolicy: 'network-only',
-      variables: connection.data,
-    }),
-  },
-)(Notifier);
-
-export default connect(mapStateToProps, mapDisptachToProps)(NotifierWithData);

@@ -1,31 +1,37 @@
-import { connect } from 'react-redux';
-import { readMessages, sendMessage, sendFile } from '../actions/messages';
+import React from 'react';
+import { AppConsumer } from './AppContext';
 import { MessageSender } from '../components';
 
+const container = (props) => {
+  return (
+    <AppConsumer>
+      {({ isAttachingFile, activeConversation, sendMessage, sendFile, readMessages }) => {
+        return (
+          <MessageSender
+            {...props}
+            isAttachingFile={isAttachingFile}
+            conversationId={activeConversation}
 
-const mapStateToProps = state => ({
-  isAttachingFile: state.isAttachingFile,
-  conversationId: state.activeConversation,
-});
+            sendMessage={(message) => {
+              if (!message.trim()) {
+                return;
+              }
 
-const mapDispatchToProps = dispatch => ({
-  sendMessage(message) {
-    if (!message.trim()) {
-      return;
-    }
+              sendMessage(message);
+            }}
 
-    dispatch(sendMessage(message));
-  },
+            readMessages={(conversationId) => {
+              if (conversationId) {
+                readMessages(conversationId);
+              }
+            }}
 
-  readMessages(conversationId) {
-    if (conversationId) {
-      dispatch(readMessages(conversationId));
-    }
-  },
+            sendFile={sendFile}
+          />
+        )
+      }}
+    </AppConsumer>
+  );
+}
 
-  sendFile(file) {
-    dispatch(sendFile(file));
-  },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(MessageSender);
+export default container;

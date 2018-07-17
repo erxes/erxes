@@ -1,36 +1,13 @@
-/* eslint-disable react/jsx-filename-extension */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { setLocale } from '../../utils';
 import TranslationWrapper from '../../TranslationWrapper';
 import { KnowledgeBase } from '../components';
 import { connection } from '../connection';
-import { switchToCategoryDisplay, switchToTopicDisplay } from '../actions';
 import queries from './graphql';
-
-const mapStateToProps = state => ({
-  displayType: state.displayType,
-});
-
-const mapDisptachToProps = dispatch => ({
-  onSwitchToTopicDisplay() {
-    dispatch(switchToTopicDisplay());
-  },
-
-  onSwitchToCategoryDisplay(category) {
-    dispatch(switchToCategoryDisplay(category));
-  },
-});
-
-const propTypes = {
-  data: PropTypes.shape({
-    knowledgeBaseTopicsDetail: PropTypes.object,
-    loading: PropTypes.bool,
-  }),
-};
+import { AppProvider, AppConsumer } from './AppContext';
 
 const Topic = (props) => {
   const { data: { loading, knowledgeBaseTopicsDetail } } = props;
@@ -44,19 +21,28 @@ const Topic = (props) => {
   // set language
   setLocale(languageCode);
 
-  const updatedProps = {
-    ...props,
-    color,
-  }
-
   return (
     <TranslationWrapper>
-      <KnowledgeBase {...updatedProps}/>
+      <AppProvider>
+        <AppConsumer>
+          {({ activeRoute }) => {
+            return (
+              <KnowledgeBase
+                {...props}
+                color={color}
+                activeRoute={activeRoute}
+              />
+            );
+          }}
+        </AppConsumer>
+      </AppProvider>
     </TranslationWrapper>
   );
 };
 
-Topic.propTypes = propTypes;
+Topic.propTypes = {
+  data: PropTypes.object,
+};
 
 const TopicWithData = graphql(
   gql(queries.getKbTopicQuery),
@@ -70,4 +56,4 @@ const TopicWithData = graphql(
   },
 )(Topic);
 
-export default connect(mapStateToProps, mapDisptachToProps)(TopicWithData);
+export default TopicWithData;

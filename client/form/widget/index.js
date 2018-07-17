@@ -8,6 +8,8 @@
 // css
 import './index.css';
 
+import { getBrowserInfo } from '../../utils';
+
 // add meta to head
 const meta = document.createElement('meta');
 meta.name = 'viewport';
@@ -80,18 +82,17 @@ formSettings.forEach(formSetting => {
 });
 
 // listen for messages from widget
-window.addEventListener('message', (event) => {
-  const data = event.data;
+window.addEventListener('message', async (event) => {
+  const data = event.data || {};
+  const { fromErxes, source, message, setting } = data;
 
-  if (!(data.fromErxes && data.fromForms)) {
+  if (!(fromErxes && source === 'fromForms')) {
     return null;
   }
 
-  const setting = data.setting;
-
   const { container, iframe } = iframesMapping[JSON.stringify(setting)];
 
-  if (data.action === 'connected') {
+  if (message === 'connected') {
     const loadType = data.connectionInfo.formConnect.formData.loadType;
 
     // track popup handlers
@@ -109,12 +110,24 @@ window.addEventListener('message', (event) => {
     }
   }
 
-  if (data.action === 'changeContainerClass') {
+  if (message === 'changeContainerClass') {
     container.className = data.className;
   }
 
-  if (data.action === 'changeContainerStyle') {
+  if (message === 'changeContainerStyle') {
     container.style = data.style;
+  }
+
+  if (message === 'requestingBrowserInfo') {
+    iframe.contentWindow.postMessage(
+      {
+        fromPublisher: true,
+        source: 'fromForms',
+        message: 'sendingBrowserInfo',
+        browserInfo: await getBrowserInfo(),
+      },
+      '*'
+    );
   }
 
   return null;

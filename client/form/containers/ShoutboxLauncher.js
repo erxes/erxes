@@ -1,15 +1,17 @@
-import { connect } from 'react-redux';
-import { toggleShoutbox } from '../actions';
+import React from 'react';
 import { ShoutboxLauncher } from '../components';
+import { AppConsumer } from './AppContext';
 
-const mapStateToProps = state => ({
-  isFormVisible: state.isFormVisible,
-});
+const container = (props) => (
+  <AppConsumer>
+    {({ isFormVisible, toggleShoutbox }) =>
+      <ShoutboxLauncher
+        {...props}
+        isFormVisible={isFormVisible}
+        onClick={toggleShoutbox}
+      />
+    }
+  </AppConsumer>
+)
 
-const mapDisptachToProps = dispatch => ({
-  onClick(isVisible) {
-    dispatch(toggleShoutbox(isVisible));
-  },
-});
-
-export default connect(mapStateToProps, mapDisptachToProps)(ShoutboxLauncher);
+export default container;

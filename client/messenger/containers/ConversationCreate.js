@@ -1,40 +1,54 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { compose } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
-import { changeRoute } from '../actions/messenger';
+import graphqlTypes from '../graphql';
 import { Conversation as DumbConversation } from '../components';
-import conversationCommonQueries from './conversationCommonQueries';
 
 class ConversationCreate extends React.Component {
   render() {
-    let { messengerSupportersQuery, isMessengerOnlineQuery } = this.props;
+    const { conversationDetailQuery } = this.props;
+    const { conversationDetail={} } = conversationDetailQuery;
+    const { isOnline=false, supporters=[] } = conversationDetail;
 
-    const extendedProps = {
-      ...this.props,
-      messages: [],
-      users: messengerSupportersQuery.messengerSupporters || [],
-      isOnline: isMessengerOnlineQuery.isMessengerOnline || false,
-      data: connection.data,
-    };
-
-    return <DumbConversation {...extendedProps} />;
+    return (
+      <AppConsumer>
+        {({ goToConversationList }) => {
+          return (
+            <DumbConversation
+              {...this.props}
+              messages={[]}
+              users={supporters}
+              isOnline={isOnline}
+              data={connection.data}
+              goToConversationList={goToConversationList}
+            />
+          );
+        }}
+      </AppConsumer>
+    );
   }
 }
 
-const mapDisptachToProps = dispatch => ({
-  goToConversationList(e) {
-    e.preventDefault();
-    dispatch(changeRoute('conversationList'));
-  },
-});
-
-const query = compose(...conversationCommonQueries());
+const query = compose(
+  graphql(
+    gql(graphqlTypes.conversationDetailQuery),
+    {
+      name: 'conversationDetailQuery',
+      options: () => ({
+        variables: {
+          integrationId: connection.data.integrationId,
+        },
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+);
 
 ConversationCreate.propTypes = {
-  messengerSupportersQuery: PropTypes.object,
-  isMessengerOnlineQuery: PropTypes.object,
+  conversationDetailQuery: PropTypes.object,
 }
 
-export default connect(null, mapDisptachToProps)(query(ConversationCreate));
+export default query(ConversationCreate);

@@ -5,7 +5,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
-import client, { createStore } from './apollo-client';
+import client from './apollo-client';
 import TranslationWrapper from './TranslationWrapper';
 
 // base connect function for all widgets
@@ -15,7 +15,6 @@ const widgetConnect = (params) => {
     connectMutation,
     connectCallback,
     AppContainer,
-    reducers,
   } = params;
 
   window.addEventListener('message', (event) => {
@@ -35,7 +34,7 @@ const widgetConnect = (params) => {
           {
             fromErxes: true,
             ...postParams,
-            action: 'connected',
+            message: 'connected',
             connectionInfo: data,
             setting: event.data.setting,
           },
@@ -44,7 +43,7 @@ const widgetConnect = (params) => {
 
         // render root react component
         ReactDOM.render(
-          <ApolloProvider store={createStore(reducers)} client={client}>
+          <ApolloProvider client={client}>
             <TranslationWrapper>
               <AppContainer />
             </TranslationWrapper>

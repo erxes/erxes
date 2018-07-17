@@ -1,19 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { gql, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
-import { readMessages } from '../actions/messages';
-import { changeRoute, changeConversation } from '../actions/messenger';
 import { ConversationList as DumbConversationList } from '../components';
+import graphqTypes from '../graphql';
 
 class ConversationList extends React.Component {
-  componentDidUpdate() {
-    if (this.props.isConversationEnded) {
-      this.props.data.refetch();
-    }
-  }
-
   render() {
     const { data } = this.props;
 
@@ -24,60 +18,35 @@ class ConversationList extends React.Component {
       conversations = [];
     }
 
-    const extendedProps = {
-      ...this.props,
-      conversations,
-    };
+    return (
+      <AppConsumer>
+        {({ changeRoute, goToConversation }) => {
+          const createConversation = (e) => {
+            e.preventDefault();
+            changeRoute('conversationCreate');
+          }
 
-    return <DumbConversationList {...extendedProps} />;
+          return (
+            <DumbConversationList
+              {...this.props}
+              loading={data.loading}
+              conversations={conversations}
+              createConversation={createConversation}
+              goToConversation={goToConversation}
+            />
+          );
+        }}
+      </AppConsumer>
+    );
   }
 }
 
 ConversationList.propTypes = {
   data: PropTypes.object,
-  isConversationEnded: PropTypes.bool,
 };
 
-
-const mapDisptachToProps = dispatch => ({
-  createConversation(e) {
-    e.preventDefault();
-    dispatch(changeRoute('conversationCreate'));
-  },
-
-  goToConversation(conversationId) {
-    // change current conversation
-    dispatch(changeConversation(conversationId));
-
-    // change route
-    dispatch(changeRoute('conversationDetail'));
-
-    // mark as read
-    dispatch(readMessages(conversationId));
-  },
-});
-
-const mapStateToProps = state => ({
-  isConversationEnded: state.isConversationEnded,
-});
-
 const ListWithData = graphql(
-  gql`
-    query allConversations(${connection.queryVariables}) {
-      conversations(${connection.queryParams}) {
-        _id
-        content
-        createdAt
-        participatedUsers {
-          details {
-            fullName
-            avatar
-          }
-        }
-      }
-    }
-  `,
-
+  gql(graphqTypes.allConversations),
   {
     options: () => ({
       fetchPolicy: 'network-only',
@@ -86,4 +55,4 @@ const ListWithData = graphql(
   },
 )(ConversationList);
 
-export default connect(mapStateToProps, mapDisptachToProps)(ListWithData);
+export default ListWithData;

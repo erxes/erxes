@@ -21,7 +21,11 @@
 .erxes-messenger-shown {
   width: 416px;
   height: calc(100% - 20px);
-  max-height: 660px;
+  max-height: 680px;
+}
+
+.erxes-messenger-shown.small {
+  max-height: 310px;
 }
 
 .erxes-messenger-shown > iframe,
@@ -33,8 +37,8 @@
 }
 
 .erxes-notifier-shown {
-  width: 360px;
-  height: 220px;
+  width: 370px;
+  height: 230px;
 }
 
 .erxes-notifier-shown.fullMessage {

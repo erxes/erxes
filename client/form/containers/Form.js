@@ -1,12 +1,10 @@
-/* eslint-disable react/jsx-filename-extension */
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { gql, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { connection } from '../connection';
 import { Form as DumbForm } from '../components';
-import { saveForm, createNew, sendEmail } from '../actions';
+import { AppConsumer } from './AppContext';
 
 const Form = (props) => {
   const extendedProps = {
@@ -24,47 +22,8 @@ const Form = (props) => {
 };
 
 Form.propTypes = {
-  data: PropTypes.shape({
-    form: PropTypes.shape({
-      title: PropTypes.string,
-      description: PropTypes.string,
-      buttonText: PropTypes.string,
-      themeColor: PropTypes.string,
-      featuredImage: PropTypes.string,
-
-      fields: PropTypes.arrayOf(PropTypes.shape({
-        _id: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
-        type: PropTypes.string,
-        check: PropTypes.string,
-        text: PropTypes.string,
-        description: PropTypes.string,
-        options: PropTypes.arrayOf(PropTypes.string),
-        isRequired: PropTypes.bool,
-        order: PropTypes.number,
-      })),
-    }),
-    loading: PropTypes.bool,
-  }),
+  data: PropTypes.object
 };
-
-const mapStateToProps = state => ({
-  currentStatus: state.currentStatus,
-});
-
-const mapDispatchToProps = dispatch => ({
-  onSubmit(doc) {
-    dispatch(saveForm(doc));
-  },
-
-  onCreateNew() {
-    dispatch(createNew());
-  },
-
-  sendEmail(...args) {
-    dispatch(sendEmail(...args));
-  },
-});
 
 const FormWithData = graphql(
   gql`
@@ -102,4 +61,18 @@ const FormWithData = graphql(
   },
 )(Form);
 
-export default connect(mapStateToProps, mapDispatchToProps)(FormWithData);
+const WithContext = (props) => (
+  <AppConsumer>
+    {({ currentStatus, saveForm, createNew, sendEmail }) =>
+      <FormWithData
+        {...props}
+        currentStatus={currentStatus}
+        onSubmit={saveForm}
+        onCreateNew={createNew}
+        sendEmail={sendEmail}
+      />
+    }
+  </AppConsumer>
+)
+
+export default WithContext;

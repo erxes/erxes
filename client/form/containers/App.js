@@ -1,17 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { App as DumbApp } from '../components';
-import { postMessage, init, closePopup, showPopup } from '../actions';
 import { connection } from '../connection';
-import { getBrowserInfo } from '../../utils';
+import { AppProvider, AppConsumer } from './AppContext';
+import { postMessage, saveBrowserInfo } from './utils';
 
 class App extends React.Component {
   componentDidMount() {
-    // save browser info in connection for later in use in saveForm
-    getBrowserInfo().then((browserInfo) => {
-      connection.browserInfo = browserInfo
-    });
+    saveBrowserInfo();
 
     window.addEventListener('message', (event) => {
       if (event.data.fromPublisher) {
@@ -27,7 +23,7 @@ class App extends React.Component {
     const elementsHeight = document.getElementById('erxes-container').clientHeight;
 
     postMessage({
-      action: 'changeContainerStyle',
+      message: 'changeContainerStyle',
       style: `height: ${elementsHeight}px;`,
     });
   }
@@ -90,7 +86,7 @@ class App extends React.Component {
     }
 
     postMessage({
-      action: 'changeContainerClass',
+      message: 'changeContainerClass',
       className: parentClass,
     });
 
@@ -100,29 +96,8 @@ class App extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
-  isPopupVisible: state.isPopupVisible,
-  isFormVisible: state.isFormVisible,
-  isCalloutVisible: state.isCalloutVisible,
-  currentStatus: state.currentStatus,
-  formData: connection.data.formData,
-});
-
-const mapDisptachToProps = dispatch => ({
-  init() {
-    dispatch(init());
-  },
-
-  closePopup() {
-    dispatch(closePopup());
-  },
-
-  showPopup() {
-    dispatch(showPopup());
-  },
-});
-
 App.propTypes = {
+  postMessage: PropTypes.func,
   formData: PropTypes.object,
   isPopupVisible: PropTypes.bool,
   isFormVisible: PropTypes.bool,
@@ -130,4 +105,29 @@ App.propTypes = {
   showPopup: PropTypes.func,
 }
 
-export default connect(mapStateToProps, mapDisptachToProps)(App);
+const WithContext = (props) => (
+  <AppProvider>
+    <AppConsumer>
+      {(value) => {
+        const {
+          init, closePopup, showPopup, isPopupVisible, isFormVisible,
+          isCalloutVisible, currentStatus
+        } = value;
+
+        return <App
+          {...props}
+          formData={connection.data.formData}
+          init={init}
+          closePopup={closePopup}
+          showPopup={showPopup}
+          isPopupVisible={isPopupVisible}
+          isFormVisible={isFormVisible}
+          isCalloutVisible={isCalloutVisible}
+          currentStatus={currentStatus}
+        />
+      }}
+    </AppConsumer>
+  </AppProvider>
+)
+
+export default WithContext;

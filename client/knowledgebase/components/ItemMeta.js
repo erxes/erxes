@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { defaultAvatar } from '../../icons/Icons';
 
 const propTypes = {
   category: PropTypes.object.isRequired,
@@ -18,7 +19,7 @@ function ItemMeta({ category }, {__}) {
       <img
         alt={author.details.fullName}
         key={author.details.fullName}
-        src={author.details.avatar || '/static/images/default-avatar.svg'}
+        src={author.details.avatar || defaultAvatar}
       />,
     );
   }

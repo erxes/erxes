@@ -1,55 +1,61 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { gql, graphql } from 'react-apollo';
-import { toggle, openLastConversation } from '../actions/messenger';
-import { Launcher as DumbLauncher } from '../components';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { connection } from '../connection';
-import NotificationSubscriber from './NotificationSubscriber';
+import { Launcher as DumpLauncher } from '../components';
+import graphqlTypes from '../graphql';
+import { AppConsumer } from './AppContext';
 
-class Launcher extends NotificationSubscriber {
-  render() {
-    if (this.props.data.loading) {
-      return null;
+class Launcher extends React.Component {
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.data && nextProps.data) {
+      nextProps.data.subscribeToMore({
+        document: gql(graphqlTypes.adminMessageInserted),
+        variables: { customerId: connection.data.customerId },
+        updateQuery: () => {
+          nextProps.data.refetch();
+        }
+      });
     }
+  }
 
-    const extendedProps = {
-      ...this.props,
-      notificationCount: this.props.data.totalUnreadCount || 0,
-    };
+  render() {
+    const { data={} } = this.props;
 
-    return <DumbLauncher {...extendedProps} />;
+    return <DumpLauncher {...this.props} totalUnreadCount={data.totalUnreadCount} />
   }
 }
 
 Launcher.propTypes = {
-  data: PropTypes.object.isRequired,
-};
+  data: PropTypes.object,
+}
 
-const mapStateToProps = state => ({
-  isMessengerVisible: state.isVisible,
-});
-
-const mapDisptachToProps = dispatch => ({
-  onClick(isVisible) {
-    dispatch(openLastConversation());
-    dispatch(toggle(isVisible));
-  },
-});
-
-const LauncherWithData = graphql(
-  gql`
-    query totalUnreadCount(${connection.queryVariables}) {
-      totalUnreadCount(${connection.queryParams})
-    }
-  `,
-
+const WithQuery = graphql(
+  gql(graphqlTypes.totalUnreadCountQuery),
   {
     options: () => ({
-      fetchPolicy: 'network-only',
       variables: connection.data,
     }),
-  },
+    skip: (props) => !props.isMessengerVisible
+  }
 )(Launcher);
 
-export default connect(mapStateToProps, mapDisptachToProps)(LauncherWithData);
+const container = (props) => (
+  <AppConsumer>
+    {({ isMessengerVisible, isBrowserInfoSaved, toggle, lastUnreadMessage }) => {
+      return (
+        <WithQuery
+          {...props}
+          isMessengerVisible={isMessengerVisible}
+          isBrowserInfoSaved={isBrowserInfoSaved}
+          onClick={toggle}
+          uiOptions={connection.data.uiOptions || {}}
+          lastUnreadMessage={lastUnreadMessage}
+        />
+      );
+    }}
+  </AppConsumer>
+);
+
+export default container;

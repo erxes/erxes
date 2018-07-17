@@ -1,15 +1,15 @@
-import { connect } from 'react-redux';
+import React from 'react';
 import { Category } from '../components';
-import { switchToCategoryDisplay } from '../actions';
+import { AppConsumer } from './AppContext';
 
-const mapStateToProps = (state, ownProps) => ({
-  ...ownProps,
-});
+const container = (props) => {
+  return (
+    <AppConsumer>
+      {({ goToCategory }) =>
+        <Category { ...props} onClick={goToCategory} />
+      }
+    </AppConsumer>
+  );
+}
 
-const mapDisptachToProps = dispatch => ({
-  onSwitchToCategoryDisplay(category) {
-    dispatch(switchToCategoryDisplay(category));
-  },
-});
-
-export default connect(mapStateToProps, mapDisptachToProps)(Category);
+export default container;

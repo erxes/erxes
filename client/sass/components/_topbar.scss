@@ -99,10 +99,12 @@
 .erxes-topbar-title {
   font-weight: 600;
   line-height: 1.2em;
-  margin-top: 18px;
+  align-self: center;
 
   span {
-    font-size: $font-size;
+    display: block;
+    font-size: $font-size - 2;
     font-weight: 300;
+    margin-top: 3px;
   }
 }

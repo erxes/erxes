@@ -6,11 +6,11 @@
 }
 
 .erxes-conversation-item {
-  overflow: hidden;
-  position: relative;
   @include prefix((
     transition: background .3s ease-in-out
   ), webkit moz ms o);
+  overflow: hidden;
+  position: relative;
 
   &:hover {
     background: rgba($black, .03);
@@ -54,5 +54,9 @@
     float: right;
     font-size: 12px;
     margin-top: 2px;
+
+    &.erxes-tooltip::before {
+      right: 0;
+    }
   }
 }

@@ -1,11 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { gql, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { ConversationItem as DumbConversationItem } from '../components';
-import NotificationSubscriber from './NotificationSubscriber';
-import graphqTypes from './graphql';
+import graphqlTypes from '../graphql';
 
-class ConversationItem extends NotificationSubscriber {
+class ConversationItem extends React.Component {
+  componentWillMount() {
+    const { data, conversation } = this.props;
+
+    // lister for all conversation changes for this customer
+    data.subscribeToMore({
+      document: gql(graphqlTypes.conversationMessageInserted),
+      variables: { _id: conversation._id },
+      updateQuery: () => {
+        data.refetch();
+      },
+    });
+  }
+
   render() {
     const extendedProps = {
       ...this.props,
@@ -18,13 +31,14 @@ class ConversationItem extends NotificationSubscriber {
 
 ConversationItem.propTypes = {
   data: PropTypes.object.isRequired,
+  conversation: PropTypes.object.isRequired,
 };
 
 export default graphql(
-  gql(graphqTypes.unreadCountQuery),
+  gql(graphqlTypes.unreadCountQuery),
   {
-    options: (ownProps) => ({
-      variables: { conversationId: ownProps.conversation._id },
-    }),
+    options: (props) => ({
+      variables: { conversationId: props.conversation._id },
+    })
   }
 )(ConversationItem);

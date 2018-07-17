@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
-import { changeRoute, changeConversation, endConversation } from '../actions/messenger';
 import { Conversation as DumbConversation } from '../components';
-import graphqlTypes from './graphql';
-import conversationCommonQueries from './conversationCommonQueries';
+import graphqlTypes from '../graphql';
 
 class ConversationDetail extends React.Component {
   componentWillMount() {
@@ -18,8 +17,8 @@ class ConversationDetail extends React.Component {
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
         const message = subscriptionData.data.conversationMessageInserted;
-        const conversationDetail = prev.conversationDetail;
-        const messages = conversationDetail.messages;
+        const conversationDetail = prev.conversationDetail || {};
+        const messages = conversationDetail.messages || [];
 
         // check whether or not already inserted
         const prevEntry = messages.find(m => m._id === message._id);
@@ -34,12 +33,13 @@ class ConversationDetail extends React.Component {
         }
 
         // add new message to messages list
-        const next = Object.assign({}, prev, {
-          conversationDetail: Object.assign({
+        const next = {
+          ...prev,
+          conversationDetail: {
             ...conversationDetail,
             messages: [...messages, message],
-          }),
-        });
+          },
+        };
 
         return next;
       },
@@ -62,43 +62,22 @@ class ConversationDetail extends React.Component {
   }
 
   render() {
-    let {
-      conversationDetailQuery,
-      messengerSupportersQuery,
-      isMessengerOnlineQuery,
-    } = this.props;
+    const { conversationDetailQuery } = this.props;
 
     const conversationDetail = conversationDetailQuery.conversationDetail || {};
+    const { messages=[], isOnline=false, supporters=[] } = conversationDetail;
 
-    const extendedProps = {
-      ...this.props,
-      messages: conversationDetail.messages || [],
-      users: messengerSupportersQuery.messengerSupporters || [],
-      isOnline: isMessengerOnlineQuery.isMessengerOnline || false,
-      data: connection.data,
-    };
-
-    return <DumbConversation {...extendedProps} />;
+    return (
+      <DumbConversation
+        {...this.props}
+        messages={messages}
+        users={supporters}
+        isOnline={isOnline}
+        data={connection.data}
+      />
+    );
   }
 }
-
-
-const mapStateToProps = (state) => ({ conversationId: state.activeConversation });
-
-const mapDisptachToProps = dispatch => ({
-  goToConversationList(e) {
-    e.preventDefault();
-
-    // reset current conversation
-    dispatch(changeConversation(''));
-
-    dispatch(changeRoute('conversationList'));
-  },
-
-  endConversation(conversationId) {
-    dispatch(endConversation(conversationId));
-  },
-});
 
 const query = compose(
   graphql(
@@ -108,20 +87,38 @@ const query = compose(
       options: ownProps => ({
         variables: {
           _id: ownProps.conversationId,
+          integrationId: connection.data.integrationId,
         },
         fetchPolicy: 'network-only',
       }),
     },
   ),
-  ...conversationCommonQueries(),
 );
 
 ConversationDetail.propTypes = {
   conversationId: PropTypes.string,
   conversationDetailQuery: PropTypes.object,
-  messengerSupportersQuery: PropTypes.object,
-  isMessengerOnlineQuery: PropTypes.object,
   endConversation: PropTypes.func,
 }
 
-export default connect(mapStateToProps, mapDisptachToProps)(query(ConversationDetail));
+const WithQuery = query(ConversationDetail);
+
+const WithConsumer = (props) => {
+  return (
+    <AppConsumer>
+      {({ activeConversation, goToConversationList, endConversation }) => {
+
+        return (
+          <WithQuery
+            {...props}
+            conversationId={activeConversation}
+            goToConversationList={goToConversationList}
+            endConversation={endConversation}
+          />
+        );
+      }}
+    </AppConsumer>
+  )
+};
+
+export default WithConsumer;

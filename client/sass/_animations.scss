@@ -1,0 +1,50 @@
+@include keyframe(animationPulse) {
+  0% {
+    box-shadow: 0 0 0 0;
+    opacity: .5;
+  }
+
+  40% {
+    box-shadow: 0 0 0 8px;
+    opacity: 0;
+  }
+
+  80% {
+    box-shadow: 0 0 0 8px;
+    opacity: 0;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0;
+    opacity: 0;
+  }
+}
+
+
+@include keyframe(animationSpin) {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@include keyframe(shake) {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}

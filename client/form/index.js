@@ -1,16 +1,14 @@
-/* eslint-disable react/jsx-filename-extension */
-
+import gql from 'graphql-tag';
+import client from '../apollo-client';
 import widgetConnect from '../widgetConnect';
 import { setLocale } from '../utils';
 import { connection } from './connection';
-import { connect } from './actions';
-import reducers from './reducers';
 import { App } from './containers';
 import './sass/style.scss';
 
 widgetConnect({
   postParams: {
-    fromForms: true,
+    source: 'fromForms',
   },
 
   connectMutation: (event) => {
@@ -20,7 +18,23 @@ widgetConnect({
     connection.hasPopupHandlers = hasPopupHandlers;
 
     // call connect mutation
-    return connect(setting.brand_id, setting.form_id);
+    return client.mutate({
+      mutation: gql`
+        mutation formConnect($brandCode: String!, $formCode: String!) {
+          formConnect(brandCode: $brandCode, formCode: $formCode) {
+            integrationId,
+            integrationName,
+            languageCode,
+            formId,
+            formData,
+          }
+        }`,
+
+      variables: {
+        brandCode: setting.brand_id,
+        formCode: setting.form_id,
+      },
+    })
   },
 
   connectCallback: (data) => {
@@ -36,6 +50,4 @@ widgetConnect({
   },
 
   AppContainer: App,
-
-  reducers,
 });
