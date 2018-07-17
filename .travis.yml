@@ -1,0 +1,16 @@
+sudo: false
+language: node_js
+node_js:
+  - "6.9"
+services:
+  - mongodb
+cache:
+  yarn: true
+  directories:
+    - node_modules
+install:
+  - yarn global add codecov
+before_script:
+  - yarn
+  - sleep 15
+  - mongo mydb_test --eval 'db.createUser({user:"travis",pwd:"test",roles:["readWrite"]});'
