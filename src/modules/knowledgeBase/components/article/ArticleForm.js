@@ -12,7 +12,6 @@ import {
   toHTML,
   createStateFromHTML
 } from 'modules/common/components/editor/Editor';
-import { EditorWrapper } from 'modules/engage/styles';
 import { ModalFooter } from 'modules/common/styles/main';
 
 const propTypes = {
@@ -119,9 +118,7 @@ class ArticleForm extends Component {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <EditorWrapper>
-            <ErxesEditor {...props} />
-          </EditorWrapper>
+          <ErxesEditor bordered {...props} />
         </FormGroup>
 
         <FormGroup>

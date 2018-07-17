@@ -21,6 +21,17 @@ function isTimeStamp(value) {
   );
 }
 
+function getVisitorInfo(customer, key) {
+  if (
+    (key === 'email' && !customer[key]) ||
+    (key === 'phone' && !customer[key])
+  ) {
+    return customer.visitorContactInfo && customer.visitorContactInfo[key];
+  }
+
+  return _.get(customer, key);
+}
+
 function formatValue(value) {
   if (typeof value === 'boolean') {
     return value ? 'Yes' : 'No';
@@ -57,9 +68,11 @@ function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {
       <td onClick={onClick}>
         <FormControl componentClass="checkbox" onChange={onChange} />
       </td>
-      {columnsConfig.map(({ name }) => (
-        <td key={name}>{formatValue(_.get(customer, name))}</td>
-      ))}
+      {columnsConfig.map(({ name }) => {
+        return (
+          <td key={name}>{formatValue(getVisitorInfo(customer, name))}</td>
+        );
+      })}
       <td>
         <Tags tags={tags} limit={2} />
       </td>

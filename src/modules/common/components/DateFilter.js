@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Datetime from 'react-datetime';
 import moment from 'moment';
@@ -7,12 +8,75 @@ import gql from 'graphql-tag';
 import { withApollo } from 'react-apollo';
 import { Icon, Button } from 'modules/common/components';
 import { router } from 'modules/common/utils';
-import { PopoverButton } from 'modules/inbox/styles';
-import {
-  FlexRow,
-  FlexItem,
-  DateFilters
-} from 'modules/inbox/components/sidebar/styles';
+import { dimensions, colors, typography } from '../styles';
+
+const PopoverButton = styled.div`
+  display: inline-block;
+  position: relative;
+
+  > * {
+    display: inline-block;
+  }
+
+  button {
+    padding: 0;
+  }
+
+  i {
+    margin-left: 5px;
+    margin-right: 0;
+    font-size: 10px;
+    transition: all ease 0.3s;
+    color: ${colors.colorCoreGray};
+  }
+
+  &[aria-describedby] {
+    color: ${colors.colorSecondary};
+
+    i {
+      transform: rotate(180deg);
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 5px ${dimensions.unitSpacing}px;
+
+  .form-control {
+    box-shadow: none;
+    border-radius: 0;
+    border: none;
+    background: none;
+    border-bottom: 1px solid ${colors.colorShadowGray};
+    padding: 17px 14px;
+    font-size: ${typography.fontSizeBody}px;
+
+    &:focus {
+      box-shadow: none;
+      border-color: ${colors.colorSecondary};
+    }
+  }
+`;
+
+const FlexItem = styled.div`
+  flex: 1;
+  margin-left: 5px;
+`;
+
+const DateFilters = styled.div`
+  width: 305px;
+
+  button {
+    padding: 5px 20px;
+  }
+`;
 
 const propTypes = {
   queryParams: PropTypes.object,

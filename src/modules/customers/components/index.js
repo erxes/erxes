@@ -8,6 +8,7 @@ import CustomerDetails from './detail/CustomerDetails';
 import CommonMerge from './detail/CommonMerge';
 import CustomerSection from './common/CustomerSection';
 import TargetMergeModal from './detail/TargetMergeModal';
+import { BaseSection } from './detail/sidebar';
 
 export {
   CustomerRow,
@@ -19,5 +20,6 @@ export {
   TargetMergeModal,
   BrandFilter,
   IntegrationFilter,
-  FormFilter
+  FormFilter,
+  BaseSection
 };

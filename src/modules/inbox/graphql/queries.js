@@ -40,7 +40,7 @@ const conversationList = `
 `;
 
 const sidebarConversations = `
-  query objects(${listParamsDef}) {
+  query conversations(${listParamsDef}) {
     conversations(${listParamsValue}) {
       _id
       content
@@ -71,6 +71,8 @@ const sidebarConversations = `
         phone
         isUser
         visitorContactInfo
+        facebookData
+        twitterData
       }
       tagIds
       tags {
@@ -106,10 +108,18 @@ const conversationDetailMarkAsRead = `
 `;
 
 const conversationMessages = `
-  query conversationMessages($conversationId: String!) {
-    conversationMessages(conversationId: $conversationId) {
+  query conversationMessages($conversationId: String!, $skip: Int, $limit: Int) {
+    conversationMessages(
+      conversationId: $conversationId, skip: $skip, limit: $limit
+    ) {
       ${messageFields}
     }
+  }
+`;
+
+const conversationMessagesTotalCount = `
+  query conversationMessagesTotalCount($conversationId: String!) {
+    conversationMessagesTotalCount(conversationId: $conversationId)
   }
 `;
 
@@ -177,13 +187,7 @@ const unreadConversationsCount = `
 const lastConversation = `
   query conversationsGetLast(${listParamsDef}) {
     conversationsGetLast(${listParamsValue}) {
-      ${conversationFields}
-      messages {
-        _id
-        content
-        userId
-        customerId
-      }
+      _id
     }
   }
 `;
@@ -205,6 +209,7 @@ export default {
   conversationDetail,
   conversationDetailMarkAsRead,
   conversationMessages,
+  conversationMessagesTotalCount,
   userList,
   channelList,
   brandList,

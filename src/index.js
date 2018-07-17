@@ -2,7 +2,6 @@ import React from 'react';
 import { render } from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import Routes from './routes';
-import store from './store';
 import apolloClient from './apolloClient';
 
 import 'erxes-icon/css/erxes.min.css';
@@ -14,7 +13,7 @@ import 'modules/common/styles/global-styles.js';
 const target = document.querySelector('#root');
 
 render(
-  <ApolloProvider store={store} client={apolloClient}>
+  <ApolloProvider client={apolloClient}>
     <Routes />
   </ApolloProvider>,
   target

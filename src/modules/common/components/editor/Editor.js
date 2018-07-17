@@ -1,4 +1,4 @@
-/* eslint-disable no-underscore-dangle, react/no-string-refs,
+/* eslint-disable react/no-string-refs,
   jsx-a11y/no-static-element-interactions, react/no-multi-comp,
   react/forbid-prop-types */
 
@@ -213,7 +213,13 @@ export class ErxesEditor extends Component {
   }
 
   render() {
-    const { editorState, controls, onUpArrow, onDownArrow } = this.props;
+    const {
+      editorState,
+      controls,
+      onUpArrow,
+      onDownArrow,
+      bordered
+    } = this.props;
 
     // If the user changes block type before entering any text, we can
     // either style the placeholder or hide it. Let's just hide it now.
@@ -232,7 +238,7 @@ export class ErxesEditor extends Component {
     }
 
     return (
-      <RichEditorRoot>
+      <RichEditorRoot bordered={bordered}>
         <RichEditorControlsRoot>
           <BlockStyleControls
             editorState={editorState}
@@ -274,6 +280,7 @@ export class ErxesEditor extends Component {
 ErxesEditor.propTypes = {
   editorState: PropTypes.object,
   onChange: PropTypes.func,
+  bordered: PropTypes.bool,
   // extra control rows
   controls: PropTypes.array,
   pluginContent: PropTypes.object,

@@ -59,7 +59,7 @@ class CreateFormContainer extends Component {
 
         .then(() => {
           Alert.success('Congrats');
-          history.push('/forms');
+          history.push('/forms?refetch=true');
         })
 
         .catch(error => {

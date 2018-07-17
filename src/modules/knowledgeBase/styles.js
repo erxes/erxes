@@ -18,15 +18,4 @@ const ActionButtons = styled.div`
   }
 `;
 
-const DropIcon = styled.span`
-  &:after {
-    content: '\\e827';
-    font-family: 'erxes';
-    float: right;
-    transition: all ease 0.3s;
-    margin-left: ${dimensions.unitSpacing}px;
-    transform: ${props => props.isOpen && `rotate(180deg)`};
-  }
-`;
-
-export { ActionButtons, DropIcon };
+export { ActionButtons };

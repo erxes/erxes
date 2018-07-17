@@ -18,7 +18,7 @@ const ResetPasswordContainer = props => {
       }
     })
       .then(() => {
-        history.push('/');
+        history.push('/sign-in');
       })
       .catch(error => {
         Alert.error(error.message);

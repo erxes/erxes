@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import { ActionBar } from 'modules/layout/components';
 import {
   FormGroup,
   FormControl,
@@ -8,18 +8,8 @@ import {
   ControlLabel
 } from 'modules/common/components';
 import { FormPreview } from './preview';
-import { colors } from 'modules/common/styles';
-import { FlexItem, FlexColumn, LeftItem, Footer, Preview } from './style';
-
-const Fields = styled.ul`
-  list-style: none;
-  padding: 0;
-
-  button {
-    color: ${colors.colorSecondary};
-    font-weight: 500;
-  }
-`;
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { FlexItem, FlexColumn } from './style';
 
 const propTypes = {
   type: PropTypes.string,
@@ -32,10 +22,6 @@ const propTypes = {
   fields: PropTypes.array
 };
 
-const editingFieldDefaultValue = {
-  isRequired: false
-};
-
 class FormStep extends Component {
   constructor(props) {
     super(props);
@@ -43,7 +29,7 @@ class FormStep extends Component {
     this.state = {
       fields: props.fields,
       chosenFieldType: null,
-      editingField: editingFieldDefaultValue
+      editingField: {}
     };
 
     this.onChangeFunction = this.onChangeFunction.bind(this);
@@ -98,7 +84,7 @@ class FormStep extends Component {
       ...doc
     });
 
-    this.setState({ fields: this.state.fields });
+    this.setState({ fields: this.state.fields, editingField: {} });
   }
 
   setChanges(attributeName, value) {
@@ -115,7 +101,7 @@ class FormStep extends Component {
     if (_id) {
       // reset editing field state
       const reset = () => {
-        this.setState({ editingField: editingFieldDefaultValue });
+        this.setState({ editingField: {} });
       };
 
       const onDelete = e => {
@@ -163,18 +149,23 @@ class FormStep extends Component {
     const { __ } = this.context;
 
     return (
-      <Footer>
-        <FormControl
-          checked={this.state.editingField.isRequired || false}
-          id="isRequired"
-          componentClass="checkbox"
-          onChange={e => this.onChangeFunction('isRequired', e.target.checked)}
-        >
-          {__('This item is required')}
-        </FormControl>
-
-        {this.renderButtons()}
-      </Footer>
+      <ActionBar
+        right={
+          <Fragment>
+            <FormControl
+              checked={this.state.editingField.isRequired || false}
+              id="isRequired"
+              componentClass="checkbox"
+              onChange={e =>
+                this.onChangeFunction('isRequired', e.target.checked)
+              }
+            >
+              {__('This item is required')}
+            </FormControl>
+            &emsp; {this.renderButtons()}
+          </Fragment>
+        }
+      />
     );
   }
 
@@ -210,7 +201,7 @@ class FormStep extends Component {
     const { __ } = this.context;
 
     return (
-      <Fields>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Form title</ControlLabel>
           <FormControl
@@ -296,7 +287,7 @@ class FormStep extends Component {
             onChange={e => this.onChangeState('formBtnText', e.target.value)}
           />
         </FormGroup>
-      </Fields>
+      </Fragment>
     );
   }
 

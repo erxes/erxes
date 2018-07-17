@@ -52,6 +52,12 @@ class CompanyForm extends React.Component {
     this.handleSelect = this.handleSelect.bind(this);
   }
 
+  componentDidMount() {
+    const { company = {} } = this.props;
+
+    if (company.ownerId) this.handleUserSearch(company.owner.details.fullName);
+  }
+
   action(e) {
     e.preventDefault();
 

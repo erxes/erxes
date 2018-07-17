@@ -1,21 +1,17 @@
 import List from './List';
-import Common from './Common';
-import Messenger from './Messenger';
+import CreateMessenger from './CreateMessenger';
+import InstallCode from './InstallCode';
 import AddIntegration from './AddIntegration';
 import Twitter from './Twitter';
 import Facebook from './Facebook';
-import MessengerAppearance from './MessengerAppearance';
-import MessengerConfigs from './MessengerConfigs';
 import WidgetPreview from './widgetPreview/WidgetPreview';
 
 export {
   List,
-  Messenger,
+  CreateMessenger,
+  InstallCode,
   AddIntegration,
-  Common,
   Twitter,
   Facebook,
-  MessengerAppearance,
-  MessengerConfigs,
   WidgetPreview
 };

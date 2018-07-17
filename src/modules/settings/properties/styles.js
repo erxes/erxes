@@ -3,13 +3,9 @@ import { dimensions, colors } from 'modules/common/styles';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
-const ContentBox = styled.div`
-  padding: ${coreSpace};
-`;
-
 const PropertyList = styled.ul`
   list-style: none;
-  padding: 0 ${coreSpace};
+  padding: 0;
 
   li {
     position: relative;
@@ -23,12 +19,11 @@ const PropertyList = styled.ul`
 const TypeList = PropertyList.extend`
   button {
     margin-top: 10px;
-    float: right;
   }
 
   li {
-    margin-bottom: 10px;
-    background-color: ${colors.colorLightBlue};
+    margin-bottom: 5px;
+    background-color: ${colors.colorWhite};
     border: 1px solid ${colors.borderPrimary};
     padding: 5px 10px;
     display: flex;
@@ -40,14 +35,10 @@ const TypeList = PropertyList.extend`
   }
 `;
 
-const AddOption = styled.div`
-  color: ${colors.colorSecondary};
-  font-weight: 500;
-  padding: 5px 0;
-
-  &:hover {
-    cursor: pointer;
-  }
+const InputDescription = styled.p`
+  font-size: 12px;
+  color: ${colors.colorCoreGray};
+  margin: 0;
 `;
 
 const FieldType = styled.span`
@@ -59,34 +50,54 @@ const FieldType = styled.span`
 const Actions = styled.div`
   display: flex;
   justify-content: flex-end;
+  margin-top: 10px;
 `;
 
-const DropIcon = styled.span`
+const CollapseRow = styled.div`
+  font-size: ${coreSpace};
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  justify-content: space-between;
+  padding: ${dimensions.coreSpacing}px;
+  background: ${colors.bgLight};
+  border-bottom: 1px solid ${colors.borderPrimary};
+  border-top: 1px solid ${colors.borderPrimary};
+
+  span {
+    font-size: 12px;
+    color: ${colors.colorCoreGray};
+    margin-left: 5px;
+  }
+`;
+
+const DropIcon = styled.i`
+  font-style: normal;
+
   &:after {
     content: '\\e827';
     font-family: 'erxes';
     display: inline-block;
     color: ${colors.colorPrimaryDark};
-    font-size: ${dimensions.coreSpacing - 2}px;
+    font-size: 16px;
     margin-right: ${coreSpace};
     transition: all ease 0.3s;
     transform: ${props => props.isOpen && `rotate(180deg)`};
   }
 `;
 
-const InputDescription = styled.span`
-  display: block;
-  font-size: 12px;
-  color: ${colors.colorCoreGray};
+const SidebarContent = styled.div`
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px
+    ${dimensions.unitSpacing}px;
 `;
 
 export {
-  ContentBox,
   PropertyList,
   DropIcon,
   TypeList,
-  AddOption,
   Actions,
   FieldType,
-  InputDescription
+  InputDescription,
+  CollapseRow,
+  SidebarContent
 };

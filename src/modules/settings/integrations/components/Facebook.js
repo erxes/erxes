@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import SelectBrand from './SelectBrand';
@@ -25,10 +24,11 @@ class Facebook extends Component {
 
   collectCheckboxValues(name) {
     const values = [];
+    const elements = document.getElementsByName(name);
 
-    _.each(document.getElementsByName(name), elem => {
-      if (elem.checked) {
-        values.push(elem.value);
+    elements.forEach(element => {
+      if (element.checked) {
+        values.push(element.value);
       }
     });
 
@@ -51,7 +51,7 @@ class Facebook extends Component {
     const { apps, pages, brands } = this.props;
 
     return (
-      <form className="margined" onSubmit={this.handleSubmit}>
+      <form onSubmit={this.handleSubmit}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 

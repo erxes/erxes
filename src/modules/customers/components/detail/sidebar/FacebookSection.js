@@ -1,45 +1,50 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Sidebar } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+import { BaseSection } from './';
 
 const propTypes = {
   customer: PropTypes.object.isRequired
 };
 
-function FacebookSection({ customer }, { __ }) {
+function FacebookSection({ customer }, { __, queryParams }) {
   const { facebookData } = customer;
 
-  if (!facebookData) {
+  if (!(facebookData || queryParams)) {
     return null;
   }
 
-  const { Title } = Sidebar.Section;
+  const content = facebookData ? (
+    <SidebarList className="no-link">
+      <li>
+        {__('Facebook profile')}
+        <SidebarCounter>
+          <a
+            target="_blank"
+            href={`http://facebook.com/${facebookData.id}`}
+            rel="noopener noreferrer"
+          >
+            {__('[view]')}
+          </a>
+        </SidebarCounter>
+      </li>
+    </SidebarList>
+  ) : null;
 
   return (
-    <Sidebar.Section>
-      <Title>{__('Facebook')}</Title>
-      <SidebarList className="no-link">
-        <li>
-          {__('Facebook profile')}
-          <SidebarCounter>
-            <a
-              target="_blank"
-              href={`http://facebook.com/${facebookData.id}`}
-              rel="noopener noreferrer"
-            >
-              {__('[view]')}
-            </a>
-          </SidebarCounter>
-        </li>
-      </SidebarList>
-    </Sidebar.Section>
+    <BaseSection
+      title={__('Facebook')}
+      content={content}
+      isUseCustomer={true}
+      name="showFacebook"
+    />
   );
 }
 
 FacebookSection.propTypes = propTypes;
 FacebookSection.contextTypes = {
-  __: PropTypes.func
+  __: PropTypes.func,
+  queryParams: PropTypes.object
 };
 
 export default FacebookSection;

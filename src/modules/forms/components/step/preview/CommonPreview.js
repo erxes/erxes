@@ -6,12 +6,9 @@ import {
   slideRight
 } from 'modules/common/utils/animations';
 import { Button } from 'modules/common/components';
+import { WidgetPreviewStyled } from 'modules/settings/integrations/components/widgetPreview/styles';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
-import {
-  WidgetPreviewStyled,
-  LogoContainer,
-  LogoSpan
-} from 'modules/settings/styles';
+import { LogoContainer } from 'modules/settings/styles';
 import {
   PreviewTitle,
   PreviewBody,
@@ -23,11 +20,11 @@ import {
   SlideLeftContent,
   OverlayTrigger,
   Embedded
-} from '../style';
+} from './styles';
 
-const ShoutBox = MessengerPreview.extend`
+export const ShoutBox = MessengerPreview.extend`
   height: 100%;
-  min-height: 470px;
+  min-height: 570px;
   width: auto;
   margin-left: 0;
 `;
@@ -115,13 +112,15 @@ class CommonPreview extends Component {
 
             {children}
 
-            <Button
-              ignoreTrans
-              btnStyle={btnStyle}
-              style={{ backgroundColor: theme ? theme : color }}
-            >
-              {btnText}
-            </Button>
+            {btnText && (
+              <Button
+                ignoreTrans
+                btnStyle={btnStyle}
+                style={{ backgroundColor: theme ? theme : color }}
+              >
+                {btnText}
+              </Button>
+            )}
           </BodyContent>
         </PreviewBody>
       </PreviewWrapper>
@@ -139,7 +138,7 @@ class CommonPreview extends Component {
               {this.renderContent()}
             </WidgetPreview>
             <LogoContainer style={{ backgroundColor: theme ? theme : color }}>
-              <LogoSpan>1</LogoSpan>
+              <span>1</span>
             </LogoContainer>
           </Widget>
         </ShoutBox>

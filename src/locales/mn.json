@@ -263,8 +263,8 @@
   "Manage Knowledge Base": "Мэдлэгийн сан тохируулах",
   "Add Category": "Категори нэмэх",
   "Add Article": "Асуулт нэмэх",
-  "Customer engagement. Redefined.": "Customer engagement. Redefined.",
-  "erxes is an AI meets open source messaging platform for sales and marketing teams.":
+  "Customer engagement. REDEFINED.": "Customer engagement. REDEFINED.",
+  "erxes is an AI meets open source messaging platform for sales, marketing and support":
     "Хиймэл оюун ухаанд суурилсан борлуулалт, хэрэглэгчтэй харилцах, маркетингийн багт зориулсан нээлттэй эхийн платформ",
   "404. This page is not found.": "404. Хуудас олдсонгүй.",
   "erxes is an open-source messaging platform for customer success":
@@ -657,5 +657,18 @@
   "Filter by date": "Oн сараар шүүх",
   "Total conversations": "Нийт харилцааны түүх",
   "Filter by form": "Форм-р шүүх",
-  "Supporters": "Туслах ажилтан"
+  "Supporters": "Туслах ажилтан",
+  "Import histories": "Оруулсан түүх",
+  "Imported Date": "Оруулсан огноо",
+  "Imported User": "Оруулсан хэрэглэгч",
+  "Export customers": "Харилцагчид татах",
+  "Import customers": "Харилцагчид оруулах",
+  "Export companies": "Компаниуд татах",
+  "Import companies": "Компаниуд оруулах",
+  "All customers imported successfully": "Бүх харилцагчдыг амжилттай орууллаа",
+  "There aren't any imports": "Оруулсан мэдээлэл алга байна",
+  "Successfully Removed all customers": "Бүх харилцагчдыг амжилттай устгалаа",
+  "You can only import max 600 at a time":
+    "Харилцагчид оруулах дээд хэмжээ: 600",
+  "Invalid import type": "Буруу төрөл сонгосон байна"
 }

@@ -15,7 +15,8 @@ const listParamsValue = `
 const pieChart = `
   query insights($brandId: String, $startDate: String, $endDate: String) {
     insights(brandId: $brandId, startDate: $startDate, endDate: $endDate) {
-      name
+      id
+      label
       value
     }
   }

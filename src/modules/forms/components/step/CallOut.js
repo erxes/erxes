@@ -1,59 +1,16 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { uploadHandler } from 'modules/common/utils';
+import { ActionBar } from 'modules/layout/components';
 import {
   FormControl,
   FormGroup,
   ControlLabel,
   Icon
 } from 'modules/common/components';
-import { dimensions, colors } from 'modules/common/styles';
 import { CalloutPreview } from './preview';
-import { FlexItem, FlexColumn, LeftItem, Footer, Preview } from './style';
-
-const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
-
-const ImageWrapper = styled.div`
-  border: 1px dashed ${colors.borderDarker};
-  border-radius: 5px;
-  position: relative;
-  background: ${colors.colorLightBlue};
-`;
-
-const ImageContent = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: ${dimensions.coreSpacing}px;
-  min-height: 200px;
-
-  img {
-    max-width: 300px;
-  }
-
-  i {
-    visibility: hidden;
-    cursor: pointer;
-    position: absolute;
-    right: 150px;
-    top: ${Space};
-    width: ${Space};
-    height: ${Space};
-    display: block;
-    border-radius: ${Space};
-    text-align: center;
-    line-height: ${Space};
-    background: rgba(255, 255, 255, 0.5);
-    transition: all ease 0.3s;
-  }
-
-  &:hover {
-    i {
-      visibility: visible;
-    }
-  }
-`;
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { FlexItem, FlexColumn, ImageContent } from './style';
 
 const propTypes = {
   type: PropTypes.string,
@@ -139,14 +96,14 @@ class CallOut extends Component {
     }
 
     return (
-      <div>
+      <Fragment>
         <img src={image} alt="previewImage" />
         <Icon
           icon="cancel-1"
           size={15}
           onClick={e => this.removeImage(e.target.value)}
         />
-      </div>
+      </Fragment>
     );
   }
 
@@ -154,16 +111,18 @@ class CallOut extends Component {
     const { __ } = this.context;
 
     return (
-      <Footer>
-        <FormControl
-          checked={this.props.skip || false}
-          id="isSkip"
-          componentClass="checkbox"
-          onChange={e => this.onChangeState('isSkip', e.target.checked)}
-        >
-          {__('Skip callOut')}
-        </FormControl>
-      </Footer>
+      <ActionBar
+        right={
+          <FormControl
+            checked={this.props.skip || false}
+            id="isSkip"
+            componentClass="checkbox"
+            onChange={e => this.onChangeState('isSkip', e.target.checked)}
+          >
+            {__('Skip callOut')}
+          </FormControl>
+        }
+      />
     );
   }
 
@@ -214,9 +173,7 @@ class CallOut extends Component {
 
             <FormGroup>
               <ControlLabel>Featured image</ControlLabel>
-              <ImageWrapper>
-                <ImageContent>{this.renderUploadImage()}</ImageContent>
-              </ImageWrapper>
+              <ImageContent>{this.renderUploadImage()}</ImageContent>
             </FormGroup>
           </LeftItem>
           {this.footerActions()}

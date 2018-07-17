@@ -252,6 +252,11 @@ injectGlobal`
     min-width: 260px;
   }
 
+  .popover-content .chrome-picker {
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
   .popover-content ul {
     max-height: 280px;
     overflow: auto;
@@ -503,12 +508,12 @@ injectGlobal`
   }
 
   .rdtPicker td.rdtToday:before {
-    border-bottom: 7px solid ${colors.colorSecondary};
+    border-bottom: 7px solid ${colors.colorSecondary} !important;
   }
 
   .rdtPicker td.rdtActive,
   .rdtPicker td.rdtActive:hover {
-    background-color: ${colors.colorSecondary};
+    background-color: ${colors.colorSecondary} !important;
   }
 
   .rdtPicker th,

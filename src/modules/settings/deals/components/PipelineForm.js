@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import {
@@ -58,7 +58,7 @@ class PipelineForm extends Component {
     const { stages } = this.state;
 
     return (
-      <div>
+      <Fragment>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -72,7 +72,7 @@ class PipelineForm extends Component {
         </FormGroup>
 
         <Stages stages={stages} onChangeStages={this.onChangeStages} />
-      </div>
+      </Fragment>
     );
   }
 
@@ -92,7 +92,6 @@ class PipelineForm extends Component {
 
           <Modal.Body>
             {this.renderContent()}
-
             <Modal.Footer>
               <Button
                 btnStyle="simple"

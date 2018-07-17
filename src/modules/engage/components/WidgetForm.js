@@ -8,7 +8,7 @@ import {
 } from 'modules/common/components';
 import { METHODS } from 'modules/engage/constants';
 import Editor from './Editor';
-import { EditorWrapper, Recipients, Recipient } from '../styles';
+import { Recipients, Recipient } from '../styles';
 import { ModalFooter } from 'modules/common/styles/main';
 
 class WidgetForm extends Component {
@@ -80,80 +80,85 @@ class WidgetForm extends Component {
   }
 
   renderEmailContent() {
-    if (this.state.channel === 'email') {
-      return (
-        <div>
-          <FormGroup>
-            <ControlLabel>Email subject:</ControlLabel>
-            <FormControl id="emailSubject" type="text" required />
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>Email templates:</ControlLabel>
-
-            <FormControl id="emailTemplateId" componentClass="select">
-              <option />
-              {this.props.emailTemplates.map(t => (
-                <option key={t._id} value={t._id}>
-                  {t.name}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
-        </div>
-      );
+    if (this.state.channel !== 'email') {
+      return null;
     }
+
+    return (
+      <div>
+        <FormGroup>
+          <ControlLabel>Email subject:</ControlLabel>
+          <FormControl id="emailSubject" type="text" required />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Email templates:</ControlLabel>
+
+          <FormControl id="emailTemplateId" componentClass="select">
+            <option />
+            {this.props.emailTemplates.map(t => (
+              <option key={t._id} value={t._id}>
+                {t.name}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+      </div>
+    );
   }
 
   renderMessengerContent() {
-    if (this.state.channel === 'messenger') {
-      return (
-        <div>
-          <FormGroup>
-            <ControlLabel>Brand:</ControlLabel>
-
-            <FormControl id="brandId" componentClass="select">
-              <option />
-              {this.props.brands.map((b, index) => (
-                <option key={`brand-${index}`} value={b._id}>
-                  {b.name}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>Messenger kind:</ControlLabel>
-
-            <FormControl id="messengerKind" componentClass="select">
-              <option />
-              {this.props.messengerKinds.map((t, index) => (
-                <option key={`messengerKind-${index}`} value={t.value}>
-                  {t.text}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>Sent as:</ControlLabel>
-
-            <FormControl id="sentAs" componentClass="select">
-              <option />
-              {this.props.sentAsChoices.map((t, index) => (
-                <option key={`sentAs-${index}`} value={t.value}>
-                  {t.text}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
-        </div>
-      );
+    if (this.state.channel !== 'messenger') {
+      return null;
     }
+
+    return (
+      <div>
+        <FormGroup>
+          <ControlLabel>Brand:</ControlLabel>
+
+          <FormControl id="brandId" componentClass="select">
+            <option />
+            {this.props.brands.map((b, index) => (
+              <option key={`brand-${index}`} value={b._id}>
+                {b.name}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Messenger kind:</ControlLabel>
+
+          <FormControl id="messengerKind" componentClass="select">
+            <option />
+            {this.props.messengerKinds.map((t, index) => (
+              <option key={`messengerKind-${index}`} value={t.value}>
+                {t.text}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Sent as:</ControlLabel>
+
+          <FormControl id="sentAs" componentClass="select">
+            <option />
+            {this.props.sentAsChoices.map((t, index) => (
+              <option key={`sentAs-${index}`} value={t.value}>
+                {t.text}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+      </div>
+    );
   }
 
   render() {
     const { __ } = this.context;
+
     return (
       <form onSubmit={this.save}>
         {this.renderCustomers()}
@@ -177,9 +182,7 @@ class WidgetForm extends Component {
 
         <FormGroup>
           <ControlLabel>Content:</ControlLabel>
-          <EditorWrapper>
-            <Editor onChange={this.onContentChange} />
-          </EditorWrapper>
+          <Editor onChange={this.onContentChange} />
         </FormGroup>
 
         <ModalFooter>

@@ -4,6 +4,7 @@ import TwitterSection from './TwitterSection';
 import FacebookSection from './FacebookSection';
 import BasicInfo from './BasicInfo';
 import EditInformation from './EditInformation';
+import BaseSection from './BaseSection';
 
 export {
   FacebookSection,
@@ -11,5 +12,6 @@ export {
   MessengerSection,
   TaggerSection,
   BasicInfo,
-  EditInformation
+  EditInformation,
+  BaseSection
 };

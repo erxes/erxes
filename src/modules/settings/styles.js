@@ -1,23 +1,17 @@
 import styled from 'styled-components';
 import { dimensions, colors, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import { ActionButtons } from 'modules/knowledgeBase/styles';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
 
 const ContentBox = styled.div`
-  padding: ${coreSpace};
+  padding: ${dimensions.coreSpacing}px;
 `;
 
 const ModuleBox = styled.div`
   padding: ${coreSpace} 0 0 ${coreSpace};
-`;
-
-const Margined = styled.div`
-  padding: ${coreSpace};
-  flex: 1;
-  min-height: 100%;
-  height: 100%;
 `;
 
 const LogoContainer = styled.div`
@@ -29,70 +23,52 @@ const LogoContainer = styled.div`
   height: 56px;
   cursor: pointer;
   box-shadow: 0 0 ${unitSpace} 0 ${rgba(colors.colorBlack, 0.2)};
-  background-image: url('/images/logo-image.png');
+  background-image: url('/images/erxes.png');
   background-color: ${colors.colorPrimary};
   background-position: center;
-  background-size: 46px;
+  background-size: 20px;
   background-repeat: no-repeat;
   margin-top: ${unitSpace};
   position: relative;
   float: right;
 
+  span {
+    position: absolute;
+    width: ${coreSpace};
+    height: ${coreSpace};
+    background: ${colors.colorCoreRed};
+    display: block;
+    right: -2px;
+    top: -5px;
+    color: ${colors.colorWhite};
+    border-radius: ${unitSpace};
+    text-align: center;
+    line-height: ${coreSpace};
+    font-size: ${unitSpace};
+  }
+
   input[type='file'] {
     display: none;
   }
 
-  .icon {
+  label {
+    display: block;
     margin: 0;
     visibility: hidden;
-    transition: all 0.3s ease-in;
-    transition-timing-function: linear;
-    padding: 10px 19px;
     border-radius: 50%;
   }
 
-  &:hover {
-    .icon {
-      visibility: visible;
-      cursor: pointer;
-    }
+  &:hover label {
+    visibility: visible;
+    cursor: pointer;
   }
-`;
-
-const WidgetPreviewStyled = styled.div`
-  font-family: 'Roboto', sans-serif;
-  max-height: 460px;
-  width: 340px;
-  border-radius: 4px;
-  background: ${colors.colorWhite};
-  color: ${colors.colorWhite};
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 2px 15px 0 ${rgba(colors.colorBlack, 0.14)},
-    0 1px 6px 0 ${rgba(colors.colorBlack, 0.06)};
-`;
-
-const LogoSpan = styled.span`
-  position: absolute;
-  width: ${coreSpace};
-  height: ${coreSpace};
-  background: ${colors.colorCoreRed};
-  display: block;
-  right: -2px;
-  top: -5px;
-  color: ${colors.colorWhite};
-  border-radius: ${unitSpace};
-  text-align: center;
-  line-height: ${coreSpace};
-  font-size: ${unitSpace};
 `;
 
 const ColorPick = styled.div`
   border-radius: 4px;
   display: ${props => (props.full ? 'block' : 'inline-block')};
   padding: 5px;
-  border: 1px solid ${colors.colorShadowGray};
+  border: 1px solid ${colors.borderPrimary};
   cursor: pointer;
 `;
 
@@ -106,20 +82,13 @@ const WidgetApperance = styled.div`
   flex-direction: row;
   flex: 1;
   min-height: 100%;
-`;
-
-const WidgetSettings = styled.div`
-  padding: 10px 30px 10px 10px;
+  padding: ${coreSpace};
 `;
 
 const WidgetBackgrounds = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-`;
-
-const WidgetBox = styled.div`
-  margin-bottom: ${coreSpace};
 `;
 
 const SubHeading = styled.h4`
@@ -167,6 +136,16 @@ const InlineItems = styled.div`
 
 const SubItem = styled.div`
   margin-bottom: ${coreSpace};
+
+  img {
+    background-color: ${colors.colorLightGray};
+    max-height: 100px;
+    margin-right: 5px;
+  }
+
+  i:hover {
+    cursor: pointer;
+  }
 `;
 
 const BackgroundSelector = styled.div`
@@ -218,73 +197,20 @@ const BackgroundSelector = styled.div`
   }
 `;
 
-const FlexRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  .flex-item {
-    flex: 1;
-    margin-left: 20px;
-
-    &:first-child {
-      margin: 0;
-    }
-
-    input[type='checkbox'] {
-      display: inline-block;
-      height: auto;
-      width: auto;
-      margin-right: 5px;
-    }
-  }
-
-  span {
-    margin: 0 5px;
-
-    .Select-value-label {
-      color: ${colors.colorLightGray} !important;
-    }
-  }
-
-  button {
-    margin-left: 10px;
-  }
-
-  & + div {
-    margin-top: 10px;
-  }
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 0;
-  overflow: hidden;
-  align-items: center;
-  transition: all 0.3s ease;
-
-  * {
-    padding: 0;
-    margin-left: ${dimensions.unitSpacing}px;
-
-    &:first-child {
-      margin-left: 0;
-    }
-  }
-`;
-
 const SidebarListItem = styled.li`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
   background: ${props => props.isActive && colors.bgActive};
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 20px;
 
   a {
     white-space: normal;
-    padding: 10px 50px 10px 20px;
+    flex: 1;
+    padding: 10px 0 10px 20px;
 
     &:hover {
       background: none;
@@ -296,66 +222,18 @@ const SidebarListItem = styled.li`
     }
   }
 
+  &:last-child {
+    border: none;
+  }
+
   &:hover {
     cursor: pointer;
     background: ${props => !props.isActive && colors.bgLight};
 
     ${ActionButtons} {
-      width: auto;
-      padding-right: ${dimensions.coreSpacing}px;
+      transform: translate(0px);
     }
   }
-`;
-
-const CollapseRow = styled.div`
-  font-size: ${coreSpace};
-  position: relative;
-  justify-content: space-between;
-  padding: ${dimensions.coreSpacing}px 0;
-
-  &:hover {
-    ${ActionButtons} {
-      width: auto;
-
-      span {
-        line-height: 0;
-      }
-
-      i {
-        margin-left: ${dimensions.coreSpacing}px;
-        font-size: ${typography.fontSizeHeading7 - 2}px;
-      }
-    }
-  }
-`;
-
-const TableRow = styled.tr`
-  &:hover {
-    ${ActionButtons} {
-      width: auto;
-      position: inherit;
-      justify-content: flex-end;
-    }
-  }
-`;
-
-const RightButton = styled.div`
-  position: absolute;
-  right: ${dimensions.coreSpacing}px;
-  top: ${dimensions.coreSpacing - 5}px;
-
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
-const IntegrationName = styled.span`
-  margin-right: ${dimensions.unitSpacing}px;
-`;
-
-const BrandName = styled.div`
-  font-size: 11px;
-  color: ${colors.colorCoreGray};
 `;
 
 export {
@@ -365,23 +243,12 @@ export {
   MarkdownWrapper,
   InlineItems,
   SubItem,
-  Margined,
   WidgetApperance,
-  WidgetPreviewStyled,
-  WidgetSettings,
   WidgetBackgrounds,
   BackgroundSelector,
-  WidgetBox,
   ColorPick,
   ColorPicker,
   LogoContainer,
-  LogoSpan,
-  TableRow,
-  FlexRow,
   SidebarListItem,
-  IntegrationName,
-  RightButton,
-  ActionButtons,
-  CollapseRow,
-  BrandName
+  ActionButtons
 };

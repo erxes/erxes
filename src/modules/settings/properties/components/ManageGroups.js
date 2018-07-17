@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
-import { SidebarContent } from 'modules/layout/styles';
+import { SidebarContent } from '../styles';
 import GenerateField from './GenerateField';
+import { BaseSection } from 'modules/customers/components';
 
 const propTypes = {
   fieldsGroups: PropTypes.array.isRequired,
@@ -58,35 +58,39 @@ class GenerateGroups extends React.Component {
   renderGroups() {
     const { fieldsGroups } = this.props;
     const { customFieldsData } = this.state;
-    const { Section } = Sidebar;
 
     return fieldsGroups.map(fieldGroup => {
       if (!fieldGroup.isVisible) return null;
 
+      const content = (
+        <SidebarContent>
+          {fieldGroup.fields.map((field, index) => {
+            if (!field.isVisible) return null;
+
+            return (
+              <GenerateField
+                field={field}
+                name={field._id}
+                key={index}
+                onValueChange={({ _id, value }) =>
+                  this.onChange({ _id, value })
+                }
+                defaultValue={
+                  customFieldsData ? customFieldsData[field._id] : ''
+                }
+              />
+            );
+          })}
+        </SidebarContent>
+      );
+
       return (
-        <Section key={fieldGroup._id}>
-          <Section.Title>{fieldGroup.name}</Section.Title>
-
-          <SidebarContent>
-            {fieldGroup.fields.map((field, index) => {
-              if (!field.isVisible) return null;
-
-              return (
-                <GenerateField
-                  field={field}
-                  name={field._id}
-                  key={index}
-                  onValueChange={({ _id, value }) =>
-                    this.onChange({ _id, value })
-                  }
-                  defaultValue={
-                    customFieldsData ? customFieldsData[field._id] : ''
-                  }
-                />
-              );
-            })}
-          </SidebarContent>
-        </Section>
+        <BaseSection
+          key={fieldGroup._id}
+          title={fieldGroup.name}
+          content={content}
+          name="showManageGroups"
+        />
       );
     });
   }

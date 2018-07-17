@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
+
 import {
   DropdownToggle,
   TaggerPopover,
@@ -44,7 +45,9 @@ const propTypes = {
   removeCustomers: PropTypes.func.isRequired,
   mergeCustomers: PropTypes.func.isRequired,
   basicInfos: PropTypes.object.isRequired,
-  queryParams: PropTypes.object
+  queryParams: PropTypes.object,
+  exportCustomers: PropTypes.func,
+  handleXlsUpload: PropTypes.func
 };
 
 class CustomersList extends React.Component {
@@ -136,7 +139,9 @@ class CustomersList extends React.Component {
       basicInfos,
       location,
       history,
-      queryParams
+      queryParams,
+      exportCustomers,
+      handleXlsUpload
     } = this.props;
     const { __ } = this.context;
 
@@ -185,6 +190,24 @@ class CustomersList extends React.Component {
               <Link to="/settings/properties?type=customer">
                 {__('Properties')}
               </Link>
+            </li>
+            <li>
+              <a onClick={() => exportCustomers(bulk)}>
+                {__('Export customers')}
+              </a>
+            </li>
+            <li>
+              <a>
+                <label style={{ fontWeight: 'normal' }}>
+                  {__('Import customers')}
+                  <input
+                    type="file"
+                    onChange={e => handleXlsUpload(e)}
+                    style={{ display: 'none' }}
+                    accept=".xlsx, .xls"
+                  />
+                </label>
+              </a>
             </li>
           </Dropdown.Menu>
         </Dropdown>

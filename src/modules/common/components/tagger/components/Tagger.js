@@ -51,6 +51,7 @@ class Tagger extends Component {
       );
 
       let state = 'none';
+
       if (count > 0) {
         if (count === targets.length) {
           state = 'all';
@@ -79,6 +80,7 @@ class Tagger extends Component {
         prev && current.selectedBy === tags[index].selectedBy,
       true
     );
+
     if (unchanged) {
       return;
     }
@@ -98,6 +100,7 @@ class Tagger extends Component {
         targets.length > 1
           ? `Selected ${type}s have been tagged!`
           : `The ${type} has been tagged!`;
+
       Alert.success(message);
 
       if (afterSave) {

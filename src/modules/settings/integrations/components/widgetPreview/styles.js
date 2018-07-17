@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { dimensions, colors, typography } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
@@ -30,6 +31,8 @@ const ErxesStaffProfile = styled.div`
     width: 30px;
     height: 30px;
     border-radius: ${coreSpace};
+    border: 1px solid ${colors.colorWhite};
+    margin-left: -10px;
     overflow: hidden;
   }
 `;
@@ -37,17 +40,21 @@ const ErxesStaffProfile = styled.div`
 const ErxesStaffName = styled.div`
   font-size: ${typography.fontSizeBody}px;
   font-weight: ${typography.fontWeightMedium};
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   padding-top: 3px;
-  margin-left: 40px;
+  margin-left: 43px;
 `;
 
 const ErxesState = styled.div`
   font-size: ${typography.fontSizeUppercase}px;
   font-weight: ${typography.fontWeightLight};
-  margin-left: 40px;
+  margin-left: 43px;
 `;
 
-const ErxesWelcomeMessage = styled.li`
+const ErxesSpacialMessage = styled.li`
   padding: 18px;
   border-radius: 4px;
   border: 1px solid ${colors.colorShadowGray};
@@ -145,7 +152,22 @@ const StateSpan = styled.span`
   display: inline-block;
   margin-bottom: 1px;
   margin-right: 3px;
-  background-color: ${colors.colorCoreGreen};
+  background-color: ${props =>
+    props.state ? colors.colorCoreGreen : colors.colorLightGray};
+`;
+
+const WidgetPreviewStyled = styled.div`
+  font-family: 'Roboto', sans-serif;
+  max-height: 460px;
+  width: 340px;
+  border-radius: 4px;
+  background: ${colors.colorWhite};
+  color: ${colors.colorWhite};
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 2px 15px 0 ${rgba(colors.colorBlack, 0.14)},
+    0 1px 6px 0 ${rgba(colors.colorBlack, 0.06)};
 `;
 
 export {
@@ -153,7 +175,7 @@ export {
   ErxesTopbar,
   ErxesState,
   ErxesMessage,
-  ErxesWelcomeMessage,
+  ErxesSpacialMessage,
   ErxesAvatar,
   ErxesDate,
   ErxesMessageSender,
@@ -163,5 +185,6 @@ export {
   StateSpan,
   TopbarButton,
   ErxesStaffName,
-  ErxesStaffProfile
+  ErxesStaffProfile,
+  WidgetPreviewStyled
 };

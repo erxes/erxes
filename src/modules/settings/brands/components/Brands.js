@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Sidebar, IntegrationList, ManageIntegrationForm } from '../containers';
 import {
   Pagination,
   DataWithLoader,
   Button,
   ModalTrigger
 } from 'modules/common/components';
+import { Sidebar } from '../containers';
+import { IntegrationList, ManageIntegration } from '../../common/containers';
 
 const propTypes = {
   integrationsCount: PropTypes.number.isRequired,
@@ -40,7 +41,7 @@ class Brands extends Component {
 
     const rightActionBar = currentBrand._id && (
       <ModalTrigger title="Manage Integration" trigger={trigger} size="lg">
-        <ManageIntegrationForm currentBrand={currentBrand} />
+        <ManageIntegration current={currentBrand} type="brand" />
       </ModalTrigger>
     );
 

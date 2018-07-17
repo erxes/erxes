@@ -144,9 +144,9 @@ class SegmentsForm extends Component {
           <FormGroup>
             {__('Users who match')}
             <FormControl
+              name="connector"
               componentClass="select"
               value={connector}
-              name="connector"
               onChange={this.handleChange}
             >
               <option value="any">{__('any')}</option>
@@ -154,14 +154,17 @@ class SegmentsForm extends Component {
             </FormControl>
             {__('of the below conditions')}
           </FormGroup>
+
           <Conditions
             contentType={contentType}
+            fields={fields}
             parentSegmentId={subOf}
             conditions={conditions}
             changeCondition={this.changeCondition}
             removeCondition={this.removeCondition}
           />
         </ConditionWrapper>
+
         <AddConditionButton
           fields={changedFields}
           addCondition={this.addCondition}

@@ -12,7 +12,10 @@ import {
   FormStep,
   FullPreviewStep
 } from './step';
-import { StepWrapper, TitleContainer } from '../styles';
+import {
+  StepWrapper,
+  TitleContainer
+} from 'modules/common/components/step/styles';
 
 const propTypes = {
   integration: PropTypes.object,
@@ -49,7 +52,7 @@ class Form extends Component {
       theme: form.themeColor || '#6569DF',
       logoPreviewUrl: callout.featuredImage,
       fields: fields || [],
-      isSkip: callout.skip === null ? true : callout.skip
+      isSkip: callout.skip && true
     };
 
     this.onChange = this.onChange.bind(this);
@@ -166,7 +169,6 @@ class Form extends Component {
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
-
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
@@ -175,7 +177,6 @@ class Form extends Component {
             defaultValue={title}
           />
         </TitleContainer>
-
         <Steps active={activeStep}>
           <Step img="/images/icons/erxes-04.svg" title="Type">
             <ChooseType
@@ -188,7 +189,6 @@ class Form extends Component {
               theme={theme}
             />
           </Step>
-
           <Step img="/images/icons/erxes-03.svg" title="CallOut">
             <CallOut
               onChange={this.onChange}
@@ -234,6 +234,8 @@ class Form extends Component {
               onChange={this.onChange}
               thankContent={thankContent}
               type={type}
+              color={color}
+              theme={theme}
               successAction={successAction}
               formData={formData}
             />

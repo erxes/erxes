@@ -1,47 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { CalloutPreview } from './preview';
 import { FormGroup, ControlLabel, Icon } from 'modules/common/components';
-import { dimensions, colors } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { FlexItem, LeftItem, Preview, BoxRow } from './style';
-
-const Box = styled.div`
-  text-align: center;
-  background: ${colors.colorLightBlue};
-  box-shadow: ${props =>
-    props.selected && `0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)}`};
-  border: 1px solid
-    ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};
-  border-radius: ${dimensions.unitSpacing / 2}px;
-  padding: ${dimensions.coreSpacing * 2}px;
-  transition: all 0.3s ease;
-  width: 50%;
-  margin-right: 20px;
-  margin-bottom: 20px;
-
-  i {
-    font-size: 36px;
-    color: ${colors.colorSecondary};
-  }
-
-  span {
-    color: ${colors.colorCoreGray};
-    display: block;
-    margin-top: ${dimensions.unitSpacing}px;
-  }
-
-  &:last-child {
-    margin-right: 0;
-  }
-
-  &:hover {
-    cursor: pointer;
-    box-shadow: ${props =>
-      !props.selected && `0 5px 5px ${rgba(colors.colorCoreGray, 0.08)}`};
-  }
-`;
+import { FlexItem, BoxRow, Box } from './style';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
 
 const propTypes = {
   type: PropTypes.string,

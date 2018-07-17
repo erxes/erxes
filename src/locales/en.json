@@ -262,9 +262,9 @@
   "Manage Knowledge Base": "Manage Knowledge Base",
   "Add Category": "Add Category",
   "Add Article": "Add Article",
-  "Customer engagement. Redefined.": "Customer engagement. Redefined.",
-  "erxes is an AI meets open source messaging platform for sales and marketing teams.":
-    "erxes is an AI meets open source messaging platform for sales and marketing teams.",
+  "Customer engagement. REDEFINED.": "Customer engagement. REDEFINED.",
+  "erxes is an AI meets open source messaging platform for sales, marketing and support":
+    "erxes is an AI meets open source messaging platform for sales, marketing and support",
   "404. This page is not found.": "404. This page is not found.",
   "erxes is an open-source messaging platform for customer success":
     "erxes is an open-source messaging platform for customer success",
@@ -653,5 +653,18 @@
   "Filter by date": "Filter by date",
   "Total conversations": "Total conversations",
   "Filter by form": "Filter by form",
-  "Supporters": "Supporters"
+  "Supporters": "Supporters",
+  "Import histories": "Import histories",
+  "Imported Date": "Imported Date",
+  "Imported User": "Imported User",
+  "Export customers": "Export customers",
+  "Import customers": "Import customers",
+  "Export companies": "Export companies",
+  "Import companies": "Import companies",
+  "All customers imported successfully": "All customers imported successfully",
+  "There aren't any imports": "There aren't any imports",
+  "Successfully Removed all customers": "Successfully Removed all customers",
+  "You can only import max 600 at a time":
+    "You can only import max 600 at a time",
+  "Invalid import type": "Invalid import type"
 }

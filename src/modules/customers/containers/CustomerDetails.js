@@ -13,13 +13,8 @@ const CustomerDetailsContainer = (props, context) => {
     return <Spinner />;
   }
 
-  const refetch = () => {
-    customerDetailQuery.refetch();
-  };
-
   const updatedProps = {
     ...props,
-    refetch,
     customer: customerDetailQuery.customerDetail,
     loadingLogs: customerActivityLogQuery.loading,
     activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],

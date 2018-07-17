@@ -8,6 +8,7 @@ const propTypes = {
   targets: PropTypes.arrayOf(Object).isRequired,
   trigger: PropTypes.element.isRequired,
   afterSave: PropTypes.func,
+  refetchQueries: PropTypes.array,
   container: PropTypes.element
 };
 
@@ -15,16 +16,23 @@ const contextTypes = {
   __: PropTypes.func
 };
 
-function TaggerPopover(
-  { targets, type, trigger, afterSave, container },
-  { __ }
-) {
+function TaggerPopover(props, { __ }) {
+  const {
+    targets,
+    type,
+    trigger,
+    afterSave,
+    refetchQueries,
+    container
+  } = props;
+
   const popover = (
     <Popover id="tags-popover" title={__('Choose your tags')}>
       <Tagger
         targets={targets}
         type={type}
         event="onExit"
+        refetchQueries={refetchQueries}
         afterSave={afterSave}
       />
     </Popover>

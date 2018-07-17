@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import {
@@ -7,16 +8,21 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
+import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Editor from './Editor';
-import { EditorWrapper } from '../styles';
-import { FlexItem, Divider, FlexPad } from './step/style';
-import styled from 'styled-components';
 
 const PreviewContainer = styled.div`
   margin: 20px;
   height: 100%;
   p {
     padding: 20px;
+  }
+`;
+
+const EmailContent = styled.div`
+  p {
+    padding: 20px 40px;
+    margin: 0px;
   }
 `;
 
@@ -35,12 +41,12 @@ class EmailForm extends Component {
     const message = this.props.defaultValue || {};
 
     this.state = {
-      fromUser: message.fromUser,
+      fromUser: message.fromUser || '',
       currentTemplate: '',
       message: message.message,
       email: {
-        subject: message.email.subject,
-        templateId: message.email.templateId
+        subject: message.email.subject || '',
+        templateId: message.email.templateId || ''
       }
     };
   }
@@ -59,10 +65,10 @@ class EmailForm extends Component {
   }
 
   changeContent(key, value) {
-    let email = {
-      ...this.state.email
-    };
+    let email = { ...this.state.email };
+
     email[key] = value;
+
     this.setState({ email });
     this.props.changeEmail('email', email);
   }
@@ -85,18 +91,18 @@ class EmailForm extends Component {
       return template.content;
     }
 
-    return '';
+    return null;
   }
 
   renderBuilder() {
     const contentContainer = document.getElementsByClassName(
       EMAIL_CONTENT_CLASS
     );
-    // render editor to content
 
+    // render editor to content
     if (contentContainer.length > 0) {
       ReactDom.render(
-        <div
+        <EmailContent
           dangerouslySetInnerHTML={{
             __html: this.props.defaultValue.message
           }}
@@ -107,16 +113,17 @@ class EmailForm extends Component {
   }
 
   renderMessage() {
-    if (this.state.currentTemplate !== '') {
-      return (
-        <PreviewContainer
-          dangerouslySetInnerHTML={{
-            __html: this.state.currentTemplate
-          }}
-        />
-      );
+    if (!this.state.currentTemplate) {
+      return null;
     }
-    return null;
+
+    return (
+      <PreviewContainer
+        dangerouslySetInnerHTML={{
+          __html: this.state.currentTemplate
+        }}
+      />
+    );
   }
 
   render() {
@@ -125,19 +132,18 @@ class EmailForm extends Component {
         <FlexPad direction="column" overflow="auto">
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
-            <EditorWrapper>
-              <Editor
-                onChange={this.props.changeEmail}
-                defaultValue={this.state.message}
-              />
-            </EditorWrapper>
+            <Editor
+              onChange={this.props.changeEmail}
+              defaultValue={this.state.message}
+            />
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <FormControl
               componentClass="select"
               onChange={e => this.changeUser(e.target.value)}
-              defaultValue={this.state.fromUser}
+              value={this.state.fromUser}
             >
               <option />{' '}
               {this.props.users.map(u => (
@@ -147,6 +153,7 @@ class EmailForm extends Component {
               ))}
             </FormControl>
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>Email subject:</ControlLabel>
             <FormControl
@@ -154,12 +161,13 @@ class EmailForm extends Component {
               defaultValue={this.state.email.subject}
             />
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>Email template:</ControlLabel>
             <FormControl
               componentClass="select"
               onChange={e => this.templateChange(e.target.value)}
-              defaultValue={this.state.email.templateId}
+              value={this.state.email.templateId}
             >
               <option />{' '}
               {this.props.templates.map(t => (
@@ -170,7 +178,7 @@ class EmailForm extends Component {
             </FormControl>
           </FormGroup>
         </FlexPad>
-        <Divider />
+
         <FlexItem v="center" h="center" overflow="auto">
           {this.renderMessage()}
         </FlexItem>

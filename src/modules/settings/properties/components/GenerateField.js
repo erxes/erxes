@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { InputDescription } from '../styles';
 import {
   ControlLabel,
   FormGroup,
@@ -182,9 +181,7 @@ export default class GenerateField extends Component {
           {field.isRequired ? <span className="required">*</span> : null}
         </ControlLabel>
 
-        {field.description ? (
-          <InputDescription>{field.description}</InputDescription>
-        ) : null}
+        {field.description ? <p>{field.description}</p> : null}
 
         {this.renderControl()}
       </FormGroup>

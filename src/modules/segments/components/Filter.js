@@ -60,7 +60,7 @@ class Segments extends React.Component {
               </Link>
             </li>
             <li>
-              <Link to={`/segments/new/${contentType}`}>
+              <Link to={`/segments/${contentType}`}>
                 {__('Manage segments')}
               </Link>
             </li>
@@ -117,9 +117,7 @@ class Segments extends React.Component {
 
     return (
       <Section collapsible={segments.length > 5}>
-        <Header spaceBottom uppercase>
-          {__('Filter by segments')}
-        </Header>
+        <Header uppercase>{__('Filter by segments')}</Header>
 
         {this.renderQuickBtns()}
 

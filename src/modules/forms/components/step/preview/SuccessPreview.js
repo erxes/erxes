@@ -1,20 +1,27 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import CommonPreview from './CommonPreview';
-import { ThankContent } from '../style';
+import { ThankContent } from './styles';
 
 const propTypes = {
   thankContent: PropTypes.string,
   onChange: PropTypes.func,
-  type: PropTypes.string
+  type: PropTypes.string,
+  color: PropTypes.string,
+  theme: PropTypes.string
 };
 
 class SuccessPreview extends Component {
   render() {
-    const { thankContent, type } = this.props;
+    const { theme, color, thankContent, type } = this.props;
 
     return (
-      <CommonPreview btnText="Cancel" btnStyle="link" theme="" type={type}>
+      <CommonPreview
+        title={thankContent}
+        theme={theme}
+        color={color}
+        type={type}
+      >
         <ThankContent>{thankContent}</ThankContent>
       </CommonPreview>
     );

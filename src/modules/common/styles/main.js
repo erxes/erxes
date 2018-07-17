@@ -31,7 +31,7 @@ const BoxRoot = styled.div`
   }
 
   img {
-    width: 75px;
+    width: 83px;
     transition: all 0.5s ease;
   }
 
@@ -144,11 +144,23 @@ const ActivityContent = styled.div`
 `;
 
 const Well = styled.div`
-  min-height: ${dimensions.coreSpacing};
-  padding: ${dimensions.unitSpacing} ${dimensions.coreSpacing};
-  margin-bottom: ${dimensions.coreSpacing};
+  min-height: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
   background-color: ${colors.bgActive};
   border-left: 2px solid ${colors.colorSecondary};
+`;
+
+const DropIcon = styled.span`
+  &:after {
+    cursor: pointer;
+    content: '\\e827';
+    font-family: 'erxes';
+    float: right;
+    transition: all ease 0.3s;
+    margin-left: ${dimensions.unitSpacing}px;
+    transform: ${props => props.isOpen && `rotate(180deg)`};
+  }
 `;
 
 export {
@@ -162,5 +174,6 @@ export {
   FormColumn,
   ColumnTitle,
   CenterContent,
-  ActivityContent
+  ActivityContent,
+  DropIcon
 };
