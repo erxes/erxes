@@ -5,7 +5,7 @@ cache:
   directories:
     - node_modules
 node_js:
-  - "stable"
+  - "6.9"
 install:
   - yarn global add codecov
 before_script:
