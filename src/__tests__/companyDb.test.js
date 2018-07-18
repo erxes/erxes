@@ -26,7 +26,8 @@ const check = (companyObj, doc) => {
 };
 
 const generateDoc = () => ({
-  name: 'name',
+  displayName: 'name',
+  similarNames: ['name'],
   website: 'http://company.com',
   size: 1,
   industry: 'Airlines',
@@ -50,7 +51,7 @@ describe('Companies model tests', () => {
 
     // check duplication
     try {
-      await Companies.createCompany({ name: _company.name });
+      await Companies.createCompany({ similarNames: [_company.similarNames[0]] });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }
@@ -67,7 +68,7 @@ describe('Companies model tests', () => {
 
     const doc = generateDoc();
 
-    const previousCompany = await companyFactory({ name: doc.name });
+    const previousCompany = await companyFactory({ similarNames: [doc.similarNames] });
 
     // test duplication
     try {
@@ -194,7 +195,7 @@ describe('Companies model tests', () => {
 
     // test duplication
     try {
-      await Companies.mergeCompanies(companyIds, { name: _company.name });
+      await Companies.mergeCompanies(companyIds, { similarNames: [_company.similarNames] });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }
@@ -212,7 +213,8 @@ describe('Companies model tests', () => {
     });
 
     const doc = {
-      name: 'Test name',
+      displayName: 'Test name',
+      similarNames: ['Test name'],
       website: 'Test webiste',
       size: 230,
       industry: 'Airlines',
@@ -221,7 +223,8 @@ describe('Companies model tests', () => {
 
     const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
 
-    expect(updatedCompany.name).toBe(doc.name);
+    expect(updatedCompany.displayName).toBe(doc.displayName);
+    expect(updatedCompany.similarNames).toEqual(expect.arrayContaining(doc.similarNames));
     expect(updatedCompany.website).toBe(doc.website);
     expect(updatedCompany.size).toBe(doc.size);
     expect(updatedCompany.industry).toBe(doc.industry);

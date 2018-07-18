@@ -31,12 +31,14 @@ const CompanySchema = mongoose.Schema({
 
   displayName: field({
     type: String,
-    label: 'Name',
+    label: 'Display Name',
+    optional: true,
   }),
 
   similarNames: field({
     type: [String],
-    label: 'Names',
+    label: 'Similar Names',
+    optional: true,
   }),
 
   size: field({

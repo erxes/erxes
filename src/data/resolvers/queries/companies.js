@@ -17,7 +17,7 @@ const listQuery = async params => {
 
   if (params.searchValue) {
     const fields = [
-      { name: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { similarNames: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
       { website: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { industry: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { plan: new RegExp(`.*${params.searchValue}.*`, 'i') },
