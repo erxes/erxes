@@ -65,11 +65,13 @@ class CompanyForm extends React.Component {
   }
 
   action(e) {
+    const { similarNames, displayName } = this.state;
     e.preventDefault();
 
     this.props.action({
       doc: {
-        name: document.getElementById('company-name').value,
+        similarNames,
+        displayName,
         size: document.getElementById('company-size').value,
         industry: document.getElementById('company-industry').value,
         plan: document.getElementById('company-plan').value,

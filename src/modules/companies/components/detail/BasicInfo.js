@@ -107,7 +107,7 @@ class BasicInfo extends React.Component {
         <InfoWrapper>
           <CompanyLogo />
           <div className="name">
-            {company.name}
+            {company.displayName}
             {this.renderLinks(links)}
           </div>
           <ModalTrigger
@@ -127,7 +127,7 @@ class BasicInfo extends React.Component {
           {this.renderRow('Plan', company.plan)}
           {this.renderRow(
             'Parent Company',
-            company.parentCompany ? company.parentCompany.name : '-'
+            company.parentCompany ? company.parentCompany.displayName : '-'
           )}
           {this.renderRow('Email', company.email)}
           {this.renderRow(
