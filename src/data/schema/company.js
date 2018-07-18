@@ -66,7 +66,8 @@ export const queries = `
 `;
 
 const commonFields = `
-  name: String,
+  displayName: String,
+  similarNames: [String]
   size: Int,
   website: String,
   industry: String,
