@@ -16,11 +16,10 @@ const conversationMessageInserted = `
   }
 `;
 
-const conversationsChanged = `
-  subscription conversationsChanged {
-    conversationsChanged {
-      type
-      customerId
+const conversationClientMessageInserted = `
+  subscription conversationClientMessageInserted {
+    conversationClientMessageInserted {
+      _id
     }
   }
 `;
@@ -37,6 +36,6 @@ const customerConnectionChanged = `
 export default {
   conversationChanged,
   conversationMessageInserted,
-  conversationsChanged,
+  conversationClientMessageInserted,
   customerConnectionChanged
 };

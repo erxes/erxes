@@ -5,6 +5,7 @@ import gql from 'graphql-tag';
 import AssignBox from '../components/assignBox/AssignBox';
 import Alert from 'modules/common/utils/Alert';
 import { queries, mutations } from '../graphql';
+import { refetchSidebarConversationsOptions } from '../utils';
 
 const AssignBoxContainer = props => {
   const { usersQuery, assignMutation, conversationsUnassign } = props;
@@ -61,8 +62,12 @@ AssignBoxContainer.propTypes = {
 
 export default compose(
   graphql(gql(queries.userList), { name: 'usersQuery' }),
-  graphql(gql(mutations.conversationsAssign), { name: 'assignMutation' }),
+  graphql(gql(mutations.conversationsAssign), {
+    name: 'assignMutation',
+    options: () => refetchSidebarConversationsOptions()
+  }),
   graphql(gql(mutations.conversationsUnassign), {
-    name: 'conversationsUnassign'
+    name: 'conversationsUnassign',
+    options: () => refetchSidebarConversationsOptions()
   })
 )(AssignBoxContainer);

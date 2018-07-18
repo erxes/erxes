@@ -3,11 +3,22 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
-import { Content } from 'modules/inbox/components/leftSidebar';
-import { queries } from 'modules/inbox/graphql';
+import { ConversationList } from 'modules/inbox/components/leftSidebar';
+import { queries, subscriptions } from 'modules/inbox/graphql';
 import { generateParams } from 'modules/inbox/utils';
 
-class LeftSidebarContent extends Component {
+class ConversationListContainer extends Component {
+  componentWillMount() {
+    const { conversationsQuery } = this.props;
+
+    conversationsQuery.subscribeToMore({
+      document: gql(subscriptions.conversationClientMessageInserted),
+      updateQuery: () => {
+        conversationsQuery.refetch();
+      }
+    });
+  }
+
   render() {
     const { history, conversationsQuery } = this.props;
 
@@ -22,15 +33,14 @@ class LeftSidebarContent extends Component {
       ...this.props,
       conversations,
       onChangeConversation,
-      refetch: conversationsQuery.refetch,
       loading: conversationsQuery.loading
     };
 
-    return <Content {...updatedProps} />;
+    return <ConversationList {...updatedProps} />;
   }
 }
 
-LeftSidebarContent.propTypes = {
+ConversationListContainer.propTypes = {
   conversationsQuery: PropTypes.object,
   history: PropTypes.object
 };
@@ -39,8 +49,7 @@ export default compose(
   graphql(gql(queries.sidebarConversations), {
     name: 'conversationsQuery',
     options: ({ queryParams }) => ({
-      variables: generateParams(queryParams),
-      pollInterval: 3000
+      variables: generateParams(queryParams)
     })
   })
-)(LeftSidebarContent);
+)(ConversationListContainer);

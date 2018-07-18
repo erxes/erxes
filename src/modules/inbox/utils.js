@@ -1,3 +1,7 @@
+import gql from 'graphql-tag';
+import queryString from 'query-string';
+import { queries } from './graphql';
+
 export const generateParams = queryParams => ({
   limit: queryParams.limit || 10,
   channelId: queryParams.channelId,
@@ -11,3 +15,16 @@ export const generateParams = queryParams => ({
   startDate: queryParams.startDate,
   endDate: queryParams.endDate
 });
+
+export const refetchSidebarConversationsOptions = () => {
+  const queryParams = queryString.parse(window.location.search);
+
+  return {
+    refetchQueries: [
+      {
+        query: gql(queries.sidebarConversations),
+        variables: generateParams(queryParams)
+      }
+    ]
+  };
+};

@@ -9,7 +9,7 @@ class NavigationContainer extends React.Component {
   componentWillMount() {
     this.props.unreadConversationsCountQuery.subscribeToMore({
       // listen for all conversation changes
-      document: gql(subscriptions.conversationsChanged),
+      document: gql(subscriptions.conversationClientMessageInserted),
 
       updateQuery: () => {
         this.props.unreadConversationsCountQuery.refetch();

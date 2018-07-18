@@ -508,12 +508,12 @@ injectGlobal`
   }
 
   .rdtPicker td.rdtToday:before {
-    border-bottom: 7px solid ${colors.colorSecondary};
+    border-bottom: 7px solid ${colors.colorSecondary} !important;
   }
 
   .rdtPicker td.rdtActive,
   .rdtPicker td.rdtActive:hover {
-    background-color: ${colors.colorSecondary};
+    background-color: ${colors.colorSecondary} !important;
   }
 
   .rdtPicker th,

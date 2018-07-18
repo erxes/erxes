@@ -1,17 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import {
-  Button,
-  Label,
-  Icon,
-  TaggerPopover,
-  Tags
-} from 'modules/common/components';
+import { Button, Label, Icon, Tags } from 'modules/common/components';
 import { ContentBox, ContenFooter } from 'modules/layout/styles';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems } from 'modules/layout/styles';
-import { Resolver } from 'modules/inbox/containers';
+import { Resolver, Tagger } from 'modules/inbox/containers';
 import { RespondBox } from 'modules/inbox/containers/conversationDetail';
 import { AssignBoxPopover } from 'modules/inbox/components';
 import {
@@ -99,8 +93,7 @@ export default class WorkArea extends Component {
       currentConversation,
       conversationMessages,
       addMessage,
-      loading,
-      refetch
+      loading
     } = this.props;
 
     const { __ } = this.context;
@@ -136,11 +129,10 @@ export default class WorkArea extends Component {
 
     const actionBarRight = (
       <BarItems>
-        <TaggerPopover
+        <Tagger
           targets={[currentConversation]}
           type="conversation"
           trigger={tagTrigger}
-          afterSave={refetch}
         />
 
         <Resolver conversations={[currentConversation]} />
@@ -200,7 +192,6 @@ export default class WorkArea extends Component {
 
 WorkArea.propTypes = {
   queryParams: PropTypes.object,
-  refetch: PropTypes.func,
   title: PropTypes.string,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,

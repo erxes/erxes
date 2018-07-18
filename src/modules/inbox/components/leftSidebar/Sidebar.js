@@ -2,14 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { Sidebar } from 'modules/layout/components';
-import {
-  Bulk,
-  Icon,
-  TaggerPopover,
-  DateFilter
-} from 'modules/common/components';
-import { Resolver } from 'modules/inbox/containers';
-import { Content } from 'modules/inbox/containers/leftSidebar';
+import { Bulk, Icon, DateFilter } from 'modules/common/components';
+import { Resolver, Tagger } from 'modules/inbox/containers';
+import { ConversationList } from 'modules/inbox/containers/leftSidebar';
 import { PopoverButton } from 'modules/inbox/styles';
 import { queries } from 'modules/inbox/graphql';
 import { RightItems } from './styles';
@@ -48,7 +43,7 @@ class LeftSidebar extends Bulk {
               trigger={this.renderTrigger('Assign')}
             />
 
-            <TaggerPopover
+            <Tagger
               targets={bulk}
               type="conversation"
               trigger={this.renderTrigger('Tag')}
@@ -144,7 +139,7 @@ class LeftSidebar extends Bulk {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        <Content
+        <ConversationList
           currentConversationId={currentConversationId}
           totalCount={totalCount}
           history={history}
