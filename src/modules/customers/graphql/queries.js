@@ -112,7 +112,7 @@ const customerDetail = `
       ${customerFields}
       companies {
         _id
-        name
+        displayName
         website
       }
       conversations {
@@ -156,7 +156,7 @@ const customerDetail = `
         _id
         companies {
           _id
-          name
+          displayName
         }
         customers {
           _id
@@ -291,7 +291,7 @@ const generateCustomerDetailQuery = params => {
       ${fields}
       companies {
         _id
-        name
+        displayName
         website
       }
     `;

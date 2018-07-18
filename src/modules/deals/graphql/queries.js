@@ -77,7 +77,7 @@ const dealDetail = `
       boardId
       companies {
         _id
-        name
+        displayName
         website
       }
       customers {

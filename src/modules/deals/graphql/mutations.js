@@ -28,7 +28,7 @@ const commonReturn = `
   stageId
   companies {
     _id
-    name
+    displayName
   }
   customers {
     _id

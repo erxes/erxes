@@ -80,7 +80,7 @@ const customersEditCompanies = `
     customersEditCompanies(_id: $_id, companyIds: $companyIds) {
       companies {
         _id
-        name
+        displayName
         website
       }
     }

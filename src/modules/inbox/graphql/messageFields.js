@@ -55,7 +55,7 @@ export default `
     isUser
     companies {
       _id
-      name
+      displayName
       website
     }
 
