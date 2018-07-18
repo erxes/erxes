@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { NameCard, Icon } from 'modules/common/components';
+import { NameCard, Icon, Tip } from 'modules/common/components';
 import {
   ActivityRow,
   AvatarWrapper,
@@ -13,15 +13,6 @@ import {
 } from 'modules/activityLogs/styles';
 
 const ActivityItem = data => {
-  const DAY = 1000 * 60 * 60 * 24;
-  const diff = new Date().getTime() - data.date;
-  const displayDate =
-    diff <= DAY
-      ? moment(data.date).fromNow()
-      : `${moment(data.date).format('ll')} at ${moment(data.date).format(
-          'LT'
-        )}`;
-
   return (
     <ActivityRow key={Math.random()}>
       <ActivityIcon color={data.color}>
@@ -35,7 +26,9 @@ const ActivityItem = data => {
           <FlexBody>
             <div>{data.caption}</div>
           </FlexBody>
-          <ActivityDate>{displayDate}</ActivityDate>
+          <Tip text={moment(data.date).format('lll')}>
+            <ActivityDate>{moment(data.date).fromNow()}</ActivityDate>
+          </Tip>
         </FlexContent>
         {data.content && <ActivityContent>{data.content}</ActivityContent>}
       </Fragment>
