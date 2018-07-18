@@ -371,7 +371,8 @@ export const COMPANY_INDUSTRY_TYPES = [
 ];
 
 export const COMPANY_BASIC_INFOS = [
-  'name',
+  'displayName',
+  'similarNames',
   'size',
   'industry',
   'website',

@@ -1,7 +1,8 @@
 export const types = `
   type Company {
     _id: String!
-    name: String
+    displayName: String
+    similarNames: [String]
     size: Int
     website: String
     industry: String

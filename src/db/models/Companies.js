@@ -23,10 +23,15 @@ const LinkSchema = mongoose.Schema(
 
 const CompanySchema = mongoose.Schema({
   _id: field({ pkey: true }),
-  name: field({
+  displayName: field({
     type: String,
     label: 'Name',
     unique: true,
+  }),
+
+  similarNames: field({
+    type: [String],
+    label: 'Names',
   }),
 
   size: field({
@@ -133,8 +138,8 @@ class Company {
     }
 
     // Checking if company has name
-    if (companyFields.name) {
-      query.name = companyFields.name;
+    if (companyFields.similarNames) {
+      query.similarNames = { $in: companyFields.name };
       const previousEntry = await this.find(query);
 
       // Checking if duplicated
