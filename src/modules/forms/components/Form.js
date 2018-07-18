@@ -202,7 +202,7 @@ class Form extends Component {
               skip={isSkip}
             />
           </Step>
-          <Step img="/images/icons/erxes-12.svg" title={__('Lead')}>
+          <Step img="/images/icons/erxes-12.svg" title={__('Form')}>
             <FormStep
               onChange={this.onChange}
               formTitle={formTitle}

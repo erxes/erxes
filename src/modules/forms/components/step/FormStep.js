@@ -203,7 +203,7 @@ class FormStep extends Component {
     return (
       <Fragment>
         <FormGroup>
-          <ControlLabel>{__('Lead title')}</ControlLabel>
+          <ControlLabel>{__('Form title')}</ControlLabel>
           <FormControl
             id="form-btn-text"
             value={this.props.formTitle}
@@ -212,7 +212,7 @@ class FormStep extends Component {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Lead description')}</ControlLabel>
+          <ControlLabel>{__('Form description')}</ControlLabel>
           <FormControl
             id="form-btn-text"
             value={this.props.formDesc}
@@ -280,7 +280,7 @@ class FormStep extends Component {
         {this.renderOptionsTextArea()}
 
         <FormGroup>
-          <ControlLabel>{__('Lead button text')}</ControlLabel>
+          <ControlLabel>{__('Form button text')}</ControlLabel>
           <FormControl
             id="form-btn-text"
             value={this.props.formBtnText}

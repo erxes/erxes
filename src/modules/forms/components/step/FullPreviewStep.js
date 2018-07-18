@@ -106,7 +106,7 @@ class FullPreviewStep extends Component {
           {this.renderResolutionPreview()}
           <CarouselSteps>
             {!this.props.skip && this.carouseItems('CallOut', 'callout')}
-            {this.carouseItems('Lead', 'form')}
+            {this.carouseItems('Form', 'form')}
             {this.carouseItems('Success', 'success')}
           </CarouselSteps>
         </FullPreview>
