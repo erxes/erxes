@@ -1,5 +1,6 @@
 const commonFields = `
-  $name: String,
+  $similarNames: String,
+  $displayName: [String],
   $size: Int,
   $industry: String,
   $plan: String,
@@ -18,7 +19,8 @@ const commonFields = `
 `;
 
 const commonVariables = `
-  name: $name,
+  similarNames: $similarNames,
+  displayName: $displayName,
   size: $size,
   industry: $industry,
   plan: $plan,

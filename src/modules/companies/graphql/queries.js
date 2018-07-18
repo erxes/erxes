@@ -1,6 +1,7 @@
 const companyFields = `
   _id
-  name
+  displayName
+  similarNames
   size
   industry
   website
@@ -30,7 +31,7 @@ const companyFields = `
     }
   }
   parentCompany {
-    name
+    displayName
   }
 
   customFieldsData
@@ -101,7 +102,7 @@ export const companyDetail = `
         _id
         companies {
           _id
-          name
+          displayName
         }
         customers {
           _id
