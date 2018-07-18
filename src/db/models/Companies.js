@@ -23,10 +23,15 @@ const LinkSchema = mongoose.Schema(
 
 const CompanySchema = mongoose.Schema({
   _id: field({ pkey: true }),
-  displayName: field({
+  name: field({
     type: String,
     label: 'Name',
     unique: true,
+  }),
+
+  displayName: field({
+    type: String,
+    label: 'Name',
   }),
 
   similarNames: field({
