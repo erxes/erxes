@@ -189,68 +189,6 @@ class Conversation {
   }
 
   /**
-   * Star conversation
-   * @param  {list} _ids - Ids of conversations
-   * @param  {String} userId
-   * @return {Promise} Updated user object
-   */
-  static async starConversation(_ids, userId) {
-    await this.checkExistanceConversations(_ids);
-
-    await Users.update({ _id: userId }, { $addToSet: { starredConversationIds: { $each: _ids } } });
-
-    return Users.findOne({ _id: userId });
-  }
-
-  /**
-   * Unstar conversation
-   * @param  {list} _ids - Ids of conversations
-   * @param  {string} userId
-   * @return {Promise} Updated user object
-   */
-  static async unstarConversation(_ids, userId) {
-    // check conversations existance
-    await this.checkExistanceConversations(_ids);
-
-    await Users.update({ _id: userId }, { $pull: { starredConversationIds: { $in: _ids } } });
-
-    return Users.findOne({ _id: userId });
-  }
-
-  /**
-   * Add participated user to conversation
-   * @param  {list} _ids
-   * @param  {String} userId
-   * @param  {Boolean} toggle - Add only if true
-   * @return {Promise} Updated conversation list
-   */
-  static async toggleParticipatedUsers(_ids, userId) {
-    const { selector } = await this.checkExistanceConversations(_ids);
-
-    const extendSelector = {
-      ...selector,
-      participatedUserIds: { $in: [userId] },
-    };
-
-    // not previously added
-    if ((await this.find(extendSelector).count()) === 0) {
-      await this.update(
-        { _id: { $in: _ids } },
-        { $addToSet: { participatedUserIds: userId } },
-        { multi: true },
-      );
-    } else {
-      // remove
-      await this.update(
-        { _id: { $in: _ids } },
-        { $pull: { participatedUserIds: { $in: [userId] } } },
-        { multi: true },
-      );
-    }
-    return this.find({ _id: { $in: _ids } });
-  }
-
-  /**
    * Mark as read conversation
    * @param  {String} _id - Id of conversation
    * @param  {String} userId

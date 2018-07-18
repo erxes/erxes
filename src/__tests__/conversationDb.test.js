@@ -195,50 +195,6 @@ describe('Conversation db', () => {
     expect(conversationObj.status).toBe('open');
   });
 
-  test('Conversation star', async () => {
-    const user = await Conversations.starConversation([_conversation._id], _user._id);
-
-    expect(user.starredConversationIds[0]).toBe(_conversation._id);
-  });
-
-  test('Conversation unstar', async () => {
-    const ids = [_conversation._id];
-
-    // star first before unstar
-    await Users.update(
-      { _id: _user.id },
-      { $addToSet: { starredConversationIds: { $each: ids } } },
-    );
-
-    // unstar
-    const user = await Conversations.unstarConversation(ids, _user._id);
-
-    expect(user.starredConversationIds.length).toBe(0);
-  });
-
-  test('Toggle participated users in conversation ', async () => {
-    // make sure participated users is empty
-    expect(_conversation.participatedUserIds.length).toBe(0);
-
-    // add user to conversation
-    await Conversations.toggleParticipatedUsers([_conversation._id], _user.id);
-
-    const conversationObj = await Conversations.findOne({
-      _id: _conversation.id,
-    });
-
-    expect(conversationObj.participatedUserIds).toContain(_user._id);
-
-    // remove user from conversation
-    await Conversations.toggleParticipatedUsers([_conversation._id], _user.id);
-
-    const conversationObjWithParticipatedUser = await Conversations.findOne({
-      _id: _conversation.id,
-    });
-
-    expect(conversationObjWithParticipatedUser.participatedUserIds.includes(_user.id)).toBeFalsy();
-  });
-
   test('Conversation mark as read', async () => {
     // first user read this conversation
     _conversation.readUserIds = '';

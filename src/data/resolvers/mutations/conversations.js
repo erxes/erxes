@@ -35,77 +35,54 @@ export const conversationNotifReceivers = (conversation, currentUserId) => {
 };
 
 /**
- * Publish updated conversation
+ * Using this subscription to track conversation detail's assignee, tag, status
+ * changes
  * @param  {[String]} _ids of conversations
  * @param  {String} type of status
  */
-const conversationsChanged = async (_ids, type) => {
+export const publishConversationsChanged = (_ids, type) => {
   for (let _id of _ids) {
-    const conversation = await Conversations.findOne({ _id });
-
-    // notify new message
     pubsub.publish('conversationChanged', {
       conversationChanged: { conversationId: _id, type },
     });
-
-    if (conversation) {
-      pubsub.publish('conversationsChanged', {
-        conversationsChanged: { customerId: conversation.customerId, type },
-      });
-    }
   }
 
   return _ids;
 };
 
-/**
- * Publish created message
+/*
+ * Publish admin's message
  * @param  {Object} message object
  * @param  {String} conversationId
  */
-export const conversationMessageCreated = async (message, conversationId) => {
-  // subscribe message created
+export const publishMessage = (message, customerId) => {
   pubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
   });
 
-  const conversation = await Conversations.findOne({ _id: conversationId });
-
-  // subscribe conversation changed
-  pubsub.publish('conversationsChanged', {
-    conversationsChanged: { customerId: conversation.customerId, type: 'newMessage' },
-  });
-
-  // notify notification subscription
-  pubsub.publish('notificationsChanged');
-};
-
-/*
- * Send notification helper
- */
-const sendNotification = doc => {
-  // send notification
-  utils.sendNotification(doc);
-
-  // notify notification subscription
-  pubsub.publish('notificationsChanged');
+  // widget is listening for this subscription to show notification
+  // customerId available means trying to notify to client
+  if (customerId) {
+    pubsub.publish('conversationAdminMessageInserted', {
+      conversationAdminMessageInserted: { ...message.toJSON(), customerId },
+    });
+  }
 };
 
 const conversationMutations = {
   /*
    * Calling this mutation from widget api run new message subscription
    */
-  async conversationSubscribeMessageCreated(root, { _id }) {
+  async conversationPublishClientMessage(root, { _id }) {
     const message = await ConversationMessages.findOne({ _id });
 
-    return conversationMessageCreated(message, message.conversationId);
-  },
+    // notifying to conversationd detail
+    publishMessage(message);
 
-  /*
-   * Calling this mutation from widget api run read state subscription
-   */
-  async conversationSubscribeChanged(root, { _ids, type }) {
-    return conversationsChanged(_ids, type);
+    // notifying to total unread count
+    pubsub.publish('conversationClientMessageInserted', {
+      conversationClientMessageInserted: message,
+    });
   },
 
   /**
@@ -124,7 +101,7 @@ const conversationMutations = {
     // send notification =======
     const title = 'You have a new message.';
 
-    sendNotification({
+    utils.sendNotification({
       createdUser: user._id,
       notifType: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
       title,
@@ -137,8 +114,8 @@ const conversationMutations = {
     if (doc.internal) {
       const message = await ConversationMessages.addMessage(doc, user._id);
 
-      // notify subscription
-      await conversationMessageCreated(message, doc.conversationId);
+      // publish new message to conversation detail
+      publishMessage(message);
 
       return message;
     }
@@ -181,8 +158,8 @@ const conversationMutations = {
       await facebookReply(conversation, strip(doc.content), message._id);
     }
 
-    // notify subscription
-    await conversationMessageCreated(message, doc.conversationId);
+    // Publishing both admin & client
+    publishMessage(message, conversation.customerId);
 
     return message;
   },
@@ -236,13 +213,13 @@ const conversationMutations = {
     );
 
     // notify graphl subscription
-    await conversationsChanged(conversationIds, 'assigneeChanged');
+    publishConversationsChanged(conversationIds, 'assigneeChanged');
 
     for (let conversation of updatedConversations) {
       const content = 'Assigned user has changed';
 
       // send notification
-      sendNotification({
+      utils.sendNotification({
         createdUser: user._id,
         notifType: NOTIFICATION_TYPES.CONVERSATION_ASSIGNEE_CHANGE,
         title: content,
@@ -264,7 +241,7 @@ const conversationMutations = {
     const conversations = await Conversations.unassignUserConversation(_ids);
 
     // notify graphl subscription
-    conversationsChanged(_ids, 'assigneeChanged');
+    publishConversationsChanged(_ids, 'assigneeChanged');
 
     return conversations;
   },
@@ -281,7 +258,7 @@ const conversationMutations = {
     await Conversations.changeStatusConversation(_ids, status, user._id);
 
     // notify graphl subscription
-    await conversationsChanged(_ids, status);
+    publishConversationsChanged(_ids, status);
 
     for (let conversation of conversations) {
       if (status === CONVERSATION_STATUSES.CLOSED) {
@@ -311,7 +288,7 @@ const conversationMutations = {
 
       const content = 'Conversation status has changed.';
 
-      sendNotification({
+      utils.sendNotification({
         createdUser: user._id,
         notifType: NOTIFICATION_TYPES.CONVERSATION_STATE_CHANGE,
         title: content,
@@ -322,38 +299,6 @@ const conversationMutations = {
     }
 
     return Conversations.find({ _id: { $in: _ids } });
-  },
-
-  /**
-   * Star conversation
-   * @param  {list} _ids of conversation
-   * @return {Promise} user object of starred conversations
-   */
-  async conversationsStar(root, { _ids }, { user }) {
-    return Conversations.starConversation(_ids, user._id);
-  },
-
-  /**
-   * Unstar conversation
-   * @param  {list} _ids of conversation
-   * @return {Promise} user object from unstarred conversations
-   */
-  async conversationsUnstar(root, { _ids }, { user }) {
-    return Conversations.unstarConversation(_ids, user._id);
-  },
-
-  /**
-   * Add or remove participed users in conversation
-   * @param  {list} _ids of conversation
-   * @return {Promise} updated conversations
-   */
-  async conversationsToggleParticipate(root, { _ids }, { user }) {
-    const conversations = await Conversations.toggleParticipatedUsers(_ids, user._id);
-
-    // notify graphl subscription
-    conversationsChanged(_ids, 'participatedStateChanged');
-
-    return conversations;
   },
 
   /**
@@ -370,9 +315,6 @@ requireLogin(conversationMutations, 'conversationMessageAdd');
 requireLogin(conversationMutations, 'conversationsAssign');
 requireLogin(conversationMutations, 'conversationsUnassign');
 requireLogin(conversationMutations, 'conversationsChangeStatus');
-requireLogin(conversationMutations, 'conversationsStar');
-requireLogin(conversationMutations, 'conversationsUnstar');
-requireLogin(conversationMutations, 'conversationsToggleParticipate');
 requireLogin(conversationMutations, 'conversationMarkAsRead');
 
 export default conversationMutations;

@@ -1,6 +1,6 @@
 {
   "name": "erxes-app-api",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-app-api",
