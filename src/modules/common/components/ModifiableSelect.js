@@ -23,9 +23,16 @@ class Option extends Component {
     const { onRemove } = option;
 
     return (
-      <div onClick={e => onSelect(option, e)}>
-        <span>{option.label}</span>
-        <Icon onClick={() => onRemove(option.value)} icon="cancel-1" />
+      <div
+        style={{ display: 'inline-block', padding: '10px 8px', width: '100%' }}
+        onClick={e => onSelect(option, e)}
+      >
+        <span style={{ float: 'left' }}>{option.label}</span>
+        <Icon
+          style={{ float: 'right' }}
+          onClick={() => onRemove(option.value)}
+          icon="cancel-1"
+        />
       </div>
     );
   }
@@ -36,7 +43,7 @@ Option.propTypes = {
   onSelect: PropTypes.func
 };
 
-class RemovableSelect extends Component {
+class ModifiableSelect extends Component {
   constructor(props) {
     super(props);
 
@@ -153,7 +160,7 @@ class RemovableSelect extends Component {
   }
 }
 
-RemovableSelect.contextTypes = contextTypes;
-RemovableSelect.propTypes = propTypes;
+ModifiableSelect.contextTypes = contextTypes;
+ModifiableSelect.propTypes = propTypes;
 
-export default RemovableSelect;
+export default ModifiableSelect;
