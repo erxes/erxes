@@ -5,7 +5,8 @@ import {
   Button,
   FormGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
+  ModifiableSelect
 } from 'modules/common/components';
 import {
   ModalFooter,
@@ -39,7 +40,11 @@ class CustomerForm extends React.Component {
       ownerId: customer.ownerId || '',
       doNotDisturb: customer.doNotDisturb || 'No',
       hasAuthority: customer.hasAuthority || 'No',
-      users: []
+      users: [],
+      emails: customer.emails || [],
+      primaryEmail: customer.primaryEmail,
+      phones: customer.phones || [],
+      primaryPhone: customer.primaryPhone
     };
 
     this.renderFormGroup = this.renderFormGroup.bind(this);
@@ -55,15 +60,18 @@ class CustomerForm extends React.Component {
   }
 
   action(e) {
+    const { phones, emails, primaryPhone, primaryEmail } = this.state;
     e.preventDefault();
 
     this.props.action({
       doc: {
+        phones,
+        emails,
+        primaryPhone,
+        primaryEmail,
         firstName: document.getElementById('customer-firstname').value,
         lastName: document.getElementById('customer-lastname').value,
-        email: document.getElementById('customer-email').value,
         ownerId: this.state.ownerId,
-        phone: document.getElementById('customer-phone').value,
         position: document.getElementById('customer-position').value,
         department: document.getElementById('customer-department').value,
         leadStatus: document.getElementById('customer-leadStatus').value,
@@ -118,11 +126,35 @@ class CustomerForm extends React.Component {
     );
   }
 
+  addNameOrPhone(value, type) {
+    const arr = this.state[type];
+
+    this.setState({ [type]: [...arr, value] });
+  }
+
+  removeNameOrPhone(value, type) {
+    const arr = this.state[type];
+
+    this.setState({
+      [type]: arr.filter(name => name !== value)
+    });
+  }
+
+  setNameOrPhone(option, type) {
+    let value = null;
+
+    if (option) {
+      value = option.value;
+    }
+
+    this.setState({ [type]: value });
+  }
+
   render() {
     const { __, closeModal } = this.context;
     const { customer = {} } = this.props;
     const { links = {} } = customer;
-    const { users } = this.state;
+    const { users, primaryEmail, emails, primaryPhone, phones } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>
@@ -135,13 +167,18 @@ class CustomerForm extends React.Component {
               id: 'customer-firstname'
             })}
 
-            {this.renderFormGroup('Email', {
-              id: 'customer-email',
-              type: 'email',
-              defaultValue:
-                customer.email || this.getVisitorInfo(customer, 'email') || '',
-              required: true
-            })}
+            <FormGroup>
+              <ControlLabel>Email</ControlLabel>
+              <ModifiableSelect
+                value={primaryEmail || this.getVisitorInfo(customer, 'email')}
+                options={emails}
+                placeholder="Primary email"
+                buttonText="Add Email"
+                onSave={v => this.addNameOrPhone(v, 'emails')}
+                onSelectChange={o => this.setNameOrPhone(o, 'primaryEmail')}
+                onRemoveOption={v => this.removeNameOrPhone(v, 'emails')}
+              />
+            </FormGroup>
 
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
@@ -184,11 +221,18 @@ class CustomerForm extends React.Component {
               defaultValue: customer.lastName || ''
             })}
 
-            {this.renderFormGroup('Phone', {
-              id: 'customer-phone',
-              defaultValue:
-                customer.phone || this.getVisitorInfo(customer, 'phone') || ''
-            })}
+            <FormGroup>
+              <ControlLabel>Phone</ControlLabel>
+              <ModifiableSelect
+                value={primaryPhone || this.getVisitorInfo(customer, 'phone')}
+                options={phones}
+                placeholder="Primary phone"
+                buttonText="Add Phone"
+                onSave={v => this.addNameOrPhone(v, 'phones')}
+                onSelectChange={o => this.setNameOrPhone(o, 'primaryPhone')}
+                onRemoveOption={v => this.removeNameOrPhone(v, 'phones')}
+              />
+            </FormGroup>
 
             {this.renderFormGroup('Position', {
               id: 'customer-position',

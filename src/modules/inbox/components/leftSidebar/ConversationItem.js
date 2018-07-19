@@ -129,8 +129,8 @@ class ConversationItem extends Component {
                   {isExistingCustomer &&
                     (customer.name ||
                       this.renderFullName(customer) ||
-                      customer.email ||
-                      customer.phone ||
+                      customer.primaryEmail ||
+                      customer.primaryPhone ||
                       this.getVisitorInfo(customer) ||
                       'Unnamed')}
                 </CustomerName>

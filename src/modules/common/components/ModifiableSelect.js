@@ -22,7 +22,8 @@ class Option extends Component {
     const { option, onSelect } = this.props;
     const { onRemove } = option;
     const style = {
-      display: 'block',
+      display: 'inline-block',
+      width: '100%',
       padding: '8px 20px'
     };
 

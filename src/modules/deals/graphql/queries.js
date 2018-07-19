@@ -83,8 +83,8 @@ const dealDetail = `
       customers {
         _id
         firstName
-        email
-        phone
+        primaryEmail
+        primaryPhone
       }
       products
       productsData

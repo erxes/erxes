@@ -50,8 +50,8 @@ export default `
     _id
     firstName
     lastName
-    email
-    phone
+    primaryEmail
+    primaryPhone
     isUser
     companies {
       _id

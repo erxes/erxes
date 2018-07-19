@@ -95,8 +95,8 @@ export const companyDetail = `
         _id
         firstName
         lastName
-        email
-        phone
+        primaryEmail
+        primaryPhone
       }
       deals {
         _id
@@ -107,7 +107,7 @@ export const companyDetail = `
         customers {
           _id
           firstName
-          email
+          primaryEmail
         }
         products
         amount

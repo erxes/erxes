@@ -11,7 +11,7 @@ export const renderFullName = data => {
   if (data.firstName || data.lastName) {
     return (data.firstName || '') + ' ' + (data.lastName || '');
   }
-  return data.email || data.phone || 'N/A';
+  return data.primaryEmail || data.primaryPhone || 'N/A';
 };
 
 export const setTitle = (title, force) => {

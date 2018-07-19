@@ -33,7 +33,7 @@ const commonReturn = `
   customers {
     _id
     firstName
-    email
+    primaryEmail
   }
   products
   amount

@@ -60,8 +60,8 @@ query userConversations($_id: String!, $perPage: Int) {
         _id
         firstName
         lastName
-        email
-        phone
+        primaryEmail
+        primaryPhone
         }
       }
       totalCount

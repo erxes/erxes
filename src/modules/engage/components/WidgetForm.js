@@ -71,7 +71,7 @@ class WidgetForm extends Component {
         <Recipients>
           {this.props.customers.map(customer => (
             <Recipient key={customer._id.toString()}>
-              <strong>{customer.name}</strong> {customer.email}
+              <strong>{customer.name}</strong> {customer.primaryEmail}
             </Recipient>
           ))}
         </Recipients>
