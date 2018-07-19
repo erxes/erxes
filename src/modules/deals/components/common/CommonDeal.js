@@ -1,13 +1,16 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import T from 'i18n-react';
+
 import { Tip } from 'modules/common/components';
 import { UserCounter, Items } from '../';
 import {
   DealDate,
   SpaceContent,
   ItemList,
-  FooterContent
+  FooterContent,
+  ActionInfo
 } from '../../styles/deal';
 
 import { Amount } from '../../styles/stage';
@@ -17,11 +20,11 @@ const propTypes = {
 };
 
 class CommonDeal extends React.Component {
-  renderDate(closeDate) {
+  renderDate(closeDate, format = 'YYYY-MM-DD') {
     if (!closeDate) return null;
 
     return (
-      <Tip text={moment(closeDate).format('YYYY-MM-DD')}>
+      <Tip text={moment(closeDate).format(format)}>
         <DealDate>{moment(closeDate).fromNow()}</DealDate>
       </Tip>
     );
@@ -51,7 +54,6 @@ class CommonDeal extends React.Component {
           <h4>{deal.name}</h4>
           {this.renderDate(deal.closeDate)}
         </SpaceContent>
-
         <SpaceContent>
           <FooterContent>
             <ItemList>
@@ -65,6 +67,10 @@ class CommonDeal extends React.Component {
           </FooterContent>
           <UserCounter users={deal.assignedUsers || []} />
         </SpaceContent>
+        <ActionInfo>
+          <span>{T.translate('Last updated')}:</span>
+          {this.renderDate(deal.modifiedAt, 'lll')}
+        </ActionInfo>
       </Fragment>
     );
   }

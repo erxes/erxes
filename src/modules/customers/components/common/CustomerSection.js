@@ -57,6 +57,7 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
             </Link>
             <span>{renderFullName(customer)}</span>
             {mailTo(customer.email)}
+            <span>{customer.phone}</span>
           </SectionBodyItem>
         ))}
         {customers.length === 0 && (

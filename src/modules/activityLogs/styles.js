@@ -18,7 +18,7 @@ const Timeline = styled.div`
   }
 `;
 
-const ActivityTitle = styled.h4`
+const ActivityTitle = styled.h5`
   color: ${colors.colorCoreGray};
   padding: ${dimensions.coreSpacing * 1.5}px 0 ${dimensions.coreSpacing}px 0;
   margin: 0;

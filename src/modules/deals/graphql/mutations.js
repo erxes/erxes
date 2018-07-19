@@ -47,6 +47,8 @@ const commonReturn = `
       avatar
     }
   }
+  modifiedAt
+  modifiedBy
 `;
 
 const dealsAdd = `
