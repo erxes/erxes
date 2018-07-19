@@ -372,7 +372,7 @@ export const COMPANY_INDUSTRY_TYPES = [
 
 export const COMPANY_BASIC_INFOS = [
   'primaryName',
-  'similarNames',
+  'names',
   'size',
   'industry',
   'website',

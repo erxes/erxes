@@ -222,7 +222,7 @@ describe('activityLogs', () => {
       null,
       {
         primaryName: 'test company',
-        similarNames: ['test company'],
+        names: ['test company'],
         website: 'test.test.test',
       },
       { user: _user },

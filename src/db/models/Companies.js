@@ -145,8 +145,8 @@ class Company {
     }
 
     // Checking if company has name
-    if (companyFields.similarNames) {
-      query.similarNames = { $in: companyFields.similarNames };
+    if (companyFields.names) {
+      query.names = { $in: companyFields.names };
       const previousEntry = await this.find(query);
 
       // Checking if duplicated

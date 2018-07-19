@@ -38,7 +38,7 @@ describe('companyQueries', () => {
       companies(${commonParams}) {
         _id
         primaryName
-        similarNames
+        names
         size
         website
         industry
@@ -85,7 +85,7 @@ describe('companyQueries', () => {
           _id
           tagIds
           primaryName
-          similarNames
+          names
           website
           industry
           plan
@@ -157,7 +157,7 @@ describe('companyQueries', () => {
   });
 
   test('Companies filtered by segment', async () => {
-    await companyFactory({ similarNames: [name], primaryName: name });
+    await companyFactory({ names: [name], primaryName: name });
     await companyFactory();
     await companyFactory();
 
@@ -179,7 +179,7 @@ describe('companyQueries', () => {
   });
 
   test('Companies filtered by search value', async () => {
-    await companyFactory({ similarNames: [name], primaryName: name });
+    await companyFactory({ names: [name], primaryName: name });
     await companyFactory({ website });
     await companyFactory({ plan });
     await companyFactory({ industry: 'Banks' });
