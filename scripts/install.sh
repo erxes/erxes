@@ -14,7 +14,7 @@ UNAME=$(uname)
 if [ $UNAME = "Linux" ] ; then
   ### Linux ###
   if ! type redis-server > /dev/null ; then
-    sudo apt install redis-server
+    sudo apt install -y redis-server
   fi
 fi
 if [ $UNAME = "Darwin" ] ; then
@@ -24,12 +24,12 @@ if [ $UNAME = "Darwin" ] ; then
   fi
 fi
 
-echo 'Load initial data';
-yarn loadInitialData
-
-
 echo 'Create `.env.sample` from default settings file and configure it on your own:'
 cp .env.sample .env
+
+
+echo 'Load initial data';
+yarn loadInitialData
 
 CURRENT_FOLDER=${PWD##*/}
 if [ $CURRENT_FOLDER = 'erxes-app-api' ]; then
