@@ -84,6 +84,7 @@ const dealDetail = `
         _id
         firstName
         email
+        phone
       }
       products
       productsData
@@ -98,6 +99,8 @@ const dealDetail = `
           avatar
         }
       }
+      modifiedAt
+      modifiedBy
     }
   }
 `;
