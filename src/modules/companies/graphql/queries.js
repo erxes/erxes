@@ -1,7 +1,7 @@
 const companyFields = `
   _id
   primaryName
-  similarNames
+  names
   size
   industry
   website

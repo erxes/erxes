@@ -44,7 +44,7 @@ class CompanyForm extends React.Component {
       doNotDisturb: company.doNotDisturb || 'No',
       companies: [],
       users: [],
-      similarNames: company.similarNames || [],
+      names: company.names || [],
       primaryName: company.primaryName
     };
 
@@ -65,12 +65,12 @@ class CompanyForm extends React.Component {
   }
 
   action(e) {
-    const { similarNames, primaryName } = this.state;
+    const { names, primaryName } = this.state;
     e.preventDefault();
 
     this.props.action({
       doc: {
-        similarNames,
+        names,
         primaryName,
         size: document.getElementById('company-size').value,
         industry: document.getElementById('company-industry').value,
@@ -142,16 +142,16 @@ class CompanyForm extends React.Component {
   }
 
   addName(value) {
-    const { similarNames } = this.state;
+    const { names } = this.state;
 
-    this.setState({ similarNames: [...similarNames, value] });
+    this.setState({ names: [...names, value] });
   }
 
   removeName(value) {
-    const { similarNames } = this.state;
+    const { names } = this.state;
 
     this.setState({
-      similarNames: similarNames.filter(name => name !== value)
+      names: names.filter(name => name !== value)
     });
   }
 
@@ -169,7 +169,7 @@ class CompanyForm extends React.Component {
     const { __ } = this.context;
     const { company = {} } = this.props;
     const { links = {} } = company;
-    const { companies, users, similarNames, primaryName } = this.state;
+    const { companies, users, names, primaryName } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>
@@ -179,7 +179,7 @@ class CompanyForm extends React.Component {
               <ControlLabel>Name</ControlLabel>
               <ModifiableSelect
                 value={primaryName}
-                options={similarNames}
+                options={names}
                 placeholder="Display name"
                 buttonText="Add name"
                 onSave={v => this.addName(v)}

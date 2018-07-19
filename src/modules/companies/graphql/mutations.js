@@ -1,5 +1,5 @@
 const commonFields = `
-  $similarNames: [String],
+  $names: [String],
   $primaryName: String,
   $size: Int,
   $industry: String,
@@ -19,7 +19,7 @@ const commonFields = `
 `;
 
 const commonVariables = `
-  similarNames: $similarNames,
+  names: $names,
   primaryName: $primaryName,
   size: $size,
   industry: $industry,
@@ -50,7 +50,7 @@ const companiesEdit = `
   mutation companiesEdit($_id: String!, ${commonFields}) {
     companiesEdit(_id: $_id, ${commonVariables}) {
       primaryName
-      similarNames
+      names
       size
       industry
       plan
