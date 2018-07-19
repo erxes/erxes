@@ -102,7 +102,7 @@ class CompanyForm extends React.Component {
   generateCompanyParams(companies) {
     return companies.map(company => ({
       value: company._id,
-      label: company.name || ''
+      label: company.primaryName || ''
     }));
   }
 

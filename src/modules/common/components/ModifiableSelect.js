@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import Select from 'react-select-plus';
 import PropTypes from 'prop-types';
-import { FormControl, Button, Icon } from './';
+import { FormControl, Button, Icon, FormGroup } from './';
 
 const propTypes = {
   options: PropTypes.array.isRequired,
@@ -21,12 +21,13 @@ class Option extends Component {
   render() {
     const { option, onSelect } = this.props;
     const { onRemove } = option;
+    const style = {
+      display: 'block',
+      padding: '8px 20px'
+    };
 
     return (
-      <div
-        style={{ display: 'inline-block', padding: '10px 8px', width: '100%' }}
-        onClick={e => onSelect(option, e)}
-      >
+      <div style={style} onClick={e => onSelect(option, e)}>
         <span style={{ float: 'left' }}>{option.label}</span>
         <Icon
           style={{ float: 'right' }}
@@ -102,13 +103,15 @@ class ModifiableSelect extends Component {
     if (this.state.adding) {
       return (
         <Fragment>
-          <FormControl
-            id="removableSelect-value"
-            autoFocus
-            onKeyPress={e => {
-              if (e.key === 'Enter') this.handleSave();
-            }}
-          />
+          <FormGroup>
+            <FormControl
+              id="removableSelect-value"
+              autoFocus
+              onKeyPress={e => {
+                if (e.key === 'Enter') this.handleSave();
+              }}
+            />
+          </FormGroup>
           <Button
             type="success"
             icon="cancel-1"
@@ -144,15 +147,17 @@ class ModifiableSelect extends Component {
 
     return (
       <Fragment>
-        <Select
-          placeholder={__(placeholder)}
-          searchable={false}
-          value={value}
-          valueComponent={this.renderValue}
-          onChange={selectedOption => onSelectChange(selectedOption)}
-          options={this.generateOptions()}
-          optionComponent={Option}
-        />
+        <FormGroup>
+          <Select
+            placeholder={__(placeholder)}
+            searchable={false}
+            value={value}
+            valueComponent={this.renderValue}
+            onChange={selectedOption => onSelectChange(selectedOption)}
+            options={this.generateOptions()}
+            optionComponent={Option}
+          />
+        </FormGroup>
 
         {this.renderInput()}
       </Fragment>
