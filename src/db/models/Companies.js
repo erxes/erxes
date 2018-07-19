@@ -190,20 +190,6 @@ class Company {
   }
 
   /**
-   * Create new customer and add to customer's customer list
-   * @return {Promise} newly created customer
-   */
-  static async addCustomer({ _id, firstName, lastName, email }) {
-    // create customer
-    return Customers.createCustomer({
-      firstName,
-      lastName,
-      email,
-      companyIds: [_id],
-    });
-  }
-
-  /**
    * Update company customers
    * @param {String} _id - Company id to update
    * @param {String[]} customerIds - Customer ids to update

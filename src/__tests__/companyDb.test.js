@@ -85,21 +85,6 @@ describe('Companies model tests', () => {
     check(companyObj, doc);
   });
 
-  test('Add customer', async () => {
-    let company = await companyFactory({});
-
-    // call add customer
-    const customer = await Companies.addCustomer({
-      _id: company._id,
-      name: 'name',
-      website: 'website',
-    });
-
-    company = await Companies.findOne({ _id: company._id });
-
-    expect(customer.companyIds).toEqual(expect.arrayContaining([company._id]));
-  });
-
   test('Create company: with company fields validation error', async () => {
     expect.assertions(1);
 

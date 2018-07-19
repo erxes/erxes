@@ -39,25 +39,28 @@ describe('Customers model tests', () => {
   });
 
   test('Create customer', async () => {
-    expect.assertions(6);
+    expect.assertions(9);
 
     // check duplication
     try {
-      await Customers.createCustomer({ name: 'name', email: _customer.email });
+      await Customers.createCustomer({ emails: _customer.emails });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
 
     try {
-      await Customers.createCustomer({ name: 'name', twitterData: _customer.twitterData });
+      await Customers.createCustomer({ twitterData: _customer.twitterData });
     } catch (e) {
       expect(e.message).toBe('Duplicated twitter');
     }
 
     const doc = {
-      email: 'dombo@yahoo.com',
+      primaryEmail: 'dombo@yahoo.com',
+      emails: ['dombo@yahoo.com'],
       firstName: 'firstName',
       lastName: 'lastName',
+      primaryPhone: '12312132',
+      phones: ['12312132'],
     };
 
     const customerObj = await Customers.createCustomer(doc);
@@ -65,20 +68,26 @@ describe('Customers model tests', () => {
     expect(customerObj.createdAt).toBeDefined();
     expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.lastName).toBe(doc.lastName);
-    expect(customerObj.email).toBe(doc.email);
+    expect(customerObj.primaryEmail).toBe(doc.primaryEmail);
+    expect(customerObj.emails).toEqual(expect.arrayContaining(doc.emails));
+    expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
+    expect(customerObj.phones).toEqual(expect.arrayContaining(doc.phones));
   });
 
   test('Update customer', async () => {
-    expect.assertions(5);
+    expect.assertions(4);
 
     const previousCustomer = await customerFactory({
-      email: 'dombo@yahoo.com',
+      primaryEmail: 'dombo@yahoo.com',
+      emails: ['dombo@yahoo.com'],
     });
 
     const doc = {
       firstName: 'Dombo',
-      email: 'dombo@yahoo.com',
-      phone: '242442200',
+      primaryEmail: 'dombo@yahoo.com',
+      emails: ['dombo@yahoo.com'],
+      primaryPhone: '242442200',
+      phones: ['242442200'],
     };
 
     // test duplication
@@ -88,20 +97,14 @@ describe('Customers model tests', () => {
       expect(e.message).toBe('Duplicated email');
     }
 
-    try {
-      await Customers.createCustomer({ name: 'name', twitterData: _customer.twitterData });
-    } catch (e) {
-      expect(e.message).toBe('Duplicated twitter');
-    }
-
     // remove previous duplicated entry
     await Customers.remove({ _id: previousCustomer._id });
 
     const customerObj = await Customers.updateCustomer(_customer._id, doc);
 
     expect(customerObj.firstName).toBe(doc.firstName);
-    expect(customerObj.email).toBe(doc.email);
-    expect(customerObj.phone).toBe(doc.phone);
+    expect(customerObj.primaryEmail).toBe(doc.primaryEmail);
+    expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
   });
 
   test('Mark customer as inactive', async () => {
@@ -201,6 +204,7 @@ describe('Customers model tests', () => {
   });
 
   test('Merge customers', async () => {
+    expect.assertions(21);
     const testCustomer = await customerFactory({
       companyIds: ['123', '1234', '12345'],
       tagIds: ['2343', '234', '234'],
@@ -228,7 +232,7 @@ describe('Customers model tests', () => {
     }
 
     try {
-      await Customers.mergeCustomers(customerIds, { email: _customer.email });
+      await Customers.mergeCustomers(customerIds, { emails: _customer.emails });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
@@ -256,8 +260,8 @@ describe('Customers model tests', () => {
     const doc = {
       firstName: 'Test first name',
       lastName: 'Test last name',
-      email: 'Test email',
-      phone: 'Test phone',
+      primaryEmail: 'Test email',
+      primaryPhone: 'Test phone',
       facebookData: {
         id: '1231312asd',
       },
@@ -277,8 +281,8 @@ describe('Customers model tests', () => {
 
     expect(updatedCustomer.firstName).toBe(doc.firstName);
     expect(updatedCustomer.lastName).toBe(doc.lastName);
-    expect(updatedCustomer.email).toBe(doc.email);
-    expect(updatedCustomer.phone).toBe(doc.phone);
+    expect(updatedCustomer.primaryEmail).toBe(doc.primaryEmail);
+    expect(updatedCustomer.primaryPhone).toBe(doc.primaryPhone);
     expect(updatedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
     expect(updatedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
     expect(updatedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
@@ -331,7 +335,7 @@ describe('Customers model tests', () => {
   test('Check Duplication', async () => {
     // check duplication
     try {
-      await Customers.checkDuplication({ email: _customer.email }, '123132');
+      await Customers.checkDuplication({ emails: _customer.emails }, '123132');
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
@@ -353,7 +357,7 @@ describe('Customers model tests', () => {
     await fieldFactory({ contentType: 'customer', text: 'Fax number', validation: '' });
     const user = await userFactory({});
 
-    const fieldNames = ['email', 'phone', 'First referred site', 'Fax number'];
+    const fieldNames = ['primaryEmail', 'primaryPhone', 'First referred site', 'Fax number'];
 
     const fieldValues = [
       ['customer1email@yahoo.com', 'customer1phone', 'customer1property1', 'customer1property2'],

@@ -185,8 +185,10 @@ export const customerFactory = (params = {}) => {
   const customer = new Customers({
     firstName: params.firstName || faker.random.word(),
     lastName: params.lastName || faker.random.word(),
-    email: params.email || faker.internet.email(),
-    phone: params.phone || faker.phone.phoneNumber(),
+    primaryEmail: params.primaryEmail || faker.internet.email(),
+    primaryPhone: params.primaryPhone || faker.phone.phoneNumber(),
+    emails: params.emails || [faker.internet.email()],
+    phones: params.phones || [faker.phone.phoneNumber()],
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
     companyIds: params.companyIds || [faker.random.number(), faker.random.number()],

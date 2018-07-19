@@ -16,8 +16,10 @@ afterAll(() => disconnect());
 const args = {
   firstName: faker.name.findName(),
   lastName: faker.name.findName(),
-  email: faker.internet.email(),
-  phone: faker.phone.phoneNumber(),
+  primaryEmail: faker.internet.email(),
+  emails: [faker.internet.email()],
+  primaryPhone: faker.phone.phoneNumber(),
+  phones: [faker.internet.email()],
   ownerId: faker.random.word(),
   position: faker.random.word(),
   department: faker.random.word(),
@@ -45,8 +47,10 @@ describe('Customers mutations', () => {
   const commonParamDefs = `
     $firstName: String
     $lastName: String
-    $email: String
-    $phone: String
+    $primaryEmail: String
+    $emails: [String]
+    $primaryPhone: String
+    $phones: [String]
     $ownerId: String
     $position: String
     $department: String
@@ -62,8 +66,10 @@ describe('Customers mutations', () => {
   const commonParams = `
     firstName: $firstName
     lastName: $lastName
-    email: $email
-    phone: $phone
+    primaryEmail: $primaryEmail
+    emails: $emails
+    primaryPhone: $primaryPhone
+    phones: $phones
     ownerId: $ownerId
     position: $position
     department: $department
@@ -96,8 +102,10 @@ describe('Customers mutations', () => {
         customersAdd(${commonParams}) {
           firstName
           lastName
-          email
-          phone
+          primaryEmail
+          emails
+          primaryPhone
+          phones
           ownerId
           position
           department
@@ -123,8 +131,10 @@ describe('Customers mutations', () => {
 
     expect(customer.firstName).toBe(args.firstName);
     expect(customer.lastName).toBe(args.lastName);
-    expect(customer.email).toBe(args.email);
-    expect(customer.phone).toBe(args.phone);
+    expect(customer.primaryEmail).toBe(args.primaryEmail);
+    expect(customer.emails).toEqual(expect.arrayContaining(args.emails));
+    expect(customer.primaryPhone).toBe(args.primaryPhone);
+    expect(customer.phones).toEqual(expect.arrayContaining(args.phones));
     expect(customer.ownerId).toBe(args.ownerId);
     expect(customer.position).toBe(args.position);
     expect(customer.department).toBe(args.department);
@@ -144,8 +154,10 @@ describe('Customers mutations', () => {
           _id
           firstName
           lastName
-          email
-          phone
+          primaryEmail
+          emails
+          primaryPhone
+          phones
           ownerId
           position
           department
@@ -177,8 +189,10 @@ describe('Customers mutations', () => {
     expect(customer._id).toBe(_customer._id);
     expect(customer.firstName).toBe(args.firstName);
     expect(customer.lastName).toBe(args.lastName);
-    expect(customer.email).toBe(args.email);
-    expect(customer.phone).toBe(args.phone);
+    expect(customer.primaryEmail).toBe(args.primaryEmail);
+    expect(customer.emails).toEqual(expect.arrayContaining(args.emails));
+    expect(customer.primaryPhone).toBe(args.primaryPhone);
+    expect(customer.phones).toEqual(expect.arrayContaining(args.phones));
     expect(customer.ownerId).toBe(args.ownerId);
     expect(customer.position).toBe(args.position);
     expect(customer.department).toBe(args.department);

@@ -35,7 +35,8 @@ describe('activityLogs', () => {
       null,
       {
         firstName: 'firstName',
-        email: 'test@test.test',
+        primaryEmail: 'test@test.test',
+        emails: ['test@test.test'],
         phone: '123456789',
       },
       { user: _user },

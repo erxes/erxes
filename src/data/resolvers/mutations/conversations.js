@@ -138,7 +138,7 @@ const conversationMutations = {
 
     // if conversation's integration kind is form then send reply to
     // customer's email
-    const email = customer ? customer.email : '';
+    const email = customer ? customer.primaryEmail : '';
 
     if (kind === KIND_CHOICES.FORM && email) {
       utils.sendEmail({
@@ -267,10 +267,10 @@ const conversationMutations = {
         const messengerData = integration.messengerData || {};
         const notifyCustomer = messengerData.notifyCustomer || false;
 
-        if (notifyCustomer && customer.email) {
+        if (notifyCustomer && customer.primaryEmail) {
           // send email to customer
           utils.sendEmail({
-            to: customer.email,
+            to: customer.primaryEmail,
             subject: 'Conversation detail',
             templateArgs: {
               name: 'conversationDetail',

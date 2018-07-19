@@ -23,7 +23,7 @@ import { createTransporter } from '../../utils';
  * @param {String} content
  * @param {Object} customer
  * @param {String} customer.name - Customer name
- * @param {String} customer.email - Customer email
+ * @param {String} customer.primaryEmail - Customer email
  * @param {Object} user
  * @param {String} user.fullName - User full name
  * @param {String} user.position - User position
@@ -35,7 +35,7 @@ export const replaceKeys = ({ content, customer, user }) => {
 
   // replace customer fields
   result = result.replace(/{{\s?customer.name\s?}}/gi, customer.name);
-  result = result.replace(/{{\s?customer.email\s?}}/gi, customer.email);
+  result = result.replace(/{{\s?customer.primaryEmail\s?}}/gi, customer.primaryEmail);
 
   // replace user fields
   result = result.replace(/{{\s?user.fullName\s?}}/gi, user.fullName);
@@ -104,7 +104,7 @@ const sendViaEmail = async message => {
 
     transporter.sendMail({
       from: userEmail,
-      to: customer.email,
+      to: customer.primaryEmail,
       subject: replacedSubject,
       html: replacedContent,
       headers: {

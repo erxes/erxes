@@ -145,41 +145,6 @@ describe('Companies mutations', () => {
     expect(company.customFieldsData).toEqual(args.customFieldsData);
   });
 
-  test('Add customer to company', async () => {
-    const args = {
-      _id: _company._id,
-      email: faker.internet.email(),
-      firstName: faker.random.word(),
-      lastName: faker.random.word(),
-    };
-
-    const mutation = `
-      mutation companiesAddCustomer(
-        $_id: String!
-        $email: String!
-        $firstName: String
-        $lastName: String
-      ) {
-
-        companiesAddCustomer(
-          _id: $_id
-          firstName: $firstName
-          lastName: $lastName
-          email: $email
-        ) {
-          _id
-          email
-          firstName
-          lastName
-        }
-      }
-    `;
-
-    const customer = await graphqlRequest(mutation, 'companiesAddCustomer', args, context);
-
-    expect(customer.email).toBe(args.email);
-  });
-
   test('Edit customer of company', async () => {
     const args = {
       _id: _company._id,

@@ -107,8 +107,15 @@ const CustomerSchema = mongoose.Schema({
 
   firstName: field({ type: String, label: 'First name', optional: true }),
   lastName: field({ type: String, label: 'Last name', optional: true }),
-  email: field({ type: String, label: 'Email', optional: true }),
-  phone: field({ type: String, label: 'Phone', optional: true }),
+  email: field({ type: String, optional: true }),
+
+  primaryEmail: field({ type: String, label: 'Primary Email', optional: true }),
+  emails: field({ type: [String], optional: true }),
+
+  phone: field({ type: String, optional: true }),
+
+  primaryPhone: field({ type: String, label: 'Primary Phone', optional: true }),
+  phones: field({ type: [String], optional: true }),
 
   ownerId: field({ type: String, optional: true }),
   position: field({ type: String, optional: true, label: 'Position' }),
@@ -185,8 +192,8 @@ class Customer extends Coc {
     }
 
     // Checking if customer has email
-    if (customerFields.email) {
-      previousEntry = await this.find({ ...query, email: customerFields.email });
+    if (customerFields.emails) {
+      previousEntry = await this.find({ ...query, emails: { $in: customerFields.emails } });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
@@ -208,8 +215,8 @@ class Customer extends Coc {
     }
 
     // Checking if customer has phone
-    if (customerFields.phone) {
-      previousEntry = await this.find({ ...query, phone: customerFields.phone });
+    if (customerFields.phones) {
+      previousEntry = await this.find({ ...query, phones: { $in: customerFields.phones } });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
@@ -357,6 +364,8 @@ class Customer extends Coc {
 
     let tagIds = [];
     let companyIds = [];
+    let emails = [];
+    let phones = [];
 
     // Merging customer tags and companies
     for (let customerId of customerIds) {
@@ -365,10 +374,14 @@ class Customer extends Coc {
       if (customer) {
         const customerTags = customer.tagIds || [];
         const customerCompanies = customer.companyIds || [];
+        const customerEmails = customer.emails || [];
+        const customerPhones = customer.phones || [];
 
         // Merging customer's tag and companies into 1 array
         tagIds = tagIds.concat(customerTags);
         companyIds = companyIds.concat(customerCompanies);
+        emails = emails.concat(customerEmails);
+        phones = phones.concat(customerPhones);
 
         // Removing Customers
         await this.remove({ _id: customerId });
@@ -386,6 +399,8 @@ class Customer extends Coc {
       ...customerFields,
       tagIds,
       companyIds,
+      emails,
+      phones,
     });
 
     // Updating every modules associated with customers

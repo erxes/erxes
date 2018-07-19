@@ -94,14 +94,6 @@ const commonFields = `
 export const mutations = `
   companiesAdd(${commonFields}): Company
   companiesEdit(_id: String!, ${commonFields}): Company
-
-  companiesAddCustomer(
-    _id: String!
-    firstName: String
-    lastName: String
-    email: String!
-  ): Customer
-
   companiesEditCustomers(_id: String!, customerIds: [String]): Company
   companiesRemove(companyIds: [String]): [String]
   companiesMerge(companyIds: [String], companyFields: JSON) : Company
