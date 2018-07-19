@@ -7,6 +7,7 @@ erxes is an AI meets open source messaging platform for sales and marketing
 ## Status  <br>
 
 ![Build Status](https://travis-ci.org/erxes/erxes-api.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/erxes/erxes-api/badge.svg?branch=coveralls)](https://coveralls.io/github/erxes/erxes-api?branch=coveralls)
 
 ## Installation
 
