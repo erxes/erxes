@@ -1,5 +1,5 @@
 export const COMPANY_INFO = {
-  displayName: 'Display Name',
+  primaryName: 'Display Name',
   size: 'Size',
   industry: 'Industry',
   plan: 'Plan',

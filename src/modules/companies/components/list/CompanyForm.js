@@ -45,7 +45,7 @@ class CompanyForm extends React.Component {
       companies: [],
       users: [],
       similarNames: company.similarNames || [],
-      displayName: company.displayName
+      primaryName: company.primaryName
     };
 
     this.action = this.action.bind(this);
@@ -55,7 +55,7 @@ class CompanyForm extends React.Component {
     this.handleSelect = this.handleSelect.bind(this);
     this.addName = this.addName.bind(this);
     this.removeName = this.removeName.bind(this);
-    this.setDisplayName = this.setDisplayName.bind(this);
+    this.setprimaryName = this.setprimaryName.bind(this);
   }
 
   componentDidMount() {
@@ -65,13 +65,13 @@ class CompanyForm extends React.Component {
   }
 
   action(e) {
-    const { similarNames, displayName } = this.state;
+    const { similarNames, primaryName } = this.state;
     e.preventDefault();
 
     this.props.action({
       doc: {
         similarNames,
-        displayName,
+        primaryName,
         size: document.getElementById('company-size').value,
         industry: document.getElementById('company-industry').value,
         plan: document.getElementById('company-plan').value,
@@ -155,21 +155,21 @@ class CompanyForm extends React.Component {
     });
   }
 
-  setDisplayName(option) {
-    let displayName = null;
+  setprimaryName(option) {
+    let primaryName = null;
 
     if (option) {
-      displayName = option.value;
+      primaryName = option.value;
     }
 
-    this.setState({ displayName });
+    this.setState({ primaryName });
   }
 
   render() {
     const { __ } = this.context;
     const { company = {} } = this.props;
     const { links = {} } = company;
-    const { companies, users, similarNames, displayName } = this.state;
+    const { companies, users, similarNames, primaryName } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>
@@ -178,12 +178,12 @@ class CompanyForm extends React.Component {
             <FormGroup>
               <ControlLabel>Name</ControlLabel>
               <ModifiableSelect
-                value={displayName}
+                value={primaryName}
                 options={similarNames}
                 placeholder="Display name"
                 buttonText="Add name"
                 onSave={v => this.addName(v)}
-                onSelectChange={o => this.setDisplayName(o)}
+                onSelectChange={o => this.setprimaryName(o)}
                 onRemoveOption={v => this.removeName(v)}
               />
             </FormGroup>
