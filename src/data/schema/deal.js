@@ -44,6 +44,8 @@ export const types = `
     products: JSON
     productsData: JSON
     assignedUsers: [User]
+    modifiedAt: Date
+    modifiedBy: String
     ${commonTypes}
   }
 `;
