@@ -1,7 +1,6 @@
 import path from 'path';
 import webpack from 'webpack';
 import dotenv from 'dotenv';
-// import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 dotenv.config();
 
@@ -9,7 +8,7 @@ const {
   ROOT_URL,
   API_SUBSCRIPTIONS_URL,
   API_GRAPHQL_URL,
-  APP_API_URL,
+  MAIN_API_URL,
 } = process.env;
 
 export default {
@@ -42,9 +41,9 @@ export default {
         use: ['style-loader', 'css-loader'],
       },
       {
-        test: /\.(png|woff|woff2|eot|ttf|svg)$/, 
+        test: /\.(png|woff|woff2|eot|ttf|svg)$/,
         loader: 'url-loader?limit=100000'
-      }, 
+      },
       {
         test: /\.scss$/,
         use: ['style-loader', 'css-loader', 'sass-loader'],
@@ -62,8 +61,7 @@ export default {
       ROOT_URL: JSON.stringify(ROOT_URL),
       API_SUBSCRIPTIONS_URL: JSON.stringify(API_SUBSCRIPTIONS_URL),
       API_GRAPHQL_URL: JSON.stringify(API_GRAPHQL_URL),
-      APP_API_URL: JSON.stringify(APP_API_URL),
+      MAIN_API_URL: JSON.stringify(MAIN_API_URL),
     }),
-    // new BundleAnalyzerPlugin(),
   ],
 };

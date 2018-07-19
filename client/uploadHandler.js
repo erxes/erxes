@@ -1,4 +1,4 @@
-/* global FileReader APP_API_URL */
+/* global FileReader MAIN_API_URL */
 
 /**
  * Upload file to main api
@@ -18,7 +18,7 @@ const uploadHandler = params => {
     afterRead
   } = params;
 
-  const url = `${APP_API_URL}/upload-file`;
+  const url = `${MAIN_API_URL}/upload-file`;
 
   // initiate upload file reader
   const uploadReader = new FileReader();
