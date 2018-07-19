@@ -11,16 +11,16 @@ import { generateParams } from '../utils';
 
 class WithCurrentId extends React.Component {
   componentWillReceiveProps(nextProps) {
-    const { lastConversationQuery, history, queryParams: { _id } } = nextProps;
+    const {
+      lastConversationQuery = {},
+      history,
+      queryParams: { _id }
+    } = nextProps;
 
-    let lastConversation = {};
+    const { conversationsGetLast, loading } = lastConversationQuery;
 
-    if (lastConversationQuery) {
-      lastConversation = lastConversationQuery.conversationsGetLast;
-    }
-
-    if (!_id && lastConversation) {
-      routerUtils.setParams(history, { _id: lastConversation._id });
+    if (!_id && conversationsGetLast && !loading) {
+      routerUtils.setParams(history, { _id: conversationsGetLast._id });
     }
   }
 
