@@ -1,5 +1,8 @@
 # API for erxes apps
 
+## Status  <br>
+
+[![Build Status](https://travis-ci.org/erxes/erxes-api.svg?branch=master)]
 
 ## Installation
 
