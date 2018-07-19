@@ -2,7 +2,7 @@
 
 ## Status  <br>
 
-[![Build Status](https://travis-ci.org/erxes/erxes-api.svg?branch=master)]
+![Build Status](https://travis-ci.org/erxes/erxes-api.svg?branch=master)
 
 ## Installation
 
