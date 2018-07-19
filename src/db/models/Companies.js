@@ -31,13 +31,12 @@ const CompanySchema = mongoose.Schema({
 
   primaryName: field({
     type: String,
-    label: 'Display Name',
+    label: 'Primary Name',
     optional: true,
   }),
 
   names: field({
     type: [String],
-    label: 'Similar Names',
     optional: true,
   }),
 

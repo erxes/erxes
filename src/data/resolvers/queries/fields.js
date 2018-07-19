@@ -104,7 +104,7 @@ const fieldQueries = {
 
     if (contentType === FIELD_CONTENT_TYPES.COMPANY) {
       return [
-        { name: 'primaryName', label: 'Display Name', order: 1 },
+        { name: 'primaryName', label: 'Primary Name', order: 1 },
         { name: 'size', label: 'Size', order: 2 },
         { name: 'website', label: 'Website', order: 3 },
         { name: 'industry', label: 'Industry', order: 4 },
