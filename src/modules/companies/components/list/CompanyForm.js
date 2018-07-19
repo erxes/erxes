@@ -180,7 +180,7 @@ class CompanyForm extends React.Component {
               <ModifiableSelect
                 value={primaryName}
                 options={names}
-                placeholder="Display name"
+                placeholder="Primary name"
                 buttonText="Add name"
                 onSave={v => this.addName(v)}
                 onSelectChange={o => this.setprimaryName(o)}
