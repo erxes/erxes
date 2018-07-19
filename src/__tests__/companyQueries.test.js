@@ -37,7 +37,7 @@ describe('companyQueries', () => {
     query companies(${commonParamDefs}) {
       companies(${commonParams}) {
         _id
-        displayName
+        primaryName
         similarNames
         size
         website
@@ -84,7 +84,7 @@ describe('companyQueries', () => {
         list {
           _id
           tagIds
-          displayName
+          primaryName
           similarNames
           website
           industry
@@ -157,14 +157,14 @@ describe('companyQueries', () => {
   });
 
   test('Companies filtered by segment', async () => {
-    await companyFactory({ similarNames: [name], displayName: name });
+    await companyFactory({ similarNames: [name], primaryName: name });
     await companyFactory();
     await companyFactory();
 
     const args = {
       contentType: 'company',
       conditions: {
-        field: 'displayName',
+        field: 'primaryName',
         operator: 'c',
         value: name,
         type: 'string',
@@ -179,7 +179,7 @@ describe('companyQueries', () => {
   });
 
   test('Companies filtered by search value', async () => {
-    await companyFactory({ similarNames: [name], displayName: name });
+    await companyFactory({ similarNames: [name], primaryName: name });
     await companyFactory({ website });
     await companyFactory({ plan });
     await companyFactory({ industry: 'Banks' });
@@ -188,7 +188,7 @@ describe('companyQueries', () => {
     let responses = await graphqlRequest(qryCompanies, 'companies', { searchValue: name });
 
     expect(responses.length).toBe(1);
-    expect(responses[0].displayName).toBe(name);
+    expect(responses[0].primaryName).toBe(name);
 
     // companies by website ===========
     responses = await graphqlRequest(qryCompanies, 'companies', { searchValue: website });

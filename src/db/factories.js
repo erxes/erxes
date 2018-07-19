@@ -169,7 +169,7 @@ export const internalNoteFactory = (params = {}) => {
 
 export const companyFactory = (params = {}) => {
   const company = new Companies({
-    displayName: params.displayName || faker.random.word(),
+    primaryName: params.primaryName || faker.random.word(),
     similarNames: params.similarNames || [faker.random.word()],
     size: params.size || faker.random.number(),
     industry: params.industry || 'Airlines',

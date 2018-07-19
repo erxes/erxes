@@ -17,7 +17,7 @@ describe('Companies mutations', () => {
   let context;
 
   const commonParamDefs = `
-    $displayName: String
+    $primaryName: String
     $similarNames: [String]
     $size: Int
     $website: String
@@ -30,7 +30,7 @@ describe('Companies mutations', () => {
   `;
 
   const commonParams = `
-    displayName: $displayName
+    primaryName: $primaryName
     similarNames: $similarNames
     size: $size
     website: $website
@@ -60,7 +60,7 @@ describe('Companies mutations', () => {
 
   test('Add company', async () => {
     const args = {
-      displayName: faker.company.companyName(),
+      primaryName: faker.company.companyName(),
       similarNames: [faker.company.companyName()],
       size: faker.random.number(),
       website: faker.internet.url(),
@@ -74,7 +74,7 @@ describe('Companies mutations', () => {
     const mutation = `
       mutation companiesAdd(${commonParamDefs}) {
         companiesAdd(${commonParams}) {
-          displayName
+          primaryName
           similarNames
           size
           website
@@ -89,7 +89,7 @@ describe('Companies mutations', () => {
 
     const company = await graphqlRequest(mutation, 'companiesAdd', args, context);
 
-    expect(company.displayName).toBe(args.displayName);
+    expect(company.primaryName).toBe(args.primaryName);
     expect(company.similarNames).toEqual(expect.arrayContaining(args.similarNames));
     expect(company.size).toBe(args.size);
     expect(company.website).toBe(args.website);
@@ -103,7 +103,7 @@ describe('Companies mutations', () => {
   test('Edit company', async () => {
     const args = {
       _id: _company._id,
-      displayName: faker.company.companyName(),
+      primaryName: faker.company.companyName(),
       similarNames: [faker.company.companyName()],
       size: faker.random.number(),
       website: faker.internet.url(),
@@ -118,7 +118,7 @@ describe('Companies mutations', () => {
       mutation companiesEdit($_id: String! ${commonParamDefs}) {
         companiesEdit(_id: $_id ${commonParams}) {
           _id
-          displayName
+          primaryName
           similarNames
           size
           website
@@ -134,7 +134,7 @@ describe('Companies mutations', () => {
     const company = await graphqlRequest(mutation, 'companiesEdit', args, context);
 
     expect(company._id).toBe(args._id);
-    expect(company.displayName).toBe(args.displayName);
+    expect(company.primaryName).toBe(args.primaryName);
     expect(company.similarNames).toEqual(expect.arrayContaining(args.similarNames));
     expect(company.size).toBe(args.size);
     expect(company.website).toBe(args.website);
@@ -223,7 +223,7 @@ describe('Companies mutations', () => {
     const args = {
       companyIds: [_company._id],
       companyFields: {
-        displayName: faker.company.companyName(),
+        primaryName: faker.company.companyName(),
         similarNames: [faker.company.companyName()],
       },
     };
@@ -232,7 +232,7 @@ describe('Companies mutations', () => {
       mutation companiesMerge($companyIds: [String] $companyFields: JSON) {
         companiesMerge(companyIds: $companyIds companyFields: $companyFields) {
           _id
-          displayName
+          primaryName
           similarNames
         }
       }
@@ -240,7 +240,7 @@ describe('Companies mutations', () => {
 
     const company = await graphqlRequest(mutation, 'companiesMerge', args, context);
 
-    expect(company.displayName).toBe(args.companyFields.displayName);
+    expect(company.primaryName).toBe(args.companyFields.primaryName);
     expect(company.similarNames).toEqual(expect.arrayContaining(args.companyFields.similarNames));
   });
 });

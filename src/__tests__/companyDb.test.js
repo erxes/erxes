@@ -26,7 +26,7 @@ const check = (companyObj, doc) => {
 };
 
 const generateDoc = () => ({
-  displayName: 'name',
+  primaryName: 'name',
   similarNames: ['name'],
   website: 'http://company.com',
   size: 1,
@@ -213,7 +213,7 @@ describe('Companies model tests', () => {
     });
 
     const doc = {
-      displayName: 'Test name',
+      primaryName: 'Test name',
       similarNames: ['Test name'],
       website: 'Test webiste',
       size: 230,
@@ -223,7 +223,7 @@ describe('Companies model tests', () => {
 
     const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
 
-    expect(updatedCompany.displayName).toBe(doc.displayName);
+    expect(updatedCompany.primaryName).toBe(doc.primaryName);
     expect(updatedCompany.similarNames).toEqual(expect.arrayContaining(doc.similarNames));
     expect(updatedCompany.website).toBe(doc.website);
     expect(updatedCompany.size).toBe(doc.size);

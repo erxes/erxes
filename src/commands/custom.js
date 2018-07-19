@@ -10,7 +10,7 @@ export const customCommand = async () => {
     await Companies.update(
       { _id: company._id },
       {
-        $set: { similarNames: [company.name], displayName: company.name },
+        $set: { similarNames: [company.name], primaryName: company.name },
       },
     );
   }

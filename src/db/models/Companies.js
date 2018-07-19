@@ -29,13 +29,13 @@ const CompanySchema = mongoose.Schema({
     unique: true,
   }),
 
-  displayName: field({
+  primaryName: field({
     type: String,
     label: 'Display Name',
     optional: true,
   }),
 
-  similarNames: field({
+  names: field({
     type: [String],
     label: 'Similar Names',
     optional: true,

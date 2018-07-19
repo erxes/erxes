@@ -1,7 +1,7 @@
 export const types = `
   type Company {
     _id: String!
-    displayName: String
+    primaryName: String
     similarNames: [String]
     size: Int
     website: String
@@ -66,7 +66,7 @@ export const queries = `
 `;
 
 const commonFields = `
-  displayName: String,
+  primaryName: String,
   similarNames: [String]
   size: Int,
   website: String,

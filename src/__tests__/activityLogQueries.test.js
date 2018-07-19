@@ -221,7 +221,7 @@ describe('activityLogs', () => {
     const company = await mutations.companiesAdd(
       null,
       {
-        displayName: 'test company',
+        primaryName: 'test company',
         similarNames: ['test company'],
         website: 'test.test.test',
       },
@@ -274,6 +274,6 @@ describe('activityLogs', () => {
 
     expect(logs[0].list[1].id).toBe(company._id);
     expect(logs[0].list[1].action).toBe('company-create');
-    expect(logs[0].list[1].content).toBe(company.displayName);
+    expect(logs[0].list[1].content).toBe(company.primaryName);
   });
 });
