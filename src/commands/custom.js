@@ -5,6 +5,7 @@ export const customCommand = async () => {
   connect();
 
   const companies = await Companies.find({ name: { $exists: true } });
+  await Companies.collection.dropIndex('name_1');
 
   for (const company of companies) {
     await Companies.update(

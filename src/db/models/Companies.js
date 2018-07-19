@@ -25,8 +25,7 @@ const CompanySchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({
     type: String,
-    label: 'Name',
-    unique: true,
+    optional: true,
   }),
 
   primaryName: field({
@@ -255,6 +254,7 @@ class Company {
     await this.checkDuplication(companyFields, companyIds);
 
     let tagIds = [];
+    let names = [];
 
     // Merging company tags
     for (let companyId of companyIds) {
@@ -262,9 +262,13 @@ class Company {
 
       if (company) {
         const companyTags = company.tagIds || [];
+        const companyNames = company.names || [];
 
         // Merging company's tag into 1 array
         tagIds = tagIds.concat(companyTags);
+
+        // Merging company names
+        names = names.concat(companyNames);
 
         // Removing company
         await this.remove({ _id: companyId });
@@ -275,7 +279,7 @@ class Company {
     tagIds = Array.from(new Set(tagIds));
 
     // Creating company with properties
-    const company = await this.createCompany({ ...companyFields, tagIds });
+    const company = await this.createCompany({ ...companyFields, tagIds, names });
 
     // Updating customer companies
     for (let companyId of companyIds) {
