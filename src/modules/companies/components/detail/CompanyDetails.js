@@ -59,7 +59,7 @@ class CompanyDetails extends React.Component {
             <ActivityList
               user={currentUser}
               activities={companyActivityLog}
-              target={company.name}
+              target={company.primaryName}
               type={currentTab} //show logs filtered by type
             />
           }
@@ -77,7 +77,7 @@ class CompanyDetails extends React.Component {
 
     const breadcrumb = [
       { title: __('Companies'), link: '/companies' },
-      { title: company.name || company.email || 'N/A' }
+      { title: company.primaryName || company.email || 'N/A' }
     ];
 
     const rightSidebar = (
