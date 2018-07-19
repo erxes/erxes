@@ -224,7 +224,6 @@ describe('Companies mutations', () => {
       companyIds: [_company._id],
       companyFields: {
         primaryName: faker.company.companyName(),
-        names: [faker.company.companyName()],
       },
     };
 
@@ -241,6 +240,5 @@ describe('Companies mutations', () => {
     const company = await graphqlRequest(mutation, 'companiesMerge', args, context);
 
     expect(company.primaryName).toBe(args.companyFields.primaryName);
-    expect(company.names).toEqual(expect.arrayContaining(args.companyFields.names));
   });
 });

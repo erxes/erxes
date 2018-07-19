@@ -214,7 +214,6 @@ describe('Companies model tests', () => {
 
     const doc = {
       primaryName: 'Test name',
-      names: ['Test name'],
       website: 'Test webiste',
       size: 230,
       industry: 'Airlines',
@@ -224,11 +223,13 @@ describe('Companies model tests', () => {
     const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
 
     expect(updatedCompany.primaryName).toBe(doc.primaryName);
-    expect(updatedCompany.names).toEqual(expect.arrayContaining(doc.names));
     expect(updatedCompany.website).toBe(doc.website);
     expect(updatedCompany.size).toBe(doc.size);
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);
+    expect(updatedCompany.names).toEqual(
+      expect.arrayContaining(testCompany.names.concat(testCompany2.names)),
+    );
 
     // Checking old company datas deleted
     expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);
