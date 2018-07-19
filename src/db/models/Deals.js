@@ -314,6 +314,11 @@ const DealSchema = mongoose.Schema({
   description: field({ type: String, optional: true }),
   assignedUserIds: field({ type: [String] }),
   stageId: field({ type: String }),
+  modifiedAt: field({
+    type: Date,
+    default: new Date(),
+  }),
+  modifiedBy: field({ type: String }),
   ...commonFields,
 });
 

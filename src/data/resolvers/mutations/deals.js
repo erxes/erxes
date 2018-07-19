@@ -158,19 +158,27 @@ const dealMutations = {
    * @param {String} doc.note
    * @param {[String]} doc.assignedUserIds
    * @param {String} doc.stageId
+   * @param {Object} user user
    * @return {Promise} updated deal object
    */
-  dealsEdit(root, { _id, ...doc }) {
+  dealsEdit(root, { _id, ...doc }, { user }) {
+    doc.modifiedAt = new Date();
+    doc.modifiedBy = user._id;
+
     return Deals.updateDeal(_id, doc);
   },
 
   /**
    * Change deal
    * @param {String} _id deal id
-   * @param {String} doc.stageId
+   * @param {String} doc.stageId stage id
+   * @param {Object} user user
    * @return {Promise} updated deal object
    */
-  dealsChange(root, { _id, ...doc }) {
+  dealsChange(root, { _id, ...doc }, { user }) {
+    doc.modifiedAt = new Date();
+    doc.modifiedBy = user._id;
+
     return Deals.updateDeal(_id, doc);
   },
 
