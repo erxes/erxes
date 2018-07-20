@@ -388,14 +388,13 @@ describe('Customers model tests', () => {
     expect(response[0]).toBe('Bad column name badColumn name1');
 
     await fieldFactory({ contentType: 'customer', text: 'Fax number', validation: '' });
-    const customer = await customerFactory({ email: 'testCustomerEmail@gmail.com' });
 
-    const fieldNames = ['email', 'firstName', 'Fax number'];
+    const fieldNames = ['primaryEmail', 'firstName', 'Fax number'];
 
     const fieldValues = [
-      [customer.email, 'Heyy', '12313'], // this one has duplicated email
-      ['newEmail@gmail.com', 'Ayyy', '12313'], // this one should be inserted
-      [customer.email, '', ''], // this one has duplicated email too
+      ['testcustomer@gmail.com', 'Heyy', '12313'],
+      ['newEmail@gmail.com', 'Ayyy', '12313'],
+      ['testcustomer@yahoo.com', '', ''],
     ];
 
     process.env.MAX_IMPORT_SIZE = 2;
