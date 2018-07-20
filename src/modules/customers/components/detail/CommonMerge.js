@@ -56,12 +56,12 @@ class CommonMerge extends Component {
    * Customer: {
    *   firstName: 'First name of customer'
    *   lastName: 'Last name of customer'
-   *   Email: 'Email of customer'
-   *   Phone: 'Phone of customer'
+   *   primaryEmail: 'Email of customer'
+   *   primaryPhone: 'Phone of customer'
    * }
    * Or
    * Company: {
-   *   name: 'Company name'
+   *   primaryName: 'Company name'
    *   website: 'Company website'
    *   size: 'Company size'
    *   industry: 'Company industry'
@@ -92,12 +92,12 @@ class CommonMerge extends Component {
    * Customer {
    *   firstName: 'First Name'
    *   lastName: 'Last Name'
-   *   email: 'Email'
-   *   phone: 'Phone'
+   *   primaryEmail: 'Email'
+   *   primaryPhone: 'Phone'
    * }
    * Or
    * Company {
-   *   name: 'Name',
+   *   primaryName: 'Name',
    *   website: 'Website',
    *   size: 'Size',
    *   industry: 'Industry',
@@ -151,9 +151,12 @@ class CommonMerge extends Component {
         <FormControl
           onChange={e => this.handleInputChange(e, property)}
           value={data[property] || ''}
-          required={['firstName', 'primaryEmail', 'name', 'website'].includes(
-            property
-          )} //required fields
+          required={[
+            'firstName',
+            'primaryEmail',
+            'primaryName',
+            'website'
+          ].includes(property)} //required fields
         />
       </FormGroup>
     );
