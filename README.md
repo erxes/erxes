@@ -10,18 +10,28 @@ erxes is an AI meets open source messaging platform for sales and marketing
 #### 2. Clone and install dependencies.
 
 ```Shell
-git clone https://github.com/erxes/erxes-widgets
+git clone https://github.com/erxes/erxes-widgets.git
 cd erxes-widgets
 yarn install
 ```
 
-#### 3. Create configuration. We use [dotenv](https://github.com/motdotla/dotenv) for this.
+#### 3. Create configuration from sample file. We use [dotenv](https://github.com/motdotla/dotenv) for this.
 
 ```Shell
 cp .env.sample .env
 ```
 
 This configuration matches with the default configurations of other erxes platform repositories. For the first time run, you don't need to modify it.
+
+.env file description
+
+```env
+PORT=3200                                                (Server port)
+ROOT_URL=http://localhost:3200                           (Widgets server url)
+MAIN_API_URL=http://localhost:3300                       (erxes-api server url)
+API_GRAPHQL_URL=http://localhost:3100/graphql            (erxes-widgets-api server url)
+API_SUBSCRIPTIONS_URL=ws://localhost:3300/subscriptions  (erxes-api server)
+```
 
 #### 4. Start the server.
 
@@ -40,29 +50,7 @@ yarn start
 
 #### 5. Running servers:
 
-Widgets server is running on [http://localhost:3200](http://localhost:3200).
-
-
-#### Usage:
-Script to show the window that communicates with customers
-```javascript
-  window.erxesSettings = {
-      messenger: {
-          brand_id: "YDEdKj",
-          email: "email",
-          name: "username",
-          domain: "domain",
-          created_at: 1369642043,
-      },
-  };
-
-  var script = document.createElement('script');
-  script.src = "http://localhost:3200/build/messengerWidget.bundle.js";
-  script.async = true;
-
-  var entry = document.getElementsByTagName('script')[0];
-  entry.parentNode.insertBefore(script, entry);
-```
+- Widgets server: [http://localhost:3200](http://localhost:3200).
 
 ## Contributors
 
