@@ -274,17 +274,4 @@ describe('Companies model tests', () => {
     expect(internalNote).not.toHaveLength(0);
     expect(activityLog).not.toHaveLength(0);
   });
-
-  test('Check Duplication', async () => {
-    expect.assertions(1);
-    // check duplication
-    try {
-      await Companies.checkDuplication(
-        { primaryName: _company.primaryName, names: _company.names },
-        '123132',
-      );
-    } catch (e) {
-      expect(e.message).toBe('Duplicated name');
-    }
-  });
 });
