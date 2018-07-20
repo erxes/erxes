@@ -135,8 +135,8 @@ class CustomerForm extends React.Component {
   render() {
     const { __, closeModal } = this.context;
     const { customer = {} } = this.props;
-    const { links = {} } = customer;
-    const { users, primaryEmail, emails, primaryPhone, phones } = this.state;
+    const { links = {}, primaryEmail, emails, primaryPhone, phones } = customer;
+    const { users } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>

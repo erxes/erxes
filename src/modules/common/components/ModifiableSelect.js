@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import Select from 'react-select-plus';
 import PropTypes from 'prop-types';
 import { FormControl, Button, Icon, FormGroup } from './';
+import { Alert } from '../utils';
 
 const propTypes = {
   options: PropTypes.array.isRequired,
@@ -87,6 +88,8 @@ class ModifiableSelect extends Component {
       onChange({ options: this.state.options, selectedOption });
     });
 
+    Alert.success('Successfully added');
+
     document.getElementById('removableSelect-value').value = '';
   }
 
@@ -111,6 +114,8 @@ class ModifiableSelect extends Component {
         onChange({ options: this.state.options, selectedOption: null });
       }
     );
+
+    Alert.success('Successfully removed');
   }
 
   setItem(option) {
