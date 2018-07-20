@@ -47,11 +47,18 @@ describe('Companies model tests', () => {
   });
 
   test('Create company', async () => {
-    expect.assertions(7);
+    expect.assertions(8);
 
     // check duplication
     try {
       await Companies.createCompany({ names: [_company.names[0]] });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated name');
+    }
+
+    // check duplication
+    try {
+      await Companies.createCompany({ primaryName: [_company.names[0]] });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }

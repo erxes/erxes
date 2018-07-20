@@ -39,13 +39,34 @@ describe('Customers model tests', () => {
   });
 
   test('Create customer', async () => {
-    expect.assertions(9);
+    expect.assertions(12);
 
     // check duplication
     try {
       await Customers.createCustomer({ emails: _customer.emails });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
+    }
+
+    // check duplication
+    try {
+      await Customers.createCustomer({ primaryEmail: _customer.emails[0] });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
+    // check duplication
+    try {
+      await Customers.createCustomer({ phones: _customer.phones });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated phone');
+    }
+
+    // check duplication
+    try {
+      await Customers.createCustomer({ primaryPhone: _customer.phones[0] });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated phone');
     }
 
     try {
