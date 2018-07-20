@@ -236,9 +236,6 @@ class Company {
    * @return {Promise} Newly created company
    */
   static async mergeCompanies(companyIds, companyFields) {
-    // Checking duplicated fields of company
-    await this.checkDuplication(companyFields, companyIds);
-
     let tagIds = [];
     let names = [];
 
@@ -255,6 +252,9 @@ class Company {
 
         // Merging company names
         names = names.concat(companyNames);
+
+        // Checking duplicated fields of company
+        await this.checkDuplication({ names }, companyIds);
 
         // Removing company
         await this.remove({ _id: companyId });

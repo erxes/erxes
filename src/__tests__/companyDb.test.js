@@ -159,6 +159,8 @@ describe('Companies model tests', () => {
   });
 
   test('mergeCompanies', async () => {
+    expect.assertions(18);
+
     const testCompany = await companyFactory({
       tagIds: ['123', '456', '1234'],
     });
@@ -178,12 +180,16 @@ describe('Companies model tests', () => {
     const companyIds = [testCompany._id, testCompany2._id];
     const mergedTagIds = Array.from(new Set(testCompany.tagIds.concat(testCompany2.tagIds)));
 
+    const companyObj = await companyFactory({ names: testCompany.names });
+
     // test duplication
     try {
       await Companies.mergeCompanies(companyIds, { names: [_company.names] });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }
+
+    await Companies.remove({ _id: companyObj._id });
 
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
@@ -264,9 +270,13 @@ describe('Companies model tests', () => {
   });
 
   test('Check Duplication', async () => {
+    expect.assertions(1);
     // check duplication
     try {
-      await Companies.checkDuplication({ name: _company.name }, '123132');
+      await Companies.checkDuplication(
+        { primaryName: _company.primaryName, names: _company.names },
+        '123132',
+      );
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }
