@@ -389,8 +389,17 @@ class Customer extends Coc {
 
     let tagIds = [];
     let companyIds = [];
+
     let emails = [];
     let phones = [];
+
+    if (customerFields.primaryEmail) {
+      emails.push(customerFields.primaryEmail);
+    }
+
+    if (customerFields.primaryPhone) {
+      phones.push(customerFields.primaryPhone);
+    }
 
     // Merging customer tags and companies
     for (let customerId of customerIds) {

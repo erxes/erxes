@@ -229,6 +229,21 @@ describe('Customers model tests', () => {
     expect(await ConversationMessages.find({ customerId: customer._id })).toHaveLength(0);
   });
 
+  test('Merge customers: without emails or phones', async () => {
+    const visitor1 = await customerFactory({});
+    const visitor2 = await customerFactory({});
+
+    const customerIds = [visitor1._id, visitor2._id];
+
+    const merged = await Customers.mergeCustomers(customerIds, {
+      primaryEmail: 'merged@gmail.com',
+      primaryPhone: '2555225',
+    });
+
+    expect(merged.emails).toContain('merged@gmail.com');
+    expect(merged.phones).toContain('2555225');
+  });
+
   test('Merge customers', async () => {
     expect.assertions(21);
 
