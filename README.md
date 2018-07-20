@@ -1,6 +1,6 @@
 # erxes Inc - erxes Widgets
 
-Embedable widget scripts server for erxes
+erxes is an AI meets open source messaging platform for sales and marketing
 
 <a href="https://demohome.erxes.io/">View demo</a> <b>| </b> <a href="https://github.com/erxes/erxes-widgets/archive/master.zip">Download ZIP </a> <b> | </b> <a href="https://gitter.im/erxes/Lobby">Join us on Gitter</a>
 
