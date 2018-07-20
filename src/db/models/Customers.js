@@ -384,6 +384,9 @@ class Customer extends Coc {
    * @return {Promise} Customer object
    */
   static async mergeCustomers(customerIds, customerFields) {
+    // Checking duplicated fields of customer
+    await this.checkDuplication(customerFields, customerIds);
+
     let tagIds = [];
     let companyIds = [];
     let emails = [];
@@ -404,9 +407,6 @@ class Customer extends Coc {
         companyIds = companyIds.concat(customerCompanies);
         emails = emails.concat(customerEmails);
         phones = phones.concat(customerPhones);
-
-        // Checking duplicated fields of customer
-        await this.checkDuplication({ ...customerFields, emails, phones }, customerIds);
 
         // Removing Customers
         await this.remove({ _id: customerId });

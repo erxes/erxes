@@ -258,18 +258,11 @@ describe('Customers model tests', () => {
       expect(e.message).toBe('Duplicated twitter');
     }
 
-    const customerObj = await customerFactory({
-      emails: testCustomer.emails,
-      primaryEmail: testCustomer.primaryEmail,
-    });
-
     try {
       await Customers.mergeCustomers(customerIds, { primaryEmail: 'email@gmail.com' });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
-
-    await Customers.remove({ _id: customerObj._id });
 
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,

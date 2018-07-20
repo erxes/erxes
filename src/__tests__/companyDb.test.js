@@ -38,7 +38,10 @@ describe('Companies model tests', () => {
   let _company;
 
   beforeEach(async () => {
-    _company = await companyFactory();
+    _company = await companyFactory({
+      primaryName: 'companyname',
+      names: ['companyname', 'companyname1'],
+    });
   });
 
   afterEach(async () => {
@@ -51,14 +54,14 @@ describe('Companies model tests', () => {
 
     // check duplication
     try {
-      await Companies.createCompany({ names: _company.names });
+      await Companies.createCompany({ primaryName: 'companyname' });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }
 
     // check duplication
     try {
-      await Companies.createCompany({ primaryName: _company.primaryName });
+      await Companies.createCompany({ primaryName: 'companyname1' });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }
@@ -189,16 +192,12 @@ describe('Companies model tests', () => {
     const companyIds = [company1._id, company2._id];
     const mergedTagIds = ['123', '456', '1234', '1231', 'asd12'];
 
-    const companyObj = await companyFactory({ names: company1.names });
-
     // test duplication
     try {
-      await Companies.mergeCompanies(companyIds, { names: _company.names });
+      await Companies.mergeCompanies(companyIds, { primaryName: 'companyname' });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }
-
-    await Companies.remove({ _id: companyObj._id });
 
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,

@@ -65,7 +65,11 @@ const CompanySchema = mongoose.Schema({
     optional: true,
   }),
 
-  parentCompanyId: field({ type: String, optional: true, label: 'Parent Company' }),
+  parentCompanyId: field({
+    type: String,
+    optional: true,
+    label: 'Parent Company',
+  }),
   email: field({ type: String, optional: true, label: 'Email' }),
   ownerId: field({ type: String, optional: true, label: 'Owner' }),
   phone: field({ type: String, optional: true, label: 'Phone' }),
@@ -93,7 +97,11 @@ const CompanySchema = mongoose.Schema({
 
   description: field({ type: String, optional: true }),
   employees: field({ type: Number, optional: true, label: 'Employees' }),
-  doNotDisturb: field({ type: String, optional: true, label: 'Do not disturb' }),
+  doNotDisturb: field({
+    type: String,
+    optional: true,
+    label: 'Do not disturb',
+  }),
   links: field({ type: LinkSchema, default: {} }),
 
   lastSeenAt: field({
@@ -143,20 +151,21 @@ class Company {
       }
     }
 
-    // Checking if company has name
-    if (companyFields.names) {
-      query.names = { $in: companyFields.names };
-      const previousEntry = await this.find(query);
+    if (companyFields.primaryName) {
+      let previousEntry = await this.find({
+        ...query,
+        primaryName: companyFields.primaryName,
+      });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated name');
       }
-    }
 
-    if (companyFields.primaryName) {
-      query.primaryName = companyFields.primaryName;
-      const previousEntry = await this.find(query);
+      previousEntry = await this.find({
+        ...query,
+        names: { $in: [companyFields.primaryName] },
+      });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
@@ -247,6 +256,9 @@ class Company {
    * @return {Promise} Newly created company
    */
   static async mergeCompanies(companyIds, companyFields) {
+    // Checking duplicated fields of company
+    await this.checkDuplication(companyFields, companyIds);
+
     let tagIds = [];
     let names = [];
 
@@ -264,9 +276,6 @@ class Company {
         // Merging company names
         names = names.concat(companyNames);
 
-        // Checking duplicated fields of company
-        await this.checkDuplication({ names }, companyIds);
-
         // Removing company
         await this.remove({ _id: companyId });
       }
@@ -279,7 +288,11 @@ class Company {
     names = Array.from(new Set(names));
 
     // Creating company with properties
-    const company = await this.createCompany({ ...companyFields, tagIds, names });
+    const company = await this.createCompany({
+      ...companyFields,
+      tagIds,
+      names,
+    });
 
     // Updating customer companies
     for (let companyId of companyIds) {
