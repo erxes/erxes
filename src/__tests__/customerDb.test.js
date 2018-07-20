@@ -231,11 +231,18 @@ describe('Customers model tests', () => {
       expect(e.message).toBe('Duplicated twitter');
     }
 
+    const customerObj = await customerFactory({
+      emails: testCustomer.emails,
+      primaryEmail: testCustomer.primaryEmail,
+    });
+
     try {
-      await Customers.mergeCustomers(customerIds, { emails: _customer.emails });
+      await Customers.mergeCustomers(customerIds, { primaryEmail: '123@test.com' });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
+
+    await Customers.remove({ _id: customerObj._id });
 
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
@@ -333,6 +340,8 @@ describe('Customers model tests', () => {
   });
 
   test('Check Duplication', async () => {
+    expect.assertions(2);
+
     // check duplication
     try {
       await Customers.checkDuplication({ emails: _customer.emails }, '123132');
