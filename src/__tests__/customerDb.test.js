@@ -397,14 +397,30 @@ describe('Customers model tests', () => {
     expect(response[0]).toBe('Bad column name badColumn name1');
 
     await fieldFactory({ contentType: 'customer', text: 'Fax number', validation: '' });
+    const customer = await customerFactory({
+      emails: ['testCustomerEmail@gmail.com'],
+      primaryEmail: 'testCustomerEmail@gmail.com',
+    });
 
     const fieldNames = ['primaryEmail', 'firstName', 'Fax number'];
 
     const fieldValues = [
-      ['testcustomer@gmail.com', 'Heyy', '12313'],
-      ['newEmail@gmail.com', 'Ayyy', '12313'],
-      ['testcustomer@yahoo.com', '', ''],
+      [customer.primaryEmail, 'Heyy', '12313'], // this one has duplicated email
+      ['newEmail@gmail.com', 'Ayyy', '12313'], // this one should be inserted
+      [customer.primaryEmail, '', ''], // this one has duplicated email too
     ];
+
+    response = await Customers.bulkInsert(fieldNames, fieldValues, { user });
+
+    expect(response.length).toBe(2);
+    expect(response[0]).toBe('Duplicated email at the row 1');
+    expect(response[1]).toBe('Duplicated email at the row 3');
+
+    const history = await ImportHistory.findOne({ userId: user._id });
+    expect(history.total).toBe(3);
+    expect(history.success).toBe(1);
+    expect(history.failed).toBe(2);
+    expect(history.ids.length).toBe(1);
 
     process.env.MAX_IMPORT_SIZE = 2;
     // Max import size error

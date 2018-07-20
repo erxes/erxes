@@ -153,6 +153,16 @@ class Company {
         throw new Error('Duplicated name');
       }
     }
+
+    if (companyFields.primaryName) {
+      query.names = { $in: [companyFields.primaryName] };
+      const previousEntry = await this.find(query);
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated name');
+      }
+    }
   }
 
   /**
@@ -264,6 +274,9 @@ class Company {
 
     // Removing Duplicated Tags from company
     tagIds = Array.from(new Set(tagIds));
+
+    // Removing Duplicated names from company
+    names = Array.from(new Set(names));
 
     // Creating company with properties
     const company = await this.createCompany({ ...companyFields, tagIds, names });

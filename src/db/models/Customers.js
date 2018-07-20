@@ -237,6 +237,30 @@ class Customer extends Coc {
         throw new Error('Duplicated facebook');
       }
     }
+
+    if (customerFields.primaryEmail) {
+      previousEntry = await this.find({
+        ...query,
+        emails: { $in: [customerFields.primaryEmail] },
+      });
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated email');
+      }
+    }
+
+    if (customerFields.primaryPhone) {
+      previousEntry = await this.find({
+        ...query,
+        phones: { $in: [customerFields.primaryPhone] },
+      });
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated phone');
+      }
+    }
   }
 
   /**
@@ -394,6 +418,12 @@ class Customer extends Coc {
 
     // Removing Duplicated Companies from customer
     companyIds = Array.from(new Set(companyIds));
+
+    // Removing Duplicated Emails from customer
+    emails = Array.from(new Set(emails));
+
+    // Removing Duplicated Phones from customer
+    phones = Array.from(new Set(phones));
 
     // Creating customer with properties
     const customer = await this.createCustomer({

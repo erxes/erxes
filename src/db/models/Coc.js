@@ -86,7 +86,7 @@ class Coc {
       }
 
       // Creating coc
-      await this.create(coc)
+      await this[`create${cocType}`](coc)
         .then(coc => {
           // Increasing success count
           history.success++;
