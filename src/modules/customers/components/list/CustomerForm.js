@@ -40,16 +40,13 @@ class CustomerForm extends React.Component {
       ownerId: customer.ownerId || '',
       doNotDisturb: customer.doNotDisturb || 'No',
       hasAuthority: customer.hasAuthority || 'No',
-      users: [],
-      emails: customer.emails || [],
-      primaryEmail: customer.primaryEmail,
-      phones: customer.phones || [],
-      primaryPhone: customer.primaryPhone
+      users: []
     };
 
     this.renderFormGroup = this.renderFormGroup.bind(this);
     this.action = this.action.bind(this);
     this.handleUserSearch = this.handleUserSearch.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {
@@ -126,28 +123,12 @@ class CustomerForm extends React.Component {
     );
   }
 
-  addNameOrPhone(value, type) {
-    const arr = this.state[type];
-
-    this.setState({ [type]: [...arr, value] });
+  onEmailChange({ options, selectedOption }) {
+    this.setState({ emails: options, primaryEmail: selectedOption });
   }
 
-  removeNameOrPhone(value, type) {
-    const arr = this.state[type];
-
-    this.setState({
-      [type]: arr.filter(name => name !== value)
-    });
-  }
-
-  setNameOrPhone(option, type) {
-    let value = null;
-
-    if (option) {
-      value = option.value;
-    }
-
-    this.setState({ [type]: value });
+  onPhoneChange({ options, selectedOption }) {
+    this.setState({ phones: options, primaryPhone: selectedOption });
   }
 
   render() {
@@ -174,9 +155,7 @@ class CustomerForm extends React.Component {
                 options={emails}
                 placeholder="Primary email"
                 buttonText="Add Email"
-                onSave={v => this.addNameOrPhone(v, 'emails')}
-                onSelectChange={o => this.setNameOrPhone(o, 'primaryEmail')}
-                onRemoveOption={v => this.removeNameOrPhone(v, 'emails')}
+                onChange={obj => this.onEmailChange(obj)}
               />
             </FormGroup>
 
@@ -228,9 +207,7 @@ class CustomerForm extends React.Component {
                 options={phones}
                 placeholder="Primary phone"
                 buttonText="Add Phone"
-                onSave={v => this.addNameOrPhone(v, 'phones')}
-                onSelectChange={o => this.setNameOrPhone(o, 'primaryPhone')}
-                onRemoveOption={v => this.removeNameOrPhone(v, 'phones')}
+                onChange={obj => this.onPhoneChange(obj)}
               />
             </FormGroup>
 

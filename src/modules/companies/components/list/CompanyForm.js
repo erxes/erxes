@@ -43,9 +43,7 @@ class CompanyForm extends React.Component {
       ownerId: company.ownerId || '',
       doNotDisturb: company.doNotDisturb || 'No',
       companies: [],
-      users: [],
-      names: company.names || [],
-      primaryName: company.primaryName
+      users: []
     };
 
     this.action = this.action.bind(this);
@@ -53,9 +51,7 @@ class CompanyForm extends React.Component {
     this.handleCompanySearch = this.handleCompanySearch.bind(this);
     this.handleUserSearch = this.handleUserSearch.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
-    this.addName = this.addName.bind(this);
-    this.removeName = this.removeName.bind(this);
-    this.setprimaryName = this.setprimaryName.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {
@@ -141,35 +137,15 @@ class CompanyForm extends React.Component {
     );
   }
 
-  addName(value) {
-    const { names } = this.state;
-
-    this.setState({ names: [...names, value] });
-  }
-
-  removeName(value) {
-    const { names } = this.state;
-
-    this.setState({
-      names: names.filter(name => name !== value)
-    });
-  }
-
-  setprimaryName(option) {
-    let primaryName = null;
-
-    if (option) {
-      primaryName = option.value;
-    }
-
-    this.setState({ primaryName });
+  onChange({ options, selectedOption }) {
+    this.setState({ names: options, primaryName: selectedOption });
   }
 
   render() {
     const { __ } = this.context;
     const { company = {} } = this.props;
-    const { links = {} } = company;
-    const { companies, users, names, primaryName } = this.state;
+    const { links = {}, primaryName, names } = company;
+    const { companies, users } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>
@@ -182,9 +158,7 @@ class CompanyForm extends React.Component {
                 options={names}
                 placeholder="Primary name"
                 buttonText="Add name"
-                onSave={v => this.addName(v)}
-                onSelectChange={o => this.setprimaryName(o)}
-                onRemoveOption={v => this.removeName(v)}
+                onChange={obj => this.onChange(obj)}
               />
             </FormGroup>
 

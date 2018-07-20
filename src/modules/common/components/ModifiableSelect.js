@@ -5,12 +5,10 @@ import { FormControl, Button, Icon, FormGroup } from './';
 
 const propTypes = {
   options: PropTypes.array.isRequired,
+  onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
   placeholder: PropTypes.string,
-  buttonText: PropTypes.string,
-  onSave: PropTypes.func,
-  onSelectChange: PropTypes.func,
-  onRemoveOption: PropTypes.func
+  buttonText: PropTypes.string
 };
 
 const contextTypes = {
@@ -50,7 +48,9 @@ class ModifiableSelect extends Component {
     super(props);
 
     this.state = {
-      adding: false
+      adding: false,
+      options: props.options || [],
+      selectedOption: props.value
     };
 
     this.handleSave = this.handleSave.bind(this);
@@ -58,33 +58,34 @@ class ModifiableSelect extends Component {
     this.handleCancelAdding = this.handleCancelAdding.bind(this);
     this.renderInput = this.renderInput.bind(this);
     this.renderValue = this.renderValue.bind(this);
+    this.removeItem = this.removeItem.bind(this);
+    this.setItem = this.setItem.bind(this);
   }
 
   generateOptions() {
-    const { options, onRemoveOption } = this.props;
+    const { options } = this.state;
 
     return options.map(option => ({
       value: option,
       label: option,
-      onRemove: value => onRemoveOption(value)
+      onRemove: value => this.removeItem(value)
     }));
   }
 
   renderValue() {
-    const { value } = this.props;
+    const { selectedOption } = this.state;
 
-    return <span>{value}</span>;
+    return <span>{selectedOption}</span>;
   }
 
   handleSave() {
-    const { onSave } = this.props;
+    const { options, selectedOption } = this.state;
+    const { onChange } = this.props;
     const value = document.getElementById('removableSelect-value').value;
 
-    if (onSave) {
-      onSave(value);
-    }
-
-    this.setState({ adding: false });
+    this.setState({ adding: false, options: [...options, value] }, () => {
+      onChange({ options: this.state.options, selectedOption });
+    });
 
     document.getElementById('removableSelect-value').value = '';
   }
@@ -95,6 +96,34 @@ class ModifiableSelect extends Component {
 
   handleCancelAdding() {
     this.setState({ adding: false });
+  }
+
+  removeItem(value) {
+    const { options } = this.state;
+    const { onChange } = this.props;
+
+    this.setState(
+      {
+        options: options.filter(option => option !== value),
+        selectedOption: null
+      },
+      () => {
+        onChange({ options: this.state.options, selectedOption: null });
+      }
+    );
+  }
+
+  setItem(option) {
+    const { options } = this.state;
+    const { onChange } = this.props;
+    const value = option ? option.value : null;
+
+    this.setState({ selectedOption: value }, () => {
+      onChange({
+        options,
+        selectedOption: this.state.selectedOption ? value : null
+      });
+    });
   }
 
   renderInput() {
@@ -143,7 +172,8 @@ class ModifiableSelect extends Component {
   }
 
   render() {
-    const { value, placeholder, onSelectChange } = this.props;
+    const { placeholder } = this.props;
+    const { selectedOption } = this.state;
     const { __ } = this.context;
 
     return (
@@ -152,9 +182,9 @@ class ModifiableSelect extends Component {
           <Select
             placeholder={__(placeholder)}
             searchable={false}
-            value={value}
+            value={selectedOption}
             valueComponent={this.renderValue}
-            onChange={selectedOption => onSelectChange(selectedOption)}
+            onChange={obj => this.setItem(obj)}
             options={this.generateOptions()}
             optionComponent={Option}
           />
