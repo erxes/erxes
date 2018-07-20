@@ -46,7 +46,8 @@ class CustomerForm extends React.Component {
     this.renderFormGroup = this.renderFormGroup.bind(this);
     this.action = this.action.bind(this);
     this.handleUserSearch = this.handleUserSearch.bind(this);
-    this.onChange = this.onChange.bind(this);
+    this.onEmailChange = this.onEmailChange.bind(this);
+    this.onPhoneChange = this.onPhoneChange.bind(this);
   }
 
   componentDidMount() {
