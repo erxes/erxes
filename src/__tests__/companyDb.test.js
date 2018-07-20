@@ -58,7 +58,7 @@ describe('Companies model tests', () => {
 
     // check duplication
     try {
-      await Companies.createCompany({ primaryName: [_company.names[0]] });
+      await Companies.createCompany({ primaryName: _company.primaryName });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }

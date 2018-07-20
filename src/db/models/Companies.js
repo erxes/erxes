@@ -155,7 +155,7 @@ class Company {
     }
 
     if (companyFields.primaryName) {
-      query.names = { $in: [companyFields.primaryName] };
+      query.primaryName = companyFields.primaryName;
       const previousEntry = await this.find(query);
 
       // Checking if duplicated
