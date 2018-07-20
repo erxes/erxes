@@ -107,11 +107,12 @@ const CustomerSchema = mongoose.Schema({
 
   firstName: field({ type: String, label: 'First name', optional: true }),
   lastName: field({ type: String, label: 'Last name', optional: true }),
+  // TODO: remove email field after customCommand
   email: field({ type: String, optional: true }),
 
   primaryEmail: field({ type: String, label: 'Primary Email', optional: true }),
   emails: field({ type: [String], optional: true }),
-
+  // TODO: remove phone field after customCommand
   phone: field({ type: String, optional: true }),
 
   primaryPhone: field({ type: String, label: 'Primary Phone', optional: true }),

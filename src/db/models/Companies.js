@@ -23,6 +23,7 @@ const LinkSchema = mongoose.Schema(
 
 const CompanySchema = mongoose.Schema({
   _id: field({ pkey: true }),
+  // TODO: remove name field after custom command
   name: field({
     type: String,
     optional: true,
