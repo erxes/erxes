@@ -1,11 +1,26 @@
 # erxes Inc
 
-erxes is an AI meets open source messaging platform for sales and marketing
+erxes is an AI meets open source messaging platform for sales, marketing and support
 
 <a href="https://demohome.erxes.io/">View demo</a> <b>| </b> <a href="https://github.com/erxes/erxes/archive/master.zip">Download ZIP </a> <b> | </b> <a href="https://gitter.im/erxes/Lobby">Join us on Gitter</a>
 
 ## Status  <br>
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes)  [![Codeclimate Badge](https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability)](https://codeclimate.com/github/erxes/erxes/maintainability) [![Bettercode](https://bettercodehub.com/edge/badge/erxes/erxes?branch=master)](https://bettercodehub.com/results/erxes/erxes)  [![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master) [![Dependencies checker](https://david-dm.org/erxes/erxes.svg)](https://david-dm.org/erxes/erxes) [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/erxes/erxes/develop/LICENSE.md) [![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/) [![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
+
+<a href="https://erxes.io" target="_blank"><img src="https://erxes.io/img/erxes.gif" alt="erxes is an AI meets open source messaging platform for sales, marketing and support "></a>
+
+## Features
+
+<img src="https://erxes.io/img/features-transparent.png" width="400" align="right" style="max-width: 50%">
+
+erxes is an AI meets open source messaging platform built to help marketing, sales & support to connect, build trust and grow with their customers in an easy and affordable way. One of the ways we make customer engagement a lot easier is with unlimited customer service integrations such as social media platforms, messenger, email, SMS for multiple brands. This way, it’s a lot easier to respond quickly to any channels and solve problems on the go.
+
+* **Team Inbox:** Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you however and whenever they want. 
+* **Deals:** Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
+* **Leads:** Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.
+* **Engage:** Start converting your prospects into potential customers through email, SMS, messenger or more interactions to drive them to a successful close. 
+* **CRM:** Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your interactions with your customers. 
+* **Knowledge base:** Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions
 
 ## Documentation
   * <a href="https://github.com/erxes/erxes/wiki/Requirements">Requirements</a> <br>
@@ -44,8 +59,12 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 ## In-kind sponsors
 
 <a href="https://www.cloudflare.com/" target="_blank"><img src="https://erxes.io/img/logo/cloudflare.png" width="130px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-<a href="https://www.saucelabs.com/" target="_blank"><img src="https://erxes.io/img/logo/saucelabs.png" width="130px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://cloud.google.com/developers/startups/" target="_blank"><img src="https://erxes.io/img/logo/cloud-logo.svg" width="130px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://www.digitalocean.com/" target="_blank"><img src="https://erxes.io/img/logo/digitalocean.png" width="100px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://www.saucelabs.com/" target="_blank"><img src="https://erxes.io/img/logo/saucelabs.png" width="130px;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
 <a href="https://www.transifex.com/" target="_blank"><img src="https://erxes.io/img/logo/transifex.png" width="100px;" /></a>
+
+ 
 
 ## Copyright & License
 Copyright (c) 2018 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE.md)
