@@ -241,7 +241,7 @@ class Customer extends Coc {
     if (customerFields.primaryEmail) {
       previousEntry = await this.find({
         ...query,
-        emails: { $in: [customerFields.primaryEmail] },
+        primaryEmail: customerFields.primaryEmail,
       });
 
       // Checking if duplicated
@@ -253,7 +253,7 @@ class Customer extends Coc {
     if (customerFields.primaryPhone) {
       previousEntry = await this.find({
         ...query,
-        phones: { $in: [customerFields.primaryPhone] },
+        primaryPhone: customerFields.primaryPhone,
       });
 
       // Checking if duplicated

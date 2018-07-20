@@ -50,7 +50,7 @@ describe('Customers model tests', () => {
 
     // check duplication
     try {
-      await Customers.createCustomer({ primaryEmail: _customer.emails[0] });
+      await Customers.createCustomer({ primaryEmail: _customer.primaryEmail });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
@@ -64,7 +64,7 @@ describe('Customers model tests', () => {
 
     // check duplication
     try {
-      await Customers.createCustomer({ primaryPhone: _customer.phones[0] });
+      await Customers.createCustomer({ primaryPhone: _customer.primaryPhone });
     } catch (e) {
       expect(e.message).toBe('Duplicated phone');
     }
