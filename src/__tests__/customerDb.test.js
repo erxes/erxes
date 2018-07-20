@@ -398,18 +398,6 @@ describe('Customers model tests', () => {
       [customer.email, '', ''], // this one has duplicated email too
     ];
 
-    response = await Customers.bulkInsert(fieldNames, fieldValues, { user });
-
-    expect(response.length).toBe(2);
-    expect(response[0]).toBe('Duplicated email at the row 1');
-    expect(response[1]).toBe('Duplicated email at the row 3');
-
-    const history = await ImportHistory.findOne({ userId: user._id });
-    expect(history.total).toBe(3);
-    expect(history.success).toBe(1);
-    expect(history.failed).toBe(2);
-    expect(history.ids.length).toBe(1);
-
     process.env.MAX_IMPORT_SIZE = 2;
     // Max import size error
     response = await Customers.bulkInsert(fieldNames, fieldValues, { user });
