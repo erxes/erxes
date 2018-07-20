@@ -17,7 +17,7 @@ export default class Builder {
         {
           firstName: emptySelector,
           lastName: emptySelector,
-          emails: { $size: 0 },
+          primaryEmail: emptySelector,
           visitorContactInfo: null,
         },
       ],
