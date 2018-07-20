@@ -51,7 +51,7 @@ describe('Companies model tests', () => {
 
     // check duplication
     try {
-      await Companies.createCompany({ names: [_company.names[0]] });
+      await Companies.createCompany({ names: _company.names });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }
@@ -75,7 +75,7 @@ describe('Companies model tests', () => {
 
     const doc = generateDoc();
 
-    const previousCompany = await companyFactory({ names: [doc.names] });
+    const previousCompany = await companyFactory({ names: doc.names });
 
     // test duplication
     try {
@@ -168,30 +168,32 @@ describe('Companies model tests', () => {
   test('mergeCompanies', async () => {
     expect.assertions(18);
 
-    const testCompany = await companyFactory({
+    const company1 = await companyFactory({
       tagIds: ['123', '456', '1234'],
+      names: ['company1'],
     });
 
-    const testCompany2 = await companyFactory({
+    const company2 = await companyFactory({
       tagIds: ['1231', '123', 'asd12'],
+      names: ['company2'],
     });
 
-    let testCustomer = await customerFactory({
-      companyIds: [testCompany._id],
+    let customer1 = await customerFactory({
+      companyIds: [company1._id],
     });
 
-    let testCustomer2 = await customerFactory({
-      companyIds: [testCompany2._id],
+    let customer2 = await customerFactory({
+      companyIds: [company2._id],
     });
 
-    const companyIds = [testCompany._id, testCompany2._id];
-    const mergedTagIds = Array.from(new Set(testCompany.tagIds.concat(testCompany2.tagIds)));
+    const companyIds = [company1._id, company2._id];
+    const mergedTagIds = ['123', '456', '1234', '1231', 'asd12'];
 
-    const companyObj = await companyFactory({ names: testCompany.names });
+    const companyObj = await companyFactory({ names: company1.names });
 
     // test duplication
     try {
-      await Companies.mergeCompanies(companyIds, { names: [_company.names] });
+      await Companies.mergeCompanies(companyIds, { names: _company.names });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }
@@ -225,19 +227,17 @@ describe('Companies model tests', () => {
     expect(updatedCompany.size).toBe(doc.size);
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);
-    expect(updatedCompany.names).toEqual(
-      expect.arrayContaining(testCompany.names.concat(testCompany2.names)),
-    );
+    expect(updatedCompany.names).toEqual(expect.arrayContaining(['company1', 'company2']));
 
     // Checking old company datas deleted
     expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
 
-    testCustomer = await Customers.findOne({ _id: testCustomer._id });
-    expect(testCustomer.companyIds).not.toContain(testCompany._id);
+    customer1 = await Customers.findOne({ _id: customer1._id });
+    expect(customer1.companyIds).not.toContain(company1._id);
 
-    testCustomer2 = await Customers.findOne({ _id: testCustomer2._id });
-    expect(testCustomer2.companyIds).not.toContain(testCompany2._id);
+    customer2 = await Customers.findOne({ _id: customer2._id });
+    expect(customer2.companyIds).not.toContain(company2._id);
 
     let internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
@@ -257,8 +257,8 @@ describe('Companies model tests', () => {
     // Checking new company datas updated
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
 
-    expect(testCustomer.companyIds).toContain(updatedCompany._id);
-    expect(testCustomer2.companyIds).toContain(updatedCompany._id);
+    expect(customer1.companyIds).toContain(updatedCompany._id);
+    expect(customer2.companyIds).toContain(updatedCompany._id);
 
     internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
