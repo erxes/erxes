@@ -192,16 +192,6 @@ class Customer extends Coc {
       }
     }
 
-    // Checking if customer has email
-    if (customerFields.emails) {
-      previousEntry = await this.find({ ...query, emails: { $in: customerFields.emails } });
-
-      // Checking if duplicated
-      if (previousEntry.length > 0) {
-        throw new Error('Duplicated email');
-      }
-    }
-
     // Checking if customer has twitter data
     if (customerFields.twitterData) {
       previousEntry = await this.find({
@@ -212,16 +202,6 @@ class Customer extends Coc {
       // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated twitter');
-      }
-    }
-
-    // Checking if customer has phone
-    if (customerFields.phones) {
-      previousEntry = await this.find({ ...query, phones: { $in: customerFields.phones } });
-
-      // Checking if duplicated
-      if (previousEntry.length > 0) {
-        throw new Error('Duplicated phone');
       }
     }
 
@@ -248,12 +228,32 @@ class Customer extends Coc {
       if (previousEntry.length > 0) {
         throw new Error('Duplicated email');
       }
+
+      previousEntry = await this.find({
+        ...query,
+        emails: { $in: [customerFields.primaryEmail] },
+      });
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated email');
+      }
     }
 
     if (customerFields.primaryPhone) {
       previousEntry = await this.find({
         ...query,
         primaryPhone: customerFields.primaryPhone,
+      });
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated phone');
+      }
+
+      previousEntry = await this.find({
+        ...query,
+        phones: { $in: [customerFields.primaryPhone] },
       });
 
       // Checking if duplicated

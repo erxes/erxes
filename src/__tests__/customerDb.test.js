@@ -29,7 +29,12 @@ describe('Customers model tests', () => {
   let _customer;
 
   beforeEach(async () => {
-    _customer = await customerFactory();
+    _customer = await customerFactory({
+      primaryEmail: 'email@gmail.com',
+      emails: ['email@gmail.com', 'otheremail@gmail.com'],
+      primaryPhone: '99922210',
+      phones: ['99922210', '99922211'],
+    });
   });
 
   afterEach(async () => {
@@ -43,28 +48,28 @@ describe('Customers model tests', () => {
 
     // check duplication
     try {
-      await Customers.createCustomer({ emails: _customer.emails });
+      await Customers.createCustomer({ primaryEmail: 'email@gmail.com' });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
 
     // check duplication
     try {
-      await Customers.createCustomer({ primaryEmail: _customer.primaryEmail });
+      await Customers.createCustomer({ primaryEmail: 'otheremail@gmail.com' });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
 
     // check duplication
     try {
-      await Customers.createCustomer({ phones: _customer.phones });
+      await Customers.createCustomer({ primaryPhone: '99922210' });
     } catch (e) {
       expect(e.message).toBe('Duplicated phone');
     }
 
     // check duplication
     try {
-      await Customers.createCustomer({ primaryPhone: _customer.primaryPhone });
+      await Customers.createCustomer({ primaryPhone: '99922211' });
     } catch (e) {
       expect(e.message).toBe('Duplicated phone');
     }
@@ -226,6 +231,7 @@ describe('Customers model tests', () => {
 
   test('Merge customers', async () => {
     expect.assertions(21);
+
     const testCustomer = await customerFactory({
       companyIds: ['123', '1234', '12345'],
       tagIds: ['2343', '234', '234'],
@@ -258,7 +264,7 @@ describe('Customers model tests', () => {
     });
 
     try {
-      await Customers.mergeCustomers(customerIds, { primaryEmail: '123@test.com' });
+      await Customers.mergeCustomers(customerIds, { primaryEmail: 'email@gmail.com' });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
@@ -358,23 +364,6 @@ describe('Customers model tests', () => {
 
     expect(internalNote).not.toHaveLength(0);
     expect(activityLog).not.toHaveLength(0);
-  });
-
-  test('Check Duplication', async () => {
-    expect.assertions(2);
-
-    // check duplication
-    try {
-      await Customers.checkDuplication({ emails: _customer.emails }, '123132');
-    } catch (e) {
-      expect(e.message).toBe('Duplicated email');
-    }
-
-    try {
-      await Customers.checkDuplication({ twitterData: { id: _customer.twitterData.id } }, '123132');
-    } catch (e) {
-      expect(e.message).toBe('Duplicated twitter');
-    }
   });
 
   test('bulkInsert', async () => {
