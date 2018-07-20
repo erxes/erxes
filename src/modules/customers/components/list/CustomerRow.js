@@ -23,8 +23,8 @@ function isTimeStamp(value) {
 
 function getVisitorInfo(customer, key) {
   if (
-    (key === 'email' && !customer[key]) ||
-    (key === 'phone' && !customer[key])
+    (key === 'primaryEmail' && !customer[key]) ||
+    (key === 'primaryPhone' && !customer[key])
   ) {
     return customer.visitorContactInfo && customer.visitorContactInfo[key];
   }
