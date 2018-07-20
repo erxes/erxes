@@ -153,7 +153,7 @@ class CustomerForm extends React.Component {
               <ControlLabel>Email</ControlLabel>
               <ModifiableSelect
                 value={primaryEmail || this.getVisitorInfo(customer, 'email')}
-                options={emails}
+                options={emails || []}
                 placeholder="Primary email"
                 buttonText="Add Email"
                 onChange={obj => this.onEmailChange(obj)}
@@ -205,7 +205,7 @@ class CustomerForm extends React.Component {
               <ControlLabel>Phone</ControlLabel>
               <ModifiableSelect
                 value={primaryPhone || this.getVisitorInfo(customer, 'phone')}
-                options={phones}
+                options={phones || []}
                 placeholder="Primary phone"
                 buttonText="Add Phone"
                 onChange={obj => this.onPhoneChange(obj)}

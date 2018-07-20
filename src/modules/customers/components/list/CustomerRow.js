@@ -22,11 +22,19 @@ function isTimeStamp(value) {
 }
 
 function getVisitorInfo(customer, key) {
+  const contactInfo = {
+    primaryEmail: 'email',
+    primaryPhone: 'phone'
+  };
+
   if (
     (key === 'primaryEmail' && !customer[key]) ||
     (key === 'primaryPhone' && !customer[key])
   ) {
-    return customer.visitorContactInfo && customer.visitorContactInfo[key];
+    return (
+      customer.visitorContactInfo &&
+      customer.visitorContactInfo[contactInfo[key]]
+    );
   }
 
   return _.get(customer, key);

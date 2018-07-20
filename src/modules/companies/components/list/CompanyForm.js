@@ -155,7 +155,7 @@ class CompanyForm extends React.Component {
               <ControlLabel>Name</ControlLabel>
               <ModifiableSelect
                 value={primaryName}
-                options={names}
+                options={names || []}
                 placeholder="Primary name"
                 buttonText="Add name"
                 onChange={obj => this.onChange(obj)}
