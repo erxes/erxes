@@ -409,16 +409,14 @@ class Customer extends Coc {
 
         const customerTags = customer.tagIds || [];
         const customerCompanies = customer.companyIds || [];
-        const customerEmails = customer.emails || [];
-        const customerPhones = customer.phones || [];
 
         // Merging customer's tag and companies into 1 array
         tagIds = tagIds.concat(customerTags);
         companyIds = companyIds.concat(customerCompanies);
 
         // Merging emails, phones
-        emails = emails.concat(customerEmails);
-        phones = phones.concat(customerPhones);
+        emails = [...emails, ...(customer.emails || [])];
+        phones = [...phones, ...(customer.phones || [])];
 
         // Removing Customers
         await this.remove({ _id: customerId });
