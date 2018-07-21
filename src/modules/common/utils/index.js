@@ -31,6 +31,8 @@ export const setBadge = (count, title) => {
     return (favicon.href = '/favicon-unread.png');
   }
 
+  setTitle(title, true);
+
   favicon.href = '/favicon.png';
 };
 

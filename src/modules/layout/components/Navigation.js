@@ -115,17 +115,15 @@ const NavIcon = styled.i`
 `;
 
 class Navigation extends Component {
-  componentDidUpdate() {
-    const { __ } = this.context;
-    setBadge(this.props.unreadConversationsCount, __('Inbox'));
-  }
-
   componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.unreadConversationsCount > this.props.unreadConversationsCount
-    ) {
+    const { __ } = this.context;
+    const { unreadConversationsCount } = nextProps;
+
+    if (unreadConversationsCount !== this.props.unreadConversationsCount) {
       const audio = new Audio('/sound/notify.mp3');
       audio.play();
+
+      setBadge(unreadConversationsCount, __('Inbox'));
     }
   }
 
