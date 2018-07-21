@@ -199,7 +199,6 @@ class Customer extends Coc {
         ['twitterData.id']: customerFields.twitterData.id,
       });
 
-      // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated twitter');
       }
@@ -212,51 +211,50 @@ class Customer extends Coc {
         ['facebookData.id']: customerFields.facebookData.id,
       });
 
-      // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated facebook');
       }
     }
 
     if (customerFields.primaryEmail) {
+      // check duplication from primaryEmail
       previousEntry = await this.find({
         ...query,
         primaryEmail: customerFields.primaryEmail,
       });
 
-      // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated email');
       }
 
+      // check duplication from emails
       previousEntry = await this.find({
         ...query,
         emails: { $in: [customerFields.primaryEmail] },
       });
 
-      // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated email');
       }
     }
 
     if (customerFields.primaryPhone) {
+      // check duplication from primaryPhone
       previousEntry = await this.find({
         ...query,
         primaryPhone: customerFields.primaryPhone,
       });
 
-      // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated phone');
       }
 
+      // Check duplication from phones
       previousEntry = await this.find({
         ...query,
         phones: { $in: [customerFields.primaryPhone] },
       });
 
-      // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated phone');
       }
@@ -417,6 +415,8 @@ class Customer extends Coc {
         // Merging customer's tag and companies into 1 array
         tagIds = tagIds.concat(customerTags);
         companyIds = companyIds.concat(customerCompanies);
+
+        // Merging emails, phones
         emails = emails.concat(customerEmails);
         phones = phones.concat(customerPhones);
 

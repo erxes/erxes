@@ -47,21 +47,19 @@ describe('Customers model tests', () => {
   test('Create customer', async () => {
     expect.assertions(12);
 
-    // check duplication
+    // check duplication ===============
     try {
       await Customers.createCustomer({ primaryEmail: 'email@gmail.com' });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
 
-    // check duplication
     try {
       await Customers.createCustomer({ primaryEmail: 'otheremail@gmail.com' });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
 
-    // check duplication =============
     try {
       await Customers.createCustomer({ primaryPhone: '99922210' });
     } catch (e) {
@@ -80,6 +78,7 @@ describe('Customers model tests', () => {
       expect(e.message).toBe('Duplicated twitter');
     }
 
+    // Create without any error
     const doc = {
       primaryEmail: 'dombo@yahoo.com',
       emails: ['dombo@yahoo.com'],
@@ -98,6 +97,22 @@ describe('Customers model tests', () => {
     expect(customerObj.emails).toEqual(expect.arrayContaining(doc.emails));
     expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
     expect(customerObj.phones).toEqual(expect.arrayContaining(doc.phones));
+  });
+
+  test('Create customer: with customer fields validation error', async () => {
+    expect.assertions(1);
+
+    const field = await fieldFactory({ validation: 'number' });
+
+    try {
+      await Customers.createCustomer({
+        name: 'name',
+        email: 'dombo@yahoo.com',
+        customFieldsData: { [field._id]: 'invalid number' },
+      });
+    } catch (e) {
+      expect(e.message).toBe(`${field.text}: Invalid number`);
+    }
   });
 
   test('Update customer', async () => {
@@ -157,22 +172,6 @@ describe('Customers model tests', () => {
     customer = await Customers.findOne({ _id: customer._id });
 
     expect(customer.companyIds).toEqual(expect.arrayContaining([company._id]));
-  });
-
-  test('Create customer: with customer fields validation error', async () => {
-    expect.assertions(1);
-
-    const field = await fieldFactory({ validation: 'number' });
-
-    try {
-      await Customers.createCustomer({
-        name: 'name',
-        email: 'dombo@yahoo.com',
-        customFieldsData: { [field._id]: 'invalid number' },
-      });
-    } catch (e) {
-      expect(e.message).toBe(`${field.text}: Invalid number`);
-    }
   });
 
   test('Update customer: with customer fields validation error', async () => {
@@ -249,28 +248,26 @@ describe('Customers model tests', () => {
 
     const integration = await integrationFactory({});
 
-    const testCustomer = await customerFactory({
+    const customer1 = await customerFactory({
       companyIds: ['123', '1234', '12345'],
       tagIds: ['2343', '234', '234'],
       integrationId: integration._id,
     });
 
-    const testCustomer2 = await customerFactory({
+    const customer2 = await customerFactory({
       companyIds: ['123', '456', '45678'],
       tagIds: ['qwe', '2343', '123'],
       integrationId: integration._id,
     });
 
-    const customerIds = [testCustomer._id, testCustomer2._id];
+    const customerIds = [customer1._id, customer2._id];
 
     // Merging both customers companyIds and tagIds
-    const mergedCompanyIds = Array.from(
-      new Set(testCustomer.companyIds.concat(testCustomer2.companyIds)),
-    );
+    const mergedCompanyIds = Array.from(new Set(customer1.companyIds.concat(customer2.companyIds)));
 
-    const mergedTagIds = Array.from(new Set(testCustomer.tagIds.concat(testCustomer2.tagIds)));
+    const mergedTagIds = Array.from(new Set(customer1.tagIds.concat(customer2.tagIds)));
 
-    // test duplication
+    // test duplication ============
     try {
       await Customers.mergeCustomers(customerIds, { twitterData: _customer.twitterData });
     } catch (e) {
@@ -283,6 +280,7 @@ describe('Customers model tests', () => {
       expect(e.message).toBe('Duplicated email');
     }
 
+    // Merge without any errors ===========
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customerIds[0],

@@ -152,22 +152,22 @@ class Company {
     }
 
     if (companyFields.primaryName) {
+      // check duplication from primaryName
       let previousEntry = await this.find({
         ...query,
         primaryName: companyFields.primaryName,
       });
 
-      // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated name');
       }
 
+      // check duplication from names
       previousEntry = await this.find({
         ...query,
         names: { $in: [companyFields.primaryName] },
       });
 
-      // Checking if duplicated
       if (previousEntry.length > 0) {
         throw new Error('Duplicated name');
       }

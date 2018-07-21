@@ -52,14 +52,13 @@ describe('Companies model tests', () => {
   test('Create company', async () => {
     expect.assertions(8);
 
-    // check duplication
+    // check duplication ==============
     try {
       await Companies.createCompany({ primaryName: 'companyname' });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }
 
-    // check duplication
     try {
       await Companies.createCompany({ primaryName: 'companyname1' });
     } catch (e) {
@@ -71,6 +70,21 @@ describe('Companies model tests', () => {
     const companyObj = await Companies.createCompany(doc);
 
     check(companyObj, doc);
+  });
+
+  test('Create company: with company fields validation error', async () => {
+    expect.assertions(1);
+
+    const field = await fieldFactory({ validation: 'number' });
+
+    try {
+      await Companies.createCompany({
+        name: 'name',
+        customFieldsData: { [field._id]: 'invalid number' },
+      });
+    } catch (e) {
+      expect(e.message).toBe(`${field.text}: Invalid number`);
+    }
   });
 
   test('Update company', async () => {
@@ -93,21 +107,6 @@ describe('Companies model tests', () => {
     const companyObj = await Companies.updateCompany(_company._id, doc);
 
     check(companyObj, doc);
-  });
-
-  test('Create company: with company fields validation error', async () => {
-    expect.assertions(1);
-
-    const field = await fieldFactory({ validation: 'number' });
-
-    try {
-      await Companies.createCompany({
-        name: 'name',
-        customFieldsData: { [field._id]: 'invalid number' },
-      });
-    } catch (e) {
-      expect(e.message).toBe(`${field.text}: Invalid number`);
-    }
   });
 
   test('Update company: with company fields validation error', async () => {
@@ -192,13 +191,14 @@ describe('Companies model tests', () => {
     const companyIds = [company1._id, company2._id];
     const mergedTagIds = ['123', '456', '1234', '1231', 'asd12'];
 
-    // test duplication
+    // test duplication =================
     try {
       await Companies.mergeCompanies(companyIds, { primaryName: 'companyname' });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
     }
 
+    // Merge without any errors ===========
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: companyIds[0],
