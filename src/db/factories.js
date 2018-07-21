@@ -183,6 +183,7 @@ export const companyFactory = (params = {}) => {
 
 export const customerFactory = (params = {}) => {
   const customer = new Customers({
+    integrationId: params.integrationId,
     firstName: params.firstName || faker.random.word(),
     lastName: params.lastName || faker.random.word(),
     primaryEmail: params.primaryEmail || faker.internet.email(),

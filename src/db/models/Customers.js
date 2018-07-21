@@ -406,6 +406,9 @@ class Customer extends Coc {
       const customer = await this.findOne({ _id: customerId });
 
       if (customer) {
+        // get last customer's integrationId
+        customerFields.integrationId = customer.integrationId;
+
         const customerTags = customer.tagIds || [];
         const customerCompanies = customer.companyIds || [];
         const customerEmails = customer.emails || [];

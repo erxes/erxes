@@ -18,6 +18,7 @@ import {
   internalNoteFactory,
   activityLogFactory,
   userFactory,
+  integrationFactory,
 } from '../db/factories';
 import { COC_CONTENT_TYPES } from '../data/constants';
 
@@ -60,14 +61,13 @@ describe('Customers model tests', () => {
       expect(e.message).toBe('Duplicated email');
     }
 
-    // check duplication
+    // check duplication =============
     try {
       await Customers.createCustomer({ primaryPhone: '99922210' });
     } catch (e) {
       expect(e.message).toBe('Duplicated phone');
     }
 
-    // check duplication
     try {
       await Customers.createCustomer({ primaryPhone: '99922211' });
     } catch (e) {
@@ -245,16 +245,20 @@ describe('Customers model tests', () => {
   });
 
   test('Merge customers', async () => {
-    expect.assertions(21);
+    expect.assertions(22);
+
+    const integration = await integrationFactory({});
 
     const testCustomer = await customerFactory({
       companyIds: ['123', '1234', '12345'],
       tagIds: ['2343', '234', '234'],
+      integrationId: integration._id,
     });
 
     const testCustomer2 = await customerFactory({
       companyIds: ['123', '456', '45678'],
       tagIds: ['qwe', '2343', '123'],
+      integrationId: integration._id,
     });
 
     const customerIds = [testCustomer._id, testCustomer2._id];
@@ -319,18 +323,19 @@ describe('Customers model tests', () => {
       },
     };
 
-    const updatedCustomer = await Customers.mergeCustomers(customerIds, doc);
+    const mergedCustomer = await Customers.mergeCustomers(customerIds, doc);
 
-    expect(updatedCustomer.firstName).toBe(doc.firstName);
-    expect(updatedCustomer.lastName).toBe(doc.lastName);
-    expect(updatedCustomer.primaryEmail).toBe(doc.primaryEmail);
-    expect(updatedCustomer.primaryPhone).toBe(doc.primaryPhone);
-    expect(updatedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
-    expect(updatedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
-    expect(updatedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
-    expect(updatedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
-    expect(updatedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
-    expect(updatedCustomer.visitorContactInfo.toJSON()).toEqual(doc.visitorContactInfo);
+    expect(mergedCustomer.integrationId).toBeDefined();
+    expect(mergedCustomer.firstName).toBe(doc.firstName);
+    expect(mergedCustomer.lastName).toBe(doc.lastName);
+    expect(mergedCustomer.primaryEmail).toBe(doc.primaryEmail);
+    expect(mergedCustomer.primaryPhone).toBe(doc.primaryPhone);
+    expect(mergedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
+    expect(mergedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
+    expect(mergedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
+    expect(mergedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
+    expect(mergedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
+    expect(mergedCustomer.visitorContactInfo.toJSON()).toEqual(doc.visitorContactInfo);
 
     // Checking old customers datas to be deleted
     expect(await Customers.find({ _id: customerIds[0] })).toHaveLength(0);
@@ -352,21 +357,19 @@ describe('Customers model tests', () => {
     expect(internalNote).toHaveLength(0);
     expect(activityLog).toHaveLength(0);
 
-    // Checking updated customer datas
-    expect(await Conversations.find({ customerId: updatedCustomer._id })).not.toHaveLength(0);
-    expect(await ConversationMessages.find({ customerId: updatedCustomer._id })).not.toHaveLength(
-      0,
-    );
+    // Checking merged customer datas
+    expect(await Conversations.find({ customerId: mergedCustomer._id })).not.toHaveLength(0);
+    expect(await ConversationMessages.find({ customerId: mergedCustomer._id })).not.toHaveLength(0);
 
     internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: updatedCustomer._id,
+      contentTypeId: mergedCustomer._id,
     });
 
     activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.CUSTOMER,
-        id: updatedCustomer._id,
+        id: mergedCustomer._id,
       },
     });
 
