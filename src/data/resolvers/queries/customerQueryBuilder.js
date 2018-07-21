@@ -18,6 +18,7 @@ export default class Builder {
           firstName: emptySelector,
           lastName: emptySelector,
           primaryEmail: emptySelector,
+          primaryPhone: emptySelector,
           visitorContactInfo: null,
         },
       ],
