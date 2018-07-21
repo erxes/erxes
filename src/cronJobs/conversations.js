@@ -28,7 +28,7 @@ export const sendMessageEmail = async () => {
 
     const brand = await Brands.findOne({ _id: integration.brandId });
 
-    if (!customer || !customer.email) {
+    if (!customer || !customer.primaryEmail) {
       return;
     }
 
@@ -75,7 +75,7 @@ export const sendMessageEmail = async () => {
 
     // send email
     utils.sendEmail({
-      to: customer.email,
+      to: customer.primaryEmail,
       title: `Reply from "${brand.name}"`,
       template: {
         name: 'conversationCron',

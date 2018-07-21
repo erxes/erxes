@@ -35,7 +35,8 @@ describe('activityLogs', () => {
       null,
       {
         firstName: 'firstName',
-        email: 'test@test.test',
+        primaryEmail: 'test@test.test',
+        emails: ['test@test.test'],
         phone: '123456789',
       },
       { user: _user },
@@ -221,7 +222,8 @@ describe('activityLogs', () => {
     const company = await mutations.companiesAdd(
       null,
       {
-        name: 'test company',
+        primaryName: 'test company',
+        names: ['test company'],
         website: 'test.test.test',
       },
       { user: _user },
@@ -273,6 +275,6 @@ describe('activityLogs', () => {
 
     expect(logs[0].list[1].id).toBe(company._id);
     expect(logs[0].list[1].action).toBe('company-create');
-    expect(logs[0].list[1].content).toBe(company.name);
+    expect(logs[0].list[1].content).toBe(company.primaryName);
   });
 });

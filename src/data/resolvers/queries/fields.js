@@ -97,14 +97,14 @@ const fieldQueries = {
       return [
         { name: 'firstName', label: 'First name', order: 1 },
         { name: 'lastName', label: 'Last name', order: 1 },
-        { name: 'email', label: 'Email', order: 2 },
-        { name: 'phone', label: 'Phone', order: 3 },
+        { name: 'primaryEmail', label: 'Email', order: 2 },
+        { name: 'primaryPhone', label: 'Phone', order: 3 },
       ];
     }
 
     if (contentType === FIELD_CONTENT_TYPES.COMPANY) {
       return [
-        { name: 'name', label: 'Name', order: 1 },
+        { name: 'primaryName', label: 'Primary Name', order: 1 },
         { name: 'size', label: 'Size', order: 2 },
         { name: 'website', label: 'Website', order: 3 },
         { name: 'industry', label: 'Industry', order: 4 },

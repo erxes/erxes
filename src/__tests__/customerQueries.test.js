@@ -52,8 +52,10 @@ describe('customerQueries', () => {
         integrationId
         firstName
         lastName
-        email
-        phone
+        primaryEmail
+        emails
+        primaryPhone
+        phones
         isUser
         createdAt
         tagIds
@@ -99,8 +101,8 @@ describe('customerQueries', () => {
           _id
           firstName
           lastName
-          email
-          phone
+          primaryEmail
+          primaryPhone
           tagIds
         }
         totalCount
@@ -116,8 +118,8 @@ describe('customerQueries', () => {
 
   const firstName = faker.name.firstName();
   const lastName = faker.name.lastName();
-  const email = faker.internet.email();
-  const phone = '12345678';
+  const primaryEmail = faker.internet.email();
+  const primaryPhone = '12345678';
 
   afterEach(async () => {
     // Clearing test data
@@ -194,8 +196,8 @@ describe('customerQueries', () => {
   test('Customers filtered by search value', async () => {
     await customerFactory({ firstName });
     await customerFactory({ lastName });
-    await customerFactory({ phone });
-    await customerFactory({ email });
+    await customerFactory({ primaryPhone, phones: [primaryPhone] });
+    await customerFactory({ primaryEmail, emails: [primaryEmail] });
 
     // customers by firstName ==============
     let responses = await graphqlRequest(qryCustomers, 'customers', { searchValue: firstName });
@@ -210,16 +212,20 @@ describe('customerQueries', () => {
     expect(responses[0].lastName).toBe(lastName);
 
     // customers by email ==========
-    responses = await graphqlRequest(qryCustomers, 'customers', { searchValue: email });
+    responses = await graphqlRequest(qryCustomers, 'customers', {
+      searchValue: primaryEmail,
+    });
 
     expect(responses.length).toBe(1);
-    expect(responses[0].email).toBe(email);
+    expect(responses[0].primaryEmail).toBe(primaryEmail);
 
     // customers by phone ==============
-    responses = await graphqlRequest(qryCustomers, 'customers', { searchValue: phone });
+    responses = await graphqlRequest(qryCustomers, 'customers', {
+      searchValue: primaryPhone,
+    });
 
     expect(responses.length).toBe(1);
-    expect(responses[0].phone).toBe(phone);
+    expect(responses[0].primaryPhone).toBe(primaryPhone);
   });
 
   test('Main customers', async () => {

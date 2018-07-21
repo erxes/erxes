@@ -169,7 +169,8 @@ export const internalNoteFactory = (params = {}) => {
 
 export const companyFactory = (params = {}) => {
   const company = new Companies({
-    name: params.name || faker.random.word(),
+    primaryName: params.primaryName || faker.random.word(),
+    names: params.names || [faker.random.word()],
     size: params.size || faker.random.number(),
     industry: params.industry || 'Airlines',
     website: params.website || faker.internet.domainName(),
@@ -182,10 +183,13 @@ export const companyFactory = (params = {}) => {
 
 export const customerFactory = (params = {}) => {
   const customer = new Customers({
+    integrationId: params.integrationId,
     firstName: params.firstName || faker.random.word(),
     lastName: params.lastName || faker.random.word(),
-    email: params.email || faker.internet.email(),
-    phone: params.phone || faker.phone.phoneNumber(),
+    primaryEmail: params.primaryEmail || faker.internet.email(),
+    primaryPhone: params.primaryPhone || faker.phone.phoneNumber(),
+    emails: params.emails || [faker.internet.email()],
+    phones: params.phones || [faker.phone.phoneNumber()],
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
     companyIds: params.companyIds || [faker.random.number(), faker.random.number()],

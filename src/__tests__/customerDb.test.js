@@ -18,6 +18,7 @@ import {
   internalNoteFactory,
   activityLogFactory,
   userFactory,
+  integrationFactory,
 } from '../db/factories';
 import { COC_CONTENT_TYPES } from '../data/constants';
 
@@ -29,7 +30,12 @@ describe('Customers model tests', () => {
   let _customer;
 
   beforeEach(async () => {
-    _customer = await customerFactory();
+    _customer = await customerFactory({
+      primaryEmail: 'email@gmail.com',
+      emails: ['email@gmail.com', 'otheremail@gmail.com'],
+      primaryPhone: '99922210',
+      phones: ['99922210', '99922211'],
+    });
   });
 
   afterEach(async () => {
@@ -39,25 +45,47 @@ describe('Customers model tests', () => {
   });
 
   test('Create customer', async () => {
-    expect.assertions(6);
+    expect.assertions(12);
 
-    // check duplication
+    // check duplication ===============
     try {
-      await Customers.createCustomer({ name: 'name', email: _customer.email });
+      await Customers.createCustomer({ primaryEmail: 'email@gmail.com' });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
 
     try {
-      await Customers.createCustomer({ name: 'name', twitterData: _customer.twitterData });
+      await Customers.createCustomer({ primaryEmail: 'otheremail@gmail.com' });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
+    try {
+      await Customers.createCustomer({ primaryPhone: '99922210' });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated phone');
+    }
+
+    try {
+      await Customers.createCustomer({ primaryPhone: '99922211' });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated phone');
+    }
+
+    try {
+      await Customers.createCustomer({ twitterData: _customer.twitterData });
     } catch (e) {
       expect(e.message).toBe('Duplicated twitter');
     }
 
+    // Create without any error
     const doc = {
-      email: 'dombo@yahoo.com',
+      primaryEmail: 'dombo@yahoo.com',
+      emails: ['dombo@yahoo.com'],
       firstName: 'firstName',
       lastName: 'lastName',
+      primaryPhone: '12312132',
+      phones: ['12312132'],
     };
 
     const customerObj = await Customers.createCustomer(doc);
@@ -65,20 +93,42 @@ describe('Customers model tests', () => {
     expect(customerObj.createdAt).toBeDefined();
     expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.lastName).toBe(doc.lastName);
-    expect(customerObj.email).toBe(doc.email);
+    expect(customerObj.primaryEmail).toBe(doc.primaryEmail);
+    expect(customerObj.emails).toEqual(expect.arrayContaining(doc.emails));
+    expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
+    expect(customerObj.phones).toEqual(expect.arrayContaining(doc.phones));
+  });
+
+  test('Create customer: with customer fields validation error', async () => {
+    expect.assertions(1);
+
+    const field = await fieldFactory({ validation: 'number' });
+
+    try {
+      await Customers.createCustomer({
+        name: 'name',
+        email: 'dombo@yahoo.com',
+        customFieldsData: { [field._id]: 'invalid number' },
+      });
+    } catch (e) {
+      expect(e.message).toBe(`${field.text}: Invalid number`);
+    }
   });
 
   test('Update customer', async () => {
-    expect.assertions(5);
+    expect.assertions(4);
 
     const previousCustomer = await customerFactory({
-      email: 'dombo@yahoo.com',
+      primaryEmail: 'dombo@yahoo.com',
+      emails: ['dombo@yahoo.com'],
     });
 
     const doc = {
       firstName: 'Dombo',
-      email: 'dombo@yahoo.com',
-      phone: '242442200',
+      primaryEmail: 'dombo@yahoo.com',
+      emails: ['dombo@yahoo.com'],
+      primaryPhone: '242442200',
+      phones: ['242442200'],
     };
 
     // test duplication
@@ -88,20 +138,14 @@ describe('Customers model tests', () => {
       expect(e.message).toBe('Duplicated email');
     }
 
-    try {
-      await Customers.createCustomer({ name: 'name', twitterData: _customer.twitterData });
-    } catch (e) {
-      expect(e.message).toBe('Duplicated twitter');
-    }
-
     // remove previous duplicated entry
     await Customers.remove({ _id: previousCustomer._id });
 
     const customerObj = await Customers.updateCustomer(_customer._id, doc);
 
     expect(customerObj.firstName).toBe(doc.firstName);
-    expect(customerObj.email).toBe(doc.email);
-    expect(customerObj.phone).toBe(doc.phone);
+    expect(customerObj.primaryEmail).toBe(doc.primaryEmail);
+    expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
   });
 
   test('Mark customer as inactive', async () => {
@@ -128,22 +172,6 @@ describe('Customers model tests', () => {
     customer = await Customers.findOne({ _id: customer._id });
 
     expect(customer.companyIds).toEqual(expect.arrayContaining([company._id]));
-  });
-
-  test('Create customer: with customer fields validation error', async () => {
-    expect.assertions(1);
-
-    const field = await fieldFactory({ validation: 'number' });
-
-    try {
-      await Customers.createCustomer({
-        name: 'name',
-        email: 'dombo@yahoo.com',
-        customFieldsData: { [field._id]: 'invalid number' },
-      });
-    } catch (e) {
-      expect(e.message).toBe(`${field.text}: Invalid number`);
-    }
   });
 
   test('Update customer: with customer fields validation error', async () => {
@@ -200,27 +228,46 @@ describe('Customers model tests', () => {
     expect(await ConversationMessages.find({ customerId: customer._id })).toHaveLength(0);
   });
 
+  test('Merge customers: without emails or phones', async () => {
+    const visitor1 = await customerFactory({});
+    const visitor2 = await customerFactory({});
+
+    const customerIds = [visitor1._id, visitor2._id];
+
+    const merged = await Customers.mergeCustomers(customerIds, {
+      primaryEmail: 'merged@gmail.com',
+      primaryPhone: '2555225',
+    });
+
+    expect(merged.emails).toContain('merged@gmail.com');
+    expect(merged.phones).toContain('2555225');
+  });
+
   test('Merge customers', async () => {
-    const testCustomer = await customerFactory({
+    expect.assertions(22);
+
+    const integration = await integrationFactory({});
+
+    const customer1 = await customerFactory({
       companyIds: ['123', '1234', '12345'],
       tagIds: ['2343', '234', '234'],
+      integrationId: integration._id,
     });
 
-    const testCustomer2 = await customerFactory({
+    const customer2 = await customerFactory({
       companyIds: ['123', '456', '45678'],
       tagIds: ['qwe', '2343', '123'],
+      integrationId: integration._id,
     });
 
-    const customerIds = [testCustomer._id, testCustomer2._id];
+    const customerIds = [customer1._id, customer2._id];
 
     // Merging both customers companyIds and tagIds
-    const mergedCompanyIds = Array.from(
-      new Set(testCustomer.companyIds.concat(testCustomer2.companyIds)),
-    );
+    const mergedCompanyIds = Array.from(new Set(customer1.companyIds.concat(customer2.companyIds)));
 
-    const mergedTagIds = Array.from(new Set(testCustomer.tagIds.concat(testCustomer2.tagIds)));
+    const mergedTagIds = Array.from(new Set(customer1.tagIds.concat(customer2.tagIds)));
 
-    // test duplication
+    // test duplication ============
     try {
       await Customers.mergeCustomers(customerIds, { twitterData: _customer.twitterData });
     } catch (e) {
@@ -228,11 +275,12 @@ describe('Customers model tests', () => {
     }
 
     try {
-      await Customers.mergeCustomers(customerIds, { email: _customer.email });
+      await Customers.mergeCustomers(customerIds, { primaryEmail: 'email@gmail.com' });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
 
+    // Merge without any errors ===========
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customerIds[0],
@@ -256,8 +304,8 @@ describe('Customers model tests', () => {
     const doc = {
       firstName: 'Test first name',
       lastName: 'Test last name',
-      email: 'Test email',
-      phone: 'Test phone',
+      primaryEmail: 'Test email',
+      primaryPhone: 'Test phone',
       facebookData: {
         id: '1231312asd',
       },
@@ -273,18 +321,19 @@ describe('Customers model tests', () => {
       },
     };
 
-    const updatedCustomer = await Customers.mergeCustomers(customerIds, doc);
+    const mergedCustomer = await Customers.mergeCustomers(customerIds, doc);
 
-    expect(updatedCustomer.firstName).toBe(doc.firstName);
-    expect(updatedCustomer.lastName).toBe(doc.lastName);
-    expect(updatedCustomer.email).toBe(doc.email);
-    expect(updatedCustomer.phone).toBe(doc.phone);
-    expect(updatedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
-    expect(updatedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
-    expect(updatedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
-    expect(updatedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
-    expect(updatedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
-    expect(updatedCustomer.visitorContactInfo.toJSON()).toEqual(doc.visitorContactInfo);
+    expect(mergedCustomer.integrationId).toBeDefined();
+    expect(mergedCustomer.firstName).toBe(doc.firstName);
+    expect(mergedCustomer.lastName).toBe(doc.lastName);
+    expect(mergedCustomer.primaryEmail).toBe(doc.primaryEmail);
+    expect(mergedCustomer.primaryPhone).toBe(doc.primaryPhone);
+    expect(mergedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
+    expect(mergedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
+    expect(mergedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
+    expect(mergedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
+    expect(mergedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
+    expect(mergedCustomer.visitorContactInfo.toJSON()).toEqual(doc.visitorContactInfo);
 
     // Checking old customers datas to be deleted
     expect(await Customers.find({ _id: customerIds[0] })).toHaveLength(0);
@@ -306,41 +355,24 @@ describe('Customers model tests', () => {
     expect(internalNote).toHaveLength(0);
     expect(activityLog).toHaveLength(0);
 
-    // Checking updated customer datas
-    expect(await Conversations.find({ customerId: updatedCustomer._id })).not.toHaveLength(0);
-    expect(await ConversationMessages.find({ customerId: updatedCustomer._id })).not.toHaveLength(
-      0,
-    );
+    // Checking merged customer datas
+    expect(await Conversations.find({ customerId: mergedCustomer._id })).not.toHaveLength(0);
+    expect(await ConversationMessages.find({ customerId: mergedCustomer._id })).not.toHaveLength(0);
 
     internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: updatedCustomer._id,
+      contentTypeId: mergedCustomer._id,
     });
 
     activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.CUSTOMER,
-        id: updatedCustomer._id,
+        id: mergedCustomer._id,
       },
     });
 
     expect(internalNote).not.toHaveLength(0);
     expect(activityLog).not.toHaveLength(0);
-  });
-
-  test('Check Duplication', async () => {
-    // check duplication
-    try {
-      await Customers.checkDuplication({ email: _customer.email }, '123132');
-    } catch (e) {
-      expect(e.message).toBe('Duplicated email');
-    }
-
-    try {
-      await Customers.checkDuplication({ twitterData: { id: _customer.twitterData.id } }, '123132');
-    } catch (e) {
-      expect(e.message).toBe('Duplicated twitter');
-    }
   });
 
   test('bulkInsert', async () => {
@@ -353,7 +385,7 @@ describe('Customers model tests', () => {
     await fieldFactory({ contentType: 'customer', text: 'Fax number', validation: '' });
     const user = await userFactory({});
 
-    const fieldNames = ['email', 'phone', 'First referred site', 'Fax number'];
+    const fieldNames = ['primaryEmail', 'primaryPhone', 'First referred site', 'Fax number'];
 
     const fieldValues = [
       ['customer1email@yahoo.com', 'customer1phone', 'customer1property1', 'customer1property2'],
@@ -384,14 +416,17 @@ describe('Customers model tests', () => {
     expect(response[0]).toBe('Bad column name badColumn name1');
 
     await fieldFactory({ contentType: 'customer', text: 'Fax number', validation: '' });
-    const customer = await customerFactory({ email: 'testCustomerEmail@gmail.com' });
+    const customer = await customerFactory({
+      emails: ['testCustomerEmail@gmail.com'],
+      primaryEmail: 'testCustomerEmail@gmail.com',
+    });
 
-    const fieldNames = ['email', 'firstName', 'Fax number'];
+    const fieldNames = ['primaryEmail', 'firstName', 'Fax number'];
 
     const fieldValues = [
-      [customer.email, 'Heyy', '12313'], // this one has duplicated email
+      [customer.primaryEmail, 'Heyy', '12313'], // this one has duplicated email
       ['newEmail@gmail.com', 'Ayyy', '12313'], // this one should be inserted
-      [customer.email, '', ''], // this one has duplicated email too
+      [customer.primaryEmail, '', ''], // this one has duplicated email too
     ];
 
     response = await Customers.bulkInsert(fieldNames, fieldValues, { user });

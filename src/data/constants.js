@@ -263,8 +263,8 @@ export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
 export const CUSTOMER_BASIC_INFOS = [
   'firstName',
   'lastName',
-  'email',
-  'phone',
+  'primaryEmail',
+  'primaryPhone',
   'ownerId',
   'position',
   'department',
@@ -371,7 +371,8 @@ export const COMPANY_INDUSTRY_TYPES = [
 ];
 
 export const COMPANY_BASIC_INFOS = [
-  'name',
+  'primaryName',
+  'names',
   'size',
   'industry',
   'website',

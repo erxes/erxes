@@ -17,7 +17,8 @@ describe('Companies mutations', () => {
   let context;
 
   const commonParamDefs = `
-    $name: String
+    $primaryName: String
+    $names: [String]
     $size: Int
     $website: String
     $industry: String
@@ -29,7 +30,8 @@ describe('Companies mutations', () => {
   `;
 
   const commonParams = `
-    name: $name
+    primaryName: $primaryName
+    names: $names
     size: $size
     website: $website
     industry: $industry
@@ -58,7 +60,8 @@ describe('Companies mutations', () => {
 
   test('Add company', async () => {
     const args = {
-      name: faker.company.companyName(),
+      primaryName: faker.company.companyName(),
+      names: [faker.company.companyName()],
       size: faker.random.number(),
       website: faker.internet.url(),
       industry: 'Airlines',
@@ -71,7 +74,8 @@ describe('Companies mutations', () => {
     const mutation = `
       mutation companiesAdd(${commonParamDefs}) {
         companiesAdd(${commonParams}) {
-          name
+          primaryName
+          names
           size
           website
           industry
@@ -85,7 +89,8 @@ describe('Companies mutations', () => {
 
     const company = await graphqlRequest(mutation, 'companiesAdd', args, context);
 
-    expect(company.name).toBe(args.name);
+    expect(company.primaryName).toBe(args.primaryName);
+    expect(company.names).toEqual(expect.arrayContaining(args.names));
     expect(company.size).toBe(args.size);
     expect(company.website).toBe(args.website);
     expect(company.industry).toBe(args.industry);
@@ -98,7 +103,8 @@ describe('Companies mutations', () => {
   test('Edit company', async () => {
     const args = {
       _id: _company._id,
-      name: faker.company.companyName(),
+      primaryName: faker.company.companyName(),
+      names: [faker.company.companyName()],
       size: faker.random.number(),
       website: faker.internet.url(),
       industry: faker.random.word(),
@@ -112,7 +118,8 @@ describe('Companies mutations', () => {
       mutation companiesEdit($_id: String! ${commonParamDefs}) {
         companiesEdit(_id: $_id ${commonParams}) {
           _id
-          name
+          primaryName
+          names
           size
           website
           industry
@@ -127,7 +134,8 @@ describe('Companies mutations', () => {
     const company = await graphqlRequest(mutation, 'companiesEdit', args, context);
 
     expect(company._id).toBe(args._id);
-    expect(company.name).toBe(args.name);
+    expect(company.primaryName).toBe(args.primaryName);
+    expect(company.names).toEqual(expect.arrayContaining(args.names));
     expect(company.size).toBe(args.size);
     expect(company.website).toBe(args.website);
     expect(company.industry).toBe(args.industry);
@@ -135,41 +143,6 @@ describe('Companies mutations', () => {
     expect(company.sessionCount).toBe(args.sessionCount);
     expect(expect.arrayContaining(company.tagIds)).toEqual(args.tagIds);
     expect(company.customFieldsData).toEqual(args.customFieldsData);
-  });
-
-  test('Add customer to company', async () => {
-    const args = {
-      _id: _company._id,
-      email: faker.internet.email(),
-      firstName: faker.random.word(),
-      lastName: faker.random.word(),
-    };
-
-    const mutation = `
-      mutation companiesAddCustomer(
-        $_id: String!
-        $email: String!
-        $firstName: String
-        $lastName: String
-      ) {
-
-        companiesAddCustomer(
-          _id: $_id
-          firstName: $firstName
-          lastName: $lastName
-          email: $email
-        ) {
-          _id
-          email
-          firstName
-          lastName
-        }
-      }
-    `;
-
-    const customer = await graphqlRequest(mutation, 'companiesAddCustomer', args, context);
-
-    expect(customer.email).toBe(args.email);
   });
 
   test('Edit customer of company', async () => {
@@ -215,7 +188,7 @@ describe('Companies mutations', () => {
     const args = {
       companyIds: [_company._id],
       companyFields: {
-        name: faker.company.companyName(),
+        primaryName: faker.company.companyName(),
       },
     };
 
@@ -223,13 +196,14 @@ describe('Companies mutations', () => {
       mutation companiesMerge($companyIds: [String] $companyFields: JSON) {
         companiesMerge(companyIds: $companyIds companyFields: $companyFields) {
           _id
-          name
+          primaryName
+          names
         }
       }
     `;
 
     const company = await graphqlRequest(mutation, 'companiesMerge', args, context);
 
-    expect(company.name).toBe(args.companyFields.name);
+    expect(company.primaryName).toBe(args.companyFields.primaryName);
   });
 });

@@ -109,7 +109,7 @@ describe('Cronjob conversation send email', () => {
     data.answers = [answer];
 
     const expectedArgs = {
-      to: _customer.email,
+      to: _customer.primaryEmail,
       title: `Reply from "${_brand.name}"`,
       template: {
         name: 'conversationCron',

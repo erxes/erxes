@@ -129,14 +129,14 @@ describe('fieldQueries', () => {
     expect(responses.length).toBe(4);
     expect(responses[0].name).toBe('firstName');
     expect(responses[1].name).toBe('lastName');
-    expect(responses[2].name).toBe('email');
-    expect(responses[3].name).toBe('phone');
+    expect(responses[2].name).toBe('primaryEmail');
+    expect(responses[3].name).toBe('primaryPhone');
 
     // get company default config
     responses = await graphqlRequest(qry, 'fieldsDefaultColumnsConfig', { contentType: 'company' });
 
     expect(responses.length).toBe(7);
-    expect(responses[0].name).toBe('name');
+    expect(responses[0].name).toBe('primaryName');
     expect(responses[1].name).toBe('size');
     expect(responses[2].name).toBe('website');
     expect(responses[3].name).toBe('industry');

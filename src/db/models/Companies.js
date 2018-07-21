@@ -23,10 +23,21 @@ const LinkSchema = mongoose.Schema(
 
 const CompanySchema = mongoose.Schema({
   _id: field({ pkey: true }),
+  // TODO: remove name field after custom command
   name: field({
     type: String,
-    label: 'Name',
-    unique: true,
+    optional: true,
+  }),
+
+  primaryName: field({
+    type: String,
+    label: 'Primary Name',
+    optional: true,
+  }),
+
+  names: field({
+    type: [String],
+    optional: true,
   }),
 
   size: field({
@@ -54,7 +65,11 @@ const CompanySchema = mongoose.Schema({
     optional: true,
   }),
 
-  parentCompanyId: field({ type: String, optional: true, label: 'Parent Company' }),
+  parentCompanyId: field({
+    type: String,
+    optional: true,
+    label: 'Parent Company',
+  }),
   email: field({ type: String, optional: true, label: 'Email' }),
   ownerId: field({ type: String, optional: true, label: 'Owner' }),
   phone: field({ type: String, optional: true, label: 'Phone' }),
@@ -82,7 +97,11 @@ const CompanySchema = mongoose.Schema({
 
   description: field({ type: String, optional: true }),
   employees: field({ type: Number, optional: true, label: 'Employees' }),
-  doNotDisturb: field({ type: String, optional: true, label: 'Do not disturb' }),
+  doNotDisturb: field({
+    type: String,
+    optional: true,
+    label: 'Do not disturb',
+  }),
   links: field({ type: LinkSchema, default: {} }),
 
   lastSeenAt: field({
@@ -132,12 +151,23 @@ class Company {
       }
     }
 
-    // Checking if company has name
-    if (companyFields.name) {
-      query.name = companyFields.name;
-      const previousEntry = await this.find(query);
+    if (companyFields.primaryName) {
+      // check duplication from primaryName
+      let previousEntry = await this.find({
+        ...query,
+        primaryName: companyFields.primaryName,
+      });
 
-      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated name');
+      }
+
+      // check duplication from names
+      previousEntry = await this.find({
+        ...query,
+        names: { $in: [companyFields.primaryName] },
+      });
+
       if (previousEntry.length > 0) {
         throw new Error('Duplicated name');
       }
@@ -177,20 +207,6 @@ class Company {
     await this.update({ _id }, { $set: doc });
 
     return this.findOne({ _id });
-  }
-
-  /**
-   * Create new customer and add to customer's customer list
-   * @return {Promise} newly created customer
-   */
-  static async addCustomer({ _id, firstName, lastName, email }) {
-    // create customer
-    return Customers.createCustomer({
-      firstName,
-      lastName,
-      email,
-      companyIds: [_id],
-    });
   }
 
   /**
@@ -244,6 +260,7 @@ class Company {
     await this.checkDuplication(companyFields, companyIds);
 
     let tagIds = [];
+    let names = [];
 
     // Merging company tags
     for (let companyId of companyIds) {
@@ -251,9 +268,13 @@ class Company {
 
       if (company) {
         const companyTags = company.tagIds || [];
+        const companyNames = company.names || [];
 
         // Merging company's tag into 1 array
         tagIds = tagIds.concat(companyTags);
+
+        // Merging company names
+        names = names.concat(companyNames);
 
         // Removing company
         await this.remove({ _id: companyId });
@@ -263,8 +284,15 @@ class Company {
     // Removing Duplicated Tags from company
     tagIds = Array.from(new Set(tagIds));
 
+    // Removing Duplicated names from company
+    names = Array.from(new Set(names));
+
     // Creating company with properties
-    const company = await this.createCompany({ ...companyFields, tagIds });
+    const company = await this.createCompany({
+      ...companyFields,
+      tagIds,
+      names,
+    });
 
     // Updating customer companies
     for (let companyId of companyIds) {
