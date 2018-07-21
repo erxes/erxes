@@ -37,7 +37,7 @@ function CompanySection({ name, companies, onSelect }, { __ }) {
           <Link to={`/companies/details/${company._id}`}>
             <Icon icon="logout-2" />
           </Link>
-          <span>{company.name || 'N/A'}</span>
+          <span>{company.primaryName || 'N/A'}</span>
           <Tip text={company.website || ''}>
             <a target="_blank" href={`//${company.website}`}>
               {urlParser.extractRootDomain(company.website)}

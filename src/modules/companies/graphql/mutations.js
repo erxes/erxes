@@ -1,5 +1,6 @@
 const commonFields = `
-  $name: String,
+  $names: [String],
+  $primaryName: String,
   $size: Int,
   $industry: String,
   $plan: String,
@@ -18,7 +19,8 @@ const commonFields = `
 `;
 
 const commonVariables = `
-  name: $name,
+  names: $names,
+  primaryName: $primaryName,
   size: $size,
   industry: $industry,
   plan: $plan,
@@ -47,7 +49,8 @@ const companiesAdd = `
 const companiesEdit = `
   mutation companiesEdit($_id: String!, ${commonFields}) {
     companiesEdit(_id: $_id, ${commonVariables}) {
-      name
+      primaryName
+      names
       size
       industry
       plan
@@ -69,14 +72,6 @@ const companiesEdit = `
         youtube
         website
       }
-    }
-  }
-`;
-
-const companiesAddCustomer = `
-  mutation companiesAddCustomer($_id: String!, $name: String!, $email: String) {
-    companiesAddCustomer(_id: $_id, name: $name, email: $email) {
-      _id
     }
   }
 `;
@@ -106,7 +101,6 @@ const companiesMerge = `
 export default {
   companiesAdd,
   companiesEdit,
-  companiesAddCustomer,
   companiesEditCustomers,
   companiesRemove,
   companiesMerge

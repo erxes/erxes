@@ -5,7 +5,8 @@ import {
   Button,
   FormGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
+  ModifiableSelect
 } from 'modules/common/components';
 import {
   ModalFooter,
@@ -45,6 +46,8 @@ class CustomerForm extends React.Component {
     this.renderFormGroup = this.renderFormGroup.bind(this);
     this.action = this.action.bind(this);
     this.handleUserSearch = this.handleUserSearch.bind(this);
+    this.onEmailChange = this.onEmailChange.bind(this);
+    this.onPhoneChange = this.onPhoneChange.bind(this);
   }
 
   componentDidMount() {
@@ -55,15 +58,18 @@ class CustomerForm extends React.Component {
   }
 
   action(e) {
+    const { phones, emails, primaryPhone, primaryEmail } = this.state;
     e.preventDefault();
 
     this.props.action({
       doc: {
+        phones,
+        emails,
+        primaryPhone,
+        primaryEmail,
         firstName: document.getElementById('customer-firstname').value,
         lastName: document.getElementById('customer-lastname').value,
-        email: document.getElementById('customer-email').value,
         ownerId: this.state.ownerId,
-        phone: document.getElementById('customer-phone').value,
         position: document.getElementById('customer-position').value,
         department: document.getElementById('customer-department').value,
         leadStatus: document.getElementById('customer-leadStatus').value,
@@ -118,10 +124,18 @@ class CustomerForm extends React.Component {
     );
   }
 
+  onEmailChange({ options, selectedOption }) {
+    this.setState({ emails: options, primaryEmail: selectedOption });
+  }
+
+  onPhoneChange({ options, selectedOption }) {
+    this.setState({ phones: options, primaryPhone: selectedOption });
+  }
+
   render() {
     const { __, closeModal } = this.context;
     const { customer = {} } = this.props;
-    const { links = {} } = customer;
+    const { links = {}, primaryEmail, emails, primaryPhone, phones } = customer;
     const { users } = this.state;
 
     return (
@@ -135,13 +149,16 @@ class CustomerForm extends React.Component {
               id: 'customer-firstname'
             })}
 
-            {this.renderFormGroup('Email', {
-              id: 'customer-email',
-              type: 'email',
-              defaultValue:
-                customer.email || this.getVisitorInfo(customer, 'email') || '',
-              required: true
-            })}
+            <FormGroup>
+              <ControlLabel>Email</ControlLabel>
+              <ModifiableSelect
+                value={primaryEmail || this.getVisitorInfo(customer, 'email')}
+                options={emails || []}
+                placeholder="Primary email"
+                buttonText="Add Email"
+                onChange={obj => this.onEmailChange(obj)}
+              />
+            </FormGroup>
 
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
@@ -184,11 +201,16 @@ class CustomerForm extends React.Component {
               defaultValue: customer.lastName || ''
             })}
 
-            {this.renderFormGroup('Phone', {
-              id: 'customer-phone',
-              defaultValue:
-                customer.phone || this.getVisitorInfo(customer, 'phone') || ''
-            })}
+            <FormGroup>
+              <ControlLabel>Phone</ControlLabel>
+              <ModifiableSelect
+                value={primaryPhone || this.getVisitorInfo(customer, 'phone')}
+                options={phones || []}
+                placeholder="Primary phone"
+                buttonText="Add Phone"
+                onChange={obj => this.onPhoneChange(obj)}
+              />
+            </FormGroup>
 
             {this.renderFormGroup('Position', {
               id: 'customer-position',

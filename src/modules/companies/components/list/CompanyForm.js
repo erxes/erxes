@@ -5,7 +5,8 @@ import {
   Button,
   FormGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
+  ModifiableSelect
 } from 'modules/common/components';
 import {
   ModalFooter,
@@ -50,6 +51,7 @@ class CompanyForm extends React.Component {
     this.handleCompanySearch = this.handleCompanySearch.bind(this);
     this.handleUserSearch = this.handleUserSearch.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {
@@ -59,11 +61,13 @@ class CompanyForm extends React.Component {
   }
 
   action(e) {
+    const { names, primaryName } = this.state;
     e.preventDefault();
 
     this.props.action({
       doc: {
-        name: document.getElementById('company-name').value,
+        names,
+        primaryName,
         size: document.getElementById('company-size').value,
         industry: document.getElementById('company-industry').value,
         plan: document.getElementById('company-plan').value,
@@ -94,7 +98,7 @@ class CompanyForm extends React.Component {
   generateCompanyParams(companies) {
     return companies.map(company => ({
       value: company._id,
-      label: company.name || ''
+      label: company.primaryName || ''
     }));
   }
 
@@ -133,22 +137,31 @@ class CompanyForm extends React.Component {
     );
   }
 
+  onChange({ options, selectedOption }) {
+    this.setState({ names: options, primaryName: selectedOption });
+  }
+
   render() {
     const { __ } = this.context;
     const { company = {} } = this.props;
-    const { links = {} } = company;
+    const { links = {}, primaryName, names } = company;
     const { companies, users } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>
         <FormWrapper>
           <FormColumn>
-            {this.renderFormGroup('Name', {
-              id: 'company-name',
-              autoFocus: true,
-              defaultValue: company.name || '',
-              required: true
-            })}
+            <FormGroup>
+              <ControlLabel>Name</ControlLabel>
+              <ModifiableSelect
+                value={primaryName}
+                options={names || []}
+                placeholder="Primary name"
+                buttonText="Add name"
+                onChange={obj => this.onChange(obj)}
+              />
+            </FormGroup>
+
             {this.renderFormGroup('Industry', {
               id: 'company-industry',
               componentClass: 'select',

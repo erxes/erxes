@@ -28,12 +28,12 @@ const commonReturn = `
   stageId
   companies {
     _id
-    name
+    primaryName
   }
   customers {
     _id
     firstName
-    email
+    primaryEmail
   }
   products
   amount

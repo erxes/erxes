@@ -1,6 +1,7 @@
 const companyFields = `
   _id
-  name
+  primaryName
+  names
   size
   industry
   website
@@ -30,7 +31,7 @@ const companyFields = `
     }
   }
   parentCompany {
-    name
+    primaryName
   }
 
   customFieldsData
@@ -94,19 +95,19 @@ export const companyDetail = `
         _id
         firstName
         lastName
-        email
-        phone
+        primaryEmail
+        primaryPhone
       }
       deals {
         _id
         companies {
           _id
-          name
+          primaryName
         }
         customers {
           _id
           firstName
-          email
+          primaryEmail
         }
         products
         amount

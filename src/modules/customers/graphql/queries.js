@@ -2,8 +2,12 @@ const customerFields = `
     _id
     firstName
     lastName
-    email
-    phone
+
+    primaryEmail
+    emails
+    primaryPhone
+    phones
+
     isUser
     integrationId
     createdAt
@@ -112,7 +116,7 @@ const customerDetail = `
       ${customerFields}
       companies {
         _id
-        name
+        primaryName
         website
       }
       conversations {
@@ -142,8 +146,8 @@ const customerDetail = `
           _id
           firstName
           lastName
-          email
-          phone
+          primaryEmail
+          primaryPhone
         }
         tags {
           _id
@@ -156,12 +160,12 @@ const customerDetail = `
         _id
         companies {
           _id
-          name
+          primaryName
         }
         customers {
           _id
           firstName
-          email
+          primaryEmail
         }
         products
         amount
@@ -258,8 +262,12 @@ const generateCustomerDetailQuery = params => {
       ${fields}
       firstName
       lastName
-      email
-      phone
+
+      primaryEmail
+      emails
+      primaryPhone
+      phones
+
       isUser
       visitorContactInfo
 
@@ -291,7 +299,7 @@ const generateCustomerDetailQuery = params => {
       ${fields}
       companies {
         _id
-        name
+        primaryName
         website
       }
     `;

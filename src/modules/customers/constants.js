@@ -51,8 +51,8 @@ export const dateUnits = {
 export const CUSTOMER_BASIC_INFO = {
   firstName: 'First Name',
   lastName: 'Last Name',
-  email: 'E-mail',
-  phone: 'Phone',
+  primaryEmail: 'Primary E-mail',
+  primaryPhone: 'Primary Phone',
   position: 'Position',
   department: 'Department',
   leadStatus: 'Lead Status',

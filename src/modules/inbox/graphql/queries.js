@@ -67,8 +67,8 @@ const sidebarConversations = `
         _id
         firstName
         lastName
-        email
-        phone
+        primaryEmail
+        primaryPhone
         isUser
         visitorContactInfo
         facebookData

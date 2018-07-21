@@ -51,8 +51,8 @@ function NameCard({
     first =
       firstLine ||
       customer.name ||
-      (singleLine && (customer.name || customer.email || 'N/A'));
-    second = !singleLine && (secondLine || customer.email || 'N/A');
+      (singleLine && (customer.name || customer.primaryEmail || 'N/A'));
+    second = !singleLine && (secondLine || customer.primaryEmail || 'N/A');
   }
 
   return (

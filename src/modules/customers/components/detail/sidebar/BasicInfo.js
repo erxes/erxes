@@ -136,11 +136,15 @@ class BasicInfo extends Component {
         <SidebarList className="no-link">
           {this.renderRow(
             'Email',
-            customer.email || this.getVisitorInfo(customer, 'email') || ''
+            customer.primaryEmail ||
+              this.getVisitorInfo(customer, 'email') ||
+              ''
           )}
           {this.renderRow(
             'Phone',
-            customer.phone || this.getVisitorInfo(customer, 'phone') || ''
+            customer.primaryPhone ||
+              this.getVisitorInfo(customer, 'phone') ||
+              ''
           )}
 
           {this.renderRow(

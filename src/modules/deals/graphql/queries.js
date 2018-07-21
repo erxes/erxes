@@ -77,14 +77,14 @@ const dealDetail = `
       boardId
       companies {
         _id
-        name
+        primaryName
         website
       }
       customers {
         _id
         firstName
-        email
-        phone
+        primaryEmail
+        primaryPhone
       }
       products
       productsData

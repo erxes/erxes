@@ -1,8 +1,10 @@
 const commonFields = `
   $firstName: String,
   $lastName: String,
-  $email: String,
-  $phone: String,
+  $primaryEmail: String,
+  $primaryPhone: String,
+  $phones: [String],
+  $emails: [String],
   $ownerId: String,
   $position: String,
   $department: String,
@@ -18,8 +20,10 @@ const commonFields = `
 const commonVariables = `
   firstName: $firstName,
   lastName: $lastName,
-  email: $email,
-  phone: $phone,
+  primaryEmail: $primaryEmail,
+  primaryPhone: $primaryPhone,
+  phones: $phones,
+  emails: $emails,
   ownerId: $ownerId,
   position: $position,
   department: $department,
@@ -45,8 +49,10 @@ const customersEdit = `
     customersEdit(_id: $_id, ${commonVariables}) {
       firstName
       lastName
-      email
-      phone
+      primaryEmail
+      primaryPhone
+      phones
+      emails
       ownerId
       position
       department
@@ -80,7 +86,7 @@ const customersEditCompanies = `
     customersEditCompanies(_id: $_id, companyIds: $companyIds) {
       companies {
         _id
-        name
+        primaryName
         website
       }
     }
