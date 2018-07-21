@@ -4,8 +4,10 @@ import { Companies, Customers } from '../db/models';
 export const customCommand = async () => {
   connect();
 
-  const companies = await Companies.find({ name: { $exists: true } });
-  // await Companies.collection.dropIndex('name_1');
+  const companies = await Companies.find({
+    name: { $exists: true },
+    primaryName: { $exists: false },
+  });
 
   for (const company of companies) {
     await Companies.update(
@@ -21,14 +23,14 @@ export const customCommand = async () => {
   });
 
   for (const customer of customers) {
-    if (customer.email) {
+    if (customer.email && !customer.primaryEmail) {
       await Customers.update(
         { _id: customer._id },
         { $set: { primaryEmail: customer.email, emails: [customer.email] } },
       );
     }
 
-    if (customer.phone) {
+    if (customer.phone && !customer.primaryPhone) {
       await Customers.update(
         { _id: customer._id },
         { $set: { primaryPhone: customer.phone, phones: [customer.phone] } },
