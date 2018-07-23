@@ -10,7 +10,7 @@ export const customCommand = async () => {
   });
 
   try {
-    Companies.dropIndex({ name: 1 });
+    Companies.collection.dropIndexes({ name: 1 });
   } catch (e) {
     console.log(e);
   }
@@ -29,7 +29,7 @@ export const customCommand = async () => {
   });
 
   try {
-    Customers.dropIndex({ email: 1 });
+    Customers.collection.dropIndexes({ email: 1 });
   } catch (e) {
     console.log(e);
   }
