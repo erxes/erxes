@@ -9,6 +9,12 @@ export const customCommand = async () => {
     primaryName: { $exists: false },
   });
 
+  try {
+    Companies.dropIndex({ name: 1 });
+  } catch (e) {
+    console.log(e);
+  }
+
   for (const company of companies) {
     await Companies.update(
       { _id: company._id },
@@ -21,6 +27,12 @@ export const customCommand = async () => {
   const customers = await Customers.find({
     $or: [{ email: { $exists: true } }, { phone: { $exists: true } }],
   });
+
+  try {
+    Customers.dropIndex({ email: 1 });
+  } catch (e) {
+    console.log(e);
+  }
 
   for (const customer of customers) {
     if (customer.email && !customer.primaryEmail) {
