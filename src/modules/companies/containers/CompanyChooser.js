@@ -21,6 +21,7 @@ class CompanyChooser extends React.Component {
       if (!loadmore) {
         this.setState({ perPage: 0 });
       }
+
       this.setState({ perPage: this.state.perPage + 20 }, () => {
         companiesQuery.refetch({
           searchValue: value,
