@@ -33,7 +33,11 @@ class TargetMergeModal extends React.Component {
       key,
       value: JSON.stringify(object),
       label:
-        object.firstName || object.name || object.email || object.phone || 'N/A'
+        object.firstName ||
+        object.primaryName ||
+        object.primaryEmail ||
+        object.primaryPhone ||
+        'N/A'
     }));
   }
 
