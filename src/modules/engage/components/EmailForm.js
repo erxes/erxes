@@ -20,8 +20,10 @@ const PreviewContainer = styled.div`
 `;
 
 const EmailContent = styled.div`
+  padding: 20px 30px;
+
   p {
-    padding: 20px 40px;
+    padding: 0px;
     margin: 0px;
   }
 `;
