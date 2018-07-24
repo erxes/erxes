@@ -59,7 +59,7 @@ const companyQueries = {
   async companiesMain(root, params) {
     const selector = await listQuery(params);
 
-    const list = await paginate(Companies.find(selector), params);
+    const list = await paginate(Companies.find(selector).sort({ primaryName: -1 }), params);
     const totalCount = await Companies.find(selector).count();
 
     return { list, totalCount };
