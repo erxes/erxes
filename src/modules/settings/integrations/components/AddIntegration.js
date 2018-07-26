@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import {
   ModalTrigger,
@@ -20,17 +21,17 @@ function AddIntegration(props, { __ }) {
         </Button>
       </DropdownToggle>
       <Dropdown.Menu>
-        <MenuItem href="/settings/integrations/createMessenger">
-          {__('Add messenger')}
-        </MenuItem>
-
+        <li>
+          <Link to={`/settings/integrations/createMessenger`}>
+            {__('Add messenger')}
+          </Link>
+        </li>
         <ModalTrigger title="Add facebook page" trigger={triggerFb}>
           <Facebook />
         </ModalTrigger>
-
-        <MenuItem href="/settings/integrations/twitter">
-          {__('Twitter')}
-        </MenuItem>
+        <li>
+          <Link to={`/settings/integrations/twitter`}>{__('Twitter')}</Link>
+        </li>
       </Dropdown.Menu>
     </Dropdown>
   );
