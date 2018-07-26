@@ -21,6 +21,24 @@ const FacebookSchema = mongoose.Schema(
       optional: true,
     }),
 
+    isPost: field({
+      type: Boolean,
+      optional: true,
+    }),
+
+    likeCounts: field({
+      type: Number,
+      default: 0,
+    }),
+    commentCounts: field({
+      type: Number,
+      default: 0,
+    }),
+    shareCounts: field({
+      type: Number,
+      default: 0,
+    }),
+
     // messenger message id
     messageId: field({
       type: String,

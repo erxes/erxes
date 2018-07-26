@@ -65,7 +65,6 @@ export class SaveWebhookResponse {
         // set current page
         this.currentPageId = entry.id;
 
-        // receive new messenger message
         if (entry.messaging) {
           await this.viaMessengerEvent(entry);
         }
@@ -97,6 +96,75 @@ export class SaveWebhookResponse {
     for (let event of entry.changes) {
       // someone posted on our wall
       await this.getOrCreateConversationByFeed(event.value);
+    }
+  }
+
+  async handlePosts({ post_id, video_id, link, picture, created_time, item }) {
+    const doc = {
+      postId: post_id,
+      item,
+      createdAt: created_time,
+    };
+
+    if (video_id) {
+      doc.videoId = video_id;
+    }
+
+    if (link) {
+      doc.link = link;
+    }
+
+    if (picture) {
+      doc.picture = picture;
+    }
+
+    return doc;
+  }
+
+  async handleComments(commentParams) {
+    const { post_id, parent_id, item, comment_id, created_time } = commentParams;
+
+    const doc = {
+      postId: post_id,
+      item: item,
+      commentId: comment_id,
+      createdAt: created_time,
+    };
+
+    if (post_id !== parent_id) {
+      doc.parentId = parent_id;
+    }
+
+    return doc;
+  }
+
+  async handleLikes(likeParams) {
+    const { verb, post_id, comment_id } = likeParams;
+
+    let selector = { 'facebookData.postId': post_id };
+
+    if (comment_id) {
+      selector = { 'facebookData.commentId': comment_id };
+    }
+
+    if (verb === 'add') {
+      const msg = await ConversationMessages.findOne(selector);
+
+      if (msg) {
+        return await ConversationMessages.update(
+          { _id: das._id },
+          { $set: { 'facebookData.likes': { $inc: 1 } } },
+        );
+      }
+    }
+
+    const das = await ConversationMessages.findOne(selector);
+
+    if (das) {
+      await ConversationMessages.update(
+        { _id: das._id },
+        { $set: { 'facebookData.likes': { $inc: -1 } } },
+      );
     }
   }
 
@@ -161,24 +229,41 @@ export class SaveWebhookResponse {
    * @param {Object} value - Webhook response item
    */
   async getOrCreateConversationByFeed(value) {
-    const commentId = value.comment_id;
+    const { item, comment_id } = value;
 
-    // collect only added actions
-    if (value.verb !== 'add') {
-      return null;
+    //  {
+    //   commentId: value.comment_id,
+    //   parentId: value.parent_id,
+    //   postId,
+    //   item: value.item,
+    //   reactionType: value.reaction_type,
+    //   photoId: value.photo_id,
+    //   videoId: value.video_id,
+    //   link: value.link,
+    // },
+    let msgFacebookData = {};
+
+    // sending to comment handler if comment
+    if (item === 'comment' && comment_id) {
+      const conversationMessage = await ConversationMessages.findOne({
+        'facebookData.commentId': comment_id,
+      });
+
+      if (conversationMessage) {
+        return null;
+      }
+
+      msgFacebookData = this.handleComments(value);
     }
 
-    // ignore duplicated action when like
-    if (value.verb === 'add' && value.item === 'like') {
-      return null;
+    // sending to post handler if post
+    if (item === 'status') {
+      msgFacebookData = this.handlePosts(value);
     }
 
-    // if this is already saved then ignore it
-    if (
-      commentId &&
-      (await ConversationMessages.findOne({ 'facebookData.commentId': commentId }))
-    ) {
-      return null;
+    // sending to like handler if like
+    if (item === 'like') {
+      this.handleLikes(value);
     }
 
     const senderName = value.from.name;
@@ -248,14 +333,7 @@ export class SaveWebhookResponse {
       msgFacebookData: {
         senderId,
         senderName,
-        commentId: value.comment_id,
-        parentId: value.parent_id,
-        postId,
-        item: value.item,
-        reactionType: value.reaction_type,
-        photoId: value.photo_id,
-        videoId: value.video_id,
-        link: value.link,
+        ...msgFacebookData,
       },
     });
   }

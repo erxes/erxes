@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { field } from '../db/models/utils';
+import { FACEBOOK_DATA_KINDS } from '../data/constants';
 
 export const TwitterSchema = mongoose.Schema(
   {
@@ -66,6 +67,38 @@ export const TwitterResponseSchema = mongoose.Schema(
     reply_count: field({ type: Number, optional: true }),
     retweet_count: field({ type: Number, optional: true }),
     favorite_count: field({ type: Number, optional: true }),
+  },
+  { _id: false },
+);
+
+export const FacebookResponseSchema = mongoose.Schema(
+  {
+    kind: field({ type: String, enum: FACEBOOK_DATA_KINDS.ALL }),
+
+    // messenger
+    senderName: field({ type: String }),
+    senderId: field({ type: String }),
+    recipientId: field({ type: String }),
+
+    // when wall post
+    postId: field({ type: String }),
+    pageId: field({ type: String }),
+
+    // post details
+    caption: field({ type: String, optional: true }),
+    created_time: field({ type: String, optional: true }),
+    description: field({ type: String, optional: true }),
+    full_picture: field({ type: String, optional: true }),
+    link: field({ type: String, optional: true }),
+    message: field({ type: String, optional: true }),
+    message_tags: field({ type: String, optional: true }),
+    name: field({ type: String, optional: true }),
+    permalink_url: field({ type: String, optional: true }),
+    properties: field({ type: String, optional: true }),
+
+    // comment details
+    comment_post_id: field({ type: String, optional: true }),
+    comment_parent_id: field({ type: String, optional: true }),
   },
   { _id: false },
 );
