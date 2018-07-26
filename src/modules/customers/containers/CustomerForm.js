@@ -52,21 +52,17 @@ CustomerFormContainer.contextTypes = {
 const options = ({ customer }) => {
   if (!customer) {
     return {
-      refetchQueries: [
-        {
-          query: gql(queries.customersMain),
-          fetchPolicy: 'network-only'
-        }
-      ]
+      refetchQueries: ['customersMain', 'customers']
     };
   }
 
   return {
     refetchQueries: [
       {
-        query: gql(queries.customerDetail),
-        variables: { _id: customer._id },
-        fetchPolicy: 'network-only'
+        query: gql`
+          ${queries.customerDetail}
+        `,
+        variables: { _id: customer._id }
       }
     ]
   };
