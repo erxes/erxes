@@ -49,7 +49,7 @@ function formatValue(value) {
     value &&
     (moment(value, moment.ISO_8601).isValid() || isTimeStamp(value))
   ) {
-    return moment(value).fromNow();
+    return value;
   }
 
   return value || '-';
