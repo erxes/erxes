@@ -54,9 +54,8 @@ const options = ({ customer }) => {
     return {
       refetchQueries: [
         {
-          query: gql`
-            ${queries.customersMain}
-          `
+          query: gql(queries.customersMain),
+          fetchPolicy: 'network-only'
         }
       ]
     };
@@ -65,10 +64,9 @@ const options = ({ customer }) => {
   return {
     refetchQueries: [
       {
-        query: gql`
-          ${queries.customerDetail}
-        `,
-        variables: { _id: customer._id }
+        query: gql(queries.customerDetail),
+        variables: { _id: customer._id },
+        fetchPolicy: 'network-only'
       }
     ]
   };
