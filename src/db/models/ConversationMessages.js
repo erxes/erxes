@@ -4,6 +4,18 @@ import { TwitterResponseSchema } from '../../trackers/schemas';
 import { Conversations } from './';
 import { field } from './utils';
 
+const reactionSchema = mongoose.Schema(
+  {
+    like: field({ type: [String], default: [] }),
+    love: field({ type: [String], default: [] }),
+    wow: field({ type: [String], default: [] }),
+    haha: field({ type: [String], default: [] }),
+    sad: field({ type: [String], default: [] }),
+    angry: field({ type: [String], default: [] }),
+  },
+  { _id: false },
+);
+
 const FacebookSchema = mongoose.Schema(
   {
     postId: field({
@@ -26,6 +38,8 @@ const FacebookSchema = mongoose.Schema(
       type: Boolean,
       optional: true,
     }),
+
+    reactions: field({ reactionSchema }),
 
     likeCount: field({
       type: Number,

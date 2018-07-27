@@ -100,6 +100,18 @@ export class SaveWebhookResponse {
     }
   }
 
+  /**
+   * Receives feed updates
+   * @param {String} post_id - Post id
+   * @param {String} video_id - Video id
+   * @param {String} link - Video, photo, urls
+   * @param {String} photo_id - Photo id
+   * @param {Date} created_time - Created date
+   * @param {String} item - Feed content types
+   * @param {String[]} photos - Photo urls
+   *
+   * @return {Object} Facebook messenger data
+   */
   handlePosts(postParams) {
     const { post_id, video_id, link, photo_id, created_time, item, photos } = postParams;
     const doc = {
@@ -132,6 +144,18 @@ export class SaveWebhookResponse {
     return doc;
   }
 
+  /**
+   * Receives comment
+   * @param {String} post_id - Post id
+   * @param {String} parent_id - Parent post or comment id
+   * @param {String} item - Feed content types
+   * @param {String} comment_id - Comment id
+   * @param {Date} created_time - Created date
+   * @param {String} video - Video url
+   * @param {String} photo - Photo url
+   *
+   * @return {Object} Facebook messenger data
+   */
   handleComments(commentParams) {
     const { post_id, parent_id, item, comment_id, created_time, video, photo } = commentParams;
 
@@ -157,8 +181,19 @@ export class SaveWebhookResponse {
     return doc;
   }
 
+  /**
+   * Receives like and reaction
+   * @param {String} verb - Add or remove action of reaction or like
+   * @param {String} post_id - Post id
+   * @param {String} comment_id - Comment id
+   * @param {String} reaction_type - Reaction type
+   * @param {String} item - Feed content types
+   * @param {Object} from - Facebook user who performed action
+   *
+   * @return {Promise} Updated conversation message
+   */
   async handleLikes(likeParams) {
-    const { verb, post_id, comment_id } = likeParams;
+    const { verb, post_id, comment_id, reaction_type, item, from } = likeParams;
 
     let selector = { 'facebookData.postId': post_id };
 
@@ -169,17 +204,36 @@ export class SaveWebhookResponse {
     const msg = await ConversationMessages.findOne(selector);
 
     if (msg) {
-      if (verb === 'add') {
+      // Receiving like
+      if (item === 'like') {
+        if (verb === 'add')
+          return await ConversationMessages.update(
+            { _id: msg._id },
+            { $inc: { 'facebookData.likeCount': 1 } },
+          );
+
         return await ConversationMessages.update(
           { _id: msg._id },
-          { $inc: { 'facebookData.likeCount': 1 } },
+          { $inc: { 'facebookData.likeCount': -1 } },
         );
       }
 
-      await ConversationMessages.update(
-        { _id: msg._id },
-        { $inc: { 'facebookData.likeCount': -1 } },
-      );
+      // Receiving reaction
+      if (reaction_type) {
+        const { name, _id } = from;
+        const reactionField = `facebookData.react.${reaction_type}`;
+
+        if (verb === 'add')
+          return await ConversationMessages.update(
+            { _id: msg._id },
+            { $push: { [reactionField]: { _id, name } } },
+          );
+
+        return await ConversationMessages.update(
+          { _id: msg._id },
+          { $pull: { [reactionField]: { _id } } },
+        );
+      }
     }
   }
 
