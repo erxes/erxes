@@ -100,7 +100,8 @@ export class SaveWebhookResponse {
     }
   }
 
-  async handlePosts({ post_id, video_id, link, photo_id, created_time, item, photos }) {
+  handlePosts(postParams) {
+    const { post_id, video_id, link, photo_id, created_time, item, photos } = postParams;
     const doc = {
       postId: post_id,
       item,
@@ -131,7 +132,7 @@ export class SaveWebhookResponse {
     return doc;
   }
 
-  async handleComments(commentParams) {
+  handleComments(commentParams) {
     const { post_id, parent_id, item, comment_id, created_time, video, photo } = commentParams;
 
     const doc = {
@@ -165,23 +166,19 @@ export class SaveWebhookResponse {
       selector = { 'facebookData.commentId': comment_id };
     }
 
-    if (verb === 'add') {
-      const msg = await ConversationMessages.findOne(selector);
-
-      if (msg) {
-        return await ConversationMessages.update(
-          { _id: msg._id },
-          { $set: { 'facebookData.likes': { $inc: 1 } } },
-        );
-      }
-    }
-
     const msg = await ConversationMessages.findOne(selector);
 
     if (msg) {
+      if (verb === 'add') {
+        return await ConversationMessages.update(
+          { _id: msg._id },
+          { $inc: { 'facebookData.likeCount': 1 } },
+        );
+      }
+
       await ConversationMessages.update(
         { _id: msg._id },
-        { $set: { 'facebookData.likes': { $inc: -1 } } },
+        { $inc: { 'facebookData.likeCount': -1 } },
       );
     }
   }
@@ -265,13 +262,13 @@ export class SaveWebhookResponse {
     }
 
     // sending to post handler if post
-    if (FACEBOOK_POST_TYPES.contains(item)) {
+    if (FACEBOOK_POST_TYPES.includes(item)) {
       msgFacebookData = this.handlePosts(value);
     }
 
     // sending to like handler if like
     if (item === 'like') {
-      this.handleLikes(value);
+      await this.handleLikes(value);
     }
 
     const senderName = value.from.name;
