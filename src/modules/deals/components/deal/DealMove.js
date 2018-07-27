@@ -34,6 +34,12 @@ class DealMove extends React.Component {
     this.setState({ show: !this.state.show });
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.stages !== nextProps.stages) {
+      this.setState({ stages: nextProps.stages });
+    }
+  }
+
   renderStages() {
     const { stageId, onChangeStage } = this.props;
     const { stages } = this.state;
