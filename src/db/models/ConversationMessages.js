@@ -16,6 +16,7 @@ const FacebookSchema = mongoose.Schema(
       optional: true,
     }),
 
+    // parent comment id
     parentId: field({
       type: String,
       optional: true,
@@ -26,15 +27,15 @@ const FacebookSchema = mongoose.Schema(
       optional: true,
     }),
 
-    likeCounts: field({
+    likeCount: field({
       type: Number,
       default: 0,
     }),
-    commentCounts: field({
+    commentCount: field({
       type: Number,
       default: 0,
     }),
-    shareCounts: field({
+    shareCount: field({
       type: Number,
       default: 0,
     }),
@@ -64,11 +65,6 @@ const FacebookSchema = mongoose.Schema(
     }),
 
     link: field({
-      type: String,
-      optional: true,
-    }),
-
-    reactionType: field({
       type: String,
       optional: true,
     }),
