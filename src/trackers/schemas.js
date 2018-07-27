@@ -83,22 +83,6 @@ export const FacebookResponseSchema = mongoose.Schema(
     // when wall post
     postId: field({ type: String }),
     pageId: field({ type: String }),
-
-    // post details
-    caption: field({ type: String, optional: true }),
-    created_time: field({ type: String, optional: true }),
-    description: field({ type: String, optional: true }),
-    full_picture: field({ type: String, optional: true }),
-    link: field({ type: String, optional: true }),
-    message: field({ type: String, optional: true }),
-    message_tags: field({ type: String, optional: true }),
-    name: field({ type: String, optional: true }),
-    permalink_url: field({ type: String, optional: true }),
-    properties: field({ type: String, optional: true }),
-
-    // comment details
-    comment_post_id: field({ type: String, optional: true }),
-    comment_parent_id: field({ type: String, optional: true }),
   },
   { _id: false },
 );
