@@ -39,7 +39,7 @@ class DealSectionContainer extends React.Component {
   }
 
   render() {
-    const { dealsQuery } = this.props;
+    const { dealsQuery = {} } = this.props;
 
     const deals = dealsQuery.deals || [];
 
@@ -79,12 +79,12 @@ export default compose(
   }),
   graphql(gql(queries.deals), {
     name: 'dealsQuery',
+    skip: ({ customerId, companyId }) => !customerId && !companyId,
     options: ({ customerId, companyId }) => ({
       variables: {
         customerId,
         companyId
-      },
-      skip: !customerId && !companyId
+      }
     })
   })
 )(DealSectionContainer);
