@@ -52,6 +52,7 @@ const Container = styled.div`
 `;
 
 const SectionContainer = styled.div`
+  overflow: hidden;
   padding: 10px 10px 0px 10px;
   border-top: 1px solid ${colors.borderPrimary};
 `;
@@ -255,7 +256,7 @@ const StageItem = styled.li`
 const ItemList = styled.ul`
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 !important;
   display: block;
   overflow: hidden;
 

@@ -83,7 +83,8 @@ export default compose(
       variables: {
         customerId,
         companyId
-      }
+      },
+      skip: !customerId && !companyId
     })
   })
 )(DealSectionContainer);

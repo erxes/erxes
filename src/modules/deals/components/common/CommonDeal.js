@@ -20,12 +20,12 @@ const propTypes = {
 };
 
 class CommonDeal extends React.Component {
-  renderDate(closeDate, format = 'YYYY-MM-DD') {
-    if (!closeDate) return null;
+  renderDate(date, format = 'YYYY-MM-DD') {
+    if (!date) return null;
 
     return (
-      <Tip text={moment(closeDate).format(format)}>
-        <DealDate>{moment(closeDate).fromNow()}</DealDate>
+      <Tip text={moment(date).format(format)}>
+        <DealDate>{moment(date).fromNow()}</DealDate>
       </Tip>
     );
   }

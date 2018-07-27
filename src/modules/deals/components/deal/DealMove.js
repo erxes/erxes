@@ -26,6 +26,12 @@ class DealMove extends React.Component {
     };
   }
 
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    if (this.props.stages !== nextProps.stages) {
+      this.setState({ stages: nextProps.stages });
+    }
+  }
+
   onChangeField(name, value) {
     this.setState({ [name]: value });
   }
