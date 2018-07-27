@@ -256,7 +256,7 @@ const StageItem = styled.li`
 const ItemList = styled.ul`
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 !important;
   display: block;
   overflow: hidden;
 
