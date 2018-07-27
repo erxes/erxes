@@ -238,7 +238,7 @@ export class SaveWebhookResponse {
    *
    * @return {Promise} Updated conversation message
    */
-  async handleLikes(likeParams) {
+  async handleReactions(likeParams) {
     const { verb, post_id, comment_id, reaction_type, item, from } = likeParams;
 
     let selector = { 'facebookData.postId': post_id };
@@ -347,7 +347,7 @@ export class SaveWebhookResponse {
 
     // sending to like handler if like
     if (item === 'like') {
-      await this.handleLikes(value);
+      await this.handleReactions(value);
     }
 
     const senderName = value.from.name;
