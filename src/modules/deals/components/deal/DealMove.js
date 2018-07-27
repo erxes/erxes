@@ -26,7 +26,7 @@ class DealMove extends React.Component {
     };
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (this.props.stages !== nextProps.stages) {
       this.setState({ stages: nextProps.stages });
     }
