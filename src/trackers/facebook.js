@@ -182,6 +182,52 @@ export class SaveWebhookResponse {
   }
 
   /**
+   * Increase or decrease like count
+   * @param {String} type - Action type
+   * @param {String} conversationMessageId - Conversation message id
+   *
+   * @return {Promise} Updated conversation message
+   */
+  async updateLikeCount(type, conversationMessageId) {
+    if (type === 'add') {
+      return await ConversationMessages.update(
+        { _id: conversationMessageId },
+        { $inc: { 'facebookData.likeCount': 1 } },
+      );
+    }
+
+    return await ConversationMessages.update(
+      { _id: conversationMessageId },
+      { $inc: { 'facebookData.likeCount': -1 } },
+    );
+  }
+
+  /**
+   * Updates reaction
+   * @param {String} type - Action type
+   * @param {String} conversationMessageId - Conversation message id
+   * @param {String} reactionType - Reaction Type
+   * @param {String} from - Facebook user who performed action
+   *
+   * @return {Promise} Updated conversation message
+   */
+  async updateReactions(type, conversationMessageId, reactionType, from) {
+    const reactionField = `facebookData.react.${reactionType}`;
+
+    if (type === 'add') {
+      return await ConversationMessages.update(
+        { _id: conversationMessageId },
+        { $push: { [reactionField]: { ...from } } },
+      );
+    }
+
+    return await ConversationMessages.update(
+      { _id: conversationMessageId },
+      { $pull: { [reactionField]: { _id: from._id } } },
+    );
+  }
+
+  /**
    * Receives like and reaction
    * @param {String} verb - Add or remove action of reaction or like
    * @param {String} post_id - Post id
@@ -206,33 +252,12 @@ export class SaveWebhookResponse {
     if (msg) {
       // Receiving like
       if (item === 'like') {
-        if (verb === 'add')
-          return await ConversationMessages.update(
-            { _id: msg._id },
-            { $inc: { 'facebookData.likeCount': 1 } },
-          );
-
-        return await ConversationMessages.update(
-          { _id: msg._id },
-          { $inc: { 'facebookData.likeCount': -1 } },
-        );
+        return this.updateLikeCount(verb, msg._id);
       }
 
       // Receiving reaction
       if (reaction_type) {
-        const { name, _id } = from;
-        const reactionField = `facebookData.react.${reaction_type}`;
-
-        if (verb === 'add')
-          return await ConversationMessages.update(
-            { _id: msg._id },
-            { $push: { [reactionField]: { _id, name } } },
-          );
-
-        return await ConversationMessages.update(
-          { _id: msg._id },
-          { $pull: { [reactionField]: { _id } } },
-        );
+        return this.updateReactions(verb, msg._id, reaction_type, from);
       }
     }
   }
