@@ -113,11 +113,6 @@ export class SaveWebhookResponse {
       doc.video = link;
     }
 
-    // Posted link
-    if (link) {
-      doc.link = link;
-    }
-
     // Posted image
     if (photo_id && link) {
       doc.photo = link;
@@ -126,6 +121,11 @@ export class SaveWebhookResponse {
     // Posted multiple image
     if (photos) {
       doc.photos = photos;
+    }
+
+    // Shared link
+    if (link) {
+      doc.link = link;
     }
 
     return doc;
