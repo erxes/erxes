@@ -78,18 +78,17 @@ class Top extends React.Component {
 
     const { __ } = this.context;
 
-    const userValue = option => (
-      <SelectValue>
+    const content = option => (
+      <Fragment>
         <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
         {option.label}
-      </SelectValue>
+      </Fragment>
     );
 
+    const userValue = option => <SelectValue>{content(option)}</SelectValue>;
+
     const userOption = option => (
-      <SelectOption className="simple-option">
-        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
-        <span>{option.label}</span>
-      </SelectOption>
+      <SelectOption className="simple-option">{content(option)}</SelectOption>
     );
 
     return (
