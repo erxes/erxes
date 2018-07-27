@@ -78,6 +78,7 @@ class CommonMerge extends Component {
       if (!this.renderingOptions[property]) {
         return this.renderMergedDataInputs(property, index);
       }
+
       return this.renderProperty(
         'minus-cirlce',
         { [property]: data[property] },
@@ -121,6 +122,7 @@ class CommonMerge extends Component {
 
   renderProperty(icon, property, key) {
     const { basicInfos } = this.props;
+
     const propertyName = Object.keys(property);
 
     return (
@@ -134,11 +136,21 @@ class CommonMerge extends Component {
         {this.renderingOptions[propertyName] ? (
           this.renderingOptions[propertyName](property[propertyName])
         ) : (
-          <InfoDetail>{property[propertyName] || 'N/A'}</InfoDetail>
+          <InfoDetail>
+            {this.renderPropertyName(property[propertyName])}
+          </InfoDetail>
         )}
         <Icon icon={icon} />
       </li>
     );
+  }
+
+  renderPropertyName(name) {
+    if (!name.details) {
+      return name || '';
+    }
+
+    return name.details.fullName;
   }
 
   renderMergedDataInputs(property, key) {
@@ -150,7 +162,7 @@ class CommonMerge extends Component {
         {basicInfos[property]}
         <FormControl
           onChange={e => this.handleInputChange(e, property)}
-          value={data[property] || ''}
+          value={this.renderPropertyName(data[property])}
           required={[
             'firstName',
             'primaryEmail',
@@ -201,6 +213,7 @@ class CommonMerge extends Component {
 
   handleChange(type, property) {
     const data = { ...this.state.data };
+
     const propertyName = Object.keys(property);
 
     if (type === 'add') {
