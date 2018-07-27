@@ -4,7 +4,6 @@ export const COMPANY_INFO = {
   industry: 'Industry',
   plan: 'Plan',
   email: 'Email',
-  owner: 'Owner',
   phone: 'Phone',
   leadStatus: 'Lead Status',
   lifecycleState: 'Lifecycle State',
