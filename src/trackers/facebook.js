@@ -12,6 +12,7 @@ import {
   INTEGRATION_KIND_CHOICES,
   CONVERSATION_STATUSES,
   FACEBOOK_DATA_KINDS,
+  FACEBOOK_POST_TYPES,
 } from '../data/constants';
 
 import { graphRequest } from './facebookTracker';
@@ -99,16 +100,17 @@ export class SaveWebhookResponse {
     }
   }
 
-  async handlePosts({ post_id, video_id, link, picture, created_time, item, photos }) {
+  async handlePosts({ post_id, video_id, link, photo_id, created_time, item, photos }) {
     const doc = {
       postId: post_id,
       item,
+      isPost: true,
       createdAt: created_time,
     };
 
     // Posted video
-    if (video_id) {
-      doc.videoId = video_id;
+    if (video_id && link) {
+      doc.video = link;
     }
 
     // Posted link
@@ -117,8 +119,8 @@ export class SaveWebhookResponse {
     }
 
     // Posted image
-    if (picture) {
-      doc.picture = picture;
+    if (photo_id && link) {
+      doc.photo = link;
     }
 
     // Posted multiple image
@@ -130,7 +132,7 @@ export class SaveWebhookResponse {
   }
 
   async handleComments(commentParams) {
-    const { post_id, parent_id, item, comment_id, created_time } = commentParams;
+    const { post_id, parent_id, item, comment_id, created_time, video, photo } = commentParams;
 
     const doc = {
       postId: post_id,
@@ -138,6 +140,14 @@ export class SaveWebhookResponse {
       commentId: comment_id,
       createdAt: created_time,
     };
+
+    if (video) {
+      doc.video = video;
+    }
+
+    if (photo) {
+      doc.photo = photo;
+    }
 
     if (post_id !== parent_id) {
       doc.parentId = parent_id;
@@ -255,7 +265,7 @@ export class SaveWebhookResponse {
     }
 
     // sending to post handler if post
-    if (item === 'status') {
+    if (FACEBOOK_POST_TYPES.contains(item)) {
       msgFacebookData = this.handlePosts(value);
     }
 

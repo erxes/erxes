@@ -52,15 +52,21 @@ const FacebookSchema = mongoose.Schema(
       optional: true,
     }),
 
-    // when share photo
-    photoId: field({
+    // photo link when included photo
+    photo: field({
       type: String,
       optional: true,
     }),
 
-    // when share video
-    videoId: field({
+    // video link when included video
+    video: field({
       type: String,
+      optional: true,
+    }),
+
+    // photo links when user posted multiple photos
+    photos: field({
+      type: [String],
       optional: true,
     }),
 

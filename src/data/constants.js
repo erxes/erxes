@@ -401,3 +401,5 @@ export const PROBABILITY = {
   LOST: 'Lost',
   ALL: ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', 'Won', 'Lost'],
 };
+
+export const FACEBOOK_POST_TYPES = ['status', 'video', 'photo'];
