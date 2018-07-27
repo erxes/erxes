@@ -99,23 +99,31 @@ export class SaveWebhookResponse {
     }
   }
 
-  async handlePosts({ post_id, video_id, link, picture, created_time, item }) {
+  async handlePosts({ post_id, video_id, link, picture, created_time, item, photos }) {
     const doc = {
       postId: post_id,
       item,
       createdAt: created_time,
     };
 
+    // Posted video
     if (video_id) {
       doc.videoId = video_id;
     }
 
+    // Posted link
     if (link) {
       doc.link = link;
     }
 
+    // Posted image
     if (picture) {
       doc.picture = picture;
+    }
+
+    // Posted multiple image
+    if (photos) {
+      doc.photos = photos;
     }
 
     return doc;
@@ -152,17 +160,17 @@ export class SaveWebhookResponse {
 
       if (msg) {
         return await ConversationMessages.update(
-          { _id: das._id },
+          { _id: msg._id },
           { $set: { 'facebookData.likes': { $inc: 1 } } },
         );
       }
     }
 
-    const das = await ConversationMessages.findOne(selector);
+    const msg = await ConversationMessages.findOne(selector);
 
-    if (das) {
+    if (msg) {
       await ConversationMessages.update(
-        { _id: das._id },
+        { _id: msg._id },
         { $set: { 'facebookData.likes': { $inc: -1 } } },
       );
     }
@@ -231,16 +239,6 @@ export class SaveWebhookResponse {
   async getOrCreateConversationByFeed(value) {
     const { item, comment_id } = value;
 
-    //  {
-    //   commentId: value.comment_id,
-    //   parentId: value.parent_id,
-    //   postId,
-    //   item: value.item,
-    //   reactionType: value.reaction_type,
-    //   photoId: value.photo_id,
-    //   videoId: value.video_id,
-    //   link: value.link,
-    // },
     let msgFacebookData = {};
 
     // sending to comment handler if comment
