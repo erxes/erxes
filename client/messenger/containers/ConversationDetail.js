@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import * as gql from 'graphql-tag';
 import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
 import { Conversation as DumbConversation } from '../components';

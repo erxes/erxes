@@ -1,17 +1,15 @@
-import path from 'path';
-import webpack from 'webpack';
-import dotenv from 'dotenv';
+var path = require('path');
+var webpack = require('webpack');
+var dotenv = require('dotenv');
 
 dotenv.config();
 
-const {
-  ROOT_URL,
-  API_SUBSCRIPTIONS_URL,
-  API_GRAPHQL_URL,
-  MAIN_API_URL,
-} = process.env;
+var ROOT_URL = process.env.ROOT_URL;
+var API_SUBSCRIPTIONS_URL = process.env.API_SUBSCRIPTIONS_URL;
+var API_GRAPHQL_URL = process.env.API_GRAPHQL_URL;
+var MAIN_API_URL = process.env.MAIN_API_URL;
 
-export default {
+module.exports = {
   entry: {
     messenger: './client/messenger/index.js',
     messengerWidget: './client/messenger/widget/index.js',
@@ -29,12 +27,16 @@ export default {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        loader: 'babel-loader',
-        options: {
-          presets: ['es2015', 'react'],
-        },
+        test: /\.(t|j)sx?$/,
+        loader: 'awesome-typescript-loader',
         exclude: /node_modules/,
+      },
+      // addition - add source-map support
+      {
+        enforce: "pre",
+        test: /\.js$/,
+        loader: "source-map-loader",
+        exclude: [/node_modules/, /build/, /dist/]
       },
       {
         test: /\.css$/,
@@ -52,8 +54,11 @@ export default {
     ],
   },
 
+  // addition - add source-map support
+  devtool: "source-map",
+
   resolve: {
-    extensions: ['.js', '.jsx', '.json'],
+    extensions: ['.js', '.ts', '.tsx', '.json'],
   },
 
   plugins: [

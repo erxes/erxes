@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { AppConsumer } from './AppContext';
 import { MessageSender } from '../components';
 

@@ -1,9 +1,9 @@
-import React from 'react';
+import { Component } from 'react';
 import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
 import { AccquireInformation as DumbAccquireInformation } from '../components';
 
-export default class AccquireInformation extends React.Component {
+export default class AccquireInformation extends Component {
   render() {
     return (
       <AppConsumer>

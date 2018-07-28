@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
-import striptags from 'striptags';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
+import * as moment from 'moment';
+import * as striptags from 'striptags';
+import * as classNames from 'classnames';
 import { defaultAvatar } from '../../icons/Icons';
 
 const propTypes = {

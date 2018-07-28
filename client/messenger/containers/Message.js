@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { connection } from '../connection';
 import { Message } from '../components';
 

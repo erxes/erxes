@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import striptags from 'striptags';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
+import * as striptags from 'striptags';
 import { User, EngageMessage } from '../components';
 
 const propTypes = {

@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import { Component } from 'react';
+import * as PropTypes from 'prop-types';
 import T from 'i18n-react';
 
-class TranslationWrapper extends React.Component {
+class TranslationWrapper extends Component {
   getChildContext() {
     return {
       __: (msg) => T.translate(msg),

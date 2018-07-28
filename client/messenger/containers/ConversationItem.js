@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import * as gql from 'graphql-tag';
 import { ConversationItem as DumbConversationItem } from '../components';
 import graphqlTypes from '../graphql';
 

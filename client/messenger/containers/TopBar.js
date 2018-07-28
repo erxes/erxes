@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
 import { TopBar } from '../components';

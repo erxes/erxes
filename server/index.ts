@@ -1,11 +1,8 @@
-/* eslint-disable no-console */
-
-import path from 'path';
-import express from 'express';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import dotenv from 'dotenv';
-
+import * as path from 'path';
+import * as express from 'express';
+import * as bodyParser from 'body-parser';
+import * as cors from 'cors';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 

@@ -12,7 +12,7 @@
     "node",
     "express",
     "react",
-    "redux",
+    "typescript",
     "webpack",
     "graphql",
     "apollo"
@@ -20,8 +20,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "webpack --watch --progress & nodemon server --exec babel-node",
-    "build": "webpack --config=webpack.prod.config.babel.js && babel server --out-dir dist --copy-files --ignore tests",
+    "dev": "webpack --mode development --watch --progress & NODE_ENV=development nodemon -e ts server --exec ts-node",
+    "build": "webpack --config=webpack.config.prod.js && tsc server --out-dir dist --copy-files --ignore tests",
     "start": "node dist"
   },
   "dependencies": {
@@ -43,7 +43,7 @@
     "express": "^4.14.0",
     "graphql": "^0.12.3",
     "graphql-tag": "^2.6.1",
-    "i18n-react": "^0.6.3",
+    "i18n-react": "^0.6.4",
     "moment": "^2.21.0",
     "react": "^16.3.2",
     "react-apollo": "^2.1.6",
@@ -53,28 +53,24 @@
     "subscriptions-transport-ws": "0.8.3"
   },
   "devDependencies": {
-    "babel-cli": "^6.18.0",
-    "babel-core": "^6.21.0",
-    "babel-loader": "^7.1.2",
-    "babel-plugin-transform-object-rest-spread": "^6.20.2",
-    "babel-preset-es2015": "^6.18.0",
-    "babel-preset-react": "^6.16.0",
+    "@types/react": "^16.4.7",
+    "@types/react-dom": "^16.0.6",
+    "@types/react-i18next": "^7.8.0",
+    "awesome-typescript-loader": "^5.2.0",
     "css-loader": "^0.27.3",
-    "eslint": "^3.13.1",
-    "eslint-config-airbnb": "^14.0.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jsx-a11y": "^4.0.0",
-    "eslint-plugin-react": "^6.9.0",
     "file-loader": "^1.1.11",
     "json-loader": "^0.5.4",
     "node-sass": "^4.5.3",
     "nodemon": "^1.11.0",
     "sass-loader": "^6.0.6",
+    "source-map-loader": "^0.2.3",
     "style-loader": "^0.16.1",
+    "ts-node": "^7.0.0",
+    "typescript": "^2.9.2",
     "uglifyjs-webpack-plugin": "v1.0.0-beta.2",
     "url-loader": "^1.0.1",
-    "webpack": "^3.5.5",
-    "webpack-bundle-analyzer": "^2.9.0",
+    "webpack": "4.0.0",
+    "webpack-cli": "^3.1.0",
     "webpack-merge": "^4.1.0"
   }
 }

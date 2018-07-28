@@ -1,6 +1,6 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import striptags from 'striptags';
+import { Component, Fragment } from 'react';
+import * as PropTypes from 'prop-types';
+import * as striptags from 'striptags';
 import { User } from '../components';
 import { iconClose } from '../../icons/Icons';
 
@@ -9,7 +9,7 @@ const propTypes = {
   toggle: PropTypes.func,
 };
 
-class EngageMessage extends React.Component {
+class EngageMessage extends Component {
   renderClose() {
     return (
       <a
