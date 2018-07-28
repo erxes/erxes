@@ -5,7 +5,6 @@ const companyFields = `
   size
   industry
   website
-  plan
 
   parentCompanyId
   email

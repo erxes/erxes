@@ -65,7 +65,6 @@ class CommonMerge extends Component {
    *   website: 'Company website'
    *   size: 'Company size'
    *   industry: 'Company industry'
-   *   plan: 'Company plan'
    * }
    *
    * @return Merged data basic infos
@@ -101,7 +100,6 @@ class CommonMerge extends Component {
    *   website: 'Website',
    *   size: 'Size',
    *   industry: 'Industry',
-   *   plan: 'Plan'
    * }
    */
 
