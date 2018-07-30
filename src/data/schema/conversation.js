@@ -28,6 +28,8 @@ export const types = `
 
     senderId: String
     senderName: String
+
+    createdAt: Date
   }
 
   type TwitterData {

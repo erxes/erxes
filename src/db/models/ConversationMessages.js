@@ -98,6 +98,11 @@ const FacebookSchema = mongoose.Schema(
       type: String,
       optional: true,
     }),
+
+    createdAt: field({
+      type: Date,
+      default: Date.now(),
+    }),
   },
   { _id: false },
 );
