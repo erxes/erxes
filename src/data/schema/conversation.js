@@ -12,12 +12,20 @@ export const types = `
     postId: String
     commentId: String
     parentId: String
+
+    isPost: Boolean
+    reactions: JSON
+    likeCount: Int
+    commentCount: Int
+    shareCount: Int
+
     messageId: String
     item: String
-    photoId: String
-    videoId: String
+    photo: String
+    video: String
+    photos: [String]
     link: String
-    reactionType: String
+
     senderId: String
     senderName: String
   }
