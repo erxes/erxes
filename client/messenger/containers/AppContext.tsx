@@ -68,15 +68,15 @@ export class AppProvider extends React.Component<{}, IState> {
     return email || phone || getLocalStorageItem('getNotifiedType');
   }
 
-  getUiOptions() {
+  getUiOptions =() => {
     return connection.data.uiOptions || {};
   }
 
-  getColor() {
+  getColor = () => {
     return this.getUiOptions().color;
   }
 
-  getMessengerData() {
+  getMessengerData = () => {
     return connection.data.messengerData || {};
   }
 

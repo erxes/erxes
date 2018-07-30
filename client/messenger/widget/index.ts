@@ -60,12 +60,12 @@ function revertViewPort() {
   }
 }
 
-function uniqueString(str) {
-  str = str.replace(/[ ]/g, '').split(',');
+function uniqueString(str: string) {
+  const replaced = str.replace(/[ ]/g, '').split(',');
 
   const result = [];
 
-  for (let i = 0; i < str.length; i++) {
+  for (let i = 0; i < replaced.length; i++) {
     if (result.indexOf(str[i]) == -1) result.push(str[i]);
   }
 
