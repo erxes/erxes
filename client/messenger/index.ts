@@ -1,5 +1,3 @@
-/* eslint-disable react/jsx-filename-extension */
-
 import gql from 'graphql-tag';
 import client, { wsLink } from '../apollo-client';
 import widgetConnect from '../widgetConnect';
@@ -14,7 +12,7 @@ import graphqTypes from './graphql';
 import './sass/style.scss';
 
 widgetConnect({
-  connectMutation: (event) => {
+  connectMutation: (event: any) => {
     const setting = event.data.setting;
 
     connection.setting = setting;
@@ -38,7 +36,7 @@ widgetConnect({
     });
   },
 
-  connectCallback: (data) => {
+  connectCallback: (data: any) => {
     const messengerData = data.messengerConnect;
 
     if (!messengerData.integrationId) {

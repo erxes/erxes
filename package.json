@@ -54,6 +54,7 @@
     "subscriptions-transport-ws": "0.8.3"
   },
   "devDependencies": {
+    "@types/classnames": "^2.2.6",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.0",

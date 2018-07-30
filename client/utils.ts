@@ -51,7 +51,7 @@ export const postMessage = (source: string, message: string, postData={}) => {
   }, '*');
 }
 
-export const requestBrowserInfo = ({ source, postData={}, callback }: { source: string, postData: {}, callback: (browserInfo: any) => void}) => {
+export const requestBrowserInfo = ({ source, postData={}, callback }: { source: string, postData?: {}, callback: (browserInfo: any) => void}) => {
   postMessage(source, 'requestingBrowserInfo', postData);
 
   window.addEventListener('message', (event) => {

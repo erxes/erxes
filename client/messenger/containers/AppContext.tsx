@@ -231,7 +231,7 @@ export class AppProvider extends React.Component<{}, IState> {
     window.location.reload();
   }
 
-  readConversation = ({ conversationId }: { conversationId: string }) => {
+  readConversation = (conversationId: string) => {
     this.toggle();
     this.changeConversation(conversationId);
     this.changeRoute('conversationDetail');

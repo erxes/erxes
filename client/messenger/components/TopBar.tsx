@@ -55,13 +55,12 @@ function TopBar({
   const renderLeftButton = () => {
     if (onButtonClick) {
       return (
-        <a
-          href="#"
+        <button
           className="topbar-button left"
           onClick={onButtonClick}
         >
           {buttonIcon}
-        </a>
+        </button>
       );
     }
 

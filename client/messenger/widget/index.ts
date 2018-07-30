@@ -1,4 +1,4 @@
-/* global ROOT_URL */
+declare const ROOT_URL: string;
 
 /*
  * Messenger message's embeddable script
@@ -31,7 +31,7 @@ if (isMobile) {
 
     viewportContent = meta.content;
   } else {
-    viewportContent = viewportMeta.content;
+    viewportContent = viewportMeta.getAttribute('content') || '';
     disableZoom();
   }
 }
@@ -39,12 +39,16 @@ if (isMobile) {
 function disableZoom() {
   const viewportMeta = document.querySelector('meta[name="viewport"]');
 
-  if (viewportMeta && generatedContent) {
-    viewportMeta.content = generatedContent;
+  if (!viewportMeta) {
+    return;
+  }
+
+  if (generatedContent) {
+    viewportMeta.setAttribute('content', generatedContent);
   } else {
     const meta = `initial-scale=1, user-scalable=0, maximum-scale=1, ${viewportContent}`;
-    viewportMeta.content = uniqueString(meta);
-    generatedContent = viewportMeta.content;
+    viewportMeta.setAttribute('content', uniqueString(meta));
+    generatedContent = viewportMeta.getAttribute('content') || '';
   }
 }
 
@@ -52,7 +56,7 @@ function revertViewPort() {
   const viewportMeta = document.querySelector('meta[name="viewport"]');
 
   if (viewportMeta) {
-    viewportMeta.content = viewportContent;
+    viewportMeta.setAttribute('content', viewportContent);
   }
 }
 
