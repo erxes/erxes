@@ -1,4 +1,5 @@
 declare const ROOT_URL: string;
+declare const window: any;
 
 /*
  * Messenger message's embeddable script
@@ -90,12 +91,13 @@ iframe.style.display = 'none';
 erxesContainer.appendChild(iframe);
 document.body.appendChild(erxesContainer);
 
-// send erxes setting to iframe
-iframe = document.querySelector(`#${iframeId}`);
-
 // after iframe load send connection info
 iframe.onload = async () => {
   iframe.style.display = 'block';
+
+  if (!iframe.contentWindow) {
+    return;
+  }
 
   iframe.contentWindow.postMessage(
     {
@@ -109,7 +111,7 @@ iframe.onload = async () => {
 };
 
 // listen for widget toggle
-window.addEventListener('message', async (event) => {
+window.addEventListener('message', async (event: MessageEvent) => {
   const data = event.data;
   const { isVisible, message, isSmallContainer } = data;
 
@@ -119,8 +121,6 @@ window.addEventListener('message', async (event) => {
     } else {
       revertViewPort();
     }
-
-    iframe = document.querySelector(`#${iframeId}`);
 
     if (message === 'messenger') {
       erxesContainer.className = `erxes-messenger-${
@@ -142,7 +142,7 @@ window.addEventListener('message', async (event) => {
       } fullMessage`;
     }
 
-    if (message === 'requestingBrowserInfo') {
+    if (message === 'requestingBrowserInfo' && iframe.contentWindow) {
       iframe.contentWindow.postMessage(
         {
           fromPublisher: true,
