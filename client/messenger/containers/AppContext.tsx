@@ -5,7 +5,7 @@ import uploadHandler from '../../uploadHandler';
 import { postMessage, requestBrowserInfo } from '../../utils';
 import { connection, getLocalStorageItem, setLocalStorageItem } from '../connection';
 import graphqlTypes from '../graphql';
-import { IMessage, IAttachment } from '../types';
+import { IMessage, IAttachment, IIntegrationUiOptions, IIntegrationMessengerData, IBrowserInfo } from '../types';
 
 interface IState {
   lastUnreadMessage?: IMessage,
@@ -17,7 +17,9 @@ interface IState {
 }
 
 interface IStore extends IState {
-  getColor: () => string | undefined,
+  getColor: () => string,
+  getUiOptions: () => IIntegrationUiOptions,
+  getMessengerData: () => IIntegrationMessengerData,
   saveBrowserInfo: () => void,
   toggle: (isVisible?: boolean) => void,
   toggleNotifier: (isVisible?: boolean) => void,
@@ -66,8 +68,16 @@ export class AppProvider extends React.Component<{}, IState> {
     return email || phone || getLocalStorageItem('getNotifiedType');
   }
 
+  getUiOptions() {
+    return connection.data.uiOptions || {};
+  }
+
   getColor() {
-    return connection.data.uiOptions && connection.data.uiOptions.color
+    return this.getUiOptions().color;
+  }
+
+  getMessengerData() {
+    return connection.data.messengerData || {};
   }
 
   isSmallContainer = () => {
@@ -83,7 +93,7 @@ export class AppProvider extends React.Component<{}, IState> {
   saveBrowserInfo = () => {
     requestBrowserInfo({
       source: 'fromMessenger',
-      callback: (browserInfo: any) => {
+      callback: (browserInfo: IBrowserInfo) => {
         const variables = {
           customerId: connection.data.customerId,
           browserInfo
@@ -377,6 +387,8 @@ export class AppProvider extends React.Component<{}, IState> {
         value={{
           ...this.state,
           getColor: this.getColor,
+          getUiOptions: this.getUiOptions,
+          getMessengerData: this.getMessengerData,
           saveBrowserInfo: this.saveBrowserInfo,
           toggle: this.toggle,
           toggleNotifier: this.toggleNotifier,

@@ -1,13 +1,13 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Message } from './';
-import { IMessage } from '../types';
+import { IMessage, IIntegrationUiOptions, IIntegrationMessengerData } from '../types';
 
 type Props = {
   messages: IMessage[],
   isOnline: boolean,
-  color?: string,
-  data: any,
+  uiOptions: IIntegrationUiOptions,
+  messengerData: IIntegrationMessengerData,
 }
 
 class MessagesList extends React.Component<Props> {
@@ -76,12 +76,10 @@ class MessagesList extends React.Component<Props> {
   }
 
   render() {
-    const { data, messages, color } = this.props;
-    const uiOptions = data.uiOptions || {};
-    const bg = uiOptions.wallpaper;
-    const messengerData = data.messengerData;
+    const { uiOptions, messengerData, messages } = this.props;
+    const { color, wallpaper } = uiOptions;
     const messagesClasses = classNames('erxes-messages-list', {
-      [`bg-${bg}`]: bg,
+      [`bg-${wallpaper}`]: wallpaper,
     });
 
     return (

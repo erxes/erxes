@@ -9,7 +9,7 @@ import { IConversation } from '../types';
 type Props = {
   conversation: IConversation,
   notificationCount: number,
-  goToConversation: Function,
+  goToConversation: (conversationId: string) => void,
 };
 
 function ConversationItem({ conversation, notificationCount, goToConversation }: Props) {

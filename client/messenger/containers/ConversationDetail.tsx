@@ -95,7 +95,6 @@ class ConversationDetail extends React.Component<ChildProps<Props, QueryResponse
         messages={messages}
         users={supporters}
         isOnline={isOnline}
-        data={connection.data}
       />
     );
   }

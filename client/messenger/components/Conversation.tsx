@@ -1,18 +1,16 @@
 import * as React from 'react';
 import { defaultAvatar, iconLeft } from '../../icons/Icons';
 import {  __ } from '../../utils';
-import { MessageSender, TopBar } from '../containers';
+import { MessageSender, MessagesList, TopBar } from '../containers';
 import { IMessage, IUser } from '../types';
-import { MessagesList } from './';
 
 type Props = {
   messages: IMessage[],
-  goToConversationList: Function,
+  goToConversationList: () => void,
   users: IUser[],
-  data: any,
-  isNew?: boolean,
   isOnline: boolean,
-  color?: string
+  color?: string,
+  isNew?: boolean,
 };
 
 type State = {
@@ -117,9 +115,7 @@ class Conversation extends React.Component<Props, State> {
     const {
       messages,
       isNew,
-      color,
       goToConversationList,
-      data,
       isOnline
     } = this.props;
 
@@ -138,7 +134,8 @@ class Conversation extends React.Component<Props, State> {
           }}
         />
 
-        <MessagesList isOnline={isOnline} data={data} color={color} messages={messages} />
+        <MessagesList isOnline={isOnline} messages={messages} />
+
         <MessageSender
           placeholder={placeholder ? placeholder.toString() : ''}
           isParentFocused={this.state.isFocused}

@@ -36,7 +36,6 @@ class ConversationCreate extends React.Component<ChildProps<{}, Response>, {}> {
               messages={[]}
               users={supporters}
               isOnline={isOnline}
-              data={connection.data}
               goToConversationList={goToConversationList}
             />
           );

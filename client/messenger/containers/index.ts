@@ -8,6 +8,7 @@ import ConversationDetail from './ConversationDetail';
 import Launcher from './Launcher';
 import Notifier from './Notifier';
 import MessageSender from './MessageSender';
+import MessagesList from './MessagesList';
 import AccquireInformation from './AccquireInformation';
 
 export {
@@ -21,5 +22,6 @@ export {
   Launcher,
   Notifier,
   MessageSender,
+  MessagesList,
   AccquireInformation,
 };

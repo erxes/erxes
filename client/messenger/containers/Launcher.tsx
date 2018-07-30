@@ -5,13 +5,13 @@ import { connection } from '../connection';
 import { Launcher as DumpLauncher } from '../components';
 import graphqlTypes from '../graphql';
 import { AppConsumer } from './AppContext';
-import { IMessage } from '../types';
+import { IMessage, IIntegrationUiOptions } from '../types';
 
 type BaseProps = {
   isMessengerVisible: boolean,
   isBrowserInfoSaved: boolean,
   onClick: (isVisible?: boolean) => void,
-  uiOptions: any,
+  uiOptions: IIntegrationUiOptions,
   lastUnreadMessage?: IMessage,
 }
 
@@ -62,13 +62,13 @@ const WithQuery = graphql<Props, QueryResponse>(
 
 const container = () => (
   <AppConsumer>
-    {({ isMessengerVisible, isBrowserInfoSaved, toggle, lastUnreadMessage }) => {
+    {({ isMessengerVisible, isBrowserInfoSaved, lastUnreadMessage, toggle, getUiOptions }) => {
       return (
         <WithQuery
           isMessengerVisible={isMessengerVisible}
           isBrowserInfoSaved={isBrowserInfoSaved}
           onClick={toggle}
-          uiOptions={connection.data.uiOptions || {}}
+          uiOptions={getUiOptions()}
           lastUnreadMessage={lastUnreadMessage}
         />
       );

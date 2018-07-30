@@ -5,8 +5,8 @@ import { __ } from '../../utils';
 import { TopBar } from '../containers';
 
 type Props = {
+  save: (doc: State) => void,
   color?: string,
-  save: Function,
 }
 
 type State = {

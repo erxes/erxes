@@ -1,13 +1,13 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Notifier } from '../containers';
-import { IMessage } from '../types';
+import { IMessage, IIntegrationUiOptions } from '../types';
 
 type Props = {
   onClick: (isMessengerVisible?: boolean) => void,
   isMessengerVisible: boolean,
   isBrowserInfoSaved: boolean,
-  uiOptions: any,
+  uiOptions: IIntegrationUiOptions,
   lastUnreadMessage?: IMessage,
   totalUnreadCount: number,
 };

@@ -4,7 +4,7 @@ import { Messenger, Launcher } from '../containers';
 
 type Props = {
   isMessengerVisible: boolean,
-  saveBrowserInfo: Function,
+  saveBrowserInfo: () => void,
 };
 
 export default class App extends React.Component<Props> {

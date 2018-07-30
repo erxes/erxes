@@ -3,6 +3,7 @@
 import * as moment from 'moment';
 import T from 'i18n-react';
 import translation from '../locales';
+import { IBrowserInfo } from './messenger/types';
 
 export const getBrowserInfo = async () => {
   let location;
@@ -51,7 +52,13 @@ export const postMessage = (source: string, message: string, postData={}) => {
   }, '*');
 }
 
-export const requestBrowserInfo = ({ source, postData={}, callback }: { source: string, postData?: {}, callback: (browserInfo: any) => void}) => {
+type RequestBrowserInfoParams = {
+  source: string,
+  postData?: {},
+  callback: (browserInfo: IBrowserInfo) => void
+}
+
+export const requestBrowserInfo = ({ source, postData={}, callback }: RequestBrowserInfoParams) => {
   postMessage(source, 'requestingBrowserInfo', postData);
 
   window.addEventListener('message', (event) => {

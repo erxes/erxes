@@ -9,10 +9,11 @@ import {
 import { setLocale } from '../utils';
 import { App } from './containers';
 import graphqTypes from './graphql';
+import { IConnectResponse } from './types';
 import './sass/style.scss';
 
 widgetConnect({
-  connectMutation: (event: any) => {
+  connectMutation: (event: MessageEvent) => {
     const setting = event.data.setting;
 
     connection.setting = setting;
@@ -36,7 +37,7 @@ widgetConnect({
     });
   },
 
-  connectCallback: (data: any) => {
+  connectCallback: (data: { messengerConnect: IConnectResponse }) => {
     const messengerData = data.messengerConnect;
 
     if (!messengerData.integrationId) {
