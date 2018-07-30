@@ -1,19 +1,25 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { iconAttach } from '../../icons/Icons';
 
-const propTypes = {
-  placeholder: PropTypes.string,
-  conversationId: PropTypes.string.isRequired,
-  isAttachingFile: PropTypes.bool.isRequired,
-  sendMessage: PropTypes.func.isRequired,
-  sendFile: PropTypes.func.isRequired,
-  readMessages: PropTypes.func.isRequired,
-  onTextInputBlur: PropTypes.func.isRequired,
+type Props = {
+  placeholder?: string,
+  conversationId: string | null,
+  isAttachingFile: boolean,
+  isParentFocused: boolean,
+  sendMessage: (message: string) => void,
+  sendFile: (file: File) => void,
+  readMessages: (conversationId: string) => void,
+  onTextInputBlur: () => void,
 };
 
-class MessageSender extends React.Component {
-  constructor(props) {
+type State = {
+  message: string,
+}
+
+class MessageSender extends React.Component<Props, State> {
+  private textarea: HTMLTextAreaElement | null = null;
+
+  constructor(props: Props) {
     super(props);
 
     this.state = { message: '' };
@@ -25,31 +31,33 @@ class MessageSender extends React.Component {
     this.handleOnBlur = this.handleOnBlur.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isParentFocused) { // eslint-disable-line
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.isParentFocused) {
       if (this.props.conversationId) {
         this.props.readMessages(this.props.conversationId);
       }
 
-      this.textarea.focus();
+      if (this.textarea) {
+        this.textarea.focus();
+      }
     }
   }
 
-  onSubmit(e) {
+  onSubmit(e: React.FormEvent) {
     e.preventDefault();
     this.props.sendMessage(this.state.message);
     this.setState({ message: '' });
   }
 
-  handleMessageChange(e) {
-    this.setState({ message: e.target.value });
+  handleMessageChange(e: React.FormEvent<HTMLTextAreaElement>) {
+    this.setState({ message: e.currentTarget.value });
   }
 
   handleOnBlur() {
     this.props.onTextInputBlur();
   }
 
-  handleKeyPress(e) {
+  handleKeyPress(e: React.KeyboardEvent) {
     if (e.key === 'Enter') {
       e.preventDefault();
 
@@ -64,9 +72,14 @@ class MessageSender extends React.Component {
     }
   }
 
-  handleFileInput(e) {
+  handleFileInput(e: React.FormEvent<HTMLInputElement>) {
     e.preventDefault();
-    this.props.sendFile(e.target.files[0]);
+
+    const files = e.currentTarget.files;
+
+    if (files && files.length > 0) {
+      this.props.sendFile(files[0]);
+    }
   }
 
   render() {
@@ -96,11 +109,5 @@ class MessageSender extends React.Component {
     );
   }
 }
-
-MessageSender.propTypes = propTypes;
-
-MessageSender.defaultProps = {
-  placeholder: null,
-};
 
 export default MessageSender;

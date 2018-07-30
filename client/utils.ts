@@ -35,14 +35,14 @@ export const getBrowserInfo = async () => {
     region: location.region_name,
     city: location.city,
     country: location.country.name,
-    url: window.location.pathname, // eslint-disable-line
-    hostname: window.location.origin, // eslint-disable-line
-    language: navigator.language, // eslint-disable-line
-    userAgent: navigator.userAgent, // eslint-disable-line
+    url: window.location.pathname,
+    hostname: window.location.origin,
+    language: navigator.language,
+    userAgent: navigator.userAgent,
   };
 }
 
-export const postMessage = (source, message, postData={}) => {
+export const postMessage = (source: string, message: string, postData={}) => {
   window.parent.postMessage({
     fromErxes: true,
     source,
@@ -51,7 +51,7 @@ export const postMessage = (source, message, postData={}) => {
   }, '*');
 }
 
-export const requestBrowserInfo = ({ source, postData={}, callback }) => {
+export const requestBrowserInfo = ({ source, postData={}, callback }: { source: string, postData: {}, callback: (browserInfo: any) => void}) => {
   postMessage(source, 'requestingBrowserInfo', postData);
 
   window.addEventListener('message', (event) => {
@@ -64,12 +64,13 @@ export const requestBrowserInfo = ({ source, postData={}, callback }) => {
   });
 };
 
-export const setMomentLocale = (code) => {
+export const setMomentLocale = (code: string) => {
   moment.updateLocale('en', {
     relativeTime: {
       future: 'in %s',
       past: '%s ',
       s: 's',
+      ss: '%d s',
       m: 'm',
       mm: '%d m',
       h: 'h',
@@ -88,6 +89,7 @@ export const setMomentLocale = (code) => {
       future: '%s дараа',
       past: '%s өмнө',
       s: 'саяхан',
+      ss: '$d секундын',
       m: 'минутын',
       mm: '%d минутын',
       h: '1 цагийн',
@@ -104,8 +106,12 @@ export const setMomentLocale = (code) => {
   moment.locale(code)
 }
 
-export const setLocale = (code) => {
+export const setLocale = (code: string) => {
   T.setTexts(translation[code || 'en']);
 
   setMomentLocale(code);
+}
+
+export const __ = (msg: string) => {
+  return T.translate(msg)
 }

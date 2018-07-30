@@ -2,13 +2,20 @@ import * as React from 'react';
 import { AppConsumer } from './AppContext';
 import { MessageSender } from '../components';
 
-const container = (props) => {
+type Props = {
+  placeholder?: string,
+  isParentFocused: boolean,
+  onTextInputBlur: () => void,
+}
+
+const container = (props: Props) => {
   return (
     <AppConsumer>
       {({ isAttachingFile, activeConversation, sendMessage, sendFile, readMessages }) => {
         return (
           <MessageSender
             {...props}
+
             isAttachingFile={isAttachingFile}
             conversationId={activeConversation}
 

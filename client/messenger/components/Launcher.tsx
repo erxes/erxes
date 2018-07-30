@@ -1,9 +1,18 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
 import { Notifier } from '../containers';
+import { IMessage } from '../types';
 
-function Launcher(props) {
+type Props = {
+  onClick: (isMessengerVisible?: boolean) => void,
+  isMessengerVisible: boolean,
+  isBrowserInfoSaved: boolean,
+  uiOptions: any,
+  lastUnreadMessage?: IMessage,
+  totalUnreadCount: number,
+};
+
+function Launcher(props: Props) {
   const {
     isMessengerVisible,
     isBrowserInfoSaved,
@@ -58,18 +67,5 @@ function Launcher(props) {
     </div>
   );
 }
-
-Launcher.propTypes = {
-  onClick: PropTypes.func.isRequired,
-  isMessengerVisible: PropTypes.bool.isRequired,
-  isBrowserInfoSaved: PropTypes.bool,
-  uiOptions: PropTypes.object,
-  lastUnreadMessage: PropTypes.object,
-  totalUnreadCount: PropTypes.number,
-};
-
-Launcher.defaultProps = {
-  uiOptions: null,
-};
 
 export default Launcher;

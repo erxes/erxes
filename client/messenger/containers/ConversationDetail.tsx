@@ -1,18 +1,31 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
-import * as gql from 'graphql-tag';
+import { compose, graphql, ChildProps } from 'react-apollo';
+import gql from 'graphql-tag';
 import { AppConsumer } from './AppContext';
-import { connection } from '../connection';
+import { connection, getLocalStorageItem } from '../connection';
 import { Conversation as DumbConversation } from '../components';
 import graphqlTypes from '../graphql';
+import { IConversation, IMessage, IUser } from '../types';
 
-class ConversationDetail extends React.Component {
+type Props = {
+  conversationId: string,
+  color?: string,
+  goToConversationList: () => void,
+  endConversation: (conversationId: string) => void,
+}
+
+type QueryResponse = {
+  conversationDetail: IConversation
+}
+
+class ConversationDetail extends React.Component<ChildProps<Props, QueryResponse>, {}> {
   componentWillMount() {
-    const { conversationDetailQuery, endConversation, conversationId } = this.props;
+    const { data, endConversation, conversationId } = this.props;
+
+    if (!data) return
 
     // lister for new message
-    conversationDetailQuery.subscribeToMore({
+    data.subscribeToMore({
       document: gql(graphqlTypes.conversationMessageInserted),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
@@ -21,7 +34,7 @@ class ConversationDetail extends React.Component {
         const messages = conversationDetail.messages || [];
 
         // check whether or not already inserted
-        const prevEntry = messages.find(m => m._id === message._id);
+        const prevEntry = messages.find((m: IMessage) => m._id === message._id);
 
         if (prevEntry) {
           return prev;
@@ -46,7 +59,7 @@ class ConversationDetail extends React.Component {
     });
 
     // lister for conversation status change
-    conversationDetailQuery.subscribeToMore({
+    data.subscribeToMore({
       document: gql(graphqlTypes.conversationChanged),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
@@ -62,10 +75,19 @@ class ConversationDetail extends React.Component {
   }
 
   render() {
-    const { conversationDetailQuery } = this.props;
+    const { data } = this.props;
 
-    const conversationDetail = conversationDetailQuery.conversationDetail || {};
-    const { messages=[], isOnline=false, supporters=[] } = conversationDetail;
+    let messages: IMessage[] = [];
+    let isOnline: boolean = false;
+    let supporters: IUser[] = [];
+
+    if (data && data.conversationDetail) {
+      const conversationDetail = data.conversationDetail;
+
+      messages = conversationDetail.messages;
+      isOnline = conversationDetail.isOnline;
+      supporters = conversationDetail.supporters || [];
+    }
 
     return (
       <DumbConversation
@@ -80,10 +102,9 @@ class ConversationDetail extends React.Component {
 }
 
 const query = compose(
-  graphql(
+  graphql<{ conversationId: string }>(
     gql(graphqlTypes.conversationDetailQuery),
     {
-      name: 'conversationDetailQuery',
       options: ownProps => ({
         variables: {
           _id: ownProps.conversationId,
@@ -95,25 +116,19 @@ const query = compose(
   ),
 );
 
-ConversationDetail.propTypes = {
-  conversationId: PropTypes.string,
-  conversationDetailQuery: PropTypes.object,
-  endConversation: PropTypes.func,
-}
-
 const WithQuery = query(ConversationDetail);
 
-const WithConsumer = (props) => {
+const WithConsumer = () => {
   return (
     <AppConsumer>
-      {({ activeConversation, goToConversationList, endConversation }) => {
+      {({ activeConversation, goToConversationList, endConversation, getColor }) => {
 
         return (
           <WithQuery
-            {...props}
             conversationId={activeConversation}
             goToConversationList={goToConversationList}
             endConversation={endConversation}
+            color={getColor()}
           />
         );
       }}

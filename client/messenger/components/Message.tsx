@@ -1,18 +1,18 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import * as moment from 'moment';
 import * as classNames from 'classnames';
 import { User, Attachment } from '../components';
+import { IUser, IAttachment } from '../types';
 
-const propTypes = {
-  content: PropTypes.string.isRequired,
-  user: PropTypes.object,
-  createdAt: PropTypes.number.isRequired,
-  attachments: PropTypes.array,
-  color: PropTypes.string,
+type Props = {
+  content: string,
+  createdAt: Date,
+  attachments: IAttachment[],
+  user?: IUser,
+  color?: string,
 };
 
-function Message({ content, attachments, user, createdAt, color }) {
+function Message({ content, attachments, user, createdAt, color }: Props) {
   const itemClasses = classNames({ 'from-customer': !user });
   const messageClasses = classNames('erxes-message', {
     attachment: attachments && attachments.length > 0,
@@ -22,7 +22,7 @@ function Message({ content, attachments, user, createdAt, color }) {
   const hasAttachment = attachments && attachments.length > 0;
 
   const messageBackground = {
-    backgroundColor: !user ? color : null,
+    backgroundColor: !user ? color : '',
   };
 
   return (
@@ -41,13 +41,5 @@ function Message({ content, attachments, user, createdAt, color }) {
     </li>
   );
 }
-
-Message.propTypes = propTypes;
-
-Message.defaultProps = {
-  user: null,
-  color: null,
-  attachments: [],
-};
 
 export default Message;

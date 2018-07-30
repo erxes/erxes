@@ -11,12 +11,12 @@ var MAIN_API_URL = process.env.MAIN_API_URL;
 
 module.exports = {
   entry: {
-    messenger: './client/messenger/index.js',
-    messengerWidget: './client/messenger/widget/index.js',
-    form: './client/form/index.js',
-    formWidget: './client/form/widget/index.js',
-    knowledgebase: './client/knowledgebase/index.js',
-    knowledgebaseWidget: './client/knowledgebase/widget/index.js',
+    messenger: './client/messenger/index.ts',
+    messengerWidget: './client/messenger/widget/index.ts',
+    // form: './client/form/index.js',
+    // formWidget: './client/form/widget/index.js',
+    // knowledgebase: './client/knowledgebase/index.js',
+    // knowledgebaseWidget: './client/knowledgebase/widget/index.js',
   },
 
   output: {
@@ -36,20 +36,22 @@ module.exports = {
         enforce: "pre",
         test: /\.js$/,
         loader: "source-map-loader",
-        exclude: [/node_modules/, /build/, /dist/]
+        exclude: [/node_modules/]
       },
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
+        exclude: [/node_modules/]
       },
       {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,
-        loader: 'url-loader?limit=100000'
+        loader: 'url-loader?limit=100000',
+        exclude: [/node_modules/]
       },
       {
         test: /\.scss$/,
         use: ['style-loader', 'css-loader', 'sass-loader'],
-        exclude: /node_modules/,
+        exclude: [/node_modules/]
       },
     ],
   },

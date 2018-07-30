@@ -1,15 +1,18 @@
-import { Component, Fragment } from 'react';
-import * as PropTypes from 'prop-types';
+import * as React from 'react';
 import * as striptags from 'striptags';
 import { User } from '../components';
 import { iconClose } from '../../icons/Icons';
+import { IEngageData, IUser } from '../types';
 
-const propTypes = {
-  engageData: PropTypes.object,
-  toggle: PropTypes.func,
-};
+const Fragment = React.Fragment;
+const Component = React.Component;
 
-class EngageMessage extends Component {
+type Props = {
+  engageData: IEngageData,
+  toggle?: () => void,
+}
+
+class EngageMessage extends Component<Props> {
   renderClose() {
     return (
       <a
@@ -21,6 +24,12 @@ class EngageMessage extends Component {
         {iconClose}
       </a>
     );
+  }
+
+  renderUserFullName(fromUser?: IUser) {
+    if (fromUser && fromUser.details) {
+       return fromUser.details.fullName
+    }
   }
 
   renderNotificationContent() {
@@ -36,7 +45,7 @@ class EngageMessage extends Component {
         <div className="flex-notification">
           <div className="user-info">
             <User user={fromUser} />
-            {fromUser.details.fullName}
+            {this.renderUserFullName(fromUser)}
           </div>
           <div className={bodyClass}>
             {
@@ -55,7 +64,5 @@ class EngageMessage extends Component {
     return this.renderNotificationContent();
   }
 }
-
-EngageMessage.propTypes = propTypes;
 
 export default EngageMessage;

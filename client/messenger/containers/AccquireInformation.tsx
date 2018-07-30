@@ -1,17 +1,16 @@
-import { Component } from 'react';
+import * as React from 'react';
 import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
 import { AccquireInformation as DumbAccquireInformation } from '../components';
 
-export default class AccquireInformation extends Component {
+export default class AccquireInformation extends React.Component {
   render() {
     return (
       <AppConsumer>
-        {({ saveGetNotified }) => {
+        {({ saveGetNotified, getColor }) => {
           return (
             <DumbAccquireInformation
-              {...this.props}
-              color={connection.data.uiOptions && connection.data.uiOptions.color}
+              color={getColor()}
               save={saveGetNotified}
             />
           );

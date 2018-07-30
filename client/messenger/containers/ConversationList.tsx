@@ -1,15 +1,19 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import { graphql } from 'react-apollo';
-import * as gql from 'graphql-tag';
+import { graphql, ChildProps } from 'react-apollo';
+import gql from 'graphql-tag';
 import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
 import { ConversationList as DumbConversationList } from '../components';
 import graphqTypes from '../graphql';
+import { IConversation } from '../types';
 
-class ConversationList extends React.Component {
+type QueryResponse = {
+  conversations: IConversation[]
+}
+
+class ConversationList extends React.Component<ChildProps<{}, QueryResponse>, {}> {
   render() {
-    const { data } = this.props;
+    const { data={ conversations: [], loading: true } } = this.props;
 
     let conversations = data.conversations || [];
 
@@ -21,7 +25,7 @@ class ConversationList extends React.Component {
     return (
       <AppConsumer>
         {({ changeRoute, goToConversation }) => {
-          const createConversation = (e) => {
+          const createConversation = (e: React.FormEvent<HTMLButtonElement>) => {
             e.preventDefault();
             changeRoute('conversationCreate');
           }
@@ -30,8 +34,8 @@ class ConversationList extends React.Component {
             <DumbConversationList
               {...this.props}
               loading={data.loading}
-              conversations={conversations}
               createConversation={createConversation}
+              conversations={conversations}
               goToConversation={goToConversation}
             />
           );
@@ -41,11 +45,7 @@ class ConversationList extends React.Component {
   }
 }
 
-ConversationList.propTypes = {
-  data: PropTypes.object,
-};
-
-const ListWithData = graphql(
+const ListWithData = graphql<{}, QueryResponse>(
   gql(graphqTypes.allConversations),
   {
     options: () => ({

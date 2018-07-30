@@ -1,15 +1,11 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { iconAttach } from '../../icons/Icons';
+import { IAttachment } from '../types';
 
-const propTypes = {
-  attachment: PropTypes.object.isRequired,
-};
-
-function Attachment({ attachment }) {
+function Attachment({ attachment }: { attachment: IAttachment }) {
   function renderAtachment() {
     const attachmentName = attachment.url || '';
-    const fileExtension = attachmentName.split('.').pop();
+    const fileExtension = attachmentName.split('.').pop() || '';
 
     if (['png', 'jpeg', 'jpg'].indexOf(fileExtension) > -1) {
       return <img role="presentation" src={attachment.url} />;
@@ -35,7 +31,5 @@ function Attachment({ attachment }) {
     </a>
   );
 }
-
-Attachment.propTypes = propTypes;
 
 export default Attachment;

@@ -1,18 +1,46 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as gql from 'graphql-tag';
+import gql from 'graphql-tag';
 import client from '../../apollo-client';
+import uploadHandler from '../../uploadHandler';
 import { postMessage, requestBrowserInfo } from '../../utils';
 import { connection, getLocalStorageItem, setLocalStorageItem } from '../connection';
-import uploadHandler from '../../uploadHandler';
 import graphqlTypes from '../graphql';
+import { IMessage, IAttachment } from '../types';
 
-const AppContext = React.createContext();
+interface IState {
+  lastUnreadMessage?: IMessage,
+  isMessengerVisible: boolean,
+  activeRoute: string | '',
+  activeConversation: string | null,
+  isAttachingFile: boolean,
+  isBrowserInfoSaved: boolean,
+}
+
+interface IStore extends IState {
+  getColor: () => string | undefined,
+  saveBrowserInfo: () => void,
+  toggle: (isVisible?: boolean) => void,
+  toggleNotifier: (isVisible?: boolean) => void,
+  toggleNotifierFull: (isVisible?: boolean) => void,
+  changeRoute: (route: string) => void,
+  changeConversation: (converstionId: string) => void,
+  goToConversation: (conversationId: string) => void,
+  goToConversationList: () => void,
+  openLastConversation: () => void,
+  saveGetNotified: (doc: { type: string, value: string }) => void,
+  endConversation: () => void,
+  readConversation: (conversationId: string) => void,
+  readMessages: (conversationId: string) => void,
+  sendMessage: (message: string, attachments?: IAttachment[]) => void,
+  sendFile: (file: File) => void,
+};
+
+const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component {
-  constructor(props) {
+export class AppProvider extends React.Component<{}, IState> {
+  constructor(props: {}) {
     super(props);
 
     let activeRoute = 'conversationList';
@@ -23,35 +51,26 @@ export class AppProvider extends React.Component {
     }
 
     this.state = {
-      lastUnreadMessage: null,
+      lastUnreadMessage: undefined,
       isMessengerVisible: false,
       activeRoute,
-      activeConversation: '',
+      activeConversation: null,
       isAttachingFile: false,
       isBrowserInfoSaved: false,
     }
-
-    this.saveBrowserInfo = this.saveBrowserInfo.bind(this);
-    this.toggle = this.toggle.bind(this);
-    this.changeRoute = this.changeRoute.bind(this);
-    this.changeConversation = this.changeConversation.bind(this);
-    this.goToConversation = this.goToConversation.bind(this);
-    this.goToConversationList = this.goToConversationList.bind(this);
-    this.openLastConversation = this.openLastConversation.bind(this);
-    this.saveGetNotified = this.saveGetNotified.bind(this);
-    this.endConversation = this.endConversation.bind(this);
-    this.readConversation = this.readConversation.bind(this);
-    this.readMessages = this.readMessages.bind(this);
-    this.sendMessage = this.sendMessage.bind(this);
-    this.sendFile = this.sendFile.bind(this);
   }
 
-  isLoggedIn() {
-    const { email, phone } = connection.setting;
+  isLoggedIn = () => {
+    const { email, phone }: any = connection.setting;
+
     return email || phone || getLocalStorageItem('getNotifiedType');
   }
 
-  isSmallContainer() {
+  getColor() {
+    return connection.data.uiOptions && connection.data.uiOptions.color
+  }
+
+  isSmallContainer = () => {
     const { activeRoute } = this.state;
 
     if(activeRoute === 'accquireInformation') {
@@ -61,10 +80,10 @@ export class AppProvider extends React.Component {
     return false;
   }
 
-  saveBrowserInfo() {
+  saveBrowserInfo = () => {
     requestBrowserInfo({
       source: 'fromMessenger',
-      callback: (browserInfo) => {
+      callback: (browserInfo: any) => {
         const variables = {
           customerId: connection.data.customerId,
           browserInfo
@@ -75,7 +94,7 @@ export class AppProvider extends React.Component {
           variables,
         })
 
-        .then(({ data: { saveBrowserInfo } }) => {
+        .then(({ data: { saveBrowserInfo } }: any) => {
           this.setState({
             lastUnreadMessage: saveBrowserInfo,
             isBrowserInfoSaved: true
@@ -85,7 +104,7 @@ export class AppProvider extends React.Component {
     })
   }
 
-  toggle(isVisible) {
+  toggle = (isVisible?: boolean) => {
     const { activeRoute } = this.state;
 
     // notify parent window launcher state
@@ -102,17 +121,17 @@ export class AppProvider extends React.Component {
     }
   }
 
-  toggleNotifier(isVisible) {
+  toggleNotifier = (isVisible?: boolean) => {
     // notify state
     postMessage('fromMessenger', 'notifier', { isVisible: !isVisible });
   }
 
-  toggleNotifierFull(isVisible) {
+  toggleNotifierFull = (isVisible?: boolean) => {
     // notify state
     postMessage('fromMessenger', 'notifierFull', { isVisible: !isVisible });
   }
 
-  changeRoute(route) {
+  changeRoute = (route: string) => {
     if (route === 'conversationDetail' && !this.isLoggedIn()) {
       // if visitor did not give email or phone then ask
       return this.setState({ activeRoute: 'accquireInformation' });
@@ -121,39 +140,40 @@ export class AppProvider extends React.Component {
     this.setState({ activeRoute: route });
   }
 
-  changeConversation(_id) {
+  changeConversation = (_id: string) => {
     // save last conversationId
     setLocalStorageItem('lastConversationId', _id);
-
-    const options = {
-      activeConversation: _id,
-      activeRoute: _id ? 'conversationDetail' : 'conversationCreate'
-    };
 
     // reset last unread message
     const { lastUnreadMessage } = this.state;
 
+    const options = {
+      activeConversation: _id,
+      activeRoute: _id ? 'conversationDetail' : 'conversationCreate',
+      lastUnreadMessage,
+    };
+
     if (lastUnreadMessage && lastUnreadMessage.conversationId === _id) {
-      options.lastUnreadMessage = null;
+      options.lastUnreadMessage = undefined;
     }
 
     this.setState(options);
   }
 
-  goToConversation(conversationId) {
+  goToConversation = (conversationId: string) => {
     this.changeConversation(conversationId);
     this.changeRoute('conversationDetail');
     this.readMessages(conversationId);
   }
 
-  goToConversationList() {
+  goToConversationList = () => {
     // reset current conversation
     this.changeConversation('');
 
     this.changeRoute('conversationList');
   }
 
-  openLastConversation() {
+  openLastConversation = () => {
     const _id = getLocalStorageItem('lastConversationId');
 
     this.setState({
@@ -162,7 +182,7 @@ export class AppProvider extends React.Component {
     });
   }
 
-  saveGetNotified({ type, value }) {
+  saveGetNotified = ({ type, value }: { type: string, value: string }) => {
     if (!value) {
       return;
     }
@@ -194,7 +214,7 @@ export class AppProvider extends React.Component {
     });
   }
 
-  endConversation() {
+  endConversation = () => {
     const setting = connection.setting;
 
     // ignore this action for inapp
@@ -211,7 +231,7 @@ export class AppProvider extends React.Component {
     window.location.reload();
   }
 
-  readConversation({ conversationId }) {
+  readConversation = ({ conversationId }: { conversationId: string }) => {
     this.toggle();
     this.changeConversation(conversationId);
     this.changeRoute('conversationDetail');
@@ -220,7 +240,7 @@ export class AppProvider extends React.Component {
     this.toggle();
   }
 
-  readMessages(conversationId) {
+  readMessages = (conversationId: string) => {
     client.mutate({
       mutation: gql(graphqlTypes.readConversationMessages),
       variables: { conversationId },
@@ -237,7 +257,7 @@ export class AppProvider extends React.Component {
     });
   }
 
-  sendMessage(message, attachments) {
+  sendMessage = (message: string, attachments?: IAttachment[]) => {
     // current conversation
     const currentConversationId = this.state.activeConversation;
 
@@ -262,7 +282,7 @@ export class AppProvider extends React.Component {
         }
       };
 
-      update = (proxy, { data: { insertMessage } }) => {
+      update = (proxy: any, { data: { insertMessage } }: any) => {
         const message = insertMessage;
 
         const selector = {
@@ -279,7 +299,7 @@ export class AppProvider extends React.Component {
         const messages = data.conversationDetail.messages;
 
         // check duplications
-        if (!messages.find(m => m._id === message._id)) {
+        if (!messages.find((m: IMessage) => m._id === message._id)) {
           // Add our message from the mutation to the end
           messages.push(message);
 
@@ -320,10 +340,8 @@ export class AppProvider extends React.Component {
     })
 
     // after mutation
-    .then(({ data }) => {
+    .then(({ data }: any) => {
       const message = data.insertMessage;
-
-      this.setState({ isConversationEnded: false });
 
       if (!currentConversationId) {
         this.changeConversation(message.conversationId);
@@ -331,7 +349,7 @@ export class AppProvider extends React.Component {
     });
   }
 
-  sendFile(file) {
+  sendFile = (file: File) => {
     const self = this;
 
     uploadHandler({
@@ -342,10 +360,10 @@ export class AppProvider extends React.Component {
       },
 
       // upload to server
-      afterUpload({ response, fileInfo }) {
+      afterUpload({ response, fileInfo }: { response: any, fileInfo: any }) {
         self.setState({ isAttachingFile: false });
 
-        const attachment = Object.assign({ url: response }, fileInfo);
+        const attachment = { url: response, ...fileInfo};
 
         // send message with attachment
         self.sendMessage('This message has an attachment', [attachment]);
@@ -353,11 +371,12 @@ export class AppProvider extends React.Component {
     });
   }
 
-  render() {
+  public render() {
     return (
       <AppContext.Provider
         value={{
           ...this.state,
+          getColor: this.getColor,
           saveBrowserInfo: this.saveBrowserInfo,
           toggle: this.toggle,
           toggleNotifier: this.toggleNotifier,
@@ -379,8 +398,4 @@ export class AppProvider extends React.Component {
       </AppContext.Provider>
     )
   }
-}
-
-AppProvider.propTypes = {
-  children: PropTypes.object,
 }

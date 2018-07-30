@@ -1,31 +1,34 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import * as moment from 'moment';
 import * as striptags from 'striptags';
 import * as classNames from 'classnames';
 import { defaultAvatar } from '../../icons/Icons';
+import { __ } from '../../utils';
+import { IConversation } from '../types';
 
-const propTypes = {
-  conversation: PropTypes.object.isRequired,
-  notificationCount: PropTypes.number,
-  goToConversation: PropTypes.func.isRequired,
+type Props = {
+  conversation: IConversation,
+  notificationCount: number,
+  goToConversation: Function,
 };
 
-const contextTypes = {
-  __: PropTypes.func,
-};
-
-function ConversationItem(
-  { conversation, notificationCount, goToConversation },
-  { __ },
-) {
+function ConversationItem({ conversation, notificationCount, goToConversation }: Props) {
   const { _id, content, createdAt } = conversation;
-  const participatedUser = conversation.participatedUsers[0];
-  const avatar =
-    (participatedUser && participatedUser.details.avatar) || defaultAvatar;
-  const fullName =
-    (participatedUser && participatedUser.details.fullName) ||
-    __('Support staff');
+
+  let participatedUsers = conversation.participatedUsers;
+  let participatedUser = null;
+
+  if (participatedUsers && participatedUsers.length > 0) {
+    participatedUser = participatedUsers[0];
+  }
+
+  let avatar = defaultAvatar;
+  let fullName = (__('Support staff') || {}).toString();
+
+  if (participatedUser && participatedUser.details) {
+    avatar = participatedUser.details.avatar;
+    fullName = participatedUser.details.fullName;
+  }
 
   return (
     <li
@@ -46,12 +49,5 @@ function ConversationItem(
     </li>
   );
 }
-
-ConversationItem.propTypes = propTypes;
-ConversationItem.contextTypes = contextTypes;
-
-ConversationItem.defaultProps = {
-  notificationCount: 0,
-};
 
 export default ConversationItem;

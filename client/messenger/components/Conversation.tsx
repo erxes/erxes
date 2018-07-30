@@ -1,26 +1,27 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import { iconLeft } from '../../icons/Icons';
+import { defaultAvatar, iconLeft } from '../../icons/Icons';
+import {  __ } from '../../utils';
 import { MessageSender, TopBar } from '../containers';
+import { IMessage, IUser } from '../types';
 import { MessagesList } from './';
-import { defaultAvatar } from '../../icons/Icons';
 
-const propTypes = {
-  messages: PropTypes.array.isRequired,
-  goToConversationList: PropTypes.func.isRequired,
-  users: PropTypes.array,
-  data: PropTypes.object,
-  isNew: PropTypes.bool,
-  isOnline: PropTypes.bool,
-  color: PropTypes.string
+type Props = {
+  messages: IMessage[],
+  goToConversationList: Function,
+  users: IUser[],
+  data: any,
+  isNew?: boolean,
+  isOnline: boolean,
+  color?: string
 };
 
-const contextTypes = {
-  __: PropTypes.func
+type State = {
+  isFocused: boolean,
+  expanded: boolean
 }
 
-class Conversation extends React.Component {
-  constructor(props) {
+class Conversation extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = { isFocused: false, expanded: false };
@@ -46,10 +47,10 @@ class Conversation extends React.Component {
     this.setState({ isFocused: false });
   }
 
-  renderUserInfo(user, type) {
+  renderUserInfo(user: IUser, type: string | React.ReactNode) {
     const { color } = this.props;
-    const details = user.details || {};
-    const avatar = details.avatar || defaultAvatar;
+    const details = user.details || { avatar: defaultAvatar, fullName: '' };
+    const avatar = details.avatar;
 
     if(type === 'avatar') {
       return <img key={user._id} style={{ borderColor: color }} src={avatar} alt={details.fullName} />;
@@ -69,7 +70,6 @@ class Conversation extends React.Component {
   }
 
   renderTitle() {
-    const { __ } = this.context;
     const { users, isOnline } = this.props;
 
     if (users.length !== 0) {
@@ -117,12 +117,12 @@ class Conversation extends React.Component {
     const {
       messages,
       isNew,
+      color,
       goToConversationList,
       data,
       isOnline
     } = this.props;
 
-    const { __ } = this.context;
     const placeholder = isNew ? __('Send a message') : __('Write a reply');
 
     return (
@@ -132,15 +132,15 @@ class Conversation extends React.Component {
           buttonIcon={iconLeft}
           onToggle={this.toggle}
           isExpanded={this.state.expanded}
-          onButtonClick={(e) => {
+          onButtonClick={(e: React.FormEvent<HTMLButtonElement>) => {
             e.preventDefault();
             goToConversationList();
           }}
         />
 
-        <MessagesList isOnline={isOnline} data={data} messages={messages} />
+        <MessagesList isOnline={isOnline} data={data} color={color} messages={messages} />
         <MessageSender
-          placeholder={placeholder}
+          placeholder={placeholder ? placeholder.toString() : ''}
           isParentFocused={this.state.isFocused}
           onTextInputBlur={this.onTextInputBlur}
         />
@@ -148,15 +148,5 @@ class Conversation extends React.Component {
     );
   }
 }
-
-Conversation.propTypes = propTypes;
-Conversation.contextTypes = contextTypes;
-
-Conversation.defaultProps = {
-  user: {},
-  data: {},
-  isNew: false,
-  isOnline: false,
-};
 
 export default Conversation;

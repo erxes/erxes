@@ -3,14 +3,22 @@ import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
 import { TopBar } from '../components';
 
-const container = (props) => {
+type Props = {
+  middle: React.ReactNode,
+  buttonIcon?: React.ReactNode,
+  isExpanded?: boolean,
+  onButtonClick?: (e: React.FormEvent<HTMLButtonElement>) => void,
+  onToggle?: () => void,
+}
+
+const container = (props: Props) => {
   return (
     <AppConsumer>
-      {({ endConversation }) => {
+      {({ endConversation, getColor }) => {
         return (
           <TopBar
             {...props}
-            color={connection.data.uiOptions && connection.data.uiOptions.color}
+            color={getColor()}
             isChat={Boolean(!connection.setting.email)}
             endConversation={endConversation}
           />

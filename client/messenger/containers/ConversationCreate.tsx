@@ -1,24 +1,38 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
-import * as gql from 'graphql-tag';
+import { compose, graphql, ChildProps } from 'react-apollo';
+import gql from 'graphql-tag';
 import { AppConsumer } from './AppContext';
 import { connection } from '../connection';
+import { IConversation, IUser } from '../types';
 import graphqlTypes from '../graphql';
 import { Conversation as DumbConversation } from '../components';
 
-class ConversationCreate extends React.Component {
+type Response = {
+  conversationDetail: IConversation
+}
+
+class ConversationCreate extends React.Component<ChildProps<{}, Response>, {}> {
   render() {
-    const { conversationDetailQuery } = this.props;
-    const { conversationDetail={} } = conversationDetailQuery;
-    const { isOnline=false, supporters=[] } = conversationDetail;
+    let isOnline = false;
+    let supporters: IUser[] = [];
+
+    const data = this.props.data;
+
+    if (data && data.conversationDetail) {
+      const { conversationDetail } = data;
+      
+      isOnline = conversationDetail.isOnline;
+      supporters = conversationDetail.supporters || [];
+    }
 
     return (
       <AppConsumer>
-        {({ goToConversationList }) => {
+        {({ goToConversationList, getColor }) => {
           return (
             <DumbConversation
               {...this.props}
+              isNew={true} 
+              color={getColor()}
               messages={[]}
               users={supporters}
               isOnline={isOnline}
@@ -33,10 +47,9 @@ class ConversationCreate extends React.Component {
 }
 
 const query = compose(
-  graphql(
+  graphql<{}, {}>(
     gql(graphqlTypes.conversationDetailQuery),
     {
-      name: 'conversationDetailQuery',
       options: () => ({
         variables: {
           integrationId: connection.data.integrationId,
@@ -46,9 +59,5 @@ const query = compose(
     },
   ),
 );
-
-ConversationCreate.propTypes = {
-  conversationDetailQuery: PropTypes.object,
-}
 
 export default query(ConversationCreate);

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import {
   ConversationList,
   ConversationCreate,
@@ -7,30 +6,28 @@ import {
   AccquireInformation,
 } from '../containers';
 
-const propTypes = {
-  activeRoute: PropTypes.string.isRequired,
-  color: PropTypes.string,
+type Props = {
+  activeRoute: string | '',
 };
 
-function Messenger({ activeRoute, color }) {
+function Messenger({ activeRoute }: Props) {
   switch (activeRoute) {
     case 'conversationDetail':
-      return <ConversationDetail color={color} />;
+      return <ConversationDetail />;
 
     case 'conversationCreate':
-      return <ConversationCreate isNew color={color} />;
+      return <ConversationCreate />;
 
     case 'conversationList':
       return <ConversationList />;
 
     // get user's contact information
     case 'accquireInformation':
-      return <AccquireInformation color={color} />;
+      return <AccquireInformation />;
 
     default:
+      return <div />
   }
 }
-
-Messenger.propTypes = propTypes;
 
 export default Messenger;

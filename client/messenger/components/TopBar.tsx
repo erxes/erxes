@@ -1,21 +1,17 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
 import { iconExit } from '../../icons/Icons';
+import { __ } from '../../utils';
 
-const propTypes = {
-  middle: PropTypes.node,
-  onButtonClick: PropTypes.func,
-  buttonIcon: PropTypes.node,
-  color: PropTypes.string,
-  endConversation: PropTypes.func,
-  isChat: PropTypes.bool,
-  isExpanded: PropTypes.bool,
-  onToggle: PropTypes.func,
-};
-
-const contextTypes = {
-  __: PropTypes.func
+type Props = {
+  middle: React.ReactNode,
+  buttonIcon?: React.ReactNode,
+  isChat: boolean,
+  color?: string,
+  isExpanded?: boolean,
+  onButtonClick?: (e: React.FormEvent<HTMLButtonElement>) => void,
+  onToggle?: () => void,
+  endConversation: () => void,
 };
 
 function TopBar({
@@ -26,15 +22,15 @@ function TopBar({
     isChat,
     endConversation,
     isExpanded,
-    onToggle
-  }, {__}) {
+    onToggle,
+  }: Props) {
 
   const topBarClassNames = classNames('erxes-topbar', {
     'expanded': isExpanded
   });
 
   const onEndConversation = () => {
-    if (confirm(__('Do you want to end this conversation ?'))) {
+    if (confirm((__('Do you want to end this conversation ?') || {}).toString())) {
       endConversation();
     }
   };
@@ -82,13 +78,5 @@ function TopBar({
     </div>
   );
 }
-
-TopBar.propTypes = propTypes;
-TopBar.contextTypes = contextTypes;
-
-TopBar.defaultProps = {
-  middle: null,
-  color: null,
-};
 
 export default TopBar;

@@ -1,10 +1,14 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 
 import { Notifier as DumbNotifier } from '../components';
 import { AppConsumer } from './AppContext';
+import { IMessage } from '../types';
 
-export default class Notifier extends React.Component {
+type Props = {
+  message?: IMessage,
+}
+
+export default class Notifier extends React.Component<Props> {
   render() {
     const { message } = this.props;
 
@@ -39,8 +43,4 @@ export default class Notifier extends React.Component {
       </AppConsumer>
     );
   }
-}
-
-Notifier.propTypes = {
-  message: PropTypes.object,
 }

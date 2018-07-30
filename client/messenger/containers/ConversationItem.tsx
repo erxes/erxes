@@ -1,13 +1,26 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import { graphql } from 'react-apollo';
-import * as gql from 'graphql-tag';
+import { graphql, ChildProps } from 'react-apollo';
+import gql from 'graphql-tag';
 import { ConversationItem as DumbConversationItem } from '../components';
 import graphqlTypes from '../graphql';
+import { IConversation } from '../types';
 
-class ConversationItem extends React.Component {
+type Props = {
+  conversation: IConversation,
+  goToConversation: (conversationId: string) => void,
+}
+
+type Response = {
+  unreadCount: number,
+}
+
+class ConversationItem extends React.Component<ChildProps<Props, Response>, {}> {
   componentWillMount() {
     const { data, conversation } = this.props;
+
+    if (!data) {
+      return;
+    }
 
     // lister for all conversation changes for this customer
     data.subscribeToMore({
@@ -20,21 +33,18 @@ class ConversationItem extends React.Component {
   }
 
   render() {
+    const { data } = this.props;
+
     const extendedProps = {
       ...this.props,
-      notificationCount: this.props.data.unreadCount,
+      notificationCount: data ? (data.unreadCount || 0) : 0,
     };
 
     return <DumbConversationItem { ...extendedProps } />;
   }
 }
 
-ConversationItem.propTypes = {
-  data: PropTypes.object.isRequired,
-  conversation: PropTypes.object.isRequired,
-};
-
-export default graphql(
+export default graphql<Props, Response>(
   gql(graphqlTypes.unreadCountQuery),
   {
     options: (props) => ({

@@ -1,28 +1,36 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
-import { Message } from '../containers';
+import { Message } from './';
+import { IMessage } from '../types';
 
-const propTypes = {
-  messages: PropTypes.array.isRequired,
-  isOnline: PropTypes.bool,
-  data: PropTypes.object,
-};
+type Props = {
+  messages: IMessage[],
+  isOnline: boolean,
+  color?: string,
+  data: any,
+}
 
-class MessagesList extends React.Component {
+class MessagesList extends React.Component<Props> {
+  private node: HTMLUListElement | null = null;
+  private shouldScrollBottom: boolean = false;
+
   componentDidMount() {
-    this.node.scrollTop = this.node.scrollHeight;
-    this.makeClickableLink();
+    if (this.node) {
+      this.node.scrollTop = this.node.scrollHeight;
+      this.makeClickableLink();
+    }
   }
 
   componentWillUpdate() {
-    const { node } = this;
-    this.shouldScrollBottom =
-      node.scrollHeight - (node.scrollTop + node.offsetHeight) < 30;
+    const node = this.node;
+
+    if (node) {
+      this.shouldScrollBottom = node.scrollHeight - (node.scrollTop + node.offsetHeight) < 30;
+    }
   }
 
   componentDidUpdate() {
-    if (this.shouldScrollBottom) {
+    if (this.node && this.shouldScrollBottom) {
       this.node.scrollTop = this.node.scrollHeight;
     }
 
@@ -32,12 +40,14 @@ class MessagesList extends React.Component {
   makeClickableLink() {
     const links = document.querySelectorAll('#erxes-messages a');
 
-    for (const node of links) {
-      node.target = '_blank';
+    for (let i=0; i< links.length; i++) {
+      const node = links[i];
+
+      node.setAttribute('target', '__blank');
     }
   }
 
-  renderAwayMessage(messengerData) {
+  renderAwayMessage(messengerData: any) {
     const { isOnline } = this.props;
 
     if (messengerData && !isOnline && messengerData.awayMessage) {
@@ -51,7 +61,7 @@ class MessagesList extends React.Component {
     return null;
   }
 
-  renderWelcomeMessage(messengerData) {
+  renderWelcomeMessage(messengerData: any) {
     const { isOnline } = this.props;
 
     if (messengerData && isOnline && messengerData.welcomeMessage) {
@@ -66,7 +76,7 @@ class MessagesList extends React.Component {
   }
 
   render() {
-    const { data, messages } = this.props;
+    const { data, messages, color } = this.props;
     const uiOptions = data.uiOptions || {};
     const bg = uiOptions.wallpaper;
     const messengerData = data.messengerData;
@@ -82,18 +92,11 @@ class MessagesList extends React.Component {
           this.node = node;
         }}>
         {this.renderWelcomeMessage(messengerData)}
-        {messages.map((message) => <Message key={message._id} {...message} />)}
+        {messages.map((message) => <Message key={message._id} color={color} {...message} />)}
         {this.renderAwayMessage(messengerData)}
       </ul>
     );
   }
 }
-
-MessagesList.propTypes = propTypes;
-
-MessagesList.defaultProps = {
-  isOnline: false,
-  data: null,
-};
 
 export default MessagesList;

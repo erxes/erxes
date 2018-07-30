@@ -1,9 +1,13 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
 import { Messenger, Launcher } from '../containers';
 
-export default class App extends React.Component {
+type Props = {
+  isMessengerVisible: boolean,
+  saveBrowserInfo: Function,
+};
+
+export default class App extends React.Component<Props> {
   componentDidMount() {
     // call save browser info mutation
     this.props.saveBrowserInfo();
@@ -21,8 +25,3 @@ export default class App extends React.Component {
     );
   }
 }
-
-App.propTypes = {
-  isMessengerVisible: PropTypes.bool.isRequired,
-  saveBrowserInfo: PropTypes.func,
-};

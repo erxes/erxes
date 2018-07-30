@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { App } from '../components';
-import { AppProvider, AppConsumer } from './AppContext';
+import { AppConsumer, AppProvider } from './AppContext';
 
-const container = (props) => (
+const container = () => (
   <AppProvider>
     <AppConsumer>
       {({ isMessengerVisible, saveBrowserInfo }) =>
         <App
-          {...props}
           isMessengerVisible={isMessengerVisible}
           saveBrowserInfo={saveBrowserInfo}
         />

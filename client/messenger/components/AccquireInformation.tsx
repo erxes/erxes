@@ -1,11 +1,22 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
 import { iconRight } from '../../icons/Icons';
+import { __ } from '../../utils';
 import { TopBar } from '../containers';
 
-class AccquireInformation extends React.Component {
-  constructor(props) {
+type Props = {
+  color?: string,
+  save: Function,
+}
+
+type State = {
+  type: string,
+  value: string,
+  isValidated: boolean,
+}
+
+class AccquireInformation extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = { type: 'email', value: '', isValidated: true };
@@ -15,25 +26,25 @@ class AccquireInformation extends React.Component {
     this.onValueChange = this.onValueChange.bind(this);
   }
 
-  onTypeChange(type) {
+  onTypeChange(type: string) {
     this.setState({ type });
   }
 
-  onValueChange(e) {
-    this.setState({ value: e.target.value, isValidated: true });
+  onValueChange(e: React.FormEvent<HTMLInputElement>) {
+    this.setState({ value: e.currentTarget.value, isValidated: true });
   }
 
-  isPhoneValid(phoneNumber) {
+  isPhoneValid(phoneNumber: string) {
     const reg = /^\d{8,}$/;
     return reg.test(phoneNumber.replace(/[\s()+\-\.]|ext/gi, ''));
   }
 
-  isEmailValid(email) {
+  isEmailValid(email: string) {
     const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     return reg.test(email);
   }
 
-  save(e) {
+  save(e: React.FormEvent) {
     e.preventDefault();
 
     const { value, type } = this.state;
@@ -46,7 +57,6 @@ class AccquireInformation extends React.Component {
   }
 
   render() {
-    const { __ } = this.context;
     const { color } = this.props;
     const { type, isValidated } = this.state;
     const formClasses = classNames('form', { invalid: !isValidated });
@@ -59,6 +69,7 @@ class AccquireInformation extends React.Component {
     );
 
     const style = { border: `1px solid ${color}` };
+    const placeholder = type === 'email' ? __('email@domain.com') : __('phone number');
 
     return (
       <div className="erxes-messenger accquire-information">
@@ -86,9 +97,7 @@ class AccquireInformation extends React.Component {
           <form className={formClasses} onSubmit={this.save}>
             <input
               onChange={this.onValueChange}
-              placeholder={
-                type === 'email' ? __('email@domain.com') : __('phone number')
-              }
+              placeholder={placeholder ? placeholder.toString(): ''}
               type={type === 'email' ? 'text' : 'tel'}
               style={style}
             />
@@ -106,14 +115,5 @@ class AccquireInformation extends React.Component {
     );
   }
 }
-
-AccquireInformation.propTypes = {
-  color: PropTypes.string,
-  save: PropTypes.func,
-};
-
-AccquireInformation.contextTypes = {
-  __: PropTypes.func
-};
 
 export default AccquireInformation;

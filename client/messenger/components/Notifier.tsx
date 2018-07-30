@@ -1,15 +1,15 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import * as striptags from 'striptags';
 import { User, EngageMessage } from '../components';
+import { IMessage, IEngageData } from '../types';
 
-const propTypes = {
-  message: PropTypes.object,
-  readConversation: PropTypes.func,
-  showUnreadMessage: PropTypes.func,
+type Props = {
+  message: IMessage,
+  readConversation: (conversationId: string) => void,
+  showUnreadMessage: () => void,
 };
 
-class Notifier extends React.Component {
+class Notifier extends React.Component<Props> {
   componentDidMount() {
     this.props.showUnreadMessage();
   }
@@ -21,7 +21,12 @@ class Notifier extends React.Component {
   renderNotificationBody() {
     const { message } = this.props;
     const { engageData, user, content } = message;
-    const details = user.details || {};
+
+    let fullName = '';
+
+    if (user && user.details) {
+      fullName = user.details.fullName;
+    }
 
     if (engageData) {
       return <EngageMessage engageData={engageData} />;
@@ -31,7 +36,7 @@ class Notifier extends React.Component {
       <div className="notification-wrapper">
         <div className="user-info">
           <User user={user} />
-          {details.fullName}
+          {fullName}
         </div>
         <div className="notification-body">
           {striptags(content)}
@@ -56,17 +61,12 @@ class Notifier extends React.Component {
     return (
       <div
         className={this.renderClass()}
-        onClick={() => readConversation({
-          conversationId: message.conversationId,
-          engageData: message.engageData,
-        })}
+        onClick={() => readConversation(message.conversationId)}
       >
         {this.renderNotificationBody()}
       </div>
     );
   }
 }
-
-Notifier.propTypes = propTypes;
 
 export default Notifier;

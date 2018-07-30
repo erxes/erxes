@@ -2,7 +2,6 @@
     "compilerOptions": {
         "outDir": "./dist/",
         "sourceMap": true,
-        "strictNullChecks": true,
         "module": "commonjs",
          "lib": [
           "es5",
@@ -12,13 +11,9 @@
         ],
         "jsx": "react",
         "target": "es5",
-        "allowJs": true
+        "allowJs": true,
+        "skipLibCheck": true,
+        "strict": true
     },
-    "awesomeTypescriptLoaderOptions": {
-      "useWebpackText": true,
-      "useTranspileModule": true,
-      "doTypeCheck": true,
-      "forkChecker": true
-    },
-    "exclude": ["node_modules", "dist"]
+    "include": ["client", "server"],
 }

@@ -1,4 +1,4 @@
-export const connection = {
+export const connection: any = {
   setting: {},
   data: {},
   queryVariables: '$integrationId: String!, $customerId: String!',
@@ -15,14 +15,14 @@ const getLocalStorage = () => {
 }
 
 // get local storage item
-export const getLocalStorageItem = (key) => {
+export const getLocalStorageItem = (key: string) => {
   const erxesStorage = getLocalStorage();
 
   return erxesStorage[key];
 };
 
 // set local storage item
-export const setLocalStorageItem = (key, value) => {
+export const setLocalStorageItem = (key: string, value: string) => {
   const brandId = connection.setting.brand_id;
 
   const erxesStorage = JSON.parse(localStorage.getItem('erxes') || '{}');
