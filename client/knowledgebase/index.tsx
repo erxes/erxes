@@ -1,3 +1,4 @@
+// import 'erxes-icon/css/erxes.min.css';
 import * as React from "react";
 import { ApolloProvider } from "react-apollo";
 import * as ReactDOM from "react-dom";

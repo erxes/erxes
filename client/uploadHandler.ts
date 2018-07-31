@@ -1,12 +1,22 @@
-/* global FileReader MAIN_API_URL */
+declare const MAIN_API_URL: string;
+
+type FileInfo = {
+  name: string;
+  size: number;
+  type: string;
+};
+
+type UploaderParams = {
+  file: File;
+  beforeUpload?: () => void;
+  afterUpload?: (doc: { response: string; fileInfo: FileInfo }) => void;
+  afterRead?: (doc: { result: string; fileInfo: FileInfo }) => void;
+};
 
 /**
  * Upload file to main api
- * @param  {Object}   options.file         blob object
- * @param  {Function} options.afterRead    for preview purpose
- * @param  {Function} options.uploadAction main upload method
  */
-const uploadHandler = params => {
+const uploadHandler = (params: UploaderParams) => {
   const {
     // Blob object
     file,
@@ -33,10 +43,10 @@ const uploadHandler = params => {
     }
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     fetch(url, {
-      method: 'post',
+      method: "post",
       body: formData
     })
       .then(response => {

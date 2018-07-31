@@ -315,12 +315,10 @@ export class AppProvider extends React.Component<{}, IState> {
       };
 
       update = (proxy: any, { data: { insertMessage } }: any) => {
-        const message = insertMessage;
-
         const selector = {
           query: gql(graphqlTypes.conversationDetailQuery),
           variables: {
-            _id: message.conversationId,
+            _id: insertMessage.conversationId,
             integrationId: connection.data.integrationId
           }
         };
@@ -331,7 +329,7 @@ export class AppProvider extends React.Component<{}, IState> {
         const messages = data.conversationDetail.messages;
 
         // check duplications
-        if (!messages.find((m: IMessage) => m._id === message._id)) {
+        if (!messages.find((m: IMessage) => m._id === insertMessage._id)) {
           // Add our message from the mutation to the end
           messages.push(message);
 
@@ -375,10 +373,10 @@ export class AppProvider extends React.Component<{}, IState> {
 
         // after mutation
         .then(({ data }: any) => {
-          const message = data.insertMessage;
+          const { insertMessage } = data;
 
           if (!currentConversationId) {
-            this.changeConversation(message.conversationId);
+            this.changeConversation(insertMessage.conversationId);
           }
         })
     );
