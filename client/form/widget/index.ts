@@ -11,6 +11,7 @@ declare const window: any;
 import './index.css';
 
 import { getBrowserInfo } from '../../utils';
+import { settings } from 'cluster';
 
 // add meta to head
 const meta = document.createElement('meta');
@@ -57,8 +58,6 @@ const createIframe = (setting: Setting) => {
     document.body.appendChild(container);
   }
 
-  iframe = document.querySelector(`#${iframeId}`);
-
   // send erxes setting to iframe
   // after iframe load send connection info
   iframe.onload = () => {
@@ -66,15 +65,14 @@ const createIframe = (setting: Setting) => {
 
     const handlerSelector = `[data-erxes-modal="${setting.form_id}"]`;
 
-    iframe.contentWindow.postMessage({
-      fromPublisher: true,
-      hasPopupHandlers: document.querySelectorAll(handlerSelector).length > 0,
-      setting,
-    }, '*');
+    if (iframe.contentWindow) {
+      iframe.contentWindow.postMessage({
+        fromPublisher: true,
+        hasPopupHandlers: document.querySelectorAll(handlerSelector).length > 0,
+        setting,
+      }, '*');
+    }
   };
-
-  container = document.querySelector(`#${containerId}`);
-  iframe = document.querySelector(`#${iframeId}`);
 
   return { container, iframe };
 };
@@ -82,9 +80,9 @@ const createIframe = (setting: Setting) => {
 const formSettings = window.erxesSettings.forms || [];
 
 // create iframes and save with index
-const iframesMapping = {};
+const iframesMapping: any = {};
 
-formSettings.forEach(formSetting => {
+formSettings.forEach((formSetting: Setting) => {
   iframesMapping[JSON.stringify(formSetting)] = createIframe(formSetting);
 });
 
@@ -105,15 +103,18 @@ window.addEventListener('message', async (event: MessageEvent) => {
     // track popup handlers
     if (loadType === 'popup') {
       const selector = `[data-erxes-modal="${setting.form_id}"]`;
+      const elements = document.querySelectorAll(selector);
 
-      document.querySelectorAll(selector).forEach((elm) => {
+      for (let i=0; i<elements.length; i++) {
+        const elm = elements[i];
+
         elm.addEventListener('click', () => {
           iframe.contentWindow.postMessage({
             fromPublisher: true,
             action: 'showPopup',
           }, '*');
         });
-      });
+      }
     }
   }
 
