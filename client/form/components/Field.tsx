@@ -110,13 +110,13 @@ export default class Field extends React.Component<Props, State> {
     this.onChange(e.target.dataset.option);
   };
 
-  // TODO: check
   onCheckboxesChange = () => {
     const values: string[] = [];
     const { field } = this.props;
 
     const elements = document.getElementsByName(field._id);
 
+    // tslint:disable-next-line
     for (let i = 0; i < elements.length; i++) {
       const checkbox: any = elements[i];
 
@@ -149,7 +149,8 @@ export default class Field extends React.Component<Props, State> {
 
   renderControl() {
     const { field } = this.props;
-    const { _id, options = [], validation = "text" } = field;
+    const { options = [], validation = "text" } = field;
+    const name = field._id;
 
     if (validation === "date") {
       return this.renderDatepicker();
