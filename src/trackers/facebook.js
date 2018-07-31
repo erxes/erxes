@@ -498,7 +498,7 @@ export class SaveWebhookResponse {
     );
 
     // get user info
-    res = await graphRequest.get(`/${fbUserId}`, res.access_token);
+    res = await graphRequest.get(`/${fbUserId}?fields=link`, res.access_token);
 
     // get profile pic
     const getProfilePic = async fbId => {
@@ -523,6 +523,7 @@ export class SaveWebhookResponse {
       facebookData: {
         id: fbUserId,
         profilePic: res.profile_pic || (await getProfilePic(fbUserId)),
+        profileLink: res.link,
       },
     });
 
