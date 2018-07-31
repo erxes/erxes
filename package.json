@@ -23,7 +23,16 @@
     "dev": "NODE_ENV=development nodemon -e ts server --exec ts-node",
     "webpack": "webpack --mode development --watch --progress",
     "build": "webpack --config=webpack.config.prod.js && tsc server --out-dir dist --copy-files --ignore tests",
+    "lint": "tslint 'client/**/*.ts'",
+    "format": "prettier --write 'client/**/*.ts'",
+    "precommit": "lint-staged",
     "start": "node dist"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "dependencies": {
     "add-graphql-subscriptions": "^1.0.1",
