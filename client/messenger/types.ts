@@ -1,4 +1,4 @@
-import { IUser, IIntegrationMessengerData, IIntegrationUiOptions} from '../types';
+import { IIntegrationMessengerData, IIntegrationUiOptions, IUser} from '../types';
 
 export interface IEngageData {
     content: string,

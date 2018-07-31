@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { graphql, ChildProps } from 'react-apollo';
 import gql from 'graphql-tag';
+import * as React from 'react';
+import { ChildProps, graphql } from 'react-apollo';
 import { IIntegrationUiOptions } from '../../types';
-import { connection } from '../connection';
 import { Launcher as DumpLauncher } from '../components';
+import { connection } from '../connection';
 import graphqlTypes from '../graphql';
 import { IMessage } from '../types';
 import { AppConsumer } from './AppContext';

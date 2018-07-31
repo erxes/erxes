@@ -1,9 +1,9 @@
 import * as React from 'react';
 import {
-  ConversationList,
+  AccquireInformation,
   ConversationCreate,
   ConversationDetail,
-  AccquireInformation,
+  ConversationList,
 } from '../containers';
 
 type Props = {

@@ -1,16 +1,16 @@
 import gql from 'graphql-tag';
 import client, { wsLink } from '../apollo-client';
+import { setLocale } from '../utils';
 import widgetConnect from '../widgetConnect';
 import {
   connection,
   getLocalStorageItem,
   setLocalStorageItem,
 } from './connection';
-import { setLocale } from '../utils';
 import { App } from './containers';
 import graphqTypes from './graphql';
-import { IConnectResponse } from './types';
 import './sass/style.scss';
+import { IConnectResponse } from './types';
 
 widgetConnect({
   connectMutation: (event: MessageEvent) => {

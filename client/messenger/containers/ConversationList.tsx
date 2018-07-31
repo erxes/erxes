@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { graphql, ChildProps } from 'react-apollo';
 import gql from 'graphql-tag';
-import { AppConsumer } from './AppContext';
-import { connection } from '../connection';
+import * as React from 'react';
+import { ChildProps, graphql } from 'react-apollo';
 import { ConversationList as DumbConversationList } from '../components';
+import { connection } from '../connection';
 import graphqTypes from '../graphql';
 import { IConversation } from '../types';
+import { AppConsumer } from './AppContext';
 
 type QueryResponse = {
   conversations: IConversation[]

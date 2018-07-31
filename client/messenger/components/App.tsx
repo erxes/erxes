@@ -1,6 +1,6 @@
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { Messenger, Launcher } from '../containers';
+import * as React from 'react';
+import { Launcher, Messenger } from '../containers';
 
 type Props = {
   isMessengerVisible: boolean,

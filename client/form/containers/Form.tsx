@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { graphql, ChildProps } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Form as DumbForm } from '../components';
-import { AppConsumer } from './AppContext';
-import { ICurrentStatus, IForm } from '../types';
+import * as React from 'react';
+import { ChildProps, graphql } from 'react-apollo';
 import { IEmailParams, IIntegration } from '../../types';
+import { Form as DumbForm } from '../components';
+import { ICurrentStatus, IForm } from '../types';
+import { AppConsumer } from './AppContext';
 
-const Form = (props: ChildProps<Props, QueryResponse>) => {
+const Form = (props: ChildProps<IProps, QueryResponse>) => {
   const data = props.data;
 
   if (!data || data.loading) {
@@ -29,7 +29,7 @@ type QueryResponse = {
   form: IForm
 }
 
-interface Props {
+interface IProps {
   integration: IIntegration,
   form: IForm,
   currentStatus: ICurrentStatus,
@@ -39,7 +39,7 @@ interface Props {
   sendEmail: (params: IEmailParams) => void,
 }
 
-const FormWithData = graphql<Props, QueryResponse>(
+const FormWithData = graphql<IProps, QueryResponse>(
   gql`
     query form($formId: String) {
       form(formId: $formId) {

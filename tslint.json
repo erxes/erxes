@@ -7,6 +7,8 @@
     "object-literal-sort-keys": false,
     "no-console": false,
     "no-angle-bracket-type-assertion": false,
-    "variable-name": false,
+    "member-access": false,
+    "interface-over-type-literal": false,
+    "variable-name": false
   }
 }

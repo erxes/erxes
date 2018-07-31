@@ -1,5 +1,5 @@
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import { IIntegrationUiOptions } from '../../types';
 import { Notifier } from '../containers';
 import { IMessage } from '../types';
@@ -56,7 +56,7 @@ function Launcher(props: Props) {
         onClick={clickHandler}
         style={{
           backgroundColor: color,
-          color: color,
+          color,
           backgroundImage: logo ? `url(${logo})` : '',
           backgroundSize: logo ? '' : '20px',
         }}

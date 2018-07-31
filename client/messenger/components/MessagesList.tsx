@@ -1,6 +1,6 @@
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { IIntegrationUiOptions, IIntegrationMessengerData } from '../../types';
+import * as React from 'react';
+import { IIntegrationMessengerData, IIntegrationUiOptions } from '../../types';
 import { IMessage } from '../types';
 import { Message } from './';
 

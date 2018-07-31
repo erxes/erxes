@@ -1,12 +1,12 @@
 import gql from 'graphql-tag';
 import client from '../apollo-client';
-import widgetConnect from '../widgetConnect';
 import { setLocale } from '../utils';
+import widgetConnect from '../widgetConnect';
 import { connection } from './connection';
 import { App } from './containers';
-import { IConnectResponse } from './types';
 import { connectMutation } from './graphql';
 import './sass/style.scss';
+import { IConnectResponse } from './types';
 
 widgetConnect({
   postParams: {

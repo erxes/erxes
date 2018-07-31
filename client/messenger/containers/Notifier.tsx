@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 import { Notifier as DumbNotifier } from '../components';
-import { AppConsumer } from './AppContext';
 import { IMessage } from '../types';
+import { AppConsumer } from './AppContext';
 
 type Props = {
   message?: IMessage,

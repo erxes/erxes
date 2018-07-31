@@ -1,7 +1,7 @@
-import * as React from 'react';
 import * as moment from 'moment';
+import * as React from 'react';
 import DatePicker from 'react-datepicker';
-import { IField, FieldValue, IFieldError } from '../types';
+import { FieldValue, IField, IFieldError } from '../types';
 
 type Props = {
   field: IField,

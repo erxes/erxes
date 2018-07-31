@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as striptags from 'striptags';
-import { User, EngageMessage } from '../components';
+import { EngageMessage, User } from '../components';
 import { IMessage } from '../types';
 
 type Props = {

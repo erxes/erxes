@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { AppConsumer } from './AppContext';
 import { MessageSender } from '../components';
+import { AppConsumer } from './AppContext';
 
 type Props = {
   placeholder?: string,

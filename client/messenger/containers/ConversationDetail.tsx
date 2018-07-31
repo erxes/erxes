@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { compose, graphql, ChildProps } from 'react-apollo';
 import gql from 'graphql-tag';
+import * as React from 'react';
+import { ChildProps, compose, graphql } from 'react-apollo';
 import { IUser } from '../../types';
-import { connection, getLocalStorageItem } from '../connection';
 import { Conversation as DumbConversation } from '../components';
+import { connection, getLocalStorageItem } from '../connection';
 import graphqlTypes from '../graphql';
 import { IConversation, IMessage } from '../types';
 import { AppConsumer } from './AppContext';
@@ -23,7 +23,7 @@ class ConversationDetail extends React.Component<ChildProps<Props, QueryResponse
   componentWillMount() {
     const { data, endConversation, conversationId } = this.props;
 
-    if (!data) return
+    if (!data) { return }
 
     // lister for new message
     data.subscribeToMore({

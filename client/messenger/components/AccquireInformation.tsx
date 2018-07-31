@@ -1,5 +1,5 @@
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import { iconRight } from '../../icons/Icons';
 import { __ } from '../../utils';
 import { TopBar } from '../containers';

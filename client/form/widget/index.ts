@@ -11,7 +11,6 @@ declare const window: any;
 import './index.css';
 
 import { getBrowserInfo } from '../../utils';
-import { settings } from 'cluster';
 
 // add meta to head
 const meta = document.createElement('meta');
@@ -29,14 +28,14 @@ const createIframe = (setting: Setting) => {
   const formId = setting.form_id;
 
   // container
-  let container = document.createElement('div');
+  const container = document.createElement('div');
   const containerId = `erxes-container-${formId}`;
   const iframeId = `erxes-iframe-${formId}`;
 
   container.id = containerId;
 
   // add iframe
-  let iframe = document.createElement('iframe');
+  const iframe = document.createElement('iframe');
 
   iframe.id = iframeId;
   iframe.src = `${ROOT_URL}/form`;

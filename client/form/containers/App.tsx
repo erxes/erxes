@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { App as DumbApp } from '../components';
-import { connection } from '../connection';
-import { AppProvider, AppConsumer } from './AppContext';
+import { AppConsumer, AppProvider } from './AppContext';
 import { postMessage, saveBrowserInfo } from './utils';
 
 type Props = {

@@ -1,11 +1,11 @@
-import * as React from 'react';
 import gql from 'graphql-tag';
+import * as React from 'react';
 import client from '../../apollo-client';
-import { IEmailParams, IIntegrationFormData, IIntegration } from '../../types';
-import { postMessage } from './utils';
+import { IEmailParams, IIntegration, IIntegrationFormData } from '../../types';
 import { connection } from '../connection';
+import { increaseViewCountMutation, saveFormMutation, sendEmailMutation } from '../graphql';
 import { ICurrentStatus, IForm } from '../types';
-import { saveFormMutation, sendEmailMutation, increaseViewCountMutation } from '../graphql';
+import { postMessage } from './utils';
 
 interface IState {
   isPopupVisible: boolean,
@@ -216,7 +216,7 @@ export class AppProvider extends React.Component<{}, IState> {
   setHeight = () => {
     const container = document.getElementById('erxes-container');
 
-    if (!container) return;
+    if (!container) { return; }
 
     const elementsHeight = container.clientHeight;
 

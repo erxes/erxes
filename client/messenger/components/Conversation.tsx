@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { defaultAvatar, iconLeft } from '../../icons/Icons';
-import {  __ } from '../../utils';
 import { IUser } from '../../types';
+import {  __ } from '../../utils';
 import { MessageSender, MessagesList, TopBar } from '../containers';
 import { IMessage } from '../types';
 

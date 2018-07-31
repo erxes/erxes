@@ -67,7 +67,7 @@ function uniqueString(str: string) {
   const result = [];
 
   for (let i = 0; i < replaced.length; i++) {
-    if (result.indexOf(str[i]) == -1) result.push(str[i]);
+    if (result.indexOf(str[i]) === -1) { result.push(str[i]); }
   }
 
   return result.join(', ');
@@ -82,7 +82,7 @@ erxesContainer.id = container;
 erxesContainer.className = 'erxes-messenger-hidden';
 
 // add iframe
-let iframe = document.createElement('iframe');
+const iframe = document.createElement('iframe');
 
 iframe.id = iframeId;
 iframe.src = `${ROOT_URL}/messenger`;

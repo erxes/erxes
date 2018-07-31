@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { AppConsumer } from './AppContext';
 import { Messenger } from '../components';
+import { AppConsumer } from './AppContext';
 
 const messenger = () => (
   <AppConsumer>

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { TopBar } from './';
 import { ICallout } from '../types';
+import { TopBar } from './';
 
 type Props = {
   onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void,

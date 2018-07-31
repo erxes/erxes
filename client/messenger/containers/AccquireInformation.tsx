@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { AppConsumer } from './AppContext';
 import { AccquireInformation } from '../components';
+import { AppConsumer } from './AppContext';
 
 export default class extends React.Component {
   render() {

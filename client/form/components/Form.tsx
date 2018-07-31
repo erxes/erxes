@@ -1,9 +1,9 @@
 import * as React from 'react';
-import Field from './Field';
-import { TopBar } from './';
-import { __ } from '../../utils';
 import { IEmailParams, IIntegration } from '../../types';
-import { IForm, FieldValue, IFieldError, ICurrentStatus } from '../types';
+import { __ } from '../../utils';
+import { FieldValue, ICurrentStatus, IFieldError, IForm } from '../types';
+import { TopBar } from './';
+import Field from './Field';
 
 type Props = {
   form: IForm,

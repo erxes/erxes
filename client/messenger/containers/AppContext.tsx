@@ -1,12 +1,12 @@
-import * as React from 'react';
 import gql from 'graphql-tag';
+import * as React from 'react';
 import client from '../../apollo-client';
-import { IBrowserInfo, IIntegrationUiOptions, IIntegrationMessengerData } from '../../types';
+import { IBrowserInfo, IIntegrationMessengerData, IIntegrationUiOptions } from '../../types';
 import uploadHandler from '../../uploadHandler';
 import { postMessage, requestBrowserInfo } from '../../utils';
 import { connection, getLocalStorageItem, setLocalStorageItem } from '../connection';
 import graphqlTypes from '../graphql';
-import { IMessage, IAttachment } from '../types';
+import { IAttachment, IMessage } from '../types';
 
 interface IState {
   lastUnreadMessage?: IMessage,

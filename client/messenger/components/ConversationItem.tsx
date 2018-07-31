@@ -1,7 +1,7 @@
-import * as React from 'react';
-import * as moment from 'moment';
-import * as striptags from 'striptags';
 import * as classNames from 'classnames';
+import * as moment from 'moment';
+import * as React from 'react';
+import * as striptags from 'striptags';
 import { defaultAvatar } from '../../icons/Icons';
 import { __ } from '../../utils';
 import { IConversation } from '../types';
@@ -15,7 +15,7 @@ type Props = {
 function ConversationItem({ conversation, notificationCount, goToConversation }: Props) {
   const { _id, content, createdAt } = conversation;
 
-  let participatedUsers = conversation.participatedUsers;
+  const participatedUsers = conversation.participatedUsers;
   let participatedUser = null;
 
   if (participatedUsers && participatedUsers.length > 0) {
