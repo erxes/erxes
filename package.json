@@ -24,12 +24,12 @@
     "webpack": "webpack --mode development --watch --progress",
     "build": "webpack --config=webpack.config.prod.js && tsc server --out-dir dist --copy-files --ignore tests",
     "lint": "tslint 'client/**/*.ts'",
-    "format": "prettier --write 'client/**/*.ts'",
+    "format": "prettier --write 'client/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
     "start": "node dist"
   },
   "lint-staged": {
-    "*.ts": [
+    "*.@(ts|tsx)": [
       "prettier --write",
       "git add"
     ]
