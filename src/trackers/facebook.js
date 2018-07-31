@@ -213,16 +213,17 @@ export class SaveWebhookResponse {
    */
   async updateReactions(type, conversationMessageId, reactionType, from) {
     const reactionField = `facebookData.reactions.${reactionType}`;
+
     if (type === 'add') {
-      await ConversationMessages.update(
+      return ConversationMessages.update(
         { _id: conversationMessageId },
-        { $push: { [reactionField]: { ...from } } },
+        { $push: { [reactionField]: from } },
       );
     }
 
-    await ConversationMessages.update(
+    return ConversationMessages.update(
       { _id: conversationMessageId },
-      { $pull: { [reactionField]: { _id: from._id } } },
+      { $pull: { [reactionField]: { id: from.id } } },
     );
   }
 
@@ -239,7 +240,6 @@ export class SaveWebhookResponse {
    */
   async handleReactions(likeParams) {
     const { verb, post_id, comment_id, reaction_type, item, from } = likeParams;
-
     let selector = { 'facebookData.postId': post_id };
 
     if (comment_id) {
@@ -247,7 +247,6 @@ export class SaveWebhookResponse {
     }
 
     const msg = await ConversationMessages.findOne(selector);
-
     if (msg) {
       // Receiving like
       if (item === 'like') {
@@ -255,7 +254,7 @@ export class SaveWebhookResponse {
       }
 
       // Receiving reaction
-      if (reaction_type) {
+      if (item === 'reaction') {
         await this.updateReactions(verb, msg._id, reaction_type, from);
       }
     }
@@ -346,7 +345,7 @@ export class SaveWebhookResponse {
 
     // sending to reaction handler
     if (item === 'like' || item === 'reaction') {
-      await this.handleReactions(value);
+      return this.handleReactions(value);
     }
 
     const senderName = value.from.name;

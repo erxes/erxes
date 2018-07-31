@@ -4,14 +4,22 @@ import { TwitterResponseSchema } from '../../trackers/schemas';
 import { Conversations } from './';
 import { field } from './utils';
 
+const fbUserSchema = mongoose.Schema(
+  {
+    id: field({ type: String, optional: true }),
+    name: field({ type: String, optional: true }),
+  },
+  { _id: false },
+);
+
 const reactionSchema = mongoose.Schema(
   {
-    like: field({ type: [Object], default: [] }),
-    love: field({ type: [Object], default: [] }),
-    wow: field({ type: [Object], default: [] }),
-    haha: field({ type: [Object], default: [] }),
-    sad: field({ type: [Object], default: [] }),
-    angry: field({ type: [Object], default: [] }),
+    like: field({ type: [fbUserSchema], default: [] }),
+    love: field({ type: [fbUserSchema], default: [] }),
+    wow: field({ type: [fbUserSchema], default: [] }),
+    haha: field({ type: [fbUserSchema], default: [] }),
+    sad: field({ type: [fbUserSchema], default: [] }),
+    angry: field({ type: [fbUserSchema], default: [] }),
   },
   { _id: false },
 );
@@ -39,7 +47,7 @@ const FacebookSchema = mongoose.Schema(
       optional: true,
     }),
 
-    reactions: field({ type: reactionSchema, default: {} }),
+    reactions: field({ type: reactionSchema }),
 
     likeCount: field({
       type: Number,
