@@ -50,10 +50,10 @@ export class AppProvider extends React.Component<{}, IState> {
    */
   init = () => {
     const { data, hasPopupHandlers } = connection;
-    const { integration } = data;
+    const { integration, form } = data;
 
-    const { formData } = integration;
-    const { loadType, callout } = formData;
+    const { callout } = form;
+    const { loadType } = integration.formData;
 
     // if there is popup handler then do not show it initially
     if (loadType === 'popup' && hasPopupHandlers) {

@@ -3,7 +3,7 @@
 import * as moment from 'moment';
 import T from 'i18n-react';
 import translation from '../locales';
-import { IBrowserInfo } from './messenger/types';
+import { IBrowserInfo } from './types';
 
 export const getBrowserInfo = async () => {
   let location;

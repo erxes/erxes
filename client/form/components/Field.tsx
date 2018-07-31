@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as moment from 'moment';
 import DatePicker from 'react-datepicker';
-import { __ } from '../../utils';
 import { IField, FieldValue, IFieldError } from '../types';
 
 type Props = {
@@ -131,7 +130,6 @@ export default class Field extends React.Component<Props, State> {
     this.onChange(e.currentTarget.value);
   }
 
-  // TODO check
   renderDatepicker() {
     return (
       <DatePicker
@@ -139,7 +137,6 @@ export default class Field extends React.Component<Props, State> {
         onChange={this.onDateChange}
         className="form-control"
         dateFormat="YYYY/MM/DD"
-        placeholderText={__('Click to select a date')}
       />
     );
   }
