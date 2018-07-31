@@ -63,7 +63,7 @@ export default class Field extends React.Component<Props, State> {
   static renderRadioButtons(
     name: string,
     options: string[],
-    onChange: (e: any) => void
+    onChange: (e: React.FormEvent<HTMLInputElement>) => void
   ) {
     return (
       <div>
@@ -105,9 +105,8 @@ export default class Field extends React.Component<Props, State> {
     this.onChange(momentObj.toDate());
   };
 
-  // TODO: replace any
-  onRadioButtonsChange = (e: any) => {
-    this.onChange(e.target.dataset.option);
+  onRadioButtonsChange = (e: React.FormEvent<HTMLInputElement>) => {
+    this.onChange(e.currentTarget.getAttribute("data-option") || "");
   };
 
   onCheckboxesChange = () => {
