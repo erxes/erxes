@@ -1,9 +1,11 @@
 /* global ROOT_URL */
-/* eslint-disable no-param-reassign */
 
 /*
  * Form's embeddable script
  */
+
+declare const ROOT_URL: string;
+declare const window: any;
 
 // css
 import './index.css';
@@ -16,8 +18,13 @@ meta.name = 'viewport';
 meta.content = 'initial-scale=1, width=device-width';
 document.getElementsByTagName('head')[0].appendChild(meta);
 
+type Setting = {
+  form_id: string,
+  brand_id: string,
+}
+
 // create iframe helper
-const createIframe = (setting) => {
+const createIframe = (setting: Setting) => {
   const formId = setting.form_id;
 
   // container
@@ -82,7 +89,7 @@ formSettings.forEach(formSetting => {
 });
 
 // listen for messages from widget
-window.addEventListener('message', async (event) => {
+window.addEventListener('message', async (event: MessageEvent) => {
   const data = event.data || {};
   const { fromErxes, source, message, setting } = data;
 
@@ -93,7 +100,7 @@ window.addEventListener('message', async (event) => {
   const { container, iframe } = iframesMapping[JSON.stringify(setting)];
 
   if (message === 'connected') {
-    const loadType = data.connectionInfo.formConnect.formData.loadType;
+    const loadType = data.connectionInfo.formConnect.integration.formData.loadType;
 
     // track popup handlers
     if (loadType === 'popup') {

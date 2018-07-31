@@ -13,8 +13,8 @@ module.exports = {
   entry: {
     messenger: './client/messenger/index.ts',
     messengerWidget: './client/messenger/widget/index.ts',
-    // form: './client/form/index.js',
-    // formWidget: './client/form/widget/index.js',
+    form: './client/form/index.ts',
+    formWidget: './client/form/widget/index.ts',
     // knowledgebase: './client/knowledgebase/index.js',
     // knowledgebaseWidget: './client/knowledgebase/widget/index.js',
   },

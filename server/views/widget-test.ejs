@@ -22,20 +22,37 @@
   </head>
   
   <body class="uk-margin">
+    <div class="uk-flex uk-child-width-expand@s">
+      <div class="uk-card uk-card-default uk-card-body uk-margin-medium-left">
+          <h2>Knowledge Base</h2>
+          <div data-erxes-kbase></div>
+      </div>
+      
+      <div class="uk-card uk-card-default uk-card-body uk-margin-medium-left uk-margin-medium-right">
+          <h2>Form embed</h2>
+          <div data-erxes-embed="GtEe2hyYWkSDQXouC"></div>
+      </div>
+    </div>
+
+
     <script>
       window.erxesSettings = {
-        messenger: {
-          brand_id: "JZWfsG",
-        },
+        forms: [{
+          brand_id: "nn4pa2",
+          form_id: "3yhnynSiLnD9Gxhx6",
+        }],
       };
+      
     (function() {
       var script = document.createElement('script');
-      script.src = "build/messengerWidget.bundle.js";
+      script.src = "http://localhost:3200/build/formWidget.bundle.js";
       script.async = true;
-      
+
       var entry = document.getElementsByTagName('script')[0];
       entry.parentNode.insertBefore(script, entry);
     })();
+  
     </script>
+
   </body>
 </html>

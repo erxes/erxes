@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { compose, graphql, ChildProps } from 'react-apollo';
 import gql from 'graphql-tag';
-import { AppConsumer } from './AppContext';
+import { IUser } from '../../types';
 import { connection, getLocalStorageItem } from '../connection';
 import { Conversation as DumbConversation } from '../components';
 import graphqlTypes from '../graphql';
-import { IConversation, IMessage, IUser } from '../types';
+import { IConversation, IMessage } from '../types';
+import { AppConsumer } from './AppContext';
 
 type Props = {
   conversationId: string,

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { IIntegrationUiOptions, IIntegrationMessengerData } from '../../types';
+import { IMessage } from '../types';
 import { Message } from './';
-import { IMessage, IIntegrationUiOptions, IIntegrationMessengerData } from '../types';
 
 type Props = {
   messages: IMessage[],

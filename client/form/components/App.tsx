@@ -1,26 +1,23 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { iconClose } from '../../icons/Icons';
 import { Callout, Form, ShoutboxLauncher } from '../containers';
 
-const propTypes = {
-  isFormVisible: PropTypes.bool,
-  isCalloutVisible: PropTypes.bool,
-  containerClass:PropTypes.string,
-  init: PropTypes.func,
-  closePopup: PropTypes.func,
-  setHeight: PropTypes.func,
-  formData: PropTypes.object,
+type Props = {
+  isFormVisible: boolean,
+  isCalloutVisible: boolean,
+  containerClass:string,
+  init: () => void,
+  closePopup: () => void,
+  loadType: string,
 };
 
-class App extends React.Component {
+class App extends React.Component<Props> {
   componentDidMount() {
     this.props.init();
   }
 
   renderCloseButton() {
-    const { formData, closePopup } = this.props;
-    const { loadType } = formData;
+    const { loadType, closePopup } = this.props;
 
     if (loadType === 'shoutbox') {
       return null;
@@ -34,32 +31,30 @@ class App extends React.Component {
   }
 
   renderForm() {
-    const { isFormVisible, setHeight } = this.props;
+    const { isFormVisible } = this.props;
 
     if (isFormVisible) {
-      return <Form setHeight={setHeight} />
+      return <Form />
     }
 
     return null;
   }
 
   renderCallout() {
-    const { isCalloutVisible, formData, setHeight } = this.props;
-    const { themeColor } = formData;
+    const { isCalloutVisible } = this.props;
 
     if (isCalloutVisible) {
-      return <Callout setHeight={setHeight} color={themeColor} formData={formData} />
+      return <Callout />
     }
 
     return null;
   }
 
   renderShoutboxLauncher() {
-    const { formData } = this.props;
-    const { loadType, themeColor } = formData;
+    const { loadType } = this.props;
 
     if (loadType === 'shoutbox') {
-      return <ShoutboxLauncher color={themeColor} />
+      return <ShoutboxLauncher  />
     }
 
     return null;
@@ -80,7 +75,5 @@ class App extends React.Component {
     )
   }
 }
-
-App.propTypes = propTypes;
 
 export default App;

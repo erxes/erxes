@@ -1,9 +1,21 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import * as moment from 'moment';
 import DatePicker from 'react-datepicker';
+import { __ } from '../../utils';
+import { IField, FieldValue, IFieldError } from '../types';
 
-export default class Field extends React.Component {
-  static renderSelect(options = [], attrs = {}) {
+type Props = {
+  field: IField,
+  error?: IFieldError,
+  onChange: (params: { fieldId: string, value: FieldValue }) => void,
+};
+
+type State = {
+  dateValue: moment.Moment | null
+}
+
+export default class Field extends React.Component<Props, State> {
+  static renderSelect(options: string[] = [], attrs: any = {}) {
     return (
       <select
         {...attrs}
@@ -19,7 +31,7 @@ export default class Field extends React.Component {
     );
   }
 
-  static renderInput(attrs) {
+  static renderInput(attrs: any) {
     return (
       <input
         {...attrs}
@@ -28,7 +40,7 @@ export default class Field extends React.Component {
     );
   }
 
-  static renderTextarea(attrs) {
+  static renderTextarea(attrs: any) {
     return (
       <textarea
         {...attrs}
@@ -37,7 +49,7 @@ export default class Field extends React.Component {
     );
   }
 
-  static renderCheckboxes(name, options, onChange) {
+  static renderCheckboxes(name: string, options: string[], onChange: () => void) {
     return (
       <div className="check-control">
         {options.map((option, index) => (
@@ -52,7 +64,7 @@ export default class Field extends React.Component {
     );
   }
 
-  static renderRadioButtons(name, options, onChange) {
+  static renderRadioButtons(name: string, options: string[], onChange: (e: any) => void) {
     return (
       <div>
         {options.map((option, index) => (
@@ -65,64 +77,62 @@ export default class Field extends React.Component {
     );
   }
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
-      dateValue: '',
+      dateValue: null,
     };
-
-    this.onChange = this.onChange.bind(this);
-    this.onDateChange = this.onDateChange.bind(this);
-    this.onInputChange = this.onInputChange.bind(this);
-    this.onRadioButtonsChange = this.onRadioButtonsChange.bind(this);
-    this.onCheckboxesChange = this.onCheckboxesChange.bind(this);
-    this.onTextAreaChange = this.onTextAreaChange.bind(this);
-    this.onSelectChange = this.onSelectChange.bind(this);
-
-    this.renderDatepicker = this.renderDatepicker.bind(this);
   }
 
-  onChange(value) {
+  onChange = (value: FieldValue) => {
     const { onChange, field } = this.props;
+
     onChange({ fieldId: field._id, value });
   }
 
-  onInputChange(e) {
-    this.onChange(e.target.value);
+  onInputChange = (e: React.FormEvent<HTMLInputElement>) => {
+    this.onChange(e.currentTarget.value);
   }
 
-  onDateChange(momentObj) {
+  onDateChange = (momentObj: moment.Moment) => {
     this.setState({ dateValue: momentObj });
     this.onChange(momentObj.toDate());
   }
 
-  onRadioButtonsChange(e) {
+  // TODO: replace any
+  onRadioButtonsChange = (e: any) => {
     this.onChange(e.target.dataset.option);
   }
 
-  onCheckboxesChange() {
-    const values = [];
+  // TODO: check
+  onCheckboxesChange = () => {
+    const values: string[] = [];
+    const { field } = this.props;
 
-    document.getElementsByName(this.props.field.name).forEach((checkbox) => {
+    const elements = document.getElementsByName(field._id);
+
+    for (let i=0; i <elements.length; i++) {
+      const checkbox: any = elements[i];
+
       if (checkbox.checked) {
         values.push(checkbox.dataset.option);
       }
-    });
+    }
 
     this.onChange(values);
   }
 
-  onTextAreaChange(e) {
-    this.onChange(e.target.value);
+  onTextAreaChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    this.onChange(e.currentTarget.value);
   }
 
-  onSelectChange(e) {
-    this.onChange(e.target.value);
+  onSelectChange = (e: React.FormEvent<HTMLSelectElement>) => {
+    this.onChange(e.currentTarget.value);
   }
 
+  // TODO check
   renderDatepicker() {
-    const { __ } = this.context;
     return (
       <DatePicker
         selected={this.state.dateValue}
@@ -135,10 +145,8 @@ export default class Field extends React.Component {
   }
 
   renderControl() {
-    const field = this.props.field;
-    const options = field.options || [];
-    const name = field.name;
-    const validation = field.validation || 'text';
+    const { field } = this.props;
+    const { _id, options=[], validation='text' } = field;
 
     if (validation === 'date') {
       return this.renderDatepicker();
@@ -179,13 +187,3 @@ export default class Field extends React.Component {
     );
   }
 }
-
-Field.propTypes = {
-  field: PropTypes.object, // eslint-disable-line
-  error: PropTypes.object, // eslint-disable-line
-  onChange: PropTypes.func,
-};
-
-Field.contextTypes = {
-  __: PropTypes.func
-};

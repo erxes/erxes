@@ -1,7 +1,8 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { IIntegrationUiOptions } from '../../types';
 import { Notifier } from '../containers';
-import { IMessage, IIntegrationUiOptions } from '../types';
+import { IMessage } from '../types';
 
 type Props = {
   onClick: (isMessengerVisible?: boolean) => void,

@@ -1,23 +1,24 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { TopBar } from './';
+import { ICallout } from '../types';
 
-const propTypes = {
-  formData: PropTypes.object,
-  onSubmit: PropTypes.func,
-  color: PropTypes.string,
-  setHeight: PropTypes.func
+type Props = {
+  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void,
+  setHeight: () => void,
+  configs: ICallout,
+  color: string,
 };
 
-class Callout extends Component {
+class Callout extends React.Component<Props> {
   componentDidMount() {
     this.props.setHeight();
   }
 
   render() {
-    const { formData, onSubmit, color } = this.props;
-    const { callout } = formData || {};
-    const { skip, title, buttonText, body } = callout;
+    const { configs, onSubmit, color } = this.props;
+
+    const defaultConfig = { skip: false, title: '', buttonText: '', body: '' };
+    const { skip, title='', buttonText, body } = configs || defaultConfig;
 
     if (skip) {
       return null;
@@ -26,6 +27,7 @@ class Callout extends Component {
     return (
       <div className="erxes-form">
         <TopBar title={title} color={color} />
+
         <div className="erxes-form-content">
           <div className="erxes-callout-body">{body}</div>
           <button
@@ -41,7 +43,5 @@ class Callout extends Component {
     );
   }
 }
-
-Callout.propTypes = propTypes;
 
 export default Callout;

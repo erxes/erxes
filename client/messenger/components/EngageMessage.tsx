@@ -2,7 +2,8 @@ import * as React from 'react';
 import * as striptags from 'striptags';
 import { User } from '../components';
 import { iconClose } from '../../icons/Icons';
-import { IEngageData, IUser } from '../types';
+import { IUser } from '../../types';
+import { IEngageData } from '../types';
 
 const Fragment = React.Fragment;
 const Component = React.Component;

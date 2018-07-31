@@ -1,8 +1,9 @@
 import * as React from 'react';
 import * as moment from 'moment';
 import * as classNames from 'classnames';
+import { IUser } from '../../types';
 import { User, Attachment } from '../components';
-import { IUser, IAttachment } from '../types';
+import { IAttachment } from '../types';
 
 type Props = {
   content: string,

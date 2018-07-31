@@ -1,12 +1,4 @@
-export interface IUserDetails {
-    avatar: string,
-    fullName: string,
-}
-
-export interface IUser {
-    _id: string,
-    details?: IUserDetails,
-}
+import { IUser, IIntegrationMessengerData, IIntegrationUiOptions} from '../types';
 
 export interface IEngageData {
     content: string,
@@ -16,14 +8,6 @@ export interface IEngageData {
     messageId: string,
     brandId: string,
 }
-
-export interface IBrowserInfo {
-    language?: string;
-    url?: string;
-    city?: string;
-    country?: string;
-}
-
 
 export interface IAttachment {
     name: string,
@@ -49,30 +33,6 @@ export interface IConversation {
     messages: IMessage[],
     isOnline: boolean,
     supporters?: IUser[]
-}
-
-export interface IIntegrationUiOptions {
-    color: string;
-    wallpaper: string;
-    logo: string;
-}
-
-export interface IMessengerOnlineHours {
-    day: string;
-    from: string;
-    to: string;
-}
-
-export interface IIntegrationMessengerData {
-    supporterIds: string[];
-    notifyCustomer: boolean;
-    availabilityMethod: string;
-    isOnline: boolean;
-    onlineHours: IMessengerOnlineHours[];
-    timezone?: string;
-    welcomeMessage?: string;
-    awayMessage?: string;
-    thankYouMessage?: string;
 }
 
 export interface IConnectResponse {

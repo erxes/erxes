@@ -1,14 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import classNames from 'classnames';
 
-const propTypes = {
-  onClick: PropTypes.func.isRequired,
-  isFormVisible: PropTypes.bool.isRequired,
-  color: PropTypes.string
-};
+type Props = {
+  onClick: (isFormVisible: boolean) => void,
+  isFormVisible: boolean,
+  color: string
+}
 
-function Launcher({ isFormVisible, onClick, color }) {
+function Launcher({ isFormVisible, onClick, color }: Props) {
   const clickHandler = () => {
     onClick(isFormVisible);
   };
@@ -21,7 +20,5 @@ function Launcher({ isFormVisible, onClick, color }) {
     <div style={{ backgroundColor: color }} className={launcherClasses} onClick={clickHandler} />
   );
 }
-
-Launcher.propTypes = propTypes;
 
 export default Launcher;

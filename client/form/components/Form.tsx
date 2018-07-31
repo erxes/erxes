@@ -1,14 +1,27 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import Field from './Field';
 import { TopBar } from './';
+import { __ } from '../../utils';
+import { IEmailParams, IIntegration } from '../../types';
+import { IForm, FieldValue, IFieldError, ICurrentStatus } from '../types';
 
-export default class Form extends React.Component {
-  constructor(props) {
+type Props = {
+  form: IForm,
+  integration: IIntegration,
+  currentStatus: ICurrentStatus,
+  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void,
+  onCreateNew: () => void,
+  sendEmail: (params: IEmailParams) => void,
+  setHeight: () => void
+};
+
+type State = {
+  doc: any;
+}
+
+export default class Form extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
-
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onFieldValueChange = this.onFieldValueChange.bind(this);
 
     this.state = { doc: this.resetDocState() };
   }
@@ -21,7 +34,7 @@ export default class Form extends React.Component {
     this.props.setHeight();
   }
 
-  componentWillUpdate(nextProps) {
+  componentWillUpdate(nextProps: Props) {
     const currentStatus = this.props.currentStatus.status;
     const nextStatus = nextProps.currentStatus.status;
 
@@ -32,7 +45,7 @@ export default class Form extends React.Component {
   }
 
   // after any field value change, save it's value to state
-  onFieldValueChange({ fieldId, value }) {
+  onFieldValueChange = ({ fieldId, value }: { fieldId: string, value: FieldValue }) => {
     const doc = this.state.doc;
 
     doc[fieldId].value = value;
@@ -40,14 +53,15 @@ export default class Form extends React.Component {
     this.setState({ doc });
   }
 
-  onSubmit() {
+  onSubmit = () => {
     this.props.onSubmit(this.state.doc);
   }
 
   resetDocState() {
-    const doc = {};
+    const { form } = this.props;
+    const doc: any = {};
 
-    this.props.form.fields.forEach((field) => {
+    form.fields.forEach((field) => {
       doc[field._id] = {
         text: field.text,
         type: field.type,
@@ -61,11 +75,13 @@ export default class Form extends React.Component {
 
   renderFields() {
     const { form, currentStatus } = this.props;
-    const fields = form.fields;
+    const { fields } = form;
     const errors = currentStatus.errors || [];
 
     return fields.map((field) => {
-      const fieldError = errors.find(error => error.fieldId === field._id);
+      const fieldError = errors.find((error: IFieldError) =>
+        error.fieldId === field._id
+      );
 
       return (
         <Field
@@ -78,13 +94,12 @@ export default class Form extends React.Component {
     });
   }
 
-  renderForm(color) {
-    const { __ } = this.context;
-    const { form, integrationName } = this.props;
+  renderForm(color: string) {
+    const { form, integration } = this.props;
 
     return (
       <div className="erxes-form">
-        <TopBar title={form.title || integrationName} color={color} />
+        <TopBar title={form.title || integration.name} color={color} />
         <div className="erxes-form-content">
           <div className="erxes-description">{form.description}</div>
           {this.renderFields()}
@@ -102,20 +117,16 @@ export default class Form extends React.Component {
     );
   }
 
-  renderSuccessForm(thankContent, color) {
-    const { integrationName, onCreateNew } = this.props;
-    const { __ } = this.context;
+  renderSuccessForm(color: string, thankContent?: string) {
+    const { integration, onCreateNew } = this.props;
 
     return (
       <div className="erxes-form">
-        <TopBar title={integrationName} color={color} />
+        <TopBar title={integration.name} color={color} />
         <div className="erxes-form-content">
           <div className="erxes-result">
             <span>
-              {
-                __(thankContent) ||
-                __('Thanks for your message. We will respond as soon as we can.')
-              }
+              {__(thankContent || 'Thanks for your message. We will respond as soon as we can.')}
             </span>
             <button
               style={{ background: color }}
@@ -130,8 +141,8 @@ export default class Form extends React.Component {
   }
 
   render() {
-    const { form, currentStatus, sendEmail, formConfig } = this.props;
-    const color = form.themeColor || '';
+    const { form, currentStatus, sendEmail, integration } = this.props;
+    const { themeColor='' } = form;
 
     if (currentStatus.status === 'SUCCESS') {
       const {
@@ -144,7 +155,7 @@ export default class Form extends React.Component {
         adminEmailTitle,
         adminEmailContent,
         thankContent,
-      } = formConfig;
+      } = integration.formData;
 
       // redirect to some url
       if (successAction === 'redirect') {
@@ -159,31 +170,20 @@ export default class Form extends React.Component {
           const email = this.state.doc[emailField._id].value;
 
           // send email to user
-          sendEmail([email], fromEmail, userEmailTitle, userEmailContent);
+          if (email && fromEmail && userEmailTitle && userEmailContent) {
+            sendEmail({ toEmails: [email], fromEmail, title: userEmailTitle, content: userEmailContent });
+          }
 
           // send email to admins
-          sendEmail([adminEmails], fromEmail, adminEmailTitle, adminEmailContent);
+          if (adminEmails && fromEmail && adminEmailTitle && adminEmailContent) {
+            sendEmail({ toEmails: adminEmails.split(','), fromEmail, title: adminEmailTitle, content: adminEmailContent });
+          }
         }
       }
 
-      return this.renderSuccessForm(thankContent, color);
+      return this.renderSuccessForm(themeColor, thankContent);
     }
 
-    return this.renderForm(color);
+    return this.renderForm(themeColor);
   }
 }
-
-Form.propTypes = {
-  integrationName: PropTypes.string,
-  form: PropTypes.object,
-  formConfig: PropTypes.object,
-  currentStatus: PropTypes.object,
-  onSubmit: PropTypes.func,
-  onCreateNew: PropTypes.func,
-  sendEmail: PropTypes.func,
-  setHeight: PropTypes.func
-};
-
-Form.contextTypes = {
-  __: PropTypes.func
-};

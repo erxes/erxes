@@ -1,11 +1,21 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { App as DumbApp } from '../components';
 import { connection } from '../connection';
 import { AppProvider, AppConsumer } from './AppContext';
 import { postMessage, saveBrowserInfo } from './utils';
 
-class App extends React.Component {
+type Props = {
+  loadType: string,
+  isPopupVisible: boolean,
+  isFormVisible: boolean,
+  isCalloutVisible: boolean,
+  init: () => void,
+  closePopup: () => void,
+  showPopup: () => void,
+  setHeight: () => void,
+}
+
+class App extends React.Component<Props> {
   componentDidMount() {
     saveBrowserInfo();
 
@@ -19,27 +29,17 @@ class App extends React.Component {
     });
   }
 
-  setHeight() {
-    const elementsHeight = document.getElementById('erxes-container').clientHeight;
-
-    postMessage({
-      message: 'changeContainerStyle',
-      style: `height: ${elementsHeight}px;`,
-    });
-  }
-
   componentDidUpdate() {
-    this.setHeight();
+    this.props.setHeight();
   }
 
   render() {
-    const { isPopupVisible, isFormVisible, isCalloutVisible, formData } = this.props;
-    const { loadType } = formData;
-
-    const extendedProps = { ...this.props, setHeight: this.setHeight };
+    const { isPopupVisible, isFormVisible, isCalloutVisible, loadType } = this.props;
 
     let parentClass;
-    let containerClass;
+    let containerClass = '';
+
+    const extendedProps = { ...this.props, containerClass };
 
     if (loadType === 'popup') {
       if (isPopupVisible) {
@@ -96,35 +96,27 @@ class App extends React.Component {
   }
 }
 
-App.propTypes = {
-  postMessage: PropTypes.func,
-  formData: PropTypes.object,
-  isPopupVisible: PropTypes.bool,
-  isFormVisible: PropTypes.bool,
-  isCalloutVisible: PropTypes.bool,
-  showPopup: PropTypes.func,
-}
-
-const WithContext = (props) => (
+const WithContext = () => (
   <AppProvider>
     <AppConsumer>
       {(value) => {
         const {
           init, closePopup, showPopup, isPopupVisible, isFormVisible,
-          isCalloutVisible, currentStatus
+          isCalloutVisible, setHeight, getIntegrationConfigs
         } = value;
 
-        return <App
-          {...props}
-          formData={connection.data.formData}
-          init={init}
-          closePopup={closePopup}
-          showPopup={showPopup}
-          isPopupVisible={isPopupVisible}
-          isFormVisible={isFormVisible}
-          isCalloutVisible={isCalloutVisible}
-          currentStatus={currentStatus}
-        />
+        return (
+          <App
+            loadType={getIntegrationConfigs().loadType}
+            isPopupVisible={isPopupVisible}
+            isFormVisible={isFormVisible}
+            isCalloutVisible={isCalloutVisible}
+            init={init}
+            setHeight={setHeight}
+            closePopup={closePopup}
+            showPopup={showPopup}
+          />
+        );
       }}
     </AppConsumer>
   </AppProvider>

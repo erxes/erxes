@@ -4,6 +4,8 @@ import widgetConnect from '../widgetConnect';
 import { setLocale } from '../utils';
 import { connection } from './connection';
 import { App } from './containers';
+import { IConnectResponse } from './types';
+import { connectMutation } from './graphql';
 import './sass/style.scss';
 
 widgetConnect({
@@ -11,7 +13,7 @@ widgetConnect({
     source: 'fromForms',
   },
 
-  connectMutation: (event) => {
+  connectMutation: (event: MessageEvent) => {
     const { setting, hasPopupHandlers } = event.data;
 
     connection.setting = setting;
@@ -19,17 +21,7 @@ widgetConnect({
 
     // call connect mutation
     return client.mutate({
-      mutation: gql`
-        mutation formConnect($brandCode: String!, $formCode: String!) {
-          formConnect(brandCode: $brandCode, formCode: $formCode) {
-            integrationId,
-            integrationName,
-            languageCode,
-            formId,
-            formData,
-          }
-        }`,
-
+      mutation: gql(connectMutation),
       variables: {
         brandCode: setting.brand_id,
         formCode: setting.form_id,
@@ -37,16 +29,18 @@ widgetConnect({
     })
   },
 
-  connectCallback: (data) => {
-    if (!data.formConnect) {
+  connectCallback: (data: { formConnect: IConnectResponse }) => {
+    const response = data.formConnect;
+
+    if (!response) {
       throw new Error('Integration not found');
     }
 
     // save connection info
-    connection.data = data.formConnect;
+    connection.data = response;
 
     // set language
-    setLocale(data.formConnect.languageCode);
+    setLocale(response.integration.languageCode || 'en');
   },
 
   AppContainer: App,

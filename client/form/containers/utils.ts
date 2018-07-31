@@ -4,7 +4,7 @@ import { connection } from '../connection';
 /*
  * Send message to iframe's parent
  */
-export const postMessage = (options) => {
+export const postMessage = (options: any) => {
   // notify parent window launcher state
   window.parent.postMessage({
     fromErxes: true,

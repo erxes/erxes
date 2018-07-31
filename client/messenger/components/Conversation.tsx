@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { defaultAvatar, iconLeft } from '../../icons/Icons';
 import {  __ } from '../../utils';
+import { IUser } from '../../types';
 import { MessageSender, MessagesList, TopBar } from '../containers';
-import { IMessage, IUser } from '../types';
+import { IMessage } from '../types';
 
 type Props = {
   messages: IMessage[],

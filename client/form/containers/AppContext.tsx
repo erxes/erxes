@@ -1,15 +1,40 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import gql from 'graphql-tag';
 import client from '../../apollo-client';
+import { IEmailParams, IIntegrationFormData, IIntegration } from '../../types';
+import { postMessage } from './utils';
 import { connection } from '../connection';
+import { ICurrentStatus, IForm } from '../types';
+import { saveFormMutation, sendEmailMutation, increaseViewCountMutation } from '../graphql';
 
-const AppContext = React.createContext();
+interface IState {
+  isPopupVisible: boolean,
+  isFormVisible: boolean,
+  isCalloutVisible: boolean,
+  currentStatus: ICurrentStatus,
+}
+
+interface IStore extends IState {
+  init: () => void,
+  showForm: () => void,
+  toggleShoutbox: (isVisible?: boolean) => void,
+  showPopup: () => void,
+  closePopup: () => void,
+  saveForm: (doc: any) => void,
+  createNew: () => void,
+  sendEmail: (params: IEmailParams) => void,
+  setHeight: () => void,
+  getIntegration: () => IIntegration,
+  getForm: () => IForm,
+  getIntegrationConfigs: () => IIntegrationFormData,
+}
+
+const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component {
-  constructor(props) {
+export class AppProvider extends React.Component<{}, IState> {
+  constructor(props: {}) {
     super(props);
 
     this.state = {
@@ -18,23 +43,16 @@ export class AppProvider extends React.Component {
       isCalloutVisible: false,
       currentStatus: { status: 'INITIAL' },
     }
-
-    this.init = this.init.bind(this);
-    this.showForm = this.showForm.bind(this);
-    this.toggleShoutbox = this.toggleShoutbox.bind(this);
-    this.showPopup = this.showPopup.bind(this);
-    this.closePopup = this.closePopup.bind(this);
-    this.saveForm = this.saveForm.bind(this);
-    this.createNew = this.createNew.bind(this);
-    this.sendEmail = this.sendEmail.bind(this);
   }
 
   /*
    * Decide which component will render initially
    */
-  init() {
+  init = () => {
     const { data, hasPopupHandlers } = connection;
-    const { formData } = data;
+    const { integration } = data;
+
+    const { formData } = integration;
     const { loadType, callout } = formData;
 
     // if there is popup handler then do not show it initially
@@ -60,7 +78,7 @@ export class AppProvider extends React.Component {
   /*
    * Will be called when user click callout's submit button
    */
-  showForm() {
+  showForm = () => {
     this.setState({
       isCalloutVisible: false,
       isFormVisible: true,
@@ -68,21 +86,26 @@ export class AppProvider extends React.Component {
   }
 
   /*
+   * Increasing view count
+   */
+  increaseViewCount = () => {
+    const form = this.getForm();
+
+    return client.mutate({
+      mutation: gql(increaseViewCountMutation),
+      variables: {
+        formId: form._id,
+      },
+    });
+  }
+
+  /*
    * Toggle circle button. Hide callout and show or hide form
    */
-  toggleShoutbox(isVisible) {
+  toggleShoutbox = (isVisible?: boolean) => {
     if(!isVisible) {
       // Increasing view count
-      client.mutate({
-        mutation: gql`
-          mutation formIncreaseViewCount($formId: String!) {
-            formIncreaseViewCount(formId: $formId)
-          }`,
-
-        variables: {
-          formId: connection.data.formId,
-        },
-      });
+      this.increaseViewCount();
     }
 
     this.setState({
@@ -94,7 +117,7 @@ export class AppProvider extends React.Component {
   /*
    * When load type is popup, Show popup and show one of callout and form
    */
-  showPopup() {
+  showPopup = () => {
     const { data } = connection;
     const { formData } = data;
     const { callout } = formData;
@@ -116,7 +139,7 @@ export class AppProvider extends React.Component {
   /*
    * When load type is popup, Hide popup
    */
-  closePopup() {
+  closePopup = () => {
     this.setState({
       isPopupVisible: false,
       isCalloutVisible: false,
@@ -124,22 +147,13 @@ export class AppProvider extends React.Component {
     })
 
     // Increasing view count
-    client.mutate({
-      mutation: gql`
-        mutation formIncreaseViewCount($formId: String!) {
-          formIncreaseViewCount(formId: $formId)
-        }`,
-
-      variables: {
-        formId: connection.data.formId,
-      },
-    });
+    this.increaseViewCount();
   }
 
   /*
    * Save user submissions
    */
-  saveForm(doc) {
+  saveForm = (doc: any) => {
     const submissions = Object.keys(doc).map((fieldId) => {
       const { value, text, type, validation } = doc[fieldId];
 
@@ -152,32 +166,21 @@ export class AppProvider extends React.Component {
       };
     });
 
-    client.mutate({
-      mutation: gql`
-        mutation saveForm($integrationId: String!, $formId: String!,
-          $submissions: [FieldValueInput], $browserInfo: JSON!) {
-          saveForm(integrationId: $integrationId, formId: $formId,
-            submissions: $submissions, browserInfo: $browserInfo) {
-              status
-              messageId
-              errors {
-                fieldId
-                code
-                text
-              }
-          }
-        }`,
+    const integration = this.getIntegration();
+    const form = this.getForm();
 
+    client.mutate({
+      mutation: gql(saveFormMutation),
       variables: {
-        integrationId: connection.data.integrationId,
-        formId: connection.data.formId,
+        integrationId: integration._id,
+        formId: form._id,
         browserInfo: connection.browserInfo,
         submissions,
       },
     })
 
-    .then(({ data }) => {
-      const { status, errors } = data.saveForm;
+    .then(({ data: { saveForm } }: any) => {
+      const { status, errors } = saveForm;
 
       this.setState({
         currentStatus: {
@@ -191,22 +194,16 @@ export class AppProvider extends React.Component {
   /*
    * Redisplay form component after submission
    */
-  createNew() {
+  createNew = () => {
     this.setState({ currentStatus: { status: 'INITIAL' }});
   }
 
   /*
    * Send email to submitted user after successfull submission
    */
-  sendEmail(toEmails, fromEmail, title, content) {
+  sendEmail = ({ toEmails, fromEmail, title, content }: IEmailParams) => {
     client.mutate({
-      mutation: gql`
-        mutation sendEmail($toEmails: [String], $fromEmail: String,
-          $title: String, $content: String) {
-          sendEmail(toEmails: $toEmails, fromEmail: $fromEmail,
-            title: $title, content: $content)
-        }`,
-
+      mutation: gql(sendEmailMutation),
       variables: {
         toEmails,
         fromEmail,
@@ -214,6 +211,31 @@ export class AppProvider extends React.Component {
         content,
       },
     });
+  }
+
+  setHeight = () => {
+    const container = document.getElementById('erxes-container');
+
+    if (!container) return;
+
+    const elementsHeight = container.clientHeight;
+
+    postMessage({
+      message: 'changeContainerStyle',
+      style: `height: ${elementsHeight}px;`,
+    });
+  }
+
+  getIntegration = () => {
+    return connection.data.integration;
+  }
+
+  getForm = () => {
+    return connection.data.form;
+  }
+
+  getIntegrationConfigs = () => {
+    return this.getIntegration().formData;
   }
 
   render() {
@@ -229,14 +251,14 @@ export class AppProvider extends React.Component {
           saveForm: this.saveForm,
           createNew: this.createNew,
           sendEmail: this.sendEmail,
+          setHeight: this.setHeight,
+          getIntegration: this.getIntegration,
+          getForm: this.getForm,
+          getIntegrationConfigs: this.getIntegrationConfigs,
         }}
       >
         {this.props.children}
       </AppContext.Provider>
     )
   }
-}
-
-AppProvider.propTypes = {
-  children: PropTypes.object,
 }
