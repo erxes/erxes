@@ -1,10 +1,10 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { IEmailParams, IIntegration } from '../../types';
-import { Form as DumbForm } from '../components';
-import { ICurrentStatus, IForm } from '../types';
-import { AppConsumer } from './AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { IEmailParams, IIntegration } from "../../types";
+import { Form as DumbForm } from "../components";
+import { ICurrentStatus, IForm } from "../types";
+import { AppConsumer } from "./AppContext";
 
 const Form = (props: ChildProps<IProps, QueryResponse>) => {
   const data = props.data;
@@ -19,24 +19,24 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
 
   const extendedProps = {
     ...props,
-    form: data.form,
+    form: data.form
   };
 
   return <DumbForm {...extendedProps} />;
 };
 
 type QueryResponse = {
-  form: IForm
-}
+  form: IForm;
+};
 
 interface IProps {
-  integration: IIntegration,
-  form: IForm,
-  currentStatus: ICurrentStatus,
-  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void,
-  onCreateNew: () => void,
-  setHeight: () => void,
-  sendEmail: (params: IEmailParams) => void,
+  integration: IIntegration;
+  form: IForm;
+  currentStatus: ICurrentStatus;
+  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
+  onCreateNew: () => void;
+  setHeight: () => void;
+  sendEmail: (params: IEmailParams) => void;
 }
 
 const FormWithData = graphql<IProps, QueryResponse>(
@@ -67,17 +67,25 @@ const FormWithData = graphql<IProps, QueryResponse>(
 
   {
     options: ({ form }) => ({
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       variables: {
-        formId: form._id,
-      },
-    }),
-  },
+        formId: form._id
+      }
+    })
+  }
 )(Form);
 
 const WithContext = () => (
   <AppConsumer>
-    {({ currentStatus, saveForm, createNew, sendEmail, setHeight, getIntegration, getForm }) => {
+    {({
+      currentStatus,
+      saveForm,
+      createNew,
+      sendEmail,
+      setHeight,
+      getIntegration,
+      getForm
+    }) => {
       const integration = getIntegration();
       const form = getForm();
 
@@ -92,9 +100,8 @@ const WithContext = () => (
           integration={integration}
         />
       );
-    }
-    }
+    }}
   </AppConsumer>
-)
+);
 
 export default WithContext;

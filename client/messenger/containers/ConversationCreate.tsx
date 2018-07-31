@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, compose, graphql } from 'react-apollo';
-import { IUser } from '../../types';
-import { Conversation as DumbConversation } from '../components';
-import { connection } from '../connection';
-import graphqlTypes from '../graphql';
-import { IConversation } from '../types';
-import { AppConsumer } from './AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, compose, graphql } from "react-apollo";
+import { IUser } from "../../types";
+import { Conversation as DumbConversation } from "../components";
+import { connection } from "../connection";
+import graphqlTypes from "../graphql";
+import { IConversation } from "../types";
+import { AppConsumer } from "./AppContext";
 
 type Response = {
-  conversationDetail: IConversation
-}
+  conversationDetail: IConversation;
+};
 
 class ConversationCreate extends React.Component<ChildProps<{}, Response>, {}> {
   render() {
@@ -21,7 +21,7 @@ class ConversationCreate extends React.Component<ChildProps<{}, Response>, {}> {
 
     if (data && data.conversationDetail) {
       const { conversationDetail } = data;
-      
+
       isOnline = conversationDetail.isOnline;
       supporters = conversationDetail.supporters || [];
     }
@@ -32,7 +32,7 @@ class ConversationCreate extends React.Component<ChildProps<{}, Response>, {}> {
           return (
             <DumbConversation
               {...this.props}
-              isNew={true} 
+              isNew={true}
               color={getColor()}
               messages={[]}
               users={supporters}
@@ -47,17 +47,14 @@ class ConversationCreate extends React.Component<ChildProps<{}, Response>, {}> {
 }
 
 const query = compose(
-  graphql<{}, {}>(
-    gql(graphqlTypes.conversationDetailQuery),
-    {
-      options: () => ({
-        variables: {
-          integrationId: connection.data.integrationId,
-        },
-        fetchPolicy: 'network-only',
-      }),
-    },
-  ),
+  graphql<{}, {}>(gql(graphqlTypes.conversationDetailQuery), {
+    options: () => ({
+      variables: {
+        integrationId: connection.data.integrationId
+      },
+      fetchPolicy: "network-only"
+    })
+  })
 );
 
 export default query(ConversationCreate);

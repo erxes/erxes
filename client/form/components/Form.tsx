@@ -1,23 +1,23 @@
-import * as React from 'react';
-import { IEmailParams, IIntegration } from '../../types';
-import { __ } from '../../utils';
-import { FieldValue, ICurrentStatus, IFieldError, IForm } from '../types';
-import { TopBar } from './';
-import Field from './Field';
+import * as React from "react";
+import { IEmailParams, IIntegration } from "../../types";
+import { __ } from "../../utils";
+import { FieldValue, ICurrentStatus, IFieldError, IForm } from "../types";
+import { TopBar } from "./";
+import Field from "./Field";
 
 type Props = {
-  form: IForm,
-  integration: IIntegration,
-  currentStatus: ICurrentStatus,
-  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void,
-  onCreateNew: () => void,
-  sendEmail: (params: IEmailParams) => void,
-  setHeight: () => void
+  form: IForm;
+  integration: IIntegration;
+  currentStatus: ICurrentStatus;
+  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
+  onCreateNew: () => void;
+  sendEmail: (params: IEmailParams) => void;
+  setHeight: () => void;
 };
 
 type State = {
   doc: any;
-}
+};
 
 export default class Form extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -39,34 +39,40 @@ export default class Form extends React.Component<Props, State> {
     const nextStatus = nextProps.currentStatus.status;
 
     // after successfull save and create new button, reset doc state
-    if ((currentStatus !== nextStatus) && nextStatus === 'INITIAL') {
+    if (currentStatus !== nextStatus && nextStatus === "INITIAL") {
       this.setState({ doc: this.resetDocState() });
     }
   }
 
   // after any field value change, save it's value to state
-  onFieldValueChange = ({ fieldId, value }: { fieldId: string, value: FieldValue }) => {
+  onFieldValueChange = ({
+    fieldId,
+    value
+  }: {
+    fieldId: string;
+    value: FieldValue;
+  }) => {
     const doc = this.state.doc;
 
     doc[fieldId].value = value;
 
     this.setState({ doc });
-  }
+  };
 
   onSubmit = () => {
     this.props.onSubmit(this.state.doc);
-  }
+  };
 
   resetDocState() {
     const { form } = this.props;
     const doc: any = {};
 
-    form.fields.forEach((field) => {
+    form.fields.forEach(field => {
       doc[field._id] = {
         text: field.text,
         type: field.type,
         validation: field.validation,
-        value: '',
+        value: ""
       };
     });
 
@@ -78,9 +84,9 @@ export default class Form extends React.Component<Props, State> {
     const { fields } = form;
     const errors = currentStatus.errors || [];
 
-    return fields.map((field) => {
-      const fieldError = errors.find((error: IFieldError) =>
-        error.fieldId === field._id
+    return fields.map(field => {
+      const fieldError = errors.find(
+        (error: IFieldError) => error.fieldId === field._id
       );
 
       return (
@@ -110,7 +116,7 @@ export default class Form extends React.Component<Props, State> {
             onClick={this.onSubmit}
             className="btn btn-block"
           >
-            {form.buttonText || __('Send')}
+            {form.buttonText || __("Send")}
           </button>
         </div>
       </div>
@@ -126,13 +132,17 @@ export default class Form extends React.Component<Props, State> {
         <div className="erxes-form-content">
           <div className="erxes-result">
             <span>
-              {__(thankContent || 'Thanks for your message. We will respond as soon as we can.')}
+              {__(
+                thankContent ||
+                  "Thanks for your message. We will respond as soon as we can."
+              )}
             </span>
             <button
               style={{ background: color }}
               className="btn"
-              onClick={onCreateNew}>
-              {__('Create new')}
+              onClick={onCreateNew}
+            >
+              {__("Create new")}
             </button>
           </div>
         </div>
@@ -142,9 +152,9 @@ export default class Form extends React.Component<Props, State> {
 
   render() {
     const { form, currentStatus, sendEmail, integration } = this.props;
-    const { themeColor='' } = form;
+    const { themeColor = "" } = form;
 
-    if (currentStatus.status === 'SUCCESS') {
+    if (currentStatus.status === "SUCCESS") {
       const {
         successAction,
         redirectUrl,
@@ -154,29 +164,44 @@ export default class Form extends React.Component<Props, State> {
         adminEmails,
         adminEmailTitle,
         adminEmailContent,
-        thankContent,
+        thankContent
       } = integration.formData;
 
       // redirect to some url
-      if (successAction === 'redirect') {
+      if (successAction === "redirect") {
         window.open(redirectUrl);
       }
 
       // send email to user and admins
-      if (successAction === 'email') {
-        const emailField = form.fields.find(f => f.validation === 'email');
+      if (successAction === "email") {
+        const emailField = form.fields.find(f => f.validation === "email");
 
         if (emailField) {
           const email = this.state.doc[emailField._id].value;
 
           // send email to user
           if (email && fromEmail && userEmailTitle && userEmailContent) {
-            sendEmail({ toEmails: [email], fromEmail, title: userEmailTitle, content: userEmailContent });
+            sendEmail({
+              toEmails: [email],
+              fromEmail,
+              title: userEmailTitle,
+              content: userEmailContent
+            });
           }
 
           // send email to admins
-          if (adminEmails && fromEmail && adminEmailTitle && adminEmailContent) {
-            sendEmail({ toEmails: adminEmails.split(','), fromEmail, title: adminEmailTitle, content: adminEmailContent });
+          if (
+            adminEmails &&
+            fromEmail &&
+            adminEmailTitle &&
+            adminEmailContent
+          ) {
+            sendEmail({
+              toEmails: adminEmails.split(","),
+              fromEmail,
+              title: adminEmailTitle,
+              content: adminEmailContent
+            });
           }
         }
       }

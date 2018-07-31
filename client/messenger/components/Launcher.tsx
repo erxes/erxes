@@ -1,16 +1,16 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import { IIntegrationUiOptions } from '../../types';
-import { Notifier } from '../containers';
-import { IMessage } from '../types';
+import * as classNames from "classnames";
+import * as React from "react";
+import { IIntegrationUiOptions } from "../../types";
+import { Notifier } from "../containers";
+import { IMessage } from "../types";
 
 type Props = {
-  onClick: (isMessengerVisible?: boolean) => void,
-  isMessengerVisible: boolean,
-  isBrowserInfoSaved: boolean,
-  uiOptions: IIntegrationUiOptions,
-  lastUnreadMessage?: IMessage,
-  totalUnreadCount: number,
+  onClick: (isMessengerVisible?: boolean) => void;
+  isMessengerVisible: boolean;
+  isBrowserInfoSaved: boolean;
+  uiOptions: IIntegrationUiOptions;
+  lastUnreadMessage?: IMessage;
+  totalUnreadCount: number;
 };
 
 function Launcher(props: Props) {
@@ -20,15 +20,15 @@ function Launcher(props: Props) {
     onClick,
     uiOptions,
     lastUnreadMessage,
-    totalUnreadCount,
+    totalUnreadCount
   } = props;
 
   const clickHandler = () => {
     onClick(isMessengerVisible);
   };
 
-  const launcherClasses = classNames('erxes-launcher', {
-    close: isMessengerVisible,
+  const launcherClasses = classNames("erxes-launcher", {
+    close: isMessengerVisible
   });
 
   const { color, logo } = uiOptions;
@@ -38,16 +38,16 @@ function Launcher(props: Props) {
       return null;
     }
 
-    return <Notifier message={lastUnreadMessage} />
-  }
+    return <Notifier message={lastUnreadMessage} />;
+  };
 
   const renderUnreadCount = () => {
     if (!isBrowserInfoSaved || !totalUnreadCount) {
       return null;
     }
 
-    return <span>{totalUnreadCount}</span>
-  }
+    return <span>{totalUnreadCount}</span>;
+  };
 
   return (
     <div>
@@ -57,8 +57,8 @@ function Launcher(props: Props) {
         style={{
           backgroundColor: color,
           color,
-          backgroundImage: logo ? `url(${logo})` : '',
-          backgroundSize: logo ? '' : '20px',
+          backgroundImage: logo ? `url(${logo})` : "",
+          backgroundSize: logo ? "" : "20px"
         }}
       >
         {renderUnreadCount()}

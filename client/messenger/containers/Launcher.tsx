@@ -1,24 +1,24 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { IIntegrationUiOptions } from '../../types';
-import { Launcher as DumpLauncher } from '../components';
-import { connection } from '../connection';
-import graphqlTypes from '../graphql';
-import { IMessage } from '../types';
-import { AppConsumer } from './AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { IIntegrationUiOptions } from "../../types";
+import { Launcher as DumpLauncher } from "../components";
+import { connection } from "../connection";
+import graphqlTypes from "../graphql";
+import { IMessage } from "../types";
+import { AppConsumer } from "./AppContext";
 
 type BaseProps = {
-  isMessengerVisible: boolean,
-  isBrowserInfoSaved: boolean,
-  onClick: (isVisible?: boolean) => void,
-  uiOptions: IIntegrationUiOptions,
-  lastUnreadMessage?: IMessage,
-}
+  isMessengerVisible: boolean;
+  isBrowserInfoSaved: boolean;
+  onClick: (isVisible?: boolean) => void;
+  uiOptions: IIntegrationUiOptions;
+  lastUnreadMessage?: IMessage;
+};
 
 type QueryResponse = {
-  totalUnreadCount: number,
-}
+  totalUnreadCount: number;
+};
 
 type Props = ChildProps<BaseProps, QueryResponse>;
 
@@ -47,7 +47,7 @@ class Launcher extends React.Component<Props, {}> {
       totalUnreadCount = data.totalUnreadCount;
     }
 
-    return <DumpLauncher {...this.props} totalUnreadCount={totalUnreadCount} />
+    return <DumpLauncher {...this.props} totalUnreadCount={totalUnreadCount} />;
   }
 }
 
@@ -55,15 +55,21 @@ const WithQuery = graphql<Props, QueryResponse>(
   gql(graphqlTypes.totalUnreadCountQuery),
   {
     options: () => ({
-      variables: connection.data,
+      variables: connection.data
     }),
-    skip: (props) => !props.isMessengerVisible
+    skip: props => !props.isMessengerVisible
   }
 )(Launcher);
 
 const container = () => (
   <AppConsumer>
-    {({ isMessengerVisible, isBrowserInfoSaved, lastUnreadMessage, toggle, getUiOptions }) => {
+    {({
+      isMessengerVisible,
+      isBrowserInfoSaved,
+      lastUnreadMessage,
+      toggle,
+      getUiOptions
+    }) => {
       return (
         <WithQuery
           isMessengerVisible={isMessengerVisible}

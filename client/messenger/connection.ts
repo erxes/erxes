@@ -1,18 +1,18 @@
 export const connection: any = {
   setting: {},
   data: {},
-  queryVariables: '$integrationId: String!, $customerId: String!',
-  queryParams: 'integrationId: $integrationId, customerId: $customerId',
+  queryVariables: "$integrationId: String!, $customerId: String!",
+  queryParams: "integrationId: $integrationId, customerId: $customerId"
 };
 
 // get local storage
 const getLocalStorage = () => {
   const brandId = connection.setting.brand_id;
 
-  const erxesConfig = JSON.parse(localStorage.getItem('erxes') || '{}');
+  const erxesConfig = JSON.parse(localStorage.getItem("erxes") || "{}");
 
   return erxesConfig[brandId] || {};
-}
+};
 
 // get local storage item
 export const getLocalStorageItem = (key: string) => {
@@ -25,7 +25,7 @@ export const getLocalStorageItem = (key: string) => {
 export const setLocalStorageItem = (key: string, value: string) => {
   const brandId = connection.setting.brand_id;
 
-  const erxesStorage = JSON.parse(localStorage.getItem('erxes') || '{}');
+  const erxesStorage = JSON.parse(localStorage.getItem("erxes") || "{}");
   const brandConfig = erxesStorage[brandId] || {};
 
   brandConfig[key] = value;
@@ -33,5 +33,5 @@ export const setLocalStorageItem = (key: string, value: string) => {
   // replace data with brandId
   erxesStorage[brandId] = brandConfig;
 
-  localStorage.setItem('erxes', JSON.stringify(erxesStorage));
+  localStorage.setItem("erxes", JSON.stringify(erxesStorage));
 };

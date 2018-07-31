@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { ICallout } from '../types';
-import { TopBar } from './';
+import * as React from "react";
+import { ICallout } from "../types";
+import { TopBar } from "./";
 
 type Props = {
-  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void,
-  setHeight: () => void,
-  configs: ICallout,
-  color: string,
+  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
+  setHeight: () => void;
+  configs: ICallout;
+  color: string;
 };
 
 class Callout extends React.Component<Props> {
@@ -17,8 +17,8 @@ class Callout extends React.Component<Props> {
   render() {
     const { configs, onSubmit, color } = this.props;
 
-    const defaultConfig = { skip: false, title: '', buttonText: '', body: '' };
-    const { skip, title='', buttonText, body } = configs || defaultConfig;
+    const defaultConfig = { skip: false, title: "", buttonText: "", body: "" };
+    const { skip, title = "", buttonText, body } = configs || defaultConfig;
 
     if (skip) {
       return null;

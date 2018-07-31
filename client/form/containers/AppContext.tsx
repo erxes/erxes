@@ -1,32 +1,36 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import client from '../../apollo-client';
-import { IEmailParams, IIntegration, IIntegrationFormData } from '../../types';
-import { connection } from '../connection';
-import { increaseViewCountMutation, saveFormMutation, sendEmailMutation } from '../graphql';
-import { ICurrentStatus, IForm } from '../types';
-import { postMessage } from './utils';
+import gql from "graphql-tag";
+import * as React from "react";
+import client from "../../apollo-client";
+import { IEmailParams, IIntegration, IIntegrationFormData } from "../../types";
+import { connection } from "../connection";
+import {
+  increaseViewCountMutation,
+  saveFormMutation,
+  sendEmailMutation
+} from "../graphql";
+import { ICurrentStatus, IForm } from "../types";
+import { postMessage } from "./utils";
 
 interface IState {
-  isPopupVisible: boolean,
-  isFormVisible: boolean,
-  isCalloutVisible: boolean,
-  currentStatus: ICurrentStatus,
+  isPopupVisible: boolean;
+  isFormVisible: boolean;
+  isCalloutVisible: boolean;
+  currentStatus: ICurrentStatus;
 }
 
 interface IStore extends IState {
-  init: () => void,
-  showForm: () => void,
-  toggleShoutbox: (isVisible?: boolean) => void,
-  showPopup: () => void,
-  closePopup: () => void,
-  saveForm: (doc: any) => void,
-  createNew: () => void,
-  sendEmail: (params: IEmailParams) => void,
-  setHeight: () => void,
-  getIntegration: () => IIntegration,
-  getForm: () => IForm,
-  getIntegrationConfigs: () => IIntegrationFormData,
+  init: () => void;
+  showForm: () => void;
+  toggleShoutbox: (isVisible?: boolean) => void;
+  showPopup: () => void;
+  closePopup: () => void;
+  saveForm: (doc: any) => void;
+  createNew: () => void;
+  sendEmail: (params: IEmailParams) => void;
+  setHeight: () => void;
+  getIntegration: () => IIntegration;
+  getForm: () => IForm;
+  getIntegrationConfigs: () => IIntegrationFormData;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -41,8 +45,8 @@ export class AppProvider extends React.Component<{}, IState> {
       isPopupVisible: false,
       isFormVisible: false,
       isCalloutVisible: false,
-      currentStatus: { status: 'INITIAL' },
-    }
+      currentStatus: { status: "INITIAL" }
+    };
   }
 
   /*
@@ -56,7 +60,7 @@ export class AppProvider extends React.Component<{}, IState> {
     const { loadType } = integration.formData;
 
     // if there is popup handler then do not show it initially
-    if (loadType === 'popup' && hasPopupHandlers) {
+    if (loadType === "popup" && hasPopupHandlers) {
       return null;
     }
 
@@ -68,12 +72,12 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     // If load type is shoutbox then hide form component initially
-    if (callout.skip && loadType !== 'shoutbox') {
+    if (callout.skip && loadType !== "shoutbox") {
       return this.setState({ isFormVisible: true });
     }
 
     return this.setState({ isCalloutVisible: true });
-  }
+  };
 
   /*
    * Will be called when user click callout's submit button
@@ -81,9 +85,9 @@ export class AppProvider extends React.Component<{}, IState> {
   showForm = () => {
     this.setState({
       isCalloutVisible: false,
-      isFormVisible: true,
-    })
-  }
+      isFormVisible: true
+    });
+  };
 
   /*
    * Increasing view count
@@ -94,16 +98,16 @@ export class AppProvider extends React.Component<{}, IState> {
     return client.mutate({
       mutation: gql(increaseViewCountMutation),
       variables: {
-        formId: form._id,
-      },
+        formId: form._id
+      }
     });
-  }
+  };
 
   /*
    * Toggle circle button. Hide callout and show or hide form
    */
   toggleShoutbox = (isVisible?: boolean) => {
-    if(!isVisible) {
+    if (!isVisible) {
       // Increasing view count
       this.increaseViewCount();
     }
@@ -112,7 +116,7 @@ export class AppProvider extends React.Component<{}, IState> {
       isCalloutVisible: false,
       isFormVisible: !isVisible
     });
-  }
+  };
 
   /*
    * When load type is popup, Show popup and show one of callout and form
@@ -134,7 +138,7 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     return this.setState({ isCalloutVisible: true });
-  }
+  };
 
   /*
    * When load type is popup, Hide popup
@@ -143,18 +147,18 @@ export class AppProvider extends React.Component<{}, IState> {
     this.setState({
       isPopupVisible: false,
       isCalloutVisible: false,
-      isFormVisible: false,
-    })
+      isFormVisible: false
+    });
 
     // Increasing view count
     this.increaseViewCount();
-  }
+  };
 
   /*
    * Save user submissions
    */
   saveForm = (doc: any) => {
-    const submissions = Object.keys(doc).map((fieldId) => {
+    const submissions = Object.keys(doc).map(fieldId => {
       const { value, text, type, validation } = doc[fieldId];
 
       return {
@@ -162,41 +166,42 @@ export class AppProvider extends React.Component<{}, IState> {
         type,
         text,
         value,
-        validation,
+        validation
       };
     });
 
     const integration = this.getIntegration();
     const form = this.getForm();
 
-    client.mutate({
-      mutation: gql(saveFormMutation),
-      variables: {
-        integrationId: integration._id,
-        formId: form._id,
-        browserInfo: connection.browserInfo,
-        submissions,
-      },
-    })
-
-    .then(({ data: { saveForm } }: any) => {
-      const { status, errors } = saveForm;
-
-      this.setState({
-        currentStatus: {
-          status: status === 'ok' ? 'SUCCESS' : 'ERROR',
-          errors,
+    client
+      .mutate({
+        mutation: gql(saveFormMutation),
+        variables: {
+          integrationId: integration._id,
+          formId: form._id,
+          browserInfo: connection.browserInfo,
+          submissions
         }
+      })
+
+      .then(({ data: { saveForm } }: any) => {
+        const { status, errors } = saveForm;
+
+        this.setState({
+          currentStatus: {
+            status: status === "ok" ? "SUCCESS" : "ERROR",
+            errors
+          }
+        });
       });
-    });
-  }
+  };
 
   /*
    * Redisplay form component after submission
    */
   createNew = () => {
-    this.setState({ currentStatus: { status: 'INITIAL' }});
-  }
+    this.setState({ currentStatus: { status: "INITIAL" } });
+  };
 
   /*
    * Send email to submitted user after successfull submission
@@ -208,35 +213,37 @@ export class AppProvider extends React.Component<{}, IState> {
         toEmails,
         fromEmail,
         title,
-        content,
-      },
+        content
+      }
     });
-  }
+  };
 
   setHeight = () => {
-    const container = document.getElementById('erxes-container');
+    const container = document.getElementById("erxes-container");
 
-    if (!container) { return; }
+    if (!container) {
+      return;
+    }
 
     const elementsHeight = container.clientHeight;
 
     postMessage({
-      message: 'changeContainerStyle',
-      style: `height: ${elementsHeight}px;`,
+      message: "changeContainerStyle",
+      style: `height: ${elementsHeight}px;`
     });
-  }
+  };
 
   getIntegration = () => {
     return connection.data.integration;
-  }
+  };
 
   getForm = () => {
     return connection.data.form;
-  }
+  };
 
   getIntegrationConfigs = () => {
     return this.getIntegration().formData;
-  }
+  };
 
   render() {
     return (
@@ -254,11 +261,11 @@ export class AppProvider extends React.Component<{}, IState> {
           setHeight: this.setHeight,
           getIntegration: this.getIntegration,
           getForm: this.getForm,
-          getIntegrationConfigs: this.getIntegrationConfigs,
+          getIntegrationConfigs: this.getIntegrationConfigs
         }}
       >
         {this.props.children}
       </AppContext.Provider>
-    )
+    );
   }
 }

@@ -1,19 +1,22 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { ConversationList as DumbConversationList } from '../components';
-import { connection } from '../connection';
-import graphqTypes from '../graphql';
-import { IConversation } from '../types';
-import { AppConsumer } from './AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { ConversationList as DumbConversationList } from "../components";
+import { connection } from "../connection";
+import graphqTypes from "../graphql";
+import { IConversation } from "../types";
+import { AppConsumer } from "./AppContext";
 
 type QueryResponse = {
-  conversations: IConversation[]
-}
+  conversations: IConversation[];
+};
 
-class ConversationList extends React.Component<ChildProps<{}, QueryResponse>, {}> {
+class ConversationList extends React.Component<
+  ChildProps<{}, QueryResponse>,
+  {}
+> {
   render() {
-    const { data={ conversations: [], loading: true } } = this.props;
+    const { data = { conversations: [], loading: true } } = this.props;
 
     let conversations = data.conversations || [];
 
@@ -25,10 +28,12 @@ class ConversationList extends React.Component<ChildProps<{}, QueryResponse>, {}
     return (
       <AppConsumer>
         {({ changeRoute, goToConversation }) => {
-          const createConversation = (e: React.FormEvent<HTMLButtonElement>) => {
+          const createConversation = (
+            e: React.FormEvent<HTMLButtonElement>
+          ) => {
             e.preventDefault();
-            changeRoute('conversationCreate');
-          }
+            changeRoute("conversationCreate");
+          };
 
           return (
             <DumbConversationList
@@ -49,10 +54,10 @@ const ListWithData = graphql<{}, QueryResponse>(
   gql(graphqTypes.allConversations),
   {
     options: () => ({
-      fetchPolicy: 'network-only',
-      variables: connection.data,
-    }),
-  },
+      fetchPolicy: "network-only",
+      variables: connection.data
+    })
+  }
 )(ConversationList);
 
 export default ListWithData;

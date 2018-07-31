@@ -1,17 +1,17 @@
-import * as React from 'react';
-import * as striptags from 'striptags';
-import { iconClose } from '../../icons/Icons';
-import { IUser } from '../../types';
-import { User } from '../components';
-import { IEngageData } from '../types';
+import * as React from "react";
+import * as striptags from "striptags";
+import { iconClose } from "../../icons/Icons";
+import { IUser } from "../../types";
+import { User } from "../components";
+import { IEngageData } from "../types";
 
 const Fragment = React.Fragment;
 const Component = React.Component;
 
 type Props = {
-  engageData: IEngageData,
-  toggle?: () => void,
-}
+  engageData: IEngageData;
+  toggle?: () => void;
+};
 
 class EngageMessage extends Component<Props> {
   renderClose() {
@@ -29,7 +29,7 @@ class EngageMessage extends Component<Props> {
 
   renderUserFullName(fromUser?: IUser) {
     if (fromUser && fromUser.details) {
-       return fromUser.details.fullName
+      return fromUser.details.fullName;
     }
   }
 
@@ -37,7 +37,7 @@ class EngageMessage extends Component<Props> {
     const { content, sentAs, fromUser } = this.props.engageData;
     const bodyClass = `notification-body ${sentAs}`;
 
-    if (sentAs === 'badge') {
+    if (sentAs === "badge") {
       return null;
     }
 
@@ -49,11 +49,11 @@ class EngageMessage extends Component<Props> {
             {this.renderUserFullName(fromUser)}
           </div>
           <div className={bodyClass}>
-            {
-              sentAs === 'fullMessage' ?
-                <span dangerouslySetInnerHTML={{ __html: content }} /> :
-                striptags(content)
-            }
+            {sentAs === "fullMessage" ? (
+              <span dangerouslySetInnerHTML={{ __html: content }} />
+            ) : (
+              striptags(content)
+            )}
           </div>
         </div>
         {this.renderClose()}

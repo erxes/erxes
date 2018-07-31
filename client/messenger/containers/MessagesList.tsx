@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { MessagesList } from '../components';
-import { IMessage } from '../types';
-import { AppConsumer } from './AppContext';
+import * as React from "react";
+import { MessagesList } from "../components";
+import { IMessage } from "../types";
+import { AppConsumer } from "./AppContext";
 
 type Props = {
-  messages: IMessage[],
-  isOnline: boolean,
-}
+  messages: IMessage[];
+  isOnline: boolean;
+};
 
 export default class extends React.Component<Props> {
   render() {
@@ -14,7 +14,7 @@ export default class extends React.Component<Props> {
       <AppConsumer>
         {({ getUiOptions, getMessengerData }) => {
           return (
-            <MessagesList 
+            <MessagesList
               {...this.props}
               uiOptions={getUiOptions()}
               messengerData={getMessengerData()}

@@ -1,12 +1,12 @@
-import * as React from 'react';
-import * as striptags from 'striptags';
-import { EngageMessage, User } from '../components';
-import { IMessage } from '../types';
+import * as React from "react";
+import * as striptags from "striptags";
+import { EngageMessage, User } from "../components";
+import { IMessage } from "../types";
 
 type Props = {
-  message: IMessage,
-  readConversation: (conversationId: string) => void,
-  showUnreadMessage: () => void,
+  message: IMessage;
+  readConversation: (conversationId: string) => void;
+  showUnreadMessage: () => void;
 };
 
 class Notifier extends React.Component<Props> {
@@ -22,7 +22,7 @@ class Notifier extends React.Component<Props> {
     const { message } = this.props;
     const { engageData, user, content } = message;
 
-    let fullName = '';
+    let fullName = "";
 
     if (user && user.details) {
       fullName = user.details.fullName;
@@ -38,9 +38,7 @@ class Notifier extends React.Component<Props> {
           <User user={user} />
           {fullName}
         </div>
-        <div className="notification-body">
-          {striptags(content)}
-        </div>
+        <div className="notification-body">{striptags(content)}</div>
       </div>
     );
   }
@@ -52,7 +50,7 @@ class Notifier extends React.Component<Props> {
       return `erxes-notification ${message.engageData.sentAs}`;
     }
 
-    return 'erxes-notification';
+    return "erxes-notification";
   }
 
   render() {

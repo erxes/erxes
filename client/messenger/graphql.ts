@@ -1,4 +1,4 @@
-import { connection } from './connection';
+import { connection } from "./connection";
 
 const messageFields = `
   _id
@@ -28,7 +28,6 @@ const messageFields = `
   }
   attachments
 `;
-
 
 const conversationDetailQuery = `
   query ($_id: String, $integrationId: String!) {
@@ -142,5 +141,5 @@ export default {
   allConversations,
   connect,
   saveBrowserInfo,
-  readConversationMessages,
-}
+  readConversationMessages
+};

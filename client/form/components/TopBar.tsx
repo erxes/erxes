@@ -1,8 +1,8 @@
-import * as React from 'react';
+import * as React from "react";
 
 type Props = {
-  color: string,
-  title: string
+  color: string;
+  title: string;
 };
 
 function TopBar({ title, color }: Props) {

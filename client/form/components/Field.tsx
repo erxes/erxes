@@ -1,60 +1,57 @@
-import * as moment from 'moment';
-import * as React from 'react';
-import DatePicker from 'react-datepicker';
-import { FieldValue, IField, IFieldError } from '../types';
+import * as moment from "moment";
+import * as React from "react";
+import DatePicker from "react-datepicker";
+import { FieldValue, IField, IFieldError } from "../types";
 
 type Props = {
-  field: IField,
-  error?: IFieldError,
-  onChange: (params: { fieldId: string, value: FieldValue }) => void,
+  field: IField;
+  error?: IFieldError;
+  onChange: (params: { fieldId: string; value: FieldValue }) => void;
 };
 
 type State = {
-  dateValue: moment.Moment | null
-}
+  dateValue: moment.Moment | null;
+};
 
 export default class Field extends React.Component<Props, State> {
   static renderSelect(options: string[] = [], attrs: any = {}) {
     return (
-      <select
-        {...attrs}
-        className="form-control"
-      >
-
+      <select {...attrs} className="form-control">
         <option />
 
-        {options.map((option, index) =>
-          <option key={index} value={option}>{option}</option>,
-        )}
+        {options.map((option, index) => (
+          <option key={index} value={option}>
+            {option}
+          </option>
+        ))}
       </select>
     );
   }
 
   static renderInput(attrs: any) {
-    return (
-      <input
-        {...attrs}
-        className="form-control"
-      />
-    );
+    return <input {...attrs} className="form-control" />;
   }
 
   static renderTextarea(attrs: any) {
-    return (
-      <textarea
-        {...attrs}
-        className="form-control"
-      />
-    );
+    return <textarea {...attrs} className="form-control" />;
   }
 
-  static renderCheckboxes(name: string, options: string[], onChange: () => void) {
+  static renderCheckboxes(
+    name: string,
+    options: string[],
+    onChange: () => void
+  ) {
     return (
       <div className="check-control">
         {options.map((option, index) => (
           <div key={index}>
             <label>
-              {Field.renderInput({ type: 'checkbox', 'data-option': option, name, onChange })}
+              {Field.renderInput({
+                type: "checkbox",
+                "data-option": option,
+                name,
+                onChange
+              })}
               {option}
             </label>
           </div>
@@ -63,12 +60,21 @@ export default class Field extends React.Component<Props, State> {
     );
   }
 
-  static renderRadioButtons(name: string, options: string[], onChange: (e: any) => void) {
+  static renderRadioButtons(
+    name: string,
+    options: string[],
+    onChange: (e: any) => void
+  ) {
     return (
       <div>
         {options.map((option, index) => (
           <div key={index}>
-            {Field.renderInput({ type: 'radio', 'data-option': option, name, onChange })}
+            {Field.renderInput({
+              type: "radio",
+              "data-option": option,
+              name,
+              onChange
+            })}
             <span>{option}</span>
           </div>
         ))}
@@ -80,7 +86,7 @@ export default class Field extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      dateValue: null,
+      dateValue: null
     };
   }
 
@@ -88,21 +94,21 @@ export default class Field extends React.Component<Props, State> {
     const { onChange, field } = this.props;
 
     onChange({ fieldId: field._id, value });
-  }
+  };
 
   onInputChange = (e: React.FormEvent<HTMLInputElement>) => {
     this.onChange(e.currentTarget.value);
-  }
+  };
 
   onDateChange = (momentObj: moment.Moment) => {
     this.setState({ dateValue: momentObj });
     this.onChange(momentObj.toDate());
-  }
+  };
 
   // TODO: replace any
   onRadioButtonsChange = (e: any) => {
     this.onChange(e.target.dataset.option);
-  }
+  };
 
   // TODO: check
   onCheckboxesChange = () => {
@@ -111,7 +117,7 @@ export default class Field extends React.Component<Props, State> {
 
     const elements = document.getElementsByName(field._id);
 
-    for (let i=0; i <elements.length; i++) {
+    for (let i = 0; i < elements.length; i++) {
       const checkbox: any = elements[i];
 
       if (checkbox.checked) {
@@ -120,15 +126,15 @@ export default class Field extends React.Component<Props, State> {
     }
 
     this.onChange(values);
-  }
+  };
 
   onTextAreaChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
     this.onChange(e.currentTarget.value);
-  }
+  };
 
   onSelectChange = (e: React.FormEvent<HTMLSelectElement>) => {
     this.onChange(e.currentTarget.value);
-  }
+  };
 
   renderDatepicker() {
     return (
@@ -143,27 +149,34 @@ export default class Field extends React.Component<Props, State> {
 
   renderControl() {
     const { field } = this.props;
-    const { _id, options=[], validation='text' } = field;
+    const { _id, options = [], validation = "text" } = field;
 
-    if (validation === 'date') {
+    if (validation === "date") {
       return this.renderDatepicker();
     }
 
     switch (field.type) {
-      case 'select':
+      case "select":
         return Field.renderSelect(options, { onChange: this.onSelectChange });
 
-      case 'check':
+      case "check":
         return Field.renderCheckboxes(name, options, this.onCheckboxesChange);
 
-      case 'radio':
-        return Field.renderRadioButtons(name, options, this.onRadioButtonsChange);
+      case "radio":
+        return Field.renderRadioButtons(
+          name,
+          options,
+          this.onRadioButtonsChange
+        );
 
-      case 'textarea':
+      case "textarea":
         return Field.renderTextarea({ onChange: this.onTextAreaChange });
 
       default:
-        return Field.renderInput({ onChange: this.onInputChange, type: validation });
+        return Field.renderInput({
+          onChange: this.onInputChange,
+          type: validation
+        });
     }
   }
 
@@ -172,13 +185,14 @@ export default class Field extends React.Component<Props, State> {
 
     return (
       <div className="form-group">
-
         <label className="control-label" htmlFor={`field-${field._id}`}>
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}:
         </label>
         <span className="error">{error && error.text}</span>
-        {field.description ? <span className="description">{field.description}</span> : null}
+        {field.description ? (
+          <span className="description">{field.description}</span>
+        ) : null}
         {this.renderControl()}
       </div>
     );

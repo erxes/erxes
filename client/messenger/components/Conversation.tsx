@@ -1,23 +1,23 @@
-import * as React from 'react';
-import { defaultAvatar, iconLeft } from '../../icons/Icons';
-import { IUser } from '../../types';
-import {  __ } from '../../utils';
-import { MessageSender, MessagesList, TopBar } from '../containers';
-import { IMessage } from '../types';
+import * as React from "react";
+import { defaultAvatar, iconLeft } from "../../icons/Icons";
+import { IUser } from "../../types";
+import { __ } from "../../utils";
+import { MessageSender, MessagesList, TopBar } from "../containers";
+import { IMessage } from "../types";
 
 type Props = {
-  messages: IMessage[],
-  goToConversationList: () => void,
-  users: IUser[],
-  isOnline: boolean,
-  color?: string,
-  isNew?: boolean,
+  messages: IMessage[];
+  goToConversationList: () => void;
+  users: IUser[];
+  isOnline: boolean;
+  color?: string;
+  isNew?: boolean;
 };
 
 type State = {
-  isFocused: boolean,
-  expanded: boolean
-}
+  isFocused: boolean;
+  expanded: boolean;
+};
 
 class Conversation extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -33,7 +33,7 @@ class Conversation extends React.Component<Props, State> {
   toggle() {
     const { users } = this.props;
 
-    if(users.length !== 0) {
+    if (users.length !== 0) {
       this.setState({ expanded: !this.state.expanded });
     }
   }
@@ -48,14 +48,21 @@ class Conversation extends React.Component<Props, State> {
 
   renderUserInfo(user: IUser, type: string | React.ReactNode) {
     const { color } = this.props;
-    const details = user.details || { avatar: defaultAvatar, fullName: '' };
+    const details = user.details || { avatar: defaultAvatar, fullName: "" };
     const avatar = details.avatar;
 
-    if(type === 'avatar') {
-      return <img key={user._id} style={{ borderColor: color }} src={avatar} alt={details.fullName} />;
+    if (type === "avatar") {
+      return (
+        <img
+          key={user._id}
+          style={{ borderColor: color }}
+          src={avatar}
+          alt={details.fullName}
+        />
+      );
     }
 
-    if(type === 'name') {
+    if (type === "name") {
       return <span key={user._id}>{details.fullName} </span>;
     }
 
@@ -76,7 +83,7 @@ class Conversation extends React.Component<Props, State> {
         <div className="erxes-staff-company">
           {isOnline ? (
             <div className="erxes-state online">
-              <span /> {__('Online')}
+              <span /> {__("Online")}
             </div>
           ) : (
             <div className="erxes-state offline">
@@ -86,8 +93,8 @@ class Conversation extends React.Component<Props, State> {
         </div>
       );
 
-      const avatars =  users.map(user => this.renderUserInfo(user, 'avatar'));
-      const names =  users.map(user => this.renderUserInfo(user, 'name'));
+      const avatars = users.map(user => this.renderUserInfo(user, "avatar"));
+      const names = users.map(user => this.renderUserInfo(user, "name"));
       const supporters = users.map(user => this.renderUserInfo(user, state));
 
       return (
@@ -97,30 +104,23 @@ class Conversation extends React.Component<Props, State> {
             <div className="erxers-names-wrapper">{names}</div>
             {state}
           </div>
-          <div className="erxes-staffs">
-            {supporters}
-          </div>
+          <div className="erxes-staffs">{supporters}</div>
         </div>
       );
     }
 
     return (
       <div className="erxes-topbar-title">
-        <div>{__('Conversation')}</div>
-        <span>{__('with Support staff')}</span>
+        <div>{__("Conversation")}</div>
+        <span>{__("with Support staff")}</span>
       </div>
     );
   }
 
   render() {
-    const {
-      messages,
-      isNew,
-      goToConversationList,
-      isOnline
-    } = this.props;
+    const { messages, isNew, goToConversationList, isOnline } = this.props;
 
-    const placeholder = isNew ? __('Send a message') : __('Write a reply');
+    const placeholder = isNew ? __("Send a message") : __("Write a reply");
 
     return (
       <div onClick={this.onClick} className="erxes-messenger">
@@ -138,7 +138,7 @@ class Conversation extends React.Component<Props, State> {
         <MessagesList isOnline={isOnline} messages={messages} />
 
         <MessageSender
-          placeholder={placeholder ? placeholder.toString() : ''}
+          placeholder={placeholder ? placeholder.toString() : ""}
           isParentFocused={this.state.isFocused}
           onTextInputBlur={this.onTextInputBlur}
         />

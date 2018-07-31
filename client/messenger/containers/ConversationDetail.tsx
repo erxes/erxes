@@ -1,29 +1,34 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, compose, graphql } from 'react-apollo';
-import { IUser } from '../../types';
-import { Conversation as DumbConversation } from '../components';
-import { connection, getLocalStorageItem } from '../connection';
-import graphqlTypes from '../graphql';
-import { IConversation, IMessage } from '../types';
-import { AppConsumer } from './AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, compose, graphql } from "react-apollo";
+import { IUser } from "../../types";
+import { Conversation as DumbConversation } from "../components";
+import { connection, getLocalStorageItem } from "../connection";
+import graphqlTypes from "../graphql";
+import { IConversation, IMessage } from "../types";
+import { AppConsumer } from "./AppContext";
 
 type Props = {
-  conversationId: string,
-  color?: string,
-  goToConversationList: () => void,
-  endConversation: (conversationId: string) => void,
-}
+  conversationId: string;
+  color?: string;
+  goToConversationList: () => void;
+  endConversation: (conversationId: string) => void;
+};
 
 type QueryResponse = {
-  conversationDetail: IConversation
-}
+  conversationDetail: IConversation;
+};
 
-class ConversationDetail extends React.Component<ChildProps<Props, QueryResponse>, {}> {
+class ConversationDetail extends React.Component<
+  ChildProps<Props, QueryResponse>,
+  {}
+> {
   componentWillMount() {
     const { data, endConversation, conversationId } = this.props;
 
-    if (!data) { return }
+    if (!data) {
+      return;
+    }
 
     // lister for new message
     data.subscribeToMore({
@@ -51,12 +56,12 @@ class ConversationDetail extends React.Component<ChildProps<Props, QueryResponse
           ...prev,
           conversationDetail: {
             ...conversationDetail,
-            messages: [...messages, message],
-          },
+            messages: [...messages, message]
+          }
         };
 
         return next;
-      },
+      }
     });
 
     // lister for conversation status change
@@ -68,10 +73,10 @@ class ConversationDetail extends React.Component<ChildProps<Props, QueryResponse
         const conversationChanged = data.conversationChanged || {};
         const type = conversationChanged.type;
 
-        if (type === 'closed') {
+        if (type === "closed") {
           endConversation(conversationId);
         }
-      },
+      }
     });
   }
 
@@ -108,12 +113,12 @@ const query = compose(
       options: ownProps => ({
         variables: {
           _id: ownProps.conversationId,
-          integrationId: connection.data.integrationId,
+          integrationId: connection.data.integrationId
         },
-        fetchPolicy: 'network-only',
-      }),
-    },
-  ),
+        fetchPolicy: "network-only"
+      })
+    }
+  )
 );
 
 const WithQuery = query(ConversationDetail);
@@ -121,8 +126,12 @@ const WithQuery = query(ConversationDetail);
 const WithConsumer = () => {
   return (
     <AppConsumer>
-      {({ activeConversation, goToConversationList, endConversation, getColor }) => {
-
+      {({
+        activeConversation,
+        goToConversationList,
+        endConversation,
+        getColor
+      }) => {
         return (
           <WithQuery
             conversationId={activeConversation}
@@ -133,7 +142,7 @@ const WithConsumer = () => {
         );
       }}
     </AppConsumer>
-  )
+  );
 };
 
 export default WithConsumer;

@@ -1,32 +1,32 @@
-import * as React from 'react';
+import * as React from "react";
 import {
   AccquireInformation,
   ConversationCreate,
   ConversationDetail,
-  ConversationList,
-} from '../containers';
+  ConversationList
+} from "../containers";
 
 type Props = {
-  activeRoute: string | '',
+  activeRoute: string | "";
 };
 
 function Messenger({ activeRoute }: Props) {
   switch (activeRoute) {
-    case 'conversationDetail':
+    case "conversationDetail":
       return <ConversationDetail />;
 
-    case 'conversationCreate':
+    case "conversationCreate":
       return <ConversationCreate />;
 
-    case 'conversationList':
+    case "conversationList":
       return <ConversationList />;
 
     // get user's contact information
-    case 'accquireInformation':
+    case "accquireInformation":
       return <AccquireInformation />;
 
     default:
-      return <div />
+      return <div />;
   }
 }
 

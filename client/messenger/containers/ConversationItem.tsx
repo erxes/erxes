@@ -1,20 +1,23 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { ConversationItem as DumbConversationItem } from '../components';
-import graphqlTypes from '../graphql';
-import { IConversation } from '../types';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { ConversationItem as DumbConversationItem } from "../components";
+import graphqlTypes from "../graphql";
+import { IConversation } from "../types";
 
 type Props = {
-  conversation: IConversation,
-  goToConversation: (conversationId: string) => void,
-}
+  conversation: IConversation;
+  goToConversation: (conversationId: string) => void;
+};
 
 type Response = {
-  unreadCount: number,
-}
+  unreadCount: number;
+};
 
-class ConversationItem extends React.Component<ChildProps<Props, Response>, {}> {
+class ConversationItem extends React.Component<
+  ChildProps<Props, Response>,
+  {}
+> {
   componentWillMount() {
     const { data, conversation } = this.props;
 
@@ -28,7 +31,7 @@ class ConversationItem extends React.Component<ChildProps<Props, Response>, {}> 
       variables: { _id: conversation._id },
       updateQuery: () => {
         data.refetch();
-      },
+      }
     });
   }
 
@@ -37,18 +40,15 @@ class ConversationItem extends React.Component<ChildProps<Props, Response>, {}> 
 
     const extendedProps = {
       ...this.props,
-      notificationCount: data ? (data.unreadCount || 0) : 0,
+      notificationCount: data ? data.unreadCount || 0 : 0
     };
 
-    return <DumbConversationItem { ...extendedProps } />;
+    return <DumbConversationItem {...extendedProps} />;
   }
 }
 
-export default graphql<Props, Response>(
-  gql(graphqlTypes.unreadCountQuery),
-  {
-    options: (props) => ({
-      variables: { conversationId: props.conversation._id },
-    })
-  }
-)(ConversationItem);
+export default graphql<Props, Response>(gql(graphqlTypes.unreadCountQuery), {
+  options: props => ({
+    variables: { conversationId: props.conversation._id }
+  })
+})(ConversationItem);

@@ -28,18 +28,14 @@ export const saveFormMutation = `
                 text
             }
         }
-    }`
- ;
+    }`;
 
 export const sendEmailMutation = `
     mutation sendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String) {
         sendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content)
-    }`
- ;
-
+    }`;
 
 export const increaseViewCountMutation = `
     mutation formIncreaseViewCount($formId: String!) {
         formIncreaseViewCount(formId: $formId)
-    }`
-;
+    }`;

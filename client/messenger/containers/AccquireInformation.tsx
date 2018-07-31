@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { AccquireInformation } from '../components';
-import { AppConsumer } from './AppContext';
+import * as React from "react";
+import { AccquireInformation } from "../components";
+import { AppConsumer } from "./AppContext";
 
 export default class extends React.Component {
   render() {
@@ -8,10 +8,7 @@ export default class extends React.Component {
       <AppConsumer>
         {({ saveGetNotified, getColor }) => {
           return (
-            <AccquireInformation
-              color={getColor()}
-              save={saveGetNotified}
-            />
+            <AccquireInformation color={getColor()} save={saveGetNotified} />
           );
         }}
       </AppConsumer>

@@ -1,14 +1,14 @@
-import * as React from 'react';
-import { iconClose } from '../../icons/Icons';
-import { Callout, Form, ShoutboxLauncher } from '../containers';
+import * as React from "react";
+import { iconClose } from "../../icons/Icons";
+import { Callout, Form, ShoutboxLauncher } from "../containers";
 
 type Props = {
-  isFormVisible: boolean,
-  isCalloutVisible: boolean,
-  containerClass:string,
-  init: () => void,
-  closePopup: () => void,
-  loadType: string,
+  isFormVisible: boolean;
+  isCalloutVisible: boolean;
+  containerClass: string;
+  init: () => void;
+  closePopup: () => void;
+  loadType: string;
 };
 
 class App extends React.Component<Props> {
@@ -19,7 +19,7 @@ class App extends React.Component<Props> {
   renderCloseButton() {
     const { loadType, closePopup } = this.props;
 
-    if (loadType === 'shoutbox') {
+    if (loadType === "shoutbox") {
       return null;
     }
 
@@ -27,14 +27,14 @@ class App extends React.Component<Props> {
       <a className="close" onClick={closePopup} title="Close">
         {iconClose}
       </a>
-    )
+    );
   }
 
   renderForm() {
     const { isFormVisible } = this.props;
 
     if (isFormVisible) {
-      return <Form />
+      return <Form />;
     }
 
     return null;
@@ -44,7 +44,7 @@ class App extends React.Component<Props> {
     const { isCalloutVisible } = this.props;
 
     if (isCalloutVisible) {
-      return <Callout />
+      return <Callout />;
     }
 
     return null;
@@ -53,8 +53,8 @@ class App extends React.Component<Props> {
   renderShoutboxLauncher() {
     const { loadType } = this.props;
 
-    if (loadType === 'shoutbox') {
-      return <ShoutboxLauncher  />
+    if (loadType === "shoutbox") {
+      return <ShoutboxLauncher />;
     }
 
     return null;
@@ -72,7 +72,7 @@ class App extends React.Component<Props> {
           {this.renderShoutboxLauncher()}
         </div>
       </div>
-    )
+    );
   }
 }
 

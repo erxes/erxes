@@ -1,36 +1,37 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import { iconExit } from '../../icons/Icons';
-import { __ } from '../../utils';
+import * as classNames from "classnames";
+import * as React from "react";
+import { iconExit } from "../../icons/Icons";
+import { __ } from "../../utils";
 
 type Props = {
-  middle: React.ReactNode,
-  buttonIcon?: React.ReactNode,
-  isChat: boolean,
-  color?: string,
-  isExpanded?: boolean,
-  onButtonClick?: (e: React.FormEvent<HTMLButtonElement>) => void,
-  onToggle?: () => void,
-  endConversation: () => void,
+  middle: React.ReactNode;
+  buttonIcon?: React.ReactNode;
+  isChat: boolean;
+  color?: string;
+  isExpanded?: boolean;
+  onButtonClick?: (e: React.FormEvent<HTMLButtonElement>) => void;
+  onToggle?: () => void;
+  endConversation: () => void;
 };
 
 function TopBar({
-    middle,
-    buttonIcon,
-    onButtonClick,
-    color,
-    isChat,
-    endConversation,
-    isExpanded,
-    onToggle,
-  }: Props) {
-
-  const topBarClassNames = classNames('erxes-topbar', {
-    'expanded': isExpanded
+  middle,
+  buttonIcon,
+  onButtonClick,
+  color,
+  isChat,
+  endConversation,
+  isExpanded,
+  onToggle
+}: Props) {
+  const topBarClassNames = classNames("erxes-topbar", {
+    expanded: isExpanded
   });
 
   const onEndConversation = () => {
-    if (confirm((__('Do you want to end this conversation ?') || {}).toString())) {
+    if (
+      confirm((__("Do you want to end this conversation ?") || {}).toString())
+    ) {
       endConversation();
     }
   };
@@ -55,10 +56,7 @@ function TopBar({
   const renderLeftButton = () => {
     if (onButtonClick) {
       return (
-        <button
-          className="topbar-button left"
-          onClick={onButtonClick}
-        >
+        <button className="topbar-button left" onClick={onButtonClick}>
           {buttonIcon}
         </button>
       );
@@ -68,11 +66,13 @@ function TopBar({
   };
 
   return (
-    <div onClick={onToggle} className={topBarClassNames} style={{ backgroundColor: color }}>
+    <div
+      onClick={onToggle}
+      className={topBarClassNames}
+      style={{ backgroundColor: color }}
+    >
       {renderLeftButton()}
-      <div className="erxes-middle">
-        {middle}
-      </div>
+      <div className="erxes-middle">{middle}</div>
       {renderEndConversation()}
     </div>
   );

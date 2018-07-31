@@ -1,10 +1,10 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import { Launcher, Messenger } from '../containers';
+import * as classNames from "classnames";
+import * as React from "react";
+import { Launcher, Messenger } from "../containers";
 
 type Props = {
-  isMessengerVisible: boolean,
-  saveBrowserInfo: () => void,
+  isMessengerVisible: boolean;
+  saveBrowserInfo: () => void;
 };
 
 export default class App extends React.Component<Props> {
@@ -15,7 +15,9 @@ export default class App extends React.Component<Props> {
 
   render() {
     const { isMessengerVisible } = this.props;
-    const widgetClasses = classNames('erxes-widget', { opened: isMessengerVisible });
+    const widgetClasses = classNames("erxes-widget", {
+      opened: isMessengerVisible
+    });
 
     return (
       <div className={widgetClasses}>

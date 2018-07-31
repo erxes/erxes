@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { defaultAvatar } from '../../icons/Icons';
-import { IUser } from '../../types';
+import * as React from "react";
+import { defaultAvatar } from "../../icons/Icons";
+import { IUser } from "../../types";
 
 function User({ user }: { user?: IUser }) {
   const avatar = user && user.details && user.details.avatar;

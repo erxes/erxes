@@ -1,14 +1,14 @@
-import * as React from 'react';
-import { iconPlus } from '../../icons/Icons';
-import { __ } from '../../utils';
-import { ConversationItem, TopBar } from '../containers';
-import { IConversation } from '../types';
+import * as React from "react";
+import { iconPlus } from "../../icons/Icons";
+import { __ } from "../../utils";
+import { ConversationItem, TopBar } from "../containers";
+import { IConversation } from "../types";
 
 type Props = {
-  conversations: IConversation[],
-  createConversation: (e: React.FormEvent<HTMLButtonElement>) => void,
-  goToConversation: (conversationId: string) => void,
-  loading: boolean,
+  conversations: IConversation[];
+  createConversation: (e: React.FormEvent<HTMLButtonElement>) => void;
+  goToConversation: (conversationId: string) => void;
+  loading: boolean;
 };
 
 function ConversationList(props: Props) {
@@ -21,8 +21,8 @@ function ConversationList(props: Props) {
 
   const title = (
     <div className="erxes-topbar-title">
-      <div>{__('Conversations')}</div>
-      <span>{__('with Support staffs')}</span>
+      <div>{__("Conversations")}</div>
+      <span>{__("with Support staffs")}</span>
     </div>
   );
 

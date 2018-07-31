@@ -1,4 +1,4 @@
-import { IIntegration } from '../types';
+import { IIntegration } from "../types";
 
 export interface IConnectResponse {
   form: IForm;
