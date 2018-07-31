@@ -1,26 +1,20 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { ItemMeta } from '../components';
+import * as React from "react";
+import { ItemMeta } from "../components";
+import { IKbCategory } from "../types";
 
-const propTypes = {
-  category: PropTypes.object,
-  onClick: PropTypes.func,
+type Props = {
+  category: IKbCategory;
+  onClick: (category: IKbCategory) => void;
 };
 
-export default class Category extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.handleOnClick = this.handleOnClick.bind(this);
-  }
-
-  handleOnClick(event) {
+export default class Category extends React.Component<Props> {
+  handleOnClick = (event: React.FormEvent<HTMLAnchorElement>) => {
     event.preventDefault();
 
     const { category, onClick } = this.props;
 
     onClick(category);
-  }
+  };
 
   render() {
     const { category } = this.props;
@@ -41,5 +35,3 @@ export default class Category extends React.Component {
     );
   }
 }
-
-Category.propTypes = propTypes;

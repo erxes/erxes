@@ -1,19 +1,25 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Articles, ItemMeta, BackButton } from '../components';
+import * as React from "react";
+import { __ } from "../../utils";
+import { Articles, BackButton, ItemMeta } from "../components";
+import { IKbCategory } from "../types";
 
-const propTypes = {
-  category: PropTypes.object,
-  goToCategories: PropTypes.func,
+type Props = {
+  category: IKbCategory | null;
+  goToCategories: () => void;
 };
 
-function CategoryDetail({ category, goToCategories }, { __ }) {
+function CategoryDetail({ category, goToCategories }: Props) {
+  if (!category) {
+    return null;
+  }
+
   return (
     <div>
       <BackButton
         onClickHandler={goToCategories}
-        text={__('Back to categories')}
+        text={__("Back to categories")}
       />
+
       <div className="category-container">
         <div className="flex-item spaced">
           <div className="topic-icon">
@@ -25,15 +31,11 @@ function CategoryDetail({ category, goToCategories }, { __ }) {
             <ItemMeta category={category} />
           </div>
         </div>
-        <Articles category={category} articles={category.articles} />
+
+        <Articles articles={category.articles} />
       </div>
     </div>
   );
 }
-
-CategoryDetail.propTypes = propTypes;
-CategoryDetail.contextTypes = {
-  __: PropTypes.func
-};
 
 export default CategoryDetail;

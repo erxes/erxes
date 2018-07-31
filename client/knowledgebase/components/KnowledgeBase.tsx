@@ -1,29 +1,34 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Categories, Articles, SearchBar, CategoryDetail, ArticleDetail } from '../containers';
+import * as React from "react";
+import {
+  ArticleDetail,
+  Articles,
+  Categories,
+  CategoryDetail,
+  SearchBar
+} from "../containers";
 
-const propTypes = {
-  activeRoute: PropTypes.string,
-  color: PropTypes.string,
+type Props = {
+  activeRoute: string;
+  color: string;
 };
 
-export default class KnowledgeBase extends React.Component {
+export default class KnowledgeBase extends React.Component<Props> {
   renderContent() {
     const { activeRoute } = this.props;
 
-    if (activeRoute === 'CATEGORIES') {
+    if (activeRoute === "CATEGORIES") {
       return <Categories />;
     }
 
-    if (activeRoute === 'CATEGORY_DETAIL') {
+    if (activeRoute === "CATEGORY_DETAIL") {
       return <CategoryDetail />;
     }
 
-    if (activeRoute === 'ARTICLE_DETAIL') {
+    if (activeRoute === "ARTICLE_DETAIL") {
       return <ArticleDetail />;
     }
 
-    if (activeRoute === 'ARTICLES') {
+    if (activeRoute === "ARTICLES") {
       return <Articles />;
     }
 
@@ -46,5 +51,3 @@ export default class KnowledgeBase extends React.Component {
     );
   }
 }
-
-KnowledgeBase.propTypes = propTypes;

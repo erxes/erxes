@@ -1,7 +1,7 @@
 /* global FileReader */
 
-import * as moment from "moment";
 import T from "i18n-react";
+import * as moment from "moment";
 import translation from "../locales";
 import { IBrowserInfo } from "./types";
 
@@ -126,10 +126,10 @@ export const setMomentLocale = (code: string) => {
   moment.locale(code);
 };
 
-export const setLocale = (code: string) => {
+export const setLocale = (code?: string) => {
   T.setTexts(translation[code || "en"]);
 
-  setMomentLocale(code);
+  setMomentLocale(code || "en");
 };
 
 export const __ = (msg: string) => {

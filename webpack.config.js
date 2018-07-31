@@ -15,8 +15,8 @@ module.exports = {
     messengerWidget: './client/messenger/widget/index.ts',
     form: './client/form/index.ts',
     formWidget: './client/form/widget/index.ts',
-    // knowledgebase: './client/knowledgebase/index.js',
-    // knowledgebaseWidget: './client/knowledgebase/widget/index.js',
+    knowledgebase: './client/knowledgebase/index.tsx',
+    knowledgebaseWidget: './client/knowledgebase/widget/index.ts',
   },
 
   output: {

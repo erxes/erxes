@@ -1,12 +1,7 @@
-/* global FileReader */
-
-/* eslint-disable react/jsx-filename-extension */
-
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import client from './apollo-client';
-import TranslationWrapper from './TranslationWrapper';
 
 // base connect function for all widgets
 const widgetConnect = (params) => {
@@ -44,9 +39,7 @@ const widgetConnect = (params) => {
         // render root react component
         ReactDOM.render(
           <ApolloProvider client={client}>
-            <TranslationWrapper>
-              <AppContainer />
-            </TranslationWrapper>
+             <AppContainer />
           </ApolloProvider>,
           document.getElementById('root'),
         );

@@ -59,7 +59,7 @@ const getKbCategoryQuery = `
       }
     }
   }
-`
+`;
 
 const getKbTopicQuery = `
   query knowledgeBaseTopicsDetail($topicId: String!) {
@@ -89,5 +89,5 @@ export default {
   kbLoaderQuery,
   kbSearchArticlesQuery,
   getKbCategoryQuery,
-  getKbTopicQuery,
-}
+  getKbTopicQuery
+};
