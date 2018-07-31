@@ -146,6 +146,7 @@ export class SaveWebhookResponse {
 
   /**
    * Receives comment
+   * @param {String} conversationMessageId - Conversation message id
    * @param {String} post_id - Post id
    * @param {String} parent_id - Parent post or comment id
    * @param {String} item - Feed content types
@@ -153,11 +154,21 @@ export class SaveWebhookResponse {
    * @param {Date} created_time - Created date
    * @param {String} video - Video url
    * @param {String} photo - Photo url
+   * @param {Stirng} verb - Action definition
    *
    * @return {Object} Facebook messenger data
    */
-  handleComments(commentParams) {
-    const { post_id, parent_id, item, comment_id, created_time, video, photo } = commentParams;
+  async handleComments(conversationMessageId, commentParams) {
+    const {
+      post_id,
+      parent_id,
+      item,
+      comment_id,
+      created_time,
+      video,
+      photo,
+      verb,
+    } = commentParams;
 
     const doc = {
       postId: post_id,
@@ -178,7 +189,29 @@ export class SaveWebhookResponse {
       doc.parentId = parent_id;
     }
 
+    await this.updateCommentCount(verb, conversationMessageId);
+
     return doc;
+  }
+
+  /**
+    * Increase or decrease comment count
+    * @param {String} type - Action type
+    * @param {String} conversationMessageId - Conversation message id
+    *
+    * @return {Promise} Updated conversation message
+    */
+  async updateCommentCount(type, conversationMessageId) {
+    let count = -1;
+
+    if (type === 'add') {
+      count = 1;
+    }
+
+    return await ConversationMessages.update(
+      { _id: conversationMessageId },
+      { $inc: { 'facebookData.commentCount': count } },
+    );
   }
 
   /**
@@ -189,16 +222,15 @@ export class SaveWebhookResponse {
    * @return {Promise} Updated conversation message
    */
   async updateLikeCount(type, conversationMessageId) {
+    let count = -1;
+
     if (type === 'add') {
-      return await ConversationMessages.update(
-        { _id: conversationMessageId },
-        { $inc: { 'facebookData.likeCount': 1 } },
-      );
+      count = 1;
     }
 
     return await ConversationMessages.update(
       { _id: conversationMessageId },
-      { $inc: { 'facebookData.likeCount': -1 } },
+      { $inc: { 'facebookData.likeCount': count } },
     );
   }
 
@@ -335,7 +367,7 @@ export class SaveWebhookResponse {
         return null;
       }
 
-      msgFacebookData = this.handleComments(value);
+      msgFacebookData = await this.handleComments(conversationMessage._id, value);
     }
 
     // sending to post handler if post
