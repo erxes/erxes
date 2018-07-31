@@ -6,12 +6,12 @@ import { field } from './utils';
 
 const reactionSchema = mongoose.Schema(
   {
-    like: field({ type: [String], default: [] }),
-    love: field({ type: [String], default: [] }),
-    wow: field({ type: [String], default: [] }),
-    haha: field({ type: [String], default: [] }),
-    sad: field({ type: [String], default: [] }),
-    angry: field({ type: [String], default: [] }),
+    like: field({ type: [Object], default: [] }),
+    love: field({ type: [Object], default: [] }),
+    wow: field({ type: [Object], default: [] }),
+    haha: field({ type: [Object], default: [] }),
+    sad: field({ type: [Object], default: [] }),
+    angry: field({ type: [Object], default: [] }),
   },
   { _id: false },
 );
@@ -39,7 +39,7 @@ const FacebookSchema = mongoose.Schema(
       optional: true,
     }),
 
-    reactions: field({ reactionSchema }),
+    reactions: field({ type: reactionSchema, default: {} }),
 
     likeCount: field({
       type: Number,

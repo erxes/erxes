@@ -212,16 +212,15 @@ export class SaveWebhookResponse {
    * @return {Promise} Updated conversation message
    */
   async updateReactions(type, conversationMessageId, reactionType, from) {
-    const reactionField = `facebookData.react.${reactionType}`;
-
+    const reactionField = `facebookData.reactions.${reactionType}`;
     if (type === 'add') {
-      return await ConversationMessages.update(
+      await ConversationMessages.update(
         { _id: conversationMessageId },
         { $push: { [reactionField]: { ...from } } },
       );
     }
 
-    return await ConversationMessages.update(
+    await ConversationMessages.update(
       { _id: conversationMessageId },
       { $pull: { [reactionField]: { _id: from._id } } },
     );
@@ -252,12 +251,12 @@ export class SaveWebhookResponse {
     if (msg) {
       // Receiving like
       if (item === 'like') {
-        return this.updateLikeCount(verb, msg._id);
+        await this.updateLikeCount(verb, msg._id);
       }
 
       // Receiving reaction
       if (reaction_type) {
-        return this.updateReactions(verb, msg._id, reaction_type, from);
+        await this.updateReactions(verb, msg._id, reaction_type, from);
       }
     }
   }
@@ -345,8 +344,8 @@ export class SaveWebhookResponse {
       msgFacebookData = this.handlePosts(value);
     }
 
-    // sending to like handler if like
-    if (item === 'like') {
+    // sending to reaction handler
+    if (item === 'like' || item === 'reaction') {
       await this.handleReactions(value);
     }
 
