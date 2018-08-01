@@ -54,7 +54,8 @@ const queryParams = `
   segment: String,
   tag: String,
   ids: [String],
-  searchValue: String
+  searchValue: String,
+  leadStatus: String
 `;
 
 export const queries = `
