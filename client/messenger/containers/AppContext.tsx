@@ -331,7 +331,7 @@ export class AppProvider extends React.Component<{}, IState> {
         // check duplications
         if (!messages.find((m: IMessage) => m._id === insertMessage._id)) {
           // Add our message from the mutation to the end
-          messages.push(message);
+          messages.push(insertMessage);
 
           // Write out data back to the cache
           proxy.writeQuery({ ...selector, data });

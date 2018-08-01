@@ -1,4 +1,3 @@
-declare const window: any;
 declare const API_SUBSCRIPTIONS_URL: string;
 declare const API_GRAPHQL_URL: string;
 
@@ -23,11 +22,16 @@ export const wsLink = new WebSocketLink({
   }
 });
 
+type Definintion = {
+  kind: string;
+  operation?: string;
+};
+
 // Setting up subscription with link
 const link = split(
   // split based on operation type
   ({ query }) => {
-    const { kind, operation } = getMainDefinition(query);
+    const { kind, operation }: Definintion = getMainDefinition(query);
     return kind === "OperationDefinition" && operation === "subscription";
   },
   wsLink,

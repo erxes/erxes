@@ -1,9 +1,9 @@
-import webpack from 'webpack';
-import UglifyJSPlugin from 'uglifyjs-webpack-plugin';
-import Merge from 'webpack-merge';
-import CommonConfig from './webpack.config.babel';
+const webpack = require('webpack');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const Merge = require('webpack-merge');
+const CommonConfig = require('./webpack.config');
 
-export default Merge(CommonConfig, {
+module.exports = Merge(CommonConfig, {
   plugins: [
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new webpack.LoaderOptionsPlugin({
@@ -32,4 +32,4 @@ export default Merge(CommonConfig, {
       },
     }),
   ],
-});
+})

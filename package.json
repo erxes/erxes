@@ -20,9 +20,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "NODE_ENV=development nodemon -e ts server --exec ts-node",
-    "webpack": "webpack --mode development --watch --progress",
-    "build": "webpack --config=webpack.config.prod.js && tsc server --out-dir dist --copy-files --ignore tests",
+    "dev": "webpack --mode development --watch --progress & NODE_ENV=development nodemon -e ts server --exec ts-node",
+    "build": "webpack --mode production --config=webpack.prod.config.js && tsc server --out-dir dist --copy-files --ignore tests",
     "lint": "tslint 'client/**/*.ts'",
     "format": "prettier --write 'client/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
@@ -60,7 +59,7 @@
     "react-datepicker": "^1.4.1",
     "react-dom": "^16.3.2",
     "striptags": "^3.0.1",
-    "subscriptions-transport-ws": "0.8.3"
+    "subscriptions-transport-ws": "^0.9.14"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.6",
@@ -92,6 +91,7 @@
     "uglifyjs-webpack-plugin": "v1.0.0-beta.2",
     "url-loader": "^1.0.1",
     "webpack": "4.16.3",
-    "webpack-cli": "^3.1.0"
+    "webpack-cli": "^3.1.0",
+    "webpack-merge": "^4.1.3"
   }
 }
