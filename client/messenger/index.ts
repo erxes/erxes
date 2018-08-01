@@ -56,7 +56,11 @@ widgetConnect({
     // send connected message to ws server and server will save given
     // data to connection. So when connection closed, we will use
     // customerId to mark customer as not active
-    wsLink.subscriptionClient.sendMessage({
+
+    // TODO: temporarily disabling typescript checker
+    const wsLinkFaker: any = wsLink;
+
+    wsLinkFaker.subscriptionClient.sendMessage({
       type: "messengerConnected",
       value: messengerData
     });
