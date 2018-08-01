@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "outDir": "./dist/",
         "sourceMap": true,
         "module": "commonjs",
          "lib": [
@@ -9,11 +8,11 @@
           "dom",
           "esnext.asynciterable"
         ],
-        "jsx": "react",
         "target": "es5",
+        "jsx": "react",
         "allowJs": true,
         "skipLibCheck": true,
         "strict": true
     },
-    "include": ["client", "server"],
+    "include": ["client"],
 }
