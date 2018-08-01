@@ -82,6 +82,7 @@ function Filter({ queryParams = {}, history }) {
       {renderFilterWithData('brand', 'brand')}
       {renderFilterWithDate()}
       {renderFilterWithData('form', 'form', '_id title')}
+      {renderFilterParam('leadStatus')}
     </Filters>
   );
 }

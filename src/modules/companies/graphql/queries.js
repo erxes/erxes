@@ -5,7 +5,6 @@ const companyFields = `
   size
   industry
   website
-  plan
 
   parentCompanyId
   email
@@ -50,6 +49,7 @@ const listParamsDef = `
   $tag: String,
   $ids: [String],
   $searchValue: String
+  $leadStatus: String
 `;
 
 const listParamsValue = `
@@ -59,6 +59,7 @@ const listParamsValue = `
   tag: $tag,
   ids: $ids,
   searchValue: $searchValue
+  leadStatus: $leadStatus
 `;
 
 export const companies = `

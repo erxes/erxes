@@ -47,7 +47,6 @@
   "Other": "Other",
   "Industry": "Industry",
   "Website": "Website",
-  "Plan": "Plan",
   "About": "About",
   "Discard": "Discard",
   "Save": "Save",
@@ -449,7 +448,6 @@
   "Size:": "Size:",
   "Website:": "Website:",
   "Industry:": "Industry:",
-  "Plan:": "Plan:",
   "There arent't any groups and fields": "There arent't any groups and fields",
   "Please add property Group first": "Please add property Group first",
   "Add group": "Add group",
@@ -512,7 +510,6 @@
   "Last Updated By": "Last Updated By",
   "There is no channel": "There is no channel",
   "Facebook page": "Facebook page",
-  "plan": "plan",
   "Edit segment": "Edit segment",
   "New message": "New message",
   "Message": "Message",
@@ -663,5 +660,7 @@
   "You can only import max 600 at a time":
     "You can only import max 600 at a time",
   "Invalid import type": "Invalid import type",
-  "Last updated": "Last updated"
+  "Last updated": "Last updated",
+  "Filter by lead status": "Filter by lead status",
+  "No lead status chosen": "No lead status chosen"
 }

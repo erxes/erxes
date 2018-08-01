@@ -3,7 +3,6 @@ const commonFields = `
   $primaryName: String,
   $size: Int,
   $industry: String,
-  $plan: String,
   $parentCompanyId: String,
   $email: String,
   $ownerId: String,
@@ -23,7 +22,6 @@ const commonVariables = `
   primaryName: $primaryName,
   size: $size,
   industry: $industry,
-  plan: $plan,
   parentCompanyId: $parentCompanyId,
   email: $email,
   ownerId: $ownerId,
@@ -53,7 +51,6 @@ const companiesEdit = `
       names
       size
       industry
-      plan
       parentCompanyId
       email
       ownerId

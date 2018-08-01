@@ -2,7 +2,6 @@ export const COMPANY_INFO = {
   primaryName: 'Primary Name',
   size: 'Size',
   industry: 'Industry',
-  plan: 'Plan',
   email: 'Email',
   phone: 'Phone',
   leadStatus: 'Lead Status',

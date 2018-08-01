@@ -45,7 +45,6 @@
   "Size": "Хэмжээ",
   "Industry": "Үйл ажиллагааны чиглэл",
   "Website": "Цахим хуудас",
-  "Plan": "Төлөвлөгөө",
   "About": "Тухай",
   "Discard": "Орхих",
   "Save": "Хадгалах",
@@ -454,7 +453,6 @@
   "Size:": "Хэмжээ:",
   "Website:": "Цахим хуудас:",
   "Industry:": "Салбар:",
-  "Plan:": "Төлөвлөгөө:",
   "There arent't any groups and fields":
     "Энэ талбарт группын мэдээлэл байхгүй байна",
   "Please add property Group first": "Эхлээд өмчийн группыг нэмнэ үү",
@@ -515,7 +513,6 @@
   "Last Updated By": "Сүүлд шинэчилсэн",
   "There is no channel": "Суваг олдсонгүй",
   "Facebook page": "Фэйсбүүк хуудас",
-  "plan": "Багц",
   "Edit segment": "Сегмент засварлах",
   "New message": "Шинэ зурвас",
   "Message": "Зурвас",
@@ -667,5 +664,7 @@
   "You can only import max 600 at a time":
     "Харилцагчид оруулах дээд хэмжээ: 600",
   "Invalid import type": "Буруу төрөл сонгосон байна",
-  "Last updated": "Сүүлд өөрчилсөн"
+  "Last updated": "Сүүлд өөрчилсөн",
+  "Filter by lead status": "Лийдийн төлөвөөр шүүх",
+  "No lead status chosen": "Лийдийн төлөв сонгоогүй байна"
 }
