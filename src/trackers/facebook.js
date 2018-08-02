@@ -169,7 +169,16 @@ export class SaveWebhookResponse {
    * @return {Object} Facebook messenger data
    */
   async handleComments(commentParams) {
-    const { post_id, parent_id, item, comment_id, created_time, video, photo } = commentParams;
+    const {
+      post_id,
+      parent_id,
+      item,
+      comment_id,
+      created_time,
+      video,
+      photo,
+      verb,
+    } = commentParams;
 
     const doc = {
       postId: post_id,
@@ -189,6 +198,12 @@ export class SaveWebhookResponse {
     if (post_id !== parent_id) {
       doc.parentId = parent_id;
     }
+
+    const message = await ConversationMessages.findOne({
+      'facebookData.commentId': comment_id,
+    });
+
+    await this.updateCommentCount(verb, message._id);
 
     return doc;
   }
@@ -363,6 +378,7 @@ export class SaveWebhookResponse {
 
     // sending to comment handler if comment
     if (item === 'comment' && comment_id) {
+      // if already saved then ignore it
       const conversationMessage = await ConversationMessages.findOne({
         'facebookData.commentId': comment_id,
       });
