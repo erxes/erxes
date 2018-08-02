@@ -177,6 +177,7 @@ export const mutations = `
     attachments: [JSON],
     tweetReplyToId: String,
     tweetReplyToScreenName: String,
+    commentReplyToId: String
   ): ConversationMessage
 
   conversationsTweet(

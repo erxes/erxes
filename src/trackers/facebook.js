@@ -613,14 +613,19 @@ export const receiveWebhookResponse = async (app, data) => {
   }
 };
 
-/*
+/**
  * Post reply to page conversation or comment to wall post
  * @param {Object} conversation - Conversation object
- * @param {Sting} text - Reply content
+ * @param {String} msg - Reply content
+ * @param {String} msg.text - Reply content text
+ * @param {String} msg.attachment - Reply content attachment
+ * @param {String} msg.commentId - Parent commen id if replied to comment
  * @param {String} messageId - Conversation message id
  */
-export const facebookReply = async (conversation, text, messageId) => {
+export const facebookReply = async (conversation, msg, messageId) => {
   const FACEBOOK_APPS = getConfig();
+  const { attachment, commentId, text } = msg;
+  const msgObj = { message: text };
 
   const integration = await Integrations.findOne({
     _id: conversation.integrationId,
@@ -636,32 +641,53 @@ export const facebookReply = async (conversation, text, messageId) => {
 
   // messenger reply
   if (conversation.facebookData.kind === FACEBOOK_DATA_KINDS.MESSENGER) {
-    const messageResponse = await graphRequest.post('me/messages', response.access_token, {
-      recipient: { id: conversation.facebookData.senderId },
-      message: { text },
-    });
-
-    // save commentId in message object
-    await ConversationMessages.update(
-      { _id: messageId },
-      { $set: { 'facebookData.messageId': messageResponse.message_id } },
-    );
+    await graphRequest
+      .post('me/messages', response.access_token, {
+        recipient: { id: conversation.facebookData.senderId },
+        ...msgObj,
+      })
+      .then(async res => {
+        // save commentId in message object
+        await ConversationMessages.update(
+          { _id: messageId },
+          { $set: { 'facebookData.messageId': res.message_id } },
+        );
+      })
+      .catch(e => {
+        return e.message;
+      });
   }
 
   // feed reply
   if (conversation.facebookData.kind === FACEBOOK_DATA_KINDS.FEED) {
-    const postId = conversation.facebookData.postId;
+    // Post id
+    let id = conversation.facebookData.postId;
+
+    // Attaching attachment url
+    if (attachment) {
+      msgObj.attachment_url = attachment.url;
+    }
+
+    // Reply to comment
+    if (commentId) {
+      id = commentId;
+    }
 
     // post reply
-    const commentResponse = await graphRequest.post(`${postId}/comments`, response.access_token, {
-      message: text,
-    });
-
-    // save commentId in message object
-    await ConversationMessages.update(
-      { _id: messageId },
-      { $set: { 'facebookData.commentId': commentResponse.id } },
-    );
+    await graphRequest
+      .post(`${id}/comments`, response.access_token, {
+        message: text,
+      })
+      .then(async res => {
+        // save commentId in message object
+        await ConversationMessages.update(
+          { _id: messageId },
+          { $set: { 'facebookData.commentId': res.id } },
+        );
+      })
+      .catch(e => {
+        return e.message;
+      });
   }
 
   return null;
