@@ -231,7 +231,6 @@ describe('facebook integration: save webhook response', () => {
     let messageText = 'wall post';
     const link = 'link_url';
     const commentId = '2424242422242424244';
-    const parentId = '131313131313131313';
     const senderName = 'Facebook User';
 
     // customer posted `wall post` on our wall
@@ -244,10 +243,8 @@ describe('facebook integration: save webhook response', () => {
             {
               value: {
                 verb: 'add',
-                item: 'post',
+                item: 'status',
                 post_id: postId,
-                comment_id: commentId,
-                parent_id: parentId,
                 from: {
                   id: senderId,
                   name: senderName,
@@ -294,15 +291,16 @@ describe('facebook integration: save webhook response', () => {
     expect(message.customerId).toBe(customer._id);
     expect(message.internal).toBe(false);
     expect(message.content).toBe(messageText);
-    expect(message.facebookData.toJSON()).toEqual({
-      item: 'post',
-      senderId,
-      commentId,
-      parentId,
-      senderName,
-      postId,
-      link,
-    });
+
+    expect(message.facebookData.createdAt).toBeDefined();
+    expect(message.facebookData.item).toBe('status');
+    expect(message.facebookData.senderId).toBe(senderId);
+    expect(message.facebookData.senderName).toBe(senderName);
+    expect(message.facebookData.postId).toBe(postId);
+    expect(message.facebookData.link).toBe(link);
+    expect(message.facebookData.commentCount).toBe(0);
+    expect(message.facebookData.likeCount).toBe(0);
+    expect(message.facebookData.photos).toHaveLength(0);
 
     // second time ========================
 
@@ -319,7 +317,6 @@ describe('facebook integration: save webhook response', () => {
               value: {
                 verb: 'add',
                 item: 'comment',
-                reaction_type: 'haha',
                 post_id: postId,
                 comment_id: `${commentId}1`,
                 from: {
@@ -357,13 +354,14 @@ describe('facebook integration: save webhook response', () => {
     expect(newMessage.content).toBe(messageText);
     expect(newMessage.attachments).toBe(undefined);
 
-    expect(newMessage.facebookData.toJSON()).toEqual({
-      item: 'comment',
-      senderId,
-      senderName,
-      postId,
-      reactionType: 'haha',
-      commentId: `${commentId}1`,
-    });
+    expect(newMessage.facebookData.createdAt).toBeDefined();
+    expect(newMessage.facebookData.item).toBe('comment');
+    expect(newMessage.facebookData.senderId).toBe(senderId);
+    expect(newMessage.facebookData.senderName).toBe(senderName);
+    expect(newMessage.facebookData.postId).toBe(postId);
+    expect(newMessage.facebookData.commentId).toBe(`${commentId}1`);
+    expect(newMessage.facebookData.commentCount).toBe(0);
+    expect(newMessage.facebookData.likeCount).toBe(0);
+    expect(newMessage.facebookData.photos).toHaveLength(0);
   });
 });

@@ -157,7 +157,6 @@ export class SaveWebhookResponse {
 
   /**
    * Receives comment
-   * @param {String} conversationMessageId - Conversation message id
    * @param {String} post_id - Post id
    * @param {String} parent_id - Parent post or comment id
    * @param {String} item - Feed content types
@@ -169,17 +168,8 @@ export class SaveWebhookResponse {
    *
    * @return {Object} Facebook messenger data
    */
-  async handleComments(conversationMessageId, commentParams) {
-    const {
-      post_id,
-      parent_id,
-      item,
-      comment_id,
-      created_time,
-      video,
-      photo,
-      verb,
-    } = commentParams;
+  async handleComments(commentParams) {
+    const { post_id, parent_id, item, comment_id, created_time, video, photo } = commentParams;
 
     const doc = {
       postId: post_id,
@@ -199,8 +189,6 @@ export class SaveWebhookResponse {
     if (post_id !== parent_id) {
       doc.parentId = parent_id;
     }
-
-    await this.updateCommentCount(verb, conversationMessageId);
 
     return doc;
   }
@@ -364,7 +352,12 @@ export class SaveWebhookResponse {
    * @param {Object} value - Webhook response item
    */
   async getOrCreateConversationByFeed(value) {
-    const { item, comment_id } = value;
+    const { item, comment_id, verb } = value;
+
+    // collect only added actions
+    if (verb !== 'add') {
+      return null;
+    }
 
     let msgFacebookData = {};
 
@@ -378,7 +371,7 @@ export class SaveWebhookResponse {
         return null;
       }
 
-      msgFacebookData = await this.handleComments(conversationMessage._id, value);
+      msgFacebookData = await this.handleComments(value);
     }
 
     // sending to post handler if post
@@ -649,21 +642,16 @@ export const facebookReply = async (conversation, msg, messageId) => {
       msgObj.source = attachment.url;
     }
 
-    await graphRequest
-      .post('me/messages', response.access_token, {
-        recipient: { id: conversation.facebookData.senderId },
-        ...msgObj,
-      })
-      .then(async res => {
-        // save commentId in message object
-        await ConversationMessages.update(
-          { _id: messageId },
-          { $set: { 'facebookData.messageId': res.message_id } },
-        );
-      })
-      .catch(e => {
-        return e.message;
-      });
+    const res = await graphRequest.post('me/messages', response.access_token, {
+      recipient: { id: conversation.facebookData.senderId },
+      ...msgObj,
+    });
+
+    // save commentId in message object
+    await ConversationMessages.update(
+      { _id: messageId },
+      { $set: { 'facebookData.messageId': res.message_id } },
+    );
   }
 
   // feed reply
@@ -682,20 +670,15 @@ export const facebookReply = async (conversation, msg, messageId) => {
     }
 
     // post reply
-    await graphRequest
-      .post(`${id}/comments`, response.access_token, {
-        message: text,
-      })
-      .then(async res => {
-        // save commentId in message object
-        await ConversationMessages.update(
-          { _id: messageId },
-          { $set: { 'facebookData.commentId': res.id } },
-        );
-      })
-      .catch(e => {
-        return e.message;
-      });
+    const res = await graphRequest.post(`${id}/comments`, response.access_token, {
+      message: text,
+    });
+
+    // save commentId in message object
+    await ConversationMessages.update(
+      { _id: messageId },
+      { $set: { 'facebookData.commentId': res.id } },
+    );
   }
 
   return null;
