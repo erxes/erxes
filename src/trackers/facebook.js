@@ -199,11 +199,14 @@ export class SaveWebhookResponse {
       doc.parentId = parent_id;
     }
 
+    // Counting post comments only
     const message = await ConversationMessages.findOne({
-      'facebookData.commentId': comment_id,
+      'facebookData.postId': post_id,
     });
 
-    await this.updateCommentCount(verb, message._id);
+    if (message) {
+      await this.updateCommentCount(verb, message._id);
+    }
 
     return doc;
   }
