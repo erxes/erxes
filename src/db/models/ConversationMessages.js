@@ -49,6 +49,11 @@ const FacebookSchema = mongoose.Schema(
       optional: true,
     }),
 
+    isLiked: field({
+      type: Boolean,
+      default: false,
+    }),
+
     reactions: field({ type: reactionSchema }),
 
     likeCount: field({
