@@ -693,8 +693,20 @@ export const facebookReply = async (conversation, msg, messageId) => {
 /*
  * Like
  */
-export const like = async ({ id, type }) => {
+export const like = async ({ conversationMessageId, type }) => {
   let response = await this.getPageAccessToken();
+
+  const msg = await ConversationMessages.findOne({ _id: conversationMessageId });
+
+  let id;
+
+  if (msg.isPost) {
+    id = msg.postId;
+  } else {
+    id = msg.postId;
+  }
+
+  await ConversationMessages.update({ _id: msg._id }, { isLiked: !msg.isLiked });
 
   // liking post or comment
   return await graphRequest.post(`${id}/reactions`, response.access_token, {

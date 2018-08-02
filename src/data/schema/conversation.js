@@ -195,7 +195,7 @@ export const mutations = `
   ): JSON
 
   conversationsLike(
-    id: String
+    conversationMessageId: String
     type: String
   ): JSON
 
