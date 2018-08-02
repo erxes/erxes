@@ -17,7 +17,6 @@ export const types = `
     reactions: JSON
     likeCount: Int
     commentCount: Int
-    shareCount: Int
 
     messageId: String
     item: String

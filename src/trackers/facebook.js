@@ -708,11 +708,9 @@ export const like = async ({ id, type }) => {
   let response = await this.getPageAccessToken();
 
   // liking post or comment
-  response = await graphRequest.post(`${id}/reactions`, response.access_token, {
+  return await graphRequest.post(`${id}/reactions`, response.access_token, {
     type,
   });
-
-  return response;
 };
 
 export const getConfig = () => {

@@ -4,6 +4,7 @@ import { TwitterResponseSchema } from '../../trackers/schemas';
 import { Conversations } from './';
 import { field } from './utils';
 
+// Facebook user data received from reactions
 const fbUserSchema = mongoose.Schema(
   {
     id: field({ type: String, optional: true }),
@@ -12,6 +13,7 @@ const fbUserSchema = mongoose.Schema(
   { _id: false },
 );
 
+// Post or comment's reaction data
 const reactionSchema = mongoose.Schema(
   {
     like: field({ type: [fbUserSchema], default: [] }),
@@ -54,10 +56,6 @@ const FacebookSchema = mongoose.Schema(
       default: 0,
     }),
     commentCount: field({
-      type: Number,
-      default: 0,
-    }),
-    shareCount: field({
       type: Number,
       default: 0,
     }),
