@@ -100,6 +100,17 @@ export class SaveWebhookResponse {
     }
   }
 
+  /*
+   * Get page access token
+   */
+  async getPageAccessToken() {
+    // get page access token
+    return await graphRequest.get(
+      `${this.currentPageId}/?fields=access_token`,
+      this.userAccessToken,
+    );
+  }
+
   /**
    * Receives feed updates
    * @param {String} post_id - Post id
@@ -405,11 +416,7 @@ export class SaveWebhookResponse {
     // save returned value. This value will always be the same
     let postId = value.post_id;
 
-    // get page access token
-    let response = await graphRequest.get(
-      `${this.currentPageId}/?fields=access_token`,
-      this.userAccessToken,
-    );
+    let response = await this.getPageAccessToken();
 
     // acess token expired
     if (response === 'Error processing https request') {
@@ -523,10 +530,7 @@ export class SaveWebhookResponse {
     }
 
     // get page access token
-    let res = await graphRequest.get(
-      `${this.currentPageId}/?fields=access_token`,
-      this.userAccessToken,
-    );
+    let res = await this.getPageAccessToken();
 
     // get user info
     res = await graphRequest.get(`/${fbUserId}?fields=link`, res.access_token);
@@ -695,6 +699,20 @@ export const facebookReply = async (conversation, msg, messageId) => {
   }
 
   return null;
+};
+
+/*
+ * Like
+ */
+export const like = async ({ id, type }) => {
+  let response = await this.getPageAccessToken();
+
+  // liking post or comment
+  response = await graphRequest.post(`${id}/reactions`, response.access_token, {
+    type,
+  });
+
+  return response;
 };
 
 export const getConfig = () => {
