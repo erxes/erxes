@@ -52,13 +52,7 @@ CustomerFormContainer.contextTypes = {
 const options = ({ customer }) => {
   if (!customer) {
     return {
-      refetchQueries: [
-        {
-          query: gql`
-            ${queries.customersMain}
-          `
-        }
-      ]
+      refetchQueries: ['customersMain', 'customers']
     };
   }
 

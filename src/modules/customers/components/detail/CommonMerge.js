@@ -78,6 +78,7 @@ class CommonMerge extends Component {
       if (!this.renderingOptions[property]) {
         return this.renderMergedDataInputs(property, index);
       }
+
       return this.renderProperty(
         'minus-cirlce',
         { [property]: data[property] },
