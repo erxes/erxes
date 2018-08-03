@@ -41,12 +41,10 @@ module.exports = {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
-        exclude: [/node_modules/]
       },
       {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,
         loader: 'url-loader?limit=100000',
-        exclude: [/node_modules/]
       },
       {
         test: /\.scss$/,
