@@ -123,8 +123,8 @@ export class AppProvider extends React.Component<{}, IState> {
    */
   showPopup = () => {
     const { data } = connection;
-    const { formData } = data;
-    const { callout } = formData;
+    const { integration } = data;
+    const { callout } = integration.formData;
 
     this.setState({ isPopupVisible: true });
 

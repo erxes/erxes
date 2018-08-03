@@ -10,7 +10,7 @@ export const getBrowserInfo = async () => {
 
   try {
     const response = await fetch(
-      "http://geoip.nekudo.com/api/{ip}/{language}/{type}"
+      "https://geoip.nekudo.com/api/{ip}/{language}/{type}"
     );
 
     location = await response.json();
