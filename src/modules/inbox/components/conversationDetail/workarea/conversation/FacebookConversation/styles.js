@@ -5,6 +5,10 @@ const mainSize = '20px';
 const borderRadius = '4px';
 const textColor = '#1D212A';
 
+const FlexItem = styled.div`
+  display: flex;
+`;
+
 const PostContainer = styled.div`
   padding: ${mainSize} ${mainSize} 15px;
   border: 1px solid ${colors.borderDarker};
@@ -116,7 +120,8 @@ const Comment = styled.div`
   border-radius: 18px;
   line-height: 16px;
   font-size: 12px;
-  display: inline-flex;
+  display: inline-block;
+  position: relative;
   color: ${textColor};
 
   > a {
@@ -135,6 +140,25 @@ const Comment = styled.div`
     margin: 0;
     display: inline;
   }
+
+  img {
+    display: block;
+    margin-top: 7px;
+  }
+`;
+
+const ReplyReaction = styled.div`
+  position: absolute;
+  display: flex;
+  right: -10px;
+  bottom: -15px;
+  background: ${colors.colorWhite};
+  border-radius: 10px;
+  box-shadow: 1px 1px 3px 0 #dadde1;
+  font-size: 11px;
+  padding: 4px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+  cursor: pointer;
 `;
 
 const Reaction = styled.div`
@@ -162,4 +186,19 @@ const Reaction = styled.div`
   }
 `;
 
-export { PostContainer, User, ChildPost, Comment, Counts, Reaction, Reply };
+const Footer = styled.div`
+  text-align: right;
+`;
+
+export {
+  PostContainer,
+  User,
+  ChildPost,
+  Comment,
+  Counts,
+  Reaction,
+  Reply,
+  FlexItem,
+  ReplyReaction,
+  Footer
+};

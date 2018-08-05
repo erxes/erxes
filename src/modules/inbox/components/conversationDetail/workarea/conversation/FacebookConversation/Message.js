@@ -1,7 +1,9 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { NameCard, Tip } from 'modules/common/components';
+import { NameCard, Tip, ModalTrigger } from 'modules/common/components';
+import { FacebookContent } from './';
+import { ReplyingMessage } from 'modules/inbox/containers/conversationDetail';
 import {
   PostContainer,
   ChildPost,
@@ -9,17 +11,31 @@ import {
   Comment,
   Counts,
   Reaction,
-  Reply
+  Reply,
+  FlexItem,
+  ReplyReaction
 } from './styles';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
+  likePost: PropTypes.func,
   currentConversationId: PropTypes.string,
   integrationId: PropTypes.string,
   scrollBottom: PropTypes.func.isRequired
 };
 
 class Message extends Component {
+  renderLikePost(data) {
+    const { likePost } = this.props;
+
+    const post = {
+      conversationMessageId: data.postId,
+      type: 'SAD'
+    };
+
+    likePost(post);
+  }
+
   renderUserName(username, userId) {
     return (
       <a target="_blank" href={`https://facebook.com/${username}-${userId}`}>
@@ -45,26 +61,17 @@ class Message extends Component {
     );
   }
 
-  renderReactionIcons(key, value) {
-    const message = (
-      <Fragment>
-        <b style={{ display: 'block' }}>{key}</b>
-        {value.map(user => user.name)}
-      </Fragment>
-    );
-
-    return (
-      <Tip text={message}>
-        <Reaction className={key} />
-      </Tip>
-    );
-  }
-
   renderReactions(reactions) {
     return Object.keys(reactions).map(value => {
-      if (value.length > 0) {
-        return reactions[value].map(reaction =>
-          this.renderReactionIcons(value, reactions[value])
+      const users = reactions[value].map((value, index) => (
+        <div key={index}>{value.name}</div>
+      ));
+
+      if (reactions[value].length > 0) {
+        return (
+          <Tip key={value} text={users}>
+            <Reaction className={value} />
+          </Tip>
         );
       }
 
@@ -75,54 +82,77 @@ class Message extends Component {
   renderCounts(data) {
     return (
       <Counts>
-        <div key={data.postId}>
+        <FlexItem>
           {this.renderReactions(data.reactions)}
           <a>{data.likeCount}</a>
-        </div>
+        </FlexItem>
         <span>{data.commentCount} Comments</span>
       </Counts>
     );
   }
 
+  renderAttachments(data) {
+    if (data.photo) {
+      return <img src={data.photo} alt={data.postId} />;
+    }
+
+    return null;
+  }
+
   render() {
-    const { message } = this.props;
+    const { message, integrationId } = this.props;
     // console.log(message)
     const customer = message.customer || {};
     const data = message.facebookData || {};
     const size = data && data.parentId ? 20 : 32;
 
-    if (!data.isPost) {
+    if (data.isPost) {
       return (
-        <ChildPost isReply={data.parentId} root>
-          <NameCard.Avatar customer={customer} size={size} />
+        <PostContainer isReply={data.parentId} root>
+          <NameCard.Avatar customer={customer} />
 
-          <User isPost={data.isPost} isReply={data.parentId}>
-            <Comment>
-              {this.renderUserName(data.senderName, data.senderId)}
-              <p>{message.content}</p>
-            </Comment>
-            <div>
-              <Reply>
-                <a>Like</a> • <a>Reply</a> •
-              </Reply>
-              {this.renderDate()}
-            </div>
+          <User isPost={data.isPost} root>
+            {this.renderUserName(data.senderName, data.senderId)}
+            {this.renderDate()}
           </User>
-        </ChildPost>
+          <FacebookContent content={message.content} image={data.photo} />
+          {this.renderCounts(data)}
+        </PostContainer>
       );
     }
 
     return (
-      <PostContainer isReply={data.parentId} root>
-        <NameCard.Avatar customer={customer} />
+      <ChildPost isReply={data.parentId} root>
+        <NameCard.Avatar customer={customer} size={size} />
 
-        <User isPost={data.isPost} root>
-          {this.renderUserName(data.senderName, data.senderId)}
-          {this.renderDate()}
+        <User isPost={data.isPost} isReply={data.parentId}>
+          <Comment>
+            {this.renderUserName(data.senderName, data.senderId)}
+            <FacebookContent content={message.content} isPost={data.isPost} />
+            {this.renderAttachments(data)}
+            {data.reactions && (
+              <ReplyReaction>
+                {this.renderReactions(data.reactions)}
+                {data.likeCount}
+              </ReplyReaction>
+            )}
+          </Comment>
+          <div>
+            <Reply>
+              <a onClick={this.renderLikePost(data)}>Like</a> •
+              <ModalTrigger title="Reply" trigger={<a>Reply •</a>}>
+                <ReplyingMessage
+                  commentId={data.commentId}
+                  postId={data.postId}
+                  integrationId={integrationId}
+                  currentUserName={data.senderName}
+                />
+              </ModalTrigger>
+            </Reply>
+            {this.renderDate()}
+          </div>
         </User>
-        <p>{message.content}</p>
-        {this.renderCounts(data)}
-      </PostContainer>
+      </ChildPost>
     );
   }
 }
