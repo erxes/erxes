@@ -55,6 +55,7 @@ const queryParams = `
   tag: String,
   ids: [String],
   searchValue: String,
+  lifecycleState: String,
   leadStatus: String
 `;
 

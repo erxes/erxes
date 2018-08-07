@@ -1,6 +1,11 @@
 import { Companies, Segments, Tags } from '../../../db/models';
 import QueryBuilder from './segmentQueryBuilder';
-import { TAG_TYPES, COC_CONTENT_TYPES, COMPANY_LEAD_STATUS_TYPES } from '../../constants';
+import {
+  TAG_TYPES,
+  COC_CONTENT_TYPES,
+  COC_LEAD_STATUS_TYPES,
+  COC_LIFECYCLE_STATE_TYPES,
+} from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 import { cocsExport } from './cocExport';
@@ -41,6 +46,11 @@ const listQuery = async params => {
     selector.leadStatus = params.leadStatus;
   }
 
+  // filter by life cycle state
+  if (params.lifecycleState) {
+    selector.lifecycleState = params.lifecycleState;
+  }
+
   return selector;
 };
 
@@ -79,7 +89,8 @@ const companyQueries = {
     const counts = {
       bySegment: {},
       byTag: {},
-      byLead: {},
+      byLeadStatus: {},
+      byLifecycleState: {},
     };
 
     const selector = await listQuery(args);
@@ -106,8 +117,13 @@ const companyQueries = {
     }
 
     // Count companies by lead status
-    for (let s of COMPANY_LEAD_STATUS_TYPES) {
-      counts.byLead[s] = await count({ leadStatus: s });
+    for (let status of COC_LEAD_STATUS_TYPES) {
+      counts.byLeadStatus[status] = await count({ leadStatus: status });
+    }
+
+    // Count companies by life cycle state
+    for (let state of COC_LIFECYCLE_STATE_TYPES) {
+      counts.byLifecycleState[state] = await count({ lifecycleState: state });
     }
 
     return counts;

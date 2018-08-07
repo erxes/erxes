@@ -185,6 +185,30 @@ export const COC_CONTENT_TYPES = {
   ALL: ['customer', 'company', 'user', 'deal'],
 };
 
+export const COC_LEAD_STATUS_TYPES = [
+  '',
+  'new',
+  'open',
+  'inProgress',
+  'openDeal',
+  'unqualified',
+  'attemptedToContact',
+  'connected',
+  'badTiming',
+];
+
+export const COC_LIFECYCLE_STATE_TYPES = [
+  '',
+  'subscriber',
+  'lead',
+  'marketingQualifiedLead',
+  'salesQualifiedLead',
+  'opportunity',
+  'customer',
+  'evangelist',
+  'other',
+];
+
 export const ROLES = {
   ADMIN: 'admin',
   CONTRIBUTOR: 'contributor',
@@ -236,30 +260,6 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   ALL: ['customer', 'company'],
 };
 
-export const CUSTOMER_LEAD_STATUS_TYPES = [
-  '',
-  'New',
-  'Open',
-  'In Progress',
-  'Open Deal',
-  'Unqualified',
-  'Attempted to Contact',
-  'Connected',
-  'Bad Timing',
-];
-
-export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
-  '',
-  'Subscriber',
-  'Lead',
-  'Marketing Qualified Lead',
-  'Sales Qualified Lead',
-  'Opportunity',
-  'Customer',
-  'Evangelist',
-  'Other',
-];
-
 export const CUSTOMER_BASIC_INFOS = [
   'firstName',
   'lastName',
@@ -275,30 +275,6 @@ export const CUSTOMER_BASIC_INFOS = [
   'doNotDisturb',
 ];
 
-export const COMPANY_LEAD_STATUS_TYPES = [
-  '',
-  'New',
-  'Open',
-  'In Progress',
-  'Open Deal',
-  'Unqualified',
-  'Attempted to contact',
-  'Connected',
-  'Bad Timing',
-];
-
-export const COMPANY_LIFECYCLE_STATE_TYPES = [
-  '',
-  'Subscriber',
-  'Lead',
-  'Marketing Qualified Lead',
-  'Sales Qualified Lead',
-  'Opportunity',
-  'Customer',
-  'Evangelist',
-  'Other',
-];
-
 export const COMPANY_BUSINESS_TYPES = [
   '',
   'Analyst',
@@ -311,63 +287,6 @@ export const COMPANY_BUSINESS_TYPES = [
   'Prospect',
   'Reseller',
   'Other',
-];
-
-export const COMPANY_INDUSTRY_TYPES = [
-  '',
-  'Advertising/Public Relations',
-  'Aerospace, Defense Contractors',
-  'Agriculture',
-  'Airlines',
-  'Alcoholic Beverages',
-  'Alternative Energy Production & Services',
-  'Architectural Services',
-  'Attorneys/Law Firms',
-  'Automotive',
-  'Banks',
-  'Bars & Restaurants',
-  'Books, Magazines & Newspapers',
-  'Builders/General Contractors',
-  'Business Services',
-  'Car Manufacturers',
-  'Coal Mining',
-  'Colleges, Universities & Schools',
-  'Commercial TV & Radio Stations',
-  'Computer Software',
-  'Construction',
-  'Dairy',
-  'Doctors & Other Health Professionals',
-  'Education',
-  'Energy & Natural Resources',
-  'Finance, Insurance & Real Estate',
-  'Food & Beverage',
-  'Foundations, Philanthropists & Non-Profits',
-  'Health',
-  'Hotels, Motels & Tourism',
-  'Insurance',
-  'Internet',
-  'Lawyers / Law Firms',
-  'Meat processing & products',
-  'Medical Supplies',
-  'Mining',
-  'Mortgage Bankers & Brokers',
-  'Music Production',
-  'Natural Gas Pipelines',
-  'Nursing Homes/Hospitals',
-  'Phone Companies',
-  'Postal Unions',
-  'Printing & Publishing',
-  'Private Equity & Investment Firms',
-  'Publishing & Printing',
-  'Real Estate',
-  'Retail Sales',
-  'Schools/Education',
-  'Sports, Professional',
-  'Telecom Services & Equipment',
-  'Textiles',
-  'Tobacco',
-  'Transportation',
-  'TV / Movies / Music',
 ];
 
 export const COMPANY_BASIC_INFOS = [

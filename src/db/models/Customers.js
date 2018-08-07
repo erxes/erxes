@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import {
   CUSTOMER_BASIC_INFOS,
-  CUSTOMER_LEAD_STATUS_TYPES,
-  CUSTOMER_LIFECYCLE_STATE_TYPES,
+  COC_LEAD_STATUS_TYPES,
+  COC_LIFECYCLE_STATE_TYPES,
 } from '../../data/constants';
 import { Fields, Companies, ActivityLogs, Conversations, InternalNotes, EngageMessages } from './';
 import { field } from './utils';
@@ -124,14 +124,14 @@ const CustomerSchema = mongoose.Schema({
 
   leadStatus: field({
     type: String,
-    enum: CUSTOMER_LEAD_STATUS_TYPES,
+    enum: COC_LEAD_STATUS_TYPES,
     optional: true,
     label: 'Lead Status',
   }),
 
   lifecycleState: field({
     type: String,
-    enum: CUSTOMER_LIFECYCLE_STATE_TYPES,
+    enum: COC_LIFECYCLE_STATE_TYPES,
     optional: true,
     label: 'Lifecycle State',
   }),

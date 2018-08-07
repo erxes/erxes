@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import {
-  COMPANY_LEAD_STATUS_TYPES,
-  COMPANY_LIFECYCLE_STATE_TYPES,
+  COC_LEAD_STATUS_TYPES,
+  COC_LIFECYCLE_STATE_TYPES,
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
   COMPANY_BASIC_INFOS,
@@ -76,14 +76,14 @@ const CompanySchema = mongoose.Schema({
 
   leadStatus: field({
     type: String,
-    enum: COMPANY_LEAD_STATUS_TYPES,
+    enum: COC_LEAD_STATUS_TYPES,
     optional: true,
     label: 'Lead Status',
   }),
 
   lifecycleState: field({
     type: String,
-    enum: COMPANY_LIFECYCLE_STATE_TYPES,
+    enum: COC_LIFECYCLE_STATE_TYPES,
     optional: true,
     label: 'Lifecycle State',
   }),

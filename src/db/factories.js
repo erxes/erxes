@@ -176,6 +176,8 @@ export const companyFactory = (params = {}) => {
     website: params.website || faker.internet.domainName(),
     tagIds: params.tagIds || [faker.random.number()],
     plan: params.plan || faker.random.word(),
+    leadStatus: params.leadStatus || 'open',
+    lifecycleState: params.lifecycleState || 'lead',
   });
 
   return company.save();
