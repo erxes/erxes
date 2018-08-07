@@ -5,7 +5,11 @@ import { connect, disconnect } from '../../db/connection';
 import { SaveWebhookResponse } from '../../trackers/facebook';
 import { graphRequest } from '../../trackers/facebookTracker';
 import { Conversations, ConversationMessages } from '../../db/models';
-import { integrationFactory, customerFactory } from '../../db/factories';
+import {
+  integrationFactory,
+  customerFactory,
+  conversationMessageFactory,
+} from '../../db/factories';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
 
 beforeAll(() => connect());
@@ -216,5 +220,121 @@ describe('facebook integration: get or create conversation', () => {
 
     // unwrap getOrCreateCustomer
     saveWebhookResponse.getOrCreateCustomer.restore();
+  });
+
+  test('Handle posts', async () => {
+    const integration = await integrationFactory();
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
+    // Received video
+    const postParams = {
+      post_id: '123',
+      item: 'status',
+      video_id: '12331213',
+      link: 'video link',
+      created_time: '12323213',
+    };
+
+    const response = await saveWebhookResponse.handlePosts(postParams);
+
+    expect(response.postId).toBe(postParams.post_id);
+    expect(response.item).toBe(postParams.item);
+    expect(response.createdAt).toBe(postParams.created_time);
+    expect(response.video).toBe(postParams.link);
+    expect(response.isPost).toBeTruthy();
+  });
+
+  test('Handle comments', async () => {
+    const integration = await integrationFactory();
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
+    // Replied to comment
+    const commentParams = {
+      post_id: '123',
+      verb: 'add',
+      parent_id: '12344',
+      item: 'status',
+      created_time: '12323213',
+    };
+
+    const response = await saveWebhookResponse.handleComments(commentParams);
+
+    expect(response.postId).toBe(commentParams.post_id);
+    expect(response.item).toBe(commentParams.item);
+    expect(response.createdAt).toBe(commentParams.created_time);
+    expect(response.parentId).toBe(commentParams.parent_id);
+  });
+
+  test('Update comment count', async () => {
+    const integration = await integrationFactory();
+    const msg = await conversationMessageFactory({});
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
+    // increasing
+    await saveWebhookResponse.updateCommentCount('add', msg._id);
+    let response = await ConversationMessages.findOne({ _id: msg._id });
+    expect(response.facebookData.commentCount).toBe(1);
+
+    // decreasing
+    await saveWebhookResponse.updateCommentCount('subtract', msg._id);
+
+    response = await ConversationMessages.findOne({ _id: msg._id });
+    expect(response.facebookData.commentCount).toBe(0);
+  });
+
+  test('Update like count', async () => {
+    const integration = await integrationFactory();
+    const msg = await conversationMessageFactory({});
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
+    // increasing
+    await saveWebhookResponse.updateLikeCount('add', msg._id);
+    let response = await ConversationMessages.findOne({ _id: msg._id });
+    expect(response.facebookData.likeCount).toBe(1);
+
+    // decreasing
+    await saveWebhookResponse.updateLikeCount('subtract', msg._id);
+
+    response = await ConversationMessages.findOne({ _id: msg._id });
+    expect(response.facebookData.likeCount).toBe(0);
+  });
+
+  test('Update reactions', async () => {
+    const integration = await integrationFactory();
+    const msg = await conversationMessageFactory({
+      facebookData: {
+        reactions: {
+          haha: [],
+        },
+      },
+    });
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
+    const from = {
+      id: '123123',
+      name: 'asddqwesaasd',
+    };
+
+    const type = 'haha';
+
+    // adding reaction
+    await saveWebhookResponse.updateReactions('add', msg._id, type, from);
+
+    let response = await ConversationMessages.findOne({ _id: msg._id });
+
+    expect(response.facebookData.reactions[type]).toContainEqual(expect.objectContaining(from));
+
+    // removing reaction
+
+    await saveWebhookResponse.updateReactions('subtract', msg._id, type, from);
+
+    response = await ConversationMessages.findOne({ _id: msg._id });
+
+    expect(response.facebookData.reactions[type]).not.toContainEqual(expect.objectContaining(from));
   });
 });

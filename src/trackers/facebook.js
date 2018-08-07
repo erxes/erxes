@@ -283,6 +283,7 @@ export class SaveWebhookResponse {
     }
 
     const msg = await ConversationMessages.findOne(selector);
+
     if (msg) {
       // Receiving like
       if (item === 'like') {
