@@ -17,10 +17,12 @@ import {
 import { searchCompany, searchUser } from 'modules/common/utils';
 import {
   COMPANY_INDUSTRY_TYPES,
-  COMPANY_LEAD_STATUS_TYPES,
-  COMPANY_LIFECYCLE_STATE_TYPES,
   COMPANY_BUSINESS_TYPES
 } from '../../constants';
+import {
+  leadStatusChoices,
+  lifecycleStateChoices
+} from 'modules/customers/utils';
 
 const propTypes = {
   action: PropTypes.func.isRequired,
@@ -191,7 +193,7 @@ class CompanyForm extends React.Component {
               id: 'company-leadStatus',
               componentClass: 'select',
               defaultValue: company.leadStatus || '',
-              options: this.generateConstantParams(COMPANY_LEAD_STATUS_TYPES)
+              options: leadStatusChoices(__)
             })}
             {this.renderFormGroup('Business Type', {
               id: 'company-businessType',
@@ -232,9 +234,7 @@ class CompanyForm extends React.Component {
               id: 'company-lifecycleState',
               componentClass: 'select',
               defaultValue: company.lifecycleState || '',
-              options: this.generateConstantParams(
-                COMPANY_LIFECYCLE_STATE_TYPES
-              )
+              options: lifecycleStateChoices(__)
             })}
             {this.renderFormGroup('Description', {
               id: 'company-description',

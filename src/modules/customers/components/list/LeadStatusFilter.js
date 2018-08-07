@@ -6,9 +6,10 @@ import { Wrapper } from 'modules/layout/components';
 import { Icon, DataWithLoader } from 'modules/common/components';
 import { router } from 'modules/common/utils';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import { COMPANY_LEAD_STATUS_TYPES } from '../../constants';
+import { LEAD_STATUS_TYPES } from '../../constants';
+import { leadStatusChoices } from '../../utils';
 
-class CountsByLeadStatus extends Component {
+class LeadStatusFilter extends Component {
   constructor() {
     super();
 
@@ -20,10 +21,9 @@ class CountsByLeadStatus extends Component {
     const { history, counts } = this.props;
     const { Section } = Wrapper.Sidebar;
     const paramKey = 'leadStatus';
-    const types = COMPANY_LEAD_STATUS_TYPES.sort();
 
     return (
-      <Section collapsible={types.length > 5}>
+      <Section collapsible={true}>
         <Section.Title>{__('Filter by lead status')}</Section.Title>
         <Section.QuickButtons>
           {router.getParam(history, 'leadStatus') ? (
@@ -39,22 +39,24 @@ class CountsByLeadStatus extends Component {
         </Section.QuickButtons>
         <div>
           <SidebarList>
-            {types.map(type => {
+            {leadStatusChoices(__).map(({ value, label }) => {
               return (
                 <li key={Math.random()}>
                   <a
                     tabIndex={0}
                     className={
-                      router.getParam(history, [paramKey]) === type
+                      router.getParam(history, [paramKey]) === value
                         ? 'active'
                         : ''
                     }
                     onClick={() => {
-                      router.setParams(history, { [paramKey]: type });
+                      router.setParams(history, { [paramKey]: value });
                     }}
                   >
-                    {type || __('No lead status chosen')}
-                    <SidebarCounter>{counts ? counts[type] : 0}</SidebarCounter>
+                    {label}
+                    <SidebarCounter>
+                      {counts ? counts[value] : 0}
+                    </SidebarCounter>
                   </a>
                 </li>
               );
@@ -69,7 +71,7 @@ class CountsByLeadStatus extends Component {
     return (
       <DataWithLoader
         loading={this.props.loading}
-        count={COMPANY_LEAD_STATUS_TYPES.length}
+        count={Object.keys(LEAD_STATUS_TYPES).length}
         data={this.renderCounts()}
         emptyText="No leads"
         emptyIcon="type"
@@ -80,15 +82,15 @@ class CountsByLeadStatus extends Component {
   }
 }
 
-CountsByLeadStatus.contextTypes = {
+LeadStatusFilter.contextTypes = {
   __: PropTypes.func
 };
 
-CountsByLeadStatus.propTypes = {
+LeadStatusFilter.propTypes = {
   history: PropTypes.object.isRequired,
   counts: PropTypes.object.isRequired,
   loading: PropTypes.bool.isRequired,
   searchable: PropTypes.bool
 };
 
-export default withRouter(CountsByLeadStatus);
+export default withRouter(LeadStatusFilter);

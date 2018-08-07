@@ -3,8 +3,11 @@ import PropTypes from 'prop-types';
 
 import { Wrapper } from 'modules/layout/components';
 import { CountsByTag } from 'modules/common/components';
+import {
+  LeadStatusFilter,
+  LifecycleStateFilter
+} from 'modules/customers/components';
 import Segments from 'modules/segments/containers/Filter';
-import CountsByLeadStatus from './CountsByLeadStatus';
 
 const propTypes = {
   counts: PropTypes.object.isRequired,
@@ -22,7 +25,11 @@ function Sidebar({ counts, tags, loading }) {
         manageUrl="tags/company"
         loading={loading}
       />
-      <CountsByLeadStatus counts={counts.byLead} loading={loading} />
+      <LeadStatusFilter counts={counts.byLeadStatus} loading={loading} />
+      <LifecycleStateFilter
+        counts={counts.byLifecycleState}
+        loading={loading}
+      />
     </Wrapper.Sidebar>
   );
 }

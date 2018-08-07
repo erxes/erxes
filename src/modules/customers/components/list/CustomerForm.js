@@ -15,10 +15,7 @@ import {
   ColumnTitle
 } from 'modules/common/styles/main';
 import { searchUser } from 'modules/common/utils';
-import {
-  CUSTOMER_LEAD_STATUS_TYPES,
-  CUSTOMER_LIFECYCLE_STATE_TYPES
-} from '../../constants';
+import { LEAD_STATUS_TYPES, LIFECYCLE_STATE_TYPES } from '../../constants';
 
 const propTypes = {
   customer: PropTypes.object,
@@ -185,9 +182,7 @@ class CustomerForm extends React.Component {
               id: 'customer-lifecycleState',
               componentClass: 'select',
               defaultValue: customer.lifecycleState || '',
-              options: this.generateConstantParams(
-                CUSTOMER_LIFECYCLE_STATE_TYPES
-              )
+              options: this.generateConstantParams(LIFECYCLE_STATE_TYPES)
             })}
 
             {this.renderFormGroup('Description', {
@@ -221,7 +216,7 @@ class CustomerForm extends React.Component {
               id: 'customer-leadStatus',
               componentClass: 'select',
               defaultValue: customer.leadStatus || '',
-              options: this.generateConstantParams(CUSTOMER_LEAD_STATUS_TYPES)
+              options: this.generateConstantParams(LEAD_STATUS_TYPES)
             })}
 
             {this.renderFormGroup('Has Authority', {
