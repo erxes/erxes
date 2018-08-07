@@ -192,6 +192,8 @@ export const customerFactory = (params = {}) => {
     primaryPhone: params.primaryPhone || faker.phone.phoneNumber(),
     emails: params.emails || [faker.internet.email()],
     phones: params.phones || [faker.phone.phoneNumber()],
+    leadStatus: params.leadStatus || 'open',
+    lifecycleState: params.lifecycleState || 'lead',
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
     companyIds: params.companyIds || [faker.random.number(), faker.random.number()],

@@ -1,5 +1,11 @@
 import { Brands, Tags, Customers, Segments, Forms } from '../../../db/models';
-import { TAG_TYPES, INTEGRATION_KIND_CHOICES, COC_CONTENT_TYPES } from '../../constants';
+import {
+  TAG_TYPES,
+  INTEGRATION_KIND_CHOICES,
+  COC_CONTENT_TYPES,
+  COC_LEAD_STATUS_TYPES,
+  COC_LIFECYCLE_STATE_TYPES,
+} from '../../constants';
 import QueryBuilder from './segmentQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
@@ -52,6 +58,8 @@ const customerQueries = {
       byTag: {},
       byFakeSegment: 0,
       byForm: {},
+      byLeadStatus: {},
+      byLifecycleState: {},
     };
 
     const qb = new BuildQuery(params);
@@ -103,6 +111,16 @@ const customerQueries = {
       counts.byForm[form._id] = await count(
         await qb.formFilter(form._id, params.startDate, params.endDate),
       );
+    }
+
+    // Count customers by lead status
+    for (let status of COC_LEAD_STATUS_TYPES) {
+      counts.byLeadStatus[status] = await count(await qb.leadStatusFilter(status));
+    }
+
+    // Count customers by life cycle state
+    for (let state of COC_LIFECYCLE_STATE_TYPES) {
+      counts.byLifecycleState[state] = await count(await qb.lifecycleStateFilter(state));
     }
 
     return counts;

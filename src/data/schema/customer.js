@@ -76,7 +76,9 @@ const queryParams = `
   integration: String,
   form: String,
   startDate: String,
-  endDate: String
+  endDate: String,
+  lifecycleState: String,
+  leadStatus: String
 `;
 
 export const queries = `
