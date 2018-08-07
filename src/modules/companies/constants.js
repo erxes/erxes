@@ -69,30 +69,6 @@ export const COMPANY_INDUSTRY_TYPES = [
   'TV / Movies / Music'
 ];
 
-export const COMPANY_LEAD_STATUS_TYPES = [
-  '',
-  'New',
-  'Open',
-  'In Progress',
-  'Open Deal',
-  'Unqualified',
-  'Attempted to contact',
-  'Connected',
-  'Bad Timing'
-];
-
-export const COMPANY_LIFECYCLE_STATE_TYPES = [
-  '',
-  'Subscriber',
-  'Lead',
-  'Marketing Qualified Lead',
-  'Sales Qualified Lead',
-  'Opportunity',
-  'Customer',
-  'Evangelist',
-  'Other'
-];
-
 export const COMPANY_BUSINESS_TYPES = [
   '',
   'Analyst',

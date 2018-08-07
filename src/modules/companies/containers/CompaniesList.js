@@ -75,7 +75,9 @@ class CompanyListContainer extends Bulk {
       byBrand: {},
       byIntegrationType: {},
       bySegment: {},
-      byTag: {}
+      byTag: {},
+      byLeadStatus: {},
+      byLifecycleState: {}
     };
 
     const updatedProps = {
@@ -122,7 +124,9 @@ export default compose(
         segment: queryParams.segment,
         tag: queryParams.tag,
         ids: queryParams.ids,
-        searchValue: queryParams.searchValue
+        searchValue: queryParams.searchValue,
+        leadStatus: queryParams.leadStatus,
+        lifecycleState: queryParams.lifecycleState
       },
       notifyOnNetworkStatusChange: true
     })
@@ -136,7 +140,9 @@ export default compose(
         segment: queryParams.segment,
         tag: queryParams.tag,
         ids: queryParams.ids,
-        searchValue: queryParams.searchValue
+        searchValue: queryParams.searchValue,
+        leadStatus: queryParams.leadStatus,
+        lifecycleState: queryParams.lifecycleState
       },
       notifyOnNetworkStatusChange: true
     })

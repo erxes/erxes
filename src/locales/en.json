@@ -663,5 +663,7 @@
   "You can only import max 600 at a time":
     "You can only import max 600 at a time",
   "Invalid import type": "Invalid import type",
-  "Last updated": "Last updated"
+  "Last updated": "Last updated",
+  "Filter by lead status": "Filter by lead status",
+  "No lead status chosen": "No lead status chosen"
 }

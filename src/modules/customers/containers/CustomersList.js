@@ -141,7 +141,9 @@ class CustomerListContainer extends Bulk {
       byIntegrationType: {},
       bySegment: {},
       byTag: {},
-      byForm: {}
+      byForm: {},
+      byLeadStatus: {},
+      byLifecycleState: {}
     };
 
     const updatedProps = {
@@ -201,7 +203,9 @@ export default compose(
           integration: queryParams.integrationType,
           form: queryParams.form,
           startDate: queryParams.startDate,
-          endDate: queryParams.endDate
+          endDate: queryParams.endDate,
+          leadStatus: queryParams.leadStatus,
+          lifecycleState: queryParams.lifecycleState
         },
         notifyOnNetworkStatusChange: true
       };
@@ -219,7 +223,9 @@ export default compose(
         searchValue: queryParams.searchValue,
         form: queryParams.form,
         startDate: queryParams.startDate,
-        endDate: queryParams.endDate
+        endDate: queryParams.endDate,
+        leadStatus: queryParams.leadStatus,
+        lifecycleState: queryParams.lifecycleState
       },
       notifyOnNetworkStatusChange: true
     })

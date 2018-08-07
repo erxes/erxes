@@ -667,5 +667,7 @@
   "You can only import max 600 at a time":
     "Харилцагчид оруулах дээд хэмжээ: 600",
   "Invalid import type": "Буруу төрөл сонгосон байна",
-  "Last updated": "Сүүлд өөрчилсөн"
+  "Last updated": "Сүүлд өөрчилсөн",
+  "Filter by lead status": "Лийдийн төлөвөөр шүүх",
+  "No lead status chosen": "Лийдийн төлөв сонгоогүй байна"
 }

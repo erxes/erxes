@@ -1,18 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Dropdown } from 'react-bootstrap';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { Icon, ModalTrigger } from 'modules/common/components';
+import {
+  DropdownToggle,
+  Button,
+  Icon,
+  ModalTrigger
+} from 'modules/common/components';
 import { Links, InfoWrapper } from 'modules/common/styles/main';
-import { confirm } from 'modules/common/utils';
-import { CompanyForm } from '../../containers';
-import { CompanyLogo } from '../../styles';
+import { confirm, searchCompany } from 'modules/common/utils';
 import { TargetMergeModal } from 'modules/customers/components';
 import { Action } from 'modules/customers/styles';
-import { Dropdown } from 'react-bootstrap';
-import { DropdownToggle, Button } from 'modules/common/components';
-import { searchCompany } from 'modules/common/utils';
 import { COMPANY_INFO } from 'modules/companies/constants';
+import { CompanyForm } from '../../containers';
+import { CompanyLogo } from '../../styles';
 
 const propTypes = {
   company: PropTypes.object.isRequired,

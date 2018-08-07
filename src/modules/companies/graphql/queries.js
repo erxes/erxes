@@ -49,7 +49,9 @@ const listParamsDef = `
   $segment: String,
   $tag: String,
   $ids: [String],
-  $searchValue: String
+  $searchValue: String,
+  $leadStatus: String,
+  $lifecycleState: String
 `;
 
 const listParamsValue = `
@@ -58,7 +60,9 @@ const listParamsValue = `
   segment: $segment,
   tag: $tag,
   ids: $ids,
-  searchValue: $searchValue
+  searchValue: $searchValue,
+  leadStatus: $leadStatus,
+  lifecycleState: $lifecycleState
 `;
 
 export const companies = `
