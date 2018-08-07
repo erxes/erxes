@@ -12,10 +12,6 @@ import {
 import { Links, InfoWrapper } from 'modules/common/styles/main';
 import { confirm, searchCompany } from 'modules/common/utils';
 import { TargetMergeModal } from 'modules/customers/components';
-import {
-  LEAD_STATUS_TYPES,
-  LIFECYCLE_STATE_TYPES
-} from 'modules/customers/constants';
 import { Action } from 'modules/customers/styles';
 import { COMPANY_INFO } from 'modules/companies/constants';
 import { CompanyForm } from '../../containers';
@@ -107,13 +103,7 @@ class BasicInfo extends React.Component {
 
   renderInfo() {
     const { company } = this.props;
-    const { __ } = this.context;
     const { links = {} } = company;
-
-    const leadStatusDisplay = __(LEAD_STATUS_TYPES[company.leadStatus]);
-    const lifecycleStateDisplay = __(
-      LIFECYCLE_STATE_TYPES[company.lifecycleState]
-    );
 
     return (
       <Sidebar.Section>
@@ -148,8 +138,8 @@ class BasicInfo extends React.Component {
             company.owner ? company.owner.details.fullName : '-'
           )}
           {this.renderRow('Phone', company.phone)}
-          {this.renderRow('Lead Status', leadStatusDisplay)}
-          {this.renderRow('Lifecycle State', lifecycleStateDisplay)}
+          {this.renderRow('Lead Status', company.leadStatus)}
+          {this.renderRow('Lifecycle State', company.lifecycleState)}
           {this.renderRow('Business Type', company.businessType)}
           {this.renderRow('Description', company.description)}
           {this.renderRow('Employees count', company.employees)}

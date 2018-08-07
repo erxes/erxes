@@ -61,7 +61,9 @@ const listParamsDef = `
   $integration: String,
   $form: String,
   $startDate: String,
-  $endDate: String
+  $endDate: String,
+  $leadStatus: String,
+  $lifecycleState: String
 `;
 
 const listParamsValue = `
@@ -75,7 +77,9 @@ const listParamsValue = `
   integration: $integration
   form: $form,
   startDate: $startDate,
-  endDate: $endDate
+  endDate: $endDate,
+  leadStatus: $leadStatus,
+  lifecycleState: $lifecycleState
 `;
 
 const customers = `
