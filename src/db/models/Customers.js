@@ -105,6 +105,9 @@ const LinkSchema = mongoose.Schema(
 const CustomerSchema = mongoose.Schema({
   _id: field({ pkey: true }),
 
+  createdAt: field({ type: Date, label: 'Created at' }),
+  modifiedAt: field({ type: Date, label: 'Modified at' }),
+
   firstName: field({ type: String, label: 'First name', optional: true }),
   lastName: field({ type: String, label: 'Last name', optional: true }),
   // TODO: remove email field after customCommand
@@ -142,7 +145,6 @@ const CustomerSchema = mongoose.Schema({
   links: field({ type: LinkSchema, default: {} }),
 
   isUser: field({ type: Boolean, label: 'Is user', optional: true }),
-  createdAt: field({ type: Date, label: 'Created at' }),
 
   integrationId: field({ type: String }),
   tagIds: field({ type: [String], optional: true }),
@@ -274,6 +276,7 @@ class Customer extends Coc {
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
 
     doc.createdAt = new Date();
+    doc.modifiedAt = new Date();
 
     return this.create(doc);
   }
@@ -292,6 +295,8 @@ class Customer extends Coc {
       // clean custom field values
       doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
     }
+
+    doc.modifiedAt = new Date();
 
     await this.update({ _id }, { $set: doc });
 

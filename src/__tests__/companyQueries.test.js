@@ -41,6 +41,9 @@ describe('companyQueries', () => {
     query companies(${commonParamDefs}) {
       companies(${commonParams}) {
         _id
+        createdAt
+        modifiedAt
+
         primaryName
         names
         size
@@ -68,8 +71,6 @@ describe('companyQueries', () => {
         owner { _id }
         parentCompany { _id }
 
-        lastSeenAt
-        sessionCount
         tagIds
 
         customFieldsData

@@ -23,6 +23,10 @@ const LinkSchema = mongoose.Schema(
 
 const CompanySchema = mongoose.Schema({
   _id: field({ pkey: true }),
+
+  createdAt: field({ type: Date, label: 'Created at' }),
+  modifiedAt: field({ type: Date, label: 'Modified at' }),
+
   // TODO: remove name field after custom command
   name: field({
     type: String,
@@ -103,16 +107,6 @@ const CompanySchema = mongoose.Schema({
   }),
   links: field({ type: LinkSchema, default: {} }),
 
-  lastSeenAt: field({
-    type: Date,
-    label: 'Last seen at',
-  }),
-
-  sessionCount: field({
-    type: Number,
-    label: 'Session count',
-  }),
-
   tagIds: field({
     type: [String],
     optional: true,
@@ -184,6 +178,8 @@ class Company {
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+    doc.createdAt = new Date();
+    doc.modifiedAt = new Date();
 
     return this.create(doc);
   }
@@ -202,6 +198,8 @@ class Company {
       // clean custom field values
       doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
     }
+
+    doc.modifiedAt = new Date();
 
     await this.update({ _id }, { $set: doc });
 

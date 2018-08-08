@@ -53,6 +53,8 @@ describe('customerQueries', () => {
     query customers(${commonParamDefs}) {
       customers(${commonParams}) {
         _id
+        createdAt
+        modifiedAt
         integrationId
         firstName
         lastName
@@ -61,7 +63,6 @@ describe('customerQueries', () => {
         primaryPhone
         phones
         isUser
-        createdAt
         tagIds
         remoteAddress
         internalNotes

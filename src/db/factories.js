@@ -178,6 +178,8 @@ export const companyFactory = (params = {}) => {
     plan: params.plan || faker.random.word(),
     leadStatus: params.leadStatus || 'open',
     lifecycleState: params.lifecycleState || 'lead',
+    createdAt: params.createdAt || new Date(),
+    modifiedAt: params.createdAt || new Date(),
   });
 
   return company.save();

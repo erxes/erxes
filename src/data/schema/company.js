@@ -1,6 +1,10 @@
 export const types = `
   type Company {
     _id: String!
+
+    createdAt: Date
+    modifiedAt: Date
+
     primaryName: String
     names: [String]
     size: Int
@@ -21,8 +25,6 @@ export const types = `
     owner: User
     parentCompany: Company
 
-    lastSeenAt: Date
-    sessionCount: Int
     tagIds: [String]
 
     customFieldsData: JSON
@@ -72,7 +74,6 @@ const commonFields = `
   size: Int,
   website: String,
   industry: String,
-  plan: String,
 
   parentCompanyId: String,
   email: String,
@@ -85,8 +86,6 @@ const commonFields = `
   doNotDisturb: String,
   links: JSON,
 
-  lastSeenAt: Date,
-  sessionCount: Int,
   tagIds: [String]
   customFieldsData: JSON
 `;
