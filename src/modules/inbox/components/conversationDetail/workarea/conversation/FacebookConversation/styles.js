@@ -15,9 +15,8 @@ const PostContainer = styled.div`
   overflow: hidden;
   position: relative;
   margin-bottom: 15px;
-  background: ${props => props.root && colors.colorWhite};
+  background: ${colors.colorWhite};
   border-radius: ${borderRadius};
-  margin-left: ${props => props.isReply && '80px'};
 
   > span {
     position: absolute;
@@ -166,7 +165,7 @@ const Reaction = styled.div`
   width: 16px;
   height: 16px;
   display: inline-block;
-  margin-right: ${props => (props.all ? '10px' : '3px')};
+  margin-right: 3px;
   background-image: url('/images/reactions.png');
   border-radius: 10px;
   cursor: pointer;

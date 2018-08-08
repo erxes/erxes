@@ -33,15 +33,15 @@ class Message extends Component {
   renderDate() {
     const { message } = this.props;
 
+    const data = message.facebookData;
+
     return (
       <Tip
         placement="bottom"
-        text={moment(new Date(message.facebookData.createdAt) * 1000).format(
-          'lll'
-        )}
+        text={data && moment(data.createdAt).format('lll')}
       >
         <span href={`https://facebook.com/statuses/`} target="_blank">
-          {moment(new Date(message.facebookData.createdAt) * 1000).fromNow()}
+          {moment(data ? data.createdAt : message.createdAt).fromNow()}
         </span>
       </Tip>
     );
@@ -71,7 +71,7 @@ class Message extends Component {
     return (
       <Counts>
         <FlexItem>
-          {this.renderReactions(data.reactions)}
+          {data.reactions && this.renderReactions(data.reactions)}
           <a>{data.likeCount}</a>
         </FlexItem>
         <span>{data.commentCount} Comments</span>
@@ -87,31 +87,13 @@ class Message extends Component {
     return null;
   }
 
-  render() {
-    const { message, replyPost } = this.props;
-    // console.log(message);
-    const customer = message.customer || {};
-    const data = message.facebookData || {};
+  renderChildComments(data, message, parent) {
+    const { replyPost } = this.props;
     const size = data && data.parentId ? 20 : 32;
-
-    if (data.isPost) {
-      return (
-        <PostContainer isReply={data.parentId} root>
-          <NameCard.Avatar customer={customer} />
-
-          <User isPost={data.isPost} root>
-            {this.renderUserName(data.senderName, data.senderId)}
-            {this.renderDate()}
-          </User>
-          <FacebookContent content={message.content} image={data.photo} />
-          {this.renderCounts(data)}
-        </PostContainer>
-      );
-    }
 
     return (
       <ChildPost isReply={data.parentId} root>
-        <NameCard.Avatar customer={customer} size={size} />
+        <NameCard.Avatar customer={message.customer || {}} size={size} />
 
         <User isPost={data.isPost} isReply={data.parentId}>
           <Comment>
@@ -120,7 +102,7 @@ class Message extends Component {
             {this.renderAttachments(data)}
             {data.reactions && (
               <ReplyReaction>
-                {this.renderReactions(data.reactions)}
+                {data.reactions && this.renderReactions(data.reactions)}
                 {data.likeCount}
               </ReplyReaction>
             )}
@@ -140,6 +122,29 @@ class Message extends Component {
         </User>
       </ChildPost>
     );
+  }
+
+  render() {
+    const { message } = this.props;
+    const customer = message.customer || {};
+    const data = message.facebookData || {};
+    console.log(message);
+    if (data.isPost) {
+      return (
+        <PostContainer isReply={data.parentId} root>
+          <NameCard.Avatar customer={customer} />
+
+          <User isPost={data.isPost} root>
+            {this.renderUserName(data.senderName, data.senderId)}
+            {this.renderDate()}
+          </User>
+          <FacebookContent content={message.content} image={data.photo} />
+          {this.renderCounts(data)}
+        </PostContainer>
+      );
+    }
+
+    return this.renderChildComments(data, message, null);
   }
 }
 

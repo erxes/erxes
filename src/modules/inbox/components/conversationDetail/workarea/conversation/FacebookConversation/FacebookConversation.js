@@ -9,17 +9,45 @@ const propTypes = {
 };
 
 class FacebookConversation extends Component {
-  renderPosts(messages, integrationId) {
-    return messages.map(message => {
-      return (
-        <Fragment key={message._id}>
-          <FacebookMessage
-            message={message}
-            totalConversationCount={messages.length}
-          />
-        </Fragment>
-      );
+  renderMessages(messages, parent) {
+    const array = [];
+
+    messages.forEach(message => {
+      if (message.facebookData && message.facebookData.parentId === parent) {
+        const children = this.renderMessages(
+          messages,
+          message.facebookData.commentId || message.facebookData.postId
+        );
+
+        let child = message;
+
+        if (children.length) {
+          child = Object.assign({ children }, message);
+        }
+
+        array.push(child);
+      }
     });
+    return array;
+  }
+
+  renderChildren(children, integrationId) {
+    if (children) {
+      return this.renderPosts(children, integrationId);
+    }
+    return null;
+  }
+
+  renderPosts(messages, integrationId) {
+    return messages.map(message => (
+      <Fragment key={message._id}>
+        <FacebookMessage
+          message={message}
+          totalConversationCount={messages.length}
+        />
+        {this.renderChildren(message.children, integrationId)}
+      </Fragment>
+    ));
   }
 
   render() {
@@ -32,8 +60,11 @@ class FacebookConversation extends Component {
     }
 
     const messages = conversationMessages || [];
+    const nestedMessages = this.renderMessages(messages, null);
 
-    return <Fragment>{this.renderPosts(messages, integrationId)}</Fragment>;
+    return (
+      <Fragment>{this.renderPosts(nestedMessages, integrationId)}</Fragment>
+    );
   }
 }
 
