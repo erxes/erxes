@@ -32,10 +32,18 @@ export default `
     commentId
     parentId
     messageId
+    isPost
+    reactions
+    likeCount
+    commentCount
     item
-    photoId
-    videoId
     link
+    photo
+    video
+    photos
+    senderId
+    senderName
+    createdAt
   }
   user {
     _id
