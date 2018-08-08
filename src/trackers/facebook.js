@@ -344,7 +344,7 @@ export class SaveWebhookResponse {
       !conversation ||
       (conversation.messageCount > 1 && conversation.status === CONVERSATION_STATUSES.CLOSED)
     ) {
-      const customerId = await this.getOrCreateCustomer(senderId);
+      const customerId = await this.getOrCreateCustomer(senderId, facebookData.kind);
       const customer = await Customers.findOne({ _id: customerId });
 
       conversation = await Conversations.createConversation({
@@ -541,12 +541,14 @@ export class SaveWebhookResponse {
     });
   }
 
-  /*
+  /**
    * Get or create customer using facebook data
    * @param {String} fbUserId - Facebook user id
+   * @param {Object} kind - Facebook data type messenger or status
+   *
    * @return Previous or newly created customer object
    */
-  async getOrCreateCustomer(fbUserId) {
+  async getOrCreateCustomer(fbUserId, kind) {
     const integrationId = this.integration._id;
 
     const customer = await Customers.findOne({ 'facebookData.id': fbUserId });
@@ -557,9 +559,14 @@ export class SaveWebhookResponse {
 
     // get page access token
     let res = await this.getPageAccessToken();
+    let fields = 'link';
+
+    if (kind === 'messenger') {
+      fields = '';
+    }
 
     // get user info
-    res = await graphRequest.get(`/${fbUserId}?fields=link`, res.access_token);
+    res = await graphRequest.get(`/${fbUserId}?fields=${fields}`, res.access_token);
 
     // get profile pic
     const getProfilePic = async fbId => {
@@ -602,7 +609,7 @@ export class SaveWebhookResponse {
       // create new message
       const messageId = await ConversationMessages.createMessage({
         conversationId: conversation._id,
-        customerId: await this.getOrCreateCustomer(userId),
+        customerId: await this.getOrCreateCustomer(userId, facebookData.kind),
         content,
         attachments,
         facebookData,

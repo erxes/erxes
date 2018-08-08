@@ -49,7 +49,7 @@ const FacebookSchema = mongoose.Schema(
       optional: true,
     }),
 
-    reactions: field({ type: reactionSchema }),
+    reactions: field({ type: reactionSchema, default: {} }),
 
     likeCount: field({
       type: Number,
