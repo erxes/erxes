@@ -233,14 +233,14 @@ describe('facebook integration: get or create conversation', () => {
       item: 'status',
       video_id: '12331213',
       link: 'video link',
-      created_time: '12323213',
+      created_time: '1533712330',
     };
 
     const response = await saveWebhookResponse.handlePosts(postParams);
 
     expect(response.postId).toBe(postParams.post_id);
     expect(response.item).toBe(postParams.item);
-    expect(response.createdAt).toBe(postParams.created_time);
+    expect(response.createdAt).toBeDefined();
     expect(response.video).toBe(postParams.link);
     expect(response.isPost).toBeTruthy();
   });
@@ -256,14 +256,14 @@ describe('facebook integration: get or create conversation', () => {
       verb: 'add',
       parent_id: '12344',
       item: 'status',
-      created_time: '12323213',
+      created_time: '1533712330',
     };
 
     const response = await saveWebhookResponse.handleComments(commentParams);
 
     expect(response.postId).toBe(commentParams.post_id);
     expect(response.item).toBe(commentParams.item);
-    expect(response.createdAt).toBe(commentParams.created_time);
+    expect(response.createdAt).toBeDefined();
     expect(response.parentId).toBe(commentParams.parent_id);
   });
 

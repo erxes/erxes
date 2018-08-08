@@ -707,10 +707,10 @@ export const facebookReply = async (conversation, msg, messageId) => {
       message: text,
     });
 
-    // save commentId in message object
+    // save commentId and parentId in message object
     await ConversationMessages.update(
       { _id: messageId },
-      { $set: { 'facebookData.commentId': res.id } },
+      { $set: { 'facebookData.commentId': res.id, 'facebookData.parentId': res.parent_id } },
     );
   }
 
