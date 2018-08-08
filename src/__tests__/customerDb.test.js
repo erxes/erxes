@@ -45,7 +45,7 @@ describe('Customers model tests', () => {
   });
 
   test('Create customer', async () => {
-    expect.assertions(12);
+    expect.assertions(13);
 
     // check duplication ===============
     try {
@@ -91,6 +91,7 @@ describe('Customers model tests', () => {
     const customerObj = await Customers.createCustomer(doc);
 
     expect(customerObj.createdAt).toBeDefined();
+    expect(customerObj.modifiedAt).toBeDefined();
     expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.lastName).toBe(doc.lastName);
     expect(customerObj.primaryEmail).toBe(doc.primaryEmail);
@@ -116,7 +117,7 @@ describe('Customers model tests', () => {
   });
 
   test('Update customer', async () => {
-    expect.assertions(4);
+    expect.assertions(5);
 
     const previousCustomer = await customerFactory({
       primaryEmail: 'dombo@yahoo.com',
@@ -143,6 +144,7 @@ describe('Customers model tests', () => {
 
     const customerObj = await Customers.updateCustomer(_customer._id, doc);
 
+    expect(customerObj.modifiedAt).toBeDefined();
     expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.primaryEmail).toBe(doc.primaryEmail);
     expect(customerObj.primaryPhone).toBe(doc.primaryPhone);

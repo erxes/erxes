@@ -17,6 +17,8 @@ export const types = `
 
   type Customer {
     _id: String!
+    createdAt: Date
+    modifiedAt: Date
     integrationId: String
     firstName: String
     lastName: String
@@ -29,7 +31,6 @@ export const types = `
 
     phone: String
     isUser: Boolean
-    createdAt: Date
     tagIds: [String]
     remoteAddress: String
     internalNotes: JSON
@@ -76,7 +77,9 @@ const queryParams = `
   integration: String,
   form: String,
   startDate: String,
-  endDate: String
+  endDate: String,
+  lifecycleState: String,
+  leadStatus: String
 `;
 
 export const queries = `

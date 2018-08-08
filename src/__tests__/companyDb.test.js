@@ -17,6 +17,8 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 const check = (companyObj, doc) => {
+  expect(companyObj.createdAt).toBeDefined();
+  expect(companyObj.modifiedAt).toBeDefined();
   expect(companyObj.name).toBe(doc.name);
   expect(companyObj.email).toBe(doc.email);
   expect(companyObj.website).toBe(doc.website);
@@ -50,7 +52,7 @@ describe('Companies model tests', () => {
   });
 
   test('Create company', async () => {
-    expect.assertions(8);
+    expect.assertions(10);
 
     // check duplication ==============
     try {
@@ -88,7 +90,7 @@ describe('Companies model tests', () => {
   });
 
   test('Update company', async () => {
-    expect.assertions(7);
+    expect.assertions(9);
 
     const doc = generateDoc();
 

@@ -89,6 +89,16 @@ export default class Builder {
     return { _id: { $in: ids } };
   }
 
+  // filter by leadStatus
+  async leadStatusFilter(leadStatus) {
+    return { leadStatus };
+  }
+
+  // filter by lifecycleState
+  async lifecycleStateFilter(lifecycleState) {
+    return { lifecycleState };
+  }
+
   // filter by form
   async formFilter(formId, startDate, endDate) {
     const formObj = await Forms.findOne({ _id: formId });
@@ -182,6 +192,16 @@ export default class Builder {
     if (this.params.searchValue) {
       this.queries.searchValue = await this.searchFilter(this.params.searchValue);
     }
+
+    // filter by leadStatus
+    if (this.params.leadStatus) {
+      this.queries.leadStatus = await this.leadStatusFilter(this.params.leadStatus);
+    }
+
+    // filter by lifecycleState
+    if (this.params.lifecycleState) {
+      this.queries.lifecycleState = await this.lifecycleStateFilter(this.params.lifecycleState);
+    }
   }
 
   mainQuery() {
@@ -196,6 +216,8 @@ export default class Builder {
       ...this.queries.ids,
       ...this.queries.integration,
       ...this.queries.searchValue,
+      ...this.queries.leadStatus,
+      ...this.queries.lifecycleState,
     };
   }
 }

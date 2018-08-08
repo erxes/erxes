@@ -30,7 +30,9 @@ describe('customerQueries', () => {
     $searchValue: String,
     $form: String,
     $startDate: String,
-    $endDate: String
+    $endDate: String,
+    $lifecycleState: String,
+    $leadStatus: String
   `;
 
   const commonParams = `
@@ -39,16 +41,20 @@ describe('customerQueries', () => {
     segment: $segment
     tag: $tag
     ids: $ids
-    searchValue: $searchValue,
-    form: $form,
-    startDate: $startDate,
+    searchValue: $searchValue
+    form: $form
+    startDate: $startDate
     endDate: $endDate
+    lifecycleState: $lifecycleState
+    leadStatus: $leadStatus
   `;
 
   const qryCustomers = `
     query customers(${commonParamDefs}) {
       customers(${commonParams}) {
         _id
+        createdAt
+        modifiedAt
         integrationId
         firstName
         lastName
@@ -57,7 +63,6 @@ describe('customerQueries', () => {
         primaryPhone
         phones
         isUser
-        createdAt
         tagIds
         remoteAddress
         internalNotes
@@ -168,6 +173,30 @@ describe('customerQueries', () => {
     const tagResponse = await Tags.findOne({}, '_id');
 
     const responses = await graphqlRequest(qryCustomers, 'customers', { tag: tagResponse._id });
+
+    expect(responses.length).toBe(2);
+  });
+
+  test('Customers filtered by leadStatus', async () => {
+    await customerFactory();
+    await customerFactory();
+    await customerFactory({ leadStatus: 'new' });
+    await customerFactory({ leadStatus: 'new' });
+
+    const responses = await graphqlRequest(qryCustomers, 'customers', { leadStatus: 'new' });
+
+    expect(responses.length).toBe(2);
+  });
+
+  test('Customers filtered by lifecycleState', async () => {
+    await customerFactory();
+    await customerFactory();
+    await customerFactory({ lifecycleState: 'subscriber' });
+    await customerFactory({ lifecycleState: 'subscriber' });
+
+    const responses = await graphqlRequest(qryCustomers, 'customers', {
+      lifecycleState: 'subscriber',
+    });
 
     expect(responses.length).toBe(2);
   });
@@ -297,6 +326,30 @@ describe('customerQueries', () => {
     const response = await graphqlRequest(qryCount, 'customerCounts', { byFakeSegment });
 
     expect(response.byFakeSegment).toBe(1);
+  });
+
+  test('Customer count by leadStatus', async () => {
+    await customerFactory({});
+    await customerFactory({});
+    await customerFactory({ leadStatus: 'new' });
+    await customerFactory({ leadStatus: 'new' });
+
+    const response = await graphqlRequest(qryCount, 'customerCounts');
+
+    expect(response.byLeadStatus['open']).toBe(2);
+    expect(response.byLeadStatus['new']).toBe(2);
+  });
+
+  test('Customer count by lifecycleState', async () => {
+    await customerFactory({});
+    await customerFactory({});
+    await customerFactory({ lifecycleState: 'subscriber' });
+    await customerFactory({ lifecycleState: 'subscriber' });
+
+    const response = await graphqlRequest(qryCount, 'customerCounts');
+
+    expect(response.byLifecycleState['subscriber']).toBe(2);
+    expect(response.byLifecycleState['lead']).toBe(2);
   });
 
   test('Customer detail', async () => {
