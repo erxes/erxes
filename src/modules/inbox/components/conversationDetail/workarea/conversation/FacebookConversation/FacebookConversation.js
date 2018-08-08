@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Message } from './';
-// import { PostWrapper } from './styles';
+import { FacebookMessage } from 'modules/inbox/containers/conversationDetail';
 
 const propTypes = {
   conversation: PropTypes.object,
@@ -14,11 +13,9 @@ class FacebookConversation extends Component {
     return messages.map(message => {
       return (
         <Fragment key={message._id}>
-          <Message
+          <FacebookMessage
             message={message}
             totalConversationCount={messages.length}
-            integrationId={integrationId}
-            scrollBottom={this.props.scrollBottom}
           />
         </Fragment>
       );

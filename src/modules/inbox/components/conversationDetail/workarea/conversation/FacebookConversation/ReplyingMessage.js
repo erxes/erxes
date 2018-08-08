@@ -5,11 +5,8 @@ import { Footer } from './styles';
 
 const propTypes = {
   replyPost: PropTypes.func,
-  likePost: PropTypes.func,
-  commentId: PropTypes.string,
-  postId: PropTypes.string,
-  currentUserName: PropTypes.string,
-  integrationId: PropTypes.string
+  conversationId: PropTypes.string,
+  currentUserName: PropTypes.string
 };
 
 const contextTypes = {
@@ -48,7 +45,7 @@ class ReplyingMessage extends React.Component {
     const { replyPost } = this.props;
 
     const replyData = {
-      conversationId: this.props.commentId || this.props.postId,
+      conversationId: this.props.conversationId,
       content: this.state.post
     };
 

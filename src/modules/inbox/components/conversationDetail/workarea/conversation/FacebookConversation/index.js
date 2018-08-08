@@ -1,5 +1,5 @@
 import FacebookConversation from './FacebookConversation';
 import FacebookContent from './FacebookContent';
-import Message from './Message';
+import ReplyingMessage from './ReplyingMessage';
 
-export { FacebookConversation, FacebookContent, Message };
+export { FacebookConversation, FacebookContent, ReplyingMessage };
