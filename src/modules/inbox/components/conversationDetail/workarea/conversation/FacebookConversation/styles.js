@@ -70,6 +70,17 @@ const User = styled.div`
   }
 `;
 
+const ShowMore = styled.div`
+  visibility: hidden;
+  position: absolute;
+  background: #fff;
+  padding: 5px 8px;
+  border-radius: 10px;
+  bottom: 15px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+`;
+
 const Reply = styled.div`
   display: inline-block;
   margin-right: 5px;
@@ -78,12 +89,17 @@ const Reply = styled.div`
   > a {
     font-size: 11px;
     color: ${colors.socialFacebook};
+    transition: all ease 0.9s;
     cursor: pointer;
   }
 
   > a:hover {
     text-decoration: underline;
     color: #3a5999;
+
+    ${ShowMore} {
+      visibility: visible;
+    }
   }
 `;
 
@@ -165,8 +181,9 @@ const Reaction = styled.div`
   width: 16px;
   height: 16px;
   display: inline-block;
-  margin-right: 3px;
+  margin-right: ${props => (props.all ? '10px' : '3px')};
   background-image: url('/images/reactions.png');
+  border-radius: 10px;
   cursor: pointer;
 
   &.haha {
@@ -184,6 +201,10 @@ const Reaction = styled.div`
   &.sad {
     background-position: 33px;
   }
+
+  &:hover {
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.8);
+  }
 `;
 
 const Footer = styled.div`
@@ -200,5 +221,6 @@ export {
   Reply,
   FlexItem,
   ReplyReaction,
-  Footer
+  Footer,
+  ShowMore
 };

@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { NameCard, Tip, ModalTrigger } from 'modules/common/components';
-import { FacebookContent } from './';
-import { ReplyingMessage } from 'modules/inbox/containers/conversationDetail';
+import { FacebookContent, ReplyingMessage } from './';
+import { REACTION_TYPES } from 'modules/inbox/constants';
 import {
   PostContainer,
   ChildPost,
@@ -13,24 +13,23 @@ import {
   Reaction,
   Reply,
   FlexItem,
-  ReplyReaction
+  ReplyReaction,
+  ShowMore
 } from './styles';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
-  likePost: PropTypes.func,
-  currentConversationId: PropTypes.string,
-  integrationId: PropTypes.string,
-  scrollBottom: PropTypes.func.isRequired
+  replyPost: PropTypes.func,
+  likePost: PropTypes.func
 };
 
 class Message extends Component {
-  renderLikePost(data) {
+  renderLikePost(id, type) {
     const { likePost } = this.props;
 
     const post = {
-      conversationMessageId: data.postId,
-      type: 'SAD'
+      conversationMessageId: id,
+      type: type
     };
 
     likePost(post);
@@ -99,9 +98,25 @@ class Message extends Component {
     return null;
   }
 
+  handleLike(id) {
+    return (
+      <ShowMore>
+        {REACTION_TYPES.ALL_LIST.map(reaction => (
+          <Tip key={reaction} text={reaction}>
+            <Reaction
+              className={reaction}
+              onClick={() => this.renderLikePost(id, reaction)}
+              all
+            />
+          </Tip>
+        ))}
+      </ShowMore>
+    );
+  }
+
   render() {
-    const { message, integrationId } = this.props;
-    // console.log(message)
+    const { message, replyPost } = this.props;
+    console.log(message);
     const customer = message.customer || {};
     const data = message.facebookData || {};
     const size = data && data.parentId ? 20 : 32;
@@ -139,13 +154,12 @@ class Message extends Component {
           </Comment>
           <div>
             <Reply>
-              <a onClick={this.renderLikePost(data)}>Like</a> •
-              <ModalTrigger title="Reply" trigger={<a>Reply •</a>}>
+              <a>Like {this.handleLike(message._id)}</a> •
+              <ModalTrigger title="Reply" trigger={<a> Reply •</a>}>
                 <ReplyingMessage
-                  commentId={data.commentId}
-                  postId={data.postId}
-                  integrationId={integrationId}
+                  conversationId={message.conversationId}
                   currentUserName={data.senderName}
+                  replyPost={replyPost}
                 />
               </ModalTrigger>
             </Reply>

@@ -4,7 +4,7 @@ import WorkArea from './workarea/WorkArea';
 import RespondBox from './workarea/RespondBox';
 import Participators from './workarea/Participators';
 import ResponseTemplate from './workarea/ResponseTemplate';
-import ReplyingMessage from './workarea/conversation/FacebookConversation/ReplyingMessage';
+import Message from './workarea/conversation/FacebookConversation/Message';
 import TwitterMessage from './workarea/conversation/TwitterConversation/TwitterMessage';
 
 export {
@@ -15,5 +15,5 @@ export {
   ResponseTemplate,
   ConversationDetail,
   TwitterMessage,
-  ReplyingMessage
+  Message
 };
