@@ -6,7 +6,7 @@ import {
   Customers,
 } from '../db/models';
 
-import { publishMessage } from '../data/resolvers/mutations/conversations';
+import { publishConversationsChanged } from '../data/resolvers/mutations/conversations';
 
 import {
   INTEGRATION_KIND_CHOICES,
@@ -613,9 +613,7 @@ export class SaveWebhookResponse {
       await Conversations.update({ _id: conversation._id }, { $set: { content } });
 
       // notify subscription server new message
-      const message = await ConversationMessages.findOne({ _id: messageId });
-
-      publishMessage(message);
+      publishConversationsChanged([conversation._id], 'conversationMessageInserted');
 
       return messageId;
     }
