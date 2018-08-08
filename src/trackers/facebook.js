@@ -695,9 +695,21 @@ export const facebookReply = async (conversation, msg, messageId) => {
  * Like
  */
 export const like = async ({ conversationMessageId, type }) => {
-  let response = await this.getPageAccessToken();
-
+  const FACEBOOK_APPS = getConfig();
   const msg = await ConversationMessages.findOne({ _id: conversationMessageId });
+  const conversation = await Conversations.findOne({ _id: msg.conversationId });
+
+  const integration = await Integrations.findOne({
+    _id: conversation.integrationId,
+  });
+
+  const app = FACEBOOK_APPS.find(a => a.id === integration.facebookData.appId);
+
+  // page access token
+  const response = await graphRequest.get(
+    `${conversation.facebookData.pageId}/?fields=access_token`,
+    app.accessToken,
+  );
 
   let id;
 
@@ -711,7 +723,7 @@ export const like = async ({ conversationMessageId, type }) => {
 
   // liking post or comment
   return await graphRequest.post(`${id}/reactions`, response.access_token, {
-    type,
+    type: type.toUpperCase(),
   });
 };
 
