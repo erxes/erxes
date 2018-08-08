@@ -414,7 +414,11 @@ export class SaveWebhookResponse {
     let messageText = value.message;
 
     // when photo, video share, there will be no text, so link instead
-    if (!messageText && value.link) {
+    if (
+      (!messageText && value.link) ||
+      (!messageText && value.photo) ||
+      (!messageText && value.video)
+    ) {
       messageText = value.link;
     }
 
@@ -702,44 +706,6 @@ export const facebookReply = async (conversation, msg, messageId) => {
   }
 
   return null;
-};
-
-/*
- * Like
- */
-export const like = async ({ conversationMessageId, type }) => {
-  const FACEBOOK_APPS = getConfig();
-  const msg = await ConversationMessages.findOne({ _id: conversationMessageId });
-  const conversation = await Conversations.findOne({ _id: msg.conversationId });
-
-  const integration = await Integrations.findOne({
-    _id: conversation.integrationId,
-  });
-
-  const app = FACEBOOK_APPS.find(a => a.id === integration.facebookData.appId);
-
-  // page access token
-  const response = await graphRequest.get(
-    `${conversation.facebookData.pageId}/?fields=access_token`,
-    app.accessToken,
-  );
-
-  let id;
-
-  if (msg.isPost) {
-    id = msg.postId;
-  } else {
-    id = msg.commentId;
-  }
-
-  await ConversationMessages.update({ _id: msg._id }, { isLiked: !msg.isLiked });
-
-  // liking post or comment
-  const res = await graphRequest.post(`${id}/reactions`, response.access_token, {
-    type: type.toUpperCase(),
-  });
-
-  return res;
 };
 
 export const getConfig = () => {

@@ -193,12 +193,7 @@ export const mutations = `
     integrationId: String,
     id: String,
   ): JSON
-
-  conversationsLike(
-    conversationMessageId: String
-    type: String
-  ): JSON
-
+  
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]

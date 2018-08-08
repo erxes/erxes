@@ -2,7 +2,7 @@ import { _ } from 'underscore';
 import strip from 'strip';
 import { Conversations, ConversationMessages, Integrations, Customers } from '../../../db/models';
 import { tweetReply, tweet, retweet, favorite } from '../../../trackers/twitter';
-import { facebookReply, like } from '../../../trackers/facebook';
+import { facebookReply } from '../../../trackers/facebook';
 import { NOTIFICATION_TYPES } from '../../constants';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
 import { requireLogin } from '../../permissions';
@@ -212,18 +212,6 @@ const conversationMutations = {
    */
   async conversationsFavorite(root, doc) {
     return favorite(doc);
-  },
-
-  /**
-   * Like
-   *
-   * @param {String} doc.id - Post or comment id
-   * @param {String} doc.type - Reaction type
-   *
-   * @return {Promise} - twitter response
-   */
-  async conversationsLike(root, doc) {
-    return like(doc);
   },
 
   /**
