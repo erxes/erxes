@@ -129,7 +129,7 @@ export class SaveWebhookResponse {
       postId: post_id,
       item,
       isPost: true,
-      createdAt: created_time,
+      createdAt: new Date(created_time * 1000),
     };
 
     // Posted video
@@ -184,7 +184,7 @@ export class SaveWebhookResponse {
       postId: post_id,
       item: item,
       commentId: comment_id,
-      createdAt: created_time,
+      createdAt: new Date(created_time * 1000),
     };
 
     if (post_id !== parent_id) {
@@ -289,10 +289,14 @@ export class SaveWebhookResponse {
    */
   async handleReactions(likeParams) {
     const { verb, post_id, comment_id, reaction_type, item, from } = likeParams;
-    let selector = { 'facebookData.postId': post_id };
+    let selector = {};
 
     if (comment_id) {
       selector = { 'facebookData.commentId': comment_id };
+    }
+
+    if (post_id) {
+      selector = { 'facebookData.postId': post_id };
     }
 
     const msg = await ConversationMessages.findOne(selector);
@@ -340,9 +344,12 @@ export class SaveWebhookResponse {
       !conversation ||
       (conversation.messageCount > 1 && conversation.status === CONVERSATION_STATUSES.CLOSED)
     ) {
+      const customerId = await this.getOrCreateCustomer(senderId);
+      const customer = await Customers.findOne({ _id: customerId });
+
       conversation = await Conversations.createConversation({
         integrationId: this.integration._id,
-        customerId: await this.getOrCreateCustomer(senderId),
+        customerId: customerId,
         status,
         content,
 
@@ -352,6 +359,8 @@ export class SaveWebhookResponse {
           pageId: this.currentPageId,
         },
       });
+
+      await ActivityLogs.createConversationLog(conversation, customer);
     } else {
       conversation = await Conversations.reopen(conversation._id);
     }
