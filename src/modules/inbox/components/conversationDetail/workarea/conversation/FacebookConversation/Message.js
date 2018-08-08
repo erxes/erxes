@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import { Tooltip, OverlayTrigger } from 'react-bootstrap';
 import { NameCard, Tip, ModalTrigger } from 'modules/common/components';
 import { FacebookContent, ReplyingMessage } from './';
-import { REACTION_TYPES } from 'modules/inbox/constants';
 import {
   PostContainer,
   ChildPost,
@@ -13,28 +13,15 @@ import {
   Reaction,
   Reply,
   FlexItem,
-  ReplyReaction,
-  ShowMore
+  ReplyReaction
 } from './styles';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
-  replyPost: PropTypes.func,
-  likePost: PropTypes.func
+  replyPost: PropTypes.func
 };
 
 class Message extends Component {
-  renderLikePost(id, type) {
-    const { likePost } = this.props;
-
-    const post = {
-      conversationMessageId: id,
-      type: type
-    };
-
-    likePost(post);
-  }
-
   renderUserName(username, userId) {
     return (
       <a target="_blank" href={`https://facebook.com/${username}-${userId}`}>
@@ -66,11 +53,13 @@ class Message extends Component {
         <div key={index}>{value.name}</div>
       ));
 
+      const tooltip = <Tooltip id="tooltip">{users}</Tooltip>;
+
       if (reactions[value].length > 0) {
         return (
-          <Tip key={value} text={users}>
+          <OverlayTrigger key={value} placement="top" overlay={tooltip}>
             <Reaction className={value} />
-          </Tip>
+          </OverlayTrigger>
         );
       }
 
@@ -98,25 +87,9 @@ class Message extends Component {
     return null;
   }
 
-  handleLike(id) {
-    return (
-      <ShowMore>
-        {REACTION_TYPES.ALL_LIST.map(reaction => (
-          <Tip key={reaction} text={reaction}>
-            <Reaction
-              className={reaction}
-              onClick={() => this.renderLikePost(id, reaction)}
-              all
-            />
-          </Tip>
-        ))}
-      </ShowMore>
-    );
-  }
-
   render() {
     const { message, replyPost } = this.props;
-    console.log(message);
+    // console.log(message);
     const customer = message.customer || {};
     const data = message.facebookData || {};
     const size = data && data.parentId ? 20 : 32;
@@ -154,7 +127,6 @@ class Message extends Component {
           </Comment>
           <div>
             <Reply>
-              <a>Like {this.handleLike(message._id)}</a> •
               <ModalTrigger title="Reply" trigger={<a> Reply •</a>}>
                 <ReplyingMessage
                   conversationId={message.conversationId}

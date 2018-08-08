@@ -70,17 +70,6 @@ const User = styled.div`
   }
 `;
 
-const ShowMore = styled.div`
-  visibility: hidden;
-  position: absolute;
-  background: #fff;
-  padding: 5px 8px;
-  border-radius: 10px;
-  bottom: 15px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-`;
-
 const Reply = styled.div`
   display: inline-block;
   margin-right: 5px;
@@ -96,10 +85,6 @@ const Reply = styled.div`
   > a:hover {
     text-decoration: underline;
     color: #3a5999;
-
-    ${ShowMore} {
-      visibility: visible;
-    }
   }
 `;
 
@@ -221,6 +206,5 @@ export {
   Reply,
   FlexItem,
   ReplyReaction,
-  Footer,
-  ShowMore
+  Footer
 };

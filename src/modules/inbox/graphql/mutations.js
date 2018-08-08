@@ -117,18 +117,11 @@ const conversationsUnassign = `
   }
 `;
 
-const conversationsLike = `
-  mutation conversationsLike($conversationMessageId: String, $type: String) {
-    conversationsLike(conversationMessageId: $conversationMessageId, type: $type)
-  }
-`;
-
 export default {
   conversationMessageAdd,
   conversationsChangeStatus,
   conversationsAssign,
   conversationsUnassign,
-  conversationsLike,
   saveResponseTemplate,
   markAsRead,
   favoriteTweet,
