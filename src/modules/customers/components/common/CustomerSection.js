@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
+import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { ModalTrigger, Icon, EmptyState } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
 import { CustomerChooser } from '../../containers';
-import { SectionBody, SectionBodyItem } from '../../styles';
 
 const propTypes = {
   name: PropTypes.string,

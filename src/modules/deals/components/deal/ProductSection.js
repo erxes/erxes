@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
+import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { ModalTrigger, Icon, EmptyState } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
-import { SectionBody, SectionBodyItem } from 'modules/customers/styles';
 import { ProductForm } from '../';
 
 const propTypes = {

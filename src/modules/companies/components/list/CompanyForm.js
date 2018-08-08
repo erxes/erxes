@@ -72,7 +72,6 @@ class CompanyForm extends React.Component {
         primaryName,
         size: document.getElementById('company-size').value,
         industry: document.getElementById('company-industry').value,
-        plan: document.getElementById('company-plan').value,
         parentCompanyId: this.state.parentCompanyId,
         email: document.getElementById('company-email').value,
         ownerId: this.state.ownerId,
@@ -184,10 +183,6 @@ class CompanyForm extends React.Component {
                 options={this.generateCompanyParams(companies)}
               />
             </FormGroup>
-            {this.renderFormGroup('Plan', {
-              id: 'company-plan',
-              defaultValue: company.plan || ''
-            })}
             {this.renderFormGroup('Lead Status', {
               id: 'company-leadStatus',
               componentClass: 'select',

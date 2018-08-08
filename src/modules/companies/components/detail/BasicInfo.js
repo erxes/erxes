@@ -127,7 +127,6 @@ class BasicInfo extends React.Component {
         <SidebarList className="no-link">
           {this.renderRow('Size', company.size)}
           {this.renderRow('Industry', company.industry)}
-          {this.renderRow('Plan', company.plan)}
           {this.renderRow(
             'Parent Company',
             company.parentCompany ? company.parentCompany.primaryName : '-'

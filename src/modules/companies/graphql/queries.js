@@ -1,5 +1,7 @@
 const companyFields = `
   _id
+  createdAt
+  modifiedAt
   primaryName
   names
   size

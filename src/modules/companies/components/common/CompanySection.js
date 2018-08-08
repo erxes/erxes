@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { ModalTrigger, Icon, Tip, EmptyState } from 'modules/common/components';
 import { urlParser } from 'modules/common/utils';
-import { CompanyChooser } from '../../containers';
-import { SectionBody, SectionBodyItem } from 'modules/customers/styles';
+import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { BaseSection } from 'modules/customers/components';
+import { CompanyChooser } from '../../containers';
 
 const propTypes = {
   name: PropTypes.string,

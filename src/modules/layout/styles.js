@@ -375,6 +375,45 @@ const AuthDescription = styled.div`
   }
 `;
 
+const SectionBody = styled.div`
+  i {
+    color: ${colors.colorCoreLightGray};
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+`;
+
+const SectionBodyItem = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
+  padding: 10px 20px;
+
+  span {
+    display: inline-block;
+    width: 100%;
+    padding-right: ${dimensions.coreSpacing}px;
+  }
+
+  i {
+    color: ${colors.colorCoreLightGray};
+    position: absolute;
+    right: ${dimensions.coreSpacing}px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  a {
+    font-size: 12px;
+  }
+
+  ul li {
+    margin-left: ${dimensions.coreSpacing}px;
+  }
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -405,5 +444,7 @@ export {
   WhiteBox,
   Authlayout,
   AuthContent,
-  AuthDescription
+  AuthDescription,
+  SectionBody,
+  SectionBodyItem
 };
