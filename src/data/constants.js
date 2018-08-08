@@ -302,7 +302,6 @@ export const COMPANY_BASIC_INFOS = [
   'lifecycleState',
   'businessType',
   'description',
-  'employees',
   'doNotDisturb',
 ];
 

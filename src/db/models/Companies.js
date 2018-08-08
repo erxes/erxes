@@ -96,7 +96,6 @@ const CompanySchema = mongoose.Schema({
   }),
 
   description: field({ type: String, optional: true }),
-  employees: field({ type: Number, optional: true, label: 'Employees' }),
   doNotDisturb: field({
     type: String,
     optional: true,

@@ -16,7 +16,6 @@ export const types = `
     lifecycleState: String
     businessType: String
     description: String
-    employees: Int
     doNotDisturb: String
     links: CompanyLinks
     owner: User
@@ -83,7 +82,6 @@ const commonFields = `
   lifecycleState: String,
   businessType: String,
   description: String,
-  employees: Int,
   doNotDisturb: String,
   links: JSON,
 

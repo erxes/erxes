@@ -56,7 +56,6 @@ describe('companyQueries', () => {
         lifecycleState
         businessType
         description
-        employees
         doNotDisturb
         links {
           linkedIn
