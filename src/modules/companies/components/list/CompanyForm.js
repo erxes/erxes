@@ -44,7 +44,7 @@ class CompanyForm extends React.Component {
       parentCompanyId: company.parentCompanyId || '',
       ownerId: company.ownerId || '',
       doNotDisturb: company.doNotDisturb || 'No',
-      companies: [],
+      companies: [company.parentCompany],
       users: []
     };
 
@@ -145,7 +145,7 @@ class CompanyForm extends React.Component {
     const { __ } = this.context;
     const { company = {} } = this.props;
     const { links = {}, primaryName, names } = company;
-    const { companies, users } = this.state;
+    const { parentCompanyId, ownerId, companies, users } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>
@@ -179,7 +179,7 @@ class CompanyForm extends React.Component {
                 onChange={option =>
                   this.handleSelect(option, 'parentCompanyId')
                 }
-                value={this.state.parentCompanyId}
+                value={parentCompanyId}
                 options={this.generateCompanyParams(companies)}
               />
             </FormGroup>
@@ -212,7 +212,7 @@ class CompanyForm extends React.Component {
                 onFocus={() => users.length < 1 && this.handleUserSearch('')}
                 onInputChange={this.handleUserSearch}
                 onChange={option => this.handleSelect(option, 'ownerId')}
-                value={this.state.ownerId}
+                value={ownerId}
                 options={this.generateUserParams(users)}
               />
             </FormGroup>
