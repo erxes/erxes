@@ -716,15 +716,17 @@ export const like = async ({ conversationMessageId, type }) => {
   if (msg.isPost) {
     id = msg.postId;
   } else {
-    id = msg.postId;
+    id = msg.commentId;
   }
 
   await ConversationMessages.update({ _id: msg._id }, { isLiked: !msg.isLiked });
 
   // liking post or comment
-  return await graphRequest.post(`${id}/reactions`, response.access_token, {
+  const res = await graphRequest.post(`${id}/reactions`, response.access_token, {
     type: type.toUpperCase(),
   });
+
+  return res;
 };
 
 export const getConfig = () => {
