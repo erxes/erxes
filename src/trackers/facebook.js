@@ -673,6 +673,10 @@ export const facebookReply = async (conversation, msg, messageId) => {
       msgObj.source = attachment.url;
     }
 
+    if (text) {
+      msgObj.message = { text };
+    }
+
     const res = await graphRequest.post('me/messages', response.access_token, {
       recipient: { id: conversation.facebookData.senderId },
       ...msgObj,
