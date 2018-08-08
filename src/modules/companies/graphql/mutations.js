@@ -12,7 +12,6 @@ const commonFields = `
   $lifecycleState: String,
   $businessType: String,
   $description: String,
-  $employees: Int,
   $doNotDisturb: String,
   $links: JSON
   $customFieldsData: JSON
@@ -32,7 +31,6 @@ const commonVariables = `
   lifecycleState: $lifecycleState,
   businessType: $businessType,
   description: $description,
-  employees: $employees,
   doNotDisturb: $doNotDisturb,
   links: $links
   customFieldsData: $customFieldsData
@@ -62,7 +60,6 @@ const companiesEdit = `
       lifecycleState
       businessType
       description
-      employees
       doNotDisturb
       links {
         linkedIn

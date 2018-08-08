@@ -142,7 +142,6 @@ class BasicInfo extends React.Component {
           {this.renderRow('Lifecycle State', company.lifecycleState)}
           {this.renderRow('Business Type', company.businessType)}
           {this.renderRow('Description', company.description)}
-          {this.renderRow('Employees count', company.employees)}
           {this.renderRow('Do not disturb', company.doNotDisturb)}
         </SidebarList>
       </Sidebar.Section>

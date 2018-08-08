@@ -15,7 +15,6 @@ const companyFields = `
   lifecycleState
   businessType
   description
-  employees
   doNotDisturb
   links {
     linkedIn

@@ -81,7 +81,6 @@ class CompanyForm extends React.Component {
         lifecycleState: document.getElementById('company-lifecycleState').value,
         businessType: document.getElementById('company-businessType').value,
         description: document.getElementById('company-description').value,
-        employees: document.getElementById('company-employees').value,
         doNotDisturb: this.state.doNotDisturb,
         links: {
           linkedIn: document.getElementById('company-linkedIn').value,
@@ -200,10 +199,6 @@ class CompanyForm extends React.Component {
               componentClass: 'select',
               defaultValue: company.businessType || '',
               options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
-            })}
-            {this.renderFormGroup('Employees count', {
-              id: 'company-employees',
-              defaultValue: company.employees || 0
             })}
           </FormColumn>
           <FormColumn>
