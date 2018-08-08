@@ -169,7 +169,16 @@ export class SaveWebhookResponse {
    * @return {Object} Facebook messenger data
    */
   async handleComments(commentParams) {
-    const { post_id, parent_id, item, comment_id, created_time, verb, attachment } = commentParams;
+    const {
+      photo,
+      video,
+      post_id,
+      parent_id,
+      item,
+      comment_id,
+      created_time,
+      verb,
+    } = commentParams;
 
     const doc = {
       postId: post_id,
@@ -178,12 +187,16 @@ export class SaveWebhookResponse {
       createdAt: created_time,
     };
 
-    if (attachment) {
-      doc.link = attachment.url;
-    }
-
     if (post_id !== parent_id) {
       doc.parentId = parent_id;
+    }
+
+    if (photo) {
+      doc.photo = photo;
+    }
+
+    if (video) {
+      doc.video = video;
     }
 
     // Counting post comments only
