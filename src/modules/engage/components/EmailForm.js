@@ -184,7 +184,7 @@ class EmailForm extends Component {
             </FormControl>
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Attachment:</ControlLabel>
+            <ControlLabel>Attachments: </ControlLabel>
             <Uploader
               defaultFileList={attachments}
               onChange={attachments =>

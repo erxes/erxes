@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { Spinner } from 'modules/common/components';
 import { uploadHandler } from 'modules/common/utils';
 
 const Attachment = styled.div`
@@ -27,6 +28,7 @@ class Uploader extends Component {
 
     this.state = {
       attachments: defaultFileList || [],
+      loading: false,
       attachmentPreviewStyle: {}
     };
 
@@ -41,6 +43,7 @@ class Uploader extends Component {
 
       beforeUpload: () => {
         this.setState({
+          loading: true,
           attachmentPreviewStyle: { opacity: '0.2' }
         });
       },
@@ -55,6 +58,7 @@ class Uploader extends Component {
         this.props.onChange(attachments);
 
         this.setState({
+          loading: false,
           attachments,
           attachmentPreviewStyle: { opacity: '1' }
         });
@@ -75,7 +79,7 @@ class Uploader extends Component {
   }
 
   render() {
-    const { attachments, attachmentPreviewStyle } = this.state;
+    const { loading, attachments, attachmentPreviewStyle } = this.state;
 
     return (
       <Attachment>
@@ -88,6 +92,7 @@ class Uploader extends Component {
             onClick={e => this.removeAttachment(e)}
           />
         ))}
+        {loading && <Spinner />}
         <input type="file" multiple onChange={this.handleFileInput} />
       </Attachment>
     );

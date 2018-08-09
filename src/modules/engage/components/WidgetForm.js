@@ -18,7 +18,7 @@ class WidgetForm extends Component {
 
     this.state = { content: '', channel: 'email', attachments: [] };
 
-    this.onContentChange = this.onContentChange.bind(this);
+    this.onChangeCommon = this.onChangeCommon.bind(this);
     this.onChannelChange = this.onChannelChange.bind(this);
     this.save = this.save.bind(this);
   }
@@ -58,7 +58,7 @@ class WidgetForm extends Component {
     });
   }
 
-  onContentChange(name, value) {
+  onChangeCommon(name, value) {
     this.setState({ [name]: value });
   }
 
@@ -112,7 +112,7 @@ class WidgetForm extends Component {
           <Uploader
             defaultFileList={attachments}
             onChange={attachments =>
-              this.onContentChange('attachments', attachments)
+              this.onChangeCommon('attachments', attachments)
             }
           />
         </FormGroup>
@@ -196,7 +196,7 @@ class WidgetForm extends Component {
         <FormGroup>
           <ControlLabel>Content:</ControlLabel>
           <Editor
-            onChange={content => this.onContentChange('content', content)}
+            onChange={content => this.onChangeCommon('content', content)}
           />
         </FormGroup>
 
