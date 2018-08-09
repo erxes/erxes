@@ -369,6 +369,9 @@ const AuthDescription = styled.div`
   }
   a {
     color: rgba(255, 255, 255, 0.7);
+    &:hover {
+      color: ${colors.colorWhite};
+    }
   }
   .not-found {
     margin-top: 0;

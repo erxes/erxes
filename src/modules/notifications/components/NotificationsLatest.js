@@ -41,7 +41,7 @@ class NotificationsLatest extends Component {
     const emptyContent = (
       <PopoverContent>
         <EmptyState
-          text={__('Coming soon')}
+          text={__('No notifications')}
           image="/images/robots/robot-05.svg"
         />
       </PopoverContent>
