@@ -2,10 +2,10 @@ import Home from './Home';
 import Board from './Board';
 import Pipeline from './Pipeline';
 import Stage from './Stage';
+import PortableDeals from './PortableDeals';
 import Deal from './deal/Deal';
 import DealEditForm from './deal/DealEditForm';
 import DealMove from './deal/DealMove';
-import DealSection from './deal/DealSection';
 import DealSelect from './deal/DealSelect';
 import Tab from './deal/editForm/Tab';
 import ProductChooser from './product/ProductChooser';
@@ -18,7 +18,7 @@ export {
   Pipeline,
   Deal,
   DealMove,
-  DealSection,
+  PortableDeals,
   DealSelect,
   Tab,
   DealEditForm,

@@ -1,21 +1,25 @@
 import React, { Fragment, Component } from 'react';
 import PropTypes from 'prop-types';
+import { Dropdown } from 'react-bootstrap';
+import {
+  DropdownToggle,
+  Button,
+  Icon,
+  NameCard,
+  ModalTrigger
+} from 'modules/common/components';
+import { searchCustomer, renderFullName, confirm } from 'modules/common/utils';
+import { Links, InfoWrapper } from 'modules/common/styles/main';
+import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
-import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
-import { renderFullName, confirm } from 'modules/common/utils';
-import { Links, InfoWrapper } from 'modules/common/styles/main';
 import { CustomerForm } from 'modules/customers/containers';
 import { Action } from 'modules/customers/styles';
-import { DropdownToggle, Button } from 'modules/common/components';
-import { Dropdown } from 'react-bootstrap';
 import { TargetMergeModal } from 'modules/customers/components';
-import { searchCustomer } from 'modules/common/utils';
 import {
   CUSTOMER_BASIC_INFO,
   CUSTOMER_DATAS
 } from 'modules/customers/constants';
-import { BaseSection } from './';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -165,15 +169,17 @@ class BasicInfo extends Component {
   }
 
   render() {
+    const { Section } = Sidebar;
+    const { Title } = Section;
+
     const { __ } = this.context;
 
     return (
-      <BaseSection
-        title={__('Profile')}
-        content={this.renderInfo()}
-        isUseCustomer={true}
-        name="showProfile"
-      />
+      <Section>
+        <Title>{__('Profile')}</Title>
+
+        {this.renderInfo()}
+      </Section>
     );
   }
 }

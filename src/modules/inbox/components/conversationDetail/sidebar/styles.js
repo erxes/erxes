@@ -36,4 +36,19 @@ const DateFilters = styled.div`
   }
 `;
 
-export { FlexRow, FlexItem, DateFilters };
+const SectionContainer = styled.div`
+  position: relative;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 4px 1px ${colors.shadowPrimary};
+
+  > div {
+    margin-bottom: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+export { FlexRow, FlexItem, DateFilters, SectionContainer };
