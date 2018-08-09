@@ -128,7 +128,7 @@ class Message extends Component {
     const { message } = this.props;
     const customer = message.customer || {};
     const data = message.facebookData || {};
-    console.log(message);
+
     if (data.isPost) {
       return (
         <PostContainer isReply={data.parentId} root>
