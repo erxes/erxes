@@ -7,7 +7,9 @@ import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
 import { Alert, uploadHandler } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
+import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import { TAG_TYPES } from 'modules/tags/constants';
+import { queries as tagQueries } from 'modules/tags/graphql';
 import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../constants';
 import { mutations, queries } from '../graphql';
 import { CustomersList } from '../components';
@@ -230,7 +232,7 @@ export default compose(
       notifyOnNetworkStatusChange: true
     })
   }),
-  graphql(gql(queries.tags), {
+  graphql(gql(tagQueries.tags), {
     name: 'tagsQuery',
     options: () => ({
       variables: {
@@ -245,7 +247,7 @@ export default compose(
       notifyOnNetworkStatusChange: true
     })
   }),
-  graphql(gql(queries.brands), {
+  graphql(gql(brandQueries.brands), {
     name: 'brandsQuery',
     options: () => ({
       notifyOnNetworkStatusChange: true

@@ -78,6 +78,7 @@ class ConversationDetails extends Component {
         </li>
       </SidebarList>
     );
+
     return (
       <BaseSection
         title={__('Conversation Details')}

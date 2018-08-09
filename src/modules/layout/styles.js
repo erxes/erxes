@@ -375,6 +375,12 @@ const AuthDescription = styled.div`
   }
 `;
 
+const SectionContainer = styled.div`
+  overflow: hidden;
+  padding: 10px 10px 0px 10px;
+  border-top: 1px solid ${colors.borderPrimary};
+`;
+
 const SectionBody = styled.div`
   i {
     color: ${colors.colorCoreLightGray};
@@ -445,6 +451,7 @@ export {
   Authlayout,
   AuthContent,
   AuthDescription,
+  SectionContainer,
   SectionBody,
   SectionBodyItem
 };

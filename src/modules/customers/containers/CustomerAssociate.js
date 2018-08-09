@@ -7,7 +7,7 @@ import {
   queries as companyQueries
 } from 'modules/companies/graphql';
 import { Alert } from 'modules/common/utils';
-import { CustomerSection } from '../components';
+import { CustomerSection } from '../components/common';
 
 const CustomerAssociate = props => {
   const { companiesEditCustomers, data } = props;

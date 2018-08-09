@@ -12,19 +12,17 @@ import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import { renderFullName } from 'modules/common/utils';
-import { DealSection } from 'modules/deals/containers';
-import { EditInformation } from '../../containers';
+import { ActivityContent } from 'modules/common/styles/main';
+import { PortableDeals } from 'modules/deals/containers';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { hasAnyActivity } from '../../utils';
-import { ActivityContent } from 'modules/common/styles/main';
+import LeftSidebar from './LeftSidebar';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
-  queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired,
-  loadingLogs: PropTypes.bool,
-  history: PropTypes.object
+  loadingLogs: PropTypes.bool
 };
 
 class CustomerDetails extends React.Component {
@@ -121,14 +119,14 @@ class CustomerDetails extends React.Component {
     const rightSidebar = (
       <Sidebar>
         <CompanyAssociate data={customer} />
-        <DealSection customerId={customer._id} />
+        <PortableDeals customerId={customer._id} />
       </Sidebar>
     );
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<EditInformation wide customer={customer} />}
+        leftSidebar={<LeftSidebar wide customer={customer} />}
         rightSidebar={rightSidebar}
         content={content}
         transparent={true}

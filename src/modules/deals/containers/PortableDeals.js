@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../../graphql';
-import { DealSection } from '../../components';
-import { saveDeal as save, removeDeal as remove } from '../../utils';
+import { queries, mutations } from '../graphql';
+import { PortableDeals } from '../components';
+import { saveDeal as save, removeDeal as remove } from '../utils';
 
-class DealSectionContainer extends React.Component {
+class PortableDealsContainer extends React.Component {
   constructor(props) {
     super(props);
 
@@ -50,11 +50,11 @@ class DealSectionContainer extends React.Component {
       removeDeal: this.removeDeal
     };
 
-    return <DealSection {...extendedProps} />;
+    return <PortableDeals {...extendedProps} />;
   }
 }
 
-DealSectionContainer.propTypes = {
+PortableDealsContainer.propTypes = {
   deals: PropTypes.array,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
@@ -62,7 +62,7 @@ DealSectionContainer.propTypes = {
   dealsQuery: PropTypes.object
 };
 
-DealSectionContainer.contextTypes = {
+PortableDealsContainer.contextTypes = {
   __: PropTypes.func
 };
 
@@ -87,4 +87,4 @@ export default compose(
       }
     })
   })
-)(DealSectionContainer);
+)(PortableDealsContainer);

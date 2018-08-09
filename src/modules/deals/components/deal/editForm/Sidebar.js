@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { CompanySection } from 'modules/companies/components';
-import { CustomerSection } from 'modules/customers/components';
+import { CustomerSection } from 'modules/customers/components/common';
 import { Button } from 'modules/common/components';
 import { ProductSection } from '../../';
 import { Right } from '../../../styles/deal';

@@ -18,12 +18,9 @@ import { ActivityContent } from 'modules/common/styles/main';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
-  fieldsGroups: PropTypes.array.isRequired,
-  queryParams: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
   companyActivityLog: PropTypes.array.isRequired,
-  loadingLogs: PropTypes.bool.isRequired,
-  history: PropTypes.object
+  loadingLogs: PropTypes.bool.isRequired
 };
 
 class CompanyDetails extends React.Component {

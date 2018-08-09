@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { CustomerAssociate } from 'modules/customers/containers';
-import { DealSection } from 'modules/deals/containers';
+import { PortableDeals } from 'modules/deals/containers';
 
 const propTypes = {
   company: PropTypes.object.isRequired
@@ -35,7 +35,7 @@ export default class RightSidebar extends React.Component {
     return (
       <Sidebar>
         <CustomerAssociate data={company} />
-        <DealSection companyId={company._id} />
+        <PortableDeals companyId={company._id} />
 
         <Section>
           <Title>{__('Other')}</Title>
