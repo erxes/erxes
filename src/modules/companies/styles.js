@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { colors } from '../common/styles';
+import { SidebarList } from 'modules/layout/styles';
 
 const CompaniesTableWrapper = styled.div`
   td {
@@ -18,4 +19,22 @@ const CompanyLogo = styled.div`
   background: ${colors.colorSecondary};
 `;
 
-export { CompaniesTableWrapper, CompanyLogo };
+const List = SidebarList.extend`
+  li {
+    border-bottom: 1px solid ${colors.borderPrimary};
+    color: ${colors.textPrimary};
+    white-space: normal;
+    padding: 10px 20px;
+
+    span {
+      color: ${colors.colorCoreLightGray};
+      margin: 0;
+    }
+
+    &:last-child {
+      border: none;
+    }
+  }
+`;
+
+export { CompaniesTableWrapper, CompanyLogo, List };
