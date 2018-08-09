@@ -2,17 +2,17 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Sidebar as DumbSidebar } from 'modules/inbox/components/conversationDetail';
-import { queries as customerQueries } from 'modules/customers/graphql';
 import client from 'apolloClient';
+import { Sidebar as DumbSidebar } from 'modules/inbox/components/conversationDetail';
+import { queries } from 'modules/inbox/graphql';
 
 const STORAGE_KEY = `erxes_sidebar_section_config`;
 
-const getSectionParams = () => {
+const getConfig = () => {
   return JSON.parse(localStorage.getItem(STORAGE_KEY));
 };
 
-const setSectionParams = params => {
+const setConfig = params => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
 };
 
@@ -21,7 +21,7 @@ class Sidebar extends Component {
     super(props);
 
     this.state = { customer: {}, loading: false };
-    this.showSectionContent = this.showSectionContent.bind(this);
+    this.toggleSection = this.toggleSection.bind(this);
   }
 
   componentDidMount() {
@@ -41,13 +41,13 @@ class Sidebar extends Component {
   }
 
   getCustomerDetail(customerId) {
-    const sectionParams = getSectionParams();
+    const sectionParams = getConfig();
 
     this.setState({ loading: true });
 
     client
       .query({
-        query: gql(customerQueries.generateCustomerDetailQuery(sectionParams)),
+        query: gql(queries.generateCustomerDetailQuery(sectionParams)),
         fetchPolicy: 'network-only',
         variables: { _id: customerId }
       })
@@ -61,34 +61,32 @@ class Sidebar extends Component {
       });
   }
 
-  showSectionContent(isUseCustomer, section) {
+  toggleSection({ name, isOpen }) {
     const customerId = this.props.conversation.customerId;
-    const { name, val } = section;
-    const sectionParams = getSectionParams();
+    const config = getConfig();
 
-    sectionParams[name] = val;
+    config[name] = isOpen;
 
-    setSectionParams(sectionParams);
+    setConfig(config);
 
-    isUseCustomer && this.getCustomerDetail(customerId);
+    this.getCustomerDetail(customerId);
   }
 
   render() {
     const { customer, loading } = this.state;
 
     if (!localStorage.getItem(STORAGE_KEY)) {
-      setSectionParams({
+      setConfig({
         showProfile: true,
-        showCompany: false,
-        showConversationDetail: false,
-        showManageGroups: false,
-        showDeal: false,
-        showDeviceProperty: false,
-        showMessenger: false,
-        showFacebook: false,
-        showTwitter: false,
-        showTags: false,
-        showOtherProperty: false
+        showCompanies: false,
+        showConversationDetails: false,
+        showCustomFields: false,
+        showDeals: false,
+        showDeviceProperties: false,
+        showMessengerData: false,
+        showFacebookData: false,
+        showTwitterData: false,
+        showTags: false
       });
     }
 
@@ -96,8 +94,8 @@ class Sidebar extends Component {
       ...this.props,
       customer,
       loading,
-      showSectionContent: this.showSectionContent,
-      queryParams: getSectionParams()
+      toggleSection: this.toggleSection,
+      config: getConfig()
     };
 
     return <DumbSidebar {...updatedProps} />;
@@ -110,15 +108,12 @@ Sidebar.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql(customerQueries.generateCustomerDetailQuery(getSectionParams())),
-    {
-      name: 'customerDetailQuery',
-      options: ({ conversation }) => ({
-        variables: {
-          _id: conversation.customerId
-        }
-      })
-    }
-  )
+  graphql(gql(queries.generateCustomerDetailQuery(getConfig())), {
+    name: 'customerDetailQuery',
+    options: ({ conversation }) => ({
+      variables: {
+        _id: conversation.customerId
+      }
+    })
+  })
 )(Sidebar);

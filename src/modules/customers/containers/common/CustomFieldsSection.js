@@ -2,19 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
-import { queries, mutations } from '../graphql';
-import { queries as fieldQueries } from 'modules/settings/properties/graphql';
-import { EditInformation } from '../components/detail/sidebar';
 import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
+import { GenerateCustomFields } from 'modules/settings/properties/components';
+import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
+import { queries as fieldQueries } from 'modules/settings/properties/graphql';
+import { queries, mutations } from '../../graphql';
 
-const EditInformationContainer = (props, context) => {
-  const { customer, customersEdit, fieldsGroupsQuery, wide } = props;
+const CustomFieldsSection = (props, context) => {
+  const { customer, customersEdit, fieldsGroupsQuery } = props;
 
   if (fieldsGroupsQuery.loading) {
     return (
-      <Sidebar full wide={wide}>
+      <Sidebar full>
         <Spinner />
       </Sidebar>
     );
@@ -35,27 +35,18 @@ const EditInformationContainer = (props, context) => {
   };
 
   const updatedProps = {
-    ...props,
     save,
     customFieldsData: customer.customFieldsData || {},
-    currentUser: context.currentUser,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
 
-  return <EditInformation {...updatedProps} />;
+  return <GenerateCustomFields {...updatedProps} />;
 };
 
-EditInformationContainer.propTypes = {
+CustomFieldsSection.propTypes = {
   customer: PropTypes.object.isRequired,
-  sections: PropTypes.node,
   customersEdit: PropTypes.func.isRequired,
-  wide: PropTypes.bool,
-  fieldsGroupsQuery: PropTypes.object.isRequired,
-  query: PropTypes.object
-};
-
-EditInformationContainer.contextTypes = {
-  currentUser: PropTypes.object
+  fieldsGroupsQuery: PropTypes.object.isRequired
 };
 
 const options = ({ customer }) => ({
@@ -83,4 +74,4 @@ export default compose(
     name: 'customersEdit',
     options
   })
-)(EditInformationContainer);
+)(CustomFieldsSection);

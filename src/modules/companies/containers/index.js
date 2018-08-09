@@ -1,15 +1,13 @@
 import CompaniesList from './CompaniesList';
-import CompanyDetails from './CompanyDetails';
 import CompanyAssociate from './CompanyAssociate';
 import CompanyChooser from './CompanyChooser';
 import CompanyForm from './CompanyForm';
-import BasicInfo from './detail/BasicInfo';
+import { CompanyDetails } from './detail';
 
 export {
   CompaniesList,
-  CompanyDetails,
   CompanyAssociate,
   CompanyChooser,
   CompanyForm,
-  BasicInfo
+  CompanyDetails
 };

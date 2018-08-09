@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import { mutations } from 'modules/customers/graphql';
-import { BasicInfo } from 'modules/customers/components/detail/sidebar';
-import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router-dom';
+import gql from 'graphql-tag';
+import { Alert } from 'modules/common/utils';
+import { mutations } from 'modules/customers/graphql';
+import { BasicInfoSection } from 'modules/customers/components/common';
 
 const BasicInfoContainer = props => {
   const { customer, customersRemove, customersMerge, history } = props;
@@ -47,7 +47,7 @@ const BasicInfoContainer = props => {
     merge
   };
 
-  return <BasicInfo {...updatedProps} />;
+  return <BasicInfoSection {...updatedProps} />;
 };
 
 BasicInfoContainer.propTypes = {

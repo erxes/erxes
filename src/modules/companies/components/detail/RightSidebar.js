@@ -2,9 +2,9 @@ import React from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
-import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { CustomerAssociate } from 'modules/customers/containers';
-import { DealSection } from 'modules/deals/containers';
+import { PortableDeals } from 'modules/deals/containers';
+import { List } from '../../styles';
 
 const propTypes = {
   company: PropTypes.object.isRequired
@@ -19,9 +19,10 @@ export default class RightSidebar extends React.Component {
     }
 
     return (
-      <SectionBodyItem>
-        <span>{__('Plan')}: </span> {company.plan}
-      </SectionBodyItem>
+      <li>
+        <div>{__('Plan')}: </div>
+        <span>{company.plan}</span>
+      </li>
     );
   }
 
@@ -35,21 +36,21 @@ export default class RightSidebar extends React.Component {
     return (
       <Sidebar>
         <CustomerAssociate data={company} />
-        <DealSection companyId={company._id} />
+        <PortableDeals companyId={company._id} />
 
         <Section>
           <Title>{__('Other')}</Title>
-          <SectionBody>
-            <SectionBodyItem>
-              <span>{__('Created at')}: </span>{' '}
-              {moment(company.createdAt).fromNow()}
-            </SectionBodyItem>
-            <SectionBodyItem>
-              <span>{__('Modified at')}: </span>{' '}
-              {moment(company.modifiedAt).fromNow()}
-            </SectionBodyItem>
+          <List>
+            <li>
+              <div>{__('Created at')}: </div>{' '}
+              <span>{moment(company.createdAt).format('lll')}</span>
+            </li>
+            <li>
+              <div>{__('Modified at')}: </div>{' '}
+              <span>{moment(company.modifiedAt).format('lll')}</span>
+            </li>
             {this.renderPlan(company)}
-          </SectionBody>
+          </List>
         </Section>
       </Sidebar>
     );

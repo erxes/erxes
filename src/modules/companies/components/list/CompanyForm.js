@@ -39,12 +39,17 @@ class CompanyForm extends React.Component {
     super(props);
 
     const { company = {} } = props;
+    const companies = [];
+
+    if (company.parentCompany) {
+      companies.push(company.parentCompany);
+    }
 
     this.state = {
       parentCompanyId: company.parentCompanyId || '',
       ownerId: company.ownerId || '',
+      companies,
       doNotDisturb: company.doNotDisturb || 'No',
-      companies: [company.parentCompany],
       users: []
     };
 

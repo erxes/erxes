@@ -1,74 +1,250 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ConversationDetails from './ConversationDetails';
-import { EditInformation } from 'modules/customers/containers';
+import { Icon } from 'modules/common/components';
 import { CompanyAssociate } from 'modules/companies/containers';
-import { DealSection } from 'modules/deals/containers';
-import { SidebarCounter } from 'modules/layout/styles';
+import { PortableDeals } from 'modules/deals/containers';
+import { Sidebar } from 'modules/layout/components';
+import { SidebarToggle } from 'modules/layout/styles';
+import { SectionContainer } from './styles';
+import {
+  TwitterSection,
+  FacebookSection,
+  MessengerSection,
+  DevicePropertiesSection,
+  TaggerSection
+} from 'modules/customers/components/common';
 
-const propTypes = {
-  conversation: PropTypes.object,
-  customer: PropTypes.object,
-  showSectionContent: PropTypes.func,
-  queryParams: PropTypes.object
-};
+import {
+  BasicInfoSection,
+  CustomFieldsSection
+} from 'modules/customers/containers/common';
 
-class Sidebar extends Component {
-  getChildContext() {
-    const { showSectionContent, queryParams } = this.props;
+import ConversationDetails from './ConversationDetails';
 
-    return { showSectionContent, queryParams };
+class Box extends Component {
+  constructor(props, context) {
+    super(props);
+
+    this.state = {
+      isOpen: props.isOpen
+    };
+
+    this.toggle = this.toggle.bind(this);
   }
 
-  renderMessengerData() {
-    const { conversation } = this.props;
-    const customer = conversation.customer || {};
-    const integration = conversation.integration || {};
-    const customData = customer.getMessengerCustomData;
+  toggle() {
+    const { name, toggle } = this.props;
+    const { isOpen } = this.state;
 
-    if (integration.kind === 'messenger' && customData.length) {
-      return customData.map(data => (
-        <li key={data.value}>
-          {data.name}
-          <SidebarCounter>{data.value}</SidebarCounter>
-        </li>
-      ));
-    }
+    this.setState({ isOpen: !isOpen });
 
-    return null;
+    toggle({ name, isOpen: !isOpen });
   }
 
-  renderSectionBottom(customer) {
-    const { showDeal } = this.props.queryParams;
+  renderDropBtn() {
+    const icon = this.state.isOpen ? 'uparrow-2' : 'downarrow';
 
     return (
-      <Fragment>
-        <CompanyAssociate data={customer} />
-        <DealSection customerId={showDeal ? customer._id : null} />
-      </Fragment>
+      <SidebarToggle inverse={!this.state.isOpen} onClick={this.toggle}>
+        <Icon icon={icon} />
+      </SidebarToggle>
     );
   }
 
   render() {
-    const { conversation, customer, queryParams } = this.props;
+    const { Section } = Sidebar;
+    const { Title } = Section;
+
+    const { isOpen } = this.state;
+    const { children, title } = this.props;
+
+    if (!isOpen) {
+      return (
+        <SectionContainer>
+          <Title>{title}</Title>
+          {this.renderDropBtn()}
+        </SectionContainer>
+      );
+    }
 
     return (
-      <EditInformation
-        sectionTop={<ConversationDetails conversation={conversation} />}
-        sectionBottom={this.renderSectionBottom(customer)}
-        customer={customer}
-        queryParams={queryParams}
-        otherProperties={this.renderMessengerData()}
-      />
+      <SectionContainer>
+        {children}
+        {this.renderDropBtn()}
+      </SectionContainer>
     );
   }
 }
 
-Sidebar.propTypes = propTypes;
-
-Sidebar.childContextTypes = {
-  showSectionContent: PropTypes.func,
-  queryParams: PropTypes.object
+Box.propTypes = {
+  title: PropTypes.string,
+  name: PropTypes.string,
+  children: PropTypes.node,
+  isOpen: PropTypes.bool,
+  toggle: PropTypes.func
 };
 
-export default Sidebar;
+class Index extends Component {
+  renderMessengerData({ customer, kind, __, config, toggleSection }) {
+    if (kind !== 'messenger') {
+      return null;
+    }
+
+    return (
+      <Box
+        title={__('Messenger data')}
+        name="showMessengerData"
+        isOpen={config.showMessengerData || false}
+        toggle={toggleSection}
+      >
+        <MessengerSection customer={customer} />
+      </Box>
+    );
+  }
+
+  renderDeviceProperties({ customer, kind, __, config, toggleSection }) {
+    if (!(kind === 'messenger' || kind === 'form')) {
+      return null;
+    }
+
+    return (
+      <Box
+        title={__('Device properties')}
+        name="showDeviceProperties"
+        isOpen={config.showDeviceProperties || false}
+        toggle={toggleSection}
+      >
+        <DevicePropertiesSection customer={customer} />
+      </Box>
+    );
+  }
+
+  renderTwitterData({ customer, kind, __, config, toggleSection }) {
+    if (kind !== 'twitter') {
+      return null;
+    }
+
+    return (
+      <Box
+        title={__('Twitter data')}
+        name="showTwitterData"
+        isOpen={config.showTwitterData || false}
+        toggle={toggleSection}
+      >
+        <TwitterSection customer={customer} />
+      </Box>
+    );
+  }
+
+  renderFacebookData({ customer, kind, __, config, toggleSection }) {
+    if (kind !== 'facebook') {
+      return null;
+    }
+
+    return (
+      <Box
+        title={__('Facebook data')}
+        name="showFacebookData"
+        isOpen={config.showFacebookData || false}
+        toggle={toggleSection}
+      >
+        <FacebookSection customer={customer} />
+      </Box>
+    );
+  }
+
+  render() {
+    const { conversation, customer, toggleSection, config } = this.props;
+    const { kind } = customer.integration || {};
+    const { __ } = this.context;
+
+    return (
+      <Sidebar>
+        <Box
+          title={__('Profile')}
+          name="showProfile"
+          isOpen={config.showProfile || false}
+          toggle={toggleSection}
+        >
+          <BasicInfoSection customer={customer} />
+        </Box>
+
+        <Box
+          title={__('Conversation details')}
+          name="showConversationDetails"
+          isOpen={config.showConversationDetails || false}
+          toggle={toggleSection}
+        >
+          <ConversationDetails conversation={conversation} />
+        </Box>
+
+        {this.renderMessengerData({
+          customer,
+          kind,
+          __,
+          config,
+          toggleSection
+        })}
+        {this.renderDeviceProperties({
+          customer,
+          kind,
+          __,
+          config,
+          toggleSection
+        })}
+
+        <Box
+          title={__('Contact information')}
+          name="showCustomFields"
+          isOpen={config.showCustomFields || false}
+          toggle={toggleSection}
+        >
+          <CustomFieldsSection customer={customer} />
+        </Box>
+
+        {this.renderTwitterData({ customer, kind, __, config, toggleSection })}
+        {this.renderFacebookData({ customer, kind, __, config, toggleSection })}
+
+        <Box
+          title={__('Tags')}
+          name="showTags"
+          isOpen={config.showTags || false}
+          toggle={toggleSection}
+        >
+          <TaggerSection data={customer} type="customer" />
+        </Box>
+
+        <Box
+          title={__('Companies')}
+          name="showCompanies"
+          isOpen={config.showCompanies || false}
+          toggle={toggleSection}
+        >
+          <CompanyAssociate data={customer} />
+        </Box>
+
+        <Box
+          title={__('Deals')}
+          name="showDeals"
+          isOpen={config.showDeals || false}
+          toggle={toggleSection}
+        >
+          <PortableDeals customerId={customer._id} />
+        </Box>
+      </Sidebar>
+    );
+  }
+}
+
+Index.propTypes = {
+  conversation: PropTypes.object,
+  customer: PropTypes.object,
+  toggleSection: PropTypes.func,
+  config: PropTypes.object
+};
+
+Index.contextTypes = {
+  __: PropTypes.func
+};
+
+export default Index;

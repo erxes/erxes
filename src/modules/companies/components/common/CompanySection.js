@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { ModalTrigger, Icon, Tip, EmptyState } from 'modules/common/components';
 import { urlParser } from 'modules/common/utils';
+import { Sidebar } from 'modules/layout/components';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
-import { BaseSection } from 'modules/customers/components';
 import { CompanyChooser } from '../../containers';
 
 const propTypes = {
@@ -18,6 +18,9 @@ const defaultProps = {
 };
 
 function CompanySection({ name, companies, onSelect }, { __ }) {
+  const { Section } = Sidebar;
+  const { Title, QuickButtons } = Section;
+
   const companyTrigger = (
     <a>
       <Icon icon="add" />
@@ -52,13 +55,13 @@ function CompanySection({ name, companies, onSelect }, { __ }) {
   );
 
   return (
-    <BaseSection
-      title={__('Companies')}
-      content={content}
-      quickButtons={quickButtons}
-      isUseCustomer={true}
-      name="showCompany"
-    />
+    <Section>
+      <Title>{__('Companies')}</Title>
+
+      <QuickButtons>{quickButtons}</QuickButtons>
+
+      {content}
+    </Section>
   );
 }
 

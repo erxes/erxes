@@ -5,7 +5,7 @@ import PropertyForm from './PropertyForm';
 import PropertyRow from './PropertyRow';
 import ManageColumns from './ManageColumns';
 import GenerateField from './GenerateField';
-import ManageGroups from './ManageGroups';
+import GenerateCustomFields from './GenerateCustomFields';
 
 export {
   Sidebar,
@@ -15,5 +15,5 @@ export {
   PropertyRow,
   ManageColumns,
   GenerateField,
-  ManageGroups
+  GenerateCustomFields
 };

@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
+import { SidebarList } from 'modules/layout/styles';
 
 const Info = styled.div`
   margin-top: 5px;
@@ -31,4 +32,22 @@ const Action = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
-export { InfoTitle, InfoDetail, Info, Action };
+const List = SidebarList.extend`
+  li {
+    border-bottom: 1px solid ${colors.borderPrimary};
+    color: ${colors.textPrimary};
+    white-space: normal;
+    padding: 10px 20px;
+
+    span {
+      color: ${colors.colorCoreLightGray};
+      margin: 0;
+    }
+
+    &:last-child {
+      border: none;
+    }
+  }
+`;
+
+export { InfoTitle, InfoDetail, Info, Action, List };
