@@ -4,7 +4,8 @@ import {
   ControlLabel,
   FormGroup,
   FormControl,
-  Button
+  Button,
+  Uploader
 } from 'modules/common/components';
 import { METHODS } from 'modules/engage/constants';
 import Editor from './Editor';
@@ -15,9 +16,9 @@ class WidgetForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { content: '', channel: 'email' };
+    this.state = { content: '', channel: 'email', attachments: [] };
 
-    this.onContentChange = this.onContentChange.bind(this);
+    this.onChangeCommon = this.onChangeCommon.bind(this);
     this.onChannelChange = this.onChannelChange.bind(this);
     this.save = this.save.bind(this);
   }
@@ -37,6 +38,7 @@ class WidgetForm extends Component {
       doc.email = {
         templateId: document.getElementById('emailTemplateId').value,
         subject: document.getElementById('emailSubject').value,
+        attachments: this.state.attachments,
         content: this.state.content
       };
     }
@@ -56,8 +58,8 @@ class WidgetForm extends Component {
     });
   }
 
-  onContentChange(content) {
-    this.setState({ content });
+  onChangeCommon(name, value) {
+    this.setState({ [name]: value });
   }
 
   onChannelChange(e) {
@@ -84,6 +86,8 @@ class WidgetForm extends Component {
       return null;
     }
 
+    const { attachments } = this.state;
+
     return (
       <div>
         <FormGroup>
@@ -102,6 +106,15 @@ class WidgetForm extends Component {
               </option>
             ))}
           </FormControl>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Attachment:</ControlLabel>
+          <Uploader
+            defaultFileList={attachments}
+            onChange={attachments =>
+              this.onChangeCommon('attachments', attachments)
+            }
+          />
         </FormGroup>
       </div>
     );
@@ -182,7 +195,9 @@ class WidgetForm extends Component {
 
         <FormGroup>
           <ControlLabel>Content:</ControlLabel>
-          <Editor onChange={this.onContentChange} />
+          <Editor
+            onChange={content => this.onChangeCommon('content', content)}
+          />
         </FormGroup>
 
         <ModalFooter>

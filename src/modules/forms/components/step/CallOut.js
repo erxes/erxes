@@ -65,10 +65,10 @@ class CallOut extends Component {
   }
 
   handleImage(e) {
-    const imageFile = e.target.files[0];
+    const imageFile = e.target.files;
 
     uploadHandler({
-      file: imageFile,
+      files: imageFile,
 
       beforeUpload: () => {
         this.setState({ logoPreviewStyle: { opacity: '0.9' } });
