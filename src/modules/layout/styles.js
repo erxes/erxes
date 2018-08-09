@@ -176,7 +176,7 @@ const SidebarToggle = styled.a`
   text-align: center;
   padding: 2px 0;
   font-size: 10px;
-  background: ${colors.bgLight};
+  background: ${props => (props.inverse ? colors.colorWhite : colors.bgLight)};
   border-top: 1px solid ${colors.borderPrimary};
 
   &:hover {

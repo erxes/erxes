@@ -5,6 +5,7 @@ import { CompanyAssociate } from 'modules/companies/containers';
 import { PortableDeals } from 'modules/deals/containers';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarToggle } from 'modules/layout/styles';
+import { SectionContainer } from './styles';
 import {
   TwitterSection,
   FacebookSection,
@@ -44,7 +45,7 @@ class Box extends Component {
     const icon = this.state.isOpen ? 'uparrow-2' : 'downarrow';
 
     return (
-      <SidebarToggle onClick={this.toggle}>
+      <SidebarToggle inverse={!this.state.isOpen} onClick={this.toggle}>
         <Icon icon={icon} />
       </SidebarToggle>
     );
@@ -59,18 +60,18 @@ class Box extends Component {
 
     if (!isOpen) {
       return (
-        <Section>
+        <SectionContainer>
           <Title>{title}</Title>
           {this.renderDropBtn()}
-        </Section>
+        </SectionContainer>
       );
     }
 
     return (
-      <div style={{ position: 'relative' }}>
+      <SectionContainer>
         {children}
         {this.renderDropBtn()}
-      </div>
+      </SectionContainer>
     );
   }
 }
