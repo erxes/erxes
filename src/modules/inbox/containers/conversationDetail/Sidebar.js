@@ -78,15 +78,15 @@ class Sidebar extends Component {
     if (!localStorage.getItem(STORAGE_KEY)) {
       setConfig({
         showProfile: true,
-        showCompanies: true,
-        showConversationDetail: true,
-        showCustomFields: true,
-        showDeals: true,
-        showDeviceProperties: true,
-        showMessengerData: true,
-        showFacebookData: true,
-        showTwitterData: true,
-        showTags: true
+        showCompanies: false,
+        showConversationDetails: false,
+        showCustomFields: false,
+        showDeals: false,
+        showDeviceProperties: false,
+        showMessengerData: false,
+        showFacebookData: false,
+        showTwitterData: false,
+        showTags: false
       });
     }
 

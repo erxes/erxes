@@ -18,6 +18,8 @@ import {
   CustomFieldsSection
 } from 'modules/customers/containers/common';
 
+import ConversationDetails from './ConversationDetails';
+
 class Box extends Component {
   constructor(props, context) {
     super(props);
@@ -151,7 +153,7 @@ class Index extends Component {
   }
 
   render() {
-    const { customer, toggleSection, config } = this.props;
+    const { conversation, customer, toggleSection, config } = this.props;
     const { kind } = customer.integration || {};
     const { __ } = this.context;
 
@@ -164,6 +166,15 @@ class Index extends Component {
           toggle={toggleSection}
         >
           <BasicInfoSection customer={customer} />
+        </Box>
+
+        <Box
+          title={__('Conversation details')}
+          name="showConversationDetails"
+          isOpen={config.showConversationDetails || false}
+          toggle={toggleSection}
+        >
+          <ConversationDetails conversation={conversation} />
         </Box>
 
         {this.renderMessengerData({
