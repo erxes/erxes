@@ -15,7 +15,7 @@ const Attachment = styled.div`
 `;
 
 const propTypes = {
-  attachments: PropTypes.array,
+  defaultFileList: PropTypes.array,
   onChange: PropTypes.func
 };
 
@@ -23,10 +23,10 @@ class Uploader extends Component {
   constructor(props) {
     super(props);
 
-    const { attachments } = this.props;
+    const { defaultFileList } = this.props;
 
     this.state = {
-      attachments: attachments || [],
+      attachments: defaultFileList || [],
       attachmentPreviewStyle: {}
     };
 
@@ -52,7 +52,7 @@ class Uploader extends Component {
           { url: response, ...fileInfo }
         ];
 
-        this.props.onChange('attachments', attachments);
+        this.props.onChange(attachments);
 
         this.setState({
           attachments,
@@ -71,7 +71,7 @@ class Uploader extends Component {
 
     this.setState({ attachments });
 
-    this.props.onChange('attachments', attachments);
+    this.props.onChange(attachments);
   }
 
   render() {

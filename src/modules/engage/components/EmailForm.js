@@ -186,8 +186,10 @@ class EmailForm extends Component {
           <FormGroup>
             <ControlLabel>Attachment:</ControlLabel>
             <Uploader
-              attachments={attachments}
-              onChange={(name, value) => this.changeContent(name, value)}
+              defaultFileList={attachments}
+              onChange={attachments =>
+                this.changeContent('attachments', attachments)
+              }
             />
           </FormGroup>
         </FlexPad>
