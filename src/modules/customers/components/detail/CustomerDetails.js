@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Wrapper, Sidebar } from 'modules/layout/components';
+import { Wrapper } from 'modules/layout/components';
 import {
   DataWithLoader,
   Tabs,
@@ -13,10 +13,9 @@ import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import { renderFullName } from 'modules/common/utils';
 import { ActivityContent } from 'modules/common/styles/main';
-import { PortableDeals } from 'modules/deals/containers';
-import { CompanyAssociate } from 'modules/companies/containers';
 import { hasAnyActivity } from '../../utils';
 import LeftSidebar from './LeftSidebar';
+import RightSidebar from './RightSidebar';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -116,18 +115,11 @@ class CustomerDetails extends React.Component {
       </div>
     );
 
-    const rightSidebar = (
-      <Sidebar>
-        <CompanyAssociate data={customer} />
-        <PortableDeals customerId={customer._id} />
-      </Sidebar>
-    );
-
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<LeftSidebar wide customer={customer} />}
-        rightSidebar={rightSidebar}
+        rightSidebar={<RightSidebar customer={customer} />}
         content={content}
         transparent={true}
       />

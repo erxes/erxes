@@ -124,6 +124,7 @@ const customerDetail = `
       ${customerFields}
       integration {
         kind
+        name
       }
       getMessengerCustomData
       companies {
