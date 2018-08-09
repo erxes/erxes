@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 import {
   FormControl,
   ControlLabel,
-  FormGroup
+  FormGroup,
+  Uploader
 } from 'modules/common/components';
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
@@ -48,7 +49,8 @@ class EmailForm extends Component {
       message: message.message,
       email: {
         subject: message.email.subject || '',
-        templateId: message.email.templateId || ''
+        templateId: message.email.templateId || '',
+        attachments: message.email.attachments || []
       }
     };
   }
@@ -129,6 +131,8 @@ class EmailForm extends Component {
   }
 
   render() {
+    const { attachments } = this.state.email;
+
     return (
       <FlexItem>
         <FlexPad direction="column" overflow="auto">
@@ -178,6 +182,13 @@ class EmailForm extends Component {
                 </option>
               ))}
             </FormControl>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Attachment:</ControlLabel>
+            <Uploader
+              attachments={attachments}
+              onChange={(name, value) => this.changeContent(name, value)}
+            />
           </FormGroup>
         </FlexPad>
 

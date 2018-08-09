@@ -34,10 +34,10 @@ class UserCommonInfos extends Component {
   }
 
   handleImageChange(e) {
-    const imageFile = e.target.files[0];
+    const imageFile = e.target.files;
 
     uploadHandler({
-      file: imageFile,
+      files: imageFile,
 
       beforeUpload: () => {
         this.setState({ avatarPreviewStyle: { opacity: '0.2' } });
