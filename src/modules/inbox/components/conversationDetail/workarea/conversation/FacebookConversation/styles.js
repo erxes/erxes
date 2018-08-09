@@ -15,9 +15,8 @@ const PostContainer = styled.div`
   overflow: hidden;
   position: relative;
   margin-bottom: 15px;
-  background: ${props => props.root && colors.colorWhite};
+  background: ${colors.colorWhite};
   border-radius: ${borderRadius};
-  margin-left: ${props => props.isReply && '80px'};
 
   > span {
     position: absolute;
@@ -70,17 +69,6 @@ const User = styled.div`
   }
 `;
 
-const ShowMore = styled.div`
-  visibility: hidden;
-  position: absolute;
-  background: #fff;
-  padding: 5px 8px;
-  border-radius: 10px;
-  bottom: 15px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-`;
-
 const Reply = styled.div`
   display: inline-block;
   margin-right: 5px;
@@ -96,10 +84,6 @@ const Reply = styled.div`
   > a:hover {
     text-decoration: underline;
     color: #3a5999;
-
-    ${ShowMore} {
-      visibility: visible;
-    }
   }
 `;
 
@@ -181,7 +165,7 @@ const Reaction = styled.div`
   width: 16px;
   height: 16px;
   display: inline-block;
-  margin-right: ${props => (props.all ? '10px' : '3px')};
+  margin-right: 3px;
   background-image: url('/images/reactions.png');
   border-radius: 10px;
   cursor: pointer;
@@ -221,6 +205,5 @@ export {
   Reply,
   FlexItem,
   ReplyReaction,
-  Footer,
-  ShowMore
+  Footer
 };

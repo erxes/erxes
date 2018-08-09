@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import { Tooltip, OverlayTrigger } from 'react-bootstrap';
 import { NameCard, Tip, ModalTrigger } from 'modules/common/components';
 import { FacebookContent, ReplyingMessage } from './';
-import { REACTION_TYPES } from 'modules/inbox/constants';
 import {
   PostContainer,
   ChildPost,
@@ -13,28 +13,15 @@ import {
   Reaction,
   Reply,
   FlexItem,
-  ReplyReaction,
-  ShowMore
+  ReplyReaction
 } from './styles';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
-  replyPost: PropTypes.func,
-  likePost: PropTypes.func
+  replyPost: PropTypes.func
 };
 
 class Message extends Component {
-  renderLikePost(id, type) {
-    const { likePost } = this.props;
-
-    const post = {
-      conversationMessageId: id,
-      type: type
-    };
-
-    likePost(post);
-  }
-
   renderUserName(username, userId) {
     return (
       <a target="_blank" href={`https://facebook.com/${username}-${userId}`}>
@@ -46,15 +33,15 @@ class Message extends Component {
   renderDate() {
     const { message } = this.props;
 
+    const data = message.facebookData;
+
     return (
       <Tip
         placement="bottom"
-        text={moment(new Date(message.facebookData.createdAt) * 1000).format(
-          'lll'
-        )}
+        text={data && moment(data.createdAt).format('lll')}
       >
         <span href={`https://facebook.com/statuses/`} target="_blank">
-          {moment(new Date(message.facebookData.createdAt) * 1000).fromNow()}
+          {moment(data ? data.createdAt : message.createdAt).fromNow()}
         </span>
       </Tip>
     );
@@ -66,11 +53,13 @@ class Message extends Component {
         <div key={index}>{value.name}</div>
       ));
 
+      const tooltip = <Tooltip id="tooltip">{users}</Tooltip>;
+
       if (reactions[value].length > 0) {
         return (
-          <Tip key={value} text={users}>
+          <OverlayTrigger key={value} placement="top" overlay={tooltip}>
             <Reaction className={value} />
-          </Tip>
+          </OverlayTrigger>
         );
       }
 
@@ -82,7 +71,7 @@ class Message extends Component {
     return (
       <Counts>
         <FlexItem>
-          {this.renderReactions(data.reactions)}
+          {data.reactions && this.renderReactions(data.reactions)}
           <a>{data.likeCount}</a>
         </FlexItem>
         <span>{data.commentCount} Comments</span>
@@ -98,28 +87,47 @@ class Message extends Component {
     return null;
   }
 
-  handleLike(id) {
+  renderChildComments(data, message, parent) {
+    const { replyPost } = this.props;
+    const size = data && data.parentId ? 20 : 32;
+
     return (
-      <ShowMore>
-        {REACTION_TYPES.ALL_LIST.map(reaction => (
-          <Tip key={reaction} text={reaction}>
-            <Reaction
-              className={reaction}
-              onClick={() => this.renderLikePost(id, reaction)}
-              all
-            />
-          </Tip>
-        ))}
-      </ShowMore>
+      <ChildPost isReply={data.parentId} root>
+        <NameCard.Avatar customer={message.customer || {}} size={size} />
+
+        <User isPost={data.isPost} isReply={data.parentId}>
+          <Comment>
+            {this.renderUserName(data.senderName, data.senderId)}
+            <FacebookContent content={message.content} isPost={data.isPost} />
+            {this.renderAttachments(data)}
+            {data.reactions && (
+              <ReplyReaction>
+                {data.reactions && this.renderReactions(data.reactions)}
+                {data.likeCount}
+              </ReplyReaction>
+            )}
+          </Comment>
+          <div>
+            <Reply>
+              <ModalTrigger title="Reply" trigger={<a> Reply •</a>}>
+                <ReplyingMessage
+                  conversationId={message.conversationId}
+                  currentUserName={data.senderName}
+                  replyPost={replyPost}
+                />
+              </ModalTrigger>
+            </Reply>
+            {this.renderDate()}
+          </div>
+        </User>
+      </ChildPost>
     );
   }
 
   render() {
-    const { message, replyPost } = this.props;
-    console.log(message);
+    const { message } = this.props;
     const customer = message.customer || {};
     const data = message.facebookData || {};
-    const size = data && data.parentId ? 20 : 32;
 
     if (data.isPost) {
       return (
@@ -136,38 +144,7 @@ class Message extends Component {
       );
     }
 
-    return (
-      <ChildPost isReply={data.parentId} root>
-        <NameCard.Avatar customer={customer} size={size} />
-
-        <User isPost={data.isPost} isReply={data.parentId}>
-          <Comment>
-            {this.renderUserName(data.senderName, data.senderId)}
-            <FacebookContent content={message.content} isPost={data.isPost} />
-            {this.renderAttachments(data)}
-            {data.reactions && (
-              <ReplyReaction>
-                {this.renderReactions(data.reactions)}
-                {data.likeCount}
-              </ReplyReaction>
-            )}
-          </Comment>
-          <div>
-            <Reply>
-              <a>Like {this.handleLike(message._id)}</a> •
-              <ModalTrigger title="Reply" trigger={<a> Reply •</a>}>
-                <ReplyingMessage
-                  conversationId={message.conversationId}
-                  currentUserName={data.senderName}
-                  replyPost={replyPost}
-                />
-              </ModalTrigger>
-            </Reply>
-            {this.renderDate()}
-          </div>
-        </User>
-      </ChildPost>
-    );
+    return this.renderChildComments(data, message, null);
   }
 }
 
