@@ -371,7 +371,10 @@ export class SaveWebhookResponse {
       userId: senderId,
       content,
       attachments,
-      facebookData: msgFacebookData,
+      facebookData: {
+        ...msgFacebookData,
+        kind: facebookData.kind,
+      },
     });
   }
 
@@ -716,11 +719,16 @@ export const facebookReply = async (conversation, msg, messageId) => {
       message: text,
     });
 
+    const params = {
+      'facebookData.commentId': res.id,
+    };
+
+    if (res.parent_id) {
+      params['facebookData.parentId'] = res.parent_id;
+    }
+
     // save commentId and parentId in message object
-    await ConversationMessages.update(
-      { _id: messageId },
-      { $set: { 'facebookData.commentId': res.id, 'facebookData.parentId': res.parent_id } },
-    );
+    await ConversationMessages.update({ _id: messageId }, { $set: params });
   }
 
   return null;

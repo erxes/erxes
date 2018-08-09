@@ -73,7 +73,7 @@ describe('facebook integration: reply', () => {
     });
 
     // reply
-    await facebookReply(conversation, text);
+    await facebookReply(conversation, { text });
 
     // check
     expect(stub.calledWith('me/messages', 'page_access_token')).toBe(true);
@@ -102,7 +102,7 @@ describe('facebook integration: reply', () => {
     const mongoStub = sinon.stub(ConversationMessages, 'update').callsFake(() => {});
 
     // reply
-    await facebookReply(conversation, text, messageId);
+    await facebookReply(conversation, { text }, messageId);
 
     // check graph request
     expect(gpStub.calledWith('postId/comments', 'page_access_token')).toBe(true);
