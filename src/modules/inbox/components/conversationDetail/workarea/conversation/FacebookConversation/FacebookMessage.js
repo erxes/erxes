@@ -91,7 +91,7 @@ class FacebookMessage extends Component {
     );
   }
 
-  renderAttachments(data) {
+  renderAttachment(data) {
     if (!data.photo) {
       return null;
     }
@@ -111,7 +111,7 @@ class FacebookMessage extends Component {
           <Comment>
             {this.renderUserName(data.senderName, data.senderId)}
             <FacebookContent content={message.content} isPost={data.isPost} />
-            {this.renderAttachments(data)}
+            {this.renderAttachment(data)}
             {this.renderReactionCount(data)}
           </Comment>
           <div>
@@ -136,7 +136,7 @@ class FacebookMessage extends Component {
     const { message } = this.props;
     const customer = message.customer || {};
     const data = message.facebookData || {};
-
+    console.log(message);
     if (data.isPost) {
       return (
         <PostContainer isReply={data.parentId} root>
@@ -146,7 +146,11 @@ class FacebookMessage extends Component {
             {this.renderUserName(data.senderName, data.senderId)}
             {this.renderDate()}
           </User>
-          <FacebookContent content={message.content} image={data.photo} />
+          <FacebookContent
+            content={message.content}
+            image={data.photo}
+            images={data.photos}
+          />
           {this.renderCounts(data)}
         </PostContainer>
       );

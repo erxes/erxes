@@ -1,13 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
+import { ImageContainer } from './styles';
 
 const propTypes = {
   content: PropTypes.string.isRequired,
-  image: PropTypes.string
+  image: PropTypes.string,
+  images: PropTypes.array
 };
 
 class FacebookContent extends Component {
-  renderAttachments(image) {
+  renderAttachment(image) {
     if (!image) {
       return null;
     }
@@ -15,12 +17,24 @@ class FacebookContent extends Component {
     return <img src={image} alt={image} />;
   }
 
+  renderAttachments(images) {
+    if (!images) {
+      return null;
+    }
+
+    return (
+      <ImageContainer>
+        {images.map(image => <img key={image} src={image} alt={image} />)}
+      </ImageContainer>
+    );
+  }
+
   render() {
-    const { content, image } = this.props;
+    const { content, image, images } = this.props;
 
     return (
       <Fragment>
-        {this.renderAttachments(image)}
+        {this.renderAttachment(image) || this.renderAttachments(images)}
         <p
           dangerouslySetInnerHTML={{
             __html: content
