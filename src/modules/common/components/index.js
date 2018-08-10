@@ -36,6 +36,7 @@ import IntegrationIcon from './IntegrationIcon';
 import Chooser from './Chooser';
 import DateFilter from './DateFilter';
 import ModifiableSelect from './ModifiableSelect';
+import Uploader from './Uploader';
 
 // TODO remove
 const pagination = {};
@@ -86,5 +87,6 @@ export {
   IntegrationIcon,
   Chooser,
   DateFilter,
-  ModifiableSelect
+  ModifiableSelect,
+  Uploader
 };

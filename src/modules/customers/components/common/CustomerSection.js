@@ -49,6 +49,7 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
           <CustomerChooser data={{ name, customers }} onSelect={onSelect} />
         </ModalTrigger>
       </QuickButtons>
+
       <SectionBody>
         {customers.map((customer, index) => (
           <SectionBodyItem key={index}>

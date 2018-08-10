@@ -2,7 +2,7 @@ const uploadHandler = params => {
   const { REACT_APP_API_URL } = process.env;
 
   const {
-    file,
+    files,
     beforeUpload,
     afterUpload,
     afterRead,
@@ -11,62 +11,66 @@ const uploadHandler = params => {
     extraFormData = []
   } = params;
 
-  // initiate upload file reader
-  const uploadReader = new FileReader();
+  if (files.length === 0) return;
 
-  const fileInfo = { name: file.name, size: file.size, type: file.type };
+  for (const file of files) {
+    // initiate upload file reader
+    const uploadReader = new FileReader();
 
-  // after read proccess done
-  uploadReader.onloadend = () => {
-    // before upload
-    if (beforeUpload) {
-      beforeUpload();
-    }
+    const fileInfo = { name: file.name, size: file.size, type: file.type };
 
-    const formData = new FormData();
-    formData.append('file', file);
-
-    for (const data of extraFormData) {
-      formData.append(data.key, data.value);
-    }
-
-    fetch(url, {
-      method: 'post',
-      body: formData,
-      headers: {
-        'x-token': localStorage.getItem('erxesLoginToken'),
-        'x-refresh-token': localStorage.getItem('erxesLoginRefreshToken')
+    // after read proccess done
+    uploadReader.onloadend = () => {
+      // before upload
+      if (beforeUpload) {
+        beforeUpload();
       }
-    })
-      .then(response => {
-        return response[responseType]();
-      })
 
-      .then(response => {
-        // after upload
-        if (afterUpload) {
-          afterUpload({ response, fileInfo });
+      const formData = new FormData();
+      formData.append('file', file);
+
+      for (const data of extraFormData) {
+        formData.append(data.key, data.value);
+      }
+
+      fetch(url, {
+        method: 'post',
+        body: formData,
+        headers: {
+          'x-token': localStorage.getItem('erxesLoginToken'),
+          'x-refresh-token': localStorage.getItem('erxesLoginRefreshToken')
         }
       })
+        .then(response => {
+          return response[responseType]();
+        })
 
-      .catch(e => {
-        console.log(e); // eslint-disable-line
-      });
-  };
+        .then(response => {
+          // after upload
+          if (afterUpload) {
+            afterUpload({ response, fileInfo });
+          }
+        })
 
-  // begin read
-  uploadReader.readAsArrayBuffer(file);
+        .catch(e => {
+          console.log(e); // eslint-disable-line
+        });
+    };
 
-  // read as data url for preview purposes
-  const reader = new FileReader();
+    // begin read
+    uploadReader.readAsArrayBuffer(file);
 
-  reader.onloadend = () => {
-    if (afterRead) {
-      afterRead({ result: reader.result, fileInfo });
-    }
-  };
+    // read as data url for preview purposes
+    const reader = new FileReader();
 
-  reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      if (afterRead) {
+        afterRead({ result: reader.result, fileInfo });
+      }
+    };
+
+    reader.readAsDataURL(file);
+  }
 };
 
 export default uploadHandler;

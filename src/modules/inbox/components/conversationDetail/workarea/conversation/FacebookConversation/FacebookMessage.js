@@ -54,29 +54,29 @@ class FacebookMessage extends Component {
 
       const tooltip = <Tooltip id="tooltip">{users}</Tooltip>;
 
-      if (reactions[value].length > 0) {
-        return (
-          <OverlayTrigger key={value} placement="top" overlay={tooltip}>
-            <Reaction className={value} />
-          </OverlayTrigger>
-        );
+      if (!reactions[value].length > 0) {
+        return null;
       }
 
-      return null;
+      return (
+        <OverlayTrigger key={value} placement="top" overlay={tooltip}>
+          <Reaction className={value} />
+        </OverlayTrigger>
+      );
     });
   }
 
   renderReactionCount(data) {
-    if (data.reactions && data.likeCount !== 0) {
-      return (
-        <ReplyReaction>
-          {data.reactions && this.renderReactions(data.reactions)}
-          {data.likeCount}
-        </ReplyReaction>
-      );
+    if (data.likeCount === 0) {
+      return null;
     }
 
-    return null;
+    return (
+      <ReplyReaction>
+        {data.reactions && this.renderReactions(data.reactions)}
+        {data.likeCount}
+      </ReplyReaction>
+    );
   }
 
   renderCounts(data) {
@@ -92,14 +92,14 @@ class FacebookMessage extends Component {
   }
 
   renderAttachments(data) {
-    if (data.photo) {
-      return <img src={data.photo} alt={data.postId} />;
+    if (!data.photo) {
+      return null;
     }
 
-    return null;
+    return <img src={data.photo} alt={data.postId} />;
   }
 
-  renderChildComments(data, message, parent) {
+  renderChildComments(data, message) {
     const { replyPost } = this.props;
     const size = data && data.parentId ? 20 : 32;
 
@@ -152,7 +152,7 @@ class FacebookMessage extends Component {
       );
     }
 
-    return this.renderChildComments(data, message, null);
+    return this.renderChildComments(data, message);
   }
 }
 

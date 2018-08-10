@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ModalTrigger, EmptyState, Icon } from 'modules/common/components';
-import { Deal } from '../../containers';
-import { DealAddForm } from '../';
-import { SectionContainer } from '../../styles/deal';
-import { BaseSection } from 'modules/customers/components';
+import { Sidebar } from 'modules/layout/components';
+import { SectionContainer } from 'modules/layout/styles';
+import { Deal } from '../containers';
+import { DealAddForm } from './';
 
 const propTypes = {
   deals: PropTypes.array,
@@ -18,7 +18,7 @@ const defaultProps = {
   deals: []
 };
 
-class DealSection extends React.Component {
+class PortableDeals extends React.Component {
   renderDeals() {
     const { saveDeal, removeDeal, deals } = this.props;
 
@@ -37,6 +37,9 @@ class DealSection extends React.Component {
   }
 
   render() {
+    const { Section } = Sidebar;
+    const { Title, QuickButtons } = Section;
+
     const { saveDeal, customerId, companyId } = this.props;
     const { __ } = this.context;
 
@@ -57,24 +60,22 @@ class DealSection extends React.Component {
       </ModalTrigger>
     );
 
-    const content = <SectionContainer>{this.renderDeals()}</SectionContainer>;
-
     return (
-      <BaseSection
-        title={__('Deals')}
-        quickButtons={quickButtons}
-        content={content}
-        isUseCustomer={true}
-        name="showDeal"
-      />
+      <Section>
+        <Title>{__('Deals')}</Title>
+
+        <QuickButtons>{quickButtons}</QuickButtons>
+
+        <SectionContainer>{this.renderDeals()}</SectionContainer>
+      </Section>
     );
   }
 }
 
-DealSection.propTypes = propTypes;
-DealSection.contextTypes = {
+PortableDeals.propTypes = propTypes;
+PortableDeals.contextTypes = {
   __: PropTypes.func
 };
-DealSection.defaultProps = defaultProps;
+PortableDeals.defaultProps = defaultProps;
 
-export default DealSection;
+export default PortableDeals;

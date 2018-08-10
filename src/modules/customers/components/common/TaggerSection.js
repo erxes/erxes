@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
+import { Sidebar } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
 import { EmptyState, Tagger, Icon } from 'modules/common/components';
-import { BaseSection } from './';
 
 const propTypes = {
   data: PropTypes.object.isRequired,
@@ -24,7 +24,9 @@ class TaggerSection extends Component {
 
   toggleTagger(e) {
     e.preventDefault();
+
     const { isTaggerVisible } = this.state;
+
     this.setState({ isTaggerVisible: !isTaggerVisible });
   }
 
@@ -42,6 +44,9 @@ class TaggerSection extends Component {
   }
 
   render() {
+    const { Section } = Sidebar;
+    const { Title, QuickButtons } = Section;
+
     const { data, type, afterSave } = this.props;
     const tags = data.getTags || [];
     const { __ } = this.context;
@@ -52,33 +57,26 @@ class TaggerSection extends Component {
       </a>
     );
 
-    const extraContent = (
-      <Collapse in={this.state.isTaggerVisible}>
-        <div>
-          <Tagger
-            type={type}
-            targets={[data]}
-            className="sidebar-accordion"
-            event="onClick"
-            afterSave={afterSave}
-          />
-        </div>
-      </Collapse>
-    );
-
-    const content = (
-      <SidebarList className="no-link">{this.renderTags(tags)}</SidebarList>
-    );
-
     return (
-      <BaseSection
-        title={__('Tags')}
-        content={content}
-        extraContent={extraContent}
-        quickButtons={quickButtons}
-        isUseCustomer={true}
-        name="showTags"
-      />
+      <Section>
+        <Title>{__('Tags')}</Title>
+
+        <QuickButtons>{quickButtons}</QuickButtons>
+
+        <Collapse in={this.state.isTaggerVisible}>
+          <div>
+            <Tagger
+              type={type}
+              targets={[data]}
+              className="sidebar-accordion"
+              event="onClick"
+              afterSave={afterSave}
+            />
+          </div>
+        </Collapse>
+
+        <SidebarList className="no-link">{this.renderTags(tags)}</SidebarList>
+      </Section>
     );
   }
 }

@@ -43,7 +43,6 @@ export default `
     photos
     senderId
     senderName
-    createdAt
   }
   user {
     _id

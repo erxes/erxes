@@ -120,17 +120,10 @@ class RespondBox extends Component {
   }
 
   handleFileInput(e) {
-    let file = null;
-
-    if (e.target) {
-      e.preventDefault();
-      file = e.target.files[0];
-    } else {
-      file = e[0];
-    }
+    const files = e.target.files;
 
     uploadHandler({
-      file,
+      files,
 
       beforeUpload: () => {},
 
