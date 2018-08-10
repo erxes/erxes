@@ -114,19 +114,17 @@ export class SaveWebhookResponse {
    * @param {String} video_id - Video id
    * @param {String} link - Video, photo, urls
    * @param {String} photo_id - Photo id
-   * @param {Date} created_time - Created date
    * @param {String} item - Feed content types
    * @param {String[]} photos - Photo urls
    *
    * @return {Object} Facebook messenger data
    */
   handlePosts(postParams) {
-    const { post_id, video_id, link, photo_id, created_time, item, photos } = postParams;
+    const { post_id, video_id, link, photo_id, item, photos } = postParams;
     const doc = {
       postId: post_id,
       item,
       isPost: true,
-      createdAt: new Date(created_time * 1000),
     };
 
     // Posted video
@@ -158,7 +156,6 @@ export class SaveWebhookResponse {
    * @param {String} parent_id - Parent post or comment id
    * @param {String} item - Feed content types
    * @param {String} comment_id - Comment id
-   * @param {Date} created_time - Created date
    * @param {String} video - Video url
    * @param {String} photo - Photo url
    * @param {Stirng} verb - Action definition
@@ -166,22 +163,12 @@ export class SaveWebhookResponse {
    * @return {Object} Facebook messenger data
    */
   async handleComments(commentParams) {
-    const {
-      photo,
-      video,
-      post_id,
-      parent_id,
-      item,
-      comment_id,
-      created_time,
-      verb,
-    } = commentParams;
+    const { photo, video, post_id, parent_id, item, comment_id, verb } = commentParams;
 
     const doc = {
       postId: post_id,
       item: item,
       commentId: comment_id,
-      createdAt: new Date(created_time * 1000),
     };
 
     if (post_id !== parent_id) {
@@ -357,6 +344,7 @@ export class SaveWebhookResponse {
         },
       });
 
+      // Creating conversation created activity log for customer
       await ActivityLogs.createConversationLog(conversation, customer);
     } else {
       conversation = await Conversations.reopen(conversation._id);
@@ -368,10 +356,7 @@ export class SaveWebhookResponse {
       userId: senderId,
       content,
       attachments,
-      facebookData: {
-        ...msgFacebookData,
-        kind: facebookData.kind,
-      },
+      facebookData: msgFacebookData,
     });
   }
 
@@ -420,24 +405,7 @@ export class SaveWebhookResponse {
     // convert it to string
     const senderId = value.from.id.toString();
 
-    let messageText = value.message;
-
-    // when photo, video share, there will be no text, so link instead
-    if (!messageText) {
-      if (value.link) {
-        messageText = value.link;
-      }
-
-      if (value.photo) {
-        messageText = value.photo;
-      }
-
-      if (value.video) {
-        messageText = value.video;
-      }
-
-      return null;
-    }
+    let messageText = value.message || ' ';
 
     // value.post_id is returning different value even though same post
     // with the previous one. So fetch post info via graph api and
@@ -567,12 +535,9 @@ export class SaveWebhookResponse {
 
     // get profile pic
     const getProfilePic = async fbId => {
-      try {
-        const response = await graphRequest.get(`/${fbId}/picture?height=600`);
-        return response.image ? response.location : '';
-      } catch (e) {
-        return null;
-      }
+      const response = await graphRequest.get(`/${fbId}/picture?height=600`);
+
+      return response.image ? response.location : '';
     };
 
     // when feed response will contain name field
