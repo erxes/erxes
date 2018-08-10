@@ -39,7 +39,7 @@ export default class FacebookContent extends Component {
       return null;
     }
 
-    if (video.startsWith('https://www.youtube.com/')) {
+    if (video.includes('youtube.com')) {
       const iframeSrc = video.split('v=')[1].substring(0, 11);
 
       return (
