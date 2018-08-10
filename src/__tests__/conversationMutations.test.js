@@ -70,7 +70,7 @@ describe('Conversation message mutations', () => {
       content: _conversationMessage.content,
       mentionedUserIds: [_user._id],
       internal: false,
-      attachments: [{}],
+      attachments: [{ url: 'url' }],
       tweetReplyToId: faker.random.number(),
       tweetReplyToScreenName: faker.name.firstName(),
     };
@@ -103,13 +103,13 @@ describe('Conversation message mutations', () => {
       }
     `;
 
-    const conversation = await graphqlRequest(mutation, 'conversationMessageAdd', args);
+    const message = await graphqlRequest(mutation, 'conversationMessageAdd', args);
 
-    expect(conversation.content).toBe(args.content);
-    expect(conversation.attachments).toEqual([{}]);
-    expect(toJSON(conversation.mentionedUserIds)).toEqual(toJSON(args.mentionedUserIds));
-    expect(conversation.conversationId).toBe(args.conversationId);
-    expect(conversation.internal).toBe(args.internal);
+    expect(message.content).toBe(args.content);
+    expect(message.attachments).toEqual([{ url: 'url' }]);
+    expect(toJSON(message.mentionedUserIds)).toEqual(toJSON(args.mentionedUserIds));
+    expect(message.messageId).toBe(args.messageId);
+    expect(message.internal).toBe(args.internal);
   });
 
   test('Tweet conversation', async () => {
