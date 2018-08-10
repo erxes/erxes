@@ -8,7 +8,7 @@ const propTypes = {
   images: PropTypes.array
 };
 
-class FacebookContent extends Component {
+export default class FacebookContent extends Component {
   renderAttachment(image) {
     if (!image) {
       return null;
@@ -35,6 +35,7 @@ class FacebookContent extends Component {
     return (
       <Fragment>
         {this.renderAttachment(image) || this.renderAttachments(images)}
+
         <p
           dangerouslySetInnerHTML={{
             __html: content
@@ -46,5 +47,3 @@ class FacebookContent extends Component {
 }
 
 FacebookContent.propTypes = propTypes;
-
-export default FacebookContent;

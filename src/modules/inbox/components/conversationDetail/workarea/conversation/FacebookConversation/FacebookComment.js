@@ -15,7 +15,7 @@ const propTypes = {
   replyPost: PropTypes.func
 };
 
-class FacebookComment extends Component {
+export default class FacebookComment extends Component {
   renderReactionCount(data) {
     if (data.likeCount === 0) {
       return null;
@@ -46,7 +46,7 @@ class FacebookComment extends Component {
       <ChildPost isReply={data.parentId}>
         <NameCard.Avatar customer={message.customer || {}} size={size} />
 
-        <User isPost={data.isPost}>
+        <User>
           <Comment>
             <UserName username={data.senderName} userId={data.senderId} />
             <FacebookContent content={message.content} isPost={data.isPost} />
@@ -73,5 +73,3 @@ class FacebookComment extends Component {
 }
 
 FacebookComment.propTypes = propTypes;
-
-export default FacebookComment;

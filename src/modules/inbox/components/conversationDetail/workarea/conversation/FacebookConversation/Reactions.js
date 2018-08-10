@@ -8,26 +8,30 @@ const propTypes = {
 };
 
 class Reactions extends Component {
+  renderUsers(users) {
+    return users.map((user, index) => <div key={index}>{user.name}</div>);
+  }
+
+  renderReaction(key, users) {
+    const tooltip = <Tooltip id="tooltip">{this.renderUsers(users)}</Tooltip>;
+
+    if (!users.length > 0) {
+      return null;
+    }
+
+    return (
+      <OverlayTrigger key={key} placement="top" overlay={tooltip}>
+        <Reaction className={key} />
+      </OverlayTrigger>
+    );
+  }
+
   render() {
     const { reactions } = this.props;
 
-    return Object.keys(reactions).map(value => {
-      const users = reactions[value].map((value, index) => (
-        <div key={index}>{value.name}</div>
-      ));
-
-      const tooltip = <Tooltip id="tooltip">{users}</Tooltip>;
-
-      if (!reactions[value].length > 0) {
-        return null;
-      }
-
-      return (
-        <OverlayTrigger key={value} placement="top" overlay={tooltip}>
-          <Reaction className={value} />
-        </OverlayTrigger>
-      );
-    });
+    return Object.keys(reactions).map(key =>
+      this.renderReaction(key, reactions[key])
+    );
   }
 }
 
