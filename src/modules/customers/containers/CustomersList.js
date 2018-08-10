@@ -189,48 +189,34 @@ CustomerListContainer.contextTypes = {
   __: PropTypes.func
 };
 
+const generateParams = ({ queryParams }) => ({
+  variables: {
+    page: queryParams.page,
+    perPage: queryParams.perPage || 20,
+    segment: queryParams.segment,
+    tag: queryParams.tag,
+    ids: queryParams.ids,
+    searchValue: queryParams.searchValue,
+    brand: queryParams.brand,
+    integration: queryParams.integrationType,
+    form: queryParams.form,
+    startDate: queryParams.startDate,
+    endDate: queryParams.endDate,
+    leadStatus: queryParams.leadStatus,
+    lifecycleState: queryParams.lifecycleState
+  },
+
+  notifyOnNetworkStatusChange: true
+});
+
 export default compose(
   graphql(gql(queries.customersMain), {
     name: 'customersMainQuery',
-    options: ({ queryParams }) => {
-      return {
-        variables: {
-          page: queryParams.page,
-          perPage: queryParams.perPage || 20,
-          segment: queryParams.segment,
-          tag: queryParams.tag,
-          ids: queryParams.ids,
-          searchValue: queryParams.searchValue,
-          brand: queryParams.brand,
-          integration: queryParams.integrationType,
-          form: queryParams.form,
-          startDate: queryParams.startDate,
-          endDate: queryParams.endDate,
-          leadStatus: queryParams.leadStatus,
-          lifecycleState: queryParams.lifecycleState
-        },
-        notifyOnNetworkStatusChange: true
-      };
-    }
+    options: generateParams
   }),
   graphql(gql(queries.customerCounts), {
     name: 'customerCountsQuery',
-    options: ({ queryParams }) => ({
-      variables: {
-        page: queryParams.page,
-        perPage: queryParams.perPage || 20,
-        tag: queryParams.tag,
-        segment: queryParams.segment,
-        ids: queryParams.ids,
-        searchValue: queryParams.searchValue,
-        form: queryParams.form,
-        startDate: queryParams.startDate,
-        endDate: queryParams.endDate,
-        leadStatus: queryParams.leadStatus,
-        lifecycleState: queryParams.lifecycleState
-      },
-      notifyOnNetworkStatusChange: true
-    })
+    options: generateParams
   }),
   graphql(gql(tagQueries.tags), {
     name: 'tagsQuery',
