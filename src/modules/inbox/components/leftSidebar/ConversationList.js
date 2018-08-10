@@ -38,7 +38,8 @@ export default class ConversationList extends React.Component {
               image="/images/robots/robot-02.svg"
             />
           )}
-        <LoadMore all={totalCount} loading={loading} />
+
+        <LoadMore all={totalCount} perPage={10} loading={loading} />
       </Fragment>
     );
   }
