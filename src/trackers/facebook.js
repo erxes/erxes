@@ -607,7 +607,7 @@ export const receiveWebhookResponse = async (app, data) => {
 export const facebookReply = async (conversation, msg, messageId) => {
   const FACEBOOK_APPS = getConfig();
   const { attachment, commentId, text } = msg;
-  const msgObj = { message: text };
+  const msgObj = {};
 
   const integration = await Integrations.findOne({
     _id: conversation.integrationId,
@@ -623,12 +623,12 @@ export const facebookReply = async (conversation, msg, messageId) => {
 
   // messenger reply
   if (conversation.facebookData.kind === FACEBOOK_DATA_KINDS.MESSENGER) {
-    if (attachment) {
-      msgObj.source = attachment.url;
-    }
-
     if (text) {
       msgObj.message = { text };
+    }
+
+    if (attachment) {
+      msgObj.source = attachment.url;
     }
 
     const res = await graphRequest.post('me/messages', response.access_token, {
@@ -648,6 +648,10 @@ export const facebookReply = async (conversation, msg, messageId) => {
     // Post id
     let id = conversation.facebookData.postId;
 
+    if (text) {
+      msgObj.message = text;
+    }
+
     // Attaching attachment url
     if (attachment) {
       msgObj.attachment_url = attachment.url;
@@ -660,7 +664,7 @@ export const facebookReply = async (conversation, msg, messageId) => {
 
     // post reply
     const res = await graphRequest.post(`${id}/comments`, response.access_token, {
-      message: text,
+      ...msgObj,
     });
 
     const params = {
@@ -669,6 +673,10 @@ export const facebookReply = async (conversation, msg, messageId) => {
 
     if (commentId) {
       params['facebookData.parentId'] = commentId;
+    }
+
+    if (attachment) {
+      params['facebookData.link'] = attachment.url;
     }
 
     // save commentId and parentId in message object
