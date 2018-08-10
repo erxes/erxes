@@ -78,7 +78,7 @@ class Conversation extends Component {
     const twitterData = conversation.twitterData;
     const facebookData = conversation.facebookData;
     const isTweet = twitterData && !twitterData.isDirectMessage;
-    const FacebookPost = facebookData && facebookData.kind !== 'messenger';
+    const isFacebookPost = facebookData && facebookData.kind !== 'messenger';
 
     if (isTweet) {
       return (
@@ -90,7 +90,7 @@ class Conversation extends Component {
       );
     }
 
-    if (FacebookPost) {
+    if (isFacebookPost) {
       return (
         <FacebookConversation
           conversation={conversation}
