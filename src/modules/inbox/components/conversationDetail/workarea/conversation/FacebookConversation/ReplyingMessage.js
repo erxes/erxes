@@ -29,6 +29,7 @@ class ReplyingMessage extends React.Component {
 
   onContentChange(e) {
     const postContent = e.target.value;
+
     this.setState({
       post: postContent
     });

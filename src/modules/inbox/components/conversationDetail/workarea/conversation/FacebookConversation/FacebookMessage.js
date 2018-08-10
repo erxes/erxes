@@ -32,7 +32,6 @@ class FacebookMessage extends Component {
 
   renderDate() {
     const { message } = this.props;
-
     const data = message.facebookData;
 
     return (
