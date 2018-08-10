@@ -293,7 +293,6 @@ describe('facebook integration: save webhook response', () => {
     expect(message.internal).toBe(false);
     expect(message.content).toBe(messageText);
 
-    expect(message.facebookData.createdAt).toBeDefined();
     expect(message.facebookData.item).toBe('status');
     expect(message.facebookData.senderId).toBe(senderId);
     expect(message.facebookData.senderName).toBe(senderName);
@@ -356,7 +355,6 @@ describe('facebook integration: save webhook response', () => {
     expect(newMessage.content).toBe(messageText);
     expect(newMessage.attachments).toBe(undefined);
 
-    expect(newMessage.facebookData.createdAt).toBeDefined();
     expect(newMessage.facebookData.item).toBe('comment');
     expect(newMessage.facebookData.senderId).toBe(senderId);
     expect(newMessage.facebookData.senderName).toBe(senderName);
