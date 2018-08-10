@@ -660,6 +660,11 @@ export const facebookReply = async (conversation, msg, message) => {
     // Post id
     let id = conversation.facebookData.postId;
 
+    // Reply to comment
+    if (commentId) {
+      id = commentId;
+    }
+
     if (text) {
       msgObj.message = text;
     }
@@ -667,11 +672,6 @@ export const facebookReply = async (conversation, msg, message) => {
     // Attaching attachment url
     if (attachment) {
       msgObj.attachment_url = attachment.url;
-    }
-
-    // Reply to comment
-    if (commentId) {
-      id = commentId;
     }
 
     // post reply
@@ -695,13 +695,11 @@ export const facebookReply = async (conversation, msg, message) => {
     await ConversationMessages.update({ _id: message._id }, { $set: { facebookData } });
 
     // finding parent post and increasing comment count
-    const parentPost = await ConversationMessages.findOne({
-      'facebookData.isPost': true,
-      conversationId: message.conversationId,
-    });
-
     await ConversationMessages.update(
-      { _id: parentPost._id },
+      {
+        'facebookData.isPost': true,
+        conversationId: message.conversationId,
+      },
       { $inc: { 'facebookData.commentCount': 1 } },
     );
   }
