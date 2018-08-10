@@ -679,22 +679,30 @@ export const facebookReply = async (conversation, msg, message) => {
       ...msgObj,
     });
 
-    const params = {
-      'facebookData.commentId': res.id,
+    const facebookData = {
+      commentId: res.id,
     };
 
     if (commentId) {
-      params['facebookData.parentId'] = commentId;
+      facebookData.parentId = commentId;
     }
 
     if (attachment) {
-      params['facebookData.link'] = attachment.url;
+      facebookData.link = attachment.url;
     }
 
     // save commentId and parentId in message object
+    await ConversationMessages.update({ _id: message._id }, { $set: { facebookData } });
+
+    // finding parent post and increasing comment count
+    const parentPost = await ConversationMessages.findOne({
+      'facebookData.isPost': true,
+      conversationId: message.conversationId,
+    });
+
     await ConversationMessages.update(
-      { _id: message._id },
-      { $set: params, $inc: { 'facebookData.commentCount': 1 } },
+      { _id: parentPost._id },
+      { $inc: { 'facebookData.commentCount': 1 } },
     );
   }
 
