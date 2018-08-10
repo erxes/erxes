@@ -335,7 +335,7 @@ export class SaveWebhookResponse {
     }
 
     // create new message
-    return await this.createMessage({
+    return this.createMessage({
       conversation,
       userId: senderId,
       content,

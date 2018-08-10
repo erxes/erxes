@@ -157,13 +157,16 @@ describe('facebook integration: get or create conversation', () => {
     };
 
     // new messenger conversation ===========
-    const { conversationId } = await saveWebhookResponse.getOrCreateConversation({
+    const msgId = await saveWebhookResponse.getOrCreateConversation({
       findSelector: messengerFilter,
       status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData: messengerFacebookData,
       content: 'messenger message',
     });
+
+    const msg = await ConversationMessages.findOne({ _id: msgId });
+    const conversationObj = await Conversations.findOne({ _id: msg.conversationId });
 
     // must be created new conversation, new message
     expect(await Conversations.count()).toBe(4);
@@ -181,11 +184,11 @@ describe('facebook integration: get or create conversation', () => {
     // must not be created new conversation, new message
     expect(await Conversations.count()).toBe(4);
     expect(await ConversationMessages.count()).toBe(6);
-    expect(await ConversationMessages.count({ conversationId })).toBe(2);
+    expect(await ConversationMessages.count({ conversationId: conversationObj._id })).toBe(2);
 
     // close converstaion
     await Conversations.update(
-      { _id: conversationId },
+      { _id: conversationObj._id },
       { $set: { status: CONVERSATION_STATUSES.CLOSED } },
     );
 
@@ -201,7 +204,7 @@ describe('facebook integration: get or create conversation', () => {
     // must be created new conversation, new message
     expect(await Conversations.count()).toBe(5);
     expect(await ConversationMessages.count()).toBe(7);
-    expect(conversationId).not.toBe(message.conversationId);
+    expect(conversationObj._id).not.toBe(message.conversationId);
 
     // customer commented on closed converstaion ===========
     const secondMessage = await saveWebhookResponse.getOrCreateConversation({
@@ -215,7 +218,7 @@ describe('facebook integration: get or create conversation', () => {
     // must not be created new conversation, new message
     expect(await Conversations.count()).toBe(5);
     expect(await ConversationMessages.count()).toBe(8);
-    expect(conversationId).not.toBe(secondMessage.conversationId);
+    expect(conversationObj._id).not.toBe(secondMessage.conversationId);
     expect(message.conversationId).toBe(secondMessage.conversationId);
 
     // unwrap getOrCreateCustomer
