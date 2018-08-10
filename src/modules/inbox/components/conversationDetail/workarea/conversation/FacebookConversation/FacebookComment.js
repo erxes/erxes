@@ -29,14 +29,6 @@ export default class FacebookComment extends Component {
     );
   }
 
-  renderAttachment(data) {
-    if (!data.photo) {
-      return null;
-    }
-
-    return <img src={data.photo} alt={data.postId} />;
-  }
-
   render() {
     const { message, replyPost } = this.props;
     const data = message.facebookData || {};
@@ -49,8 +41,11 @@ export default class FacebookComment extends Component {
         <User>
           <Comment>
             <UserName username={data.senderName} userId={data.senderId} />
-            <FacebookContent content={message.content} isPost={data.isPost} />
-            {this.renderAttachment(data)}
+            <FacebookContent
+              content={message.content}
+              image={data.photo}
+              video={data.link || data.video}
+            />
             {this.renderReactionCount(data)}
           </Comment>
           <div>

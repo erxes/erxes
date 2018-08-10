@@ -197,8 +197,8 @@ const ImageContainer = styled.div`
   padding: 10px;
 
   > img {
-    width: 70px;
-    height: 70px;
+    width: ${props => !props.full && '70px'};
+    height: ${props => !props.full && '70px'};
     border: 1px solid ${colors.borderPrimary};
     margin-right: 5px;
     padding: 10px;

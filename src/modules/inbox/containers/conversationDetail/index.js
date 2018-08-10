@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 import RespondBox from './RespondBox';
 import ResponseTemplate from './ResponseTemplate';
 import TwitterMessage from './TwitterMessage';
-import FacebookMessage from './FacebookMessage';
+import FacebookComment from './FacebookComment';
 
 export {
   ConversationDetail,
@@ -13,5 +13,5 @@ export {
   RespondBox,
   ResponseTemplate,
   TwitterMessage,
-  FacebookMessage
+  FacebookComment
 };

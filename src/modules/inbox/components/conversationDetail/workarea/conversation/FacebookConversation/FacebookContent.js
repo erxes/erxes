@@ -15,7 +15,11 @@ export default class FacebookContent extends Component {
       return null;
     }
 
-    return <img src={image} alt={image} />;
+    return (
+      <ImageContainer full>
+        <img src={image} alt={image} />
+      </ImageContainer>
+    );
   }
 
   renderAttachments(images) {
@@ -37,11 +41,13 @@ export default class FacebookContent extends Component {
 
     return (
       <iframe
+        title="erxesIframe"
         src={iframeSrc}
+        width="480"
+        height="280"
+        scrolling="no"
         frameBorder="0"
-        allow="autoplay; encrypted-media"
-        title="1"
-        allowFullScreen
+        allowtransparency="true"
       />
     );
   }

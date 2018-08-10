@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import { FacebookPost } from 'modules/inbox/components/conversationDetail';
+import { FacebookComment } from 'modules/inbox/components/conversationDetail';
 import { mutations } from 'modules/inbox/graphql';
 
-const FacebookMessageContainer = props => {
+const FacebookCommentContainer = props => {
   const { replyMutation, message } = props;
 
   const replyPost = (variables, callback) => {
@@ -25,10 +25,10 @@ const FacebookMessageContainer = props => {
     message
   };
 
-  return <FacebookPost {...updatedProps} />;
+  return <FacebookComment {...updatedProps} />;
 };
 
-FacebookMessageContainer.propTypes = {
+FacebookCommentContainer.propTypes = {
   replyMutation: PropTypes.func,
   message: PropTypes.object.isRequired
 };
@@ -37,4 +37,4 @@ export default compose(
   graphql(gql(mutations.conversationMessageAdd), {
     name: 'replyMutation'
   })
-)(FacebookMessageContainer);
+)(FacebookCommentContainer);

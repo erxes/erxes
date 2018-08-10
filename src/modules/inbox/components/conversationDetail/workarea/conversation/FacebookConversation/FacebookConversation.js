@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { FacebookMessage } from 'modules/inbox/containers/conversationDetail';
-import { FacebookComment } from './';
+import { FacebookComment } from 'modules/inbox/containers/conversationDetail';
+import { FacebookPost } from './';
 
 const propTypes = {
   conversation: PropTypes.object,
@@ -65,7 +65,7 @@ export default class FacebookConversation extends Component {
 
     return (
       <Fragment>
-        <FacebookMessage message={post} />
+        <FacebookPost message={post} />
         {this.renderComments(post)}
       </Fragment>
     );
