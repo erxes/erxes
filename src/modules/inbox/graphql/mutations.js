@@ -2,13 +2,14 @@ import messageFields from './messageFields';
 
 const conversationMessageAdd = `
   mutation conversationMessageAdd(
-    $conversationId: String!,
-    $content: String!,
+    $conversationId: String,
+    $content: String,
     $mentionedUserIds: [String],
     $internal: Boolean,
     $attachments: [JSON],
     $tweetReplyToId: String,
     $tweetReplyToScreenName: String
+    $commentReplyToId: String
   ) {
     conversationMessageAdd(
       conversationId: $conversationId,
@@ -18,6 +19,7 @@ const conversationMessageAdd = `
       attachments: $attachments,
       tweetReplyToId: $tweetReplyToId,
       tweetReplyToScreenName: $tweetReplyToScreenName
+      commentReplyToId: $commentReplyToId
     ) {
       ${messageFields}
     }

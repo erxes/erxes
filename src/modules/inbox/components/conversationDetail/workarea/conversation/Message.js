@@ -50,7 +50,6 @@ function Message({ message, staff, isSameUser, scrollBottom }) {
         height="280"
         scrolling="no"
         frameBorder="0"
-        allowTransparency="true"
       />
     );
   };
