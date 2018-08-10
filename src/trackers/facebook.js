@@ -629,7 +629,7 @@ export const facebookReply = async (conversation, msg, message) => {
     msgObj.message = {};
 
     if (text) {
-      msgObj.message.text = { text };
+      msgObj.message = { text };
     }
 
     if (attachment) {
