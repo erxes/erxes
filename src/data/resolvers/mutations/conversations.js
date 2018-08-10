@@ -68,6 +68,16 @@ export const publishMessage = (message, customerId) => {
     });
   }
 };
+/**
+ * Publish conversation client message inserted
+ * @param  {Object} message object
+ */
+export const publishClientMessage = message => {
+  // notifying to total unread count
+  pubsub.publish('conversationClientMessageInserted', {
+    conversationClientMessageInserted: message,
+  });
+};
 
 const conversationMutations = {
   /*
@@ -80,9 +90,7 @@ const conversationMutations = {
     publishMessage(message);
 
     // notifying to total unread count
-    pubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message,
-    });
+    this.publishClientMessage(message);
   },
 
   /**

@@ -6,7 +6,10 @@ import {
   Customers,
 } from '../db/models';
 
-import { publishConversationsChanged } from '../data/resolvers/mutations/conversations';
+import {
+  publishConversationsChanged,
+  publishClientMessage,
+} from '../data/resolvers/mutations/conversations';
 
 import {
   INTEGRATION_KIND_CHOICES,
@@ -335,13 +338,18 @@ export class SaveWebhookResponse {
     }
 
     // create new message
-    return this.createMessage({
+    const msg = this.createMessage({
       conversation,
       userId: senderId,
       content,
       attachments,
       facebookData: msgFacebookData,
     });
+
+    // notifying converastion inserted
+    publishClientMessage(msg);
+
+    return msg;
   }
 
   /*
@@ -681,7 +689,11 @@ export const facebookReply = async (conversation, msg, messageId) => {
     }
 
     // save commentId and parentId in message object
-    await ConversationMessages.update({ _id: messageId }, { $set: params });
+    await ConversationMessages.update(
+      { _id: messageId },
+      { $set: params },
+      { $inc: { 'facebookData.commentCount': 1 } },
+    );
   }
 
   return null;
