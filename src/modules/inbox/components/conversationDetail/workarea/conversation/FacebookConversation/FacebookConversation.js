@@ -13,7 +13,7 @@ class FacebookConversation extends Component {
     const array = [];
 
     messages.forEach(message => {
-      if (message.facebookData && message.facebookData.parentId === parent) {
+      if (message.facebookData.parentId === parent) {
         const children = this.renderMessages(
           messages,
           message.facebookData.commentId || message.facebookData.postId
@@ -32,10 +32,10 @@ class FacebookConversation extends Component {
   }
 
   renderChildren(children, integrationId) {
-    if (children) {
-      return this.renderPosts(children, integrationId);
+    if (!children) {
+      return null;
     }
-    return null;
+    return this.renderPosts(children, integrationId);
   }
 
   renderPosts(messages, integrationId) {
@@ -54,13 +54,12 @@ class FacebookConversation extends Component {
     const { conversation, conversationMessages } = this.props;
     const integration = conversation.integration;
     const integrationId = integration && conversation.integration._id;
+    const messages = conversationMessages || [];
+    const nestedMessages = this.renderMessages(messages, null);
 
     if (!conversation) {
       return null;
     }
-
-    const messages = conversationMessages || [];
-    const nestedMessages = this.renderMessages(messages, null);
 
     return (
       <Fragment>{this.renderPosts(nestedMessages, integrationId)}</Fragment>

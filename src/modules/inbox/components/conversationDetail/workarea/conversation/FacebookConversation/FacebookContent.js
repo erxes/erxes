@@ -8,11 +8,11 @@ const propTypes = {
 
 class FacebookContent extends Component {
   renderAttachments(image) {
-    if (image) {
-      return <img src={image} alt={image} />;
+    if (!image) {
+      return null;
     }
 
-    return null;
+    return <img src={image} alt={image} />;
   }
 
   render() {
