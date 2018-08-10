@@ -21,9 +21,11 @@ export default class FacebookConversation extends Component {
   renderReplies(comment) {
     const { conversationMessages = [] } = this.props;
 
-    const replies = conversationMessages.filter(msg =>
-      getAttr(msg, 'parentId')
-    );
+    const replies = conversationMessages.filter(msg => {
+      const parentId = getAttr(msg, 'parentId');
+
+      return parentId && parentId === getAttr(comment, 'commentId');
+    });
 
     return replies.map(reply => (
       <Fragment key={reply._id}>
