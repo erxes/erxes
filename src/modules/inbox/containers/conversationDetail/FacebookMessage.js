@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import { FacebookMessage } from 'modules/inbox/components/conversationDetail';
+import { FacebookPost } from 'modules/inbox/components/conversationDetail';
 import { mutations } from 'modules/inbox/graphql';
 
 const FacebookMessageContainer = props => {
@@ -25,7 +25,7 @@ const FacebookMessageContainer = props => {
     message
   };
 
-  return <FacebookMessage {...updatedProps} />;
+  return <FacebookPost {...updatedProps} />;
 };
 
 FacebookMessageContainer.propTypes = {
