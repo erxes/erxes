@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { CONVERSATION_STATUSES } from '../../data/constants';
-import { TwitterResponseSchema, FacebookResponseSchema } from '../../trackers/schemas';
+import { TwitterResponseSchema, ConversationFacebookSchema } from '../../trackers/schemas';
 import { Users, ConversationMessages } from '../../db/models';
 import { field } from './utils';
 
@@ -37,7 +37,7 @@ const ConversationSchema = mongoose.Schema({
   // number of total conversations
   number: field({ type: Number }),
   twitterData: field({ type: TwitterResponseSchema }),
-  facebookData: field({ type: FacebookResponseSchema }),
+  facebookData: field({ type: ConversationFacebookSchema }),
 });
 
 class Conversation {

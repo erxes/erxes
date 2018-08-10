@@ -71,7 +71,7 @@ export const TwitterResponseSchema = mongoose.Schema(
   { _id: false },
 );
 
-export const FacebookResponseSchema = mongoose.Schema(
+export const ConversationFacebookSchema = mongoose.Schema(
   {
     kind: field({ type: String, enum: FACEBOOK_DATA_KINDS.ALL }),
 
@@ -83,6 +83,110 @@ export const FacebookResponseSchema = mongoose.Schema(
     // when wall post
     postId: field({ type: String }),
     pageId: field({ type: String }),
+  },
+  { _id: false },
+);
+
+// Facebook user data received from reactions
+const FbUserSchema = mongoose.Schema(
+  {
+    id: field({ type: String, optional: true }),
+    name: field({ type: String, optional: true }),
+  },
+  { _id: false },
+);
+
+// Post or comment's reaction data
+const ReactionSchema = mongoose.Schema(
+  {
+    like: field({ type: [FbUserSchema], default: [] }),
+    love: field({ type: [FbUserSchema], default: [] }),
+    wow: field({ type: [FbUserSchema], default: [] }),
+    haha: field({ type: [FbUserSchema], default: [] }),
+    sad: field({ type: [FbUserSchema], default: [] }),
+    angry: field({ type: [FbUserSchema], default: [] }),
+  },
+  { _id: false },
+);
+
+export const ConversationMessageFacebookSchema = mongoose.Schema(
+  {
+    postId: field({
+      type: String,
+      optional: true,
+    }),
+
+    commentId: field({
+      type: String,
+      optional: true,
+    }),
+
+    // parent comment id
+    parentId: field({
+      type: String,
+      optional: true,
+    }),
+
+    isPost: field({
+      type: Boolean,
+      optional: true,
+    }),
+
+    reactions: field({ type: ReactionSchema, default: {} }),
+
+    likeCount: field({
+      type: Number,
+      default: 0,
+    }),
+    commentCount: field({
+      type: Number,
+      default: 0,
+    }),
+
+    // messenger message id
+    messageId: field({
+      type: String,
+      optional: true,
+    }),
+
+    // comment, reaction, etc ...
+    item: field({
+      type: String,
+      optional: true,
+    }),
+
+    // photo link when included photo
+    photo: field({
+      type: String,
+      optional: true,
+    }),
+
+    // video link when included video
+    video: field({
+      type: String,
+      optional: true,
+    }),
+
+    // photo links when user posted multiple photos
+    photos: field({
+      type: [String],
+      optional: true,
+    }),
+
+    link: field({
+      type: String,
+      optional: true,
+    }),
+
+    senderId: field({
+      type: String,
+      optional: true,
+    }),
+
+    senderName: field({
+      type: String,
+      optional: true,
+    }),
   },
   { _id: false },
 );

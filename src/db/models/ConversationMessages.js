@@ -1,112 +1,8 @@
 import strip from 'strip';
 import mongoose from 'mongoose';
-import { TwitterResponseSchema } from '../../trackers/schemas';
+import { TwitterResponseSchema, ConversationMessageFacebookSchema } from '../../trackers/schemas';
 import { Conversations } from './';
 import { field } from './utils';
-
-// Facebook user data received from reactions
-const fbUserSchema = mongoose.Schema(
-  {
-    id: field({ type: String, optional: true }),
-    name: field({ type: String, optional: true }),
-  },
-  { _id: false },
-);
-
-// Post or comment's reaction data
-const reactionSchema = mongoose.Schema(
-  {
-    like: field({ type: [fbUserSchema], default: [] }),
-    love: field({ type: [fbUserSchema], default: [] }),
-    wow: field({ type: [fbUserSchema], default: [] }),
-    haha: field({ type: [fbUserSchema], default: [] }),
-    sad: field({ type: [fbUserSchema], default: [] }),
-    angry: field({ type: [fbUserSchema], default: [] }),
-  },
-  { _id: false },
-);
-
-const FacebookSchema = mongoose.Schema(
-  {
-    postId: field({
-      type: String,
-      optional: true,
-    }),
-
-    commentId: field({
-      type: String,
-      optional: true,
-    }),
-
-    // parent comment id
-    parentId: field({
-      type: String,
-      optional: true,
-    }),
-
-    isPost: field({
-      type: Boolean,
-      optional: true,
-    }),
-
-    reactions: field({ type: reactionSchema, default: {} }),
-
-    likeCount: field({
-      type: Number,
-      default: 0,
-    }),
-    commentCount: field({
-      type: Number,
-      default: 0,
-    }),
-
-    // messenger message id
-    messageId: field({
-      type: String,
-      optional: true,
-    }),
-
-    // comment, reaction, etc ...
-    item: field({
-      type: String,
-      optional: true,
-    }),
-
-    // photo link when included photo
-    photo: field({
-      type: String,
-      optional: true,
-    }),
-
-    // video link when included video
-    video: field({
-      type: String,
-      optional: true,
-    }),
-
-    // photo links when user posted multiple photos
-    photos: field({
-      type: [String],
-      optional: true,
-    }),
-
-    link: field({
-      type: String,
-      optional: true,
-    }),
-
-    senderId: field({
-      type: String,
-      optional: true,
-    }),
-
-    senderName: field({
-      type: String,
-      optional: true,
-    }),
-  },
-  { _id: false },
-);
 
 const MessageSchema = mongoose.Schema({
   _id: field({ pkey: true }),
@@ -121,7 +17,7 @@ const MessageSchema = mongoose.Schema({
   isCustomerRead: field({ type: Boolean }),
   engageData: field({ type: Object }),
   formWidgetData: field({ type: Object }),
-  facebookData: field({ type: FacebookSchema }),
+  facebookData: field({ type: ConversationMessageFacebookSchema }),
   twitterData: field({ type: TwitterResponseSchema }),
 });
 
