@@ -17,7 +17,7 @@ const getAttr = (message, attr) => {
   return message.facebookData[attr];
 };
 
-class FacebookConversation extends Component {
+export default class FacebookConversation extends Component {
   renderReplies(comment) {
     const { conversationMessages = [] } = this.props;
 
@@ -73,5 +73,3 @@ class FacebookConversation extends Component {
 }
 
 FacebookConversation.propTypes = propTypes;
-
-export default FacebookConversation;

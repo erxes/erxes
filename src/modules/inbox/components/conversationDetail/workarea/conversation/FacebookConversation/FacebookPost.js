@@ -5,11 +5,10 @@ import { FacebookContent, Reactions, Date, UserName } from './';
 import { PostContainer, User, Counts, FlexItem } from './styles';
 
 const propTypes = {
-  message: PropTypes.object.isRequired,
-  replyPost: PropTypes.func
+  message: PropTypes.object.isRequired
 };
 
-class FacebookMessage extends Component {
+export default class FacebookPost extends Component {
   renderCounts(data) {
     return (
       <Counts>
@@ -31,7 +30,7 @@ class FacebookMessage extends Component {
       <PostContainer>
         <NameCard.Avatar customer={customer} />
 
-        <User isPost={data.isPost}>
+        <User isPost>
           <UserName username={data.senderName} userId={data.senderId} />
           <Date message={message} />
         </User>
@@ -49,6 +48,4 @@ class FacebookMessage extends Component {
   }
 }
 
-FacebookMessage.propTypes = propTypes;
-
-export default FacebookMessage;
+FacebookPost.propTypes = propTypes;
