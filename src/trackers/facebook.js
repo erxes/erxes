@@ -626,12 +626,21 @@ export const facebookReply = async (conversation, msg, message) => {
 
   // messenger reply
   if (conversation.facebookData.kind === FACEBOOK_DATA_KINDS.MESSENGER) {
+    msgObj.message = {};
+
     if (text) {
-      msgObj.message = { text };
+      msgObj.message.text = { text };
     }
 
     if (attachment) {
-      msgObj.source = attachment.url;
+      msgObj.message = {
+        attachment: {
+          type: 'file',
+          payload: {
+            url: attachment.url,
+          },
+        },
+      };
     }
 
     const res = await graphRequest.post('me/messages', response.access_token, {
