@@ -498,7 +498,6 @@ export class SaveWebhookResponse {
   /**
    * Get or create customer using facebook data
    * @param {String} fbUserId - Facebook user id
-   * @param {Object} kind - Facebook data type messenger or status
    *
    * @return Previous or newly created customer object
    */
