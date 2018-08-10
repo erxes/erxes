@@ -121,6 +121,7 @@ export class SaveWebhookResponse {
    */
   handlePosts(postParams) {
     const { post_id, video_id, link, photo_id, item, photos } = postParams;
+
     const doc = {
       postId: post_id,
       item,
