@@ -21,7 +21,7 @@ const propTypes = {
   replyPost: PropTypes.func
 };
 
-class Message extends Component {
+class FacebookMessage extends Component {
   renderUserName(username, userId) {
     return (
       <a target="_blank" href={`https://facebook.com/${username}-${userId}`}>
@@ -38,10 +38,10 @@ class Message extends Component {
     return (
       <Tip
         placement="bottom"
-        text={data && moment(data.createdAt).format('lll')}
+        text={data && moment(message.createdAt).format('lll')}
       >
         <span href={`https://facebook.com/statuses/`} target="_blank">
-          {moment(data ? data.createdAt : message.createdAt).fromNow()}
+          {moment(message.createdAt).fromNow()}
         </span>
       </Tip>
     );
@@ -157,6 +157,6 @@ class Message extends Component {
   }
 }
 
-Message.propTypes = propTypes;
+FacebookMessage.propTypes = propTypes;
 
-export default Message;
+export default FacebookMessage;

@@ -5,8 +5,8 @@ import { Footer } from './styles';
 
 const propTypes = {
   replyPost: PropTypes.func,
-  conversationId: PropTypes.string.isRequired,
-  commentId: PropTypes.string.isRequired,
+  conversationId: PropTypes.string,
+  commentId: PropTypes.string,
   currentUserName: PropTypes.string
 };
 
@@ -28,9 +28,9 @@ class ReplyingMessage extends React.Component {
   }
 
   onContentChange(e) {
-    const tweetContent = e.target.value;
+    const postContent = e.target.value;
     this.setState({
-      post: tweetContent
+      post: postContent
     });
   }
 
