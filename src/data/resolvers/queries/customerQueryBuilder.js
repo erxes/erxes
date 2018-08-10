@@ -65,13 +65,13 @@ export default class Builder {
     return { integrationId: { $in: intersectionedIds } };
   }
 
-  // filter by tag
-  async tagFilter(tag) {
-    return { tagIds: [tag] };
+  // filter by tagId
+  tagFilter(tagId) {
+    return { tagIds: { $in: [tagId] } };
   }
 
   // filter by search value
-  async searchFilter(value) {
+  searchFilter(value) {
     const fields = [
       { firstName: new RegExp(`.*${value}.*`, 'i') },
       { lastName: new RegExp(`.*${value}.*`, 'i') },
@@ -85,17 +85,17 @@ export default class Builder {
   }
 
   // filter by id
-  async idsFilter(ids) {
+  idsFilter(ids) {
     return { _id: { $in: ids } };
   }
 
   // filter by leadStatus
-  async leadStatusFilter(leadStatus) {
+  leadStatusFilter(leadStatus) {
     return { leadStatus };
   }
 
   // filter by lifecycleState
-  async lifecycleStateFilter(lifecycleState) {
+  lifecycleStateFilter(lifecycleState) {
     return { lifecycleState };
   }
 
@@ -145,12 +145,7 @@ export default class Builder {
 
     // filter by tag
     if (this.params.tag) {
-      this.queries.tag = await this.tagFilter(this.params.tag);
-    }
-
-    // filter by searchValue
-    if (this.params.segment) {
-      this.queries.segment = await this.segmentFilter(this.params.segment);
+      this.queries.tag = this.tagFilter(this.params.tag);
     }
 
     // filter by brand
@@ -180,7 +175,7 @@ export default class Builder {
      * filter by ids
      */
     if (this.params.ids) {
-      this.queries.ids = await this.idsFilter(this.params.ids);
+      this.queries.ids = this.idsFilter(this.params.ids);
     }
 
     // filter by integration
@@ -190,17 +185,17 @@ export default class Builder {
 
     // filter by search value
     if (this.params.searchValue) {
-      this.queries.searchValue = await this.searchFilter(this.params.searchValue);
+      this.queries.searchValue = this.searchFilter(this.params.searchValue);
     }
 
     // filter by leadStatus
     if (this.params.leadStatus) {
-      this.queries.leadStatus = await this.leadStatusFilter(this.params.leadStatus);
+      this.queries.leadStatus = this.leadStatusFilter(this.params.leadStatus);
     }
 
     // filter by lifecycleState
     if (this.params.lifecycleState) {
-      this.queries.lifecycleState = await this.lifecycleStateFilter(this.params.lifecycleState);
+      this.queries.lifecycleState = this.lifecycleStateFilter(this.params.lifecycleState);
     }
   }
 

@@ -107,6 +107,10 @@ describe('engage message mutation tests', () => {
         templateId: _emailTemplate._id,
         subject: faker.random.word(),
         content: faker.random.word(),
+        attachments: [
+          { name: 'document', url: 'documentPath' },
+          { name: 'image', url: 'imagePath' },
+        ],
       },
       messenger: {
         brandId: _brand._id,
