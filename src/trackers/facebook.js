@@ -667,8 +667,8 @@ export const facebookReply = async (conversation, msg, messageId) => {
       'facebookData.commentId': res.id,
     };
 
-    if (res.parent_id) {
-      params['facebookData.parentId'] = res.parent_id;
+    if (commentId) {
+      params['facebookData.parentId'] = commentId;
     }
 
     // save commentId and parentId in message object
