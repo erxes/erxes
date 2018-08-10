@@ -103,12 +103,9 @@ export class SaveWebhookResponse {
   /*
    * Get page access token
    */
-  async getPageAccessToken() {
+  getPageAccessToken() {
     // get page access token
-    return await graphRequest.get(
-      `${this.currentPageId}/?fields=access_token`,
-      this.userAccessToken,
-    );
+    return graphRequest.get(`${this.currentPageId}/?fields=access_token`, this.userAccessToken);
   }
 
   /**
@@ -291,12 +288,12 @@ export class SaveWebhookResponse {
     const { verb, post_id, comment_id, reaction_type, item, from } = likeParams;
     let selector = {};
 
-    if (comment_id) {
-      selector = { 'facebookData.commentId': comment_id };
-    }
-
     if (post_id) {
       selector = { 'facebookData.postId': post_id };
+    }
+
+    if (comment_id) {
+      selector = { 'facebookData.commentId': comment_id };
     }
 
     const msg = await ConversationMessages.findOne(selector);
@@ -344,7 +341,7 @@ export class SaveWebhookResponse {
       !conversation ||
       (conversation.messageCount > 1 && conversation.status === CONVERSATION_STATUSES.CLOSED)
     ) {
-      const customerId = await this.getOrCreateCustomer(senderId, facebookData.kind);
+      const customerId = await this.getOrCreateCustomer(senderId);
       const customer = await Customers.findOne({ _id: customerId });
 
       conversation = await Conversations.createConversation({
@@ -426,17 +423,19 @@ export class SaveWebhookResponse {
     let messageText = value.message;
 
     // when photo, video share, there will be no text, so link instead
-    if (
-      (!messageText && value.link) ||
-      (!messageText && value.photo) ||
-      (!messageText && value.video)
-    ) {
-      messageText = value.link;
-    }
-
-    // when situations like checkin, there will be no text and no link
-    // if so ignore it
     if (!messageText) {
+      if (value.link) {
+        messageText = value.link;
+      }
+
+      if (value.photo) {
+        messageText = value.photo;
+      }
+
+      if (value.video) {
+        messageText = value.video;
+      }
+
       return null;
     }
 
@@ -551,7 +550,7 @@ export class SaveWebhookResponse {
    *
    * @return Previous or newly created customer object
    */
-  async getOrCreateCustomer(fbUserId, kind) {
+  async getOrCreateCustomer(fbUserId) {
     const integrationId = this.integration._id;
 
     const customer = await Customers.findOne({ 'facebookData.id': fbUserId });
@@ -562,14 +561,9 @@ export class SaveWebhookResponse {
 
     // get page access token
     let res = await this.getPageAccessToken();
-    let fields = 'link';
-
-    if (kind === 'messenger') {
-      fields = '';
-    }
 
     // get user info
-    res = await graphRequest.get(`/${fbUserId}?fields=${fields}`, res.access_token);
+    res = await graphRequest.get(`/${fbUserId}`, res.access_token);
 
     // get profile pic
     const getProfilePic = async fbId => {
@@ -612,7 +606,7 @@ export class SaveWebhookResponse {
       // create new message
       const messageId = await ConversationMessages.createMessage({
         conversationId: conversation._id,
-        customerId: await this.getOrCreateCustomer(userId, facebookData.kind),
+        customerId: await this.getOrCreateCustomer(userId),
         content,
         attachments,
         facebookData,

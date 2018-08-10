@@ -86,10 +86,6 @@ const facebookSchema = mongoose.Schema(
       optional: true,
       label: 'Facebook photo',
     }),
-    profileLink: field({
-      type: String,
-      optional: true,
-    }),
   },
   { _id: false },
 );
