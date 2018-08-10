@@ -44,7 +44,7 @@ export default class FacebookComment extends Component {
             <FacebookContent
               content={message.content}
               image={data.photo}
-              video={data.link || data.video}
+              link={data.link || data.video}
             />
             {this.renderReactionCount(data)}
           </Comment>

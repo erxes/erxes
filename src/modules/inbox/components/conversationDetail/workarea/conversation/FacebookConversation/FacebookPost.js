@@ -39,7 +39,7 @@ export default class FacebookPost extends Component {
           content={message.content}
           image={data.photo}
           images={data.photos}
-          video={data.link}
+          link={data.link || data.video}
         />
 
         {this.renderCounts(data)}

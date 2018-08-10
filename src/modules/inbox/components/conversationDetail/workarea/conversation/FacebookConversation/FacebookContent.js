@@ -5,7 +5,7 @@ import { ImageContainer } from './styles';
 const propTypes = {
   content: PropTypes.string.isRequired,
   image: PropTypes.string,
-  video: PropTypes.string,
+  link: PropTypes.string,
   images: PropTypes.array
 };
 
@@ -34,13 +34,13 @@ export default class FacebookContent extends Component {
     );
   }
 
-  renderVideo(video) {
-    if (!video) {
+  renderFiles(link) {
+    if (!link) {
       return null;
     }
 
-    if (video.includes('youtube.com')) {
-      const iframeSrc = video.split('v=')[1].substring(0, 11);
+    if (link.includes('youtube.com')) {
+      const iframeSrc = link.split('v=')[1].substring(0, 11);
 
       return (
         <iframe
@@ -55,10 +55,14 @@ export default class FacebookContent extends Component {
       );
     }
 
+    if (link.endsWith('.png') || link.endsWith('.jpg')) {
+      return <img src={link} alt={link} />;
+    }
+
     return (
       <iframe
         title="erxesIframe"
-        src={video}
+        src={link}
         width="100%"
         height="280"
         scrolling="no"
@@ -69,12 +73,12 @@ export default class FacebookContent extends Component {
   }
 
   render() {
-    const { content, image, images, video } = this.props;
+    const { content, image, images, link } = this.props;
 
     return (
       <Fragment>
         {this.renderAttachment(image) || this.renderAttachments(images)}
-        {this.renderVideo(video)}
+        {this.renderFiles(link)}
         <p
           dangerouslySetInnerHTML={{
             __html: content
