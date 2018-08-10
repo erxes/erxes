@@ -6,6 +6,7 @@ import { Footer } from './styles';
 const propTypes = {
   replyPost: PropTypes.func,
   conversationId: PropTypes.string,
+  commentId: PropTypes.string,
   currentUserName: PropTypes.string
 };
 
@@ -27,9 +28,9 @@ class ReplyingMessage extends React.Component {
   }
 
   onContentChange(e) {
-    const tweetContent = e.target.value;
+    const postContent = e.target.value;
     this.setState({
-      post: tweetContent
+      post: postContent
     });
   }
 
@@ -42,11 +43,12 @@ class ReplyingMessage extends React.Component {
   doAction(e) {
     e.preventDefault();
 
-    const { replyPost } = this.props;
+    const { replyPost, conversationId, commentId } = this.props;
 
     const replyData = {
-      conversationId: this.props.conversationId,
-      content: this.state.post
+      conversationId: conversationId,
+      content: this.state.post,
+      commentReplyToId: commentId
     };
 
     return replyPost(replyData, () => {

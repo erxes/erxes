@@ -21,7 +21,7 @@ const propTypes = {
   replyPost: PropTypes.func
 };
 
-class Message extends Component {
+class FacebookMessage extends Component {
   renderUserName(username, userId) {
     return (
       <a target="_blank" href={`https://facebook.com/${username}-${userId}`}>
@@ -38,10 +38,10 @@ class Message extends Component {
     return (
       <Tip
         placement="bottom"
-        text={data && moment(data.createdAt).format('lll')}
+        text={data && moment(message.createdAt).format('lll')}
       >
         <span href={`https://facebook.com/statuses/`} target="_blank">
-          {moment(data ? data.createdAt : message.createdAt).fromNow()}
+          {moment(message.createdAt).fromNow()}
         </span>
       </Tip>
     );
@@ -65,6 +65,19 @@ class Message extends Component {
 
       return null;
     });
+  }
+
+  renderReactionCount(data) {
+    if (data.reactions && data.likeCount !== 0) {
+      return (
+        <ReplyReaction>
+          {data.reactions && this.renderReactions(data.reactions)}
+          {data.likeCount}
+        </ReplyReaction>
+      );
+    }
+
+    return null;
   }
 
   renderCounts(data) {
@@ -100,18 +113,14 @@ class Message extends Component {
             {this.renderUserName(data.senderName, data.senderId)}
             <FacebookContent content={message.content} isPost={data.isPost} />
             {this.renderAttachments(data)}
-            {data.reactions && (
-              <ReplyReaction>
-                {data.reactions && this.renderReactions(data.reactions)}
-                {data.likeCount}
-              </ReplyReaction>
-            )}
+            {this.renderReactionCount(data)}
           </Comment>
           <div>
             <Reply>
               <ModalTrigger title="Reply" trigger={<a> Reply •</a>}>
                 <ReplyingMessage
                   conversationId={message.conversationId}
+                  commentId={data.commentId}
                   currentUserName={data.senderName}
                   replyPost={replyPost}
                 />
@@ -148,6 +157,6 @@ class Message extends Component {
   }
 }
 
-Message.propTypes = propTypes;
+FacebookMessage.propTypes = propTypes;
 
-export default Message;
+export default FacebookMessage;
