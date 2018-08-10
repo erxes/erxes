@@ -27,8 +27,6 @@ export const types = `
 
     senderId: String
     senderName: String
-
-    createdAt: Date
   }
 
   type TwitterData {
@@ -193,7 +191,7 @@ export const mutations = `
     integrationId: String,
     id: String,
   ): JSON
-  
+
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
