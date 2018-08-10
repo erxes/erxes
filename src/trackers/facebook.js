@@ -184,13 +184,7 @@ export class SaveWebhookResponse {
     }
 
     // Counting post comments only
-    const message = await ConversationMessages.findOne({
-      'facebookData.postId': post_id,
-    });
-
-    if (message) {
-      await this.updateCommentCount(verb, message._id);
-    }
+    await this.updateCommentCount(verb, post_id);
 
     return doc;
   }
@@ -202,7 +196,7 @@ export class SaveWebhookResponse {
     *
     * @return {Promise} Updated conversation message
     */
-  async updateCommentCount(type, conversationMessageId) {
+  async updateCommentCount(type, post_id) {
     let count = -1;
 
     if (type === 'add') {
@@ -210,7 +204,7 @@ export class SaveWebhookResponse {
     }
 
     return await ConversationMessages.update(
-      { _id: conversationMessageId },
+      { 'facebookData.postId': post_id },
       { $inc: { 'facebookData.commentCount': count } },
     );
   }
@@ -222,17 +216,16 @@ export class SaveWebhookResponse {
    *
    * @return {Promise} Updated conversation message
    */
-  async updateLikeCount(type, conversationMessageId) {
+  async updateLikeCount(type, selector) {
     let count = -1;
 
     if (type === 'add') {
       count = 1;
     }
 
-    return await ConversationMessages.update(
-      { _id: conversationMessageId },
-      { $inc: { 'facebookData.likeCount': count } },
-    );
+    return await ConversationMessages.update(selector, {
+      $inc: { 'facebookData.likeCount': count },
+    });
   }
 
   /**
@@ -244,20 +237,14 @@ export class SaveWebhookResponse {
    *
    * @return {Promise} Updated conversation message
    */
-  async updateReactions(type, conversationMessageId, reactionType, from) {
+  async updateReactions(type, selector, reactionType, from) {
     const reactionField = `facebookData.reactions.${reactionType}`;
 
     if (type === 'add') {
-      return ConversationMessages.update(
-        { _id: conversationMessageId },
-        { $push: { [reactionField]: from } },
-      );
+      return ConversationMessages.update(selector, { $push: { [reactionField]: from } });
     }
 
-    return ConversationMessages.update(
-      { _id: conversationMessageId },
-      { $pull: { [reactionField]: { id: from.id } } },
-    );
+    return ConversationMessages.update(selector, { $pull: { [reactionField]: { id: from.id } } });
   }
 
   /**
@@ -283,18 +270,14 @@ export class SaveWebhookResponse {
       selector = { 'facebookData.commentId': comment_id };
     }
 
-    const msg = await ConversationMessages.findOne(selector);
+    // Receiving like
+    if (item === 'like') {
+      await this.updateLikeCount(verb, selector);
+    }
 
-    if (msg) {
-      // Receiving like
-      if (item === 'like') {
-        await this.updateLikeCount(verb, msg._id);
-      }
-
-      // Receiving reaction
-      if (item === 'reaction') {
-        await this.updateReactions(verb, msg._id, reaction_type, from);
-      }
+    // Receiving reaction
+    if (item === 'reaction') {
+      await this.updateReactions(verb, selector, reaction_type, from);
     }
   }
 
