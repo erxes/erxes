@@ -8,6 +8,7 @@ const EmailSchema = mongoose.Schema(
       type: String,
       optional: true,
     }),
+    attachments: field({ type: Object }),
     subject: field({ type: String }),
     content: field({ type: String }),
   },

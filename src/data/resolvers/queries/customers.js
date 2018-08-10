@@ -63,10 +63,23 @@ const customerQueries = {
     };
 
     const qb = new BuildQuery(params);
+
     await qb.buildAllQueries();
 
+    let mainQuery = qb.mainQuery();
+
+    // if passed at least one filter other than perPage
+    // then find all filtered customers then add subsequent filter to it
+    if (Object.keys(params).length > 1) {
+      const customers = await Customers.find(qb.mainQuery(), { _id: 1 });
+      const customerIds = customers.map(customer => customer._id);
+
+      mainQuery = { _id: { $in: customerIds } };
+    }
+
     const count = query => {
-      const findQuery = Object.assign({}, qb.mainQuery(), query);
+      const findQuery = { $and: [mainQuery, query] };
+
       return Customers.find(findQuery).count();
     };
 
@@ -101,7 +114,7 @@ const customerQueries = {
     const tags = await Tags.find({ type: TAG_TYPES.CUSTOMER });
 
     for (let tag of tags) {
-      counts.byTag[tag._id] = await count(await qb.tagFilter(tag._id));
+      counts.byTag[tag._id] = await count(qb.tagFilter(tag._id));
     }
 
     // Count customers by submitted form
@@ -115,12 +128,12 @@ const customerQueries = {
 
     // Count customers by lead status
     for (let status of COC_LEAD_STATUS_TYPES) {
-      counts.byLeadStatus[status] = await count(await qb.leadStatusFilter(status));
+      counts.byLeadStatus[status] = await count(qb.leadStatusFilter(status));
     }
 
     // Count customers by life cycle state
     for (let state of COC_LIFECYCLE_STATE_TYPES) {
-      counts.byLifecycleState[state] = await count(await qb.lifecycleStateFilter(state));
+      counts.byLifecycleState[state] = await count(qb.lifecycleStateFilter(state));
     }
 
     return counts;

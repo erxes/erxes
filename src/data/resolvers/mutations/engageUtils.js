@@ -69,7 +69,7 @@ const findCustomers = async ({ customerIds, segmentId }) => {
  */
 const sendViaEmail = async message => {
   const { fromUserId, segmentId, customerIds } = message;
-  const { templateId, subject, content } = message.email;
+  const { templateId, subject, content, attachments = [] } = message.email;
   const { AWS_SES_CONFIG_SET } = process.env;
 
   const user = await Users.findOne({ _id: fromUserId });
@@ -102,10 +102,22 @@ const sendViaEmail = async message => {
     // send email =========
     const transporter = await createTransporter({ ses: true });
 
+    let mailAttachment = [];
+
+    if (attachments.length > 0) {
+      mailAttachment = attachments.map(file => {
+        return {
+          filename: file.name || '',
+          path: file.url || '',
+        };
+      });
+    }
+
     transporter.sendMail({
       from: userEmail,
       to: customer.primaryEmail,
       subject: replacedSubject,
+      attachments: mailAttachment,
       html: replacedContent,
       headers: {
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET,

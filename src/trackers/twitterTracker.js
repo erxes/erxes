@@ -7,6 +7,10 @@ import { INTEGRATION_KIND_CHOICES } from '../data/constants';
 const trackIntegration = integration => {
   const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET } = process.env;
 
+  if (!TWITTER_CONSUMER_KEY || !TWITTER_CONSUMER_SECRET) {
+    return;
+  }
+
   // Twit instance
   const twit = new Twit({
     consumer_key: TWITTER_CONSUMER_KEY,
