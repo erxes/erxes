@@ -41,9 +41,8 @@ const PostContainer = styled.div`
 const User = styled.div`
   color: ${colors.colorCoreGray};
   padding-right: ${mainSize};
-  padding-left: ${props => (props.root ? '50px' : '40px')};
-  padding-left: ${props => props.isReply && '25px'};
-  margin-bottom: ${props => props.root && '10px'};
+  padding-left: 40px;
+  margin-bottom: 10px;
 
   > a {
     display: block;

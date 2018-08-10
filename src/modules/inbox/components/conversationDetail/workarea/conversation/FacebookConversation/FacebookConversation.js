@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { FacebookMessage } from 'modules/inbox/containers/conversationDetail';
+import { FacebookComment } from './';
 
 const propTypes = {
   conversation: PropTypes.object,
@@ -8,61 +9,65 @@ const propTypes = {
   conversationMessages: PropTypes.array
 };
 
+const getAttr = (message, attr) => {
+  if (!message.facebookData) {
+    return;
+  }
+
+  return message.facebookData[attr];
+};
+
 class FacebookConversation extends Component {
-  renderMessages(messages, parent) {
-    const array = [];
+  renderReplies(comment) {
+    const { conversationMessages = [] } = this.props;
 
-    messages.forEach(message => {
-      if (message.facebookData.parentId === parent) {
-        const children = this.renderMessages(
-          messages,
-          message.facebookData.commentId || message.facebookData.postId
-        );
+    const replies = conversationMessages.filter(msg =>
+      getAttr(msg, 'parentId')
+    );
 
-        let child = message;
-
-        if (children.length) {
-          child = Object.assign({ children }, message);
-        }
-
-        array.push(child);
-      }
-    });
-    return array;
+    return replies.map(reply => (
+      <Fragment key={reply._id}>
+        <FacebookComment message={reply} />
+      </Fragment>
+    ));
   }
 
-  renderChildren(children, integrationId) {
-    if (!children) {
-      return null;
-    }
-    return this.renderPosts(children, integrationId);
-  }
+  renderComments(post) {
+    const { conversationMessages = [] } = this.props;
 
-  renderPosts(messages, integrationId) {
-    return messages.map(message => (
-      <Fragment key={message._id}>
-        <FacebookMessage
-          message={message}
-          totalConversationCount={messages.length}
-        />
-        {this.renderChildren(message.children, integrationId)}
+    const comments = conversationMessages.filter(
+      msg => !getAttr(msg, 'isPost') && !getAttr(msg, 'parentId')
+    );
+
+    return comments.map(comment => (
+      <Fragment key={comment._id}>
+        <FacebookComment message={comment} />
+
+        {this.renderReplies(comment)}
       </Fragment>
     ));
   }
 
   render() {
-    const { conversation, conversationMessages } = this.props;
-    const integration = conversation.integration;
-    const integrationId = integration && conversation.integration._id;
-    const messages = conversationMessages || [];
-    const nestedMessages = this.renderMessages(messages, null);
+    const { conversation, conversationMessages = [] } = this.props;
 
     if (!conversation) {
       return null;
     }
 
+    const post = conversationMessages.find(
+      message => message.facebookData.isPost
+    );
+
+    if (!post) {
+      return null;
+    }
+
     return (
-      <Fragment>{this.renderPosts(nestedMessages, integrationId)}</Fragment>
+      <Fragment>
+        <FacebookMessage message={post} />
+        {this.renderComments(post)}
+      </Fragment>
     );
   }
 }
