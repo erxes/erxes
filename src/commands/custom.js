@@ -8,6 +8,8 @@ export const customCommand = async () => {
 
   for (let conversation of conversations) {
     await ConversationMessages.remove({ conversationId: conversation._id });
+
+    await Conversations.remove({ _id: conversation._id });
   }
 
   disconnect();
