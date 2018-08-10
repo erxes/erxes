@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Tooltip, OverlayTrigger } from 'react-bootstrap';
 
 const propTypes = {
-  text: PropTypes.string,
+  text: PropTypes.string.isRequired,
   children: PropTypes.element.isRequired,
   placement: PropTypes.string
 };
