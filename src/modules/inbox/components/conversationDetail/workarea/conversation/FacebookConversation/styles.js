@@ -195,6 +195,19 @@ const Footer = styled.div`
   text-align: right;
 `;
 
+const ImageContainer = styled.div`
+  padding: 10px;
+
+  > img {
+    width: 70px;
+    height: 70px;
+    border: 1px solid ${colors.borderPrimary};
+    margin-right: 5px;
+    padding: 10px;
+    cursor: pointer;
+  }
+`;
+
 export {
   PostContainer,
   User,
@@ -205,5 +218,6 @@ export {
   Reply,
   FlexItem,
   ReplyReaction,
-  Footer
+  Footer,
+  ImageContainer
 };
