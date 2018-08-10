@@ -128,24 +128,22 @@ export class SaveWebhookResponse {
       isPost: true,
     };
 
-    // Posted video
-    if (video_id && link) {
-      doc.video = link;
-    }
+    if (link) {
+      // Posted video
+      if (video_id) {
+        doc.video = link;
 
-    // Posted image
-    if (photo_id && link) {
-      doc.photo = link;
+        // Posted photo
+      } else if (photo_id) {
+        doc.photo = link;
+      } else {
+        doc.link = link;
+      }
     }
 
     // Posted multiple image
     if (photos) {
       doc.photos = photos;
-    }
-
-    // Shared link
-    if (link) {
-      doc.link = link;
     }
 
     return doc;
