@@ -335,15 +335,13 @@ export class SaveWebhookResponse {
     }
 
     // create new message
-    const msg = await this.createMessage({
+    return await this.createMessage({
       conversation,
       userId: senderId,
       content,
       attachments,
       facebookData: msgFacebookData,
     });
-
-    return msg;
   }
 
   /*
