@@ -95,8 +95,17 @@ describe('facebook integration: reply', () => {
       },
     });
 
+    await conversationMessageFactory({
+      conversationId: conversation._id,
+      facebookData: {
+        isPost: true,
+      },
+    });
+
     const text = 'comment';
-    const msg = await conversationMessageFactory({});
+    const msg = await conversationMessageFactory({
+      conversationId: conversation._id,
+    });
 
     // mock post messenger reply
     const gpStub = sinon.stub(graphRequest, 'post').callsFake(() => ({
@@ -118,9 +127,10 @@ describe('facebook integration: reply', () => {
         { _id: msg._id },
         {
           $set: {
-            'facebookData.commentId': 'commentId',
+            facebookData: {
+              commentId: 'commentId',
+            },
           },
-          $inc: { 'facebookData.commentCount': 1 },
         },
       ),
     ).toBe(true);
