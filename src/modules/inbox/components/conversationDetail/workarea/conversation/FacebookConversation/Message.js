@@ -67,6 +67,19 @@ class Message extends Component {
     });
   }
 
+  renderReactionCount(data) {
+    if (data.reactions && data.likeCount !== 0) {
+      return (
+        <ReplyReaction>
+          {data.reactions && this.renderReactions(data.reactions)}
+          {data.likeCount}
+        </ReplyReaction>
+      );
+    }
+
+    return null;
+  }
+
   renderCounts(data) {
     return (
       <Counts>
@@ -100,18 +113,14 @@ class Message extends Component {
             {this.renderUserName(data.senderName, data.senderId)}
             <FacebookContent content={message.content} isPost={data.isPost} />
             {this.renderAttachments(data)}
-            {data.reactions && (
-              <ReplyReaction>
-                {data.reactions && this.renderReactions(data.reactions)}
-                {data.likeCount}
-              </ReplyReaction>
-            )}
+            {this.renderReactionCount(data)}
           </Comment>
           <div>
             <Reply>
               <ModalTrigger title="Reply" trigger={<a> Reply •</a>}>
                 <ReplyingMessage
                   conversationId={message.conversationId}
+                  commentId={data.commentId}
                   currentUserName={data.senderName}
                   replyPost={replyPost}
                 />
