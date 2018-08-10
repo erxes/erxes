@@ -6,10 +6,7 @@ import {
   Customers,
 } from '../db/models';
 
-import {
-  publishConversationsChanged,
-  publishClientMessage,
-} from '../data/resolvers/mutations/conversations';
+import { publishClientMessage, publishMessage } from '../data/resolvers/mutations/conversations';
 
 import {
   INTEGRATION_KIND_CHOICES,
@@ -338,16 +335,13 @@ export class SaveWebhookResponse {
     }
 
     // create new message
-    const msg = this.createMessage({
+    const msg = await this.createMessage({
       conversation,
       userId: senderId,
       content,
       attachments,
       facebookData: msgFacebookData,
     });
-
-    // notifying converastion inserted
-    publishClientMessage(msg);
 
     return msg;
   }
@@ -563,7 +557,7 @@ export class SaveWebhookResponse {
   async createMessage({ conversation, userId, content, attachments, facebookData }) {
     if (conversation) {
       // create new message
-      const messageId = await ConversationMessages.createMessage({
+      const message = await ConversationMessages.createMessage({
         conversationId: conversation._id,
         customerId: await this.getOrCreateCustomer(userId),
         content,
@@ -575,10 +569,13 @@ export class SaveWebhookResponse {
       // updating conversation content
       await Conversations.update({ _id: conversation._id }, { $set: { content } });
 
-      // notify subscription server new message
-      publishConversationsChanged([conversation._id], 'conversationMessageInserted');
+      // notifying conversation inserted
+      publishClientMessage(message);
 
-      return messageId;
+      // notify subscription server new message
+      publishMessage(message, conversation.customerId);
+
+      return message._id;
     }
   }
 }
@@ -611,9 +608,9 @@ export const receiveWebhookResponse = async (app, data) => {
  * @param {String} msg.text - Reply content text
  * @param {String} msg.attachment - Reply content attachment
  * @param {String} msg.commentId - Parent commen id if replied to comment
- * @param {String} messageId - Conversation message id
+ * @param {String} message - Conversation message
  */
-export const facebookReply = async (conversation, msg, messageId) => {
+export const facebookReply = async (conversation, msg, message) => {
   const FACEBOOK_APPS = getConfig();
   const { attachment, commentId, text } = msg;
   const msgObj = {};
@@ -647,7 +644,7 @@ export const facebookReply = async (conversation, msg, messageId) => {
 
     // save commentId in message object
     await ConversationMessages.update(
-      { _id: messageId },
+      { _id: message._id },
       { $set: { 'facebookData.messageId': res.message_id } },
     );
   }
@@ -690,9 +687,8 @@ export const facebookReply = async (conversation, msg, messageId) => {
 
     // save commentId and parentId in message object
     await ConversationMessages.update(
-      { _id: messageId },
-      { $set: params },
-      { $inc: { 'facebookData.commentCount': 1 } },
+      { _id: message._id },
+      { $set: params, $inc: { 'facebookData.commentCount': 1 } },
     );
   }
 

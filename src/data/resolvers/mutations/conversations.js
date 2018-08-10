@@ -177,7 +177,7 @@ const conversationMutations = {
       }
 
       // when facebook kind is feed, assign commentId in extraData
-      await facebookReply(conversation, msg, message._id);
+      await facebookReply(conversation, msg, message);
     }
 
     // Publishing both admin & client
