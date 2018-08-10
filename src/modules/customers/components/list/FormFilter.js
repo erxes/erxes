@@ -49,7 +49,7 @@ function Forms({ history, counts, integrations, loading }, { __ }) {
         data={data}
         loading={loading}
         count={integrations.length}
-        emptyText="No Integrations"
+        emptyText="No forms"
         emptyIcon="pie-graph"
         size="small"
         objective={true}

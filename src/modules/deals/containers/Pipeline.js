@@ -115,8 +115,7 @@ export default compose(
     options: ({ pipeline }) => ({
       variables: {
         pipelineId: pipeline._id
-      },
-      fetchPolicy: 'cache-and-network'
+      }
     })
   })
 )(StagesWithPipeline);

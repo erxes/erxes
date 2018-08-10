@@ -4,11 +4,11 @@ import CustomersList from './list/CustomersList';
 import BrandFilter from './list/BrandFilter';
 import FormFilter from './list/FormFilter';
 import IntegrationFilter from './list/IntegrationFilter';
+import LeadStatusFilter from './list/LeadStatusFilter';
+import LifecycleStateFilter from './list/LifecycleStateFilter';
 import CustomerDetails from './detail/CustomerDetails';
 import CommonMerge from './detail/CommonMerge';
-import CustomerSection from './common/CustomerSection';
 import TargetMergeModal from './detail/TargetMergeModal';
-import { BaseSection } from './detail/sidebar';
 
 export {
   CustomerRow,
@@ -16,10 +16,10 @@ export {
   CustomersList,
   CustomerDetails,
   CommonMerge,
-  CustomerSection,
   TargetMergeModal,
   BrandFilter,
   IntegrationFilter,
-  FormFilter,
-  BaseSection
+  LeadStatusFilter,
+  LifecycleStateFilter,
+  FormFilter
 };

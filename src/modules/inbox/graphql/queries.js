@@ -1,3 +1,4 @@
+import { queries as customerQueries } from 'modules/customers/graphql';
 import conversationFields from './conversationFields';
 import messageFields from './messageFields';
 
@@ -203,6 +204,99 @@ const responseTemplateList = `
   }
 `;
 
+const generateCustomerDetailQuery = params => {
+  const {
+    showProfile,
+    showDeviceProperties,
+    showMessengerData,
+    showFacebookData,
+    showTwitterData,
+    showCustomFields,
+    showCompanies,
+    showTags
+  } =
+    params || {};
+
+  let fields = `
+    _id
+    integration {
+      kind
+    }
+  `;
+
+  if (showProfile) {
+    fields = `
+      ${fields}
+      ${customerQueries.basicFields}
+    `;
+  }
+
+  if (showMessengerData) {
+    fields = `
+      ${fields}
+      messengerData
+    `;
+  }
+
+  if (showFacebookData) {
+    fields = `
+      ${fields}
+      facebookData
+    `;
+  }
+
+  if (showTwitterData) {
+    fields = `
+      ${fields}
+      twitterData
+    `;
+  }
+
+  if (showCustomFields) {
+    fields = `
+      ${fields}
+      customFieldsData
+    `;
+  }
+
+  if (showDeviceProperties) {
+    fields = `
+      ${fields}
+      location
+    `;
+  }
+
+  if (showCompanies) {
+    fields = `
+      ${fields}
+      companies {
+        _id
+        primaryName
+        website
+      }
+    `;
+  }
+
+  if (showTags) {
+    fields = `
+      ${fields}
+      getTags {
+        _id
+        name
+        colorCode
+      }
+    `;
+  }
+
+  return `
+    query customerDetail($_id: String!) {
+      customerDetail(_id: $_id) {
+        ${fields}
+      }
+    }
+  `;
+};
+
 export default {
   conversationList,
   sidebarConversations,
@@ -218,5 +312,6 @@ export default {
   conversationCounts,
   totalConversationsCount,
   unreadConversationsCount,
-  lastConversation
+  lastConversation,
+  generateCustomerDetailQuery
 };

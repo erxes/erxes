@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../../graphql';
-import { DealSection } from '../../components';
-import { saveDeal as save, removeDeal as remove } from '../../utils';
+import { queries, mutations } from '../graphql';
+import { PortableDeals } from '../components';
+import { saveDeal as save, removeDeal as remove } from '../utils';
 
-class DealSectionContainer extends React.Component {
+class PortableDealsContainer extends React.Component {
   constructor(props) {
     super(props);
 
@@ -39,7 +39,7 @@ class DealSectionContainer extends React.Component {
   }
 
   render() {
-    const { dealsQuery } = this.props;
+    const { dealsQuery = {} } = this.props;
 
     const deals = dealsQuery.deals || [];
 
@@ -50,11 +50,11 @@ class DealSectionContainer extends React.Component {
       removeDeal: this.removeDeal
     };
 
-    return <DealSection {...extendedProps} />;
+    return <PortableDeals {...extendedProps} />;
   }
 }
 
-DealSectionContainer.propTypes = {
+PortableDealsContainer.propTypes = {
   deals: PropTypes.array,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
@@ -62,7 +62,7 @@ DealSectionContainer.propTypes = {
   dealsQuery: PropTypes.object
 };
 
-DealSectionContainer.contextTypes = {
+PortableDealsContainer.contextTypes = {
   __: PropTypes.func
 };
 
@@ -79,6 +79,7 @@ export default compose(
   }),
   graphql(gql(queries.deals), {
     name: 'dealsQuery',
+    skip: ({ customerId, companyId }) => !customerId && !companyId,
     options: ({ customerId, companyId }) => ({
       variables: {
         customerId,
@@ -86,4 +87,4 @@ export default compose(
       }
     })
   })
-)(DealSectionContainer);
+)(PortableDealsContainer);

@@ -37,7 +37,7 @@ class Items extends React.Component {
   renderItem(item, uppercase, color, index) {
     return (
       <Item uppercase={uppercase} key={index} color={color}>
-        {item.name || renderFullName(item)}
+        {item.name || item.primaryName || renderFullName(item)}
       </Item>
     );
   }

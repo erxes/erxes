@@ -51,11 +51,6 @@ const Container = styled.div`
   }
 `;
 
-const SectionContainer = styled.div`
-  padding: 10px 10px 0px 10px;
-  border-top: 1px solid ${colors.borderPrimary};
-`;
-
 const DealDate = styled.span`
   font-size: 11px;
   color: ${colors.colorCoreGray};
@@ -255,7 +250,7 @@ const StageItem = styled.li`
 const ItemList = styled.ul`
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 !important;
   display: block;
   overflow: hidden;
 
@@ -326,7 +321,6 @@ const ActionInfo = SpaceContent.extend`
 export {
   AddNew,
   Container,
-  SectionContainer,
   SpaceContent,
   FooterContent,
   DealDate,

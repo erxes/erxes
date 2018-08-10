@@ -176,7 +176,7 @@ const SidebarToggle = styled.a`
   text-align: center;
   padding: 2px 0;
   font-size: 10px;
-  background: ${colors.bgLight};
+  background: ${props => (props.inverse ? colors.colorWhite : colors.bgLight)};
   border-top: 1px solid ${colors.borderPrimary};
 
   &:hover {
@@ -369,9 +369,57 @@ const AuthDescription = styled.div`
   }
   a {
     color: rgba(255, 255, 255, 0.7);
+    &:hover {
+      color: ${colors.colorWhite};
+    }
   }
   .not-found {
     margin-top: 0;
+  }
+`;
+
+const SectionContainer = styled.div`
+  overflow: hidden;
+  padding: 10px 10px 0px 10px;
+  border-top: 1px solid ${colors.borderPrimary};
+`;
+
+const SectionBody = styled.div`
+  i {
+    color: ${colors.colorCoreLightGray};
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+`;
+
+const SectionBodyItem = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
+  padding: 10px 20px;
+
+  span {
+    display: inline-block;
+    width: 100%;
+    padding-right: ${dimensions.coreSpacing}px;
+  }
+
+  i {
+    color: ${colors.colorCoreLightGray};
+    position: absolute;
+    right: ${dimensions.coreSpacing}px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  a {
+    font-size: 12px;
+  }
+
+  ul li {
+    margin-left: ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -405,5 +453,8 @@ export {
   WhiteBox,
   Authlayout,
   AuthContent,
-  AuthDescription
+  AuthDescription,
+  SectionContainer,
+  SectionBody,
+  SectionBodyItem
 };

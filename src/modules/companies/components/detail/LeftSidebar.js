@@ -1,61 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar } from 'modules/layout/components';
-import { Button } from 'modules/common/components';
-import { ManageGroups } from 'modules/settings/properties/components';
-import { TaggerSection } from 'modules/customers/components/detail/sidebar';
-import { BasicInfo } from 'modules/companies/containers';
+import { TaggerSection } from 'modules/customers/components/common';
+import {
+  BasicInfo,
+  CustomFieldsSection
+} from 'modules/companies/containers/detail';
 
-const propTypes = {
-  company: PropTypes.object.isRequired,
-  fieldsGroups: PropTypes.array.isRequired,
-  customFieldsData: PropTypes.object
-};
-
-class LeftSidebar extends ManageGroups {
-  renderSidebarFooter() {
-    if (!this.state.editing) {
-      return null;
-    }
-
-    return (
-      <Sidebar.Footer>
-        <Button
-          btnStyle="simple"
-          size="small"
-          onClick={this.cancelEditing}
-          icon="cancel-1"
-        >
-          Discard
-        </Button>
-        <Button
-          btnStyle="success"
-          size="small"
-          onClick={this.save}
-          icon="checked-1"
-        >
-          Save
-        </Button>
-      </Sidebar.Footer>
-    );
-  }
-
+class LeftSidebar extends React.Component {
   render() {
     const { company } = this.props;
 
     return (
-      <Sidebar wide footer={this.renderSidebarFooter()}>
+      <Sidebar wide>
         <BasicInfo company={company} />
-        {this.renderGroups(company)}
+        <CustomFieldsSection company={company} />
         <TaggerSection data={company} type="company" />
       </Sidebar>
     );
   }
 }
 
-LeftSidebar.propTypes = propTypes;
-LeftSidebar.contextTypes = {
-  __: PropTypes.func
+LeftSidebar.propTypes = {
+  company: PropTypes.object.isRequired
 };
 
 export default LeftSidebar;

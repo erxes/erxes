@@ -3,7 +3,6 @@ const commonFields = `
   $primaryName: String,
   $size: Int,
   $industry: String,
-  $plan: String,
   $parentCompanyId: String,
   $email: String,
   $ownerId: String,
@@ -12,7 +11,6 @@ const commonFields = `
   $lifecycleState: String,
   $businessType: String,
   $description: String,
-  $employees: Int,
   $doNotDisturb: String,
   $links: JSON
   $customFieldsData: JSON
@@ -23,7 +21,6 @@ const commonVariables = `
   primaryName: $primaryName,
   size: $size,
   industry: $industry,
-  plan: $plan,
   parentCompanyId: $parentCompanyId,
   email: $email,
   ownerId: $ownerId,
@@ -32,7 +29,6 @@ const commonVariables = `
   lifecycleState: $lifecycleState,
   businessType: $businessType,
   description: $description,
-  employees: $employees,
   doNotDisturb: $doNotDisturb,
   links: $links
   customFieldsData: $customFieldsData
@@ -62,7 +58,6 @@ const companiesEdit = `
       lifecycleState
       businessType
       description
-      employees
       doNotDisturb
       links {
         linkedIn
