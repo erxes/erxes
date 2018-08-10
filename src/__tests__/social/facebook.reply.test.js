@@ -5,7 +5,11 @@ import { connect, disconnect } from '../../db/connection';
 import { facebookReply } from '../../trackers/facebook';
 import { graphRequest } from '../../trackers/facebookTracker';
 import { Integrations, Conversations, ConversationMessages } from '../../db/models';
-import { integrationFactory, conversationFactory } from '../../db/factories';
+import {
+  integrationFactory,
+  conversationFactory,
+  conversationMessageFactory,
+} from '../../db/factories';
 import { FACEBOOK_DATA_KINDS } from '../../data/constants';
 
 beforeAll(() => connect());
@@ -60,6 +64,7 @@ describe('facebook integration: reply', () => {
         senderId: senderId,
       },
     });
+    const msg = await conversationMessageFactory({});
 
     const text = 'to messenger';
 
@@ -73,7 +78,7 @@ describe('facebook integration: reply', () => {
     });
 
     // reply
-    await facebookReply(conversation, text);
+    await facebookReply(conversation, { text }, msg);
 
     // check
     expect(stub.calledWith('me/messages', 'page_access_token')).toBe(true);
@@ -90,8 +95,17 @@ describe('facebook integration: reply', () => {
       },
     });
 
+    await conversationMessageFactory({
+      conversationId: conversation._id,
+      facebookData: {
+        isPost: true,
+      },
+    });
+
     const text = 'comment';
-    const messageId = '242424242';
+    const msg = await conversationMessageFactory({
+      conversationId: conversation._id,
+    });
 
     // mock post messenger reply
     const gpStub = sinon.stub(graphRequest, 'post').callsFake(() => ({
@@ -102,14 +116,23 @@ describe('facebook integration: reply', () => {
     const mongoStub = sinon.stub(ConversationMessages, 'update').callsFake(() => {});
 
     // reply
-    await facebookReply(conversation, text, messageId);
+    await facebookReply(conversation, { text }, msg);
 
     // check graph request
     expect(gpStub.calledWith('postId/comments', 'page_access_token')).toBe(true);
 
     // check mongo update
     expect(
-      mongoStub.calledWith({ _id: messageId }, { $set: { 'facebookData.commentId': 'commentId' } }),
+      mongoStub.calledWith(
+        { _id: msg._id },
+        {
+          $set: {
+            facebookData: {
+              commentId: 'commentId',
+            },
+          },
+        },
+      ),
     ).toBe(true);
 
     // unwrap stub

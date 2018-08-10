@@ -68,6 +68,16 @@ export const publishMessage = (message, customerId) => {
     });
   }
 };
+/**
+ * Publish conversation client message inserted
+ * @param  {Object} message object
+ */
+export const publishClientMessage = message => {
+  // notifying to total unread count
+  pubsub.publish('conversationClientMessageInserted', {
+    conversationClientMessageInserted: message,
+  });
+};
 
 const conversationMutations = {
   /*
@@ -80,9 +90,7 @@ const conversationMutations = {
     publishMessage(message);
 
     // notifying to total unread count
-    pubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message,
-    });
+    this.publishClientMessage(message);
   },
 
   /**
@@ -150,13 +158,29 @@ const conversationMutations = {
       });
     }
 
-    const message = await ConversationMessages.addMessage(doc, user._id);
+    let message = await ConversationMessages.addMessage(doc, user._id);
 
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {
+      const msg = {
+        text: strip(doc.content),
+      };
+
+      // attaching parent comment id if replied to comment
+      if (doc.commentReplyToId) {
+        msg.commentId = doc.commentReplyToId;
+      }
+
+      // attaching attachment if sent
+      if (doc.attachments.length > 0) {
+        msg.attachment = doc.attachments[0];
+      }
+
       // when facebook kind is feed, assign commentId in extraData
-      await facebookReply(conversation, strip(doc.content), message._id);
+      await facebookReply(conversation, msg, message);
     }
+
+    message = await ConversationMessages.findOne({ _id: message._id });
 
     // Publishing both admin & client
     publishMessage(message, conversation.customerId);

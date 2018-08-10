@@ -5,7 +5,11 @@ import { connect, disconnect } from '../../db/connection';
 import { SaveWebhookResponse } from '../../trackers/facebook';
 import { graphRequest } from '../../trackers/facebookTracker';
 import { Conversations, ConversationMessages } from '../../db/models';
-import { integrationFactory, customerFactory } from '../../db/factories';
+import {
+  integrationFactory,
+  customerFactory,
+  conversationMessageFactory,
+} from '../../db/factories';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
 
 beforeAll(() => connect());
@@ -153,13 +157,16 @@ describe('facebook integration: get or create conversation', () => {
     };
 
     // new messenger conversation ===========
-    const { conversationId } = await saveWebhookResponse.getOrCreateConversation({
+    const msgId = await saveWebhookResponse.getOrCreateConversation({
       findSelector: messengerFilter,
       status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData: messengerFacebookData,
       content: 'messenger message',
     });
+
+    const msg = await ConversationMessages.findOne({ _id: msgId });
+    const conversationObj = await Conversations.findOne({ _id: msg.conversationId });
 
     // must be created new conversation, new message
     expect(await Conversations.count()).toBe(4);
@@ -177,11 +184,11 @@ describe('facebook integration: get or create conversation', () => {
     // must not be created new conversation, new message
     expect(await Conversations.count()).toBe(4);
     expect(await ConversationMessages.count()).toBe(6);
-    expect(await ConversationMessages.count({ conversationId })).toBe(2);
+    expect(await ConversationMessages.count({ conversationId: conversationObj._id })).toBe(2);
 
     // close converstaion
     await Conversations.update(
-      { _id: conversationId },
+      { _id: conversationObj._id },
       { $set: { status: CONVERSATION_STATUSES.CLOSED } },
     );
 
@@ -197,7 +204,7 @@ describe('facebook integration: get or create conversation', () => {
     // must be created new conversation, new message
     expect(await Conversations.count()).toBe(5);
     expect(await ConversationMessages.count()).toBe(7);
-    expect(conversationId).not.toBe(message.conversationId);
+    expect(conversationObj._id).not.toBe(message.conversationId);
 
     // customer commented on closed converstaion ===========
     const secondMessage = await saveWebhookResponse.getOrCreateConversation({
@@ -211,10 +218,132 @@ describe('facebook integration: get or create conversation', () => {
     // must not be created new conversation, new message
     expect(await Conversations.count()).toBe(5);
     expect(await ConversationMessages.count()).toBe(8);
-    expect(conversationId).not.toBe(secondMessage.conversationId);
+    expect(conversationObj._id).not.toBe(secondMessage.conversationId);
     expect(message.conversationId).toBe(secondMessage.conversationId);
 
     // unwrap getOrCreateCustomer
     saveWebhookResponse.getOrCreateCustomer.restore();
+  });
+
+  test('Handle posts', async () => {
+    const integration = await integrationFactory();
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
+    // Received video
+    const postParams = {
+      post_id: '123',
+      item: 'status',
+      video_id: '12331213',
+      link: 'video link',
+      created_time: '1533712330',
+    };
+
+    const response = await saveWebhookResponse.handlePosts(postParams);
+
+    expect(response.postId).toBe(postParams.post_id);
+    expect(response.item).toBe(postParams.item);
+    expect(response.video).toBe(postParams.link);
+    expect(response.isPost).toBeTruthy();
+  });
+
+  test('Handle comments', async () => {
+    const integration = await integrationFactory();
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
+    // Replied to comment
+    const commentParams = {
+      post_id: '123',
+      verb: 'add',
+      parent_id: '12344',
+      item: 'status',
+      created_time: '1533712330',
+    };
+
+    const response = await saveWebhookResponse.handleComments(commentParams);
+
+    expect(response.postId).toBe(commentParams.post_id);
+    expect(response.item).toBe(commentParams.item);
+    expect(response.parentId).toBe(commentParams.parent_id);
+  });
+
+  test('Update comment count', async () => {
+    const integration = await integrationFactory();
+    const msg = await conversationMessageFactory({
+      facebookData: {
+        postId: '123123',
+      },
+    });
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
+    // increasing
+    await saveWebhookResponse.updateCommentCount('add', '123123');
+    let response = await ConversationMessages.findOne({ _id: msg._id });
+    expect(response.facebookData.commentCount).toBe(1);
+
+    // decreasing
+    await saveWebhookResponse.updateCommentCount('subtract', '123123');
+
+    response = await ConversationMessages.findOne({ _id: msg._id });
+    expect(response.facebookData.commentCount).toBe(0);
+  });
+
+  test('Update like count', async () => {
+    const integration = await integrationFactory();
+    const msg = await conversationMessageFactory({
+      facebookData: {
+        commentId: '456',
+      },
+    });
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
+    // increasing
+    await saveWebhookResponse.updateLikeCount('add', { 'facebookData.commentId': '456' });
+    let response = await ConversationMessages.findOne({ _id: msg._id });
+    expect(response.facebookData.likeCount).toBe(1);
+
+    // decreasing
+    await saveWebhookResponse.updateLikeCount('subtract', { 'facebookData.commentId': '456' });
+
+    response = await ConversationMessages.findOne({ _id: msg._id });
+    expect(response.facebookData.likeCount).toBe(0);
+  });
+
+  test('Update reactions', async () => {
+    const integration = await integrationFactory();
+    const msg = await conversationMessageFactory({
+      facebookData: {
+        reactions: {
+          haha: [],
+        },
+      },
+    });
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
+    const from = {
+      id: '123123',
+      name: 'asddqwesaasd',
+    };
+
+    const type = 'haha';
+
+    // adding reaction
+    await saveWebhookResponse.updateReactions('add', msg._id, type, from);
+
+    let response = await ConversationMessages.findOne({ _id: msg._id });
+
+    expect(response.facebookData.reactions[type]).toContainEqual(expect.objectContaining(from));
+
+    // removing reaction
+
+    await saveWebhookResponse.updateReactions('subtract', msg._id, type, from);
+
+    response = await ConversationMessages.findOne({ _id: msg._id });
+
+    expect(response.facebookData.reactions[type]).not.toContainEqual(expect.objectContaining(from));
   });
 });

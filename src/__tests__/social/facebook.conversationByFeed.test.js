@@ -49,11 +49,6 @@ describe('facebook integration: get or create conversation by feed info', () => 
     value.verb = 'edit';
     expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
 
-    // ignore likes
-    value.verb = 'add';
-    value.item = 'like';
-    expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
-
     // already saved comments ==========
     await conversationMessageFactory({
       facebookData: { commentId: 1 },
@@ -90,6 +85,7 @@ describe('facebook integration: get or create conversation by feed info', () => 
 
     value.post_id = postId;
     value.message = 'hi';
+    value.verb = 'add';
 
     await saveWebhookResponse.getOrCreateConversationByFeed(value);
 

@@ -12,15 +12,22 @@ export const types = `
     postId: String
     commentId: String
     parentId: String
+
+    isPost: Boolean
+    reactions: JSON
+    likeCount: Int
+    commentCount: Int
+
     messageId: String
     item: String
-    photoId: String
-    videoId: String
+    photo: String
+    video: String
+    photos: [String]
     link: String
-    reactionType: String
+
     senderId: String
     senderName: String
-  }
+    }
 
   type TwitterData {
     id: Float
@@ -167,6 +174,7 @@ export const mutations = `
     attachments: [JSON],
     tweetReplyToId: String,
     tweetReplyToScreenName: String,
+    commentReplyToId: String
   ): ConversationMessage
 
   conversationsTweet(

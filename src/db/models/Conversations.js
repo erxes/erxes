@@ -1,37 +1,8 @@
 import mongoose from 'mongoose';
-import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
-import { TwitterResponseSchema } from '../../trackers/schemas';
+import { CONVERSATION_STATUSES } from '../../data/constants';
+import { TwitterResponseSchema, ConversationFacebookSchema } from '../../trackers/schemas';
 import { Users, ConversationMessages } from '../../db/models';
 import { field } from './utils';
-
-// facebook schema
-const FacebookSchema = mongoose.Schema(
-  {
-    kind: field({
-      type: String,
-      enum: FACEBOOK_DATA_KINDS.ALL,
-    }),
-    senderName: field({
-      type: String,
-    }),
-    senderId: field({
-      type: String,
-    }),
-    recipientId: field({
-      type: String,
-    }),
-
-    // when wall post
-    postId: field({
-      type: String,
-    }),
-
-    pageId: field({
-      type: String,
-    }),
-  },
-  { _id: false },
-);
 
 // Conversation schema
 const ConversationSchema = mongoose.Schema({
@@ -66,7 +37,7 @@ const ConversationSchema = mongoose.Schema({
   // number of total conversations
   number: field({ type: Number }),
   twitterData: field({ type: TwitterResponseSchema }),
-  facebookData: field({ type: FacebookSchema }),
+  facebookData: field({ type: ConversationFacebookSchema }),
 });
 
 class Conversation {

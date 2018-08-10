@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { field } from '../db/models/utils';
+import { FACEBOOK_DATA_KINDS } from '../data/constants';
 
 export const TwitterSchema = mongoose.Schema(
   {
@@ -66,6 +67,126 @@ export const TwitterResponseSchema = mongoose.Schema(
     reply_count: field({ type: Number, optional: true }),
     retweet_count: field({ type: Number, optional: true }),
     favorite_count: field({ type: Number, optional: true }),
+  },
+  { _id: false },
+);
+
+export const ConversationFacebookSchema = mongoose.Schema(
+  {
+    kind: field({ type: String, enum: FACEBOOK_DATA_KINDS.ALL }),
+
+    // messenger
+    senderName: field({ type: String }),
+    senderId: field({ type: String }),
+    recipientId: field({ type: String }),
+
+    // when wall post
+    postId: field({ type: String }),
+    pageId: field({ type: String }),
+  },
+  { _id: false },
+);
+
+// Facebook user data received from reactions
+const FbUserSchema = mongoose.Schema(
+  {
+    id: field({ type: String, optional: true }),
+    name: field({ type: String, optional: true }),
+  },
+  { _id: false },
+);
+
+// Post or comment's reaction data
+const ReactionSchema = mongoose.Schema(
+  {
+    like: field({ type: [FbUserSchema], default: [] }),
+    love: field({ type: [FbUserSchema], default: [] }),
+    wow: field({ type: [FbUserSchema], default: [] }),
+    haha: field({ type: [FbUserSchema], default: [] }),
+    sad: field({ type: [FbUserSchema], default: [] }),
+    angry: field({ type: [FbUserSchema], default: [] }),
+  },
+  { _id: false },
+);
+
+export const ConversationMessageFacebookSchema = mongoose.Schema(
+  {
+    postId: field({
+      type: String,
+      optional: true,
+    }),
+
+    commentId: field({
+      type: String,
+      optional: true,
+    }),
+
+    // parent comment id
+    parentId: field({
+      type: String,
+      optional: true,
+    }),
+
+    isPost: field({
+      type: Boolean,
+      optional: true,
+    }),
+
+    reactions: field({ type: ReactionSchema, default: {} }),
+
+    likeCount: field({
+      type: Number,
+      default: 0,
+    }),
+    commentCount: field({
+      type: Number,
+      default: 0,
+    }),
+
+    // messenger message id
+    messageId: field({
+      type: String,
+      optional: true,
+    }),
+
+    // comment, reaction, etc ...
+    item: field({
+      type: String,
+      optional: true,
+    }),
+
+    // photo link when included photo
+    photo: field({
+      type: String,
+      optional: true,
+    }),
+
+    // video link when included video
+    video: field({
+      type: String,
+      optional: true,
+    }),
+
+    // photo links when user posted multiple photos
+    photos: field({
+      type: [String],
+      optional: true,
+    }),
+
+    link: field({
+      type: String,
+      optional: true,
+    }),
+
+    senderId: field({
+      type: String,
+      optional: true,
+    }),
+
+    senderName: field({
+      type: String,
+      optional: true,
+    }),
   },
   { _id: false },
 );

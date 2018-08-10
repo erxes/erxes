@@ -1,72 +1,8 @@
 import strip from 'strip';
 import mongoose from 'mongoose';
-import { TwitterResponseSchema } from '../../trackers/schemas';
+import { TwitterResponseSchema, ConversationMessageFacebookSchema } from '../../trackers/schemas';
 import { Conversations } from './';
 import { field } from './utils';
-
-const FacebookSchema = mongoose.Schema(
-  {
-    postId: field({
-      type: String,
-      optional: true,
-    }),
-
-    commentId: field({
-      type: String,
-      optional: true,
-    }),
-
-    parentId: field({
-      type: String,
-      optional: true,
-    }),
-
-    // messenger message id
-    messageId: field({
-      type: String,
-      optional: true,
-    }),
-
-    // comment, reaction, etc ...
-    item: field({
-      type: String,
-      optional: true,
-    }),
-
-    // when share photo
-    photoId: field({
-      type: String,
-      optional: true,
-    }),
-
-    // when share video
-    videoId: field({
-      type: String,
-      optional: true,
-    }),
-
-    link: field({
-      type: String,
-      optional: true,
-    }),
-
-    reactionType: field({
-      type: String,
-      optional: true,
-    }),
-
-    senderId: field({
-      type: String,
-      optional: true,
-    }),
-
-    senderName: field({
-      type: String,
-      optional: true,
-    }),
-  },
-  { _id: false },
-);
 
 const MessageSchema = mongoose.Schema({
   _id: field({ pkey: true }),
@@ -81,7 +17,7 @@ const MessageSchema = mongoose.Schema({
   isCustomerRead: field({ type: Boolean }),
   engageData: field({ type: Object }),
   formWidgetData: field({ type: Object }),
-  facebookData: field({ type: FacebookSchema }),
+  facebookData: field({ type: ConversationMessageFacebookSchema }),
   twitterData: field({ type: TwitterResponseSchema }),
 });
 
