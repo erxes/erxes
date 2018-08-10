@@ -391,7 +391,7 @@ export class SaveWebhookResponse {
     // convert it to string
     const senderId = value.from.id.toString();
 
-    let messageText = value.message || ' ';
+    let messageText = value.message || '...';
 
     // value.post_id is returning different value even though same post
     // with the previous one. So fetch post info via graph api and
