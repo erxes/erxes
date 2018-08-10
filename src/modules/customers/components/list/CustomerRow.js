@@ -41,22 +41,28 @@ function getVisitorInfo(customer, key) {
 }
 
 function formatValue(value) {
+  if (!value) {
+    return '-';
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
   if (typeof value === 'boolean') {
     return value ? 'Yes' : 'No';
   }
 
-  if (
-    value &&
-    (moment(value, moment.ISO_8601).isValid() || isTimeStamp(value))
-  ) {
+  if (moment(value, moment.ISO_8601).isValid() || isTimeStamp(value)) {
     return moment(value).fromNow();
   }
 
-  return value || '-';
+  return value;
 }
 
 function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {
   const tags = customer.getTags;
+
   const onChange = e => {
     if (toggleBulk) {
       toggleBulk(customer, e.target.checked);
@@ -76,11 +82,13 @@ function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {
       <td onClick={onClick}>
         <FormControl componentClass="checkbox" onChange={onChange} />
       </td>
+
       {columnsConfig.map(({ name }) => {
         return (
           <td key={name}>{formatValue(getVisitorInfo(customer, name))}</td>
         );
       })}
+
       <td>
         <Tags tags={tags} limit={2} />
       </td>
