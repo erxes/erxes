@@ -14,7 +14,7 @@ export default class FacebookPost extends Component {
       <Counts>
         <FlexItem>
           {data.reactions && <Reactions reactions={data.reactions} />}
-          <a>{data.likeCount}</a>
+          <a>{data.likeCount !== 0 && data.likeCount}</a>
         </FlexItem>
         <span>{data.commentCount} Comments</span>
       </Counts>

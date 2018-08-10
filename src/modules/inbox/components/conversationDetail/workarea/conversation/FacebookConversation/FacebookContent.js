@@ -34,20 +34,36 @@ export default class FacebookContent extends Component {
     );
   }
 
-  renderVideo(iframeSrc) {
-    if (!iframeSrc) {
+  renderVideo(video) {
+    if (!video) {
       return null;
+    }
+
+    if (video.startsWith('https://www.youtube.com/')) {
+      const iframeSrc = video.split('v=')[1].substring(0, 11);
+
+      return (
+        <iframe
+          title="erxesIframe"
+          src={`https://www.youtube.com/embed/${iframeSrc}`}
+          width="100%"
+          height="280"
+          scrolling="no"
+          frameBorder="0"
+          allowFullScreen
+        />
+      );
     }
 
     return (
       <iframe
         title="erxesIframe"
-        src={iframeSrc}
-        width="480"
+        src={video}
+        width="100%"
         height="280"
         scrolling="no"
         frameBorder="0"
-        allowtransparency="true"
+        allowFullScreen
       />
     );
   }

@@ -44,7 +44,6 @@ export default class FacebookConversation extends Component {
     return comments.map(comment => (
       <Fragment key={comment._id}>
         <FacebookComment message={comment} />
-
         {this.renderReplies(comment)}
       </Fragment>
     ));
