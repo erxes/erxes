@@ -518,9 +518,12 @@ export class SaveWebhookResponse {
 
     // get profile pic
     const getProfilePic = async fbId => {
-      const response = await graphRequest.get(`/${fbId}/picture?height=600`);
-
-      return response.image ? response.location : '';
+      try {
+        const response = await graphRequest.get(`/${fbId}/picture?height=600`);
+        return response.image ? response.location : '';
+      } catch (e) {
+        return null;
+      }
     };
 
     // when feed response will contain name field
