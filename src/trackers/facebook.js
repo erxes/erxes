@@ -538,8 +538,7 @@ export class SaveWebhookResponse {
       integrationId,
       facebookData: {
         id: fbUserId,
-        profilePic: res.profile_pic || (await getProfilePic(fbUserId)),
-        profileLink: res.link,
+        profilePic: (await getProfilePic(fbUserId)) || '',
       },
     });
 

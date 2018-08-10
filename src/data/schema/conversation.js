@@ -27,7 +27,7 @@ export const types = `
 
     senderId: String
     senderName: String
-  }
+    }
 
   type TwitterData {
     id: Float
