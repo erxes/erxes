@@ -74,7 +74,17 @@ class Conversation extends Component {
   }
 
   renderConversation() {
-    const { conversation, scrollBottom, conversationMessages } = this.props;
+    const {
+      loading,
+      conversation,
+      scrollBottom,
+      conversationMessages
+    } = this.props;
+
+    if (loading) {
+      return <Spinner objective />;
+    }
+
     const twitterData = conversation.twitterData;
     const facebookData = conversation.facebookData;
     const isTweet = twitterData && !twitterData.isDirectMessage;
@@ -104,11 +114,10 @@ class Conversation extends Component {
   }
 
   render() {
-    const { attachmentPreview, scrollBottom, loading } = this.props;
+    const { attachmentPreview, scrollBottom } = this.props;
 
     return (
       <Wrapper>
-        {loading && <Spinner objective />}
         {this.renderConversation()}
         <AttachmentPreview
           scrollBottom={scrollBottom}
