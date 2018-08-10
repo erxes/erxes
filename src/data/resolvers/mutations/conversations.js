@@ -158,7 +158,7 @@ const conversationMutations = {
       });
     }
 
-    const message = await ConversationMessages.addMessage(doc, user._id);
+    let message = await ConversationMessages.addMessage(doc, user._id);
 
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {
@@ -179,6 +179,8 @@ const conversationMutations = {
       // when facebook kind is feed, assign commentId in extraData
       await facebookReply(conversation, msg, message);
     }
+
+    message = await ConversationMessages.findOne({ _id: message._id });
 
     // Publishing both admin & client
     publishMessage(message, conversation.customerId);
