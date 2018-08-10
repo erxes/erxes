@@ -55,7 +55,11 @@ export default class FacebookContent extends Component {
       );
     }
 
-    if (link.endsWith('.png') || link.endsWith('.jpg')) {
+    if (
+      link.endsWith('.png') ||
+      link.endsWith('.jpg') ||
+      link.endsWith('.jpeg')
+    ) {
       return <img src={link} alt={link} />;
     }
 
