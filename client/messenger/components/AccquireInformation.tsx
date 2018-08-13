@@ -76,7 +76,7 @@ class AccquireInformation extends React.Component<Props, State> {
       type === "email" ? __("email@domain.com") : __("phone number");
 
     return (
-      <div className="erxes-messenger accquire-information">
+      <div className="accquire-information">
         <TopBar middle={title} />
 
         <div className="content">

@@ -41,10 +41,10 @@ function disableZoom() {
   const viewportMeta = document.querySelector('meta[name="viewport"]');
 
   if (!viewportMeta) {
-    return;
+    return false;
   }
 
-  if (generatedContent) {
+  if (viewportMeta && generatedContent) {
     viewportMeta.setAttribute("content", generatedContent);
   } else {
     const meta = `initial-scale=1, user-scalable=0, maximum-scale=1, ${viewportContent}`;
@@ -63,15 +63,13 @@ function revertViewPort() {
 
 function uniqueString(str: string) {
   const replaced = str.replace(/[ ]/g, "").split(",");
-
   const result = [];
 
-  for (let i = 0; i < replaced.length; i++) {
-    if (result.indexOf(str[i]) === -1) {
-      result.push(str[i]);
+  for (const value of replaced) {
+    if (result.indexOf(value) === -1) {
+      result.push(value);
     }
   }
-
   return result.join(", ");
 }
 

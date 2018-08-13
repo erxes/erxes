@@ -27,7 +27,7 @@ function ConversationList(props: Props) {
   );
 
   return (
-    <div className="erxes-messenger">
+    <React.Fragment>
       <TopBar
         middle={title}
         buttonIcon={iconPlus}
@@ -43,7 +43,7 @@ function ConversationList(props: Props) {
           />
         ))}
       </ul>
-    </div>
+    </React.Fragment>
   );
 }
 

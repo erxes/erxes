@@ -5,6 +5,10 @@ body {
   margin: 0;
 }
 
+.appear-animate {
+  animation: scaleIn 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+}
+
 .erxes-widget {
   @include prefix((box-sizing: border-box), webkit moz ms o);
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
@@ -22,13 +26,6 @@ body {
 
   &.opened .erxes-form {
     @include prefix((opacity: 1), webkit moz ms o);
-    visibility: visible;
-  }
-
-  &.opened .erxes-messenger {
-    @include prefix((
-      opacity: 1
-    ), webkit moz ms o);
     visibility: visible;
   }
 }

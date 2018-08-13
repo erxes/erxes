@@ -43,6 +43,7 @@
   width: $core-spacing * 2;
   background: none;
   border: none;
+  outline: none;
 
   &:hover {
     background-color: rgba($black, .2);

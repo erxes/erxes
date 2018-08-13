@@ -47,10 +47,10 @@ class Notifier extends React.Component<Props> {
     const { message } = this.props;
 
     if (message.engageData) {
-      return `erxes-notification ${message.engageData.sentAs}`;
+      return `erxes-notification appear-animate ${message.engageData.sentAs}`;
     }
 
-    return "erxes-notification";
+    return "erxes-notification appear-animate";
   }
 
   render() {

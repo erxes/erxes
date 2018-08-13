@@ -7,6 +7,7 @@ import { Message } from "./";
 type Props = {
   messages: IMessage[];
   isOnline: boolean;
+  inputFocus: () => void;
   uiOptions: IIntegrationUiOptions;
   messengerData: IIntegrationMessengerData;
 };
@@ -34,6 +35,7 @@ class MessagesList extends React.Component<Props> {
   componentDidUpdate() {
     if (this.node && this.shouldScrollBottom) {
       this.node.scrollTop = this.node.scrollHeight;
+      console.log("adasd");
     }
 
     this.makeClickableLink();
@@ -88,6 +90,7 @@ class MessagesList extends React.Component<Props> {
       <ul
         id="erxes-messages"
         className={messagesClasses}
+        onClick={this.props.inputFocus}
         ref={node => {
           this.node = node;
         }}

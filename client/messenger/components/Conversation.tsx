@@ -123,7 +123,7 @@ class Conversation extends React.Component<Props, State> {
     const placeholder = isNew ? __("Send a message") : __("Write a reply");
 
     return (
-      <div onClick={this.onClick} className="erxes-messenger">
+      <React.Fragment>
         <TopBar
           middle={this.renderTitle()}
           buttonIcon={iconLeft}
@@ -135,14 +135,18 @@ class Conversation extends React.Component<Props, State> {
           }}
         />
 
-        <MessagesList isOnline={isOnline} messages={messages} />
+        <MessagesList
+          isOnline={isOnline}
+          messages={messages}
+          inputFocus={this.onClick}
+        />
 
         <MessageSender
           placeholder={placeholder ? placeholder.toString() : ""}
           isParentFocused={this.state.isFocused}
           onTextInputBlur={this.onTextInputBlur}
         />
-      </div>
+      </React.Fragment>
     );
   }
 }
