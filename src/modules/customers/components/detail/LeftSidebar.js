@@ -9,8 +9,6 @@ import {
 import {
   TaggerSection,
   MessengerSection,
-  TwitterSection,
-  FacebookSection,
   DevicePropertiesSection
 } from '../common';
 
@@ -24,8 +22,6 @@ export default class LeftSidebar extends React.Component {
         <CustomFieldsSection customer={customer} />
         <DevicePropertiesSection customer={customer} />
         <MessengerSection customer={customer} />
-        <TwitterSection customer={customer} />
-        <FacebookSection customer={customer} />
         <TaggerSection data={customer} type="customer" />
       </Sidebar>
     );

@@ -209,8 +209,6 @@ const generateCustomerDetailQuery = params => {
     showProfile,
     showDeviceProperties,
     showMessengerData,
-    showFacebookData,
-    showTwitterData,
     showCustomFields,
     showCompanies,
     showTags
@@ -235,20 +233,6 @@ const generateCustomerDetailQuery = params => {
     fields = `
       ${fields}
       messengerData
-    `;
-  }
-
-  if (showFacebookData) {
-    fields = `
-      ${fields}
-      facebookData
-    `;
-  }
-
-  if (showTwitterData) {
-    fields = `
-      ${fields}
-      twitterData
     `;
   }
 
