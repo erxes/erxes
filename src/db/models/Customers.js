@@ -65,8 +65,6 @@ const twitterSchema = mongoose.Schema(
   {
     id: field({ type: Number, label: 'Twitter ID (Number)' }),
     id_str: field({ type: String, label: 'Twitter ID' }),
-    name: field({ type: String, label: 'Twitter name' }),
-    screen_name: field({ type: String, label: 'Twitter screen name' }),
     profile_image_url: field({ type: String, label: 'Twitter photo' }),
   },
   { _id: false },

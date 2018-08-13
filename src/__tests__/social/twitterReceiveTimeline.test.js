@@ -113,9 +113,9 @@ describe('createOrUpdateTimelineConversation', () => {
     // check customer field values
     expect(customer.createdAt).toBeDefined();
     expect(customer.integrationId).toBe(_integration._id);
+    expect(customer.links.twitter).toBe('https://twitter.com/b_batamar');
     expect(customer.twitterData.id).toBe(2424242424);
     expect(customer.twitterData.id_str).toBe('24242424242');
-    expect(customer.twitterData.name).toBe('username');
     expect(customer.twitterData.profile_image_url).toBe('profile_image_url');
 
     // 1 log
@@ -188,9 +188,9 @@ describe('createOrUpdateTimelineConversation', () => {
     // check customer field values
     expect(customer.createdAt).toBeDefined();
     expect(customer.integrationId).toBe(_integration._id);
+    expect(customer.links.twitter).toBe('https://twitter.com/b_batamar');
     expect(customer.twitterData.id).toBe(2424242424);
     expect(customer.twitterData.id_str).toBe('24242424242');
-    expect(customer.twitterData.name).toBe('username');
     expect(customer.twitterData.profile_image_url).toBe('profile_image_url');
 
     // 1 log
