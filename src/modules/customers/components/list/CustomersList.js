@@ -22,7 +22,7 @@ import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
-import { CommonMerge } from '../';
+import CustomersMerge from '../detail/CustomersMerge';
 import { CustomerForm } from '../../containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
 
@@ -135,8 +135,7 @@ class CustomersList extends React.Component {
       loading,
       customers,
       loadingTags,
-      mergeCustomers,
-      basicInfos,
+      // mergeCustomers,
       location,
       history,
       queryParams,
@@ -247,11 +246,7 @@ class CustomersList extends React.Component {
               size="lg"
               trigger={mergeButton}
             >
-              <CommonMerge
-                datas={bulk}
-                save={mergeCustomers}
-                basicInfos={basicInfos}
-              />
+              <CustomersMerge cocs={bulk} />
             </ModalTrigger>
           )}
           <Button
