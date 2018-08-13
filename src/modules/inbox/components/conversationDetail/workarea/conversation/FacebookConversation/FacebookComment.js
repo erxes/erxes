@@ -8,7 +8,14 @@ import {
   UserName,
   ReplyingMessage
 } from './';
-import { ChildPost, User, Comment, Reply, ReplyReaction } from './styles';
+import {
+  ChildPost,
+  User,
+  Comment,
+  Reply,
+  ReplyReaction,
+  FlexItem
+} from './styles';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
@@ -23,8 +30,8 @@ export default class FacebookComment extends Component {
 
     return (
       <ReplyReaction>
-        {data.reactions && <Reactions reactions={data.reactions} />}
-        {data.likeCount}
+        {data.reactions && <Reactions reactions={data.reactions} comment />}
+        <a>{data.likeCount}</a>
       </ReplyReaction>
     );
   }
@@ -38,29 +45,29 @@ export default class FacebookComment extends Component {
       <ChildPost isReply={data.parentId}>
         <NameCard.Avatar customer={message.customer || {}} size={size} />
 
-        <User>
-          <Comment>
-            <UserName username={data.senderName} userId={data.senderId} />
-            <FacebookContent
-              content={message.content}
-              image={data.photo}
-              link={data.link || data.video}
-            />
+        <User isReply={data.parentId}>
+          <FlexItem>
+            <Comment>
+              <UserName username={data.senderName} userId={data.senderId} />
+              <FacebookContent
+                content={message.content}
+                image={data.photo}
+                link={data.link || data.video}
+              />
+            </Comment>
             {this.renderReactionCount(data)}
-          </Comment>
-          <div>
-            <Reply>
-              <ModalTrigger title="Reply" trigger={<a> Reply •</a>}>
-                <ReplyingMessage
-                  conversationId={message.conversationId}
-                  commentId={data.commentId}
-                  currentUserName={data.senderName}
-                  replyPost={replyPost}
-                />
-              </ModalTrigger>
-            </Reply>
-            <Date message={message} />
-          </div>
+          </FlexItem>
+          <Reply>
+            <ModalTrigger title="Reply" trigger={<a> Reply •</a>}>
+              <ReplyingMessage
+                conversationId={message.conversationId}
+                commentId={data.commentId}
+                currentUserName={data.senderName}
+                replyPost={replyPost}
+              />
+            </ModalTrigger>
+          </Reply>
+          <Date message={message} />
         </User>
       </ChildPost>
     );
