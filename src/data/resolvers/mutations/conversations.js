@@ -90,7 +90,7 @@ const conversationMutations = {
     publishMessage(message);
 
     // notifying to total unread count
-    this.publishClientMessage(message);
+    publishClientMessage(message);
   },
 
   /**
