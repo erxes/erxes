@@ -124,11 +124,11 @@ export default class Form extends React.Component<Props, State> {
   }
 
   renderSuccessForm(color: string, thankContent?: string) {
-    const { integration, onCreateNew } = this.props;
+    const { integration, form, onCreateNew } = this.props;
 
     return (
       <div className="erxes-form">
-        <TopBar title={integration.name} color={color} />
+        <TopBar title={form.title || integration.name} color={color} />
         <div className="erxes-form-content">
           <div className="erxes-result">
             <span>
