@@ -47,9 +47,16 @@ const integrationsSaveMessengerAppearance = `
   }
 `;
 
+const integrationsRemove = `
+  mutation integrationsRemove($_id: String!) {
+    integrationsRemove(_id: $_id)
+  }
+`;
+
 export default {
   integrationsCreateMessenger,
   integrationsEditMessenger,
   integrationsSaveMessengerConfigs,
-  integrationsSaveMessengerAppearance
+  integrationsSaveMessengerAppearance,
+  integrationsRemove
 };

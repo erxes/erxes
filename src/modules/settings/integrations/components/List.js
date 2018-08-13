@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Pagination, DataWithLoader } from 'modules/common/components';
-import { IntegrationList } from '../../common/containers';
+import { IntegrationList } from '../containers/common';
 import { AddIntegration } from '../components';
 import Sidebar from '../Sidebar';
 

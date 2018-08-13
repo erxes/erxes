@@ -8,7 +8,11 @@ const routes = () => [
     key="/settings/integrations/createMessenger"
     exact
     path="/settings/integrations/createMessenger"
-    component={CreateMessenger}
+    component={({ location }) => {
+      return (
+        <CreateMessenger queryParams={queryString.parse(location.search)} />
+      );
+    }}
   />,
 
   <Route

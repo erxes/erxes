@@ -1,23 +1,14 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
 import { router as routerUtils } from 'modules/common/utils';
 import { queries } from '../graphql';
-import { Brands } from '../components';
+import { Brands as DumbBrands, Empty } from '../components';
 
-class CurrentBrands extends Component {
-  componentWillReceiveProps() {
-    const { history, currentBrandId } = this.props;
-
-    if (!routerUtils.getParam(history, 'id') && currentBrandId) {
-      routerUtils.setParams(history, { id: currentBrandId });
-    }
-  }
-
+class Brands extends React.Component {
   render() {
     const {
       brandDetailQuery,
@@ -26,8 +17,11 @@ class CurrentBrands extends Component {
       currentBrandId
     } = this.props;
 
-    if (integrationsCountQuery.loading) {
-      return <Spinner />;
+    let integrationsCount = 0;
+
+    if (!integrationsCountQuery.loading) {
+      const byBrand = integrationsCountQuery.integrationsTotalCount.byBrand;
+      integrationsCount = byBrand[currentBrandId];
     }
 
     const extendedProps = {
@@ -35,16 +29,14 @@ class CurrentBrands extends Component {
       queryParams: queryString.parse(location.search),
       currentBrand: brandDetailQuery.brandDetail || {},
       loading: brandDetailQuery.loading,
-      integrationsCount:
-        integrationsCountQuery.integrationsTotalCount.byBrand[currentBrandId] ||
-        0
+      integrationsCount
     };
 
-    return <Brands {...extendedProps} />;
+    return <DumbBrands {...extendedProps} />;
   }
 }
 
-CurrentBrands.propTypes = {
+Brands.propTypes = {
   currentBrandId: PropTypes.string,
   integrationsCountQuery: PropTypes.object,
   brandDetailQuery: PropTypes.object,
@@ -52,52 +44,77 @@ CurrentBrands.propTypes = {
   location: PropTypes.object
 };
 
-const BrandsDetailContainer = compose(
+const BrandsContainer = compose(
   graphql(gql(queries.brandDetail), {
     name: 'brandDetailQuery',
     options: ({ currentBrandId }) => ({
-      variables: { _id: currentBrandId || '' },
+      variables: { _id: currentBrandId },
       fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(queries.integrationsCount), {
-    name: 'integrationsCountQuery'
+    name: 'integrationsCountQuery',
+    options: ({ currentBrandId }) => ({
+      variables: { brandId: currentBrandId }
+    })
   })
-)(CurrentBrands);
+)(Brands);
 
-const LastBrands = props => {
-  const { lastBrandQuery } = props;
-  const lastBrand = lastBrandQuery.brandsGetLast || {};
-  const extendedProps = { ...props, currentBrandId: lastBrand._id };
+class WithCurrentId extends React.Component {
+  componentWillReceiveProps(nextProps) {
+    const { lastBrandQuery = {}, history, queryParams: { _id } } = nextProps;
 
-  return <BrandsDetailContainer {...extendedProps} />;
-};
+    const { brandsGetLast, loading } = lastBrandQuery;
 
-LastBrands.propTypes = {
-  lastBrandQuery: PropTypes.object
-};
-
-const BrandsLastContainer = compose(
-  graphql(gql(queries.brandsGetLast), {
-    name: 'lastBrandQuery'
-  })
-)(LastBrands);
-
-const MainContainer = props => {
-  const { history } = props;
-  const currentBrandId = routerUtils.getParam(history, 'id');
-
-  if (currentBrandId) {
-    const extendedProps = { ...props, currentBrandId };
-
-    return <BrandsDetailContainer {...extendedProps} />;
+    if (!_id && brandsGetLast && !loading) {
+      routerUtils.setParams(history, { _id: brandsGetLast._id });
+    }
   }
 
-  return <BrandsLastContainer {...props} />;
+  render() {
+    const { queryParams: { _id } } = this.props;
+
+    if (!_id) {
+      return <Empty {...this.props} />;
+    }
+
+    const updatedProps = {
+      ...this.props,
+      currentBrandId: _id
+    };
+
+    return <BrandsContainer {...updatedProps} />;
+  }
+}
+
+WithCurrentId.propTypes = {
+  lastBrandQuery: PropTypes.object,
+  history: PropTypes.object,
+  queryParams: PropTypes.object
 };
 
-MainContainer.propTypes = {
-  history: PropTypes.object
+const WithLastBrand = compose(
+  graphql(gql(queries.brandsGetLast), {
+    name: 'lastBrandQuery',
+    skip: ({ queryParams }) => queryParams._id,
+    options: ({ queryParams }) => ({
+      variables: { _id: queryParams._id },
+      fetchPolicy: 'network-only'
+    })
+  })
+)(WithCurrentId);
+
+const WithQueryParams = props => {
+  const { location } = props;
+  const queryParams = queryString.parse(location.search);
+
+  const extendedProps = { ...props, queryParams };
+
+  return <WithLastBrand {...extendedProps} />;
 };
 
-export default withRouter(MainContainer);
+WithQueryParams.propTypes = {
+  location: PropTypes.object
+};
+
+export default withRouter(WithQueryParams);
