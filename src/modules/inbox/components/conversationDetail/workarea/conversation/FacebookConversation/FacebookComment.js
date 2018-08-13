@@ -19,7 +19,8 @@ import {
 
 const propTypes = {
   message: PropTypes.object.isRequired,
-  replyPost: PropTypes.func
+  replyPost: PropTypes.func,
+  scrollBottom: PropTypes.func
 };
 
 export default class FacebookComment extends Component {
@@ -37,7 +38,7 @@ export default class FacebookComment extends Component {
   }
 
   render() {
-    const { message, replyPost } = this.props;
+    const { message, replyPost, scrollBottom } = this.props;
     const data = message.facebookData || {};
     const size = data && data.parentId ? 20 : 32;
 
@@ -53,10 +54,12 @@ export default class FacebookComment extends Component {
                 content={message.content}
                 image={data.photo}
                 link={data.link || data.video}
+                scrollBottom={scrollBottom}
               />
             </Comment>
             {this.renderReactionCount(data)}
           </FlexItem>
+
           <Reply>
             <ModalTrigger title="Reply" trigger={<a> Reply •</a>}>
               <ReplyingMessage
@@ -67,6 +70,7 @@ export default class FacebookComment extends Component {
               />
             </ModalTrigger>
           </Reply>
+
           <Date message={message} />
         </User>
       </ChildPost>

@@ -1,12 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
+import { ImageWithPreview } from 'modules/common/components';
 import { ImageContainer } from './styles';
 
 const propTypes = {
   content: PropTypes.string.isRequired,
   image: PropTypes.string,
   link: PropTypes.string,
-  images: PropTypes.array
+  images: PropTypes.array,
+  scrollBottom: PropTypes.func
 };
 
 export default class FacebookContent extends Component {
@@ -17,7 +19,11 @@ export default class FacebookContent extends Component {
 
     return (
       <ImageContainer full>
-        <img src={image} alt={image} />
+        <ImageWithPreview
+          alt={image}
+          src={image}
+          onLoad={this.props.scrollBottom}
+        />
       </ImageContainer>
     );
   }
@@ -29,7 +35,14 @@ export default class FacebookContent extends Component {
 
     return (
       <ImageContainer>
-        {images.map(image => <img key={image} src={image} alt={image} />)}
+        {images.map((image, index) => (
+          <ImageWithPreview
+            key={index}
+            alt={image}
+            src={image}
+            onLoad={this.props.scrollBottom}
+          />
+        ))}
       </ImageContainer>
     );
   }
@@ -60,12 +73,18 @@ export default class FacebookContent extends Component {
       link.endsWith('.jpg') ||
       link.endsWith('.jpeg')
     ) {
-      return <img src={link} alt={link} />;
+      return (
+        <ImageWithPreview
+          alt={link}
+          src={link}
+          onLoad={this.props.scrollBottom}
+        />
+      );
     }
 
     return (
       <iframe
-        title="erxesIframe"
+        title="erxesIframeVideo"
         src={link}
         width="100%"
         height="280"
