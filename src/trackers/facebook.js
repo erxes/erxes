@@ -447,7 +447,7 @@ export class SaveWebhookResponse {
     const senderName = event.sender.name;
     const recipientId = event.recipient.id;
     const messageId = event.message.mid;
-    const messageText = event.message.text || 'attachment';
+    const messageText = event.message.text || '...';
 
     // collect attachment's url, type fields
     const attachments = (event.message.attachments || []).map(attachment => ({
