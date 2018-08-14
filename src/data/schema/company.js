@@ -4,6 +4,7 @@ export const types = `
 
     createdAt: Date
     modifiedAt: Date
+    avatar: String
 
     primaryName: String
     names: [String]
@@ -69,6 +70,7 @@ export const queries = `
 `;
 
 const commonFields = `
+  avatar: String,
   primaryName: String,
   names: [String]
   size: Int,

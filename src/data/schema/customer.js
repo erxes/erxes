@@ -19,6 +19,7 @@ export const types = `
     _id: String!
     createdAt: Date
     modifiedAt: Date
+    avatar: String
     integrationId: String
     firstName: String
     lastName: String
@@ -92,6 +93,7 @@ export const queries = `
 `;
 
 const fields = `
+  avatar: String
   firstName: String
   lastName: String
   primaryEmail: String
