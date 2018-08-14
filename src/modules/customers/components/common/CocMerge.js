@@ -20,6 +20,8 @@ class CocMerge extends Component {
     super(props);
 
     this.state = { coc: {} };
+
+    this.save = this.save.bind(this);
   }
 
   save(e) {
