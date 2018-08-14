@@ -142,6 +142,7 @@ class CustomersList extends React.Component {
       exportCustomers,
       handleXlsUpload
     } = this.props;
+
     const { __ } = this.context;
 
     const addTrigger = (
@@ -218,6 +219,7 @@ class CustomersList extends React.Component {
     );
 
     let actionBarLeft = null;
+
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="shuffle">
         Merge
