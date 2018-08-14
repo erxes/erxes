@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
 import { InfoTitle, InfoDetail, Info } from 'modules/customers/styles';
-import CocMerge from 'modules/customers/components/common/CocMerge';
+import MergeForm from 'modules/customers/components/common/MergeForm';
 import { COMPANY_INFO, COMPANY_DATAS } from '../../constants';
 
-class CompaniesMerge extends CocMerge {
+class CompaniesMerge extends MergeForm {
   renderDatas(company) {
     return (
       <Fragment>

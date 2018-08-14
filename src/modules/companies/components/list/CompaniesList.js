@@ -17,8 +17,8 @@ import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import { CompanyForm } from '../../containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
-import CompaniesMerge from '../detail/CompaniesMerge';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
+import { CompaniesMerge } from '../';
 
 const propTypes = {
   companies: PropTypes.array.isRequired,

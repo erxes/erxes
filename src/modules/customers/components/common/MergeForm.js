@@ -29,9 +29,11 @@ class CocMerge extends Component {
     e.preventDefault();
     const { cocs } = this.props;
 
+    const data = this.generateData();
+
     this.props.save({
       ids: cocs.map(coc => coc._id),
-      data: { ...this.state.coc },
+      data,
       callback: () => {
         this.context.closeModal();
       }

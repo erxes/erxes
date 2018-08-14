@@ -11,10 +11,11 @@ import {
 } from 'modules/common/components';
 import { Links, InfoWrapper } from 'modules/common/styles/main';
 import { confirm, searchCompany } from 'modules/common/utils';
-import { TargetMergeModal } from 'modules/customers/components';
+import { TargetMerge } from 'modules/customers/components';
 import { Action } from 'modules/customers/styles';
 import { CompanyForm } from '../../containers';
 import { CompanyLogo } from '../../styles';
+import { CompaniesMerge } from '../';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -82,11 +83,11 @@ class BasicInfo extends React.Component {
           </DropdownToggle>
           <Dropdown.Menu>
             <li>
-              <TargetMergeModal
+              <TargetMerge
                 onSave={merge}
                 object={company}
                 searchObject={searchCompany}
-                contentType="company"
+                mergeForm={CompaniesMerge}
               />
             </li>
             <li>

@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import moment from 'moment';
 import { InfoTitle, InfoDetail, Info } from '../../styles';
 import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../../constants';
-import CocMerge from '../common/CocMerge';
+import CocMerge from '../common/MergeForm';
 
 class CustomersMerge extends CocMerge {
   renderDatas(customer) {
