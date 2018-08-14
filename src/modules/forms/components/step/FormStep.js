@@ -230,12 +230,13 @@ class FormStep extends Component {
             onChange={this.onChangeType}
           >
             <option />
-            <option value="input">Input</option>
-            <option value="textarea">Text area</option>
-            <option value="select">Select</option>
-            <option value="check">Checkbox</option>
-            <option value="radio">Radio button</option>
-            <option value="email">Email</option>
+            <option value="input">{__('Input')}</option>
+            <option value="textarea">{__('Text area')}</option>
+            <option value="select">{__('Select')}</option>
+            <option value="check">{__('Checkbox')}</option>
+            <option value="radio">{__('Radio button')}</option>
+            <option value="phone">{__('Phone')}</option>
+            <option value="email">{__('Email')}</option>
             <option value="firstName">{__('First name')}</option>
             <option value="lastName">{__('Last name')}</option>
           </FormControl>
@@ -254,6 +255,7 @@ class FormStep extends Component {
             <option value="email">{__('Email')}</option>
             <option value="number">{__('Number')}</option>
             <option value="date">{__('Date')}</option>
+            <option value="phone">{__('Phone')}</option>
           </FormControl>
         </FormGroup>
 
