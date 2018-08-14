@@ -68,7 +68,9 @@ class CocMerge extends Component {
   }
 
   renderListElement(coc, key, icon) {
-    if (coc[key]) {
+    const value = coc[key];
+
+    if (value) {
       return (
         <li
           key={key}
@@ -77,7 +79,7 @@ class CocMerge extends Component {
           }}
         >
           {this.renderTitle(key)}
-          {this.renderValue(key, coc[key])}
+          {this.renderValue(key, value)}
 
           <Icon icon={icon} />
         </li>
