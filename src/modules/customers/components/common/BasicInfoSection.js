@@ -24,6 +24,19 @@ const propTypes = {
 };
 
 class BasicInfo extends Component {
+  generateOptions(customers) {
+    return customers.map((customer, key) => ({
+      key,
+      value: JSON.stringify(customer),
+      label:
+        customer.firstName ||
+        customer.lastName ||
+        customer.primaryEmail ||
+        customer.primaryPhone ||
+        'N/A'
+    }));
+  }
+
   renderLink(link, icon) {
     if (link) {
       return (
@@ -78,6 +91,7 @@ class BasicInfo extends Component {
                 object={customer}
                 searchObject={searchCustomer}
                 mergeForm={CustomersMerge}
+                generateOptions={this.generateOptions}
               />
             </li>
             <li>

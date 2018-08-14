@@ -177,7 +177,7 @@ class CompaniesList extends React.Component {
               size="lg"
               trigger={mergeButton}
             >
-              <CompaniesMerge cocs={bulk} save={mergeCompanies} />
+              <CompaniesMerge companies={bulk} save={mergeCompanies} />
             </ModalTrigger>
           )}
 

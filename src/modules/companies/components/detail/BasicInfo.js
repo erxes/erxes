@@ -34,6 +34,14 @@ class BasicInfo extends React.Component {
     this.renderRow = this.renderRow.bind(this);
   }
 
+  generateOptions(companies) {
+    return companies.map((company, key) => ({
+      key,
+      value: JSON.stringify(company),
+      label: company.primaryName || company.website || 'N/A'
+    }));
+  }
+
   renderLink(link, icon) {
     if (link) {
       return (
@@ -88,6 +96,7 @@ class BasicInfo extends React.Component {
                 object={company}
                 searchObject={searchCompany}
                 mergeForm={CompaniesMerge}
+                generateOptions={this.generateOptions}
               />
             </li>
             <li>

@@ -247,7 +247,7 @@ class CustomersList extends React.Component {
               size="lg"
               trigger={mergeButton}
             >
-              <CustomersMerge cocs={bulk} save={mergeCustomers} />
+              <CustomersMerge customers={bulk} save={mergeCustomers} />
             </ModalTrigger>
           )}
           <Button

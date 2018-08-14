@@ -8,7 +8,7 @@ import LeadStatusFilter from './list/LeadStatusFilter';
 import LifecycleStateFilter from './list/LifecycleStateFilter';
 import CustomerDetails from './detail/CustomerDetails';
 import TargetMerge from './common/TargetMerge';
-import CustomersMerge from './list/CustomersMerge';
+import CustomersMerge from './detail/CustomersMerge';
 
 export {
   CustomerRow,
