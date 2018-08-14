@@ -19,7 +19,7 @@ const RowArticle = styled.div`
 
   &:hover {
     ${ActionButtons} {
-      transform: translate(0px);
+      width: 35px;
     }
   }
 `;
