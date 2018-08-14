@@ -74,7 +74,7 @@ class CompaniesMerge extends React.Component {
 
     return (
       <React.Fragment>
-        <Title>{company.name || company.website}</Title>
+        <Title>{company.primaryName || company.website}</Title>
         <ul>
           {properties.map(info => {
             const key = info.field;
@@ -135,7 +135,7 @@ class CompaniesMerge extends React.Component {
     return (
       <Info>
         <InfoTitle>Name: </InfoTitle>
-        <InfoDetail>{data.name}</InfoDetail>
+        <InfoDetail>{data.primaryName}</InfoDetail>
       </Info>
     );
   }
