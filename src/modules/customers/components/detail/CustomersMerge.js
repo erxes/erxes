@@ -14,6 +14,12 @@ class CustomersMerge extends CocMerge {
     );
   }
 
+  renderTitle(key) {
+    const title = CUSTOMER_BASIC_INFO[key] || CUSTOMER_DATAS[key];
+
+    return <InfoTitle>{title}:</InfoTitle>;
+  }
+
   renderValue(field, value) {
     switch (field) {
       case 'facebookData':

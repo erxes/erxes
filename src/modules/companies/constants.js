@@ -10,6 +10,7 @@ export const COMPANY_INFO = {
   businessType: 'Business Type',
   description: 'Description',
   doNotDisturb: 'Do not disturb',
+
   ALL: [
     { field: 'primaryName', label: 'Primary Name' },
     { field: 'size', label: 'Size' },
@@ -26,6 +27,9 @@ export const COMPANY_INFO = {
 };
 
 export const COMPANY_DATAS = {
+  owner: 'Owner',
+  parentCompany: 'Parent Company',
+
   ALL: [
     { field: 'owner', label: 'Owner' },
     { field: 'parentCompany', label: 'Parent Company' }

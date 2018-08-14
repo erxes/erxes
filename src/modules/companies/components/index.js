@@ -4,6 +4,7 @@ import CompaniesList from './list/CompaniesList';
 import CompanyDetails from './detail/CompanyDetails';
 import BasicInfo from './detail/BasicInfo';
 import CompanySection from './common/CompanySection';
+import { CompaniesMerge } from './detail/CompaniesMerge';
 
 export {
   CompanyRow,
@@ -11,5 +12,6 @@ export {
   CompanyDetails,
   CompanyForm,
   BasicInfo,
-  CompanySection
+  CompanySection,
+  CompaniesMerge
 };

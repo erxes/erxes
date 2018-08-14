@@ -13,6 +13,12 @@ class CompaniesMerge extends CocMerge {
     );
   }
 
+  renderTitle(key) {
+    const title = COMPANY_INFO[key] || COMPANY_DATAS[key];
+
+    return <InfoTitle>{title}:</InfoTitle>;
+  }
+
   renderValue(field, value) {
     switch (field) {
       case 'owner':

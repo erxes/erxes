@@ -60,6 +60,7 @@ export const CUSTOMER_BASIC_INFO = {
   hasAuthority: 'Has Authority',
   description: 'Description',
   doNotDisturb: 'Do not disturb',
+
   ALL: [
     { field: 'firstName', label: 'First Name' },
     { field: 'lastName', label: 'Last Name' },

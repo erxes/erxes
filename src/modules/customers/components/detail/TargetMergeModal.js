@@ -2,13 +2,14 @@ import React from 'react';
 import Select from 'react-select-plus';
 import PropTypes from 'prop-types';
 import { ModalTrigger, EmptyState } from 'modules/common/components';
-import { CommonMerge } from '../';
+import { CompaniesMerge } from 'modules/companies/components';
+import { CustomersMerge } from '../';
 
 const propTypes = {
   onSave: PropTypes.func.isRequired,
   object: PropTypes.object.isRequired,
   searchObject: PropTypes.func,
-  basicInfos: PropTypes.object
+  contentType: PropTypes.string
 };
 
 class TargetMergeModal extends React.Component {
@@ -46,19 +47,17 @@ class TargetMergeModal extends React.Component {
   }
 
   renderMerger() {
-    const { object, onSave, basicInfos } = this.props;
+    const { object, onSave, contentType } = this.props;
     const { selectedObject } = this.state;
 
     if (!selectedObject._id)
       return <EmptyState icon="search" text="Please select one to merge" />;
 
-    return (
-      <CommonMerge
-        datas={[object, selectedObject]}
-        save={onSave}
-        basicInfos={basicInfos}
-      />
-    );
+    let MergeComponent = CustomersMerge;
+
+    if (contentType === 'company') MergeComponent = CompaniesMerge;
+
+    return <MergeComponent datas={[object, selectedObject]} save={onSave} />;
   }
 
   renderSelect() {

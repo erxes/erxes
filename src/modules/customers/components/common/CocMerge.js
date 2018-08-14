@@ -4,10 +4,10 @@ import { Button, Icon } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
 import { ModalFooter } from 'modules/common/styles/main';
 import { Title, Columns, Column } from 'modules/common/styles/chooser';
-import { InfoTitle } from '../../styles';
 
 const propTypes = {
-  cocs: PropTypes.array.isRequired
+  cocs: PropTypes.array.isRequired,
+  save: PropTypes.func
 };
 
 const contextTypes = {
@@ -20,6 +20,19 @@ class CocMerge extends Component {
     super(props);
 
     this.state = { coc: {} };
+  }
+
+  save(e) {
+    e.preventDefault();
+    const { cocs } = this.props;
+
+    this.props.save({
+      ids: cocs.map(coc => coc._id),
+      data: { ...this.state.coc },
+      callback: () => {
+        this.context.closeModal();
+      }
+    });
   }
 
   handleChange(property) {
@@ -37,23 +50,27 @@ class CocMerge extends Component {
     const { coc } = this.state;
 
     return Object.keys(coc).map(property => {
-      return this.renderListElement(coc, { field: property, label: 'asd' });
+      return this.renderListElement(coc, property);
     });
   }
 
-  renderListElement(coc, info) {
-    const field = info.field;
+  renderFields(constant, customer) {
+    return constant.map(info => {
+      return this.renderListElement(customer, info.field);
+    });
+  }
 
-    if (coc[field]) {
+  renderListElement(coc, key) {
+    if (coc[key]) {
       return (
         <li
-          key={info.field}
+          key={key}
           onClick={() => {
-            this.handleChange({ [field]: coc[field] });
+            this.handleChange({ [key]: coc[key] });
           }}
         >
-          <InfoTitle>{info.label}:</InfoTitle>
-          {this.renderValue(field, coc[field])}
+          {this.renderTitle(key)}
+          {this.renderValue(key, coc[key])}
 
           <Icon icon="plus" />
         </li>
@@ -61,12 +78,6 @@ class CocMerge extends Component {
     }
 
     return null;
-  }
-
-  renderFields(constant, customer) {
-    return constant.map(info => {
-      return this.renderListElement(customer, info);
-    });
   }
 
   render() {

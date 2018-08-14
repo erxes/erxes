@@ -16,10 +16,6 @@ import { AvatarWrapper } from 'modules/activityLogs/styles';
 import { CustomerForm } from 'modules/customers/containers';
 import { Action } from 'modules/customers/styles';
 import { TargetMergeModal } from 'modules/customers/components';
-import {
-  CUSTOMER_BASIC_INFO,
-  CUSTOMER_DATAS
-} from 'modules/customers/constants';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -81,11 +77,7 @@ class BasicInfo extends Component {
                 onSave={merge}
                 object={customer}
                 searchObject={searchCustomer}
-                basicInfos={Object.assign(
-                  {},
-                  CUSTOMER_BASIC_INFO,
-                  CUSTOMER_DATAS
-                )}
+                contentTyp="customer"
               />
             </li>
             <li>
