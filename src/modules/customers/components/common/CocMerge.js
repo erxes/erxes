@@ -48,9 +48,7 @@ class CocMerge extends Component {
       delete coc[propertyName];
     }
 
-    this.setState({
-      coc
-    });
+    this.setState({ coc });
   }
 
   renderMergedData() {
@@ -61,9 +59,9 @@ class CocMerge extends Component {
     });
   }
 
-  renderFields(constant, customer) {
+  renderFields(constant, coc) {
     return constant.map(info => {
-      return this.renderListElement(customer, info.field, 'add');
+      return this.renderListElement(coc, info.field, 'add');
     });
   }
 
