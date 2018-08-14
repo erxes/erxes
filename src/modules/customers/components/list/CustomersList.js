@@ -22,9 +22,9 @@ import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
-import { CommonMerge } from '../';
 import { CustomerForm } from '../../containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
+import { CustomersMerge } from '../';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
@@ -44,7 +44,6 @@ const propTypes = {
   loadingTags: PropTypes.bool.isRequired,
   removeCustomers: PropTypes.func.isRequired,
   mergeCustomers: PropTypes.func.isRequired,
-  basicInfos: PropTypes.object.isRequired,
   queryParams: PropTypes.object,
   exportCustomers: PropTypes.func,
   handleXlsUpload: PropTypes.func
@@ -136,7 +135,6 @@ class CustomersList extends React.Component {
       customers,
       loadingTags,
       mergeCustomers,
-      basicInfos,
       location,
       history,
       queryParams,
@@ -249,11 +247,7 @@ class CustomersList extends React.Component {
               size="lg"
               trigger={mergeButton}
             >
-              <CommonMerge
-                datas={bulk}
-                save={mergeCustomers}
-                basicInfos={basicInfos}
-              />
+              <CustomersMerge objects={bulk} save={mergeCustomers} />
             </ModalTrigger>
           )}
           <Button

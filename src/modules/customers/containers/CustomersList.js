@@ -10,7 +10,6 @@ import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { queries as tagQueries } from 'modules/tags/graphql';
-import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../constants';
 import { mutations, queries } from '../graphql';
 import { CustomersList } from '../components';
 import { router } from 'modules/common/utils';
@@ -169,8 +168,7 @@ class CustomerListContainer extends Bulk {
       loading: customersMainQuery.loading || this.state.loading,
       loadingTags: tagsQuery.loading,
       mergeCustomers,
-      removeCustomers,
-      basicInfos: Object.assign({}, CUSTOMER_BASIC_INFO, CUSTOMER_DATAS)
+      removeCustomers
     };
 
     return <CustomersList {...updatedProps} />;

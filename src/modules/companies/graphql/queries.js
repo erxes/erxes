@@ -27,6 +27,7 @@ const companyFields = `
     website
   }
   owner {
+    _id
     details {
       fullName
     }

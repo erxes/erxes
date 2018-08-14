@@ -8,7 +8,6 @@ import { Bulk } from 'modules/common/components';
 import { mutations, queries } from '../graphql';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { CompaniesList } from '../components';
-import { COMPANY_INFO } from '../constants';
 import { router } from 'modules/common/utils';
 
 class CompanyListContainer extends Bulk {
@@ -97,8 +96,7 @@ class CompanyListContainer extends Bulk {
       toggleAll: this.toggleAll,
       removeCompanies,
       mergeCompanies,
-      loadingTags: tagsQuery.loading,
-      basicInfos: COMPANY_INFO
+      loadingTags: tagsQuery.loading
     };
 
     return <CompaniesList {...updatedProps} />;

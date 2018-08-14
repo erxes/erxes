@@ -15,11 +15,7 @@ import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
 import { CustomerForm } from 'modules/customers/containers';
 import { Action } from 'modules/customers/styles';
-import { TargetMergeModal } from 'modules/customers/components';
-import {
-  CUSTOMER_BASIC_INFO,
-  CUSTOMER_DATAS
-} from 'modules/customers/constants';
+import { TargetMerge, CustomersMerge } from 'modules/customers/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -77,15 +73,23 @@ class BasicInfo extends Component {
           </DropdownToggle>
           <Dropdown.Menu>
             <li>
-              <TargetMergeModal
+              <TargetMerge
                 onSave={merge}
                 object={customer}
                 searchObject={searchCustomer}
-                basicInfos={Object.assign(
-                  {},
-                  CUSTOMER_BASIC_INFO,
-                  CUSTOMER_DATAS
-                )}
+                mergeForm={CustomersMerge}
+                generateOptions={customers => {
+                  return customers.map((customer, key) => ({
+                    key,
+                    value: JSON.stringify(customer),
+                    label:
+                      customer.firstName ||
+                      customer.lastName ||
+                      customer.primaryEmail ||
+                      customer.primaryPhone ||
+                      'N/A'
+                  }));
+                }}
               />
             </li>
             <li>
