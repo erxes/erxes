@@ -246,7 +246,7 @@ describe('Customers model tests', () => {
   });
 
   test('Merge customers', async () => {
-    expect.assertions(22);
+    expect.assertions(23);
 
     const integration = await integrationFactory({});
 
@@ -303,6 +303,8 @@ describe('Customers model tests', () => {
       },
     });
 
+    const user = await userFactory({});
+
     const doc = {
       firstName: 'Test first name',
       lastName: 'Test last name',
@@ -321,6 +323,10 @@ describe('Customers model tests', () => {
         email: 'test123@gmail.com',
         phone: '1213312132',
       },
+      owner: {
+        _id: user._id,
+        name: 'qwerty',
+      },
     };
 
     const mergedCustomer = await Customers.mergeCustomers(customerIds, doc);
@@ -336,6 +342,7 @@ describe('Customers model tests', () => {
     expect(mergedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
     expect(mergedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
     expect(mergedCustomer.visitorContactInfo.toJSON()).toEqual(doc.visitorContactInfo);
+    expect(mergedCustomer.ownerId).toBe(user._id);
 
     // Checking old customers datas to be deleted
     expect(await Customers.find({ _id: customerIds[0] })).toHaveLength(0);

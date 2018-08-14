@@ -9,6 +9,7 @@ import {
   internalNoteFactory,
   activityLogFactory,
   customerFactory,
+  userFactory,
 } from '../db/factories';
 import { COC_CONTENT_TYPES } from '../data/constants';
 
@@ -170,7 +171,7 @@ describe('Companies model tests', () => {
   });
 
   test('mergeCompanies', async () => {
-    expect.assertions(18);
+    expect.assertions(20);
 
     const company1 = await companyFactory({
       tagIds: ['123', '456', '1234'],
@@ -189,6 +190,9 @@ describe('Companies model tests', () => {
     let customer2 = await customerFactory({
       companyIds: [company2._id],
     });
+
+    const user = await userFactory({});
+    const parentCompany = await companyFactory({});
 
     const companyIds = [company1._id, company2._id];
     const mergedTagIds = ['123', '456', '1234', '1231', 'asd12'];
@@ -219,6 +223,12 @@ describe('Companies model tests', () => {
       size: 230,
       industry: 'Airlines',
       plan: 'Test plan',
+      owner: {
+        _id: user._id,
+      },
+      parentCompany: {
+        _id: parentCompany._id,
+      },
     };
 
     const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
@@ -229,6 +239,8 @@ describe('Companies model tests', () => {
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);
     expect(updatedCompany.names).toEqual(expect.arrayContaining(['company1', 'company2']));
+    expect(updatedCompany.ownerId).toBe(user._id);
+    expect(updatedCompany.parentCompanyId).toBe(parentCompany._id);
 
     // Checking old company datas deleted
     expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);

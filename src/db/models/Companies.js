@@ -299,7 +299,7 @@ class Company {
       const company = await this.findOne({ _id: companyId });
 
       if (company) {
-        companyFields.ownerId = company._id;
+        companyFields.parentCompanyId = company._id;
       }
 
       delete companyFields.parentCompany;
