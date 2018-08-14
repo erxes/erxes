@@ -26,6 +26,7 @@ const CompanySchema = mongoose.Schema({
 
   createdAt: field({ type: Date, label: 'Created at' }),
   modifiedAt: field({ type: Date, label: 'Modified at' }),
+  avatar: field({ type: String, optional: true }),
 
   // TODO: remove name field after custom command
   name: field({

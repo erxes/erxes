@@ -145,10 +145,10 @@ describe('receive direct message response', () => {
     // check customer field values
     expect(customer.createdAt).toBeDefined();
     expect(customer.integrationId).toBe(_integration._id);
+    expect(customer.avatar).toBe(data.sender.profile_image_url);
     expect(customer.links.twitter).toBe(`https://twitter.com/${data.sender.screen_name}`);
     expect(customer.twitterData.id).toBe(data.sender_id);
     expect(customer.twitterData.id_str).toBe(data.sender_id_str);
-    expect(customer.twitterData.profile_image_url).toBe(data.sender.profile_image_url);
 
     // 1 log
     expect(await ActivityLogs.find().count()).toBe(1);
