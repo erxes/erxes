@@ -44,7 +44,6 @@ const propTypes = {
   loadingTags: PropTypes.bool.isRequired,
   removeCustomers: PropTypes.func.isRequired,
   mergeCustomers: PropTypes.func.isRequired,
-  basicInfos: PropTypes.object.isRequired,
   queryParams: PropTypes.object,
   exportCustomers: PropTypes.func,
   handleXlsUpload: PropTypes.func

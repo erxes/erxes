@@ -5,18 +5,18 @@ import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
 const generateFields = (infos, type) => {
   const fields = [];
 
-  Object.keys(infos).forEach((info, index) => {
+  infos.forEach((info, index) => {
     fields.push({
       _id: `customerBasicInfos${index}`,
       contentType: type,
       type: 'input',
-      text: infos[info],
+      text: info.label,
       isVisible: true,
       validation: '',
       order: `${index - 1}`,
       options: [],
       groupId: `basicInfosGroup${type}`,
-      description: infos[info],
+      description: info.label,
       isDefinedByErxes: true,
       lastUpdatedUser: {
         details: {
@@ -48,11 +48,11 @@ const generateGroup = (infos, type) => {
 };
 
 const customerBasicInfos = generateGroup(
-  CUSTOMER_BASIC_INFO,
+  CUSTOMER_BASIC_INFO.ALL,
   FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER
 );
 const companyBasicInfos = generateGroup(
-  COMPANY_INFO,
+  COMPANY_INFO.ALL,
   FIELDS_GROUPS_CONTENT_TYPES.COMPANY
 );
 
