@@ -22,6 +22,7 @@ class CocMerge extends Component {
     this.state = { coc: {} };
 
     this.save = this.save.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   save(e) {
@@ -37,11 +38,15 @@ class CocMerge extends Component {
     });
   }
 
-  handleChange(property) {
+  handleChange(type, property) {
     const coc = { ...this.state.coc };
     const propertyName = Object.keys(property);
 
-    coc[propertyName] = property[propertyName];
+    if (type === 'add') {
+      coc[propertyName] = property[propertyName];
+    } else {
+      delete coc[propertyName];
+    }
 
     this.setState({
       coc
@@ -52,29 +57,29 @@ class CocMerge extends Component {
     const { coc } = this.state;
 
     return Object.keys(coc).map(property => {
-      return this.renderListElement(coc, property);
+      return this.renderListElement(coc, property, 'minus-circle');
     });
   }
 
   renderFields(constant, customer) {
     return constant.map(info => {
-      return this.renderListElement(customer, info.field);
+      return this.renderListElement(customer, info.field, 'add');
     });
   }
 
-  renderListElement(coc, key) {
+  renderListElement(coc, key, icon) {
     if (coc[key]) {
       return (
         <li
           key={key}
           onClick={() => {
-            this.handleChange({ [key]: coc[key] });
+            this.handleChange(icon, { [key]: coc[key] });
           }}
         >
           {this.renderTitle(key)}
           {this.renderValue(key, coc[key])}
 
-          <Icon icon="plus" />
+          <Icon icon={icon} />
         </li>
       );
     }
