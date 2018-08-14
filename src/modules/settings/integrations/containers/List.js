@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
+import { Alert, confirm } from 'modules/common/utils';
 import { List } from '../components';
+import { queries, mutations } from '../graphql';
+import { integrationsListParams } from './utils';
 
 const ListContainer = props => {
   const { totalCountQuery, removeMutation, queryParams } = props;
@@ -19,14 +22,16 @@ const ListContainer = props => {
       totalCountQuery.integrationsTotalCount.byKind[queryParams.kind];
   }
 
-  const removeIntegration = (_id, callback) => {
-    removeMutation({
-      variables: { _id }
-    }).then(() => {
-      // refresh queries
-      totalCountQuery.refetch();
+  const removeIntegration = (integration, callback) => {
+    confirm().then(() => {
+      removeMutation({ variables: { _id: integration._id } })
+        .then(() => {
+          Alert.success('Congrats');
+        })
 
-      callback();
+        .catch(error => {
+          Alert.error(error.reason);
+        });
     });
   };
 
@@ -48,27 +53,21 @@ ListContainer.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql`
-      query totalIntegrationsCount {
-        integrationsTotalCount {
-          total
-          byKind
-        }
-      }
-    `,
-    {
-      name: 'totalCountQuery'
+  graphql(gql(queries.integrationTotalCount), { name: 'totalCountQuery' }),
+  graphql(gql(mutations.integrationsRemove), {
+    name: 'removeMutation',
+    options: ({ queryParams }) => {
+      return {
+        refetchQueries: [
+          {
+            query: gql(queries.integrations),
+            variables: integrationsListParams(queryParams)
+          },
+          {
+            query: gql(queries.integrationTotalCount)
+          }
+        ]
+      };
     }
-  ),
-  graphql(
-    gql`
-      mutation integrationsRemove($_id: String!) {
-        integrationsRemove(_id: $_id)
-      }
-    `,
-    {
-      name: 'removeMutation'
-    }
-  )
+  })
 )(ListContainer);

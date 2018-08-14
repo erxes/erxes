@@ -84,8 +84,6 @@ class Sidebar extends Component {
         showDeals: false,
         showDeviceProperties: false,
         showMessengerData: false,
-        showFacebookData: false,
-        showTwitterData: false,
         showTags: false
       });
     }

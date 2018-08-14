@@ -4,6 +4,7 @@ import { ChannelForm } from '../components';
 
 const ChannelFormContainer = props => {
   const { channel, save, members } = props;
+
   let selectedMembers = [];
 
   if (channel) {

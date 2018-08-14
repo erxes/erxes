@@ -54,7 +54,7 @@ class BrandRow extends Component {
 
     return (
       <SidebarListItem key={brand._id} isActive={isActive}>
-        <Link to={`?id=${brand._id}`}>{brand.name}</Link>
+        <Link to={`?_id=${brand._id}`}>{brand.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}
           <Tip text="Delete">

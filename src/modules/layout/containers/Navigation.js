@@ -13,6 +13,10 @@ class NavigationContainer extends React.Component {
 
       updateQuery: () => {
         this.props.unreadConversationsCountQuery.refetch();
+
+        // notify by sound
+        const audio = new Audio('/sound/notify.mp3');
+        audio.play();
       }
     });
   }

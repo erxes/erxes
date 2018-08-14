@@ -7,8 +7,8 @@ import {
   Button,
   ModalTrigger
 } from 'modules/common/components';
-import { Sidebar } from '../containers';
-import { IntegrationList, ManageIntegration } from '../../common/containers';
+import { IntegrationList } from 'modules/settings/integrations/containers/common';
+import { Sidebar, ManageIntegrations } from '../containers';
 
 const propTypes = {
   integrationsCount: PropTypes.number.isRequired,
@@ -25,6 +25,7 @@ class Brands extends Component {
       queryParams,
       loading
     } = this.props;
+
     const { __ } = this.context;
 
     const breadcrumb = [
@@ -41,7 +42,10 @@ class Brands extends Component {
 
     const rightActionBar = currentBrand._id && (
       <ModalTrigger title="Manage Integration" trigger={trigger} size="lg">
-        <ManageIntegration current={currentBrand} type="brand" />
+        <ManageIntegrations
+          queryParams={queryParams}
+          currentBrand={currentBrand}
+        />
       </ModalTrigger>
     );
 
@@ -60,8 +64,8 @@ class Brands extends Component {
           <DataWithLoader
             data={
               <IntegrationList
-                currentBrand={currentBrand}
                 queryParams={queryParams}
+                variables={{ brandId: currentBrand._id }}
               />
             }
             loading={loading}

@@ -48,4 +48,13 @@ const MessengerPreview = styled.div`
   width: 40%;
 `;
 
-export { FlexRow, Row, MessengerPreview };
+const IntegrationName = styled.span`
+  margin-right: ${dimensions.unitSpacing}px;
+`;
+
+const BrandName = styled.div`
+  font-size: 11px;
+  color: ${colors.colorCoreGray};
+`;
+
+export { FlexRow, Row, MessengerPreview, IntegrationName, BrandName };

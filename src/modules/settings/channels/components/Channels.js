@@ -7,13 +7,12 @@ import {
   Button,
   ModalTrigger
 } from 'modules/common/components';
-import { Sidebar } from '../containers';
-import { IntegrationList, ManageIntegration } from '../../common/containers';
+import { IntegrationList } from 'modules/settings/integrations/containers/common';
+import { Sidebar, ManageIntegrations } from '../containers';
 
 const propTypes = {
   integrationsCount: PropTypes.number.isRequired,
   queryParams: PropTypes.object,
-  refetch: PropTypes.func,
   currentChannel: PropTypes.object,
   loading: PropTypes.bool
 };
@@ -24,9 +23,9 @@ class Channels extends Component {
       integrationsCount,
       currentChannel,
       queryParams,
-      loading,
-      refetch
+      loading
     } = this.props;
+
     const { __ } = this.context;
 
     const breadcrumb = [
@@ -43,7 +42,10 @@ class Channels extends Component {
 
     const rightActionBar = currentChannel._id && (
       <ModalTrigger title="Manage Integration" trigger={trigger} size="lg">
-        <ManageIntegration current={currentChannel} type="channel" />
+        <ManageIntegrations
+          queryParams={queryParams}
+          currentChannel={currentChannel}
+        />
       </ModalTrigger>
     );
 
@@ -62,10 +64,8 @@ class Channels extends Component {
           <DataWithLoader
             data={
               <IntegrationList
-                currentChannel={currentChannel}
                 queryParams={queryParams}
-                refetch={refetch}
-                showBrand
+                variables={{ channelId: currentChannel._id }}
               />
             }
             loading={loading}

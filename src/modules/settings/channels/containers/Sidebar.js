@@ -38,6 +38,7 @@ const SidebarContainer = props => {
   // create or update action
   const save = ({ doc }, callback, channel) => {
     let mutation = addMutation;
+
     // if edit mode
     if (channel) {
       mutation = editMutation;
