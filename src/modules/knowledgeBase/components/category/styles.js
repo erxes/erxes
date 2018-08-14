@@ -46,7 +46,7 @@ const CategoryItem = styled.li`
       props.isActive ? colors.bgActive : colors.colorWhite};
 
     ${ActionButtons} {
-      transform: translate(0px);
+      width: 35px;
     }
   }
 `;

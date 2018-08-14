@@ -32,7 +32,7 @@ class FormStep extends Component {
       editingField: {}
     };
 
-    this.onChangeFunction = this.onChangeFunction.bind(this);
+    this.onFieldAttrChange = this.onFieldAttrChange.bind(this);
     this.onChangeState = this.onChangeState.bind(this);
     this.onChangeType = this.onChangeType.bind(this);
 
@@ -47,15 +47,15 @@ class FormStep extends Component {
 
   onChangeType(e) {
     this.setState({ chosenFieldType: e.target.value });
-    this.setChanges('type', e.target.value);
+    this.setFieldAttrChanges('type', e.target.value);
   }
 
   onFieldEdit(field) {
     this.setState({ editingField: field });
   }
 
-  onChangeFunction(name, value) {
-    this.setChanges(name, value);
+  onFieldAttrChange(name, value) {
+    this.setFieldAttrChanges(name, value);
   }
 
   onChangeState(name, value) {
@@ -85,14 +85,18 @@ class FormStep extends Component {
     });
 
     this.setState({ fields: this.state.fields, editingField: {} });
+
+    this.props.onChange('fields', this.state.fields);
   }
 
-  setChanges(attributeName, value) {
-    const { editingField } = this.state;
+  setFieldAttrChanges(attributeName, value) {
+    const { editingField, fields } = this.state;
 
     editingField[attributeName] = value;
 
     this.setState({ editingField });
+
+    this.props.onChange('fields', fields);
   }
 
   renderButtons() {
@@ -157,7 +161,7 @@ class FormStep extends Component {
               id="isRequired"
               componentClass="checkbox"
               onChange={e =>
-                this.onChangeFunction('isRequired', e.target.checked)
+                this.onFieldAttrChange('isRequired', e.target.checked)
               }
             >
               {__('This item is required')}
@@ -189,7 +193,7 @@ class FormStep extends Component {
           componentClass="textarea"
           value={(editingField.options || []).join('\n')}
           onChange={e =>
-            this.onChangeFunction('options', e.target.value.split('\n'))
+            this.onFieldAttrChange('options', e.target.value.split('\n'))
           }
         />
       </FormGroup>
@@ -230,12 +234,13 @@ class FormStep extends Component {
             onChange={this.onChangeType}
           >
             <option />
-            <option value="input">Input</option>
-            <option value="textarea">Text area</option>
-            <option value="select">Select</option>
-            <option value="check">Checkbox</option>
-            <option value="radio">Radio button</option>
-            <option value="email">Email</option>
+            <option value="input">{__('Input')}</option>
+            <option value="textarea">{__('Text area')}</option>
+            <option value="select">{__('Select')}</option>
+            <option value="check">{__('Checkbox')}</option>
+            <option value="radio">{__('Radio button')}</option>
+            <option value="phone">{__('Phone')}</option>
+            <option value="email">{__('Email')}</option>
             <option value="firstName">{__('First name')}</option>
             <option value="lastName">{__('Last name')}</option>
           </FormControl>
@@ -248,12 +253,13 @@ class FormStep extends Component {
             id="validation"
             componentClass="select"
             value={editingField.validation || ''}
-            onChange={e => this.onChangeFunction('validation', e.target.value)}
+            onChange={e => this.onFieldAttrChange('validation', e.target.value)}
           >
             <option />
             <option value="email">{__('Email')}</option>
             <option value="number">{__('Number')}</option>
             <option value="date">{__('Date')}</option>
+            <option value="phone">{__('Phone')}</option>
           </FormControl>
         </FormGroup>
 
@@ -263,7 +269,7 @@ class FormStep extends Component {
             id="text"
             type="text"
             value={editingField.text || ''}
-            onChange={e => this.onChangeFunction('text', e.target.value)}
+            onChange={e => this.onFieldAttrChange('text', e.target.value)}
           />
         </FormGroup>
 
@@ -273,7 +279,9 @@ class FormStep extends Component {
             id="description"
             componentClass="textarea"
             value={editingField.description || ''}
-            onChange={e => this.onChangeFunction('description', e.target.value)}
+            onChange={e =>
+              this.onFieldAttrChange('description', e.target.value)
+            }
           />
         </FormGroup>
 
