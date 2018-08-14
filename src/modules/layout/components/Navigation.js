@@ -117,13 +117,10 @@ const NavIcon = styled.i`
 class Navigation extends Component {
   componentWillReceiveProps(nextProps) {
     const { __ } = this.context;
-    const { unreadConversationsCount } = nextProps;
+    const unreadCount = nextProps.unreadConversationsCount;
 
-    if (unreadConversationsCount !== this.props.unreadConversationsCount) {
-      const audio = new Audio('/sound/notify.mp3');
-      audio.play();
-
-      setBadge(unreadConversationsCount, __('Inbox'));
+    if (unreadCount !== this.props.unreadConversationsCount) {
+      setBadge(unreadCount, __('Inbox'));
     }
   }
 

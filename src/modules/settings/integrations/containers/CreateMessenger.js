@@ -5,6 +5,8 @@ import gql from 'graphql-tag';
 import { withRouter } from 'react-router';
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
+import { queries as integQueries } from 'modules/settings/integrations/graphql';
+import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
 import { queries, mutations } from '../graphql';
 import { CreateMessenger } from '../components';
 
@@ -98,7 +100,16 @@ const CreateMessengerWithData = compose(
   }),
   graphql(gql(mutations.integrationsCreateMessenger), {
     name: 'saveMessengerMutation',
-    options: commonOptions
+    options: ({ queryParams }) => {
+      return {
+        refetchQueries: [
+          {
+            query: gql(integQueries.integrations),
+            variables: integrationsListParams(queryParams)
+          }
+        ]
+      };
+    }
   }),
   graphql(gql(mutations.integrationsSaveMessengerConfigs), {
     name: 'saveConfigsMutation',

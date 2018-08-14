@@ -7,8 +7,6 @@ import { Sidebar } from 'modules/layout/components';
 import { SidebarToggle } from 'modules/layout/styles';
 import { SectionContainer } from './styles';
 import {
-  TwitterSection,
-  FacebookSection,
   MessengerSection,
   DevicePropertiesSection,
   TaggerSection
@@ -119,40 +117,6 @@ class Index extends Component {
     );
   }
 
-  renderTwitterData({ customer, kind, __, config, toggleSection }) {
-    if (kind !== 'twitter') {
-      return null;
-    }
-
-    return (
-      <Box
-        title={__('Twitter data')}
-        name="showTwitterData"
-        isOpen={config.showTwitterData || false}
-        toggle={toggleSection}
-      >
-        <TwitterSection customer={customer} />
-      </Box>
-    );
-  }
-
-  renderFacebookData({ customer, kind, __, config, toggleSection }) {
-    if (kind !== 'facebook') {
-      return null;
-    }
-
-    return (
-      <Box
-        title={__('Facebook data')}
-        name="showFacebookData"
-        isOpen={config.showFacebookData || false}
-        toggle={toggleSection}
-      >
-        <FacebookSection customer={customer} />
-      </Box>
-    );
-  }
-
   render() {
     const { conversation, customer, toggleSection, config } = this.props;
     const { kind } = customer.integration || {};
@@ -201,9 +165,6 @@ class Index extends Component {
         >
           <CustomFieldsSection customer={customer} />
         </Box>
-
-        {this.renderTwitterData({ customer, kind, __, config, toggleSection })}
-        {this.renderFacebookData({ customer, kind, __, config, toggleSection })}
 
         <Box
           title={__('Tags')}

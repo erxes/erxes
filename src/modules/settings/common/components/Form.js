@@ -40,6 +40,7 @@ class Form extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.object || {})}
+
         <ModalFooter>
           <Button
             btnStyle="simple"

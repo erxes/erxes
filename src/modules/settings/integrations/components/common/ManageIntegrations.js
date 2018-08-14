@@ -5,24 +5,21 @@ import {
   Button,
   Icon,
   Tip,
-  Label,
-  ModalTrigger
+  Label
 } from 'modules/common/components';
-import { ChooseBrand } from '../../brands/containers';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { ModalFooter, CenterContent } from 'modules/common/styles/main';
 import { Title, Columns, Column } from 'modules/common/styles/chooser';
-import { BrandName, IntegrationName } from '../styles';
+import { BrandName, IntegrationName } from '../../styles';
 
 const propTypes = {
   current: PropTypes.object,
   save: PropTypes.func,
-  type: PropTypes.string,
   search: PropTypes.func.isRequired,
-  refetch: PropTypes.func.isRequired,
   allIntegrations: PropTypes.array.isRequired,
   perPage: PropTypes.number.isRequired,
-  clearState: PropTypes.func.isRequired
+  clearState: PropTypes.func.isRequired,
+  renderConfirm: PropTypes.func
 };
 
 const contextTypes = {
@@ -30,14 +27,14 @@ const contextTypes = {
   __: PropTypes.func
 };
 
-class ManageIntegration extends Component {
+class ManageIntegrations extends Component {
   constructor(props) {
     super(props);
 
     const current = props.current || {};
 
     this.state = {
-      integrations: current.integrations || [],
+      selectedIntegrations: current.integrations || [],
       hasMore: true,
       searchValue: ''
     };
@@ -49,10 +46,10 @@ class ManageIntegration extends Component {
   }
 
   save() {
-    const { integrations } = this.state;
+    const { selectedIntegrations } = this.state;
     const ids = [];
 
-    integrations.forEach(integration => {
+    selectedIntegrations.forEach(integration => {
       ids.push(integration._id.toString());
     });
 
@@ -72,6 +69,7 @@ class ManageIntegration extends Component {
 
   search(e) {
     if (this.timer) clearTimeout(this.timer);
+
     const { search } = this.props;
     const value = e.target.value;
 
@@ -109,22 +107,24 @@ class ManageIntegration extends Component {
   }
 
   handleChange(type, integration) {
-    const { integrations } = this.state;
+    const { selectedIntegrations } = this.state;
 
     if (type === 'add') {
-      this.setState({
-        integrations: [...integrations, integration]
-      });
-    } else {
-      this.setState({
-        integrations: integrations.filter(item => item !== integration)
+      return this.setState({
+        selectedIntegrations: [...selectedIntegrations, integration]
       });
     }
+
+    return this.setState({
+      selectedIntegrations: selectedIntegrations.filter(
+        item => item !== integration
+      )
+    });
   }
 
   renderRowContent(integration, icon) {
     const brand = integration.brand || {};
-    const { refetch, type } = this.props;
+    const { renderConfirm } = this.props;
 
     const actionTrigger = (
       <li
@@ -145,29 +145,28 @@ class ManageIntegration extends Component {
       </li>
     );
 
-    if (type === 'brand' && icon !== 'add') {
-      return (
-        <ModalTrigger
-          key={integration._id}
-          title="Choose new brand"
-          trigger={actionTrigger}
-        >
-          <ChooseBrand
-            integration={integration}
-            refetch={refetch}
-            onSave={() => this.handleChange(icon, integration)}
-          />
-        </ModalTrigger>
+    if (renderConfirm) {
+      const confirm = renderConfirm(
+        integration,
+        actionTrigger,
+        icon,
+        this.handleChange
       );
+
+      if (confirm) {
+        return confirm;
+      }
     }
 
     return actionTrigger;
   }
 
   renderRow(integration, icon) {
+    const { selectedIntegrations } = this.state;
+
     if (
       icon === 'add' &&
-      this.state.integrations.some(e => e._id === integration._id)
+      selectedIntegrations.some(e => e._id === integration._id)
     ) {
       return null;
     }
@@ -178,7 +177,7 @@ class ManageIntegration extends Component {
   render() {
     const { __ } = this.context;
     const { allIntegrations, current } = this.props;
-    const selectedIntegrations = this.state.integrations;
+    const { selectedIntegrations } = this.state;
 
     return (
       <div>
@@ -218,6 +217,7 @@ class ManageIntegration extends Component {
             </ul>
           </Column>
         </Columns>
+
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -235,7 +235,7 @@ class ManageIntegration extends Component {
   }
 }
 
-ManageIntegration.propTypes = propTypes;
-ManageIntegration.contextTypes = contextTypes;
+ManageIntegrations.propTypes = propTypes;
+ManageIntegrations.contextTypes = contextTypes;
 
-export default ManageIntegration;
+export default ManageIntegrations;
