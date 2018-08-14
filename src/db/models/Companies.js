@@ -6,7 +6,7 @@ import {
   COMPANY_INDUSTRY_TYPES,
   COMPANY_BASIC_INFOS,
 } from '../../data/constants';
-import { Fields, Customers, ActivityLogs, InternalNotes } from './';
+import { Fields, Customers, ActivityLogs, InternalNotes, Users } from './';
 import { field } from './utils';
 
 const LinkSchema = mongoose.Schema(
@@ -276,6 +276,32 @@ class Company {
         // Removing company
         await this.remove({ _id: companyId });
       }
+    }
+
+    // Merging owner
+    if (companyFields.owner) {
+      const ownerId = companyFields.owner._id;
+
+      const owner = await Users.findOne({ _id: ownerId });
+
+      if (owner) {
+        companyFields.ownerId = owner._id;
+      }
+
+      delete companyFields.owner;
+    }
+
+    // Merging parent company
+    if (companyFields.parentCompany) {
+      const companyId = companyFields.parentCompany._id;
+
+      const company = await this.findOne({ _id: companyId });
+
+      if (company) {
+        companyFields.ownerId = company._id;
+      }
+
+      delete companyFields.parentCompany;
     }
 
     // Removing Duplicated Tags from company

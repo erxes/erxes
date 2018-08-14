@@ -4,7 +4,15 @@ import {
   COC_LEAD_STATUS_TYPES,
   COC_LIFECYCLE_STATE_TYPES,
 } from '../../data/constants';
-import { Fields, Companies, ActivityLogs, Conversations, InternalNotes, EngageMessages } from './';
+import {
+  Fields,
+  Companies,
+  ActivityLogs,
+  Conversations,
+  InternalNotes,
+  EngageMessages,
+  Users,
+} from './';
 import { field } from './utils';
 import Coc from './Coc';
 
@@ -424,6 +432,19 @@ class Customer extends Coc {
         // Removing Customers
         await this.remove({ _id: customerId });
       }
+    }
+
+    // Merging owner
+    if (customerFields.owner) {
+      const ownerId = customerFields.owner._id;
+
+      const owner = await Users.findOne({ _id: ownerId });
+
+      if (owner) {
+        customerFields.ownerId = owner._id;
+      }
+
+      delete customerFields.owner;
     }
 
     // Removing Duplicated Tags from customer
