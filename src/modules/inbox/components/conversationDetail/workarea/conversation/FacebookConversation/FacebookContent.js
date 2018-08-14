@@ -12,7 +12,7 @@ const propTypes = {
 };
 
 export default class FacebookContent extends Component {
-  renderAttachment(image) {
+  renderImage(image) {
     if (!image) {
       return null;
     }
@@ -28,7 +28,7 @@ export default class FacebookContent extends Component {
     );
   }
 
-  renderAttachments(images) {
+  renderImages(images) {
     if (!images) {
       return null;
     }
@@ -103,7 +103,7 @@ export default class FacebookContent extends Component {
 
     return (
       <Fragment>
-        {this.renderAttachment(image) || this.renderAttachments(images)}
+        {this.renderImage(image) || this.renderImages(images)}
         {this.renderFiles(link)}
         <p
           dangerouslySetInnerHTML={{
