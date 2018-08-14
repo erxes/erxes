@@ -57,7 +57,7 @@ class TargetMergeModal extends React.Component {
 
     if (contentType === 'company') MergeComponent = CompaniesMerge;
 
-    return <MergeComponent datas={[object, selectedObject]} save={onSave} />;
+    return <MergeComponent cocs={[object, selectedObject]} save={onSave} />;
   }
 
   renderSelect() {
