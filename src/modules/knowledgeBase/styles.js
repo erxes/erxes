@@ -5,8 +5,8 @@ const ActionButtons = styled.div`
   display: flex;
   overflow: hidden;
   align-items: center;
-  transition: transform 0.3s ease;
-  transform: translate(80px);
+  transition: all 0.3s ease;
+  width: 0;
 
   * {
     padding: 0;
