@@ -200,12 +200,12 @@ const ImageContainer = styled.div`
   padding: 10px;
 
   img {
-    width: ${props => !props.full && '70px'};
-    height: ${props => !props.full && '70px'};
+    width: ${props => props.full && '70px'};
+    height: ${props => props.full && '70px'};
     border: 1px solid ${colors.borderPrimary};
     margin-right: 5px;
     padding: 10px;
-    max-width: 60%;
+    max-width: ${props => props.isComment && '400px'};
   }
 
   > div {

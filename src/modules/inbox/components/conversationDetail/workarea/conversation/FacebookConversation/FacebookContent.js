@@ -18,7 +18,7 @@ export default class FacebookContent extends Component {
     }
 
     return (
-      <ImageContainer full>
+      <ImageContainer>
         <ImageWithPreview
           alt={image}
           src={image}
@@ -41,6 +41,7 @@ export default class FacebookContent extends Component {
             alt={image}
             src={image}
             onLoad={this.props.scrollBottom}
+            full
           />
         ))}
       </ImageContainer>
@@ -74,11 +75,13 @@ export default class FacebookContent extends Component {
       link.endsWith('.jpeg')
     ) {
       return (
-        <ImageWithPreview
-          alt={link}
-          src={link}
-          onLoad={this.props.scrollBottom}
-        />
+        <ImageContainer isComment>
+          <ImageWithPreview
+            alt={link}
+            src={link}
+            onLoad={this.props.scrollBottom}
+          />
+        </ImageContainer>
       );
     }
 
