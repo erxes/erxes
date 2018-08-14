@@ -68,7 +68,13 @@ class CustomersMerge extends React.Component {
 
     return (
       <React.Fragment>
-        <Title>{customer.firstName || customer.lastName}</Title>
+        <Title>
+          {customer.firstName ||
+            customer.lastName ||
+            customer.primaryEmail ||
+            customer.primaryPhone ||
+            'N/A'}
+        </Title>
         <ul>
           {properties.map(info => {
             const key = info.field;
