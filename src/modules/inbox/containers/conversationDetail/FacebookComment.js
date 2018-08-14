@@ -7,7 +7,7 @@ import { FacebookComment } from 'modules/inbox/components/conversationDetail';
 import { mutations } from 'modules/inbox/graphql';
 
 const FacebookCommentContainer = props => {
-  const { replyMutation, message } = props;
+  const { replyMutation, message, scrollBottom } = props;
 
   const replyPost = (variables, callback) => {
     replyMutation({ variables })
@@ -22,7 +22,8 @@ const FacebookCommentContainer = props => {
   const updatedProps = {
     ...props,
     replyPost,
-    message
+    message,
+    scrollBottom
   };
 
   return <FacebookComment {...updatedProps} />;
@@ -30,7 +31,8 @@ const FacebookCommentContainer = props => {
 
 FacebookCommentContainer.propTypes = {
   replyMutation: PropTypes.func,
-  message: PropTypes.object.isRequired
+  message: PropTypes.object.isRequired,
+  scrollBottom: PropTypes.func
 };
 
 export default compose(

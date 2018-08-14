@@ -19,7 +19,7 @@ const getAttr = (message, attr) => {
 
 export default class FacebookConversation extends Component {
   renderReplies(comment) {
-    const { conversationMessages = [] } = this.props;
+    const { conversationMessages = [], scrollBottom } = this.props;
 
     const replies = conversationMessages.filter(msg => {
       const parentId = getAttr(msg, 'parentId');
@@ -29,13 +29,13 @@ export default class FacebookConversation extends Component {
 
     return replies.map(reply => (
       <Fragment key={reply._id}>
-        <FacebookComment message={reply} />
+        <FacebookComment message={reply} scrollBottom={scrollBottom} />
       </Fragment>
     ));
   }
 
   renderComments(post) {
-    const { conversationMessages = [] } = this.props;
+    const { conversationMessages = [], scrollBottom } = this.props;
 
     const comments = conversationMessages.filter(
       msg => !getAttr(msg, 'isPost') && !getAttr(msg, 'parentId')
@@ -43,14 +43,18 @@ export default class FacebookConversation extends Component {
 
     return comments.map(comment => (
       <Fragment key={comment._id}>
-        <FacebookComment message={comment} />
+        <FacebookComment message={comment} scrollBottom={scrollBottom} />
         {this.renderReplies(comment)}
       </Fragment>
     ));
   }
 
   render() {
-    const { conversation, conversationMessages = [] } = this.props;
+    const {
+      conversation,
+      conversationMessages = [],
+      scrollBottom
+    } = this.props;
 
     if (!conversation) {
       return null;
@@ -66,7 +70,7 @@ export default class FacebookConversation extends Component {
 
     return (
       <Fragment>
-        <FacebookPost message={post} />
+        <FacebookPost message={post} scrollBottom={scrollBottom} />
         {this.renderComments(post)}
       </Fragment>
     );

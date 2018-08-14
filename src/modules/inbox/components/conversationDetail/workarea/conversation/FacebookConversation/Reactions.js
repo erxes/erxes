@@ -1,19 +1,29 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { Reaction } from './styles';
+import { Reaction, LeftAlign } from './styles';
 
 const propTypes = {
-  reactions: PropTypes.object.isRequired
+  reactions: PropTypes.object.isRequired,
+  comment: PropTypes.bool
 };
 
 class Reactions extends Component {
   renderUsers(users) {
-    return users.map((user, index) => <div key={index}>{user.name}</div>);
+    return users.map((user, index) => (
+      <LeftAlign key={index}>{user.name}</LeftAlign>
+    ));
   }
 
   renderReaction(key, users) {
-    const tooltip = <Tooltip id="tooltip">{this.renderUsers(users)}</Tooltip>;
+    const tooltip = (
+      <Tooltip id="tooltip">
+        <LeftAlign>
+          <b>{key}</b>
+        </LeftAlign>
+        {this.renderUsers(users)}
+      </Tooltip>
+    );
 
     if (!users.length > 0) {
       return null;
@@ -21,7 +31,7 @@ class Reactions extends Component {
 
     return (
       <OverlayTrigger key={key} placement="top" overlay={tooltip}>
-        <Reaction className={key} />
+        <Reaction className={key} comment={this.props.comment} />
       </OverlayTrigger>
     );
   }
