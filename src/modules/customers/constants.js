@@ -80,11 +80,14 @@ export const CUSTOMER_DATAS = {
   twitterData: 'Twitter Data',
   facebookData: 'Facebook Data',
   visitorContactInfo: 'Visitor contact info',
+  owner: 'Owner',
+
   ALL: [
     { field: 'messengerData', label: 'Messenger Data' },
     { field: 'twitterData', label: 'Twitter Data' },
     { field: 'facebookData', label: 'Facebook Data' },
-    { field: 'visitorContactInfo', label: 'Visitor contact info' }
+    { field: 'visitorContactInfo', label: 'Visitor contact info' },
+    { field: 'owner', label: 'Owner' }
   ]
 };
 

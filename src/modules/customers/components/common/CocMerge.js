@@ -19,18 +19,7 @@ class CocMerge extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { coc: { ...this.initState() } };
-  }
-
-  handleInputChange(e, property) {
-    const value = e.target.value;
-
-    this.setState({
-      coc: {
-        ...this.state.coc,
-        [property]: value
-      }
-    });
+    this.state = { coc: {} };
   }
 
   handleChange(property) {
@@ -47,8 +36,8 @@ class CocMerge extends Component {
   renderMergedData() {
     const { coc } = this.state;
 
-    return Object.keys(coc).map((property, index) => {
-      return this.renderMergedDataFields(property, index);
+    return Object.keys(coc).map(property => {
+      return this.renderListElement(coc, { field: property, label: 'asd' });
     });
   }
 
@@ -75,7 +64,7 @@ class CocMerge extends Component {
   }
 
   renderFields(constant, customer) {
-    return constant.map((info, index) => {
+    return constant.map(info => {
       return this.renderListElement(customer, info);
     });
   }

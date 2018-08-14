@@ -17,7 +17,7 @@ import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import { CompanyForm } from '../../containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
-import { CommonMerge } from 'modules/customers/components';
+import CompaniesMerge from '../detail/CompaniesMerge';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
 
 const propTypes = {
@@ -36,7 +36,6 @@ const propTypes = {
   removeCompanies: PropTypes.func.isRequired,
   loadingTags: PropTypes.bool.isRequired,
   mergeCompanies: PropTypes.func.isRequired,
-  basicInfos: PropTypes.object.isRequired,
   queryParams: PropTypes.object
 };
 
@@ -100,7 +99,6 @@ class CompaniesList extends React.Component {
       tags,
       loadingTags,
       mergeCompanies,
-      basicInfos,
       queryParams
     } = this.props;
     const { __ } = this.context;
@@ -179,11 +177,7 @@ class CompaniesList extends React.Component {
               size="lg"
               trigger={mergeButton}
             >
-              <CommonMerge
-                datas={bulk}
-                save={mergeCompanies}
-                basicInfos={basicInfos}
-              />
+              <CompaniesMerge cocs={bulk} save={mergeCompanies} />
             </ModalTrigger>
           )}
 

@@ -1,42 +1,10 @@
 import React, { Fragment } from 'react';
 import moment from 'moment';
-import { FormControl, FormGroup } from 'modules/common/components';
 import { InfoTitle, InfoDetail, Info } from '../../styles';
 import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../../constants';
 import CocMerge from '../common/CocMerge';
 
 class CustomersMerge extends CocMerge {
-  initState() {
-    const customerFields = {};
-
-    CUSTOMER_BASIC_INFO.ALL.forEach(info => {
-      customerFields[info.field] = '';
-    });
-
-    return customerFields;
-  }
-
-  renderMergedDataFields(property, index) {
-    const { coc } = this.state;
-
-    return (
-      <FormGroup key={index}>
-        {CUSTOMER_BASIC_INFO[property]}
-
-        <FormControl
-          value={coc[property]}
-          onChange={e => this.handleInputChange(e, property)}
-          required={[
-            'firstName',
-            'primaryEmail',
-            'primaryName',
-            'website'
-          ].includes(property)} //required fields
-        />
-      </FormGroup>
-    );
-  }
-
   renderDatas(customer) {
     return (
       <Fragment>
@@ -56,6 +24,8 @@ class CustomersMerge extends CocMerge {
         return this.renderMessengerData(value);
       case 'visitorContactInfo':
         return this.renderVisitorContactInfo(value);
+      case 'owner':
+        return this.renderOwner(value);
 
       default:
         return <InfoDetail>{value}</InfoDetail>;
@@ -111,6 +81,15 @@ class CustomersMerge extends CocMerge {
         <InfoDetail>{data.email}</InfoDetail>
         <InfoTitle>{__('Phone')}: </InfoTitle>
         <InfoDetail>{data.phone}</InfoDetail>
+      </Info>
+    );
+  }
+
+  renderOwner(data) {
+    return (
+      <Info>
+        <InfoTitle>Name: </InfoTitle>
+        <InfoDetail>{data.details.fullName}</InfoDetail>
       </Info>
     );
   }
