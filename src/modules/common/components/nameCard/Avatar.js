@@ -99,11 +99,13 @@ class Avatar extends Component {
     if (customer.firstName && customer.lastName) {
       return `${customer.firstName} ${customer.lastName}`;
     }
+
     return customer.firstName || customer.lastName || customer.name || null;
   }
 
   render() {
     const { user, customer, icon } = this.props;
+
     let avatar;
     let fullName;
 
@@ -112,10 +114,7 @@ class Avatar extends Component {
       avatar = details && details.avatar;
       fullName = details && details.fullName;
     } else if (customer) {
-      avatar =
-        customer.avatar ||
-        (customer.facebookData && customer.facebookData.profilePic) ||
-        (customer.twitterData && customer.twitterData.profile_image_url);
+      avatar = customer.avatar;
       fullName = this.renderName(customer);
     }
 

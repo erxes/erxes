@@ -71,6 +71,7 @@ const sidebarConversations = `
         primaryEmail
         primaryPhone
         isUser
+        avatar
         visitorContactInfo
         facebookData
         twitterData

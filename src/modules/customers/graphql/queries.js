@@ -2,6 +2,7 @@ const basicFields = `
   _id
   firstName
   lastName
+  avatar
 
   primaryEmail
   emails
