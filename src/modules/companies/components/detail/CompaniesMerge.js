@@ -16,7 +16,7 @@ const contextTypes = {
   __: PropTypes.func
 };
 
-class CustomersMerge extends React.Component {
+class CompaniesMerge extends React.Component {
   constructor(props) {
     super(props);
 
@@ -26,6 +26,7 @@ class CustomersMerge extends React.Component {
 
     this.renderCompany = this.renderCompany.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.save = this.save.bind(this);
   }
 
   save(e) {
@@ -37,15 +38,19 @@ class CustomersMerge extends React.Component {
 
     if (owner) {
       selectedValues.ownerId = owner._id;
+
+      delete selectedValues.owner;
     }
 
     if (parentCompany) {
       selectedValues.parentCompanyId = parentCompany._id;
+
+      delete selectedValues.parentCompany;
     }
 
     this.props.save({
       ids: objects.map(company => company._id),
-      data: selectedValues,
+      data: { ...selectedValues },
       callback: () => {
         this.context.closeModal();
       }
@@ -171,7 +176,7 @@ class CustomersMerge extends React.Component {
   }
 }
 
-CustomersMerge.propTypes = propTypes;
-CustomersMerge.contextTypes = contextTypes;
+CompaniesMerge.propTypes = propTypes;
+CompaniesMerge.contextTypes = contextTypes;
 
-export default CustomersMerge;
+export default CompaniesMerge;

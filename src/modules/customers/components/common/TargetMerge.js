@@ -7,7 +7,7 @@ const propTypes = {
   onSave: PropTypes.func.isRequired,
   object: PropTypes.object.isRequired,
   searchObject: PropTypes.func,
-  mergeForm: PropTypes.node,
+  mergeForm: PropTypes.func,
   options: PropTypes.array,
   generateOptions: PropTypes.func
 };

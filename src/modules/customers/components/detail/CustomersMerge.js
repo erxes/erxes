@@ -38,11 +38,13 @@ class CustomersMerge extends React.Component {
 
     if (owner) {
       selectedValues.ownerId = owner._id;
+
+      delete selectedValues.owner;
     }
 
     this.props.save({
-      ids: objects.map(coc => coc._id),
-      data: selectedValues,
+      ids: objects.map(customer => customer._id),
+      data: { ...selectedValues },
       callback: () => {
         this.context.closeModal();
       }

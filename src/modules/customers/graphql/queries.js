@@ -28,6 +28,7 @@ const basicFields = `
   }
   ownerId
   owner {
+    _id
     details {
       fullName
     }
