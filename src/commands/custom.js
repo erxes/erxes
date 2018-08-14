@@ -1,15 +1,33 @@
 import { connect, disconnect } from '../db/connection';
-import { Conversations, ConversationMessages } from '../db/models';
+import { Customers } from '../db/models';
 
 export const customCommand = async () => {
   connect();
 
-  const conversations = await Conversations.find({ facebookData: { $exists: true } });
+  const customers = await Customers.find({
+    $or: [{ facebookData: { $exists: true } }, { twitterData: { $exists: true } }],
+  });
 
-  for (let conversation of conversations) {
-    await ConversationMessages.remove({ conversationId: conversation._id });
+  for (let customer of customers) {
+    let twitterProfile;
+    let facebookProfile;
 
-    await Conversations.remove({ _id: conversation._id });
+    if (customer.twitterData) {
+      twitterProfile = customer.twitterData._doc.profile_image_url;
+    }
+
+    if (customer.facebookData) {
+      facebookProfile = customer.facebookData._doc.profilePic;
+    }
+
+    await Customers.update(
+      { _id: customer._id },
+      {
+        $set: {
+          avatar: facebookProfile || twitterProfile,
+        },
+      },
+    );
   }
 
   disconnect();
