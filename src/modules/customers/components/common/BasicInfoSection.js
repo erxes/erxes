@@ -28,16 +28,6 @@ const propTypes = {
 };
 
 class BasicInfo extends Component {
-  constructor(props) {
-    super(props);
-
-    this.renderRow = this.renderRow.bind(this);
-  }
-
-  getVisitorInfo(customer, key) {
-    return customer.visitorContactInfo && customer.visitorContactInfo[key];
-  }
-
   renderLink(link, icon) {
     if (link) {
       return (
@@ -138,18 +128,8 @@ class BasicInfo extends Component {
         {this.renderAction()}
 
         <SidebarList className="no-link">
-          {this.renderRow(
-            'Email',
-            customer.primaryEmail ||
-              this.getVisitorInfo(customer, 'email') ||
-              ''
-          )}
-          {this.renderRow(
-            'Phone',
-            customer.primaryPhone ||
-              this.getVisitorInfo(customer, 'phone') ||
-              ''
-          )}
+          {this.renderRow('Primary email', customer.primaryEmail)}
+          {this.renderRow('Primary phone', customer.primaryPhone)}
 
           {this.renderRow(
             'Owner',

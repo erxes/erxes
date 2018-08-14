@@ -21,25 +21,6 @@ function isTimeStamp(value) {
   );
 }
 
-function getVisitorInfo(customer, key) {
-  const contactInfo = {
-    primaryEmail: 'email',
-    primaryPhone: 'phone'
-  };
-
-  if (
-    (key === 'primaryEmail' && !customer[key]) ||
-    (key === 'primaryPhone' && !customer[key])
-  ) {
-    return (
-      customer.visitorContactInfo &&
-      customer.visitorContactInfo[contactInfo[key]]
-    );
-  }
-
-  return _.get(customer, key);
-}
-
 function formatValue(value) {
   if (!value) {
     return '-';
@@ -58,6 +39,22 @@ function formatValue(value) {
   }
 
   return value;
+}
+
+function displayValue(customer, name) {
+  const value = _.get(customer, name);
+
+  if (name === 'visitorContactInfo') {
+    const visitorContactInfo = customer.visitorContactInfo;
+
+    if (visitorContactInfo) {
+      return formatValue(visitorContactInfo.email || visitorContactInfo.phone);
+    }
+
+    return '-';
+  }
+
+  return formatValue(value);
 }
 
 function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {
@@ -83,11 +80,9 @@ function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {
         <FormControl componentClass="checkbox" onChange={onChange} />
       </td>
 
-      {columnsConfig.map(({ name }) => {
-        return (
-          <td key={name}>{formatValue(getVisitorInfo(customer, name))}</td>
-        );
-      })}
+      {columnsConfig.map(({ name }, index) => (
+        <td key={index}>{displayValue(customer, name)}</td>
+      ))}
 
       <td>
         <Tags tags={tags} limit={2} />

@@ -14,6 +14,7 @@ const ManageColumnsContainer = props => {
     location,
     history
   } = props;
+
   if (fieldsQuery.loading || fieldsDefaultColumnsConfigQuery.loading) {
     return false;
   }
@@ -22,6 +23,7 @@ const ManageColumnsContainer = props => {
 
   const save = config => {
     localStorage.setItem(storageKey, JSON.stringify(config));
+
     Alert.success('Success');
 
     if (history && location) {

@@ -39,6 +39,7 @@ class CustomerDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
+
     const {
       currentUser,
       activityLogsCustomer,

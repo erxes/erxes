@@ -12,21 +12,29 @@ export default class RightSidebar extends React.Component {
 
     const { __ } = this.context;
     const { customer } = this.props;
-    const { name } = customer.integration || {};
 
-    if (!name) {
-      return null;
-    }
+    const { integration, visitorContactInfo } = customer;
 
     return (
       <Section>
         <Title>{__('Other')}</Title>
 
         <List>
-          <li>
-            <div>{__('Integration')}:</div>
-            <span>{name}</span>
-          </li>
+          {integration &&
+            integration.name && (
+              <li>
+                <div>{__('Integration')}:</div>
+                <span>{integration.name}</span>
+              </li>
+            )}
+          {visitorContactInfo && (
+            <li>
+              <div>{__('Visitor contact info')}:</div>
+              <span>
+                {visitorContactInfo.email || visitorContactInfo.phone}
+              </span>
+            </li>
+          )}
         </List>
       </Section>
     );
