@@ -233,6 +233,7 @@ const generateCustomerDetailQuery = params => {
     fields = `
       ${fields}
       messengerData
+      getMessengerCustomData
     `;
   }
 

@@ -14,29 +14,21 @@ const propTypes = {
 };
 
 class ConversationDetails extends Component {
-  renderFacebookPostUrl() {
-    const conversation = this.props.conversation;
-    const integration = conversation.integration || {};
-    const { __ } = this.context;
+  renderVisitorContactInfo(customer, __) {
+    const { visitorContactInfo } = customer;
 
-    if (
-      integration.kind === 'facebook' &&
-      conversation.facebookData.kind === 'feed'
-    ) {
-      const link = `http://facebook.com/${conversation.facebookData.postId}`;
-      return (
-        <li>
-          Facebook URL
-          <SidebarCounter>
-            <a target="_blank" href={link} rel="noopener noreferrer">
-              {__('[view]')}
-            </a>
-          </SidebarCounter>
-        </li>
-      );
+    if (!visitorContactInfo) {
+      return null;
     }
 
-    return null;
+    return (
+      <li>
+        {__('Visitor contact info')}
+        <SidebarCounter>
+          {visitorContactInfo.email || visitorContactInfo.phone}
+        </SidebarCounter>
+      </li>
+    );
   }
 
   render() {
@@ -46,7 +38,7 @@ class ConversationDetails extends Component {
     const { __ } = this.context;
 
     const { conversation = {} } = this.props;
-    const { integration = {} } = conversation;
+    const { integration = {}, customer } = conversation;
     const { brand = {}, channels = [] } = integration;
 
     return (
@@ -55,6 +47,7 @@ class ConversationDetails extends Component {
 
         <SectionBody>
           <SidebarList className="no-link">
+            {this.renderVisitorContactInfo(customer, __)}
             <li>
               {__('Opened')}
               <SidebarCounter>
