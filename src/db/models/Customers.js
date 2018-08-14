@@ -157,7 +157,11 @@ const CustomerSchema = mongoose.Schema({
 
   // if customer is not a user then we will contact with this visitor using
   // this information
-  visitorContactInfo: field({ type: VisitorContactSchema, optional: true }),
+  visitorContactInfo: field({
+    type: VisitorContactSchema,
+    optional: true,
+    label: 'Visitor contact info',
+  }),
 });
 
 class Customer extends Coc {

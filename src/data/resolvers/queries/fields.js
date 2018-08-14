@@ -78,13 +78,17 @@ const fieldQueries = {
     const customFields = await Fields.find({ contentType });
 
     // extend fields list using custom fields
-    customFields.forEach(customField => {
-      fields.push({
-        _id: Math.random(),
-        name: `customFieldsData.${customField._id}`,
-        label: customField.text,
-      });
-    });
+    for (const customField of customFields) {
+      const group = await FieldsGroups.findOne({ _id: customField.groupId });
+
+      if (group.isVisible && customField.isVisible) {
+        fields.push({
+          _id: Math.random(),
+          name: `customFieldsData.${customField._id}`,
+          label: customField.text,
+        });
+      }
+    }
 
     return fields;
   },
@@ -97,8 +101,8 @@ const fieldQueries = {
       return [
         { name: 'firstName', label: 'First name', order: 1 },
         { name: 'lastName', label: 'Last name', order: 1 },
-        { name: 'primaryEmail', label: 'Email', order: 2 },
-        { name: 'primaryPhone', label: 'Phone', order: 3 },
+        { name: 'primaryEmail', label: 'Primary email', order: 2 },
+        { name: 'primaryPhone', label: 'Primary phone', order: 3 },
       ];
     }
 
