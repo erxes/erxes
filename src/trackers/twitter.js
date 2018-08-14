@@ -48,13 +48,13 @@ const getOrCreateCustomer = async (integrationId, user) => {
   const createdCustomer = await Customers.createCustomer({
     firstName: user.name,
     integrationId,
+    avatar: user.profile_image_url,
     links: {
       twitter: `https://twitter.com/${user.screen_name}`,
     },
     twitterData: {
       id: user.id,
       id_str: user.id_str,
-      profile_image_url: user.profile_image_url,
     },
   });
 

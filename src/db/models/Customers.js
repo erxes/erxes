@@ -65,7 +65,6 @@ const twitterSchema = mongoose.Schema(
   {
     id: field({ type: Number, label: 'Twitter ID (Number)' }),
     id_str: field({ type: String, label: 'Twitter ID' }),
-    profile_image_url: field({ type: String, label: 'Twitter photo' }),
   },
   { _id: false },
 );
@@ -78,11 +77,6 @@ const facebookSchema = mongoose.Schema(
     id: field({
       type: String,
       label: 'Facebook ID',
-    }),
-    profilePic: field({
-      type: String,
-      optional: true,
-      label: 'Facebook photo',
     }),
   },
   { _id: false },

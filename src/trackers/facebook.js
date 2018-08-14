@@ -534,9 +534,9 @@ export class SaveWebhookResponse {
       firstName,
       lastName,
       integrationId,
+      avatar: (await getProfilePic(fbUserId)) || '',
       facebookData: {
         id: fbUserId,
-        profilePic: (await getProfilePic(fbUserId)) || '',
       },
     });
 
