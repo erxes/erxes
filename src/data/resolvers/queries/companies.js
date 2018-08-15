@@ -55,10 +55,10 @@ const listQuery = async params => {
 };
 
 const sortBuilder = params => {
-  let sortParams = { primaryName: -1 };
-
   const sortField = params.sortField;
   const sortDirection = params.sortDirection;
+
+  let sortParams = { primaryName: -1 };
 
   if (sortField) {
     sortParams = { [sortField]: sortDirection };
@@ -76,9 +76,9 @@ const companyQueries = {
   async companies(root, params) {
     const selector = await listQuery(params);
 
-    const sortParams = sortBuilder(params);
+    const sort = sortBuilder(params);
 
-    return paginate(Companies.find(selector), params).sort(sortParams);
+    return paginate(Companies.find(selector), params).sort(sort);
   },
 
   /**
@@ -88,9 +88,9 @@ const companyQueries = {
    */
   async companiesMain(root, params) {
     const selector = await listQuery(params);
-    const sortParams = sortBuilder(params);
+    const sort = sortBuilder(params);
 
-    const list = await paginate(Companies.find(selector).sort(sortParams), params);
+    const list = await paginate(Companies.find(selector).sort(sort), params);
     const totalCount = await Companies.find(selector).count();
 
     return { list, totalCount };
@@ -164,9 +164,9 @@ const companyQueries = {
   async companiesExport(root, params) {
     const selector = await listQuery(params);
 
-    const sortParams = sortBuilder(params);
+    const sort = sortBuilder(params);
 
-    const companies = await paginate(Companies.find(selector), params).sort(sortParams);
+    const companies = await paginate(Companies.find(selector), params).sort(sort);
 
     return cocsExport(companies, 'company');
   },

@@ -13,10 +13,10 @@ import BuildQuery from './customerQueryBuilder';
 import { cocsExport } from './cocExport';
 
 const sortBuilder = params => {
-  let sortParams = { 'messengerData.lastSeenAt': -1 };
-
   const sortField = params.sortField;
   const sortDirection = params.sortDirection;
+
+  let sortParams = { 'messengerData.lastSeenAt': -1 };
 
   if (sortField) {
     sortParams = { [sortField]: sortDirection };
@@ -36,9 +36,9 @@ const customerQueries = {
 
     await qb.buildAllQueries();
 
-    const sortParams = sortBuilder(params);
+    const sort = sortBuilder(params);
 
-    return paginate(Customers.find(qb.mainQuery()).sort(sortParams), params);
+    return paginate(Customers.find(qb.mainQuery()).sort(sort), params);
   },
 
   /**
@@ -51,9 +51,9 @@ const customerQueries = {
 
     await qb.buildAllQueries();
 
-    const sortParams = sortBuilder(params);
+    const sort = sortBuilder(params);
 
-    const list = await paginate(Customers.find(qb.mainQuery()).sort(sortParams), params);
+    const list = await paginate(Customers.find(qb.mainQuery()).sort(sort), params);
     const totalCount = await Customers.find(qb.mainQuery()).count();
 
     return { list, totalCount };
@@ -192,9 +192,9 @@ const customerQueries = {
 
     await qb.buildAllQueries();
 
-    const sortParams = sortBuilder(params);
+    const sort = sortBuilder(params);
 
-    const customers = await Customers.find(qb.mainQuery()).sort(sortParams);
+    const customers = await Customers.find(qb.mainQuery()).sort(sort);
 
     return cocsExport(customers, 'customer');
   },
