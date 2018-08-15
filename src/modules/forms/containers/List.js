@@ -7,6 +7,10 @@ import { queries, mutations } from '../graphql';
 import { List } from '../components';
 
 class ListContainer extends Bulk {
+  refetch() {
+    this.props.integrationsQuery.refetch();
+  }
+
   render() {
     const {
       queryParams,

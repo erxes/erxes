@@ -26,6 +26,7 @@ class CustomerListContainer extends Bulk {
 
   refetch() {
     this.props.customersMainQuery.refetch();
+    this.props.customerCountsQuery.refetch();
   }
 
   render() {
