@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { TAG_TYPES } from 'modules/tags/constants';
-import { Alert } from 'modules/common/utils';
-import { FilterableList, Spinner } from '../..';
+import { FilterableList, Spinner } from 'modules/common/components';
+import { TAG_TYPES } from '../constants';
 
 const propTypes = {
   type: PropTypes.oneOf(TAG_TYPES.ALL_LIST),
   targets: PropTypes.array,
-  afterSave: PropTypes.func,
   event: PropTypes.oneOf(['onClick', 'onExit']),
   className: PropTypes.string,
 
@@ -71,7 +69,7 @@ class Tagger extends Component {
   }
 
   tag(tags) {
-    const { tag, targets, type, afterSave } = this.props;
+    const { tag } = this.props;
 
     // detect changes
     const { tagsForList } = this.state;
@@ -86,28 +84,7 @@ class Tagger extends Component {
       return;
     }
 
-    const param = {
-      type,
-      targetIds: targets.map(t => t._id),
-      tagIds: tags.filter(t => t.selectedBy === 'all').map(t => t._id)
-    };
-
-    tag(param, error => {
-      if (error) {
-        return Alert.error(error.message);
-      }
-
-      const message =
-        targets.length > 1
-          ? `Selected ${type}s have been tagged!`
-          : `The ${type} has been tagged!`;
-
-      Alert.success(message);
-
-      if (afterSave) {
-        afterSave();
-      }
-    });
+    tag(tags.filter(t => t.selectedBy === 'all').map(t => t._id));
   }
 
   render() {
