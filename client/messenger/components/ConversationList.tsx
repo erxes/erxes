@@ -33,7 +33,7 @@ function ConversationList(props: Props) {
         buttonIcon={iconPlus}
         onButtonClick={createConversation}
       />
-      <ul className="erxes-conversation-list">
+      <ul className="erxes-conversation-list appear-slide-in">
         {loading && <div className="loader bigger" />}
         {conversations.map(conversation => (
           <ConversationItem

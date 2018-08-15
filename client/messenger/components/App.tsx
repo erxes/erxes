@@ -22,7 +22,7 @@ export default class App extends React.Component<Props> {
     return (
       <div className={widgetClasses}>
         {isMessengerVisible && (
-          <div className="erxes-messenger appear-animate">
+          <div className="erxes-messenger appear-scale-in">
             <Messenger />
           </div>
         )}

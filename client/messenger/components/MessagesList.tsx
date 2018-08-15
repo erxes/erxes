@@ -82,9 +82,13 @@ class MessagesList extends React.Component<Props> {
   render() {
     const { uiOptions, messengerData, messages } = this.props;
     const { color, wallpaper } = uiOptions;
-    const messagesClasses = classNames("erxes-messages-list", {
-      [`bg-${wallpaper}`]: wallpaper
-    });
+    const messagesClasses = classNames(
+      "erxes-messages-list",
+      "appear-slide-in",
+      {
+        [`bg-${wallpaper}`]: wallpaper
+      }
+    );
 
     return (
       <ul
