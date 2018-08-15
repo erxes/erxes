@@ -1,4 +1,5 @@
 import { Channels, Brands, Conversations, ConversationMessages, Tags } from '../../../db/models';
+
 import { CONVERSATION_STATUSES, INTEGRATION_KIND_CHOICES } from '../../constants';
 import QueryBuilder from './conversationQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
@@ -8,8 +9,6 @@ const count = async query => await Conversations.find(query).count();
 
 const countByChannels = async qb => {
   const byChannels = {};
-
-  // count by channels ==================
   const channels = await Channels.find();
 
   for (let channel of channels) {
@@ -24,7 +23,6 @@ const countByChannels = async qb => {
 const countByIntegrationTypes = async qb => {
   const byIntegrationTypes = {};
 
-  // by integration type
   for (let intT of INTEGRATION_KIND_CHOICES.ALL) {
     byIntegrationTypes[intT] = await count(
       Object.assign({}, qb.mainQuery(), await qb.integrationTypeFilter(intT)),
@@ -37,7 +35,6 @@ const countByIntegrationTypes = async qb => {
 const countByTags = async qb => {
   const byTags = {};
   const queries = qb.queries;
-  // by tag
   const tags = await Tags.find();
 
   for (let tag of tags) {
@@ -57,7 +54,6 @@ const countByTags = async qb => {
 
 const countByBrands = async qb => {
   const byBrands = {};
-  // count by brands ==================
   const brands = await Brands.find();
 
   for (let brand of brands) {
@@ -149,6 +145,7 @@ const conversationQueries = {
     });
 
     await qb.buildAllQueries();
+
     const queries = qb.queries;
 
     switch (only) {
