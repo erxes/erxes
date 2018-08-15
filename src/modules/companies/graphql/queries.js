@@ -54,7 +54,9 @@ const listParamsDef = `
   $ids: [String],
   $searchValue: String,
   $leadStatus: String,
-  $lifecycleState: String
+  $lifecycleState: String,
+  $sortField: String,
+  $sortDirection: Int
 `;
 
 const listParamsValue = `
@@ -65,7 +67,9 @@ const listParamsValue = `
   ids: $ids,
   searchValue: $searchValue,
   leadStatus: $leadStatus,
-  lifecycleState: $lifecycleState
+  lifecycleState: $lifecycleState,
+  sortField: $sortField,
+  sortDirection: $sortDirection
 `;
 
 export const companies = `

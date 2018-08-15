@@ -129,7 +129,9 @@ export default compose(
         ids: queryParams.ids,
         searchValue: queryParams.searchValue,
         leadStatus: queryParams.leadStatus,
-        lifecycleState: queryParams.lifecycleState
+        lifecycleState: queryParams.lifecycleState,
+        sortField: queryParams.sortField,
+        sortDirection: queryParams.sortDirection
       },
       notifyOnNetworkStatusChange: true
     })

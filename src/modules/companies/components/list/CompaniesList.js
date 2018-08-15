@@ -8,7 +8,8 @@ import {
   Button,
   Table,
   DataWithLoader,
-  FormControl
+  FormControl,
+  SortHandler
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
@@ -115,7 +116,10 @@ class CompaniesList extends React.Component {
                 />
               </th>
               {columnsConfig.map(({ name, label }) => (
-                <th key={name}>{__(label)}</th>
+                <th key={name}>
+                  <SortHandler sortField={name} />
+                  {__(label)}
+                </th>
               ))}
               <th>{__('Tags')}</th>
             </tr>
