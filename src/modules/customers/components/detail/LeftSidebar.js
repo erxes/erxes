@@ -14,7 +14,7 @@ import {
 
 export default class LeftSidebar extends React.Component {
   render() {
-    const { customer, wide } = this.props;
+    const { customer, wide, taggerRefetchQueries } = this.props;
 
     return (
       <Sidebar wide={wide}>
@@ -22,7 +22,11 @@ export default class LeftSidebar extends React.Component {
         <CustomFieldsSection customer={customer} />
         <DevicePropertiesSection customer={customer} />
         <MessengerSection customer={customer} />
-        <TaggerSection data={customer} type="customer" />
+        <TaggerSection
+          data={customer}
+          type="customer"
+          refetchQueries={taggerRefetchQueries}
+        />
       </Sidebar>
     );
   }
@@ -30,5 +34,6 @@ export default class LeftSidebar extends React.Component {
 
 LeftSidebar.propTypes = {
   customer: PropTypes.object.isRequired,
+  taggerRefetchQueries: PropTypes.array,
   wide: PropTypes.bool
 };

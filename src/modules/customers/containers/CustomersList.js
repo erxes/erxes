@@ -24,6 +24,10 @@ class CustomerListContainer extends Bulk {
     };
   }
 
+  refetch() {
+    this.props.customersMainQuery.refetch();
+  }
+
   render() {
     const {
       customersMainQuery,
