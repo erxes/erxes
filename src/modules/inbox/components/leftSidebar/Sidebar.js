@@ -65,6 +65,7 @@ class LeftSidebar extends Bulk {
           }}
           counts="byChannels"
           paramKey="channelId"
+          queryParams={queryParams}
           searchable
         />
         <DateFilter
@@ -73,13 +74,13 @@ class LeftSidebar extends Bulk {
           countQuery={queries.totalConversationsCount}
           countQueryParam="conversationsTotalCount"
         />
-        <StatusFilterPopover />
+        <StatusFilterPopover queryParams={queryParams} />
       </Sidebar.Header>
     );
   }
 
   renderSidebarFooter() {
-    const { integrations } = this.props;
+    const { integrations, queryParams } = this.props;
 
     return (
       <Sidebar.Footer>
@@ -89,6 +90,7 @@ class LeftSidebar extends Bulk {
           counts="byBrands"
           popoverTitle="Filter by brand"
           placement="top"
+          queryParams={queryParams}
           paramKey="brandId"
           searchable
         />
@@ -96,6 +98,7 @@ class LeftSidebar extends Bulk {
         <FilterPopover
           buttonText="Integration"
           fields={integrations}
+          queryParams={queryParams}
           counts="byIntegrationTypes"
           paramKey="integrationType"
           popoverTitle="Filter by integrations"
@@ -111,6 +114,7 @@ class LeftSidebar extends Bulk {
               type: TAG_TYPES.CONVERSATION
             }
           }}
+          queryParams={queryParams}
           counts="byTags"
           paramKey="tag"
           popoverTitle="Filter by tag"
