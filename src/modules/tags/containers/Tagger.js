@@ -2,20 +2,35 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import Tagger from '../components/Tagger';
+import { Alert } from 'modules/common/utils';
+import { Tagger } from '../components';
 
 const TaggerContainer = props => {
-  const { tagsQuery, tagMutation } = props;
+  const { type, targets, successCallback, tagsQuery, tagMutation } = props;
 
-  const tag = (variables, callback) => {
-    tagMutation({
-      variables
-    })
+  const tag = selectedTagIds => {
+    const variables = {
+      type,
+      targetIds: targets.map(t => t._id),
+      tagIds: selectedTagIds
+    };
+
+    tagMutation({ variables })
       .then(() => {
-        callback();
+        let message = `The ${type} has been tagged!`;
+
+        if (targets.length > 1) {
+          message = `Selected ${type}s have been tagged!`;
+        }
+
+        Alert.success(message);
+
+        if (successCallback) {
+          successCallback();
+        }
       })
       .catch(error => {
-        callback(error);
+        Alert.error(error.message);
       });
   };
 
@@ -30,8 +45,11 @@ const TaggerContainer = props => {
 };
 
 TaggerContainer.propTypes = {
+  targets: PropTypes.array,
+  type: PropTypes.string,
   tagsQuery: PropTypes.object,
-  tagMutation: PropTypes.func
+  tagMutation: PropTypes.func,
+  successCallback: PropTypes.func
 };
 
 const tagsQuery = gql`
@@ -54,13 +72,6 @@ const tagMutation = gql`
   }
 `;
 
-const queries = {
-  customer: ['customersMain', 'customerCounts'],
-  company: ['companiesMain', 'companyCounts'],
-  engageMessage: ['engageMessages', 'engageMessagesTotalCount'],
-  integration: ['integrations', 'integrationsTotalCount']
-};
-
 export default compose(
   graphql(tagsQuery, {
     name: 'tagsQuery',
@@ -70,10 +81,8 @@ export default compose(
   }),
   graphql(tagMutation, {
     name: 'tagMutation',
-    options: props => {
-      return {
-        refetchQueries: queries[props.type] || props.refetchQueries
-      };
-    }
+    options: ({ refetchQueries }) => ({
+      refetchQueries
+    })
   })
 )(TaggerContainer);

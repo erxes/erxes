@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
-import { EmptyState, Tagger, Icon } from 'modules/common/components';
+import { EmptyState, Icon } from 'modules/common/components';
+import { Tagger } from 'modules/tags/containers';
 
 const propTypes = {
   data: PropTypes.object.isRequired,
   type: PropTypes.string.isRequired,
-  afterSave: PropTypes.func
+  refetchQueries: PropTypes.array
 };
 
 class TaggerSection extends Component {
@@ -47,7 +48,7 @@ class TaggerSection extends Component {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    const { data, type, afterSave } = this.props;
+    const { data, type, refetchQueries } = this.props;
     const tags = data.getTags || [];
     const { __ } = this.context;
 
@@ -70,7 +71,7 @@ class TaggerSection extends Component {
               targets={[data]}
               className="sidebar-accordion"
               event="onClick"
-              afterSave={afterSave}
+              refetchQueries={refetchQueries}
             />
           </div>
         </Collapse>

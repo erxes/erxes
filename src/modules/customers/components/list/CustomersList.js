@@ -7,7 +7,6 @@ import { withRouter } from 'react-router';
 
 import {
   DropdownToggle,
-  TaggerPopover,
   ModalTrigger,
   Pagination,
   Button,
@@ -20,10 +19,11 @@ import {
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
+import { ManageColumns } from 'modules/settings/properties/containers';
+import { TaggerPopover } from 'modules/tags/components';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
 import { CustomerForm } from '../../containers';
-import { ManageColumns } from 'modules/settings/properties/containers';
 import { CustomersMerge } from '../';
 
 const propTypes = {
@@ -237,7 +237,7 @@ class CustomersList extends React.Component {
           <Widget customers={bulk} />
           <TaggerPopover
             type="customer"
-            afterSave={emptyBulk}
+            successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
           />
