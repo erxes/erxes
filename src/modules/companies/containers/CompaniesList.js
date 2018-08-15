@@ -11,6 +11,10 @@ import { CompaniesList } from '../components';
 import { router } from 'modules/common/utils';
 
 class CompanyListContainer extends Bulk {
+  refetch() {
+    this.props.companiesMainQuery.refetch();
+  }
+
   render() {
     const {
       companiesMainQuery,
