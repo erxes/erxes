@@ -9,15 +9,15 @@ import {
   Table,
   DataWithLoader,
   FormControl,
-  TaggerPopover,
   Icon
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
+import { ManageColumns } from 'modules/settings/properties/containers';
+import { TaggerPopover } from 'modules/tags/components';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import { CompanyForm } from '../../containers';
-import { ManageColumns } from 'modules/settings/properties/containers';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
 import { CompaniesMerge } from '../';
 
@@ -202,7 +202,7 @@ class CompaniesList extends React.Component {
         <BarItems>
           <TaggerPopover
             type="company"
-            afterSave={emptyBulk}
+            successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
           />

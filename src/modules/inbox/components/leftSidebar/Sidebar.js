@@ -43,11 +43,7 @@ class LeftSidebar extends Bulk {
               trigger={this.renderTrigger('Assign')}
             />
 
-            <Tagger
-              targets={bulk}
-              type="conversation"
-              trigger={this.renderTrigger('Tag')}
-            />
+            <Tagger targets={bulk} trigger={this.renderTrigger('Tag')} />
             <Resolver conversations={bulk} />
           </RightItems>
         </Sidebar.Header>

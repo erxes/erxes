@@ -266,6 +266,7 @@ const generateCustomerDetailQuery = params => {
   if (showTags) {
     fields = `
       ${fields}
+      tagIds
       getTags {
         _id
         name

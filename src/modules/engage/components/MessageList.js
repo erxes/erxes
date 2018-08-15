@@ -6,12 +6,12 @@ import { Pagination } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import {
   DropdownToggle,
-  TaggerPopover,
   Table,
   Button,
   Icon,
   DataWithLoader
 } from 'modules/common/components';
+import { TaggerPopover } from 'modules/tags/components';
 import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
 
 const propTypes = {
@@ -27,19 +27,8 @@ const propTypes = {
 };
 
 class List extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.afterTag = this.afterTag.bind(this);
-  }
-
-  afterTag() {
-    this.props.emptyBulk();
-    this.props.refetch();
-  }
-
   renderTagger() {
-    const { bulk } = this.props;
+    const { bulk, emptyBulk } = this.props;
     const { __ } = this.context;
 
     const tagButton = (
@@ -54,7 +43,7 @@ class List extends React.Component {
           type="engageMessage"
           targets={bulk}
           trigger={tagButton}
-          afterSave={this.afterTag}
+          successCallback={emptyBulk}
         />
       );
     }

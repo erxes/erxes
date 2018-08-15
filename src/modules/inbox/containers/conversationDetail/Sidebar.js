@@ -88,12 +88,20 @@ class Sidebar extends Component {
       });
     }
 
+    const taggerRefetchQueries = [
+      {
+        query: gql(queries.generateCustomerDetailQuery(getConfig())),
+        variables: { _id: customer._id }
+      }
+    ];
+
     const updatedProps = {
       ...this.props,
       customer,
       loading,
       toggleSection: this.toggleSection,
-      config: getConfig()
+      config: getConfig(),
+      taggerRefetchQueries
     };
 
     return <DumbSidebar {...updatedProps} />;
