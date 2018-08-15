@@ -67,6 +67,12 @@ class CustomersList extends React.Component {
     toggleAll(customers, 'customers');
   }
 
+  sortHandler(field, type) {
+    const { history } = this.props;
+
+    router.setParams(history, { sorter: field, sortType: type });
+  }
+
   removeCustomers(customers) {
     const customerIds = [];
 
@@ -88,7 +94,17 @@ class CustomersList extends React.Component {
               <FormControl componentClass="checkbox" onChange={this.onChange} />
             </th>
             {columnsConfig.map(({ name, label }) => (
-              <th key={name}>{__(label)}</th>
+              <th key={name}>
+                <Icon
+                  icon="downarrow"
+                  onClick={() => this.sortHandler(name, -1)}
+                />
+                <Icon
+                  icon="uparrow"
+                  onClick={() => this.sortHandler(name, 1)}
+                />
+                {__(label)}
+              </th>
             ))}
             <th>{__('Tags')}</th>
           </tr>

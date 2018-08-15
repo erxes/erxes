@@ -9,7 +9,8 @@ import {
   Table,
   DataWithLoader,
   FormControl,
-  TaggerPopover
+  TaggerPopover,
+  Icon
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
@@ -55,6 +56,12 @@ class CompaniesList extends React.Component {
   onChange() {
     const { toggleAll, companies } = this.props;
     toggleAll(companies, 'companies');
+  }
+
+  sortHandler(field, type) {
+    const { history } = this.props;
+
+    router.setParams(history, { sorter: field, sortType: type });
   }
 
   search(e) {
@@ -115,7 +122,17 @@ class CompaniesList extends React.Component {
                 />
               </th>
               {columnsConfig.map(({ name, label }) => (
-                <th key={name}>{__(label)}</th>
+                <th key={name}>
+                  <Icon
+                    icon="downarrow"
+                    onClick={() => this.sortHandler(name, -1)}
+                  />
+                  <Icon
+                    icon="uparrow"
+                    onClick={() => this.sortHandler(name, 1)}
+                  />
+                  {__(label)}
+                </th>
               ))}
               <th>{__('Tags')}</th>
             </tr>
