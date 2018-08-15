@@ -140,14 +140,14 @@ class CompaniesList extends React.Component {
                     <Icon
                       icon="uparrow-2"
                       size={7}
-                      isActive={this.checkSortActive(name, 1)}
-                      onClick={() => this.sortHandler(name, 1)}
+                      isActive={this.checkSortActive(name, -1)}
+                      onClick={() => this.sortHandler(name, -1)}
                     />
                     <Icon
                       icon="downarrow"
                       size={7}
-                      isActive={this.checkSortActive(name, -1)}
-                      onClick={() => this.sortHandler(name, -1)}
+                      isActive={this.checkSortActive(name, 1)}
+                      onClick={() => this.sortHandler(name, 1)}
                     />
                   </div>
                   {__(label)}
