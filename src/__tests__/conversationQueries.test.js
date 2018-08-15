@@ -109,8 +109,8 @@ describe('conversationQueries', () => {
   `;
 
   const qryCount = `
-    query conversationCounts(${commonParamDefs}) {
-      conversationCounts(${commonParams})
+    query conversationCounts(${commonParamDefs}, $only: String) {
+      conversationCounts(${commonParams}, only: $only)
     }
   `;
 
@@ -443,6 +443,7 @@ describe('conversationQueries', () => {
 
     const response = await graphqlRequest(qryCount, 'conversationCounts', {
       channelId: channel._id,
+      only: 'byChannels',
     });
 
     expect(response.byChannels[channel._id]).toBe(1);
@@ -457,7 +458,10 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration1._id });
     await conversationFactory({ integrationId: integration1._id });
 
-    const response = await graphqlRequest(qryCount, 'conversationCounts', { brandId: brand._id });
+    const response = await graphqlRequest(qryCount, 'conversationCounts', {
+      brandId: brand._id,
+      only: 'byBrands',
+    });
 
     expect(response.byBrands[brand._id]).toBe(1);
   });
@@ -570,7 +574,7 @@ describe('conversationQueries', () => {
     let response = await graphqlRequest(
       qryCount,
       'conversationCounts',
-      { integrationType: 'messenger' },
+      { integrationType: 'messenger', only: 'byIntegrationTypes' },
       { user },
     );
 
@@ -593,7 +597,7 @@ describe('conversationQueries', () => {
     const response = await graphqlRequest(
       qryCount,
       'conversationCounts',
-      { tag: tag._id },
+      { tag: tag._id, only: 'byTags' },
       { user },
     );
 
