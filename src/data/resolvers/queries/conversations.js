@@ -3,6 +3,76 @@ import { CONVERSATION_STATUSES, INTEGRATION_KIND_CHOICES } from '../../constants
 import QueryBuilder from './conversationQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
 
+// count helper
+const count = async query => await Conversations.find(query).count();
+
+const countByChannels = async qb => {
+  const byChannels = {};
+
+  // count by channels ==================
+  const channels = await Channels.find();
+
+  for (let channel of channels) {
+    byChannels[channel._id] = await count(
+      Object.assign({}, qb.mainQuery(), await qb.channelFilter(channel._id)),
+    );
+  }
+
+  return byChannels;
+};
+
+const countByIntegrationTypes = async qb => {
+  const byIntegrationTypes = {};
+
+  // by integration type
+  for (let intT of INTEGRATION_KIND_CHOICES.ALL) {
+    byIntegrationTypes[intT] = await count(
+      Object.assign({}, qb.mainQuery(), await qb.integrationTypeFilter(intT)),
+    );
+  }
+
+  return byIntegrationTypes;
+};
+
+const countByTags = async qb => {
+  const byTags = {};
+  const queries = qb.queries;
+  // by tag
+  const tags = await Tags.find();
+
+  for (let tag of tags) {
+    byTags[tag._id] = await count(
+      Object.assign(
+        {},
+        qb.mainQuery(),
+        queries.integrations,
+        queries.integrationType,
+        qb.tagFilter(tag._id),
+      ),
+    );
+  }
+
+  return byTags;
+};
+
+const countByBrands = async qb => {
+  const byBrands = {};
+  // count by brands ==================
+  const brands = await Brands.find();
+
+  for (let brand of brands) {
+    byBrands[brand._id] = await count(
+      Object.assign(
+        {},
+        qb.mainQuery(),
+        qb.intersectIntegrationIds(qb.queries.channel, await qb.brandFilter(brand._id)),
+      ),
+    );
+  }
+
+  return byBrands;
+};
+
 const conversationQueries = {
   /**
    * Conversataions list
@@ -69,7 +139,7 @@ const conversationQueries = {
    * @return {Object} counts map
    */
   async conversationCounts(root, params, { user }) {
-    const { filter } = params;
+    const { only } = params;
 
     const response = {
       byChannels: {},
@@ -84,69 +154,21 @@ const conversationQueries = {
     });
 
     await qb.buildAllQueries();
-
     const queries = qb.queries;
 
-    // count helper
-    const count = async query => await Conversations.find(query).count();
-
-    switch (filter) {
+    switch (only) {
       case 'byChannels':
-        {
-          // count by channels ==================
-          const channels = await Channels.find();
-
-          for (let channel of channels) {
-            response.byChannels[channel._id] = await count(
-              Object.assign({}, qb.mainQuery(), await qb.channelFilter(channel._id)),
-            );
-          }
-        }
+        response.byChannels = await countByChannels(qb);
         break;
 
       case 'byIntegrationTypes':
-        {
-          // by integration type
-          for (let intT of INTEGRATION_KIND_CHOICES.ALL) {
-            response.byIntegrationTypes[intT] = await count(
-              Object.assign({}, qb.mainQuery(), await qb.integrationTypeFilter(intT)),
-            );
-          }
-        }
+        response.byIntegrationTypes = await countByIntegrationTypes(qb);
         break;
       case 'byBrands':
-        {
-          // count by brands ==================
-          const brands = await Brands.find();
-
-          for (let brand of brands) {
-            response.byBrands[brand._id] = await count(
-              Object.assign(
-                {},
-                qb.mainQuery(),
-                qb.intersectIntegrationIds(queries.channel, await qb.brandFilter(brand._id)),
-              ),
-            );
-          }
-        }
+        response.byBrands = await countByBrands(qb);
         break;
       case 'byTags':
-        {
-          // by tag
-          const tags = await Tags.find();
-
-          for (let tag of tags) {
-            response.byTags[tag._id] = await count(
-              Object.assign(
-                {},
-                qb.mainQuery(),
-                queries.integrations,
-                queries.integrationType,
-                qb.tagFilter(tag._id),
-              ),
-            );
-          }
-        }
+        response.byTags = await countByTags(qb);
         break;
     }
 
