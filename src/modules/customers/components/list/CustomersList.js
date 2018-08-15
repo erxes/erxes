@@ -60,6 +60,8 @@ class CustomersList extends React.Component {
     this.onChange = this.onChange.bind(this);
     this.removeCustomers = this.removeCustomers.bind(this);
     this.search = this.search.bind(this);
+    this.checkSortActive = this.checkSortActive.bind(this);
+    this.sortHandler = this.sortHandler.bind(this);
   }
 
   onChange() {
@@ -67,10 +69,23 @@ class CustomersList extends React.Component {
     toggleAll(customers, 'customers');
   }
 
-  sortHandler(field, type) {
+  sortHandler(field, direction) {
     const { history } = this.props;
 
-    router.setParams(history, { sorter: field, sortType: type });
+    router.setParams(history, { sortField: field, sortDirection: direction });
+  }
+
+  checkSortActive(name, direction) {
+    const { history } = this.props;
+
+    if (
+      router.getParam(history, 'sortField') === name &&
+      router.getParam(history, 'sortDirection') === direction.toString()
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   removeCustomers(customers) {
@@ -97,13 +112,15 @@ class CustomersList extends React.Component {
               <th key={name}>
                 <div className="table-sorter">
                   <Icon
-                    icon="uparrow"
+                    icon="uparrow-2"
                     size={7}
+                    isActive={this.checkSortActive(name, 1)}
                     onClick={() => this.sortHandler(name, 1)}
                   />
                   <Icon
                     icon="downarrow"
                     size={7}
+                    isActive={this.checkSortActive(name, -1)}
                     onClick={() => this.sortHandler(name, -1)}
                   />
                 </div>

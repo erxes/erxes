@@ -202,8 +202,8 @@ const generateParams = ({ queryParams }) => ({
     endDate: queryParams.endDate,
     leadStatus: queryParams.leadStatus,
     lifecycleState: queryParams.lifecycleState,
-    sorter: queryParams.sorter,
-    sortType: queryParams.sortType
+    sortField: queryParams.sortField,
+    sortDirection: queryParams.sortDirection
   },
 
   notifyOnNetworkStatusChange: true

@@ -70,8 +70,8 @@ const listParamsDef = `
   $endDate: String,
   $leadStatus: String,
   $lifecycleState: String,
-  $sorter: String,
-  $sortType: Int
+  $sortField: String,
+  $sortDirection: Int
 `;
 
 const listParamsValue = `
@@ -88,8 +88,8 @@ const listParamsValue = `
   endDate: $endDate,
   leadStatus: $leadStatus,
   lifecycleState: $lifecycleState,
-  sorter: $sorter,
-  sortType: $sortType
+  sortField: $sortField,
+  sortDirection: $sortDirection
 `;
 
 const customers = `

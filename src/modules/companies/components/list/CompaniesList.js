@@ -58,10 +58,23 @@ class CompaniesList extends React.Component {
     toggleAll(companies, 'companies');
   }
 
-  sortHandler(field, type) {
+  sortHandler(field, direction) {
     const { history } = this.props;
 
-    router.setParams(history, { sorter: field, sortType: type });
+    router.setParams(history, { sortField: field, sortDirection: direction });
+  }
+
+  checkSortActive(name, direction) {
+    const { history } = this.props;
+
+    if (
+      router.getParam(history, 'sortField') === name &&
+      router.getParam(history, 'sortDirection') === direction.toString()
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   search(e) {
@@ -127,11 +140,13 @@ class CompaniesList extends React.Component {
                     <Icon
                       icon="uparrow-2"
                       size={7}
+                      isActive={this.checkSortActive(name, 1)}
                       onClick={() => this.sortHandler(name, 1)}
                     />
                     <Icon
                       icon="downarrow"
                       size={7}
+                      isActive={this.checkSortActive(name, -1)}
                       onClick={() => this.sortHandler(name, -1)}
                     />
                   </div>
