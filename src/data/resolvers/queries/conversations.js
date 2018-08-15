@@ -141,12 +141,7 @@ const conversationQueries = {
   async conversationCounts(root, params, { user }) {
     const { only } = params;
 
-    const response = {
-      byChannels: {},
-      byIntegrationTypes: {},
-      byBrands: {},
-      byTags: {},
-    };
+    const response = {};
 
     const qb = new QueryBuilder(params, {
       _id: user._id,
@@ -164,9 +159,11 @@ const conversationQueries = {
       case 'byIntegrationTypes':
         response.byIntegrationTypes = await countByIntegrationTypes(qb);
         break;
+
       case 'byBrands':
         response.byBrands = await countByBrands(qb);
         break;
+
       case 'byTags':
         response.byTags = await countByTags(qb);
         break;
