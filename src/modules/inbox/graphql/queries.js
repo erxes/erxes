@@ -169,8 +169,8 @@ const tagList = `
 `;
 
 const conversationCounts = `
-  query conversationCounts(${listParamsDef}, $filter: String) {
-    conversationCounts(${listParamsValue}, filter: $filter)
+  query conversationCounts(${listParamsDef}, $only: String) {
+    conversationCounts(${listParamsValue}, only: $only)
   }
 `;
 

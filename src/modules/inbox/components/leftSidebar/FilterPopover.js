@@ -76,7 +76,7 @@ class FilterPopover extends Component {
     client
       .query({
         query: gql(queries.conversationCounts),
-        variables: generateParams({ ...queryParams, filter: counts })
+        variables: generateParams({ ...queryParams, only: counts })
       })
       .then(({ data, loading }) => {
         this.setState({ counts: data.conversationCounts[counts], loading });
