@@ -14,7 +14,8 @@ import {
   Table,
   FormControl,
   DataWithLoader,
-  DateFilter
+  DateFilter,
+  SortHandler
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
@@ -60,32 +61,11 @@ class CustomersList extends React.Component {
     this.onChange = this.onChange.bind(this);
     this.removeCustomers = this.removeCustomers.bind(this);
     this.search = this.search.bind(this);
-    this.checkSortActive = this.checkSortActive.bind(this);
-    this.sortHandler = this.sortHandler.bind(this);
   }
 
   onChange() {
     const { toggleAll, customers } = this.props;
     toggleAll(customers, 'customers');
-  }
-
-  sortHandler(field, direction) {
-    const { history } = this.props;
-
-    router.setParams(history, { sortField: field, sortDirection: direction });
-  }
-
-  checkSortActive(name, direction) {
-    const { history } = this.props;
-
-    if (
-      router.getParam(history, 'sortField') === name &&
-      router.getParam(history, 'sortDirection') === direction.toString()
-    ) {
-      return true;
-    }
-
-    return false;
   }
 
   removeCustomers(customers) {
@@ -110,20 +90,7 @@ class CustomersList extends React.Component {
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>
-                <div className="table-sorter">
-                  <Icon
-                    icon="uparrow-2"
-                    size={7}
-                    isActive={this.checkSortActive(name, -1)}
-                    onClick={() => this.sortHandler(name, -1)}
-                  />
-                  <Icon
-                    icon="downarrow"
-                    size={7}
-                    isActive={this.checkSortActive(name, 1)}
-                    onClick={() => this.sortHandler(name, 1)}
-                  />
-                </div>
+                <SortHandler sortField={name} />
                 {__(label)}
               </th>
             ))}

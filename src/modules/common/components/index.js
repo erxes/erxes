@@ -35,6 +35,7 @@ import Chooser from './Chooser';
 import DateFilter from './DateFilter';
 import ModifiableSelect from './ModifiableSelect';
 import Uploader from './Uploader';
+import SortHandler from './SortHandler';
 
 // TODO remove
 const pagination = {};
@@ -84,5 +85,6 @@ export {
   Chooser,
   DateFilter,
   ModifiableSelect,
-  Uploader
+  Uploader,
+  SortHandler
 };
