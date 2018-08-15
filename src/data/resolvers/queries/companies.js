@@ -56,11 +56,12 @@ const listQuery = async params => {
 
 const sortBuilder = params => {
   let sortParams = { primaryName: -1 };
-  const sorter = params.sorter;
-  const sortType = params.sortType;
 
-  if (sorter) {
-    sortParams = { [sorter]: sortType };
+  const sortField = params.sortField;
+  const sortDirection = params.sortDirection;
+
+  if (sortField) {
+    sortParams = { [sortField]: sortDirection };
   }
 
   return sortParams;

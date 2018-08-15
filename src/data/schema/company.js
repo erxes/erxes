@@ -59,8 +59,8 @@ const queryParams = `
   searchValue: String,
   lifecycleState: String,
   leadStatus: String,
-  sorter: String,
-  sortType: Int
+  sortField: String,
+  sortDirection: Int
 `;
 
 export const queries = `
