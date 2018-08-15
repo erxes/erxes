@@ -19,7 +19,8 @@ const propTypes = {
   placement: PropTypes.string,
   icon: PropTypes.string,
   searchable: PropTypes.bool,
-  client: PropTypes.object
+  client: PropTypes.object,
+  queryParams: PropTypes.object
 };
 
 const defaultProps = {
@@ -57,8 +58,9 @@ class FilterPopover extends Component {
   }
 
   onClick() {
-    const { client, query, counts } = this.props;
+    const { client, query, counts, queryParams } = this.props;
 
+    // Fetching filter lists channels, brands, tags etc
     if (query) {
       const { queryName, dataName, variables = {} } = query;
 
@@ -72,12 +74,11 @@ class FilterPopover extends Component {
         });
     }
 
+    // Fetching count query
     client
       .query({
         query: gql(queries.conversationCounts),
-        variables: queryParams => {
-          generateParams(queryParams);
-        }
+        variables: { ...generateParams({ ...queryParams }), only: counts }
       })
       .then(({ data, loading }) => {
         this.setState({ counts: data.conversationCounts[counts], loading });
