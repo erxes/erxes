@@ -60,6 +60,7 @@ class FilterPopover extends Component {
   onClick() {
     const { client, query, counts, queryParams } = this.props;
 
+    // Fetching filter lists channels, brands, tags etc
     if (query) {
       const { queryName, dataName, variables = {} } = query;
 
@@ -73,6 +74,7 @@ class FilterPopover extends Component {
         });
     }
 
+    // Fetching count query
     client
       .query({
         query: gql(queries.conversationCounts),
