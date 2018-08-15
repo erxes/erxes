@@ -80,7 +80,7 @@ const queryParams = `
   startDate: String,
   endDate: String,
   lifecycleState: String,
-  leadStatus: String
+  leadStatus: String,
   sortField: String
   sortDirection: Int
 `;
