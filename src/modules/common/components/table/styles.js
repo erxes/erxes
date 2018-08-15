@@ -12,6 +12,21 @@ const StyledTable = styled.table`
     border-collapse: collapse;
     white-space: ${props.whiteSpace || ''};
 
+    th {
+      .table-sorter {
+        display: inline-block;
+        padding-right: 10px;
+
+        i {
+          display: block;
+
+          &:hover {
+            cursor: pointer;
+          }
+        }
+      }
+    }
+
     th,
     td {
       border-top: 1px solid ${colors.borderPrimary};

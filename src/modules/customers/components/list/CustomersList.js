@@ -95,14 +95,18 @@ class CustomersList extends React.Component {
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>
-                <Icon
-                  icon="downarrow"
-                  onClick={() => this.sortHandler(name, -1)}
-                />
-                <Icon
-                  icon="uparrow"
-                  onClick={() => this.sortHandler(name, 1)}
-                />
+                <div className="table-sorter">
+                  <Icon
+                    icon="uparrow"
+                    size={7}
+                    onClick={() => this.sortHandler(name, 1)}
+                  />
+                  <Icon
+                    icon="downarrow"
+                    size={7}
+                    onClick={() => this.sortHandler(name, -1)}
+                  />
+                </div>
                 {__(label)}
               </th>
             ))}
