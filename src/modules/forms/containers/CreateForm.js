@@ -4,8 +4,9 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withRouter } from 'react-router';
 import { Alert } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
 import { Form } from '../components';
+import { queries, mutations } from '../graphql';
+import { generateListQueryVariables } from '../utils';
 
 class CreateFormContainer extends Component {
   render() {
@@ -59,7 +60,7 @@ class CreateFormContainer extends Component {
 
         .then(() => {
           Alert.success('Congrats');
-          history.push('/forms?refetch=true');
+          history.push('/forms');
         })
 
         .catch(error => {
@@ -88,13 +89,21 @@ CreateFormContainer.propTypes = {
 
 const CreateFormWithData = compose(
   graphql(gql(queries.brands), {
-    name: 'brandsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
+    name: 'brandsQuery'
   }),
   graphql(gql(mutations.integrationsCreateFormIntegration), {
-    name: 'addIntegrationMutation'
+    name: 'addIntegrationMutation',
+    options: props => ({
+      refetchQueries: [
+        {
+          query: gql(queries.integrations),
+          variables: generateListQueryVariables(props)
+        },
+        {
+          query: gql(queries.integrationsCount)
+        }
+      ]
+    })
   }),
   graphql(gql(mutations.addForm), {
     name: 'addFormMutation'

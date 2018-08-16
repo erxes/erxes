@@ -40,11 +40,12 @@ class List extends Component {
   }
 
   renderRow() {
-    const { integrations, members, remove, toggleBulk } = this.props;
+    const { integrations, members, remove, bulk, toggleBulk } = this.props;
 
     return integrations.map(integration => (
       <Row
         key={integration._id}
+        isChecked={bulk.includes(integration)}
         toggleBulk={toggleBulk}
         integration={integration}
         members={members}
@@ -101,7 +102,11 @@ class List extends Component {
         <thead>
           <tr>
             <th>
-              <FormControl componentClass="checkbox" onChange={this.onChange} />
+              <FormControl
+                componentClass="checkbox"
+                checked={bulk.length > 0}
+                onChange={this.onChange}
+              />
             </th>
             <th>{__('Name')}</th>
             <th>{__('Brand')}</th>

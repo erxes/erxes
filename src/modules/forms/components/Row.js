@@ -18,7 +18,8 @@ const propTypes = {
   integration: PropTypes.object.isRequired,
   members: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func,
-  remove: PropTypes.func
+  remove: PropTypes.func,
+  isChecked: PropTypes.bool
 };
 
 class Row extends Component {
@@ -84,7 +85,7 @@ class Row extends Component {
   }
 
   render() {
-    const { integration, toggleBulk } = this.props;
+    const { integration, isChecked, toggleBulk } = this.props;
     const { __ } = this.context;
     const form = integration.form || {};
     const createdUserId = form.createdUserId;
@@ -106,7 +107,11 @@ class Row extends Component {
     return (
       <tr>
         <td>
-          <FormControl componentClass="checkbox" onChange={onChange} />
+          <FormControl
+            checked={isChecked}
+            componentClass="checkbox"
+            onChange={onChange}
+          />
         </td>
         <td>{integration.name}</td>
         <td>{integration.brand ? integration.brand.name : ''}</td>

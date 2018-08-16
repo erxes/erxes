@@ -13,18 +13,12 @@ class ListContainer extends Bulk {
 
   render() {
     const {
-      queryParams,
       integrationsQuery,
       integrationsCountQuery,
       usersQuery,
       tagsQuery,
       removeMutation
     } = this.props;
-
-    if (queryParams.refetch) {
-      integrationsQuery.refetch();
-      integrationsCountQuery.refetch();
-    }
 
     if (integrationsQuery.loading || integrationsCountQuery.loading) {
       return <Spinner />;
