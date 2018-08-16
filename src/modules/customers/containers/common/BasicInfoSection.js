@@ -4,8 +4,9 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import { mutations } from 'modules/customers/graphql';
 import { BasicInfoSection } from 'modules/customers/components/common';
+import { queries, mutations } from 'modules/customers/graphql';
+import { generateListQueryVariables } from 'modules/customers/utils';
 
 const BasicInfoContainer = props => {
   const { customer, customersRemove, customersMerge, history } = props;
@@ -18,7 +19,7 @@ const BasicInfoContainer = props => {
     })
       .then(() => {
         Alert.success('Success');
-        history.push(`/customers?updated`);
+        history.push('/customers');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -54,19 +55,37 @@ BasicInfoContainer.propTypes = {
   customer: PropTypes.object.isRequired,
   customersRemove: PropTypes.func,
   customersMerge: PropTypes.func,
-  history: PropTypes.object.isRequired
+  history: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired
 };
 
 BasicInfoContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-export default compose(
-  // mutations
-  graphql(gql(mutations.customersRemove), {
-    name: 'customersRemove'
-  }),
-  graphql(gql(mutations.customersMerge), {
-    name: 'customersMerge'
-  })
-)(withRouter(BasicInfoContainer));
+const generateOptions = () => ({
+  refetchQueries: [
+    {
+      query: gql(queries.customersMain),
+      variables: generateListQueryVariables({ queryParams: {} })
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: generateListQueryVariables({ queryParams: {} })
+    }
+  ]
+});
+
+export default withRouter(
+  compose(
+    // mutations
+    graphql(gql(mutations.customersRemove), {
+      name: 'customersRemove',
+      options: generateOptions()
+    }),
+    graphql(gql(mutations.customersMerge), {
+      name: 'customersMerge',
+      options: generateOptions()
+    })
+  )(BasicInfoContainer)
+);

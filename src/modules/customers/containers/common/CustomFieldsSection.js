@@ -52,9 +52,7 @@ CustomFieldsSection.propTypes = {
 const options = ({ customer }) => ({
   refetchQueries: [
     {
-      query: gql`
-        ${queries.customerDetail}
-      `,
+      query: gql(queries.customerDetail),
       variables: { _id: customer._id }
     }
   ]

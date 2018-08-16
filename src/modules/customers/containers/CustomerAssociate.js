@@ -48,9 +48,7 @@ export default compose(
     options: ({ data }) => ({
       refetchQueries: [
         {
-          query: gql`
-            ${companyQueries.companyDetail}
-          `,
+          query: gql(companyQueries.companyDetail),
           variables: { _id: data._id }
         }
       ]

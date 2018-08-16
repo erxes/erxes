@@ -10,9 +10,9 @@ import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { queries as tagQueries } from 'modules/tags/graphql';
-import { mutations, queries } from '../graphql';
 import { CustomersList } from '../components';
-import { router } from 'modules/common/utils';
+import { mutations, queries } from '../graphql';
+import { generateListQueryVariables } from '../utils';
 
 class CustomerListContainer extends Bulk {
   constructor(props) {
@@ -43,8 +43,6 @@ class CustomerListContainer extends Bulk {
 
     const { __ } = this.context;
 
-    router.refetchIfUpdated(history, customersMainQuery);
-
     let columnsConfig =
       customersListConfigQuery.fieldsDefaultColumnsConfig || [];
 
@@ -61,7 +59,6 @@ class CustomerListContainer extends Bulk {
       })
         .then(() => {
           this.emptyBulk();
-          customersMainQuery.refetch();
           Alert.success('Success');
         })
         .catch(e => {
@@ -77,9 +74,8 @@ class CustomerListContainer extends Bulk {
         }
       })
         .then(data => {
-          Alert.success('Success');
-          customersMainQuery.refetch();
           callback();
+          Alert.success('Success');
           history.push(`/customers/details/${data.data.customersMerge._id}`);
         })
         .catch(e => {
@@ -139,6 +135,7 @@ class CustomerListContainer extends Bulk {
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
+
     const { list = [], totalCount = 0 } =
       customersMainQuery.customersMain || {};
 
@@ -192,26 +189,8 @@ CustomerListContainer.contextTypes = {
   __: PropTypes.func
 };
 
-const generateParams = ({ queryParams }) => ({
-  variables: {
-    page: queryParams.page,
-    perPage: queryParams.perPage || 20,
-    segment: queryParams.segment,
-    tag: queryParams.tag,
-    ids: queryParams.ids,
-    searchValue: queryParams.searchValue,
-    brand: queryParams.brand,
-    integration: queryParams.integrationType,
-    form: queryParams.form,
-    startDate: queryParams.startDate,
-    endDate: queryParams.endDate,
-    leadStatus: queryParams.leadStatus,
-    lifecycleState: queryParams.lifecycleState,
-    sortField: queryParams.sortField,
-    sortDirection: queryParams.sortDirection
-  },
-
-  notifyOnNetworkStatusChange: true
+const generateParams = props => ({
+  variables: generateListQueryVariables(props)
 });
 
 export default compose(
@@ -228,27 +207,33 @@ export default compose(
     options: () => ({
       variables: {
         type: TAG_TYPES.CUSTOMER
-      },
-      notifyOnNetworkStatusChange: true
+      }
     })
   }),
   graphql(gql(queries.customersListConfig), {
-    name: 'customersListConfigQuery',
-    options: () => ({
-      notifyOnNetworkStatusChange: true
-    })
+    name: 'customersListConfigQuery'
   }),
   graphql(gql(brandQueries.brands), {
-    name: 'brandsQuery',
-    options: () => ({
-      notifyOnNetworkStatusChange: true
-    })
+    name: 'brandsQuery'
   }),
+
   // mutations
   graphql(gql(mutations.customersRemove), {
     name: 'customersRemove'
   }),
   graphql(gql(mutations.customersMerge), {
-    name: 'customersMerge'
+    name: 'customersMerge',
+    options: props => ({
+      refetchQueries: [
+        {
+          query: gql(queries.customersMain),
+          variables: generateListQueryVariables(props)
+        },
+        {
+          query: gql(queries.customerCounts),
+          variables: generateListQueryVariables(props)
+        }
+      ]
+    })
   })
 )(withRouter(CustomerListContainer));
