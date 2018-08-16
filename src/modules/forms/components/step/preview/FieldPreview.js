@@ -20,7 +20,7 @@ class FieldPreview extends Component {
     const { field } = this.props;
 
     return (
-      <FieldItem onClick={this.onEdit}>
+      <FieldItem onClick={this.onEdit} selectType={field.type}>
         <GenerateField field={field} />
       </FieldItem>
     );
