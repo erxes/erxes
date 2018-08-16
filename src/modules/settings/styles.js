@@ -231,7 +231,7 @@ const SidebarListItem = styled.li`
     background: ${props => !props.isActive && colors.bgLight};
 
     ${ActionButtons} {
-      transform: translate(0px);
+      width: 35px;
     }
   }
 `;

@@ -7,7 +7,6 @@ import { withRouter } from 'react-router';
 
 import {
   DropdownToggle,
-  TaggerPopover,
   ModalTrigger,
   Pagination,
   Button,
@@ -15,16 +14,18 @@ import {
   Table,
   FormControl,
   DataWithLoader,
-  DateFilter
+  DateFilter,
+  SortHandler
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
+import { ManageColumns } from 'modules/settings/properties/containers';
+import { TaggerPopover } from 'modules/tags/components';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
-import { CommonMerge } from '../';
 import { CustomerForm } from '../../containers';
-import { ManageColumns } from 'modules/settings/properties/containers';
+import { CustomersMerge } from '../';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
@@ -44,7 +45,6 @@ const propTypes = {
   loadingTags: PropTypes.bool.isRequired,
   removeCustomers: PropTypes.func.isRequired,
   mergeCustomers: PropTypes.func.isRequired,
-  basicInfos: PropTypes.object.isRequired,
   queryParams: PropTypes.object,
   exportCustomers: PropTypes.func,
   handleXlsUpload: PropTypes.func
@@ -89,7 +89,10 @@ class CustomersList extends React.Component {
               <FormControl componentClass="checkbox" onChange={this.onChange} />
             </th>
             {columnsConfig.map(({ name, label }) => (
-              <th key={name}>{__(label)}</th>
+              <th key={name}>
+                <SortHandler sortField={name} />
+                {__(label)}
+              </th>
             ))}
             <th>{__('Tags')}</th>
           </tr>
@@ -136,13 +139,13 @@ class CustomersList extends React.Component {
       customers,
       loadingTags,
       mergeCustomers,
-      basicInfos,
       location,
       history,
       queryParams,
       exportCustomers,
       handleXlsUpload
     } = this.props;
+
     const { __ } = this.context;
 
     const addTrigger = (
@@ -219,6 +222,7 @@ class CustomersList extends React.Component {
     );
 
     let actionBarLeft = null;
+
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="shuffle">
         Merge
@@ -237,7 +241,7 @@ class CustomersList extends React.Component {
           <Widget customers={bulk} />
           <TaggerPopover
             type="customer"
-            afterSave={emptyBulk}
+            successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
           />
@@ -247,11 +251,7 @@ class CustomersList extends React.Component {
               size="lg"
               trigger={mergeButton}
             >
-              <CommonMerge
-                datas={bulk}
-                save={mergeCustomers}
-                basicInfos={basicInfos}
-              />
+              <CustomersMerge objects={bulk} save={mergeCustomers} />
             </ModalTrigger>
           )}
           <Button

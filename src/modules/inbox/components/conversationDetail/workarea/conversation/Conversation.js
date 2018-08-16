@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Message from './Message';
 import AttachmentPreview from './AttachmentPreview';
 import { TwitterConversation } from './TwitterConversation';
+import { FacebookConversation } from './FacebookConversation';
 import { Spinner } from 'modules/common/components';
 
 const propTypes = {
@@ -73,9 +74,21 @@ class Conversation extends Component {
   }
 
   renderConversation() {
-    const { conversation, scrollBottom, conversationMessages } = this.props;
+    const {
+      loading,
+      conversation,
+      scrollBottom,
+      conversationMessages
+    } = this.props;
+
+    if (loading) {
+      return <Spinner objective />;
+    }
+
     const twitterData = conversation.twitterData;
+    const facebookData = conversation.facebookData;
     const isTweet = twitterData && !twitterData.isDirectMessage;
+    const isFacebookPost = facebookData && facebookData.kind !== 'messenger';
 
     if (isTweet) {
       return (
@@ -87,15 +100,24 @@ class Conversation extends Component {
       );
     }
 
+    if (isFacebookPost) {
+      return (
+        <FacebookConversation
+          conversation={conversation}
+          scrollBottom={scrollBottom}
+          conversationMessages={conversationMessages}
+        />
+      );
+    }
+
     return this.renderMessages();
   }
 
   render() {
-    const { attachmentPreview, scrollBottom, loading } = this.props;
+    const { attachmentPreview, scrollBottom } = this.props;
 
     return (
       <Wrapper>
-        {loading && <Spinner objective />}
         {this.renderConversation()}
         <AttachmentPreview
           scrollBottom={scrollBottom}

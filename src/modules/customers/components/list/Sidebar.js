@@ -4,7 +4,7 @@ import { Wrapper } from 'modules/layout/components';
 import { CountsByTag } from 'modules/common/components';
 import Segments from 'modules/segments/containers/Filter';
 import { BrandFilter, FormFilter } from '../../containers';
-import { IntegrationFilter } from '../';
+import { IntegrationFilter, LeadStatusFilter, LifecycleStateFilter } from '../';
 
 const propTypes = {
   counts: PropTypes.object.isRequired,
@@ -25,6 +25,11 @@ function Sidebar({ counts, tags, loading }) {
       <IntegrationFilter counts={counts.byIntegrationType} />
       <BrandFilter counts={counts.byBrand} />
       <FormFilter counts={counts.byForm} />
+      <LeadStatusFilter counts={counts.byLeadStatus} loading={loading} />
+      <LifecycleStateFilter
+        counts={counts.byLifecycleState}
+        loading={loading}
+      />
     </Wrapper.Sidebar>
   );
 }

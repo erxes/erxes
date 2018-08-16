@@ -8,10 +8,14 @@ import { Bulk } from 'modules/common/components';
 import { mutations, queries } from '../graphql';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { CompaniesList } from '../components';
-import { COMPANY_INFO } from '../constants';
 import { router } from 'modules/common/utils';
 
 class CompanyListContainer extends Bulk {
+  refetch() {
+    this.props.companiesMainQuery.refetch();
+    this.props.companyCountsQuery.refetch();
+  }
+
   render() {
     const {
       companiesMainQuery,
@@ -75,7 +79,9 @@ class CompanyListContainer extends Bulk {
       byBrand: {},
       byIntegrationType: {},
       bySegment: {},
-      byTag: {}
+      byTag: {},
+      byLeadStatus: {},
+      byLifecycleState: {}
     };
 
     const updatedProps = {
@@ -95,8 +101,7 @@ class CompanyListContainer extends Bulk {
       toggleAll: this.toggleAll,
       removeCompanies,
       mergeCompanies,
-      loadingTags: tagsQuery.loading,
-      basicInfos: COMPANY_INFO
+      loadingTags: tagsQuery.loading
     };
 
     return <CompaniesList {...updatedProps} />;
@@ -122,7 +127,11 @@ export default compose(
         segment: queryParams.segment,
         tag: queryParams.tag,
         ids: queryParams.ids,
-        searchValue: queryParams.searchValue
+        searchValue: queryParams.searchValue,
+        leadStatus: queryParams.leadStatus,
+        lifecycleState: queryParams.lifecycleState,
+        sortField: queryParams.sortField,
+        sortDirection: queryParams.sortDirection
       },
       notifyOnNetworkStatusChange: true
     })
@@ -136,7 +145,9 @@ export default compose(
         segment: queryParams.segment,
         tag: queryParams.tag,
         ids: queryParams.ids,
-        searchValue: queryParams.searchValue
+        searchValue: queryParams.searchValue,
+        leadStatus: queryParams.leadStatus,
+        lifecycleState: queryParams.lifecycleState
       },
       notifyOnNetworkStatusChange: true
     })

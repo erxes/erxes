@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Wrapper, Sidebar } from 'modules/layout/components';
+import { Wrapper } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
 import {
   DataWithLoader,
@@ -12,19 +12,16 @@ import {
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
-import { CustomerAssociate } from 'modules/customers/containers';
-import { DealSection } from 'modules/deals/containers';
+import RightSidebar from './RightSidebar';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { ActivityContent } from 'modules/common/styles/main';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
-  fieldsGroups: PropTypes.array.isRequired,
-  queryParams: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
   companyActivityLog: PropTypes.array.isRequired,
-  loadingLogs: PropTypes.bool.isRequired,
-  history: PropTypes.object
+  taggerRefetchQueries: PropTypes.array,
+  loadingLogs: PropTypes.bool.isRequired
 };
 
 class CompanyDetails extends React.Component {
@@ -42,12 +39,14 @@ class CompanyDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
+
     const {
       currentUser,
       companyActivityLog,
       company,
       loadingLogs
     } = this.props;
+
     const hasActivity = hasAnyActivity(companyActivityLog);
 
     return (
@@ -72,20 +71,13 @@ class CompanyDetails extends React.Component {
 
   render() {
     const { currentTab } = this.state;
-    const { company } = this.props;
+    const { company, taggerRefetchQueries } = this.props;
     const { __ } = this.context;
 
     const breadcrumb = [
       { title: __('Companies'), link: '/companies' },
       { title: company.primaryName || company.email || 'N/A' }
     ];
-
-    const rightSidebar = (
-      <Sidebar>
-        <CustomerAssociate data={company} />
-        <DealSection companyId={company._id} />
-      </Sidebar>
-    );
 
     const content = (
       <div>
@@ -127,8 +119,13 @@ class CompanyDetails extends React.Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<LeftSidebar {...this.props} />}
-        rightSidebar={rightSidebar}
+        leftSidebar={
+          <LeftSidebar
+            {...this.props}
+            taggerRefetchQueries={taggerRefetchQueries}
+          />
+        }
+        rightSidebar={<RightSidebar company={company} />}
         content={content}
         transparent={true}
       />

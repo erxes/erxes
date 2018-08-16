@@ -13,7 +13,8 @@ import { PopoverButton } from 'modules/inbox/styles';
 
 const propTypes = {
   history: PropTypes.object.isRequired,
-  client: PropTypes.object
+  client: PropTypes.object,
+  queryParams: PropTypes.object
 };
 
 class StatusFilterPopover extends Component {
@@ -32,14 +33,12 @@ class StatusFilterPopover extends Component {
   }
 
   onClick() {
-    const { client } = this.props;
+    const { client, queryParams } = this.props;
 
     client
       .query({
         query: gql(queries.conversationCounts),
-        variables: queryParams => {
-          generateParams(queryParams);
-        }
+        variables: generateParams(queryParams)
       })
       .then(({ data, loading }) => {
         this.setState({ counts: data.conversationCounts, loading });

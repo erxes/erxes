@@ -17,10 +17,12 @@ import {
 import { searchCompany, searchUser } from 'modules/common/utils';
 import {
   COMPANY_INDUSTRY_TYPES,
-  COMPANY_LEAD_STATUS_TYPES,
-  COMPANY_LIFECYCLE_STATE_TYPES,
   COMPANY_BUSINESS_TYPES
 } from '../../constants';
+import {
+  leadStatusChoices,
+  lifecycleStateChoices
+} from 'modules/customers/utils';
 
 const propTypes = {
   action: PropTypes.func.isRequired,
@@ -37,12 +39,17 @@ class CompanyForm extends React.Component {
     super(props);
 
     const { company = {} } = props;
+    const companies = [];
+
+    if (company.parentCompany) {
+      companies.push(company.parentCompany);
+    }
 
     this.state = {
       parentCompanyId: company.parentCompanyId || '',
       ownerId: company.ownerId || '',
+      companies,
       doNotDisturb: company.doNotDisturb || 'No',
-      companies: [],
       users: []
     };
 
@@ -70,7 +77,6 @@ class CompanyForm extends React.Component {
         primaryName,
         size: document.getElementById('company-size').value,
         industry: document.getElementById('company-industry').value,
-        plan: document.getElementById('company-plan').value,
         parentCompanyId: this.state.parentCompanyId,
         email: document.getElementById('company-email').value,
         ownerId: this.state.ownerId,
@@ -79,7 +85,6 @@ class CompanyForm extends React.Component {
         lifecycleState: document.getElementById('company-lifecycleState').value,
         businessType: document.getElementById('company-businessType').value,
         description: document.getElementById('company-description').value,
-        employees: document.getElementById('company-employees').value,
         doNotDisturb: this.state.doNotDisturb,
         links: {
           linkedIn: document.getElementById('company-linkedIn').value,
@@ -145,7 +150,7 @@ class CompanyForm extends React.Component {
     const { __ } = this.context;
     const { company = {} } = this.props;
     const { links = {}, primaryName, names } = company;
-    const { companies, users } = this.state;
+    const { parentCompanyId, ownerId, companies, users } = this.state;
 
     return (
       <form onSubmit={e => this.action(e)}>
@@ -179,29 +184,21 @@ class CompanyForm extends React.Component {
                 onChange={option =>
                   this.handleSelect(option, 'parentCompanyId')
                 }
-                value={this.state.parentCompanyId}
+                value={parentCompanyId}
                 options={this.generateCompanyParams(companies)}
               />
             </FormGroup>
-            {this.renderFormGroup('Plan', {
-              id: 'company-plan',
-              defaultValue: company.plan || ''
-            })}
             {this.renderFormGroup('Lead Status', {
               id: 'company-leadStatus',
               componentClass: 'select',
               defaultValue: company.leadStatus || '',
-              options: this.generateConstantParams(COMPANY_LEAD_STATUS_TYPES)
+              options: leadStatusChoices(__)
             })}
             {this.renderFormGroup('Business Type', {
               id: 'company-businessType',
               componentClass: 'select',
               defaultValue: company.businessType || '',
               options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
-            })}
-            {this.renderFormGroup('Employees count', {
-              id: 'company-employees',
-              defaultValue: company.employees || 0
             })}
           </FormColumn>
           <FormColumn>
@@ -220,7 +217,7 @@ class CompanyForm extends React.Component {
                 onFocus={() => users.length < 1 && this.handleUserSearch('')}
                 onInputChange={this.handleUserSearch}
                 onChange={option => this.handleSelect(option, 'ownerId')}
-                value={this.state.ownerId}
+                value={ownerId}
                 options={this.generateUserParams(users)}
               />
             </FormGroup>
@@ -232,9 +229,7 @@ class CompanyForm extends React.Component {
               id: 'company-lifecycleState',
               componentClass: 'select',
               defaultValue: company.lifecycleState || '',
-              options: this.generateConstantParams(
-                COMPANY_LIFECYCLE_STATE_TYPES
-              )
+              options: lifecycleStateChoices(__)
             })}
             {this.renderFormGroup('Description', {
               id: 'company-description',

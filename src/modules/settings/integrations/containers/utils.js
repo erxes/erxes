@@ -33,3 +33,10 @@ export const save = ({
       Alert.error(error.message);
     });
 };
+
+export const integrationsListParams = queryParams => ({
+  searchValue: queryParams.searchValue,
+  page: queryParams.page,
+  perPage: queryParams.perPage || 20,
+  kind: queryParams.kind
+});

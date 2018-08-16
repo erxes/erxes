@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Wrapper, Sidebar } from 'modules/layout/components';
+import { Wrapper } from 'modules/layout/components';
 import {
   DataWithLoader,
   Tabs,
@@ -12,19 +12,17 @@ import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import { renderFullName } from 'modules/common/utils';
-import { DealSection } from 'modules/deals/containers';
-import { EditInformation } from '../../containers';
-import { CompanyAssociate } from 'modules/companies/containers';
-import { hasAnyActivity } from '../../utils';
 import { ActivityContent } from 'modules/common/styles/main';
+import { hasAnyActivity } from '../../utils';
+import LeftSidebar from './LeftSidebar';
+import RightSidebar from './RightSidebar';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
-  queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired,
-  loadingLogs: PropTypes.bool,
-  history: PropTypes.object
+  taggerRefetchQueries: PropTypes.array,
+  loadingLogs: PropTypes.bool
 };
 
 class CustomerDetails extends React.Component {
@@ -42,6 +40,7 @@ class CustomerDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
+
     const {
       currentUser,
       activityLogsCustomer,
@@ -73,7 +72,7 @@ class CustomerDetails extends React.Component {
 
   render() {
     const { currentTab } = this.state;
-    const { customer } = this.props;
+    const { customer, taggerRefetchQueries } = this.props;
     const { __ } = this.context;
 
     const breadcrumb = [
@@ -118,18 +117,17 @@ class CustomerDetails extends React.Component {
       </div>
     );
 
-    const rightSidebar = (
-      <Sidebar>
-        <CompanyAssociate data={customer} />
-        <DealSection customerId={customer._id} />
-      </Sidebar>
-    );
-
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<EditInformation wide customer={customer} />}
-        rightSidebar={rightSidebar}
+        leftSidebar={
+          <LeftSidebar
+            wide
+            customer={customer}
+            taggerRefetchQueries={taggerRefetchQueries}
+          />
+        }
+        rightSidebar={<RightSidebar customer={customer} />}
         content={content}
         transparent={true}
       />

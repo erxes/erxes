@@ -99,7 +99,7 @@ class ChannelRow extends Component {
 
     return (
       <SidebarListItem key={channel._id} isActive={isActive}>
-        <Link to={`?id=${channel._id}`}>
+        <Link to={`?_id=${channel._id}`}>
           {channel.name}
           <Members>{this.renderMembers()}</Members>
         </Link>

@@ -129,11 +129,7 @@ export default class WorkArea extends Component {
 
     const actionBarRight = (
       <BarItems>
-        <Tagger
-          targets={[currentConversation]}
-          type="conversation"
-          trigger={tagTrigger}
-        />
+        <Tagger targets={[currentConversation]} trigger={tagTrigger} />
 
         <Resolver conversations={[currentConversation]} />
       </BarItems>

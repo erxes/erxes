@@ -261,6 +261,7 @@
   "Add Category": "Add Category",
   "Add Article": "Add Article",
   "Customer engagement. REDEFINED.": "Customer engagement. REDEFINED.",
+  "Democratizing business": "Democratizing business",
   "erxes is an AI meets open source messaging platform for sales, marketing and support":
     "erxes is an AI meets open source messaging platform for sales, marketing and support",
   "404. This page is not found.": "404. This page is not found.",
@@ -270,6 +271,7 @@
   "Mark Page Read": "Mark Page Read",
   "Mark All Read": "Mark All Read",
   "Coming soon": "Coming soon",
+  "No notifications": "No notifications",
   "AI": "AI",
   "See all": "See all",
   "Select a field": "Select a field",
@@ -663,5 +665,7 @@
   "You can only import max 600 at a time":
     "You can only import max 600 at a time",
   "Invalid import type": "Invalid import type",
-  "Last updated": "Last updated"
+  "Last updated": "Last updated",
+  "Filter by lead status": "Filter by lead status",
+  "No lead status chosen": "No lead status chosen"
 }

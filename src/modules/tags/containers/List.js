@@ -4,6 +4,7 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
 import { List } from '../components';
+import { queries, mutations } from '../graphql';
 
 const ListContainer = props => {
   const { tagsQuery, addMutation, editMutation, removeMutation, type } = props;
@@ -60,58 +61,14 @@ ListContainer.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql`
-      query tagsQuery($type: String) {
-        tags(type: $type) {
-          _id
-          name
-          type
-          colorCode
-          createdAt
-          objectCount
-        }
-      }
-    `,
-    {
-      name: 'tagsQuery',
-      options: ({ type }) => ({
-        variables: { type },
-        fetchPolicy: 'network-only'
-      })
-    }
-  ),
-  graphql(
-    gql`
-      mutation tagsAdd($name: String!, $type: String!, $colorCode: String) {
-        tagsAdd(name: $name, type: $type, colorCode: $colorCode) {
-          _id
-        }
-      }
-    `,
-    { name: 'addMutation' }
-  ),
-  graphql(
-    gql`
-      mutation tagsEdit(
-        $_id: String!
-        $name: String!
-        $type: String!
-        $colorCode: String
-      ) {
-        tagsEdit(_id: $_id, name: $name, type: $type, colorCode: $colorCode) {
-          _id
-        }
-      }
-    `,
-    { name: 'editMutation' }
-  ),
-  graphql(
-    gql`
-      mutation tagsRemove($ids: [String!]!) {
-        tagsRemove(ids: $ids)
-      }
-    `,
-    { name: 'removeMutation' }
-  )
+  graphql(gql(queries.tags), {
+    name: 'tagsQuery',
+    options: ({ type }) => ({
+      variables: { type },
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql(gql(mutations.add), { name: 'addMutation' }),
+  graphql(gql(mutations.edit), { name: 'editMutation' }),
+  graphql(gql(mutations.remove), { name: 'removeMutation' })
 )(ListContainer);

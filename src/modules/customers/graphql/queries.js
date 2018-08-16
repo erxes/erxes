@@ -1,53 +1,59 @@
-const customerFields = `
+const basicFields = `
+  _id
+  firstName
+  lastName
+  avatar
+
+  primaryEmail
+  emails
+  primaryPhone
+  phones
+
+  isUser
+  visitorContactInfo
+
+  position
+  department
+  leadStatus
+  lifecycleState
+  hasAuthority
+  description
+  doNotDisturb
+  links {
+    linkedIn
+    twitter
+    facebook
+    github
+    youtube
+    website
+  }
+  ownerId
+  owner {
     _id
-    firstName
-    lastName
-
-    primaryEmail
-    emails
-    primaryPhone
-    phones
-
-    isUser
-    integrationId
-    createdAt
-    remoteAddress
-    location
-    visitorContactInfo
-
-    customFieldsData
-    messengerData
-    twitterData
-    facebookData
-
-    ownerId
-    position
-    department
-    leadStatus
-    lifecycleState
-    hasAuthority
-    description
-    doNotDisturb
-    links {
-      linkedIn
-      twitter
-      facebook
-      github
-      youtube
-      website
+    details {
+      fullName
     }
-    owner {
-      details {
-        fullName
-      }
-    }
+  }
+`;
 
-    tagIds
-    getTags {
-      _id
-      name
-      colorCode
-    }
+const customerFields = `
+  ${basicFields}
+  integrationId
+  createdAt
+  remoteAddress
+  location
+
+  customFieldsData
+  messengerData
+  twitterData
+  facebookData
+
+  tagIds
+  getTags {
+    _id
+    name
+    colorCode
+  }
 `;
 
 const listParamsDef = `
@@ -61,7 +67,11 @@ const listParamsDef = `
   $integration: String,
   $form: String,
   $startDate: String,
-  $endDate: String
+  $endDate: String,
+  $leadStatus: String,
+  $lifecycleState: String,
+  $sortField: String,
+  $sortDirection: Int
 `;
 
 const listParamsValue = `
@@ -75,7 +85,11 @@ const listParamsValue = `
   integration: $integration
   form: $form,
   startDate: $startDate,
-  endDate: $endDate
+  endDate: $endDate,
+  leadStatus: $leadStatus,
+  lifecycleState: $lifecycleState,
+  sortField: $sortField,
+  sortDirection: $sortDirection
 `;
 
 const customers = `
@@ -114,6 +128,11 @@ const customerDetail = `
   query customerDetail($_id: String!) {
     customerDetail(_id: $_id) {
       ${customerFields}
+      integration {
+        kind
+        name
+      }
+      getMessengerCustomData
       companies {
         _id
         primaryName
@@ -156,48 +175,6 @@ const customerDetail = `
         }
         readUserIds
       }
-      deals {
-        _id
-        companies {
-          _id
-          primaryName
-        }
-        customers {
-          _id
-          firstName
-          primaryEmail
-        }
-        products
-        amount
-        closeDate
-        assignedUsers {
-          _id
-          email
-          details {
-            fullName
-            avatar
-          }
-        }
-      }
-    }
-  }
-`;
-
-const brands = `
-  query brands {
-    brands {
-      _id
-      name
-    }
-  }
-`;
-
-const tags = `
-  query tags($type: String) {
-    tags(type: $type) {
-      _id
-      name
-      colorCode
     }
   }
 `;
@@ -237,138 +214,13 @@ const activityLogsCustomer = `
   }
 `;
 
-const generateCustomerDetailQuery = params => {
-  const {
-    showProfile,
-    showCompany,
-    showDeviceProperty,
-    showMessenger,
-    showFacebook,
-    showTwitter,
-    showOtherProperty,
-    showTags
-  } =
-    params || {};
-
-  let fields = `
-    _id
-    integration {
-      kind
-    }
-  `;
-
-  if (showProfile) {
-    fields = `
-      ${fields}
-      firstName
-      lastName
-
-      primaryEmail
-      emails
-      primaryPhone
-      phones
-
-      isUser
-      visitorContactInfo
-
-      position
-      department
-      leadStatus
-      lifecycleState
-      hasAuthority
-      description
-      doNotDisturb
-      links {
-        linkedIn
-        twitter
-        facebook
-        github
-        youtube
-        website
-      }
-      owner {
-        details {
-          fullName
-        }
-      }
-    `;
-  }
-
-  if (showCompany) {
-    fields = `
-      ${fields}
-      companies {
-        _id
-        primaryName
-        website
-      }
-    `;
-  }
-
-  if (showMessenger) {
-    fields = `
-      ${fields}
-      messengerData
-    `;
-  }
-
-  if (showFacebook) {
-    fields = `
-      ${fields}
-      facebookData
-    `;
-  }
-
-  if (showTwitter) {
-    fields = `
-      ${fields}
-      twitterData
-    `;
-  }
-
-  if (showDeviceProperty) {
-    fields = `
-      ${fields}
-      location
-    `;
-  }
-
-  if (showOtherProperty) {
-    fields = `
-      ${fields}
-      getMessengerCustomData
-    `;
-  }
-
-  if (showTags) {
-    fields = `
-      ${fields}
-      getTags {
-        _id
-        name
-        colorCode
-      }
-    `;
-  }
-
-  return `
-    query customerDetail($_id: String!) {
-      customerDetail(_id: $_id) {
-        ${fields}
-      }
-    }
-  `;
-};
-
 export default {
+  basicFields,
   customers,
   customersMain,
   customerCounts,
   customerDetail,
-  brands,
-  tags,
   customersListConfig,
   activityLogsCustomer,
-  generateCustomerDetailQuery,
   customersExport
 };

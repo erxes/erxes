@@ -14,9 +14,7 @@ import ModalTrigger from './ModalTrigger';
 import ActionButtons from './ActionButtons';
 import EmptyState from './EmptyState';
 import Bulk from './Bulk';
-import Tagger from './tagger/containers/Tagger';
 import Filter from './filter/Filter';
-import TaggerPopover from './tagger/components/TaggerPopover';
 import Tags from './Tags';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
@@ -36,6 +34,8 @@ import IntegrationIcon from './IntegrationIcon';
 import Chooser from './Chooser';
 import DateFilter from './DateFilter';
 import ModifiableSelect from './ModifiableSelect';
+import Uploader from './Uploader';
+import SortHandler from './SortHandler';
 
 // TODO remove
 const pagination = {};
@@ -61,8 +61,6 @@ export {
   CountsByTag,
   Filter,
   FilterByParams,
-  Tagger,
-  TaggerPopover,
   Tags,
   FilterableList,
   DropdownToggle,
@@ -86,5 +84,7 @@ export {
   IntegrationIcon,
   Chooser,
   DateFilter,
-  ModifiableSelect
+  ModifiableSelect,
+  Uploader,
+  SortHandler
 };

@@ -1,3 +1,4 @@
+import { queries as customerQueries } from 'modules/customers/graphql';
 import conversationFields from './conversationFields';
 import messageFields from './messageFields';
 
@@ -70,6 +71,7 @@ const sidebarConversations = `
         primaryEmail
         primaryPhone
         isUser
+        avatar
         visitorContactInfo
         facebookData
         twitterData
@@ -167,8 +169,8 @@ const tagList = `
 `;
 
 const conversationCounts = `
-  query conversationCounts(${listParamsDef}) {
-    conversationCounts(${listParamsValue})
+  query conversationCounts(${listParamsDef}, $only: String) {
+    conversationCounts(${listParamsValue}, only: $only)
   }
 `;
 
@@ -203,6 +205,85 @@ const responseTemplateList = `
   }
 `;
 
+const generateCustomerDetailQuery = params => {
+  const {
+    showProfile,
+    showDeviceProperties,
+    showMessengerData,
+    showCustomFields,
+    showCompanies,
+    showTags
+  } =
+    params || {};
+
+  let fields = `
+    _id
+    integration {
+      kind
+    }
+  `;
+
+  if (showProfile) {
+    fields = `
+      ${fields}
+      ${customerQueries.basicFields}
+    `;
+  }
+
+  if (showMessengerData) {
+    fields = `
+      ${fields}
+      messengerData
+      getMessengerCustomData
+    `;
+  }
+
+  if (showCustomFields) {
+    fields = `
+      ${fields}
+      customFieldsData
+    `;
+  }
+
+  if (showDeviceProperties) {
+    fields = `
+      ${fields}
+      location
+    `;
+  }
+
+  if (showCompanies) {
+    fields = `
+      ${fields}
+      companies {
+        _id
+        primaryName
+        website
+      }
+    `;
+  }
+
+  if (showTags) {
+    fields = `
+      ${fields}
+      tagIds
+      getTags {
+        _id
+        name
+        colorCode
+      }
+    `;
+  }
+
+  return `
+    query customerDetail($_id: String!) {
+      customerDetail(_id: $_id) {
+        ${fields}
+      }
+    }
+  `;
+};
+
 export default {
   conversationList,
   sidebarConversations,
@@ -218,5 +299,6 @@ export default {
   conversationCounts,
   totalConversationsCount,
   unreadConversationsCount,
-  lastConversation
+  lastConversation,
+  generateCustomerDetailQuery
 };

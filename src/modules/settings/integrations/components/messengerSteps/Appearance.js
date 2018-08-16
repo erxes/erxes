@@ -40,10 +40,10 @@ class Appearance extends Component {
   }
 
   handleLogoChange(e) {
-    const imageFile = e.target.files[0];
+    const imageFile = e.target.files;
 
     uploadHandler({
-      file: imageFile,
+      files: imageFile,
 
       beforeUpload: () => {
         this.onChange('logoPreviewStyle', { opacity: '0.7' });

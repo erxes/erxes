@@ -10,6 +10,10 @@ import { MessageList } from '../components';
 import { queries } from '../graphql';
 
 class MessageListContainer extends Bulk {
+  refetch() {
+    this.props.engageMessagesQuery.refetch();
+  }
+
   render() {
     const {
       queryParams,

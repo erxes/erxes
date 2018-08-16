@@ -9,16 +9,17 @@ import {
   Table,
   DataWithLoader,
   FormControl,
-  TaggerPopover
+  SortHandler
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
+import { ManageColumns } from 'modules/settings/properties/containers';
+import { TaggerPopover } from 'modules/tags/components';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import { CompanyForm } from '../../containers';
-import { ManageColumns } from 'modules/settings/properties/containers';
-import { CommonMerge } from 'modules/customers/components';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
+import { CompaniesMerge } from '../';
 
 const propTypes = {
   companies: PropTypes.array.isRequired,
@@ -36,7 +37,6 @@ const propTypes = {
   removeCompanies: PropTypes.func.isRequired,
   loadingTags: PropTypes.bool.isRequired,
   mergeCompanies: PropTypes.func.isRequired,
-  basicInfos: PropTypes.object.isRequired,
   queryParams: PropTypes.object
 };
 
@@ -100,7 +100,6 @@ class CompaniesList extends React.Component {
       tags,
       loadingTags,
       mergeCompanies,
-      basicInfos,
       queryParams
     } = this.props;
     const { __ } = this.context;
@@ -117,7 +116,10 @@ class CompaniesList extends React.Component {
                 />
               </th>
               {columnsConfig.map(({ name, label }) => (
-                <th key={name}>{__(label)}</th>
+                <th key={name}>
+                  <SortHandler sortField={name} />
+                  {__(label)}
+                </th>
               ))}
               <th>{__('Tags')}</th>
             </tr>
@@ -168,7 +170,7 @@ class CompaniesList extends React.Component {
         <BarItems>
           <TaggerPopover
             type="company"
-            afterSave={emptyBulk}
+            successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
           />
@@ -179,11 +181,7 @@ class CompaniesList extends React.Component {
               size="lg"
               trigger={mergeButton}
             >
-              <CommonMerge
-                datas={bulk}
-                save={mergeCompanies}
-                basicInfos={basicInfos}
-              />
+              <CompaniesMerge objects={bulk} save={mergeCompanies} />
             </ModalTrigger>
           )}
 

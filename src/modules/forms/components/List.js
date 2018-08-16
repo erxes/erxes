@@ -8,9 +8,9 @@ import {
   Table,
   Pagination,
   FormControl,
-  TaggerPopover,
   DataWithLoader
 } from 'modules/common/components';
+import { TaggerPopover } from 'modules/tags/components';
 import { Row } from '/';
 import { Tags as Tag } from '../containers';
 
@@ -70,7 +70,7 @@ class List extends Component {
         <BarItems>
           <TaggerPopover
             type="integration"
-            afterSave={emptyBulk}
+            successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
           />

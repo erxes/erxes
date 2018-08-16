@@ -9,7 +9,31 @@ export const COMPANY_INFO = {
   lifecycleState: 'Lifecycle State',
   businessType: 'Business Type',
   description: 'Description',
-  doNotDisturb: 'Do not disturb'
+  doNotDisturb: 'Do not disturb',
+
+  ALL: [
+    { field: 'primaryName', label: 'Primary Name' },
+    { field: 'size', label: 'Size' },
+    { field: 'industry', label: 'Industry' },
+    { field: 'plan', label: 'Plan' },
+    { field: 'email', label: 'Email' },
+    { field: 'phone', label: 'Phone' },
+    { field: 'leadStatus', label: 'Lead Status' },
+    { field: 'lifecycleState', label: 'Lifecycle State' },
+    { field: 'businessType', label: 'Business Type' },
+    { field: 'description', label: 'Description' },
+    { field: 'doNotDisturb', label: 'Do not disturb' }
+  ]
+};
+
+export const COMPANY_DATAS = {
+  owner: 'Owner',
+  parentCompany: 'Parent Company',
+
+  ALL: [
+    { field: 'owner', label: 'Owner' },
+    { field: 'parentCompany', label: 'Parent Company' }
+  ]
 };
 
 export const COMPANY_INDUSTRY_TYPES = [
@@ -67,30 +91,6 @@ export const COMPANY_INDUSTRY_TYPES = [
   'Tobacco',
   'Transportation',
   'TV / Movies / Music'
-];
-
-export const COMPANY_LEAD_STATUS_TYPES = [
-  '',
-  'New',
-  'Open',
-  'In Progress',
-  'Open Deal',
-  'Unqualified',
-  'Attempted to contact',
-  'Connected',
-  'Bad Timing'
-];
-
-export const COMPANY_LIFECYCLE_STATE_TYPES = [
-  '',
-  'Subscriber',
-  'Lead',
-  'Marketing Qualified Lead',
-  'Sales Qualified Lead',
-  'Opportunity',
-  'Customer',
-  'Evangelist',
-  'Other'
 ];
 
 export const COMPANY_BUSINESS_TYPES = [

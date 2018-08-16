@@ -7,8 +7,9 @@ import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
 import { Alert, uploadHandler } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
+import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import { TAG_TYPES } from 'modules/tags/constants';
-import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../constants';
+import { queries as tagQueries } from 'modules/tags/graphql';
 import { mutations, queries } from '../graphql';
 import { CustomersList } from '../components';
 import { router } from 'modules/common/utils';
@@ -21,6 +22,11 @@ class CustomerListContainer extends Bulk {
       ...this.state,
       loading: false
     };
+  }
+
+  refetch() {
+    this.props.customersMainQuery.refetch();
+    this.props.customerCountsQuery.refetch();
   }
 
   render() {
@@ -105,11 +111,11 @@ class CustomerListContainer extends Bulk {
     };
 
     const handleXlsUpload = e => {
-      const xlsFile = e.target.files[0];
+      const xlsFile = e.target.files;
 
       uploadHandler({
         type: 'import',
-        file: xlsFile,
+        files: xlsFile,
         extraFormData: [{ key: 'type', value: 'customers' }],
         url: `${process.env.REACT_APP_API_URL}/import-file`,
         responseType: 'json',
@@ -141,7 +147,9 @@ class CustomerListContainer extends Bulk {
       byIntegrationType: {},
       bySegment: {},
       byTag: {},
-      byForm: {}
+      byForm: {},
+      byLeadStatus: {},
+      byLifecycleState: {}
     };
 
     const updatedProps = {
@@ -165,8 +173,7 @@ class CustomerListContainer extends Bulk {
       loading: customersMainQuery.loading || this.state.loading,
       loadingTags: tagsQuery.loading,
       mergeCustomers,
-      removeCustomers,
-      basicInfos: Object.assign({}, CUSTOMER_BASIC_INFO, CUSTOMER_DATAS)
+      removeCustomers
     };
 
     return <CustomersList {...updatedProps} />;
@@ -185,46 +192,38 @@ CustomerListContainer.contextTypes = {
   __: PropTypes.func
 };
 
+const generateParams = ({ queryParams }) => ({
+  variables: {
+    page: queryParams.page,
+    perPage: queryParams.perPage || 20,
+    segment: queryParams.segment,
+    tag: queryParams.tag,
+    ids: queryParams.ids,
+    searchValue: queryParams.searchValue,
+    brand: queryParams.brand,
+    integration: queryParams.integrationType,
+    form: queryParams.form,
+    startDate: queryParams.startDate,
+    endDate: queryParams.endDate,
+    leadStatus: queryParams.leadStatus,
+    lifecycleState: queryParams.lifecycleState,
+    sortField: queryParams.sortField,
+    sortDirection: queryParams.sortDirection
+  },
+
+  notifyOnNetworkStatusChange: true
+});
+
 export default compose(
   graphql(gql(queries.customersMain), {
     name: 'customersMainQuery',
-    options: ({ queryParams }) => {
-      return {
-        variables: {
-          page: queryParams.page,
-          perPage: queryParams.perPage || 20,
-          segment: queryParams.segment,
-          tag: queryParams.tag,
-          ids: queryParams.ids,
-          searchValue: queryParams.searchValue,
-          brand: queryParams.brand,
-          integration: queryParams.integrationType,
-          form: queryParams.form,
-          startDate: queryParams.startDate,
-          endDate: queryParams.endDate
-        },
-        notifyOnNetworkStatusChange: true
-      };
-    }
+    options: generateParams
   }),
   graphql(gql(queries.customerCounts), {
     name: 'customerCountsQuery',
-    options: ({ queryParams }) => ({
-      variables: {
-        page: queryParams.page,
-        perPage: queryParams.perPage || 20,
-        tag: queryParams.tag,
-        segment: queryParams.segment,
-        ids: queryParams.ids,
-        searchValue: queryParams.searchValue,
-        form: queryParams.form,
-        startDate: queryParams.startDate,
-        endDate: queryParams.endDate
-      },
-      notifyOnNetworkStatusChange: true
-    })
+    options: generateParams
   }),
-  graphql(gql(queries.tags), {
+  graphql(gql(tagQueries.tags), {
     name: 'tagsQuery',
     options: () => ({
       variables: {
@@ -239,7 +238,7 @@ export default compose(
       notifyOnNetworkStatusChange: true
     })
   }),
-  graphql(gql(queries.brands), {
+  graphql(gql(brandQueries.brands), {
     name: 'brandsQuery',
     options: () => ({
       notifyOnNetworkStatusChange: true
