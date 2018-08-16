@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../graphql';
 import { Alert } from 'modules/common/utils';
 import { CompanyForm } from '../components';
+import { queries, mutations } from '../graphql';
+import { generateListQueryVariables } from '../utils';
 
 const CompanyFromContainer = props => {
   const { companiesEdit, company, companiesAdd } = props;
@@ -50,19 +51,26 @@ CompanyFromContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-const options = ({ company }) => {
+const options = ({ company, queryParams }) => {
   if (!company) {
     return {
-      refetchQueries: ['companiesMain', 'companies']
+      refetchQueries: [
+        {
+          query: gql(queries.companiesMain),
+          variables: generateListQueryVariables({ queryParams })
+        },
+        {
+          query: gql(queries.companyCounts),
+          variables: generateListQueryVariables({ queryParams })
+        }
+      ]
     };
   }
 
   return {
     refetchQueries: [
       {
-        query: gql`
-          ${queries.companyDetail}
-        `,
+        query: gql(queries.companyDetail),
         variables: { _id: company._id }
       }
     ]

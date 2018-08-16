@@ -111,6 +111,7 @@ class CompaniesList extends React.Component {
             <tr>
               <th>
                 <FormControl
+                  checked={bulk.length > 0}
                   componentClass="checkbox"
                   onChange={this.onChange}
                 />
@@ -129,6 +130,7 @@ class CompaniesList extends React.Component {
               <CompanyRow
                 company={company}
                 columnsConfig={columnsConfig}
+                isChecked={bulk.includes(company)}
                 key={company._id}
                 history={history}
                 toggleBulk={toggleBulk}
@@ -219,7 +221,7 @@ class CompaniesList extends React.Component {
           />
         </ModalTrigger>
         <ModalTrigger title="New company" trigger={addTrigger} size="lg">
-          <CompanyForm />
+          <CompanyForm queryParams={queryParams} />
         </ModalTrigger>
       </BarItems>
     );
