@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import {
   FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
+  Icon
 } from 'modules/common/components';
 import { timezones } from 'modules/settings/integrations/constants';
 import { Alert, uploadHandler } from 'modules/common/utils';
@@ -76,7 +77,10 @@ class UserCommonInfos extends Component {
               style={avatarPreviewStyle}
               src={avatarPreviewUrl}
             />
-            <FormControl type="file" onChange={this.handleImageChange} />
+            <label>
+              <Icon icon="upload icon" size={30} />
+              <FormControl type="file" onChange={this.handleImageChange} />
+            </label>
           </FormGroup>
         </Avatar>
         <FormWrapper>
