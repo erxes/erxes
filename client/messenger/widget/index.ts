@@ -8,6 +8,7 @@ declare const window: any;
 // css
 import "./index.css";
 
+import { createDeal } from "../../core";
 import { getBrowserInfo } from "../../utils";
 
 // check is mobile
@@ -18,6 +19,10 @@ const isMobile =
 
 let viewportContent = "";
 let generatedContent = "";
+
+window.erxes = {
+  createDeal
+};
 
 if (isMobile) {
   const viewportMeta = document.querySelector('meta[name="viewport"]');
