@@ -12,7 +12,6 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import { queries as tagQueries } from 'modules/tags/graphql';
 import { CustomersList } from '../components';
 import { mutations, queries } from '../graphql';
-import { generateListQueryVariables } from '../utils';
 
 class CustomerListContainer extends Bulk {
   constructor(props) {
@@ -190,8 +189,22 @@ CustomerListContainer.contextTypes = {
   __: PropTypes.func
 };
 
-const generateParams = props => ({
-  variables: generateListQueryVariables(props)
+const generateParams = ({ queryParams }) => ({
+  page: queryParams.page,
+  perPage: queryParams.perPage || 20,
+  segment: queryParams.segment,
+  tag: queryParams.tag,
+  ids: queryParams.ids,
+  searchValue: queryParams.searchValue,
+  brand: queryParams.brand,
+  integration: queryParams.integrationType,
+  form: queryParams.form,
+  startDate: queryParams.startDate,
+  endDate: queryParams.endDate,
+  leadStatus: queryParams.leadStatus,
+  lifecycleState: queryParams.lifecycleState,
+  sortField: queryParams.sortField,
+  sortDirection: queryParams.sortDirection
 });
 
 export default compose(
@@ -225,16 +238,7 @@ export default compose(
   graphql(gql(mutations.customersMerge), {
     name: 'customersMerge',
     options: props => ({
-      refetchQueries: [
-        {
-          query: gql(queries.customersMain),
-          variables: generateListQueryVariables(props)
-        },
-        {
-          query: gql(queries.customerCounts),
-          variables: generateListQueryVariables(props)
-        }
-      ]
+      refetchQueries: ['customersMain', 'customerCounts']
     })
   })
 )(withRouter(CustomerListContainer));

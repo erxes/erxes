@@ -5,8 +5,7 @@ import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { BasicInfoSection } from 'modules/customers/components/common';
-import { queries, mutations } from 'modules/customers/graphql';
-import { generateListQueryVariables } from 'modules/customers/utils';
+import { mutations } from 'modules/customers/graphql';
 
 const BasicInfoContainer = props => {
   const { customer, customersRemove, customersMerge, history } = props;
@@ -64,16 +63,7 @@ BasicInfoContainer.contextTypes = {
 };
 
 const generateOptions = () => ({
-  refetchQueries: [
-    {
-      query: gql(queries.customersMain),
-      variables: generateListQueryVariables({ queryParams: {} })
-    },
-    {
-      query: gql(queries.customerCounts),
-      variables: generateListQueryVariables({ queryParams: {} })
-    }
-  ]
+  refetchQueries: ['customersMain', 'customerCounts']
 });
 
 export default withRouter(

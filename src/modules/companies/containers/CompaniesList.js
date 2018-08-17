@@ -58,7 +58,6 @@ class CompanyListContainer extends Bulk {
         }
       })
         .then(data => {
-          this.emptyBulk();
           Alert.success('Success');
           callback();
           history.push(`/companies/details/${data.data.companiesMerge._id}`);

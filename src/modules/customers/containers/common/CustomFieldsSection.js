@@ -7,7 +7,7 @@ import { Sidebar } from 'modules/layout/components';
 import { GenerateCustomFields } from 'modules/settings/properties/components';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
-import { queries, mutations } from '../../graphql';
+import { mutations } from '../../graphql';
 
 const CustomFieldsSection = (props, context) => {
   const { customer, customersEdit, fieldsGroupsQuery } = props;
@@ -49,15 +49,6 @@ CustomFieldsSection.propTypes = {
   fieldsGroupsQuery: PropTypes.object.isRequired
 };
 
-const options = ({ customer }) => ({
-  refetchQueries: [
-    {
-      query: gql(queries.customerDetail),
-      variables: { _id: customer._id }
-    }
-  ]
-});
-
 export default compose(
   graphql(gql(fieldQueries.fieldsGroups), {
     name: 'fieldsGroupsQuery',
@@ -70,6 +61,8 @@ export default compose(
   // mutations
   graphql(gql(mutations.customersEdit), {
     name: 'customersEdit',
-    options
+    options: () => ({
+      refetchQueries: ['customerDetail']
+    })
   })
 )(CustomFieldsSection);

@@ -4,8 +4,7 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { CustomerForm } from '../components';
-import { queries, mutations } from '../graphql';
-import { generateListQueryVariables } from '../utils';
+import { mutations } from '../graphql';
 
 const CustomerFormContainer = props => {
   const { customersEdit, customer, customersAdd } = props;
@@ -51,27 +50,14 @@ CustomerFormContainer.contextTypes = {
 };
 
 const options = ({ customer, queryParams }) => {
-  if (!customer) {
-    return {
-      refetchQueries: [
-        {
-          query: gql(queries.customersMain),
-          variables: generateListQueryVariables({ queryParams })
-        },
-        {
-          query: gql(queries.customerCounts),
-          variables: generateListQueryVariables({ queryParams })
-        }
-      ]
-    };
-  }
-
   return {
     refetchQueries: [
-      {
-        query: gql(queries.customerDetail),
-        variables: { _id: customer._id }
-      }
+      'customersMain',
+
+      // customers for company detail associate customers
+      'customers',
+
+      'customerCounts'
     ]
   };
 };

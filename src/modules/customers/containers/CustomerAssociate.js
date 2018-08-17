@@ -2,10 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import {
-  mutations as companyMutations,
-  queries as companyQueries
-} from 'modules/companies/graphql';
+import { mutations as companyMutations } from 'modules/companies/graphql';
 import { Alert } from 'modules/common/utils';
 import { CustomerSection } from '../components/common';
 
@@ -46,12 +43,7 @@ export default compose(
   graphql(gql(companyMutations.companiesEditCustomers), {
     name: 'companiesEditCustomers',
     options: ({ data }) => ({
-      refetchQueries: [
-        {
-          query: gql(companyQueries.companyDetail),
-          variables: { _id: data._id }
-        }
-      ]
+      refetchQueries: ['companyDetail']
     })
   })
 )(CustomerAssociate);
