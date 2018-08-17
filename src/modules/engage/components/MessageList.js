@@ -19,7 +19,6 @@ const propTypes = {
   messages: PropTypes.array.isRequired,
   totalCount: PropTypes.number.isRequired,
   bulk: PropTypes.array.isRequired,
-  refetch: PropTypes.func.isRequired,
   taggerRefetchQueries: PropTypes.array,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
@@ -70,7 +69,6 @@ class List extends React.Component {
       totalCount,
       bulk,
       toggleBulk,
-      refetch,
       loading,
       queryParams
     } = this.props;
@@ -144,9 +142,9 @@ class List extends React.Component {
             <MessageListRow
               isChecked={bulk.includes(message)}
               toggleBulk={toggleBulk}
-              refetch={refetch}
               key={message._id}
               message={message}
+              queryParams={queryParams}
             />
           ))}
         </tbody>

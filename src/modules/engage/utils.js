@@ -10,7 +10,7 @@ export const generateListQueryVariables = ({ queryParams }) => ({
   ids: queryParams.ids
 });
 
-export const crudMutationsOptions = () => {
+export const crudMutationsOptions = queryParams => {
   return {
     refetchQueries: [
       {

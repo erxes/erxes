@@ -36,7 +36,6 @@ class MessageListContainer extends Bulk {
       toggleAll: this.toggleAll,
       emptyBulk: this.emptyBulk,
       queryParams: queryParams,
-      refetch: engageMessagesQuery.refetch,
       taggerRefetchQueries,
       loading: engageMessagesQuery.loading
     };
