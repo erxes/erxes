@@ -4,34 +4,40 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
-import { TAG_TYPES } from 'modules/tags/constants';
 import { Bulk } from 'modules/common/components';
 import { MessageList } from '../components';
 import { queries } from '../graphql';
+import { generateListQueryVariables } from '../utils';
 
 class MessageListContainer extends Bulk {
-  refetch() {
-    this.props.engageMessagesQuery.refetch();
-  }
-
   render() {
     const {
       queryParams,
-      tagsQuery,
       engageMessagesQuery,
       engageMessagesTotalCountQuery
     } = this.props;
+
+    const taggerRefetchQueries = [
+      {
+        query: gql(queries.tagCounts),
+        variables: {
+          kind: queryParams.kind || '',
+          status: queryParams.status || ''
+        }
+      }
+    ];
 
     const updatedProps = {
       kind: queryParams.kind,
       messages: engageMessagesQuery.engageMessages || [],
       totalCount: engageMessagesTotalCountQuery.engageMessagesTotalCount || 0,
-      tags: tagsQuery.tags || [],
       bulk: this.state.bulk,
       toggleBulk: this.toggleBulk,
+      toggleAll: this.toggleAll,
       emptyBulk: this.emptyBulk,
       queryParams: queryParams,
       refetch: engageMessagesQuery.refetch,
+      taggerRefetchQueries,
       loading: engageMessagesQuery.loading
     };
 
@@ -44,41 +50,18 @@ MessageListContainer.propTypes = {
   queryParams: PropTypes.object,
   engageMessagesQuery: PropTypes.object,
   engageMessagesTotalCountQuery: PropTypes.object,
-  tagsQuery: PropTypes.object,
   loading: PropTypes.bool
 };
 
 const MessageListContainerWithData = compose(
   graphql(gql(queries.engageMessages), {
     name: 'engageMessagesQuery',
-    options: ({ queryParams }) => ({
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'network-only',
-      variables: {
-        page: queryParams.page,
-        perPage: queryParams.perPage || 20,
-        kind: queryParams.kind,
-        status: queryParams.status,
-        tag: queryParams.tag,
-        ids: queryParams.ids
-      }
+    options: props => ({
+      variables: generateListQueryVariables(props)
     })
   }),
   graphql(gql(queries.engageMessagesTotalCount), {
-    name: 'engageMessagesTotalCountQuery',
-    options: () => ({
-      notifyOnNetworkStatusChange: true
-    })
-  }),
-  graphql(gql(queries.tags), {
-    name: 'tagsQuery',
-    options: () => ({
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'network-only',
-      variables: {
-        type: TAG_TYPES.ENGAGE_MESSAGE
-      }
-    })
+    name: 'engageMessagesTotalCountQuery'
   })
 )(MessageListContainer);
 
@@ -91,8 +74,7 @@ const EngageListContainer = props => {
 };
 
 EngageListContainer.propTypes = {
-  location: PropTypes.object,
-  history: PropTypes.object
+  location: PropTypes.object
 };
 
 export default withRouter(EngageListContainer);

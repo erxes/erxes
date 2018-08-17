@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { withCurrentUser } from 'modules/auth/containers';
 import { MESSENGER_KINDS, SENT_AS_CHOICES, MESSAGE_KINDS } from '../constants';
 import { Widget } from '../components';
 import { queries, mutations } from '../graphql';
+import { crudMutationsOptions } from '../utils';
 
 const WidgetContainer = props => {
   const {
@@ -61,12 +63,13 @@ WidgetContainer.propTypes = {
   messagesAddMutation: PropTypes.func
 };
 
-export default withCurrentUser(
+export default withRouter(
   compose(
     graphql(gql(queries.emailTemplates), { name: 'emailTemplatesQuery' }),
     graphql(gql(queries.brands), { name: 'brandsQuery' }),
     graphql(gql(mutations.messagesAdd), {
-      name: 'messagesAddMutation'
+      name: 'messagesAddMutation',
+      options: crudMutationsOptions
     })
-  )(WidgetContainer)
+  )(withCurrentUser(WidgetContainer))
 );
