@@ -36,14 +36,18 @@ SidebarContainer.propTypes = {
 export default withRouter(
   compose(
     graphql(gql(queries.kindCounts), {
-      name: 'kindCountsQuery'
+      name: 'kindCountsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
     }),
     graphql(gql(queries.statusCounts), {
       name: 'statusCountsQuery',
       options: ({ queryParams }) => ({
         variables: {
           kind: queryParams.kind || ''
-        }
+        },
+        fetchPolicy: 'network-only'
       })
     }),
     graphql(gql(tagQueries.tags), {
@@ -58,7 +62,8 @@ export default withRouter(
         variables: {
           kind: queryParams.kind || '',
           status: queryParams.status || ''
-        }
+        },
+        fetchPolicy: 'network-only'
       })
     })
   )(SidebarContainer)

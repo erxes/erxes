@@ -20,7 +20,6 @@ const propTypes = {
   totalCount: PropTypes.number.isRequired,
   bulk: PropTypes.array.isRequired,
   isAllSelected: PropTypes.bool,
-  taggerRefetchQueries: PropTypes.array,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
@@ -42,7 +41,7 @@ class List extends React.Component {
   }
 
   renderTagger() {
-    const { bulk, emptyBulk, taggerRefetchQueries } = this.props;
+    const { bulk, emptyBulk } = this.props;
     const { __ } = this.context;
 
     const tagButton = (
@@ -57,7 +56,7 @@ class List extends React.Component {
           type="engageMessage"
           targets={bulk}
           trigger={tagButton}
-          refetchQueries={taggerRefetchQueries}
+          refetchQueries={['tagCounts', 'engageMessages']}
           successCallback={emptyBulk}
         />
       );

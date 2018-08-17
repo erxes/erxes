@@ -17,16 +17,6 @@ class MessageListContainer extends Bulk {
       engageMessagesTotalCountQuery
     } = this.props;
 
-    const taggerRefetchQueries = [
-      {
-        query: gql(queries.tagCounts),
-        variables: {
-          kind: queryParams.kind || '',
-          status: queryParams.status || ''
-        }
-      }
-    ];
-
     const updatedProps = {
       kind: queryParams.kind,
       messages: engageMessagesQuery.engageMessages || [],
@@ -37,7 +27,6 @@ class MessageListContainer extends Bulk {
       toggleAll: this.toggleAll,
       emptyBulk: this.emptyBulk,
       queryParams: queryParams,
-      taggerRefetchQueries,
       loading: engageMessagesQuery.loading
     };
 
@@ -57,11 +46,15 @@ const MessageListContainerWithData = compose(
   graphql(gql(queries.engageMessages), {
     name: 'engageMessagesQuery',
     options: props => ({
-      variables: generateListQueryVariables(props)
+      variables: generateListQueryVariables(props),
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(queries.engageMessagesTotalCount), {
-    name: 'engageMessagesTotalCountQuery'
+    name: 'engageMessagesTotalCountQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
   })
 )(MessageListContainer);
 
