@@ -28,7 +28,7 @@ const createDeal = (doc: IDealInput) => {
         $companyIds: [String], 
         $customerIds: [String], 
         $description: String, 
-        $productsData: JSON
+        $productsData: DealProductInput
     ){
         createDeal(
             name: $name, 
