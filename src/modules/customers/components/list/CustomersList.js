@@ -254,7 +254,8 @@ class CustomersList extends React.Component {
 
       actionBarLeft = (
         <BarItems>
-          <Widget customers={bulk} />
+          <Widget customers={bulk} emptyBulk={emptyBulk} />
+
           <TaggerPopover
             type="customer"
             successCallback={emptyBulk}

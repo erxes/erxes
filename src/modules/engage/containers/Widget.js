@@ -15,6 +15,7 @@ const WidgetContainer = props => {
     currentUser,
     emailTemplatesQuery,
     brandsQuery,
+    emptyBulk,
     messagesAddMutation
   } = props;
 
@@ -36,6 +37,7 @@ const WidgetContainer = props => {
     })
       .then(() => {
         callback();
+        emptyBulk();
 
         Alert.success('Congrats');
       })
@@ -60,7 +62,8 @@ WidgetContainer.propTypes = {
   currentUser: PropTypes.object,
   emailTemplatesQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
-  messagesAddMutation: PropTypes.func
+  messagesAddMutation: PropTypes.func,
+  emptyBulk: PropTypes.func
 };
 
 export default withRouter(
