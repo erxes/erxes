@@ -35,6 +35,7 @@ const propTypes = {
   integrations: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   bulk: PropTypes.array.isRequired,
+  isAllSelected: PropTypes.bool,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
@@ -79,7 +80,15 @@ class CustomersList extends React.Component {
   }
 
   renderContent() {
-    const { customers, columnsConfig, bulk, toggleBulk, history } = this.props;
+    const {
+      customers,
+      columnsConfig,
+      bulk,
+      toggleBulk,
+      history,
+      isAllSelected
+    } = this.props;
+
     const { __ } = this.context;
 
     return (
@@ -88,7 +97,7 @@ class CustomersList extends React.Component {
           <tr>
             <th>
               <FormControl
-                checked={bulk.length > 0}
+                checked={isAllSelected}
                 componentClass="checkbox"
                 onChange={this.onChange}
               />

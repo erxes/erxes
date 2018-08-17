@@ -84,13 +84,15 @@ const commonOptions = ({ queryParams, currentBrandId }) => {
     refetchQueries: [
       {
         query: gql(queries.brands),
-        variables: { perPage: queryParams.limit || 20 },
-        fetchPolicy: 'network-only'
+        variables: { perPage: queryParams.limit || 20 }
+      },
+      {
+        query: gql(queries.brands),
+        variables: {}
       },
       {
         query: gql(queries.brandDetail),
-        variables: { _id: currentBrandId || '' },
-        fetchPolicy: 'network-only'
+        variables: { _id: currentBrandId || '' }
       },
       { query: gql(queries.brandsCount) }
     ]

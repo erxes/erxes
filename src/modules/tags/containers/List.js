@@ -60,6 +60,15 @@ ListContainer.propTypes = {
   removeMutation: PropTypes.func
 };
 
+const options = ({ type }) => ({
+  refetchQueries: [
+    {
+      query: gql(queries.tags),
+      variables: { type }
+    }
+  ]
+});
+
 export default compose(
   graphql(gql(queries.tags), {
     name: 'tagsQuery',
@@ -68,7 +77,7 @@ export default compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql(gql(mutations.add), { name: 'addMutation' }),
-  graphql(gql(mutations.edit), { name: 'editMutation' }),
-  graphql(gql(mutations.remove), { name: 'removeMutation' })
+  graphql(gql(mutations.add), { name: 'addMutation', options }),
+  graphql(gql(mutations.edit), { name: 'editMutation', options }),
+  graphql(gql(mutations.remove), { name: 'removeMutation', options })
 )(ListContainer);
