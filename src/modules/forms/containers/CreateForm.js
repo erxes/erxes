@@ -6,7 +6,6 @@ import { withRouter } from 'react-router';
 import { Alert } from 'modules/common/utils';
 import { Form } from '../components';
 import { queries, mutations } from '../graphql';
-import { generateListQueryVariables } from '../utils';
 
 class CreateFormContainer extends Component {
   render() {
@@ -89,20 +88,13 @@ CreateFormContainer.propTypes = {
 
 const CreateFormWithData = compose(
   graphql(gql(queries.brands), {
-    name: 'brandsQuery'
+    name: 'brandsQuery',
+    fetchPolicy: 'network-only'
   }),
   graphql(gql(mutations.integrationsCreateFormIntegration), {
     name: 'addIntegrationMutation',
     options: props => ({
-      refetchQueries: [
-        {
-          query: gql(queries.integrations),
-          variables: generateListQueryVariables(props)
-        },
-        {
-          query: gql(queries.integrationsCount)
-        }
-      ]
+      refetchQueries: ['formIntegrations', 'formIntegrationCounts']
     })
   }),
   graphql(gql(mutations.addForm), {

@@ -1,5 +1,5 @@
 const integrations = `
-  query integrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
+  query formIntegrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
     integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag) {
       _id
       brandId
@@ -98,7 +98,7 @@ const brands = `
   }
 `;
 
-const integrationsCount = `
+const integrationsTotalCount = `
   query integrationsTotalCount {
     integrationsTotalCount {
       byKind
@@ -164,7 +164,7 @@ const tags = `
 export default {
   integrations,
   integrationDetail,
-  integrationsCount,
+  integrationsTotalCount,
   fields,
   brands,
   users,

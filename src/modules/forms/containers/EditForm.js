@@ -6,7 +6,6 @@ import { withRouter } from 'react-router';
 import { Alert } from 'modules/common/utils';
 import { Form } from '../components';
 import { queries, mutations } from '../graphql';
-import { generateListQueryVariables } from '../utils';
 
 class EditFormContainer extends Component {
   render() {
@@ -147,7 +146,8 @@ EditFormContainer.propTypes = {
 
 const EditFormIntegrationContainer = compose(
   graphql(gql(queries.brands), {
-    name: 'brandsQuery'
+    name: 'brandsQuery',
+    fetchPolicy: 'network-only'
   }),
   graphql(gql(queries.fields), {
     name: 'fieldsQuery',
@@ -156,7 +156,8 @@ const EditFormIntegrationContainer = compose(
         variables: {
           contentType: 'form',
           contentTypeId: formId
-        }
+        },
+        fetchPolicy: 'network-only'
       };
     }
   }),
@@ -165,21 +166,14 @@ const EditFormIntegrationContainer = compose(
     options: ({ contentTypeId }) => ({
       variables: {
         _id: contentTypeId
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(mutations.integrationsEditFormIntegration), {
     name: 'editIntegrationMutation',
     options: props => ({
-      refetchQueries: [
-        {
-          query: gql(queries.integrations),
-          variables: generateListQueryVariables(props)
-        },
-        {
-          query: gql(queries.integrationsCount)
-        }
-      ]
+      refetchQueries: ['formIntegrations', 'formIntegrationCounts']
     })
   }),
   graphql(gql(mutations.fieldsAdd), {

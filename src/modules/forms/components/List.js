@@ -8,11 +8,11 @@ import {
   Table,
   Pagination,
   FormControl,
-  DataWithLoader
+  DataWithLoader,
+  CountsByTag
 } from 'modules/common/components';
 import { TaggerPopover } from 'modules/tags/components';
 import { Row } from '/';
-import { Tags as Tag } from '../containers';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
@@ -21,7 +21,8 @@ const propTypes = {
   bulk: PropTypes.array.isRequired,
   isAllSelected: PropTypes.bool,
   emptyBulk: PropTypes.func.isRequired,
-  integrationsCount: PropTypes.number.isRequired,
+  totalCount: PropTypes.number,
+  tagsCount: PropTypes.object,
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
   loading: PropTypes.bool,
@@ -57,7 +58,8 @@ class List extends Component {
 
   render() {
     const {
-      integrationsCount,
+      totalCount,
+      tagsCount,
       loading,
       tags,
       bulk,
@@ -102,7 +104,12 @@ class List extends Component {
 
     const sidebar = (
       <Wrapper.Sidebar>
-        <Tag tags={tags} manageUrl="tags/integration" />
+        <CountsByTag
+          tags={tags}
+          manageUrl={'tags/integration'}
+          counts={tagsCount}
+          loading={false}
+        />;
       </Wrapper.Sidebar>
     );
 
@@ -137,12 +144,12 @@ class List extends Component {
         header={<Wrapper.Header breadcrumb={[{ title: __('Leads') }]} />}
         leftSidebar={sidebar}
         actionBar={actionBar}
-        footer={<Pagination count={integrationsCount} />}
+        footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
-            count={integrationsCount}
+            count={totalCount}
             emptyText="There is no lead."
             emptyImage="/images/robots/robot-03.svg"
           />

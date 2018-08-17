@@ -9,23 +9,26 @@ import { List } from '../components';
 class ListContainer extends Bulk {
   refetch() {
     this.props.integrationsQuery.refetch();
+    this.props.integrationsTotalCountQuery.refetch();
   }
 
   render() {
     const {
       integrationsQuery,
-      integrationsCountQuery,
+      integrationsTotalCountQuery,
       usersQuery,
       tagsQuery,
       removeMutation
     } = this.props;
 
-    if (integrationsQuery.loading || integrationsCountQuery.loading) {
+    if (integrationsQuery.loading || integrationsTotalCountQuery.loading) {
       return <Spinner />;
     }
 
-    const integrationsCount =
-      integrationsCountQuery.integrationsTotalCount.byKind.form || 0;
+    const counts = integrationsTotalCountQuery.integrationsTotalCount;
+    const totalCount = counts.byKind.form || 0;
+    const tagsCount = counts.byTag || {};
+
     const integrations = integrationsQuery.integrations || [];
     const members = usersQuery.users || [];
 
@@ -35,7 +38,7 @@ class ListContainer extends Bulk {
       }).then(() => {
         // refresh queries
         integrationsQuery.refetch();
-        integrationsCountQuery.refetch();
+        integrationsTotalCountQuery.refetch();
 
         callback();
       });
@@ -44,7 +47,6 @@ class ListContainer extends Bulk {
     const updatedProps = {
       ...this.props,
       integrations,
-      integrationsCount,
       members,
       remove,
       loading: integrationsQuery.loading,
@@ -53,6 +55,8 @@ class ListContainer extends Bulk {
       emptyBulk: this.emptyBulk,
       toggleBulk: this.toggleBulk,
       toggleAll: this.toggleAll,
+      totalCount,
+      tagsCount,
       tags: tagsQuery.tags || []
     };
 
@@ -61,7 +65,7 @@ class ListContainer extends Bulk {
 }
 
 ListContainer.propTypes = {
-  integrationsCountQuery: PropTypes.object,
+  integrationsTotalCountQuery: PropTypes.object,
   integrationsQuery: PropTypes.object,
   usersQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
@@ -78,22 +82,30 @@ export default compose(
           perPage: queryParams.perPage || 20,
           tag: queryParams.tag,
           kind: 'form'
-        }
+        },
+        fetchPolicy: 'network-only'
       };
     }
   }),
-  graphql(gql(queries.integrationsCount), {
-    name: 'integrationsCountQuery'
+  graphql(gql(queries.integrationsTotalCount), {
+    name: 'integrationsTotalCountQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql(gql(queries.users), {
-    name: 'usersQuery'
+    name: 'usersQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql(gql(queries.tags), {
     name: 'tagsQuery',
     options: () => ({
       variables: {
         type: 'integration'
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(mutations.integrationRemove), {
