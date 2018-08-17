@@ -85,16 +85,24 @@ export default class FacebookContent extends Component {
       );
     }
 
+    if (link.includes('video.xx.fbcdn.net')) {
+      return (
+        <iframe
+          title="erxesIframeVideo"
+          src={link}
+          width="100%"
+          height="280"
+          scrolling="no"
+          frameBorder="0"
+          allowFullScreen
+        />
+      );
+    }
+
     return (
-      <iframe
-        title="erxesIframeVideo"
-        src={link}
-        width="100%"
-        height="280"
-        scrolling="no"
-        frameBorder="0"
-        allowFullScreen
-      />
+      <a href={`https://www.facebook.com/${link}`} target="_blank">
+        {link}
+      </a>
     );
   }
 
