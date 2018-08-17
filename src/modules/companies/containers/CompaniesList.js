@@ -93,6 +93,7 @@ class CompanyListContainer extends Bulk {
       companies: list,
       loading: companiesMainQuery.loading,
       bulk: this.state.bulk || [],
+      isAllSelected: this.state.isAllSelected,
       emptyBulk: this.emptyBulk,
       toggleBulk: this.toggleBulk,
       toggleAll: this.toggleAll,
