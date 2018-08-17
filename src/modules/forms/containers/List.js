@@ -49,6 +49,7 @@ class ListContainer extends Bulk {
       remove,
       loading: integrationsQuery.loading,
       bulk: this.state.bulk || [],
+      isAllSelected: this.state.isAllSelected,
       emptyBulk: this.emptyBulk,
       toggleBulk: this.toggleBulk,
       toggleAll: this.toggleAll,

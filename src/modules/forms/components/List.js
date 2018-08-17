@@ -19,6 +19,7 @@ const propTypes = {
   members: PropTypes.array.isRequired,
   tags: PropTypes.array,
   bulk: PropTypes.array.isRequired,
+  isAllSelected: PropTypes.bool,
   emptyBulk: PropTypes.func.isRequired,
   integrationsCount: PropTypes.number.isRequired,
   toggleBulk: PropTypes.func.isRequired,
@@ -55,7 +56,15 @@ class List extends Component {
   }
 
   render() {
-    const { integrationsCount, loading, tags, bulk, emptyBulk } = this.props;
+    const {
+      integrationsCount,
+      loading,
+      tags,
+      bulk,
+      emptyBulk,
+      isAllSelected
+    } = this.props;
+
     const { __ } = this.context;
 
     let actionBarLeft = null;
@@ -104,7 +113,7 @@ class List extends Component {
             <th>
               <FormControl
                 componentClass="checkbox"
-                checked={bulk.length > 0}
+                checked={isAllSelected}
                 onChange={this.onChange}
               />
             </th>
