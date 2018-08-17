@@ -32,6 +32,7 @@ class MessageListContainer extends Bulk {
       messages: engageMessagesQuery.engageMessages || [],
       totalCount: engageMessagesTotalCountQuery.engageMessagesTotalCount || 0,
       bulk: this.state.bulk,
+      isAllSelected: this.state.isAllSelected,
       toggleBulk: this.toggleBulk,
       toggleAll: this.toggleAll,
       emptyBulk: this.emptyBulk,

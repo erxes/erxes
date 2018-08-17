@@ -19,6 +19,7 @@ const propTypes = {
   messages: PropTypes.array.isRequired,
   totalCount: PropTypes.number.isRequired,
   bulk: PropTypes.array.isRequired,
+  isAllSelected: PropTypes.bool,
   taggerRefetchQueries: PropTypes.array,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
@@ -70,7 +71,8 @@ class List extends React.Component {
       bulk,
       toggleBulk,
       loading,
-      queryParams
+      queryParams,
+      isAllSelected
     } = this.props;
 
     const { __ } = this.context;
@@ -113,7 +115,7 @@ class List extends React.Component {
           <tr>
             <th>
               <FormControl
-                checked={bulk.length > 0}
+                checked={isAllSelected}
                 componentClass="checkbox"
                 onChange={this.onChange}
               />
