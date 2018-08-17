@@ -49,7 +49,7 @@ CustomerFormContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-const options = ({ customer, queryParams }) => {
+const options = () => {
   return {
     refetchQueries: [
       'customersMain',

@@ -7,7 +7,7 @@ import { Sidebar } from 'modules/layout/components';
 import { GenerateCustomFields } from 'modules/settings/properties/components';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
-import { queries, mutations } from '../../graphql';
+import { mutations } from '../../graphql';
 
 const CustomFieldsSection = (props, context) => {
   const { company, companiesEdit, fieldsGroupsQuery } = props;
@@ -49,13 +49,8 @@ CustomFieldsSection.propTypes = {
   fieldsGroupsQuery: PropTypes.object.isRequired
 };
 
-const options = ({ company }) => ({
-  refetchQueries: [
-    {
-      query: gql(queries.companyDetail),
-      variables: { _id: company._id }
-    }
-  ]
+const options = () => ({
+  refetchQueries: ['companDetail']
 });
 
 export default compose(

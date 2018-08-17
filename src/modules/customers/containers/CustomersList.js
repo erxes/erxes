@@ -189,23 +189,28 @@ CustomerListContainer.contextTypes = {
   __: PropTypes.func
 };
 
-const generateParams = ({ queryParams }) => ({
-  page: queryParams.page,
-  perPage: queryParams.perPage || 20,
-  segment: queryParams.segment,
-  tag: queryParams.tag,
-  ids: queryParams.ids,
-  searchValue: queryParams.searchValue,
-  brand: queryParams.brand,
-  integration: queryParams.integrationType,
-  form: queryParams.form,
-  startDate: queryParams.startDate,
-  endDate: queryParams.endDate,
-  leadStatus: queryParams.leadStatus,
-  lifecycleState: queryParams.lifecycleState,
-  sortField: queryParams.sortField,
-  sortDirection: queryParams.sortDirection
-});
+const generateParams = ({ queryParams }) => {
+  return {
+    variables: {
+      page: queryParams.page,
+      perPage: queryParams.perPage || 20,
+      segment: queryParams.segment,
+      tag: queryParams.tag,
+      ids: queryParams.ids,
+      searchValue: queryParams.searchValue,
+      brand: queryParams.brand,
+      integration: queryParams.integrationType,
+      form: queryParams.form,
+      startDate: queryParams.startDate,
+      endDate: queryParams.endDate,
+      leadStatus: queryParams.leadStatus,
+      lifecycleState: queryParams.lifecycleState,
+      sortField: queryParams.sortField,
+      sortDirection: queryParams.sortDirection
+    },
+    fetchPolicy: 'network-only'
+  };
+};
 
 export default compose(
   graphql(gql(queries.customersMain), {
@@ -221,14 +226,21 @@ export default compose(
     options: () => ({
       variables: {
         type: TAG_TYPES.CUSTOMER
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(queries.customersListConfig), {
-    name: 'customersListConfigQuery'
+    name: 'customersListConfigQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql(gql(brandQueries.brands), {
-    name: 'brandsQuery'
+    name: 'brandsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
   }),
 
   // mutations

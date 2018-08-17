@@ -8,7 +8,6 @@ import { Bulk } from 'modules/common/components';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { mutations, queries } from '../graphql';
 import { CompaniesList } from '../components';
-import { generateListQueryVariables } from '../utils';
 
 class CompanyListContainer extends Bulk {
   refetch() {
@@ -114,8 +113,20 @@ CompanyListContainer.propTypes = {
   loading: PropTypes.bool
 };
 
-const generateParams = props => ({
-  variables: generateListQueryVariables(props)
+const generateParams = ({ queryParams }) => ({
+  variables: {
+    page: queryParams.page,
+    perPage: queryParams.perPage || 20,
+    segment: queryParams.segment,
+    tag: queryParams.tag,
+    ids: queryParams.ids,
+    searchValue: queryParams.searchValue,
+    leadStatus: queryParams.leadStatus,
+    lifecycleState: queryParams.lifecycleState,
+    sortField: queryParams.sortField,
+    sortDirection: queryParams.sortDirection
+  },
+  fetchPolicy: 'network-only'
 });
 
 export default compose(
@@ -128,14 +139,18 @@ export default compose(
     options: generateParams
   }),
   graphql(gql(queries.companiesListConfig), {
-    name: 'companiesListConfigQuery'
+    name: 'companiesListConfigQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql(gql(queries.tags), {
     name: 'tagsQuery',
     options: () => ({
       variables: {
         type: TAG_TYPES.COMPANY
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   }),
   // mutations
@@ -145,16 +160,7 @@ export default compose(
   graphql(gql(mutations.companiesMerge), {
     name: 'companiesMerge',
     options: props => ({
-      refetchQueries: [
-        {
-          query: gql(queries.companiesMain),
-          variables: generateListQueryVariables(props)
-        },
-        {
-          query: gql(queries.companyCounts),
-          variables: generateListQueryVariables(props)
-        }
-      ]
+      refetchQueries: ['companiesMain', 'companyCounts']
     })
   })
 )(withRouter(CompanyListContainer));
