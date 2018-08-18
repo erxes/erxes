@@ -62,6 +62,7 @@ export const userFactory = (params = {}) => {
     role: params.role || 'contributor',
     password: params.password || '$2a$10$qfBFBmWmUjeRcR.nBBfgDO/BEbxgoai5qQhyjsrDUMiZC6dG7sg1q',
     isOwner: params.isOwner || false,
+    isActive: typeof params.isActive !== undefined ? params.isActive : true,
   });
 
   return user.save();

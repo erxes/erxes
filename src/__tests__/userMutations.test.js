@@ -366,7 +366,9 @@ describe('User mutations', () => {
 
     await graphqlRequest(mutation, 'usersRemove', { _id: _user._id }, { user: _admin });
 
-    expect(await Users.findOne({ _id: _user._id })).toBe(null);
+    const deactivedUser = await Users.findOne({ _id: _user._id });
+
+    expect(deactivedUser.isActive).toBe(false);
   });
 
   test('Config user email signature', async () => {

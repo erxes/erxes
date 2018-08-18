@@ -20,7 +20,7 @@ describe('userQueries', () => {
     await userFactory({});
     await userFactory({});
     await userFactory({});
-    await userFactory({});
+    await userFactory({ isActive: false });
 
     const qry = `
       query users($page: Int $perPage: Int) {
@@ -50,10 +50,10 @@ describe('userQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'users', { page: 1, perPage: 2 });
+    const response = await graphqlRequest(qry, 'users', { page: 1, perPage: 5 });
 
     // 1 in graphRequest + above 3
-    expect(response.length).toBe(2);
+    expect(response.length).toBe(4);
   });
 
   test('User detail', async () => {
@@ -76,7 +76,7 @@ describe('userQueries', () => {
     // Creating test data
     await userFactory({});
     await userFactory({});
-    await userFactory({});
+    await userFactory({ isActive: false });
 
     const qry = `
       query usersTotalCount {
@@ -87,7 +87,7 @@ describe('userQueries', () => {
     const response = await graphqlRequest(qry, 'usersTotalCount');
 
     // 1 in graphRequest + above 3
-    expect(response).toBe(4);
+    expect(response).toBe(3);
   });
 
   test('Current user', async () => {
