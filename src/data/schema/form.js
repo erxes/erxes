@@ -16,6 +16,7 @@ export const types = `
     themeColor: String
     callout: Callout
     createdUserId: String
+    createdUser: User
     createdDate: Date
     viewCount: Int
     contactsGathered: Int
