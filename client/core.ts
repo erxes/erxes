@@ -1,56 +1,20 @@
 import gql from "graphql-tag";
 import client from "./apollo-client";
+import { IDealInput } from "./types";
 
-interface IDealInput {
-  name: string;
-  stageId: string;
-  companyIds?: string[];
-  customerIds?: string[];
-  description?: string;
-  productsData?: any;
-}
-
-const createDeal = (doc: IDealInput) => {
-  const {
-    name,
-    stageId,
-    companyIds,
-    customerIds,
-    description,
-    productsData
-  } = doc;
-
+const sendEvent = (type: string, doc: IDealInput) => {
   return client.mutate({
     mutation: gql(`
-    mutation createDeal(
-        $name: String!,
-        $stageId: String!, 
-        $companyIds: [String], 
-        $customerIds: [String], 
-        $description: String, 
-        $productsData: DealProductInput
-    ){
-        createDeal(
-            name: $name, 
-            stageId: $stageId, 
-            companyIds: $companyIds, 
-            customerIds: $customerIds, 
-            description: $description, 
-            productsData: $productsData
-        ) {
+    mutation sendEvent($type: String, $doc: DealProductInput ){
+      sendEvent( type: $type, doc: $doc) {
             _id
-        }
-    }
-    `),
+      }
+    }`),
     variables: {
-      name,
-      stageId,
-      companyIds,
-      customerIds,
-      description,
-      productsData
+      type,
+      doc
     }
   });
 };
 
-export { createDeal };
+export { sendEvent };

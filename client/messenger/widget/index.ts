@@ -8,7 +8,7 @@ declare const window: any;
 // css
 import "./index.css";
 
-import { createDeal } from "../../core";
+import { sendEvent } from "../../core";
 import { getBrowserInfo } from "../../utils";
 
 // check is mobile
@@ -21,7 +21,7 @@ let viewportContent = "";
 let generatedContent = "";
 
 window.erxes = {
-  createDeal
+  sendEvent
 };
 
 if (isMobile) {

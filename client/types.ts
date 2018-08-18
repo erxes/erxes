@@ -88,3 +88,25 @@ export interface IIntegration {
   facebookData: IIntegrationFacebookData;
   uiOptions: IIntegrationUiOptions;
 }
+
+export interface IDealProductInput {
+  productId?: string;
+  uom?: string;
+  currency?: string;
+  quantity?: number;
+  unitPrice?: number;
+  taxPercent?: number;
+  tax?: number;
+  discountPercent?: number;
+  discount?: number;
+  amount?: number;
+}
+
+export interface IDealInput {
+  name: string;
+  stageId: string;
+  companyIds?: string[];
+  customerIds?: string[];
+  description?: string;
+  productsData?: IDealProductInput;
+}
