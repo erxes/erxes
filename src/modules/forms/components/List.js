@@ -16,7 +16,6 @@ import { Row } from '/';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
-  members: PropTypes.array.isRequired,
   tags: PropTypes.array,
   bulk: PropTypes.array.isRequired,
   isAllSelected: PropTypes.bool,
@@ -42,7 +41,7 @@ class List extends Component {
   }
 
   renderRow() {
-    const { integrations, members, remove, bulk, toggleBulk } = this.props;
+    const { integrations, remove, bulk, toggleBulk } = this.props;
 
     return integrations.map(integration => (
       <Row
@@ -50,7 +49,6 @@ class List extends Component {
         isChecked={bulk.includes(integration)}
         toggleBulk={toggleBulk}
         integration={integration}
-        members={members}
         remove={remove}
       />
     ));

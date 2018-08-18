@@ -16,7 +16,6 @@ class ListContainer extends Bulk {
     const {
       integrationsQuery,
       integrationsTotalCountQuery,
-      usersQuery,
       tagsQuery,
       removeMutation
     } = this.props;
@@ -30,7 +29,6 @@ class ListContainer extends Bulk {
     const tagsCount = counts.byTag || {};
 
     const integrations = integrationsQuery.integrations || [];
-    const members = usersQuery.users || [];
 
     const remove = (_id, callback) => {
       removeMutation({
@@ -47,7 +45,6 @@ class ListContainer extends Bulk {
     const updatedProps = {
       ...this.props,
       integrations,
-      members,
       remove,
       loading: integrationsQuery.loading,
       bulk: this.state.bulk || [],
@@ -67,7 +64,6 @@ class ListContainer extends Bulk {
 ListContainer.propTypes = {
   integrationsTotalCountQuery: PropTypes.object,
   integrationsQuery: PropTypes.object,
-  usersQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
   removeMutation: PropTypes.func
 };
@@ -89,12 +85,6 @@ export default compose(
   }),
   graphql(gql(queries.integrationsTotalCount), {
     name: 'integrationsTotalCountQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(queries.users), {
-    name: 'usersQuery',
     options: () => ({
       fetchPolicy: 'network-only'
     })

@@ -16,7 +16,6 @@ import { Manage } from './';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
-  members: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func,
   remove: PropTypes.func,
   isChecked: PropTypes.bool
@@ -41,15 +40,6 @@ class Row extends Component {
         return Alert.success('Congrats');
       });
     });
-  }
-
-  renderUser(createdUserId) {
-    return this.props.members.map(
-      user =>
-        user._id === createdUserId && (
-          <div key={user._id}>{user.details.fullName}</div>
-        )
-    );
   }
 
   manageAction(integration) {
@@ -88,7 +78,7 @@ class Row extends Component {
     const { integration, isChecked, toggleBulk } = this.props;
     const { __ } = this.context;
     const form = integration.form || {};
-    const createdUserId = form.createdUserId;
+    const createdUser = form.createdUser;
     const tags = integration.tags || [];
 
     let percentage = '0.00';
@@ -123,7 +113,9 @@ class Row extends Component {
           </Link>
         </td>
         <td>{moment(form.createdDate).format('ll')}</td>
-        <td>{this.renderUser(createdUserId)}</td>
+        <td>
+          <div key={createdUser._id}>{createdUser.details.fullName}</div>
+        </td>
         <td>
           <Tags tags={tags} limit={2} />
         </td>

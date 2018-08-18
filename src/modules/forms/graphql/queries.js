@@ -26,6 +26,14 @@ const integrations = `
         description
         createdDate
         createdUserId
+        createdUser {
+          _id
+          details {
+            avatar
+            fullName
+            position
+          }
+        }
         buttonText
         themeColor
         contactsGathered
@@ -138,18 +146,6 @@ const fieldsDefaultColumnsConfig = `
   }
 `;
 
-const users = `
-  query users {
-    users {
-      _id
-      details {
-        avatar
-        fullName
-      }
-    }
-  }
-`;
-
 const tags = `
   query tags($type: String) {
     tags(type: $type) {
@@ -167,7 +163,6 @@ export default {
   integrationsTotalCount,
   fields,
   brands,
-  users,
   tags,
   fieldsCombinedByContentType,
   fieldsDefaultColumnsConfig
