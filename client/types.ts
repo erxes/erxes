@@ -91,10 +91,10 @@ export interface IIntegration {
 
 export interface IDealProductInput {
   productName: string;
-  uom?: string;
-  currency?: string;
-  quantity?: number;
-  unitPrice?: number;
+  uom: string;
+  currency: string;
+  quantity: number;
+  unitPrice: number;
   taxPercent?: number;
   tax?: number;
   discountPercent?: number;
@@ -111,5 +111,5 @@ export interface IDealInput {
   companyIds?: string[];
   customerIds?: string[];
   description?: string;
-  productsData?: IDealProductInput;
+  productsData: IDealProductInput;
 }

@@ -2,15 +2,15 @@ import gql from "graphql-tag";
 import client from "./apollo-client";
 import { IDealInput } from "./types";
 
-const sendEvent = (type: string, doc: IDealInput) => {
+const sendEvent = (type: string, dealDoc: IDealInput) => {
   return client.mutate({
     mutation: gql(`
-    mutation sendEvent($type: String, $doc: DealInput ){
-      sendEvent( type: $type, doc: $doc)
+    mutation sendEvent($type: String, $dealDoc: DealInput ){
+      sendEvent( type: $type, dealDoc: $dealDoc)
     }`),
     variables: {
       type,
-      doc
+      dealDoc
     }
   });
 };
