@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import 'mongoose-type-email';
 import { ConversationMessages, Conversations } from './';
 import { Customers, Forms } from './';
@@ -287,7 +287,9 @@ class Integration {
     const conversations = await Conversations.find({ integrationId: _id }, { _id: true });
     const conversationIds = conversations.map(conv => conv._id);
 
-    await ConversationMessages.remove({ conversationId: { $in: conversationIds } });
+    await ConversationMessages.remove({
+      conversationId: { $in: conversationIds },
+    });
     await Conversations.remove({ integrationId: _id });
 
     // Remove customers ==================

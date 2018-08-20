@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import { field } from '../db/models/utils';
 import { FACEBOOK_DATA_KINDS } from '../data/constants';
 

@@ -1,6 +1,6 @@
 import { RedisPubSub } from 'graphql-redis-subscriptions';
-import Redis from 'ioredis';
-import dotenv from 'dotenv';
+import * as Redis from 'ioredis';
+import * as dotenv from 'dotenv';
 
 // load environment variables
 dotenv.config();

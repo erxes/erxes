@@ -1,4 +1,4 @@
-import schedule from 'node-schedule';
+import * as schedule from 'node-schedule';
 import { Segments, Customers, ActivityLogs } from '../db/models';
 import QueryBuilder from '../data/resolvers/queries/segmentQueryBuilder';
 

@@ -1,5 +1,5 @@
 import strip from 'strip';
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import { TwitterResponseSchema, ConversationMessageFacebookSchema } from '../../trackers/schemas';
 import { Conversations } from './';
 import { field } from './utils';
@@ -68,7 +68,9 @@ class Message {
    * @return {Promise} Newly created conversation object
    */
   static async addMessage(doc, userId) {
-    const conversation = await Conversations.findOne({ _id: doc.conversationId });
+    const conversation = await Conversations.findOne({
+      _id: doc.conversationId,
+    });
 
     if (!conversation) throw new Error(`Conversation not found with id ${doc.conversationId}`);
 

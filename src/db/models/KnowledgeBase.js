@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import { PUBLISH_STATUSES, LANGUAGE_CHOICES } from '../../data/constants';
 import { field } from './utils';
 
@@ -306,7 +306,9 @@ class Topic extends KnowledgeBaseCommonDocument {
 
     // remove child items ===========
     for (const categoryId of topic.categoryIds || []) {
-      const category = await KnowledgeBaseCategories.findOne({ _id: categoryId });
+      const category = await KnowledgeBaseCategories.findOne({
+        _id: categoryId,
+      });
 
       if (category) {
         await KnowledgeBaseCategories.removeDoc(categoryId);

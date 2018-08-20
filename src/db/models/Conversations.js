@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import { CONVERSATION_STATUSES } from '../../data/constants';
 import { TwitterResponseSchema, ConversationFacebookSchema } from '../../trackers/schemas';
 import { Users, ConversationMessages } from '../../db/models';

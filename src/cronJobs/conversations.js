@@ -1,6 +1,6 @@
-import schedule from 'node-schedule';
+import * as schedule from 'node-schedule';
 import { _ } from 'underscore';
-import moment from 'moment';
+import * as moment from 'moment';
 import utils from '../data/utils';
 import {
   Conversations,
@@ -20,7 +20,9 @@ export const sendMessageEmail = async () => {
 
   for (let conversation of conversations) {
     const customer = await Customers.findOne({ _id: conversation.customerId });
-    const integration = await Integrations.findOne({ _id: conversation.integrationId });
+    const integration = await Integrations.findOne({
+      _id: conversation.integrationId,
+    });
 
     if (!integration) {
       return;
