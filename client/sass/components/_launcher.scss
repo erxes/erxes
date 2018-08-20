@@ -1,4 +1,5 @@
 .erxes-launcher {
+  animation: pop 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
   background-color: $main-color;
   background-image: url($widget-logo);
   background-position: center;
@@ -61,22 +62,22 @@
     width: 100%;
   }
 
-  @media screen and (max-width: $break-small) {
-    &.close,
-    &.close-launcher {
-      border-radius: 4px;
-      box-shadow: none;
-      display: block;
-      height: $core-spacing * 2;
-      line-height: $core-spacing * 2;
-      right: 10px;
-      top: 15px;
-      width: $core-spacing * 2;
-      z-index: $z-index-above;
+  // @media screen and (max-width: $break-small) {
+  //   &.close,
+  //   &.close-launcher {
+  //     border-radius: 4px;
+  //     box-shadow: none;
+  //     display: block;
+  //     height: $core-spacing * 2;
+  //     line-height: $core-spacing * 2;
+  //     right: 10px;
+  //     top: 15px;
+  //     width: $core-spacing * 2;
+  //     z-index: $z-index-above;
 
-      &:hover {
-        background-color: rgba($black, .2);
-      }
-    }
-  }
+  //     &:hover {
+  //       background-color: rgba($black, .2);
+  //     }
+  //   }
+  // }
 }

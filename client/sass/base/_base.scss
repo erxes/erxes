@@ -5,6 +5,21 @@ body {
   margin: 0;
 }
 
+.appear-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+}
+
+.appear-slide-in {
+  will-change: transform, opacity;
+  animation-name: slideIn;
+  transform: translateX(0) translateY(0) scale(0);
+  transform-origin: bottom;
+  animation-duration: .2s;
+  animation-timing-function: cubic-bezier(0.35, 0.35, 0.35, 0.98);
+  animation-delay: .2s;
+  animation-fill-mode: forwards;
+}
+
 .erxes-widget {
   @include prefix((box-sizing: border-box), webkit moz ms o);
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
@@ -22,13 +37,6 @@ body {
 
   &.opened .erxes-form {
     @include prefix((opacity: 1), webkit moz ms o);
-    visibility: visible;
-  }
-
-  &.opened .erxes-messenger {
-    @include prefix((
-      opacity: 1
-    ), webkit moz ms o);
     visibility: visible;
   }
 }

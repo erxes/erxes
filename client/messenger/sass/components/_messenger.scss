@@ -1,7 +1,4 @@
 .erxes-messenger {
-  @include prefix((
-    opacity: 0
-  ), webkit moz ms o);
   background: $white;
   border-radius: $border-radius;
   bottom: 86px;
@@ -13,15 +10,13 @@
   overflow: hidden;
   position: absolute;
   right: 8px;
-  transition: opacity .3s ease, bottom .3s ease;
-  visibility: hidden;
   width: calc(100% - 36px);
   z-index: 9998;
 
   @media screen and (max-width: $break-small) {
     border: none !important;
-    bottom: 0;
-    height: 100%;
+    bottom: 70px;
+    height: calc(100% - 70px);
     max-height: none;
     right: 0;
     width: 100%;
@@ -81,8 +76,8 @@
     button {
       background-color: $main-color;
       border: 0;
-      border-bottom-right-radius: $border-radius;
       border-radius: 0;
+      border-bottom-right-radius: $border-radius;
       border-top-right-radius: $border-radius;
       height: 38px;
       margin: 0;
