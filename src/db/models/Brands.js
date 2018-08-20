@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import Random from 'meteor-random';
 import { field } from './utils';
 import { Integrations } from './';

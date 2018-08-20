@@ -2,7 +2,7 @@
  * Extra fields for form, customer, company
  */
 
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import validator from 'validator';
 import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES } from '../../data/constants';
 import { Forms, Customers } from './';

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import Random from 'meteor-random';
 import { Fields } from './';
 import { FIELD_CONTENT_TYPES } from '../../data/constants';

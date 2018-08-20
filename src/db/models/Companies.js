@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import {
   COC_LEAD_STATUS_TYPES,
   COC_LIFECYCLE_STATE_TYPES,

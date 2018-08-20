@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import { PRODUCT_TYPES } from '../../data/constants';
 import { Deals } from '.';
 import { field } from './utils';

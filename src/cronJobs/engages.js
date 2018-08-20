@@ -1,4 +1,4 @@
-import schedule from 'node-schedule';
+import * as schedule from 'node-schedule';
 import { EngageMessages } from '../db/models';
 import { send } from '../data/resolvers/mutations/engageUtils';
 

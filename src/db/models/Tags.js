@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import { TAG_TYPES } from '../../data/constants';
 import { Customers, Conversations, EngageMessages, Companies, Integrations } from '.';
 import { field } from './utils';

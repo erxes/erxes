@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import { field } from './utils';
 
 const EmailTemplateSchema = mongoose.Schema({

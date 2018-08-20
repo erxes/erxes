@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import {
   CUSTOMER_BASIC_INFOS,
   COC_LEAD_STATUS_TYPES,
@@ -134,7 +134,11 @@ const CustomerSchema = mongoose.Schema({
 
   hasAuthority: field({ type: String, optional: true, label: 'Has authority' }),
   description: field({ type: String, optional: true, label: 'Description' }),
-  doNotDisturb: field({ type: String, optional: true, label: 'Do not disturb' }),
+  doNotDisturb: field({
+    type: String,
+    optional: true,
+    label: 'Do not disturb',
+  }),
   links: field({ type: LinkSchema, default: {} }),
 
   isUser: field({ type: Boolean, label: 'Is user', optional: true }),

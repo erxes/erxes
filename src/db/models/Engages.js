@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import { MESSENGER_KINDS, SENT_AS_CHOICES, METHODS } from '../../data/constants';
 import { field } from './utils';
 
