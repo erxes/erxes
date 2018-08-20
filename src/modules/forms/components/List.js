@@ -8,19 +8,20 @@ import {
   Table,
   Pagination,
   FormControl,
-  DataWithLoader
+  DataWithLoader,
+  CountsByTag
 } from 'modules/common/components';
 import { TaggerPopover } from 'modules/tags/components';
 import { Row } from '/';
-import { Tags as Tag } from '../containers';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
-  members: PropTypes.array.isRequired,
   tags: PropTypes.array,
   bulk: PropTypes.array.isRequired,
+  isAllSelected: PropTypes.bool,
   emptyBulk: PropTypes.func.isRequired,
-  integrationsCount: PropTypes.number.isRequired,
+  totalCount: PropTypes.number,
+  tagsCount: PropTypes.object,
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
   loading: PropTypes.bool,
@@ -40,21 +41,30 @@ class List extends Component {
   }
 
   renderRow() {
-    const { integrations, members, remove, toggleBulk } = this.props;
+    const { integrations, remove, bulk, toggleBulk } = this.props;
 
     return integrations.map(integration => (
       <Row
         key={integration._id}
+        isChecked={bulk.includes(integration)}
         toggleBulk={toggleBulk}
         integration={integration}
-        members={members}
         remove={remove}
       />
     ));
   }
 
   render() {
-    const { integrationsCount, loading, tags, bulk, emptyBulk } = this.props;
+    const {
+      totalCount,
+      tagsCount,
+      loading,
+      tags,
+      bulk,
+      emptyBulk,
+      isAllSelected
+    } = this.props;
+
     const { __ } = this.context;
 
     let actionBarLeft = null;
@@ -92,7 +102,12 @@ class List extends Component {
 
     const sidebar = (
       <Wrapper.Sidebar>
-        <Tag tags={tags} manageUrl="tags/integration" />
+        <CountsByTag
+          tags={tags}
+          manageUrl={'tags/integration'}
+          counts={tagsCount}
+          loading={false}
+        />;
       </Wrapper.Sidebar>
     );
 
@@ -101,7 +116,11 @@ class List extends Component {
         <thead>
           <tr>
             <th>
-              <FormControl componentClass="checkbox" onChange={this.onChange} />
+              <FormControl
+                componentClass="checkbox"
+                checked={isAllSelected}
+                onChange={this.onChange}
+              />
             </th>
             <th>{__('Name')}</th>
             <th>{__('Brand')}</th>
@@ -123,12 +142,12 @@ class List extends Component {
         header={<Wrapper.Header breadcrumb={[{ title: __('Leads') }]} />}
         leftSidebar={sidebar}
         actionBar={actionBar}
-        footer={<Pagination count={integrationsCount} />}
+        footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
-            count={integrationsCount}
+            count={totalCount}
             emptyText="There is no lead."
             emptyImage="/images/robots/robot-03.svg"
           />

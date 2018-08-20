@@ -8,6 +8,7 @@ const propTypes = {
   customer: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
   history: PropTypes.object.isRequired,
+  isChecked: PropTypes.bool,
   toggleBulk: PropTypes.func
 };
 
@@ -57,7 +58,13 @@ function displayValue(customer, name) {
   return formatValue(value);
 }
 
-function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {
+function CustomerRow({
+  customer,
+  columnsConfig,
+  toggleBulk,
+  isChecked,
+  history
+}) {
   const tags = customer.getTags;
 
   const onChange = e => {
@@ -77,7 +84,11 @@ function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {
       }}
     >
       <td onClick={onClick}>
-        <FormControl componentClass="checkbox" onChange={onChange} />
+        <FormControl
+          checked={isChecked}
+          componentClass="checkbox"
+          onChange={onChange}
+        />
       </td>
 
       {columnsConfig.map(({ name }, index) => (

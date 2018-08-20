@@ -44,6 +44,6 @@ export default class Bulk extends React.Component {
 
   emptyBulk() {
     this.refetch();
-    this.setState({ bulk: [] });
+    this.setState({ bulk: [], isAllSelected: false });
   }
 }

@@ -32,6 +32,7 @@ const propTypes = {
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
   bulk: PropTypes.array.isRequired,
+  isAllSelected: PropTypes.bool,
   emptyBulk: PropTypes.func.isRequired,
   tags: PropTypes.array.isRequired,
   removeCompanies: PropTypes.func.isRequired,
@@ -96,12 +97,14 @@ class CompaniesList extends React.Component {
       counts,
       toggleBulk,
       bulk,
+      isAllSelected,
       emptyBulk,
       tags,
       loadingTags,
       mergeCompanies,
       queryParams
     } = this.props;
+
     const { __ } = this.context;
 
     const mainContent = (
@@ -111,6 +114,7 @@ class CompaniesList extends React.Component {
             <tr>
               <th>
                 <FormControl
+                  checked={isAllSelected}
                   componentClass="checkbox"
                   onChange={this.onChange}
                 />
@@ -129,6 +133,7 @@ class CompaniesList extends React.Component {
               <CompanyRow
                 company={company}
                 columnsConfig={columnsConfig}
+                isChecked={bulk.includes(company)}
                 key={company._id}
                 history={history}
                 toggleBulk={toggleBulk}
@@ -219,7 +224,7 @@ class CompaniesList extends React.Component {
           />
         </ModalTrigger>
         <ModalTrigger title="New company" trigger={addTrigger} size="lg">
-          <CompanyForm />
+          <CompanyForm queryParams={queryParams} />
         </ModalTrigger>
       </BarItems>
     );

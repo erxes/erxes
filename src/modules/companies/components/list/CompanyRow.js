@@ -9,6 +9,7 @@ const propTypes = {
   company: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
   history: PropTypes.object.isRequired,
+  isChecked: PropTypes.bool,
   toggleBulk: PropTypes.func
 };
 
@@ -55,7 +56,13 @@ function formatValue(value) {
   return value || '-';
 }
 
-function CompanyRow({ company, columnsConfig, history, toggleBulk }) {
+function CompanyRow({
+  company,
+  columnsConfig,
+  history,
+  isChecked,
+  toggleBulk
+}) {
   const tags = company.getTags || [];
 
   const onChange = e => {
@@ -74,7 +81,11 @@ function CompanyRow({ company, columnsConfig, history, toggleBulk }) {
       }}
     >
       <td onClick={onClick}>
-        <FormControl componentClass="checkbox" onChange={onChange} />
+        <FormControl
+          checked={isChecked}
+          componentClass="checkbox"
+          onChange={onChange}
+        />
       </td>
       {columnsConfig.map(({ name }) => (
         <td key={name}>{formatValue(_.get(company, name))}</td>

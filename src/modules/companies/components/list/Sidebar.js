@@ -7,6 +7,9 @@ import {
   LeadStatusFilter,
   LifecycleStateFilter
 } from 'modules/customers/components';
+
+import { BrandFilter } from 'modules/customers/containers';
+
 import Segments from 'modules/segments/containers/Filter';
 
 const propTypes = {
@@ -30,6 +33,7 @@ function Sidebar({ counts, tags, loading }) {
         counts={counts.byLifecycleState}
         loading={loading}
       />
+      <BrandFilter counts={counts.byBrand} loading={loading} />
     </Wrapper.Sidebar>
   );
 }

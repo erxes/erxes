@@ -5,6 +5,7 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
+import { crudMutationsOptions } from '../utils';
 
 const withSaveAndEdit = Component => {
   const Container = props => {
@@ -70,15 +71,20 @@ const withSaveAndEdit = Component => {
       graphql(gql(queries.engageMessageDetail), {
         name: 'engageMessageDetailQuery',
         options: ({ messageId }) => ({
-          fetchPolicy: 'network-only',
           variables: {
             _id: messageId
           }
         })
       }),
       graphql(gql(queries.users), { name: 'usersQuery' }),
-      graphql(gql(mutations.messagesAdd), { name: 'addMutation' }),
-      graphql(gql(mutations.messagesEdit), { name: 'editMutation' })
+      graphql(gql(mutations.messagesAdd), {
+        name: 'addMutation',
+        options: crudMutationsOptions
+      }),
+      graphql(gql(mutations.messagesEdit), {
+        name: 'editMutation',
+        options: crudMutationsOptions
+      })
     )(Container)
   );
 };

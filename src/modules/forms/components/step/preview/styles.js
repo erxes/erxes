@@ -179,7 +179,7 @@ const FieldItem = styled.div`
     padding: 8px 14px;
     width: 100%;
     background: ${colors.colorWhite};
-    margin-top: ${dimensions.unitSpacing}px;
+    margin-top: ${props => !props.selectType && '10px'};
 
     &:focus {
       box-shadow: none;
