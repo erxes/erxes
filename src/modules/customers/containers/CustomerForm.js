@@ -53,7 +53,7 @@ const options = () => {
   return {
     refetchQueries: [
       'customersMain',
-
+      'customerDetail',
       // customers for company detail associate customers
       'customers',
 

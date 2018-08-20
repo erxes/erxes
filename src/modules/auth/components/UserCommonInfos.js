@@ -1,19 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
+  AvatarUpload,
   FormGroup,
   ControlLabel,
-  FormControl,
-  Icon
+  FormControl
 } from 'modules/common/components';
 import { timezones } from 'modules/settings/integrations/constants';
-import { Alert, uploadHandler } from 'modules/common/utils';
 import {
   FormWrapper,
   FormColumn,
   ColumnTitle
 } from 'modules/common/styles/main';
-import { Avatar } from '../styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -21,68 +19,17 @@ const propTypes = {
 };
 
 class UserCommonInfos extends Component {
-  constructor(props) {
-    super(props);
-
-    const defaultAvatar = '/images/avatar-colored.svg';
-
-    this.state = {
-      avatarPreviewUrl: this.props.user.details.avatar || defaultAvatar,
-      avatarPreviewStyle: {}
-    };
-
-    this.handleImageChange = this.handleImageChange.bind(this);
-  }
-
-  handleImageChange(e) {
-    const imageFile = e.target.files;
-
-    uploadHandler({
-      files: imageFile,
-
-      beforeUpload: () => {
-        this.setState({ avatarPreviewStyle: { opacity: '0.2' } });
-      },
-
-      afterUpload: ({ response }) => {
-        this.setState({
-          avatarPreviewStyle: { opacity: '1' }
-        });
-
-        // call success event
-        this.props.onAvatarUpload(response);
-
-        Alert.info('Looking good!');
-      },
-
-      afterRead: ({ result }) => {
-        this.setState({ avatarPreviewUrl: result });
-      }
-    });
-  }
-
   render() {
     const { __ } = this.context;
-    const { user = {} } = this.props;
+    const { user = {}, onAvatarUpload } = this.props;
     const { details = {}, links = {} } = user;
-    const { avatarPreviewStyle, avatarPreviewUrl } = this.state;
 
     return (
       <Fragment>
-        <Avatar>
-          <FormGroup>
-            <ControlLabel>Photo</ControlLabel>
-            <img
-              alt="avatar"
-              style={avatarPreviewStyle}
-              src={avatarPreviewUrl}
-            />
-            <label>
-              <Icon icon="upload icon" size={30} />
-              <FormControl type="file" onChange={this.handleImageChange} />
-            </label>
-          </FormGroup>
-        </Avatar>
+        <AvatarUpload
+          avatar={user.details.avatar}
+          onAvatarUpload={onAvatarUpload}
+        />
         <FormWrapper>
           <FormColumn>
             <FormGroup>
