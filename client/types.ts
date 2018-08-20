@@ -104,7 +104,9 @@ export interface IDealProductInput {
 
 export interface IDealInput {
   name: string;
-  stageId: string;
+  boardName: string;
+  pipelineName: string;
+  stageName: string;
   userEmail: string;
   companyIds?: string[];
   customerIds?: string[];
