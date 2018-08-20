@@ -90,7 +90,7 @@ export interface IIntegration {
 }
 
 export interface IDealProductInput {
-  productId?: string;
+  productName: string;
   uom?: string;
   currency?: string;
   quantity?: number;
@@ -105,6 +105,7 @@ export interface IDealProductInput {
 export interface IDealInput {
   name: string;
   stageId: string;
+  userEmail: string;
   companyIds?: string[];
   customerIds?: string[];
   description?: string;
