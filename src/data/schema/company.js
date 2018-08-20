@@ -51,16 +51,17 @@ export const types = `
 `;
 
 const queryParams = `
-  page: Int,
-  perPage: Int,
-  segment: String,
-  tag: String,
-  ids: [String],
-  searchValue: String,
-  lifecycleState: String,
-  leadStatus: String,
-  sortField: String,
+  page: Int
+  perPage: Int
+  segment: String
+  tag: String
+  ids: [String]
+  searchValue: String
+  lifecycleState: String
+  leadStatus: String
+  sortField: String
   sortDirection: Int
+  brand: String
 `;
 
 export const queries = `

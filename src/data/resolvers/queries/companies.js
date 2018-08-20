@@ -1,4 +1,4 @@
-import { Companies, Segments, Tags } from '../../../db/models';
+import { Companies, Customers, Segments, Tags, Integrations, Brands } from '../../../db/models';
 import QueryBuilder from './segmentQueryBuilder';
 import {
   TAG_TYPES,
@@ -9,6 +9,27 @@ import {
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 import { cocsExport } from './cocExport';
+
+/*
+ * Brand filter
+ */
+const brandFilter = async brandId => {
+  const integrations = await Integrations.find({ brandId }, { _id: 1 });
+  const integrationIds = integrations.map(i => i._id);
+
+  const customers = await Customers.find(
+    { integrationId: { $in: integrationIds } },
+    { companyIds: 1 },
+  );
+
+  let companyIds = [];
+
+  for (const customer of customers) {
+    companyIds = [...companyIds, ...(customer.companyIds || [])];
+  }
+
+  return { _id: { $in: companyIds } };
+};
 
 const listQuery = async params => {
   let selector = {};
@@ -50,6 +71,11 @@ const listQuery = async params => {
   // filter by life cycle state
   if (params.lifecycleState) {
     selector.lifecycleState = params.lifecycleState;
+  }
+
+  // filter by brandId
+  if (params.brand) {
+    selector = { ...selector, ...(await brandFilter(params.brand)) };
   }
 
   return selector;
@@ -106,6 +132,7 @@ const companyQueries = {
     const counts = {
       bySegment: {},
       byTag: {},
+      byBrand: {},
       byLeadStatus: {},
       byLifecycleState: {},
     };
@@ -117,29 +144,36 @@ const companyQueries = {
       return Companies.find(findQuery).count();
     };
 
-    // Count companies by segments
+    // Count companies by segments =========
     const segments = await Segments.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
     });
 
-    for (let s of segments) {
+    for (const s of segments) {
       counts.bySegment[s._id] = await count(QueryBuilder.segments(s));
     }
 
-    // Count companies by tag
+    // Count companies by tag =========
     const tags = await Tags.find({ type: TAG_TYPES.COMPANY });
 
-    for (let tag of tags) {
+    for (const tag of tags) {
       counts.byTag[tag._id] = await count({ tagIds: tag._id });
     }
 
-    // Count companies by lead status
-    for (let status of COC_LEAD_STATUS_TYPES) {
+    // Count companies by brand =========
+    const brands = await Brands.find({});
+
+    for (const brand of brands) {
+      counts.byBrand[brand._id] = await count(await brandFilter(brand._id));
+    }
+
+    // Count companies by lead status ======
+    for (const status of COC_LEAD_STATUS_TYPES) {
       counts.byLeadStatus[status] = await count({ leadStatus: status });
     }
 
-    // Count companies by life cycle state
-    for (let state of COC_LIFECYCLE_STATE_TYPES) {
+    // Count companies by life cycle state =======
+    for (const state of COC_LIFECYCLE_STATE_TYPES) {
       counts.byLifecycleState[state] = await count({ lifecycleState: state });
     }
 
