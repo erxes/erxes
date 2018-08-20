@@ -47,28 +47,30 @@ const companyFields = `
 `;
 
 const listParamsDef = `
-  $page: Int,
-  $perPage: Int,
-  $segment: String,
-  $tag: String,
-  $ids: [String],
-  $searchValue: String,
-  $leadStatus: String,
-  $lifecycleState: String,
-  $sortField: String,
+  $page: Int
+  $perPage: Int
+  $segment: String
+  $tag: String
+  $ids: [String]
+  $searchValue: String
+  $leadStatus: String
+  $lifecycleState: String
+  $brand: String
+  $sortField: String
   $sortDirection: Int
 `;
 
 const listParamsValue = `
-  page: $page,
-  perPage: $perPage,
-  segment: $segment,
-  tag: $tag,
-  ids: $ids,
-  searchValue: $searchValue,
-  leadStatus: $leadStatus,
-  lifecycleState: $lifecycleState,
-  sortField: $sortField,
+  page: $page
+  perPage: $perPage
+  segment: $segment
+  tag: $tag
+  ids: $ids
+  searchValue: $searchValue
+  leadStatus: $leadStatus
+  lifecycleState: $lifecycleState
+  brand: $brand
+  sortField: $sortField
   sortDirection: $sortDirection
 `;
 

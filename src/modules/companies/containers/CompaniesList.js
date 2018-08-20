@@ -119,6 +119,7 @@ const generateParams = ({ queryParams }) => ({
     perPage: queryParams.perPage || 20,
     segment: queryParams.segment,
     tag: queryParams.tag,
+    brand: queryParams.brand,
     ids: queryParams.ids,
     searchValue: queryParams.searchValue,
     leadStatus: queryParams.leadStatus,
