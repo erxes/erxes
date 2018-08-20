@@ -1,5 +1,5 @@
 const integrations = `
-  query integrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
+  query formIntegrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
     integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag) {
       _id
       brandId
@@ -26,6 +26,14 @@ const integrations = `
         description
         createdDate
         createdUserId
+        createdUser {
+          _id
+          details {
+            avatar
+            fullName
+            position
+          }
+        }
         buttonText
         themeColor
         contactsGathered
@@ -98,7 +106,7 @@ const brands = `
   }
 `;
 
-const integrationsCount = `
+const integrationsTotalCount = `
   query integrationsTotalCount {
     integrationsTotalCount {
       byKind
@@ -138,18 +146,6 @@ const fieldsDefaultColumnsConfig = `
   }
 `;
 
-const users = `
-  query users {
-    users {
-      _id
-      details {
-        avatar
-        fullName
-      }
-    }
-  }
-`;
-
 const tags = `
   query tags($type: String) {
     tags(type: $type) {
@@ -164,10 +160,9 @@ const tags = `
 export default {
   integrations,
   integrationDetail,
-  integrationsCount,
+  integrationsTotalCount,
   fields,
   brands,
-  users,
   tags,
   fieldsCombinedByContentType,
   fieldsDefaultColumnsConfig

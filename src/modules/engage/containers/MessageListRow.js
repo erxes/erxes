@@ -3,35 +3,31 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, confirm } from 'modules/common/utils';
 import { MessageListRow } from '../components';
-import { mutations } from '../graphql';
-import { confirm } from 'modules/common/utils';
+import { queries, mutations } from '../graphql';
+import { crudMutationsOptions } from '../utils';
 
 const MessageRowContainer = props => {
   const {
     history,
     message,
-    refetch,
     removeMutation,
     setPauseMutation,
     setLiveMutation,
     setLiveManualMutation
   } = props;
 
-  const doMutation = mutation => {
+  const doMutation = mutation =>
     mutation({
       variables: { _id: message._id }
     })
       .then(() => {
-        refetch();
-
         Alert.success('Congrats');
       })
       .catch(error => {
         Alert.error(error.message);
       });
-  };
 
   const edit = () => {
     history.push(`/engage/messages/edit/${message._id}`);
@@ -39,7 +35,9 @@ const MessageRowContainer = props => {
 
   const remove = () => {
     confirm().then(() => {
-      doMutation(removeMutation);
+      doMutation(removeMutation).then(() => {
+        history.push('/engage');
+      });
     });
   };
 
@@ -62,26 +60,48 @@ const MessageRowContainer = props => {
 MessageRowContainer.propTypes = {
   history: PropTypes.object,
   message: PropTypes.object,
-  refetch: PropTypes.func,
   removeMutation: PropTypes.func,
   setPauseMutation: PropTypes.func,
   setLiveMutation: PropTypes.func,
   setLiveManualMutation: PropTypes.func
 };
 
+const statusMutationsOptions = ({ queryParams, message }) => {
+  return {
+    refetchQueries: [
+      {
+        query: gql(queries.statusCounts),
+        variables: {
+          kind: queryParams.kind || ''
+        }
+      },
+      {
+        query: gql(queries.engageMessageDetail),
+        variables: {
+          _id: message._id
+        }
+      }
+    ]
+  };
+};
+
 export default withRouter(
   compose(
     graphql(gql(mutations.messageRemove), {
-      name: 'removeMutation'
+      name: 'removeMutation',
+      options: crudMutationsOptions
     }),
     graphql(gql(mutations.setPause), {
-      name: 'setPauseMutation'
+      name: 'setPauseMutation',
+      options: statusMutationsOptions
     }),
     graphql(gql(mutations.setLive), {
-      name: 'setLiveMutation'
+      name: 'setLiveMutation',
+      options: statusMutationsOptions
     }),
     graphql(gql(mutations.setLiveManual), {
-      name: 'setLiveManualMutation'
+      name: 'setLiveManualMutation',
+      options: statusMutationsOptions
     })
   )(MessageRowContainer)
 );

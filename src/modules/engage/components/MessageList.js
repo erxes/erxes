@@ -5,6 +5,7 @@ import { Dropdown } from 'react-bootstrap';
 import { Pagination } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import {
+  FormControl,
   DropdownToggle,
   Table,
   Button,
@@ -12,21 +13,33 @@ import {
   DataWithLoader
 } from 'modules/common/components';
 import { TaggerPopover } from 'modules/tags/components';
-import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
+import { MessageListRow, Sidebar } from '../containers';
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
   totalCount: PropTypes.number.isRequired,
-  tags: PropTypes.array.isRequired,
   bulk: PropTypes.array.isRequired,
-  refetch: PropTypes.func.isRequired,
+  isAllSelected: PropTypes.bool,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
+  toggleAll: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   queryParams: PropTypes.object
 };
 
 class List extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange() {
+    const { toggleAll, messages } = this.props;
+
+    toggleAll(messages, 'engageMessages');
+  }
+
   renderTagger() {
     const { bulk, emptyBulk } = this.props;
     const { __ } = this.context;
@@ -43,6 +56,7 @@ class List extends React.Component {
           type="engageMessage"
           targets={bulk}
           trigger={tagButton}
+          refetchQueries={['tagCounts', 'engageMessages']}
           successCallback={emptyBulk}
         />
       );
@@ -53,12 +67,13 @@ class List extends React.Component {
     const {
       messages,
       totalCount,
-      tags,
+      bulk,
       toggleBulk,
-      refetch,
       loading,
-      queryParams
+      queryParams,
+      isAllSelected
     } = this.props;
+
     const { __ } = this.context;
 
     const actionBarRight = (
@@ -97,7 +112,13 @@ class List extends React.Component {
       <Table whiteSpace="nowrap" hover bordered>
         <thead>
           <tr>
-            <th />
+            <th>
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={this.onChange}
+              />
+            </th>
             <th>{__('Title')}</th>
             <th>{__('From')}</th>
             <th>{__('Status')}</th>
@@ -117,25 +138,18 @@ class List extends React.Component {
             <th>{__('Actions')}</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="engageMessages">
           {messages.map(message => (
             <MessageListRow
+              isChecked={bulk.includes(message)}
               toggleBulk={toggleBulk}
-              refetch={refetch}
               key={message._id}
               message={message}
+              queryParams={queryParams}
             />
           ))}
         </tbody>
       </Table>
-    );
-
-    const sidebar = (
-      <Wrapper.Sidebar>
-        <SidebarContainers.Main />
-        <SidebarContainers.Status />
-        <SidebarContainers.Tag tags={tags} manageUrl="tags/engageMessage" />
-      </Wrapper.Sidebar>
     );
 
     return (
@@ -146,7 +160,7 @@ class List extends React.Component {
             queryParams={queryParams}
           />
         }
-        leftSidebar={sidebar}
+        leftSidebar={<Sidebar queryParams={queryParams} />}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={

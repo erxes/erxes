@@ -5,10 +5,9 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { Bulk } from 'modules/common/components';
-import { mutations, queries } from '../graphql';
 import { TAG_TYPES } from 'modules/tags/constants';
+import { mutations, queries } from '../graphql';
 import { CompaniesList } from '../components';
-import { router } from 'modules/common/utils';
 
 class CompanyListContainer extends Bulk {
   refetch() {
@@ -27,8 +26,6 @@ class CompanyListContainer extends Bulk {
       history
     } = this.props;
 
-    router.refetchIfUpdated(history, companiesMainQuery);
-
     let columnsConfig =
       companiesListConfigQuery.fieldsDefaultColumnsConfig || [];
 
@@ -45,7 +42,6 @@ class CompanyListContainer extends Bulk {
       })
         .then(() => {
           this.emptyBulk();
-          companiesMainQuery.refetch();
           Alert.success('Success');
         })
         .catch(e => {
@@ -62,7 +58,6 @@ class CompanyListContainer extends Bulk {
       })
         .then(data => {
           Alert.success('Success');
-          companiesMainQuery.refetch();
           callback();
           history.push(`/companies/details/${data.data.companiesMerge._id}`);
         })
@@ -96,6 +91,7 @@ class CompanyListContainer extends Bulk {
       companies: list,
       loading: companiesMainQuery.loading,
       bulk: this.state.bulk || [],
+      isAllSelected: this.state.isAllSelected,
       emptyBulk: this.emptyBulk,
       toggleBulk: this.toggleBulk,
       toggleAll: this.toggleAll,
@@ -117,45 +113,36 @@ CompanyListContainer.propTypes = {
   loading: PropTypes.bool
 };
 
+const generateParams = ({ queryParams }) => ({
+  variables: {
+    page: queryParams.page,
+    perPage: queryParams.perPage || 20,
+    segment: queryParams.segment,
+    tag: queryParams.tag,
+    brand: queryParams.brand,
+    ids: queryParams.ids,
+    searchValue: queryParams.searchValue,
+    leadStatus: queryParams.leadStatus,
+    lifecycleState: queryParams.lifecycleState,
+    sortField: queryParams.sortField,
+    sortDirection: queryParams.sortDirection
+  },
+  fetchPolicy: 'network-only'
+});
+
 export default compose(
   graphql(gql(queries.companiesMain), {
     name: 'companiesMainQuery',
-    options: ({ queryParams }) => ({
-      variables: {
-        page: queryParams.page,
-        perPage: queryParams.perPage || 20,
-        segment: queryParams.segment,
-        tag: queryParams.tag,
-        ids: queryParams.ids,
-        searchValue: queryParams.searchValue,
-        leadStatus: queryParams.leadStatus,
-        lifecycleState: queryParams.lifecycleState,
-        sortField: queryParams.sortField,
-        sortDirection: queryParams.sortDirection
-      },
-      notifyOnNetworkStatusChange: true
-    })
+    options: generateParams
   }),
   graphql(gql(queries.companyCounts), {
     name: 'companyCountsQuery',
-    options: ({ queryParams }) => ({
-      variables: {
-        page: queryParams.page,
-        perPage: queryParams.perPage || 20,
-        segment: queryParams.segment,
-        tag: queryParams.tag,
-        ids: queryParams.ids,
-        searchValue: queryParams.searchValue,
-        leadStatus: queryParams.leadStatus,
-        lifecycleState: queryParams.lifecycleState
-      },
-      notifyOnNetworkStatusChange: true
-    })
+    options: generateParams
   }),
   graphql(gql(queries.companiesListConfig), {
     name: 'companiesListConfigQuery',
     options: () => ({
-      notifyOnNetworkStatusChange: true
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(queries.tags), {
@@ -164,7 +151,7 @@ export default compose(
       variables: {
         type: TAG_TYPES.COMPANY
       },
-      notifyOnNetworkStatusChange: true
+      fetchPolicy: 'network-only'
     })
   }),
   // mutations
@@ -172,6 +159,9 @@ export default compose(
     name: 'companiesRemove'
   }),
   graphql(gql(mutations.companiesMerge), {
-    name: 'companiesMerge'
+    name: 'companiesMerge',
+    options: props => ({
+      refetchQueries: ['companiesMain', 'companyCounts']
+    })
   })
 )(withRouter(CompanyListContainer));

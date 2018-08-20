@@ -1,6 +1,6 @@
 import { LEAD_STATUS_TYPES, LIFECYCLE_STATE_TYPES } from './constants';
 
-const hasAnyActivity = log => {
+export const hasAnyActivity = log => {
   let hasAny = false;
 
   log.forEach(item => {
@@ -12,7 +12,7 @@ const hasAnyActivity = log => {
   return hasAny;
 };
 
-const leadStatusChoices = __ => {
+export const leadStatusChoices = __ => {
   const options = [];
 
   for (const key of Object.keys(LEAD_STATUS_TYPES)) {
@@ -25,7 +25,7 @@ const leadStatusChoices = __ => {
   return options;
 };
 
-const lifecycleStateChoices = __ => {
+export const lifecycleStateChoices = __ => {
   const options = [];
 
   for (const key of Object.keys(LIFECYCLE_STATE_TYPES)) {
@@ -37,5 +37,3 @@ const lifecycleStateChoices = __ => {
 
   return options;
 };
-
-export { hasAnyActivity, leadStatusChoices, lifecycleStateChoices };

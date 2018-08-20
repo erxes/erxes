@@ -21,6 +21,7 @@ const propTypes = {
   setLive: PropTypes.func.isRequired,
   setLiveManual: PropTypes.func.isRequired,
   setPause: PropTypes.func.isRequired,
+  isChecked: PropTypes.bool,
   toggleBulk: PropTypes.func.isRequired
 };
 
@@ -105,7 +106,7 @@ class Row extends React.Component {
   render() {
     let status = <Label lblStyle="default">Sending</Label>;
 
-    const { message, remove } = this.props;
+    const { isChecked, message, remove } = this.props;
     const { stats = {}, brand = {} } = message;
 
     const deliveryReports = Object.values(message.deliveryReports || {});
@@ -119,7 +120,11 @@ class Row extends React.Component {
     return (
       <tr key={message._id}>
         <td>
-          <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
+          <FormControl
+            checked={isChecked}
+            componentClass="checkbox"
+            onChange={this.toggleBulk}
+          />
         </td>
         <td>
           <EngageTitle onClick={this.props.edit}>{message.title}</EngageTitle>

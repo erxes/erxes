@@ -51,17 +51,6 @@ const engageMessages = `
   }
 `;
 
-const tags = `
-  query tags($type: String) {
-    tags(type: $type) {
-      _id
-      name
-      type
-      colorCode
-    }
-  }
-`;
-
 const engageDetailFields = `
   _id
   kind
@@ -212,6 +201,24 @@ const combinedFields = `
   }
 `;
 
+const kindCounts = `
+  query kindCounts {
+    engageMessageCounts(name: "kind")
+  }
+`;
+
+const statusCounts = `
+  query statusCounts($kind: String) {
+    engageMessageCounts(name: "status", kind: $kind)
+  }
+`;
+
+const tagCounts = `
+  query tagCounts($kind: String, $status: String) {
+    engageMessageCounts(name: "tag", kind: $kind, status: $status)
+  }
+`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -220,10 +227,12 @@ export default {
   userDetail,
   segments,
   brands,
-  tags,
   emailTemplates,
   customerCounts,
   segmentDetail,
   headSegments,
-  combinedFields
+  combinedFields,
+  kindCounts,
+  statusCounts,
+  tagCounts
 };

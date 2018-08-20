@@ -35,6 +35,7 @@ const propTypes = {
   integrations: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   bulk: PropTypes.array.isRequired,
+  isAllSelected: PropTypes.bool,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
@@ -74,11 +75,20 @@ class CustomersList extends React.Component {
     customers.forEach(customer => {
       customerIds.push(customer._id);
     });
+
     this.props.removeCustomers({ customerIds });
   }
 
   renderContent() {
-    const { customers, columnsConfig, toggleBulk, history } = this.props;
+    const {
+      customers,
+      columnsConfig,
+      bulk,
+      toggleBulk,
+      history,
+      isAllSelected
+    } = this.props;
+
     const { __ } = this.context;
 
     return (
@@ -86,7 +96,11 @@ class CustomersList extends React.Component {
         <thead>
           <tr>
             <th>
-              <FormControl componentClass="checkbox" onChange={this.onChange} />
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={this.onChange}
+              />
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>
@@ -103,6 +117,7 @@ class CustomersList extends React.Component {
               customer={customer}
               columnsConfig={columnsConfig}
               key={customer._id}
+              isChecked={bulk.includes(customer)}
               toggleBulk={toggleBulk}
               history={history}
             />
@@ -125,6 +140,7 @@ class CustomersList extends React.Component {
 
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
+
     e.target.value = '';
     e.target.value = tmpValue;
   }
@@ -216,7 +232,7 @@ class CustomersList extends React.Component {
         </Dropdown>
 
         <ModalTrigger title="New customer" trigger={addTrigger} size="lg">
-          <CustomerForm size="lg" />
+          <CustomerForm size="lg" queryParams={queryParams} />
         </ModalTrigger>
       </BarItems>
     );
@@ -238,7 +254,8 @@ class CustomersList extends React.Component {
 
       actionBarLeft = (
         <BarItems>
-          <Widget customers={bulk} />
+          <Widget customers={bulk} emptyBulk={emptyBulk} />
+
           <TaggerPopover
             type="customer"
             successCallback={emptyBulk}
