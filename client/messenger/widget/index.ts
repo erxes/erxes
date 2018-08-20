@@ -11,6 +11,10 @@ import "./index.css";
 import { sendEvent } from "../../core";
 import { getBrowserInfo } from "../../utils";
 
+window.Erxes = {
+  sendEvent
+};
+
 // check is mobile
 const isMobile =
   navigator.userAgent.match(/iPhone/i) ||
@@ -19,10 +23,6 @@ const isMobile =
 
 let viewportContent = "";
 let generatedContent = "";
-
-window.erxes = {
-  sendEvent
-};
 
 if (isMobile) {
   const viewportMeta = document.querySelector('meta[name="viewport"]');
