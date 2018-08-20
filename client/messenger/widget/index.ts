@@ -8,7 +8,12 @@ declare const window: any;
 // css
 import "./index.css";
 
+import { sendEvent } from "../../core";
 import { getBrowserInfo } from "../../utils";
+
+window.Erxes = {
+  sendEvent
+};
 
 // check is mobile
 const isMobile =
