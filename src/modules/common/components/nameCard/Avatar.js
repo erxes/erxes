@@ -104,7 +104,7 @@ class Avatar extends Component {
   }
 
   render() {
-    const { user, customer, icon } = this.props;
+    const { user, customer, company, icon } = this.props;
 
     let avatar;
     let fullName;
@@ -116,6 +116,9 @@ class Avatar extends Component {
     } else if (customer) {
       avatar = customer.avatar;
       fullName = this.renderName(customer);
+    } else if (company) {
+      avatar = company.avatar;
+      fullName = this.renderName(company);
     }
 
     const Element = customer ? Link : 'div';
@@ -134,6 +137,7 @@ class Avatar extends Component {
 Avatar.propTypes = {
   user: PropTypes.object,
   customer: PropTypes.object,
+  company: PropTypes.object,
   size: PropTypes.number,
   icon: PropTypes.node
 };

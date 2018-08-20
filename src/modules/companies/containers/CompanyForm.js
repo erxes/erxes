@@ -53,10 +53,9 @@ CompanyFromContainer.contextTypes = {
 const options = () => ({
   refetchQueries: [
     'companiesMain',
-
+    'companyDetail',
     // companies for customer detail company associate
     'companies',
-
     'companyCounts'
   ]
 });

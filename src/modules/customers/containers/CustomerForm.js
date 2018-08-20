@@ -56,7 +56,6 @@ const options = () => {
       'customerDetail',
       // customers for company detail associate customers
       'customers',
-
       'customerCounts'
     ]
   };

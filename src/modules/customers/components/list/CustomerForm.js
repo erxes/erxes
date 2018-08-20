@@ -58,7 +58,7 @@ class CustomerForm extends React.Component {
   }
 
   action(e) {
-    const { phones, emails, primaryPhone, primaryEmail } = this.state;
+    const { phones, emails, primaryPhone, primaryEmail, avatar } = this.state;
     e.preventDefault();
 
     this.props.action({
@@ -67,7 +67,7 @@ class CustomerForm extends React.Component {
         emails,
         primaryPhone,
         primaryEmail,
-        avatar: this.state.avatar,
+        avatar,
         firstName: document.getElementById('customer-firstname').value,
         lastName: document.getElementById('customer-lastname').value,
         ownerId: this.state.ownerId,
