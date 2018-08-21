@@ -107,6 +107,7 @@ const FormWrapper = styled.div`
     width: 100px;
     height: 100px;
     border-radius: 50px;
+    background-color: ${colors.colorCoreGray};
   }
 `;
 

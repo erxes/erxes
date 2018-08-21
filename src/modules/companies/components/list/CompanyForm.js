@@ -165,6 +165,7 @@ class CompanyForm extends React.Component {
         <AvatarUpload
           avatar={company.avatar}
           onAvatarUpload={this.onAvatarUpload}
+          defaultAvatar="/images/company.png"
         />
         <FormWrapper>
           <FormColumn>

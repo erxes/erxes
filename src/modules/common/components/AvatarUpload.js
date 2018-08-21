@@ -11,6 +11,7 @@ import { Avatar } from 'modules/common/styles/main';
 
 const propTypes = {
   avatar: PropTypes.string,
+  defaultAvatar: PropTypes.string,
   onAvatarUpload: PropTypes.func
 };
 
@@ -18,7 +19,7 @@ class AvatarUpload extends Component {
   constructor(props, context) {
     super(props, context);
 
-    const defaultAvatar = '/images/avatar-colored.svg';
+    const defaultAvatar = props.defaultAvatar || '/images/avatar-colored.svg';
 
     this.state = {
       avatarPreviewUrl: this.props.avatar || defaultAvatar,
