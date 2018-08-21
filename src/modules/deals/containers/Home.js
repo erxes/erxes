@@ -11,8 +11,6 @@ import {
 import { Home } from '../components';
 import { queries } from '../graphql';
 
-const storageBoardId = localStorage.getItem(STORAGE_BOARD_KEY);
-
 /*
  * Main board component
  */
@@ -27,12 +25,15 @@ class Main extends React.Component {
     } = this.props;
 
     const currentBoard = boardDetailQuery.dealBoardDetail;
+    const storageBoardId = localStorage.getItem(STORAGE_BOARD_KEY);
 
     if (!queryParams.id) {
+      // set default board from localStorage
       let boardId = storageBoardId;
 
       const lastBoard = boardGetLastQuery.dealBoardGetLast;
 
+      // if no default board in localStorage, set last board as default
       if (!boardId && lastBoard) {
         boardId = lastBoard._id;
       }
@@ -42,8 +43,11 @@ class Main extends React.Component {
         return null;
       }
     } else {
-      localStorage.setItem(STORAGE_BOARD_KEY, queryParams.id);
-      localStorage.setItem(STORAGE_PIPELINE_KEY, null);
+      // if not change default board
+      if (queryParams.id !== storageBoardId) {
+        localStorage.setItem(STORAGE_BOARD_KEY, queryParams.id);
+        localStorage.removeItem(STORAGE_PIPELINE_KEY);
+      }
     }
 
     const extendedProps = {
@@ -70,7 +74,7 @@ const MainContainer = compose(
   }),
   graphql(gql(queries.boardGetLast), {
     name: 'boardGetLastQuery',
-    skip: () => storageBoardId
+    skip: () => localStorage.getItem(STORAGE_BOARD_KEY)
   }),
   graphql(gql(queries.boardDetail), {
     name: 'boardDetailQuery',

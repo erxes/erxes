@@ -2,19 +2,33 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Pipeline } from '../components';
-import { queries, mutations } from '../graphql';
+
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
+import { STORAGE_PIPELINE_KEY } from 'modules/common/constants';
+import { Pipeline } from '../components';
+import { queries, mutations } from '../graphql';
 import { collectOrders } from '../utils';
 
 class PipelineContainer extends React.Component {
   constructor(props) {
     super(props);
 
+    this.toggleConfig = this.toggleConfig.bind(this);
+
     const { stages } = props;
 
     this.state = { stages: [...stages] };
+  }
+
+  toggleConfig(value) {
+    const { pipeline } = this.props;
+
+    const storagePipeline =
+      JSON.parse(localStorage.getItem(STORAGE_PIPELINE_KEY)) || {};
+    storagePipeline[pipeline._id] = value;
+
+    localStorage.setItem(STORAGE_PIPELINE_KEY, JSON.stringify(storagePipeline));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -60,7 +74,8 @@ class PipelineContainer extends React.Component {
   render() {
     const extendedProps = {
       ...this.props,
-      stages: this.state.stages
+      stages: this.state.stages,
+      toggleConfig: this.toggleConfig
     };
 
     return <Pipeline {...extendedProps} />;

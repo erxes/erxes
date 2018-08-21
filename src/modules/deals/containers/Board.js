@@ -5,6 +5,8 @@ import gql from 'graphql-tag';
 import { Board } from '../components';
 import { queries } from '../graphql';
 
+import { STORAGE_PIPELINE_KEY } from 'modules/common/constants';
+
 class BoardContainer extends React.Component {
   constructor(props) {
     super(props);
@@ -57,11 +59,24 @@ class BoardContainer extends React.Component {
 
     const pipelines = pipelinesQuery.dealPipelines || [];
 
+    // get pipeline expanding settings from localStorage
+    const expandConfig =
+      JSON.parse(localStorage.getItem(STORAGE_PIPELINE_KEY)) || {};
+
+    // if storagePipeline is empty object, default settings will work
+    if (Object.keys(expandConfig).length === 0) {
+      if (pipelines[0]) expandConfig[pipelines[0]._id] = true;
+      if (pipelines[1]) expandConfig[pipelines[1]._id] = true;
+
+      localStorage.setItem(STORAGE_PIPELINE_KEY, JSON.stringify(expandConfig));
+    }
+
     const extendedProps = {
       ...this.props,
       states: this.state,
       onDragEnd: this.onDragEnd,
       pipelines,
+      expandConfig,
       loading: pipelinesQuery.loading
     };
 

@@ -28,12 +28,6 @@ const boardRemove = `
   }
 `;
 
-const boardSetDefault = `
-  mutation dealBoardsSetDefault($_id: String!) {
-    dealBoardsSetDefault(_id: $_id)
-  }
-`;
-
 const commonPipelineParamsDef = `
   $name: String!,
   $boardId: String!,
@@ -80,7 +74,6 @@ export default {
   boardAdd,
   boardEdit,
   boardRemove,
-  boardSetDefault,
   pipelineAdd,
   pipelineEdit,
   pipelineRemove,

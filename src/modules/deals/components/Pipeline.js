@@ -7,6 +7,7 @@ import { Container, Header, Body } from '../styles/pipeline';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
+  toggleConfig: PropTypes.func.isRequired,
   stages: PropTypes.array,
   expanded: PropTypes.bool
 };
@@ -73,6 +74,8 @@ class Pipeline extends React.Component {
 
   togglePipeline() {
     this.setState({ expanded: !this.state.expanded });
+
+    this.props.toggleConfig(!this.state.expanded);
   }
 
   render() {

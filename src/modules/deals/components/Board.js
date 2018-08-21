@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { EmptyState } from 'modules/common/components';
+
 import { Pipeline } from '../containers';
 
 const propTypes = {
@@ -9,12 +10,19 @@ const propTypes = {
   pipelines: PropTypes.array,
   states: PropTypes.object,
   onDragEnd: PropTypes.func,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  expandConfig: PropTypes.object
 };
 
 class Board extends React.Component {
   renderPipelines() {
-    const { states, pipelines, currentBoard, loading } = this.props;
+    const {
+      states,
+      pipelines,
+      currentBoard,
+      loading,
+      expandConfig
+    } = this.props;
 
     if (pipelines && pipelines.length === 0 && !loading) {
       return (
@@ -38,11 +46,11 @@ class Board extends React.Component {
       });
     }
 
-    return pipelines.map((pipeline, index) => (
+    return pipelines.map(pipeline => (
       <Pipeline
         key={pipeline._id}
         {...stageStates}
-        expanded={index < 2}
+        expanded={expandConfig[pipeline._id]}
         state={states[`pipelineState${pipeline._id}`]}
         pipeline={pipeline}
       />

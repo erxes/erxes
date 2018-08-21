@@ -3,7 +3,6 @@ const boards = `
     dealBoards {
       _id
       name
-      isDefault
     }
   }
 `;
