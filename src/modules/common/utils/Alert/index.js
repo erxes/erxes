@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
+import T from 'i18n-react';
 import AlertStyled from './Alert';
 
 const AlertWrapper = styled.div.attrs({
@@ -22,37 +23,35 @@ let timeout;
 
 const createAlert = (type, text) => {
   alertcount++;
+
   if (timeout) {
     clearTimeout(timeout);
   }
 
   timeout = setTimeout(() => {
     alertcount = 0;
+
     if (document.getElementById('alert-container')) {
       document.body.removeChild(document.getElementById('alert-container'));
     }
   }, 3500);
 
-  if (document.getElementById('alert-container')) {
-    const wrapper = document.getElementById('alert-wrapper');
-
-    ReactDOM.render(
-      <AlertStyled key={alertcount} type={type} text={text} />,
-      wrapper
-    );
-  } else {
+  if (!document.getElementById('alert-container')) {
     const _popup = document.createElement('div');
     _popup.setAttribute('id', 'alert-container');
     document.body.appendChild(_popup);
 
     ReactDOM.render(<AlertWrapper />, _popup);
-    const wrapper = document.getElementById('alert-wrapper');
-
-    ReactDOM.render(
-      <AlertStyled key={alertcount} type={type} text={text} />,
-      wrapper
-    );
   }
+
+  const wrapper = document.getElementById('alert-wrapper');
+
+  ReactDOM.render(
+    <AlertStyled key={alertcount} type={type}>
+      {T.translate(text)}
+    </AlertStyled>,
+    wrapper
+  );
 };
 
 const success = text => {
