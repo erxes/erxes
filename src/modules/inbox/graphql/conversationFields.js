@@ -31,6 +31,7 @@ export default `
   customer {
     _id
     visitorContactInfo
+    messengerData
   }
   messageCount
   participatorCount
