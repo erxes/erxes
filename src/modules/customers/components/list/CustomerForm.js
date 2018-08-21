@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import {
   Button,
+  AvatarUpload,
   FormGroup,
   FormControl,
   ControlLabel,
@@ -37,7 +38,8 @@ class CustomerForm extends React.Component {
       ownerId: customer.ownerId || '',
       doNotDisturb: customer.doNotDisturb || 'No',
       hasAuthority: customer.hasAuthority || 'No',
-      users: []
+      users: [],
+      avatar: customer.avatar
     };
 
     this.renderFormGroup = this.renderFormGroup.bind(this);
@@ -45,6 +47,7 @@ class CustomerForm extends React.Component {
     this.handleUserSearch = this.handleUserSearch.bind(this);
     this.onEmailChange = this.onEmailChange.bind(this);
     this.onPhoneChange = this.onPhoneChange.bind(this);
+    this.onAvatarUpload = this.onAvatarUpload.bind(this);
   }
 
   componentDidMount() {
@@ -55,7 +58,7 @@ class CustomerForm extends React.Component {
   }
 
   action(e) {
-    const { phones, emails, primaryPhone, primaryEmail } = this.state;
+    const { phones, emails, primaryPhone, primaryEmail, avatar } = this.state;
     e.preventDefault();
 
     this.props.action({
@@ -64,6 +67,7 @@ class CustomerForm extends React.Component {
         emails,
         primaryPhone,
         primaryEmail,
+        avatar,
         firstName: document.getElementById('customer-firstname').value,
         lastName: document.getElementById('customer-lastname').value,
         ownerId: this.state.ownerId,
@@ -88,6 +92,10 @@ class CustomerForm extends React.Component {
     });
 
     this.context.closeModal();
+  }
+
+  onAvatarUpload(url) {
+    this.setState({ avatar: url });
   }
 
   generateUserParams(users) {
@@ -137,6 +145,10 @@ class CustomerForm extends React.Component {
 
     return (
       <form onSubmit={e => this.action(e)}>
+        <AvatarUpload
+          avatar={customer.avatar}
+          onAvatarUpload={this.onAvatarUpload}
+        />
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('First Name', {
