@@ -551,6 +551,26 @@ export class SaveWebhookResponse {
    */
   async createMessage({ conversation, userId, content, attachments, facebookData }) {
     if (conversation) {
+      let res = await this.getPageAccessToken();
+      const { item, postId } = facebookData;
+      const fields = `/${postId}?fields=caption,description,link,picture,properties,source,type`;
+
+      if (item === 'comment') {
+        const parentPost = await ConversationMessages.findOne({
+          isPost: true,
+          'facebookData.postId': postId,
+        });
+
+        const postComments = await findPostComments(res.access_token, postId);
+
+        if (!parentPost) {
+          // get user info
+          res = await graphRequest.get(fields, res.access_token);
+
+          const postParams = await this.handlePosts(res);
+        }
+      }
+
       // create new message
       const message = await ConversationMessages.createMessage({
         conversationId: conversation._id,
@@ -574,6 +594,24 @@ export class SaveWebhookResponse {
     }
   }
 }
+
+/*
+ * Find root tweet using id
+ */
+export const findPostComments = async (access_token, postId) => {
+  const comments = [];
+
+  const postComments = await graphRequest.get(`/${postId}/comments`, access_token);
+  const { data } = postComments;
+
+  for (let comment of data) {
+    comments.push(comment);
+
+    findPostComments(access_token, comment.id);
+  }
+
+  return comments;
+};
 
 /*
  * Receive per app webhook response
