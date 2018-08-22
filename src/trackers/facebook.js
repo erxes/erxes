@@ -582,6 +582,14 @@ export class SaveWebhookResponse {
     return message._id;
   }
 
+  /**
+   * Restore deleted facebook converation's data
+   * @param {Object} conversation - Conversation object
+   * @param {String} userId - Facebook user id
+   * @param {Object} facebookData - Facebook data of conversation message
+   *
+   * @return {Boolean} - Restored or not
+   */
   async restoreOldPosts({ conversation, userId, facebookData }) {
     // getting page access token
     let res = await this.getPageAccessToken();
