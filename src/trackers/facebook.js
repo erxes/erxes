@@ -629,7 +629,7 @@ export class SaveWebhookResponse {
 }
 
 /*
- * Find root tweet using id
+ * Find post comments using postId
  */
 const findPostComments = async (access_token, postId, comments) => {
   const postComments = await graphRequest.get(`/${postId}/comments`, access_token);
