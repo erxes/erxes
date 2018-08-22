@@ -15,7 +15,7 @@ import {
   FACEBOOK_POST_TYPES,
 } from '../data/constants';
 
-import { graphRequest } from './facebookTracker';
+import { graphRequest, findPostComments } from './facebookTracker';
 
 /*
  * Get list of pages that authorized user owns
@@ -332,6 +332,14 @@ export class SaveWebhookResponse {
       conversation = await Conversations.reopen(conversation._id);
     }
 
+    const restored = await this.restoreOldPosts({
+      conversation,
+      userId: senderId,
+      facebookData: msgFacebookData,
+    });
+
+    if (restored) return;
+
     // create new message
     return this.createMessage({
       conversation,
@@ -550,108 +558,89 @@ export class SaveWebhookResponse {
    * Create new message
    */
   async createMessage({ conversation, userId, content, attachments, facebookData }) {
-    if (conversation) {
-      // getting page access token
-      let res = await this.getPageAccessToken();
-      const accessToken = res.access_token;
+    if (!conversation) return null;
 
-      const { item, postId } = facebookData;
-      const fields = `/${postId}?fields=caption,description,link,picture,source,message,from`;
+    // create new message
+    const message = await ConversationMessages.createMessage({
+      conversationId: conversation._id,
+      customerId: await this.getOrCreateCustomer(userId),
+      content,
+      attachments,
+      facebookData,
+      internal: false,
+    });
 
-      const msgParams = {
-        conversationId: conversation._id,
-        customerId: await this.getOrCreateCustomer(userId),
-      };
+    // updating conversation content
+    await Conversations.update({ _id: conversation._id }, { $set: { content } });
 
-      if (item === 'comment') {
-        const parentPost = await ConversationMessages.findOne({
-          isPost: true,
-          'facebookData.postId': postId,
-        });
+    // notifying conversation inserted
+    publishClientMessage(message);
 
-        // creating parent post if comment has no parent
-        if (!parentPost) {
-          // get post info
-          res = await graphRequest.get(fields, accessToken);
-          const postParams = await this.handlePosts({ ...res, item: 'status', postId: res.id });
+    // notify subscription server new message
+    publishMessage(message, conversation.customerId);
 
-          await ConversationMessages.createMessage({
-            ...msgParams,
-            content: res.message,
-            facebookData: {
-              senderId: res.from.id,
-              senderName: res.from.name,
-              ...postParams,
-            },
-            internal: false,
-          });
+    return message._id;
+  }
 
-          // getting all the comments of post
-          const postComments = await findPostComments(accessToken, postId, []);
+  async restoreOldPosts({ conversation, userId, facebookData }) {
+    // getting page access token
+    let res = await this.getPageAccessToken();
+    const accessToken = res.access_token;
 
-          // creating conversation message for each comment
-          for (let comment of postComments) {
-            await ConversationMessages.createMessage({
-              ...msgParams,
-              content: comment.message,
-              facebookData: {
-                postId: res.id,
-                commentId: comment.id,
-                item: 'comment',
-                senderId: comment.from.id,
-                senderName: comment.from.name,
-                parentId: comment.parent ? comment.parent.id : null,
-              },
-              internal: false,
-            });
-          }
+    const { item, postId } = facebookData;
+    const fields = `/${postId}?fields=caption,description,link,picture,source,message,from`;
 
-          return;
-        }
-      }
+    if (item !== 'comment') return false;
 
-      // create new message
-      const message = await ConversationMessages.createMessage({
-        ...msgParams,
-        content,
-        attachments,
-        facebookData,
-        internal: false,
+    const parentPost = await ConversationMessages.findOne({
+      isPost: true,
+      'facebookData.postId': postId,
+    });
+
+    if (parentPost) return false;
+
+    // creating parent post if comment has no parent
+    // get post info
+    res = await graphRequest.get(fields, accessToken);
+    const postParams = await this.handlePosts({
+      ...res,
+      item: 'status',
+      postId: res.id,
+    });
+
+    await this.createMessage({
+      conversation,
+      userId,
+      content: res.message,
+      facebookData: {
+        senderId: res.from.id,
+        senderName: res.from.name,
+        ...postParams,
+      },
+    });
+    // getting all the comments of post
+    const postComments = await findPostComments(accessToken, postId, []);
+
+    // creating conversation message for each comment
+    for (let comment of postComments) {
+      await this.createMessage({
+        conversation,
+        userId,
+        content: comment.message,
+        facebookData: {
+          postId: res.id,
+          commentId: comment.id,
+          item: 'comment',
+          senderId: comment.from.id,
+          senderName: comment.from.name,
+          parentId: comment.parent ? comment.parent.id : null,
+        },
       });
-
-      // updating conversation content
-      await Conversations.update({ _id: conversation._id }, { $set: { content } });
-
-      // notifying conversation inserted
-      publishClientMessage(message);
-
-      // notify subscription server new message
-      publishMessage(message, conversation.customerId);
-
-      return message._id;
     }
+
+    return true;
   }
 }
-
-/*
- * Find post comments using postId
- */
-export const findPostComments = async (access_token, postId, comments) => {
-  const postComments = await graphRequest.get(
-    `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url`,
-    access_token,
-  );
-
-  const { data } = postComments;
-
-  for (let comment of data) {
-    comments.push(comment);
-
-    await findPostComments(access_token, comment.id, comments);
-  }
-
-  return comments;
-};
 
 /*
  * Receive per app webhook response

@@ -1,7 +1,7 @@
 import { connect, disconnect } from '../db/connection';
 import { Conversations, ConversationMessages, Integrations, Customers } from '../db/models';
-import { graphRequest } from '../trackers/facebookTracker';
-import { getConfig, findPostComments, ActivityLogs } from '../trackers/facebook';
+import { graphRequest, findPostComments } from '../trackers/facebookTracker';
+import { getConfig, ActivityLogs } from '../trackers/facebook';
 
 export const customCommand = async () => {
   connect();
