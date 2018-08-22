@@ -107,6 +107,7 @@ const FormWrapper = styled.div`
     width: 100px;
     height: 100px;
     border-radius: 50px;
+    background-color: ${colors.colorCoreGray};
   }
 `;
 
@@ -163,6 +164,40 @@ const DropIcon = styled.span`
   }
 `;
 
+const Avatar = styled.div`
+  color: ${colors.colorWhite};
+  position: relative;
+
+  input[type='file'] {
+    display: none;
+  }
+
+  .icon {
+    visibility: hidden;
+    transition: all 0.3s ease-in;
+    transition-timing-function: linear;
+    padding: 25px 35px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.3);
+    position: absolute;
+    top: 25px;
+  }
+
+  img {
+    display: block;
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+  }
+
+  &:hover {
+    .icon {
+      visibility: visible;
+      cursor: pointer;
+    }
+  }
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -175,5 +210,6 @@ export {
   ColumnTitle,
   CenterContent,
   ActivityContent,
-  DropIcon
+  DropIcon,
+  Avatar
 };
