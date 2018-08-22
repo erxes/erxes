@@ -551,9 +551,17 @@ export class SaveWebhookResponse {
    */
   async createMessage({ conversation, userId, content, attachments, facebookData }) {
     if (conversation) {
+      // getting page access token
       let res = await this.getPageAccessToken();
+      const accessToken = res.access_token;
+
       const { item, postId } = facebookData;
-      const fields = `/${postId}?fields=caption,description,link,picture,properties,source,type`;
+      const fields = `/${postId}?fields=caption,description,link,picture,properties,source,message`;
+
+      const msgParams = {
+        conversationId: conversation._id,
+        customerId: await this.getOrCreateCustomer(userId),
+      };
 
       if (item === 'comment') {
         const parentPost = await ConversationMessages.findOne({
@@ -561,20 +569,45 @@ export class SaveWebhookResponse {
           'facebookData.postId': postId,
         });
 
-        const postComments = await findPostComments(res.access_token, postId);
-
+        // creating parent post if comment has no parent
         if (!parentPost) {
-          // get user info
-          res = await graphRequest.get(fields, res.access_token);
+          // get post info
+          res = await graphRequest.get(fields, accessToken);
+          const postParams = await this.handlePosts({ ...res, item: 'status', postId: res.id });
 
-          const postParams = await this.handlePosts(res);
+          await ConversationMessages.createMessage({
+            ...msgParams,
+            content: res.message,
+            facebookData: postParams,
+            internal: false,
+          });
+
+          // getting all the comments of post
+          const postComments = await findPostComments(accessToken, postId, []);
+
+          // creating conversation message for each comment
+          for (let comment of postComments) {
+            await ConversationMessages.createMessage({
+              ...msgParams,
+              content: comment.message,
+              facebookData: {
+                postId: res.id,
+                commentId: comment.id,
+                item: 'comment',
+                senderId: comment.from.id,
+                senderName: comment.from.name,
+              },
+              internal: false,
+            });
+          }
+
+          return;
         }
       }
 
       // create new message
       const message = await ConversationMessages.createMessage({
-        conversationId: conversation._id,
-        customerId: await this.getOrCreateCustomer(userId),
+        ...msgParams,
         content,
         attachments,
         facebookData,
@@ -598,16 +631,14 @@ export class SaveWebhookResponse {
 /*
  * Find root tweet using id
  */
-export const findPostComments = async (access_token, postId) => {
-  const comments = [];
-
+const findPostComments = async (access_token, postId, comments) => {
   const postComments = await graphRequest.get(`/${postId}/comments`, access_token);
   const { data } = postComments;
 
   for (let comment of data) {
     comments.push(comment);
 
-    findPostComments(access_token, comment.id);
+    await findPostComments(access_token, comment.id, comments);
   }
 
   return comments;
