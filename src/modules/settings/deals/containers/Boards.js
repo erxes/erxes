@@ -6,6 +6,8 @@ import { Alert, confirm } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 import { Boards } from '../components';
 
+import { STORAGE_BOARD_KEY } from 'modules/deals/constants';
+
 class BoardsContainer extends React.Component {
   render() {
     const {
@@ -27,6 +29,11 @@ class BoardsContainer extends React.Component {
         })
           .then(() => {
             boardsQuery.refetch();
+
+            // if deleted board is default board
+            if (localStorage.getItem(STORAGE_BOARD_KEY) === _id) {
+              localStorage.removeItem(STORAGE_BOARD_KEY);
+            }
 
             Alert.success(__('Successfully deleted.'));
           })
