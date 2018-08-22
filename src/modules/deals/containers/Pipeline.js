@@ -14,21 +14,23 @@ class PipelineContainer extends React.Component {
   constructor(props) {
     super(props);
 
-    this.toggleConfig = this.toggleConfig.bind(this);
-
     const { stages } = props;
 
     this.state = { stages: [...stages] };
   }
 
-  toggleConfig(value) {
-    const { pipeline } = this.props;
+  getConfig() {
+    return JSON.parse(localStorage.getItem(STORAGE_PIPELINE_KEY)) || {};
+  }
 
-    const storagePipeline =
-      JSON.parse(localStorage.getItem(STORAGE_PIPELINE_KEY)) || {};
-    storagePipeline[pipeline._id] = value;
+  setConfig(value) {
+    const { index } = this.props;
 
-    localStorage.setItem(STORAGE_PIPELINE_KEY, JSON.stringify(storagePipeline));
+    const expandConfig = this.getConfig();
+
+    expandConfig[index] = value;
+
+    localStorage.setItem(STORAGE_PIPELINE_KEY, JSON.stringify(expandConfig));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -72,10 +74,16 @@ class PipelineContainer extends React.Component {
   }
 
   render() {
+    const { index } = this.props;
+
+    // get pipeline expanding config from localStorage
+    const expandConfig = this.getConfig();
+
     const extendedProps = {
       ...this.props,
       stages: this.state.stages,
-      toggleConfig: this.toggleConfig
+      isExpanded: expandConfig[index],
+      onToggleConfig: value => this.setConfig(value)
     };
 
     return <Pipeline {...extendedProps} />;
@@ -85,6 +93,7 @@ class PipelineContainer extends React.Component {
 PipelineContainer.propTypes = {
   pipeline: PropTypes.object,
   state: PropTypes.object,
+  index: PropTypes.number,
   stages: PropTypes.array,
   stagesUpdateOrder: PropTypes.func,
   stagesChange: PropTypes.func,

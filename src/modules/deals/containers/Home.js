@@ -46,7 +46,12 @@ class Main extends React.Component {
       // if not change default board
       if (queryParams.id !== storageBoardId) {
         localStorage.setItem(STORAGE_BOARD_KEY, queryParams.id);
-        localStorage.removeItem(STORAGE_PIPELINE_KEY);
+
+        // set default
+        localStorage.setItem(
+          STORAGE_PIPELINE_KEY,
+          JSON.stringify({ 0: true, 1: true })
+        );
       }
     }
 

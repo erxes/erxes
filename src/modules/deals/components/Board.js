@@ -10,19 +10,12 @@ const propTypes = {
   pipelines: PropTypes.array,
   states: PropTypes.object,
   onDragEnd: PropTypes.func,
-  loading: PropTypes.bool,
-  expandConfig: PropTypes.object
+  loading: PropTypes.bool
 };
 
 class Board extends React.Component {
   renderPipelines() {
-    const {
-      states,
-      pipelines,
-      currentBoard,
-      loading,
-      expandConfig
-    } = this.props;
+    const { states, pipelines, currentBoard, loading } = this.props;
 
     if (pipelines && pipelines.length === 0 && !loading) {
       return (
@@ -46,11 +39,11 @@ class Board extends React.Component {
       });
     }
 
-    return pipelines.map(pipeline => (
+    return pipelines.map((pipeline, index) => (
       <Pipeline
         key={pipeline._id}
         {...stageStates}
-        expanded={expandConfig[pipeline._id]}
+        index={index}
         state={states[`pipelineState${pipeline._id}`]}
         pipeline={pipeline}
       />
