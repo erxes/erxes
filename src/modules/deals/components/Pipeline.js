@@ -7,7 +7,7 @@ import { Container, Header, Body } from '../styles/pipeline';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
-  onToggleConfig: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
   stages: PropTypes.array,
   isExpanded: PropTypes.bool
 };
@@ -77,7 +77,7 @@ class Pipeline extends React.Component {
 
     this.setState({ isExpanded: !isExpanded });
 
-    this.props.onToggleConfig(!isExpanded);
+    this.props.onToggle(!isExpanded);
   }
 
   render() {
