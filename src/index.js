@@ -37,6 +37,11 @@ app.use('/graphql', graphqlExpress(req => ({ schema, context: { user: req.user }
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
+// for health check
+app.get('/status', async (req, res) => {
+  res.end('ok');
+});
+
 // file upload
 app.post('/upload-file', async (req, res) => {
   const form = new formidable.IncomingForm();

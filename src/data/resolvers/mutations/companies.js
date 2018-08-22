@@ -7,8 +7,10 @@ const companyMutations = {
    * @return {Promise} company object
    */
   async companiesAdd(root, doc, { user }) {
-    const company = await Companies.createCompany(doc);
+    const company = await Companies.createCompany(doc, user);
+
     await ActivityLogs.createCompanyRegistrationLog(company, user);
+
     return company;
   },
 
