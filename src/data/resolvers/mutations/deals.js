@@ -31,15 +31,6 @@ const dealMutations = {
   },
 
   /**
-   * Set default board
-   * @param {String} _id
-   * @return {Promise}
-   */
-  dealBoardsSetDefault(root, { _id }) {
-    return DealBoards.setDefaultBoard(_id);
-  },
-
-  /**
    * Create new pipeline
    * @param {String} doc.name
    * @param {String} doc.boardId

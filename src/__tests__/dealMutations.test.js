@@ -116,20 +116,6 @@ describe('Test deals mutations', () => {
     expect(await DealBoards.findOne({ _id: board._id })).toBe(null);
   });
 
-  test('Set default board', async () => {
-    const mutation = `
-      mutation dealBoardsSetDefault($_id: String!) {
-        dealBoardsSetDefault(_id: $_id)
-      }
-    `;
-
-    await graphqlRequest(mutation, 'dealBoardsSetDefault', { _id: board._id }, context);
-
-    const updatedBoard = await DealBoards.findOne({ _id: board._id });
-
-    expect(updatedBoard.isDefault).toBeTruthy();
-  });
-
   test('Create pipeline', async () => {
     const args = {
       name: 'deal pipeline',
