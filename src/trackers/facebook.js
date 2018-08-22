@@ -636,7 +636,7 @@ export class SaveWebhookResponse {
 /*
  * Find post comments using postId
  */
-const findPostComments = async (access_token, postId, comments) => {
+export const findPostComments = async (access_token, postId, comments) => {
   const postComments = await graphRequest.get(
     `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url`,
     access_token,
