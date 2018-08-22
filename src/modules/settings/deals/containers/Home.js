@@ -26,26 +26,26 @@ HomeContainer.propTypes = {
   boardId: PropTypes.string
 };
 
-// Getting defaultBoard id to currentBoard
-const DefaultBoard = props => {
-  const { boardGetDefaultQuery } = props;
+// Getting lastBoard id to currentBoard
+const LastBoard = props => {
+  const { boardGetLastQuery } = props;
 
-  const defaultBoard = boardGetDefaultQuery.dealBoardGetDefault || {};
+  const lastBoard = boardGetLastQuery.dealBoardGetLast || {};
 
-  const extendedProps = { ...props, boardId: defaultBoard._id };
+  const extendedProps = { ...props, boardId: lastBoard._id };
 
   return <HomeContainer {...extendedProps} />;
 };
 
-DefaultBoard.propTypes = {
-  boardGetDefaultQuery: PropTypes.object
+LastBoard.propTypes = {
+  boardGetLastQuery: PropTypes.object
 };
 
-const DefaultBoardContainer = compose(
-  graphql(gql(queries.boardGetDefault), {
-    name: 'boardGetDefaultQuery'
+const LastBoardContainer = compose(
+  graphql(gql(queries.boardGetLast), {
+    name: 'boardGetLastQuery'
   })
-)(DefaultBoard);
+)(LastBoard);
 
 // Main home component
 const MainContainer = props => {
@@ -58,7 +58,7 @@ const MainContainer = props => {
     return <HomeContainer {...extendedProps} />;
   }
 
-  return <DefaultBoardContainer {...props} />;
+  return <LastBoardContainer {...props} />;
 };
 
 MainContainer.propTypes = {

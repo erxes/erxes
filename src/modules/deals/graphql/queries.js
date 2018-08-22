@@ -7,9 +7,9 @@ const boards = `
   }
 `;
 
-const boardGetDefault = `
-  query dealBoardGetDefault {
-    dealBoardGetDefault {
+const boardGetLast = `
+  query dealBoardGetLast {
+    dealBoardGetLast {
       _id
       name
     }
@@ -155,7 +155,7 @@ const activityLogsDeal = `
 
 export default {
   boards,
-  boardGetDefault,
+  boardGetLast,
   boardDetail,
   pipelines,
   stages,

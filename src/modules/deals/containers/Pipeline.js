@@ -2,10 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Pipeline } from '../components';
-import { queries, mutations } from '../graphql';
+
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
+import { STORAGE_PIPELINE_KEY } from '../constants';
+import { Pipeline } from '../components';
+import { queries, mutations } from '../graphql';
 import { collectOrders } from '../utils';
 
 class PipelineContainer extends React.Component {
@@ -15,6 +17,20 @@ class PipelineContainer extends React.Component {
     const { stages } = props;
 
     this.state = { stages: [...stages] };
+  }
+
+  getConfig() {
+    return JSON.parse(localStorage.getItem(STORAGE_PIPELINE_KEY)) || {};
+  }
+
+  setConfig(value) {
+    const { index } = this.props;
+
+    const expandConfig = this.getConfig();
+
+    expandConfig[index] = value;
+
+    localStorage.setItem(STORAGE_PIPELINE_KEY, JSON.stringify(expandConfig));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -58,9 +74,16 @@ class PipelineContainer extends React.Component {
   }
 
   render() {
+    const { index } = this.props;
+
+    // get pipeline expanding config from localStorage
+    const expandConfig = this.getConfig();
+
     const extendedProps = {
       ...this.props,
-      stages: this.state.stages
+      stages: this.state.stages,
+      isExpanded: expandConfig[index],
+      onToggle: value => this.setConfig(value)
     };
 
     return <Pipeline {...extendedProps} />;
@@ -70,6 +93,7 @@ class PipelineContainer extends React.Component {
 PipelineContainer.propTypes = {
   pipeline: PropTypes.object,
   state: PropTypes.object,
+  index: PropTypes.number,
   stages: PropTypes.array,
   stagesUpdateOrder: PropTypes.func,
   stagesChange: PropTypes.func,
