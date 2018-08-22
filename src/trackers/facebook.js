@@ -556,7 +556,7 @@ export class SaveWebhookResponse {
       const accessToken = res.access_token;
 
       const { item, postId } = facebookData;
-      const fields = `/${postId}?fields=caption,description,link,picture,properties,source,message`;
+      const fields = `/${postId}?fields=caption,description,link,picture,source,message,from`;
 
       const msgParams = {
         conversationId: conversation._id,
@@ -578,7 +578,11 @@ export class SaveWebhookResponse {
           await ConversationMessages.createMessage({
             ...msgParams,
             content: res.message,
-            facebookData: postParams,
+            facebookData: {
+              senderId: res.from.id,
+              senderName: res.from.name,
+              ...postParams,
+            },
             internal: false,
           });
 
@@ -596,6 +600,7 @@ export class SaveWebhookResponse {
                 item: 'comment',
                 senderId: comment.from.id,
                 senderName: comment.from.name,
+                parentId: comment.parent ? comment.parent.id : null,
               },
               internal: false,
             });
@@ -632,7 +637,11 @@ export class SaveWebhookResponse {
  * Find post comments using postId
  */
 const findPostComments = async (access_token, postId, comments) => {
-  const postComments = await graphRequest.get(`/${postId}/comments`, access_token);
+  const postComments = await graphRequest.get(
+    `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url`,
+    access_token,
+  );
+
   const { data } = postComments;
 
   for (let comment of data) {
