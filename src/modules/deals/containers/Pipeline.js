@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { STORAGE_PIPELINE_KEY } from 'modules/common/constants';
+import { STORAGE_PIPELINE_KEY } from '../constants';
 import { Pipeline } from '../components';
 import { queries, mutations } from '../graphql';
 import { collectOrders } from '../utils';

@@ -4,10 +4,7 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 
 import { router as routerUtils } from 'modules/common/utils';
-import {
-  STORAGE_BOARD_KEY,
-  STORAGE_PIPELINE_KEY
-} from 'modules/common/constants';
+import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { Home } from '../components';
 import { queries } from '../graphql';
 
