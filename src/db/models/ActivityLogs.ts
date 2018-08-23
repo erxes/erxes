@@ -7,10 +7,6 @@ import {
   COC_CONTENT_TYPES
 } from "./definitions/constants";
 
-interface IActivityLogModel extends Model<IActivityLog> {
-  createDoc(doc: any): IActivityLog;
-}
-
 interface ICocInput {
   id: string;
   type: string;
@@ -29,19 +25,112 @@ interface IActionPerformerInput {
 }
 
 interface ICreateDocInput {
-  performer?: any;
+  performer?: IActionPerformerInput;
   performedBy?: IActionPerformerInput;
   activity: IActivityInput;
   coc: ICocInput;
 }
 
+interface IInternalNoteInput {
+  _id: string;
+  content: string;
+  contentType: string;
+  contentTypeId: string;
+}
+
+interface IUserInput {
+  _id: string;
+}
+
+interface IConversationInput {
+  _id: string;
+  content: string;
+}
+
+interface ICustomerInput {
+  _id: string;
+  companyIds: string[];
+  getFullName?: any;
+}
+
+interface ISegmentInput {
+  _id: string;
+  contentType: string;
+  name: string;
+}
+
+interface ICompanyInput {
+  _id: string;
+  primaryName: string;
+}
+
+interface IDealInput {
+  _id: string;
+  name: string;
+}
+
+interface IActivityLogModel extends Model<IActivityLog> {
+  createDoc(doc: any): Promise<IActivityLog>;
+
+  createInternalNoteLog(
+    internalNote: IInternalNoteInput,
+    user: IUserInput
+  ): Promise<IActivityLog>;
+
+  cocFindOne(
+    conversationId: string,
+    cocId: string,
+    cocType: string
+  ): Promise<IActivityLog>;
+
+  cocCreate(
+    conversationId: string,
+    content: string,
+    cocId: string,
+    cocType: string
+  ): Promise<IActivityLog>;
+
+  createConversationLog(
+    conversation: IConversationInput,
+    customer: ICustomerInput
+  ): Promise<IActivityLog>;
+
+  createSegmentLog(
+    segment: ISegmentInput,
+    customer: ICustomerInput
+  ): Promise<IActivityLog>;
+
+  createCustomerRegistrationLog(
+    customer: ICustomerInput,
+    user: IUserInput
+  ): Promise<IActivityLog>;
+
+  createCompanyRegistrationLog(
+    company: ICompanyInput,
+    user: IUserInput
+  ): Promise<IActivityLog>;
+
+  createDealRegistrationLog(
+    deal: IDealInput,
+    user: IUserInput
+  ): Promise<IActivityLog>;
+
+  changeCustomer(
+    newCustomerId: string,
+    customerIds: string[]
+  ): Promise<IActivityLog[]>;
+
+  removeCustomerActivityLog(customerId: string): any;
+
+  removeCompanyActivityLog(companyId: string): any;
+
+  changeCompany(
+    newCompanyId: string,
+    companyIds: string[]
+  ): Promise<IActivityLog[]>;
+}
+
 class ActivityLog {
-  /**
-   * Create an ActivityLog document
-   * @param {Object|null} object1.performer - The performer of the action
-   * @param {Object} object1 - Data to insert according to schema
-   * @return {Promise} returns Promise resolving created ActivityLog document
-   */
   public static createDoc(doc: ICreateDocInput) {
     const { performer } = doc;
 
@@ -56,13 +145,10 @@ class ActivityLog {
     return ActivityLogs.create({ performedBy, ...doc });
   }
 
-  /**
-   * Create activity log for internal note
-   * @param {InternalNote} internalNote - Internal note document
-   * @param {User} user - User collection document
-   * @return {Promise} returns Promise resolving created ActivityLog document
-   */
-  public static createInternalNoteLog(internalNote, user) {
+  public static createInternalNoteLog(
+    internalNote: IInternalNoteInput,
+    user: IUserInput
+  ) {
     return this.createDoc({
       activity: {
         type: ACTIVITY_TYPES.INTERNAL_NOTE,
@@ -81,7 +167,11 @@ class ActivityLog {
     });
   }
 
-  public static cocFindOne(conversationId, cocId, cocType) {
+  public static cocFindOne(
+    conversationId: string,
+    cocId: string,
+    cocType: string
+  ) {
     return ActivityLogs.findOne({
       "activity.type": ACTIVITY_TYPES.CONVERSATION,
       "activity.action": ACTIVITY_ACTIONS.CREATE,
@@ -92,7 +182,12 @@ class ActivityLog {
     });
   }
 
-  public static cocCreate(conversationId, content, cocId, cocType) {
+  public static cocCreate(
+    conversationId: string,
+    content: string,
+    cocId: string,
+    cocType: string
+  ) {
     return this.createDoc({
       activity: {
         type: ACTIVITY_TYPES.CONVERSATION,
@@ -121,7 +216,10 @@ class ActivityLog {
    * @param {string} customer.type - One of COC_CONTENT_TYPES choices
    * @param {string} customer.id - Customer document id
    */
-  public static async createConversationLog(conversation, customer) {
+  public static async createConversationLog(
+    conversation: IConversationInput,
+    customer: ICustomerInput
+  ) {
     if (customer == null || (customer && !customer._id)) {
       throw new Error(
         `'customer' must be supplied when adding activity log for conversations`
@@ -171,7 +269,10 @@ class ActivityLog {
    * @param {COC} customer - Related customer or company
    * @return {Promise} Return Promise resolving created Segment
    */
-  public static async createSegmentLog(segment, customer) {
+  public static async createSegmentLog(
+    segment: ISegmentInput,
+    customer: ICustomerInput
+  ) {
     if (!customer) {
       throw new Error("customer must be supplied");
     }
@@ -209,7 +310,10 @@ class ActivityLog {
    * @param {user} user - User document
    * @return {Promise} Return Promise resolving created ActivityLog
    */
-  public static createCustomerRegistrationLog(customer, user) {
+  public static createCustomerRegistrationLog(
+    customer: ICustomerInput,
+    user: IUserInput
+  ) {
     let performer = null;
 
     if (user && user._id) {
@@ -240,7 +344,10 @@ class ActivityLog {
    * @param {user} user - User document
    * @return {Promise} Return Promise resolving created ActivityLog
    */
-  public static createCompanyRegistrationLog(company, user) {
+  public static createCompanyRegistrationLog(
+    company: ICompanyInput,
+    user: IUserInput
+  ) {
     let performer = null;
 
     if (user && user._id) {
@@ -271,7 +378,7 @@ class ActivityLog {
    * @param {user} user - User document
    * @return {Promise} Return Promise resolving created ActivityLog
    */
-  public static createDealRegistrationLog(deal, user) {
+  public static createDealRegistrationLog(deal: IDealInput, user: IUserInput) {
     let performer = null;
 
     if (user && user._id) {
@@ -302,7 +409,10 @@ class ActivityLog {
    * @param {String[]} customerIds - Old customer ids to change
    * @return {Promise} Updated alist of ctivity logs of new customer
    */
-  public static async changeCustomer(newCustomerId, customerIds) {
+  public static async changeCustomer(
+    newCustomerId: string,
+    customerIds: string[]
+  ) {
     for (const customerId of customerIds) {
       // Updating every activity log of customer
       await ActivityLogs.updateMany(
@@ -324,7 +434,7 @@ class ActivityLog {
    * @param {String} customerId - Customer id that belongs to activity logs
    * @return {Promise} Result
    */
-  public static async removeCustomerActivityLog(customerId) {
+  public static async removeCustomerActivityLog(customerId: string) {
     // Removing every activity log of customer
     return ActivityLogs.remove({
       coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: customerId }
@@ -336,7 +446,7 @@ class ActivityLog {
    * @param {String} companyId - Company id that belongs to activity logs
    * @return {Promise} Result
    */
-  public static async removeCompanyActivityLog(companyId) {
+  public static async removeCompanyActivityLog(companyId: string) {
     // Removing every activity log of company
     return ActivityLogs.remove({
       coc: { type: COC_CONTENT_TYPES.COMPANY, id: companyId }
@@ -349,7 +459,10 @@ class ActivityLog {
    * @param {String[]} companyIds - Old company ids to change
    * @return {Promise} Updated list of activity logs of new company
    */
-  public static async changeCompany(newCompanyId, companyIds) {
+  public static async changeCompany(
+    newCompanyId: string,
+    companyIds: string[]
+  ) {
     for (const companyId of companyIds) {
       // Updating every activity log of company
       await ActivityLogs.updateMany(
