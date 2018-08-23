@@ -682,5 +682,9 @@
   "Every Thursday": "Пүрэв гараг бүр",
   "Every Friday": "Баасан гараг бүр",
   "Every Saturday": "Хагас сайн бүр",
-  "Every Sunday": "Бүтэн сайн бүр"
+  "Every Sunday": "Бүтэн сайн бүр",
+  "Choose schedule type": "Цагын хуваарь төрөл сонгоно уу",
+  "Choose schedule time": "Цагын хуваарь цаг сонгоно уу",
+  "Choose schedule day": "Цагын хуваарь өдөр сонгоно уу",
+  "Choose schedule month": "Цагын хуваарь сар сонгоно уу"
 }

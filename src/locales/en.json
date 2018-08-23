@@ -678,5 +678,9 @@
   "Every Thursday": "Every Thursday",
   "Every Friday": "Every Friday",
   "Every Saturday": "Every Saturday",
-  "Every Sunday": "Every Sunday"
+  "Every Sunday": "Every Sunday",
+  "Choose schedule type": "Choose schedule type",
+  "Choose schedule time": "Choose schedule time",
+  "Choose schedule day": "Choose schedule day",
+  "Choose schedule month": "Choose schedule month"
 }
