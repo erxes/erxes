@@ -38,6 +38,31 @@ class FormBase extends Component {
       return Alert.error(__('Choose from sent as'));
     }
 
+    if (doc.scheduleDate) {
+      if (!doc.scheduleDate.type && doc.scheduleDate.time) {
+        return Alert.error(__('Choose schedule type'));
+      }
+
+      if (
+        doc.scheduleDate.type &&
+        (!doc.scheduleDate.time || doc.scheduleDate.time.length === 0)
+      ) {
+        return Alert.error(__('Choose schedule time'));
+      }
+
+      if (
+        (doc.scheduleDate.type === 'year' ||
+          doc.scheduleDate.type === 'month') &&
+        !doc.scheduleDate.day
+      ) {
+        return Alert.error(__('Choose schedule day'));
+      }
+
+      if (doc.scheduleDate.type === 'year' && !doc.scheduleDate.month) {
+        return Alert.error(__('Choose schedule month'));
+      }
+    }
+
     if (type === 'live') {
       return this.props.save({ isLive: true, isDraft: false, ...doc });
     }
