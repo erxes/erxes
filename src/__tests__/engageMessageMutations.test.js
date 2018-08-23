@@ -2,8 +2,8 @@
 /* eslint-disable no-underscore-dangle */
 
 import faker from 'faker';
-import sinon from 'sinon';
 import moment from 'moment';
+import sinon from 'sinon';
 import { connect, disconnect, graphqlRequest } from '../db/connection';
 import {
   EngageMessages,
@@ -64,7 +64,7 @@ describe('engage message mutation tests', () => {
     $customerIds: [String],
     $tagIds: [String],
     $email: EngageMessageEmail,
-    $scheduleDate: EngageMessageScheduleDate,
+    $scheduleDate: EngageScheduleDateInput,
     $messenger: EngageMessageMessenger,
   `;
 
@@ -114,6 +114,12 @@ describe('engage message mutation tests', () => {
           { name: 'document', url: 'documentPath' },
           { name: 'image', url: 'imagePath' },
         ],
+      },
+      scheduleDate: {
+        type: 'year',
+        month: 2,
+        day: 14,
+        time: moment('2018-08-24T12:45:00'),
       },
       messenger: {
         brandId: _brand._id,
@@ -189,6 +195,12 @@ describe('engage message mutation tests', () => {
         email
         messenger
         deliveryReports
+        scheduleDate {
+          type
+          day
+          month
+          time
+        }
         segment {
           _id
         }
@@ -242,6 +254,9 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.email.toJSON()).toEqual(_doc.email);
     expect(toJSON(engageMessage.messenger)).toEqual(toJSON(_doc.messenger));
     expect(engageMessage.deliveryReports).toEqual({});
+    expect(engageMessage.scheduleDate.type).toEqual('year');
+    expect(engageMessage.scheduleDate.month).toEqual('2');
+    expect(engageMessage.scheduleDate.day).toEqual('14');
     expect(engageMessage.segment._id).toBe(_doc.segmentId);
     expect(engageMessage.fromUser._id).toBe(_doc.fromUserId);
     expect(engageMessage.tagIds).toEqual(_doc.tagIds);
