@@ -72,9 +72,12 @@ const engageMutations = {
    * @param {[String]} doc.tagIds
    * @return {Promise} message object
    */
-  engageMessageEdit(root, { _id, ...doc }) {
+  async engageMessageEdit(root, { _id, ...doc }) {
+    await EngageMessages.updateEngageMessage(_id, doc);
+
     updateOrRemoveSchedule({ _id }, true);
-    return EngageMessages.updateEngageMessage(_id, doc);
+
+    return EngageMessages.findOne({ _id });
   },
 
   /**
