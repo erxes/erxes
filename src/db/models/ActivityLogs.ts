@@ -1,124 +1,82 @@
 import { Model, model } from "mongoose";
-import { activityLogSchema, IActivityLog } from "./definitions/activityLogs";
+import {
+  activityLogSchema,
+  IActionPerformer,
+  IActivity,
+  IActivityLogDocument,
+  ICoc
+} from "./definitions/activityLogs";
+import { ICompanyDocument } from "./definitions/companies";
 import {
   ACTIVITY_ACTIONS,
   ACTIVITY_PERFORMER_TYPES,
   ACTIVITY_TYPES,
   COC_CONTENT_TYPES
 } from "./definitions/constants";
-
-interface ICocInput {
-  id: string;
-  type: string;
-}
-
-interface IActivityInput {
-  type: string;
-  action: string;
-  content: string;
-  id: string;
-}
-
-interface IActionPerformerInput {
-  type: string;
-  id: string;
-}
+import { IConversationDocument } from "./definitions/conversations";
+import { ICustomerDocument } from "./definitions/customers";
+import { IDealDocument } from "./definitions/deals";
+import { IInternalNoteDocument } from "./definitions/internalNotes";
+import { ISegmentDocument } from "./definitions/segments";
+import { IUserDocument } from "./definitions/users";
 
 interface ICreateDocInput {
-  performer?: IActionPerformerInput;
-  performedBy?: IActionPerformerInput;
-  activity: IActivityInput;
-  coc: ICocInput;
+  performer?: IActionPerformer;
+  performedBy?: IActionPerformer;
+  activity: IActivity;
+  coc: ICoc;
 }
 
-interface IInternalNoteInput {
-  _id: string;
-  content: string;
-  contentType: string;
-  contentTypeId: string;
-}
-
-interface IUserInput {
-  _id: string;
-}
-
-interface IConversationInput {
-  _id: string;
-  content: string;
-}
-
-interface ICustomerInput {
-  _id: string;
-  companyIds: string[];
-  getFullName?: any;
-}
-
-interface ISegmentInput {
-  _id: string;
-  contentType: string;
-  name: string;
-}
-
-interface ICompanyInput {
-  _id: string;
-  primaryName: string;
-}
-
-interface IDealInput {
-  _id: string;
-  name: string;
-}
-
-interface IActivityLogModel extends Model<IActivityLog> {
-  createDoc(doc: any): Promise<IActivityLog>;
+interface IActivityLogModel extends Model<IActivityLogDocument> {
+  createDoc(doc: ICreateDocInput): Promise<IActivityLogDocument>;
 
   createInternalNoteLog(
-    internalNote: IInternalNoteInput,
-    user: IUserInput
-  ): Promise<IActivityLog>;
+    internalNote: IInternalNoteDocument,
+    user: IUserDocument
+  ): Promise<IActivityLogDocument>;
 
   cocFindOne(
     conversationId: string,
     cocId: string,
     cocType: string
-  ): Promise<IActivityLog>;
+  ): Promise<IActivityLogDocument>;
 
   cocCreate(
     conversationId: string,
     content: string,
     cocId: string,
     cocType: string
-  ): Promise<IActivityLog>;
+  ): Promise<IActivityLogDocument>;
 
   createConversationLog(
-    conversation: IConversationInput,
-    customer: ICustomerInput
-  ): Promise<IActivityLog>;
+    conversation: IConversationDocument,
+    customer: ICustomerDocument
+  ): Promise<IActivityLogDocument>;
 
   createSegmentLog(
-    segment: ISegmentInput,
-    customer: ICustomerInput
-  ): Promise<IActivityLog>;
+    segment: ISegmentDocument,
+    customer: ICustomerDocument
+  ): Promise<IActivityLogDocument>;
 
   createCustomerRegistrationLog(
-    customer: ICustomerInput,
-    user: IUserInput
-  ): Promise<IActivityLog>;
+    customer: ICustomerDocument,
+    user: IUserDocument
+  ): Promise<IActivityLogDocument>;
 
   createCompanyRegistrationLog(
-    company: ICompanyInput,
-    user: IUserInput
-  ): Promise<IActivityLog>;
+    company: ICompanyDocument,
+    user: IUserDocument
+  ): Promise<IActivityLogDocument>;
 
   createDealRegistrationLog(
-    deal: IDealInput,
-    user: IUserInput
-  ): Promise<IActivityLog>;
+    deal: IDealDocument,
+    user: IUserDocument
+  ): Promise<IActivityLogDocument>;
 
   changeCustomer(
     newCustomerId: string,
     customerIds: string[]
-  ): Promise<IActivityLog[]>;
+  ): Promise<IActivityLogDocument[]>;
 
   removeCustomerActivityLog(customerId: string): any;
 
@@ -127,7 +85,7 @@ interface IActivityLogModel extends Model<IActivityLog> {
   changeCompany(
     newCompanyId: string,
     companyIds: string[]
-  ): Promise<IActivityLog[]>;
+  ): Promise<IActivityLogDocument[]>;
 }
 
 class ActivityLog {
@@ -146,8 +104,8 @@ class ActivityLog {
   }
 
   public static createInternalNoteLog(
-    internalNote: IInternalNoteInput,
-    user: IUserInput
+    internalNote: IInternalNoteDocument,
+    user: IUserDocument
   ) {
     return this.createDoc({
       activity: {
@@ -217,8 +175,8 @@ class ActivityLog {
    * @param {string} customer.id - Customer document id
    */
   public static async createConversationLog(
-    conversation: IConversationInput,
-    customer: ICustomerInput
+    conversation: IConversationDocument,
+    customer: ICustomerDocument
   ) {
     if (customer == null || (customer && !customer._id)) {
       throw new Error(
@@ -270,8 +228,8 @@ class ActivityLog {
    * @return {Promise} Return Promise resolving created Segment
    */
   public static async createSegmentLog(
-    segment: ISegmentInput,
-    customer: ICustomerInput
+    segment: ISegmentDocument,
+    customer: ICustomerDocument
   ) {
     if (!customer) {
       throw new Error("customer must be supplied");
@@ -311,8 +269,8 @@ class ActivityLog {
    * @return {Promise} Return Promise resolving created ActivityLog
    */
   public static createCustomerRegistrationLog(
-    customer: ICustomerInput,
-    user: IUserInput
+    customer: ICustomerDocument,
+    user: IUserDocument
   ) {
     let performer = null;
 
@@ -345,8 +303,8 @@ class ActivityLog {
    * @return {Promise} Return Promise resolving created ActivityLog
    */
   public static createCompanyRegistrationLog(
-    company: ICompanyInput,
-    user: IUserInput
+    company: ICompanyDocument,
+    user: IUserDocument
   ) {
     let performer = null;
 
@@ -378,7 +336,10 @@ class ActivityLog {
    * @param {user} user - User document
    * @return {Promise} Return Promise resolving created ActivityLog
    */
-  public static createDealRegistrationLog(deal: IDealInput, user: IUserInput) {
+  public static createDealRegistrationLog(
+    deal: IDealDocument,
+    user: IUserDocument
+  ) {
     let performer = null;
 
     if (user && user._id) {
@@ -480,7 +441,7 @@ class ActivityLog {
 
 activityLogSchema.loadClass(ActivityLog);
 
-const ActivityLogs = model<IActivityLog, IActivityLogModel>(
+const ActivityLogs = model<IActivityLogDocument, IActivityLogModel>(
   "activity_logs",
   activityLogSchema
 );

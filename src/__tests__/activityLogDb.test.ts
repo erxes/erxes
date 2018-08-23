@@ -1,12 +1,6 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import {
-  ACTIVITY_ACTIONS,
-  ACTIVITY_PERFORMER_TYPES,
-  ACTIVITY_TYPES,
-  COC_CONTENT_TYPES
-} from "../data/constants";
 import { connect, disconnect } from "../db/connection";
 import {
   companyFactory,
@@ -18,6 +12,12 @@ import {
   userFactory
 } from "../db/factories";
 import { ActivityLogs, Conversations } from "../db/models";
+import {
+  ACTIVITY_ACTIONS,
+  ACTIVITY_PERFORMER_TYPES,
+  ACTIVITY_TYPES,
+  COC_CONTENT_TYPES
+} from "../db/models/definitions/constants";
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
