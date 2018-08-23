@@ -73,7 +73,11 @@ describe('Engage tracker tests', async () => {
   });
 
   test('Create default schedule cron job', () => {
-    const doc = {};
+    const doc = {
+      type: '',
+      month: '',
+      day: '',
+    };
 
     const rule = createScheduleRule(doc);
 
