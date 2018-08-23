@@ -53,6 +53,8 @@ export const customCommand = async () => {
     'facebookData.kind': 'feed',
   });
 
+  console.log(conversations.length);
+
   for (let conversation of conversations) {
     const msgs = await ConversationMessages.find({
       conversationId: conversation._id,
