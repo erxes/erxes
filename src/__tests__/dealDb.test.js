@@ -92,12 +92,6 @@ describe('Test deals model', () => {
     }
   });
 
-  test('Set default board', async () => {
-    const updatedBoard = await DealBoards.setDefaultBoard(board._id);
-
-    expect(updatedBoard.isDefault).toBeTruthy();
-  });
-
   // Test deal pipeline
   test('Create pipeline', async () => {
     const createdPipeline = await DealPipelines.createPipeline(

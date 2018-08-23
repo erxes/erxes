@@ -269,9 +269,13 @@ class Customer extends Coc {
    * @param  {Object} customerObj object
    * @return {Promise} Newly created customer object
    */
-  static async createCustomer(doc) {
+  static async createCustomer(doc, user) {
     // Checking duplicated fields of customer
     await this.checkDuplication(doc);
+
+    if (!doc.ownerId && user) {
+      doc.ownerId = user._id;
+    }
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});

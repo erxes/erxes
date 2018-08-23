@@ -418,11 +418,10 @@ export const activityLogFactory = (params, userId) => {
   return ActivityLogs.createDoc({ ...doc, ...params }, userId || faker.random.word());
 };
 
-export const dealBoardFactory = (params = {}) => {
+export const dealBoardFactory = () => {
   const board = new DealBoards({
     name: faker.random.word(),
     userId: Random.id(),
-    isDefault: params.isDefault || faker.random.boolean(),
   });
 
   return board.save();

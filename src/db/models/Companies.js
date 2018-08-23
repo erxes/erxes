@@ -173,9 +173,13 @@ class Company {
    * @param  {Object} companyObj - Object
    * @return {Promise} Newly created company object
    */
-  static async createCompany(doc) {
+  static async createCompany(doc, user) {
     // Checking duplicated fields of company
     await this.checkDuplication(doc);
+
+    if (!doc.ownerId && user) {
+      doc.ownerId = user._id;
+    }
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
