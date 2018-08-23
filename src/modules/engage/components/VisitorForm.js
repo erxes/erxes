@@ -28,6 +28,7 @@ class VisitorForm extends FormBase {
     super(props);
 
     const message = props.message.messenger || {};
+    const scheduleDate = props.message.scheduleDate || {};
     const rules = message.rules ? message.rules.map(rule => ({ ...rule })) : [];
 
     this.state = {
@@ -41,6 +42,12 @@ class VisitorForm extends FormBase {
       messenger: {
         brandId: message.brandId || '',
         sentAs: message.sentAs || ''
+      },
+      scheduleDate: {
+        type: scheduleDate.type || '',
+        month: scheduleDate.month || '',
+        day: scheduleDate.day || '',
+        time: scheduleDate.time
       }
     };
   }
@@ -58,6 +65,12 @@ class VisitorForm extends FormBase {
         brandId: this.state.messenger.brandId,
         sentAs: this.state.messenger.sentAs,
         content: this.state.message
+      },
+      scheduleDate: {
+        type: this.state.scheduleDate.type,
+        month: this.state.scheduleDate.month,
+        day: this.state.scheduleDate.day,
+        time: this.state.scheduleDate.time
       }
     };
 
@@ -71,11 +84,18 @@ class VisitorForm extends FormBase {
       messenger,
       fromUser,
       message,
-      rules
+      rules,
+      scheduleDate
     } = this.state;
 
     const { __ } = this.context;
-    const defaultMessengerValue = { messenger, fromUser, message, rules };
+    const defaultMessengerValue = {
+      messenger,
+      fromUser,
+      message,
+      rules,
+      scheduleDate
+    };
 
     return (
       <StepWrapper>

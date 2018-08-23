@@ -29,6 +29,7 @@ class AutoAndManualForm extends FormBase {
     content = message.email ? message.email.content : content;
     const messenger = message.messenger || {};
     const email = message.email || {};
+    const scheduleDate = message.scheduleDate || {};
 
     this.state = {
       activeStep: 1,
@@ -42,6 +43,12 @@ class AutoAndManualForm extends FormBase {
         brandId: messenger.brandId || '',
         kind: messenger.kind || '',
         sentAs: messenger.sentAs || ''
+      },
+      scheduleDate: {
+        type: scheduleDate.type || '',
+        month: scheduleDate.month || '',
+        day: scheduleDate.day || '',
+        time: scheduleDate.time
       },
       email: {
         templateId: email.templateId || '',
@@ -58,7 +65,8 @@ class AutoAndManualForm extends FormBase {
       segmentId: this.state.segment,
       title: this.state.title,
       fromUserId: this.state.fromUser,
-      method: this.state.method
+      method: this.state.method,
+      scheduleDate: this.state.scheduleDate
     };
 
     if (this.state.method === 'email') {
@@ -87,10 +95,17 @@ class AutoAndManualForm extends FormBase {
       messenger,
       email,
       fromUser,
-      message
+      message,
+      scheduleDate
     } = this.state;
 
-    const defaultMessageStepValue = { messenger, email, fromUser, message };
+    const defaultMessageStepValue = {
+      messenger,
+      email,
+      fromUser,
+      message,
+      scheduleDate
+    };
     const { __ } = this.context;
 
     return (
@@ -149,6 +164,7 @@ class AutoAndManualForm extends FormBase {
               method={this.state.method}
               templates={this.props.templates}
               defaultValue={defaultMessageStepValue}
+              kind={this.props.kind}
             />
           </Step>
         </Steps>

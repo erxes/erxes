@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import ReactDom from 'react-dom';
+import Datetime from 'react-datetime';
 import PropTypes from 'prop-types';
 import {
   FormControl,
@@ -8,7 +9,7 @@ import {
   FormGroup,
   Uploader
 } from 'modules/common/components';
-import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
+import { EMAIL_CONTENT_CLASS, SCHEDULE_TYPES } from 'modules/engage/constants';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Editor from './Editor';
 
@@ -34,7 +35,12 @@ const propTypes = {
   message: PropTypes.string,
   users: PropTypes.array,
   templates: PropTypes.array,
-  defaultValue: PropTypes.object
+  defaultValue: PropTypes.object,
+  kind: PropTypes.string
+};
+
+const contextTypes = {
+  __: PropTypes.func
 };
 
 class EmailForm extends Component {
@@ -51,6 +57,12 @@ class EmailForm extends Component {
         subject: message.email.subject || '',
         templateId: message.email.templateId || '',
         attachments: message.email.attachments || []
+      },
+      scheduleDate: {
+        type: message.scheduleDate.type || '',
+        month: message.scheduleDate.month || '',
+        day: message.scheduleDate.day || '',
+        time: message.scheduleDate.time
       }
     };
   }
@@ -66,6 +78,16 @@ class EmailForm extends Component {
     ) {
       this.renderBuilder();
     }
+  }
+
+  changeSchedule(key, value) {
+    let scheduleDate = {
+      ...this.state.scheduleDate
+    };
+
+    scheduleDate[key] = value;
+    this.setState({ scheduleDate });
+    this.props.changeEmail('scheduleDate', scheduleDate);
   }
 
   changeContent(key, value) {
@@ -86,6 +108,20 @@ class EmailForm extends Component {
     this.changeContent('templateId', value);
     this.setState({ currentTemplate: this.findTemplate(value) });
     this.renderBuilder();
+  }
+
+  generateOptions(number) {
+    let options = [];
+
+    for (let i = 1; i <= number; i++) {
+      options.push(
+        <option key={i} value={i}>
+          {i}
+        </option>
+      );
+    }
+
+    return options;
   }
 
   findTemplate(id) {
@@ -127,6 +163,62 @@ class EmailForm extends Component {
           __html: this.state.currentTemplate
         }}
       />
+    );
+  }
+
+  renderScheduler() {
+    if (this.props.kind !== 'auto') {
+      return null;
+    }
+
+    const { __ } = this.context;
+    const { type, day, month, time } = this.state.scheduleDate;
+
+    const props = {
+      inputProps: { placeholder: __('Click to select a date') },
+      timeFormat: 'HH:mm'
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>Schedule:</ControlLabel>
+        <FormControl
+          componentClass="select"
+          value={type}
+          onChange={e => this.changeSchedule('type', e.target.value)}
+        >
+          <option />{' '}
+          {SCHEDULE_TYPES.map(type => (
+            <option key={type.value} value={type.value}>
+              {__(type.label)}
+            </option>
+          ))}
+        </FormControl>
+        {type === 'year' ? (
+          <FormControl
+            componentClass="select"
+            value={month}
+            onChange={e => this.changeSchedule('month', e.target.value)}
+          >
+            <option /> {this.generateOptions(12)}
+          </FormControl>
+        ) : null}
+        {type === 'year' || type === 'month' ? (
+          <FormControl
+            componentClass="select"
+            value={day}
+            onChange={e => this.changeSchedule('day', e.target.value)}
+          >
+            <option /> {this.generateOptions(31)}
+          </FormControl>
+        ) : null}
+        <Datetime
+          {...props}
+          value={time}
+          onChange={e => this.changeSchedule('time', e)}
+          dateFormat={false}
+        />
+      </FormGroup>
     );
   }
 
@@ -192,6 +284,8 @@ class EmailForm extends Component {
               }
             />
           </FormGroup>
+
+          {this.renderScheduler()}
         </FlexPad>
 
         <FlexItem v="center" h="center" overflow="auto">
@@ -202,6 +296,7 @@ class EmailForm extends Component {
   }
 }
 
+EmailForm.contextTypes = contextTypes;
 EmailForm.propTypes = propTypes;
 
 export default EmailForm;

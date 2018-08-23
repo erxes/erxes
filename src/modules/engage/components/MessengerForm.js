@@ -5,17 +5,27 @@ import {
   ControlLabel,
   FormGroup
 } from 'modules/common/components';
-import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
+import Datetime from 'react-datetime';
+import {
+  MESSENGER_KINDS,
+  SENT_AS_CHOICES,
+  SCHEDULE_TYPES
+} from 'modules/engage/constants';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Editor from './Editor';
 import { MessengerPreview } from '../containers';
+
+const contextTypes = {
+  __: PropTypes.func
+};
 
 const propTypes = {
   brands: PropTypes.array,
   changeMessenger: PropTypes.func,
   users: PropTypes.array,
   hasKind: PropTypes.bool,
-  defaultValue: PropTypes.object
+  defaultValue: PropTypes.object,
+  kind: PropTypes.string
 };
 
 class MessengerForm extends Component {
@@ -30,8 +40,24 @@ class MessengerForm extends Component {
         brandId: message.messenger.brandId || '',
         kind: message.messenger.kind || '',
         sentAs: message.messenger.sentAs || ''
+      },
+      scheduleDate: {
+        type: message.scheduleDate.type || '',
+        month: message.scheduleDate.month || '',
+        day: message.scheduleDate.day || '',
+        time: message.scheduleDate.time
       }
     };
+  }
+
+  changeSchedule(key, value) {
+    let scheduleDate = {
+      ...this.state.scheduleDate
+    };
+
+    scheduleDate[key] = value;
+    this.setState({ scheduleDate });
+    this.props.changeMessenger('scheduleDate', scheduleDate);
   }
 
   changeContent(key, value) {
@@ -47,6 +73,20 @@ class MessengerForm extends Component {
   changeUser(fromUser) {
     this.setState({ fromUser });
     this.props.changeMessenger('fromUser', fromUser);
+  }
+
+  generateOptions(number) {
+    let options = [];
+
+    for (let i = 1; i <= number; i++) {
+      options.push(
+        <option key={i} value={i}>
+          {i}
+        </option>
+      );
+    }
+
+    return options;
   }
 
   renderKind(hasKind) {
@@ -70,6 +110,62 @@ class MessengerForm extends Component {
             </option>
           ))}
         </FormControl>
+      </FormGroup>
+    );
+  }
+
+  renderScheduler() {
+    if (this.props.kind !== 'auto') {
+      return null;
+    }
+
+    const { __ } = this.context;
+    const { type, day, month, time } = this.state.scheduleDate;
+
+    const props = {
+      inputProps: { placeholder: __('Click to select a date') },
+      timeFormat: 'HH:mm'
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>Schedule:</ControlLabel>
+        <FormControl
+          componentClass="select"
+          value={type}
+          onChange={e => this.changeSchedule('type', e.target.value)}
+        >
+          <option />{' '}
+          {SCHEDULE_TYPES.map(type => (
+            <option key={type.value} value={type.value}>
+              {__(type.label)}
+            </option>
+          ))}
+        </FormControl>
+        {type === 'year' ? (
+          <FormControl
+            componentClass="select"
+            value={month}
+            onChange={e => this.changeSchedule('month', e.target.value)}
+          >
+            <option /> {this.generateOptions(12)}
+          </FormControl>
+        ) : null}
+        {type === 'year' || type === 'month' ? (
+          <FormControl
+            componentClass="select"
+            value={day}
+            onChange={e => this.changeSchedule('day', e.target.value)}
+          >
+            <option /> {this.generateOptions(31)}
+          </FormControl>
+        ) : null}
+        <Datetime
+          {...props}
+          value={time}
+          onChange={e => this.changeSchedule('time', e)}
+          dateFormat={false}
+        />
       </FormGroup>
     );
   }
@@ -135,6 +231,8 @@ class MessengerForm extends Component {
               ))}
             </FormControl>
           </FormGroup>
+
+          {this.renderScheduler()}
         </FlexPad>
 
         <FlexPad overflow="auto">
@@ -149,6 +247,7 @@ class MessengerForm extends Component {
   }
 }
 
+MessengerForm.contextTypes = contextTypes;
 MessengerForm.propTypes = propTypes;
 
 export default MessengerForm;

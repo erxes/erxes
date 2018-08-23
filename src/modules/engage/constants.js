@@ -109,3 +109,16 @@ export const RULE_CONDITIONS = {
   city: stringTypeChoices,
   numberOfVisits: numberTypeChoices
 };
+
+export const SCHEDULE_TYPES = [
+  { value: 'day', label: 'Every Day' },
+  { value: 'month', label: 'Every Month' },
+  { value: 'year', label: 'Every Year' },
+  { value: 1, label: 'Every Monday' },
+  { value: 2, label: 'Every Tuesday' },
+  { value: 3, label: 'Every Wednesday' },
+  { value: 4, label: 'Every Thursday' },
+  { value: 5, label: 'Every Friday' },
+  { value: 6, label: 'Every Saturday' },
+  { value: 0, label: 'Every Sunday' }
+];
