@@ -11,7 +11,7 @@ import {
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Editor from './Editor';
-import SchedulerForm from './SchedulerForm';
+import Scheduler from './Scheduler';
 
 const PreviewContainer = styled.div`
   margin: 20px;
@@ -37,10 +37,6 @@ const propTypes = {
   templates: PropTypes.array,
   defaultValue: PropTypes.object,
   kind: PropTypes.string
-};
-
-const contextTypes = {
-  __: PropTypes.func
 };
 
 class EmailForm extends Component {
@@ -144,7 +140,7 @@ class EmailForm extends Component {
     }
 
     return (
-      <SchedulerForm
+      <Scheduler
         scheduleDate={this.state.scheduleDate}
         onChange={this.props.changeEmail}
       />
@@ -225,7 +221,6 @@ class EmailForm extends Component {
   }
 }
 
-EmailForm.contextTypes = contextTypes;
 EmailForm.propTypes = propTypes;
 
 export default EmailForm;

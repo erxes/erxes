@@ -58,9 +58,45 @@ class SchedulerFrom extends Component {
     return options;
   }
 
+  renderMonthSelector() {
+    const { type, month } = this.state.scheduleDate;
+
+    if (type !== 'year') {
+      return null;
+    }
+
+    return (
+      <FormControl
+        componentClass="select"
+        value={month}
+        onChange={e => this.changeSchedule('month', e.target.value)}
+      >
+        <option /> {this.generateOptions(12)}
+      </FormControl>
+    );
+  }
+
+  renderDaySelector() {
+    const { type, day } = this.state.scheduleDate;
+
+    if (type !== 'year' && type !== 'month') {
+      return null;
+    }
+
+    return (
+      <FormControl
+        componentClass="select"
+        value={day}
+        onChange={e => this.changeSchedule('day', e.target.value)}
+      >
+        <option /> {this.generateOptions(31)}
+      </FormControl>
+    );
+  }
+
   render() {
     const { __ } = this.context;
-    const { type, day, month, time } = this.state.scheduleDate;
+    const { type, time } = this.state.scheduleDate;
 
     const props = {
       inputProps: { placeholder: __('Click to select a date') },
@@ -82,24 +118,10 @@ class SchedulerFrom extends Component {
             </option>
           ))}
         </FormControl>
-        {type === 'year' ? (
-          <FormControl
-            componentClass="select"
-            value={month}
-            onChange={e => this.changeSchedule('month', e.target.value)}
-          >
-            <option /> {this.generateOptions(12)}
-          </FormControl>
-        ) : null}
-        {type === 'year' || type === 'month' ? (
-          <FormControl
-            componentClass="select"
-            value={day}
-            onChange={e => this.changeSchedule('day', e.target.value)}
-          >
-            <option /> {this.generateOptions(31)}
-          </FormControl>
-        ) : null}
+
+        {this.renderMonthSelector()}
+        {this.renderDaySelector()}
+
         <Datetime
           {...props}
           value={time}

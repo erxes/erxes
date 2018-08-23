@@ -39,26 +39,21 @@ class FormBase extends Component {
     }
 
     if (doc.scheduleDate) {
-      if (!doc.scheduleDate.type && doc.scheduleDate.time) {
+      const { time, type, day, month } = doc.scheduleDate;
+
+      if (!type && time) {
         return Alert.error(__('Choose schedule type'));
       }
 
-      if (
-        doc.scheduleDate.type &&
-        (!doc.scheduleDate.time || doc.scheduleDate.time.length === 0)
-      ) {
+      if (type && (!time || time.length === 0)) {
         return Alert.error(__('Choose schedule time'));
       }
 
-      if (
-        (doc.scheduleDate.type === 'year' ||
-          doc.scheduleDate.type === 'month') &&
-        !doc.scheduleDate.day
-      ) {
+      if ((type === 'year' || type === 'month') && !day) {
         return Alert.error(__('Choose schedule day'));
       }
 
-      if (doc.scheduleDate.type === 'year' && !doc.scheduleDate.month) {
+      if (type === 'year' && !month) {
         return Alert.error(__('Choose schedule month'));
       }
     }

@@ -61,12 +61,7 @@ class VisitorForm extends FormBase {
         sentAs: this.state.messenger.sentAs,
         content: this.state.message
       },
-      scheduleDate: {
-        type: this.state.scheduleDate.type,
-        month: this.state.scheduleDate.month,
-        day: this.state.scheduleDate.day,
-        time: this.state.scheduleDate.time
-      }
+      scheduleDate: this.state.scheduleDate
     };
 
     return doc;

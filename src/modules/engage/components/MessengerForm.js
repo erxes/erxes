@@ -9,7 +9,7 @@ import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Editor from './Editor';
 import { MessengerPreview } from '../containers';
-import SchedulerForm from './SchedulerForm';
+import Scheduler from './Scheduler';
 
 const contextTypes = {
   __: PropTypes.func
@@ -88,7 +88,7 @@ class MessengerForm extends Component {
     }
 
     return (
-      <SchedulerForm
+      <Scheduler
         scheduleDate={this.state.scheduleDate}
         onChange={this.props.changeMessenger}
       />
