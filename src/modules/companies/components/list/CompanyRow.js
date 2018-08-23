@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import _ from 'lodash';
-import { FormControl, Tags } from 'modules/common/components';
+import { FormControl, Tags, NameCard } from 'modules/common/components';
 import { urlParser } from 'modules/common/utils';
 
 const propTypes = {
@@ -86,6 +86,9 @@ function CompanyRow({
           componentClass="checkbox"
           onChange={onChange}
         />
+      </td>
+      <td>
+        <NameCard.Avatar company={company} size={30} />
       </td>
       {columnsConfig.map(({ name }) => (
         <td key={name}>{formatValue(_.get(company, name))}</td>

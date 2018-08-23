@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { FormControl, Tags } from 'modules/common/components';
+import { FormControl, Tags, NameCard } from 'modules/common/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -90,11 +90,12 @@ function CustomerRow({
           onChange={onChange}
         />
       </td>
-
+      <td>
+        <NameCard.Avatar customer={customer} size={30} />
+      </td>
       {columnsConfig.map(({ name }, index) => (
         <td key={index}>{displayValue(customer, name)}</td>
       ))}
-
       <td>
         <Tags tags={tags} limit={2} />
       </td>

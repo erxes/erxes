@@ -80,8 +80,7 @@ class Avatar extends Component {
   }
 
   renderInitials(fullName) {
-    const { size, company } = this.props;
-    const image = company && '/images/company.png';
+    const { size } = this.props;
 
     const initials = fullName ? (
       fullName
@@ -91,7 +90,7 @@ class Avatar extends Component {
         .join('.')
         .toUpperCase()
     ) : (
-      <AvatarImage style={this.generateStyle(size)} image={image} />
+      <AvatarImage style={this.generateStyle(size)} />
     );
 
     return <div style={this.generateStyle(size)}>{initials}</div>;
@@ -102,7 +101,13 @@ class Avatar extends Component {
       return `${customer.firstName} ${customer.lastName}`;
     }
 
-    return customer.firstName || customer.lastName || customer.name || null;
+    return (
+      customer.firstName ||
+      customer.lastName ||
+      customer.name ||
+      customer.primaryName ||
+      null
+    );
   }
 
   render() {
