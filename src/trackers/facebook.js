@@ -596,12 +596,6 @@ export class SaveWebhookResponse {
 
     if (item !== 'comment') return false;
 
-    // getting page access token
-    let res = await this.getPageAccessToken();
-    const accessToken = res.access_token;
-
-    const fields = `/${postId}?fields=caption,description,link,picture,source,message,from`;
-
     const parentPost = await ConversationMessages.findOne({
       'facebookData.isPost': true,
       'facebookData.postId': postId,
@@ -609,25 +603,32 @@ export class SaveWebhookResponse {
 
     if (parentPost) return false;
 
+    // getting page access token
+    const accessTokenResponse = await this.getPageAccessToken();
+    const accessToken = accessTokenResponse.access_token;
+
     // creating parent post if comment has no parent
     // get post info
-    res = await graphRequest.get(fields, accessToken);
+    const fields = `/${postId}?fields=caption,description,link,picture,source,message,from`;
+    const postResponse = await graphRequest.get(fields, accessToken);
+
     const postParams = await this.handlePosts({
-      ...res,
+      ...postResponse,
       item: 'status',
-      postId: res.id,
+      postId: postResponse.id,
     });
 
     await this.createMessage({
       conversation,
       userId,
-      content: res.message,
+      content: postResponse.message,
       facebookData: {
-        senderId: res.from.id,
-        senderName: res.from.name,
+        senderId: postResponse.from.id,
+        senderName: postResponse.from.name,
         ...postParams,
       },
     });
+
     // getting all the comments of post
     const postComments = await findPostComments(accessToken, postId, []);
 
@@ -638,7 +639,7 @@ export class SaveWebhookResponse {
         userId,
         content: comment.message,
         facebookData: {
-          postId: res.id,
+          postId: postResponse.id,
           commentId: comment.id,
           item: 'comment',
           senderId: comment.from.id,
