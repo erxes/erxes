@@ -7,7 +7,6 @@ import { withRouter } from 'react-router';
 
 import {
   DropdownToggle,
-  TaggerPopover,
   ModalTrigger,
   Pagination,
   Button,
@@ -15,16 +14,18 @@ import {
   Table,
   FormControl,
   DataWithLoader,
-  DateFilter
+  DateFilter,
+  SortHandler
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
+import { ManageColumns } from 'modules/settings/properties/containers';
+import { TaggerPopover } from 'modules/tags/components';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
-import { CommonMerge } from '../';
 import { CustomerForm } from '../../containers';
-import { ManageColumns } from 'modules/settings/properties/containers';
+import { CustomersMerge } from '../';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
@@ -34,6 +35,7 @@ const propTypes = {
   integrations: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   bulk: PropTypes.array.isRequired,
+  isAllSelected: PropTypes.bool,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
@@ -44,7 +46,6 @@ const propTypes = {
   loadingTags: PropTypes.bool.isRequired,
   removeCustomers: PropTypes.func.isRequired,
   mergeCustomers: PropTypes.func.isRequired,
-  basicInfos: PropTypes.object.isRequired,
   queryParams: PropTypes.object,
   exportCustomers: PropTypes.func,
   handleXlsUpload: PropTypes.func
@@ -74,11 +75,20 @@ class CustomersList extends React.Component {
     customers.forEach(customer => {
       customerIds.push(customer._id);
     });
+
     this.props.removeCustomers({ customerIds });
   }
 
   renderContent() {
-    const { customers, columnsConfig, toggleBulk, history } = this.props;
+    const {
+      customers,
+      columnsConfig,
+      bulk,
+      toggleBulk,
+      history,
+      isAllSelected
+    } = this.props;
+
     const { __ } = this.context;
 
     return (
@@ -86,10 +96,17 @@ class CustomersList extends React.Component {
         <thead>
           <tr>
             <th>
-              <FormControl componentClass="checkbox" onChange={this.onChange} />
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={this.onChange}
+              />
             </th>
             {columnsConfig.map(({ name, label }) => (
-              <th key={name}>{__(label)}</th>
+              <th key={name}>
+                <SortHandler sortField={name} />
+                {__(label)}
+              </th>
             ))}
             <th>{__('Tags')}</th>
           </tr>
@@ -100,6 +117,7 @@ class CustomersList extends React.Component {
               customer={customer}
               columnsConfig={columnsConfig}
               key={customer._id}
+              isChecked={bulk.includes(customer)}
               toggleBulk={toggleBulk}
               history={history}
             />
@@ -122,6 +140,7 @@ class CustomersList extends React.Component {
 
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
+
     e.target.value = '';
     e.target.value = tmpValue;
   }
@@ -136,7 +155,6 @@ class CustomersList extends React.Component {
       customers,
       loadingTags,
       mergeCustomers,
-      basicInfos,
       location,
       history,
       queryParams,
@@ -214,7 +232,7 @@ class CustomersList extends React.Component {
         </Dropdown>
 
         <ModalTrigger title="New customer" trigger={addTrigger} size="lg">
-          <CustomerForm size="lg" />
+          <CustomerForm size="lg" queryParams={queryParams} />
         </ModalTrigger>
       </BarItems>
     );
@@ -236,10 +254,11 @@ class CustomersList extends React.Component {
 
       actionBarLeft = (
         <BarItems>
-          <Widget customers={bulk} />
+          <Widget customers={bulk} emptyBulk={emptyBulk} />
+
           <TaggerPopover
             type="customer"
-            afterSave={emptyBulk}
+            successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
           />
@@ -249,11 +268,7 @@ class CustomersList extends React.Component {
               size="lg"
               trigger={mergeButton}
             >
-              <CommonMerge
-                datas={bulk}
-                save={mergeCustomers}
-                basicInfos={basicInfos}
-              />
+              <CustomersMerge objects={bulk} save={mergeCustomers} />
             </ModalTrigger>
           )}
           <Button

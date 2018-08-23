@@ -7,19 +7,19 @@ import IntegrationFilter from './list/IntegrationFilter';
 import LeadStatusFilter from './list/LeadStatusFilter';
 import LifecycleStateFilter from './list/LifecycleStateFilter';
 import CustomerDetails from './detail/CustomerDetails';
-import CommonMerge from './detail/CommonMerge';
-import TargetMergeModal from './detail/TargetMergeModal';
+import TargetMerge from './common/TargetMerge';
+import CustomersMerge from './detail/CustomersMerge';
 
 export {
   CustomerRow,
   CustomerForm,
   CustomersList,
   CustomerDetails,
-  CommonMerge,
-  TargetMergeModal,
+  TargetMerge,
   BrandFilter,
   IntegrationFilter,
   LeadStatusFilter,
   LifecycleStateFilter,
-  FormFilter
+  FormFilter,
+  CustomersMerge
 };

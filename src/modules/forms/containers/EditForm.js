@@ -4,8 +4,8 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withRouter } from 'react-router';
 import { Alert } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
 import { Form } from '../components';
+import { queries, mutations } from '../graphql';
 
 class EditFormContainer extends Component {
   render() {
@@ -106,9 +106,11 @@ class EditFormContainer extends Component {
         })
 
         .then(() => {
-          fieldsQuery.refetch();
           Alert.success('Congrats');
-          history.push('/forms?refetch=true');
+
+          fieldsQuery.refetch().then(() => {
+            history.push('/forms');
+          });
         })
 
         .catch(error => {
@@ -145,9 +147,7 @@ EditFormContainer.propTypes = {
 const EditFormIntegrationContainer = compose(
   graphql(gql(queries.brands), {
     name: 'brandsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
+    fetchPolicy: 'network-only'
   }),
   graphql(gql(queries.fields), {
     name: 'fieldsQuery',
@@ -156,7 +156,8 @@ const EditFormIntegrationContainer = compose(
         variables: {
           contentType: 'form',
           contentTypeId: formId
-        }
+        },
+        fetchPolicy: 'network-only'
       };
     }
   }),
@@ -170,7 +171,10 @@ const EditFormIntegrationContainer = compose(
     })
   }),
   graphql(gql(mutations.integrationsEditFormIntegration), {
-    name: 'editIntegrationMutation'
+    name: 'editIntegrationMutation',
+    options: props => ({
+      refetchQueries: ['formIntegrations', 'formIntegrationCounts']
+    })
   }),
   graphql(gql(mutations.fieldsAdd), {
     name: 'addFieldMutation'

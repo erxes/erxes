@@ -9,16 +9,17 @@ import {
   Table,
   DataWithLoader,
   FormControl,
-  TaggerPopover
+  SortHandler
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
+import { ManageColumns } from 'modules/settings/properties/containers';
+import { TaggerPopover } from 'modules/tags/components';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import { CompanyForm } from '../../containers';
-import { ManageColumns } from 'modules/settings/properties/containers';
-import { CommonMerge } from 'modules/customers/components';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
+import { CompaniesMerge } from '../';
 
 const propTypes = {
   companies: PropTypes.array.isRequired,
@@ -31,12 +32,12 @@ const propTypes = {
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
   bulk: PropTypes.array.isRequired,
+  isAllSelected: PropTypes.bool,
   emptyBulk: PropTypes.func.isRequired,
   tags: PropTypes.array.isRequired,
   removeCompanies: PropTypes.func.isRequired,
   loadingTags: PropTypes.bool.isRequired,
   mergeCompanies: PropTypes.func.isRequired,
-  basicInfos: PropTypes.object.isRequired,
   queryParams: PropTypes.object
 };
 
@@ -96,13 +97,14 @@ class CompaniesList extends React.Component {
       counts,
       toggleBulk,
       bulk,
+      isAllSelected,
       emptyBulk,
       tags,
       loadingTags,
       mergeCompanies,
-      basicInfos,
       queryParams
     } = this.props;
+
     const { __ } = this.context;
 
     const mainContent = (
@@ -112,12 +114,16 @@ class CompaniesList extends React.Component {
             <tr>
               <th>
                 <FormControl
+                  checked={isAllSelected}
                   componentClass="checkbox"
                   onChange={this.onChange}
                 />
               </th>
               {columnsConfig.map(({ name, label }) => (
-                <th key={name}>{__(label)}</th>
+                <th key={name}>
+                  <SortHandler sortField={name} />
+                  {__(label)}
+                </th>
               ))}
               <th>{__('Tags')}</th>
             </tr>
@@ -127,6 +133,7 @@ class CompaniesList extends React.Component {
               <CompanyRow
                 company={company}
                 columnsConfig={columnsConfig}
+                isChecked={bulk.includes(company)}
                 key={company._id}
                 history={history}
                 toggleBulk={toggleBulk}
@@ -168,7 +175,7 @@ class CompaniesList extends React.Component {
         <BarItems>
           <TaggerPopover
             type="company"
-            afterSave={emptyBulk}
+            successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
           />
@@ -179,11 +186,7 @@ class CompaniesList extends React.Component {
               size="lg"
               trigger={mergeButton}
             >
-              <CommonMerge
-                datas={bulk}
-                save={mergeCompanies}
-                basicInfos={basicInfos}
-              />
+              <CompaniesMerge objects={bulk} save={mergeCompanies} />
             </ModalTrigger>
           )}
 
@@ -221,7 +224,7 @@ class CompaniesList extends React.Component {
           />
         </ModalTrigger>
         <ModalTrigger title="New company" trigger={addTrigger} size="lg">
-          <CompanyForm />
+          <CompanyForm queryParams={queryParams} />
         </ModalTrigger>
       </BarItems>
     );

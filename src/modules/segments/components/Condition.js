@@ -43,6 +43,7 @@ class Condition extends Component {
 
     this.setState(states, () => {
       const { field, operator, value, dateUnit, type } = this.state;
+
       this.props.changeCondition({ field, operator, value, dateUnit, type });
     });
   }
@@ -55,6 +56,7 @@ class Condition extends Component {
 
     this.setState({ value: val }, () => {
       const { field, operator, value, dateUnit, type } = this.state;
+
       this.changeCondition({ field, operator, value, dateUnit, type });
     });
   }
@@ -144,7 +146,8 @@ class Condition extends Component {
 
   render() {
     const { fields, condition } = this.props;
-    const field = fields.find(field => field === condition.field);
+
+    const field = fields.find(field => field._id === condition.field);
 
     return (
       <ConditionItem>

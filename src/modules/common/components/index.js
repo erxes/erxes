@@ -12,11 +12,10 @@ import LoadMore from './LoadMore';
 import Pagination from './pagination/Pagination';
 import ModalTrigger from './ModalTrigger';
 import ActionButtons from './ActionButtons';
+import AvatarUpload from './AvatarUpload';
 import EmptyState from './EmptyState';
 import Bulk from './Bulk';
-import Tagger from './tagger/containers/Tagger';
 import Filter from './filter/Filter';
-import TaggerPopover from './tagger/components/TaggerPopover';
 import Tags from './Tags';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
@@ -37,6 +36,7 @@ import Chooser from './Chooser';
 import DateFilter from './DateFilter';
 import ModifiableSelect from './ModifiableSelect';
 import Uploader from './Uploader';
+import SortHandler from './SortHandler';
 
 // TODO remove
 const pagination = {};
@@ -44,6 +44,7 @@ const pagination = {};
 export {
   Attachment,
   ActionButtons,
+  AvatarUpload,
   NameCard,
   Button,
   Label,
@@ -62,8 +63,6 @@ export {
   CountsByTag,
   Filter,
   FilterByParams,
-  Tagger,
-  TaggerPopover,
   Tags,
   FilterableList,
   DropdownToggle,
@@ -88,5 +87,6 @@ export {
   Chooser,
   DateFilter,
   ModifiableSelect,
-  Uploader
+  Uploader,
+  SortHandler
 };

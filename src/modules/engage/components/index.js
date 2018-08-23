@@ -9,11 +9,7 @@ import Segments from './Segments';
 import SegmentsForm from './SegmentsForm';
 import MessengerForm from './MessengerForm';
 import EmailForm from './EmailForm';
-// sidebar
-import Main from './sidebar/Main';
-import Status from './sidebar/Status';
-
-const Sidebar = { Main, Status };
+import Sidebar from './Sidebar';
 
 export {
   MessageList,

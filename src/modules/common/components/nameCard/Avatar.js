@@ -80,7 +80,9 @@ class Avatar extends Component {
   }
 
   renderInitials(fullName) {
-    const { size } = this.props;
+    const { size, company } = this.props;
+    const image = company && '/images/company.png';
+
     const initials = fullName ? (
       fullName
         .split(' ')
@@ -89,7 +91,7 @@ class Avatar extends Component {
         .join('.')
         .toUpperCase()
     ) : (
-      <AvatarImage style={this.generateStyle(size)} />
+      <AvatarImage style={this.generateStyle(size)} image={image} />
     );
 
     return <div style={this.generateStyle(size)}>{initials}</div>;
@@ -99,11 +101,13 @@ class Avatar extends Component {
     if (customer.firstName && customer.lastName) {
       return `${customer.firstName} ${customer.lastName}`;
     }
+
     return customer.firstName || customer.lastName || customer.name || null;
   }
 
   render() {
-    const { user, customer, icon } = this.props;
+    const { user, customer, company, icon } = this.props;
+
     let avatar;
     let fullName;
 
@@ -112,11 +116,11 @@ class Avatar extends Component {
       avatar = details && details.avatar;
       fullName = details && details.fullName;
     } else if (customer) {
-      avatar =
-        customer.avatar ||
-        (customer.facebookData && customer.facebookData.profilePic) ||
-        (customer.twitterData && customer.twitterData.profile_image_url);
+      avatar = customer.avatar;
       fullName = this.renderName(customer);
+    } else if (company) {
+      avatar = company.avatar;
+      fullName = this.renderName(company);
     }
 
     const Element = customer ? Link : 'div';
@@ -135,6 +139,7 @@ class Avatar extends Component {
 Avatar.propTypes = {
   user: PropTypes.object,
   customer: PropTypes.object,
+  company: PropTypes.object,
   size: PropTypes.number,
   icon: PropTypes.node
 };

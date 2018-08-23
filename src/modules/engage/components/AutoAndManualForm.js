@@ -25,11 +25,12 @@ class AutoAndManualForm extends FormBase {
     super(props);
 
     const message = props.message || {};
-    let content = message.messenger ? message.messenger.content : '';
-    content = message.email ? message.email.content : content;
     const messenger = message.messenger || {};
     const email = message.email || {};
     const scheduleDate = message.scheduleDate || {};
+
+    let content = message.messenger ? message.messenger.content : '';
+    content = message.email ? message.email.content : content;
 
     this.state = {
       activeStep: 1,

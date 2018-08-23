@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { EmptyState } from 'modules/common/components';
+
 import { Pipeline } from '../containers';
 
 const propTypes = {
@@ -42,7 +43,7 @@ class Board extends React.Component {
       <Pipeline
         key={pipeline._id}
         {...stageStates}
-        expanded={index < 2}
+        index={index}
         state={states[`pipelineState${pipeline._id}`]}
         pipeline={pipeline}
       />

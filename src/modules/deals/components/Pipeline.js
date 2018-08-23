@@ -7,8 +7,9 @@ import { Container, Header, Body } from '../styles/pipeline';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
+  onToggle: PropTypes.func.isRequired,
   stages: PropTypes.array,
-  expanded: PropTypes.bool
+  isExpanded: PropTypes.bool
 };
 
 const defaultProps = {
@@ -19,7 +20,7 @@ class Pipeline extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { expanded: props.expanded };
+    this.state = { isExpanded: props.isExpanded };
 
     this.togglePipeline = this.togglePipeline.bind(this);
   }
@@ -56,7 +57,7 @@ class Pipeline extends React.Component {
   renderPipelineBody() {
     const { pipeline } = this.props;
 
-    if (!this.state.expanded) {
+    if (!this.state.isExpanded) {
       return null;
     }
 
@@ -72,12 +73,16 @@ class Pipeline extends React.Component {
   }
 
   togglePipeline() {
-    this.setState({ expanded: !this.state.expanded });
+    const { isExpanded } = this.state;
+
+    this.setState({ isExpanded: !isExpanded });
+
+    this.props.onToggle(!isExpanded);
   }
 
   render() {
     const { pipeline } = this.props;
-    const { expanded } = this.state;
+    const { isExpanded } = this.state;
 
     return (
       <Container>
@@ -90,7 +95,7 @@ class Pipeline extends React.Component {
               size="small"
               btnStyle="primary"
               onClick={this.togglePipeline}
-              icon={expanded ? 'uparrow-2' : 'downarrow'}
+              icon={isExpanded ? 'uparrow-2' : 'downarrow'}
             />
           </div>
         </Header>

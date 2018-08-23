@@ -20,6 +20,7 @@ const propTypes = {
   company: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
   companyActivityLog: PropTypes.array.isRequired,
+  taggerRefetchQueries: PropTypes.array,
   loadingLogs: PropTypes.bool.isRequired
 };
 
@@ -70,7 +71,7 @@ class CompanyDetails extends React.Component {
 
   render() {
     const { currentTab } = this.state;
-    const { company } = this.props;
+    const { company, taggerRefetchQueries } = this.props;
     const { __ } = this.context;
 
     const breadcrumb = [
@@ -118,7 +119,12 @@ class CompanyDetails extends React.Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<LeftSidebar {...this.props} />}
+        leftSidebar={
+          <LeftSidebar
+            {...this.props}
+            taggerRefetchQueries={taggerRefetchQueries}
+          />
+        }
         rightSidebar={<RightSidebar company={company} />}
         content={content}
         transparent={true}

@@ -71,6 +71,7 @@ const sidebarConversations = `
         primaryEmail
         primaryPhone
         isUser
+        avatar
         visitorContactInfo
         facebookData
         twitterData
@@ -168,8 +169,8 @@ const tagList = `
 `;
 
 const conversationCounts = `
-  query conversationCounts(${listParamsDef}) {
-    conversationCounts(${listParamsValue})
+  query conversationCounts(${listParamsDef}, $only: String) {
+    conversationCounts(${listParamsValue}, only: $only)
   }
 `;
 
@@ -233,6 +234,7 @@ const generateCustomerDetailQuery = params => {
     fields = `
       ${fields}
       messengerData
+      getMessengerCustomData
     `;
   }
 
@@ -264,6 +266,7 @@ const generateCustomerDetailQuery = params => {
   if (showTags) {
     fields = `
       ${fields}
+      tagIds
       getTags {
         _id
         name

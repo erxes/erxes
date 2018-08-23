@@ -6,14 +6,15 @@ import { Alert, confirm } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 import { Boards } from '../components';
 
+import { STORAGE_BOARD_KEY } from 'modules/deals/constants';
+
 class BoardsContainer extends React.Component {
   render() {
     const {
       boardsQuery,
       addMutation,
       editMutation,
-      removeMutation,
-      setDefaultMutation
+      removeMutation
     } = this.props;
 
     const { __ } = this.context;
@@ -28,6 +29,11 @@ class BoardsContainer extends React.Component {
         })
           .then(() => {
             boardsQuery.refetch();
+
+            // if deleted board is default board
+            if (localStorage.getItem(STORAGE_BOARD_KEY) === _id) {
+              localStorage.removeItem(STORAGE_BOARD_KEY);
+            }
 
             Alert.success(__('Successfully deleted.'));
           })
@@ -62,27 +68,11 @@ class BoardsContainer extends React.Component {
         });
     };
 
-    // set default
-    const setDefault = _id => {
-      setDefaultMutation({
-        variables: { _id }
-      })
-        .then(() => {
-          boardsQuery.refetch();
-
-          Alert.success(__('Successfully selected.'));
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
-
     const extendedProps = {
       ...this.props,
       boards,
       save,
       remove,
-      setDefault,
       loading: boardsQuery.loading
     };
 
@@ -94,8 +84,7 @@ BoardsContainer.propTypes = {
   boardsQuery: PropTypes.object,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
-  removeMutation: PropTypes.func,
-  setDefaultMutation: PropTypes.func
+  removeMutation: PropTypes.func
 };
 
 BoardsContainer.contextTypes = {
@@ -114,8 +103,5 @@ export default compose(
   }),
   graphql(gql(mutations.boardRemove), {
     name: 'removeMutation'
-  }),
-  graphql(gql(mutations.boardSetDefault), {
-    name: 'setDefaultMutation'
   })
 )(BoardsContainer);

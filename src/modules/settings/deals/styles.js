@@ -10,12 +10,12 @@ const BoardItem = SidebarListItem.extend`
     padding: 10px 15px 10px 20px;
 
     i {
-      color: ${props => props.isDefault && colors.colorCoreYellow};
+      color: ${colors.colorCoreYellow};
     }
   }
 
   a {
-    padding: 10px 20px 10px 0;
+    padding: 10px 20px;
     margin-left: 0;
     border-left: 0;
   }

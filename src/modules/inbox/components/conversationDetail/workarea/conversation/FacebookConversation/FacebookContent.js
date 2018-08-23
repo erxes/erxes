@@ -1,35 +1,49 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
+import { ImageWithPreview } from 'modules/common/components';
 import { ImageContainer } from './styles';
 
 const propTypes = {
   content: PropTypes.string.isRequired,
   image: PropTypes.string,
   link: PropTypes.string,
-  images: PropTypes.array
+  images: PropTypes.array,
+  scrollBottom: PropTypes.func
 };
 
 export default class FacebookContent extends Component {
-  renderAttachment(image) {
+  renderImage(image) {
     if (!image) {
       return null;
     }
 
     return (
-      <ImageContainer full>
-        <img src={image} alt={image} />
+      <ImageContainer>
+        <ImageWithPreview
+          alt={image}
+          src={image}
+          onLoad={this.props.scrollBottom}
+        />
       </ImageContainer>
     );
   }
 
-  renderAttachments(images) {
+  renderImages(images) {
     if (!images) {
       return null;
     }
 
     return (
       <ImageContainer>
-        {images.map(image => <img key={image} src={image} alt={image} />)}
+        {images.map((image, index) => (
+          <ImageWithPreview
+            key={index}
+            alt={image}
+            src={image}
+            onLoad={this.props.scrollBottom}
+            full
+          />
+        ))}
       </ImageContainer>
     );
   }
@@ -60,19 +74,35 @@ export default class FacebookContent extends Component {
       link.endsWith('.jpg') ||
       link.endsWith('.jpeg')
     ) {
-      return <img src={link} alt={link} />;
+      return (
+        <ImageContainer isComment>
+          <ImageWithPreview
+            alt={link}
+            src={link}
+            onLoad={this.props.scrollBottom}
+          />
+        </ImageContainer>
+      );
+    }
+
+    if (link.includes('video.xx.fbcdn.net')) {
+      return (
+        <iframe
+          title="erxesIframeVideo"
+          src={link}
+          width="100%"
+          height="280"
+          scrolling="no"
+          frameBorder="0"
+          allowFullScreen
+        />
+      );
     }
 
     return (
-      <iframe
-        title="erxesIframe"
-        src={link}
-        width="100%"
-        height="280"
-        scrolling="no"
-        frameBorder="0"
-        allowFullScreen
-      />
+      <a href={`https://www.facebook.com/${link}`} target="_blank">
+        {link}
+      </a>
     );
   }
 
@@ -81,7 +111,7 @@ export default class FacebookContent extends Component {
 
     return (
       <Fragment>
-        {this.renderAttachment(image) || this.renderAttachments(images)}
+        {this.renderImage(image) || this.renderImages(images)}
         {this.renderFiles(link)}
         <p
           dangerouslySetInnerHTML={{

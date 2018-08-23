@@ -118,7 +118,14 @@ class Index extends Component {
   }
 
   render() {
-    const { conversation, customer, toggleSection, config } = this.props;
+    const {
+      taggerRefetchQueries,
+      conversation,
+      customer,
+      toggleSection,
+      config
+    } = this.props;
+
     const { kind } = customer.integration || {};
     const { __ } = this.context;
 
@@ -172,7 +179,11 @@ class Index extends Component {
           isOpen={config.showTags || false}
           toggle={toggleSection}
         >
-          <TaggerSection data={customer} type="customer" />
+          <TaggerSection
+            data={customer}
+            type="customer"
+            refetchQueries={taggerRefetchQueries}
+          />
         </Box>
 
         <Box
@@ -201,7 +212,8 @@ Index.propTypes = {
   conversation: PropTypes.object,
   customer: PropTypes.object,
   toggleSection: PropTypes.func,
-  config: PropTypes.object
+  config: PropTypes.object,
+  taggerRefetchQueries: PropTypes.array
 };
 
 Index.contextTypes = {

@@ -59,14 +59,37 @@ export const CUSTOMER_BASIC_INFO = {
   lifecycleState: 'Lifecycle state',
   hasAuthority: 'Has Authority',
   description: 'Description',
-  doNotDisturb: 'Do not disturb'
+  doNotDisturb: 'Do not disturb',
+
+  ALL: [
+    { field: 'firstName', label: 'First Name' },
+    { field: 'lastName', label: 'Last Name' },
+    { field: 'primaryEmail', label: 'Primary E-mail' },
+    { field: 'primaryPhone', label: 'Primary Phone' },
+    { field: 'position', label: 'Position' },
+    { field: 'department', label: 'Department' },
+    { field: 'leadStatus', label: 'Lead Status' },
+    { field: 'lifecycleState', label: 'Lifecycle state' },
+    { field: 'hasAuthority', label: 'Has Authority' },
+    { field: 'description', label: 'Description' },
+    { field: 'doNotDisturb', label: 'Do not disturb' }
+  ]
 };
 
 export const CUSTOMER_DATAS = {
   messengerData: 'Messenger Data',
   twitterData: 'Twitter Data',
   facebookData: 'Facebook Data',
-  visitorContactInfo: 'Visitor contact info'
+  visitorContactInfo: 'Visitor contact info',
+  owner: 'Owner',
+
+  ALL: [
+    { field: 'messengerData', label: 'Messenger Data' },
+    { field: 'twitterData', label: 'Twitter Data' },
+    { field: 'facebookData', label: 'Facebook Data' },
+    { field: 'visitorContactInfo', label: 'Visitor contact info' },
+    { field: 'owner', label: 'Owner' }
+  ]
 };
 
 export const LEAD_STATUS_TYPES = {

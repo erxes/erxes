@@ -1,4 +1,5 @@
 const commonFields = `
+  $avatar: String,
   $firstName: String,
   $lastName: String,
   $primaryEmail: String,
@@ -18,6 +19,7 @@ const commonFields = `
 `;
 
 const commonVariables = `
+  avatar: $avatar,
   firstName: $firstName,
   lastName: $lastName,
   primaryEmail: $primaryEmail,
@@ -47,6 +49,7 @@ const customersAdd = `
 const customersEdit = `
   mutation customersEdit($_id: String!, ${commonFields}) {
     customersEdit(_id: $_id, ${commonVariables}) {
+      avatar
       firstName
       lastName
       primaryEmail

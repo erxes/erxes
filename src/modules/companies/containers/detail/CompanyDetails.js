@@ -7,7 +7,7 @@ import { queries } from '../../graphql';
 import { CompanyDetails } from '../../components';
 
 const CompanyDetailsContainer = (props, { currentUser }) => {
-  const { companyDetailQuery, companyActivityLogQuery } = props;
+  const { id, companyDetailQuery, companyActivityLogQuery } = props;
 
   if (companyDetailQuery.loading) {
     return <Spinner />;
@@ -15,11 +15,19 @@ const CompanyDetailsContainer = (props, { currentUser }) => {
 
   const companyDetail = companyDetailQuery.companyDetail;
 
+  const taggerRefetchQueries = [
+    {
+      query: gql(queries.companyDetail),
+      variables: { _id: id }
+    }
+  ];
+
   const updatedProps = {
     ...props,
     loadingLogs: companyActivityLogQuery.loading,
     company: companyDetail,
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
+    taggerRefetchQueries,
     currentUser
   };
 
@@ -27,6 +35,7 @@ const CompanyDetailsContainer = (props, { currentUser }) => {
 };
 
 CompanyDetailsContainer.propTypes = {
+  id: PropTypes.string,
   companyDetailQuery: PropTypes.object,
   companyActivityLogQuery: PropTypes.object
 };

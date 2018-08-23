@@ -7,6 +7,7 @@ const textColor = '#1D212A';
 
 const FlexItem = styled.div`
   display: flex;
+  align-items: flex-end;
 `;
 
 const PostContainer = styled.div`
@@ -42,6 +43,7 @@ const User = styled.div`
   color: ${colors.colorCoreGray};
   padding-right: ${mainSize};
   padding-left: ${props => (props.isPost ? '50px' : '40px')};
+  padding-left: ${props => props.isReply && '30px'};
 
   > a {
     display: block;
@@ -134,7 +136,7 @@ const Comment = styled.div`
     color: #3a5999;
   }
 
-  > p {
+  p {
     margin: 0;
     display: inline;
   }
@@ -146,25 +148,30 @@ const Comment = styled.div`
 `;
 
 const ReplyReaction = styled.div`
-  position: absolute;
   display: flex;
-  right: -10px;
-  bottom: -15px;
+  align-items: center;
   background: ${colors.colorWhite};
   border-radius: 10px;
-  box-shadow: 1px 1px 3px 0 #dadde1;
   font-size: 11px;
-  padding: 4px;
+  padding: 2px;
+  margin-left: -10px;
+  z-index: 5;
+  height: 22px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
-  cursor: pointer;
+
+  > a {
+    color: ${colors.textPrimary};
+    padding: 0 3px 0 8px;
+  }
 `;
 
 const Reaction = styled.div`
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   display: inline-block;
-  margin-right: 3px;
+  margin-right: ${props => (props.comment ? '-5px' : '3px')};
   background-image: url('/images/reactions.png');
+  border: 1px solid ${colors.colorWhite};
   border-radius: 10px;
   cursor: pointer;
 
@@ -183,10 +190,6 @@ const Reaction = styled.div`
   &.sad {
     background-position: 33px;
   }
-
-  &:hover {
-    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.8);
-  }
 `;
 
 const Footer = styled.div`
@@ -196,14 +199,23 @@ const Footer = styled.div`
 const ImageContainer = styled.div`
   padding: 10px;
 
-  > img {
-    width: ${props => !props.full && '70px'};
-    height: ${props => !props.full && '70px'};
+  img {
+    width: ${props => props.full && '70px'};
+    height: ${props => props.full && '70px'};
     border: 1px solid ${colors.borderPrimary};
     margin-right: 5px;
     padding: 10px;
-    cursor: pointer;
+    max-width: ${props => props.isComment && '400px'};
   }
+
+  > div {
+    display: inline;
+  }
+`;
+
+const LeftAlign = styled.div`
+  text-align: left;
+  font-size: 11px;
 `;
 
 export {
@@ -217,5 +229,6 @@ export {
   FlexItem,
   ReplyReaction,
   Footer,
-  ImageContainer
+  ImageContainer,
+  LeftAlign
 };

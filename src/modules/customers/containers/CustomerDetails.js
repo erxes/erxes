@@ -7,17 +7,25 @@ import { CustomerDetails } from '../components';
 import { Spinner } from 'modules/common/components';
 
 const CustomerDetailsContainer = (props, context) => {
-  const { customerDetailQuery, customerActivityLogQuery } = props;
+  const { id, customerDetailQuery, customerActivityLogQuery } = props;
 
   if (customerDetailQuery.loading) {
     return <Spinner />;
   }
+
+  const taggerRefetchQueries = [
+    {
+      query: gql(queries.customerDetail),
+      variables: { _id: id }
+    }
+  ];
 
   const updatedProps = {
     ...props,
     customer: customerDetailQuery.customerDetail,
     loadingLogs: customerActivityLogQuery.loading,
     activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
+    taggerRefetchQueries,
     currentUser: context.currentUser
   };
 
