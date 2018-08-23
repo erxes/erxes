@@ -27,23 +27,22 @@ class VisitorForm extends FormBase {
   constructor(props) {
     super(props);
 
-    const message = props.message.messenger || {};
-    const scheduleDate = props.message.scheduleDate || {};
-    const rules = message.rules ? message.rules.map(rule => ({ ...rule })) : [];
+    const { message } = props;
+    const messenger = message.messenger || {};
+    const rules = messenger.rules
+      ? messenger.rules.map(rule => ({ ...rule }))
+      : [];
 
     this.state = {
       maxStep: 2,
       activeStep: 1,
       method: METHODS.MESSENGER,
-      title: props.message.title || '',
-      message: message.content || '',
-      fromUser: props.message.fromUserId || '',
+      title: message.title || '',
+      message: messenger.content || '',
+      fromUser: message.fromUserId || '',
       rules,
-      messenger: {
-        brandId: message.brandId || '',
-        sentAs: message.sentAs || ''
-      },
-      scheduleDate
+      messenger: message.messenger,
+      scheduleDate: message.scheduleDate
     };
   }
 

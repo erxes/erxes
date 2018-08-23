@@ -25,9 +25,6 @@ class AutoAndManualForm extends FormBase {
     super(props);
 
     const message = props.message || {};
-    const messenger = message.messenger || {};
-    const email = message.email || {};
-    const scheduleDate = message.scheduleDate || {};
 
     let content = message.messenger ? message.messenger.content : '';
     content = message.email ? message.email.content : content;
@@ -40,17 +37,9 @@ class AutoAndManualForm extends FormBase {
       segment: message.segmentId || '',
       message: content,
       fromUser: message.fromUserId,
-      messenger: {
-        brandId: messenger.brandId || '',
-        kind: messenger.kind || '',
-        sentAs: messenger.sentAs || ''
-      },
-      email: {
-        templateId: email.templateId || '',
-        subject: email.subject || '',
-        attachments: email.attachments || []
-      },
-      scheduleDate
+      messenger: message.messenger,
+      email: message.email,
+      scheduleDate: message.scheduleDate
     };
   }
 

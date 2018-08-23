@@ -21,16 +21,7 @@ class Scheduler extends Component {
   constructor(props) {
     super(props);
 
-    const { scheduleDate = {} } = this.props;
-
-    this.state = {
-      scheduleDate: {
-        type: scheduleDate.type || '',
-        month: scheduleDate.month || '',
-        day: scheduleDate.day || '',
-        time: scheduleDate.time
-      }
-    };
+    this.state = { scheduleDate: props.scheduleDate };
   }
 
   changeSchedule(key, value) {
