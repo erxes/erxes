@@ -3,12 +3,14 @@
 import sinon from 'sinon';
 import { connect, disconnect } from '../../db/connection';
 import { SaveWebhookResponse } from '../../trackers/facebook';
+import * as facebookTracker from '../../trackers/facebookTracker';
 import { graphRequest } from '../../trackers/facebookTracker';
 import { Conversations, ConversationMessages } from '../../db/models';
 import {
   integrationFactory,
   customerFactory,
   conversationMessageFactory,
+  conversationFactory,
 } from '../../db/factories';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
 
@@ -74,6 +76,7 @@ describe('facebook integration: get or create conversation', () => {
       senderId,
       facebookData,
       content: 'hi',
+      msgFacebookData: {},
     });
 
     // must be created new conversation, new message
@@ -90,6 +93,7 @@ describe('facebook integration: get or create conversation', () => {
       senderId,
       facebookData,
       content: 'hey',
+      msgFacebookData: {},
     });
 
     // must not be created new conversation, new message
@@ -106,6 +110,7 @@ describe('facebook integration: get or create conversation', () => {
       senderId,
       facebookData,
       content: 'hi again',
+      msgFacebookData: {},
     });
 
     // must be created new conversation, new message
@@ -129,6 +134,7 @@ describe('facebook integration: get or create conversation', () => {
       senderId,
       facebookData,
       content: 'new sender hi',
+      msgFacebookData: {},
     });
 
     // must be created new conversation, new message
@@ -163,6 +169,7 @@ describe('facebook integration: get or create conversation', () => {
       senderId,
       facebookData: messengerFacebookData,
       content: 'messenger message',
+      msgFacebookData: {},
     });
 
     const msg = await ConversationMessages.findOne({ _id: msgId });
@@ -179,6 +186,7 @@ describe('facebook integration: get or create conversation', () => {
       senderId,
       facebookData: messengerFacebookData,
       content: 'hi test',
+      msgFacebookData: {},
     });
 
     // must not be created new conversation, new message
@@ -199,6 +207,7 @@ describe('facebook integration: get or create conversation', () => {
       senderId,
       facebookData: messengerFacebookData,
       content: 'test create new conversation',
+      msgFacebookData: {},
     });
 
     // must be created new conversation, new message
@@ -213,6 +222,7 @@ describe('facebook integration: get or create conversation', () => {
       senderId,
       facebookData: messengerFacebookData,
       content: 'insert message',
+      msgFacebookData: {},
     });
 
     // must not be created new conversation, new message
@@ -345,5 +355,93 @@ describe('facebook integration: get or create conversation', () => {
     response = await ConversationMessages.findOne({ _id: msg._id });
 
     expect(response.facebookData.reactions[type]).not.toContainEqual(expect.objectContaining(from));
+  });
+
+  test('Restore old facebook post', async () => {
+    const conversation = await conversationFactory({});
+    const integration = await integrationFactory();
+    const facebookData = {
+      item: 'status',
+      postId: 'postId',
+    };
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
+    sinon.stub(saveWebhookResponse, 'getPageAccessToken').callsFake(() => {
+      return { access_token: '123' };
+    });
+
+    let res = await saveWebhookResponse.restoreOldPosts({
+      conversation,
+      userId: '123',
+      facebookData,
+    });
+
+    // must be false because we received post
+    expect(res).toBe(false);
+
+    facebookData.item = 'comment';
+
+    let parentPost = await conversationMessageFactory({
+      facebookData: { postId: 'postId', isPost: true },
+      conversationId: conversation._id,
+    });
+
+    res = await saveWebhookResponse.restoreOldPosts({
+      conversation,
+      userId: '123',
+      facebookData,
+    });
+
+    // must be false because we do have parent post
+    expect(res).toBe(false);
+
+    await ConversationMessages.remove({ _id: parentPost._id });
+
+    graphRequest.get.restore();
+
+    sinon.stub(graphRequest, 'get').callsFake(() => {
+      return {
+        message: 'message',
+        id: 'postId',
+        from: { id: 'fromid', name: 'fromname' },
+      };
+    });
+
+    sinon.stub(facebookTracker, 'findPostComments').callsFake(() => {
+      return [
+        {
+          message: 'message',
+          id: 'postId',
+          from: { id: 'fromid', name: 'fromname' },
+        },
+        {
+          message: 'message',
+          id: 'postId',
+          from: { id: 'fromid', name: 'fromname' },
+        },
+      ];
+    });
+
+    res = await saveWebhookResponse.restoreOldPosts({
+      conversation,
+      userId: '123',
+      facebookData,
+    });
+
+    const conversationMessages = await ConversationMessages.find({
+      conversationId: conversation._id,
+    });
+
+    // we should have 3 messages, 1 is parent post, 2 more comments
+    expect(conversationMessages.length).toBe(3);
+
+    parentPost = await ConversationMessages.find({
+      'facebookData.isPost': true,
+      conversationId: conversation._id,
+    });
+
+    expect(parentPost).toBeDefined();
+    expect(res).toBe(true);
   });
 });

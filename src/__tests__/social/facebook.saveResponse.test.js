@@ -303,6 +303,9 @@ describe('facebook integration: save webhook response', () => {
     expect(message.facebookData.photos).toHaveLength(0);
 
     // second time ========================
+    sinon.stub(saveWebhookResponse, 'restoreOldPosts').callsFake(() => {
+      return false;
+    });
 
     // customer commented hi on above post again
     messageText = 'hi';
