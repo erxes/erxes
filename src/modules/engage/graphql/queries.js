@@ -64,6 +64,7 @@ const engageDetailFields = `
   isLive
   stopDate
   createdDate
+  deliveryReports
   messenger
   stats
   brand {
