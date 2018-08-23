@@ -43,12 +43,7 @@ class VisitorForm extends FormBase {
         brandId: message.brandId || '',
         sentAs: message.sentAs || ''
       },
-      scheduleDate: {
-        type: scheduleDate.type || '',
-        month: scheduleDate.month || '',
-        day: scheduleDate.day || '',
-        time: scheduleDate.time
-      }
+      scheduleDate
     };
   }
 
@@ -89,6 +84,7 @@ class VisitorForm extends FormBase {
     } = this.state;
 
     const { __ } = this.context;
+
     const defaultMessengerValue = {
       messenger,
       fromUser,

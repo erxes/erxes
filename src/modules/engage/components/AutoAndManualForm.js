@@ -44,17 +44,12 @@ class AutoAndManualForm extends FormBase {
         kind: messenger.kind || '',
         sentAs: messenger.sentAs || ''
       },
-      scheduleDate: {
-        type: scheduleDate.type || '',
-        month: scheduleDate.month || '',
-        day: scheduleDate.day || '',
-        time: scheduleDate.time
-      },
       email: {
         templateId: email.templateId || '',
         subject: email.subject || '',
         attachments: email.attachments || []
-      }
+      },
+      scheduleDate
     };
   }
 
@@ -65,9 +60,12 @@ class AutoAndManualForm extends FormBase {
       segmentId: this.state.segment,
       title: this.state.title,
       fromUserId: this.state.fromUser,
-      method: this.state.method,
-      scheduleDate: this.state.scheduleDate
+      method: this.state.method
     };
+
+    if (this.props.kind !== 'manual') {
+      doc.scheduleDate = this.state.scheduleDate;
+    }
 
     if (this.state.method === 'email') {
       doc.email = {
