@@ -3,6 +3,7 @@ import { MESSAGE_KINDS, METHODS } from '../../constants';
 import { send } from './engageUtils';
 import { moduleRequireLogin } from '../../permissions';
 import { awsRequests } from '../../../trackers/engageTracker';
+import { createSchedule, updateOrRemoveSchedule } from '../../../trackers/engageScheduleTracker';
 
 const engageMutations = {
   /**
@@ -43,16 +44,21 @@ const engageMutations = {
 
     const engageMessage = await EngageMessages.createEngageMessage(doc);
 
-    // if manual and live then send immediately
+    // If manual and live then send immediately
     if (doc.kind === MESSAGE_KINDS.MANUAL && doc.isLive) {
       await send(engageMessage);
+    }
+
+    // Create schedule time if auto, visitorAuto
+    if (doc.kind === MESSAGE_KINDS.AUTO || doc.kind === MESSAGE_KINDS.VISITOR_AUTO) {
+      createSchedule(engageMessage);
     }
 
     return engageMessage;
   },
 
   /**
-   * Edit message
+   * Edit message and update schedule cron job
    * @param {String} doc.title
    * @param {String} doc.fromUserId
    * @param {String} doc.kind
@@ -67,15 +73,17 @@ const engageMutations = {
    * @return {Promise} message object
    */
   engageMessageEdit(root, { _id, ...doc }) {
+    updateOrRemoveSchedule({ _id }, true);
     return EngageMessages.updateEngageMessage(_id, doc);
   },
 
   /**
-   * Remove message
+   * Remove message and schedule cron job
    * @param {String} _id - Engage message id
    * @return {Promise}
    */
   engageMessageRemove(root, _id) {
+    updateOrRemoveSchedule(_id);
     return EngageMessages.removeEngageMessage(_id);
   },
 

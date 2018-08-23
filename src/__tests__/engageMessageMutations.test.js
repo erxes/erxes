@@ -3,6 +3,7 @@
 
 import faker from 'faker';
 import sinon from 'sinon';
+import moment from 'moment';
 import { connect, disconnect, graphqlRequest } from '../db/connection';
 import {
   EngageMessages,
@@ -63,6 +64,7 @@ describe('engage message mutation tests', () => {
     $customerIds: [String],
     $tagIds: [String],
     $email: EngageMessageEmail,
+    $scheduleDate: EngageMessageScheduleDate,
     $messenger: EngageMessageMessenger,
   `;
 
@@ -78,6 +80,7 @@ describe('engage message mutation tests', () => {
     customerIds: $customerIds
     tagIds: $tagIds
     email: $email
+    scheduleDate: $scheduleDate
     messenger: $messenger
   `;
 
