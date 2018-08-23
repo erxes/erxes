@@ -2,13 +2,15 @@ import mongoose from 'mongoose';
 import { MESSENGER_KINDS, SENT_AS_CHOICES, METHODS } from '../../data/constants';
 import { field } from './utils';
 
-const ScheduleDateSchema = mongoose.Schema({
-  _id: field({ type: String }),
-  type: field({ type: String, optional: true }),
-  month: field({ type: String, optional: true }),
-  day: field({ type: String, optional: true }),
-  time: field({ type: Date, optional: true }),
-});
+const ScheduleDateSchema = mongoose.Schema(
+  {
+    type: field({ type: String, optional: true }),
+    month: field({ type: String, optional: true }),
+    day: field({ type: String, optional: true }),
+    time: field({ type: Date, optional: true }),
+  },
+  { _id: false },
+);
 
 const EmailSchema = mongoose.Schema(
   {

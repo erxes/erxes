@@ -28,7 +28,6 @@ export const types = `
   }
 
   type EngageScheduleDate {
-    _id: String!,
     type: String,
     month: String,
     day: String,
