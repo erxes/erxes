@@ -12,8 +12,6 @@ const ENGAGE_SCHEDULES = [];
 export const createSchedule = message => {
   const { scheduleDate } = message;
 
-  if (!scheduleDate) return;
-
   const rule = createScheduleRule(scheduleDate);
 
   const job = schedule.scheduleJob(rule, () => {
@@ -28,6 +26,10 @@ export const createSchedule = message => {
  * Create cron job schedule rule
  */
 export const createScheduleRule = scheduleDate => {
+  if (!scheduleDate || Object.keys(scheduleDate).length === 0) {
+    return '* 45 23 * ';
+  }
+
   const time = moment(scheduleDate.time);
 
   const hour = time.hour();

@@ -78,7 +78,7 @@ const engageMutations = {
   },
 
   /**
-   * Remove message and schedule cron job
+   * Remove message and cancel cron job
    * @param {String} _id - Engage message id
    * @return {Promise}
    */
