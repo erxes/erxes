@@ -35,7 +35,6 @@ class MessagesList extends React.Component<Props> {
   componentDidUpdate() {
     if (this.node && this.shouldScrollBottom) {
       this.node.scrollTop = this.node.scrollHeight;
-      console.log("adasd");
     }
 
     this.makeClickableLink();
