@@ -50,6 +50,7 @@ export const customCommand = async () => {
 
   const conversations = await Conversations.find({
     facebookData: { $exists: true },
+    'facebookData.kind': 'feed',
   });
 
   for (let conversation of conversations) {
