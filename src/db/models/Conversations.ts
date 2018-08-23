@@ -1,54 +1,58 @@
-import * as mongoose from 'mongoose';
-import { CONVERSATION_STATUSES } from '../../data/constants';
-import { TwitterResponseSchema, ConversationFacebookSchema } from '../../trackers/schemas';
-import { Users, ConversationMessages } from '../../db/models';
-import { field } from './utils';
+import { Model, model } from "mongoose";
+import { CONVERSATION_STATUSES } from "./definitions/constants";
+import { Users, ConversationMessages } from '.';
+import {
+  conversationSchema,
+  IConversationDocument
+} from "./definitions/conversations";
 
-// Conversation schema
-const ConversationSchema = mongoose.Schema({
-  _id: field({ pkey: true }),
-  content: field({ type: String }),
-  integrationId: field({ type: String }),
-  customerId: field({ type: String }),
-  userId: field({ type: String }),
-  assignedUserId: field({ type: String }),
-  participatedUserIds: field({ type: [String] }),
-  readUserIds: field({ type: [String] }),
-  createdAt: field({ type: Date }),
-  updatedAt: field({ type: Date }),
+interface ISTATUSES {
+  NEW: "new";
+  OPEN: "open";
+  CLOSED: "closed";
+  ALL_LIST: ["new", "open", "closed"];
+}
 
-  closedAt: field({
-    type: Date,
-    optional: true,
-  }),
+interface IConversationParams {
+  conversationId?: string;
+  userId?: string;
+  integrationId: string;
+  customerId: string;
+  content: string;
+}
 
-  closedUserId: field({
-    type: String,
-    optional: true,
-  }),
-
-  status: field({
-    type: String,
-    enum: CONVERSATION_STATUSES.ALL,
-  }),
-  messageCount: field({ type: Number }),
-  tagIds: field({ type: [String] }),
-
-  // number of total conversations
-  number: field({ type: Number }),
-  twitterData: field({ type: TwitterResponseSchema }),
-  facebookData: field({ type: ConversationFacebookSchema }),
-});
+interface IConversationModel extends Model<IConversationDocument> {
+  getConversationStatuses(): ISTATUSES;
+  createConversation(doc: IConversationParams): Promise<IConversationDocument>;
+  checkExistanceConversations(ids: string[]): void;
+  reopen(_id: string): Promise<IConversationDocument>;
+  assignUserConversation(
+    conversationIds: string[], assignedUserId: string
+  ): Promise<IConversationDocument>;
+  unassignUserConversation(conversationIds: string[]): Promise<IConversationDocument>;
+  changeStatusConversation(
+    conversationIds: string[], status: string, userId: string
+  ): Promise<IConversationDocument>;
+  markAsReadConversation(_id: string, userId: string): Promise<IConversationDocument>;
+  newOrOpenConversation(): Promise<IConversationDocument>;
+  addParticipatedUsers(conversationId: string, userId: string): Promise<IConversationDocument>;
+  changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IConversationDocument>;
+  removeCustomerConversations(customerId: string): Promise<IConversationDocument>;
+}
 
 class Conversation {
+  public static getConversationStatuses() {
+    return CONVERSATION_STATUSES;
+  }
+
   /**
    * Check conversations exists
    * @param  {list} ids - Ids of conversations
    * @return {object, list} selector, conversations
    */
-  static async checkExistanceConversations(_ids) {
+  static async checkExistanceConversations(_ids: string[]) {
     const selector = { _id: { $in: _ids } };
-    const conversations = await this.find(selector);
+    const conversations = await Conversations.find(selector);
 
     if (conversations.length !== _ids.length) {
       throw new Error('Conversation not found.');
@@ -62,15 +66,15 @@ class Conversation {
    * @param  {Object} conversationObj - Object
    * @return {Promise} Newly created conversation object
    */
-  static async createConversation(doc) {
+  static async createConversation(doc: IConversationParams) {
     const now = new Date();
 
-    return this.create({
-      status: CONVERSATION_STATUSES.NEW,
+    return Conversations.create({
+      status: this.getConversationStatuses().NEW,
       ...doc,
       createdAt: now,
       updatedAt: now,
-      number: (await this.find().count()) + 1,
+      number: (await Conversations.find().count()) + 1,
       messageCount: 0,
     });
   }
@@ -80,8 +84,8 @@ class Conversation {
    * @param {String} _id - Conversation id
    * @return {Object} updated conversation
    */
-  static async reopen(_id) {
-    await this.update(
+  static async reopen(_id: string) {
+    await Conversations.update(
       { _id },
       {
         $set: {
@@ -89,7 +93,7 @@ class Conversation {
           readUserIds: [],
 
           // if closed, reopen
-          status: CONVERSATION_STATUSES.OPEN,
+          status: this.getConversationStatuses().OPEN,
 
           closedAt: null,
           closedUserId: null,
@@ -97,7 +101,7 @@ class Conversation {
       },
     );
 
-    return this.findOne({ _id });
+    return Conversations.findOne({ _id });
   }
 
   /**
@@ -113,13 +117,13 @@ class Conversation {
       throw new Error(`User not found with id ${assignedUserId}`);
     }
 
-    await this.update(
+    await Conversations.update(
       { _id: { $in: conversationIds } },
       { $set: { assignedUserId } },
       { multi: true },
     );
 
-    return this.find({ _id: { $in: conversationIds } });
+    return Conversations.find({ _id: { $in: conversationIds } });
   }
 
   /**
@@ -130,13 +134,13 @@ class Conversation {
   static async unassignUserConversation(conversationIds) {
     await this.checkExistanceConversations(conversationIds);
 
-    await this.update(
+    await Conversations.update(
       { _id: { $in: conversationIds } },
       { $unset: { assignedUserId: 1 } },
       { multi: true },
     );
 
-    return this.find({ _id: { $in: conversationIds } });
+    return Conversations.find({ _id: { $in: conversationIds } });
   }
 
   /**
@@ -146,17 +150,19 @@ class Conversation {
    * @return {Promise} Updated conversation id
    */
   static changeStatusConversation(conversationIds, status, userId) {
-    const query = { status };
+    let closedAt = null;
+    let closedUserId = null;
 
-    if (status === CONVERSATION_STATUSES.CLOSED) {
-      query.closedAt = new Date();
-      query.closedUserId = userId;
-    } else {
-      query.closedAt = null;
-      query.closedUserId = null;
+    if (status === this.getConversationStatuses().CLOSED) {
+      closedAt = new Date();
+      closedUserId = userId;
     }
 
-    return this.update({ _id: { $in: conversationIds } }, { $set: query }, { multi: true });
+    return Conversations.update(
+      { _id: { $in: conversationIds } },
+      { $set: { status, closedAt, closedUserId} },
+      { multi: true }
+    );
   }
 
   /**
@@ -166,7 +172,7 @@ class Conversation {
    * @return {Promise} Updated conversation object
    */
   static async markAsReadConversation(_id, userId) {
-    const conversation = await this.findOne({ _id });
+    const conversation = await Conversations.findOne({ _id });
 
     if (!conversation) throw new Error(`Conversation not found with id ${_id}`);
 
@@ -174,15 +180,15 @@ class Conversation {
 
     // if current user is first one
     if (!readUserIds || readUserIds.length === 0) {
-      await this.update({ _id }, { $set: { readUserIds: [userId] } });
+      await Conversations.update({ _id }, { $set: { readUserIds: [userId] } });
     }
 
     // if current user is not in read users list then add it
     if (!readUserIds.includes(userId)) {
-      await this.update({ _id }, { $push: { readUserIds: userId } });
+      await Conversations.update({ _id }, { $push: { readUserIds: userId } });
     }
 
-    return this.findOne({ _id });
+    return Conversations.findOne({ _id });
   }
 
   /**
@@ -190,8 +196,8 @@ class Conversation {
    * @return {Promise} conversations
    */
   static newOrOpenConversation() {
-    return this.find({
-      status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
+    return Conversations.find({
+      status: { $in: [this.getConversationStatuses().NEW, this.getConversationStatuses().OPEN] },
     });
   }
 
@@ -203,7 +209,7 @@ class Conversation {
    */
   static addParticipatedUsers(conversationId, userId) {
     if (conversationId && userId) {
-      return this.update(
+      return Conversations.update(
         { _id: conversationId },
         {
           $addToSet: { participatedUserIds: userId },
@@ -226,11 +232,11 @@ class Conversation {
         { $set: { customerId: newCustomerId } },
       );
 
-      await this.updateMany({ customerId: customerId }, { $set: { customerId: newCustomerId } });
+      await Conversations.updateMany({ customerId: customerId }, { $set: { customerId: newCustomerId } });
     }
 
     // Returning updated list of conversation of new customer
-    return this.find({ customerId: newCustomerId });
+    return Conversations.find({ customerId: newCustomerId });
   }
 
   /**
@@ -240,7 +246,7 @@ class Conversation {
    */
   static async removeCustomerConversations(customerId) {
     // Finding every conversation of customer
-    const conversations = await this.find({
+    const conversations = await Conversations.find({
       customerId,
     });
 
@@ -248,13 +254,16 @@ class Conversation {
     for (let conversation of conversations) {
       // Removing conversation message of conversation
       await ConversationMessages.remove({ conversationId: conversation._id });
-      await this.remove({ _id: conversation._id });
+      await Conversations.remove({ _id: conversation._id });
     }
   }
 }
 
-ConversationSchema.loadClass(Conversation);
+conversationSchema.loadClass(Conversation);
 
-const Conversations = mongoose.model('conversations', ConversationSchema);
+const Conversations = model<IConversationDocument, IConversationModel>(
+  "conversations",
+  conversationSchema
+);
 
 export default Conversations;
