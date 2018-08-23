@@ -26,7 +26,7 @@ export const createSchedule = message => {
  * Create cron job schedule rule
  */
 export const createScheduleRule = scheduleDate => {
-  if (!scheduleDate || (scheduleDate.type === '' && !scheduleDate.time)) {
+  if (!scheduleDate || (!scheduleDate.type && !scheduleDate.time)) {
     return '* 45 23 * ';
   }
 
