@@ -17,7 +17,7 @@ const propTypes = {
   onChange: PropTypes.func
 };
 
-class SchedulerFrom extends Component {
+class Scheduler extends Component {
   constructor(props) {
     super(props);
 
@@ -133,7 +133,7 @@ class SchedulerFrom extends Component {
   }
 }
 
-SchedulerFrom.contextTypes = contextTypes;
-SchedulerFrom.propTypes = propTypes;
+Scheduler.contextTypes = contextTypes;
+Scheduler.propTypes = propTypes;
 
-export default SchedulerFrom;
+export default Scheduler;
