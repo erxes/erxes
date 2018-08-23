@@ -332,6 +332,7 @@ export class SaveWebhookResponse {
       conversation = await Conversations.reopen(conversation._id);
     }
 
+    // Restoring deleted facebook converation's data
     const restored = await this.restoreOldPosts({
       conversation,
       userId: senderId,
@@ -591,17 +592,18 @@ export class SaveWebhookResponse {
    * @return {Boolean} - Restored or not
    */
   async restoreOldPosts({ conversation, userId, facebookData }) {
+    const { item, postId } = facebookData;
+
+    if (item !== 'comment') return false;
+
     // getting page access token
     let res = await this.getPageAccessToken();
     const accessToken = res.access_token;
 
-    const { item, postId } = facebookData;
     const fields = `/${postId}?fields=caption,description,link,picture,source,message,from`;
 
-    if (item !== 'comment') return false;
-
     const parentPost = await ConversationMessages.findOne({
-      isPost: true,
+      'facebookData.isPost': true,
       'facebookData.postId': postId,
     });
 
