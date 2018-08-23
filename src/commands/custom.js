@@ -80,36 +80,19 @@ export const customCommand = async () => {
       const accessToken = page.access_token;
       const postId = conversation.facebookData.postId;
 
-      const fields = `/${postId}?fields=caption,description,link,picture,source,message,from`;
+      const fields = `/${postId}?fields=id,caption,description,link,picture,source,message,from`;
 
       response = await graphRequest.get(fields, accessToken);
-
-      const msgParams = {
-        conversationId: conversation._id,
-        customerId: await getOrCreateCustomer(response.from.id, accessToken, integration._id),
-      };
-
-      await ConversationMessages.createMessage({
-        ...msgParams,
-        content: response.message,
-        facebookData: {
-          senderId: response.from.id,
-          senderName: response.from.name,
-          item: 'status',
-          link: response.link,
-          isPost: true,
-        },
-        internal: false,
-      });
 
       const comments = await findPostComments(accessToken, conversation.facebookData.postId, []);
 
       for (let comment of comments) {
         await ConversationMessages.createMessage({
-          ...msgParams,
+          conversationId: conversation._id,
+          customerId: await getOrCreateCustomer(response.from.id, accessToken, integration._id),
           content: comment.message,
           facebookData: {
-            postId: postId,
+            postId,
             commentId: comment.id,
             item: 'comment',
             senderId: comment.from.id,
@@ -119,6 +102,22 @@ export const customCommand = async () => {
           internal: false,
         });
       }
+
+      await ConversationMessages.createMessage({
+        conversationId: conversation._id,
+        customerId: await getOrCreateCustomer(response.from.id, accessToken, integration._id),
+        content: response.message || '...',
+        facebookData: {
+          senderId: response.from.id,
+          senderName: response.from.name,
+          item: 'status',
+          link: response.link,
+          isPost: true,
+          postId: response.id,
+          photo: response.picture,
+        },
+        internal: false,
+      });
     }
   }
 
