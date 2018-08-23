@@ -4,7 +4,14 @@
 import faker from 'faker';
 import { Companies, Tags, Segments } from '../db/models';
 import { graphqlRequest, connect, disconnect } from '../db/connection';
-import { tagsFactory, segmentFactory, companyFactory } from '../db/factories';
+import {
+  tagsFactory,
+  segmentFactory,
+  companyFactory,
+  customerFactory,
+  brandFactory,
+  integrationFactory,
+} from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -16,14 +23,15 @@ const count = response => {
 
 describe('companyQueries', () => {
   const commonParamDefs = `
-    $page: Int,
-    $perPage: Int,
-    $segment: String,
-    $tag: String,
-    $ids: [String],
-    $searchValue: String,
-    $lifecycleState: String,
+    $page: Int
+    $perPage: Int
+    $segment: String
+    $tag: String
+    $ids: [String]
+    $searchValue: String
+    $lifecycleState: String
     $leadStatus: String
+    $brand: String
   `;
 
   const commonParams = `
@@ -35,6 +43,7 @@ describe('companyQueries', () => {
     searchValue: $searchValue
     lifecycleState: $lifecycleState
     leadStatus: $leadStatus
+    brand: $brand
   `;
 
   const qryCompanies = `
@@ -237,6 +246,23 @@ describe('companyQueries', () => {
     expect(responses[0].plan).toBe(plan);
   });
 
+  test('Companies filtered by brandId', async () => {
+    const brand = await brandFactory({});
+    const integration = await integrationFactory({ brandId: brand._id });
+    const integrationId = integration._id;
+
+    const company1 = await companyFactory({});
+    const company2 = await companyFactory({});
+    await companyFactory({});
+
+    await customerFactory({ integrationId, companyIds: [company1._id] });
+    await customerFactory({ integrationId, companyIds: [company2._id] });
+
+    const responses = await graphqlRequest(qryCompanies, 'companies', { brand: brand._id });
+
+    expect(responses.length).toBe(2);
+  });
+
   test('Main companies', async () => {
     await companyFactory({});
     await companyFactory({});
@@ -310,6 +336,23 @@ describe('companyQueries', () => {
     const response = await graphqlRequest(qryCount, 'companyCounts');
 
     expect(count(response.bySegment)).toBe(1);
+  });
+
+  test('Company count by brand', async () => {
+    const brand = await brandFactory({});
+    const integration = await integrationFactory({ brandId: brand._id });
+    const integrationId = integration._id;
+
+    const company1 = await companyFactory({});
+    const company2 = await companyFactory({});
+    await companyFactory({});
+
+    await customerFactory({ integrationId, companyIds: [company1._id] });
+    await customerFactory({ integrationId, companyIds: [company2._id] });
+
+    const response = await graphqlRequest(qryCount, 'companyCounts', { brand: brand._id });
+
+    expect(response.byBrand[brand._id]).toBe(2);
   });
 
   test('Company detail', async () => {

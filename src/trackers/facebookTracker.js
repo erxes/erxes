@@ -59,3 +59,23 @@ export const trackIntegrations = expressApp => {
     });
   }
 };
+
+/*
+ * Find post comments using postId
+ */
+export const findPostComments = async (access_token, postId, comments) => {
+  const postComments = await graphRequest.get(
+    `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url`,
+    access_token,
+  );
+
+  const { data } = postComments;
+
+  for (let comment of data) {
+    comments.push(comment);
+
+    await findPostComments(access_token, comment.id, comments);
+  }
+
+  return comments;
+};

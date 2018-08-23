@@ -24,7 +24,7 @@ describe('engage messages model tests', () => {
   beforeEach(async () => {
     _user = await userFactory({});
     _segment = await segmentFactory({});
-    _message = await engageMessageFactory({});
+    _message = await engageMessageFactory({ kind: 'auto' });
     _customer = await customerFactory({});
     _customer2 = await customerFactory({});
   });
@@ -67,10 +67,40 @@ describe('engage messages model tests', () => {
     expect(message.segmentId).toEqual(_segment._id);
   });
 
+  test('update messages: can not update manual message', async () => {
+    expect.assertions(1);
+
+    const manualMessage = await engageMessageFactory({
+      kind: 'manual',
+    });
+
+    try {
+      await EngageMessages.updateEngageMessage(manualMessage._id, {
+        title: 'Message test updated',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Can not update manual message');
+    }
+  });
+
   test('remove a message', async () => {
     await EngageMessages.removeEngageMessage(_message._id);
+
     const messagesCounts = await EngageMessages.find({}).count();
+
     expect(messagesCounts).toBe(0);
+  });
+
+  test('remove a message: can not remove manual message ', async () => {
+    expect.assertions(1);
+
+    const manualMessage = await engageMessageFactory({ kind: 'manual' });
+
+    try {
+      await EngageMessages.removeEngageMessage(manualMessage._id);
+    } catch (e) {
+      expect(e.message).toBe('Can not remove manual message');
+    }
   });
 
   test('Engage message set live', async () => {
@@ -90,6 +120,7 @@ describe('engage messages model tests', () => {
 
   test('Engage message remove not found', async () => {
     expect.assertions(1);
+
     try {
       await EngageMessages.removeEngageMessage(_segment._id);
     } catch (e) {

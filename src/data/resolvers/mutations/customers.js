@@ -8,7 +8,7 @@ const customerMutations = {
    * @return {Promise} customer object
    */
   async customersAdd(root, doc, { user }) {
-    const customer = await Customers.createCustomer(doc);
+    const customer = await Customers.createCustomer(doc, user);
 
     await ActivityLogs.createCustomerRegistrationLog(customer, user);
 

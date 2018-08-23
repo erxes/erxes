@@ -22,6 +22,7 @@ import ActivityLogForMonth from './activityLogForMonth';
 import Deal from './deals';
 import DealStage from './dealStages';
 import { Field, FieldsGroup } from './field';
+import Form from './forms';
 import ImportHistory from './importHistory';
 
 export default {
@@ -53,6 +54,7 @@ export default {
 
   ActivityLog,
   ActivityLogForMonth,
+  Form,
   FieldsGroup,
   Field,
   ImportHistory,

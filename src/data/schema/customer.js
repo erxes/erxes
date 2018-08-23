@@ -19,6 +19,7 @@ export const types = `
     _id: String!
     createdAt: Date
     modifiedAt: Date
+    avatar: String
     integrationId: String
     firstName: String
     lastName: String
@@ -79,7 +80,9 @@ const queryParams = `
   startDate: String,
   endDate: String,
   lifecycleState: String,
-  leadStatus: String
+  leadStatus: String,
+  sortField: String
+  sortDirection: Int
 `;
 
 export const queries = `
@@ -92,6 +95,7 @@ export const queries = `
 `;
 
 const fields = `
+  avatar: String
   firstName: String
   lastName: String
   primaryEmail: String

@@ -15,7 +15,7 @@ import {
   FACEBOOK_POST_TYPES,
 } from '../data/constants';
 
-import { graphRequest } from './facebookTracker';
+import { graphRequest, findPostComments } from './facebookTracker';
 
 /*
  * Get list of pages that authorized user owns
@@ -332,6 +332,15 @@ export class SaveWebhookResponse {
       conversation = await Conversations.reopen(conversation._id);
     }
 
+    // Restoring deleted facebook converation's data
+    const restored = await this.restoreOldPosts({
+      conversation,
+      userId: senderId,
+      facebookData: msgFacebookData,
+    });
+
+    if (restored) return;
+
     // create new message
     return this.createMessage({
       conversation,
@@ -534,9 +543,9 @@ export class SaveWebhookResponse {
       firstName,
       lastName,
       integrationId,
+      avatar: (await getProfilePic(fbUserId)) || '',
       facebookData: {
         id: fbUserId,
-        profilePic: (await getProfilePic(fbUserId)) || '',
       },
     });
 
@@ -550,28 +559,97 @@ export class SaveWebhookResponse {
    * Create new message
    */
   async createMessage({ conversation, userId, content, attachments, facebookData }) {
-    if (conversation) {
-      // create new message
-      const message = await ConversationMessages.createMessage({
-        conversationId: conversation._id,
-        customerId: await this.getOrCreateCustomer(userId),
-        content,
-        attachments,
-        facebookData,
-        internal: false,
+    if (!conversation) return null;
+
+    // create new message
+    const message = await ConversationMessages.createMessage({
+      conversationId: conversation._id,
+      customerId: await this.getOrCreateCustomer(userId),
+      content,
+      attachments,
+      facebookData,
+      internal: false,
+    });
+
+    // updating conversation content
+    await Conversations.update({ _id: conversation._id }, { $set: { content } });
+
+    // notifying conversation inserted
+    publishClientMessage(message);
+
+    // notify subscription server new message
+    publishMessage(message, conversation.customerId);
+
+    return message._id;
+  }
+
+  /**
+   * Restore deleted facebook converation's data
+   * @param {Object} conversation - Conversation object
+   * @param {String} userId - Facebook user id
+   * @param {Object} facebookData - Facebook data of conversation message
+   *
+   * @return {Boolean} - Restored or not
+   */
+  async restoreOldPosts({ conversation, userId, facebookData }) {
+    const { item, postId } = facebookData;
+
+    if (item !== 'comment') return false;
+
+    const parentPost = await ConversationMessages.findOne({
+      'facebookData.isPost': true,
+      'facebookData.postId': postId,
+    });
+
+    if (parentPost) return false;
+
+    // getting page access token
+    const accessTokenResponse = await this.getPageAccessToken();
+    const accessToken = accessTokenResponse.access_token;
+
+    // creating parent post if comment has no parent
+    // get post info
+    const fields = `/${postId}?fields=caption,description,link,picture,source,message,from`;
+    const postResponse = await graphRequest.get(fields, accessToken);
+
+    const postParams = await this.handlePosts({
+      ...postResponse,
+      item: 'status',
+      postId: postResponse.id,
+    });
+
+    await this.createMessage({
+      conversation,
+      userId,
+      content: postResponse.message,
+      facebookData: {
+        senderId: postResponse.from.id,
+        senderName: postResponse.from.name,
+        ...postParams,
+      },
+    });
+
+    // getting all the comments of post
+    const postComments = await findPostComments(accessToken, postId, []);
+
+    // creating conversation message for each comment
+    for (let comment of postComments) {
+      await this.createMessage({
+        conversation,
+        userId,
+        content: comment.message,
+        facebookData: {
+          postId: postResponse.id,
+          commentId: comment.id,
+          item: 'comment',
+          senderId: comment.from.id,
+          senderName: comment.from.name,
+          parentId: comment.parent ? comment.parent.id : null,
+        },
       });
-
-      // updating conversation content
-      await Conversations.update({ _id: conversation._id }, { $set: { content } });
-
-      // notifying conversation inserted
-      publishClientMessage(message);
-
-      // notify subscription server new message
-      publishMessage(message, conversation.customerId);
-
-      return message._id;
     }
+
+    return true;
   }
 }
 

@@ -65,7 +65,6 @@ const twitterSchema = mongoose.Schema(
   {
     id: field({ type: Number, label: 'Twitter ID (Number)' }),
     id_str: field({ type: String, label: 'Twitter ID' }),
-    profile_image_url: field({ type: String, label: 'Twitter photo' }),
   },
   { _id: false },
 );
@@ -78,11 +77,6 @@ const facebookSchema = mongoose.Schema(
     id: field({
       type: String,
       label: 'Facebook ID',
-    }),
-    profilePic: field({
-      type: String,
-      optional: true,
-      label: 'Facebook photo',
     }),
   },
   { _id: false },
@@ -105,6 +99,7 @@ const CustomerSchema = mongoose.Schema({
 
   createdAt: field({ type: Date, label: 'Created at' }),
   modifiedAt: field({ type: Date, label: 'Modified at' }),
+  avatar: field({ type: String, optional: true }),
 
   firstName: field({ type: String, label: 'First name', optional: true }),
   lastName: field({ type: String, label: 'Last name', optional: true }),
@@ -270,9 +265,13 @@ class Customer extends Coc {
    * @param  {Object} customerObj object
    * @return {Promise} Newly created customer object
    */
-  static async createCustomer(doc) {
+  static async createCustomer(doc, user) {
     // Checking duplicated fields of customer
     await this.checkDuplication(doc);
+
+    if (!doc.ownerId && user) {
+      doc.ownerId = user._id;
+    }
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});

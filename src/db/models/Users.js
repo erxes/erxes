@@ -52,6 +52,7 @@ const UserSchema = mongoose.Schema({
     enum: [ROLES.ADMIN, ROLES.CONTRIBUTOR],
   }),
   isOwner: field({ type: Boolean }),
+  isActive: field({ type: Boolean, default: true }),
   email: field({
     type: String,
     lowercase: true,
@@ -120,6 +121,7 @@ class User {
       role,
       details,
       links,
+      isActive: true,
       // hash password
       password: await this.generatePassword(password),
     });
@@ -195,8 +197,10 @@ class User {
    * @param {String} _id - User id
    * @return {Promise} - remove method response
    */
-  static removeUser(_id) {
-    return Users.remove({ _id });
+  static async removeUser(_id) {
+    await this.update({ _id }, { $set: { isActive: false } });
+
+    return this.findOne({ _id });
   }
 
   /*

@@ -17,7 +17,6 @@ describe('dealQueries', () => {
   const commonBoardTypes = `
     _id
     name
-    isDefault
   `;
 
   const commonPipelineTypes = `
@@ -97,20 +96,20 @@ describe('dealQueries', () => {
     expect(response._id).toBe(board._id);
   });
 
-  test('Board get default', async () => {
-    await dealBoardFactory({ isDefault: true });
+  test('Board get last', async () => {
+    const board = await dealBoardFactory();
 
     const qry = `
-      query dealBoardGetDefault {
-        dealBoardGetDefault {
+      query dealBoardGetLast {
+        dealBoardGetLast {
           ${commonBoardTypes}
         }
       }
     `;
 
-    const response = await graphqlRequest(qry, 'dealBoardGetDefault');
+    const response = await graphqlRequest(qry, 'dealBoardGetLast');
 
-    expect(response.isDefault).toBeTruthy();
+    expect(board._id).toBe(response._id);
   });
 
   test('Pipelines', async () => {

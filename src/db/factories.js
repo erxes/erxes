@@ -62,6 +62,7 @@ export const userFactory = (params = {}) => {
     role: params.role || 'contributor',
     password: params.password || '$2a$10$qfBFBmWmUjeRcR.nBBfgDO/BEbxgoai5qQhyjsrDUMiZC6dG7sg1q',
     isOwner: params.isOwner || false,
+    isActive: typeof params.isActive !== undefined ? params.isActive : true,
   });
 
   return user.save();
@@ -278,7 +279,9 @@ export const integrationFactory = async (params = {}) => {
     formData:
       params.formData === 'form'
         ? params.formData
-        : kind === 'form' ? { thankContent: 'thankContent' } : null,
+        : kind === 'form'
+          ? { thankContent: 'thankContent' }
+          : null,
     tagIds: params.tagIds || [],
   };
 
@@ -417,11 +420,10 @@ export const activityLogFactory = (params, userId) => {
   return ActivityLogs.createDoc({ ...doc, ...params }, userId || faker.random.word());
 };
 
-export const dealBoardFactory = (params = {}) => {
+export const dealBoardFactory = () => {
   const board = new DealBoards({
     name: faker.random.word(),
     userId: Random.id(),
-    isDefault: params.isDefault || faker.random.boolean(),
   });
 
   return board.save();

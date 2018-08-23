@@ -4,6 +4,7 @@ export const types = `
 
     createdAt: Date
     modifiedAt: Date
+    avatar: String
 
     primaryName: String
     names: [String]
@@ -50,14 +51,17 @@ export const types = `
 `;
 
 const queryParams = `
-  page: Int,
-  perPage: Int,
-  segment: String,
-  tag: String,
-  ids: [String],
-  searchValue: String,
-  lifecycleState: String,
+  page: Int
+  perPage: Int
+  segment: String
+  tag: String
+  ids: [String]
+  searchValue: String
+  lifecycleState: String
   leadStatus: String
+  sortField: String
+  sortDirection: Int
+  brand: String
 `;
 
 export const queries = `
@@ -69,6 +73,7 @@ export const queries = `
 `;
 
 const commonFields = `
+  avatar: String,
   primaryName: String,
   names: [String]
   size: Int,

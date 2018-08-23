@@ -14,6 +14,8 @@ const queryBuilder = async params => {
     selector = { $or: fields };
   }
 
+  selector.isActive = { $ne: false };
+
   return selector;
 };
 
@@ -27,8 +29,8 @@ const userQueries = {
    */
   async users(root, args) {
     const selector = await queryBuilder(args);
-
     const users = paginate(Users.find(selector), args);
+
     return users.sort({ username: 1 });
   },
 
@@ -41,7 +43,7 @@ const userQueries = {
    * @return {Promise} found user
    */
   userDetail(root, { _id }) {
-    return Users.findOne({ _id });
+    return Users.findOne({ _id, isActive: { $ne: false } });
   },
 
   /**
@@ -50,8 +52,10 @@ const userQueries = {
    * @param {Object} object3.user - User making this request
    * @return {Promise} total count
    */
-  usersTotalCount() {
-    return Users.find({}).count();
+  async usersTotalCount(root, args) {
+    const selector = await queryBuilder(args);
+
+    return Users.find(selector).count();
   },
 
   /**
@@ -60,7 +64,7 @@ const userQueries = {
    */
   currentUser(root, args, { user }) {
     if (user) {
-      return Users.findOne({ _id: user._id });
+      return Users.findOne({ _id: user._id, isActive: { $ne: false } });
     }
 
     return null;

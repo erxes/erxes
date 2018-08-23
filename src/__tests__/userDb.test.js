@@ -150,10 +150,10 @@ describe('User db utils', () => {
   });
 
   test('Remove user', async () => {
-    await Users.removeUser(_user._id);
+    const deactivatedUser = await Users.removeUser(_user._id);
 
-    // ensure removed
-    expect(await Users.find().count()).toBe(0);
+    // ensure deactivated
+    expect(deactivatedUser.isActive).toBe(false);
   });
 
   test('Edit profile', async () => {

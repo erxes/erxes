@@ -124,6 +124,12 @@ class Message {
    * @return {Promise} Updated message object
    */
   static async updateEngageMessage(_id, doc) {
+    const message = await this.findOne({ _id });
+
+    if (message.kind === 'manual') {
+      throw new Error('Can not update manual message');
+    }
+
     await this.update({ _id }, { $set: doc });
 
     return this.findOne({ _id });
@@ -157,11 +163,17 @@ class Message {
    * @return {Promise}
    */
   static async removeEngageMessage(_id) {
-    const messageObj = await this.findOne({ _id });
+    const message = await this.findOne({ _id });
 
-    if (!messageObj) throw new Error(`Engage message not found with id ${_id}`);
+    if (!message) {
+      throw new Error(`Engage message not found with id ${_id}`);
+    }
 
-    return messageObj.remove();
+    if (message.kind === 'manual') {
+      throw new Error('Can not remove manual message');
+    }
+
+    return message.remove();
   }
 
   /**
