@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { colors } from '../../styles';
@@ -33,37 +33,60 @@ const SecondLine = styled.div`
   color: ${colors.colorLightGray};
 `;
 
-function NameCard({
-  user,
-  customer,
-  firstLine,
-  secondLine,
-  singleLine,
-  avatarSize
-}) {
-  let first;
-  let second;
+class NameCard extends Component {
+  renderUserName() {
+    const { user, singleLine, secondLine } = this.props;
 
-  if (user || firstLine || secondLine) {
-    first = firstLine || (user.details && user.details.fullName);
-    second = !singleLine && (secondLine || `@${user.username}`);
-  } else if (customer) {
-    first =
-      firstLine ||
-      customer.name ||
-      (singleLine && (customer.name || customer.primaryEmail || 'N/A'));
-    second = !singleLine && (secondLine || customer.primaryEmail || 'N/A');
+    if (user.details) {
+      return user.details.fullName;
+    }
+
+    if (!singleLine) {
+      return secondLine || `@${user.username}`;
+    }
+
+    return null;
   }
 
-  return (
-    <NameCardStyled>
-      <Avatar user={user} customer={customer} size={avatarSize} />
-      <NameCardText>
-        <FirstLine>{first}</FirstLine>
-        <SecondLine>{second}</SecondLine>
-      </NameCardText>
-    </NameCardStyled>
-  );
+  renderCustomerName() {
+    const { customer, singleLine, secondLine } = this.props;
+
+    if (singleLine) {
+      return customer.name || customer.primaryEmail || 'N/A';
+    }
+
+    if (!singleLine) {
+      return secondLine || customer.primaryEmail || 'N/A';
+    }
+
+    return null;
+  }
+
+  render() {
+    const { user, customer, firstLine, secondLine, avatarSize } = this.props;
+    let first;
+    let second;
+
+    if (user || firstLine || secondLine) {
+      first = firstLine || this.renderUserName();
+      second = this.renderUserName();
+    }
+
+    if (customer) {
+      first = firstLine || customer.name || this.renderCustomerName();
+      second = this.renderCustomerName();
+    }
+
+    return (
+      <NameCardStyled>
+        <Avatar user={user} customer={customer} size={avatarSize} />
+        <NameCardText>
+          <FirstLine>{first}</FirstLine>
+          <SecondLine>{second}</SecondLine>
+        </NameCardText>
+      </NameCardStyled>
+    );
+  }
 }
 
 NameCard.propTypes = {
