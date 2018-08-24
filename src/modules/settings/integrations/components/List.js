@@ -15,7 +15,7 @@ const propTypes = {
 
 class List extends Component {
   render() {
-    const { totalCount, loading, removeIntegration, queryParams } = this.props;
+    const { totalCount, loading, queryParams } = this.props;
     const { __ } = this.context;
 
     const breadcrumb = [
@@ -33,9 +33,8 @@ class List extends Component {
           <DataWithLoader
             data={
               <IntegrationList
-                removeIntegration={removeIntegration}
+                removeIntegration={() => {}}
                 queryParams={queryParams}
-                showBrand
               />
             }
             loading={loading}
