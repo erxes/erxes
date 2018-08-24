@@ -52,7 +52,8 @@ const MessageListContainerWithData = compose(
   }),
   graphql(gql(queries.engageMessagesTotalCount), {
     name: 'engageMessagesTotalCountQuery',
-    options: () => ({
+    options: props => ({
+      variables: generateListQueryVariables(props),
       fetchPolicy: 'network-only'
     })
   })
