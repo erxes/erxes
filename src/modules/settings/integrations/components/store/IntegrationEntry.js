@@ -17,22 +17,23 @@ class IntegrationEntry extends Component {
     const { totalCount } = this.props;
     const countByKind = totalCount[kind];
 
-    if (countByKind) {
-      return <span>({countByKind})</span>;
+    if (!countByKind) {
+      return null;
     }
 
-    return null;
+    return <span>({countByKind})</span>;
   }
 
   renderCreate(createUrl, createModal) {
     const { __ } = this.context;
 
-    if (createUrl) {
-      return <Link to={createUrl}>+ {__('Add')}</Link>;
+    if (!createUrl && !createModal) {
+      return null;
     }
 
-    if (createModal && createModal === 'facebook') {
+    if (createModal === 'facebook') {
       const trigger = <a>+ {__('Add')}</a>;
+
       return (
         <ModalTrigger title="Add facebook page" trigger={trigger}>
           <Facebook />
@@ -40,19 +41,19 @@ class IntegrationEntry extends Component {
       );
     }
 
-    return null;
+    return <Link to={createUrl}>+ {__('Add')}</Link>;
   }
 
   renderType(inMessenger) {
-    if (inMessenger) {
-      return (
-        <Tip text="Works in messenger">
-          <Icon icon="chat" />
-        </Tip>
-      );
+    if (!inMessenger) {
+      return null;
     }
 
-    return null;
+    return (
+      <Tip text="Works in messenger">
+        <Icon icon="chat" />
+      </Tip>
+    );
   }
 
   render() {

@@ -27,10 +27,13 @@ class IntegrationStoreRow extends Component {
   getClassName(selectedKind) {
     const { kind, isContentVisible } = this.state;
 
-    if (isContentVisible && selectedKind === kind) {
+    if (!isContentVisible) {
+      return null;
+    }
+
+    if (selectedKind === kind) {
       return 'active';
     }
-    return null;
   }
 
   toggleBox(selectedKind) {
