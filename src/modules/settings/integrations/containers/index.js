@@ -1,4 +1,3 @@
-import List from './List';
 import IntegrationStore from './IntegrationStore';
 import CreateMessenger from './CreateMessenger';
 import EditMessenger from './EditMessenger';
@@ -9,7 +8,6 @@ import utils from './utils';
 export {
   CreateMessenger,
   EditMessenger,
-  List,
   IntegrationStore,
   Twitter,
   Facebook,

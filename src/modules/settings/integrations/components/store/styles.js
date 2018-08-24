@@ -1,16 +1,20 @@
 import styled from 'styled-components';
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
+
+const collapsibleBackground = '#f8f8f8';
+const storeSpace = dimensions.coreSpacing * 2;
 
 const IntegrationWrapper = styled.div`
-  padding-bottom: 40px;
+  padding-bottom: ${storeSpace}px;
 
   h3 {
-    margin: 40px 40px -10px 40px;
+    margin: ${storeSpace}px ${storeSpace}px -10px ${storeSpace}px;
   }
 `;
 
 const IntegrationRow = styled.div`
-  padding-right: 40px;
+  padding-right: ${storeSpace}px;
   display: flex;
 `;
 
@@ -20,6 +24,7 @@ const Box = styled.div`
   border-radius: 2px;
   flex: 1;
   transition: all ease 0.3s;
+  position: relative;
 
   &:hover {
     cursor: pointer;
@@ -30,8 +35,8 @@ const Box = styled.div`
 const IntegrationItem = styled.div`
   width: 33.333333333%;
   display: flex;
-  padding-left: 40px;
-  padding-top: 40px;
+  padding-left: ${storeSpace}px;
+  padding-top: ${storeSpace}px;
   position: relative;
 
   img {
@@ -41,11 +46,16 @@ const IntegrationItem = styled.div`
   }
 
   h5 {
-    margin-top: 20px;
+    margin-top: ${dimensions.coreSpacing}px;
 
     span {
       font-size: 80%;
       color: ${colors.colorCoreGray};
+    }
+
+    > i {
+      color: ${colors.colorCoreGray};
+      margin-left: 5px;
     }
   }
 
@@ -53,9 +63,18 @@ const IntegrationItem = styled.div`
     margin: 0;
   }
 
+  > a {
+    font-weight: bold;
+    position: absolute;
+    right: 30px;
+    top: 70px;
+    cursor: pointer;
+  }
+
   &.active {
     ${Box} {
       border-color: ${colors.colorCoreTeal};
+      box-shadow: 0 2px 15px 0 ${rgba(colors.colorCoreDarkGray, 0.1)};
     }
 
     &::before {
@@ -64,17 +83,17 @@ const IntegrationItem = styled.div`
       top: 100%;
       left: 50%;
       margin-left: -10px;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-bottom: 20px solid #f8f8f8;
+      border-left: ${dimensions.coreSpacing}px solid transparent;
+      border-right: ${dimensions.coreSpacing}px solid transparent;
+      border-bottom: ${dimensions.coreSpacing}px solid ${collapsibleBackground};
     }
   }
 `;
 
 const CollapsibleContent = styled.div`
-  margin-top: 20px;
-  padding: 20px;
-  background: #f8f8f8;
+  margin-top: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px;
+  background: ${collapsibleBackground};
   transition: height ease 0.3s;
 `;
 

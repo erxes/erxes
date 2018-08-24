@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
-import { integrations } from './constants';
-import { CategoryRow } from '.';
+import { IntegrationStoreRow } from '.';
 import { IntegrationWrapper } from './styles';
+import { integrations } from './constants';
 
 const propTypes = {
-  queryParams: PropTypes.object,
   totalCount: PropTypes.object
 };
 
@@ -18,10 +17,9 @@ class IntegrationStore extends Component {
     return (
       <IntegrationWrapper>
         {integrations.map(obj => (
-          <CategoryRow
+          <IntegrationStoreRow
             key={obj.name}
             title={obj.title}
-            queryParams={this.props.queryParams}
             integrations={obj.rows}
             totalCount={totalCount}
           />

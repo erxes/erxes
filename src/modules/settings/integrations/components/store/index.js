@@ -1,4 +1,5 @@
 import IntegrationStore from './IntegrationStore';
-import CategoryRow from './CategoryRow';
+import IntegrationStoreRow from './IntegrationStoreRow';
+import IntegrationEntry from './IntegrationEntry';
 
-export { IntegrationStore, CategoryRow };
+export { IntegrationStore, IntegrationStoreRow, IntegrationEntry };
