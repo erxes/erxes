@@ -96,18 +96,12 @@ class Avatar extends Component {
     return <div style={this.generateStyle(size)}>{initials}</div>;
   }
 
-  renderName(customer) {
+  renderCustomerName(customer) {
     if (customer.firstName && customer.lastName) {
       return `${customer.firstName} ${customer.lastName}`;
     }
 
-    return (
-      customer.firstName ||
-      customer.lastName ||
-      customer.name ||
-      customer.primaryName ||
-      null
-    );
+    return customer.firstName || customer.lastName || customer.name || null;
   }
 
   render() {
@@ -120,12 +114,14 @@ class Avatar extends Component {
       const { details } = user;
       avatar = details && details.avatar;
       fullName = details && details.fullName;
-    } else if (customer) {
+    }
+    if (customer) {
       avatar = customer.avatar;
-      fullName = this.renderName(customer);
-    } else if (company) {
+      fullName = this.renderCustomerName(customer);
+    }
+    if (company) {
       avatar = company.avatar;
-      fullName = this.renderName(company);
+      fullName = company.primaryName || null;
     }
 
     const Element = customer ? Link : 'div';
