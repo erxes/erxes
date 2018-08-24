@@ -9,7 +9,16 @@ import { queries, mutations } from '../graphql';
 import { integrationsListParams } from './utils';
 
 const ListContainer = props => {
-  const { totalCountQuery, removeMutation, queryParams } = props;
+  const {
+    totalCountQuery,
+    googleAuthQuery,
+    removeMutation,
+    queryParams
+  } = props;
+
+  if (googleAuthQuery.integrationGetGoogleAuthUrl) {
+    window.open(googleAuthQuery.integrationGetGoogleAuthUrl, '__blank');
+  }
 
   if (totalCountQuery.loading) {
     return <Spinner />;
@@ -48,12 +57,21 @@ const ListContainer = props => {
 
 ListContainer.propTypes = {
   totalCountQuery: PropTypes.object,
+  googleAuthQuery: PropTypes.object,
   removeMutation: PropTypes.func,
   queryParams: PropTypes.object
 };
 
 export default compose(
   graphql(gql(queries.integrationTotalCount), { name: 'totalCountQuery' }),
+  graphql(
+    gql(`
+    query integrationGetGoogleAuthUrl {
+      integrationGetGoogleAuthUrl
+    }
+  `),
+    { name: 'googleAuthQuery' }
+  ),
   graphql(gql(mutations.integrationsRemove), {
     name: 'removeMutation',
     options: ({ queryParams }) => {

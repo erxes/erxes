@@ -1,7 +1,13 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { List, Twitter, CreateMessenger, EditMessenger } from './containers';
+import {
+  List,
+  Twitter,
+  Google,
+  CreateMessenger,
+  EditMessenger
+} from './containers';
 
 const routes = () => [
   <Route
@@ -40,6 +46,18 @@ const routes = () => [
       return (
         <Twitter type="form" history={history} queryParams={queryParams} />
       );
+    }}
+  />,
+
+  <Route
+    key="/service/oauth/google_callback/"
+    path="/service/oauth/google_callback/"
+    component={({ history, location }) => {
+      const queryParams = queryString.parse(location.search);
+
+      console.log('kkkkkkkkkkkk');
+
+      return <Google history={history} queryParams={queryParams} />;
     }}
   />,
 
