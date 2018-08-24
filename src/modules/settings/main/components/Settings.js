@@ -7,6 +7,7 @@ import { Row, RowTitle, Box, BoxName, Divider } from '../styles';
 class Settings extends Component {
   renderBox(name, image, to) {
     const { __ } = this.context;
+
     return (
       <Box>
         <Link to={to}>

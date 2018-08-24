@@ -77,7 +77,7 @@ class FormBase extends Component {
     const { __ } = this.context;
     const { kind } = this.props;
 
-    let title = __('Visitor auto message');
+    let title = __('Show statistics');
 
     if (kind === 'auto') {
       title = __('Auto message');
@@ -85,6 +85,10 @@ class FormBase extends Component {
 
     if (kind === 'manual') {
       title = __('Manual message');
+    }
+
+    if (kind === 'visitorAuto') {
+      title = __('Visitor auto message');
     }
 
     return [{ title: __('Engage'), link: '/engage' }, { title: title }];

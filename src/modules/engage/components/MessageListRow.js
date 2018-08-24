@@ -17,6 +17,7 @@ import { MESSAGE_KINDS } from 'modules/engage/constants';
 const propTypes = {
   message: PropTypes.object.isRequired,
   edit: PropTypes.func.isRequired,
+  show: PropTypes.func.isRequired,
   remove: PropTypes.func.isRequired,
   setLive: PropTypes.func.isRequired,
   setLiveManual: PropTypes.func.isRequired,
@@ -31,6 +32,7 @@ class Row extends React.Component {
 
     this.renderRemoveButton = this.renderRemoveButton.bind(this);
     this.toggleBulk = this.toggleBulk.bind(this);
+    this.onClick = this.onClick.bind(this);
   }
 
   renderLink(text, className, onClick) {
@@ -45,25 +47,36 @@ class Row extends React.Component {
 
   renderLinks() {
     const msg = this.props.message;
+
     const edit = this.renderLink('Edit', 'edit', this.props.edit);
     const pause = this.renderLink('Pause', 'pause', this.props.setPause);
     const live = this.renderLink('Set live', 'play', this.props.setLive);
+    const liveM = this.renderLink('Set live', 'play', this.props.setLiveManual);
+    const show = this.renderLink('Show statistics', 'eye', this.props.show);
 
-    if (msg.kind !== MESSAGE_KINDS.MANUAL) {
+    const links = [];
+
+    if (msg.method === 'email') {
+      links.push(show);
+    }
+
+    if (msg.kind === MESSAGE_KINDS.MANUAL) {
       if (msg.isDraft) {
-        return [edit, live];
+        return [...links, liveM];
       }
 
-      if (msg.isLive) {
-        return [edit, pause];
-      }
-
-      return [edit, live];
+      return links;
     }
 
     if (msg.isDraft) {
-      return this.renderLink('Set live', 'play', this.props.setLiveManual);
+      return [...links, edit, live];
     }
+
+    if (msg.isLive) {
+      return [...links, edit, pause];
+    }
+
+    return [...links, edit, live];
   }
 
   renderRemoveButton(message, onClick) {
@@ -103,6 +116,16 @@ class Row extends React.Component {
     ));
   }
 
+  onClick() {
+    const { message } = this.props;
+
+    if (message.method === 'email') {
+      return this.props.show();
+    }
+
+    return this.props.edit();
+  }
+
   render() {
     let status = <Label lblStyle="default">Sending</Label>;
 
@@ -127,7 +150,7 @@ class Row extends React.Component {
           />
         </td>
         <td>
-          <EngageTitle onClick={this.props.edit}>{message.title}</EngageTitle>
+          <EngageTitle onClick={this.onClick}>{message.title}</EngageTitle>
           {message.isDraft ? <Label lblStyle="primary">Draft</Label> : null}
           {this.renderRules()}
         </td>
@@ -139,32 +162,6 @@ class Row extends React.Component {
           <Icon icon="cube" />
           <b> {totalCount}</b>
         </td>
-
-        <td>
-          <b>{stats.send || 0}</b>
-        </td>
-        <td>
-          <b>{stats.delivery || 0}</b>
-        </td>
-        <td>
-          <b>{stats.open || 0}</b>
-        </td>
-        <td>
-          <b>{stats.click || 0}</b>
-        </td>
-        <td>
-          <b>{stats.complaint || 0}</b>
-        </td>
-        <td>
-          <b>{stats.bounce || 0}</b>
-        </td>
-        <td>
-          <b>{stats.renderingfailure || 0}</b>
-        </td>
-        <td>
-          <b>{stats.reject || 0}</b>
-        </td>
-
         <td>
           {message.email ? (
             <div>

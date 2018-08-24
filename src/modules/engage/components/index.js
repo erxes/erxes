@@ -9,6 +9,7 @@ import Segments from './Segments';
 import SegmentsForm from './SegmentsForm';
 import MessengerForm from './MessengerForm';
 import EmailForm from './EmailForm';
+import EmailStatistics from './EmailStatistics';
 import Sidebar from './Sidebar';
 
 export {
@@ -23,5 +24,6 @@ export {
   Segments,
   SegmentsForm,
   MessengerForm,
-  EmailForm
+  EmailForm,
+  EmailStatistics
 };

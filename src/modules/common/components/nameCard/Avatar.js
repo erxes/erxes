@@ -80,8 +80,7 @@ class Avatar extends Component {
   }
 
   renderInitials(fullName) {
-    const { size, company } = this.props;
-    const image = company && '/images/company.png';
+    const { size } = this.props;
 
     const initials = fullName ? (
       fullName
@@ -91,13 +90,13 @@ class Avatar extends Component {
         .join('.')
         .toUpperCase()
     ) : (
-      <AvatarImage style={this.generateStyle(size)} image={image} />
+      <AvatarImage style={this.generateStyle(size)} />
     );
 
     return <div style={this.generateStyle(size)}>{initials}</div>;
   }
 
-  renderName(customer) {
+  renderCustomerName(customer) {
     if (customer.firstName && customer.lastName) {
       return `${customer.firstName} ${customer.lastName}`;
     }
@@ -115,12 +114,16 @@ class Avatar extends Component {
       const { details } = user;
       avatar = details && details.avatar;
       fullName = details && details.fullName;
-    } else if (customer) {
+    }
+
+    if (customer) {
       avatar = customer.avatar;
-      fullName = this.renderName(customer);
-    } else if (company) {
+      fullName = this.renderCustomerName(customer);
+    }
+
+    if (company) {
       avatar = company.avatar;
-      fullName = this.renderName(company);
+      fullName = company.primaryName || null;
     }
 
     const Element = customer ? Link : 'div';
