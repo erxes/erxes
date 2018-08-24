@@ -164,16 +164,6 @@ class ActivityLog {
     });
   }
 
-  /**
-   * Create a conversation log for a given customer,
-   * if the customer is related to companies,
-   * then create conversation log with all related companies
-   * @param {Object} conversation - Conversation object
-   * @param {string} conversation._id - Conversation document id
-   * @param {Object} customer - Customer object
-   * @param {string} customer.type - One of COC_CONTENT_TYPES choices
-   * @param {string} customer.id - Customer document id
-   */
   public static async createConversationLog(
     conversation: IConversationDocument,
     customer?: ICustomerDocument
@@ -221,12 +211,6 @@ class ActivityLog {
     }
   }
 
-  /**
-   * Create a customer or company segment log
-   * @param {Segment} segment - Segment document
-   * @param {COC} customer - Related customer or company
-   * @return {Promise} Return Promise resolving created Segment
-   */
   public static async createSegmentLog(
     segment: ISegmentDocument,
     customer: ICustomerDocument
@@ -262,12 +246,6 @@ class ActivityLog {
     });
   }
 
-  /**
-   * Creates a customer registration log
-   * @param {Customer} customer - Customer document
-   * @param {user} user - User document
-   * @return {Promise} Return Promise resolving created ActivityLog
-   */
   public static createCustomerRegistrationLog(
     customer: ICustomerDocument,
     user: IUserDocument
@@ -296,12 +274,6 @@ class ActivityLog {
     });
   }
 
-  /**
-   * Creates a customer company registration log
-   * @param {Company} company - Company document
-   * @param {user} user - User document
-   * @return {Promise} Return Promise resolving created ActivityLog
-   */
   public static createCompanyRegistrationLog(
     company: ICompanyDocument,
     user: IUserDocument
@@ -330,12 +302,6 @@ class ActivityLog {
     });
   }
 
-  /**
-   * Creates a deal company registration log
-   * @param {Company} deal - Deal document
-   * @param {user} user - User document
-   * @return {Promise} Return Promise resolving created ActivityLog
-   */
   public static createDealRegistrationLog(
     deal: IDealDocument,
     user: IUserDocument
@@ -364,12 +330,6 @@ class ActivityLog {
     });
   }
 
-  /**
-   * Transfers customers' activity logs to another customer
-   * @param {String} newCustomerId - Customer id to set
-   * @param {String[]} customerIds - Old customer ids to change
-   * @return {Promise} Updated alist of ctivity logs of new customer
-   */
   public static async changeCustomer(
     newCustomerId: string,
     customerIds: string[]
@@ -390,11 +350,6 @@ class ActivityLog {
     });
   }
 
-  /**
-   * Removes customer's activity logs
-   * @param {String} customerId - Customer id that belongs to activity logs
-   * @return {Promise} Result
-   */
   public static async removeCustomerActivityLog(customerId: string) {
     // Removing every activity log of customer
     return ActivityLogs.remove({
@@ -402,11 +357,6 @@ class ActivityLog {
     });
   }
 
-  /**
-   * Removes company's activity logs
-   * @param {String} companyId - Company id that belongs to activity logs
-   * @return {Promise} Result
-   */
   public static async removeCompanyActivityLog(companyId: string) {
     // Removing every activity log of company
     return ActivityLogs.remove({
@@ -414,12 +364,6 @@ class ActivityLog {
     });
   }
 
-  /**
-   * Transfers companies' activity logs to another company
-   * @param {String} newCompanyId - Company idsto set
-   * @param {String[]} companyIds - Old company ids to change
-   * @return {Promise} Updated list of activity logs of new company
-   */
   public static async changeCompany(
     newCompanyId: string,
     companyIds: string[]

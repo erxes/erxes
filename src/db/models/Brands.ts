@@ -56,11 +56,6 @@ class Brand {
     return generatedCode;
   }
 
-  /**
-   * Create a brand
-   * @param  {Object} doc object
-   * @return {Promise} Newly created brand object
-   */
   public static async createBrand(doc: IBrandInput) {
     // generate code automatically
     // if there is no brand code defined
@@ -72,22 +67,11 @@ class Brand {
     });
   }
 
-  /**
-   * Update a brand
-   * @param  {string} _id - brand id
-   * @param  {fields} fields - brand fields
-   * @return {Promise} Updated brand object
-   */
   public static async updateBrand(_id: string, fields: IBrandInput) {
     await Brands.update({ _id }, { $set: { ...fields } });
     return Brands.findOne({ _id });
   }
 
-  /**
-   * Delete brand
-   * @param  {string} _id - brand id
-   * @return {Promise} Updated brand object
-   */
   public static async removeBrand(_id) {
     const brandObj = await Brands.findOne({ _id });
 
@@ -98,11 +82,6 @@ class Brand {
     return brandObj.remove();
   }
 
-  /**
-   * Update email config of brand
-   * @param  {string} _id - brand id
-   * @return {Promise} Updated brand object
-   */
   public static async updateEmailConfig(
     _id: string,
     emailConfig: IBrandEmailConfig
@@ -112,12 +91,6 @@ class Brand {
     return Brands.findOne({ _id });
   }
 
-  /**
-   * Update brandId fields in given Integrations
-   * @param _id - Brand id
-   * @param integrationIds - integration ids to update
-   * @return - Updated integrations
-   */
   public static async manageIntegrations({
     _id,
     integrationIds
