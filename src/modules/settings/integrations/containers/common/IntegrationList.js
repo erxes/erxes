@@ -47,12 +47,12 @@ IntegrationListContainer.propTypes = {
 export default compose(
   graphql(gql(queries.integrations), {
     name: 'integrationsQuery',
-    options: ({ queryParams, variables }) => {
+    options: ({ kind, variables }) => {
       return {
         notifyOnNetworkStatusChange: true,
         variables: {
           ...variables,
-          kind: queryParams.kind
+          kind
         },
         fetchPolicy: 'network-only'
       };
@@ -60,13 +60,13 @@ export default compose(
   }),
   graphql(gql(mutations.integrationsRemove), {
     name: 'removeMutation',
-    options: ({ queryParams }) => {
+    options: ({ kind }) => {
       return {
         refetchQueries: [
           {
             query: gql(queries.integrations),
             variables: {
-              kind: queryParams.kind
+              kind
             }
           },
           {

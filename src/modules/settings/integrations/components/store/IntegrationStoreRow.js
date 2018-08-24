@@ -60,7 +60,7 @@ class IntegrationStoreRow extends Component {
       return null;
     }
 
-    return <IntegrationList queryParams={{ kind }} />;
+    return <IntegrationList kind={kind} />;
   }
 
   render() {
