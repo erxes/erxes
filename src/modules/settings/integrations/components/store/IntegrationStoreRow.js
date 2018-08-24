@@ -64,11 +64,12 @@ class IntegrationStoreRow extends Component {
   }
 
   render() {
+    const { __ } = this.context;
     const { integrations, title, totalCount } = this.props;
 
     return (
       <Fragment>
-        {title && <h3>{title}</h3>}
+        {title && <h3>{__(title)}</h3>}
         <IntegrationRow>
           {integrations.map(integration => (
             <IntegrationEntry
