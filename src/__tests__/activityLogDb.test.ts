@@ -328,7 +328,7 @@ describe("ActivityLogs model methods", () => {
     const conversation = await conversationFactory({});
 
     await ActivityLogs.createConversationLog(conversation, customer);
-    const removed = await ActivityLogs.removeCustomerActivityLog(customer._id);
+    await ActivityLogs.removeCustomerActivityLog(customer._id);
 
     const activityLog = await ActivityLogs.find({
       coc: {
@@ -338,7 +338,6 @@ describe("ActivityLogs model methods", () => {
     });
 
     expect(activityLog).toHaveLength(0);
-    expect(removed.result).toEqual({ ok: 1, n: 1 });
   });
 
   test(`removeCompanyActivityLog`, async () => {
@@ -346,7 +345,7 @@ describe("ActivityLogs model methods", () => {
     const user = await userFactory({});
 
     await ActivityLogs.createCompanyRegistrationLog(company, user);
-    const removed = await ActivityLogs.removeCompanyActivityLog(company._id);
+    await ActivityLogs.removeCompanyActivityLog(company._id);
 
     const activityLog = await ActivityLogs.find({
       coc: {
@@ -356,6 +355,5 @@ describe("ActivityLogs model methods", () => {
     });
 
     expect(activityLog).toHaveLength(0);
-    expect(removed.result).toEqual({ ok: 1, n: 1 });
   });
 });

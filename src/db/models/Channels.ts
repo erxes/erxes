@@ -14,7 +14,7 @@ interface IChannelModel extends Model<IChannelDocument> {
   createChannel(doc: IChannelInput, userId?: string): IChannelDocument;
   updateChannel(_id: string, doc: IChannelInput): IChannelDocument;
   updateUserChannels(channelIds: string[], userId: string): IChannelDocument[];
-  removeChannel(_id: string): any;
+  removeChannel(_id: string): void;
 }
 
 class Channel {

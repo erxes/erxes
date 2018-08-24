@@ -17,7 +17,7 @@ interface IBrandModel extends Model<IBrandDocument> {
   generateCode(code: string): string;
   createBrand(doc: IBrandInput): IBrandDocument;
   updateBrand(_id: string, fields: IBrandInput): IBrandDocument;
-  removeBrand(_id: string): any;
+  removeBrand(_id: string): void;
 
   updateEmailConfig(
     _id: string,

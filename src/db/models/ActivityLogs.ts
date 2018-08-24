@@ -78,9 +78,9 @@ interface IActivityLogModel extends Model<IActivityLogDocument> {
     customerIds: string[]
   ): Promise<IActivityLogDocument[]>;
 
-  removeCustomerActivityLog(customerId: string): any;
+  removeCustomerActivityLog(customerId: string): void;
 
-  removeCompanyActivityLog(companyId: string): any;
+  removeCompanyActivityLog(companyId: string): void;
 
   changeCompany(
     newCompanyId: string,
