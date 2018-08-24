@@ -44,7 +44,6 @@ class Brand {
       generatedCode = Random.id().substr(0, 6);
 
       if (code) {
-        // eslint-disable-next-line no-console
         console.log(
           "User defined brand code already exists. New code is generated."
         );

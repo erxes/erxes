@@ -25,6 +25,7 @@ class Channel {
 
     return Channels.create(doc);
   }
+
   public static async updateChannel(_id: string, doc: IChannelInput) {
     await Channels.update({ _id }, { $set: doc }, { runValidators: true });
 

@@ -58,7 +58,7 @@ describe("ActivityLogs model methods", () => {
   test(`createInternalNoteLog with setting 'user'`, async () => {
     const user = await userFactory({});
 
-    const customer = await customerFactory();
+    const customer = await customerFactory({});
 
     const internalNote = await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
@@ -104,7 +104,7 @@ describe("ActivityLogs model methods", () => {
       }
     ];
 
-    const customer = await customerFactory({ name: "john smith" });
+    const customer = await customerFactory({ firstName: "john smith" });
     const segment = await segmentFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       conditions: nameEqualsConditions

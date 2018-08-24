@@ -15,8 +15,8 @@ describe("Brands db", () => {
 
   beforeEach(async () => {
     // Creating test data
-    _brand = await brandFactory();
-    _user = await userFactory();
+    _brand = await brandFactory({});
+    _user = await userFactory({});
   });
 
   afterEach(async () => {
@@ -49,7 +49,7 @@ describe("Brands db", () => {
   });
 
   test("Update brand", async () => {
-    const _brandUpdateObj = await brandFactory();
+    const _brandUpdateObj = await brandFactory({});
 
     // update brand object
     const brandObj = await Brands.updateBrand(_brand.id, {
