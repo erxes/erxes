@@ -115,10 +115,12 @@ class Avatar extends Component {
       avatar = details && details.avatar;
       fullName = details && details.fullName;
     }
+
     if (customer) {
       avatar = customer.avatar;
       fullName = this.renderCustomerName(customer);
     }
+
     if (company) {
       avatar = company.avatar;
       fullName = company.primaryName || null;

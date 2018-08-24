@@ -99,6 +99,7 @@ NameCard.propTypes = {
   url: PropTypes.string,
   isUser: PropTypes.bool
 };
+
 NameCard.Avatar = Avatar;
 
 export default NameCard;
