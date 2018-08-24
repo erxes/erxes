@@ -90,6 +90,7 @@ function CompanyRow({
   const onClick = e => {
     e.stopPropagation();
   };
+
   return (
     <tr
       onClick={() => {

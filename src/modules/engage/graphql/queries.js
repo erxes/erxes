@@ -23,6 +23,7 @@ const engageMessages = `
       isLive
       createdDate
       kind
+      method
       brand {
         name
       }
