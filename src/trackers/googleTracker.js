@@ -1,14 +1,14 @@
-import google from 'googleapis';
+import { google } from 'googleapis';
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 
 const getOauthClient = () => {
-  const { client_secret, client_id, redirect_uris } = process.env.GOOGLE || {};
+  const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } = process.env.GOOGLE || {};
 
-  return new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+  return new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
 };
 
-export const generateAuthorizeUrl = () => {
+export const getGoogleAuthorizeUrl = () => {
   const oauthClient = getOauthClient();
 
   return oauthClient.generateAuthUrl({

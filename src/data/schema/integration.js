@@ -87,6 +87,7 @@ export const queries = `
   integrationDetail(_id: String!): Integration
   integrationsTotalCount: integrationsTotalCount
   integrationGetTwitterAuthUrl: String
+  integrationGetGoogleAuthUrl: String
   integrationFacebookAppsList: [JSON]
   integrationFacebookPagesList(appId: String): [JSON]
 `;
