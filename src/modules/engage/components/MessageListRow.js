@@ -68,7 +68,7 @@ class Row extends React.Component {
       return this.renderLink('Set live', 'play', this.props.setLiveManual);
     }
 
-    if (msg.email) {
+    if (msg.email && msg.kind === MESSAGE_KINDS.MANUAL) {
       return this.renderLink('Show statistics', 'eye', this.props.show);
     }
   }
