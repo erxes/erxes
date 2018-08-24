@@ -33,6 +33,7 @@ describe("ActivityLogs model methods", () => {
     const activityDoc = {
       type: ACTIVITY_TYPES.INTERNAL_NOTE,
       action: ACTIVITY_ACTIONS.CREATE,
+      content: "content",
       id: "testInternalNoteId"
     };
 
@@ -49,11 +50,9 @@ describe("ActivityLogs model methods", () => {
 
     const aLog = await ActivityLogs.createDoc(doc);
 
-    expect(aLog.activity.toObject()).toEqual(activityDoc);
-    expect(aLog.coc.toObject()).toEqual(customerDoc);
-    expect(aLog.performedBy.toObject().type).toBe(
-      ACTIVITY_PERFORMER_TYPES.SYSTEM
-    );
+    expect(aLog.activity).toEqual(activityDoc);
+    expect(aLog.coc).toEqual(customerDoc);
+    expect(aLog.performedBy.type).toBe(ACTIVITY_PERFORMER_TYPES.SYSTEM);
   });
 
   test(`createInternalNoteLog with setting 'user'`, async () => {
@@ -72,7 +71,7 @@ describe("ActivityLogs model methods", () => {
     expect(aLog.performedBy.id).toBe(user._id);
     expect(aLog.coc.type).toBe(COC_CONTENT_TYPES.CUSTOMER);
     expect(aLog.coc.id).toBe(internalNote.contentTypeId);
-    expect(aLog.activity.toObject()).toEqual({
+    expect(aLog.activity).toEqual({
       type: ACTIVITY_TYPES.INTERNAL_NOTE,
       action: ACTIVITY_ACTIONS.CREATE,
       id: internalNote._id,
@@ -113,17 +112,17 @@ describe("ActivityLogs model methods", () => {
 
     const segmentLog = await ActivityLogs.createSegmentLog(segment, customer);
 
-    expect(segmentLog.activity.toObject()).toEqual({
+    expect(segmentLog.activity).toEqual({
       type: ACTIVITY_TYPES.SEGMENT,
       action: ACTIVITY_ACTIONS.CREATE,
       content: segment.name,
       id: segment._id
     });
-    expect(segmentLog.coc.toObject()).toEqual({
+    expect(segmentLog.coc).toEqual({
       type: segment.contentType,
       id: customer._id
     });
-    expect(segmentLog.performedBy.toObject()).toEqual({
+    expect(segmentLog.performedBy).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.SYSTEM
     });
   });
@@ -158,14 +157,6 @@ describe("ActivityLogs model methods", () => {
         `'customer' must be supplied when adding activity log for conversations`
       );
     }
-
-    try {
-      await ActivityLogs.createConversationLog(conversation, {});
-    } catch (e) {
-      expect(e.message).toBe(
-        `'customer' must be supplied when adding activity log for conversations`
-      );
-    }
   });
 
   test(`check if createConversationLog is working as intended`, async () => {
@@ -179,15 +170,15 @@ describe("ActivityLogs model methods", () => {
     let aLog = await ActivityLogs.createConversationLog(conversation, customer);
 
     // check customer conversation log
-    expect(aLog.performedBy.toObject()).toEqual({
+    expect(aLog.performedBy).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.CUSTOMER,
       id: customer._id
     });
-    expect(aLog.coc.toObject()).toEqual({
+    expect(aLog.coc).toEqual({
       type: COC_CONTENT_TYPES.CUSTOMER,
       id: customer._id
     });
-    expect(aLog.activity.toObject()).toEqual({
+    expect(aLog.activity).toEqual({
       type: ACTIVITY_TYPES.CONVERSATION,
       action: ACTIVITY_ACTIONS.CREATE,
       content: conversation.content,
@@ -234,17 +225,17 @@ describe("ActivityLogs model methods", () => {
       user
     );
 
-    expect(aLog.performedBy.toObject()).toEqual({
+    expect(aLog.performedBy).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.USER,
       id: user._id
     });
-    expect(aLog.activity.toObject()).toEqual({
+    expect(aLog.activity).toEqual({
       type: ACTIVITY_TYPES.CUSTOMER,
       action: ACTIVITY_ACTIONS.CREATE,
       content: customer.getFullName(),
       id: customer._id
     });
-    expect(aLog.coc.toObject()).toEqual({
+    expect(aLog.coc).toEqual({
       type: COC_CONTENT_TYPES.CUSTOMER,
       id: customer._id
     });
@@ -256,17 +247,17 @@ describe("ActivityLogs model methods", () => {
 
     const aLog = await ActivityLogs.createCompanyRegistrationLog(company, user);
 
-    expect(aLog.performedBy.toObject()).toEqual({
+    expect(aLog.performedBy).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.USER,
       id: user._id
     });
-    expect(aLog.activity.toObject()).toEqual({
+    expect(aLog.activity).toEqual({
       type: ACTIVITY_TYPES.COMPANY,
       action: ACTIVITY_ACTIONS.CREATE,
       content: company.primaryName,
       id: company._id
     });
-    expect(aLog.coc.toObject()).toEqual({
+    expect(aLog.coc).toEqual({
       type: COC_CONTENT_TYPES.COMPANY,
       id: company._id
     });
@@ -278,17 +269,17 @@ describe("ActivityLogs model methods", () => {
 
     const aLog = await ActivityLogs.createDealRegistrationLog(deal, user);
 
-    expect(aLog.performedBy.toObject()).toEqual({
+    expect(aLog.performedBy).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.USER,
       id: user._id
     });
-    expect(aLog.activity.toObject()).toEqual({
+    expect(aLog.activity).toEqual({
       type: ACTIVITY_TYPES.DEAL,
       action: ACTIVITY_ACTIONS.CREATE,
       content: deal.name,
       id: deal._id
     });
-    expect(aLog.coc.toObject()).toEqual({
+    expect(aLog.coc).toEqual({
       type: COC_CONTENT_TYPES.DEAL,
       id: deal._id
     });
@@ -306,7 +297,7 @@ describe("ActivityLogs model methods", () => {
     ]);
 
     for (const aLog of aLogs) {
-      expect(aLog.coc.toObject()).toEqual({
+      expect(aLog.coc).toEqual({
         type: COC_CONTENT_TYPES.CUSTOMER,
         id: newCustomer._id
       });
@@ -325,7 +316,7 @@ describe("ActivityLogs model methods", () => {
     ]);
 
     for (const aLog of aLogs) {
-      expect(aLog.coc.toObject()).toEqual({
+      expect(aLog.coc).toEqual({
         type: COC_CONTENT_TYPES.COMPANY,
         id: newCompany._id
       });

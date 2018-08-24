@@ -1,27 +1,21 @@
-import * as mongoose from 'mongoose';
-import { createdAtModifier } from '../plugins';
-import { field } from './utils';
+import { Model, model } from "mongoose";
+import { createdAtModifier } from "../plugins";
+import { channelSchema, IChannelDocument } from "./definitions/channels";
 
-// schema for Channels
-const ChannelSchema = mongoose.Schema({
-  _id: field({ pkey: true }),
-  name: field({ type: String }),
-  description: field({
-    type: String,
-    optional: true,
-  }),
-  integrationIds: field({ type: [String] }),
-  memberIds: field({ type: [String] }),
-  userId: field({ type: String }),
-  conversationCount: field({
-    type: Number,
-    default: 0,
-  }),
-  openConversationCount: field({
-    type: Number,
-    default: 0,
-  }),
-});
+interface IChannelInput {
+  name: string;
+  description?: string;
+  memberIds?: string[];
+  integrationIds?: string[];
+  userId?: string;
+}
+
+interface IChannelModel extends Model<IChannelDocument> {
+  createChannel(doc: IChannelInput, userId?: string): IChannelDocument;
+  updateChannel(_id: string, doc: IChannelInput): IChannelDocument;
+  updateUserChannels(channelIds: string[], userId: string): IChannelDocument[];
+  removeChannel(_id: string): any;
+}
 
 class Channel {
   /**
@@ -35,14 +29,12 @@ class Channel {
    * @return {Promise} return channel document promise
    * @throws {Error} throws Error('userId must be supplied') if userId is not supplied
    */
-  static createChannel(doc, userId) {
+  public static createChannel(doc: IChannelInput, userId?: string) {
     if (!userId) {
-      throw new Error('userId must be supplied');
+      throw new Error("userId must be supplied");
     }
 
-    doc.userId = userId._id ? userId._id : userId;
-
-    return this.create(doc);
+    return Channels.create(doc);
   }
 
   /**
@@ -56,10 +48,10 @@ class Channel {
    * @param {string[]} doc.memberIds - Member ids of the members assigned to this channel
    * @return {Promise} returns Promise resolving updated channel document
    */
-  static async updateChannel(_id, doc) {
-    await this.update({ _id }, { $set: doc }, { runValidators: true });
+  public static async updateChannel(_id: string, doc: IChannelInput) {
+    await Channels.update({ _id }, { $set: doc }, { runValidators: true });
 
-    return this.findOne({});
+    return Channels.findOne({ _id });
   }
 
   /*
@@ -67,22 +59,22 @@ class Channel {
    * @param {[String]} channelIds - User's all involved channels
    * @param {Promise} - Updated channels
    */
-  static async updateUserChannels(channelIds, userId) {
+  public static async updateUserChannels(channelIds: string[], userId: string) {
     // remove from previous channels
-    await this.update(
+    await Channels.update(
       { memberIds: { $in: [userId] } },
       { $pull: { memberIds: userId } },
-      { multi: true },
+      { multi: true }
     );
 
     // add to given channels
-    await this.update(
+    await Channels.update(
       { _id: { $in: channelIds } },
       { $push: { memberIds: userId } },
-      { multi: true },
+      { multi: true }
     );
 
-    return this.find({ _id: { $in: channelIds } });
+    return Channels.find({ _id: { $in: channelIds } });
   }
 
   /**
@@ -90,12 +82,17 @@ class Channel {
    * @param {string} _id - Channel id
    * @return {Promise} returns null promise
    */
-  static removeChannel(_id) {
-    return this.remove({ _id });
+  public static removeChannel(_id: string) {
+    return Channels.remove({ _id });
   }
 }
 
-ChannelSchema.plugin(createdAtModifier);
-ChannelSchema.loadClass(Channel);
+channelSchema.plugin(createdAtModifier);
+channelSchema.loadClass(Channel);
 
-export default mongoose.model('channels', ChannelSchema);
+const Channels = model<IChannelDocument, IChannelModel>(
+  "channels",
+  channelSchema
+);
+
+export default Channels;

@@ -1,11 +1,12 @@
 import Random from "meteor-random";
 import { Model, model } from "mongoose";
 import { Integrations } from "./";
-import { brandSchema, IBrandDocument } from "./definitions/brands";
 import {
-  IBrandEmailConfig,
-  IIntegrationDocument
-} from "./definitions/integrations";
+  brandSchema,
+  IBrandDocument,
+  IBrandEmailConfig
+} from "./definitions/brands";
+import { IIntegrationDocument } from "./definitions/integrations";
 
 interface IBrandInput {
   name: string;

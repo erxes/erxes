@@ -176,7 +176,7 @@ class ActivityLog {
    */
   public static async createConversationLog(
     conversation: IConversationDocument,
-    customer: ICustomerDocument
+    customer?: ICustomerDocument
   ) {
     if (customer == null || (customer && !customer._id)) {
       throw new Error(
