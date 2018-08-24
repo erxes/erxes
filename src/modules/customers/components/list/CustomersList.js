@@ -102,7 +102,6 @@ class CustomersList extends React.Component {
                 onChange={this.onChange}
               />
             </th>
-            <th />
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>
                 <SortHandler sortField={name} />

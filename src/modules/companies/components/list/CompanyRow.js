@@ -4,6 +4,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import { FormControl, Tags, NameCard } from 'modules/common/components';
 import { urlParser } from 'modules/common/utils';
+import { FlexItem } from '../../styles';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -56,6 +57,21 @@ function formatValue(value) {
   return value || '-';
 }
 
+function displayValue(company, name) {
+  const value = _.get(company, name);
+
+  if (name === 'primaryName') {
+    return (
+      <FlexItem>
+        <NameCard.Avatar company={company} size={30} /> &emsp;
+        {formatValue(company.primaryName)}
+      </FlexItem>
+    );
+  }
+
+  return formatValue(value);
+}
+
 function CompanyRow({
   company,
   columnsConfig,
@@ -87,11 +103,8 @@ function CompanyRow({
           onChange={onChange}
         />
       </td>
-      <td>
-        <NameCard.Avatar company={company} size={30} />
-      </td>
       {columnsConfig.map(({ name }) => (
-        <td key={name}>{formatValue(_.get(company, name))}</td>
+        <td key={name}>{displayValue(company, name)}</td>
       ))}
       <td>
         <Tags tags={tags} limit={2} />

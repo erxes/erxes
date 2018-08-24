@@ -37,4 +37,9 @@ const List = SidebarList.extend`
   }
 `;
 
-export { CompaniesTableWrapper, CompanyLogo, List };
+const FlexItem = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export { CompaniesTableWrapper, CompanyLogo, List, FlexItem };

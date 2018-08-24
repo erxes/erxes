@@ -3,6 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { FormControl, Tags, NameCard } from 'modules/common/components';
+import { FlexItem } from 'modules/companies/styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -44,6 +45,15 @@ function formatValue(value) {
 
 function displayValue(customer, name) {
   const value = _.get(customer, name);
+
+  if (name === 'firstName') {
+    return (
+      <FlexItem>
+        <NameCard.Avatar customer={customer} size={30} /> &emsp;
+        {formatValue(customer.firstName)}
+      </FlexItem>
+    );
+  }
 
   if (name === 'visitorContactInfo') {
     const visitorContactInfo = customer.visitorContactInfo;
@@ -89,9 +99,6 @@ function CustomerRow({
           componentClass="checkbox"
           onChange={onChange}
         />
-      </td>
-      <td>
-        <NameCard.Avatar customer={customer} size={30} />
       </td>
       {columnsConfig.map(({ name }, index) => (
         <td key={index}>{displayValue(customer, name)}</td>
