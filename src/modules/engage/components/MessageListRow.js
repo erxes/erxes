@@ -51,26 +51,32 @@ class Row extends React.Component {
     const edit = this.renderLink('Edit', 'edit', this.props.edit);
     const pause = this.renderLink('Pause', 'pause', this.props.setPause);
     const live = this.renderLink('Set live', 'play', this.props.setLive);
+    const liveM = this.renderLink('Set live', 'play', this.props.setLiveManual);
+    const show = this.renderLink('Show statistics', 'eye', this.props.show);
 
-    if (msg.kind !== MESSAGE_KINDS.MANUAL) {
+    const links = [];
+
+    if (msg.method === 'email') {
+      links.push(show);
+    }
+
+    if (msg.kind === MESSAGE_KINDS.MANUAL) {
       if (msg.isDraft) {
-        return [edit, live];
+        return [...links, liveM];
       }
 
-      if (msg.isLive) {
-        return [edit, pause];
-      }
-
-      return [edit, live];
+      return links;
     }
 
     if (msg.isDraft) {
-      return this.renderLink('Set live', 'play', this.props.setLiveManual);
+      return [...links, edit, live];
     }
 
-    if (msg.email && msg.kind === MESSAGE_KINDS.MANUAL) {
-      return this.renderLink('Show statistics', 'eye', this.props.show);
+    if (msg.isLive) {
+      return [...links, edit, pause];
     }
+
+    return [...links, edit, live];
   }
 
   renderRemoveButton(message, onClick) {
@@ -111,9 +117,9 @@ class Row extends React.Component {
   }
 
   onClick() {
-    const { email } = this.props.message;
+    const { message } = this.props;
 
-    if (email) {
+    if (message.method === 'email') {
       return this.props.show();
     }
 
