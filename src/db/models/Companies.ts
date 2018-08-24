@@ -35,6 +35,12 @@ interface ICreateCompanyInput {
   customFieldsData?: any;
 }
 
+interface IBulkInsert {
+  fieldNames: string[];
+  fieldValues: string[];
+  user: IUserDocument;
+}
+
 interface ICompanyModel extends Model<ICompanyDocument> {
   checkDuplication(
     companyFields: ICompanyFieldsInput,
@@ -45,6 +51,7 @@ interface ICompanyModel extends Model<ICompanyDocument> {
     doc: ICreateCompanyInput,
     user?: IUserDocument
   ): Promise<ICompanyDocument>;
+
   updateCompany(_id: string, doc: ICompanyDocument): Promise<ICompanyDocument>;
 
   updateCustomers(
@@ -59,11 +66,7 @@ interface ICompanyModel extends Model<ICompanyDocument> {
     companyFields: ICreateCompanyInput
   ): Promise<ICompanyDocument>;
 
-  bulkInsert(
-    fieldNames: string[],
-    fieldValues: string[],
-    { user }: { user: IUserDocument }
-  ): Promise<string[]>;
+  bulkInsert(params: IBulkInsert): Promise<string[]>;
 }
 
 class Company {
@@ -253,7 +256,7 @@ class Company {
   public static async bulkInsert(
     fieldNames: string[],
     fieldValues: string[],
-    { user }: { user: IUserDocument }
+    user: IUserDocument
   ) {
     const params = {
       fieldNames,
@@ -264,7 +267,7 @@ class Company {
       create: this.createCompany
     };
 
-    return bulkInsert(params);
+    return bulkInsert<ICompanyDocument, ICreateCompanyInput>(params);
   }
 }
 

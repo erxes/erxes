@@ -21,16 +21,14 @@ export const field = options => {
   return options;
 };
 
-interface IBulkInsertInputs {
+export const bulkInsert = async <T, I>(params: {
   fieldNames: string[];
   fieldValues: string[];
   user: IUserDocument;
   basicInfos: any;
   contentType: string;
-  create: any;
-}
-
-export const bulkInsert = async (params: IBulkInsertInputs) => {
+  create: (doc: I, user: IUserDocument) => Promise<T>;
+}) => {
   const errMsgs = [];
   const properties = [];
 
@@ -115,7 +113,7 @@ export const bulkInsert = async (params: IBulkInsertInputs) => {
     }
 
     // Creating coc
-    await create(coc)
+    await create(coc, user)
       .then(cocObj => {
         // Increasing success count
         history.success++;

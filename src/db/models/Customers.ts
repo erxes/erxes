@@ -47,7 +47,7 @@ interface ICreateCustomerInput {
   doNotDisturb?: string;
   links?: ILink;
   isUser?: boolean;
-  integrationId: string;
+  integrationId?: string;
   tagIds?: string[];
   companyIds?: string[];
   customFieldsData?: any;
@@ -56,7 +56,7 @@ interface ICreateCustomerInput {
   facebookData?: IFacebookData;
   location?: ILocation;
   visitorContactInfo?: IVisitorContact;
-  urlVisits: any;
+  urlVisits?: any;
 }
 
 interface ICustomerModel extends Model<ICustomerDocument> {
@@ -96,11 +96,14 @@ interface ICustomerModel extends Model<ICustomerDocument> {
     customerFields: ICreateCustomerInput
   ): ICustomerDocument;
 
-  bulkInsert(
-    fieldNames: string[],
-    fieldValues: string[],
-    { user }: { user: IUserDocument }
-  ): Promise<string[]>;
+  bulkInsert<T, I>(params: {
+    fieldNames: string[];
+    fieldValues: string[];
+    user: IUserDocument;
+    basicInfos: any;
+    contentType: string;
+    create: (doc: I) => Promise<T>;
+  }): Promise<string[]>;
 }
 
 class Customer {
@@ -405,7 +408,7 @@ class Customer {
       create: this.createCustomer
     };
 
-    return bulkInsert(params);
+    return bulkInsert<ICustomerDocument, ICreateCustomerInput>(params);
   }
 }
 
