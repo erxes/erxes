@@ -225,6 +225,9 @@ describe("ActivityLogs model methods", () => {
       user
     );
 
+    const customerFullName = `${customer.firstName || ""} ${customer.lastName ||
+      ""}`;
+
     expect(aLog.performedBy).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.USER,
       id: user._id
@@ -232,7 +235,7 @@ describe("ActivityLogs model methods", () => {
     expect(aLog.activity).toEqual({
       type: ACTIVITY_TYPES.CUSTOMER,
       action: ACTIVITY_ACTIONS.CREATE,
-      content: customer.getFullName(),
+      content: customerFullName,
       id: customer._id
     });
     expect(aLog.coc).toEqual({

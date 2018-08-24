@@ -259,11 +259,14 @@ class ActivityLog {
       };
     }
 
+    const customerFullName = `${customer.firstName || ""} ${customer.lastName ||
+      ""}`;
+
     return this.createDoc({
       activity: {
         type: ACTIVITY_TYPES.CUSTOMER,
         action: ACTIVITY_ACTIONS.CREATE,
-        content: customer.getFullName(),
+        content: customerFullName,
         id: customer._id
       },
       coc: {
