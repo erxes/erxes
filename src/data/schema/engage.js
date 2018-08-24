@@ -49,19 +49,20 @@ export const types = `
   }
 `;
 
-export const queries = `
-  engageMessages(
-    kind: String
-    status: String
-    tag: String
-    ids: [String]
-    page: Int
-    perPage: Int
-  ): [EngageMessage]
+const listParams = `
+  kind: String
+  status: String
+  tag: String
+  ids: [String]
+  page: Int
+  perPage: Int
+`;
 
+export const queries = `
+  engageMessages(${listParams}): [EngageMessage]
+  engageMessagesTotalCount(${listParams}): Int
   engageMessageDetail(_id: String): EngageMessage
   engageMessageCounts(name: String!, kind: String, status: String): JSON
-  engageMessagesTotalCount: Int
 `;
 
 const commonParams = `
