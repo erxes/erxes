@@ -1,7 +1,9 @@
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
+import { BoxRoot } from 'modules/common/styles/main';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
+const size = 65;
 
 const EngageTitle = styled.div`
   &:hover {
@@ -121,6 +123,49 @@ const StepContent = styled.div`
   display: flex;
 `;
 
+const FlexItemCentered = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const Box = BoxRoot.extend`
+  width: 23%;
+  height: 200px;
+  margin-top: ${coreSpace};
+`;
+
+const BoxContent = styled.div`
+  margin-top: 40px;
+  font-size: 18px;
+`;
+
+const BoxHeader = styled.div`
+  position: relative;
+  background-image: url('/images/patterns/bg-2.png');
+  background-repeat: repeat;
+  background-position: 0 0;
+  height: 90px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+`;
+
+const IconContainer = styled.div`
+  width: ${size}px;
+  height: ${size}px;
+  margin-top: 40px;
+  border-radius: ${size}px;
+  display: inline-block;
+  background-color: ${colors.colorCoreTeal};
+
+  i {
+    color: ${colors.colorWhite};
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+`;
+
 export {
   EngageTitle,
   HelperText,
@@ -133,5 +178,10 @@ export {
   Segmentli,
   Recipients,
   Recipient,
-  StepContent
+  StepContent,
+  FlexItemCentered,
+  Box,
+  BoxContent,
+  BoxHeader,
+  IconContainer
 };

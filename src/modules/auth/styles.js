@@ -40,15 +40,6 @@ const Links = styled.div`
   text-align: center;
 `;
 
-const Avatar = styled.div`
-  img {
-    display: block;
-    width: 100px;
-    height: 100px;
-    border-radius: 50px;
-  }
-`;
-
 const ProfileWrapper = styled.div`
   display: flex;
 `;
@@ -71,4 +62,4 @@ const ColumnTitle = styled.h4`
   margin: ${dimensions.coreSpacing}px 0;
 `;
 
-export { AuthBox, Links, ProfileWrapper, ProfileColumn, ColumnTitle, Avatar };
+export { AuthBox, Links, ProfileWrapper, ProfileColumn, ColumnTitle };

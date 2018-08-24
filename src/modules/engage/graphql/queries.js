@@ -1,21 +1,24 @@
-const engageMessages = `
-  query engageMessages(
-    $kind: String
-    $status: String
-    $tag: String
-    $ids: [String]
-    $page: Int
-    $perPage: Int
-  ) {
-    engageMessages(
-      kind: $kind
-      status: $status
-      tag: $tag
-      ids: $ids
-      page: $page
-      perPage: $perPage
-    ) {
+const listParamsDef = `
+  $kind: String
+  $status: String
+  $tag: String
+  $ids: [String]
+  $page: Int
+  $perPage: Int
+`;
 
+const listParamsValue = `
+  kind: $kind
+  status: $status
+  tag: $tag
+  ids: $ids
+  page: $page
+  perPage: $perPage
+`;
+
+const engageMessages = `
+  query engageMessages(${listParamsDef}) {
+    engageMessages(${listParamsValue}) {
       _id
       title
       deliveryReports
@@ -23,6 +26,7 @@ const engageMessages = `
       isLive
       createdDate
       kind
+      method
       brand {
         name
       }
@@ -64,6 +68,7 @@ const engageDetailFields = `
   isLive
   stopDate
   createdDate
+  deliveryReports
   messenger
   stats
   brand {
@@ -119,8 +124,8 @@ const emailTemplates = `
 `;
 
 const engageMessagesTotalCount = `
-  query engageMessagesTotalCount {
-    engageMessagesTotalCount
+  query engageMessagesTotalCount(${listParamsDef}) {
+    engageMessagesTotalCount(${listParamsValue})
   }
 `;
 

@@ -2,94 +2,73 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../graphql';
-import { Alert, renderFullName } from 'modules/common/utils';
 import { Chooser } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { CompanyForm } from '../containers';
+import { queries, mutations } from '../graphql';
 
-class CompanyChooser extends React.Component {
-  constructor(props) {
-    super(props);
+const CompanyChooser = props => {
+  const { data, companiesQuery, companiesAdd, search } = props;
 
-    this.state = { perPage: 20 };
-  }
+  // add company
+  const addCompany = ({ doc, callback }) => {
+    companiesAdd({
+      variables: doc
+    })
+      .then(() => {
+        companiesQuery.refetch();
 
-  render() {
-    const { data, companiesQuery, companiesAdd } = this.props;
+        Alert.success('Success');
 
-    const search = (value, loadmore) => {
-      if (!loadmore) {
-        this.setState({ perPage: 0 });
-      }
-
-      this.setState({ perPage: this.state.perPage + 20 }, () => {
-        companiesQuery.refetch({
-          searchValue: value,
-          perPage: this.state.perPage
-        });
-      });
-    };
-
-    const clearState = () => {
-      companiesQuery.refetch({ searchValue: '' });
-    };
-
-    // add company
-    const addCompany = ({ doc, callback }) => {
-      companiesAdd({
-        variables: doc
+        callback();
       })
-        .then(() => {
-          companiesQuery.refetch();
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
 
-          Alert.success('Success');
+  const form = <CompanyForm action={addCompany} />;
 
-          callback();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
+  const renderName = data => {
+    return data.primaryName || data.website || 'N/A';
+  };
 
-    const form = <CompanyForm action={addCompany} />;
+  const updatedProps = {
+    ...props,
+    data: {
+      _id: data._id,
+      name: renderName(data),
+      datas: data.companies
+    },
+    search,
+    clearState: () => search(''),
+    title: 'Company',
+    form,
+    renderName,
+    add: addCompany,
+    datas: companiesQuery.companies || []
+  };
 
-    const renderName = data => {
-      return data.primaryName || data.website || 'N/A';
-    };
-
-    const updatedProps = {
-      ...this.props,
-      data: {
-        name: renderFullName(data),
-        datas: data.companies
-      },
-      search,
-      renderName,
-      title: 'Company',
-      perPage: this.state.perPage,
-      form,
-      clearState,
-      add: addCompany,
-      datas: companiesQuery.companies || []
-    };
-
-    return <Chooser {...updatedProps} />;
-  }
-}
+  return <Chooser {...updatedProps} />;
+};
 
 CompanyChooser.propTypes = {
   data: PropTypes.object.isRequired,
   companiesQuery: PropTypes.object.isRequired,
-  companiesAdd: PropTypes.func.isRequired
+  companiesAdd: PropTypes.func.isRequired,
+  search: PropTypes.func.isRequired
 };
 
-export default compose(
+const WithQuery = compose(
   graphql(gql(queries.companies), {
     name: 'companiesQuery',
-    options: {
-      variables: {
-        perPage: 20
-      }
+    options: ({ searchValue, perPage }) => {
+      return {
+        variables: {
+          searchValue,
+          perPage
+        }
+      };
     }
   }),
   // mutations
@@ -97,3 +76,36 @@ export default compose(
     name: 'companiesAdd'
   })
 )(CompanyChooser);
+
+export default class Wrapper extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { perPage: 20 };
+
+    this.search = this.search.bind(this);
+  }
+
+  search(value, loadmore) {
+    let perPage = 20;
+
+    if (loadmore) {
+      perPage = this.state.perPage + 20;
+    }
+
+    return this.setState({ perPage, searchValue: value });
+  }
+
+  render() {
+    const { searchValue, perPage } = this.state;
+
+    return (
+      <WithQuery
+        {...this.props}
+        search={this.search}
+        searchValue={searchValue}
+        perPage={perPage}
+      />
+    );
+  }
+}

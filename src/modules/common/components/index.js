@@ -12,6 +12,7 @@ import LoadMore from './LoadMore';
 import Pagination from './pagination/Pagination';
 import ModalTrigger from './ModalTrigger';
 import ActionButtons from './ActionButtons';
+import AvatarUpload from './AvatarUpload';
 import EmptyState from './EmptyState';
 import Bulk from './Bulk';
 import Filter from './filter/Filter';
@@ -43,6 +44,7 @@ const pagination = {};
 export {
   Attachment,
   ActionButtons,
+  AvatarUpload,
   NameCard,
   Button,
   Label,

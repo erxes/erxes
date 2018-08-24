@@ -703,8 +703,8 @@ injectGlobal`
   /* scrollbar */
 
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 8px;
+    width: 7px;
+    height: 10px;
     border-radius: 0;
   }
 
@@ -715,6 +715,6 @@ injectGlobal`
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(215, 215, 215, .35);
+    background: rgba(215, 215, 215, .4);
   }
 `;

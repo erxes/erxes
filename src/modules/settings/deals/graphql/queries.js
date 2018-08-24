@@ -3,14 +3,13 @@ const boards = `
     dealBoards {
       _id
       name
-      isDefault
     }
   }
 `;
 
-const boardGetDefault = `
-  query dealBoardGetDefault {
-    dealBoardGetDefault {
+const boardGetLast = `
+  query dealBoardGetLast {
+    dealBoardGetLast {
       _id
       name
     }
@@ -42,5 +41,5 @@ export default {
   boards,
   pipelines,
   stages,
-  boardGetDefault
+  boardGetLast
 };

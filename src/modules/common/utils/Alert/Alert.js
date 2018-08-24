@@ -53,9 +53,8 @@ const AlertItem = styled.div`
 export default class AlertStyled extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      visible: true
-    };
+
+    this.state = { visible: true };
   }
 
   componentDidMount() {
@@ -71,18 +70,23 @@ export default class AlertStyled extends React.Component {
   }
 
   render() {
-    return this.state.visible ? (
+    if (!this.state.visible) {
+      return null;
+    }
+
+    return (
       <AlertItem {...this.props}>
         <Icon icon={types[this.props.type].icon} />
-        <span>{this.props.text}</span>
+        &nbsp;
+        {this.props.children}
       </AlertItem>
-    ) : null;
+    );
   }
 }
 
 AlertStyled.propTypes = {
   type: PropTypes.string.isRequired,
-  text: PropTypes.string.isRequired
+  children: PropTypes.node
 };
 
 AlertStyled.defaultProps = {

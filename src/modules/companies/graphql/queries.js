@@ -2,6 +2,7 @@ const companyFields = `
   _id
   createdAt
   modifiedAt
+  avatar
   primaryName
   names
   size

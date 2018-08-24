@@ -33,6 +33,10 @@ const MessageRowContainer = props => {
     history.push(`/engage/messages/edit/${message._id}`);
   };
 
+  const show = () => {
+    history.push(`/engage/messages/show/${message._id}`);
+  };
+
   const remove = () => {
     confirm().then(() => {
       doMutation(removeMutation).then(() => {
@@ -48,6 +52,7 @@ const MessageRowContainer = props => {
   const updatedProps = {
     ...props,
     edit,
+    show,
     remove,
     setLive,
     setLiveManual,

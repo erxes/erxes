@@ -9,9 +9,7 @@ import { BoardItem } from '../styles';
 const propTypes = {
   board: PropTypes.object.isRequired,
   remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
-  setDefault: PropTypes.func.isRequired,
-  isDefault: PropTypes.bool
+  save: PropTypes.func.isRequired
 };
 
 class BoardRow extends Component {
@@ -50,15 +48,10 @@ class BoardRow extends Component {
   }
 
   render() {
-    const { board, isDefault } = this.props;
+    const { board } = this.props;
 
     return (
-      <BoardItem key={board._id} isDefault={isDefault}>
-        <Button
-          btnStyle="link"
-          icon="star"
-          onClick={this.props.setDefault.bind(this, board._id)}
-        />
+      <BoardItem key={board._id}>
         <Link to={`?boardId=${board._id}`}>{board.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}

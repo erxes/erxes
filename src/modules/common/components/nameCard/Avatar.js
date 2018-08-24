@@ -81,6 +81,7 @@ class Avatar extends Component {
 
   renderInitials(fullName) {
     const { size } = this.props;
+
     const initials = fullName ? (
       fullName
         .split(' ')
@@ -95,7 +96,7 @@ class Avatar extends Component {
     return <div style={this.generateStyle(size)}>{initials}</div>;
   }
 
-  renderName(customer) {
+  renderCustomerName(customer) {
     if (customer.firstName && customer.lastName) {
       return `${customer.firstName} ${customer.lastName}`;
     }
@@ -104,7 +105,7 @@ class Avatar extends Component {
   }
 
   render() {
-    const { user, customer, icon } = this.props;
+    const { user, customer, company, icon } = this.props;
 
     let avatar;
     let fullName;
@@ -113,9 +114,16 @@ class Avatar extends Component {
       const { details } = user;
       avatar = details && details.avatar;
       fullName = details && details.fullName;
-    } else if (customer) {
+    }
+
+    if (customer) {
       avatar = customer.avatar;
-      fullName = this.renderName(customer);
+      fullName = this.renderCustomerName(customer);
+    }
+
+    if (company) {
+      avatar = company.avatar;
+      fullName = company.primaryName || null;
     }
 
     const Element = customer ? Link : 'div';
@@ -134,6 +142,7 @@ class Avatar extends Component {
 Avatar.propTypes = {
   user: PropTypes.object,
   customer: PropTypes.object,
+  company: PropTypes.object,
   size: PropTypes.number,
   icon: PropTypes.node
 };

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import {
   Button,
+  AvatarUpload,
   FormGroup,
   FormControl,
   ControlLabel,
@@ -50,7 +51,8 @@ class CompanyForm extends React.Component {
       ownerId: company.ownerId || '',
       companies,
       doNotDisturb: company.doNotDisturb || 'No',
-      users: []
+      users: [],
+      avatar: company.avatar
     };
 
     this.action = this.action.bind(this);
@@ -59,6 +61,7 @@ class CompanyForm extends React.Component {
     this.handleUserSearch = this.handleUserSearch.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.onAvatarUpload = this.onAvatarUpload.bind(this);
   }
 
   componentDidMount() {
@@ -68,13 +71,14 @@ class CompanyForm extends React.Component {
   }
 
   action(e) {
-    const { names, primaryName } = this.state;
+    const { names, primaryName, avatar } = this.state;
     e.preventDefault();
 
     this.props.action({
       doc: {
         names,
         primaryName,
+        avatar,
         size: document.getElementById('company-size').value,
         industry: document.getElementById('company-industry').value,
         parentCompanyId: this.state.parentCompanyId,
@@ -98,6 +102,10 @@ class CompanyForm extends React.Component {
     });
 
     this.context.closeModal();
+  }
+
+  onAvatarUpload(url) {
+    this.setState({ avatar: url });
   }
 
   generateCompanyParams(companies) {
@@ -154,6 +162,11 @@ class CompanyForm extends React.Component {
 
     return (
       <form onSubmit={e => this.action(e)}>
+        <AvatarUpload
+          avatar={company.avatar}
+          onAvatarUpload={this.onAvatarUpload}
+          defaultAvatar="/images/company.png"
+        />
         <FormWrapper>
           <FormColumn>
             <FormGroup>
