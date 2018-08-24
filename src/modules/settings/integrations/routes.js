@@ -1,7 +1,12 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { List, Twitter, CreateMessenger, EditMessenger } from './containers';
+import {
+  Twitter,
+  CreateMessenger,
+  EditMessenger,
+  IntegrationStore
+} from './containers';
 
 const routes = () => [
   <Route
@@ -47,9 +52,7 @@ const routes = () => [
     key="/settings/integrations"
     exact
     path="/settings/integrations"
-    component={({ location }) => {
-      return <List queryParams={queryString.parse(location.search)} />;
-    }}
+    component={() => <IntegrationStore />}
   />
 ];
 
