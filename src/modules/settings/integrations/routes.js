@@ -2,11 +2,11 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 import {
-  List,
   Twitter,
   Google,
   CreateMessenger,
-  EditMessenger
+  EditMessenger,
+  IntegrationStore
 } from './containers';
 
 const routes = () => [
@@ -55,8 +55,6 @@ const routes = () => [
     component={({ history, location }) => {
       const queryParams = queryString.parse(location.search);
 
-      console.log('kkkkkkkkkkkk');
-
       return <Google history={history} queryParams={queryParams} />;
     }}
   />,
@@ -65,9 +63,7 @@ const routes = () => [
     key="/settings/integrations"
     exact
     path="/settings/integrations"
-    component={({ location }) => {
-      return <List queryParams={queryString.parse(location.search)} />;
-    }}
+    component={() => <IntegrationStore />}
   />
 ];
 
