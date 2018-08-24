@@ -5,7 +5,12 @@
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-app-api",
   "bugs": "https://github.com/erxes/erxes-app-api/issues",
-  "keywords": ["node", "express", "graphql", "apollo"],
+  "keywords": [
+    "node",
+    "express",
+    "graphql",
+    "apollo"
+  ],
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -13,8 +18,7 @@
     "dev": "NODE_ENV=development nodemon src --exec babel-node",
     "build": "babel src --out-dir dist --ignore __tests__,tests --copy-files",
     "lint": "eslint src",
-    "format":
-      "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
+    "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
     "precommit": "lint-staged",
     "test": "jest --runInBand --coverage --forceExit",
     "loadInitialData": "babel-node ./src/initialData.js",
@@ -49,6 +53,7 @@
     "express": "^4.15.2",
     "fbgraph": "^1.4.1",
     "formidable": "^1.1.1",
+    "googleapis": "^33.0.0",
     "graphql": "^0.10.1",
     "graphql-redis-subscriptions": "^1.4.0",
     "graphql-server-core": "^0.8.2",

@@ -118,7 +118,7 @@ export const receiveDirectMessageInformation = async (data, integration) => {
   // When situations like integration is deleted but trackIntegration
   // version of that integration is still running, new conversations being
   // created using non existing integrationId
-  if (!await Integrations.findOne({ _id: integration._id })) {
+  if (!(await Integrations.findOne({ _id: integration._id }))) {
     return null;
   }
 
@@ -329,7 +329,7 @@ export const receiveTimelineInformation = async (integration, data) => {
   // When situations like integration is deleted but trackIntegration
   // version of that integration is still running, new conversations being
   // created using non existing integrationId
-  if (!await Integrations.findOne({ _id: integration._id })) {
+  if (!(await Integrations.findOne({ _id: integration._id }))) {
     return null;
   }
 
