@@ -28,7 +28,7 @@ interface ICustomerFieldsInput {
   primaryPhone?: string;
 }
 
-interface ICreateCustomerInput {
+export interface ICreateCustomerInput {
   firstName?: string;
   lastName?: string;
   primaryEmail?: string;
@@ -78,16 +78,6 @@ interface ICustomerModel extends Model<ICustomerDocument> {
   markCustomerAsActive(customerId: string): ICustomerDocument;
   markCustomerAsActive(_id: string): ICustomerDocument;
 
-  addCompany({
-    _id,
-    name,
-    website
-  }: {
-    _id: string;
-    name: string;
-    website: string;
-  }): ICustomerDocument;
-
   updateCompanies(_id: string, companyIds: string[]): ICustomerDocument;
   removeCustomer(customerId: string): void;
 
@@ -96,14 +86,11 @@ interface ICustomerModel extends Model<ICustomerDocument> {
     customerFields: ICreateCustomerInput
   ): ICustomerDocument;
 
-  bulkInsert<T, I>(params: {
-    fieldNames: string[];
-    fieldValues: string[];
-    user: IUserDocument;
-    basicInfos: any;
-    contentType: string;
-    create: (doc: I) => Promise<T>;
-  }): Promise<string[]>;
+  bulkInsert(
+    fieldNames: string[],
+    fieldValues: string[],
+    user: IUserDocument
+  ): Promise<string[]>;
 }
 
 class Customer {
@@ -270,29 +257,6 @@ class Customer {
     return Customers.findOne({ _id });
   }
 
-  /*
-   * Create new company and add to customer's company list
-   */
-  public static async addCompany({
-    _id,
-    name,
-    website
-  }: {
-    _id: string;
-    name: string;
-    website: string;
-  }) {
-    // create company
-    const company = await Companies.createCompany({ name, website });
-
-    // add to companyIds list
-    await Customers.findByIdAndUpdate(_id, {
-      $addToSet: { companyIds: company._id }
-    });
-
-    return company;
-  }
-
   /**
    * Update customer companies
    */
@@ -397,7 +361,7 @@ class Customer {
   public static async bulkInsert(
     fieldNames: string[],
     fieldValues: string[],
-    { user }: { user: IUserDocument }
+    user: IUserDocument
   ) {
     const params = {
       fieldNames,
@@ -408,7 +372,7 @@ class Customer {
       create: this.createCustomer
     };
 
-    return bulkInsert<ICustomerDocument, ICreateCustomerInput>(params);
+    return bulkInsert(params);
   }
 }
 

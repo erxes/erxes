@@ -1,5 +1,9 @@
 import * as Random from "meteor-random";
 import { Fields, ImportHistory } from "./";
+import { ICreateCompanyInput } from "./Companies";
+import { ICreateCustomerInput } from "./Customers";
+import { ICompanyDocument } from "./definitions/companies";
+import { ICustomerDocument } from "./definitions/customers";
 import { IUserDocument } from "./definitions/users";
 
 /*
@@ -21,13 +25,16 @@ export const field = options => {
   return options;
 };
 
-export const bulkInsert = async <T, I>(params: {
+type CocInput = ICreateCompanyInput | ICreateCustomerInput;
+type CocDocument = ICompanyDocument | ICustomerDocument;
+
+export const bulkInsert = async (params: {
   fieldNames: string[];
   fieldValues: string[];
   user: IUserDocument;
   basicInfos: any;
   contentType: string;
-  create: (doc: I, user: IUserDocument) => Promise<T>;
+  create: (doc: CocInput, user?: IUserDocument) => Promise<CocDocument>;
 }) => {
   const errMsgs = [];
   const properties = [];

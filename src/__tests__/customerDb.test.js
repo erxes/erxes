@@ -161,21 +161,6 @@ describe('Customers model tests', () => {
     expect(customerObj.messengerData.lastSeenAt).toBeDefined();
   });
 
-  test('Add company', async () => {
-    let customer = await customerFactory({});
-
-    // call add company
-    const company = await Customers.addCompany({
-      _id: customer._id,
-      name: 'name',
-      website: 'website',
-    });
-
-    customer = await Customers.findOne({ _id: customer._id });
-
-    expect(customer.companyIds).toEqual(expect.arrayContaining([company._id]));
-  });
-
   test('Update customer: with customer fields validation error', async () => {
     expect.assertions(1);
 
@@ -271,13 +256,17 @@ describe('Customers model tests', () => {
 
     // test duplication ============
     try {
-      await Customers.mergeCustomers(customerIds, { twitterData: _customer.twitterData });
+      await Customers.mergeCustomers(customerIds, {
+        twitterData: _customer.twitterData,
+      });
     } catch (e) {
       expect(e.message).toBe('Duplicated twitter');
     }
 
     try {
-      await Customers.mergeCustomers(customerIds, { primaryEmail: 'email@gmail.com' });
+      await Customers.mergeCustomers(customerIds, {
+        primaryEmail: 'email@gmail.com',
+      });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
@@ -386,7 +375,11 @@ describe('Customers model tests', () => {
       validation: '',
     });
 
-    await fieldFactory({ contentType: 'customer', text: 'Fax number', validation: '' });
+    await fieldFactory({
+      contentType: 'customer',
+      text: 'Fax number',
+      validation: '',
+    });
     const user = await userFactory({});
 
     const fieldNames = ['primaryEmail', 'primaryPhone', 'First referred site', 'Fax number'];
@@ -396,7 +389,9 @@ describe('Customers model tests', () => {
       ['customer2email@yahoo.com', 'customer2phone', 'customer2property1', 'customer2property2'],
     ];
 
-    const response = await Customers.bulkInsert(fieldNames, fieldValues, { user });
+    const response = await Customers.bulkInsert(fieldNames, fieldValues, {
+      user,
+    });
     const customers = await Customers.find({});
 
     const history = await ImportHistory.findOne({ userId: user._id });
@@ -419,7 +414,11 @@ describe('Customers model tests', () => {
     expect(response.length).toBe(1);
     expect(response[0]).toBe('Bad column name badColumn name1');
 
-    await fieldFactory({ contentType: 'customer', text: 'Fax number', validation: '' });
+    await fieldFactory({
+      contentType: 'customer',
+      text: 'Fax number',
+      validation: '',
+    });
     const customer = await customerFactory({
       emails: ['testCustomerEmail@gmail.com'],
       primaryEmail: 'testCustomerEmail@gmail.com',

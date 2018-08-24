@@ -13,8 +13,8 @@ interface ICompanyFieldsInput {
   primaryName: string;
 }
 
-interface ICreateCompanyInput {
-  primaryName: string;
+export interface ICreateCompanyInput {
+  primaryName?: string;
   names?: string[];
   size?: number;
   industry?: string;
@@ -33,12 +33,6 @@ interface ICreateCompanyInput {
   links?: ILink;
   tagIds?: string[];
   customFieldsData?: any;
-}
-
-interface IBulkInsert {
-  fieldNames: string[];
-  fieldValues: string[];
-  user: IUserDocument;
 }
 
 interface ICompanyModel extends Model<ICompanyDocument> {
@@ -66,7 +60,11 @@ interface ICompanyModel extends Model<ICompanyDocument> {
     companyFields: ICreateCompanyInput
   ): Promise<ICompanyDocument>;
 
-  bulkInsert(params: IBulkInsert): Promise<string[]>;
+  bulkInsert(
+    fieldNames: string[],
+    fieldValues: string[],
+    user: IUserDocument
+  ): Promise<string[]>;
 }
 
 class Company {
@@ -267,7 +265,7 @@ class Company {
       create: this.createCompany
     };
 
-    return bulkInsert<ICompanyDocument, ICreateCompanyInput>(params);
+    return bulkInsert(params);
   }
 }
 
