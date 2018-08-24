@@ -8,57 +8,22 @@ import {
   InternalNotes
 } from "./";
 import { CUSTOMER_BASIC_INFOS } from "./definitions/constants";
-import { customerSchema, ICustomerDocument } from "./definitions/customers";
+import {
+  customerSchema,
+  ICustomerDocument,
+  IFacebookData,
+  ILink,
+  ILocation,
+  IMessengerData,
+  ITwitterData,
+  IVisitorContact
+} from "./definitions/customers";
 import { IUserDocument } from "./definitions/users";
 import { bulkInsert } from "./utils";
 
-interface ITwitterDataInput {
-  id: number;
-  id_str: string;
-  name: string;
-  screen_name: string;
-  profile_image_url: string;
-}
-
-interface IFacebookDataInput {
-  id: string;
-  profilePic?: string;
-}
-
-interface ILinkInput {
-  linkedIn?: string;
-  twitter?: string;
-  facebook?: string;
-  github?: string;
-  youtube?: string;
-  website?: string;
-}
-
-interface ILocationInput {
-  remoteAddress: string;
-  country: string;
-  city: string;
-  region: string;
-  hostname: string;
-  language: string;
-  userAgent: string;
-}
-
-interface IVisitorContactInput {
-  email: string;
-  phone: string;
-}
-
-interface IMessengerDataInput {
-  lastSeenAt: number;
-  sessionCount: number;
-  isActive: boolean;
-  customData?: any;
-}
-
 interface ICustomerFieldsInput {
-  twitterData?: ITwitterDataInput;
-  facebookData?: IFacebookDataInput;
+  twitterData?: ITwitterData;
+  facebookData?: IFacebookData;
   primaryEmail?: string;
   primaryPhone?: string;
 }
@@ -80,17 +45,17 @@ interface ICreateCustomerInput {
   hasAuthority?: string;
   description?: string;
   doNotDisturb?: string;
-  links?: ILinkInput;
+  links?: ILink;
   isUser?: boolean;
   integrationId: string;
   tagIds?: string[];
   companyIds?: string[];
   customFieldsData?: any;
-  messengerData?: IMessengerDataInput;
-  twitterData?: ITwitterDataInput;
-  facebookData?: IFacebookDataInput;
-  location?: ILocationInput;
-  visitorContactInfo?: IVisitorContactInput;
+  messengerData?: IMessengerData;
+  twitterData?: ITwitterData;
+  facebookData?: IFacebookData;
+  location?: ILocation;
+  visitorContactInfo?: IVisitorContact;
   urlVisits: any;
 }
 

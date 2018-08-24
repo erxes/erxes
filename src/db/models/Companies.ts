@@ -1,18 +1,13 @@
 import { Model, model } from "mongoose";
 import { ActivityLogs, Customers, Fields, InternalNotes } from "./";
-import { companySchema, ICompanyDocument } from "./definitions/companies";
+import {
+  companySchema,
+  ICompanyDocument,
+  ILink
+} from "./definitions/companies";
 import { COMPANY_BASIC_INFOS } from "./definitions/constants";
 import { IUserDocument } from "./definitions/users";
 import { bulkInsert } from "./utils";
-
-interface ILink {
-  linkedIn?: string;
-  twitter?: string;
-  facebook?: string;
-  github?: string;
-  youtube?: string;
-  website?: string;
-}
 
 interface ICompanyFieldsInput {
   primaryName: string;
