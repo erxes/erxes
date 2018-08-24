@@ -1,5 +1,5 @@
-import { ACTIVITY_PERFORMER_TYPES } from '../../data/constants';
-import { Users } from '../../db/models';
+import { ACTIVITY_PERFORMER_TYPES } from "../../data/constants";
+import { Users } from "../../db/models";
 
 /*
  * Placeholder object for ActivityLog resolver (used with graphql)
@@ -44,12 +44,12 @@ export default {
       return {
         _id: user._id,
         type: performedBy.type,
-        details: user.details,
+        details: user.details
       };
     }
     return {
       type: performedBy.type,
-      details: {},
+      details: {}
     };
-  },
+  }
 };

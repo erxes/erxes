@@ -1,22 +1,22 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
-import { Brands, Users, Integrations } from '../db/models';
-import { brandFactory, userFactory, integrationFactory } from '../db/factories';
+import { connect, disconnect } from "../db/connection";
+import { brandFactory, integrationFactory, userFactory } from "../db/factories";
+import { Brands, Integrations, Users } from "../db/models";
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Brands db', () => {
+describe("Brands db", () => {
   let _brand;
   let _user;
 
   beforeEach(async () => {
     // Creating test data
-    _brand = await brandFactory();
-    _user = await userFactory();
+    _brand = await brandFactory({});
+    _user = await userFactory({});
   });
 
   afterEach(async () => {
@@ -25,37 +25,36 @@ describe('Brands db', () => {
     await Users.remove({});
   });
 
-  test('Generate code', async () => {
+  test("Generate code", async () => {
     // try using exisiting one
     let code = await Brands.generateCode(_brand.code);
     expect(code).not.toBe(_brand.code);
     expect(code).toBeDefined();
 
     // try using not existing one
-    code = await Brands.generateCode('DFAFFADFSF');
+    code = await Brands.generateCode("DFAFFADFSF");
     expect(code).toBeDefined();
   });
 
-  test('Create brand', async () => {
+  test("Create brand", async () => {
     const brandObj = await Brands.createBrand({
       name: _brand.name,
-      description: _brand.description,
-      userId: _user.id,
+      description: _brand.description
     });
+
     expect(brandObj).toBeDefined();
     expect(brandObj.code).toBeDefined();
     expect(brandObj.name).toBe(_brand.name);
     expect(brandObj.userId).toBe(_user._id);
   });
 
-  test('Update brand', async () => {
-    const _brandUpdateObj = await brandFactory();
+  test("Update brand", async () => {
+    const _brandUpdateObj = await brandFactory({});
 
     // update brand object
     const brandObj = await Brands.updateBrand(_brand.id, {
-      code: _brandUpdateObj.code,
       name: _brandUpdateObj.name,
-      description: _brandUpdateObj.description,
+      description: _brandUpdateObj.description
     });
 
     expect(brandObj.code).toBe(_brandUpdateObj.code);
@@ -63,26 +62,29 @@ describe('Brands db', () => {
     expect(brandObj.description).toBe(_brandUpdateObj.description);
   });
 
-  test('Delete brand', async () => {
+  test("Delete brand", async () => {
     await Brands.removeBrand(_brand.id);
 
     expect(await Brands.findOne({ _id: _brand.id }).count()).toBe(0);
 
     try {
-      await Brands.removeBrand('test');
+      await Brands.removeBrand("test");
     } catch (e) {
-      expect(e.message).toBe('Brand not found with id test');
+      expect(e.message).toBe("Brand not found with id test");
     }
   });
 
-  test('Update brand email config', async () => {
-    const brandObj = await Brands.updateEmailConfig(_brand.id, _brand.emailConfig);
+  test("Update brand email config", async () => {
+    const brandObj = await Brands.updateEmailConfig(
+      _brand.id,
+      _brand.emailConfig
+    );
 
     expect(brandObj.emailConfig.type).toBe(_brand.emailConfig.type);
     expect(brandObj.emailConfig.template).toBe(_brand.emailConfig.template);
   });
 
-  test('Manage integrations', async () => {
+  test("Manage integrations", async () => {
     const brand = await brandFactory({});
 
     let integration1 = await integrationFactory({});
@@ -90,7 +92,7 @@ describe('Brands db', () => {
 
     await Brands.manageIntegrations({
       _id: brand._id,
-      integrationIds: [integration1._id, integration2._id],
+      integrationIds: [integration1._id, integration2._id]
     });
 
     integration1 = await Integrations.findOne({ _id: integration1._id });
