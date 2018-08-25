@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/integrations/components/Sidebar';
+import { INTEGRATIONS } from 'modules/settings/integrations/constants';
 import Row from './Row';
-import { integrations } from './constants';
 import { IntegrationWrapper } from './styles';
 
 const propTypes = {
@@ -16,7 +16,7 @@ class Home extends Component {
 
     return (
       <IntegrationWrapper>
-        {integrations.map(obj => (
+        {INTEGRATIONS.map(obj => (
           <Row
             key={obj.name}
             title={obj.title}
