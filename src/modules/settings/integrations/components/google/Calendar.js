@@ -10,7 +10,7 @@ import {
 import { ModalFooter } from 'modules/common/styles/main';
 import { ContentBox } from 'modules/settings/styles';
 
-class Meet extends Component {
+class Calendar extends Component {
   constructor(props, context) {
     super(props, context);
 
@@ -60,12 +60,12 @@ class Meet extends Component {
   }
 }
 
-Meet.propTypes = {
+Calendar.propTypes = {
   save: PropTypes.func.isRequired
 };
 
-Meet.contextTypes = {
+Calendar.contextTypes = {
   __: PropTypes.func
 };
 
-export default Meet;
+export default Calendar;

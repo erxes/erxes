@@ -2,18 +2,31 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Alert } from 'modules/common/utils';
 import { MessengerApp } from 'modules/inbox/components/conversationDetail';
-import { queries } from 'modules/inbox/graphql';
+import { mutations, queries } from 'modules/inbox/graphql';
 
 const MessengerAppContainer = props => {
-  const { messengerAppsQuery } = props;
+  const { conversation, messengerAppsQuery, executeAppMutation } = props;
 
   if (messengerAppsQuery.loading) {
     return null;
   }
 
+  const onSelect = app => {
+    const variables = {
+      _id: app._id,
+      conversationId: conversation._id
+    };
+
+    executeAppMutation({ variables }).then(() => {
+      Alert.success('Success');
+    });
+  };
+
   const updatedProps = {
     ...props,
+    onSelect,
     messengerApps: messengerAppsQuery.messengerApps
   };
 
@@ -21,7 +34,9 @@ const MessengerAppContainer = props => {
 };
 
 MessengerAppContainer.propTypes = {
-  messengerAppsQuery: PropTypes.object
+  conversation: PropTypes.object,
+  messengerAppsQuery: PropTypes.object,
+  executeAppMutation: PropTypes.func
 };
 
 export default compose(
@@ -30,5 +45,8 @@ export default compose(
     options: () => ({
       fetchPolicy: 'network-only'
     })
+  }),
+  graphql(gql(mutations.executeApp), {
+    name: 'executeAppMutation'
   })
 )(MessengerAppContainer);

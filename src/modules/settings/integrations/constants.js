@@ -704,7 +704,7 @@ export const INTEGRATIONS = [
         description: 'Start a video call from your conversation',
         inMessenger: false,
         logo: '/images/integrations/google-meet.png',
-        createUrl: '/settings/integrations/google-meet'
+        createUrl: '/settings/integrations/google-calendar'
       }
     ]
   },

@@ -258,7 +258,7 @@ class RespondBox extends Component {
           </label>
         </Tip>
 
-        <MessengerApp />
+        <MessengerApp conversation={conversation} />
 
         <ResponseTemplate
           brandId={integration.brandId}

@@ -4,9 +4,9 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import DumbMeet from 'modules/settings/integrations/components/google/Meet';
+import DumbCalendar from 'modules/settings/integrations/components/google/Calendar';
 
-const Meet = props => {
+const Calendar = props => {
   const {
     history,
     type,
@@ -37,7 +37,7 @@ const Meet = props => {
     saveMutation({
       variables: {
         ...variables,
-        kind: 'googleMeet',
+        kind: 'googleCalendar',
         credentials
       }
     })
@@ -50,10 +50,10 @@ const Meet = props => {
       });
   };
 
-  return <DumbMeet save={save} />;
+  return <DumbCalendar save={save} />;
 };
 
-Meet.propTypes = {
+Calendar.propTypes = {
   type: PropTypes.string,
   history: PropTypes.object,
   queryParams: PropTypes.object,
@@ -102,4 +102,4 @@ export default compose(
     `,
     { name: 'saveMutation' }
   )
-)(Meet);
+)(Calendar);
