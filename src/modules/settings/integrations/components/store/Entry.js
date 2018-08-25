@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { ModalTrigger, Tip, Icon } from 'modules/common/components';
-import { Facebook } from '../../containers';
+import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import { IntegrationItem, Box } from './styles';
 
 const propTypes = {
@@ -12,7 +12,7 @@ const propTypes = {
   totalCount: PropTypes.object
 };
 
-class IntegrationEntry extends Component {
+class Entry extends Component {
   getCount(kind) {
     const { totalCount } = this.props;
     const countByKind = totalCount[kind];
@@ -78,9 +78,9 @@ class IntegrationEntry extends Component {
   }
 }
 
-IntegrationEntry.propTypes = propTypes;
-IntegrationEntry.contextTypes = {
+Entry.propTypes = propTypes;
+Entry.contextTypes = {
   __: PropTypes.func
 };
 
-export default IntegrationEntry;
+export default Entry;

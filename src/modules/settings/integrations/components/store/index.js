@@ -1,5 +1,3 @@
-import IntegrationStore from './IntegrationStore';
-import IntegrationStoreRow from './IntegrationStoreRow';
-import IntegrationEntry from './IntegrationEntry';
+import Home from './Home';
 
-export { IntegrationStore, IntegrationStoreRow, IntegrationEntry };
+export { Home };

@@ -1,23 +1,23 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
-import { IntegrationStoreRow } from '.';
-import { IntegrationWrapper } from './styles';
+import Sidebar from 'modules/settings/integrations/components/Sidebar';
+import Row from './Row';
 import { integrations } from './constants';
+import { IntegrationWrapper } from './styles';
 
 const propTypes = {
   totalCount: PropTypes.object
 };
 
-class IntegrationStore extends Component {
+class Home extends Component {
   renderContent() {
     const { totalCount } = this.props;
 
     return (
       <IntegrationWrapper>
         {integrations.map(obj => (
-          <IntegrationStoreRow
+          <Row
             key={obj.name}
             title={obj.title}
             integrations={obj.rows}
@@ -27,6 +27,7 @@ class IntegrationStore extends Component {
       </IntegrationWrapper>
     );
   }
+
   render() {
     const { __ } = this.context;
 
@@ -45,9 +46,9 @@ class IntegrationStore extends Component {
   }
 }
 
-IntegrationStore.propTypes = propTypes;
-IntegrationStore.contextTypes = {
+Home.propTypes = propTypes;
+Home.contextTypes = {
   __: PropTypes.func
 };
 
-export default IntegrationStore;
+export default Home;

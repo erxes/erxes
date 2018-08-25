@@ -4,14 +4,14 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Alert } from 'modules/common/utils';
 import { Step, Steps, FormControl, Button } from 'modules/common/components';
-import { CommonPreview } from './widgetPreview';
-import { Intro, Availability, Appearance, Options } from './messengerSteps';
-import { Row, MessengerPreview } from '../styles';
 import {
   StepWrapper,
   TitleContainer,
   Preview
 } from 'modules/common/components/step/styles';
+import { Row, MessengerPreview } from 'modules/settings/integrations/styles';
+import { Intro, Availability, Appearance, Options } from './steps';
+import CommonPreview from './widgetPreview/CommonPreview';
 
 class CreateMessenger extends Component {
   constructor(props) {

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { WidgetPreview } from '../';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import { LogoContainer } from 'modules/settings/styles';
+import WidgetPreview from './WidgetPreview';
 
 const propTypes = {
   onChange: PropTypes.func,

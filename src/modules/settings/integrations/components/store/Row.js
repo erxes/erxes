@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
-import { IntegrationList } from '../../containers/common';
-import IntegrationEntry from './IntegrationEntry';
+import { IntegrationList } from 'modules/settings/integrations/containers/common';
+import Entry from './Entry';
 import { IntegrationRow, CollapsibleContent } from './styles';
 
 const propTypes = {
@@ -11,7 +11,7 @@ const propTypes = {
   totalCount: PropTypes.object
 };
 
-class IntegrationStoreRow extends Component {
+class Row extends Component {
   constructor(props) {
     super(props);
 
@@ -75,7 +75,7 @@ class IntegrationStoreRow extends Component {
         {title && <h3>{__(title)}</h3>}
         <IntegrationRow>
           {integrations.map(integration => (
-            <IntegrationEntry
+            <Entry
               key={integration.name}
               integration={integration}
               toggleBox={this.toggleBox}
@@ -92,9 +92,9 @@ class IntegrationStoreRow extends Component {
   }
 }
 
-IntegrationStoreRow.propTypes = propTypes;
-IntegrationStoreRow.contextTypes = {
+Row.propTypes = propTypes;
+Row.contextTypes = {
   __: PropTypes.func
 };
 
-export default IntegrationStoreRow;
+export default Row;

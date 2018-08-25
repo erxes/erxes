@@ -5,10 +5,10 @@ import gql from 'graphql-tag';
 import { withRouter } from 'react-router';
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
-import { CreateMessenger } from '../components';
+import { queries, mutations } from 'modules/settings/integrations/graphql';
+import { Form } from 'modules/settings/integrations/components/messenger';
 
-const EditMessengerContainer = props => {
+const EditMessenger = props => {
   const {
     history,
     integrationId,
@@ -70,10 +70,10 @@ const EditMessengerContainer = props => {
     integration
   };
 
-  return <CreateMessenger {...updatedProps} />;
+  return <Form {...updatedProps} />;
 };
 
-EditMessengerContainer.propTypes = {
+EditMessenger.propTypes = {
   usersQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
   integrationId: PropTypes.string,
@@ -96,7 +96,7 @@ const commonOptions = ({ queryParams, integrationId }) => {
   };
 };
 
-const CreateMessengerWithData = compose(
+const EditMessengerWithData = compose(
   graphql(gql(queries.users), {
     name: 'usersQuery'
   }),
@@ -127,6 +127,6 @@ const CreateMessengerWithData = compose(
     name: 'saveAppearanceMutation',
     options: commonOptions
   })
-)(EditMessengerContainer);
+)(EditMessenger);
 
-export default withRouter(CreateMessengerWithData);
+export default withRouter(EditMessengerWithData);

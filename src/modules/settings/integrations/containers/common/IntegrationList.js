@@ -4,8 +4,8 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert, confirm } from 'modules/common/utils';
-import { IntegrationList } from '../../components/common';
-import { queries, mutations } from '../../graphql';
+import { IntegrationList } from 'modules/settings/integrations/components/common';
+import { queries, mutations } from 'modules/settings/integrations/graphql';
 
 const IntegrationListContainer = props => {
   const { integrationsQuery, removeMutation } = props;

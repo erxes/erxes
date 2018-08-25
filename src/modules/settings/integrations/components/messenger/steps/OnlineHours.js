@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-import { days, hours } from '../../constants';
 import {
   Button,
   Icon,
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import { FlexRow } from '../../styles';
+import { FlexRow } from 'modules/settings/integrations/styles';
+import { days, hours } from 'modules/settings/integrations/constants';
 
 class OnlineHours extends Component {
   constructor(props) {

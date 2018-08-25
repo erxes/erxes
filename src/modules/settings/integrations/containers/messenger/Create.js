@@ -7,10 +7,10 @@ import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { queries as integQueries } from 'modules/settings/integrations/graphql';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
-import { queries, mutations } from '../graphql';
-import { CreateMessenger } from '../components';
+import { queries, mutations } from 'modules/settings/integrations/graphql';
+import { Form } from 'modules/settings/integrations/components/messenger';
 
-const CreateMessengerContainer = props => {
+const CreateMessenger = props => {
   const {
     history,
     usersQuery,
@@ -64,10 +64,10 @@ const CreateMessengerContainer = props => {
     save
   };
 
-  return <CreateMessenger {...updatedProps} />;
+  return <Form {...updatedProps} />;
 };
 
-CreateMessengerContainer.propTypes = {
+CreateMessenger.propTypes = {
   usersQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
   saveConfigsMutation: PropTypes.func,
@@ -119,6 +119,6 @@ const CreateMessengerWithData = compose(
     name: 'saveAppearanceMutation',
     options: commonOptions
   })
-)(CreateMessengerContainer);
+)(CreateMessenger);
 
 export default withRouter(CreateMessengerWithData);
