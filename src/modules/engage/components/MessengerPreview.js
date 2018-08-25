@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import strip from 'strip';
 
 import { NameCard } from 'modules/common/components';
-import { WidgetPreviewStyled } from 'modules/settings/integrations/components/widgetPreview/styles';
+import { WidgetPreviewStyled } from 'modules/settings/integrations/components/messenger/widgetPreview/styles';
 import { WebPreview, PreviewContent, Messenger } from '../styles';
 import { LogoContainer } from 'modules/settings/styles';
 

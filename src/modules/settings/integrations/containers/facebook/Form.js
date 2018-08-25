@@ -5,7 +5,7 @@ import { compose, graphql, withApollo } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { Facebook } from '../components';
+import Facebook from 'modules/settings/integrations/components/facebook/Form';
 
 class FacebookContainer extends Component {
   constructor(props) {

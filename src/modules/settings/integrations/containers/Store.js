@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { IntegrationStore } from '../components/store';
-import { queries } from '../graphql';
+import { Home } from 'modules/settings/integrations/components/store';
+import { queries } from 'modules/settings/integrations/graphql';
 
-const IntegrationStoreContainer = props => {
+const Store = props => {
   const { totalCountQuery } = props;
 
   if (totalCountQuery.loading) {
@@ -20,13 +20,13 @@ const IntegrationStoreContainer = props => {
     totalCount
   };
 
-  return <IntegrationStore {...updatedProps} />;
+  return <Home {...updatedProps} />;
 };
 
-IntegrationStoreContainer.propTypes = {
+Store.propTypes = {
   totalCountQuery: PropTypes.object
 };
 
 export default compose(
   graphql(gql(queries.integrationTotalCount), { name: 'totalCountQuery' })
-)(IntegrationStoreContainer);
+)(Store);

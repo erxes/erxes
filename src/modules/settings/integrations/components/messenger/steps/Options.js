@@ -6,8 +6,8 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import SelectBrand from '../SelectBrand';
 import { LeftItem, FlexItem } from 'modules/common/components/step/styles';
+import { SelectBrand } from 'modules/settings/integrations/components';
 
 const propTypes = {
   onChange: PropTypes.func,
