@@ -1,0 +1,86 @@
+/* eslint-disable react/no-string-refs */
+
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Popover, OverlayTrigger } from 'react-bootstrap';
+import { Button, Icon, Tip } from 'modules/common/components';
+import {
+  ResponseTemplateStyled,
+  PopoverBody,
+  PopoverList,
+  TemplateTitle
+} from 'modules/inbox/styles';
+
+const propTypes = {
+  messengerApps: PropTypes.array.isRequired,
+  onSelect: PropTypes.func
+};
+
+class MessengerApp extends Component {
+  constructor(props) {
+    super(props);
+
+    this.onSelect = this.onSelect.bind(this);
+  }
+
+  onSelect(eventKey) {
+    const messengerApps = this.props.messengerApps;
+
+    // find response template using event key
+    const messengerApp = messengerApps.find(t => t._id === eventKey);
+
+    // hide selector
+    this.refs.overlay.hide();
+
+    return this.props.onSelect(messengerApp);
+  }
+
+  renderItems() {
+    return this.props.messengerApps.map(item => (
+      <li key={item._id} onClick={() => this.onSelect(item._id)}>
+        <TemplateTitle>{item.name}</TemplateTitle>
+      </li>
+    ));
+  }
+
+  render() {
+    const { __ } = this.context;
+
+    const popover = (
+      <Popover
+        className="popover-template"
+        id="templates-popover"
+        title={__('Messenger apps')}
+      >
+        <PopoverBody>
+          <PopoverList>{this.renderItems()}</PopoverList>
+        </PopoverBody>
+      </Popover>
+    );
+
+    return (
+      <ResponseTemplateStyled>
+        <OverlayTrigger
+          trigger="click"
+          placement="top"
+          overlay={popover}
+          rootClose
+          ref="overlay"
+        >
+          <Button btnStyle="link">
+            <Tip text={__('Messenger apps')}>
+              <Icon icon="earthgrid" />
+            </Tip>
+          </Button>
+        </OverlayTrigger>
+      </ResponseTemplateStyled>
+    );
+  }
+}
+
+MessengerApp.propTypes = propTypes;
+MessengerApp.contextTypes = {
+  __: PropTypes.func
+};
+
+export default MessengerApp;
