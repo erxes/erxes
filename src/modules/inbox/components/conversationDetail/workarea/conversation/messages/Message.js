@@ -4,8 +4,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import classNames from 'classnames';
-import { NameCard, Table, Tip, Attachment } from 'modules/common/components';
-import { MessageItem, MessageBody, MessageContent, FormTable } from './styles';
+import { NameCard, Tip, Attachment } from 'modules/common/components';
+import { MessageItem, MessageBody, MessageContent } from '../styles';
+import FormMessage from './FormMessage';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
@@ -88,35 +89,7 @@ function Message({ message, staff, isSameUser, scrollBottom }) {
 
   const renderMessage = () => {
     if (message.formWidgetData) {
-      return (
-        <FormTable>
-          <Table striped>
-            <thead>
-              <tr>
-                <th className="text-center" colSpan="2">
-                  {message.content}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {message.formWidgetData.map((data, index) => (
-                <tr key={index}>
-                  <td width="40%">
-                    <b>{data.text}:</b>
-                  </td>
-                  {data.validation === 'date' ? (
-                    <td width="60%">
-                      {moment(data.value).format('YYYY/MM/DD')}
-                    </td>
-                  ) : (
-                    <td width="60%">{data.value}</td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </FormTable>
-      );
+      return <FormMessage message={message} />;
     }
 
     const messageDate = message.createdAt;

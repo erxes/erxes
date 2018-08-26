@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import Message from './Message';
-import AttachmentPreview from './AttachmentPreview';
-import { TwitterConversation } from './TwitterConversation';
-import { FacebookConversation } from './FacebookConversation';
 import { Spinner } from 'modules/common/components';
+import { TwitterConversation } from './twitter';
+import { FacebookConversation } from './facebook';
+import { Message } from './messages';
+import AttachmentPreview from './AttachmentPreview';
 
 const propTypes = {
   conversation: PropTypes.object,
