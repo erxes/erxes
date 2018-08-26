@@ -22,10 +22,39 @@ export const getAccessToken = code => {
 
   return new Promise((resolve, reject) =>
     oauthClient.getToken(code, (err, token) => {
-      console.log('token...............', code, token);
       if (err) return reject(err);
 
       return resolve(token);
     }),
   );
+};
+
+export const createMeetEvent = (credentials, event) => {
+  const auth = getOauthClient();
+
+  auth.setCredentials(credentials);
+
+  const calendar = google.calendar({ version: 'v3', auth });
+
+  return new Promise((resolve, reject) => {
+    calendar.events.insert(
+      {
+        auth,
+        calendarId: 'primary',
+        resource: {
+          description: event.summary,
+          ...event,
+        },
+        conferenceDataVersion: 1,
+      },
+
+      (error, response) => {
+        if (error) {
+          return reject(error);
+        }
+
+        return resolve(response.data);
+      },
+    );
+  });
 };
