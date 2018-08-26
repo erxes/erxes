@@ -26,6 +26,7 @@ import { DealBoards, DealPipelines, DealStages, Deals } from './Deals';
 import Products from './Products';
 import Configs from './Configs';
 import ImportHistory from './ImportHistory';
+import MessengerApps from './MessengerApps';
 
 export {
   Users,
@@ -59,4 +60,5 @@ export {
   Configs,
   FieldsGroups,
   ImportHistory,
+  MessengerApps,
 };

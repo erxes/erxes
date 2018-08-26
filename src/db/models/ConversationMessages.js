@@ -19,6 +19,7 @@ const MessageSchema = mongoose.Schema({
   formWidgetData: field({ type: Object }),
   facebookData: field({ type: ConversationMessageFacebookSchema }),
   twitterData: field({ type: TwitterResponseSchema }),
+  messengerAppData: field({ type: Object }),
 });
 
 class Message {
@@ -89,10 +90,10 @@ class Message {
   }
 
   /**
-  * User's last non answered question
-  * @param  {String} conversationId
-  * @return {Promise} Message object
-  */
+   * User's last non answered question
+   * @param  {String} conversationId
+   * @return {Promise} Message object
+   */
   static getNonAsnweredMessage(conversationId) {
     return this.findOne({
       conversationId: conversationId,

@@ -20,6 +20,7 @@ import deals from './deals';
 import products from './products';
 import configs from './configs';
 import importHistory from './importHistory';
+import messengerApps from './messengerApps';
 
 export default {
   ...users,
@@ -45,4 +46,5 @@ export default {
   ...configs,
   ...fieldsgroups,
   ...importHistory,
+  ...messengerApps,
 };

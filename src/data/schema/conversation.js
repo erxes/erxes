@@ -109,6 +109,7 @@ export const types = `
     isCustomerRead: Boolean
     engageData: EngageData
     formWidgetData: JSON
+    messengerAppData: JSON
     twitterData: TwitterData
     facebookData: ConversationMessageFacebookData
 
