@@ -683,6 +683,7 @@ export const dealStageFactory = (params: IDealStageFactoryInput) => {
 
 interface IDealFactoryInput {
   stageId?: string;
+  productsData?: any;
 }
 
 export const dealFactory = (params: IDealFactoryInput) => {

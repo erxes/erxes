@@ -219,9 +219,6 @@ class Field {
 
   /*
    * Validates multiple fields, fixes values if necessary
-   *
-   * @param {Object} data - field._id, value mapping
-   * @return {String} - valid indicator
    */
   public static async cleanMulti(data) {
     const ids = Object.keys(data);
