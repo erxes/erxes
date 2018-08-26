@@ -1,15 +1,15 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
-import { ImportHistory, Customers, Users } from '../db/models';
-import { customerFactory, userFactory } from '../db/factories';
+import { connect, disconnect } from "../db/connection";
+import { customerFactory, userFactory } from "../db/factories";
+import { Customers, ImportHistory, Users } from "../db/models";
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Import history model test', () => {
+describe("Import history model test", () => {
   afterEach(async () => {
     // Clearing test data
     await ImportHistory.remove({});
@@ -17,7 +17,7 @@ describe('Import history model test', () => {
     await Users.remove({});
   });
 
-  test('Create import history', async () => {
+  test("Create import history", async () => {
     const customer = await customerFactory({});
     const user = await userFactory({});
 
@@ -27,19 +27,19 @@ describe('Import history model test', () => {
         failed: 1,
         total: 4,
         ids: [customer._id],
-        contentType: 'customer',
+        contentType: "customer"
       },
-      user,
+      user
     );
 
     expect(importHistory.success).toBe(0);
     expect(importHistory.failed).toBe(1);
     expect(importHistory.total).toBe(4);
     expect(importHistory.ids.length).toBe(1);
-    expect(importHistory.contentType).toBe('customer');
+    expect(importHistory.contentType).toBe("customer");
   });
 
-  test('Remove history', async () => {
+  test("Remove history", async () => {
     const customer = await customerFactory({});
     const customer1 = await customerFactory({});
     const customer2 = await customerFactory({});
@@ -51,9 +51,9 @@ describe('Import history model test', () => {
         failed: 0,
         total: 3,
         ids: [customer._id, customer1._id, customer2._id],
-        contentType: 'customer',
+        contentType: "customer"
       },
-      user,
+      user
     );
 
     await ImportHistory.removeHistory(importHistory._id);

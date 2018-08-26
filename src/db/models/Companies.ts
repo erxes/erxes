@@ -46,7 +46,10 @@ interface ICompanyModel extends Model<ICompanyDocument> {
     user?: IUserDocument
   ): Promise<ICompanyDocument>;
 
-  updateCompany(_id: string, doc: ICompanyDocument): Promise<ICompanyDocument>;
+  updateCompany(
+    _id: string,
+    doc: ICreateCompanyInput
+  ): Promise<ICompanyDocument>;
 
   updateCustomers(
     _id: string,

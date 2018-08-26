@@ -1,7 +1,6 @@
 import { Model, model } from "mongoose";
 import {
   ActivityLogs,
-  Companies,
   Conversations,
   EngageMessages,
   Fields,
@@ -76,7 +75,7 @@ interface ICustomerModel extends Model<ICustomerDocument> {
   ): Promise<ICustomerDocument>;
 
   markCustomerAsActive(customerId: string): ICustomerDocument;
-  markCustomerAsActive(_id: string): ICustomerDocument;
+  markCustomerAsNotActive(_id: string): ICustomerDocument;
 
   updateCompanies(_id: string, companyIds: string[]): ICustomerDocument;
   removeCustomer(customerId: string): void;
@@ -88,7 +87,7 @@ interface ICustomerModel extends Model<ICustomerDocument> {
 
   bulkInsert(
     fieldNames: string[],
-    fieldValues: string[],
+    fieldValues: string[][],
     user: IUserDocument
   ): Promise<string[]>;
 }
@@ -360,7 +359,7 @@ class Customer {
    */
   public static async bulkInsert(
     fieldNames: string[],
-    fieldValues: string[],
+    fieldValues: string[][],
     user: IUserDocument
   ) {
     const params = {

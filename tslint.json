@@ -8,6 +8,7 @@
       "ban-keywords",
       "check-format",
       "allow-leading-underscore"
-    ]
+    ],
+    "max-classes-per-file": [true, 5]
   }
 }

@@ -30,7 +30,7 @@ type CocDocument = ICompanyDocument | ICustomerDocument;
 
 export const bulkInsert = async (params: {
   fieldNames: string[];
-  fieldValues: string[];
+  fieldValues: string[][];
   user: IUserDocument;
   basicInfos: any;
   contentType: string;
