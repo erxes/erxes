@@ -1,23 +1,15 @@
-import schedule from 'node-schedule';
 import { EngageMessages } from '../db/models';
-import { send } from '../data/resolvers/mutations/engageUtils';
+import { createSchedule } from '../trackers/engageScheduleTracker';
 
-/**
-* Send engage auto messages
-*/
-export const sendAutoMessage = async () => {
-  const messages = await EngageMessages.find({ kind: 'auto', isLive: true });
+const initCronJob = async () => {
+  const messages = await EngageMessages.find({
+    kind: { $in: ['auto', 'visitorAuto'] },
+    isLive: true,
+  });
 
   for (let message of messages) {
-    send(message);
+    createSchedule(message);
   }
 };
 
-// every day at 23 45
-schedule.scheduleJob('* 45 23 * *', function() {
-  sendAutoMessage();
-});
-
-export default {
-  sendAutoMessage,
-};
+initCronJob();

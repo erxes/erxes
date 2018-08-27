@@ -2,6 +2,16 @@ import mongoose from 'mongoose';
 import { MESSENGER_KINDS, SENT_AS_CHOICES, METHODS } from '../../data/constants';
 import { field } from './utils';
 
+const ScheduleDateSchema = mongoose.Schema(
+  {
+    type: field({ type: String, optional: true }),
+    month: field({ type: String, optional: true }),
+    day: field({ type: String, optional: true }),
+    time: field({ type: Date, optional: true }),
+  },
+  { _id: false },
+);
+
 const EmailSchema = mongoose.Schema(
   {
     templateId: field({
@@ -86,6 +96,7 @@ const EngageMessageSchema = mongoose.Schema({
   messengerReceivedCustomerIds: field({ type: [String] }),
 
   email: field({ type: EmailSchema }),
+  scheduleDate: field({ type: ScheduleDateSchema }),
   messenger: field({ type: MessengerSchema }),
   deliveryReports: field({ type: Object }),
   stats: field({ type: StatsSchema, default: {} }),
