@@ -19,8 +19,7 @@ import {
 
 const propTypes = {
   message: PropTypes.object.isRequired,
-  replyPost: PropTypes.func,
-  scrollBottom: PropTypes.func
+  replyPost: PropTypes.func
 };
 
 export default class FacebookComment extends Component {
@@ -38,7 +37,7 @@ export default class FacebookComment extends Component {
   }
 
   render() {
-    const { message, replyPost, scrollBottom } = this.props;
+    const { message, replyPost } = this.props;
     const data = message.facebookData || {};
     const size = data && data.parentId ? 20 : 32;
 
@@ -54,7 +53,6 @@ export default class FacebookComment extends Component {
                 content={message.content}
                 image={data.photo}
                 link={data.link || data.video}
-                scrollBottom={scrollBottom}
               />
             </Comment>
             {this.renderReactionCount(data)}

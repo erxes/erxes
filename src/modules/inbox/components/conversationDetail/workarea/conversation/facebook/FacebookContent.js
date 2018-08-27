@@ -7,8 +7,7 @@ const propTypes = {
   content: PropTypes.string.isRequired,
   image: PropTypes.string,
   link: PropTypes.string,
-  images: PropTypes.array,
-  scrollBottom: PropTypes.func
+  images: PropTypes.array
 };
 
 export default class FacebookContent extends Component {
@@ -19,11 +18,7 @@ export default class FacebookContent extends Component {
 
     return (
       <ImageContainer>
-        <ImageWithPreview
-          alt={image}
-          src={image}
-          onLoad={this.props.scrollBottom}
-        />
+        <ImageWithPreview alt={image} src={image} />
       </ImageContainer>
     );
   }
@@ -36,13 +31,7 @@ export default class FacebookContent extends Component {
     return (
       <ImageContainer>
         {images.map((image, index) => (
-          <ImageWithPreview
-            key={index}
-            alt={image}
-            src={image}
-            onLoad={this.props.scrollBottom}
-            full
-          />
+          <ImageWithPreview key={index} alt={image} src={image} full />
         ))}
       </ImageContainer>
     );
@@ -76,11 +65,7 @@ export default class FacebookContent extends Component {
     ) {
       return (
         <ImageContainer isComment>
-          <ImageWithPreview
-            alt={link}
-            src={link}
-            onLoad={this.props.scrollBottom}
-          />
+          <ImageWithPreview alt={link} src={link} />
         </ImageContainer>
       );
     }

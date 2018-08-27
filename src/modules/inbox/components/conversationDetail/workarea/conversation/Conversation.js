@@ -11,7 +11,6 @@ const propTypes = {
   conversation: PropTypes.object,
   conversationMessages: PropTypes.array.isRequired,
   attachmentPreview: PropTypes.object,
-  scrollBottom: PropTypes.func.isRequired,
   loading: PropTypes.bool
 };
 
@@ -26,19 +25,8 @@ const Wrapper = styled.div`
 `;
 
 class Conversation extends Component {
-  isStuff(conversation, firstMessage, currentMessage) {
-    if (conversation.twitterData && firstMessage.twitterData) {
-      const firstTwitterData = firstMessage.customer.twitterData;
-      const currentTwitterData = currentMessage.customer.twitterData;
-
-      return firstTwitterData.id_str !== currentTwitterData.id_str || false;
-    }
-
-    return currentMessage.userId ? true : false;
-  }
-
   renderMessages() {
-    const { conversation, conversationMessages, scrollBottom } = this.props;
+    const { conversation, conversationMessages } = this.props;
 
     if (!conversation) {
       return null;
@@ -47,7 +35,6 @@ class Conversation extends Component {
     let messagesList = conversationMessages || [];
 
     const messages = messagesList.slice();
-    const firstMessage = messages.length && messages[0];
     const rows = [];
 
     let tempId;
@@ -61,9 +48,7 @@ class Conversation extends Component {
               : message.customerId === tempId
           }
           message={message}
-          staff={this.isStuff(conversation, firstMessage, message)}
           key={message._id}
-          scrollBottom={scrollBottom}
         />
       );
 
@@ -74,12 +59,7 @@ class Conversation extends Component {
   }
 
   renderConversation() {
-    const {
-      loading,
-      conversation,
-      scrollBottom,
-      conversationMessages
-    } = this.props;
+    const { loading, conversation, conversationMessages } = this.props;
 
     if (loading) {
       return <Spinner objective />;
@@ -94,7 +74,6 @@ class Conversation extends Component {
       return (
         <TwitterConversation
           conversation={conversation}
-          scrollBottom={scrollBottom}
           conversationMessages={conversationMessages}
         />
       );
@@ -104,7 +83,6 @@ class Conversation extends Component {
       return (
         <FacebookConversation
           conversation={conversation}
-          scrollBottom={scrollBottom}
           conversationMessages={conversationMessages}
         />
       );
@@ -114,15 +92,12 @@ class Conversation extends Component {
   }
 
   render() {
-    const { attachmentPreview, scrollBottom } = this.props;
+    const { attachmentPreview } = this.props;
 
     return (
       <Wrapper>
         {this.renderConversation()}
-        <AttachmentPreview
-          scrollBottom={scrollBottom}
-          attachmentPreview={attachmentPreview}
-        />
+        <AttachmentPreview attachmentPreview={attachmentPreview} />
       </Wrapper>
     );
   }

@@ -5,7 +5,6 @@ import { FacebookPost } from './';
 
 const propTypes = {
   conversation: PropTypes.object,
-  scrollBottom: PropTypes.func.isRequired,
   conversationMessages: PropTypes.array
 };
 
@@ -19,7 +18,7 @@ const getAttr = (message, attr) => {
 
 export default class FacebookConversation extends Component {
   renderReplies(comment) {
-    const { conversationMessages = [], scrollBottom } = this.props;
+    const { conversationMessages = [] } = this.props;
 
     const replies = conversationMessages.filter(msg => {
       const parentId = getAttr(msg, 'parentId');
@@ -29,13 +28,13 @@ export default class FacebookConversation extends Component {
 
     return replies.map(reply => (
       <Fragment key={reply._id}>
-        <FacebookComment message={reply} scrollBottom={scrollBottom} />
+        <FacebookComment message={reply} />
       </Fragment>
     ));
   }
 
   renderComments(post) {
-    const { conversationMessages = [], scrollBottom } = this.props;
+    const { conversationMessages = [] } = this.props;
 
     const comments = conversationMessages.filter(
       msg => !getAttr(msg, 'isPost') && !getAttr(msg, 'parentId')
@@ -43,18 +42,14 @@ export default class FacebookConversation extends Component {
 
     return comments.map(comment => (
       <Fragment key={comment._id}>
-        <FacebookComment message={comment} scrollBottom={scrollBottom} />
+        <FacebookComment message={comment} />
         {this.renderReplies(comment)}
       </Fragment>
     ));
   }
 
   render() {
-    const {
-      conversation,
-      conversationMessages = [],
-      scrollBottom
-    } = this.props;
+    const { conversation, conversationMessages = [] } = this.props;
 
     if (!conversation) {
       return null;
@@ -70,7 +65,7 @@ export default class FacebookConversation extends Component {
 
     return (
       <Fragment>
-        <FacebookPost message={post} scrollBottom={scrollBottom} />
+        <FacebookPost message={post} />
         {this.renderComments(post)}
       </Fragment>
     );

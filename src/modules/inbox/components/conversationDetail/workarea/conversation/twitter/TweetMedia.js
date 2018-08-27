@@ -32,13 +32,12 @@ const GifIcon = styled.span`
 `;
 
 const propTypes = {
-  data: PropTypes.object.isRequired,
-  scrollBottom: PropTypes.func
+  data: PropTypes.object.isRequired
 };
 
 class TweetMedia extends Component {
   renderMedia() {
-    const { data, scrollBottom } = this.props;
+    const { data } = this.props;
     const entities =
       data.extended_entities ||
       (data.extended_tweet &&
@@ -53,7 +52,6 @@ class TweetMedia extends Component {
         <ImageWithPreview
           alt={entities.media[0].url}
           src={entities.media[0].media_url}
-          onLoad={scrollBottom}
         />
       );
     }
