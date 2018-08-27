@@ -46,11 +46,34 @@ const withSaveAndEdit = Component => {
       return doMutation(addMutation, doc);
     };
 
+    const messenger = message.messenger || {};
+    const email = message.email || {};
+    const scheduleDate = message.scheduleDate || {};
+
     const updatedProps = {
       ...props,
       save,
       users,
-      message
+      message: {
+        ...message,
+        // excluding __type auto fields
+        messenger: {
+          brandId: messenger.brandId || '',
+          kind: messenger.kind || '',
+          sentAs: messenger.sentAs || ''
+        },
+        email: {
+          templateId: email.templateId || '',
+          subject: email.subject || '',
+          attachments: email.attachments || []
+        },
+        scheduleDate: {
+          type: scheduleDate.type || '',
+          month: scheduleDate.month || '',
+          day: scheduleDate.day || '',
+          time: scheduleDate.time
+        }
+      }
     };
 
     return <Component {...updatedProps} />;
@@ -83,7 +106,12 @@ const withSaveAndEdit = Component => {
       }),
       graphql(gql(mutations.messagesEdit), {
         name: 'editMutation',
-        options: crudMutationsOptions
+        options: {
+          refetchQueries: [
+            ...crudMutationsOptions().refetchQueries,
+            'engageMessageDetail'
+          ]
+        }
       })
     )(Container)
   );

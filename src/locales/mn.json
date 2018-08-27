@@ -672,5 +672,20 @@
   "Invalid import type": "Буруу төрөл сонгосон байна",
   "Last updated": "Сүүлд өөрчилсөн",
   "Filter by lead status": "Лийдийн төлөвөөр шүүх",
-  "No lead status chosen": "Лийдийн төлөв сонгоогүй байна"
+  "No lead status chosen": "Лийдийн төлөв сонгоогүй байна",
+  "Schedule:": "Цагын хуваарь",
+  "Every Day": "Өдөр бүр",
+  "Every Month": "Сар бүр",
+  "Every Year": "Жил бүр",
+  "Every Monday": "Даваа гараг бүр",
+  "Every Tuesday": "Мягмар гараг бүр",
+  "Every Wednesday": "Лхагва гараг бүр",
+  "Every Thursday": "Пүрэв гараг бүр",
+  "Every Friday": "Баасан гараг бүр",
+  "Every Saturday": "Хагас сайн бүр",
+  "Every Sunday": "Бүтэн сайн бүр",
+  "Choose schedule type": "Цагын хуваарь төрөл сонгоно уу",
+  "Choose schedule time": "Цагын хуваарь цаг сонгоно уу",
+  "Choose schedule day": "Цагын хуваарь өдөр сонгоно уу",
+  "Choose schedule month": "Цагын хуваарь сар сонгоно уу"
 }

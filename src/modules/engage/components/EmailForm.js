@@ -11,6 +11,7 @@ import {
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Editor from './Editor';
+import Scheduler from './Scheduler';
 
 const PreviewContainer = styled.div`
   margin: 20px;
@@ -34,7 +35,8 @@ const propTypes = {
   message: PropTypes.string,
   users: PropTypes.array,
   templates: PropTypes.array,
-  defaultValue: PropTypes.object
+  defaultValue: PropTypes.object,
+  kind: PropTypes.string
 };
 
 class EmailForm extends Component {
@@ -42,6 +44,7 @@ class EmailForm extends Component {
     super(props);
 
     const message = this.props.defaultValue || {};
+    const scheduleDate = message.scheduleDate || {};
 
     this.state = {
       fromUser: message.fromUser || '',
@@ -51,7 +54,8 @@ class EmailForm extends Component {
         subject: message.email.subject || '',
         templateId: message.email.templateId || '',
         attachments: message.email.attachments || []
-      }
+      },
+      scheduleDate
     };
   }
 
@@ -130,6 +134,19 @@ class EmailForm extends Component {
     );
   }
 
+  renderScheduler() {
+    if (this.props.kind === 'manual') {
+      return null;
+    }
+
+    return (
+      <Scheduler
+        scheduleDate={this.state.scheduleDate}
+        onChange={this.props.changeEmail}
+      />
+    );
+  }
+
   render() {
     const { attachments } = this.state.email;
 
@@ -192,6 +209,8 @@ class EmailForm extends Component {
               }
             />
           </FormGroup>
+
+          {this.renderScheduler()}
         </FlexPad>
 
         <FlexItem v="center" h="center" overflow="auto">

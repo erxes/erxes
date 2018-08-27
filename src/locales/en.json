@@ -668,5 +668,20 @@
   "Invalid import type": "Invalid import type",
   "Last updated": "Last updated",
   "Filter by lead status": "Filter by lead status",
-  "No lead status chosen": "No lead status chosen"
+  "No lead status chosen": "No lead status chosen",
+  "Schedule:": "Schedule:",
+  "Every Day": "Every Day",
+  "Every Month": "Every Month",
+  "Every Year": "Every Year",
+  "Every Monday": "Every Monday",
+  "Every Tuesday": "Every Tuesday",
+  "Every Wednesday": "Every Wednesday",
+  "Every Thursday": "Every Thursday",
+  "Every Friday": "Every Friday",
+  "Every Saturday": "Every Saturday",
+  "Every Sunday": "Every Sunday",
+  "Choose schedule type": "Choose schedule type",
+  "Choose schedule time": "Choose schedule time",
+  "Choose schedule day": "Choose schedule day",
+  "Choose schedule month": "Choose schedule month"
 }
