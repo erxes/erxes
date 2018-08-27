@@ -63,7 +63,7 @@ class InternalNote {
   /*
    * Remove internalNote
    */
-  public static async removeInternalNote(_id) {
+  public static async removeInternalNote(_id: string) {
     const internalNoteObj = await InternalNotes.findOne({ _id });
 
     if (!internalNoteObj) {
@@ -76,7 +76,10 @@ class InternalNote {
   /**
    * Transfers customers' internal notes to another customer
    */
-  public static async changeCustomer(newCustomerId, customerIds) {
+  public static async changeCustomer(
+    newCustomerId: string,
+    customerIds: string[]
+  ) {
     for (const customerId of customerIds) {
       // Updating every internal notes of customer
       await InternalNotes.updateMany(
@@ -98,7 +101,7 @@ class InternalNote {
   /**
    * Removing customers' internal notes
    */
-  public static async removeCustomerInternalNotes(customerId) {
+  public static async removeCustomerInternalNotes(customerId: string) {
     // Removing every internal ntoes of customer
     return InternalNotes.remove({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
@@ -109,7 +112,7 @@ class InternalNote {
   /**
    * Removing companies' internal notes
    */
-  public static async removeCompanyInternalNotes(companyId) {
+  public static async removeCompanyInternalNotes(companyId: string) {
     // Removing every internal notes of company
     return InternalNotes.remove({
       contentType: COC_CONTENT_TYPES.COMPANY,
@@ -120,7 +123,10 @@ class InternalNote {
   /**
    * Transfers companies' internal notes to another company
    */
-  public static async changeCompany(newCompanyId, oldCompanyIds) {
+  public static async changeCompany(
+    newCompanyId: string,
+    oldCompanyIds: string[]
+  ) {
     for (const companyId of oldCompanyIds) {
       // Updating every internal notes of company
       await InternalNotes.updateMany(

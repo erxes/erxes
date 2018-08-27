@@ -30,7 +30,7 @@ class ImportHistory {
   /*
    * Remove Imported history
    */
-  public static async removeHistory(_id) {
+  public static async removeHistory(_id: string) {
     const historyObj = await ImportHistories.findOne({ _id });
 
     const { ids = [], contentType } = historyObj;
