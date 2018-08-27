@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import SelectBrand from './SelectBrand';
 import {
   Button,
   FormGroup,
@@ -8,6 +7,7 @@ import {
   ControlLabel
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { SelectBrand } from 'modules/settings/integrations/components';
 
 class Facebook extends Component {
   constructor(props, context) {

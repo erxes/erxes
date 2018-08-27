@@ -1,17 +1,5 @@
-import List from './List';
-import CreateMessenger from './CreateMessenger';
+import SelectBrand from './SelectBrand';
 import InstallCode from './InstallCode';
-import AddIntegration from './AddIntegration';
-import Twitter from './Twitter';
-import Facebook from './Facebook';
-import WidgetPreview from './widgetPreview/WidgetPreview';
+import Sidebar from './Sidebar';
 
-export {
-  List,
-  CreateMessenger,
-  InstallCode,
-  AddIntegration,
-  Twitter,
-  Facebook,
-  WidgetPreview
-};
+export { SelectBrand, InstallCode, Sidebar };

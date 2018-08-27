@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import {
@@ -120,17 +120,19 @@ class IntegrationList extends Component {
     const { __ } = this.context;
 
     return (
-      <Table>
-        <thead>
-          <tr>
-            <th>{__('Name')}</th>
-            <th>{__('Kind')}</th>
-            <th>{__('Brand')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{integrations.map(i => this.renderRow(i))}</tbody>
-      </Table>
+      <Fragment>
+        <Table>
+          <thead>
+            <tr>
+              <th>{__('Name')}</th>
+              <th>{__('Kind')}</th>
+              <th>{__('Brand')}</th>
+              <th>{__('Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>{integrations.map(i => this.renderRow(i))}</tbody>
+        </Table>
+      </Fragment>
     );
   }
 }

@@ -8,8 +8,8 @@ import {
   ControlLabel
 } from 'modules/common/components';
 import { OnlineHours } from '/';
-import { timezones } from '../../constants';
 import { LeftItem, FlexItem } from 'modules/common/components/step/styles';
+import { timezones } from 'modules/settings/integrations/constants';
 
 const propTypes = {
   onChange: PropTypes.func,
