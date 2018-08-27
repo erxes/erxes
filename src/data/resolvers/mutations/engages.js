@@ -49,11 +49,6 @@ const engageMutations = {
       await send(engageMessage);
     }
 
-    // Create schedule time if auto, visitorAuto
-    if (doc.kind === MESSAGE_KINDS.AUTO || doc.kind === MESSAGE_KINDS.VISITOR_AUTO) {
-      createSchedule(engageMessage);
-    }
-
     return engageMessage;
   },
 
@@ -91,20 +86,29 @@ const engageMutations = {
   },
 
   /**
-   * Engage message set live
+   * Engage message set live and create cron job
    * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
-  engageMessageSetLive(root, _id) {
-    return EngageMessages.engageMessageSetLive(_id);
+  async engageMessageSetLive(root, _id) {
+    const engageMessage = await EngageMessages.engageMessageSetLive(_id);
+
+    const { kind } = engageMessage;
+
+    if (kind === MESSAGE_KINDS.AUTO || kind === MESSAGE_KINDS.AUTO) {
+      createSchedule(engageMessage);
+    }
+
+    return engageMessage;
   },
 
   /**
-   * Engage message set pause
+   * Engage message set pause and cancel cron job
    * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
   engageMessageSetPause(root, _id) {
+    updateOrRemoveSchedule(_id);
     return EngageMessages.engageMessageSetPause(_id);
   },
 

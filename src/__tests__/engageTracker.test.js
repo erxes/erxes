@@ -15,14 +15,7 @@ describe('Engage tracker tests', async () => {
 
     const rule = createScheduleRule(doc);
 
-    // Date of month [0-11]
-    expect(rule.month).toBe(1);
-
-    expect(rule.date).toBe(14);
-    expect(rule.hour).toBe(12);
-    expect(rule.minute).toBe(25);
-    expect(rule.second).toBe(0);
-    expect(rule.dayOfWeek).toBe(null);
+    expect(rule).toBe('25 12 14 2 *');
   });
 
   test('Create schedule cron job by month', () => {
@@ -34,12 +27,7 @@ describe('Engage tracker tests', async () => {
 
     const rule = createScheduleRule(doc);
 
-    expect(rule.date).toBe(14);
-    expect(rule.hour).toBe(12);
-    expect(rule.minute).toBe(25);
-    expect(rule.second).toBe(0);
-    expect(rule.dayOfWeek).toBe(null);
-    expect(rule.month).toBe(null);
+    expect(rule).toBe('25 12 14 * *');
   });
 
   test('Create schedule cron job by day', () => {
@@ -50,11 +38,7 @@ describe('Engage tracker tests', async () => {
 
     const rule = createScheduleRule(doc);
 
-    expect(rule.hour).toBe(12);
-    expect(rule.minute).toBe(25);
-    expect(rule.second).toBe(0);
-    expect(rule.dayOfWeek).toBe(null);
-    expect(rule.date).toBe(null);
+    expect(rule).toBe('25 12 * * *');
   });
 
   test('Create schedule cron job by week day', () => {
@@ -65,11 +49,7 @@ describe('Engage tracker tests', async () => {
 
     const rule = createScheduleRule(doc);
 
-    expect(rule.hour).toBe(12);
-    expect(rule.minute).toBe(25);
-    expect(rule.second).toBe(0);
-    expect(rule.dayOfWeek).toBe('5');
-    expect(rule.date).toBe(null);
+    expect(rule).toBe('25 12 * * 5');
   });
 
   test('Create default schedule cron job', () => {

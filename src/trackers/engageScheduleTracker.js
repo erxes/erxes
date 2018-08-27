@@ -32,23 +32,35 @@ export const createScheduleRule = scheduleDate => {
 
   const time = moment(scheduleDate.time);
 
-  const hour = time.hour();
-  const minute = time.minute() || 0;
-  const month = (scheduleDate.month && Number(scheduleDate.month) - 1) || null;
+  const hour = time.hour() || '*';
+  const minute = time.minute() || '*';
+  const month = scheduleDate.month || '*';
 
-  let dayOfWeek = null;
-  let date = null;
+  let dayOfWeek = '*';
+  let day = '*';
 
   // Schedule type day of week [0-6]
   if (scheduleDate.type.length === 1) {
-    dayOfWeek = scheduleDate.type;
+    dayOfWeek = scheduleDate.type || '*';
   }
 
   if (scheduleDate.type === 'month' || scheduleDate.type === 'year') {
-    date = Number(scheduleDate.day);
+    day = scheduleDate.day || '*';
   }
 
-  return { hour, minute, second: 0, month, dayOfWeek, date };
+  /*
+      *    *    *    *    *    *
+    ┬    ┬    ┬    ┬    ┬    ┬
+    │    │    │    │    │    │
+    │    │    │    │    │    └ day of week (0 - 7) (0 or 7 is Sun)
+    │    │    │    │    └───── month (1 - 12)
+    │    │    │    └────────── day of month (1 - 31)
+    │    │    └─────────────── hour (0 - 23)
+    │    └──────────────────── minute (0 - 59)
+    └───────────────────────── second (0 - 59, OPTIONAL)
+  */
+
+  return `${minute} ${hour} ${day} ${month} ${dayOfWeek}`;
 };
 
 /**
