@@ -95,7 +95,7 @@ const engageMutations = {
 
     const { kind } = engageMessage;
 
-    if (kind === MESSAGE_KINDS.AUTO || kind === MESSAGE_KINDS.AUTO) {
+    if (kind === MESSAGE_KINDS.AUTO || kind === MESSAGE_KINDS.VISITOR_AUTO) {
       createSchedule(engageMessage);
     }
 
