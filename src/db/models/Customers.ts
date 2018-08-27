@@ -232,7 +232,7 @@ class Customer {
   /**
    * Removes customer
    */
-  public static async removeCustomer(customerId) {
+  public static async removeCustomer(customerId: string) {
     // Removing every modules that associated with customer
     await ActivityLogs.removeCustomerActivityLog(customerId);
     await Conversations.removeCustomerConversations(customerId);
