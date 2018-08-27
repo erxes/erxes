@@ -331,16 +331,14 @@ describe("Customers model tests", () => {
     expect(mergedCustomer.lastName).toBe(doc.lastName);
     expect(mergedCustomer.primaryEmail).toBe(doc.primaryEmail);
     expect(mergedCustomer.primaryPhone).toBe(doc.primaryPhone);
-    expect(mergedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
-    expect(mergedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
-    expect(mergedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
+    expect(mergedCustomer.twitterData).toEqual(doc.twitterData);
+    expect(mergedCustomer.messengerData).toEqual(doc.messengerData);
+    expect(mergedCustomer.facebookData).toEqual(doc.facebookData);
     expect(mergedCustomer.companyIds).toEqual(
       expect.arrayContaining(mergedCompanyIds)
     );
     expect(mergedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
-    expect(mergedCustomer.visitorContactInfo.toJSON()).toEqual(
-      doc.visitorContactInfo
-    );
+    expect(mergedCustomer.visitorContactInfo).toEqual(doc.visitorContactInfo);
     expect(mergedCustomer.ownerId).toBe("456");
 
     // Checking old customers datas to be deleted
