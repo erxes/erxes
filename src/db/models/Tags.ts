@@ -7,18 +7,11 @@ import {
   EngageMessages,
   Integrations
 } from ".";
-import { ITagDocument, tagSchema } from "./definitions/tags";
-
-interface ITagInput {
-  name?: string;
-  type?: string;
-  colorCode?: string;
-  objectCount?: number;
-}
+import { ITag, ITagDocument, tagSchema } from "./definitions/tags";
 
 interface ITagModel extends Model<ITagDocument> {
-  createTag(doc: ITagInput): Promise<ITagDocument>;
-  updateTag(_id: string, doc: ITagInput): Promise<ITagDocument>;
+  createTag(doc: ITag): Promise<ITagDocument>;
+  updateTag(_id: string, doc: ITag): Promise<ITagDocument>;
   removeTag(ids: string[]): void;
   tagsTag(type: string, targetIds: string[], tagIds: string[]): void;
 }
@@ -119,7 +112,7 @@ class Tag {
   /**
    * Create a tag
    */
-  public static async createTag(doc: ITagInput) {
+  public static async createTag(doc: ITag) {
     const isUnique = await validateUniqueness(null, doc.name, doc.type);
 
     if (!isUnique) {
@@ -135,7 +128,7 @@ class Tag {
   /**
    * Update Tag
    */
-  public static async updateTag(_id: string, doc: ITagInput) {
+  public static async updateTag(_id: string, doc: ITag) {
     const isUnique = await validateUniqueness({ _id }, doc.name, doc.type);
 
     if (!isUnique) {

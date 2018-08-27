@@ -1,39 +1,16 @@
 import { Model, model } from "mongoose";
 import {
   engageMessageSchema,
-  IEmail,
-  IEngageMessageDocument,
-  IMessenger,
-  IStats
+  IEngageMessage,
+  IEngageMessageDocument
 } from "./definitions/engages";
 
-interface IEngageMessageInput {
-  kind?: string;
-  segmentId?: string;
-  customerIds?: string[];
-  title?: string;
-  fromUserId?: string;
-  method?: string;
-  isDraft?: boolean;
-  isLive?: boolean;
-  stopDate?: Date;
-  tagIds?: string[];
-  messengerReceivedCustomerIds?: string[];
-  email?: IEmail;
-  messenger?: IMessenger;
-  deliveryReports?: any;
-  userId?: string;
-  stats?: IStats;
-}
-
 interface IEngageMessageModel extends Model<IEngageMessageDocument> {
-  createEngageMessage(
-    doc: IEngageMessageInput
-  ): Promise<IEngageMessageDocument>;
+  createEngageMessage(doc: IEngageMessage): Promise<IEngageMessageDocument>;
 
   updateEngageMessage(
     _id: string,
-    doc: IEngageMessageInput
+    doc: IEngageMessage
   ): Promise<IEngageMessageDocument>;
 
   engageMessageSetLive(_id: string): Promise<IEngageMessageDocument>;
@@ -66,11 +43,10 @@ class Message {
   /**
    * Create engage message
    */
-  public static createEngageMessage(doc: IEngageMessageInput) {
+  public static createEngageMessage(doc: IEngageMessage) {
     return EngageMessages.create({
       ...doc,
       deliveryReports: {},
-      createdUserId: doc.userId,
       createdDate: new Date()
     });
   }
@@ -78,10 +54,7 @@ class Message {
   /**
    * Update engage message
    */
-  public static async updateEngageMessage(
-    _id: string,
-    doc: IEngageMessageInput
-  ) {
+  public static async updateEngageMessage(_id: string, doc: IEngageMessage) {
     const message = await EngageMessages.findOne({ _id });
 
     if (message.kind === "manual") {

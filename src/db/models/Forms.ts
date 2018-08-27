@@ -2,24 +2,15 @@ import Random from "meteor-random";
 import { Model, model } from "mongoose";
 import { FIELD_CONTENT_TYPES } from "../../data/constants";
 import { Fields } from "./";
-import { formSchema, ICallout, IFormDocument } from "./definitions/forms";
-
-interface IFormInput {
-  title: string;
-  code?: string;
-  description?: string;
-  buttonText?: string;
-  themeColor?: string;
-  callout?: ICallout;
-}
+import { formSchema, IForm, IFormDocument } from "./definitions/forms";
 
 interface IFormModel extends Model<IFormDocument> {
   generateCode(): string;
-  createForm(doc: IFormInput, createdUserId: string): Promise<IFormDocument>;
+  createForm(doc: IForm, createdUserId: string): Promise<IFormDocument>;
 
   updateForm(
     _id,
-    { title, description, buttonText, themeColor, callout }: IFormInput
+    { title, description, buttonText, themeColor, callout }: IForm
   ): Promise<IFormDocument>;
 
   removeForm(_id: string): void;
@@ -45,7 +36,7 @@ class Form {
   /**
    * Creates a form document
    */
-  public static async createForm(doc: IFormInput, createdUserId: string) {
+  public static async createForm(doc: IForm, createdUserId: string) {
     if (!createdUserId) {
       throw new Error("createdUser must be supplied");
     }
@@ -64,7 +55,7 @@ class Form {
    */
   public static async updateForm(
     _id: string,
-    { title, description, buttonText, themeColor, callout }: IFormInput
+    { title, description, buttonText, themeColor, callout }: IForm
   ) {
     await Forms.update(
       { _id },

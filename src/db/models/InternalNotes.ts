@@ -1,26 +1,21 @@
 import { Model, model } from "mongoose";
 import { COC_CONTENT_TYPES } from "./definitions/constants";
 import {
+  IInternalNote,
   IInternalNoteDocument,
   internalNoteSchema
 } from "./definitions/internalNotes";
 import { IUserDocument } from "./definitions/users";
 
-interface IInternalNoteInput {
-  contentType: string;
-  contentTypeId: string;
-  content: string;
-}
-
 interface IInternalNoteModel extends Model<IInternalNoteDocument> {
   createInternalNote(
-    { contentType, contentTypeId, ...fields }: IInternalNoteInput,
+    { contentType, contentTypeId, ...fields }: IInternalNote,
     user: IUserDocument
   ): Promise<IInternalNoteDocument>;
 
   updateInternalNote(
     _id: string,
-    doc: IInternalNoteInput
+    doc: IInternalNote
   ): Promise<IInternalNoteDocument>;
 
   removeInternalNote(_id: string): void;
@@ -44,7 +39,7 @@ class InternalNote {
    * Create new internalNote
    */
   public static async createInternalNote(
-    { contentType, contentTypeId, ...fields }: IInternalNoteInput,
+    { contentType, contentTypeId, ...fields }: IInternalNote,
     user: IUserDocument
   ) {
     return InternalNotes.create({
@@ -59,7 +54,7 @@ class InternalNote {
   /*
    * Update internalNote
    */
-  public static async updateInternalNote(_id: string, doc: IInternalNoteInput) {
+  public static async updateInternalNote(_id: string, doc: IInternalNote) {
     await InternalNotes.update({ _id }, { $set: doc });
 
     return InternalNotes.findOne({ _id });

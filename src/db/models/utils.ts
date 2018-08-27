@@ -1,9 +1,7 @@
 import * as Random from "meteor-random";
 import { Fields, ImportHistory } from "./";
-import { ICreateCompanyInput } from "./Companies";
-import { ICreateCustomerInput } from "./Customers";
-import { ICompanyDocument } from "./definitions/companies";
-import { ICustomerDocument } from "./definitions/customers";
+import { ICompany, ICompanyDocument } from "./definitions/companies";
+import { ICustomer, ICustomerDocument } from "./definitions/customers";
 import { IUserDocument } from "./definitions/users";
 
 /*
@@ -25,7 +23,7 @@ export const field = options => {
   return options;
 };
 
-type CocInput = ICreateCompanyInput | ICreateCustomerInput;
+type CocInput = ICompany | ICustomer;
 type CocDocument = ICompanyDocument | ICustomerDocument;
 
 export const bulkInsert = async (params: {

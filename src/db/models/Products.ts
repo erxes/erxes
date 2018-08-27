@@ -1,18 +1,10 @@
 import { Model, model } from "mongoose";
 import { Deals } from ".";
-import { IProductDocument, productSchema } from "./definitions/deals";
-
-interface IProductInput {
-  name: string;
-  type?: string;
-  description?: string;
-  sku?: string;
-  createdAt?: Date;
-}
+import { IProduct, IProductDocument, productSchema } from "./definitions/deals";
 
 interface IProductModel extends Model<IProductDocument> {
-  createProduct(doc: IProductInput): Promise<IProductDocument>;
-  updateProduct(_id: string, doc: IProductInput): Promise<IProductDocument>;
+  createProduct(doc: IProduct): Promise<IProductDocument>;
+  updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
   removeProduct(_id: string): void;
 }
 
@@ -20,14 +12,14 @@ class Product {
   /**
    * Create a product
    */
-  public static async createProduct(doc: IProductInput) {
+  public static async createProduct(doc: IProduct) {
     return Products.create(doc);
   }
 
   /**
    * Update Product
    */
-  public static async updateProduct(_id: string, doc: IProductInput) {
+  public static async updateProduct(_id: string, doc: IProduct) {
     await Products.update({ _id }, { $set: doc });
 
     return Products.findOne({ _id });

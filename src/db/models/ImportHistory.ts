@@ -1,22 +1,15 @@
 import { Model, model } from "mongoose";
 import { Companies, Customers } from ".";
 import {
+  IImportHistory,
   IImportHistoryDocument,
   importHistorySchema
 } from "./definitions/importHistory";
 import { IUserDocument } from "./definitions/users";
 
-interface IImportHistoryInput {
-  success?: number;
-  failed?: number;
-  total?: number;
-  ids?: string[];
-  contentType: string;
-}
-
 interface IImportHistoryModel extends Model<IImportHistoryDocument> {
   createHistory(
-    doc: IImportHistoryInput,
+    doc: IImportHistory,
     user: IUserDocument
   ): Promise<IImportHistoryDocument>;
   removeHistory(_id: string): Promise<string>;
@@ -26,10 +19,7 @@ class ImportHistory {
   /* 
    * Create new history
    */
-  public static async createHistory(
-    doc: IImportHistoryInput,
-    user: IUserDocument
-  ) {
+  public static async createHistory(doc: IImportHistory, user: IUserDocument) {
     return ImportHistories.create({
       userId: user._id,
       date: new Date(),

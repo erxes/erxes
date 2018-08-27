@@ -1,20 +1,14 @@
 import { Model, model } from "mongoose";
 import {
+  IResponseTemplate,
   IResponseTemplateDocument,
   responseTemplateSchema
 } from "./definitions/responseTemplates";
 
-interface IResponseTemplateInput {
-  name?: string;
-  content?: string;
-  brandId?: string;
-  files?: string[];
-}
-
 interface IResponseTemplateModel extends Model<IResponseTemplateDocument> {
   updateResponseTemplate(
     _id: string,
-    fields: IResponseTemplateInput
+    fields: IResponseTemplate
   ): Promise<IResponseTemplateDocument>;
 
   removeResponseTemplate(_id: string): void;

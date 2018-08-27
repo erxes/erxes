@@ -2,29 +2,23 @@ import { Model, model } from "mongoose";
 import {
   configSchema,
   IConfigDocument,
+  INotification,
   INotificationDocument,
   notificationSchema
 } from "./definitions/notifications";
 import { IUserDocument } from "./definitions/users";
 
-interface INotificationInput {
-  notifType?: string;
-  title?: string;
-  content?: string;
-  link?: string;
-  receiver?: string;
-}
-
 interface INotificationModel extends Model<INotificationDocument> {
   markAsRead(ids: string[], userId?: string): void;
+
   createNotification(
-    doc: INotificationInput,
+    doc: INotification,
     createdUser: IUserDocument | string
   ): Promise<INotificationDocument>;
 
   updateNotification(
     _id: string,
-    doc: INotificationInput
+    doc: INotification
   ): Promise<INotificationDocument>;
 
   removeNotification(_id: string): void;
@@ -52,7 +46,7 @@ class Notification {
    * Create a notification
    */
   public static async createNotification(
-    doc: INotificationInput,
+    doc: INotification,
     createdUser: IUserDocument | string
   ) {
     if (!createdUser) {
@@ -76,7 +70,7 @@ class Notification {
   /**
    * Update a notification
    */
-  public static async updateNotification(_id: string, doc: INotificationInput) {
+  public static async updateNotification(_id: string, doc: INotification) {
     await Notifications.update({ _id }, doc);
 
     return Notifications.findOne({ _id });

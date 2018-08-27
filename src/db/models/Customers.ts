@@ -9,13 +9,10 @@ import {
 import { CUSTOMER_BASIC_INFOS } from "./definitions/constants";
 import {
   customerSchema,
+  ICustomer,
   ICustomerDocument,
   IFacebookData,
-  ILink,
-  ILocation,
-  IMessengerData,
-  ITwitterData,
-  IVisitorContact
+  ITwitterData
 } from "./definitions/customers";
 import { IUserDocument } from "./definitions/users";
 import { bulkInsert } from "./utils";
@@ -27,37 +24,6 @@ interface ICustomerFieldsInput {
   primaryPhone?: string;
 }
 
-export interface ICreateCustomerInput {
-  firstName?: string;
-  lastName?: string;
-  primaryEmail?: string;
-  emails?: string[];
-
-  primaryPhone?: string;
-  phones?: string[];
-
-  ownerId?: string;
-  position?: string;
-  department?: string;
-  leadStatus?: string;
-  lifecycleState?: string;
-  hasAuthority?: string;
-  description?: string;
-  doNotDisturb?: string;
-  links?: ILink;
-  isUser?: boolean;
-  integrationId?: string;
-  tagIds?: string[];
-  companyIds?: string[];
-  customFieldsData?: any;
-  messengerData?: IMessengerData;
-  twitterData?: ITwitterData;
-  facebookData?: IFacebookData;
-  location?: ILocation;
-  visitorContactInfo?: IVisitorContact;
-  urlVisits?: any;
-}
-
 interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(
     customerFields: ICustomerFieldsInput,
@@ -65,25 +31,25 @@ interface ICustomerModel extends Model<ICustomerDocument> {
   ): never;
 
   createCustomer(
-    doc: ICreateCustomerInput,
+    doc: ICustomer,
     user?: IUserDocument
   ): Promise<ICustomerDocument>;
 
-  updateCustomer(
+  updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
+
+  markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
+  markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
+
+  updateCompanies(
     _id: string,
-    doc: ICreateCustomerInput
+    companyIds: string[]
   ): Promise<ICustomerDocument>;
-
-  markCustomerAsActive(customerId: string): ICustomerDocument;
-  markCustomerAsNotActive(_id: string): ICustomerDocument;
-
-  updateCompanies(_id: string, companyIds: string[]): ICustomerDocument;
   removeCustomer(customerId: string): void;
 
   mergeCustomers(
     customerIds: string[],
-    customerFields: ICreateCustomerInput
-  ): ICustomerDocument;
+    customerFields: ICustomer
+  ): Promise<ICustomerDocument>;
 
   bulkInsert(
     fieldNames: string[],
@@ -183,10 +149,7 @@ class Customer {
   /**
    * Create a customer
    */
-  public static async createCustomer(
-    doc: ICreateCustomerInput,
-    user?: IUserDocument
-  ) {
+  public static async createCustomer(doc: ICustomer, user?: IUserDocument) {
     // Checking duplicated fields of customer
     await this.checkDuplication(doc);
 
@@ -207,7 +170,7 @@ class Customer {
   /*
    * Update customer
    */
-  public static async updateCustomer(_id: string, doc: ICreateCustomerInput) {
+  public static async updateCustomer(_id: string, doc: ICustomer) {
     // Checking duplicated fields of customer
     await this.checkDuplication(doc, _id);
 
@@ -282,7 +245,10 @@ class Customer {
   /**
    * Merge customers
    */
-  public static async mergeCustomers(customerIds, customerFields) {
+  public static async mergeCustomers(
+    customerIds: string[],
+    customerFields: ICustomer
+  ) {
     // Checking duplicated fields of customer
     await Customers.checkDuplication(customerFields, customerIds);
 

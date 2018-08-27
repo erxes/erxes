@@ -2,37 +2,15 @@ import { Model, model } from "mongoose";
 import { ActivityLogs, Customers, Fields, InternalNotes } from "./";
 import {
   companySchema,
-  ICompanyDocument,
-  ILink
+  ICompany,
+  ICompanyDocument
 } from "./definitions/companies";
 import { COMPANY_BASIC_INFOS } from "./definitions/constants";
 import { IUserDocument } from "./definitions/users";
 import { bulkInsert } from "./utils";
 
 interface ICompanyFieldsInput {
-  primaryName: string;
-}
-
-export interface ICreateCompanyInput {
   primaryName?: string;
-  names?: string[];
-  size?: number;
-  industry?: string;
-  website?: string;
-  plan?: string;
-  parentCompanyId?: string;
-  email?: string;
-  ownerId?: string;
-  phone?: string;
-  leadStatus?: string;
-  lifecycleState?: string;
-  businessType?: string;
-  description?: string;
-  employees?: number;
-  doNotDisturb?: string;
-  links?: ILink;
-  tagIds?: string[];
-  customFieldsData?: any;
 }
 
 interface ICompanyModel extends Model<ICompanyDocument> {
@@ -41,15 +19,9 @@ interface ICompanyModel extends Model<ICompanyDocument> {
     idsToExclude?: string[] | string
   ): never;
 
-  createCompany(
-    doc: ICreateCompanyInput,
-    user?: IUserDocument
-  ): Promise<ICompanyDocument>;
+  createCompany(doc: ICompany, user?: IUserDocument): Promise<ICompanyDocument>;
 
-  updateCompany(
-    _id: string,
-    doc: ICreateCompanyInput
-  ): Promise<ICompanyDocument>;
+  updateCompany(_id: string, doc: ICompany): Promise<ICompanyDocument>;
 
   updateCustomers(
     _id: string,
@@ -60,12 +32,12 @@ interface ICompanyModel extends Model<ICompanyDocument> {
 
   mergeCompanies(
     companyIds: string[],
-    companyFields: ICreateCompanyInput
+    companyFields: ICompany
   ): Promise<ICompanyDocument>;
 
   bulkInsert(
     fieldNames: string[],
-    fieldValues: string[],
+    fieldValues: string[][],
     user: IUserDocument
   ): Promise<string[]>;
 }
@@ -114,7 +86,7 @@ class Company {
   /**
    * Create a company
    */
-  public static async createCompany(doc, user) {
+  public static async createCompany(doc: ICompany, user: IUserDocument) {
     // Checking duplicated fields of company
     await this.checkDuplication(doc);
 
@@ -124,16 +96,18 @@ class Company {
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
-    doc.createdAt = new Date();
-    doc.modifiedAt = new Date();
 
-    return Companies.create(doc);
+    return Companies.create({
+      ...doc,
+      createdAt: new Date(),
+      modifiedAt: new Date()
+    });
   }
 
   /**
    * Update company
    */
-  public static async updateCompany(_id, doc) {
+  public static async updateCompany(_id: string, doc: ICompany) {
     // Checking duplicated fields of company
     await this.checkDuplication(doc, [_id]);
 
@@ -144,9 +118,10 @@ class Company {
       );
     }
 
-    doc.modifiedAt = new Date();
-
-    await Companies.update({ _id }, { $set: doc });
+    await Companies.update(
+      { _id },
+      { $set: { ...doc, modifiedAt: new Date() } }
+    );
 
     return Companies.findOne({ _id });
   }
@@ -154,7 +129,7 @@ class Company {
   /**
    * Update company customers
    */
-  public static async updateCustomers(_id, customerIds) {
+  public static async updateCustomers(_id: string, customerIds: string[]) {
     // Removing companyIds from users
     await Customers.updateMany(
       { companyIds: { $in: [_id] } },
@@ -176,7 +151,7 @@ class Company {
   /**
    * Remove company
    */
-  public static async removeCompany(companyId) {
+  public static async removeCompany(companyId: string) {
     // Removing modules associated with company
     await ActivityLogs.removeCompanyActivityLog(companyId);
     await InternalNotes.removeCompanyInternalNotes(companyId);
@@ -192,7 +167,10 @@ class Company {
   /**
    * Merge companies
    */
-  public static async mergeCompanies(companyIds, companyFields) {
+  public static async mergeCompanies(
+    companyIds: string[],
+    companyFields: ICompany
+  ) {
     // Checking duplicated fields of company
     await this.checkDuplication(companyFields, companyIds);
 
@@ -256,7 +234,7 @@ class Company {
    */
   public static async bulkInsert(
     fieldNames: string[],
-    fieldValues: string[],
+    fieldValues: string[][],
     user: IUserDocument
   ) {
     const params = {

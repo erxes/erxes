@@ -9,25 +9,10 @@ import { FIELD_CONTENT_TYPES } from "../../data/constants";
 import {
   fieldGroupSchema,
   fieldSchema,
+  IField,
   IFieldDocument,
   IFieldGroupDocument
 } from "./definitions/fields";
-
-interface IFieldInput {
-  contentType?: string;
-  contentTypeId?: string;
-  type?: string;
-  validation?: string;
-  text?: string;
-  description?: string;
-  options?: string[];
-  isRequired?: boolean;
-  isDefinedByErxes?: boolean;
-  order?: number;
-  groupId?: string;
-  isVisible?: boolean;
-  lastUpdatedUserId?: string;
-}
 
 interface IOrderInput {
   _id: string;
@@ -36,8 +21,8 @@ interface IOrderInput {
 
 interface IFieldModel extends Model<IFieldDocument> {
   checkIsDefinedByErxes(_id: string): never;
-  createField(doc: IFieldInput): Promise<IFieldDocument>;
-  updateField(_id: string, doc: IFieldInput): Promise<IFieldDocument>;
+  createField(doc: IField): Promise<IFieldDocument>;
+  updateField(_id: string, doc: IField): Promise<IFieldDocument>;
   removeField(_id: string): void;
   updateOrder(orders: IOrderInput[]): Promise<IFieldDocument[]>;
   clean(_id: string, _value: string | Date | number): string | Date | number;
@@ -71,7 +56,7 @@ class Field {
     contentTypeId,
     groupId,
     ...fields
-  }: IFieldInput) {
+  }: IField) {
     const query: { [key: string]: any } = { contentType };
 
     if (groupId) {
@@ -118,7 +103,7 @@ class Field {
   /*
    * Update field
    */
-  public static async updateField(_id: string, doc: IFieldInput) {
+  public static async updateField(_id: string, doc: IField) {
     await this.checkIsDefinedByErxes(_id);
 
     await Fields.update({ _id }, { $set: doc });
