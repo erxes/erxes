@@ -1,11 +1,16 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import faker from 'faker';
-import { connect, disconnect } from '../db/connection';
-import { InternalNotes, Users } from '../db/models';
-import { userFactory, internalNoteFactory, customerFactory, companyFactory } from '../db/factories';
-import { COC_CONTENT_TYPES } from '../data/constants';
+import * as faker from "faker";
+import { connect, disconnect } from "../db/connection";
+import {
+  companyFactory,
+  customerFactory,
+  internalNoteFactory,
+  userFactory
+} from "../db/factories";
+import { InternalNotes, Users } from "../db/models";
+import { COC_CONTENT_TYPES } from "../db/models/definitions/constants";
 
 beforeAll(() => connect());
 
@@ -15,9 +20,9 @@ afterAll(() => disconnect());
  * Generate test data
  */
 const generateData = () => ({
-  contentType: 'customer',
-  contentTypeId: 'DFDFAFSFSDDSF',
-  content: faker.random.word(),
+  contentType: "customer",
+  contentTypeId: "DFDFAFSFSDDSF",
+  content: faker.random.word()
 });
 
 /*
@@ -29,14 +34,14 @@ const checkValues = (internalNoteObj, doc) => {
   expect(internalNoteObj.content).toBe(doc.content);
 };
 
-describe('InternalNotes model test', () => {
+describe("InternalNotes model test", () => {
   let _user;
   let _internalNote;
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory();
-    _internalNote = await internalNoteFactory();
+    _user = await userFactory({});
+    _internalNote = await internalNoteFactory({});
   });
 
   afterEach(async () => {
@@ -45,7 +50,7 @@ describe('InternalNotes model test', () => {
     await Users.remove({});
   });
 
-  test('Create internalNote', async () => {
+  test("Create internalNote", async () => {
     // valid
     const doc = generateData();
 
@@ -55,19 +60,22 @@ describe('InternalNotes model test', () => {
     expect(internalNoteObj.createdUserId).toBe(_user._id);
   });
 
-  test('Edit internalNote valid', async () => {
+  test("Edit internalNote valid", async () => {
     const doc = generateData();
 
-    const internalNoteObj = await InternalNotes.updateInternalNote(_internalNote._id, doc);
+    const internalNoteObj = await InternalNotes.updateInternalNote(
+      _internalNote._id,
+      doc
+    );
 
     checkValues(internalNoteObj, doc);
   });
 
-  test('Remove internalNote valid', async () => {
+  test("Remove internalNote valid", async () => {
     try {
-      await InternalNotes.removeInternalNote('DFFFDSFD');
+      await InternalNotes.removeInternalNote("DFFFDSFD");
     } catch (e) {
-      expect(e.message).toBe('InternalNote not found with id DFFFDSFD');
+      expect(e.message).toBe("InternalNote not found with id DFFFDSFD");
     }
 
     let count = await InternalNotes.find({ _id: _internalNote._id }).count();
@@ -79,71 +87,75 @@ describe('InternalNotes model test', () => {
     expect(count).toBe(0);
   });
 
-  test('changeCustomer', async () => {
+  test("changeCustomer", async () => {
     const customer = await customerFactory({});
-    const newCustomer = await customerFactory();
+    const newCustomer = await customerFactory({});
 
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customer._id,
+      contentTypeId: customer._id
     });
 
-    const updatedInternalNotes = await InternalNotes.changeCustomer(newCustomer._id, [
-      customer._id,
-    ]);
+    const updatedInternalNotes = await InternalNotes.changeCustomer(
+      newCustomer._id,
+      [customer._id]
+    );
 
-    for (let internalNote of updatedInternalNotes) {
+    for (const internalNote of updatedInternalNotes) {
       expect(internalNote.contentTypeId).toEqual(newCustomer._id);
     }
   });
 
-  test('changeCompany', async () => {
+  test("changeCompany", async () => {
     const company = await companyFactory({});
-    const newCompany = await companyFactory();
+    const newCompany = await companyFactory({});
 
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id,
+      contentTypeId: company._id
     });
 
-    const updatedInternalNotes = await InternalNotes.changeCompany(newCompany._id, [company._id]);
+    const updatedInternalNotes = await InternalNotes.changeCompany(
+      newCompany._id,
+      [company._id]
+    );
 
-    for (let internalNote of updatedInternalNotes) {
+    for (const internalNote of updatedInternalNotes) {
       expect(internalNote.contentTypeId).toEqual(newCompany._id);
     }
   });
 
-  test('removeCustomerInternalNotes', async () => {
+  test("removeCustomerInternalNotes", async () => {
     const customer = await customerFactory({});
 
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customer._id,
+      contentTypeId: customer._id
     });
 
     await InternalNotes.removeCustomerInternalNotes(customer._id);
 
     const internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customer._id,
+      contentTypeId: customer._id
     });
 
     expect(internalNote).toHaveLength(0);
   });
 
-  test('removeCompanyInternalNotes', async () => {
+  test("removeCompanyInternalNotes", async () => {
     const company = await companyFactory({});
 
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id,
+      contentTypeId: company._id
     });
 
     await InternalNotes.removeCompanyInternalNotes(company._id);
 
     const internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id,
+      contentTypeId: company._id
     });
 
     expect(internalNote).toHaveLength(0);

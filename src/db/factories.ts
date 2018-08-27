@@ -116,6 +116,7 @@ interface IEngageMessageFactoryInput {
   tagIds?: string[];
   isLive?: boolean;
   isDraft?: boolean;
+  customerIds?: string[];
 }
 
 export const engageMessageFactory = (params: IEngageMessageFactoryInput) => {
@@ -288,11 +289,12 @@ interface ICustomerFactoryInput {
   phones?: string[];
   leadStatus?: string;
   lifecycleState?: string;
-  messengerData?: void;
-  customFieldsData?: void;
+  messengerData?: any;
+  customFieldsData?: any;
   companyIds?: string[];
   tagIds?: string[];
   twitterData?: string[];
+  ownerId?: string;
 }
 
 export const customerFactory = (params: ICustomerFactoryInput) => {
@@ -313,7 +315,8 @@ export const customerFactory = (params: ICustomerFactoryInput) => {
       faker.random.number()
     ],
     tagIds: params.tagIds || [faker.random.number(), faker.random.number()],
-    twitterData: params.twitterData || { id: faker.random.number() }
+    twitterData: params.twitterData || { id: faker.random.number() },
+    ownerId: params.ownerId || Random.id()
   });
 
   return customer.save();
@@ -330,6 +333,8 @@ interface IFieldFactoryInput {
   order?: number;
   visible?: boolean;
   groupId?: string;
+  isDefinedByErxes?: boolean;
+  isVisible?: boolean;
 }
 
 export const fieldFactory = async (params: IFieldFactoryInput) => {
@@ -616,8 +621,8 @@ export const knowledgeBaseArticleFactory = (
 interface IActivityLogFactoryInput {
   performer?: IActionPerformer;
   performedBy?: IActionPerformer;
-  activity: IActivity;
-  coc: ICoc;
+  activity?: IActivity;
+  coc?: ICoc;
 }
 
 export const activityLogFactory = (params: IActivityLogFactoryInput) => {
@@ -678,6 +683,7 @@ export const dealStageFactory = (params: IDealStageFactoryInput) => {
 
 interface IDealFactoryInput {
   stageId?: string;
+  productsData?: any;
 }
 
 export const dealFactory = (params: IDealFactoryInput) => {
@@ -731,6 +737,8 @@ export const configFactory = (params: IConfigFactoryInput) => {
 
 interface IFieldGroupFactoryInput {
   contentType?: string;
+  isDefinedByErxes?: boolean;
+  isVisible?: boolean;
 }
 
 export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {

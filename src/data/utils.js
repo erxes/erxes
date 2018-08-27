@@ -81,7 +81,7 @@ const applyTemplate = async (data, templateName) => {
 /**
  * Create default or ses transporter
  * @return nodemailer transporter
-*/
+ */
 export const createTransporter = ({ ses }) => {
   const { MAIL_SERVICE, MAIL_PORT, MAIL_USER, MAIL_PASS } = process.env;
 
@@ -126,7 +126,7 @@ export const createTransporter = ({ ses }) => {
  * @param {Object} args.templateArgs.data
  * @param {Boolean} args.templateArgs.isCustom
  * @return {Promise}
-*/
+ */
 export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
   const { NODE_ENV, DEFAULT_EMAIL_SERVICE, COMPANY_EMAIL_FROM } = process.env;
 
@@ -223,7 +223,7 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
  * and imports customers to the database
  * @param {Object} file - File data to save
  * @return {Promise} Success and failed counts
-*/
+ */
 export const importXlsFile = async (file, type, { user }) => {
   return new Promise((resolve, reject) => {
     const readStream = fs.createReadStream(file.path);
@@ -279,9 +279,7 @@ export const importXlsFile = async (file, type, { user }) => {
             reject(['Invalid import type']);
         }
 
-        const response = await collection.bulkInsert(fieldNames, usedSheets, {
-          user,
-        });
+        const response = await collection.bulkInsert(fieldNames, usedSheets, user);
 
         resolve(response);
       })
@@ -295,7 +293,7 @@ export const importXlsFile = async (file, type, { user }) => {
  * Creates blank workbook
  *
  * @return {Object} Xls workbook and sheet
-*/
+ */
 export const createXlsFile = async () => {
   // Generating blank workbook
   const workbook = await xlsxPopulate.fromBlankAsync();
@@ -309,7 +307,7 @@ export const createXlsFile = async () => {
  * @param {String} name - Xls file name
  *
  * @return {String} Url to download xls file
-*/
+ */
 export const generateXlsx = async (workbook, name) => {
   // Url to download xls file
   const url = `xlsTemplateOutputs/${name}.xlsx`;

@@ -1,9 +1,9 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
-import { Segments, Users } from '../db/models';
-import { segmentFactory } from '../db/factories';
+import { connect, disconnect } from "../db/connection";
+import { segmentFactory } from "../db/factories";
+import { Segments, Users } from "../db/models";
 
 beforeAll(() => connect());
 
@@ -13,21 +13,21 @@ afterAll(() => disconnect());
  * Generate test data
  */
 const generateData = () => ({
-  contentType: 'customer',
-  name: 'New users',
-  description: 'New users',
-  subOf: 'DFSAFDSAFDFFFD',
-  color: '#fdfdfd',
-  connector: 'any',
+  contentType: "customer",
+  name: "New users",
+  description: "New users",
+  subOf: "DFSAFDSAFDFFFD",
+  color: "#fdfdfd",
+  connector: "any",
   conditions: [
     {
-      field: 'messengerData.sessionCount',
-      operator: 'e',
-      value: '10',
-      dateUnit: 'days',
-      type: 'string',
-    },
-  ],
+      field: "messengerData.sessionCount",
+      operator: "e",
+      value: "10",
+      dateUnit: "days",
+      type: "string"
+    }
+  ]
 });
 
 /*
@@ -48,12 +48,12 @@ const checkValues = (segmentObj, doc) => {
   expect(segmentObj.conditions.type).toEqual(doc.conditions.type);
 };
 
-describe('Segments mutations', () => {
+describe("Segments mutations", () => {
   let _segment;
 
   beforeEach(async () => {
     // Creating test data
-    _segment = await segmentFactory();
+    _segment = await segmentFactory({});
   });
 
   afterEach(async () => {
@@ -62,7 +62,7 @@ describe('Segments mutations', () => {
     await Users.remove({});
   });
 
-  test('Create segment', async () => {
+  test("Create segment", async () => {
     // valid
     const data = generateData();
 
@@ -71,7 +71,7 @@ describe('Segments mutations', () => {
     checkValues(segmentObj, data);
   });
 
-  test('Update segment valid', async () => {
+  test("Update segment valid", async () => {
     const data = generateData();
 
     const segmentObj = await Segments.updateSegment(_segment._id, data);
@@ -79,18 +79,16 @@ describe('Segments mutations', () => {
     checkValues(segmentObj, data);
   });
 
-  test('Remove segment valid', async () => {
+  test("Remove segment valid", async () => {
     try {
-      await Segments.removeSegment('DFFFDSFD');
+      await Segments.removeSegment("DFFFDSFD");
     } catch (e) {
-      expect(e.message).toBe('Segment not found with id DFFFDSFD');
+      expect(e.message).toBe("Segment not found with id DFFFDSFD");
     }
 
-    const segmentDeletedObj = await Segments.removeSegment({ _id: _segment.id });
-
-    expect(segmentDeletedObj.id).toBe(_segment.id);
-
+    await Segments.removeSegment(_segment.id);
     const segmentObj = await Segments.findOne({ _id: _segment.id });
+
     expect(segmentObj).toBeNull();
   });
 });

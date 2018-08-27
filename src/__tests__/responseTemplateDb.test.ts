@@ -1,20 +1,20 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
-import { ResponseTemplates } from '../db/models';
-import { responseTemplateFactory } from '../db/factories';
+import { connect, disconnect } from "../db/connection";
+import { responseTemplateFactory } from "../db/factories";
+import { ResponseTemplates } from "../db/models";
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Response template db', () => {
+describe("Response template db", () => {
   let _responseTemplate;
 
   beforeEach(async () => {
     // Creating test data
-    _responseTemplate = await responseTemplateFactory();
+    _responseTemplate = await responseTemplateFactory({});
   });
 
   afterEach(async () => {
@@ -22,12 +22,12 @@ describe('Response template db', () => {
     await ResponseTemplates.remove({});
   });
 
-  test('Create response template', async () => {
+  test("Create response template", async () => {
     const responseTemplateObj = await ResponseTemplates.create({
       name: _responseTemplate.name,
       content: _responseTemplate.content,
       brandId: _responseTemplate.brandId,
-      files: _responseTemplate.files,
+      files: _responseTemplate.files
     });
 
     expect(responseTemplateObj).toBeDefined();
@@ -37,15 +37,15 @@ describe('Response template db', () => {
     expect(responseTemplateObj.files[0]).toBe(_responseTemplate.files[0]);
   });
 
-  test('Update response template', async () => {
+  test("Update response template", async () => {
     const responseTemplateObj = await ResponseTemplates.updateResponseTemplate(
       _responseTemplate.id,
       {
         name: _responseTemplate.name,
         content: _responseTemplate.content,
         brandId: _responseTemplate.brandId,
-        files: _responseTemplate.files,
-      },
+        files: _responseTemplate.files
+      }
     );
 
     expect(responseTemplateObj.id).toBe(_responseTemplate.id);
@@ -55,14 +55,16 @@ describe('Response template db', () => {
     expect(responseTemplateObj.files[0]).toBe(_responseTemplate.files[0]);
   });
 
-  test('Delete response template', async () => {
-    await ResponseTemplates.removeResponseTemplate({ _id: _responseTemplate.id });
-    expect(await ResponseTemplates.findOne({ _id: _responseTemplate.id }).count()).toBe(0);
+  test("Delete response template", async () => {
+    await ResponseTemplates.removeResponseTemplate(_responseTemplate.id);
+    expect(
+      await ResponseTemplates.findOne({ _id: _responseTemplate.id }).count()
+    ).toBe(0);
 
     try {
-      await ResponseTemplates.removeResponseTemplate('test');
+      await ResponseTemplates.removeResponseTemplate("test");
     } catch (e) {
-      expect(e.message).toBe('Response template not found with id test');
+      expect(e.message).toBe("Response template not found with id test");
     }
   });
 });

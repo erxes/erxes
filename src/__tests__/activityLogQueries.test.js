@@ -114,7 +114,9 @@ describe('activityLogs', () => {
     const context = { user: _user };
 
     // call graphql query
-    let result = await graphql(schema, query, rootValue, context, { _id: customer._id });
+    let result = await graphql(schema, query, rootValue, context, {
+      _id: customer._id,
+    });
 
     let logs = result.data.activityLogsCustomer;
 
@@ -185,13 +187,17 @@ describe('activityLogs', () => {
     );
 
     // call graphql query
-    result = await graphql(schema, query, rootValue, context, { _id: customer._id });
+    result = await graphql(schema, query, rootValue, context, {
+      _id: customer._id,
+    });
 
     // get new log
     logs = result.data.activityLogsCustomer;
 
     // test the fetched data =============================
     const yearMonthLength = logs.length - 1;
+
+    const customerFullName = `${customer.firstName || ''} ${customer.lastName || ''}`;
 
     expect(logs[yearMonthLength].list[0].id).toBe(segment._id);
     expect(logs[yearMonthLength].list[0].action).toBe('segment-create');
@@ -213,9 +219,7 @@ describe('activityLogs', () => {
 
     expect(logs[yearMonthLength - 1].list[februaryLogLength - 2].id).toBe(customer._id);
     expect(logs[yearMonthLength - 1].list[februaryLogLength - 2].action).toBe('customer-create');
-    expect(logs[yearMonthLength - 1].list[februaryLogLength - 2].content).toBe(
-      customer.getFullName(),
-    );
+    expect(logs[yearMonthLength - 1].list[februaryLogLength - 2].content).toBe(customerFullName);
   });
 
   test('companyActivityLog', async () => {
@@ -264,7 +268,9 @@ describe('activityLogs', () => {
     const context = { user: _user };
 
     // call graphql query
-    let result = await graphql(schema, query, rootValue, context, { _id: company._id });
+    let result = await graphql(schema, query, rootValue, context, {
+      _id: company._id,
+    });
 
     const logs = result.data.activityLogsCompany;
 

@@ -1,7 +1,6 @@
 import ActivityLogs from "./ActivityLogs";
 import Brands from "./Brands";
 import Channels from "./Channels";
-import Coc from "./Coc";
 import Companies from "./Companies";
 import Configs from "./Configs";
 import ConversationMessages from "./ConversationMessages";
@@ -40,7 +39,6 @@ export {
   Fields,
   Segments,
   InternalNotes,
-  Coc,
   Customers,
   Companies,
   Conversations,

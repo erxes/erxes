@@ -1,6 +1,3 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
 import { connect, disconnect } from "../db/connection";
 import { brandFactory, integrationFactory, userFactory } from "../db/factories";
 import { Brands, Integrations, Users } from "../db/models";
