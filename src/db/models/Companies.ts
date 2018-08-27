@@ -9,13 +9,11 @@ import { COMPANY_BASIC_INFOS } from "./definitions/constants";
 import { IUserDocument } from "./definitions/users";
 import { bulkInsert } from "./utils";
 
-interface ICompanyFieldsInput {
-  primaryName?: string;
-}
-
 interface ICompanyModel extends Model<ICompanyDocument> {
   checkDuplication(
-    companyFields: ICompanyFieldsInput,
+    companyFields: {
+      primaryName?: string;
+    },
     idsToExclude?: string[] | string
   ): never;
 
@@ -47,7 +45,9 @@ class Company {
    * Checking if company has duplicated unique properties
    */
   public static async checkDuplication(
-    companyFields: ICompanyFieldsInput,
+    companyFields: {
+      primaryName?: string;
+    },
     idsToExclude?: string[] | string
   ) {
     const query: { [key: string]: any } = {};

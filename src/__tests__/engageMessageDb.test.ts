@@ -1,6 +1,3 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
 import Random from "meteor-random";
 import { connect, disconnect } from "../db/connection";
 import {

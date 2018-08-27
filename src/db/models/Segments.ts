@@ -17,14 +17,14 @@ class Segment {
    * @param  {Object} segmentObj object
    * @return {Promise} Newly created segment object
    */
-  public static createSegment(doc) {
+  public static createSegment(doc: ISegment) {
     return Segments.create(doc);
   }
 
   /*
    * Update segment
    */
-  public static async updateSegment(_id, doc) {
+  public static async updateSegment(_id: string, doc: ISegment) {
     await Segments.update({ _id }, { $set: doc });
 
     return Segments.findOne({ _id });
@@ -33,7 +33,7 @@ class Segment {
   /*
    * Remove segment
    */
-  public static async removeSegment(_id) {
+  public static async removeSegment(_id: string) {
     const segmentObj = await Segments.findOne({ _id });
 
     if (!segmentObj) {

@@ -1,6 +1,3 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
 import { connect, disconnect } from "../db/connection";
 import { emailTemplateFactory } from "../db/factories";
 import { EmailTemplates } from "../db/models";

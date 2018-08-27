@@ -205,7 +205,7 @@ class Field {
   /*
    * Validates multiple fields, fixes values if necessary
    */
-  public static async cleanMulti(data) {
+  public static async cleanMulti(data: { _id: string; value: string }) {
     const ids = Object.keys(data);
 
     const fixedValues = {};

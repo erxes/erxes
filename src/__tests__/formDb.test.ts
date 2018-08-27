@@ -1,6 +1,3 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
 import * as toBeType from "jest-tobetype";
 import { connect, disconnect } from "../db/connection";
 import {

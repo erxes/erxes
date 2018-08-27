@@ -69,7 +69,7 @@ class Form {
   /**
    * Remove a form
    */
-  public static async removeForm(_id) {
+  public static async removeForm(_id: string) {
     // remove fields
     await Fields.remove({ contentType: "form", contentTypeId: _id });
 
@@ -79,7 +79,7 @@ class Form {
   /**
    * Duplicates form and form fields of the form
    */
-  public static async duplicate(_id) {
+  public static async duplicate(_id: string) {
     const form = await Forms.findOne({ _id });
 
     // duplicate form ===================

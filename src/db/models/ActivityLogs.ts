@@ -89,6 +89,9 @@ interface IActivityLogModel extends Model<IActivityLogDocument> {
 }
 
 class ActivityLog {
+  /**
+   * Create an ActivityLog document
+   */
   public static createDoc(doc: ICreateDocInput) {
     const { performer } = doc;
 
@@ -103,6 +106,9 @@ class ActivityLog {
     return ActivityLogs.create({ performedBy, ...doc });
   }
 
+  /**
+   * Create activity log for internal note
+   */
   public static createInternalNoteLog(
     internalNote: IInternalNoteDocument,
     user: IUserDocument
@@ -164,6 +170,11 @@ class ActivityLog {
     });
   }
 
+  /**
+   * Create a conversation log for a given customer,
+   * if the customer is related to companies,
+   * then create conversation log with all related companies
+   */
   public static async createConversationLog(
     conversation: IConversationDocument,
     customer?: ICustomerDocument
@@ -211,6 +222,9 @@ class ActivityLog {
     }
   }
 
+  /**
+   * Create a customer or company segment log
+   */
   public static async createSegmentLog(
     segment: ISegmentDocument,
     customer: ICustomerDocument
@@ -246,6 +260,9 @@ class ActivityLog {
     });
   }
 
+  /**
+   * Creates a customer registration log
+   */
   public static createCustomerRegistrationLog(
     customer: ICustomerDocument,
     user: IUserDocument
@@ -277,6 +294,9 @@ class ActivityLog {
     });
   }
 
+  /**
+   * Creates a customer company registration log
+   */
   public static createCompanyRegistrationLog(
     company: ICompanyDocument,
     user: IUserDocument
@@ -305,6 +325,9 @@ class ActivityLog {
     });
   }
 
+  /**
+   * Creates a deal company registration log
+   */
   public static createDealRegistrationLog(
     deal: IDealDocument,
     user: IUserDocument
@@ -333,6 +356,9 @@ class ActivityLog {
     });
   }
 
+  /**
+   * Transfers customers' activity logs to another customer
+   */
   public static async changeCustomer(
     newCustomerId: string,
     customerIds: string[]
@@ -353,6 +379,9 @@ class ActivityLog {
     });
   }
 
+  /**
+   * Removes customer's activity logs
+   */
   public static async removeCustomerActivityLog(customerId: string) {
     // Removing every activity log of customer
     return ActivityLogs.remove({
@@ -360,6 +389,9 @@ class ActivityLog {
     });
   }
 
+  /**
+   * Removes company's activity logs
+   */
   public static async removeCompanyActivityLog(companyId: string) {
     // Removing every activity log of company
     return ActivityLogs.remove({
@@ -367,6 +399,9 @@ class ActivityLog {
     });
   }
 
+  /**
+   * Transfers companies' activity logs to another company
+   */
   public static async changeCompany(
     newCompanyId: string,
     companyIds: string[]

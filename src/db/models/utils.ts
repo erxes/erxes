@@ -30,7 +30,7 @@ export const bulkInsert = async (params: {
   fieldNames: string[];
   fieldValues: string[][];
   user: IUserDocument;
-  basicInfos: any;
+  basicInfos: string[];
   contentType: string;
   create: (doc: CocInput, user?: IUserDocument) => Promise<CocDocument>;
 }) => {
@@ -70,7 +70,7 @@ export const bulkInsert = async (params: {
       const fieldObj = await Fields.findOne({ text: fieldName });
 
       // Collecting basic fields
-      if (basicInfos.includes(field)) {
+      if (basicInfos.includes(fieldName)) {
         property.name = fieldName;
       }
 
@@ -82,7 +82,7 @@ export const bulkInsert = async (params: {
 
       properties.push(property);
 
-      if (!basicInfos.includes(field) && !fieldObj) {
+      if (!basicInfos.includes(fieldName) && !fieldObj) {
         errMsgs.push(`Bad column name ${field}`);
       }
     }

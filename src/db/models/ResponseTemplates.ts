@@ -18,7 +18,10 @@ class ResponseTemplate {
   /**
    * Update response template
    */
-  public static async updateResponseTemplate(_id, fields) {
+  public static async updateResponseTemplate(
+    _id: string,
+    fields: IResponseTemplate
+  ) {
     await ResponseTemplates.update({ _id }, { $set: { ...fields } });
 
     return ResponseTemplates.findOne({ _id });
@@ -27,7 +30,7 @@ class ResponseTemplate {
   /**
    * Delete response template
    */
-  public static async removeResponseTemplate(_id) {
+  public static async removeResponseTemplate(_id: string) {
     const responseTemplateObj = await ResponseTemplates.findOne({ _id });
 
     if (!responseTemplateObj) {
