@@ -5,7 +5,12 @@
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-app-api",
   "bugs": "https://github.com/erxes/erxes-app-api/issues",
-  "keywords": ["node", "express", "graphql", "apollo"],
+  "keywords": [
+    "node",
+    "express",
+    "graphql",
+    "apollo"
+  ],
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -13,8 +18,7 @@
     "dev": "NODE_ENV=development nodemon -e ts src --exec ts-node",
     "build": "tsc",
     "lint": "tslint 'src/**/*.ts'",
-    "format":
-      "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
+    "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
     "precommit": "lint-staged",
     "test": "jest --runInBand --coverage --forceExit",
     "loadInitialData": "babel-node ./src/initialData.js",
@@ -80,22 +84,25 @@
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.0",
+    "@types/formidable": "^1.0.31",
+    "@types/graphql": "^0.13.4",
+    "@types/ioredis": "^3.2.15",
     "@types/jest": "^23.3.0",
     "@types/mongodb": "^3.1.2",
     "@types/mongoose": "^5.2.1",
     "@types/q": "^1.5.0",
-    "ts-jest": "22.0.4",
-    "ts-node": "^7.0.0",
-    "tslint": "^5.8.0",
-    "tslint-config-prettier": "^1.1.0",
-    "tslint-config-standard": "^7.0.0",
-    "typescript": "^2.9.2",
     "faker": "^4.1.0",
     "husky": "^0.13.4",
     "jest": "^21.2.1",
     "jest-tobetype": "^1.1.0",
     "lint-staged": "^3.6.0",
     "nodemon": "^1.11.0",
-    "prettier": "^1.14.2"
+    "prettier": "^1.14.2",
+    "ts-jest": "22.0.4",
+    "ts-node": "^7.0.0",
+    "tslint": "^5.8.0",
+    "tslint-config-prettier": "^1.1.0",
+    "tslint-config-standard": "^7.0.0",
+    "typescript": "^2.9.2"
   }
 }

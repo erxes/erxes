@@ -76,6 +76,34 @@ const countsByTag = async ({ kind, status, user }) => {
   return response;
 };
 
+/*
+ * List filter
+ */
+const listQuery = ({ kind, status, tag, ids }, user) => {
+  if (ids) {
+    return EngageMessages.find({ _id: { $in: ids } });
+  }
+
+  let query = {};
+
+  // filter by kind
+  if (kind) {
+    query.kind = kind;
+  }
+
+  // filter by status
+  if (status) {
+    query = { ...query, ...statusQueryBuilder(status, user) };
+  }
+
+  // filter by tag
+  if (tag) {
+    query = { ...query, ...tagQueryBuilder(tag) };
+  }
+
+  return query;
+};
+
 const engageQueries = {
   /**
    * Group engage messages counts by kind, status, tag
@@ -105,31 +133,8 @@ const engageQueries = {
    * @param {Object} params - Search params
    * @return {Promise} filtered messages list by given parameters
    */
-  engageMessages(root, params, { user }) {
-    const { kind, status, tag, ids } = params;
-
-    if (ids) {
-      return EngageMessages.find({ _id: { $in: ids } });
-    }
-
-    let query = {};
-
-    // filter by kind
-    if (kind) {
-      query.kind = kind;
-    }
-
-    // filter by status
-    if (status) {
-      query = { ...query, ...statusQueryBuilder(status, user) };
-    }
-
-    // filter by tag
-    if (tag) {
-      query = { ...query, ...tagQueryBuilder(tag) };
-    }
-
-    return paginate(EngageMessages.find(query), params);
+  engageMessages(root, args, { user }) {
+    return paginate(EngageMessages.find(listQuery(args, user)), args);
   },
 
   /**
@@ -146,8 +151,8 @@ const engageQueries = {
    * Get all messages count. We will use it in pager
    * @return {Promise} total count
    */
-  engageMessagesTotalCount() {
-    return EngageMessages.find({}).count();
+  engageMessagesTotalCount(root, args, { user }) {
+    return EngageMessages.find(listQuery(args, user)).count();
   },
 };
 

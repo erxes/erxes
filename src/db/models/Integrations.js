@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import 'mongoose-type-email';
 import { ConversationMessages, Conversations } from './';
 import { Customers, Forms } from './';
@@ -237,10 +237,10 @@ class Integration {
   }
 
   /**
-  * Saves messenger data to integration document
-  * @param {Object} doc.messengerData - MessengerData object
-  * @return {Promise} returns Promise resolving updated Integration document
-  */
+   * Saves messenger data to integration document
+   * @param {Object} doc.messengerData - MessengerData object
+   * @return {Promise} returns Promise resolving updated Integration document
+   */
   static async saveMessengerConfigs(_id, messengerData) {
     await this.update({ _id }, { $set: { messengerData } }, { runValidators: true });
     return this.findOne({ _id });
@@ -249,7 +249,7 @@ class Integration {
   /**
    * Create a form kind integration
    * @param {Object} args.formData - FormData object
-  * @return {Promise} returns form integration document promise
+   * @return {Promise} returns form integration document promise
    * @throws {Exception} throws Exception if formData is notSupplied
    */
   static createFormIntegration({ formData, ...mainDoc }) {
