@@ -30,7 +30,7 @@ const Tweet = styled.div`
 const User = styled.div`
   color: ${colors.colorCoreGray};
   position: relative;
-  padding-right: ${mainSize};
+  padding-right: 70px;
   padding-left: ${props => props.root && '50px'};
   margin-bottom: ${props => props.root && '10px'};
 
