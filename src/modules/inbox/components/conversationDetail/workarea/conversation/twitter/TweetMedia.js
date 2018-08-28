@@ -36,27 +36,41 @@ const propTypes = {
 };
 
 class TweetMedia extends Component {
+  getEntities(data) {
+    if (data.extended_entities) {
+      return data.extended_entities;
+    }
+
+    if (data.extended_tweet) {
+      return (
+        data.extended_tweet.extended_entities || data.extended_tweet.entities
+      );
+    }
+
+    return data.entities;
+  }
+
   renderMedia() {
     const { data } = this.props;
-    const entities =
-      data.extended_entities ||
-      (data.extended_tweet &&
-        (data.extended_tweet.extended_entities ||
-          data.extended_tweet.entities)) ||
-      data.entities;
+    const entities = this.getEntities(data);
     const hasMedia = entities.media && entities.media.length;
     const media = hasMedia && entities.media[0];
 
-    if (hasMedia && media.type === 'photo') {
+    if (!hasMedia) {
+      return null;
+    }
+
+    if (media.type === 'photo') {
       return (
         <ImageWithPreview
           alt={entities.media[0].url}
           src={entities.media[0].media_url}
+          onLoad={this.context.scrollBottom}
         />
       );
     }
 
-    if (hasMedia && media.type === 'animated_gif') {
+    if (media.type === 'animated_gif') {
       const gif =
         media.video_info &&
         media.video_info.variants &&
@@ -81,11 +95,9 @@ class TweetMedia extends Component {
       );
     }
 
-    if (hasMedia && media.type === 'video') {
+    if (media.type === 'video') {
       return <TwitterVideoEmbed id={data.id_str} />;
     }
-
-    return null;
   }
 
   render() {
@@ -94,5 +106,9 @@ class TweetMedia extends Component {
 }
 
 TweetMedia.propTypes = propTypes;
+
+TweetMedia.contextTypes = {
+  scrollBottom: PropTypes.func
+};
 
 export default TweetMedia;

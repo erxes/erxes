@@ -97,12 +97,19 @@ class Conversation extends Component {
     return (
       <Wrapper>
         {this.renderConversation()}
-        <AttachmentPreview attachmentPreview={attachmentPreview} />
+        <AttachmentPreview
+          onLoad={this.context.scrollBottom}
+          attachmentPreview={attachmentPreview}
+        />
       </Wrapper>
     );
   }
 }
 
 Conversation.propTypes = propTypes;
+
+Conversation.contextTypes = {
+  scrollBottom: PropTypes.func
+};
 
 export default Conversation;

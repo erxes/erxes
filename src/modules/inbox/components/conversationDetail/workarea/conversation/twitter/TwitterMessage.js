@@ -37,7 +37,11 @@ class TwitterMessage extends Component {
     favoriteTweet(tweet);
   }
 
-  renderUserLink(username, fullName) {
+  renderUserLink(username, fullName, customer) {
+    if (!username) {
+      return <div>{customer.firstName}</div>;
+    }
+
     return (
       <a target="_blank" href={`https://twitter.com/${username}`}>
         {fullName ? <b>{fullName} </b> : `@${username}`}
@@ -119,15 +123,31 @@ class TwitterMessage extends Component {
   }
 
   renderReply(twitterData, inReplyStatus) {
-    if (!inReplyStatus) {
-      return (
-        <Reply>
-          Replying to {this.renderUserLink(twitterData.in_reply_to_screen_name)}
-        </Reply>
-      );
+    if (inReplyStatus) {
+      return null;
     }
 
-    return null;
+    return (
+      <Reply>
+        Replying to {this.renderUserLink(twitterData.in_reply_to_screen_name)}
+      </Reply>
+    );
+  }
+
+  getTweetContent(extendedTweet, message) {
+    if (extendedTweet) {
+      return extendedTweet.full_text;
+    }
+
+    return message.content;
+  }
+
+  getEntities(extendedTweet, twitterData) {
+    if (extendedTweet) {
+      return extendedTweet.entities;
+    }
+
+    return twitterData.entities;
   }
 
   render() {
@@ -137,17 +157,13 @@ class TwitterMessage extends Component {
     const customer = message.customer || {};
     const twitterCustomer = customer.twitterData;
     const twitterName = twitterCustomer.name;
-    const twitterUsername =
-      twitterCustomer.screen_name || twitterCustomer.screenName;
+    const twitterUsername = twitterCustomer.screen_name;
 
     // twitter data
     const twitterData = message.twitterData;
     const extendedTweet = twitterData.extended_tweet;
-    const tweetContent =
-      (extendedTweet && extendedTweet.full_text) || message.content;
-    const entities =
-      (extendedTweet && extendedTweet.entities) || twitterData.entities;
-
+    const tweetContent = this.getTweetContent(extendedTweet, message);
+    const entities = this.getEntities(extendedTweet, twitterData);
     const inReplyStatus = twitterData.in_reply_to_status_id ? false : true;
 
     return (
@@ -155,8 +171,8 @@ class TwitterMessage extends Component {
         <NameCard.Avatar customer={customer} />
 
         <User root={inReplyStatus}>
-          {this.renderUserLink(twitterUsername, twitterName)}
-          <span>@{twitterUsername}</span>
+          {this.renderUserLink(twitterUsername, twitterName, customer)}
+          {twitterUsername && <span>@{twitterUsername}</span>}
           {this.renderTweetLink()}
         </User>
         <div>

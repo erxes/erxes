@@ -35,7 +35,12 @@ export default class SimpleMessage extends React.Component {
       return null;
     }
 
-    return <Attachment attachment={message.attachments[0]} />;
+    return (
+      <Attachment
+        onLoad={this.context.scrollBottom}
+        attachment={message.attachments[0]}
+      />
+    );
   }
 
   renderContent(hasAttachment) {
@@ -80,5 +85,9 @@ export default class SimpleMessage extends React.Component {
     );
   }
 }
+
+SimpleMessage.contextTypes = {
+  scrollBottom: PropTypes.func
+};
 
 SimpleMessage.propTypes = propTypes;
