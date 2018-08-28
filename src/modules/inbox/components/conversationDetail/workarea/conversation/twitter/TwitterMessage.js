@@ -134,6 +134,22 @@ class TwitterMessage extends Component {
     );
   }
 
+  getTweetContent(extendedTweet, message) {
+    if (extendedTweet) {
+      return extendedTweet.full_text;
+    }
+
+    return message.content;
+  }
+
+  getEntities(extendedTweet, twitterData) {
+    if (extendedTweet) {
+      return extendedTweet.entities;
+    }
+
+    return twitterData.entities;
+  }
+
   render() {
     const { message } = this.props;
 
@@ -146,10 +162,8 @@ class TwitterMessage extends Component {
     // twitter data
     const twitterData = message.twitterData;
     const extendedTweet = twitterData.extended_tweet;
-    const tweetContent =
-      (extendedTweet && extendedTweet.full_text) || message.content;
-    const entities =
-      (extendedTweet && extendedTweet.entities) || twitterData.entities;
+    const tweetContent = this.getTweetContent(extendedTweet, message);
+    const entities = this.getEntities(extendedTweet, twitterData);
     const inReplyStatus = twitterData.in_reply_to_status_id ? false : true;
 
     return (
