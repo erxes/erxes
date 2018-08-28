@@ -166,7 +166,6 @@ export default class WorkArea extends Component {
           conversation={currentConversation}
           conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
-          scrollBottom={this.scrollBottom}
           loading={loading}
         />
       </ConversationWrapper>

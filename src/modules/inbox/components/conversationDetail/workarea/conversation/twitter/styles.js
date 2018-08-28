@@ -34,6 +34,11 @@ const User = styled.div`
   padding-left: ${props => props.root && '50px'};
   margin-bottom: ${props => props.root && '10px'};
 
+  > div {
+    min-height: 40px;
+    line-height: 40px;
+  }
+
   > span {
     display: ${props => props.root && 'block'};
 

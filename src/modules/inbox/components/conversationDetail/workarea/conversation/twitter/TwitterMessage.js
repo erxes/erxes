@@ -37,7 +37,11 @@ class TwitterMessage extends Component {
     favoriteTweet(tweet);
   }
 
-  renderUserLink(username, fullName) {
+  renderUserLink(username, fullName, customer) {
+    if (!username) {
+      return <div>{customer.firstName}</div>;
+    }
+
     return (
       <a target="_blank" href={`https://twitter.com/${username}`}>
         {fullName ? <b>{fullName} </b> : `@${username}`}
@@ -137,8 +141,7 @@ class TwitterMessage extends Component {
     const customer = message.customer || {};
     const twitterCustomer = customer.twitterData;
     const twitterName = twitterCustomer.name;
-    const twitterUsername =
-      twitterCustomer.screen_name || twitterCustomer.screenName;
+    const twitterUsername = twitterCustomer.screen_name;
 
     // twitter data
     const twitterData = message.twitterData;
@@ -147,7 +150,6 @@ class TwitterMessage extends Component {
       (extendedTweet && extendedTweet.full_text) || message.content;
     const entities =
       (extendedTweet && extendedTweet.entities) || twitterData.entities;
-
     const inReplyStatus = twitterData.in_reply_to_status_id ? false : true;
 
     return (
@@ -155,8 +157,8 @@ class TwitterMessage extends Component {
         <NameCard.Avatar customer={customer} />
 
         <User root={inReplyStatus}>
-          {this.renderUserLink(twitterUsername, twitterName)}
-          <span>@{twitterUsername}</span>
+          {this.renderUserLink(twitterUsername, twitterName, customer)}
+          {twitterUsername && <span>@{twitterUsername}</span>}
           {this.renderTweetLink()}
         </User>
         <div>

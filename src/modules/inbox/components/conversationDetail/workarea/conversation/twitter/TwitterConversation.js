@@ -27,18 +27,21 @@ class TwitterConversation extends Component {
     const array = [];
 
     messages.forEach(message => {
-      if (
+      const hasParent =
         message.twitterData &&
-        message.twitterData.in_reply_to_status_id_str === parent
-      ) {
+        message.twitterData.in_reply_to_status_id_str === parent;
+
+      if (hasParent) {
         const children = this.renderMessages(
           messages,
           message.twitterData.id_str
         );
         let child = message;
+
         if (children.length) {
           child = Object.assign({ children }, message);
         }
+
         array.push(child);
       }
     });
