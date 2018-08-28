@@ -119,15 +119,15 @@ class TwitterMessage extends Component {
   }
 
   renderReply(twitterData, inReplyStatus) {
-    if (!inReplyStatus) {
-      return (
-        <Reply>
-          Replying to {this.renderUserLink(twitterData.in_reply_to_screen_name)}
-        </Reply>
-      );
+    if (inReplyStatus) {
+      return null;
     }
 
-    return null;
+    return (
+      <Reply>
+        Replying to {this.renderUserLink(twitterData.in_reply_to_screen_name)}
+      </Reply>
+    );
   }
 
   render() {

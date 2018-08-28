@@ -42,14 +42,16 @@ class TwitterConversation extends Component {
         array.push(child);
       }
     });
+
     return array;
   }
 
   renderChildren(children, integrationId) {
-    if (children) {
-      return <List>{this.renderTweets(children, integrationId)}</List>;
+    if (!children) {
+      return null;
     }
-    return null;
+
+    return <List>{this.renderTweets(children, integrationId)}</List>;
   }
 
   renderTweets(messages, integrationId) {

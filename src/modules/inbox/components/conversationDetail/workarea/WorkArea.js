@@ -35,9 +35,7 @@ export default class WorkArea extends Component {
   }
 
   getChildContext() {
-    return {
-      scrollBottom: this.scrollBottom
-    };
+    return { scrollBottom: this.scrollBottom };
   }
 
   // Calculating new messages's height to use later in componentDidUpdate
