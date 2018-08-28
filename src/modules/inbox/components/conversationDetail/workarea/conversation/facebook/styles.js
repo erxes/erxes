@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 
 const mainSize = '20px';
+const coreSize = '10px';
 const borderRadius = '4px';
 const textColor = '#1D212A';
 
@@ -72,7 +73,7 @@ const User = styled.div`
 const Reply = styled.div`
   display: inline-block;
   margin-right: 5px;
-  padding-left: 10px;
+  padding-left: ${coreSize};
 
   > a {
     font-size: 11px;
@@ -88,7 +89,7 @@ const Reply = styled.div`
 `;
 
 const ChildPost = styled.div`
-  padding: 0 10px;
+  padding: 0 ${coreSize};
   overflow: hidden;
   position: relative;
   margin-bottom: 15px;
@@ -114,9 +115,12 @@ const Counts = styled.div`
 `;
 
 const Comment = styled.div`
-  background: #eff1f3;
-  border: 1px solid #ebebeb;
-  padding: 8px 10px;
+  background: ${props => (props.isInternal ? colors.bgInternal : '#eff1f3')};
+  box-shadow: ${props =>
+    props.isInternal && `0 1px 1px 0 ${colors.darkShadow}`};
+  border: 1px solid
+    ${props => (props.isInternal ? colors.bgInternal : '#ebebeb')};
+  padding: 8px ${coreSize};
   border-radius: 18px;
   line-height: 16px;
   font-size: 12px;
@@ -145,16 +149,20 @@ const Comment = styled.div`
     display: block;
     margin-top: 7px;
   }
+
+  iframe {
+    padding: ${mainSize};
+  }
 `;
 
 const ReplyReaction = styled.div`
   display: flex;
   align-items: center;
   background: ${colors.colorWhite};
-  border-radius: 10px;
+  border-radius: ${coreSize};
   font-size: 11px;
   padding: 2px;
-  margin-left: -10px;
+  margin-left: -${coreSize};
   z-index: 5;
   height: 22px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
@@ -172,7 +180,7 @@ const Reaction = styled.div`
   margin-right: ${props => (props.comment ? '-5px' : '3px')};
   background-image: url('/images/reactions.png');
   border: 1px solid ${colors.colorWhite};
-  border-radius: 10px;
+  border-radius: ${coreSize};
   cursor: pointer;
 
   &.haha {
@@ -197,14 +205,14 @@ const Footer = styled.div`
 `;
 
 const ImageContainer = styled.div`
-  padding: 10px;
+  padding: ${coreSize};
 
   img {
     width: ${props => props.full && '70px'};
     height: ${props => props.full && '70px'};
     border: 1px solid ${colors.borderPrimary};
     margin-right: 5px;
-    padding: 10px;
+    padding: ${coreSize};
     max-width: ${props => props.isComment && '400px'};
   }
 

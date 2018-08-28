@@ -7,7 +7,8 @@ const propTypes = {
   content: PropTypes.string.isRequired,
   image: PropTypes.string,
   link: PropTypes.string,
-  images: PropTypes.array
+  images: PropTypes.array,
+  commentVideo: PropTypes.string
 };
 
 export default class FacebookContent extends Component {
@@ -70,7 +71,7 @@ export default class FacebookContent extends Component {
       );
     }
 
-    if (link.includes('video.xx.fbcdn.net')) {
+    if (link.includes('xx.fbcdn.net')) {
       return (
         <iframe
           title="erxesIframeVideo"

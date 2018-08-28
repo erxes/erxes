@@ -23,7 +23,13 @@ const propTypes = {
 };
 
 export default class FacebookComment extends Component {
-  renderReactionCount(data) {
+  renderReactionCount() {
+    const data = this.props.message.facebookData;
+
+    if (data === null) {
+      return null;
+    }
+
     if (data.likeCount === 0) {
       return null;
     }
@@ -40,6 +46,11 @@ export default class FacebookComment extends Component {
     const { message, replyPost } = this.props;
     const data = message.facebookData || {};
     const size = data && data.parentId ? 20 : 32;
+    let commentVideo = '';
+
+    if (message.content.includes('youtube.com')) {
+      commentVideo = message.content;
+    }
 
     return (
       <ChildPost isReply={data.parentId}>
@@ -47,15 +58,15 @@ export default class FacebookComment extends Component {
 
         <User isReply={data.parentId}>
           <FlexItem>
-            <Comment>
+            <Comment isInternal={message.internal}>
               <UserName username={data.senderName} userId={data.senderId} />
               <FacebookContent
                 content={message.content}
                 image={data.photo}
-                link={data.link || data.video}
+                link={data.link || data.video || commentVideo}
               />
             </Comment>
-            {this.renderReactionCount(data)}
+            {this.renderReactionCount()}
           </FlexItem>
 
           <Reply>
