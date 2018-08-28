@@ -9,7 +9,6 @@ const propTypes = {
   message: PropTypes.object.isRequired,
   staff: PropTypes.bool,
   integrationId: PropTypes.string,
-  scrollBottom: PropTypes.func.isRequired,
   favoriteTweet: PropTypes.func,
   retweet: PropTypes.func,
   replyTweet: PropTypes.func,
@@ -132,7 +131,7 @@ class TwitterMessage extends Component {
   }
 
   render() {
-    const { message, scrollBottom } = this.props;
+    const { message } = this.props;
 
     // customer
     const customer = message.customer || {};
@@ -163,7 +162,7 @@ class TwitterMessage extends Component {
         <div>
           {this.renderReply(twitterData, inReplyStatus)}
           <TweetContent content={tweetContent} entities={entities} />
-          <TweetMedia data={twitterData} scrollBottom={scrollBottom} />
+          <TweetMedia data={twitterData} />
           {this.renderCounts(twitterData)}
         </div>
       </Tweet>

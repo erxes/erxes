@@ -105,7 +105,11 @@ class Attachment extends Component {
   }
 
   onLoadImage() {
-    this.props.scrollBottom();
+    const { onLoad } = this.props;
+
+    if (onLoad) {
+      onLoad();
+    }
   }
 
   renderAtachment({ attachment }) {
@@ -172,7 +176,7 @@ class Attachment extends Component {
 
 Attachment.propTypes = {
   attachment: PropTypes.object.isRequired,
-  scrollBottom: PropTypes.func
+  onLoad: PropTypes.func
 };
 
 export default Attachment;

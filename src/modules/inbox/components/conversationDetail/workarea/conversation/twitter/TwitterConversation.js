@@ -2,11 +2,10 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { TwitterMessage } from 'modules/inbox/containers/conversationDetail';
-import Message from '../Message';
+import { Message } from '../messages';
 
 const propTypes = {
   conversation: PropTypes.object,
-  scrollBottom: PropTypes.func.isRequired,
   conversationMessages: PropTypes.array
 };
 
@@ -61,7 +60,6 @@ class TwitterConversation extends Component {
             message={message}
             currentConversationId={this.props.conversation._id}
             integrationId={integrationId}
-            scrollBottom={this.props.scrollBottom}
           />
           {this.renderChildren(message.children, integrationId)}
         </li>
@@ -76,7 +74,6 @@ class TwitterConversation extends Component {
           message={message}
           staff={!message.customerId}
           key={message._id}
-          scrollBottom={this.props.scrollBottom}
         />
       );
     });

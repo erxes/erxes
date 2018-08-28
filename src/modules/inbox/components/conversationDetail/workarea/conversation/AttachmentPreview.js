@@ -36,41 +36,33 @@ const File = styled.span`
 `;
 
 const propTypes = {
-  attachmentPreview: PropTypes.object,
-  scrollBottom: PropTypes.func
+  attachmentPreview: PropTypes.object
 };
 
 class AttachmentPreview extends Component {
-  constructor(props) {
-    super(props);
+  renderContent() {
+    const { attachmentPreview } = this.props;
 
-    this.onLoadImage = this.onLoadImage.bind(this);
-  }
+    if (attachmentPreview.type.startsWith('image')) {
+      return <img alt={attachmentPreview.name} src={attachmentPreview.data} />;
+    }
 
-  onLoadImage() {
-    this.props.scrollBottom();
+    return <File />;
   }
 
   render() {
     const { attachmentPreview } = this.props;
 
-    if (attachmentPreview && attachmentPreview.data) {
-      return (
-        <Preview>
-          {attachmentPreview.type.startsWith('image') ? (
-            <img
-              onLoad={this.onLoadImage}
-              alt={attachmentPreview.name}
-              src={attachmentPreview.data}
-            />
-          ) : (
-            <File />
-          )}
-          <Spinner />
-        </Preview>
-      );
+    if (!(attachmentPreview && attachmentPreview.data)) {
+      return null;
     }
-    return null;
+
+    return (
+      <Preview>
+        {this.renderContent()}
+        <Spinner />
+      </Preview>
+    );
   }
 }
 

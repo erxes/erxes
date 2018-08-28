@@ -94,8 +94,7 @@ class ImageWithPreview extends Component {
 
 ImageWithPreview.propTypes = {
   src: PropTypes.string,
-  alt: PropTypes.string,
-  onLoad: PropTypes.func
+  alt: PropTypes.string
 };
 
 class PreviewPortal extends Component {
