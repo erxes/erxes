@@ -52,6 +52,7 @@ class TweetMedia extends Component {
         <ImageWithPreview
           alt={entities.media[0].url}
           src={entities.media[0].media_url}
+          onLoad={this.context.scrollBottom}
         />
       );
     }
@@ -94,5 +95,9 @@ class TweetMedia extends Component {
 }
 
 TweetMedia.propTypes = propTypes;
+
+TweetMedia.contextTypes = {
+  scrollBottom: PropTypes.func
+};
 
 export default TweetMedia;

@@ -36,15 +36,22 @@ const File = styled.span`
 `;
 
 const propTypes = {
-  attachmentPreview: PropTypes.object
+  attachmentPreview: PropTypes.object,
+  onLoad: PropTypes.func
 };
 
 class AttachmentPreview extends Component {
   renderContent() {
-    const { attachmentPreview } = this.props;
+    const { attachmentPreview, onLoad } = this.props;
 
     if (attachmentPreview.type.startsWith('image')) {
-      return <img alt={attachmentPreview.name} src={attachmentPreview.data} />;
+      return (
+        <img
+          onLoad={onLoad}
+          alt={attachmentPreview.name}
+          src={attachmentPreview.data}
+        />
+      );
     }
 
     return <File />;
