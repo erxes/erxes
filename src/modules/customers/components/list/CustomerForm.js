@@ -122,6 +122,34 @@ class CustomerForm extends React.Component {
     return customer.visitorContactInfo && customer.visitorContactInfo[key];
   }
 
+  getEmailsOptions(customer) {
+    const { emails } = customer;
+
+    if (emails && emails.length > 0) {
+      return emails;
+    }
+
+    if (this.getVisitorInfo(customer, 'email')) {
+      return [this.getVisitorInfo(customer, 'email')];
+    }
+
+    return [];
+  }
+
+  getPhonesOptions(customer) {
+    const { phones } = customer;
+
+    if (phones && phones.length > 0) {
+      return phones;
+    }
+
+    if (this.getVisitorInfo(customer, 'phone')) {
+      return [this.getVisitorInfo(customer, 'phone')];
+    }
+
+    return [];
+  }
+
   renderFormGroup(label, props) {
     return (
       <FormGroup>
@@ -142,7 +170,7 @@ class CustomerForm extends React.Component {
   render() {
     const { __, closeModal } = this.context;
     const { customer = {} } = this.props;
-    const { links = {}, primaryEmail, emails, primaryPhone, phones } = customer;
+    const { links = {}, primaryEmail, primaryPhone } = customer;
     const { users } = this.state;
 
     return (
@@ -163,8 +191,8 @@ class CustomerForm extends React.Component {
             <FormGroup>
               <ControlLabel>Email</ControlLabel>
               <ModifiableSelect
-                value={primaryEmail || this.getVisitorInfo(customer, 'email')}
-                options={emails || []}
+                value={primaryEmail}
+                options={this.getEmailsOptions(customer)}
                 placeholder="Primary email"
                 buttonText="Add Email"
                 onChange={obj => this.onEmailChange(obj)}
@@ -214,8 +242,8 @@ class CustomerForm extends React.Component {
             <FormGroup>
               <ControlLabel>Phone</ControlLabel>
               <ModifiableSelect
-                value={primaryPhone || this.getVisitorInfo(customer, 'phone')}
-                options={phones || []}
+                value={primaryPhone}
+                options={this.getPhonesOptions(customer)}
                 placeholder="Primary phone"
                 buttonText="Add Phone"
                 onChange={obj => this.onPhoneChange(obj)}
