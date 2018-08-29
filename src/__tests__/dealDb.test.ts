@@ -13,7 +13,11 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe("Test deals model", () => {
-  let board, pipeline, stage, deal, user;
+  let board;
+  let pipeline;
+  let stage;
+  let deal;
+  let user;
 
   beforeEach(async () => {
     // Creating test data
@@ -112,16 +116,16 @@ describe("Test deals model", () => {
 
   test("Update pipeline", async () => {
     const pipelineName = "Update pipeline name";
-    const pipeline = await dealPipelineFactory({});
-    const stage = await dealStageFactory({ pipelineId: pipeline._id });
+    const pipelineObj = await dealPipelineFactory({});
+    const stageObj = await dealStageFactory({ pipelineId: pipelineObj._id });
 
     const updatedPipeline = await DealPipelines.updatePipeline(
-      pipeline._id,
+      pipelineObj._id,
       {
         name: pipelineName,
         userId: user._id
       },
-      [stage]
+      [stageObj]
     );
 
     const stages = await DealStages.find({ _id: stage._id });
