@@ -79,6 +79,7 @@ export default class FacebookMessage extends React.Component {
         {...this.props}
         classes={classes}
         renderContent={renderContent}
+        isStaff={!message.customerId}
       />
     );
   }

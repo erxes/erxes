@@ -60,8 +60,9 @@ class Conversation extends Component {
 
   renderConversation() {
     const { loading, conversation, conversationMessages } = this.props;
+    const { kind } = conversation.integration;
 
-    if (loading) {
+    if ((kind === 'facebook' || kind === 'twitter') && loading) {
       return <Spinner objective />;
     }
 

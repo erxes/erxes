@@ -19,7 +19,11 @@ export default class FacebookContent extends Component {
 
     return (
       <ImageContainer>
-        <ImageWithPreview alt={image} src={image} />
+        <ImageWithPreview
+          alt={image}
+          src={image}
+          onLoad={this.context.scrollBottom}
+        />
       </ImageContainer>
     );
   }
@@ -32,7 +36,13 @@ export default class FacebookContent extends Component {
     return (
       <ImageContainer>
         {images.map((image, index) => (
-          <ImageWithPreview key={index} alt={image} src={image} full />
+          <ImageWithPreview
+            key={index}
+            alt={image}
+            src={image}
+            onLoad={this.context.scrollBottom}
+            full
+          />
         ))}
       </ImageContainer>
     );
@@ -66,7 +76,11 @@ export default class FacebookContent extends Component {
     ) {
       return (
         <ImageContainer isComment>
-          <ImageWithPreview alt={link} src={link} />
+          <ImageWithPreview
+            alt={link}
+            src={link}
+            onLoad={this.context.scrollBottom}
+          />
         </ImageContainer>
       );
     }
@@ -110,3 +124,7 @@ export default class FacebookContent extends Component {
 }
 
 FacebookContent.propTypes = propTypes;
+
+FacebookContent.contextTypes = {
+  scrollBottom: PropTypes.func
+};

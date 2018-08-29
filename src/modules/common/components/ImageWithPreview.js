@@ -75,11 +75,11 @@ class ImageWithPreview extends Component {
   }
 
   render() {
-    const { src, alt } = this.props;
+    const { src, alt, onLoad } = this.props;
 
     return (
       <div>
-        <Image {...this.props} onClick={this.toggleImage} />
+        <Image {...this.props} onLoad={onLoad} onClick={this.toggleImage} />
         {this.state.visible && (
           <PreviewPortal>
             <PreviewWrapper onClick={this.toggleImage}>
@@ -94,7 +94,8 @@ class ImageWithPreview extends Component {
 
 ImageWithPreview.propTypes = {
   src: PropTypes.string,
-  alt: PropTypes.string
+  alt: PropTypes.string,
+  onLoad: PropTypes.func
 };
 
 class PreviewPortal extends Component {
