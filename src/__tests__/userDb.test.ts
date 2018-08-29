@@ -5,7 +5,8 @@ import { userFactory } from "../db/factories";
 import { Users } from "../db/models";
 
 beforeAll(() => {
-  connect(), Users.collection.ensureIndex({ email: 1 }, { unique: true });
+  connect();
+  Users.collection.ensureIndex({ email: 1 }, { unique: true });
 });
 
 afterAll(() => disconnect());

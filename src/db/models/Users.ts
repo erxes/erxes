@@ -18,15 +18,9 @@ interface IUserModel extends Model<IUserDocument> {
 
   createUser(doc: IUser): Promise<IUserDocument>;
 
-  updateUser(
-    _id: string,
-    doc: IUser
-  ): Promise<IUserDocument>;
+  updateUser(_id: string, doc: IUser): Promise<IUserDocument>;
 
-  editProfile(
-    _id: string,
-    doc: IUser
-  ): Promise<IUserDocument>;
+  editProfile(_id: string, doc: IUser): Promise<IUserDocument>;
 
   configEmailSignatures(
     _id: string,
@@ -80,17 +74,19 @@ class User {
   /**
    * Checking if user has duplicated properties
    */
-  public static async checkDuplication(userFields: IUser, idsToExclude: string | string[]) {
+  public static async checkDuplication(
+    userFields: IUser,
+    idsToExclude: string | string[]
+  ) {
     const query: { [key: string]: any } = {};
     let previousEntry = null;
 
     // Adding exclude operator to the query
     if (idsToExclude) {
-      if (idsToExclude instanceof Array) {
-        query._id = { $nin: idsToExclude };
-      } else {
-        query._id = { $ne: idsToExclude };
-      }
+      query._id =
+        idsToExclude instanceof Array
+          ? { $nin: idsToExclude }
+          : { $ne: idsToExclude };
     }
 
     // Checking if user has email
