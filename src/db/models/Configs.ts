@@ -7,7 +7,7 @@ interface IConfigModel extends Model<IConfigDocument> {
     value
   }: {
     code: string;
-    value: string;
+    value: string[];
   }): IConfigDocument;
 }
 
@@ -20,7 +20,7 @@ class Config {
     value
   }: {
     code: string;
-    value: string;
+    value: string[];
   }) {
     const obj = await Configs.findOne({ code });
 

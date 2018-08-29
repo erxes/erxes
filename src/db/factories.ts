@@ -427,9 +427,9 @@ interface IIntegrationFactoryInput {
   kind?: string;
   brandId?: string;
   formId?: string;
-  twitterData?: void;
-  facebookData?: void;
-  formData?: void | string;
+  twitterData?: any;
+  facebookData?: any;
+  formData?: any | string;
   tagIds?: string[];
 }
 
