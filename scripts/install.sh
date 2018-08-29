@@ -1,32 +1,19 @@
 #!/bin/sh
-# erxes Widgets
 
-echo 'Embedable widget scripts server for erxes.'
+echo 'Clone erxes-widgets repository and install its dependencies:'
+#git clone https://github.com/erxes/erxes-widgets.git
+#cd erxes-widgets
+#git checkout master
+#yarn install
 
-## Running the server
-
-#### 1. Node (version >= 4) need to be installed.
-#### 2. Clone and install dependencies.
-
-if [ ! -d .git ]; then
-  git clone https://github.com/erxes/erxes-widgets
-  cd erxes-widgets
-  yarn install
-fi
-
-#### 3. Create configuration. We use [dotenv](https://github.com/motdotla/dotenv) for this.
-
-cp .env.sample .env
-
-echo "This configuration matches with the default configurations of other erxes platform repositories. For the first time run, you don't need to modify it."
-
-#### 4. Start the server.
-
-echo 'Widgets server is running on [http://localhost:3200](http://localhost:3200).'
+echo 'Create `.env.sample` from default settings file and configure it on your own:'
+#cp .env.sample .env
 
 CURRENT_FOLDER=${PWD##*/}
 if [ $CURRENT_FOLDER = 'erxes-widgets' ]; then
   cd ..
 fi
 
-curl https://raw.githubusercontent.com/erxes/erxes-api/master/scripts/install.sh | sh
+echo 'Default login credentials'
+echo 'Username: admin@erxes.io'
+echo 'Password: erxes'
