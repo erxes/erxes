@@ -2,80 +2,53 @@ import { Model, model } from "mongoose";
 import {
   articleSchema,
   categorySchema,
+  IArticle,
   IArticleDocument,
+  ICategory,
   ICategoryDocument,
+  ITopic,
   ITopicDocument,
   topicSchema
 } from "./definitions/knowledgebase";
 
-/**
- * Base class for Knowledge base classes
- */
-class KnowledgeBaseCommonDocument {
-  /**
-   * Create document with given parameters, also set createdBy by given
-   * userId and also check if its supplied
-   * @param {Object} doc - Knowledge base document object
-   * @param {string} userId - User id of the creator of this document
-   * @return {Promise} - returns Promise resolving newly added document
-   * @throws {Error} - throws Error('userId must be supplied') if the userId is not supplied
-   */
-  public static createBaseDoc(doc, userId) {
-    if (!userId) {
-      throw new Error("userId must be supplied");
-    }
+interface IArticleModel extends Model<IArticleDocument> {
+  createDoc(
+    {
+      categoryIds,
+      ...docFields
+    }: { categoryIds: string[]; docFields: IArticle },
+    userId: string
+  ): Promise<IArticleDocument>;
 
-    return this.create({
-      ...doc,
+  updateDoc(
+    _id: string,
+    {
+      categoryIds,
+      ...docFields
+    }: { categoryIds: string[]; docFields: IArticle },
+    userId: string
+  ): Promise<IArticleDocument>;
+
+  removeDoc(_id: string): void;
+}
+
+class Article {
+  /**
+   * Create KnowledgeBaseArticle document
+   */
+  public static async createDoc(
+    {
+      categoryIds,
+      ...docFields
+    }: { categoryIds: string[]; docFields: IArticle },
+    userId: string
+  ) {
+    const article = await KnowledgeBaseArticles.create({
+      ...docFields,
       createdDate: new Date(),
       createdBy: userId,
       modifiedDate: new Date()
     });
-  }
-
-  /**
-   * Update knowledge base document
-   * @param {string} - Id of the document
-   * @param {Object} - Document Object
-   * @param {string} - The user id of the modifier
-   * @return {Promsie} - returns Promise resolving updated document
-   */
-  public static async updateBaseDoc(_id, doc, userId) {
-    if (!userId) {
-      throw new Error("userId must be supplied");
-    }
-
-    await this.update(
-      { _id },
-      {
-        $set: {
-          ...doc,
-          modifiedBy: userId,
-          modifiedDate: new Date()
-        }
-      }
-    );
-
-    return this.findOne({ _id });
-  }
-}
-
-interface IArticleModel extends Model<IArticleDocument> {}
-
-class Article extends KnowledgeBaseCommonDocument {
-  /**
-   * Create KnowledgeBaseArticle document
-   * @param {Object} doc - KnowledgeBaseArticle object
-   * @param {string} doc.title - KnowledgeBaseArticle title
-   * @param {string} doc.summary - KnowledgeBaseArticle summary
-   * @param {string} doc.content - KnowledgeBaseArticle content
-   * @param {string} doc.status - KnowledgeBaseArticle status (currently: 'draft' or 'publish')
-   * @param {string[]} doc.categoryIds - list of parent Category ids
-   * @param {string} userId - User id of the creator of this document
-   * @return {Promise} - returns Promise resolving created document
-   */
-  public static async createDoc({ categoryIds, ...docFields }, userId) {
-    const article = await this.createBaseDoc(docFields, userId);
 
     // add new article id to categories's articleIds field
     if ((categoryIds || []).length > 0) {
@@ -95,18 +68,25 @@ class Article extends KnowledgeBaseCommonDocument {
 
   /**
    * Update KnowledgeBaseArticle document
-   * @param {Object} _id - KnowldegeBaseArticle document id
-   * @param {Object} doc - KnowledgeBaseArticle object
-   * @param {string} doc.title - KnowledgeBaseArticle title
-   * @param {string} doc.summary - KnowledgeBaseArticle summary
-   * @param {string} doc.content - KnowledgeBaseArticle content
-   * @param {string} doc.status - KnowledgeBaseArticle status (currently: 'draft' or 'publish')
-   * @param {string[]} doc.categoryIds - list of parent Category ids
-   * @param {string} userId - User id of the modifier of this document
-   * @return {Promise} - returns Promise resolving modified document
    */
-  public static async updateDoc(_id, { categoryIds, ...docFields }, userId) {
-    await this.updateBaseDoc({ _id }, docFields, userId);
+  public static async updateDoc(
+    _id: string,
+    {
+      categoryIds,
+      ...docFields
+    }: { categoryIds: string[]; docFields: IArticle },
+    userId: string
+  ) {
+    await KnowledgeBaseArticles.update(
+      { _id },
+      {
+        $set: {
+          ...docFields,
+          modifiedBy: userId,
+          modifiedDate: new Date()
+        }
+      }
+    );
 
     const article = await KnowledgeBaseArticles.findOne({ _id });
 
@@ -131,32 +111,41 @@ class Article extends KnowledgeBaseCommonDocument {
 
   /**
    * Removes KnowledgeBaseArticle document
-   * @param {Object} _id - KnowldegeBaseArticle document id
-   * @return {Promise}
    */
-  public static removeDoc(_id) {
+  public static removeDoc(_id: string) {
     return KnowledgeBaseArticles.remove({ _id });
   }
 }
 
 interface ICategoryModel extends Model<ICategoryDocument> {
+  createDoc(
+    { topicIds, ...docFields }: { topicIds: string[]; docFields: ICategory },
+    userId
+  ): Promise<ICategoryDocument>;
+
+  updateDoc(
+    _id: string,
+    { topicIds, ...docFields }: { topicIds: string[]; docFields: ICategory },
+    userId: string
+  ): Promise<ICategoryDocument>;
+
   removeDoc(categoryId: string): void;
 }
 
-class Category extends KnowledgeBaseCommonDocument {
+class Category {
   /**
    * Create KnowledgeBaseCategory document
-   * @param {Object} doc - KnowledgeBaseCategory object
-   * @param {string} doc.title - KnowledgeBaseCategory title
-   * @param {string} doc.description - KnowledgeBaseCategory description
-   * @param {string[]} doc.articleIds - KnowledgeBaseCategory articleIds
-   * @param {string} doc.icon - Select icon name
-   * @param {string} userId - User id of the creator of this document
-   * @param {string[]} doc.topicIds - list of parent Topic ids
-   * @return {Promise} - returns Promise resolving created document
    */
-  public static async createDoc({ topicIds, ...docFields }, userId) {
-    const category = await this.createBaseDoc(docFields, userId);
+  public static async createDoc(
+    { topicIds, ...docFields }: { topicIds: string[]; docFields: ICategory },
+    userId
+  ) {
+    const category = await KnowledgeBaseCategories.create({
+      ...docFields,
+      createdDate: new Date(),
+      createdBy: userId,
+      modifiedDate: new Date()
+    });
 
     if ((topicIds || []).length > 0) {
       const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
@@ -174,19 +163,22 @@ class Category extends KnowledgeBaseCommonDocument {
 
   /**
    * Update KnowledgeBaseCategory document
-   * @param {Object} _id - KnowledgeBaseCategory document id
-   * @param {Object} doc - KnowledgeBaseCategory object
-   * @param {string} doc.title - KnowledgeBaseCategory title
-   * @param {string} doc.description - KnowledgeBaseCategory description
-   * @param {string[]} doc.articleIds - KnowledgeBaseCategory articleIds
-   * @param {string} doc.icon - Select icon name
-   * @param {string[]} doc.topicIds - list of parent Topic ids
-   * @param {string} userId - User id of the modifier of this document
-   * @param {string} topicId - parentTopicId
-   * @return {Promise} - returns Promise resolving modified document
    */
-  public static async updateDoc(_id, { topicIds, ...docFields }, userId) {
-    await this.updateBaseDoc({ _id }, docFields, userId);
+  public static async updateDoc(
+    _id: string,
+    { topicIds, ...docFields }: { topicIds: string[]; docFields: ICategory },
+    userId: string
+  ) {
+    await KnowledgeBaseCategories.update(
+      { _id },
+      {
+        $set: {
+          ...docFields,
+          modifiedBy: userId,
+          modifiedDate: new Date()
+        }
+      }
+    );
 
     const category = await KnowledgeBaseCategories.findOne({ _id });
 
@@ -208,10 +200,8 @@ class Category extends KnowledgeBaseCommonDocument {
 
   /**
    * Removes KnowledgeBaseCategory document and it's children articles
-   * @param {Object} _id - KnowledgeBaseCategory document id
-   * @return {Promise}
    */
-  public static async removeDoc(_id) {
+  public static async removeDoc(_id: string) {
     const category = await KnowledgeBaseCategories.findOne({ _id });
 
     for (const articleId of category.articleIds || []) {
@@ -222,44 +212,51 @@ class Category extends KnowledgeBaseCommonDocument {
   }
 }
 
-interface ITopicModel extends Model<ITopicDocument> {}
+interface ITopicModel extends Model<ITopicDocument> {
+  createDoc(docFields: ITopic, userId: string): Promise<ITopicDocument>;
 
-class Topic extends KnowledgeBaseCommonDocument {
+  updateDoc(
+    _id: string,
+    docFields: ITopic,
+    userId: string
+  ): Promise<ITopicDocument>;
+
+  removeDoc(_id: string): void;
+}
+
+class Topic {
   /**
    * Create KnowledgeBaseTopic document
-   * @param {Object} doc - KnowledgeBaseTopic object
-   * @param {string} doc.title - KnowledgeBaseTopic title
-   * @param {string} doc.description - KnowledgeBaseTopic description
-   * @param {string[]} doc.categoryIds - KnowledgeBaseTopic category ids
-   * @param {string} doc.brandId - Id of the brand related to this topic
-   * @param {string} userId - User id of the creator of this document
-   * @return {Promise} - returns Promise resolving created document
    */
-  public static createDoc(docFields, userId) {
-    return this.createBaseDoc(docFields, userId);
+  public static createDoc(docFields: ITopic, userId: string) {
+    return KnowledgeBaseTopics.create({
+      ...docFields,
+      createdDate: new Date(),
+      createdBy: userId,
+      modifiedDate: new Date()
+    });
   }
 
   /**
    * Update KnowledgeBaseTopic document
-   * @param {Object} _id - KnowledgeBaseTopic document id
-   * @param {Object} doc - KnowledgeBaseTopic object
-   * @param {string} doc.title - KnowledgeBaseTopic title
-   * @param {string} doc.description - KnowledgeBaseTopic description
-   * @param {string[]} doc.categoryIds - KnowledgeBaseTopic category ids
-   * @param {string} doc.brandId - Id of the brand related to this topic
-   * @param {string} userId - User id of the modifier of this document
-   * @return {Promise} - returns Promise resolving modified document
    */
-  public static updateDoc(_id, docFields, userId) {
-    return this.updateBaseDoc(_id, docFields, userId);
+  public static updateDoc(_id: string, docFields: ITopic, userId: string) {
+    return KnowledgeBaseTopics.update(
+      { _id },
+      {
+        $set: {
+          ...docFields,
+          modifiedBy: userId,
+          modifiedDate: new Date()
+        }
+      }
+    );
   }
 
   /**
    * Removes KnowledgeBaseTopic document and it's children categories
-   * @param {Object} _id - KnowledgeBaseTopic document id
-   * @return {Promise}
    */
-  public static async removeDoc(_id) {
+  public static async removeDoc(_id: string) {
     const topic = await KnowledgeBaseTopics.findOne({ _id });
 
     // remove child items ===========
