@@ -9,13 +9,19 @@ import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Editor from './Editor';
 import { MessengerPreview } from '../containers';
+import Scheduler from './Scheduler';
+
+const contextTypes = {
+  __: PropTypes.func
+};
 
 const propTypes = {
   brands: PropTypes.array,
   changeMessenger: PropTypes.func,
   users: PropTypes.array,
   hasKind: PropTypes.bool,
-  defaultValue: PropTypes.object
+  defaultValue: PropTypes.object,
+  kind: PropTypes.string
 };
 
 class MessengerForm extends Component {
@@ -23,6 +29,7 @@ class MessengerForm extends Component {
     super(props);
 
     const message = props.defaultValue || {};
+    const scheduleDate = message.scheduleDate || {};
 
     this.state = {
       fromUser: message.fromUser || '',
@@ -30,7 +37,8 @@ class MessengerForm extends Component {
         brandId: message.messenger.brandId || '',
         kind: message.messenger.kind || '',
         sentAs: message.messenger.sentAs || ''
-      }
+      },
+      scheduleDate
     };
   }
 
@@ -71,6 +79,19 @@ class MessengerForm extends Component {
           ))}
         </FormControl>
       </FormGroup>
+    );
+  }
+
+  renderScheduler() {
+    if (this.props.kind === 'manual') {
+      return null;
+    }
+
+    return (
+      <Scheduler
+        scheduleDate={this.state.scheduleDate}
+        onChange={this.props.changeMessenger}
+      />
     );
   }
 
@@ -135,6 +156,8 @@ class MessengerForm extends Component {
               ))}
             </FormControl>
           </FormGroup>
+
+          {this.renderScheduler()}
         </FlexPad>
 
         <FlexPad overflow="auto">
@@ -149,6 +172,7 @@ class MessengerForm extends Component {
   }
 }
 
+MessengerForm.contextTypes = contextTypes;
 MessengerForm.propTypes = propTypes;
 
 export default MessengerForm;

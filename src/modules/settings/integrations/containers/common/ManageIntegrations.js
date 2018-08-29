@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { ManageIntegrations } from '../../components/common';
-import { queries } from '../../graphql';
+import { ManageIntegrations } from 'modules/settings/integrations/components/common';
+import { queries } from 'modules/settings/integrations/graphql';
 
 class ManageIntegrationsContainer extends Component {
   constructor(props) {

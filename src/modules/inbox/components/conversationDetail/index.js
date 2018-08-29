@@ -4,9 +4,9 @@ import WorkArea from './workarea/WorkArea';
 import RespondBox from './workarea/RespondBox';
 import Participators from './workarea/Participators';
 import ResponseTemplate from './workarea/ResponseTemplate';
-import FacebookPost from './workarea/conversation/FacebookConversation/FacebookPost';
-import FacebookComment from './workarea/conversation/FacebookConversation/FacebookComment';
-import TwitterMessage from './workarea/conversation/TwitterConversation/TwitterMessage';
+import FacebookPost from './workarea/conversation/facebook/FacebookPost';
+import FacebookComment from './workarea/conversation/facebook/FacebookComment';
+import TwitterMessage from './workarea/conversation/twitter/TwitterMessage';
 
 export {
   Participators,

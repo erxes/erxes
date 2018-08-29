@@ -8,7 +8,8 @@ const propTypes = {
   users: PropTypes.array,
   method: PropTypes.string,
   templates: PropTypes.array,
-  defaultValue: PropTypes.object
+  defaultValue: PropTypes.object,
+  kind: PropTypes.string
 };
 
 class MessageStep extends Component {
@@ -19,7 +20,8 @@ class MessageStep extends Component {
       users,
       method,
       templates,
-      defaultValue
+      defaultValue,
+      kind
     } = this.props;
 
     if (method === 'email') {
@@ -29,6 +31,7 @@ class MessageStep extends Component {
           defaultValue={defaultValue}
           users={users}
           templates={templates}
+          kind={kind}
         />
       );
     }
@@ -40,6 +43,7 @@ class MessageStep extends Component {
         defaultValue={defaultValue}
         users={users}
         hasKind={true}
+        kind={kind}
       />
     );
   }

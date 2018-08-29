@@ -240,7 +240,10 @@ export default compose(
     })
   }),
   graphql(gql(mutations.conversationMessageAdd), {
-    name: 'addMessageMutation'
+    name: 'addMessageMutation',
+    options: ({ currentId }) => ({
+      refetchQueries: ['conversationMessages']
+    })
   })
 )(WorkArea);
 

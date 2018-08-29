@@ -70,6 +70,12 @@ const engageDetailFields = `
   createdDate
   deliveryReports
   messenger
+  scheduleDate {
+    type
+    month
+    day
+    time
+  }
   stats
   brand {
     name

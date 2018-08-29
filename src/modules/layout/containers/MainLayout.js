@@ -67,11 +67,14 @@ class MainLayoutContainer extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      currentLanguage: 'en'
-    };
+    // initiliaze locale ======
+    const currentLanguage = localStorage.getItem('currentLanguage') || 'en';
 
+    this.state = { currentLanguage };
+    this.setLocale = this.setLocale.bind(this);
     this.changeLanguage = this.changeLanguage.bind(this);
+
+    this.setLocale(currentLanguage);
   }
 
   getChildContext() {
@@ -81,8 +84,9 @@ class MainLayoutContainer extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.changeLanguage(localStorage.getItem('currentLanguage'));
+  setLocale(currentLanguage) {
+    moment.locale(currentLanguage);
+    T.setTexts(translations[currentLanguage]);
   }
 
   changeLanguage(languageCode) {
@@ -90,9 +94,7 @@ class MainLayoutContainer extends React.Component {
 
     localStorage.setItem('currentLanguage', currentLanguage);
 
-    moment.locale(currentLanguage);
-
-    T.setTexts(translations[currentLanguage]);
+    this.setLocale(currentLanguage);
 
     this.setState({ currentLanguage });
   }

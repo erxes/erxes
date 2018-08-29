@@ -25,8 +25,6 @@ class AutoAndManualForm extends FormBase {
     super(props);
 
     const message = props.message || {};
-    const messenger = message.messenger || {};
-    const email = message.email || {};
 
     let content = message.messenger ? message.messenger.content : '';
     content = message.email ? message.email.content : content;
@@ -39,16 +37,9 @@ class AutoAndManualForm extends FormBase {
       segment: message.segmentId || '',
       message: content,
       fromUser: message.fromUserId,
-      messenger: {
-        brandId: messenger.brandId || '',
-        kind: messenger.kind || '',
-        sentAs: messenger.sentAs || ''
-      },
-      email: {
-        templateId: email.templateId || '',
-        subject: email.subject || '',
-        attachments: email.attachments || []
-      }
+      messenger: message.messenger,
+      email: message.email,
+      scheduleDate: message.scheduleDate
     };
   }
 
@@ -61,6 +52,10 @@ class AutoAndManualForm extends FormBase {
       fromUserId: this.state.fromUser,
       method: this.state.method
     };
+
+    if (this.props.kind !== 'manual') {
+      doc.scheduleDate = this.state.scheduleDate;
+    }
 
     if (this.state.method === 'email') {
       doc.email = {
@@ -88,10 +83,17 @@ class AutoAndManualForm extends FormBase {
       messenger,
       email,
       fromUser,
-      message
+      message,
+      scheduleDate
     } = this.state;
 
-    const defaultMessageStepValue = { messenger, email, fromUser, message };
+    const defaultMessageStepValue = {
+      messenger,
+      email,
+      fromUser,
+      message,
+      scheduleDate
+    };
     const { __ } = this.context;
 
     return (
@@ -150,6 +152,7 @@ class AutoAndManualForm extends FormBase {
               method={this.state.method}
               templates={this.props.templates}
               defaultValue={defaultMessageStepValue}
+              kind={this.props.kind}
             />
           </Step>
         </Steps>

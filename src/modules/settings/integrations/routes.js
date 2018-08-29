@@ -1,13 +1,12 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import {
-  Twitter,
-  Google,
-  CreateMessenger,
-  EditMessenger,
-  IntegrationStore
-} from './containers';
+
+import Google from './containers/Google';
+import Twitter from './containers/twitter/Form';
+import CreateMessenger from './containers/messenger/Create';
+import EditMessenger from './containers/messenger/Edit';
+import Store from './containers/Store';
 
 const routes = () => [
   <Route
@@ -63,7 +62,7 @@ const routes = () => [
     key="/settings/integrations"
     exact
     path="/settings/integrations"
-    component={() => <IntegrationStore />}
+    component={() => <Store />}
   />
 ];
 
