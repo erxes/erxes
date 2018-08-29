@@ -23,8 +23,7 @@ erxes is an AI meets open source messaging platform built to help marketing, sal
 * **Knowledge base:** Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions
 
 ## Documentation
-  * <a href="https://github.com/erxes/erxes/wiki/Requirements">Requirements</a> <br>
-  * <a href="https://github.com/erxes/erxes/wiki/Installation">Installation instruction</a> <br>
+  * <a href="https://github.com/erxes/erxes/wiki/Installation">Installation instructions</a> <br>
   * <a href="https://github.com/erxes/erxes/wiki/Use-erxes-with-Docker">Use erxes with Docker</a> <br>
   * <a href="https://www.transifex.com/erxes-inc/erxes/">Translate erxes at Transifex</a> <br>
 
