@@ -7,7 +7,6 @@ const companyFields = `
   names
   size
   industry
-  website
   plan
 
   parentCompanyId
