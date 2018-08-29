@@ -16,23 +16,16 @@ interface IUserModel extends Model<IUserDocument> {
   checkDuplication(userField: IUser, idsToExclude?: string | string[]): never;
   getSecret(): string;
 
-  createUser({
-    username,
-    email,
-    password,
-    role,
-    details,
-    links
-  }: IUser): Promise<IUserDocument>;
+  createUser(doc: IUser): Promise<IUserDocument>;
 
   updateUser(
     _id: string,
-    { username, email, password, role, details, links }: IUser
+    doc: IUser
   ): Promise<IUserDocument>;
 
   editProfile(
     _id: string,
-    { username, email, details, links }: IUser
+    doc: IUser
   ): Promise<IUserDocument>;
 
   configEmailSignatures(
@@ -87,7 +80,7 @@ class User {
   /**
    * Checking if user has duplicated properties
    */
-  public static async checkDuplication(userFields, idsToExclude) {
+  public static async checkDuplication(userFields: IUser, idsToExclude: string | string[]) {
     const query: { [key: string]: any } = {};
     let previousEntry = null;
 

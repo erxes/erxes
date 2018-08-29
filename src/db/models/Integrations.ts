@@ -46,7 +46,7 @@ interface IIntegrationModel extends Model<IIntegrationDocument> {
 
   saveMessengerAppearanceData(
     _id: string,
-    { color, wallpaper, logo }: IUiOptions
+    doc: IUiOptions
   ): Promise<IIntegrationDocument>;
 
   saveMessengerConfigs(
@@ -54,14 +54,11 @@ interface IIntegrationModel extends Model<IIntegrationDocument> {
     messengerData: IMessengerData
   ): Promise<IIntegrationDocument>;
 
-  createFormIntegration({
-    formData,
-    ...mainDoc
-  }: IIntegration): Promise<IIntegrationDocument>;
+  createFormIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
 
   updateFormIntegration(
     _id: string,
-    { formData, ...mainDoc }: IIntegration
+    doc: IIntegration
   ): Promise<IIntegrationDocument>;
 
   removeIntegration(_id: string): void;
