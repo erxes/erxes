@@ -697,14 +697,26 @@ export const INTEGRATIONS = [
     ]
   },
   {
-    title: 'Coming soon',
     name: 'row-2',
     rows: [
       {
         name: 'Google meet',
         description: 'Start a video call from your conversation',
-        inMessenger: true,
-        logo: '/images/integrations/google-meet.png'
+        inMessenger: false,
+        logo: '/images/integrations/google-meet.png',
+        createUrl: '/settings/integrations/google-calendar'
+      }
+    ]
+  },
+  {
+    title: 'Coming soon',
+    name: 'row-3',
+    rows: [
+      {
+        name: 'Gmail',
+        description: 'See and reply to Gmail in your Team Inbox',
+        inMessenger: false,
+        logo: '/images/integrations/gmail.png'
       },
       {
         name: 'Knowledge Base',
@@ -722,14 +734,8 @@ export const INTEGRATIONS = [
     ]
   },
   {
-    name: 'row-3',
+    name: 'row-4',
     rows: [
-      {
-        name: 'Gmail',
-        description: 'See and reply to Gmail in your Team Inbox',
-        inMessenger: false,
-        logo: '/images/integrations/gmail.png'
-      },
       {
         name: 'Viber',
         description: 'See and reply to Viber messages in your Team Inbox',
@@ -745,7 +751,7 @@ export const INTEGRATIONS = [
     ]
   },
   {
-    name: 'row-4',
+    name: 'row-5',
     rows: [
       {
         name: 'Wechat',

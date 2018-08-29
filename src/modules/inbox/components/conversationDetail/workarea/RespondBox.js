@@ -4,7 +4,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Icon, Tip, FormControl } from 'modules/common/components';
 import { Alert, uploadHandler } from 'modules/common/utils';
-import { ResponseTemplate } from 'modules/inbox/containers/conversationDetail';
+
+import {
+  MessengerApp,
+  ResponseTemplate
+} from 'modules/inbox/containers/conversationDetail';
+
 import {
   RespondBoxStyled,
   EditorActions,
@@ -16,6 +21,7 @@ import {
   Mask,
   MaskWrapper
 } from 'modules/inbox/styles';
+
 import Editor from './Editor';
 
 const propTypes = {
@@ -251,6 +257,8 @@ class RespondBox extends Component {
             <input type="file" onChange={this.handleFileInput} />
           </label>
         </Tip>
+
+        <MessengerApp conversation={conversation} />
 
         <ResponseTemplate
           brandId={integration.brandId}
