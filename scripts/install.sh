@@ -17,6 +17,9 @@ fi
 echo 'Create `.env.sample` from default settings file and configure it on your own:'
 cp .env.sample .env
 
+echo 'Create `.ecosystem.json` from sample file:'
+cp scripts/ecosystem.json.sample ../ecosystem.json
+
 CURRENT_FOLDER=${PWD##*/}
 if [ $CURRENT_FOLDER = 'erxes' ]; then
   cd ..
