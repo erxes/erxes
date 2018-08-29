@@ -109,7 +109,7 @@ export interface IDealInput {
   stageName: string;
   userEmail: string;
   companyIds?: string[];
-  customerIds?: string[];
+  customerEmail?: string;
   description?: string;
   productsData: IDealProductInput;
 }
