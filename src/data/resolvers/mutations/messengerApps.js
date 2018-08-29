@@ -46,7 +46,8 @@ const messengerAppMutations = {
       conversationId,
       messengerAppData: {
         kind: 'googleMeet',
-        eventData,
+        hangoutLink: eventData.hangoutLink,
+        customer,
       },
     });
 
