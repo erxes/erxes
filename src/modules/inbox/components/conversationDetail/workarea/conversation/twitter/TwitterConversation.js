@@ -2,11 +2,10 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { TwitterMessage } from 'modules/inbox/containers/conversationDetail';
-import Message from '../Message';
+import { SimpleMessage } from '../messages';
 
 const propTypes = {
   conversation: PropTypes.object,
-  scrollBottom: PropTypes.func.isRequired,
   conversationMessages: PropTypes.array
 };
 
@@ -20,37 +19,40 @@ class TwitterConversation extends Component {
   constructor(props) {
     super(props);
 
-    this.renderMessages = this.renderMessages.bind(this);
+    this.formatMessages = this.formatMessages.bind(this);
     this.renderTweets = this.renderTweets.bind(this);
   }
 
-  renderMessages(messages, parent) {
+  formatMessages(messages, parent) {
     const array = [];
 
-    messages.forEach(message => {
-      if (
-        message.twitterData &&
-        message.twitterData.in_reply_to_status_id_str === parent
-      ) {
-        const children = this.renderMessages(
-          messages,
-          message.twitterData.id_str
-        );
-        let child = message;
+    messages.forEach(msg => {
+      if (!msg.twitterData) {
+        return null;
+      }
+
+      if (msg.twitterData.in_reply_to_status_id_str === parent) {
+        const children = this.formatMessages(messages, msg.twitterData.id_str);
+
+        let child = msg;
+
         if (children.length) {
-          child = Object.assign({ children }, message);
+          child = Object.assign({ children }, msg);
         }
+
         array.push(child);
       }
     });
+
     return array;
   }
 
   renderChildren(children, integrationId) {
-    if (children) {
-      return <List>{this.renderTweets(children, integrationId)}</List>;
+    if (!children) {
+      return null;
     }
-    return null;
+
+    return <List>{this.renderTweets(children, integrationId)}</List>;
   }
 
   renderTweets(messages, integrationId) {
@@ -61,7 +63,6 @@ class TwitterConversation extends Component {
             message={message}
             currentConversationId={this.props.conversation._id}
             integrationId={integrationId}
-            scrollBottom={this.props.scrollBottom}
           />
           {this.renderChildren(message.children, integrationId)}
         </li>
@@ -72,11 +73,10 @@ class TwitterConversation extends Component {
   renderInternals(messages) {
     return messages.filter(message => !message.twitterData).map(message => {
       return (
-        <Message
+        <SimpleMessage
           message={message}
-          staff={!message.customerId}
+          isStaff={!message.customerId}
           key={message._id}
-          scrollBottom={this.props.scrollBottom}
         />
       );
     });
@@ -92,7 +92,7 @@ class TwitterConversation extends Component {
     }
 
     const messages = conversationMessages || [];
-    const nestedMessages = this.renderMessages(messages, null);
+    const nestedMessages = this.formatMessages(messages, null);
 
     return (
       <Fragment>

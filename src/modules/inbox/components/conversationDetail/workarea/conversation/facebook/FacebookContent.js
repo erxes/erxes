@@ -8,7 +8,7 @@ const propTypes = {
   image: PropTypes.string,
   link: PropTypes.string,
   images: PropTypes.array,
-  scrollBottom: PropTypes.func
+  commentVideo: PropTypes.string
 };
 
 export default class FacebookContent extends Component {
@@ -22,7 +22,7 @@ export default class FacebookContent extends Component {
         <ImageWithPreview
           alt={image}
           src={image}
-          onLoad={this.props.scrollBottom}
+          onLoad={this.context.scrollBottom}
         />
       </ImageContainer>
     );
@@ -40,7 +40,7 @@ export default class FacebookContent extends Component {
             key={index}
             alt={image}
             src={image}
-            onLoad={this.props.scrollBottom}
+            onLoad={this.context.scrollBottom}
             full
           />
         ))}
@@ -79,13 +79,13 @@ export default class FacebookContent extends Component {
           <ImageWithPreview
             alt={link}
             src={link}
-            onLoad={this.props.scrollBottom}
+            onLoad={this.context.scrollBottom}
           />
         </ImageContainer>
       );
     }
 
-    if (link.includes('video.xx.fbcdn.net')) {
+    if (link.includes('xx.fbcdn.net')) {
       return (
         <iframe
           title="erxesIframeVideo"
@@ -124,3 +124,7 @@ export default class FacebookContent extends Component {
 }
 
 FacebookContent.propTypes = propTypes;
+
+FacebookContent.contextTypes = {
+  scrollBottom: PropTypes.func
+};

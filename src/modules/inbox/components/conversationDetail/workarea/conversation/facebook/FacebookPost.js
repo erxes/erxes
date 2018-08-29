@@ -5,8 +5,7 @@ import { FacebookContent, Reactions, Date, UserName } from './';
 import { PostContainer, User, Counts, FlexItem } from './styles';
 
 const propTypes = {
-  message: PropTypes.object.isRequired,
-  scrollBottom: PropTypes.func
+  message: PropTypes.object.isRequired
 };
 
 export default class FacebookPost extends Component {
@@ -23,7 +22,7 @@ export default class FacebookPost extends Component {
   }
 
   render() {
-    const { message, scrollBottom } = this.props;
+    const { message } = this.props;
     const customer = message.customer || {};
     const data = message.facebookData || {};
 
@@ -41,7 +40,6 @@ export default class FacebookPost extends Component {
           image={data.photo}
           images={data.photos}
           link={data.link || data.video}
-          scrollBottom={scrollBottom}
         />
 
         {this.renderCounts(data)}

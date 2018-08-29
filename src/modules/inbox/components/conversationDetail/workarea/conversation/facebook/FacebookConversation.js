@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { FacebookComment } from 'modules/inbox/containers/conversationDetail';
+import { SimpleMessage } from '../messages';
 import { FacebookPost } from './';
 
 const propTypes = {
   conversation: PropTypes.object,
-  scrollBottom: PropTypes.func.isRequired,
   conversationMessages: PropTypes.array
 };
 
@@ -19,7 +19,7 @@ const getAttr = (message, attr) => {
 
 export default class FacebookConversation extends Component {
   renderReplies(comment) {
-    const { conversationMessages = [], scrollBottom } = this.props;
+    const { conversationMessages = [] } = this.props;
 
     const replies = conversationMessages.filter(msg => {
       const parentId = getAttr(msg, 'parentId');
@@ -29,32 +29,34 @@ export default class FacebookConversation extends Component {
 
     return replies.map(reply => (
       <Fragment key={reply._id}>
-        <FacebookComment message={reply} scrollBottom={scrollBottom} />
+        <FacebookComment message={reply} />
       </Fragment>
     ));
   }
 
-  renderComments(post) {
-    const { conversationMessages = [], scrollBottom } = this.props;
-
-    const comments = conversationMessages.filter(
-      msg => !getAttr(msg, 'isPost') && !getAttr(msg, 'parentId')
-    );
-
+  renderComments(post, comments) {
     return comments.map(comment => (
       <Fragment key={comment._id}>
-        <FacebookComment message={comment} scrollBottom={scrollBottom} />
+        <FacebookComment message={comment} />
         {this.renderReplies(comment)}
       </Fragment>
     ));
   }
 
+  renderInternals(messages) {
+    return messages.map(message => {
+      return (
+        <SimpleMessage
+          message={message}
+          isStaff={!message.customerId}
+          key={message._id}
+        />
+      );
+    });
+  }
+
   render() {
-    const {
-      conversation,
-      conversationMessages = [],
-      scrollBottom
-    } = this.props;
+    const { conversation, conversationMessages = [] } = this.props;
 
     if (!conversation) {
       return null;
@@ -68,10 +70,22 @@ export default class FacebookConversation extends Component {
       return null;
     }
 
+    const comments = [];
+    const internalMessages = [];
+
+    for (const message of conversationMessages) {
+      if (message.internal) {
+        internalMessages.push(message);
+      } else if (!getAttr(message, 'isPost') && !getAttr(message, 'parentId')) {
+        comments.push(message);
+      }
+    }
+
     return (
       <Fragment>
-        <FacebookPost message={post} scrollBottom={scrollBottom} />
-        {this.renderComments(post)}
+        <FacebookPost message={post} />
+        {this.renderComments(post, comments)}
+        {this.renderInternals(internalMessages)}
       </Fragment>
     );
   }

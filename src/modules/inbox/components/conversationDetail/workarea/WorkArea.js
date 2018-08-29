@@ -34,6 +34,10 @@ export default class WorkArea extends Component {
     this.scrollBottom();
   }
 
+  getChildContext() {
+    return { scrollBottom: this.scrollBottom };
+  }
+
   // Calculating new messages's height to use later in componentDidUpdate
   // So that we can retract cursor position to original place
   getSnapshotBeforeUpdate(prevProps) {
@@ -162,7 +166,6 @@ export default class WorkArea extends Component {
           conversation={currentConversation}
           conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
-          scrollBottom={this.scrollBottom}
           loading={loading}
         />
       </ConversationWrapper>
@@ -199,4 +202,8 @@ WorkArea.propTypes = {
 
 WorkArea.contextTypes = {
   __: PropTypes.func
+};
+
+WorkArea.childContextTypes = {
+  scrollBottom: PropTypes.func
 };
