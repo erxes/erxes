@@ -1,18 +1,12 @@
-import * as mongoose from 'mongoose';
-import { PUBLISH_STATUSES, LANGUAGE_CHOICES } from '../../data/constants';
-import { field } from './utils';
-
-// Schema for common fields
-const commonFields = {
-  createdBy: field({ type: String }),
-  createdDate: field({
-    type: Date,
-  }),
-  modifiedBy: field({ type: String }),
-  modifiedDate: field({
-    type: Date,
-  }),
-};
+import { Model, model } from "mongoose";
+import {
+  articleSchema,
+  categorySchema,
+  IArticleDocument,
+  ICategoryDocument,
+  ITopicDocument,
+  topicSchema
+} from "./definitions/knowledgebase";
 
 /**
  * Base class for Knowledge base classes
@@ -26,16 +20,16 @@ class KnowledgeBaseCommonDocument {
    * @return {Promise} - returns Promise resolving newly added document
    * @throws {Error} - throws Error('userId must be supplied') if the userId is not supplied
    */
-  static createBaseDoc(doc, userId) {
+  public static createBaseDoc(doc, userId) {
     if (!userId) {
-      throw new Error('userId must be supplied');
+      throw new Error("userId must be supplied");
     }
 
     return this.create({
       ...doc,
       createdDate: new Date(),
       createdBy: userId,
-      modifiedDate: new Date(),
+      modifiedDate: new Date()
     });
   }
 
@@ -46,9 +40,9 @@ class KnowledgeBaseCommonDocument {
    * @param {string} - The user id of the modifier
    * @return {Promsie} - returns Promise resolving updated document
    */
-  static async updateBaseDoc(_id, doc, userId) {
+  public static async updateBaseDoc(_id, doc, userId) {
     if (!userId) {
-      throw new Error('userId must be supplied');
+      throw new Error("userId must be supplied");
     }
 
     await this.update(
@@ -57,27 +51,16 @@ class KnowledgeBaseCommonDocument {
         $set: {
           ...doc,
           modifiedBy: userId,
-          modifiedDate: new Date(),
-        },
-      },
+          modifiedDate: new Date()
+        }
+      }
     );
 
     return this.findOne({ _id });
   }
 }
 
-const ArticleSchema = mongoose.Schema({
-  _id: field({ pkey: true }),
-  title: field({ type: String }),
-  summary: field({ type: String }),
-  content: field({ type: String }),
-  status: field({
-    type: String,
-    enum: PUBLISH_STATUSES.ALL,
-    default: PUBLISH_STATUSES.DRAFT,
-  }),
-  ...commonFields,
-});
+interface IArticleModel extends Model<IArticleDocument> {}
 
 class Article extends KnowledgeBaseCommonDocument {
   /**
@@ -91,16 +74,16 @@ class Article extends KnowledgeBaseCommonDocument {
    * @param {string} userId - User id of the creator of this document
    * @return {Promise} - returns Promise resolving created document
    */
-  static async createDoc({ categoryIds, ...docFields }, userId) {
+  public static async createDoc({ categoryIds, ...docFields }, userId) {
     const article = await this.createBaseDoc(docFields, userId);
 
     // add new article id to categories's articleIds field
     if ((categoryIds || []).length > 0) {
       const categories = await KnowledgeBaseCategories.find({
-        _id: { $in: categoryIds },
+        _id: { $in: categoryIds }
       });
 
-      for (let category of categories) {
+      for (const category of categories) {
         category.articleIds.push(article._id.toString());
 
         await category.save();
@@ -122,18 +105,18 @@ class Article extends KnowledgeBaseCommonDocument {
    * @param {string} userId - User id of the modifier of this document
    * @return {Promise} - returns Promise resolving modified document
    */
-  static async updateDoc(_id, { categoryIds, ...docFields }, userId) {
+  public static async updateDoc(_id, { categoryIds, ...docFields }, userId) {
     await this.updateBaseDoc({ _id }, docFields, userId);
 
-    const article = await this.findOne({ _id });
+    const article = await KnowledgeBaseArticles.findOne({ _id });
 
     // add new article id to categories's articleIds field
     if ((categoryIds || []).length > 0) {
       const categories = await KnowledgeBaseCategories.find({
-        _id: { $in: categoryIds },
+        _id: { $in: categoryIds }
       });
 
-      for (let category of categories) {
+      for (const category of categories) {
         // check previous entry
         if (!category.articleIds.includes(article._id.toString())) {
           category.articleIds.push(article._id.toString());
@@ -151,19 +134,14 @@ class Article extends KnowledgeBaseCommonDocument {
    * @param {Object} _id - KnowldegeBaseArticle document id
    * @return {Promise}
    */
-  static removeDoc(_id) {
-    return this.remove({ _id });
+  public static removeDoc(_id) {
+    return KnowledgeBaseArticles.remove({ _id });
   }
 }
 
-const CategorySchema = mongoose.Schema({
-  _id: field({ pkey: true }),
-  title: field({ type: String }),
-  description: field({ type: String }),
-  articleIds: field({ type: [String] }),
-  icon: field({ type: String }),
-  ...commonFields,
-});
+interface ICategoryModel extends Model<ICategoryDocument> {
+  removeDoc(categoryId: string): void;
+}
 
 class Category extends KnowledgeBaseCommonDocument {
   /**
@@ -177,14 +155,14 @@ class Category extends KnowledgeBaseCommonDocument {
    * @param {string[]} doc.topicIds - list of parent Topic ids
    * @return {Promise} - returns Promise resolving created document
    */
-  static async createDoc({ topicIds, ...docFields }, userId) {
+  public static async createDoc({ topicIds, ...docFields }, userId) {
     const category = await this.createBaseDoc(docFields, userId);
 
     if ((topicIds || []).length > 0) {
       const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
 
       // add new category to topics's categoryIds field
-      for (let topic of topics) {
+      for (const topic of topics) {
         topic.categoryIds.push(category._id.toString());
 
         await topic.save();
@@ -207,15 +185,15 @@ class Category extends KnowledgeBaseCommonDocument {
    * @param {string} topicId - parentTopicId
    * @return {Promise} - returns Promise resolving modified document
    */
-  static async updateDoc(_id, { topicIds, ...docFields }, userId) {
+  public static async updateDoc(_id, { topicIds, ...docFields }, userId) {
     await this.updateBaseDoc({ _id }, docFields, userId);
 
-    const category = await this.findOne({ _id });
+    const category = await KnowledgeBaseCategories.findOne({ _id });
 
     if ((topicIds || []).length > 0) {
       const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
 
-      for (let topic of topics) {
+      for (const topic of topics) {
         // add categoryId to topics's categoryIds list
         if (!topic.categoryIds.includes(category._id.toString())) {
           topic.categoryIds.push(category._id.toString());
@@ -233,38 +211,18 @@ class Category extends KnowledgeBaseCommonDocument {
    * @param {Object} _id - KnowledgeBaseCategory document id
    * @return {Promise}
    */
-  static async removeDoc(_id) {
-    const category = await this.findOne({ _id });
+  public static async removeDoc(_id) {
+    const category = await KnowledgeBaseCategories.findOne({ _id });
 
     for (const articleId of category.articleIds || []) {
       await KnowledgeBaseArticles.remove({ _id: articleId });
     }
 
-    return this.remove({ _id });
+    return KnowledgeBaseCategories.remove({ _id });
   }
 }
 
-const TopicSchema = mongoose.Schema({
-  _id: field({ pkey: true }),
-  title: field({ type: String }),
-  description: field({ type: String }),
-  brandId: field({ type: String }),
-
-  categoryIds: field({
-    type: [String],
-    required: false,
-  }),
-
-  color: field({ type: String }),
-
-  languageCode: field({
-    type: String,
-    enum: LANGUAGE_CHOICES,
-    optional: true,
-  }),
-
-  ...commonFields,
-});
+interface ITopicModel extends Model<ITopicDocument> {}
 
 class Topic extends KnowledgeBaseCommonDocument {
   /**
@@ -277,7 +235,7 @@ class Topic extends KnowledgeBaseCommonDocument {
    * @param {string} userId - User id of the creator of this document
    * @return {Promise} - returns Promise resolving created document
    */
-  static createDoc(docFields, userId) {
+  public static createDoc(docFields, userId) {
     return this.createBaseDoc(docFields, userId);
   }
 
@@ -292,7 +250,7 @@ class Topic extends KnowledgeBaseCommonDocument {
    * @param {string} userId - User id of the modifier of this document
    * @return {Promise} - returns Promise resolving modified document
    */
-  static updateDoc(_id, docFields, userId) {
+  public static updateDoc(_id, docFields, userId) {
     return this.updateBaseDoc(_id, docFields, userId);
   }
 
@@ -301,13 +259,13 @@ class Topic extends KnowledgeBaseCommonDocument {
    * @param {Object} _id - KnowledgeBaseTopic document id
    * @return {Promise}
    */
-  static async removeDoc(_id) {
-    const topic = await this.findOne({ _id });
+  public static async removeDoc(_id) {
+    const topic = await KnowledgeBaseTopics.findOne({ _id });
 
     // remove child items ===========
     for (const categoryId of topic.categoryIds || []) {
       const category = await KnowledgeBaseCategories.findOne({
-        _id: categoryId,
+        _id: categoryId
       });
 
       if (category) {
@@ -315,15 +273,27 @@ class Topic extends KnowledgeBaseCommonDocument {
       }
     }
 
-    return this.remove({ _id });
+    return KnowledgeBaseTopics.remove({ _id });
   }
 }
 
-ArticleSchema.loadClass(Article);
-export const KnowledgeBaseArticles = mongoose.model('knowledgebase_articles', ArticleSchema);
+articleSchema.loadClass(Article);
 
-CategorySchema.loadClass(Category);
-export const KnowledgeBaseCategories = mongoose.model('knowledgebase_categories', CategorySchema);
+export const KnowledgeBaseArticles = model<IArticleDocument, IArticleModel>(
+  "knowledgebase_articles",
+  articleSchema
+);
 
-TopicSchema.loadClass(Topic);
-export const KnowledgeBaseTopics = mongoose.model('knowledgebase_topics', TopicSchema);
+categorySchema.loadClass(Category);
+
+export const KnowledgeBaseCategories = model<ICategoryDocument, ICategoryModel>(
+  "knowledgebase_categories",
+  categorySchema
+);
+
+topicSchema.loadClass(Topic);
+
+export const KnowledgeBaseTopics = model<ITopicDocument, ITopicModel>(
+  "knowledgebase_topics",
+  topicSchema
+);
