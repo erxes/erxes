@@ -15,5 +15,5 @@ if [ $CURRENT_FOLDER = 'erxes-widgets' ]; then
 fi
 
 echo 'Default login credentials'
-echo 'Username: admin@erxes.io'
-echo 'Password: erxes'
+echo -e "Username: \e[35m\e[1madmin@erxes.io"
+echo -e "Password: \e[35m\e[1merxes"
