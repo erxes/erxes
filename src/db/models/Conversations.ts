@@ -1,6 +1,6 @@
 import { Model, model } from "mongoose";
+import { ConversationMessages, Users } from '.';
 import { CONVERSATION_STATUSES } from "./definitions/constants";
-import { Users, ConversationMessages } from '.';
 import {
   conversationSchema,
   IConversationDocument
@@ -50,7 +50,7 @@ class Conversation {
    * @param  {list} ids - Ids of conversations
    * @return {object, list} selector, conversations
    */
-  static async checkExistanceConversations(_ids: string[]) {
+  public static async checkExistanceConversations(_ids: string[]) {
     const selector = { _id: { $in: _ids } };
     const conversations = await Conversations.find(selector);
 
@@ -66,7 +66,7 @@ class Conversation {
    * @param  {Object} conversationObj - Object
    * @return {Promise} Newly created conversation object
    */
-  static async createConversation(doc: IConversationParams) {
+  public static async createConversation(doc: IConversationParams) {
     const now = new Date();
 
     return Conversations.create({
@@ -84,7 +84,7 @@ class Conversation {
    * @param {String} _id - Conversation id
    * @return {Object} updated conversation
    */
-  static async reopen(_id: string) {
+  public static async reopen(_id: string) {
     await Conversations.update(
       { _id },
       {
@@ -110,7 +110,7 @@ class Conversation {
    * @param  {String} assignedUserId
    * @return {Promise} Updated conversation objects
    */
-  static async assignUserConversation(conversationIds, assignedUserId) {
+  public static async assignUserConversation(conversationIds: string[], assignedUserId: string) {
     await this.checkExistanceConversations(conversationIds);
 
     if (!await Users.findOne({ _id: assignedUserId })) {
@@ -131,7 +131,7 @@ class Conversation {
    * @param  {list} conversationIds
    * @return {Promise} Updated conversation objects
    */
-  static async unassignUserConversation(conversationIds) {
+  public static async unassignUserConversation(conversationIds: string[]) {
     await this.checkExistanceConversations(conversationIds);
 
     await Conversations.update(
@@ -149,7 +149,7 @@ class Conversation {
    * @param  {String} status
    * @return {Promise} Updated conversation id
    */
-  static changeStatusConversation(conversationIds, status, userId) {
+  public static changeStatusConversation(conversationIds: string[], status: string, userId: string) {
     let closedAt = null;
     let closedUserId = null;
 
@@ -171,10 +171,10 @@ class Conversation {
    * @param  {String} userId
    * @return {Promise} Updated conversation object
    */
-  static async markAsReadConversation(_id, userId) {
+  public static async markAsReadConversation(_id: string, userId: string) {
     const conversation = await Conversations.findOne({ _id });
 
-    if (!conversation) throw new Error(`Conversation not found with id ${_id}`);
+    if (!conversation) { throw new Error(`Conversation not found with id ${_id}`); }
 
     const readUserIds = conversation.readUserIds;
 
@@ -195,7 +195,7 @@ class Conversation {
    * Get new or open conversation
    * @return {Promise} conversations
    */
-  static newOrOpenConversation() {
+  public static newOrOpenConversation() {
     return Conversations.find({
       status: { $in: [this.getConversationStatuses().NEW, this.getConversationStatuses().OPEN] },
     });
@@ -207,7 +207,7 @@ class Conversation {
    * @param {String} userId
    * @return {Promise} updated conversation id
    */
-  static addParticipatedUsers(conversationId, userId) {
+  public static addParticipatedUsers(conversationId: string, userId: string) {
     if (conversationId && userId) {
       return Conversations.update(
         { _id: conversationId },
@@ -224,15 +224,15 @@ class Conversation {
    * @param {String[]} customerIds - Old customer ids to change
    * @return {Promise} Updated list of conversations of new customer
    */
-  static async changeCustomer(newCustomerId, customerIds) {
-    for (let customerId of customerIds) {
+  public static async changeCustomer(newCustomerId: string, customerIds: string) {
+    for (const customerId of customerIds) {
       // Updating every conversation and conversation messages of new customer
       await ConversationMessages.updateMany(
-        { customerId: customerId },
+        { customerId },
         { $set: { customerId: newCustomerId } },
       );
 
-      await Conversations.updateMany({ customerId: customerId }, { $set: { customerId: newCustomerId } });
+      await Conversations.updateMany({ customerId }, { $set: { customerId: newCustomerId } });
     }
 
     // Returning updated list of conversation of new customer
@@ -244,14 +244,14 @@ class Conversation {
    * @param {String} customerId - Customer id to remove
    * @return {Promise} Result
    */
-  static async removeCustomerConversations(customerId) {
+  public static async removeCustomerConversations(customerId: string) {
     // Finding every conversation of customer
     const conversations = await Conversations.find({
       customerId,
     });
 
     // Removing conversations and conversation messages
-    for (let conversation of conversations) {
+    for (const conversation of conversations) {
       // Removing conversation message of conversation
       await ConversationMessages.remove({ conversationId: conversation._id });
       await Conversations.remove({ _id: conversation._id });

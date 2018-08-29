@@ -1,25 +1,26 @@
-import strip from 'strip';
-import * as mongoose from 'mongoose';
-import { TwitterResponseSchema, ConversationMessageFacebookSchema } from '../../trackers/schemas';
-import { Conversations } from './';
-import { field } from './utils';
+import { Model, model } from "mongoose";
+import * as strip from 'strip';
+import { Conversations } from '.';
+import { IMessageDocument, messageSchema } from "./definitions/conversationMessages";
 
-const MessageSchema = mongoose.Schema({
-  _id: field({ pkey: true }),
-  content: field({ type: String }),
-  attachments: field({ type: Object }),
-  mentionedUserIds: field({ type: [String] }),
-  conversationId: field({ type: String }),
-  internal: field({ type: Boolean }),
-  customerId: field({ type: String }),
-  userId: field({ type: String }),
-  createdAt: field({ type: Date }),
-  isCustomerRead: field({ type: Boolean }),
-  engageData: field({ type: Object }),
-  formWidgetData: field({ type: Object }),
-  facebookData: field({ type: ConversationMessageFacebookSchema }),
-  twitterData: field({ type: TwitterResponseSchema }),
-});
+interface IMessageParams {
+  conversationId: string,
+  content: string,
+  mentionedUserIds: string[],
+  internal: boolean,
+  attachments: any,
+  tweetReplyToId: string,
+  tweetReplyToScreenName: string,
+  commentReplyToId: string,
+  userId?: string
+}
+
+interface IMessageModel extends Model<IMessageDocument> {
+  addMessage(doc: IMessageParams, userId: string): Promise<IMessageDocument>;
+  getNonAsnweredMessage(conversationId: string): Promise<IMessageDocument>;
+  getAdminMessages(conversationId: string): Promise<IMessageDocument>;
+  markSentAsReadMessages(conversationId: string): Promise<IMessageDocument>;
+}
 
 class Message {
   /**
@@ -27,14 +28,14 @@ class Message {
    * @param  {Object} messageObj - object
    * @return {Promise} Newly created message object
    */
-  static async createMessage(doc) {
-    const message = await this.create({
+  public static async createMessage(doc: IMessageParams) {
+    const message = await Messages.create({
       internal: false,
       ...doc,
       createdAt: new Date(),
     });
 
-    const messageCount = await this.find({
+    const messageCount = await Messages.find({
       conversationId: message.conversationId,
     }).count();
 
@@ -54,7 +55,7 @@ class Message {
     await Conversations.addParticipatedUsers(message.conversationId, message.userId);
 
     // add mentioned users to participators
-    for (let userId of message.mentionedUserIds) {
+    for (const userId of message.mentionedUserIds) {
       await Conversations.addParticipatedUsers(message.conversationId, userId);
     }
 
@@ -67,12 +68,12 @@ class Message {
    * @param  {Object} user - Object
    * @return {Promise} Newly created conversation object
    */
-  static async addMessage(doc, userId) {
+  public static async addMessage(doc: IMessageParams, userId: string) {
     const conversation = await Conversations.findOne({
       _id: doc.conversationId,
     });
 
-    if (!conversation) throw new Error(`Conversation not found with id ${doc.conversationId}`);
+    if (!conversation) { throw new Error(`Conversation not found with id ${doc.conversationId}`); }
 
     // normalize content, attachments
     const content = doc.content || '';
@@ -82,7 +83,7 @@ class Message {
     doc.attachments = attachments;
 
     // if there is no attachments and no content then throw content required error
-    if (attachments.length === 0 && !strip(content)) throw new Error('Content is required');
+    if (attachments.length === 0 && !strip(content)) { throw new Error('Content is required'); }
 
     // setting conversation's content to last message
     await Conversations.update({ _id: doc.conversationId }, { $set: { content } });
@@ -91,13 +92,13 @@ class Message {
   }
 
   /**
-  * User's last non answered question
-  * @param  {String} conversationId
-  * @return {Promise} Message object
-  */
-  static getNonAsnweredMessage(conversationId) {
-    return this.findOne({
-      conversationId: conversationId,
+   * User's last non answered question
+   * @param  {String} conversationId
+   * @return {Promise} Message object
+   */
+  public static getNonAsnweredMessage(conversationId: string) {
+    return Messages.findOne({
+      conversationId,
       customerId: { $exists: true },
     }).sort({ createdAt: -1 });
   }
@@ -107,9 +108,9 @@ class Message {
    * @param  {String} conversationId
    * @return {Promise} messages
    */
-  static getAdminMessages(conversationId) {
-    return this.find({
-      conversationId: conversationId,
+  public static getAdminMessages(conversationId: string) {
+    return Messages.find({
+      conversationId,
       userId: { $exists: true },
       isCustomerRead: false,
 
@@ -123,10 +124,10 @@ class Message {
    * @param  {String} conversationId
    * @return {Promise} Updated messages info
    */
-  static markSentAsReadMessages(conversationId) {
-    return this.update(
+  public static markSentAsReadMessages(conversationId: string) {
+    return Messages.update(
       {
-        conversationId: conversationId,
+        conversationId,
         userId: { $exists: true },
         isCustomerRead: { $exists: false },
       },
@@ -136,8 +137,11 @@ class Message {
   }
 }
 
-MessageSchema.loadClass(Message);
+messageSchema.loadClass(Message);
 
-const Messages = mongoose.model('conversation_messages', MessageSchema);
+const Messages = model<IMessageDocument, IMessageModel>(
+  "conversation_messages",
+  messageSchema
+);
 
 export default Messages;
