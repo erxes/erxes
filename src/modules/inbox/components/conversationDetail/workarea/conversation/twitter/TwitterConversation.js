@@ -33,6 +33,7 @@ class TwitterConversation extends Component {
 
       if (msg.twitterData.in_reply_to_status_id_str === parent) {
         const children = this.formatMessages(messages, msg.twitterData.id_str);
+
         let child = msg;
 
         if (children.length) {
