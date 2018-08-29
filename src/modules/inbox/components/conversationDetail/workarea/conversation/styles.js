@@ -155,4 +155,58 @@ const FormTable = styled.div`
   }
 `;
 
-export { MessageItem, MessageBody, MessageContent, FormTable };
+const AppMessageBox = styled.div`
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 5px;
+  background: ${colors.colorWhite};
+  width: 350px;
+  margin-top: ${dimensions.coreSpacing}px;
+  text-align: center;
+`;
+
+const CallButton = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  border-top: 1px solid ${colors.borderPrimary};
+
+  h5 {
+    margin-top: 0;
+    margin-bottom: 15px;
+  }
+
+  button {
+    width: 100%;
+    border-radius: 5px;
+    background: ${colors.colorCoreBlue};
+    font-size: 14px;
+    padding: 10px 20px;
+    text-transform: initial;
+    box-shadow: none;
+  }
+
+  button:hover {
+    box-shadow: 0 2px 22px 0 hsl(216, 89%, 59%);
+  }
+`;
+
+const UserInfo = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: url(/images/patterns/bg-2.png);
+
+  h4 {
+    margin: 20px 0 0 0;
+    font-size: 16px;
+  }
+`;
+
+export {
+  MessageItem,
+  MessageBody,
+  MessageContent,
+  FormTable,
+  AppMessageBox,
+  CallButton,
+  UserInfo
+};

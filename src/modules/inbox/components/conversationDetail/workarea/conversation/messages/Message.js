@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { FormMessage, SimpleMessage, FacebookMessage } from './';
+import { FormMessage, SimpleMessage, FacebookMessage, AppMessage } from './';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
@@ -15,6 +15,10 @@ function Message({ message, isSameUser }) {
 
   if (message.facebookData) {
     return <FacebookMessage message={message} />;
+  }
+
+  if (message.messengerAppData) {
+    return <AppMessage message={message} />;
   }
 
   return (

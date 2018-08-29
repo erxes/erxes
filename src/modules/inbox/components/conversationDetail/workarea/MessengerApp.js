@@ -8,7 +8,7 @@ import {
   ResponseTemplateStyled,
   PopoverBody,
   PopoverList,
-  TemplateTitle
+  MessengerApps
 } from 'modules/inbox/styles';
 
 const propTypes = {
@@ -38,7 +38,13 @@ class MessengerApp extends Component {
   renderItems() {
     return this.props.messengerApps.map(item => (
       <li key={item._id} onClick={() => this.onSelect(item._id)}>
-        <TemplateTitle>{item.name}</TemplateTitle>
+        <MessengerApps>
+          <img src="/images/integrations/google-meet.png" alt="google-meet" />
+          <div>
+            <h5>{item.name}</h5>
+            <p>Start a video call from your conversation</p>
+          </div>
+        </MessengerApps>
       </li>
     ));
   }
@@ -69,7 +75,7 @@ class MessengerApp extends Component {
         >
           <Button btnStyle="link">
             <Tip text={__('Messenger apps')}>
-              <Icon icon="earthgrid" />
+              <Icon icon="menu" />
             </Tip>
           </Button>
         </OverlayTrigger>

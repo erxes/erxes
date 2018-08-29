@@ -218,6 +218,27 @@ const TemplateContent = styled.div`
   font-weight: normal;
 `;
 
+const MessengerApps = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
+
+  img {
+    width: 35px;
+    margin-right: 10px;
+  }
+
+  h5,
+  p {
+    margin: 0;
+  }
+
+  p {
+    margin-top: 3px;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
 const AttachmentIndicator = styled.div`
   display: flex;
   flex-direction: row;
@@ -348,5 +369,6 @@ export {
   ActionBarLeft,
   AssignTrigger,
   Mask,
-  MaskWrapper
+  MaskWrapper,
+  MessengerApps
 };
