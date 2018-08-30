@@ -12,13 +12,14 @@ interface IMessageParams {
   tweetReplyToId: string,
   tweetReplyToScreenName: string,
   commentReplyToId: string,
+  status?: string,
   userId?: string
 }
 
 interface IMessageModel extends Model<IMessageDocument> {
   addMessage(doc: IMessageParams, userId: string): Promise<IMessageDocument>;
   getNonAsnweredMessage(conversationId: string): Promise<IMessageDocument>;
-  getAdminMessages(conversationId: string): Promise<IMessageDocument>;
+  getAdminMessages(conversationId: string): Promise<IMessageDocument[]>;
   markSentAsReadMessages(conversationId: string): Promise<IMessageDocument>;
 }
 

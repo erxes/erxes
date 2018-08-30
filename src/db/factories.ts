@@ -1,3 +1,4 @@
+import { dateType } from "aws-sdk/clients/sts";
 import * as faker from "faker";
 import * as Random from "meteor-random";
 import {
@@ -368,18 +369,19 @@ interface IConversationFactoryInput {
   participatedUserIds?: string[];
   facebookData?: any;
   twitterData?: any;
+  status?: string;
+  closedAt?: dateType;
+  closedUserId?: string;
+  readUserIds?: string[];
 }
 
 export const conversationFactory = (params: IConversationFactoryInput) => {
-  const doc = {
-    content: faker.lorem.sentence(),
-    customerId: Random.id(),
-    integrationId: Random.id()
-  };
-
   return Conversations.create({
-    ...doc,
-    ...params
+    content: params.content || faker.lorem.sentence(),
+    customerId: params.customerId || Random.id(),
+    integrationId: params.integrationId || Random.id(),
+    readUserIds: params.readUserIds || [],
+    participatedUserIds: params.participatedUserIds || [],
   });
 };
 

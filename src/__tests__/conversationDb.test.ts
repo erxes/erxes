@@ -1,15 +1,15 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
-import { Conversations, ConversationMessages, Users } from '../db/models';
+import { connect, disconnect } from "../db/connection";
 import {
   conversationFactory,
   conversationMessageFactory,
-  userFactory,
   customerFactory,
-} from '../db/factories';
-import { CONVERSATION_STATUSES } from '../data/constants';
+  userFactory,
+} from "../db/factories";
+import { ConversationMessages, Conversations, Users } from "../db/models";
+import { CONVERSATION_STATUSES } from "../db/models/definitions/constants";
 
 beforeAll(() => connect());
 
@@ -23,14 +23,14 @@ describe('Conversation db', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _conversation = await conversationFactory();
+    _conversation = await conversationFactory({});
     _conversationMessage = await conversationMessageFactory({
-      conversationId: _conversation._id,
+    conversationId: _conversation._id,
     });
-    _user = await userFactory();
+    _user = await userFactory({});
 
     _doc = { ..._conversationMessage._doc, conversationId: _conversation._id };
-    delete _doc['_id'];
+    delete _doc._id;
   });
 
   afterEach(async () => {
@@ -43,9 +43,9 @@ describe('Conversation db', () => {
   test('Create conversation', async () => {
     const _number = (await Conversations.find().count()) + 1;
     const conversation = await Conversations.createConversation({
+      integrationId: 'test',
       content: _conversation.content,
       assignedUserId: _user._id,
-      integrationId: 'test',
       participatedUserIds: [_user._id],
       readUserIds: [_user._id],
     });
@@ -97,7 +97,6 @@ describe('Conversation db', () => {
 
     expect(messageObj.content).toBe(_conversationMessage.content);
     expect(messageObj.attachments).toBe(_conversationMessage.attachments);
-    expect(messageObj.status).toBe(_conversationMessage.status);
     expect(messageObj.mentionedUserIds[0]).toBe(_conversationMessage.mentionedUserIds[0]);
     expect(messageObj.conversationId).toBe(_conversation._id);
     expect(messageObj.internal).toBe(_conversationMessage.internal);
@@ -131,7 +130,7 @@ describe('Conversation db', () => {
     });
 
     // check mendtioned users
-    for (let mentionedUser of messageObj.mentionedUserIds) {
+    for (const mentionedUser of messageObj.mentionedUserIds) {
       expect(afterConversationObj.participatedUserIds).toContain(mentionedUser);
     }
 
@@ -208,7 +207,7 @@ describe('Conversation db', () => {
 
     expect(conversationObj.readUserIds[0]).toBe(_user._id);
 
-    const secondUser = await userFactory();
+    const secondUser = await userFactory({});
 
     // multiple users read conversation
     await Conversations.markAsReadConversation(_conversation._id, secondUser._id);
@@ -222,14 +221,16 @@ describe('Conversation db', () => {
   });
 
   test('Conversation message', async () => {
-    expect(await ConversationMessages.getNonAsnweredMessage(_conversation._id).count()).toBe(1);
+    const nonAnweredMessage = await ConversationMessages.getNonAsnweredMessage(_conversation._id);
+    expect(nonAnweredMessage).toBe(1);
 
     await ConversationMessages.update(
       { conversationId: _conversation._id },
       { $set: { isCustomerRead: false, internal: false } },
     );
 
-    expect(await ConversationMessages.getAdminMessages(_conversation._id).count()).toBe(1);
+    const adminMessages = await ConversationMessages.getAdminMessages(_conversation._id);
+    expect(adminMessages).toBe(1);
 
     await ConversationMessages.markSentAsReadMessages(_conversation._id);
 
@@ -237,11 +238,11 @@ describe('Conversation db', () => {
       _id: _conversation._id,
     });
 
-    for (let message in messagesMarkAsRead) {
+    for (const message of messagesMarkAsRead) {
       expect(message.isCustomerRead).toBeTruthy();
     }
 
-    expect(await Conversations.newOrOpenConversation().count()).toBe(1);
+    expect(await Conversations.newOrOpenConversation()).toBe(1);
   });
 
   test('Reopen', async () => {
@@ -274,7 +275,7 @@ describe('Conversation db', () => {
       customerId: { $in: [customer._id] },
     });
 
-    for (let conversation of updatedConversation) {
+    for (const conversation of updatedConversation) {
       expect(conversation.customerId).toBe(newCustomer._id);
     }
 

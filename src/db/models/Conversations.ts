@@ -17,26 +17,29 @@ interface IConversationParams {
   conversationId?: string;
   userId?: string;
   integrationId: string;
-  customerId: string;
-  content: string;
+  customerId?: string;
+  content?: string;
+  assignedUserId?: string;
+  participatedUserIds?: string[];
+  readUserIds?: string[];
 }
 
 interface IConversationModel extends Model<IConversationDocument> {
   getConversationStatuses(): ISTATUSES;
   createConversation(doc: IConversationParams): Promise<IConversationDocument>;
-  checkExistanceConversations(ids: string[]): void;
+  checkExistanceConversations(ids: string[]): any;
   reopen(_id: string): Promise<IConversationDocument>;
   assignUserConversation(
     conversationIds: string[], assignedUserId: string
   ): Promise<IConversationDocument>;
   unassignUserConversation(conversationIds: string[]): Promise<IConversationDocument>;
   changeStatusConversation(
-    conversationIds: string[], status: string, userId: string
+    conversationIds: string[], status: string, userId?: string
   ): Promise<IConversationDocument>;
   markAsReadConversation(_id: string, userId: string): Promise<IConversationDocument>;
-  newOrOpenConversation(): Promise<IConversationDocument>;
+  newOrOpenConversation(): Promise<IConversationDocument[]>;
   addParticipatedUsers(conversationId: string, userId: string): Promise<IConversationDocument>;
-  changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IConversationDocument>;
+  changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IConversationDocument[]>;
   removeCustomerConversations(customerId: string): Promise<IConversationDocument>;
 }
 
