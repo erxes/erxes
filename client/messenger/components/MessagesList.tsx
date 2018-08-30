@@ -41,45 +41,47 @@ class MessagesList extends React.Component<Props> {
   }
 
   makeClickableLink() {
-    const links = document.querySelectorAll("#erxes-messages a");
+    const nodes = Array.from(document.querySelectorAll("#erxes-messages a"));
 
-    for (let i = 0; i < links.length; i++) {
-      const node = links[i];
-
+    nodes.forEach(node => {
       node.setAttribute("target", "__blank");
-    }
+    });
   }
 
   renderAwayMessage(messengerData: any) {
     const { isOnline } = this.props;
 
-    if (messengerData && !isOnline && messengerData.awayMessage) {
+    if (!messengerData) {
+      return null;
+    }
+
+    if (!isOnline && messengerData.awayMessage) {
       return (
         <li className="erxes-spacial-message away">
           {messengerData.awayMessage}
         </li>
       );
     }
-
-    return null;
   }
 
   renderWelcomeMessage(messengerData: any) {
     const { isOnline } = this.props;
 
-    if (messengerData && isOnline && messengerData.welcomeMessage) {
+    if (!messengerData) {
+      return null;
+    }
+
+    if (isOnline && messengerData.welcomeMessage) {
       return (
         <li className="erxes-spacial-message">
           {messengerData.welcomeMessage}
         </li>
       );
     }
-
-    return null;
   }
 
   render() {
-    const { uiOptions, messengerData, messages } = this.props;
+    const { uiOptions, messengerData, messages, inputFocus } = this.props;
     const { color, wallpaper } = uiOptions;
     const messagesClasses = classNames(
       "erxes-messages-list",
@@ -93,7 +95,7 @@ class MessagesList extends React.Component<Props> {
       <ul
         id="erxes-messages"
         className={messagesClasses}
-        onClick={this.props.inputFocus}
+        onClick={inputFocus}
         ref={node => {
           this.node = node;
         }}

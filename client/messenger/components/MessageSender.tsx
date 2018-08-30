@@ -31,11 +31,15 @@ class MessageSender extends React.Component<Props, State> {
     this.handleOnBlur = this.handleOnBlur.bind(this);
   }
 
+  readMessage() {
+    if (this.props.conversationId) {
+      this.props.readMessages(this.props.conversationId);
+    }
+  }
+
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.isParentFocused) {
-      if (this.props.conversationId) {
-        this.props.readMessages(this.props.conversationId);
-      }
+      this.readMessage();
 
       if (this.textarea) {
         this.textarea.focus();
@@ -68,6 +72,7 @@ class MessageSender extends React.Component<Props, State> {
       } else {
         this.props.sendMessage(message);
         this.setState({ message: "" });
+        this.readMessage();
       }
     }
   }

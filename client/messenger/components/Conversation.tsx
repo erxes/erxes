@@ -25,7 +25,7 @@ class Conversation extends React.Component<Props, State> {
 
     this.state = { isFocused: false, expanded: false };
 
-    this.onClick = this.onClick.bind(this);
+    this.inputFocus = this.inputFocus.bind(this);
     this.onTextInputBlur = this.onTextInputBlur.bind(this);
     this.toggle = this.toggle.bind(this);
   }
@@ -38,7 +38,7 @@ class Conversation extends React.Component<Props, State> {
     }
   }
 
-  onClick() {
+  inputFocus() {
     this.setState({ isFocused: true });
   }
 
@@ -138,7 +138,7 @@ class Conversation extends React.Component<Props, State> {
         <MessagesList
           isOnline={isOnline}
           messages={messages}
-          inputFocus={this.onClick}
+          inputFocus={this.inputFocus}
         />
 
         <MessageSender
