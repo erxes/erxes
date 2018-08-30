@@ -162,6 +162,7 @@ const AppMessageBox = styled.div`
   width: 350px;
   margin-top: ${dimensions.coreSpacing}px;
   text-align: center;
+  float: right;
 `;
 
 const CallButton = styled.div`
@@ -201,6 +202,11 @@ const UserInfo = styled.div`
   }
 `;
 
+const FlexItem = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
 export {
   MessageItem,
   MessageBody,
@@ -208,5 +214,6 @@ export {
   FormTable,
   AppMessageBox,
   CallButton,
-  UserInfo
+  UserInfo,
+  FlexItem
 };
