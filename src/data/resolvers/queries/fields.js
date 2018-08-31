@@ -110,7 +110,7 @@ const fieldQueries = {
       return [
         { name: 'primaryName', label: 'Primary Name', order: 1 },
         { name: 'size', label: 'Size', order: 2 },
-        { name: 'website', label: 'Website', order: 3 },
+        { name: 'links.website', label: 'Website', order: 3 },
         { name: 'industry', label: 'Industry', order: 4 },
         { name: 'plan', label: 'Plan', order: 5 },
         { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
