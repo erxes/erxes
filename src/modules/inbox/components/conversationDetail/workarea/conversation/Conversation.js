@@ -25,16 +25,7 @@ const Wrapper = styled.div`
 `;
 
 class Conversation extends Component {
-  renderMessages() {
-    const { conversation, conversationMessages } = this.props;
-
-    if (!conversation) {
-      return null;
-    }
-
-    let messagesList = conversationMessages || [];
-
-    const messages = messagesList.slice();
+  renderMessages(messages, conversationFirstMessage) {
     const rows = [];
 
     let tempId;
@@ -47,6 +38,7 @@ class Conversation extends Component {
               ? message.userId === tempId
               : message.customerId === tempId
           }
+          conversationFirstMessage={conversationFirstMessage}
           message={message}
           key={message._id}
         />
@@ -89,7 +81,14 @@ class Conversation extends Component {
       );
     }
 
-    return this.renderMessages();
+    if (!conversation) {
+      return null;
+    }
+
+    const messages = (conversationMessages || []).slice();
+    const firstMessage = messages.length && messages[0];
+
+    return this.renderMessages(messages, firstMessage);
   }
 
   render() {

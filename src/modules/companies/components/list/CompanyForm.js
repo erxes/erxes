@@ -133,12 +133,20 @@ class CompanyForm extends React.Component {
     this.setState({ [name]: selectedOption ? selectedOption.value : null });
   }
 
+  /*
+   * Used filterOptions={(options) => options} in component to solve
+   * `react-select leaving out a particular option` issue
+   */
   handleCompanySearch(value) {
-    searchCompany(value, companies => this.setState({ companies }));
+    if (value) {
+      searchCompany(value, companies => this.setState({ companies }));
+    }
   }
 
   handleUserSearch(value) {
-    searchUser(value, users => this.setState({ users }));
+    if (value) {
+      searchUser(value, users => this.setState({ users }));
+    }
   }
 
   renderFormGroup(label, props) {
@@ -190,10 +198,9 @@ class CompanyForm extends React.Component {
               <ControlLabel>Parent Company</ControlLabel>
               <Select
                 placeholder={__('Search')}
-                onFocus={() =>
-                  companies.length < 1 && this.handleCompanySearch('')
-                }
+                onFocus={() => this.handleCompanySearch(' ')}
                 onInputChange={this.handleCompanySearch}
+                filterOptions={options => options}
                 onChange={option =>
                   this.handleSelect(option, 'parentCompanyId')
                 }
@@ -227,8 +234,9 @@ class CompanyForm extends React.Component {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search"
-                onFocus={() => users.length < 1 && this.handleUserSearch('')}
+                onFocus={() => this.handleUserSearch(' ')}
                 onInputChange={this.handleUserSearch}
+                filterOptions={options => options}
                 onChange={option => this.handleSelect(option, 'ownerId')}
                 value={ownerId}
                 options={this.generateUserParams(users)}
