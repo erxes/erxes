@@ -35,13 +35,15 @@ export const replaceKeys = ({
 }) => {
   let result = content;
 
+  const customerName = `${customer.firstName} + ${customer.lastName}`;
+
   // replace customer fields
-  result = result.replace(/{{\s?customer.name\s?}}/gi, customer.name);
+  result = result.replace(/{{\s?customer.name\s?}}/gi, customerName);
   result = result.replace(/{{\s?customer.email\s?}}/gi, customer.primaryEmail);
 
   // replace user fields
-  result = result.replace(/{{\s?user.fullName\s?}}/gi, user.fullName);
-  result = result.replace(/{{\s?user.position\s?}}/gi, user.position);
+  result = result.replace(/{{\s?user.fullName\s?}}/gi, user.details.fullName);
+  result = result.replace(/{{\s?user.position\s?}}/gi, user.details.position);
   result = result.replace(/{{\s?user.email\s?}}/gi, user.email);
 
   return result;
