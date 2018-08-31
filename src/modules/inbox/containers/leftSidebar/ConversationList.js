@@ -49,7 +49,8 @@ export default compose(
   graphql(gql(queries.sidebarConversations), {
     name: 'conversationsQuery',
     options: ({ queryParams }) => ({
-      variables: generateParams(queryParams)
+      variables: generateParams(queryParams),
+      fetchPolicy: 'network-only'
     })
   })
 )(ConversationListContainer);

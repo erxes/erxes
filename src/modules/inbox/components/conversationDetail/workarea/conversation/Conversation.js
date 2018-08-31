@@ -54,6 +54,10 @@ class Conversation extends Component {
     const { loading, conversation, conversationMessages } = this.props;
     const { kind } = conversation.integration;
 
+    if (!conversation) {
+      return null;
+    }
+
     if ((kind === 'facebook' || kind === 'twitter') && loading) {
       return <Spinner objective />;
     }
@@ -79,10 +83,6 @@ class Conversation extends Component {
           conversationMessages={conversationMessages}
         />
       );
-    }
-
-    if (!conversation) {
-      return null;
     }
 
     const messages = (conversationMessages || []).slice();

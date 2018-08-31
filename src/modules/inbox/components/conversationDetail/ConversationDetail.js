@@ -2,36 +2,58 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { MainContent } from 'modules/layout/styles';
 import { Sidebar as EmptySidebar } from 'modules/layout/components';
-import { Spinner } from 'modules/common/components';
+import { EmptyState, Spinner } from 'modules/common/components';
 import { WorkArea, Sidebar } from 'modules/inbox/containers/conversationDetail';
 import { ContentBox } from 'modules/layout/styles';
 
 export default class ConversationDetail extends Component {
   renderSidebar() {
-    const { currentConversation } = this.props;
+    const { loading, currentConversation } = this.props;
 
-    if (currentConversation.customerId) {
+    if (currentConversation) {
       return <Sidebar conversation={currentConversation} />;
+    }
+
+    if (loading) {
+      return (
+        <EmptySidebar full>
+          <Spinner />
+        </EmptySidebar>
+      );
     }
 
     return (
       <EmptySidebar full>
-        <Spinner />
+        <EmptyState
+          text="Customer not found"
+          size="small"
+          image="/images/robots/robot-02.svg"
+        />
       </EmptySidebar>
     );
   }
 
   renderContent() {
-    const { currentConversation } = this.props;
+    const { loading, currentConversation } = this.props;
 
-    if (currentConversation._id) {
+    if (currentConversation) {
       return <WorkArea {...this.props} />;
     }
 
+    if (loading) {
+      return (
+        <ContentBox>
+          <Spinner />
+        </ContentBox>
+      );
+    }
+
     return (
-      <ContentBox>
-        <Spinner />
-      </ContentBox>
+      <EmptyState
+        text="Conversation not found"
+        size="full"
+        image="/images/robots/robot-02.svg"
+      />
     );
   }
 
@@ -46,5 +68,6 @@ export default class ConversationDetail extends Component {
 }
 
 ConversationDetail.propTypes = {
-  currentConversation: PropTypes.object
+  currentConversation: PropTypes.object,
+  loading: PropTypes.bool
 };
