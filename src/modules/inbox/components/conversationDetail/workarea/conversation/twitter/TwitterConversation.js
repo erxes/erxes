@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { TwitterMessage } from 'modules/inbox/containers/conversationDetail';
-import { Message } from '../messages';
+import { SimpleMessage } from '../messages';
 
 const propTypes = {
   conversation: PropTypes.object,
@@ -19,11 +19,11 @@ class TwitterConversation extends Component {
   constructor(props) {
     super(props);
 
-    this.renderMessages = this.renderMessages.bind(this);
+    this.formatMessages = this.formatMessages.bind(this);
     this.renderTweets = this.renderTweets.bind(this);
   }
 
-  renderMessages(messages, parent) {
+  formatMessages(messages, parent) {
     const array = [];
 
     messages.forEach(msg => {
@@ -32,7 +32,8 @@ class TwitterConversation extends Component {
       }
 
       if (msg.twitterData.in_reply_to_status_id_str === parent) {
-        const children = this.renderMessages(messages, msg.twitterData.id_str);
+        const children = this.formatMessages(messages, msg.twitterData.id_str);
+
         let child = msg;
 
         if (children.length) {
@@ -72,9 +73,9 @@ class TwitterConversation extends Component {
   renderInternals(messages) {
     return messages.filter(message => !message.twitterData).map(message => {
       return (
-        <Message
+        <SimpleMessage
           message={message}
-          staff={!message.customerId}
+          isStaff={!message.customerId}
           key={message._id}
         />
       );
@@ -91,7 +92,7 @@ class TwitterConversation extends Component {
     }
 
     const messages = conversationMessages || [];
-    const nestedMessages = this.renderMessages(messages, null);
+    const nestedMessages = this.formatMessages(messages, null);
 
     return (
       <Fragment>

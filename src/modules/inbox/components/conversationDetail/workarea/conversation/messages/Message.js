@@ -1,20 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { FormMessage, SimpleMessage, FacebookMessage, AppMessage } from './';
+import {
+  FormMessage,
+  SimpleMessage,
+  FacebookMessage,
+  AppMessage,
+  TwitterMessage
+} from './';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
   isSameUser: PropTypes.bool
 };
 
-function Message({ message, isSameUser }) {
+function Message(props) {
+  const { message, isSameUser } = props;
+
   if (message.formWidgetData) {
-    return <FormMessage message={message} />;
+    return <FormMessage {...props} />;
   }
 
   if (message.facebookData) {
-    return <FacebookMessage message={message} />;
+    return <FacebookMessage {...props} />;
+  }
+
+  if (message.twitterData) {
+    return <TwitterMessage {...props} />;
   }
 
   if (message.messengerAppData) {
