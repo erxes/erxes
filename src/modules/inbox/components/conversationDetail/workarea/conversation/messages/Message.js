@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormMessage, SimpleMessage, FacebookMessage, AppMessage } from './';
+import {
+  FormMessage,
+  SimpleMessage,
+  FacebookMessage,
+  AppMessage,
+  TwitterMessage
+} from './';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
