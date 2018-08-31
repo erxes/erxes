@@ -60,17 +60,17 @@ interface IActivityLogModel extends Model<IActivityLogDocument> {
 
   createCustomerRegistrationLog(
     customer: ICustomerDocument,
-    user: IUserDocument
+    user?: IUserDocument
   ): Promise<IActivityLogDocument>;
 
   createCompanyRegistrationLog(
     company: ICompanyDocument,
-    user: IUserDocument
+    user?: IUserDocument
   ): Promise<IActivityLogDocument>;
 
   createDealRegistrationLog(
     deal: IDealDocument,
-    user: IUserDocument
+    user?: IUserDocument
   ): Promise<IActivityLogDocument>;
 
   changeCustomer(
@@ -265,7 +265,7 @@ class ActivityLog {
    */
   public static createCustomerRegistrationLog(
     customer: ICustomerDocument,
-    user: IUserDocument
+    user?: IUserDocument
   ) {
     let performer = null;
 
@@ -299,7 +299,7 @@ class ActivityLog {
    */
   public static createCompanyRegistrationLog(
     company: ICompanyDocument,
-    user: IUserDocument
+    user?: IUserDocument
   ) {
     let performer = null;
 
@@ -330,7 +330,7 @@ class ActivityLog {
    */
   public static createDealRegistrationLog(
     deal: IDealDocument,
-    user: IUserDocument
+    user?: IUserDocument
   ) {
     let performer = null;
 

@@ -1,36 +1,38 @@
+import Random from "meteor-random";
 import {
-  EngageMessages,
+  ConversationMessages,
+  Conversations,
   Customers,
-  Users,
   EmailTemplates,
+  EngageMessages,
   Integrations,
   Segments,
-  Conversations,
-  ConversationMessages,
-} from '../../../db/models';
+  Users
+} from "../../../db/models";
+import { ICustomerDocument } from "../../../db/models/definitions/customers";
+import { IEngageMessageDocument } from "../../../db/models/definitions/engages";
+import { IUserDocument } from "../../../db/models/definitions/users";
 import {
   EMAIL_CONTENT_PLACEHOLDER,
-  METHODS,
-  MESSAGE_KINDS,
   INTEGRATION_KIND_CHOICES,
-} from '../../constants';
-import Random from 'meteor-random';
-import QueryBuilder from '../queries/segmentQueryBuilder';
-import { createTransporter } from '../../utils';
+  MESSAGE_KINDS,
+  METHODS
+} from "../../constants";
+import { createTransporter } from "../../utils";
+import QueryBuilder from "../queries/segmentQueryBuilder";
 
 /**
  * Dynamic content tags
- * @param {String} content
- * @param {Object} customer
- * @param {String} customer.name - Customer name
- * @param {String} customer.primaryEmail - Customer email
- * @param {Object} user
- * @param {String} user.fullName - User full name
- * @param {String} user.position - User position
- * @param {String} user.email - User email
- * @return replaced content text
  */
-export const replaceKeys = ({ content, customer, user }) => {
+export const replaceKeys = ({
+  content,
+  customer,
+  user
+}: {
+  content: string;
+  customer: ICustomerDocument;
+  user: IUserDocument;
+}) => {
   let result = content;
 
   // replace customer fields
@@ -47,27 +49,30 @@ export const replaceKeys = ({ content, customer, user }) => {
 
 /**
  * Find customers
- * @param {[String]} customerIds - Customer ids
- * @param {String} segmentId - Segment id
- * @return {Promise} customers
  */
-const findCustomers = async ({ customerIds, segmentId }) => {
+const findCustomers = async ({
+  customerIds,
+  segmentId
+}: {
+  customerIds: string[];
+  segmentId: string;
+}) => {
   // find matched customers
-  let customerQuery = { _id: { $in: customerIds || [] } };
+  let customerQuery: any = { _id: { $in: customerIds || [] } };
 
   if (segmentId) {
     const segment = await Segments.findOne({ _id: segmentId });
     customerQuery = QueryBuilder.segments(segment);
   }
 
-  return await Customers.find(customerQuery);
+  return Customers.find(customerQuery);
 };
 
 /**
  * Send via email
  * @param {Object} engage message object
  */
-const sendViaEmail = async message => {
+const sendViaEmail = async (message: IEngageMessageDocument) => {
   const { fromUserId, segmentId, customerIds } = message;
   const { templateId, subject, content, attachments = [] } = message.email;
   const { AWS_SES_CONFIG_SET } = process.env;
@@ -82,7 +87,7 @@ const sendViaEmail = async message => {
   // save matched customer ids
   EngageMessages.setCustomerIds(message._id, customers);
 
-  for (let customer of customers) {
+  for (const customer of customers) {
     // replace keys in subject
     const replacedSubject = replaceKeys({ content: subject, customer, user });
 
@@ -91,13 +96,20 @@ const sendViaEmail = async message => {
 
     // if sender choosed some template then use it
     if (template) {
-      replacedContent = template.content.replace(EMAIL_CONTENT_PLACEHOLDER, replacedContent);
+      replacedContent = template.content.replace(
+        EMAIL_CONTENT_PLACEHOLDER,
+        replacedContent
+      );
     }
 
     const mailMessageId = Random.id();
 
     // add new delivery report
-    EngageMessages.addNewDeliveryReport(message._id, mailMessageId, customer._id);
+    EngageMessages.addNewDeliveryReport(
+      message._id,
+      mailMessageId,
+      customer._id
+    );
 
     // send email =========
     const transporter = await createTransporter({ ses: true });
@@ -107,8 +119,8 @@ const sendViaEmail = async message => {
     if (attachments.length > 0) {
       mailAttachment = attachments.map(file => {
         return {
-          filename: file.name || '',
-          path: file.url || '',
+          filename: file.name || "",
+          path: file.url || ""
         };
       });
     }
@@ -120,31 +132,32 @@ const sendViaEmail = async message => {
       attachments: mailAttachment,
       html: replacedContent,
       headers: {
-        'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET,
+        "X-SES-CONFIGURATION-SET": AWS_SES_CONFIG_SET,
         EngageMessageId: message._id,
-        MailMessageId: mailMessageId,
-      },
+        MailMessageId: mailMessageId
+      }
     });
   }
 };
 
 /**
  * Send via messenger
- * @param {Object} engage message object
  */
-const sendViaMessenger = async message => {
+const sendViaMessenger = async (message: IEngageMessageDocument) => {
   const { fromUserId, segmentId, customerIds } = message;
   const { brandId, content } = message.messenger;
 
-  const user = Users.findOne({ _id: fromUserId });
+  const user = await Users.findOne({ _id: fromUserId });
 
   // find integration
   const integration = await Integrations.findOne({
     brandId,
-    kind: INTEGRATION_KIND_CHOICES.MESSENGER,
+    kind: INTEGRATION_KIND_CHOICES.MESSENGER
   });
 
-  if (integration === null) throw new Error('Integration not found');
+  if (integration === null) {
+    throw new Error("Integration not found");
+  }
 
   // find matched customers
   const customers = await findCustomers({ customerIds, segmentId });
@@ -152,7 +165,7 @@ const sendViaMessenger = async message => {
   // save matched customer ids
   EngageMessages.setCustomerIds(message._id, customers);
 
-  for (let customer of customers) {
+  for (const customer of customers) {
     // replace keys in content
     const replacedContent = replaceKeys({ content, customer, user });
 
@@ -161,20 +174,20 @@ const sendViaMessenger = async message => {
       userId: fromUserId,
       customerId: customer._id,
       integrationId: integration._id,
-      content: replacedContent,
+      content: replacedContent
     });
 
     // create message
-    ConversationMessages.createMessage({
+    await ConversationMessages.createMessage({
       engageData: {
         messageId: message._id,
         fromUserId,
-        ...message.messenger.toJSON(),
+        ...message.messenger.toJSON()
       },
       conversationId: conversation._id,
       userId: fromUserId,
       customerId: customer._id,
-      content: replacedContent,
+      content: replacedContent
     });
   }
 };

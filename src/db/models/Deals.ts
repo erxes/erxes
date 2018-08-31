@@ -14,7 +14,7 @@ import {
   stageSchema
 } from "./definitions/deals";
 
-interface IOrderInput {
+export interface IOrderInput {
   _id: string;
   order: number;
 }
@@ -108,7 +108,10 @@ class Board {
 }
 
 interface IPipelineModel extends Model<IPipelineDocument> {
-  createPipeline(doc: IPipeline, stages: IStageDocument[]): Promise<IPipelineDocument>;
+  createPipeline(
+    doc: IPipeline,
+    stages: IStageDocument[]
+  ): Promise<IPipelineDocument>;
 
   updatePipeline(
     _id: string,

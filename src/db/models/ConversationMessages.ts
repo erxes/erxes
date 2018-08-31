@@ -1,23 +1,15 @@
 import { Model, model } from "mongoose";
-import * as strip from 'strip';
-import { Conversations } from '.';
-import { IMessageDocument, messageSchema } from "./definitions/conversationMessages";
-
-interface IMessageParams {
-  conversationId: string,
-  content: string,
-  mentionedUserIds: string[],
-  internal: boolean,
-  attachments: any,
-  tweetReplyToId: string,
-  tweetReplyToScreenName: string,
-  commentReplyToId: string,
-  status?: string,
-  userId?: string
-}
+import * as strip from "strip";
+import { Conversations } from ".";
+import {
+  IMessage,
+  IMessageDocument,
+  messageSchema
+} from "./definitions/conversationMessages";
 
 interface IMessageModel extends Model<IMessageDocument> {
-  addMessage(doc: IMessageParams, userId: string): Promise<IMessageDocument>;
+  createMessage(doc: IMessage): Promise<IMessageDocument>;
+  addMessage(doc: IMessage, userId: string): Promise<IMessageDocument>;
   getNonAsnweredMessage(conversationId: string): Promise<IMessageDocument>;
   getAdminMessages(conversationId: string): Promise<IMessageDocument[]>;
   markSentAsReadMessages(conversationId: string): Promise<IMessageDocument>;
@@ -29,15 +21,15 @@ class Message {
    * @param  {Object} messageObj - object
    * @return {Promise} Newly created message object
    */
-  public static async createMessage(doc: IMessageParams) {
+  public static async createMessage(doc: IMessage) {
     const message = await Messages.create({
       internal: false,
       ...doc,
-      createdAt: new Date(),
+      createdAt: new Date()
     });
 
     const messageCount = await Messages.find({
-      conversationId: message.conversationId,
+      conversationId: message.conversationId
     }).count();
 
     await Conversations.update(
@@ -47,13 +39,16 @@ class Message {
           messageCount,
 
           // updating updatedAt
-          updatedAt: new Date(),
-        },
-      },
+          updatedAt: new Date()
+        }
+      }
     );
 
     // add created user to participators
-    await Conversations.addParticipatedUsers(message.conversationId, message.userId);
+    await Conversations.addParticipatedUsers(
+      message.conversationId,
+      message.userId
+    );
 
     // add mentioned users to participators
     for (const userId of message.mentionedUserIds) {
@@ -69,25 +64,32 @@ class Message {
    * @param  {Object} user - Object
    * @return {Promise} Newly created conversation object
    */
-  public static async addMessage(doc: IMessageParams, userId: string) {
+  public static async addMessage(doc: IMessage, userId: string) {
     const conversation = await Conversations.findOne({
-      _id: doc.conversationId,
+      _id: doc.conversationId
     });
 
-    if (!conversation) { throw new Error(`Conversation not found with id ${doc.conversationId}`); }
+    if (!conversation) {
+      throw new Error(`Conversation not found with id ${doc.conversationId}`);
+    }
 
     // normalize content, attachments
-    const content = doc.content || '';
+    const content = doc.content || "";
     const attachments = doc.attachments || [];
 
     doc.content = content;
     doc.attachments = attachments;
 
     // if there is no attachments and no content then throw content required error
-    if (attachments.length === 0 && !strip(content)) { throw new Error('Content is required'); }
+    if (attachments.length === 0 && !strip(content)) {
+      throw new Error("Content is required");
+    }
 
     // setting conversation's content to last message
-    await Conversations.update({ _id: doc.conversationId }, { $set: { content } });
+    await Conversations.update(
+      { _id: doc.conversationId },
+      { $set: { content } }
+    );
 
     return this.createMessage({ ...doc, userId });
   }
@@ -100,7 +102,7 @@ class Message {
   public static getNonAsnweredMessage(conversationId: string) {
     return Messages.findOne({
       conversationId,
-      customerId: { $exists: true },
+      customerId: { $exists: true }
     }).sort({ createdAt: -1 });
   }
 
@@ -116,7 +118,7 @@ class Message {
       isCustomerRead: false,
 
       // exclude internal notes
-      internal: false,
+      internal: false
     }).sort({ createdAt: 1 });
   }
 
@@ -130,10 +132,10 @@ class Message {
       {
         conversationId,
         userId: { $exists: true },
-        isCustomerRead: { $exists: false },
+        isCustomerRead: { $exists: false }
       },
       { $set: { isCustomerRead: true } },
-      { multi: true },
+      { multi: true }
     );
   }
 }

@@ -430,6 +430,6 @@ class User {
 
 userSchema.loadClass(User);
 
-const Users = model<IUserDocument, IUserModel>("uses", userSchema);
+const Users = model<IUserDocument, IUserModel>("users", userSchema);
 
 export default Users;
