@@ -90,7 +90,7 @@ function CustomerRow({
   return (
     <tr
       onClick={() => {
-        history.push(`customers/details/${customer._id}`);
+        history.push(`/customers/details/${customer._id}`);
       }}
     >
       <td onClick={onClick}>
