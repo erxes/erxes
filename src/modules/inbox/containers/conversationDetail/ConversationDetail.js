@@ -30,6 +30,10 @@ class DetailContainer extends Component {
       return;
     }
 
+    if (!detailQuery.conversationDetail) {
+      return;
+    }
+
     if (this.prevSubscriptions) {
       return;
     }
@@ -72,22 +76,25 @@ class DetailContainer extends Component {
     const { currentUser } = this.context;
 
     const loading = detailQuery.loading;
-    const currentConversation = detailQuery.conversationDetail || {};
-    const readUserIds = currentConversation.readUserIds || [];
+    const conversation = detailQuery.conversationDetail;
 
     // mark as read ============
-    if (!loading && !readUserIds.includes(currentUser._id) && currentId) {
-      markAsReadMutation({
-        variables: { _id: currentConversation._id }
-      }).catch(e => {
-        Alert.error(e.message);
-      });
+    if (!loading && conversation) {
+      const readUserIds = conversation.readUserIds || [];
+
+      if (!readUserIds.includes(currentUser._id)) {
+        markAsReadMutation({
+          variables: { _id: conversation._id }
+        }).catch(e => {
+          Alert.error(e.message);
+        });
+      }
     }
 
     const updatedProps = {
       ...this.props,
       currentConversationId: currentId,
-      currentConversation,
+      currentConversation: conversation,
       loading
     };
 

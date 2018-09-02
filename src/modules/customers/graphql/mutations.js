@@ -49,6 +49,7 @@ const customersAdd = `
 const customersEdit = `
   mutation customersEdit($_id: String!, ${commonFields}) {
     customersEdit(_id: $_id, ${commonVariables}) {
+      _id
       avatar
       firstName
       lastName
