@@ -58,12 +58,6 @@ const CompanySchema = mongoose.Schema({
     optional: true,
   }),
 
-  website: field({
-    type: String,
-    label: 'Website',
-    optional: true,
-  }),
-
   plan: field({
     type: String,
     label: 'Plan',

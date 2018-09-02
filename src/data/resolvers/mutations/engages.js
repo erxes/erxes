@@ -3,6 +3,7 @@ import { MESSAGE_KINDS, METHODS } from '../../constants';
 import { send } from './engageUtils';
 import { moduleRequireLogin } from '../../permissions';
 import { awsRequests } from '../../../trackers/engageTracker';
+import { createSchedule, updateOrRemoveSchedule } from '../../../trackers/engageScheduleTracker';
 
 const engageMutations = {
   /**
@@ -43,7 +44,7 @@ const engageMutations = {
 
     const engageMessage = await EngageMessages.createEngageMessage(doc);
 
-    // if manual and live then send immediately
+    // If manual and live then send immediately
     if (doc.kind === MESSAGE_KINDS.MANUAL && doc.isLive) {
       await send(engageMessage);
     }
@@ -52,7 +53,7 @@ const engageMutations = {
   },
 
   /**
-   * Edit message
+   * Edit message and update schedule cron job
    * @param {String} doc.title
    * @param {String} doc.fromUserId
    * @param {String} doc.kind
@@ -66,34 +67,48 @@ const engageMutations = {
    * @param {[String]} doc.tagIds
    * @return {Promise} message object
    */
-  engageMessageEdit(root, { _id, ...doc }) {
-    return EngageMessages.updateEngageMessage(_id, doc);
+  async engageMessageEdit(root, { _id, ...doc }) {
+    await EngageMessages.updateEngageMessage(_id, doc);
+
+    updateOrRemoveSchedule({ _id }, true);
+
+    return EngageMessages.findOne({ _id });
   },
 
   /**
-   * Remove message
+   * Remove message and cancel cron job
    * @param {String} _id - Engage message id
    * @return {Promise}
    */
   engageMessageRemove(root, _id) {
+    updateOrRemoveSchedule(_id);
     return EngageMessages.removeEngageMessage(_id);
   },
 
   /**
-   * Engage message set live
+   * Engage message set live and create cron job
    * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
-  engageMessageSetLive(root, _id) {
-    return EngageMessages.engageMessageSetLive(_id);
+  async engageMessageSetLive(root, _id) {
+    const engageMessage = await EngageMessages.engageMessageSetLive(_id);
+
+    const { kind } = engageMessage;
+
+    if (kind === MESSAGE_KINDS.AUTO || kind === MESSAGE_KINDS.VISITOR_AUTO) {
+      createSchedule(engageMessage);
+    }
+
+    return engageMessage;
   },
 
   /**
-   * Engage message set pause
+   * Engage message set pause and cancel cron job
    * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
   engageMessageSetPause(root, _id) {
+    updateOrRemoveSchedule(_id);
     return EngageMessages.engageMessageSetPause(_id);
   },
 
