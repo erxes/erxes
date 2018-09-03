@@ -4,14 +4,12 @@ import * as Handlebars from "handlebars";
 import * as nodemailer from "nodemailer";
 import * as xlsxPopulate from "xlsx-populate";
 import { Companies, Customers, Notifications, Users } from "../db/models";
+import { IUserDocument } from "../db/models/definitions/users";
 
 /*
  * Save binary data to amazon s3
- * @param {String} name - File name
- * @param {Object} data - File binary data
- * @return {String} - Uploaded file url
  */
-export const uploadFile = async file => {
+export const uploadFile = async (file: { name: string; path: string }) => {
   const {
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
@@ -126,20 +124,20 @@ export const createTransporter = ({ ses }) => {
 
 /**
  * Send email
- * @param {Array} args.toEmails
- * @param {String} args.fromEmail
- * @param {String} args.title
- * @param {String} args.templateArgs.name
- * @param {Object} args.templateArgs.data
- * @param {Boolean} args.templateArgs.isCustom
- * @return {Promise}
  */
 export const sendEmail = async ({
   toEmails,
   fromEmail,
   title,
   template
-}: any) => {
+}: {
+  toEmails?: string[];
+  fromEmail?: string;
+  title?: string;
+  template?: { name?: string; data: any; isCustom?: boolean };
+  subject?: string;
+  to?: string;
+}) => {
   const { NODE_ENV, DEFAULT_EMAIL_SERVICE, COMPANY_EMAIL_FROM } = process.env;
 
   // do not send email it is running in test mode
@@ -190,7 +188,18 @@ export const sendEmail = async ({
  * @param {Array} doc.receivers Array of user ids
  * @return {Promise}
  */
-export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
+export const sendNotification = async ({
+  createdUser,
+  receivers,
+  ...doc
+}: {
+  createdUser: string;
+  receivers: string[];
+  title: string;
+  content: string;
+  notifType: string;
+  link: string;
+}) => {
   // collecting emails
   const recipients = await Users.find({ _id: { $in: receivers } });
 
@@ -205,11 +214,12 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
 
   // loop through receiver ids
   for (const receiverId of receivers) {
-    doc.receiver = receiverId;
-
     try {
       // send notification
-      await Notifications.createNotification(doc, createdUser);
+      await Notifications.createNotification(
+        { ...doc, receiver: receiverId },
+        createdUser
+      );
     } catch (e) {
       // Any other error is serious
       if (e.message !== "Configuration does not exist") {
@@ -236,7 +246,11 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
  * @param {Object} file - File data to save
  * @return {Promise} Success and failed counts
  */
-export const importXlsFile = async (file, type, { user }) => {
+export const importXlsFile = async (
+  file: any,
+  type: string,
+  { user }: { user: IUserDocument }
+) => {
   return new Promise((resolve, reject) => {
     const readStream = fs.createReadStream(file.path);
 
@@ -328,7 +342,7 @@ export const createXlsFile = async () => {
  *
  * @return {String} Url to download xls file
  */
-export const generateXlsx = async (workbook, name) => {
+export const generateXlsx = async (workbook: any, name: string) => {
   // Url to download xls file
   const url = `xlsTemplateOutputs/${name}.xlsx`;
   const { DOMAIN } = process.env;

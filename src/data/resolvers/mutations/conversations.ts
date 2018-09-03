@@ -330,7 +330,7 @@ const conversationMutations = {
           utils.sendEmail({
             to: customer.primaryEmail,
             subject: "Conversation detail",
-            templateArgs: {
+            template: {
               name: "conversationDetail",
               data: {
                 conversationDetail: {
