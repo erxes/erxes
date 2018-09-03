@@ -11,21 +11,19 @@ import {
   topicSchema
 } from "./definitions/knowledgebase";
 
+interface IArticleCreate extends IArticle {
+  categoryIds?: string[];
+}
+
 interface IArticleModel extends Model<IArticleDocument> {
   createDoc(
-    {
-      categoryIds,
-      ...docFields
-    }: { categoryIds: string[]; docFields: IArticle },
+    { categoryIds, ...docFields }: IArticleCreate,
     userId: string
   ): Promise<IArticleDocument>;
 
   updateDoc(
     _id: string,
-    {
-      categoryIds,
-      ...docFields
-    }: { categoryIds: string[]; docFields: IArticle },
+    { categoryIds, ...docFields }: IArticleCreate,
     userId: string
   ): Promise<IArticleDocument>;
 
@@ -37,10 +35,7 @@ class Article {
    * Create KnowledgeBaseArticle document
    */
   public static async createDoc(
-    {
-      categoryIds,
-      ...docFields
-    }: { categoryIds: string[]; docFields: IArticle },
+    { categoryIds, ...docFields }: IArticleCreate,
     userId: string
   ) {
     const article = await KnowledgeBaseArticles.create({
@@ -71,10 +66,7 @@ class Article {
    */
   public static async updateDoc(
     _id: string,
-    {
-      categoryIds,
-      ...docFields
-    }: { categoryIds: string[]; docFields: IArticle },
+    { categoryIds, ...docFields }: IArticleCreate,
     userId: string
   ) {
     await KnowledgeBaseArticles.update(
@@ -117,15 +109,19 @@ class Article {
   }
 }
 
+interface ICategoryCreate extends ICategory {
+  topicIds?: string[];
+}
+
 interface ICategoryModel extends Model<ICategoryDocument> {
   createDoc(
-    { topicIds, ...docFields }: { topicIds: string[]; docFields: ICategory },
+    { topicIds, ...docFields }: ICategoryCreate,
     userId
   ): Promise<ICategoryDocument>;
 
   updateDoc(
     _id: string,
-    { topicIds, ...docFields }: { topicIds: string[]; docFields: ICategory },
+    { topicIds, ...docFields }: ICategoryCreate,
     userId: string
   ): Promise<ICategoryDocument>;
 
@@ -137,7 +133,7 @@ class Category {
    * Create KnowledgeBaseCategory document
    */
   public static async createDoc(
-    { topicIds, ...docFields }: { topicIds: string[]; docFields: ICategory },
+    { topicIds, ...docFields }: ICategoryCreate,
     userId
   ) {
     const category = await KnowledgeBaseCategories.create({
@@ -166,7 +162,7 @@ class Category {
    */
   public static async updateDoc(
     _id: string,
-    { topicIds, ...docFields }: { topicIds: string[]; docFields: ICategory },
+    { topicIds, ...docFields }: ICategoryCreate,
     userId: string
   ) {
     await KnowledgeBaseCategories.update(

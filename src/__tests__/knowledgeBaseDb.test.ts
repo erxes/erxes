@@ -1,41 +1,38 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import { connect, disconnect } from '../db/connection';
-import toBeType from 'jest-tobetype';
+import toBeType from "jest-tobetype";
+import { PUBLISH_STATUSES } from "../data/constants";
+import { connect, disconnect } from "../db/connection";
 import {
-  knowledgeBaseTopicFactory,
-  knowledgeBaseCategoryFactory,
-  knowledgeBaseArticleFactory,
   brandFactory,
-  userFactory,
-} from '../db/factories';
+  knowledgeBaseArticleFactory,
+  knowledgeBaseCategoryFactory,
+  knowledgeBaseTopicFactory,
+  userFactory
+} from "../db/factories";
 import {
-  KnowledgeBaseTopics,
-  KnowledgeBaseCategories,
-  KnowledgeBaseArticles,
   Brands,
-  Users,
-} from '../db/models';
-import { PUBLISH_STATUSES } from '../data/constants';
+  KnowledgeBaseArticles,
+  KnowledgeBaseCategories,
+  KnowledgeBaseTopics,
+  Users
+} from "../db/models";
 
 expect.extend(toBeType);
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe('test knowledge base models', () => {
+describe("test knowledge base models", () => {
   let _user;
 
   beforeAll(async () => {
-    _user = await userFactory();
+    _user = await userFactory({});
   });
 
   afterAll(async () => {
     await Users.remove({});
   });
 
-  describe('KnowledgeBaseTopics', () => {
+  describe("KnowledgeBaseTopics", () => {
     afterEach(async () => {
       await KnowledgeBaseTopics.remove({});
       await Brands.remove({});
@@ -49,7 +46,7 @@ describe('test knowledge base models', () => {
       try {
         KnowledgeBaseTopics.createDoc({}, null);
       } catch (e) {
-        expect(e.message).toBe('userId must be supplied');
+        expect(e.message).toBe("userId must be supplied");
       }
     });
 
@@ -58,22 +55,22 @@ describe('test knowledge base models', () => {
       expect.assertions(1);
 
       try {
-        await KnowledgeBaseTopics.updateDoc('fakeId', {}, null);
+        await KnowledgeBaseTopics.updateDoc("fakeId", {}, null);
       } catch (e) {
-        expect(e.message).toBe('userId must be supplied');
+        expect(e.message).toBe("userId must be supplied");
       }
     });
 
-    test('create', async () => {
-      let categoryA = await knowledgeBaseCategoryFactory({});
-      let categoryB = await knowledgeBaseCategoryFactory({});
-      let brand = await brandFactory({});
+    test("create", async () => {
+      const categoryA = await knowledgeBaseCategoryFactory({});
+      const categoryB = await knowledgeBaseCategoryFactory({});
+      const brand = await brandFactory({});
 
       const doc = {
-        title: 'Test topic title',
-        description: 'Test topic description',
+        title: "Test topic title",
+        description: "Test topic description",
         categoryIds: [categoryA._id, categoryB._id],
-        brandId: brand._id,
+        brandId: brand._id
       };
 
       const topic = await KnowledgeBaseTopics.createDoc(doc, _user._id);
@@ -84,7 +81,7 @@ describe('test knowledge base models', () => {
       expect(topic.brandId).toBe(doc.brandId);
     });
 
-    test('update', async () => {
+    test("update", async () => {
       const categoryA = await knowledgeBaseCategoryFactory({});
       const categoryB = await knowledgeBaseCategoryFactory({});
 
@@ -92,20 +89,24 @@ describe('test knowledge base models', () => {
       const brandB = await brandFactory({});
 
       const doc = {
-        title: 'Test topic title',
-        description: 'Test topic description',
+        title: "Test topic title",
+        description: "Test topic description",
         categoryIds: [categoryA._id, categoryB._id],
-        brandId: brandA._id,
+        brandId: brandA._id
       };
 
       const topic = await KnowledgeBaseTopics.createDoc(doc, _user._id);
 
-      topic.title = 'Test topic title 2';
-      topic.description = 'Test topic description 2';
+      topic.title = "Test topic title 2";
+      topic.description = "Test topic description 2";
       topic.categoryIds = [categoryA._id, categoryB._id];
       topic.brandId = brandB._id;
 
-      const newTopic = await KnowledgeBaseTopics.updateDoc(topic._id, topic.toObject(), _user);
+      const newTopic = await KnowledgeBaseTopics.updateDoc(
+        topic._id,
+        topic.toObject(),
+        _user
+      );
 
       expect(newTopic._id).toBe(topic._id);
       expect(newTopic.title).toBe(topic.title);
@@ -114,17 +115,17 @@ describe('test knowledge base models', () => {
       expect(newTopic.brandId).toBe(brandB._id);
     });
 
-    test('remove', async () => {
+    test("remove", async () => {
       const categoryA = await knowledgeBaseCategoryFactory({});
       const categoryB = await knowledgeBaseCategoryFactory({});
 
       const brand = await brandFactory({});
 
       const doc = {
-        title: 'Test topic title',
-        description: 'Test topic description',
+        title: "Test topic title",
+        description: "Test topic description",
         brandId: brand._id,
-        categoryIds: [categoryA._id, categoryB._id],
+        categoryIds: [categoryA._id, categoryB._id]
       };
 
       const topic = await KnowledgeBaseTopics.createDoc(doc, _user._id);
@@ -138,9 +139,9 @@ describe('test knowledge base models', () => {
     });
   });
 
-  describe('KnowledgeBaseCategories', () => {
+  describe("KnowledgeBaseCategories", () => {
     afterEach(async () => {
-      await KnowledgeBaseCategories.remove();
+      await KnowledgeBaseCategories.remove({});
       await KnowledgeBaseArticles.remove({});
     });
 
@@ -148,24 +149,24 @@ describe('test knowledge base models', () => {
       expect.assertions(1);
 
       try {
-        await KnowledgeBaseCategories.createDoc({}, null);
+        await KnowledgeBaseCategories.createDoc({ topicIds: ["123"] }, null);
       } catch (e) {
-        expect(e.message).toBe('userId must be supplied');
+        expect(e.message).toBe("userId must be supplied");
       }
     });
 
-    test('create', async () => {
+    test("create", async () => {
       const article = await knowledgeBaseArticleFactory({});
 
       let topicA = await knowledgeBaseTopicFactory({});
       let topicB = await knowledgeBaseTopicFactory({});
 
       const doc = {
-        title: 'Test category title',
-        description: 'Test category description',
+        title: "Test category title",
+        description: "Test category description",
         articleIds: [article._id],
-        icon: 'test category icon',
-        topicIds: [topicA._id.toString(), topicB._id.toString()],
+        icon: "test category icon",
+        topicIds: [topicA._id.toString(), topicB._id.toString()]
       };
 
       const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
@@ -176,10 +177,14 @@ describe('test knowledge base models', () => {
       expect(category.icon).toBe(doc.icon);
       // Values related to modification ======
       expect(category.createdBy).toBe(_user._id);
-      expect(category.createdDate).toBeType('object');
+      expect(category.createdDate).toBeDefined();
 
-      topicA = await KnowledgeBaseTopics.findOne({ _id: topicA._id.toString() });
-      topicB = await KnowledgeBaseTopics.findOne({ _id: topicB._id.toString() });
+      topicA = await KnowledgeBaseTopics.findOne({
+        _id: topicA._id.toString()
+      });
+      topicB = await KnowledgeBaseTopics.findOne({
+        _id: topicB._id.toString()
+      });
 
       expect(topicA.categoryIds.length).toBe(1);
       expect(topicA.categoryIds[0]).toBe(category._id.toString());
@@ -188,7 +193,7 @@ describe('test knowledge base models', () => {
       expect(topicA.categoryIds[0]).toBe(category._id.toString());
     });
 
-    test('update', async () => {
+    test("update", async () => {
       const article = await knowledgeBaseArticleFactory({});
       const articleB = await knowledgeBaseArticleFactory({});
 
@@ -196,26 +201,26 @@ describe('test knowledge base models', () => {
       let topicB = await knowledgeBaseTopicFactory({});
 
       const doc = {
-        title: 'Test category title',
-        description: 'Test category description',
+        title: "Test category title",
+        description: "Test category description",
         articleIds: [article._id],
-        icon: 'test icon',
+        icon: "test icon"
       };
 
       const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
 
-      category.title = 'Test category title 2';
-      category.description = 'Test category description 2';
+      category.title = "Test category title 2";
+      category.description = "Test category description 2";
       category.articleIds = [article._id, articleB._id];
-      category.icon = 'test icon 2';
+      category.icon = "test icon 2";
 
       const newCategory = await KnowledgeBaseCategories.updateDoc(
         category._id,
         {
           ...category.toObject(),
-          topicIds: [topicA._id.toString(), topicB._id.toString()],
+          topicIds: [topicA._id.toString(), topicB._id.toString()]
         },
-        _user._id,
+        _user._id
       );
 
       expect(newCategory._id).toBe(category._id);
@@ -227,10 +232,14 @@ describe('test knowledge base models', () => {
 
       // Values related to modification ======
       expect(newCategory.modifiedBy).toBe(_user._id);
-      expect(newCategory.modifiedDate).toBeType('object');
+      expect(newCategory.modifiedDate).toBeDefined();
 
-      topicA = await KnowledgeBaseTopics.findOne({ _id: topicA._id.toString() });
-      topicB = await KnowledgeBaseTopics.findOne({ _id: topicB._id.toString() });
+      topicA = await KnowledgeBaseTopics.findOne({
+        _id: topicA._id.toString()
+      });
+      topicB = await KnowledgeBaseTopics.findOne({
+        _id: topicB._id.toString()
+      });
 
       expect(topicA.categoryIds.length).toBe(1);
       expect(topicA.categoryIds[0]).toBe(newCategory._id.toString());
@@ -239,11 +248,11 @@ describe('test knowledge base models', () => {
       expect(topicA.categoryIds[0]).toBe(newCategory._id.toString());
     });
 
-    test('remove', async () => {
+    test("remove", async () => {
       const doc = {
-        title: 'Test category title',
-        description: 'Test category description',
-        icon: 'test icon',
+        title: "Test category title",
+        description: "Test category description",
+        icon: "test icon"
       };
 
       const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
@@ -256,7 +265,7 @@ describe('test knowledge base models', () => {
     });
   });
 
-  describe('KnowledgeBaseArticles', () => {
+  describe("KnowledgeBaseArticles", () => {
     afterEach(async () => {
       await KnowledgeBaseArticles.remove({});
     });
@@ -265,22 +274,22 @@ describe('test knowledge base models', () => {
       expect.assertions(1);
 
       try {
-        await KnowledgeBaseArticles.createDoc({}, null);
+        await KnowledgeBaseArticles.createDoc({ categoryIds: ["123"] }, null);
       } catch (e) {
-        expect(e.message).toBe('userId must be supplied');
+        expect(e.message).toBe("userId must be supplied");
       }
     });
 
-    test('create', async () => {
+    test("create", async () => {
       let categoryA = await knowledgeBaseCategoryFactory({});
       let categoryB = await knowledgeBaseCategoryFactory({});
 
       const doc = {
-        title: 'Test article title',
-        summary: 'Test article description',
-        content: 'Test article content',
+        title: "Test article title",
+        summary: "Test article description",
+        content: "Test article content",
         categoryIds: [categoryA._id.toString(), categoryB._id.toString()],
-        status: PUBLISH_STATUSES.DRAFT,
+        status: PUBLISH_STATUSES.DRAFT
       };
 
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
@@ -288,11 +297,14 @@ describe('test knowledge base models', () => {
       expect(article.title).toBe(doc.title);
       expect(article.summary).toBe(doc.summary);
       expect(article.content).toBe(doc.content);
-      expect(article.icon).toBe(doc.icon);
       expect(article.status).toBe(PUBLISH_STATUSES.DRAFT);
 
-      categoryA = await KnowledgeBaseCategories.findOne({ _id: categoryA._id.toString() });
-      categoryB = await KnowledgeBaseCategories.findOne({ _id: categoryB._id.toString() });
+      categoryA = await KnowledgeBaseCategories.findOne({
+        _id: categoryA._id.toString()
+      });
+      categoryB = await KnowledgeBaseCategories.findOne({
+        _id: categoryB._id.toString()
+      });
 
       expect(categoryA.articleIds.length).toBe(3);
       expect(categoryA.articleIds[2]).toBe(article._id.toString());
@@ -300,40 +312,43 @@ describe('test knowledge base models', () => {
       expect(categoryB.articleIds[2]).toBe(article._id.toString());
     });
 
-    test('update', async () => {
+    test("update", async () => {
       let categoryA = await knowledgeBaseCategoryFactory({ articleIds: [] });
       let categoryB = await knowledgeBaseCategoryFactory();
 
       const doc = {
-        title: 'Test article title',
-        summary: 'Test article description',
-        content: 'Test article content',
-        status: PUBLISH_STATUSES.DRAFT,
+        title: "Test article title",
+        summary: "Test article description",
+        content: "Test article content",
+        status: PUBLISH_STATUSES.DRAFT
       };
 
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
 
-      article.title = 'Test article title 2';
-      article.summary = 'Test article description 2';
-      article.content = 'Test article content 2';
+      article.title = "Test article title 2";
+      article.summary = "Test article description 2";
+      article.content = "Test article content 2";
       article.status = PUBLISH_STATUSES.PUBLISH;
 
       const updatedArticle = await KnowledgeBaseArticles.updateDoc(
         article._id,
         {
           ...article.toObject(),
-          categoryIds: [categoryA._id.toString(), categoryB._id.toString()],
+          categoryIds: [categoryA._id.toString(), categoryB._id.toString()]
         },
-        _user._id,
+        _user._id
       );
 
-      categoryA = await KnowledgeBaseCategories.findOne({ _id: categoryA._id.toString() });
-      categoryB = await KnowledgeBaseCategories.findOne({ _id: categoryB._id.toString() });
+      categoryA = await KnowledgeBaseCategories.findOne({
+        _id: categoryA._id.toString()
+      });
+      categoryB = await KnowledgeBaseCategories.findOne({
+        _id: categoryB._id.toString()
+      });
 
       expect(updatedArticle.title).toBe(article.title);
       expect(updatedArticle.summary).toBe(article.summary);
       expect(updatedArticle.content).toBe(article.content);
-      expect(updatedArticle.icon).toBe(article.icon);
       expect(updatedArticle.status).toBe(article.status);
 
       expect(categoryA.articleIds.length).toBe(1);
@@ -343,12 +358,12 @@ describe('test knowledge base models', () => {
       expect(categoryB.articleIds[2]).toBe(article._id.toString());
     });
 
-    test('remove', async () => {
+    test("remove", async () => {
       const doc = {
-        title: 'Test article title',
-        summary: 'Test article description',
-        content: 'Test article content',
-        status: PUBLISH_STATUSES.DRAFT,
+        title: "Test article title",
+        summary: "Test article description",
+        content: "Test article content",
+        status: PUBLISH_STATUSES.DRAFT
       };
 
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
