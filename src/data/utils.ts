@@ -1,8 +1,8 @@
 import * as AWS from "aws-sdk";
 import * as fs from "fs";
-import Handlebars from "handlebars";
-import nodemailer from "nodemailer";
-import xlsxPopulate from "xlsx-populate";
+import * as Handlebars from "handlebars";
+import * as nodemailer from "nodemailer";
+import * as xlsxPopulate from "xlsx-populate";
 import { Companies, Customers, Notifications, Users } from "../db/models";
 
 /*
@@ -45,12 +45,12 @@ export const uploadFile = async file => {
         Body: buffer,
         ACL: "public-read"
       },
-      (error, response) => {
-        if (error) {
-          return reject(error);
+      (err, res) => {
+        if (err) {
+          return reject(err);
         }
 
-        return resolve(response);
+        return resolve(res);
       }
     );
   });
@@ -60,10 +60,8 @@ export const uploadFile = async file => {
 
 /**
  * Read contents of a file
- * @param {string} filename - relative file path
- * @return {Promise} returns promise resolving file contents
  */
-export const readFile = filename => {
+export const readFile = (filename: string) => {
   const filePath = `${__dirname}/../private/emailTemplates/${filename}.html`;
 
   return fs.readFileSync(filePath, "utf8");
@@ -75,7 +73,7 @@ export const readFile = filename => {
  * @param {String} templateName
  * @return email with template as text
  */
-const applyTemplate = async (data: any, templateName) => {
+const applyTemplate = async (data: any, templateName: string) => {
   let template: any = await readFile(templateName);
 
   template = Handlebars.compile(template.toString());
@@ -145,7 +143,7 @@ export const sendEmail = async ({
   const { NODE_ENV, DEFAULT_EMAIL_SERVICE, COMPANY_EMAIL_FROM } = process.env;
 
   // do not send email it is running in test mode
-  if (NODE_ENV == "test") {
+  if (NODE_ENV === "test") {
     return;
   }
 
@@ -214,7 +212,7 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
       await Notifications.createNotification(doc, createdUser);
     } catch (e) {
       // Any other error is serious
-      if (e.message != "Configuration does not exist") {
+      if (e.message !== "Configuration does not exist") {
         throw e;
       }
     }
@@ -249,22 +247,24 @@ export const importXlsFile = async (file, type, { user }) => {
 
     // Converting pipe into promise
     const pipe = stream =>
-      new Promise((resolve, reject) => {
-        stream.on("finish", resolve);
-        stream.on("error", reject);
+      new Promise((resolver, rejecter) => {
+        stream.on("finish", resolver);
+        stream.on("error", rejecter);
       });
 
     // Creating streams
     const writeStream = fs.createWriteStream(downloadDir);
-    const stream = readStream.pipe(writeStream);
+    const streamObj = readStream.pipe(writeStream);
 
-    pipe(stream)
+    pipe(streamObj)
       .then(async () => {
         // After finished saving instantly create and load workbook from xls
         const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
 
         // Deleting file after read
-        fs.unlink(downloadDir, () => {});
+        fs.unlink(downloadDir, () => {
+          return true;
+        });
 
         const usedRange = workbook.sheet(0).usedRange();
 

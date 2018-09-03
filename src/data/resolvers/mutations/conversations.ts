@@ -6,6 +6,11 @@ import {
   Customers,
   Integrations
 } from "../../../db/models";
+import {
+  CONVERSATION_STATUSES,
+  KIND_CHOICES,
+  NOTIFICATION_TYPES
+} from "../../../db/models/definitions/constants";
 import { IMessageDocument } from "../../../db/models/definitions/conversationMessages";
 import { IConversationDocument } from "../../../db/models/definitions/conversations";
 import { IUserDocument } from "../../../db/models/definitions/users";
@@ -16,8 +21,6 @@ import {
   tweet,
   tweetReply
 } from "../../../trackers/twitter";
-import { CONVERSATION_STATUSES, KIND_CHOICES } from "../../constants";
-import { NOTIFICATION_TYPES } from "../../constants";
 import { requireLogin } from "../../permissions";
 import utils from "../../utils";
 import { pubsub } from "../subscriptions";
@@ -148,12 +151,12 @@ const conversationMutations = {
 
     // do not send internal message to third service integrations
     if (doc.internal) {
-      const message = await ConversationMessages.addMessage(doc, user._id);
+      const messageObj = await ConversationMessages.addMessage(doc, user._id);
 
       // publish new message to conversation detail
-      publishMessage(message);
+      publishMessage(messageObj);
 
-      return message;
+      return messageObj;
     }
 
     const kind = integration.kind;

@@ -1,15 +1,12 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { EmailTemplates, Users } from '../db/models';
-import { emailTemplateFactory, userFactory } from '../db/factories';
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import { emailTemplateFactory, userFactory } from "../db/factories";
+import { EmailTemplates, Users } from "../db/models";
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Email template mutations', () => {
+describe("Email template mutations", () => {
   let _emailTemplate;
   let _user;
   let context;
@@ -26,8 +23,8 @@ describe('Email template mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _emailTemplate = await emailTemplateFactory();
-    _user = await userFactory();
+    _emailTemplate = await emailTemplateFactory({});
+    _user = await userFactory({});
 
     context = { user: _user };
   });
@@ -38,10 +35,10 @@ describe('Email template mutations', () => {
     await Users.remove({});
   });
 
-  test('Add email template', async () => {
+  test("Add email template", async () => {
     const args = {
       name: _emailTemplate.name,
-      content: _emailTemplate.content,
+      content: _emailTemplate.content
     };
 
     const mutation = `
@@ -53,17 +50,22 @@ describe('Email template mutations', () => {
       }
     `;
 
-    const emailTemplate = await graphqlRequest(mutation, 'emailTemplatesAdd', args, context);
+    const emailTemplate = await graphqlRequest(
+      mutation,
+      "emailTemplatesAdd",
+      args,
+      context
+    );
 
     expect(emailTemplate.name).toBe(args.name);
     expect(emailTemplate.content).toBe(args.content);
   });
 
-  test('Edit email template', async () => {
+  test("Edit email template", async () => {
     const args = {
       _id: _emailTemplate._id,
       name: _emailTemplate.name,
-      content: _emailTemplate.content,
+      content: _emailTemplate.content
     };
 
     const mutation = `
@@ -76,22 +78,34 @@ describe('Email template mutations', () => {
       }
     `;
 
-    const emailTemplate = await graphqlRequest(mutation, 'emailTemplatesEdit', args, context);
+    const emailTemplate = await graphqlRequest(
+      mutation,
+      "emailTemplatesEdit",
+      args,
+      context
+    );
 
     expect(emailTemplate._id).toBe(args._id);
     expect(emailTemplate.name).toBe(args.name);
     expect(emailTemplate.content).toBe(args.content);
   });
 
-  test('Remove email template', async () => {
+  test("Remove email template", async () => {
     const mutation = `
       mutation emailTemplatesRemove($_id: String!) {
         emailTemplatesRemove(_id: $_id)
       }
     `;
 
-    await graphqlRequest(mutation, 'emailTemplatesRemove', { _id: _emailTemplate._id }, context);
+    await graphqlRequest(
+      mutation,
+      "emailTemplatesRemove",
+      { _id: _emailTemplate._id },
+      context
+    );
 
-    expect(await EmailTemplates.findOne({ _id: _emailTemplate._id })).toBe(null);
+    expect(await EmailTemplates.findOne({ _id: _emailTemplate._id })).toBe(
+      null
+    );
   });
 });

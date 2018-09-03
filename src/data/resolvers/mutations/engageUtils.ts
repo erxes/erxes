@@ -206,3 +206,8 @@ export const send = message => {
     return sendViaMessenger(message);
   }
 };
+
+export default {
+  replaceKeys,
+  send
+};

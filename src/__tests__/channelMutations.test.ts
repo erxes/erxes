@@ -1,15 +1,16 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import { Users, Channels, Integrations } from '../db/models';
-import { graphqlRequest, connect, disconnect } from '../db/connection';
-import { userFactory, channelFactory, integrationFactory } from '../db/factories';
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import {
+  channelFactory,
+  integrationFactory,
+  userFactory
+} from "../db/factories";
+import { Channels, Integrations, Users } from "../db/models";
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('mutations', () => {
+describe("mutations", () => {
   let _channel;
   let _user;
   let _integration;
@@ -17,9 +18,9 @@ describe('mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _channel = await channelFactory();
-    _integration = await integrationFactory();
-    _user = await userFactory({ role: 'admin' });
+    _channel = await channelFactory({});
+    _integration = await integrationFactory({});
+    _user = await userFactory({ role: "admin" });
 
     context = { user: _user };
   });
@@ -45,12 +46,12 @@ describe('mutations', () => {
     integrationIds: $integrationIds
   `;
 
-  test('Add channel', async () => {
+  test("Add channel", async () => {
     const args = {
       name: _channel.name,
       description: _channel.description,
       memberIds: [_user._id],
-      integrationIds: [_integration._id],
+      integrationIds: [_integration._id]
     };
 
     const mutation = `
@@ -64,7 +65,12 @@ describe('mutations', () => {
       }
     `;
 
-    const channel = await graphqlRequest(mutation, 'channelsAdd', args, context);
+    const channel = await graphqlRequest(
+      mutation,
+      "channelsAdd",
+      args,
+      context
+    );
 
     expect(channel.name).toBe(args.name);
     expect(channel.description).toBe(args.description);
@@ -72,15 +78,15 @@ describe('mutations', () => {
     expect(channel.integrationIds).toEqual(args.integrationIds);
   });
 
-  test('Edit channel', async () => {
-    const member = await userFactory();
+  test("Edit channel", async () => {
+    const member = await userFactory({});
 
     const args = {
       _id: _channel._id,
       name: _channel.name,
       description: _channel.description,
       memberIds: [member._id],
-      integrationIds: [_integration._id],
+      integrationIds: [_integration._id]
     };
 
     const mutation = `
@@ -95,7 +101,12 @@ describe('mutations', () => {
       }
     `;
 
-    const channel = await graphqlRequest(mutation, 'channelsEdit', args, context);
+    const channel = await graphqlRequest(
+      mutation,
+      "channelsEdit",
+      args,
+      context
+    );
 
     expect(channel._id).toBe(args._id);
     expect(channel.name).toBe(args.name);
@@ -104,14 +115,19 @@ describe('mutations', () => {
     expect(channel.integrationIds).toEqual(args.integrationIds);
   });
 
-  test('Remove channel', async () => {
+  test("Remove channel", async () => {
     const mutation = `
       mutation channelsRemove($_id: String!) {
         channelsRemove(_id: $_id)
       }
     `;
 
-    await graphqlRequest(mutation, 'channelsRemove', { _id: _channel._id }, context);
+    await graphqlRequest(
+      mutation,
+      "channelsRemove",
+      { _id: _channel._id },
+      context
+    );
 
     expect(await Channels.findOne({ _id: _channel._id })).toBe(null);
   });

@@ -1,10 +1,7 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { Users, Fields, FieldsGroups } from '../db/models';
-import { userFactory, fieldFactory, fieldGroupFactory } from '../db/factories';
+import faker from "faker";
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import { fieldFactory, fieldGroupFactory, userFactory } from "../db/factories";
+import { Fields, FieldsGroups, Users } from "../db/models";
 
 beforeAll(() => connect());
 
@@ -16,25 +13,25 @@ afterAll(() => disconnect());
 const fieldArgs = {
   contentType: faker.random.word(),
   contentTypeId: faker.random.word(),
-  validation: 'number',
-  type: 'text',
+  validation: "number",
+  type: "text",
   description: faker.random.word(),
   options: [],
   isRequired: false,
   order: faker.random.number(),
   groupId: faker.random.word(),
-  isVisible: false,
+  isVisible: false
 };
 
 const fieldGroupArgs = {
   name: faker.random.word(),
-  contentType: 'customer',
+  contentType: "customer",
   order: 2,
   description: faker.random.word(),
-  isVisible: true,
+  isVisible: true
 };
 
-describe('Fields mutations', () => {
+describe("Fields mutations", () => {
   let _user;
   let _field;
   let _fieldGroup;
@@ -82,8 +79,8 @@ describe('Fields mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory();
-    _field = await fieldFactory();
+    _user = await userFactory({});
+    _field = await fieldFactory({});
     _fieldGroup = await fieldGroupFactory({});
 
     context = { user: _user };
@@ -96,7 +93,7 @@ describe('Fields mutations', () => {
     await FieldsGroups.remove({});
   });
 
-  test('Add field', async () => {
+  test("Add field", async () => {
     const mutation = `
       mutation fieldsAdd(
         $contentType: String!
@@ -122,7 +119,12 @@ describe('Fields mutations', () => {
       }
     `;
 
-    const field = await graphqlRequest(mutation, 'fieldsAdd', fieldArgs, context);
+    const field = await graphqlRequest(
+      mutation,
+      "fieldsAdd",
+      fieldArgs,
+      context
+    );
 
     expect(field.contentType).toBe(fieldArgs.contentType);
     expect(field.contentTypeId).toBe(fieldArgs.contentTypeId);
@@ -136,7 +138,7 @@ describe('Fields mutations', () => {
     expect(field.isVisible).toBe(fieldArgs.isVisible);
   });
 
-  test('Edit field', async () => {
+  test("Edit field", async () => {
     const mutation = `
       mutation fieldsEdit(
         $_id: String!
@@ -161,9 +163,9 @@ describe('Fields mutations', () => {
 
     const field = await graphqlRequest(
       mutation,
-      'fieldsEdit',
+      "fieldsEdit",
       { _id: _field._id, ...fieldArgs },
-      context,
+      context
     );
 
     expect(field._id).toBe(_field._id);
@@ -177,7 +179,7 @@ describe('Fields mutations', () => {
     expect(field.isVisible).toBe(fieldArgs.isVisible);
   });
 
-  test('Remove field', async () => {
+  test("Remove field", async () => {
     const mutation = `
       mutation fieldsRemove($_id: String!) {
         fieldsRemove(_id: $_id) {
@@ -186,17 +188,22 @@ describe('Fields mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'fieldsRemove', { _id: _field._id }, context);
+    await graphqlRequest(
+      mutation,
+      "fieldsRemove",
+      { _id: _field._id },
+      context
+    );
 
     expect(await Fields.findOne({ _id: _field._id })).toBe(null);
   });
 
-  test('Update order field', async () => {
+  test("Update order field", async () => {
     const orders = [
       {
         _id: _field._id,
-        order: 1,
-      },
+        order: 1
+      }
     ];
 
     const mutation = `
@@ -208,7 +215,12 @@ describe('Fields mutations', () => {
       }
     `;
 
-    const [fields] = await graphqlRequest(mutation, 'fieldsUpdateOrder', { orders }, context);
+    const [fields] = await graphqlRequest(
+      mutation,
+      "fieldsUpdateOrder",
+      { orders },
+      context
+    );
 
     const orderIds = orders.map(order => order._id);
     const orderItems = orders.map(item => item.order);
@@ -217,10 +229,10 @@ describe('Fields mutations', () => {
     expect(orderItems).toContain(fields.order);
   });
 
-  test('Update field visible', async () => {
+  test("Update field visible", async () => {
     const args = {
       _id: _field._id,
-      isVisible: _field.isVisible,
+      isVisible: _field.isVisible
     };
 
     const mutation = `
@@ -232,13 +244,18 @@ describe('Fields mutations', () => {
       }
     `;
 
-    const field = await graphqlRequest(mutation, 'fieldsUpdateVisible', args, context);
+    const field = await graphqlRequest(
+      mutation,
+      "fieldsUpdateVisible",
+      args,
+      context
+    );
 
     expect(field._id).toBe(args._id);
     expect(field.isVisible).toBe(args.isVisible);
   });
 
-  test('Add group field', async () => {
+  test("Add group field", async () => {
     const mutation = `
       mutation fieldsGroupsAdd(${fieldsGroupsCommonParamDefs}) {
         fieldsGroupsAdd(${fieldsGroupsCommonParams}) {
@@ -251,7 +268,12 @@ describe('Fields mutations', () => {
       }
     `;
 
-    const fieldGroup = await graphqlRequest(mutation, 'fieldsGroupsAdd', fieldGroupArgs, context);
+    const fieldGroup = await graphqlRequest(
+      mutation,
+      "fieldsGroupsAdd",
+      fieldGroupArgs,
+      context
+    );
 
     expect(fieldGroup.contentType).toBe(fieldGroupArgs.contentType);
     expect(fieldGroup.name).toBe(fieldGroupArgs.name);
@@ -260,7 +282,7 @@ describe('Fields mutations', () => {
     expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
   });
 
-  test('Edit group field', async () => {
+  test("Edit group field", async () => {
     const mutation = `
       mutation fieldsGroupsEdit($_id: String! ${fieldsGroupsCommonParamDefs}) {
         fieldsGroupsEdit(_id: $_id ${fieldsGroupsCommonParams}) {
@@ -276,9 +298,9 @@ describe('Fields mutations', () => {
 
     const fieldGroup = await graphqlRequest(
       mutation,
-      'fieldsGroupsEdit',
+      "fieldsGroupsEdit",
       { _id: _fieldGroup._id, ...fieldGroupArgs },
-      context,
+      context
     );
 
     expect(fieldGroup._id).toBe(_fieldGroup._id);
@@ -289,22 +311,27 @@ describe('Fields mutations', () => {
     expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
   });
 
-  test('Remove group field', async () => {
+  test("Remove group field", async () => {
     const mutation = `
       mutation fieldsGroupsRemove($_id: String!) {
         fieldsGroupsRemove(_id: $_id)
       }
     `;
 
-    await graphqlRequest(mutation, 'fieldsGroupsRemove', { _id: _fieldGroup._id }, context);
+    await graphqlRequest(
+      mutation,
+      "fieldsGroupsRemove",
+      { _id: _fieldGroup._id },
+      context
+    );
 
     expect(await FieldsGroups.findOne({ _id: _fieldGroup._id })).toBe(null);
   });
 
-  test('Update group field visible', async () => {
+  test("Update group field visible", async () => {
     const args = {
       _id: _fieldGroup._id,
-      isVisible: true,
+      isVisible: true
     };
 
     const mutation = `
@@ -316,7 +343,12 @@ describe('Fields mutations', () => {
       }
     `;
 
-    const fieldGroup = await graphqlRequest(mutation, 'fieldsGroupsUpdateVisible', args, context);
+    const fieldGroup = await graphqlRequest(
+      mutation,
+      "fieldsGroupsUpdateVisible",
+      args,
+      context
+    );
 
     expect(fieldGroup._id).toBe(args._id);
     expect(fieldGroup.isVisible).toBe(args.isVisible);

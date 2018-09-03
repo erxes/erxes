@@ -393,9 +393,9 @@ interface IConversationMessageFactoryInput {
   customerId?: string;
   userId?: string;
   isCustomerRead?: boolean;
-  engageData?: void;
-  formWidgetData?: void;
-  facebookData?: void;
+  engageData?: any;
+  formWidgetData?: any;
+  facebookData?: any;
 }
 
 export const conversationMessageFactory = async (

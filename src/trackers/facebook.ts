@@ -22,7 +22,10 @@ import {
   IFacebook as IMsgFacebook,
   IFbUser
 } from "../db/models/definitions/conversationMessages";
-import { IConversationDocument } from "../db/models/definitions/conversations";
+import {
+  IConversationDocument,
+  IFacebook
+} from "../db/models/definitions/conversations";
 import { ICustomerDocument } from "../db/models/definitions/customers";
 import { IIntegrationDocument } from "../db/models/definitions/integrations";
 import { findPostComments, graphRequest } from "./facebookTracker";
@@ -59,6 +62,16 @@ export interface IFacebookReply {
   text?: string;
   attachment?: any;
   commentId?: string;
+}
+
+interface IGetOrCreateConversationParams {
+  findSelector: any;
+  status: string;
+  senderId: string;
+  facebookData: IFacebook;
+  content: string;
+  attachments?: any;
+  msgFacebookData: IMsgFacebook;
 }
 
 /*
@@ -312,7 +325,7 @@ export class SaveWebhookResponse {
    * @param {Object} params - Parameters doc
    * @return newly create message object
    */
-  public async getOrCreateConversation(params) {
+  public async getOrCreateConversation(params: IGetOrCreateConversationParams) {
     // extract params
     const {
       findSelector,

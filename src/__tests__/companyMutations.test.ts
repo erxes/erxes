@@ -1,16 +1,16 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { Companies, Users, Customers } from '../db/models';
-import { userFactory, companyFactory, customerFactory } from '../db/factories';
+import faker from "faker";
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import { companyFactory, customerFactory, userFactory } from "../db/factories";
+import { Companies, Customers, Users } from "../db/models";
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Companies mutations', () => {
+describe("Companies mutations", () => {
   let _company;
   let _customer;
   let _user;
@@ -38,9 +38,9 @@ describe('Companies mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _company = await companyFactory();
-    _customer = await customerFactory();
-    _user = await userFactory({ role: 'admin' });
+    _company = await companyFactory({});
+    _customer = await customerFactory({});
+    _user = await userFactory({ role: "admin" });
 
     context = { user: _user };
   });
@@ -52,15 +52,15 @@ describe('Companies mutations', () => {
     await Users.remove({});
   });
 
-  test('Add company', async () => {
+  test("Add company", async () => {
     const args = {
       primaryName: faker.company.companyName(),
       names: [faker.company.companyName()],
       size: faker.random.number(),
       website: faker.internet.url(),
-      industry: 'Airlines',
+      industry: "Airlines",
       tagIds: _company.tagIds,
-      customFieldsData: {},
+      customFieldsData: {}
     };
 
     const mutation = `
@@ -77,7 +77,12 @@ describe('Companies mutations', () => {
       }
     `;
 
-    const company = await graphqlRequest(mutation, 'companiesAdd', args, context);
+    const company = await graphqlRequest(
+      mutation,
+      "companiesAdd",
+      args,
+      context
+    );
 
     expect(company.primaryName).toBe(args.primaryName);
     expect(company.names).toEqual(expect.arrayContaining(args.names));
@@ -88,7 +93,7 @@ describe('Companies mutations', () => {
     expect(company.customFieldsData).toEqual(args.customFieldsData);
   });
 
-  test('Edit company', async () => {
+  test("Edit company", async () => {
     const args = {
       _id: _company._id,
       primaryName: faker.company.companyName(),
@@ -97,7 +102,7 @@ describe('Companies mutations', () => {
       website: faker.internet.url(),
       industry: faker.random.word(),
       tagIds: _company.tagIds,
-      customFieldsData: {},
+      customFieldsData: {}
     };
 
     const mutation = `
@@ -115,7 +120,12 @@ describe('Companies mutations', () => {
       }
     `;
 
-    const company = await graphqlRequest(mutation, 'companiesEdit', args, context);
+    const company = await graphqlRequest(
+      mutation,
+      "companiesEdit",
+      args,
+      context
+    );
 
     expect(company._id).toBe(args._id);
     expect(company.primaryName).toBe(args.primaryName);
@@ -127,10 +137,10 @@ describe('Companies mutations', () => {
     expect(company.customFieldsData).toEqual(args.customFieldsData);
   });
 
-  test('Edit customer of company', async () => {
+  test("Edit customer of company", async () => {
     const args = {
       _id: _company._id,
-      customerIds: [_customer._id],
+      customerIds: [_customer._id]
     };
 
     const mutation = `
@@ -147,31 +157,36 @@ describe('Companies mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'companiesEditCustomers', args, context);
+    await graphqlRequest(mutation, "companiesEditCustomers", args, context);
 
     const customer = await Customers.findOne({ _id: _customer._id });
 
     expect(customer.companyIds).toContain(_company._id);
   });
 
-  test('Remove company', async () => {
+  test("Remove company", async () => {
     const mutation = `
       mutation companiesRemove($companyIds: [String]) {
         companiesRemove(companyIds: $companyIds)
       }
     `;
 
-    await graphqlRequest(mutation, 'companiesRemove', { companyIds: [_company._id] }, context);
+    await graphqlRequest(
+      mutation,
+      "companiesRemove",
+      { companyIds: [_company._id] },
+      context
+    );
 
     expect(await Companies.find({ companyIds: [_company._id] })).toEqual([]);
   });
 
-  test('Merge company', async () => {
+  test("Merge company", async () => {
     const args = {
       companyIds: [_company._id],
       companyFields: {
-        primaryName: faker.company.companyName(),
-      },
+        primaryName: faker.company.companyName()
+      }
     };
 
     const mutation = `
@@ -184,7 +199,12 @@ describe('Companies mutations', () => {
       }
     `;
 
-    const company = await graphqlRequest(mutation, 'companiesMerge', args, context);
+    const company = await graphqlRequest(
+      mutation,
+      "companiesMerge",
+      args,
+      context
+    );
 
     expect(company.primaryName).toBe(args.companyFields.primaryName);
   });

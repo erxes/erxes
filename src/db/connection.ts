@@ -47,7 +47,12 @@ export function disconnect() {
   return mongoose.connection.close();
 }
 
-export const graphqlRequest = async (mutation, name, args, context) => {
+export const graphqlRequest = async (
+  mutation: string,
+  name: string,
+  args: any,
+  context?: any
+) => {
   const user = await userFactory({});
   const rootValue = {};
   const response = await graphql(
