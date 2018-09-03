@@ -208,7 +208,7 @@ describe("Customers mutations", () => {
   });
 
   test("Edit company of customer", async () => {
-    const args = {
+    const params = {
       _id: _customer._id,
       companyIds: [faker.random.uuid()]
     };
@@ -221,11 +221,11 @@ describe("Customers mutations", () => {
       }
     `;
 
-    await graphqlRequest(mutation, "customersEditCompanies", args, context);
+    await graphqlRequest(mutation, "customersEditCompanies", params, context);
 
-    const customer = await Customers.findOne({ _id: args._id });
+    const customer = await Customers.findOne({ _id: params._id });
 
-    expect(customer.companyIds).toContain(args.companyIds);
+    expect(customer.companyIds).toContain(params.companyIds);
   });
 
   test("Remove customer", async () => {
@@ -246,7 +246,7 @@ describe("Customers mutations", () => {
   });
 
   test("Merge customer", async () => {
-    const args = {
+    const params = {
       customerIds: [_customer._id],
       customerFields: {
         firstName: faker.name.firstName()
@@ -264,10 +264,10 @@ describe("Customers mutations", () => {
     const customer = await graphqlRequest(
       mutation,
       "customersMerge",
-      args,
+      params,
       context
     );
 
-    expect(customer.firstName).toBe(args.customerFields.firstName);
+    expect(customer.firstName).toBe(params.customerFields.firstName);
   });
 });

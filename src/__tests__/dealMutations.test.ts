@@ -13,7 +13,11 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe("Test deals mutations", () => {
-  let board, pipeline, stage, deal, context;
+  let board;
+  let pipeline;
+  let stage;
+  let deal;
+  let context;
 
   const commonPipelineParamDefs = `
     $name: String!,
