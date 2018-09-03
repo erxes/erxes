@@ -1,15 +1,16 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { Tags, Users, EngageMessages } from '../db/models';
-import { tagsFactory, userFactory, engageMessageFactory } from '../db/factories';
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import {
+  engageMessageFactory,
+  tagsFactory,
+  userFactory
+} from "../db/factories";
+import { EngageMessages, Tags, Users } from "../db/models";
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Test tags mutations', () => {
+describe("Test tags mutations", () => {
   let _tag;
   let _user;
   let _message;
@@ -30,8 +31,8 @@ describe('Test tags mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _tag = await tagsFactory();
-    _user = await userFactory();
+    _tag = await tagsFactory({});
+    _user = await userFactory({});
     _message = await engageMessageFactory({});
 
     context = { user: _user };
@@ -39,7 +40,7 @@ describe('Test tags mutations', () => {
     doc = {
       name: `${_tag.name}1`,
       type: _tag.type,
-      colorCode: _tag.colorCode,
+      colorCode: _tag.colorCode
     };
   });
 
@@ -50,7 +51,7 @@ describe('Test tags mutations', () => {
     await EngageMessages.remove({});
   });
 
-  test('Add tag', async () => {
+  test("Add tag", async () => {
     const mutation = `
       mutation tagsAdd(${commonParamDefs}) {
         tagsAdd(${commonParams}) {
@@ -61,14 +62,14 @@ describe('Test tags mutations', () => {
       }
     `;
 
-    const tag = await graphqlRequest(mutation, 'tagsAdd', doc, context);
+    const tag = await graphqlRequest(mutation, "tagsAdd", doc, context);
 
     expect(tag.name).toBe(doc.name);
     expect(tag.type).toBe(doc.type);
     expect(tag.colorCode).toBe(doc.colorCode);
   });
 
-  test('Edit tag', async () => {
+  test("Edit tag", async () => {
     const mutation = `
       mutation tagsEdit($_id: String! ${commonParamDefs}){
         tagsEdit(_id: $_id ${commonParams}) {
@@ -80,7 +81,12 @@ describe('Test tags mutations', () => {
       }
     `;
 
-    const tag = await graphqlRequest(mutation, 'tagsEdit', { _id: _tag._id, ...doc }, context);
+    const tag = await graphqlRequest(
+      mutation,
+      "tagsEdit",
+      { _id: _tag._id, ...doc },
+      context
+    );
 
     expect(tag._id).toBe(_tag._id);
     expect(tag.name).toBe(doc.name);
@@ -88,23 +94,23 @@ describe('Test tags mutations', () => {
     expect(tag.colorCode).toBe(doc.colorCode);
   });
 
-  test('Remove tag', async () => {
+  test("Remove tag", async () => {
     const mutation = `
       mutation tagsRemove($ids: [String!]!) {
         tagsRemove(ids: $ids)
       }
     `;
 
-    await graphqlRequest(mutation, 'tagsRemove', { ids: [_tag._id] }, context);
+    await graphqlRequest(mutation, "tagsRemove", { ids: [_tag._id] }, context);
 
     expect(await Tags.find({ _id: { $in: [_tag._id] } })).toEqual([]);
   });
 
-  test('Tag tags', async () => {
+  test("Tag tags", async () => {
     const args = {
-      type: 'engageMessage',
+      type: "engageMessage",
       targetIds: [_message._id],
-      tagIds: [_tag._id],
+      tagIds: [_tag._id]
     };
 
     const mutation = `
@@ -121,7 +127,7 @@ describe('Test tags mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'tagsTag', args, context);
+    await graphqlRequest(mutation, "tagsTag", args, context);
 
     const engageMessage = await EngageMessages.findOne({ _id: _message._id });
 

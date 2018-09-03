@@ -1,10 +1,7 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { Segments, Users } from '../db/models';
-import { userFactory, segmentFactory } from '../db/factories';
+import * as faker from "faker";
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import { segmentFactory, userFactory } from "../db/factories";
+import { Segments, Users } from "../db/models";
 
 beforeAll(() => connect());
 
@@ -14,7 +11,7 @@ const toJSON = value => {
   return JSON.stringify(value);
 };
 
-describe('Segments mutations', () => {
+describe("Segments mutations", () => {
   let _user;
   let _segment;
   let context;
@@ -39,8 +36,8 @@ describe('Segments mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory();
-    _segment = await segmentFactory();
+    _user = await userFactory({});
+    _segment = await segmentFactory({});
 
     context = { user: _user };
   });
@@ -51,7 +48,7 @@ describe('Segments mutations', () => {
     await Users.remove({});
   });
 
-  test('Add segment', async () => {
+  test("Add segment", async () => {
     const { contentType, name, description, color, connector } = _segment;
     const subOf = _segment.subOf || faker.random.word();
     const args = {
@@ -67,9 +64,9 @@ describe('Segments mutations', () => {
           operator: faker.random.word(),
           value: faker.random.word(),
           dateUnit: faker.random.word(),
-          type: faker.random.word(),
-        },
-      ],
+          type: faker.random.word()
+        }
+      ]
     };
 
     const mutation = `
@@ -86,7 +83,12 @@ describe('Segments mutations', () => {
       }
     `;
 
-    const segment = await graphqlRequest(mutation, 'segmentsAdd', args, context);
+    const segment = await graphqlRequest(
+      mutation,
+      "segmentsAdd",
+      args,
+      context
+    );
 
     expect(segment.contentType).toBe(args.contentType);
     expect(segment.name).toBe(args.name);
@@ -97,7 +99,7 @@ describe('Segments mutations', () => {
     expect(toJSON(segment.conditions)).toEqual(toJSON(args.conditions));
   });
 
-  test('segmentsEdit', async () => {
+  test("segmentsEdit", async () => {
     const { _id, name, description, color, connector } = _segment;
     const subOf = _segment.subOf || faker.random.word();
     const args = {
@@ -113,9 +115,9 @@ describe('Segments mutations', () => {
           dateUnit: faker.random.word(),
           value: faker.random.word(),
           operator: faker.random.word(),
-          field: faker.random.word(),
-        },
-      ],
+          field: faker.random.word()
+        }
+      ]
     };
 
     const mutation = `
@@ -132,7 +134,12 @@ describe('Segments mutations', () => {
       }
     `;
 
-    const segment = await graphqlRequest(mutation, 'segmentsEdit', args, context);
+    const segment = await graphqlRequest(
+      mutation,
+      "segmentsEdit",
+      args,
+      context
+    );
 
     expect(segment._id).toBe(args._id);
     expect(segment.name).toBe(args.name);
@@ -143,14 +150,19 @@ describe('Segments mutations', () => {
     expect(toJSON(segment.conditions)).toEqual(toJSON(args.conditions));
   });
 
-  test('Remove segment', async () => {
+  test("Remove segment", async () => {
     const mutation = `
       mutation segmentsRemove($_id: String!) {
         segmentsRemove(_id: $_id)
       }
     `;
 
-    await graphqlRequest(mutation, 'segmentsRemove', { _id: _segment._id }, context);
+    await graphqlRequest(
+      mutation,
+      "segmentsRemove",
+      { _id: _segment._id },
+      context
+    );
 
     expect(await Segments.findOne({ _id: _segment._id })).toBe(null);
   });
