@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import * as dotenv from "dotenv";
 import { graphql } from "graphql";
 import mongoose = require("mongoose");

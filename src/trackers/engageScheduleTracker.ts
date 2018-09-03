@@ -1,5 +1,5 @@
 import * as moment from "moment";
-import schedule from "node-schedule";
+import * as schedule from "node-schedule";
 import { send } from "../data/resolvers/mutations/engageUtils";
 import { EngageMessages } from "../db/models";
 import {
