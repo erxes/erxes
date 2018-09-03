@@ -1,16 +1,13 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { Notifications } from '../db/models';
-import { userFactory, notificationFactory } from '../db/factories';
-import { Users } from '../db/models';
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import { notificationFactory, userFactory } from "../db/factories";
+import { Notifications } from "../db/models";
+import { Users } from "../db/models";
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('testing mutations', () => {
+describe("testing mutations", () => {
   let _user;
   let _notification;
   let context;
@@ -28,10 +25,10 @@ describe('testing mutations', () => {
     await Notifications.remove({});
   });
 
-  test('Save notification config', async () => {
+  test("Save notification config", async () => {
     const args = {
-      notifType: 'conversationAddMessage',
-      isAllowed: true,
+      notifType: "conversationAddMessage",
+      isAllowed: true
     };
 
     const mutation = `
@@ -43,13 +40,18 @@ describe('testing mutations', () => {
       }
     `;
 
-    const notification = await graphqlRequest(mutation, 'notificationsSaveConfig', args, context);
+    const notification = await graphqlRequest(
+      mutation,
+      "notificationsSaveConfig",
+      args,
+      context
+    );
 
     expect(notification.notifType).toBe(args.notifType);
     expect(notification.isAllowed).toBe(args.isAllowed);
   });
 
-  test('Mark as read notification', async () => {
+  test("Mark as read notification", async () => {
     const mutation = `
       mutation notificationsMarkAsRead($_ids: [String]) {
         notificationsMarkAsRead(_ids: $_ids)
@@ -58,12 +60,14 @@ describe('testing mutations', () => {
 
     await graphqlRequest(
       mutation,
-      'notificationsMarkAsRead',
+      "notificationsMarkAsRead",
       { _ids: [_notification._id] },
-      context,
+      context
     );
 
-    const [notification] = await Notifications.find({ _id: { $in: _notification._id } });
+    const [notification] = await Notifications.find({
+      _id: { $in: _notification._id }
+    });
 
     expect(notification.isRead).toBe(true);
   });
