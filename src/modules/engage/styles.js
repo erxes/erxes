@@ -166,6 +166,14 @@ const IconContainer = styled.div`
   }
 `;
 
+const SelectMonth = styled.div`
+  flex: 1;
+
+  label {
+    margin-top: 20px;
+  }
+`;
+
 const DateTimePicker = styled.div`
   margin-top: ${coreSpace};
   position: relative;
@@ -223,5 +231,6 @@ export {
   BoxContent,
   BoxHeader,
   IconContainer,
-  DateTimePicker
+  DateTimePicker,
+  SelectMonth
 };
