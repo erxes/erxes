@@ -1,119 +1,139 @@
-import { types as UserTypes, queries as UserQueries, mutations as UserMutations } from './user';
+import {
+  mutations as UserMutations,
+  queries as UserQueries,
+  types as UserTypes
+} from "./user";
 
 import {
-  types as CompanyTypes,
-  queries as CompanyQueries,
   mutations as CompanyMutations,
-} from './company';
+  queries as CompanyQueries,
+  types as CompanyTypes
+} from "./company";
 
 import {
-  types as ChannelTypes,
-  queries as ChannelQueries,
   mutations as ChannelMutations,
-} from './channel';
-
-import { types as BrandTypes, queries as BrandQueries, mutations as BrandMutations } from './brand';
+  queries as ChannelQueries,
+  types as ChannelTypes
+} from "./channel";
 
 import {
-  types as IntegrationTypes,
-  queries as IntegrationQueries,
+  mutations as BrandMutations,
+  queries as BrandQueries,
+  types as BrandTypes
+} from "./brand";
+
+import {
   mutations as IntegrationMutations,
-} from './integration';
+  queries as IntegrationQueries,
+  types as IntegrationTypes
+} from "./integration";
 
 import {
-  types as ResponseTemplate,
-  queries as ResponseTemplateQueries,
   mutations as ResponseTemplateMutations,
-} from './responseTemplate';
+  queries as ResponseTemplateQueries,
+  types as ResponseTemplate
+} from "./responseTemplate";
 
 import {
-  types as EmailTemplate,
-  queries as EmailTemplateQueries,
   mutations as EmailTemplateMutations,
-} from './emailTemplate';
+  queries as EmailTemplateQueries,
+  types as EmailTemplate
+} from "./emailTemplate";
 
 import {
-  fieldsTypes as FieldTypes,
-  fieldsQueries as FieldQueries,
-  fieldsMutations as FieldMutations,
-  fieldsGroupsTypes as FieldGroupTypes,
   fieldsGroupsMutations as FieldGroupMutations,
   fieldsGroupsQueries as FieldGroupQueries,
-} from './field';
-
-import { types as FormTypes, mutations as FormMutatons, queries as FormQueries } from './form';
+  fieldsGroupsTypes as FieldGroupTypes,
+  fieldsMutations as FieldMutations,
+  fieldsQueries as FieldQueries,
+  fieldsTypes as FieldTypes
+} from "./field";
 
 import {
-  types as EngageTypes,
-  queries as EngageQueries,
+  mutations as FormMutatons,
+  queries as FormQueries,
+  types as FormTypes
+} from "./form";
+
+import {
   mutations as EngageMutations,
-} from './engage';
-
-import { types as TagTypes, queries as TagQueries, mutations as TagMutations } from './tag';
+  queries as EngageQueries,
+  types as EngageTypes
+} from "./engage";
 
 import {
-  types as InternalNoteTypes,
-  queries as InternalNoteQueries,
+  mutations as TagMutations,
+  queries as TagQueries,
+  types as TagTypes
+} from "./tag";
+
+import {
   mutations as InternalNoteMutations,
-} from './internalNote';
+  queries as InternalNoteQueries,
+  types as InternalNoteTypes
+} from "./internalNote";
 
 import {
-  types as CustomerTypes,
-  queries as CustomerQueries,
   mutations as CustomerMutations,
-} from './customer';
+  queries as CustomerQueries,
+  types as CustomerTypes
+} from "./customer";
 
 import {
-  types as SegmentTypes,
-  queries as SegmentQueries,
   mutations as SegmentMutations,
-} from './segment';
+  queries as SegmentQueries,
+  types as SegmentTypes
+} from "./segment";
 
-import { types as InsightTypes, queries as InsightQueries } from './insight';
+import { queries as InsightQueries, types as InsightTypes } from "./insight";
 
 import {
-  types as KnowledgeBaseTypes,
-  queries as KnowledgeBaseQueries,
   mutations as KnowledgeBaseMutations,
-} from './knowledgeBase';
+  queries as KnowledgeBaseQueries,
+  types as KnowledgeBaseTypes
+} from "./knowledgeBase";
 
 import {
-  types as NotificationTypes,
-  queries as NotificationQueries,
   mutations as NotificationMutations,
-} from './notification';
+  queries as NotificationQueries,
+  types as NotificationTypes
+} from "./notification";
 
 import {
-  types as ConversationTypes,
-  queries as ConversationQueries,
   mutations as ConversationMutations,
-} from './conversation';
+  queries as ConversationQueries,
+  types as ConversationTypes
+} from "./conversation";
 
 import {
-  types as ActivityLogTypes,
-  queries as ActivityLogQueries,
   mutations as ActivityLogMutations,
-} from './activityLog';
-
-import { types as DealTypes, queries as DealQueries, mutations as DealMutations } from './deal';
+  queries as ActivityLogQueries,
+  types as ActivityLogTypes
+} from "./activityLog";
 
 import {
-  types as ProductTypes,
-  queries as ProductQueries,
+  mutations as DealMutations,
+  queries as DealQueries,
+  types as DealTypes
+} from "./deal";
+
+import {
   mutations as ProductMutations,
-} from './product';
+  queries as ProductQueries,
+  types as ProductTypes
+} from "./product";
 
 import {
-  types as ConfigTypes,
-  queries as ConfigQueries,
   mutations as ConfigMutations,
-} from './config';
+  queries as ConfigQueries,
+  types as ConfigTypes
+} from "./config";
 
 import {
-  types as ImportHistoryTypes,
   mutations as ImportHistoryMutations,
   queries as ImportHistoryQueries,
-} from './importHistory';
+  types as ImportHistoryTypes
+} from "./importHistory";
 
 export const types = `
   scalar JSON
