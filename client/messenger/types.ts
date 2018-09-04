@@ -1,4 +1,5 @@
 import {
+  ICustomer,
   IIntegrationMessengerData,
   IIntegrationUiOptions,
   IUser
@@ -18,6 +19,11 @@ export interface IAttachment {
   url: string;
 }
 
+export interface IMessengerAppData {
+  customer: ICustomer;
+  hangoutLink: string;
+}
+
 export interface IMessage {
   _id: string;
   conversationId: string;
@@ -26,6 +32,7 @@ export interface IMessage {
   createdAt: Date;
   internal?: boolean;
   engageData: IEngageData;
+  messengerAppData: IMessengerAppData;
   attachments: IAttachment[];
 }
 
