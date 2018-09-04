@@ -1,19 +1,16 @@
-import { Segments } from '../../../db/models';
-
-import { moduleRequireLogin } from '../../permissions';
+import { Segments } from "../../../db/models";
+import { moduleRequireLogin } from "../../permissions";
 
 const segmentQueries = {
   /**
    * Segments list
-   * @return {Promise} segment objects
    */
-  segments(root, { contentType }) {
+  segments(_root, { contentType }: { contentType: string }) {
     return Segments.find({ contentType }).sort({ name: 1 });
   },
 
   /**
    * Only segment that has no sub segments
-   * @return {Promise} segment objects
    */
   segmentsGetHeads() {
     return Segments.find({ subOf: { $exists: false } });
@@ -21,13 +18,10 @@ const segmentQueries = {
 
   /**
    * Get one segment
-   * @param {Object} args
-   * @param {String} args._id
-   * @return {Promise} found segment
    */
-  segmentDetail(root, { _id }) {
+  segmentDetail(_root, { _id }: { _id: string }) {
     return Segments.findOne({ _id });
-  },
+  }
 };
 
 moduleRequireLogin(segmentQueries);
