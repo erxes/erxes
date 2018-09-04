@@ -13,6 +13,12 @@ import {
   IUiOptions
 } from "./definitions/integrations";
 
+export interface IMessengerIntegration {
+  name: string;
+  brandId: string;
+  languageCode: string;
+}
+
 interface IIntegrationModel extends Model<IIntegrationDocument> {
   generateFormDoc(mainDoc: IIntegration, formData: IFormData): IIntegration;
   createIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
@@ -86,7 +92,7 @@ class Integration {
   /**
    * Create a messenger kind integration
    */
-  public static createMessengerIntegration(doc: IIntegration) {
+  public static createMessengerIntegration(doc: IMessengerIntegration) {
     return this.createIntegration({
       ...doc,
       kind: KIND_CHOICES.MESSENGER
@@ -148,7 +154,7 @@ class Integration {
    */
   public static async updateMessengerIntegration(
     _id: string,
-    doc: IIntegration
+    doc: IMessengerIntegration
   ) {
     await Integrations.update({ _id }, { $set: doc }, { runValidators: true });
 
