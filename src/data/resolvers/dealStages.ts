@@ -1,7 +1,8 @@
-import { Deals } from '../../db/models';
+import { Deals } from "../../db/models";
+import { IStageDocument } from "../../db/models/definitions/deals";
 
 export default {
-  async amount(stage) {
+  async amount(stage: IStageDocument) {
     const deals = await Deals.find({ stageId: stage._id });
     const amountsMap = {};
 
@@ -12,7 +13,7 @@ export default {
         const type = product.currency;
 
         if (type) {
-          if (!amountsMap[type]) amountsMap[type] = 0;
+          if (!amountsMap[type]) { amountsMap[type] = 0; }
 
           amountsMap[type] += product.amount || 0;
         }
@@ -20,5 +21,5 @@ export default {
     });
 
     return amountsMap;
-  },
+  }
 };

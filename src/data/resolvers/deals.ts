@@ -1,23 +1,24 @@
 import {
-  Products,
   Companies,
   Customers,
-  Users,
-  DealStages,
-  DealPipelines,
   DealBoards,
-} from '../../db/models';
+  DealPipelines,
+  DealStages,
+  Products,
+  Users
+} from "../../db/models";
+import { IDealDocument } from "../../db/models/definitions/deals";
 
 export default {
-  companies(deal) {
+  companies(deal: IDealDocument) {
     return Companies.find({ _id: { $in: deal.companyIds || [] } });
   },
 
-  customers(deal) {
+  customers(deal: IDealDocument) {
     return Customers.find({ _id: { $in: deal.customerIds || [] } });
   },
 
-  async products(deal) {
+  async products(deal: IDealDocument) {
     const products = [];
 
     for (const data of deal.productsData || []) {
@@ -27,7 +28,7 @@ export default {
       if (data && product) {
         products.push({
           ...data.toJSON(),
-          product: product.toJSON(),
+          product: product.toJSON()
         });
       }
     }
@@ -35,7 +36,7 @@ export default {
     return products;
   },
 
-  amount(deal) {
+  amount(deal: IDealDocument) {
     const data = deal.productsData || [];
     const amountsMap = {};
 
@@ -43,7 +44,7 @@ export default {
       const type = product.currency;
 
       if (type) {
-        if (!amountsMap[type]) amountsMap[type] = 0;
+        if (!amountsMap[type]) { amountsMap[type] = 0; }
 
         amountsMap[type] += product.amount || 0;
       }
@@ -52,17 +53,17 @@ export default {
     return amountsMap;
   },
 
-  assignedUsers(deal) {
+  assignedUsers(deal: IDealDocument) {
     return Users.find({ _id: { $in: deal.assignedUserIds } });
   },
 
-  async pipeline(deal) {
+  async pipeline(deal: IDealDocument) {
     const stage = await DealStages.findOne({ _id: deal.stageId });
 
     return DealPipelines.findOne({ _id: stage.pipelineId });
   },
 
-  async boardId(deal) {
+  async boardId(deal: IDealDocument) {
     const stage = await DealStages.findOne({ _id: deal.stageId });
 
     const pipeline = await DealPipelines.findOne({ _id: stage.pipelineId });
@@ -70,5 +71,5 @@ export default {
     const board = await DealBoards.findOne({ _id: pipeline.boardId });
 
     return board._id;
-  },
+  }
 };
