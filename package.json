@@ -85,7 +85,7 @@
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.0",
     "@types/formidable": "^1.0.31",
-    "@types/graphql": "^0.13.4",
+    "@types/graphql": "^0.12.7",
     "@types/ioredis": "^3.2.15",
     "@types/jest": "^23.3.0",
     "@types/mongodb": "^3.1.2",
