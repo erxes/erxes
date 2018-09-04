@@ -1,24 +1,20 @@
 import { Model, model } from "mongoose";
 import { createdAtModifier } from "../plugins";
-import { channelSchema, IChannelDocument } from "./definitions/channels";
-
-interface IChannelInput {
-  name: string;
-  description?: string;
-  memberIds?: string[];
-  integrationIds?: string[];
-  userId?: string;
-}
+import {
+  channelSchema,
+  IChannel,
+  IChannelDocument
+} from "./definitions/channels";
 
 interface IChannelModel extends Model<IChannelDocument> {
-  createChannel(doc: IChannelInput, userId?: string): IChannelDocument;
-  updateChannel(_id: string, doc: IChannelInput): IChannelDocument;
+  createChannel(doc: IChannel, userId?: string): IChannelDocument;
+  updateChannel(_id: string, doc: IChannel): IChannelDocument;
   updateUserChannels(channelIds: string[], userId: string): IChannelDocument[];
   removeChannel(_id: string): void;
 }
 
 class Channel {
-  public static createChannel(doc: IChannelInput, userId?: string) {
+  public static createChannel(doc: IChannel, userId?: string) {
     if (!userId) {
       throw new Error("userId must be supplied");
     }
@@ -26,7 +22,7 @@ class Channel {
     return Channels.create(doc);
   }
 
-  public static async updateChannel(_id: string, doc: IChannelInput) {
+  public static async updateChannel(_id: string, doc: IChannel) {
     await Channels.update({ _id }, { $set: doc }, { runValidators: true });
 
     return Channels.findOne({ _id });

@@ -11,10 +11,11 @@ import {
   fieldSchema,
   IField,
   IFieldDocument,
+  IFieldGroup,
   IFieldGroupDocument
 } from "./definitions/fields";
 
-interface IOrderInput {
+export interface IOrderInput {
   _id: string;
   order: number;
 }
@@ -235,17 +236,10 @@ class Field {
   }
 }
 
-interface IFieldGroupInput {
-  name: string;
-  contentType?: string;
-  description?: string;
-  lastUpdatedUserId: string;
-}
-
 interface IFieldGroupModel extends Model<IFieldGroupDocument> {
   checkIsDefinedByErxes(_id: string): never;
-  createGroup(doc: IFieldGroupInput): Promise<IFieldGroupDocument>;
-  updateGroup(_id: string, doc: IFieldGroupInput): Promise<IFieldGroupDocument>;
+  createGroup(doc: IFieldGroup): Promise<IFieldGroupDocument>;
+  updateGroup(_id: string, doc: IFieldGroup): Promise<IFieldGroupDocument>;
   removeGroup(_id: string): Promise<string>;
 
   updateGroupVisible(
@@ -271,7 +265,7 @@ class FieldGroup {
   /* 
    * Create new field group
    */
-  public static async createGroup(doc: IFieldGroupInput) {
+  public static async createGroup(doc: IFieldGroup) {
     // Newly created group must be visible
     const isVisible = true;
 
@@ -299,7 +293,7 @@ class FieldGroup {
   /*
    * Update field group
    */
-  public static async updateGroup(_id: string, doc: IFieldGroupInput) {
+  public static async updateGroup(_id: string, doc: IFieldGroup) {
     // Can not edit group that is defined by erxes
     await this.checkIsDefinedByErxes(_id);
 

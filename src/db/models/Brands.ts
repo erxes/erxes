@@ -3,20 +3,16 @@ import { Model, model } from "mongoose";
 import { Integrations } from "./";
 import {
   brandSchema,
+  IBrand,
   IBrandDocument,
   IBrandEmailConfig
 } from "./definitions/brands";
 import { IIntegrationDocument } from "./definitions/integrations";
 
-interface IBrandInput {
-  name: string;
-  description: string;
-}
-
 interface IBrandModel extends Model<IBrandDocument> {
   generateCode(code: string): string;
-  createBrand(doc: IBrandInput): IBrandDocument;
-  updateBrand(_id: string, fields: IBrandInput): IBrandDocument;
+  createBrand(doc: IBrand): IBrandDocument;
+  updateBrand(_id: string, fields: IBrand): IBrandDocument;
   removeBrand(_id: string): void;
 
   updateEmailConfig(
@@ -55,7 +51,7 @@ class Brand {
     return generatedCode;
   }
 
-  public static async createBrand(doc: IBrandInput) {
+  public static async createBrand(doc: IBrand) {
     // generate code automatically
     // if there is no brand code defined
     return Brands.create({
@@ -66,7 +62,7 @@ class Brand {
     });
   }
 
-  public static async updateBrand(_id: string, fields: IBrandInput) {
+  public static async updateBrand(_id: string, fields: IBrand) {
     await Brands.update({ _id }, { $set: { ...fields } });
     return Brands.findOne({ _id });
   }

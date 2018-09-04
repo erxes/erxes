@@ -173,7 +173,7 @@ class Tag {
     targetIds: string[],
     tagIds: string[]
   ) {
-    let collection = Conversations;
+    let collection: any = Conversations;
 
     switch (type) {
       case "customer":

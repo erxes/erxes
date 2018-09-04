@@ -93,7 +93,7 @@ export const Notifications = model<INotificationDocument, INotificationModel>(
 
 interface IConfigModel extends Model<IConfigDocument> {
   createOrUpdateConfiguration(
-    { notifType, isAllowed }: { notifType: string; isAllowed: boolean },
+    { notifType, isAllowed }: { notifType?: string; isAllowed?: boolean },
     user?: IUserDocument | string
   ): Promise<IConfigDocument>;
 }
@@ -103,7 +103,7 @@ class Configuration {
    * Creates an new notification or updates already existing notification configuration
    */
   public static async createOrUpdateConfiguration(
-    { notifType, isAllowed }: { notifType: string; isAllowed: boolean },
+    { notifType, isAllowed }: { notifType?: string; isAllowed?: boolean },
     user?: IUserDocument | string
   ) {
     if (!user) {

@@ -381,7 +381,7 @@ export const conversationFactory = (params: IConversationFactoryInput) => {
     customerId: params.customerId || Random.id(),
     integrationId: params.integrationId || Random.id(),
     readUserIds: params.readUserIds || [],
-    participatedUserIds: params.participatedUserIds || [],
+    participatedUserIds: params.participatedUserIds || []
   });
 };
 
@@ -393,9 +393,9 @@ interface IConversationMessageFactoryInput {
   customerId?: string;
   userId?: string;
   isCustomerRead?: boolean;
-  engageData?: void;
-  formWidgetData?: void;
-  facebookData?: void;
+  engageData?: any;
+  formWidgetData?: any;
+  facebookData?: any;
 }
 
 export const conversationMessageFactory = async (
@@ -557,8 +557,8 @@ interface IKnowledgeBaseTopicFactoryInput {
 }
 
 export const knowledgeBaseTopicFactory = (
-  params: IKnowledgeBaseTopicFactoryInput,
-  userId: string
+  params?: IKnowledgeBaseTopicFactoryInput,
+  userId?: string
 ) => {
   const doc = {
     _id: params._id,
@@ -580,8 +580,8 @@ interface IKnowledgeBaseCategoryFactoryInput {
 }
 
 export const knowledgeBaseCategoryFactory = (
-  params: IKnowledgeBaseCategoryFactoryInput,
-  userId: string
+  params?: IKnowledgeBaseCategoryFactoryInput,
+  userId?: string
 ) => {
   const doc = {
     title: faker.random.word(),
@@ -602,8 +602,8 @@ interface IKnowledgeBaseArticleCategoryInput {
 }
 
 export const knowledgeBaseArticleFactory = (
-  params: IKnowledgeBaseArticleCategoryInput,
-  userId: string
+  params?: IKnowledgeBaseArticleCategoryInput,
+  userId?: string
 ) => {
   const doc = {
     title: faker.random.word(),
