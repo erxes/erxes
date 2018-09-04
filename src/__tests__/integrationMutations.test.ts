@@ -1,17 +1,14 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { Users, Integrations, Brands } from '../db/models';
-import { userFactory, integrationFactory, brandFactory } from '../db/factories';
-import { socUtils } from '../trackers/twitterTracker';
+import * as faker from "faker";
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import { brandFactory, integrationFactory, userFactory } from "../db/factories";
+import { Brands, Integrations, Users } from "../db/models";
+import { socUtils } from "../trackers/twitterTracker";
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('mutations', () => {
+describe("mutations", () => {
   let _integration;
   let _brand;
   let _user;
@@ -30,7 +27,7 @@ describe('mutations', () => {
   `;
 
   const commonFormProperties = {
-    languageCode: 'en',
+    languageCode: "en",
     loadType: faker.random.word(),
     fromEmail: faker.internet.email(),
     userEmailTitle: faker.random.word(),
@@ -41,15 +38,15 @@ describe('mutations', () => {
     successAction: faker.random.word(),
     formData: {
       thankContent: faker.random.word(),
-      adminEmails: [],
-    },
+      adminEmails: []
+    }
   };
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ role: 'admin' });
-    _integration = await integrationFactory();
-    _brand = await brandFactory();
+    _user = await userFactory({ role: "admin" });
+    _integration = await integrationFactory({});
+    _brand = await brandFactory({});
 
     context = { user: _user };
   });
@@ -61,11 +58,11 @@ describe('mutations', () => {
     await Integrations.remove({});
   });
 
-  test('Create messenger integration', async () => {
+  test("Create messenger integration", async () => {
     const args = {
       name: _integration.name,
       brandId: _brand._id,
-      languageCode: 'en',
+      languageCode: "en"
     };
 
     const mutation = `
@@ -80,9 +77,9 @@ describe('mutations', () => {
 
     const integration = await graphqlRequest(
       mutation,
-      'integrationsCreateMessengerIntegration',
+      "integrationsCreateMessengerIntegration",
       args,
-      context,
+      context
     );
 
     expect(integration.name).toBe(args.name);
@@ -90,12 +87,12 @@ describe('mutations', () => {
     expect(integration.languageCode).toBe(args.languageCode);
   });
 
-  test('Edit messenger integration', async () => {
+  test("Edit messenger integration", async () => {
     const args = {
       _id: _integration._id,
       name: _integration.name,
       brandId: _brand._id,
-      languageCode: 'en',
+      languageCode: "en"
     };
 
     const mutation = `
@@ -117,9 +114,9 @@ describe('mutations', () => {
 
     const integration = await graphqlRequest(
       mutation,
-      'integrationsEditMessengerIntegration',
+      "integrationsEditMessengerIntegration",
       args,
-      context,
+      context
     );
 
     expect(integration._id).toBe(args._id);
@@ -128,16 +125,16 @@ describe('mutations', () => {
     expect(integration.languageCode).toBe(args.languageCode);
   });
 
-  test('Save messenger integration appearance data', async () => {
+  test("Save messenger integration appearance data", async () => {
     const uiOptions = {
       color: faker.random.word(),
       wallpaper: faker.random.word(),
-      logo: faker.random.image(),
+      logo: faker.random.image()
     };
 
     const args = {
       _id: _integration._id,
-      uiOptions: uiOptions,
+      uiOptions
     };
 
     const mutation = `
@@ -154,37 +151,37 @@ describe('mutations', () => {
 
     const messengerAppearanceData = await graphqlRequest(
       mutation,
-      'integrationsSaveMessengerAppearanceData',
+      "integrationsSaveMessengerAppearanceData",
       args,
-      context,
+      context
     );
 
     expect(messengerAppearanceData._id).toBe(args._id);
     expect(messengerAppearanceData.uiOptions.toJSON()).toEqual(args.uiOptions);
   });
 
-  test('Save messenger integration config', async () => {
+  test("Save messenger integration config", async () => {
     const messengerData = {
       supporterIds: [_user.id],
       notifyCustomer: false,
       isOnline: false,
-      availabilityMethod: 'auto',
+      availabilityMethod: "auto",
       onlineHours: [
         {
           day: faker.random.word(),
           from: faker.random.word(),
-          to: faker.random.word(),
-        },
+          to: faker.random.word()
+        }
       ],
       timezone: faker.random.word(),
       welcomeMessage: faker.random.word(),
       awayMessage: faker.random.word(),
-      thankYouMessage: faker.random.word(),
+      thankYouMessage: faker.random.word()
     };
 
     const args = {
       _id: _integration._id,
-      messengerData: messengerData,
+      messengerData
     };
 
     const mutation = `
@@ -204,21 +201,21 @@ describe('mutations', () => {
 
     const messengerConfig = await graphqlRequest(
       mutation,
-      'integrationsSaveMessengerConfigs',
+      "integrationsSaveMessengerConfigs",
       args,
-      context,
+      context
     );
 
     expect(messengerConfig._id).toBe(args._id);
     expect(messengerConfig.messengerData.toJSON()).toEqual(args.messengerData);
   });
 
-  test('Create form integration', async () => {
+  test("Create form integration", async () => {
     const args = {
       name: _integration.name,
       brandId: _brand._id,
       formId: _integration.formId,
-      ...commonFormProperties,
+      ...commonFormProperties
     };
 
     const mutation = `
@@ -243,9 +240,9 @@ describe('mutations', () => {
 
     const formIntegration = await graphqlRequest(
       mutation,
-      'integrationsCreateFormIntegration',
+      "integrationsCreateFormIntegration",
       args,
-      context,
+      context
     );
 
     expect(formIntegration.name).toBe(args.name);
@@ -255,27 +252,27 @@ describe('mutations', () => {
     expect(formIntegration.formData.toJSON()).toEqual(args.formData);
   });
 
-  test('Create twitter integration', async () => {
+  test("Create twitter integration", async () => {
     const args = {
       brandId: _brand._id,
       queryParams: {
-        oauth_token: 'fakeOauthToken',
-        oauth_verifier: 'fakeOauthVerifier',
-      },
+        oauth_token: "fakeOauthToken",
+        oauth_verifier: "fakeOauthVerifier"
+      }
     };
 
     const authenticateDoc = {
       info: {
-        name: 'name',
-        id: 1,
+        name: "name",
+        id: 1
       },
 
       tokens: {
         auth: {
-          token: 'token',
-          tokenSecret: 'secret',
-        },
-      },
+          token: "token",
+          tokenSecret: "secret"
+        }
+      }
     };
 
     socUtils.authenticate = jest.fn(() => authenticateDoc);
@@ -298,20 +295,20 @@ describe('mutations', () => {
 
     const twitterIntegration = await graphqlRequest(
       mutation,
-      'integrationsCreateTwitterIntegration',
+      "integrationsCreateTwitterIntegration",
       args,
-      context,
+      context
     );
 
     expect(twitterIntegration.brandId).toBe(args.brandId);
   });
 
-  test('Create facebook integration', async () => {
+  test("Create facebook integration", async () => {
     const args = {
       brandId: _brand._id,
       name: _integration.name,
-      appId: 'fakeAppId',
-      pageIds: ['fakePageIds'],
+      appId: "fakeAppId",
+      pageIds: ["fakePageIds"]
     };
 
     const mutation = `
@@ -336,24 +333,26 @@ describe('mutations', () => {
 
     const facebookIntegration = await graphqlRequest(
       mutation,
-      'integrationsCreateFacebookIntegration',
+      "integrationsCreateFacebookIntegration",
       args,
-      context,
+      context
     );
 
     expect(facebookIntegration.brandId).toBe(args.brandId);
     expect(facebookIntegration.name).toBe(args.name);
     expect(facebookIntegration.facebookData.appId).toBe(args.appId);
-    expect(facebookIntegration.facebookData.pageIds).toEqual(expect.arrayContaining(args.pageIds));
+    expect(facebookIntegration.facebookData.pageIds).toEqual(
+      expect.arrayContaining(args.pageIds)
+    );
   });
 
-  test('Edit form integration', async () => {
+  test("Edit form integration", async () => {
     const args = {
       _id: _integration._id,
       name: _integration.name,
       brandId: _brand._id,
       formId: _integration.formId,
-      ...commonFormProperties,
+      ...commonFormProperties
     };
 
     const mutation = `
@@ -381,9 +380,9 @@ describe('mutations', () => {
 
     const formIntegration = await graphqlRequest(
       mutation,
-      'integrationsEditFormIntegration',
+      "integrationsEditFormIntegration",
       args,
-      context,
+      context
     );
 
     expect(formIntegration._id).toBe(args._id);

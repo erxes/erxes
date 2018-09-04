@@ -1,10 +1,7 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { Forms, Users } from '../db/models';
-import { userFactory, formFactory } from '../db/factories';
+import * as faker from "faker";
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import { formFactory, userFactory } from "../db/factories";
+import { Forms, Users } from "../db/models";
 
 beforeAll(() => connect());
 
@@ -15,10 +12,10 @@ afterAll(() => disconnect());
  */
 const args = {
   title: faker.random.word(),
-  description: faker.random.word(),
+  description: faker.random.word()
 };
 
-describe('form and formField mutations', () => {
+describe("form and formField mutations", () => {
   let _user;
   let _form;
   let context;
@@ -35,7 +32,7 @@ describe('form and formField mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ role: 'admin' });
+    _user = await userFactory({ role: "admin" });
     _form = await formFactory({});
 
     context = { user: _user };
@@ -47,7 +44,7 @@ describe('form and formField mutations', () => {
     await Forms.remove({});
   });
 
-  test('Add form', async () => {
+  test("Add form", async () => {
     const mutation = `
       mutation formsAdd(${commonParamDefs}) {
         formsAdd(${commonParams}) {
@@ -57,13 +54,13 @@ describe('form and formField mutations', () => {
       }
     `;
 
-    const form = await graphqlRequest(mutation, 'formsAdd', args, context);
+    const form = await graphqlRequest(mutation, "formsAdd", args, context);
 
     expect(form.title).toBe(args.title);
     expect(form.description).toBe(args.description);
   });
 
-  test('Edit form', async () => {
+  test("Edit form", async () => {
     const mutation = `
       mutation formsEdit($_id: String! ${commonParamDefs}) {
         formsEdit(_id: $_id ${commonParams}) {
@@ -74,7 +71,12 @@ describe('form and formField mutations', () => {
       }
     `;
 
-    const form = await graphqlRequest(mutation, 'formsEdit', { _id: _form._id, ...args }, context);
+    const form = await graphqlRequest(
+      mutation,
+      "formsEdit",
+      { _id: _form._id, ...args },
+      context
+    );
 
     expect(form._id).toBe(_form._id);
     expect(form.title).toBe(args.title);

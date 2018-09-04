@@ -1,21 +1,22 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import { connect, disconnect, graphqlRequest } from '../db/connection';
-import { ImportHistory, Users, Customers } from '../db/models';
-import { importHistoryFactory, userFactory, customerFactory } from '../db/factories';
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import {
+  customerFactory,
+  importHistoryFactory,
+  userFactory
+} from "../db/factories";
+import { Customers, ImportHistory, Users } from "../db/models";
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Import history mutations', () => {
+describe("Import history mutations", () => {
   let _user;
   let context;
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory();
+    _user = await userFactory({});
 
     context = { user: _user };
   });
@@ -26,19 +27,24 @@ describe('Import history mutations', () => {
     await Users.remove({});
   });
 
-  test('Remove import histories', async () => {
+  test("Remove import histories", async () => {
     const mutation = `
       mutation importHistoriesRemove($_id: String!) {
         importHistoriesRemove(_id: $_id)
       }
     `;
-    const customer = customerFactory({});
+    const customer = await customerFactory({});
 
     const importHistory = await importHistoryFactory({
-      ids: [customer._id],
+      ids: [customer._id]
     });
 
-    await graphqlRequest(mutation, 'importHistoriesRemove', { _id: importHistory._id }, context);
+    await graphqlRequest(
+      mutation,
+      "importHistoriesRemove",
+      { _id: importHistory._id },
+      context
+    );
 
     expect(await ImportHistory.findOne({ _id: importHistory._id })).toBeNull();
     expect(await Customers.findOne({ _id: customer._id })).toBeNull();

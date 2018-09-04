@@ -11,7 +11,7 @@ import {
   topicSchema
 } from "./definitions/knowledgebase";
 
-interface IArticleCreate extends IArticle {
+export interface IArticleCreate extends IArticle {
   categoryIds?: string[];
 }
 
@@ -109,7 +109,7 @@ class Article {
   }
 }
 
-interface ICategoryCreate extends ICategory {
+export interface ICategoryCreate extends ICategory {
   topicIds?: string[];
 }
 

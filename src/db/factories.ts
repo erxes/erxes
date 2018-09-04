@@ -758,11 +758,11 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
 };
 
 interface IImportHistoryFactoryInput {
-  contentType: string;
-  failed: number;
-  total: number;
-  success: string;
-  ids: string[];
+  contentType?: string;
+  failed?: number;
+  total?: number;
+  success?: string;
+  ids?: string[];
 }
 
 export const importHistoryFactory = async (
