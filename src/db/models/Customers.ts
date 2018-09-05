@@ -172,7 +172,7 @@ class Customer {
    */
   public static async updateCustomer(_id: string, doc: ICustomer) {
     // Checking duplicated fields of customer
-    await this.checkDuplication(doc, _id);
+    await Customers.checkDuplication(doc, _id);
 
     if (doc.customFieldsData) {
       // clean custom field values
