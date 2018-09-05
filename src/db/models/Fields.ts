@@ -27,7 +27,7 @@ interface IFieldModel extends Model<IFieldDocument> {
   removeField(_id: string): void;
   updateOrder(orders: IOrderInput[]): Promise<IFieldDocument[]>;
   clean(_id: string, _value: string | Date | number): string | Date | number;
-  cleanMulti(data: { _id: string; value: string }): any;
+  cleanMulti(data: { [key: string]: string }): any;
 
   updateFieldsVisible(
     _id: string,
@@ -206,7 +206,7 @@ class Field {
   /*
    * Validates multiple fields, fixes values if necessary
    */
-  public static async cleanMulti(data: { _id: string; value: string }) {
+  public static async cleanMulti(data: { [key: string]: string }) {
     const ids = Object.keys(data);
 
     const fixedValues = {};

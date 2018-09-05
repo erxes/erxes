@@ -757,7 +757,9 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
 
   const groupObj = await FieldsGroups.create(doc);
 
-  return FieldsGroups.update({ _id: groupObj._id }, { $set: { ...params } });
+  FieldsGroups.update({ _id: groupObj._id }, { $set: { ...params } });
+
+  return FieldsGroups.findOne({ _id: groupObj._id });
 };
 
 interface IImportHistoryFactoryInput {
