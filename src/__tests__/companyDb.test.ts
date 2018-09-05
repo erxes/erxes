@@ -231,7 +231,6 @@ describe("Companies model tests", () => {
     const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
 
     expect(updatedCompany.primaryName).toBe(doc.primaryName);
-    expect(updatedCompany.website).toBe(doc.website);
     expect(updatedCompany.size).toBe(doc.size);
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);

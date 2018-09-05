@@ -271,8 +271,8 @@ export const companyFactory = (params: ICompanyFactoryInput) => {
     website: params.website || faker.internet.domainName(),
     tagIds: params.tagIds || [faker.random.number()],
     plan: params.plan || faker.random.word(),
-    leadStatus: params.leadStatus || "open",
-    lifecycleState: params.lifecycleState || "lead",
+    leadStatus: params.leadStatus || "Open",
+    lifecycleState: params.lifecycleState || "Lead",
     createdAt: params.createdAt || new Date(),
     modifiedAt: params.modifiedAt || new Date()
   });
@@ -307,8 +307,8 @@ export const customerFactory = (params: ICustomerFactoryInput) => {
     primaryPhone: params.primaryPhone || faker.phone.phoneNumber(),
     emails: params.emails || [faker.internet.email()],
     phones: params.phones || [faker.phone.phoneNumber()],
-    leadStatus: params.leadStatus || "open",
-    lifecycleState: params.lifecycleState || "lead",
+    leadStatus: params.leadStatus || "Open",
+    lifecycleState: params.lifecycleState || "Lead",
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
     companyIds: params.companyIds || [
@@ -355,8 +355,9 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
   });
 
   await field.save();
+  await Fields.update({ _id: field._id }, { $set: { ...params } });
 
-  return Fields.update({ _id: field._id }, { $set: { ...params } });
+  return Fields.findOne({ _id: field._id });
 };
 
 interface IConversationFactoryInput {
@@ -381,7 +382,8 @@ export const conversationFactory = (params: IConversationFactoryInput) => {
     customerId: params.customerId || Random.id(),
     integrationId: params.integrationId || Random.id(),
     readUserIds: params.readUserIds || [],
-    participatedUserIds: params.participatedUserIds || []
+    participatedUserIds: params.participatedUserIds || [],
+    ...params
   });
 };
 
@@ -748,6 +750,7 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
     name: faker.random.word(),
     contentType: params.contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
     description: faker.random.word(),
+    isDefinedByErxes: params.isDefinedByErxes || false,
     order: 1,
     isVisible: true
   };

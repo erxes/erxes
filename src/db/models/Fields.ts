@@ -3,7 +3,7 @@
  */
 
 import { Model, model } from "mongoose";
-import validator from "validator";
+import * as validator from "validator";
 import { Customers, Forms } from ".";
 import { FIELD_CONTENT_TYPES } from "../../data/constants";
 import {

@@ -151,7 +151,7 @@ class Customer {
    */
   public static async createCustomer(doc: ICustomer, user?: IUserDocument) {
     // Checking duplicated fields of customer
-    await this.checkDuplication(doc);
+    await Customers.checkDuplication(doc);
 
     if (!doc.ownerId && user) {
       doc.ownerId = user._id;
