@@ -63,7 +63,7 @@ interface IUserFactoryInput {
   role?: string;
   password?: string;
   isOwner?: boolean;
-  isActive?: string;
+  isActive?: boolean;
 }
 
 export const userFactory = (params: IUserFactoryInput) => {
@@ -88,7 +88,7 @@ export const userFactory = (params: IUserFactoryInput) => {
       params.password ||
       "$2a$10$qfBFBmWmUjeRcR.nBBfgDO/BEbxgoai5qQhyjsrDUMiZC6dG7sg1q",
     isOwner: params.isOwner || false,
-    isActive: typeof params.isActive !== undefined ? params.isActive : true
+    isActive: params.isActive || true
   });
 
   return user.save();
@@ -556,11 +556,11 @@ export const channelFactory = async (params: IChannelFactoryInput) => {
 
 interface IKnowledgeBaseTopicFactoryInput {
   _id?: string;
+  userId?: string;
 }
 
-export const knowledgeBaseTopicFactory = (
-  params?: IKnowledgeBaseTopicFactoryInput,
-  userId?: string
+export const knowledgeBaseTopicFactory = async (
+  params: IKnowledgeBaseTopicFactoryInput
 ) => {
   const doc = {
     _id: params._id,
@@ -573,17 +573,17 @@ export const knowledgeBaseTopicFactory = (
   return KnowledgeBaseTopics.create({
     ...doc,
     ...params,
-    userId: userId || faker.random.word()
+    userId: params.userId || faker.random.word()
   });
 };
 
 interface IKnowledgeBaseCategoryFactoryInput {
   articleIds?: string[];
+  userId?: string;
 }
 
-export const knowledgeBaseCategoryFactory = (
-  params?: IKnowledgeBaseCategoryFactoryInput,
-  userId?: string
+export const knowledgeBaseCategoryFactory = async (
+  params: IKnowledgeBaseCategoryFactoryInput
 ) => {
   const doc = {
     title: faker.random.word(),
@@ -595,17 +595,17 @@ export const knowledgeBaseCategoryFactory = (
   return KnowledgeBaseCategories.create({
     ...doc,
     ...params,
-    userId: userId || faker.random.word()
+    userId: params.userId || faker.random.word()
   });
 };
 
 interface IKnowledgeBaseArticleCategoryInput {
   categoryIds?: string[];
+  userId?: string;
 }
 
-export const knowledgeBaseArticleFactory = (
-  params?: IKnowledgeBaseArticleCategoryInput,
-  userId?: string
+export const knowledgeBaseArticleFactory = async (
+  params: IKnowledgeBaseArticleCategoryInput
 ) => {
   const doc = {
     title: faker.random.word(),
@@ -618,7 +618,7 @@ export const knowledgeBaseArticleFactory = (
   return KnowledgeBaseArticles.create({
     ...doc,
     ...params,
-    userId: userId || faker.random.word()
+    userId: params.userId || faker.random.word()
   });
 };
 
