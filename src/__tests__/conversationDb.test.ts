@@ -73,7 +73,7 @@ describe("Conversation db", () => {
   });
 
   test("Create conversation message", async () => {
-    expect.assertions(19);
+    expect.assertions(18);
 
     // setting updatedAt to null to check when new message updatedAt field
     // must be setted
