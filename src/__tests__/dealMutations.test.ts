@@ -136,12 +136,7 @@ describe("Test deals mutations", () => {
     const args = {
       name: "deal pipeline",
       boardId: board._id,
-      stages: [
-        {
-          _id: stage._id,
-          name: stage.name
-        }
-      ]
+      stages: [stage]
     };
 
     const mutation = `
@@ -174,12 +169,7 @@ describe("Test deals mutations", () => {
       _id: pipeline._id,
       name: "deal pipeline",
       boardId: board._id,
-      stages: [
-        {
-          _id: stage._id,
-          name: stage.name
-        }
-      ]
+      stages: [stage]
     };
 
     const mutation = `
