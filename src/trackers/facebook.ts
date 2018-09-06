@@ -77,7 +77,7 @@ interface IGetOrCreateConversationParams {
 /*
  * Get list of pages that authorized user owns
  */
-export const getPageList = async (accessToken: string) => {
+export const getPageList = async (accessToken?: string) => {
   const response = await graphRequest.get(
     "/me/accounts?limit=100",
     accessToken
@@ -95,12 +95,16 @@ export const getPageList = async (accessToken: string) => {
  */
 
 export class SaveWebhookResponse {
+  public currentPageId: string;
+  public data: any;
   private userAccessToken: string;
   private integration: IIntegrationDocument;
-  private data: any;
-  private currentPageId: string;
 
-  constructor(userAccessToken, integration, data) {
+  constructor(
+    userAccessToken: string,
+    integration: IIntegrationDocument,
+    data?: any
+  ) {
     this.userAccessToken = userAccessToken;
 
     this.integration = integration;
@@ -325,7 +329,9 @@ export class SaveWebhookResponse {
    * @param {Object} params - Parameters doc
    * @return newly create message object
    */
-  public async getOrCreateConversation(params: IGetOrCreateConversationParams) {
+  public async getOrCreateConversation(
+    params: IGetOrCreateConversationParams
+  ): Promise<string> {
     // extract params
     const {
       findSelector,
@@ -615,7 +621,7 @@ export class SaveWebhookResponse {
     content: string;
     attachments?: any;
     facebookData: IMsgFacebook;
-  }) {
+  }): Promise<string> {
     if (!conversation) {
       return null;
     }

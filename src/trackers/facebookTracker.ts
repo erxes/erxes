@@ -1,4 +1,4 @@
-import graph from "fbgraph";
+import * as graph from "fbgraph";
 import { getConfig, receiveWebhookResponse } from "./facebook";
 
 /*
