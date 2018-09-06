@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.151.0",
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^3.0.0",
     "body-parser": "^1.17.1",
     "cors": "^2.8.1",
     "dotenv": "^4.0.0",
