@@ -61,14 +61,14 @@ describe("twitter integration", () => {
 
   test("direct message", async () => {
     const text = "reply";
-    const sender_id = 242424242;
+    const senderId = 242424242;
 
     const conversation = await conversationFactory({
       integrationId: _integration._id,
       twitterData: {
         isDirectMessage: true,
-        sender_id,
-        sender_id_str: sender_id.toString(),
+        sender_id: senderId,
+        sender_id_str: senderId.toString(),
         recipient_id: 535335353,
         recipient_id_str: "535335353"
       }
@@ -80,7 +80,7 @@ describe("twitter integration", () => {
     // check twit post params
     expect(
       stub.calledWith(twit, "direct_messages/new", {
-        user_id: sender_id.toString(),
+        user_id: senderId.toString(),
         text
       })
     ).toBe(true);

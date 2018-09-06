@@ -18,7 +18,6 @@ import {
   Integrations,
   Users
 } from "../db/models";
-import { IMessageDocument } from "../db/models/definitions/conversationMessages";
 
 beforeAll(() => connect());
 

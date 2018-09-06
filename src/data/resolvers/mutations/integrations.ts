@@ -68,7 +68,7 @@ const integrationMutations = {
     _root,
     { queryParams, brandId }: { queryParams: any; brandId: string }
   ) {
-    const data = await socUtils.authenticate(queryParams);
+    const data: any = await socUtils.authenticate(queryParams);
 
     const integration = await Integrations.createTwitterIntegration({
       name: data.info.name,

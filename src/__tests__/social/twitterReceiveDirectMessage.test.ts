@@ -36,18 +36,18 @@ describe("receive direct message response", () => {
   });
 
   test("reopen", async () => {
-    const sender_id = 2424424242;
-    const recipient_id = 92442424424242;
+    const senderId = 2424424242;
+    const recipientId = 92442424424242;
 
     // create conversation
     await conversationFactory({
       integrationId: _integration._id,
       twitterData: {
         isDirectMessage: true,
-        sender_id,
-        sender_id_str: sender_id.toString(),
-        recipient_id,
-        recipient_id_str: recipient_id.toString()
+        sender_id: senderId,
+        sender_id_str: senderId.toString(),
+        recipient_id: recipientId,
+        recipient_id_str: recipientId.toString()
       }
     });
 
@@ -56,10 +56,10 @@ describe("receive direct message response", () => {
       {
         id: 42242242,
         id_str: "42242242",
-        sender_id,
-        sender_id_str: sender_id.toString(),
-        recipient_id,
-        recipient_id_str: recipient_id.toString(),
+        sender_id: senderId,
+        sender_id_str: senderId.toString(),
+        recipient_id: recipientId,
+        recipient_id_str: recipientId.toString(),
         sender: twitterUser
       },
       _integration

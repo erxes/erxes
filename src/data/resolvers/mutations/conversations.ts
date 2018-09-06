@@ -13,6 +13,7 @@ import {
 } from "../../../db/models/definitions/constants";
 import { IMessageDocument } from "../../../db/models/definitions/conversationMessages";
 import { IConversationDocument } from "../../../db/models/definitions/conversations";
+import { IMessengerData } from "../../../db/models/definitions/integrations";
 import { IUserDocument } from "../../../db/models/definitions/users";
 import { facebookReply, IFacebookReply } from "../../../trackers/facebook";
 import {
@@ -65,7 +66,10 @@ export const conversationNotifReceivers = (
  * Using this subscription to track conversation detail's assignee, tag, status
  * changes
  */
-export const publishConversationsChanged = (_ids: string[], type: string): string[] => {
+export const publishConversationsChanged = (
+  _ids: string[],
+  type: string
+): string[] => {
   for (const _id of _ids) {
     pubsub.publish("conversationChanged", {
       conversationChanged: { conversationId: _id, type }
@@ -323,7 +327,7 @@ const conversationMutations = {
         const integration = await Integrations.findOne({
           _id: conversation.integrationId
         });
-        const messengerData = integration.messengerData || {};
+        const messengerData: IMessengerData = integration.messengerData || {};
         const notifyCustomer = messengerData.notifyCustomer || false;
 
         if (notifyCustomer && customer.primaryEmail) {
