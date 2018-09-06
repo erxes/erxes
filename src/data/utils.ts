@@ -9,7 +9,10 @@ import { IUserDocument } from "../db/models/definitions/users";
 /*
  * Save binary data to amazon s3
  */
-export const uploadFile = async (file: { name: string; path: string }) => {
+export const uploadFile = async (file: {
+  name: string;
+  path: string;
+}): Promise<string> => {
   const {
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
@@ -67,9 +70,6 @@ export const readFile = (filename: string) => {
 
 /**
  * Apply template
- * @param {Object} data data
- * @param {String} templateName
- * @return email with template as text
  */
 const applyTemplate = async (data: any, templateName: string) => {
   let template: any = await readFile(templateName);
@@ -81,7 +81,6 @@ const applyTemplate = async (data: any, templateName: string) => {
 
 /**
  * Create default or ses transporter
- * @return nodemailer transporter
  */
 export const createTransporter = ({ ses }) => {
   const { MAIL_SERVICE, MAIL_PORT, MAIL_USER, MAIL_PASS } = process.env;
@@ -180,13 +179,6 @@ export const sendEmail = async ({
 
 /**
  * Send a notification
- * @param {String} doc.notifType
- * @param {String} doc.createdUser
- * @param {String} doc.title
- * @param {String} doc.content
- * @param {String} doc.link
- * @param {Array} doc.receivers Array of user ids
- * @return {Promise}
  */
 export const sendNotification = async ({
   createdUser,
@@ -243,8 +235,6 @@ export const sendNotification = async ({
 /**
  * Receives and saves xls file in private/xlsImports folder
  * and imports customers to the database
- * @param {Object} file - File data to save
- * @return {Promise} Success and failed counts
  */
 export const importXlsFile = async (
   file: any,
@@ -325,8 +315,6 @@ export const importXlsFile = async (
 
 /**
  * Creates blank workbook
- *
- * @return {Object} Xls workbook and sheet
  */
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -337,12 +325,11 @@ export const createXlsFile = async () => {
 
 /**
  * Generates downloadable xls file on the url
- * @param {Object} workbook - Xls file workbook
- * @param {String} name - Xls file name
- *
- * @return {String} Url to download xls file
  */
-export const generateXlsx = async (workbook: any, name: string) => {
+export const generateXlsx = async (
+  workbook: any,
+  name: string
+): Promise<string> => {
   // Url to download xls file
   const url = `xlsTemplateOutputs/${name}.xlsx`;
   const { DOMAIN } = process.env;

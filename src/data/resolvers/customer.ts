@@ -23,7 +23,7 @@ export default {
 
   getMessengerCustomData(customer: ICustomerDocument) {
     const results = [];
-    const messengerData = customer.messengerData || {};
+    const messengerData: any = customer.messengerData || {};
     const data = messengerData.customData || {};
 
     Object.keys(data).forEach(key => {

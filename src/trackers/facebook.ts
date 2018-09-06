@@ -49,7 +49,7 @@ interface ICommentParams {
   verb?: string;
 }
 
-interface ILikeParams {
+interface IReactionParams {
   verb?: string;
   post_id?: string;
   comment_id?: string;
@@ -248,7 +248,7 @@ export class SaveWebhookResponse {
   /**
    * Increase or decrease comment count
    */
-  public async updateCommentCount(type: string, post_id: string) {
+  public async updateCommentCount(type: string, postId: string) {
     let count = -1;
 
     if (type === "add") {
@@ -256,7 +256,7 @@ export class SaveWebhookResponse {
     }
 
     return ConversationMessages.update(
-      { "facebookData.postId": post_id },
+      { "facebookData.postId": postId },
       { $inc: { "facebookData.commentCount": count } }
     );
   }
@@ -301,8 +301,15 @@ export class SaveWebhookResponse {
   /**
    * Receives like and reaction
    */
-  public async handleReactions(likeParams: ILikeParams) {
-    const { verb, post_id, comment_id, reaction_type, item, from } = likeParams;
+  public async handleReactions(reactionParams: IReactionParams) {
+    const {
+      verb,
+      post_id,
+      comment_id,
+      reaction_type,
+      item,
+      from
+    } = reactionParams;
     let selector = {};
 
     if (post_id) {
@@ -326,8 +333,6 @@ export class SaveWebhookResponse {
 
   /*
    * Common get or create conversation helper using both in messenger and feed
-   * @param {Object} params - Parameters doc
-   * @return newly create message object
    */
   public async getOrCreateConversation(
     params: IGetOrCreateConversationParams
@@ -496,8 +501,6 @@ export class SaveWebhookResponse {
 
   /*
    * Get or create new conversation by page messenger
-   * @param {Object} event - Webhook response item
-   * @return Newly created message object
    */
   public async getOrCreateConversationByMessenger(event) {
     const senderId = event.sender.id;
@@ -575,7 +578,7 @@ export class SaveWebhookResponse {
     res = await graphRequest.get(`/${fbUserId}`, res.access_token);
 
     // get profile pic
-    const getProfilePic = async fbId => {
+    const getProfilePic = async (fbId: string) => {
       try {
         const response = await graphRequest.get(`/${fbId}/picture?height=600`);
         return response.image ? response.location : "";
@@ -732,8 +735,6 @@ export class SaveWebhookResponse {
 
 /*
  * Receive per app webhook response
- * @param {Object} app - Apps configuration item from .env
- * @param {Object} data - Webhook response
  */
 export const receiveWebhookResponse = async (app, data) => {
   const selector = {
@@ -757,12 +758,6 @@ export const receiveWebhookResponse = async (app, data) => {
 
 /**
  * Post reply to page conversation or comment to wall post
- * @param {Object} conversation - Conversation object
- * @param {String} msg - Reply content
- * @param {String} msg.text - Reply content text
- * @param {String} msg.attachment - Reply content attachment
- * @param {String} msg.commentId - Parent commen id if replied to comment
- * @param {String} message - Conversation message
  */
 export const facebookReply = async (
   conversation: IConversationDocument,

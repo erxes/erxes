@@ -29,7 +29,7 @@ export const createActivityLogsFromSegments = async () => {
  * │    └──────────────────── minute (0 - 59)
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
-schedule.scheduleJob("* 45 23 * *", function() {
+schedule.scheduleJob("* 45 23 * *", () => {
   createActivityLogsFromSegments();
 });
 

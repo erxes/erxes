@@ -125,6 +125,6 @@ export default {
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
 // every 10 minutes
-schedule.scheduleJob("*/10 * * * *", function() {
+schedule.scheduleJob("*/10 * * * *", () => {
   sendMessageEmail();
 });

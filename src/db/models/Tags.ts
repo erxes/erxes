@@ -23,7 +23,7 @@ export const validateUniqueness = async (
   selector: any,
   name: string,
   type: string
-): boolean => {
+): Promise<boolean> => {
   // required name and type
   if (!name || !type) {
     return true;
