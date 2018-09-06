@@ -1,6 +1,6 @@
 # erxes Inc
 
-erxes is an AI meets open source messaging platform for sales, marketing and support
+erxes is an Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot and Intercom with the mission and community-driven ecosystem.
 
 <a href="https://demohome.erxes.io/">View demo</a> <b>| </b> <a href="https://github.com/erxes/erxes/archive/master.zip">Download ZIP </a> <b> | </b> <a href="https://gitter.im/erxes/Lobby">Join us on Gitter</a>
 
@@ -13,7 +13,7 @@ erxes is an AI meets open source messaging platform for sales, marketing and sup
 
 <img src="https://erxes.io/img/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
-erxes is an AI meets open source messaging platform built to help marketing, sales & support to connect, build trust and grow with their customers in an easy and affordable way. One of the ways we make customer engagement a lot easier is with unlimited customer service integrations such as social media platforms, messenger, email, SMS for multiple brands. This way, it’s a lot easier to respond quickly to any channels and solve problems on the go.
+erxes is an Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot and Intercom with the mission and community-driven ecosystem. One of the ways we make customer engagement a lot easier is with unlimited customer service integrations such as social media platforms, messenger, email, SMS for multiple brands. This way, it’s a lot easier to respond quickly to any channels and solve problems on the go.
 
 * **Team Inbox:** Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you however and whenever they want. 
 * **Deals:** Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
