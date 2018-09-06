@@ -1,15 +1,19 @@
-import { Channels } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
-import { paginate } from './utils';
+import { Channels } from "../../../db/models";
+import { moduleRequireLogin } from "../../permissions";
+import { paginate } from "./utils";
 
 const channelQueries = {
   /**
    * Channels list
-   * @param {Object} args - Search params
-   * @return {Promise} filtered channels list by given parameters
    */
-  channels(root, { memberIds, ...queryParams }) {
-    const query = {};
+  channels(
+    _root,
+    {
+      memberIds,
+      ...queryParams
+    }: { page: number; perPage: number; memberIds: string[] }
+  ) {
+    const query: any = {};
     const sort = { createdAt: -1 };
 
     if (memberIds) {
@@ -23,28 +27,24 @@ const channelQueries = {
 
   /**
    * Get one channel
-   * @param {Object} args
-   * @param {String} args._id
-   * @return {Promise} found channel
    */
-  channelDetail(root, { _id }) {
+  channelDetail(_root, { _id }: { _id: number }) {
     return Channels.findOne({ _id });
   },
 
   /**
    * Get all channels count. We will use it in pager
-   * @return {Promise} total count
    */
   channelsTotalCount() {
     return Channels.find({}).count();
   },
 
   /**
-  * Get last channel
-  */
+   * Get last channel
+   */
   channelsGetLast() {
     return Channels.findOne({}).sort({ createdAt: -1 });
-  },
+  }
 };
 
 moduleRequireLogin(channelQueries);

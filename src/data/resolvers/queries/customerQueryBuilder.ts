@@ -1,16 +1,20 @@
-import _ from 'underscore';
-import moment from 'moment';
-import { Integrations, Segments, Forms } from '../../../db/models';
-import QueryBuilder from './segmentQueryBuilder';
+import * as moment from "moment";
+import _ from "underscore";
+import { Forms, Integrations, Segments } from "../../../db/models";
+import QueryBuilder from "./segmentQueryBuilder";
 
 export default class Builder {
-  constructor(params, user = null) {
+  public params: any;
+  public user: any;
+  public queries: any;
+
+  constructor(params?: any, user = null) {
     this.params = params;
     this.user = user;
   }
 
-  defaultFilters() {
-    const emptySelector = { $in: [null, ''] };
+  public defaultFilters() {
+    const emptySelector = { $in: [null, ""] };
 
     return {
       $nor: [
@@ -19,14 +23,14 @@ export default class Builder {
           lastName: emptySelector,
           primaryEmail: emptySelector,
           primaryPhone: emptySelector,
-          visitorContactInfo: null,
-        },
-      ],
+          visitorContactInfo: null
+        }
+      ]
     };
   }
 
   // filter by segment
-  async segmentFilter(segmentId) {
+  public async segmentFilter(segmentId) {
     const segment = await Segments.findOne({ _id: segmentId });
     const query = QueryBuilder.segments(segment);
 
@@ -34,23 +38,23 @@ export default class Builder {
   }
 
   // filter by brand
-  async brandFilter(brandId) {
+  public async brandFilter(brandId) {
     const integrations = await Integrations.find({ brandId });
 
     return { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
   // filter by integration kind
-  async integrationTypeFilter(kind) {
+  public async integrationTypeFilter(kind) {
     const integrations = await Integrations.find({ kind });
 
     return { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
   // filter by integration
-  async integrationFilter(integration) {
+  public async integrationFilter(integration) {
     const integrations = await Integrations.find({
-      kind: integration,
+      kind: integration
     });
     /**
      * Since both of brand and integration filters use a same integrationId field
@@ -66,46 +70,46 @@ export default class Builder {
   }
 
   // filter by tagId
-  tagFilter(tagId) {
+  public tagFilter(tagId) {
     return { tagIds: { $in: [tagId] } };
   }
 
   // filter by search value
-  searchFilter(value) {
+  public searchFilter(value) {
     const fields = [
-      { firstName: new RegExp(`.*${value}.*`, 'i') },
-      { lastName: new RegExp(`.*${value}.*`, 'i') },
-      { emails: { $in: [new RegExp(`.*${value}.*`, 'i')] } },
-      { phones: { $in: [new RegExp(`.*${value}.*`, 'i')] } },
-      { 'visitorContactInfo.email': new RegExp(`.*${value}.*`, 'i') },
-      { 'visitorContactInfo.phone': new RegExp(`.*${value}.*`, 'i') },
+      { firstName: new RegExp(`.*${value}.*`, "i") },
+      { lastName: new RegExp(`.*${value}.*`, "i") },
+      { emails: { $in: [new RegExp(`.*${value}.*`, "i")] } },
+      { phones: { $in: [new RegExp(`.*${value}.*`, "i")] } },
+      { "visitorContactInfo.email": new RegExp(`.*${value}.*`, "i") },
+      { "visitorContactInfo.phone": new RegExp(`.*${value}.*`, "i") }
     ];
 
     return { $or: fields };
   }
 
   // filter by id
-  idsFilter(ids) {
+  public idsFilter(ids) {
     return { _id: { $in: ids } };
   }
 
   // filter by leadStatus
-  leadStatusFilter(leadStatus) {
+  public leadStatusFilter(leadStatus) {
     return { leadStatus };
   }
 
   // filter by lifecycleState
-  lifecycleStateFilter(lifecycleState) {
+  public lifecycleStateFilter(lifecycleState) {
     return { lifecycleState };
   }
 
   // filter by form
-  async formFilter(formId, startDate, endDate) {
+  public async formFilter(formId, startDate?, endDate?) {
     const formObj = await Forms.findOne({ _id: formId });
     const { submissions = [] } = formObj;
     const ids = [];
 
-    for (let submission of submissions) {
+    for (const submission of submissions) {
       const { customerId, submittedAt } = submission;
 
       // Collecting customerIds inbetween dates only
@@ -125,7 +129,7 @@ export default class Builder {
   /*
    * prepare all queries. do not do any action
    */
-  async buildAllQueries() {
+  public async buildAllQueries() {
     this.queries = {
       default: this.defaultFilters(),
       segment: {},
@@ -135,7 +139,7 @@ export default class Builder {
       brand: {},
       integration: {},
       form: {},
-      integrationType: {},
+      integrationType: {}
     };
 
     // filter by segment
@@ -155,7 +159,9 @@ export default class Builder {
 
     // filter by integration kind
     if (this.params.integrationType) {
-      this.queries.integrationType = await this.integrationTypeFilter(this.params.integrationType);
+      this.queries.integrationType = await this.integrationTypeFilter(
+        this.params.integrationType
+      );
     }
 
     // filter by form
@@ -166,12 +172,12 @@ export default class Builder {
         this.queries.form = await this.formFilter(
           this.params.form,
           this.params.startDate,
-          this.params.endDate,
+          this.params.endDate
         );
       }
     }
 
-    /** If there are ids and form params, returning ids filter only
+    /* If there are ids and form params, returning ids filter only
      * filter by ids
      */
     if (this.params.ids) {
@@ -180,7 +186,9 @@ export default class Builder {
 
     // filter by integration
     if (this.params.integration) {
-      this.queries.integration = await this.integrationFilter(this.params.integration);
+      this.queries.integration = await this.integrationFilter(
+        this.params.integration
+      );
     }
 
     // filter by search value
@@ -195,11 +203,13 @@ export default class Builder {
 
     // filter by lifecycleState
     if (this.params.lifecycleState) {
-      this.queries.lifecycleState = this.lifecycleStateFilter(this.params.lifecycleState);
+      this.queries.lifecycleState = this.lifecycleStateFilter(
+        this.params.lifecycleState
+      );
     }
   }
 
-  mainQuery() {
+  public mainQuery() {
     return {
       ...this.queries.default,
       ...this.queries.segment,
@@ -212,7 +222,7 @@ export default class Builder {
       ...this.queries.integration,
       ...this.queries.searchValue,
       ...this.queries.leadStatus,
-      ...this.queries.lifecycleState,
+      ...this.queries.lifecycleState
     };
   }
 }

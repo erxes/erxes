@@ -1,11 +1,8 @@
-import { Forms } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { Forms } from "../../../db/models";
+import { moduleRequireLogin } from "../../permissions";
 const formQueries = {
   /**
    * Forms list
-   * @param {Object} args - Search params
-   * @param {String} args.tag - Tag id to filter
-   * @return {Promise} sorted forms list
    */
   async forms() {
     const forms = Forms.find({});
@@ -15,13 +12,10 @@ const formQueries = {
 
   /**
    * Get one form
-   * @param {Object} args
-   * @param {String} args._id
-   * @return {Promise} found form
    */
-  formDetail(root, { _id }) {
+  formDetail(_root, { _id }: { _id: string }) {
     return Forms.findOne({ _id });
-  },
+  }
 };
 
 moduleRequireLogin(formQueries);

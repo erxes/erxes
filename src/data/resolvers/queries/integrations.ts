@@ -1,20 +1,21 @@
-import { TAG_TYPES, KIND_CHOICES } from '../../constants';
-import { Channels, Integrations, Tags, Brands } from '../../../db/models';
-import { socUtils } from '../../../trackers/twitterTracker';
-import { getConfig, getPageList } from '../../../trackers/facebook';
-import { moduleRequireLogin } from '../../permissions';
-import { paginate } from './utils';
+import { Brands, Channels, Integrations, Tags } from "../../../db/models";
+import { getConfig, getPageList } from "../../../trackers/facebook";
+import { socUtils } from "../../../trackers/twitterTracker";
+import { KIND_CHOICES, TAG_TYPES } from "../../constants";
+import { moduleRequireLogin } from "../../permissions";
+import { paginate } from "./utils";
 
 /**
  * Common helper for integrations & integrationsTotalCount
- * @param {String} kind - Messenger, Facebook etc ...
- * @param {String} channelId - Channel id
- * @param {String} brandId - Brand id
- * @param {String} tag - Form tag id
- * @return generated query
  */
-const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag }) => {
-  const query = {};
+const generateFilterQuery = async ({
+  kind,
+  channelId,
+  brandId,
+  searchValue,
+  tag
+}) => {
+  const query: any = {};
 
   if (kind) {
     query.kind = kind;
@@ -32,7 +33,7 @@ const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag 
   }
 
   if (searchValue) {
-    query.name = new RegExp(`.*${searchValue}.*`, 'i');
+    query.name = new RegExp(`.*${searchValue}.*`, "i");
   }
 
   // filtering integrations by tag
@@ -46,10 +47,19 @@ const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag 
 const integrationQueries = {
   /**
    * Integrations list
-   * @param {Object} args - Search params
-   * @return {Promise} filterd and sorted integrations list
    */
-  async integrations(root, args) {
+  async integrations(
+    _root,
+    args: {
+      page: number;
+      perPage: number;
+      kind: string;
+      searchValue: string;
+      channelId: string;
+      brandId: string;
+      tag: string;
+    }
+  ) {
     const query = await generateFilterQuery(args);
     const integrations = paginate(Integrations.find(query), args);
 
@@ -58,18 +68,13 @@ const integrationQueries = {
 
   /**
    * Get one integration
-   * @param {Object} object
-   * @param {Object} object2 - Apollo input data
-   * @param {String} object2._id - Integration id
-   * @return {Promise} found integration
    */
-  integrationDetail(root, { _id }) {
+  integrationDetail(_root, { _id }: { _id: string }) {
     return Integrations.findOne({ _id });
   },
 
   /**
    * Get all integrations count. We will use it in pager
-   * @return {Promise} total count
    */
   async integrationsTotalCount() {
     const counts = {
@@ -77,7 +82,7 @@ const integrationQueries = {
       byTag: {},
       byChannel: {},
       byBrand: {},
-      byKind: {},
+      byKind: {}
     };
 
     const count = query => {
@@ -87,26 +92,28 @@ const integrationQueries = {
     // Counting integrations by tag
     const tags = await Tags.find({ type: TAG_TYPES.INTEGRATION });
 
-    for (let tag of tags) {
+    for (const tag of tags) {
       counts.byTag[tag._id] = await count({ tagIds: tag._id });
     }
 
     // Counting integrations by kind
-    for (let kind of KIND_CHOICES.ALL) {
+    for (const kind of KIND_CHOICES.ALL) {
       counts.byKind[kind] = await count({ kind });
     }
 
     // Counting integrations by channel
     const channels = await Channels.find({});
 
-    for (let channel of channels) {
-      counts.byChannel[channel._id] = await count({ _id: { $in: channel.integrationIds } });
+    for (const channel of channels) {
+      counts.byChannel[channel._id] = await count({
+        _id: { $in: channel.integrationIds }
+      });
     }
 
     // Counting integrations by brand
     const brands = await Brands.find({});
 
-    for (let brand of brands) {
+    for (const brand of brands) {
       counts.byBrand[brand._id] = await count({ brandId: brand._id });
     }
 
@@ -118,7 +125,6 @@ const integrationQueries = {
 
   /**
    * Generate twitter integration auth url using credentials in .env
-   * @return {Promise} - Generated url
    */
   integrationGetTwitterAuthUrl() {
     return socUtils.getTwitterAuthorizeUrl();
@@ -126,28 +132,29 @@ const integrationQueries = {
 
   /**
    * Get facebook app list .env
-   * @return {Promise} - Apps list
    */
   integrationFacebookAppsList() {
     return getConfig().map(app => ({
       id: app.id,
-      name: app.name,
+      name: app.name
     }));
   },
 
   /**
    * Get facebook pages by appId
-   * @return {Promise} - Page list
    */
-  async integrationFacebookPagesList(root, { appId }) {
-    const app = getConfig().find(app => app.id === appId);
+  async integrationFacebookPagesList(_root, { appId }: { appId: string }) {
+    // const app = getConfig().find( app => app.id === appId );
+    const app = getConfig().find(data => {
+      return data.id === appId;
+    });
 
     if (!app) {
       return [];
     }
 
     return getPageList(app.accessToken);
-  },
+  }
 };
 
 moduleRequireLogin(integrationQueries);
