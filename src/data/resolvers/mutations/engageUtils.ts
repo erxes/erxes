@@ -32,7 +32,7 @@ export const replaceKeys = ({
   content: string;
   customer: ICustomerDocument;
   user: IUserDocument;
-}) => {
+}): string => {
   let result = content;
 
   const customerName = `${customer.firstName} + ${customer.lastName}`;
@@ -58,7 +58,7 @@ const findCustomers = async ({
 }: {
   customerIds: string[];
   segmentId: string;
-}) => {
+}): ICustomerDocument[] => {
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
 

@@ -371,18 +371,18 @@ class User {
       return {};
     }
 
-    const user = await Users.findOne({ _id });
+    const dbUser = await Users.findOne({ _id });
 
     // recreate tokens
     const [newToken, newRefreshToken] = await this.createTokens(
-      user,
+      dbUser,
       this.getSecret()
     );
 
     return {
       token: newToken,
       refreshToken: newRefreshToken,
-      user
+      user: dbUser
     };
   }
 

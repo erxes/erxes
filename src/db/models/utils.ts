@@ -26,6 +26,9 @@ export const field = options => {
 type CocInput = ICompany | ICustomer;
 type CocDocument = ICompanyDocument | ICustomerDocument;
 
+/*
+ * Helper for customer, company bulk insert
+ */
 export const bulkInsert = async (params: {
   fieldNames: string[];
   fieldValues: string[][];

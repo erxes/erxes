@@ -42,7 +42,7 @@ interface IConversationMessageAdd {
 export const conversationNotifReceivers = (
   conversation: IConversationDocument,
   currentUserId: string
-) => {
+): string[] => {
   let userIds = [];
 
   // assigned user can get notifications
@@ -65,7 +65,7 @@ export const conversationNotifReceivers = (
  * Using this subscription to track conversation detail's assignee, tag, status
  * changes
  */
-export const publishConversationsChanged = (_ids: string[], type: string) => {
+export const publishConversationsChanged = (_ids: string[], type: string): string[] => {
   for (const _id of _ids) {
     pubsub.publish("conversationChanged", {
       conversationChanged: { conversationId: _id, type }

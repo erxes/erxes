@@ -63,7 +63,6 @@ const engageMutations = {
 
   /**
    * Remove message
-   * @return {Promise}
    */
   engageMessageRemove(_root, _id: string) {
     updateOrRemoveSchedule({ _id });
