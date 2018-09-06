@@ -223,7 +223,7 @@ class Integration {
   /**
    * Remove integration in addition with its messages, conversations, customers
    */
-  public static async removeIntegration(_id) {
+  public static async removeIntegration(_id: string) {
     const integration = await Integrations.findOne({ _id });
 
     // remove conversations =================

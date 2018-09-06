@@ -54,13 +54,11 @@ export const sendMessageEmail = async () => {
     for (const message of adminMessages) {
       const answer = message;
 
-      const createdAt = moment(answer.createdAt).format("DD MMM YY, HH:mm");
-
       // add user object to answer
       answers.push({
-        ...answer,
+        ...answer.toJSON(),
         user: await Users.findOne({ _id: message.userId }),
-        createdAt
+        createdAt: new Date(moment(answer.createdAt).format("DD MMM YY, HH:mm"))
       });
     }
 
@@ -72,8 +70,10 @@ export const sendMessageEmail = async () => {
     const data: any = {
       customer,
       question: {
-        ...question,
-        createdAt: moment(question.createdAt).format("DD MMM YY, HH:mm")
+        ...question.toJSON(),
+        createdAt: new Date(
+          moment(question.createdAt).format("DD MMM YY, HH:mm")
+        )
       },
       answers,
       brand
