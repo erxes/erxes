@@ -1,12 +1,10 @@
+import { IUserDocument } from "../db/models/definitions/users";
 import { ROLES } from "./constants";
 
 /**
  * Checks whether user is logged in or not
- * @param {Object} user - User object
- * @throws {Exception} throws Error('Login required')
- * @return {null}
  */
-export const checkLogin = user => {
+export const checkLogin = (user: IUserDocument) => {
   if (!user) {
     throw new Error("Login required");
   }
@@ -14,11 +12,8 @@ export const checkLogin = user => {
 
 /**
  * Checks if user is logged and if user is admin
- * @param {Object} user - User object
- * @throws {Exception} throws Error('Permission required')
- * @return {null}
  */
-export const checkAdmin = user => {
+export const checkAdmin = (user: IUserDocument) => {
   if (!user.isOwner && user.role !== ROLES.ADMIN) {
     throw new Error("Permission required");
   }
@@ -26,12 +21,12 @@ export const checkAdmin = user => {
 
 /**
  * Wraps object property (function) with permission checkers
- * @param {Object} cls - Object
- * @param {string} methodName - name of the property (method) of the object
- * @param {function[]} checkers - List of permission checkers
- * @return {function} returns wrapped method
  */
-export const permissionWrapper = (cls, methodName, checkers) => {
+export const permissionWrapper = (
+  cls: any,
+  methodName: string,
+  checkers: any
+) => {
   const oldMethod = cls[methodName];
 
   cls[methodName] = (root, args, { user }) => {
@@ -45,29 +40,20 @@ export const permissionWrapper = (cls, methodName, checkers) => {
 
 /**
  * Wraps a method with 'Login required' permission checker
- * @param {Object} cls - Object
- * @param {string} methodName - name of the property (method) of the object
- * @return {function} returns wrapped method
  */
-export const requireLogin = (cls, methodName) =>
+export const requireLogin = (cls: any, methodName: string) =>
   permissionWrapper(cls, methodName, [checkLogin]);
 
 /**
  * Wraps a method with 'Permission required' permission checker
- * @param {Object} cls - Object
- * @param {string} methodName - name of the property (method) of the object
- * @return {function} returns wrapped method
  */
-export const requireAdmin = (cls, methodName) =>
+export const requireAdmin = (cls: any, methodName: string) =>
   permissionWrapper(cls, methodName, [checkLogin, checkAdmin]);
 
 /**
  * Wraps all properties (methods) of a given object with 'Login required' permission checker
- * @param {Object} cls - Object
- * @param {string} methodName - name of the property (method) of the object
- * @return {function} returns wrapped method
  */
-export const moduleRequireLogin = mdl => {
+export const moduleRequireLogin = (mdl: any) => {
   for (const method in mdl) {
     requireLogin(mdl, method);
   }
@@ -75,11 +61,8 @@ export const moduleRequireLogin = mdl => {
 
 /**
  * Wraps all properties (methods) of a given object with 'Permission required' permission checker
- * @param {Object} cls - Object
- * @param {string} methodName - name of the property (method) of the object
- * @return {function} returns wrapped method
  */
-export const moduleRequireAdmin = mdl => {
+export const moduleRequireAdmin = (mdl: any) => {
   for (const method in mdl) {
     requireAdmin(mdl, method);
   }
