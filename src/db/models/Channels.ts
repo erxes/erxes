@@ -19,7 +19,7 @@ class Channel {
       throw new Error("userId must be supplied");
     }
 
-    return Channels.create(doc);
+    return Channels.create({ ...doc, userId });
   }
 
   public static async updateChannel(_id: string, doc: IChannel) {

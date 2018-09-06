@@ -27,7 +27,7 @@ import {
   Tags,
   Users
 } from "../db/models";
-import { awsRequests } from "../trackers/engageTracker.js";
+import { awsRequests } from "../trackers/engageTracker";
 
 beforeAll(() => connect());
 
@@ -490,7 +490,7 @@ describe("engage message mutation tests", () => {
     expect(conversation.customerId).toBe(conversationObj.customerId);
     expect(conversation.integrationId).toBe(conversationObj.integrationId);
     expect(conversation.content).toBe(conversationObj.content);
-    expect(conversationMessage.engageData).toEqual(
+    expect(conversationMessage.engageData.toJSON()).toEqual(
       conversationMessageObj.engageData
     );
     expect(conversationMessage.conversationId).toBe(

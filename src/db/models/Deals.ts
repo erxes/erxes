@@ -41,7 +41,7 @@ const createOrUpdatePipelineStages = async (
   for (const stage of stages) {
     order++;
 
-    const doc = { ...stage.toJSON(), order, pipelineId };
+    const doc = { ...stage, order, pipelineId };
 
     const _id = doc._id;
     const obj = await DealStages.findOne({ _id });
