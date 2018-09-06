@@ -80,11 +80,6 @@ describe("Conversation db", () => {
     _conversation.updatedAt = null;
     await _conversation.save();
 
-    // get messageCount before add message
-    const prevConversationObj = await Conversations.findOne({
-      _id: _doc.conversationId
-    });
-
     const messageObj = await ConversationMessages.addMessage(_doc, _user);
 
     // checking updated conversation
@@ -94,19 +89,30 @@ describe("Conversation db", () => {
     expect(updatedConversation.updatedAt).toEqual(expect.any(Date));
 
     expect(messageObj.content).toBe(_conversationMessage.content);
-    expect(messageObj.attachments).toBe(_conversationMessage.attachments);
+    expect(messageObj.attachments.length).toBe(1);
+    expect(messageObj.attachments[0].toJSON()).toEqual(
+      _conversationMessage.attachments[0].toJSON()
+    );
     expect(messageObj.mentionedUserIds[0]).toBe(
       _conversationMessage.mentionedUserIds[0]
     );
+
     expect(messageObj.conversationId).toBe(_conversation._id);
     expect(messageObj.internal).toBe(_conversationMessage.internal);
     expect(messageObj.customerId).toBe(_conversationMessage.customerId);
     expect(messageObj.isCustomerRead).toBe(_conversationMessage.isCustomerRead);
-    expect(messageObj.engageData).toBe(_conversationMessage.engageData);
-    expect(messageObj.formWidgetData).toBe(_conversationMessage.formWidgetData);
-    expect(messageObj.facebookData._id).toBe(
-      _conversationMessage.facebookData._id
+
+    expect(messageObj.engageData.toJSON()).toEqual(
+      _conversationMessage.engageData.toJSON()
     );
+    expect(messageObj.formWidgetData).toEqual(
+      _conversationMessage.formWidgetData
+    );
+
+    expect(messageObj.facebookData.toJSON()).toEqual(
+      _conversationMessage.facebookData.toJSON()
+    );
+
     expect(messageObj.userId).toBe(_user._id);
 
     try {
@@ -142,9 +148,7 @@ describe("Conversation db", () => {
     );
 
     // check if message count increase
-    expect(afterConversationObj.messageCount).toBe(
-      prevConversationObj.messageCount + 1
-    );
+    expect(afterConversationObj.messageCount).toBe(2);
   });
 
   // if user assigned to conversation
@@ -236,7 +240,8 @@ describe("Conversation db", () => {
     const nonAnweredMessage = await ConversationMessages.getNonAsnweredMessage(
       _conversation._id
     );
-    expect(nonAnweredMessage).toBe(1);
+
+    expect(nonAnweredMessage._id).toBeDefined();
 
     await ConversationMessages.update(
       { conversationId: _conversation._id },
@@ -246,7 +251,7 @@ describe("Conversation db", () => {
     const adminMessages = await ConversationMessages.getAdminMessages(
       _conversation._id
     );
-    expect(adminMessages).toBe(1);
+    expect(adminMessages.length).toBe(1);
 
     await ConversationMessages.markSentAsReadMessages(_conversation._id);
 
@@ -258,7 +263,9 @@ describe("Conversation db", () => {
       expect(message.isCustomerRead).toBeTruthy();
     }
 
-    expect(await Conversations.newOrOpenConversation()).toBe(1);
+    const newOrOpenConversations = await Conversations.newOrOpenConversation();
+
+    expect(newOrOpenConversations.length).toBe(0);
   });
 
   test("Reopen", async () => {

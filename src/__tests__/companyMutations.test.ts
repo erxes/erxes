@@ -1,7 +1,4 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import faker from "faker";
+import * as faker from "faker";
 import { connect, disconnect, graphqlRequest } from "../db/connection";
 import { companyFactory, customerFactory, userFactory } from "../db/factories";
 import { Companies, Customers, Users } from "../db/models";

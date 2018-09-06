@@ -33,7 +33,7 @@ export const bulkInsert = async (params: {
   basicInfos: string[];
   contentType: string;
   create: (doc: CocInput, user?: IUserDocument) => Promise<CocDocument>;
-}) => {
+}): Promise<string[]> => {
   const errMsgs = [];
   const properties = [];
 
@@ -83,7 +83,7 @@ export const bulkInsert = async (params: {
       properties.push(property);
 
       if (!basicInfos.includes(fieldName) && !fieldObj) {
-        errMsgs.push(`Bad column name ${field}`);
+        errMsgs.push(`Bad column name ${fieldName}`);
       }
     }
   };

@@ -1,5 +1,5 @@
-import faker from "faker";
-import sinon from "sinon";
+import * as faker from "faker";
+import * as sinon from "sinon";
 import utils from "../data/utils";
 import { connect, disconnect, graphqlRequest } from "../db/connection";
 import {
@@ -112,7 +112,7 @@ describe("Conversation message mutations", () => {
     );
 
     expect(message.content).toBe(args.content);
-    expect(message.attachments).toEqual([{ url: "url" }]);
+    expect(message.attachments[0].toJSON()).toEqual({ url: "url" });
     expect(toJSON(message.mentionedUserIds)).toEqual(
       toJSON(args.mentionedUserIds)
     );

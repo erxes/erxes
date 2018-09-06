@@ -63,7 +63,7 @@ interface IUserFactoryInput {
   role?: string;
   password?: string;
   isOwner?: boolean;
-  isActive?: string;
+  isActive?: boolean;
 }
 
 export const userFactory = (params: IUserFactoryInput) => {
@@ -88,7 +88,7 @@ export const userFactory = (params: IUserFactoryInput) => {
       params.password ||
       "$2a$10$qfBFBmWmUjeRcR.nBBfgDO/BEbxgoai5qQhyjsrDUMiZC6dG7sg1q",
     isOwner: params.isOwner || false,
-    isActive: typeof params.isActive !== undefined ? params.isActive : true
+    isActive: params.isActive || true
   });
 
   return user.save();
@@ -271,8 +271,8 @@ export const companyFactory = (params: ICompanyFactoryInput) => {
     website: params.website || faker.internet.domainName(),
     tagIds: params.tagIds || [faker.random.number()],
     plan: params.plan || faker.random.word(),
-    leadStatus: params.leadStatus || "open",
-    lifecycleState: params.lifecycleState || "lead",
+    leadStatus: params.leadStatus || "Open",
+    lifecycleState: params.lifecycleState || "Lead",
     createdAt: params.createdAt || new Date(),
     modifiedAt: params.modifiedAt || new Date()
   });
@@ -307,8 +307,8 @@ export const customerFactory = (params: ICustomerFactoryInput) => {
     primaryPhone: params.primaryPhone || faker.phone.phoneNumber(),
     emails: params.emails || [faker.internet.email()],
     phones: params.phones || [faker.phone.phoneNumber()],
-    leadStatus: params.leadStatus || "open",
-    lifecycleState: params.lifecycleState || "lead",
+    leadStatus: params.leadStatus || "Open",
+    lifecycleState: params.lifecycleState || "Lead",
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
     companyIds: params.companyIds || [
@@ -355,8 +355,9 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
   });
 
   await field.save();
+  await Fields.update({ _id: field._id }, { $set: { ...params } });
 
-  return Fields.update({ _id: field._id }, { $set: { ...params } });
+  return Fields.findOne({ _id: field._id });
 };
 
 interface IConversationFactoryInput {
@@ -381,7 +382,8 @@ export const conversationFactory = (params: IConversationFactoryInput) => {
     customerId: params.customerId || Random.id(),
     integrationId: params.integrationId || Random.id(),
     readUserIds: params.readUserIds || [],
-    participatedUserIds: params.participatedUserIds || []
+    participatedUserIds: params.participatedUserIds || [],
+    ...params
   });
 };
 
@@ -553,15 +555,13 @@ export const channelFactory = async (params: IChannelFactoryInput) => {
 };
 
 interface IKnowledgeBaseTopicFactoryInput {
-  _id?: string;
+  userId?: string;
 }
 
-export const knowledgeBaseTopicFactory = (
-  params?: IKnowledgeBaseTopicFactoryInput,
-  userId?: string
+export const knowledgeBaseTopicFactory = async (
+  params: IKnowledgeBaseTopicFactoryInput
 ) => {
   const doc = {
-    _id: params._id,
     title: faker.random.word(),
     description: faker.lorem.sentence,
     brandId: faker.random.word(),
@@ -571,17 +571,17 @@ export const knowledgeBaseTopicFactory = (
   return KnowledgeBaseTopics.create({
     ...doc,
     ...params,
-    userId: userId || faker.random.word()
+    userId: params.userId || faker.random.word()
   });
 };
 
 interface IKnowledgeBaseCategoryFactoryInput {
   articleIds?: string[];
+  userId?: string;
 }
 
-export const knowledgeBaseCategoryFactory = (
-  params?: IKnowledgeBaseCategoryFactoryInput,
-  userId?: string
+export const knowledgeBaseCategoryFactory = async (
+  params: IKnowledgeBaseCategoryFactoryInput
 ) => {
   const doc = {
     title: faker.random.word(),
@@ -593,17 +593,17 @@ export const knowledgeBaseCategoryFactory = (
   return KnowledgeBaseCategories.create({
     ...doc,
     ...params,
-    userId: userId || faker.random.word()
+    userId: params.userId || faker.random.word()
   });
 };
 
 interface IKnowledgeBaseArticleCategoryInput {
   categoryIds?: string[];
+  userId?: string;
 }
 
-export const knowledgeBaseArticleFactory = (
-  params?: IKnowledgeBaseArticleCategoryInput,
-  userId?: string
+export const knowledgeBaseArticleFactory = async (
+  params: IKnowledgeBaseArticleCategoryInput
 ) => {
   const doc = {
     title: faker.random.word(),
@@ -616,7 +616,7 @@ export const knowledgeBaseArticleFactory = (
   return KnowledgeBaseArticles.create({
     ...doc,
     ...params,
-    userId: userId || faker.random.word()
+    userId: params.userId || faker.random.word()
   });
 };
 
@@ -748,13 +748,16 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
     name: faker.random.word(),
     contentType: params.contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
     description: faker.random.word(),
+    isDefinedByErxes: params.isDefinedByErxes || false,
     order: 1,
     isVisible: true
   };
 
   const groupObj = await FieldsGroups.create(doc);
 
-  return FieldsGroups.update({ _id: groupObj._id }, { $set: { ...params } });
+  FieldsGroups.update({ _id: groupObj._id }, { $set: { ...params } });
+
+  return FieldsGroups.findOne({ _id: groupObj._id });
 };
 
 interface IImportHistoryFactoryInput {

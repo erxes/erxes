@@ -22,12 +22,10 @@ describe("test channel creation error", () => {
 });
 
 describe("channel creation", () => {
-  let _user;
   let _user2;
   let _integration;
 
   beforeEach(async () => {
-    _user = await userFactory({});
     _integration = await integrationFactory({});
     _user2 = await userFactory({});
   });
@@ -45,18 +43,17 @@ describe("channel creation", () => {
       name: "Channel test",
       description: "test channel descripion",
       memberIds: [_user2._id],
-      integrationIds: [_integration._id],
-      userId: user._id
+      integrationIds: [_integration._id]
     };
 
-    const channel = await Channels.createChannel(doc, _user._id);
+    const channel = await Channels.createChannel(doc, user._id);
 
     expect(channel.name).toEqual(doc.name);
     expect(channel.description).toEqual(doc.description);
     expect(channel.memberIds.length).toBe(1);
     expect(channel.integrationIds.length).toEqual(1);
     expect(channel.integrationIds[0]).toEqual(_integration._id);
-    expect(channel.userId).toEqual(doc.userId);
+    expect(channel.userId).toEqual(user._id);
     expect(channel.conversationCount).toEqual(0);
     expect(channel.openConversationCount).toEqual(0);
   });
