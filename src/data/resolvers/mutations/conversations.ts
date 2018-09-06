@@ -129,6 +129,7 @@ const conversationMutations = {
     const conversation = await Conversations.findOne({
       _id: doc.conversationId
     });
+
     const integration = await Integrations.findOne({
       _id: conversation.integrationId
     });

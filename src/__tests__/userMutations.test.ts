@@ -131,22 +131,22 @@ describe("User mutations", () => {
       }
     );
 
-    const args = {
-      token,
-      newPassword: "newPassword"
-    };
-
     const mutation = `
       mutation resetPassword($token: String! $newPassword: String!) {
         resetPassword(token: $token newPassword: $newPassword)
       }
     `;
 
-    await graphqlRequest(mutation, "resetPassword", args);
+    const params = {
+      token,
+      newPassword: "newPassword"
+    }
+
+    await graphqlRequest(mutation, "resetPassword", params);
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
-    expect(bcrypt.compare(args.newPassword, updatedUser.password)).toBeTruthy();
+    expect(bcrypt.compare(params.newPassword, updatedUser.password)).toBeTruthy();
   });
 
   test("Add user", async () => {
@@ -339,11 +339,6 @@ describe("User mutations", () => {
   });
 
   test("Change user password", async () => {
-    const args = {
-      currentPassword: "pass",
-      newPassword: "pass1"
-    };
-
     const previousPassword = _user.password;
 
     const mutation = `
@@ -360,7 +355,15 @@ describe("User mutations", () => {
       }
     `;
 
-    await graphqlRequest(mutation, "usersChangePassword", args, context);
+    await graphqlRequest(
+      mutation,
+      "usersChangePassword",
+      {
+        currentPassword: "pass",
+        newPassword: "pass1"
+      },
+      context
+    );
 
     const user = await Users.findOne({ _id: _user._id });
 
@@ -387,7 +390,7 @@ describe("User mutations", () => {
   });
 
   test("Config user email signature", async () => {
-    const args = [
+    const signatures = [
       {
         signature: faker.random.word(),
         brandId: _brand._id
@@ -405,11 +408,11 @@ describe("User mutations", () => {
     const user = await graphqlRequest(
       mutation,
       "usersConfigEmailSignatures",
-      { signatures: args },
+      { signatures },
       context
     );
 
-    expect(toJSON(user.emailSignatures)).toEqual(toJSON(args));
+    expect(toJSON(user.emailSignatures)).toEqual(toJSON(signatures));
   });
 
   test("Config user get notification by email", async () => {
