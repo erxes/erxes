@@ -82,7 +82,7 @@ server.listen(PORT, () => {
   init(app);
 
   // Set up the WebSocket for handling GraphQL subscriptions
-  new SubscriptionServer(
+  const subscriptionServer = new SubscriptionServer(
     {
       execute,
       subscribe,
@@ -137,6 +137,8 @@ server.listen(PORT, () => {
       path: "/subscriptions"
     }
   );
+
+  return subscriptionServer;
 });
 
 if (process.env.NODE_ENV === "development") {
