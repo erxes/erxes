@@ -1,4 +1,4 @@
-import { ROLES } from './constants';
+import { ROLES } from "./constants";
 
 /**
  * Checks whether user is logged in or not
@@ -8,7 +8,7 @@ import { ROLES } from './constants';
  */
 export const checkLogin = user => {
   if (!user) {
-    throw new Error('Login required');
+    throw new Error("Login required");
   }
 };
 
@@ -20,7 +20,7 @@ export const checkLogin = user => {
  */
 export const checkAdmin = user => {
   if (!user.isOwner && user.role !== ROLES.ADMIN) {
-    throw new Error('Permission required');
+    throw new Error("Permission required");
   }
 };
 
@@ -35,7 +35,7 @@ export const permissionWrapper = (cls, methodName, checkers) => {
   const oldMethod = cls[methodName];
 
   cls[methodName] = (root, args, { user }) => {
-    for (let checker of checkers) {
+    for (const checker of checkers) {
       checker(user);
     }
 
@@ -49,7 +49,8 @@ export const permissionWrapper = (cls, methodName, checkers) => {
  * @param {string} methodName - name of the property (method) of the object
  * @return {function} returns wrapped method
  */
-export const requireLogin = (cls, methodName) => permissionWrapper(cls, methodName, [checkLogin]);
+export const requireLogin = (cls, methodName) =>
+  permissionWrapper(cls, methodName, [checkLogin]);
 
 /**
  * Wraps a method with 'Permission required' permission checker
@@ -67,7 +68,7 @@ export const requireAdmin = (cls, methodName) =>
  * @return {function} returns wrapped method
  */
 export const moduleRequireLogin = mdl => {
-  for (let method in mdl) {
+  for (const method in mdl) {
     requireLogin(mdl, method);
   }
 };
@@ -79,7 +80,7 @@ export const moduleRequireLogin = mdl => {
  * @return {function} returns wrapped method
  */
 export const moduleRequireAdmin = mdl => {
-  for (let method in mdl) {
+  for (const method in mdl) {
     requireAdmin(mdl, method);
   }
 };
@@ -88,5 +89,5 @@ export default {
   requireLogin,
   requireAdmin,
   moduleRequireLogin,
-  moduleRequireAdmin,
+  moduleRequireAdmin
 };

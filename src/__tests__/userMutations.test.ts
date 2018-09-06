@@ -131,7 +131,7 @@ describe("User mutations", () => {
       }
     );
 
-    const args = {
+    const params = {
       token,
       newPassword: "newPassword"
     };
@@ -142,11 +142,13 @@ describe("User mutations", () => {
       }
     `;
 
-    await graphqlRequest(mutation, "resetPassword", args);
+    await graphqlRequest(mutation, "resetPassword", params);
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
-    expect(bcrypt.compare(args.newPassword, updatedUser.password)).toBeTruthy();
+    expect(
+      bcrypt.compare(params.newPassword, updatedUser.password)
+    ).toBeTruthy();
   });
 
   test("Add user", async () => {
@@ -339,7 +341,7 @@ describe("User mutations", () => {
   });
 
   test("Change user password", async () => {
-    const args = {
+    const params = {
       currentPassword: "pass",
       newPassword: "pass1"
     };
@@ -360,7 +362,7 @@ describe("User mutations", () => {
       }
     `;
 
-    await graphqlRequest(mutation, "usersChangePassword", args, context);
+    await graphqlRequest(mutation, "usersChangePassword", params, context);
 
     const user = await Users.findOne({ _id: _user._id });
 
@@ -387,7 +389,7 @@ describe("User mutations", () => {
   });
 
   test("Config user email signature", async () => {
-    const args = [
+    const params = [
       {
         signature: faker.random.word(),
         brandId: _brand._id
@@ -405,11 +407,11 @@ describe("User mutations", () => {
     const user = await graphqlRequest(
       mutation,
       "usersConfigEmailSignatures",
-      { signatures: args },
+      { signatures: params },
       context
     );
 
-    expect(toJSON(user.emailSignatures)).toEqual(toJSON(args));
+    expect(toJSON(user.emailSignatures)).toEqual(toJSON(params));
   });
 
   test("Config user get notification by email", async () => {

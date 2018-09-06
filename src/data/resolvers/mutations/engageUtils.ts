@@ -58,7 +58,7 @@ const findCustomers = async ({
 }: {
   customerIds: string[];
   segmentId: string;
-}): ICustomerDocument[] => {
+}): Promise<ICustomerDocument[]> => {
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
 
@@ -72,7 +72,6 @@ const findCustomers = async ({
 
 /**
  * Send via email
- * @param {Object} engage message object
  */
 const sendViaEmail = async (message: IEngageMessageDocument) => {
   const { fromUserId, segmentId, customerIds } = message;
