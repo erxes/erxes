@@ -1,13 +1,15 @@
-import moment from 'moment';
+import * as moment from "moment";
 
 export default {
-  segments(segment, headSegment) {
+  segments(segment?, headSegment?) {
     const query = { $and: [] };
 
     const childQuery = {
-      [segment.connector === 'any' ? '$or' : '$and']: segment.conditions.map(condition => ({
-        [condition.field]: convertConditionToQuery(condition),
-      })),
+      [segment.connector === "any" ? "$or" : "$and"]: segment.conditions.map(
+        condition => ({
+          [condition.field]: convertConditionToQuery(condition)
+        })
+      )
     };
 
     if (segment.conditions.length) {
@@ -16,17 +18,19 @@ export default {
 
     // Fetching parent segment
     const embeddedParentSegment =
-      typeof segment.getParentSegment === 'function' ? segment.getParentSegment() : null;
+      typeof segment.getParentSegment === "function"
+        ? segment.getParentSegment()
+        : null;
 
     const parentSegment = headSegment || embeddedParentSegment;
 
     if (parentSegment) {
       const parentQuery = {
-        [parentSegment.connector === 'any'
-          ? '$or'
-          : '$and']: parentSegment.conditions.map(condition => ({
-          [condition.field]: convertConditionToQuery(condition),
-        })),
+        [parentSegment.connector === "any"
+          ? "$or"
+          : "$and"]: parentSegment.conditions.map(condition => ({
+          [condition.field]: convertConditionToQuery(condition)
+        }))
       };
 
       if (parentSegment.conditions.length) {
@@ -35,19 +39,19 @@ export default {
     }
 
     return query.$and.length ? query : {};
-  },
+  }
 };
 
-function convertConditionToQuery(condition) {
+function convertConditionToQuery(condition: any) {
   const { operator, type, dateUnit, value } = condition;
   let transformedValue;
 
   switch (type) {
-    case 'string':
+    case "string":
       transformedValue = value && value.toLowerCase();
       break;
-    case 'number':
-    case 'date':
+    case "number":
+    case "date":
       transformedValue = parseInt(value, 10);
       break;
     default:
@@ -56,57 +60,61 @@ function convertConditionToQuery(condition) {
   }
 
   switch (operator) {
-    case 'e':
-    case 'et':
+    case "e":
+    case "et":
     default:
       return transformedValue;
-    case 'dne':
+    case "dne":
       return { $ne: transformedValue };
-    case 'c':
-      return { $regex: new RegExp(`.*${escapeRegExp(transformedValue)}.*`, 'i') };
-    case 'dnc':
-      return { $regex: new RegExp(`^((?!${escapeRegExp(transformedValue)}).)*$`, 'i') };
-    case 'igt':
+    case "c":
+      return {
+        $regex: new RegExp(`.*${escapeRegExp(transformedValue)}.*`, "i")
+      };
+    case "dnc":
+      return {
+        $regex: new RegExp(`^((?!${escapeRegExp(transformedValue)}).)*$`, "i")
+      };
+    case "igt":
       return { $gt: transformedValue };
-    case 'ilt':
+    case "ilt":
       return { $lt: transformedValue };
-    case 'it':
+    case "it":
       return true;
-    case 'if':
+    case "if":
       return false;
-    case 'wlt':
+    case "wlt":
       return {
         $gte: moment()
           .subtract(transformedValue, dateUnit)
           .toDate(),
-        $lte: new Date(),
+        $lte: new Date()
       };
-    case 'wmt':
+    case "wmt":
       return {
         $lte: moment()
           .subtract(transformedValue, dateUnit)
-          .toDate(),
+          .toDate()
       };
-    case 'wow':
+    case "wow":
       return {
         $lte: moment()
           .add(transformedValue, dateUnit)
           .toDate(),
-        $gte: new Date(),
+        $gte: new Date()
       };
-    case 'woa':
+    case "woa":
       return {
         $gte: moment()
           .add(transformedValue, dateUnit)
-          .toDate(),
+          .toDate()
       };
-    case 'is':
+    case "is":
       return { $exists: true };
-    case 'ins':
+    case "ins":
       return { $exists: false };
   }
 }
 
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+function escapeRegExp(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }

@@ -6,7 +6,7 @@ const responseTemplateQueries = {
   /**
    * Response templates list
    */
-  responseTemplates(_root, args: {page: number; perPage: number}) {
+  responseTemplates(_root, args: { page: number; perPage: number }) {
     return paginate(ResponseTemplates.find({}), args);
   },
 

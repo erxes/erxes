@@ -1,22 +1,21 @@
-import { COC_CONTENT_TYPES } from '../../constants';
+import { COC_CONTENT_TYPES } from "../../constants";
 
 const START_DATE = {
   year: 2017,
-  month: 0,
+  month: 0
 };
 
 class BaseMonthActivityBuilder {
+  public coc: any;
+  public cocContentType: any;
   constructor(coc) {
     this.coc = coc;
   }
 
   /**
    * Get the number of days in the given month
-   * @param {int} year - Year
-   * @param {int} month - Month [0..11]
-   * @return {int} returns number of days in the given month
    */
-  getIntervalEnd(year, month) {
+  public getIntervalEnd(year, month) {
     const date = new Date(year, month, 0);
     date.setDate(date.getDate() + 1);
     return date;
@@ -24,10 +23,8 @@ class BaseMonthActivityBuilder {
 
   /**
    * Generate dates with interval dates used to query ActivityLogs
-   * @return {Object} return a list of month objects with yearMonth: { year: int, month: int },
-   *                                              interval: { start: Date, year: Date } objects
    */
-  generateDates() {
+  public generateDates() {
     const now = new Date();
 
     const endYear = now.getFullYear();
@@ -35,24 +32,24 @@ class BaseMonthActivityBuilder {
 
     const monthIntervals = [];
 
-    let year = START_DATE.year,
-      month = START_DATE.month;
+    let year = START_DATE.year;
+    let month = START_DATE.month;
 
     do {
       monthIntervals.push({
         yearMonth: {
           year,
-          month,
+          month
         },
         interval: {
           start: new Date(year, month, 1),
-          end: this.getIntervalEnd(year, month + 1),
-        },
+          end: this.getIntervalEnd(year, month + 1)
+        }
       });
 
       month++;
 
-      if (month % 12 == 0) {
+      if (month % 12 === 0) {
         month = 0;
         year++;
       }
@@ -63,17 +60,16 @@ class BaseMonthActivityBuilder {
 
   /**
    * Build month intervals and collect ActivityLogForMonth resolver placeholders into them
-   * @return Month interval objects containing activitylogs for that month
    */
-  build() {
+  public build() {
     const dates = this.generateDates();
     const list = [];
 
-    for (let date of dates) {
+    for (const date of dates) {
       list.unshift({
         coc: this.coc,
         cocContentType: this.cocContentType,
-        date,
+        date
       });
     }
 
@@ -115,5 +111,5 @@ export default {
   CustomerMonthActivityLogBuilder,
   CompanyMonthActivityLogBuilder,
   UserMonthActivityLogBuilder,
-  DealMonthActivityLogBuilder,
+  DealMonthActivityLogBuilder
 };

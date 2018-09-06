@@ -1,22 +1,41 @@
-import { Brands, Tags, Customers, Segments, Forms } from '../../../db/models';
+import { Brands, Customers, Forms, Segments, Tags } from "../../../db/models";
 import {
-  TAG_TYPES,
-  INTEGRATION_KIND_CHOICES,
   COC_CONTENT_TYPES,
   COC_LEAD_STATUS_TYPES,
   COC_LIFECYCLE_STATE_TYPES,
-} from '../../constants';
-import QueryBuilder from './segmentQueryBuilder';
-import { moduleRequireLogin } from '../../permissions';
-import { paginate } from './utils';
-import BuildQuery from './customerQueryBuilder';
-import { cocsExport } from './cocExport';
+  INTEGRATION_KIND_CHOICES,
+  TAG_TYPES
+} from "../../constants";
+import { moduleRequireLogin } from "../../permissions";
+import { cocsExport } from "./cocExport";
+import BuildQuery from "./customerQueryBuilder";
+import QueryBuilder from "./segmentQueryBuilder";
+import { paginate } from "./utils";
 
-const sortBuilder = params => {
+interface IListArgs {
+  page: number;
+  perPage: number;
+  segment: string;
+  tag: string;
+  ids: string[];
+  searchValue: string;
+  brand: string;
+  numberegration: string;
+  form: string;
+  startDate: string;
+  endDate: string;
+  lifecycleState: string;
+  leadStatus: string;
+  sortField: string;
+  sortDirection: number;
+  byFakeSegment?: any;
+}
+
+const sortBuilder = (params: IListArgs) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection;
 
-  let sortParams = { 'messengerData.lastSeenAt': -1 };
+  let sortParams: any = { "messengerData.lastSeenAt": -1 };
 
   if (sortField) {
     sortParams = { [sortField]: sortDirection };
@@ -28,10 +47,8 @@ const sortBuilder = params => {
 const customerQueries = {
   /**
    * Customers list
-   * @param {Object} args
-   * @return {Promise} filtered customers list by given parameters
    */
-  async customers(root, params) {
+  async customers(_root, params: IListArgs) {
     const qb = new BuildQuery(params);
 
     await qb.buildAllQueries();
@@ -43,17 +60,18 @@ const customerQueries = {
 
   /**
    * Customers for only main list
-   * @param {Object} args
-   * @return {Promise} filtered customers list by given parameters
    */
-  async customersMain(root, params) {
+  async customersMain(_root, params: IListArgs) {
     const qb = new BuildQuery(params);
 
     await qb.buildAllQueries();
 
     const sort = sortBuilder(params);
 
-    const list = await paginate(Customers.find(qb.mainQuery()).sort(sort), params);
+    const list = await paginate(
+      Customers.find(qb.mainQuery()).sort(sort),
+      params
+    );
     const totalCount = await Customers.find(qb.mainQuery()).count();
 
     return { list, totalCount };
@@ -61,11 +79,8 @@ const customerQueries = {
 
   /**
    * Group customer counts by brands, segments, integrations, tags
-   * @param {Object} args
-   * @param {CustomerListParams} args.params
-   * @return {Object} counts map
    */
-  async customerCounts(root, params) {
+  async customerCounts(_root, params: IListArgs) {
     const counts = {
       bySegment: {},
       byBrand: {},
@@ -74,7 +89,7 @@ const customerQueries = {
       byFakeSegment: 0,
       byForm: {},
       byLeadStatus: {},
-      byLifecycleState: {},
+      byLifecycleState: {}
     };
 
     const qb = new BuildQuery(params);
@@ -100,55 +115,61 @@ const customerQueries = {
 
     // Count customers by segments
     const segments = await Segments.find({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentType: COC_CONTENT_TYPES.CUSTOMER
     });
 
     // Count customers by segment
-    for (let s of segments) {
+    for (const s of segments) {
       counts.bySegment[s._id] = await count(await qb.segmentFilter(s._id));
     }
 
     // Count customers by fake segment
     if (params.byFakeSegment) {
-      counts.byFakeSegment = await count(QueryBuilder.segments(params.byFakeSegment));
+      counts.byFakeSegment = await count(
+        QueryBuilder.segments(params.byFakeSegment)
+      );
     }
 
     // Count customers by brand
     const brands = await Brands.find({});
 
-    for (let brand of brands) {
+    for (const brand of brands) {
       counts.byBrand[brand._id] = await count(await qb.brandFilter(brand._id));
     }
 
     // Count customers by integration kind
-    for (let kind of INTEGRATION_KIND_CHOICES.ALL) {
-      counts.byIntegrationType[kind] = await count(await qb.integrationTypeFilter(kind));
+    for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
+      counts.byIntegrationType[kind] = await count(
+        await qb.integrationTypeFilter(kind)
+      );
     }
 
     // Count customers by tag
     const tags = await Tags.find({ type: TAG_TYPES.CUSTOMER });
 
-    for (let tag of tags) {
+    for (const tag of tags) {
       counts.byTag[tag._id] = await count(qb.tagFilter(tag._id));
     }
 
     // Count customers by submitted form
     const forms = await Forms.find({});
 
-    for (let form of forms) {
+    for (const form of forms) {
       counts.byForm[form._id] = await count(
-        await qb.formFilter(form._id, params.startDate, params.endDate),
+        await qb.formFilter(form._id, params.startDate, params.endDate)
       );
     }
 
     // Count customers by lead status
-    for (let status of COC_LEAD_STATUS_TYPES) {
+    for (const status of COC_LEAD_STATUS_TYPES) {
       counts.byLeadStatus[status] = await count(qb.leadStatusFilter(status));
     }
 
     // Count customers by life cycle state
-    for (let state of COC_LIFECYCLE_STATE_TYPES) {
-      counts.byLifecycleState[state] = await count(qb.lifecycleStateFilter(state));
+    for (const state of COC_LIFECYCLE_STATE_TYPES) {
+      counts.byLifecycleState[state] = await count(
+        qb.lifecycleStateFilter(state)
+      );
     }
 
     return counts;
@@ -157,14 +178,15 @@ const customerQueries = {
   /**
    * Publishes customers list for the preview
    * when creating/editing a customer segment
-   * @param {Object} segment   Segment that's being created/edited
-   * @param {Number} [limit=0] Customers limit (for pagination)
    */
-  async customerListForSegmentPreview(root, { segment, limit }) {
+  async customerListForSegmentPreview(
+    _root,
+    { segment, limit }: { segment: any; limit: number }
+  ) {
     const headSegment = await Segments.findOne({ _id: segment.subOf });
 
     const query = QueryBuilder.segments(segment, headSegment);
-    const sort = { 'messengerData.lastSeenAt': -1 };
+    const sort = { "messengerData.lastSeenAt": -1 };
 
     return Customers.find(query)
       .sort(sort)
@@ -173,21 +195,15 @@ const customerQueries = {
 
   /**
    * Get one customer
-   * @param {Object} args
-   * @param {String} args._id
-   * @return {Promise} found customer
    */
-  customerDetail(root, { _id }) {
+  customerDetail(_root, { _id }: { _id: string }) {
     return Customers.findOne({ _id });
   },
 
   /**
    * Export customers to xls file
-   *
-   * @param {Object} args - Query params
-   * @return {String} File url
    */
-  async customersExport(root, params) {
+  async customersExport(_root, params: IListArgs) {
     const qb = new BuildQuery(params);
 
     await qb.buildAllQueries();
@@ -196,8 +212,8 @@ const customerQueries = {
 
     const customers = await Customers.find(qb.mainQuery()).sort(sort);
 
-    return cocsExport(customers, 'customer');
-  },
+    return cocsExport(customers, "customer");
+  }
 };
 
 moduleRequireLogin(customerQueries);

@@ -1,25 +1,46 @@
-import { Companies, Customers, Segments, Tags, Integrations, Brands } from '../../../db/models';
-import QueryBuilder from './segmentQueryBuilder';
 import {
-  TAG_TYPES,
+  Brands,
+  Companies,
+  Customers,
+  Integrations,
+  Segments,
+  Tags
+} from "../../../db/models";
+import {
   COC_CONTENT_TYPES,
   COC_LEAD_STATUS_TYPES,
   COC_LIFECYCLE_STATE_TYPES,
-} from '../../constants';
-import { moduleRequireLogin } from '../../permissions';
-import { paginate } from './utils';
-import { cocsExport } from './cocExport';
+  TAG_TYPES
+} from "../../constants";
+import { moduleRequireLogin } from "../../permissions";
+import { cocsExport } from "./cocExport";
+import QueryBuilder from "./segmentQueryBuilder";
+import { paginate } from "./utils";
+
+interface IListArgs {
+  page: number;
+  perPage: number;
+  segment: string;
+  tag: string;
+  ids: string[];
+  searchValue: string;
+  lifecycleState: string;
+  leadStatus: string;
+  sortField: string;
+  sortDirection: number;
+  brand: string;
+}
 
 /*
  * Brand filter
  */
-const brandFilter = async brandId => {
+const brandFilter = async (brandId: string) => {
   const integrations = await Integrations.find({ brandId }, { _id: 1 });
   const integrationIds = integrations.map(i => i._id);
 
   const customers = await Customers.find(
     { integrationId: { $in: integrationIds } },
-    { companyIds: 1 },
+    { companyIds: 1 }
   );
 
   let companyIds = [];
@@ -31,8 +52,8 @@ const brandFilter = async brandId => {
   return { _id: { $in: companyIds } };
 };
 
-const listQuery = async params => {
-  let selector = {};
+const listQuery = async (params: IListArgs) => {
+  let selector: any = {};
 
   // Filter by segments
   if (params.segment) {
@@ -43,11 +64,11 @@ const listQuery = async params => {
 
   if (params.searchValue) {
     const fields = [
-      { names: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { email: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { website: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { industry: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { plan: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { names: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } },
+      { email: new RegExp(`.*${params.searchValue}.*`, "i") },
+      { website: new RegExp(`.*${params.searchValue}.*`, "i") },
+      { industry: new RegExp(`.*${params.searchValue}.*`, "i") },
+      { plan: new RegExp(`.*${params.searchValue}.*`, "i") }
     ];
 
     selector = { $or: fields };
@@ -81,11 +102,11 @@ const listQuery = async params => {
   return selector;
 };
 
-const sortBuilder = params => {
+const sortBuilder = (params: IListArgs) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection;
 
-  let sortParams = { primaryName: -1 };
+  let sortParams: any = { primaryName: -1 };
 
   if (sortField) {
     sortParams = { [sortField]: sortDirection };
@@ -97,10 +118,8 @@ const sortBuilder = params => {
 const companyQueries = {
   /**
    * Companies list
-   * @param {Object} args
-   * @return {Promise} filtered companies list by given parameters
    */
-  async companies(root, params) {
+  async companies(_root, params: IListArgs) {
     const selector = await listQuery(params);
 
     const sort = sortBuilder(params);
@@ -110,10 +129,8 @@ const companyQueries = {
 
   /**
    * Companies for only main list
-   * @param {Object} args
-   * @return {Promise} filtered companies list by given parameters
    */
-  async companiesMain(root, params) {
+  async companiesMain(_root, params: IListArgs) {
     const selector = await listQuery(params);
     const sort = sortBuilder(params);
 
@@ -125,28 +142,26 @@ const companyQueries = {
 
   /**
    * Group company counts by segments
-   * @param {Object} args - Query params
-   * @return {Object} counts map
    */
-  async companyCounts(root, args) {
+  async companyCounts(_root, args: IListArgs) {
     const counts = {
       bySegment: {},
       byTag: {},
       byBrand: {},
       byLeadStatus: {},
-      byLifecycleState: {},
+      byLifecycleState: {}
     };
 
     const selector = await listQuery(args);
 
     const count = query => {
-      const findQuery = Object.assign({}, selector, query);
+      const findQuery = { ...selector, ...query };
       return Companies.find(findQuery).count();
     };
 
     // Count companies by segments =========
     const segments = await Segments.find({
-      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentType: COC_CONTENT_TYPES.COMPANY
     });
 
     for (const s of segments) {
@@ -182,29 +197,25 @@ const companyQueries = {
 
   /**
    * Get one company
-   * @param {Object} args
-   * @param {String} args._id
-   * @return {Promise} found company
    */
-  companyDetail(root, { _id }) {
+  companyDetail(_root, { _id }: { _id: string }) {
     return Companies.findOne({ _id });
   },
 
   /**
    * Export companies to xls file
-   *
-   * @param {Object} args - Query params
-   * @return {String} File url
    */
-  async companiesExport(root, params) {
+  async companiesExport(_root, params: IListArgs) {
     const selector = await listQuery(params);
 
     const sort = sortBuilder(params);
 
-    const companies = await paginate(Companies.find(selector), params).sort(sort);
+    const companies = await paginate(Companies.find(selector), params).sort(
+      sort
+    );
 
-    return cocsExport(companies, 'company');
-  },
+    return cocsExport(companies, "company");
+  }
 };
 
 moduleRequireLogin(companyQueries);

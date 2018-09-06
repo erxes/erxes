@@ -1,20 +1,47 @@
-import { Channels, Brands, Conversations, ConversationMessages, Tags } from '../../../db/models';
+import {
+  Brands,
+  Channels,
+  ConversationMessages,
+  Conversations,
+  Tags
+} from "../../../db/models";
+import { IUserDocument } from "../../../db/models/definitions/users";
 
-import { CONVERSATION_STATUSES, INTEGRATION_KIND_CHOICES } from '../../constants';
-import QueryBuilder from './conversationQueryBuilder';
-import { moduleRequireLogin } from '../../permissions';
+import {
+  CONVERSATION_STATUSES,
+  INTEGRATION_KIND_CHOICES
+} from "../../constants";
+import { moduleRequireLogin } from "../../permissions";
+import QueryBuilder from "./conversationQueryBuilder";
+
+interface IListArgs {
+  limit: number;
+  channelId: string;
+  status: string;
+  unassigned: string;
+  brandId: string;
+  tag: string;
+  integrationType: string;
+  participating: string;
+  starred: string;
+  ids: string[];
+  startDate: string;
+  endDate: string;
+  only?: string;
+}
 
 // count helper
-const count = async query => await Conversations.find(query).count();
+const count = async query => Conversations.find(query).count();
 
 const countByChannels = async qb => {
   const byChannels = {};
   const channels = await Channels.find();
 
-  for (let channel of channels) {
-    byChannels[channel._id] = await count(
-      Object.assign({}, qb.mainQuery(), await qb.channelFilter(channel._id)),
-    );
+  for (const channel of channels) {
+    byChannels[channel._id] = await count({
+      ...qb.mainQuery(),
+      ...(await qb.channelFilter(channel._id))
+    });
   }
 
   return byChannels;
@@ -23,10 +50,11 @@ const countByChannels = async qb => {
 const countByIntegrationTypes = async qb => {
   const byIntegrationTypes = {};
 
-  for (let intT of INTEGRATION_KIND_CHOICES.ALL) {
-    byIntegrationTypes[intT] = await count(
-      Object.assign({}, qb.mainQuery(), await qb.integrationTypeFilter(intT)),
-    );
+  for (const intT of INTEGRATION_KIND_CHOICES.ALL) {
+    byIntegrationTypes[intT] = await count({
+      ...qb.mainQuery(),
+      ...(await qb.integrationTypeFilter(intT))
+    });
   }
 
   return byIntegrationTypes;
@@ -37,16 +65,13 @@ const countByTags = async qb => {
   const queries = qb.queries;
   const tags = await Tags.find();
 
-  for (let tag of tags) {
-    byTags[tag._id] = await count(
-      Object.assign(
-        {},
-        qb.mainQuery(),
-        queries.integrations,
-        queries.integrationType,
-        qb.tagFilter(tag._id),
-      ),
-    );
+  for (const tag of tags) {
+    byTags[tag._id] = await count({
+      ...qb.mainQuery(),
+      ...queries.integrations,
+      ...queries.integrationType,
+      ...qb.tagFilter(tag._id)
+    });
   }
 
   return byTags;
@@ -56,14 +81,14 @@ const countByBrands = async qb => {
   const byBrands = {};
   const brands = await Brands.find();
 
-  for (let brand of brands) {
-    byBrands[brand._id] = await count(
-      Object.assign(
-        {},
-        qb.mainQuery(),
-        qb.intersectIntegrationIds(qb.queries.channel, await qb.brandFilter(brand._id)),
-      ),
-    );
+  for (const brand of brands) {
+    byBrands[brand._id] = await count({
+      ...qb.mainQuery(),
+      ...qb.intersectIntegrationIds(
+        qb.queries.channel,
+        await qb.brandFilter(brand._id)
+      )
+    });
   }
 
   return byBrands;
@@ -72,19 +97,19 @@ const countByBrands = async qb => {
 const conversationQueries = {
   /**
    * Conversataions list
-   * @param {Object} params - Query params
-   * @return {Promise} filtered conversations list by given parameters
    */
-  async conversations(root, params, { user }) {
+  async conversations(_root, params, { user }) {
     // filter by ids of conversations
     if (params && params.ids) {
-      return Conversations.find({ _id: { $in: params.ids } }).sort({ createdAt: -1 });
+      return Conversations.find({ _id: { $in: params.ids } }).sort({
+        createdAt: -1
+      });
     }
 
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
-      starredConversationIds: user.starredConversationIds,
+      starredConversationIds: user.starredConversationIds
     });
 
     await qb.buildAllQueries();
@@ -96,11 +121,8 @@ const conversationQueries = {
 
   /**
    * Get conversation messages
-   * @param {String} args._id
-   * @param {Integer} args.skip
-   * @return {Promise} filtered messages list by given parameters
    */
-  async conversationMessages(root, { conversationId, skip, limit }) {
+  async conversationMessages(_root, { conversationId, skip, limit }) {
     const query = { conversationId };
 
     if (limit) {
@@ -117,31 +139,29 @@ const conversationQueries = {
 
   /**
    *  Get all conversation messages count. We will use it in pager
-   * @param {String} args._id
-   * @return {Promise} total count
    */
-  async conversationMessagesTotalCount(root, { conversationId }) {
+  async conversationMessagesTotalCount(
+    _root,
+    { conversationId }: { conversationId: string }
+  ) {
     return ConversationMessages.count({ conversationId });
   },
 
   /**
    * Group conversation counts by brands, channels, integrations, status
-   *
-   * @param {Object} args
-   * @param {Object} params - Query params
-   * @param {Object} context
-   * @param {Object} context.user
-   *
-   * @return {Object} counts map
    */
-  async conversationCounts(root, params, { user }) {
+  async conversationCounts(
+    _root,
+    params: IListArgs,
+    { user }: { user: IUserDocument }
+  ) {
     const { only } = params;
 
-    const response = {};
+    const response: any = {};
 
     const qb = new QueryBuilder(params, {
       _id: user._id,
-      starredConversationIds: user.starredConversationIds,
+      starredConversationIds: user.starredConversationIds
     });
 
     await qb.buildAllQueries();
@@ -149,89 +169,77 @@ const conversationQueries = {
     const queries = qb.queries;
 
     switch (only) {
-      case 'byChannels':
+      case "byChannels":
         response.byChannels = await countByChannels(qb);
         break;
 
-      case 'byIntegrationTypes':
+      case "byIntegrationTypes":
         response.byIntegrationTypes = await countByIntegrationTypes(qb);
         break;
 
-      case 'byBrands':
+      case "byBrands":
         response.byBrands = await countByBrands(qb);
         break;
 
-      case 'byTags':
+      case "byTags":
         response.byTags = await countByTags(qb);
         break;
     }
 
     // unassigned count
-    response.unassigned = await count(
-      Object.assign(
-        {},
-        qb.mainQuery(),
-        queries.integrations,
-        queries.integrationType,
-        qb.unassignedFilter(),
-      ),
-    );
+    response.unassigned = await count({
+      ...qb.mainQuery(),
+      ...queries.integrations,
+      ...queries.integrationType,
+      ...qb.unassignedFilter()
+    });
 
     // participating count
-    response.participating = await count(
-      Object.assign(
-        {},
-        qb.mainQuery(),
-        queries.integrations,
-        queries.integrationType,
-        qb.participatingFilter(),
-      ),
-    );
+    response.participating = await count({
+      ...qb.mainQuery(),
+      ...queries.integrations,
+      ...queries.integrationType,
+      ...qb.participatingFilter()
+    });
 
     // starred count
-    response.starred = await count(
-      Object.assign(
-        {},
-        qb.mainQuery(),
-        queries.integrations,
-        queries.integrationType,
-        qb.starredFilter(),
-      ),
-    );
+    response.starred = await count({
+      ...qb.mainQuery(),
+      ...queries.integrations,
+      ...queries.integrationType,
+      ...qb.starredFilter()
+    });
 
     // resolved count
-    response.resolved = await count(
-      Object.assign(
-        {},
-        qb.mainQuery(),
-        queries.integrations,
-        queries.integrationType,
-        qb.statusFilter(['closed']),
-      ),
-    );
+    response.resolved = await count({
+      ...qb.mainQuery(),
+      ...queries.integrations,
+      ...queries.integrationType,
+      ...qb.statusFilter(["closed"])
+    });
 
     return response;
   },
 
   /**
    * Get one conversation
-   * @param {Object} args
-   * @param {String} args._id
-   * @return {Promise} found conversation
    */
-  conversationDetail(root, { _id }) {
+  conversationDetail(_root, { _id }: { _id: string }) {
     return Conversations.findOne({ _id });
   },
 
   /**
    * Get all conversations count. We will use it in pager
-   * @return {Promise} total count
    */
-  async conversationsTotalCount(root, params, { user }) {
+  async conversationsTotalCount(
+    _root,
+    params: IListArgs,
+    { user }: { user: IUserDocument }
+  ) {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
-      starredConversationIds: user.starredConversationIds,
+      starredConversationIds: user.starredConversationIds
     });
 
     await qb.buildAllQueries();
@@ -241,14 +249,16 @@ const conversationQueries = {
 
   /**
    * Get last conversation
-   * @param {Object} params - Query params
-   * @return {Promise} filtered conversations list by given parameters
    */
-  async conversationsGetLast(root, params, { user }) {
+  async conversationsGetLast(
+    _root,
+    params: IListArgs,
+    { user }: { user: IUserDocument }
+  ) {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
-      starredConversationIds: user.starredConversationIds,
+      starredConversationIds: user.starredConversationIds
     });
 
     await qb.buildAllQueries();
@@ -258,9 +268,12 @@ const conversationQueries = {
 
   /**
    * Get all unread conversations for logged in user
-   * @return {Promise} all unread conversations count
    */
-  async conversationsTotalUnreadCount(root, args, { user }) {
+  async conversationsTotalUnreadCount(
+    _root,
+    _args,
+    { user }: { user: IUserDocument }
+  ) {
     // initiate query builder
     const qb = new QueryBuilder({}, { _id: user._id });
 
@@ -276,14 +289,14 @@ const conversationQueries = {
       $or: [
         {
           userId: { $exists: true },
-          messageCount: { $gt: 1 },
+          messageCount: { $gt: 1 }
         },
         {
-          userId: { $exists: false },
-        },
-      ],
+          userId: { $exists: false }
+        }
+      ]
     }).count();
-  },
+  }
 };
 
 moduleRequireLogin(conversationQueries);
