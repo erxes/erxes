@@ -556,6 +556,7 @@ export const channelFactory = async (params: IChannelFactoryInput) => {
 
 interface IKnowledgeBaseTopicFactoryInput {
   userId?: string;
+  categoryIds?: string[]
 }
 
 export const knowledgeBaseTopicFactory = async (
