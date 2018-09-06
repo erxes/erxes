@@ -1,6 +1,3 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
 import * as faker from "faker";
 import { connect, disconnect } from "../db/connection";
 import {

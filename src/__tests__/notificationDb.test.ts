@@ -1,6 +1,3 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
 import { NOTIFICATION_TYPES } from "../data/constants";
 import { connect, disconnect } from "../db/connection";
 import { notificationConfigurationFactory, userFactory } from "../db/factories";
