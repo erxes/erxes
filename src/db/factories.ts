@@ -555,7 +555,6 @@ export const channelFactory = async (params: IChannelFactoryInput) => {
 };
 
 interface IKnowledgeBaseTopicFactoryInput {
-  _id?: string;
   userId?: string;
 }
 
@@ -563,7 +562,6 @@ export const knowledgeBaseTopicFactory = async (
   params: IKnowledgeBaseTopicFactoryInput
 ) => {
   const doc = {
-    _id: params._id,
     title: faker.random.word(),
     description: faker.lorem.sentence,
     brandId: faker.random.word(),

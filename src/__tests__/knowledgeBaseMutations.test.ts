@@ -53,8 +53,8 @@ describe("mutations", () => {
 
   beforeEach(async () => {
     // Creating test data
-    _knowledgeBaseTopic = await knowledgeBaseTopicFactory();
-    _knowledgeBaseCategory = await knowledgeBaseCategoryFactory();
+    _knowledgeBaseTopic = await knowledgeBaseTopicFactory({});
+    _knowledgeBaseCategory = await knowledgeBaseCategoryFactory({});
     _knowledgeBaseArticle = await knowledgeBaseArticleFactory({});
     _brand = await brandFactory({});
     _user = await userFactory({});
