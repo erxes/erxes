@@ -124,13 +124,13 @@ const authenticate = async (queryParams: any) => {
  */
 const getTwitterAuthorizeUrl = () =>
   new Promise((resolve, reject) =>
-    getOauth().getOAuthRequestToken((e, oauth_token) => {
+    getOauth().getOAuthRequestToken((e, oauthToken) => {
       if (e) {
         return reject(e.message);
       }
 
       return resolve(
-        `https://api.twitter.com/oauth/authorize?oauth_token=${oauth_token}`
+        `https://api.twitter.com/oauth/authorize?oauth_token=${oauthToken}`
       );
     })
   );
