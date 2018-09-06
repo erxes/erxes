@@ -1,4 +1,4 @@
-import faker from "faker";
+import * as faker from "faker";
 import { connect, disconnect, graphqlRequest } from "../db/connection";
 import { fieldFactory, fieldGroupFactory, userFactory } from "../db/factories";
 import { Fields, FieldsGroups, Users } from "../db/models";

@@ -38,6 +38,10 @@ class Article {
     { categoryIds, ...docFields }: IArticleCreate,
     userId: string
   ) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
     const article = await KnowledgeBaseArticles.create({
       ...docFields,
       createdDate: new Date(),
@@ -69,6 +73,10 @@ class Article {
     { categoryIds, ...docFields }: IArticleCreate,
     userId: string
   ) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
     await KnowledgeBaseArticles.update(
       { _id },
       {
@@ -136,6 +144,10 @@ class Category {
     { topicIds, ...docFields }: ICategoryCreate,
     userId
   ) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
     const category = await KnowledgeBaseCategories.create({
       ...docFields,
       createdDate: new Date(),
@@ -165,6 +177,10 @@ class Category {
     { topicIds, ...docFields }: ICategoryCreate,
     userId: string
   ) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
     await KnowledgeBaseCategories.update(
       { _id },
       {
@@ -225,6 +241,10 @@ class Topic {
    * Create KnowledgeBaseTopic document
    */
   public static createDoc(docFields: ITopic, userId: string) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
     return KnowledgeBaseTopics.create({
       ...docFields,
       createdDate: new Date(),
@@ -236,8 +256,16 @@ class Topic {
   /**
    * Update KnowledgeBaseTopic document
    */
-  public static updateDoc(_id: string, docFields: ITopic, userId: string) {
-    return KnowledgeBaseTopics.update(
+  public static async updateDoc(
+    _id: string,
+    docFields: ITopic,
+    userId: string
+  ) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
+    await KnowledgeBaseTopics.update(
       { _id },
       {
         $set: {
@@ -247,6 +275,8 @@ class Topic {
         }
       }
     );
+
+    return KnowledgeBaseTopics.findOne({ _id });
   }
 
   /**

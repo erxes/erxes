@@ -19,31 +19,39 @@ interface IConversationModel extends Model<IConversationDocument> {
   createConversation(doc: IConversation): Promise<IConversationDocument>;
   checkExistanceConversations(ids: string[]): any;
   reopen(_id: string): Promise<IConversationDocument>;
+
   assignUserConversation(
     conversationIds: string[],
     assignedUserId: string
   ): Promise<IConversationDocument[]>;
+
   unassignUserConversation(
     conversationIds: string[]
   ): Promise<IConversationDocument>;
+
   changeStatusConversation(
     conversationIds: string[],
     status: string,
     userId?: string
   ): Promise<IConversationDocument>;
+
   markAsReadConversation(
     _id: string,
     userId: string
   ): Promise<IConversationDocument>;
-  newOrOpenConversation(): Promise<IConversationDocument[]>;
+
+  newOrOpenConversation(): IConversationDocument[];
+
   addParticipatedUsers(
     conversationId: string,
     userId: string
   ): Promise<IConversationDocument>;
+
   changeCustomer(
     newCustomerId: string,
     customerIds: string[]
   ): Promise<IConversationDocument[]>;
+
   removeCustomerConversations(
     customerId: string
   ): Promise<IConversationDocument>;
@@ -56,8 +64,6 @@ class Conversation {
 
   /**
    * Check conversations exists
-   * @param  {list} ids - Ids of conversations
-   * @return {object, list} selector, conversations
    */
   public static async checkExistanceConversations(_ids: string[]) {
     const selector = { _id: { $in: _ids } };
@@ -72,8 +78,6 @@ class Conversation {
 
   /**
    * Create a conversation
-   * @param  {Object} conversationObj - Object
-   * @return {Promise} Newly created conversation object
    */
   public static async createConversation(doc: IConversation) {
     const now = new Date();
@@ -90,8 +94,6 @@ class Conversation {
 
   /*
    * Reopens conversation
-   * @param {String} _id - Conversation id
-   * @return {Object} updated conversation
    */
   public static async reopen(_id: string) {
     await Conversations.update(
@@ -115,9 +117,6 @@ class Conversation {
 
   /**
    * Assign user to conversation
-   * @param  {list} conversationIds
-   * @param  {String} assignedUserId
-   * @return {Promise} Updated conversation objects
    */
   public static async assignUserConversation(
     conversationIds: string[],
@@ -140,8 +139,6 @@ class Conversation {
 
   /**
    * Unassign user from conversation
-   * @param  {list} conversationIds
-   * @return {Promise} Updated conversation objects
    */
   public static async unassignUserConversation(conversationIds: string[]) {
     await this.checkExistanceConversations(conversationIds);
@@ -157,9 +154,6 @@ class Conversation {
 
   /**
    * Change conversation status
-   * @param  {list} conversationIds
-   * @param  {String} status
-   * @return {Promise} Updated conversation id
    */
   public static changeStatusConversation(
     conversationIds: string[],
@@ -183,9 +177,6 @@ class Conversation {
 
   /**
    * Mark as read conversation
-   * @param  {String} _id - Id of conversation
-   * @param  {String} userId
-   * @return {Promise} Updated conversation object
    */
   public static async markAsReadConversation(_id: string, userId: string) {
     const conversation = await Conversations.findOne({ _id });
@@ -211,9 +202,8 @@ class Conversation {
 
   /**
    * Get new or open conversation
-   * @return {Promise} conversations
    */
-  public static newOrOpenConversation() {
+  public static async newOrOpenConversation() {
     return Conversations.find({
       status: {
         $in: [
@@ -226,9 +216,6 @@ class Conversation {
 
   /**
    * Add participated user
-   * @param {String} conversationId
-   * @param {String} userId
-   * @return {Promise} updated conversation id
    */
   public static addParticipatedUsers(conversationId: string, userId: string) {
     if (conversationId && userId) {
@@ -243,9 +230,6 @@ class Conversation {
 
   /**
    * Transfers customers' conversations to another customer
-   * @param {String} newCustomerId - Customer id to set
-   * @param {String[]} customerIds - Old customer ids to change
-   * @return {Promise} Updated list of conversations of new customer
    */
   public static async changeCustomer(
     newCustomerId: string,
@@ -270,8 +254,6 @@ class Conversation {
 
   /**
    * Removes customer conversations
-   * @param {String} customerId - Customer id to remove
-   * @return {Promise} Result
    */
   public static async removeCustomerConversations(customerId: string) {
     // Finding every conversation of customer

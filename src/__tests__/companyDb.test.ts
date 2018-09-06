@@ -173,7 +173,7 @@ describe("Companies model tests", () => {
   });
 
   test("mergeCompanies", async () => {
-    expect.assertions(20);
+    expect.assertions(19);
 
     const company1 = await companyFactory({
       tagIds: ["123", "456", "1234"],
@@ -231,7 +231,6 @@ describe("Companies model tests", () => {
     const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
 
     expect(updatedCompany.primaryName).toBe(doc.primaryName);
-    expect(updatedCompany.website).toBe(doc.website);
     expect(updatedCompany.size).toBe(doc.size);
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);

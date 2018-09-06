@@ -1,22 +1,20 @@
-/* eslint-disable no-console */
-
-import * as path from 'path';
-import * as dotenv from 'dotenv';
-import * as express from 'express';
-import * as bodyParser from 'body-parser';
-import * as cors from 'cors';
-import { createServer } from 'http';
-import { execute, subscribe } from 'graphql';
-import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
-import { SubscriptionServer } from 'subscriptions-transport-ws';
-import formidable from 'formidable';
-import { Customers } from './db/models';
-import { connect } from './db/connection';
-import { userMiddleware } from './auth';
-import schema from './data';
-import { pubsub } from './data/resolvers/subscriptions';
-import { uploadFile, importXlsFile } from './data/utils';
-import { init } from './startup';
+import * as bodyParser from "body-parser";
+import * as cors from "cors";
+import * as dotenv from "dotenv";
+import * as express from "express";
+import * as formidable from "formidable";
+import { execute, subscribe } from "graphql";
+import { graphiqlExpress, graphqlExpress } from "graphql-server-express";
+import { createServer } from "http";
+import * as path from "path";
+import { SubscriptionServer } from "subscriptions-transport-ws";
+import { userMiddleware } from "./auth";
+import schema from "./data";
+import { pubsub } from "./data/resolvers/subscriptions";
+import { importXlsFile, uploadFile } from "./data/utils";
+import { connect } from "./db/connection";
+import { Customers } from "./db/models";
+import { init } from "./startup";
 
 // load environment variables
 dotenv.config();
@@ -33,20 +31,23 @@ app.use(cors());
 
 app.use(userMiddleware);
 
-app.use('/graphql', graphqlExpress(req => ({ schema, context: { user: req.user } })));
+app.use(
+  "/graphql",
+  graphqlExpress((req: any) => ({ schema, context: { user: req.user } }))
+);
 
-app.use('/static', express.static(path.join(__dirname, 'private')));
+app.use("/static", express.static(path.join(__dirname, "private")));
 
 // for health check
-app.get('/status', async (req, res) => {
-  res.end('ok');
+app.get("/status", async (_req, res) => {
+  res.end("ok");
 });
 
 // file upload
-app.post('/upload-file', async (req, res) => {
+app.post("/upload-file", async (req, res) => {
   const form = new formidable.IncomingForm();
 
-  form.parse(req, async (err, fields, response) => {
+  form.parse(req, async (_err, _fields, response) => {
     const url = await uploadFile(response.file);
 
     return res.end(url);
@@ -54,10 +55,10 @@ app.post('/upload-file', async (req, res) => {
 });
 
 // file import
-app.post('/import-file', (req, res) => {
+app.post("/import-file", (req: any, res) => {
   const form = new formidable.IncomingForm();
 
-  form.parse(req, (err, fields, response) => {
+  form.parse(req, (_err, fields: any, response) => {
     importXlsFile(response.file, fields.type, { user: req.user })
       .then(result => {
         res.json(result);
@@ -89,11 +90,11 @@ server.listen(PORT, () => {
 
       keepAlive: 10000,
 
-      onConnect(connectionParams, webSocket) {
-        webSocket.on('message', async message => {
+      onConnect(_connectionParams, webSocket) {
+        webSocket.on("message", async message => {
           const parsedMessage = JSON.parse(message).id || {};
 
-          if (parsedMessage.type === 'messengerConnected') {
+          if (parsedMessage.type === "messengerConnected") {
             webSocket.messengerData = parsedMessage.value;
 
             const customerId = webSocket.messengerData.customerId;
@@ -102,11 +103,11 @@ server.listen(PORT, () => {
             await Customers.markCustomerAsActive(customerId);
 
             // notify as connected
-            pubsub.publish('customerConnectionChanged', {
+            pubsub.publish("customerConnectionChanged", {
               customerConnectionChanged: {
                 _id: customerId,
-                status: 'connected',
-              },
+                status: "connected"
+              }
             });
           }
         });
@@ -122,30 +123,30 @@ server.listen(PORT, () => {
           await Customers.markCustomerAsNotActive(customerId);
 
           // notify as disconnected
-          pubsub.publish('customerConnectionChanged', {
+          pubsub.publish("customerConnectionChanged", {
             customerConnectionChanged: {
               _id: customerId,
-              status: 'disconnected',
-            },
+              status: "disconnected"
+            }
           });
         }
-      },
+      }
     },
     {
       server,
-      path: '/subscriptions',
-    },
+      path: "/subscriptions"
+    }
   );
 });
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   console.log(`ws://localhost:${PORT}/subscriptions`);
 
   app.use(
-    '/graphiql',
+    "/graphiql",
     graphiqlExpress({
-      endpointURL: '/graphql',
-      subscriptionsEndpoint: `ws://localhost:${PORT}/subscriptions`,
-    }),
+      endpointURL: "/graphql",
+      subscriptionsEndpoint: `ws://localhost:${PORT}/subscriptions`
+    })
   );
 }

@@ -1,4 +1,4 @@
-import Random from "meteor-random";
+import * as Random from "meteor-random";
 import { connect, disconnect } from "../db/connection";
 import {
   customerFactory,
@@ -215,12 +215,12 @@ describe("engage messages model tests", () => {
     });
 
     expect(engageMessageObj.stats).toBeDefined();
-    expect(engageMessageObj.stats).toEqual({ open: 1 });
+    expect(engageMessageObj.stats.toJSON()).toEqual({ open: 1 });
 
     await EngageMessages.updateStats(engageMessage._id, "open");
 
     engageMessageObj = await EngageMessages.findOne({ _id: engageMessage._id });
 
-    expect(engageMessageObj.stats).toEqual({ open: 2 });
+    expect(engageMessageObj.stats.toJSON()).toEqual({ open: 2 });
   });
 });

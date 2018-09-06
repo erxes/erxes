@@ -88,7 +88,7 @@ class Company {
    */
   public static async createCompany(doc: ICompany, user: IUserDocument) {
     // Checking duplicated fields of company
-    await this.checkDuplication(doc);
+    await Companies.checkDuplication(doc);
 
     if (!doc.ownerId && user) {
       doc.ownerId = user._id;
@@ -109,7 +109,7 @@ class Company {
    */
   public static async updateCompany(_id: string, doc: ICompany) {
     // Checking duplicated fields of company
-    await this.checkDuplication(doc, [_id]);
+    await Companies.checkDuplication(doc, [_id]);
 
     if (doc.customFieldsData) {
       // clean custom field values

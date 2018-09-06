@@ -1,18 +1,18 @@
-import pubsub from './pubsub';
-import conversations from './conversations';
-import customers from './customers';
+import conversations from "./conversations";
+import customers from "./customers";
+import pubsub from "./pubsub";
 
 export { pubsub };
 
-let subscriptions = {
+let subscriptions: any = {
   ...conversations,
-  ...customers,
+  ...customers
 };
 
 const { NODE_ENV } = process.env;
 
 // disable subscriptions in test mode
-if (NODE_ENV === 'test') {
+if (NODE_ENV === "test") {
   subscriptions = {};
 }
 

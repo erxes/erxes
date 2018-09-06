@@ -1,4 +1,4 @@
-import faker from "faker";
+import * as faker from "faker";
 import {
   FORM_LOAD_TYPES,
   KIND_CHOICES,
@@ -488,7 +488,7 @@ describe("social integration test", () => {
     expect(integration.name).toBe(doc.name);
     expect(integration.brandId).toBe(doc.brandId);
     expect(integration.kind).toBe(KIND_CHOICES.TWITTER);
-    expect(JSON.stringify(integration.twitterData)).toEqual(doc.twitterData);
+    expect(integration.twitterData.toJSON()).toEqual(doc.twitterData);
 
     try {
       await Integrations.createTwitterIntegration(doc);
@@ -512,6 +512,6 @@ describe("social integration test", () => {
     expect(integration.name).toBe(doc.name);
     expect(integration.brandId).toBe(doc.brandId);
     expect(integration.kind).toBe(KIND_CHOICES.FACEBOOK);
-    expect(JSON.stringify(integration.facebookData)).toEqual(doc.facebookData);
+    expect(integration.facebookData.toJSON()).toEqual(doc.facebookData);
   });
 });
