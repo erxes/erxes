@@ -55,7 +55,9 @@ export const requireAdmin = (cls: any, methodName: string) =>
  */
 export const moduleRequireLogin = (mdl: any) => {
   for (const method in mdl) {
-    requireLogin(mdl, method);
+    if (mdl.hasOwnProperty(method)) {
+      requireLogin(mdl, method);
+    }
   }
 };
 
@@ -64,7 +66,9 @@ export const moduleRequireLogin = (mdl: any) => {
  */
 export const moduleRequireAdmin = (mdl: any) => {
   for (const method in mdl) {
-    requireAdmin(mdl, method);
+    if (mdl.hasOwnProperty(method)) {
+      requireAdmin(mdl, method);
+    }
   }
 };
 

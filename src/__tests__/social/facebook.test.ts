@@ -38,7 +38,9 @@ describe("facebook integration common tests", () => {
   });
 
   test("graph request", async () => {
-    const mock = sinon.stub(graphRequest, "base").callsFake(() => {});
+    const mock = sinon.stub(graphRequest, "base").callsFake(() => {
+      "";
+    });
 
     await graphRequest.get();
     await graphRequest.post();

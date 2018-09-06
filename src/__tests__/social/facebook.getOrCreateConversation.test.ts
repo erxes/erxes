@@ -13,7 +13,6 @@ import {
 import { ConversationMessages, Conversations } from "../../db/models";
 import { SaveWebhookResponse } from "../../trackers/facebook";
 import * as facebookTracker from "../../trackers/facebookTracker";
-import { graphRequest } from "../../trackers/facebookTracker";
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -22,11 +21,14 @@ describe("facebook integration: get or create conversation", () => {
   const senderId = "2242424244";
   const pageId = "2252525525";
   const recipientId = "343434343433";
+  const graphRequest = facebookTracker.graphRequest;
   let mock;
 
   beforeEach(() => {
     // mock all requests
-    mock = sinon.stub(graphRequest, "get").callsFake(() => {});
+    mock = sinon.stub(graphRequest, "get").callsFake(() => {
+      "";
+    });
   });
 
   afterEach(async () => {

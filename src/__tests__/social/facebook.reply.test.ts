@@ -118,7 +118,9 @@ describe("facebook integration: reply", () => {
     // mock message update
     const mongoStub = sinon
       .stub(ConversationMessages, "update")
-      .callsFake(() => {});
+      .callsFake(() => {
+        "";
+      });
 
     // reply
     await facebookReply(conversation, { text }, msg);
