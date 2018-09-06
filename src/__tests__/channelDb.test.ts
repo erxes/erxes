@@ -22,12 +22,10 @@ describe("test channel creation error", () => {
 });
 
 describe("channel creation", () => {
-  let _user;
   let _user2;
   let _integration;
 
   beforeEach(async () => {
-    _user = await userFactory({});
     _integration = await integrationFactory({});
     _user2 = await userFactory({});
   });
