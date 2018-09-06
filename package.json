@@ -45,6 +45,7 @@
     ]
   },
   "dependencies": {
+    "@types/underscore": "^1.8.9",
     "aws-sdk": "^2.151.0",
     "bcrypt": "^3.0.0",
     "body-parser": "^1.17.1",

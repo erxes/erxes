@@ -477,7 +477,8 @@ describe("Customers model tests", () => {
     expect(history.failed).toBe(2);
     expect(history.ids.length).toBe(1);
 
-    process.env.MAX_IMPORT_SIZE = 2;
+    process.env.MAX_IMPORT_SIZE = "2";
+
     // Max import size error
     response = await Customers.bulkInsert(fieldNames, fieldValues, user);
 
