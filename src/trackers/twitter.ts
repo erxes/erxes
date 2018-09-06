@@ -402,8 +402,8 @@ export const tweetReply = async ({
 }: {
   conversation: IConversationDocument;
   text: string;
-  toId: string;
-  toScreenName: string;
+  toId?: string;
+  toScreenName?: string;
 }) => {
   const integrationId = conversation.integrationId;
 
