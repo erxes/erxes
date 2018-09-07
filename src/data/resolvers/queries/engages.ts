@@ -1,25 +1,45 @@
 import { EngageMessages, Tags } from "../../../db/models";
-import { IUserDocument } from "../../../db/models/definitions/users";
+import { IUser, IUserDocument } from "../../../db/models/definitions/users";
 import { moduleRequireLogin } from "../../permissions";
 import { paginate } from "./utils";
 
 interface IListArgs {
-  kind: string;
-  status: string;
-  tag: string;
-  ids: string[];
-  page: number;
-  perPage: number;
+  kind?: string;
+  status?: string;
+  tag?: string;
+  ids?: string[];
+  page?: number;
+  perPage?: number;
+}
+
+interface IQuery {
+  kind?: string;
+}
+
+interface IStatusQueryBuilder {
+  [index: string]: boolean | string;
+}
+
+interface ICountsByStatus {
+  [index: string]: number;
+}
+
+interface ICountsByTag {
+  [index: string]: number;
 }
 
 // basic count helper
-const count = selector => EngageMessages.find(selector).count();
+const count = (selector: {}): number =>
+  Number(EngageMessages.find(selector).count());
 
 // Tag query builder
 const tagQueryBuilder = tagId => ({ tagIds: tagId });
 
 // status query builder
-const statusQueryBuilder = (status: string, user?: any) => {
+const statusQueryBuilder = (
+  status: string,
+  user?: any
+): IStatusQueryBuilder => {
   if (status === "live") {
     return { isLive: true };
   }
@@ -54,8 +74,8 @@ const countsByStatus = async ({
 }: {
   kind: string;
   user: IUserDocument;
-}) => {
-  const query: any = {};
+}): Promise<ICountsByStatus> => {
+  const query: IQuery = {};
 
   if (kind) {
     query.kind = kind;
@@ -78,7 +98,7 @@ const countsByTag = async ({
   kind: string;
   status: string;
   user: IUserDocument;
-}) => {
+}): Promise<ICountsByTag[]> => {
   let query: any = {};
 
   if (kind) {
@@ -91,7 +111,8 @@ const countsByTag = async ({
 
   const tags = await Tags.find({ type: "engageMessage" });
 
-  const response = {};
+  // const response: {[name: string]: number} = {};
+  const response: ICountsByTag[] = [];
 
   for (const tag of tags) {
     response[tag._id] = await count({ ...query, ...tagQueryBuilder(tag._id) });
@@ -103,10 +124,7 @@ const countsByTag = async ({
 /*
  * List filter
  */
-const listQuery = (
-  { kind, status, tag, ids }: IListArgs,
-  user: IUserDocument
-) => {
+const listQuery = ({ kind, status, tag, ids }: IListArgs, user: IUser) => {
   if (ids) {
     return EngageMessages.find({ _id: { $in: ids } });
   }

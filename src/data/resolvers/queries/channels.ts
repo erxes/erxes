@@ -2,6 +2,14 @@ import { Channels } from "../../../db/models";
 import { moduleRequireLogin } from "../../permissions";
 import { paginate } from "./utils";
 
+interface IIn {
+  $in: string[];
+}
+
+interface IChannelQuery {
+  memberIds?: IIn;
+}
+
 const channelQueries = {
   /**
    * Channels list
@@ -13,7 +21,7 @@ const channelQueries = {
       ...queryParams
     }: { page: number; perPage: number; memberIds: string[] }
   ) {
-    const query: any = {};
+    const query: IChannelQuery = {};
     const sort = { createdAt: -1 };
 
     if (memberIds) {
@@ -28,7 +36,7 @@ const channelQueries = {
   /**
    * Get one channel
    */
-  channelDetail(_root, { _id }: { _id: number }) {
+  channelDetail(_root, { _id }: { _id: string }) {
     return Channels.findOne({ _id });
   },
 
