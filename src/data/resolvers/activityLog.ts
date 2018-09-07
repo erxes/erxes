@@ -33,8 +33,16 @@ export default {
   async by(obj: IActivityLogDocument) {
     const performedBy = obj.performedBy;
 
+    if (!performedBy) {
+      return null;
+    }
+
     if (performedBy.type === ACTIVITY_PERFORMER_TYPES.USER) {
       const user = await Users.findOne({ _id: performedBy.id });
+
+      if (!user) {
+        return null;
+      }
 
       return {
         _id: user._id,

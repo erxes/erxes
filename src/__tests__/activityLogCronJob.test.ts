@@ -37,6 +37,10 @@ describe("test activityLogsCronJob", () => {
 
     const aLog = await ActivityLogs.findOne();
 
+    if (!aLog) {
+      throw new Error("Activity log is empty");
+    }
+
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.SEGMENT,
       action: ACTIVITY_ACTIONS.CREATE,
@@ -47,6 +51,11 @@ describe("test activityLogsCronJob", () => {
       type: COC_CONTENT_TYPES.CUSTOMER,
       id: customer._id
     });
+
+    if (!aLog.performedBy) {
+      throw new Error("Activity log is empty");
+    }
+
     expect(aLog.performedBy.toObject()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.SYSTEM
     });

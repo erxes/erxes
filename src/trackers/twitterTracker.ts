@@ -1,5 +1,5 @@
 import { OAuth } from "oauth";
-import Twit from "twit";
+import * as Twit from "twit";
 import { INTEGRATION_KIND_CHOICES } from "../data/constants";
 import { Integrations } from "../db/models";
 import { IIntegrationDocument } from "../db/models/definitions/integrations";
@@ -13,6 +13,10 @@ const trackIntegration = (integration: IIntegrationDocument) => {
   const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET } = process.env;
 
   if (!TWITTER_CONSUMER_KEY || !TWITTER_CONSUMER_SECRET) {
+    return;
+  }
+
+  if (!integration.twitterData) {
     return;
   }
 
@@ -98,12 +102,12 @@ const authenticate = async (queryParams: any) => {
       "https://api.twitter.com/1.1/account/verify_credentials.json",
       accessToken,
       accessTokenSecret,
-      (e, response) => {
+      (e, res) => {
         if (e) {
           return reject(e.message);
         }
 
-        return resolve(JSON.parse(response));
+        return resolve(JSON.parse(res));
       }
     )
   );
