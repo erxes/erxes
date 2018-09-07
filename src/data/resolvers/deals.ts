@@ -63,7 +63,7 @@ export default {
     const stage = await DealStages.findOne({ _id: deal.stageId });
 
     if (!stage) {
-      return null;
+      throw new Error("Stage not found");
     }
 
     return DealPipelines.findOne({ _id: stage.pipelineId });
@@ -73,19 +73,19 @@ export default {
     const stage = await DealStages.findOne({ _id: deal.stageId });
 
     if (!stage) {
-      return "";
+      throw new Error("Stage not found");
     }
 
     const pipeline = await DealPipelines.findOne({ _id: stage.pipelineId });
 
     if (!pipeline) {
-      return "";
+      throw new Error("Pipeline not found");
     }
 
     const board = await DealBoards.findOne({ _id: pipeline.boardId });
 
     if (!board) {
-      return "";
+      throw new Error("Board not found");
     }
 
     return board._id;

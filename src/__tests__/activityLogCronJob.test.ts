@@ -37,6 +37,8 @@ describe("test activityLogsCronJob", () => {
 
     const aLog = await ActivityLogs.findOne();
 
+    expect(aLog).not.toBeNull();
+    expect(aLog).toBeDefined();
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.SEGMENT,
       action: ACTIVITY_ACTIONS.CREATE,
