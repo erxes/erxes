@@ -1,4 +1,4 @@
-import faker from "faker";
+import * as faker from "faker";
 import {
   FORM_LOAD_TYPES,
   KIND_CHOICES,
@@ -172,7 +172,7 @@ describe("edit form integration", () => {
   let _form;
   let _form2;
   let _user;
-  let _form_integration;
+  let _formIntegration;
 
   beforeEach(async () => {
     _brand = await brandFactory({});
@@ -180,7 +180,7 @@ describe("edit form integration", () => {
     _user = await userFactory({});
     _form = await formFactory({ createdUserId: _user._id });
     _form2 = await formFactory({ createdUserId: _user._id });
-    _form_integration = await integrationFactory({
+    _formIntegration = await integrationFactory({
       name: "form integration test",
       brandId: _brand._id,
       formId: _form._id,
@@ -210,7 +210,7 @@ describe("edit form integration", () => {
     };
 
     const integration = await Integrations.updateFormIntegration(
-      _form_integration._id,
+      _formIntegration._id,
       {
         ...mainDoc,
         formData
@@ -488,7 +488,7 @@ describe("social integration test", () => {
     expect(integration.name).toBe(doc.name);
     expect(integration.brandId).toBe(doc.brandId);
     expect(integration.kind).toBe(KIND_CHOICES.TWITTER);
-    expect(JSON.stringify(integration.twitterData)).toEqual(doc.twitterData);
+    expect(integration.twitterData.toJSON()).toEqual(doc.twitterData);
 
     try {
       await Integrations.createTwitterIntegration(doc);
@@ -512,6 +512,6 @@ describe("social integration test", () => {
     expect(integration.name).toBe(doc.name);
     expect(integration.brandId).toBe(doc.brandId);
     expect(integration.kind).toBe(KIND_CHOICES.FACEBOOK);
-    expect(JSON.stringify(integration.facebookData)).toEqual(doc.facebookData);
+    expect(integration.facebookData.toJSON()).toEqual(doc.facebookData);
   });
 });

@@ -9,11 +9,14 @@ import { IUserDocument } from "../db/models/definitions/users";
 /*
  * Save binary data to amazon s3
  */
-export const uploadFile = async (file: { name: string; path: string }) => {
+export const uploadFile = async (file: {
+  name: string;
+  path: string;
+}): Promise<string> => {
   const {
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
-    AWS_BUCKET,
+    AWS_BUCKET = "",
     AWS_PREFIX = ""
   } = process.env;
 
@@ -67,9 +70,6 @@ export const readFile = (filename: string) => {
 
 /**
  * Apply template
- * @param {Object} data data
- * @param {String} templateName
- * @return email with template as text
  */
 const applyTemplate = async (data: any, templateName: string) => {
   let template: any = await readFile(templateName);
@@ -81,7 +81,6 @@ const applyTemplate = async (data: any, templateName: string) => {
 
 /**
  * Create default or ses transporter
- * @return nodemailer transporter
  */
 export const createTransporter = ({ ses }) => {
   const { MAIL_SERVICE, MAIL_PORT, MAIL_USER, MAIL_PASS } = process.env;
@@ -129,12 +128,12 @@ export const sendEmail = async ({
   toEmails,
   fromEmail,
   title,
-  template
+  template = {}
 }: {
   toEmails?: string[];
   fromEmail?: string;
   title?: string;
-  template?: { name?: string; data: any; isCustom?: boolean };
+  template?: { name?: string; data?: any; isCustom?: boolean };
   subject?: string;
   to?: string;
 }) => {
@@ -157,13 +156,13 @@ export const sendEmail = async ({
   const { isCustom, data, name } = template;
 
   // generate email content by given template
-  let html = await applyTemplate(data, name);
+  let html = await applyTemplate(data, name || "");
 
   if (!isCustom) {
     html = await applyTemplate({ content: html }, "base");
   }
 
-  return toEmails.map(toEmail => {
+  return (toEmails || []).map(toEmail => {
     const mailOptions = {
       from: fromEmail || COMPANY_EMAIL_FROM,
       to: toEmail,
@@ -180,13 +179,6 @@ export const sendEmail = async ({
 
 /**
  * Send a notification
- * @param {String} doc.notifType
- * @param {String} doc.createdUser
- * @param {String} doc.title
- * @param {String} doc.content
- * @param {String} doc.link
- * @param {Array} doc.receivers Array of user ids
- * @return {Promise}
  */
 export const sendNotification = async ({
   createdUser,
@@ -200,11 +192,17 @@ export const sendNotification = async ({
   notifType: string;
   link: string;
 }) => {
+  const createdUserObj = await Users.findOne({ _id: createdUser });
+
+  if (!createdUserObj) {
+    throw new Error("Created user not found");
+  }
+
   // collecting emails
   const recipients = await Users.find({ _id: { $in: receivers } });
 
   // collect recipient emails
-  const toEmails = [];
+  const toEmails: string[] = [];
 
   for (const recipient of recipients) {
     if (recipient.getNotificationByEmail && recipient.email) {
@@ -243,8 +241,6 @@ export const sendNotification = async ({
 /**
  * Receives and saves xls file in private/xlsImports folder
  * and imports customers to the database
- * @param {Object} file - File data to save
- * @return {Promise} Success and failed counts
  */
 export const importXlsFile = async (
   file: any,
@@ -291,7 +287,7 @@ export const importXlsFile = async (
         // Getting columns
         const fieldNames = usedSheets[0];
 
-        let collection = null;
+        let collection;
 
         // Removing column
         usedSheets.shift();
@@ -325,8 +321,6 @@ export const importXlsFile = async (
 
 /**
  * Creates blank workbook
- *
- * @return {Object} Xls workbook and sheet
  */
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -337,12 +331,11 @@ export const createXlsFile = async () => {
 
 /**
  * Generates downloadable xls file on the url
- * @param {Object} workbook - Xls file workbook
- * @param {String} name - Xls file name
- *
- * @return {String} Url to download xls file
  */
-export const generateXlsx = async (workbook: any, name: string) => {
+export const generateXlsx = async (
+  workbook: any,
+  name: string
+): Promise<string> => {
   // Url to download xls file
   const url = `xlsTemplateOutputs/${name}.xlsx`;
   const { DOMAIN } = process.env;

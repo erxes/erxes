@@ -1,4 +1,4 @@
-import Random from "meteor-random";
+import * as Random from "meteor-random";
 import { Model, model } from "mongoose";
 import { Integrations } from "./";
 import {

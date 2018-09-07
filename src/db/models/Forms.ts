@@ -1,4 +1,4 @@
-import Random from "meteor-random";
+import * as Random from "meteor-random";
 import { Model, model } from "mongoose";
 import { FIELD_CONTENT_TYPES } from "../../data/constants";
 import { Fields } from "./";
@@ -81,6 +81,10 @@ class Form {
    */
   public static async duplicate(_id: string) {
     const form = await Forms.findOne({ _id });
+
+    if (!form) {
+      throw new Error("Form not found");
+    }
 
     // duplicate form ===================
     const newForm = await this.createForm(

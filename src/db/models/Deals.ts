@@ -20,7 +20,7 @@ export interface IOrderInput {
 }
 
 const updateListOrder = async (collection: any, orders: IOrderInput[]) => {
-  const ids = [];
+  const ids: string[] = [];
 
   for (const { _id, order } of orders) {
     ids.push(_id);
@@ -41,7 +41,7 @@ const createOrUpdatePipelineStages = async (
   for (const stage of stages) {
     order++;
 
-    const doc = { order, pipelineId, ...stage };
+    const doc = { ...stage.toJSON(), order, pipelineId };
 
     const _id = doc._id;
     const obj = await DealStages.findOne({ _id });
@@ -60,7 +60,7 @@ const createOrUpdatePipelineStages = async (
   });
 
   for (const stage of removedStages) {
-    DealStages.removeStage(stage._id);
+    await DealStages.removeStage(stage._id);
   }
 };
 

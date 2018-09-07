@@ -137,7 +137,7 @@ describe("Fields", () => {
   });
 
   test("Remove field valid", async () => {
-    expect.assertions(5);
+    expect.assertions(4);
 
     await customerFactory({ customFieldsData: { [_field._id]: "1231" } });
     const testField = await fieldFactory({ isDefinedByErxes: true });
@@ -253,7 +253,7 @@ describe("Fields", () => {
     await _field.save();
 
     try {
-      await Fields.cleanMulti({ _id: _field._id, value: "" });
+      await Fields.cleanMulti({ [_field._id]: "" });
     } catch (e) {
       expect(e.message).toBe(`${_field.text}: required`);
     }
@@ -315,15 +315,15 @@ describe("Fields groups", () => {
     };
 
     let groupObj = await FieldsGroups.createGroup(doc);
-
     expect(groupObj.name).toBe(doc.name);
     expect(groupObj.description).toBe(doc.description);
     expect(groupObj.contentType).toBe(doc.contentType);
-    expect(groupObj.order).toBe(1);
+    // we already created fieldGroup on beforeEach of every test
+    expect(groupObj.order).toBe(2);
 
     groupObj = await FieldsGroups.createGroup(doc);
 
-    expect(groupObj.order).toBe(2);
+    expect(groupObj.order).toBe(3);
   });
 
   test("Update group", async () => {

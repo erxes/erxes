@@ -7,7 +7,8 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe("Test products mutations", () => {
-  let product, context;
+  let product;
+  let context;
 
   const commonParamDefs = `
     $name: String!,

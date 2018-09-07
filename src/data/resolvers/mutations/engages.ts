@@ -35,7 +35,7 @@ const engageMutations = {
       } = await awsRequests.getVerifiedEmails();
 
       // If verified creates engagemessage
-      if (!VerifiedEmailAddresses.includes(user.email)) {
+      if (user && !VerifiedEmailAddresses.includes(user.email)) {
         throw new Error("Email not verified");
       }
     }
@@ -63,7 +63,6 @@ const engageMutations = {
 
   /**
    * Remove message
-   * @return {Promise}
    */
   engageMessageRemove(_root, _id: string) {
     updateOrRemoveSchedule({ _id });

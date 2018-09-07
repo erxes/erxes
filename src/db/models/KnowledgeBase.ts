@@ -38,6 +38,10 @@ class Article {
     { categoryIds, ...docFields }: IArticleCreate,
     userId: string
   ) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
     const article = await KnowledgeBaseArticles.create({
       ...docFields,
       createdDate: new Date(),
@@ -52,6 +56,10 @@ class Article {
       });
 
       for (const category of categories) {
+        if (!category.articleIds) {
+          category.articleIds = [];
+        }
+
         category.articleIds.push(article._id.toString());
 
         await category.save();
@@ -69,6 +77,10 @@ class Article {
     { categoryIds, ...docFields }: IArticleCreate,
     userId: string
   ) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
     await KnowledgeBaseArticles.update(
       { _id },
       {
@@ -82,6 +94,10 @@ class Article {
 
     const article = await KnowledgeBaseArticles.findOne({ _id });
 
+    if (!article) {
+      throw new Error("Article not found");
+    }
+
     // add new article id to categories's articleIds field
     if ((categoryIds || []).length > 0) {
       const categories = await KnowledgeBaseCategories.find({
@@ -89,9 +105,13 @@ class Article {
       });
 
       for (const category of categories) {
+        const articleIds = category.articleIds || [];
+
         // check previous entry
-        if (!category.articleIds.includes(article._id.toString())) {
-          category.articleIds.push(article._id.toString());
+        if (!articleIds.includes(article._id)) {
+          articleIds.push(article._id);
+
+          category.articleIds = articleIds;
 
           await category.save();
         }
@@ -136,6 +156,10 @@ class Category {
     { topicIds, ...docFields }: ICategoryCreate,
     userId
   ) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
     const category = await KnowledgeBaseCategories.create({
       ...docFields,
       createdDate: new Date(),
@@ -148,7 +172,11 @@ class Category {
 
       // add new category to topics's categoryIds field
       for (const topic of topics) {
-        topic.categoryIds.push(category._id.toString());
+        const categoryIds = topic.categoryIds || [];
+
+        categoryIds.push(category._id.toString());
+
+        topic.categoryIds = categoryIds;
 
         await topic.save();
       }
@@ -165,6 +193,10 @@ class Category {
     { topicIds, ...docFields }: ICategoryCreate,
     userId: string
   ) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
     await KnowledgeBaseCategories.update(
       { _id },
       {
@@ -178,13 +210,21 @@ class Category {
 
     const category = await KnowledgeBaseCategories.findOne({ _id });
 
+    if (!category) {
+      throw new Error("Category not found");
+    }
+
     if ((topicIds || []).length > 0) {
       const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
 
       for (const topic of topics) {
+        const categoryIds = topic.categoryIds || [];
+
         // add categoryId to topics's categoryIds list
-        if (!topic.categoryIds.includes(category._id.toString())) {
-          topic.categoryIds.push(category._id.toString());
+        if (!categoryIds.includes(category._id.toString())) {
+          categoryIds.push(category._id.toString());
+
+          topic.categoryIds = categoryIds;
 
           await topic.save();
         }
@@ -199,6 +239,10 @@ class Category {
    */
   public static async removeDoc(_id: string) {
     const category = await KnowledgeBaseCategories.findOne({ _id });
+
+    if (!category) {
+      throw new Error("Category not found");
+    }
 
     for (const articleId of category.articleIds || []) {
       await KnowledgeBaseArticles.remove({ _id: articleId });
@@ -225,6 +269,10 @@ class Topic {
    * Create KnowledgeBaseTopic document
    */
   public static createDoc(docFields: ITopic, userId: string) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
     return KnowledgeBaseTopics.create({
       ...docFields,
       createdDate: new Date(),
@@ -236,8 +284,16 @@ class Topic {
   /**
    * Update KnowledgeBaseTopic document
    */
-  public static updateDoc(_id: string, docFields: ITopic, userId: string) {
-    return KnowledgeBaseTopics.update(
+  public static async updateDoc(
+    _id: string,
+    docFields: ITopic,
+    userId: string
+  ) {
+    if (!userId) {
+      throw new Error("userId must be supplied");
+    }
+
+    await KnowledgeBaseTopics.update(
       { _id },
       {
         $set: {
@@ -247,6 +303,8 @@ class Topic {
         }
       }
     );
+
+    return KnowledgeBaseTopics.findOne({ _id });
   }
 
   /**
@@ -254,6 +312,10 @@ class Topic {
    */
   public static async removeDoc(_id: string) {
     const topic = await KnowledgeBaseTopics.findOne({ _id });
+
+    if (!topic) {
+      throw new Error("Topic not found");
+    }
 
     // remove child items ===========
     for (const categoryId of topic.categoryIds || []) {

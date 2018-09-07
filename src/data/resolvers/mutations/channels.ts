@@ -19,7 +19,7 @@ export const sendChannelNotifications = async (channel: IChannelDocument) => {
   const content = `You have invited to '${channel.name}' channel.`;
 
   return utils.sendNotification({
-    createdUser: channel.userId,
+    createdUser: channel.userId || "",
     notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
     title: content,
     content,

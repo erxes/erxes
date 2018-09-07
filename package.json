@@ -20,7 +20,7 @@
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
     "precommit": "lint-staged",
-    "test": "jest --runInBand --coverage --forceExit",
+    "test": "jest --runInBand --forceExit",
     "loadInitialData": "babel-node ./src/initialData.js",
     "customCommand": "babel-node ./src/commands/custom.js",
     "initProject": "babel-node ./src/commands/initProject.js",
@@ -45,8 +45,9 @@
     ]
   },
   "dependencies": {
+    "@types/underscore": "^1.8.9",
     "aws-sdk": "^2.151.0",
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^3.0.0",
     "body-parser": "^1.17.1",
     "cors": "^2.8.1",
     "dotenv": "^4.0.0",
@@ -85,7 +86,7 @@
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.0",
     "@types/formidable": "^1.0.31",
-    "@types/graphql": "^0.13.4",
+    "@types/graphql": "^0.12.7",
     "@types/ioredis": "^3.2.15",
     "@types/jest": "^23.3.0",
     "@types/mongodb": "^3.1.2",

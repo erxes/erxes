@@ -18,8 +18,6 @@ interface IMessageModel extends Model<IMessageDocument> {
 class Message {
   /**
    * Create a message
-   * @param  {Object} messageObj - object
-   * @return {Promise} Newly created message object
    */
   public static async createMessage(doc: IMessage) {
     const message = await Messages.create({
@@ -44,6 +42,10 @@ class Message {
       }
     );
 
+    if (!message.userId) {
+      throw new Error("User id not supplied");
+    }
+
     // add created user to participators
     await Conversations.addParticipatedUsers(
       message.conversationId,
@@ -51,7 +53,7 @@ class Message {
     );
 
     // add mentioned users to participators
-    for (const userId of message.mentionedUserIds) {
+    for (const userId of message.mentionedUserIds || []) {
       await Conversations.addParticipatedUsers(message.conversationId, userId);
     }
 
@@ -60,9 +62,6 @@ class Message {
 
   /**
    * Create a conversation message
-   * @param  {Object} doc - Conversation message fields
-   * @param  {Object} user - Object
-   * @return {Promise} Newly created conversation object
    */
   public static async addMessage(doc: IMessage, userId: string) {
     const conversation = await Conversations.findOne({
@@ -96,8 +95,6 @@ class Message {
 
   /**
    * User's last non answered question
-   * @param  {String} conversationId
-   * @return {Promise} Message object
    */
   public static getNonAsnweredMessage(conversationId: string) {
     return Messages.findOne({
@@ -108,8 +105,6 @@ class Message {
 
   /**
    * Get admin messages
-   * @param  {String} conversationId
-   * @return {Promise} messages
    */
   public static getAdminMessages(conversationId: string) {
     return Messages.find({
@@ -124,8 +119,6 @@ class Message {
 
   /**
    * Mark sent messages as read
-   * @param  {String} conversationId
-   * @return {Promise} Updated messages info
    */
   public static markSentAsReadMessages(conversationId: string) {
     return Messages.update(

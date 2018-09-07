@@ -67,7 +67,7 @@ class Customer {
     idsToExclude?: string[] | string
   ) {
     const query: { [key: string]: any } = {};
-    let previousEntry = null;
+    let previousEntry;
 
     // Adding exclude operator to the query
     if (idsToExclude) {
@@ -151,7 +151,7 @@ class Customer {
    */
   public static async createCustomer(doc: ICustomer, user?: IUserDocument) {
     // Checking duplicated fields of customer
-    await this.checkDuplication(doc);
+    await Customers.checkDuplication(doc);
 
     if (!doc.ownerId && user) {
       doc.ownerId = user._id;
@@ -172,7 +172,7 @@ class Customer {
    */
   public static async updateCustomer(_id: string, doc: ICustomer) {
     // Checking duplicated fields of customer
-    await this.checkDuplication(doc, _id);
+    await Customers.checkDuplication(doc, _id);
 
     if (doc.customFieldsData) {
       // clean custom field values
@@ -252,14 +252,14 @@ class Customer {
     // Checking duplicated fields of customer
     await Customers.checkDuplication(customerFields, customerIds);
 
-    let tagIds = [];
-    let companyIds = [];
+    let tagIds: string[] = [];
+    let companyIds: string[] = [];
 
-    let emails = [];
-    let phones = [];
+    let emails: string[] = [];
+    let phones: string[] = [];
 
     if (customerFields.primaryEmail) {
-      emails.push(customerFields.primaryEmail);
+      emails.push("customerFields.primaryEmail");
     }
 
     if (customerFields.primaryPhone) {
@@ -274,8 +274,8 @@ class Customer {
         // get last customer's integrationId
         customerFields.integrationId = customerObj.integrationId;
 
-        const customerTags = customerObj.tagIds || [];
-        const customerCompanies = customerObj.companyIds || [];
+        const customerTags: string[] = customerObj.tagIds || [];
+        const customerCompanies: string[] = customerObj.companyIds || [];
 
         // Merging customer's tag and companies into 1 array
         tagIds = tagIds.concat(customerTags);

@@ -36,7 +36,8 @@ describe("Brands db", () => {
   test("Create brand", async () => {
     const brandObj = await Brands.createBrand({
       name: _brand.name,
-      description: _brand.description
+      description: _brand.description,
+      userId: _user._id
     });
 
     expect(brandObj).toBeDefined();
@@ -51,7 +52,8 @@ describe("Brands db", () => {
     // update brand object
     const brandObj = await Brands.updateBrand(_brand.id, {
       name: _brandUpdateObj.name,
-      description: _brandUpdateObj.description
+      description: _brandUpdateObj.description,
+      code: _brandUpdateObj.code
     });
 
     expect(brandObj.code).toBe(_brandUpdateObj.code);

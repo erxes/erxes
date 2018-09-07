@@ -1,4 +1,5 @@
 import { Model, model } from "mongoose";
+import { ICustomerDocument } from "./definitions/customers";
 import {
   engageMessageSchema,
   IEngageMessage,
@@ -16,7 +17,10 @@ interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   engageMessageSetLive(_id: string): Promise<IEngageMessageDocument>;
   engageMessageSetPause(_id: string): Promise<IEngageMessageDocument>;
   removeEngageMessage(_id: string): void;
-  setCustomerIds(_id: string, customers: any): Promise<IEngageMessageDocument>;
+  setCustomerIds(
+    _id: string,
+    customers: ICustomerDocument[]
+  ): Promise<IEngageMessageDocument>;
 
   addNewDeliveryReport(
     _id: string,
@@ -57,7 +61,7 @@ class Message {
   public static async updateEngageMessage(_id: string, doc: IEngageMessage) {
     const message = await EngageMessages.findOne({ _id });
 
-    if (message.kind === "manual") {
+    if (message && message.kind === "manual") {
       throw new Error("Can not update manual message");
     }
 
@@ -107,7 +111,10 @@ class Message {
   /**
    * Save matched customer ids
    */
-  public static async setCustomerIds(_id: string, customers: any) {
+  public static async setCustomerIds(
+    _id: string,
+    customers: ICustomerDocument[]
+  ) {
     await EngageMessages.update(
       { _id },
       { $set: { customerIds: customers.map(customer => customer._id) } }

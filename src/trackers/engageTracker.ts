@@ -31,8 +31,11 @@ const handleMessage = async message => {
   const { eventType, mail } = obj;
   const { headers } = mail;
 
-  const engageMessageId = headers.find(obj => obj.name === "Engagemessageid");
-  const mailId = headers.find(obj => obj.name === "Mailmessageid");
+  const engageMessageId = headers.find(
+    header => header.name === "Engagemessageid"
+  );
+
+  const mailId = headers.find(header => header.name === "Mailmessageid");
 
   const type = eventType.toLowerCase();
 
@@ -47,7 +50,7 @@ const handleMessage = async message => {
 
 export const trackEngages = expressApp => {
   expressApp.post(`/service/engage/tracker`, (req, res) => {
-    const chunks = [];
+    const chunks: any = [];
 
     req.setEncoding("utf8");
 

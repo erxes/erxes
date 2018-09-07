@@ -4,7 +4,9 @@ import * as jwt from "jsonwebtoken";
 import { Model, model } from "mongoose";
 import * as sha256 from "sha256";
 import {
+  IDetail,
   IEmailSignature,
+  ILink,
   IUser,
   IUserDocument,
   userSchema
@@ -13,14 +15,17 @@ import {
 const SALT_WORK_FACTOR = 10;
 
 interface IUserModel extends Model<IUserDocument> {
-  checkDuplication(userField: IUser, idsToExclude?: string | string[]): never;
+  checkDuplication(email?: string, idsToExclude?: string | string[]): never;
   getSecret(): string;
 
   createUser(doc: IUser): Promise<IUserDocument>;
 
   updateUser(_id: string, doc: IUser): Promise<IUserDocument>;
 
-  editProfile(_id: string, doc: IUser): Promise<IUserDocument>;
+  editProfile(
+    _id: string,
+    doc: { username: string; email: string; details: IDetail; links: ILink }
+  ): Promise<IUserDocument>;
 
   configEmailSignatures(
     _id: string,
@@ -75,11 +80,11 @@ class User {
    * Checking if user has duplicated properties
    */
   public static async checkDuplication(
-    userFields: IUser,
-    idsToExclude: string | string[]
+    email?: string,
+    idsToExclude?: string | string[]
   ) {
     const query: { [key: string]: any } = {};
-    let previousEntry = null;
+    let previousEntry;
 
     // Adding exclude operator to the query
     if (idsToExclude) {
@@ -90,8 +95,8 @@ class User {
     }
 
     // Checking if user has email
-    if (userFields.email) {
-      previousEntry = await Users.find({ ...query, email: userFields.email });
+    if (email) {
+      previousEntry = await Users.find({ ...query, email });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
@@ -121,7 +126,7 @@ class User {
     }
 
     // Checking duplicated email
-    await Users.checkDuplication({ email });
+    await Users.checkDuplication(email);
 
     return Users.create({
       username,
@@ -145,7 +150,7 @@ class User {
     const doc = { username, email, password, role, details, links };
 
     // Checking duplicated email
-    await this.checkDuplication({ email }, _id);
+    await this.checkDuplication(email, _id);
 
     // change password
     if (password) {
@@ -166,10 +171,15 @@ class User {
    */
   public static async editProfile(
     _id: string,
-    { username, email, details, links }: IUser
+    {
+      username,
+      email,
+      details,
+      links
+    }: { username: string; email: string; details: IDetail; links: ILink }
   ) {
     // Checking duplicated email
-    await this.checkDuplication({ email }, _id);
+    await this.checkDuplication(email, _id);
 
     await Users.update({ _id }, { $set: { username, email, details, links } });
 
@@ -288,6 +298,10 @@ class User {
 
     const user = await Users.findOne({ _id });
 
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     // check current password ============
     const valid = await this.comparePassword(currentPassword, user.password);
 
@@ -371,18 +385,22 @@ class User {
       return {};
     }
 
-    const user = await Users.findOne({ _id });
+    const dbUser = await Users.findOne({ _id });
+
+    if (!dbUser) {
+      throw new Error("User not found");
+    }
 
     // recreate tokens
     const [newToken, newRefreshToken] = await this.createTokens(
-      user,
+      dbUser,
       this.getSecret()
     );
 
     return {
       token: newToken,
       refreshToken: newRefreshToken,
-      user
+      user: dbUser
     };
   }
 
@@ -394,7 +412,7 @@ class User {
     password
   }: {
     email: string;
-    password?: string;
+    password: string;
   }) {
     const user = await Users.findOne({
       $or: [

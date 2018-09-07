@@ -1,5 +1,5 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import * as bcrypt from "bcrypt";
+import * as jwt from "jsonwebtoken";
 import { connect, disconnect } from "../db/connection";
 import { userFactory } from "../db/factories";
 import { Users } from "../db/models";
@@ -16,7 +16,7 @@ describe("User db utils", () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ email: "Info@erxes.io" });
+    _user = await userFactory({ email: "Info@erxes.io", isActive: true });
   });
 
   afterEach(async () => {
@@ -44,7 +44,7 @@ describe("User db utils", () => {
     expect(userObj.details.position).toBe(_user.details.position);
     expect(userObj.details.fullName).toBe(_user.details.fullName);
     expect(userObj.details.avatar).toBe(_user.details.avatar);
-    expect(JSON.stringify(userObj.links)).toEqual(_user.links.toJSON());
+    expect(userObj.links.toJSON()).toEqual(_user.links.toJSON());
   });
 
   test("Create user with empty string password", async () => {
@@ -137,9 +137,7 @@ describe("User db utils", () => {
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
-    expect(JSON.stringify(userObj.links)).toEqual(
-      JSON.stringify(updateDoc.links)
-    );
+    expect(userObj.links.toJSON()).toEqual(updateDoc.links.toJSON());
 
     // try without password ============
     await Users.updateUser(_user._id, {
@@ -155,7 +153,6 @@ describe("User db utils", () => {
 
   test("Remove user", async () => {
     const deactivatedUser = await Users.removeUser(_user._id);
-
     // ensure deactivated
     expect(deactivatedUser.isActive).toBe(false);
   });
@@ -177,9 +174,7 @@ describe("User db utils", () => {
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
-    expect(JSON.stringify(userObj.links)).toEqual(
-      JSON.stringify(updateDoc.links)
-    );
+    expect(userObj.links.toJSON()).toEqual(updateDoc.links.toJSON());
   });
 
   test("Config email signature", async () => {
@@ -187,7 +182,7 @@ describe("User db utils", () => {
 
     const user = await Users.configEmailSignatures(_user._id, [signature]);
 
-    expect(JSON.stringify(user.emailSignatures[0])).toEqual(signature);
+    expect(user.emailSignatures[0].toJSON()).toEqual(signature);
   });
 
   test("Config get notifications by email", async () => {
@@ -247,7 +242,7 @@ describe("User db utils", () => {
       await Users.changePassword({
         _id: user._id,
         currentPassword: "admin",
-        newPassword: ""
+        newPassword: "123321"
       });
     } catch (e) {
       expect(e.message).toBe("Incorrect current password");

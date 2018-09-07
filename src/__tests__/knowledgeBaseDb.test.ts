@@ -1,4 +1,4 @@
-import toBeType from "jest-tobetype";
+import * as toBeType from "jest-tobetype";
 import { PUBLISH_STATUSES } from "../data/constants";
 import { connect, disconnect } from "../db/connection";
 import {
@@ -314,7 +314,7 @@ describe("test knowledge base models", () => {
 
     test("update", async () => {
       let categoryA = await knowledgeBaseCategoryFactory({ articleIds: [] });
-      let categoryB = await knowledgeBaseCategoryFactory();
+      let categoryB = await knowledgeBaseCategoryFactory({});
 
       const doc = {
         title: "Test article title",

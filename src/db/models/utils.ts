@@ -26,6 +26,9 @@ export const field = options => {
 type CocInput = ICompany | ICustomer;
 type CocDocument = ICompanyDocument | ICustomerDocument;
 
+/*
+ * Helper for customer, company bulk insert
+ */
 export const bulkInsert = async (params: {
   fieldNames: string[];
   fieldValues: string[][];
@@ -33,9 +36,9 @@ export const bulkInsert = async (params: {
   basicInfos: string[];
   contentType: string;
   create: (doc: CocInput, user?: IUserDocument) => Promise<CocDocument>;
-}) => {
-  const errMsgs = [];
-  const properties = [];
+}): Promise<string[]> => {
+  const errMsgs: string[] = [];
+  const properties: any = [];
 
   const {
     fieldNames,
@@ -46,7 +49,13 @@ export const bulkInsert = async (params: {
     create
   } = params;
 
-  const history = {
+  const history: {
+    ids: string[];
+    success: number;
+    total: number;
+    contentType: string;
+    failed: number;
+  } = {
     ids: [],
     success: 0,
     total: fieldValues.length,
@@ -83,7 +92,7 @@ export const bulkInsert = async (params: {
       properties.push(property);
 
       if (!basicInfos.includes(fieldName) && !fieldObj) {
-        errMsgs.push(`Bad column name ${field}`);
+        errMsgs.push(`Bad column name ${fieldName}`);
       }
     }
   };

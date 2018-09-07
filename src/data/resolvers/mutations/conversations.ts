@@ -13,6 +13,7 @@ import {
 } from "../../../db/models/definitions/constants";
 import { IMessageDocument } from "../../../db/models/definitions/conversationMessages";
 import { IConversationDocument } from "../../../db/models/definitions/conversations";
+import { IMessengerData } from "../../../db/models/definitions/integrations";
 import { IUserDocument } from "../../../db/models/definitions/users";
 import { facebookReply, IFacebookReply } from "../../../trackers/facebook";
 import {
@@ -42,8 +43,8 @@ interface IConversationMessageAdd {
 export const conversationNotifReceivers = (
   conversation: IConversationDocument,
   currentUserId: string
-) => {
-  let userIds = [];
+): string[] => {
+  let userIds: string[] = [];
 
   // assigned user can get notifications
   if (conversation.assignedUserId) {
@@ -65,7 +66,10 @@ export const conversationNotifReceivers = (
  * Using this subscription to track conversation detail's assignee, tag, status
  * changes
  */
-export const publishConversationsChanged = (_ids: string[], type: string) => {
+export const publishConversationsChanged = (
+  _ids: string[],
+  type: string
+): string[] => {
   for (const _id of _ids) {
     pubsub.publish("conversationChanged", {
       conversationChanged: { conversationId: _id, type }
@@ -111,6 +115,10 @@ const conversationMutations = {
   async conversationPublishClientMessage(_root, { _id }: { _id: string }) {
     const message = await ConversationMessages.findOne({ _id });
 
+    if (!message) {
+      throw new Error("Message not found");
+    }
+
     // notifying to conversationd detail
     publishMessage(message);
 
@@ -129,6 +137,11 @@ const conversationMutations = {
     const conversation = await Conversations.findOne({
       _id: doc.conversationId
     });
+
+    if (!conversation) {
+      throw new Error("Conversation not found");
+    }
+
     const integration = await Integrations.findOne({
       _id: conversation.integrationId
     });
@@ -189,7 +202,7 @@ const conversationMutations = {
       });
     }
 
-    let message = await ConversationMessages.addMessage(doc, user._id);
+    const message = await ConversationMessages.addMessage(doc, user._id);
 
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {
@@ -211,12 +224,18 @@ const conversationMutations = {
       await facebookReply(conversation, msg, message);
     }
 
-    message = await ConversationMessages.findOne({ _id: message._id });
+    const unPublishedMessage = await ConversationMessages.findOne({
+      _id: message._id
+    });
+
+    if (!unPublishedMessage) {
+      throw new Error("Message not found");
+    }
 
     // Publishing both admin & client
-    publishMessage(message, conversation.customerId);
+    publishMessage(unPublishedMessage, conversation.customerId);
 
-    return message;
+    return unPublishedMessage;
   },
 
   /**
@@ -319,10 +338,20 @@ const conversationMutations = {
         const customer = await Customers.findOne({
           _id: conversation.customerId
         });
+
+        if (!customer) {
+          throw new Error("Customer not found");
+        }
+
         const integration = await Integrations.findOne({
           _id: conversation.integrationId
         });
-        const messengerData = integration.messengerData || {};
+
+        if (!integration) {
+          throw new Error("Integration not found");
+        }
+
+        const messengerData: IMessengerData = integration.messengerData || {};
         const notifyCustomer = messengerData.notifyCustomer || false;
 
         if (notifyCustomer && customer.primaryEmail) {

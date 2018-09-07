@@ -1,6 +1,8 @@
 import { Channels, Users } from "../../../db/models";
 import {
+  IDetail,
   IEmailSignature,
+  ILink,
   IUser,
   IUserDocument
 } from "../../../db/models/definitions/users";
@@ -77,7 +79,7 @@ const userMutations = {
       passwordConfirmation,
       email,
       role,
-      channelIds,
+      channelIds = [],
       details,
       links
     } = args;
@@ -98,9 +100,11 @@ const userMutations = {
     // add new user to channels
     await Channels.updateUserChannels(channelIds, createdUser._id);
 
+    const toEmails = email ? [email] : [];
+
     // send email ================
     utils.sendEmail({
-      toEmails: [email],
+      toEmails,
       subject: "Invitation info",
       template: {
         name: "invitation",
@@ -125,7 +129,7 @@ const userMutations = {
       passwordConfirmation,
       email,
       role,
-      channelIds,
+      channelIds = [],
       details,
       links
     } = args;
@@ -155,10 +159,27 @@ const userMutations = {
    */
   async usersEditProfile(
     _root,
-    { username, email, password, details, links }: IUser,
+    {
+      username,
+      email,
+      password,
+      details,
+      links
+    }: {
+      username: string;
+      email: string;
+      password: string;
+      details: IDetail;
+      links: ILink;
+    },
     { user }: { user: IUserDocument }
   ) {
     const userOnDb = await Users.findOne({ _id: user._id });
+
+    if (!userOnDb) {
+      throw new Error("User not found");
+    }
+
     const valid = await Users.comparePassword(password, userOnDb.password);
 
     if (!password || !valid) {
@@ -174,6 +195,10 @@ const userMutations = {
    */
   async usersRemove(_root, { _id }: { _id: string }) {
     const userToRemove = await Users.findOne({ _id });
+
+    if (!userToRemove) {
+      throw new Error("User not found");
+    }
 
     // can not remove owner
     if (userToRemove.isOwner) {

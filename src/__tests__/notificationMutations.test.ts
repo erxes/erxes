@@ -1,7 +1,6 @@
 import { connect, disconnect, graphqlRequest } from "../db/connection";
 import { notificationFactory, userFactory } from "../db/factories";
-import { Notifications } from "../db/models";
-import { Users } from "../db/models";
+import { Notifications, Users } from "../db/models";
 
 beforeAll(() => connect());
 
