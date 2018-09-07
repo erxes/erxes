@@ -13,10 +13,7 @@ import {
 const SALT_WORK_FACTOR = 10;
 
 interface IUserModel extends Model<IUserDocument> {
-  checkDuplication(
-    userField: { email?: string },
-    idsToExclude?: string | string[]
-  ): never;
+  checkDuplication(email?: string, idsToExclude?: string | string[]): never;
   getSecret(): string;
 
   createUser(doc: IUser): Promise<IUserDocument>;
@@ -78,8 +75,8 @@ class User {
    * Checking if user has duplicated properties
    */
   public static async checkDuplication(
-    userFields: { email?: string },
-    idsToExclude: string | string[]
+    email?: string,
+    idsToExclude?: string | string[]
   ) {
     const query: { [key: string]: any } = {};
     let previousEntry;
@@ -93,8 +90,8 @@ class User {
     }
 
     // Checking if user has email
-    if (userFields.email) {
-      previousEntry = await Users.find({ ...query, email: userFields.email });
+    if (email) {
+      previousEntry = await Users.find({ ...query, email });
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
@@ -119,12 +116,12 @@ class User {
     links
   }: IUser) {
     // empty string password validation
-    if (!password && password === "") {
+    if (password === "") {
       throw new Error("Password can not be empty");
     }
 
     // Checking duplicated email
-    await Users.checkDuplication({ email });
+    await Users.checkDuplication(email);
 
     return Users.create({
       username,
@@ -148,7 +145,7 @@ class User {
     const doc = { username, email, password, role, details, links };
 
     // Checking duplicated email
-    await this.checkDuplication({ email }, _id);
+    await this.checkDuplication(email, _id);
 
     // change password
     if (password) {
@@ -172,7 +169,7 @@ class User {
     { username, email, details, links }: IUser
   ) {
     // Checking duplicated email
-    await this.checkDuplication({ email }, _id);
+    await this.checkDuplication(email, _id);
 
     await Users.update({ _id }, { $set: { username, email, details, links } });
 

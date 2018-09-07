@@ -105,13 +105,13 @@ class Article {
       });
 
       for (const category of categories) {
-        if (!category.articleIds) {
-          category.articleIds = [];
-        }
+        const articleIds = category.articleIds || [];
 
         // check previous entry
-        if (!category.articleIds.includes(article._id)) {
-          category.articleIds.push(article._id);
+        if (!articleIds.includes(article._id)) {
+          articleIds.push(article._id);
+
+          category.articleIds = articleIds;
 
           await category.save();
         }
@@ -172,11 +172,11 @@ class Category {
 
       // add new category to topics's categoryIds field
       for (const topic of topics) {
-        if (!topic.categoryIds) {
-          topic.categoryIds = [];
-        }
+        const categoryIds = topic.categoryIds || [];
 
-        topic.categoryIds.push(category._id.toString());
+        categoryIds.push(category._id.toString());
+
+        topic.categoryIds = categoryIds;
 
         await topic.save();
       }
@@ -218,13 +218,13 @@ class Category {
       const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
 
       for (const topic of topics) {
-        if (!topic.categoryIds) {
-          topic.categoryIds = [];
-        }
+        const categoryIds = topic.categoryIds || [];
 
         // add categoryId to topics's categoryIds list
-        if (!topic.categoryIds.includes(category._id.toString())) {
-          topic.categoryIds.push(category._id.toString());
+        if (!categoryIds.includes(category._id.toString())) {
+          categoryIds.push(category._id.toString());
+
+          topic.categoryIds = categoryIds;
 
           await topic.save();
         }
