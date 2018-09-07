@@ -290,8 +290,8 @@ describe("Companies model tests", () => {
     // Checking new company datas updated
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
 
-    expect(customer1.companyIds).toContain(updatedCompany._id);
-    expect(customer2.companyIds).toContain(updatedCompany._id);
+    expect(customerObj1.companyIds).toContain(updatedCompany._id);
+    expect(customerObj2.companyIds).toContain(updatedCompany._id);
 
     internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,

@@ -126,9 +126,13 @@ describe("Fields", () => {
       throw new Error("Couldnt create field");
     }
 
-    delete doc._id;
+    const fieldDoc = {
+      ...doc.toJSON()
+    };
 
-    const fieldObj = await Fields.updateField(_field._id, doc);
+    delete fieldDoc._id;
+
+    const fieldObj = await Fields.updateField(_field._id, fieldDoc);
 
     try {
       await Fields.updateField(testField._id, {});
@@ -136,7 +140,7 @@ describe("Fields", () => {
       expect(e.message).toBe("Cant update this field");
     }
 
-    if(!fieldObj.options || !doc.options) {
+    if (!fieldObj.options || !doc.options) {
       throw new Error("Options not found in field");
     }
 
@@ -288,7 +292,7 @@ describe("Fields", () => {
 
     const isVisible = false;
 
-    if(!field || !testField) {
+    if (!field || !testField) {
       throw new Error("Couldnt create field");
     }
 
@@ -368,7 +372,7 @@ describe("Fields groups", () => {
       expect(e.message).toBe("Cant update this group");
     }
 
-    if(!fieldGroup) {
+    if (!fieldGroup) {
       throw new Error("Couldnt create fieldGroup");
     }
 
@@ -383,7 +387,7 @@ describe("Fields groups", () => {
 
     const fieldGroup = await fieldGroupFactory({});
 
-    if(!fieldGroup) {
+    if (!fieldGroup) {
       throw new Error("Couldnt create fieldGroup");
     }
 
@@ -419,7 +423,7 @@ describe("Fields groups", () => {
     const fieldGroup = await fieldGroupFactory({ isVisible: true });
     const user = await userFactory({});
 
-    if(!fieldGroup) {
+    if (!fieldGroup) {
       throw new Error("Couldnt create fieldGroup");
     }
 

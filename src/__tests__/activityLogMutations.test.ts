@@ -68,6 +68,10 @@ describe("ActivityLog creation on Customer creation", () => {
 
     const activityLog = await ActivityLogs.findOne({ _id: activityLogId });
 
+    if (!activityLog || !activityLog.coc || !activityLog.activity) {
+      throw new Error("Activity not found");
+    }
+
     expect(activityLog.coc.id).toBe(args.customerId);
     expect(activityLog.activity.id).toBe(args.conversationId);
   });
