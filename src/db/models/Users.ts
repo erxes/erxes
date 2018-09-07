@@ -4,7 +4,9 @@ import * as jwt from "jsonwebtoken";
 import { Model, model } from "mongoose";
 import * as sha256 from "sha256";
 import {
+  IDetail,
   IEmailSignature,
+  ILink,
   IUser,
   IUserDocument,
   userSchema
@@ -20,7 +22,10 @@ interface IUserModel extends Model<IUserDocument> {
 
   updateUser(_id: string, doc: IUser): Promise<IUserDocument>;
 
-  editProfile(_id: string, doc: IUser): Promise<IUserDocument>;
+  editProfile(
+    _id: string,
+    doc: { username: string; email: string; details: IDetail; links: ILink }
+  ): Promise<IUserDocument>;
 
   configEmailSignatures(
     _id: string,
@@ -166,7 +171,12 @@ class User {
    */
   public static async editProfile(
     _id: string,
-    { username, email, details, links }: IUser
+    {
+      username,
+      email,
+      details,
+      links
+    }: { username: string; email: string; details: IDetail; links: ILink }
   ) {
     // Checking duplicated email
     await this.checkDuplication(email, _id);
