@@ -160,8 +160,8 @@ class Conversation {
     status: string,
     userId: string
   ) {
-    let closedAt = null;
-    let closedUserId = null;
+    let closedAt;
+    let closedUserId;
 
     if (status === this.getConversationStatuses().CLOSED) {
       closedAt = new Date();
@@ -185,7 +185,7 @@ class Conversation {
       throw new Error(`Conversation not found with id ${_id}`);
     }
 
-    const readUserIds = conversation.readUserIds;
+    const readUserIds = conversation.readUserIds || [];
 
     // if current user is first one
     if (!readUserIds || readUserIds.length === 0) {

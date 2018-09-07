@@ -37,8 +37,8 @@ export const bulkInsert = async (params: {
   contentType: string;
   create: (doc: CocInput, user?: IUserDocument) => Promise<CocDocument>;
 }): Promise<string[]> => {
-  const errMsgs = [];
-  const properties = [];
+  const errMsgs: string[] = [];
+  const properties: any = [];
 
   const {
     fieldNames,
@@ -49,7 +49,13 @@ export const bulkInsert = async (params: {
     create
   } = params;
 
-  const history = {
+  const history: {
+    ids: string[];
+    success: number;
+    total: number;
+    contentType: string;
+    failed: number;
+  } = {
     ids: [],
     success: 0,
     total: fieldValues.length,

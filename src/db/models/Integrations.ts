@@ -196,7 +196,10 @@ class Integration {
   /**
    * Create a form kind integration
    */
-  public static createFormIntegration({ formData, ...mainDoc }: IIntegration) {
+  public static createFormIntegration({
+    formData = {},
+    ...mainDoc
+  }: IIntegration) {
     const doc = this.generateFormDoc({ ...mainDoc }, formData);
 
     if (Object.keys(formData || {}).length === 0) {
@@ -211,7 +214,7 @@ class Integration {
    */
   public static async updateFormIntegration(
     _id: string,
-    { formData, ...mainDoc }: IIntegration
+    { formData = {}, ...mainDoc }: IIntegration
   ) {
     const doc = this.generateFormDoc(mainDoc, formData);
 
@@ -225,6 +228,10 @@ class Integration {
    */
   public static async removeIntegration(_id: string) {
     const integration = await Integrations.findOne({ _id });
+
+    if (!integration) {
+      throw new Error("Integration not found");
+    }
 
     // remove conversations =================
     const conversations = await Conversations.find(
