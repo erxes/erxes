@@ -35,7 +35,7 @@ const engageMutations = {
       } = await awsRequests.getVerifiedEmails();
 
       // If verified creates engagemessage
-      if (!VerifiedEmailAddresses.includes(user.email)) {
+      if (user && !VerifiedEmailAddresses.includes(user.email)) {
         throw new Error("Email not verified");
       }
     }

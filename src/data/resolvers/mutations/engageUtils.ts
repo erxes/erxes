@@ -1,4 +1,4 @@
-import Random from "meteor-random";
+import * as Random from "meteor-random";
 import {
   ConversationMessages,
   Conversations,
@@ -36,15 +36,19 @@ export const replaceKeys = ({
   let result = content;
 
   const customerName = `${customer.firstName} + ${customer.lastName}`;
+  const details = user.details ? user.details.toJSON() : {};
 
   // replace customer fields
   result = result.replace(/{{\s?customer.name\s?}}/gi, customerName);
-  result = result.replace(/{{\s?customer.email\s?}}/gi, customer.primaryEmail);
+  result = result.replace(
+    /{{\s?customer.email\s?}}/gi,
+    customer.primaryEmail || ""
+  );
 
   // replace user fields
-  result = result.replace(/{{\s?user.fullName\s?}}/gi, user.details.fullName);
-  result = result.replace(/{{\s?user.position\s?}}/gi, user.details.position);
-  result = result.replace(/{{\s?user.email\s?}}/gi, user.email);
+  result = result.replace(/{{\s?user.fullName\s?}}/gi, details.fullName || "");
+  result = result.replace(/{{\s?user.position\s?}}/gi, details.position || "");
+  result = result.replace(/{{\s?user.email\s?}}/gi, user.email || "");
 
   return result;
 };
@@ -57,7 +61,7 @@ const findCustomers = async ({
   segmentId
 }: {
   customerIds: string[];
-  segmentId: string;
+  segmentId?: string;
 }): Promise<ICustomerDocument[]> => {
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
@@ -74,11 +78,27 @@ const findCustomers = async ({
  * Send via email
  */
 const sendViaEmail = async (message: IEngageMessageDocument) => {
-  const { fromUserId, segmentId, customerIds } = message;
-  const { templateId, subject, content, attachments = [] } = message.email;
+  const { fromUserId, segmentId, customerIds = [] } = message;
+
+  if (!message.email) {
+    return;
+  }
+
+  const {
+    templateId,
+    subject,
+    content,
+    attachments = []
+  } = message.email.toJSON();
+
   const { AWS_SES_CONFIG_SET } = process.env;
 
   const user = await Users.findOne({ _id: fromUserId });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   const userEmail = user.email;
   const template = await EmailTemplates.findOne({ _id: templateId });
 
@@ -145,10 +165,19 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
  * Send via messenger
  */
 const sendViaMessenger = async (message: IEngageMessageDocument) => {
-  const { fromUserId, segmentId, customerIds } = message;
-  const { brandId, content } = message.messenger;
+  const { fromUserId, segmentId, customerIds = [] } = message;
+
+  if (!message.messenger) {
+    return;
+  }
+
+  const { brandId, content } = message.messenger.toJSON();
 
   const user = await Users.findOne({ _id: fromUserId });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
 
   // find integration
   const integration = await Integrations.findOne({

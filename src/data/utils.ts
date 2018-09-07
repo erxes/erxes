@@ -16,7 +16,7 @@ export const uploadFile = async (file: {
   const {
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
-    AWS_BUCKET,
+    AWS_BUCKET = "",
     AWS_PREFIX = ""
   } = process.env;
 
@@ -128,12 +128,12 @@ export const sendEmail = async ({
   toEmails,
   fromEmail,
   title,
-  template
+  template = {}
 }: {
   toEmails?: string[];
   fromEmail?: string;
   title?: string;
-  template?: { name?: string; data: any; isCustom?: boolean };
+  template?: { name?: string; data?: any; isCustom?: boolean };
   subject?: string;
   to?: string;
 }) => {
@@ -156,13 +156,13 @@ export const sendEmail = async ({
   const { isCustom, data, name } = template;
 
   // generate email content by given template
-  let html = await applyTemplate(data, name);
+  let html = await applyTemplate(data, name || "");
 
   if (!isCustom) {
     html = await applyTemplate({ content: html }, "base");
   }
 
-  return toEmails.map(toEmail => {
+  return (toEmails || []).map(toEmail => {
     const mailOptions = {
       from: fromEmail || COMPANY_EMAIL_FROM,
       to: toEmail,
@@ -192,11 +192,17 @@ export const sendNotification = async ({
   notifType: string;
   link: string;
 }) => {
+  const createdUserObj = await Users.findOne({ _id: createdUser });
+
+  if (!createdUserObj) {
+    throw new Error("Created user not found");
+  }
+
   // collecting emails
   const recipients = await Users.find({ _id: { $in: receivers } });
 
   // collect recipient emails
-  const toEmails = [];
+  const toEmails: string[] = [];
 
   for (const recipient of recipients) {
     if (recipient.getNotificationByEmail && recipient.email) {
@@ -281,7 +287,7 @@ export const importXlsFile = async (
         // Getting columns
         const fieldNames = usedSheets[0];
 
-        let collection = null;
+        let collection;
 
         // Removing column
         usedSheets.shift();
