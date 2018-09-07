@@ -120,12 +120,12 @@ export class SaveWebhookResponse {
     const data = this.data;
     const integration = this.integration;
 
+    if (!integration.facebookData) {
+      throw new Error("start: Integration doesn't have facebookData");
+    }
+
     if (data.object === "page") {
       for (const entry of data.entry) {
-        if (!integration.facebookData) {
-          throw new Error("start: Integration doesn't have facebookData");
-        }
-
         // check receiving page is in integration's page list
         if (!integration.facebookData.pageIds.includes(entry.id)) {
           return null;

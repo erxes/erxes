@@ -34,14 +34,14 @@ export default {
     const performedBy = obj.performedBy;
 
     if (!performedBy) {
-      throw new Error("Performer is empty");
+      return null;
     }
 
     if (performedBy.type === ACTIVITY_PERFORMER_TYPES.USER) {
       const user = await Users.findOne({ _id: performedBy.id });
 
       if (!user) {
-        throw new Error("User not found");
+        return null;
       }
 
       return {
