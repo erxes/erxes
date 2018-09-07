@@ -13,7 +13,7 @@ interface INotificationModel extends Model<INotificationDocument> {
 
   createNotification(
     doc: INotification,
-    createdUser: IUserDocument | string
+    createdUser?: IUserDocument | string
   ): Promise<INotificationDocument>;
 
   updateNotification(
@@ -47,7 +47,7 @@ class Notification {
    */
   public static async createNotification(
     doc: INotification,
-    createdUser: IUserDocument | string
+    createdUser?: IUserDocument | string
   ) {
     if (!createdUser) {
       throw new Error("createdUser must be supplied");

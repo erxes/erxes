@@ -96,7 +96,7 @@ export const getPageList = async (accessToken?: string) => {
  */
 
 export class SaveWebhookResponse {
-  public currentPageId: string | null;
+  public currentPageId?: string | null;
   public data: any;
   private userAccessToken: string;
   private integration: IIntegrationDocument;
@@ -403,7 +403,7 @@ export class SaveWebhookResponse {
     });
 
     if (restored) {
-      return "";
+      return "restored";
     }
 
     // create new message

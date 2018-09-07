@@ -34,7 +34,7 @@ describe("form creation", () => {
           title: "Test form",
           description: "Test form description"
         },
-        null
+        undefined
       );
     } catch (e) {
       expect(e.message).toEqual("createdUser must be supplied");
@@ -42,7 +42,7 @@ describe("form creation", () => {
   });
 
   test("check if form creation method is working successfully", async () => {
-    let form = await Forms.createForm(
+    const form = await Forms.createForm(
       {
         title: "Test form",
         description: "Test form description"
@@ -50,13 +50,17 @@ describe("form creation", () => {
       _user._id
     );
 
-    form = await Forms.findOne({ _id: form._id });
+    const formObj = await Forms.findOne({ _id: form._id });
 
-    expect(form.title).toBe("Test form");
-    expect(form.description).toBe("Test form description");
-    expect(form.code.length).toBe(6);
-    expect(form.createdDate).toBeDefined();
-    expect(form.createdUserId).toBe(_user._id);
+    if (!formObj || !formObj.code) {
+      throw new Error("Form not found");
+    }
+
+    expect(formObj.title).toBe("Test form");
+    expect(formObj.description).toBe("Test form description");
+    expect(formObj.code.length).toBe(6);
+    expect(formObj.createdDate).toBeDefined();
+    expect(formObj.createdUserId).toBe(_user._id);
   });
 });
 
@@ -144,6 +148,10 @@ describe("form duplication", () => {
 
   test("test whether form duplication method is working successfully", async () => {
     const duplicatedForm = await Forms.duplicate(_form._id);
+
+    if (!duplicatedForm || !duplicatedForm.code) {
+      throw new Error("Form not found");
+    }
 
     expect(duplicatedForm.title).toBe(`${_form.title} duplicated`);
     expect(duplicatedForm.description).toBe(_form.description);

@@ -50,12 +50,12 @@ interface IActivityLogModel extends Model<IActivityLogDocument> {
 
   createConversationLog(
     conversation: IConversationDocument,
-    customer: ICustomerDocument
+    customer?: ICustomerDocument
   ): Promise<IActivityLogDocument>;
 
   createSegmentLog(
     segment: ISegmentDocument,
-    customer: ICustomerDocument
+    customer?: ICustomerDocument
   ): Promise<IActivityLogDocument>;
 
   createCustomerRegistrationLog(
@@ -227,7 +227,7 @@ class ActivityLog {
    */
   public static async createSegmentLog(
     segment: ISegmentDocument,
-    customer: ICustomerDocument
+    customer?: ICustomerDocument
   ) {
     if (!customer) {
       throw new Error("customer must be supplied");

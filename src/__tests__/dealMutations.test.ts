@@ -159,6 +159,10 @@ describe("Test deals mutations", () => {
     // stage connected to pipeline
     const stageToPipeline = await DealStages.findOne({ _id: stage._id });
 
+    if (!stageToPipeline) {
+      throw new Error("Stage not found");
+    }
+
     expect(createdPipeline._id).toEqual(stageToPipeline.pipelineId);
     expect(createdPipeline.name).toEqual(args.name);
     expect(createdPipeline.boardId).toEqual(board._id);
@@ -191,6 +195,10 @@ describe("Test deals mutations", () => {
 
     // stage connected to pipeline
     const stageToPipeline = await DealStages.findOne({ _id: stage._id });
+
+    if (!stageToPipeline) {
+      throw new Error("Stage not found");
+    }
 
     expect(updatedPipeline._id).toEqual(stageToPipeline.pipelineId);
     expect(updatedPipeline.name).toEqual(args.name);

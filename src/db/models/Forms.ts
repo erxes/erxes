@@ -6,7 +6,7 @@ import { formSchema, IForm, IFormDocument } from "./definitions/forms";
 
 interface IFormModel extends Model<IFormDocument> {
   generateCode(): string;
-  createForm(doc: IForm, createdUserId: string): Promise<IFormDocument>;
+  createForm(doc: IForm, createdUserId?: string): Promise<IFormDocument>;
 
   updateForm(
     _id,
@@ -36,7 +36,7 @@ class Form {
   /**
    * Creates a form document
    */
-  public static async createForm(doc: IForm, createdUserId: string) {
+  public static async createForm(doc: IForm, createdUserId?: string) {
     if (!createdUserId) {
       throw new Error("createdUser must be supplied");
     }

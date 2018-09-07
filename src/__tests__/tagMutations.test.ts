@@ -131,6 +131,10 @@ describe("Test tags mutations", () => {
 
     const engageMessage = await EngageMessages.findOne({ _id: _message._id });
 
+    if (!engageMessage) {
+      throw new Error("Engage message not found");
+    }
+
     expect(engageMessage.tagIds).toContain(args.tagIds);
   });
 });

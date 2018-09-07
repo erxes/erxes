@@ -34,6 +34,10 @@ describe("Fields", () => {
   test("createField() without contentTypeId", async () => {
     const group = await fieldGroupFactory({ contentType: "customer" });
 
+    if (!group) {
+      throw new Error("Couldnt create group");
+    }
+
     // first attempt
     let field = await Fields.createField({ contentType: "customer" });
     expect(field.order).toBe(0);
@@ -101,6 +105,10 @@ describe("Fields", () => {
     const field1 = await fieldFactory({});
     const field2 = await fieldFactory({});
 
+    if (!field1 || !field2) {
+      throw new Error("Couldnt create field");
+    }
+
     const [updatedField1, updatedField2] = await Fields.updateOrder([
       { _id: field1._id, order: 10 },
       { _id: field2._id, order: 11 }
@@ -114,7 +122,11 @@ describe("Fields", () => {
     const doc = await fieldFactory({});
     const testField = await fieldFactory({ isDefinedByErxes: true });
 
-    doc._id = undefined;
+    if (!doc || !testField) {
+      throw new Error("Couldnt create field");
+    }
+
+    delete doc._id;
 
     const fieldObj = await Fields.updateField(_field._id, doc);
 
@@ -124,6 +136,10 @@ describe("Fields", () => {
       expect(e.message).toBe("Cant update this field");
     }
 
+    if(!fieldObj.options || !doc.options) {
+      throw new Error("Options not found in field");
+    }
+
     // check updates
     expect(fieldObj.contentType).toBe(doc.contentType);
     expect(fieldObj.contentTypeId).toBe(doc.contentTypeId);
@@ -131,7 +147,7 @@ describe("Fields", () => {
     expect(fieldObj.validation).toBe(doc.validation);
     expect(fieldObj.text).toBe(doc.text);
     expect(fieldObj.description).toBe(doc.description);
-    expect(fieldObj.options).toEqual(expect.arrayContaining(doc.options));
+    expect(fieldObj.options[0]).toEqual(doc.options[0]);
     expect(fieldObj.isRequired).toBe(doc.isRequired);
     expect(fieldObj.order).toBe(doc.order);
   });
@@ -141,6 +157,10 @@ describe("Fields", () => {
 
     await customerFactory({ customFieldsData: { [_field._id]: "1231" } });
     const testField = await fieldFactory({ isDefinedByErxes: true });
+
+    if (!testField) {
+      throw new Error("Couldnt create field");
+    }
 
     try {
       await Fields.removeField("DFFFDSFD");
@@ -268,6 +288,10 @@ describe("Fields", () => {
 
     const isVisible = false;
 
+    if(!field || !testField) {
+      throw new Error("Couldnt create field");
+    }
+
     try {
       await Fields.updateFieldsVisible(testField._id, false, "123321");
     } catch (e) {
@@ -344,6 +368,10 @@ describe("Fields groups", () => {
       expect(e.message).toBe("Cant update this group");
     }
 
+    if(!fieldGroup) {
+      throw new Error("Couldnt create fieldGroup");
+    }
+
     const groupObj = await FieldsGroups.updateGroup(fieldGroup._id, doc);
 
     expect(groupObj.name).toBe(doc.name);
@@ -354,6 +382,11 @@ describe("Fields groups", () => {
     expect.assertions(3);
 
     const fieldGroup = await fieldGroupFactory({});
+
+    if(!fieldGroup) {
+      throw new Error("Couldnt create fieldGroup");
+    }
+
     await fieldFactory({ groupId: fieldGroup._id });
 
     try {
@@ -385,6 +418,10 @@ describe("Fields groups", () => {
 
     const fieldGroup = await fieldGroupFactory({ isVisible: true });
     const user = await userFactory({});
+
+    if(!fieldGroup) {
+      throw new Error("Couldnt create fieldGroup");
+    }
 
     try {
       await FieldsGroups.updateGroupVisible(_fieldGroup._id, true, user._id);

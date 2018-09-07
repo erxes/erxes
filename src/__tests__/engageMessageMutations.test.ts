@@ -217,6 +217,10 @@ describe("engage message mutation tests", () => {
 
     const user = await Users.findOne({ _id: _doc.fromUserId });
 
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     const sandbox = sinon.sandbox.create();
 
     sandbox.stub(awsRequests, "getVerifiedEmails").callsFake(() => {
@@ -483,6 +487,10 @@ describe("engage message mutation tests", () => {
       { _id: _message._id },
       context
     );
+
+    if (!conversationMessage.engageData) {
+      throw new Error("Conversation engageData not found");
+    }
 
     expect(engageUtils.send).toHaveBeenCalled();
     expect(engageMessage.isLive).toBe(true);

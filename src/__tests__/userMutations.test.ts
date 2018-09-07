@@ -113,6 +113,10 @@ describe("User mutations", () => {
 
     const user = await Users.findOne({ email: _user.email });
 
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     expect(user.resetPasswordToken).toBeDefined();
   });
 
@@ -140,13 +144,19 @@ describe("User mutations", () => {
     const params = {
       token,
       newPassword: "newPassword"
-    }
+    };
 
     await graphqlRequest(mutation, "resetPassword", params);
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
-    expect(bcrypt.compare(params.newPassword, updatedUser.password)).toBeTruthy();
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    expect(
+      bcrypt.compare(params.newPassword, updatedUser.password)
+    ).toBeTruthy();
   });
 
   test("Add user", async () => {
@@ -188,6 +198,10 @@ describe("User mutations", () => {
     const user = await graphqlRequest(mutation, "usersAdd", doc, context);
 
     const channel = await Channels.findOne({ _id: _channel._id });
+
+    if (!channel) {
+      throw new Error("Channel not found");
+    }
 
     expect(channel.memberIds).toContain(user._id);
     expect(user.username).toBe(doc.username);
@@ -261,6 +275,10 @@ describe("User mutations", () => {
     );
 
     const channel = await Channels.findOne({ _id: _channel._id });
+
+    if (!channel) {
+      throw new Error("Channel not found");
+    }
 
     expect(channel.memberIds).toContain(user._id);
     expect(user.username).toBe(doc.username);
@@ -367,6 +385,10 @@ describe("User mutations", () => {
 
     const user = await Users.findOne({ _id: _user._id });
 
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     expect(user.password).not.toBe(previousPassword);
   });
 
@@ -385,6 +407,10 @@ describe("User mutations", () => {
     );
 
     const deactivedUser = await Users.findOne({ _id: _user._id });
+
+    if (!deactivedUser) {
+      throw new Error("User not found");
+    }
 
     expect(deactivedUser.isActive).toBe(false);
   });

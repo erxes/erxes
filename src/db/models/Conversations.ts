@@ -22,7 +22,7 @@ interface IConversationModel extends Model<IConversationDocument> {
 
   assignUserConversation(
     conversationIds: string[],
-    assignedUserId: string
+    assignedUserId?: string
   ): Promise<IConversationDocument[]>;
 
   unassignUserConversation(
@@ -120,7 +120,7 @@ class Conversation {
    */
   public static async assignUserConversation(
     conversationIds: string[],
-    assignedUserId: string
+    assignedUserId?: string
   ) {
     await this.checkExistanceConversations(conversationIds);
 

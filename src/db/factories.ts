@@ -336,10 +336,15 @@ interface IFieldFactoryInput {
   groupId?: string;
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
+  options?: string[]
 }
 
 export const fieldFactory = async (params: IFieldFactoryInput) => {
   const groupObj = await fieldGroupFactory({});
+
+  if(!groupObj) {
+    throw new Error("Failed to create fieldGroup");
+  }
 
   const field = new Fields({
     contentType: params.contentType || "form",
@@ -351,6 +356,7 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     isRequired: params.isRequired || false,
     order: params.order || 0,
     isVisible: params.visible || true,
+    options: params.options || [],
     groupId: params.groupId || groupObj._id
   });
 
