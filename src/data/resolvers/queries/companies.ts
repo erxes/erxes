@@ -18,23 +18,33 @@ import QueryBuilder from "./segmentQueryBuilder";
 import { paginate } from "./utils";
 
 interface IListArgs {
-  page: number;
-  perPage: number;
-  segment: string;
-  tag: string;
-  ids: string[];
-  searchValue: string;
-  lifecycleState: string;
-  leadStatus: string;
-  sortField: string;
-  sortDirection: number;
-  brand: string;
+  page?: number;
+  perPage?: number;
+  segment?: string;
+  tag?: string;
+  ids?: string[];
+  searchValue?: string;
+  lifecycleState?: string;
+  leadStatus?: string;
+  sortField?: string;
+  sortDirection?: number;
+  brand?: string;
 }
+
+interface IIn {
+  $in: string[];
+}
+
+interface IBrandFilter {
+  _id: IIn;
+}
+
+type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
 /*
  * Brand filter
  */
-const brandFilter = async (brandId: string) => {
+const brandFilter = async (brandId: string): Promise<IBrandFilter> => {
   const integrations = await Integrations.find({ brandId }, { _id: 1 });
   const integrationIds = integrations.map(i => i._id);
 
@@ -102,11 +112,11 @@ const listQuery = async (params: IListArgs) => {
   return selector;
 };
 
-const sortBuilder = (params: IListArgs) => {
+const sortBuilder = (params: IListArgs): TSortBuilder => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection;
 
-  let sortParams: any = { primaryName: -1 };
+  let sortParams: TSortBuilder = { primaryName: -1 };
 
   if (sortField) {
     sortParams = { [sortField]: sortDirection };
@@ -121,7 +131,6 @@ const companyQueries = {
    */
   async companies(_root, params: IListArgs) {
     const selector = await listQuery(params);
-
     const sort = sortBuilder(params);
 
     return paginate(Companies.find(selector), params).sort(sort);
@@ -207,9 +216,7 @@ const companyQueries = {
    */
   async companiesExport(_root, params: IListArgs) {
     const selector = await listQuery(params);
-
     const sort = sortBuilder(params);
-
     const companies = await paginate(Companies.find(selector), params).sort(
       sort
     );

@@ -1,4 +1,5 @@
 import { Brands, Customers, Forms, Segments, Tags } from "../../../db/models";
+import { ISegment } from "../../../db/models/definitions/segments";
 import {
   COC_CONTENT_TYPES,
   COC_LEAD_STATUS_TYPES,
@@ -13,29 +14,33 @@ import QueryBuilder from "./segmentQueryBuilder";
 import { paginate } from "./utils";
 
 interface IListArgs {
-  page: number;
-  perPage: number;
-  segment: string;
-  tag: string;
-  ids: string[];
-  searchValue: string;
-  brand: string;
-  numberegration: string;
-  form: string;
-  startDate: string;
-  endDate: string;
-  lifecycleState: string;
-  leadStatus: string;
-  sortField: string;
-  sortDirection: number;
+  page?: number;
+  perPage?: number;
+  segment?: string;
+  tag?: string;
+  ids?: string[];
+  searchValue?: string;
+  brand?: string;
+  numberegration?: string;
+  form?: string;
+  startDate?: string;
+  endDate?: string;
+  lifecycleState?: string;
+  leadStatus?: string;
+  sortField?: string;
+  sortDirection?: number;
   byFakeSegment?: any;
 }
 
-const sortBuilder = (params: IListArgs) => {
+interface ISortParams {
+  [index: string]: number;
+}
+
+const sortBuilder = (params: IListArgs): ISortParams => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection;
 
-  let sortParams: any = { "messengerData.lastSeenAt": -1 };
+  let sortParams: ISortParams = { "messengerData.lastSeenAt": -1 };
 
   if (sortField) {
     sortParams = { [sortField]: sortDirection };
@@ -181,7 +186,7 @@ const customerQueries = {
    */
   async customerListForSegmentPreview(
     _root,
-    { segment, limit }: { segment: any; limit: number }
+    { segment, limit }: { segment: ISegment; limit: number }
   ) {
     const headSegment = await Segments.findOne({ _id: segment.subOf });
 

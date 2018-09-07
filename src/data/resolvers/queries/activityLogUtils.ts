@@ -1,3 +1,7 @@
+import { ICompanyDocument } from "../../../db/models/definitions/companies";
+import { ICustomerDocument } from "../../../db/models/definitions/customers";
+import { IDealDocument } from "../../../db/models/definitions/deals";
+import { IUserDocument } from "../../../db/models/definitions/users";
 import { COC_CONTENT_TYPES } from "../../constants";
 
 const START_DATE = {
@@ -5,17 +9,40 @@ const START_DATE = {
   month: 0
 };
 
+type IDocs =
+  | IDealDocument
+  | IUserDocument
+  | ICompanyDocument
+  | ICustomerDocument;
+
+interface IMonthIntervals {
+  yearMonth: {
+    year: number;
+    month: number;
+  };
+  interval: {
+    start: Date;
+    end: Date;
+  };
+}
+
+interface IList {
+  coc: IDocs;
+  cocContentType: string;
+  date: IMonthIntervals;
+}
+
 class BaseMonthActivityBuilder {
-  public coc: any;
-  public cocContentType: any;
-  constructor(coc) {
+  public coc: IDocs;
+  public cocContentType: string;
+  constructor(coc: IDocs) {
     this.coc = coc;
   }
 
   /**
    * Get the number of days in the given month
    */
-  public getIntervalEnd(year, month) {
+  public getIntervalEnd(year: number, month: number): Date {
     const date = new Date(year, month, 0);
     date.setDate(date.getDate() + 1);
     return date;
@@ -24,13 +51,12 @@ class BaseMonthActivityBuilder {
   /**
    * Generate dates with interval dates used to query ActivityLogs
    */
-  public generateDates() {
+  public generateDates(): IMonthIntervals[] {
     const now = new Date();
 
     const endYear = now.getFullYear();
     const endMonth = now.getMonth();
-
-    const monthIntervals = [];
+    const monthIntervals: IMonthIntervals[] = [];
 
     let year = START_DATE.year;
     let month = START_DATE.month;
@@ -61,9 +87,9 @@ class BaseMonthActivityBuilder {
   /**
    * Build month intervals and collect ActivityLogForMonth resolver placeholders into them
    */
-  public build() {
+  public build(): IList[] {
     const dates = this.generateDates();
-    const list = [];
+    const list: IList[] = [];
 
     for (const date of dates) {
       list.unshift({
