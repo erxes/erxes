@@ -1,12 +1,14 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
   FormControl,
   ControlLabel,
-  FormGroup
+  FormGroup,
+  Icon
 } from 'modules/common/components';
 import Datetime from 'react-datetime';
 import { SCHEDULE_TYPES } from 'modules/engage/constants';
+import { DateTimePicker, SelectMonth } from '../styles';
 
 const contextTypes = {
   __: PropTypes.func
@@ -57,13 +59,16 @@ class Scheduler extends Component {
     }
 
     return (
-      <FormControl
-        componentClass="select"
-        value={month}
-        onChange={e => this.changeSchedule('month', e.target.value)}
-      >
-        <option /> {this.generateOptions(12)}
-      </FormControl>
+      <Fragment>
+        <ControlLabel>Choose month:</ControlLabel>
+        <FormControl
+          componentClass="select"
+          value={month}
+          onChange={e => this.changeSchedule('month', e.target.value)}
+        >
+          <option /> {this.generateOptions(12)}
+        </FormControl>
+      </Fragment>
     );
   }
 
@@ -75,13 +80,16 @@ class Scheduler extends Component {
     }
 
     return (
-      <FormControl
-        componentClass="select"
-        value={day}
-        onChange={e => this.changeSchedule('day', e.target.value)}
-      >
-        <option /> {this.generateOptions(31)}
-      </FormControl>
+      <Fragment>
+        <ControlLabel>Choose day:</ControlLabel>
+        <FormControl
+          componentClass="select"
+          value={day}
+          onChange={e => this.changeSchedule('day', e.target.value)}
+        >
+          <option /> {this.generateOptions(31)}
+        </FormControl>
+      </Fragment>
     );
   }
 
@@ -110,15 +118,21 @@ class Scheduler extends Component {
           ))}
         </FormControl>
 
-        {this.renderMonthSelector()}
-        {this.renderDaySelector()}
+        <SelectMonth>
+          {this.renderMonthSelector()}
+          {this.renderDaySelector()}
+        </SelectMonth>
 
-        <Datetime
-          {...props}
-          value={time}
-          onChange={e => this.changeSchedule('time', e)}
-          dateFormat={false}
-        />
+        <DateTimePicker>
+          <Datetime
+            {...props}
+            value={time}
+            onChange={e => this.changeSchedule('time', e)}
+            dateFormat={false}
+            inputProps={{ placeholder: 'Click to choose time' }}
+          />
+          <Icon icon="calendar" />
+        </DateTimePicker>
       </FormGroup>
     );
   }

@@ -194,7 +194,8 @@ const UserInfo = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: url(/images/patterns/bg-2.png);
+  border-top: 3px solid ${colors.colorPrimary};
+  border-radius: 5px;
 
   h4 {
     margin: 20px 0 0 0;
