@@ -117,7 +117,7 @@ const createDirectMessage = async ({
   const message = await ConversationMessages.findOne({ _id: messageId });
 
   if (!message) {
-    throw new Error("Couldn't publish message");
+    throw new Error("createDirectMessage: Couldn't publish message");
   }
 
   publishMessage(message);
@@ -136,7 +136,7 @@ export const receiveDirectMessageInformation = async (
   // version of that integration is still running, new conversations being
   // created using non existing integrationId
   if (!(await Integrations.findOne({ _id: integration._id }))) {
-    return null;
+    throw new Error("receiveDirectMessageInformation: Integration not found");
   }
 
   let conversation = await Conversations.findOne({
@@ -185,7 +185,9 @@ export const receiveDirectMessageInformation = async (
     conversation = await Conversations.findOne({ _id: conversationId });
 
     if (!conversation) {
-      throw new Error("Conversation not found");
+      throw new Error(
+        "receiveDirectMessageInformation: Conversation not found"
+      );
     }
 
     // create new message
@@ -275,7 +277,7 @@ export const createOrUpdateTimelineMessage = async (
   const message = await ConversationMessages.findOne({ _id: messageId });
 
   if (!message) {
-    throw new Error("Couldn't publish message");
+    throw new Error("createOrUpdateTimelineMessage: Couldn't publish message");
   }
 
   publishMessage(message);
@@ -344,7 +346,7 @@ export const saveTimelineInformation = async (
   );
 
   if (!conversation) {
-    throw new Error("Couldn't create conversation");
+    throw new Error("saveTimelineInformation: Couldn't create conversation");
   }
 
   for (const tweetObj of tweets) {
@@ -364,12 +366,11 @@ export const receiveTimelineInformation = async (
   // When situations like integration is deleted but trackIntegration
   // version of that integration is still running, new conversations being
   // created using non existing integrationId
-  if (!(await Integrations.findOne({ _id: integration._id }))) {
-    return null;
-  }
-
-  if (!integration.twitterData) {
-    return null;
+  if (
+    !(await Integrations.findOne({ _id: integration._id })) ||
+    !integration.twitterData
+  ) {
+    throw new Error("receiveTimelineInformation: Integration not found");
   }
 
   const twitterData = integration.twitterData.toJSON();
@@ -430,7 +431,7 @@ export const tweetReply = async ({
   toScreenName?: string;
 }) => {
   if (!conversation || !conversation.twitterData) {
-    throw new Error("Conversation not found");
+    throw new Error("tweetReply: Conversation not found");
   }
 
   const integrationId = conversation.integrationId;

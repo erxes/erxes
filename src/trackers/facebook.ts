@@ -123,7 +123,7 @@ export class SaveWebhookResponse {
     if (data.object === "page") {
       for (const entry of data.entry) {
         if (!integration.facebookData) {
-          return null;
+          throw new Error("start: Integration doesn't have facebookData");
         }
 
         // check receiving page is in integration's page list
@@ -371,7 +371,9 @@ export class SaveWebhookResponse {
       const customer = await this.getOrCreateCustomer(senderId);
 
       if (!this.currentPageId) {
-        throw new Error("Couldn't set current page id");
+        throw new Error(
+          "getOrCreateConversation: Couldn't set current page id"
+        );
       }
 
       conversation = await Conversations.createConversation({
@@ -420,7 +422,9 @@ export class SaveWebhookResponse {
    */
   public async getOrCreateConversationByFeed(value) {
     if (!this.integration.facebookData) {
-      return null;
+      throw new Error(
+        "getOrCreateConversationByFeed: Integration doesnt have facebookData"
+      );
     }
 
     const { item, comment_id, verb } = value;
@@ -474,7 +478,9 @@ export class SaveWebhookResponse {
 
     // acess token expired
     if (response === "Error processing https request") {
-      return null;
+      throw new Error(
+        "getOrCreateConversationByFeed: Couldn't get Page access token"
+      );
     }
 
     // get post object
@@ -642,7 +648,7 @@ export class SaveWebhookResponse {
     facebookData: IMsgFacebook;
   }): Promise<string> {
     if (!conversation) {
-      return "";
+      throw new Error("createMessage: Conversation not found");
     }
 
     const customer = await this.getOrCreateCustomer(userId);
@@ -683,11 +689,11 @@ export class SaveWebhookResponse {
     conversation: IConversationDocument;
     userId: string;
     facebookData: IMsgFacebook;
-  }) {
+  }): Promise<boolean> {
     const { item, postId } = facebookData;
 
     if (!postId) {
-      return false;
+      throw new Error("restoreOldPosts: postId not included");
     }
 
     if (item !== "comment") {
@@ -793,7 +799,7 @@ export const facebookReply = async (
   });
 
   if (!integration || !integration.facebookData) {
-    throw new Error("Integration not found");
+    throw new Error("facebookReply: Integration not found");
   }
 
   const appId = integration.facebookData.appId;
@@ -801,7 +807,7 @@ export const facebookReply = async (
   const app = FACEBOOK_APPS.find(a => a.id === appId);
 
   if (!conversation.facebookData) {
-    return null;
+    throw new Error("facebookReply: Conversation doesn't have facebookData");
   }
 
   // page access token
@@ -900,15 +906,13 @@ export const facebookReply = async (
       { $inc: { "facebookData.commentCount": 1 } }
     );
   }
-
-  return null;
 };
 
 export const getConfig = () => {
   const { FACEBOOK } = process.env;
 
   if (!FACEBOOK) {
-    throw new Error("Couldn't get facebook config");
+    throw new Error("getConfig: Couldn't get facebook config");
   }
 
   return JSON.parse(FACEBOOK);
