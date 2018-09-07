@@ -44,7 +44,7 @@ export const createMeetEvent = (credentials, event) => {
         resource: {
           description: event.summary,
           conferenceData: {
-            createRequest: { requestId: '7qxalsvy0e' },
+            createRequest: { requestId: Math.random() },
           },
           ...event,
         },
