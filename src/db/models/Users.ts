@@ -13,7 +13,10 @@ import {
 const SALT_WORK_FACTOR = 10;
 
 interface IUserModel extends Model<IUserDocument> {
-  checkDuplication(userField: IUser, idsToExclude?: string | string[]): never;
+  checkDuplication(
+    userField: { email?: string },
+    idsToExclude?: string | string[]
+  ): never;
   getSecret(): string;
 
   createUser(doc: IUser): Promise<IUserDocument>;
@@ -75,11 +78,11 @@ class User {
    * Checking if user has duplicated properties
    */
   public static async checkDuplication(
-    userFields: IUser,
+    userFields: { email?: string },
     idsToExclude: string | string[]
   ) {
     const query: { [key: string]: any } = {};
-    let previousEntry = null;
+    let previousEntry;
 
     // Adding exclude operator to the query
     if (idsToExclude) {
@@ -116,7 +119,7 @@ class User {
     links
   }: IUser) {
     // empty string password validation
-    if (password === "") {
+    if (!password && password === "") {
       throw new Error("Password can not be empty");
     }
 
@@ -288,6 +291,10 @@ class User {
 
     const user = await Users.findOne({ _id });
 
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     // check current password ============
     const valid = await this.comparePassword(currentPassword, user.password);
 
@@ -373,6 +380,10 @@ class User {
 
     const dbUser = await Users.findOne({ _id });
 
+    if (!dbUser) {
+      throw new Error("User not found");
+    }
+
     // recreate tokens
     const [newToken, newRefreshToken] = await this.createTokens(
       dbUser,
@@ -394,7 +405,7 @@ class User {
     password
   }: {
     email: string;
-    password?: string;
+    password: string;
   }) {
     const user = await Users.findOne({
       $or: [

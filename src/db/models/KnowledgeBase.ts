@@ -56,6 +56,10 @@ class Article {
       });
 
       for (const category of categories) {
+        if (!category.articleIds) {
+          category.articleIds = [];
+        }
+
         category.articleIds.push(article._id.toString());
 
         await category.save();
@@ -90,6 +94,10 @@ class Article {
 
     const article = await KnowledgeBaseArticles.findOne({ _id });
 
+    if (!article) {
+      throw new Error("Article not found");
+    }
+
     // add new article id to categories's articleIds field
     if ((categoryIds || []).length > 0) {
       const categories = await KnowledgeBaseCategories.find({
@@ -97,9 +105,13 @@ class Article {
       });
 
       for (const category of categories) {
+        if (!category.articleIds) {
+          category.articleIds = [];
+        }
+
         // check previous entry
-        if (!category.articleIds.includes(article._id.toString())) {
-          category.articleIds.push(article._id.toString());
+        if (!category.articleIds.includes(article._id)) {
+          category.articleIds.push(article._id);
 
           await category.save();
         }
@@ -160,6 +172,10 @@ class Category {
 
       // add new category to topics's categoryIds field
       for (const topic of topics) {
+        if (!topic.categoryIds) {
+          topic.categoryIds = [];
+        }
+
         topic.categoryIds.push(category._id.toString());
 
         await topic.save();
@@ -194,10 +210,18 @@ class Category {
 
     const category = await KnowledgeBaseCategories.findOne({ _id });
 
+    if (!category) {
+      throw new Error("Category not found");
+    }
+
     if ((topicIds || []).length > 0) {
       const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
 
       for (const topic of topics) {
+        if (!topic.categoryIds) {
+          topic.categoryIds = [];
+        }
+
         // add categoryId to topics's categoryIds list
         if (!topic.categoryIds.includes(category._id.toString())) {
           topic.categoryIds.push(category._id.toString());
@@ -215,6 +239,10 @@ class Category {
    */
   public static async removeDoc(_id: string) {
     const category = await KnowledgeBaseCategories.findOne({ _id });
+
+    if (!category) {
+      throw new Error("Category not found");
+    }
 
     for (const articleId of category.articleIds || []) {
       await KnowledgeBaseArticles.remove({ _id: articleId });
@@ -284,6 +312,10 @@ class Topic {
    */
   public static async removeDoc(_id: string) {
     const topic = await KnowledgeBaseTopics.findOne({ _id });
+
+    if (!topic) {
+      throw new Error("Topic not found");
+    }
 
     // remove child items ===========
     for (const categoryId of topic.categoryIds || []) {

@@ -174,8 +174,8 @@ class Company {
     // Checking duplicated fields of company
     await this.checkDuplication(companyFields, companyIds);
 
-    let tagIds = [];
-    let names = [];
+    let tagIds: string[] = [];
+    let names: string[] = [];
 
     // Merging company tags
     for (const companyId of companyIds) {
@@ -243,7 +243,7 @@ class Company {
       user,
       basicInfos: COMPANY_BASIC_INFOS,
       contentType: "company",
-      create: this.createCompany
+      create: (doc, userObj) => this.createCompany(doc, userObj)
     };
 
     return bulkInsert(params);

@@ -197,7 +197,7 @@ class ActivityLog {
         if (!log) {
           await this.cocCreate(
             conversation._id,
-            conversation.content,
+            conversation.content || "",
             companyId,
             COC_CONTENT_TYPES.COMPANY
           );
@@ -215,7 +215,7 @@ class ActivityLog {
     if (!foundLog) {
       return this.cocCreate(
         conversation._id,
-        conversation.content,
+        conversation.content || "",
         customer._id,
         COC_CONTENT_TYPES.CUSTOMER
       );
@@ -267,7 +267,7 @@ class ActivityLog {
     customer: ICustomerDocument,
     user?: IUserDocument
   ) {
-    let performer = null;
+    let performer;
 
     if (user && user._id) {
       performer = {
@@ -301,7 +301,7 @@ class ActivityLog {
     company: ICompanyDocument,
     user?: IUserDocument
   ) {
-    let performer = null;
+    let performer;
 
     if (user && user._id) {
       performer = {
@@ -314,7 +314,7 @@ class ActivityLog {
       activity: {
         type: ACTIVITY_TYPES.COMPANY,
         action: ACTIVITY_ACTIONS.CREATE,
-        content: company.primaryName,
+        content: company.primaryName || "N/A",
         id: company._id
       },
       coc: {
@@ -332,7 +332,7 @@ class ActivityLog {
     deal: IDealDocument,
     user?: IUserDocument
   ) {
-    let performer = null;
+    let performer;
 
     if (user && user._id) {
       performer = {
@@ -345,7 +345,7 @@ class ActivityLog {
       activity: {
         type: ACTIVITY_TYPES.DEAL,
         action: ACTIVITY_ACTIONS.CREATE,
-        content: deal.name,
+        content: deal.name || "",
         id: deal._id
       },
       coc: {

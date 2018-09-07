@@ -82,6 +82,10 @@ class Form {
   public static async duplicate(_id: string) {
     const form = await Forms.findOne({ _id });
 
+    if (!form) {
+      throw new Error("Form not found");
+    }
+
     // duplicate form ===================
     const newForm = await this.createForm(
       {

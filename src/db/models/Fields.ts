@@ -44,7 +44,7 @@ class Field {
     const fieldObj = await Fields.findOne({ _id });
 
     // Checking if the field is defined by the erxes
-    if (fieldObj.isDefinedByErxes) {
+    if (fieldObj && fieldObj.isDefinedByErxes) {
       throw new Error("Cant update this field");
     }
   }
@@ -88,7 +88,7 @@ class Field {
     const lastField = await Fields.findOne(query).sort({ order: -1 });
 
     if (lastField) {
-      order = lastField.order + 1;
+      order = (lastField.order || 0) + 1;
     }
 
     return Fields.create({
@@ -139,7 +139,7 @@ class Field {
    * Update given fields orders
    */
   public static async updateOrder(orders: IOrderInput[]) {
-    const ids = [];
+    const ids: string[] = [];
 
     for (const { _id, order } of orders) {
       ids.push(_id);
@@ -257,7 +257,7 @@ class FieldGroup {
     const groupObj = await FieldsGroups.findOne({ _id });
 
     // Checking if the group is defined by the erxes
-    if (groupObj.isDefinedByErxes) {
+    if (groupObj && groupObj.isDefinedByErxes) {
       throw new Error("Cant update this group");
     }
   }
@@ -279,7 +279,7 @@ class FieldGroup {
     });
 
     if (lastGroup) {
-      order = lastGroup.order + 1;
+      order = (lastGroup.order || 0) + 1;
     }
 
     return FieldsGroups.create({

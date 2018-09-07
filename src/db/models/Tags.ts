@@ -81,7 +81,7 @@ export const tagObject = async ({
     { tagIds: 1 }
   );
 
-  let removeIds = [];
+  let removeIds: string[] = [];
 
   objects.forEach(obj => {
     removeIds.push(obj.tagIds);

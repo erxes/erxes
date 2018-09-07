@@ -61,7 +61,7 @@ class Message {
   public static async updateEngageMessage(_id: string, doc: IEngageMessage) {
     const message = await EngageMessages.findOne({ _id });
 
-    if (message.kind === "manual") {
+    if (message && message.kind === "manual") {
       throw new Error("Can not update manual message");
     }
 
