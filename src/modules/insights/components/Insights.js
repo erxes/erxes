@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { ResponsivePie } from '@nivo/pie';
 import { Spinner } from 'modules/common/components';

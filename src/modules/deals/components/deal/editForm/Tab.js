@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { hasAnyActivity } from 'modules/customers/utils';
 import {

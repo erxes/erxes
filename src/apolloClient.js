@@ -18,8 +18,8 @@ const httpLink = createHttpLink({
 // Attach user credentials
 const middlewareLink = setContext(() => ({
   headers: {
-    'x-token': localStorage.getItem('erxesLoginToken'),
-    'x-refresh-token': localStorage.getItem('erxesLoginRefreshToken')
+    'x-refresh-token': localStorage.getItem('erxesLoginRefreshToken'),
+    'x-token': localStorage.getItem('erxesLoginToken')
   }
 }));
 
@@ -47,7 +47,9 @@ const afterwareLink = new ApolloLink((operation, forward) => {
 
 // Network error
 const errorLink = onError(({ networkError }) => {
-  if (networkError) Alert.error('Disconnect ...');
+  if (networkError) {
+    Alert.error('Disconnect ...');
+  }
 });
 
 // Combining httpLink and warelinks altogether
@@ -57,11 +59,11 @@ const httpLinkWithMiddleware = errorLink.concat(
 
 // Subscription config
 const wsLink = new WebSocketLink({
-  uri: REACT_APP_API_SUBSCRIPTION_URL,
   options: {
     reconnect: true,
     timeout: 30000
-  }
+  },
+  uri: REACT_APP_API_SUBSCRIPTION_URL
 });
 
 // Setting up subscription with link
@@ -77,8 +79,8 @@ const link = split(
 
 // Creating Apollo-client
 const client = new ApolloClient({
-  link,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
+  link
 });
 
 export default client;

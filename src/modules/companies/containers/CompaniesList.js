@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { compose, graphql } from 'react-apollo';
@@ -56,10 +56,12 @@ class CompanyListContainer extends Bulk {
           companyFields: data
         }
       })
-        .then(data => {
+        .then(response => {
           Alert.success('Success');
           callback();
-          history.push(`/companies/details/${data.data.companiesMerge._id}`);
+          history.push(
+            `/companies/details/${response.data.companiesMerge._id}`
+          );
         })
         .catch(e => {
           Alert.error(e.message);

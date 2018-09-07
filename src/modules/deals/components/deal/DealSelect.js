@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import { FormGroup, ControlLabel } from 'modules/common/components';

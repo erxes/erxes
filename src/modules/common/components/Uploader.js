@@ -83,7 +83,7 @@ class Uploader extends Component {
 
     return (
       <Attachment>
-        {attachments.map((e, index) => (
+        {attachments.map((event, index) => (
           <img
             key={index}
             alt="attachment"

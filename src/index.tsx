@@ -1,14 +1,14 @@
-import React from 'react';
-import { render } from 'react-dom';
+import * as React from 'react';
 import { ApolloProvider } from 'react-apollo';
-import Routes from './routes';
+import { render } from 'react-dom';
 import apolloClient from './apolloClient';
+import Routes from './routes';
 
 import 'erxes-icon/css/erxes.min.css';
-import 'react-datetime/css/react-datetime.css';
-import 'react-toggle/style.css';
 // global style
 import 'modules/common/styles/global-styles.js';
+import 'react-datetime/css/react-datetime.css';
+import 'react-toggle/style.css';
 
 const target = document.querySelector('#root');
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 import { CustomersList, CustomerDetails } from './containers';

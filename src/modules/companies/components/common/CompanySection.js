@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { ModalTrigger, Icon, Tip, EmptyState } from 'modules/common/components';

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { InfoTitle, InfoDetail, Info } from '../../styles';

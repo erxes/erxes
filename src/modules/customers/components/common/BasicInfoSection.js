@@ -79,14 +79,14 @@ class BasicInfo extends Component {
                 searchObject={searchCustomer}
                 mergeForm={CustomersMerge}
                 generateOptions={customers => {
-                  return customers.map((customer, key) => ({
+                  return customers.map((cus, key) => ({
                     key,
-                    value: JSON.stringify(customer),
+                    value: JSON.stringify(cus),
                     label:
-                      customer.firstName ||
-                      customer.lastName ||
-                      customer.primaryEmail ||
-                      customer.primaryPhone ||
+                      cus.firstName ||
+                      cus.lastName ||
+                      cus.primaryEmail ||
+                      cus.primaryPhone ||
                       'N/A'
                   }));
                 }}

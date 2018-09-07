@@ -1,6 +1,6 @@
 import moment from 'moment';
 import T from 'i18n-react';
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { withCurrentUser } from 'modules/auth/containers';
 import { MainLayout } from '../components';

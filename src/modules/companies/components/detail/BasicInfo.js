@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
 import { Sidebar } from 'modules/layout/components';
@@ -90,10 +90,10 @@ class BasicInfo extends React.Component {
                 searchObject={searchCompany}
                 mergeForm={CompaniesMerge}
                 generateOptions={companies => {
-                  return companies.map((company, key) => ({
+                  return companies.map((c, key) => ({
                     key,
-                    value: JSON.stringify(company),
-                    label: company.primaryName || company.website || 'N/A'
+                    value: JSON.stringify(c),
+                    label: c.primaryName || c.website || 'N/A'
                   }));
                 }}
               />

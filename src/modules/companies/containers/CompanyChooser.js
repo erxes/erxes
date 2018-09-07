@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -29,8 +29,8 @@ const CompanyChooser = props => {
 
   const form = <CompanyForm action={addCompany} />;
 
-  const renderName = data => {
-    return data.primaryName || data.website || 'N/A';
+  const renderName = company => {
+    return company.primaryName || company.website || 'N/A';
   };
 
   const updatedProps = {

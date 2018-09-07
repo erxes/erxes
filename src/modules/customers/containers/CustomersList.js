@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import client from 'apolloClient';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
@@ -72,10 +72,12 @@ class CustomerListContainer extends Bulk {
           customerFields: data
         }
       })
-        .then(data => {
+        .then(response => {
           callback();
           Alert.success('Success');
-          history.push(`/customers/details/${data.data.customersMerge._id}`);
+          history.push(
+            `/customers/details/${response.data.customersMerge._id}`
+          );
         })
         .catch(e => {
           Alert.error(e.message);

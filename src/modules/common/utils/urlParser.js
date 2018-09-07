@@ -30,9 +30,9 @@ const extractHostname = url => {
 
 // extract root domain e.g: domain.com
 const extractRootDomain = url => {
-  let domain = extractHostname(url),
-    splitArr = domain.split('.'),
-    arrLen = splitArr.length;
+  let domain = extractHostname(url);
+  let splitArr = domain.split('.');
+  let arrLen = splitArr.length;
 
   if (arrLen > 2) {
     domain = splitArr[arrLen - 2] + '.' + splitArr[arrLen - 1];

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import Select from 'react-select-plus';
 import PropTypes from 'prop-types';
 import { ModalTrigger, EmptyState } from 'modules/common/components';

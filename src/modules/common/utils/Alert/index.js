@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import T from 'i18n-react';
@@ -37,11 +37,11 @@ const createAlert = (type, text) => {
   }, 3500);
 
   if (!document.getElementById('alert-container')) {
-    const _popup = document.createElement('div');
-    _popup.setAttribute('id', 'alert-container');
-    document.body.appendChild(_popup);
+    const popup = document.createElement('div');
+    popup.setAttribute('id', 'alert-container');
+    document.body.appendChild(popup);
 
-    ReactDOM.render(<AlertWrapper />, _popup);
+    ReactDOM.render(<AlertWrapper />, popup);
   }
 
   const wrapper = document.getElementById('alert-wrapper');

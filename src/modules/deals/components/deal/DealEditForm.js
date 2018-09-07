@@ -139,8 +139,8 @@ class DealEditForm extends React.Component {
     }
   }
 
-  remove(_id) {
-    this.props.removeDeal(_id, () => this.context.closeModal());
+  remove(id) {
+    this.props.removeDeal(id, () => this.context.closeModal());
   }
 
   copy() {

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { toggleCheckBoxes } from 'modules/common/utils';
 
 export default class Bulk extends React.Component {
@@ -12,8 +12,6 @@ export default class Bulk extends React.Component {
     this.emptyBulk = this.emptyBulk.bind(this);
     this.refetch = this.refetch.bind(this);
   }
-
-  refetch() {}
 
   toggleBulk(target, toAdd) {
     let { bulk } = this.state;

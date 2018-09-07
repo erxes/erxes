@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { setTitle } from 'modules/common/utils';
@@ -17,7 +17,7 @@ const propTypes = {
   breadcrumbs: PropTypes.array.isRequired
 };
 
-class BreadCrumb extends Component {
+class BreadCrumb extends React.Component {
   setTabTitle() {
     const { __ } = this.context;
     const { breadcrumbs } = this.props;

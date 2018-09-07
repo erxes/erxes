@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import Textarea from './Textarea';
 import {
@@ -65,7 +65,9 @@ class FormControl extends React.Component {
     const onChange = e => {
       e.target.classList.remove('form-invalid');
 
-      props.onChange && props.onChange(e);
+      if (props.onChange) {
+        props.onChange(e);
+      }
     };
 
     const attributes = {

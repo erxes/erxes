@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Button, FormControl, ControlLabel } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
@@ -88,11 +88,9 @@ class DealAddForm extends React.Component {
         stageId={stageId}
         pipelineId={pipelineId}
         boardId={boardId}
-        onChangeStage={stageId => this.onChangeField('stageId', stageId)}
-        onChangePipeline={pipelineId =>
-          this.onChangeField('pipelineId', pipelineId)
-        }
-        onChangeBoard={boardId => this.onChangeField('boardId', boardId)}
+        onChangeStage={stgId => this.onChangeField('stageId', stgId)}
+        onChangePipeline={plId => this.onChangeField('pipelineId', plId)}
+        onChangeBoard={brId => this.onChangeField('boardId', brId)}
       />
     );
   }

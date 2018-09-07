@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import parse from 'ua-parser-js';
 import { Sidebar } from 'modules/layout/components';

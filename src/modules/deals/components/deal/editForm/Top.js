@@ -60,7 +60,7 @@ class Top extends React.Component {
       <DealMove
         deal={deal}
         stageId={stageId}
-        onChangeStage={stageId => onChangeField('stageId', stageId)}
+        onChangeStage={stgId => onChangeField('stageId', stgId)}
       />
     );
   }
@@ -118,7 +118,7 @@ class Top extends React.Component {
                 timeFormat={false}
                 value={closeDate}
                 closeOnSelect
-                onChange={closeDate => onChangeField('closeDate', closeDate)}
+                onChange={date => onChangeField('closeDate', date)}
               />
             </FormGroup>
           </HeaderContentSmall>
@@ -141,11 +141,8 @@ class Top extends React.Component {
               <Select
                 placeholder={__('Choose users')}
                 value={assignedUserIds}
-                onChange={users =>
-                  onChangeField(
-                    'assignedUserIds',
-                    users.map(user => user.value)
-                  )
+                onChange={usrs =>
+                  onChangeField('assignedUserIds', usrs.map(user => user.value))
                 }
                 optionRenderer={userOption}
                 valueRenderer={userValue}

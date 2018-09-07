@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { router } from 'modules/common/utils';
@@ -14,10 +14,10 @@ const PerPageChooser = ({ history }, { __ }) => {
     router.setParams(history, { perPage });
   };
 
-  const renderOption = number => {
+  const renderOption = n => {
     return (
       <Option>
-        <a onClick={() => onClick(number)}>{number}</a>
+        <a onClick={() => onClick(n)}>{n}</a>
       </Option>
     );
   };

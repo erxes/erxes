@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Tip, Icon } from 'modules/common/components';
 import {
@@ -81,10 +81,8 @@ class DealMove extends React.Component {
         callback={() => this.toggleForm()}
         onChangeStage={onChangeStage}
         onChangeStages={stages => this.onChangeField('stages', stages)}
-        onChangePipeline={pipelineId =>
-          this.onChangeField('pipelineId', pipelineId)
-        }
-        onChangeBoard={boardId => this.onChangeField('boardId', boardId)}
+        onChangePipeline={plId => this.onChangeField('pipelineId', plId)}
+        onChangeBoard={brId => this.onChangeField('boardId', brId)}
       />
     );
   }

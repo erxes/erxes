@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 import { Row as CommonRow } from '../../common/components';
 import Form from './Form';

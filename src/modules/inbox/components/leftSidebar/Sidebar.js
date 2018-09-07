@@ -1,5 +1,5 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { Sidebar } from 'modules/layout/components';
 import { Bulk, Icon, DateFilter } from 'modules/common/components';

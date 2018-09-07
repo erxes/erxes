@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Grid, Col } from 'react-bootstrap';

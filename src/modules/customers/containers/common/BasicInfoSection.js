@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
@@ -32,9 +32,9 @@ const BasicInfoContainer = props => {
         customerFields: data
       }
     })
-      .then(data => {
+      .then(response => {
         Alert.success('Success');
-        history.push(`/customers/details/${data.data.customersMerge._id}`);
+        history.push(`/customers/details/${response.data.customersMerge._id}`);
       })
       .catch(e => {
         Alert.error(e.message);

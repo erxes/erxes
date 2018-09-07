@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import queryString from 'query-string';
 import { Route } from 'react-router-dom';
 import { AuthLayout } from '../layout/containers';

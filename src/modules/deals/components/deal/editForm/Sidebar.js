@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { CompanySection } from 'modules/companies/components';
 import { CustomerSection } from 'modules/customers/components/common';
@@ -33,10 +33,8 @@ class Sidebar extends React.Component {
     return (
       <Right>
         <ProductSection
-          onChangeProductsData={productsData =>
-            onChangeField('productsData', productsData)
-          }
-          onChangeProducts={products => onChangeField('products', products)}
+          onChangeProductsData={pData => onChangeField('productsData', pData)}
+          onChangeProducts={prs => onChangeField('products', prs)}
           productsData={productsData}
           products={products}
           saveProductsData={saveProductsData}
@@ -45,13 +43,13 @@ class Sidebar extends React.Component {
         <CompanySection
           name="Deal"
           companies={companies}
-          onSelect={companies => onChangeField('companies', companies)}
+          onSelect={cmps => onChangeField('companies', cmps)}
         />
 
         <CustomerSection
           name="Deal"
           customers={customers}
-          onSelect={customers => onChangeField('customers', customers)}
+          onSelect={cmrs => onChangeField('customers', cmrs)}
         />
 
         <Button onClick={this.copy} icon="checked-1">

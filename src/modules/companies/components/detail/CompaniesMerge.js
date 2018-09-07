@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { InfoTitle, InfoDetail, Info } from 'modules/customers/styles';
 import { COMPANY_INFO, COMPANY_DATAS } from '../../constants';

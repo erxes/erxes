@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Route } from 'react-router-dom';
 import ChannelsRoutes from './channels/routes';
 import BrandsRoutes from './brands/routes';
