@@ -16,7 +16,7 @@ export default {
   brand(engageMessage: IEngageMessageDocument) {
     const { messenger } = engageMessage;
 
-    if (messenger.brandId) {
+    if (messenger && messenger.brandId) {
       return Brands.findOne({ _id: messenger.brandId });
     }
   }

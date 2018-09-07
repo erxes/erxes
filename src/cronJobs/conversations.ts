@@ -45,7 +45,7 @@ export const sendMessageEmail = async () => {
       {};
 
     // generate admin unread answers
-    const answers = [];
+    const answers: any = [];
 
     const adminMessages = await ConversationMessages.getAdminMessages(
       conversation._id

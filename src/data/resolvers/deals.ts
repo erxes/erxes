@@ -19,7 +19,7 @@ export default {
   },
 
   async products(deal: IDealDocument) {
-    const products = [];
+    const products: any = [];
 
     for (const data of deal.productsData || []) {
       const product = await Products.findOne({ _id: data.productId });
@@ -44,7 +44,9 @@ export default {
       const type = product.currency;
 
       if (type) {
-        if (!amountsMap[type]) { amountsMap[type] = 0; }
+        if (!amountsMap[type]) {
+          amountsMap[type] = 0;
+        }
 
         amountsMap[type] += product.amount || 0;
       }
@@ -60,15 +62,31 @@ export default {
   async pipeline(deal: IDealDocument) {
     const stage = await DealStages.findOne({ _id: deal.stageId });
 
+    if (!stage) {
+      return null;
+    }
+
     return DealPipelines.findOne({ _id: stage.pipelineId });
   },
 
   async boardId(deal: IDealDocument) {
     const stage = await DealStages.findOne({ _id: deal.stageId });
 
+    if (!stage) {
+      return "";
+    }
+
     const pipeline = await DealPipelines.findOne({ _id: stage.pipelineId });
 
+    if (!pipeline) {
+      return "";
+    }
+
     const board = await DealBoards.findOne({ _id: pipeline.boardId });
+
+    if (!board) {
+      return "";
+    }
 
     return board._id;
   }
