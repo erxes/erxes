@@ -116,6 +116,10 @@ const createDirectMessage = async ({
   // notify subscription =========
   const message = await ConversationMessages.findOne({ _id: messageId });
 
+  if (!message) {
+    throw new Error("Couldn't publish message");
+  }
+
   publishMessage(message);
 
   return messageId;
@@ -179,6 +183,10 @@ export const receiveDirectMessageInformation = async (
     });
 
     conversation = await Conversations.findOne({ _id: conversationId });
+
+    if (!conversation) {
+      throw new Error("Conversation not found");
+    }
 
     // create new message
     await createDirectMessage({ conversation, data });
@@ -266,6 +274,10 @@ export const createOrUpdateTimelineMessage = async (
   // notify subscription =========
   const message = await ConversationMessages.findOne({ _id: messageId });
 
+  if (!message) {
+    throw new Error("Couldn't publish message");
+  }
+
   publishMessage(message);
 
   return messageId;
@@ -276,10 +288,10 @@ export const createOrUpdateTimelineMessage = async (
  */
 export const createOrUpdateTimelineConversation = async (
   integrationId: string,
-  tweet: any
+  tweetObj: any
 ) => {
   const prevConversation = await Conversations.findOne({
-    "twitterData.id": tweet.id
+    "twitterData.id": tweetObj.id
   });
 
   if (
@@ -288,11 +300,11 @@ export const createOrUpdateTimelineConversation = async (
   ) {
     // update some infos
     await Conversations.update(
-      { "twitterData.id": tweet.id },
+      { "twitterData.id": tweetObj.id },
       {
         $set: {
-          twitterData: tweet,
-          content: tweet.text,
+          twitterData: tweetObj,
+          content: tweetObj.text,
           status: CONVERSATION_STATUSES.OPEN,
           updatedAt: new Date()
         }
@@ -300,14 +312,14 @@ export const createOrUpdateTimelineConversation = async (
     );
 
     // return updated conversation
-    return Conversations.findOne({ "twitterData.id": tweet.id });
+    return Conversations.findOne({ "twitterData.id": tweetObj.id });
   }
 
   return Conversations.createConversation({
-    content: tweet.text,
+    content: tweetObj.text,
     integrationId,
-    customerId: await getOrCreateCustomer(integrationId, tweet.user),
-    twitterData: extractConversationDataTimeline(tweet)
+    customerId: await getOrCreateCustomer(integrationId, tweetObj.user),
+    twitterData: extractConversationDataTimeline(tweetObj)
   });
 };
 
@@ -324,15 +336,19 @@ export const saveTimelineInformation = async (
   const tweets = await findParentTweets(twit, data, [data]);
 
   // find base tweet
-  const rootTweet = tweets.find(tweet => !tweet.in_reply_to_status_id);
+  const rootTweet = tweets.find(tweetObj => !tweetObj.in_reply_to_status_id);
 
   const conversation = await createOrUpdateTimelineConversation(
     integration._id,
     rootTweet
   );
 
-  for (const tweet of tweets) {
-    await createOrUpdateTimelineMessage(conversation, tweet);
+  if (!conversation) {
+    throw new Error("Couldn't create conversation");
+  }
+
+  for (const tweetObj of tweets) {
+    await createOrUpdateTimelineMessage(conversation, tweetObj);
   }
 
   return conversation;
@@ -349,6 +365,10 @@ export const receiveTimelineInformation = async (
   // version of that integration is still running, new conversations being
   // created using non existing integrationId
   if (!(await Integrations.findOne({ _id: integration._id }))) {
+    return null;
+  }
+
+  if (!integration.twitterData) {
     return null;
   }
 
@@ -378,6 +398,10 @@ export const receiveTimelineInformation = async (
       _id: repliedMessage.conversationId
     });
 
+    if (!conversation) {
+      return;
+    }
+
     // receiving multiple accounts's timeline info, So we will receive same
     // tweet multiple times. So we are checking that found message is in
     // this listening integration
@@ -405,6 +429,10 @@ export const tweetReply = async ({
   toId?: string;
   toScreenName?: string;
 }) => {
+  if (!conversation || !conversation.twitterData) {
+    throw new Error("Conversation not found");
+  }
+
   const integrationId = conversation.integrationId;
 
   const twit = TwitMap[integrationId];
@@ -477,7 +505,9 @@ export const retweet = async ({
 }) => {
   const twit = TwitMap[integrationId];
 
-  const response = await twitRequest.post(twit, "statuses/retweet/:id", { id });
+  const response: any = await twitRequest.post(twit, "statuses/retweet/:id", {
+    id
+  });
 
   // update main tweet's data
   await updateTwitterData({ twit, tweetId: response.retweeted_status.id_str });
@@ -497,7 +527,9 @@ export const favorite = async ({
 }) => {
   const twit = TwitMap[integrationId];
 
-  const response = await twitRequest.post(twit, "favorites/create", { id });
+  const response: any = await twitRequest.post(twit, "favorites/create", {
+    id
+  });
 
   // update main tweet's data
   await updateTwitterData({ twit, tweetId: response.id_str });

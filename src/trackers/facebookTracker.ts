@@ -6,7 +6,7 @@ import { getConfig, receiveWebhookResponse } from "./facebook";
  * catchs auth token or other type of exceptions
  */
 export const graphRequest = {
-  base(method, path, accessToken, ...otherParams) {
+  base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
     graph.setAccessToken(accessToken);
 
@@ -74,7 +74,7 @@ export const findPostComments = async (
   postId: string,
   comments: any
 ) => {
-  const postComments = await graphRequest.get(
+  const postComments: any = await graphRequest.get(
     `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url`,
     accessToken
   );

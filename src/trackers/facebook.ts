@@ -20,7 +20,8 @@ import {
 
 import {
   IFacebook as IMsgFacebook,
-  IFbUser
+  IFbUser,
+  IMessageDocument
 } from "../db/models/definitions/conversationMessages";
 import {
   IConversationDocument,
@@ -40,21 +41,21 @@ interface IPostParams {
 }
 
 interface ICommentParams {
-  post_id?: string;
+  post_id: string;
   parent_id?: string;
   item?: string;
   comment_id?: string;
   video?: string;
   photo?: string;
-  verb?: string;
+  verb: string;
 }
 
 interface IReactionParams {
-  verb?: string;
+  verb: string;
   post_id?: string;
   comment_id?: string;
   reaction_type?: string;
-  item?: string;
+  item: string;
   from: IFbUser;
 }
 
@@ -78,7 +79,7 @@ interface IGetOrCreateConversationParams {
  * Get list of pages that authorized user owns
  */
 export const getPageList = async (accessToken?: string) => {
-  const response = await graphRequest.get(
+  const response: any = await graphRequest.get(
     "/me/accounts?limit=100",
     accessToken
   );
@@ -95,7 +96,7 @@ export const getPageList = async (accessToken?: string) => {
  */
 
 export class SaveWebhookResponse {
-  public currentPageId: string;
+  public currentPageId: string | null;
   public data: any;
   private userAccessToken: string;
   private integration: IIntegrationDocument;
@@ -121,6 +122,10 @@ export class SaveWebhookResponse {
 
     if (data.object === "page") {
       for (const entry of data.entry) {
+        if (!integration.facebookData) {
+          return null;
+        }
+
         // check receiving page is in integration's page list
         if (!integration.facebookData.pageIds.includes(entry.id)) {
           return null;
@@ -327,7 +332,7 @@ export class SaveWebhookResponse {
 
     // Receiving reaction
     if (item === "reaction") {
-      await this.updateReactions(verb, selector, reaction_type, from);
+      await this.updateReactions(verb, selector, reaction_type || "like", from);
     }
   }
 
@@ -359,10 +364,15 @@ export class SaveWebhookResponse {
     // at least 2 messages and has closed status.
     if (
       !conversation ||
-      (conversation.messageCount > 1 &&
-        conversation.status === CONVERSATION_STATUSES.CLOSED)
+      (conversation.messageCount &&
+        (conversation.messageCount > 1 &&
+          conversation.status === CONVERSATION_STATUSES.CLOSED))
     ) {
       const customer = await this.getOrCreateCustomer(senderId);
+
+      if (!this.currentPageId) {
+        throw new Error("Couldn't set current page id");
+      }
 
       conversation = await Conversations.createConversation({
         integrationId: this.integration._id,
@@ -391,7 +401,7 @@ export class SaveWebhookResponse {
     });
 
     if (restored) {
-      return;
+      return "";
     }
 
     // create new message
@@ -409,6 +419,10 @@ export class SaveWebhookResponse {
    * @param {Object} value - Webhook response item
    */
   public async getOrCreateConversationByFeed(value) {
+    if (!this.integration.facebookData) {
+      return null;
+    }
+
     const { item, comment_id, verb } = value;
 
     // collect only added actions
@@ -456,7 +470,7 @@ export class SaveWebhookResponse {
     // save returned value. This value will always be the same
     let postId = value.post_id;
 
-    let response = await this.getPageAccessToken();
+    let response: any = await this.getPageAccessToken();
 
     // acess token expired
     if (response === "Error processing https request") {
@@ -572,7 +586,7 @@ export class SaveWebhookResponse {
     }
 
     // get page access token
-    let res = await this.getPageAccessToken();
+    let res: any = await this.getPageAccessToken();
 
     // get user info
     res = await graphRequest.get(`/${fbUserId}`, res.access_token);
@@ -580,7 +594,9 @@ export class SaveWebhookResponse {
     // get profile pic
     const getProfilePic = async (fbId: string) => {
       try {
-        const response = await graphRequest.get(`/${fbId}/picture?height=600`);
+        const response: any = await graphRequest.get(
+          `/${fbId}/picture?height=600`
+        );
         return response.image ? response.location : "";
       } catch (e) {
         return null;
@@ -626,7 +642,7 @@ export class SaveWebhookResponse {
     facebookData: IMsgFacebook;
   }): Promise<string> {
     if (!conversation) {
-      return null;
+      return "";
     }
 
     const customer = await this.getOrCreateCustomer(userId);
@@ -670,6 +686,10 @@ export class SaveWebhookResponse {
   }) {
     const { item, postId } = facebookData;
 
+    if (!postId) {
+      return false;
+    }
+
     if (item !== "comment") {
       return false;
     }
@@ -684,13 +704,13 @@ export class SaveWebhookResponse {
     }
 
     // getting page access token
-    const accessTokenResponse = await this.getPageAccessToken();
+    const accessTokenResponse: any = await this.getPageAccessToken();
     const accessToken = accessTokenResponse.access_token;
 
     // creating parent post if comment has no parent
     // get post info
     const fields = `/${postId}?fields=caption,description,link,picture,source,message,from`;
-    const postResponse = await graphRequest.get(fields, accessToken);
+    const postResponse: any = await graphRequest.get(fields, accessToken);
 
     const postParams = await this.handlePosts({
       ...postResponse,
@@ -762,7 +782,7 @@ export const receiveWebhookResponse = async (app, data) => {
 export const facebookReply = async (
   conversation: IConversationDocument,
   msg: IFacebookReply,
-  message: any
+  message: IMessageDocument
 ) => {
   const FACEBOOK_APPS = getConfig();
   const { attachment, commentId, text } = msg;
@@ -772,10 +792,20 @@ export const facebookReply = async (
     _id: conversation.integrationId
   });
 
-  const app = FACEBOOK_APPS.find(a => a.id === integration.facebookData.appId);
+  if (!integration || !integration.facebookData) {
+    throw new Error("Integration not found");
+  }
+
+  const appId = integration.facebookData.appId;
+
+  const app = FACEBOOK_APPS.find(a => a.id === appId);
+
+  if (!conversation.facebookData) {
+    return null;
+  }
 
   // page access token
-  const response = await graphRequest.get(
+  const response: any = await graphRequest.get(
     `${conversation.facebookData.pageId}/?fields=access_token`,
     app.accessToken
   );
@@ -799,10 +829,14 @@ export const facebookReply = async (
       };
     }
 
-    const res = await graphRequest.post("me/messages", response.access_token, {
-      recipient: { id: conversation.facebookData.senderId },
-      ...msgObj
-    });
+    const res: any = await graphRequest.post(
+      "me/messages",
+      response.access_token,
+      {
+        recipient: { id: conversation.facebookData.senderId },
+        ...msgObj
+      }
+    );
 
     // save commentId in message object
     await ConversationMessages.update(
@@ -831,7 +865,7 @@ export const facebookReply = async (
     }
 
     // post reply
-    const res = await graphRequest.post(
+    const res: any = await graphRequest.post(
       `${id}/comments`,
       response.access_token,
       {
@@ -872,6 +906,10 @@ export const facebookReply = async (
 
 export const getConfig = () => {
   const { FACEBOOK } = process.env;
+
+  if (!FACEBOOK) {
+    throw new Error("Couldn't get facebook config");
+  }
 
   return JSON.parse(FACEBOOK);
 };

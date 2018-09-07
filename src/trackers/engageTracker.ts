@@ -50,7 +50,7 @@ const handleMessage = async message => {
 
 export const trackEngages = expressApp => {
   expressApp.post(`/service/engage/tracker`, (req, res) => {
-    const chunks = [];
+    const chunks: any = [];
 
     req.setEncoding("utf8");
 
