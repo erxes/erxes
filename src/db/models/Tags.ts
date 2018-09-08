@@ -23,7 +23,7 @@ export const validateUniqueness = async (
   selector: any,
   name: string,
   type: string
-) => {
+): Promise<boolean> => {
   // required name and type
   if (!name || !type) {
     return true;
@@ -81,7 +81,7 @@ export const tagObject = async ({
     { tagIds: 1 }
   );
 
-  let removeIds = [];
+  let removeIds: string[] = [];
 
   objects.forEach(obj => {
     removeIds.push(obj.tagIds);

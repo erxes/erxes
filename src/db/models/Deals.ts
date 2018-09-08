@@ -20,7 +20,7 @@ export interface IOrderInput {
 }
 
 const updateListOrder = async (collection: any, orders: IOrderInput[]) => {
-  const ids = [];
+  const ids: string[] = [];
 
   for (const { _id, order } of orders) {
     ids.push(_id);

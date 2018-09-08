@@ -8,6 +8,11 @@ import {
 } from "../../db/models";
 import { ICustomerDocument } from "../../db/models/definitions/customers";
 
+interface IMessengerCustomData {
+  name: string;
+  value: string;
+}
+
 export default {
   integration(customer: ICustomerDocument) {
     return Integrations.findOne({ _id: customer.integrationId });
@@ -22,8 +27,8 @@ export default {
   },
 
   getMessengerCustomData(customer: ICustomerDocument) {
-    const results = [];
-    const messengerData = customer.messengerData || {};
+    const results: IMessengerCustomData[] = [];
+    const messengerData: any = customer.messengerData || {};
     const data = messengerData.customData || {};
 
     Object.keys(data).forEach(key => {

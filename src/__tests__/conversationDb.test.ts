@@ -27,6 +27,7 @@ describe("Conversation db", () => {
     _user = await userFactory({});
 
     _doc = { ..._conversationMessage._doc, conversationId: _conversation._id };
+
     delete _doc._id;
   });
 
@@ -61,6 +62,7 @@ describe("Conversation db", () => {
       selector,
       conversations
     } = await Conversations.checkExistanceConversations([_conversation._id]);
+
     expect(conversations[0]._id).toBe(_conversation._id);
     expect(selector).toEqual({ _id: { $in: [_conversation._id] } });
 

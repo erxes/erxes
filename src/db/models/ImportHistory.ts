@@ -33,6 +33,10 @@ class ImportHistory {
   public static async removeHistory(_id: string) {
     const historyObj = await ImportHistories.findOne({ _id });
 
+    if (!historyObj) {
+      throw new Error("Import history not found");
+    }
+
     const { ids = [], contentType } = historyObj;
 
     let removeMethod = Customers.removeCustomer;

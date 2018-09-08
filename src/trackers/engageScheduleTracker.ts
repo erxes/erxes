@@ -7,8 +7,13 @@ import {
   IScheduleDate
 } from "../db/models/definitions/engages";
 
+interface IEngageSchedules {
+  id: string;
+  job: any;
+}
+
 // Track runtime cron job instances
-const ENGAGE_SCHEDULES = [];
+const ENGAGE_SCHEDULES: IEngageSchedules[] = [];
 
 /**
  * Create cron job for an engage message
@@ -16,14 +21,16 @@ const ENGAGE_SCHEDULES = [];
 export const createSchedule = (message: IEngageMessageDocument) => {
   const { scheduleDate } = message;
 
-  const rule = createScheduleRule(scheduleDate);
+  if (scheduleDate) {
+    const rule = createScheduleRule(scheduleDate);
 
-  const job = schedule.scheduleJob(rule, () => {
-    send(message);
-  });
+    const job = schedule.scheduleJob(rule, () => {
+      send(message);
+    });
 
-  // Collect cron job instances
-  ENGAGE_SCHEDULES.push({ id: message._id, job });
+    // Collect cron job instances
+    ENGAGE_SCHEDULES.push({ id: message._id, job });
+  }
 };
 
 /**
@@ -44,7 +51,7 @@ export const createScheduleRule = (scheduleDate: IScheduleDate) => {
   let day = "*";
 
   // Schedule type day of week [0-6]
-  if (scheduleDate.type.length === 1) {
+  if (scheduleDate.type && scheduleDate.type.length === 1) {
     dayOfWeek = scheduleDate.type || "*";
   }
 
@@ -91,6 +98,10 @@ export const updateOrRemoveSchedule = async (
   }
 
   const message = await EngageMessages.findOne({ _id });
+
+  if (!message) {
+    return;
+  }
 
   return createSchedule(message);
 };

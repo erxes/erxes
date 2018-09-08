@@ -1,4 +1,4 @@
-import graph from "fbgraph";
+import * as graph from "fbgraph";
 import { getConfig, receiveWebhookResponse } from "./facebook";
 
 /*
@@ -6,7 +6,7 @@ import { getConfig, receiveWebhookResponse } from "./facebook";
  * catchs auth token or other type of exceptions
  */
 export const graphRequest = {
-  base(method, path, accessToken, ...otherParams) {
+  base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
     graph.setAccessToken(accessToken);
 
@@ -69,10 +69,14 @@ export const trackIntegrations = expressApp => {
 /*
  * Find post comments using postId
  */
-export const findPostComments = async (access_token, postId, comments) => {
-  const postComments = await graphRequest.get(
+export const findPostComments = async (
+  accessToken: string,
+  postId: string,
+  comments: any
+) => {
+  const postComments: any = await graphRequest.get(
     `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url`,
-    access_token
+    accessToken
   );
 
   const { data } = postComments;
@@ -80,7 +84,7 @@ export const findPostComments = async (access_token, postId, comments) => {
   for (const comment of data) {
     comments.push(comment);
 
-    await findPostComments(access_token, comment.id, comments);
+    await findPostComments(accessToken, comment.id, comments);
   }
 
   return comments;
