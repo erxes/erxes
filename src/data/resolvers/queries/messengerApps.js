@@ -5,8 +5,14 @@ const messengerAppQueries = {
   /*
    * MessengerApps list
    */
-  messengerApps() {
-    return MessengerApps.find({});
+  messengerApps(root, { kind }) {
+    const query = {};
+
+    if (kind) {
+      query.kind = kind;
+    }
+
+    return MessengerApps.find({ kind });
   },
 };
 

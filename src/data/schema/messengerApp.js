@@ -7,7 +7,7 @@ export const types = `
 `;
 
 export const queries = `
-  messengerApps: [MessengerApp]
+  messengerApps(kind: String): [MessengerApp]
 `;
 
 export const mutations = `
