@@ -93,7 +93,6 @@ describe('fieldQueries', () => {
     });
 
     expect(responseFields.name).toBe(companyFields.name);
-    expect(responseFields.website).toBe(companyFields.website);
 
     // customer =======================
     responses = await graphqlRequest(qry, 'fieldsCombinedByContentType', {
@@ -138,7 +137,6 @@ describe('fieldQueries', () => {
     expect(responses.length).toBe(7);
     expect(responses[0].name).toBe('primaryName');
     expect(responses[1].name).toBe('size');
-    expect(responses[2].name).toBe('website');
     expect(responses[3].name).toBe('industry');
     expect(responses[4].name).toBe('plan');
     expect(responses[5].name).toBe('lastSeenAt');

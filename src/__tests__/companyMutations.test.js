@@ -20,7 +20,6 @@ describe('Companies mutations', () => {
     $primaryName: String
     $names: [String]
     $size: Int
-    $website: String
     $industry: String
     $tagIds: [String]
     $customFieldsData: JSON
@@ -30,7 +29,6 @@ describe('Companies mutations', () => {
     primaryName: $primaryName
     names: $names
     size: $size
-    website: $website
     industry: $industry
     tagIds: $tagIds
     customFieldsData: $customFieldsData
@@ -57,7 +55,6 @@ describe('Companies mutations', () => {
       primaryName: faker.company.companyName(),
       names: [faker.company.companyName()],
       size: faker.random.number(),
-      website: faker.internet.url(),
       industry: 'Airlines',
       tagIds: _company.tagIds,
       customFieldsData: {},
@@ -69,7 +66,6 @@ describe('Companies mutations', () => {
           primaryName
           names
           size
-          website
           industry
           tagIds
           customFieldsData
@@ -82,7 +78,6 @@ describe('Companies mutations', () => {
     expect(company.primaryName).toBe(args.primaryName);
     expect(company.names).toEqual(expect.arrayContaining(args.names));
     expect(company.size).toBe(args.size);
-    expect(company.website).toBe(args.website);
     expect(company.industry).toBe(args.industry);
     expect(expect.arrayContaining(company.tagIds)).toEqual(args.tagIds);
     expect(company.customFieldsData).toEqual(args.customFieldsData);
@@ -94,7 +89,6 @@ describe('Companies mutations', () => {
       primaryName: faker.company.companyName(),
       names: [faker.company.companyName()],
       size: faker.random.number(),
-      website: faker.internet.url(),
       industry: faker.random.word(),
       tagIds: _company.tagIds,
       customFieldsData: {},
@@ -107,7 +101,6 @@ describe('Companies mutations', () => {
           primaryName
           names
           size
-          website
           industry
           tagIds
           customFieldsData
@@ -121,7 +114,6 @@ describe('Companies mutations', () => {
     expect(company.primaryName).toBe(args.primaryName);
     expect(company.names).toEqual(expect.arrayContaining(args.names));
     expect(company.size).toBe(args.size);
-    expect(company.website).toBe(args.website);
     expect(company.industry).toBe(args.industry);
     expect(expect.arrayContaining(company.tagIds)).toEqual(args.tagIds);
     expect(company.customFieldsData).toEqual(args.customFieldsData);
