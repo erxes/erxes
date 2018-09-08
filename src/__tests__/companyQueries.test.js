@@ -1,7 +1,6 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import faker from 'faker';
 import { Companies, Tags, Segments } from '../db/models';
 import { graphqlRequest, connect, disconnect } from '../db/connection';
 import {
@@ -56,7 +55,6 @@ describe('companyQueries', () => {
         primaryName
         names
         size
-        website
         industry
         plan
 
@@ -99,7 +97,6 @@ describe('companyQueries', () => {
           tagIds
           primaryName
           names
-          website
           industry
           plan
         }
@@ -115,7 +112,6 @@ describe('companyQueries', () => {
   `;
 
   const name = 'companyName';
-  const website = faker.internet.url();
   const plan = 'plan';
 
   afterEach(async () => {
@@ -217,7 +213,6 @@ describe('companyQueries', () => {
 
   test('Companies filtered by search value', async () => {
     await companyFactory({ names: [name], primaryName: name });
-    await companyFactory({ website });
     await companyFactory({ plan });
     await companyFactory({ industry: 'Banks' });
 
@@ -226,12 +221,6 @@ describe('companyQueries', () => {
 
     expect(responses.length).toBe(1);
     expect(responses[0].primaryName).toBe(name);
-
-    // companies by website ===========
-    responses = await graphqlRequest(qryCompanies, 'companies', { searchValue: website });
-
-    expect(responses.length).toBe(1);
-    expect(responses[0].website).toBe(website);
 
     // companies by industry ==========
     responses = await graphqlRequest(qryCompanies, 'companies', { searchValue: 'Banks' });

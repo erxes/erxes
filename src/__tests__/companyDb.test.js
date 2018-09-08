@@ -21,7 +21,6 @@ const check = (companyObj, doc) => {
   expect(companyObj.modifiedAt).toBeDefined();
   expect(companyObj.name).toBe(doc.name);
   expect(companyObj.email).toBe(doc.email);
-  expect(companyObj.website).toBe(doc.website);
   expect(companyObj.size).toBe(doc.size);
   expect(companyObj.industry).toBe(doc.industry);
   expect(companyObj.plan).toBe(doc.plan);
@@ -30,7 +29,6 @@ const check = (companyObj, doc) => {
 const generateDoc = () => ({
   primaryName: 'name',
   names: ['name'],
-  website: 'http://company.com',
   size: 1,
   industry: 'Airlines',
   plan: 'pro',
@@ -52,7 +50,7 @@ describe('Companies model tests', () => {
   });
 
   test('Create company', async () => {
-    expect.assertions(10);
+    expect.assertions(9);
 
     // check duplication ==============
     try {
@@ -90,7 +88,7 @@ describe('Companies model tests', () => {
   });
 
   test('Update company', async () => {
-    expect.assertions(9);
+    expect.assertions(8);
 
     const doc = generateDoc();
 
@@ -170,7 +168,7 @@ describe('Companies model tests', () => {
   });
 
   test('mergeCompanies', async () => {
-    expect.assertions(20);
+    expect.assertions(19);
 
     const company1 = await companyFactory({
       tagIds: ['123', '456', '1234'],
@@ -215,7 +213,6 @@ describe('Companies model tests', () => {
 
     const doc = {
       primaryName: 'Test name',
-      website: 'Test webiste',
       size: 230,
       industry: 'Airlines',
       plan: 'Test plan',
@@ -226,7 +223,6 @@ describe('Companies model tests', () => {
     const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
 
     expect(updatedCompany.primaryName).toBe(doc.primaryName);
-    expect(updatedCompany.website).toBe(doc.website);
     expect(updatedCompany.size).toBe(doc.size);
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);
