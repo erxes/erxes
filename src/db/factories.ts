@@ -99,7 +99,7 @@ interface ITagFactoryInput {
   type?: string;
 }
 
-export const tagsFactory = (params: ITagFactoryInput) => {
+export const tagsFactory = (params?: ITagFactoryInput) => {
   const tag = new Tags({
     name: faker.random.word(),
     type: params.type || "engageMessage",
@@ -114,7 +114,7 @@ interface IEngageMessageFactoryInput {
   kind?: string;
   userId?: string;
   segmentId?: string;
-  tagIds?: string[];
+  tagIds?: string[] | string;
   isLive?: boolean;
   isDraft?: boolean;
   customerIds?: string[];
@@ -144,7 +144,7 @@ interface IBrandFactoryInput {
   description?: string;
 }
 
-export const brandFactory = (params: IBrandFactoryInput) => {
+export const brandFactory = (params?: IBrandFactoryInput) => {
   const brand = new Brands({
     name: faker.random.word(),
     code: params.code || faker.random.word(),
@@ -205,7 +205,7 @@ interface ISegmentFactoryInput {
   subOf?: string;
   color?: string;
   connector?: string;
-  conditions?: IDefaultConditionsInput[];
+  conditions?: IDefaultConditionsInput;
 }
 
 export const segmentFactory = (params: ISegmentFactoryInput) => {
@@ -271,7 +271,7 @@ export const companyFactory = (params: ICompanyFactoryInput) => {
     website: params.website || faker.internet.domainName(),
     tagIds: params.tagIds || [faker.random.number()],
     plan: params.plan || faker.random.word(),
-    leadStatus: params.leadStatus || "Open",
+    leadStatus: params.leadStatus || "open",
     lifecycleState: params.lifecycleState || "Lead",
     createdAt: params.createdAt || new Date(),
     modifiedAt: params.modifiedAt || new Date()
@@ -293,7 +293,7 @@ interface ICustomerFactoryInput {
   messengerData?: any;
   customFieldsData?: any;
   companyIds?: string[];
-  tagIds?: string[];
+  tagIds?: string[] | string;
   twitterData?: string[];
   ownerId?: string;
 }
@@ -307,8 +307,8 @@ export const customerFactory = (params: ICustomerFactoryInput) => {
     primaryPhone: params.primaryPhone || faker.phone.phoneNumber(),
     emails: params.emails || [faker.internet.email()],
     phones: params.phones || [faker.phone.phoneNumber()],
-    leadStatus: params.leadStatus || "Open",
-    lifecycleState: params.lifecycleState || "Lead",
+    leadStatus: params.leadStatus || "open",
+    lifecycleState: params.lifecycleState || "lead",
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
     companyIds: params.companyIds || [
@@ -374,9 +374,10 @@ interface IConversationFactoryInput {
   closedAt?: dateType;
   closedUserId?: string;
   readUserIds?: string[];
+  tagIds?: string[];
 }
 
-export const conversationFactory = (params: IConversationFactoryInput) => {
+export const conversationFactory = (params?: IConversationFactoryInput) => {
   return Conversations.create({
     content: params.content || faker.lorem.sentence(),
     customerId: params.customerId || Random.id(),
@@ -460,15 +461,20 @@ export const integrationFactory = async (params: IIntegrationFactoryInput) => {
   return Integrations.create(doc);
 };
 
+interface IFormSubmission {
+  customerId: string;
+  submittedAt: Date;
+}
+
 interface IFormFactoryInput {
   title?: string;
   code?: string;
   description?: string;
   createdUserId?: string;
-  submissions?: string[];
-}
+  submissions?: IFormSubmission[];
+};
 
-export const formFactory = async (params: IFormFactoryInput) => {
+export const formFactory = async (params?: IFormFactoryInput) => {
   const { title, description, code, submissions, createdUserId } = params;
 
   return Forms.create({
