@@ -39,6 +39,7 @@ const RespondBoxContainer = (props, context) => {
           formWidgetData: null,
           twitterData: null,
           facebookData: null,
+          messengerAppData: null,
           user: null,
           customer: null
         }
