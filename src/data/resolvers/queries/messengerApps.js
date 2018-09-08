@@ -12,7 +12,7 @@ const messengerAppQueries = {
       query.kind = kind;
     }
 
-    return MessengerApps.find({ kind });
+    return MessengerApps.find(query);
   },
 };
 
