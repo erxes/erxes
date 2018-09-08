@@ -2,7 +2,8 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 import Twitter from './containers/twitter/Form';
-import GoogleCalendar from './containers/google/Calendar';
+import GoogleMeet from './containers/google/Meet';
+import ConnectCalendar from './containers/google/ConnectCalendar';
 import CreateMessenger from './containers/messenger/Create';
 import EditMessenger from './containers/messenger/Edit';
 import Store from './containers/Store';
@@ -36,17 +37,18 @@ const routes = () => [
   />,
 
   <Route
-    key="/settings/integrations/google-calendar"
+    key="/settings/integrations/google-meet"
     exact
-    path="/settings/integrations/google-calendar"
+    path="/settings/integrations/google-meet"
     component={({ history, location }) => {
       const queryParams = queryString.parse(location.search);
 
       return (
-        <GoogleCalendar
+        <ConnectCalendar
           type="link"
           history={history}
           queryParams={queryParams}
+          Form={GoogleMeet}
         />
       );
     }}
@@ -71,10 +73,11 @@ const routes = () => [
       const queryParams = queryString.parse(location.search);
 
       return (
-        <GoogleCalendar
+        <ConnectCalendar
           type="form"
           history={history}
           queryParams={queryParams}
+          Form={GoogleMeet}
         />
       );
     }}

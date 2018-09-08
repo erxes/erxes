@@ -701,10 +701,11 @@ export const INTEGRATIONS = [
     rows: [
       {
         name: 'Google meet',
+        kind: 'googleMeet',
         description: 'Start a video call from your conversation',
         inMessenger: false,
         logo: '/images/integrations/google-meet.png',
-        createUrl: '/settings/integrations/google-calendar'
+        createUrl: '/settings/integrations/google-meet'
       }
     ]
   },

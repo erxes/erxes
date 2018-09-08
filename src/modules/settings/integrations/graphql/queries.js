@@ -95,10 +95,35 @@ const integrations = `
   }
 `;
 
+const messengerApps = `
+  query messengerApps($kind: String) {
+    messengerApps(kind: $kind) {
+      _id
+      name
+      kind
+    }
+  }
+`;
+
+const getGoogleAccessToken = `
+  query integrationGetGoogleAccessToken($code: String) {
+    integrationGetGoogleAccessToken(code: $code)
+  }
+`;
+
+const getGoogleAuthUrl = `
+  query integrationGetGoogleAuthUrl {
+    integrationGetGoogleAuthUrl
+  }
+`;
+
 export default {
   users,
   brands,
   integrationDetail,
   integrationTotalCount,
-  integrations
+  integrations,
+  messengerApps,
+  getGoogleAccessToken,
+  getGoogleAuthUrl
 };

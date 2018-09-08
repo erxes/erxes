@@ -53,10 +53,23 @@ const integrationsRemove = `
   }
 `;
 
+const messengerAppsAdd = `
+  mutation messengerAppsAdd(
+    $kind: String!
+    $name: String!
+    $credentials: JSON
+  ) {
+    messengerAppsAdd(kind: $kind, name: $name, credentials: $credentials) {
+      _id
+    }
+  }
+`;
+
 export default {
   integrationsCreateMessenger,
   integrationsEditMessenger,
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
-  integrationsRemove
+  integrationsRemove,
+  messengerAppsAdd
 };
