@@ -34,24 +34,51 @@
       </div>
     </div>
   
-
     <script>
       window.erxesSettings = {
+        forms: [{
+          brand_id: "YDEdKj",
+          form_id: "mRgzZw",
+        }],
         messenger: {
-          brand_id: "ovCMBR",
+          brand_id: "YDEdKj",
+          email: "lombo@yahoo.com",
+          companyData: {
+            id: "123",
+            name: "Intercorp",
+            plan: "pro",
+          }
+        },
+        knowledgeBase: {
+          topic_id: "bxnJ8CFa5Snh69diH"
         },
       };
-      
     (function() {
       var script = document.createElement('script');
-      script.src = "http://localhost:3200/build/messengerWidget.bundle.js";
+      script.src = "build/messengerWidget.bundle.js";
+      script.async = true;
+      
+      var entry = document.getElementsByTagName('script')[0];
+      entry.parentNode.insertBefore(script, entry);
+    })();
+
+    (function() {
+      var script = document.createElement('script');
+      script.src = "build/formWidget.bundle.js";
       script.async = true;
 
       var entry = document.getElementsByTagName('script')[0];
       entry.parentNode.insertBefore(script, entry);
     })();
-  
+
+    (function() {
+      var script = document.createElement('script');
+      script.src = "build/knowledgeBaseWidget.bundle.js";
+      script.async = true;
+
+      var entry = document.getElementsByTagName('script')[0];
+      entry.parentNode.insertBefore(script, entry);
+    })();
     </script>
-  
   </body>
 </html>
