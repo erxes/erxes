@@ -2,6 +2,7 @@ import { TAG_TYPES, KIND_CHOICES } from '../../constants';
 import { Channels, Integrations, Tags, Brands } from '../../../db/models';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { getConfig, getPageList } from '../../../trackers/facebook';
+import { getAuthorizeUrl, getAccessToken } from '../../../trackers/googleTracker';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
@@ -122,6 +123,22 @@ const integrationQueries = {
    */
   integrationGetTwitterAuthUrl() {
     return socUtils.getTwitterAuthorizeUrl();
+  },
+
+  /*
+   * Generate google integration auth url using credentials in .env
+   * @return {Promise} - Generated url
+   */
+  integrationGetGoogleAuthUrl() {
+    return getAuthorizeUrl();
+  },
+
+  /*
+   * Generate google integration auth url using credentials in .env
+   * @return {Promise} - Generated url
+   */
+  integrationGetGoogleAccessToken(root, { code }) {
+    return getAccessToken(code);
   },
 
   /**
