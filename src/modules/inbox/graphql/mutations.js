@@ -117,6 +117,12 @@ const conversationsUnassign = `
   }
 `;
 
+const executeApp = `
+  mutation messengerAppsExecute($_id: String!, $conversationId: String!) {
+    messengerAppsExecute(_id: $_id, conversationId: $conversationId)
+  }
+`;
+
 export default {
   conversationMessageAdd,
   conversationsChangeStatus,
@@ -126,5 +132,6 @@ export default {
   markAsRead,
   favoriteTweet,
   retweetTweet,
-  tweet
+  tweet,
+  executeApp
 };

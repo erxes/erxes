@@ -275,7 +275,7 @@ const SidebarCounter = styled.span`
   margin-top: 2px;
   position: ${props => !props.nowrap && 'absolute'};
   right: ${dimensions.coreSpacing}px;
-  max-width: ${props => (props.nowrap ? '100%' : '60%')};
+  max-width: ${props => (props.nowrap ? '100%' : '45%')};
   overflow: hidden;
   text-overflow: ellipsis;
   padding-left: ${props => (props.nowrap ? '0' : '10px')};

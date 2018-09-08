@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import {
   FormMessage,
   SimpleMessage,
   FacebookMessage,
+  AppMessage,
   TwitterMessage
 } from './';
 
@@ -26,6 +26,10 @@ function Message(props) {
 
   if (message.twitterData) {
     return <TwitterMessage {...props} />;
+  }
+
+  if (message.messengerAppData) {
+    return <AppMessage message={message} />;
   }
 
   return (

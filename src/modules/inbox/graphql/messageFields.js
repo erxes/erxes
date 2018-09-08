@@ -10,6 +10,7 @@ export default `
   createdAt
   isCustomerRead
   formWidgetData
+  messengerAppData
   twitterData {
     id_str
     created_at

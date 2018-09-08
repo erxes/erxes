@@ -2,6 +2,8 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
+import MessengerApps from 'modules/settings/integrations/containers/MessengerApps';
+
 import Entry from './Entry';
 import { IntegrationRow, CollapsibleContent } from './styles';
 
@@ -61,6 +63,10 @@ class Row extends Component {
 
     if (!isContentVisible) {
       return null;
+    }
+
+    if (kind === 'googleMeet') {
+      return <MessengerApps kind="googleMeet" />;
     }
 
     return <IntegrationList kind={kind} />;

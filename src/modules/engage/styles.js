@@ -166,6 +166,53 @@ const IconContainer = styled.div`
   }
 `;
 
+const SelectMonth = styled.div`
+  flex: 1;
+
+  label {
+    margin-top: 20px;
+  }
+`;
+
+const DateTimePicker = styled.div`
+  margin-top: ${coreSpace};
+  position: relative;
+
+  input {
+    font-size: 13px;
+    border-color: ${colors.colorShadowGray};
+    box-shadow: none;
+    cursor: pointer;
+  }
+
+  input:focus {
+    box-shadow: none;
+    border-color: ${colors.colorSecondary};
+  }
+
+  > i {
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    padding: 6px 10px;
+    background: ${colors.borderPrimary};
+    border-right-radius: 13px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }
+
+  .rdtOpen .rdtPicker {
+    font-size: 12px;
+    max-width: inherit;
+    width: 100%;
+  }
+
+  .rdtCounter .rdtBtn {
+    height: 30%;
+    line-height: 30px;
+  }
+`;
+
 export {
   EngageTitle,
   HelperText,
@@ -183,5 +230,7 @@ export {
   Box,
   BoxContent,
   BoxHeader,
-  IconContainer
+  IconContainer,
+  DateTimePicker,
+  SelectMonth
 };
