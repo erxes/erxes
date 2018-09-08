@@ -1,6 +1,6 @@
 /* eslint-disable react/no-string-refs */
 
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Popover, OverlayTrigger } from 'react-bootstrap';
 import { Button, Icon, Tip } from 'modules/common/components';
@@ -16,7 +16,7 @@ const propTypes = {
   onSelect: PropTypes.func
 };
 
-class MessengerApp extends Component {
+class Apps extends Component {
   constructor(props) {
     super(props);
 
@@ -35,16 +35,25 @@ class MessengerApp extends Component {
     return this.props.onSelect(messengerApp);
   }
 
-  renderItems() {
-    return this.props.messengerApps.map(item => (
-      <li key={item._id} onClick={() => this.onSelect(item._id)}>
-        <MessengerApps>
+  renderItem(item) {
+    if (item.kind === 'googleMeet') {
+      return (
+        <Fragment>
           <img src="/images/integrations/google-meet.png" alt="google-meet" />
+
           <div>
             <h5>{item.name}</h5>
             <p>Start a video call from your conversation</p>
           </div>
-        </MessengerApps>
+        </Fragment>
+      );
+    }
+  }
+
+  renderItems() {
+    return this.props.messengerApps.map(item => (
+      <li key={item._id} onClick={() => this.onSelect(item._id)}>
+        <MessengerApps>{this.renderItem(item)}</MessengerApps>
       </li>
     ));
   }
@@ -84,9 +93,9 @@ class MessengerApp extends Component {
   }
 }
 
-MessengerApp.propTypes = propTypes;
-MessengerApp.contextTypes = {
+Apps.propTypes = propTypes;
+Apps.contextTypes = {
   __: PropTypes.func
 };
 
-export default MessengerApp;
+export default Apps;

@@ -209,6 +209,7 @@ const messengerApps = `
   query messengerApps {
     messengerApps {
       _id
+      kind
       name
     }
   }

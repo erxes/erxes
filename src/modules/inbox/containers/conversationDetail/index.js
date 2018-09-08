@@ -3,7 +3,7 @@ import WorkArea from './WorkArea';
 import Sidebar from './Sidebar';
 import RespondBox from './RespondBox';
 import ResponseTemplate from './ResponseTemplate';
-import MessengerApp from './MessengerApp';
+import MessengerApps from './MessengerApps';
 import TwitterMessage from './TwitterMessage';
 import FacebookComment from './FacebookComment';
 
@@ -13,7 +13,7 @@ export {
   Sidebar,
   RespondBox,
   ResponseTemplate,
-  MessengerApp,
+  MessengerApps,
   TwitterMessage,
   FacebookComment
 };

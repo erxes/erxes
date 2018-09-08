@@ -6,7 +6,7 @@ import { Button, Icon, Tip, FormControl } from 'modules/common/components';
 import { Alert, uploadHandler } from 'modules/common/utils';
 
 import {
-  MessengerApp,
+  MessengerApps,
   ResponseTemplate
 } from 'modules/inbox/containers/conversationDetail';
 
@@ -258,7 +258,7 @@ class RespondBox extends Component {
           </label>
         </Tip>
 
-        <MessengerApp conversation={conversation} />
+        <MessengerApps conversation={conversation} />
 
         <ResponseTemplate
           brandId={integration.brandId}

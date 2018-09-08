@@ -4,7 +4,7 @@ import WorkArea from './workarea/WorkArea';
 import RespondBox from './workarea/RespondBox';
 import Participators from './workarea/Participators';
 import ResponseTemplate from './workarea/ResponseTemplate';
-import MessengerApp from './workarea/MessengerApp';
+import MessengerApps from './workarea/MessengerApps';
 import FacebookPost from './workarea/conversation/facebook/FacebookPost';
 import FacebookComment from './workarea/conversation/facebook/FacebookComment';
 import TwitterMessage from './workarea/conversation/twitter/TwitterMessage';
@@ -15,7 +15,7 @@ export {
   WorkArea,
   RespondBox,
   ResponseTemplate,
-  MessengerApp,
+  MessengerApps,
   ConversationDetail,
   TwitterMessage,
   FacebookPost,
