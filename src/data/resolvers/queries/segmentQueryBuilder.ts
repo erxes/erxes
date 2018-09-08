@@ -1,7 +1,10 @@
 import * as moment from "moment";
+import { ISegmentDocument } from "../../../db/models/definitions/segments";
+
+export type TSegments = { $and: any[] } | {};
 
 export default {
-  segments(segment?, headSegment?) {
+  segments(segment?: ISegmentDocument | any, headSegment?: any): TSegments {
     const query = { $and: [] };
 
     const childQuery = {

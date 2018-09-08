@@ -1,5 +1,5 @@
 import { EngageMessages, Tags } from "../../../db/models";
-import { IUser, IUserDocument } from "../../../db/models/definitions/users";
+import { IUserDocument } from "../../../db/models/definitions/users";
 import { moduleRequireLogin } from "../../permissions";
 import { paginate } from "./utils";
 
@@ -33,12 +33,12 @@ const count = (selector: {}): number =>
   Number(EngageMessages.find(selector).count());
 
 // Tag query builder
-const tagQueryBuilder = tagId => ({ tagIds: tagId });
+const tagQueryBuilder = (tagId: string) => ({ tagIds: tagId });
 
 // status query builder
 const statusQueryBuilder = (
   status: string,
-  user?: any
+  user?: IUserDocument
 ): IStatusQueryBuilder => {
   if (status === "live") {
     return { isLive: true };
@@ -124,7 +124,7 @@ const countsByTag = async ({
 /*
  * List filter
  */
-const listQuery = ({ kind, status, tag, ids }: IListArgs, user: IUser) => {
+const listQuery = ({ kind, status, tag, ids }: IListArgs, user: IUserDocument): any => {
   if (ids) {
     return EngageMessages.find({ _id: { $in: ids } });
   }

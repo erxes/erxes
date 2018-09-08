@@ -46,9 +46,9 @@ export function disconnect() {
 }
 
 export const graphqlRequest = async (
-  mutation: string,
-  name: string,
-  args: any,
+  mutation?: string,
+  name?: string,
+  args?: any,
   context?: any
 ) => {
   const user = await userFactory({});

@@ -9,28 +9,9 @@ import {
 } from "../../constants";
 import { moduleRequireLogin } from "../../permissions";
 import { cocsExport } from "./cocExport";
-import BuildQuery from "./customerQueryBuilder";
+import BuildQuery, { IListArgs } from "./customerQueryBuilder";
 import QueryBuilder from "./segmentQueryBuilder";
 import { paginate } from "./utils";
-
-interface IListArgs {
-  page?: number;
-  perPage?: number;
-  segment?: string;
-  tag?: string;
-  ids?: string[];
-  searchValue?: string;
-  brand?: string;
-  numberegration?: string;
-  form?: string;
-  startDate?: string;
-  endDate?: string;
-  lifecycleState?: string;
-  leadStatus?: string;
-  sortField?: string;
-  sortDirection?: number;
-  byFakeSegment?: any;
-}
 
 interface ISortParams {
   [index: string]: number;
