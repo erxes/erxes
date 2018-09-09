@@ -15,6 +15,7 @@ import insights from './insights';
 import integrations from './integrations';
 import internalNotes from './internalNotes';
 import knowledgeBase from './knowledgeBase';
+import messengerApps from './messengerApps';
 import notifications from './notifications';
 import products from './products';
 import responseTemplates from './responseTemplates';
@@ -47,4 +48,5 @@ export default {
   ...configs,
   ...fieldsgroups,
   ...importHistory,
+  ...messengerApps,
 };

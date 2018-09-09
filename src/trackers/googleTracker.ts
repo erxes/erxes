@@ -17,12 +17,12 @@ export const getAuthorizeUrl = () => {
   });
 };
 
-export const getAccessToken = code => {
+export const getAccessToken = (code) => {
   const oauthClient = getOauthClient();
 
   return new Promise((resolve, reject) =>
     oauthClient.getToken(code, (err, token) => {
-      if (err) return reject(err);
+      if (err) { return reject(err); }
 
       return resolve(token);
     }),
@@ -34,7 +34,7 @@ export const createMeetEvent = (credentials, event) => {
 
   auth.setCredentials(credentials);
 
-  const calendar = google.calendar({ version: 'v3', auth });
+  const calendar: any = google.calendar({ version: 'v3', auth });
 
   return new Promise((resolve, reject) => {
     calendar.events.insert(

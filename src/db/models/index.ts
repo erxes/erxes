@@ -15,6 +15,7 @@ import ImportHistory from './ImportHistory';
 import Integrations from './Integrations';
 import InternalNotes from './InternalNotes';
 import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from './KnowledgeBase';
+import MessengerApps from './MessengerApps';
 import { NotificationConfigurations, Notifications } from './Notifications';
 import Products from './Products';
 import ResponseTemplates from './ResponseTemplates';
@@ -53,4 +54,5 @@ export {
   Configs,
   FieldsGroups,
   ImportHistory,
+  MessengerApps,
 };

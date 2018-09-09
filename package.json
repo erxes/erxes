@@ -45,7 +45,6 @@
     ]
   },
   "dependencies": {
-    "@types/graphql": "^14.0.0",
     "aws-sdk": "^2.151.0",
     "bcrypt": "^3.0.0",
     "body-parser": "^1.17.1",
@@ -82,6 +81,7 @@
     "xlsx-populate": "^1.14.0"
   },
   "devDependencies": {
+    "@types/graphql": "^14.0.0",
     "@types/body-parser": "^1.17.0",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",

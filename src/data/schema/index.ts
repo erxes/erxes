@@ -87,6 +87,12 @@ import {
   types as ImportHistoryTypes,
 } from './importHistory';
 
+import {
+  mutations as MessengerAppMutations,
+  queries as MessengerAppQueries,
+  types as MessengerAppTypes,
+} from './messengerApp';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -115,6 +121,7 @@ export const types = `
   ${ConfigTypes}
   ${FieldGroupTypes}
   ${ImportHistoryTypes}
+  ${MessengerAppTypes}
 `;
 
 export const queries = `
@@ -143,6 +150,7 @@ export const queries = `
     ${ConfigQueries}
     ${FieldGroupQueries}
     ${ImportHistoryQueries}
+    ${MessengerAppQueries}
   }
 `;
 
@@ -171,6 +179,7 @@ export const mutations = `
     ${ConfigMutations}
     ${FieldGroupMutations}
     ${ImportHistoryMutations}
+    ${MessengerAppMutations}
   }
 `;
 
