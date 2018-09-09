@@ -88,6 +88,20 @@ describe("Conversation db", () => {
     const updatedConversation = await Conversations.findOne({
       _id: _doc.conversationId
     });
+
+    if (!updatedConversation) {
+      throw new Error("Updated conversation not found");
+    }
+
+    if (
+      !messageObj ||
+      !messageObj.mentionedUserIds ||
+      !messageObj.engageData ||
+      !messageObj.facebookData
+    ) {
+      throw new Error("");
+    }
+
     expect(updatedConversation.updatedAt).toEqual(expect.any(Date));
 
     expect(messageObj.content).toBe(_conversationMessage.content);
@@ -139,6 +153,10 @@ describe("Conversation db", () => {
       _id: messageObj.conversationId
     });
 
+    if (!afterConversationObj) {
+      throw new Error("Conversation not found");
+    }
+
     // check mendtioned users
     for (const mentionedUser of messageObj.mentionedUserIds) {
       expect(afterConversationObj.participatedUserIds).toContain(mentionedUser);
@@ -160,6 +178,10 @@ describe("Conversation db", () => {
     const conversationObj = await Conversations.findOne({
       _id: _conversation._id
     });
+
+    if (!conversationObj) {
+      throw new Error("conversation not found");
+    }
 
     expect(conversationObj.assignedUserId).toBe(_user._id);
 
@@ -185,6 +207,10 @@ describe("Conversation db", () => {
       _id: _conversation._id
     });
 
+    if (!conversationObj) {
+      throw new Error("Conversation not found");
+    }
+
     expect(conversationObj.assignedUserId).toBeUndefined();
   });
 
@@ -196,6 +222,10 @@ describe("Conversation db", () => {
       _id: _conversation._id
     });
 
+    if (!conversationObj) {
+      throw new Error("Conversation not found");
+    }
+
     expect(conversationObj.closedAt).toEqual(expect.any(Date));
     expect(conversationObj.status).toBe("closed");
 
@@ -203,6 +233,10 @@ describe("Conversation db", () => {
     await Conversations.changeStatusConversation([_conversation._id], "open");
 
     conversationObj = await Conversations.findOne({ _id: _conversation._id });
+
+    if (!conversationObj) {
+      throw new Error("Conversation not found");
+    }
 
     expect(conversationObj.closedAt).toBeNull();
     expect(conversationObj.closedUserId).toBeNull();
@@ -219,6 +253,10 @@ describe("Conversation db", () => {
     const conversationObj = await Conversations.findOne({
       _id: _conversation._id
     });
+
+    if (!conversationObj || !conversationObj.readUserIds) {
+      throw new Error("Conversation not found");
+    }
 
     expect(conversationObj.readUserIds[0]).toBe(_user._id);
 
@@ -279,6 +317,10 @@ describe("Conversation db", () => {
     });
 
     const updatedConversation = await Conversations.reopen(conversation._id);
+
+    if (!updatedConversation || !updatedConversation.readUserIds) {
+      throw new Error("Conversation not found");
+    }
 
     expect(updatedConversation.status).toBe("open");
     expect(updatedConversation.readUserIds.length).toBe(0);

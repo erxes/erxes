@@ -35,6 +35,10 @@ describe("User db utils", () => {
       email: "qwerty@qwerty.com"
     });
 
+    if (!userObj.details || !userObj.links) {
+      throw new Error("User not found");
+    }
+
     expect(userObj).toBeDefined();
     expect(userObj._id).toBeDefined();
     expect(userObj.username).toBe(_user.username);
@@ -130,6 +134,14 @@ describe("User db utils", () => {
 
     let userObj = await Users.findOne({ _id: _user._id });
 
+    if (!userObj || !userObj.details || !userObj.links) {
+      throw new Error("User not found");
+    }
+
+    if (!updateDoc || !updateDoc.details || !updateDoc.links) {
+      throw new Error("UpdatedDoc user not found");
+    }
+
     expect(userObj.username).toBe(updateDoc.username);
     expect(userObj.email).toBe("123@gmail.com");
     expect(userObj.role).toBe(userObj.role);
@@ -146,6 +158,10 @@ describe("User db utils", () => {
     });
 
     userObj = await Users.findOne({ _id: _user._id });
+
+    if (!userObj) {
+      throw new Error("User not found");
+    }
 
     // password must stay untouched
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
@@ -169,6 +185,13 @@ describe("User db utils", () => {
 
     const userObj = await Users.findOne({ _id: _user._id });
 
+    if (!userObj || !userObj.details || !userObj.links) {
+      throw new Error("User not found");
+    }
+    if (!updateDoc || !updateDoc.details || !updateDoc.links) {
+      throw new Error("UpdatedDoc user not found");
+    }
+
     expect(userObj.username).toBe(updateDoc.username);
     expect(userObj.email).toBe("testEmail@yahoo.com");
     expect(userObj.details.position).toBe(updateDoc.details.position);
@@ -181,6 +204,10 @@ describe("User db utils", () => {
     const signature = { brandId: "brandId", signature: "signature" };
 
     const user = await Users.configEmailSignatures(_user._id, [signature]);
+
+    if (!user || !user.emailSignatures) {
+      throw new Error("User not found");
+    }
 
     expect(user.emailSignatures[0].toJSON()).toEqual(signature);
   });
@@ -258,6 +285,10 @@ describe("User db utils", () => {
       newPassword: "Lombo@123"
     });
 
+    if (!updatedUser || !updatedUser.password) {
+      throw new Error("Updated user not found");
+    }
+
     expect(
       await Users.comparePassword("Lombo@123", updatedUser.password)
     ).toBeTruthy();
@@ -276,6 +307,10 @@ describe("User db utils", () => {
     // valid
     await Users.forgotPassword(_user.email);
     const user = await Users.findOne({ email: _user.email });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     expect(user.resetPasswordToken).toBeDefined();
     expect(user.resetPasswordExpires).toBeDefined();

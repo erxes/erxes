@@ -81,6 +81,10 @@ describe("Companies model tests", () => {
 
     const field = await fieldFactory({ validation: "number" });
 
+    if (!field) {
+      throw new Error("Field not found");
+    }
+
     try {
       await Companies.createCompany({
         primaryName: "name",
@@ -118,6 +122,10 @@ describe("Companies model tests", () => {
 
     const field = await fieldFactory({ validation: "number" });
 
+    if (!field) {
+      throw new Error("Field not found");
+    }
+
     try {
       await Companies.updateCompany(_company._id, {
         primaryName: "name",
@@ -135,6 +143,10 @@ describe("Companies model tests", () => {
 
     for (const customerId of customerIds) {
       const customerObj = await Customers.findOne({ _id: customerId });
+
+      if (!customerObj) {
+        throw new Error("Customer not found");
+      }
 
       expect(customerObj.companyIds).toContain(_company._id);
     }
@@ -185,11 +197,11 @@ describe("Companies model tests", () => {
       names: ["company2"]
     });
 
-    let customer1 = await customerFactory({
+    const customer1 = await customerFactory({
       companyIds: [company1._id]
     });
 
-    let customer2 = await customerFactory({
+    const customer2 = await customerFactory({
       companyIds: [company2._id]
     });
 
@@ -244,11 +256,21 @@ describe("Companies model tests", () => {
     expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
 
-    customer1 = await Customers.findOne({ _id: customer1._id });
-    expect(customer1.companyIds).not.toContain(company1._id);
+    const customerObj1 = await Customers.findOne({ _id: customer1._id });
 
-    customer2 = await Customers.findOne({ _id: customer2._id });
-    expect(customer2.companyIds).not.toContain(company2._id);
+    if (!customerObj1) {
+      throw new Error("Customer not found");
+    }
+
+    expect(customerObj1.companyIds).not.toContain(company1._id);
+
+    const customerObj2 = await Customers.findOne({ _id: customer2._id });
+
+    if (!customerObj2) {
+      throw new Error("Customer not found");
+    }
+
+    expect(customerObj2.companyIds).not.toContain(company2._id);
 
     let internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
@@ -268,8 +290,8 @@ describe("Companies model tests", () => {
     // Checking new company datas updated
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
 
-    expect(customer1.companyIds).toContain(updatedCompany._id);
-    expect(customer2.companyIds).toContain(updatedCompany._id);
+    expect(customerObj1.companyIds).toContain(updatedCompany._id);
+    expect(customerObj2.companyIds).toContain(updatedCompany._id);
 
     internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,

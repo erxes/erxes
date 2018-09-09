@@ -79,6 +79,10 @@ describe("Brands db", () => {
       _brand.emailConfig
     );
 
+    if (!brandObj || !brandObj.emailConfig) {
+      throw new Error("Brand not found");
+    }
+
     expect(brandObj.emailConfig.type).toBe(_brand.emailConfig.type);
     expect(brandObj.emailConfig.template).toBe(_brand.emailConfig.template);
   });
@@ -86,18 +90,31 @@ describe("Brands db", () => {
   test("Manage integrations", async () => {
     const brand = await brandFactory({});
 
-    let integration1 = await integrationFactory({});
-    let integration2 = await integrationFactory({});
+    const integration1 = await integrationFactory({});
+    const integration2 = await integrationFactory({});
 
     await Brands.manageIntegrations({
       _id: brand._id,
       integrationIds: [integration1._id, integration2._id]
     });
 
-    integration1 = await Integrations.findOne({ _id: integration1._id });
-    integration2 = await Integrations.findOne({ _id: integration2._id });
+    const integrationObj1 = await Integrations.findOne({
+      _id: integration1._id
+    });
 
-    expect(integration1.brandId).toBe(brand._id);
-    expect(integration2.brandId).toBe(brand._id);
+    if (!integrationObj1) {
+      throw new Error("Integration not found");
+    }
+
+    const integrationObj2 = await Integrations.findOne({
+      _id: integration2._id
+    });
+
+    if (!integrationObj2) {
+      throw new Error("Integration not found");
+    }
+
+    expect(integrationObj1.brandId).toBe(brand._id);
+    expect(integrationObj2.brandId).toBe(brand._id);
   });
 });

@@ -25,7 +25,7 @@ describe("Notification model tests", () => {
     expect.assertions(1);
 
     try {
-      await Notifications.createNotification({}, null);
+      await Notifications.createNotification({});
     } catch (e) {
       expect(e.message).toBe("createdUser must be supplied");
     }
@@ -101,12 +101,18 @@ describe("Notification model tests", () => {
     // check method markAsRead =============
     await Notifications.markAsRead([notification._id]);
 
-    notification = await Notifications.findOne({ _id: notification._id });
+    const notificationObj = await Notifications.findOne({
+      _id: notification._id
+    });
 
-    expect(notification.isRead).toEqual(true);
+    if (!notificationObj) {
+      throw new Error("Notification not found");
+    }
+
+    expect(notificationObj.isRead).toEqual(true);
 
     // remove notification =================
-    await Notifications.removeNotification(notification._id);
+    await Notifications.removeNotification(notificationObj._id);
 
     expect(await Notifications.find({}).count()).toEqual(0);
   });

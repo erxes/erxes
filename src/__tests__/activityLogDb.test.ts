@@ -41,14 +41,18 @@ describe("ActivityLogs model methods", () => {
 
     const doc = {
       activity: activityDoc,
-      coc: customerDoc,
-      performer: null
+      coc: customerDoc
     };
 
     const aLog = await ActivityLogs.createDoc(doc);
 
     expect(aLog.activity.toJSON()).toEqual(activityDoc);
     expect(aLog.coc.toJSON()).toEqual(customerDoc);
+
+    if (!aLog.performedBy) {
+      throw new Error("Performer is empty");
+    }
+
     expect(aLog.performedBy.type).toBe(ACTIVITY_PERFORMER_TYPES.SYSTEM);
   });
 
@@ -63,6 +67,10 @@ describe("ActivityLogs model methods", () => {
     });
 
     const aLog = await ActivityLogs.createInternalNoteLog(internalNote, user);
+
+    if (!aLog.performedBy) {
+      throw new Error("Performer not found");
+    }
 
     expect(aLog.performedBy.type).toBe(ACTIVITY_PERFORMER_TYPES.USER);
     expect(aLog.performedBy.id).toBe(user._id);
@@ -83,7 +91,7 @@ describe("ActivityLogs model methods", () => {
     const segment = await segmentFactory({});
 
     try {
-      await ActivityLogs.createSegmentLog(segment, null);
+      await ActivityLogs.createSegmentLog(segment, undefined);
     } catch (e) {
       expect(e.message).toBe("customer must be supplied");
     }
@@ -119,6 +127,11 @@ describe("ActivityLogs model methods", () => {
       type: segment.contentType,
       id: customer._id
     });
+
+    if (!segmentLog.performedBy) {
+      throw new Error("Performer is empty");
+    }
+
     expect(segmentLog.performedBy.toJSON()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.SYSTEM
     });
@@ -148,7 +161,7 @@ describe("ActivityLogs model methods", () => {
     const conversation = await conversationFactory({});
 
     try {
-      await ActivityLogs.createConversationLog(conversation, null);
+      await ActivityLogs.createConversationLog(conversation, undefined);
     } catch (e) {
       expect(e.message).toBe(
         `'customer' must be supplied when adding activity log for conversations`
@@ -164,7 +177,14 @@ describe("ActivityLogs model methods", () => {
       companyIds: [companyA._id, companyB._id]
     });
 
-    let aLog = await ActivityLogs.createConversationLog(conversation, customer);
+    const aLog = await ActivityLogs.createConversationLog(
+      conversation,
+      customer
+    );
+
+    if (!aLog.performedBy) {
+      throw new Error("Performer is empty");
+    }
 
     // check customer conversation log
     expect(aLog.performedBy.toJSON()).toEqual({
@@ -183,7 +203,7 @@ describe("ActivityLogs model methods", () => {
     });
 
     // check company conversation logs =====================================
-    aLog = await ActivityLogs.findOne({
+    let activity = await ActivityLogs.findOne({
       "activity.type": ACTIVITY_TYPES.CONVERSATION,
       "activity.action": ACTIVITY_ACTIONS.CREATE,
       "activity.id": conversation._id,
@@ -191,10 +211,15 @@ describe("ActivityLogs model methods", () => {
       "coc.id": companyA._id
     });
 
-    expect(aLog).toBeDefined();
-    expect(aLog.coc.id).toBe(companyA._id);
+    expect(activity).toBeDefined();
 
-    aLog = await ActivityLogs.findOne({
+    if (!activity) {
+      throw new Error("Acitivty not found");
+    }
+
+    expect(activity.coc.id).toBe(companyA._id);
+
+    activity = await ActivityLogs.findOne({
       "activity.type": ACTIVITY_TYPES.CONVERSATION,
       "activity.action": ACTIVITY_ACTIONS.CREATE,
       "activity.id": conversation._id,
@@ -202,8 +227,12 @@ describe("ActivityLogs model methods", () => {
       "coc.id": companyB._id
     });
 
-    expect(aLog).toBeDefined();
-    expect(aLog.coc.id).toBe(companyB._id);
+    if (!activity) {
+      throw new Error("Acitivty not found");
+    }
+
+    expect(activity).toBeDefined();
+    expect(activity.coc.id).toBe(companyB._id);
 
     expect(await ActivityLogs.find({}).count()).toBe(3);
 
@@ -224,6 +253,10 @@ describe("ActivityLogs model methods", () => {
 
     const customerFullName = `${customer.firstName || ""} ${customer.lastName ||
       ""}`;
+
+    if (!aLog.performedBy) {
+      throw new Error("Performer is empty");
+    }
 
     expect(aLog.performedBy.toJSON()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.USER,
@@ -247,6 +280,10 @@ describe("ActivityLogs model methods", () => {
 
     const aLog = await ActivityLogs.createCompanyRegistrationLog(company, user);
 
+    if (!aLog.performedBy) {
+      throw new Error("Performer is empty");
+    }
+
     expect(aLog.performedBy.toJSON()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.USER,
       id: user._id
@@ -264,6 +301,10 @@ describe("ActivityLogs model methods", () => {
     const user = await userFactory({});
 
     const aLog = await ActivityLogs.createDealRegistrationLog(deal, user);
+
+    if (!aLog.performedBy) {
+      throw new Error("Performer is empty");
+    }
 
     expect(aLog.performedBy.toJSON()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.USER,

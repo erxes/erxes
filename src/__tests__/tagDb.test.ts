@@ -118,6 +118,14 @@ describe("Test tags model", () => {
     const messageObj = await EngageMessages.findOne({ _id: _message._id });
     const tagObj = await Tags.findOne({ _id: _tag._id });
 
+    if (!messageObj || !messageObj.tagIds) {
+      throw new Error("Engage message not found");
+    }
+
+    if (!tagObj) {
+      throw new Error("Tag not found");
+    }
+
     expect(tagObj.objectCount).toBe(1);
     expect(messageObj.tagIds[0]).toEqual(_tag.id);
   });

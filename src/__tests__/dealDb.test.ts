@@ -106,6 +106,10 @@ describe("Test deals model", () => {
 
     const stageToPipeline = await DealStages.findOne({ _id: stage._id });
 
+    if(!stageToPipeline) {
+      throw new Error("Stage not found");
+    }
+
     expect(createdPipeline).toBeDefined();
     expect(createdPipeline._id).toEqual(stageToPipeline.pipelineId);
     expect(createdPipeline.name).toEqual(pipeline.name);

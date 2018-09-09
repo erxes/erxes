@@ -104,6 +104,10 @@ describe("engage messages model tests", () => {
     await EngageMessages.engageMessageSetLive(_message._id);
     const message = await EngageMessages.findOne({ _id: _message._id });
 
+    if (!message) {
+      throw new Error("Engage message not found");
+    }
+
     expect(message.isLive).toEqual(true);
     expect(message.isDraft).toEqual(false);
   });
@@ -111,6 +115,10 @@ describe("engage messages model tests", () => {
   test("Engage message set pause", async () => {
     await EngageMessages.engageMessageSetPause(_message._id);
     const message = await EngageMessages.findOne({ _id: _message._id });
+
+    if (!message) {
+      throw new Error("Engage message not found");
+    }
 
     expect(message.isLive).toEqual(false);
   });
@@ -132,6 +140,10 @@ describe("engage messages model tests", () => {
       _customer,
       _customer2
     ]);
+
+    if (!message || !message.customerIds) {
+      throw new Error("Engage message not found");
+    }
 
     expect(message.customerIds).toContain(_customer._id);
     expect(message.customerIds).toContain(_customer2._id);
@@ -214,12 +226,20 @@ describe("engage messages model tests", () => {
       _id: engageMessage._id
     });
 
+    if (!engageMessageObj || !engageMessageObj.stats) {
+      throw new Error("Engage message not found");
+    }
+
     expect(engageMessageObj.stats).toBeDefined();
     expect(engageMessageObj.stats.toJSON()).toEqual({ open: 1 });
 
     await EngageMessages.updateStats(engageMessage._id, "open");
 
     engageMessageObj = await EngageMessages.findOne({ _id: engageMessage._id });
+
+    if (!engageMessageObj || !engageMessageObj.stats) {
+      throw new Error("Engage message not found");
+    }
 
     expect(engageMessageObj.stats.toJSON()).toEqual({ open: 2 });
   });

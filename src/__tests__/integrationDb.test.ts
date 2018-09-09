@@ -158,6 +158,10 @@ describe("create form integration", () => {
       formData
     });
 
+    if (!integration || !integration.formData) {
+      throw new Error("Integration not found");
+    }
+
     expect(integration.formId).toEqual(_form._id);
     expect(integration.name).toEqual(mainDoc.name);
     expect(integration.brandId).toEqual(_brand._id);
@@ -216,6 +220,10 @@ describe("edit form integration", () => {
         formData
       }
     );
+
+    if (!integration || !integration.formData) {
+      throw new Error("Integration not found");
+    }
 
     expect(integration.name).toEqual(mainDoc.name);
     expect(integration.formId).toEqual(_form2._id);
@@ -300,6 +308,10 @@ describe("save integration messenger appearance test", () => {
       uiOptions
     );
 
+    if (!integration || !integration.uiOptions) {
+      throw new Error("Integration not found");
+    }
+
     expect(integration.uiOptions.color).toEqual(uiOptions.color);
     expect(integration.uiOptions.wallpaper).toEqual(uiOptions.wallpaper);
     expect(integration.uiOptions.logo).toEqual(uiOptions.logo);
@@ -352,6 +364,14 @@ describe("save integration messenger configurations test", () => {
       _integration._id,
       messengerData
     );
+
+    if (
+      !integration ||
+      !integration.messengerData ||
+      !integration.messengerData.onlineHours
+    ) {
+      throw new Error("Integration not found");
+    }
 
     expect(integration.messengerData.notifyCustomer).toEqual(
       messengerData.notifyCustomer
@@ -415,6 +435,14 @@ describe("save integration messenger configurations test", () => {
       _integration._id,
       newMessengerData
     );
+
+    if (
+      !updatedIntegration ||
+      !updatedIntegration.messengerData ||
+      !updatedIntegration.messengerData.onlineHours
+    ) {
+      throw new Error("Integration not found");
+    }
 
     expect(updatedIntegration.messengerData.notifyCustomer).toEqual(
       newMessengerData.notifyCustomer
@@ -485,6 +513,10 @@ describe("social integration test", () => {
 
     const integration = await Integrations.createTwitterIntegration(doc);
 
+    if (!integration || !integration.twitterData) {
+      throw new Error("Integration not found");
+    }
+
     expect(integration.name).toBe(doc.name);
     expect(integration.brandId).toBe(doc.brandId);
     expect(integration.kind).toBe(KIND_CHOICES.TWITTER);
@@ -508,6 +540,10 @@ describe("social integration test", () => {
     };
 
     const integration = await Integrations.createFacebookIntegration(doc);
+
+    if (!integration || !integration.facebookData) {
+      throw new Error("Integration not found");
+    }
 
     expect(integration.name).toBe(doc.name);
     expect(integration.brandId).toBe(doc.brandId);
