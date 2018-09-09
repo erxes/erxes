@@ -8,7 +8,7 @@ import { NotificationConfigurations, Notifications, Users } from '../db/models';
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe('testings helper methods', () => {
+describe("testings helper methods", () => {
   let _user;
   let _user2;
   let _user3;
@@ -23,33 +23,33 @@ describe('testings helper methods', () => {
     await Users.remove({});
   });
 
-  test('testing tools.sendNotification method', async () => {
+  test("testing tools.sendNotification method", async () => {
     // Try to send notifications when there is config not allowing it =========
     await notificationConfigurationFactory({
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       isAllowed: false,
-      user: _user._id,
+      user: _user._id
     });
 
     await notificationConfigurationFactory({
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       isAllowed: false,
-      user: _user2._id,
+      user: _user2._id
     });
 
     await notificationConfigurationFactory({
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       isAllowed: false,
-      user: _user3._id,
+      user: _user3._id
     });
 
     const doc = {
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       createdUser: _user._id,
-      title: 'new Notification title',
-      content: 'new Notification content',
-      link: 'new Notification link',
-      receivers: [_user._id, _user2._id, _user3._id],
+      title: "new Notification title",
+      content: "new Notification content",
+      link: "new Notification link",
+      receivers: [_user._id, _user2._id, _user3._id]
     };
 
     await utils.sendNotification(doc);
@@ -58,7 +58,11 @@ describe('testings helper methods', () => {
     expect(notifications.length).toEqual(0);
 
     // Send notifications when there is config allowing it ====================
-    await NotificationConfigurations.update({}, { isAllowed: true }, { multi: true });
+    await NotificationConfigurations.update(
+      {},
+      { isAllowed: true },
+      { multi: true }
+    );
 
     await utils.sendNotification(doc);
 
@@ -78,12 +82,16 @@ describe('testings helper methods', () => {
     expect(notifications[2].receiver).toEqual(_user3._id);
   });
 
-  test('test tools.sendChannelNotifications', async () => {
+  test("test tools.sendChannelNotifications", async () => {
     const channel = await channelFactory({});
+
+    if (!channel || !channel.memberIds) {
+      throw new Error("Couldnt create channel");
+    }
 
     const content = `You have invited to '${channel.name}' channel.`;
 
-    jest.spyOn(utils, 'sendNotification').mockImplementation(() => ({}));
+    jest.spyOn(utils, "sendNotification").mockImplementation(() => ({}));
 
     await sendChannelNotifications(channel);
 

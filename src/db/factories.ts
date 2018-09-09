@@ -337,10 +337,15 @@ interface IFieldFactoryInput {
   groupId?: string;
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
+  options?: string[]
 }
 
 export const fieldFactory = async (params: IFieldFactoryInput) => {
   const groupObj = await fieldGroupFactory({});
+
+  if(!groupObj) {
+    throw new Error("Failed to create fieldGroup");
+  }
 
   const field = new Fields({
     contentType: params.contentType || "form",
@@ -352,7 +357,12 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     isRequired: params.isRequired || false,
     order: params.order || 0,
     isVisible: params.visible || true,
+<<<<<<< HEAD
     groupId: params.groupId || (groupObj ? groupObj._id : "")
+=======
+    options: params.options || [],
+    groupId: params.groupId || groupObj._id
+>>>>>>> ts
   });
 
   await field.save();
@@ -724,11 +734,11 @@ export const productFactory = (params: IProductFactoryInput = {}) => {
 };
 
 interface IConfigFactoryInput {
-  code: string;
-  value: string[];
+  code?: string;
+  value?: string[];
 }
 
-export const configFactory = (params: IConfigFactoryInput = null) => {
+export const configFactory = (params: IConfigFactoryInput = {}) => {
   const config = new Configs({
     ...params,
     code: faker.random.word(),

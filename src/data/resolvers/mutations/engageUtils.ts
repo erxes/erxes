@@ -171,7 +171,7 @@ const sendViaMessenger = async (message: IEngageMessageDocument) => {
     return;
   }
 
-  const { brandId, content } = message.messenger.toJSON();
+  const { brandId, content = "" } = message.messenger;
 
   const user = await Users.findOne({ _id: fromUserId });
 

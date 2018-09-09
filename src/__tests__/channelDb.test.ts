@@ -48,6 +48,10 @@ describe("channel creation", () => {
 
     const channel = await Channels.createChannel(doc, user._id);
 
+    if (!channel.memberIds || !channel.integrationIds) {
+      throw new Error("Channel not found");
+    }
+
     expect(channel.name).toEqual(doc.name);
     expect(channel.description).toEqual(doc.description);
     expect(channel.memberIds.length).toBe(1);
@@ -100,6 +104,10 @@ describe("channel update", () => {
     // test Channels.createChannel and Channels.preSave =============
     let channel = await Channels.findOne({ _id: _channel._id });
 
+    if (!channel || !channel.memberIds || !channel.integrationIds) {
+      throw new Error("Channel not found");
+    }
+
     expect(channel.name).toEqual(_channelDoc.name);
     expect(channel.description).toEqual(_channelDoc.description);
     expect(channel.memberIds.length).toBe(1);
@@ -115,6 +123,10 @@ describe("channel update", () => {
     _channelDoc.memberIds = [_user._id];
 
     channel = await Channels.updateChannel(channel._id, _channelDoc);
+
+    if (!channel || !channel.memberIds) {
+      throw new Error("Channel not found");
+    }
 
     expect(channel.memberIds.length).toBe(1);
     expect(channel.memberIds[0]).toBe(_user._id);
@@ -181,6 +193,10 @@ describe("db utils", () => {
     );
 
     const updatedChannel = updatedChannels.pop();
+
+    if (!updatedChannel) {
+      throw new Error("Channel not found");
+    }
 
     expect(updatedChannel.memberIds).toContain("DFAFDSFDDFAS");
     expect(updatedChannel.memberIds).toContain(_user._id);

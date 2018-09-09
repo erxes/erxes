@@ -6,7 +6,7 @@ import { userFactory } from "./factories";
 
 dotenv.config();
 
-const { NODE_ENV, TEST_MONGO_URL, MONGO_URL } = process.env;
+const { NODE_ENV, TEST_MONGO_URL = "", MONGO_URL = "" } = process.env;
 const isTest = NODE_ENV === "test";
 const DB_URI = ( isTest ? TEST_MONGO_URL : MONGO_URL ) || "";
 
@@ -53,7 +53,7 @@ export const graphqlRequest = async (
 ) => {
   const user = await userFactory({});
   const rootValue = {};
-  const response = await graphql(
+  const response: any = await graphql(
     schema,
     mutation,
     rootValue,

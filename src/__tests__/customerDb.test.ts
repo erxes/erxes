@@ -102,6 +102,10 @@ describe("Customers model tests", () => {
 
     const field = await fieldFactory({ validation: "number" });
 
+    if (!field) {
+      throw new Error("Field not found");
+    }
+
     try {
       await Customers.createCustomer({
         primaryEmail: "email",
@@ -154,6 +158,10 @@ describe("Customers model tests", () => {
 
     const customerObj = await Customers.markCustomerAsNotActive(customer._id);
 
+    if (!customerObj || !customerObj.messengerData) {
+      throw new Error("Customer not found");
+    }
+
     expect(customerObj.messengerData.isActive).toBe(false);
     expect(customerObj.messengerData.lastSeenAt).toBeDefined();
   });
@@ -162,6 +170,10 @@ describe("Customers model tests", () => {
     expect.assertions(1);
 
     const field = await fieldFactory({ validation: "number" });
+
+    if (!field) {
+      throw new Error("Field not found");
+    }
 
     try {
       await Customers.updateCustomer(_customer._id, {
@@ -251,6 +263,14 @@ describe("Customers model tests", () => {
       integrationId: integration._id
     });
 
+    if (!customer1 || !customer1.companyIds || !customer1.tagIds) {
+      throw new Error("Customer1 not found");
+    }
+
+    if (!customer2 || !customer2.companyIds || !customer2.tagIds) {
+      throw new Error("Customer2 not found");
+    }
+
     const customerIds = [customer1._id, customer2._id];
 
     // Merging both customers companyIds and tagIds
@@ -322,6 +342,16 @@ describe("Customers model tests", () => {
     };
 
     const mergedCustomer = await Customers.mergeCustomers(customerIds, doc);
+
+    if (
+      !mergedCustomer ||
+      !mergedCustomer.twitterData ||
+      !mergedCustomer.facebookData ||
+      !mergedCustomer.messengerData ||
+      !mergedCustomer.visitorContactInfo
+    ) {
+      throw new Error("Merged customer not found");
+    }
 
     expect(mergedCustomer.integrationId).toBeDefined();
     expect(mergedCustomer.firstName).toBe(doc.firstName);
@@ -429,6 +459,10 @@ describe("Customers model tests", () => {
 
     const history = await ImportHistory.findOne({ userId: user._id });
 
+    if (!history || !history.ids) {
+      throw new Error("History not found");
+    }
+
     // Before each test we create 1 customer so it should be 3 total
     expect(customers.length).toBe(3);
     expect(response.length).toBe(0);
@@ -459,7 +493,7 @@ describe("Customers model tests", () => {
 
     const fieldNames = ["primaryEmail", "firstName", "Fax number"];
 
-    const fieldValues = [
+    const fieldValues: any = [
       [customer.primaryEmail, "Heyy", "12313"], // this one has duplicated email
       ["newEmail@gmail.com", "Ayyy", "12313"], // this one should be inserted
       [customer.primaryEmail, "", ""] // this one has duplicated email too
@@ -472,6 +506,11 @@ describe("Customers model tests", () => {
     expect(response[1]).toBe("Duplicated email at the row 3");
 
     const history = await ImportHistory.findOne({ userId: user._id });
+
+    if (!history || !history.ids) {
+      throw new Error("History not found");
+    }
+
     expect(history.total).toBe(3);
     expect(history.success).toBe(1);
     expect(history.failed).toBe(2);

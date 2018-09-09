@@ -225,6 +225,10 @@ describe("Customers mutations", () => {
 
     const customer = await Customers.findOne({ _id: params._id });
 
+    if (!customer) {
+      throw new Error("Customer not found");
+    }
+
     expect(customer.companyIds).toContain(params.companyIds);
   });
 

@@ -259,7 +259,7 @@ class Customer {
     let phones: string[] = [];
 
     if (customerFields.primaryEmail) {
-      emails.push("customerFields.primaryEmail");
+      emails.push(customerFields.primaryEmail);
     }
 
     if (customerFields.primaryPhone) {

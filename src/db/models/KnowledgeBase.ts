@@ -20,13 +20,13 @@ export interface IArticleCreate extends IArticle {
 interface IArticleModel extends Model<IArticleDocument> {
   createDoc(
     { categoryIds, ...docFields }: IArticleCreate,
-    userId: string
+    userId?: string
   ): Promise<IArticleDocument>;
 
   updateDoc(
     _id: string,
     { categoryIds, ...docFields }: IArticleCreate,
-    userId: string
+    userId?: string
   ): Promise<IArticleDocument>;
 
   removeDoc(_id: string): void;
@@ -38,7 +38,7 @@ class Article {
    */
   public static async createDoc(
     { categoryIds, ...docFields }: IArticleCreate,
-    userId: string
+    userId?: string
   ) {
     if (!userId) {
       throw new Error("userId must be supplied");
@@ -77,7 +77,7 @@ class Article {
   public static async updateDoc(
     _id: string,
     { categoryIds, ...docFields }: IArticleCreate,
-    userId: string
+    userId?: string
   ) {
     if (!userId) {
       throw new Error("userId must be supplied");
@@ -139,13 +139,13 @@ export interface ICategoryCreate extends ICategory {
 interface ICategoryModel extends Model<ICategoryDocument> {
   createDoc(
     { topicIds, ...docFields }: ICategoryCreate,
-    userId
+    userId?: string
   ): Promise<ICategoryDocument>;
 
   updateDoc(
     _id: string,
     { topicIds, ...docFields }: ICategoryCreate,
-    userId: string
+    userId?: string
   ): Promise<ICategoryDocument>;
 
   removeDoc(categoryId: string): void;
@@ -157,7 +157,7 @@ class Category {
    */
   public static async createDoc(
     { topicIds, ...docFields }: ICategoryCreate,
-    userId
+    userId?: string
   ) {
     if (!userId) {
       throw new Error("userId must be supplied");
@@ -194,7 +194,7 @@ class Category {
   public static async updateDoc(
     _id: string,
     { topicIds, ...docFields }: ICategoryCreate,
-    userId: string
+    userId?: string
   ) {
     if (!userId) {
       throw new Error("userId must be supplied");
@@ -256,12 +256,12 @@ class Category {
 }
 
 interface ITopicModel extends Model<ITopicDocument> {
-  createDoc(docFields: ITopic, userId: string): Promise<ITopicDocument>;
+  createDoc(docFields: ITopic, userId?: string): Promise<ITopicDocument>;
 
   updateDoc(
     _id: string,
     docFields: ITopic,
-    userId: string
+    userId?: string
   ): Promise<ITopicDocument>;
 
   removeDoc(_id: string): void;
@@ -271,7 +271,7 @@ class Topic {
   /**
    * Create KnowledgeBaseTopic document
    */
-  public static createDoc(docFields: ITopic, userId: string) {
+  public static createDoc(docFields: ITopic, userId?: string) {
     if (!userId) {
       throw new Error("userId must be supplied");
     }
@@ -290,7 +290,7 @@ class Topic {
   public static async updateDoc(
     _id: string,
     docFields: ITopic,
-    userId: string
+    userId?: string
   ) {
     if (!userId) {
       throw new Error("userId must be supplied");

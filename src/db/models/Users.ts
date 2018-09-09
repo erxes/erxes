@@ -14,18 +14,27 @@ import {
 
 const SALT_WORK_FACTOR = 10;
 
+interface IEditProfile {
+  username?: string;
+  email?: string;
+  details?: IDetail;
+  links?: ILink;
+}
+
+interface IUpdateUser extends IEditProfile {
+  role?: string;
+  password?: string;
+}
+
 interface IUserModel extends Model<IUserDocument> {
   checkDuplication(email?: string, idsToExclude?: string | string[]): never;
   getSecret(): string;
 
   createUser(doc: IUser): Promise<IUserDocument>;
 
-  updateUser(_id: string, doc: IUser): Promise<IUserDocument>;
+  updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
 
-  editProfile(
-    _id: string,
-    doc: { username: string; email: string; details: IDetail; links: ILink }
-  ): Promise<IUserDocument>;
+  editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
 
   configEmailSignatures(
     _id: string,
@@ -145,7 +154,7 @@ class User {
    */
   public static async updateUser(
     _id: string,
-    { username, email, password, role, details, links }: IUser
+    { username, email, password, role, details, links }: IUpdateUser
   ) {
     const doc = { username, email, password, role, details, links };
 
@@ -171,12 +180,7 @@ class User {
    */
   public static async editProfile(
     _id: string,
-    {
-      username,
-      email,
-      details,
-      links
-    }: { username: string; email: string; details: IDetail; links: ILink }
+    { username, email, details, links }: IEditProfile
   ) {
     // Checking duplicated email
     await this.checkDuplication(email, _id);

@@ -27,6 +27,10 @@ describe("Response template db", () => {
       files: _responseTemplate.files
     });
 
+    if (!responseTemplateObj || !responseTemplateObj.files) {
+      throw new Error("Response template not found");
+    }
+
     expect(responseTemplateObj).toBeDefined();
     expect(responseTemplateObj.name).toBe(_responseTemplate.name);
     expect(responseTemplateObj.content).toBe(_responseTemplate.content);
@@ -44,6 +48,10 @@ describe("Response template db", () => {
         files: _responseTemplate.files
       }
     );
+
+    if (!responseTemplateObj || !responseTemplateObj.files) {
+      throw new Error("Response template not found");
+    }
 
     expect(responseTemplateObj.id).toBe(_responseTemplate.id);
     expect(responseTemplateObj.name).toBe(_responseTemplate.name);
