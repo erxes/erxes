@@ -52,7 +52,6 @@ describe('companyQueries', () => {
         primaryName
         names
         size
-        website
         industry
         plan
 
@@ -95,7 +94,6 @@ describe('companyQueries', () => {
           tagIds
           primaryName
           names
-          website
           industry
           plan
         }
@@ -111,7 +109,6 @@ describe('companyQueries', () => {
   `;
 
   const name = 'companyName';
-  const website = faker && faker.internet ? faker.internet.url() : 'https://www.google.com/';
   const plan = 'plan';
 
   afterEach(async () => {
@@ -200,12 +197,12 @@ describe('companyQueries', () => {
 
     const args = {
       contentType: 'company',
-      conditions: {
+      conditions: [{
         field: 'primaryName',
         operator: 'c',
         value: name,
         type: 'string',
-      },
+      }],
     };
 
     const segment = await segmentFactory(args);
@@ -219,7 +216,6 @@ describe('companyQueries', () => {
 
   test('Companies filtered by search value', async () => {
     await companyFactory({ names: [name], primaryName: name });
-    await companyFactory({ website });
     await companyFactory({ plan });
     await companyFactory({ industry: 'Banks' });
 
@@ -230,14 +226,6 @@ describe('companyQueries', () => {
 
     expect(responses.length).toBe(1);
     expect(responses[0].primaryName).toBe(name);
-
-    // companies by website ===========
-    responses = await graphqlRequest(qryCompanies, 'companies', {
-      searchValue: website,
-    });
-
-    expect(responses.length).toBe(1);
-    expect(responses[0].website).toBe(website);
 
     // companies by industry ==========
     responses = await graphqlRequest(qryCompanies, 'companies', {

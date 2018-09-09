@@ -344,7 +344,7 @@ describe('facebook integration: get or create conversation', () => {
     const type = 'haha';
 
     // adding reaction
-    await saveWebhookResponse.updateReactions('add', msg._id, type, from);
+    await saveWebhookResponse.updateReactions('add', { _id: msg._id }, type, from);
 
     let response = await ConversationMessages.findOne({ _id: msg._id });
 
@@ -352,7 +352,7 @@ describe('facebook integration: get or create conversation', () => {
 
     // removing reaction
 
-    await saveWebhookResponse.updateReactions('subtract', msg._id, type, from);
+    await saveWebhookResponse.updateReactions('subtract', { _id: msg._id }, type, from);
 
     response = await ConversationMessages.findOne({ _id: msg._id });
 

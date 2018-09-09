@@ -54,6 +54,7 @@
     "express": "^4.15.2",
     "fbgraph": "^1.4.1",
     "formidable": "^1.1.1",
+    "googleapis": "^33.0.0",
     "graphql": "^0.10.1",
     "graphql-redis-subscriptions": "^1.4.0",
     "graphql-server-core": "^0.8.2",

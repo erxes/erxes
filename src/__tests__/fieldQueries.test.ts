@@ -100,7 +100,6 @@ describe('fieldQueries', () => {
     });
 
     expect(responseFields.name).toBe(companyFields.name);
-    expect(responseFields.website).toBe(companyFields.website);
 
     // customer =======================
     responses = await graphqlRequest(qry, 'fieldsCombinedByContentType', {
