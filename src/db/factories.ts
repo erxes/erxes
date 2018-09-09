@@ -383,13 +383,15 @@ interface IConversationFactoryInput {
 }
 
 export const conversationFactory = (params: IConversationFactoryInput = {}) => {
+  const doc = {
+    content: faker.lorem.sentence(),
+    customerId: Random.id(),
+    integrationId: Random.id(),
+  };
+
   return Conversations.createConversation({
-    content: params.content || faker.lorem.sentence(),
-    customerId: params.customerId || Random.id(),
-    integrationId: params.integrationId || Random.id(),
-    readUserIds: params.readUserIds || [],
-    participatedUserIds: params.participatedUserIds || [],
-    ...params
+    ...doc,
+    ...params,
   });
 };
 
@@ -416,7 +418,7 @@ export const conversationMessageFactory = async (
     conversationId = conversation._id;
   }
 
-  return ConversationMessages.create({
+  return ConversationMessages.createMessage({
     content: params.content || faker.random.word(),
     attachments: {},
     mentionedUserIds: params.mentionedUserIds || [Random.id()],
@@ -424,7 +426,6 @@ export const conversationMessageFactory = async (
     internal: params.internal || true,
     customerId: params.customerId || Random.id(),
     userId: params.userId || Random.id(),
-    createdAt: new Date(),
     isCustomerRead: params.isCustomerRead || true,
     engageData: params.engageData || {},
     formWidgetData: params.formWidgetData || {},

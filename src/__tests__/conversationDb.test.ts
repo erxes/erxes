@@ -24,6 +24,7 @@ describe("Conversation db", () => {
     _conversationMessage = await conversationMessageFactory({
       conversationId: _conversation._id
     });
+
     _user = await userFactory({});
 
     _doc = { ..._conversationMessage._doc, conversationId: _conversation._id };
@@ -277,12 +278,14 @@ describe("Conversation db", () => {
   });
 
   test("Conversation message", async () => {
+    // non answered messages =========
     const nonAnweredMessage = await ConversationMessages.getNonAsnweredMessage(
       _conversation._id
     );
 
     expect(nonAnweredMessage._id).toBeDefined();
 
+    // admin messages =========
     await ConversationMessages.update(
       { conversationId: _conversation._id },
       { $set: { isCustomerRead: false, internal: false } }
@@ -291,12 +294,20 @@ describe("Conversation db", () => {
     const adminMessages = await ConversationMessages.getAdminMessages(
       _conversation._id
     );
+
     expect(adminMessages.length).toBe(1);
+
+    // mark sent as read messages ==================
+    await ConversationMessages.update(
+      { conversationId: _conversation._id },
+      { $unset: { isCustomerRead: 1 } },
+      { multi: true }
+    );
 
     await ConversationMessages.markSentAsReadMessages(_conversation._id);
 
     const messagesMarkAsRead = await ConversationMessages.find({
-      _id: _conversation._id
+      conversationId: _conversation._id
     });
 
     for (const message of messagesMarkAsRead) {
@@ -305,7 +316,7 @@ describe("Conversation db", () => {
 
     const newOrOpenConversations = await Conversations.newOrOpenConversation();
 
-    expect(newOrOpenConversations.length).toBe(0);
+    expect(newOrOpenConversations.length).toBe(1);
   });
 
   test("Reopen", async () => {
