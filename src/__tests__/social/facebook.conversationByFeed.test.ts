@@ -117,6 +117,10 @@ describe("facebook integration: get or create conversation by feed info", () => 
 
     const conversation = await Conversations.findOne();
 
+    if (!conversation) {
+      throw new Error('Conversation not found');
+    }
+
     // our posts will be closed automatically
     expect(conversation.status).toBe(CONVERSATION_STATUSES.CLOSED);
   });

@@ -135,8 +135,8 @@ export const receiveDirectMessageInformation = async (
   // When situations like integration is deleted but trackIntegration
   // version of that integration is still running, new conversations being
   // created using non existing integrationId
-  if (!(await Integrations.findOne({ _id: integration._id }))) {
-    throw new Error("receiveDirectMessageInformation: Integration not found");
+  if (!await Integrations.findOne({ _id: integration._id })) {
+    return null
   }
 
   let conversation = await Conversations.findOne({

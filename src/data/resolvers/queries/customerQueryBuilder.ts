@@ -1,19 +1,55 @@
 import * as moment from "moment";
-import _ from "underscore";
+import * as _ from "underscore";
 import { Forms, Integrations, Segments } from "../../../db/models";
-import QueryBuilder from "./segmentQueryBuilder";
+import QueryBuilder, { TSegments } from "./segmentQueryBuilder";
+
+interface IIn {
+  $in: string[];
+}
+export interface IListArgs {
+  page?: number;
+  perPage?: number;
+  segment?: string;
+  tag?: string;
+  ids?: string[];
+  searchValue?: string;
+  brand?: string;
+  numberegration?: string;
+  form?: string;
+  startDate?: string;
+  endDate?: string;
+  lifecycleState?: string;
+  leadStatus?: string;
+  sortField?: string;
+  sortDirection?: number;
+  byFakeSegment?: any;
+  integrationType?: string;
+  integration?: string;
+}
+interface IDefaultFilters {
+  $nor: [{ [index: string]: IIn | any }];
+}
+interface IIntegrationIds {
+  integrationId: IIn;
+}
+interface ITagFilter {
+  tagIds: IIn;
+}
+interface IIdsFilter {
+  _id: IIn;
+}
 
 export default class Builder {
-  public params: any;
-  public user: any;
+  public params: IListArgs;
+  // public user: any;
   public queries: any;
 
-  constructor(params?: any, user = null) {
+  constructor(params: IListArgs) {
     this.params = params;
-    this.user = user;
+    // this.user = user;
   }
 
-  public defaultFilters() {
+  public defaultFilters(): IDefaultFilters {
     const emptySelector = { $in: [null, ""] };
 
     return {
@@ -30,29 +66,30 @@ export default class Builder {
   }
 
   // filter by segment
-  public async segmentFilter(segmentId) {
+  public async segmentFilter(segmentId: string): Promise<TSegments> {
     const segment = await Segments.findOne({ _id: segmentId });
-    const query = QueryBuilder.segments(segment);
 
-    return query;
+    return QueryBuilder.segments(segment);
   }
 
   // filter by brand
-  public async brandFilter(brandId) {
+  public async brandFilter(brandId: string): Promise<IIntegrationIds> {
     const integrations = await Integrations.find({ brandId });
 
     return { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
   // filter by integration kind
-  public async integrationTypeFilter(kind) {
+  public async integrationTypeFilter(kind: string): Promise<IIntegrationIds> {
     const integrations = await Integrations.find({ kind });
 
     return { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
   // filter by integration
-  public async integrationFilter(integration) {
+  public async integrationFilter(
+    integration: string
+  ): Promise<IIntegrationIds> {
     const integrations = await Integrations.find({
       kind: integration
     });
@@ -70,12 +107,12 @@ export default class Builder {
   }
 
   // filter by tagId
-  public tagFilter(tagId) {
+  public tagFilter(tagId: string): ITagFilter {
     return { tagIds: { $in: [tagId] } };
   }
 
   // filter by search value
-  public searchFilter(value) {
+  public searchFilter(value: string): { $or: any } {
     const fields = [
       { firstName: new RegExp(`.*${value}.*`, "i") },
       { lastName: new RegExp(`.*${value}.*`, "i") },
@@ -89,25 +126,31 @@ export default class Builder {
   }
 
   // filter by id
-  public idsFilter(ids) {
+  public idsFilter(ids: string[]): IIdsFilter {
     return { _id: { $in: ids } };
   }
 
   // filter by leadStatus
-  public leadStatusFilter(leadStatus) {
+  public leadStatusFilter(leadStatus: string): { leadStatus: string } {
     return { leadStatus };
   }
 
   // filter by lifecycleState
-  public lifecycleStateFilter(lifecycleState) {
+  public lifecycleStateFilter(
+    lifecycleState: string
+  ): { lifecycleState: string } {
     return { lifecycleState };
   }
 
   // filter by form
-  public async formFilter(formId, startDate?, endDate?) {
+  public async formFilter(
+    formId: string,
+    startDate?: string,
+    endDate?: string
+  ): Promise<IIdsFilter> {
     const formObj = await Forms.findOne({ _id: formId });
-    const { submissions = [] } = formObj;
-    const ids = [];
+    const { submissions = [] } = formObj || {};
+    const ids: string[] = [];
 
     for (const submission of submissions) {
       const { customerId, submittedAt } = submission;
@@ -129,7 +172,7 @@ export default class Builder {
   /*
    * prepare all queries. do not do any action
    */
-  public async buildAllQueries() {
+  public async buildAllQueries(): Promise<void> {
     this.queries = {
       default: this.defaultFilters(),
       segment: {},
@@ -209,7 +252,7 @@ export default class Builder {
     }
   }
 
-  public mainQuery() {
+  public mainQuery(): any {
     return {
       ...this.queries.default,
       ...this.queries.segment,

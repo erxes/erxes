@@ -47,6 +47,7 @@ import {
   Tags,
   Users
 } from "./models";
+import { IUserDocument } from "./models/definitions/users";
 
 interface IUserFactoryInput {
   username?: string;
@@ -99,7 +100,7 @@ interface ITagFactoryInput {
   type?: string;
 }
 
-export const tagsFactory = (params: ITagFactoryInput) => {
+export const tagsFactory = (params: ITagFactoryInput = {}) => {
   const tag = new Tags({
     name: faker.random.word(),
     type: params.type || "engageMessage",
@@ -114,13 +115,13 @@ interface IEngageMessageFactoryInput {
   kind?: string;
   userId?: string;
   segmentId?: string;
-  tagIds?: string[];
+  tagIds?: string[] | string;
   isLive?: boolean;
   isDraft?: boolean;
   customerIds?: string[];
 }
 
-export const engageMessageFactory = (params: IEngageMessageFactoryInput) => {
+export const engageMessageFactory = (params: IEngageMessageFactoryInput = {}) => {
   const engageMessage = new EngageMessages({
     kind: params.kind || "manual",
     method: "messenger",
@@ -144,7 +145,7 @@ interface IBrandFactoryInput {
   description?: string;
 }
 
-export const brandFactory = (params: IBrandFactoryInput) => {
+export const brandFactory = (params: IBrandFactoryInput = {}) => {
   const brand = new Brands({
     name: faker.random.word(),
     code: params.code || faker.random.word(),
@@ -164,7 +165,7 @@ interface IEmailTemplateFactoryInput {
   content?: string;
 }
 
-export const emailTemplateFactory = (params: IEmailTemplateFactoryInput) => {
+export const emailTemplateFactory = (params: IEmailTemplateFactoryInput = {}) => {
   const emailTemplate = new EmailTemplates({
     name: faker.random.word(),
     content: params.content || faker.random.word()
@@ -179,7 +180,7 @@ interface IResponseTemplateFactoryInput {
 }
 
 export const responseTemplateFactory = (
-  params: IResponseTemplateFactoryInput
+  params: IResponseTemplateFactoryInput = {}
 ) => {
   const responseTemplate = new ResponseTemplates({
     name: faker.random.word(),
@@ -191,7 +192,7 @@ export const responseTemplateFactory = (
   return responseTemplate.save();
 };
 
-interface IDefaultConditionsInput {
+interface IConditionsInput {
   field?: string;
   operator?: string;
   value?: string;
@@ -205,10 +206,10 @@ interface ISegmentFactoryInput {
   subOf?: string;
   color?: string;
   connector?: string;
-  conditions?: IDefaultConditionsInput[];
+  conditions?: IConditionsInput[];
 }
 
-export const segmentFactory = (params: ISegmentFactoryInput) => {
+export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
   const defaultConditions = [
     {
       field: "messengerData.sessionCount",
@@ -262,7 +263,7 @@ interface ICompanyFactoryInput {
   modifiedAt?: Date;
 }
 
-export const companyFactory = (params: ICompanyFactoryInput) => {
+export const companyFactory = (params: ICompanyFactoryInput = {}) => {
   const company = new Companies({
     primaryName: params.primaryName || faker.random.word(),
     names: params.names || [faker.random.word()],
@@ -271,8 +272,8 @@ export const companyFactory = (params: ICompanyFactoryInput) => {
     website: params.website || faker.internet.domainName(),
     tagIds: params.tagIds || [faker.random.number()],
     plan: params.plan || faker.random.word(),
-    leadStatus: params.leadStatus || "Open",
-    lifecycleState: params.lifecycleState || "Lead",
+    leadStatus: params.leadStatus || "open",
+    lifecycleState: params.lifecycleState || "lead",
     createdAt: params.createdAt || new Date(),
     modifiedAt: params.modifiedAt || new Date()
   });
@@ -293,12 +294,12 @@ interface ICustomerFactoryInput {
   messengerData?: any;
   customFieldsData?: any;
   companyIds?: string[];
-  tagIds?: string[];
-  twitterData?: any;
+  tagIds?: string[] | string;
+  twitterData?: string[];
   ownerId?: string;
 }
 
-export const customerFactory = (params: ICustomerFactoryInput) => {
+export const customerFactory = (params: ICustomerFactoryInput = {}) => {
   const customer = new Customers({
     integrationId: params.integrationId,
     firstName: params.firstName || faker.random.word(),
@@ -307,8 +308,8 @@ export const customerFactory = (params: ICustomerFactoryInput) => {
     primaryPhone: params.primaryPhone || faker.phone.phoneNumber(),
     emails: params.emails || [faker.internet.email()],
     phones: params.phones || [faker.phone.phoneNumber()],
-    leadStatus: params.leadStatus || "Open",
-    lifecycleState: params.lifecycleState || "Lead",
+    leadStatus: params.leadStatus || "open",
+    lifecycleState: params.lifecycleState || "lead",
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
     companyIds: params.companyIds || [
@@ -356,8 +357,7 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     isRequired: params.isRequired || false,
     order: params.order || 0,
     isVisible: params.visible || true,
-    options: params.options || [],
-    groupId: params.groupId || groupObj._id
+    groupId: params.groupId || (groupObj ? groupObj._id : "")
   });
 
   await field.save();
@@ -369,7 +369,6 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
 interface IConversationFactoryInput {
   customerId?: string;
   assignedUserId?: string;
-  brandId?: string;
   integrationId?: string;
   userId?: string;
   content?: string;
@@ -380,16 +379,19 @@ interface IConversationFactoryInput {
   closedAt?: dateType;
   closedUserId?: string;
   readUserIds?: string[];
+  tagIds?: string[];
 }
 
-export const conversationFactory = (params: IConversationFactoryInput) => {
-  return Conversations.create({
-    content: params.content || faker.lorem.sentence(),
-    customerId: params.customerId || Random.id(),
-    integrationId: params.integrationId || Random.id(),
-    readUserIds: params.readUserIds || [],
-    participatedUserIds: params.participatedUserIds || [],
-    ...params
+export const conversationFactory = (params: IConversationFactoryInput = {}) => {
+  const doc = {
+    content: faker.lorem.sentence(),
+    customerId: Random.id(),
+    integrationId: Random.id(),
+  };
+
+  return Conversations.createConversation({
+    ...doc,
+    ...params,
   });
 };
 
@@ -416,7 +418,7 @@ export const conversationMessageFactory = async (
     conversationId = conversation._id;
   }
 
-  return ConversationMessages.create({
+  return ConversationMessages.createMessage({
     content: params.content || faker.random.word(),
     attachments: {},
     mentionedUserIds: params.mentionedUserIds || [Random.id()],
@@ -424,7 +426,6 @@ export const conversationMessageFactory = async (
     internal: params.internal || true,
     customerId: params.customerId || Random.id(),
     userId: params.userId || Random.id(),
-    createdAt: new Date(),
     isCustomerRead: params.isCustomerRead || true,
     engageData: params.engageData || {},
     formWidgetData: params.formWidgetData || {},
@@ -443,7 +444,7 @@ interface IIntegrationFactoryInput {
   tagIds?: string[];
 }
 
-export const integrationFactory = async (params: IIntegrationFactoryInput) => {
+export const integrationFactory = async (params: IIntegrationFactoryInput = {}) => {
   const kind = params.kind || "messenger";
 
   const doc = {
@@ -466,15 +467,20 @@ export const integrationFactory = async (params: IIntegrationFactoryInput) => {
   return Integrations.create(doc);
 };
 
+interface IFormSubmission {
+  customerId: string;
+  submittedAt: Date;
+}
+
 interface IFormFactoryInput {
   title?: string;
   code?: string;
   description?: string;
   createdUserId?: string;
-  submissions?: string[];
+  submissions?: IFormSubmission[];
 }
 
-export const formFactory = async (params: IFormFactoryInput) => {
+export const formFactory = async (params: IFormFactoryInput = {}) => {
   const { title, description, code, submissions, createdUserId } = params;
 
   return Forms.create({
@@ -489,7 +495,7 @@ export const formFactory = async (params: IFormFactoryInput) => {
 interface INotificationConfigurationFactoryInput {
   isAllowed?: boolean;
   notifType?: string;
-  user?: void;
+  user?: IUserDocument;
 }
 
 export const notificationConfigurationFactory = (
@@ -515,6 +521,7 @@ interface INotificationFactoryInput {
   content?: string;
   link?: string;
   createdUser?: any;
+  requireRead?: boolean;
 }
 
 export const notificationFactory = async (
@@ -542,7 +549,7 @@ interface IChannelFactoryInput {
   memberIds?: string[];
 }
 
-export const channelFactory = async (params: IChannelFactoryInput) => {
+export const channelFactory = async (params: IChannelFactoryInput = {}) => {
   const user = await userFactory({});
 
   const obj = {
@@ -562,11 +569,11 @@ export const channelFactory = async (params: IChannelFactoryInput) => {
 
 interface IKnowledgeBaseTopicFactoryInput {
   userId?: string;
-  categoryIds?: string[]
+  categoryIds?: string[];
 }
 
 export const knowledgeBaseTopicFactory = async (
-  params: IKnowledgeBaseTopicFactoryInput
+  params: IKnowledgeBaseTopicFactoryInput = {}
 ) => {
   const doc = {
     title: faker.random.word(),
@@ -585,10 +592,11 @@ export const knowledgeBaseTopicFactory = async (
 interface IKnowledgeBaseCategoryFactoryInput {
   articleIds?: string[];
   userId?: string;
+  topicIds?: string[];
 }
 
 export const knowledgeBaseCategoryFactory = async (
-  params: IKnowledgeBaseCategoryFactoryInput
+  params: IKnowledgeBaseCategoryFactoryInput = {}
 ) => {
   const doc = {
     title: faker.random.word(),
@@ -596,12 +604,8 @@ export const knowledgeBaseCategoryFactory = async (
     articleIds: params.articleIds || [faker.random.word(), faker.random.word()],
     icon: faker.random.word()
   };
-
-  return KnowledgeBaseCategories.create({
-    ...doc,
-    ...params,
-    userId: params.userId || faker.random.word()
-  });
+  
+  return KnowledgeBaseCategories.createDoc({...doc,...params}, params.userId || faker.random.word());
 };
 
 interface IKnowledgeBaseArticleCategoryInput {
@@ -610,7 +614,7 @@ interface IKnowledgeBaseArticleCategoryInput {
 }
 
 export const knowledgeBaseArticleFactory = async (
-  params: IKnowledgeBaseArticleCategoryInput
+  params: IKnowledgeBaseArticleCategoryInput = {}
 ) => {
   const doc = {
     title: faker.random.word(),
@@ -620,11 +624,7 @@ export const knowledgeBaseArticleFactory = async (
     categoryIds: params.categoryIds || []
   };
 
-  return KnowledgeBaseArticles.create({
-    ...doc,
-    ...params,
-    userId: params.userId || faker.random.word()
-  });
+  return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, params.userId || faker.random.word());
 };
 
 interface IActivityLogFactoryInput {
@@ -668,7 +668,7 @@ interface IDealPipelineFactoryInput {
   boardId?: string;
 }
 
-export const dealPipelineFactory = (params: IDealPipelineFactoryInput) => {
+export const dealPipelineFactory = (params: IDealPipelineFactoryInput = {}) => {
   const pipeline = new DealPipelines({
     name: faker.random.word(),
     boardId: params.boardId || faker.random.word()
@@ -681,7 +681,7 @@ interface IDealStageFactoryInput {
   pipelineId?: string;
 }
 
-export const dealStageFactory = (params: IDealStageFactoryInput) => {
+export const dealStageFactory = (params: IDealStageFactoryInput = {}) => {
   const stage = new DealStages({
     name: faker.random.word(),
     pipelineId: params.pipelineId || faker.random.word()
@@ -695,7 +695,7 @@ interface IDealFactoryInput {
   productsData?: any;
 }
 
-export const dealFactory = (params: IDealFactoryInput) => {
+export const dealFactory = (params: IDealFactoryInput = {}) => {
   const deal = new Deals({
     ...params,
     name: faker.random.word(),
@@ -717,7 +717,7 @@ interface IProductFactoryInput {
   description?: string;
 }
 
-export const productFactory = (params: IProductFactoryInput) => {
+export const productFactory = (params: IProductFactoryInput = {}) => {
   const product = new Products({
     name: params.name || faker.random.word(),
     type: params.type || PRODUCT_TYPES.PRODUCT,
@@ -730,11 +730,11 @@ export const productFactory = (params: IProductFactoryInput) => {
 };
 
 interface IConfigFactoryInput {
-  code: string;
-  value: string[];
+  code?: string;
+  value?: string[];
 }
 
-export const configFactory = (params: IConfigFactoryInput) => {
+export const configFactory = (params: IConfigFactoryInput = {}) => {
   const config = new Configs({
     ...params,
     code: faker.random.word(),

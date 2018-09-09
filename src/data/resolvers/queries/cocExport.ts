@@ -1,12 +1,19 @@
 import * as moment from "moment";
 import { Fields } from "../../../db/models";
+import { ICompanyDocument } from "../../../db/models/definitions/companies";
+import { ICustomerDocument } from "../../../db/models/definitions/customers";
 import { COMPANY_BASIC_INFOS, CUSTOMER_BASIC_INFOS } from "../../constants";
 import { createXlsFile, generateXlsx } from "../../utils";
+
+type TDocs = ICustomerDocument | ICompanyDocument;
 
 /**
  * Export customers or companies
  */
-export const cocsExport = async (cocs, cocType) => {
+export const cocsExport = async (
+  cocs: TDocs[],
+  cocType: string
+): Promise<string> => {
   let basicInfos = CUSTOMER_BASIC_INFOS;
 
   if (cocType === "company") {
@@ -16,9 +23,10 @@ export const cocsExport = async (cocs, cocType) => {
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
 
-  const cols = [];
+  const cols: string[] = [];
+  let rowIndex: number = 1;
 
-  const addCell = (col, value) => {
+  const addCell = (col: string, value: TDocs): void => {
     // Checking if existing column
     if (cols.includes(col)) {
       // If column already exists adding cell
@@ -32,8 +40,6 @@ export const cocsExport = async (cocs, cocType) => {
       cols.push(col);
     }
   };
-
-  let rowIndex = 1;
 
   for (const coc of cocs) {
     rowIndex++;
@@ -50,9 +56,8 @@ export const cocsExport = async (cocs, cocType) => {
       for (const fieldId of coc.customFieldsData) {
         const propertyObj = await Fields.findOne({ _id: fieldId });
 
-        if (propertyObj) {
+        if (propertyObj && propertyObj.text) {
           const { text } = propertyObj;
-
           addCell(text, coc.customFieldsData[fieldId]);
         }
       }

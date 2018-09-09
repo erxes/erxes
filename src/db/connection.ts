@@ -8,7 +8,7 @@ dotenv.config();
 
 const { NODE_ENV, TEST_MONGO_URL = "", MONGO_URL = "" } = process.env;
 const isTest = NODE_ENV === "test";
-const DB_URI = isTest ? TEST_MONGO_URL : MONGO_URL;
+const DB_URI = ( isTest ? TEST_MONGO_URL : MONGO_URL ) || "";
 
 mongoose.Promise = global.Promise;
 
@@ -46,9 +46,9 @@ export function disconnect() {
 }
 
 export const graphqlRequest = async (
-  mutation: string,
-  name: string,
-  args: any,
+  mutation: string = "",
+  name: string = "",
+  args?: any,
   context?: any
 ) => {
   const user = await userFactory({});
@@ -61,7 +61,7 @@ export const graphqlRequest = async (
     args
   );
 
-  if (response.errors) {
+  if (response.errors || !response.data) {
     throw response.errors;
   }
 

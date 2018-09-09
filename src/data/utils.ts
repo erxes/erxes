@@ -234,7 +234,8 @@ export const sendNotification = async ({
       data: {
         notification: doc
       }
-    }
+    },
+    
   });
 };
 

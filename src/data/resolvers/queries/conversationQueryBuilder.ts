@@ -1,20 +1,82 @@
-import _ from "underscore";
+import * as _ from "underscore";
 import { Channels, Integrations } from "../../../db/models";
 import { CONVERSATION_STATUSES } from "../../constants";
 import { fixDate } from "./insightUtils";
 
-export default class Builder {
-  public params: any;
-  public user: any;
-  public queries: any;
-  public unassignedQuery: any;
+interface IIn {
+  $in: string[];
+}
+interface IExists {
+  $exists: boolean;
+}
+export interface IListArgs {
+  limit?: number;
+  channelId?: string;
+  status?: string;
+  unassigned?: string;
+  brandId?: string;
+  tag?: string;
+  integrationType?: string;
+  participating?: string;
+  starred?: string;
+  ids?: string[];
+  startDate?: string;
+  endDate?: string;
+  only?: string;
+}
+interface IUserArgs {
+  _id: string;
+  starredConversationIds?: string[];
+}
+interface IDefaultFilters {
+  [index: string]: {};
+}
+interface IIntersectIntegrationIds {
+  integrationId: IIn;
+}
+interface IChannelFilter {
+  integrationId: IIn;
+}
+interface IBrandFilter {
+  integrationId: IIn;
+}
+interface IUnassignedFilter {
+  assignedUserId: IExists;
+}
+interface IParticipatingFilter {
+  participatedUserIds: IIn;
+}
+interface IStarredFilter {
+  _id: IIn | { $in: any[] };
+}
+interface IStatusFilter {
+  status: IIn;
+}
+interface IIntegrationTypeFilter {
+  $and: IIntersectIntegrationIds[];
+}
+interface ITagFilter {
+  tagIds: string[];
+}
+interface IDateFilter {
+  createdAt: {
+    $gte: Date;
+    $lte: Date;
+  };
+}
 
-  constructor(params, user = null) {
+export default class Builder {
+  public params: IListArgs;
+  public user: IUserArgs;
+  public queries: any;
+  public unassignedQuery?: IUnassignedFilter;
+
+  constructor(params: IListArgs, user: IUserArgs) {
     this.params = params;
     this.user = user;
   }
 
-  public defaultFilters() {
+  public defaultFilters(): IDefaultFilters {
     let statusFilter = this.statusFilter([
       CONVERSATION_STATUSES.NEW,
       CONVERSATION_STATUSES.OPEN
@@ -26,7 +88,6 @@ export default class Builder {
 
     return {
       ...statusFilter,
-
       // exclude engage messages if customer did not reply
       $or: [
         {
@@ -40,13 +101,7 @@ export default class Builder {
     };
   }
 
-  /*
-   * @queries: [
-   *  {integrationId: {$in: ['id1', 'id2']}},
-   *  {integrationId: {$in: ['id3', 'id1', 'id4']}
-   * ]
-   */
-  public intersectIntegrationIds(...queries) {
+  public intersectIntegrationIds(...queries: any[]): IIntersectIntegrationIds {
     // filter only queries with $in field
     const withIn = queries.filter(
       q =>
@@ -60,34 +115,34 @@ export default class Builder {
     const nestedIntegrationIds = _.pluck($ins, "$in");
 
     // ['id1']
-    const integrationids = _.intersection(...nestedIntegrationIds);
+    const integrationids: any = _.intersection(...nestedIntegrationIds);
 
     return {
-      integrationId: { $in: integrationids }
+      integrationId: { $in: integrationids  }
     };
   }
 
   /*
    * find integrationIds from channel && brand
    */
-  public async integrationsFilter() {
+  public async integrationsFilter(): Promise<IIntersectIntegrationIds> {
     const channelFilter = {
       memberIds: this.user._id
     };
 
     // find all posssible integrations
-    let availIntegrationIds = [];
+    let availIntegrationIds: any = [];
 
     const channels = await Channels.find(channelFilter);
 
     channels.forEach(channel => {
       availIntegrationIds = _.union(
         availIntegrationIds,
-        channel.integrationIds
+        channel.integrationIds || ""
       );
     });
 
-    const nestedIntegrationIds = [
+    const nestedIntegrationIds: any = [
       { integrationId: { $in: availIntegrationIds } }
     ];
 
@@ -107,16 +162,20 @@ export default class Builder {
   }
 
   // filter by channel
-  public async channelFilter(channelId) {
+  public async channelFilter(channelId: string): Promise<IChannelFilter> {
     const channel = await Channels.findOne({ _id: channelId });
-
-    return {
-      integrationId: { $in: channel.integrationIds }
-    };
+    if( channel && channel.integrationIds ){
+      return {
+        integrationId: { $in: channel.integrationIds }
+      };
+    }
+    else{
+      return {integrationId: {$in: []}};
+    }
   }
 
   // filter by brand
-  public async brandFilter(brandId) {
+  public async brandFilter(brandId: string): Promise<IBrandFilter> {
     const integrations = await Integrations.find({ brandId });
     const integrationIds = _.pluck(integrations, "_id");
 
@@ -126,7 +185,7 @@ export default class Builder {
   }
 
   // filter all unassigned
-  public unassignedFilter() {
+  public unassignedFilter(): IUnassignedFilter {
     this.unassignedQuery = {
       assignedUserId: { $exists: false }
     };
@@ -135,15 +194,15 @@ export default class Builder {
   }
 
   // filter by participating
-  public participatingFilter() {
+  public participatingFilter(): IParticipatingFilter {
     return {
       participatedUserIds: { $in: [this.user._id] }
     };
   }
 
   // filter by starred
-  public starredFilter() {
-    let ids = [];
+  public starredFilter(): IStarredFilter {
+    let ids: any = [];
 
     if (this.user) {
       ids = this.user.starredConversationIds || [];
@@ -154,14 +213,16 @@ export default class Builder {
     };
   }
 
-  public statusFilter(statusChoices) {
+  public statusFilter(statusChoices: string[]): IStatusFilter {
     return {
       status: { $in: statusChoices }
     };
   }
 
   // filter by integration type
-  public async integrationTypeFilter(integrationType) {
+  public async integrationTypeFilter(
+    integrationType: string
+  ): Promise<IIntegrationTypeFilter> {
     const integrations = await Integrations.find({ kind: integrationType });
 
     return {
@@ -176,13 +237,13 @@ export default class Builder {
   }
 
   // filter by tag
-  public tagFilter(tagId) {
+  public tagFilter(tagId: string): ITagFilter {
     return {
       tagIds: [tagId]
     };
   }
 
-  public dateFilter(startDate, endDate) {
+  public dateFilter(startDate: string, endDate: string): IDateFilter {
     return {
       createdAt: {
         $gte: fixDate(startDate),
@@ -194,7 +255,7 @@ export default class Builder {
   /*
    * prepare all queries. do not do any action
    */
-  public async buildAllQueries() {
+  public async buildAllQueries(): Promise<void> {
     this.queries = {
       default: this.defaultFilters(),
       starred: {},
@@ -259,7 +320,7 @@ export default class Builder {
     }
   }
 
-  public mainQuery() {
+  public mainQuery(): any {
     return {
       ...this.queries.default,
       ...this.queries.integrations,

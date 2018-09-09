@@ -5,6 +5,15 @@ import {
 import { Companies, Customers, Fields, FieldsGroups } from "../../../db/models";
 import { moduleRequireLogin } from "../../permissions";
 
+interface IFieldsQuery {
+  contentType: string;
+  contentTypeId?: string;
+}
+
+interface IfieldsDefaultColmns {
+  [index: number]: { name: string; label: string; order: number } | {};
+}
+
 const fieldQueries = {
   /**
    * Fields list
@@ -16,7 +25,7 @@ const fieldQueries = {
       contentTypeId
     }: { contentType: string; contentTypeId: string }
   ) {
-    const query: any = { contentType };
+    const query: IFieldsQuery = { contentType };
 
     if (contentTypeId) {
       query.contentTypeId = contentTypeId;
@@ -38,8 +47,8 @@ const fieldQueries = {
     /*
      * Generates fields using given schema
      */
-    const generateFieldsFromSchema = (queSchema, namePrefix: string) => {
-      const queFields = [];
+    const generateFieldsFromSchema = (queSchema: any, namePrefix: string) => {
+      const queFields: any = [];
 
       // field definations
       const paths = queSchema.paths;
@@ -86,8 +95,8 @@ const fieldQueries = {
     // extend fields list using custom fields
     for (const customField of customFields) {
       const group = await FieldsGroups.findOne({ _id: customField.groupId });
-
-      if (group.isVisible && customField.isVisible) {
+    
+      if (group && group.isVisible && customField.isVisible) {
         fields.push({
           _id: Math.random(),
           name: `customFieldsData.${customField._id}`,
@@ -102,7 +111,10 @@ const fieldQueries = {
   /**
    * Default list columns config
    */
-  fieldsDefaultColumnsConfig(_root, { contentType }: { contentType: string }) {
+  fieldsDefaultColumnsConfig(
+    _root,
+    { contentType }: { contentType: string }
+  ): IfieldsDefaultColmns {
     if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
       return [
         { name: "firstName", label: "First name", order: 1 },

@@ -12,29 +12,25 @@ import {
   INTEGRATION_KIND_CHOICES
 } from "../../constants";
 import { moduleRequireLogin } from "../../permissions";
-import QueryBuilder from "./conversationQueryBuilder";
+import QueryBuilder, { IListArgs } from "./conversationQueryBuilder";
 
-interface IListArgs {
-  limit: number;
-  channelId: string;
-  status: string;
-  unassigned: string;
-  brandId: string;
-  tag: string;
-  integrationType: string;
-  participating: string;
-  starred: string;
-  ids: string[];
-  startDate: string;
-  endDate: string;
-  only?: string;
+interface ICountBy {
+  [index: string]: number;
+}
+
+interface IConversationRes {
+  [index: string]: number | ICountBy[];
 }
 
 // count helper
-const count = async query => Conversations.find(query).count();
+const count = async (query: any): Promise<number> => {
+  const result = await Conversations.find(query).count();
 
-const countByChannels = async qb => {
-  const byChannels = {};
+  return Number(result);
+}
+
+const countByChannels = async (qb: any): Promise<ICountBy[]> => {
+  const byChannels: ICountBy[] = [];
   const channels = await Channels.find();
 
   for (const channel of channels) {
@@ -47,8 +43,8 @@ const countByChannels = async qb => {
   return byChannels;
 };
 
-const countByIntegrationTypes = async qb => {
-  const byIntegrationTypes = {};
+const countByIntegrationTypes = async (qb: any): Promise<ICountBy[]> => {
+  const byIntegrationTypes: ICountBy[] = [];
 
   for (const intT of INTEGRATION_KIND_CHOICES.ALL) {
     byIntegrationTypes[intT] = await count({
@@ -60,8 +56,8 @@ const countByIntegrationTypes = async qb => {
   return byIntegrationTypes;
 };
 
-const countByTags = async qb => {
-  const byTags = {};
+const countByTags = async (qb: any): Promise<ICountBy[]> => {
+  const byTags: ICountBy[] = [];
   const queries = qb.queries;
   const tags = await Tags.find();
 
@@ -77,8 +73,8 @@ const countByTags = async qb => {
   return byTags;
 };
 
-const countByBrands = async qb => {
-  const byBrands = {};
+const countByBrands = async (qb: any): Promise<ICountBy[]> => {
+  const byBrands: ICountBy[] = [];
   const brands = await Brands.find();
 
   for (const brand of brands) {
@@ -98,7 +94,11 @@ const conversationQueries = {
   /**
    * Conversataions list
    */
-  async conversations(_root, params, { user }) {
+  async conversations(
+    _root,
+    params: IListArgs,
+    { user }: { user: IUserDocument }
+  ) {
     // filter by ids of conversations
     if (params && params.ids) {
       return Conversations.find({ _id: { $in: params.ids } }).sort({
@@ -116,13 +116,24 @@ const conversationQueries = {
 
     return Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
-      .limit(params.limit);
+      .limit(params.limit || 0);
   },
 
   /**
    * Get conversation messages
    */
-  async conversationMessages(_root, { conversationId, skip, limit }) {
+  async conversationMessages(
+    _root,
+    {
+      conversationId,
+      skip,
+      limit
+    }: {
+      conversationId: string;
+      skip: number;
+      limit: number;
+    }
+  ) {
     const query = { conversationId };
 
     if (limit) {
@@ -157,7 +168,7 @@ const conversationQueries = {
   ) {
     const { only } = params;
 
-    const response: any = {};
+    const response: IConversationRes = {};
 
     const qb = new QueryBuilder(params, {
       _id: user._id,

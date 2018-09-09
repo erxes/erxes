@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 export const paginate = (
   collection,
   params: { page?: number; perPage?: number }

@@ -1,19 +1,67 @@
 import * as moment from "moment";
-import _ from "underscore";
+import * as _ from "underscore";
 import { Conversations, Integrations, Users } from "../../../db/models";
+import { IMessageDocument } from "../../../db/models/definitions/conversationMessages";
+import { IConversationDocument } from "../../../db/models/definitions/conversations";
 
+interface IMessageSelector {
+  userId?: string;
+  createdAt: any;
+  conversationId?: {
+    $in: IConversationDocument[];
+  };
+}
+interface IGenerateChartData {
+  x: any;
+  y: number;
+}
+interface IGenerateTimeIntervals {
+  title: string;
+  start: any;
+  end: any;
+}
+interface IGenerateUserChartData {
+  fullName?: string;
+  avatar?: string;
+  graph: IGenerateChartData[];
+}
+interface IIntegrationSelector {
+  brandId?: string;
+  kind?: string;
+}
+interface IFixDates {
+  start: Date;
+  end: Date;
+}
+interface IGenerateDuration {
+  startTime: number;
+  endTime: number;
+  duration: number;
+}
+interface IResponseUserData{
+  [index: string] : { responseTime: number, count: number };
+}
+interface IGenerateResponseData{
+  trend: IGenerateChartData[];
+  time: number;
+  teamMembers: {
+    data: IGenerateUserChartData[];
+  };
+}
 /**
  * Builds messages find query selector.
  */
 export const generateMessageSelector = async (
-  brandId,
-  integrationType,
-  conversationSelector,
-  messageSelector
-) => {
+  brandId: string,
+  integrationType: string,
+  conversationSelector: any,
+  messageSelector: IMessageSelector
+): Promise<IMessageSelector> => {
   const selector = messageSelector;
 
-  const findConversationIds = async integrationSelector => {
+  const findConversationIds = async (
+    integrationSelector: IIntegrationSelector
+  ) => {
     const integrationIds = await Integrations.find(integrationSelector).select(
       "_id"
     );
@@ -34,7 +82,7 @@ export const generateMessageSelector = async (
     selector.conversationId = { $in: conversationIds };
   };
 
-  const integSelector: any = {};
+  const integSelector: IIntegrationSelector = {};
 
   if (brandId) {
     integSelector.brandId = brandId;
@@ -54,11 +102,11 @@ export const generateMessageSelector = async (
  * by given duration and loop count for chart data.
  */
 export const generateChartData = (
-  collection,
-  loopCount,
-  duration,
-  startTime
-) => {
+  collection: IMessageDocument[],
+  loopCount: number,
+  duration: number,
+  startTime: number
+): IGenerateChartData[] => {
   const results = [{ x: formatTime(moment(startTime), "YYYY-MM-DD"), y: 0 }];
   let begin = 0;
   let end = 0;
@@ -75,7 +123,8 @@ export const generateChartData = (
 
     // messages count between begin and end time.
     count = collection.filter(
-      message => begin < message.createdAt && message.createdAt < end
+      message =>
+        begin < message.createdAt.getTime() && message.createdAt.getTime() < end
     ).length;
 
     results.push({ x: dateText, y: count });
@@ -87,7 +136,10 @@ export const generateChartData = (
 /**
  * Generates time intervals for main report
  */
-export const generateTimeIntervals = (start, end) => {
+export const generateTimeIntervals = (
+  start: Date,
+  end: Date
+): IGenerateTimeIntervals[] => {
   const month = moment(end).month();
 
   return [
@@ -142,7 +194,12 @@ export const generateUserChartData = async ({
   userMessages,
   duration,
   startTime
-}) => {
+}: {
+  userId: string;
+  userMessages: IMessageDocument[];
+  duration: number;
+  startTime: number;
+}): Promise<IGenerateUserChartData> => {
   const user = await Users.findOne({ _id: userId });
   const userData = generateChartData(userMessages, 4, duration, startTime);
 
@@ -155,8 +212,8 @@ export const generateUserChartData = async ({
   const userDetail = user.details;
 
   return {
-    fullName: userDetail.fullName,
-    avatar: userDetail.avatar,
+    fullName: userDetail? userDetail.fullName : "",
+    avatar: userDetail? userDetail.avatar: "",
     graph: userData
   };
 };
@@ -166,7 +223,7 @@ export const formatTime = (time, format = "YYYY-MM-DD HH:mm:ss") => {
 };
 
 // TODO: check usage
-export const getTime = (date: string | number) => {
+export const getTime = (date: string | number): number => {
   return new Date(date).getTime();
 };
 
@@ -174,7 +231,7 @@ export const getTime = (date: string | number) => {
  * Converts given value to date or if value in valid date
  * then returns default value
  */
-export const fixDate = (value, defaultValue = new Date()) => {
+export const fixDate = (value, defaultValue = new Date()): Date => {
   const date = new Date(value);
 
   if (!isNaN(date.getTime())) {
@@ -184,7 +241,7 @@ export const fixDate = (value, defaultValue = new Date()) => {
   return defaultValue;
 };
 
-export const fixDates = (startValue, endValue) => {
+export const fixDates = (startValue: string, endValue: string): IFixDates => {
   // convert given value or get today
   const endDate = fixDate(endValue);
 
@@ -200,9 +257,15 @@ export const fixDates = (startValue, endValue) => {
   return { start: startDate, end: endDate };
 };
 
-export const generateDuration = ({ start, end }) => {
-  const startTime = getTime(start);
-  const endTime = getTime(end);
+export const generateDuration = ({
+  start,
+  end
+}: {
+  start: Date;
+  end: Date;
+}): IGenerateDuration => {
+  const startTime = start.getTime();
+  const endTime = end.getTime();
 
   return {
     startTime,
@@ -214,8 +277,8 @@ export const generateDuration = ({ start, end }) => {
 /* 
  * Determines user or client
  */
-export const generateUserSelector = type => {
-  let volumeOrResponse = null;
+export const generateUserSelector = (type: string): any => {
+  let volumeOrResponse: any = null;
 
   if (type === "response") {
     volumeOrResponse = { $ne: null };
@@ -228,19 +291,19 @@ export const generateUserSelector = type => {
  * Generate response chart data.
  */
 export const generateResponseData = async (
-  responsData,
-  responseUserData,
+  responsData: IMessageDocument[],
+  responseUserData: IResponseUserData,
   allResponseTime: number,
-  duration,
-  startTime
-) => {
+  duration: number,
+  startTime: number
+): Promise<IGenerateResponseData> => {
   // preparing trend chart data
   const trend = generateChartData(responsData, 7, duration, startTime);
 
   // Average response time for all messages
   const time = allResponseTime / responsData.length;
 
-  const teamMembers = [];
+  const teamMembers: any = [];
 
   const userIds = _.uniq(_.pluck(responsData, "userId"));
 

@@ -1,11 +1,8 @@
-/* eslint-env jest */
-
-import { ResponseTemplates } from '../db/models';
-import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { responseTemplateFactory } from '../db/factories';
+import { ResponseTemplates } from '../db/models';
 
 beforeAll(() => connect());
-
 afterAll(() => disconnect());
 
 describe('responseTemplateQueries', () => {

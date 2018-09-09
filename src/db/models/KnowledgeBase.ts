@@ -13,6 +13,8 @@ import {
 
 export interface IArticleCreate extends IArticle {
   categoryIds?: string[];
+  userId?: string;
+  icon?: string;
 }
 
 interface IArticleModel extends Model<IArticleDocument> {
@@ -131,6 +133,7 @@ class Article {
 
 export interface ICategoryCreate extends ICategory {
   topicIds?: string[];
+  userId?: string;
 }
 
 interface ICategoryModel extends Model<ICategoryDocument> {

@@ -48,7 +48,7 @@ export const createScheduleRule = (scheduleDate: IScheduleDate) => {
   const month = scheduleDate.month || "*";
 
   let dayOfWeek = "*";
-  let day = "*";
+  let day: string | number = "*";
 
   // Schedule type day of week [0-6]
   if (scheduleDate.type && scheduleDate.type.length === 1) {
