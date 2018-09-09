@@ -357,12 +357,7 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     isRequired: params.isRequired || false,
     order: params.order || 0,
     isVisible: params.visible || true,
-<<<<<<< HEAD
     groupId: params.groupId || (groupObj ? groupObj._id : "")
-=======
-    options: params.options || [],
-    groupId: params.groupId || groupObj._id
->>>>>>> ts
   });
 
   await field.save();
