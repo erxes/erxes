@@ -1,5 +1,4 @@
 import { Model, model } from 'mongoose';
-import { createdAtModifier } from '../plugins';
 import { channelSchema, IChannel, IChannelDocument } from './definitions/channels';
 
 interface IChannelModel extends Model<IChannelDocument> {
@@ -15,7 +14,11 @@ class Channel {
       throw new Error('userId must be supplied');
     }
 
-    return Channels.create({ ...doc, userId });
+    return Channels.create({
+      ...doc,
+      createdAt: new Date(),
+      userId
+    });
   }
 
   public static async updateChannel(_id: string, doc: IChannel) {
@@ -39,7 +42,6 @@ class Channel {
   }
 }
 
-channelSchema.plugin(createdAtModifier);
 channelSchema.loadClass(Channel);
 
 const Channels = model<IChannelDocument, IChannelModel>('channels', channelSchema);
