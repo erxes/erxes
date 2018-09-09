@@ -693,7 +693,7 @@ export class SaveWebhookResponse {
     const { item, postId } = facebookData;
 
     if (!postId) {
-      throw new Error("restoreOldPosts: postId not included");
+      return false;
     }
 
     if (item !== "comment") {

@@ -42,15 +42,13 @@ class Message {
       }
     );
 
-    if (!message.userId) {
-      throw new Error("User id not supplied");
+    if (message.userId) {
+      // add created user to participators
+      await Conversations.addParticipatedUsers(
+        message.conversationId,
+        message.userId
+      );
     }
-
-    // add created user to participators
-    await Conversations.addParticipatedUsers(
-      message.conversationId,
-      message.userId
-    );
 
     // add mentioned users to participators
     for (const userId of message.mentionedUserIds || []) {
