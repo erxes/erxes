@@ -1,37 +1,24 @@
-import { Model, model } from "mongoose";
-import { COC_CONTENT_TYPES } from "./definitions/constants";
-import {
-  IInternalNote,
-  IInternalNoteDocument,
-  internalNoteSchema
-} from "./definitions/internalNotes";
-import { IUserDocument } from "./definitions/users";
+import { Model, model } from 'mongoose';
+import { COC_CONTENT_TYPES } from './definitions/constants';
+import { IInternalNote, IInternalNoteDocument, internalNoteSchema } from './definitions/internalNotes';
+import { IUserDocument } from './definitions/users';
 
 interface IInternalNoteModel extends Model<IInternalNoteDocument> {
   createInternalNote(
     { contentType, contentTypeId, ...fields }: IInternalNote,
-    user: IUserDocument
+    user: IUserDocument,
   ): Promise<IInternalNoteDocument>;
 
-  updateInternalNote(
-    _id: string,
-    doc: IInternalNote
-  ): Promise<IInternalNoteDocument>;
+  updateInternalNote(_id: string, doc: IInternalNote): Promise<IInternalNoteDocument>;
 
   removeInternalNote(_id: string): void;
 
-  changeCustomer(
-    newCustomerId: string,
-    customerIds: string[]
-  ): Promise<IInternalNoteDocument[]>;
+  changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IInternalNoteDocument[]>;
 
   removeCustomerInternalNotes(customerId: string): void;
   removeCompanyInternalNotes(companyId: string): void;
 
-  changeCompany(
-    newCompanyId: string,
-    oldCompanyIds: string[]
-  ): Promise<IInternalNoteDocument[]>;
+  changeCompany(newCompanyId: string, oldCompanyIds: string[]): Promise<IInternalNoteDocument[]>;
 }
 
 class InternalNote {
@@ -40,14 +27,14 @@ class InternalNote {
    */
   public static async createInternalNote(
     { contentType, contentTypeId, ...fields }: IInternalNote,
-    user: IUserDocument
+    user: IUserDocument,
   ) {
     return InternalNotes.create({
       contentType,
       contentTypeId,
       createdUserId: user._id,
       createdDate: new Date(),
-      ...fields
+      ...fields,
     });
   }
 
@@ -76,25 +63,22 @@ class InternalNote {
   /**
    * Transfers customers' internal notes to another customer
    */
-  public static async changeCustomer(
-    newCustomerId: string,
-    customerIds: string[]
-  ) {
+  public static async changeCustomer(newCustomerId: string, customerIds: string[]) {
     for (const customerId of customerIds) {
       // Updating every internal notes of customer
       await InternalNotes.updateMany(
         {
           contentType: COC_CONTENT_TYPES.CUSTOMER,
-          contentTypeId: customerId
+          contentTypeId: customerId,
         },
-        { contentTypeId: newCustomerId }
+        { contentTypeId: newCustomerId },
       );
     }
 
     // Returning updated list of internal notes of new customer
     return InternalNotes.find({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: newCustomerId
+      contentTypeId: newCustomerId,
     });
   }
 
@@ -105,7 +89,7 @@ class InternalNote {
     // Removing every internal ntoes of customer
     return InternalNotes.remove({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customerId
+      contentTypeId: customerId,
     });
   }
 
@@ -116,41 +100,35 @@ class InternalNote {
     // Removing every internal notes of company
     return InternalNotes.remove({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: companyId
+      contentTypeId: companyId,
     });
   }
 
   /**
    * Transfers companies' internal notes to another company
    */
-  public static async changeCompany(
-    newCompanyId: string,
-    oldCompanyIds: string[]
-  ) {
+  public static async changeCompany(newCompanyId: string, oldCompanyIds: string[]) {
     for (const companyId of oldCompanyIds) {
       // Updating every internal notes of company
       await InternalNotes.updateMany(
         {
           contentType: COC_CONTENT_TYPES.COMPANY,
-          contentTypeId: companyId
+          contentTypeId: companyId,
         },
-        { contentTypeId: newCompanyId }
+        { contentTypeId: newCompanyId },
       );
     }
 
     // Returning updated list of internal notes of new company
     return InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: newCompanyId
+      contentTypeId: newCompanyId,
     });
   }
 }
 
 internalNoteSchema.loadClass(InternalNote);
 
-const InternalNotes = model<IInternalNoteDocument, IInternalNoteModel>(
-  "internal_notes",
-  internalNoteSchema
-);
+const InternalNotes = model<IInternalNoteDocument, IInternalNoteModel>('internal_notes', internalNoteSchema);
 
 export default InternalNotes;

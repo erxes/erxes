@@ -1,13 +1,5 @@
-import {
-  Companies,
-  Customers,
-  DealBoards,
-  DealPipelines,
-  DealStages,
-  Products,
-  Users
-} from "../../db/models";
-import { IDealDocument } from "../../db/models/definitions/deals";
+import { Companies, Customers, DealBoards, DealPipelines, DealStages, Products, Users } from '../../db/models';
+import { IDealDocument } from '../../db/models/definitions/deals';
 
 export default {
   companies(deal: IDealDocument) {
@@ -28,7 +20,7 @@ export default {
       if (data && product) {
         products.push({
           ...data.toJSON(),
-          product: product.toJSON()
+          product: product.toJSON(),
         });
       }
     }
@@ -63,7 +55,7 @@ export default {
     const stage = await DealStages.findOne({ _id: deal.stageId });
 
     if (!stage) {
-      throw new Error("Stage not found");
+      throw new Error('Stage not found');
     }
 
     return DealPipelines.findOne({ _id: stage.pipelineId });
@@ -73,21 +65,21 @@ export default {
     const stage = await DealStages.findOne({ _id: deal.stageId });
 
     if (!stage) {
-      throw new Error("Stage not found");
+      throw new Error('Stage not found');
     }
 
     const pipeline = await DealPipelines.findOne({ _id: stage.pipelineId });
 
     if (!pipeline) {
-      throw new Error("Pipeline not found");
+      throw new Error('Pipeline not found');
     }
 
     const board = await DealBoards.findOne({ _id: pipeline.boardId });
 
     if (!board) {
-      throw new Error("Board not found");
+      throw new Error('Board not found');
     }
 
     return board._id;
-  }
+  },
 };

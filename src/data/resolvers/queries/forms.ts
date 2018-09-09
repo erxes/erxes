@@ -1,5 +1,5 @@
-import { Forms } from "../../../db/models";
-import { moduleRequireLogin } from "../../permissions";
+import { Forms } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 const formQueries = {
   /**
    * Forms list
@@ -15,7 +15,7 @@ const formQueries = {
    */
   formDetail(_root, { _id }: { _id: string }) {
     return Forms.findOne({ _id });
-  }
+  },
 };
 
 moduleRequireLogin(formQueries);

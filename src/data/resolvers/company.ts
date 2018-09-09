@@ -1,5 +1,5 @@
-import { Companies, Customers, Deals, Tags, Users } from "../../db/models";
-import { ICompanyDocument } from "../../db/models/definitions/companies";
+import { Companies, Customers, Deals, Tags, Users } from '../../db/models';
+import { ICompanyDocument } from '../../db/models/definitions/companies';
 
 export default {
   customers(company: ICompanyDocument) {
@@ -20,5 +20,5 @@ export default {
 
   deals(company: ICompanyDocument) {
     return Deals.find({ companyIds: { $in: [company._id] || [] } });
-  }
+  },
 };

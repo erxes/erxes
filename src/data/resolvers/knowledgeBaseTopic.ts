@@ -1,5 +1,5 @@
-import { Brands, KnowledgeBaseCategories } from "../../db/models";
-import { ITopicDocument } from "../../db/models/definitions/knowledgebase";
+import { Brands, KnowledgeBaseCategories } from '../../db/models';
+import { ITopicDocument } from '../../db/models/definitions/knowledgebase';
 
 export default {
   brand(topic: ITopicDocument) {
@@ -11,6 +11,6 @@ export default {
   },
 
   color(topic: ITopicDocument) {
-    return topic.color ? topic.color : "";
-  }
+    return topic.color ? topic.color : '';
+  },
 };

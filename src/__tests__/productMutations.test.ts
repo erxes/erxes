@@ -1,12 +1,12 @@
-import { connect, disconnect, graphqlRequest } from "../db/connection";
-import { productFactory, userFactory } from "../db/factories";
-import { Products } from "../db/models";
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { productFactory, userFactory } from '../db/factories';
+import { Products } from '../db/models';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe("Test products mutations", () => {
+describe('Test products mutations', () => {
   let product;
   let context;
 
@@ -26,8 +26,8 @@ describe("Test products mutations", () => {
 
   beforeEach(async () => {
     // Creating test data
-    product = await productFactory({ type: "product" });
-    context = { user: await userFactory({ role: "admin" }) };
+    product = await productFactory({ type: 'product' });
+    context = { user: await userFactory({ role: 'admin' }) };
   });
 
   afterEach(async () => {
@@ -35,12 +35,12 @@ describe("Test products mutations", () => {
     await Products.remove({});
   });
 
-  test("Create product", async () => {
+  test('Create product', async () => {
     const args = {
       name: product.name,
       type: product.type,
       sku: product.sku,
-      description: product.description
+      description: product.description,
     };
 
     const mutation = `
@@ -55,12 +55,7 @@ describe("Test products mutations", () => {
       }
     `;
 
-    const createdProduct = await graphqlRequest(
-      mutation,
-      "productsAdd",
-      args,
-      context
-    );
+    const createdProduct = await graphqlRequest(mutation, 'productsAdd', args, context);
 
     expect(createdProduct.name).toEqual(args.name);
     expect(createdProduct.type).toEqual(args.type);
@@ -68,13 +63,13 @@ describe("Test products mutations", () => {
     expect(createdProduct.sku).toEqual(args.sku);
   });
 
-  test("Update product", async () => {
+  test('Update product', async () => {
     const args = {
       _id: product._id,
       name: product.name,
       type: product.type,
       sku: product.sku,
-      description: product.description
+      description: product.description,
     };
 
     const mutation = `
@@ -89,12 +84,7 @@ describe("Test products mutations", () => {
       }
     `;
 
-    const updatedProduct = await graphqlRequest(
-      mutation,
-      "productsEdit",
-      args,
-      context
-    );
+    const updatedProduct = await graphqlRequest(mutation, 'productsEdit', args, context);
 
     expect(updatedProduct.name).toEqual(args.name);
     expect(updatedProduct.type).toEqual(args.type);
@@ -102,19 +92,14 @@ describe("Test products mutations", () => {
     expect(updatedProduct.sku).toEqual(args.sku);
   });
 
-  test("Remove product", async () => {
+  test('Remove product', async () => {
     const mutation = `
       mutation productsRemove($_id: String!) {
         productsRemove(_id: $_id)
       }
     `;
 
-    await graphqlRequest(
-      mutation,
-      "productsRemove",
-      { _id: product._id },
-      context
-    );
+    await graphqlRequest(mutation, 'productsRemove', { _id: product._id }, context);
 
     expect(await Products.findOne({ _id: product._id })).toBe(null);
   });

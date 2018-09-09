@@ -1,8 +1,8 @@
-import activityLogs from "./activityLogs";
-import conversations from "./conversations";
-import "./engages";
+import activityLogs from './activityLogs';
+import conversations from './conversations';
+import './engages';
 
 export default {
   ...conversations,
-  ...activityLogs
+  ...activityLogs,
 };

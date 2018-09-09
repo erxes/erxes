@@ -1,8 +1,8 @@
-import * as Random from "meteor-random";
-import { Fields, ImportHistory } from "./";
-import { ICompany, ICompanyDocument } from "./definitions/companies";
-import { ICustomer, ICustomerDocument } from "./definitions/customers";
-import { IUserDocument } from "./definitions/users";
+import * as Random from 'meteor-random';
+import { Fields, ImportHistory } from './';
+import { ICompany, ICompanyDocument } from './definitions/companies';
+import { ICustomer, ICustomerDocument } from './definitions/customers';
+import { IUserDocument } from './definitions/users';
 
 /*
  * Mongoose field options wrapper
@@ -40,14 +40,7 @@ export const bulkInsert = async (params: {
   const errMsgs: string[] = [];
   const properties: any = [];
 
-  const {
-    fieldNames,
-    fieldValues,
-    user,
-    basicInfos,
-    contentType,
-    create
-  } = params;
+  const { fieldNames, fieldValues, user, basicInfos, contentType, create } = params;
 
   const history: {
     ids: string[];
@@ -60,7 +53,7 @@ export const bulkInsert = async (params: {
     success: 0,
     total: fieldValues.length,
     contentType,
-    failed: 0
+    failed: 0,
   };
 
   const { MAX_IMPORT_SIZE = 600 } = process.env;
@@ -73,7 +66,7 @@ export const bulkInsert = async (params: {
   const checkFieldNames = async fields => {
     for (const fieldName of fields) {
       const property: { [key: string]: any } = {
-        isCustomField: false
+        isCustomField: false,
       };
 
       const fieldObj = await Fields.findOne({ text: fieldName });
@@ -109,7 +102,7 @@ export const bulkInsert = async (params: {
   // Iterating field values
   for (const fieldValue of fieldValues) {
     const coc = {
-      customFieldsData: {}
+      customFieldsData: {},
     };
 
     let colIndex = 0;

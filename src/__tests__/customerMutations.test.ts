@@ -1,7 +1,7 @@
-import * as faker from "faker";
-import { connect, disconnect, graphqlRequest } from "../db/connection";
-import { customerFactory, userFactory } from "../db/factories";
-import { Customers, Users } from "../db/models";
+import * as faker from 'faker';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { customerFactory, userFactory } from '../db/factories';
+import { Customers, Users } from '../db/models';
 
 beforeAll(() => connect());
 
@@ -20,23 +20,23 @@ const args = {
   ownerId: faker.random.word(),
   position: faker.random.word(),
   department: faker.random.word(),
-  leadStatus: "open",
-  lifecycleState: "lead",
+  leadStatus: 'open',
+  lifecycleState: 'lead',
   hasAuthority: faker.random.word(),
   description: faker.random.word(),
   doNotDisturb: faker.random.word(),
   links: {
-    linkedIn: "linkedIn",
-    twitter: "twitter",
-    facebook: "facebook",
-    youtube: "youtube",
-    github: "github",
-    website: "website"
+    linkedIn: 'linkedIn',
+    twitter: 'twitter',
+    facebook: 'facebook',
+    youtube: 'youtube',
+    github: 'github',
+    website: 'website',
   },
-  customFieldsData: {}
+  customFieldsData: {},
 };
 
-describe("Customers mutations", () => {
+describe('Customers mutations', () => {
   let _user;
   let _customer;
   let context;
@@ -93,7 +93,7 @@ describe("Customers mutations", () => {
     await Customers.remove({});
   });
 
-  test("Add customer", async () => {
+  test('Add customer', async () => {
     const mutation = `
       mutation customersAdd(${commonParamDefs}){
         customersAdd(${commonParams}) {
@@ -124,12 +124,7 @@ describe("Customers mutations", () => {
       }
     `;
 
-    const customer = await graphqlRequest(
-      mutation,
-      "customersAdd",
-      args,
-      context
-    );
+    const customer = await graphqlRequest(mutation, 'customersAdd', args, context);
 
     expect(customer.firstName).toBe(args.firstName);
     expect(customer.lastName).toBe(args.lastName);
@@ -149,7 +144,7 @@ describe("Customers mutations", () => {
     expect(customer.customFieldsData).toEqual(args.customFieldsData);
   });
 
-  test("Edit customer", async () => {
+  test('Edit customer', async () => {
     const mutation = `
       mutation customersEdit($_id: String! ${commonParamDefs}){
         customersEdit(_id: $_id ${commonParams}) {
@@ -181,12 +176,7 @@ describe("Customers mutations", () => {
       }
     `;
 
-    const customer = await graphqlRequest(
-      mutation,
-      "customersEdit",
-      { _id: _customer._id, ...args },
-      context
-    );
+    const customer = await graphqlRequest(mutation, 'customersEdit', { _id: _customer._id, ...args }, context);
 
     expect(customer._id).toBe(_customer._id);
     expect(customer.firstName).toBe(args.firstName);
@@ -207,10 +197,10 @@ describe("Customers mutations", () => {
     expect(customer.customFieldsData).toBe(null);
   });
 
-  test("Edit company of customer", async () => {
+  test('Edit company of customer', async () => {
     const params = {
       _id: _customer._id,
-      companyIds: [faker.random.uuid()]
+      companyIds: [faker.random.uuid()],
     };
 
     const mutation = `
@@ -221,40 +211,35 @@ describe("Customers mutations", () => {
       }
     `;
 
-    await graphqlRequest(mutation, "customersEditCompanies", params, context);
+    await graphqlRequest(mutation, 'customersEditCompanies', params, context);
 
     const customer = await Customers.findOne({ _id: params._id });
 
     if (!customer) {
-      throw new Error("Customer not found");
+      throw new Error('Customer not found');
     }
 
     expect(customer.companyIds).toContain(params.companyIds);
   });
 
-  test("Remove customer", async () => {
+  test('Remove customer', async () => {
     const mutation = `
       mutation customersRemove($customerIds: [String]) {
         customersRemove(customerIds: $customerIds)
       }
     `;
 
-    await graphqlRequest(
-      mutation,
-      "customersRemove",
-      { customerIds: [_customer._id] },
-      context
-    );
+    await graphqlRequest(mutation, 'customersRemove', { customerIds: [_customer._id] }, context);
 
     expect(await Customers.find({ _id: { $in: [_customer._id] } })).toEqual([]);
   });
 
-  test("Merge customer", async () => {
+  test('Merge customer', async () => {
     const params = {
       customerIds: [_customer._id],
       customerFields: {
-        firstName: faker.name.firstName()
-      }
+        firstName: faker.name.firstName(),
+      },
     };
 
     const mutation = `
@@ -265,12 +250,7 @@ describe("Customers mutations", () => {
       }
     `;
 
-    const customer = await graphqlRequest(
-      mutation,
-      "customersMerge",
-      params,
-      context
-    );
+    const customer = await graphqlRequest(mutation, 'customersMerge', params, context);
 
     expect(customer.firstName).toBe(params.customerFields.firstName);
   });

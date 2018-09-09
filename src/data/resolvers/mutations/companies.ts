@@ -1,7 +1,7 @@
-import { ActivityLogs, Companies } from "../../../db/models";
-import { ICompany } from "../../../db/models/definitions/companies";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import { moduleRequireLogin } from "../../permissions";
+import { ActivityLogs, Companies } from '../../../db/models';
+import { ICompany } from '../../../db/models/definitions/companies';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { moduleRequireLogin } from '../../permissions';
 
 interface ICompaniesEdit extends ICompany {
   _id: string;
@@ -29,10 +29,7 @@ const companyMutations = {
   /**
    * Update company Customers
    */
-  async companiesEditCustomers(
-    _root,
-    { _id, customerIds }: { _id: string; customerIds: string[] }
-  ) {
+  async companiesEditCustomers(_root, { _id, customerIds }: { _id: string; customerIds: string[] }) {
     return Companies.updateCustomers(_id, customerIds);
   },
 
@@ -51,15 +48,9 @@ const companyMutations = {
   /**
    * Merge companies
    */
-  async companiesMerge(
-    _root,
-    {
-      companyIds,
-      companyFields
-    }: { companyIds: string[]; companyFields: ICompany }
-  ) {
+  async companiesMerge(_root, { companyIds, companyFields }: { companyIds: string[]; companyFields: ICompany }) {
     return Companies.mergeCompanies(companyIds, companyFields);
-  }
+  },
 };
 
 moduleRequireLogin(companyMutations);

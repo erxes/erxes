@@ -1,12 +1,12 @@
-import { connect, disconnect } from "../db/connection";
-import { emailTemplateFactory } from "../db/factories";
-import { EmailTemplates } from "../db/models";
+import { connect, disconnect } from '../db/connection';
+import { emailTemplateFactory } from '../db/factories';
+import { EmailTemplates } from '../db/models';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe("Email template db", () => {
+describe('Email template db', () => {
   let _emailTemplate;
 
   beforeEach(async () => {
@@ -19,41 +19,36 @@ describe("Email template db", () => {
     await EmailTemplates.remove({});
   });
 
-  test("Create email template", async () => {
+  test('Create email template', async () => {
     const emailTemplateObj = await EmailTemplates.create({
       name: _emailTemplate.name,
-      content: _emailTemplate.content
+      content: _emailTemplate.content,
     });
     expect(emailTemplateObj).toBeDefined();
     expect(emailTemplateObj.name).toBe(_emailTemplate.name);
     expect(emailTemplateObj.content).toBe(_emailTemplate.content);
   });
 
-  test("Update email template", async () => {
+  test('Update email template', async () => {
     const doc = {
       name: _emailTemplate.name,
-      content: _emailTemplate.content
+      content: _emailTemplate.content,
     };
 
-    const emailTemplateObj = await EmailTemplates.updateEmailTemplate(
-      _emailTemplate.id,
-      doc
-    );
+    const emailTemplateObj = await EmailTemplates.updateEmailTemplate(_emailTemplate.id, doc);
     expect(emailTemplateObj.name).toBe(_emailTemplate.name);
     expect(emailTemplateObj.content).toBe(_emailTemplate.content);
   });
 
-  test("Delete email template", async () => {
+  test('Delete email template', async () => {
     await EmailTemplates.removeEmailTemplate(_emailTemplate.id);
 
-    expect(await EmailTemplates.find({ _id: _emailTemplate.id }).count()).toBe(
-      0
-    );
+    expect(await EmailTemplates.find({ _id: _emailTemplate.id }).count()).toBe(0);
 
     try {
-      await EmailTemplates.removeEmailTemplate("test");
+      await EmailTemplates.removeEmailTemplate('test');
     } catch (e) {
-      expect(e.message).toBe("Email template not found with id test");
+      expect(e.message).toBe('Email template not found with id test');
     }
   });
 });

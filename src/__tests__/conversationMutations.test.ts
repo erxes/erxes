@@ -1,23 +1,17 @@
-import * as faker from "faker";
-import * as sinon from "sinon";
-import utils from "../data/utils";
-import { connect, disconnect, graphqlRequest } from "../db/connection";
+import * as faker from 'faker';
+import * as sinon from 'sinon';
+import utils from '../data/utils';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import {
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
   integrationFactory,
-  userFactory
-} from "../db/factories";
-import {
-  ConversationMessages,
-  Conversations,
-  Customers,
-  Integrations,
-  Users
-} from "../db/models";
-import { TwitMap } from "../trackers/twitter";
-import { twitRequest } from "../trackers/twitterTracker";
+  userFactory,
+} from '../db/factories';
+import { ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
+import { TwitMap } from '../trackers/twitter';
+import { twitRequest } from '../trackers/twitterTracker';
 
 beforeAll(() => connect());
 
@@ -27,9 +21,9 @@ const toJSON = value => {
   return JSON.stringify(value);
 };
 
-const spy = jest.spyOn(utils, "sendNotification");
+const spy = jest.spyOn(utils, 'sendNotification');
 
-describe("Conversation message mutations", () => {
+describe('Conversation message mutations', () => {
   let _conversation;
   let _conversationMessage;
   let _user;
@@ -44,8 +38,8 @@ describe("Conversation message mutations", () => {
     _conversationMessage = await conversationMessageFactory({});
     _user = await userFactory({});
     _customer = await customerFactory({});
-    _integration = await integrationFactory({ kind: "form" });
-    _integrationTwitter = await integrationFactory({ kind: "twitter" });
+    _integration = await integrationFactory({ kind: 'form' });
+    _integrationTwitter = await integrationFactory({ kind: 'twitter' });
     _conversation.integrationId = _integration._id;
     _conversation.customerId = _customer._id;
     _conversation.assignedUserId = _user._id;
@@ -66,15 +60,15 @@ describe("Conversation message mutations", () => {
     spy.mockRestore();
   });
 
-  test("Add conversation message", async () => {
+  test('Add conversation message', async () => {
     const args = {
       conversationId: _conversation._id,
       content: _conversationMessage.content,
       mentionedUserIds: [_user._id],
       internal: false,
-      attachments: [{ url: "url" }],
+      attachments: [{ url: 'url' }],
       tweetReplyToId: faker.random.number(),
-      tweetReplyToScreenName: faker.name.firstName()
+      tweetReplyToScreenName: faker.name.firstName(),
     };
 
     const mutation = `
@@ -105,34 +99,28 @@ describe("Conversation message mutations", () => {
       }
     `;
 
-    const message = await graphqlRequest(
-      mutation,
-      "conversationMessageAdd",
-      args
-    );
+    const message = await graphqlRequest(mutation, 'conversationMessageAdd', args);
 
     expect(message.content).toBe(args.content);
-    expect(message.attachments[0].toJSON()).toEqual({ url: "url" });
-    expect(toJSON(message.mentionedUserIds)).toEqual(
-      toJSON(args.mentionedUserIds)
-    );
+    expect(message.attachments[0].toJSON()).toEqual({ url: 'url' });
+    expect(toJSON(message.mentionedUserIds)).toEqual(toJSON(args.mentionedUserIds));
     expect(message.internal).toBe(args.internal);
   });
 
-  test("Tweet conversation", async () => {
+  test('Tweet conversation', async () => {
     const twit = {};
 
     TwitMap[_integrationTwitter._id] = twit;
 
     const args = {
       integrationId: _integrationTwitter._id,
-      text: faker.random.word()
+      text: faker.random.word(),
     };
 
     // mock twitter request
     const sandbox = sinon.sandbox.create();
 
-    const stub = sandbox.stub(twitRequest, "post").callsFake(() => {
+    const stub = sandbox.stub(twitRequest, 'post').callsFake(() => {
       return new Promise(resolve => {
         resolve({});
       });
@@ -144,24 +132,24 @@ describe("Conversation message mutations", () => {
       }
     `;
 
-    await graphqlRequest(mutation, "conversationsTweet", args);
+    await graphqlRequest(mutation, 'conversationsTweet', args);
 
     // check twit post params
     expect(
-      stub.calledWith(twit, "statuses/update", {
-        status: args.text
-      })
+      stub.calledWith(twit, 'statuses/update', {
+        status: args.text,
+      }),
     ).toBe(true);
 
     stub.restore();
   });
 
-  test("Retweet conversation", async () => {
+  test('Retweet conversation', async () => {
     const twit = {};
 
     const args = {
       integrationId: _integrationTwitter._id,
-      id: "123"
+      id: '123',
     };
 
     TwitMap[_integrationTwitter._id] = twit;
@@ -170,18 +158,18 @@ describe("Conversation message mutations", () => {
     const sandbox = sinon.sandbox.create();
 
     // mock retweet request
-    const postStub = sandbox.stub(twitRequest, "post").callsFake(() => {
+    const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
       return new Promise(resolve => {
         resolve({
           retweeted_status: {
-            id_str: "123"
-          }
+            id_str: '123',
+          },
         });
       });
     });
 
     // mock get tweet object request
-    const getStub = sandbox.stub(twitRequest, "get").callsFake(() => {
+    const getStub = sandbox.stub(twitRequest, 'get').callsFake(() => {
       return new Promise(resolve => {
         resolve({});
       });
@@ -193,25 +181,25 @@ describe("Conversation message mutations", () => {
       }
     `;
 
-    await graphqlRequest(mutation, "conversationsRetweet", args);
+    await graphqlRequest(mutation, 'conversationsRetweet', args);
 
     // check twit post params
     expect(
-      postStub.calledWith(twit, "statuses/retweet/:id", {
-        id: args.id
-      })
+      postStub.calledWith(twit, 'statuses/retweet/:id', {
+        id: args.id,
+      }),
     ).toBe(true);
 
     postStub.restore();
     getStub.restore();
   });
 
-  test("Favorite tweet", async () => {
+  test('Favorite tweet', async () => {
     const twit = {};
 
     const args = {
       integrationId: _integrationTwitter._id,
-      id: "123"
+      id: '123',
     };
 
     TwitMap[_integrationTwitter._id] = twit;
@@ -220,16 +208,16 @@ describe("Conversation message mutations", () => {
     const sandbox = sinon.sandbox.create();
 
     // mock retweet request
-    const postStub = sandbox.stub(twitRequest, "post").callsFake(() => {
+    const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
       return new Promise(resolve => {
         resolve({
-          id_str: "123"
+          id_str: '123',
         });
       });
     });
 
     // mock get tweet object request
-    const getStub = sandbox.stub(twitRequest, "get").callsFake(() => {
+    const getStub = sandbox.stub(twitRequest, 'get').callsFake(() => {
       return new Promise(resolve => {
         resolve({});
       });
@@ -241,23 +229,23 @@ describe("Conversation message mutations", () => {
       }
     `;
 
-    await graphqlRequest(mutation, "conversationsFavorite", args);
+    await graphqlRequest(mutation, 'conversationsFavorite', args);
 
     // check twit post params
     expect(
-      postStub.calledWith(twit, "favorites/create", {
-        id: args.id
-      })
+      postStub.calledWith(twit, 'favorites/create', {
+        id: args.id,
+      }),
     ).toBe(true);
 
     postStub.restore();
     getStub.restore();
   });
 
-  test("Assign conversation", async () => {
+  test('Assign conversation', async () => {
     const args = {
       conversationIds: [_conversation._id],
-      assignedUserId: _user._id
+      assignedUserId: _user._id,
     };
 
     const mutation = `
@@ -276,17 +264,12 @@ describe("Conversation message mutations", () => {
       }
     `;
 
-    const [conversation] = await graphqlRequest(
-      mutation,
-      "conversationsAssign",
-      args,
-      context
-    );
+    const [conversation] = await graphqlRequest(mutation, 'conversationsAssign', args, context);
 
     expect(conversation.assignedUser._id).toEqual(args.assignedUserId);
   });
 
-  test("Unassign conversation", async () => {
+  test('Unassign conversation', async () => {
     const mutation = `
       mutation conversationsUnassign($_ids: [String]!) {
         conversationsUnassign(_ids: $_ids) {
@@ -297,21 +280,17 @@ describe("Conversation message mutations", () => {
       }
     `;
 
-    const [conversation] = await graphqlRequest(
-      mutation,
-      "conversationsUnassign",
-      {
-        _ids: [_conversation._id]
-      }
-    );
+    const [conversation] = await graphqlRequest(mutation, 'conversationsUnassign', {
+      _ids: [_conversation._id],
+    });
 
     expect(conversation.assignedUser).toBe(null);
   });
 
-  test("Change conversation status", async () => {
+  test('Change conversation status', async () => {
     const args = {
       _ids: [_conversation._id],
-      status: "closed"
+      status: 'closed',
     };
 
     const mutation = `
@@ -322,16 +301,12 @@ describe("Conversation message mutations", () => {
       }
     `;
 
-    const [conversation] = await graphqlRequest(
-      mutation,
-      "conversationsChangeStatus",
-      args
-    );
+    const [conversation] = await graphqlRequest(mutation, 'conversationsChangeStatus', args);
 
     expect(conversation.status).toEqual(args.status);
   });
 
-  test("Mark conversation as read", async () => {
+  test('Mark conversation as read', async () => {
     const mutation = `
       mutation conversationMarkAsRead($_id: String) {
         conversationMarkAsRead(_id: $_id) {
@@ -341,12 +316,7 @@ describe("Conversation message mutations", () => {
       }
     `;
 
-    const conversation = await graphqlRequest(
-      mutation,
-      "conversationMarkAsRead",
-      { _id: _conversation._id },
-      context
-    );
+    const conversation = await graphqlRequest(mutation, 'conversationMarkAsRead', { _id: _conversation._id }, context);
 
     expect(conversation.readUserIds).toContain(_user._id);
   });

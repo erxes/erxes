@@ -1,4 +1,4 @@
-import { connect, disconnect } from "../db/connection";
+import { connect, disconnect } from '../db/connection';
 import {
   companyFactory,
   conversationFactory,
@@ -6,20 +6,20 @@ import {
   dealFactory,
   internalNoteFactory,
   segmentFactory,
-  userFactory
-} from "../db/factories";
-import { ActivityLogs, Conversations } from "../db/models";
+  userFactory,
+} from '../db/factories';
+import { ActivityLogs, Conversations } from '../db/models';
 import {
   ACTIVITY_ACTIONS,
   ACTIVITY_PERFORMER_TYPES,
   ACTIVITY_TYPES,
-  COC_CONTENT_TYPES
-} from "../db/models/definitions/constants";
+  COC_CONTENT_TYPES,
+} from '../db/models/definitions/constants';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe("ActivityLogs model methods", () => {
+describe('ActivityLogs model methods', () => {
   afterEach(async () => {
     await ActivityLogs.remove({});
     await Conversations.remove({});
@@ -30,18 +30,18 @@ describe("ActivityLogs model methods", () => {
     const activityDoc = {
       type: ACTIVITY_TYPES.INTERNAL_NOTE,
       action: ACTIVITY_ACTIONS.CREATE,
-      content: "content",
-      id: "testInternalNoteId"
+      content: 'content',
+      id: 'testInternalNoteId',
     };
 
     const customerDoc = {
       type: COC_CONTENT_TYPES.CUSTOMER,
-      id: "testCustomerId"
+      id: 'testCustomerId',
     };
 
     const doc = {
       activity: activityDoc,
-      coc: customerDoc
+      coc: customerDoc,
     };
 
     const aLog = await ActivityLogs.createDoc(doc);
@@ -50,7 +50,7 @@ describe("ActivityLogs model methods", () => {
     expect(aLog.coc.toJSON()).toEqual(customerDoc);
 
     if (!aLog.performedBy) {
-      throw new Error("Performer is empty");
+      throw new Error('Performer is empty');
     }
 
     expect(aLog.performedBy.type).toBe(ACTIVITY_PERFORMER_TYPES.SYSTEM);
@@ -63,13 +63,13 @@ describe("ActivityLogs model methods", () => {
 
     const internalNote = await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customer._id
+      contentTypeId: customer._id,
     });
 
     const aLog = await ActivityLogs.createInternalNoteLog(internalNote, user);
 
     if (!aLog.performedBy) {
-      throw new Error("Performer not found");
+      throw new Error('Performer not found');
     }
 
     expect(aLog.performedBy.type).toBe(ACTIVITY_PERFORMER_TYPES.USER);
@@ -80,7 +80,7 @@ describe("ActivityLogs model methods", () => {
       type: ACTIVITY_TYPES.INTERNAL_NOTE,
       action: ACTIVITY_ACTIONS.CREATE,
       id: internalNote._id,
-      content: internalNote.content
+      content: internalNote.content,
     });
   });
 
@@ -93,7 +93,7 @@ describe("ActivityLogs model methods", () => {
     try {
       await ActivityLogs.createSegmentLog(segment, undefined);
     } catch (e) {
-      expect(e.message).toBe("customer must be supplied");
+      expect(e.message).toBe('customer must be supplied');
     }
   });
 
@@ -101,18 +101,18 @@ describe("ActivityLogs model methods", () => {
     // check if the activity log is being created ==================
     const nameEqualsConditions = [
       {
-        type: "string",
-        dateUnit: "days",
-        value: "John Smith",
-        operator: "e",
-        field: "name"
-      }
+        type: 'string',
+        dateUnit: 'days',
+        value: 'John Smith',
+        operator: 'e',
+        field: 'name',
+      },
     ];
 
-    const customer = await customerFactory({ firstName: "john smith" });
+    const customer = await customerFactory({ firstName: 'john smith' });
     const segment = await segmentFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
-      conditions: nameEqualsConditions
+      conditions: nameEqualsConditions,
     });
 
     const segmentLog = await ActivityLogs.createSegmentLog(segment, customer);
@@ -121,19 +121,19 @@ describe("ActivityLogs model methods", () => {
       type: ACTIVITY_TYPES.SEGMENT,
       action: ACTIVITY_ACTIONS.CREATE,
       content: segment.name,
-      id: segment._id
+      id: segment._id,
     });
     expect(segmentLog.coc.toJSON()).toEqual({
       type: segment.contentType,
-      id: customer._id
+      id: customer._id,
     });
 
     if (!segmentLog.performedBy) {
-      throw new Error("Performer is empty");
+      throw new Error('Performer is empty');
     }
 
     expect(segmentLog.performedBy.toJSON()).toEqual({
-      type: ACTIVITY_PERFORMER_TYPES.SYSTEM
+      type: ACTIVITY_PERFORMER_TYPES.SYSTEM,
     });
   });
 
@@ -146,12 +146,12 @@ describe("ActivityLogs model methods", () => {
 
     expect(
       await ActivityLogs.find({
-        "activity.type": ACTIVITY_TYPES.SEGMENT,
-        "activity.action": ACTIVITY_ACTIONS.CREATE,
-        "activity.id": segment._id,
-        "coc.type": segment.contentType,
-        "coc.id": customer._id
-      })
+        'activity.type': ACTIVITY_TYPES.SEGMENT,
+        'activity.action': ACTIVITY_ACTIONS.CREATE,
+        'activity.id': segment._id,
+        'coc.type': segment.contentType,
+        'coc.id': customer._id,
+      }),
     ).toHaveLength(1);
   });
 
@@ -163,9 +163,7 @@ describe("ActivityLogs model methods", () => {
     try {
       await ActivityLogs.createConversationLog(conversation, undefined);
     } catch (e) {
-      expect(e.message).toBe(
-        `'customer' must be supplied when adding activity log for conversations`
-      );
+      expect(e.message).toBe(`'customer' must be supplied when adding activity log for conversations`);
     }
   });
 
@@ -174,61 +172,58 @@ describe("ActivityLogs model methods", () => {
     const companyA = await companyFactory({});
     const companyB = await companyFactory({});
     const customer = await customerFactory({
-      companyIds: [companyA._id, companyB._id]
+      companyIds: [companyA._id, companyB._id],
     });
 
-    const aLog = await ActivityLogs.createConversationLog(
-      conversation,
-      customer
-    );
+    const aLog = await ActivityLogs.createConversationLog(conversation, customer);
 
     if (!aLog.performedBy) {
-      throw new Error("Performer is empty");
+      throw new Error('Performer is empty');
     }
 
     // check customer conversation log
     expect(aLog.performedBy.toJSON()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.CUSTOMER,
-      id: customer._id
+      id: customer._id,
     });
     expect(aLog.coc.toJSON()).toEqual({
       type: COC_CONTENT_TYPES.CUSTOMER,
-      id: customer._id
+      id: customer._id,
     });
     expect(aLog.activity.toJSON()).toEqual({
       type: ACTIVITY_TYPES.CONVERSATION,
       action: ACTIVITY_ACTIONS.CREATE,
       content: conversation.content,
-      id: conversation._id
+      id: conversation._id,
     });
 
     // check company conversation logs =====================================
     let activity = await ActivityLogs.findOne({
-      "activity.type": ACTIVITY_TYPES.CONVERSATION,
-      "activity.action": ACTIVITY_ACTIONS.CREATE,
-      "activity.id": conversation._id,
-      "coc.type": COC_CONTENT_TYPES.COMPANY,
-      "coc.id": companyA._id
+      'activity.type': ACTIVITY_TYPES.CONVERSATION,
+      'activity.action': ACTIVITY_ACTIONS.CREATE,
+      'activity.id': conversation._id,
+      'coc.type': COC_CONTENT_TYPES.COMPANY,
+      'coc.id': companyA._id,
     });
 
     expect(activity).toBeDefined();
 
     if (!activity) {
-      throw new Error("Acitivty not found");
+      throw new Error('Acitivty not found');
     }
 
     expect(activity.coc.id).toBe(companyA._id);
 
     activity = await ActivityLogs.findOne({
-      "activity.type": ACTIVITY_TYPES.CONVERSATION,
-      "activity.action": ACTIVITY_ACTIONS.CREATE,
-      "activity.id": conversation._id,
-      "coc.type": COC_CONTENT_TYPES.COMPANY,
-      "coc.id": companyB._id
+      'activity.type': ACTIVITY_TYPES.CONVERSATION,
+      'activity.action': ACTIVITY_ACTIONS.CREATE,
+      'activity.id': conversation._id,
+      'coc.type': COC_CONTENT_TYPES.COMPANY,
+      'coc.id': companyB._id,
     });
 
     if (!activity) {
-      throw new Error("Acitivty not found");
+      throw new Error('Acitivty not found');
     }
 
     expect(activity).toBeDefined();
@@ -246,31 +241,27 @@ describe("ActivityLogs model methods", () => {
     const customer = await customerFactory({});
     const user = await userFactory({});
 
-    const aLog = await ActivityLogs.createCustomerRegistrationLog(
-      customer,
-      user
-    );
+    const aLog = await ActivityLogs.createCustomerRegistrationLog(customer, user);
 
-    const customerFullName = `${customer.firstName || ""} ${customer.lastName ||
-      ""}`;
+    const customerFullName = `${customer.firstName || ''} ${customer.lastName || ''}`;
 
     if (!aLog.performedBy) {
-      throw new Error("Performer is empty");
+      throw new Error('Performer is empty');
     }
 
     expect(aLog.performedBy.toJSON()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.USER,
-      id: user._id
+      id: user._id,
     });
     expect(aLog.activity.toJSON()).toEqual({
       type: ACTIVITY_TYPES.CUSTOMER,
       action: ACTIVITY_ACTIONS.CREATE,
       content: customerFullName,
-      id: customer._id
+      id: customer._id,
     });
     expect(aLog.coc.toJSON()).toEqual({
       type: COC_CONTENT_TYPES.CUSTOMER,
-      id: customer._id
+      id: customer._id,
     });
   });
 
@@ -281,18 +272,18 @@ describe("ActivityLogs model methods", () => {
     const aLog = await ActivityLogs.createCompanyRegistrationLog(company, user);
 
     if (!aLog.performedBy) {
-      throw new Error("Performer is empty");
+      throw new Error('Performer is empty');
     }
 
     expect(aLog.performedBy.toJSON()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.USER,
-      id: user._id
+      id: user._id,
     });
     expect(aLog.activity.toJSON()).toEqual({
       type: ACTIVITY_TYPES.COMPANY,
       action: ACTIVITY_ACTIONS.CREATE,
       content: company.primaryName,
-      id: company._id
+      id: company._id,
     });
   });
 
@@ -303,22 +294,22 @@ describe("ActivityLogs model methods", () => {
     const aLog = await ActivityLogs.createDealRegistrationLog(deal, user);
 
     if (!aLog.performedBy) {
-      throw new Error("Performer is empty");
+      throw new Error('Performer is empty');
     }
 
     expect(aLog.performedBy.toJSON()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.USER,
-      id: user._id
+      id: user._id,
     });
     expect(aLog.activity.toJSON()).toEqual({
       type: ACTIVITY_TYPES.DEAL,
       action: ACTIVITY_ACTIONS.CREATE,
       content: deal.name,
-      id: deal._id
+      id: deal._id,
     });
     expect(aLog.coc.toJSON()).toEqual({
       type: COC_CONTENT_TYPES.DEAL,
-      id: deal._id
+      id: deal._id,
     });
   });
 
@@ -329,14 +320,12 @@ describe("ActivityLogs model methods", () => {
 
     await ActivityLogs.createConversationLog(conversation, customer);
 
-    const aLogs = await ActivityLogs.changeCustomer(newCustomer._id, [
-      customer._id
-    ]);
+    const aLogs = await ActivityLogs.changeCustomer(newCustomer._id, [customer._id]);
 
     for (const aLog of aLogs) {
       expect(aLog.coc.toJSON()).toEqual({
         type: COC_CONTENT_TYPES.CUSTOMER,
-        id: newCustomer._id
+        id: newCustomer._id,
       });
     }
   });
@@ -348,14 +337,12 @@ describe("ActivityLogs model methods", () => {
 
     await ActivityLogs.createCompanyRegistrationLog(company, user);
 
-    const aLogs = await ActivityLogs.changeCompany(newCompany._id, [
-      company._id
-    ]);
+    const aLogs = await ActivityLogs.changeCompany(newCompany._id, [company._id]);
 
     for (const aLog of aLogs) {
       expect(aLog.coc.toJSON()).toEqual({
         type: COC_CONTENT_TYPES.COMPANY,
-        id: newCompany._id
+        id: newCompany._id,
       });
     }
   });
@@ -370,8 +357,8 @@ describe("ActivityLogs model methods", () => {
     const activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.CUSTOMER,
-        id: customer._id
-      }
+        id: customer._id,
+      },
     });
 
     expect(activityLog).toHaveLength(0);
@@ -387,8 +374,8 @@ describe("ActivityLogs model methods", () => {
     const activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
-        id: company._id
-      }
+        id: company._id,
+      },
     });
 
     expect(activityLog).toHaveLength(0);

@@ -1,34 +1,26 @@
-import * as AWS from "aws-sdk";
-import * as fs from "fs";
-import * as Handlebars from "handlebars";
-import * as nodemailer from "nodemailer";
-import * as xlsxPopulate from "xlsx-populate";
-import { Companies, Customers, Notifications, Users } from "../db/models";
-import { IUserDocument } from "../db/models/definitions/users";
+import * as AWS from 'aws-sdk';
+import * as fs from 'fs';
+import * as Handlebars from 'handlebars';
+import * as nodemailer from 'nodemailer';
+import * as xlsxPopulate from 'xlsx-populate';
+import { Companies, Customers, Notifications, Users } from '../db/models';
+import { IUserDocument } from '../db/models/definitions/users';
 
 /*
  * Save binary data to amazon s3
  */
-export const uploadFile = async (file: {
-  name: string;
-  path: string;
-}): Promise<string> => {
-  const {
-    AWS_ACCESS_KEY_ID,
-    AWS_SECRET_ACCESS_KEY,
-    AWS_BUCKET = "",
-    AWS_PREFIX = ""
-  } = process.env;
+export const uploadFile = async (file: { name: string; path: string }): Promise<string> => {
+  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET = '', AWS_PREFIX = '' } = process.env;
 
   // check credentials
   if (!(AWS_ACCESS_KEY_ID || AWS_SECRET_ACCESS_KEY || AWS_BUCKET)) {
-    throw new Error("Security credentials are not configured");
+    throw new Error('Security credentials are not configured');
   }
 
   // initialize s3
   const s3 = new AWS.S3({
     accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
   });
 
   // generate unique name
@@ -44,7 +36,7 @@ export const uploadFile = async (file: {
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: buffer,
-        ACL: "public-read"
+        ACL: 'public-read',
       },
       (err, res) => {
         if (err) {
@@ -52,7 +44,7 @@ export const uploadFile = async (file: {
         }
 
         return resolve(res);
-      }
+      },
     );
   });
 
@@ -65,7 +57,7 @@ export const uploadFile = async (file: {
 export const readFile = (filename: string) => {
   const filePath = `${__dirname}/../private/emailTemplates/${filename}.html`;
 
-  return fs.readFileSync(filePath, "utf8");
+  return fs.readFileSync(filePath, 'utf8');
 };
 
 /**
@@ -86,29 +78,25 @@ export const createTransporter = ({ ses }) => {
   const { MAIL_SERVICE, MAIL_PORT, MAIL_USER, MAIL_PASS } = process.env;
 
   if (ses) {
-    const {
-      AWS_SES_ACCESS_KEY_ID,
-      AWS_SES_SECRET_ACCESS_KEY,
-      AWS_REGION
-    } = process.env;
+    const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
 
     if (!AWS_SES_ACCESS_KEY_ID || !AWS_SES_SECRET_ACCESS_KEY) {
-      throw new Error("Invalid SES configuration");
+      throw new Error('Invalid SES configuration');
     }
 
     AWS.config.update({
       region: AWS_REGION,
       accessKeyId: AWS_SES_ACCESS_KEY_ID,
-      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY
+      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
     });
 
     return nodemailer.createTransport({
-      SES: new AWS.SES({ apiVersion: "2010-12-01" })
+      SES: new AWS.SES({ apiVersion: '2010-12-01' }),
     });
   }
 
   if (!MAIL_SERVICE || !MAIL_PORT || !MAIL_USER || !MAIL_PASS) {
-    throw new Error("Invalid mail service configuration");
+    throw new Error('Invalid mail service configuration');
   }
 
   return nodemailer.createTransport({
@@ -116,8 +104,8 @@ export const createTransporter = ({ ses }) => {
     port: MAIL_PORT,
     auth: {
       user: MAIL_USER,
-      pass: MAIL_PASS
-    }
+      pass: MAIL_PASS,
+    },
   });
 };
 
@@ -128,7 +116,7 @@ export const sendEmail = async ({
   toEmails,
   fromEmail,
   title,
-  template = {}
+  template = {},
 }: {
   toEmails?: string[];
   fromEmail?: string;
@@ -140,7 +128,7 @@ export const sendEmail = async ({
   const { NODE_ENV, DEFAULT_EMAIL_SERVICE, COMPANY_EMAIL_FROM } = process.env;
 
   // do not send email it is running in test mode
-  if (NODE_ENV === "test") {
+  if (NODE_ENV === 'test') {
     return;
   }
 
@@ -148,7 +136,7 @@ export const sendEmail = async ({
   let transporter;
 
   try {
-    transporter = createTransporter({ ses: DEFAULT_EMAIL_SERVICE === "SES" });
+    transporter = createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
   } catch (e) {
     return console.log(e.message); // eslint-disable-line
   }
@@ -156,10 +144,10 @@ export const sendEmail = async ({
   const { isCustom, data, name } = template;
 
   // generate email content by given template
-  let html = await applyTemplate(data, name || "");
+  let html = await applyTemplate(data, name || '');
 
   if (!isCustom) {
-    html = await applyTemplate({ content: html }, "base");
+    html = await applyTemplate({ content: html }, 'base');
   }
 
   return (toEmails || []).map(toEmail => {
@@ -167,7 +155,7 @@ export const sendEmail = async ({
       from: fromEmail || COMPANY_EMAIL_FROM,
       to: toEmail,
       subject: title,
-      html
+      html,
     };
 
     return transporter.sendMail(mailOptions, (error, info) => {
@@ -195,7 +183,7 @@ export const sendNotification = async ({
   const createdUserObj = await Users.findOne({ _id: createdUser });
 
   if (!createdUserObj) {
-    throw new Error("Created user not found");
+    throw new Error('Created user not found');
   }
 
   // collecting emails
@@ -214,13 +202,10 @@ export const sendNotification = async ({
   for (const receiverId of receivers) {
     try {
       // send notification
-      await Notifications.createNotification(
-        { ...doc, receiver: receiverId },
-        createdUser
-      );
+      await Notifications.createNotification({ ...doc, receiver: receiverId }, createdUser);
     } catch (e) {
       // Any other error is serious
-      if (e.message !== "Configuration does not exist") {
+      if (e.message !== 'Configuration does not exist') {
         throw e;
       }
     }
@@ -228,14 +213,13 @@ export const sendNotification = async ({
 
   return sendEmail({
     toEmails,
-    title: "Notification",
+    title: 'Notification',
     template: {
-      name: "notification",
+      name: 'notification',
       data: {
-        notification: doc
-      }
+        notification: doc,
+      },
     },
-    
   });
 };
 
@@ -243,24 +227,18 @@ export const sendNotification = async ({
  * Receives and saves xls file in private/xlsImports folder
  * and imports customers to the database
  */
-export const importXlsFile = async (
-  file: any,
-  type: string,
-  { user }: { user: IUserDocument }
-) => {
+export const importXlsFile = async (file: any, type: string, { user }: { user: IUserDocument }) => {
   return new Promise((resolve, reject) => {
     const readStream = fs.createReadStream(file.path);
 
     // Directory to save file
-    const downloadDir = `${__dirname}/../private/xlsTemplateOutputs/${
-      file.name
-    }`;
+    const downloadDir = `${__dirname}/../private/xlsTemplateOutputs/${file.name}`;
 
     // Converting pipe into promise
     const pipe = stream =>
       new Promise((resolver, rejecter) => {
-        stream.on("finish", resolver);
-        stream.on("error", rejecter);
+        stream.on('finish', resolver);
+        stream.on('error', rejecter);
       });
 
     // Creating streams
@@ -280,7 +258,7 @@ export const importXlsFile = async (
         const usedRange = workbook.sheet(0).usedRange();
 
         if (!usedRange) {
-          return reject(["Invalid file"]);
+          return reject(['Invalid file']);
         }
 
         const usedSheets = usedRange.value();
@@ -294,23 +272,19 @@ export const importXlsFile = async (
         usedSheets.shift();
 
         switch (type) {
-          case "customers":
+          case 'customers':
             collection = Customers;
             break;
 
-          case "companies":
+          case 'companies':
             collection = Companies;
             break;
 
           default:
-            reject(["Invalid import type"]);
+            reject(['Invalid import type']);
         }
 
-        const response = await collection.bulkInsert(
-          fieldNames,
-          usedSheets,
-          user
-        );
+        const response = await collection.bulkInsert(fieldNames, usedSheets, user);
 
         resolve(response);
       })
@@ -333,10 +307,7 @@ export const createXlsFile = async () => {
 /**
  * Generates downloadable xls file on the url
  */
-export const generateXlsx = async (
-  workbook: any,
-  name: string
-): Promise<string> => {
+export const generateXlsx = async (workbook: any, name: string): Promise<string> => {
   // Url to download xls file
   const url = `xlsTemplateOutputs/${name}.xlsx`;
   const { DOMAIN } = process.env;
@@ -351,5 +322,5 @@ export default {
   sendEmail,
   sendNotification,
   readFile,
-  createTransporter
+  createTransporter,
 };

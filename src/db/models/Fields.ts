@@ -2,18 +2,18 @@
  * Extra fields for form, customer, company
  */
 
-import { Model, model } from "mongoose";
-import * as validator from "validator";
-import { Customers, Forms } from ".";
-import { FIELD_CONTENT_TYPES } from "../../data/constants";
+import { Model, model } from 'mongoose';
+import * as validator from 'validator';
+import { Customers, Forms } from '.';
+import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import {
   fieldGroupSchema,
   fieldSchema,
   IField,
   IFieldDocument,
   IFieldGroup,
-  IFieldGroupDocument
-} from "./definitions/fields";
+  IFieldGroupDocument,
+} from './definitions/fields';
 
 export interface IOrderInput {
   _id: string;
@@ -29,11 +29,7 @@ interface IFieldModel extends Model<IFieldDocument> {
   clean(_id: string, _value: string | Date | number): string | Date | number;
   cleanMulti(data: { [key: string]: string }): any;
 
-  updateFieldsVisible(
-    _id: string,
-    isVisible: boolean,
-    lastUpdatedUserId: string
-  ): Promise<IFieldDocument>;
+  updateFieldsVisible(_id: string, isVisible: boolean, lastUpdatedUserId: string): Promise<IFieldDocument>;
 }
 
 class Field {
@@ -45,19 +41,14 @@ class Field {
 
     // Checking if the field is defined by the erxes
     if (fieldObj && fieldObj.isDefinedByErxes) {
-      throw new Error("Cant update this field");
+      throw new Error('Cant update this field');
     }
   }
 
   /* 
    * Create new field
    */
-  public static async createField({
-    contentType,
-    contentTypeId,
-    groupId,
-    ...fields
-  }: IField) {
+  public static async createField({ contentType, contentTypeId, groupId, ...fields }: IField) {
     const query: { [key: string]: any } = { contentType };
 
     if (groupId) {
@@ -71,7 +62,7 @@ class Field {
     // form checks
     if (contentType === FIELD_CONTENT_TYPES.FORM) {
       if (!contentTypeId) {
-        throw new Error("Content type id is required");
+        throw new Error('Content type id is required');
       }
 
       const form = await Forms.findOne({ _id: contentTypeId });
@@ -97,7 +88,7 @@ class Field {
       order,
       groupId,
       isDefinedByErxes: false,
-      ...fields
+      ...fields,
     });
   }
 
@@ -127,10 +118,7 @@ class Field {
     // Removing field value from customer
     const index = `customFieldsData.${_id}`;
 
-    await Customers.updateMany(
-      { [index]: { $exists: true } },
-      { $unset: { [index]: 1 } }
-    );
+    await Customers.updateMany({ [index]: { $exists: true } }, { $unset: { [index]: 1 } });
 
     return fieldObj.remove();
   }
@@ -173,27 +161,24 @@ class Field {
 
     // required
     if (field.isRequired && !value) {
-      throwError("required");
+      throwError('required');
     }
 
     if (value) {
       // email
-      if (
-        (type === "email" || validation === "email") &&
-        !validator.isEmail(value)
-      ) {
-        throwError("Invalid email");
+      if ((type === 'email' || validation === 'email') && !validator.isEmail(value)) {
+        throwError('Invalid email');
       }
 
       // number
-      if (validation === "number" && !validator.isFloat(value.toString())) {
-        throwError("Invalid number");
+      if (validation === 'number' && !validator.isFloat(value.toString())) {
+        throwError('Invalid number');
       }
 
       // date
-      if (validation === "date") {
+      if (validation === 'date') {
         if (!validator.isISO8601(value)) {
-          throwError("Invalid date");
+          throwError('Invalid date');
         }
 
         value = new Date(value);
@@ -222,11 +207,7 @@ class Field {
   /**
    * Update single field's visible
    */
-  public static async updateFieldsVisible(
-    _id: string,
-    isVisible: boolean,
-    lastUpdatedUserId: string
-  ) {
+  public static async updateFieldsVisible(_id: string, isVisible: boolean, lastUpdatedUserId: string) {
     await this.checkIsDefinedByErxes(_id);
 
     // Updating visible
@@ -242,11 +223,7 @@ interface IFieldGroupModel extends Model<IFieldGroupDocument> {
   updateGroup(_id: string, doc: IFieldGroup): Promise<IFieldGroupDocument>;
   removeGroup(_id: string): Promise<string>;
 
-  updateGroupVisible(
-    _id: string,
-    isVisible: boolean,
-    lastUpdatedUserId: string
-  ): Promise<IFieldGroupDocument>;
+  updateGroupVisible(_id: string, isVisible: boolean, lastUpdatedUserId: string): Promise<IFieldGroupDocument>;
 }
 
 class FieldGroup {
@@ -258,7 +235,7 @@ class FieldGroup {
 
     // Checking if the group is defined by the erxes
     if (groupObj && groupObj.isDefinedByErxes) {
-      throw new Error("Cant update this group");
+      throw new Error('Cant update this group');
     }
   }
 
@@ -275,7 +252,7 @@ class FieldGroup {
     let order = 0;
 
     const lastGroup = await FieldsGroups.findOne({ contentType }).sort({
-      order: -1
+      order: -1,
     });
 
     if (lastGroup) {
@@ -286,7 +263,7 @@ class FieldGroup {
       ...doc,
       isVisible,
       order,
-      isDefinedByErxes: false
+      isDefinedByErxes: false,
     });
   }
 
@@ -330,19 +307,12 @@ class FieldGroup {
   /**
    * Update field group's visible
    */
-  public static async updateGroupVisible(
-    _id: string,
-    isVisible: boolean,
-    lastUpdatedUserId: string
-  ) {
+  public static async updateGroupVisible(_id: string, isVisible: boolean, lastUpdatedUserId: string) {
     // Can not update group that is defined by erxes
     await this.checkIsDefinedByErxes(_id);
 
     // Updating visible
-    await FieldsGroups.update(
-      { _id },
-      { $set: { isVisible, lastUpdatedUserId } }
-    );
+    await FieldsGroups.update({ _id }, { $set: { isVisible, lastUpdatedUserId } });
 
     return FieldsGroups.findOne({ _id });
   }
@@ -350,11 +320,8 @@ class FieldGroup {
 
 fieldGroupSchema.loadClass(FieldGroup);
 
-export const FieldsGroups = model<IFieldGroupDocument, IFieldGroupModel>(
-  "fields_groups",
-  fieldGroupSchema
-);
+export const FieldsGroups = model<IFieldGroupDocument, IFieldGroupModel>('fields_groups', fieldGroupSchema);
 
 fieldSchema.loadClass(Field);
 
-export const Fields = model<IFieldDocument, IFieldModel>("fields", fieldSchema);
+export const Fields = model<IFieldDocument, IFieldModel>('fields', fieldSchema);

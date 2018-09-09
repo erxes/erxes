@@ -1,13 +1,7 @@
-import { Channels, Users } from "../../../db/models";
-import {
-  IDetail,
-  IEmailSignature,
-  ILink,
-  IUser,
-  IUserDocument
-} from "../../../db/models/definitions/users";
-import { requireAdmin, requireLogin } from "../../permissions";
-import utils from "../../utils";
+import { Channels, Users } from '../../../db/models';
+import { IDetail, IEmailSignature, ILink, IUser, IUserDocument } from '../../../db/models/definitions/users';
+import { requireAdmin, requireLogin } from '../../permissions';
+import utils from '../../utils';
 
 interface IUsersAdd extends IUser {
   channelIds?: string[];
@@ -39,13 +33,13 @@ const userMutations = {
 
     utils.sendEmail({
       toEmails: [email],
-      title: "Reset password",
+      title: 'Reset password',
       template: {
-        name: "resetPassword",
+        name: 'resetPassword',
         data: {
-          content: link
-        }
-      }
+          content: link,
+        },
+      },
     });
 
     return link;
@@ -64,7 +58,7 @@ const userMutations = {
   usersChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
-    { user }: { user: IUserDocument }
+    { user }: { user: IUserDocument },
   ) {
     return Users.changePassword({ _id: user._id, ...args });
   },
@@ -73,19 +67,10 @@ const userMutations = {
    * Create new user
    */
   async usersAdd(_root, args: IUsersAdd) {
-    const {
-      username,
-      password,
-      passwordConfirmation,
-      email,
-      role,
-      channelIds = [],
-      details,
-      links
-    } = args;
+    const { username, password, passwordConfirmation, email, role, channelIds = [], details, links } = args;
 
     if (password !== passwordConfirmation) {
-      throw new Error("Incorrect password confirmation");
+      throw new Error('Incorrect password confirmation');
     }
 
     const createdUser = await Users.createUser({
@@ -94,7 +79,7 @@ const userMutations = {
       email,
       role,
       details,
-      links
+      links,
     });
 
     // add new user to channels
@@ -105,14 +90,14 @@ const userMutations = {
     // send email ================
     utils.sendEmail({
       toEmails,
-      subject: "Invitation info",
+      subject: 'Invitation info',
       template: {
-        name: "invitation",
+        name: 'invitation',
         data: {
           username,
-          password
-        }
-      }
+          password,
+        },
+      },
     });
 
     return createdUser;
@@ -122,20 +107,10 @@ const userMutations = {
    * Update user
    */
   async usersEdit(_root, args: IUsersEdit) {
-    const {
-      _id,
-      username,
-      password,
-      passwordConfirmation,
-      email,
-      role,
-      channelIds = [],
-      details,
-      links
-    } = args;
+    const { _id, username, password, passwordConfirmation, email, role, channelIds = [], details, links } = args;
 
     if (password && password !== passwordConfirmation) {
-      throw new Error("Incorrect password confirmation");
+      throw new Error('Incorrect password confirmation');
     }
 
     // TODO check isOwner
@@ -145,7 +120,7 @@ const userMutations = {
       email,
       role,
       details,
-      links
+      links,
     });
 
     // add new user to channels
@@ -164,7 +139,7 @@ const userMutations = {
       email,
       password,
       details,
-      links
+      links,
     }: {
       username: string;
       email: string;
@@ -172,19 +147,19 @@ const userMutations = {
       details: IDetail;
       links: ILink;
     },
-    { user }: { user: IUserDocument }
+    { user }: { user: IUserDocument },
   ) {
     const userOnDb = await Users.findOne({ _id: user._id });
 
     if (!userOnDb) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
 
     const valid = await Users.comparePassword(password, userOnDb.password);
 
     if (!password || !valid) {
       // bad password
-      throw new Error("Invalid password");
+      throw new Error('Invalid password');
     }
 
     return Users.editProfile(user._id, { username, email, details, links });
@@ -197,29 +172,25 @@ const userMutations = {
     const userToRemove = await Users.findOne({ _id });
 
     if (!userToRemove) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
 
     // can not remove owner
     if (userToRemove.isOwner) {
-      throw new Error("Can not remove owner");
+      throw new Error('Can not remove owner');
     }
 
     // if the user involved in any channel then can not delete this user
     if ((await Channels.find({ userId: userToRemove._id }).count()) > 0) {
-      throw new Error(
-        "You cannot delete this user. This user belongs other channel."
-      );
+      throw new Error('You cannot delete this user. This user belongs other channel.');
     }
 
     if (
       (await Channels.find({
-        memberIds: { $in: [userToRemove._id] }
+        memberIds: { $in: [userToRemove._id] },
       }).count()) > 0
     ) {
-      throw new Error(
-        "You cannot delete this user. This user belongs other channel."
-      );
+      throw new Error('You cannot delete this user. This user belongs other channel.');
     }
 
     return Users.removeUser(_id);
@@ -228,26 +199,22 @@ const userMutations = {
   usersConfigEmailSignatures(
     _root,
     { signatures }: { signatures: IEmailSignature[] },
-    { user }: { user: IUserDocument }
+    { user }: { user: IUserDocument },
   ) {
     return Users.configEmailSignatures(user._id, signatures);
   },
 
-  usersConfigGetNotificationByEmail(
-    _root,
-    { isAllowed }: { isAllowed: boolean },
-    { user }: { user: IUserDocument }
-  ) {
+  usersConfigGetNotificationByEmail(_root, { isAllowed }: { isAllowed: boolean }, { user }: { user: IUserDocument }) {
     return Users.configGetNotificationByEmail(user._id, isAllowed);
-  }
+  },
 };
 
-requireLogin(userMutations, "usersAdd");
-requireLogin(userMutations, "usersEdit");
-requireLogin(userMutations, "usersChangePassword");
-requireLogin(userMutations, "usersEditProfile");
-requireLogin(userMutations, "usersConfigGetNotificationByEmail");
-requireLogin(userMutations, "usersConfigEmailSignatures");
-requireAdmin(userMutations, "usersRemove");
+requireLogin(userMutations, 'usersAdd');
+requireLogin(userMutations, 'usersEdit');
+requireLogin(userMutations, 'usersChangePassword');
+requireLogin(userMutations, 'usersEditProfile');
+requireLogin(userMutations, 'usersConfigGetNotificationByEmail');
+requireLogin(userMutations, 'usersConfigEmailSignatures');
+requireAdmin(userMutations, 'usersRemove');
 
 export default userMutations;

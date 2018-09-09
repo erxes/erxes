@@ -1,13 +1,8 @@
-import * as Random from "meteor-random";
-import { Model, model } from "mongoose";
-import { Integrations } from "./";
-import {
-  brandSchema,
-  IBrand,
-  IBrandDocument,
-  IBrandEmailConfig
-} from "./definitions/brands";
-import { IIntegrationDocument } from "./definitions/integrations";
+import * as Random from 'meteor-random';
+import { Model, model } from 'mongoose';
+import { Integrations } from './';
+import { brandSchema, IBrand, IBrandDocument, IBrandEmailConfig } from './definitions/brands';
+import { IIntegrationDocument } from './definitions/integrations';
 
 interface IBrandModel extends Model<IBrandDocument> {
   generateCode(code: string): string;
@@ -15,18 +10,9 @@ interface IBrandModel extends Model<IBrandDocument> {
   updateBrand(_id: string, fields: IBrand): IBrandDocument;
   removeBrand(_id: string): void;
 
-  updateEmailConfig(
-    _id: string,
-    emailConfig: IBrandEmailConfig
-  ): IBrandDocument;
+  updateEmailConfig(_id: string, emailConfig: IBrandEmailConfig): IBrandDocument;
 
-  manageIntegrations({
-    _id,
-    integrationIds
-  }: {
-    _id: string;
-    integrationIds: string[];
-  }): IIntegrationDocument[];
+  manageIntegrations({ _id, integrationIds }: { _id: string; integrationIds: string[] }): IIntegrationDocument[];
 }
 
 class Brand {
@@ -40,9 +26,7 @@ class Brand {
       generatedCode = Random.id().substr(0, 6);
 
       if (code) {
-        console.log(
-          "User defined brand code already exists. New code is generated."
-        );
+        console.log('User defined brand code already exists. New code is generated.');
       }
 
       prevBrand = await Brands.findOne({ code: generatedCode });
@@ -58,7 +42,7 @@ class Brand {
       ...doc,
       code: await this.generateCode(),
       createdAt: new Date(),
-      emailConfig: { type: "simple" }
+      emailConfig: { type: 'simple' },
     });
   }
 
@@ -77,27 +61,14 @@ class Brand {
     return brandObj.remove();
   }
 
-  public static async updateEmailConfig(
-    _id: string,
-    emailConfig: IBrandEmailConfig
-  ) {
+  public static async updateEmailConfig(_id: string, emailConfig: IBrandEmailConfig) {
     await Brands.update({ _id }, { $set: { emailConfig } });
 
     return Brands.findOne({ _id });
   }
 
-  public static async manageIntegrations({
-    _id,
-    integrationIds
-  }: {
-    _id: string;
-    integrationIds: string[];
-  }) {
-    await Integrations.update(
-      { _id: { $in: integrationIds } },
-      { $set: { brandId: _id } },
-      { multi: true }
-    );
+  public static async manageIntegrations({ _id, integrationIds }: { _id: string; integrationIds: string[] }) {
+    await Integrations.update({ _id: { $in: integrationIds } }, { $set: { brandId: _id } }, { multi: true });
 
     return Integrations.find({ _id: { $in: integrationIds } });
   }
@@ -105,6 +76,6 @@ class Brand {
 
 brandSchema.loadClass(Brand);
 
-const Brands = model<IBrandDocument, IBrandModel>("brands", brandSchema);
+const Brands = model<IBrandDocument, IBrandModel>('brands', brandSchema);
 
 export default Brands;

@@ -1,6 +1,6 @@
-import { Products } from "../../../db/models";
-import { IProduct } from "../../../db/models/definitions/deals";
-import { moduleRequireLogin } from "../../permissions";
+import { Products } from '../../../db/models';
+import { IProduct } from '../../../db/models/definitions/deals';
+import { moduleRequireLogin } from '../../permissions';
 
 interface IProductsEdit extends IProduct {
   _id: string;
@@ -26,7 +26,7 @@ const productMutations = {
    */
   productsRemove(_root, { _id }: { _id: string }) {
     return Products.removeProduct(_id);
-  }
+  },
 };
 
 moduleRequireLogin(productMutations);

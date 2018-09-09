@@ -1,12 +1,9 @@
-import { Channels } from "../../../db/models";
-import {
-  IChannel,
-  IChannelDocument
-} from "../../../db/models/definitions/channels";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import { NOTIFICATION_TYPES } from "../../constants";
-import { moduleRequireAdmin } from "../../permissions";
-import utils from "../../utils";
+import { Channels } from '../../../db/models';
+import { IChannel, IChannelDocument } from '../../../db/models/definitions/channels';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { NOTIFICATION_TYPES } from '../../constants';
+import { moduleRequireAdmin } from '../../permissions';
+import utils from '../../utils';
 
 interface IChannelsEdit extends IChannel {
   _id: string;
@@ -19,14 +16,14 @@ export const sendChannelNotifications = async (channel: IChannelDocument) => {
   const content = `You have invited to '${channel.name}' channel.`;
 
   return utils.sendNotification({
-    createdUser: channel.userId || "",
+    createdUser: channel.userId || '',
     notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
     title: content,
     content,
     link: `/inbox/${channel._id}`,
 
     // exclude current user
-    receivers: (channel.memberIds || []).filter(id => id !== channel.userId)
+    receivers: (channel.memberIds || []).filter(id => id !== channel.userId),
   });
 };
 
@@ -60,7 +57,7 @@ const channelMutations = {
     await Channels.removeChannel(_id);
 
     return _id;
-  }
+  },
 };
 
 moduleRequireAdmin(channelMutations);

@@ -1,19 +1,15 @@
-import { ICompanyDocument } from "../../../db/models/definitions/companies";
-import { ICustomerDocument } from "../../../db/models/definitions/customers";
-import { IDealDocument } from "../../../db/models/definitions/deals";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import { COC_CONTENT_TYPES } from "../../constants";
+import { ICompanyDocument } from '../../../db/models/definitions/companies';
+import { ICustomerDocument } from '../../../db/models/definitions/customers';
+import { IDealDocument } from '../../../db/models/definitions/deals';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { COC_CONTENT_TYPES } from '../../constants';
 
 const START_DATE = {
   year: 2017,
-  month: 0
+  month: 0,
 };
 
-type IDocs =
-  | IDealDocument
-  | IUserDocument
-  | ICompanyDocument
-  | ICustomerDocument;
+type IDocs = IDealDocument | IUserDocument | ICompanyDocument | ICustomerDocument;
 
 interface IMonthIntervals {
   yearMonth: {
@@ -37,7 +33,7 @@ class BaseMonthActivityBuilder {
   public cocContentType: string;
   constructor(coc: IDocs) {
     this.coc = coc;
-    this.cocContentType = "";
+    this.cocContentType = '';
   }
 
   /**
@@ -66,12 +62,12 @@ class BaseMonthActivityBuilder {
       monthIntervals.push({
         yearMonth: {
           year,
-          month
+          month,
         },
         interval: {
           start: new Date(year, month, 1),
-          end: this.getIntervalEnd(year, month + 1)
-        }
+          end: this.getIntervalEnd(year, month + 1),
+        },
       });
 
       month++;
@@ -96,7 +92,7 @@ class BaseMonthActivityBuilder {
       list.unshift({
         coc: this.coc,
         cocContentType: this.cocContentType,
-        date
+        date,
       });
     }
 
@@ -138,5 +134,5 @@ export default {
   CustomerMonthActivityLogBuilder,
   CompanyMonthActivityLogBuilder,
   UserMonthActivityLogBuilder,
-  DealMonthActivityLogBuilder
+  DealMonthActivityLogBuilder,
 };

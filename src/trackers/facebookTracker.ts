@@ -1,5 +1,5 @@
-import * as graph from "fbgraph";
-import { getConfig, receiveWebhookResponse } from "./facebook";
+import * as graph from 'fbgraph';
+import { getConfig, receiveWebhookResponse } from './facebook';
 
 /*
  * Common graph api request wrapper
@@ -22,12 +22,12 @@ export const graphRequest = {
   },
 
   get(...args) {
-    return this.base("get", ...args);
+    return this.base('get', ...args);
   },
 
   post(...args) {
-    return this.base("post", ...args);
-  }
+    return this.base('post', ...args);
+  },
 };
 
 /*
@@ -35,48 +35,38 @@ export const graphRequest = {
  */
 export const trackIntegrations = expressApp => {
   for (const app of getConfig()) {
-    expressApp.get(
-      `/service/facebook/${app.id}/webhook-callback`,
-      (req, res) => {
-        const query = req.query;
+    expressApp.get(`/service/facebook/${app.id}/webhook-callback`, (req, res) => {
+      const query = req.query;
 
-        // when the endpoint is registered as a webhook, it must echo back
-        // the 'hub.challenge' value it receives in the query arguments
-        if (query["hub.mode"] === "subscribe" && query["hub.challenge"]) {
-          if (query["hub.verify_token"] !== app.verifyToken) {
-            res.end("Verification token mismatch");
-          }
-
-          res.end(query["hub.challenge"]);
+      // when the endpoint is registered as a webhook, it must echo back
+      // the 'hub.challenge' value it receives in the query arguments
+      if (query['hub.mode'] === 'subscribe' && query['hub.challenge']) {
+        if (query['hub.verify_token'] !== app.verifyToken) {
+          res.end('Verification token mismatch');
         }
+
+        res.end(query['hub.challenge']);
       }
-    );
+    });
 
-    expressApp.post(
-      `/service/facebook/${app.id}/webhook-callback`,
-      (req, res) => {
-        res.statusCode = 200;
+    expressApp.post(`/service/facebook/${app.id}/webhook-callback`, (req, res) => {
+      res.statusCode = 200;
 
-        // receive per app webhook response
-        receiveWebhookResponse(app, req.body);
+      // receive per app webhook response
+      receiveWebhookResponse(app, req.body);
 
-        res.end("success");
-      }
-    );
+      res.end('success');
+    });
   }
 };
 
 /*
  * Find post comments using postId
  */
-export const findPostComments = async (
-  accessToken: string,
-  postId: string,
-  comments: any
-) => {
+export const findPostComments = async (accessToken: string, postId: string, comments: any) => {
   const postComments: any = await graphRequest.get(
     `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url`,
-    accessToken
+    accessToken,
   );
 
   const { data } = postComments;

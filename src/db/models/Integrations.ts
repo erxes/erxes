@@ -1,7 +1,7 @@
-import { Model, model } from "mongoose";
-import "mongoose-type-email";
-import { ConversationMessages, Conversations, Customers, Forms } from ".";
-import { KIND_CHOICES } from "../../data/constants";
+import { Model, model } from 'mongoose';
+import 'mongoose-type-email';
+import { ConversationMessages, Conversations, Customers, Forms } from '.';
+import { KIND_CHOICES } from '../../data/constants';
 import {
   IFacebookData,
   IFormData,
@@ -10,8 +10,8 @@ import {
   IMessengerData,
   integrationSchema,
   ITwitterData,
-  IUiOptions
-} from "./definitions/integrations";
+  IUiOptions,
+} from './definitions/integrations';
 
 export interface IMessengerIntegration {
   name: string;
@@ -27,7 +27,7 @@ interface IIntegrationModel extends Model<IIntegrationDocument> {
   createTwitterIntegration({
     name,
     brandId,
-    twitterData
+    twitterData,
   }: {
     name: string;
     brandId: string;
@@ -37,34 +37,22 @@ interface IIntegrationModel extends Model<IIntegrationDocument> {
   createFacebookIntegration({
     name,
     brandId,
-    facebookData
+    facebookData,
   }: {
     name: string;
     brandId: string;
     facebookData: IFacebookData;
   }): Promise<IIntegrationDocument>;
 
-  updateMessengerIntegration(
-    _id: string,
-    doc: IIntegration
-  ): Promise<IIntegrationDocument>;
+  updateMessengerIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
 
-  saveMessengerAppearanceData(
-    _id: string,
-    doc: IUiOptions
-  ): Promise<IIntegrationDocument>;
+  saveMessengerAppearanceData(_id: string, doc: IUiOptions): Promise<IIntegrationDocument>;
 
-  saveMessengerConfigs(
-    _id: string,
-    messengerData: IMessengerData
-  ): Promise<IIntegrationDocument>;
+  saveMessengerConfigs(_id: string, messengerData: IMessengerData): Promise<IIntegrationDocument>;
 
   createFormIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
 
-  updateFormIntegration(
-    _id: string,
-    doc: IIntegration
-  ): Promise<IIntegrationDocument>;
+  updateFormIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
 
   removeIntegration(_id: string): void;
 }
@@ -78,7 +66,7 @@ class Integration {
     return {
       ...mainDoc,
       kind: KIND_CHOICES.FORM,
-      formData
+      formData,
     };
   }
 
@@ -95,7 +83,7 @@ class Integration {
   public static createMessengerIntegration(doc: IMessengerIntegration) {
     return this.createIntegration({
       ...doc,
-      kind: KIND_CHOICES.MESSENGER
+      kind: KIND_CHOICES.MESSENGER,
     });
   }
 
@@ -105,7 +93,7 @@ class Integration {
   public static async createTwitterIntegration({
     name,
     brandId,
-    twitterData
+    twitterData,
   }: {
     name: string;
     brandId: string;
@@ -113,19 +101,19 @@ class Integration {
   }) {
     const prevEntry = await Integrations.findOne({
       twitterData: { $exists: true },
-      "twitterData.info.id": twitterData.info.id
+      'twitterData.info.id': twitterData.info.id,
     });
 
     // check duplication
     if (prevEntry) {
-      throw new Error("Already added");
+      throw new Error('Already added');
     }
 
     return this.createIntegration({
       name,
       brandId,
       kind: KIND_CHOICES.TWITTER,
-      twitterData
+      twitterData,
     });
   }
 
@@ -135,7 +123,7 @@ class Integration {
   public static createFacebookIntegration({
     name,
     brandId,
-    facebookData
+    facebookData,
   }: {
     name: string;
     brandId: string;
@@ -145,17 +133,14 @@ class Integration {
       name,
       brandId,
       kind: KIND_CHOICES.FACEBOOK,
-      facebookData
+      facebookData,
     });
   }
 
   /**
    * Update messenger integration document
    */
-  public static async updateMessengerIntegration(
-    _id: string,
-    doc: IMessengerIntegration
-  ) {
+  public static async updateMessengerIntegration(_id: string, doc: IMessengerIntegration) {
     await Integrations.update({ _id }, { $set: doc }, { runValidators: true });
 
     return Integrations.findOne({ _id });
@@ -164,15 +149,8 @@ class Integration {
   /**
    * Save messenger appearance data
    */
-  public static async saveMessengerAppearanceData(
-    _id: string,
-    { color, wallpaper, logo }: IUiOptions
-  ) {
-    await Integrations.update(
-      { _id },
-      { $set: { uiOptions: { color, wallpaper, logo } } },
-      { runValdatiors: true }
-    );
+  public static async saveMessengerAppearanceData(_id: string, { color, wallpaper, logo }: IUiOptions) {
+    await Integrations.update({ _id }, { $set: { uiOptions: { color, wallpaper, logo } } }, { runValdatiors: true });
 
     return Integrations.findOne({ _id });
   }
@@ -180,15 +158,8 @@ class Integration {
   /**
    * Saves messenger data to integration document
    */
-  public static async saveMessengerConfigs(
-    _id: string,
-    messengerData: IMessengerData
-  ) {
-    await Integrations.update(
-      { _id },
-      { $set: { messengerData } },
-      { runValidators: true }
-    );
+  public static async saveMessengerConfigs(_id: string, messengerData: IMessengerData) {
+    await Integrations.update({ _id }, { $set: { messengerData } }, { runValidators: true });
 
     return Integrations.findOne({ _id });
   }
@@ -196,14 +167,11 @@ class Integration {
   /**
    * Create a form kind integration
    */
-  public static createFormIntegration({
-    formData = {},
-    ...mainDoc
-  }: IIntegration) {
+  public static createFormIntegration({ formData = {}, ...mainDoc }: IIntegration) {
     const doc = this.generateFormDoc({ ...mainDoc }, formData);
 
     if (Object.keys(formData || {}).length === 0) {
-      throw new Error("formData must be supplied");
+      throw new Error('formData must be supplied');
     }
 
     return Integrations.create(doc);
@@ -212,10 +180,7 @@ class Integration {
   /**
    * Update form integration
    */
-  public static async updateFormIntegration(
-    _id: string,
-    { formData = {}, ...mainDoc }: IIntegration
-  ) {
+  public static async updateFormIntegration(_id: string, { formData = {}, ...mainDoc }: IIntegration) {
     const doc = this.generateFormDoc(mainDoc, formData);
 
     await Integrations.update({ _id }, { $set: doc }, { runValidators: true });
@@ -230,18 +195,15 @@ class Integration {
     const integration = await Integrations.findOne({ _id });
 
     if (!integration) {
-      throw new Error("Integration not found");
+      throw new Error('Integration not found');
     }
 
     // remove conversations =================
-    const conversations = await Conversations.find(
-      { integrationId: _id },
-      { _id: true }
-    );
+    const conversations = await Conversations.find({ integrationId: _id }, { _id: true });
     const conversationIds = conversations.map(conv => conv._id);
 
     await ConversationMessages.remove({
-      conversationId: { $in: conversationIds }
+      conversationId: { $in: conversationIds },
     });
     await Conversations.remove({ integrationId: _id });
 
@@ -264,9 +226,6 @@ class Integration {
 
 integrationSchema.loadClass(Integration);
 
-const Integrations = model<IIntegrationDocument, IIntegrationModel>(
-  "integrations",
-  integrationSchema
-);
+const Integrations = model<IIntegrationDocument, IIntegrationModel>('integrations', integrationSchema);
 
 export default Integrations;

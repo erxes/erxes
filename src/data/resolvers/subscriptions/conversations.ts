@@ -1,5 +1,5 @@
-import { withFilter } from "graphql-subscriptions";
-import pubsub from "./pubsub";
+import { withFilter } from 'graphql-subscriptions';
+import pubsub from './pubsub';
 
 export default {
   /*
@@ -7,12 +7,12 @@ export default {
   */
   conversationChanged: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator("conversationChanged"),
+      () => pubsub.asyncIterator('conversationChanged'),
       // filter by conversationId
       (payload, variables) => {
         return payload.conversationChanged.conversationId === variables._id;
-      }
-    )
+      },
+    ),
   },
 
   /*
@@ -20,21 +20,19 @@ export default {
   */
   conversationMessageInserted: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator("conversationMessageInserted"),
+      () => pubsub.asyncIterator('conversationMessageInserted'),
       // filter by conversationId
       (payload, variables) => {
-        return (
-          payload.conversationMessageInserted.conversationId === variables._id
-        );
-      }
-    )
+        return payload.conversationMessageInserted.conversationId === variables._id;
+      },
+    ),
   },
 
   /*
    * Admin is listening for this subscription to show unread notification
   */
   conversationClientMessageInserted: {
-    subscribe: () => pubsub.asyncIterator("conversationClientMessageInserted")
+    subscribe: () => pubsub.asyncIterator('conversationClientMessageInserted'),
   },
 
   /*
@@ -42,14 +40,11 @@ export default {
   */
   conversationAdminMessageInserted: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator("conversationAdminMessageInserted"),
+      () => pubsub.asyncIterator('conversationAdminMessageInserted'),
       // filter by conversationId
       (payload, variables) => {
-        return (
-          payload.conversationAdminMessageInserted.customerId ===
-          variables.customerId
-        );
-      }
-    )
-  }
+        return payload.conversationAdminMessageInserted.customerId === variables.customerId;
+      },
+    ),
+  },
 };

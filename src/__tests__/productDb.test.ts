@@ -1,18 +1,18 @@
-import { connect, disconnect } from "../db/connection";
-import { dealFactory, productFactory } from "../db/factories";
-import { Deals, Products } from "../db/models";
+import { connect, disconnect } from '../db/connection';
+import { dealFactory, productFactory } from '../db/factories';
+import { Deals, Products } from '../db/models';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe("Test products model", () => {
+describe('Test products model', () => {
   let product;
   let deal;
 
   beforeEach(async () => {
     // Creating test data
-    product = await productFactory({ type: "service" });
+    product = await productFactory({ type: 'service' });
     deal = await dealFactory({ productsData: [{ productId: product._id }] });
   });
 
@@ -22,12 +22,12 @@ describe("Test products model", () => {
     await Deals.remove({});
   });
 
-  test("Create product", async () => {
+  test('Create product', async () => {
     const productObj = await Products.createProduct({
       name: product.name,
       type: product.type,
       description: product.description,
-      sku: product.sku
+      sku: product.sku,
     });
 
     expect(productObj).toBeDefined();
@@ -37,12 +37,12 @@ describe("Test products model", () => {
     expect(productObj.sku).toEqual(product.sku);
   });
 
-  test("Update product", async () => {
+  test('Update product', async () => {
     const productObj = await Products.updateProduct(product._id, {
       name: `${product.name}-update`,
       type: `${product.type}-update`,
       description: `${product.description}-update`,
-      sku: `${product.sku}-update`
+      sku: `${product.sku}-update`,
     });
 
     expect(productObj).toBeDefined();
@@ -52,13 +52,13 @@ describe("Test products model", () => {
     expect(productObj.sku).toEqual(`${product.sku}-update`);
   });
 
-  test("Remove product not found", async () => {
+  test('Remove product not found', async () => {
     expect.assertions(1);
 
     try {
       await Products.removeProduct(deal._id);
     } catch (e) {
-      expect(e.message).toEqual("Product not found");
+      expect(e.message).toEqual('Product not found');
     }
   });
 
@@ -72,7 +72,7 @@ describe("Test products model", () => {
     }
   });
 
-  test("Remove product", async () => {
+  test('Remove product', async () => {
     await Deals.update({ _id: deal._id }, { $set: { productsData: [] } });
     const isDeleted = await Products.removeProduct(product.id);
 

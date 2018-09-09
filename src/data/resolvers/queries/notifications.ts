@@ -1,8 +1,8 @@
-import { NotificationConfigurations, Notifications } from "../../../db/models";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import { NOTIFICATION_MODULES } from "../../constants";
-import { moduleRequireLogin } from "../../permissions";
-import { paginate } from "./utils";
+import { NotificationConfigurations, Notifications } from '../../../db/models';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { NOTIFICATION_MODULES } from '../../constants';
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const notificationQueries = {
   /**
@@ -22,7 +22,7 @@ const notificationQueries = {
       page: number;
       perPage: number;
     },
-    { user }: { user: IUserDocument }
+    { user }: { user: IUserDocument },
   ) {
     const sort = { date: -1 };
     const selector: any = { receiver: user._id };
@@ -47,11 +47,7 @@ const notificationQueries = {
   /**
    * Notification counts
    */
-  notificationCounts(
-    _root,
-    { requireRead }: { requireRead: boolean },
-    { user }: { user: IUserDocument }
-  ) {
+  notificationCounts(_root, { requireRead }: { requireRead: boolean }, { user }: { user: IUserDocument }) {
     const selector: any = { receiver: user._id };
 
     if (requireRead) {
@@ -71,13 +67,9 @@ const notificationQueries = {
   /**
    * Get per user configuration
    */
-  notificationsGetConfigurations(
-    _root,
-    _args,
-    { user }: { user: IUserDocument }
-  ) {
+  notificationsGetConfigurations(_root, _args, { user }: { user: IUserDocument }) {
     return NotificationConfigurations.find({ user: user._id });
-  }
+  },
 };
 
 moduleRequireLogin(notificationQueries);

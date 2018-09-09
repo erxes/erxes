@@ -1,5 +1,5 @@
-import { Customers, Users } from "../../db/models";
-import { IMessageDocument } from "../../db/models/definitions/conversationMessages";
+import { Customers, Users } from '../../db/models';
+import { IMessageDocument } from '../../db/models/definitions/conversationMessages';
 
 export default {
   user(message: IMessageDocument) {
@@ -8,5 +8,5 @@ export default {
 
   customer(message: IMessageDocument) {
     return Customers.findOne({ _id: message.customerId });
-  }
+  },
 };

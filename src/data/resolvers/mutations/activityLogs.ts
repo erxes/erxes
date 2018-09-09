@@ -1,10 +1,4 @@
-import {
-  ActivityLogs,
-  Companies,
-  Conversations,
-  Customers,
-  Deals
-} from "../../../db/models";
+import { ActivityLogs, Companies, Conversations, Customers, Deals } from '../../../db/models';
 
 export default {
   /**
@@ -12,20 +6,17 @@ export default {
    */
   async activityLogsAddConversationLog(
     _root,
-    {
-      customerId,
-      conversationId
-    }: { customerId: string; conversationId: string }
+    { customerId, conversationId }: { customerId: string; conversationId: string },
   ) {
     const customer = await Customers.findOne({ _id: customerId });
     const conversation = await Conversations.findOne({ _id: conversationId });
 
     if (!conversation) {
-      throw new Error("Conversation not found");
+      throw new Error('Conversation not found');
     }
 
     if (!customer) {
-      throw new Error("Customer not found");
+      throw new Error('Customer not found');
     }
 
     return ActivityLogs.createConversationLog(conversation, customer);
@@ -38,7 +29,7 @@ export default {
     const customer = await Customers.findOne({ _id });
 
     if (!customer) {
-      throw new Error("Customer not found");
+      throw new Error('Customer not found');
     }
 
     return ActivityLogs.createCustomerRegistrationLog(customer);
@@ -51,7 +42,7 @@ export default {
     const company = await Companies.findOne({ _id });
 
     if (!company) {
-      throw new Error("Company not found");
+      throw new Error('Company not found');
     }
 
     return ActivityLogs.createCompanyRegistrationLog(company);
@@ -64,9 +55,9 @@ export default {
     const deal = await Deals.findOne({ _id });
 
     if (!deal) {
-      throw new Error("Deal not found");
+      throw new Error('Deal not found');
     }
 
     return ActivityLogs.createDealRegistrationLog(deal);
-  }
+  },
 };

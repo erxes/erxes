@@ -1,6 +1,6 @@
-import { EmailTemplates } from "../../../db/models";
-import { moduleRequireLogin } from "../../permissions";
-import { paginate } from "./utils";
+import { EmailTemplates } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const emailTemplateQueries = {
   /**
@@ -15,7 +15,7 @@ const emailTemplateQueries = {
    */
   emailTemplatesTotalCount() {
     return EmailTemplates.find({}).count();
-  }
+  },
 };
 
 moduleRequireLogin(emailTemplateQueries);

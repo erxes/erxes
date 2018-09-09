@@ -1,12 +1,12 @@
-import { connect, disconnect, graphqlRequest } from "../db/connection";
-import { brandFactory, integrationFactory, userFactory } from "../db/factories";
-import { Brands, Integrations, Users } from "../db/models";
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { brandFactory, integrationFactory, userFactory } from '../db/factories';
+import { Brands, Integrations, Users } from '../db/models';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe("Brands mutations", () => {
+describe('Brands mutations', () => {
   let _brand;
   let _user;
   let _integration;
@@ -25,7 +25,7 @@ describe("Brands mutations", () => {
   beforeEach(async () => {
     // Creating test data
     _brand = await brandFactory({});
-    _user = await userFactory({ role: "admin" });
+    _user = await userFactory({ role: 'admin' });
     _integration = await integrationFactory({});
 
     context = { user: _user };
@@ -38,10 +38,10 @@ describe("Brands mutations", () => {
     await Integrations.remove({});
   });
 
-  test("Create brand", async () => {
+  test('Create brand', async () => {
     const args = {
       name: _brand.name,
-      description: _brand.description
+      description: _brand.description,
     };
 
     const mutation = `
@@ -54,17 +54,17 @@ describe("Brands mutations", () => {
       }
     `;
 
-    const brand = await graphqlRequest(mutation, "brandsAdd", args, context);
+    const brand = await graphqlRequest(mutation, 'brandsAdd', args, context);
 
     expect(brand.name).toEqual(args.name);
     expect(brand.description).toEqual(args.description);
   });
 
-  test("Update brand", async () => {
+  test('Update brand', async () => {
     const args = {
       _id: _brand._id,
-      name: "name",
-      description: "Soem texte"
+      name: 'name',
+      description: 'Soem texte',
     };
 
     const mutation = `
@@ -77,33 +77,28 @@ describe("Brands mutations", () => {
       }
     `;
 
-    const brand = await graphqlRequest(mutation, "brandsEdit", args, context);
+    const brand = await graphqlRequest(mutation, 'brandsEdit', args, context);
 
     expect(brand.name).toBe(args.name);
     expect(brand.description).toBe(args.description);
   });
 
-  test("Remove brand", async () => {
+  test('Remove brand', async () => {
     const mutation = `
       mutation brandsRemove($_id: String!) {
         brandsRemove(_id: $_id)
       }
     `;
 
-    await graphqlRequest(
-      mutation,
-      "brandsRemove",
-      { _id: _brand._id },
-      context
-    );
+    await graphqlRequest(mutation, 'brandsRemove', { _id: _brand._id }, context);
 
     expect(await Brands.findOne({ _id: _brand._id })).toBe(null);
   });
 
-  test("Config email brand", async () => {
+  test('Config email brand', async () => {
     const args = {
       _id: _brand._id,
-      emailConfig: _brand.emailConfig
+      emailConfig: _brand.emailConfig,
     };
 
     const mutation = `
@@ -115,21 +110,16 @@ describe("Brands mutations", () => {
       }
     `;
 
-    const brand = await graphqlRequest(
-      mutation,
-      "brandsConfigEmail",
-      args,
-      context
-    );
+    const brand = await graphqlRequest(mutation, 'brandsConfigEmail', args, context);
 
     expect(brand._id).toBe(args._id);
     expect(brand.emailConfig.toJSON()).toEqual(args.emailConfig.toJSON());
   });
 
-  test("Manage brand integrations", async () => {
+  test('Manage brand integrations', async () => {
     const args = {
       _id: _brand._id,
-      integrationIds: [_integration._id]
+      integrationIds: [_integration._id],
     };
 
     const mutation = `
@@ -141,12 +131,7 @@ describe("Brands mutations", () => {
       }
     `;
 
-    const [integration] = await graphqlRequest(
-      mutation,
-      "brandsManageIntegrations",
-      args,
-      context
-    );
+    const [integration] = await graphqlRequest(mutation, 'brandsManageIntegrations', args, context);
 
     expect(integration.brandId).toBe(args._id);
   });

@@ -112,12 +112,7 @@ describe('engageQueries', () => {
     expect(response.length).toBe(3);
 
     // status yours =======
-    response = await graphqlRequest(
-      qryEngageMessages,
-      'engageMessages',
-      { status: 'yours' },
-      { user },
-    );
+    response = await graphqlRequest(qryEngageMessages, 'engageMessages', { status: 'yours' }, { user });
 
     expect(response.length).toBe(1);
   });
@@ -161,7 +156,7 @@ describe('engageQueries', () => {
     await engageMessageFactory({});
 
     const responses = await graphqlRequest(qryCount, 'engageMessageCounts', { name: 'kind' });
-    
+
     expect(responses.all).toBe(5);
     expect(responses.auto).toBe(2);
     expect(responses.manual).toBe(3);
@@ -187,12 +182,7 @@ describe('engageQueries', () => {
     expect(response.draft).toBe(1);
     expect(response.paused).toBe(1);
 
-    response = await graphqlRequest(
-      qryCount,
-      'engageMessageCounts',
-      { name: 'status', kind: 'manual' },
-      { user },
-    );
+    response = await graphqlRequest(qryCount, 'engageMessageCounts', { name: 'status', kind: 'manual' }, { user });
 
     expect(response.paused).toBe(3);
     expect(response.yours).toBe(1);

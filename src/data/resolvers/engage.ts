@@ -1,5 +1,5 @@
-import { Brands, Segments, Tags, Users } from "../../db/models";
-import { IEngageMessageDocument } from "../../db/models/definitions/engages";
+import { Brands, Segments, Tags, Users } from '../../db/models';
+import { IEngageMessageDocument } from '../../db/models/definitions/engages';
 
 export default {
   segment(engageMessage: IEngageMessageDocument) {
@@ -19,5 +19,5 @@ export default {
     if (messenger && messenger.brandId) {
       return Brands.findOne({ _id: messenger.brandId });
     }
-  }
+  },
 };

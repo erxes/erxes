@@ -1,16 +1,9 @@
-import * as moment from "moment";
-import * as schedule from "node-schedule";
-import { _ } from "underscore";
-import utils from "../data/utils";
-import {
-  Brands,
-  ConversationMessages,
-  Conversations,
-  Customers,
-  Integrations,
-  Users
-} from "../db/models";
-import { IMessageDocument } from "../db/models/definitions/conversationMessages";
+import * as moment from 'moment';
+import * as schedule from 'node-schedule';
+import { _ } from 'underscore';
+import utils from '../data/utils';
+import { Brands, ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
+import { IMessageDocument } from '../db/models/definitions/conversationMessages';
 
 /**
  * Send conversation messages to customer
@@ -22,7 +15,7 @@ export const sendMessageEmail = async () => {
   for (const conversation of conversations) {
     const customer = await Customers.findOne({ _id: conversation.customerId });
     const integration = await Integrations.findOne({
-      _id: conversation.integrationId
+      _id: conversation.integrationId,
     });
 
     if (!integration) {
@@ -40,16 +33,12 @@ export const sendMessageEmail = async () => {
     }
 
     // user's last non answered question
-    const question: IMessageDocument | any =
-      (await ConversationMessages.getNonAsnweredMessage(conversation._id)) ||
-      {};
+    const question: IMessageDocument | any = (await ConversationMessages.getNonAsnweredMessage(conversation._id)) || {};
 
     // generate admin unread answers
     const answers: any = [];
 
-    const adminMessages = await ConversationMessages.getAdminMessages(
-      conversation._id
-    );
+    const adminMessages = await ConversationMessages.getAdminMessages(conversation._id);
 
     for (const message of adminMessages) {
       const answer = message;
@@ -58,7 +47,7 @@ export const sendMessageEmail = async () => {
       answers.push({
         ...answer.toJSON(),
         user: await Users.findOne({ _id: message.userId }),
-        createdAt: new Date(moment(answer.createdAt).format("DD MMM YY, HH:mm"))
+        createdAt: new Date(moment(answer.createdAt).format('DD MMM YY, HH:mm')),
       });
     }
 
@@ -71,22 +60,17 @@ export const sendMessageEmail = async () => {
       customer,
       question: {
         ...question.toJSON(),
-        createdAt: new Date(
-          moment(question.createdAt).format("DD MMM YY, HH:mm")
-        )
+        createdAt: new Date(moment(question.createdAt).format('DD MMM YY, HH:mm')),
       },
       answers,
-      brand
+      brand,
     };
 
     // add user's signature
     const user = await Users.findOne({ _id: answers[0].userId });
 
     if (user && user.emailSignatures) {
-      const signature = await _.find(
-        user.emailSignatures,
-        s => brand._id === s.brandId
-      );
+      const signature = await _.find(user.emailSignatures, s => brand._id === s.brandId);
 
       if (signature) {
         data.signature = signature.signature;
@@ -98,10 +82,10 @@ export const sendMessageEmail = async () => {
       to: customer.primaryEmail,
       title: `Reply from "${brand.name}"`,
       template: {
-        name: "conversationCron",
+        name: 'conversationCron',
         isCustom: true,
-        data
-      }
+        data,
+      },
     });
 
     // mark sent messages as read
@@ -110,7 +94,7 @@ export const sendMessageEmail = async () => {
 };
 
 export default {
-  sendMessageEmail
+  sendMessageEmail,
 };
 
 /**
@@ -125,6 +109,6 @@ export default {
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
 // every 10 minutes
-schedule.scheduleJob("*/10 * * * *", () => {
+schedule.scheduleJob('*/10 * * * *', () => {
   sendMessageEmail();
 });

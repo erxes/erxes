@@ -1,4 +1,4 @@
-import { Model, model } from "mongoose";
+import { Model, model } from 'mongoose';
 import {
   articleSchema,
   categorySchema,
@@ -8,8 +8,8 @@ import {
   ICategoryDocument,
   ITopic,
   ITopicDocument,
-  topicSchema
-} from "./definitions/knowledgebase";
+  topicSchema,
+} from './definitions/knowledgebase';
 
 export interface IArticleCreate extends IArticle {
   categoryIds?: string[];
@@ -18,16 +18,9 @@ export interface IArticleCreate extends IArticle {
 }
 
 interface IArticleModel extends Model<IArticleDocument> {
-  createDoc(
-    { categoryIds, ...docFields }: IArticleCreate,
-    userId?: string
-  ): Promise<IArticleDocument>;
+  createDoc({ categoryIds, ...docFields }: IArticleCreate, userId?: string): Promise<IArticleDocument>;
 
-  updateDoc(
-    _id: string,
-    { categoryIds, ...docFields }: IArticleCreate,
-    userId?: string
-  ): Promise<IArticleDocument>;
+  updateDoc(_id: string, { categoryIds, ...docFields }: IArticleCreate, userId?: string): Promise<IArticleDocument>;
 
   removeDoc(_id: string): void;
 }
@@ -36,25 +29,22 @@ class Article {
   /**
    * Create KnowledgeBaseArticle document
    */
-  public static async createDoc(
-    { categoryIds, ...docFields }: IArticleCreate,
-    userId?: string
-  ) {
+  public static async createDoc({ categoryIds, ...docFields }: IArticleCreate, userId?: string) {
     if (!userId) {
-      throw new Error("userId must be supplied");
+      throw new Error('userId must be supplied');
     }
 
     const article = await KnowledgeBaseArticles.create({
       ...docFields,
       createdDate: new Date(),
       createdBy: userId,
-      modifiedDate: new Date()
+      modifiedDate: new Date(),
     });
 
     // add new article id to categories's articleIds field
     if ((categoryIds || []).length > 0) {
       const categories = await KnowledgeBaseCategories.find({
-        _id: { $in: categoryIds }
+        _id: { $in: categoryIds },
       });
 
       for (const category of categories) {
@@ -74,13 +64,9 @@ class Article {
   /**
    * Update KnowledgeBaseArticle document
    */
-  public static async updateDoc(
-    _id: string,
-    { categoryIds, ...docFields }: IArticleCreate,
-    userId?: string
-  ) {
+  public static async updateDoc(_id: string, { categoryIds, ...docFields }: IArticleCreate, userId?: string) {
     if (!userId) {
-      throw new Error("userId must be supplied");
+      throw new Error('userId must be supplied');
     }
 
     await KnowledgeBaseArticles.update(
@@ -89,21 +75,21 @@ class Article {
         $set: {
           ...docFields,
           modifiedBy: userId,
-          modifiedDate: new Date()
-        }
-      }
+          modifiedDate: new Date(),
+        },
+      },
     );
 
     const article = await KnowledgeBaseArticles.findOne({ _id });
 
     if (!article) {
-      throw new Error("Article not found");
+      throw new Error('Article not found');
     }
 
     // add new article id to categories's articleIds field
     if ((categoryIds || []).length > 0) {
       const categories = await KnowledgeBaseCategories.find({
-        _id: { $in: categoryIds }
+        _id: { $in: categoryIds },
       });
 
       for (const category of categories) {
@@ -137,16 +123,9 @@ export interface ICategoryCreate extends ICategory {
 }
 
 interface ICategoryModel extends Model<ICategoryDocument> {
-  createDoc(
-    { topicIds, ...docFields }: ICategoryCreate,
-    userId?: string
-  ): Promise<ICategoryDocument>;
+  createDoc({ topicIds, ...docFields }: ICategoryCreate, userId?: string): Promise<ICategoryDocument>;
 
-  updateDoc(
-    _id: string,
-    { topicIds, ...docFields }: ICategoryCreate,
-    userId?: string
-  ): Promise<ICategoryDocument>;
+  updateDoc(_id: string, { topicIds, ...docFields }: ICategoryCreate, userId?: string): Promise<ICategoryDocument>;
 
   removeDoc(categoryId: string): void;
 }
@@ -155,19 +134,16 @@ class Category {
   /**
    * Create KnowledgeBaseCategory document
    */
-  public static async createDoc(
-    { topicIds, ...docFields }: ICategoryCreate,
-    userId?: string
-  ) {
+  public static async createDoc({ topicIds, ...docFields }: ICategoryCreate, userId?: string) {
     if (!userId) {
-      throw new Error("userId must be supplied");
+      throw new Error('userId must be supplied');
     }
 
     const category = await KnowledgeBaseCategories.create({
       ...docFields,
       createdDate: new Date(),
       createdBy: userId,
-      modifiedDate: new Date()
+      modifiedDate: new Date(),
     });
 
     if ((topicIds || []).length > 0) {
@@ -191,13 +167,9 @@ class Category {
   /**
    * Update KnowledgeBaseCategory document
    */
-  public static async updateDoc(
-    _id: string,
-    { topicIds, ...docFields }: ICategoryCreate,
-    userId?: string
-  ) {
+  public static async updateDoc(_id: string, { topicIds, ...docFields }: ICategoryCreate, userId?: string) {
     if (!userId) {
-      throw new Error("userId must be supplied");
+      throw new Error('userId must be supplied');
     }
 
     await KnowledgeBaseCategories.update(
@@ -206,15 +178,15 @@ class Category {
         $set: {
           ...docFields,
           modifiedBy: userId,
-          modifiedDate: new Date()
-        }
-      }
+          modifiedDate: new Date(),
+        },
+      },
     );
 
     const category = await KnowledgeBaseCategories.findOne({ _id });
 
     if (!category) {
-      throw new Error("Category not found");
+      throw new Error('Category not found');
     }
 
     if ((topicIds || []).length > 0) {
@@ -244,7 +216,7 @@ class Category {
     const category = await KnowledgeBaseCategories.findOne({ _id });
 
     if (!category) {
-      throw new Error("Category not found");
+      throw new Error('Category not found');
     }
 
     for (const articleId of category.articleIds || []) {
@@ -258,11 +230,7 @@ class Category {
 interface ITopicModel extends Model<ITopicDocument> {
   createDoc(docFields: ITopic, userId?: string): Promise<ITopicDocument>;
 
-  updateDoc(
-    _id: string,
-    docFields: ITopic,
-    userId?: string
-  ): Promise<ITopicDocument>;
+  updateDoc(_id: string, docFields: ITopic, userId?: string): Promise<ITopicDocument>;
 
   removeDoc(_id: string): void;
 }
@@ -273,27 +241,23 @@ class Topic {
    */
   public static createDoc(docFields: ITopic, userId?: string) {
     if (!userId) {
-      throw new Error("userId must be supplied");
+      throw new Error('userId must be supplied');
     }
 
     return KnowledgeBaseTopics.create({
       ...docFields,
       createdDate: new Date(),
       createdBy: userId,
-      modifiedDate: new Date()
+      modifiedDate: new Date(),
     });
   }
 
   /**
    * Update KnowledgeBaseTopic document
    */
-  public static async updateDoc(
-    _id: string,
-    docFields: ITopic,
-    userId?: string
-  ) {
+  public static async updateDoc(_id: string, docFields: ITopic, userId?: string) {
     if (!userId) {
-      throw new Error("userId must be supplied");
+      throw new Error('userId must be supplied');
     }
 
     await KnowledgeBaseTopics.update(
@@ -302,9 +266,9 @@ class Topic {
         $set: {
           ...docFields,
           modifiedBy: userId,
-          modifiedDate: new Date()
-        }
-      }
+          modifiedDate: new Date(),
+        },
+      },
     );
 
     return KnowledgeBaseTopics.findOne({ _id });
@@ -317,13 +281,13 @@ class Topic {
     const topic = await KnowledgeBaseTopics.findOne({ _id });
 
     if (!topic) {
-      throw new Error("Topic not found");
+      throw new Error('Topic not found');
     }
 
     // remove child items ===========
     for (const categoryId of topic.categoryIds || []) {
       const category = await KnowledgeBaseCategories.findOne({
-        _id: categoryId
+        _id: categoryId,
       });
 
       if (category) {
@@ -337,21 +301,15 @@ class Topic {
 
 articleSchema.loadClass(Article);
 
-export const KnowledgeBaseArticles = model<IArticleDocument, IArticleModel>(
-  "knowledgebase_articles",
-  articleSchema
-);
+export const KnowledgeBaseArticles = model<IArticleDocument, IArticleModel>('knowledgebase_articles', articleSchema);
 
 categorySchema.loadClass(Category);
 
 export const KnowledgeBaseCategories = model<ICategoryDocument, ICategoryModel>(
-  "knowledgebase_categories",
-  categorySchema
+  'knowledgebase_categories',
+  categorySchema,
 );
 
 topicSchema.loadClass(Topic);
 
-export const KnowledgeBaseTopics = model<ITopicDocument, ITopicModel>(
-  "knowledgebase_topics",
-  topicSchema
-);
+export const KnowledgeBaseTopics = model<ITopicDocument, ITopicModel>('knowledgebase_topics', topicSchema);

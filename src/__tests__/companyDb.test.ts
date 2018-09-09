@@ -1,18 +1,13 @@
-import { connect, disconnect } from "../db/connection";
+import { connect, disconnect } from '../db/connection';
 import {
   activityLogFactory,
   companyFactory,
   customerFactory,
   fieldFactory,
-  internalNoteFactory
-} from "../db/factories";
-import {
-  ActivityLogs,
-  Companies,
-  Customers,
-  InternalNotes
-} from "../db/models";
-import { COC_CONTENT_TYPES } from "../db/models/definitions/constants";
+  internalNoteFactory,
+} from '../db/factories';
+import { ActivityLogs, Companies, Customers, InternalNotes } from '../db/models';
+import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
 
 beforeAll(() => connect());
 
@@ -30,21 +25,21 @@ const check = (companyObj, doc) => {
 };
 
 const generateDoc = () => ({
-  primaryName: "name",
-  names: ["name"],
-  website: "http://company.com",
+  primaryName: 'name',
+  names: ['name'],
+  website: 'http://company.com',
   size: 1,
-  industry: "Airlines",
-  plan: "pro"
+  industry: 'Airlines',
+  plan: 'pro',
 });
 
-describe("Companies model tests", () => {
+describe('Companies model tests', () => {
   let _company;
 
   beforeEach(async () => {
     _company = await companyFactory({
-      primaryName: "companyname",
-      names: ["companyname", "companyname1"]
+      primaryName: 'companyname',
+      names: ['companyname', 'companyname1'],
     });
   });
 
@@ -53,20 +48,20 @@ describe("Companies model tests", () => {
     await Companies.remove({});
   });
 
-  test("Create company", async () => {
+  test('Create company', async () => {
     expect.assertions(10);
 
     // check duplication ==============
     try {
-      await Companies.createCompany({ primaryName: "companyname" });
+      await Companies.createCompany({ primaryName: 'companyname' });
     } catch (e) {
-      expect(e.message).toBe("Duplicated name");
+      expect(e.message).toBe('Duplicated name');
     }
 
     try {
-      await Companies.createCompany({ primaryName: "companyname1" });
+      await Companies.createCompany({ primaryName: 'companyname1' });
     } catch (e) {
-      expect(e.message).toBe("Duplicated name");
+      expect(e.message).toBe('Duplicated name');
     }
 
     const doc = generateDoc();
@@ -76,26 +71,26 @@ describe("Companies model tests", () => {
     check(companyObj, doc);
   });
 
-  test("Create company: with company fields validation error", async () => {
+  test('Create company: with company fields validation error', async () => {
     expect.assertions(1);
 
-    const field = await fieldFactory({ validation: "number" });
+    const field = await fieldFactory({ validation: 'number' });
 
     if (!field) {
-      throw new Error("Field not found");
+      throw new Error('Field not found');
     }
 
     try {
       await Companies.createCompany({
-        primaryName: "name",
-        customFieldsData: { [field._id]: "invalid number" }
+        primaryName: 'name',
+        customFieldsData: { [field._id]: 'invalid number' },
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
     }
   });
 
-  test("Update company", async () => {
+  test('Update company', async () => {
     expect.assertions(9);
 
     const doc = generateDoc();
@@ -106,7 +101,7 @@ describe("Companies model tests", () => {
     try {
       await Companies.updateCompany(_company._id, doc);
     } catch (e) {
-      expect(e.message).toBe("Duplicated name");
+      expect(e.message).toBe('Duplicated name');
     }
 
     // remove previous duplicated entry
@@ -117,27 +112,27 @@ describe("Companies model tests", () => {
     check(companyObj, doc);
   });
 
-  test("Update company: with company fields validation error", async () => {
+  test('Update company: with company fields validation error', async () => {
     expect.assertions(1);
 
-    const field = await fieldFactory({ validation: "number" });
+    const field = await fieldFactory({ validation: 'number' });
 
     if (!field) {
-      throw new Error("Field not found");
+      throw new Error('Field not found');
     }
 
     try {
       await Companies.updateCompany(_company._id, {
-        primaryName: "name",
-        customFieldsData: { [field._id]: "invalid number" }
+        primaryName: 'name',
+        customFieldsData: { [field._id]: 'invalid number' },
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
     }
   });
 
-  test("Update company customers", async () => {
-    const customerIds = ["12313qwrqwe", "123", "11234"];
+  test('Update company customers', async () => {
+    const customerIds = ['12313qwrqwe', '123', '11234'];
 
     await Companies.updateCustomers(_company._id, customerIds);
 
@@ -145,38 +140,38 @@ describe("Companies model tests", () => {
       const customerObj = await Customers.findOne({ _id: customerId });
 
       if (!customerObj) {
-        throw new Error("Customer not found");
+        throw new Error('Customer not found');
       }
 
       expect(customerObj.companyIds).toContain(_company._id);
     }
   });
 
-  test("removeCompany", async () => {
+  test('removeCompany', async () => {
     const company = await companyFactory({});
     await customerFactory({ companyIds: [company._id] });
 
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id
+      contentTypeId: company._id,
     });
 
     await Companies.removeCompany(company._id);
 
     const internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id
+      contentTypeId: company._id,
     });
 
     const activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
-        id: company._id
-      }
+        id: company._id,
+      },
     });
 
     const customers = await Customers.find({
-      companyIds: { $in: [company._id] }
+      companyIds: { $in: [company._id] },
     });
 
     expect(customers).toHaveLength(0);
@@ -184,60 +179,60 @@ describe("Companies model tests", () => {
     expect(activityLog).toHaveLength(0);
   });
 
-  test("mergeCompanies", async () => {
+  test('mergeCompanies', async () => {
     expect.assertions(19);
 
     const company1 = await companyFactory({
-      tagIds: ["123", "456", "1234"],
-      names: ["company1"]
+      tagIds: ['123', '456', '1234'],
+      names: ['company1'],
     });
 
     const company2 = await companyFactory({
-      tagIds: ["1231", "123", "asd12"],
-      names: ["company2"]
+      tagIds: ['1231', '123', 'asd12'],
+      names: ['company2'],
     });
 
     const customer1 = await customerFactory({
-      companyIds: [company1._id]
+      companyIds: [company1._id],
     });
 
     const customer2 = await customerFactory({
-      companyIds: [company2._id]
+      companyIds: [company2._id],
     });
 
     const companyIds = [company1._id, company2._id];
-    const mergedTagIds = ["123", "456", "1234", "1231", "asd12"];
+    const mergedTagIds = ['123', '456', '1234', '1231', 'asd12'];
 
     // test duplication =================
     try {
       await Companies.mergeCompanies(companyIds, {
-        primaryName: "companyname"
+        primaryName: 'companyname',
       });
     } catch (e) {
-      expect(e.message).toBe("Duplicated name");
+      expect(e.message).toBe('Duplicated name');
     }
 
     // Merge without any errors ===========
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: companyIds[0]
+      contentTypeId: companyIds[0],
     });
 
     await activityLogFactory({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
-        id: companyIds[0]
-      }
+        id: companyIds[0],
+      },
     });
 
     const doc = {
-      primaryName: "Test name",
-      website: "Test webiste",
+      primaryName: 'Test name',
+      website: 'Test webiste',
       size: 230,
-      industry: "Airlines",
-      plan: "Test plan",
-      ownerId: "789",
-      parentCompanyId: "123"
+      industry: 'Airlines',
+      plan: 'Test plan',
+      ownerId: '789',
+      parentCompanyId: '123',
     };
 
     const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
@@ -246,11 +241,9 @@ describe("Companies model tests", () => {
     expect(updatedCompany.size).toBe(doc.size);
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);
-    expect(updatedCompany.names).toEqual(
-      expect.arrayContaining(["company1", "company2"])
-    );
-    expect(updatedCompany.ownerId).toBe("789");
-    expect(updatedCompany.parentCompanyId).toBe("123");
+    expect(updatedCompany.names).toEqual(expect.arrayContaining(['company1', 'company2']));
+    expect(updatedCompany.ownerId).toBe('789');
+    expect(updatedCompany.parentCompanyId).toBe('123');
 
     // Checking old company datas deleted
     expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);
@@ -259,7 +252,7 @@ describe("Companies model tests", () => {
     const customerObj1 = await Customers.findOne({ _id: customer1._id });
 
     if (!customerObj1) {
-      throw new Error("Customer not found");
+      throw new Error('Customer not found');
     }
 
     expect(customerObj1.companyIds).not.toContain(company1._id);
@@ -267,21 +260,21 @@ describe("Companies model tests", () => {
     const customerObj2 = await Customers.findOne({ _id: customer2._id });
 
     if (!customerObj2) {
-      throw new Error("Customer not found");
+      throw new Error('Customer not found');
     }
 
     expect(customerObj2.companyIds).not.toContain(company2._id);
 
     let internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: companyIds[0]
+      contentTypeId: companyIds[0],
     });
 
     let activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
-        id: companyIds[0]
-      }
+        id: companyIds[0],
+      },
     });
 
     expect(internalNote).toHaveLength(0);
@@ -295,14 +288,14 @@ describe("Companies model tests", () => {
 
     internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: updatedCompany._id
+      contentTypeId: updatedCompany._id,
     });
 
     activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
-        id: updatedCompany._id
-      }
+        id: updatedCompany._id,
+      },
     });
 
     expect(internalNote).not.toHaveLength(0);

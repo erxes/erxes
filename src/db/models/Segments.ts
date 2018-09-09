@@ -1,9 +1,5 @@
-import { Model, model } from "mongoose";
-import {
-  ISegment,
-  ISegmentDocument,
-  segmentSchema
-} from "./definitions/segments";
+import { Model, model } from 'mongoose';
+import { ISegment, ISegmentDocument, segmentSchema } from './definitions/segments';
 
 interface ISegmentModel extends Model<ISegmentDocument> {
   createSegment(doc: ISegment): Promise<ISegmentDocument>;
@@ -46,9 +42,6 @@ class Segment {
 
 segmentSchema.loadClass(Segment);
 
-const Segments = model<ISegmentDocument, ISegmentModel>(
-  "segments",
-  segmentSchema
-);
+const Segments = model<ISegmentDocument, ISegmentModel>('segments', segmentSchema);
 
 export default Segments;

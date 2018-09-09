@@ -1,13 +1,13 @@
-import { connect, disconnect } from "../db/connection";
-import { engageMessageFactory, tagsFactory } from "../db/factories";
-import { EngageMessages, Tags } from "../db/models";
-import { tagObject, validateUniqueness } from "../db/models/Tags";
+import { connect, disconnect } from '../db/connection';
+import { engageMessageFactory, tagsFactory } from '../db/factories';
+import { EngageMessages, Tags } from '../db/models';
+import { tagObject, validateUniqueness } from '../db/models/Tags';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe("Test tags model", () => {
+describe('Test tags model', () => {
   let _tag;
   let _tag2;
   let _message;
@@ -25,14 +25,10 @@ describe("Test tags model", () => {
     await EngageMessages.remove({});
   });
 
-  test("Validate unique tag", async () => {
-    const empty = await validateUniqueness({}, "", "");
+  test('Validate unique tag', async () => {
+    const empty = await validateUniqueness({}, '', '');
 
-    const selectTag = await validateUniqueness(
-      { type: _tag2.type },
-      "new tag",
-      _tag2.type
-    );
+    const selectTag = await validateUniqueness({ type: _tag2.type }, 'new tag', _tag2.type);
 
     const existing = await validateUniqueness({}, _tag.name, _tag.type);
 
@@ -41,47 +37,47 @@ describe("Test tags model", () => {
     expect(existing).toEqual(false);
   });
 
-  test("Tag not found", async () => {
+  test('Tag not found', async () => {
     expect.assertions(1);
     try {
       await tagObject({
         tagIds: [_tag._id],
         objectIds: [],
         collection: EngageMessages,
-        tagType: "customer"
+        tagType: 'customer',
       });
     } catch (e) {
-      expect(e.message).toEqual("Tag not found.");
+      expect(e.message).toEqual('Tag not found.');
     }
   });
 
-  test("Attach tag type", async () => {
-    Tags.tagsTag("customer", [], []);
+  test('Attach tag type', async () => {
+    Tags.tagsTag('customer', [], []);
   });
 
-  test("Create tag check duplicated", async () => {
+  test('Create tag check duplicated', async () => {
     expect.assertions(1);
     try {
       await Tags.createTag(_tag2);
     } catch (e) {
-      expect(e.message).toEqual("Tag duplicated");
+      expect(e.message).toEqual('Tag duplicated');
     }
   });
 
-  test("Update tag check duplicated", async () => {
+  test('Update tag check duplicated', async () => {
     expect.assertions(1);
     try {
       await Tags.updateTag(_tag2._id, { name: _tag.name, type: _tag.type });
     } catch (e) {
-      expect(e.message).toEqual("Tag duplicated");
+      expect(e.message).toEqual('Tag duplicated');
     }
   });
 
-  test("Create tag", async () => {
+  test('Create tag', async () => {
     const tagObj = await Tags.createTag({
       name: `${_tag.name}1`,
       type: _tag.type,
-      colorCode: _tag.colorCode
+      colorCode: _tag.colorCode,
     });
 
     expect(tagObj).toBeDefined();
@@ -90,11 +86,11 @@ describe("Test tags model", () => {
     expect(tagObj.colorCode).toEqual(_tag.colorCode);
   });
 
-  test("Update tag", async () => {
+  test('Update tag', async () => {
     const tagObj = await Tags.updateTag(_tag._id, {
       name: _tag.name,
       type: _tag.type,
-      colorCode: _tag.colorCode
+      colorCode: _tag.colorCode,
     });
 
     expect(tagObj).toBeDefined();
@@ -103,13 +99,13 @@ describe("Test tags model", () => {
     expect(tagObj.colorCode).toEqual(_tag.colorCode);
   });
 
-  test("Remove tag", async () => {
+  test('Remove tag', async () => {
     const isDeleted = await Tags.removeTag([_tag.id]);
     expect(isDeleted).toBeTruthy();
   });
 
-  test("Tags tag", async () => {
-    const type = "engageMessage";
+  test('Tags tag', async () => {
+    const type = 'engageMessage';
     const targetIds = [_message._id];
     const tagIds = [_tag._id];
 
@@ -119,37 +115,34 @@ describe("Test tags model", () => {
     const tagObj = await Tags.findOne({ _id: _tag._id });
 
     if (!messageObj || !messageObj.tagIds) {
-      throw new Error("Engage message not found");
+      throw new Error('Engage message not found');
     }
 
     if (!tagObj) {
-      throw new Error("Tag not found");
+      throw new Error('Tag not found');
     }
 
     expect(tagObj.objectCount).toBe(1);
     expect(messageObj.tagIds[0]).toEqual(_tag.id);
   });
 
-  test("Attach company tag", async () => {
-    Tags.tagsTag("company", [], []);
+  test('Attach company tag', async () => {
+    Tags.tagsTag('company', [], []);
   });
 
-  test("Remove tag not found", async () => {
+  test('Remove tag not found', async () => {
     expect.assertions(1);
     try {
       await Tags.removeTag([_message._id]);
     } catch (e) {
-      expect(e.message).toEqual("Tag not found");
+      expect(e.message).toEqual('Tag not found');
     }
   });
 
   test("Can't remove a tag", async () => {
     expect.assertions(1);
     try {
-      await EngageMessages.update(
-        { _id: _message._id },
-        { $set: { tagIds: [_tag._id] } }
-      );
+      await EngageMessages.update({ _id: _message._id }, { $set: { tagIds: [_tag._id] } });
       await Tags.removeTag([_tag._id]);
     } catch (e) {
       expect(e.message).toEqual("Can't remove a tag with tagged object(s)");

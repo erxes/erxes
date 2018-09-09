@@ -1,5 +1,5 @@
-import { withFilter } from "graphql-subscriptions";
-import pubsub from "./pubsub";
+import { withFilter } from 'graphql-subscriptions';
+import pubsub from './pubsub';
 
 export default {
   /*
@@ -7,11 +7,11 @@ export default {
   */
   customerConnectionChanged: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator("customerConnectionChanged"),
+      () => pubsub.asyncIterator('customerConnectionChanged'),
       // filter by customerId
       (payload, variables) => {
         return payload.customerConnectionChanged._id === variables._id;
-      }
-    )
-  }
+      },
+    ),
+  },
 };

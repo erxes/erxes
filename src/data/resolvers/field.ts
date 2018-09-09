@@ -1,8 +1,5 @@
-import { Fields, Users } from "../../db/models";
-import {
-  IFieldDocument,
-  IFieldGroupDocument
-} from "../../db/models/definitions/fields";
+import { Fields, Users } from '../../db/models';
+import { IFieldDocument, IFieldGroupDocument } from '../../db/models/definitions/fields';
 
 const Field = {
   lastUpdatedUser(field: IFieldDocument) {
@@ -10,7 +7,7 @@ const Field = {
 
     // Returning user who updated the field last
     return Users.findOne({ _id: lastUpdatedUserId });
-  }
+  },
 };
 
 const FieldsGroup = {
@@ -24,7 +21,7 @@ const FieldsGroup = {
 
     // Returning user who updated the group last
     return Users.findOne({ _id: lastUpdatedUserId });
-  }
+  },
 };
 
 export { Field, FieldsGroup };

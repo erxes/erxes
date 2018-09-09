@@ -1,10 +1,5 @@
-import {
-  DealBoards,
-  DealPipelines,
-  Deals,
-  DealStages
-} from "../../../db/models";
-import { moduleRequireLogin } from "../../permissions";
+import { DealBoards, DealPipelines, Deals, DealStages } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
 const dealQueries = {
   /**
@@ -52,14 +47,7 @@ const dealQueries = {
   /**
    * Deals list
    */
-  deals(
-    _root,
-    {
-      stageId,
-      customerId,
-      companyId
-    }: { stageId: string; customerId: string; companyId: string }
-  ) {
+  deals(_root, { stageId, customerId, companyId }: { stageId: string; customerId: string; companyId: string }) {
     const filter: any = {};
 
     if (stageId) {
@@ -82,7 +70,7 @@ const dealQueries = {
    */
   dealDetail(_root, { _id }: { _id: string }) {
     return Deals.findOne({ _id });
-  }
+  },
 };
 
 moduleRequireLogin(dealQueries);

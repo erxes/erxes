@@ -1,18 +1,18 @@
-import { connect, disconnect, graphqlRequest } from "../db/connection";
-import { conversationFactory, userFactory } from "../db/factories";
-import { Conversations, Users } from "../db/models";
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { conversationFactory, userFactory } from '../db/factories';
+import { Conversations, Users } from '../db/models';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe("userQueries", () => {
+describe('userQueries', () => {
   afterEach(async () => {
     // Clearing test data
     await Users.remove({});
     await Conversations.remove({});
   });
 
-  test("Users", async () => {
+  test('Users', async () => {
     // Creating test data
     await userFactory({});
     await userFactory({});
@@ -47,15 +47,15 @@ describe("userQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "users", {
+    const response = await graphqlRequest(qry, 'users', {
       page: 1,
-      perPage: 2
+      perPage: 2,
     });
     // 1 in graphRequest + above 3
     expect(response.length).toBe(2);
   });
 
-  test("User detail", async () => {
+  test('User detail', async () => {
     const user = await userFactory({});
 
     const qry = `
@@ -66,12 +66,12 @@ describe("userQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "userDetail", { _id: user._id });
+    const response = await graphqlRequest(qry, 'userDetail', { _id: user._id });
 
     expect(response._id).toBe(user._id);
   });
 
-  test("Get total count of users", async () => {
+  test('Get total count of users', async () => {
     // Creating test data
     await userFactory({});
     await userFactory({});
@@ -83,13 +83,13 @@ describe("userQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "usersTotalCount");
+    const response = await graphqlRequest(qry, 'usersTotalCount');
 
     // 1 in graphRequest + above 3
     expect(response).toBe(4);
   });
 
-  test("Current user", async () => {
+  test('Current user', async () => {
     const user = await userFactory({});
 
     const qry = `
@@ -100,12 +100,12 @@ describe("userQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "currentUser", {}, { user });
+    const response = await graphqlRequest(qry, 'currentUser', {}, { user });
 
     expect(response._id).toBe(user._id);
   });
 
-  test("User conversations", async () => {
+  test('User conversations', async () => {
     const user = await userFactory({});
 
     // Creating test data
@@ -115,7 +115,7 @@ describe("userQueries", () => {
 
     const args = {
       _id: user._id,
-      perPage: 5
+      perPage: 5,
     };
 
     const qry = `
@@ -129,7 +129,7 @@ describe("userQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "userConversations", args);
+    const response = await graphqlRequest(qry, 'userConversations', args);
 
     expect(response.list.length).toBe(2);
     expect(response.totalCount).toBe(2);

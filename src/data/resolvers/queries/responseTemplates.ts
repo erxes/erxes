@@ -1,6 +1,6 @@
-import { ResponseTemplates } from "../../../db/models";
-import { moduleRequireLogin } from "../../permissions";
-import { paginate } from "./utils";
+import { ResponseTemplates } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const responseTemplateQueries = {
   /**
@@ -15,7 +15,7 @@ const responseTemplateQueries = {
    */
   responseTemplatesTotalCount() {
     return ResponseTemplates.find({}).count();
-  }
+  },
 };
 
 moduleRequireLogin(responseTemplateQueries);

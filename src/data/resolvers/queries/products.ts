@@ -1,6 +1,6 @@
-import { Products } from "../../../db/models";
-import { moduleRequireLogin } from "../../permissions";
-import { paginate } from "./utils";
+import { Products } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const productQueries = {
   /**
@@ -8,11 +8,7 @@ const productQueries = {
    */
   products(
     _root,
-    {
-      type,
-      searchValue,
-      ...pagintationArgs
-    }: { type: string; searchValue: string; page: number; perPage: number }
+    { type, searchValue, ...pagintationArgs }: { type: string; searchValue: string; page: number; perPage: number },
   ) {
     const filter: any = {};
 
@@ -22,7 +18,7 @@ const productQueries = {
 
     // search =========
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, "i");
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
     return paginate(Products.find(filter), pagintationArgs);
@@ -39,7 +35,7 @@ const productQueries = {
     }
 
     return Products.find(filter).count();
-  }
+  },
 };
 
 moduleRequireLogin(productQueries);

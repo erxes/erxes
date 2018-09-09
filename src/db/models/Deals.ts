@@ -1,4 +1,4 @@
-import { Model, model } from "mongoose";
+import { Model, model } from 'mongoose';
 import {
   boardSchema,
   dealSchema,
@@ -11,8 +11,8 @@ import {
   IStage,
   IStageDocument,
   pipelineSchema,
-  stageSchema
-} from "./definitions/deals";
+  stageSchema,
+} from './definitions/deals';
 
 export interface IOrderInput {
   _id: string;
@@ -32,10 +32,7 @@ const updateListOrder = async (collection: any, orders: IOrderInput[]) => {
   return collection.find({ _id: { $in: ids } }).sort({ order: 1 });
 };
 
-const createOrUpdatePipelineStages = async (
-  stages: IStageDocument[],
-  pipelineId: string
-) => {
+const createOrUpdatePipelineStages = async (stages: IStageDocument[], pipelineId: string) => {
   let order = 0;
 
   for (const stage of stages) {
@@ -56,7 +53,7 @@ const createOrUpdatePipelineStages = async (
 
   const removedStages = await DealStages.find({
     pipelineId,
-    _id: { $nin: stages.map(s => s._id) }
+    _id: { $nin: stages.map(s => s._id) },
   });
 
   for (const stage of removedStages) {
@@ -94,7 +91,7 @@ class Board {
     const board = await DealBoards.findOne({ _id });
 
     if (!board) {
-      throw new Error("Board not found");
+      throw new Error('Board not found');
     }
 
     const count = await DealPipelines.find({ boardId: _id }).count();
@@ -108,16 +105,9 @@ class Board {
 }
 
 interface IPipelineModel extends Model<IPipelineDocument> {
-  createPipeline(
-    doc: IPipeline,
-    stages: IStageDocument[]
-  ): Promise<IPipelineDocument>;
+  createPipeline(doc: IPipeline, stages: IStageDocument[]): Promise<IPipelineDocument>;
 
-  updatePipeline(
-    _id: string,
-    doc: IPipeline,
-    stages: IStageDocument[]
-  ): Promise<IPipelineDocument>;
+  updatePipeline(_id: string, doc: IPipeline, stages: IStageDocument[]): Promise<IPipelineDocument>;
 
   updateOrder(orders: IOrderInput[]): any[];
   removePipeline(_id: string): void;
@@ -140,11 +130,7 @@ class Pipeline {
   /**
    * Update Pipeline
    */
-  public static async updatePipeline(
-    _id: string,
-    doc: IPipeline,
-    stages: IStageDocument[]
-  ) {
+  public static async updatePipeline(_id: string, doc: IPipeline, stages: IStageDocument[]) {
     if (stages) {
       await createOrUpdatePipelineStages(stages, _id);
     }
@@ -168,7 +154,7 @@ class Pipeline {
     const pipeline = await DealPipelines.findOne({ _id });
 
     if (!pipeline) {
-      throw new Error("Pipeline not found");
+      throw new Error('Pipeline not found');
     }
 
     const count = await DealStages.find({ pipelineId: _id }).count();
@@ -230,7 +216,7 @@ class Stage {
     const stage = await DealStages.findOne({ _id });
 
     if (!stage) {
-      throw new Error("Stage not found");
+      throw new Error('Stage not found');
     }
 
     const count = await Deals.find({ stageId: _id }).count();
@@ -281,7 +267,7 @@ class Deal {
     const deal = await Deals.findOne({ _id });
 
     if (!deal) {
-      throw new Error("Deal not found");
+      throw new Error('Deal not found');
     }
 
     return deal.remove();
@@ -293,21 +279,12 @@ pipelineSchema.loadClass(Pipeline);
 stageSchema.loadClass(Stage);
 dealSchema.loadClass(Deal);
 
-const DealBoards = model<IBoardDocument, IBoardModel>(
-  "deal_boards",
-  boardSchema
-);
+const DealBoards = model<IBoardDocument, IBoardModel>('deal_boards', boardSchema);
 
-const DealPipelines = model<IPipelineDocument, IPipelineModel>(
-  "deal_pipelines",
-  pipelineSchema
-);
+const DealPipelines = model<IPipelineDocument, IPipelineModel>('deal_pipelines', pipelineSchema);
 
-const DealStages = model<IStageDocument, IStageModel>(
-  "deal_stages",
-  stageSchema
-);
+const DealStages = model<IStageDocument, IStageModel>('deal_stages', stageSchema);
 
-const Deals = model<IDealDocument, IDealModel>("deals", dealSchema);
+const Deals = model<IDealDocument, IDealModel>('deals', dealSchema);
 
 export { DealBoards, DealPipelines, DealStages, Deals };

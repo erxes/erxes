@@ -1,11 +1,7 @@
-import { Model, model } from "mongoose";
-import * as strip from "strip";
-import { Conversations } from ".";
-import {
-  IMessage,
-  IMessageDocument,
-  messageSchema
-} from "./definitions/conversationMessages";
+import { Model, model } from 'mongoose';
+import * as strip from 'strip';
+import { Conversations } from '.';
+import { IMessage, IMessageDocument, messageSchema } from './definitions/conversationMessages';
 
 interface IMessageModel extends Model<IMessageDocument> {
   createMessage(doc: IMessage): Promise<IMessageDocument>;
@@ -23,11 +19,11 @@ class Message {
     const message = await Messages.create({
       internal: false,
       ...doc,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
 
     const messageCount = await Messages.find({
-      conversationId: message.conversationId
+      conversationId: message.conversationId,
     }).count();
 
     await Conversations.update(
@@ -37,17 +33,14 @@ class Message {
           messageCount,
 
           // updating updatedAt
-          updatedAt: new Date()
-        }
-      }
+          updatedAt: new Date(),
+        },
+      },
     );
 
     if (message.userId) {
       // add created user to participators
-      await Conversations.addParticipatedUsers(
-        message.conversationId,
-        message.userId
-      );
+      await Conversations.addParticipatedUsers(message.conversationId, message.userId);
     }
 
     // add mentioned users to participators
@@ -63,7 +56,7 @@ class Message {
    */
   public static async addMessage(doc: IMessage, userId: string) {
     const conversation = await Conversations.findOne({
-      _id: doc.conversationId
+      _id: doc.conversationId,
     });
 
     if (!conversation) {
@@ -71,7 +64,7 @@ class Message {
     }
 
     // normalize content, attachments
-    const content = doc.content || "";
+    const content = doc.content || '';
     const attachments = doc.attachments || [];
 
     doc.content = content;
@@ -79,14 +72,11 @@ class Message {
 
     // if there is no attachments and no content then throw content required error
     if (attachments.length === 0 && !strip(content)) {
-      throw new Error("Content is required");
+      throw new Error('Content is required');
     }
 
     // setting conversation's content to last message
-    await Conversations.update(
-      { _id: doc.conversationId },
-      { $set: { content } }
-    );
+    await Conversations.update({ _id: doc.conversationId }, { $set: { content } });
 
     return this.createMessage({ ...doc, userId });
   }
@@ -97,7 +87,7 @@ class Message {
   public static getNonAsnweredMessage(conversationId: string) {
     return Messages.findOne({
       conversationId,
-      customerId: { $exists: true }
+      customerId: { $exists: true },
     }).sort({ createdAt: -1 });
   }
 
@@ -111,7 +101,7 @@ class Message {
       isCustomerRead: false,
 
       // exclude internal notes
-      internal: false
+      internal: false,
     }).sort({ createdAt: 1 });
   }
 
@@ -123,19 +113,16 @@ class Message {
       {
         conversationId,
         userId: { $exists: true },
-        isCustomerRead: { $exists: false }
+        isCustomerRead: { $exists: false },
       },
       { $set: { isCustomerRead: true } },
-      { multi: true }
+      { multi: true },
     );
   }
 }
 
 messageSchema.loadClass(Message);
 
-const Messages = model<IMessageDocument, IMessageModel>(
-  "conversation_messages",
-  messageSchema
-);
+const Messages = model<IMessageDocument, IMessageModel>('conversation_messages', messageSchema);
 
 export default Messages;

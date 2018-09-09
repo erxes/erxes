@@ -1,8 +1,8 @@
-import { Fields, FieldsGroups } from "../../../db/models";
-import { IField, IFieldGroup } from "../../../db/models/definitions/fields";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import { IOrderInput } from "../../../db/models/Fields";
-import { moduleRequireLogin } from "../../permissions";
+import { Fields, FieldsGroups } from '../../../db/models';
+import { IField, IFieldGroup } from '../../../db/models/definitions/fields';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { IOrderInput } from '../../../db/models/Fields';
+import { moduleRequireLogin } from '../../permissions';
 
 interface IFieldsEdit extends IField {
   _id: string;
@@ -23,11 +23,7 @@ const fieldMutations = {
   /**
    * Updates field object
    */
-  fieldsEdit(
-    _root,
-    { _id, ...doc }: IFieldsEdit,
-    { user }: { user: IUserDocument }
-  ) {
+  fieldsEdit(_root, { _id, ...doc }: IFieldsEdit, { user }: { user: IUserDocument }) {
     return Fields.updateField(_id, { ...doc, lastUpdatedUserId: user._id });
   },
 
@@ -51,10 +47,10 @@ const fieldMutations = {
   fieldsUpdateVisible(
     _root,
     { _id, isVisible }: { _id: string; isVisible: boolean },
-    { user }: { user: IUserDocument }
+    { user }: { user: IUserDocument },
   ) {
     return Fields.updateFieldsVisible(_id, isVisible, user._id);
-  }
+  },
 };
 
 const fieldsGroupsMutations = {
@@ -68,14 +64,10 @@ const fieldsGroupsMutations = {
   /**
    * Update group for fields
    */
-  fieldsGroupsEdit(
-    _root,
-    { _id, ...doc }: IFieldsGroupsEdit,
-    { user }: { user: IUserDocument }
-  ) {
+  fieldsGroupsEdit(_root, { _id, ...doc }: IFieldsGroupsEdit, { user }: { user: IUserDocument }) {
     return FieldsGroups.updateGroup(_id, {
       ...doc,
-      lastUpdatedUserId: user._id
+      lastUpdatedUserId: user._id,
     });
   },
 
@@ -92,10 +84,10 @@ const fieldsGroupsMutations = {
   fieldsGroupsUpdateVisible(
     _root,
     { _id, isVisible }: { _id: string; isVisible: boolean },
-    { user }: { user: IUserDocument }
+    { user }: { user: IUserDocument },
   ) {
     return FieldsGroups.updateGroupVisible(_id, isVisible, user._id);
-  }
+  },
 };
 
 moduleRequireLogin(fieldMutations);

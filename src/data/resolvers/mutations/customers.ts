@@ -1,8 +1,8 @@
-import { ActivityLogs, Customers } from "../../../db/models";
+import { ActivityLogs, Customers } from '../../../db/models';
 
-import { ICustomer } from "../../../db/models/definitions/customers";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import { moduleRequireLogin } from "../../permissions";
+import { ICustomer } from '../../../db/models/definitions/customers';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { moduleRequireLogin } from '../../permissions';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -30,23 +30,14 @@ const customerMutations = {
   /**
    * Update customer Companies
    */
-  async customersEditCompanies(
-    _root,
-    { _id, companyIds }: { _id: string; companyIds: string[] }
-  ) {
+  async customersEditCompanies(_root, { _id, companyIds }: { _id: string; companyIds: string[] }) {
     return Customers.updateCompanies(_id, companyIds);
   },
 
   /**
    * Merge customers
    */
-  async customersMerge(
-    _root,
-    {
-      customerIds,
-      customerFields
-    }: { customerIds: string[]; customerFields: ICustomer }
-  ) {
+  async customersMerge(_root, { customerIds, customerFields }: { customerIds: string[]; customerFields: ICustomer }) {
     return Customers.mergeCustomers(customerIds, customerFields);
   },
 
@@ -60,7 +51,7 @@ const customerMutations = {
     }
 
     return customerIds;
-  }
+  },
 };
 
 moduleRequireLogin(customerMutations);

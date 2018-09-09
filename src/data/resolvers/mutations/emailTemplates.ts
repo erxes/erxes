@@ -1,6 +1,6 @@
-import { EmailTemplates } from "../../../db/models";
-import { IEmailTemplate } from "../../../db/models/definitions/emailTemplates";
-import { moduleRequireLogin } from "../../permissions";
+import { EmailTemplates } from '../../../db/models';
+import { IEmailTemplate } from '../../../db/models/definitions/emailTemplates';
+import { moduleRequireLogin } from '../../permissions';
 
 interface IEmailTemplatesEdit extends IEmailTemplate {
   _id: string;
@@ -26,7 +26,7 @@ const emailTemplateMutations = {
    */
   emailTemplatesRemove(_root, { _id }: { _id: string }) {
     return EmailTemplates.removeEmailTemplate(_id);
-  }
+  },
 };
 
 moduleRequireLogin(emailTemplateMutations);

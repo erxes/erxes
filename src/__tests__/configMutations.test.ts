@@ -1,17 +1,17 @@
-import { connect, disconnect, graphqlRequest } from "../db/connection";
-import { userFactory } from "../db/factories";
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { userFactory } from '../db/factories';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe("Test configs mutations", () => {
-  test("Insert config", async () => {
-    const context = { user: await userFactory({ role: "admin" }) };
+describe('Test configs mutations', () => {
+  test('Insert config', async () => {
+    const context = { user: await userFactory({ role: 'admin' }) };
 
     const args = {
-      code: "dealUOM",
-      value: ["MNT"]
+      code: 'dealUOM',
+      value: ['MNT'],
     };
 
     const mutation = `
@@ -24,14 +24,9 @@ describe("Test configs mutations", () => {
       }
     `;
 
-    const config = await graphqlRequest(
-      mutation,
-      "configsInsert",
-      args,
-      context
-    );
+    const config = await graphqlRequest(mutation, 'configsInsert', args, context);
 
     expect(config.value.length).toEqual(1);
-    expect(config.value[0]).toEqual("MNT");
+    expect(config.value[0]).toEqual('MNT');
   });
 });

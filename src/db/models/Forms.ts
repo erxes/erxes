@@ -1,17 +1,14 @@
-import * as Random from "meteor-random";
-import { Model, model } from "mongoose";
-import { FIELD_CONTENT_TYPES } from "../../data/constants";
-import { Fields } from "./";
-import { formSchema, IForm, IFormDocument } from "./definitions/forms";
+import * as Random from 'meteor-random';
+import { Model, model } from 'mongoose';
+import { FIELD_CONTENT_TYPES } from '../../data/constants';
+import { Fields } from './';
+import { formSchema, IForm, IFormDocument } from './definitions/forms';
 
 interface IFormModel extends Model<IFormDocument> {
   generateCode(): string;
   createForm(doc: IForm, createdUserId?: string): Promise<IFormDocument>;
 
-  updateForm(
-    _id,
-    { title, description, buttonText, themeColor, callout }: IForm
-  ): Promise<IFormDocument>;
+  updateForm(_id, { title, description, buttonText, themeColor, callout }: IForm): Promise<IFormDocument>;
 
   removeForm(_id: string): void;
   duplicate(_id: string): Promise<IFormDocument>;
@@ -38,7 +35,7 @@ class Form {
    */
   public static async createForm(doc: IForm, createdUserId?: string) {
     if (!createdUserId) {
-      throw new Error("createdUser must be supplied");
+      throw new Error('createdUser must be supplied');
     }
 
     doc.code = await this.generateCode();
@@ -46,21 +43,18 @@ class Form {
     return Forms.create({
       ...doc,
       createdDate: new Date(),
-      createdUserId
+      createdUserId,
     });
   }
 
   /**
    * Updates a form document
    */
-  public static async updateForm(
-    _id: string,
-    { title, description, buttonText, themeColor, callout }: IForm
-  ) {
+  public static async updateForm(_id: string, { title, description, buttonText, themeColor, callout }: IForm) {
     await Forms.update(
       { _id },
       { $set: { title, description, buttonText, themeColor, callout } },
-      { runValidators: true }
+      { runValidators: true },
     );
 
     return Forms.findOne({ _id });
@@ -71,7 +65,7 @@ class Form {
    */
   public static async removeForm(_id: string) {
     // remove fields
-    await Fields.remove({ contentType: "form", contentTypeId: _id });
+    await Fields.remove({ contentType: 'form', contentTypeId: _id });
 
     return Forms.remove({ _id });
   }
@@ -83,16 +77,16 @@ class Form {
     const form = await Forms.findOne({ _id });
 
     if (!form) {
-      throw new Error("Form not found");
+      throw new Error('Form not found');
     }
 
     // duplicate form ===================
     const newForm = await this.createForm(
       {
         title: `${form.title} duplicated`,
-        description: form.description
+        description: form.description,
       },
-      form.createdUserId
+      form.createdUserId,
     );
 
     // duplicate fields ===================
@@ -108,7 +102,7 @@ class Form {
         description: field.description,
         options: field.options,
         isRequired: field.isRequired,
-        order: field.order
+        order: field.order,
       });
     }
 
@@ -118,6 +112,6 @@ class Form {
 
 formSchema.loadClass(Form);
 
-const Forms = model<IFormDocument, IFormModel>("forms", formSchema);
+const Forms = model<IFormDocument, IFormModel>('forms', formSchema);
 
 export default Forms;

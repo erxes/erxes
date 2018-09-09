@@ -1,16 +1,9 @@
-import * as bcrypt from "bcrypt";
-import * as crypto from "crypto";
-import * as jwt from "jsonwebtoken";
-import { Model, model } from "mongoose";
-import * as sha256 from "sha256";
-import {
-  IDetail,
-  IEmailSignature,
-  ILink,
-  IUser,
-  IUserDocument,
-  userSchema
-} from "./definitions/users";
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import * as jwt from 'jsonwebtoken';
+import { Model, model } from 'mongoose';
+import * as sha256 from 'sha256';
+import { IDetail, IEmailSignature, ILink, IUser, IUserDocument, userSchema } from './definitions/users';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -36,32 +29,20 @@ interface IUserModel extends Model<IUserDocument> {
 
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
 
-  configEmailSignatures(
-    _id: string,
-    signatures: IEmailSignature[]
-  ): Promise<IUserDocument>;
+  configEmailSignatures(_id: string, signatures: IEmailSignature[]): Promise<IUserDocument>;
 
-  configGetNotificationByEmail(
-    _id: string,
-    isAllowed: boolean
-  ): Promise<IUserDocument>;
+  configGetNotificationByEmail(_id: string, isAllowed: boolean): Promise<IUserDocument>;
 
   removeUser(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): string;
   comparePassword(password: string, userPassword: string): boolean;
 
-  resetPassword({
-    token,
-    newPassword
-  }: {
-    token: string;
-    newPassword: string;
-  }): Promise<IUserDocument>;
+  resetPassword({ token, newPassword }: { token: string; newPassword: string }): Promise<IUserDocument>;
 
   changePassword({
     _id,
     currentPassword,
-    newPassword
+    newPassword,
   }: {
     _id: string;
     currentPassword: string;
@@ -71,36 +52,22 @@ interface IUserModel extends Model<IUserDocument> {
   forgotPassword(email: string): string;
   createTokens(_user: IUserDocument, secret: string): string[];
 
-  refreshTokens(
-    refreshToken: string
-  ): { token: string; refreshToken: string; user: IUserDocument };
+  refreshTokens(refreshToken: string): { token: string; refreshToken: string; user: IUserDocument };
 
-  login({
-    email,
-    password
-  }: {
-    email: string;
-    password?: string;
-  }): { token: string; refreshToken: string };
+  login({ email, password }: { email: string; password?: string }): { token: string; refreshToken: string };
 }
 
 class User {
   /**
    * Checking if user has duplicated properties
    */
-  public static async checkDuplication(
-    email?: string,
-    idsToExclude?: string | string[]
-  ) {
+  public static async checkDuplication(email?: string, idsToExclude?: string | string[]) {
     const query: { [key: string]: any } = {};
     let previousEntry;
 
     // Adding exclude operator to the query
     if (idsToExclude) {
-      query._id =
-        idsToExclude instanceof Array
-          ? { $nin: idsToExclude }
-          : { $ne: idsToExclude };
+      query._id = idsToExclude instanceof Array ? { $nin: idsToExclude } : { $ne: idsToExclude };
     }
 
     // Checking if user has email
@@ -109,29 +76,22 @@ class User {
 
       // Checking if duplicated
       if (previousEntry.length > 0) {
-        throw new Error("Duplicated email");
+        throw new Error('Duplicated email');
       }
     }
   }
 
   public static getSecret() {
-    return "dfjklsafjjekjtejifjidfjsfd";
+    return 'dfjklsafjjekjtejifjidfjsfd';
   }
 
   /**
    * Create new user
    */
-  public static async createUser({
-    username,
-    email,
-    password,
-    role,
-    details,
-    links
-  }: IUser) {
+  public static async createUser({ username, email, password, role, details, links }: IUser) {
     // empty string password validation
-    if (password === "") {
-      throw new Error("Password can not be empty");
+    if (password === '') {
+      throw new Error('Password can not be empty');
     }
 
     // Checking duplicated email
@@ -145,17 +105,14 @@ class User {
       links,
       isActive: true,
       // hash password
-      password: await this.generatePassword(password)
+      password: await this.generatePassword(password),
     });
   }
 
   /**
    * Update user information
    */
-  public static async updateUser(
-    _id: string,
-    { username, email, password, role, details, links }: IUpdateUser
-  ) {
+  public static async updateUser(_id: string, { username, email, password, role, details, links }: IUpdateUser) {
     const doc = { username, email, password, role, details, links };
 
     // Checking duplicated email
@@ -178,10 +135,7 @@ class User {
   /*
    * Update user profile
    */
-  public static async editProfile(
-    _id: string,
-    { username, email, details, links }: IEditProfile
-  ) {
+  public static async editProfile(_id: string, { username, email, details, links }: IEditProfile) {
     // Checking duplicated email
     await this.checkDuplication(email, _id);
 
@@ -193,10 +147,7 @@ class User {
   /*
    * Update email signatures
    */
-  public static async configEmailSignatures(
-    _id: string,
-    signatures: IEmailSignature[]
-  ) {
+  public static async configEmailSignatures(_id: string, signatures: IEmailSignature[]) {
     await Users.update({ _id }, { $set: { emailSignatures: signatures } });
 
     return Users.findOne({ _id });
@@ -205,14 +156,8 @@ class User {
   /*
    * Config get notifications by emmail
    */
-  public static async configGetNotificationByEmail(
-    _id: string,
-    isAllowed: boolean
-  ) {
-    await Users.update(
-      { _id },
-      { $set: { getNotificationByEmail: isAllowed } }
-    );
+  public static async configGetNotificationByEmail(_id: string, isAllowed: boolean) {
+    await Users.update({ _id }, { $set: { getNotificationByEmail: isAllowed } });
 
     return Users.findOne({ _id });
   }
@@ -247,27 +192,21 @@ class User {
   /*
    * Resets user password by given token & password
    */
-  public static async resetPassword({
-    token,
-    newPassword
-  }: {
-    token: string;
-    newPassword: string;
-  }) {
+  public static async resetPassword({ token, newPassword }: { token: string; newPassword: string }) {
     // find user by token
     const user = await Users.findOne({
       resetPasswordToken: token,
       resetPasswordExpires: {
-        $gt: Date.now()
-      }
+        $gt: Date.now(),
+      },
     });
 
     if (!user) {
-      throw new Error("Password reset token is invalid or has expired.");
+      throw new Error('Password reset token is invalid or has expired.');
     }
 
     if (!newPassword) {
-      throw new Error("Password is required.");
+      throw new Error('Password is required.');
     }
 
     // set new password
@@ -276,8 +215,8 @@ class User {
       {
         password: await this.generatePassword(newPassword),
         resetPasswordToken: undefined,
-        resetPasswordExpires: undefined
-      }
+        resetPasswordExpires: undefined,
+      },
     );
 
     return Users.findOne({ _id: user._id });
@@ -289,36 +228,36 @@ class User {
   public static async changePassword({
     _id,
     currentPassword,
-    newPassword
+    newPassword,
   }: {
     _id: string;
     currentPassword: string;
     newPassword: string;
   }) {
     // Password can not be empty string
-    if (newPassword === "") {
-      throw new Error("Password can not be empty");
+    if (newPassword === '') {
+      throw new Error('Password can not be empty');
     }
 
     const user = await Users.findOne({ _id });
 
     if (!user) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
 
     // check current password ============
     const valid = await this.comparePassword(currentPassword, user.password);
 
     if (!valid) {
-      throw new Error("Incorrect current password");
+      throw new Error('Incorrect current password');
     }
 
     // set new password
     await Users.findByIdAndUpdate(
       { _id: user._id },
       {
-        password: await this.generatePassword(newPassword)
-      }
+        password: await this.generatePassword(newPassword),
+      },
     );
 
     return Users.findOne({ _id: user._id });
@@ -332,20 +271,20 @@ class User {
     const user = await Users.findOne({ email });
 
     if (!user) {
-      throw new Error("Invalid email");
+      throw new Error('Invalid email');
     }
 
     // create the random token
     const buffer = await crypto.randomBytes(20);
-    const token = buffer.toString("hex");
+    const token = buffer.toString('hex');
 
     // save token & expiration date
     await Users.findByIdAndUpdate(
       { _id: user._id },
       {
         resetPasswordToken: token,
-        resetPasswordExpires: Date.now() + 86400000
-      }
+        resetPasswordExpires: Date.now() + 86400000,
+      },
     );
 
     return token;
@@ -360,13 +299,13 @@ class User {
       email: _user.email,
       details: _user.details,
       role: _user.role,
-      isOwner: _user.isOwner
+      isOwner: _user.isOwner,
     };
 
-    const createToken = await jwt.sign({ user }, secret, { expiresIn: "20m" });
+    const createToken = await jwt.sign({ user }, secret, { expiresIn: '20m' });
 
     const createRefreshToken = await jwt.sign({ user }, secret, {
-      expiresIn: "7d"
+      expiresIn: '7d',
     });
 
     return [createToken, createRefreshToken];
@@ -392,66 +331,51 @@ class User {
     const dbUser = await Users.findOne({ _id });
 
     if (!dbUser) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
 
     // recreate tokens
-    const [newToken, newRefreshToken] = await this.createTokens(
-      dbUser,
-      this.getSecret()
-    );
+    const [newToken, newRefreshToken] = await this.createTokens(dbUser, this.getSecret());
 
     return {
       token: newToken,
       refreshToken: newRefreshToken,
-      user: dbUser
+      user: dbUser,
     };
   }
 
   /*
    * Validates user credentials and generates tokens
    */
-  public static async login({
-    email,
-    password
-  }: {
-    email: string;
-    password: string;
-  }) {
+  public static async login({ email, password }: { email: string; password: string }) {
     const user = await Users.findOne({
-      $or: [
-        { email: { $regex: new RegExp(email, "i") } },
-        { username: { $regex: new RegExp(email, "i") } }
-      ]
+      $or: [{ email: { $regex: new RegExp(email, 'i') } }, { username: { $regex: new RegExp(email, 'i') } }],
     });
 
     if (!user) {
       // user with provided email not found
-      throw new Error("Invalid login");
+      throw new Error('Invalid login');
     }
 
     const valid = await this.comparePassword(password, user.password);
 
     if (!valid) {
       // bad password
-      throw new Error("Invalid login");
+      throw new Error('Invalid login');
     }
 
     // create tokens
-    const [token, refreshToken] = await this.createTokens(
-      user,
-      this.getSecret()
-    );
+    const [token, refreshToken] = await this.createTokens(user, this.getSecret());
 
     return {
       token,
-      refreshToken
+      refreshToken,
     };
   }
 }
 
 userSchema.loadClass(User);
 
-const Users = model<IUserDocument, IUserModel>("users", userSchema);
+const Users = model<IUserDocument, IUserModel>('users', userSchema);
 
 export default Users;

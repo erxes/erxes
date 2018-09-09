@@ -1,7 +1,7 @@
-import { Tags } from "../../../db/models";
-import { ITag } from "../../../db/models/definitions/tags";
-import { moduleRequireLogin } from "../../permissions";
-import { publishConversationsChanged } from "./conversations";
+import { Tags } from '../../../db/models';
+import { ITag } from '../../../db/models/definitions/tags';
+import { moduleRequireLogin } from '../../permissions';
+import { publishConversationsChanged } from './conversations';
 
 interface ITagsEdit extends ITag {
   _id: string;
@@ -32,20 +32,13 @@ const tagMutations = {
   /**
    * Attach a tag
    */
-  tagsTag(
-    _root,
-    {
-      type,
-      targetIds,
-      tagIds
-    }: { type: string; targetIds: string[]; tagIds: string[] }
-  ) {
-    if (type === "conversation") {
-      publishConversationsChanged(targetIds, "tag");
+  tagsTag(_root, { type, targetIds, tagIds }: { type: string; targetIds: string[]; tagIds: string[] }) {
+    if (type === 'conversation') {
+      publishConversationsChanged(targetIds, 'tag');
     }
 
     return Tags.tagsTag(type, targetIds, tagIds);
-  }
+  },
 };
 
 moduleRequireLogin(tagMutations);

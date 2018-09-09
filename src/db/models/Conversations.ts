@@ -1,17 +1,13 @@
-import { Model, model } from "mongoose";
-import { ConversationMessages, Users } from ".";
-import { CONVERSATION_STATUSES } from "./definitions/constants";
-import {
-  conversationSchema,
-  IConversation,
-  IConversationDocument
-} from "./definitions/conversations";
+import { Model, model } from 'mongoose';
+import { ConversationMessages, Users } from '.';
+import { CONVERSATION_STATUSES } from './definitions/constants';
+import { conversationSchema, IConversation, IConversationDocument } from './definitions/conversations';
 
 interface ISTATUSES {
-  NEW: "new";
-  OPEN: "open";
-  CLOSED: "closed";
-  ALL_LIST: ["new", "open", "closed"];
+  NEW: 'new';
+  OPEN: 'open';
+  CLOSED: 'closed';
+  ALL_LIST: ['new', 'open', 'closed'];
 }
 
 interface IConversationModel extends Model<IConversationDocument> {
@@ -20,41 +16,21 @@ interface IConversationModel extends Model<IConversationDocument> {
   checkExistanceConversations(ids: string[]): any;
   reopen(_id: string): Promise<IConversationDocument>;
 
-  assignUserConversation(
-    conversationIds: string[],
-    assignedUserId?: string
-  ): Promise<IConversationDocument[]>;
+  assignUserConversation(conversationIds: string[], assignedUserId?: string): Promise<IConversationDocument[]>;
 
-  unassignUserConversation(
-    conversationIds: string[]
-  ): Promise<IConversationDocument>;
+  unassignUserConversation(conversationIds: string[]): Promise<IConversationDocument>;
 
-  changeStatusConversation(
-    conversationIds: string[],
-    status: string,
-    userId?: string
-  ): Promise<IConversationDocument>;
+  changeStatusConversation(conversationIds: string[], status: string, userId?: string): Promise<IConversationDocument>;
 
-  markAsReadConversation(
-    _id: string,
-    userId: string
-  ): Promise<IConversationDocument>;
+  markAsReadConversation(_id: string, userId: string): Promise<IConversationDocument>;
 
   newOrOpenConversation(): IConversationDocument[];
 
-  addParticipatedUsers(
-    conversationId: string,
-    userId: string
-  ): Promise<IConversationDocument>;
+  addParticipatedUsers(conversationId: string, userId: string): Promise<IConversationDocument>;
 
-  changeCustomer(
-    newCustomerId: string,
-    customerIds: string[]
-  ): Promise<IConversationDocument[]>;
+  changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IConversationDocument[]>;
 
-  removeCustomerConversations(
-    customerId: string
-  ): Promise<IConversationDocument>;
+  removeCustomerConversations(customerId: string): Promise<IConversationDocument>;
 }
 
 class Conversation {
@@ -70,7 +46,7 @@ class Conversation {
     const conversations = await Conversations.find(selector);
 
     if (conversations.length !== _ids.length) {
-      throw new Error("Conversation not found.");
+      throw new Error('Conversation not found.');
     }
 
     return { selector, conversations };
@@ -88,7 +64,7 @@ class Conversation {
       createdAt: now,
       updatedAt: now,
       number: (await Conversations.find().count()) + 1,
-      messageCount: 0
+      messageCount: 0,
     });
   }
 
@@ -107,9 +83,9 @@ class Conversation {
           status: this.getConversationStatuses().OPEN,
 
           closedAt: null,
-          closedUserId: null
-        }
-      }
+          closedUserId: null,
+        },
+      },
     );
 
     return Conversations.findOne({ _id });
@@ -118,21 +94,14 @@ class Conversation {
   /**
    * Assign user to conversation
    */
-  public static async assignUserConversation(
-    conversationIds: string[],
-    assignedUserId?: string
-  ) {
+  public static async assignUserConversation(conversationIds: string[], assignedUserId?: string) {
     await this.checkExistanceConversations(conversationIds);
 
     if (!(await Users.findOne({ _id: assignedUserId }))) {
       throw new Error(`User not found with id ${assignedUserId}`);
     }
 
-    await Conversations.update(
-      { _id: { $in: conversationIds } },
-      { $set: { assignedUserId } },
-      { multi: true }
-    );
+    await Conversations.update({ _id: { $in: conversationIds } }, { $set: { assignedUserId } }, { multi: true });
 
     return Conversations.find({ _id: { $in: conversationIds } });
   }
@@ -143,11 +112,7 @@ class Conversation {
   public static async unassignUserConversation(conversationIds: string[]) {
     await this.checkExistanceConversations(conversationIds);
 
-    await Conversations.update(
-      { _id: { $in: conversationIds } },
-      { $unset: { assignedUserId: 1 } },
-      { multi: true }
-    );
+    await Conversations.update({ _id: { $in: conversationIds } }, { $unset: { assignedUserId: 1 } }, { multi: true });
 
     return Conversations.find({ _id: { $in: conversationIds } });
   }
@@ -155,11 +120,7 @@ class Conversation {
   /**
    * Change conversation status
    */
-  public static changeStatusConversation(
-    conversationIds: string[],
-    status: string,
-    userId: string
-  ) {
+  public static changeStatusConversation(conversationIds: string[], status: string, userId: string) {
     let closedAt;
     let closedUserId;
 
@@ -171,7 +132,7 @@ class Conversation {
     return Conversations.update(
       { _id: { $in: conversationIds } },
       { $set: { status, closedAt, closedUserId } },
-      { multi: true }
+      { multi: true },
     );
   }
 
@@ -206,11 +167,8 @@ class Conversation {
   public static async newOrOpenConversation() {
     return Conversations.find({
       status: {
-        $in: [
-          this.getConversationStatuses().NEW,
-          this.getConversationStatuses().OPEN
-        ]
-      }
+        $in: [this.getConversationStatuses().NEW, this.getConversationStatuses().OPEN],
+      },
     });
   }
 
@@ -222,8 +180,8 @@ class Conversation {
       return Conversations.update(
         { _id: conversationId },
         {
-          $addToSet: { participatedUserIds: userId }
-        }
+          $addToSet: { participatedUserIds: userId },
+        },
       );
     }
   }
@@ -231,21 +189,12 @@ class Conversation {
   /**
    * Transfers customers' conversations to another customer
    */
-  public static async changeCustomer(
-    newCustomerId: string,
-    customerIds: string
-  ) {
+  public static async changeCustomer(newCustomerId: string, customerIds: string) {
     for (const customerId of customerIds) {
       // Updating every conversation and conversation messages of new customer
-      await ConversationMessages.updateMany(
-        { customerId },
-        { $set: { customerId: newCustomerId } }
-      );
+      await ConversationMessages.updateMany({ customerId }, { $set: { customerId: newCustomerId } });
 
-      await Conversations.updateMany(
-        { customerId },
-        { $set: { customerId: newCustomerId } }
-      );
+      await Conversations.updateMany({ customerId }, { $set: { customerId: newCustomerId } });
     }
 
     // Returning updated list of conversation of new customer
@@ -258,7 +207,7 @@ class Conversation {
   public static async removeCustomerConversations(customerId: string) {
     // Finding every conversation of customer
     const conversations = await Conversations.find({
-      customerId
+      customerId,
     });
 
     // Removing conversations and conversation messages
@@ -272,9 +221,6 @@ class Conversation {
 
 conversationSchema.loadClass(Conversation);
 
-const Conversations = model<IConversationDocument, IConversationModel>(
-  "conversations",
-  conversationSchema
-);
+const Conversations = model<IConversationDocument, IConversationModel>('conversations', conversationSchema);
 
 export default Conversations;

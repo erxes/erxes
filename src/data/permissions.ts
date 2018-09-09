@@ -1,12 +1,12 @@
-import { IUserDocument } from "../db/models/definitions/users";
-import { ROLES } from "./constants";
+import { IUserDocument } from '../db/models/definitions/users';
+import { ROLES } from './constants';
 
 /**
  * Checks whether user is logged in or not
  */
 export const checkLogin = (user: IUserDocument) => {
   if (!user) {
-    throw new Error("Login required");
+    throw new Error('Login required');
   }
 };
 
@@ -15,18 +15,14 @@ export const checkLogin = (user: IUserDocument) => {
  */
 export const checkAdmin = (user: IUserDocument) => {
   if (!user.isOwner && user.role !== ROLES.ADMIN) {
-    throw new Error("Permission required");
+    throw new Error('Permission required');
   }
 };
 
 /**
  * Wraps object property (function) with permission checkers
  */
-export const permissionWrapper = (
-  cls: any,
-  methodName: string,
-  checkers: any
-) => {
+export const permissionWrapper = (cls: any, methodName: string, checkers: any) => {
   const oldMethod = cls[methodName];
 
   cls[methodName] = (root, args, { user }) => {
@@ -41,8 +37,7 @@ export const permissionWrapper = (
 /**
  * Wraps a method with 'Login required' permission checker
  */
-export const requireLogin = (cls: any, methodName: string) =>
-  permissionWrapper(cls, methodName, [checkLogin]);
+export const requireLogin = (cls: any, methodName: string) => permissionWrapper(cls, methodName, [checkLogin]);
 
 /**
  * Wraps a method with 'Permission required' permission checker
@@ -76,5 +71,5 @@ export default {
   requireLogin,
   requireAdmin,
   moduleRequireLogin,
-  moduleRequireAdmin
+  moduleRequireAdmin,
 };

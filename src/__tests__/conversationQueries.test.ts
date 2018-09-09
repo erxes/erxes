@@ -1,5 +1,5 @@
-import * as moment from "moment";
-import { connect, disconnect, graphqlRequest } from "../db/connection";
+import * as moment from 'moment';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   channelFactory,
@@ -7,21 +7,14 @@ import {
   conversationMessageFactory,
   integrationFactory,
   tagsFactory,
-  userFactory
-} from "../db/factories";
-import {
-  Brands,
-  Channels,
-  Conversations,
-  Integrations,
-  Tags,
-  Users
-} from "../db/models";
+  userFactory,
+} from '../db/factories';
+import { Brands, Channels, Conversations, Integrations, Tags, Users } from '../db/models';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe("conversationQueries", () => {
+describe('conversationQueries', () => {
   let user;
   let channel;
   let brand;
@@ -151,13 +144,13 @@ describe("conversationQueries", () => {
     user = await userFactory({});
 
     integration = await integrationFactory({
-      kind: "messenger",
-      brandId: brand._id
+      kind: 'messenger',
+      brandId: brand._id,
     });
 
     channel = await channelFactory({
       memberIds: [user._id],
-      integrationIds: [integration._id]
+      integrationIds: [integration._id],
     });
   });
 
@@ -171,7 +164,7 @@ describe("conversationQueries", () => {
     await Integrations.remove({});
   });
 
-  test("Conversation messages with skip", async () => {
+  test('Conversation messages with skip', async () => {
     const conversation = await conversationFactory();
 
     await conversationMessageFactory({ conversationId: conversation._id });
@@ -187,16 +180,16 @@ describe("conversationQueries", () => {
       }
     `;
 
-    const responses = await graphqlRequest(qry, "conversationMessages", {
+    const responses = await graphqlRequest(qry, 'conversationMessages', {
       conversationId: conversation._id,
       skip: 1,
-      limit: 3
+      limit: 3,
     });
 
     expect(responses.length).toBe(3);
   });
 
-  test("Conversations filtered by ids", async () => {
+  test('Conversations filtered by ids', async () => {
     const conversation1 = await conversationFactory();
     const conversation2 = await conversationFactory();
     const conversation3 = await conversationFactory();
@@ -206,140 +199,122 @@ describe("conversationQueries", () => {
 
     const ids = [conversation1._id, conversation2._id, conversation3._id];
 
-    const responses = await graphqlRequest(qryConversations, "conversations", {
-      ids
+    const responses = await graphqlRequest(qryConversations, 'conversations', {
+      ids,
     });
 
     expect(responses.length).toBe(3);
   });
 
-  test("Conversations filtered by channel", async () => {
+  test('Conversations filtered by channel', async () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory();
     await conversationFactory();
 
-    const responses = await graphqlRequest(qryConversations, "conversations", {
-      channelId: channel._id
+    const responses = await graphqlRequest(qryConversations, 'conversations', {
+      channelId: channel._id,
     });
 
     expect(responses.length).toBe(1);
   });
 
-  test("Conversations filtered by brand", async () => {
+  test('Conversations filtered by brand', async () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory();
     await conversationFactory();
 
-    const responses = await graphqlRequest(qryConversations, "conversations", {
-      brandId: brand._id
+    const responses = await graphqlRequest(qryConversations, 'conversations', {
+      brandId: brand._id,
     });
 
     expect(responses.length).toBe(1);
   });
 
-  test("Conversations filtered by participating user", async () => {
+  test('Conversations filtered by participating user', async () => {
     await conversationFactory({
       integrationId: integration._id,
-      participatedUserIds: [user._id]
+      participatedUserIds: [user._id],
     });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    const responses = await graphqlRequest(
-      qryConversations,
-      "conversations",
-      { participating: "true" },
-      { user }
-    );
+    const responses = await graphqlRequest(qryConversations, 'conversations', { participating: 'true' }, { user });
 
     expect(responses.length).toBe(1);
   });
 
-  test("Conversations filtered by status", async () => {
+  test('Conversations filtered by status', async () => {
     await conversationFactory({
-      status: "closed",
-      integrationId: integration._id
+      status: 'closed',
+      integrationId: integration._id,
     });
 
     await conversationFactory({
-      status: "new",
-      integrationId: integration._id
+      status: 'new',
+      integrationId: integration._id,
     });
 
     await conversationFactory({
-      status: "new",
-      integrationId: integration._id
+      status: 'new',
+      integrationId: integration._id,
     });
 
-    const responses = await graphqlRequest(
-      qryConversations,
-      "conversations",
-      { status: "closed" },
-      { user }
-    );
+    const responses = await graphqlRequest(qryConversations, 'conversations', { status: 'closed' }, { user });
 
     expect(responses.length).toBe(1);
   });
 
-  test("Conversations filtered by unassigned", async () => {
+  test('Conversations filtered by unassigned', async () => {
     await conversationFactory({
       integrationId: integration._id,
-      assignedUserId: user._id
-    });
-
-    await conversationFactory({
-      integrationId: integration._id,
-      assignedUserId: user._id
+      assignedUserId: user._id,
     });
 
     await conversationFactory({
       integrationId: integration._id,
-      assignedUserId: user._id
+      assignedUserId: user._id,
     });
 
     await conversationFactory({
-      integrationId: integration._id
+      integrationId: integration._id,
+      assignedUserId: user._id,
     });
 
-    const responses = await graphqlRequest(
-      qryConversations,
-      "conversations",
-      { unassigned: "true" },
-      { user }
-    );
+    await conversationFactory({
+      integrationId: integration._id,
+    });
+
+    const responses = await graphqlRequest(qryConversations, 'conversations', { unassigned: 'true' }, { user });
 
     expect(responses.length).toBe(1);
   });
 
-  test("Conversations filtered by starred", async () => {
+  test('Conversations filtered by starred', async () => {
     const conversation = await conversationFactory({
-      integrationId: integration._id
+      integrationId: integration._id,
     });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update(
-      { _id: user._id },
-      { $set: { starredConversationIds: [conversation._id] } }
-    );
+    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
     const responses = await graphqlRequest(
       qryConversations,
-      "conversations",
-      { starred: "true" },
-      { user: updatedUser }
+      'conversations',
+      { starred: 'true' },
+      { user: updatedUser },
     );
 
     expect(responses.length).toBe(1);
   });
 
-  test("Conversations filtered by integration type", async () => {
-    const integration1 = await integrationFactory({ kind: "form" });
-    const integration2 = await integrationFactory({ kind: "form" });
+  test('Conversations filtered by integration type', async () => {
+    const integration1 = await integrationFactory({ kind: 'form' });
+    const integration2 = await integrationFactory({ kind: 'form' });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration1._id });
@@ -347,104 +322,98 @@ describe("conversationQueries", () => {
 
     const responses = await graphqlRequest(
       qryConversations,
-      "conversations",
-      { integrationType: "messenger" },
-      { user }
+      'conversations',
+      { integrationType: 'messenger' },
+      { user },
     );
 
     expect(responses.length).toBe(1);
   });
 
-  test("Conversations filtered by tag", async () => {
-    const tag = await tagsFactory({ type: "conversation" });
+  test('Conversations filtered by tag', async () => {
+    const tag = await tagsFactory({ type: 'conversation' });
 
     await conversationFactory({
       tagIds: [tag._id],
-      integrationId: integration._id
+      integrationId: integration._id,
     });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    const responses = await graphqlRequest(
-      qryConversations,
-      "conversations",
-      { tag: tag._id },
-      { user }
-    );
+    const responses = await graphqlRequest(qryConversations, 'conversations', { tag: tag._id }, { user });
 
     expect(responses.length).toBe(1);
   });
 
-  test("Conversations filtered by date", async () => {
+  test('Conversations filtered by date', async () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
     // Overriding conversation createdAt field with custom date
-    let startDate = moment("2018-04-03 10:00");
-    let endDate = moment("2018-04-03 18:00");
+    let startDate = moment('2018-04-03 10:00');
+    let endDate = moment('2018-04-03 18:00');
 
     await Conversations.create({
       integrationId: integration._id,
-      customerId: "12312",
-      content: "123312123",
-      createdAt: moment(startDate).add(5, "hours").toDate(),
-      status: "new",
+      customerId: '12312',
+      content: '123312123',
+      createdAt: moment(startDate)
+        .add(5, 'hours')
+        .toDate(),
+      status: 'new',
       number: 3,
-      messageCount: 0
+      messageCount: 0,
     });
 
     // From 10 to 18 hours should be only 1 conversation
     let responses = await graphqlRequest(
       qryConversations,
-      "conversations",
+      'conversations',
       {
         startDate,
-        endDate
+        endDate,
       },
-      { user }
+      { user },
     );
 
     expect(responses.length).toBe(1);
 
     // Overriding conversation createdAt field with custom date
-    startDate = moment(startDate.add(8, "hours"));
-    endDate = moment(endDate.add(8, "hours"));
+    startDate = moment(startDate.add(8, 'hours'));
+    endDate = moment(endDate.add(8, 'hours'));
 
     await Conversations.create({
       integrationId: integration._id,
-      customerId: "12312",
-      content: "123312123",
-      createdAt: moment(startDate).add(5, "hours").toDate(),
-      status: "new",
+      customerId: '12312',
+      content: '123312123',
+      createdAt: moment(startDate)
+        .add(5, 'hours')
+        .toDate(),
+      status: 'new',
       number: 4,
-      messageCount: 0
+      messageCount: 0,
     });
 
     // From 18 to 24 hours should be only 1 conversation
-    responses = await graphqlRequest(
-      qryConversations,
-      "conversations",
-      { startDate, endDate },
-      { user }
-    );
+    responses = await graphqlRequest(qryConversations, 'conversations', { startDate, endDate }, { user });
 
     expect(responses.length).toBe(1);
 
     // 2 conversations created today filtering by day
-    const today = moment().format("YYYY-MM-DD HH:mm");
+    const today = moment().format('YYYY-MM-DD HH:mm');
 
     responses = await graphqlRequest(
       qryConversations,
-      "conversations",
-      { startDate: today, endDate: moment(today).add(1, "days") },
-      { user }
+      'conversations',
+      { startDate: today, endDate: moment(today).add(1, 'days') },
+      { user },
     );
 
     expect(responses.length).toBe(2);
   });
 
-  test("Count conversations by channel", async () => {
+  test('Count conversations by channel', async () => {
     const integration1 = await integrationFactory({});
 
     // conversation with channel
@@ -453,15 +422,15 @@ describe("conversationQueries", () => {
     await conversationFactory({ integrationId: integration1._id });
     await conversationFactory({ integrationId: integration1._id });
 
-    const response = await graphqlRequest(qryCount, "conversationCounts", {
+    const response = await graphqlRequest(qryCount, 'conversationCounts', {
       channelId: channel._id,
-      only: "byChannels"
+      only: 'byChannels',
     });
 
     expect(response.byChannels[channel._id]).toBe(1);
   });
 
-  test("Count conversations by brand", async () => {
+  test('Count conversations by brand', async () => {
     const integration1 = await integrationFactory({});
 
     // conversation with brand
@@ -469,117 +438,94 @@ describe("conversationQueries", () => {
     await conversationFactory({ integrationId: integration1._id });
     await conversationFactory({ integrationId: integration1._id });
 
-    const response = await graphqlRequest(qryCount, "conversationCounts", {
+    const response = await graphqlRequest(qryCount, 'conversationCounts', {
       brandId: brand._id,
-      only: "byBrands"
+      only: 'byBrands',
     });
 
     expect(response.byBrands[brand._id]).toBe(1);
   });
 
-  test("Count conversations by unassigned", async () => {
+  test('Count conversations by unassigned', async () => {
     await conversationFactory({
       integrationId: integration._id,
-      assignedUserId: user._id
-    });
-
-    await conversationFactory({
-      integrationId: integration._id,
-      assignedUserId: user._id
+      assignedUserId: user._id,
     });
 
     await conversationFactory({
       integrationId: integration._id,
-      assignedUserId: user._id
+      assignedUserId: user._id,
     });
 
     await conversationFactory({
-      integrationId: integration._id
+      integrationId: integration._id,
+      assignedUserId: user._id,
     });
 
-    const response = await graphqlRequest(
-      qryCount,
-      "conversationCounts",
-      { unassigned: "true" },
-      { user }
-    );
+    await conversationFactory({
+      integrationId: integration._id,
+    });
+
+    const response = await graphqlRequest(qryCount, 'conversationCounts', { unassigned: 'true' }, { user });
 
     expect(response.unassigned).toBe(1);
   });
 
-  test("Count conversations by participating", async () => {
+  test('Count conversations by participating', async () => {
     await conversationFactory({
       integrationId: integration._id,
-      participatedUserIds: [user._id]
+      participatedUserIds: [user._id],
     });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    const response = await graphqlRequest(
-      qryCount,
-      "conversationCounts",
-      { participating: "true" },
-      { user }
-    );
+    const response = await graphqlRequest(qryCount, 'conversationCounts', { participating: 'true' }, { user });
 
     expect(response.participating).toBe(1);
   });
 
-  test("Count conversations by starred", async () => {
+  test('Count conversations by starred', async () => {
     const conversation = await conversationFactory({
-      integrationId: integration._id
+      integrationId: integration._id,
     });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update(
-      { _id: user._id },
-      { $set: { starredConversationIds: [conversation._id] } }
-    );
+    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
-    const response = await graphqlRequest(
-      qryCount,
-      "conversationCounts",
-      { starred: "true" },
-      { user: updatedUser }
-    );
+    const response = await graphqlRequest(qryCount, 'conversationCounts', { starred: 'true' }, { user: updatedUser });
 
     expect(response.starred).toBe(1);
   });
 
-  test("Count conversations by resolved", async () => {
+  test('Count conversations by resolved', async () => {
     await conversationFactory({
       integrationId: integration._id,
-      status: "closed"
+      status: 'closed',
     });
 
     await conversationFactory({
       integrationId: integration._id,
-      status: "new"
+      status: 'new',
     });
 
     await conversationFactory({
       integrationId: integration._id,
-      status: "new"
+      status: 'new',
     });
 
-    const response = await graphqlRequest(
-      qryCount,
-      "conversationCounts",
-      { status: "closed" },
-      { user }
-    );
+    const response = await graphqlRequest(qryCount, 'conversationCounts', { status: 'closed' }, { user });
 
     expect(response.resolved).toBe(1);
   });
 
-  test("Count conversations by integration type", async () => {
-    const integration1 = await integrationFactory({ kind: "form" });
-    const integration2 = await integrationFactory({ kind: "form" });
+  test('Count conversations by integration type', async () => {
+    const integration1 = await integrationFactory({ kind: 'form' });
+    const integration2 = await integrationFactory({ kind: 'form' });
 
     // conversation with integration type 'messenger'
     await conversationFactory({ integrationId: integration._id });
@@ -589,9 +535,9 @@ describe("conversationQueries", () => {
 
     let response = await graphqlRequest(
       qryCount,
-      "conversationCounts",
-      { integrationType: "messenger", only: "byIntegrationTypes" },
-      { user }
+      'conversationCounts',
+      { integrationType: 'messenger', only: 'byIntegrationTypes' },
+      { user },
     );
 
     response = response.byIntegrationTypes.messenger;
@@ -599,28 +545,23 @@ describe("conversationQueries", () => {
     expect(response).toBe(1);
   });
 
-  test("Count conversations by tag", async () => {
-    const tag = await tagsFactory({ type: "conversation" });
+  test('Count conversations by tag', async () => {
+    const tag = await tagsFactory({ type: 'conversation' });
 
     await conversationFactory({
       tagIds: [tag._id],
-      integrationId: integration._id
+      integrationId: integration._id,
     });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    const response = await graphqlRequest(
-      qryCount,
-      "conversationCounts",
-      { tag: tag._id, only: "byTags" },
-      { user }
-    );
+    const response = await graphqlRequest(qryCount, 'conversationCounts', { tag: tag._id, only: 'byTags' }, { user });
 
     expect(response.byTags[tag._id]).toBe(1);
   });
 
-  test("Get total count of conversations by channel", async () => {
+  test('Get total count of conversations by channel', async () => {
     const integration1 = await integrationFactory({});
     const integration2 = await integrationFactory({});
 
@@ -630,18 +571,14 @@ describe("conversationQueries", () => {
     await conversationFactory({ integrationId: integration1._id });
     await conversationFactory({ integrationId: integration2._id });
 
-    const response = await graphqlRequest(
-      qryTotalCount,
-      "conversationsTotalCount",
-      {
-        channelId: channel._id
-      }
-    );
+    const response = await graphqlRequest(qryTotalCount, 'conversationsTotalCount', {
+      channelId: channel._id,
+    });
 
     expect(response).toBe(1);
   });
 
-  test("Get total count of conversations by brand", async () => {
+  test('Get total count of conversations by brand', async () => {
     const integration1 = await integrationFactory({});
     const integration2 = await integrationFactory({});
 
@@ -651,51 +588,42 @@ describe("conversationQueries", () => {
     await conversationFactory({ integrationId: integration1._id });
     await conversationFactory({ integrationId: integration2._id });
 
-    const response = await graphqlRequest(
-      qryTotalCount,
-      "conversationsTotalCount",
-      {
-        brandId: brand._id
-      }
-    );
+    const response = await graphqlRequest(qryTotalCount, 'conversationsTotalCount', {
+      brandId: brand._id,
+    });
 
     expect(response).toBe(1);
   });
 
-  test("Get total count of conversations by unassigned", async () => {
+  test('Get total count of conversations by unassigned', async () => {
     await conversationFactory({
-      integrationId: integration._id
+      integrationId: integration._id,
     });
 
     await conversationFactory({
       integrationId: integration._id,
-      assignedUserId: user._id
+      assignedUserId: user._id,
     });
 
     await conversationFactory({
       integrationId: integration._id,
-      assignedUserId: user._id
+      assignedUserId: user._id,
     });
 
     await conversationFactory({
       integrationId: integration._id,
-      assignedUserId: user._id
+      assignedUserId: user._id,
     });
 
-    const response = await graphqlRequest(
-      qryTotalCount,
-      "conversationsTotalCount",
-      { unassigned: "true" },
-      { user }
-    );
+    const response = await graphqlRequest(qryTotalCount, 'conversationsTotalCount', { unassigned: 'true' }, { user });
 
     expect(response).toBe(1);
   });
 
-  test("Get total count of conversations by participating", async () => {
+  test('Get total count of conversations by participating', async () => {
     await conversationFactory({
       integrationId: integration._id,
-      participatedUserIds: [user._id]
+      participatedUserIds: [user._id],
     });
 
     await conversationFactory({ integrationId: integration._id });
@@ -703,68 +631,60 @@ describe("conversationQueries", () => {
 
     const response = await graphqlRequest(
       qryTotalCount,
-      "conversationsTotalCount",
-      { participating: "true" },
-      { user }
+      'conversationsTotalCount',
+      { participating: 'true' },
+      { user },
     );
 
     expect(response).toBe(1);
   });
 
-  test("Get total count of conversations by starred", async () => {
+  test('Get total count of conversations by starred', async () => {
     const conversation = await conversationFactory({
-      integrationId: integration._id
+      integrationId: integration._id,
     });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update(
-      { _id: user._id },
-      { $set: { starredConversationIds: [conversation._id] } }
-    );
+    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
     const response = await graphqlRequest(
       qryTotalCount,
-      "conversationsTotalCount",
-      { starred: "true" },
-      { user: updatedUser }
+      'conversationsTotalCount',
+      { starred: 'true' },
+      { user: updatedUser },
     );
 
     expect(response).toBe(1);
   });
 
-  test("Get total count of conversations by status", async () => {
+  test('Get total count of conversations by status', async () => {
     await conversationFactory({
       integrationId: integration._id,
-      status: "closed"
+      status: 'closed',
     });
 
     await conversationFactory({
       integrationId: integration._id,
-      status: "new"
+      status: 'new',
     });
 
     await conversationFactory({
       integrationId: integration._id,
-      status: "new"
+      status: 'new',
     });
 
-    const response = await graphqlRequest(
-      qryTotalCount,
-      "conversationsTotalCount",
-      { status: "closed" },
-      { user }
-    );
+    const response = await graphqlRequest(qryTotalCount, 'conversationsTotalCount', { status: 'closed' }, { user });
 
     expect(response).toBe(1);
   });
 
-  test("Get total count of conversations by integration type", async () => {
-    const integration1 = await integrationFactory({ kind: "form" });
-    const integration2 = await integrationFactory({ kind: "form" });
+  test('Get total count of conversations by integration type', async () => {
+    const integration1 = await integrationFactory({ kind: 'form' });
+    const integration2 = await integrationFactory({ kind: 'form' });
 
     // integration with type messenger
     await conversationFactory({ integrationId: integration._id });
@@ -774,88 +694,73 @@ describe("conversationQueries", () => {
 
     const response = await graphqlRequest(
       qryTotalCount,
-      "conversationsTotalCount",
-      { integrationType: "messenger" },
-      { user }
+      'conversationsTotalCount',
+      { integrationType: 'messenger' },
+      { user },
     );
 
     expect(response).toBe(1);
   });
 
-  test("Get total count of conversations by tag", async () => {
-    const tag = await tagsFactory({ type: "conversation" });
+  test('Get total count of conversations by tag', async () => {
+    const tag = await tagsFactory({ type: 'conversation' });
 
     await conversationFactory({
       tagIds: [tag._id],
-      integrationId: integration._id
+      integrationId: integration._id,
     });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    const response = await graphqlRequest(
-      qryTotalCount,
-      "conversationsTotalCount",
-      { tag: tag._id },
-      { user }
-    );
+    const response = await graphqlRequest(qryTotalCount, 'conversationsTotalCount', { tag: tag._id }, { user });
 
     expect(response).toBe(1);
   });
 
-  test("Conversation detail", async () => {
+  test('Conversation detail', async () => {
     await conversationFactory({ integrationId: integration._id });
 
     const conversation = await conversationFactory({
-      integrationId: integration._id
+      integrationId: integration._id,
     });
 
     const response = await graphqlRequest(
       qryConversationDetail,
-      "conversationDetail",
+      'conversationDetail',
       { _id: conversation._id },
-      { user }
+      { user },
     );
 
     expect(response._id).toBe(conversation._id);
   });
 
-  test("Get last conversation by channel", async () => {
+  test('Get last conversation by channel', async () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
     const conversation = await conversationFactory({
-      integrationId: integration._id
+      integrationId: integration._id,
     });
 
-    const response = await graphqlRequest(
-      qryGetLast,
-      "conversationsGetLast",
-      {},
-      { user }
-    );
+    const response = await graphqlRequest(qryGetLast, 'conversationsGetLast', {}, { user });
 
     expect(response._id).toBe(conversation._id);
   });
 
-  test("Get all unread conversations", async () => {
+  test('Get all unread conversations', async () => {
     await conversationFactory({
       integrationId: integration._id,
-      status: "new",
-      readUserIds: [user._id]
+      status: 'new',
+      readUserIds: [user._id],
     });
 
     await conversationFactory({
       integrationId: integration._id,
-      status: "new",
-      readUserIds: []
+      status: 'new',
+      readUserIds: [],
     });
 
-    const response = await graphqlRequest(
-      qryTotalUnread,
-      "conversationsTotalUnreadCount",
-      {},
-      { user }
-    );
+    const response = await graphqlRequest(qryTotalUnread, 'conversationsTotalUnreadCount', {}, { user });
 
     expect(response).toBe(1);
   });

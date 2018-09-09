@@ -1,37 +1,22 @@
-import {
-  KnowledgeBaseArticles,
-  KnowledgeBaseCategories,
-  KnowledgeBaseTopics
-} from "../../../db/models";
+import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from '../../../db/models';
 
-import { ITopic } from "../../../db/models/definitions/knowledgebase";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import {
-  IArticleCreate,
-  ICategoryCreate
-} from "../../../db/models/KnowledgeBase";
-import { moduleRequireLogin } from "../../permissions";
+import { ITopic } from '../../../db/models/definitions/knowledgebase';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { IArticleCreate, ICategoryCreate } from '../../../db/models/KnowledgeBase';
+import { moduleRequireLogin } from '../../permissions';
 
 const knowledgeBaseMutations = {
   /**
    * Create topic document
    */
-  knowledgeBaseTopicsAdd(
-    _root,
-    { doc }: { doc: ITopic },
-    { user }: { user: IUserDocument }
-  ) {
+  knowledgeBaseTopicsAdd(_root, { doc }: { doc: ITopic }, { user }: { user: IUserDocument }) {
     return KnowledgeBaseTopics.createDoc(doc, user._id);
   },
 
   /**
    * Update topic document
    */
-  knowledgeBaseTopicsEdit(
-    _root,
-    { _id, doc }: { _id: string; doc: ITopic },
-    { user }: { user: IUserDocument }
-  ) {
+  knowledgeBaseTopicsEdit(_root, { _id, doc }: { _id: string; doc: ITopic }, { user }: { user: IUserDocument }) {
     return KnowledgeBaseTopics.updateDoc(_id, doc, user._id);
   },
 
@@ -45,11 +30,7 @@ const knowledgeBaseMutations = {
   /**
    * Create category document
    */
-  knowledgeBaseCategoriesAdd(
-    _root,
-    { doc }: { doc: ICategoryCreate },
-    { user }: { user: IUserDocument }
-  ) {
+  knowledgeBaseCategoriesAdd(_root, { doc }: { doc: ICategoryCreate }, { user }: { user: IUserDocument }) {
     return KnowledgeBaseCategories.createDoc(doc, user._id);
   },
 
@@ -59,7 +40,7 @@ const knowledgeBaseMutations = {
   knowledgeBaseCategoriesEdit(
     _root,
     { _id, doc }: { _id: string; doc: ICategoryCreate },
-    { user }: { user: IUserDocument }
+    { user }: { user: IUserDocument },
   ) {
     return KnowledgeBaseCategories.updateDoc(_id, doc, user._id);
   },
@@ -74,11 +55,7 @@ const knowledgeBaseMutations = {
   /**
    * Create article document
    */
-  knowledgeBaseArticlesAdd(
-    _root,
-    { doc }: { doc: IArticleCreate },
-    { user }: { user: IUserDocument }
-  ) {
+  knowledgeBaseArticlesAdd(_root, { doc }: { doc: IArticleCreate }, { user }: { user: IUserDocument }) {
     return KnowledgeBaseArticles.createDoc(doc, user._id);
   },
 
@@ -88,7 +65,7 @@ const knowledgeBaseMutations = {
   knowledgeBaseArticlesEdit(
     _root,
     { _id, doc }: { _id: string; doc: IArticleCreate },
-    { user }: { user: IUserDocument }
+    { user }: { user: IUserDocument },
   ) {
     return KnowledgeBaseArticles.updateDoc(_id, doc, user._id);
   },
@@ -98,7 +75,7 @@ const knowledgeBaseMutations = {
    */
   knowledgeBaseArticlesRemove(_root, { _id }: { _id: string }) {
     return KnowledgeBaseArticles.removeDoc(_id);
-  }
+  },
 };
 
 moduleRequireLogin(knowledgeBaseMutations);

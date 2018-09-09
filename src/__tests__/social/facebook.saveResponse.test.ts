@@ -1,27 +1,19 @@
-import * as sinon from "sinon";
-import {
-  CONVERSATION_STATUSES,
-  FACEBOOK_DATA_KINDS
-} from "../../data/constants";
-import { connect, disconnect } from "../../db/connection";
-import { integrationFactory } from "../../db/factories";
-import {
-  ActivityLogs,
-  ConversationMessages,
-  Conversations,
-  Customers
-} from "../../db/models";
-import { SaveWebhookResponse } from "../../trackers/facebook";
-import { graphRequest } from "../../trackers/facebookTracker";
+import * as sinon from 'sinon';
+import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
+import { connect, disconnect } from '../../db/connection';
+import { integrationFactory } from '../../db/factories';
+import { ActivityLogs, ConversationMessages, Conversations, Customers } from '../../db/models';
+import { SaveWebhookResponse } from '../../trackers/facebook';
+import { graphRequest } from '../../trackers/facebookTracker';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe("facebook integration: save webhook response", () => {
-  let senderId = "2242424244";
-  const pageId = "2252525525";
-  const postId = "242422242424244";
-  const recipientId = "242422242424244";
+describe('facebook integration: save webhook response', () => {
+  let senderId = '2242424244';
+  const pageId = '2252525525';
+  const postId = '242422242424244';
+  const recipientId = '242422242424244';
   let getMock;
   let postMock;
 
@@ -31,51 +23,47 @@ describe("facebook integration: save webhook response", () => {
   beforeEach(async () => {
     integration = await integrationFactory({
       facebookData: {
-        appId: "242424242422",
-        pageIds: [pageId]
-      }
+        appId: '242424242422',
+        pageIds: [pageId],
+      },
     });
 
-    getMock = sinon.stub(graphRequest, "get").callsFake(path => {
+    getMock = sinon.stub(graphRequest, 'get').callsFake(path => {
       // mock get page access token
-      if (path.includes("/?fields=access_token")) {
+      if (path.includes('/?fields=access_token')) {
         return {
-          access_token: "244242442442"
+          access_token: '244242442442',
         };
       }
 
       // mock get post object
       if (path === postId) {
         return {
-          id: postId
+          id: postId,
         };
       }
 
       // mock get picture
-      if (path.includes("/picture?")) {
-        return expect({}).toThrowError("Not Facebook User");
+      if (path.includes('/picture?')) {
+        return expect({}).toThrowError('Not Facebook User');
       }
 
       // mock get user info
       return {
-        name: "Dombo Gombo"
+        name: 'Dombo Gombo',
       };
     });
 
-    postMock = sinon.stub(graphRequest, "post").callsFake(() => {
+    postMock = sinon.stub(graphRequest, 'post').callsFake(() => {
       return new Promise(resolve => {
         resolve({
-          id: "commentId",
-          message_id: "message_id"
+          id: 'commentId',
+          message_id: 'message_id',
         });
       });
     });
 
-    saveWebhookResponse = new SaveWebhookResponse(
-      "access_token",
-      integration,
-      {}
-    );
+    saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
   });
 
   afterEach(async () => {
@@ -90,28 +78,28 @@ describe("facebook integration: save webhook response", () => {
     await ActivityLogs.remove({});
   });
 
-  test("via messenger event", async () => {
+  test('via messenger event', async () => {
     // first time ========================
 
     expect(await Conversations.find().count()).toBe(0); // 0 conversations
     expect(await Customers.find().count()).toBe(0); // 0 customers
     expect(await ConversationMessages.find().count()).toBe(0); // 0 messages
 
-    senderId = "2242424244";
-    let messageText = "from messenger";
+    senderId = '2242424244';
+    let messageText = 'from messenger';
 
     const attachments = [
       {
-        type: "image",
+        type: 'image',
         payload: {
-          url: "attachment_url"
-        }
-      }
+          url: 'attachment_url',
+        },
+      },
     ];
 
     // customer says from messenger via messenger
     saveWebhookResponse.data = {
-      object: "page",
+      object: 'page',
       entry: [
         {
           id: pageId,
@@ -120,14 +108,14 @@ describe("facebook integration: save webhook response", () => {
               sender: { id: senderId },
               recipient: { id: recipientId },
               message: {
-                mid: "mid0",
+                mid: 'mid0',
                 text: messageText,
-                attachments
-              }
-            }
-          ]
-        }
-      ]
+                attachments,
+              },
+            },
+          ],
+        },
+      ],
     };
     await saveWebhookResponse.start();
 
@@ -152,7 +140,7 @@ describe("facebook integration: save webhook response", () => {
     // check customer field values
     expect(customer.createdAt).toBeDefined();
     expect(customer.integrationId).toBe(integration._id);
-    expect(customer.firstName).toBe("Dombo Gombo"); // from mocked get info above
+    expect(customer.firstName).toBe('Dombo Gombo'); // from mocked get info above
     expect(customer.facebookData.id).toBe(senderId);
 
     // check message field values
@@ -162,17 +150,17 @@ describe("facebook integration: save webhook response", () => {
     expect(message.content).toBe(messageText);
     expect(message.attachments.length).toBe(1);
     expect(message.attachments[0].toJSON()).toEqual({
-      type: "image",
-      url: "attachment_url"
+      type: 'image',
+      url: 'attachment_url',
     });
 
     // second time ========================
 
     // customer says hi via messenger again
-    messageText = "hi";
+    messageText = 'hi';
 
     saveWebhookResponse.data = {
-      object: "page",
+      object: 'page',
       entry: [
         {
           id: pageId,
@@ -182,13 +170,13 @@ describe("facebook integration: save webhook response", () => {
               recipient: { id: recipientId },
 
               message: {
-                mid: "mid",
-                text: messageText
-              }
-            }
-          ]
-        }
-      ]
+                mid: 'mid',
+                text: messageText,
+              },
+            },
+          ],
+        },
+      ],
     };
     await saveWebhookResponse.start();
 
@@ -206,7 +194,7 @@ describe("facebook integration: save webhook response", () => {
     expect(conversation.readUserIds.length).toBe(0);
 
     const newMessage = await ConversationMessages.findOne({
-      _id: { $ne: message._id }
+      _id: { $ne: message._id },
     });
 
     // check message fields
@@ -218,7 +206,7 @@ describe("facebook integration: save webhook response", () => {
 
     // receiving already saved info ========================
     saveWebhookResponse.data = {
-      object: "page",
+      object: 'page',
       entry: [
         {
           id: pageId,
@@ -226,11 +214,11 @@ describe("facebook integration: save webhook response", () => {
             {
               sender: { id: senderId },
               recipient: { id: recipientId },
-              message: { mid: "mid" }
-            }
-          ]
-        }
-      ]
+              message: { mid: 'mid' },
+            },
+          ],
+        },
+      ],
     };
 
     await saveWebhookResponse.start();
@@ -239,42 +227,42 @@ describe("facebook integration: save webhook response", () => {
     expect(await ConversationMessages.find().count()).toBe(2);
   });
 
-  test("via feed event", async () => {
+  test('via feed event', async () => {
     // first time ========================
 
     expect(await Conversations.find().count()).toBe(0); // 0 conversations
     expect(await Customers.find().count()).toBe(0); // 0 customers
     expect(await ConversationMessages.find().count()).toBe(0); // 0 messages
 
-    let messageText = "wall post";
-    const link = "link_url";
-    const commentId = "2424242422242424244";
-    const senderName = "Facebook User";
+    let messageText = 'wall post';
+    const link = 'link_url';
+    const commentId = '2424242422242424244';
+    const senderName = 'Facebook User';
 
     // customer posted `wall post` on our wall
     saveWebhookResponse.data = {
-      object: "page",
+      object: 'page',
       entry: [
         {
           id: pageId,
           changes: [
             {
               value: {
-                verb: "add",
-                item: "status",
+                verb: 'add',
+                item: 'status',
                 post_id: postId,
                 from: {
                   id: senderId,
-                  name: senderName
+                  name: senderName,
                 },
                 message: messageText,
                 link,
-                created_time: "1533712330"
-              }
-            }
-          ]
-        }
-      ]
+                created_time: '1533712330',
+              },
+            },
+          ],
+        },
+      ],
     };
     await saveWebhookResponse.start();
 
@@ -298,13 +286,11 @@ describe("facebook integration: save webhook response", () => {
 
     // check customer field values
     expect(customer.integrationId).toBe(integration._id);
-    expect(customer.firstName).toBe("Dombo Gombo"); // from mocked get info above
+    expect(customer.firstName).toBe('Dombo Gombo'); // from mocked get info above
     expect(customer.facebookData.id).toBe(senderId);
 
     // 1 logs
-    expect(
-      await ActivityLogs.find({ "activity.type": "customer" }).count()
-    ).toBe(1);
+    expect(await ActivityLogs.find({ 'activity.type': 'customer' }).count()).toBe(1);
 
     // check message field values
     expect(message.createdAt).toBeDefined();
@@ -313,7 +299,7 @@ describe("facebook integration: save webhook response", () => {
     expect(message.internal).toBe(false);
     expect(message.content).toBe(messageText);
 
-    expect(message.facebookData.item).toBe("status");
+    expect(message.facebookData.item).toBe('status');
     expect(message.facebookData.senderId).toBe(senderId);
     expect(message.facebookData.senderName).toBe(senderName);
     expect(message.facebookData.postId).toBe(postId);
@@ -323,36 +309,36 @@ describe("facebook integration: save webhook response", () => {
     expect(message.facebookData.photos).toHaveLength(0);
 
     // second time ========================
-    sinon.stub(saveWebhookResponse, "restoreOldPosts").callsFake(() => {
+    sinon.stub(saveWebhookResponse, 'restoreOldPosts').callsFake(() => {
       return false;
     });
 
     // customer commented hi on above post again
-    messageText = "hi";
+    messageText = 'hi';
 
     saveWebhookResponse.data = {
-      object: "page",
+      object: 'page',
       entry: [
         {
           id: pageId,
           changes: [
             {
               value: {
-                verb: "add",
-                item: "comment",
+                verb: 'add',
+                item: 'comment',
                 post_id: postId,
                 comment_id: `${commentId}1`,
                 from: {
                   id: senderId,
-                  name: senderName
+                  name: senderName,
                 },
                 message: messageText,
-                created_time: "1533712330"
-              }
-            }
-          ]
-        }
-      ]
+                created_time: '1533712330',
+              },
+            },
+          ],
+        },
+      ],
     };
     await saveWebhookResponse.start();
 
@@ -370,7 +356,7 @@ describe("facebook integration: save webhook response", () => {
     expect(conversation.readUserIds.length).toBe(0);
 
     const newMessage = await ConversationMessages.findOne({
-      _id: { $ne: message._id }
+      _id: { $ne: message._id },
     });
     // check message fields
     expect(newMessage.createdAt).toBeDefined();
@@ -380,7 +366,7 @@ describe("facebook integration: save webhook response", () => {
     expect(newMessage.content).toBe(messageText);
     expect(newMessage.attachments.length).toBe(0);
 
-    expect(newMessage.facebookData.item).toBe("comment");
+    expect(newMessage.facebookData.item).toBe('comment');
     expect(newMessage.facebookData.senderId).toBe(senderId);
     expect(newMessage.facebookData.senderName).toBe(senderName);
     expect(newMessage.facebookData.postId).toBe(postId);

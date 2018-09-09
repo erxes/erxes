@@ -1,7 +1,7 @@
-import * as _ from "underscore";
-import { Channels, Integrations } from "../../../db/models";
-import { CONVERSATION_STATUSES } from "../../constants";
-import { fixDate } from "./insightUtils";
+import * as _ from 'underscore';
+import { Channels, Integrations } from '../../../db/models';
+import { CONVERSATION_STATUSES } from '../../constants';
+import { fixDate } from './insightUtils';
 
 interface IIn {
   $in: string[];
@@ -77,12 +77,9 @@ export default class Builder {
   }
 
   public defaultFilters(): IDefaultFilters {
-    let statusFilter = this.statusFilter([
-      CONVERSATION_STATUSES.NEW,
-      CONVERSATION_STATUSES.OPEN
-    ]);
+    let statusFilter = this.statusFilter([CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]);
 
-    if (this.params.status === "closed") {
+    if (this.params.status === 'closed') {
       statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
     }
 
@@ -92,33 +89,30 @@ export default class Builder {
       $or: [
         {
           userId: { $exists: true },
-          messageCount: { $gt: 1 }
+          messageCount: { $gt: 1 },
         },
         {
-          userId: { $exists: false }
-        }
-      ]
+          userId: { $exists: false },
+        },
+      ],
     };
   }
 
   public intersectIntegrationIds(...queries: any[]): IIntersectIntegrationIds {
     // filter only queries with $in field
-    const withIn = queries.filter(
-      q =>
-        q.integrationId && q.integrationId.$in && q.integrationId.$in.length > 0
-    );
+    const withIn = queries.filter(q => q.integrationId && q.integrationId.$in && q.integrationId.$in.length > 0);
 
     // [{$in: ['id1', 'id2']}, {$in: ['id3', 'id1', 'id4']}]
-    const $ins = _.pluck(withIn, "integrationId");
+    const $ins = _.pluck(withIn, 'integrationId');
 
     // [['id1', 'id2'], ['id3', 'id1', 'id4']]
-    const nestedIntegrationIds = _.pluck($ins, "$in");
+    const nestedIntegrationIds = _.pluck($ins, '$in');
 
     // ['id1']
     const integrationids: any = _.intersection(...nestedIntegrationIds);
 
     return {
-      integrationId: { $in: integrationids  }
+      integrationId: { $in: integrationids },
     };
   }
 
@@ -127,7 +121,7 @@ export default class Builder {
    */
   public async integrationsFilter(): Promise<IIntersectIntegrationIds> {
     const channelFilter = {
-      memberIds: this.user._id
+      memberIds: this.user._id,
     };
 
     // find all posssible integrations
@@ -136,15 +130,10 @@ export default class Builder {
     const channels = await Channels.find(channelFilter);
 
     channels.forEach(channel => {
-      availIntegrationIds = _.union(
-        availIntegrationIds,
-        channel.integrationIds || ""
-      );
+      availIntegrationIds = _.union(availIntegrationIds, channel.integrationIds || '');
     });
 
-    const nestedIntegrationIds: any = [
-      { integrationId: { $in: availIntegrationIds } }
-    ];
+    const nestedIntegrationIds: any = [{ integrationId: { $in: availIntegrationIds } }];
 
     // filter by channel
     if (this.params.channelId) {
@@ -164,30 +153,29 @@ export default class Builder {
   // filter by channel
   public async channelFilter(channelId: string): Promise<IChannelFilter> {
     const channel = await Channels.findOne({ _id: channelId });
-    if( channel && channel.integrationIds ){
+    if (channel && channel.integrationIds) {
       return {
-        integrationId: { $in: channel.integrationIds }
+        integrationId: { $in: channel.integrationIds },
       };
-    }
-    else{
-      return {integrationId: {$in: []}};
+    } else {
+      return { integrationId: { $in: [] } };
     }
   }
 
   // filter by brand
   public async brandFilter(brandId: string): Promise<IBrandFilter> {
     const integrations = await Integrations.find({ brandId });
-    const integrationIds = _.pluck(integrations, "_id");
+    const integrationIds = _.pluck(integrations, '_id');
 
     return {
-      integrationId: { $in: integrationIds }
+      integrationId: { $in: integrationIds },
     };
   }
 
   // filter all unassigned
   public unassignedFilter(): IUnassignedFilter {
     this.unassignedQuery = {
-      assignedUserId: { $exists: false }
+      assignedUserId: { $exists: false },
     };
 
     return this.unassignedQuery;
@@ -196,7 +184,7 @@ export default class Builder {
   // filter by participating
   public participatingFilter(): IParticipatingFilter {
     return {
-      participatedUserIds: { $in: [this.user._id] }
+      participatedUserIds: { $in: [this.user._id] },
     };
   }
 
@@ -209,20 +197,18 @@ export default class Builder {
     }
 
     return {
-      _id: { $in: ids }
+      _id: { $in: ids },
     };
   }
 
   public statusFilter(statusChoices: string[]): IStatusFilter {
     return {
-      status: { $in: statusChoices }
+      status: { $in: statusChoices },
     };
   }
 
   // filter by integration type
-  public async integrationTypeFilter(
-    integrationType: string
-  ): Promise<IIntegrationTypeFilter> {
+  public async integrationTypeFilter(integrationType: string): Promise<IIntegrationTypeFilter> {
     const integrations = await Integrations.find({ kind: integrationType });
 
     return {
@@ -231,15 +217,15 @@ export default class Builder {
         this.queries.integrations,
 
         // filter by integration type
-        { integrationId: { $in: _.pluck(integrations, "_id") } }
-      ]
+        { integrationId: { $in: _.pluck(integrations, '_id') } },
+      ],
     };
   }
 
   // filter by tag
   public tagFilter(tagId: string): ITagFilter {
     return {
-      tagIds: [tagId]
+      tagIds: [tagId],
     };
   }
 
@@ -247,8 +233,8 @@ export default class Builder {
     return {
       createdAt: {
         $gte: fixDate(startDate),
-        $lte: fixDate(endDate)
-      }
+        $lte: fixDate(endDate),
+      },
     };
   }
 
@@ -269,7 +255,7 @@ export default class Builder {
       integrations: {},
 
       participating: {},
-      createdAt: {}
+      createdAt: {},
     };
 
     // filter by channel
@@ -307,16 +293,11 @@ export default class Builder {
 
     // filter by integration type
     if (this.params.integrationType) {
-      this.queries.integrationType = await this.integrationTypeFilter(
-        this.params.integrationType
-      );
+      this.queries.integrationType = await this.integrationTypeFilter(this.params.integrationType);
     }
 
     if (this.params.startDate && this.params.endDate) {
-      this.queries.createdAt = this.dateFilter(
-        this.params.startDate,
-        this.params.endDate
-      );
+      this.queries.createdAt = this.dateFilter(this.params.startDate, this.params.endDate);
     }
   }
 
@@ -330,7 +311,7 @@ export default class Builder {
       ...this.queries.status,
       ...this.queries.starred,
       ...this.queries.tag,
-      ...this.queries.createdAt
+      ...this.queries.createdAt,
     };
   }
 }

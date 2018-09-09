@@ -1,13 +1,7 @@
-import { connect, disconnect } from "../db/connection";
-import {
-  customerFactory,
-  fieldFactory,
-  fieldGroupFactory,
-  formFactory,
-  userFactory
-} from "../db/factories";
-import { Customers, Fields, FieldsGroups, Forms } from "../db/models";
-import { FIELDS_GROUPS_CONTENT_TYPES } from "../db/models/definitions/constants";
+import { connect, disconnect } from '../db/connection';
+import { customerFactory, fieldFactory, fieldGroupFactory, formFactory, userFactory } from '../db/factories';
+import { Customers, Fields, FieldsGroups, Forms } from '../db/models';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '../db/models/definitions/constants';
 
 beforeAll(() => connect());
 
@@ -16,12 +10,12 @@ afterAll(() => disconnect());
 /**
  * Field related tests
  */
-describe("Fields", () => {
+describe('Fields', () => {
   let _field;
 
   beforeEach(async () => {
     // creating field with contentType other than customer
-    _field = await fieldFactory({ contentType: "form", order: 1 });
+    _field = await fieldFactory({ contentType: 'form', order: 1 });
   });
 
   afterEach(async () => {
@@ -31,41 +25,41 @@ describe("Fields", () => {
     await FieldsGroups.remove({});
   });
 
-  test("createField() without contentTypeId", async () => {
-    const group = await fieldGroupFactory({ contentType: "customer" });
+  test('createField() without contentTypeId', async () => {
+    const group = await fieldGroupFactory({ contentType: 'customer' });
 
     if (!group) {
-      throw new Error("Couldnt create group");
+      throw new Error('Couldnt create group');
     }
 
     // first attempt
-    let field = await Fields.createField({ contentType: "customer" });
+    let field = await Fields.createField({ contentType: 'customer' });
     expect(field.order).toBe(0);
 
     // second attempt
-    field = await Fields.createField({ contentType: "customer" });
+    field = await Fields.createField({ contentType: 'customer' });
     expect(field.order).toBe(1);
 
     // third attempt
-    field = await Fields.createField({ contentType: "customer" });
+    field = await Fields.createField({ contentType: 'customer' });
     expect(field.order).toBe(2);
 
     field = await Fields.createField({
-      contentType: "customer",
-      groupId: group._id
+      contentType: 'customer',
+      groupId: group._id,
     });
     expect(field.order).toBe(0);
   });
 
-  test("createField() with contentTypeId", async () => {
-    const contentType = "form";
+  test('createField() with contentTypeId', async () => {
+    const contentType = 'form';
     const form1 = await formFactory({});
     const form2 = await formFactory({});
 
     // first attempt
     let field = await Fields.createField({
       contentType,
-      contentTypeId: form1._id
+      contentTypeId: form1._id,
     });
     expect(field.order).toBe(0);
 
@@ -78,56 +72,56 @@ describe("Fields", () => {
     expect(field.order).toBe(0);
   });
 
-  test("createField() required contentTypeId when form", async () => {
+  test('createField() required contentTypeId when form', async () => {
     expect.assertions(1);
 
     try {
-      await Fields.createField({ contentType: "form" });
+      await Fields.createField({ contentType: 'form' });
     } catch (e) {
-      expect(e.message).toEqual("Content type id is required");
+      expect(e.message).toEqual('Content type id is required');
     }
   });
 
-  test("createField() check contentTypeId existence", async () => {
+  test('createField() check contentTypeId existence', async () => {
     expect.assertions(1);
 
     try {
       await Fields.createField({
-        contentType: "form",
-        contentTypeId: "DFAFDFADS"
+        contentType: 'form',
+        contentTypeId: 'DFAFDFADS',
       });
     } catch (e) {
-      expect(e.message).toEqual("Form not found with _id of DFAFDFADS");
+      expect(e.message).toEqual('Form not found with _id of DFAFDFADS');
     }
   });
 
-  test("updateOrder()", async () => {
+  test('updateOrder()', async () => {
     const field1 = await fieldFactory({});
     const field2 = await fieldFactory({});
 
     if (!field1 || !field2) {
-      throw new Error("Couldnt create field");
+      throw new Error('Couldnt create field');
     }
 
     const [updatedField1, updatedField2] = await Fields.updateOrder([
       { _id: field1._id, order: 10 },
-      { _id: field2._id, order: 11 }
+      { _id: field2._id, order: 11 },
     ]);
 
     expect(updatedField1.order).toBe(10);
     expect(updatedField2.order).toBe(11);
   });
 
-  test("Update field valid", async () => {
+  test('Update field valid', async () => {
     const doc = await fieldFactory({});
     const testField = await fieldFactory({ isDefinedByErxes: true });
 
     if (!doc || !testField) {
-      throw new Error("Couldnt create field");
+      throw new Error('Couldnt create field');
     }
 
     const fieldDoc = {
-      ...doc.toJSON()
+      ...doc.toJSON(),
     };
 
     delete fieldDoc._id;
@@ -137,11 +131,11 @@ describe("Fields", () => {
     try {
       await Fields.updateField(testField._id, {});
     } catch (e) {
-      expect(e.message).toBe("Cant update this field");
+      expect(e.message).toBe('Cant update this field');
     }
 
     if (!fieldObj.options || !doc.options) {
-      throw new Error("Options not found in field");
+      throw new Error('Options not found in field');
     }
 
     // check updates
@@ -156,26 +150,26 @@ describe("Fields", () => {
     expect(fieldObj.order).toBe(doc.order);
   });
 
-  test("Remove field valid", async () => {
+  test('Remove field valid', async () => {
     expect.assertions(4);
 
-    await customerFactory({ customFieldsData: { [_field._id]: "1231" } });
+    await customerFactory({ customFieldsData: { [_field._id]: '1231' } });
     const testField = await fieldFactory({ isDefinedByErxes: true });
 
     if (!testField) {
-      throw new Error("Couldnt create field");
+      throw new Error('Couldnt create field');
     }
 
     try {
-      await Fields.removeField("DFFFDSFD");
+      await Fields.removeField('DFFFDSFD');
     } catch (e) {
-      expect(e.message).toBe("Field not found with id DFFFDSFD");
+      expect(e.message).toBe('Field not found with id DFFFDSFD');
     }
 
     try {
       await Fields.updateField(testField._id, {});
     } catch (e) {
-      expect(e.message).toBe("Cant update this field");
+      expect(e.message).toBe('Cant update this field');
     }
 
     await Fields.removeField(_field.id);
@@ -183,27 +177,25 @@ describe("Fields", () => {
     const index = `customFieldsData.${_field._id}`;
 
     // Checking if field  value removed from customer
-    expect(await Customers.find({ [index]: { $exists: true } })).toHaveLength(
-      0
-    );
+    expect(await Customers.find({ [index]: { $exists: true } })).toHaveLength(0);
 
     const fieldObj = await Fields.findOne({ _id: _field.id });
     expect(fieldObj).toBeNull();
   });
 
-  test("Validate submission: field not found", async () => {
+  test('Validate submission: field not found', async () => {
     expect.assertions(1);
 
-    const _id = "INVALID_ID";
+    const _id = 'INVALID_ID';
 
     try {
-      await Fields.clean(_id, "");
+      await Fields.clean(_id, '');
     } catch (e) {
       expect(e.message).toBe(`Field not found with the _id of ${_id}`);
     }
   });
 
-  test("Validate submission: invalid values", async () => {
+  test('Validate submission: invalid values', async () => {
     expect.assertions(4);
 
     const expectError = async (message, value) => {
@@ -222,22 +214,22 @@ describe("Fields", () => {
     // required =====
     _field.isRequired = true;
     await _field.save();
-    await expectError("required", "");
+    await expectError('required', '');
 
     // email =====
-    await changeValidation("email");
-    await expectError("Invalid email", "wrongValue");
+    await changeValidation('email');
+    await expectError('Invalid email', 'wrongValue');
 
     // number =====
-    await changeValidation("number");
-    await expectError("Invalid number", "wrongValue");
+    await changeValidation('number');
+    await expectError('Invalid number', 'wrongValue');
 
     // date =====
-    await changeValidation("date");
-    await expectError("Invalid date", "wrongValue");
+    await changeValidation('date');
+    await expectError('Invalid date', 'wrongValue');
   });
 
-  test("Validate submission: valid values", async () => {
+  test('Validate submission: valid values', async () => {
     const expectValid = async value => {
       const response = await Fields.clean(_field._id, value);
       expect(response).toBe(value);
@@ -251,25 +243,25 @@ describe("Fields", () => {
     // required =====
     _field.isRequired = true;
     await changeValidation(null);
-    expectValid("value");
+    expectValid('value');
 
     // email =====
-    await changeValidation("email");
-    expectValid("email@gmail.com");
+    await changeValidation('email');
+    expectValid('email@gmail.com');
 
     // number =====
-    await changeValidation("number");
-    expectValid("2.333");
-    expectValid("2");
+    await changeValidation('number');
+    expectValid('2.333');
+    expectValid('2');
 
     // date =====
     // date values must be convert to date object
-    await changeValidation("date");
-    const res = await Fields.clean(_field._id, "2017-01-01");
+    await changeValidation('date');
+    const res = await Fields.clean(_field._id, '2017-01-01');
     expect(res).toEqual(expect.any(Date));
   });
 
-  test("Validate fields: invalid values", async () => {
+  test('Validate fields: invalid values', async () => {
     expect.assertions(1);
 
     // required =====
@@ -277,13 +269,13 @@ describe("Fields", () => {
     await _field.save();
 
     try {
-      await Fields.cleanMulti({ [_field._id]: "" });
+      await Fields.cleanMulti({ [_field._id]: '' });
     } catch (e) {
       expect(e.message).toBe(`${_field.text}: required`);
     }
   });
 
-  test("Update field visible", async () => {
+  test('Update field visible', async () => {
     expect.assertions(2);
 
     const field = await fieldFactory({ isVisible: true });
@@ -293,20 +285,16 @@ describe("Fields", () => {
     const isVisible = false;
 
     if (!field || !testField) {
-      throw new Error("Couldnt create field");
+      throw new Error('Couldnt create field');
     }
 
     try {
-      await Fields.updateFieldsVisible(testField._id, false, "123321");
+      await Fields.updateFieldsVisible(testField._id, false, '123321');
     } catch (e) {
-      expect(e.message).toBe("Cant update this field");
+      expect(e.message).toBe('Cant update this field');
     }
 
-    const fieldObj = await Fields.updateFieldsVisible(
-      field._id,
-      isVisible,
-      user._id
-    );
+    const fieldObj = await Fields.updateFieldsVisible(field._id, isVisible, user._id);
 
     expect(fieldObj.isVisible).toBe(isVisible);
   });
@@ -315,14 +303,14 @@ describe("Fields", () => {
 /**
  * Fields groups related tests
  */
-describe("Fields groups", () => {
+describe('Fields groups', () => {
   let _fieldGroup;
 
   beforeEach(async () => {
     // creating field group
     _fieldGroup = await fieldGroupFactory({
       contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     });
   });
 
@@ -331,15 +319,15 @@ describe("Fields groups", () => {
     await FieldsGroups.remove({});
   });
 
-  test("Create group", async () => {
+  test('Create group', async () => {
     expect.assertions(5);
     const user = await userFactory({});
 
     const doc = {
-      name: "Name",
-      description: "Description",
+      name: 'Name',
+      description: 'Description',
       contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-      lastUpdatedUserId: user._id
+      lastUpdatedUserId: user._id,
     };
 
     let groupObj = await FieldsGroups.createGroup(doc);
@@ -354,26 +342,26 @@ describe("Fields groups", () => {
     expect(groupObj.order).toBe(3);
   });
 
-  test("Update group", async () => {
+  test('Update group', async () => {
     expect.assertions(3);
     const user = await userFactory({});
 
     const fieldGroup = await fieldGroupFactory({});
 
     const doc = {
-      name: "test name",
-      description: "test description",
-      lastUpdatedUserId: user._id
+      name: 'test name',
+      description: 'test description',
+      lastUpdatedUserId: user._id,
     };
 
     try {
       await FieldsGroups.updateGroup(_fieldGroup._id, doc);
     } catch (e) {
-      expect(e.message).toBe("Cant update this group");
+      expect(e.message).toBe('Cant update this group');
     }
 
     if (!fieldGroup) {
-      throw new Error("Couldnt create fieldGroup");
+      throw new Error('Couldnt create fieldGroup');
     }
 
     const groupObj = await FieldsGroups.updateGroup(fieldGroup._id, doc);
@@ -382,13 +370,13 @@ describe("Fields groups", () => {
     expect(groupObj.description).toBe(doc.description);
   });
 
-  test("Remove group", async () => {
+  test('Remove group', async () => {
     expect.assertions(3);
 
     const fieldGroup = await fieldGroupFactory({});
 
     if (!fieldGroup) {
-      throw new Error("Couldnt create fieldGroup");
+      throw new Error('Couldnt create fieldGroup');
     }
 
     await fieldFactory({ groupId: fieldGroup._id });
@@ -396,7 +384,7 @@ describe("Fields groups", () => {
     try {
       await FieldsGroups.removeGroup(_fieldGroup._id);
     } catch (e) {
-      expect(e.message).toBe("Cant update this group");
+      expect(e.message).toBe('Cant update this group');
     }
 
     await FieldsGroups.removeGroup(fieldGroup._id);
@@ -405,10 +393,10 @@ describe("Fields groups", () => {
     expect(await FieldsGroups.findOne({ _id: fieldGroup._id })).toBeNull();
   });
 
-  test("Remove group with fake group, with exception", async () => {
+  test('Remove group with fake group, with exception', async () => {
     expect.assertions(1);
 
-    const _id = "1333131";
+    const _id = '1333131';
 
     try {
       await FieldsGroups.removeGroup(_id);
@@ -417,28 +405,24 @@ describe("Fields groups", () => {
     }
   });
 
-  test("Update group visible", async () => {
+  test('Update group visible', async () => {
     expect.assertions(2);
 
     const fieldGroup = await fieldGroupFactory({ isVisible: true });
     const user = await userFactory({});
 
     if (!fieldGroup) {
-      throw new Error("Couldnt create fieldGroup");
+      throw new Error('Couldnt create fieldGroup');
     }
 
     try {
       await FieldsGroups.updateGroupVisible(_fieldGroup._id, true, user._id);
     } catch (e) {
-      expect(e.message).toBe("Cant update this group");
+      expect(e.message).toBe('Cant update this group');
     }
 
     const isVisible = false;
-    const groupObj = await FieldsGroups.updateGroupVisible(
-      fieldGroup._id,
-      isVisible,
-      user._id
-    );
+    const groupObj = await FieldsGroups.updateGroupVisible(fieldGroup._id, isVisible, user._id);
 
     expect(groupObj.isVisible).toBe(isVisible);
   });

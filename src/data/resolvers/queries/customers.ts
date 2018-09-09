@@ -1,17 +1,17 @@
-import { Brands, Customers, Forms, Segments, Tags } from "../../../db/models";
-import { ISegment } from "../../../db/models/definitions/segments";
+import { Brands, Customers, Forms, Segments, Tags } from '../../../db/models';
+import { ISegment } from '../../../db/models/definitions/segments';
 import {
   COC_CONTENT_TYPES,
   COC_LEAD_STATUS_TYPES,
   COC_LIFECYCLE_STATE_TYPES,
   INTEGRATION_KIND_CHOICES,
-  TAG_TYPES
-} from "../../constants";
-import { moduleRequireLogin } from "../../permissions";
-import { cocsExport } from "./cocExport";
-import BuildQuery, { IListArgs } from "./customerQueryBuilder";
-import QueryBuilder from "./segmentQueryBuilder";
-import { paginate } from "./utils";
+  TAG_TYPES,
+} from '../../constants';
+import { moduleRequireLogin } from '../../permissions';
+import { cocsExport } from './cocExport';
+import BuildQuery, { IListArgs } from './customerQueryBuilder';
+import QueryBuilder from './segmentQueryBuilder';
+import { paginate } from './utils';
 
 interface ISortParams {
   [index: string]: number;
@@ -21,7 +21,7 @@ const sortBuilder = (params: IListArgs): ISortParams => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
-  let sortParams: ISortParams = { "messengerData.lastSeenAt": -1 };
+  let sortParams: ISortParams = { 'messengerData.lastSeenAt': -1 };
 
   if (sortField) {
     sortParams = { [sortField]: sortDirection };
@@ -54,10 +54,7 @@ const customerQueries = {
 
     const sort = sortBuilder(params);
 
-    const list = await paginate(
-      Customers.find(qb.mainQuery()).sort(sort),
-      params
-    );
+    const list = await paginate(Customers.find(qb.mainQuery()).sort(sort), params);
     const totalCount = await Customers.find(qb.mainQuery()).count();
 
     return { list, totalCount };
@@ -75,7 +72,7 @@ const customerQueries = {
       byFakeSegment: 0,
       byForm: {},
       byLeadStatus: {},
-      byLifecycleState: {}
+      byLifecycleState: {},
     };
 
     const qb = new BuildQuery(params);
@@ -101,7 +98,7 @@ const customerQueries = {
 
     // Count customers by segments
     const segments = await Segments.find({
-      contentType: COC_CONTENT_TYPES.CUSTOMER
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
     });
 
     // Count customers by segment
@@ -111,9 +108,7 @@ const customerQueries = {
 
     // Count customers by fake segment
     if (params.byFakeSegment) {
-      counts.byFakeSegment = await count(
-        QueryBuilder.segments(params.byFakeSegment)
-      );
+      counts.byFakeSegment = await count(QueryBuilder.segments(params.byFakeSegment));
     }
 
     // Count customers by brand
@@ -125,9 +120,7 @@ const customerQueries = {
 
     // Count customers by integration kind
     for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
-      counts.byIntegrationType[kind] = await count(
-        await qb.integrationTypeFilter(kind)
-      );
+      counts.byIntegrationType[kind] = await count(await qb.integrationTypeFilter(kind));
     }
 
     // Count customers by tag
@@ -141,9 +134,7 @@ const customerQueries = {
     const forms = await Forms.find({});
 
     for (const form of forms) {
-      counts.byForm[form._id] = await count(
-        await qb.formFilter(form._id, params.startDate, params.endDate)
-      );
+      counts.byForm[form._id] = await count(await qb.formFilter(form._id, params.startDate, params.endDate));
     }
 
     // Count customers by lead status
@@ -153,9 +144,7 @@ const customerQueries = {
 
     // Count customers by life cycle state
     for (const state of COC_LIFECYCLE_STATE_TYPES) {
-      counts.byLifecycleState[state] = await count(
-        qb.lifecycleStateFilter(state)
-      );
+      counts.byLifecycleState[state] = await count(qb.lifecycleStateFilter(state));
     }
 
     return counts;
@@ -165,14 +154,11 @@ const customerQueries = {
    * Publishes customers list for the preview
    * when creating/editing a customer segment
    */
-  async customerListForSegmentPreview(
-    _root,
-    { segment, limit }: { segment: ISegment; limit: number }
-  ) {
+  async customerListForSegmentPreview(_root, { segment, limit }: { segment: ISegment; limit: number }) {
     const headSegment = await Segments.findOne({ _id: segment.subOf });
 
     const query = QueryBuilder.segments(segment, headSegment);
-    const sort = { "messengerData.lastSeenAt": -1 };
+    const sort = { 'messengerData.lastSeenAt': -1 };
 
     return Customers.find(query)
       .sort(sort)
@@ -198,8 +184,8 @@ const customerQueries = {
 
     const customers = await Customers.find(qb.mainQuery()).sort(sort);
 
-    return cocsExport(customers, "customer");
-  }
+    return cocsExport(customers, 'customer');
+  },
 };
 
 moduleRequireLogin(customerQueries);

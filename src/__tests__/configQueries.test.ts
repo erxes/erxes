@@ -1,11 +1,11 @@
-import { connect, disconnect, graphqlRequest } from "../db/connection";
-import { configFactory } from "../db/factories";
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { configFactory } from '../db/factories';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe("configQueries", () => {
-  test("config detail", async () => {
+describe('configQueries', () => {
+  test('config detail', async () => {
     const config = await configFactory();
 
     const args = { code: config.code };
@@ -20,7 +20,7 @@ describe("configQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "configsDetail", args);
+    const response = await graphqlRequest(qry, 'configsDetail', args);
 
     expect(response.code).toBe(config.code);
   });

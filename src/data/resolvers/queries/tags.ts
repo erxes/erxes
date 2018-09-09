@@ -1,5 +1,5 @@
-import { Tags } from "../../../db/models";
-import { moduleRequireLogin } from "../../permissions";
+import { Tags } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
 const tagQueries = {
   /**
@@ -14,7 +14,7 @@ const tagQueries = {
    */
   tagDetail(_root, { _id }: { _id: string }) {
     return Tags.findOne({ _id });
-  }
+  },
 };
 
 moduleRequireLogin(tagQueries);

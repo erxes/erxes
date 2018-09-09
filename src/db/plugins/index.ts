@@ -1,3 +1,3 @@
-import { createdAtModifier } from "./createdAtModifier";
+import { createdAtModifier } from './createdAtModifier';
 
 export { createdAtModifier };

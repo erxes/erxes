@@ -1,22 +1,22 @@
-import { connect, disconnect, graphqlRequest } from "../db/connection";
-import { tagsFactory } from "../db/factories";
-import { Tags } from "../db/models";
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { tagsFactory } from '../db/factories';
+import { Tags } from '../db/models';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe("tagQueries", () => {
+describe('tagQueries', () => {
   afterEach(async () => {
     // Clearing test data
     await Tags.remove({});
   });
 
-  test("Tags", async () => {
+  test('Tags', async () => {
     // Creating test data
-    await tagsFactory({ type: "customer" });
-    await tagsFactory({ type: "customer" });
-    await tagsFactory({ type: "company" });
-    await tagsFactory({ type: "company" });
+    await tagsFactory({ type: 'customer' });
+    await tagsFactory({ type: 'customer' });
+    await tagsFactory({ type: 'company' });
+    await tagsFactory({ type: 'company' });
 
     const qry = `
       query tags($type: String) {
@@ -32,18 +32,18 @@ describe("tagQueries", () => {
     `;
 
     // customer ======================
-    let response = await graphqlRequest(qry, "tags", { type: "customer" });
+    let response = await graphqlRequest(qry, 'tags', { type: 'customer' });
 
     expect(response.length).toBe(2);
 
     // company =======================
-    response = await graphqlRequest(qry, "tags", { type: "company" });
+    response = await graphqlRequest(qry, 'tags', { type: 'company' });
 
     expect(response.length).toBe(2);
   });
 
-  test("Tag detail", async () => {
-    const tag = await tagsFactory({ type: "customer" });
+  test('Tag detail', async () => {
+    const tag = await tagsFactory({ type: 'customer' });
 
     const qry = `
       query tagDetail($_id: String!) {
@@ -53,7 +53,7 @@ describe("tagQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "tagDetail", { _id: tag._id });
+    const response = await graphqlRequest(qry, 'tagDetail', { _id: tag._id });
 
     expect(response._id).toBe(tag._id);
   });

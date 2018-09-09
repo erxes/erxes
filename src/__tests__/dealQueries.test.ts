@@ -1,16 +1,11 @@
-import { connect, disconnect, graphqlRequest } from "../db/connection";
-import {
-  dealBoardFactory,
-  dealFactory,
-  dealPipelineFactory,
-  dealStageFactory
-} from "../db/factories";
-import { DealBoards, DealPipelines, Deals, DealStages } from "../db/models";
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { dealBoardFactory, dealFactory, dealPipelineFactory, dealStageFactory } from '../db/factories';
+import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe("dealQueries", () => {
+describe('dealQueries', () => {
   const commonBoardTypes = `
     _id
     name
@@ -57,7 +52,7 @@ describe("dealQueries", () => {
     await Deals.remove({});
   });
 
-  test("Boards", async () => {
+  test('Boards', async () => {
     await dealBoardFactory();
     await dealBoardFactory();
     await dealBoardFactory();
@@ -70,12 +65,12 @@ describe("dealQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "dealBoards");
+    const response = await graphqlRequest(qry, 'dealBoards');
 
     expect(response.length).toBe(3);
   });
 
-  test("Board detail", async () => {
+  test('Board detail', async () => {
     const board = await dealBoardFactory();
 
     const args = { _id: board._id };
@@ -88,12 +83,12 @@ describe("dealQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "dealBoardDetail", args);
+    const response = await graphqlRequest(qry, 'dealBoardDetail', args);
 
     expect(response._id).toBe(board._id);
   });
 
-  test("Board get last", async () => {
+  test('Board get last', async () => {
     const board = await dealBoardFactory();
 
     const qry = `
@@ -104,12 +99,12 @@ describe("dealQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "dealBoardGetLast");
+    const response = await graphqlRequest(qry, 'dealBoardGetLast');
 
     expect(board._id).toBe(response._id);
   });
 
-  test("Pipelines", async () => {
+  test('Pipelines', async () => {
     const board = await dealBoardFactory();
 
     const args = { boardId: board._id };
@@ -126,12 +121,12 @@ describe("dealQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "dealPipelines", args);
+    const response = await graphqlRequest(qry, 'dealPipelines', args);
 
     expect(response.length).toBe(3);
   });
 
-  test("Stages", async () => {
+  test('Stages', async () => {
     const pipeline = await dealPipelineFactory();
 
     const args = { pipelineId: pipeline._id };
@@ -148,12 +143,12 @@ describe("dealQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "dealStages", args);
+    const response = await graphqlRequest(qry, 'dealStages', args);
 
     expect(response.length).toBe(3);
   });
 
-  test("Stage detail", async () => {
+  test('Stage detail', async () => {
     const stage = await dealStageFactory();
 
     const args = { _id: stage._id };
@@ -166,12 +161,12 @@ describe("dealQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "dealStageDetail", args);
+    const response = await graphqlRequest(qry, 'dealStageDetail', args);
 
     expect(response._id).toBe(stage._id);
   });
 
-  test("Deals", async () => {
+  test('Deals', async () => {
     const stage = await dealStageFactory();
 
     const args = { stageId: stage._id };
@@ -188,12 +183,12 @@ describe("dealQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "deals", args);
+    const response = await graphqlRequest(qry, 'deals', args);
 
     expect(response.length).toBe(3);
   });
 
-  test("Deal detail", async () => {
+  test('Deal detail', async () => {
     const deal = await dealFactory();
 
     const args = { _id: deal._id };
@@ -206,7 +201,7 @@ describe("dealQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "dealDetail", args);
+    const response = await graphqlRequest(qry, 'dealDetail', args);
 
     expect(response._id).toBe(deal._id);
   });

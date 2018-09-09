@@ -1,26 +1,20 @@
-import { CONVERSATION_STATUSES } from "../../data/constants";
-import { connect, disconnect } from "../../db/connection";
-import { conversationFactory, integrationFactory } from "../../db/factories";
-import {
-  ActivityLogs,
-  ConversationMessages,
-  Conversations,
-  Customers,
-  Integrations
-} from "../../db/models";
-import { receiveDirectMessageInformation } from "../../trackers/twitter";
+import { CONVERSATION_STATUSES } from '../../data/constants';
+import { connect, disconnect } from '../../db/connection';
+import { conversationFactory, integrationFactory } from '../../db/factories';
+import { ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../../db/models';
+import { receiveDirectMessageInformation } from '../../trackers/twitter';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe("receive direct message response", () => {
+describe('receive direct message response', () => {
   let _integration;
 
   const twitterUser = {
     id: 2442424242,
-    id_str: "2442424242",
-    name: "username",
-    profile_image_url: "profile_image_url"
+    id_str: '2442424242',
+    name: 'username',
+    profile_image_url: 'profile_image_url',
   };
 
   beforeEach(async () => {
@@ -35,7 +29,7 @@ describe("receive direct message response", () => {
     await ActivityLogs.remove({});
   });
 
-  test("reopen", async () => {
+  test('reopen', async () => {
     const senderId = 2424424242;
     const recipientId = 92442424424242;
 
@@ -47,22 +41,22 @@ describe("receive direct message response", () => {
         sender_id: senderId,
         sender_id_str: senderId.toString(),
         recipient_id: recipientId,
-        recipient_id_str: recipientId.toString()
-      }
+        recipient_id_str: recipientId.toString(),
+      },
     });
 
     // direct message
     await receiveDirectMessageInformation(
       {
         id: 42242242,
-        id_str: "42242242",
+        id_str: '42242242',
         sender_id: senderId,
         sender_id_str: senderId.toString(),
         recipient_id: recipientId,
         recipient_id_str: recipientId.toString(),
-        sender: twitterUser
+        sender: twitterUser,
       },
-      _integration
+      _integration,
     );
 
     // must not created new conversation
@@ -78,7 +72,7 @@ describe("receive direct message response", () => {
     expect(conversation.status).toBe(CONVERSATION_STATUSES.OPEN);
   });
 
-  test("main action", async () => {
+  test('main action', async () => {
     const integration = await integrationFactory({});
     await Integrations.remove({ _id: integration._id });
     // try using non existing integration
@@ -87,36 +81,36 @@ describe("receive direct message response", () => {
     // direct message
     const data = {
       id: 968686272498708500,
-      id_str: "968686272498708484",
-      text: "rrrr https://t.co/o3O2wAeYaB",
+      id_str: '968686272498708484',
+      text: 'rrrr https://t.co/o3O2wAeYaB',
       sender: {
         id: 169431359,
-        id_str: "169431359",
-        name: "BatAmar Battulga",
-        screen_name: "b_batamar",
-        profile_image_url: "79Dob1zF_normal.jpg"
+        id_str: '169431359',
+        name: 'BatAmar Battulga',
+        screen_name: 'b_batamar',
+        profile_image_url: '79Dob1zF_normal.jpg',
       },
       sender_id: 169431359,
-      sender_id_str: "169431359",
-      sender_screen_name: "b_batamar",
+      sender_id_str: '169431359',
+      sender_screen_name: 'b_batamar',
       recipient: {
         id: 800236126610935800,
-        id_str: "800236126610935808",
-        name: "dombo123",
-        screen_name: "Dombo84986356",
-        profile_image_url: "default_profile_normal.png"
+        id_str: '800236126610935808',
+        name: 'dombo123',
+        screen_name: 'Dombo84986356',
+        profile_image_url: 'default_profile_normal.png',
       },
       recipient_id: 800236126610935800,
-      recipient_id_str: "800236126610935808",
-      recipient_screen_name: "Dombo84986356",
-      created_at: "Wed Feb 28 03:16:19 +0000 2018",
+      recipient_id_str: '800236126610935808',
+      recipient_screen_name: 'Dombo84986356',
+      created_at: 'Wed Feb 28 03:16:19 +0000 2018',
       entities: {
         hashtags: [],
         symbols: [],
         user_mentions: [],
         urls: [[Object]],
-        media: [[Object]]
-      }
+        media: [[Object]],
+      },
     };
 
     // call action
@@ -165,9 +159,7 @@ describe("receive direct message response", () => {
     expect(customer.createdAt).toBeDefined();
     expect(customer.integrationId).toBe(_integration._id);
     expect(customer.avatar).toBe(data.sender.profile_image_url);
-    expect(customer.links.twitter).toBe(
-      `https://twitter.com/${data.sender.screen_name}`
-    );
+    expect(customer.links.twitter).toBe(`https://twitter.com/${data.sender.screen_name}`);
     expect(customer.twitterData.id).toBe(data.sender_id);
     expect(customer.twitterData.id_str).toBe(data.sender_id_str);
 
@@ -187,7 +179,7 @@ describe("receive direct message response", () => {
     expect(message.twitterData.recipient_id_str).toBe(data.recipient_id_str);
 
     // tweet reply ===============
-    data.text = "reply";
+    data.text = 'reply';
     data.id = 3434343434;
 
     // call action
@@ -213,7 +205,7 @@ describe("receive direct message response", () => {
     expect(await ConversationMessages.find().count()).toBe(2);
 
     const newMessage = await ConversationMessages.findOne({
-      _id: { $ne: message._id }
+      _id: { $ne: message._id },
     });
 
     if (!newMessage) {
@@ -224,18 +216,12 @@ describe("receive direct message response", () => {
     expect(newMessage.content).toBe(data.text);
 
     // close converstaion
-    await Conversations.update(
-      {},
-      { $set: { status: CONVERSATION_STATUSES.CLOSED } }
-    );
+    await Conversations.update({}, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
 
     // direct message
-    data.text = "hi";
+    data.text = 'hi';
 
-    let conversation = await receiveDirectMessageInformation(
-      data,
-      _integration
-    );
+    let conversation = await receiveDirectMessageInformation(data, _integration);
 
     if (!conversation) {
       throw new Error('conversation is null');
@@ -246,7 +232,7 @@ describe("receive direct message response", () => {
     expect(await ConversationMessages.find({}).count()).toBe(3);
     expect(conv._id).not.toBe(conversation._id);
 
-    data.text = "test";
+    data.text = 'test';
 
     conversation = await receiveDirectMessageInformation(data, _integration);
 

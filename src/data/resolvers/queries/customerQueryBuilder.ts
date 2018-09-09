@@ -1,7 +1,7 @@
-import * as moment from "moment";
-import * as _ from "underscore";
-import { Forms, Integrations, Segments } from "../../../db/models";
-import QueryBuilder, { TSegments } from "./segmentQueryBuilder";
+import * as moment from 'moment';
+import * as _ from 'underscore';
+import { Forms, Integrations, Segments } from '../../../db/models';
+import QueryBuilder, { TSegments } from './segmentQueryBuilder';
 
 interface IIn {
   $in: string[];
@@ -50,7 +50,7 @@ export default class Builder {
   }
 
   public defaultFilters(): IDefaultFilters {
-    const emptySelector = { $in: [null, ""] };
+    const emptySelector = { $in: [null, ''] };
 
     return {
       $nor: [
@@ -59,9 +59,9 @@ export default class Builder {
           lastName: emptySelector,
           primaryEmail: emptySelector,
           primaryPhone: emptySelector,
-          visitorContactInfo: null
-        }
-      ]
+          visitorContactInfo: null,
+        },
+      ],
     };
   }
 
@@ -87,11 +87,9 @@ export default class Builder {
   }
 
   // filter by integration
-  public async integrationFilter(
-    integration: string
-  ): Promise<IIntegrationIds> {
+  public async integrationFilter(integration: string): Promise<IIntegrationIds> {
     const integrations = await Integrations.find({
-      kind: integration
+      kind: integration,
     });
     /**
      * Since both of brand and integration filters use a same integrationId field
@@ -99,9 +97,7 @@ export default class Builder {
      */
     const ids = integrations.map(i => i._id);
 
-    const intersectionedIds = this.queries.integrationId
-      ? _.intersection(ids, this.queries.integrationId.$in)
-      : ids;
+    const intersectionedIds = this.queries.integrationId ? _.intersection(ids, this.queries.integrationId.$in) : ids;
 
     return { integrationId: { $in: intersectionedIds } };
   }
@@ -114,12 +110,12 @@ export default class Builder {
   // filter by search value
   public searchFilter(value: string): { $or: any } {
     const fields = [
-      { firstName: new RegExp(`.*${value}.*`, "i") },
-      { lastName: new RegExp(`.*${value}.*`, "i") },
-      { emails: { $in: [new RegExp(`.*${value}.*`, "i")] } },
-      { phones: { $in: [new RegExp(`.*${value}.*`, "i")] } },
-      { "visitorContactInfo.email": new RegExp(`.*${value}.*`, "i") },
-      { "visitorContactInfo.phone": new RegExp(`.*${value}.*`, "i") }
+      { firstName: new RegExp(`.*${value}.*`, 'i') },
+      { lastName: new RegExp(`.*${value}.*`, 'i') },
+      { emails: { $in: [new RegExp(`.*${value}.*`, 'i')] } },
+      { phones: { $in: [new RegExp(`.*${value}.*`, 'i')] } },
+      { 'visitorContactInfo.email': new RegExp(`.*${value}.*`, 'i') },
+      { 'visitorContactInfo.phone': new RegExp(`.*${value}.*`, 'i') },
     ];
 
     return { $or: fields };
@@ -136,18 +132,12 @@ export default class Builder {
   }
 
   // filter by lifecycleState
-  public lifecycleStateFilter(
-    lifecycleState: string
-  ): { lifecycleState: string } {
+  public lifecycleStateFilter(lifecycleState: string): { lifecycleState: string } {
     return { lifecycleState };
   }
 
   // filter by form
-  public async formFilter(
-    formId: string,
-    startDate?: string,
-    endDate?: string
-  ): Promise<IIdsFilter> {
+  public async formFilter(formId: string, startDate?: string, endDate?: string): Promise<IIdsFilter> {
     const formObj = await Forms.findOne({ _id: formId });
     const { submissions = [] } = formObj || {};
     const ids: string[] = [];
@@ -182,7 +172,7 @@ export default class Builder {
       brand: {},
       integration: {},
       form: {},
-      integrationType: {}
+      integrationType: {},
     };
 
     // filter by segment
@@ -202,9 +192,7 @@ export default class Builder {
 
     // filter by integration kind
     if (this.params.integrationType) {
-      this.queries.integrationType = await this.integrationTypeFilter(
-        this.params.integrationType
-      );
+      this.queries.integrationType = await this.integrationTypeFilter(this.params.integrationType);
     }
 
     // filter by form
@@ -212,11 +200,7 @@ export default class Builder {
       this.queries.form = await this.formFilter(this.params.form);
 
       if (this.params.startDate && this.params.endDate) {
-        this.queries.form = await this.formFilter(
-          this.params.form,
-          this.params.startDate,
-          this.params.endDate
-        );
+        this.queries.form = await this.formFilter(this.params.form, this.params.startDate, this.params.endDate);
       }
     }
 
@@ -229,9 +213,7 @@ export default class Builder {
 
     // filter by integration
     if (this.params.integration) {
-      this.queries.integration = await this.integrationFilter(
-        this.params.integration
-      );
+      this.queries.integration = await this.integrationFilter(this.params.integration);
     }
 
     // filter by search value
@@ -246,9 +228,7 @@ export default class Builder {
 
     // filter by lifecycleState
     if (this.params.lifecycleState) {
-      this.queries.lifecycleState = this.lifecycleStateFilter(
-        this.params.lifecycleState
-      );
+      this.queries.lifecycleState = this.lifecycleStateFilter(this.params.lifecycleState);
     }
   }
 
@@ -265,7 +245,7 @@ export default class Builder {
       ...this.queries.integration,
       ...this.queries.searchValue,
       ...this.queries.leadStatus,
-      ...this.queries.lifecycleState
+      ...this.queries.lifecycleState,
     };
   }
 }

@@ -1,11 +1,5 @@
-import {
-  ConversationMessages,
-  Customers,
-  Integrations,
-  Tags,
-  Users
-} from "../../db/models";
-import { IConversationDocument } from "../../db/models/definitions/conversations";
+import { ConversationMessages, Customers, Integrations, Tags, Users } from '../../db/models';
+import { IConversationDocument } from '../../db/models/definitions/conversations';
 
 export default {
   customer(conversation: IConversationDocument) {
@@ -26,7 +20,7 @@ export default {
 
   participatedUsers(conv: IConversationDocument) {
     return Users.find({
-      _id: { $in: conv.participatedUserIds || [] }
+      _id: { $in: conv.participatedUserIds || [] },
     });
   },
 
@@ -36,11 +30,11 @@ export default {
 
   messages(conv: IConversationDocument) {
     return ConversationMessages.find({ conversationId: conv._id }).sort({
-      createdAt: 1
+      createdAt: 1,
     });
   },
 
   tags(conv: IConversationDocument) {
     return Tags.find({ _id: { $in: conv.tagIds || [] } });
-  }
+  },
 };

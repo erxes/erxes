@@ -1,12 +1,12 @@
-import { connect, disconnect } from "../db/connection";
-import { responseTemplateFactory } from "../db/factories";
-import { ResponseTemplates } from "../db/models";
+import { connect, disconnect } from '../db/connection';
+import { responseTemplateFactory } from '../db/factories';
+import { ResponseTemplates } from '../db/models';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe("Response template db", () => {
+describe('Response template db', () => {
   let _responseTemplate;
 
   beforeEach(async () => {
@@ -19,16 +19,16 @@ describe("Response template db", () => {
     await ResponseTemplates.remove({});
   });
 
-  test("Create response template", async () => {
+  test('Create response template', async () => {
     const responseTemplateObj = await ResponseTemplates.create({
       name: _responseTemplate.name,
       content: _responseTemplate.content,
       brandId: _responseTemplate.brandId,
-      files: _responseTemplate.files
+      files: _responseTemplate.files,
     });
 
     if (!responseTemplateObj || !responseTemplateObj.files) {
-      throw new Error("Response template not found");
+      throw new Error('Response template not found');
     }
 
     expect(responseTemplateObj).toBeDefined();
@@ -38,19 +38,16 @@ describe("Response template db", () => {
     expect(responseTemplateObj.files[0]).toBe(_responseTemplate.files[0]);
   });
 
-  test("Update response template", async () => {
-    const responseTemplateObj = await ResponseTemplates.updateResponseTemplate(
-      _responseTemplate.id,
-      {
-        name: _responseTemplate.name,
-        content: _responseTemplate.content,
-        brandId: _responseTemplate.brandId,
-        files: _responseTemplate.files
-      }
-    );
+  test('Update response template', async () => {
+    const responseTemplateObj = await ResponseTemplates.updateResponseTemplate(_responseTemplate.id, {
+      name: _responseTemplate.name,
+      content: _responseTemplate.content,
+      brandId: _responseTemplate.brandId,
+      files: _responseTemplate.files,
+    });
 
     if (!responseTemplateObj || !responseTemplateObj.files) {
-      throw new Error("Response template not found");
+      throw new Error('Response template not found');
     }
 
     expect(responseTemplateObj.id).toBe(_responseTemplate.id);
@@ -60,16 +57,14 @@ describe("Response template db", () => {
     expect(responseTemplateObj.files[0]).toBe(_responseTemplate.files[0]);
   });
 
-  test("Delete response template", async () => {
+  test('Delete response template', async () => {
     await ResponseTemplates.removeResponseTemplate(_responseTemplate.id);
-    expect(
-      await ResponseTemplates.findOne({ _id: _responseTemplate.id }).count()
-    ).toBe(0);
+    expect(await ResponseTemplates.findOne({ _id: _responseTemplate.id }).count()).toBe(0);
 
     try {
-      await ResponseTemplates.removeResponseTemplate("test");
+      await ResponseTemplates.removeResponseTemplate('test');
     } catch (e) {
-      expect(e.message).toBe("Response template not found with id test");
+      expect(e.message).toBe('Response template not found with id test');
     }
   });
 });

@@ -1,30 +1,16 @@
-import * as strip from "strip";
-import * as _ from "underscore";
-import {
-  ConversationMessages,
-  Conversations,
-  Customers,
-  Integrations
-} from "../../../db/models";
-import {
-  CONVERSATION_STATUSES,
-  KIND_CHOICES,
-  NOTIFICATION_TYPES
-} from "../../../db/models/definitions/constants";
-import { IMessageDocument } from "../../../db/models/definitions/conversationMessages";
-import { IConversationDocument } from "../../../db/models/definitions/conversations";
-import { IMessengerData } from "../../../db/models/definitions/integrations";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import { facebookReply, IFacebookReply } from "../../../trackers/facebook";
-import {
-  favorite,
-  retweet,
-  tweet,
-  tweetReply
-} from "../../../trackers/twitter";
-import { requireLogin } from "../../permissions";
-import utils from "../../utils";
-import { pubsub } from "../subscriptions";
+import * as strip from 'strip';
+import * as _ from 'underscore';
+import { ConversationMessages, Conversations, Customers, Integrations } from '../../../db/models';
+import { CONVERSATION_STATUSES, KIND_CHOICES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
+import { IConversationDocument } from '../../../db/models/definitions/conversations';
+import { IMessengerData } from '../../../db/models/definitions/integrations';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { facebookReply, IFacebookReply } from '../../../trackers/facebook';
+import { favorite, retweet, tweet, tweetReply } from '../../../trackers/twitter';
+import { requireLogin } from '../../permissions';
+import utils from '../../utils';
+import { pubsub } from '../subscriptions';
 
 interface IConversationMessageAdd {
   conversationId: string;
@@ -40,10 +26,7 @@ interface IConversationMessageAdd {
 /**
  * conversation notrification receiver ids
  */
-export const conversationNotifReceivers = (
-  conversation: IConversationDocument,
-  currentUserId: string
-): string[] => {
+export const conversationNotifReceivers = (conversation: IConversationDocument, currentUserId: string): string[] => {
   let userIds: string[] = [];
 
   // assigned user can get notifications
@@ -66,13 +49,10 @@ export const conversationNotifReceivers = (
  * Using this subscription to track conversation detail's assignee, tag, status
  * changes
  */
-export const publishConversationsChanged = (
-  _ids: string[],
-  type: string
-): string[] => {
+export const publishConversationsChanged = (_ids: string[], type: string): string[] => {
   for (const _id of _ids) {
-    pubsub.publish("conversationChanged", {
-      conversationChanged: { conversationId: _id, type }
+    pubsub.publish('conversationChanged', {
+      conversationChanged: { conversationId: _id, type },
     });
   }
 
@@ -82,19 +62,20 @@ export const publishConversationsChanged = (
 /**
  * Publish admin's message
  */
-export const publishMessage = (
-  message: IMessageDocument,
-  customerId?: string
-) => {
-  pubsub.publish("conversationMessageInserted", {
-    conversationMessageInserted: message
+export const publishMessage = (message?: IMessageDocument | null, customerId?: string) => {
+  if (!message) {
+    return;
+  }
+
+  pubsub.publish('conversationMessageInserted', {
+    conversationMessageInserted: message,
   });
 
   // widget is listening for this subscription to show notification
   // customerId available means trying to notify to client
   if (customerId) {
-    pubsub.publish("conversationAdminMessageInserted", {
-      conversationAdminMessageInserted: { ...message.toJSON(), customerId }
+    pubsub.publish('conversationAdminMessageInserted', {
+      conversationAdminMessageInserted: { ...message.toJSON(), customerId },
     });
   }
 };
@@ -103,8 +84,8 @@ export const publishMessage = (
  */
 export const publishClientMessage = (message: IMessageDocument) => {
   // notifying to total unread count
-  pubsub.publish("conversationClientMessageInserted", {
-    conversationClientMessageInserted: message
+  pubsub.publish('conversationClientMessageInserted', {
+    conversationClientMessageInserted: message,
   });
 };
 
@@ -116,7 +97,7 @@ const conversationMutations = {
     const message = await ConversationMessages.findOne({ _id });
 
     if (!message) {
-      throw new Error("Message not found");
+      throw new Error('Message not found');
     }
 
     // notifying to conversationd detail
@@ -129,29 +110,25 @@ const conversationMutations = {
   /**
    * Create new message in conversation
    */
-  async conversationMessageAdd(
-    _root,
-    doc: IConversationMessageAdd,
-    { user }: { user: IUserDocument }
-  ) {
+  async conversationMessageAdd(_root, doc: IConversationMessageAdd, { user }: { user: IUserDocument }) {
     const conversation = await Conversations.findOne({
-      _id: doc.conversationId
+      _id: doc.conversationId,
     });
 
     if (!conversation) {
-      throw new Error("Conversation not found");
+      throw new Error('Conversation not found');
     }
 
     const integration = await Integrations.findOne({
-      _id: conversation.integrationId
+      _id: conversation.integrationId,
     });
 
     if (!integration) {
-      throw new Error("Integration not found");
+      throw new Error('Integration not found');
     }
 
     // send notification =======
-    const title = "You have a new message.";
+    const title = 'You have a new message.';
 
     utils.sendNotification({
       createdUser: user._id,
@@ -159,7 +136,7 @@ const conversationMutations = {
       title,
       content: doc.content,
       link: `/inbox?_id=${conversation._id}`,
-      receivers: conversationNotifReceivers(conversation, user._id)
+      receivers: conversationNotifReceivers(conversation, user._id),
     });
 
     // do not send internal message to third service integrations
@@ -180,7 +157,7 @@ const conversationMutations = {
         conversation,
         text: strip(doc.content),
         toId: doc.tweetReplyToId,
-        toScreenName: doc.tweetReplyToScreenName
+        toScreenName: doc.tweetReplyToScreenName,
       });
 
       return null;
@@ -190,15 +167,15 @@ const conversationMutations = {
 
     // if conversation's integration kind is form then send reply to
     // customer's email
-    const email = customer ? customer.primaryEmail : "";
+    const email = customer ? customer.primaryEmail : '';
 
     if (kind === KIND_CHOICES.FORM && email) {
       utils.sendEmail({
         to: email,
-        title: "Reply",
+        title: 'Reply',
         template: {
-          data: doc.content
-        }
+          data: doc.content,
+        },
       });
     }
 
@@ -207,7 +184,7 @@ const conversationMutations = {
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {
       const msg: IFacebookReply = {
-        text: strip(doc.content)
+        text: strip(doc.content),
       };
 
       // attaching parent comment id if replied to comment
@@ -224,47 +201,34 @@ const conversationMutations = {
       await facebookReply(conversation, msg, message);
     }
 
-    const unPublishedMessage = await ConversationMessages.findOne({
-      _id: message._id
+    const dbMessage = await ConversationMessages.findOne({
+      _id: message._id,
     });
 
-    if (!unPublishedMessage) {
-      throw new Error("Message not found");
-    }
-
     // Publishing both admin & client
-    publishMessage(unPublishedMessage, conversation.customerId);
+    publishMessage(dbMessage, conversation.customerId);
 
-    return unPublishedMessage;
+    return dbMessage;
   },
 
   /**
    * Tweet
    */
-  async conversationsTweet(
-    _root,
-    doc: { integrationId: string; text: string }
-  ) {
+  async conversationsTweet(_root, doc: { integrationId: string; text: string }) {
     return tweet(doc);
   },
 
   /**
    * Retweet
    */
-  async conversationsRetweet(
-    _root,
-    doc: { integrationId: string; id: string }
-  ) {
+  async conversationsRetweet(_root, doc: { integrationId: string; id: string }) {
     return retweet(doc);
   },
 
   /**
    * Favorite
    */
-  async conversationsFavorite(
-    _root,
-    doc: { integrationId: string; id: string }
-  ) {
+  async conversationsFavorite(_root, doc: { integrationId: string; id: string }) {
     return favorite(doc);
   },
 
@@ -273,22 +237,19 @@ const conversationMutations = {
    */
   async conversationsAssign(
     _root,
-    {
-      conversationIds,
-      assignedUserId
-    }: { conversationIds: string[]; assignedUserId: string },
-    { user }: { user: IUserDocument }
+    { conversationIds, assignedUserId }: { conversationIds: string[]; assignedUserId: string },
+    { user }: { user: IUserDocument },
   ) {
     const updatedConversations: IConversationDocument[] = await Conversations.assignUserConversation(
       conversationIds,
-      assignedUserId
+      assignedUserId,
     );
 
     // notify graphl subscription
-    publishConversationsChanged(conversationIds, "assigneeChanged");
+    publishConversationsChanged(conversationIds, 'assigneeChanged');
 
     for (const conversation of updatedConversations) {
-      const content = "Assigned user has changed";
+      const content = 'Assigned user has changed';
 
       // send notification
       utils.sendNotification({
@@ -297,7 +258,7 @@ const conversationMutations = {
         title: content,
         content,
         link: `/inbox?_id=${conversation._id}`,
-        receivers: conversationNotifReceivers(conversation, user._id)
+        receivers: conversationNotifReceivers(conversation, user._id),
       });
     }
 
@@ -311,7 +272,7 @@ const conversationMutations = {
     const conversations = await Conversations.unassignUserConversation(_ids);
 
     // notify graphl subscription
-    publishConversationsChanged(_ids, "assigneeChanged");
+    publishConversationsChanged(_ids, 'assigneeChanged');
 
     return conversations;
   },
@@ -322,11 +283,9 @@ const conversationMutations = {
   async conversationsChangeStatus(
     _root,
     { _ids, status }: { _ids: string[]; status: string },
-    { user }: { user: IUserDocument }
+    { user }: { user: IUserDocument },
   ) {
-    const { conversations } = await Conversations.checkExistanceConversations(
-      _ids
-    );
+    const { conversations } = await Conversations.checkExistanceConversations(_ids);
 
     await Conversations.changeStatusConversation(_ids, status, user._id);
 
@@ -336,19 +295,19 @@ const conversationMutations = {
     for (const conversation of conversations) {
       if (status === CONVERSATION_STATUSES.CLOSED) {
         const customer = await Customers.findOne({
-          _id: conversation.customerId
+          _id: conversation.customerId,
         });
 
         if (!customer) {
-          throw new Error("Customer not found");
+          throw new Error('Customer not found');
         }
 
         const integration = await Integrations.findOne({
-          _id: conversation.integrationId
+          _id: conversation.integrationId,
         });
 
         if (!integration) {
-          throw new Error("Integration not found");
+          throw new Error('Integration not found');
         }
 
         const messengerData: IMessengerData = integration.messengerData || {};
@@ -358,24 +317,24 @@ const conversationMutations = {
           // send email to customer
           utils.sendEmail({
             to: customer.primaryEmail,
-            subject: "Conversation detail",
+            subject: 'Conversation detail',
             template: {
-              name: "conversationDetail",
+              name: 'conversationDetail',
               data: {
                 conversationDetail: {
-                  title: "Conversation detail",
+                  title: 'Conversation detail',
                   messages: await ConversationMessages.find({
-                    conversationId: conversation._id
+                    conversationId: conversation._id,
                   }),
-                  date: new Date()
-                }
-              }
-            }
+                  date: new Date(),
+                },
+              },
+            },
           });
         }
       }
 
-      const content = "Conversation status has changed.";
+      const content = 'Conversation status has changed.';
 
       utils.sendNotification({
         createdUser: user._id,
@@ -383,7 +342,7 @@ const conversationMutations = {
         title: content,
         content,
         link: `/inbox?_id=${conversation._id}`,
-        receivers: conversationNotifReceivers(conversation, user._id)
+        receivers: conversationNotifReceivers(conversation, user._id),
       });
     }
 
@@ -393,19 +352,15 @@ const conversationMutations = {
   /**
    * Conversation mark as read
    */
-  async conversationMarkAsRead(
-    _root,
-    { _id }: { _id: string },
-    { user }: { user: IUserDocument }
-  ) {
+  async conversationMarkAsRead(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
     return Conversations.markAsReadConversation(_id, user._id);
-  }
+  },
 };
 
-requireLogin(conversationMutations, "conversationMessageAdd");
-requireLogin(conversationMutations, "conversationsAssign");
-requireLogin(conversationMutations, "conversationsUnassign");
-requireLogin(conversationMutations, "conversationsChangeStatus");
-requireLogin(conversationMutations, "conversationMarkAsRead");
+requireLogin(conversationMutations, 'conversationMessageAdd');
+requireLogin(conversationMutations, 'conversationsAssign');
+requireLogin(conversationMutations, 'conversationsUnassign');
+requireLogin(conversationMutations, 'conversationsChangeStatus');
+requireLogin(conversationMutations, 'conversationMarkAsRead');
 
 export default conversationMutations;

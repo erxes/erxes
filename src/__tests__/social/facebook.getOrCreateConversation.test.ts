@@ -1,33 +1,30 @@
-import * as sinon from "sinon";
-import {
-  CONVERSATION_STATUSES,
-  FACEBOOK_DATA_KINDS
-} from "../../data/constants";
-import { connect, disconnect } from "../../db/connection";
+import * as sinon from 'sinon';
+import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
+import { connect, disconnect } from '../../db/connection';
 import {
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
-  integrationFactory
-} from "../../db/factories";
-import { ConversationMessages, Conversations } from "../../db/models";
-import { SaveWebhookResponse } from "../../trackers/facebook";
-import * as facebookTracker from "../../trackers/facebookTracker";
+  integrationFactory,
+} from '../../db/factories';
+import { ConversationMessages, Conversations } from '../../db/models';
+import { SaveWebhookResponse } from '../../trackers/facebook';
+import * as facebookTracker from '../../trackers/facebookTracker';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe("facebook integration: get or create conversation", () => {
-  const senderId = "2242424244";
-  const pageId = "2252525525";
-  const recipientId = "343434343433";
+describe('facebook integration: get or create conversation', () => {
+  const senderId = '2242424244';
+  const pageId = '2252525525';
+  const recipientId = '343434343433';
   const graphRequest = facebookTracker.graphRequest;
   let mock;
 
   beforeEach(() => {
     // mock all requests
-    mock = sinon.stub(graphRequest, "get").callsFake(() => {
-      "";
+    mock = sinon.stub(graphRequest, 'get').callsFake(() => {
+      '';
     });
   });
 
@@ -38,30 +35,24 @@ describe("facebook integration: get or create conversation", () => {
     mock.restore();
   });
 
-  test("get or create conversation", async () => {
-    const postId = "32242442442";
+  test('get or create conversation', async () => {
+    const postId = '32242442442';
     const customerId = await customerFactory({});
     const integration = await integrationFactory({});
 
-    const saveWebhookResponse = new SaveWebhookResponse(
-      "access_token",
-      integration,
-      {}
-    );
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
 
     saveWebhookResponse.currentPageId = pageId;
 
     // checking non exising page response =======
-    saveWebhookResponse.data = { object: "page", entry: [{}] };
+    saveWebhookResponse.data = { object: 'page', entry: [{}] };
 
     expect(await saveWebhookResponse.start()).toBe(null);
 
     saveWebhookResponse.data = {};
 
     // mock getOrCreateCustomer ==========
-    sinon
-      .stub(saveWebhookResponse, "getOrCreateCustomer")
-      .callsFake(() => customerId);
+    sinon.stub(saveWebhookResponse, 'getOrCreateCustomer').callsFake(() => customerId);
 
     // check initial states
     expect(await Conversations.find({}).count()).toBe(0);
@@ -70,12 +61,12 @@ describe("facebook integration: get or create conversation", () => {
     const facebookData = {
       kind: FACEBOOK_DATA_KINDS.FEED,
       senderId,
-      postId
+      postId,
     };
 
     const filter: any = {
-      "facebookData.kind": FACEBOOK_DATA_KINDS.FEED,
-      "facebookData.postId": postId
+      'facebookData.kind': FACEBOOK_DATA_KINDS.FEED,
+      'facebookData.postId': postId,
     };
 
     // customer said hi ======================
@@ -84,8 +75,8 @@ describe("facebook integration: get or create conversation", () => {
       status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData,
-      content: "hi",
-      msgFacebookData: {}
+      content: 'hi',
+      msgFacebookData: {},
     });
 
     // must be created new conversation, new message
@@ -101,8 +92,8 @@ describe("facebook integration: get or create conversation", () => {
       status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData,
-      content: "hey",
-      msgFacebookData: {}
+      content: 'hey',
+      msgFacebookData: {},
     });
 
     // must not be created new conversation, new message
@@ -110,10 +101,7 @@ describe("facebook integration: get or create conversation", () => {
     expect(await ConversationMessages.find({}).count()).toBe(2);
 
     // close converstaion
-    await Conversations.update(
-      {},
-      { $set: { status: CONVERSATION_STATUSES.CLOSED } }
-    );
+    await Conversations.update({}, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
 
     // customer commented on closed converstaion ===========
     await saveWebhookResponse.getOrCreateConversation({
@@ -121,8 +109,8 @@ describe("facebook integration: get or create conversation", () => {
       status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData,
-      content: "hi again",
-      msgFacebookData: {}
+      content: 'hi again',
+      msgFacebookData: {},
     });
 
     // must be created new conversation, new message
@@ -138,15 +126,15 @@ describe("facebook integration: get or create conversation", () => {
     expect(await ConversationMessages.find({}).count()).toBe(3);
 
     // new post ===========
-    filter.postId = "34424242444242";
+    filter.postId = '34424242444242';
 
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: filter,
       status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData,
-      content: "new sender hi",
-      msgFacebookData: {}
+      content: 'new sender hi',
+      msgFacebookData: {},
     });
 
     // must be created new conversation, new message
@@ -154,24 +142,24 @@ describe("facebook integration: get or create conversation", () => {
     expect(await ConversationMessages.find({}).count()).toBe(4);
 
     const messengerFilter = {
-      "facebookData.kind": FACEBOOK_DATA_KINDS.MESSENGER,
+      'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
       $or: [
         {
-          "facebookData.senderId": senderId,
-          "facebookData.recipientId": recipientId
+          'facebookData.senderId': senderId,
+          'facebookData.recipientId': recipientId,
         },
         {
-          "facebookData.senderId": recipientId,
-          "facebookData.recipientId": senderId
-        }
-      ]
+          'facebookData.senderId': recipientId,
+          'facebookData.recipientId': senderId,
+        },
+      ],
     };
 
     const messengerFacebookData = {
       kind: FACEBOOK_DATA_KINDS.MESSENGER,
       senderId,
-      senderName: "Facebook user",
-      recipientId
+      senderName: 'Facebook user',
+      recipientId,
     };
 
     // new messenger conversation ===========
@@ -180,13 +168,13 @@ describe("facebook integration: get or create conversation", () => {
       status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData: messengerFacebookData,
-      content: "messenger message",
-      msgFacebookData: {}
+      content: 'messenger message',
+      msgFacebookData: {},
     });
 
     const msg = await ConversationMessages.findOne({ _id: msgId });
     const conversationObj = await Conversations.findOne({
-      _id: msg.conversationId
+      _id: msg.conversationId,
     });
 
     // must be created new conversation, new message
@@ -199,22 +187,17 @@ describe("facebook integration: get or create conversation", () => {
       status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData: messengerFacebookData,
-      content: "hi test",
-      msgFacebookData: {}
+      content: 'hi test',
+      msgFacebookData: {},
     });
 
     // must not be created new conversation, new message
     expect(await Conversations.find({}).count()).toBe(4);
     expect(await ConversationMessages.find({}).count()).toBe(6);
-    expect(
-      await ConversationMessages.count({ conversationId: conversationObj._id })
-    ).toBe(2);
+    expect(await ConversationMessages.count({ conversationId: conversationObj._id })).toBe(2);
 
     // close converstaion
-    await Conversations.update(
-      { _id: conversationObj._id },
-      { $set: { status: CONVERSATION_STATUSES.CLOSED } }
-    );
+    await Conversations.update({ _id: conversationObj._id }, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
 
     // customer commented on closed converstaion ===========
     let message: any = await saveWebhookResponse.getOrCreateConversation({
@@ -222,8 +205,8 @@ describe("facebook integration: get or create conversation", () => {
       status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData: messengerFacebookData,
-      content: "test create new conversation",
-      msgFacebookData: {}
+      content: 'test create new conversation',
+      msgFacebookData: {},
     });
 
     // must be created new conversation, new message
@@ -238,8 +221,8 @@ describe("facebook integration: get or create conversation", () => {
       status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData: messengerFacebookData,
-      content: "insert message",
-      msgFacebookData: {}
+      content: 'insert message',
+      msgFacebookData: {},
     });
 
     // must not be created new conversation, new message
@@ -250,22 +233,18 @@ describe("facebook integration: get or create conversation", () => {
     expect(message.conversationId).toBe(secondMessage.conversationId);
   });
 
-  test("Handle posts", async () => {
+  test('Handle posts', async () => {
     const integration = await integrationFactory({});
 
-    const saveWebhookResponse = new SaveWebhookResponse(
-      "access_token",
-      integration,
-      {}
-    );
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
 
     // Received video
     const postParams = {
-      post_id: "123",
-      item: "status",
-      video_id: "12331213",
-      link: "video link",
-      created_time: "1533712330"
+      post_id: '123',
+      item: 'status',
+      video_id: '12331213',
+      link: 'video link',
+      created_time: '1533712330',
     };
 
     const response = await saveWebhookResponse.handlePosts(postParams);
@@ -276,22 +255,18 @@ describe("facebook integration: get or create conversation", () => {
     expect(response.isPost).toBeTruthy();
   });
 
-  test("Handle comments", async () => {
+  test('Handle comments', async () => {
     const integration = await integrationFactory({});
 
-    const saveWebhookResponse = new SaveWebhookResponse(
-      "access_token",
-      integration,
-      {}
-    );
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
 
     // Replied to comment
     const commentParams = {
-      post_id: "123",
-      verb: "add",
-      parent_id: "12344",
-      item: "status",
-      created_time: "1533712330"
+      post_id: '123',
+      verb: 'add',
+      parent_id: '12344',
+      item: 'status',
+      created_time: '1533712330',
     };
 
     const response = await saveWebhookResponse.handleComments(commentParams);
@@ -301,143 +276,123 @@ describe("facebook integration: get or create conversation", () => {
     expect(response.parentId).toBe(commentParams.parent_id);
   });
 
-  test("Update comment count", async () => {
+  test('Update comment count', async () => {
     const integration = await integrationFactory({});
     const msg = await conversationMessageFactory({
       facebookData: {
-        postId: "123123"
-      }
+        postId: '123123',
+      },
     });
 
-    const saveWebhookResponse = new SaveWebhookResponse(
-      "access_token",
-      integration,
-      {}
-    );
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
 
     // increasing
-    await saveWebhookResponse.updateCommentCount("add", "123123");
+    await saveWebhookResponse.updateCommentCount('add', '123123');
     let response = await ConversationMessages.findOne({ _id: msg._id });
     expect(response.facebookData.commentCount).toBe(1);
 
     // decreasing
-    await saveWebhookResponse.updateCommentCount("subtract", "123123");
+    await saveWebhookResponse.updateCommentCount('subtract', '123123');
 
     response = await ConversationMessages.findOne({ _id: msg._id });
     expect(response.facebookData.commentCount).toBe(0);
   });
 
-  test("Update like count", async () => {
+  test('Update like count', async () => {
     const integration = await integrationFactory({});
     const msg = await conversationMessageFactory({
       facebookData: {
-        commentId: "456"
-      }
+        commentId: '456',
+      },
     });
 
-    const saveWebhookResponse = new SaveWebhookResponse(
-      "access_token",
-      integration,
-      {}
-    );
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
 
     // increasing
-    await saveWebhookResponse.updateLikeCount("add", {
-      "facebookData.commentId": "456"
+    await saveWebhookResponse.updateLikeCount('add', {
+      'facebookData.commentId': '456',
     });
     let response = await ConversationMessages.findOne({ _id: msg._id });
     expect(response.facebookData.likeCount).toBe(1);
 
     // decreasing
-    await saveWebhookResponse.updateLikeCount("subtract", {
-      "facebookData.commentId": "456"
+    await saveWebhookResponse.updateLikeCount('subtract', {
+      'facebookData.commentId': '456',
     });
 
     response = await ConversationMessages.findOne({ _id: msg._id });
     expect(response.facebookData.likeCount).toBe(0);
   });
 
-  test("Update reactions", async () => {
+  test('Update reactions', async () => {
     const integration = await integrationFactory({});
     const msg = await conversationMessageFactory({
       facebookData: {
         reactions: {
-          haha: []
-        }
-      }
+          haha: [],
+        },
+      },
     });
 
-    const saveWebhookResponse = new SaveWebhookResponse(
-      "access_token",
-      integration,
-      {}
-    );
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
 
     const from = {
-      id: "123123",
-      name: "asddqwesaasd"
+      id: '123123',
+      name: 'asddqwesaasd',
     };
 
-    const type = "haha";
+    const type = 'haha';
 
     // adding reaction
-    await saveWebhookResponse.updateReactions("add", msg._id, type, from);
+    await saveWebhookResponse.updateReactions('add', msg._id, type, from);
 
     let response = await ConversationMessages.findOne({ _id: msg._id });
 
-    expect(response.facebookData.reactions[type]).toContainEqual(
-      expect.objectContaining(from)
-    );
+    expect(response.facebookData.reactions[type]).toContainEqual(expect.objectContaining(from));
 
     // removing reaction
 
-    await saveWebhookResponse.updateReactions("subtract", msg._id, type, from);
+    await saveWebhookResponse.updateReactions('subtract', msg._id, type, from);
 
     response = await ConversationMessages.findOne({ _id: msg._id });
 
-    expect(response.facebookData.reactions[type]).not.toContainEqual(
-      expect.objectContaining(from)
-    );
+    expect(response.facebookData.reactions[type]).not.toContainEqual(expect.objectContaining(from));
   });
 
-  test("Restore old facebook post", async () => {
+  test('Restore old facebook post', async () => {
     const conversation = await conversationFactory({});
     const integration = await integrationFactory({});
     const facebookData = {
-      item: "status",
-      postId: "postId"
+      item: 'status',
+      postId: 'postId',
     };
 
-    const saveWebhookResponse = new SaveWebhookResponse(
-      "access_token",
-      integration,
-      {}
-    );
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
 
-    sinon.stub(saveWebhookResponse, "getPageAccessToken").callsFake(() => {
-      return { access_token: "123" };
+    sinon.stub(saveWebhookResponse, 'getPageAccessToken').callsFake(() => {
+      return { access_token: '123' };
     });
 
     let res = await saveWebhookResponse.restoreOldPosts({
       conversation,
-      userId: "123",
-      facebookData
+      userId: '123',
+      facebookData,
     });
 
     // must be false because we received post
     expect(res).toBe(false);
 
-    facebookData.item = "comment";
+    facebookData.item = 'comment';
 
     let parentPost: any = await conversationMessageFactory({
-      facebookData: { postId: "postId", isPost: true },
-      conversationId: conversation._id
+      facebookData: { postId: 'postId', isPost: true },
+      conversationId: conversation._id,
     });
 
     res = await saveWebhookResponse.restoreOldPosts({
       conversation,
-      userId: "123",
-      facebookData
+      userId: '123',
+      facebookData,
     });
 
     // must be false because we do have parent post
@@ -447,46 +402,46 @@ describe("facebook integration: get or create conversation", () => {
 
     mock.restore();
 
-    sinon.stub(graphRequest, "get").callsFake(() => {
+    sinon.stub(graphRequest, 'get').callsFake(() => {
       return {
-        message: "message",
-        id: "postId",
-        from: { id: "fromid", name: "fromname" },
-        name: "fromname"
+        message: 'message',
+        id: 'postId',
+        from: { id: 'fromid', name: 'fromname' },
+        name: 'fromname',
       };
     });
 
-    sinon.stub(facebookTracker, "findPostComments").callsFake(() => {
+    sinon.stub(facebookTracker, 'findPostComments').callsFake(() => {
       return [
         {
-          message: "message",
-          id: "postId",
-          from: { id: "fromid", name: "fromname" }
+          message: 'message',
+          id: 'postId',
+          from: { id: 'fromid', name: 'fromname' },
         },
         {
-          message: "message",
-          id: "postId",
-          from: { id: "fromid", name: "fromname" }
-        }
+          message: 'message',
+          id: 'postId',
+          from: { id: 'fromid', name: 'fromname' },
+        },
       ];
     });
 
     res = await saveWebhookResponse.restoreOldPosts({
       conversation,
-      userId: "123",
-      facebookData
+      userId: '123',
+      facebookData,
     });
 
     const conversationMessages = await ConversationMessages.find({
-      conversationId: conversation._id
+      conversationId: conversation._id,
     });
 
     // we should have 3 messages, 1 is parent post, 2 more comments
     expect(conversationMessages.length).toBe(3);
 
     parentPost = await ConversationMessages.find({
-      "facebookData.isPost": true,
-      conversationId: conversation._id
+      'facebookData.isPost': true,
+      conversationId: conversation._id,
     });
 
     expect(parentPost).toBeDefined();

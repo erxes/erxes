@@ -1,11 +1,11 @@
-import { Companies, Customers, Deals, Users } from "../../../db/models";
-import { moduleRequireLogin } from "../../permissions";
+import { Companies, Customers, Deals, Users } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 import {
   CompanyMonthActivityLogBuilder,
   CustomerMonthActivityLogBuilder,
   DealMonthActivityLogBuilder,
-  UserMonthActivityLogBuilder
-} from "./activityLogUtils";
+  UserMonthActivityLogBuilder,
+} from './activityLogUtils';
 
 const activityLogQueries = {
   /**
@@ -14,9 +14,7 @@ const activityLogQueries = {
   async activityLogsCustomer(_root, { _id }: { _id: string }) {
     const customer = await Customers.findOne({ _id });
 
-    const customerMonthActivityLogBuilder = new CustomerMonthActivityLogBuilder(
-      customer
-    );
+    const customerMonthActivityLogBuilder = new CustomerMonthActivityLogBuilder(customer);
     return customerMonthActivityLogBuilder.build();
   },
 
@@ -26,9 +24,7 @@ const activityLogQueries = {
   async activityLogsCompany(_root, { _id }: { _id: string }) {
     const company = await Companies.findOne({ _id });
 
-    const companyMonthActivityLogBuilder = new CompanyMonthActivityLogBuilder(
-      company
-    );
+    const companyMonthActivityLogBuilder = new CompanyMonthActivityLogBuilder(company);
     return companyMonthActivityLogBuilder.build();
   },
 
@@ -50,7 +46,7 @@ const activityLogQueries = {
 
     const dealMonthActivityLogBuilder = new DealMonthActivityLogBuilder(deal);
     return dealMonthActivityLogBuilder.build();
-  }
+  },
 };
 
 moduleRequireLogin(activityLogQueries);

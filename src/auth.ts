@@ -1,5 +1,5 @@
-import * as jwt from "jsonwebtoken";
-import { Users } from "./db/models";
+import * as jwt from 'jsonwebtoken';
+import { Users } from './db/models';
 
 /*
  * Finds user object by passed tokens
@@ -8,7 +8,7 @@ import { Users } from "./db/models";
  * @param {Function} next - Next function
  */
 export const userMiddleware = async (req, res, next) => {
-  const token = req.headers["x-token"];
+  const token = req.headers['x-token'];
 
   if (token) {
     try {
@@ -20,15 +20,15 @@ export const userMiddleware = async (req, res, next) => {
 
       // if token is invalid or expired
     } catch (e) {
-      const refreshToken = req.headers["x-refresh-token"];
+      const refreshToken = req.headers['x-refresh-token'];
 
       // create new tokens using refresh token & refresh token
       const newTokens = await Users.refreshTokens(refreshToken);
 
       if (newTokens.token && newTokens.refreshToken) {
-        res.set("Access-Control-Expose-Headers", "x-token, x-refresh-token");
-        res.set("x-token", newTokens.token);
-        res.set("x-refresh-token", newTokens.refreshToken);
+        res.set('Access-Control-Expose-Headers', 'x-token, x-refresh-token');
+        res.set('x-token', newTokens.token);
+        res.set('x-refresh-token', newTokens.refreshToken);
       }
 
       // save user in request

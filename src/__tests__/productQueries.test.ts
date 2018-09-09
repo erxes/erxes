@@ -1,21 +1,21 @@
-import { PRODUCT_TYPES } from "../data/constants";
-import { connect, disconnect, graphqlRequest } from "../db/connection";
-import { productFactory } from "../db/factories";
-import { Products } from "../db/models";
+import { PRODUCT_TYPES } from '../data/constants';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { productFactory } from '../db/factories';
+import { Products } from '../db/models';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe("productQueries", () => {
+describe('productQueries', () => {
   afterEach(async () => {
     // Clearing test data
     await Products.remove({});
   });
 
-  test("Products", async () => {
+  test('Products', async () => {
     const args = {
       page: 1,
-      perPage: 2
+      perPage: 2,
     };
 
     await productFactory();
@@ -35,12 +35,12 @@ describe("productQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "products", args);
+    const response = await graphqlRequest(qry, 'products', args);
 
     expect(response.length).toBe(2);
   });
 
-  test("Products total count", async () => {
+  test('Products total count', async () => {
     const args = { type: PRODUCT_TYPES.PRODUCT };
 
     await productFactory({ type: PRODUCT_TYPES.PRODUCT });
@@ -53,7 +53,7 @@ describe("productQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "productsTotalCount", args);
+    const response = await graphqlRequest(qry, 'productsTotalCount', args);
 
     expect(response).toBe(2);
   });

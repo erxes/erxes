@@ -1,20 +1,14 @@
-import { Brands, Channels, Integrations, Tags } from "../../../db/models";
-import { getConfig, getPageList } from "../../../trackers/facebook";
-import { socUtils } from "../../../trackers/twitterTracker";
-import { KIND_CHOICES, TAG_TYPES } from "../../constants";
-import { moduleRequireLogin } from "../../permissions";
-import { paginate } from "./utils";
+import { Brands, Channels, Integrations, Tags } from '../../../db/models';
+import { getConfig, getPageList } from '../../../trackers/facebook';
+import { socUtils } from '../../../trackers/twitterTracker';
+import { KIND_CHOICES, TAG_TYPES } from '../../constants';
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 /**
  * Common helper for integrations & integrationsTotalCount
  */
-const generateFilterQuery = async ({
-  kind,
-  channelId,
-  brandId,
-  searchValue,
-  tag
-}) => {
+const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag }) => {
   const query: any = {};
 
   if (kind) {
@@ -24,7 +18,7 @@ const generateFilterQuery = async ({
   // filter integrations by channel
   if (channelId) {
     const channel = await Channels.findOne({ _id: channelId });
-    query._id = { $in: (channel) ? channel.integrationIds : [] };
+    query._id = { $in: channel ? channel.integrationIds : [] };
   }
 
   // filter integrations by brand
@@ -33,7 +27,7 @@ const generateFilterQuery = async ({
   }
 
   if (searchValue) {
-    query.name = new RegExp(`.*${searchValue}.*`, "i");
+    query.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
 
   // filtering integrations by tag
@@ -58,7 +52,7 @@ const integrationQueries = {
       channelId: string;
       brandId: string;
       tag: string;
-    }
+    },
   ) {
     const query = await generateFilterQuery(args);
     const integrations = paginate(Integrations.find(query), args);
@@ -82,7 +76,7 @@ const integrationQueries = {
       byTag: {},
       byChannel: {},
       byBrand: {},
-      byKind: {}
+      byKind: {},
     };
 
     const count = query => {
@@ -106,7 +100,7 @@ const integrationQueries = {
 
     for (const channel of channels) {
       counts.byChannel[channel._id] = await count({
-        _id: { $in: channel.integrationIds }
+        _id: { $in: channel.integrationIds },
       });
     }
 
@@ -136,7 +130,7 @@ const integrationQueries = {
   integrationFacebookAppsList() {
     return getConfig().map(app => ({
       id: app.id,
-      name: app.name
+      name: app.name,
     }));
   },
 
@@ -154,7 +148,7 @@ const integrationQueries = {
     }
 
     return getPageList(app.accessToken);
-  }
+  },
 };
 
 moduleRequireLogin(integrationQueries);

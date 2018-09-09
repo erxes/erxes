@@ -1,14 +1,14 @@
-import * as faker from "faker";
-import { connect, disconnect, graphqlRequest } from "../db/connection";
+import * as faker from 'faker';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   companyFactory,
   customerFactory,
   integrationFactory,
   segmentFactory,
-  tagsFactory
-} from "../db/factories";
-import { Companies, Segments, Tags } from "../db/models";
+  tagsFactory,
+} from '../db/factories';
+import { Companies, Segments, Tags } from '../db/models';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -17,7 +17,7 @@ const count = response => {
   return Object.keys(response).length;
 };
 
-describe("companyQueries", () => {
+describe('companyQueries', () => {
   const commonParamDefs = `
     $page: Int
     $perPage: Int
@@ -110,9 +110,9 @@ describe("companyQueries", () => {
     }
   `;
 
-  const name = "companyName";
-  const website = faker && faker.internet ? faker.internet.url() : "https://www.google.com/";
-  const plan = "plan";
+  const name = 'companyName';
+  const website = faker && faker.internet ? faker.internet.url() : 'https://www.google.com/';
+  const plan = 'plan';
 
   afterEach(async () => {
     // Clearing test data
@@ -121,7 +121,7 @@ describe("companyQueries", () => {
     await Segments.remove({});
   });
 
-  test("Companies", async () => {
+  test('Companies', async () => {
     await companyFactory({});
     await companyFactory({});
     await companyFactory({});
@@ -129,12 +129,12 @@ describe("companyQueries", () => {
     await companyFactory({});
 
     const args = { page: 1, perPage: 3 };
-    const responses = await graphqlRequest(qryCompanies, "companies", args);
+    const responses = await graphqlRequest(qryCompanies, 'companies', args);
 
     expect(responses.length).toBe(3);
   });
 
-  test("Companies filtered by ids", async () => {
+  test('Companies filtered by ids', async () => {
     const company1 = await companyFactory({});
     const company2 = await companyFactory({});
     const company3 = await companyFactory({});
@@ -145,12 +145,12 @@ describe("companyQueries", () => {
 
     const ids = [company1._id, company2._id, company3._id];
 
-    const responses = await graphqlRequest(qryCompanies, "companies", { ids });
+    const responses = await graphqlRequest(qryCompanies, 'companies', { ids });
 
     expect(responses.length).toBe(3);
   });
 
-  test("Companies filtered by tag", async () => {
+  test('Companies filtered by tag', async () => {
     const tag = await tagsFactory();
 
     await companyFactory();
@@ -158,105 +158,105 @@ describe("companyQueries", () => {
     await companyFactory({ tagIds: [tag._id] });
     await companyFactory({ tagIds: [tag._id] });
 
-    const tagResponse = await Tags.findOne({}, "_id");
+    const tagResponse = await Tags.findOne({}, '_id');
 
-    const responses = await graphqlRequest(qryCompanies, "companies", {
-      tag: tagResponse._id
+    const responses = await graphqlRequest(qryCompanies, 'companies', {
+      tag: tagResponse._id,
     });
 
     expect(responses.length).toBe(2);
   });
 
-  test("Companies filtered by leadStatus", async () => {
+  test('Companies filtered by leadStatus', async () => {
     await companyFactory();
     await companyFactory();
-    await companyFactory({ leadStatus: "new" });
-    await companyFactory({ leadStatus: "new" });
+    await companyFactory({ leadStatus: 'new' });
+    await companyFactory({ leadStatus: 'new' });
 
-    const responses = await graphqlRequest(qryCompanies, "companies", {
-      leadStatus: "new"
+    const responses = await graphqlRequest(qryCompanies, 'companies', {
+      leadStatus: 'new',
     });
 
     expect(responses.length).toBe(2);
   });
 
-  test("Companies filtered by lifecycleState", async () => {
+  test('Companies filtered by lifecycleState', async () => {
     await companyFactory();
     await companyFactory();
-    await companyFactory({ lifecycleState: "subscriber" });
-    await companyFactory({ lifecycleState: "subscriber" });
+    await companyFactory({ lifecycleState: 'subscriber' });
+    await companyFactory({ lifecycleState: 'subscriber' });
 
-    const responses = await graphqlRequest(qryCompanies, "companies", {
-      lifecycleState: "subscriber"
+    const responses = await graphqlRequest(qryCompanies, 'companies', {
+      lifecycleState: 'subscriber',
     });
 
     expect(responses.length).toBe(2);
   });
 
-  test("Companies filtered by segment", async () => {
+  test('Companies filtered by segment', async () => {
     await companyFactory({ names: [name], primaryName: name });
     await companyFactory();
     await companyFactory();
 
     const args = {
-      contentType: "company",
+      contentType: 'company',
       conditions: {
-        field: "primaryName",
-        operator: "c",
+        field: 'primaryName',
+        operator: 'c',
         value: name,
-        type: "string"
-      }
+        type: 'string',
+      },
     };
 
     const segment = await segmentFactory(args);
 
-    const response = await graphqlRequest(qryCompanies, "companies", {
-      segment: segment._id
+    const response = await graphqlRequest(qryCompanies, 'companies', {
+      segment: segment._id,
     });
 
     expect(response.length).toBe(1);
   });
 
-  test("Companies filtered by search value", async () => {
+  test('Companies filtered by search value', async () => {
     await companyFactory({ names: [name], primaryName: name });
     await companyFactory({ website });
     await companyFactory({ plan });
-    await companyFactory({ industry: "Banks" });
+    await companyFactory({ industry: 'Banks' });
 
     // companies by name ==============
-    let responses = await graphqlRequest(qryCompanies, "companies", {
-      searchValue: name
+    let responses = await graphqlRequest(qryCompanies, 'companies', {
+      searchValue: name,
     });
 
     expect(responses.length).toBe(1);
     expect(responses[0].primaryName).toBe(name);
 
     // companies by website ===========
-    responses = await graphqlRequest(qryCompanies, "companies", {
-      searchValue: website
+    responses = await graphqlRequest(qryCompanies, 'companies', {
+      searchValue: website,
     });
 
     expect(responses.length).toBe(1);
     expect(responses[0].website).toBe(website);
 
     // companies by industry ==========
-    responses = await graphqlRequest(qryCompanies, "companies", {
-      searchValue: "Banks"
+    responses = await graphqlRequest(qryCompanies, 'companies', {
+      searchValue: 'Banks',
     });
 
     expect(responses.length).toBe(1);
-    expect(responses[0].industry).toBe("Banks");
+    expect(responses[0].industry).toBe('Banks');
 
     // companies by plan ==============
-    responses = await graphqlRequest(qryCompanies, "companies", {
-      searchValue: plan
+    responses = await graphqlRequest(qryCompanies, 'companies', {
+      searchValue: plan,
     });
 
     expect(responses.length).toBe(1);
     expect(responses[0].plan).toBe(plan);
   });
 
-  test("Companies filtered by brandId", async () => {
+  test('Companies filtered by brandId', async () => {
     const brand = await brandFactory({});
     const integration = await integrationFactory({ brandId: brand._id });
     const integrationId = integration._id;
@@ -268,93 +268,89 @@ describe("companyQueries", () => {
     await customerFactory({ integrationId, companyIds: [company1._id] });
     await customerFactory({ integrationId, companyIds: [company2._id] });
 
-    const responses = await graphqlRequest(qryCompanies, "companies", {
-      brand: brand._id
+    const responses = await graphqlRequest(qryCompanies, 'companies', {
+      brand: brand._id,
     });
 
     expect(responses.length).toBe(2);
   });
 
-  test("Main companies", async () => {
+  test('Main companies', async () => {
     await companyFactory({});
     await companyFactory({});
     await companyFactory({});
     await companyFactory({});
 
     const args = { page: 1, perPage: 3 };
-    const responses = await graphqlRequest(
-      qryCompaniesMain,
-      "companiesMain",
-      args
-    );
+    const responses = await graphqlRequest(qryCompaniesMain, 'companiesMain', args);
 
     expect(responses.list.length).toBe(3);
     expect(responses.totalCount).toBe(4);
   });
 
-  test("Count companies", async () => {
+  test('Count companies', async () => {
     // Creating test data
     await companyFactory({});
     await companyFactory({});
 
-    await segmentFactory({ contentType: "company" });
-    await tagsFactory({ type: "company" });
+    await segmentFactory({ contentType: 'company' });
+    await tagsFactory({ type: 'company' });
 
-    const response = await graphqlRequest(qryCount, "companyCounts");
+    const response = await graphqlRequest(qryCount, 'companyCounts');
 
     expect(count(response.bySegment)).toBe(1);
     expect(count(response.byTag)).toBe(1);
   });
 
-  test("Company count by tag", async () => {
+  test('Company count by tag', async () => {
     await companyFactory({});
     await companyFactory({});
 
-    await tagsFactory({ type: "company" });
-    await tagsFactory({ type: "customer" });
+    await tagsFactory({ type: 'company' });
+    await tagsFactory({ type: 'customer' });
 
-    const response = await graphqlRequest(qryCount, "companyCounts");
+    const response = await graphqlRequest(qryCount, 'companyCounts');
 
     expect(count(response.byTag)).toBe(1);
   });
 
-  test("Company count by leadStatus", async () => {
+  test('Company count by leadStatus', async () => {
     await companyFactory({});
     await companyFactory({});
-    await companyFactory({ leadStatus: "new" });
-    await companyFactory({ leadStatus: "new" });
+    await companyFactory({ leadStatus: 'new' });
+    await companyFactory({ leadStatus: 'new' });
 
-    const response = await graphqlRequest(qryCount, "companyCounts");
+    const response = await graphqlRequest(qryCount, 'companyCounts');
 
     expect(response.byLeadStatus.open).toBe(2);
     expect(response.byLeadStatus.new).toBe(2);
   });
 
-  test("Company count by lifecycleState", async () => {
+  test('Company count by lifecycleState', async () => {
     await companyFactory({});
     await companyFactory({});
-    await companyFactory({ lifecycleState: "subscriber" });
-    await companyFactory({ lifecycleState: "subscriber" });
+    await companyFactory({ lifecycleState: 'subscriber' });
+    await companyFactory({ lifecycleState: 'subscriber' });
 
-    const response = await graphqlRequest(qryCount, "companyCounts");
+    const response = await graphqlRequest(qryCount, 'companyCounts');
 
     expect(response.byLifecycleState.subscriber).toBe(2);
     expect(response.byLifecycleState.lead).toBe(2);
   });
 
-  test("Company count by segment", async () => {
+  test('Company count by segment', async () => {
     await companyFactory({});
     await companyFactory({});
 
-    await segmentFactory({ contentType: "company" });
+    await segmentFactory({ contentType: 'company' });
     await segmentFactory();
 
-    const response = await graphqlRequest(qryCount, "companyCounts");
+    const response = await graphqlRequest(qryCount, 'companyCounts');
 
     expect(count(response.bySegment)).toBe(1);
   });
 
-  test("Company count by brand", async () => {
+  test('Company count by brand', async () => {
     const brand = await brandFactory({});
     const integration = await integrationFactory({ brandId: brand._id });
     const integrationId = integration._id;
@@ -366,14 +362,14 @@ describe("companyQueries", () => {
     await customerFactory({ integrationId, companyIds: [company1._id] });
     await customerFactory({ integrationId, companyIds: [company2._id] });
 
-    const response = await graphqlRequest(qryCount, "companyCounts", {
-      brand: brand._id
+    const response = await graphqlRequest(qryCount, 'companyCounts', {
+      brand: brand._id,
     });
 
     expect(response.byBrand[brand._id]).toBe(2);
   });
 
-  test("Company detail", async () => {
+  test('Company detail', async () => {
     const company = await companyFactory();
 
     const qry = `
@@ -384,8 +380,8 @@ describe("companyQueries", () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, "companyDetail", {
-      _id: company._id
+    const response = await graphqlRequest(qry, 'companyDetail', {
+      _id: company._id,
     });
 
     expect(response._id).toBe(company._id);

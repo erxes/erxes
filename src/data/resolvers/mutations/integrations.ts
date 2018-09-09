@@ -1,12 +1,8 @@
-import { Integrations } from "../../../db/models";
-import {
-  IIntegration,
-  IMessengerData,
-  IUiOptions
-} from "../../../db/models/definitions/integrations";
-import { IMessengerIntegration } from "../../../db/models/Integrations";
-import { socUtils } from "../../../trackers/twitterTracker";
-import { requireAdmin, requireLogin } from "../../permissions";
+import { Integrations } from '../../../db/models';
+import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
+import { IMessengerIntegration } from '../../../db/models/Integrations';
+import { socUtils } from '../../../trackers/twitterTracker';
+import { requireAdmin, requireLogin } from '../../permissions';
 
 interface IEditMessengerIntegration extends IMessengerIntegration {
   _id: string;
@@ -27,30 +23,21 @@ const integrationMutations = {
   /**
    * Update messenger integration
    */
-  integrationsEditMessengerIntegration(
-    _root,
-    { _id, ...fields }: IEditMessengerIntegration
-  ) {
+  integrationsEditMessengerIntegration(_root, { _id, ...fields }: IEditMessengerIntegration) {
     return Integrations.updateMessengerIntegration(_id, fields);
   },
 
   /**
    * Update/save messenger appearance data
    */
-  integrationsSaveMessengerAppearanceData(
-    _root,
-    { _id, uiOptions }: { _id: string; uiOptions: IUiOptions }
-  ) {
+  integrationsSaveMessengerAppearanceData(_root, { _id, uiOptions }: { _id: string; uiOptions: IUiOptions }) {
     return Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
   /**
    * Update/save messenger data
    */
-  integrationsSaveMessengerConfigs(
-    _root,
-    { _id, messengerData }: { _id: string; messengerData: IMessengerData }
-  ) {
+  integrationsSaveMessengerConfigs(_root, { _id, messengerData }: { _id: string; messengerData: IMessengerData }) {
     return Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
@@ -64,10 +51,7 @@ const integrationMutations = {
   /**
    * Create a new twitter integration
    */
-  async integrationsCreateTwitterIntegration(
-    _root,
-    { queryParams, brandId }: { queryParams: any; brandId: string }
-  ) {
+  async integrationsCreateTwitterIntegration(_root, { queryParams, brandId }: { queryParams: any; brandId: string }) {
     const data: any = await socUtils.authenticate(queryParams);
 
     const integration = await Integrations.createTwitterIntegration({
@@ -76,8 +60,8 @@ const integrationMutations = {
       twitterData: {
         info: data.info,
         token: data.tokens.auth.token,
-        tokenSecret: data.tokens.auth.token_secret
-      }
+        tokenSecret: data.tokens.auth.token_secret,
+      },
     });
 
     // start tracking new twitter entries
@@ -91,30 +75,22 @@ const integrationMutations = {
    */
   async integrationsCreateFacebookIntegration(
     _root,
-    {
-      name,
-      brandId,
-      appId,
-      pageIds
-    }: { name: string; brandId: string; appId: string; pageIds: string[] }
+    { name, brandId, appId, pageIds }: { name: string; brandId: string; appId: string; pageIds: string[] },
   ) {
     return Integrations.createFacebookIntegration({
       name,
       brandId,
       facebookData: {
         appId,
-        pageIds
-      }
+        pageIds,
+      },
     });
   },
 
   /**
    * Edit a form integration
    */
-  integrationsEditFormIntegration(
-    _root,
-    { _id, ...doc }: IEditFormIntegration
-  ) {
+  integrationsEditFormIntegration(_root, { _id, ...doc }: IEditFormIntegration) {
     return Integrations.updateFormIntegration(_id, doc);
   },
 
@@ -123,17 +99,17 @@ const integrationMutations = {
    */
   integrationsRemove(_root, { _id }: { _id: string }) {
     return Integrations.removeIntegration(_id);
-  }
+  },
 };
 
-requireLogin(integrationMutations, "integrationsCreateMessengerIntegration");
-requireLogin(integrationMutations, "integrationsEditMessengerIntegration");
-requireLogin(integrationMutations, "integrationsSaveMessengerAppearanceData");
-requireLogin(integrationMutations, "integrationsSaveMessengerConfigs");
-requireLogin(integrationMutations, "integrationsCreateFormIntegration");
-requireLogin(integrationMutations, "integrationsEditFormIntegration");
-requireLogin(integrationMutations, "integrationsCreateTwitterIntegration");
-requireLogin(integrationMutations, "integrationsCreateFacebookIntegration");
-requireAdmin(integrationMutations, "integrationsRemove");
+requireLogin(integrationMutations, 'integrationsCreateMessengerIntegration');
+requireLogin(integrationMutations, 'integrationsEditMessengerIntegration');
+requireLogin(integrationMutations, 'integrationsSaveMessengerAppearanceData');
+requireLogin(integrationMutations, 'integrationsSaveMessengerConfigs');
+requireLogin(integrationMutations, 'integrationsCreateFormIntegration');
+requireLogin(integrationMutations, 'integrationsEditFormIntegration');
+requireLogin(integrationMutations, 'integrationsCreateTwitterIntegration');
+requireLogin(integrationMutations, 'integrationsCreateFacebookIntegration');
+requireAdmin(integrationMutations, 'integrationsRemove');
 
 export default integrationMutations;

@@ -1,10 +1,7 @@
-import { Brands } from "../../../db/models";
-import {
-  IBrand,
-  IBrandEmailConfig
-} from "../../../db/models/definitions/brands";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import { moduleRequireAdmin } from "../../permissions";
+import { Brands } from '../../../db/models';
+import { IBrand, IBrandEmailConfig } from '../../../db/models/definitions/brands';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { moduleRequireAdmin } from '../../permissions';
 
 interface IBrandsEdit extends IBrand {
   _id: string;
@@ -35,22 +32,16 @@ const brandMutations = {
   /**
    * Update brands email config
    */
-  async brandsConfigEmail(
-    _root,
-    { _id, emailConfig }: { _id: string; emailConfig: IBrandEmailConfig }
-  ) {
+  async brandsConfigEmail(_root, { _id, emailConfig }: { _id: string; emailConfig: IBrandEmailConfig }) {
     return Brands.updateEmailConfig(_id, emailConfig);
   },
 
   /**
    * Update brandId fields in given Integrations
    */
-  async brandsManageIntegrations(
-    _root,
-    { _id, integrationIds }: { _id: string; integrationIds: string[] }
-  ) {
+  async brandsManageIntegrations(_root, { _id, integrationIds }: { _id: string; integrationIds: string[] }) {
     return Brands.manageIntegrations({ _id, integrationIds });
-  }
+  },
 };
 
 moduleRequireAdmin(brandMutations);

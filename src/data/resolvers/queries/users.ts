@@ -1,7 +1,7 @@
-import { Conversations, Users } from "../../../db/models";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import { requireLogin } from "../../permissions";
-import { paginate } from "./utils";
+import { Conversations, Users } from '../../../db/models';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { requireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 interface IListArgs {
   page?: number;
@@ -14,8 +14,8 @@ const queryBuilder = async (params: IListArgs) => {
 
   if (params.searchValue) {
     const fields = [
-      { "details.fullName": new RegExp(`.*${params.searchValue}.*`, "i") },
-      { "details.position": new RegExp(`.*${params.searchValue}.*`, "i") }
+      { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') },
     ];
 
     selector = { $or: fields };
@@ -73,11 +73,11 @@ const userQueries = {
     const totalCount = Conversations.find(selector).count();
 
     return { list, totalCount };
-  }
+  },
 };
 
-requireLogin(userQueries, "users");
-requireLogin(userQueries, "userDetail");
-requireLogin(userQueries, "usersTotalCount");
+requireLogin(userQueries, 'users');
+requireLogin(userQueries, 'userDetail');
+requireLogin(userQueries, 'usersTotalCount');
 
 export default userQueries;

@@ -1,11 +1,8 @@
-import * as moment from "moment";
-import * as schedule from "node-schedule";
-import { send } from "../data/resolvers/mutations/engageUtils";
-import { EngageMessages } from "../db/models";
-import {
-  IEngageMessageDocument,
-  IScheduleDate
-} from "../db/models/definitions/engages";
+import * as moment from 'moment';
+import * as schedule from 'node-schedule';
+import { send } from '../data/resolvers/mutations/engageUtils';
+import { EngageMessages } from '../db/models';
+import { IEngageMessageDocument, IScheduleDate } from '../db/models/definitions/engages';
 
 interface IEngageSchedules {
   id: string;
@@ -38,25 +35,25 @@ export const createSchedule = (message: IEngageMessageDocument) => {
  */
 export const createScheduleRule = (scheduleDate: IScheduleDate) => {
   if (!scheduleDate || (!scheduleDate.type && !scheduleDate.time)) {
-    return "* 45 23 * ";
+    return '* 45 23 * ';
   }
 
   const time = moment(scheduleDate.time);
 
-  const hour = time.hour() || "*";
-  const minute = time.minute() || "*";
-  const month = scheduleDate.month || "*";
+  const hour = time.hour() || '*';
+  const minute = time.minute() || '*';
+  const month = scheduleDate.month || '*';
 
-  let dayOfWeek = "*";
-  let day: string | number = "*";
+  let dayOfWeek = '*';
+  let day: string | number = '*';
 
   // Schedule type day of week [0-6]
   if (scheduleDate.type && scheduleDate.type.length === 1) {
-    dayOfWeek = scheduleDate.type || "*";
+    dayOfWeek = scheduleDate.type || '*';
   }
 
-  if (scheduleDate.type === "month" || scheduleDate.type === "year") {
-    day = scheduleDate.day || "*";
+  if (scheduleDate.type === 'month' || scheduleDate.type === 'year') {
+    day = scheduleDate.day || '*';
   }
 
   /*
@@ -79,10 +76,7 @@ export const createScheduleRule = (scheduleDate: IScheduleDate) => {
  * @param _id - Engage id
  * @param update - Action type
  */
-export const updateOrRemoveSchedule = async (
-  { _id }: { _id: string },
-  update?: boolean
-) => {
+export const updateOrRemoveSchedule = async ({ _id }: { _id: string }, update?: boolean) => {
   const selectedIndex = ENGAGE_SCHEDULES.findIndex(engage => engage.id === _id);
 
   if (selectedIndex === -1) {

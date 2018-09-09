@@ -1,11 +1,7 @@
-import {
-  KnowledgeBaseArticles,
-  KnowledgeBaseCategories,
-  KnowledgeBaseTopics
-} from "../../../db/models";
+import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from '../../../db/models';
 
-import { moduleRequireLogin } from "../../permissions";
-import { paginate } from "./utils";
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 /* Articles list & total count helper */
 const articlesQuery = async ({ categoryIds }: { categoryIds: string[] }) => {
@@ -15,8 +11,8 @@ const articlesQuery = async ({ categoryIds }: { categoryIds: string[] }) => {
   if (categoryIds) {
     const categories = await KnowledgeBaseCategories.find({
       _id: {
-        $in: categoryIds
-      }
+        $in: categoryIds,
+      },
     });
 
     let articleIds: any = [];
@@ -26,7 +22,7 @@ const articlesQuery = async ({ categoryIds }: { categoryIds: string[] }) => {
     }
 
     query._id = {
-      $in: articleIds
+      $in: articleIds,
     };
   }
 
@@ -43,8 +39,8 @@ const categoriesQuery = async ({ topicIds }: { topicIds: string[] }) => {
 
     const topics = await KnowledgeBaseTopics.find({
       _id: {
-        $in: topicIds
-      }
+        $in: topicIds,
+      },
     });
 
     for (const topic of topics) {
@@ -52,7 +48,7 @@ const categoriesQuery = async ({ topicIds }: { topicIds: string[] }) => {
     }
 
     query._id = {
-      $in: categoryIds
+      $in: categoryIds,
     };
   }
 
@@ -63,13 +59,10 @@ const knowledgeBaseQueries = {
   /**
    * Article list
    */
-  async knowledgeBaseArticles(
-    _root,
-    args: { page: number; perPage: number; categoryIds: string[] }
-  ) {
+  async knowledgeBaseArticles(_root, args: { page: number; perPage: number; categoryIds: string[] }) {
     const query = await articlesQuery(args);
     const articles = KnowledgeBaseArticles.find(query).sort({
-      createdData: -1
+      createdData: -1,
     });
 
     return paginate(articles, args);
@@ -85,10 +78,7 @@ const knowledgeBaseQueries = {
   /**
    * Total article count
    */
-  async knowledgeBaseArticlesTotalCount(
-    _root,
-    args: { categoryIds: string[] }
-  ) {
+  async knowledgeBaseArticlesTotalCount(_root, args: { categoryIds: string[] }) {
     const query = await articlesQuery(args);
 
     return KnowledgeBaseArticles.find(query).count();
@@ -97,14 +87,11 @@ const knowledgeBaseQueries = {
   /**
    * Category list
    */
-  async knowledgeBaseCategories(
-    _root,
-    args: { page: number; perPage: number; topicIds: string[] }
-  ) {
+  async knowledgeBaseCategories(_root, args: { page: number; perPage: number; topicIds: string[] }) {
     const query = await categoriesQuery(args);
-    
+
     const categories = KnowledgeBaseCategories.find(query).sort({
-      modifiedDate: -1
+      modifiedDate: -1,
     });
 
     return paginate(categories, args);
@@ -155,7 +142,7 @@ const knowledgeBaseQueries = {
    */
   knowledgeBaseTopicsTotalCount() {
     return KnowledgeBaseTopics.find({}).count();
-  }
+  },
 };
 
 moduleRequireLogin(knowledgeBaseQueries);

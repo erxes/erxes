@@ -1,20 +1,8 @@
-import {
-  ActivityLogs,
-  DealBoards,
-  DealPipelines,
-  Deals,
-  DealStages
-} from "../../../db/models";
-import { IOrderInput } from "../../../db/models/Deals";
-import {
-  IBoard,
-  IDeal,
-  IPipeline,
-  IStage,
-  IStageDocument
-} from "../../../db/models/definitions/deals";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import { moduleRequireLogin } from "../../permissions";
+import { ActivityLogs, DealBoards, DealPipelines, Deals, DealStages } from '../../../db/models';
+import { IOrderInput } from '../../../db/models/Deals';
+import { IBoard, IDeal, IPipeline, IStage, IStageDocument } from '../../../db/models/definitions/deals';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { moduleRequireLogin } from '../../permissions';
 
 interface IDealBoardsEdit extends IBoard {
   _id: string;
@@ -61,11 +49,7 @@ const dealMutations = {
   /**
    * Create new pipeline
    */
-  dealPipelinesAdd(
-    _root,
-    { stages, ...doc }: IDealPipelinesAdd,
-    { user }: { user: IUserDocument }
-  ) {
+  dealPipelinesAdd(_root, { stages, ...doc }: IDealPipelinesAdd, { user }: { user: IUserDocument }) {
     return DealPipelines.createPipeline({ userId: user._id, ...doc }, stages);
   },
 
@@ -107,10 +91,7 @@ const dealMutations = {
   /**
    * Change stage
    */
-  dealStagesChange(
-    _root,
-    { _id, pipelineId }: { _id: string; pipelineId: string }
-  ) {
+  dealStagesChange(_root, { _id, pipelineId }: { _id: string; pipelineId: string }) {
     return DealStages.changeStage(_id, pipelineId);
   },
 
@@ -135,7 +116,7 @@ const dealMutations = {
     const deal = await Deals.createDeal({
       ...doc,
       modifiedAt: new Date(),
-      modifiedBy: user._id
+      modifiedBy: user._id,
     });
 
     await ActivityLogs.createDealRegistrationLog(deal, user);
@@ -150,22 +131,18 @@ const dealMutations = {
     return Deals.updateDeal(_id, {
       ...doc,
       modifiedAt: new Date(),
-      modifiedBy: user._id
+      modifiedBy: user._id,
     });
   },
 
   /**
    * Change deal
    */
-  dealsChange(
-    _root,
-    { _id, ...doc }: { _id: string; stageId: string },
-    { user }: { user: IUserDocument }
-  ) {
+  dealsChange(_root, { _id, ...doc }: { _id: string; stageId: string }, { user }: { user: IUserDocument }) {
     return Deals.updateDeal(_id, {
       ...doc,
       modifiedAt: new Date(),
-      modifiedBy: user._id
+      modifiedBy: user._id,
     });
   },
 
@@ -181,7 +158,7 @@ const dealMutations = {
    */
   dealsRemove(_root, { _id }: { _id: string }) {
     return Deals.removeDeal(_id);
-  }
+  },
 };
 
 moduleRequireLogin(dealMutations);

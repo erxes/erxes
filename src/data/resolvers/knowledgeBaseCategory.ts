@@ -1,5 +1,5 @@
-import { KnowledgeBaseArticles, KnowledgeBaseTopics } from "../../db/models";
-import { ICategoryDocument } from "../../db/models/definitions/knowledgebase";
+import { KnowledgeBaseArticles, KnowledgeBaseTopics } from '../../db/models';
+import { ICategoryDocument } from '../../db/models/definitions/knowledgebase';
 
 export default {
   articles(category: ICategoryDocument) {
@@ -8,7 +8,7 @@ export default {
 
   firstTopic(category: ICategoryDocument) {
     return KnowledgeBaseTopics.findOne({
-      categoryIds: { $in: [category._id] }
+      categoryIds: { $in: [category._id] },
     });
-  }
+  },
 };

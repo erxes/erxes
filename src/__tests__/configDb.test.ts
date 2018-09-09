@@ -1,23 +1,23 @@
-import { connect, disconnect } from "../db/connection";
-import { Configs } from "../db/models";
+import { connect, disconnect } from '../db/connection';
+import { Configs } from '../db/models';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe("Test configs model", () => {
+describe('Test configs model', () => {
   afterEach(async () => {
     // Clearing test data
     await Configs.remove({});
   });
 
-  test("Create or update config", async () => {
-    const code = "dealCurrency";
-    const value = ["MNT", "USD", "KRW"];
+  test('Create or update config', async () => {
+    const code = 'dealCurrency';
+    const value = ['MNT', 'USD', 'KRW'];
 
     const createdConfig = await Configs.createOrUpdateConfig({
       code,
-      value
+      value,
     });
 
     expect(createdConfig).toBeDefined();
@@ -27,12 +27,12 @@ describe("Test configs model", () => {
 
     const updateConfig = await Configs.createOrUpdateConfig({
       code,
-      value: ["update"]
+      value: ['update'],
     });
 
     expect(updateConfig).toBeDefined();
     expect(updateConfig.code).toEqual(code);
     expect(updateConfig.value.length).toEqual(1);
-    expect(updateConfig.value[0]).toEqual("update");
+    expect(updateConfig.value[0]).toEqual('update');
   });
 });

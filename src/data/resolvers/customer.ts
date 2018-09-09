@@ -1,12 +1,5 @@
-import {
-  Companies,
-  Conversations,
-  Deals,
-  Integrations,
-  Tags,
-  Users
-} from "../../db/models";
-import { ICustomerDocument } from "../../db/models/definitions/customers";
+import { Companies, Conversations, Deals, Integrations, Tags, Users } from '../../db/models';
+import { ICustomerDocument } from '../../db/models/definitions/customers';
 
 interface IMessengerCustomData {
   name: string;
@@ -22,7 +15,7 @@ export default {
     return {
       messenger: customer.messengerData || {},
       twitter: customer.twitterData || {},
-      facebook: customer.facebookData || {}
+      facebook: customer.facebookData || {},
     };
   },
 
@@ -33,8 +26,8 @@ export default {
 
     Object.keys(data).forEach(key => {
       results.push({
-        name: key.replace(/_/g, " "),
-        value: data[key]
+        name: key.replace(/_/g, ' '),
+        value: data[key],
       });
     });
 
@@ -59,5 +52,5 @@ export default {
 
   deals(customer: ICustomerDocument) {
     return Deals.find({ customerIds: { $in: [customer._id] } });
-  }
+  },
 };

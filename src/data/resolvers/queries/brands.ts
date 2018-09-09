@@ -1,6 +1,6 @@
-import { Brands } from "../../../db/models";
-import { moduleRequireLogin } from "../../permissions";
-import { paginate } from "./utils";
+import { Brands } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const brandQueries = {
   /**
@@ -30,7 +30,7 @@ const brandQueries = {
    */
   brandsGetLast() {
     return Brands.findOne({}).sort({ createdAt: -1 });
-  }
+  },
 };
 
 moduleRequireLogin(brandQueries);

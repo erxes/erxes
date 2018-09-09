@@ -1,22 +1,19 @@
-import * as moment from "moment";
-import { Fields } from "../../../db/models";
-import { ICompanyDocument } from "../../../db/models/definitions/companies";
-import { ICustomerDocument } from "../../../db/models/definitions/customers";
-import { COMPANY_BASIC_INFOS, CUSTOMER_BASIC_INFOS } from "../../constants";
-import { createXlsFile, generateXlsx } from "../../utils";
+import * as moment from 'moment';
+import { Fields } from '../../../db/models';
+import { ICompanyDocument } from '../../../db/models/definitions/companies';
+import { ICustomerDocument } from '../../../db/models/definitions/customers';
+import { COMPANY_BASIC_INFOS, CUSTOMER_BASIC_INFOS } from '../../constants';
+import { createXlsFile, generateXlsx } from '../../utils';
 
 type TDocs = ICustomerDocument | ICompanyDocument;
 
 /**
  * Export customers or companies
  */
-export const cocsExport = async (
-  cocs: TDocs[],
-  cocType: string
-): Promise<string> => {
+export const cocsExport = async (cocs: TDocs[], cocType: string): Promise<string> => {
   let basicInfos = CUSTOMER_BASIC_INFOS;
 
-  if (cocType === "company") {
+  if (cocType === 'company') {
     basicInfos = COMPANY_BASIC_INFOS;
   }
 
@@ -46,7 +43,7 @@ export const cocsExport = async (
 
     // Iterating through coc basic infos
     for (const info of basicInfos) {
-      if (coc[info] && coc[info] !== "") {
+      if (coc[info] && coc[info] !== '') {
         addCell(info, coc[info]);
       }
     }
@@ -64,8 +61,5 @@ export const cocsExport = async (
     }
   }
   // Write to file.
-  return generateXlsx(
-    workbook,
-    `${cocType} - ${moment().format("YYYY-MM-DD HH:mm")}`
-  );
+  return generateXlsx(workbook, `${cocType} - ${moment().format('YYYY-MM-DD HH:mm')}`);
 };

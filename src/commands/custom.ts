@@ -1,23 +1,13 @@
-import { connect, disconnect } from "../db/connection";
-import {
-  ActivityLogs,
-  ConversationMessages,
-  Conversations,
-  Customers,
-  Integrations
-} from "../db/models";
-import { getConfig } from "../trackers/facebook";
-import { findPostComments, graphRequest } from "../trackers/facebookTracker";
+import { connect, disconnect } from '../db/connection';
+import { ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
+import { getConfig } from '../trackers/facebook';
+import { findPostComments, graphRequest } from '../trackers/facebookTracker';
 
 export const customCommand = async () => {
   connect();
 
-  const getOrCreateCustomer = async (
-    fbUserId,
-    accessToken,
-    integrationId
-  ): Promise<string> => {
-    const customer = await Customers.findOne({ "facebookData.id": fbUserId });
+  const getOrCreateCustomer = async (fbUserId, accessToken, integrationId): Promise<string> => {
+    const customer = await Customers.findOne({ 'facebookData.id': fbUserId });
 
     if (customer) {
       return customer._id;
@@ -30,7 +20,7 @@ export const customCommand = async () => {
     const getProfilePic = async fbId => {
       try {
         const response = await graphRequest.get(`/${fbId}/picture?height=600`);
-        return response.image ? response.location : "";
+        return response.image ? response.location : '';
       } catch (e) {
         return null;
       }
@@ -39,17 +29,17 @@ export const customCommand = async () => {
     // when feed response will contain name field
     // when messeger response will not contain name field
     const firstName = res.first_name || res.name;
-    const lastName = res.last_name || "";
+    const lastName = res.last_name || '';
 
     // create customer
     const createdCustomer = await Customers.createCustomer({
       firstName,
       lastName,
       integrationId,
-      avatar: (await getProfilePic(fbUserId)) || "",
+      avatar: (await getProfilePic(fbUserId)) || '',
       facebookData: {
-        id: fbUserId
-      }
+        id: fbUserId,
+      },
     });
 
     // create log
@@ -60,38 +50,31 @@ export const customCommand = async () => {
 
   const conversations = await Conversations.find({
     facebookData: { $exists: true },
-    "facebookData.kind": "feed"
+    'facebookData.kind': 'feed',
   });
 
   console.log(conversations.length);
 
   for (const conversation of conversations) {
     const msgs = await ConversationMessages.find({
-      conversationId: conversation._id
+      conversationId: conversation._id,
     });
 
     const post = msgs.find(message => message.facebookData.isPost);
 
     if (!post) {
       const integration = await Integrations.findOne({
-        _id: conversation.integrationId
+        _id: conversation.integrationId,
       });
 
       const FACEBOOK_APPS = getConfig();
 
-      const app = FACEBOOK_APPS.find(
-        a => a.id === integration.facebookData.appId
-      );
+      const app = FACEBOOK_APPS.find(a => a.id === integration.facebookData.appId);
 
-      let response = await graphRequest.get(
-        "/me/accounts?limit=100&fields=access_token",
-        app.accessToken
-      );
+      let response = await graphRequest.get('/me/accounts?limit=100&fields=access_token', app.accessToken);
       const { data } = response;
 
-      const page = data.find(
-        page => page.id === conversation.facebookData.pageId
-      );
+      const page = data.find(page => page.id === conversation.facebookData.pageId);
 
       const accessToken = page.access_token;
       const postId = conversation.facebookData.postId;
@@ -100,51 +83,39 @@ export const customCommand = async () => {
 
       response = await graphRequest.get(fields, accessToken);
 
-      const comments = await findPostComments(
-        accessToken,
-        conversation.facebookData.postId,
-        []
-      );
+      const comments = await findPostComments(accessToken, conversation.facebookData.postId, []);
 
       for (const comment of comments) {
         await ConversationMessages.createMessage({
           conversationId: conversation._id,
-          customerId: await getOrCreateCustomer(
-            response.from.id,
-            accessToken,
-            integration._id
-          ),
+          customerId: await getOrCreateCustomer(response.from.id, accessToken, integration._id),
           content: comment.message,
           facebookData: {
             postId,
             commentId: comment.id,
-            item: "comment",
+            item: 'comment',
             senderId: comment.from.id,
             senderName: comment.from.name,
-            parentId: comment.parent ? comment.parent.id : null
+            parentId: comment.parent ? comment.parent.id : null,
           },
-          internal: false
+          internal: false,
         });
       }
 
       await ConversationMessages.createMessage({
         conversationId: conversation._id,
-        customerId: await getOrCreateCustomer(
-          response.from.id,
-          accessToken,
-          integration._id
-        ),
-        content: response.message || "...",
+        customerId: await getOrCreateCustomer(response.from.id, accessToken, integration._id),
+        content: response.message || '...',
         facebookData: {
           senderId: response.from.id,
           senderName: response.from.name,
-          item: "status",
+          item: 'status',
           link: response.link,
           isPost: true,
           postId: response.id,
-          photo: response.picture
+          photo: response.picture,
         },
-        internal: false
+        internal: false,
       });
     }
   }

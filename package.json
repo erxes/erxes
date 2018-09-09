@@ -18,7 +18,7 @@
     "dev": "NODE_ENV=development nodemon -e ts src --exec ts-node",
     "build": "tsc",
     "lint": "tslint 'src/**/*.ts'",
-    "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
+    "format": "prettier --write --print-width 120 --single-quote --trailing-comma all 'src/**/*.ts'",
     "precommit": "lint-staged",
     "test": "jest --runInBand --forceExit",
     "loadInitialData": "babel-node ./src/initialData.js",

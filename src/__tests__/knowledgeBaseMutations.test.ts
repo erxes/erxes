@@ -1,20 +1,14 @@
-import * as faker from "faker";
-import { connect, disconnect, graphqlRequest } from "../db/connection";
-import {
-  Brands,
-  KnowledgeBaseArticles,
-  KnowledgeBaseCategories,
-  KnowledgeBaseTopics,
-  Users
-} from "../db/models";
+import * as faker from 'faker';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { Brands, KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, Users } from '../db/models';
 
 import {
   brandFactory,
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
-  userFactory
-} from "../db/factories";
+  userFactory,
+} from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -27,23 +21,23 @@ const topicArgs = {
   title: faker.random.word(),
   description: faker.random.word(),
   color: faker.commerce.color(),
-  languageCode: "en"
+  languageCode: 'en',
 };
 
 const categoryArgs = {
   title: faker.random.word(),
   description: faker.random.word(),
-  icon: faker.random.word()
+  icon: faker.random.word(),
 };
 
 const articleArgs = {
   title: faker.random.word(),
   summary: faker.random.word(),
-  status: "draft",
-  content: faker.random.word()
+  status: 'draft',
+  content: faker.random.word(),
 };
 
-describe("mutations", () => {
+describe('mutations', () => {
   let _knowledgeBaseTopic;
   let _knowledgeBaseCategory;
   let _knowledgeBaseArticle;
@@ -71,11 +65,11 @@ describe("mutations", () => {
     await Brands.remove({});
   });
 
-  test("Add knowledge base topic", async () => {
+  test('Add knowledge base topic', async () => {
     const doc = {
       categoryIds: _knowledgeBaseCategory._id,
       brandId: _brand._id,
-      ...topicArgs
+      ...topicArgs,
     };
 
     const mutation = `
@@ -95,12 +89,7 @@ describe("mutations", () => {
       }
     `;
 
-    const knowledgeBaseTopic = await graphqlRequest(
-      mutation,
-      "knowledgeBaseTopicsAdd",
-      { doc },
-      context
-    );
+    const knowledgeBaseTopic = await graphqlRequest(mutation, 'knowledgeBaseTopicsAdd', { doc }, context);
 
     expect(knowledgeBaseTopic.title).toBe(doc.title);
     expect(knowledgeBaseTopic.description).toBe(doc.description);
@@ -110,11 +99,11 @@ describe("mutations", () => {
     expect(knowledgeBaseTopic.categories[0]._id).toEqual(doc.categoryIds);
   });
 
-  test("Edit knowledge base topic", async () => {
+  test('Edit knowledge base topic', async () => {
     const doc = {
       categoryIds: _knowledgeBaseCategory._id,
       brandId: _brand._id,
-      ...topicArgs
+      ...topicArgs,
     };
 
     const mutation = `
@@ -137,9 +126,9 @@ describe("mutations", () => {
 
     const knowledgeBaseTopic = await graphqlRequest(
       mutation,
-      "knowledgeBaseTopicsEdit",
+      'knowledgeBaseTopicsEdit',
       { _id: _knowledgeBaseTopic._id, doc },
-      context
+      context,
     );
 
     expect(knowledgeBaseTopic._id).toBe(_knowledgeBaseTopic._id);
@@ -151,7 +140,7 @@ describe("mutations", () => {
     expect(knowledgeBaseTopic.categories[0]._id).toEqual(doc.categoryIds);
   });
 
-  test("Remove knowledge base topic", async () => {
+  test('Remove knowledge base topic', async () => {
     const _id = _knowledgeBaseTopic._id;
 
     const mutation = `
@@ -160,21 +149,16 @@ describe("mutations", () => {
       }
     `;
 
-    await graphqlRequest(
-      mutation,
-      "knowledgeBaseTopicsRemove",
-      { _id },
-      context
-    );
+    await graphqlRequest(mutation, 'knowledgeBaseTopicsRemove', { _id }, context);
 
     expect(await KnowledgeBaseTopics.findOne({ _id })).toBe(null);
   });
 
-  test("Add knowledge base category", async () => {
+  test('Add knowledge base category', async () => {
     const doc = {
       articleIds: [_knowledgeBaseArticle._id],
       topicIds: _knowledgeBaseTopic._id,
-      ...categoryArgs
+      ...categoryArgs,
     };
 
     const mutation = `
@@ -193,12 +177,7 @@ describe("mutations", () => {
       }
     `;
 
-    const knowledgeBaseCategory = await graphqlRequest(
-      mutation,
-      "knowledgeBaseCategoriesAdd",
-      { doc },
-      context
-    );
+    const knowledgeBaseCategory = await graphqlRequest(mutation, 'knowledgeBaseCategoriesAdd', { doc }, context);
 
     expect(knowledgeBaseCategory.title).toBe(doc.title);
     expect(knowledgeBaseCategory.description).toBe(doc.description);
@@ -210,11 +189,11 @@ describe("mutations", () => {
     expect(knowledgeBaseCategory.firstTopic._id).toBe(doc.topicIds);
   });
 
-  test("Edit knowledge base category", async () => {
+  test('Edit knowledge base category', async () => {
     const doc = {
       articleIds: [_knowledgeBaseArticle._id],
       topicIds: _knowledgeBaseTopic._id,
-      ...categoryArgs
+      ...categoryArgs,
     };
 
     const mutation = `
@@ -236,9 +215,9 @@ describe("mutations", () => {
 
     const knowledgeBaseCategory = await graphqlRequest(
       mutation,
-      "knowledgeBaseCategoriesEdit",
+      'knowledgeBaseCategoriesEdit',
       { _id: _knowledgeBaseCategory._id, doc },
-      context
+      context,
     );
 
     expect(knowledgeBaseCategory._id).toBe(_knowledgeBaseCategory._id);
@@ -252,7 +231,7 @@ describe("mutations", () => {
     expect(knowledgeBaseCategory.firstTopic._id).toBe(doc.topicIds);
   });
 
-  test("Remove knowledge base category", async () => {
+  test('Remove knowledge base category', async () => {
     const _id = _knowledgeBaseCategory._id;
 
     const mutation = `
@@ -261,20 +240,15 @@ describe("mutations", () => {
       }
     `;
 
-    await graphqlRequest(
-      mutation,
-      "knowledgeBaseCategoriesRemove",
-      { _id },
-      context
-    );
+    await graphqlRequest(mutation, 'knowledgeBaseCategoriesRemove', { _id }, context);
 
     expect(await KnowledgeBaseCategories.findOne({ _id })).toBe(null);
   });
 
-  test("Add knowledge base article", async () => {
+  test('Add knowledge base article', async () => {
     const doc = {
       categoryIds: [_knowledgeBaseCategory._id],
-      ...articleArgs
+      ...articleArgs,
     };
 
     const mutation = `
@@ -289,15 +263,10 @@ describe("mutations", () => {
       }
     `;
 
-    const article = await graphqlRequest(
-      mutation,
-      "knowledgeBaseArticlesAdd",
-      { doc },
-      context
-    );
+    const article = await graphqlRequest(mutation, 'knowledgeBaseArticlesAdd', { doc }, context);
 
     const [category] = await KnowledgeBaseCategories.find({
-      _id: { $in: doc.categoryIds }
+      _id: { $in: doc.categoryIds },
     });
 
     expect(category.articleIds).toContain(article._id);
@@ -307,10 +276,10 @@ describe("mutations", () => {
     expect(article.status).toBe(doc.status);
   });
 
-  test("Edit knowledge base article", async () => {
+  test('Edit knowledge base article', async () => {
     const doc = {
       categoryIds: [_knowledgeBaseCategory._id],
-      ...articleArgs
+      ...articleArgs,
     };
 
     const mutation = `
@@ -327,13 +296,13 @@ describe("mutations", () => {
 
     const article = await graphqlRequest(
       mutation,
-      "knowledgeBaseArticlesEdit",
+      'knowledgeBaseArticlesEdit',
       { _id: _knowledgeBaseArticle._id, doc },
-      context
+      context,
     );
 
     const [category] = await KnowledgeBaseCategories.find({
-      _id: { $in: doc.categoryIds }
+      _id: { $in: doc.categoryIds },
     });
 
     expect(category.articleIds).toContain(article._id);
@@ -344,7 +313,7 @@ describe("mutations", () => {
     expect(article.status).toBe(doc.status);
   });
 
-  test("Remove knowledge base article", async () => {
+  test('Remove knowledge base article', async () => {
     const _id = _knowledgeBaseArticle._id;
 
     const mutation = `
@@ -353,12 +322,7 @@ describe("mutations", () => {
       }
     `;
 
-    await graphqlRequest(
-      mutation,
-      "knowledgeBaseArticlesRemove",
-      { _id },
-      context
-    );
+    await graphqlRequest(mutation, 'knowledgeBaseArticlesRemove', { _id }, context);
 
     expect(await KnowledgeBaseArticles.findOne({ _id })).toBe(null);
   });

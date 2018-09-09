@@ -1,6 +1,6 @@
-import { Channels } from "../../../db/models";
-import { moduleRequireLogin } from "../../permissions";
-import { paginate } from "./utils";
+import { Channels } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 interface IIn {
   $in: string[];
@@ -14,13 +14,7 @@ const channelQueries = {
   /**
    * Channels list
    */
-  channels(
-    _root,
-    {
-      memberIds,
-      ...queryParams
-    }: { page: number; perPage: number; memberIds: string[] }
-  ) {
+  channels(_root, { memberIds, ...queryParams }: { page: number; perPage: number; memberIds: string[] }) {
     const query: IChannelQuery = {};
     const sort = { createdAt: -1 };
 
@@ -52,7 +46,7 @@ const channelQueries = {
    */
   channelsGetLast() {
     return Channels.findOne({}).sort({ createdAt: -1 });
-  }
+  },
 };
 
 moduleRequireLogin(channelQueries);

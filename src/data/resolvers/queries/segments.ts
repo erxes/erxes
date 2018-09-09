@@ -1,5 +1,5 @@
-import { Segments } from "../../../db/models";
-import { moduleRequireLogin } from "../../permissions";
+import { Segments } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
 const segmentQueries = {
   /**
@@ -21,7 +21,7 @@ const segmentQueries = {
    */
   segmentDetail(_root, { _id }: { _id: string }) {
     return Segments.findOne({ _id });
-  }
+  },
 };
 
 moduleRequireLogin(segmentQueries);

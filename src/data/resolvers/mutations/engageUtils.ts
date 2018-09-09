@@ -1,4 +1,4 @@
-import * as Random from "meteor-random";
+import * as Random from 'meteor-random';
 import {
   ConversationMessages,
   Conversations,
@@ -7,19 +7,14 @@ import {
   EngageMessages,
   Integrations,
   Segments,
-  Users
-} from "../../../db/models";
-import { ICustomerDocument } from "../../../db/models/definitions/customers";
-import { IEngageMessageDocument } from "../../../db/models/definitions/engages";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import {
-  EMAIL_CONTENT_PLACEHOLDER,
-  INTEGRATION_KIND_CHOICES,
-  MESSAGE_KINDS,
-  METHODS
-} from "../../constants";
-import { createTransporter } from "../../utils";
-import QueryBuilder from "../queries/segmentQueryBuilder";
+  Users,
+} from '../../../db/models';
+import { ICustomerDocument } from '../../../db/models/definitions/customers';
+import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { EMAIL_CONTENT_PLACEHOLDER, INTEGRATION_KIND_CHOICES, MESSAGE_KINDS, METHODS } from '../../constants';
+import { createTransporter } from '../../utils';
+import QueryBuilder from '../queries/segmentQueryBuilder';
 
 /**
  * Dynamic content tags
@@ -27,7 +22,7 @@ import QueryBuilder from "../queries/segmentQueryBuilder";
 export const replaceKeys = ({
   content,
   customer,
-  user
+  user,
 }: {
   content: string;
   customer: ICustomerDocument;
@@ -40,15 +35,12 @@ export const replaceKeys = ({
 
   // replace customer fields
   result = result.replace(/{{\s?customer.name\s?}}/gi, customerName);
-  result = result.replace(
-    /{{\s?customer.email\s?}}/gi,
-    customer.primaryEmail || ""
-  );
+  result = result.replace(/{{\s?customer.email\s?}}/gi, customer.primaryEmail || '');
 
   // replace user fields
-  result = result.replace(/{{\s?user.fullName\s?}}/gi, details.fullName || "");
-  result = result.replace(/{{\s?user.position\s?}}/gi, details.position || "");
-  result = result.replace(/{{\s?user.email\s?}}/gi, user.email || "");
+  result = result.replace(/{{\s?user.fullName\s?}}/gi, details.fullName || '');
+  result = result.replace(/{{\s?user.position\s?}}/gi, details.position || '');
+  result = result.replace(/{{\s?user.email\s?}}/gi, user.email || '');
 
   return result;
 };
@@ -58,7 +50,7 @@ export const replaceKeys = ({
  */
 const findCustomers = async ({
   customerIds,
-  segmentId
+  segmentId,
 }: {
   customerIds: string[];
   segmentId?: string;
@@ -84,19 +76,14 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
     return;
   }
 
-  const {
-    templateId,
-    subject,
-    content,
-    attachments = []
-  } = message.email.toJSON();
+  const { templateId, subject, content, attachments = [] } = message.email.toJSON();
 
   const { AWS_SES_CONFIG_SET } = process.env;
 
   const user = await Users.findOne({ _id: fromUserId });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error('User not found');
   }
 
   const userEmail = user.email;
@@ -117,20 +104,13 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
 
     // if sender choosed some template then use it
     if (template) {
-      replacedContent = template.content.replace(
-        EMAIL_CONTENT_PLACEHOLDER,
-        replacedContent
-      );
+      replacedContent = template.content.replace(EMAIL_CONTENT_PLACEHOLDER, replacedContent);
     }
 
     const mailMessageId = Random.id();
 
     // add new delivery report
-    EngageMessages.addNewDeliveryReport(
-      message._id,
-      mailMessageId,
-      customer._id
-    );
+    EngageMessages.addNewDeliveryReport(message._id, mailMessageId, customer._id);
 
     // send email =========
     const transporter = await createTransporter({ ses: true });
@@ -140,8 +120,8 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
     if (attachments.length > 0) {
       mailAttachment = attachments.map(file => {
         return {
-          filename: file.name || "",
-          path: file.url || ""
+          filename: file.name || '',
+          path: file.url || '',
         };
       });
     }
@@ -153,10 +133,10 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
       attachments: mailAttachment,
       html: replacedContent,
       headers: {
-        "X-SES-CONFIGURATION-SET": AWS_SES_CONFIG_SET,
+        'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET,
         EngageMessageId: message._id,
-        MailMessageId: mailMessageId
-      }
+        MailMessageId: mailMessageId,
+      },
     });
   }
 };
@@ -171,22 +151,22 @@ const sendViaMessenger = async (message: IEngageMessageDocument) => {
     return;
   }
 
-  const { brandId, content = "" } = message.messenger;
+  const { brandId, content = '' } = message.messenger;
 
   const user = await Users.findOne({ _id: fromUserId });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error('User not found');
   }
 
   // find integration
   const integration = await Integrations.findOne({
     brandId,
-    kind: INTEGRATION_KIND_CHOICES.MESSENGER
+    kind: INTEGRATION_KIND_CHOICES.MESSENGER,
   });
 
   if (integration === null) {
-    throw new Error("Integration not found");
+    throw new Error('Integration not found');
   }
 
   // find matched customers
@@ -204,7 +184,7 @@ const sendViaMessenger = async (message: IEngageMessageDocument) => {
       userId: fromUserId,
       customerId: customer._id,
       integrationId: integration._id,
-      content: replacedContent
+      content: replacedContent,
     });
 
     // create message
@@ -212,12 +192,12 @@ const sendViaMessenger = async (message: IEngageMessageDocument) => {
       engageData: {
         messageId: message._id,
         fromUserId,
-        ...message.messenger.toJSON()
+        ...message.messenger.toJSON(),
       },
       conversationId: conversation._id,
       userId: fromUserId,
       customerId: customer._id,
-      content: replacedContent
+      content: replacedContent,
     });
   }
 };
@@ -237,5 +217,5 @@ export const send = message => {
 
 export default {
   replaceKeys,
-  send
+  send,
 };

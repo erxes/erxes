@@ -1,15 +1,8 @@
-import { Model, model } from "mongoose";
-import {
-  emailTemplateSchema,
-  IEmailTemplate,
-  IEmailTemplateDocument
-} from "./definitions/emailTemplates";
+import { Model, model } from 'mongoose';
+import { emailTemplateSchema, IEmailTemplate, IEmailTemplateDocument } from './definitions/emailTemplates';
 
 interface IEmailTemplateModel extends Model<IEmailTemplateDocument> {
-  updateEmailTemplate(
-    _id: string,
-    fields: IEmailTemplate
-  ): IEmailTemplateDocument;
+  updateEmailTemplate(_id: string, fields: IEmailTemplate): IEmailTemplateDocument;
 
   removeEmailTemplate(_id: string): void;
 }
@@ -40,9 +33,6 @@ class EmailTemplate {
 
 emailTemplateSchema.loadClass(EmailTemplate);
 
-const EmailTemplates = model<IEmailTemplateDocument, IEmailTemplateModel>(
-  "email_templates",
-  emailTemplateSchema
-);
+const EmailTemplates = model<IEmailTemplateDocument, IEmailTemplateModel>('email_templates', emailTemplateSchema);
 
 export default EmailTemplates;

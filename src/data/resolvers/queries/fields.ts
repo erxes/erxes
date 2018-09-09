@@ -1,9 +1,6 @@
-import {
-  FIELD_CONTENT_TYPES,
-  FIELDS_GROUPS_CONTENT_TYPES
-} from "../../../data/constants";
-import { Companies, Customers, Fields, FieldsGroups } from "../../../db/models";
-import { moduleRequireLogin } from "../../permissions";
+import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES } from '../../../data/constants';
+import { Companies, Customers, Fields, FieldsGroups } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
 interface IFieldsQuery {
   contentType: string;
@@ -18,13 +15,7 @@ const fieldQueries = {
   /**
    * Fields list
    */
-  fields(
-    _root,
-    {
-      contentType,
-      contentTypeId
-    }: { contentType: string; contentTypeId: string }
-  ) {
+  fields(_root, { contentType, contentTypeId }: { contentType: string; contentTypeId: string }) {
     const query: IFieldsQuery = { contentType };
 
     if (contentTypeId) {
@@ -40,10 +31,7 @@ const fieldQueries = {
    * then it will generate customer related fields
    * [{ name: 'messengerData.isActive', text: 'Messenger: is Active' }]
    */
-  async fieldsCombinedByContentType(
-    _root,
-    { contentType }: { contentType: string }
-  ) {
+  async fieldsCombinedByContentType(_root, { contentType }: { contentType: string }) {
     /*
      * Generates fields using given schema
      */
@@ -61,7 +49,7 @@ const fieldQueries = {
           queFields.push({
             _id: Math.random(),
             name: `${namePrefix}${name}`,
-            label
+            label,
           });
         }
       });
@@ -76,17 +64,14 @@ const fieldQueries = {
     }
 
     // generate list using customer or company schema
-    let fields = generateFieldsFromSchema(schema, "");
+    let fields = generateFieldsFromSchema(schema, '');
 
     schema.eachPath(name => {
       const path = schema.paths[name];
 
       // extend fields list using sub schema fields
       if (path.schema) {
-        fields = [
-          ...fields,
-          ...generateFieldsFromSchema(path.schema, `${name}.`)
-        ];
+        fields = [...fields, ...generateFieldsFromSchema(path.schema, `${name}.`)];
       }
     });
 
@@ -95,12 +80,12 @@ const fieldQueries = {
     // extend fields list using custom fields
     for (const customField of customFields) {
       const group = await FieldsGroups.findOne({ _id: customField.groupId });
-    
+
       if (group && group.isVisible && customField.isVisible) {
         fields.push({
           _id: Math.random(),
           name: `customFieldsData.${customField._id}`,
-          label: customField.text
+          label: customField.text,
         });
       }
     }
@@ -111,33 +96,30 @@ const fieldQueries = {
   /**
    * Default list columns config
    */
-  fieldsDefaultColumnsConfig(
-    _root,
-    { contentType }: { contentType: string }
-  ): IfieldsDefaultColmns {
+  fieldsDefaultColumnsConfig(_root, { contentType }: { contentType: string }): IfieldsDefaultColmns {
     if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
       return [
-        { name: "firstName", label: "First name", order: 1 },
-        { name: "lastName", label: "Last name", order: 1 },
-        { name: "primaryEmail", label: "Primary email", order: 2 },
-        { name: "primaryPhone", label: "Primary phone", order: 3 }
+        { name: 'firstName', label: 'First name', order: 1 },
+        { name: 'lastName', label: 'Last name', order: 1 },
+        { name: 'primaryEmail', label: 'Primary email', order: 2 },
+        { name: 'primaryPhone', label: 'Primary phone', order: 3 },
       ];
     }
 
     if (contentType === FIELD_CONTENT_TYPES.COMPANY) {
       return [
-        { name: "primaryName", label: "Primary Name", order: 1 },
-        { name: "size", label: "Size", order: 2 },
-        { name: "links.website", label: "Website", order: 3 },
-        { name: "industry", label: "Industry", order: 4 },
-        { name: "plan", label: "Plan", order: 5 },
-        { name: "lastSeenAt", label: "Last seen at", order: 6 },
-        { name: "sessionCount", label: "Session count", order: 7 }
+        { name: 'primaryName', label: 'Primary Name', order: 1 },
+        { name: 'size', label: 'Size', order: 2 },
+        { name: 'links.website', label: 'Website', order: 3 },
+        { name: 'industry', label: 'Industry', order: 4 },
+        { name: 'plan', label: 'Plan', order: 5 },
+        { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
+        { name: 'sessionCount', label: 'Session count', order: 7 },
       ];
     }
 
     return [];
-  }
+  },
 };
 
 moduleRequireLogin(fieldQueries);
@@ -153,7 +135,7 @@ const fieldsGroupQueries = {
     query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
 
     return FieldsGroups.find(query).sort({ order: 1 });
-  }
+  },
 };
 
 moduleRequireLogin(fieldsGroupQueries);

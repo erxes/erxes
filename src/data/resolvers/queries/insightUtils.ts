@@ -1,8 +1,8 @@
-import * as moment from "moment";
-import * as _ from "underscore";
-import { Conversations, Integrations, Users } from "../../../db/models";
-import { IMessageDocument } from "../../../db/models/definitions/conversationMessages";
-import { IConversationDocument } from "../../../db/models/definitions/conversations";
+import * as moment from 'moment';
+import * as _ from 'underscore';
+import { Conversations, Integrations, Users } from '../../../db/models';
+import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
+import { IConversationDocument } from '../../../db/models/definitions/conversations';
 
 interface IMessageSelector {
   userId?: string;
@@ -38,10 +38,10 @@ interface IGenerateDuration {
   endTime: number;
   duration: number;
 }
-interface IResponseUserData{
-  [index: string] : { responseTime: number, count: number };
+interface IResponseUserData {
+  [index: string]: { responseTime: number; count: number };
 }
-interface IGenerateResponseData{
+interface IGenerateResponseData {
   trend: IGenerateChartData[];
   time: number;
   teamMembers: {
@@ -55,29 +55,25 @@ export const generateMessageSelector = async (
   brandId: string,
   integrationType: string,
   conversationSelector: any,
-  messageSelector: IMessageSelector
+  messageSelector: IMessageSelector,
 ): Promise<IMessageSelector> => {
   const selector = messageSelector;
 
-  const findConversationIds = async (
-    integrationSelector: IIntegrationSelector
-  ) => {
-    const integrationIds = await Integrations.find(integrationSelector).select(
-      "_id"
-    );
+  const findConversationIds = async (integrationSelector: IIntegrationSelector) => {
+    const integrationIds = await Integrations.find(integrationSelector).select('_id');
     const conversationIds = await Conversations.find({
       ...conversationSelector,
       $or: [
         {
           userId: { $exists: true },
-          messageCount: { $gt: 1 }
+          messageCount: { $gt: 1 },
         },
         {
-          userId: { $exists: false }
-        }
+          userId: { $exists: false },
+        },
       ],
-      integrationId: { $in: integrationIds }
-    }).select("_id");
+      integrationId: { $in: integrationIds },
+    }).select('_id');
 
     selector.conversationId = { $in: conversationIds };
   };
@@ -105,9 +101,9 @@ export const generateChartData = (
   collection: IMessageDocument[],
   loopCount: number,
   duration: number,
-  startTime: number
+  startTime: number,
 ): IGenerateChartData[] => {
-  const results = [{ x: formatTime(moment(startTime), "YYYY-MM-DD"), y: 0 }];
+  const results = [{ x: formatTime(moment(startTime), 'YYYY-MM-DD'), y: 0 }];
   let begin = 0;
   let end = 0;
   let count = 0;
@@ -119,13 +115,11 @@ export const generateChartData = (
   for (let i = 0; i < loopCount; i++) {
     end = startTime + divider * (i + 1);
     begin = end - divider;
-    dateText = formatTime(moment(end), "YYYY-MM-DD");
+    dateText = formatTime(moment(end), 'YYYY-MM-DD');
 
     // messages count between begin and end time.
-    count = collection.filter(
-      message =>
-        begin < message.createdAt.getTime() && message.createdAt.getTime() < end
-    ).length;
+    count = collection.filter(message => begin < message.createdAt.getTime() && message.createdAt.getTime() < end)
+      .length;
 
     results.push({ x: dateText, y: count });
   }
@@ -136,53 +130,50 @@ export const generateChartData = (
 /**
  * Generates time intervals for main report
  */
-export const generateTimeIntervals = (
-  start: Date,
-  end: Date
-): IGenerateTimeIntervals[] => {
+export const generateTimeIntervals = (start: Date, end: Date): IGenerateTimeIntervals[] => {
   const month = moment(end).month();
 
   return [
     {
-      title: "In time range",
+      title: 'In time range',
       start: moment(start),
-      end: moment(end)
+      end: moment(end),
     },
     {
-      title: "This month",
-      start: moment(1, "DD"),
-      end: moment()
+      title: 'This month',
+      start: moment(1, 'DD'),
+      end: moment(),
     },
     {
-      title: "This week",
+      title: 'This week',
       start: moment(end).weekday(0),
-      end: moment(end)
+      end: moment(end),
     },
     {
-      title: "Today",
-      start: moment(end).add(-1, "days"),
-      end: moment(end)
+      title: 'Today',
+      start: moment(end).add(-1, 'days'),
+      end: moment(end),
     },
     {
-      title: "Last 30 days",
-      start: moment(end).add(-30, "days"),
-      end: moment(end)
+      title: 'Last 30 days',
+      start: moment(end).add(-30, 'days'),
+      end: moment(end),
     },
     {
-      title: "Last month",
-      start: moment(month + 1, "MM").subtract(1, "months"),
-      end: moment(month + 1, "MM")
+      title: 'Last month',
+      start: moment(month + 1, 'MM').subtract(1, 'months'),
+      end: moment(month + 1, 'MM'),
     },
     {
-      title: "Last week",
+      title: 'Last week',
       start: moment(end).weekday(-7),
-      end: moment(end).weekday(0)
+      end: moment(end).weekday(0),
     },
     {
-      title: "Yesterday",
-      start: moment(end).add(-2, "days"),
-      end: moment(end).add(-1, "days")
-    }
+      title: 'Yesterday',
+      start: moment(end).add(-2, 'days'),
+      end: moment(end).add(-1, 'days'),
+    },
   ];
 };
 
@@ -193,7 +184,7 @@ export const generateUserChartData = async ({
   userId,
   userMessages,
   duration,
-  startTime
+  startTime,
 }: {
   userId: string;
   userMessages: IMessageDocument[];
@@ -205,20 +196,20 @@ export const generateUserChartData = async ({
 
   if (!user) {
     return {
-      graph: userData
+      graph: userData,
     };
   }
 
   const userDetail = user.details;
 
   return {
-    fullName: userDetail? userDetail.fullName : "",
-    avatar: userDetail? userDetail.avatar: "",
-    graph: userData
+    fullName: userDetail ? userDetail.fullName : '',
+    avatar: userDetail ? userDetail.avatar : '',
+    graph: userData,
   };
 };
 
-export const formatTime = (time, format = "YYYY-MM-DD HH:mm:ss") => {
+export const formatTime = (time, format = 'YYYY-MM-DD HH:mm:ss') => {
   return time.format(format);
 };
 
@@ -247,8 +238,8 @@ export const fixDates = (startValue: string, endValue: string): IFixDates => {
 
   const startDateDefaultValue = new Date(
     moment(endDate)
-      .add(-7, "days")
-      .toString()
+      .add(-7, 'days')
+      .toString(),
   );
 
   // convert given value or generate from endDate
@@ -257,20 +248,14 @@ export const fixDates = (startValue: string, endValue: string): IFixDates => {
   return { start: startDate, end: endDate };
 };
 
-export const generateDuration = ({
-  start,
-  end
-}: {
-  start: Date;
-  end: Date;
-}): IGenerateDuration => {
+export const generateDuration = ({ start, end }: { start: Date; end: Date }): IGenerateDuration => {
   const startTime = start.getTime();
   const endTime = end.getTime();
 
   return {
     startTime,
     endTime,
-    duration: endTime - startTime
+    duration: endTime - startTime,
   };
 };
 
@@ -280,7 +265,7 @@ export const generateDuration = ({
 export const generateUserSelector = (type: string): any => {
   let volumeOrResponse: any = null;
 
-  if (type === "response") {
+  if (type === 'response') {
     volumeOrResponse = { $ne: null };
   }
 
@@ -295,7 +280,7 @@ export const generateResponseData = async (
   responseUserData: IResponseUserData,
   allResponseTime: number,
   duration: number,
-  startTime: number
+  startTime: number,
 ): Promise<IGenerateResponseData> => {
   // preparing trend chart data
   const trend = generateChartData(responsData, 7, duration, startTime);
@@ -305,12 +290,11 @@ export const generateResponseData = async (
 
   const teamMembers: any = [];
 
-  const userIds = _.uniq(_.pluck(responsData, "userId"));
+  const userIds = _.uniq(_.pluck(responsData, 'userId'));
 
   for (const userId of userIds) {
     // Average response time for users.
-    const avgResTime =
-      responseUserData[userId].responseTime / responseUserData[userId].count;
+    const avgResTime = responseUserData[userId].responseTime / responseUserData[userId].count;
 
     // preparing each team member's chart data
     teamMembers.push({
@@ -318,10 +302,10 @@ export const generateResponseData = async (
         userId,
         userMessages: responsData.filter(message => userId === message.userId),
         duration,
-        startTime
+        startTime,
       }),
 
-      time: avgResTime
+      time: avgResTime,
     });
   }
 

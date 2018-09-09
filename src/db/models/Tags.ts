@@ -1,13 +1,7 @@
-import { Model, model } from "mongoose";
-import * as _ from "underscore";
-import {
-  Companies,
-  Conversations,
-  Customers,
-  EngageMessages,
-  Integrations
-} from ".";
-import { ITag, ITagDocument, tagSchema } from "./definitions/tags";
+import { Model, model } from 'mongoose';
+import * as _ from 'underscore';
+import { Companies, Conversations, Customers, EngageMessages, Integrations } from '.';
+import { ITag, ITagDocument, tagSchema } from './definitions/tags';
 
 interface ITagModel extends Model<ITagDocument> {
   createTag(doc: ITag): Promise<ITagDocument>;
@@ -19,11 +13,7 @@ interface ITagModel extends Model<ITagDocument> {
 /*
  * Validates tag uniquness
  */
-export const validateUniqueness = async (
-  selector: any,
-  name: string,
-  type: string
-): Promise<boolean> => {
+export const validateUniqueness = async (selector: any, name: string, type: string): Promise<boolean> => {
   // required name and type
   if (!name || !type) {
     return true;
@@ -60,7 +50,7 @@ export const tagObject = async ({
   tagIds,
   objectIds,
   collection,
-  tagType
+  tagType,
 }: {
   tagIds: string[];
   objectIds: string[];
@@ -69,17 +59,14 @@ export const tagObject = async ({
 }) => {
   const prevTagsCount = await Tags.find({
     _id: { $in: tagIds },
-    type: tagType
+    type: tagType,
   }).count();
 
   if (prevTagsCount !== tagIds.length) {
-    throw new Error("Tag not found.");
+    throw new Error('Tag not found.');
   }
 
-  const objects = await collection.find(
-    { _id: { $in: objectIds } },
-    { tagIds: 1 }
-  );
+  const objects = await collection.find({ _id: { $in: objectIds } }, { tagIds: 1 });
 
   let removeIds: string[] = [];
 
@@ -89,23 +76,11 @@ export const tagObject = async ({
 
   removeIds = _.uniq(_.flatten(removeIds));
 
-  await Tags.update(
-    { _id: { $in: removeIds } },
-    { $inc: { objectCount: -1 } },
-    { multi: true }
-  );
+  await Tags.update({ _id: { $in: removeIds } }, { $inc: { objectCount: -1 } }, { multi: true });
 
-  await collection.update(
-    { _id: { $in: objectIds } },
-    { $set: { tagIds } },
-    { multi: true }
-  );
+  await collection.update({ _id: { $in: objectIds } }, { $set: { tagIds } }, { multi: true });
 
-  await Tags.update(
-    { _id: { $in: tagIds } },
-    { $inc: { objectCount: 1 } },
-    { multi: true }
-  );
+  await Tags.update({ _id: { $in: tagIds } }, { $inc: { objectCount: 1 } }, { multi: true });
 };
 
 class Tag {
@@ -116,12 +91,12 @@ class Tag {
     const isUnique = await validateUniqueness(null, doc.name, doc.type);
 
     if (!isUnique) {
-      throw new Error("Tag duplicated");
+      throw new Error('Tag duplicated');
     }
 
     return Tags.create({
       ...doc,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
   }
 
@@ -132,7 +107,7 @@ class Tag {
     const isUnique = await validateUniqueness({ _id }, doc.name, doc.type);
 
     if (!isUnique) {
-      throw new Error("Tag duplicated");
+      throw new Error('Tag duplicated');
     }
 
     await Tags.update({ _id }, { $set: doc });
@@ -147,7 +122,7 @@ class Tag {
     const tagCount = await Tags.find({ _id: { $in: ids } }).count();
 
     if (tagCount !== ids.length) {
-      throw new Error("Tag not found");
+      throw new Error('Tag not found');
     }
 
     let count = 0;
@@ -168,24 +143,20 @@ class Tag {
   /**
    * Attach a tag
    */
-  public static async tagsTag(
-    type: string,
-    targetIds: string[],
-    tagIds: string[]
-  ) {
+  public static async tagsTag(type: string, targetIds: string[], tagIds: string[]) {
     let collection: any = Conversations;
 
     switch (type) {
-      case "customer":
+      case 'customer':
         collection = Customers;
         break;
-      case "engageMessage":
+      case 'engageMessage':
         collection = EngageMessages;
         break;
-      case "company":
+      case 'company':
         collection = Companies;
         break;
-      case "integration":
+      case 'integration':
         collection = Integrations;
         break;
     }
@@ -194,13 +165,13 @@ class Tag {
       tagIds,
       objectIds: targetIds,
       collection,
-      tagType: type
+      tagType: type,
     });
   }
 }
 
 tagSchema.loadClass(Tag);
 
-const Tags = model<ITagDocument, ITagModel>("tags", tagSchema);
+const Tags = model<ITagDocument, ITagModel>('tags', tagSchema);
 
 export default Tags;

@@ -1,6 +1,6 @@
-import { Model, model } from "mongoose";
-import { Deals } from ".";
-import { IProduct, IProductDocument, productSchema } from "./definitions/deals";
+import { Model, model } from 'mongoose';
+import { Deals } from '.';
+import { IProduct, IProductDocument, productSchema } from './definitions/deals';
 
 interface IProductModel extends Model<IProductDocument> {
   createProduct(doc: IProduct): Promise<IProductDocument>;
@@ -32,11 +32,11 @@ class Product {
     const product = await Products.findOne({ _id });
 
     if (!product) {
-      throw new Error("Product not found");
+      throw new Error('Product not found');
     }
 
     const count = await Deals.find({
-      "productsData.productId": { $in: [_id] }
+      'productsData.productId': { $in: [_id] },
     }).count();
 
     if (count > 0) {
@@ -49,9 +49,6 @@ class Product {
 
 productSchema.loadClass(Product);
 
-const Products = model<IProductDocument, IProductModel>(
-  "products",
-  productSchema
-);
+const Products = model<IProductDocument, IProductModel>('products', productSchema);
 
 export default Products;

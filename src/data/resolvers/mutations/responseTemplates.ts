@@ -1,6 +1,6 @@
-import { ResponseTemplates } from "../../../db/models";
-import { IResponseTemplate } from "../../../db/models/definitions/responseTemplates";
-import { moduleRequireLogin } from "../../permissions";
+import { ResponseTemplates } from '../../../db/models';
+import { IResponseTemplate } from '../../../db/models/definitions/responseTemplates';
+import { moduleRequireLogin } from '../../permissions';
 
 interface IResponseTemplatesEdit extends IResponseTemplate {
   _id: string;
@@ -26,7 +26,7 @@ const responseTemplateMutations = {
    */
   responseTemplatesRemove(_root, { _id }: { _id: string }) {
     return ResponseTemplates.removeResponseTemplate(_id);
-  }
+  },
 };
 
 moduleRequireLogin(responseTemplateMutations);

@@ -1,12 +1,12 @@
-import { connect, disconnect, graphqlRequest } from "../db/connection";
-import { responseTemplateFactory, userFactory } from "../db/factories";
-import { ResponseTemplates, Users } from "../db/models";
+import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { responseTemplateFactory, userFactory } from '../db/factories';
+import { ResponseTemplates, Users } from '../db/models';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe("Response template mutations", () => {
+describe('Response template mutations', () => {
   let _responseTemplate;
   let _user;
   let context;
@@ -39,12 +39,12 @@ describe("Response template mutations", () => {
     await Users.remove({});
   });
 
-  test("Add response template", async () => {
+  test('Add response template', async () => {
     const args = {
       name: _responseTemplate.name,
       brandId: _responseTemplate.brandId,
       content: _responseTemplate.content,
-      files: _responseTemplate.files
+      files: _responseTemplate.files,
     };
 
     const mutation = `
@@ -58,12 +58,7 @@ describe("Response template mutations", () => {
       }
     `;
 
-    const responseTemplate = await graphqlRequest(
-      mutation,
-      "responseTemplatesAdd",
-      args,
-      context
-    );
+    const responseTemplate = await graphqlRequest(mutation, 'responseTemplatesAdd', args, context);
 
     expect(responseTemplate.name).toBe(args.name);
     expect(responseTemplate.brandId).toBe(args.brandId);
@@ -71,13 +66,13 @@ describe("Response template mutations", () => {
     expect(responseTemplate.files).toEqual(expect.arrayContaining(args.files));
   });
 
-  test("Edit response template", async () => {
+  test('Edit response template', async () => {
     const args = {
       _id: _responseTemplate._id,
       brandId: _responseTemplate.brandId,
       name: _responseTemplate.name,
       content: _responseTemplate.content,
-      files: _responseTemplate.files
+      files: _responseTemplate.files,
     };
 
     const mutation = `
@@ -92,12 +87,7 @@ describe("Response template mutations", () => {
       }
     `;
 
-    const responseTemplate = await graphqlRequest(
-      mutation,
-      "responseTemplatesEdit",
-      args,
-      context
-    );
+    const responseTemplate = await graphqlRequest(mutation, 'responseTemplatesEdit', args, context);
 
     expect(responseTemplate._id).toBe(args._id);
     expect(responseTemplate.name).toBe(args.name);
@@ -106,22 +96,15 @@ describe("Response template mutations", () => {
     expect(responseTemplate.files).toEqual(expect.arrayContaining(args.files));
   });
 
-  test("Remove response template", async () => {
+  test('Remove response template', async () => {
     const mutation = `
       mutation responseTemplatesRemove($_id: String!) {
         responseTemplatesRemove(_id: $_id)
       }
     `;
 
-    await graphqlRequest(
-      mutation,
-      "responseTemplatesRemove",
-      { _id: _responseTemplate._id },
-      context
-    );
+    await graphqlRequest(mutation, 'responseTemplatesRemove', { _id: _responseTemplate._id }, context);
 
-    expect(
-      await ResponseTemplates.findOne({ _id: _responseTemplate._id })
-    ).toBe(null);
+    expect(await ResponseTemplates.findOne({ _id: _responseTemplate._id })).toBe(null);
   });
 });
