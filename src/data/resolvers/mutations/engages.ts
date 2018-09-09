@@ -59,7 +59,7 @@ const engageMutations = {
   /**
    * Remove message
    */
-  engageMessageRemove(_root, _id: string) {
+  engageMessageRemove(_root, { _id }: { _id: string }) {
     updateOrRemoveSchedule({ _id });
     return EngageMessages.removeEngageMessage(_id);
   },
@@ -67,7 +67,7 @@ const engageMutations = {
   /**
    * Engage message set live
    */
-  async engageMessageSetLive(_root, _id: string) {
+  async engageMessageSetLive(_root, { _id } : { _id: string }) {
     const engageMessage = await EngageMessages.engageMessageSetLive(_id);
 
     const { kind } = engageMessage;
@@ -82,14 +82,14 @@ const engageMutations = {
   /**
    * Engage message set pause
    */
-  engageMessageSetPause(_root, _id: string) {
+  engageMessageSetPause(_root, { _id } : { _id: string }) {
     return EngageMessages.engageMessageSetPause(_id);
   },
 
   /**
    * Engage message set live manual
    */
-  async engageMessageSetLiveManual(_root, _id: string) {
+  async engageMessageSetLiveManual(_root, { _id }: { _id: string }) {
     const engageMessage = await EngageMessages.engageMessageSetLive(_id);
 
     await send(engageMessage);

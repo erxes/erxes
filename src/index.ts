@@ -67,7 +67,7 @@ app.post('/import-file', (req: any, res) => {
 });
 
 // Wrap the Express server
-const server = createServer(app);
+const server = createServer();
 
 // subscriptions server
 const { PORT } = process.env;
