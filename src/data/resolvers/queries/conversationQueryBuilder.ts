@@ -1,4 +1,4 @@
-import _ from "underscore";
+import * as _ from "underscore";
 import { Channels, Integrations } from "../../../db/models";
 import { CONVERSATION_STATUSES } from "../../constants";
 import { fixDate } from "./insightUtils";
@@ -69,7 +69,7 @@ export default class Builder {
   public params: IListArgs;
   public user: IUserArgs;
   public queries: any;
-  public unassignedQuery: IUnassignedFilter;
+  public unassignedQuery?: IUnassignedFilter;
 
   constructor(params: IListArgs, user: IUserArgs) {
     this.params = params;
@@ -115,10 +115,10 @@ export default class Builder {
     const nestedIntegrationIds = _.pluck($ins, "$in");
 
     // ['id1']
-    const integrationids = _.intersection(...nestedIntegrationIds);
+    const integrationids: any = _.intersection(...nestedIntegrationIds);
 
     return {
-      integrationId: { $in: integrationids }
+      integrationId: { $in: integrationids  }
     };
   }
 
@@ -131,18 +131,18 @@ export default class Builder {
     };
 
     // find all posssible integrations
-    let availIntegrationIds = [];
+    let availIntegrationIds: any = [];
 
     const channels = await Channels.find(channelFilter);
 
     channels.forEach(channel => {
       availIntegrationIds = _.union(
         availIntegrationIds,
-        channel.integrationIds
+        channel.integrationIds || ""
       );
     });
 
-    const nestedIntegrationIds = [
+    const nestedIntegrationIds: any = [
       { integrationId: { $in: availIntegrationIds } }
     ];
 
@@ -164,10 +164,14 @@ export default class Builder {
   // filter by channel
   public async channelFilter(channelId: string): Promise<IChannelFilter> {
     const channel = await Channels.findOne({ _id: channelId });
-
-    return {
-      integrationId: { $in: channel.integrationIds }
-    };
+    if( channel && channel.integrationIds ){
+      return {
+        integrationId: { $in: channel.integrationIds }
+      };
+    }
+    else{
+      return {integrationId: {$in: []}};
+    }
   }
 
   // filter by brand
@@ -198,7 +202,7 @@ export default class Builder {
 
   // filter by starred
   public starredFilter(): IStarredFilter {
-    let ids = [];
+    let ids: any = [];
 
     if (this.user) {
       ids = this.user.starredConversationIds || [];

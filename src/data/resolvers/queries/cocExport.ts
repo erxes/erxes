@@ -56,9 +56,8 @@ export const cocsExport = async (
       for (const fieldId of coc.customFieldsData) {
         const propertyObj = await Fields.findOne({ _id: fieldId });
 
-        if (propertyObj) {
+        if (propertyObj && propertyObj.text) {
           const { text } = propertyObj;
-
           addCell(text, coc.customFieldsData[fieldId]);
         }
       }

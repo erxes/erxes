@@ -53,7 +53,7 @@ const brandFilter = async (brandId: string): Promise<IBrandFilter> => {
     { companyIds: 1 }
   );
 
-  let companyIds = [];
+  let companyIds: any = [];
 
   for (const customer of customers) {
     companyIds = [...companyIds, ...(customer.companyIds || [])];
@@ -114,7 +114,7 @@ const listQuery = async (params: IListArgs) => {
 
 const sortBuilder = (params: IListArgs): TSortBuilder => {
   const sortField = params.sortField;
-  const sortDirection = params.sortDirection;
+  const sortDirection = params.sortDirection || 0;
 
   let sortParams: TSortBuilder = { primaryName: -1 };
 

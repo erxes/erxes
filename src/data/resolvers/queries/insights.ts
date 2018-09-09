@@ -1,5 +1,5 @@
 import * as moment from "moment";
-import _ from "underscore";
+import * as _ from "underscore";
 import {
   ConversationMessages,
   Conversations,
@@ -42,7 +42,7 @@ const insightQueries = {
       integrationSelector.brandId = brandId;
     }
 
-    const insights = [];
+    const insights: any = [];
 
     // count conversations by each integration kind
     for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
@@ -103,7 +103,7 @@ const insightQueries = {
 
     const messages = await ConversationMessages.find(messageSelector);
 
-    const punchCard = [];
+    const punchCard: any = [];
 
     let count = 0;
     let dayCount = 0;
@@ -162,7 +162,7 @@ const insightQueries = {
 
     const messages = await ConversationMessages.find(messageSelector);
 
-    const insightData = {
+    const insightData: any = {
       teamMembers: [],
       summary: [],
       trend: generateChartData(messages, 7, duration, startTime)
@@ -179,7 +179,7 @@ const insightQueries = {
 
         let responseTime = 0;
         let count = 0;
-        const conversationIds = [];
+        const conversationIds: any = [];
 
         for (const msg of userMessages) {
           const conversationId = msg.conversationId;
@@ -266,10 +266,10 @@ const insightQueries = {
     const insightData = { teamMembers: [], trend: [] };
 
     // Variable that holds all responded conversation messages
-    const firstResponseData = [];
+    const firstResponseData: any = [];
 
     // Variables holds every user's response time.
-    const responseUserData = {};
+    const responseUserData: any = {};
 
     let allResponseTime = 0;
 
@@ -306,7 +306,7 @@ const insightQueries = {
           userMessage.createdAt.getTime() - clientMessage.createdAt.getTime();
         responseTime = Math.abs(responseTime / 1000);
 
-        const userId = userMessage.userId;
+        const userId = userMessage.userId || "";
 
         // collecting each user's respond information
         firstResponseData.push({
@@ -380,20 +380,23 @@ const insightQueries = {
     }
 
     // Variable that holds all responded conversation messages
-    const responseCloseData = [];
+    const responseCloseData: any = [];
 
     // Variables holds every user's response time.
-    const responseUserData = {};
+    const responseUserData: any = {};
 
     let allResponseTime = 0;
 
     // Processes total first response time for each users.
     for (const conversation of conversations) {
-      let responseTime =
-        conversation.closedAt.getTime() - conversation.createdAt.getTime();
-      responseTime = responseTime / 1000;
+      let responseTime = 0;
+      if (conversation.closedAt) {
+        responseTime =
+          conversation.closedAt.getTime() - conversation.createdAt.getTime();
+        responseTime = responseTime / 1000;
+      }
 
-      const userId = conversation.closedUserId;
+      const userId = conversation.closedUserId || "";
 
       // collecting each user's respond information
       responseCloseData.push({

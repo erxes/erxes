@@ -29,8 +29,10 @@ interface ICountsByTag {
 }
 
 // basic count helper
-const count = (selector: {}): number =>
-  Number(EngageMessages.find(selector).count());
+const count = async (selector: {}): Promise<number> => {
+  const res = await EngageMessages.find(selector).count();
+  return Number(res);
+}
 
 // Tag query builder
 const tagQueryBuilder = (tagId: string) => ({ tagIds: tagId });
@@ -52,7 +54,7 @@ const statusQueryBuilder = (
     return { isLive: false };
   }
 
-  if (status === "yours") {
+  if (status === "yours" && user) {
     return { fromUserId: user._id };
   }
 
@@ -124,7 +126,10 @@ const countsByTag = async ({
 /*
  * List filter
  */
-const listQuery = ({ kind, status, tag, ids }: IListArgs, user: IUserDocument): any => {
+const listQuery = (
+  { kind, status, tag, ids }: IListArgs,
+  user: IUserDocument
+): any => {
   if (ids) {
     return EngageMessages.find({ _id: { $in: ids } });
   }
@@ -158,6 +163,7 @@ const engageQueries = {
     { name, kind, status }: { name: string; kind: string; status: string },
     { user }: { user: IUserDocument }
   ) {
+    
     if (name === "kind") {
       return countsByKind();
     }

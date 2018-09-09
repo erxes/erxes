@@ -19,7 +19,7 @@ interface ISortParams {
 
 const sortBuilder = (params: IListArgs): ISortParams => {
   const sortField = params.sortField;
-  const sortDirection = params.sortDirection;
+  const sortDirection = params.sortDirection || 0;
 
   let sortParams: ISortParams = { "messengerData.lastSeenAt": -1 };
 

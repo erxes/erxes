@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 import * as moment from "moment";
 import { connect, disconnect, graphqlRequest } from "../db/connection";
 import {
@@ -21,7 +19,6 @@ import {
 } from "../db/models";
 
 beforeAll(() => connect());
-
 afterAll(() => disconnect());
 
 describe("conversationQueries", () => {
@@ -391,7 +388,7 @@ describe("conversationQueries", () => {
       integrationId: integration._id,
       customerId: "12312",
       content: "123312123",
-      createdAt: new Date(moment(startDate).add(5, "hours")),
+      createdAt: moment(startDate).add(5, "hours").toDate(),
       status: "new",
       number: 3,
       messageCount: 0
@@ -418,7 +415,7 @@ describe("conversationQueries", () => {
       integrationId: integration._id,
       customerId: "12312",
       content: "123312123",
-      createdAt: new Date(moment(startDate).add(5, "hours")),
+      createdAt: moment(startDate).add(5, "hours").toDate(),
       status: "new",
       number: 4,
       messageCount: 0
@@ -469,7 +466,6 @@ describe("conversationQueries", () => {
 
     // conversation with brand
     await conversationFactory({ integrationId: integration._id });
-
     await conversationFactory({ integrationId: integration1._id });
     await conversationFactory({ integrationId: integration1._id });
 

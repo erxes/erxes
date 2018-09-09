@@ -1,12 +1,8 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import { EngageMessages, Tags, Users } from '../db/models';
-import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { engageMessageFactory, tagsFactory, userFactory } from '../db/factories';
+import { EngageMessages, Tags, Users } from '../db/models';
 
 beforeAll(() => connect());
-
 afterAll(() => disconnect());
 
 describe('engageQueries', () => {
@@ -165,7 +161,7 @@ describe('engageQueries', () => {
     await engageMessageFactory({});
 
     const responses = await graphqlRequest(qryCount, 'engageMessageCounts', { name: 'kind' });
-
+    
     expect(responses.all).toBe(5);
     expect(responses.auto).toBe(2);
     expect(responses.manual).toBe(3);

@@ -19,7 +19,7 @@ const articlesQuery = async ({ categoryIds }: { categoryIds: string[] }) => {
       }
     });
 
-    let articleIds = [];
+    let articleIds: any = [];
 
     for (const category of categories) {
       articleIds = articleIds.concat(category.articleIds || []);
@@ -39,7 +39,7 @@ const categoriesQuery = async ({ topicIds }: { topicIds: string[] }) => {
 
   // filter categories by topic id
   if (topicIds) {
-    let categoryIds = [];
+    let categoryIds: any = [];
 
     const topics = await KnowledgeBaseTopics.find({
       _id: {
@@ -102,6 +102,7 @@ const knowledgeBaseQueries = {
     args: { page: number; perPage: number; topicIds: string[] }
   ) {
     const query = await categoriesQuery(args);
+    
     const categories = KnowledgeBaseCategories.find(query).sort({
       modifiedDate: -1
     });

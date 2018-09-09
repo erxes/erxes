@@ -23,8 +23,11 @@ interface IConversationRes {
 }
 
 // count helper
-const count = async (query: any): Promise<number> =>
-  Number(Conversations.find(query).count());
+const count = async (query: any): Promise<number> => {
+  const result = await Conversations.find(query).count();
+
+  return Number(result);
+}
 
 const countByChannels = async (qb: any): Promise<ICountBy[]> => {
   const byChannels: ICountBy[] = [];
@@ -113,7 +116,7 @@ const conversationQueries = {
 
     return Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
-      .limit(params.limit);
+      .limit(params.limit || 0);
   },
 
   /**

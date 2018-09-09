@@ -37,6 +37,7 @@ class BaseMonthActivityBuilder {
   public cocContentType: string;
   constructor(coc: IDocs) {
     this.coc = coc;
+    this.cocContentType = "";
   }
 
   /**

@@ -1,8 +1,6 @@
-/* eslint-env jest */
+import insightQueries from "../data/resolvers/queries/insights";
 
-import insightQueries from '../data/resolvers/queries/insights';
-
-describe('insightQueries', () => {
+describe("insightQueries", () => {
   test(`test if Error('Login required') exception is working as intended`, async () => {
     expect.assertions(5);
 
@@ -10,7 +8,7 @@ describe('insightQueries', () => {
       try {
         await func(null, {}, {});
       } catch (e) {
-        expect(e.message).toBe('Login required');
+        expect(e.message).toBe("Login required");
       }
     };
 

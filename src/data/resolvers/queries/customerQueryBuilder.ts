@@ -1,5 +1,5 @@
 import * as moment from "moment";
-import _ from "underscore";
+import * as _ from "underscore";
 import { Forms, Integrations, Segments } from "../../../db/models";
 import QueryBuilder, { TSegments } from "./segmentQueryBuilder";
 
@@ -27,7 +27,7 @@ export interface IListArgs {
   integration?: string;
 }
 interface IDefaultFilters {
-  $nor: [{ [index: string]: IIn | null }];
+  $nor: [{ [index: string]: IIn | any }];
 }
 interface IIntegrationIds {
   integrationId: IIn;
@@ -68,9 +68,8 @@ export default class Builder {
   // filter by segment
   public async segmentFilter(segmentId: string): Promise<TSegments> {
     const segment = await Segments.findOne({ _id: segmentId });
-    const query = QueryBuilder.segments(segment);
 
-    return query;
+    return QueryBuilder.segments(segment);
   }
 
   // filter by brand
@@ -150,7 +149,7 @@ export default class Builder {
     endDate?: string
   ): Promise<IIdsFilter> {
     const formObj = await Forms.findOne({ _id: formId });
-    const { submissions = [] } = formObj;
+    const { submissions = [] } = formObj || {};
     const ids: string[] = [];
 
     for (const submission of submissions) {

@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 import * as faker from "faker";
 import * as moment from "moment";
 import { connect, disconnect, graphqlRequest } from "../db/connection";
@@ -13,7 +11,6 @@ import {
 import { Customers, Segments, Tags } from "../db/models";
 
 beforeAll(() => connect());
-
 afterAll(() => disconnect());
 
 const count = response => {
@@ -173,7 +170,7 @@ describe("customerQueries", () => {
     const tagResponse = await Tags.findOne({}, "_id");
 
     const responses = await graphqlRequest(qryCustomers, "customers", {
-      tag: tagResponse._id
+      tag: tagResponse ? tagResponse._id : ""
     });
 
     expect(responses.length).toBe(2);

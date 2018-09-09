@@ -1,19 +1,15 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import { Users, Notifications, NotificationConfigurations } from '../db/models';
-import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { connect, disconnect, graphqlRequest } from "../db/connection";
 import {
-  userFactory,
-  notificationFactory,
   notificationConfigurationFactory,
-} from '../db/factories';
+  notificationFactory,
+  userFactory
+} from "../db/factories";
+import { NotificationConfigurations, Notifications, Users } from "../db/models";
 
 beforeAll(() => connect());
-
 afterAll(() => disconnect());
 
-describe('notificationsQueries', () => {
+describe("notificationsQueries", () => {
   const commonParamDefs = `
     $limit: Int,
     $page: Int,
@@ -37,26 +33,26 @@ describe('notificationsQueries', () => {
     await Users.remove({});
   });
 
-  test('Notifications', async () => {
+  test("Notifications", async () => {
     const user = await userFactory({});
     const receiver = await userFactory({});
 
-    const title1 = 'title1';
-    const title2 = 'title2';
+    const title1 = "title1";
+    const title2 = "title2";
 
     // Creating test data
     await notificationFactory({
       title: title1,
       createdUser: user,
       receiver,
-      requireRead: true,
+      requireRead: true
     });
 
     await notificationFactory({
       title: title2,
       createdUser: user,
       receiver,
-      requireRead: false,
+      requireRead: false
     });
 
     const qry = `
@@ -78,9 +74,9 @@ describe('notificationsQueries', () => {
     // notifications by two different title value
     let response = await graphqlRequest(
       qry,
-      'notifications',
+      "notifications",
       { limit: 2, page: 1, perPage: 5, title: title1 },
-      { user: receiver },
+      { user: receiver }
     );
 
     expect(response.length).toBe(1);
@@ -88,16 +84,16 @@ describe('notificationsQueries', () => {
 
     response = await graphqlRequest(
       qry,
-      'notifications',
+      "notifications",
       { limit: 2, page: 1, perPage: 5, title: title2 },
-      { user: receiver },
+      { user: receiver }
     );
 
     expect(response.length).toBe(1);
     expect(response[0].title).toBe(title2);
   });
 
-  test('Count notifications', async () => {
+  test("Count notifications", async () => {
     const user = await userFactory({});
     const receiver1 = await userFactory({});
     const receiver2 = await userFactory({});
@@ -116,9 +112,9 @@ describe('notificationsQueries', () => {
     // notification for receiver 1
     let response = await graphqlRequest(
       qry,
-      'notificationCounts',
+      "notificationCounts",
       { requireRead: false },
-      { user: receiver1 },
+      { user: receiver1 }
     );
 
     expect(response).toBe(2);
@@ -126,40 +122,40 @@ describe('notificationsQueries', () => {
     // notification for receiver 2
     response = await graphqlRequest(
       qry,
-      'notificationCounts',
+      "notificationCounts",
       { requireRead: false },
-      { user: receiver2 },
+      { user: receiver2 }
     );
 
     expect(response).toBe(1);
   });
 
-  test('Notification modules', async () => {
+  test("Notification modules", async () => {
     const qry = `
       query notificationsModules {
         notificationsModules
       }
     `;
 
-    const response = await graphqlRequest(qry, 'notificationsModules');
+    const response = await graphqlRequest(qry, "notificationsModules");
 
-    expect(response[0].name).toBe('conversations');
-    expect(response[1].name).toBe('channels');
+    expect(response[0].name).toBe("conversations");
+    expect(response[1].name).toBe("channels");
   });
 
-  test('Get notification configuration', async () => {
+  test("Get notification configuration", async () => {
     const user1 = await userFactory({});
     const user2 = await userFactory({});
 
     // Creating test data
     await notificationConfigurationFactory({
       user: user1,
-      notifType: 'conversationAddMessage',
+      notifType: "conversationAddMessage"
     });
 
     await notificationConfigurationFactory({
       user: user2,
-      notifType: 'channelMembersChange',
+      notifType: "channelMembersChange"
     });
 
     const qry = `
@@ -174,18 +170,23 @@ describe('notificationsQueries', () => {
     // notification configuration for user1
     let [response] = await graphqlRequest(
       qry,
-      'notificationsGetConfigurations',
+      "notificationsGetConfigurations",
       {},
-      { user: user1 },
+      { user: user1 }
     );
 
     expect(response.user).toBe(user1._id);
-    expect(response.notifType).toBe('conversationAddMessage');
+    expect(response.notifType).toBe("conversationAddMessage");
 
     // notification configuration for user2
-    [response] = await graphqlRequest(qry, 'notificationsGetConfigurations', {}, { user: user2 });
+    [response] = await graphqlRequest(
+      qry,
+      "notificationsGetConfigurations",
+      {},
+      { user: user2 }
+    );
 
     expect(response.user).toBe(user2._id);
-    expect(response.notifType).toBe('channelMembersChange');
+    expect(response.notifType).toBe("channelMembersChange");
   });
 });

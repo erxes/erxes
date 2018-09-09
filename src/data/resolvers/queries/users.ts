@@ -4,9 +4,9 @@ import { requireLogin } from "../../permissions";
 import { paginate } from "./utils";
 
 interface IListArgs {
-  page: number;
-  perPage: number;
-  searchValue: string;
+  page?: number;
+  perPage?: number;
+  searchValue?: string;
 }
 
 const queryBuilder = async (params: IListArgs) => {
@@ -33,7 +33,6 @@ const userQueries = {
   async users(_root, args: IListArgs) {
     const selector = await queryBuilder(args);
     const users = paginate(Users.find(selector), args);
-
     return users.sort({ username: 1 });
   },
 

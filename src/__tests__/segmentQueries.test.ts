@@ -1,24 +1,21 @@
-/* eslint-env jest */
-
-import faker from 'faker';
-import { Segments } from '../db/models';
-import { graphqlRequest, connect, disconnect } from '../db/connection';
-import { segmentFactory } from '../db/factories';
+import * as faker from "faker";
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import { segmentFactory } from "../db/factories";
+import { Segments } from "../db/models";
 
 beforeAll(() => connect());
-
 afterAll(() => disconnect());
 
-describe('segmentQueries', () => {
+describe("segmentQueries", () => {
   afterEach(async () => {
     // Clearing test data
     await Segments.remove({});
   });
 
-  test('Segments', async () => {
+  test("Segments", async () => {
     // Creating test data
-    await segmentFactory({ contentType: 'customer' });
-    await segmentFactory({ contentType: 'company' });
+    await segmentFactory({ contentType: "customer" });
+    await segmentFactory({ contentType: "company" });
 
     const qry = `
       query segments($contentType: String!) {
@@ -39,17 +36,21 @@ describe('segmentQueries', () => {
     `;
 
     // customer segment ==================
-    let response = await graphqlRequest(qry, 'segments', { contentType: 'customer' });
+    let response = await graphqlRequest(qry, "segments", {
+      contentType: "customer"
+    });
 
     expect(response.length).toBe(1);
 
     // company segment ==================
-    response = await graphqlRequest(qry, 'segments', { contentType: 'company' });
+    response = await graphqlRequest(qry, "segments", {
+      contentType: "company"
+    });
 
     expect(response.length).toBe(1);
   });
 
-  test('Segment detail', async () => {
+  test("Segment detail", async () => {
     const segment = await segmentFactory();
 
     const qry = `
@@ -60,12 +61,14 @@ describe('segmentQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'segmentDetail', { _id: segment._id });
+    const response = await graphqlRequest(qry, "segmentDetail", {
+      _id: segment._id
+    });
 
     expect(response._id).toBe(segment._id);
   });
 
-  test('Get segment head', async () => {
+  test("Get segment head", async () => {
     await segmentFactory({ subOf: faker.random.word() });
     await segmentFactory({ subOf: faker.random.word() });
     await segmentFactory();
@@ -80,7 +83,7 @@ describe('segmentQueries', () => {
       }
     `;
 
-    const responses = await graphqlRequest(qry, 'segmentsGetHeads');
+    const responses = await graphqlRequest(qry, "segmentsGetHeads");
 
     expect(responses.length).toBe(3);
   });

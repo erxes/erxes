@@ -1,21 +1,18 @@
-/* eslint-env jest */
-
-import { Users, Channels } from '../db/models';
-import { graphqlRequest, connect, disconnect } from '../db/connection';
-import { userFactory, channelFactory } from '../db/factories';
+import { connect, disconnect, graphqlRequest } from "../db/connection";
+import { channelFactory, userFactory } from "../db/factories";
+import { Channels, Users } from "../db/models";
 
 beforeAll(() => connect());
-
 afterAll(() => disconnect());
 
-describe('channelQueries', () => {
+describe("channelQueries", () => {
   afterEach(async () => {
     // Clearing test data
     await Channels.remove({});
     await Users.remove({});
   });
 
-  test('Channels', async () => {
+  test("Channels", async () => {
     const user = await userFactory({});
 
     await channelFactory({ userId: user._id });
@@ -43,18 +40,20 @@ describe('channelQueries', () => {
     `;
 
     // channels response ==================
-    let args = { page: 1, perPage: 3 };
-    let responses = await graphqlRequest(qry, 'channels', args);
+    const args = { page: 1, perPage: 3 };
+    let responses = await graphqlRequest(qry, "channels", args);
 
     expect(responses.length).toBe(3);
 
     // channels response by memberIds =====
-    responses = await graphqlRequest(qry, 'channels', { memberIds: [user._id] });
+    responses = await graphqlRequest(qry, "channels", {
+      memberIds: [user._id]
+    });
 
     expect(responses.length).toBe(2);
   });
 
-  test('Channel details', async () => {
+  test("Channel details", async () => {
     // Create test data
     const channel = await channelFactory();
 
@@ -66,12 +65,14 @@ describe('channelQueries', () => {
       }
     `;
 
-    const responses = await graphqlRequest(qry, 'channelDetail', { _id: channel._id });
+    const responses = await graphqlRequest(qry, "channelDetail", {
+      _id: channel._id
+    });
 
     expect(responses._id).toBe(channel._id);
   });
 
-  test('Get channel total count', async () => {
+  test("Get channel total count", async () => {
     // Create test data
     await channelFactory();
     await channelFactory();
@@ -83,12 +84,12 @@ describe('channelQueries', () => {
       }
     `;
 
-    const responses = await graphqlRequest(qry, 'channelsTotalCount');
+    const responses = await graphqlRequest(qry, "channelsTotalCount");
 
     expect(responses).toBe(3);
   });
 
-  test('Get last channel', async () => {
+  test("Get last channel", async () => {
     // Create test data
     await channelFactory();
     await channelFactory();
@@ -103,7 +104,7 @@ describe('channelQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'channelsGetLast');
+    const response = await graphqlRequest(qry, "channelsGetLast");
 
     expect(response._id).toBe(channel._id);
   });

@@ -11,7 +11,7 @@ interface IFieldsQuery {
 }
 
 interface IfieldsDefaultColmns {
-  [index: number]: { name: string; label: string; order: number } | [];
+  [index: number]: { name: string; label: string; order: number } | {};
 }
 
 const fieldQueries = {
@@ -48,7 +48,7 @@ const fieldQueries = {
      * Generates fields using given schema
      */
     const generateFieldsFromSchema = (queSchema: any, namePrefix: string) => {
-      const queFields = [];
+      const queFields: any = [];
 
       // field definations
       const paths = queSchema.paths;
@@ -95,8 +95,8 @@ const fieldQueries = {
     // extend fields list using custom fields
     for (const customField of customFields) {
       const group = await FieldsGroups.findOne({ _id: customField.groupId });
-
-      if (group.isVisible && customField.isVisible) {
+    
+      if (group && group.isVisible && customField.isVisible) {
         fields.push({
           _id: Math.random(),
           name: `customFieldsData.${customField._id}`,

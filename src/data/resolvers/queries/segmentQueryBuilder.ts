@@ -5,7 +5,7 @@ export type TSegments = { $and: any[] } | {};
 
 export default {
   segments(segment?: ISegmentDocument | any, headSegment?: any): TSegments {
-    const query = { $and: [] };
+    const query: any = { $and: [] };
 
     const childQuery = {
       [segment.connector === "any" ? "$or" : "$and"]: segment.conditions.map(

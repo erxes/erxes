@@ -1,5 +1,5 @@
 import * as moment from "moment";
-import _ from "underscore";
+import * as _ from "underscore";
 import { Conversations, Integrations, Users } from "../../../db/models";
 import { IMessageDocument } from "../../../db/models/definitions/conversationMessages";
 import { IConversationDocument } from "../../../db/models/definitions/conversations";
@@ -44,7 +44,9 @@ interface IResponseUserData{
 interface IGenerateResponseData{
   trend: IGenerateChartData[];
   time: number;
-  teamMembers: any[];
+  teamMembers: {
+    data: IGenerateUserChartData[];
+  };
 }
 /**
  * Builds messages find query selector.
@@ -210,8 +212,8 @@ export const generateUserChartData = async ({
   const userDetail = user.details;
 
   return {
-    fullName: userDetail.fullName,
-    avatar: userDetail.avatar,
+    fullName: userDetail? userDetail.fullName : "",
+    avatar: userDetail? userDetail.avatar: "",
     graph: userData
   };
 };
@@ -276,7 +278,7 @@ export const generateDuration = ({
  * Determines user or client
  */
 export const generateUserSelector = (type: string): any => {
-  let volumeOrResponse = null;
+  let volumeOrResponse: any = null;
 
   if (type === "response") {
     volumeOrResponse = { $ne: null };
@@ -301,7 +303,7 @@ export const generateResponseData = async (
   // Average response time for all messages
   const time = allResponseTime / responsData.length;
 
-  const teamMembers = [];
+  const teamMembers: any = [];
 
   const userIds = _.uniq(_.pluck(responsData, "userId"));
 

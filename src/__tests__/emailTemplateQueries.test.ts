@@ -1,12 +1,8 @@
-/* eslint-env jest */
-/* eslint-disable no-underscore-dangle */
-
-import { EmailTemplates } from '../db/models';
-import { graphqlRequest, connect, disconnect } from '../db/connection';
+import { connect, disconnect, graphqlRequest } from '../db/connection';
 import { emailTemplateFactory } from '../db/factories';
+import { EmailTemplates } from '../db/models';
 
 beforeAll(() => connect());
-
 afterAll(() => disconnect());
 
 describe('emailTemplateQueries', () => {
