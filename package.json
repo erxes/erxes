@@ -1,5 +1,5 @@
 {
-  "name": "erxes-app-api",
+  "name": "erxes-api",
   "version": "0.9.6",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
@@ -21,10 +21,10 @@
     "format": "prettier --write --print-width 120 --single-quote --trailing-comma all 'src/**/*.ts'",
     "precommit": "lint-staged",
     "test": "jest --runInBand --forceExit",
-    "loadInitialData": "babel-node ./src/initialData.js",
-    "customCommand": "babel-node ./src/commands/custom.js",
-    "initProject": "babel-node ./src/commands/initProject.js",
-    "engageSubscriptions": "babel-node ./src/commands/engageSubscriptions.js"
+    "loadInitialData": "ts-node ./src/initialData.ts",
+    "customCommand": "ts-node ./src/commands/custom.ts",
+    "initProject": "ts-node ./src/commands/initProject.ts",
+    "engageSubscriptions": "ts-node ./src/commands/engageSubscriptions.ts"
   },
   "lint-staged": {
     "*.js": [
@@ -45,7 +45,6 @@
     ]
   },
   "dependencies": {
-    "@types/underscore": "^1.8.9",
     "aws-sdk": "^2.151.0",
     "bcrypt": "^3.0.0",
     "body-parser": "^1.17.1",
@@ -81,6 +80,7 @@
     "xlsx-populate": "^1.14.0"
   },
   "devDependencies": {
+    "@types/underscore": "^1.8.9",
     "@types/body-parser": "^1.17.0",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",
