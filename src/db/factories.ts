@@ -192,7 +192,7 @@ export const responseTemplateFactory = (
   return responseTemplate.save();
 };
 
-interface IDefaultConditionsInput {
+interface IConditionsInput {
   field?: string;
   operator?: string;
   value?: string;
@@ -206,7 +206,7 @@ interface ISegmentFactoryInput {
   subOf?: string;
   color?: string;
   connector?: string;
-  conditions?: IDefaultConditionsInput;
+  conditions?: IConditionsInput[];
 }
 
 export const segmentFactory = (params: ISegmentFactoryInput = {}) => {

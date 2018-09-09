@@ -70,6 +70,10 @@ describe("receive direct message response", () => {
 
     const conversation = await Conversations.findOne({});
 
+    if (!conversation) {
+      throw new Error('Conversation not found');
+    }
+
     // status must updated as open
     expect(conversation.status).toBe(CONVERSATION_STATUSES.OPEN);
   });
@@ -126,6 +130,22 @@ describe("receive direct message response", () => {
     const customer = await Customers.findOne();
     const message = await ConversationMessages.findOne();
 
+    if (!conv || !customer || !message) {
+      throw new Error('Data not found');
+    }
+
+    if (!conv.twitterData || !message.twitterData) {
+      throw new Error('Conversation twitter data is null');
+    }
+
+    if (!customer.twitterData) {
+      throw new Error('Customer twitter data is null');
+    }
+
+    if (!customer.links) {
+      throw new Error('Customer links is null');
+    }
+
     // check conv field values
     expect(conv.createdAt).toBeDefined();
     expect(conv.integrationId).toBe(_integration._id);
@@ -178,7 +198,12 @@ describe("receive direct message response", () => {
 
     // check conversation field updates
     conv = await Conversations.findOne();
-    expect(conv.readUserIds.length).toBe(0);
+
+    if (!conv) {
+      throw new Error('conv not found');
+    }
+
+    expect((conv.readUserIds || []).length).toBe(0);
     expect(conv.createdAt).not.toEqual(conv.updatedAt);
 
     // must not be created new customer ================
@@ -191,6 +216,10 @@ describe("receive direct message response", () => {
       _id: { $ne: message._id }
     });
 
+    if (!newMessage) {
+      throw new Error('newMessage is null');
+    }
+
     // check message fields
     expect(newMessage.content).toBe(data.text);
 
@@ -202,10 +231,15 @@ describe("receive direct message response", () => {
 
     // direct message
     data.text = "hi";
-    const conversation = await receiveDirectMessageInformation(
+
+    let conversation = await receiveDirectMessageInformation(
       data,
       _integration
     );
+
+    if (!conversation) {
+      throw new Error('conversation is null');
+    }
 
     // must be created new conversation ==============
     expect(await Conversations.find({}).count()).toBe(2);
@@ -213,7 +247,14 @@ describe("receive direct message response", () => {
     expect(conv._id).not.toBe(conversation._id);
 
     data.text = "test";
-    const { _id } = await receiveDirectMessageInformation(data, _integration);
+
+    conversation = await receiveDirectMessageInformation(data, _integration);
+
+    if (!conversation) {
+      throw new Error('conversation is null');
+    }
+
+    const { _id } = conversation;
 
     // must not be created new conversation ==============
     expect(await Conversations.find({}).count()).toBe(2);

@@ -26,6 +26,7 @@ describe("test activityLogsCronJob", () => {
     ];
 
     const customer = await customerFactory({ firstName: "john smith" });
+
     const segment = await segmentFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       conditions: nameEqualsConditions

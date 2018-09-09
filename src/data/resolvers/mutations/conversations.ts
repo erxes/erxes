@@ -1,5 +1,5 @@
 import * as strip from "strip";
-import { _ } from "underscore";
+import * as _ from "underscore";
 import {
   ConversationMessages,
   Conversations,
