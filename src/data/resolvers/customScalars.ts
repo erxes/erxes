@@ -1,5 +1,5 @@
-import { GraphQLScalarType } from 'graphql';
-import { Kind } from 'graphql/language';
+import { GraphQLScalarType } from "graphql";
+import { Kind } from "graphql/language";
 
 function jSONidentity(value: any) {
   return value;
@@ -15,6 +15,7 @@ function jSONparseLiteral(ast: any) {
       return parseFloat(ast.value);
     case Kind.OBJECT: {
       const value = Object.create(null);
+
       ast.fields.forEach((field: any) => {
         value[field.name.value] = jSONparseLiteral(field.value);
       });
@@ -30,34 +31,30 @@ function jSONparseLiteral(ast: any) {
 
 export default {
   Date: new GraphQLScalarType({
-    name: 'Date',
-    description: 'Date custom scalar type',
+    name: "Date",
+    description: "Date custom scalar type",
     parseValue(value) {
       return new Date(value); // value from the client
     },
     serialize(value) {
-      if (value.getTime) {
-        return value.getTime(); // value sent to the client
-      }
-
-      return new Date(value).getTime();
+      return value.getTime(); // value sent to the client
     },
     parseLiteral(ast) {
       if (ast.kind === Kind.INT) {
         return parseInt(ast.value, 10); // ast value is always in string format
       }
       return null;
-    },
+    }
   }),
 
   JSON: new GraphQLScalarType({
-    name: 'JSON',
+    name: "JSON",
     description:
-      'The `jSON` scalar type represents jSON values as specified by ' +
-      '[ECMA-404](http://www.ecma-international.org/' +
-      'publications/files/ECMA-ST/ECMA-404.pdf).',
+      "The `jSON` scalar type represents jSON values as specified by " +
+      "[ECMA-404](http://www.ecma-international.org/" +
+      "publications/files/ECMA-ST/ECMA-404.pdf).",
     serialize: jSONidentity,
     parseValue: jSONidentity,
-    parseLiteral: jSONparseLiteral,
-  }),
+    parseLiteral: jSONparseLiteral
+  })
 };
