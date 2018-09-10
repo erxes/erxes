@@ -48,7 +48,8 @@ export function disconnect() {
 export const graphqlRequest = async (mutation: string = '', name: string = '', args?: any, context?: any) => {
   const user = await userFactory({});
   const rootValue = {};
-  const response: any = await graphql(schema, mutation, rootValue, context || { user }, args);
+  const _schema: any = schema;
+  const response: any = await graphql(_schema, mutation, rootValue, context || { user }, args);
 
   if (response.errors || !response.data) {
     throw response.errors;

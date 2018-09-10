@@ -25,7 +25,7 @@ import ResponseTemplate from './responseTemplate';
 import Segment from './segment';
 import Subscription from './subscriptions';
 
-export default {
+const resolvers: any = {
   ...customScalars,
 
   ResponseTemplate,
@@ -59,3 +59,5 @@ export default {
   Field,
   ImportHistory,
 };
+
+export default resolvers;

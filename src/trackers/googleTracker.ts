@@ -21,7 +21,7 @@ export const getAccessToken = (code) => {
   const oauthClient = getOauthClient();
 
   return new Promise((resolve, reject) =>
-    oauthClient.getToken(code, (err, token) => {
+    oauthClient.getToken(code, (err, token: any) => {
       if (err) { return reject(err); }
 
       return resolve(token);
