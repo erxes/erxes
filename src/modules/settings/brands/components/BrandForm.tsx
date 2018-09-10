@@ -1,24 +1,25 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
-  FormGroup,
-  FormControl,
+  Button,
   ControlLabel,
-  Button
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { IBrand } from "../types";
 
-const propTypes = {
-  brand: PropTypes.object,
-  save: PropTypes.func.isRequired
-};
+type Props = {
+  brand: IBrand,
+  save: (params: { doc: { name: string; description: string }}, callback: () => void, brand: IBrand) => void,
+}
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired
-};
+class BrandForm extends Component<Props, {}> {
+  static contextTypes =  {
+    closeModal: PropTypes.func.isRequired
+  }
 
-class BrandForm extends Component {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.generateDoc = this.generateDoc.bind(this);
@@ -40,14 +41,14 @@ class BrandForm extends Component {
   generateDoc() {
     return {
       doc: {
-        name: document.getElementById('brand-name').value,
-        description: document.getElementById('brand-description').value
+        name: (document.getElementById('brand-name') as HTMLInputElement).value,
+        description: (document.getElementById('brand-description') as HTMLInputElement).value,
       }
     };
   }
 
   renderContent() {
-    const object = this.props.brand || {};
+    const object = this.props.brand;
 
     return (
       <div>
@@ -102,8 +103,5 @@ class BrandForm extends Component {
     );
   }
 }
-
-BrandForm.propTypes = propTypes;
-BrandForm.contextTypes = contextTypes;
 
 export default BrandForm;

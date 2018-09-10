@@ -1,19 +1,18 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import Header from './Header';
-import Sidebar from './Sidebar';
-import PageContent from './PageContent';
-import ActionBar from './ActionBar';
 import { Contents } from '../styles';
+import ActionBar from './ActionBar';
+import Header from './Header';
+import PageContent from './PageContent';
+import Sidebar from './Sidebar';
 
-const propTypes = {
-  header: PropTypes.element.isRequired,
-  leftSidebar: PropTypes.element,
-  rightSidebar: PropTypes.element,
-  actionBar: PropTypes.node,
-  content: PropTypes.element.isRequired,
-  footer: PropTypes.node,
-  transparent: PropTypes.bool
+type Props = {
+  header: Element,
+  leftSidebar: Element,
+  rightSidebar: Element,
+  actionBar: Node,
+  content: Element,
+  footer: Node,
+  transparent: boolean
 };
 
 function Wrapper({
@@ -24,7 +23,7 @@ function Wrapper({
   footer,
   rightSidebar,
   transparent
-}) {
+}: Props) {
   return (
     <Contents>
       {header}
@@ -41,7 +40,6 @@ function Wrapper({
   );
 }
 
-Wrapper.propTypes = propTypes;
 Wrapper.Header = Header;
 Wrapper.Sidebar = Sidebar;
 Wrapper.ActionBar = ActionBar;

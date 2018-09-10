@@ -1,19 +1,24 @@
-import React, { Component } from 'react';
+import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { ActionButtons, SidebarListItem } from '../../styles';
 import { BrandForm } from '../containers';
-import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
-import { SidebarListItem, ActionButtons } from '../../styles';
+import { IBrand } from '../types';
 
-const propTypes = {
-  brand: PropTypes.object.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
-  isActive: PropTypes.bool
-};
+type Props = {
+  brand: IBrand,
+  remove: (id: string) => void,
+  save: () => void,
+  isActive: boolean
+}
 
-class BrandRow extends Component {
-  constructor(props) {
+class BrandRow extends Component<Props> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
+  constructor(props: Props) {
     super(props);
 
     this.remove = this.remove.bind(this);
@@ -51,7 +56,7 @@ class BrandRow extends Component {
 
   render() {
     const { brand, isActive } = this.props;
-
+    
     return (
       <SidebarListItem key={brand._id} isActive={isActive}>
         <Link to={`?_id=${brand._id}`}>{brand.name}</Link>
@@ -65,10 +70,5 @@ class BrandRow extends Component {
     );
   }
 }
-
-BrandRow.propTypes = propTypes;
-BrandRow.contextTypes = {
-  __: PropTypes.func
-};
 
 export default BrandRow;

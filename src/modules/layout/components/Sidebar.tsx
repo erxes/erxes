@@ -1,28 +1,41 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { Icon } from 'modules/common/components';
+import * as React from 'react';
 import {
-  SideContent,
-  SidebarBox,
-  SidebarToggle,
+  BoxContent,
   HelperButtons,
-  SidebarTitle,
+  SidebarBox,
+  SidebarFooter,
   SidebarHeader,
   SidebarMainContent,
-  SidebarFooter,
-  BoxContent
+  SidebarTitle,
+  SidebarToggle,
+  SideContent
 } from '../styles';
-import { Icon } from 'modules/common/components';
 
-const propTypes = {
-  children: PropTypes.node,
-  header: PropTypes.node,
-  footer: PropTypes.node,
-  wide: PropTypes.bool,
-  full: PropTypes.bool,
-  half: PropTypes.bool
+type SidebarProps = {
+  children: any,
+  header: any,
+  footer: any,
+  wide: boolean,
+  full: boolean,
+  half: boolean
 };
 
-function Sidebar({ children, wide, header, footer, full, half }) {
+type Props = {
+  children: any,
+  collapsible: boolean,
+  className: string,
+  noShadow: boolean,
+  noBackground: boolean,
+  full: boolean
+};
+
+type State = {
+  collapse: boolean, 
+  maxHeight: number
+};
+
+function Sidebar({ children, wide, header, footer, half, full } : SidebarProps) {
   return (
     <SideContent half={half} wide={wide} full={full}>
       {header}
@@ -32,8 +45,14 @@ function Sidebar({ children, wide, header, footer, full, half }) {
   );
 }
 
-class Section extends Component {
-  constructor(props) {
+class Section extends React.Component<Props, State> {
+  node: any;
+  // tslint:disable-next-line:member-ordering
+  static QuickButtons: ({ children }: QuickButtonProps) => JSX.Element;
+  // tslint:disable-next-line:member-ordering
+  static Title: ({ children }: TitleProps) => JSX.Element;
+
+  constructor(props: Props) {
     super(props);
 
     this.state = { collapse: false, maxHeight: 240 };
@@ -87,15 +106,15 @@ class Section extends Component {
   }
 }
 
-function Title({ children }) {
+function Title({ children }: TitleProps) {
   return <SidebarTitle>{children}</SidebarTitle>;
 }
 
-Title.propTypes = {
-  children: PropTypes.node.isRequired
+type TitleProps = {
+  children: any
 };
 
-function Header({ children, spaceBottom, uppercase, bold }) {
+function Header({ children, spaceBottom, uppercase, bold }: HeaderProps) {
   return (
     <SidebarHeader spaceBottom={spaceBottom} uppercase={uppercase} bold={bold}>
       {children}
@@ -103,42 +122,32 @@ function Header({ children, spaceBottom, uppercase, bold }) {
   );
 }
 
-Header.propTypes = {
-  children: PropTypes.node.isRequired,
-  uppercase: PropTypes.bool,
-  bold: PropTypes.bool,
-  spaceBottom: PropTypes.bool
+type HeaderProps = {
+  children: any,
+  uppercase: boolean,
+  bold: boolean,
+  spaceBottom: boolean
 };
 
-function Footer({ children }) {
+function Footer({ children }: FooterProps) {
   return <SidebarFooter>{children}</SidebarFooter>;
 }
 
-Footer.propTypes = {
-  children: PropTypes.node.isRequired
+type FooterProps = {
+  children: any
 };
 
-function QuickButtons({ children }) {
+function QuickButtons({ children }: QuickButtonProps) {
   return <HelperButtons>{children}</HelperButtons>;
 }
 
-QuickButtons.propTypes = {
-  children: PropTypes.node
+type QuickButtonProps = {
+  children: any
 };
 
 Section.Title = Title;
 Section.QuickButtons = QuickButtons;
 
-Section.propTypes = {
-  children: PropTypes.node,
-  collapsible: PropTypes.bool,
-  className: PropTypes.string,
-  noShadow: PropTypes.bool,
-  noBackground: PropTypes.bool,
-  full: PropTypes.bool
-};
-
-Sidebar.propTypes = propTypes;
 Sidebar.Header = Header;
 Sidebar.Section = Section;
 Sidebar.Footer = Footer;

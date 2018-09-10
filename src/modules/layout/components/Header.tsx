@@ -1,12 +1,12 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { dimensions } from 'modules/common/styles';
 import { BreadCrumb, Filter } from 'modules/common/components';
+import { dimensions } from 'modules/common/styles';
+import * as React from 'react';
+import styled from 'styled-components';
+// import { IBreadCrumb } from "../types";
 
-const propTypes = {
-  breadcrumb: PropTypes.array.isRequired,
-  queryParams: PropTypes.object
+type Props = {
+  breadcrumb: any,
+  queryParams: any
 };
 
 const PageHeader = styled.div`
@@ -18,7 +18,7 @@ const PageHeader = styled.div`
   z-index: 2;
 `;
 
-function Header({ breadcrumb = [], queryParams }) {
+function Header({ breadcrumb, queryParams }: Props) {
   return (
     <PageHeader>
       <BreadCrumb breadcrumbs={breadcrumb} />
@@ -26,7 +26,5 @@ function Header({ breadcrumb = [], queryParams }) {
     </PageHeader>
   );
 }
-
-Header.propTypes = propTypes;
 
 export default Header;

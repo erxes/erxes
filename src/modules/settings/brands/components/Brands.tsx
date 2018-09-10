@@ -1,23 +1,27 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import {
-  Pagination,
-  DataWithLoader,
   Button,
-  ModalTrigger
+  DataWithLoader,
+  ModalTrigger,
+  Pagination
 } from 'modules/common/components';
+import { Wrapper } from 'modules/layout/components';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
-import { Sidebar, ManageIntegrations } from '../containers';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { ManageIntegrations, Sidebar } from '../containers';
 
-const propTypes = {
-  integrationsCount: PropTypes.number.isRequired,
-  queryParams: PropTypes.object,
-  currentBrand: PropTypes.object,
-  loading: PropTypes.bool
-};
+type Props = {
+  integrationsCount: number,
+  queryParams: any,
+  currentBrand: any,
+  loading: boolean
+}
 
-class Brands extends Component {
+class Brands extends Component<Props, {}> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
   render() {
     const {
       integrationsCount,
@@ -78,10 +82,5 @@ class Brands extends Component {
     );
   }
 }
-
-Brands.propTypes = propTypes;
-Brands.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Brands;
