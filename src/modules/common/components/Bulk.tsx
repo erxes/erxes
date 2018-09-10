@@ -18,7 +18,7 @@ export default class Bulk<P, S extends IBulkState> extends Component<P, S> {
     this.refetch = this.refetch.bind(this);
   }
 
-  public toggleBulk?(target: any, toAdd?: boolean) {
+  public toggleBulk(target: any, toAdd?: boolean) {
     let { bulk } = this.state;
 
     // remove old entry
@@ -31,7 +31,7 @@ export default class Bulk<P, S extends IBulkState> extends Component<P, S> {
     this.setState({ bulk });
   }
 
-  public toggleAll?(targets: any, containerId: string) {
+  public toggleAll(targets: any, containerId: string) {
     if (this.state.isAllSelected) {
       this.emptyBulk();
     } else {
@@ -45,7 +45,7 @@ export default class Bulk<P, S extends IBulkState> extends Component<P, S> {
     this.setState({ isAllSelected: !isAllSelected });
   }
 
-  public emptyBulk?() {
+  public emptyBulk() {
     this.refetch();
     this.setState({ bulk: [], isAllSelected: false });
   }
