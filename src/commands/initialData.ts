@@ -1,9 +1,4 @@
-#!/usr/bin/env node
-'use strict';
-
-import { Brands, Channels, Forms, Integrations, Users } from './db/models';
-
-import { connect, disconnect } from './db/connection';
+import { connect, disconnect } from '../db/connection';
 import {
   companyFactory,
   conversationFactory,
@@ -16,7 +11,8 @@ import {
   knowledgeBaseTopicFactory,
   responseTemplateFactory,
   segmentFactory,
-} from './db/factories';
+} from '../db/factories';
+import { Brands, Channels, Forms, Integrations, Users } from '../db/models';
 
 export const importData = async () => {
   connect();
