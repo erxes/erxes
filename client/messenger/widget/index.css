@@ -61,8 +61,9 @@
     right: 0;
   }
 
-  body.messenger-widget-shown {
+  body.messenger-widget-shown.widget-mobile {
     overflow: hidden;
     position: absolute;
+    height: 100%;
   }
 }

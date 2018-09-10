@@ -110,3 +110,20 @@ body {
     z-index: 1;
   }
 }
+
+  /* scrollbar */
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    border-radius: 0;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(215, 215, 215, .6);
+    border-radius: 5px;
+    box-shadow: inset 0 -3px 0 0 transparent, inset 0 3px 0 0 transparent;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }

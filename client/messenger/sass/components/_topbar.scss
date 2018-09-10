@@ -1,8 +1,18 @@
 .erxes-topbar {
   min-height: 70px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0px 15px;
+  width: auto;
 
   .erxes-staffs {
     display: none;
+  }
+
+  &.big {
+    height: auto;
+    min-height: 200px;
   }
 
   &.expanded {
@@ -57,7 +67,7 @@
     ), webkit moz ms o);
     display: flex;
     justify-content: center;
-    margin: 0 70px;
+    margin: 0 50px;
     min-height: 100%;
     padding: 0 15px;
 

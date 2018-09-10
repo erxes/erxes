@@ -1,0 +1,34 @@
+.erxes-home-container {
+  flex: 1;
+  padding: 15px 15px 0 15px;
+  overflow-y: auto;
+  padding-top: 90px;
+  margin-top: 70px;
+
+  .integration-box {
+    margin-bottom: 15px;
+    border-radius: $border-radius;
+    padding-top: 15px; 
+    background: $white;
+    box-shadow: 0 4px 15px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.1);
+
+    h4 {
+      margin: 0 20px 15px 20px;
+    }
+  }
+
+  .erxes-topbar {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
+
+.erxes-welcome {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1em;
+  line-height: 1.5em;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  text-align: left;
+}

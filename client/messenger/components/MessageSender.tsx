@@ -89,34 +89,32 @@ class MessageSender extends React.Component<Props, State> {
 
   render() {
     return (
-      <div>
-        <form className="erxes-message-sender" onSubmit={this.onSubmit}>
-          <textarea
-            ref={textarea => {
-              this.textarea = textarea;
-            }}
-            className="reply"
-            placeholder={this.props.placeholder}
-            value={this.state.message}
-            onChange={this.handleMessageChange}
-            onBlur={this.handleOnBlur}
-            autoFocus
-            onKeyDown={this.handleKeyPress}
-          />
-          {this.props.isAttachingFile ? (
-            <div className="loader" />
-          ) : (
-            <label htmlFor="file-upload" className="btn-attach">
-              {iconAttach}
-              <input
-                id="file-upload"
-                type="file"
-                onChange={this.handleFileInput}
-              />
-            </label>
-          )}
-        </form>
-      </div>
+      <form className="erxes-message-sender" onSubmit={this.onSubmit}>
+        <textarea
+          ref={textarea => {
+            this.textarea = textarea;
+          }}
+          className="reply"
+          placeholder={this.props.placeholder}
+          value={this.state.message}
+          onChange={this.handleMessageChange}
+          onBlur={this.handleOnBlur}
+          autoFocus
+          onKeyDown={this.handleKeyPress}
+        />
+        {this.props.isAttachingFile ? (
+          <div className="loader" />
+        ) : (
+          <label htmlFor="file-upload" className="btn-attach">
+            {iconAttach}
+            <input
+              id="file-upload"
+              type="file"
+              onChange={this.handleFileInput}
+            />
+          </label>
+        )}
+      </form>
     );
   }
 }

@@ -5,6 +5,7 @@ import Conversation from "./Conversation";
 import ConversationItem from "./ConversationItem";
 import ConversationList from "./ConversationList";
 import EngageMessage from "./EngageMessage";
+import Home from "./Home";
 import Launcher from "./Launcher";
 import Message from "./Message";
 import MessageSender from "./MessageSender";
@@ -29,5 +30,6 @@ export {
   MessagesList,
   User,
   EngageMessage,
-  AccquireInformation
+  AccquireInformation,
+  Home
 };

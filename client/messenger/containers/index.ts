@@ -4,6 +4,7 @@ import ConversationCreate from "./ConversationCreate";
 import ConversationDetail from "./ConversationDetail";
 import ConversationItem from "./ConversationItem";
 import ConversationList from "./ConversationList";
+import Home from "./Home";
 import Launcher from "./Launcher";
 import MessageSender from "./MessageSender";
 import MessagesList from "./MessagesList";
@@ -23,5 +24,6 @@ export {
   Notifier,
   MessageSender,
   MessagesList,
-  AccquireInformation
+  AccquireInformation,
+  Home
 };

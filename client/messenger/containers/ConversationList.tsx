@@ -27,19 +27,11 @@ class ConversationList extends React.Component<
 
     return (
       <AppConsumer>
-        {({ changeRoute, goToConversation }) => {
-          const createConversation = (
-            e: React.FormEvent<HTMLButtonElement>
-          ) => {
-            e.preventDefault();
-            changeRoute("conversationCreate");
-          };
-
+        {({ goToConversation }) => {
           return (
             <DumbConversationList
               {...this.props}
               loading={data.loading}
-              createConversation={createConversation}
               conversations={conversations}
               goToConversation={goToConversation}
             />
