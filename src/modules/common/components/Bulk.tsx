@@ -1,11 +1,16 @@
-import { toggleCheckBoxes } from 'modules/common/utils';
-import * as React from 'react';
+import { toggleCheckBoxes } from "modules/common/utils";
+import { Component } from "react";
 
-export default class Bulk extends React.Component {
+export interface IBulkState {
+  bulk?: any[];
+  isAllSelected?: boolean;
+}
+
+export default class Bulk<P, S extends IBulkState> extends Component<P, S> {
   constructor(props) {
     super(props);
 
-    this.state = { bulk: [], isAllSelected: false };
+    this.state = { bulk: [], isAllSelected: false } as S;
 
     this.toggleBulk = this.toggleBulk.bind(this);
     this.toggleAll = this.toggleAll.bind(this);
@@ -13,11 +18,7 @@ export default class Bulk extends React.Component {
     this.refetch = this.refetch.bind(this);
   }
 
-  refetch() {
-    return false;
-  }
-
-  toggleBulk(target, toAdd) {
+  public toggleBulk(target: any, toAdd?: boolean) {
     let { bulk } = this.state;
 
     // remove old entry
@@ -30,7 +31,7 @@ export default class Bulk extends React.Component {
     this.setState({ bulk });
   }
 
-  toggleAll(targets, containerId) {
+  public toggleAll(targets: any, containerId: string) {
     if (this.state.isAllSelected) {
       this.emptyBulk();
     } else {
@@ -44,8 +45,12 @@ export default class Bulk extends React.Component {
     this.setState({ isAllSelected: !isAllSelected });
   }
 
-  emptyBulk() {
+  public emptyBulk() {
     this.refetch();
     this.setState({ bulk: [], isAllSelected: false });
+  }
+
+  protected refetch(): any {
+    return false;
   }
 }
