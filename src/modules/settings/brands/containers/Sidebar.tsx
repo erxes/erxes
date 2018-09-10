@@ -1,12 +1,21 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
+import { QueryBaseOptions } from 'apollo-client';
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
+import * as React from 'react';
+import { ChildProps, compose, graphql } from 'react-apollo';
 import { Sidebar } from '../components';
+import { mutations, queries } from '../graphql';
+import { IBrand, IBrandsCount } from '../types';
 
-const SidebarContainer = props => {
+type QueryResponse = {
+  brandsQuery: IBrand,
+  brandsCountQuery: IBrandsCount,
+  addMutation:() => void,
+  editMutation: () => void,
+  removeMutation: (params: {variables: {_id: string; }}) => any,
+};
+
+const SidebarContainer = (props: ChildProps<QueryResponse>) => {
   const {
     brandsQuery,
     brandsCountQuery,
@@ -71,14 +80,6 @@ const SidebarContainer = props => {
   return <Sidebar {...updatedProps} />;
 };
 
-SidebarContainer.propTypes = {
-  brandsQuery: PropTypes.object,
-  brandsCountQuery: PropTypes.object,
-  addMutation: PropTypes.func,
-  editMutation: PropTypes.func,
-  removeMutation: PropTypes.func
-};
-
 const commonOptions = ({ queryParams, currentBrandId }) => {
   return {
     refetchQueries: [
@@ -100,11 +101,12 @@ const commonOptions = ({ queryParams, currentBrandId }) => {
 };
 
 export default compose(
-  graphql(gql(queries.brands), {
+  graphql<{ queryParams: any }>(
+    gql(queries.brands), {
     name: 'brandsQuery',
-    options: ({ queryParams }) => ({
+    options: ownProps => ({
       variables: {
-        perPage: queryParams.limit || 20
+        perPage: ownProps.queryParams.limit || 20
       },
       fetchPolicy: 'network-only'
     })

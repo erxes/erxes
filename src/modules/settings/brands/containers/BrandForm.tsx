@@ -1,8 +1,15 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import { ChildProps } from "react-apollo";
 import { BrandForm } from '../components';
+import { IBrand } from '../types';
 
-const BrandFormContainer = props => {
+type Props = {
+    brand: IBrand,
+    save: () => void,
+    loading: boolean
+};
+
+const BrandFormContainer = (props: ChildProps<Props>) => {
   const { brand, save } = props;
 
   const updatedProps = {
@@ -12,12 +19,6 @@ const BrandFormContainer = props => {
   };
 
   return <BrandForm {...updatedProps} />;
-};
-
-BrandFormContainer.propTypes = {
-  brand: PropTypes.object,
-  save: PropTypes.func,
-  loading: PropTypes.bool
 };
 
 export default BrandFormContainer;

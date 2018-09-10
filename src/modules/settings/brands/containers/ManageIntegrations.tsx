@@ -1,17 +1,23 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { ModalTrigger } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { ManageIntegrations } from 'modules/settings/integrations/containers/common';
-import { queries as integQueries } from 'modules/settings/integrations/graphql';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
-import { queries, mutations } from '../graphql';
+import { queries as integQueries } from 'modules/settings/integrations/graphql';
+import React, { Component } from 'react';
+import { compose, graphql } from 'react-apollo';
+import { mutations, queries } from '../graphql';
+import { IBrand } from '../types';
 import { ChooseBrand } from './';
 
-class ManageIntegrationsContainer extends Component {
-  constructor(props) {
+type Props = {
+  currentBrand: IBrand,
+  queryParams: any,
+  saveMutation: (params: { variables: { _id: string; integrationIds: any } }) => any,
+};
+
+class ManageIntegrationsContainer extends Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.save = this.save.bind(this);
@@ -67,13 +73,9 @@ class ManageIntegrationsContainer extends Component {
   }
 }
 
-ManageIntegrationsContainer.propTypes = {
-  currentBrand: PropTypes.object,
-  saveMutation: PropTypes.func
-};
-
 export default compose(
-  graphql(gql(mutations.brandManageIntegrations), {
+  graphql<Props>(
+    gql(mutations.brandManageIntegrations), {
     name: 'saveMutation',
     options: ({ queryParams, currentBrand }) => {
       return {

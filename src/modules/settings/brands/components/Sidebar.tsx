@@ -1,31 +1,32 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Sidebar as LeftSidebar } from 'modules/layout/components';
-import { SidebarList as List, HelperButtons } from 'modules/layout/styles';
-import { BrandForm } from '../containers';
-import { BrandRow } from './';
 import {
-  Icon,
-  ModalTrigger,
   EmptyState,
+  Icon,
   LoadMore,
+  ModalTrigger,
   Spinner
 } from 'modules/common/components';
+import { Sidebar as LeftSidebar } from 'modules/layout/components';
+import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { BrandForm } from '../containers';
+import { IBrand } from '../types';
+import { BrandRow } from './';
 
-const propTypes = {
-  brands: PropTypes.array.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
-  loading: PropTypes.bool.isRequired,
-  currentBrandId: PropTypes.string,
-  brandsTotalCount: PropTypes.number.isRequired
+type Props = {
+  brands: IBrand[],
+  remove: () => void,
+  save: () => void,
+  loading: boolean,
+  currentBrandId: string,
+  brandsTotalCount: number
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
+class Sidebar extends Component<Props, {}>  {
+  static contextTypes =  {
+   __: PropTypes.func
+  }
 
-class Sidebar extends Component {
   constructor(props) {
     super(props);
 
@@ -94,8 +95,5 @@ class Sidebar extends Component {
     );
   }
 }
-
-Sidebar.propTypes = propTypes;
-Sidebar.contextTypes = contextTypes;
 
 export default Sidebar;

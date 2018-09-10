@@ -7,9 +7,20 @@ import {
 import { ModalFooter } from 'modules/common/styles/main';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { IBrand, IIntegration } from '../types';
 
-class ChooseBrand extends Component {
-  constructor(props) {
+type Props = {
+  brands: IBrand[],
+  integration: IIntegration,
+  save: (variables: { name: string; brandId: string }) => void,
+}
+
+class ChooseBrand extends Component<Props> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
+  constructor(props: Props) {
     super(props);
 
     this.handleBrandChange = this.handleBrandChange.bind(this);
@@ -31,13 +42,13 @@ class ChooseBrand extends Component {
     this.context.closeModal();
 
     this.props.save({
-      name: document.getElementById('integration-name').value,
-      brandId: document.getElementById('selectBrand').value
+      name: (document.getElementById('integration-name') as HTMLInputElement).value,
+      brandId: (document.getElementById('selectBrand') as HTMLInputElement).value
     });
   }
 
   render() {
-    const integration = this.props.integration || {};
+    const integration = this.props.integration;
     const { __ } = this.context;
 
     return (
@@ -86,16 +97,5 @@ class ChooseBrand extends Component {
     );
   }
 }
-
-ChooseBrand.propTypes = {
-  brands: PropTypes.array.isRequired,
-  integration: PropTypes.object,
-  save: PropTypes.func.isRequired
-};
-
-ChooseBrand.contextTypes = {
-  closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
-};
 
 export default ChooseBrand;
