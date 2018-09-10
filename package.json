@@ -34,14 +34,14 @@
   },
   "jest": {
     "collectCoverageFrom": [
-      "src/**/*.{js}",
-      "!src/index.js",
-      "!src/db/factories.js",
-      "!src/db/connection.js",
+      "src/**/*.{ts}",
+      "!src/index.ts",
+      "!src/db/factories.ts",
+      "!src/db/connection.ts",
       "!src/data/schema/**",
       "!src/data/resolvers/subscriptions/**",
-      "!src/data/index.js",
-      "!src/data/utils.js"
+      "!src/data/index.ts",
+      "!src/data/utils.ts"
     ]
   },
   "dependencies": {
@@ -81,12 +81,12 @@
     "xlsx-populate": "^1.14.0"
   },
   "devDependencies": {
-    "@types/graphql": "^14.0.0",
     "@types/body-parser": "^1.17.0",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.0",
     "@types/formidable": "^1.0.31",
+    "@types/graphql": "^14.0.0",
     "@types/ioredis": "^3.2.15",
     "@types/jest": "^23.3.0",
     "@types/mongodb": "^3.1.2",
@@ -100,7 +100,7 @@
     "lint-staged": "^3.6.0",
     "nodemon": "^1.11.0",
     "prettier": "^1.14.2",
-    "ts-jest": "22.0.4",
+    "ts-jest": "^22.0.0",
     "ts-node": "^7.0.0",
     "tslint": "^5.8.0",
     "tslint-config-prettier": "^1.1.0",

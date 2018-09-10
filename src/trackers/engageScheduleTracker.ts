@@ -38,7 +38,11 @@ export const createScheduleRule = (scheduleDate: IScheduleDate) => {
     return '* 45 23 * ';
   }
 
-  const time = moment(scheduleDate.time);
+  if (!scheduleDate.time) {
+    return '* 45 23 * ';
+  }
+
+  const time = moment(new Date(scheduleDate.time));
 
   const hour = time.hour() || '*';
   const minute = time.minute() || '*';
