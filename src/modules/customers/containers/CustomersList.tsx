@@ -1,31 +1,48 @@
-import * as React from 'react';
-import client from 'apolloClient';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import { compose, graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import { Bulk } from 'modules/common/components';
-import { Alert, uploadHandler } from 'modules/common/utils';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import { queries as brandQueries } from 'modules/settings/brands/graphql';
-import { TAG_TYPES } from 'modules/tags/constants';
-import { queries as tagQueries } from 'modules/tags/graphql';
-import { CustomersList } from '../components';
-import { mutations, queries } from '../graphql';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import { Bulk } from "modules/common/components";
+import { Alert, uploadHandler } from "modules/common/utils";
+import { queries as brandQueries } from "modules/settings/brands/graphql";
+import { KIND_CHOICES } from "modules/settings/integrations/constants";
+import { TAG_TYPES } from "modules/tags/constants";
+import { queries as tagQueries } from "modules/tags/graphql";
+import PropTypes from "prop-types";
+import * as React from "react";
+import { compose, graphql } from "react-apollo";
+import { withRouter } from "react-router";
+import { IBulkState } from "../../common/components/Bulk";
+import { CustomersList } from "../components";
+import { mutations, queries } from "../graphql";
 
-class CustomerListContainer extends Bulk {
-  constructor(props) {
+type Props = {
+  customersQuery: any;
+  tagsQuery: any;
+  brandsQuery: any;
+  customerCountsQuery: any;
+  history: any;
+  queryParams: any;
+  customersMainQuery: any;
+  customersListConfigQuery: any;
+  customersRemove: any;
+  customersMerge: any;
+};
+
+interface IState extends IBulkState {
+  loading: boolean;
+}
+
+class CustomerListContainer extends Bulk<Props & any, IState> {
+  static contextTypes = {
+    __: PropTypes.func
+  };
+
+  constructor(props: Props) {
     super(props);
 
     this.state = {
       ...this.state,
       loading: false
     };
-  }
-
-  refetch() {
-    this.props.customersMainQuery.refetch();
-    this.props.customerCountsQuery.refetch();
   }
 
   render() {
@@ -46,7 +63,7 @@ class CustomerListContainer extends Bulk {
       customersListConfigQuery.fieldsDefaultColumnsConfig || [];
 
     // load config from local storage
-    const localConfig = localStorage.getItem('erxes_customer_columns_config');
+    const localConfig = localStorage.getItem("erxes_customer_columns_config");
 
     if (localConfig) {
       columnsConfig = JSON.parse(localConfig);
@@ -58,7 +75,7 @@ class CustomerListContainer extends Bulk {
       })
         .then(() => {
           this.emptyBulk();
-          Alert.success('Success');
+          Alert.success("Success");
         })
         .catch(e => {
           Alert.error(e.message);
@@ -74,7 +91,7 @@ class CustomerListContainer extends Bulk {
       })
         .then(response => {
           callback();
-          Alert.success('Success');
+          Alert.success("Success");
           history.push(
             `/customers/details/${response.data.customersMerge._id}`
           );
@@ -98,9 +115,9 @@ class CustomerListContainer extends Bulk {
           query: gql(queries.customersExport),
           variables: { ...queryParams }
         })
-        .then(({ data }) => {
+        .then(({ data }: { data: any }) => {
           this.setState({ loading: false });
-          window.open(data.customersExport, '_blank');
+          window.open(data.customersExport, "_blank");
         })
         .catch(error => {
           Alert.error(error.message);
@@ -111,11 +128,11 @@ class CustomerListContainer extends Bulk {
       const xlsFile = e.target.files;
 
       uploadHandler({
-        type: 'import',
+        type: "import",
         files: xlsFile,
-        extraFormData: [{ key: 'type', value: 'customers' }],
+        extraFormData: [{ key: "type", value: "customers" }],
         url: `${process.env.REACT_APP_API_URL}/import-file`,
-        responseType: 'json',
+        responseType: "json",
         beforeUpload: () => {
           this.setState({ loading: true });
         },
@@ -123,7 +140,7 @@ class CustomerListContainer extends Bulk {
         afterUpload: ({ response }) => {
           if (response.length === 0) {
             customersMainQuery.refetch();
-            Alert.success(__('All customers imported successfully'));
+            Alert.success(__("All customers imported successfully"));
           } else {
             Alert.error(response[0]);
           }
@@ -135,7 +152,7 @@ class CustomerListContainer extends Bulk {
       e.target.value = null;
     };
 
-    const searchValue = this.props.queryParams.searchValue || '';
+    const searchValue = this.props.queryParams.searchValue || "";
 
     const { list = [], totalCount = 0 } =
       customersMainQuery.customersMain || {};
@@ -177,19 +194,12 @@ class CustomerListContainer extends Bulk {
 
     return <CustomersList {...updatedProps} />;
   }
+
+  protected refetch() {
+    this.props.customersMainQuery.refetch();
+    this.props.customerCountsQuery.refetch();
+  }
 }
-
-CustomerListContainer.propTypes = {
-  customersQuery: PropTypes.object,
-  tagsQuery: PropTypes.object,
-  brandsQuery: PropTypes.object,
-  customerCountsQuery: PropTypes.object,
-  history: PropTypes.object
-};
-
-CustomerListContainer.contextTypes = {
-  __: PropTypes.func
-};
 
 const generateParams = ({ queryParams }) => {
   return {
@@ -210,49 +220,49 @@ const generateParams = ({ queryParams }) => {
       sortField: queryParams.sortField,
       sortDirection: queryParams.sortDirection
     },
-    fetchPolicy: 'network-only'
+    fetchPolicy: "network-only"
   };
 };
 
 export default compose(
   graphql(gql(queries.customersMain), {
-    name: 'customersMainQuery',
+    name: "customersMainQuery",
     options: generateParams
   }),
   graphql(gql(queries.customerCounts), {
-    name: 'customerCountsQuery',
+    name: "customerCountsQuery",
     options: generateParams
   }),
   graphql(gql(tagQueries.tags), {
-    name: 'tagsQuery',
+    name: "tagsQuery",
     options: () => ({
       variables: {
         type: TAG_TYPES.CUSTOMER
       },
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only"
     })
   }),
   graphql(gql(queries.customersListConfig), {
-    name: 'customersListConfigQuery',
+    name: "customersListConfigQuery",
     options: () => ({
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only"
     })
   }),
   graphql(gql(brandQueries.brands), {
-    name: 'brandsQuery',
+    name: "brandsQuery",
     options: () => ({
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only"
     })
   }),
 
   // mutations
   graphql(gql(mutations.customersRemove), {
-    name: 'customersRemove'
+    name: "customersRemove"
   }),
   graphql(gql(mutations.customersMerge), {
-    name: 'customersMerge',
+    name: "customersMerge",
     options: props => ({
-      refetchQueries: ['customersMain', 'customerCounts']
+      refetchQueries: ["customersMain", "customerCounts"]
     })
   })
 )(withRouter(CustomerListContainer));

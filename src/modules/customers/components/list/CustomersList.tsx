@@ -1,57 +1,68 @@
-import * as React from 'react';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { Dropdown } from 'react-bootstrap';
-import { withRouter } from 'react-router';
+import { Wrapper } from "modules/layout/components";
+import PropTypes from "prop-types";
+import React, { Component } from "react";
+import { Dropdown } from "react-bootstrap";
+import { withRouter } from "react-router";
+import { Link } from "react-router-dom";
 
 import {
-  DropdownToggle,
-  ModalTrigger,
-  Pagination,
   Button,
-  Icon,
-  Table,
-  FormControl,
   DataWithLoader,
   DateFilter,
-  SortHandler
-} from 'modules/common/components';
-import { router, confirm } from 'modules/common/utils';
-import { BarItems } from 'modules/layout/styles';
-import { Widget } from 'modules/engage/containers';
-import { ManageColumns } from 'modules/settings/properties/containers';
-import { TaggerPopover } from 'modules/tags/components';
-import Sidebar from './Sidebar';
-import CustomerRow from './CustomerRow';
-import { CustomerForm } from '../../containers';
-import { CustomersMerge } from '../';
+  DropdownToggle,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Pagination,
+  SortHandler,
+  Table
+} from "modules/common/components";
+import { confirm, router } from "modules/common/utils";
+import { Widget } from "modules/engage/containers";
+import { BarItems } from "modules/layout/styles";
+import { ManageColumns } from "modules/settings/properties/containers";
+import { TaggerPopover } from "modules/tags/components";
+import { CustomersMerge } from "../";
+import { CustomerForm } from "../../containers";
+import CustomerRow from "./CustomerRow";
+import Sidebar from "./Sidebar";
 
-const propTypes = {
-  customers: PropTypes.array.isRequired,
-  counts: PropTypes.object.isRequired,
-  columnsConfig: PropTypes.array.isRequired,
-  brands: PropTypes.array.isRequired,
-  integrations: PropTypes.array.isRequired,
-  tags: PropTypes.array.isRequired,
-  bulk: PropTypes.array.isRequired,
-  isAllSelected: PropTypes.bool,
-  emptyBulk: PropTypes.func.isRequired,
-  toggleBulk: PropTypes.func.isRequired,
-  toggleAll: PropTypes.func.isRequired,
-  location: PropTypes.object,
-  history: PropTypes.object,
-  loading: PropTypes.bool.isRequired,
-  searchValue: PropTypes.string.isRequired,
-  loadingTags: PropTypes.bool.isRequired,
-  removeCustomers: PropTypes.func.isRequired,
-  mergeCustomers: PropTypes.func.isRequired,
-  queryParams: PropTypes.object,
-  exportCustomers: PropTypes.func,
-  handleXlsUpload: PropTypes.func
+type Props = {
+  customers: any;
+  counts: any;
+  columnsConfig: any;
+  brands: any;
+  integrations: any;
+  tags: any;
+  bulk: any;
+  isAllSelected: boolean;
+  emptyBulk: () => void;
+  toggleBulk: () => void;
+  toggleAll: (targets: any[], containerId: string) => void;
+  location: any;
+  history: any;
+  loading: boolean;
+  searchValue: string;
+  loadingTags: boolean;
+  removeCustomers: ({ customerIds }: { customerIds: string[] }) => void;
+  mergeCustomers: () => void;
+  queryParams: any;
+  exportCustomers: (bulk) => void;
+  handleXlsUpload: (e) => void;
 };
 
-class CustomersList extends React.Component {
+type State = {
+  searchValue: string;
+};
+
+class CustomersList extends Component<Props, State> {
+  static contextTypes = {
+    closeModal: PropTypes.func,
+    __: PropTypes.func
+  };
+
+  private timer;
+
   constructor(props) {
     super(props);
 
@@ -66,7 +77,7 @@ class CustomersList extends React.Component {
 
   onChange() {
     const { toggleAll, customers } = this.props;
-    toggleAll(customers, 'customers');
+    toggleAll(customers, "customers");
   }
 
   removeCustomers(customers) {
@@ -108,7 +119,7 @@ class CustomersList extends React.Component {
                 {__(label)}
               </th>
             ))}
-            <th>{__('Tags')}</th>
+            <th>{__("Tags")}</th>
           </tr>
         </thead>
         <tbody id="customers">
@@ -141,7 +152,7 @@ class CustomersList extends React.Component {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   }
 
@@ -170,7 +181,7 @@ class CustomersList extends React.Component {
       </Button>
     );
 
-    const editColumns = <a>{__('Edit columns')}</a>;
+    const editColumns = <a>{__("Edit columns")}</a>;
 
     const dateFilter = queryParams.form && (
       <DateFilter queryParams={queryParams} history={history} />
@@ -180,7 +191,7 @@ class CustomersList extends React.Component {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
+          placeholder={__("Type to search")}
           onChange={e => this.search(e)}
           value={this.state.searchValue}
           autoFocus
@@ -192,7 +203,7 @@ class CustomersList extends React.Component {
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
-              {__('Customize ')} <Icon icon="downarrow" />
+              {__("Customize ")} <Icon icon="downarrow" />
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>
@@ -207,22 +218,22 @@ class CustomersList extends React.Component {
             </li>
             <li>
               <Link to="/settings/properties?type=customer">
-                {__('Properties')}
+                {__("Properties")}
               </Link>
             </li>
             <li>
               <a onClick={() => exportCustomers(bulk)}>
-                {__('Export customers')}
+                {__("Export customers")}
               </a>
             </li>
             <li>
               <a>
-                <label style={{ fontWeight: 'normal' }}>
-                  {__('Import customers')}
+                <label style={{ fontWeight: "normal" }}>
+                  {__("Import customers")}
                   <input
                     type="file"
                     onChange={e => handleXlsUpload(e)}
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                     accept=".xlsx, .xls"
                   />
                 </label>
@@ -316,10 +327,5 @@ class CustomersList extends React.Component {
     );
   }
 }
-
-CustomersList.propTypes = propTypes;
-CustomersList.contextTypes = {
-  __: PropTypes.func
-};
 
 export default withRouter(CustomersList);
