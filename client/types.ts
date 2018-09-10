@@ -8,6 +8,12 @@ export interface IUser {
   details?: IUserDetails;
 }
 
+export interface ICustomer {
+  _id: string;
+  avatar?: string;
+  firstName?: string;
+}
+
 export interface IBrowserInfo {
   language?: string;
   url?: string;
