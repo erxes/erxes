@@ -1,25 +1,29 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
-  FormGroup,
-  FormControl,
+  Button,
   ControlLabel,
-  Button
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
+import React, { Component, Fragment } from 'react';
+import { Modal } from 'react-bootstrap';
+import { IPipeline, IStage } from '../types';
 import { Stages } from './';
 
-const propTypes = {
-  show: PropTypes.bool,
-  boardId: PropTypes.string,
-  pipeline: PropTypes.object,
-  stages: PropTypes.array,
-  save: PropTypes.func.isRequired,
-  closeModal: PropTypes.func.isRequired
+type Props = {
+  show: boolean,
+  boardId: string,
+  pipeline: IPipeline,
+  stages: IStage[],
+  save: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline: IPipeline) => void,
+  closeModal: () => void,
 };
 
-class PipelineForm extends Component {
-  constructor(props) {
+type State = {
+  stages: IStage[],
+};
+
+class PipelineForm extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.save = this.save.bind(this);
@@ -46,7 +50,7 @@ class PipelineForm extends Component {
 
     return {
       doc: {
-        name: document.getElementById('pipeline-name').value,
+        name: (document.getElementById('pipeline-name') as HTMLInputElement).value,
         boardId: pipeline ? pipeline.boardId : this.props.boardId,
         stages: this.state.stages.filter(el => el.name)
       }
@@ -112,7 +116,5 @@ class PipelineForm extends Component {
     );
   }
 }
-
-PipelineForm.propTypes = propTypes;
 
 export default PipelineForm;

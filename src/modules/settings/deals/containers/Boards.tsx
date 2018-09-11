@@ -1,14 +1,24 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
-import { Boards } from '../components';
-
 import { STORAGE_BOARD_KEY } from 'modules/deals/constants';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { Boards } from '../components';
+import { mutations, queries } from '../graphql';
 
-class BoardsContainer extends React.Component {
+type Props = {
+  boardsQuery: any,
+  addMutation: (params: { variables: any}) => any
+  editMutation: (params: { variables: any}) => any
+  removeMutation: (params: { variables: { _id: string }}) => any
+};
+
+class BoardsContainer extends React.Component<Props, {}> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
   render() {
     const {
       boardsQuery,
@@ -79,17 +89,6 @@ class BoardsContainer extends React.Component {
     return <Boards {...extendedProps} />;
   }
 }
-
-BoardsContainer.propTypes = {
-  boardsQuery: PropTypes.object,
-  addMutation: PropTypes.func,
-  editMutation: PropTypes.func,
-  removeMutation: PropTypes.func
-};
-
-BoardsContainer.contextTypes = {
-  __: PropTypes.func
-};
 
 export default compose(
   graphql(gql(queries.boards), {

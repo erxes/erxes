@@ -79,7 +79,7 @@ class ChannelForm extends Component<Props, State> {
     const { __ } = this.context;
     const { members, channel } = this.props;
 
-    const object = channel || { memberIds: [] };
+    const object = channel;
     const self = this;
 
     return (
@@ -130,7 +130,7 @@ class ChannelForm extends Component<Props, State> {
 
     return (
       <form onSubmit={this.save}>
-        {this.renderContent(this.props.channel || {})}
+        {this.renderContent()}
         <ModalFooter>
           <Button
             btnStyle="simple"

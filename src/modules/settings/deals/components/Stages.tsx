@@ -1,16 +1,16 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Button, SortableList } from 'modules/common/components';
-import StageItem from './StageItem';
+import React, { Component } from 'react';
 import { StageList } from '../styles';
+import { IStage } from '../types';
+import StageItem from './StageItem';
 
-const propTypes = {
-  onChangeStages: PropTypes.func.isRequired,
-  stages: PropTypes.array.isRequired
+type Props = {
+  onChangeStages: (stages: IStage[]) => void,
+  stages: IStage[]
 };
 
-class Stages extends Component {
-  constructor(props) {
+class Stages extends Component<Props, {}> {
+  constructor(props: Props) {
     super(props);
 
     this.onChange = this.onChange.bind(this);
@@ -86,7 +86,5 @@ class Stages extends Component {
     );
   }
 }
-
-Stages.propTypes = propTypes;
 
 export default Stages;

@@ -1,13 +1,17 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Boards, Pipelines } from '../containers';
 
-const propTypes = {
-  boardId: PropTypes.string
+type Props = {
+  boardId: string
 };
 
-class Home extends Component {
+class Home extends React.Component<Props, {}> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+  
   render() {
     const { boardId } = this.props;
     const { __ } = this.context;
@@ -26,10 +30,5 @@ class Home extends Component {
     );
   }
 }
-
-Home.propTypes = propTypes;
-Home.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Home;

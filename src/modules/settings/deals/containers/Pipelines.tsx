@@ -1,13 +1,25 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Alert, confirm } from 'modules/common/utils';
 import { Spinner } from 'modules/common/components';
+import { Alert, confirm } from 'modules/common/utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { Pipelines } from '../components';
-import { queries, mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 
-class PipelinesContainer extends React.Component {
+type Props = {
+  pipelinesQuery: any,
+  addPipelineMutation: (params: { variables: any }) => any,
+  editPipelineMutation: (params: { variables: any }) => any,
+  removePipelineMutation: (params: { variables: { _id: string } }) => any,
+  pipelinesUpdateOrderMutation: (params: { variables: any }) => any,
+};
+
+class PipelinesContainer extends React.Component<Props> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
   render() {
     const {
       pipelinesQuery,
@@ -88,20 +100,8 @@ class PipelinesContainer extends React.Component {
   }
 }
 
-PipelinesContainer.propTypes = {
-  pipelinesQuery: PropTypes.object,
-  addPipelineMutation: PropTypes.func,
-  editPipelineMutation: PropTypes.func,
-  removePipelineMutation: PropTypes.func,
-  pipelinesUpdateOrderMutation: PropTypes.func
-};
-
-PipelinesContainer.contextTypes = {
-  __: PropTypes.func
-};
-
 export default compose(
-  graphql(gql(queries.pipelines), {
+  graphql<{boardId: string}>(gql(queries.pipelines), {
     name: 'pipelinesQuery',
     options: ({ boardId = '' }) => ({
       variables: { boardId },

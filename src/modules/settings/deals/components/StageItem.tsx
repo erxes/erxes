@@ -1,17 +1,17 @@
+import { Button, FormControl } from 'modules/common/components';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { FormControl, Button } from 'modules/common/components';
-import { StageItemContainer } from '../styles';
 import { PROBABILITY } from '../constants';
+import { StageItemContainer } from '../styles';
+import { IStage } from '../types';
 
-const propTypes = {
-  stage: PropTypes.object,
-  remove: PropTypes.func,
-  onChange: PropTypes.func,
-  onKeyPress: PropTypes.func
+type Props = {
+  stage: IStage,
+  remove: (_id: any) => void,
+  onChange: (_id: any, e: any) => void,
+  onKeyPress: (e: any) => void
 };
 
-class StageItem extends Component {
+class StageItem extends Component<Props, {}> {
   render() {
     const { stage, onChange, onKeyPress, remove } = this.props;
     const probabilties = PROBABILITY.ALL;
@@ -51,7 +51,5 @@ class StageItem extends Component {
     );
   }
 }
-
-StageItem.propTypes = propTypes;
 
 export default StageItem;

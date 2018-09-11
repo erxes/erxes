@@ -15,8 +15,8 @@ import { BrandRow } from './';
 
 type Props = {
   brands: IBrand[],
-  remove: () => void,
-  save: () => void,
+  remove: (_id: string) => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, brand: IBrand) => void,
   loading: boolean,
   currentBrandId: string,
   brandsTotalCount: number

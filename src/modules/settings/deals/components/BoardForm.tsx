@@ -1,28 +1,28 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
-  FormGroup,
-  FormControl,
+  Button,
   ControlLabel,
-  Button
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Modal } from 'react-bootstrap';
+import { IBoard } from '../types';
 
-const propTypes = {
-  board: PropTypes.object,
-  save: PropTypes.func.isRequired
+type Props = {
+  board: IBoard,
+  save: (params: { doc: { name: string; }}, callback: () => void, brand: IBoard) => void,
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired
-};
+class BoardForm extends React.Component<Props, {}> {
+  static contextTypes =  {
+    closeModal: PropTypes.func.isRequired
+  }
 
-class BoardForm extends Component {
   constructor(props) {
     super(props);
 
     this.generateDoc = this.generateDoc.bind(this);
-
     this.save = this.save.bind(this);
   }
 
@@ -39,7 +39,7 @@ class BoardForm extends Component {
   generateDoc() {
     return {
       doc: {
-        name: document.getElementById('channel-name').value
+        name: (document.getElementById('channel-name') as HTMLInputElement).value
       }
     };
   }
@@ -47,7 +47,7 @@ class BoardForm extends Component {
   renderContent() {
     const { board } = this.props;
 
-    const object = board || {};
+    const object = board;
 
     return (
       <div>
@@ -72,7 +72,7 @@ class BoardForm extends Component {
 
     return (
       <form onSubmit={this.save}>
-        {this.renderContent(this.props.board || {})}
+        {this.renderContent()}
 
         <Modal.Footer>
           <Button
@@ -92,8 +92,5 @@ class BoardForm extends Component {
     );
   }
 }
-
-BoardForm.propTypes = propTypes;
-BoardForm.contextTypes = contextTypes;
 
 export default BoardForm;

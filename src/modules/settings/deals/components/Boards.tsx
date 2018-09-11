@@ -1,18 +1,23 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { DataWithLoader, Icon, ModalTrigger } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
-import { DataWithLoader, ModalTrigger, Icon } from 'modules/common/components';
-import { SidebarList as List, HelperButtons } from 'modules/layout/styles';
+import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { IBoard } from '../types';
 import { BoardForm, BoardRow } from './';
 
-const propTypes = {
-  boards: PropTypes.array.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
-  loading: PropTypes.bool.isRequired
+type Props = {
+  boards: IBoard[],
+  remove: (_id: string) => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, board: IBoard) => void,
+  loading: boolean
 };
 
-class Boards extends Component {
+class Boards extends React.Component<Props, {}> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+  
   constructor(props) {
     super(props);
 
@@ -74,10 +79,5 @@ class Boards extends Component {
     );
   }
 }
-
-Boards.propTypes = propTypes;
-Boards.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Boards;

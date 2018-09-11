@@ -1,22 +1,33 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { EmptyState, SortableList, Button } from 'modules/common/components';
+import { Button, EmptyState, SortableList } from 'modules/common/components';
 import { collectOrders } from 'modules/deals/utils';
+import { Wrapper } from 'modules/layout/components';
+import PropTypes from 'prop-types';
+import React, { Component, Fragment } from 'react';
 import { PipelineForm } from '../containers';
-import { PipelineRow } from './';
 import { PipelineContainer } from '../styles';
+import { IPipeline } from '../types';
+import { PipelineRow } from './';
 
-const propTypes = {
-  pipelines: PropTypes.array,
-  save: PropTypes.func,
-  updateOrder: PropTypes.func,
-  remove: PropTypes.func,
-  boardId: PropTypes.string
+type Props = {
+  pipelines: IPipeline[],
+  save: () => void,
+  updateOrder: (params: { variables: any }) => any,
+  remove: () => void,
+  boardId: string
 };
 
-class Pipelines extends Component {
-  constructor(props) {
+type State = {
+  showModal: boolean,
+  currentPipeline: null,
+  pipelines: IPipeline[]
+};
+
+class Pipelines extends Component<Props, State> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
+  constructor(props: Props) {
     super(props);
 
     this.closeModal = this.closeModal.bind(this);
@@ -133,10 +144,5 @@ class Pipelines extends Component {
     );
   }
 }
-
-Pipelines.propTypes = propTypes;
-Pipelines.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Pipelines;

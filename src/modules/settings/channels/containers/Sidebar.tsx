@@ -4,12 +4,12 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
-import { IChannel, IUsers } from '../types';
+import { IChannel } from '../types';
 
 type Props = {
-  channelsQuery: IChannel,
-  usersQuery: IUsers,
-  channelsCountQuery: IChannel,
+  channelsQuery: any,
+  usersQuery: any,
+  channelsCountQuery: any,
   addMutation: (params: { variables: { doc: IChannel } }) => any,
   editMutation: () => void,
   removeMutation: (params: { variables: { _id: string } }) => any,

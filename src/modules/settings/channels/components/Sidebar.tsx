@@ -16,8 +16,8 @@ import { ChannelRow } from './';
 type Props = {
   channels: IChannel[],
   members: IUsers[],
-  remove: () => void,
-  save: () => void,
+  remove: ( _id: string ) => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, channel: IChannel) => void,
   loading: boolean,
   currentChannelId: string,
   channelsTotalCount: number

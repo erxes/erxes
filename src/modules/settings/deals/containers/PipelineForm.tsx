@@ -1,12 +1,11 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { queries } from '../graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { PipelineForm } from '../components';
+import { queries } from '../graphql';
 
-class EditPipelineFormContainer extends React.Component {
+class EditPipelineFormContainer extends React.Component<EditPipelineProps> {
   render() {
     const { stagesQuery } = this.props;
 
@@ -25,12 +24,12 @@ class EditPipelineFormContainer extends React.Component {
   }
 }
 
-EditPipelineFormContainer.propTypes = {
-  stagesQuery: PropTypes.object
+type EditPipelineProps = {
+  stagesQuery: any
 };
 
 const EditPipelineForm = compose(
-  graphql(gql(queries.stages), {
+  graphql<PipelineFormProps>(gql(queries.stages), {
     name: 'stagesQuery',
     options: ({ pipeline }) => ({
       variables: { pipelineId: pipeline._id || '' },
@@ -49,8 +48,8 @@ const PipelineFormContainer = props => {
   return <PipelineForm {...props} />;
 };
 
-PipelineFormContainer.propTypes = {
-  pipeline: PropTypes.object
+type PipelineFormProps = {
+  pipeline: any
 };
 
 export default PipelineFormContainer;

@@ -1,15 +1,15 @@
+import { ActionButtons, Button, Tip } from 'modules/common/components';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { ActionButtons, Tip, Button } from 'modules/common/components';
 import { PipelineRowContainer } from '../styles';
+import { IPipeline } from '../types';
 
-const propTypes = {
-  pipeline: PropTypes.object.isRequired,
-  edit: PropTypes.func,
-  remove: PropTypes.func
+type Props = {
+  pipeline: IPipeline,
+  edit: () => void,
+  remove: (_id: string) => void,
 };
 
-class PipelineRow extends Component {
+class PipelineRow extends Component<Props> {
   renderExtraLinks() {
     const { edit, remove, pipeline } = this.props;
 
@@ -40,7 +40,5 @@ class PipelineRow extends Component {
     );
   }
 }
-
-PipelineRow.propTypes = propTypes;
 
 export default PipelineRow;

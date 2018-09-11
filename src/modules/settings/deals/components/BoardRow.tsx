@@ -1,19 +1,19 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { BoardForm } from './';
-import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
 import { ActionButtons } from '../../styles';
 import { BoardItem } from '../styles';
+import { IBoard } from '../types';
+import { BoardForm } from './';
 
-const propTypes = {
-  board: PropTypes.object.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired
+type Props = {
+  board: IBoard,
+  remove: (_id: string) => void,
+  save: () => void,
 };
 
-class BoardRow extends Component {
-  constructor(props) {
+class BoardRow extends React.Component<Props, {}> {
+  constructor(props: Props) {
     super(props);
 
     this.remove = this.remove.bind(this);
@@ -63,7 +63,5 @@ class BoardRow extends Component {
     );
   }
 }
-
-BoardRow.propTypes = propTypes;
 
 export default BoardRow;

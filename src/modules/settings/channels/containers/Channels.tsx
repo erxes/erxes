@@ -4,7 +4,6 @@ import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { IIntegrationCount } from '../../types';
 import { Channels as DumbChannels, Empty } from '../components';
 import { queries } from '../graphql';
 import { IChannel } from '../types';
@@ -13,8 +12,8 @@ type Props = {
   currentChannelId: string,
   history: any,
   location: any,
-  integrationsCountQuery: IIntegrationCount,
-  channelDetailQuery: IChannel,
+  integrationsCountQuery: any,
+  channelDetailQuery: any,
 };
 
 class Channels extends React.Component<Props> {
