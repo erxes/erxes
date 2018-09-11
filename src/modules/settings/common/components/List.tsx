@@ -1,25 +1,24 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
-  Pagination,
-  ModalTrigger,
   Button,
-  DataWithLoader
+  DataWithLoader,
+  ModalTrigger,
+  Pagination
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/Sidebar';
+import * as React from 'react';
 
-const propTypes = {
-  objects: PropTypes.array.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
-  refetch: PropTypes.func.isRequired,
-  totalCount: PropTypes.number.isRequired,
-  loading: PropTypes.bool.isRequired
+type Props = {
+  objects: any
+  remove: () => void,
+  save: () => void,
+  refetch: () => void,
+  totalCount: number
+  loading: boolean
 };
 
-class List extends Component {
-  constructor(props) {
+class List extends React.Component<Props, {}> {
+  constructor(props: Props) {
     super(props);
 
     this.renderObjects = this.renderObjects.bind(this);
@@ -74,7 +73,5 @@ class List extends Component {
     );
   }
 }
-
-List.propTypes = propTypes;
 
 export default List;

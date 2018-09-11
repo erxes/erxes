@@ -1,21 +1,25 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
-  ModalTrigger,
-  Tip,
+  ActionButtons,
   Button,
   Icon,
-  ActionButtons
+  ModalTrigger,
+  Tip
 } from 'modules/common/components';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-const propTypes = {
-  object: PropTypes.object.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired
+type Props = {
+  object: any,
+  remove: (_id: string) => void,
+  save: () => void,
 };
 
-class Row extends Component {
-  constructor(props) {
+class Row extends React.Component<Props, {}> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+  
+  constructor(props: Props) {
     super(props);
 
     this.remove = this.remove.bind(this);
@@ -66,10 +70,5 @@ class Row extends Component {
     );
   }
 }
-
-Row.propTypes = propTypes;
-Row.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Row;

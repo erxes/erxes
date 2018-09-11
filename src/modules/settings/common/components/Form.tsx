@@ -1,20 +1,21 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Button } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-const propTypes = {
-  object: PropTypes.object,
-  save: PropTypes.func
+type Props = {
+  object: any,
+  save: (params: { doc: any}, callback: () => void, object: any) => void,
+
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired,
+class Form extends React.Component<Props> {
+  static contextTypes =  {
+    closeModal: PropTypes.func.isRequired,
   __: PropTypes.func
-};
+  }
 
-class Form extends Component {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.save = this.save.bind(this);
@@ -59,8 +60,5 @@ class Form extends Component {
     );
   }
 }
-
-Form.propTypes = propTypes;
-Form.contextTypes = contextTypes;
 
 export default Form;
