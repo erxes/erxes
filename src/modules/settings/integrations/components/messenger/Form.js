@@ -42,7 +42,7 @@ class CreateMessenger extends Component {
       })),
       logo: uiOptions.logo,
       logoPreviewStyle: {},
-      logoPreviewUrl: uiOptions.logo || '/images/erxes.png'
+      logoPreviewUrl: uiOptions.logo
     };
 
     this.onChange = this.onChange.bind(this);
