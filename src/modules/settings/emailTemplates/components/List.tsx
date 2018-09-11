@@ -1,11 +1,15 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import { Table } from 'modules/common/components';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 import { List } from '../../common/components';
 import Form from './Form';
 import Row from './Row';
 
 class EmailTemplateList extends List {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
   constructor(props) {
     super(props);
 
@@ -44,9 +48,5 @@ class EmailTemplateList extends List {
     ];
   }
 }
-
-EmailTemplateList.contextTypes = {
-  __: PropTypes.func
-};
 
 export default EmailTemplateList;
