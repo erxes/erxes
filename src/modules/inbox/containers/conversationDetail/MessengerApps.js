@@ -40,6 +40,7 @@ class MessengerAppsContainer extends React.Component {
           Alert.success('Success');
         })
         .catch(e => {
+          this.setState({ loading: false });
           Alert.error(e.message);
         });
     };
