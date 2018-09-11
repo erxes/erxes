@@ -34,10 +34,14 @@ class MessengerAppsContainer extends React.Component {
 
       this.setState({ loading: true });
 
-      executeAppMutation({ variables }).then(() => {
-        this.setState({ loading: false });
-        Alert.success('Success');
-      });
+      executeAppMutation({ variables })
+        .then(() => {
+          this.setState({ loading: false });
+          Alert.success('Success');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
     };
 
     const updatedProps = {
