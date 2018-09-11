@@ -1,24 +1,29 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import {
-  Tip,
   ActionButtons,
-  ModalTrigger,
   Button,
-  Label,
   Icon,
-  Table
+  Label,
+  ModalTrigger,
+  Table,
+  Tip
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/Sidebar';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { IBrand } from '../../brands/types';
 import { Config } from '../containers';
 
-const propTypes = {
-  brands: PropTypes.array.isRequired,
-  refetch: PropTypes.func.isRequired
+type Props = {
+  brands: IBrand[],
+  refetch: () => void
 };
 
-class List extends React.Component {
+class List extends React.Component<Props, {}> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
   renderRow(brand) {
     const { refetch } = this.props;
     const { name, _id } = brand;
@@ -86,10 +91,5 @@ class List extends React.Component {
     );
   }
 }
-
-List.propTypes = propTypes;
-List.contextTypes = {
-  __: PropTypes.func
-};
 
 export default List;

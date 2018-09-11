@@ -4,6 +4,7 @@ export interface IBrand {
     name?: string;
     createdAt: string;
     description?: string;
+    emailConfig: { type: string; template: string; };
 }
 
 export interface IIntegration {

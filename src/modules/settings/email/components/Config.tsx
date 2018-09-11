@@ -1,26 +1,32 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
   Button,
-  FormGroup,
+  ControlLabel,
   FormControl,
-  ControlLabel
+  FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { IBrand } from '../../brands/types';
 
-const propTypes = {
-  brand: PropTypes.object.isRequired,
-  configEmail: PropTypes.func.isRequired,
-  defaultTemplate: PropTypes.string.isRequired
+type Props = {
+  brand: IBrand,
+  configEmail: (doc: {}, callback: () => void) => void,
+  defaultTemplate: string
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired,
+type State = {
+  type: string,
+  template: string
+};
+
+class Config extends Component<Props, State> {
+  static contextTypes =  {
+    closeModal: PropTypes.func.isRequired,
   __: PropTypes.func
-};
+  }
 
-class Config extends Component {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     const { type, template } = props.brand.emailConfig || {
@@ -105,8 +111,5 @@ class Config extends Component {
     );
   }
 }
-
-Config.propTypes = propTypes;
-Config.contextTypes = contextTypes;
 
 export default Config;

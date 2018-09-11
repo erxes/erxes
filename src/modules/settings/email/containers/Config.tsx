@@ -1,9 +1,8 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
 import { colors } from 'modules/common/styles';
+import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { Config } from '../components';
 
 const defaultTemplate = `<p>Dear {{fullName}},</p>
@@ -48,7 +47,7 @@ const defaultTemplate = `<p>Dear {{fullName}},</p>
     }
 </style>`;
 
-const ConfigContainer = props => {
+const ConfigContainer = (props: ConfigProps) => {
   const { brandQuery, configEmailMutation, refetch } = props;
 
   if (brandQuery.loading) {
@@ -79,14 +78,14 @@ const ConfigContainer = props => {
   return <Config {...updatedProps} />;
 };
 
-ConfigContainer.propTypes = {
-  brandQuery: PropTypes.object,
-  refetch: PropTypes.func,
-  configEmailMutation: PropTypes.func
+type ConfigProps = {
+  brandQuery: any,
+  refetch: () => void,
+  configEmailMutation: (params: { variables: any }) => any
 };
 
 export default compose(
-  graphql(
+  graphql<{ brandId: string }>(
     gql`
       query brandDetail($brandId: String!) {
         brandDetail(_id: $brandId) {

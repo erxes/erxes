@@ -1,10 +1,9 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { graphql, compose } from 'react-apollo';
 import gql from 'graphql-tag';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 
-const ListContainer = props => {
+const ListContainer = (props: Props) => {
   const { listQuery } = props;
 
   const brands = listQuery.brands || [];
@@ -18,8 +17,8 @@ const ListContainer = props => {
   return <List {...updatedProps} />;
 };
 
-ListContainer.propTypes = {
-  listQuery: PropTypes.object
+type Props = {
+  listQuery: any
 };
 
 export default compose(

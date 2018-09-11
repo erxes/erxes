@@ -1,11 +1,16 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { Signature } from '../components';
 
-const SignatureContainer = (props, { currentUser }) => {
+type Props = {
+  brandsQuery: any,
+  saveMutation: (params: { variables: { signatures: any } }) => any
+};
+
+const SignatureContainer = (props: Props, { currentUser }) => {
   const { brandsQuery, saveMutation } = props;
 
   // save email configs action
@@ -62,11 +67,6 @@ const SignatureContainer = (props, { currentUser }) => {
   };
 
   return <Signature {...updatedProps} />;
-};
-
-SignatureContainer.propTypes = {
-  brandsQuery: PropTypes.object,
-  saveMutation: PropTypes.func
 };
 
 SignatureContainer.contextTypes = {

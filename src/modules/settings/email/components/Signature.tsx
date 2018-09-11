@@ -1,20 +1,31 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
+  Button,
   ControlLabel,
-  FormGroup,
   FormControl,
-  Button
+  FormGroup
 } from 'modules/common/components';
 import { ModalFooter, Well } from 'modules/common/styles/main';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { ISignatures } from '../types';
 
-const propTypes = {
-  signatures: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired
+type Props = {
+  signatures: ISignatures[],
+  save: (signatures: ISignatures[]) => void,
 };
 
-class Signature extends Component {
-  constructor(props) {
+type State = {
+  signatures: ISignatures[],
+  currentId: null | string,
+};
+
+class Signature extends React.Component<Props, State> {
+  static contextTypes =  {
+    __: PropTypes.func,
+    closeModal: PropTypes.func
+  }
+
+  constructor(props: Props) {
     super(props);
 
     this.changeCurrent = this.changeCurrent.bind(this);
@@ -116,12 +127,6 @@ class Signature extends Component {
 
     return content;
   }
-}
-
-Signature.propTypes = propTypes;
-Signature.contextTypes = {
-  __: PropTypes.func,
-  closeModal: PropTypes.func
 };
 
 export default Signature;
