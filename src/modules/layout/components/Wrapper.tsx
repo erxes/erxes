@@ -6,11 +6,11 @@ import PageContent from './PageContent';
 import Sidebar from './Sidebar';
 
 type Props = {
-  header: Element,
-  leftSidebar: Element,
-  rightSidebar: Element,
+  header: JSX.Element,
+  leftSidebar: JSX.Element,
+  rightSidebar: JSX.Element,
   actionBar: Node,
-  content: Element,
+  content: JSX.Element,
   footer: Node,
   transparent: boolean
 };

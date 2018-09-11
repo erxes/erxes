@@ -1,7 +1,7 @@
+import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import { colors, dimensions, typography } from '../common/styles';
 import { lighten } from '../common/styles/color';
-import { twinkling } from 'modules/common/utils/animations';
 
 const UserHelper = styled.div`
   height: 50px;
