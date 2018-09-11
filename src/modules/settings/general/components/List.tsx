@@ -1,26 +1,41 @@
+import { Button, ControlLabel, FormGroup } from 'modules/common/components';
+import { ActionBar, Wrapper } from 'modules/layout/components';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-import { Wrapper, ActionBar } from 'modules/layout/components';
-import { FormGroup, Button, ControlLabel } from 'modules/common/components';
-import { CURRENCIES, MEASUREMENTS, LANGUAGES } from '../constants';
 import { ContentBox } from '../../styles';
+import { CURRENCIES, LANGUAGES, MEASUREMENTS } from '../constants';
+import { ICurrencies } from '../types';
 
-const propTypes = {
-  save: PropTypes.func.isRequired,
-  currencies: PropTypes.array,
-  uom: PropTypes.array
+type Props = {
+  save: (name: string, object: any ) => void,
+  currencies: ICurrencies,
+  uom: ICurrencies
 };
 
-class List extends Component {
-  constructor(props, context) {
+type State = {
+  currencies: ICurrencies,
+  uom: ICurrencies,
+  language: string,
+  removeSelected: string
+};
+
+class List extends Component<Props, State> {
+  static contextTypes =  {
+    changeLanguage: PropTypes.func,
+    currentLanguage: PropTypes.string,
+    __: PropTypes.func
+  }
+
+  constructor(props: Props, context) {
     super(props);
 
     this.state = {
       currencies: props.currencies,
       uom: props.uom,
-      language: context.currentLanguage || 'en'
+      language: context.currentLanguage || 'en',
+      removeSelected: ''
     };
 
     this.onCurrenciesChange = this.onCurrenciesChange.bind(this);
@@ -126,12 +141,5 @@ class List extends Component {
     );
   }
 }
-
-List.propTypes = propTypes;
-List.contextTypes = {
-  changeLanguage: PropTypes.func,
-  currentLanguage: PropTypes.string,
-  __: PropTypes.func
-};
 
 export default List;
