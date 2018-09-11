@@ -1,8 +1,15 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { ChannelForm } from '../components';
+import { IChannel, IUsers } from '../types';
 
-const ChannelFormContainer = props => {
+type Props = {
+  channel: IChannel,
+  members: IUsers[],
+  save: () => void,
+  loading: boolean
+};
+
+const ChannelFormContainer = (props: Props) => {
   const { channel, save, members } = props;
 
   let selectedMembers = [];
@@ -20,13 +27,6 @@ const ChannelFormContainer = props => {
   };
 
   return <ChannelForm {...updatedProps} />;
-};
-
-ChannelFormContainer.propTypes = {
-  channel: PropTypes.object,
-  members: PropTypes.array,
-  save: PropTypes.func,
-  loading: PropTypes.bool
 };
 
 export default ChannelFormContainer;

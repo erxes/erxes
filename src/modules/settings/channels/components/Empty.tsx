@@ -1,10 +1,18 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import { EmptyState } from 'modules/common/components';
+import { Wrapper } from 'modules/layout/components';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { Sidebar } from '../containers';
 
-class Empty extends Component {
+type Props = {
+  queryParams: any
+}
+
+class Empty extends Component<Props, {}> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
   render() {
     const { queryParams } = this.props;
     const { __ } = this.context;
@@ -31,13 +39,5 @@ class Empty extends Component {
     );
   }
 }
-
-Empty.propTypes = {
-  queryParams: PropTypes.object
-};
-
-Empty.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Empty;

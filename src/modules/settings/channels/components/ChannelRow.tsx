@@ -1,21 +1,26 @@
-import React, { Component } from 'react';
+import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
+import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { ChannelForm } from '../containers';
-import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
-import { SidebarListItem, ActionButtons } from 'modules/settings/styles';
-import { Members, MemberImg, More } from '../styles';
+import { MemberImg, Members, More } from '../styles';
+import { IChannel, IUsers } from "../types";
 
-const propTypes = {
-  channel: PropTypes.object.isRequired,
-  members: PropTypes.array.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
-  isActive: PropTypes.bool
+type Props = {
+  channel: IChannel,
+  members: IUsers[],
+  remove: (id: string) => void,
+  save: () => void,
+  isActive: boolean
 };
 
-class ChannelRow extends Component {
-  constructor(props) {
+class ChannelRow extends Component<Props, {}> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
+  constructor(props: Props) {
     super(props);
 
     this.renderEditForm = this.renderEditForm.bind(this);
@@ -113,10 +118,5 @@ class ChannelRow extends Component {
     );
   }
 }
-
-ChannelRow.propTypes = propTypes;
-ChannelRow.contextTypes = {
-  __: PropTypes.func
-};
 
 export default ChannelRow;

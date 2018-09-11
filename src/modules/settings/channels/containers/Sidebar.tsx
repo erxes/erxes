@@ -1,12 +1,21 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { Sidebar } from '../components';
+import { mutations, queries } from '../graphql';
+import { IChannel, IUsers } from '../types';
 
-const SidebarContainer = props => {
+type Props = {
+  channelsQuery: IChannel,
+  usersQuery: IUsers,
+  channelsCountQuery: IChannel,
+  addMutation: (params: { variables: { doc: IChannel } }) => any,
+  editMutation: () => void,
+  removeMutation: (params: { variables: { _id: string } }) => any,
+};
+
+const SidebarContainer = (props: Props) => {
   const {
     usersQuery,
     channelsQuery,
@@ -71,15 +80,6 @@ const SidebarContainer = props => {
   return <Sidebar {...updatedProps} />;
 };
 
-SidebarContainer.propTypes = {
-  channelsQuery: PropTypes.object,
-  usersQuery: PropTypes.object,
-  channelsCountQuery: PropTypes.object,
-  addMutation: PropTypes.func,
-  editMutation: PropTypes.func,
-  removeMutation: PropTypes.func
-};
-
 const commonOptions = ({ queryParams, currentChannelId }) => {
   return {
     refetchQueries: [
@@ -102,7 +102,7 @@ const commonOptions = ({ queryParams, currentChannelId }) => {
 };
 
 export default compose(
-  graphql(gql(queries.channels), {
+  graphql<{ queryParams: any }>(gql(queries.channels), {
     name: 'channelsQuery',
     options: ({ queryParams }) => ({
       variables: {

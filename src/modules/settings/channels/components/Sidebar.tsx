@@ -1,33 +1,34 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import {
-  Icon,
-  ModalTrigger,
   EmptyState,
+  Icon,
   LoadMore,
+  ModalTrigger,
   Spinner
 } from 'modules/common/components';
-import { SidebarList, HelperButtons } from 'modules/layout/styles';
+import { Sidebar as LeftSidebar } from 'modules/layout/components';
+import { HelperButtons, SidebarList } from 'modules/layout/styles';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { ChannelForm } from '../containers';
+import { IChannel, IUsers } from '../types';
 import { ChannelRow } from './';
 
-const propTypes = {
-  channels: PropTypes.array.isRequired,
-  members: PropTypes.array.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
-  loading: PropTypes.bool.isRequired,
-  currentChannelId: PropTypes.string,
-  channelsTotalCount: PropTypes.number.isRequired
+type Props = {
+  channels: IChannel[],
+  members: IUsers[],
+  remove: () => void,
+  save: () => void,
+  loading: boolean,
+  currentChannelId: string,
+  channelsTotalCount: number
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
+class Sidebar extends Component<Props, {}> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
 
-class Sidebar extends Component {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.renderItems = this.renderItems.bind(this);
@@ -85,16 +86,12 @@ class Sidebar extends Component {
           <LoadMore all={channelsTotalCount} loading={loading} />
         </SidebarList>
         {loading && <Spinner />}
-        {!loading &&
-          channelsTotalCount === 0 && (
+        {!loading && channelsTotalCount === 0 && (
             <EmptyState icon="sitemap" text="There is no channel" />
           )}
       </LeftSidebar>
     );
   }
 }
-
-Sidebar.propTypes = propTypes;
-Sidebar.contextTypes = contextTypes;
 
 export default Sidebar;

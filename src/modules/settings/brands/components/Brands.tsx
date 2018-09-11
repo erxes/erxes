@@ -8,10 +8,11 @@ import { Wrapper } from 'modules/layout/components';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { IIntegrationCount } from '../../types';
 import { ManageIntegrations, Sidebar } from '../containers';
 
 type Props = {
-  integrationsCount: number,
+  integrationsCount: IIntegrationCount,
   queryParams: any,
   currentBrand: any,
   loading: boolean

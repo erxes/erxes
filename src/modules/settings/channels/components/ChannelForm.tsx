@@ -1,28 +1,35 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import Select from 'react-select-plus';
 import {
-  FormGroup,
-  FormControl,
+  Button,
   ControlLabel,
-  Button
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import PropTypes from 'prop-types';
+import React, { Component, Fragment } from 'react';
+import Select from 'react-select-plus';
+import { IChannel, IUsers } from "../types";
 
-const propTypes = {
-  channel: PropTypes.object,
-  members: PropTypes.array,
-  selectedMembers: PropTypes.array,
-  save: PropTypes.func.isRequired
+type Props = {
+  channel: IChannel,
+  members: IUsers[],
+  selectedMembers: IUsers[],
+  save: (params: { 
+    doc: { name: string; description: string, memberIds: string[] }}, 
+    callback: () => void, channel: IChannel) => void,
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired,
+type State = {
+  selectedMembers: () => void,
+};
+
+class ChannelForm extends Component<Props, State> {
+  static contextTypes =  {
+    closeModal: PropTypes.func.isRequired,
   __: PropTypes.func
-};
+  }
 
-class ChannelForm extends Component {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.generateMembersParams = this.generateMembersParams.bind(this);
@@ -61,8 +68,8 @@ class ChannelForm extends Component {
   generateDoc() {
     return {
       doc: {
-        name: document.getElementById('channel-name').value,
-        description: document.getElementById('channel-description').value,
+        name: (document.getElementById('channel-name') as HTMLInputElement).value,
+        description: (document.getElementById('channel-description') as HTMLInputElement).value,
         memberIds: this.collectValues(this.state.selectedMembers)
       }
     };
@@ -142,8 +149,5 @@ class ChannelForm extends Component {
     );
   }
 }
-
-ChannelForm.propTypes = propTypes;
-ChannelForm.contextTypes = contextTypes;
 
 export default ChannelForm;

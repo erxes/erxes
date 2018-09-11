@@ -1,23 +1,29 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import {
-  Pagination,
-  DataWithLoader,
   Button,
-  ModalTrigger
+  DataWithLoader,
+  ModalTrigger,
+  Pagination
 } from 'modules/common/components';
+import { Wrapper } from 'modules/layout/components';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
-import { Sidebar, ManageIntegrations } from '../containers';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { IIntegrationCount } from '../../types';
+import { ManageIntegrations, Sidebar } from '../containers';
+import { IChannel } from '../types';
 
-const propTypes = {
-  integrationsCount: PropTypes.number.isRequired,
-  queryParams: PropTypes.object,
-  currentChannel: PropTypes.object,
-  loading: PropTypes.bool
+type Props = {
+  integrationsCount: IIntegrationCount,
+  queryParams: any,
+  currentChannel: IChannel,
+  loading: boolean
 };
 
-class Channels extends Component {
+class Channels extends Component<Props, {}> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+  
   render() {
     const {
       integrationsCount,
@@ -78,10 +84,5 @@ class Channels extends Component {
     );
   }
 }
-
-Channels.propTypes = propTypes;
-Channels.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Channels;

@@ -18,7 +18,3 @@ export interface IIntegration {
 export interface IBrandsCount {
     brandsTotalCount: number;
 }
-
-export interface IIntegrationCount {
-    byBrand: JSON
-}

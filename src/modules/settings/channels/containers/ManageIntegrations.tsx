@@ -1,15 +1,26 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { ManageIntegrations } from 'modules/settings/integrations/containers/common';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
 import { queries as integQueries } from 'modules/settings/integrations/graphql';
-import { queries, mutations } from '../graphql';
+import React, { Component } from 'react';
+import { compose, graphql } from 'react-apollo';
+import { mutations, queries } from '../graphql';
+import { IChannel } from '../types';
 
-class ManageIntegrationsContainer extends Component {
-  constructor(props) {
+type Props = {
+  currentChannel: IChannel,
+  editMutation: (params: { variables: {
+    _id: string,
+    name: string,
+    integrationIds: string[],
+    memberIds: string[]
+  } }) => any,
+  queryParams: any
+};
+
+class ManageIntegrationsContainer extends Component<Props, {}> {
+  constructor(props: Props) {
     super(props);
 
     this.save = this.save.bind(this);
@@ -47,13 +58,8 @@ class ManageIntegrationsContainer extends Component {
   }
 }
 
-ManageIntegrationsContainer.propTypes = {
-  currentChannel: PropTypes.object,
-  editMutation: PropTypes.func
-};
-
 export default compose(
-  graphql(gql(mutations.channelEdit), {
+  graphql<Props>(gql(mutations.channelEdit), {
     name: 'editMutation',
     options: ({ queryParams, currentChannel }) => {
       return {
