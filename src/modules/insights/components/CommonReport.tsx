@@ -1,23 +1,22 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import { Spinner } from 'modules/common/components';
-import { Filter, Sidebar, Chart, PunchCard } from './';
+import { Wrapper } from 'modules/layout/components';
+import React, { Component } from 'react';
 import {
+  InsightRow,
   InsightTitle,
   InsightWrapper,
-  InsightRow,
   LoaderWrapper
 } from '../styles';
+import { Chart, Filter, PunchCard, Sidebar } from './';
 
-const propTypes = {
-  brands: PropTypes.array.isRequired,
-  trend: PropTypes.array.isRequired,
-  queryParams: PropTypes.object,
-  history: PropTypes.object
+interface IProps {
+  brands: any,
+  trend: any,
+  queryParams: any,
+  history: any
 };
 
-class CommonReport extends Component {
+class CommonReport extends Component<IProps, { width: number }> {
   constructor(props) {
     super(props);
 
@@ -31,7 +30,7 @@ class CommonReport extends Component {
     this.setState({ width });
   }
 
-  renderTitle(title, time) {
+  renderTitle(title: string, time?: string) {
     const { __ } = this.context;
     return (
       <InsightTitle>
@@ -102,10 +101,5 @@ class CommonReport extends Component {
     );
   }
 }
-
-CommonReport.propTypes = propTypes;
-CommonReport.contextTypes = {
-  __: PropTypes.func
-};
 
 export default CommonReport;

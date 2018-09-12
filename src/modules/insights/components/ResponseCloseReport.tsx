@@ -1,22 +1,21 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import CommonReport from './CommonReport';
-import { Chart, TeamMembers } from './';
+import { Chart, TeamMembers } from '.';
+import { InsightContent, InsightRow } from '../styles';
 import { convertTime } from '../utils';
-import { InsightRow, InsightContent } from '../styles';
+import CommonReport from './CommonReport';
 
-const propTypes = {
-  teamMembers: PropTypes.array.isRequired,
-  time: PropTypes.number,
-  isLoading: PropTypes.bool
+interface IProps {
+  teamMembers: any,
+  time: number,
+  isLoading: boolean
 };
 
-class FirstResponse extends CommonReport {
+class ResponseCloseReport extends CommonReport<IProps> {
   renderBreadCrumnb() {
     const { __ } = this.context;
     return [
       { title: __('Insights'), link: '/insight' },
-      { title: __('First Response Report') }
+      { title: __('Response Close Report') }
     ];
   }
 
@@ -31,7 +30,7 @@ class FirstResponse extends CommonReport {
           }}
         >
           {this.renderTitle(
-            'Daily First Response Resolve Rate',
+            'Daily Response Close Resolve Rate',
             convertTime(time)
           )}
           <Chart loading={isLoading} height={300} data={trend} />
@@ -39,7 +38,7 @@ class FirstResponse extends CommonReport {
 
         <InsightRow>
           {this.renderTitle(
-            'Daily First Response Resolve Rate by Team Members',
+            'Daily Response Close Resolve Rate by Team Members',
             convertTime(time)
           )}
           <TeamMembers loading={isLoading} datas={teamMembers} />
@@ -49,6 +48,4 @@ class FirstResponse extends CommonReport {
   }
 }
 
-FirstResponse.propTypes = propTypes;
-
-export default FirstResponse;
+export default ResponseCloseReport;

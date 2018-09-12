@@ -1,25 +1,28 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import Select from 'react-select-plus';
-import Datetime from 'react-datetime';
-import moment from 'moment';
-import { integrationOptions, selectOptions } from '../utils';
 import { ControlLabel } from 'modules/common/components';
-import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
-import { FlexRow, FlexItem, InsightFilter, InsightTitle } from '../styles';
 import { router } from 'modules/common/utils';
+import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
+import moment from 'moment';
+import * as React from 'react';
+import Datetime from 'react-datetime';
+import Select from 'react-select-plus';
+import { FlexItem, FlexRow, InsightFilter, InsightTitle } from '../styles';
+import { integrationOptions, selectOptions } from '../utils';
 
-const propTypes = {
-  brands: PropTypes.array.isRequired,
-  queryParams: PropTypes.object,
-  history: PropTypes.object
+interface IProps {
+  brands: any,
+  queryParams: any,
+  history: any
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
+interface IState {
+  isChange: boolean,
+  integrationType: string,
+  brandId: string,
+  startDate: string,
+  endDate: string
+}
 
-class Filter extends React.Component {
+class Filter extends React.Component<IProps, IState> {
   constructor(props) {
     super(props);
 
@@ -140,8 +143,5 @@ class Filter extends React.Component {
     );
   }
 }
-
-Filter.propTypes = propTypes;
-Filter.contextTypes = contextTypes;
 
 export default Filter;

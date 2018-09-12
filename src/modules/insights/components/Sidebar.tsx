@@ -1,8 +1,7 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { NavLink } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
+import * as React from 'react';
+import { NavLink } from 'react-router-dom';
 
 function Sidebar(props, { __ }) {
   const Sidebar = Wrapper.Sidebar;
@@ -45,9 +44,5 @@ function Sidebar(props, { __ }) {
     </Sidebar>
   );
 }
-
-Sidebar.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Sidebar;

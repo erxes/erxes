@@ -1,13 +1,13 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import { Wrapper } from 'modules/layout/components';
-import { BoxRoot, FullContent } from 'modules/common/styles/main';
 import { colors } from 'modules/common/styles';
+import { BoxRoot, FullContent } from 'modules/common/styles/main';
+import { Wrapper } from 'modules/layout/components';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import styledTS from 'styled-components-ts';
 
 const boxSize = 320;
 
-const Box = BoxRoot.extend`
+const Box = styledTS<{ selected?: boolean }>(BoxRoot.extend)`
   width: ${boxSize}px;
   border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
 
@@ -49,7 +49,7 @@ class InsightPage extends React.Component {
     const breadcrumb = [{ title: __('Insights'), link: '/insights' }];
 
     const content = (
-      <FullContent center>
+      <FullContent center={true}>
         <div>
           <div>
             {this.renderBox(
@@ -92,9 +92,5 @@ class InsightPage extends React.Component {
     );
   }
 }
-
-InsightPage.contextTypes = {
-  __: PropTypes.func
-};
 
 export default InsightPage;
