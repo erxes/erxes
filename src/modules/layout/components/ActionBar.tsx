@@ -1,14 +1,13 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { ContentHeader, HeaderItems } from '../styles';
 
-const propTypes = {
-  left: PropTypes.node,
-  right: PropTypes.node,
-  background: PropTypes.string
-};
+type Props = {
+  left?: React.ReactNode,
+  right?: React.ReactNode,
+  background?: React.ReactNode
+}
 
-function ActionBar({ left, right, background }) {
+function ActionBar({ left, right, background }: Props) {
   return (
     <ContentHeader background={background || 'bgLight'}>
       {left && <HeaderItems>{left}</HeaderItems>}
@@ -16,7 +15,5 @@ function ActionBar({ left, right, background }) {
     </ContentHeader>
   );
 }
-
-ActionBar.propTypes = propTypes;
 
 export default ActionBar;

@@ -6,42 +6,46 @@ import PageContent from './PageContent';
 import Sidebar from './Sidebar';
 
 type Props = {
-  header: JSX.Element,
-  leftSidebar: JSX.Element,
-  rightSidebar: JSX.Element,
-  actionBar: Node,
-  content: JSX.Element,
-  footer: Node,
-  transparent: boolean
+  header?: React.ReactNode,
+  leftSidebar?: React.ReactNode,
+  rightSidebar?: React.ReactNode,
+  actionBar?: React.ReactNode,
+  content: React.ReactNode,
+  footer?: React.ReactNode,
+  transparent?: boolean
 };
 
-function Wrapper({
-  header,
-  leftSidebar,
-  actionBar,
-  content,
-  footer,
-  rightSidebar,
-  transparent
-}: Props) {
-  return (
-    <Contents>
-      {header}
-      {leftSidebar}
-      <PageContent
-        actionBar={actionBar}
-        footer={footer}
-        transparent={transparent || false}
-      >
-        {content}
-      </PageContent>
-      {rightSidebar}
-    </Contents>
-  );
-}
+class Wrapper extends React.Component<Props> {
+  static Header = Header;
+  static Sidebar = Sidebar;
+  static ActionBar = ActionBar;
 
-Wrapper.Header = Header;
-Wrapper.Sidebar = Sidebar;
-Wrapper.ActionBar = ActionBar;
+  render() {
+    const {
+      header,
+      leftSidebar,
+      actionBar,
+      content,
+      footer,
+      rightSidebar,
+      transparent
+    } = this.props;
+
+    return (
+      <Contents>
+        {header}
+        {leftSidebar}
+        <PageContent
+          actionBar={actionBar}
+          footer={footer}
+          transparent={transparent || false}
+        >
+          {content}
+        </PageContent>
+        {rightSidebar}
+      </Contents>
+    );
+  }
+}
 
 export default Wrapper;

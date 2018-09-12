@@ -2,6 +2,7 @@ import { Icon } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
 import * as React from 'react';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import {
   BoxContent,
   HelperButtons,
@@ -12,7 +13,6 @@ import {
   SidebarTitle,
   SidebarToggle
 } from '../styles';
-import { withProps } from '../withProps';
 
 type SidebarProps = {
   children: any,
@@ -37,7 +37,7 @@ type State = {
   maxHeight: number
 };
 
-const SideContent = withProps<SidebarProps>()(styled.section)`
+const SideContent = styledTS<SidebarProps>(styled.section)`
   box-sizing: border-box;
   display: flex;
   position: relative;

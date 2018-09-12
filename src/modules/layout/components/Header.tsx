@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 type Props = {
   breadcrumb: any,
-  queryParams: any
+  queryParams?: any
 };
 
 const PageHeader = styled.div`
