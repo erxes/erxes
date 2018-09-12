@@ -1,16 +1,17 @@
-import * as React from 'react';
-import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import { Grid, Col } from 'react-bootstrap';
-import { Authlayout, AuthContent, AuthDescription } from '../styles';
+import * as React from 'react';
+import { Col, Grid } from 'react-bootstrap';
+import { withRouter } from 'react-router';
+import { IUser } from '../../settings/channels/types';
+import { AuthContent, AuthDescription, Authlayout } from '../styles';
 
-const propTypes = {
-  history: PropTypes.object,
-  content: PropTypes.element,
-  currentUser: PropTypes.object
-};
+type Props = {
+  history: any,
+  content: React.ReactNode,
+  currentUser: IUser
+}
 
-class AuthLayout extends React.Component {
+class AuthLayout extends React.Component<Props, {}> {
   componentDidMount() {
     const { history, currentUser } = this.props;
 
@@ -47,7 +48,6 @@ class AuthLayout extends React.Component {
   }
 }
 
-AuthLayout.propTypes = propTypes;
 AuthLayout.contextTypes = {
   __: PropTypes.func
 };

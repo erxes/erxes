@@ -2,7 +2,6 @@ import { BreadCrumb, Filter } from 'modules/common/components';
 import { dimensions } from 'modules/common/styles';
 import * as React from 'react';
 import styled from 'styled-components';
-// import { IBreadCrumb } from "../types";
 
 type Props = {
   breadcrumb: any,

@@ -1,11 +1,10 @@
+import { Label, Tip } from 'modules/common/components';
+import { colors, dimensions } from 'modules/common/styles';
+import { setBadge } from 'modules/common/utils';
+import { Widget } from 'modules/notifications/containers';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
-import { Widget } from 'modules/notifications/containers';
-import { setBadge } from 'modules/common/utils';
-import { colors, dimensions } from 'modules/common/styles';
-import { Tip, Label } from 'modules/common/components';
 
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
@@ -114,7 +113,7 @@ const NavIcon = styled.i`
   color: ${colors.colorWhite};
 `;
 
-class Navigation extends Component {
+class Navigation extends Component<{ unreadConversationsCount?: number }> {
   componentWillReceiveProps(nextProps) {
     const { __ } = this.context;
     const unreadCount = nextProps.unreadConversationsCount;
@@ -189,10 +188,6 @@ class Navigation extends Component {
     );
   }
 }
-
-Navigation.propTypes = {
-  unreadConversationsCount: PropTypes.number
-};
 
 Navigation.contextTypes = {
   __: PropTypes.func
