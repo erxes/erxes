@@ -1,9 +1,10 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
+import { __ } from 'modules/common/utils';
+import React, { Component } from 'react';
 import styled, { css } from 'styled-components';
-import Icon from './Icon';
+import styledTS from 'styled-components-ts';
 import { colors } from '../styles';
 import { darken, lighten } from '../styles/color';
+import Icon from './Icon';
 
 const types = {
   default: {
@@ -47,7 +48,7 @@ const sizes = {
   }
 };
 
-const ButtonStyled = styled.button`
+const ButtonStyled = styledTS<{ size: string, btnStyle: string, block?: boolean }>(styled.button)`
   border-radius: 30px;
   position: relative;
   transition: all 0.3s ease;
@@ -102,7 +103,7 @@ const ButtonStyled = styled.button`
   }
 `;
 
-const ButtonLink = ButtonStyled.withComponent('a').extend`
+const ButtonLink = styledTS<{ disabled?: boolean }>(ButtonStyled.withComponent('a').extend)`
   text-decoration: inherit;
   text-align: center;
   
@@ -125,68 +126,46 @@ const ButtonGroup = styled.div`
   }
 `;
 
-function Button({ ...props }, { __ }) {
-  const Element = props.href ? ButtonLink : ButtonStyled;
+type ButtonProps = {
+  children: React.ReactNode,
+  className?: string,
+  onClick: () => void,
+  href?: string,
+  type?: string,
+  btnStyle?: string,
+  size: string,
+  disabled?: boolean,
+  ignoreTrans?: boolean,
+  block?: boolean,
+  icon?: string
+};
 
-  let content = props.children;
+export default class Button extends Component<ButtonProps> {
+  static Group = Group;
 
-  if (!props.ignoreTrans && typeof content === 'string' && __) {
-    content = __(content);
+  render() {
+    const { href, children, ignoreTrans, icon } = this.props;
+    const Element = href ? ButtonLink : ButtonStyled;
+
+    let content = children;
+
+    if (!ignoreTrans && typeof content === 'string' && __) {
+      content = __(content);
+    }
+
+    if (icon) {
+      return (
+        <Element {...this.props}>
+          <Icon icon={icon} />
+          {content && <span>{content}</span>}
+        </Element>
+      );
+    }
+
+    return <Element {...this.props}>{content}</Element>;
   }
-
-  if (props.icon) {
-    return (
-      <Element {...props}>
-        <Icon icon={props.icon} />
-        {content && <span>{content}</span>}
-      </Element>
-    );
-  }
-
-  return <Element {...props}>{content}</Element>;
 }
 
-function Group({ children }) {
+function Group({ children }: { children: React.ReactNode }) {
   return <ButtonGroup>{children}</ButtonGroup>;
 }
-
-Button.Group = Group;
-
-Group.propTypes = {
-  children: PropTypes.node
-};
-
-Button.propTypes = {
-  children: PropTypes.node,
-  className: PropTypes.string,
-  onClick: PropTypes.func,
-  href: PropTypes.string,
-  type: PropTypes.string,
-  btnStyle: PropTypes.oneOf([
-    'default',
-    'primary',
-    'success',
-    'danger',
-    'warning',
-    'simple',
-    'link'
-  ]),
-  size: PropTypes.oneOf(['large', 'medium', 'small']),
-  disabled: PropTypes.bool,
-  ignoreTrans: PropTypes.bool,
-  block: PropTypes.bool,
-  icon: PropTypes.string
-};
-
-Button.contextTypes = {
-  __: PropTypes.func
-};
-
-Button.defaultProps = {
-  btnStyle: 'default',
-  size: 'medium',
-  block: false,
-  type: 'button'
-};
-
-export default Button;

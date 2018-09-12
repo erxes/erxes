@@ -1,7 +1,6 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { Icon, ImageWithPreview } from 'modules/common/components';
+import React, { Component, Fragment } from 'react';
+import styled from 'styled-components';
 
 const sizing = 30;
 
@@ -80,7 +79,12 @@ const FileWrapper = styled.div`
   }
 `;
 
-class Attachment extends Component {
+type Props = {
+  attachment: any,
+  scrollBottom: () => void,
+};
+
+class Attachment extends Component<Props> {
   constructor(props) {
     super(props);
 
@@ -105,11 +109,7 @@ class Attachment extends Component {
   }
 
   onLoadImage() {
-    const { onLoad } = this.props;
-
-    if (onLoad) {
-      onLoad();
-    }
+    this.props.scrollBottom();
   }
 
   renderAtachment({ attachment }) {
@@ -173,10 +173,5 @@ class Attachment extends Component {
     return <AttachmentWrapper>{this.renderAtachment(props)}</AttachmentWrapper>;
   }
 }
-
-Attachment.propTypes = {
-  attachment: PropTypes.object.isRequired,
-  onLoad: PropTypes.func
-};
 
 export default Attachment;
