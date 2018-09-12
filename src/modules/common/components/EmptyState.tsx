@@ -1,9 +1,9 @@
-import * as React from 'react';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import styled from 'styled-components';
+import { colors } from '../styles';
 import Button from './Button';
 import Icon from './Icon';
-import { colors } from '../styles';
 
 const EmptyStateStyled = styled.div`
   display: flex;
@@ -50,20 +50,20 @@ const EmptyStateStyled = styled.div`
   }
 `;
 
-EmptyState.propTypes = {
-  text: PropTypes.string.isRequired,
-  icon: PropTypes.string,
-  image: PropTypes.string,
-  size: PropTypes.oneOf(['full', 'small']),
-  linkUrl: PropTypes.string,
-  linkText: PropTypes.string
+type Props = {
+  text?: string,
+  icon?: string,
+  image?: string,
+  size?: string,
+  linkUrl?: string,
+  linkText?: string
 };
 
 EmptyState.contextTypes = {
   __: PropTypes.func
 };
 
-function EmptyState({ text, icon, image, size, linkUrl, linkText }, { __ }) {
+function EmptyState({ text, icon, image, size = 'small', linkUrl, linkText }: Props, { __ }) {
   return (
     <EmptyStateStyled size={size}>
       {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
@@ -76,9 +76,5 @@ function EmptyState({ text, icon, image, size, linkUrl, linkText }, { __ }) {
     </EmptyStateStyled>
   );
 }
-
-EmptyState.defaultProps = {
-  size: 'small'
-};
 
 export default EmptyState;

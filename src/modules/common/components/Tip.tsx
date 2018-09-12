@@ -1,14 +1,13 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
-const propTypes = {
-  text: PropTypes.string.isRequired,
-  children: PropTypes.element.isRequired,
-  placement: PropTypes.string
+type Props = {
+  text: string,
+  children: React.ReactNode,
+  placement?: string
 };
 
-function Tip({ text, children, placement }) {
+function Tip({ text, children, placement }: Props) {
   const tooltip = <Tooltip id="tooltip">{text}</Tooltip>;
   const placementValue = placement || 'top';
   return (
@@ -22,7 +21,5 @@ function Tip({ text, children, placement }) {
     </OverlayTrigger>
   );
 }
-
-Tip.propTypes = propTypes;
 
 export default Tip;

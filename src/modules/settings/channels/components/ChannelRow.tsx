@@ -11,7 +11,7 @@ type Props = {
   channel: IChannel,
   members: IUsers[],
   remove: (id: string) => void,
-  save: () => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, channel: IChannel) => void,
   isActive: boolean
 };
 

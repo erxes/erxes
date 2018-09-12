@@ -9,7 +9,7 @@ import { BoardForm } from './';
 type Props = {
   board: IBoard,
   remove: (_id: string) => void,
-  save: () => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, board: IBoard) => void,
 };
 
 class BoardRow extends React.Component<Props, {}> {

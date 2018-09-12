@@ -18,7 +18,7 @@ type Props = {
   remove: (_id: string) => void,
   save: ({ doc }: { doc: any; }, callback: () => void, brand: IBrand) => void,
   loading: boolean,
-  currentBrandId: string,
+  currentBrandId?: string,
   brandsTotalCount: number
 };
 

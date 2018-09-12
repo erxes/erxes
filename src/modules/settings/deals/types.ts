@@ -10,8 +10,8 @@ export interface IPipeline {
 }
 
 export interface IStage {
-    _id: string;
-    name: string;
-    probability: string;
-    pipelineId: string;
+    _id?: string;
+    name?: string;
+    probability?: string;
+    pipelineId?: string;
 }

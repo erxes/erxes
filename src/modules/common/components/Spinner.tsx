@@ -1,12 +1,12 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { rotate } from 'modules/common/utils/animations';
+import * as React from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { colors } from '../styles';
 
 const size = 26;
 
-const Spin = styled.div`
+const Spin = styledTS<{ objective: boolean }>(styled.div)`
   height: ${props => props.objective && '100px'};
   position: ${props => props.objective && 'relative'};
 `;
@@ -26,7 +26,7 @@ const MainLoader = styled.div`
   border-radius: 100%;
 `;
 
-function Spinner({ objective }) {
+function Spinner({ objective = false }: Props) {
   return (
     <Spin objective={objective}>
       <MainLoader />
@@ -34,12 +34,8 @@ function Spinner({ objective }) {
   );
 }
 
-Spinner.propTypes = {
-  objective: PropTypes.bool
-};
-
-Spinner.defaultProps = {
-  objective: false
+type Props = {
+  objective?: boolean
 };
 
 export default Spinner;

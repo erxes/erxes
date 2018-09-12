@@ -1,15 +1,14 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
 import { Button } from 'modules/common/components';
 import { confirm } from 'modules/common/utils';
+import moment from 'moment';
+import * as React from 'react';
 
-const propTypes = {
-  history: PropTypes.object,
-  removeHistory: PropTypes.func
+type Props = {
+  history?: any,
+  removeHistory: (_id: string) => void
 };
 
-function HistoryRow({ history, removeHistory }) {
+function HistoryRow({ history, removeHistory }: Props) {
   const { user = {} } = history;
   const { details = {} } = user;
 
@@ -34,7 +33,5 @@ function HistoryRow({ history, removeHistory }) {
     </tr>
   );
 }
-
-HistoryRow.propTypes = propTypes;
 
 export default HistoryRow;

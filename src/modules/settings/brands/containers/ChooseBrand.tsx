@@ -1,30 +1,25 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import * as React from 'react';
-import { ChildProps, compose, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { save } from '../../integrations/containers/utils';
 import { ChooseBrand } from '../components';
 import { mutations, queries } from '../graphql';
-import { IBrand, IIntegration} from '../types';
+import { IIntegration} from '../types';
 
 type Props = {
-  history: any,
-  integration: IIntegration,
+  integration?: IIntegration,
+  brandsQuery: any,
   addMutation: () => void,
   editMutation: () => void,
   onSave: () => void,
   refetch: () => void,
 };
 
-type QueryResponse = {
-  brandsQuery: IBrand,
-};
-
-const ChooseBrandContainer = (props: ChildProps<Props, QueryResponse>) => {
+const ChooseBrandContainer = (props: Props) => {
   const {
-    history,
-    data,
+    brandsQuery,
     integration,
     addMutation,
     editMutation,
@@ -32,7 +27,7 @@ const ChooseBrandContainer = (props: ChildProps<Props, QueryResponse>) => {
     refetch
   } = props;
 
-  if (data.loading) {
+  if (brandsQuery.loading) {
     return <Spinner objective />;
   }
 
@@ -41,7 +36,6 @@ const ChooseBrandContainer = (props: ChildProps<Props, QueryResponse>) => {
 
     save: variables =>
       save({
-        history,
         variables,
         addMutation,
         editMutation,
@@ -50,7 +44,7 @@ const ChooseBrandContainer = (props: ChildProps<Props, QueryResponse>) => {
         refetch
       }),
 
-    brands: data.brandsQuery.brands || []
+    brands: brandsQuery.brands || []
   };
 
   return <ChooseBrand {...updatedProps} />;
@@ -58,7 +52,7 @@ const ChooseBrandContainer = (props: ChildProps<Props, QueryResponse>) => {
 
 export default withRouter(
   compose(
-    graphql<Props, QueryResponse>(
+    graphql<Props>(
       gql(queries.brands), {
         name: 'brandsQuery',
         options: () => ({
@@ -66,12 +60,12 @@ export default withRouter(
         })
     }),
 
-    graphql<Props, QueryResponse>(
+    graphql<Props>(
       gql(mutations.integrationsCreateMessenger), {
         name: 'addMutation'
     }),
 
-    graphql<Props, QueryResponse>(
+    graphql<Props>(
       gql(mutations.integrationsEditMessenger), {
         name: 'editMutation'
     })

@@ -3,23 +3,23 @@ import { Wrapper } from 'modules/layout/components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Sidebar from '../../properties/components/Sidebar';
+import { IHistories } from '../types';
 import HistoryRow from './Row';
-import { IHistories } from './types';
 
 type Props = {
   queryParams: any,
   currentType: string,
   histories: IHistories[],
-  removeHistory: () => void,
+  removeHistory: (_id: string) => void,
   loading: boolean
 };
 
-class Histories extends Component {
+class Histories extends Component<Props> {
   static contextTypes =  {
     __: PropTypes.func
   }
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.renderHistories = this.renderHistories.bind(this);
@@ -85,8 +85,5 @@ class Histories extends Component {
     );
   }
 }
-
-Histories.propTypes = propTypes;
-Histories.contextTypes = contextTypes;
 
 export default Histories;
