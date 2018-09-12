@@ -1,20 +1,14 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
-import PropTypes from 'prop-types';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
 
 class ListContainer extends React.Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   render() {
     const { insertConfig, currencyConfigQuery, uomConfigQuery } = this.props;
-    const { __ } = this.context;
 
     if (currencyConfigQuery.loading || uomConfigQuery.loading) {
       return <Spinner objective />;

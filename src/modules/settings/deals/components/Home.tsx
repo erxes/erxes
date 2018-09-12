@@ -1,5 +1,5 @@
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Boards, Pipelines } from '../containers';
 
@@ -8,13 +8,8 @@ type Props = {
 };
 
 class Home extends React.Component<Props, {}> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-  
   render() {
     const { boardId } = this.props;
-    const { __ } = this.context;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },

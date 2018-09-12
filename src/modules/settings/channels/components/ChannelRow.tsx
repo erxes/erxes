@@ -1,25 +1,21 @@
 import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { ChannelForm } from '../containers';
 import { MemberImg, Members, More } from '../styles';
-import { IChannel, IUsers } from "../types";
+import { IChannel, IUser } from "../types";
 
 type Props = {
   channel: IChannel,
-  members: IUsers[],
+  members: IUser[],
   remove: (id: string) => void,
   save: ({ doc }: { doc: any; }, callback: () => void, channel: IChannel) => void,
   isActive: boolean
 };
 
 class ChannelRow extends Component<Props, {}> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -36,7 +32,6 @@ class ChannelRow extends Component<Props, {}> {
 
   renderEditAction() {
     const { channel, save, members } = this.props;
-    const { __ } = this.context;
 
     const editTrigger = (
       <Button btnStyle="link">

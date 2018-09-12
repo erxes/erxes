@@ -1,10 +1,10 @@
+import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 
-function IntegrationsSidebar(props, { __ }) {
+function IntegrationsSidebar(props) {
   const { Title } = Sidebar.Section;
 
   return (
@@ -32,9 +32,5 @@ function IntegrationsSidebar(props, { __ }) {
     </Sidebar>
   );
 }
-
-IntegrationsSidebar.contextTypes = {
-  __: PropTypes.func
-};
 
 export default IntegrationsSidebar;

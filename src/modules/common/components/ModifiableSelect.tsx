@@ -1,22 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import Select from 'react-select-plus';
-import PropTypes from 'prop-types';
-import { FormControl, Button, Icon, FormGroup } from './';
-import { Alert } from '../utils';
+import { __, Alert } from '../utils';
+import { Button, FormControl, FormGroup, Icon } from './';
 
-const propTypes = {
-  options: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired,
-  value: PropTypes.string,
-  placeholder: PropTypes.string,
-  buttonText: PropTypes.string
+type Props = {
+  options: any[],
+  onChange: (params: {options: any[] , selectedOption: any}) => void,
+  value?: string,
+  placeholder?: string,
+  buttonText?: string
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
-
-class Option extends Component {
+class Option extends Component<OptionProps> {
   render() {
     const { option, onSelect } = this.props;
     const { onRemove } = option;
@@ -39,12 +34,18 @@ class Option extends Component {
   }
 }
 
-Option.propTypes = {
-  option: PropTypes.object,
-  onSelect: PropTypes.func
+type OptionProps = {
+  option: any,
+  onSelect: (option: any[] , e: any ) => void
 };
 
-class ModifiableSelect extends Component {
+type State = {
+  adding: boolean,
+  options: any[],
+  selectedOption: string
+};
+
+class ModifiableSelect extends Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -82,7 +83,7 @@ class ModifiableSelect extends Component {
   handleSave() {
     const { options, selectedOption } = this.state;
     const { onChange } = this.props;
-    const value = document.getElementById('removableSelect-value').value;
+    const value = (document.getElementById('removableSelect-value') as HTMLInputElement).value;
 
     this.setState({ adding: false, options: [...options, value] }, () => {
       onChange({ options: this.state.options, selectedOption });
@@ -90,7 +91,7 @@ class ModifiableSelect extends Component {
 
     Alert.success('Successfully added');
 
-    document.getElementById('removableSelect-value').value = '';
+    (document.getElementById('removableSelect-value') as HTMLInputElement).value = '';
   }
 
   handleAdding() {
@@ -132,7 +133,6 @@ class ModifiableSelect extends Component {
   }
 
   renderInput() {
-    const { __ } = this.context;
     const { buttonText } = this.props;
 
     if (this.state.adding) {
@@ -200,8 +200,5 @@ class ModifiableSelect extends Component {
     );
   }
 }
-
-ModifiableSelect.contextTypes = contextTypes;
-ModifiableSelect.propTypes = propTypes;
 
 export default ModifiableSelect;

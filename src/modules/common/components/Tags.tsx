@@ -1,10 +1,10 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { colors, dimensions } from 'modules/common/styles';
 import { Label } from 'modules/common/components';
+import { colors, dimensions } from 'modules/common/styles';
+import * as React from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const TagList = styled.div.attrs({
+const TagList = styledTS<{ length: number }>(styled.div).attrs({
   className: props => props.length > 0 && 'tags'
 })`
   > span {
@@ -16,7 +16,7 @@ const TagList = styled.div.attrs({
   }
 `;
 
-function Tags({ tags, limit }) {
+function Tags({ tags, limit }: Props) {
   const length = tags.length;
 
   return (
@@ -43,9 +43,9 @@ function Tags({ tags, limit }) {
   );
 }
 
-Tags.propTypes = {
-  tags: PropTypes.array.isRequired,
-  limit: PropTypes.number
+type Props = {
+  tags: any[],
+  limit: number
 };
 
 export default Tags;

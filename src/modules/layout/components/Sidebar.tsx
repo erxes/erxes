@@ -22,7 +22,7 @@ function QuickButtons({ children }: { children: React.ReactNode }) {
 
 type Props = {
   children: any,
-  collapsible: boolean,
+  collapsible?: boolean,
   className?: string,
   noShadow?: boolean,
   noBackground?: boolean,

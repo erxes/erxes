@@ -1,6 +1,6 @@
 import classnames from 'classnames';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-import { uploadHandler } from 'modules/common/utils';
+import { __, uploadHandler } from 'modules/common/utils';
 import {
   BackgroundSelector,
   ColorPick,
@@ -9,7 +9,6 @@ import {
   SubItem,
   WidgetBackgrounds
 } from 'modules/settings/styles';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ChromePicker } from 'react-color';
@@ -27,10 +26,6 @@ type State = {
 };
 
 class Appearance extends Component<Props, State> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -94,8 +89,6 @@ class Appearance extends Component<Props, State> {
   }
 
   render() {
-    const { __ } = this.context;
-
     const popoverTop = (
       <Popover id="color-picker">
         <ChromePicker

@@ -5,6 +5,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { IBrand } from '../../brands/types';
@@ -23,7 +24,6 @@ type State = {
 class Config extends Component<Props, State> {
   static contextTypes =  {
     closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
   }
 
   constructor(props: Props) {
@@ -66,7 +66,6 @@ class Config extends Component<Props, State> {
     };
 
     const { type, template } = this.state;
-    const { __ } = this.context;
 
     const templateControl = (
       <FormGroup>

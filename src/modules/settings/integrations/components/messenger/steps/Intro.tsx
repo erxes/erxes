@@ -4,8 +4,8 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
+import { __ } from 'modules/common/utils';
 import { SubHeading } from 'modules/settings/styles';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Select from 'react-select-plus';
 import { IUser } from '../../../../channels/types';
@@ -25,10 +25,6 @@ type State = {
 }
 
 class Intro extends Component<Props, State> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -71,8 +67,6 @@ class Intro extends Component<Props, State> {
   }
 
   render() {
-    const { __ } = this.context;
-
     return (
       <FlexItem>
         <LeftItem>

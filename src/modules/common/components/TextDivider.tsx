@@ -1,10 +1,9 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { colors } from '../styles';
 
-const propTypes = {
-  text: PropTypes.string.isRequired
+type Props = {
+  text: string
 };
 
 const Divider = styled.div`
@@ -29,14 +28,12 @@ const Divider = styled.div`
   }
 `;
 
-function TextDivider({ text }) {
+function TextDivider({ text }: Props) {
   return (
     <Divider>
       <span>{text}</span>
     </Divider>
   );
 }
-
-TextDivider.propTypes = propTypes;
 
 export default TextDivider;

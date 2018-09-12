@@ -5,9 +5,9 @@ import {
   ModalTrigger,
   Spinner
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { BrandForm } from '../containers';
 import { IBrand } from '../types';
@@ -23,10 +23,6 @@ type Props = {
 };
 
 class Sidebar extends Component<Props, {}>  {
-  static contextTypes =  {
-   __: PropTypes.func
-  }
-
   constructor(props) {
     super(props);
 
@@ -54,7 +50,6 @@ class Sidebar extends Component<Props, {}>  {
   renderSidebarHeader() {
     const { save } = this.props;
     const { Header } = LeftSidebar;
-    const { __ } = this.context;
 
     const addBrand = (
       <HelperButtons>

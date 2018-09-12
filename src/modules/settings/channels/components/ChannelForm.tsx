@@ -5,15 +5,16 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import Select from 'react-select-plus';
-import { IChannel, IUsers } from "../types";
+import { IChannel, IUser } from "../types";
 
 type Props = {
   channel: IChannel,
-  members: IUsers[],
-  selectedMembers: IUsers[],
+  members: IUser[],
+  selectedMembers: IUser[],
   save: (params: { 
     doc: { name: string; description: string, memberIds: string[] }}, 
     callback: () => void, channel: IChannel) => void,
@@ -26,7 +27,6 @@ type State = {
 class ChannelForm extends Component<Props, State> {
   static contextTypes =  {
     closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
   }
 
   constructor(props: Props) {
@@ -76,7 +76,6 @@ class ChannelForm extends Component<Props, State> {
   }
 
   renderContent() {
-    const { __ } = this.context;
     const { members, channel } = this.props;
 
     const object = channel;

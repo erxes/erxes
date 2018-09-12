@@ -1,5 +1,5 @@
 import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
-import PropTypes from 'prop-types';
+import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { ActionButtons, SidebarListItem } from '../../styles';
@@ -14,10 +14,6 @@ type Props = {
 }
 
 class BrandRow extends Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -32,7 +28,6 @@ class BrandRow extends Component<Props> {
   }
 
   renderEditAction() {
-    const { __ } = this.context;
     const { brand, save } = this.props;
 
     const editTrigger = (

@@ -1,6 +1,6 @@
 import { EmptyState } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Sidebar } from '../containers';
 
@@ -9,13 +9,8 @@ type Props = {
 }
 
 class Empty extends Component<Props, {}> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   render() {
     const { queryParams } = this.props;
-    const { __ } = this.context;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },

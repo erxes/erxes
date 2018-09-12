@@ -6,7 +6,7 @@ import Routes from './routes';
 
 import 'erxes-icon/css/erxes.min.css';
 // global style
-import 'modules/common/styles/global-styles.js';
+import 'modules/common/styles/global-styles';
 import 'react-datetime/css/react-datetime.css';
 import 'react-toggle/style.css';
 

@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
 import { Spinner } from 'modules/common/components';
 import { uploadHandler } from 'modules/common/utils';
+import React, { Component } from 'react';
+import styled from 'styled-components';
 
 const Attachment = styled.div`
   margin: 10px 0;
@@ -15,13 +14,19 @@ const Attachment = styled.div`
   }
 `;
 
-const propTypes = {
-  defaultFileList: PropTypes.array,
-  onChange: PropTypes.func
+type Props = {
+  defaultFileList: any[],
+  onChange: (attachments: any[]) => void
 };
 
-class Uploader extends Component {
-  constructor(props) {
+type State = {
+  attachments: any[],
+  loading: boolean,
+  attachmentPreviewStyle: any
+}
+
+class Uploader extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     const { defaultFileList } = this.props;
@@ -98,7 +103,5 @@ class Uploader extends Component {
     );
   }
 }
-
-Uploader.propTypes = propTypes;
 
 export default Uploader;

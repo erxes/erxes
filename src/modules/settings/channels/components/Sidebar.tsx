@@ -5,17 +5,17 @@ import {
   ModalTrigger,
   Spinner
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { ChannelForm } from '../containers';
-import { IChannel, IUsers } from '../types';
+import { IChannel, IUser } from '../types';
 import { ChannelRow } from './';
 
 type Props = {
   channels: IChannel[],
-  members: IUsers[],
+  members: IUser[],
   remove: ( _id: string ) => void,
   save: ({ doc }: { doc: any; }, callback: () => void, channel: IChannel) => void,
   loading: boolean,
@@ -24,10 +24,6 @@ type Props = {
 };
 
 class Sidebar extends Component<Props, {}> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -54,7 +50,6 @@ class Sidebar extends Component<Props, {}> {
   }
 
   renderSidebarHeader() {
-    const { __ } = this.context;
     const { save, members } = this.props;
     const { Header } = LeftSidebar;
 

@@ -1,4 +1,5 @@
 import { Button, ControlLabel, FormGroup } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { ActionBar, Wrapper } from 'modules/layout/components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -25,7 +26,6 @@ class List extends Component<Props, State> {
   static contextTypes =  {
     changeLanguage: PropTypes.func,
     currentLanguage: PropTypes.string,
-    __: PropTypes.func
   }
 
   constructor(props: Props, context) {
@@ -66,8 +66,6 @@ class List extends Component<Props, State> {
   }
 
   render() {
-    const { __ } = this.context;
-
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('General') }

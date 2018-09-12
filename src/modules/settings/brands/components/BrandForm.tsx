@@ -5,7 +5,6 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { IBrand } from "../types";
 
@@ -15,10 +14,6 @@ type Props = {
 }
 
 class BrandForm extends Component<Props, {}> {
-  static contextTypes =  {
-    closeModal: PropTypes.func.isRequired
-  }
-
   constructor(props: Props) {
     super(props);
 

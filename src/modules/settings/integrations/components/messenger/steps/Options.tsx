@@ -5,7 +5,6 @@ import {
 } from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { SelectBrand } from 'modules/settings/integrations/components';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Toggle from 'react-toggle';
 import { IBrand } from '../../../../brands/types';
@@ -19,10 +18,6 @@ type Props = {
 };
 
 class Options extends Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props: Props) {
     super(props);
 

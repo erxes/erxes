@@ -113,6 +113,7 @@ const FlexItem = styledTS<{ count?: string, overflow?: boolean, v?: boolean, h?:
         overflow: ${props.overflow};
       `;
     }
+    return null
   }};
   ${props => {
     if (props.v) {
@@ -120,6 +121,7 @@ const FlexItem = styledTS<{ count?: string, overflow?: boolean, v?: boolean, h?:
         align-items: ${props.v};
       `;
     }
+    return null
   }};
   ${props => {
     if (props.h) {
@@ -127,6 +129,7 @@ const FlexItem = styledTS<{ count?: string, overflow?: boolean, v?: boolean, h?:
         justify-content: ${props.h};
       `;
     }
+    return null
   }};
   ${props => {
     if (props.direction) {
@@ -134,6 +137,7 @@ const FlexItem = styledTS<{ count?: string, overflow?: boolean, v?: boolean, h?:
         flex-direction: ${props.direction};
       `;
     }
+    return null
   }};
 `;
 

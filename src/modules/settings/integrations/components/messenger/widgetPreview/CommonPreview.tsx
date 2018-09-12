@@ -1,7 +1,6 @@
 import { Messenger, MessengerPreview } from 'modules/engage/styles';
 import { IUser } from 'modules/settings/channels/types';
 import { LogoContainer } from 'modules/settings/styles';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import WidgetPreview from './WidgetPreview';
 
@@ -19,10 +18,6 @@ type Props = {
 };
 
 class CommonPreview extends Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   render() {
     const {
       logoPreviewStyle,

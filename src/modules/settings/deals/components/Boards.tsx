@@ -1,7 +1,7 @@
 import { DataWithLoader, Icon, ModalTrigger } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { IBoard } from '../types';
 import { BoardForm, BoardRow } from './';
@@ -14,10 +14,6 @@ type Props = {
 };
 
 class Boards extends React.Component<Props, {}> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-  
   constructor(props) {
     super(props);
 
@@ -37,7 +33,6 @@ class Boards extends React.Component<Props, {}> {
   }
 
   renderSidebarHeader() {
-    const { __ } = this.context;
     const { save } = this.props;
     const { Header } = Sidebar;
 

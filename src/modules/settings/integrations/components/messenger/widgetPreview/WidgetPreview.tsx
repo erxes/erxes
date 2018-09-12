@@ -1,5 +1,5 @@
+import { __ } from 'modules/common/utils';
 import { IUser } from 'modules/settings/channels/types';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   ErxesAvatar,
@@ -30,10 +30,6 @@ type Props = {
   isOnline?: boolean
 };
 
-WidgetPreview.contextTypes = {
-  __: PropTypes.func
-};
-
 function WidgetPreview(
   {
     color,
@@ -43,8 +39,7 @@ function WidgetPreview(
     welcomeMessage,
     awayMessage,
     isOnline
-  } : Props,
-  { __ }
+  } : Props
 ) {
   let avatar = [<img key="1" src="/images/avatar-colored.svg" alt="avatar" />];
   let fullName = 'Support staff';

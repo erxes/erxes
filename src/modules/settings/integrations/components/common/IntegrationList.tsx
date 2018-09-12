@@ -7,9 +7,9 @@ import {
   Table,
   Tip
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { InstallCode } from 'modules/settings/integrations/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { IIntegration } from '../../../brands/types';
@@ -20,10 +20,6 @@ type Props = {
 };
 
 class IntegrationList extends Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-  
   getTypeName(integration) {
     const kind = integration.kind;
 
@@ -43,7 +39,6 @@ class IntegrationList extends Component<Props> {
   }
 
   renderMessengerActions(integration) {
-    const { __ } = this.context;
     const kind = integration.kind;
 
     if (kind === KIND_CHOICES.MESSENGER) {
@@ -76,7 +71,6 @@ class IntegrationList extends Component<Props> {
   }
 
   renderRemoveAction(integration) {
-    const { __ } = this.context;
     const { removeIntegration } = this.props;
 
     if (!removeIntegration) {
@@ -122,7 +116,6 @@ class IntegrationList extends Component<Props> {
 
   render() {
     const { integrations } = this.props;
-    const { __ } = this.context;
 
     return (
       <Fragment>
