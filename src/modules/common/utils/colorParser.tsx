@@ -1,10 +1,10 @@
 const hexToRgb = hex => {
-  var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
   hex = hex.replace(shorthandRegex, function(m, r, g, b) {
     return r + r + g + g + b + b;
   });
 
-  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
     ? {
         r: parseInt(result[1], 16),
@@ -21,9 +21,9 @@ const isColorLight = hex => {
   if (hex) {
     const { r, g, b } = hexToRgb(hex);
 
-    let C = [r / 255, g / 255, b / 255];
+    const C = [r / 255, g / 255, b / 255];
 
-    for (var i = 0; i < C.length; ++i) {
+    for (let i = 0; i < C.length; ++i) {
       C[i] <= 0.03928
         ? (C[i] = C[i] / 12.92)
         : (C[i] = Math.pow((C[i] + 0.055) / 1.055, 2.4));

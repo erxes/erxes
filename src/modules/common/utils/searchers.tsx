@@ -1,9 +1,9 @@
-import { queries as companyQueries } from 'modules/companies/graphql';
-import { queries as customerQueries } from 'modules/customers/graphql';
-import { queries as userQueries } from 'modules/settings/team/graphql';
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import { queries as companyQueries } from 'modules/companies/graphql';
+import { queries as customerQueries } from 'modules/customers/graphql';
+import { queries as userQueries } from 'modules/settings/team/graphql';
 
 const searchCompany = (searchValue, callback) => {
   client
