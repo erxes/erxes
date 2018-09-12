@@ -1,16 +1,16 @@
-import { IUser } from 'modules/auth/types';
-import { Button, FormControl, Step, Steps } from 'modules/common/components';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import { IUser } from '../../../../auth/types';
+import { Button, FormControl, Step, Steps } from '../../../../common/components';
 import {
   Preview,
   StepWrapper,
   TitleContainer
-} from 'modules/common/components/step/styles';
-import { __, Alert } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import { IBrand, IIntegration } from 'modules/settings/brands/types';
-import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+} from '../../../../common/components/step/styles';
+import { __, Alert } from '../../../../common/utils';
+import { Wrapper } from '../../../../layout/components';
+import { IBrand, IIntegration } from '../../../brands/types';
+import { MessengerPreview, Row } from '../../styles';
 import { Appearance, Availability, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
 
@@ -177,7 +177,7 @@ class CreateMessenger extends Component<Props, State> {
           <div>{__('Title')}</div>
           <FormControl
             required
-            onChange={e => this.onChange('title', e.target.value)}
+            onChange={(e: React.FormEvent<HTMLInputElement>)  => this.onChange('title', e.currentTarget.value)}
             defaultValue={title}
           />
         </TitleContainer>

@@ -197,7 +197,7 @@ class ManageIntegrations extends Component<Props, State> {
         <Columns>
           <Column>
             <FormControl
-              placeholder={__('Type to search')}
+              placeholder={__('Type to search').toString()}
               onChange={e => this.search(e)}
             />
             <ul>

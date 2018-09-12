@@ -1,12 +1,12 @@
+import React, { Component } from 'react';
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+} from '../../../common/components';
+import { ModalFooter } from '../../../common/styles/main';
+import { __ } from '../../../common/utils';
 import { IBrand, IIntegration } from '../types';
 
 type Props = {
@@ -62,7 +62,7 @@ class ChooseBrand extends Component<Props> {
           <ControlLabel>Brand</ControlLabel>
           <FormControl
             componentClass="select"
-            placeholder={__('Select Brand')}
+            placeholder={__('Select Brand').toString()}
             defaultValue={integration.brandId}
             onChange={this.handleBrandChange}
             id="selectBrand"

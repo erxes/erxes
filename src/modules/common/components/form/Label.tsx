@@ -4,7 +4,7 @@ import { Label } from './styles';
 
 type Props = {
   children: string,
-  ignoreTrans: boolean
+  ignoreTrans?: boolean
 };
 
 function ControlLabel(props: Props) {

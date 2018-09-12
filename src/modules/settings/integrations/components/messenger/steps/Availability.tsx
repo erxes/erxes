@@ -1,15 +1,15 @@
+import React, { Component } from 'react';
+import Select from 'react-select-plus';
+import Toggle from 'react-toggle';
+import { OnlineHours } from '.';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components';
-import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-import { __ } from 'modules/common/utils';
-import { timezones } from 'modules/settings/integrations/constants';
-import React, { Component } from 'react';
-import Select from 'react-select-plus';
-import Toggle from 'react-toggle';
-import { OnlineHours } from './';
+} from '../../../../../common/components';
+import { FlexItem, LeftItem } from '../../../../../common/components/step/styles';
+import { __ } from '../../../../../common/utils';
+import { timezones } from '../../../constants';
 
 type Props = {
   onChange: (name: string, value: string) => void,
@@ -94,8 +94,8 @@ class Availability extends Component<Props> {
               value="manual"
               componentClass="radio"
               checked={this.props.availabilityMethod === 'manual'}
-              onChange={e =>
-                this.onChangeFunction('availabilityMethod', e.target.value)
+              onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                this.onChangeFunction('availabilityMethod', e.currentTarget.value)
               }
               inline
             >
@@ -106,8 +106,8 @@ class Availability extends Component<Props> {
               value="auto"
               componentClass="radio"
               checked={this.props.availabilityMethod === 'auto'}
-              onChange={e =>
-                this.onChangeFunction('availabilityMethod', e.target.value)
+              onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                this.onChangeFunction('availabilityMethod', e.currentTarget.value)
               }
               inline
             >

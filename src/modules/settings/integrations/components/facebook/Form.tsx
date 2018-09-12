@@ -1,13 +1,13 @@
+import React, { Component } from 'react';
+import { SelectBrand } from '..';
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import { SelectBrand } from 'modules/settings/integrations/components';
-import React, { Component } from 'react';
+} from '../../../../common/components';
+import { ModalFooter } from '../../../../common/styles/main';
+import { __ } from '../../../../common/utils';
 import { IBrand } from '../../../brands/types';
 import { IApps, IPages } from '../../types';
 
@@ -77,7 +77,7 @@ class Facebook extends Component<Props> {
 
           <FormControl
             componentClass="select"
-            placeholder={__('Select app')}
+            placeholder={__('Select app').toString()}
             onChange={this.onAppChange}
             id="app"
           >

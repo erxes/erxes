@@ -58,6 +58,8 @@ const Input = styledTS<{ round?: boolean }>(styled.input)`
         padding: 5px 20px;
       `;
     }
+
+    return '';
   }};
 
   &:hover {

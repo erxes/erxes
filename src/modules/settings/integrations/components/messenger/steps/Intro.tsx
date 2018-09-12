@@ -1,14 +1,14 @@
-import { IUser } from 'modules/auth/types';
+import React, { Component } from 'react';
+import Select from 'react-select-plus';
+import { IUser } from '../../../../../auth/types';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components';
-import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-import { __ } from 'modules/common/utils';
-import { SubHeading } from 'modules/settings/styles';
-import React, { Component } from 'react';
-import Select from 'react-select-plus';
+} from '../../../../../common/components';
+import { FlexItem, LeftItem } from '../../../../../common/components/step/styles';
+import { __ } from '../../../../../common/utils';
+import { SubHeading } from '../../../../styles';
 
 type Props= {
   onChange: (name: string, value: string) => void,
@@ -77,7 +77,7 @@ class Intro extends Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
-              placeholder={__('Write here Welcome message.')}
+              placeholder={__('Write here Welcome message.').toString()}
               rows={3}
               name="welcomeMessage"
               value={this.props.welcomeMessage}
@@ -92,7 +92,7 @@ class Intro extends Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
-              placeholder={__('Write here Away message.')}
+              placeholder={__('Write here Away message.').toString()}
               rows={3}
               name="awayMessage"
               value={this.props.awayMessage}
@@ -105,7 +105,7 @@ class Intro extends Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
-              placeholder={__('Write here Thank you message.')}
+              placeholder={__('Write here Thank you message.').toString()}
               rows={3}
               name="thankYouMessage"
               value={this.props.thankYouMessage}

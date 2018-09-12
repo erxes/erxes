@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import Select from 'react-select-plus';
+import { Button, FormControl, FormGroup, Icon } from '.';
 import { __, Alert } from '../utils';
-import { Button, FormControl, FormGroup, Icon } from './';
 
 type Props = {
   options: any[],

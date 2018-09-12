@@ -1,12 +1,12 @@
+import React, { Component } from 'react';
 import {
   ControlLabel,
   FormControl,
   FormGroup,
   Icon
-} from 'modules/common/components';
-import { Avatar } from 'modules/common/styles/main';
-import { Alert, uploadHandler } from 'modules/common/utils';
-import React, { Component } from 'react';
+} from '.';
+import { Avatar } from '../styles/main';
+import { Alert, uploadHandler } from '../utils';
 
 type Props = {
   avatar?: string,

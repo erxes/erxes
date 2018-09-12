@@ -1,10 +1,10 @@
+import * as React from 'react';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
+} from '../../../common/components';
+import { __ } from '../../../common/utils';
 import { IBrand } from '../../brands/types';
 
 const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (
@@ -13,7 +13,7 @@ const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (
 
     <FormControl
       componentClass="select"
-      placeholder={__('Select Brand')}
+      placeholder={__('Select Brand').toString()}
       defaultValue={defaultValue}
       onChange={onChange}
       id="selectBrand"

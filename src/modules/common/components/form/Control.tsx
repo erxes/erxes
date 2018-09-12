@@ -10,11 +10,11 @@ import {
 import Textarea from './Textarea';
 
 type Props = {
-  children: React.ReactNode,
+  children?: React.ReactNode,
   id?: string,
-  onChange?: (e: React.FormEvent) => void,
+  onChange?: (e: React.FormEvent<HTMLElement>) => void,
   onClick?: (e: React.MouseEvent) => void,
-  onKeyPress?: (e: React.FormEvent) => void,
+  onKeyPress?: (e: React.KeyboardEvent) => void,
   defaultValue?: string | string[],
   value?: string | string[],
   defaultChecked?: boolean,
@@ -28,9 +28,11 @@ type Props = {
   round?: boolean,
   autoFocus?: boolean,
   onFocus?: () => void,
-  componentClass: string,
+  componentClass?: string,
   min?: number,
   max?: number,
+  rows?: number,
+  inline?: boolean,
 };
 
 const renderElement = (Element, attributes, type, child) => {

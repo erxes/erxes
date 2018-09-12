@@ -1,12 +1,12 @@
+import React, { Component } from 'react';
+import Toggle from 'react-toggle';
+import { SelectBrand } from '../..';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components';
-import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-import { SelectBrand } from 'modules/settings/integrations/components';
-import React, { Component } from 'react';
-import Toggle from 'react-toggle';
+} from '../../../../../common/components';
+import { FlexItem, LeftItem } from '../../../../../common/components/step/styles';
 import { IBrand } from '../../../../brands/types';
 
 type Props = {
@@ -46,8 +46,8 @@ class Options extends Component<Props> {
               componentClass="select"
               id="languageCode"
               defaultValue={this.props.languageCode}
-              onChange={e =>
-                this.onChangeFunction('languageCode', e.target.value)
+              onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                this.onChangeFunction('languageCode', e.currentTarget.value)
               }
             >
               <option />

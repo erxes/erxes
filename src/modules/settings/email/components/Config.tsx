@@ -1,13 +1,13 @@
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+} from '../../../common/components';
+import { ModalFooter } from '../../../common/styles/main';
+import { __ } from '../../../common/utils';
 import { IBrand } from '../../brands/types';
 
 type Props = {
@@ -86,7 +86,7 @@ class Config extends Component<Props, State> {
           <ControlLabel>Choose your email template type</ControlLabel>
           <FormControl
             componentClass="select"
-            placeholder={__('select')}
+            placeholder={__('select').toString()}
             onChange={this.handleTypeChange}
             value={type}
           >
