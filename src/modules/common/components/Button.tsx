@@ -133,7 +133,7 @@ type ButtonProps = {
   href?: string,
   type?: string,
   btnStyle?: string,
-  size: string,
+  size?: string,
   disabled?: boolean,
   ignoreTrans?: boolean,
   block?: boolean,
@@ -142,6 +142,13 @@ type ButtonProps = {
 
 export default class Button extends Component<ButtonProps> {
   static Group = Group;
+
+  static defaultProps = {
+    btnStyle: 'default',
+    size: 'medium',
+    block: false,
+    type: 'button'
+  };
 
   render() {
     const { href, children, ignoreTrans, icon } = this.props;

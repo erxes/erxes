@@ -1,12 +1,12 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { colors } from '../styles';
 
 const closeSize = '20px';
 const horizontalSpace = '10px';
 
-const ChipItem = styled.span`
+const ChipItem = styledTS<{ normal?: boolean }>(styled.span)`
   color: ${colors.colorWhite};
   background: ${colors.colorSecondary};
   padding: 2px ${horizontalSpace};
@@ -44,19 +44,15 @@ const Remove = styled.span`
   }
 `;
 
-function Chip({ ...props }) {
+function Chip(props: { normal?: boolean, onClickClose: () => void, children: React.ReactNode }) {
+  const { normal, onClickClose, children } = props;
+
   return (
-    <ChipItem normal={props.normal}>
-      {props.children}
-      <Remove onClick={props.onClickClose}>×</Remove>
+    <ChipItem normal={normal}>
+      {children}
+      <Remove onClick={onClickClose}>×</Remove>
     </ChipItem>
   );
 }
-
-Chip.propTypes = {
-  children: PropTypes.node.isRequired,
-  onClickClose: PropTypes.func,
-  normal: PropTypes.bool
-};
 
 export default Chip;

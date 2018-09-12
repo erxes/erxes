@@ -1,34 +1,39 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
   Button,
-  Icon,
+  EmptyState,
   FormControl,
-  ModalTrigger,
-  EmptyState
+  Icon,
+  ModalTrigger
 } from 'modules/common/components';
-import { Footer, Title, Columns, Column } from '../styles/chooser';
-import { ModalFooter, CenterContent } from '../styles/main';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { Column, Columns, Footer, Title } from '../styles/chooser';
+import { CenterContent, ModalFooter } from '../styles/main';
 
-const propTypes = {
-  data: PropTypes.object.isRequired,
-  onSelect: PropTypes.func.isRequired,
-  search: PropTypes.func.isRequired,
-  datas: PropTypes.array.isRequired,
-  form: PropTypes.node.isRequired,
-  title: PropTypes.string.isRequired,
-  renderName: PropTypes.func.isRequired,
-  perPage: PropTypes.number.isRequired,
-  clearState: PropTypes.func.isRequired,
-  limit: PropTypes.number
+type Props = {
+  data: any,
+  onSelect: (datas: any[]) => void,
+  search: (value: string, reload?: boolean) => void,
+  datas: any[],
+  form: React.ReactNode,
+  title: string,
+  renderName: (data: any) => void,
+  perPage: number,
+  clearState: () => void,
+  limit: number,
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
-};
+type State = {
+  datas: any[],
+  loadmore: boolean,
+  searchValue: string
+}
 
-class CommonChooser extends Component {
+class CommonChooser extends Component<Props, State> {
+  static contextTypes = {
+    closeModal: PropTypes.func.isRequired,
+  };
+
   constructor(props) {
     super(props);
 
@@ -77,6 +82,7 @@ class CommonChooser extends Component {
 
   search(e) {
     if (this.timer) clearTimeout(this.timer);
+
     const { search } = this.props;
     const value = e.target.value;
 
@@ -137,8 +143,7 @@ class CommonChooser extends Component {
               onChange={e => this.search(e)}
             />
             <ul>
-              {datas.map(d => this.renderRow(d, 'add'))}
-
+              {datas.map(data => this.renderRow(data, 'add'))}
               {this.state.loadmore && (
                 <CenterContent>
                   <Button
@@ -188,8 +193,5 @@ class CommonChooser extends Component {
     );
   }
 }
-
-CommonChooser.propTypes = propTypes;
-CommonChooser.contextTypes = contextTypes;
 
 export default CommonChooser;
