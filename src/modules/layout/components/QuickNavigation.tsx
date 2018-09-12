@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import {
   DropdownToggle,
   Icon,
@@ -5,7 +6,6 @@ import {
   NameCard
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { IUser } from 'modules/settings/channels/types';
 import { Signature } from 'modules/settings/email/containers';
 import {
   ChangePassword,

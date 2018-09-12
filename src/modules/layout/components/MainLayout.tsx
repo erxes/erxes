@@ -1,6 +1,6 @@
+import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import { withRouter } from 'react-router';
-import { IUser } from '../../settings/channels/types';
 import { Navigation } from '../containers';
 import { Layout } from '../styles';
 

@@ -1,8 +1,8 @@
+import { IUser } from 'modules/auth/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Col, Grid } from 'react-bootstrap';
 import { withRouter } from 'react-router';
-import { IUser } from '../../settings/channels/types';
 import { AuthContent, AuthDescription, Authlayout } from '../styles';
 
 type Props = {
