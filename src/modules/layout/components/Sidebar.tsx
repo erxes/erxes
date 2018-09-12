@@ -1,7 +1,5 @@
 import { Icon } from 'modules/common/components';
-import { colors, dimensions } from 'modules/common/styles';
 import * as React from 'react';
-import styled from 'styled-components';
 import {
   BoxContent,
   HelperButtons,
@@ -10,17 +8,17 @@ import {
   SidebarHeader,
   SidebarMainContent,
   SidebarTitle,
-  SidebarToggle
+  SidebarToggle,
+  SideContent
 } from '../styles';
-import { withProps } from '../withProps';
 
 type SidebarProps = {
   children: any,
-  header: any,
-  footer: any,
-  wide: boolean,
-  full: boolean,
-  half: boolean
+  header?: any,
+  footer?: any,
+  wide?: boolean,
+  full?: boolean,
+  half?: boolean
 };
 
 type Props = {
@@ -36,20 +34,6 @@ type State = {
   collapse: boolean, 
   maxHeight: number
 };
-
-const SideContent = withProps<SidebarProps>()(styled.section)`
-  box-sizing: border-box;
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  flex-shrink: 0;
-  width: ${props => (props.wide ? '360px' : '300px')};
-  flex: ${props => (props.half ? '1' : 'none')};
-  margin-right: ${dimensions.coreSpacing}px;
-  background: ${props => (props.full ? colors.colorWhite : 'none')};
-  box-shadow: ${props =>
-    props.full ? `0 0 8px 1px ${colors.shadowPrimary}` : 'none'};
-`;
 
 function Sidebar({ children, wide, header, footer, half, full } : SidebarProps) {
   return (

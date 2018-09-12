@@ -1,5 +1,6 @@
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../common/styles';
 import { lighten } from '../common/styles/color';
 
@@ -96,7 +97,7 @@ const HeaderItems = styled.div`
   margin-left: ${props => props.rightAligned && 'auto'};
 `;
 
-const SideContent = styled.section`
+const SideContent = styledTS<{ wide: boolean; full: boolean; half: boolean}>(styled.section)`
   box-sizing: border-box;
   display: flex;
   position: relative;
@@ -110,7 +111,7 @@ const SideContent = styled.section`
     props.full ? `0 0 8px 1px ${colors.shadowPrimary}` : 'none'};
 `;
 
-const SidebarHeader = styled.div`
+const SidebarHeader = styledTS<{ spaceBottom: boolean; uppercase: boolean; bold: boolean }>(styled.div)`
   background-color: ${colors.bgLight};
   height: ${dimensions.headerSpacing}px;
   margin-bottom: ${props => props.spaceBottom && '10px'};
@@ -125,7 +126,7 @@ const SidebarHeader = styled.div`
   justify-content: space-between;
 `;
 
-const SidebarTitle = SidebarHeader.withComponent('h3').extend`
+const SidebarTitle = styledTS<{ children: any }>(SidebarHeader.withComponent('h3').extend)`
   padding: 0 ${dimensions.coreSpacing}px;
   margin: 0 0 -1px 0;
   text-transform: uppercase;
@@ -137,12 +138,12 @@ const SidebarMainContent = styled.div`
   position: relative;
 `;
 
-const SidebarFooter = SidebarHeader.extend`
+const SidebarFooter = styledTS<{ children: any }>(SidebarHeader.extend)`
   border-top: 1px solid ${colors.borderPrimary};
   border-bottom: none;
 `;
 
-const SidebarBox = styled.div`
+const SidebarBox = styledTS<{ noBackground: boolean; noShadow: boolean; collapsible: boolean; full: boolean}>(styled.div)`
   background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>

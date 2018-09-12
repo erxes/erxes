@@ -1,23 +1,24 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { DataWithLoader, Table } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import { Table, DataWithLoader } from 'modules/common/components';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import Sidebar from '../../properties/components/Sidebar';
 import HistoryRow from './Row';
+import { IHistories } from './types';
 
-const propTypes = {
-  queryParams: PropTypes.object,
-  currentType: PropTypes.string,
-  histories: PropTypes.array,
-  removeHistory: PropTypes.func,
-  loading: PropTypes.bool
-};
-
-const contextTypes = {
-  __: PropTypes.func
+type Props = {
+  queryParams: any,
+  currentType: string,
+  histories: IHistories[],
+  removeHistory: () => void,
+  loading: boolean
 };
 
 class Histories extends Component {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
   constructor(props) {
     super(props);
 
