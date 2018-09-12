@@ -15,6 +15,7 @@
     "noImplicitThis": true,
     "noImplicitAny": false, //temporal
     "strictNullChecks": false,
+    "strictFunctionTypes": false,
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "keyofStringsOnly": true,
