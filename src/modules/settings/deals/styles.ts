@@ -1,9 +1,10 @@
-import styled from 'styled-components';
 import { colors, typography } from 'modules/common/styles';
 import { SortItem } from 'modules/common/styles/sort';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { SidebarListItem } from '../styles';
 
-const BoardItem = SidebarListItem.extend`
+const BoardItem = styledTS(SidebarListItem.extend)`
   overflow: hidden;
 
   > button {

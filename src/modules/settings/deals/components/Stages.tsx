@@ -6,7 +6,7 @@ import StageItem from './StageItem';
 
 type Props = {
   onChangeStages: (stages: IStage[]) => void,
-  stages: IStage[]
+  stages: any
 };
 
 class Stages extends Component<Props, {}> {

@@ -10,12 +10,12 @@ import { IPipeline, IStage } from '../types';
 import { Stages } from './';
 
 type Props = {
-  show: boolean,
-  boardId: string,
-  pipeline: IPipeline,
+  show?: boolean,
+  boardId?: string,
+  pipeline?: IPipeline,
   stages: IStage[],
-  save: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline: IPipeline) => void,
-  closeModal: () => void,
+  save?: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline: IPipeline) => void,
+  closeModal?: () => void,
 };
 
 type State = {

@@ -21,7 +21,7 @@ class HomeContainer extends React.Component<HomeContainerProps> {
 }
 
 type HomeContainerProps = {
-  history: { boardId: string,  boardGetLastQuery: any; },
+  history?: any,
   boardId: string
 };
 

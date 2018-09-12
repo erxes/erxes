@@ -10,10 +10,10 @@ import { PipelineRow } from './';
 
 type Props = {
   pipelines: IPipeline[],
-  save: () => void,
-  updateOrder: (params: { variables: any }) => any,
-  remove: () => void,
-  boardId: string
+  save: ({ doc }: { doc: any; }, callback: () => void, pipeline: IPipeline) => void,
+  updateOrder?: any,
+  remove: (_id: string) => void,
+  boardId?: string
 };
 
 type State = {
