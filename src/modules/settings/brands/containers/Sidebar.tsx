@@ -1,17 +1,15 @@
-import { QueryBaseOptions } from 'apollo-client';
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
-import { IBrand, IBrandsCount } from '../types';
 
 type QueryResponse = {
-  brandsQuery: IBrand,
-  brandsCountQuery: IBrandsCount,
-  addMutation:() => void,
-  editMutation: () => void,
+  brandsQuery: any,
+  brandsCountQuery: any,
+  addMutation:(params: {variables: any}) => any,
+  editMutation: (params: {variables: any}) => any,
   removeMutation: (params: {variables: {_id: string; }}) => any,
 };
 

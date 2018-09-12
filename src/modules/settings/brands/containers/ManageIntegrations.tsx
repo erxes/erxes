@@ -7,7 +7,7 @@ import { queries as integQueries } from 'modules/settings/integrations/graphql';
 import React, { Component } from 'react';
 import { compose, graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
-import { IBrand } from '../types';
+import { IBrand, IIntegration } from '../types';
 import { ChooseBrand } from './';
 
 type Props = {
@@ -23,7 +23,7 @@ class ManageIntegrationsContainer extends Component<Props> {
     this.save = this.save.bind(this);
   }
 
-  renderConfirm(integration, actionTrigger, icon, handleChange) {
+  renderConfirm(integration: IIntegration, actionTrigger, icon, handleChange) {
     if (icon === 'add') {
       return null;
     }

@@ -1,7 +1,8 @@
-import styled from 'styled-components';
-import { dimensions, colors, typography } from 'modules/common/styles';
+import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { ActionButtons } from 'modules/knowledgeBase/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
@@ -197,7 +198,7 @@ const BackgroundSelector = styled.div`
   }
 `;
 
-const SidebarListItem = styled.li`
+const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
   background: ${props => props.isActive && colors.bgActive};

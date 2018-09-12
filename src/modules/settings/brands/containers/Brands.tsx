@@ -2,24 +2,20 @@ import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
 import queryString from 'query-string';
 import React from 'react';
-import { ChildProps, compose, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Brands as DumbBrands, Empty } from '../components';
 import { queries } from '../graphql';
-import { IBrand, IIntegrationCount } from '../types';
 
 type Props = {
   currentBrandId: string,
   history: any,
-  location: any
+  location: any,
+  integrationsCountQuery: any,
+  brandDetailQuery: any,
 };
 
-type QueryResponse = {
-  integrationsCountQuery: IIntegrationCount,
-  brandDetailQuery: IBrand,
-}
-
-class Brands extends React.Component<ChildProps<Props, QueryResponse>> {
+class Brands extends React.Component<Props> {
   render() {
     const {
       brandDetailQuery,
@@ -92,7 +88,7 @@ class WithCurrentId extends React.Component<WithCurrentIdProps> {
 }
 
 type WithCurrentIdProps = {
-  lastBrandQuery: IBrand,
+  lastBrandQuery: any,
   history: any,
   queryParams: any
 };

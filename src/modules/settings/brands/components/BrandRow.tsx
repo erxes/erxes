@@ -9,7 +9,7 @@ import { IBrand } from '../types';
 type Props = {
   brand: IBrand,
   remove: (id: string) => void,
-  save: () => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, brand: IBrand) => void,
   isActive: boolean
 }
 
