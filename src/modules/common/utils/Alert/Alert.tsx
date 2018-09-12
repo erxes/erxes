@@ -1,9 +1,9 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { slideDown } from 'modules/common/utils/animations';
 import Icon from 'modules/common/components/Icon';
-import { colors, typography, dimensions } from 'modules/common/styles';
+import { colors, dimensions, typography } from 'modules/common/styles';
+import { slideDown } from 'modules/common/utils/animations';
+import * as React from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const types = {
   info: {
@@ -27,7 +27,7 @@ const types = {
   }
 };
 
-const AlertItem = styled.div`
+const AlertItem = styledTS<{ type : string }>(styled.div)`
   display: table;
   margin: 29px auto;
   transition: all 0.5s;
@@ -50,8 +50,12 @@ const AlertItem = styled.div`
   }
 `;
 
-export default class AlertStyled extends React.Component {
-  constructor(props) {
+type State = {
+  visible: boolean
+}
+
+export default class AlertStyled extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = { visible: true };
@@ -84,9 +88,9 @@ export default class AlertStyled extends React.Component {
   }
 }
 
-AlertStyled.propTypes = {
-  type: PropTypes.string.isRequired,
-  children: PropTypes.node
+type Props = {
+  type: string,
+  children: React.ReactNode
 };
 
 AlertStyled.defaultProps = {

@@ -22,12 +22,12 @@ export const setTitle = (title, force) => {
   }
 };
 
-export const setBadge = (count, title) => {
-  const favicon = document.getElementById('favicon');
+export const setBadge = (count: number, title: string) => {
+  const favicon = (document.getElementById('favicon') as HTMLAnchorElement);
 
   if (count) {
     if (document.title.includes(title)) {
-      setTitle(`(${count}) ${title}`);
+      setTitle(`(${count}) ${title}`, true);
     }
 
     return (favicon.href = '/favicon-unread.png');
