@@ -1,20 +1,21 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import { Dropdown, MenuItem } from 'react-bootstrap';
-import styled from 'styled-components';
 import {
-  NameCard,
   DropdownToggle,
   Icon,
-  ModalTrigger
+  ModalTrigger,
+  NameCard
 } from 'modules/common/components';
-import { UserHelper } from '../styles';
+import { __ } from 'modules/common/utils';
+import { IUser } from 'modules/settings/channels/types';
+import { Signature } from 'modules/settings/email/containers';
 import {
   ChangePassword,
   NotificationSettings
 } from 'modules/settings/profile/containers';
-import { Signature } from 'modules/settings/email/containers';
+import * as React from 'react';
+import { Dropdown, MenuItem } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import { UserHelper } from '../styles';
 
 const UserInfo = styled.div`
   display: flex;
@@ -37,9 +38,7 @@ const NavItem = styled.div`
   vertical-align: middle;
 `;
 
-const QuickNavigation = ({ logout }, context) => {
-  const { currentUser, __ } = context;
-
+const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentUser: IUser }, context) => {
   return (
     <nav>
       <NavItem>
@@ -105,15 +104,6 @@ const QuickNavigation = ({ logout }, context) => {
       </NavItem>
     </nav>
   );
-};
-
-QuickNavigation.propTypes = {
-  logout: PropTypes.func
-};
-
-QuickNavigation.contextTypes = {
-  currentUser: PropTypes.object,
-  __: PropTypes.func
 };
 
 export default QuickNavigation;

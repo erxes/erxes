@@ -1,11 +1,10 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { queries, subscriptions } from 'modules/inbox/graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { Navigation } from '../components';
-import { subscriptions, queries } from 'modules/inbox/graphql';
 
-class NavigationContainer extends React.Component {
+class NavigationContainer extends React.Component<{ unreadConversationsCountQuery: any }> {
   componentWillMount() {
     this.props.unreadConversationsCountQuery.subscribeToMore({
       // listen for all conversation changes
@@ -33,10 +32,6 @@ class NavigationContainer extends React.Component {
     return <Navigation {...props} />;
   }
 }
-
-NavigationContainer.propTypes = {
-  unreadConversationsCountQuery: PropTypes.object
-};
 
 export default compose(
   graphql(gql(queries.unreadConversationsCount), {

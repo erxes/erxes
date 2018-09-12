@@ -1,6 +1,7 @@
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 
-function NotFound(props, { __ }) {
+function NotFound() {
   return (
     <div className="auth-content">
       <div className="container">
@@ -20,9 +21,5 @@ function NotFound(props, { __ }) {
     </div>
   );
 }
-
-NotFound.contextTypes = {
-  __: PropTypes.func
-};
 
 export default NotFound;

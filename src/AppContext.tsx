@@ -1,15 +1,14 @@
-import moment from 'moment';
 import T from 'i18n-react';
+import { IUser } from 'modules/settings/channels/types';
+import moment from 'moment';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { withCurrentUser } from 'modules/auth/containers';
-import { MainLayout } from '../components';
-import translations from '../../../locales';
+import translations from './locales';
 
 moment.defineLocale('mn', {
   relativeTime: {
     future: '%s дараа',
     past: '%s өмнө',
+    ss: "$d секундын",
     s: 'саяхан',
     m: 'минутын',
     mm: '%d минутын',
@@ -29,6 +28,7 @@ moment.updateLocale('en', {
     future: 'in %s',
     past: '%s ago',
     s: '%d seconds',
+    ss: "%d s",
     m: 'a minute',
     mm: '%d minutes',
     h: 'an hour',
@@ -42,46 +42,35 @@ moment.updateLocale('en', {
   }
 });
 
-class TranslationWrapper extends React.Component {
-  getChildContext() {
-    return {
-      __: msg => T.translate(msg)
-    };
-  }
-
-  render() {
-    const { children } = this.props;
-    return <React.Fragment>{children}</React.Fragment>;
-  }
+interface IState {
+  currentUser?: IUser;
+  currentLanguage: string;
 }
 
-TranslationWrapper.propTypes = {
-  children: PropTypes.object
-};
+interface IStore extends IState {
+  currentUser?: IUser
+}
 
-TranslationWrapper.childContextTypes = {
-  __: PropTypes.func
-};
+const AppContext = React.createContext({} as IStore);
 
-class MainLayoutContainer extends React.Component {
-  constructor(props) {
+export const AppConsumer = AppContext.Consumer;
+
+export class AppProvider extends React.Component<{}, IState> {
+  constructor(props: {}) {
     super(props);
 
     // initiliaze locale ======
     const currentLanguage = localStorage.getItem('currentLanguage') || 'en';
 
-    this.state = { currentLanguage };
+    this.state = {
+      currentUser: null,
+      currentLanguage,
+    };
+
     this.setLocale = this.setLocale.bind(this);
     this.changeLanguage = this.changeLanguage.bind(this);
 
     this.setLocale(currentLanguage);
-  }
-
-  getChildContext() {
-    return {
-      changeLanguage: this.changeLanguage,
-      currentLanguage: this.state.currentLanguage
-    };
   }
 
   setLocale(currentLanguage) {
@@ -99,18 +88,18 @@ class MainLayoutContainer extends React.Component {
     this.setState({ currentLanguage });
   }
 
-  render() {
+  public render() {
+    const { currentUser, currentLanguage } = this.state;
+
     return (
-      <TranslationWrapper>
-        <MainLayout {...this.props} />
-      </TranslationWrapper>
+      <AppContext.Provider
+        value={{
+          currentUser,
+          currentLanguage,
+        }}
+      >
+        {this.props.children}
+      </AppContext.Provider>
     );
   }
 }
-
-MainLayoutContainer.childContextTypes = {
-  changeLanguage: PropTypes.func,
-  currentLanguage: PropTypes.string
-};
-
-export default withCurrentUser(MainLayoutContainer);

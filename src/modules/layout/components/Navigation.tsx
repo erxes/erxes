@@ -1,6 +1,6 @@
 import { Label, Tip } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
-import { setBadge } from 'modules/common/utils';
+import { __, setBadge } from 'modules/common/utils';
 import { Widget } from 'modules/notifications/containers';
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
@@ -115,7 +115,6 @@ const NavIcon = styled.i`
 
 class Navigation extends Component<{ unreadConversationsCount?: number }> {
   componentWillReceiveProps(nextProps) {
-    const { __ } = this.context;
     const unreadCount = nextProps.unreadConversationsCount;
 
     if (unreadCount !== this.props.unreadConversationsCount) {
@@ -125,7 +124,7 @@ class Navigation extends Component<{ unreadConversationsCount?: number }> {
 
   render() {
     const { unreadConversationsCount } = this.props;
-    const { __ } = this.context;
+
     return (
       <LeftNavigation>
         <NavLink to="/">
@@ -188,9 +187,5 @@ class Navigation extends Component<{ unreadConversationsCount?: number }> {
     );
   }
 }
-
-Navigation.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Navigation;
