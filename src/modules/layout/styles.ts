@@ -126,7 +126,7 @@ const SidebarHeader = styledTS<{ spaceBottom?: boolean, uppercase?: boolean, bol
   justify-content: space-between;
 `;
 
-const SidebarTitle = SidebarHeader.withComponent('h3').extend`
+const SidebarTitle = styledTS<{ children: any }>(SidebarHeader.withComponent('h3').extend)`
   padding: 0 ${dimensions.coreSpacing}px;
   margin: 0 0 -1px 0;
   text-transform: uppercase;
@@ -138,7 +138,7 @@ const SidebarMainContent = styled.div`
   position: relative;
 `;
 
-const SidebarFooter = SidebarHeader.extend`
+const SidebarFooter = styledTS<{ children: any }>(SidebarHeader.extend)`
   border-top: 1px solid ${colors.borderPrimary};
   border-bottom: none;
 `;
