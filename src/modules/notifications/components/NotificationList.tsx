@@ -1,12 +1,18 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import Sidebar from 'modules/settings/Sidebar';
 import { Button, Pagination } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
+import Sidebar from 'modules/settings/Sidebar';
+import React, { Component } from 'react';
 import { NotificationRow } from './';
 import { NotifList } from './styles';
 
-class NotificationList extends Component {
+type Props = {
+  notifications: any[],
+  markAsRead: (bulk?: string[]) => void,
+  count: number
+};
+
+class NotificationList extends Component<Props, { bulk: string[] }> {
   constructor(props) {
     super(props);
 
@@ -33,7 +39,6 @@ class NotificationList extends Component {
 
   render() {
     const { notifications, count, markAsRead } = this.props;
-    const { __ } = this.context;
 
     const content = (
       <NotifList>
@@ -83,15 +88,5 @@ class NotificationList extends Component {
     );
   }
 }
-
-NotificationList.propTypes = {
-  notifications: PropTypes.array.isRequired,
-  markAsRead: PropTypes.func.isRequired,
-  count: PropTypes.number.isRequired
-};
-
-NotificationList.contextTypes = {
-  __: PropTypes.func
-};
 
 export default NotificationList;

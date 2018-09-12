@@ -1,9 +1,10 @@
-import { AppConsumer, AppProvider } from 'AppContext';
 import consts from 'consts';
+import { withCurrentUser } from 'modules/auth/containers';
+import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import { QuickNavigation } from '../components';
 
-const QuickNavigationContainer = (props: {}) => {
+const QuickNavigationContainer = (props: { currentUser: IUser }) => {
   const { LOGIN_TOKEN_KEY, LOGIN_REFRESH_TOKEN_KEY } = consts;
 
   const logout = () => {
@@ -15,18 +16,11 @@ const QuickNavigationContainer = (props: {}) => {
   };
 
   return (
-    <AppProvider>
-      <AppConsumer>
-        {({ currentUser }) => (
-          <QuickNavigation
-            {...props}
-            logout={logout}
-            currentUser={currentUser}
-          />
-        )}
-      </AppConsumer>
-    </AppProvider>
-  );
+    <QuickNavigation
+      {...props}
+      logout={logout}
+    />
+  )
 };
 
-export default QuickNavigationContainer;
+export default withCurrentUser(QuickNavigationContainer);

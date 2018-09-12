@@ -1,11 +1,18 @@
+import classNames from 'classnames';
+import { IUser } from 'modules/auth/types';
+import { NameCard } from 'modules/common/components';
+import moment from 'moment';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import moment from 'moment';
-import { NameCard } from 'modules/common/components';
 
-class NotificationRow extends Component {
+type Props = {
+  history: any,
+  notification: any,
+  markAsRead: (_id: string) => void,
+  createdUser: IUser
+};
+
+class NotificationRow extends Component<Props> {
   constructor(props) {
     super(props);
 
@@ -38,12 +45,5 @@ class NotificationRow extends Component {
     );
   }
 }
-
-NotificationRow.propTypes = {
-  history: PropTypes.object.isRequired,
-  notification: PropTypes.object.isRequired,
-  markAsRead: PropTypes.func.isRequired,
-  createdUser: PropTypes.object
-};
 
 export default withRouter(NotificationRow);

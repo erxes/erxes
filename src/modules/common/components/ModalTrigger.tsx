@@ -1,3 +1,4 @@
+import { __ } from 'modules/common/utils';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { Modal } from 'react-bootstrap';
@@ -50,7 +51,6 @@ class ModalTrigger extends Component<Props, State> {
       ignoreTrans,
       dialogClassName
     } = this.props;
-    const { __ } = this.context;
 
     // add onclick event to the trigger component
     const triggerComponent = React.cloneElement(trigger, {

@@ -1,22 +1,4 @@
-import { AppConsumer, AppProvider } from 'AppContext';
-import * as React from 'react';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import { MainLayout } from '../components';
 
-type Props = {
-  children: React.ReactNode,
-}
-
-const container = (props: Props) => (
-  <AppProvider>
-    <AppConsumer>
-      {({ currentUser }) => (
-        <MainLayout
-          {...props}
-          currentUser={currentUser}
-        />
-      )}
-    </AppConsumer>
-  </AppProvider>
-);
-
-export default container;
+export default withCurrentUser(MainLayout);

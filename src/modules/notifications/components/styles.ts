@@ -1,6 +1,7 @@
-import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const NotificationWrapper = styled.div`
   position: relative;
@@ -94,7 +95,7 @@ const PopoverContent = styled.div`
   height: 450px;
 `;
 
-const Toggler = styled.div`
+const Toggler = styledTS<{ activeFirst: boolean }>(styled.div)`
   display: flex;
   height: ${toggleSize}px;
   border: 1px solid ${colors.borderPrimary};
@@ -119,7 +120,7 @@ const Toggler = styled.div`
   }
 `;
 
-const Toggle = styled.div`
+const Toggle = styledTS<{ isActive: boolean }>(styled.div)`
   flex: 1;
   text-align: center;
   line-height: ${toggleSize - 2}px;

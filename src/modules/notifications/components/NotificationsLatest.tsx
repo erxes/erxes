@@ -1,16 +1,22 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import { EmptyState } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
+import { NotificationRow } from './';
 import {
-  NotificationSeeAll,
   NotificationList,
+  NotificationSeeAll,
   NotificationWrapper,
   PopoverContent
 } from './styles';
-import { NotificationRow } from './';
 
-class NotificationsLatest extends Component {
+type Props = {
+  notifications: any[],
+  markAsRead: () => void,
+  update: () => void
+};
+
+class NotificationsLatest extends Component<Props> {
   componentDidMount() {
     // update popover position
     this.props.update();
@@ -19,7 +25,6 @@ class NotificationsLatest extends Component {
   render() {
     const { notifications, markAsRead } = this.props;
     const notifCount = notifications.length;
-    const { __ } = this.context;
 
     const mainContent = (
       <Fragment>
@@ -41,7 +46,7 @@ class NotificationsLatest extends Component {
     const emptyContent = (
       <PopoverContent>
         <EmptyState
-          text={__('No notifications')}
+          text={__('No notifications').toString()}
           image="/images/robots/robot-05.svg"
         />
       </PopoverContent>
@@ -57,15 +62,5 @@ class NotificationsLatest extends Component {
     return content();
   }
 }
-
-NotificationsLatest.propTypes = {
-  notifications: PropTypes.array.isRequired,
-  markAsRead: PropTypes.func.isRequired,
-  update: PropTypes.func
-};
-
-NotificationsLatest.contextTypes = {
-  __: PropTypes.func
-};
 
 export default NotificationsLatest;

@@ -1,18 +1,18 @@
+import { EmptyState, Icon, Label } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { NotificationsLatest } from '../containers';
-import { Label, EmptyState, Icon } from 'modules/common/components';
 import {
   NotifButton,
-  Toggler,
-  Toggle,
-  PopoverHeader,
+  NotifCount,
   PopoverContent,
-  NotifCount
+  PopoverHeader,
+  Toggle,
+  Toggler
 } from './styles';
 
-class Widget extends Component {
+class Widget extends Component<{ unreadCount: number }, { activeFirst: boolean }> {
   constructor(props) {
     super(props);
 
@@ -32,13 +32,11 @@ class Widget extends Component {
   }
 
   renderPopoverContent() {
-    const { __ } = this.context;
-
     if (this.state.activeFirst) {
       return (
         <PopoverContent>
           <EmptyState
-            text={__('Coming soon')}
+            text={__('Coming soon').toString()}
             image="/images/robots/robot-05.svg"
           />
         </PopoverContent>
@@ -64,7 +62,6 @@ class Widget extends Component {
 
   render() {
     const isActive = this.state.activeFirst;
-    const { __ } = this.context;
 
     const popoverNotification = (
       <Popover id="npopover" className="notification-popover">
@@ -103,13 +100,5 @@ class Widget extends Component {
     );
   }
 }
-
-Widget.propTypes = {
-  unreadCount: PropTypes.number
-};
-
-Widget.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Widget;
