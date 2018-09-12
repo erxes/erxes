@@ -1,18 +1,17 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import { ResponsiveLine } from '@nivo/line';
 import { Spinner } from 'modules/common/components';
-import { ChartWrapper, LoaderWrapper } from '../styles';
 import { colors } from 'modules/common/styles';
+import * as React from 'react';
+import { ChartWrapper, LoaderWrapper } from '../styles';
 
-const propTypes = {
-  data: PropTypes.array.isRequired,
-  loading: PropTypes.bool,
-  width: PropTypes.number,
-  height: PropTypes.number
+interface IProps {
+  data: any,
+  loading?: boolean,
+  width?: number,
+  height: number
 };
 
-class Chart extends React.Component {
+class Chart extends React.Component<IProps> {
   render() {
     const { data, height, loading } = this.props;
 
@@ -54,7 +53,5 @@ class Chart extends React.Component {
     );
   }
 }
-
-Chart.propTypes = propTypes;
 
 export default Chart;

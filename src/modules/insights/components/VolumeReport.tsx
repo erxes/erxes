@@ -1,17 +1,16 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import { Insights, Summary } from '.';
+import { InsightContent, InsightRow } from '../styles';
 import CommonReport from './CommonReport';
-import { Summary, Insights } from './';
-import { InsightRow, InsightContent } from '../styles';
 
-const propTypes = {
-  insights: PropTypes.array.isRequired,
-  punch: PropTypes.array.isRequired,
-  summary: PropTypes.array.isRequired,
-  loading: PropTypes.object.isRequired
+interface IProps {
+  insights: any,
+  punch: any,
+  summary: any,
+  loading: any
 };
 
-class VolumeReport extends CommonReport {
+class VolumeReport extends CommonReport<IProps> {
   componentDidUpdate(prevProps) {
     if (prevProps.loading.insights && !this.props.loading.insights) {
       this.calculateWidth();

@@ -1,15 +1,15 @@
+import Chart from './Chart';
+import Filter from './Filter';
+import FirstResponse from './FirstResponse';
 import InsightPage from './InsightPage';
 import Insights from './Insights';
-import TeamMembers from './TeamMembers';
 import PunchCard from './PunchCard';
-import Sidebar from './Sidebar';
-import Filter from './Filter';
-import Chart from './Chart';
-import Summary from './Summary';
-import VolumeReport from './VolumeReport';
-import ResponseReport from './ResponseReport';
-import FirstResponse from './FirstResponse';
 import ResponseCloseReport from './ResponseCloseReport';
+import ResponseReport from './ResponseReport';
+import Sidebar from './Sidebar';
+import Summary from './Summary';
+import TeamMembers from './TeamMembers';
+import VolumeReport from './VolumeReport';
 
 export {
   InsightPage,

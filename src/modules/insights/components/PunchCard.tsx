@@ -1,14 +1,13 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import D3PunchCard from 'bat-d3-punchcard';
+import * as React from 'react';
 import { ChartWrapper } from '../styles';
 
-const propTypes = {
-  data: PropTypes.array.isRequired,
-  width: PropTypes.number
+interface IProps {
+  data: any,
+  width: number
 };
 
-class PunchCard extends React.Component {
+class PunchCard extends React.Component<IProps> {
   componentDidMount() {
     this.renderPunchCard('init');
   }
@@ -17,9 +16,9 @@ class PunchCard extends React.Component {
     this.renderPunchCard('update');
   }
 
-  renderPunchCard(type) {
+  renderPunchCard(type: string) {
     const { data, width } = this.props;
-
+    
     let chart;
     const color = '#452679';
     if (type === 'init') {
@@ -36,7 +35,5 @@ class PunchCard extends React.Component {
     return <ChartWrapper id="punch-card" className="punch-card" />;
   }
 }
-
-PunchCard.propTypes = propTypes;
 
 export default PunchCard;

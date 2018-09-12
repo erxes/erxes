@@ -1,15 +1,14 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import { ResponsivePie } from '@nivo/pie';
 import { Spinner } from 'modules/common/components';
+import * as React from 'react';
 import { ChartWrapper, LoaderWrapper } from '../styles';
 
-const propTypes = {
-  data: PropTypes.array.isRequired,
-  loading: PropTypes.bool
+interface IProps {
+  data: any,
+  loading: boolean
 };
 
-class Insights extends React.Component {
+class Insights extends React.Component<IProps> {
   render() {
     const { data, loading } = this.props;
 
@@ -66,7 +65,5 @@ class Insights extends React.Component {
     );
   }
 }
-
-Insights.propTypes = propTypes;
 
 export default Insights;

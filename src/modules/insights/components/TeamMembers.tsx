@@ -1,22 +1,21 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Col, Row } from 'react-bootstrap';
 import { Spinner } from 'modules/common/components';
-import Chart from './Chart';
-import { convertTime } from '../utils';
+import * as React from 'react';
+import { Col, Row } from 'react-bootstrap';
 import {
-  InsightUserData,
-  UserProfile,
   FullName,
-  LoaderWrapper
+  InsightUserData,
+  LoaderWrapper,
+  UserProfile
 } from '../styles';
+import { convertTime } from '../utils';
+import Chart from './Chart';
 
-const propTypes = {
-  datas: PropTypes.array.isRequired,
-  loading: PropTypes.bool
+interface IProps {
+  datas: any,
+  loading: boolean
 };
 
-class TeamMembers extends React.Component {
+class TeamMembers extends React.Component<IProps> {
   renderChart(userData, index) {
     const data = userData.data ? userData.data : userData;
 
@@ -58,7 +57,5 @@ class TeamMembers extends React.Component {
     );
   }
 }
-
-TeamMembers.propTypes = propTypes;
 
 export default TeamMembers;

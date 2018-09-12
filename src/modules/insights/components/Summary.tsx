@@ -1,20 +1,19 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Col, Row } from 'react-bootstrap';
 import { Spinner } from 'modules/common/components';
+import * as React from 'react';
+import { Col, Row } from 'react-bootstrap';
 import {
-  SummaryItem,
-  SummaryTitle,
+  LoaderWrapper,
   SummaryCount,
-  LoaderWrapper
+  SummaryItem,
+  SummaryTitle
 } from '../styles';
 
-const propTypes = {
-  data: PropTypes.array.isRequired,
-  loading: PropTypes.bool
+interface IProps {
+  data: any,
+  loading: boolean
 };
 
-class Summary extends React.Component {
+class Summary extends React.Component<IProps> {
   renderSummary(sum) {
     return (
       <Col sm={3} key={Math.random()}>
@@ -40,7 +39,5 @@ class Summary extends React.Component {
     return <Row>{data.map(detail => this.renderSummary(detail))}</Row>;
   }
 }
-
-Summary.propTypes = propTypes;
 
 export default Summary;

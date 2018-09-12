@@ -1,11 +1,21 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { ResponseReport, VolumeReport } from '../components';
 import { queries } from '../graphql';
+import { IParams, IParamsWithType } from './utils'
 
-const VolumenAndResponseReportContainer = props => {
+interface IProps {
+  history: any,
+  type: string,
+  volumePieChartQuery: any,
+  brandsQuery: any,
+  punchCardQuery: any,
+  mainQuery: any,
+  queryParams: any
+}
+
+const VolumenAndResponseReportContainer = (props: IProps) => {
   const {
     type,
     volumePieChartQuery,
@@ -49,21 +59,11 @@ const VolumenAndResponseReportContainer = props => {
   return <ResponseReport {...responseProps} />;
 };
 
-VolumenAndResponseReportContainer.propTypes = {
-  history: PropTypes.object,
-  type: PropTypes.string,
-  queryParams: PropTypes.object,
-  volumePieChartQuery: PropTypes.object,
-  brandsQuery: PropTypes.object,
-  punchCardQuery: PropTypes.object,
-  mainQuery: PropTypes.object
-};
-
 export default compose(
   graphql(gql(queries.pieChart), {
     name: 'volumePieChartQuery',
     skip: ({ type }) => type === 'response',
-    options: ({ queryParams }) => ({
+    options: ({ queryParams }: IParams) => ({
       fetchPolicy: 'network-only',
       variables: {
         brandId: queryParams.brandId,
@@ -74,7 +74,7 @@ export default compose(
   }),
   graphql(gql(queries.punchCard), {
     name: 'punchCardQuery',
-    options: ({ queryParams, type }) => ({
+    options: ({ queryParams, type }: IParamsWithType) => ({
       fetchPolicy: 'network-only',
       variables: {
         type,
@@ -86,7 +86,7 @@ export default compose(
   }),
   graphql(gql(queries.main), {
     name: 'mainQuery',
-    options: ({ queryParams, type }) => ({
+    options: ({ queryParams, type }: IParamsWithType) => ({
       fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,
       variables: {
