@@ -11,7 +11,7 @@ const searchCompany = (searchValue, callback) => {
       query: gql(companyQueries.companies),
       variables: { searchValue, page: 1, perPage: 10 }
     })
-    .then(response => {
+    .then((response: any) => {
       callback && callback(response.data.companies);
     })
     .catch(error => {
@@ -25,7 +25,7 @@ const searchCustomer = (searchValue, callback) => {
       query: gql(customerQueries.customers),
       variables: { searchValue, page: 1, perPage: 10 }
     })
-    .then(response => {
+    .then((response: any) => {
       callback && callback(response.data.customers);
     })
     .catch(error => {
@@ -39,7 +39,7 @@ const searchUser = (searchValue, callback) => {
       query: gql(userQueries.users),
       variables: { searchValue, page: 1, perPage: 10 }
     })
-    .then(response => {
+    .then((response: any) => {
       callback && callback(response.data.users);
     })
     .catch(error => {
