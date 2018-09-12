@@ -1,17 +1,16 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import CommonReport from './CommonReport';
-import { Summary, TeamMembers } from './';
+import { Summary, TeamMembers } from '.';
 import { InsightContent, InsightRow } from '../styles';
+import CommonReport from './CommonReport';
 
-const propTypes = {
-  teamMembers: PropTypes.array.isRequired,
-  punch: PropTypes.array.isRequired,
-  summary: PropTypes.array.isRequired,
-  loading: PropTypes.object.isRequired
+interface IProps {
+  teamMembers: any,
+  punch: any,
+  summary: any,
+  loading: any
 };
 
-class ResponseReport extends CommonReport {
+class ResponseReport extends CommonReport<IProps> {
   componentDidUpdate(prevProps) {
     if (prevProps.loading.punch && !this.props.loading.punch) {
       this.calculateWidth();
@@ -58,7 +57,5 @@ class ResponseReport extends CommonReport {
     );
   }
 }
-
-ResponseReport.propTypes = propTypes;
 
 export default ResponseReport;

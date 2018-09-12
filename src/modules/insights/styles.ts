@@ -1,6 +1,11 @@
-import styled from 'styled-components';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+
+export interface IWrapperProps {
+  height: number
+}
 
 const InsightWrapper = styled.div`
   position: absolute;
@@ -75,7 +80,7 @@ const FlexItem = styled.div`
   }
 `;
 
-const ChartWrapper = styled.div`
+const ChartWrapper = styledTS<IWrapperProps>(styled.div)`
   padding: ${dimensions.coreSpacing}px;
   border: 1px solid ${colors.borderPrimary};
   border-radius: 2px;
