@@ -1,5 +1,6 @@
-import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const StepContainer = styled.div`
   display: flex;
@@ -17,7 +18,7 @@ const StepWrapper = styled.div`
   flex-direction: column;
 `;
 
-const StepItem = styled.div`
+const StepItem = styledTS<{ show: boolean }>(styled.div)`
   transition: all 0.3s;
   width: ${props => (props.show ? '100%' : '70px')};
   box-shadow: 0 0 4px ${colors.colorShadowGray};
@@ -35,7 +36,7 @@ const TitleContainer = styled.div`
   }
 `;
 
-const FullStep = styled.div`
+const FullStep = styledTS<{ show: boolean }>(styled.div)`
   background: ${colors.colorWhite};
   height: 100%;
   width: 100%;
@@ -80,7 +81,7 @@ const StepContent = styled.div`
   overflow: hidden;
 `;
 
-const ShortStep = styled.div`
+const ShortStep = styledTS<{ show: boolean }>(styled.div)`
   width: 70px;
   height: 100%;
   background: ${colors.bgLight};
@@ -101,7 +102,7 @@ const InlineForm = styled.div`
   }
 `;
 
-const FlexItem = styled.div`
+const FlexItem = styledTS<{ count?: string, overflow?: boolean, v?: boolean, h?: boolean, direction?: boolean }>(styled.div)`
   display: flex;
   height: 100%;
   border-right: 1px solid ${colors.borderPrimary};
@@ -141,7 +142,7 @@ const FlexPad = FlexItem.extend`
   border-right: 1px solid ${colors.borderPrimary};
 `;
 
-const LeftItem = styled.div`
+const LeftItem = styledTS<{ deactive?: boolean }>(styled.div)`
   overflow: auto;
   flex: 1;
   min-width: 43.33333%;
@@ -154,7 +155,7 @@ const LeftItem = styled.div`
   }
 `;
 
-const Preview = styled.div`
+const Preview = styledTS<{ fullHeight: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   flex-direction: column;

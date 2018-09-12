@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import colors from './colors';
 
 const columnSizing = '20px';
@@ -84,7 +85,7 @@ const Column = styled.div`
   }
 `;
 
-const Title = styled.h4`
+const Title = styledTS<{ full: boolean }>(styled.h4)`
   margin: 0 0 ${columnSizing} 0;
   background: ${colors.bgActive};
   padding: 10px ${columnSizing};

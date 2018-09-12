@@ -1,8 +1,9 @@
-import styled from 'styled-components';
-import { dimensions, colors, typography } from 'modules/common/styles';
+import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const FullContent = styled.div`
+const FullContent = styledTS<{ center: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   min-height: 100%;
@@ -139,7 +140,7 @@ const CenterContent = styled.div`
   margin-top: 10px;
 `;
 
-const ActivityContent = styled.div`
+const ActivityContent = styledTS<{ isEmpty: boolean }>(styled.div)`
   position: relative;
   height: ${props => props.isEmpty && '360px'};
 `;
@@ -152,7 +153,7 @@ const Well = styled.div`
   border-left: 2px solid ${colors.colorSecondary};
 `;
 
-const DropIcon = styled.span`
+const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
   &:after {
     cursor: pointer;
     content: '\\e827';

@@ -1,11 +1,12 @@
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { colors } from '../styles';
 import Button from './Button';
 import Icon from './Icon';
 
-const EmptyStateStyled = styled.div`
+const EmptyStateStyled = styledTS<{ size: string }>(styled.div)`
   display: flex;
   flex-direction: column;
   height: 100%;
