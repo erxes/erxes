@@ -1,9 +1,9 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { colors } from '../styles';
-import { colorParser } from 'modules/common/utils';
+import { __, colorParser } from 'modules/common/utils';
 import { shake } from 'modules/common/utils/animations';
+import React, { Component } from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { colors } from '../styles';
 
 const types = {
   default: {
@@ -26,7 +26,7 @@ const types = {
   }
 };
 
-const LabelStyled = styled.span`
+const LabelStyled = styledTS<{ lblStyle: string, hasLightBackground?: boolean, shake?: boolean }>(styled.span)`
   border-radius: 14px;
   padding: 3px 9px;
   text-transform: uppercase;
@@ -73,46 +73,37 @@ const LabelStyled = styled.span`
   }
 `;
 
-function Label(props, { __ }) {
-  const { ignoreTrans } = props;
+type Props = {
+  children: React.ReactNode | string,
+  className?: string,
+  shake?: boolean
+  ignoreTrans?: boolean,
+  style?: any,
+  lblStyle: string
+};
 
-  const updatedProps = {
-    ...props,
-    hasLightBackground: props.style
-      ? colorParser.isColorLight(props.style.backgroundColor)
-      : null
+class Label extends Component<Props> {
+  static defaultProps = {
+    lblStyle: 'default',
+    shake: false
   };
 
-  return (
-    <LabelStyled {...updatedProps}>
-      {ignoreTrans ? props.children : __(props.children)}
-    </LabelStyled>
-  );
+  render() {
+    const { ignoreTrans, children, style } = this.props;
+
+    const updatedProps = {
+      ...this.props,
+      hasLightBackground: style
+        ? colorParser.isColorLight(style.backgroundColor)
+        : null
+    };
+
+    return (
+      <LabelStyled {...updatedProps}>
+        {ignoreTrans ? children : __(children)}
+      </LabelStyled>
+    );
+  }
 }
-
-Label.propTypes = {
-  children: PropTypes.node.isRequired,
-  className: PropTypes.string,
-  shake: PropTypes.bool,
-  ignoreTrans: PropTypes.bool,
-  style: PropTypes.object,
-  lblStyle: PropTypes.oneOf([
-    'default',
-    'primary',
-    'success',
-    'danger',
-    'warning',
-    'simple'
-  ])
-};
-
-Label.contextTypes = {
-  __: PropTypes.func
-};
-
-Label.defaultProps = {
-  lblStyle: 'default',
-  shake: false
-};
 
 export default Label;

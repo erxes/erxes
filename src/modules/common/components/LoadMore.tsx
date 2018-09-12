@@ -1,15 +1,16 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import { router } from 'modules/common/utils';
 import { Button } from 'modules/common/components';
+import { router } from 'modules/common/utils';
+import * as React from 'react';
+import { withRouter } from 'react-router';
 
-const propTypes = {
-  history: PropTypes.object.isRequired,
-  perPage: PropTypes.number,
-  all: PropTypes.number.isRequired,
-  paramName: PropTypes.string,
-  loading: PropTypes.bool
+type Props = {
+  history: any,
+  location: any,
+  match: any,
+  perPage: number,
+  all: number,
+  paramName?: string,
+  loading?: boolean
 };
 
 function LoadMore({
@@ -18,7 +19,7 @@ function LoadMore({
   all,
   paramName = 'limit',
   loading
-}) {
+}: Props) {
   const loaded = parseInt(router.getParam(history, paramName), 10) || perPage;
 
   const load = () => {
@@ -31,7 +32,5 @@ function LoadMore({
     </Button>
   ) : null;
 }
-
-LoadMore.propTypes = propTypes;
 
 export default withRouter(LoadMore);

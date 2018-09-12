@@ -1,22 +1,25 @@
+import { DataWithLoader, EmptyState, Icon } from 'modules/common/components';
+import { router } from 'modules/common/utils';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import { Icon, DataWithLoader, EmptyState } from 'modules/common/components';
-import { router } from 'modules/common/utils';
 import Filter from './filterableList/Filter';
 
-const propTypes = {
-  history: PropTypes.object.isRequired,
-  fields: PropTypes.array.isRequired,
-  counts: PropTypes.object.isRequired,
-  paramKey: PropTypes.string.isRequired,
-  icon: PropTypes.string,
-  loading: PropTypes.bool.isRequired,
-  searchable: PropTypes.bool,
-  update: PropTypes.func
+type Props = {
+  history: any,
+  fields: any[],
+  counts: any,
+  paramKey: string,
+  icon?: string,
+  loading: boolean,
+  searchable?: boolean,
+  update: () => void
 };
+
+type State = {
+  key: string
+}
 
 const PopoverContent = styled.div`
   > input {
@@ -24,7 +27,7 @@ const PopoverContent = styled.div`
   }
 `;
 
-class FilterByParams extends Component {
+class FilterByParams extends Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -101,7 +104,5 @@ class FilterByParams extends Component {
     );
   }
 }
-
-FilterByParams.propTypes = propTypes;
 
 export default withRouter(FilterByParams);

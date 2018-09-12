@@ -1,24 +1,21 @@
+import { FilterByParams, Icon } from 'modules/common/components';
+import { __, router } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Wrapper } from 'modules/layout/components';
-import { Icon, FilterByParams } from 'modules/common/components';
-import { router } from 'modules/common/utils';
 
-CountsByTag.propTypes = {
-  history: PropTypes.object.isRequired,
-  tags: PropTypes.array.isRequired,
-  counts: PropTypes.object.isRequired,
-  manageUrl: PropTypes.string.isRequired,
-  loading: PropTypes.bool.isRequired
+type Props = {
+  history: any,
+  location: any,
+  match: any,
+  tags: any[],
+  counts: any,
+  manageUrl: string,
+  loading: boolean,
 };
 
-CountsByTag.contextTypes = {
-  __: PropTypes.func
-};
-
-function CountsByTag({ history, tags, counts, manageUrl, loading }, { __ }) {
+function CountsByTag({ history, tags, counts, manageUrl, loading }: Props) {
   const { Section } = Wrapper.Sidebar;
 
   return (
@@ -53,4 +50,4 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }, { __ }) {
   );
 }
 
-export default withRouter(CountsByTag);
+export default withRouter<Props>(CountsByTag);

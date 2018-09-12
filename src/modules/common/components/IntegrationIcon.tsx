@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { colors } from 'modules/common/styles';
 import { Icon } from 'modules/common/components';
+import { colors } from 'modules/common/styles';
+import React, { Component } from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const RoundedBackground = styled.span`
+const RoundedBackground = styledTS<{ type: string }>(styled.span)`
   width: 20px;
   height: 20px;
   border-radius: 10px;
@@ -30,7 +30,14 @@ const RoundedBackground = styled.span`
   }
 `;
 
-class IntegrationIcon extends Component {
+type Props = {
+  customer: any,
+  integration: any,
+  facebookData?: any,
+  twitterData?: any
+};
+
+class IntegrationIcon extends Component<Props> {
   getIcon() {
     const { integration, customer, facebookData, twitterData } = this.props;
 
@@ -65,12 +72,5 @@ class IntegrationIcon extends Component {
     );
   }
 }
-
-IntegrationIcon.propTypes = {
-  customer: PropTypes.object.isRequired,
-  integration: PropTypes.object.isRequired,
-  facebookData: PropTypes.object,
-  twitterData: PropTypes.object
-};
 
 export default IntegrationIcon;

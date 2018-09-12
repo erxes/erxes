@@ -129,7 +129,7 @@ const ButtonGroup = styled.div`
 type ButtonProps = {
   children?: React.ReactNode,
   className?: string,
-  onClick?: (e: any) => void,
+  onClick: (e: React.FormEvent<HTMLButtonElement>) => void,
   href?: string,
   type?: string,
   btnStyle?: string,

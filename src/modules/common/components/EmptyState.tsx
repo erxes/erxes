@@ -1,8 +1,8 @@
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors } from '../styles';
-import { __ } from '../utils';
 import Button from './Button';
 import Icon from './Icon';
 
@@ -64,7 +64,9 @@ function EmptyState({ text, icon, image, size = 'small', linkUrl, linkText }: Pr
   return (
     <EmptyStateStyled size={size}>
       {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
+
       {__(text)}
+
       {linkUrl && linkText ? (
         <Button btnStyle="simple" size="small" href={linkUrl}>
           {linkText}

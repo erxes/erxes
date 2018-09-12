@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 
-const propTypes = {
-  children: PropTypes.node.isRequired,
-  onClick: PropTypes.func
+type Props = {
+  children: React.ReactNode,
+  onClick: (e: React.FormEvent) => void
 };
 
-class DropdownToggle extends Component {
+class DropdownToggle extends Component<Props> {
   constructor(props, context) {
     super(props, context);
 
@@ -23,7 +22,5 @@ class DropdownToggle extends Component {
     return <div onClick={this.handleClick}>{this.props.children}</div>;
   }
 }
-
-DropdownToggle.propTypes = propTypes;
 
 export default DropdownToggle;

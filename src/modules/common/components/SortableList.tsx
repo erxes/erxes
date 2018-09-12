@@ -8,8 +8,8 @@ type Props = {
   fields: any[],
   child: (field: any) => void,
   onChangeFields: (reorderedFields: any ) => void,
-  isModal: boolean,
-  showDragHandler: boolean | true
+  isModal?: boolean,
+  showDragHandler?: boolean | true
 };
 
 class SortableList extends Component<Props> {
