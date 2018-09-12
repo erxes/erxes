@@ -96,9 +96,9 @@ class Section extends React.Component<Props, State> {
 
 type HeaderProps = {
   children: any,
-  uppercase: boolean,
-  bold: boolean,
-  spaceBottom: boolean
+  uppercase?: boolean,
+  bold?: boolean,
+  spaceBottom?: boolean
 };
 
 function Header({ children, spaceBottom, uppercase, bold }: HeaderProps) {
