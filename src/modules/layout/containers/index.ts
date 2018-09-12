@@ -1,6 +1,6 @@
 import AuthLayout from './AuthLayout';
 import MainLayout from './MainLayout';
-import QuickNavigation from './QuickNavigation';
 import Navigation from './Navigation';
+import QuickNavigation from './QuickNavigation';
 
 export { AuthLayout, MainLayout, Navigation, QuickNavigation };

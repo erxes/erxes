@@ -1,22 +1,18 @@
+import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import { withRouter } from 'react-router';
-import { IUser } from '../../settings/channels/types';
 import { Navigation } from '../containers';
 import { Layout } from '../styles';
 
 type Props = {
   history: any,
+  location: any,
+  match: any,
   currentUser: IUser,
   children: React.ReactNode
 }
 
 class MainLayout extends React.Component<Props> {
-  getChildContext() {
-    return {
-      currentUser: this.props.currentUser
-    };
-  }
-
   componentDidMount() {
     const { history, currentUser } = this.props;
 
@@ -27,8 +23,8 @@ class MainLayout extends React.Component<Props> {
     // browser default form validation event listener
     document.addEventListener(
       'invalid',
-      (function() {
-        return function(e) {
+      (() => {
+        return (e) => {
           // prevent the browser from showing default error hint
           e.preventDefault();
 
@@ -51,8 +47,4 @@ class MainLayout extends React.Component<Props> {
   }
 }
 
-MainLayout.childContextTypes = {
-  currentUser: PropTypes.object
-};
-
-export default withRouter(MainLayout);
+export default withRouter<Props>(MainLayout);

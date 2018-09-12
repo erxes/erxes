@@ -1,11 +1,12 @@
+import T from 'i18n-react';
 import Alert from './Alert';
-import uploadHandler from './uploadHandler';
-import router from './router';
-import toggleCheckBoxes from './toggleCheckBoxes';
-import confirm from './confirmation/confirm';
-import urlParser from './urlParser';
 import colorParser from './colorParser';
-import { searchCompany, searchUser, searchCustomer } from './searchers';
+import confirm from './confirmation/confirm';
+import router from './router';
+import { searchCompany, searchCustomer, searchUser } from './searchers';
+import toggleCheckBoxes from './toggleCheckBoxes';
+import uploadHandler from './uploadHandler';
+import urlParser from './urlParser';
 
 export const renderFullName = data => {
   if (data.firstName || data.lastName) {
@@ -84,3 +85,5 @@ export {
   searchUser,
   searchCustomer
 };
+
+export const __ = (key: string, options?: any) => T.translate(key, options);

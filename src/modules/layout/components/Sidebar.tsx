@@ -12,14 +12,13 @@ import {
   SideContent
 } from '../styles';
 
-type SidebarProps = {
-  children: any,
-  header?: any,
-  footer?: any,
-  wide?: boolean,
-  full?: boolean,
-  half?: boolean
-};
+function Title({ children }: { children: React.ReactNode }) {
+  return <SidebarTitle>{children}</SidebarTitle>;
+}
+
+function QuickButtons({ children }: { children: React.ReactNode }) {
+  return <HelperButtons>{children}</HelperButtons>;
+}
 
 type Props = {
   children: any,
@@ -35,22 +34,11 @@ type State = {
   maxHeight: number
 };
 
-function Sidebar({ children, wide, header, footer, half, full } : SidebarProps) {
-  return (
-    <SideContent half={half} wide={wide} full={full}>
-      {header}
-      <SidebarMainContent>{children}</SidebarMainContent>
-      {footer}
-    </SideContent>
-  );
-}
-
 class Section extends React.Component<Props, State> {
+  static Title = Title;
+  static QuickButtons = QuickButtons;
+
   node: any;
-  // tslint:disable-next-line:member-ordering
-  static QuickButtons: ({ children }: QuickButtonProps) => JSX.Element;
-  // tslint:disable-next-line:member-ordering
-  static Title: ({ children }: TitleProps) => JSX.Element;
 
   constructor(props: Props) {
     super(props);
@@ -106,12 +94,11 @@ class Section extends React.Component<Props, State> {
   }
 }
 
-function Title({ children }: TitleProps) {
-  return <SidebarTitle>{children}</SidebarTitle>;
-}
-
-type TitleProps = {
-  children: any
+type HeaderProps = {
+  children: any,
+  uppercase?: boolean,
+  bold?: boolean,
+  spaceBottom?: boolean
 };
 
 function Header({ children, spaceBottom, uppercase, bold }: HeaderProps) {
@@ -122,34 +109,33 @@ function Header({ children, spaceBottom, uppercase, bold }: HeaderProps) {
   );
 }
 
-type HeaderProps = {
-  children: any,
-  uppercase: boolean,
-  bold: boolean,
-  spaceBottom: boolean
-};
-
-function Footer({ children }: FooterProps) {
+function Footer({ children }: { children: React.ReactNode }) {
   return <SidebarFooter>{children}</SidebarFooter>;
 }
 
-type FooterProps = {
-  children: any
+type SidebarProps = {
+  children: any,
+  header?: any,
+  footer?: any,
+  wide?: boolean,
+  full?: boolean,
+  half?: boolean
 };
 
-function QuickButtons({ children }: QuickButtonProps) {
-  return <HelperButtons>{children}</HelperButtons>;
+export default class Sidebar extends React.Component<SidebarProps> {
+  static Header = Header;
+  static Section = Section;
+  static Footer = Footer;
+
+  render() {
+    const { children, wide, header, footer, half, full } = this.props;
+
+    return (
+      <SideContent half={half} wide={wide} full={full}>
+        {header}
+        <SidebarMainContent>{children}</SidebarMainContent>
+        {footer}
+      </SideContent>
+    );
+  }
 }
-
-type QuickButtonProps = {
-  children: any
-};
-
-Section.Title = Title;
-Section.QuickButtons = QuickButtons;
-
-Sidebar.Header = Header;
-Sidebar.Section = Section;
-Sidebar.Footer = Footer;
-
-export default Sidebar;

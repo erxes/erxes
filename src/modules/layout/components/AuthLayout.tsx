@@ -1,14 +1,16 @@
-import PropTypes from 'prop-types';
+import { IUser } from 'modules/auth/types';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Col, Grid } from 'react-bootstrap';
 import { withRouter } from 'react-router';
-import { IUser } from '../../settings/channels/types';
 import { AuthContent, AuthDescription, Authlayout } from '../styles';
 
 type Props = {
   history: any,
+  location: any,
+  match: any,
   content: React.ReactNode,
-  currentUser: IUser
+  currentUser: IUser,
 }
 
 class AuthLayout extends React.Component<Props, {}> {
@@ -22,7 +24,6 @@ class AuthLayout extends React.Component<Props, {}> {
 
   render() {
     const { content } = this.props;
-    const { __ } = this.context;
 
     return (
       <Authlayout>
@@ -48,8 +49,4 @@ class AuthLayout extends React.Component<Props, {}> {
   }
 }
 
-AuthLayout.contextTypes = {
-  __: PropTypes.func
-};
-
-export default withRouter(AuthLayout);
+export default withRouter<Props>(AuthLayout);
