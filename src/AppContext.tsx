@@ -1,5 +1,5 @@
 import T from 'i18n-react';
-import { IUser } from 'modules/settings/channels/types';
+import { IUser } from 'modules/auth/types';
 import moment from 'moment';
 import * as React from 'react';
 import translations from './locales';
