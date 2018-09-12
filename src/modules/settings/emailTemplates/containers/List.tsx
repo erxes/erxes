@@ -16,7 +16,7 @@ const commonParams = `
 export default commonListComposer({
   name: 'emailTemplates',
 
-  gqlListQuery: graphql(
+  gqlListQuery: graphql<{ queryParams: any }>(
     gql`
       query emailTemplates($page: Int, $perPage: Int) {
         emailTemplates(page: $page, perPage: $perPage) {

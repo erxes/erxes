@@ -1,14 +1,23 @@
-import React, { Component } from 'react';
+import gql from 'graphql-tag';
+import { Alert, router } from 'modules/common/utils';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { router, Alert } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
-import gql from 'graphql-tag';
 import { Histories } from '../components';
+import { mutations, queries } from '../graphql';
 
-class HistoriesContainer extends Component {
-  constructor(props) {
+type State = {
+  loading: boolean
+}
+
+class HistoriesContainer extends Component<Props, State> {
+  static contextTypes =  {
+    __: PropTypes.func
+  }
+
+
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -53,19 +62,17 @@ class HistoriesContainer extends Component {
   }
 }
 
-HistoriesContainer.propTypes = {
-  queryParams: PropTypes.object,
-  historiesQuery: PropTypes.object,
-  history: PropTypes.object,
-  importHistoriesRemove: PropTypes.func
-};
-
-HistoriesContainer.contextTypes = {
-  __: PropTypes.func
+type Props = {
+  queryParams: any,
+  historiesQuery: any,
+  history: any,
+  location: any,
+  match: any,
+  importHistoriesRemove: (params: { variables: { _id: string } }) => any
 };
 
 export default compose(
-  graphql(gql(queries.histories), {
+  graphql<Props>(gql(queries.histories), {
     name: 'historiesQuery',
     options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
@@ -80,4 +87,4 @@ export default compose(
       refetchQueries: ['importHistories']
     }
   })
-)(withRouter(HistoriesContainer));
+)(withRouter<Props>(HistoriesContainer));
