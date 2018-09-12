@@ -1,15 +1,11 @@
 import { Table } from 'modules/common/components';
-import PropTypes from 'prop-types';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { List } from '../../common/components';
 import Form from './Form';
 import Row from './Row';
 
 class EmailTemplateList extends List {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props) {
     super(props);
 
@@ -25,7 +21,6 @@ class EmailTemplateList extends List {
   }
 
   renderContent() {
-    const { __ } = this.context;
     return (
       <Table>
         <thead>
@@ -41,7 +36,6 @@ class EmailTemplateList extends List {
   }
 
   breadcrumb() {
-    const { __ } = this.context;
     return [
       { title: __('Settings'), link: '/settings' },
       { title: __('Email templates') }

@@ -1,6 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { BoxRoot } from 'modules/common/styles/main';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const size = 65;
@@ -29,7 +30,7 @@ const FormWrapper = styled.div`
   height: 100%;
 `;
 
-const PreviewContent = styled.div`
+const PreviewContent = styledTS<{ isFullmessage: boolean }>(styled.div)`
   padding: 0 ${coreSpace};
   line-height: 22px;
   margin-bottom: ${coreSpace};
@@ -47,6 +48,7 @@ const PreviewContent = styled.div`
         word-wrap: break-word;
       `;
     }
+    return null
   }};
 `;
 
@@ -87,7 +89,7 @@ const MessengerPreview = WebPreview.extend`
   min-height: 500px;
 `;
 
-const Segmentli = styled.li`
+const Segmentli = styledTS<{ chosen: boolean }>(styled.li)`
   list-style-type: none;
   text-align: left;
   display: list-item;

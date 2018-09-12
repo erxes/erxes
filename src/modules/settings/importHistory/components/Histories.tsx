@@ -1,6 +1,6 @@
 import { DataWithLoader, Table } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Sidebar from '../../properties/components/Sidebar';
 import { IHistories } from '../types';
@@ -15,10 +15,6 @@ type Props = {
 };
 
 class Histories extends Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -27,7 +23,6 @@ class Histories extends Component<Props> {
 
   renderHistories() {
     const { histories, removeHistory } = this.props;
-    const { __ } = this.context;
 
     return (
       <Table>
@@ -57,7 +52,6 @@ class Histories extends Component<Props> {
   }
 
   render() {
-    const { __ } = this.context;
     const { currentType, histories, loading } = this.props;
 
     const breadcrumb = [

@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { Row, RowTitle, Box, BoxName, Divider } from '../styles';
 
 class Settings extends Component {
   renderBox(name, image, to) {
-    const { __ } = this.context;
-
     return (
       <Box>
         <Link to={to}>
@@ -19,7 +17,6 @@ class Settings extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
 
     const content = (
@@ -113,9 +110,5 @@ class Settings extends Component {
     );
   }
 }
-
-Settings.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Settings;

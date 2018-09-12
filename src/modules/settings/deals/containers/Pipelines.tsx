@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { Alert, confirm } from 'modules/common/utils';
-import PropTypes from 'prop-types';
+import { __, Alert, confirm } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Pipelines } from '../components';
@@ -16,10 +15,6 @@ type Props = {
 };
 
 class PipelinesContainer extends React.Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   render() {
     const {
       pipelinesQuery,
@@ -28,8 +23,6 @@ class PipelinesContainer extends React.Component<Props> {
       removePipelineMutation,
       pipelinesUpdateOrderMutation
     } = this.props;
-
-    const { __ } = this.context;
 
     if (pipelinesQuery.loading) {
       return <Spinner />;

@@ -1,8 +1,8 @@
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors } from '../styles';
+import { __ } from '../utils';
 import Button from './Button';
 import Icon from './Icon';
 
@@ -60,11 +60,7 @@ type Props = {
   linkText?: string
 };
 
-EmptyState.contextTypes = {
-  __: PropTypes.func
-};
-
-function EmptyState({ text, icon, image, size = 'small', linkUrl, linkText }: Props, { __ }) {
+function EmptyState({ text, icon, image, size = 'small', linkUrl, linkText }: Props) {
   return (
     <EmptyStateStyled size={size}>
       {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}

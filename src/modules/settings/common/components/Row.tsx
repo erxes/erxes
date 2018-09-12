@@ -5,7 +5,7 @@ import {
   ModalTrigger,
   Tip
 } from 'modules/common/components';
-import PropTypes from 'prop-types';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 
 type Props = {
@@ -15,10 +15,6 @@ type Props = {
 };
 
 class Row extends React.Component<Props, {}> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-  
   constructor(props: Props) {
     super(props);
 
@@ -32,7 +28,6 @@ class Row extends React.Component<Props, {}> {
   }
 
   renderRemoveAction() {
-    const { __ } = this.context;
     return (
       <Tip text={__('Delete')}>
         <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
@@ -42,7 +37,6 @@ class Row extends React.Component<Props, {}> {
 
   renderEditAction() {
     const { object, save } = this.props;
-    const { __ } = this.context;
 
     const editTrigger = (
       <Button btnStyle="link">

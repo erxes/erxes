@@ -19,7 +19,6 @@ type State = {
 class InstallCode extends Component<Props, State> {
   static contextTypes =  {
     closeModal: PropTypes.func.isRequired,
-    __: PropTypes.func
   }
 
   static installCodeIncludeScript(type) {

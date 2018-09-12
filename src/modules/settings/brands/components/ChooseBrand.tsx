@@ -5,7 +5,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import PropTypes from 'prop-types';
+import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
 import { IBrand, IIntegration } from '../types';
 
@@ -16,10 +16,6 @@ type Props = {
 }
 
 class ChooseBrand extends Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -49,7 +45,6 @@ class ChooseBrand extends Component<Props> {
 
   render() {
     const integration = this.props.integration;
-    const { __ } = this.context;
 
     return (
       <form onSubmit={this.handleSubmit}>

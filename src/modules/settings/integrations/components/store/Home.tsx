@@ -1,7 +1,7 @@
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/integrations/components/Sidebar';
 import { INTEGRATIONS } from 'modules/settings/integrations/constants';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Row from './Row';
 import { IntegrationWrapper } from './styles';
@@ -11,10 +11,6 @@ type Props = {
 };
 
 class Home extends Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-  
   renderContent() {
     const { totalCount } = this.props;
 
@@ -33,8 +29,6 @@ class Home extends Component<Props> {
   }
 
   render() {
-    const { __ } = this.context;
-
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Integrations') }

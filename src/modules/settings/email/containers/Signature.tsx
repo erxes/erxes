@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Signature } from '../components';
@@ -67,10 +66,6 @@ const SignatureContainer = (props: Props, { currentUser }) => {
   };
 
   return <Signature {...updatedProps} />;
-};
-
-SignatureContainer.contextTypes = {
-  currentUser: PropTypes.object
 };
 
 export default compose(

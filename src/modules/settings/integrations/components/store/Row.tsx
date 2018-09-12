@@ -1,5 +1,5 @@
+import { __ } from 'modules/common/utils';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { Collapse } from 'react-bootstrap';
 import Entry from './Entry';
@@ -17,10 +17,6 @@ type State = {
 };
 
 class Row extends Component<Props, State> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -80,7 +76,6 @@ class Row extends Component<Props, State> {
   }
 
   render() {
-    const { __ } = this.context;
     const { integrations, title, totalCount } = this.props;
 
     return (

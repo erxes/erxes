@@ -4,12 +4,11 @@ import {
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
-import { Alert } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IBrand, IIntegration } from 'modules/settings/brands/types';
 import { IUser } from 'modules/settings/channels/types';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Appearance, Availability, Intro, Options } from './steps';
@@ -41,10 +40,6 @@ type State = {
   logo: string,
   logoPreviewStyle: any,
   logoPreviewUrl: string
-};
-
-CreateMessenger.contextTypes = {
-  __: PropTypes.func
 };
 
 class CreateMessenger extends Component<Props, State> {
@@ -90,7 +85,6 @@ class CreateMessenger extends Component<Props, State> {
   save(e) {
     e.preventDefault();
 
-    const { __ } = this.context;
     const { title, brandId } = this.state;
 
     if (!title) {
@@ -168,8 +162,6 @@ class CreateMessenger extends Component<Props, State> {
       notifyCustomer,
       logoPreviewStyle
     } = this.state;
-
-    const { __ } = this.context;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings/integrations' },

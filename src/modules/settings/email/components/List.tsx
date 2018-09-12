@@ -7,9 +7,9 @@ import {
   Table,
   Tip
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/Sidebar';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { IBrand } from '../../brands/types';
 import { Config } from '../containers';
@@ -20,10 +20,6 @@ type Props = {
 };
 
 class List extends React.Component<Props, {}> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   renderRow(brand) {
     const { refetch } = this.props;
     const { name, _id } = brand;
@@ -62,7 +58,6 @@ class List extends React.Component<Props, {}> {
 
   render() {
     const { brands } = this.props;
-    const { __ } = this.context;
 
     const content = (
       <Table>

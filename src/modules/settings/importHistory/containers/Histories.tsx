@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, router } from 'modules/common/utils';
-import PropTypes from 'prop-types';
+import { __, Alert, router } from 'modules/common/utils';
 import React, { Component } from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -12,11 +11,6 @@ type State = {
 }
 
 class HistoriesContainer extends Component<Props, State> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
-
   constructor(props: Props) {
     super(props);
 
@@ -27,7 +21,6 @@ class HistoriesContainer extends Component<Props, State> {
 
   render() {
     const { historiesQuery, history, importHistoriesRemove } = this.props;
-    const { __ } = this.context;
 
     if (!router.getParam(history, 'type')) {
       router.setParams(history, { type: 'customer' });

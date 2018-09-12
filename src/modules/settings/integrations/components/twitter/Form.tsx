@@ -1,10 +1,10 @@
 import { Button } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
 import { SelectBrand } from 'modules/settings/integrations/components';
 import { ContentBox } from 'modules/settings/styles';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
 type Props = {
@@ -13,10 +13,6 @@ type Props = {
 };
 
 class Twitter extends Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props, context) {
     super(props, context);
 
@@ -30,7 +26,6 @@ class Twitter extends Component<Props> {
   }
 
   render() {
-    const { __ } = this.context;
     const content = (
       <ContentBox>
         <form onSubmit={this.handleSubmit}>

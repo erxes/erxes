@@ -7,6 +7,7 @@ import {
 } from 'modules/common/components';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { CenterContent, ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -37,7 +38,6 @@ type State = {
 class ManageIntegrations extends Component<Props, State> {
   static contextTypes =  {
     closeModal: PropTypes.func.isRequired,
-    __: PropTypes.func
   }
 
   constructor(props: Props) {
@@ -187,7 +187,6 @@ class ManageIntegrations extends Component<Props, State> {
   }
 
   render() {
-    const { __ } = this.context;
     const { allIntegrations, current } = this.props;
     const { selectedIntegrations } = this.state;
 

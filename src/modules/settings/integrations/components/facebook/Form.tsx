@@ -5,8 +5,8 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import { SelectBrand } from 'modules/settings/integrations/components';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { IBrand } from '../../../brands/types';
 import { IApps, IPages } from '../../types';
@@ -20,10 +20,6 @@ type Props = {
 };
 
 class Facebook extends Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props: Props, context) {
     super(props, context);
 
@@ -61,7 +57,6 @@ class Facebook extends Component<Props> {
   }
 
   render() {
-    const { __ } = this.context;
     const { apps, pages, brands } = this.props;
 
     return (

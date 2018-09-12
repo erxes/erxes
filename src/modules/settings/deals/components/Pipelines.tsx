@@ -1,7 +1,7 @@
 import { Button, EmptyState, SortableList } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { collectOrders } from 'modules/deals/utils';
 import { Wrapper } from 'modules/layout/components';
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { PipelineForm } from '../containers';
 import { PipelineContainer } from '../styles';
@@ -23,10 +23,6 @@ type State = {
 };
 
 class Pipelines extends Component<Props, State> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -92,7 +88,6 @@ class Pipelines extends Component<Props, State> {
   }
 
   renderContent() {
-    const { __ } = this.context;
     const { pipelines } = this.props;
 
     if (pipelines.length === 0) {

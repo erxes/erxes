@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
-import { Alert, confirm } from 'modules/common/utils';
+import { __, Alert, confirm } from 'modules/common/utils';
 import { STORAGE_BOARD_KEY } from 'modules/deals/constants';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Boards } from '../components';
@@ -15,10 +14,6 @@ type Props = {
 };
 
 class BoardsContainer extends React.Component<Props, {}> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-
   render() {
     const {
       boardsQuery,
@@ -26,8 +21,6 @@ class BoardsContainer extends React.Component<Props, {}> {
       editMutation,
       removeMutation
     } = this.props;
-
-    const { __ } = this.context;
 
     const boards = boardsQuery.dealBoards || [];
 

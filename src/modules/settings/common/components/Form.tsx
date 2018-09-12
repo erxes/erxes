@@ -12,7 +12,6 @@ type Props = {
 class Form extends React.Component<Props> {
   static contextTypes =  {
     closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
   }
 
   constructor(props: Props) {

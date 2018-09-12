@@ -4,9 +4,9 @@ import {
   ModalTrigger,
   Pagination
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { ManageIntegrations, Sidebar } from '../containers';
 import { IChannel } from '../types';
@@ -19,10 +19,6 @@ type Props = {
 };
 
 class Channels extends Component<Props, {}> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-  
   render() {
     const {
       integrationsCount,
@@ -30,8 +26,6 @@ class Channels extends Component<Props, {}> {
       queryParams,
       loading
     } = this.props;
-
-    const { __ } = this.context;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },

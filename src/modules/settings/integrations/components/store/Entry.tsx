@@ -1,7 +1,7 @@
 import { Icon, ModalTrigger, Tip } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { IIntegration } from 'modules/settings/brands/types';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Box, IntegrationItem } from './styles';
@@ -14,10 +14,6 @@ type Props= {
 };
 
 class Entry extends Component<Props> {
-  static contextTypes =  {
-    __: PropTypes.func
-  }
-  
   getCount(kind) {
     const { totalCount } = this.props;
     const countByKind = totalCount[kind];
@@ -30,8 +26,6 @@ class Entry extends Component<Props> {
   }
 
   renderCreate(createUrl, createModal) {
-    const { __ } = this.context;
-
     if (!createUrl && !createModal) {
       return null;
     }

@@ -5,6 +5,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter, Well } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { ISignatures } from '../types';
@@ -21,7 +22,6 @@ type State = {
 
 class Signature extends React.Component<Props, State> {
   static contextTypes =  {
-    __: PropTypes.func,
     closeModal: PropTypes.func
   }
 
@@ -72,7 +72,7 @@ class Signature extends React.Component<Props, State> {
 
   render() {
     const current = this.getCurrent() || {};
-    const { __, closeModal } = this.context;
+    const { closeModal } = this.context;
 
     const content = (
       <div>
