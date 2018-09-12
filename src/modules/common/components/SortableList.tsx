@@ -1,24 +1,19 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Icon } from 'modules/common/components';
-import { SortableWrapper, SortItem, DragHandler } from '../styles/sort';
+import React, { Component, Fragment } from 'react';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { DragHandler, SortableWrapper, SortItem } from '../styles/sort';
 import { reorder } from '../utils';
 
-const propTypes = {
-  fields: PropTypes.array,
-  child: PropTypes.func,
-  onChangeFields: PropTypes.func,
-  isModal: PropTypes.bool,
-  showDragHandler: PropTypes.bool
+type Props = {
+  fields: any[],
+  child: (field: any) => void,
+  onChangeFields: (reorderedFields: any ) => void,
+  isModal: boolean,
+  showDragHandler: boolean | true
 };
 
-const defaultProps = {
-  showDragHandler: true
-};
-
-class SortableList extends Component {
-  constructor(props) {
+class SortableList extends Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -42,7 +37,7 @@ class SortableList extends Component {
   }
 
   renderDragHandler() {
-    if (!this.props.showDragHandler) return;
+    if (!this.props.showDragHandler) return null;
 
     return (
       <DragHandler>
@@ -96,8 +91,5 @@ class SortableList extends Component {
     );
   }
 }
-
-SortableList.propTypes = propTypes;
-SortableList.defaultProps = defaultProps;
 
 export default SortableList;
