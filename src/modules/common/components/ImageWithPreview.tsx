@@ -1,8 +1,7 @@
+import { fadeIn, slideDown } from 'modules/common/utils/animations';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { fadeIn, slideDown } from 'modules/common/utils/animations';
 
 const PreviewWrapper = styled.div`
   position: fixed;
@@ -48,7 +47,17 @@ const KEYCODES = {
   ESCAPE: 27
 };
 
-class ImageWithPreview extends Component {
+type Props = {
+  src?: string,
+  alt?: string,
+  onLoad?: () => void
+};
+
+type State = {
+  visible: boolean
+}
+
+class ImageWithPreview extends Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -92,13 +101,7 @@ class ImageWithPreview extends Component {
   }
 }
 
-ImageWithPreview.propTypes = {
-  src: PropTypes.string,
-  alt: PropTypes.string,
-  onLoad: PropTypes.func
-};
-
-class PreviewPortal extends Component {
+class PreviewPortal extends Component<{ children: React.ReactNode}> {
   constructor(props) {
     super(props);
     this.el = document.createElement('div');
@@ -116,9 +119,5 @@ class PreviewPortal extends Component {
     return ReactDOM.createPortal(this.props.children, this.el);
   }
 }
-
-PreviewPortal.propTypes = {
-  children: PropTypes.node
-};
 
 export default ImageWithPreview;

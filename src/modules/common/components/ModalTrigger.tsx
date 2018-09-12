@@ -1,25 +1,25 @@
-import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
+import React, { Component, Fragment } from 'react';
 import { Modal } from 'react-bootstrap';
 
-const propTypes = {
-  title: PropTypes.string.isRequired,
-  trigger: PropTypes.element.isRequired,
-  children: PropTypes.node.isRequired,
-  size: PropTypes.string,
-  ignoreTrans: PropTypes.bool,
-  dialogClassName: PropTypes.string
+type Props = {
+  title: string,
+  trigger: any,
+  children: React.ReactNode,
+  size?: string,
+  ignoreTrans?: boolean,
+  dialogClassName?: string
 };
 
-const childContextTypes = {
-  closeModal: PropTypes.func.isRequired
-};
+type State = {
+  isOpen?: boolean
+}
 
-const contextTypes = {
-  __: PropTypes.func
-};
+class ModalTrigger extends Component<Props, State> {
+  static childContextTypes = {
+    closeModal: PropTypes.func.isRequired
+  };
 
-class ModalTrigger extends Component {
   constructor(props) {
     super(props);
 
@@ -76,9 +76,5 @@ class ModalTrigger extends Component {
     );
   }
 }
-
-ModalTrigger.propTypes = propTypes;
-ModalTrigger.contextTypes = contextTypes;
-ModalTrigger.childContextTypes = childContextTypes;
 
 export default ModalTrigger;
