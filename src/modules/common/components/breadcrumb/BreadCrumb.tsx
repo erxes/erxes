@@ -1,9 +1,8 @@
+import { __, setTitle } from 'modules/common/utils';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { setTitle } from 'modules/common/utils';
-import BreadCrumbItem from './BreadCrumbItem';
 import { dimensions } from '../../styles';
+import BreadCrumbItem from './BreadCrumbItem';
 
 const Items = styled.ol`
   display: inline-block;
@@ -13,13 +12,8 @@ const Items = styled.ol`
   font-size: 14px;
 `;
 
-const propTypes = {
-  breadcrumbs: PropTypes.array.isRequired
-};
-
-class BreadCrumb extends React.Component {
+class BreadCrumb extends React.Component<{ breadcrumbs: any[] }> {
   setTabTitle() {
-    const { __ } = this.context;
     const { breadcrumbs } = this.props;
     const page = breadcrumbs.pop();
 
@@ -49,10 +43,5 @@ class BreadCrumb extends React.Component {
     );
   }
 }
-
-BreadCrumb.propTypes = propTypes;
-BreadCrumb.contextTypes = {
-  __: PropTypes.func
-};
 
 export default BreadCrumb;

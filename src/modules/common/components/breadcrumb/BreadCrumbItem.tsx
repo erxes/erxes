@@ -1,7 +1,6 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 import { colors, dimensions } from '../../styles';
 import { rgba } from '../../styles/color';
 
@@ -24,19 +23,15 @@ const Item = styled.li`
   }
 `;
 
-const propTypes = {
-  children: PropTypes.node,
-  active: PropTypes.bool,
-  to: PropTypes.string,
-  title: PropTypes.node,
-  target: PropTypes.string
+type Props = {
+  children: React.ReactNode,
+  active?: boolean,
+  to?: string,
+  title?: string,
+  target?: string
 };
 
-const defaultProps = {
-  active: false
-};
-
-function BreadcrumbItem({ active, to, title, target, children, ...props }) {
+function BreadcrumbItem({ active, to, title, target, children, ...props }: Props) {
   const linkProps = { to, title, target };
 
   return (
@@ -51,8 +46,5 @@ function BreadcrumbItem({ active, to, title, target, children, ...props }) {
     </Item>
   );
 }
-
-BreadcrumbItem.propTypes = propTypes;
-BreadcrumbItem.defaultProps = defaultProps;
 
 export default BreadcrumbItem;

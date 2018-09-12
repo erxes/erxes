@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../../styles';
 
 const inputPadding = '0px';
@@ -16,7 +17,7 @@ const Label = styled.label`
   margin-bottom: 5px;
 `;
 
-//browser default form invalid styling
+// browser default form invalid styling
 const formInvalid = `
   &.form-invalid {
     border-bottom: 1px solid ${colors.colorCoreRed};
@@ -37,7 +38,7 @@ const Formgroup = styled.div`
   }
 `;
 
-const Input = styled.input`
+const Input = styledTS<{ round?: boolean }>(styled.input)`
   ${formInvalid} display: block;
   border: none;
   width: 100%;
@@ -106,7 +107,7 @@ const Select = Input.withComponent('select').extend`
   -webkit-appearance: none;
 `;
 
-const TextArea = Input.withComponent('textarea').extend`
+const TextArea = styledTS<{ maxHeight: number }>(Input.withComponent('textarea').extend)`
   ${formInvalid}
   transition: none;
   max-height: ${props => props.maxHeight && `${props.maxHeight}px`};

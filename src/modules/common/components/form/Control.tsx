@@ -1,46 +1,36 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import Textarea from './Textarea';
 import {
-  Input,
-  Select,
-  SelectWrapper,
+  Checkbox,
   FormLabel,
+  Input,
   Radio,
-  Checkbox
+  Select,
+  SelectWrapper
 } from './styles';
+import Textarea from './Textarea';
 
-const propTypes = {
-  children: PropTypes.node,
-  id: PropTypes.string,
-  onChange: PropTypes.func,
-  onClick: PropTypes.func,
-  defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  defaultChecked: PropTypes.bool,
-  checked: PropTypes.bool,
-  placeholder: PropTypes.string,
-  type: PropTypes.string,
-  name: PropTypes.string,
-  options: PropTypes.array,
-  required: PropTypes.bool,
-  disabled: PropTypes.bool,
-  round: PropTypes.bool,
-  autoFocus: PropTypes.bool,
-  onFocus: PropTypes.func,
-  componentClass: PropTypes.oneOf([
-    'select',
-    'radio',
-    'checkbox',
-    'textarea',
-    'input'
-  ])
-};
-
-const defaultProps = {
-  componentClass: 'input',
-  required: false,
-  defaultChecked: false,
-  disabled: false
+type Props = {
+  children: React.ReactNode,
+  id?: string,
+  onChange?: (e: React.FormEvent) => void,
+  onClick?: (e: React.MouseEvent) => void,
+  onKeyPress?: (e: React.FormEvent) => void,
+  defaultValue?: string | string[],
+  value?: string | string[],
+  defaultChecked?: boolean,
+  checked?: boolean,
+  placeholder?: string,
+  type?: string,
+  name?: string,
+  options?: any[],
+  required?: boolean,
+  disabled?: boolean,
+  round?: boolean,
+  autoFocus?: boolean,
+  onFocus?: () => void,
+  componentClass: string,
+  min?: number,
+  max?: number,
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -55,7 +45,14 @@ const renderElement = (Element, attributes, type, child) => {
   );
 };
 
-class FormControl extends React.Component {
+class FormControl extends React.Component<Props> {
+  static defaultProps = {
+    componentClass: 'input',
+    required: false,
+    defaultChecked: false,
+    disabled: false
+  };
+
   render() {
     const props = this.props;
     const childNode = props.children;
@@ -143,8 +140,5 @@ class FormControl extends React.Component {
     return <Input {...attributes} />;
   }
 }
-
-FormControl.propTypes = propTypes;
-FormControl.defaultProps = defaultProps;
 
 export default FormControl;

@@ -1,13 +1,20 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { TextArea } from './styles';
 
-const propTypes = {
-  onChange: PropTypes.func,
-  maxHeight: PropTypes.number
+type Props = {
+  onChange: (...args: any[]) => void,
+  maxHeight: number
 };
 
-class Textarea extends Component {
+class Textarea extends Component<Props> {
+  private area;
+
+  constructor(props, context) {
+    super(props, context);
+
+    this.change = this.change.bind(this);
+  }
+
   componentDidMount() {
     this.area.style.height = `${this.area.scrollHeight}px`;
   }
@@ -41,12 +48,10 @@ class Textarea extends Component {
           this.area = area;
         }}
         maxHeight={maxHeight}
-        onChange={this.change.bind(this)}
+        onChange={this.change}
       />
     );
   }
 }
-
-Textarea.propTypes = propTypes;
 
 export default Textarea;

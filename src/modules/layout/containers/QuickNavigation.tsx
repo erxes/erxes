@@ -1,7 +1,7 @@
 import consts from 'consts';
-import { withCurrentUser } from 'modules/auth/containers';
-import { IUser } from 'modules/auth/types';
 import * as React from 'react';
+import { withCurrentUser } from '../../auth/containers';
+import { IUser } from '../../auth/types';
 import { QuickNavigation } from '../components';
 
 const QuickNavigationContainer = (props: { currentUser: IUser }) => {
