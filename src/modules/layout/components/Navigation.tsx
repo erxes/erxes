@@ -118,7 +118,7 @@ class Navigation extends Component<{ unreadConversationsCount?: number }> {
     const unreadCount = nextProps.unreadConversationsCount;
 
     if (unreadCount !== this.props.unreadConversationsCount) {
-      setBadge(unreadCount, __('Inbox'));
+      setBadge(unreadCount, __('Inbox').toString());
     }
   }
 
@@ -131,7 +131,7 @@ class Navigation extends Component<{ unreadConversationsCount?: number }> {
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
-          <Tip placement="right" text={__('Inbox')}>
+          <Tip placement="right" text={__('Inbox').toString()}>
             <NavLink to="/inbox" activeClassName="active">
               <NavIcon className="icon-chat" />
               {unreadConversationsCount !== 0 && (
@@ -141,42 +141,42 @@ class Navigation extends Component<{ unreadConversationsCount?: number }> {
               )}
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Deal')}>
+          <Tip placement="right" text={__('Deal').toString()}>
             <NavLink to="/deals" activeClassName="active">
               <NavIcon className="icon-piggy-bank" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Customers')}>
+          <Tip placement="right" text={__('Customers').toString()}>
             <NavLink to="/customers" activeClassName="active">
               <NavIcon className="icon-users" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Companies')}>
+          <Tip placement="right" text={__('Companies').toString()}>
             <NavLink to="/companies" activeClassName="active">
               <NavIcon className="icon-briefcase" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Leads')}>
+          <Tip placement="right" text={__('Leads').toString()}>
             <NavLink to="/forms" activeClassName="active">
               <NavIcon className="icon-laptop" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Engage')}>
+          <Tip placement="right" text={__('Engage').toString()}>
             <NavLink to="/engage" activeClassName="active">
               <NavIcon className="icon-megaphone" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Knowledge Base')}>
+          <Tip placement="right" text={__('Knowledge Base').toString()}>
             <NavLink to="/knowledgeBase" activeClassName="active">
               <NavIcon className="icon-clipboard" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Insights')}>
+          <Tip placement="right" text={__('Insights').toString()}>
             <NavLink to="/insights" activeClassName="active">
               <NavIcon className="icon-pie-chart" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Settings')}>
+          <Tip placement="right" text={__('Settings').toString()}>
             <NavLink to="/settings" activeClassName="active">
               <NavIcon className="icon-settings" />
             </NavLink>

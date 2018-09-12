@@ -7,7 +7,7 @@ type Props = {
   history: any,
   location: any,
   match: any,
-  perPage: number,
+  perPage?: number,
   all: number,
   paramName?: string,
   loading?: boolean

@@ -32,14 +32,14 @@ class BrandRow extends Component<Props> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
+        <Tip text={__('Edit').toString()}>
           <Icon icon="edit" />
         </Tip>
       </Button>
     );
 
     return (
-      <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
+      <ModalTrigger title="Edit" trigger={editTrigger}>
         {this.renderEditForm({ brand, save })}
       </ModalTrigger>
     );
