@@ -1,14 +1,13 @@
-import * as React from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import Datetime from 'react-datetime';
-import moment from 'moment';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
 import gql from 'graphql-tag';
+import { Button, Icon } from 'modules/common/components';
+import { __, router } from 'modules/common/utils';
+import moment from 'moment';
+import * as React from 'react';
 import { withApollo } from 'react-apollo';
-import { Icon, Button } from 'modules/common/components';
-import { router } from 'modules/common/utils';
-import { dimensions, colors, typography } from '../styles';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import Datetime from 'react-datetime';
+import styled from 'styled-components';
+import { colors, dimensions, typography } from '../styles';
 
 const PopoverButton = styled.div`
   display: inline-block;
@@ -78,35 +77,43 @@ const DateFilters = styled.div`
   }
 `;
 
-const propTypes = {
-  queryParams: PropTypes.object,
-  history: PropTypes.object,
-  client: PropTypes.object,
-  countQuery: PropTypes.string,
-  countQueryParam: PropTypes.string
+type Props = {
+  queryParams?: any,
+  history: any,
+  client: any,
+  countQuery?: string,
+  countQueryParam?: string
 };
+
+type State = {
+  startDate: Date,
+  endDate: Date,
+  totalCount: number,
+}
 
 const format = 'YYYY-MM-DD HH:mm';
 
-class DateFilter extends React.Component {
+class DateFilter extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     const { startDate, endDate } = props.queryParams;
 
-    this.state = {
+    const state = {
       startDate: null,
       endDate: null,
       totalCount: 0
     };
 
     if (startDate) {
-      this.state.startDate = moment(startDate);
+      state.startDate = moment(startDate);
     }
 
     if (endDate) {
-      this.state.endDate = moment(endDate);
+      state.endDate = moment(endDate);
     }
+
+    this.state = state;
 
     this.renderPopover = this.renderPopover.bind(this);
     this.refetchCountQuery = this.refetchCountQuery.bind(this);
@@ -163,7 +170,6 @@ class DateFilter extends React.Component {
 
   renderCount() {
     const { totalCount } = this.state;
-    const { __ } = this.context;
 
     if (this.props.countQuery) {
       return (
@@ -181,10 +187,8 @@ class DateFilter extends React.Component {
   }
 
   renderPopover() {
-    const { __ } = this.context;
-
     const props = {
-      inputProps: { placeholder: __('Select a date') },
+      inputProps: { placeholder: __('Select a date').toString() },
       timeFormat: 'HH:mm',
       dateFormat: 'YYYY/MM/DD',
       closeOnSelect: true
@@ -224,8 +228,6 @@ class DateFilter extends React.Component {
   }
 
   render() {
-    const { __ } = this.context;
-
     return (
       <OverlayTrigger
         ref={overlayTrigger => {
@@ -245,10 +247,5 @@ class DateFilter extends React.Component {
     );
   }
 }
-
-DateFilter.propTypes = propTypes;
-DateFilter.contextTypes = {
-  __: PropTypes.func
-};
 
 export default withApollo(DateFilter);
