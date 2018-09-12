@@ -25,7 +25,7 @@ class EmailTemplateList extends List {
       <Table>
         <thead>
           <tr>
-            <th width="140" />
+            <th />
             <th>{__('Name')}</th>
             <th>{__('Actions')}</th>
           </tr>

@@ -1,5 +1,5 @@
+import { IUser } from 'modules/auth/types';
 import { Messenger, MessengerPreview } from 'modules/engage/styles';
-import { IUser } from 'modules/settings/channels/types';
 import { LogoContainer } from 'modules/settings/styles';
 import React, { Component } from 'react';
 import WidgetPreview from './WidgetPreview';

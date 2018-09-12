@@ -26,7 +26,7 @@ const types = {
   }
 };
 
-const LabelStyled = styledTS<{ lblStyle: string, hasLightBackground?: boolean, shake?: boolean }>(styled.span)`
+const LabelStyled = styledTS<{ lblStyle?: string, hasLightBackground?: boolean, shake?: boolean }>(styled.span)`
   border-radius: 14px;
   padding: 3px 9px;
   text-transform: uppercase;
@@ -79,7 +79,7 @@ type Props = {
   shake?: boolean
   ignoreTrans?: boolean,
   style?: any,
-  lblStyle: string
+  lblStyle?: string
 };
 
 class Label extends Component<Props> {

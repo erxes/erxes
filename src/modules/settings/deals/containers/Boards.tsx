@@ -26,7 +26,7 @@ class BoardsContainer extends React.Component<Props, {}> {
 
     // remove action
     const remove = _id => {
-      confirm().then(() => {
+      confirm('Are you sure ?').then(() => {
         removeMutation({
           variables: { _id }
         })

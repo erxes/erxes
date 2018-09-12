@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
 import { save } from '../../integrations/containers/utils';
 import { ChooseBrand } from '../components';
 import { mutations, queries } from '../graphql';
@@ -50,24 +49,22 @@ const ChooseBrandContainer = (props: Props) => {
   return <ChooseBrand {...updatedProps} />;
 };
 
-export default withRouter(
-  compose(
-    graphql<Props>(
-      gql(queries.brands), {
-        name: 'brandsQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
-    }),
+export default compose(
+  graphql<Props>(
+    gql(queries.brands), {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+  }),
 
-    graphql<Props>(
-      gql(mutations.integrationsCreateMessenger), {
-        name: 'addMutation'
-    }),
+  graphql<Props>(
+    gql(mutations.integrationsCreateMessenger), {
+      name: 'addMutation'
+  }),
 
-    graphql<Props>(
-      gql(mutations.integrationsEditMessenger), {
-        name: 'editMutation'
-    })
-  )(ChooseBrandContainer)
-);
+  graphql<Props>(
+    gql(mutations.integrationsEditMessenger), {
+      name: 'editMutation'
+  })
+)(ChooseBrandContainer);

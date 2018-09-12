@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import { Button, FormControl, Step, Steps } from 'modules/common/components';
 import {
   Preview,
@@ -7,7 +8,6 @@ import {
 import { __, Alert } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IBrand, IIntegration } from 'modules/settings/brands/types';
-import { IUser } from 'modules/settings/channels/types';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';

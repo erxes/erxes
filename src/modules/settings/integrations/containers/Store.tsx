@@ -15,7 +15,7 @@ const Store = (props: Props) => {
   const totalCount = totalCountQuery.integrationsTotalCount.byKind;
 
   const updatedProps = {
-    ...this.props,
+    ...props,
     totalCount
   };
 

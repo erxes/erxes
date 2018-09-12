@@ -17,7 +17,7 @@ const IntegrationListContainer = (props: Props) => {
   const integrations = integrationsQuery.integrations || [];
 
   const removeIntegration = (integration, callback) => {
-    confirm().then(() => {
+    confirm('Are you sure ?').then(() => {
       removeMutation({ variables: { _id: integration._id } })
         .then(() => {
           Alert.success('Congrats');

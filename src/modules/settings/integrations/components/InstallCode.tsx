@@ -60,7 +60,7 @@ class InstallCode extends Component<Props, State> {
       const brand = integration.brand || {};
       const form = integration.form || {};
 
-      code = this.constructor.getInstallCode(brand.code, form.code);
+      code = this.constructor().getInstallCode(brand.code, form.code);
     }
 
     this.state = {

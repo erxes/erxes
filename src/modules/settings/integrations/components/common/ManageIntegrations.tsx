@@ -40,6 +40,8 @@ class ManageIntegrations extends Component<Props, State> {
     closeModal: PropTypes.func.isRequired,
   }
 
+  private timer: NodeJS.Timer
+
   constructor(props: Props) {
     super(props);
 

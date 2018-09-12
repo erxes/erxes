@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import {
   ControlLabel,
   FormControl,
@@ -8,7 +9,6 @@ import { __ } from 'modules/common/utils';
 import { SubHeading } from 'modules/settings/styles';
 import React, { Component } from 'react';
 import Select from 'react-select-plus';
-import { IUser } from '../../../../channels/types';
 
 type Props= {
   onChange: (name: string, value: string) => void,

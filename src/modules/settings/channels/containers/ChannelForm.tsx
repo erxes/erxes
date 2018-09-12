@@ -1,10 +1,11 @@
+import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import { ChannelForm } from '../components';
-import { IChannel, IUsers } from '../types';
+import { IChannel } from '../types';
 
 type Props = {
   channel: IChannel,
-  members: IUsers[],
+  members: IUser[],
   save: () => void,
   loading: boolean
 };

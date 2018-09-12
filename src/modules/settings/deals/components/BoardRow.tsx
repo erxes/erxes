@@ -13,6 +13,8 @@ type Props = {
 };
 
 class BoardRow extends React.Component<Props, {}> {
+  private size;
+
   constructor(props: Props) {
     super(props);
 

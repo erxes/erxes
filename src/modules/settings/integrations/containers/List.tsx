@@ -30,8 +30,8 @@ const ListContainer = (props: Props) => {
       totalCountQuery.integrationsTotalCount.byKind[queryParams.kind];
   }
 
-  const removeIntegration = (integration, callback) => {
-    confirm().then(() => {
+  const removeIntegration = (integration) => {
+    confirm('Are you sure ?').then(() => {
       removeMutation({ variables: { _id: integration._id } })
         .then(() => {
           Alert.success('Congrats');
@@ -44,11 +44,15 @@ const ListContainer = (props: Props) => {
   };
 
   const updatedProps = {
-    ...this.props,
+    ...props,
     queryParams,
     totalCount,
     loading: totalCountQuery.loading,
-    removeIntegration
+
+    // TODO: check remove, save, refetch
+    remove: removeIntegration,
+    save: () => {},
+    refetch: () => {},
   };
 
   return <List {...updatedProps} />;
@@ -58,6 +62,7 @@ type Props = {
   totalCountQuery: any,
   googleAuthQuery: any,
   removeMutation: (params: { variables: { _id: string } }) => any,
+  objects: any,
   queryParams: any
 };
 

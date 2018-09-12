@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
@@ -5,7 +6,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { ChannelForm } from '../containers';
 import { MemberImg, Members, More } from '../styles';
-import { IChannel, IUser } from "../types";
+import { IChannel } from "../types";
 
 type Props = {
   channel: IChannel,
@@ -35,14 +36,14 @@ class ChannelRow extends Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
+        <Tip text={__('Edit').toString()}>
           <Icon icon="edit" />
         </Tip>
       </Button>
     );
 
     return (
-      <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
+      <ModalTrigger title="Edit" trigger={editTrigger}>
         {this.renderEditForm({ channel, save, members })}
       </ModalTrigger>
     );

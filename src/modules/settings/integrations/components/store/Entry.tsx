@@ -1,14 +1,13 @@
 import { Icon, ModalTrigger, Tip } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { IIntegration } from 'modules/settings/brands/types';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Box, IntegrationItem } from './styles';
 
 type Props= {
-  integration: IIntegration,
-  getClassName: (kind: string) => void,
+  integration: any,
+  getClassName: (kind: string) => string,
   toggleBox: (kind: string) => void,
   totalCount: any
 };
@@ -67,7 +66,7 @@ class Entry extends Component<Props> {
           <img alt="logo" src={integration.logo} />
           <h5>
             {integration.name} {this.getCount(integration.kind)}{' '}
-            {this.renderType(integration.inMessenger)}
+            {this.renderType(integration.isMessenger)}
           </h5>
           <p>{integration.description}</p>
         </Box>

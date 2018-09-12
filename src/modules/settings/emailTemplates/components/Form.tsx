@@ -37,7 +37,6 @@ class Form extends CommonForm {
             id="template-content"
             componentClass="textarea"
             rows={5}
-            onChange={this.onTemplateChange}
             defaultValue={emailTemplate.content}
           />
         </FormGroup>

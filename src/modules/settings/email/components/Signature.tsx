@@ -8,15 +8,15 @@ import { ModalFooter, Well } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
-import { ISignatures } from '../types';
+import { ISignature } from '../types';
 
 type Props = {
-  signatures: ISignatures[],
-  save: (signatures: ISignatures[]) => void,
+  signatures: ISignature[],
+  save: (signatures: ISignature[]) => void,
 };
 
 type State = {
-  signatures: ISignatures[],
+  signatures: ISignature[],
   currentId: null | string,
 };
 
@@ -42,7 +42,7 @@ class Signature extends React.Component<Props, State> {
     const currentId = this.state.currentId;
 
     if (!currentId) {
-      return {};
+      return { signature: '' };
     }
 
     return this.state.signatures.find(
@@ -57,7 +57,7 @@ class Signature extends React.Component<Props, State> {
   changeContent(e) {
     const current = this.getCurrent();
 
-    current.content = e.target.value;
+    current.signature = e.target.value;
 
     this.setState({ signatures: this.state.signatures });
   }
@@ -71,7 +71,7 @@ class Signature extends React.Component<Props, State> {
   }
 
   render() {
-    const current = this.getCurrent() || {};
+    const current = this.getCurrent();
     const { closeModal } = this.context;
 
     const content = (
@@ -105,7 +105,7 @@ class Signature extends React.Component<Props, State> {
               id="content"
               rows={6}
               onChange={this.changeContent}
-              value={current.content}
+              value={current.signature}
             />
           </FormGroup>
           <ModalFooter>

@@ -52,7 +52,7 @@ class IntegrationList extends Component<Props> {
 
       return (
         <ActionButtons>
-          <Tip text={__('Edit messenger integration')}>
+          <Tip text={__('Edit messenger integration').toString()}>
             <Link
               to={`/settings/integrations/editMessenger/${integration._id}`}
             >
@@ -78,7 +78,7 @@ class IntegrationList extends Component<Props> {
     }
 
     return (
-      <Tip text={__('Delete')}>
+      <Tip text={__('Delete').toString()}>
         <Button
           btnStyle="link"
           onClick={() => removeIntegration(integration)}

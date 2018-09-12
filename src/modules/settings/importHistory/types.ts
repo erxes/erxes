@@ -1,4 +1,4 @@
-import { IUser } from "../channels/types";
+import { IUser } from "modules/auth/types";
 
 export interface IHistories {
     _id: string,

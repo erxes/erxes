@@ -15,6 +15,8 @@ type Props = {
 };
 
 class Row extends React.Component<Props, {}> {
+  private size;
+
   constructor(props: Props) {
     super(props);
 
@@ -29,10 +31,14 @@ class Row extends React.Component<Props, {}> {
 
   renderRemoveAction() {
     return (
-      <Tip text={__('Delete')}>
+      <Tip text={__('Delete').toString()}>
         <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
       </Tip>
     );
+  }
+
+  renderForm(doc) {
+    return null;
   }
 
   renderEditAction() {
@@ -40,7 +46,7 @@ class Row extends React.Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
+        <Tip text={__('Edit').toString()}>
           <Icon icon="edit" />
         </Tip>
       </Button>

@@ -9,7 +9,7 @@ const ListContainer = (props: Props) => {
   const brands = listQuery.brands || [];
 
   const updatedProps = {
-    ...this.props,
+    ...props,
     refetch: listQuery.refetch,
     brands
   };

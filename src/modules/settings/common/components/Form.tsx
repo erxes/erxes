@@ -6,7 +6,6 @@ import * as React from 'react';
 type Props = {
   object: any,
   save: (params: { doc: any}, callback: () => void, object: any) => void,
-
 };
 
 class Form extends React.Component<Props> {
@@ -20,16 +19,25 @@ class Form extends React.Component<Props> {
     this.save = this.save.bind(this);
   }
 
+  generateDoc() {
+    return { doc: {} };
+  }
+
   save(e) {
     e.preventDefault();
 
     this.props.save(
       this.generateDoc(),
+
       () => {
         this.context.closeModal();
       },
       this.props.object
     );
+  }
+
+  renderContent({}) {
+    return null;
   }
 
   render() {

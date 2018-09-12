@@ -36,11 +36,14 @@ class Facebook extends Component<Props> {
     const values = [];
     const elements = document.getElementsByName(name);
 
-    elements.forEach(element => {
+    // tslint:disable-next-line
+    for (let i=0; i<elements.length; i++) {
+      const element = elements[i] as HTMLInputElement;
+
       if (element.checked) {
         values.push(element.value);
       }
-    });
+    }
 
     return values;
   }

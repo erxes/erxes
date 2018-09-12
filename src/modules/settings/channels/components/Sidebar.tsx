@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import {
   EmptyState,
   Icon,
@@ -10,7 +11,7 @@ import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
 import React, { Component } from 'react';
 import { ChannelForm } from '../containers';
-import { IChannel, IUser } from '../types';
+import { IChannel } from '../types';
 import { ChannelRow } from './';
 
 type Props = {

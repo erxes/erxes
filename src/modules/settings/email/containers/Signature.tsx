@@ -60,7 +60,7 @@ const SignatureContainer = (props: Props, { currentUser }) => {
   });
 
   const updatedProps = {
-    ...this.props,
+    ...props,
     signatures,
     save
   };

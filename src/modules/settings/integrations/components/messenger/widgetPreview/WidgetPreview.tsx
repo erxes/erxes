@@ -1,5 +1,5 @@
+import { IUser } from 'modules/auth/types';
 import { __ } from 'modules/common/utils';
-import { IUser } from 'modules/settings/channels/types';
 import * as React from 'react';
 import {
   ErxesAvatar,

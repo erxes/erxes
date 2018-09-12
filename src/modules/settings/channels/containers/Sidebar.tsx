@@ -31,7 +31,7 @@ const SidebarContainer = (props: Props) => {
 
   // remove action
   const remove = _id => {
-    confirm().then(() => {
+    confirm('Are you sure ?').then(() => {
       removeMutation({
         variables: { _id }
       })

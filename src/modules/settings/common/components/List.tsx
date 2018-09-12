@@ -7,10 +7,11 @@ import {
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/Sidebar';
 import * as React from 'react';
+import { IIntegration } from '../../brands/types';
 
 type Props = {
   objects: any
-  remove: () => void,
+  remove: (integation: IIntegration) => void,
   save: () => void,
   refetch: () => void,
   totalCount: number
@@ -18,10 +19,16 @@ type Props = {
 };
 
 class List extends React.Component<Props, {}> {
+  public title
+  public size
+
   constructor(props: Props) {
     super(props);
 
     this.renderObjects = this.renderObjects.bind(this);
+  }
+
+  renderRow(doc) {
   }
 
   renderObjects() {
@@ -36,6 +43,18 @@ class List extends React.Component<Props, {}> {
         save
       })
     );
+  }
+
+  breadcrumb() {
+    return null;
+  }
+
+  renderForm({ save }) {
+    return null;
+  }
+
+  renderContent() {
+    return null;
   }
 
   render() {

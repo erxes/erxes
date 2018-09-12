@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import {
   Button,
   ControlLabel,
@@ -9,7 +10,7 @@ import { __ } from 'modules/common/utils';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import Select from 'react-select-plus';
-import { IChannel, IUser } from "../types";
+import { IChannel } from "../types";
 
 type Props = {
   channel: IChannel,
