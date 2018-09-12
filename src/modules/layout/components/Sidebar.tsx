@@ -23,10 +23,10 @@ function QuickButtons({ children }: { children: React.ReactNode }) {
 type Props = {
   children: any,
   collapsible: boolean,
-  className: string,
-  noShadow: boolean,
-  noBackground: boolean,
-  full: boolean
+  className?: string,
+  noShadow?: boolean,
+  noBackground?: boolean,
+  full?: boolean
 };
 
 type State = {
@@ -96,9 +96,9 @@ class Section extends React.Component<Props, State> {
 
 type HeaderProps = {
   children: any,
-  uppercase: boolean,
-  bold: boolean,
-  spaceBottom: boolean
+  uppercase?: boolean,
+  bold?: boolean,
+  spaceBottom?: boolean
 };
 
 function Header({ children, spaceBottom, uppercase, bold }: HeaderProps) {
