@@ -1,10 +1,9 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
+import styled from 'styled-components';
+import { colors, dimensions } from '../styles';
 import Button from './Button';
 import Icon from './Icon';
-import { colors, dimensions } from '../styles';
 
 const ModalBody = styled.div`
   text-align: center;
@@ -27,7 +26,18 @@ const IconWrapper = styled.div`
   color: ${colors.colorSecondary};
 `;
 
-class ConfirmDialog extends React.Component {
+type Props = {
+  options: any,
+  confirmation?: string,
+  proceed?: (value: string) => void,
+  dismiss?: () => void
+};
+
+type State = {
+  show: boolean,
+}
+
+class ConfirmDialog extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -94,12 +104,5 @@ class ConfirmDialog extends React.Component {
     );
   }
 }
-
-ConfirmDialog.propTypes = {
-  options: PropTypes.object,
-  confirmation: PropTypes.string,
-  proceed: PropTypes.func,
-  dismiss: PropTypes.func
-};
 
 export default ConfirmDialog;

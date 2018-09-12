@@ -1,21 +1,25 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
-  FormGroup,
   ControlLabel,
   FormControl,
+  FormGroup,
   Icon
 } from 'modules/common/components';
-import { Alert, uploadHandler } from 'modules/common/utils';
 import { Avatar } from 'modules/common/styles/main';
+import { Alert, uploadHandler } from 'modules/common/utils';
+import React, { Component } from 'react';
 
-const propTypes = {
-  avatar: PropTypes.string,
-  defaultAvatar: PropTypes.string,
-  onAvatarUpload: PropTypes.func
+type Props = {
+  avatar?: string,
+  defaultAvatar?: string,
+  onAvatarUpload?: (response: any) => void
 };
 
-class AvatarUpload extends Component {
+type State = {
+  avatarPreviewStyle: any,
+  avatarPreviewUrl: string,
+}
+
+class AvatarUpload extends Component<Props, State> {
   constructor(props, context) {
     super(props, context);
 
@@ -73,7 +77,5 @@ class AvatarUpload extends Component {
     );
   }
 }
-
-AvatarUpload.propTypes = propTypes;
 
 export default AvatarUpload;

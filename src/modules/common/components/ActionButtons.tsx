@@ -1,10 +1,5 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import styled from 'styled-components';
-
-const propTypes = {
-  children: PropTypes.node
-};
 
 const ActionButton = styled.div`
   display: inline-block;
@@ -19,10 +14,8 @@ const ActionButton = styled.div`
   }
 `;
 
-function ActionButtons({ children }) {
+function ActionButtons({ children }: { children: React.ReactNode }) {
   return <ActionButton>{children}</ActionButton>;
 }
-
-ActionButtons.propTypes = propTypes;
 
 export default ActionButtons;

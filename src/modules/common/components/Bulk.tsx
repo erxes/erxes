@@ -1,7 +1,12 @@
 import { toggleCheckBoxes } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 
-export default class Bulk extends React.Component {
+type State = {
+  bulk: string[],
+  isAllSelected: boolean,
+}
+
+export default class Bulk extends React.Component<{}, State> {
   constructor(props) {
     super(props);
 
@@ -13,15 +18,13 @@ export default class Bulk extends React.Component {
     this.refetch = this.refetch.bind(this);
   }
 
-  refetch() {
-    return false;
-  }
+  refetch() {}
 
   toggleBulk(target, toAdd) {
     let { bulk } = this.state;
 
     // remove old entry
-    bulk = bulk.filter(el => el._id !== target._id);
+    bulk = bulk.filter((el: any) => el._id !== target._id);
 
     if (toAdd) {
       bulk.push(target);
