@@ -65,7 +65,7 @@ const LogoContainer = styled.div`
   }
 `;
 
-const ColorPick = styled.div`
+const ColorPick = styledTS<{ full?: boolean }>(styled.div)`
   border-radius: 4px;
   display: ${props => (props.full ? 'block' : 'inline-block')};
   padding: 5px;
@@ -73,7 +73,7 @@ const ColorPick = styled.div`
   cursor: pointer;
 `;
 
-const ColorPicker = styled.div`
+const ColorPicker = styledTS<{ full?: boolean }>(styled.div)`
   width: ${props => (props.full ? '100%' : '80px')};
   height: 15px;
 `;
