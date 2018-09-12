@@ -42,7 +42,7 @@ const Contents = styled.div`
   }
 `;
 
-const MainContent = styled.section`
+const MainContent = styledTS<{ transparent?: boolean }>(styled.section)`
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -56,14 +56,14 @@ const ContentSpace = styled.div`
   padding: ${dimensions.coreSpacing}px;
 `;
 
-const ContentBox = styled.div`
+const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
   flex: 1;
   overflow: auto;
   position: relative;
   background-color: ${props => !props.transparent && colors.colorWhite};
 `;
 
-const ContentHeader = styled.div`
+const ContentHeader = styledTS<{ background?: string }>(styled.div)`
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
   min-height: ${dimensions.headerSpacing}px;
@@ -92,12 +92,12 @@ const BarItems = styled.div`
   }
 `;
 
-const HeaderItems = styled.div`
+const HeaderItems = styledTS<{ rightAligned?: boolean }>(styled.div)`
   align-self: center;
   margin-left: ${props => props.rightAligned && 'auto'};
 `;
 
-const SideContent = styledTS<{ wide: boolean; full: boolean; half: boolean}>(styled.section)`
+const SideContent = styledTS<{ wide?: boolean, half?: boolean, full?: boolean }>(styled.section)`
   box-sizing: border-box;
   display: flex;
   position: relative;
@@ -111,7 +111,7 @@ const SideContent = styledTS<{ wide: boolean; full: boolean; half: boolean}>(sty
     props.full ? `0 0 8px 1px ${colors.shadowPrimary}` : 'none'};
 `;
 
-const SidebarHeader = styledTS<{ spaceBottom: boolean; uppercase: boolean; bold: boolean }>(styled.div)`
+const SidebarHeader = styledTS<{ spaceBottom?: boolean, uppercase?: boolean, bold?: boolean }>(styled.div)`
   background-color: ${colors.bgLight};
   height: ${dimensions.headerSpacing}px;
   margin-bottom: ${props => props.spaceBottom && '10px'};
@@ -143,7 +143,7 @@ const SidebarFooter = styledTS<{ children: any }>(SidebarHeader.extend)`
   border-bottom: none;
 `;
 
-const SidebarBox = styledTS<{ noBackground: boolean; noShadow: boolean; collapsible: boolean; full: boolean}>(styled.div)`
+const SidebarBox = styledTS<{ noBackground?: boolean, noShadow?: boolean, collapsible?: boolean, full?: boolean }>(styled.div)`
   background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
@@ -169,7 +169,7 @@ const BoxContent = styled.div`
   }
 `;
 
-const SidebarToggle = styled.a`
+const SidebarToggle = styledTS<{ inverse?: boolean }>(styled.a)`
   width: 100%;
   color: ${colors.colorCoreGray};
   position: absolute;
@@ -269,7 +269,7 @@ const SidebarList = styled.ul`
   }
 `;
 
-const SidebarCounter = styled.span`
+const SidebarCounter = styledTS<{ nowrap?: boolean }>(styled.span)`
   font-size: ${typography.fontSizeHeading8}px;
   text-align: ${props => (props.nowrap ? 'left' : 'right')};
   color: ${colors.colorCoreGray};
@@ -305,7 +305,7 @@ const FlexContent = styled.div`
   min-height: 100%;
 `;
 
-const FlexItem = styled.div`
+const FlexItem = styledTS<{ count?: number }>(styled.div)`
   flex: ${props => (props.count ? props.count : 1)};
   position: relative;
 `;

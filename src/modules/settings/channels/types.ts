@@ -11,7 +11,7 @@ export interface IUserDetails {
     fullName: string;
 }
 
-export interface IUsers {
+export interface IUser {
     _id: string;
     username: string;
     details: IUserDetails;

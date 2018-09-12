@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
-import { Layout } from '../styles';
+import { IUser } from '../../settings/channels/types';
 import { Navigation } from '../containers';
+import { Layout } from '../styles';
 
-const propTypes = {
-  history: PropTypes.object,
-  currentUser: PropTypes.object,
-  children: PropTypes.node
-};
+type Props = {
+  history: any,
+  currentUser: IUser,
+  children: React.ReactNode
+}
 
-class MainLayout extends React.Component {
+class MainLayout extends React.Component<Props> {
   getChildContext() {
     return {
       currentUser: this.props.currentUser
@@ -29,7 +29,7 @@ class MainLayout extends React.Component {
       'invalid',
       (function() {
         return function(e) {
-          //prevent the browser from showing default error hint
+          // prevent the browser from showing default error hint
           e.preventDefault();
 
           e.target.classList.add('form-invalid');
@@ -50,8 +50,6 @@ class MainLayout extends React.Component {
     );
   }
 }
-
-MainLayout.propTypes = propTypes;
 
 MainLayout.childContextTypes = {
   currentUser: PropTypes.object
