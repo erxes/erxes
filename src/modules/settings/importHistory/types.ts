@@ -8,5 +8,4 @@ export interface IHistories {
     contentType: string,
     date: Date,
     user: IUser
-    }
 }
