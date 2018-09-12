@@ -1,7 +1,8 @@
-import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const SortItem = styled.div`
+const SortItem = styledTS<{ isDragging: boolean, isModal: boolean }>(styled.div)`
   background: ${colors.colorWhite};
   border: 1px solid ${colors.borderPrimary};
   border-radius: 2px;
