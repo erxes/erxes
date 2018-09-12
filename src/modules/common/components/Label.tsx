@@ -98,9 +98,17 @@ class Label extends Component<Props> {
         : null
     };
 
+    let content;
+
+    if (ignoreTrans) {
+      content = children;
+    } else if (typeof children === 'string') {
+      content = __(children);
+    }
+
     return (
       <LabelStyled {...updatedProps}>
-        {ignoreTrans ? children : __(children)}
+        {content}
       </LabelStyled>
     );
   }

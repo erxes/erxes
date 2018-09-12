@@ -34,6 +34,8 @@ class CommonChooser extends Component<Props, State> {
     closeModal: PropTypes.func.isRequired,
   };
 
+  private timer: NodeJS.Timer
+
   constructor(props) {
     super(props);
 

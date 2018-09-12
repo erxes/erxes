@@ -85,7 +85,7 @@ const Column = styled.div`
   }
 `;
 
-const Title = styledTS<{ full: boolean }>(styled.h4)`
+const Title = styledTS<{ full?: boolean }>(styled.h4)`
   margin: 0 0 ${columnSizing} 0;
   background: ${colors.bgActive};
   padding: 10px ${columnSizing};

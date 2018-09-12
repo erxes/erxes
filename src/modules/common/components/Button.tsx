@@ -48,7 +48,7 @@ const sizes = {
   }
 };
 
-const ButtonStyled = styledTS<{ size: string, btnStyle: string, block?: boolean }>(styled.button)`
+const ButtonStyled = styledTS<{ hugeness: string, btnStyle: string, block?: boolean }>(styled.button)`
   border-radius: 30px;
   position: relative;
   transition: all 0.3s ease;
@@ -56,9 +56,9 @@ const ButtonStyled = styledTS<{ size: string, btnStyle: string, block?: boolean 
   outline: 0;
 
   ${props => css`
-    padding: ${sizes[props.size].padding};
+    padding: ${sizes[props.hugeness].padding};
     background: ${types[props.btnStyle].background};
-    font-size: ${sizes[props.size].fontSize};
+    font-size: ${sizes[props.hugeness].fontSize};
     color: ${types[props.btnStyle].color
       ? types[props.btnStyle].color
       : colors.colorWhite};
@@ -129,7 +129,7 @@ const ButtonGroup = styled.div`
 type ButtonProps = {
   children?: React.ReactNode,
   className?: string,
-  onClick: (e: React.FormEvent<HTMLButtonElement>) => void,
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void,
   href?: string,
   type?: string,
   btnStyle?: string,
@@ -151,7 +151,10 @@ export default class Button extends Component<ButtonProps> {
   };
 
   render() {
-    const { href, children, ignoreTrans, icon } = this.props;
+    const { size, ...sizeExcluded } = this.props;
+    const { href, children, ignoreTrans, icon } = sizeExcluded;
+    const props = {...sizeExcluded, hugeness: size };
+
     const Element = href ? ButtonLink : ButtonStyled;
 
     let content = children;
@@ -162,14 +165,14 @@ export default class Button extends Component<ButtonProps> {
 
     if (icon) {
       return (
-        <Element {...this.props}>
+        <Element {...props}>
           <Icon icon={icon} />
           {content && <span>{content}</span>}
         </Element>
       );
     }
 
-    return <Element {...this.props}>{content}</Element>;
+    return <Element {...props}>{content}</Element>;
   }
 }
 

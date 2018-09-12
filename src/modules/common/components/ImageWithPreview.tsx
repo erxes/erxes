@@ -102,8 +102,11 @@ class ImageWithPreview extends Component<Props, State> {
 }
 
 class PreviewPortal extends Component<{ children: React.ReactNode}> {
+  private el;
+
   constructor(props) {
     super(props);
+
     this.el = document.createElement('div');
   }
 

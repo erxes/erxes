@@ -230,9 +230,6 @@ class DateFilter extends React.Component<Props, State> {
   render() {
     return (
       <OverlayTrigger
-        ref={overlayTrigger => {
-          this.overlayTrigger = overlayTrigger;
-        }}
         trigger="click"
         placement="bottom"
         overlay={this.renderPopover()}

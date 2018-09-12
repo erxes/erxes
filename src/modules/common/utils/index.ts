@@ -30,12 +30,11 @@ export const setBadge = (count: number, title: string) => {
       setTitle(`(${count}) ${title}`, true);
     }
 
-    return (favicon.href = '/favicon-unread.png');
+    favicon.href = '/favicon-unread.png';
+  } else {
+    setTitle(title, true);
+    favicon.href = '/favicon.png';
   }
-
-  setTitle(title, true);
-
-  favicon.href = '/favicon.png';
 };
 
 export const reorder = (list, startIndex, endIndex) => {

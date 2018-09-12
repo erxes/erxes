@@ -6,7 +6,7 @@ import { colors } from '../styles';
 import Button from './Button';
 import Icon from './Icon';
 
-const EmptyStateStyled = styledTS<{ size: string }>(styled.div)`
+const EmptyStateStyled = styledTS<{ hugeness: string }>(styled.div)`
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -22,7 +22,7 @@ const EmptyStateStyled = styledTS<{ size: string }>(styled.div)`
   }
 
   ${props => {
-    if (props.size === 'small') {
+    if (props.hugeness === 'small') {
       return `
         min-height: 80px;
         font-size: 12px;
@@ -40,8 +40,8 @@ const EmptyStateStyled = styledTS<{ size: string }>(styled.div)`
   }};
 
   i {
-    font-size: ${props => (props.size === 'small' ? '28px' : '14vh')};
-    line-height: ${props => (props.size === 'small' ? '40px' : '18vh')};
+    font-size: ${props => (props.hugeness === 'small' ? '28px' : '14vh')};
+    line-height: ${props => (props.hugeness === 'small' ? '40px' : '18vh')};
     color: ${colors.colorCoreLightGray};
   }
 
@@ -62,7 +62,7 @@ type Props = {
 
 function EmptyState({ text, icon, image, size = 'small', linkUrl, linkText }: Props) {
   return (
-    <EmptyStateStyled size={size}>
+    <EmptyStateStyled hugeness={size}>
       {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
 
       {__(text)}

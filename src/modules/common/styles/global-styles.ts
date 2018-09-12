@@ -1,7 +1,7 @@
 import { injectGlobal } from 'styled-components';
 import { colors, typography } from './';
 
-injectGlobal(`
+const style: any = `
   html {
     height: 100%;
   }
@@ -717,4 +717,6 @@ injectGlobal(`
   ::-webkit-scrollbar-track {
     background: rgba(215, 215, 215, .4);
   }
-`);
+`;
+
+injectGlobal(style);

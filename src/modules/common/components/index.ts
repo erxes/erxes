@@ -32,7 +32,7 @@ import SortHandler from './SortHandler';
 import Spinner from './Spinner';
 import { ConditionStep, Step, Steps } from './step';
 import Table from './table';
-import { TabList, Tabs, TabTitle } from './tabs';
+import { Tabs, TabTitle } from './tabs';
 import Tags from './Tags';
 import TextDivider from './TextDivider';
 import Tip from './Tip';
@@ -77,7 +77,6 @@ export {
   Table,
   Editor,
   Tabs,
-  TabList,
   TabTitle,
   ConfirmDialog,
   DataWithLoader,
