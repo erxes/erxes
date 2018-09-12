@@ -1,5 +1,5 @@
 import { injectGlobal } from 'styled-components';
-import { typography, colors } from './';
+import { colors, typography } from './';
 
 injectGlobal(`
   html {
