@@ -42,7 +42,7 @@ class Intro extends Component {
   }
 
   onTeamMembersChange(options) {
-    if (options.length < 3) {
+    if (options.length < 4) {
       this.setState({
         supporters: options,
         supporterIds: options.map(option => option.value)
