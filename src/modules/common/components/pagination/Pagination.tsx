@@ -68,8 +68,8 @@ const generatePages = (pageCount: number, currentPage: number): number[] => {
 };
 
 // page chooser component
-class Page extends React.Component<Props> {
-  constructor(props: Props) {
+class Page extends React.Component<{ history: any, page: number, currentPage: number }> {
+  constructor(props) {
     super(props);
 
     this.onClick = this.onClick.bind(this);
@@ -109,12 +109,6 @@ class Page extends React.Component<Props> {
     );
   }
 }
-
-type Props= {
-  history?: any,
-  page?: number,
-  currentPage?: number
-};
 
 // main pagination component
 class Pagination extends React.Component<PaginationProps> {
@@ -161,45 +155,47 @@ class Pagination extends React.Component<PaginationProps> {
       isPaginated
     } = this.props;
 
-    if (isPaginated) {
-      let prevClass = '';
-      let nextClass = '';
-
-      if (currentPage <= 1) {
-        prevClass = 'disabled';
-      }
-
-      if (currentPage >= totalPagesCount) {
-        nextClass = 'disabled';
-      }
-
-      return (
-        <PaginationList>
-          <li className={prevClass}>
-            <a href="" onClick={this.onPrev}>
-              <Icon icon="leftarrow" />
-            </a>
-          </li>
-
-          {pages.map((page, index) => (
-            <Page
-              key={index}
-              history={history}
-              currentPage={currentPage}
-              page={page}
-            />
-          ))}
-
-          <li className={nextClass}>
-            <a href="" onClick={this.onNext}>
-              <Icon icon="rightarrow" />
-            </a>
-          </li>
-
-          {this.renderPerPageChooser()}
-        </PaginationList>
-      );
+    if (!isPaginated) {
+      return null;
     }
+
+    let prevClass = '';
+    let nextClass = '';
+
+    if (currentPage <= 1) {
+      prevClass = 'disabled';
+    }
+
+    if (currentPage >= totalPagesCount) {
+      nextClass = 'disabled';
+    }
+
+    return (
+      <PaginationList>
+        <li className={prevClass}>
+          <a href="" onClick={this.onPrev}>
+            <Icon icon="leftarrow" />
+          </a>
+        </li>
+
+        {pages.map((page, index) => (
+          <Page
+            key={index}
+            history={history}
+            currentPage={currentPage}
+            page={page}
+          />
+        ))}
+
+        <li className={nextClass}>
+          <a href="" onClick={this.onNext}>
+            <Icon icon="rightarrow" />
+          </a>
+        </li>
+
+        {this.renderPerPageChooser()}
+      </PaginationList>
+    );
   }
 
   renderPerPageChooser() {
@@ -220,7 +216,9 @@ type PaginationProps = {
 };
 
 type PaginationContainerProps = {
-  history?: any,
+  history: any,
+  location: any,
+  match: any,
   count?: number
 };
 
@@ -230,7 +228,7 @@ const PaginationContainer = (props: PaginationContainerProps) => {
   const currentPage = Number(router.getParam(history, 'page')) || 1;
   const perPage = Number(router.getParam(history, 'perPage')) || 20;
 
-  let totalPagesCount = (count / perPage) + 1;
+  let totalPagesCount = parseInt((count / perPage).toString(), 10) + 1;
 
   if (count % perPage === 0) {
     totalPagesCount -= 1;
@@ -251,4 +249,4 @@ const PaginationContainer = (props: PaginationContainerProps) => {
 };
 
 
-export default withRouter(PaginationContainer);
+export default withRouter<PaginationContainerProps>(PaginationContainer);

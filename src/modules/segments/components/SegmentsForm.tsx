@@ -1,38 +1,56 @@
-import React, { Component, Fragment } from 'react';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import {
   Button,
-  Icon,
   ControlLabel,
+  FormControl,
   FormGroup,
-  FormControl
+  Icon
 } from 'modules/common/components';
-import { generateRandomColorCode } from 'modules/common/utils';
-import { FlexContent, FlexItem, ContentSpace } from 'modules/layout/styles';
-import { Conditions, AddConditionButton } from './';
+import { __, generateRandomColorCode } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
+import { ContentSpace, FlexContent, FlexItem } from 'modules/layout/styles';
+import React, { Component, Fragment } from 'react';
+import { Link } from 'react-router-dom';
+import { ISegment, ISegmentCondition } from '../types';
+import { AddConditionButton, Conditions } from './';
 import {
-  SegmentWrapper,
   ConditionWrapper,
-  SegmentTitle,
+  ResultCount,
   SegmentContainer,
   SegmentResult,
-  ResultCount
+  SegmentTitle,
+  SegmentWrapper
 } from './styles';
 
-const propTypes = {
-  contentType: PropTypes.string.isRequired,
-  fields: PropTypes.array.isRequired,
-  create: PropTypes.func.isRequired,
-  edit: PropTypes.func.isRequired,
-  segment: PropTypes.object,
-  headSegments: PropTypes.array.isRequired,
-  count: PropTypes.func.isRequired,
-  total: PropTypes.object
+type SegmentDoc = {
+  name: string,
+  description: string,
+  subOf: string,
+  color: string,
+  connector: string,
+  conditions: ISegmentCondition[],
+}
+
+type Props = {
+  contentType: string,
+  fields: any[],
+  create: (params: { doc: SegmentDoc }) => void,
+  edit: (params: { doc: SegmentDoc }) => void,
+  segment: ISegment,
+  headSegments: ISegment[],
+  count: (segment: any) => void,
+  total: any
 };
 
-class SegmentsForm extends Component {
+type State = {
+  name: string,
+  description: string,
+  subOf: string,
+  color: string,
+  conditions: ISegmentCondition[],
+  connector: string,
+}
+
+class SegmentsForm extends Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -106,6 +124,7 @@ class SegmentsForm extends Component {
     const { segment, create, edit } = this.props;
 
     const submit = segment ? edit : create;
+
     const {
       name,
       description,
@@ -115,7 +134,7 @@ class SegmentsForm extends Component {
       conditions
     } = this.state;
 
-    const params = { doc: { name, description, color, connector, conditions } };
+    const params = { doc: { name, description, color, connector, conditions, subOf: null } };
 
     if (subOf) {
       params.doc.subOf = subOf;
@@ -129,7 +148,6 @@ class SegmentsForm extends Component {
   renderConditions() {
     const { contentType, fields } = this.props;
     const { conditions, connector, subOf } = this.state;
-    const { __ } = this.context;
 
     const selectedFieldIds = conditions.map(c => c.field);
 
@@ -237,7 +255,6 @@ class SegmentsForm extends Component {
 
   renderContent() {
     const { total } = this.props;
-    const { __ } = this.context;
 
     return (
       <SegmentWrapper>
@@ -291,7 +308,6 @@ class SegmentsForm extends Component {
 
   render() {
     const { contentType, segment } = this.props;
-    const { __ } = this.context;
 
     const breadcrumb = [
       { title: __('Segments'), link: `/segments/${contentType}` },
@@ -307,10 +323,5 @@ class SegmentsForm extends Component {
     );
   }
 }
-
-SegmentsForm.propTypes = propTypes;
-SegmentsForm.contextTypes = {
-  __: PropTypes.func
-};
 
 export default SegmentsForm;

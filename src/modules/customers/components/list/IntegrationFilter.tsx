@@ -1,18 +1,19 @@
+import { DataWithLoader } from 'modules/common/components';
+import { __, router } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import { DataWithLoader } from 'modules/common/components';
-import { router } from 'modules/common/utils';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 
-const propTypes = {
-  history: PropTypes.object,
-  counts: PropTypes.object.isRequired
+type Props = {
+  history: any,
+  location: any,
+  match: any,
+  counts: any
 };
 
-function IntegrationFilter({ history, counts }, { __ }) {
+function IntegrationFilter({ history, counts }: Props) {
   const { Section, Header } = Wrapper.Sidebar;
 
   const data = (
@@ -55,9 +56,4 @@ function IntegrationFilter({ history, counts }, { __ }) {
   );
 }
 
-IntegrationFilter.propTypes = propTypes;
-IntegrationFilter.contextTypes = {
-  __: PropTypes.func
-};
-
-export default withRouter(IntegrationFilter);
+export default withRouter<Props>(IntegrationFilter);

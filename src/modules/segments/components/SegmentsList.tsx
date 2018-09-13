@@ -1,34 +1,34 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import {
-  Tip,
   ActionButtons,
   Button,
+  Label,
   Table,
-  Label
+  Tip
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import { ISegment } from '../types';
 
-const propTypes = {
-  contentType: PropTypes.string.isRequired,
-  segments: PropTypes.array.isRequired,
-  removeSegment: PropTypes.func.isRequired
+type Props = {
+  contentType: string,
+  segments: ISegment[],
+  removeSegment: (_id: string) => void
 };
 
-class SegmentsList extends Component {
+class SegmentsList extends Component<Props> {
   renderActionButtons(segment) {
     const { contentType, removeSegment } = this.props;
-    const { __ } = this.context;
 
     return (
       <ActionButtons>
-        <Tip text={__('Edit')}>
+        <Tip text={__('Edit').toString()}>
           <Link to={`/segments/edit/${contentType}/${segment._id}`}>
             <Button btnStyle="link" icon="edit" />
           </Link>
         </Tip>
-        <Tip text={__('Delete')}>
+        <Tip text={__('Delete').toString()}>
           <Button
             btnStyle="link"
             onClick={() => {
@@ -43,7 +43,6 @@ class SegmentsList extends Component {
 
   renderContent() {
     const { segments } = this.props;
-    const { __ } = this.context;
 
     const parentSegments = [];
 
@@ -85,7 +84,6 @@ class SegmentsList extends Component {
 
   render() {
     const { contentType } = this.props;
-    const { __ } = this.context;
 
     const actionBarRight = (
       <Link to={`/segments/new/${contentType}`}>
@@ -106,10 +104,5 @@ class SegmentsList extends Component {
     );
   }
 }
-
-SegmentsList.propTypes = propTypes;
-SegmentsList.contextTypes = {
-  __: PropTypes.func
-};
 
 export default SegmentsList;

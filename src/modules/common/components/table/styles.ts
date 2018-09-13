@@ -5,7 +5,7 @@ import { FormLabel, Input } from '../form/styles';
 
 const tableHoverColor = '#f5f5f5';
 
-const StyledTable = styledTS<{ whiteSpace: string, alignTop: boolean, hover: boolean, bordered: boolean, striped: boolean }>(styled.table)`
+const StyledTable = styledTS<{ whiteSpace?: string, alignTop?: boolean, hover?: boolean, bordered?: boolean, striped?: boolean }>(styled.table)`
   ${props => css`
     width: 100%;
     max-width: 100%;

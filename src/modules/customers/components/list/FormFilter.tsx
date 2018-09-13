@@ -1,19 +1,21 @@
+import { DataWithLoader } from 'modules/common/components';
+import { __, router } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import * as React from 'react';
 import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import { DataWithLoader } from 'modules/common/components';
-import { router } from 'modules/common/utils';
+import { IIntegration } from '../../../settings/brands/types';
 
-const propTypes = {
-  history: PropTypes.object,
-  counts: PropTypes.object.isRequired,
-  integrations: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired
+type Props = {
+  history: any,
+  location: any,
+  match: any,
+  counts: any,
+  integrations: IIntegration[],
+  loading: boolean
 };
 
-function Forms({ history, counts, integrations, loading }, { __ }) {
+function Forms({ history, counts, integrations, loading }: Props) {
   const { Section, Header } = Wrapper.Sidebar;
 
   const data = (
@@ -58,9 +60,4 @@ function Forms({ history, counts, integrations, loading }, { __ }) {
   );
 }
 
-Forms.propTypes = propTypes;
-Forms.contextTypes = {
-  __: PropTypes.func
-};
-
-export default withRouter(Forms);
+export default withRouter<Props>(Forms);

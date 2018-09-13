@@ -1,26 +1,26 @@
+import {
+  DataWithLoader,
+  DropdownToggle,
+  Icon
+} from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { Wrapper } from 'modules/layout/components';
-import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import {
-  DropdownToggle,
-  Icon,
-  DataWithLoader
-} from 'modules/common/components';
 
-const propTypes = {
-  currentSegment: PropTypes.string,
-  setSegment: PropTypes.func,
-  removeSegment: PropTypes.func,
-  contentType: PropTypes.string.isRequired,
-  counts: PropTypes.object.isRequired,
-  segments: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired
+type Props = {
+  currentSegment?: string,
+  setSegment: (_id: string) => void,
+  removeSegment: () => void,
+  contentType: string,
+  counts: any,
+  segments: any[],
+  loading: boolean
 };
 
-class Segments extends React.Component {
+class Segments extends React.Component<Props> {
   renderCancelBtn() {
     const { currentSegment, removeSegment } = this.props;
 
@@ -38,7 +38,6 @@ class Segments extends React.Component {
   renderQuickBtns() {
     const { contentType } = this.props;
     const { Section } = Wrapper.Sidebar;
-    const { __ } = this.context;
 
     return (
       <Section.QuickButtons>
@@ -111,7 +110,6 @@ class Segments extends React.Component {
 
   render() {
     const { segments, loading } = this.props;
-    const { __ } = this.context;
 
     const { Section, Header } = Wrapper.Sidebar;
 
@@ -134,10 +132,5 @@ class Segments extends React.Component {
     );
   }
 }
-
-Segments.propTypes = propTypes;
-Segments.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Segments;

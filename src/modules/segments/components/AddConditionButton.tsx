@@ -1,15 +1,17 @@
+import { Button, FilterableList } from 'modules/common/components';
+import { dateUnits, operators, types } from 'modules/customers/constants';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { FilterableList, Button } from 'modules/common/components';
-import { types, operators, dateUnits } from 'modules/customers/constants';
+import { ISegmentCondition } from '../types';
 
-const propTypes = {
-  fields: PropTypes.array.isRequired,
-  addCondition: PropTypes.func.isRequired
+type Props = {
+  fields: any[],
+  addCondition: (condition: ISegmentCondition) => void
 };
 
-class AddConditionButton extends Component {
+class AddConditionButton extends Component<Props> {
+  private overlayTrigger;
+
   constructor(props) {
     super(props);
 
@@ -62,7 +64,5 @@ class AddConditionButton extends Component {
     );
   }
 }
-
-AddConditionButton.propTypes = propTypes;
 
 export default AddConditionButton;
