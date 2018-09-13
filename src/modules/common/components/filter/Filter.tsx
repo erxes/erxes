@@ -8,6 +8,8 @@ import createChipText from './createChipText';
 
 type Props = {
   history: any,
+  location: any,
+  match: any,
   queryParams?: any
 };
 
@@ -92,4 +94,4 @@ function Filter({ queryParams = {}, history }: Props) {
   );
 }
 
-export default withRouter(Filter);
+export default withRouter<Props>(Filter);

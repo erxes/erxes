@@ -68,8 +68,8 @@ const generatePages = (pageCount: number, currentPage: number): number[] => {
 };
 
 // page chooser component
-class Page extends React.Component<Props> {
-  constructor(props: Props) {
+class Page extends React.Component<{ history: any, page: number, currentPage: number }> {
+  constructor(props) {
     super(props);
 
     this.onClick = this.onClick.bind(this);
@@ -109,12 +109,6 @@ class Page extends React.Component<Props> {
     );
   }
 }
-
-type Props= {
-  history?: any,
-  page?: number,
-  currentPage?: number
-};
 
 // main pagination component
 class Pagination extends React.Component<PaginationProps> {
@@ -222,7 +216,9 @@ type PaginationProps = {
 };
 
 type PaginationContainerProps = {
-  history?: any,
+  history: any,
+  location: any,
+  match: any,
   count?: number
 };
 
@@ -253,4 +249,4 @@ const PaginationContainer = (props: PaginationContainerProps) => {
 };
 
 
-export default withRouter(PaginationContainer);
+export default withRouter<PaginationContainerProps>(PaginationContainer);
