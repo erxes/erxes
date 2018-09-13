@@ -1,25 +1,27 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
   Button,
-  FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
-import { generateRandomColorCode } from 'modules/common/utils';
 import { ModalFooter } from 'modules/common/styles/main';
+import { generateRandomColorCode } from 'modules/common/utils';
+import { ITag, ITagSaveDoc } from 'modules/tags/types';
+import React, { Component } from 'react';
 
-const propTypes = {
-  tag: PropTypes.object,
-  type: PropTypes.string.isRequired,
-  save: PropTypes.func.isRequired
+type Props = {
+  tag?: ITag,
+  type: string,
+  closeModal: () => void,
+  save: (params: { tag: ITag, doc: ITagSaveDoc, callback: () => void }) => void
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired
-};
+type State = {
+  name: string,
+  colorCode: string
+}
 
-class Form extends Component {
+class Form extends Component<Props, State> {
   constructor(props, context) {
     super(props, context);
 
@@ -38,13 +40,13 @@ class Form extends Component {
   submit(e) {
     e.preventDefault();
 
-    const { tag, type, save } = this.props;
+    const { tag, type, save, closeModal } = this.props;
     const { name, colorCode } = this.state;
 
     save({
       tag,
       doc: { name, type, colorCode },
-      callback: () => this.context.closeModal()
+      callback: () => { closeModal() }
     });
   }
 
@@ -99,8 +101,5 @@ class Form extends Component {
     );
   }
 }
-
-Form.propTypes = propTypes;
-Form.contextTypes = contextTypes;
 
 export default Form;
