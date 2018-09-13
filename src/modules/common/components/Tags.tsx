@@ -17,6 +17,12 @@ const TagList = styledTS<{ length: number }>(styled.div).attrs({
   }
 `;
 
+type Props = {
+  tags: ITag[],
+  size?: string,
+  limit?: number,
+};
+
 function Tags({ tags, limit }: Props) {
   const length = tags.length;
 
@@ -43,11 +49,5 @@ function Tags({ tags, limit }: Props) {
     </TagList>
   );
 }
-
-type Props = {
-  tags: ITag[],
-  size?: string,
-  limit?: number,
-};
 
 export default Tags;

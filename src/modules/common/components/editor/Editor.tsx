@@ -27,6 +27,14 @@ const styleMap = {
   }
 };
 
+type Props = {
+  active: boolean,
+  label?: any,
+  style?: string,
+  title?: string,
+  onToggle: (style: string) => void
+};
+
 class StyleButton extends Component<Props> {
   onToggle: any;
   constructor(props: Props) {
@@ -57,14 +65,6 @@ class StyleButton extends Component<Props> {
   }
 }
 
-type Props = {
-  active: boolean,
-  label?: any,
-  style?: string,
-  title?: string,
-  onToggle: (style: string) => void
-};
-
 const BLOCK_TYPES = [
   {
     label: <i className="icon-fontsize" />,
@@ -93,6 +93,11 @@ const BLOCK_TYPES = [
   }
 ];
 
+type BlockStyleProps = {
+  onToggle: (blockType: any) => void,
+  editorState: any
+};
+
 const BlockStyleControls = (props: BlockStyleProps) => {
   const { editorState, onToggle } = props;
 
@@ -118,11 +123,6 @@ const BlockStyleControls = (props: BlockStyleProps) => {
   );
 };
 
-type BlockStyleProps = {
-  onToggle: (blockType: any) => void,
-  editorState: any
-};
-
 const INLINE_STYLES = [
   { label: <i className="icon-bold" />, style: 'BOLD', title: 'Bold' },
   { label: <i className="icon-italic" />, style: 'ITALIC', title: 'Italic' },
@@ -132,6 +132,11 @@ const INLINE_STYLES = [
     title: 'Underline'
   }
 ];
+
+type InlineStyleProps = {
+  onToggle: (inlineStyle: any) => void,
+  editorState: any
+}
 
 const InlineStyleControls = ({ onToggle, editorState }: InlineStyleProps) => {
   const currentStyle = editorState.getCurrentInlineStyle();
@@ -152,10 +157,20 @@ const InlineStyleControls = ({ onToggle, editorState }: InlineStyleProps) => {
   );
 };
 
-type InlineStyleProps = {
-  onToggle: (inlineStyle: any) => void,
-  editorState: any
-}
+type ErxesEditorProps = {
+  editorState: any,
+  onChange: (richUtils: any) => void,
+  bordered: boolean,
+  // extra control rows
+  controls: any[],
+  pluginContent: any,
+  plugins: any[]
+  keyBindingFn: () => void,
+  onUpArrow: () => void,
+  onDownArrow: () => void,
+  handleFileInput: (e: any) => void,
+  placeholder?: string
+};
 
 export class ErxesEditor extends Component<ErxesEditorProps> {
   constructor(props: ErxesEditorProps) {
@@ -277,21 +292,6 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
     );
   }
 }
-
-type ErxesEditorProps = {
-  editorState: any,
-  onChange: (richUtils: any) => void,
-  bordered: boolean,
-  // extra control rows
-  controls: any[],
-  pluginContent: any,
-  plugins: any[]
-  keyBindingFn: () => void,
-  onUpArrow: () => void,
-  onDownArrow: () => void,
-  handleFileInput: (e: any) => void,
-  placeholder?: string
-};
 
 export const toHTML = state => stateToHTML(state.getCurrentContent());
 

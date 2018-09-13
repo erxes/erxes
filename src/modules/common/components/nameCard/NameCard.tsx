@@ -32,8 +32,20 @@ const SecondLine = styled.div`
   color: ${colors.colorLightGray};
 `;
 
+type Props = {
+  user?: any,
+  customer?: any,
+  singleLine?: boolean,
+  firstLine?: React.ReactNode,
+  secondLine?: React.ReactNode,
+  avatarSize?: number,
+  url?: string,
+  isUser?: boolean
+};
+
 class NameCard extends Component<Props> {
-  static Avatar: typeof Avatar;
+  static Avatar = Avatar;
+  
   renderUserName() {
     const { user, singleLine, secondLine } = this.props;
 
@@ -88,18 +100,5 @@ class NameCard extends Component<Props> {
     );
   }
 }
-
-type Props = {
-  user?: any,
-  customer?: any,
-  singleLine?: boolean,
-  firstLine?: React.ReactNode,
-  secondLine?: React.ReactNode,
-  avatarSize?: number,
-  url?: string,
-  isUser?: boolean
-};
-
-NameCard.Avatar = Avatar;
 
 export default NameCard;
