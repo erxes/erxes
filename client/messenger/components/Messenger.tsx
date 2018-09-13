@@ -3,7 +3,7 @@ import {
   AccquireInformation,
   ConversationCreate,
   ConversationDetail,
-  ConversationList
+  Home
 } from "../containers";
 
 type Props = {
@@ -19,7 +19,7 @@ function Messenger({ activeRoute }: Props) {
       return <ConversationCreate />;
 
     case "conversationList":
-      return <ConversationList />;
+      return <Home />;
 
     // get user's contact information
     case "accquireInformation":

@@ -26,7 +26,16 @@ const messageFields = `
     messageId
     brandId
   }
+  messengerAppData
   attachments
+`;
+
+const userFields = `
+  _id
+  details {
+    avatar
+    fullName
+  }
 `;
 
 const conversationDetailQuery = `
@@ -67,6 +76,14 @@ const adminMessageInserted = `
 const unreadCountQuery = `
   query unreadCount($conversationId: String) {
     unreadCount(conversationId: $conversationId)
+  }
+`;
+
+const messengerSupportersQuery = `
+  query messengerSupporters($integrationId: String!) {
+    messengerSupporters(integrationId: $integrationId) {
+      ${userFields}
+    }
   }
 `;
 
@@ -141,5 +158,6 @@ export default {
   allConversations,
   connect,
   saveBrowserInfo,
-  readConversationMessages
+  readConversationMessages,
+  messengerSupportersQuery
 };

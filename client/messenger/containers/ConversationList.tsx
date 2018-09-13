@@ -27,11 +27,8 @@ class ConversationList extends React.Component<
 
     return (
       <AppConsumer>
-        {({ changeRoute, goToConversation }) => {
-          const createConversation = (
-            e: React.FormEvent<HTMLButtonElement>
-          ) => {
-            e.preventDefault();
+        {({ goToConversation, changeRoute, getColor }) => {
+          const createConversation = () => {
             changeRoute("conversationCreate");
           };
 
@@ -39,9 +36,10 @@ class ConversationList extends React.Component<
             <DumbConversationList
               {...this.props}
               loading={data.loading}
-              createConversation={createConversation}
+              color={getColor()}
               conversations={conversations}
               goToConversation={goToConversation}
+              createConversation={createConversation}
             />
           );
         }}

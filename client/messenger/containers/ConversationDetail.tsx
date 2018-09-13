@@ -3,7 +3,7 @@ import * as React from "react";
 import { ChildProps, compose, graphql } from "react-apollo";
 import { IUser } from "../../types";
 import { Conversation as DumbConversation } from "../components";
-import { connection, getLocalStorageItem } from "../connection";
+import { connection } from "../connection";
 import graphqlTypes from "../graphql";
 import { IConversation, IMessage } from "../types";
 import { AppConsumer } from "./AppContext";

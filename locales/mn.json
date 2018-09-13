@@ -1,9 +1,11 @@
 {
+  "Welcome!": "Сайн байна уу!",
   "Close": "Хаах",
   "Online": "Онлайн",
   "Offline": "Оффлайн",
   "Send a message": "Зурвас илгээх",
   "Send": "Илгээх",
+  "Start new conversation": "Харилцан яриа эхлүүлэх",
   "Write a reply": "Хариу бичих",
   "Conversation": "Харилцан яриа",
   "with Support staff": "Туслах ажилтан",
@@ -26,6 +28,8 @@
   "phone number": "утасны дугаар",
   "Support staff": "Туслах ажилтан",
   "Conversations": "Харилцан яриа",
+  "Recent conversations": "Харилцан ярианууд",
   "with Support staffs": "Туслах ажилтан",
+  "You didn't have any conversation yet": "Одоогоор ямар нэгэн харилцан яриа байхгүй байна.",
   "Do you want to end this conversation ?": "Харилцан яриаг дуусгах уу?"
 }

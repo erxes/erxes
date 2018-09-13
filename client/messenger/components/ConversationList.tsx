@@ -1,49 +1,54 @@
 import * as React from "react";
-import { iconPlus } from "../../icons/Icons";
 import { __ } from "../../utils";
-import { ConversationItem, TopBar } from "../containers";
+import { ConversationItem } from "../containers";
 import { IConversation } from "../types";
 
 type Props = {
   conversations: IConversation[];
-  createConversation: (e: React.FormEvent<HTMLButtonElement>) => void;
   goToConversation: (conversationId: string) => void;
+  createConversation: (e: React.FormEvent<HTMLButtonElement>) => void;
   loading: boolean;
+  color: string;
 };
 
 function ConversationList(props: Props) {
   const {
     conversations,
-    createConversation,
     goToConversation,
-    loading
+    loading,
+    createConversation,
+    color
   } = props;
 
-  const title = (
-    <div className="erxes-topbar-title">
-      <div>{__("Conversations")}</div>
-      <span>{__("with Support staffs")}</span>
-    </div>
-  );
+  if (loading) {
+    return <div className="loader bigger" />;
+  }
+
+  if (conversations.length === 0) {
+    return (
+      <div className="empty-list">
+        <p>{__("You didn't have any conversation yet")}</p>
+        <button
+          className="erxes-button"
+          onClick={createConversation}
+          style={{ backgroundColor: color, color }}
+        >
+          <span>{__("Start new conversation")}</span>
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <React.Fragment>
-      <TopBar
-        middle={title}
-        buttonIcon={iconPlus}
-        onButtonClick={createConversation}
-      />
-      <ul className="erxes-conversation-list appear-slide-in">
-        {loading && <div className="loader bigger" />}
-        {conversations.map(conversation => (
-          <ConversationItem
-            key={conversation._id}
-            conversation={conversation}
-            goToConversation={goToConversation}
-          />
-        ))}
-      </ul>
-    </React.Fragment>
+    <ul className="erxes-conversation-list">
+      {conversations.map(conversation => (
+        <ConversationItem
+          key={conversation._id}
+          conversation={conversation}
+          goToConversation={goToConversation}
+        />
+      ))}
+    </ul>
   );
 }
 

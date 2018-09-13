@@ -127,6 +127,10 @@ window.addEventListener("message", async (event: MessageEvent) => {
       revertViewPort();
     }
 
+    if (isMobile) {
+      document.body.classList.toggle("widget-mobile", isVisible);
+    }
+
     if (message === "messenger") {
       erxesContainer.className = `erxes-messenger-${
         isVisible ? "shown" : "hidden"

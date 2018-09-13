@@ -7,6 +7,7 @@ type Props = {
   middle: React.ReactNode;
   buttonIcon?: React.ReactNode;
   isExpanded?: boolean;
+  isBig: boolean;
   onButtonClick?: (e: React.FormEvent<HTMLButtonElement>) => void;
   onToggle?: () => void;
 };
@@ -14,11 +15,12 @@ type Props = {
 const container = (props: Props) => {
   return (
     <AppConsumer>
-      {({ endConversation, getColor }) => {
+      {({ endConversation, getColor, toggle }) => {
         return (
           <TopBar
             {...props}
             color={getColor()}
+            toggleLauncher={toggle}
             isChat={Boolean(!connection.setting.email)}
             endConversation={endConversation}
           />

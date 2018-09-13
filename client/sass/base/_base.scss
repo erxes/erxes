@@ -6,18 +6,18 @@ body {
 }
 
 .appear-scale-in {
-  animation: scaleIn 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  animation: scaleIn .2s $timing-scale 1;
 }
 
 .appear-slide-in {
-  will-change: transform, opacity;
+  animation-delay: .2s;
+  animation-duration: .2s;
+  animation-fill-mode: forwards;
   animation-name: slideIn;
+  animation-timing-function: $timing-slide;
   transform: translateX(0) translateY(0) scale(0);
   transform-origin: bottom;
-  animation-duration: .2s;
-  animation-timing-function: cubic-bezier(0.35, 0.35, 0.35, 0.98);
-  animation-delay: .2s;
-  animation-fill-mode: forwards;
+  will-change: transform, opacity;
 }
 
 .erxes-widget {
@@ -71,7 +71,7 @@ body {
   &.bigger {
     height: 28px;
     margin-right: -14px;
-    margin-top: -30px;
+    margin-top: 0;
     width: 28px;
   }
 }
@@ -109,4 +109,49 @@ body {
     will-change: transform, opacity;
     z-index: 1;
   }
+
+  &.tooltip-center::before {
+    left: -100%;
+  }
+}
+
+// button
+.erxes-button {
+  background: $main-color;
+  border: 0;
+  border-radius: 30px;
+  box-shadow: 0 2px 16px 0;
+  color: $white;
+  font-size: 12px;
+  outline: 0;
+  padding: 10px 20px;
+  position: relative;
+  transition: all .3s ease;
+
+  span {
+    color: $white;
+  }
+
+  &:hover {
+    box-shadow: 0 2px 22px 0;
+    cursor: pointer;
+    text-decoration: none;
+  }
+}
+
+// scrollbar
+
+::-webkit-scrollbar {
+  border-radius: 0;
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(215, 215, 215, .6);
+  border-radius: 5px;
+  box-shadow: inset 0 -3px 0 0 transparent, inset 0 3px 0 0 transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }

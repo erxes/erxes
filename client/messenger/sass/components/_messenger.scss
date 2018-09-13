@@ -1,7 +1,7 @@
 .erxes-messenger {
   background: $white;
   border-radius: $border-radius;
-  bottom: 86px;
+  bottom: 76px;
   box-shadow: 0 2px 16px 1px rgba($black, .2);
   display: flex;
   flex-direction: column;
@@ -11,12 +11,12 @@
   position: absolute;
   right: 8px;
   width: calc(100% - 36px);
-  z-index: 9998;
+  z-index: $z-index-above + 1;
 
   @media screen and (max-width: $break-small) {
     border: none !important;
-    bottom: 70px;
-    height: calc(100% - 70px);
+    bottom: 0;
+    height: 100%;
     max-height: none;
     right: 0;
     width: 100%;

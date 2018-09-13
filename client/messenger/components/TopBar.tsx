@@ -1,6 +1,6 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import { iconExit } from "../../icons/Icons";
+import { iconClose } from "../../icons/Icons";
 import { __ } from "../../utils";
 
 type Props = {
@@ -9,8 +9,10 @@ type Props = {
   isChat: boolean;
   color?: string;
   isExpanded?: boolean;
+  isBig: boolean;
   onButtonClick?: (e: React.FormEvent<HTMLButtonElement>) => void;
   onToggle?: () => void;
+  toggleLauncher: () => void;
   endConversation: () => void;
 };
 
@@ -22,58 +24,62 @@ function TopBar({
   isChat,
   endConversation,
   isExpanded,
-  onToggle
+  isBig,
+  onToggle,
+  toggleLauncher
 }: Props) {
   const topBarClassNames = classNames("erxes-topbar", {
-    expanded: isExpanded
+    expanded: isExpanded,
+    big: isBig
+  });
+
+  const middleClass = classNames("erxes-middle", {
+    expandable: onToggle ? true : false
   });
 
   const onEndConversation = () => {
     if (
+      isChat &&
       confirm((__("Do you want to end this conversation ?") || {}).toString())
     ) {
       endConversation();
+    } else {
+      toggleLauncher();
     }
   };
 
-  const renderEndConversation = () => {
-    if (isChat) {
-      return (
-        <a
-          href="#"
-          className="topbar-button right"
-          onClick={onEndConversation}
-          title="End conversation"
-        >
-          {iconExit}
-        </a>
-      );
-    }
-
-    return null;
+  const renderRightButton = () => {
+    return (
+      <a
+        href="#"
+        className="topbar-button right"
+        onClick={isChat ? onEndConversation : toggleLauncher}
+        title="End conversation"
+      >
+        {iconClose}
+      </a>
+    );
   };
 
   const renderLeftButton = () => {
-    if (onButtonClick) {
-      return (
-        <button className="topbar-button left" onClick={onButtonClick}>
-          {buttonIcon}
-        </button>
-      );
+    if (!onButtonClick) {
+      return null;
     }
 
-    return null;
+    return (
+      <button className="topbar-button left" onClick={onButtonClick}>
+        {buttonIcon}
+      </button>
+    );
   };
 
   return (
-    <div
-      onClick={onToggle}
-      className={topBarClassNames}
-      style={{ backgroundColor: color }}
-    >
+    <div className={topBarClassNames} style={{ backgroundColor: color }}>
       {renderLeftButton()}
-      <div className="erxes-middle">{middle}</div>
-      {renderEndConversation()}
+      <div onClick={onToggle} className={middleClass}>
+        {middle}
+      </div>
+      {renderRightButton()}
     </div>
   );
 }
