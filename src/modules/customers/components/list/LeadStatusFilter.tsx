@@ -1,23 +1,28 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
 
+import { DataWithLoader, Icon } from 'modules/common/components';
+import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { Icon, DataWithLoader } from 'modules/common/components';
-import { router } from 'modules/common/utils';
-import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { LEAD_STATUS_TYPES } from '../../constants';
 import { leadStatusChoices } from '../../utils';
 
-class LeadStatusFilter extends Component {
-  constructor() {
-    super();
+type Props = {
+  history: any,
+  counts: any,
+  loading: boolean,
+  searchable: boolean 
+};
+
+class LeadStatusFilter extends Component<Props> {
+  constructor(props, context) {
+    super(props, context);
 
     this.renderCounts = this.renderCounts.bind(this);
   }
 
   renderCounts() {
-    const { __ } = this.context;
     const { history, counts } = this.props;
     const { Section } = Wrapper.Sidebar;
     const paramKey = 'leadStatus';
@@ -81,16 +86,5 @@ class LeadStatusFilter extends Component {
     );
   }
 }
-
-LeadStatusFilter.contextTypes = {
-  __: PropTypes.func
-};
-
-LeadStatusFilter.propTypes = {
-  history: PropTypes.object.isRequired,
-  counts: PropTypes.object.isRequired,
-  loading: PropTypes.bool.isRequired,
-  searchable: PropTypes.bool
-};
 
 export default withRouter(LeadStatusFilter);

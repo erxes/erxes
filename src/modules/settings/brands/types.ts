@@ -34,6 +34,7 @@ export interface IIntegration {
     description: string;
     code: string;
     formId: string;
+    form: any;
     logo: string;
     languageCode: string;
     createUrl: string;
