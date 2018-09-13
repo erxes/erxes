@@ -1,23 +1,27 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
-import { types, operators, dateUnits } from 'modules/customers/constants';
-import { Button, FormControl, ControlLabel } from 'modules/common/components';
+import { Button, ControlLabel, FormControl } from 'modules/common/components';
+import { dateUnits, operators, types } from 'modules/customers/constants';
 import { FlexContent, FlexItem, FlexRightItem } from 'modules/layout/styles';
+import React, { Component } from 'react';
+import { ISegmentCondition } from '../types';
 import { ConditionItem } from './styles';
 
-const propTypes = {
-  fields: PropTypes.array.isRequired,
-  condition: PropTypes.object.isRequired,
-  changeCondition: PropTypes.func.isRequired,
-  removeCondition: PropTypes.func.isRequired
+type Props = {
+  fields: any[],
+  condition: ISegmentCondition,
+  changeCondition: (condition: ISegmentCondition) => void,
+  removeCondition: (field: string) => void
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
+type State = {
+  field: string,
+  type: string,
+  value: string,
+  operator: string,
+  dateUnit: string,
+}
 
-class Condition extends Component {
+class Condition extends Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -31,10 +35,13 @@ class Condition extends Component {
     this.state = this.props.condition;
   }
 
+  changeCondition (condition: ISegmentCondition) {
+  }
+
   handleInputValue(e) {
     e.preventDefault();
 
-    const states = { [e.target.name]: e.target.value };
+    const states = { [e.target.name]: e.target.value, operator: null };
 
     // Changing current operator when the type is changed
     if (e.target.name === 'type') {
@@ -172,8 +179,5 @@ class Condition extends Component {
     );
   }
 }
-
-Condition.propTypes = propTypes;
-Condition.contextTypes = contextTypes;
 
 export default Condition;

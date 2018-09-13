@@ -1,26 +1,22 @@
-import React, { Fragment, Component } from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import { Button } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import React, { Component, Fragment } from 'react';
+import { Link } from 'react-router-dom';
+import { ISegmentCondition } from '../types';
 import Condition from './Condition';
 
-const propTypes = {
-  fields: PropTypes.array.isRequired,
-  conditions: PropTypes.array.isRequired,
-  changeCondition: PropTypes.func.isRequired,
-  removeCondition: PropTypes.func.isRequired,
-  parentSegmentId: PropTypes.string,
-  contentType: PropTypes.string
+type Props = {
+  fields: any[],
+  conditions: ISegmentCondition[],
+  changeCondition: (condition: ISegmentCondition) => void,
+  removeCondition: (field: string) => void,
+  parentSegmentId?: string,
+  contentType?: string
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
-
-class Conditions extends Component {
+class Conditions extends Component<Props> {
   renderParent() {
     const { contentType, parentSegmentId } = this.props;
-    const { __ } = this.context;
 
     if (!parentSegmentId) return null;
 
@@ -58,8 +54,5 @@ class Conditions extends Component {
     );
   }
 }
-
-Conditions.propTypes = propTypes;
-Conditions.contextTypes = contextTypes;
 
 export default Conditions;

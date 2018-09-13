@@ -1,7 +1,7 @@
-import styled from 'styled-components';
+import { Input, SelectWrapper } from 'modules/common/components/form/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
-import { SelectWrapper, Input } from 'modules/common/components/form/styles';
 import { FlexItem } from 'modules/layout/styles';
+import styled from 'styled-components';
 
 const SegmentTitle = styled.h3`
   font-size: 12px;
