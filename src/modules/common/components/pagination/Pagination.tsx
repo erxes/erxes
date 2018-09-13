@@ -228,7 +228,7 @@ const PaginationContainer = (props: PaginationContainerProps) => {
   const currentPage = Number(router.getParam(history, 'page')) || 1;
   const perPage = Number(router.getParam(history, 'perPage')) || 20;
 
-  let totalPagesCount = (count / perPage) + 1;
+  let totalPagesCount = parseInt((count / perPage).toString(), 10) + 1;
 
   if (count % perPage === 0) {
     totalPagesCount -= 1;
