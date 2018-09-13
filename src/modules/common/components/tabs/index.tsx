@@ -11,12 +11,13 @@ function TabTitle(props: TabTitleProps) {
 
 type Props= {
   children: React.ReactNode,
-  grayBorder: boolean
+  grayBorder?: boolean
 };
 
 type TabTitleProps = {
   children: React.ReactNode,
-  onClick: () => void
+  onClick?: () => void,
+  className?: string
 };
 
 export { Tabs, TabTitle };

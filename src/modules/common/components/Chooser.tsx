@@ -12,15 +12,16 @@ import { CenterContent, ModalFooter } from '../styles/main';
 
 type Props = {
   data: any,
-  onSelect: (datas: any[]) => void,
+  onSelect?: (datas: any[]) => void,
   search: (value: string, reload?: boolean) => void,
   datas: any[],
   form: React.ReactNode,
   title: string,
-  renderName: (data: any) => void,
+  renderName?: (data: any) => void,
   perPage: number,
   clearState: () => void,
-  limit: number,
+  limit?: number,
+  add?: any
 };
 
 type State = {

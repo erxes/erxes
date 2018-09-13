@@ -3,6 +3,6 @@ import createConfirmation from './createConfirmation';
 // create confirm function
 const confirm = createConfirmation();
 
-export default function(confirmation, options = {}) {
-  return confirm({ confirmation, options });
+export default function(confirmation?: any, options?: any) {
+  return confirm({ confirmation, options: options ? options : {} });
 }
