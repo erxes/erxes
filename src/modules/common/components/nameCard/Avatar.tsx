@@ -1,10 +1,10 @@
+import { colors } from 'modules/common/styles';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { colors } from 'modules/common/styles';
+import styledTS from 'styled-components-ts';
 
-const AvatarStyled = styled.span`
+const AvatarStyled = styledTS<{ isUser?: boolean, messenger?: boolean, twitter?: boolean, facebook?: boolean }>(styled.span)`
   display: block;
   max-width: 80px;
   border-radius: 40px;
@@ -39,14 +39,14 @@ const AvatarStyled = styled.span`
   }
 `;
 
-const AvatarImage = styled.div`
+const AvatarImage = styledTS<{ image?: string }>(styled.div)`
   background: url(${props =>
       props.image ? props.image : '/images/avatar.svg'})
     center no-repeat;
   background-size: cover;
 `;
 
-class Avatar extends Component {
+class Avatar extends Component<Props> {
   generateStyle(size = 40) {
     return {
       width: size,
@@ -139,12 +139,12 @@ class Avatar extends Component {
   }
 }
 
-Avatar.propTypes = {
-  user: PropTypes.object,
-  customer: PropTypes.object,
-  company: PropTypes.object,
-  size: PropTypes.number,
-  icon: PropTypes.node
+type Props = {
+  user?: any,
+  customer?: any,
+  company?: any,
+  size?: number,
+  icon?: React.ReactNode
 };
 
 export default Avatar;

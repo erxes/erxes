@@ -1,28 +1,27 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
-  FormGroup,
-  FormControl,
+  Button,
   ControlLabel,
-  Button
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
 import {
-  VISITOR_AUDIENCE_RULES,
-  RULE_CONDITIONS
+  RULE_CONDITIONS,
+  VISITOR_AUDIENCE_RULES
 } from 'modules/engage/constants';
-import { InlineForm, FlexPad } from './styles';
+import React, { Component } from 'react';
+import { FlexPad, InlineForm } from './styles';
 
-const propTypes = {
-  rules: PropTypes.array.isRequired,
-  changeRules: PropTypes.func.isRequired
+type Props = {
+  rules: any[],
+  changeRules: (name: string, rules: any[]) => void
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
+type State = {
+  rules: any[]
+}
 
-class ConditionStep extends Component {
-  constructor(props) {
+class ConditionStep extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -114,7 +113,7 @@ class ConditionStep extends Component {
 
   render() {
     return (
-      <FlexPad overflow="auto" direction="column">
+      <FlexPad>
         <FormGroup>
           <ControlLabel>Add rule</ControlLabel>
           <FormControl componentClass="select" onChange={this.addRule}>
@@ -133,8 +132,5 @@ class ConditionStep extends Component {
     );
   }
 }
-
-ConditionStep.propTypes = propTypes;
-ConditionStep.contextTypes = contextTypes;
 
 export default ConditionStep;

@@ -1,7 +1,6 @@
-import PropTypes from 'prop-types';
 import { graphql } from 'react-apollo';
 
-const ChipText = props => {
+const ChipText = (props: Props) => {
   const { query } = props;
 
   if (query.loading) {
@@ -23,8 +22,8 @@ const ChipText = props => {
   );
 };
 
-ChipText.propTypes = {
-  query: PropTypes.object
+type Props = {
+  query?: any
 };
 
 const createChipText = (query, id) => {

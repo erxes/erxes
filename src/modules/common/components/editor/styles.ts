@@ -1,8 +1,9 @@
-import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const RichEditorRoot = styled.div`
+const RichEditorRoot = styledTS<{ bordered: boolean }>(styled.div)`
   font-size: 14px;
   border: ${props => props.bordered && `1px solid ${colors.borderPrimary}`};
   margin-top: ${props => props.bordered && '10px'};
