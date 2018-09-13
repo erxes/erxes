@@ -1,41 +1,31 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import {
-  PopoverHeader,
-  PopoverBody,
-  PopoverList,
-  PopoverFooter,
-  AvatarImg
-} from './styles';
 import Filter from './Filter';
+import {
+  AvatarImg,
+  PopoverBody,
+  PopoverFooter,
+  PopoverHeader,
+  PopoverList
+} from './styles';
 
-const propTypes = {
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      title: PropTypes.string,
-      iconClass: PropTypes.string,
-      iconColor: PropTypes.string,
-      selectedBy: PropTypes.string
-    })
-  ).isRequired,
-  links: PropTypes.arrayOf(
-    PropTypes.shape({
-      title: PropTypes.string.isRequired,
-      link: PropTypes.element,
-      onClick: PropTypes.func
-    })
-  ),
-  showCheckmark: PropTypes.bool,
-  selectable: PropTypes.bool,
-  className: PropTypes.string,
+type Props= {
+  items: any[]
+  links: any[]
+  showCheckmark: boolean,
+  selectable: boolean,
+  className: string,
 
   // hooks
-  onClick: PropTypes.func,
-  onExit: PropTypes.func
+  onClick: (items: any[], id: string) => void,
+  onExit: (items: any[]) => void,
 };
 
-class FilterableList extends Component {
+type State = {
+  key: string,
+  items: any[]
+}
+
+class FilterableList extends Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -140,7 +130,5 @@ class FilterableList extends Component {
     );
   }
 }
-
-FilterableList.propTypes = propTypes;
 
 export default FilterableList;

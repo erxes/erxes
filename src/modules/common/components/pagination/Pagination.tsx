@@ -1,21 +1,20 @@
+import { Icon } from 'modules/common/components';
+import { router } from 'modules/common/utils';
 import * as React from 'react';
 import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
-import { router } from 'modules/common/utils';
-import { Icon } from 'modules/common/components';
-import { PaginationWrapper, PaginationList } from './styles';
+import { difference, intersection, range, union } from '../../utils';
 import PerPageChooser from './PerPageChooser';
-import { range, intersection, union, difference } from '../../utils';
+import { PaginationList, PaginationWrapper } from './styles';
 
 // pages calculation
-const generatePages = (pageCount, currentPage) => {
+const generatePages = (pageCount: number, currentPage: number) => {
   const w = 4;
 
   // Create an array with pageCount numbers, starting from 1
   let pages = range(1, pageCount);
 
   let diff;
-  let first = pages.slice(0, w);
+  const first = pages.slice(0, w);
 
   const last = pages.slice(-w);
 
@@ -69,8 +68,8 @@ const generatePages = (pageCount, currentPage) => {
 };
 
 // page chooser component
-class Page extends React.Component {
-  constructor(props) {
+class Page extends React.Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.onClick = this.onClick.bind(this);
@@ -111,15 +110,15 @@ class Page extends React.Component {
   }
 }
 
-Page.propTypes = {
-  history: PropTypes.object,
-  page: PropTypes.number,
-  currentPage: PropTypes.number
+type Props= {
+  history?: any,
+  page?: number,
+  currentPage?: number
 };
 
 // main pagination component
-class Pagination extends React.Component {
-  constructor(props) {
+class Pagination extends React.Component<PaginationProps> {
+  constructor(props: PaginationProps) {
     super(props);
 
     // bind events
@@ -212,15 +211,15 @@ class Pagination extends React.Component {
   }
 }
 
-Pagination.propTypes = {
-  history: PropTypes.object,
-  totalPagesCount: PropTypes.number,
-  pages: PropTypes.array,
-  currentPage: PropTypes.number,
-  isPaginated: PropTypes.bool
+type PaginationProps = {
+  history?: any,
+  totalPagesCount?: number,
+  pages?: any[],
+  currentPage?: number,
+  isPaginated?: boolean
 };
 
-const PaginationContainer = props => {
+const PaginationContainer = (props: PaginationContainerProps) => {
   const { history, count = 100 } = props;
 
   const currentPage = Number(router.getParam(history, 'page')) || 1;
@@ -246,9 +245,9 @@ const PaginationContainer = props => {
   return <Pagination {...childProps} />;
 };
 
-PaginationContainer.propTypes = {
-  history: PropTypes.object,
-  count: PropTypes.number
+type PaginationContainerProps = {
+  history?: any,
+  count?: number
 };
 
 export default withRouter(PaginationContainer);

@@ -1,10 +1,11 @@
 import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../../styles';
-import { Input, FormLabel } from '../form/styles';
+import { FormLabel, Input } from '../form/styles';
 
 const tableHoverColor = '#f5f5f5';
 
-const StyledTable = styled.table`
+const StyledTable = styledTS<{ whiteSpace: string, alignTop: boolean, hover: boolean, bordered: boolean, striped: boolean }>(styled.table)`
   ${props => css`
     width: 100%;
     max-width: 100%;

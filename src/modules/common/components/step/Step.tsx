@@ -1,30 +1,30 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Button, Icon } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import React, { Component } from 'react';
 import {
-  StepItem,
   FullStep,
-  StepHeaderContainer,
-  StepHeader,
-  StepImg,
-  StepHeaderTitle,
+  ShortStep,
   StepContent,
-  ShortStep
+  StepHeader,
+  StepHeaderContainer,
+  StepHeaderTitle,
+  StepImg,
+  StepItem
 } from './styles';
 
-const propTypes = {
-  stepNumber: PropTypes.number,
-  active: PropTypes.number,
-  img: PropTypes.string,
-  title: PropTypes.string,
-  children: PropTypes.any,
-  next: PropTypes.func,
-  nextButton: PropTypes.object,
-  save: PropTypes.func,
-  message: PropTypes.object
+type Props = {
+  stepNumber?: number,
+  active?: number,
+  img?: string,
+  title?: string,
+  children?: any,
+  next?: (number: number) => void,
+  nextButton?: any,
+  save?: (name: string, e: React.MouseEvent) => void,
+  message?: any
 };
 
-class Step extends Component {
+class Step extends Component<Props> {
   renderButton() {
     const { save, next, message } = this.props;
 
@@ -91,7 +91,6 @@ class Step extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     const {
       stepNumber,
       active,
@@ -134,10 +133,5 @@ class Step extends Component {
     );
   }
 }
-
-Step.propTypes = propTypes;
-Step.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Step;

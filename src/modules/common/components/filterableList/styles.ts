@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '../../styles';
 
 const PopoverHeader = styled.div`
@@ -14,7 +15,7 @@ const PopoverBody = styled.div`
   min-width: 260px;
 `;
 
-const PopoverList = styled.ul`
+const PopoverList = styledTS<{ selectable?: boolean }>(styled.ul)`
   max-height: 275px;
   margin: 0;
   padding: 0;

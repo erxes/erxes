@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { colors } from '../../styles';
 import Avatar from './Avatar';
@@ -33,7 +32,8 @@ const SecondLine = styled.div`
   color: ${colors.colorLightGray};
 `;
 
-class NameCard extends Component {
+class NameCard extends Component<Props> {
+  static Avatar: typeof Avatar;
   renderUserName() {
     const { user, singleLine, secondLine } = this.props;
 
@@ -89,15 +89,15 @@ class NameCard extends Component {
   }
 }
 
-NameCard.propTypes = {
-  user: PropTypes.object,
-  customer: PropTypes.object,
-  singleLine: PropTypes.bool,
-  firstLine: PropTypes.node,
-  secondLine: PropTypes.node,
-  avatarSize: PropTypes.number,
-  url: PropTypes.string,
-  isUser: PropTypes.bool
+type Props = {
+  user?: any,
+  customer?: any,
+  singleLine?: boolean,
+  firstLine?: React.ReactNode,
+  secondLine?: React.ReactNode,
+  avatarSize?: number,
+  url?: string,
+  isUser?: boolean
 };
 
 NameCard.Avatar = Avatar;

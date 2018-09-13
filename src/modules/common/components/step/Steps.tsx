@@ -1,15 +1,19 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { StepContainer } from './styles';
 
-const propTypes = {
-  children: PropTypes.any.isRequired,
-  active: PropTypes.number.isRequired,
-  maxStep: PropTypes.number
+type Props = {
+  children: any,
+  active: number,
+  maxStep?: number
 };
 
-class Steps extends Component {
-  constructor(props) {
+type State = {
+  activeStep: number,
+  maxStep: number
+}
+
+class Steps extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -33,11 +37,11 @@ class Steps extends Component {
   }
 
   render() {
-    let { children, maxStep } = this.props;
+    const { children, maxStep } = this.props;
 
     return (
       <StepContainer>
-        {React.Children.map(children, (child, index) => {
+        {React.Children.map(children, (child: any, index: number) => {
           return React.cloneElement(child, {
             stepNumber: index + 1,
             active: this.state.activeStep,
@@ -49,7 +53,5 @@ class Steps extends Component {
     );
   }
 }
-
-Steps.propTypes = propTypes;
 
 export default Steps;

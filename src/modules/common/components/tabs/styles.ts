@@ -1,7 +1,8 @@
 import styled from 'styled-components';
-import { colors, typography, dimensions } from '../../styles';
+import styledTS from 'styled-components-ts';
+import { colors, dimensions, typography } from '../../styles';
 
-const TabContainer = styled.div`
+const TabContainer = styledTS<{ grayBorder: boolean }>(styled.div)`
   border-bottom: 1px solid
     ${props => (props.grayBorder ? colors.borderDarker : colors.borderPrimary)};
   margin-bottom: ${dimensions.coreSpacing}px;
