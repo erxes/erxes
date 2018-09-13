@@ -5,6 +5,12 @@ import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { Option, PerPageButton } from './styles';
 
+type Props= {
+  history: any,
+  location: any,
+  match: any,
+};
+
 // per page chooser component
 const PerPageChooser = ({ history }: Props) => {
   const currentPerPage = Number(router.getParam(history, 'perPage')) || 20;
@@ -38,8 +44,5 @@ const PerPageChooser = ({ history }: Props) => {
   );
 };
 
-type Props= {
-  history?: any
-};
 
-export default withRouter(PerPageChooser);
+export default withRouter<Props>(PerPageChooser);

@@ -159,9 +159,9 @@ const InlineStyleControls = ({ onToggle, editorState }: InlineStyleProps) => {
 type InlineStyleProps = {
   onToggle: (inlineStyle: any) => void,
   editorState: any
+}
 
 export class ErxesEditor extends Component<ErxesEditorProps> {
-  focus: any;
   constructor(props: ErxesEditorProps) {
     super(props);
 
@@ -173,6 +173,8 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
     this.toggleBlockType = this.toggleBlockType.bind(this);
     this.toggleInlineStyle = this.toggleInlineStyle.bind(this);
   }
+
+  focus() {}
 
   onTab(e) {
     const { onChange, editorState } = this.props;

@@ -12,20 +12,20 @@ type Props = {
   alignTop: boolean
 };
 
-const defaultProps = {
-  required: false,
-  striped: false,
-  bordered: false,
-  condensed: false,
-  hover: false,
-  responsive: false,
-  alignTop: false
-};
+class Table extends React.Component<Props> {
+  static defaultProps = {
+    required: false,
+    striped: false,
+    bordered: false,
+    condensed: false,
+    hover: false,
+    responsive: false,
+    alignTop: false
+  }
 
-function Table(props: Props) {
-  return <StyledTable {...props}  />;
+  render() {
+    return <StyledTable {...this.props}  />
+  }
 }
-
-Table.defaultProps = defaultProps;
 
 export default Table;

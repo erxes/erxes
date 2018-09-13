@@ -7,7 +7,7 @@ import PerPageChooser from './PerPageChooser';
 import { PaginationList, PaginationWrapper } from './styles';
 
 // pages calculation
-const generatePages = (pageCount: number, currentPage: number) => {
+const generatePages = (pageCount: number, currentPage: number): number[] => {
   const w = 4;
 
   // Create an array with pageCount numbers, starting from 1
@@ -203,7 +203,7 @@ class Pagination extends React.Component<PaginationProps> {
   }
 
   renderPerPageChooser() {
-    return <PerPageChooser history={this.props.history} />;
+    return <PerPageChooser />;
   }
 
   render() {
@@ -219,13 +219,18 @@ type PaginationProps = {
   isPaginated?: boolean
 };
 
+type PaginationContainerProps = {
+  history?: any,
+  count?: number
+};
+
 const PaginationContainer = (props: PaginationContainerProps) => {
   const { history, count = 100 } = props;
 
   const currentPage = Number(router.getParam(history, 'page')) || 1;
   const perPage = Number(router.getParam(history, 'perPage')) || 20;
 
-  let totalPagesCount = parseInt(count / perPage, 10) + 1;
+  let totalPagesCount = (count / perPage) + 1;
 
   if (count % perPage === 0) {
     totalPagesCount -= 1;
@@ -245,9 +250,5 @@ const PaginationContainer = (props: PaginationContainerProps) => {
   return <Pagination {...childProps} />;
 };
 
-type PaginationContainerProps = {
-  history?: any,
-  count?: number
-};
 
 export default withRouter(PaginationContainer);
