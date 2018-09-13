@@ -2,12 +2,14 @@ import D3PunchCard from 'bat-d3-punchcard';
 import * as React from 'react';
 import { ChartWrapper } from '../styles';
 
-interface IProps {
+type Props = {
   data: any,
   width: number
 };
 
-class PunchCard extends React.Component<IProps> {
+class PunchCard extends React.Component<Props> {
+  private chart;
+  
   componentDidMount() {
     this.renderPunchCard('init');
   }

@@ -8,12 +8,12 @@ import {
   SummaryTitle
 } from '../styles';
 
-interface IProps {
+type Props = {
   data: any,
   loading: boolean
 };
 
-class Summary extends React.Component<IProps> {
+class Summary extends React.Component<Props> {
   renderSummary(sum) {
     return (
       <Col sm={3} key={Math.random()}>

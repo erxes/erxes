@@ -7,15 +7,16 @@ import {
   LoaderWrapper,
   UserProfile
 } from '../styles';
+import { IChartParams } from '../types';
 import { convertTime } from '../utils';
 import Chart from './Chart';
 
-interface IProps {
-  datas: any,
+type Props = {
+  datas: IChartParams[],
   loading: boolean
 };
 
-class TeamMembers extends React.Component<IProps> {
+class TeamMembers extends React.Component<Props> {
   renderChart(userData, index) {
     const data = userData.data ? userData.data : userData;
 

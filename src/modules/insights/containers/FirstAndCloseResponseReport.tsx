@@ -3,7 +3,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { FirstResponse, ResponseCloseReport } from '../components';
 import { queries } from '../graphql';
-import { IParamsWithType } from './utils'
+import { IParamsWithType } from '../types'
 
 interface IProps {
   queryParams: any,

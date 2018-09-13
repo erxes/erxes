@@ -1,14 +1,18 @@
+import { IUser } from 'modules/auth/types';
 import queryString from 'query-string';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 
-interface IProps {
+type Props = {
   history: any,
   location: any,
-  component: any
+  component: any,
+  match: any,
+  currentUser: IUser,
+  children: React.ReactNode
 };
 
-const Reports = (props: IProps) => {
+const Reports = (props: Props) => {
   const queryParams = queryString.parse(props.location.search);
   const Component = props.component;
 
@@ -20,4 +24,4 @@ const Reports = (props: IProps) => {
   return <Component {...updatedProps} />;
 };
 
-export default withRouter(Reports);
+export default withRouter<Props>(Reports);

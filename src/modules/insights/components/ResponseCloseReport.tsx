@@ -1,18 +1,12 @@
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Chart, TeamMembers } from '.';
 import { InsightContent, InsightRow } from '../styles';
 import { convertTime } from '../utils';
 import CommonReport from './CommonReport';
 
-interface IProps {
-  teamMembers: any,
-  time: number,
-  isLoading: boolean
-};
-
-class ResponseCloseReport extends CommonReport<IProps> {
+class ResponseCloseReport extends CommonReport {
   renderBreadCrumnb() {
-    const { __ } = this.context;
     return [
       { title: __('Insights'), link: '/insight' },
       { title: __('Response Close Report') }

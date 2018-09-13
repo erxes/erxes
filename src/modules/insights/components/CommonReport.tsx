@@ -1,22 +1,34 @@
 import { Spinner } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import React, { Component } from 'react';
+import { IBrand } from '../../settings/brands/types';
 import {
   InsightRow,
   InsightTitle,
   InsightWrapper,
   LoaderWrapper
 } from '../styles';
+import { IChartParams, InsightParams, IQueryParams } from '../types';
 import { Chart, Filter, PunchCard, Sidebar } from './';
 
-interface IProps {
-  brands: any,
-  trend: any,
-  queryParams: any,
-  history: any
+type Props = {
+  brands: IBrand[],
+  trend: IChartParams[],
+  queryParams: IQueryParams,
+  history: any,
+  teamMembers?: IChartParams[],
+  time?: number,
+  isLoading?: boolean
+  punch?: any,
+  summary?: any,
+  loading?: any,
+  insights?: InsightParams[]
 };
 
-class CommonReport extends Component<IProps, { width: number }> {
+class CommonReport extends Component<Props, { width: number }> {
+  public wrapper;
+
   constructor(props) {
     super(props);
 
@@ -31,7 +43,6 @@ class CommonReport extends Component<IProps, { width: number }> {
   }
 
   renderTitle(title: string, time?: string) {
-    const { __ } = this.context;
     return (
       <InsightTitle>
         {__(title)}

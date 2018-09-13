@@ -1,28 +1,31 @@
 import { ControlLabel } from 'modules/common/components';
 import { router } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import moment from 'moment';
 import * as React from 'react';
-import Datetime from 'react-datetime';
+import * as Datetime from 'react-datetime';
 import Select from 'react-select-plus';
+import { IBrand } from '../../settings/brands/types';
 import { FlexItem, FlexRow, InsightFilter, InsightTitle } from '../styles';
+import { IQueryParams } from '../types';
 import { integrationOptions, selectOptions } from '../utils';
 
-interface IProps {
-  brands: any,
-  queryParams: any,
+type Props = {
+  brands: IBrand[],
+  queryParams: IQueryParams,
   history: any
 };
 
-interface IState {
+type States = {
   isChange: boolean,
   integrationType: string,
   brandId: string,
-  startDate: string,
-  endDate: string
+  startDate: Date,
+  endDate: Date
 }
 
-class Filter extends React.Component<IProps, IState> {
+class Filter extends React.Component<Props, States> {
   constructor(props) {
     super(props);
 
@@ -39,23 +42,27 @@ class Filter extends React.Component<IProps, IState> {
     };
   }
 
-  onTypeChange(value) {
+  onTypeChange(value: any) {
     const integrationType = value ? value.value : '';
     this.setState({ integrationType });
     router.setParams(this.props.history, { integrationType });
   }
 
-  onBrandChange(value) {
+  onBrandChange(value: any) {
     const brandId = value ? value.value : '';
     this.setState({ brandId });
     router.setParams(this.props.history, { brandId });
   }
 
-  onDateInputChange(type, date) {
-    this.setState({ [type]: date, isChange: true });
+  onDateInputChange(type: string, date: Date) {
+    if(type === 'endDate') {
+      this.setState({ endDate: date, isChange: true });
+    } else {
+      this.setState({ startDate: date, isChange: true });
+    }
   }
 
-  onFilterByDate(type, date) {
+  onFilterByDate(type: string, date: Date) {
     if (this.state.isChange) {
       const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
       router.setParams(this.props.history, { [type]: formatDate });
@@ -63,7 +70,6 @@ class Filter extends React.Component<IProps, IState> {
   }
 
   renderIntegrations() {
-    const { __ } = this.context;
     const integrations = INTEGRATIONS_TYPES.ALL_LIST;
 
     return (
@@ -85,7 +91,6 @@ class Filter extends React.Component<IProps, IState> {
   }
 
   renderBrands() {
-    const { __ } = this.context;
     const { brands } = this.props;
     return (
       <FlexItem>
@@ -107,9 +112,8 @@ class Filter extends React.Component<IProps, IState> {
   }
 
   render() {
-    const { __ } = this.context;
     const props = {
-      inputProps: { placeholder: __('Click to select a date') },
+      inputProps: { placeholder: 'Click to select a date' },
       timeFormat: 'HH:mm',
       dateFormat: 'YYYY/MM/DD'
     };
@@ -123,16 +127,16 @@ class Filter extends React.Component<IProps, IState> {
           <FlexItem>
             <ControlLabel>Start date</ControlLabel>
             <Datetime
-              {...props}
+              { ...props }
               value={this.state.startDate}
               onBlur={this.onFilterByDate.bind(this, 'startDate')}
               onChange={this.onDateInputChange.bind(this, 'startDate')}
-            />
+              />
           </FlexItem>
           <FlexItem>
             <ControlLabel>End date</ControlLabel>
             <Datetime
-              {...props}
+              { ...props }
               value={this.state.endDate}
               onBlur={this.onFilterByDate.bind(this, 'endDate')}
               onChange={this.onDateInputChange.bind(this, 'endDate')}

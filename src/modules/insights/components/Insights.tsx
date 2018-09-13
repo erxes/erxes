@@ -2,13 +2,14 @@ import { ResponsivePie } from '@nivo/pie';
 import { Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { ChartWrapper, LoaderWrapper } from '../styles';
+import { InsightParams } from '../types';
 
-interface IProps {
-  data: any,
+type Props = {
+  data: InsightParams[],
   loading: boolean
 };
 
-class Insights extends React.Component<IProps> {
+class Insights extends React.Component<Props> {
   render() {
     const { data, loading } = this.props;
 

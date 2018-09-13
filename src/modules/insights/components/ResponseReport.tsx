@@ -1,16 +1,10 @@
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Summary, TeamMembers } from '.';
 import { InsightContent, InsightRow } from '../styles';
 import CommonReport from './CommonReport';
 
-interface IProps {
-  teamMembers: any,
-  punch: any,
-  summary: any,
-  loading: any
-};
-
-class ResponseReport extends CommonReport<IProps> {
+class ResponseReport extends CommonReport {
   componentDidUpdate(prevProps) {
     if (prevProps.loading.punch && !this.props.loading.punch) {
       this.calculateWidth();
@@ -22,7 +16,6 @@ class ResponseReport extends CommonReport<IProps> {
   }
 
   renderBreadCrumnb() {
-    const { __ } = this.context;
     return [
       { title: __('Insights'), link: '/insight' },
       { title: __('Response Report') }
@@ -50,7 +43,6 @@ class ResponseReport extends CommonReport<IProps> {
           <TeamMembers
             loading={loading.main}
             datas={teamMembers}
-            width={width}
           />
         </InsightRow>
       </InsightContent>

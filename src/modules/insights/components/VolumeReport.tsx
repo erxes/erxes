@@ -1,16 +1,10 @@
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Insights, Summary } from '.';
 import { InsightContent, InsightRow } from '../styles';
 import CommonReport from './CommonReport';
 
-interface IProps {
-  insights: any,
-  punch: any,
-  summary: any,
-  loading: any
-};
-
-class VolumeReport extends CommonReport<IProps> {
+class VolumeReport extends CommonReport {
   componentDidUpdate(prevProps) {
     if (prevProps.loading.insights && !this.props.loading.insights) {
       this.calculateWidth();
@@ -22,7 +16,6 @@ class VolumeReport extends CommonReport<IProps> {
   }
 
   renderBreadCrumnb() {
-    const { __ } = this.context;
     return [
       { title: __('Insights'), link: '/insight' },
       { title: __('Volume Report') }
@@ -53,7 +46,5 @@ class VolumeReport extends CommonReport<IProps> {
     );
   }
 }
-
-VolumeReport.propTypes = propTypes;
 
 export default VolumeReport;
