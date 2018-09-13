@@ -1,39 +1,40 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { withRouter } from 'react-router';
 import gql from 'graphql-tag';
-import { router } from 'modules/common/utils';
 import { Chip } from 'modules/common/components';
+import { router } from 'modules/common/utils';
+import * as React from 'react';
+import { withRouter } from 'react-router';
+import styled from 'styled-components';
 import createChipText from './createChipText';
 
-const propTypes = {
-  history: PropTypes.object.isRequired,
-  queryParams: PropTypes.object
+type Props = {
+  history: any,
+  queryParams?: any
 };
 
 const Filters = styled.div`
   font-size: 0.9em;
 `;
 
-function Filter({ queryParams = {}, history }) {
+function Filter({ queryParams = {}, history }: Props) {
   const onClickClose = paramKey => {
-    for (let key of paramKey) {
+    for (const key of paramKey) {
       router.setParams(history, { [key]: null });
     }
   };
 
-  const renderFilterParam = (paramKey, bool) => {
-    if (queryParams[paramKey]) {
-      return (
-        <Chip onClickClose={() => onClickClose([paramKey])}>
-          {bool ? paramKey : queryParams[paramKey]}
-        </Chip>
-      );
+  const renderFilterParam = (paramKey: string, bool: boolean) => {
+    if (!queryParams[paramKey]) {
+      return null;
     }
+
+    return (
+      <Chip onClickClose={() => onClickClose([paramKey])}>
+        {bool ? paramKey : queryParams[paramKey]}
+      </Chip>
+    );
   };
 
-  const renderFilterWithData = (paramKey, type, fields = '_id name') => {
+  const renderFilterWithData = (paramKey: string, type: any, fields = '_id name') => {
     if (queryParams[paramKey]) {
       const id = queryParams[paramKey];
 
@@ -53,6 +54,8 @@ function Filter({ queryParams = {}, history }) {
         </Chip>
       );
     }
+
+    return null;
   };
 
   const renderFilterWithDate = () => {
@@ -66,27 +69,27 @@ function Filter({ queryParams = {}, history }) {
         </Chip>
       );
     }
+
+    return null;
   };
 
   return (
     <Filters>
       {renderFilterWithData('channelId', 'channel')}
-      {renderFilterParam('status')}
+      {renderFilterParam('status', false)}
       {renderFilterParam('participating', true)}
       {renderFilterParam('unassigned', true)}
       {renderFilterWithData('brandId', 'brand')}
-      {renderFilterParam('integrationType')}
+      {renderFilterParam('integrationType', false)}
       {renderFilterWithData('tag', 'tag')}
       {renderFilterWithData('segment', 'segment')}
-      {renderFilterParam('kind')}
+      {renderFilterParam('kind', false)}
       {renderFilterWithData('brand', 'brand')}
       {renderFilterWithDate()}
       {renderFilterWithData('form', 'form', '_id title')}
-      {renderFilterParam('leadStatus')}
+      {renderFilterParam('leadStatus', false)}
     </Filters>
   );
 }
-
-Filter.propTypes = propTypes;
 
 export default withRouter(Filter);

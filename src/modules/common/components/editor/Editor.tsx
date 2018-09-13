@@ -2,15 +2,14 @@
   jsx-a11y/no-static-element-interactions, react/no-multi-comp,
   react/forbid-prop-types */
 
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import Draft, { EditorState, ContentState, RichUtils } from 'draft-js';
-import Editor from 'draft-js-plugins-editor';
+import Draft, { ContentState, EditorState, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
+import Editor from 'draft-js-plugins-editor';
+import React, { Component } from 'react';
 import {
-  RichEditorRoot,
+  RichEditorControls,
   RichEditorControlsRoot,
-  RichEditorControls
+  RichEditorRoot
 } from './styles';
 
 function getBlockStyle(block) {
@@ -32,8 +31,9 @@ const styleMap = {
   }
 };
 
-class StyleButton extends Component {
-  constructor(props) {
+class StyleButton extends Component<Props> {
+  onToggle: any;
+  constructor(props: Props) {
     super(props);
 
     const { style, onToggle } = props;
@@ -61,12 +61,12 @@ class StyleButton extends Component {
   }
 }
 
-StyleButton.propTypes = {
-  active: PropTypes.bool,
-  label: PropTypes.object,
-  style: PropTypes.string,
-  title: PropTypes.string,
-  onToggle: PropTypes.func
+type Props = {
+  active: boolean,
+  label?: any,
+  style?: string,
+  title?: string,
+  onToggle: (style: string) => void
 };
 
 const BLOCK_TYPES = [
@@ -97,7 +97,7 @@ const BLOCK_TYPES = [
   }
 ];
 
-const BlockStyleControls = props => {
+const BlockStyleControls = (props: BlockStyleProps) => {
   const { editorState, onToggle } = props;
 
   const selection = editorState.getSelection();
@@ -122,9 +122,9 @@ const BlockStyleControls = props => {
   );
 };
 
-BlockStyleControls.propTypes = {
-  onToggle: PropTypes.func,
-  editorState: PropTypes.object
+type BlockStyleProps = {
+  onToggle: (blockType: any) => void,
+  editorState: any
 };
 
 const INLINE_STYLES = [
@@ -137,7 +137,7 @@ const INLINE_STYLES = [
   }
 ];
 
-const InlineStyleControls = ({ onToggle, editorState }) => {
+const InlineStyleControls = ({ onToggle, editorState }: InlineStyleProps) => {
   const currentStyle = editorState.getCurrentInlineStyle();
 
   return (
@@ -156,13 +156,13 @@ const InlineStyleControls = ({ onToggle, editorState }) => {
   );
 };
 
-InlineStyleControls.propTypes = {
-  onToggle: PropTypes.func,
-  editorState: PropTypes.object
-};
+type InlineStyleProps = {
+  onToggle: (inlineStyle: any) => void,
+  editorState: any
 
-export class ErxesEditor extends Component {
-  constructor(props) {
+export class ErxesEditor extends Component<ErxesEditorProps> {
+  focus: any;
+  constructor(props: ErxesEditorProps) {
     super(props);
 
     this.focus = () => this.refs.editor.focus();
@@ -265,6 +265,7 @@ export class ErxesEditor extends Component {
             keyBindingFn={this.props.keyBindingFn}
             onUpArrow={onUpArrow}
             onDownArrow={onDownArrow}
+            // tslint:disable-next-line:jsx-no-string-ref
             ref="editor"
             plugins={this.props.plugins}
             spellCheck
@@ -277,19 +278,19 @@ export class ErxesEditor extends Component {
   }
 }
 
-ErxesEditor.propTypes = {
-  editorState: PropTypes.object,
-  onChange: PropTypes.func,
-  bordered: PropTypes.bool,
+type ErxesEditorProps = {
+  editorState: any,
+  onChange: (richUtils: any) => void,
+  bordered: boolean,
   // extra control rows
-  controls: PropTypes.array,
-  pluginContent: PropTypes.object,
-  plugins: PropTypes.array,
-  keyBindingFn: PropTypes.func,
-  onUpArrow: PropTypes.func,
-  onDownArrow: PropTypes.func,
-  handleFileInput: PropTypes.func,
-  placeholder: PropTypes.string
+  controls: any[],
+  pluginContent: any,
+  plugins: any[]
+  keyBindingFn: () => void,
+  onUpArrow: () => void,
+  onDownArrow: () => void,
+  handleFileInput: (e: any) => void,
+  placeholder?: string
 };
 
 export const toHTML = state => stateToHTML(state.getCurrentContent());
