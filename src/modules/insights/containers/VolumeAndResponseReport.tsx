@@ -3,7 +3,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ResponseReport, VolumeReport } from '../components';
 import { queries } from '../graphql';
-import { IParams, IParamsWithType } from './utils'
+import { IParams, IParamsWithType } from '../types'
 
 interface IProps {
   history: any,

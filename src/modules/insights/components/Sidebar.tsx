@@ -1,9 +1,10 @@
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 
-function Sidebar(props, { __ }) {
+function Sidebar() {
   const Sidebar = Wrapper.Sidebar;
   const { Title } = Sidebar.Section;
 

@@ -3,9 +3,10 @@ import { Spinner } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import * as React from 'react';
 import { ChartWrapper, LoaderWrapper } from '../styles';
+import { IChartParams } from '../types'
 
 interface IProps {
-  data: any,
+  data: IChartParams[],
   loading?: boolean,
   width?: number,
   height: number

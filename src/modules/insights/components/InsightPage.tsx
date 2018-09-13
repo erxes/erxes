@@ -1,5 +1,6 @@
 import { colors } from 'modules/common/styles';
 import { BoxRoot, FullContent } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
@@ -32,7 +33,6 @@ const Box = styledTS<{ selected?: boolean }>(BoxRoot.extend)`
 
 class InsightPage extends React.Component {
   renderBox(name, image, to, desc) {
-    const { __ } = this.context;
     return (
       <Box>
         <Link to={to}>
@@ -45,7 +45,6 @@ class InsightPage extends React.Component {
   }
 
   render() {
-    const { __ } = this.context;
     const breadcrumb = [{ title: __('Insights'), link: '/insights' }];
 
     const content = (

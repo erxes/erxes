@@ -10,9 +10,9 @@ export function integrationOptions(array) {
   return options;
 }
 
-export function convertTime(second: number) {
+export function convertTime(second?: number) {
   if (!second) {
-    return 0;
+    return '0';
   }
 
   const hours = Math.floor(second / 3600);
@@ -20,9 +20,9 @@ export function convertTime(second: number) {
   const seconds = second - hours * 3600 - minutes * 60;
 
   const timeFormat = (num: number) => {
-    if(num < 10) return '0' + num;
+    if(num < 10) return '0' + num.toString();
     
-    return num;
+    return num.toString();
   }
 
   return timeFormat(hours) + ':' + timeFormat(minutes) + ':' + timeFormat(seconds);
