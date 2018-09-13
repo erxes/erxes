@@ -54,19 +54,19 @@ const createAlert = (type: any, text: string) => {
   );
 };
 
-const success = (text: string) => {
+const success = (text: any) => {
   createAlert('success', text);
 };
 
-const error = (text: string) => {
+const error = (text: any) => {
   createAlert('error', text.replace('GraphQL error:', ''));
 };
 
-const warning = (text: string) => {
+const warning = (text: any) => {
   createAlert('warning', text);
 };
 
-const info = (text: string) => {
+const info = (text: any) => {
   createAlert('info', text);
 };
 
