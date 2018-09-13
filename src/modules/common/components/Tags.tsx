@@ -3,6 +3,7 @@ import { colors, dimensions } from 'modules/common/styles';
 import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { ITag } from '../../tags/types';
 
 const TagList = styledTS<{ length: number }>(styled.div).attrs({
   className: props => props.length > 0 && 'tags'
@@ -44,8 +45,9 @@ function Tags({ tags, limit }: Props) {
 }
 
 type Props = {
-  tags: any[],
-  limit: number
+  tags: ITag[],
+  size?: string,
+  limit?: number,
 };
 
 export default Tags;

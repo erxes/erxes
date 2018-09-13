@@ -1,10 +1,10 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { NavLink } from 'react-router-dom';
+import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
+import * as React from 'react';
+import { NavLink } from 'react-router-dom';
 
-function TagsSidebar(props, { __ }) {
+function TagsSidebar(props) {
   const { Title } = Sidebar.Section;
 
   return (
@@ -42,9 +42,5 @@ function TagsSidebar(props, { __ }) {
     </Sidebar>
   );
 }
-
-TagsSidebar.contextTypes = {
-  __: PropTypes.func
-};
 
 export default TagsSidebar;

@@ -1,19 +1,20 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
+import { Button, ModalTrigger, Table } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { ModalTrigger, Button, Table } from 'modules/common/components';
-import Row from './Row';
+import { ITag, ITagSaveDoc } from 'modules/tags/types';
+import * as React from 'react';
 import Form from './Form';
+import Row from './Row';
 import Sidebar from './Sidebar';
 
-const propTypes = {
-  tags: PropTypes.array.isRequired,
-  type: PropTypes.string.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired
+type Props = {
+  tags: ITag[],
+  type: string,
+  remove: () => void,
+  save: (params: { tag: ITag, doc: ITagSaveDoc, callback: () => void }) => void
 };
 
-function List({ tags, type, remove, save }, { __ }) {
+function List({ tags, type, remove, save }: Props) {
   const trigger = (
     <Button btnStyle="success" size="small" icon="add">
       Add tag
@@ -21,9 +22,11 @@ function List({ tags, type, remove, save }, { __ }) {
   );
 
   const actionBarRight = (
-    <ModalTrigger title="Add tag" trigger={trigger}>
-      <Form type={type} save={save} />
-    </ModalTrigger>
+    <ModalTrigger
+      title="Add tag"
+      trigger={trigger}
+      content={(props) => <Form {...props} type={type} save={save} />}
+    />
   );
 
   const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
@@ -65,10 +68,5 @@ function List({ tags, type, remove, save }, { __ }) {
     />
   );
 }
-
-List.propTypes = propTypes;
-List.contextTypes = {
-  __: PropTypes.func
-};
 
 export default List;

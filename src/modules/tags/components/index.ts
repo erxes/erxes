@@ -1,5 +1,5 @@
-import List from './List';
 import Form from './Form';
+import List from './List';
 import Tagger from './Tagger';
 import TaggerPopover from './TaggerPopover';
 

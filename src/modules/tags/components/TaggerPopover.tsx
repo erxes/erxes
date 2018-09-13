@@ -1,18 +1,17 @@
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { Tagger } from '../containers';
 
-const propTypes = {
-  trigger: PropTypes.element.isRequired,
-  container: PropTypes.element
+type Props = {
+  type: string,
+  trigger: React.ReactNode,
+  successCallback?: () => void,
+  targets?: any[],
+  container?: React.ReactNode,
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
-
-function TaggerPopover(props, { __ }) {
+function TaggerPopover(props: Props) {
   const { trigger, container, ...taggerProps } = props;
 
   const popover = (
@@ -33,8 +32,5 @@ function TaggerPopover(props, { __ }) {
     </OverlayTrigger>
   );
 }
-
-TaggerPopover.propTypes = propTypes;
-TaggerPopover.contextTypes = contextTypes;
 
 export default TaggerPopover;

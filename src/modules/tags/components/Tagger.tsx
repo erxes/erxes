@@ -1,25 +1,21 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { FilterableList, Spinner } from 'modules/common/components';
-import { TAG_TYPES } from '../constants';
+import { __ } from 'modules/common/utils';
+import { ITag } from 'modules/tags/types';
+import React, { Component } from 'react';
 
-const propTypes = {
-  type: PropTypes.oneOf(TAG_TYPES.ALL_LIST),
-  targets: PropTypes.array,
-  event: PropTypes.oneOf(['onClick', 'onExit']),
-  className: PropTypes.string,
+type Props = {
+  type: string,
+  targets: string[],
+  event: string,
+  className: string,
 
   // from container
-  loading: PropTypes.bool,
-  tags: PropTypes.array,
-  tag: PropTypes.func.isRequired
+  loading: boolean,
+  tags: ITag[],
+  tag: (tags: ITag[]) => void
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
-
-class Tagger extends Component {
+class Tagger extends Component<Props, { tagsForList: any[] }> {
   constructor(props) {
     super(props);
 
@@ -92,7 +88,6 @@ class Tagger extends Component {
       return <Spinner objective />;
     }
 
-    const { __ } = this.context;
     const { className, event, type } = this.props;
 
     const links = [
@@ -113,8 +108,5 @@ class Tagger extends Component {
     return <FilterableList {...props} />;
   }
 }
-
-Tagger.propTypes = propTypes;
-Tagger.contextTypes = contextTypes;
 
 export default Tagger;
