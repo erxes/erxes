@@ -30,17 +30,17 @@ export interface IIntegration {
     _id: string;
     kind: string;
     name?: string;
-    brandId: string;
-    description: string;
+    brandId?: string;
+    description?: string;
     code: string;
     formId: string;
     form: any;
     logo: string;
-    languageCode: string;
+    languageCode?: string;
     createUrl: string;
     createModal: string;
-    messengerData: IMessengerData;
-    uiOptions: IUiOptions;
+    messengerData?: IMessengerData;
+    uiOptions?: IUiOptions;
 }
 
 export interface IBrandsCount {

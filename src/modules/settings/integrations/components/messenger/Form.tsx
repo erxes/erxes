@@ -47,31 +47,48 @@ class CreateMessenger extends Component<Props, State> {
     super(props);
 
     const integration = props.integration;
-    const configData = integration && (integration.messengerData);
-    const uiOptions = integration && (integration.uiOptions);
+    const configData =( integration && (integration.messengerData)) || {
+      welcomeMessage: '',
+      awayMessage: '',
+      thankYouMessage: '',
+      notifyCustomer: false,
+      supporterIds: [],
+      availabilityMethod: '',
+      isOnline: false,
+      timezone: '',
+      onlineHours: [],
+    };
+
+    const uiOptions = integration && (integration.uiOptions) || {
+      color: '#6569DF',
+      wallpaper: '1',
+      availabilityMethod: 'manual',
+      logo: '',
+      logoPreviewUrl: '/images/erxes.png',
+    };
 
     this.state = {
-      title: integration.name,
-      brandId: integration.brandId,
-      languageCode: integration.languageCode,
+      title: integration && integration.name,
+      brandId: integration && integration.brandId,
+      languageCode: integration && integration.languageCode,
       activeStep: 1,
-      color: uiOptions.color || '#6569DF',
-      wallpaper: uiOptions.wallpaper || '1',
+      color: uiOptions.color,
+      wallpaper: uiOptions.wallpaper,
       welcomeMessage: configData.welcomeMessage,
       awayMessage: configData.awayMessage,
       thankYouMessage: configData.thankYouMessage,
-      notifyCustomer: configData.notifyCustomer || false,
+      notifyCustomer: configData.notifyCustomer,
       supporterIds: configData.supporterIds || [],
-      availabilityMethod: configData.availabilityMethod || 'manual',
-      isOnline: configData.isOnline || false,
-      timezone: configData.timezone || '',
+      availabilityMethod: configData.availabilityMethod,
+      isOnline: configData.isOnline,
+      timezone: configData.timezone,
       onlineHours: (configData.onlineHours || []).map(h => ({
         _id: Math.random(),
         ...h
       })),
       logo: uiOptions.logo,
       logoPreviewStyle: {},
-      logoPreviewUrl: uiOptions.logo || '/images/erxes.png'
+      logoPreviewUrl: uiOptions.logo
     };
 
     this.onChange = this.onChange.bind(this);
