@@ -1,7 +1,3 @@
-/* eslint-disable react/no-string-refs,
-  jsx-a11y/no-static-element-interactions, react/no-multi-comp,
-  react/forbid-prop-types */
-
 import Draft, { ContentState, EditorState, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import Editor from 'draft-js-plugins-editor';
@@ -165,7 +161,9 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
   constructor(props: ErxesEditorProps) {
     super(props);
 
-    this.focus = () => this.refs.editor.focus();
+    // TODO: remove any
+    const editor: any = this.refs.editor;
+    this.focus = () => editor.focus();
 
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.onTab = this.onTab.bind(this);
@@ -298,14 +296,16 @@ type ErxesEditorProps = {
 export const toHTML = state => stateToHTML(state.getCurrentContent());
 
 export const createStateFromHTML = (editorState, html) => {
-  const blocksFromHTML = Draft.convertFromHTML(html);
-  const content = ContentState.createFromBlockArray(blocksFromHTML);
+  const { contentBlocks, entityMap }  = Draft.convertFromHTML(html);
+  const content = ContentState.createFromBlockArray(contentBlocks, entityMap);
 
-  return EditorState.push(editorState, content);
+  // TODO: Check insert-fragment
+  return EditorState.push(editorState, content, 'insert-fragment');
 };
 
+// TODO: Check insert-fragment
 export const clearContent = editorState =>
-  EditorState.push(editorState, ContentState.createFromText(''));
+  EditorState.push(editorState, ContentState.createFromText(''), 'insert-fragment');
 
 export default {
   ErxesEditor,

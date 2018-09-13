@@ -3,13 +3,13 @@ import StyledTable from './styles';
 
 type Props = {
   children: React.ReactNode,
-  striped: boolean,
-  bordered: boolean,
-  condensed: boolean,
-  hover: boolean,
-  responsive: boolean,
-  whiteSpace: string,
-  alignTop: boolean
+  striped?: boolean,
+  bordered?: boolean,
+  condensed?: boolean,
+  hover?: boolean,
+  responsive?: boolean,
+  whiteSpace?: string,
+  alignTop?: boolean
 };
 
 class Table extends React.Component<Props> {

@@ -161,45 +161,47 @@ class Pagination extends React.Component<PaginationProps> {
       isPaginated
     } = this.props;
 
-    if (isPaginated) {
-      let prevClass = '';
-      let nextClass = '';
-
-      if (currentPage <= 1) {
-        prevClass = 'disabled';
-      }
-
-      if (currentPage >= totalPagesCount) {
-        nextClass = 'disabled';
-      }
-
-      return (
-        <PaginationList>
-          <li className={prevClass}>
-            <a href="" onClick={this.onPrev}>
-              <Icon icon="leftarrow" />
-            </a>
-          </li>
-
-          {pages.map((page, index) => (
-            <Page
-              key={index}
-              history={history}
-              currentPage={currentPage}
-              page={page}
-            />
-          ))}
-
-          <li className={nextClass}>
-            <a href="" onClick={this.onNext}>
-              <Icon icon="rightarrow" />
-            </a>
-          </li>
-
-          {this.renderPerPageChooser()}
-        </PaginationList>
-      );
+    if (!isPaginated) {
+      return null;
     }
+
+    let prevClass = '';
+    let nextClass = '';
+
+    if (currentPage <= 1) {
+      prevClass = 'disabled';
+    }
+
+    if (currentPage >= totalPagesCount) {
+      nextClass = 'disabled';
+    }
+
+    return (
+      <PaginationList>
+        <li className={prevClass}>
+          <a href="" onClick={this.onPrev}>
+            <Icon icon="leftarrow" />
+          </a>
+        </li>
+
+        {pages.map((page, index) => (
+          <Page
+            key={index}
+            history={history}
+            currentPage={currentPage}
+            page={page}
+          />
+        ))}
+
+        <li className={nextClass}>
+          <a href="" onClick={this.onNext}>
+            <Icon icon="rightarrow" />
+          </a>
+        </li>
+
+        {this.renderPerPageChooser()}
+      </PaginationList>
+    );
   }
 
   renderPerPageChooser() {
