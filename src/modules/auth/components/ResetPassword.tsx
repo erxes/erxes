@@ -1,13 +1,12 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Button, FormControl, FormGroup } from 'modules/common/components';
+import React, { Component } from 'react';
 import { AuthBox } from '../styles';
 
-const propTypes = {
-  resetPassword: PropTypes.func.isRequired
+type Props = {
+  resetPassword: (newPassword: string) => void
 };
 
-class ResetPassword extends Component {
+class ResetPassword extends Component<Props, { newPassword: string }> {
   constructor(props) {
     super(props);
 
@@ -50,10 +49,5 @@ class ResetPassword extends Component {
     );
   }
 }
-
-ResetPassword.propTypes = propTypes;
-ResetPassword.contextTypes = {
-  __: PropTypes.func
-};
 
 export default ResetPassword;

@@ -1,57 +1,63 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
+import { Wrapper } from '../../../layout/components';
 
+import { CustomersMerge } from '..';
 import {
-  DropdownToggle,
-  ModalTrigger,
-  Pagination,
   Button,
-  Icon,
-  Table,
-  FormControl,
   DataWithLoader,
   DateFilter,
-  SortHandler
-} from 'modules/common/components';
-import { router, confirm } from 'modules/common/utils';
-import { BarItems } from 'modules/layout/styles';
-import { Widget } from 'modules/engage/containers';
-import { ManageColumns } from 'modules/settings/properties/containers';
-import { TaggerPopover } from 'modules/tags/components';
-import Sidebar from './Sidebar';
-import CustomerRow from './CustomerRow';
+  DropdownToggle,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Pagination,
+  SortHandler,
+  Table
+} from '../../../common/components';
+import { __, confirm, router } from '../../../common/utils';
+import { Widget } from '../../../engage/containers';
+import { BarItems } from '../../../layout/styles';
+import { IBrand } from '../../../settings/brands/types';
+import { ManageColumns } from '../../../settings/properties/containers';
+import { TaggerPopover } from '../../../tags/components';
 import { CustomerForm } from '../../containers';
-import { CustomersMerge } from '../';
+import CustomerRow from './CustomerRow';
+import Sidebar from './Sidebar';
 
-const propTypes = {
-  customers: PropTypes.array.isRequired,
-  counts: PropTypes.object.isRequired,
-  columnsConfig: PropTypes.array.isRequired,
-  brands: PropTypes.array.isRequired,
-  integrations: PropTypes.array.isRequired,
-  tags: PropTypes.array.isRequired,
-  bulk: PropTypes.array.isRequired,
-  isAllSelected: PropTypes.bool,
-  emptyBulk: PropTypes.func.isRequired,
-  toggleBulk: PropTypes.func.isRequired,
-  toggleAll: PropTypes.func.isRequired,
-  location: PropTypes.object,
-  history: PropTypes.object,
-  loading: PropTypes.bool.isRequired,
-  searchValue: PropTypes.string.isRequired,
-  loadingTags: PropTypes.bool.isRequired,
-  removeCustomers: PropTypes.func.isRequired,
-  mergeCustomers: PropTypes.func.isRequired,
-  queryParams: PropTypes.object,
-  exportCustomers: PropTypes.func,
-  handleXlsUpload: PropTypes.func
+type Props = {
+  customers: any,
+  counts: any,
+  columnsConfig: any,
+  brands: IBrand[],
+  integrations: any,
+  tags: any[],
+  bulk: any[],
+  isAllSelected: boolean,
+  emptyBulk: () => void,
+  toggleBulk: () => void,
+  toggleAll: (targets: string[], containerId: string) => void,
+  location: any,
+  history: any,
+  loading: boolean,
+  searchValue: string,
+  loadingTags: boolean,
+  removeCustomers: ({ customerIds }: { customerIds: string[] }) => void,
+  mergeCustomers: () => void,
+  queryParams: any,
+  exportCustomers: (bulk: any[]) => void,
+  handleXlsUpload: (e: React.FormEvent<HTMLInputElement>) => void
 };
 
-class CustomersList extends React.Component {
+type State = {
+  searchValue?: string
+}
+
+class CustomersList extends React.Component<Props, State> {
+  private timer: NodeJS.Timer
+
   constructor(props) {
     super(props);
 
@@ -66,6 +72,7 @@ class CustomersList extends React.Component {
 
   onChange() {
     const { toggleAll, customers } = this.props;
+
     toggleAll(customers, 'customers');
   }
 
@@ -88,8 +95,6 @@ class CustomersList extends React.Component {
       history,
       isAllSelected
     } = this.props;
-
-    const { __ } = this.context;
 
     return (
       <Table whiteSpace="nowrap" hover bordered>
@@ -133,6 +138,7 @@ class CustomersList extends React.Component {
     const searchValue = e.target.value;
 
     this.setState({ searchValue });
+
     this.timer = setTimeout(() => {
       router.setParams(history, { searchValue });
     }, 500);
@@ -162,8 +168,6 @@ class CustomersList extends React.Component {
       handleXlsUpload
     } = this.props;
 
-    const { __ } = this.context;
-
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="add">
         Add customer
@@ -180,7 +184,7 @@ class CustomersList extends React.Component {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
+          placeholder={__('Type to search').toString()}
           onChange={e => this.search(e)}
           value={this.state.searchValue}
           autoFocus
@@ -276,7 +280,7 @@ class CustomersList extends React.Component {
             size="small"
             icon="cancel-1"
             onClick={() =>
-              confirm().then(() => {
+              confirm('Are you sure ?').then(() => {
                 this.removeCustomers(bulk);
               })
             }
@@ -316,10 +320,5 @@ class CustomersList extends React.Component {
     );
   }
 }
-
-CustomersList.propTypes = propTypes;
-CustomersList.contextTypes = {
-  __: PropTypes.func
-};
 
 export default withRouter(CustomersList);

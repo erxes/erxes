@@ -1,5 +1,5 @@
-import { toggleCheckBoxes } from 'modules/common/utils';
 import React from 'react';
+import { toggleCheckBoxes } from '../utils';
 
 type State = {
   bulk: string[],

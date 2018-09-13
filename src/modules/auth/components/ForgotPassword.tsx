@@ -1,14 +1,14 @@
+import { Button, FormControl, FormGroup } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { Button, FormControl, FormGroup } from 'modules/common/components';
 import { AuthBox, Links } from '../styles';
 
-const propTypes = {
-  forgotPassword: PropTypes.func.isRequired
-};
+type Props = {
+  forgotPassword: (doc: { email: string }, callback: (e: Error) => void ) => void
+}
 
-class ForgotPassword extends Component {
+class ForgotPassword extends Component<Props, { email: string }> {
   constructor(props) {
     super(props);
 
@@ -36,7 +36,6 @@ class ForgotPassword extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     return (
       <AuthBox>
         <h2>{__('Reset your password')}</h2>
@@ -44,7 +43,7 @@ class ForgotPassword extends Component {
           <FormGroup>
             <FormControl
               type="email"
-              placeholder={__('registered@email.com')}
+              placeholder={__('registered@email.com').toString()}
               value={this.state.email}
               required
               onChange={this.handleEmailChange}
@@ -61,10 +60,5 @@ class ForgotPassword extends Component {
     );
   }
 }
-
-ForgotPassword.propTypes = propTypes;
-ForgotPassword.contextTypes = {
-  __: PropTypes.func
-};
 
 export default ForgotPassword;

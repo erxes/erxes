@@ -1,14 +1,19 @@
+import { Button, FormControl, FormGroup } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { Button, FormControl, FormGroup } from 'modules/common/components';
 import { AuthBox, Links } from '../styles';
 
-const propTypes = {
-  login: PropTypes.func.isRequired
+type Props = {
+  login: (doc: { email: string, password: string }) => void
 };
 
-class SignIn extends Component {
+type State = {
+  email: string,
+  password: string,
+}
+
+class SignIn extends Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -41,7 +46,6 @@ class SignIn extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     return (
       <AuthBox>
         <h2>{__('Sign in')}</h2>
@@ -49,7 +53,7 @@ class SignIn extends Component {
           <FormGroup>
             <FormControl
               type="email"
-              placeholder={__('your@email.com')}
+              placeholder={__('your@email.com').toString()}
               value={this.state.email}
               required
               onChange={this.handleEmailChange}
@@ -58,7 +62,7 @@ class SignIn extends Component {
           <FormGroup>
             <FormControl
               type="password"
-              placeholder={__('password')}
+              placeholder={__('password').toString()}
               value={this.state.password}
               required
               onChange={this.handlePasswordChange}
@@ -75,10 +79,5 @@ class SignIn extends Component {
     );
   }
 }
-
-SignIn.propTypes = propTypes;
-SignIn.contextTypes = {
-  __: PropTypes.func
-};
 
 export default SignIn;

@@ -1,28 +1,27 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import {
   AvatarUpload,
-  FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
-import { timezones } from 'modules/settings/integrations/constants';
 import {
-  FormWrapper,
+  ColumnTitle,
   FormColumn,
-  ColumnTitle
+  FormWrapper
 } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import { timezones } from 'modules/settings/integrations/constants';
+import React, { Component, Fragment } from 'react';
+import { IUser } from '../types';
 
-const propTypes = {
-  user: PropTypes.object.isRequired,
-  onAvatarUpload: PropTypes.func.isRequired
+type Props = {
+  user: IUser,
+  onAvatarUpload: () => void
 };
 
-class UserCommonInfos extends Component {
+class UserCommonInfos extends Component<Props> {
   render() {
-    const { __ } = this.context;
-    const { user = {}, onAvatarUpload } = this.props;
-    const { details = {}, links = {} } = user;
+    const { user, onAvatarUpload } = this.props;
 
     return (
       <Fragment>
@@ -37,7 +36,7 @@ class UserCommonInfos extends Component {
               <FormControl
                 type="text"
                 id="fullName"
-                defaultValue={details.fullName || ''}
+                defaultValue={user.details.fullName || ''}
               />
             </FormGroup>
             <FormGroup>
@@ -50,7 +49,7 @@ class UserCommonInfos extends Component {
                 type="text"
                 id="description"
                 componentClass="textarea"
-                defaultValue={details.description || ''}
+                defaultValue={user.details.description || ''}
               />
             </FormGroup>
           </FormColumn>
@@ -68,14 +67,14 @@ class UserCommonInfos extends Component {
               <FormControl
                 type="text"
                 id="position"
-                defaultValue={details.position || ''}
+                defaultValue={user.details.position || ''}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Location</ControlLabel>
               <FormControl
                 componentClass="select"
-                defaultValue={details.location}
+                defaultValue={user.details.location}
                 id="user-location"
                 options={timezones}
               />
@@ -90,7 +89,7 @@ class UserCommonInfos extends Component {
               <FormControl
                 type="text"
                 id="linkedin"
-                defaultValue={links.linkedIn || ''}
+                defaultValue={user.links.linkedIn || ''}
               />
             </FormGroup>
             <FormGroup>
@@ -98,7 +97,7 @@ class UserCommonInfos extends Component {
               <FormControl
                 type="text"
                 id="twitter"
-                defaultValue={links.twitter || ''}
+                defaultValue={user.links.twitter || ''}
               />
             </FormGroup>
             <FormGroup>
@@ -106,7 +105,7 @@ class UserCommonInfos extends Component {
               <FormControl
                 type="text"
                 id="facebook"
-                defaultValue={links.facebook || ''}
+                defaultValue={user.links.facebook || ''}
               />
             </FormGroup>
           </FormColumn>
@@ -116,7 +115,7 @@ class UserCommonInfos extends Component {
               <FormControl
                 type="text"
                 id="youtube"
-                defaultValue={links.youtube || ''}
+                defaultValue={user.links.youtube || ''}
               />
             </FormGroup>
             <FormGroup>
@@ -124,7 +123,7 @@ class UserCommonInfos extends Component {
               <FormControl
                 type="text"
                 id="github"
-                defaultValue={links.github || ''}
+                defaultValue={user.links.github || ''}
               />
             </FormGroup>
             <FormGroup>
@@ -132,7 +131,7 @@ class UserCommonInfos extends Component {
               <FormControl
                 type="text"
                 id="website"
-                defaultValue={links.website || ''}
+                defaultValue={user.links.website || ''}
               />
             </FormGroup>
           </FormColumn>
@@ -141,10 +140,5 @@ class UserCommonInfos extends Component {
     );
   }
 }
-
-UserCommonInfos.propTypes = propTypes;
-UserCommonInfos.contextTypes = {
-  __: PropTypes.func
-};
 
 export default UserCommonInfos;

@@ -27,7 +27,7 @@ type Props = {
   disabled?: boolean,
   round?: boolean,
   autoFocus?: boolean,
-  onFocus?: () => void,
+  onFocus?: (e: React.FormEvent<HTMLElement>) => void,
   componentClass?: string,
   min?: number,
   max?: number,
