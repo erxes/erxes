@@ -1,12 +1,13 @@
 import { __ } from 'modules/common/utils';
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { Modal } from 'react-bootstrap';
 
 type Props = {
   title: string,
   trigger: any,
-  children: React.ReactNode,
+  children?: React.ReactNode,
+  content?: ({ closeModal } : { closeModal: () => void }) => void,
+  contentProps?: any,
   size?: string,
   ignoreTrans?: boolean,
   dialogClassName?: string
@@ -17,10 +18,6 @@ type State = {
 }
 
 class ModalTrigger extends Component<Props, State> {
-  static childContextTypes = {
-    closeModal: PropTypes.func.isRequired
-  };
-
   constructor(props) {
     super(props);
 
@@ -28,10 +25,6 @@ class ModalTrigger extends Component<Props, State> {
 
     this.openModal = this.openModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
-  }
-
-  getChildContext() {
-    return { closeModal: this.closeModal };
   }
 
   openModal() {
@@ -46,10 +39,11 @@ class ModalTrigger extends Component<Props, State> {
     const {
       title,
       trigger,
-      children,
       size,
       ignoreTrans,
-      dialogClassName
+      dialogClassName,
+      children,
+      content,
     } = this.props;
 
     // add onclick event to the trigger component
@@ -70,7 +64,9 @@ class ModalTrigger extends Component<Props, State> {
           <Modal.Header closeButton>
             <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
           </Modal.Header>
-          <Modal.Body>{children}</Modal.Body>
+          <Modal.Body>
+            {content ? content({ closeModal: this.closeModal }) : children }
+          </Modal.Body>
         </Modal>
       </Fragment>
     );

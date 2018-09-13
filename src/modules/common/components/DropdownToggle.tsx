@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 type Props = {
   children: React.ReactNode,
   onClick?: (e: React.FormEvent) => void,
+  bsRole: string,
 };
 
 class DropdownToggle extends Component<Props> {

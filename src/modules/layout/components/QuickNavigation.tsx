@@ -43,7 +43,7 @@ const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentU
     <nav>
       <NavItem>
         <Dropdown id="dropdown-user" pullRight>
-          <DropdownToggle>
+          <DropdownToggle bsRole="toggle">
             <UserHelper>
               <UserInfo>
                 {currentUser.details.fullName}

@@ -9,8 +9,9 @@ import { ModalFooter } from '../../../common/styles/main';
 import { IBrand } from "../types";
 
 type Props = {
-  brand: IBrand,
-  save: (params: { doc: { name: string; description: string }}, callback: () => void, brand: IBrand) => void,
+  brand?: IBrand,
+  save: ({ doc }: { doc: any; }, callback: () => void, brand: IBrand) => void,
+  closeModal: () => void,
 }
 
 class BrandForm extends Component<Props, {}> {
@@ -24,13 +25,9 @@ class BrandForm extends Component<Props, {}> {
   save(e) {
     e.preventDefault();
 
-    this.props.save(
-      this.generateDoc(),
-      () => {
-        this.context.closeModal();
-      },
-      this.props.brand
-    );
+    const { save, brand, closeModal } = this.props;
+
+    save(this.generateDoc(), () => closeModal(), brand);
   }
 
   generateDoc() {
@@ -43,7 +40,7 @@ class BrandForm extends Component<Props, {}> {
   }
 
   renderContent() {
-    const object = this.props.brand;
+    const object = this.props.brand || { name: '', description: '' };
 
     return (
       <div>
@@ -73,9 +70,7 @@ class BrandForm extends Component<Props, {}> {
   }
 
   render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
+    const { closeModal } = this.props;
 
     return (
       <form onSubmit={this.save}>
@@ -85,7 +80,7 @@ class BrandForm extends Component<Props, {}> {
             btnStyle="simple"
             type="button"
             icon="cancel-1"
-            onClick={onClick}
+            onClick={closeModal}
           >
             Cancel
           </Button>

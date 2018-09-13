@@ -1,17 +1,16 @@
+import React, { Component } from 'react';
+import { BrandForm, BrandRow } from '.';
 import {
   EmptyState,
   Icon,
   LoadMore,
   ModalTrigger,
   Spinner
-} from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import { Sidebar as LeftSidebar } from 'modules/layout/components';
-import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
-import React, { Component } from 'react';
-import { BrandForm } from '../containers';
+} from '../../../common/components';
+import { __ } from '../../../common/utils';
+import { Sidebar as LeftSidebar } from '../../../layout/components';
+import { HelperButtons, SidebarList as List } from '../../../layout/styles';
 import { IBrand } from '../types';
-import { BrandRow } from './';
 
 type Props = {
   brands: IBrand[],
@@ -43,10 +42,6 @@ class Sidebar extends Component<Props, {}>  {
     ));
   }
 
-  renderBrandForm(props) {
-    return <BrandForm {...props} />;
-  }
-
   renderSidebarHeader() {
     const { save } = this.props;
     const { Header } = LeftSidebar;
@@ -62,9 +57,12 @@ class Sidebar extends Component<Props, {}>  {
     return (
       <Header uppercase>
         {__('Brands')}
-        <ModalTrigger title="New Brand" trigger={addBrand}>
-          {this.renderBrandForm({ save })}
-        </ModalTrigger>
+
+        <ModalTrigger
+          title="New Brand"
+          trigger={addBrand}
+          content={(props) => <BrandForm {...props} save={save} />}
+        />
       </Header>
     );
   }

@@ -1,13 +1,13 @@
+import React, { Component } from 'react';
 import {
   Button,
   DataWithLoader,
   ModalTrigger,
   Pagination
-} from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import { IntegrationList } from 'modules/settings/integrations/containers/common';
-import React, { Component } from 'react';
+} from '../../../common/components';
+import { __ } from '../../../common/utils';
+import { Wrapper } from '../../../layout/components';
+import { IntegrationList } from '../../integrations/containers/common';
 import { ManageIntegrations, Sidebar } from '../containers';
 
 type Props = {

@@ -1,9 +1,9 @@
-import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
+import BrandForm from 'modules/settings/brands/components/BrandForm';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { Button, Icon, ModalTrigger, Tip } from '../../../common/components';
+import { __ } from '../../../common/utils';
 import { ActionButtons, SidebarListItem } from '../../styles';
-import { BrandForm } from '../containers';
 import { IBrand } from '../types';
 
 type Props = {
@@ -19,7 +19,6 @@ class BrandRow extends Component<Props> {
 
     this.remove = this.remove.bind(this);
     this.renderEditAction = this.renderEditAction.bind(this);
-    this.renderEditForm = this.renderEditForm.bind(this);
   }
 
   remove() {
@@ -39,14 +38,12 @@ class BrandRow extends Component<Props> {
     );
 
     return (
-      <ModalTrigger title="Edit" trigger={editTrigger}>
-        {this.renderEditForm({ brand, save })}
-      </ModalTrigger>
+      <ModalTrigger
+        title="Edit"
+        trigger={editTrigger}
+        content={(props) => <BrandForm {...props} brand={brand} save={save} />}
+      />
     );
-  }
-
-  renderEditForm(props) {
-    return <BrandForm {...props} />;
   }
 
   render() {
