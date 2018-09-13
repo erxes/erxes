@@ -77,7 +77,7 @@ class AccquireInformation extends React.Component<Props, State> {
 
     return (
       <div className="accquire-information">
-        <TopBar middle={title} />
+        <TopBar middle={title} isBig={false} />
 
         <div className="content">
           <p className="type">

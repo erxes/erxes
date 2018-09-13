@@ -12,18 +12,8 @@ type QueryResponse = {
 };
 
 class Home extends React.Component<ChildProps<{}, QueryResponse>, {}> {
-  getWelcomeMessage() {
-    const { messengerData } = connection.data;
-
-    if (!messengerData.welcomeMessage) {
-      return "Welcome! Let us know your questions here, and we'll be happy to help!";
-    }
-
-    return messengerData.welcomeMessage;
-  }
-
   render() {
-    const { data } = this.props;
+    const { data = { messengerSupporters: [], loading: true } } = this.props;
 
     return (
       <AppConsumer>
@@ -35,9 +25,9 @@ class Home extends React.Component<ChildProps<{}, QueryResponse>, {}> {
           return (
             <WidgetHome
               {...this.props}
-              users={data ? data.messengerSupporters || [] : []}
+              loading={data.loading}
+              users={data.messengerSupporters || []}
               createConversation={createConversation}
-              welcomeMessage={this.getWelcomeMessage()}
             />
           );
         }}

@@ -6,12 +6,14 @@ import ConversationItem from "./ConversationItem";
 import ConversationList from "./ConversationList";
 import EngageMessage from "./EngageMessage";
 import Home from "./Home";
+import IntegrationItem from "./IntegrationItem";
 import Launcher from "./Launcher";
 import Message from "./Message";
 import MessageSender from "./MessageSender";
 import MessagesList from "./MessagesList";
 import Messenger from "./Messenger";
 import Notifier from "./Notifier";
+import Supporters from "./Supporters";
 import TopBar from "./TopBar";
 import User from "./User";
 
@@ -31,5 +33,7 @@ export {
   User,
   EngageMessage,
   AccquireInformation,
-  Home
+  Home,
+  Supporters,
+  IntegrationItem
 };

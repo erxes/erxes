@@ -33,6 +33,10 @@ function TopBar({
     big: isBig
   });
 
+  const middleClass = classNames("erxes-middle", {
+    expandable: onToggle ? true : false
+  });
+
   const onEndConversation = () => {
     if (
       isChat &&
@@ -44,7 +48,7 @@ function TopBar({
     }
   };
 
-  const renderEndConversation = () => {
+  const renderRightButton = () => {
     return (
       <a
         href="#"
@@ -72,10 +76,10 @@ function TopBar({
   return (
     <div className={topBarClassNames} style={{ backgroundColor: color }}>
       {renderLeftButton()}
-      <div onClick={onToggle} className="erxes-middle">
+      <div onClick={onToggle} className={middleClass}>
         {middle}
       </div>
-      {renderEndConversation()}
+      {renderRightButton()}
     </div>
   );
 }

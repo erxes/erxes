@@ -2,7 +2,7 @@
   position: fixed;
   bottom: 0;
   right: 0;
-  z-index: 1000000000;
+  z-index: 2147483647;
 }
 
 #erxes-messenger-iframe {
@@ -10,7 +10,7 @@
   bottom: 12px;
   right: 12px;
   border: none;
-  z-index: 100000000;
+  z-index: 2147483647;
 }
 
 .erxes-messenger-hidden > iframe {

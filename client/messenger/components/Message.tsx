@@ -1,6 +1,7 @@
 import * as classNames from "classnames";
 import * as moment from "moment";
 import * as React from "react";
+import { defaultAvatar } from "../../icons/Icons";
 import { IUser } from "../../types";
 import { Attachment, User } from "../components";
 import { IAttachment, IMessengerAppData } from "../types";
@@ -17,9 +18,7 @@ type Props = {
 class Message extends React.Component<Props> {
   renderMessengerAppMessage() {
     const { messengerAppData } = this.props;
-    const image =
-      messengerAppData.customer.avatar ||
-      "https://crm.nmma.co/images/avatar.svg";
+    const image = messengerAppData.customer.avatar || defaultAvatar;
     const name = messengerAppData.customer.firstName || "N/A";
 
     return (

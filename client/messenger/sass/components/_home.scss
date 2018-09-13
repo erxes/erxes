@@ -1,34 +1,62 @@
+$shadow-black: rgba(0, 0, 0, .1);
+
 .erxes-home-container {
   flex: 1;
-  padding: 15px 15px 0 15px;
-  overflow-y: auto;
-  padding-top: 90px;
-  margin-top: 70px;
+  overflow-y: scroll;
+  padding: 15px 10px 0 15px;
+  padding-top: 170px;
 
   .integration-box {
-    margin-bottom: 15px;
-    border-radius: $border-radius;
-    padding-top: 15px; 
+    animation-delay: .4s;
     background: $white;
-    box-shadow: 0 4px 15px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.1);
+    border-radius: $border-radius;
+    box-shadow: 0 4px 15px 0 $shadow-black, 0 1px 2px 0 $shadow-black;
+    margin-bottom: 15px;
+    min-height: 100px;
+    padding-top: 15px;
+    position: relative;
+    z-index: 3;
 
     h4 {
-      margin: 0 20px 15px 20px;
+      margin: 0 20px 15px;
+    }
+
+    .empty-list {
+      padding: 0 20px 20px;
+
+      p {
+        color: $text-color-light;
+        margin-top: 0;
+      }
     }
   }
 
   .erxes-topbar {
-    position: absolute;
     left: 0;
+    position: absolute;
+    right: 0;
     top: 0;
   }
 }
 
 .erxes-welcome {
-  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
   font-size: 1em;
+  justify-content: center;
   line-height: 1.5em;
   overflow-wrap: break-word;
+  text-align: center;
   word-wrap: break-word;
-  text-align: left;
+
+  h3 {
+    align-self: center;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  .erxes-topbar-title,
+  .erxes-state {
+    display: none;
+  }
 }

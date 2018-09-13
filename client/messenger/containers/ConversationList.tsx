@@ -27,13 +27,19 @@ class ConversationList extends React.Component<
 
     return (
       <AppConsumer>
-        {({ goToConversation }) => {
+        {({ goToConversation, changeRoute, getColor }) => {
+          const createConversation = () => {
+            changeRoute("conversationCreate");
+          };
+
           return (
             <DumbConversationList
               {...this.props}
               loading={data.loading}
+              color={getColor()}
               conversations={conversations}
               goToConversation={goToConversation}
+              createConversation={createConversation}
             />
           );
         }}

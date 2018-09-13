@@ -3,39 +3,41 @@ import { iconPlus } from "../../icons/Icons";
 import { IUser } from "../../types";
 import { __ } from "../../utils";
 import { ConversationList, TopBar } from "../containers";
+import { IntegrationItem, Supporters } from "./";
 
 type Props = {
   createConversation: (e: React.FormEvent<HTMLButtonElement>) => void;
   users: IUser[];
-  welcomeMessage: string;
+  loading?: boolean;
 };
 
 class Home extends React.Component<Props> {
-  render() {
-    const { createConversation, welcomeMessage, users } = this.props;
-
-    const title = <div className="erxes-welcome">{welcomeMessage}</div>;
+  renderHead() {
+    const { users, loading } = this.props;
 
     return (
-      <React.Fragment>
-        <div className="erxes-home-container">
-          <TopBar
-            isBig
-            middle={title}
-            buttonIcon={iconPlus}
-            onButtonClick={createConversation}
-          />
-          <div className="integration-box appear-slide-in">
-            <h4>Knowledge base</h4>
-            <br />
-            <br />
-          </div>
-          <div className="integration-box appear-slide-in">
-            <h4>Recent conversations</h4>
-            <ConversationList />
-          </div>
-        </div>
-      </React.Fragment>
+      <div className="erxes-welcome appear-slide-in">
+        <h3>{__("Welcome!")}</h3>
+        <Supporters users={users} isExpanded={true} loading={loading} />
+      </div>
+    );
+  }
+
+  render() {
+    const { createConversation } = this.props;
+
+    return (
+      <div className="erxes-home-container">
+        <TopBar
+          isBig
+          middle={this.renderHead()}
+          buttonIcon={iconPlus}
+          onButtonClick={createConversation}
+        />
+        <IntegrationItem title="Recent conversations">
+          <ConversationList />
+        </IntegrationItem>
+      </div>
     );
   }
 }
