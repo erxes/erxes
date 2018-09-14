@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import Select from 'react-select-plus';
-import { IUser } from '../../../../../auth/types';
+import { IUser } from 'modules/auth/types';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from '../../../../../common/components';
-import { FlexItem, LeftItem } from '../../../../../common/components/step/styles';
-import { __ } from '../../../../../common/utils';
-import { SubHeading } from '../../../../styles';
+} from 'modules/common/components';
+import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
+import { __ } from 'modules/common/utils';
+import { SubHeading } from 'modules/settings/styles';
+import React, { Component } from 'react';
+import Select from 'react-select-plus';
 
 type Props= {
   onChange: (name: string, value: string) => void,

@@ -1,16 +1,17 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { IUser } from '../../../../auth/types';
-import { Button, FormControl, Step, Steps } from '../../../../common/components';
+import { IUser } from 'modules/auth/types';
+import { Button, FormControl, Step, Steps } from 'modules/common/components';
 import {
   Preview,
   StepWrapper,
   TitleContainer
-} from '../../../../common/components/step/styles';
-import { __, Alert } from '../../../../common/utils';
-import { Wrapper } from '../../../../layout/components';
-import { IBrand, IIntegration } from '../../../brands/types';
-import { MessengerPreview, Row } from '../../styles';
+} from 'modules/common/components/step/styles';
+import { __, Alert } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
+import { IBrand } from 'modules/settings/brands/types';
+import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
+import { IIntegration } from 'modules/settings/integrations/types';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { Appearance, Availability, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
 

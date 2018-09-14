@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
-import Select from 'react-select-plus';
-import Toggle from 'react-toggle';
-import { OnlineHours } from '.';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from '../../../../../common/components';
-import { FlexItem, LeftItem } from '../../../../../common/components/step/styles';
-import { __ } from '../../../../../common/utils';
-import { timezones } from '../../../constants';
+} from 'modules/common/components';
+import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
+import { __ } from 'modules/common/utils';
+import { timezones } from 'modules/settings/integrations/constants';
+import React, { Component } from 'react';
+import Select from 'react-select-plus';
+import Toggle from 'react-toggle';
+import { OnlineHours } from '.';
 
 type Props = {
   onChange: (name: string, value: string) => void,

@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
+import { IIntegration } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { save } from '../../integrations/containers/utils';
 import { ChooseBrand } from '../components';
 import { mutations, queries } from '../graphql';
-import { IIntegration} from '../types';
 
 type Props = {
   integration?: IIntegration,

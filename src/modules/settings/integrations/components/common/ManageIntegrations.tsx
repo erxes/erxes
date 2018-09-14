@@ -10,8 +10,8 @@ import { CenterContent, ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import React, { Component } from 'react';
-import { IIntegration } from '../../../brands/types';
 import { BrandName, IntegrationName } from '../../styles';
+import { IIntegration } from '../../types';
 
 type Props = {
   current: any,
