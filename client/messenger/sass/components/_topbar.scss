@@ -1,37 +1,75 @@
 $name-white: rgba(255, 255, 255, .6);
+$topbar-shadow: rgba(0, 0, 0, 0.1);
 
 .erxes-topbar {
   align-items: center;
+  box-shadow: 0 4px 6px 0 $topbar-shadow;
   display: flex;
   height: 70px;
   justify-content: space-around;
+  min-height: 70px;
   padding: 0 15px;
   transition: height ease .3s;
   width: auto;
+  z-index: 2;
 
   &.big {
-    height: 200px;
+    height: auto;
   }
 
   &.expanded {
-    height: 120px;
+    height: auto;
+
+    .brand-info {
+      display: block;
+    }
+
+    .erxes-middle.expandable {
+      margin: 0 0 0 55px;
+    }
+
+    .erxes-topbar-title {
+      margin-right: 55px;
+    }
   }
 
   .erxes-middle {
     @include prefix((
       transition: background .3s ease-in-out
     ), webkit moz ms o);
+    align-items: center;
     display: flex;
     flex: 1;
     flex-shrink: 0;
     height: 100%;
     justify-content: center;
-    margin: 0 50px;
+    margin: 0 55px;
 
     &.expandable:hover {
-      background: rgba($black, .1);
       cursor: pointer;
     }
+  }
+
+  .brand-info {
+    display: none;
+
+    h3 {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 0 0 10px;
+      padding-right: 50px;
+    }
+
+    .description {
+      color: $name-white;
+      font-size: 13px;
+      line-height: 21px;
+    }
+  }
+
+  .erxes-head-content {
+    padding: 25px 0;
+    text-align: left;
   }
 }
 
@@ -43,7 +81,6 @@ $name-white: rgba(255, 255, 255, .6);
     flex: 1;
     flex-shrink: 0;
     margin-right: -8px;
-    text-align: center;
 
     &:last-of-type {
       margin: 0;
@@ -57,7 +94,7 @@ $name-white: rgba(255, 255, 255, .6);
   }
 
   &.full {
-    padding: 20px 0;
+    padding-top: 20px;
 
     .erxes-supporter {
       margin: 0;

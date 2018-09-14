@@ -96,9 +96,7 @@ class MessagesList extends React.Component<Props> {
         id="erxes-messages"
         className={messagesClasses}
         onClick={inputFocus}
-        ref={node => {
-          this.node = node;
-        }}
+        ref={node => (this.node = node)}
       >
         {this.renderWelcomeMessage(messengerData)}
         {messages.map(message => (

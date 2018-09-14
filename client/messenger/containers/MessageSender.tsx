@@ -6,6 +6,7 @@ type Props = {
   placeholder?: string;
   isParentFocused: boolean;
   onTextInputBlur: () => void;
+  collapseHead: () => void;
 };
 
 const container = (props: Props) => {

@@ -2,6 +2,7 @@ import gql from "graphql-tag";
 import * as React from "react";
 import client from "../../apollo-client";
 import {
+  IBrand,
   IBrowserInfo,
   IIntegrationMessengerData,
   IIntegrationUiOptions
@@ -28,6 +29,7 @@ interface IState {
 interface IStore extends IState {
   getColor: () => string;
   getUiOptions: () => IIntegrationUiOptions;
+  getBrand: () => IBrand;
   getMessengerData: () => IIntegrationMessengerData;
   saveBrowserInfo: () => void;
   toggle: (isVisible?: boolean) => void;
@@ -69,6 +71,10 @@ export class AppProvider extends React.Component<{}, IState> {
       isAttachingFile: false,
       isBrowserInfoSaved: false
     };
+  }
+
+  getBrand() {
+    return connection.data.brand || {};
   }
 
   isLoggedIn = () => {
@@ -412,6 +418,7 @@ export class AppProvider extends React.Component<{}, IState> {
           ...this.state,
           getColor: this.getColor,
           getUiOptions: this.getUiOptions,
+          getBrand: this.getBrand,
           getMessengerData: this.getMessengerData,
           saveBrowserInfo: this.saveBrowserInfo,
           toggle: this.toggle,

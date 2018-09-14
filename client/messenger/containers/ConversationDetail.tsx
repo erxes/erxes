@@ -85,12 +85,14 @@ class ConversationDetail extends React.Component<
 
     let messages: IMessage[] = [];
     let isOnline: boolean = false;
+    let loading: boolean = true;
     let supporters: IUser[] = [];
 
     if (data && data.conversationDetail) {
       const conversationDetail = data.conversationDetail;
 
       messages = conversationDetail.messages;
+      loading = data.loading;
       isOnline = conversationDetail.isOnline;
       supporters = conversationDetail.supporters || [];
     }
@@ -99,6 +101,7 @@ class ConversationDetail extends React.Component<
       <DumbConversation
         {...this.props}
         messages={messages}
+        loading={loading}
         users={supporters}
         isOnline={isOnline}
       />

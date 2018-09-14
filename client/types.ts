@@ -14,6 +14,11 @@ export interface ICustomer {
   firstName?: string;
 }
 
+export interface IBrand {
+  name: string;
+  description: string;
+}
+
 export interface IBrowserInfo {
   language?: string;
   url?: string;

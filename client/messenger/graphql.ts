@@ -135,6 +135,10 @@ const connect = `
       languageCode,
       uiOptions,
       customerId,
+      brand {
+        name
+        description
+      }
     }
   }
 `;

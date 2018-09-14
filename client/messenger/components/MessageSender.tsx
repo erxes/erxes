@@ -10,6 +10,7 @@ type Props = {
   sendFile: (file: File) => void;
   readMessages: (conversationId: string) => void;
   onTextInputBlur: () => void;
+  collapseHead: () => void;
 };
 
 type State = {
@@ -29,6 +30,7 @@ class MessageSender extends React.Component<Props, State> {
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
     this.handleOnBlur = this.handleOnBlur.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
   readMessage() {
@@ -59,6 +61,10 @@ class MessageSender extends React.Component<Props, State> {
 
   handleOnBlur() {
     this.props.onTextInputBlur();
+  }
+
+  handleClick() {
+    this.props.collapseHead();
   }
 
   handleKeyPress(e: React.KeyboardEvent) {
@@ -99,6 +105,7 @@ class MessageSender extends React.Component<Props, State> {
           value={this.state.message}
           onChange={this.handleMessageChange}
           onBlur={this.handleOnBlur}
+          onClick={this.handleClick}
           autoFocus
           onKeyDown={this.handleKeyPress}
         />
