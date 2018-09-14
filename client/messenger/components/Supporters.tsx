@@ -25,11 +25,12 @@ class Supporters extends React.Component<Props> {
     const details = user.details || { avatar: defaultAvatar, fullName: "" };
 
     return (
-      <div key={user._id} className="erxes-supporter">
-        <div
-          className="avatar erxes-tooltip tooltip-center"
-          data-tooltip={details.fullName}
-        >
+      <div
+        key={user._id}
+        className="erxes-supporter erxes-tooltip"
+        data-tooltip={details.fullName}
+      >
+        <div className="avatar">
           <img
             key={user._id}
             src={this.getAvatar(details.avatar)}
@@ -58,9 +59,11 @@ class Supporters extends React.Component<Props> {
       isExpanded = false,
       color = ""
     } = this.props;
+
     const supporters = users.map(user =>
       this.renderSupporter(user, isOnline, color)
     );
+
     const wrapperClass = classNames("erxes-supporters", {
       full: isExpanded
     });
@@ -72,7 +75,11 @@ class Supporters extends React.Component<Props> {
     const { users, loading } = this.props;
 
     if (loading) {
-      return null;
+      return (
+        <div className="loader-wrapper">
+          <div className="loader" />
+        </div>
+      );
     }
 
     if (users.length !== 0) {

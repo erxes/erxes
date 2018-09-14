@@ -42,21 +42,42 @@ $shadow-black: rgba(0, 0, 0, .1);
 .erxes-welcome {
   display: flex;
   flex-direction: column;
-  font-size: 1em;
   justify-content: center;
-  line-height: 1.5em;
+  margin-right: -50px;
   overflow-wrap: break-word;
-  text-align: center;
+  padding: 25px 0 50px;
+  text-align: left;
   word-wrap: break-word;
 
-  h3 {
-    align-self: center;
-    font-weight: bold;
-    margin: 0;
+  .erxes-supporters {
+    padding-top: 20px;
+
+    .erxes-supporter {
+      display: inline-block;
+      flex: none;
+      margin-right: 10px;
+    }
+
+    img {
+      border: 0;
+    }
+  }
+
+  .brand-info {
+    display: block;
   }
 
   .erxes-topbar-title,
   .erxes-state {
     display: none;
   }
+
+  .erxes-tooltip::before {
+    top: -100%;
+  }
+}
+
+.loader-wrapper {
+  height: 70px;
+  position: relative;
 }

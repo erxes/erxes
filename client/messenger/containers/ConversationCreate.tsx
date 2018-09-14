@@ -15,6 +15,7 @@ type Response = {
 class ConversationCreate extends React.Component<ChildProps<{}, Response>, {}> {
   render() {
     let isOnline = false;
+    let loading = true;
     let supporters: IUser[] = [];
 
     const data = this.props.data;
@@ -22,6 +23,7 @@ class ConversationCreate extends React.Component<ChildProps<{}, Response>, {}> {
     if (data && data.conversationDetail) {
       const { conversationDetail } = data;
 
+      loading = data.loading;
       isOnline = conversationDetail.isOnline;
       supporters = conversationDetail.supporters || [];
     }
@@ -37,6 +39,7 @@ class ConversationCreate extends React.Component<ChildProps<{}, Response>, {}> {
               messages={[]}
               users={supporters}
               isOnline={isOnline}
+              loading={loading}
               goToConversationList={goToConversationList}
             />
           );

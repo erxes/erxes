@@ -2,7 +2,7 @@ import * as React from "react";
 import { iconPlus } from "../../icons/Icons";
 import { IUser } from "../../types";
 import { __ } from "../../utils";
-import { ConversationList, TopBar } from "../containers";
+import { BrandInfo, ConversationList, TopBar } from "../containers";
 import { IntegrationItem, Supporters } from "./";
 
 type Props = {
@@ -11,14 +11,43 @@ type Props = {
   loading?: boolean;
 };
 
-class Home extends React.Component<Props> {
+type State = {
+  headHeight: number;
+};
+
+class Home extends React.Component<Props, State> {
+  private node: HTMLDivElement | null = null;
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { headHeight: 120 };
+  }
+
+  componentDidUpdate(prevProps: any, prevState: any) {
+    if (this.node && prevState.headHeight !== this.node.offsetHeight) {
+      this.setState({ headHeight: this.node.offsetHeight });
+    }
+  }
+
+  componentDidMount() {
+    if (this.node) {
+      this.setState({ headHeight: this.node.offsetHeight });
+    }
+  }
+
   renderHead() {
     const { users, loading } = this.props;
 
     return (
-      <div className="erxes-welcome appear-slide-in">
-        <h3>{__("Welcome!")}</h3>
-        <Supporters users={users} isExpanded={true} loading={loading} />
+      <div
+        className="erxes-welcome appear-slide-in"
+        ref={node => {
+          this.node = node;
+        }}
+      >
+        <BrandInfo />
+        <Supporters users={users} isExpanded={false} loading={loading} />
       </div>
     );
   }
@@ -27,7 +56,10 @@ class Home extends React.Component<Props> {
     const { createConversation } = this.props;
 
     return (
-      <div className="erxes-home-container">
+      <div
+        className="erxes-home-container"
+        style={{ paddingTop: this.state.headHeight - 30 }}
+      >
         <TopBar
           isBig
           middle={this.renderHead()}

@@ -1,6 +1,7 @@
 import AccquireInformation from "./AccquireInformation";
 import App from "./App";
 import Attachment from "./Attachment";
+import BrandInfo from "./BrandInfo";
 import Conversation from "./Conversation";
 import ConversationItem from "./ConversationItem";
 import ConversationList from "./ConversationList";
@@ -20,6 +21,7 @@ import User from "./User";
 export {
   App,
   Attachment,
+  BrandInfo,
   TopBar,
   Messenger,
   ConversationList,
