@@ -1,14 +1,14 @@
 import { Button, EmptyState } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IIntegration } from 'modules/settings/integrations/types';
 import { MarkdownWrapper } from 'modules/settings/styles';
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
-import { IIntegration } from '../../brands/types';
 
 type Props = {
-  integration: IIntegration
+  integration: IIntegration,
+  closeModal: () => void
 };
 
 type State = {
@@ -17,10 +17,6 @@ type State = {
 };
 
 class InstallCode extends Component<Props, State> {
-  static contextTypes =  {
-    closeModal: PropTypes.func.isRequired,
-  }
-
   static installCodeIncludeScript(type) {
     return `
       (function() {
@@ -49,8 +45,8 @@ class InstallCode extends Component<Props, State> {
     `;
   }
 
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
 
     let code = '';
     const integration = props.integration || {};
@@ -92,7 +88,7 @@ class InstallCode extends Component<Props, State> {
           <Button
             btnStyle="simple"
             icon="cancel-1"
-            onClick={() => this.context.closeModal()}
+            onClick={this.props.closeModal}
           >
             Cancel
           </Button>

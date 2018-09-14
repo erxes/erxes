@@ -46,7 +46,7 @@ class Form extends Component<Props, State> {
 
     const doc = this.state;
 
-    this.props.save(doc, () => this.context.closeModal(), this.props.product);
+    this.props.save(doc, this.props.closeModal, this.props.product);
   }
 
   renderContent() {
@@ -119,7 +119,7 @@ class Form extends Component<Props, State> {
         <Modal.Footer>
           <Button
             btnStyle="simple"
-            onClick={() => this.context.closeModal()}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Close

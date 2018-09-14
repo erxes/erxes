@@ -1,19 +1,20 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
-  FormGroup,
+  Button,
   ControlLabel,
   FormControl,
-  Button
+  FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import React, { Component } from 'react';
 
-const propTypes = {
-  save: PropTypes.func.isRequired
+type Props = {
+  save: (save: { currentPassword: string, newPassword: string, confirmation: string }) => void,
+  closeModal?: () => void,
 };
 
-class ChangePassword extends Component {
-  constructor(props) {
+class ChangePassword extends Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -23,17 +24,15 @@ class ChangePassword extends Component {
     e.preventDefault();
 
     this.props.save({
-      currentPassword: document.getElementById('current-password').value,
-      newPassword: document.getElementById('new-password').value,
-      confirmation: document.getElementById('new-password-confirmation').value
+      currentPassword: (document.getElementById('current-password') as HTMLInputElement).value,
+      newPassword: (document.getElementById('new-password') as HTMLInputElement).value,
+      confirmation: (document.getElementById('new-password-confirmation') as HTMLInputElement).value
     });
 
-    this.context.closeModal();
+    this.props.closeModal;
   }
 
   render() {
-    const { __, closeModal } = this.context;
-
     return (
       <form onSubmit={this.handleSubmit}>
         <FormGroup>
@@ -67,7 +66,7 @@ class ChangePassword extends Component {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            onClick={() => closeModal()}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Close
@@ -81,11 +80,5 @@ class ChangePassword extends Component {
     );
   }
 }
-
-ChangePassword.propTypes = propTypes;
-ChangePassword.contextTypes = {
-  __: PropTypes.func,
-  closeModal: PropTypes.func
-};
 
 export default ChangePassword;

@@ -20,8 +20,8 @@ type Props = {
 };
 
 class Facebook extends Component<Props> {
-  constructor(props: Props, context) {
-    super(props, context);
+  constructor(props: Props) {
+    super(props);
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onAppChange = this.onAppChange.bind(this);
