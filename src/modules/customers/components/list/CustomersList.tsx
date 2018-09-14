@@ -2,8 +2,6 @@ import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
-import { Wrapper } from '../../../layout/components';
-
 import { CustomersMerge } from '..';
 import {
   Button,
@@ -19,6 +17,7 @@ import {
 } from '../../../common/components';
 import { __, confirm, router } from '../../../common/utils';
 import { Widget } from '../../../engage/containers';
+import { Wrapper } from '../../../layout/components';
 import { BarItems } from '../../../layout/styles';
 import { IBrand } from '../../../settings/brands/types';
 import { ManageColumns } from '../../../settings/properties/containers';
@@ -44,7 +43,7 @@ type Props = {
   loading: boolean,
   searchValue: string,
   loadingTags: boolean,
-  removeCustomers: ({ customerIds }: { customerIds: string[] }) => void,
+  removeCustomers: (doc: { customerIds: string[] }, emptyBulk: () => void) => void,
   mergeCustomers: () => void,
   queryParams: any,
   exportCustomers: (bulk: any[]) => void,
@@ -83,7 +82,9 @@ class CustomersList extends React.Component<Props, State> {
       customerIds.push(customer._id);
     });
 
-    this.props.removeCustomers({ customerIds });
+    const { removeCustomers, emptyBulk } = this.props;
+
+    removeCustomers({ customerIds }, emptyBulk);
   }
 
   renderContent() {

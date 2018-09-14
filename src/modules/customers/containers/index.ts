@@ -1,9 +1,9 @@
-import CustomersList from './CustomersList';
-import CustomerDetails from './CustomerDetails';
+import BrandFilter from './BrandFilter';
 import CustomerAssociate from './CustomerAssociate';
 import CustomerChooser from './CustomerChooser';
+import CustomerDetails from './CustomerDetails';
 import CustomerForm from './CustomerForm';
-import BrandFilter from './BrandFilter';
+import CustomersList from './CustomersList';
 import FormFilter from './FormFilter';
 
 export {
