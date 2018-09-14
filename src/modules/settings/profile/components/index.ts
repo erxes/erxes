@@ -1,5 +1,5 @@
-import EditProfile from './EditProfile';
 import ChangePassword from './ChangePassword';
+import EditProfile from './EditProfile';
 import NotificationSettings from './NotificationSettings';
 import PasswordConfirmation from './PasswordConfirmation';
 

@@ -21,4 +21,5 @@ export interface IUser {
     email: string;
     details?: IUserDetails;
     links?: IUserLinks
+    getNotificationByEmail?: boolean
 }

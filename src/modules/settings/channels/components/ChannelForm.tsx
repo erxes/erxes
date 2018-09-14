@@ -7,7 +7,6 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import Select from 'react-select-plus';
 import { IChannel } from "../types";
@@ -16,6 +15,7 @@ type Props = {
   channel: IChannel,
   members: IUser[],
   selectedMembers: IUser[],
+  closeModal?: () => void,
   save: (params: { 
     doc: { name: string; description: string, memberIds: string[] }}, 
     callback: () => void, channel: IChannel) => void,
@@ -26,10 +26,6 @@ type State = {
 };
 
 class ChannelForm extends Component<Props, State> {
-  static contextTypes =  {
-    closeModal: PropTypes.func.isRequired,
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -46,13 +42,9 @@ class ChannelForm extends Component<Props, State> {
   save(e) {
     e.preventDefault();
 
-    this.props.save(
-      this.generateDoc(),
-      () => {
-        this.context.closeModal();
-      },
-      this.props.channel
-    );
+    const { save, channel, closeModal } = this.props;
+
+    save(this.generateDoc(), () => closeModal(), channel);
   }
 
   collectValues(items) {
@@ -79,7 +71,7 @@ class ChannelForm extends Component<Props, State> {
   renderContent() {
     const { members, channel } = this.props;
 
-    const object = channel;
+    const object = channel || { name: '', description: '' };
     const self = this;
 
     return (
@@ -124,9 +116,7 @@ class ChannelForm extends Component<Props, State> {
   }
 
   render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
+    const { closeModal } = this.props;
 
     return (
       <form onSubmit={this.save}>
@@ -136,7 +126,7 @@ class ChannelForm extends Component<Props, State> {
             btnStyle="simple"
             type="button"
             icon="cancel-1"
-            onClick={onClick}
+            onClick={closeModal}
           >
             Cancel
           </Button>

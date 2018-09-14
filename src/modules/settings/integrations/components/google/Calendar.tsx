@@ -15,8 +15,8 @@ type Props = {
 };
 
 class Calendar extends Component<Props> {
-  constructor(props: Props, context) {
-    super(props, context);
+  constructor(props: Props) {
+    super(props);
 
     this.handleSubmit = this.handleSubmit.bind(this);
   }

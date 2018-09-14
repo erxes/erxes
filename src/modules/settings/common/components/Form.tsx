@@ -1,18 +1,14 @@
 import { Button } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 type Props = {
   object: any,
   save: (params: { doc: any}, callback: () => void, object: any) => void,
+  closeModal: () => void,
 };
 
 class Form extends React.Component<Props> {
-  static contextTypes =  {
-    closeModal: PropTypes.func.isRequired,
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -28,10 +24,7 @@ class Form extends React.Component<Props> {
 
     this.props.save(
       this.generateDoc(),
-
-      () => {
-        this.context.closeModal();
-      },
+      this.props.closeModal,
       this.props.object
     );
   }
@@ -41,10 +34,6 @@ class Form extends React.Component<Props> {
   }
 
   render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
-
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.object || {})}
@@ -53,7 +42,7 @@ class Form extends React.Component<Props> {
           <Button
             btnStyle="simple"
             type="button"
-            onClick={onClick}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Cancel

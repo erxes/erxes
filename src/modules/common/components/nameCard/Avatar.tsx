@@ -46,6 +46,14 @@ const AvatarImage = styledTS<{ image?: string }>(styled.div)`
   background-size: cover;
 `;
 
+type Props = {
+  user?: any,
+  customer?: any,
+  company?: any,
+  size?: number,
+  icon?: React.ReactNode
+};
+
 class Avatar extends Component<Props> {
   generateStyle(size = 40) {
     return {
@@ -138,13 +146,5 @@ class Avatar extends Component<Props> {
     );
   }
 }
-
-type Props = {
-  user?: any,
-  customer?: any,
-  company?: any,
-  size?: number,
-  icon?: React.ReactNode
-};
 
 export default Avatar;

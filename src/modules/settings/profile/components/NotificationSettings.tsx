@@ -1,10 +1,22 @@
+import { __ } from 'modules/common/utils';
 import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import Toggle from 'react-toggle';
-import { ModuleBox, SubHeading, InlineItems, SubItem } from '../../styles';
+import { InlineItems, ModuleBox, SubHeading, SubItem } from '../../styles';
+import { IConfigs, IModules } from '../types';
 
-class NotificationSettings extends Component {
-  constructor(props) {
+type Props = {
+  modules: IModules[],
+  configs: IConfigs[],
+  // save notification configurations
+  saveNotificationConfigurations: (notify: { notifType: string, isAllowed: boolean }) => void,
+  // save get notification by email action
+  configGetNotificationByEmail: (byEmail: { isAllowed: boolean }) => void,
+  // previously configured value
+  getNotificationByEmail: boolean
+};
+
+class NotificationSettings extends Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     // on notif type change
@@ -68,7 +80,6 @@ class NotificationSettings extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     const content = (
       <Fragment>
         <SubHeading>{__('Notifications')}</SubHeading>
@@ -94,23 +105,5 @@ class NotificationSettings extends Component {
     return content;
   }
 }
-
-NotificationSettings.propTypes = {
-  modules: PropTypes.array.isRequired,
-  configs: PropTypes.array.isRequired,
-
-  // save notification configurations
-  saveNotificationConfigurations: PropTypes.func.isRequired,
-
-  // save get notification by email action
-  configGetNotificationByEmail: PropTypes.func.isRequired,
-
-  // previously configured value
-  getNotificationByEmail: PropTypes.bool.isRequired
-};
-
-NotificationSettings.contextTypes = {
-  __: PropTypes.func
-};
 
 export default NotificationSettings;

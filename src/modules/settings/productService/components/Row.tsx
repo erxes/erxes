@@ -1,23 +1,24 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
+  ActionButtons,
   Button,
-  Tip,
-  Label,
   Icon,
+  Label,
   ModalTrigger,
-  ActionButtons
+  Tip
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import React, { Component } from 'react';
+import { IProduct } from '../types';
 import { Form } from './';
 
-const propTypes = {
-  product: PropTypes.object.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired
+type Props = {
+  product: IProduct,
+  remove: (_id: string) => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, product: IProduct) => void,
 };
 
-class Row extends Component {
-  constructor(props) {
+class Row extends Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.renderEditForm = this.renderEditForm.bind(this);
@@ -36,7 +37,6 @@ class Row extends Component {
   }
 
   renderEditAction() {
-    const { __ } = this.context;
     const { product, save } = this.props;
 
     const editTrigger = (
@@ -55,7 +55,6 @@ class Row extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     const { product } = this.props;
 
     return (
@@ -77,10 +76,5 @@ class Row extends Component {
     );
   }
 }
-
-Row.propTypes = propTypes;
-Row.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Row;

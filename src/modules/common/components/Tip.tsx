@@ -2,7 +2,7 @@ import * as React from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 type Props = {
-  text?: string,
+  text?: string | React.ReactNode,
   children: React.ReactNode,
   placement?: string
 };

@@ -1,11 +1,14 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { ChangePassword } from '../components';
 
-const ChangePasswordContainer = props => {
+type Props = {
+  changePasswordMutation: (params: {variables: { currentPassword: string, newPassword: string }}) => any,
+};
+
+const ChangePasswordContainer = (props: Props) => {
   const { changePasswordMutation } = props;
 
   const save = ({ currentPassword, newPassword, confirmation }) => {
@@ -28,10 +31,6 @@ const ChangePasswordContainer = props => {
   };
 
   return <ChangePassword {...updatedProps} />;
-};
-
-ChangePasswordContainer.propTypes = {
-  changePasswordMutation: PropTypes.func
 };
 
 export default compose(

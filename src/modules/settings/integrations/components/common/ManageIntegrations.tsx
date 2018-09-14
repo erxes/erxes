@@ -9,10 +9,9 @@ import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { CenterContent, ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { IIntegration } from '../../../brands/types';
 import { BrandName, IntegrationName } from '../../styles';
+import { IIntegration } from '../../types';
 
 type Props = {
   current: any,
@@ -21,6 +20,7 @@ type Props = {
   allIntegrations: IIntegration[],
   perPage: number,
   clearState: () => void,
+  closeModal?: () => void,
   renderConfirm?: (
     integration: IIntegration, 
     actionTrigger: React.ReactNode, 
@@ -36,10 +36,6 @@ type State = {
 }
 
 class ManageIntegrations extends Component<Props, State> {
-  static contextTypes =  {
-    closeModal: PropTypes.func.isRequired,
-  }
-
   private timer: NodeJS.Timer
 
   constructor(props: Props) {
@@ -68,7 +64,7 @@ class ManageIntegrations extends Component<Props, State> {
     });
 
     this.props.save(ids);
-    this.context.closeModal();
+    this.props.closeModal;
   }
 
   componentWillUnmount() {
@@ -189,7 +185,7 @@ class ManageIntegrations extends Component<Props, State> {
   }
 
   render() {
-    const { allIntegrations, current } = this.props;
+    const { allIntegrations, current, closeModal } = this.props;
     const { selectedIntegrations } = this.state;
 
     return (
@@ -235,7 +231,7 @@ class ManageIntegrations extends Component<Props, State> {
           <Button
             btnStyle="simple"
             icon="cancel-1"
-            onClick={() => this.context.closeModal()}
+            onClick={closeModal}
           >
             Cancel
           </Button>

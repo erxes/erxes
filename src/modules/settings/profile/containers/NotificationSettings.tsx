@@ -1,16 +1,25 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { NotificationSettings } from '../components';
 
-const NotificationSettingsContainer = (props, { currentUser }) => {
+type Props = {
+  notificationModulesQuery: any,
+  notificationConfigurationsQuery: any,
+  configGetNotificationByEmailMutation: (params: { variables: any }) => any,
+  saveNotificationConfigurationsMutation: (params: { variables: any }) => any,
+  currentUser: IUser
+};
+
+const NotificationSettingsContainer = (props: Props) => {
   const {
     notificationModulesQuery,
     notificationConfigurationsQuery,
     configGetNotificationByEmailMutation,
-    saveNotificationConfigurationsMutation
+    saveNotificationConfigurationsMutation,
+    currentUser
   } = props;
 
   // save get notification by email
@@ -57,17 +66,6 @@ const NotificationSettingsContainer = (props, { currentUser }) => {
   };
 
   return <NotificationSettings {...updatedProps} />;
-};
-
-NotificationSettingsContainer.propTypes = {
-  notificationModulesQuery: PropTypes.object,
-  notificationConfigurationsQuery: PropTypes.object,
-  configGetNotificationByEmailMutation: PropTypes.func,
-  saveNotificationConfigurationsMutation: PropTypes.func
-};
-
-NotificationSettingsContainer.contextTypes = {
-  currentUser: PropTypes.object
 };
 
 export default compose(

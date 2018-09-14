@@ -1,23 +1,19 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
-  FormGroup,
+  Button,
   ControlLabel,
   FormControl,
-  Button
+  FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import React, { Component } from 'react';
 
-const propTypes = {
-  onSuccess: PropTypes.func.isRequired
+type Props = {
+  onSuccess: (password: string) => void,
+  closeModal?: () => void
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired
-};
-
-class PasswordConfirmation extends Component {
-  constructor(props) {
+class PasswordConfirmation extends Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.submit = this.submit.bind(this);
@@ -26,10 +22,10 @@ class PasswordConfirmation extends Component {
   submit(e) {
     e.preventDefault();
 
-    const password = document.getElementById('password').value;
+    const password = (document.getElementById('password') as HTMLInputElement).value;
 
     this.props.onSuccess(password);
-    this.context.closeModal();
+    this.props.closeModal;
   }
 
   render() {
@@ -43,7 +39,7 @@ class PasswordConfirmation extends Component {
           <Button
             btnStyle="simple"
             icon="cancel-1"
-            onClick={() => this.context.closeModal()}
+            onClick={this.props.closeModal}
           >
             Cancel
           </Button>
@@ -59,8 +55,5 @@ class PasswordConfirmation extends Component {
     );
   }
 }
-
-PasswordConfirmation.propTypes = propTypes;
-PasswordConfirmation.contextTypes = contextTypes;
 
 export default PasswordConfirmation;

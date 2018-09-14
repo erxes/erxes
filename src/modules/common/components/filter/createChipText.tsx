@@ -1,5 +1,9 @@
 import { graphql } from 'react-apollo';
 
+type Props = {
+  query?: any
+};
+
 const ChipText = (props: Props) => {
   const { query } = props;
 
@@ -20,10 +24,6 @@ const ChipText = (props: Props) => {
     (segment && segment.name) ||
     (form && form.title)
   );
-};
-
-type Props = {
-  query?: any
 };
 
 const createChipText = (query, id) => {

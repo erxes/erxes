@@ -19,7 +19,7 @@ type Props = {
   value?: string | string[],
   defaultChecked?: boolean,
   checked?: boolean,
-  placeholder?: string,
+  placeholder?: string | React.ReactNode,
   type?: string,
   name?: string,
   options?: any[],
