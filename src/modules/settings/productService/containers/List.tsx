@@ -1,12 +1,19 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Alert, confirm } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
+import { __, Alert, confirm } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
+import { mutations, queries } from '../graphql';
 
-class ProductListContainer extends React.Component {
+type Props = {
+  productsQuery: any,
+  productsCountQuery: any,
+  addMutation: (mutation: { variables: { doc: any } }) => any,
+  editMutation: (mutation: { variables: { doc: any } }) => any,
+  removeMutation: (mutation: { variables: { _id: string } }) => any,
+};
+
+class ProductListContainer extends React.Component<Props> {
   render() {
     const {
       productsQuery,
@@ -15,13 +22,12 @@ class ProductListContainer extends React.Component {
       editMutation,
       removeMutation
     } = this.props;
-    const { __ } = this.context;
 
     const products = productsQuery.products || [];
 
     // remove action
     const remove = _id => {
-      confirm().then(() => {
+      confirm('Are you sure ?').then(() => {
         removeMutation({
           variables: { _id }
         })
@@ -76,20 +82,8 @@ class ProductListContainer extends React.Component {
   }
 }
 
-ProductListContainer.propTypes = {
-  productsQuery: PropTypes.object,
-  productsCountQuery: PropTypes.object,
-  addMutation: PropTypes.func,
-  editMutation: PropTypes.func,
-  removeMutation: PropTypes.func
-};
-
-ProductListContainer.contextTypes = {
-  __: PropTypes.func
-};
-
 export default compose(
-  graphql(gql(queries.products), {
+  graphql<{ queryParams: any }>(gql(queries.products), {
     name: 'productsQuery',
     options: ({ queryParams }) => ({
       variables: {

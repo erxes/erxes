@@ -1,25 +1,31 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
 import {
-  FormGroup,
-  FormControl,
+  Button,
   ControlLabel,
-  Button
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
+import React, { Component, Fragment } from 'react';
+import { Modal } from 'react-bootstrap';
 import { TYPES } from '../constants';
+import { IProduct } from '../types';
 
-const propTypes = {
-  product: PropTypes.object,
-  save: PropTypes.func.isRequired
+type Props = {
+  product: IProduct,
+  save: (doc: any, callback: () => void, product: IProduct) => void,
+  closeModal: () => void,
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired
-};
+type State = {
+  _id: string,
+  type?: any,
+  name: string,
+  description: string,
+  sku: string,
+  createdAt: Date;
+}
 
-class Form extends Component {
-  constructor(props) {
+class Form extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.onChangeInput = this.onChangeInput.bind(this);
@@ -108,7 +114,7 @@ class Form extends Component {
   render() {
     return (
       <form onSubmit={e => this.save(e)}>
-        {this.renderContent(this.props.product || {})}
+        {this.renderContent()}
 
         <Modal.Footer>
           <Button
@@ -127,8 +133,5 @@ class Form extends Component {
     );
   }
 }
-
-Form.propTypes = propTypes;
-Form.contextTypes = contextTypes;
 
 export default Form;

@@ -1,25 +1,26 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import {
-  Table,
   Button,
+  DataWithLoader,
   ModalTrigger,
   Pagination,
-  DataWithLoader
+  Table
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
+import React, { Component } from 'react';
+import { IProduct } from '../types';
 import { Form, Row } from './';
 
-const propTypes = {
-  products: PropTypes.array.isRequired,
-  productsCount: PropTypes.number.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
-  loading: PropTypes.bool
+type Props = {
+  products: IProduct[],
+  productsCount: number,
+  remove: (_id: string) => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, product: IProduct) => void,
+  loading: boolean
 };
 
-class List extends Component {
-  constructor(props) {
+class List extends Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.renderRow = this.renderRow.bind(this);
@@ -39,7 +40,6 @@ class List extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     const { save, productsCount, loading } = this.props;
 
     const breadcrumb = [
@@ -92,10 +92,5 @@ class List extends Component {
     );
   }
 }
-
-List.propTypes = propTypes;
-List.contextTypes = {
-  __: PropTypes.func
-};
 
 export default List;
