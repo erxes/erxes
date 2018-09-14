@@ -2,11 +2,11 @@ import { __ } from 'modules/common/utils';
 import React, { Component, Fragment } from 'react';
 import Toggle from 'react-toggle';
 import { InlineItems, ModuleBox, SubHeading, SubItem } from '../../styles';
-import { IConfigs, IModules } from '../types';
+import { IConfig, IModules } from '../types';
 
 type Props = {
   modules: IModules[],
-  configs: IConfigs[],
+  configs: IConfig[],
   // save notification configurations
   saveNotificationConfigurations: (notify: { notifType: string, isAllowed: boolean }) => void,
   // save get notification by email action

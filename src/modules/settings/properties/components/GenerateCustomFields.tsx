@@ -1,13 +1,24 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import { Button } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
+import * as React from 'react';
 import { SidebarContent } from '../styles';
+import { IFieldGroup } from '../types';
 import GenerateField from './GenerateField';
 
-class GenerateGroup extends React.Component {
-  constructor(props) {
+type Props = {
+  fieldGroup: IFieldGroup,
+  data: any,
+  save: (error: any, success: any) => void
+};
+
+type State = {
+  editing: boolean,
+  data: any
+}
+
+class GenerateGroup extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -98,7 +109,6 @@ class GenerateGroup extends React.Component {
             return (
               <GenerateField
                 field={field}
-                name={field._id}
                 key={index}
                 onValueChange={({ _id, value }) =>
                   this.onChange({ _id, value })
@@ -115,13 +125,13 @@ class GenerateGroup extends React.Component {
   }
 }
 
-GenerateGroup.propTypes = {
-  fieldGroup: PropTypes.object.isRequired,
-  data: PropTypes.object,
-  save: PropTypes.func.isRequired
+type GroupsProps = {
+  fieldsGroups: IFieldGroup[],
+  customFieldsData: any,
+  save: (data: { customFieldsData: any }, callback: () => any) => void
 };
 
-class GenerateGroups extends React.Component {
+class GenerateGroups extends React.Component<GroupsProps> {
   constructor(props) {
     super(props);
 
@@ -160,11 +170,5 @@ class GenerateGroups extends React.Component {
     });
   }
 }
-
-GenerateGroups.propTypes = {
-  fieldsGroups: PropTypes.array.isRequired,
-  customFieldsData: PropTypes.object,
-  save: PropTypes.func.isRequired
-};
 
 export default GenerateGroups;

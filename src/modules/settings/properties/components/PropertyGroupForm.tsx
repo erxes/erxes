@@ -1,25 +1,27 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import Toggle from 'react-toggle';
 import {
   Button,
-  FormGroup,
+  ControlLabel,
   FormControl,
-  ControlLabel
+  FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import * as React from 'react';
+import Toggle from 'react-toggle';
+import { IFieldGroup } from '../types';
 
-const propTypes = {
-  add: PropTypes.func.isRequired,
-  edit: PropTypes.func.isRequired,
-  group: PropTypes.object
+type Props = {
+  add: ({ doc }: { doc: any; }) => void,
+  edit: ({ doc }: { doc: any; }) => void,
+  group?: IFieldGroup,
+  closeModal?: () => void
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired
-};
+type State = {
+  isVisible: boolean,
+  action: (doc: any) => void
+}
 
-class PropertyGroupForm extends React.Component {
+class PropertyGroupForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -44,8 +46,8 @@ class PropertyGroupForm extends React.Component {
     e.preventDefault();
 
     const { isVisible } = this.state;
-    const name = document.getElementById('name').value;
-    const description = document.getElementById('description').value;
+    const name = (document.getElementById('name') as HTMLInputElement).value;
+    const description = (document.getElementById('description') as HTMLInputElement).value;
 
     const doc = {
       name,
@@ -57,7 +59,7 @@ class PropertyGroupForm extends React.Component {
       this.props.group ? { _id: this.props.group._id, doc } : { doc }
     );
 
-    this.context.closeModal();
+    this.props.closeModal;
   }
 
   visibleHandler(e) {
@@ -67,7 +69,7 @@ class PropertyGroupForm extends React.Component {
   }
 
   render() {
-    const { group = {} } = this.props;
+    const { group = { name: '' } } = this.props;
 
     return (
       <form onSubmit={this.onSubmit}>
@@ -109,9 +111,7 @@ class PropertyGroupForm extends React.Component {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            onClick={() => {
-              this.context.closeModal();
-            }}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Close
@@ -125,8 +125,5 @@ class PropertyGroupForm extends React.Component {
     );
   }
 }
-
-PropertyGroupForm.propTypes = propTypes;
-PropertyGroupForm.contextTypes = contextTypes;
 
 export default PropertyGroupForm;

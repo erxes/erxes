@@ -2,7 +2,7 @@ import { COMPANY_INFO } from 'modules/companies/constants';
 import { CUSTOMER_BASIC_INFO } from 'modules/customers/constants';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
 
-const generateFields = (infos, type) => {
+const generateFields = (infos: any[], type: string) => {
   const fields = [];
 
   infos.forEach((info, index) => {
@@ -29,7 +29,7 @@ const generateFields = (infos, type) => {
   return fields;
 };
 
-const generateGroup = (infos, type) => {
+const generateGroup = (infos: any[], type: string) => {
   return {
     _id: `basicInfosGroup${type}`,
     name: 'Basic Infos',

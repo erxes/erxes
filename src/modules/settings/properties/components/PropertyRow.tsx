@@ -1,32 +1,32 @@
+import {
+  ActionButtons,
+  Button,
+  EmptyState,
+  ModalTrigger,
+  Table
+} from 'modules/common/components';
+import { Alert, confirm } from 'modules/common/utils';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
 import Toggle from 'react-toggle';
-import {
-  Table,
-  ModalTrigger,
-  EmptyState,
-  ActionButtons,
-  Button
-} from 'modules/common/components';
-import { confirm, Alert } from 'modules/common/utils';
-import { PropertyGroupForm, PropertyForm } from '../containers';
-import { DropIcon, FieldType, CollapseRow } from '../styles';
+import { PropertyForm, PropertyGroupForm } from '../containers';
+import { CollapseRow, DropIcon, FieldType } from '../styles';
+import { IFieldGroup } from '../types';
 
-const propTypes = {
-  group: PropTypes.object.isRequired,
-  queryParams: PropTypes.object.isRequired,
-  removeProperty: PropTypes.func.isRequired,
-  removePropertyGroup: PropTypes.func.isRequired,
-  updatePropertyVisible: PropTypes.func.isRequired
+type Props = {
+  group: IFieldGroup,
+  queryParams: any,
+  removePropertyGroup: (data: { _id: string }) => any,
+  removeProperty: (data: { _id: string }) => void,
+  updatePropertyVisible: (params: { _id: string, isVisible: boolean }) => void,
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
+type State = {
+  collapse: boolean
+}
 
-class PropertyRow extends React.Component {
-  constructor(props) {
+class PropertyRow extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -71,7 +71,7 @@ class PropertyRow extends React.Component {
           btnStyle="link"
           icon="cancel-1"
           onClick={() =>
-            confirm().then(() => {
+            confirm('Are you sure').then(() => {
               remove({ _id: data._id });
             })
           }
@@ -165,8 +165,5 @@ class PropertyRow extends React.Component {
     );
   }
 }
-
-PropertyRow.propTypes = propTypes;
-PropertyRow.contextTypes = contextTypes;
 
 export default PropertyRow;

@@ -1,29 +1,33 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import {
-  ControlLabel,
-  FormGroup,
-  FormControl,
   Button,
+  ControlLabel,
+  FormControl,
+  FormGroup,
   Icon
 } from 'modules/common/components';
-import { TypeList, Actions } from '../styles';
 import { ModalFooter } from 'modules/common/styles/main';
+import React, { Component, Fragment } from 'react';
+import { Actions, TypeList } from '../styles';
+import { IField, IFieldGroup } from '../types';
 
-const propTypes = {
-  add: PropTypes.func.isRequired,
-  edit: PropTypes.func.isRequired,
-  field: PropTypes.object,
-  groups: PropTypes.array.isRequired
+type Props = {
+  add: ({ doc }: { doc: any; }) => void,
+  edit: ({ doc }: { doc: any; }) => void,
+  field?: IField,
+  groups: IFieldGroup[],
+  closeModal?: () => void
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
-};
+type State = {
+  action: (doc: any) => void,
+  options: any[], 
+  type: string, 
+  hasOptions: boolean,
+  add: boolean
+}
 
-class PropertyForm extends Component {
-  constructor(props) {
+class PropertyForm extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     let action = props.add;
@@ -57,7 +61,8 @@ class PropertyForm extends Component {
 
     this.state = {
       ...doc,
-      action
+      action,
+      add: false
     };
 
     this.handleAddOption = this.handleAddOption.bind(this);
@@ -73,10 +78,10 @@ class PropertyForm extends Component {
 
   onSubmit(e) {
     e.preventDefault();
-    const groupId = document.getElementById('groupId').value;
-    const validation = document.getElementById('validation').value;
-    const text = document.getElementById('text').value;
-    const description = document.getElementById('description').value;
+    const groupId = (document.getElementById('groupId') as HTMLInputElement).value;
+    const validation = (document.getElementById('validation') as HTMLInputElement).value;
+    const text = (document.getElementById('text') as HTMLInputElement).value;
+    const description = (document.getElementById('description') as HTMLInputElement).value;
 
     const { type, options } = this.state;
 
@@ -93,16 +98,16 @@ class PropertyForm extends Component {
       this.props.field ? { _id: this.props.field._id, doc } : { doc }
     );
 
-    this.context.closeModal();
+    this.props.closeModal;
   }
 
   onTypeChange(e) {
     const value = e.target.value;
-
+    
     let doc = { hasOptions: false, options: [] };
 
     if (value === 'select' || value === 'check' || value === 'radio') {
-      doc = { hasOptions: true };
+      doc = { hasOptions: true, options: [] };
     }
 
     this.setState({ type: value, ...doc });
@@ -118,7 +123,7 @@ class PropertyForm extends Component {
 
   handleSaveOption() {
     const { options } = this.state;
-    const optionValue = document.getElementById('optionValue').value;
+    const optionValue = (document.getElementById('optionValue') as HTMLInputElement).value;
 
     this.setState({ options: [...options, optionValue] });
     this.handleCancelAddingOption();
@@ -198,18 +203,18 @@ class PropertyForm extends Component {
   }
 
   render() {
-    const { groups, field = {} } = this.props;
+    const { groups, field = { text: '', description: '', groupId: '', validation: '' } } = this.props;
     const { type } = this.state;
 
     return (
       <form onSubmit={this.onSubmit}>
         <FormGroup>
-          <ControlLabel htmlFor="text">Name:</ControlLabel>
+          <ControlLabel>Name:</ControlLabel>
           <FormControl type="text" id="text" defaultValue={field.text || ''} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel htmlFor="description">Description:</ControlLabel>
+          <ControlLabel>Description:</ControlLabel>
           <FormControl
             id="description"
             componentClass="textarea"
@@ -218,7 +223,7 @@ class PropertyForm extends Component {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel htmlFor="description">Group:</ControlLabel>
+          <ControlLabel>Group:</ControlLabel>
           <FormControl
             id="groupId"
             componentClass="select"
@@ -235,7 +240,7 @@ class PropertyForm extends Component {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel htmlFor="type">Type:</ControlLabel>
+          <ControlLabel>Type:</ControlLabel>
 
           <FormControl
             componentClass="select"
@@ -253,7 +258,7 @@ class PropertyForm extends Component {
         {this.renderOptions()}
 
         <FormGroup>
-          <ControlLabel htmlFor="validation">Validation:</ControlLabel>
+          <ControlLabel>Validation:</ControlLabel>
 
           <FormControl
             componentClass="select"
@@ -270,9 +275,7 @@ class PropertyForm extends Component {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            onClick={() => {
-              this.context.closeModal();
-            }}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Close
@@ -286,8 +289,5 @@ class PropertyForm extends Component {
     );
   }
 }
-
-PropertyForm.contextTypes = contextTypes;
-PropertyForm.propTypes = propTypes;
 
 export default PropertyForm;

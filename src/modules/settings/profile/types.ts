@@ -2,7 +2,7 @@ export interface IModules {
     _id: string,
 }
 
-export interface IConfigs {
+export interface IConfig {
     _id: string,
     user: string,
     notifType: string,

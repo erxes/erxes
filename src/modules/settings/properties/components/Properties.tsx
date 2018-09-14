@@ -1,35 +1,31 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Dropdown, MenuItem } from 'react-bootstrap';
-import { Wrapper } from 'modules/layout/components';
 import {
-  ModalTrigger,
   Button,
   DropdownToggle,
+  EmptyState,
   Icon,
-  EmptyState
+  ModalTrigger
 } from 'modules/common/components';
-import { PropertyGroupForm, PropertyForm } from '../containers';
-import { Sidebar, PropertyRow } from './';
+import { Wrapper } from 'modules/layout/components';
+import * as React from 'react';
+import { Dropdown, MenuItem } from 'react-bootstrap';
+import { PropertyForm, PropertyGroupForm } from '../containers';
 import { PropertyList } from '../styles';
+import { IFieldGroup } from '../types';
+import { PropertyRow, Sidebar } from './';
 
-const propTypes = {
-  queryParams: PropTypes.object,
-  refetch: PropTypes.func,
-  fieldsGroups: PropTypes.array,
-  currentType: PropTypes.string,
-  removePropertyGroup: PropTypes.func.isRequired,
-  removeProperty: PropTypes.func.isRequired,
-  updatePropertyVisible: PropTypes.func.isRequired,
-  updatePropertyGroupVisible: PropTypes.func.isRequired
+type Props = {
+  queryParams: any,
+  refetch?: () => void,
+  fieldsGroups: IFieldGroup[],
+  currentType: string,
+  removePropertyGroup: (data: { _id: string }) => any,
+  removeProperty: (data: { _id: string }) => void,
+  updatePropertyVisible: (data: { _id: string, isVisible: boolean }) => void,
+  updatePropertyGroupVisible: (data: { _id: string, isVisible: boolean }) => void,
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
-
-class Properties extends Component {
-  constructor(props) {
+class Properties extends React.Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.renderProperties = this.renderProperties.bind(this);
@@ -79,7 +75,7 @@ class Properties extends Component {
     let propertyForm = <PropertyForm queryParams={queryParams} />;
 
     if (fieldsGroups.length === 0) {
-      propertyForm = <center>{__('Please add property Group first')}!</center>;
+      propertyForm = <div>{__('Please add property Group first')}!</div>;
     }
 
     const addGroup = <MenuItem>{__('Add group')}</MenuItem>;
@@ -124,8 +120,5 @@ class Properties extends Component {
     );
   }
 }
-
-Properties.propTypes = propTypes;
-Properties.contextTypes = contextTypes;
 
 export default Properties;

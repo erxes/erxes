@@ -1,12 +1,19 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import { ManageColumns } from '../components';
 import { queries } from 'modules/forms/graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { ManageColumns } from '../components';
 
-const ManageColumnsContainer = props => {
+type Props = {
+  contentType: string,
+  fieldsQuery: any,
+  location: any,
+  history: any,
+  fieldsDefaultColumnsConfigQuery: any
+};
+
+const ManageColumnsContainer = (props: Props) => {
   const {
     fieldsDefaultColumnsConfigQuery,
     fieldsQuery,
@@ -47,16 +54,8 @@ const ManageColumnsContainer = props => {
   return <ManageColumns {...updatedProps} />;
 };
 
-ManageColumnsContainer.propTypes = {
-  contentType: PropTypes.string,
-  fieldsQuery: PropTypes.object,
-  location: PropTypes.object,
-  history: PropTypes.object,
-  fieldsDefaultColumnsConfigQuery: PropTypes.object
-};
-
 export default compose(
-  graphql(gql(queries.fieldsCombinedByContentType), {
+  graphql<Props>(gql(queries.fieldsCombinedByContentType), {
     name: 'fieldsQuery',
     options: ({ contentType }) => {
       return {
@@ -66,7 +65,7 @@ export default compose(
       };
     }
   }),
-  graphql(gql(queries.fieldsDefaultColumnsConfig), {
+  graphql<Props>(gql(queries.fieldsDefaultColumnsConfig), {
     name: 'fieldsDefaultColumnsConfigQuery',
     options: ({ contentType }) => {
       return {

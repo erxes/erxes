@@ -1,25 +1,21 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { SidebarList as List } from 'modules/layout/styles';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 
-const propTypes = {
-  currentType: PropTypes.string,
-  title: PropTypes.string.isRequired
+type Props = {
+  currentType: string,
+  title: string
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
-
-class Sidebar extends Component {
-  constructor(props) {
+class Sidebar extends Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.renderSidebarHeader = this.renderSidebarHeader.bind(this);
   }
+
   renderSidebarHeader() {
     const { __ } = this.context;
     const { title } = this.props;
@@ -65,8 +61,5 @@ class Sidebar extends Component {
     );
   }
 }
-
-Sidebar.propTypes = propTypes;
-Sidebar.contextTypes = contextTypes;
 
 export default Sidebar;

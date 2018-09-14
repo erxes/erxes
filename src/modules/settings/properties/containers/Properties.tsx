@@ -1,16 +1,27 @@
+import gql from 'graphql-tag';
+import { router } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { router } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
-import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
-import { customerBasicInfos, companyBasicInfos } from '../utils';
 import { Properties } from '../components';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
+import { mutations, queries } from '../graphql';
+import { companyBasicInfos, customerBasicInfos } from '../utils';
 
-const PropertiesContainer = props => {
+type Props = {
+  queryParams: any,
+  fieldsGroupsQuery: any,
+  history: any,
+  location: any,
+  match: any,
+  fieldsGroupsRemove: (params: { variables: { _id: string } }) => any,
+  fieldsRemove: (params: { variables: { _id: string } }) => any,
+  fieldsGroupsUpdateVisible: (params: { variables: { _id: string, isVisible: boolean } }) => any,
+  fieldsUpdateVisible: (params: { variables: { _id: string, isVisible: boolean } }) => any
+};
+
+const PropertiesContainer = (props: Props) => {
   const {
     fieldsGroupsQuery,
     history,
@@ -98,16 +109,6 @@ const PropertiesContainer = props => {
   return <Properties {...updatedProps} />;
 };
 
-PropertiesContainer.propTypes = {
-  queryParams: PropTypes.object,
-  fieldsGroupsQuery: PropTypes.object.isRequired,
-  history: PropTypes.object,
-  fieldsGroupsRemove: PropTypes.func.isRequired,
-  fieldsRemove: PropTypes.func.isRequired,
-  fieldsGroupsUpdateVisible: PropTypes.func.isRequired,
-  fieldsUpdateVisible: PropTypes.func.isRequired
-};
-
 const options = ({ queryParams }) => ({
   refetchQueries: [
     {
@@ -118,7 +119,7 @@ const options = ({ queryParams }) => ({
 });
 
 export default compose(
-  graphql(gql(queries.fieldsGroups), {
+  graphql<{ queryParams: any }>(gql(queries.fieldsGroups), {
     name: 'fieldsGroupsQuery',
     options: ({ queryParams }) => ({
       variables: {
@@ -142,4 +143,4 @@ export default compose(
     name: 'fieldsGroupsUpdateVisible',
     options
   })
-)(withRouter(PropertiesContainer));
+)(withRouter<Props>(PropertiesContainer));
