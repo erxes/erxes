@@ -1,31 +1,45 @@
-import * as React from 'react';
 import client from 'apolloClient';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Bulk } from 'modules/common/components';
 import { Alert, uploadHandler } from 'modules/common/utils';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
+import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { queries as tagQueries } from 'modules/tags/graphql';
+import React, { Component } from 'react';
+import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
+import { Bulk } from '../../common/components';
 import { CustomersList } from '../components';
 import { mutations, queries } from '../graphql';
 
-class CustomerListContainer extends Bulk {
+type Props = {
+  customersMainQuery: any,
+  customerCountsQuery: any,
+  customersListConfigQuery: any,
+  customersRemove: (params: { variables: { customerIds: string[] } }) => Promise<void>,
+  customersMerge: (params: {
+    variables: {
+      customerIds: string[],
+      customerFields: any
+    }
+  }) => Promise<void>,
+  tagsQuery: any,
+  brandsQuery: any,
+  queryParams: any,
+  history: any
+};
+
+type State = {
+  loading: boolean
+}
+
+class CustomerListContainer extends Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      ...this.state,
       loading: false
     };
-  }
-
-  refetch() {
-    this.props.customersMainQuery.refetch();
-    this.props.customerCountsQuery.refetch();
   }
 
   render() {
@@ -52,12 +66,12 @@ class CustomerListContainer extends Bulk {
       columnsConfig = JSON.parse(localConfig);
     }
 
-    const removeCustomers = ({ customerIds }) => {
+    const removeCustomers = ({ customerIds }, emptyBulk) => {
       customersRemove({
         variables: { customerIds }
       })
         .then(() => {
-          this.emptyBulk();
+          emptyBulk();
           Alert.success('Success');
         })
         .catch(e => {
@@ -72,19 +86,17 @@ class CustomerListContainer extends Bulk {
           customerFields: data
         }
       })
-        .then(response => {
+        .then(({ data }: any)=> {
           callback();
           Alert.success('Success');
-          history.push(
-            `/customers/details/${response.data.customersMerge._id}`
-          );
+          history.push(`/customers/details/${data.data.customersMerge._id}`);
         })
         .catch(e => {
           Alert.error(e.message);
         });
     };
 
-    const exportCustomers = bulk => {
+    const exportCustomers = (bulk) => {
       const { queryParams } = this.props;
 
       if (bulk.length > 0) {
@@ -98,7 +110,7 @@ class CustomerListContainer extends Bulk {
           query: gql(queries.customersExport),
           variables: { ...queryParams }
         })
-        .then(({ data }) => {
+        .then(({ data }: any) => {
           this.setState({ loading: false });
           window.open(data.customersExport, '_blank');
         })
@@ -163,11 +175,6 @@ class CustomerListContainer extends Bulk {
       brands: brandsQuery.brands || [],
       integrations: KIND_CHOICES.ALL_LIST,
       tags: tagsQuery.tags || [],
-      bulk: this.state.bulk || [],
-      isAllSelected: this.state.isAllSelected,
-      emptyBulk: this.emptyBulk,
-      toggleBulk: this.toggleBulk,
-      toggleAll: this.toggleAll,
       searchValue,
       loading: customersMainQuery.loading || this.state.loading,
       loadingTags: tagsQuery.loading,
@@ -175,21 +182,19 @@ class CustomerListContainer extends Bulk {
       removeCustomers
     };
 
-    return <CustomersList {...updatedProps} />;
+    return (
+      <Bulk
+        content={(props) => {
+          return <CustomersList {...updatedProps} {...props} />;
+        }}
+        refetch={() => {
+          this.props.customersMainQuery.refetch();
+          this.props.customerCountsQuery.refetch();
+        }}
+      />
+    );
   }
 }
-
-CustomerListContainer.propTypes = {
-  customersQuery: PropTypes.object,
-  tagsQuery: PropTypes.object,
-  brandsQuery: PropTypes.object,
-  customerCountsQuery: PropTypes.object,
-  history: PropTypes.object
-};
-
-CustomerListContainer.contextTypes = {
-  __: PropTypes.func
-};
 
 const generateParams = ({ queryParams }) => {
   return {

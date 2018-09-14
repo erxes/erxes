@@ -1,12 +1,24 @@
 import React from 'react';
 import { toggleCheckBoxes } from '../utils';
 
+type Props = {
+  content: (props: {
+    isAllSelected: boolean,
+    bulk: any[],
+    emptyBulk: () => void,
+    toggleBulk: (target: any, toAdd: boolean) => void,
+    toggleAll: (targets: any[], containerId: string) => void
+  }) => React.ReactNode,
+
+  refetch?: () => void,
+}
+
 type State = {
   bulk: string[],
   isAllSelected: boolean,
 }
 
-export default class Bulk extends React.Component<{}, State> {
+export default abstract class Bulk extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -15,10 +27,7 @@ export default class Bulk extends React.Component<{}, State> {
     this.toggleBulk = this.toggleBulk.bind(this);
     this.toggleAll = this.toggleAll.bind(this);
     this.emptyBulk = this.emptyBulk.bind(this);
-    this.refetch = this.refetch.bind(this);
   }
-
-  refetch() {}
 
   toggleBulk(target, toAdd) {
     let { bulk } = this.state;
@@ -48,7 +57,25 @@ export default class Bulk extends React.Component<{}, State> {
   }
 
   emptyBulk() {
-    this.refetch();
+    const { refetch } = this.props;
+
+    if (refetch) {
+      refetch();
+    }
+
     this.setState({ bulk: [], isAllSelected: false });
+  }
+
+  render() {
+    const { toggleBulk, toggleAll, emptyBulk } = this;
+    const { bulk, isAllSelected } = this.state;
+
+    return this.props.content({
+      bulk,
+      isAllSelected,
+      emptyBulk,
+      toggleBulk,
+      toggleAll
+    })
   }
 }
