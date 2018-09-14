@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Label } from './styles';
 
 type Props = {
-  children: string,
+  children?: string,
   ignoreTrans?: boolean
 };
 
