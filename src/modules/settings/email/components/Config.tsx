@@ -13,7 +13,7 @@ type Props = {
   brand: IBrand,
   configEmail: (doc: {}, callback: () => void) => void,
   defaultTemplate: string,
-  closeModal: () => void,
+  closeModal?: () => void,
 };
 
 type State = {
@@ -57,10 +57,6 @@ class Config extends Component<Props, State> {
   }
 
   render() {
-    const onClick = () => {
-      this.props.closeModal;
-    };
-
     const { type, template } = this.state;
 
     const templateControl = (
@@ -94,7 +90,7 @@ class Config extends Component<Props, State> {
         {this.state.type === 'custom' ? templateControl : false}
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={onClick} icon="cancel-1">
+          <Button btnStyle="simple" onClick={this.props.closeModal} icon="cancel-1">
             Cancel
           </Button>
 
