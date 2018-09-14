@@ -1,14 +1,25 @@
-import React, { Component } from 'react';
-import moment from 'moment';
-import PropTypes from 'prop-types';
 import {
   ControlLabel,
-  FormGroup,
-  FormControl
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
+import moment from 'moment';
+import React, { Component } from 'react';
+import { IField } from '../types';
 
-export default class GenerateField extends Component {
-  constructor(props) {
+type Props = {
+  field: IField,
+  onValueChange: (data: { _id: string, value: string }) => void,
+  defaultValue: any
+};
+
+type State = {
+  value: string,
+  checkBoxValues: any[]
+}
+
+export default class GenerateField extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     const defaultValue = props.defaultValue; // eslint-disable-line
@@ -149,7 +160,8 @@ export default class GenerateField extends Component {
     const attrs = {
       id: field._id,
       value: this.state.value,
-      onChange: this.onChange
+      onChange: this.onChange,
+      name: ''
     };
 
     switch (type) {
@@ -176,7 +188,7 @@ export default class GenerateField extends Component {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor={field._id} ignoreTrans>
+        <ControlLabel ignoreTrans>
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}
         </ControlLabel>
@@ -188,8 +200,3 @@ export default class GenerateField extends Component {
     );
   }
 }
-
-GenerateField.propTypes = {
-  field: PropTypes.object,
-  onValueChange: PropTypes.func
-};

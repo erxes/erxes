@@ -1,12 +1,18 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
-import { queries, mutations } from '../graphql';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { PropertyGroupForm } from '../components';
+import { mutations, queries } from '../graphql';
 
-const PropertyGroupFormContainer = props => {
+type Props = {
+  queryParams: any,
+  fieldsGroupsAdd: (fieldsAdd: { variables: { contentType: string } }) => any,
+  fieldsGroupsEdit: (fieldsEdit: { variables: { contentType: string } }) => any,
+  closeModal: () => void,
+};
+
+const PropertyGroupFormContainer = (props: Props) => {
   const { fieldsGroupsAdd, fieldsGroupsEdit, queryParams } = props;
 
   const { type } = queryParams;
@@ -58,16 +64,6 @@ const options = ({ queryParams }) => ({
     }
   ]
 });
-
-PropertyGroupFormContainer.propTypes = {
-  queryParams: PropTypes.object,
-  fieldsGroupsAdd: PropTypes.func.isRequired,
-  fieldsGroupsEdit: PropTypes.func.isRequired
-};
-
-PropertyGroupFormContainer.contextTypes = {
-  closeModal: PropTypes.func
-};
 
 export default compose(
   graphql(gql(mutations.fieldsGroupsAdd), {

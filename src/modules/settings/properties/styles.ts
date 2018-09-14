@@ -1,5 +1,6 @@
+import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
-import { dimensions, colors } from 'modules/common/styles';
+import styledTS from 'styled-components-ts';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
@@ -71,7 +72,7 @@ const CollapseRow = styled.div`
   }
 `;
 
-const DropIcon = styled.i`
+const DropIcon = styledTS<{ isOpen: boolean }>(styled.i)`
   font-style: normal;
 
   &:after {

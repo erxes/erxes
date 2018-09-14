@@ -1,10 +1,9 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Button, SortableList, FormControl } from 'modules/common/components';
+import { Button, FormControl, SortableList } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
+import React, { Component } from 'react';
+import styled from 'styled-components';
+import { IConfig, IContentTypeFields } from '../types';
 
 const Header = styled.div`
   display: flex;
@@ -33,13 +32,18 @@ const Child = styled.div`
   }
 `;
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
+type Props = {
+  fields: IContentTypeFields[],
+  config: IConfig[],
+  save: (columnsConfig: IConfig[]) => void
 };
 
-class ManageColumns extends Component {
-  constructor(props) {
+type State = {
+  fields: IContentTypeFields[]
+}
+
+class ManageColumns extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.onSubmit = this.onSubmit.bind(this);
@@ -56,7 +60,7 @@ class ManageColumns extends Component {
     const columnsConfig = [];
 
     this.state.fields.forEach((field, index) => {
-      const element = document.getElementById(field._id);
+      const element = (document.getElementById(field._id) as HTMLInputElement);
 
       if (element.checked) {
         columnsConfig.push({
@@ -138,13 +142,5 @@ class ManageColumns extends Component {
     );
   }
 }
-
-ManageColumns.propTypes = {
-  fields: PropTypes.array.isRequired,
-  config: PropTypes.array,
-  save: PropTypes.func.isRequired
-};
-
-ManageColumns.contextTypes = contextTypes;
 
 export default ManageColumns;
