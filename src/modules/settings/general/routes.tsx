@@ -1,6 +1,6 @@
+import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import queryString from 'query-string';
 import { List } from './containers';
 
 const routes = () => (

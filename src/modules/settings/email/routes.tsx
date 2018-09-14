@@ -1,15 +1,14 @@
+import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import queryString from 'query-string';
 import { List, Signature } from './containers';
 
 const routes = () => [
-  <Route
-    key="/settings/emails/"
+  key as Route="/settings/emails/"
     exact
     path="/settings/emails/"
     component={({ location }) => {
-      return <List queryParams={queryString.parse(location.search)} />;
+      return queryParams as List={queryString.parse(location.search)} />;
     }}
   />,
 
@@ -18,7 +17,7 @@ const routes = () => [
     exact
     path="/settings/emails/signatures"
     component={({ location }) => {
-      return <Signature queryParams={queryString.parse(location.search)} />;
+      return queryParams as Signature={queryString.parse(location.search)} />;
     }}
   />
 ];

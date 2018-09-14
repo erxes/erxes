@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { Row, RowTitle, Box, BoxName, Divider } from '../styles';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import { Box, BoxName, Divider, Row, RowTitle } from '../styles';
 
 class Settings extends Component {
-  renderBox(name, image, to) {
+  renderBox(name: string, image: string, to: string) {
     return (
       <Box>
         <Link to={to}>

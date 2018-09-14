@@ -1,6 +1,6 @@
-import styled from 'styled-components';
-import { dimensions, colors, typography } from 'modules/common/styles';
+import { colors, dimensions, typography } from 'modules/common/styles';
 import { BoxRoot } from 'modules/common/styles/main';
+import styled from 'styled-components';
 
 const rowTitleSize = 230;
 const boxSize = 150;
