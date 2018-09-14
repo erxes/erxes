@@ -12,7 +12,7 @@ import { ISignature } from '../types';
 type Props = {
   signatures: ISignature[],
   save: (signatures: ISignature[]) => void,
-  closeModal: () => void
+  closeModal?: () => void
 };
 
 type State = {
