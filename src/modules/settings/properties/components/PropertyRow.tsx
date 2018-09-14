@@ -85,16 +85,16 @@ class PropertyRow extends React.Component<Props, State> {
 
     return (
       <tr key={field._id}>
-        <td width="40%">
+        <td>
           {field.text}
           <FieldType>{field.type}</FieldType>
         </td>
-        <td width="40%">
+        <td>
           {field.lastUpdatedUser
             ? field.lastUpdatedUser.details.fullName
             : 'Unknown'}
         </td>
-        <td width="10%">
+        <td>
           <Toggle
             defaultChecked={field.isVisible}
             icons={{
@@ -104,7 +104,7 @@ class PropertyRow extends React.Component<Props, State> {
             onChange={e => this.visibleHandler(e, field)}
           />
         </td>
-        <td width="10%">
+        <td>
           {this.renderActionButtons(
             field,
             removeProperty,
