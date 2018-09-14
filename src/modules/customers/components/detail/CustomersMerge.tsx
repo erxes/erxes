@@ -1,23 +1,26 @@
-import * as React from 'react';
-import moment from 'moment';
-import PropTypes from 'prop-types';
-import { InfoTitle, InfoDetail, Info } from '../../styles';
-import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../../constants';
-import { Title, Columns, Column } from 'modules/common/styles/chooser';
+import { Button, Icon } from 'modules/common/components';
+import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
-import { Icon, Button } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import moment from 'moment';
+import * as React from 'react';
+import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../../constants';
+import { Info, InfoDetail, InfoTitle } from '../../styles';
 
-const propTypes = {
-  objects: PropTypes.array,
-  save: PropTypes.func
+type Props = {
+  objects: any[],
+  save: (doc: {
+    ids: string[],
+    data: any,
+    callback: () => void
+  }) => void,
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func,
-  __: PropTypes.func
-};
+type State = {
+  selectedValues: any;
+}
 
-class CustomersMerge extends React.Component {
+class CustomersMerge extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -145,8 +148,6 @@ class CustomersMerge extends React.Component {
   }
 
   renderMessengerData(data) {
-    const { __ } = this.context;
-
     return (
       <Info>
         <InfoTitle>{__('Last seen at')}:</InfoTitle>
@@ -158,7 +159,6 @@ class CustomersMerge extends React.Component {
   }
 
   renderTwitterData(data) {
-    const { __ } = this.context;
     return (
       <Info>
         <InfoTitle>{__('Name')}: </InfoTitle>
@@ -170,7 +170,6 @@ class CustomersMerge extends React.Component {
   }
 
   renderVisitorContactInfo(data) {
-    const { __ } = this.context;
     return (
       <Info>
         <InfoTitle>{__('E-mail')}: </InfoTitle>
@@ -225,8 +224,5 @@ class CustomersMerge extends React.Component {
     );
   }
 }
-
-CustomersMerge.propTypes = propTypes;
-CustomersMerge.contextTypes = contextTypes;
 
 export default CustomersMerge;

@@ -1,18 +1,22 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Collapse } from 'react-bootstrap';
+import { EmptyState, Icon } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
-import { EmptyState, Icon } from 'modules/common/components';
 import { Tagger } from 'modules/tags/containers';
+import React, { Component } from 'react';
+import { Collapse } from 'react-bootstrap';
 
-const propTypes = {
-  data: PropTypes.object.isRequired,
-  type: PropTypes.string.isRequired,
-  refetchQueries: PropTypes.array
+type Props = {
+  data: any,
+  type: string,
+  refetchQueries?: any[]
 };
 
-class TaggerSection extends Component {
+type State = {
+  isTaggerVisible: boolean,
+}
+
+class TaggerSection extends Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -50,7 +54,6 @@ class TaggerSection extends Component {
 
     const { data, type, refetchQueries } = this.props;
     const tags = data.getTags || [];
-    const { __ } = this.context;
 
     const quickButtons = (
       <a tabIndex={0} onClick={this.toggleTagger}>
@@ -81,10 +84,5 @@ class TaggerSection extends Component {
     );
   }
 }
-
-TaggerSection.propTypes = propTypes;
-TaggerSection.contextTypes = {
-  __: PropTypes.func
-};
 
 export default TaggerSection;

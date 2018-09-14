@@ -1,18 +1,22 @@
+import { EmptyState, ModalTrigger } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Select from 'react-select-plus';
-import PropTypes from 'prop-types';
-import { ModalTrigger, EmptyState } from 'modules/common/components';
 
-const propTypes = {
-  onSave: PropTypes.func.isRequired,
-  object: PropTypes.object.isRequired,
-  searchObject: PropTypes.func,
-  mergeForm: PropTypes.func,
-  options: PropTypes.array,
-  generateOptions: PropTypes.func
+type Props = {
+  onSave: () => void,
+  object: any,
+  searchObject: (value: string, callback: (objects: any[]) => void) => void,
+  mergeForm: any,
+  generateOptions: (objects: any[]) => void
 };
 
-class TargetMergeModal extends React.Component {
+type State = {
+  objects: any[],
+  selectedObject: any
+}
+
+class TargetMergeModal extends React.Component<Props, State> {
   constructor(props, context) {
     super(props, context);
 
@@ -61,11 +65,9 @@ class TargetMergeModal extends React.Component {
   }
 
   render() {
-    const { __ } = this.context;
-
     return (
       <ModalTrigger
-        title={__('Merge')}
+        title={__('Merge').toString()}
         trigger={<a>{__('Merge')}</a>}
         size="lg"
       >
@@ -76,10 +78,5 @@ class TargetMergeModal extends React.Component {
     );
   }
 }
-
-TargetMergeModal.propTypes = propTypes;
-TargetMergeModal.contextTypes = {
-  __: PropTypes.func
-};
 
 export default TargetMergeModal;

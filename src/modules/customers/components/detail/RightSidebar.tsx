@@ -1,11 +1,11 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Sidebar } from 'modules/layout/components';
-import { PortableDeals } from 'modules/deals/containers';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { List } from 'modules/companies/styles';
+import { ICustomer } from 'modules/customers/types';
+import { PortableDeals } from 'modules/deals/containers';
+import { Sidebar } from 'modules/layout/components';
+import * as React from 'react';
 
-export default class RightSidebar extends React.Component {
+export default class RightSidebar extends React.Component<{ customer: ICustomer }> {
   renderOther() {
     const { Section } = Sidebar;
     const { Title } = Section;
@@ -52,11 +52,3 @@ export default class RightSidebar extends React.Component {
     );
   }
 }
-
-RightSidebar.propTypes = {
-  customer: PropTypes.object.isRequired
-};
-
-RightSidebar.contextTypes = {
-  __: PropTypes.func
-};

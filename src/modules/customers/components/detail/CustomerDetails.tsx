@@ -1,31 +1,36 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import { Wrapper } from 'modules/layout/components';
+import { ActivityList } from 'modules/activityLogs/components';
 import {
   DataWithLoader,
+  Icon,
   Tabs,
-  TabTitle,
-  Icon
+  TabTitle
 } from 'modules/common/components';
-import { Form as NoteForm } from 'modules/internalNotes/containers';
-import { ActivityList } from 'modules/activityLogs/components';
-import { WhiteBoxRoot } from 'modules/layout/styles';
-import { renderFullName } from 'modules/common/utils';
 import { ActivityContent } from 'modules/common/styles/main';
+import { __, renderFullName } from 'modules/common/utils';
+import { Form as NoteForm } from 'modules/internalNotes/containers';
+import { Wrapper } from 'modules/layout/components';
+import { WhiteBoxRoot } from 'modules/layout/styles';
+import * as React from 'react';
+import { withRouter } from 'react-router';
+import { IUser } from '../../../auth/types';
+import { ICustomer } from '../../types';
 import { hasAnyActivity } from '../../utils';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 
-const propTypes = {
-  customer: PropTypes.object.isRequired,
-  currentUser: PropTypes.object.isRequired,
-  activityLogsCustomer: PropTypes.array.isRequired,
-  taggerRefetchQueries: PropTypes.array,
-  loadingLogs: PropTypes.bool
+type Props = {
+  customer: ICustomer,
+  currentUser: IUser,
+  activityLogsCustomer: any[],
+  taggerRefetchQueries?: any[],
+  loadingLogs: boolean
 };
 
-class CustomerDetails extends React.Component {
+type State = {
+  currentTab: string
+}
+
+class CustomerDetails extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -54,13 +59,13 @@ class CustomerDetails extends React.Component {
       <ActivityContent isEmpty={!hasActivity}>
         <DataWithLoader
           loading={loadingLogs}
-          count={!loadingLogs && hasActivity > 0 ? 1 : 0}
+          count={!loadingLogs && hasActivity ? 1 : 0}
           data={
             <ActivityList
               user={currentUser}
               activities={activityLogsCustomer}
               target={customer.firstName}
-              type={currentTab} //show logs filtered by type
+              type={currentTab} // show logs filtered by type
             />
           }
           emptyText="No Activities"
@@ -73,7 +78,6 @@ class CustomerDetails extends React.Component {
   render() {
     const { currentTab } = this.state;
     const { customer, taggerRefetchQueries } = this.props;
-    const { __ } = this.context;
 
     const breadcrumb = [
       { title: __('Customers'), link: '/customers' },
@@ -134,10 +138,5 @@ class CustomerDetails extends React.Component {
     );
   }
 }
-
-CustomerDetails.propTypes = propTypes;
-CustomerDetails.contextTypes = {
-  __: PropTypes.func
-};
 
 export default withRouter(CustomerDetails);

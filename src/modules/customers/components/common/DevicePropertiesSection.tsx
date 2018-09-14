@@ -1,17 +1,16 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import parse from 'ua-parser-js';
+import { __ } from 'modules/common/utils';
+import { ICustomer } from 'modules/customers/types';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import * as React from 'react';
+import parse from 'ua-parser-js';
 
-const propTypes = {
-  customer: PropTypes.object.isRequired
+type Props = {
+  customer: ICustomer
 };
 
-class DevicePropertiesSection extends React.Component {
-  renderDeviceProperty(text, value, secondValue, nowrap) {
-    const { __ } = this.context;
-
+class DevicePropertiesSection extends React.Component<Props> {
+  renderDeviceProperty(text: string, value: string, secondValue?: string, nowrap?: boolean) {
     if (value || secondValue) {
       return (
         <li>
@@ -31,7 +30,6 @@ class DevicePropertiesSection extends React.Component {
     const { Title } = Section;
 
     const { customer } = this.props;
-    const { __ } = this.context;
     const location = customer.location;
 
     if (!location) {
@@ -66,10 +64,5 @@ class DevicePropertiesSection extends React.Component {
     );
   }
 }
-
-DevicePropertiesSection.propTypes = propTypes;
-DevicePropertiesSection.contextTypes = {
-  __: PropTypes.func
-};
 
 export default DevicePropertiesSection;

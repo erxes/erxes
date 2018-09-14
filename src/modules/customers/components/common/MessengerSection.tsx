@@ -1,15 +1,18 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
 import { Label } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import moment from 'moment';
+import React from 'react';
+import { ICustomer } from '../../types';
 
-const propTypes = {
-  customer: PropTypes.object.isRequired
+type Props = {
+  customer: ICustomer,
+  // TODO: check query params.
+  queryParams?: any,
 };
 
-function MessengerSection({ customer }, { __, queryParams }) {
+function MessengerSection({ customer, queryParams }: Props) {
   const { Section } = Sidebar;
   const { Title } = Section;
 
@@ -56,11 +59,5 @@ function MessengerSection({ customer }, { __, queryParams }) {
     </Section>
   );
 }
-
-MessengerSection.propTypes = propTypes;
-MessengerSection.contextTypes = {
-  __: PropTypes.func,
-  queryParams: PropTypes.object
-};
 
 export default MessengerSection;

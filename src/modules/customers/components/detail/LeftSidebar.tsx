@@ -1,18 +1,24 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Sidebar } from 'modules/layout/components';
 import {
   BasicInfoSection,
   CustomFieldsSection
 } from 'modules/customers/containers/common';
+import { Sidebar } from 'modules/layout/components';
+import * as React from 'react';
 
+import { ICustomer } from 'modules/customers/types';
 import {
-  TaggerSection,
+  DevicePropertiesSection,
   MessengerSection,
-  DevicePropertiesSection
+  TaggerSection
 } from '../common';
 
-export default class LeftSidebar extends React.Component {
+type Props = {
+  customer: ICustomer,
+  taggerRefetchQueries?: any[],
+  wide?: boolean 
+};
+
+export default class LeftSidebar extends React.Component<Props> {
   render() {
     const { customer, wide, taggerRefetchQueries } = this.props;
 
@@ -31,9 +37,3 @@ export default class LeftSidebar extends React.Component {
     );
   }
 }
-
-LeftSidebar.propTypes = {
-  customer: PropTypes.object.isRequired,
-  taggerRefetchQueries: PropTypes.array,
-  wide: PropTypes.bool
-};

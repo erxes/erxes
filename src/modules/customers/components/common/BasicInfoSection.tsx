@@ -1,29 +1,29 @@
-import React, { Fragment, Component } from 'react';
-import PropTypes from 'prop-types';
-import { Dropdown } from 'react-bootstrap';
-import {
-  DropdownToggle,
-  Button,
-  Icon,
-  NameCard,
-  ModalTrigger
-} from 'modules/common/components';
-import { searchCustomer, renderFullName, confirm } from 'modules/common/utils';
-import { Links, InfoWrapper } from 'modules/common/styles/main';
-import { Sidebar } from 'modules/layout/components';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
+import {
+  Button,
+  DropdownToggle,
+  Icon,
+  ModalTrigger,
+  NameCard
+} from 'modules/common/components';
+import { InfoWrapper, Links } from 'modules/common/styles/main';
+import { __, confirm, renderFullName, searchCustomer } from 'modules/common/utils';
+import { CustomersMerge, TargetMerge } from 'modules/customers/components';
 import { CustomerForm } from 'modules/customers/containers';
 import { Action } from 'modules/customers/styles';
-import { TargetMerge, CustomersMerge } from 'modules/customers/components';
+import { ICustomer } from 'modules/customers/types';
+import { Sidebar } from 'modules/layout/components';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import React, { Component, Fragment } from 'react';
+import { Dropdown } from 'react-bootstrap';
 
-const propTypes = {
-  customer: PropTypes.object.isRequired,
-  remove: PropTypes.func.isRequired,
-  merge: PropTypes.func.isRequired
+type Props = {
+  customer: ICustomer
+  remove: () => void,
+  merge: () => void,
 };
 
-class BasicInfo extends Component {
+class BasicInfo extends Component<Props> {
   renderLink(link, icon) {
     if (link) {
       return (
@@ -49,8 +49,6 @@ class BasicInfo extends Component {
   }
 
   renderRow(label, value) {
-    const { __ } = this.context;
-
     return (
       <li>
         {__(`${label}`)}:
@@ -60,7 +58,6 @@ class BasicInfo extends Component {
   }
 
   renderAction() {
-    const { __ } = this.context;
     const { remove, merge, customer } = this.props;
 
     return (
@@ -156,8 +153,6 @@ class BasicInfo extends Component {
     const { Section } = Sidebar;
     const { Title } = Section;
 
-    const { __ } = this.context;
-
     return (
       <Section>
         <Title>{__('Profile')}</Title>
@@ -167,10 +162,5 @@ class BasicInfo extends Component {
     );
   }
 }
-
-BasicInfo.propTypes = propTypes;
-BasicInfo.contextTypes = {
-  __: PropTypes.func
-};
 
 export default BasicInfo;

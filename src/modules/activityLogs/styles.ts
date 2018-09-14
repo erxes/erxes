@@ -1,6 +1,7 @@
-import styled from 'styled-components';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { WhiteBox } from 'modules/layout/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const iconWrapperWidth = '80px';
 
@@ -46,7 +47,7 @@ const FlexBody = styled.div`
   align-self: center;
 `;
 
-const AvatarWrapper = styled.div`
+const AvatarWrapper = styledTS<{ isUser?: boolean }>(styled.div)`
   margin-right: ${dimensions.coreSpacing}px;
   position: relative;
 

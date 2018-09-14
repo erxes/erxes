@@ -1,23 +1,19 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import { __, renderFullName } from 'modules/common/utils';
+import { ICustomer } from 'modules/customers/types';
 import { Sidebar } from 'modules/layout/components';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
-import { ModalTrigger, Icon, EmptyState } from 'modules/common/components';
-import { renderFullName } from 'modules/common/utils';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { CustomerChooser } from '../../containers';
 
-const propTypes = {
-  name: PropTypes.string,
-  customers: PropTypes.array,
-  onSelect: PropTypes.func
+type Props = {
+  name: string,
+  customers: ICustomer[],
+  onSelect: () => void,
 };
 
-const defaultProps = {
-  customers: []
-};
-
-function CustomerSection({ name, customers, onSelect }, { __ }) {
+function CustomerSection({ name, customers, onSelect }: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
@@ -68,11 +64,5 @@ function CustomerSection({ name, customers, onSelect }, { __ }) {
     </Section>
   );
 }
-
-CustomerSection.propTypes = propTypes;
-CustomerSection.contextTypes = {
-  __: PropTypes.func
-};
-CustomerSection.defaultProps = defaultProps;
 
 export default CustomerSection;
