@@ -1,55 +1,55 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { ChromePicker } from 'react-color';
 import {
+  ControlLabel,
   FormControl,
-  FormGroup,
-  ControlLabel
-} from 'modules/common/components';
-import { FormPreview } from './preview';
-import { LeftItem, Preview } from 'modules/common/components/step/styles';
-import { FlexItem, ColorPicker, Picker, BackgroundSelector } from './style';
+  FormGroup
+} from "modules/common/components";
+import { LeftItem, Preview } from "modules/common/components/step/styles";
+import { __ } from "modules/common/utils";
+import React, { Component, Fragment } from "react";
+import { OverlayTrigger, Popover } from "react-bootstrap";
+import { ChromePicker } from "react-color";
+import { FormPreview } from "./preview";
+import { BackgroundSelector, ColorPicker, FlexItem, Picker } from "./style";
 
-const propTypes = {
-  type: PropTypes.string,
-  formTitle: PropTypes.string,
-  formBtnText: PropTypes.string,
-  formDesc: PropTypes.string,
-  color: PropTypes.string,
-  theme: PropTypes.string,
-  language: PropTypes.string,
-  onChange: PropTypes.func,
-  fields: PropTypes.array,
-  brand: PropTypes.object,
-  brands: PropTypes.array,
-  onFieldEdit: PropTypes.func
+type Props = {
+  type: string;
+  formTitle: string;
+  formBtnText: string;
+  formDesc: string;
+  color: string;
+  theme: string;
+  language: string;
+  onChange: (name, value) => void;
+  fields: any;
+  brand: any;
+  brands: any;
+  onFieldEdit?: () => void;
 };
 
-class OptionStep extends Component {
-  constructor(props) {
+class OptionStep extends Component<Props, {}> {
+  constructor(props: Props) {
     super(props);
 
     this.onColorChange = this.onColorChange.bind(this);
     this.onChangeFunction = this.onChangeFunction.bind(this);
   }
 
-  onChangeFunction(name, value) {
+  onChangeFunction(name: string, value: string) {
     this.props.onChange(name, value);
   }
 
   onColorChange(e) {
-    this.setState({ color: e.hex, theme: '#000' }, () => {
-      this.props.onChange('color', e.hex);
-      this.props.onChange('theme', '');
+    this.setState({ color: e.hex, theme: "#000" }, () => {
+      this.props.onChange("color", e.hex);
+      this.props.onChange("theme", "");
     });
   }
 
-  renderThemeColor(value) {
+  renderThemeColor(value: string) {
     return (
       <BackgroundSelector
         selected={this.props.theme === value}
-        onClick={() => this.onChangeFunction('theme', value)}
+        onClick={() => this.onChangeFunction("theme", value)}
       >
         <div style={{ backgroundColor: value }} />
       </BackgroundSelector>
@@ -58,7 +58,6 @@ class OptionStep extends Component {
 
   render() {
     const { brands, language, brand = {} } = this.props;
-    const { __ } = this.context;
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -75,7 +74,9 @@ class OptionStep extends Component {
               componentClass="select"
               defaultValue={brand._id}
               id="selectBrand"
-              onChange={e => this.onChangeFunction('brand', e.target.value)}
+              onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                this.onChangeFunction("brand", e.currentTarget.value)
+              }
             >
               <option />
               {brands &&
@@ -93,7 +94,9 @@ class OptionStep extends Component {
               componentClass="select"
               defaultValue={language}
               id="languageCode"
-              onChange={e => this.onChangeFunction('language', e.target.value)}
+              onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                this.onChangeFunction("language", e.currentTarget.value)
+              }
             >
               <option />
               <option value="mn">Монгол</option>
@@ -103,16 +106,16 @@ class OptionStep extends Component {
 
           <FormGroup>
             <ControlLabel>Theme color</ControlLabel>
-            <p>{__('Try some of these colors:')}</p>
+            <p>{__("Try some of these colors:")}</p>
           </FormGroup>
 
           <Fragment>
-            {this.renderThemeColor('#04A9F5')}
-            {this.renderThemeColor('#392a6f')}
-            {this.renderThemeColor('#fd3259')}
-            {this.renderThemeColor('#67C682')}
-            {this.renderThemeColor('#F5C22B')}
-            {this.renderThemeColor('#2d2d32')}
+            {this.renderThemeColor("#04A9F5")}
+            {this.renderThemeColor("#392a6f")}
+            {this.renderThemeColor("#fd3259")}
+            {this.renderThemeColor("#67C682")}
+            {this.renderThemeColor("#F5C22B")}
+            {this.renderThemeColor("#2d2d32")}
             <OverlayTrigger
               trigger="click"
               rootClose
@@ -133,10 +136,5 @@ class OptionStep extends Component {
     );
   }
 }
-
-OptionStep.propTypes = propTypes;
-OptionStep.contextTypes = {
-  __: PropTypes.func
-};
 
 export default OptionStep;

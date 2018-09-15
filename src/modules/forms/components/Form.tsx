@@ -1,31 +1,64 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { Alert } from 'modules/common/utils';
-import { Button, FormControl, Step, Steps } from 'modules/common/components';
-import {
-  ChooseType,
-  CallOut,
-  SuccessStep,
-  OptionStep,
-  FormStep,
-  FullPreviewStep
-} from './step';
+import { Button, FormControl, Step, Steps } from "modules/common/components";
 import {
   StepWrapper,
   TitleContainer
-} from 'modules/common/components/step/styles';
+} from "modules/common/components/step/styles";
+import { Alert } from "modules/common/utils";
+import { __ } from "modules/common/utils";
+import { Wrapper } from "modules/layout/components";
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import { IBrand } from "../../settings/brands/types";
+import { IFormIntegration } from "../types";
+import {
+  CallOut,
+  ChooseType,
+  FormStep,
+  FullPreviewStep,
+  OptionStep,
+  SuccessStep
+} from "./step";
 
-const propTypes = {
-  integration: PropTypes.object,
-  brands: PropTypes.array,
-  fields: PropTypes.array,
-  loading: PropTypes.bool,
-  save: PropTypes.func
+type Props = {
+  integration?: IFormIntegration;
+  brands?: IBrand[];
+  fields?: any;
+  loading?: boolean;
+  save: (params) => void;
 };
 
-class Form extends Component {
+type State = {
+  activeStep: number;
+  type: string;
+  brand: string;
+  language: string;
+  title: string;
+  calloutTitle: string;
+  formTitle: string;
+  bodyValue: string;
+  formDesc: string;
+  thankContent: string;
+  formBtnText: string;
+  calloutBtnText: string;
+  theme: string;
+  logoPreviewUrl: string;
+  fields: any;
+  isSkip: boolean;
+  color?: string;
+
+  successAction?: string;
+  fromEmail?: string;
+  userEmailTitle?: string;
+  userEmailContent?: string;
+  adminEmails?: string[];
+  adminEmailTitle?: string;
+  adminEmailContent?: string;
+  redirectUrl?: string;
+  preview?: string;
+  carousel?: string;
+};
+
+class Form extends Component<Props, State> {
   constructor(props, context) {
     super(props, context);
 
@@ -38,18 +71,18 @@ class Form extends Component {
 
     this.state = {
       activeStep: 1,
-      type: formData.loadType || 'shoutbox',
+      type: formData.loadType || "shoutbox",
       brand: integration.brandId,
       language: integration.languageCode,
       title: integration.name,
-      calloutTitle: callout.title || __('Title'),
-      formTitle: form.title || __('Contact'),
-      bodyValue: callout.body || '',
-      formDesc: form.description || '',
-      thankContent: formData.thankContent || __('Thank you.'),
-      formBtnText: form.buttonText || __('Send'),
-      calloutBtnText: callout.buttonText || 'Start',
-      theme: form.themeColor || '#6569DF',
+      calloutTitle: callout.title || __("Title"),
+      formTitle: form.title || __("Contact"),
+      bodyValue: callout.body || "",
+      formDesc: form.description || "",
+      thankContent: formData.thankContent || __("Thank you."),
+      formBtnText: form.buttonText || __("Send"),
+      calloutBtnText: callout.buttonText || "Start",
+      theme: form.themeColor || "#6569DF",
       logoPreviewUrl: callout.featuredImage,
       fields: fields || [],
       isSkip: callout.skip && true
@@ -64,14 +97,13 @@ class Form extends Component {
     e.preventDefault();
 
     const { brand, calloutTitle, title } = this.state;
-    const { __ } = this.context;
 
     if (!title) {
-      return Alert.error(__('Write title'));
+      return Alert.error(__("Write title"));
     }
 
     if (!brand) {
-      return Alert.error(__('Choose brand'));
+      return Alert.error(__("Choose brand"));
     }
 
     this.props.save({
@@ -159,21 +191,22 @@ class Form extends Component {
     } = this.state;
 
     const { integration, brands } = this.props;
-    const { __ } = this.context;
 
     const formData = integration && integration.formData;
     const brand = integration && (integration.brand || {});
-    const breadcrumb = [{ title: __('Leads'), link: '/forms' }];
-    const constant = isSkip ? 'form' : 'callout';
+    const breadcrumb = [{ title: __("Leads"), link: "/forms" }];
+    const constant = isSkip ? "form" : "callout";
 
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
         <TitleContainer>
-          <div>{__('Title')}</div>
+          <div>{__("Title")}</div>
           <FormControl
             required
-            onChange={e => this.onChange('title', e.target.value)}
+            onChange={(e: React.FormEvent<HTMLInputElement>) =>
+              this.onChange("title", e.currentTarget.value)
+            }
             defaultValue={title}
           />
         </TitleContainer>
@@ -202,7 +235,7 @@ class Form extends Component {
               skip={isSkip}
             />
           </Step>
-          <Step img="/images/icons/erxes-12.svg" title={__('Form')}>
+          <Step img="/images/icons/erxes-12.svg" title={"Form"}>
             <FormStep
               onChange={this.onChange}
               formTitle={formTitle}
@@ -258,7 +291,7 @@ class Form extends Component {
               theme={theme}
               image={logoPreviewUrl}
               fields={fields}
-              preview={preview || 'desktop'}
+              preview={preview || "desktop"}
               thankContent={thankContent}
               skip={isSkip}
               carousel={carousel || constant}
@@ -269,10 +302,5 @@ class Form extends Component {
     );
   }
 }
-
-Form.propTypes = propTypes;
-Form.contextTypes = {
-  __: PropTypes.func
-};
 
 export default Form;

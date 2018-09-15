@@ -1,12 +1,13 @@
-import styled from 'styled-components';
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { fadeIn } from 'modules/common/utils/animations';
+import { colors, dimensions } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
 import {
+  DragHandler,
   SortableWrapper,
-  SortItem,
-  DragHandler
-} from 'modules/common/styles/sort';
+  SortItem
+} from "modules/common/styles/sort";
+import { fadeIn } from "modules/common/utils/animations";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const PreviewTitle = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -15,12 +16,12 @@ const PreviewTitle = styled.div`
   text-align: center;
 `;
 
-const PreviewBody = styled.div`
+const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
   padding: ${dimensions.coreSpacing}px;
   color: ${colors.textPrimary};
   display: flex;
   overflow: auto;
-  max-height: ${props => (props.embedded ? '500px' : '300px')};
+  max-height: ${props => (props.embedded ? "500px" : "300px")};
   background-color: ${colors.bgLight};
 
   img {
@@ -165,7 +166,7 @@ const Embedded = styled.div`
   box-shadow: 0 0 ${dimensions.unitSpacing}px ${colors.colorShadowGray} inset;
 `;
 
-const FieldItem = styled.div`
+const FieldItem = styledTS<{ selectType?: boolean }>(styled.div)`
   padding: 0 ${dimensions.unitSpacing}px;
 
   input,
@@ -179,7 +180,7 @@ const FieldItem = styled.div`
     padding: 8px 14px;
     width: 100%;
     background: ${colors.colorWhite};
-    margin-top: ${props => !props.selectType && '10px'};
+    margin-top: ${props => !props.selectType && "10px"};
 
     &:focus {
       box-shadow: none;
@@ -191,8 +192,8 @@ const FieldItem = styled.div`
     }
   }
 
-  input[type='checkbox'],
-  input[type='radio'] {
+  input[type="checkbox"],
+  input[type="radio"] {
     width: auto;
     height: auto;
     display: inline-block;
