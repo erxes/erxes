@@ -4,8 +4,8 @@ import * as React from 'react';
 
 type Props = {
   object: any,
-  save: (params: { doc: any}, callback: () => void, object: any) => void,
-  closeModal: () => void,
+  save?: (params: { doc: any}, callback: () => void, object: any) => void,
+  closeModal?: () => void,
 };
 
 class Form extends React.Component<Props> {

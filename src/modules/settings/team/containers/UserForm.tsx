@@ -1,12 +1,16 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { UserForm } from '../components';
 import { Spinner } from 'modules/common/components';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { UserForm } from '../components';
 import { queries } from '../graphql';
 
-const UserFormContainer = props => {
+type Props = {
+  object: any,
+  channelsQuery: any
+};
+
+const UserFormContainer = (props: Props) => {
   const { object = {}, channelsQuery } = props;
 
   if (channelsQuery.loading) {
@@ -28,11 +32,6 @@ const UserFormContainer = props => {
   };
 
   return <UserForm {...updatedProps} />;
-};
-
-UserFormContainer.propTypes = {
-  object: PropTypes.object,
-  channelsQuery: PropTypes.object
 };
 
 export default compose(

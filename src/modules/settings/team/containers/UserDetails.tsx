@@ -1,15 +1,26 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { UserDetails } from '../components';
+import { mutations, queries } from '../graphql';
 
-const UserDetailsContainer = (props, context) => {
+type Props = {
+  id: string,
+  userDetailQuery: any,
+  usersEdit: (params: { variables: any }) => any,
+  channelsQuery: any,
+  usersEditProfile: (params: { variables: any }) => any,
+  userActivityLogQuery: any,
+  userConversationsQuery: any,
+  currentUser: any
+};
+
+const UserDetailsContainer = (props: Props) => {
   const {
     userDetailQuery,
     usersEdit,
+    currentUser,
     channelsQuery,
     usersEditProfile,
     userActivityLogQuery,
@@ -55,24 +66,10 @@ const UserDetailsContainer = (props, context) => {
     loadingLogs: userActivityLogQuery.loading,
     activityLogsUser: userActivityLogQuery.activityLogsUser || [],
     channels: channelsQuery.channels || [],
-    currentUser: context.currentUser
+    currentUser
   };
 
   return <UserDetails {...updatedProps} />;
-};
-
-UserDetailsContainer.propTypes = {
-  id: PropTypes.string,
-  userDetailQuery: PropTypes.object,
-  usersEdit: PropTypes.func,
-  channelsQuery: PropTypes.object,
-  usersEditProfile: PropTypes.func,
-  userActivityLogQuery: PropTypes.object,
-  userConversationsQuery: PropTypes.object
-};
-
-UserDetailsContainer.contextTypes = {
-  currentUser: PropTypes.object
 };
 
 const options = ({ id }) => ({
@@ -85,7 +82,7 @@ const options = ({ id }) => ({
 export default compose(
   graphql(gql(queries.userDetail), {
     name: 'userDetailQuery',
-    options: ({ id }) => ({
+    options: ({ id } : { id: string }) => ({
       variables: {
         _id: id
       }
@@ -93,7 +90,7 @@ export default compose(
   }),
   graphql(gql(queries.userConversations), {
     name: 'userConversationsQuery',
-    options: ({ id, queryParams }) => ({
+    options: ({ id, queryParams } : { id: string, queryParams: any }) => ({
       variables: {
         _id: id,
         perPage: queryParams.limit || 20
@@ -102,13 +99,13 @@ export default compose(
   }),
   graphql(gql(queries.channels), {
     name: 'channelsQuery',
-    options: ({ id }) => ({
+    options: ({ id } : { id: string }) => ({
       variables: { memberIds: [id] }
     })
   }),
   graphql(gql(queries.userActivityLog), {
     name: 'userActivityLogQuery',
-    options: ({ id }) => ({
+    options: ({ id } : { id: string }) => ({
       variables: { _id: id }
     })
   }),

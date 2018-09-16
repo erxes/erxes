@@ -1,8 +1,7 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose } from 'react-apollo';
 import { confirm } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose } from 'react-apollo';
 
 const commonListComposer = options => {
   const {
@@ -15,7 +14,15 @@ const commonListComposer = options => {
     ListComponent
   } = options;
 
-  const ListContainer = props => {
+  type Props = {
+    totalCountQuery: any,
+    listQuery: any,
+    addMutation: ({ variables: any }) => any,
+    editMutation: ({ variables: any }) => any,
+    removeMutation: ({ variables: { _id: string } }) => any,
+  };
+
+  const ListContainer = (props: Props) => {
     const {
       listQuery,
       totalCountQuery,
@@ -30,7 +37,7 @@ const commonListComposer = options => {
 
     // remove action
     const remove = _id => {
-      confirm().then(() => {
+      confirm('Are you sure?').then(() => {
         removeMutation({
           variables: { _id }
         })
@@ -39,7 +46,7 @@ const commonListComposer = options => {
             listQuery.refetch();
             totalCountQuery.refetch();
 
-            Alert.success('Congrats', 'Successfully deleted.');
+            Alert.success('Congrats, Successfully deleted.');
           })
           .catch(error => {
             Alert.error(error.message);
@@ -84,14 +91,6 @@ const commonListComposer = options => {
     };
 
     return <ListComponent {...updatedProps} />;
-  };
-
-  ListContainer.propTypes = {
-    totalCountQuery: PropTypes.object,
-    listQuery: PropTypes.object,
-    addMutation: PropTypes.func,
-    editMutation: PropTypes.func,
-    removeMutation: PropTypes.func
   };
 
   if (gqlAddMutation) {
