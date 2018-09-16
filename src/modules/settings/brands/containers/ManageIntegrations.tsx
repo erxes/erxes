@@ -34,12 +34,8 @@ class ManageIntegrationsContainer extends Component<Props> {
         key={integration._id}
         title="Choose new brand"
         trigger={actionTrigger}
-      >
-        <ChooseBrand
-          integration={integration}
-          onSave={() => handleChange(icon, integration)}
-        />
-      </ModalTrigger>
+        content={(props) => <ChooseBrand {...props} integration={integration} onSave={() => handleChange(icon, integration)} />}
+      />
     );
   }
 

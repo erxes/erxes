@@ -40,12 +40,12 @@ class Channels extends Component<Props, {}> {
     );
 
     const rightActionBar = currentChannel._id && (
-      <ModalTrigger title="Manage Integration" trigger={trigger} size="lg">
-        <ManageIntegrations
-          queryParams={queryParams}
-          currentChannel={currentChannel}
-        />
-      </ModalTrigger>
+      <ModalTrigger 
+        title="Manage Integration" 
+        trigger={trigger} 
+        size="lg"
+        content={(props) => <ManageIntegrations {...props} queryParams={queryParams} currentChannel={currentChannel} />}
+      />
     );
 
     return (

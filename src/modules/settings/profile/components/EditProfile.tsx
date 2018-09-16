@@ -81,11 +81,8 @@ class EditProfile extends Component<Props, State> {
           <ModalTrigger
             title="Enter your password to Confirm"
             trigger={saveButton}
-          >
-            <PasswordConfirmation
-              onSuccess={password => this.handleSubmit(password)}
-            />
-          </ModalTrigger>
+            content={(props) => <PasswordConfirmation {...props} onSuccess={password => this.handleSubmit(password)} /> }
+          />
         </ModalFooter>
       </Fragment>
     );
