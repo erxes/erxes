@@ -1,23 +1,19 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import { ModalTrigger, Icon, Tip, EmptyState } from 'modules/common/components';
-import { urlParser } from 'modules/common/utils';
+import { EmptyState, Icon, ModalTrigger, Tip } from 'modules/common/components';
+import { __, urlParser } from 'modules/common/utils';
+import { ICompany } from 'modules/companies/types';
 import { Sidebar } from 'modules/layout/components';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { CompanyChooser } from '../../containers';
 
-const propTypes = {
-  name: PropTypes.string,
-  companies: PropTypes.array,
-  onSelect: PropTypes.func
+type Props = {
+  name: string,
+  companies: ICompany[],
+  onSelect: (companies: ICompany[]) => void,
 };
 
-const defaultProps = {
-  companies: []
-};
-
-function CompanySection({ name, companies, onSelect }, { __ }) {
+function CompanySection({ name, companies, onSelect }: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
@@ -28,9 +24,14 @@ function CompanySection({ name, companies, onSelect }, { __ }) {
   );
 
   const quickButtons = (
-    <ModalTrigger title="Associate" trigger={companyTrigger} size="lg">
-      <CompanyChooser data={{ name, companies }} onSelect={onSelect} />
-    </ModalTrigger>
+    <ModalTrigger 
+      title="Associate" 
+      trigger={companyTrigger} 
+      size="lg"
+      content={(props) => (
+        <CompanyChooser {...props} data={{ name, companies: companies || [] }} onSelect={onSelect} />
+      )}
+     />
   );
 
   const content = (
@@ -64,11 +65,5 @@ function CompanySection({ name, companies, onSelect }, { __ }) {
     </Section>
   );
 }
-
-CompanySection.propTypes = propTypes;
-CompanySection.contextTypes = {
-  __: PropTypes.func
-};
-CompanySection.defaultProps = defaultProps;
 
 export default CompanySection;

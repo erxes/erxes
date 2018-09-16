@@ -1,18 +1,41 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
 import { Bulk } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { TAG_TYPES } from 'modules/tags/constants';
-import { mutations, queries } from '../graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
 import { CompaniesList } from '../components';
+import { mutations, queries } from '../graphql';
 
-class CompanyListContainer extends Bulk {
-  refetch() {
-    this.props.companiesMainQuery.refetch();
-    this.props.companyCountsQuery.refetch();
+type Props = {
+  queryParams?: any,
+  companiesMainQuery?: any,
+  companyCountsQuery?: any,
+  companiesListConfigQuery?: any,
+  companiesRemove: (params: { variables: { companyIds: string[] } }) => Promise<any>,
+  companiesMerge: (params: {
+    variables: {
+      companyIds: string[],
+      companyFields: any
+    }
+  }) => Promise<any>,
+  tagsQuery?: any,
+  loading?: boolean,
+  history: any,
+};
+
+type State = {
+  loading: boolean
+};
+
+class CompanyListContainer extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      loading: false,
+    };
   }
 
   render() {
@@ -36,12 +59,12 @@ class CompanyListContainer extends Bulk {
       columnsConfig = JSON.parse(localConfig);
     }
 
-    const removeCompanies = ({ companyIds }) => {
+    const removeCompanies = ({ companyIds }, emptyBulk) => {
       companiesRemove({
         variables: { companyIds }
       })
         .then(() => {
-          this.emptyBulk();
+          emptyBulk();
           Alert.success('Success');
         })
         .catch(e => {
@@ -91,29 +114,25 @@ class CompanyListContainer extends Bulk {
       tags: tagsQuery.tags || [],
       searchValue,
       companies: list,
-      loading: companiesMainQuery.loading,
-      bulk: this.state.bulk || [],
-      isAllSelected: this.state.isAllSelected,
-      emptyBulk: this.emptyBulk,
-      toggleBulk: this.toggleBulk,
-      toggleAll: this.toggleAll,
+      loading: companiesMainQuery.loading || this.state.loading,
       removeCompanies,
       mergeCompanies,
       loadingTags: tagsQuery.loading
     };
 
-    return <CompaniesList {...updatedProps} />;
+    return (
+      <Bulk
+        content={props => {
+          return <CompaniesList {...updatedProps} {...props} />
+        }}
+        refetch={() => {
+          this.props.companiesMainQuery.refetch();
+          this.props.companyCountsQuery.refetch();
+        }}
+      />
+    );
   }
 }
-
-CompanyListContainer.propTypes = {
-  queryParams: PropTypes.object,
-  companiesMainQuery: PropTypes.object,
-  companyCountsQuery: PropTypes.object,
-  companiesListConfigQuery: PropTypes.object,
-  tagsQuery: PropTypes.object,
-  loading: PropTypes.bool
-};
 
 const generateParams = ({ queryParams }) => ({
   variables: {

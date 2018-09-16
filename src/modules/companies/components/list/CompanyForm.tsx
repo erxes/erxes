@@ -1,41 +1,49 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import Select from 'react-select-plus';
 import {
-  Button,
   AvatarUpload,
-  FormGroup,
-  FormControl,
+  Button,
   ControlLabel,
+  FormControl,
+  FormGroup,
   ModifiableSelect
 } from 'modules/common/components';
 import {
-  ModalFooter,
-  FormWrapper,
+  ColumnTitle,
   FormColumn,
-  ColumnTitle
+  FormWrapper,
+  ModalFooter
 } from 'modules/common/styles/main';
-import { searchCompany, searchUser } from 'modules/common/utils';
-import {
-  COMPANY_INDUSTRY_TYPES,
-  COMPANY_BUSINESS_TYPES
-} from '../../constants';
+import { __, searchCompany, searchUser } from 'modules/common/utils';
 import {
   leadStatusChoices,
   lifecycleStateChoices
 } from 'modules/customers/utils';
+import * as React from 'react';
+import Select from 'react-select-plus';
+import { IUser } from '../../../auth/types';
+import {
+  COMPANY_BUSINESS_TYPES,
+  COMPANY_INDUSTRY_TYPES
+} from '../../constants';
+import { ICompany, ICompanyDoc } from '../../types';
 
-const propTypes = {
-  action: PropTypes.func.isRequired,
-  company: PropTypes.object
+type Props = {
+  action: (params: { doc: ICompanyDoc }) => void,
+  company: ICompany,
+  closeModal: () => void,
 };
 
-const contextTypes = {
-  __: PropTypes.func.isRequired,
-  closeModal: PropTypes.func.isRequired
+type State = {
+  parentCompanyId: string,
+  ownerId: string,
+  companies: ICompany[],
+  doNotDisturb: string,
+  users: IUser[]
+  avatar: string,
+  names: string[],
+  primaryName: string,
 };
 
-class CompanyForm extends React.Component {
+class CompanyForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -52,7 +60,9 @@ class CompanyForm extends React.Component {
       companies,
       doNotDisturb: company.doNotDisturb || 'No',
       users: [],
-      avatar: company.avatar
+      avatar: company.avatar,
+      names: [],
+      primaryName: '',
     };
 
     this.action = this.action.bind(this);
@@ -65,9 +75,13 @@ class CompanyForm extends React.Component {
   }
 
   componentDidMount() {
-    const { company = {} } = this.props;
+    const company = this.props.company || {} as ICompany;
 
     if (company.ownerId) this.handleUserSearch(company.owner.details.fullName);
+  }
+
+  getInputElementValue(id) {
+    return (document.getElementById(id) as HTMLInputElement).value;
   }
 
   action(e) {
@@ -79,29 +93,29 @@ class CompanyForm extends React.Component {
         names,
         primaryName,
         avatar,
-        size: document.getElementById('company-size').value,
-        industry: document.getElementById('company-industry').value,
+        size: parseInt(this.getInputElementValue('company-size'), 10),
+        industry: this.getInputElementValue('company-industry'),
         parentCompanyId: this.state.parentCompanyId,
-        email: document.getElementById('company-email').value,
+        email: this.getInputElementValue('company-email'),
         ownerId: this.state.ownerId,
-        phone: document.getElementById('company-phone').value,
-        leadStatus: document.getElementById('company-leadStatus').value,
-        lifecycleState: document.getElementById('company-lifecycleState').value,
-        businessType: document.getElementById('company-businessType').value,
-        description: document.getElementById('company-description').value,
+        phone: this.getInputElementValue('company-phone'),
+        leadStatus: this.getInputElementValue('company-leadStatus'),
+        lifecycleState: this.getInputElementValue('company-lifecycleState'),
+        businessType: this.getInputElementValue('company-businessType'),
+        description: this.getInputElementValue('company-description'),
         doNotDisturb: this.state.doNotDisturb,
         links: {
-          linkedIn: document.getElementById('company-linkedIn').value,
-          twitter: document.getElementById('company-twitter').value,
-          facebook: document.getElementById('company-facebook').value,
-          github: document.getElementById('company-github').value,
-          youtube: document.getElementById('company-youtube').value,
-          website: document.getElementById('company-website').value
+          linkedIn: this.getInputElementValue('company-linkedIn'),
+          twitter: this.getInputElementValue('company-twitter'),
+          facebook: this.getInputElementValue('company-facebook'),
+          github: this.getInputElementValue('company-github'),
+          youtube: this.getInputElementValue('company-youtube'),
+          website: this.getInputElementValue('company-website'),
         }
       }
     });
 
-    this.context.closeModal();
+    this.props.closeModal();
   }
 
   onAvatarUpload(url) {
@@ -163,8 +177,8 @@ class CompanyForm extends React.Component {
   }
 
   render() {
-    const { __ } = this.context;
-    const { company = {} } = this.props;
+    const company = this.props.company || {} as ICompany;
+
     const { links = {}, primaryName, names } = company;
     const { parentCompanyId, ownerId, companies, users } = this.state;
 
@@ -315,7 +329,7 @@ class CompanyForm extends React.Component {
           <Button
             btnStyle="simple"
             onClick={() => {
-              this.context.closeModal();
+              this.props.closeModal();
             }}
             icon="cancel-1"
           >
@@ -330,8 +344,5 @@ class CompanyForm extends React.Component {
     );
   }
 }
-
-CompanyForm.propTypes = propTypes;
-CompanyForm.contextTypes = contextTypes;
 
 export default CompanyForm;

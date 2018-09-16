@@ -1,12 +1,21 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { mutations as customerMutations } from 'modules/customers/graphql';
 import { Alert } from 'modules/common/utils';
+import { mutations as customerMutations } from 'modules/customers/graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { CompanySection } from '../components';
 
-const CompanyAssociate = props => {
+type Props = {
+  customersEditCompanies: (params: {
+    variables: {
+      _id: string,
+      companyIds: string[],
+    }
+  }) => Promise<any>,
+  data: any
+};
+
+const CompanyAssociate = (props: Props) => {
   const { customersEditCompanies, data } = props;
 
   const save = companies => {
@@ -34,15 +43,10 @@ const CompanyAssociate = props => {
   return <CompanySection {...extendedProps} />;
 };
 
-CompanyAssociate.propTypes = {
-  customersEditCompanies: PropTypes.func.isRequired,
-  data: PropTypes.object.isRequired
-};
-
 export default compose(
   graphql(gql(customerMutations.customersEditCompanies), {
     name: 'customersEditCompanies',
-    options: ({ data }) => ({
+    options: () => ({
       refetchQueries: ['customerDetail']
     })
   })

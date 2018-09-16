@@ -1,24 +1,23 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 
-import { Wrapper } from 'modules/layout/components';
 import { CountsByTag } from 'modules/common/components';
 import {
   LeadStatusFilter,
   LifecycleStateFilter
 } from 'modules/customers/components';
+import { Wrapper } from 'modules/layout/components';
 
 import { BrandFilter } from 'modules/customers/containers';
 
 import Segments from 'modules/segments/containers/Filter';
 
-const propTypes = {
-  counts: PropTypes.object.isRequired,
-  tags: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired
+type Props = {
+  counts: any,
+  tags: any[],
+  loading: boolean
 };
 
-function Sidebar({ counts, tags, loading }) {
+function Sidebar({ counts, tags, loading }: Props) {
   return (
     <Wrapper.Sidebar>
       <Segments contentType="company" counts={counts.bySegment} />
@@ -37,7 +36,5 @@ function Sidebar({ counts, tags, loading }) {
     </Wrapper.Sidebar>
   );
 }
-
-Sidebar.propTypes = propTypes;
 
 export default Sidebar;
