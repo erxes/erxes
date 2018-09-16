@@ -1,19 +1,26 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
-import { queries, mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 
-const ListContainer = props => {
+type Props = {
+  type: string,
+  tagsQuery: any,
+  addMutation: (varaibles: any) => any,
+  editMutation: (varaibles: any) => any,
+  removeMutation: (params: { variables: { ids: string[] } }) => any,
+};
+
+const ListContainer = (props: Props) => {
   const { tagsQuery, addMutation, editMutation, removeMutation, type } = props;
 
   const remove = tag => {
     confirm().then(() => {
       removeMutation({ variables: { ids: [tag._id] } })
         .then(() => {
-          Alert.success();
+          Alert.success('success');
           tagsQuery.refetch();
         })
         .catch(e => {
@@ -52,14 +59,6 @@ const ListContainer = props => {
   return <List {...updatedProps} />;
 };
 
-ListContainer.propTypes = {
-  type: PropTypes.string,
-  tagsQuery: PropTypes.object,
-  addMutation: PropTypes.func,
-  editMutation: PropTypes.func,
-  removeMutation: PropTypes.func
-};
-
 const options = ({ type }) => ({
   refetchQueries: [
     {
@@ -72,7 +71,7 @@ const options = ({ type }) => ({
 export default compose(
   graphql(gql(queries.tags), {
     name: 'tagsQuery',
-    options: ({ type }) => ({
+    options: ({ type } : { type: string }) => ({
       variables: { type },
       fetchPolicy: 'network-only'
     })

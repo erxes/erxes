@@ -1,11 +1,18 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { Tagger } from '../components';
 
-const TaggerContainer = props => {
+type Props = {
+  targets: any[],
+  type: string,
+  tagsQuery: any,
+  tagMutation: (params: { variables: any }) => any,
+  successCallback: () => void,
+};
+
+const TaggerContainer = (props: Props) => {
   const { type, targets, successCallback, tagsQuery, tagMutation } = props;
 
   const tag = selectedTagIds => {
@@ -44,14 +51,6 @@ const TaggerContainer = props => {
   return <Tagger {...updatedProps} />;
 };
 
-TaggerContainer.propTypes = {
-  targets: PropTypes.array,
-  type: PropTypes.string,
-  tagsQuery: PropTypes.object,
-  tagMutation: PropTypes.func,
-  successCallback: PropTypes.func
-};
-
 const tagsQuery = gql`
   query($type: String!) {
     tags(type: $type) {
@@ -75,13 +74,13 @@ const tagMutation = gql`
 export default compose(
   graphql(tagsQuery, {
     name: 'tagsQuery',
-    options: props => ({
+    options: (props: Props) => ({
       variables: { type: props.type }
     })
   }),
   graphql(tagMutation, {
     name: 'tagMutation',
-    options: ({ refetchQueries }) => ({
+    options: ({ refetchQueries }: { refetchQueries: any }) => ({
       refetchQueries
     })
   })
