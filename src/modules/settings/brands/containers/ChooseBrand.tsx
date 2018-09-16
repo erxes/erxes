@@ -50,7 +50,7 @@ const ChooseBrandContainer = (props: Props) => {
 };
 
 export default compose(
-  graphql<Props>(
+  graphql(
     gql(queries.brands), {
       name: 'brandsQuery',
       options: () => ({
@@ -58,12 +58,12 @@ export default compose(
       })
   }),
 
-  graphql<Props>(
+  graphql(
     gql(mutations.integrationsCreateMessenger), {
       name: 'addMutation'
   }),
 
-  graphql<Props>(
+  graphql(
     gql(mutations.integrationsEditMessenger), {
       name: 'editMutation'
   })

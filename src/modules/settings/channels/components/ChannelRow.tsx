@@ -20,7 +20,6 @@ class ChannelRow extends Component<Props, {}> {
   constructor(props: Props) {
     super(props);
 
-    this.renderEditForm = this.renderEditForm.bind(this);
     this.renderMember = this.renderMember.bind(this);
     this.remove = this.remove.bind(this);
     this.renderEditAction = this.renderEditAction.bind(this);
@@ -43,14 +42,12 @@ class ChannelRow extends Component<Props, {}> {
     );
 
     return (
-      <ModalTrigger title="Edit" trigger={editTrigger}>
-        {this.renderEditForm({ channel, save, members })}
-      </ModalTrigger>
+      <ModalTrigger 
+        title="Edit" 
+        trigger={editTrigger}
+        content={(props) => <ChannelForm {...props} save={save} members={members} channel={channel} />}
+      />
     );
-  }
-
-  renderEditForm(props) {
-    return <ChannelForm {...props} />;
   }
 
   renderMember(member) {

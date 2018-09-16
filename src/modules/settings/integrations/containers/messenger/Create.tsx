@@ -98,9 +98,9 @@ const CreateMessengerWithData = compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql<{ queryParams: any }>(gql(mutations.integrationsCreateMessenger), {
+  graphql(gql(mutations.integrationsCreateMessenger), {
     name: 'saveMessengerMutation',
-    options: ({ queryParams }) => {
+    options: ({ queryParams } : { queryParams: any }) => {
       return {
         refetchQueries: [
           {

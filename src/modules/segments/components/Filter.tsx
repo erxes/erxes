@@ -14,8 +14,8 @@ type Props = {
   currentSegment?: string,
   setSegment: (_id: string) => void,
   removeSegment: () => void,
-  contentType: string,
-  counts: any,
+  contentType?: string,
+  counts?: any,
   segments: any[],
   loading: boolean
 };

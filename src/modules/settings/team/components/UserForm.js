@@ -1,14 +1,14 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl
-} from 'modules/common/components';
-import Select from 'react-select-plus';
 import { UserCommonInfos } from 'modules/auth/components';
-import { Form as CommonForm } from '../../common/components';
+import {
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from 'modules/common/components';
 import { ColumnTitle } from 'modules/common/styles/main';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import Select from 'react-select-plus';
+import { Form as CommonForm } from '../../common/components';
 
 class UserForm extends CommonForm {
   constructor(props, context) {

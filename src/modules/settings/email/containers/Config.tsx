@@ -85,7 +85,7 @@ type ConfigProps = {
 };
 
 export default compose(
-  graphql<{ brandId: string }>(
+  graphql(
     gql`
       query brandDetail($brandId: String!) {
         brandDetail(_id: $brandId) {
@@ -97,7 +97,7 @@ export default compose(
     `,
     {
       name: 'brandQuery',
-      options: ({ brandId }) => {
+      options: ({ brandId } : { brandId: string }) => {
         return {
           variables: {
             brandId

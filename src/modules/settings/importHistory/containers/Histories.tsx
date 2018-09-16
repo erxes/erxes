@@ -65,9 +65,9 @@ type Props = {
 };
 
 export default compose(
-  graphql<Props>(gql(queries.histories), {
+  graphql(gql(queries.histories), {
     name: 'historiesQuery',
-    options: ({ queryParams }) => ({
+    options: ({ queryParams } : { queryParams: any }) => ({
       fetchPolicy: 'network-only',
       variables: {
         type: queryParams.type || 'customer'
