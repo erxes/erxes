@@ -1,34 +1,43 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import Select from 'react-select-plus';
+import { IUser } from 'modules/auth/types';
 import {
-  Button,
   AvatarUpload,
-  FormGroup,
-  FormControl,
+  Button,
   ControlLabel,
+  FormControl,
+  FormGroup,
   ModifiableSelect
 } from 'modules/common/components';
 import {
-  ModalFooter,
-  FormWrapper,
+  ColumnTitle,
   FormColumn,
-  ColumnTitle
+  FormWrapper,
+  ModalFooter
 } from 'modules/common/styles/main';
-import { searchUser } from 'modules/common/utils';
+import { __, searchUser } from 'modules/common/utils';
+import * as React from 'react';
+import Select from 'react-select-plus';
+import { ICustomer, ICustomerDoc } from '../../types';
 import { leadStatusChoices, lifecycleStateChoices } from '../../utils';
 
-const propTypes = {
-  customer: PropTypes.object,
-  action: PropTypes.func.isRequired
+type Props = {
+  customer: ICustomer,
+  action: (params: { doc: ICustomerDoc }) => void,
+  closeModal: () => void,
 };
 
-const contextTypes = {
-  __: PropTypes.func,
-  closeModal: PropTypes.func.isRequired
-};
+type State = {
+  ownerId: string,
+  doNotDisturb: string,
+  hasAuthority: string,
+  users: IUser[],
+  avatar: string
+  phones?: string[],
+  emails?: string[],
+  primaryPhone?: string,
+  primaryEmail?: string
+}
 
-class CustomerForm extends React.Component {
+class CustomerForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -51,14 +60,19 @@ class CustomerForm extends React.Component {
   }
 
   componentDidMount() {
-    const { customer = {} } = this.props;
+    const { customer } = this.props;
 
-    if (customer.ownerId)
+    if (customer && customer.ownerId)
       this.handleUserSearch(customer.owner.details.fullName);
+  }
+
+  getInputElementValue(id) {
+    return (document.getElementById(id) as HTMLInputElement).value
   }
 
   action(e) {
     const { phones, emails, primaryPhone, primaryEmail, avatar } = this.state;
+
     e.preventDefault();
 
     this.props.action({
@@ -68,25 +82,24 @@ class CustomerForm extends React.Component {
         primaryPhone,
         primaryEmail,
         avatar,
-        firstName: document.getElementById('customer-firstname').value,
-        lastName: document.getElementById('customer-lastname').value,
         ownerId: this.state.ownerId,
-        position: document.getElementById('customer-position').value,
-        department: document.getElementById('customer-department').value,
-        leadStatus: document.getElementById('customer-leadStatus').value,
-        lifecycleState: document.getElementById('customer-lifecycleState')
-          .value,
         hasAuthority: this.state.hasAuthority,
-        description: document.getElementById('customer-description').value,
         doNotDisturb: this.state.doNotDisturb,
+        firstName: this.getInputElementValue('customer-firstname'),
+        lastName: this.getInputElementValue('customer-lastname'),
+        position: this.getInputElementValue('customer-position'),
+        department: this.getInputElementValue('customer-department'),
+        leadStatus: this.getInputElementValue('customer-leadStatus'),
+        lifecycleState: this.getInputElementValue('customer-lifecycleState'),
+        description: this.getInputElementValue('customer-description'),
 
         links: {
-          linkedIn: document.getElementById('customer-linkedin').value,
-          twitter: document.getElementById('customer-twitter').value,
-          facebook: document.getElementById('customer-facebook').value,
-          github: document.getElementById('customer-github').value,
-          youtube: document.getElementById('customer-youtube').value,
-          website: document.getElementById('customer-website').value
+          linkedIn: this.getInputElementValue('customer-linkedin'),
+          twitter: this.getInputElementValue('customer-twitter'),
+          facebook: this.getInputElementValue('customer-facebook'),
+          github: this.getInputElementValue('customer-github'),
+          youtube: this.getInputElementValue('customer-youtube'),
+          website: this.getInputElementValue('customer-website'),
         }
       }
     });
@@ -168,9 +181,8 @@ class CustomerForm extends React.Component {
   }
 
   render() {
-    const { __, closeModal } = this.context;
-    const { customer = {} } = this.props;
-    const { links = {}, primaryEmail, primaryPhone } = customer;
+    const { customer, closeModal } = this.props;
+    const { links = {}, primaryEmail, primaryPhone } = customer || {} as ICustomer;
     const { users } = this.state;
 
     return (
@@ -352,8 +364,5 @@ class CustomerForm extends React.Component {
     );
   }
 }
-
-CustomerForm.propTypes = propTypes;
-CustomerForm.contextTypes = contextTypes;
 
 export default CustomerForm;

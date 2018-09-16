@@ -1,12 +1,19 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import { ICustomer, ICustomerDoc } from 'modules/customers/types';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { CustomerForm } from '../components';
 import { mutations } from '../graphql';
 
-const CustomerFormContainer = props => {
+type Props = {
+  customer: ICustomer,
+  closeModal: () => void,
+  customersEdit: (params: { variables: ICustomer }) => Promise<any>,
+  customersAdd: (params: { variables: ICustomerDoc }) => Promise<any>
+};
+
+const CustomerFormContainer = (props: Props) => {
   const { customersEdit, customer, customersAdd } = props;
 
   let action = ({ doc }) => {
@@ -37,16 +44,6 @@ const CustomerFormContainer = props => {
   };
 
   return <CustomerForm {...updatedProps} />;
-};
-
-CustomerFormContainer.propTypes = {
-  customer: PropTypes.object,
-  customersEdit: PropTypes.func,
-  customersAdd: PropTypes.func
-};
-
-CustomerFormContainer.contextTypes = {
-  currentUser: PropTypes.object
 };
 
 const options = () => {

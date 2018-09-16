@@ -1,12 +1,17 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries } from '../graphql';
-import { CustomerDetails } from '../components';
 import { Spinner } from 'modules/common/components';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { CustomerDetails } from '../components';
+import { queries } from '../graphql';
 
-const CustomerDetailsContainer = (props, context) => {
+type Props = {
+  id: string,
+  customerDetailQuery: any,
+  customerActivityLogQuery: any,
+};
+
+const CustomerDetailsContainer = (props: Props, context) => {
   const { id, customerDetailQuery, customerActivityLogQuery } = props;
 
   if (customerDetailQuery.loading) {
@@ -32,20 +37,10 @@ const CustomerDetailsContainer = (props, context) => {
   return <CustomerDetails {...updatedProps} />;
 };
 
-CustomerDetailsContainer.propTypes = {
-  id: PropTypes.string,
-  customerDetailQuery: PropTypes.object,
-  customerActivityLogQuery: PropTypes.object
-};
-
-CustomerDetailsContainer.contextTypes = {
-  currentUser: PropTypes.object
-};
-
 export default compose(
   graphql(gql(queries.customerDetail), {
     name: 'customerDetailQuery',
-    options: ({ id }) => ({
+    options: ({ id }: { id: string }) => ({
       variables: {
         _id: id
       }
@@ -53,7 +48,7 @@ export default compose(
   }),
   graphql(gql(queries.activityLogsCustomer), {
     name: 'customerActivityLogQuery',
-    options: ({ id }) => ({
+    options: ({ id }: { id: string }) => ({
       variables: {
         _id: id
       }

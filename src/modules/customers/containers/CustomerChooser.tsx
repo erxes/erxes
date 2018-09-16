@@ -1,13 +1,20 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Chooser } from 'modules/common/components';
 import { Alert, renderFullName } from 'modules/common/utils';
+import React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { CustomerForm } from '../containers';
-import { queries, mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
+import { ICustomerDoc } from '../types';
 
-const CustomerChooser = props => {
+type Props = {
+  customersQuery: any,
+  customersAdd: (params: { variables: ICustomerDoc }) => Promise<any>,
+  search: (value?: string) => void,
+  perPage: number,
+};
+
+const CustomerChooser = (props: WrapperProps & Props) => {
   const { data, customersQuery, customersAdd, search } = props;
 
   // add customer
@@ -48,17 +55,10 @@ const CustomerChooser = props => {
   return <Chooser {...updatedProps} />;
 };
 
-CustomerChooser.propTypes = {
-  data: PropTypes.object.isRequired,
-  customersQuery: PropTypes.object.isRequired,
-  customersAdd: PropTypes.func.isRequired,
-  search: PropTypes.func.isRequired
-};
-
 const WithQuery = compose(
   graphql(gql(queries.customers), {
     name: 'customersQuery',
-    options: ({ searchValue, perPage }) => {
+    options: ({ searchValue, perPage }: { searchValue: string, perPage: number }) => {
       return {
         variables: {
           searchValue,
@@ -73,11 +73,16 @@ const WithQuery = compose(
   })
 )(CustomerChooser);
 
-export default class Wrapper extends React.Component {
+type WrapperProps = {
+  data: any,
+  onSelect: (datas: any[]) => void,
+};
+
+export default class Wrapper extends React.Component<WrapperProps, { perPage: number, searchValue: string }> {
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20 };
+    this.state = { perPage: 20, searchValue: '' };
 
     this.search = this.search.bind(this);
   }

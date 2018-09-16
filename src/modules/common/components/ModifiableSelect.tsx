@@ -179,7 +179,6 @@ class ModifiableSelect extends Component<Props, State> {
   render() {
     const { placeholder } = this.props;
     const { selectedOption } = this.state;
-    const { __ } = this.context;
 
     return (
       <Fragment>

@@ -1,6 +1,6 @@
-import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 import { SidebarList } from 'modules/layout/styles';
+import styled from 'styled-components';
 
 const Info = styled.div`
   margin-top: 5px;

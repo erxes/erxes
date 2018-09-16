@@ -1,16 +1,16 @@
-import * as React from 'react';
 import _ from 'lodash';
-import PropTypes from 'prop-types';
-import moment from 'moment';
-import { FormControl, Tags, NameCard } from 'modules/common/components';
+import { FormControl, NameCard, Tags } from 'modules/common/components';
 import { FlexItem } from 'modules/companies/styles';
+import { ICustomer } from 'modules/customers/types';
+import moment from 'moment';
+import * as React from 'react';
 
-const propTypes = {
-  customer: PropTypes.object.isRequired,
-  columnsConfig: PropTypes.array.isRequired,
-  history: PropTypes.object.isRequired,
-  isChecked: PropTypes.bool,
-  toggleBulk: PropTypes.func
+type Props = {
+  customer: ICustomer,
+  columnsConfig: any[],
+  history: any 
+  isChecked?: boolean,
+  toggleBulk: (customer: ICustomer, isChecked?: boolean) => void,
 };
 
 function isTimeStamp(value) {
@@ -74,7 +74,7 @@ function CustomerRow({
   toggleBulk,
   isChecked,
   history
-}) {
+}: Props) {
   const tags = customer.getTags;
 
   const onChange = e => {
@@ -109,7 +109,5 @@ function CustomerRow({
     </tr>
   );
 }
-
-CustomerRow.propTypes = propTypes;
 
 export default CustomerRow;

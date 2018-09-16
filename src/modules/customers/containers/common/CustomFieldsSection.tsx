@@ -1,15 +1,21 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 import { GenerateCustomFields } from 'modules/settings/properties/components';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { mutations } from '../../graphql';
+import { ICustomer } from '../../types';
 
-const CustomFieldsSection = (props, context) => {
+type Props = {
+  customer: ICustomer,
+  customersEdit: (doc: { variables: any }) => Promise<any>,
+  fieldsGroupsQuery: any
+};
+
+const CustomFieldsSection = (props: Props) => {
   const { customer, customersEdit, fieldsGroupsQuery } = props;
 
   if (fieldsGroupsQuery.loading) {
@@ -43,12 +49,6 @@ const CustomFieldsSection = (props, context) => {
   return <GenerateCustomFields {...updatedProps} />;
 };
 
-CustomFieldsSection.propTypes = {
-  customer: PropTypes.object.isRequired,
-  customersEdit: PropTypes.func.isRequired,
-  fieldsGroupsQuery: PropTypes.object.isRequired
-};
-
 export default compose(
   graphql(gql(fieldQueries.fieldsGroups), {
     name: 'fieldsGroupsQuery',
@@ -58,6 +58,7 @@ export default compose(
       }
     })
   }),
+
   // mutations
   graphql(gql(mutations.customersEdit), {
     name: 'customersEdit',
