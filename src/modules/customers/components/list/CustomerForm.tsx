@@ -20,7 +20,7 @@ import { ICustomer, ICustomerDoc } from '../../types';
 import { leadStatusChoices, lifecycleStateChoices } from '../../utils';
 
 type Props = {
-  customer: ICustomer,
+  customer?: ICustomer,
   action: (params: { doc: ICustomerDoc }) => void,
   closeModal: () => void,
 };
@@ -41,7 +41,7 @@ class CustomerForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { customer = {} } = props;
+    const customer = props.customer || {} as ICustomer;
 
     this.state = {
       ownerId: customer.ownerId || '',
@@ -181,9 +181,11 @@ class CustomerForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { customer, closeModal } = this.props;
-    const { links = {}, primaryEmail, primaryPhone } = customer || {} as ICustomer;
+    const { closeModal } = this.props;
     const { users } = this.state;
+
+    const customer = this.props.customer  || {} as ICustomer;
+    const { links = {}, primaryEmail, primaryPhone } = customer;
 
     return (
       <form onSubmit={e => this.action(e)}>

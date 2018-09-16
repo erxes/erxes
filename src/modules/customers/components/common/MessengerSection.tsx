@@ -8,7 +8,7 @@ import { ICustomer } from '../../types';
 
 type Props = {
   customer: ICustomer,
-  // TODO: check query params.
+  // TODO: check query params. Because it was in context
   queryParams?: any,
 };
 
