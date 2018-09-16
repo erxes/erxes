@@ -12,7 +12,6 @@ import MainRoutes from './main/routes';
 import ProductService from './productService/routes';
 import PropertiesRoutes from './properties/routes';
 import ResponseTemplatesRoutes from './responseTemplates/routes';
-import TeamMembersRoutes from './team/routes';
 
 const routes = () => [
   <MainRoutes key="MainRoutes" />,
@@ -20,7 +19,6 @@ const routes = () => [
   <BrandsRoutes key="BrandsRoutes" />,
   <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />,
   <EmailTemplatesRoutes key="EmailTemplatesRoutes" />,
-  <TeamMembersRoutes key="TeamMembersRoutes" />,
   <EmailRoutes key="EmailRoutes" />,
   <IntegrationsRoutes key="IntegrationsRoutes" />,
   <DealRoutes key="DealRoutes" />,
