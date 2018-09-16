@@ -1,3 +1,4 @@
+import { ITag } from "modules/tags/types";
 import { IUser } from "../auth/types";
 
 export interface ICompanyDoc {
@@ -37,4 +38,5 @@ export interface ICompany extends ICompanyDoc {
     _id?: string;
     owner: IUser;
     parentCompany: ICompany;
+    getTags: ITag[];
 }
