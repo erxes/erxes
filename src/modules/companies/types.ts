@@ -1,5 +1,6 @@
 import { ITag } from "modules/tags/types";
 import { IUser } from "../auth/types";
+import { ICustomer } from "../customers/types";
 
 export interface ICompanyDoc {
     createdAt?: Date;
@@ -39,4 +40,5 @@ export interface ICompany extends ICompanyDoc {
     owner: IUser;
     parentCompany: ICompany;
     getTags: ITag[];
+    customers: ICustomer[]
 }

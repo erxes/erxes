@@ -43,7 +43,6 @@ const CompanyAssociate = (props: Props) => {
   return <CompanySection {...extendedProps} />;
 };
 
-
 export default compose(
   graphql(gql(customerMutations.customersEditCompanies), {
     name: 'customersEditCompanies',

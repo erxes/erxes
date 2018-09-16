@@ -219,16 +219,24 @@ class CompaniesList extends React.Component<Props, State> {
           autoFocus
           onFocus={e => this.moveCursorAtTheEnd(e)}
         />
-        <ModalTrigger title="Choose which column you see" trigger={editColumns}>
-          <ManageColumns
-            location={location}
-            history={history}
-            contentType="company"
+        <ModalTrigger 
+          title="Choose which column you see" 
+          trigger={editColumns}
+          content={(props) => (
+            <ManageColumns
+              {...props}
+              location={location}
+              history={history}
+              contentType="company"
+              />
+            )}
           />
-        </ModalTrigger>
-        <ModalTrigger title="New company" trigger={addTrigger} size="lg">
-          <CompanyForm queryParams={queryParams} />
-        </ModalTrigger>
+        <ModalTrigger 
+          title="New company" 
+          trigger={addTrigger} 
+          size="lg"
+          content={(props) => <CompanyForm  {...props} queryParams={queryParams} />}
+         />
       </BarItems>
     );
 

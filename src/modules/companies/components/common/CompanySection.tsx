@@ -24,9 +24,14 @@ function CompanySection({ name, companies, onSelect }: Props) {
   );
 
   const quickButtons = (
-    <ModalTrigger title="Associate" trigger={companyTrigger} size="lg">
-      <CompanyChooser data={{ name, companies: companies || [] }} onSelect={onSelect} />
-    </ModalTrigger>
+    <ModalTrigger 
+      title="Associate" 
+      trigger={companyTrigger} 
+      size="lg"
+      content={(props) => (
+        <CompanyChooser {...props} data={{ name, companies: companies || [] }} onSelect={onSelect} />
+      )}
+     />
   );
 
   const content = (

@@ -121,9 +121,10 @@ class BasicInfo extends React.Component<Props> {
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
             size="lg"
-          >
-            <CompanyForm company={company} />
-          </ModalTrigger>
+            content={(props) => (
+              <CompanyForm {...props} company={company} />
+            )}
+          />
         </InfoWrapper>
 
         {this.renderAction()}
