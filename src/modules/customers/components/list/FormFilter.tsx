@@ -2,9 +2,9 @@ import { DataWithLoader } from 'modules/common/components';
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { IIntegration } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { withRouter } from 'react-router';
-import { IIntegration } from '../../../settings/brands/types';
 
 type Props = {
   history: any,

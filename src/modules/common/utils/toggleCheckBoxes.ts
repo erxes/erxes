@@ -1,4 +1,4 @@
-export default (containerId, checked) => {
+export default (containerId: string, checked: boolean) => {
   const container = document.getElementById(containerId);
   const elements = container.getElementsByTagName('input');
 

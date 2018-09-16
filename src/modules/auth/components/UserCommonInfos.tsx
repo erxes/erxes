@@ -16,7 +16,7 @@ import { IUser } from '../types';
 
 type Props = {
   user: IUser,
-  onAvatarUpload: () => void
+  onAvatarUpload: (url: string) => void
 };
 
 class UserCommonInfos extends Component<Props> {

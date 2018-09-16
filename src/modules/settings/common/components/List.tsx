@@ -5,9 +5,9 @@ import {
   Pagination
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
+import { IIntegration } from 'modules/settings/integrations/types';
 import Sidebar from 'modules/settings/Sidebar';
 import * as React from 'react';
-import { IIntegration } from '../../brands/types';
 
 type Props = {
   objects: any

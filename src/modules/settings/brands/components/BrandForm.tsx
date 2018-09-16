@@ -70,8 +70,6 @@ class BrandForm extends Component<Props, {}> {
   }
 
   render() {
-    const { closeModal } = this.props;
-
     return (
       <form onSubmit={this.save}>
         {this.renderContent()}
@@ -80,7 +78,7 @@ class BrandForm extends Component<Props, {}> {
             btnStyle="simple"
             type="button"
             icon="cancel-1"
-            onClick={closeModal}
+            onClick={this.props.closeModal}
           >
             Cancel
           </Button>

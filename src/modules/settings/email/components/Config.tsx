@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   Button,
@@ -13,7 +12,8 @@ import { IBrand } from '../../brands/types';
 type Props = {
   brand: IBrand,
   configEmail: (doc: {}, callback: () => void) => void,
-  defaultTemplate: string
+  defaultTemplate: string,
+  closeModal?: () => void,
 };
 
 type State = {
@@ -22,10 +22,6 @@ type State = {
 };
 
 class Config extends Component<Props, State> {
-  static contextTypes =  {
-    closeModal: PropTypes.func.isRequired,
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -48,7 +44,7 @@ class Config extends Component<Props, State> {
     const { type, template } = this.state;
 
     configEmail({ _id: brand._id, emailConfig: { type, template } }, () => {
-      return this.context.closeModal();
+      return this.props.closeModal;
     });
   }
 
@@ -61,10 +57,6 @@ class Config extends Component<Props, State> {
   }
 
   render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
-
     const { type, template } = this.state;
 
     const templateControl = (
@@ -98,7 +90,7 @@ class Config extends Component<Props, State> {
         {this.state.type === 'custom' ? templateControl : false}
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={onClick} icon="cancel-1">
+          <Button btnStyle="simple" onClick={this.props.closeModal} icon="cancel-1">
             Cancel
           </Button>
 

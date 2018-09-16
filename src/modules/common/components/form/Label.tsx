@@ -3,14 +3,20 @@ import * as React from 'react';
 import { Label } from './styles';
 
 type Props = {
-  children: string,
+  children: React.ReactNode | string,
   ignoreTrans?: boolean
 };
 
 function ControlLabel(props: Props) {
   const { children, ignoreTrans } = props;
 
-  return <Label>{ignoreTrans ? children : __(children)}</Label>;
+  let content = children;
+
+  if (!ignoreTrans && typeof(children) === 'string') {
+    content = __(children)
+  }
+
+  return <Label>{content}</Label>;
 }
 
 export default ControlLabel;

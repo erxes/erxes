@@ -1,13 +1,13 @@
-import React, { Component } from 'react';
-import Toggle from 'react-toggle';
-import { SelectBrand } from '../..';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from '../../../../../common/components';
-import { FlexItem, LeftItem } from '../../../../../common/components/step/styles';
-import { IBrand } from '../../../../brands/types';
+} from 'modules/common/components';
+import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
+import { IBrand } from 'modules/settings/brands/types';
+import React, { Component } from 'react';
+import Toggle from 'react-toggle';
+import { SelectBrand } from '../..';
 
 type Props = {
   onChange: (name: string, value: string) => void,

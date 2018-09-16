@@ -6,13 +6,13 @@ import {
 } from 'modules/common/components';
 import { ModalFooter, Well } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { ISignature } from '../types';
 
 type Props = {
   signatures: ISignature[],
   save: (signatures: ISignature[]) => void,
+  closeModal?: () => void
 };
 
 type State = {
@@ -21,10 +21,6 @@ type State = {
 };
 
 class Signature extends React.Component<Props, State> {
-  static contextTypes =  {
-    closeModal: PropTypes.func
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -67,12 +63,11 @@ class Signature extends React.Component<Props, State> {
 
     this.props.save(this.state.signatures);
 
-    this.context.closeModal();
+    this.props.closeModal;
   }
 
   render() {
     const current = this.getCurrent();
-    const { closeModal } = this.context;
 
     const content = (
       <div>
@@ -111,7 +106,7 @@ class Signature extends React.Component<Props, State> {
           <ModalFooter>
             <Button
               btnStyle="simple"
-              onClick={() => closeModal()}
+              onClick={this.props.closeModal}
               icon="cancel-1"
             >
               Close
