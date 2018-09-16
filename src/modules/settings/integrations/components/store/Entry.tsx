@@ -33,9 +33,11 @@ class Entry extends Component<Props> {
       const trigger = <a>+ {__('Add')}</a>;
 
       return (
-        <ModalTrigger title="Add facebook page" trigger={trigger}>
-          <Facebook />
-        </ModalTrigger>
+        <ModalTrigger 
+          title="Add facebook page" 
+          trigger={trigger}
+          content={(props) => <Facebook {...props} />}
+        />
       );
     }
 

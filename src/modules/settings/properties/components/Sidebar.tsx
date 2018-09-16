@@ -1,3 +1,4 @@
+import { __ } from 'modules/common/utils';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { SidebarList as List } from 'modules/layout/styles';
 import React, { Component } from 'react';
@@ -17,7 +18,6 @@ class Sidebar extends Component<Props> {
   }
 
   renderSidebarHeader() {
-    const { __ } = this.context;
     const { title } = this.props;
     const { Header } = LeftSidebar;
 
@@ -34,7 +34,6 @@ class Sidebar extends Component<Props> {
   }
 
   render() {
-    const { __ } = this.context;
     return (
       <LeftSidebar header={this.renderSidebarHeader()}>
         <LeftSidebar.Section>

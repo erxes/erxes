@@ -46,10 +46,6 @@ class Sidebar extends Component<Props, {}> {
     ));
   }
 
-  renderChannelForm(props) {
-    return <ChannelForm {...props} />;
-  }
-
   renderSidebarHeader() {
     const { save, members } = this.props;
     const { Header } = LeftSidebar;
@@ -65,9 +61,11 @@ class Sidebar extends Component<Props, {}> {
     return (
       <Header uppercase>
         {__('Channels')}
-        <ModalTrigger title="New Channel" trigger={addChannel}>
-          {this.renderChannelForm({ save, members })}
-        </ModalTrigger>
+        <ModalTrigger 
+          title="New Channel" 
+          trigger={addChannel}
+          content={(props) => <ChannelForm {...props} save={save} members={members} />}
+        />
       </Header>
     );
   }

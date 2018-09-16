@@ -72,7 +72,7 @@ class Properties extends React.Component<Props> {
     const { __ } = this.context;
     const { queryParams, fieldsGroups } = this.props;
 
-    let propertyForm = <PropertyForm queryParams={queryParams} />;
+    let propertyForm = <PropertyForm {...this.props} queryParams={queryParams} />;
 
     if (fieldsGroups.length === 0) {
       propertyForm = <div>{__('Please add property Group first')}!</div>;
@@ -89,12 +89,18 @@ class Properties extends React.Component<Props> {
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
-          <ModalTrigger title="Add Group" trigger={addGroup}>
-            <PropertyGroupForm queryParams={queryParams} />
-          </ModalTrigger>
-          <ModalTrigger title="Add Property" trigger={addField}>
-            {propertyForm}
-          </ModalTrigger>
+          <ModalTrigger 
+            title="Add Group" 
+            trigger={addGroup}
+            content={(props) => <PropertyGroupForm {...props} queryParams={queryParams} />}
+          />
+          <ModalTrigger 
+            title="Add Property" 
+            trigger={addField}
+            content={(props) => {
+             return propertyForm 
+            }}
+          />
         </Dropdown.Menu>
       </Dropdown>
     );
