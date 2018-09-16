@@ -3,6 +3,7 @@ import { Alert } from 'modules/common/utils';
 import { mutations as companyMutations } from 'modules/companies/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { ICompany } from '../../companies/types';
 import { CustomerSection } from '../components/common';
 
 type Props = {
@@ -12,16 +13,16 @@ type Props = {
       customerIds: string[]
     }
   }) => Promise<any>,
-  company: any,
+  data: ICompany,
 };
 
 const CustomerAssociate = (props: Props) => {
-  const { companiesEditCustomers, company } = props;
+  const { companiesEditCustomers, data } = props;
 
   const save = customers => {
     companiesEditCustomers({
       variables: {
-        _id: company._id,
+        _id: data._id,
         customerIds: customers.map(customer => customer['_id'])
       }
     })
@@ -35,8 +36,8 @@ const CustomerAssociate = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    name: company.name,
-    customers: company.customers,
+    name: data.primaryName,
+    customers: data.customers,
     onSelect: customers => save(customers)
   };
 

@@ -11,11 +11,11 @@ import { Stages } from './';
 
 type Props = {
   show?: boolean,
-  boardId?: string,
+  boardId: string,
   pipeline?: IPipeline,
-  stages: IStage[],
+  stages?: IStage[],
   save?: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline: IPipeline) => void,
-  closeModal?: () => void,
+  closeModal: () => void,
 };
 
 type State = {

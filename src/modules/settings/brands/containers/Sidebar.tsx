@@ -99,12 +99,12 @@ const commonOptions = ({ queryParams, currentBrandId }) => {
 };
 
 export default compose(
-  graphql<{ queryParams: any }>(
+  graphql(
     gql(queries.brands), {
     name: 'brandsQuery',
-    options: ownProps => ({
+    options: ({ queryParams } : { queryParams: any }) => ({
       variables: {
-        perPage: ownProps.queryParams.limit || 20
+        perPage: queryParams.limit || 20
       },
       fetchPolicy: 'network-only'
     })

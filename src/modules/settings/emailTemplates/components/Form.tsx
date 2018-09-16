@@ -1,22 +1,71 @@
+import { EditorState } from 'draft-js';
 import {
   ControlLabel,
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import {
+  createStateFromHTML,
+  ErxesEditor,
+  toHTML
+} from 'modules/common/components/editor/Editor';
 import React, { Fragment } from 'react';
 import { Form as CommonForm } from '../../common/components';
+import { ICommonFormProps } from '../../common/types';
+import { IEmailTemplate } from '../types';
 
-class Form extends CommonForm {
+type Props = {
+  object?: IEmailTemplate,
+}
+
+type State = {
+  editorState: any;
+}
+
+class Form extends React.Component<Props & ICommonFormProps, State> {
+  constructor(props) {
+    super(props);
+
+    const object = props.object || {};
+
+    this.state = {
+      editorState: createStateFromHTML(
+        EditorState.createEmpty(),
+        object.content || ''
+      )
+    };
+
+    this.renderContent = this.renderContent.bind(this);
+    this.onChange = this.onChange.bind(this);
+    this.getContent = this.getContent.bind(this);
+  }
+
+  getContent(editorState) {
+    return toHTML(editorState);
+  }
+
+  onChange(editorState) {
+    this.setState({ editorState });
+  }
+
   generateDoc() {
     return {
       doc: {
         name: (document.getElementById('template-name') as HTMLInputElement).value,
-        content: (document.getElementById('template-content') as HTMLInputElement).value
+        content: this.getContent(this.state.editorState)
       }
     };
   }
 
-  renderContent(emailTemplate) {
+  renderContent() {
+    const object = this.props.object || {} as IEmailTemplate;
+
+    const props = {
+      editorState: this.state.editorState,
+      onChange: this.onChange,
+      defaultValue: object.content
+    };
+
     return (
       <Fragment>
         <FormGroup>
@@ -24,7 +73,7 @@ class Form extends CommonForm {
 
           <FormControl
             id="template-name"
-            defaultValue={emailTemplate.name}
+            defaultValue={object.name}
             type="text"
             required
           />
@@ -32,16 +81,20 @@ class Form extends CommonForm {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-
-          <FormControl
-            id="template-content"
-            componentClass="textarea"
-            rows={5}
-            defaultValue={emailTemplate.content}
-          />
+          <ErxesEditor bordered {...props} />
         </FormGroup>
       </Fragment>
     );
+  }
+
+  render() {
+    return (
+      <CommonForm
+        {...this.props}
+        renderContent={this.renderContent}
+        generateDoc={this.generateDoc}
+      />
+    )
   }
 }
 

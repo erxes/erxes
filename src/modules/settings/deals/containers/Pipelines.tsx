@@ -94,9 +94,9 @@ class PipelinesContainer extends React.Component<Props> {
 }
 
 export default compose(
-  graphql<{boardId: string}>(gql(queries.pipelines), {
+  graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
-    options: ({ boardId = '' }) => ({
+    options: ({ boardId = '' } : { boardId: string }) => ({
       variables: { boardId },
       fetchPolicy: 'network-only'
     })

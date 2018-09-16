@@ -14,6 +14,7 @@ type Props = {
   brands: IBrand[],
   integration?: IIntegration,
   save: (variables: { name: string; brandId: string }) => void,
+  closeModal?: () => void
 }
 
 class ChooseBrand extends Component<Props> {
@@ -36,7 +37,7 @@ class ChooseBrand extends Component<Props> {
 
   handleSubmit(e) {
     e.preventDefault();
-    this.context.closeModal();
+    this.props.closeModal;
 
     this.props.save({
       name: (document.getElementById('integration-name') as HTMLInputElement).value,
@@ -81,7 +82,7 @@ class ChooseBrand extends Component<Props> {
           <Button
             btnStyle="simple"
             icon="cancel-1"
-            onClick={() => this.context.closeModal()}
+            onClick={this.props.closeModal}
           >
             Cancel
           </Button>
