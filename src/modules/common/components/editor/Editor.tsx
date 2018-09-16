@@ -162,13 +162,13 @@ type ErxesEditorProps = {
   onChange: (richUtils: any) => void,
   bordered: boolean,
   // extra control rows
-  controls: any[],
-  pluginContent: any,
-  plugins: any[]
-  keyBindingFn: () => void,
-  onUpArrow: () => void,
-  onDownArrow: () => void,
-  handleFileInput: (e: any) => void,
+  controls?: any[],
+  pluginContent?: any,
+  plugins?: any[]
+  keyBindingFn?: () => void,
+  onUpArrow?: () => void,
+  onDownArrow?: () => void,
+  handleFileInput?: (e: any) => void,
   placeholder?: string
 };
 

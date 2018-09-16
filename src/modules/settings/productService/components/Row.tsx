@@ -48,9 +48,11 @@ class Row extends Component<Props> {
     );
 
     return (
-      <ModalTrigger title="Edit" trigger={editTrigger}>
-        {this.renderEditForm({ product, save })}
-      </ModalTrigger>
+      <ModalTrigger 
+        title="Edit" 
+        trigger={editTrigger}
+        content={(props) => <Form {...props} product={product} save={save} />}
+      />
     );
   }
 

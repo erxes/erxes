@@ -15,11 +15,17 @@ export interface IUserLinks {
     website?: string,
 }
 
+export interface IUserConversation {
+    list: any[],
+    totalCount: number
+}
+
 export interface IUser {
-    _id: string;
-    username: string;
-    email: string;
-    details?: IUserDetails;
-    links?: IUserLinks
-    getNotificationByEmail?: boolean
+    _id: string,
+    username: string,
+    email: string,
+    details?: IUserDetails,
+    links?: IUserLinks,
+    getNotificationByEmail?: boolean,
+    participatedConversations? : IUserConversation[]
 }

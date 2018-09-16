@@ -73,7 +73,7 @@ export default compose(
       skip: ({ type }) => type === 'form'
     }
   ),
-  graphql<{ queryParams: any }>(
+  graphql(
     gql`
       query integrationGetGoogleAccessToken($code: String) {
         integrationGetGoogleAccessToken(code: $code)
@@ -82,7 +82,7 @@ export default compose(
     {
       name: 'googleAccessTokenQuery',
       skip: ({ queryParams }) => !queryParams.code,
-      options: ({ queryParams }) => ({
+      options: ({ queryParams } : { queryParams: any }) => ({
         variables: { code: queryParams.code }
       })
     }

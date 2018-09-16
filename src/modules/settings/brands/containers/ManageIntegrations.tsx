@@ -34,12 +34,8 @@ class ManageIntegrationsContainer extends Component<Props> {
         key={integration._id}
         title="Choose new brand"
         trigger={actionTrigger}
-      >
-        <ChooseBrand
-          integration={integration}
-          onSave={() => handleChange(icon, integration)}
-        />
-      </ModalTrigger>
+        content={(props) => <ChooseBrand {...props} integration={integration} onSave={() => handleChange(icon, integration)} />}
+      />
     );
   }
 
@@ -75,10 +71,10 @@ class ManageIntegrationsContainer extends Component<Props> {
 }
 
 export default compose(
-  graphql<Props>(
+  graphql(
     gql(mutations.brandManageIntegrations), {
     name: 'saveMutation',
-    options: ({ queryParams, currentBrand }) => {
+    options: ({ queryParams, currentBrand } : { queryParams: any, currentBrand: IBrand }) => {
       return {
         refetchQueries: [
           {

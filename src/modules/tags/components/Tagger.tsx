@@ -6,8 +6,8 @@ import React, { Component } from 'react';
 type Props = {
   type: string,
   targets: string[],
-  event: string,
-  className: string,
+  event?: string,
+  className?: string,
 
   // from container
   loading: boolean,

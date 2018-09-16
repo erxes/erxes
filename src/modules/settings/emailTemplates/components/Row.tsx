@@ -1,6 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { Row as CommonRow } from '../../common/components';
+import { RowActions } from '../../common/components';
+import { ICommonRowActionProps } from '../../common/types';
+import { IEmailTemplate } from '../types';
 import Form from './Form';
 
 const IframePreview = styled.div`
@@ -20,11 +22,7 @@ const IframePreview = styled.div`
   }
 `;
 
-class Row extends CommonRow {
-  renderForm(props) {
-    return <Form {...props} />;
-  }
-
+class Row extends React.Component<{ object: IEmailTemplate } & ICommonRowActionProps> {
   render() {
     const { object } = this.props;
 
@@ -37,7 +35,12 @@ class Row extends CommonRow {
         </td>
         <td>{object.name}</td>
 
-        {this.renderActions()}
+        <RowActions
+          {...this.props}
+          renderForm={(props) =>
+            <Form {...props} />
+          }
+        />
       </tr>
     );
   }

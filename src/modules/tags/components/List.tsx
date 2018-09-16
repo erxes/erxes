@@ -10,7 +10,7 @@ import Sidebar from './Sidebar';
 type Props = {
   tags: ITag[],
   type: string,
-  remove: () => void,
+  remove: (tag: ITag) => void,
   save: (params: { tag: ITag, doc: ITagSaveDoc, callback: () => void }) => void
 };
 

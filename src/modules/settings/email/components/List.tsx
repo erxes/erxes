@@ -47,9 +47,12 @@ class List extends React.Component<Props, {}> {
         </td>
         <td>
           <ActionButtons>
-            <ModalTrigger title={title} trigger={editTrigger} ignoreTrans>
-              <Config brandId={_id} refetch={refetch} />
-            </ModalTrigger>
+            <ModalTrigger 
+              title={title} 
+              trigger={editTrigger}
+              content={(props) => <Config {...props} brandId={_id} refetch={refetch} />} 
+              ignoreTrans
+            />
           </ActionButtons>
         </td>
       </tr>

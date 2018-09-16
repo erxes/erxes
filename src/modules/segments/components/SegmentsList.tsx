@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 import { ISegment } from '../types';
 
 type Props = {
-  contentType: string,
+  contentType?: string,
   segments: ISegment[],
   removeSegment: (_id: string) => void
 };
