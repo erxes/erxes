@@ -24,11 +24,6 @@ class List extends Component<Props> {
     super(props);
 
     this.renderRow = this.renderRow.bind(this);
-    this.renderEditForm = this.renderEditForm.bind(this);
-  }
-
-  renderEditForm(props) {
-    return <Form {...props} />;
   }
 
   renderRow() {
@@ -54,9 +49,11 @@ class List extends Component<Props> {
     );
 
     const actionBarRight = (
-      <ModalTrigger title="Add Product / Service" trigger={trigger}>
-        {this.renderEditForm({ save })}
-      </ModalTrigger>
+      <ModalTrigger 
+        title="Add Product / Service" 
+        trigger={trigger}
+        content={(props) => <Form {...props} save={save} />}
+      />
     );
 
     const content = (

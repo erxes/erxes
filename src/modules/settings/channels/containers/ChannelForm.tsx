@@ -4,7 +4,7 @@ import { ChannelForm } from '../components';
 import { IChannel } from '../types';
 
 type Props = {
-  channel: IChannel,
+  channel?: IChannel,
   members: IUser[],
   save: ({ doc }: { doc: any }, callback: () => void, channel: IChannel) => void,
   loading?: boolean

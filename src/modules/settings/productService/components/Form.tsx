@@ -10,7 +10,7 @@ import { TYPES } from '../constants';
 import { IProduct } from '../types';
 
 type Props = {
-  product: IProduct,
+  product?: IProduct,
   save: (doc: any, callback: () => void, product: IProduct) => void,
   closeModal: () => void,
 };
