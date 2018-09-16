@@ -12,7 +12,7 @@ import { ICommonListProps } from '../types';
 type Props = {
   title?: string;
   size?: string;
-  renderForm?: (doc: { save: () => void }) => any;
+  renderForm?: (doc: { save: () => void , closeModal: () => void }) => any;
   renderContent?: (params: any) => any;
   breadcrumb?: any[];
 };
