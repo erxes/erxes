@@ -1,15 +1,19 @@
-import * as React from 'react';
-import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
+import apolloClient from 'apolloClient';
+import consts from 'consts';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
 import { SignIn } from '../components';
 import { mutations } from '../graphql';
-import consts from 'consts';
-import apolloClient from 'apolloClient';
 
-const SignInContainer = props => {
+type Props = {
+  loginMutation: (params: { variables: any }) => any
+  history: any
+};
+
+const SignInContainer = (props: Props) => {
   const { loginMutation, history } = props;
 
   const login = variables => {
@@ -38,11 +42,6 @@ const SignInContainer = props => {
   };
 
   return <SignIn {...updatedProps} />;
-};
-
-SignInContainer.propTypes = {
-  loginMutation: PropTypes.func,
-  history: PropTypes.object
 };
 
 export default withRouter(

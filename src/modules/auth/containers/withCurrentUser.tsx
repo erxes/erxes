@@ -1,11 +1,14 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
 
+type Props = {
+  currentUserQuery: any
+};
+
 const withCurrentUser = Component => {
-  const Container = props => {
+  const Container = (props: Props) => {
     const { currentUserQuery } = props;
 
     if (currentUserQuery.loading) {
@@ -18,10 +21,6 @@ const withCurrentUser = Component => {
     };
 
     return <Component {...updatedProps} />;
-  };
-
-  Container.propTypes = {
-    currentUserQuery: PropTypes.object
   };
 
   return compose(

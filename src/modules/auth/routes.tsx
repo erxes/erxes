@@ -1,8 +1,8 @@
-import * as React from 'react';
 import queryString from 'query-string';
+import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { AuthLayout } from '../layout/containers';
-import { SignIn, ForgotPassword, ResetPassword } from './containers';
+import { ForgotPassword, ResetPassword, SignIn } from './containers';
 
 const routes = () => [
   <Route

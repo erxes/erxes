@@ -1,13 +1,20 @@
-import * as React from 'react';
-import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
 import { ResetPassword } from '../components';
 import { mutations } from '../graphql';
 
-const ResetPasswordContainer = props => {
+type Props = {
+  token?: string,
+  resetPasswordMutation?: (params: { variables: { newPassword: string, token: string } }) => any,
+  history: any,
+  location: any,
+  match: any
+};
+
+const ResetPasswordContainer = (props: Props) => {
   const { resetPasswordMutation, history, token } = props;
 
   const resetPassword = newPassword => {
@@ -33,13 +40,7 @@ const ResetPasswordContainer = props => {
   return <ResetPassword {...updatedProps} />;
 };
 
-ResetPasswordContainer.propTypes = {
-  token: PropTypes.string,
-  resetPasswordMutation: PropTypes.func,
-  history: PropTypes.object
-};
-
-export default withRouter(
+export default withRouter<Props>(
   compose(
     graphql(gql(mutations.resetPassword), {
       name: 'resetPasswordMutation'
