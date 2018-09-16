@@ -1,12 +1,15 @@
+import gql from 'graphql-tag';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Widget } from '../components';
-import { compose, graphql } from 'react-apollo';
-import gql from 'graphql-tag';
 import { queries } from '../graphql';
 
-class WidgetContainer extends Component {
+type Props = {
+  notificationCountQuery: any
+};
+
+class WidgetContainer extends Component<Props> {
   render() {
     const { notificationCountQuery } = this.props;
 
@@ -18,10 +21,6 @@ class WidgetContainer extends Component {
     return <Widget {...updatedProps} />;
   }
 }
-
-WidgetContainer.propTypes = {
-  notificationCountQuery: PropTypes.object
-};
 
 export default withRouter(
   compose(

@@ -83,9 +83,9 @@ class ProductListContainer extends React.Component<Props> {
 }
 
 export default compose(
-  graphql<{ queryParams: any }>(gql(queries.products), {
+  graphql(gql(queries.products), {
     name: 'productsQuery',
-    options: ({ queryParams }) => ({
+    options: ({ queryParams } : { queryParams: any }) => ({
       variables: {
         page: queryParams.page || 1,
         perPage: queryParams.perPage || 20

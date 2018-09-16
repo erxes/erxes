@@ -1,12 +1,18 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../graphql';
 import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { NotificationList } from '../components';
+import { mutations, queries } from '../graphql';
 
-class NotificationListContainer extends React.Component {
+type Props = {
+  queryParams: any,
+  notificationsQuery: any,
+  notificationCountQuery: any,
+  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => any
+};
+
+class NotificationListContainer extends React.Component<Props> {
   render() {
     const {
       notificationsQuery,
@@ -37,17 +43,10 @@ class NotificationListContainer extends React.Component {
   }
 }
 
-NotificationListContainer.propTypes = {
-  queryParams: PropTypes.object,
-  notificationsQuery: PropTypes.object,
-  notificationCountQuery: PropTypes.object,
-  notificationsMarkAsReadMutation: PropTypes.func
-};
-
 export default compose(
   graphql(gql(queries.notifications), {
     name: 'notificationsQuery',
-    options: ({ queryParams }) => ({
+    options: ({ queryParams }: { queryParams: any }) => ({
       variables: {
         requireRead: false,
         page: queryParams.page,

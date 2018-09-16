@@ -75,10 +75,10 @@ class ManageIntegrationsContainer extends Component<Props> {
 }
 
 export default compose(
-  graphql<Props>(
+  graphql(
     gql(mutations.brandManageIntegrations), {
     name: 'saveMutation',
-    options: ({ queryParams, currentBrand }) => {
+    options: ({ queryParams, currentBrand } : { queryParams: any, currentBrand: IBrand }) => {
       return {
         refetchQueries: [
           {

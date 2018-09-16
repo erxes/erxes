@@ -76,9 +76,9 @@ export default compose(
   `),
     { name: 'googleAuthQuery' }
   ),
-  graphql<{ queryParams: any }>(gql(mutations.integrationsRemove), {
+  graphql(gql(mutations.integrationsRemove), {
     name: 'removeMutation',
-    options: ({ queryParams }) => {
+    options: ({ queryParams } : { queryParams: any }) => {
       return {
         refetchQueries: [
           {

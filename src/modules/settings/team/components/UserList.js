@@ -1,6 +1,6 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import { Table } from 'modules/common/components';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 import { List } from '../../common/components';
 import { UserForm } from '../containers';
 import Row from './Row';
