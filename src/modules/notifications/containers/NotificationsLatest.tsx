@@ -1,13 +1,17 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
 import { Spinner } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { NotificationsLatest } from '../components';
+import { mutations, queries } from '../graphql';
 
-class NotificationsLatestContainer extends React.Component {
+type Props = {
+  notificationsQuery: any,
+  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => any
+};
+
+class NotificationsLatestContainer extends React.Component<Props> {
   render() {
     const { notificationsQuery, notificationsMarkAsReadMutation } = this.props;
 
@@ -36,11 +40,6 @@ class NotificationsLatestContainer extends React.Component {
     return <NotificationsLatest {...updatedProps} />;
   }
 }
-
-NotificationsLatestContainer.propTypes = {
-  notificationsQuery: PropTypes.object,
-  notificationsMarkAsReadMutation: PropTypes.func
-};
 
 export default compose(
   graphql(gql(mutations.markAsRead), {
