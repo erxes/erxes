@@ -1,10 +1,10 @@
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { Sidebar } from '../layout/components';
 import { SidebarList } from '../layout/styles';
 
-function SettingsSidebar(props, { __ }) {
+function SettingsSidebar(props) {
   const { Title } = Sidebar.Section;
 
   return (
@@ -37,9 +37,5 @@ function SettingsSidebar(props, { __ }) {
     </Sidebar>
   );
 }
-
-SettingsSidebar.contextTypes = {
-  __: PropTypes.func
-};
 
 export default SettingsSidebar;

@@ -1,18 +1,31 @@
-import React, { Fragment } from 'react';
 import { EditorState } from 'draft-js';
 import {
-  FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
 import {
+  createStateFromHTML,
   ErxesEditor,
-  toHTML,
-  createStateFromHTML
+  toHTML
 } from 'modules/common/components/editor/Editor';
+import { __ } from 'modules/common/utils';
+import React, { Component, Fragment } from 'react';
+import { IBrand } from '../../brands/types';
 import { Form as CommonForm } from '../../common/components';
+import { ICommonFormProps } from '../../common/types';
+import { IResponseTemplate } from '../types';
 
-class Form extends CommonForm {
+type Props = {
+  object?: IResponseTemplate;
+  brands: IBrand[];
+}
+
+type State = {
+  editorState: any;
+}
+
+class Form extends Component<Props & ICommonFormProps, State> {
   constructor(props) {
     super(props);
 
@@ -25,6 +38,7 @@ class Form extends CommonForm {
       )
     };
 
+    this.renderContent = this.renderContent.bind(this);
     this.onChange = this.onChange.bind(this);
     this.getContent = this.getContent.bind(this);
   }
@@ -40,20 +54,21 @@ class Form extends CommonForm {
   generateDoc() {
     return {
       doc: {
-        brandId: document.getElementById('template-brand-id').value,
-        name: document.getElementById('template-name').value,
+        brandId: (document.getElementById('template-brand-id') as HTMLInputElement).value,
+        name: (document.getElementById('template-name') as HTMLInputElement).value,
         content: this.getContent(this.state.editorState)
       }
     };
   }
 
-  renderContent(resTemplate) {
-    const { __ } = this.context;
+  renderContent() {
     const { brands } = this.props;
+    const object = this.props.object || {} as IResponseTemplate;
+
     const props = {
       editorState: this.state.editorState,
       onChange: this.onChange,
-      defaultValue: resTemplate.content
+      defaultValue: object.content
     };
 
     return (
@@ -63,8 +78,8 @@ class Form extends CommonForm {
 
           <FormControl
             componentClass="select"
-            placeholder={__('Select Brand')}
-            defaultValue={resTemplate.brandId}
+            placeholder={__('Select Brand').toString()}
+            defaultValue={object.brandId}
             id="template-brand-id"
           >
             {brands.map(brand => (
@@ -79,7 +94,7 @@ class Form extends CommonForm {
           <ControlLabel>Name</ControlLabel>
           <FormControl
             id="template-name"
-            defaultValue={resTemplate.name}
+            defaultValue={object.name}
             type="text"
             required
           />
@@ -91,6 +106,16 @@ class Form extends CommonForm {
         </FormGroup>
       </Fragment>
     );
+  }
+
+  render() {
+    return (
+      <CommonForm
+        {...this.props}
+        renderContent={this.renderContent}
+        generateDoc={this.generateDoc}
+      />
+    )
   }
 }
 

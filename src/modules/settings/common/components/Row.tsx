@@ -9,14 +9,14 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 
 type Props = {
+  size?: string;
+  renderForm: (doc: { object: any, closeModal: () => void, save: () => void }) => void,
   object: any,
   remove: (_id: string) => void,
   save: () => void,
 };
 
-class Row extends React.Component<Props, {}> {
-  private size;
-
+export default class RowActions extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
 
@@ -37,12 +37,8 @@ class Row extends React.Component<Props, {}> {
     );
   }
 
-  renderForm(doc) {
-    return null;
-  }
-
   renderEditAction() {
-    const { object, save } = this.props;
+    const { size, renderForm, object, save } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -53,13 +49,18 @@ class Row extends React.Component<Props, {}> {
     );
 
     return (
-      <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
-        {this.renderForm({ object, save })}
-      </ModalTrigger>
+      <ModalTrigger
+        size={size}
+        title="Edit"
+        trigger={editTrigger}
+        content={(props) => {
+          return renderForm({ ...props, object, save })
+        }}
+      />
     );
   }
 
-  renderActions() {
+  render() {
     return (
       <td>
         <ActionButtons>
@@ -70,5 +71,3 @@ class Row extends React.Component<Props, {}> {
     );
   }
 }
-
-export default Row;

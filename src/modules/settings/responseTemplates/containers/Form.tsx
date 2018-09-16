@@ -1,28 +1,22 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Form } from '../components';
 import { Spinner } from 'modules/common/components';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { ICommonFormProps } from '../../common/types';
+import { Form } from '../components';
 
-const FormContainer = props => {
+type Props = {
+  brandsQuery: any
+};
+
+const FormContainer = (props: Props & ICommonFormProps) => {
   const { brandsQuery } = props;
 
   if (brandsQuery.loading) {
     return <Spinner objective />;
   }
 
-  const updatedProps = {
-    ...props,
-    brands: brandsQuery.brands
-  };
-
-  return <Form {...updatedProps} />;
-};
-
-FormContainer.propTypes = {
-  object: PropTypes.object,
-  brandsQuery: PropTypes.object
+  return <Form {...props} brands={brandsQuery.brands} />;
 };
 
 export default compose(
