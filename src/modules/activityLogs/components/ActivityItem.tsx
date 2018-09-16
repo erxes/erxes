@@ -1,18 +1,23 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
-import { NameCard, Icon, Tip } from 'modules/common/components';
 import {
-  ActivityRow,
-  AvatarWrapper,
   ActivityContent,
   ActivityDate,
   ActivityIcon,
-  FlexContent,
-  FlexBody
+  ActivityRow,
+  AvatarWrapper,
+  FlexBody,
+  FlexContent
 } from 'modules/activityLogs/styles';
+import { Icon, NameCard, Tip } from 'modules/common/components';
+import moment from 'moment';
+import React, { Fragment } from 'react';
 
-const ActivityItem = data => {
+type Props = {
+  data: any
+};
+
+const ActivityItem = (props: Props) => {
+  const { data } = props;
+
   return (
     <ActivityRow key={Math.random()}>
       <ActivityIcon color={data.color}>
@@ -34,10 +39,6 @@ const ActivityItem = data => {
       </Fragment>
     </ActivityRow>
   );
-};
-
-ActivityItem.propTypes = {
-  data: PropTypes.object.isRequired
 };
 
 export default ActivityItem;

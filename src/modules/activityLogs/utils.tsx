@@ -1,5 +1,6 @@
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import { IUser } from '../auth/types';
 
 const MONTHS = [
   'January',
@@ -48,6 +49,11 @@ const ICON_AND_COLOR_TABLE = {
  * and convert it into a data used on the front side.
  */
 export default class {
+  private queryData: any;
+  private currentUser: IUser;
+  private target: string;
+  private type: string;
+
   /**
    * A constructor method
    * @param {Ojbect} queryData - The query received from the back end
@@ -72,12 +78,12 @@ export default class {
   _processItem({ date, list }) {
     const { year, month } = date;
 
-    let result = {
+    const result = {
       title: `${MONTHS[month]} ${year}`,
       data: []
     };
 
-    for (let item of list) {
+    for (const item of list) {
       if (this.type && this.type !== item.action) continue;
 
       const iconAndColor = this._getIconAndColor(item.action);
@@ -179,9 +185,9 @@ export default class {
    * @return {Object[]} - Returns list of proccessed list of logs
    */
   process() {
-    let result = [];
+    const result = [];
 
-    for (let item of this.queryData) {
+    for (const item of this.queryData) {
       result.push(this._processItem(item));
     }
     return result;

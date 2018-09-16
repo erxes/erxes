@@ -1,18 +1,18 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import { EmptyState, Icon } from 'modules/common/components';
-import { Timeline, ActivityTitle } from '../styles';
+import * as React from 'react';
+import { IUser } from '../../auth/types';
+import { ActivityTitle, Timeline } from '../styles';
 import ActivityLogProcessor from '../utils';
 import ActivityItem from './ActivityItem';
 
-const propTypes = {
-  activities: PropTypes.array,
-  user: PropTypes.object,
-  target: PropTypes.string,
-  type: PropTypes.string
+type Props = {
+  activities: any[],
+  user: IUser,
+  target: string,
+  type: string
 };
 
-class ActivityList extends React.Component {
+class ActivityList extends React.Component<Props> {
   renderList(activity) {
     const activities = activity.data;
 
@@ -46,7 +46,5 @@ class ActivityList extends React.Component {
     return <Timeline>{activities.map(item => this.renderList(item))}</Timeline>;
   }
 }
-
-ActivityList.propTypes = propTypes;
 
 export default ActivityList;
