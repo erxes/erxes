@@ -1,13 +1,18 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { confirm } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { SegmentsList } from '../components';
-import { queries, mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 
-const SegmentListContainer = props => {
+type Props = {
+  object: any,
+  segmentsQuery: any,
+  removeMutation: (params: { variables: { _id: string } }) => any
+};
+
+const SegmentListContainer = (props: Props) => {
   const { segmentsQuery, removeMutation } = props;
 
   const removeSegment = _id => {
@@ -35,16 +40,10 @@ const SegmentListContainer = props => {
   return <SegmentsList {...updatedProps} />;
 };
 
-SegmentListContainer.propTypes = {
-  object: PropTypes.object,
-  segmentsQuery: PropTypes.object,
-  removeMutation: PropTypes.func
-};
-
 export default compose(
   graphql(gql(queries.segments), {
     name: 'segmentsQuery',
-    options: ({ contentType }) => ({
+    options: ({ contentType }: { contentType: string }) => ({
       fetchPolicy: 'network-only',
       variables: { contentType }
     })

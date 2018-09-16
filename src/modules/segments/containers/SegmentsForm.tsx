@@ -1,14 +1,24 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Alert } from 'modules/common/utils';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Alert } from 'modules/common/utils';
+import { queries as customerQueries } from 'modules/customers/graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { SegmentsForm } from '../components';
 import { mutations, queries } from '../graphql';
-import { queries as customerQueries } from 'modules/customers/graphql';
 
-class SegmentsFormContainer extends React.Component {
-  constructor(props) {
+type Props = {
+  contentType: string,
+  history: any,
+  segmentDetailQuery: any,
+  headSegmentsQuery: any,
+  combinedFieldsQuery: any,
+  segmentsAdd: (params: { variables: { contentType: string, doc: any } }) => any,
+  segmentsEdit: (params: { variables: { _id: string, doc: any } }) => any,
+  customerCounts: any
+};
+
+class SegmentsFormContainer extends React.Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.create = this.create.bind(this);
@@ -83,21 +93,10 @@ class SegmentsFormContainer extends React.Component {
   }
 }
 
-SegmentsFormContainer.propTypes = {
-  contentType: PropTypes.string,
-  history: PropTypes.object,
-  segmentDetailQuery: PropTypes.object,
-  headSegmentsQuery: PropTypes.object,
-  combinedFieldsQuery: PropTypes.object,
-  segmentsAdd: PropTypes.func,
-  segmentsEdit: PropTypes.func,
-  customerCounts: PropTypes.object
-};
-
 export default compose(
   graphql(gql(queries.segmentDetail), {
     name: 'segmentDetailQuery',
-    options: ({ id }) => ({
+    options: ({ id } : { id: string }) => ({
       variables: { _id: id }
     })
   }),
@@ -107,7 +106,7 @@ export default compose(
   graphql(gql(queries.headSegments), { name: 'headSegmentsQuery' }),
   graphql(gql(queries.combinedFields), {
     name: 'combinedFieldsQuery',
-    options: ({ contentType }) => ({
+    options: ({ contentType } : { contentType: string } ) => ({
       variables: { contentType }
     })
   }),

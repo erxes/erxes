@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { SegmentsList, SegmentsForm } from './containers';
+import { SegmentsForm, SegmentsList } from './containers';
 
 const routes = () => [
   <Route

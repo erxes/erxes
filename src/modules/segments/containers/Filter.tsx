@@ -1,13 +1,19 @@
-import * as React from 'react';
-import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { router } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
 import { Filter } from '../components';
 import { queries } from '../graphql';
 
-const FilterContainer = props => {
+type Props = {
+  segmentsQuery: any,
+  history: any,
+  location: any,
+  match: any
+};
+
+const FilterContainer = (props: Props) => {
   const { segmentsQuery, history } = props;
 
   const currentSegment = router.getParam(history, 'segment');
@@ -32,16 +38,11 @@ const FilterContainer = props => {
   return <Filter {...extendedProps} />;
 };
 
-FilterContainer.propTypes = {
-  segmentsQuery: PropTypes.object,
-  history: PropTypes.object
-};
-
 export default compose(
   graphql(gql(queries.segments), {
     name: 'segmentsQuery',
-    options: ({ contentType }) => ({
+    options: ({ contentType }: { contentType: string }) => ({
       variables: { contentType }
     })
   })
-)(withRouter(FilterContainer));
+)(withRouter<Props>(FilterContainer));
