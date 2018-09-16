@@ -13,8 +13,8 @@ type Props = {
 };
 
 class Twitter extends Component<Props> {
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
 
     this.handleSubmit = this.handleSubmit.bind(this);
   }

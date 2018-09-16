@@ -20,7 +20,7 @@ type Props = {
   renderName: (data: any) => void,
   perPage: number,
   clearState: () => void,
-  limit: number,
+  limit?: number,
 };
 
 type State = {

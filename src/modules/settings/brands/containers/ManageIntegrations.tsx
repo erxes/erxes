@@ -4,10 +4,11 @@ import { Alert } from 'modules/common/utils';
 import { ManageIntegrations } from 'modules/settings/integrations/containers/common';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
 import { queries as integQueries } from 'modules/settings/integrations/graphql';
+import { IIntegration } from 'modules/settings/integrations/types';
 import React, { Component } from 'react';
 import { compose, graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
-import { IBrand, IIntegration } from '../types';
+import { IBrand } from '../types';
 import { ChooseBrand } from './';
 
 type Props = {

@@ -33,4 +33,4 @@ function LoadMore({
   ) : null;
 }
 
-export default withRouter(LoadMore);
+export default withRouter<Props>(LoadMore);

@@ -3,7 +3,7 @@ import queryString from 'query-string';
 /**
  * @param {Object} query
  */
-const setParams = (history, query) => {
+const setParams = (history: any, query: any) => {
   const location = Object.assign({}, history.location);
 
   // convert to {param1: value1}
@@ -22,7 +22,7 @@ const setParams = (history, query) => {
 /**
  * @param {String} name
  */
-const getParam = (history, name) => {
+const getParam = (history: any, name: string | string[]) => {
   const location = Object.assign({}, history.location);
 
   // convert to {param1: value1}
@@ -34,7 +34,7 @@ const getParam = (history, name) => {
 /**
  * @param {...String} queryNames
  */
-const removeParams = (history, ...queryNames) => {
+const removeParams = (history: any, ...queryNames: string[]) => {
   const location = Object.assign({}, history.location);
 
   // convert to {param1: value1}
@@ -53,7 +53,7 @@ const removeParams = (history, ...queryNames) => {
 /*
  * @param {Object} query
  */
-const refetchIfUpdated = (history, query) => {
+const refetchIfUpdated = (history: any, query: any) => {
   if (history.location.search.includes('updated')) {
     // refetch query if path has refetch param
     query.refetch();

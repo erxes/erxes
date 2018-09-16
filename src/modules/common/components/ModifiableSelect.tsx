@@ -3,12 +3,9 @@ import Select from 'react-select-plus';
 import { Button, FormControl, FormGroup, Icon } from '.';
 import { __, Alert } from '../utils';
 
-type Props = {
-  options: any[],
-  onChange: (params: {options: any[] , selectedOption: any}) => void,
-  value?: string,
-  placeholder?: string,
-  buttonText?: string
+type OptionProps = {
+  option: any,
+  onSelect: (option: any[] , e: any ) => void
 };
 
 class Option extends Component<OptionProps> {
@@ -34,9 +31,12 @@ class Option extends Component<OptionProps> {
   }
 }
 
-type OptionProps = {
-  option: any,
-  onSelect: (option: any[] , e: any ) => void
+type Props = {
+  options: any[],
+  onChange: (params: {options: any[] , selectedOption: any}) => void,
+  value?: string,
+  placeholder?: string,
+  buttonText?: string
 };
 
 type State = {
@@ -179,7 +179,6 @@ class ModifiableSelect extends Component<Props, State> {
   render() {
     const { placeholder } = this.props;
     const { selectedOption } = this.state;
-    const { __ } = this.context;
 
     return (
       <Fragment>

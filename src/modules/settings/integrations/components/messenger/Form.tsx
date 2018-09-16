@@ -1,16 +1,17 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { IUser } from '../../../../auth/types';
-import { Button, FormControl, Step, Steps } from '../../../../common/components';
+import { IUser } from 'modules/auth/types';
+import { Button, FormControl, Step, Steps } from 'modules/common/components';
 import {
   Preview,
   StepWrapper,
   TitleContainer
-} from '../../../../common/components/step/styles';
-import { __, Alert } from '../../../../common/utils';
-import { Wrapper } from '../../../../layout/components';
-import { IBrand, IIntegration } from '../../../brands/types';
-import { MessengerPreview, Row } from '../../styles';
+} from 'modules/common/components/step/styles';
+import { __, Alert } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
+import { IBrand } from 'modules/settings/brands/types';
+import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
+import { IIntegration } from 'modules/settings/integrations/types';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { Appearance, Availability, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
 
@@ -47,31 +48,48 @@ class CreateMessenger extends Component<Props, State> {
     super(props);
 
     const integration = props.integration;
-    const configData = integration && (integration.messengerData);
-    const uiOptions = integration && (integration.uiOptions);
+    const configData =( integration && (integration.messengerData)) || {
+      welcomeMessage: '',
+      awayMessage: '',
+      thankYouMessage: '',
+      notifyCustomer: false,
+      supporterIds: [],
+      availabilityMethod: '',
+      isOnline: false,
+      timezone: '',
+      onlineHours: [],
+    };
+
+    const uiOptions = integration && (integration.uiOptions) || {
+      color: '#6569DF',
+      wallpaper: '1',
+      availabilityMethod: 'manual',
+      logo: '',
+      logoPreviewUrl: '/images/erxes.png',
+    };
 
     this.state = {
-      title: integration.name,
-      brandId: integration.brandId,
-      languageCode: integration.languageCode,
+      title: integration && integration.name,
+      brandId: integration && integration.brandId,
+      languageCode: integration && integration.languageCode,
       activeStep: 1,
-      color: uiOptions.color || '#6569DF',
-      wallpaper: uiOptions.wallpaper || '1',
+      color: uiOptions.color,
+      wallpaper: uiOptions.wallpaper,
       welcomeMessage: configData.welcomeMessage,
       awayMessage: configData.awayMessage,
       thankYouMessage: configData.thankYouMessage,
-      notifyCustomer: configData.notifyCustomer || false,
+      notifyCustomer: configData.notifyCustomer,
       supporterIds: configData.supporterIds || [],
-      availabilityMethod: configData.availabilityMethod || 'manual',
-      isOnline: configData.isOnline || false,
-      timezone: configData.timezone || '',
+      availabilityMethod: configData.availabilityMethod,
+      isOnline: configData.isOnline,
+      timezone: configData.timezone,
       onlineHours: (configData.onlineHours || []).map(h => ({
         _id: Math.random(),
         ...h
       })),
       logo: uiOptions.logo,
       logoPreviewStyle: {},
-      logoPreviewUrl: uiOptions.logo || '/images/erxes.png'
+      logoPreviewUrl: uiOptions.logo
     };
 
     this.onChange = this.onChange.bind(this);

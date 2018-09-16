@@ -16,7 +16,7 @@ export const renderFullName = data => {
   return data.primaryEmail || data.primaryPhone || 'N/A';
 };
 
-export const setTitle = (title, force) => {
+export const setTitle = (title: string, force: boolean) => {
   if (!document.title.includes(title) || force) {
     document.title = title;
   }
@@ -37,7 +37,7 @@ export const setBadge = (count: number, title: string) => {
   }
 };
 
-export const reorder = (list, startIndex, endIndex) => {
+export const reorder = (list: string[], startIndex: number, endIndex: number) => {
   const result = Array.from(list);
 
   const [removed] = result.splice(startIndex, 1);
@@ -53,22 +53,22 @@ export const generateRandomColorCode = () => {
 };
 
 // Create an array with "stop" numbers, starting from "start"
-export const range = (start, stop) => {
+export const range = (start: number, stop: number) => {
   return Array.from(Array(stop), (_, i) => start + i);
 };
 
 // Return the list of values that are the intersection of two arrays
-export const intersection = (array1, array2) => {
+export const intersection = (array1: any[], array2: any[]) => {
   return array1.filter(n => array2.includes(n));
 };
 
 // Computes the union of the passed-in arrays: the list of unique items
-export const union = (array1, array2) => {
+export const union = (array1: any[], array2: any[]) => {
   return array1.concat(array2.filter(n => !array1.includes(n)));
 };
 
 // Similar to without, but returns the values from array that are not present in the other arrays.
-export const difference = (array1, array2) => {
+export const difference = (array1: any[], array2: any[]) => {
   return array1.filter(n => !array2.includes(n));
 };
 

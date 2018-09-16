@@ -1,3 +1,4 @@
+import { IIntegration } from 'modules/settings/integrations/types';
 import React, { Component } from 'react';
 import {
   Button,
@@ -7,7 +8,7 @@ import {
 } from '../../../common/components';
 import { ModalFooter } from '../../../common/styles/main';
 import { __ } from '../../../common/utils';
-import { IBrand, IIntegration } from '../types';
+import { IBrand } from '../types';
 
 type Props = {
   brands: IBrand[],

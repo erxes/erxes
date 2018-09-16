@@ -12,7 +12,7 @@ import { InstallCode } from 'modules/settings/integrations/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { IIntegration } from '../../../brands/types';
+import { IIntegration } from '../../types';
 
 type Props = {
   integrations: IIntegration[],

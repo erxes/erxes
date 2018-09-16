@@ -1,4 +1,4 @@
-const hexToRgb = hex => {
+const hexToRgb = (hex: any) => {
   const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 
   hex = hex.replace(shorthandRegex, (m, r, g, b) => {
@@ -16,7 +16,7 @@ const hexToRgb = hex => {
 };
 
 // returns true if color is light
-const isColorLight = hex => {
+const isColorLight = (hex: number) => {
   let luminance = 0;
 
   if (hex) {

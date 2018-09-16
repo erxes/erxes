@@ -5,7 +5,7 @@ import { queries as companyQueries } from 'modules/companies/graphql';
 import { queries as customerQueries } from 'modules/customers/graphql';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 
-const searchCompany = (searchValue, callback) => {
+const searchCompany = (searchValue: string, callback: (data? : any) => void) => {
   client
     .query({
       query: gql(companyQueries.companies),
@@ -19,7 +19,7 @@ const searchCompany = (searchValue, callback) => {
     });
 };
 
-const searchCustomer = (searchValue, callback) => {
+const searchCustomer = (searchValue: string, callback: (data? : any) => void) => {
   client
     .query({
       query: gql(customerQueries.customers),
@@ -33,7 +33,7 @@ const searchCustomer = (searchValue, callback) => {
     });
 };
 
-const searchUser = (searchValue, callback) => {
+const searchUser = (searchValue: string, callback: (data? : any) => void) => {
   client
     .query({
       query: gql(userQueries.users),

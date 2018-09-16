@@ -1,8 +1,8 @@
 import T from 'i18n-react';
+import translations from 'locales';
 import { IUser } from 'modules/auth/types';
 import moment from 'moment';
 import * as React from 'react';
-import translations from './locales';
 
 moment.defineLocale('mn', {
   relativeTime: {

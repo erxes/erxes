@@ -1,5 +1,5 @@
 // check if valid url
-const isValidURL = url => {
+const isValidURL = (url: string) => {
   const expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,6}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi; // eslint-disable-line
   const regex = new RegExp(expression);
 
@@ -11,7 +11,7 @@ const isValidURL = url => {
 };
 
 // extract hostname e.g: www.domain.com
-const extractHostname = url => {
+const extractHostname = (url: string) => {
   let hostname;
 
   if (!url) url = '';
@@ -29,7 +29,7 @@ const extractHostname = url => {
 };
 
 // extract root domain e.g: domain.com
-const extractRootDomain = url => {
+const extractRootDomain = (url: string) => {
   let domain = extractHostname(url);
   const splitArr = domain.split('.');
   const arrLen = splitArr.length;
