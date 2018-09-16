@@ -5,6 +5,7 @@ import {
   Icon,
   ModalTrigger
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Column, Columns, Footer, Title } from '../styles/chooser';
@@ -128,7 +129,6 @@ class CommonChooser extends Component<Props, State> {
   render() {
     const { datas, form, title, data } = this.props;
     const selectedDatas = this.state.datas;
-    const { __ } = this.context;
 
     const addTrigger = (
       <p>
@@ -142,7 +142,7 @@ class CommonChooser extends Component<Props, State> {
         <Columns>
           <Column>
             <FormControl
-              placeholder={__('Type to search')}
+              placeholder={__('Type to search').toString()}
               onChange={e => this.search(e)}
             />
             <ul>

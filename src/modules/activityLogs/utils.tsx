@@ -63,7 +63,9 @@ export default class {
     if (type === 'notes') this.type = 'internal_note-create';
 
     this.queryData = activities;
-    this.currentUser = user;
+
+    // TODO: checkout without {}
+    this.currentUser = user || {} as IUser;
     this.target = target || 'N/A';
   }
 
