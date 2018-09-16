@@ -1,3 +1,4 @@
+import { __ } from 'modules/common/utils';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { List } from 'modules/companies/styles';
 import { ICustomer } from 'modules/customers/types';
@@ -10,7 +11,6 @@ export default class RightSidebar extends React.Component<{ customer: ICustomer 
     const { Section } = Sidebar;
     const { Title } = Section;
 
-    const { __ } = this.context;
     const { customer } = this.props;
 
     const { integration, visitorContactInfo } = customer;
