@@ -1,22 +1,25 @@
 import * as React from 'react';
-import { Row as CommonRow } from '../../common/components';
+import { IBrand } from '../../brands/types';
+import { RowActions } from '../../common/components';
+import { ICommonRowActionProps } from '../../common/types';
 import { Form } from '../containers';
+import { IResponseTemplate } from '../types';
 
-class Row extends CommonRow {
-  renderForm(props) {
-    return <Form {...props} />;
-  }
-
+class Row extends React.Component<{ object: IResponseTemplate } & ICommonRowActionProps> {
   render() {
     const { object } = this.props;
-    const brand = object.brand || {};
+    const brand = object.brand || {} as IBrand;
 
     return (
       <tr>
         <td>{brand.name}</td>
         <td>{object.name}</td>
-
-        {this.renderActions()}
+        <RowActions
+          {...this.props}
+          renderForm={(props) =>
+            <Form {...props} />
+          }
+        />
       </tr>
     );
   }
