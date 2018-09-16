@@ -40,9 +40,14 @@ class List extends React.Component<Props & ICommonListProps, {}> {
     );
 
     const actionBarLeft = (
-      <ModalTrigger title={title} size={size} trigger={trigger}>
-        {renderForm({ save })}
-      </ModalTrigger>
+      <ModalTrigger 
+        title={title} 
+        size={size} 
+        trigger={trigger}
+        content={(props) => {
+          return renderForm({ ...props, save })
+        }}
+      />
     );
 
     return (
