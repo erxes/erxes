@@ -102,9 +102,9 @@ const commonOptions = ({ queryParams, currentChannelId }) => {
 };
 
 export default compose(
-  graphql<{ queryParams: any }>(gql(queries.channels), {
+  graphql(gql(queries.channels), {
     name: 'channelsQuery',
-    options: ({ queryParams }) => ({
+    options: ({ queryParams } : { queryParams: any }) => ({
       variables: {
         perPage: queryParams.limit || 20
       },

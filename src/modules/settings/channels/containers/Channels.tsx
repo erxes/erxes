@@ -45,16 +45,16 @@ class Channels extends React.Component<Props> {
 }
 
 const ChannelsContainer = compose(
-  graphql<Props>(gql(queries.channelDetail), {
+  graphql(gql(queries.channelDetail), {
     name: 'channelDetailQuery',
-    options: ({ currentChannelId }) => ({
+    options: ({ currentChannelId } : { currentChannelId: string }) => ({
       variables: { _id: currentChannelId },
       fetchPolicy: 'network-only'
     })
   }),
-  graphql<Props>(gql(queries.integrationsCount), {
+  graphql(gql(queries.integrationsCount), {
     name: 'integrationsCountQuery',
-    options: ({ currentChannelId }) => ({
+    options: ({ currentChannelId } : { currentChannelId: string }) => ({
       variables: { channelId: currentChannelId }
     })
   })
@@ -95,10 +95,10 @@ type WithCurrentIdProps = {
 };
 
 const WithLastChannel = compose(
-  graphql<{ queryParams: any }>(gql(queries.channelsGetLast), {
+  graphql(gql(queries.channelsGetLast), {
     name: 'lastChannelQuery',
     skip: ({ queryParams }) => queryParams._id,
-    options: ({ queryParams }) => ({
+    options: ({ queryParams }: { queryParams: any }) => ({
       variables: { _id: queryParams._id },
       fetchPolicy: 'network-only'
     })

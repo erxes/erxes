@@ -7,7 +7,7 @@ import { PasswordConfirmation } from '.';
 
 type Props = {
   currentUser: IUser,
-  closeModal: () => void,
+  closeModal?: () => void,
   save: (save: { username: string, email: string, details: any, links: any, password: string }) => void
 };
 

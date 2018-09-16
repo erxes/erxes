@@ -12,8 +12,8 @@ import {
 
 type Props = {
   notifications: any[],
-  markAsRead: () => void,
-  update: () => void
+  markAsRead: (_ids: string[]) => void,
+  update?: () => void
 };
 
 class NotificationsLatest extends Component<Props> {

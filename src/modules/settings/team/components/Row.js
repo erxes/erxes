@@ -1,7 +1,7 @@
+import { NameCard } from 'modules/common/components';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import styled from 'styled-components';
-import { NameCard } from 'modules/common/components';
 import { Row as CommonRow } from '../../common/components';
 import { UserForm } from '../containers';
 
