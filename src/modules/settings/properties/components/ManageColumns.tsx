@@ -1,6 +1,6 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 import { Button, FormControl, SortableList } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
+import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { IConfig, IContentTypeFields } from '../types';
@@ -80,7 +80,6 @@ class ManageColumns extends Component<Props, State> {
 
   render() {
     const { config } = this.props;
-    const { __ } = this.context;
 
     const configMap = {};
 
