@@ -1,34 +1,30 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Dropdown } from 'react-bootstrap';
-import { Sidebar } from 'modules/layout/components';
-import {
-  DropdownToggle,
-  Button,
-  NameCard,
-  Icon,
-  ModalTrigger
-} from 'modules/common/components';
-import { Links, InfoWrapper } from 'modules/common/styles/main';
-import { confirm, searchCompany } from 'modules/common/utils';
-import { TargetMerge } from 'modules/customers/components';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { AvatarWrapper } from 'modules/activityLogs/styles';
+import {
+  Button,
+  DropdownToggle,
+  Icon,
+  ModalTrigger,
+  NameCard
+} from 'modules/common/components';
+import { InfoWrapper, Links } from 'modules/common/styles/main';
+import { __, confirm, searchCompany } from 'modules/common/utils';
+import { TargetMerge } from 'modules/customers/components';
 import { Action } from 'modules/customers/styles';
+import { Sidebar } from 'modules/layout/components';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import * as React from 'react';
+import { Dropdown } from 'react-bootstrap';
+import { CompaniesMerge } from '..';
 import { CompanyForm } from '../../containers';
-import { CompaniesMerge } from '../';
+import { ICompany } from '../../types';
 
-const propTypes = {
-  company: PropTypes.object.isRequired,
-  remove: PropTypes.func,
-  merge: PropTypes.func
+type Props = {
+  company: ICompany,
+  remove: () => void,
+  merge: (params: { ids: string[], data: any }) => void,
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
-
-class BasicInfo extends React.Component {
+class BasicInfo extends React.Component<Props> {
   constructor(props) {
     super(props);
 
@@ -60,8 +56,6 @@ class BasicInfo extends React.Component {
   }
 
   renderRow(label, value) {
-    const { __ } = this.context;
-
     return (
       <li>
         {__(`${label}`)}:
@@ -71,7 +65,6 @@ class BasicInfo extends React.Component {
   }
 
   renderAction() {
-    const { __ } = this.context;
     const { remove, merge, company } = this.props;
 
     return (
@@ -128,9 +121,10 @@ class BasicInfo extends React.Component {
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
             size="lg"
-          >
-            <CompanyForm company={company} />
-          </ModalTrigger>
+            content={(props) => (
+              <CompanyForm {...props} company={company} />
+            )}
+          />
         </InfoWrapper>
 
         {this.renderAction()}
@@ -162,8 +156,5 @@ class BasicInfo extends React.Component {
     return this.renderInfo();
   }
 }
-
-BasicInfo.propTypes = propTypes;
-BasicInfo.contextTypes = contextTypes;
 
 export default BasicInfo;

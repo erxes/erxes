@@ -1,30 +1,36 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import { Wrapper } from 'modules/layout/components';
-import { WhiteBox } from 'modules/layout/styles';
+import { ActivityList } from 'modules/activityLogs/components';
+import { IUser } from 'modules/auth/types';
 import {
   DataWithLoader,
+  Icon,
   Tabs,
-  TabTitle,
-  Icon
+  TabTitle
 } from 'modules/common/components';
+import { ActivityContent } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import { ICompany } from 'modules/companies/types';
+import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
-import { ActivityList } from 'modules/activityLogs/components';
+import { Wrapper } from 'modules/layout/components';
+import { WhiteBox } from 'modules/layout/styles';
+import * as React from 'react';
+import { withRouter } from 'react-router';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
-import { hasAnyActivity } from 'modules/customers/utils';
-import { ActivityContent } from 'modules/common/styles/main';
 
-const propTypes = {
-  company: PropTypes.object.isRequired,
-  currentUser: PropTypes.object.isRequired,
-  companyActivityLog: PropTypes.array.isRequired,
-  taggerRefetchQueries: PropTypes.array,
-  loadingLogs: PropTypes.bool.isRequired
+type Props = {
+  company: ICompany,
+  currentUser: IUser,
+  companyActivityLog: any[],
+  taggerRefetchQueries?: any[],
+  loadingLogs: boolean,
 };
 
-class CompanyDetails extends React.Component {
+type State = {
+  currentTab: string
+};
+
+class CompanyDetails extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -59,7 +65,7 @@ class CompanyDetails extends React.Component {
               user={currentUser}
               activities={companyActivityLog}
               target={company.primaryName}
-              type={currentTab} //show logs filtered by type
+              type={currentTab}
             />
           }
           emptyText="No Activities"
@@ -72,7 +78,6 @@ class CompanyDetails extends React.Component {
   render() {
     const { currentTab } = this.state;
     const { company, taggerRefetchQueries } = this.props;
-    const { __ } = this.context;
 
     const breadcrumb = [
       { title: __('Companies'), link: '/companies' },
@@ -132,10 +137,5 @@ class CompanyDetails extends React.Component {
     );
   }
 }
-
-CompanyDetails.propTypes = propTypes;
-CompanyDetails.contextTypes = {
-  __: PropTypes.func
-};
 
 export default withRouter(CompanyDetails);

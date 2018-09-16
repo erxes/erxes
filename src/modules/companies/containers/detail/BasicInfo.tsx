@@ -1,13 +1,22 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { BasicInfo } from 'modules/companies/components';
 import { mutations } from 'modules/companies/graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { IUser } from '../../../auth/types';
+import { ICompany } from '../../types';
 
-const BasicInfoContainer = props => {
+type Props = {
+  companiesRemove: (params: { variables: { companyIds: string[] } }) => Promise<any>
+  companiesMerge: (params: { variables: { companyIds: string[], companyFields: any } }) => Promise<any>,
+  history: any,
+  location: any
+  currentUser: IUser
+};
+
+const BasicInfoContainer = (props: BaseProps & Props) => {
   const { company, companiesRemove, companiesMerge, history } = props;
 
   const { _id } = company;
@@ -48,20 +57,16 @@ const BasicInfoContainer = props => {
   return <BasicInfo {...updatedProps} />;
 };
 
-BasicInfoContainer.propTypes = {
-  company: PropTypes.object.isRequired,
-  companiesRemove: PropTypes.func,
-  companiesMerge: PropTypes.func,
-  history: PropTypes.object.isRequired
-};
-
-BasicInfoContainer.contextTypes = {
-  currentUser: PropTypes.object
-};
-
 const generateOptions = () => ({
   refetchQueries: ['companieMain', 'companyCounts']
 });
+
+type BaseProps = {
+  company: ICompany,
+  history: any,
+  location: any,
+  match: any,
+};
 
 export default compose(
   // mutations

@@ -1,13 +1,20 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { queries } from '../../graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { IUser } from '../../../auth/types';
 import { CompanyDetails } from '../../components';
+import { queries } from '../../graphql';
 
-const CompanyDetailsContainer = (props, { currentUser }) => {
-  const { id, companyDetailQuery, companyActivityLogQuery } = props;
+type Props = {
+  id: string,
+  companyDetailQuery?: any
+  companyActivityLogQuery?: any,
+  currentUser: IUser,
+};
+
+const CompanyDetailsContainer = (props: Props) => {
+  const { id, companyDetailQuery, companyActivityLogQuery, currentUser } = props;
 
   if (companyDetailQuery.loading) {
     return <Spinner />;
@@ -28,26 +35,17 @@ const CompanyDetailsContainer = (props, { currentUser }) => {
     company: companyDetail,
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     taggerRefetchQueries,
-    currentUser
+    currentUser,
   };
 
   return <CompanyDetails {...updatedProps} />;
 };
 
-CompanyDetailsContainer.propTypes = {
-  id: PropTypes.string,
-  companyDetailQuery: PropTypes.object,
-  companyActivityLogQuery: PropTypes.object
-};
-
-CompanyDetailsContainer.contextTypes = {
-  currentUser: PropTypes.object
-};
 
 export default compose(
   graphql(gql(queries.companyDetail), {
     name: 'companyDetailQuery',
-    options: ({ id }) => ({
+    options: ({ id }: { id: string }) => ({
       variables: {
         _id: id
       }
@@ -55,7 +53,7 @@ export default compose(
   }),
   graphql(gql(queries.activityLogsCompany), {
     name: 'companyActivityLogQuery',
-    options: ({ id }) => ({
+    options: ({ id }: { id: string }) => ({
       variables: {
         _id: id
       }

@@ -1,47 +1,53 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import { Wrapper } from 'modules/layout/components';
 import {
-  Pagination,
-  ModalTrigger,
   Button,
-  Table,
   DataWithLoader,
   FormControl,
-  SortHandler
+  ModalTrigger,
+  Pagination,
+  SortHandler,
+  Table
 } from 'modules/common/components';
-import { router, confirm } from 'modules/common/utils';
+import { __, confirm, router } from 'modules/common/utils';
+import { CompaniesTableWrapper } from 'modules/companies/styles';
+import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
 import { ManageColumns } from 'modules/settings/properties/containers';
 import { TaggerPopover } from 'modules/tags/components';
-import Sidebar from './Sidebar';
-import CompanyRow from './CompanyRow';
+import * as React from 'react';
+import { withRouter } from 'react-router';
+import { CompaniesMerge } from '..';
 import { CompanyForm } from '../../containers';
-import { CompaniesTableWrapper } from 'modules/companies/styles';
-import { CompaniesMerge } from '../';
+import { ICompany } from '../../types';
+import CompanyRow from './CompanyRow';
+import Sidebar from './Sidebar';
 
-const propTypes = {
-  companies: PropTypes.array.isRequired,
-  counts: PropTypes.object.isRequired,
-  columnsConfig: PropTypes.array.isRequired,
-  history: PropTypes.object,
-  location: PropTypes.object,
-  loading: PropTypes.bool.isRequired,
-  searchValue: PropTypes.string.isRequired,
-  toggleBulk: PropTypes.func.isRequired,
-  toggleAll: PropTypes.func.isRequired,
-  bulk: PropTypes.array.isRequired,
-  isAllSelected: PropTypes.bool,
-  emptyBulk: PropTypes.func.isRequired,
-  tags: PropTypes.array.isRequired,
-  removeCompanies: PropTypes.func.isRequired,
-  loadingTags: PropTypes.bool.isRequired,
-  mergeCompanies: PropTypes.func.isRequired,
-  queryParams: PropTypes.object
+type Props = {
+  companies: ICompany[],
+  counts: any,
+  columnsConfig: any,
+  history: any,
+  location: any,
+  loading: boolean,
+  searchValue: string,
+  toggleBulk: () => void,
+  toggleAll: (targets: ICompany[], containerId: string) => void,
+  bulk: any[],
+  isAllSelected: boolean,
+  emptyBulk: () => void
+  tags: any[],
+  removeCompanies: (doc: { companyIds: string[] }) => void,
+  loadingTags: boolean,
+  mergeCompanies: () => void,
+  queryParams: any,
 };
 
-class CompaniesList extends React.Component {
+type State = {
+  searchValue?: string
+};
+
+class CompaniesList extends React.Component<Props, State> {
+  private timer: NodeJS.Timer
+
   constructor(props) {
     super(props);
 
@@ -104,8 +110,6 @@ class CompaniesList extends React.Component {
       mergeCompanies,
       queryParams
     } = this.props;
-
-    const { __ } = this.context;
 
     const mainContent = (
       <CompaniesTableWrapper>
@@ -185,9 +189,8 @@ class CompaniesList extends React.Component {
               title="Merge Companies"
               size="lg"
               trigger={mergeButton}
-            >
-              <CompaniesMerge objects={bulk} save={mergeCompanies} />
-            </ModalTrigger>
+              content={(props) => <CompaniesMerge {...props} objects={bulk} save={mergeCompanies} />}
+            />
           )}
 
           <Button
@@ -210,22 +213,30 @@ class CompaniesList extends React.Component {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
+          placeholder={__('Type to search').toString()}
           onChange={e => this.search(e)}
           value={this.state.searchValue}
           autoFocus
           onFocus={e => this.moveCursorAtTheEnd(e)}
         />
-        <ModalTrigger title="Choose which column you see" trigger={editColumns}>
-          <ManageColumns
-            location={location}
-            history={history}
-            contentType="company"
+        <ModalTrigger 
+          title="Choose which column you see" 
+          trigger={editColumns}
+          content={(props) => (
+            <ManageColumns
+              {...props}
+              location={location}
+              history={history}
+              contentType="company"
+              />
+            )}
           />
-        </ModalTrigger>
-        <ModalTrigger title="New company" trigger={addTrigger} size="lg">
-          <CompanyForm queryParams={queryParams} />
-        </ModalTrigger>
+        <ModalTrigger 
+          title="New company" 
+          trigger={addTrigger} 
+          size="lg"
+          content={(props) => <CompanyForm  {...props} queryParams={queryParams} />}
+         />
       </BarItems>
     );
 
@@ -257,10 +268,5 @@ class CompaniesList extends React.Component {
     );
   }
 }
-
-CompaniesList.propTypes = propTypes;
-CompaniesList.contextTypes = {
-  __: PropTypes.func
-};
 
 export default withRouter(CompaniesList);

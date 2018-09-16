@@ -1,19 +1,14 @@
-import * as React from 'react';
-import moment from 'moment';
-import PropTypes from 'prop-types';
-import { Sidebar } from 'modules/layout/components';
+import { __ } from 'modules/common/utils';
+import { ICompany } from 'modules/companies/types';
 import { CustomerAssociate } from 'modules/customers/containers';
 import { PortableDeals } from 'modules/deals/containers';
+import { Sidebar } from 'modules/layout/components';
+import moment from 'moment';
+import * as React from 'react';
 import { List } from '../../styles';
 
-const propTypes = {
-  company: PropTypes.object.isRequired
-};
-
-export default class RightSidebar extends React.Component {
+export default class RightSidebar extends React.Component<{ company: ICompany }> {
   renderPlan(company) {
-    const { __ } = this.context;
-
     if (!company.plan) {
       return null;
     }
@@ -28,7 +23,6 @@ export default class RightSidebar extends React.Component {
 
   render() {
     const { company } = this.props;
-    const { __ } = this.context;
 
     const { Section } = Sidebar;
     const { Title } = Section;
@@ -56,8 +50,3 @@ export default class RightSidebar extends React.Component {
     );
   }
 }
-
-RightSidebar.propTypes = propTypes;
-RightSidebar.contextTypes = {
-  __: PropTypes.func
-};

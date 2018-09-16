@@ -1,13 +1,21 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Chooser } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { CompanyForm } from '../containers';
-import { queries, mutations } from '../graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { CompanyForm } from '.';
+import { mutations, queries } from '../graphql';
+import { ICompanyDoc } from '../types';
 
-const CompanyChooser = props => {
+type Props = {
+  data: any,
+  companiesQuery: any,
+  companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>,
+  search: (value?: string) => void,
+  perPage: number,
+};
+
+const CompanyChooser = (props: WrapperProps & Props) => {
   const { data, companiesQuery, companiesAdd, search } = props;
 
   // add company
@@ -52,17 +60,10 @@ const CompanyChooser = props => {
   return <Chooser {...updatedProps} />;
 };
 
-CompanyChooser.propTypes = {
-  data: PropTypes.object.isRequired,
-  companiesQuery: PropTypes.object.isRequired,
-  companiesAdd: PropTypes.func.isRequired,
-  search: PropTypes.func.isRequired
-};
-
 const WithQuery = compose(
   graphql(gql(queries.companies), {
     name: 'companiesQuery',
-    options: ({ searchValue, perPage }) => {
+    options: ({ searchValue, perPage }: { searchValue: string, perPage: number }) => {
       return {
         variables: {
           searchValue,
@@ -77,11 +78,16 @@ const WithQuery = compose(
   })
 )(CompanyChooser);
 
-export default class Wrapper extends React.Component {
+type WrapperProps = {
+  data: any,
+  onSelect: (datas: any[]) => void,
+};
+
+export default class Wrapper extends React.Component<WrapperProps, { perPage: number, searchValue: string }> {
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20 };
+    this.state = { perPage: 20, searchValue: '' };
 
     this.search = this.search.bind(this);
   }
