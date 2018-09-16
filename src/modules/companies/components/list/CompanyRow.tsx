@@ -1,17 +1,17 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
 import _ from 'lodash';
-import { FormControl, Tags, NameCard } from 'modules/common/components';
+import { FormControl, NameCard, Tags } from 'modules/common/components';
 import { urlParser } from 'modules/common/utils';
+import moment from 'moment';
+import * as React from 'react';
 import { FlexItem } from '../../styles';
+import { ICompany } from '../../types';
 
-const propTypes = {
-  company: PropTypes.object.isRequired,
-  columnsConfig: PropTypes.array.isRequired,
-  history: PropTypes.object.isRequired,
-  isChecked: PropTypes.bool,
-  toggleBulk: PropTypes.func
+type Props = {
+  company: ICompany,
+  columnsConfig: any[],
+  history: any,
+  isChecked: boolean,
+  toggleBulk?: () => void,
 };
 
 function isTimeStamp(value) {
@@ -79,7 +79,7 @@ function CompanyRow({
   history,
   isChecked,
   toggleBulk
-}) {
+}: Props) {
   const tags = company.getTags || [];
 
   const onChange = e => {
@@ -114,7 +114,5 @@ function CompanyRow({
     </tr>
   );
 }
-
-CompanyRow.propTypes = propTypes;
 
 export default CompanyRow;

@@ -1,13 +1,18 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Sidebar } from 'modules/layout/components';
-import { TaggerSection } from 'modules/customers/components/common';
 import {
   BasicInfo,
   CustomFieldsSection
 } from 'modules/companies/containers/detail';
+import { ICompany } from 'modules/companies/types';
+import { TaggerSection } from 'modules/customers/components/common';
+import { Sidebar } from 'modules/layout/components';
+import * as React from 'react';
 
-class LeftSidebar extends React.Component {
+type Props = {
+  company: ICompany,
+  taggerRefetchQueries?: any[],
+};
+
+class LeftSidebar extends React.Component<Props> {
   render() {
     const { company, taggerRefetchQueries } = this.props;
 
@@ -24,10 +29,5 @@ class LeftSidebar extends React.Component {
     );
   }
 }
-
-LeftSidebar.propTypes = {
-  company: PropTypes.object.isRequired,
-  taggerRefetchQueries: PropTypes.array
-};
 
 export default LeftSidebar;

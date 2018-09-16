@@ -1,22 +1,25 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { InfoTitle, InfoDetail, Info } from 'modules/customers/styles';
-import { COMPANY_INFO, COMPANY_DATAS } from '../../constants';
-import { Title, Columns, Column } from 'modules/common/styles/chooser';
+import { Button, Icon } from 'modules/common/components';
+import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
-import { Icon, Button } from 'modules/common/components';
+import { COMPANY_DATAS, COMPANY_INFO } from 'modules/companies/constants';
+import { Info, InfoDetail, InfoTitle } from 'modules/customers/styles';
+import * as React from 'react';
 
-const propTypes = {
-  objects: PropTypes.array,
-  save: PropTypes.func
+type Props = {
+  objects: any[],
+  save: (doc: {
+    ids: string[],
+    data: any,
+    callback: () => void
+  }) => void,
+  closeModal: () => void,
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func,
-  __: PropTypes.func
+type State = {
+  selectedValues: any;
 };
 
-class CompaniesMerge extends React.Component {
+class CompaniesMerge extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -142,7 +145,7 @@ class CompaniesMerge extends React.Component {
 
   render() {
     const { selectedValues } = this.state;
-    const { objects } = this.props;
+    const { objects, closeModal } = this.props;
     const [company1, company2] = objects;
 
     return (
@@ -162,7 +165,7 @@ class CompaniesMerge extends React.Component {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            onClick={() => this.context.closeModal()}
+            onClick={() => closeModal()}
             icon="cancel-1"
           >
             Cancel
@@ -175,8 +178,5 @@ class CompaniesMerge extends React.Component {
     );
   }
 }
-
-CompaniesMerge.propTypes = propTypes;
-CompaniesMerge.contextTypes = contextTypes;
 
 export default CompaniesMerge;

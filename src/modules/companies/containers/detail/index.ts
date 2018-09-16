@@ -1,5 +1,5 @@
+import BasicInfo from './BasicInfo';
 import CompanyDetails from './CompanyDetails';
 import CustomFieldsSection from './CustomFieldsSection';
-import BasicInfo from './BasicInfo';
 
 export { CompanyDetails, CustomFieldsSection, BasicInfo };

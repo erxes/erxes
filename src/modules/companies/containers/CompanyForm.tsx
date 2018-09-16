@@ -1,12 +1,22 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { IUser } from '../../auth/types';
 import { CompanyForm } from '../components';
 import { mutations } from '../graphql';
+import { ICompany, ICompanyDoc } from '../types';
 
-const CompanyFromContainer = props => {
+type Props = {
+  company: ICompany,
+  closeModal: () => void,
+  companiesEdit: (params: { variables: ICompany }) => Promise<any>,
+  companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>,
+  usersQuery: any,
+  currentUser: IUser
+};
+
+const CompanyFromContainer = (props: Props) => {
   const { companiesEdit, company, companiesAdd } = props;
 
   let action = ({ doc }) => {
@@ -37,17 +47,6 @@ const CompanyFromContainer = props => {
   };
 
   return <CompanyForm {...updatedProps} />;
-};
-
-CompanyFromContainer.propTypes = {
-  company: PropTypes.object,
-  usersQuery: PropTypes.object,
-  companiesEdit: PropTypes.func,
-  companiesAdd: PropTypes.func
-};
-
-CompanyFromContainer.contextTypes = {
-  currentUser: PropTypes.object
 };
 
 const options = () => ({
