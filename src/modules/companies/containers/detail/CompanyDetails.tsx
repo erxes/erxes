@@ -2,17 +2,19 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { IUser } from '../../../auth/types';
 import { CompanyDetails } from '../../components';
 import { queries } from '../../graphql';
 
 type Props = {
   id: string,
   companyDetailQuery?: any
-  companyActivityLogQuery?: any
+  companyActivityLogQuery?: any,
+  currentUser: IUser,
 };
 
-const CompanyDetailsContainer = (props: Props, context) => {
-  const { id, companyDetailQuery, companyActivityLogQuery } = props;
+const CompanyDetailsContainer = (props: Props) => {
+  const { id, companyDetailQuery, companyActivityLogQuery, currentUser } = props;
 
   if (companyDetailQuery.loading) {
     return <Spinner />;
@@ -33,7 +35,7 @@ const CompanyDetailsContainer = (props: Props, context) => {
     company: companyDetail,
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     taggerRefetchQueries,
-    currentUser: context.currentUser
+    currentUser,
   };
 
   return <CompanyDetails {...updatedProps} />;

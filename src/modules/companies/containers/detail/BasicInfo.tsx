@@ -5,6 +5,7 @@ import { mutations } from 'modules/companies/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
+import { IUser } from '../../../auth/types';
 import { ICompany } from '../../types';
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
   companiesMerge: (params: { variables: { companyIds: string[], companyFields: any } }) => Promise<any>,
   history: any,
   location: any
+  currentUser: IUser
 };
 
 const BasicInfoContainer = (props: BaseProps & Props) => {

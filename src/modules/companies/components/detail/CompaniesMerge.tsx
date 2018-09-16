@@ -55,7 +55,7 @@ class CompaniesMerge extends React.Component<Props, State> {
       ids: objects.map(company => company._id),
       data: { ...selectedValues },
       callback: () => {
-        this.context.closeModal();
+        this.props.closeModal();
       }
     });
   }
