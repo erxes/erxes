@@ -1,3 +1,3 @@
-import ActivityList from './ActivityList.js';
+import ActivityList from './ActivityList';
 
 export { ActivityList };
