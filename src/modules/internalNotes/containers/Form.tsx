@@ -1,12 +1,23 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { queries } from 'modules/activityLogs/graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { Form } from '../components';
 import { mutations } from '../graphql';
-import { queries } from 'modules/activityLogs/graphql';
 
-const FormContainer = props => {
+type Props = {
+  contentType: string,
+  contentTypeId: string,
+  internalNotesAdd: (params: {
+    variables: {
+      contentType: string,
+      contentTypeId: string,
+      content: string
+    }
+  }) => void
+};
+
+const FormContainer = (props: Props) => {
   const { contentType, contentTypeId, internalNotesAdd } = props;
 
   // create internalNote
@@ -23,16 +34,10 @@ const FormContainer = props => {
   return <Form create={create} />;
 };
 
-FormContainer.propTypes = {
-  contentType: PropTypes.string,
-  contentTypeId: PropTypes.string,
-  internalNotesAdd: PropTypes.func
-};
-
 export default compose(
   graphql(gql(mutations.internalNotesAdd), {
     name: 'internalNotesAdd',
-    options: props => {
+    options: (props: Props) => {
       return {
         refetchQueries: [
           {

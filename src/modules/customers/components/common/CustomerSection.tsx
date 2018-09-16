@@ -10,7 +10,7 @@ import { CustomerChooser } from '../../containers';
 type Props = {
   name: string,
   customers: ICustomer[],
-  onSelect: () => void,
+  onSelect: (customers: ICustomer[]) => void,
 };
 
 function CustomerSection({ name, customers, onSelect }: Props) {

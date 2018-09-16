@@ -1,16 +1,8 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { FormControl, Button } from 'modules/common/components';
-import styled from 'styled-components';
+import { Button, FormControl } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
-
-const propTypes = {
-  create: PropTypes.func.isRequired
-};
-
-const contextTypes = {
-  __: PropTypes.func
-};
+import { __ } from 'modules/common/utils';
+import React, { Component } from 'react';
+import styled from 'styled-components';
 
 const EditorActions = styled.div`
   padding: 0 20px 10px 20px;
@@ -31,7 +23,7 @@ const EditorWrapper = styled.div`
   }
 `;
 
-class Form extends Component {
+class Form extends Component<{create: (content: string) => void}, { content: string, editing: boolean }> {
   constructor(props) {
     super(props);
 
@@ -92,13 +84,12 @@ class Form extends Component {
   }
 
   render() {
-    const { __ } = this.context;
     return (
       <EditorWrapper>
         <form onKeyDown={this.handleKeyDown} onChange={this.handleChange}>
           <FormControl
             componentClass="textarea"
-            placeholder={__('Start typing to leave a note')}
+            placeholder={__('Start typing to leave a note').toString()}
             value={this.state.content}
           />
           {this.renderFooter()}
@@ -107,8 +98,5 @@ class Form extends Component {
     );
   }
 }
-
-Form.propTypes = propTypes;
-Form.contextTypes = contextTypes;
 
 export default Form;

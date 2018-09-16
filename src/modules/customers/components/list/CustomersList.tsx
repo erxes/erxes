@@ -236,9 +236,14 @@ class CustomersList extends React.Component<Props, State> {
           </Dropdown.Menu>
         </Dropdown>
 
-        <ModalTrigger title="New customer" trigger={addTrigger} size="lg">
-          <CustomerForm size="lg" queryParams={queryParams} />
-        </ModalTrigger>
+        <ModalTrigger
+          title="New customer"
+          trigger={addTrigger}
+          size="lg"
+          content={(props) =>
+            <CustomerForm {...props} size="lg" queryParams={queryParams} />
+          }
+         />
       </BarItems>
     );
 

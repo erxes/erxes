@@ -1,16 +1,17 @@
+import { ITag } from "modules/tags/types";
 import { IUser } from "../auth/types";
 import { IIntegration } from "../settings/integrations/types";
 
-export interface ICustomer {
-    _id: string;
+export interface ICustomerDoc {
     firstName: string;
     lastName: string;
     phones?: string[];
     primaryPhone?: string;
     primaryEmail?: string;
     emails?: string[];
+    avatar?: string;
     isUser?: boolean;
-    owner?: IUser;
+    ownerId?: string;
     position?: string;
     location?: {
         userAgent?: string;
@@ -22,15 +23,26 @@ export interface ICustomer {
     department?: string;
     leadStatus?: string;
     lifecycleState?: string;
-    hasAuthority?: boolean;
-    description?: boolean;
-    doNotDisturb?: boolean;
+    hasAuthority?: string;
+    description?: string;
+    doNotDisturb?: string;
     links?: {
-        facebook: string;
-        twitter: string;
+        website?: string;
+        facebook?: string;
+        twitter?: string;
+        linkedIn?: string;
+        youtube?: string;
+        github?: string;
     }
-    messengerData?: any
-    visitorContactInfo?: any,
-    getMessengerCustomData?: any
-    integration: IIntegration
+    messengerData?: any;
+    customFieldsData?: any;
+    visitorContactInfo?: any;
+}
+
+export interface ICustomer extends ICustomerDoc {
+    _id?: string;
+    owner?: IUser;
+    integration?: IIntegration;
+    getMessengerCustomData?: any;
+    getTags: ITag[];
 }

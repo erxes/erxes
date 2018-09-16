@@ -20,7 +20,7 @@ import { Dropdown } from 'react-bootstrap';
 type Props = {
   customer: ICustomer
   remove: () => void,
-  merge: () => void,
+  merge: (doc: { ids: string[], data: ICustomer }) => void,
 };
 
 class BasicInfo extends Component<Props> {

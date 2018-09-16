@@ -1,10 +1,14 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { FormFilter } from '../components';
 
-const FormFilterContainer = props => {
+type Props = {
+  integrationsQuery: any,
+  counts: any 
+};
+
+const FormFilterContainer = (props: Props) => {
   const { integrationsQuery } = props;
 
   const updatedProps = {
@@ -14,11 +18,6 @@ const FormFilterContainer = props => {
   };
 
   return <FormFilter {...updatedProps} />;
-};
-
-FormFilterContainer.propTypes = {
-  integrationsQuery: PropTypes.object,
-  counts: PropTypes.object
 };
 
 export default compose(
