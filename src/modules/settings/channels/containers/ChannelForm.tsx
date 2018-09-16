@@ -6,8 +6,8 @@ import { IChannel } from '../types';
 type Props = {
   channel: IChannel,
   members: IUser[],
-  save: () => void,
-  loading: boolean
+  save: ({ doc }: { doc: any }, callback: () => void, channel: IChannel) => void,
+  loading?: boolean
 };
 
 const ChannelFormContainer = (props: Props) => {

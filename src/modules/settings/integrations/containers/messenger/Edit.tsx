@@ -106,9 +106,9 @@ const EditMessengerWithData = compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql<{ integrationId: string }>(gql(queries.integrationDetail), {
+  graphql(gql(queries.integrationDetail), {
     name: 'integrationDetailQuery',
-    options: ({ integrationId }) => ({
+    options: ({ integrationId } : { integrationId: string }) => ({
       variables: {
         _id: integrationId || ''
       },
