@@ -12,7 +12,7 @@ import { IProduct } from '../types';
 type Props = {
   product?: IProduct,
   save: (doc: any, callback: () => void, product: IProduct) => void,
-  closeModal: () => void,
+  closeModal?: () => void,
 };
 
 type State = {
