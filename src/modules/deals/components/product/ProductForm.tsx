@@ -9,7 +9,8 @@ type Props = {
   onChangeProductsData: any,
   saveProductsData: any,
   productsData: any,
-  products: any
+  products: any,
+  closeModal: () => void
 };
 
 type State = {
@@ -182,7 +183,7 @@ class ProductForm extends React.Component<Props, State> {
           <ModalFooter>
             <Button
               btnStyle="simple"
-              onClick={() => this.context.closeModal()}
+              onClick={() => this.props.closeModal()}
               icon="cancel-1"
             >
               Close
@@ -192,7 +193,7 @@ class ProductForm extends React.Component<Props, State> {
               btnStyle="success"
               onClick={() => {
                 saveProductsData();
-                this.context.closeModal();
+                this.props.closeModal();
               }}
               icon="checked-1"
             >

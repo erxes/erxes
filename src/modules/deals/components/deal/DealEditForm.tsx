@@ -149,7 +149,7 @@ class DealEditForm extends React.Component<Props, State> {
   }
 
   remove(id) {
-    this.props.removeDeal(id, () => this.context.closeModal());
+    this.props.removeDeal(id, () => this.props.closeModal());
   }
 
   copy() {
@@ -163,7 +163,7 @@ class DealEditForm extends React.Component<Props, State> {
       customerIds: deal.customers.map(customer => customer._id)
     };
 
-    this.props.saveDeal(doc, () => this.context.closeModal());
+    this.props.saveDeal(doc, () => this.props.closeModal());
   }
 
   renderFormContent() {
@@ -221,7 +221,7 @@ class DealEditForm extends React.Component<Props, State> {
         <FormFooter>
           <Button
             btnStyle="simple"
-            onClick={this.context.closeModal}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Close

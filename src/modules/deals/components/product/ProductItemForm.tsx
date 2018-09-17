@@ -103,21 +103,23 @@ class ProductItemForm extends React.Component<Props> {
         title="Choose product & service"
         trigger={this.renderProductServiceTrigger(productData.product)}
         size="large"
-      >
-        <ProductChooser
-          onSelect={products => {
-            const product =
-              products && products.length === 1 ? products[0] : null;
+        content={(props) => (
+          <ProductChooser
+            {...props}
+            onSelect={products => {
+              const product =
+                products && products.length === 1 ? products[0] : null;
 
-            this.onChangeField('product', product, productData._id);
-          }}
-          data={{
-            name: 'Product',
-            products: productData.product ? [productData.product] : []
-          }}
-          limit={1}
-        />
-      </ModalTrigger>
+              this.onChangeField('product', product, productData._id);
+            }}
+            data={{
+              name: 'Product',
+              products: productData.product ? [productData.product] : []
+            }}
+            limit={1}
+          />
+        )}
+      />
     );
   }
 

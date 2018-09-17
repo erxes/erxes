@@ -6,7 +6,6 @@ import {
   ModalTrigger
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';
@@ -22,7 +21,8 @@ type Props = {
   perPage: number,
   clearState: () => void,
   limit?: number,
-  add?: any
+  add?: any,
+  closeModal?: () => void
 };
 
 type State = {
@@ -32,10 +32,6 @@ type State = {
 }
 
 class CommonChooser extends Component<Props, State> {
-  static contextTypes = {
-    closeModal: PropTypes.func.isRequired,
-  };
-
   private timer: NodeJS.Timer
 
   constructor(props) {
@@ -57,7 +53,7 @@ class CommonChooser extends Component<Props, State> {
 
   onSelect() {
     this.props.onSelect(this.state.datas);
-    this.context.closeModal();
+    this.props.closeModal();
   }
 
   componentWillUnmount() {
@@ -177,7 +173,7 @@ class CommonChooser extends Component<Props, State> {
             <div>
               <Button
                 btnStyle="simple"
-                onClick={() => this.context.closeModal()}
+                onClick={() => this.props.closeModal()}
                 icon="cancel-1"
               >
                 Cancel
