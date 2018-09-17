@@ -12,7 +12,7 @@ export interface IActivityLogPerformerDetails {
 export interface IActivityLogActionPerformer {
     _id: string
     type: string
-    details: 
+    details: IActivityLogPerformerDetails
 }
 
 export interface IActivityLog {
