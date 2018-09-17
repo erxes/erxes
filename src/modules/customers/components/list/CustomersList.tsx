@@ -202,13 +202,17 @@ class CustomersList extends React.Component<Props, State> {
           </DropdownToggle>
           <Dropdown.Menu>
             <li>
-              <ModalTrigger title="Manage Columns" trigger={editColumns}>
-                <ManageColumns
-                  contentType="customer"
-                  location={location}
-                  history={history}
+              <ModalTrigger 
+                title="Manage Columns" 
+                trigger={editColumns}
+                content={(props) => (
+                  <ManageColumns
+                    contentType="customer"
+                    location={location}
+                    history={history}
+                  />
+                )}
                 />
-              </ModalTrigger>
             </li>
             <li>
               <Link to="/settings/properties?type=customer">
@@ -277,9 +281,8 @@ class CustomersList extends React.Component<Props, State> {
               title="Merge Customers"
               size="lg"
               trigger={mergeButton}
-            >
-              <CustomersMerge objects={bulk} save={mergeCustomers} />
-            </ModalTrigger>
+              content={(props) => <CustomersMerge {...props} objects={bulk} save={mergeCustomers} />}
+            />
           )}
           <Button
             btnStyle="danger"

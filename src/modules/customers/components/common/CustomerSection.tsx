@@ -41,9 +41,8 @@ function CustomerSection({ name, customers, onSelect }: Props) {
               <Icon icon="add" />
             </a>
           }
-        >
-          <CustomerChooser data={{ name, customers }} onSelect={onSelect} />
-        </ModalTrigger>
+          content={(props) => <CustomerChooser {...props} data={{ name, customers }} onSelect={onSelect} />}
+        />
       </QuickButtons>
 
       <SectionBody>

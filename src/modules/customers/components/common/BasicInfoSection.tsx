@@ -121,9 +121,8 @@ class BasicInfo extends Component<Props> {
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
             size="lg"
-          >
-            <CustomerForm size="lg" customer={customer} />
-          </ModalTrigger>
+            content={(props) => <CustomerForm {...props} size="lg" customer={customer} />}
+          />
         </InfoWrapper>
 
         {this.renderAction()}
