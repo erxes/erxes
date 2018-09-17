@@ -85,7 +85,7 @@ const PropertiesContainer = (props: Props) => {
   };
 
   const currentType = router.getParam(history, 'type');
-  const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || {})];
+  const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || [])];
 
   // Initializing default properties for customer and company
   let defaultGroup = companyBasicInfos;

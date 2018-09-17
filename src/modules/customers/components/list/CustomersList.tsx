@@ -207,6 +207,7 @@ class CustomersList extends React.Component<Props, State> {
                 trigger={editColumns}
                 content={(props) => (
                   <ManageColumns
+                    {...props}
                     contentType="customer"
                     location={location}
                     history={history}
