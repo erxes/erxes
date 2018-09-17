@@ -1,21 +1,20 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import CommonPreview from './CommonPreview';
-import { FormFieldPreview } from './';
+import React, { Component } from "react";
+import { FormFieldPreview } from "./";
+import CommonPreview from "./CommonPreview";
 
-const propTypes = {
-  formTitle: PropTypes.string,
-  formDesc: PropTypes.string,
-  formBtnText: PropTypes.string,
-  color: PropTypes.string,
-  theme: PropTypes.string,
-  fields: PropTypes.array,
-  onFieldEdit: PropTypes.func,
-  onChange: PropTypes.func,
-  type: PropTypes.string
+type Props = {
+  formTitle?: string;
+  formDesc?: string;
+  formBtnText?: string;
+  color?: string;
+  theme?: string;
+  fields?: any;
+  onFieldEdit?: (field) => void;
+  onChange?: (name, value) => void;
+  type?: string;
 };
 
-class FormPreview extends Component {
+class FormPreview extends Component<Props, {}> {
   render() {
     const {
       formTitle,
@@ -48,7 +47,5 @@ class FormPreview extends Component {
     );
   }
 }
-
-FormPreview.propTypes = propTypes;
 
 export default FormPreview;

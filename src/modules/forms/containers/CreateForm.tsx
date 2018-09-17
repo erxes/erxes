@@ -1,13 +1,21 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import { withRouter } from 'react-router';
-import { Alert } from 'modules/common/utils';
-import { Form } from '../components';
-import { queries, mutations } from '../graphql';
+import gql from "graphql-tag";
+import { Alert } from "modules/common/utils";
+import * as React from "react";
+import { compose, graphql } from "react-apollo";
+import { withRouter } from "react-router";
+import { Form } from "../components";
+import { mutations, queries } from "../graphql";
 
-class CreateFormContainer extends Component {
+type Props = {
+  brandsQuery: any;
+  addIntegrationMutation: ({ variables }) => Promise<void>;
+  addFormMutation: ({ variables }) => Promise<any>;
+  addFieldsMutation: ({ variables }) => void;
+  location: any;
+  history: any;
+};
+
+class CreateFormContainer extends React.Component<Props, {}> {
   render() {
     const {
       brandsQuery,
@@ -24,7 +32,7 @@ class CreateFormContainer extends Component {
     const brands = brandsQuery.brands || [];
 
     const save = doc => {
-      let formId = '';
+      let formId = "";
 
       const { form, brandId, name, languageCode, formData, fields } = doc;
 
@@ -46,7 +54,7 @@ class CreateFormContainer extends Component {
             promises.push(
               addFieldsMutation({
                 variables: {
-                  contentType: 'form',
+                  contentType: "form",
                   contentTypeId: formId,
                   ...field
                 }
@@ -58,8 +66,8 @@ class CreateFormContainer extends Component {
         })
 
         .then(() => {
-          Alert.success('Congrats');
-          history.push('/forms');
+          Alert.success("Congrats");
+          history.push("/forms");
         })
 
         .catch(error => {
@@ -77,31 +85,24 @@ class CreateFormContainer extends Component {
   }
 }
 
-CreateFormContainer.propTypes = {
-  brandsQuery: PropTypes.object,
-  addIntegrationMutation: PropTypes.func,
-  addFormMutation: PropTypes.func,
-  addFieldsMutation: PropTypes.func,
-  location: PropTypes.object,
-  history: PropTypes.object
-};
-
 const CreateFormWithData = compose(
   graphql(gql(queries.brands), {
-    name: 'brandsQuery',
-    fetchPolicy: 'network-only'
-  }),
-  graphql(gql(mutations.integrationsCreateFormIntegration), {
-    name: 'addIntegrationMutation',
-    options: props => ({
-      refetchQueries: ['formIntegrations', 'formIntegrationCounts']
+    name: "brandsQuery",
+    options: () => ({
+      fetchPolicy: "network-only"
     })
   }),
+  graphql<Props>(gql(mutations.integrationsCreateFormIntegration), {
+    name: "addIntegrationMutation",
+    options: {
+      refetchQueries: ["formIntegrations", "formIntegrationCounts"]
+    }
+  }),
   graphql(gql(mutations.addForm), {
-    name: 'addFormMutation'
+    name: "addFormMutation"
   }),
   graphql(gql(mutations.fieldsAdd), {
-    name: 'addFieldsMutation'
+    name: "addFieldsMutation"
   })
 )(CreateFormContainer);
 

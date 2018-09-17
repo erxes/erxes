@@ -1,6 +1,6 @@
-import { Button, Icon } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+import { Button, Icon } from "modules/common/components";
+import { __ } from "modules/common/utils";
+import React, { Component } from "react";
 import {
   FullStep,
   ShortStep,
@@ -10,18 +10,18 @@ import {
   StepHeaderTitle,
   StepImg,
   StepItem
-} from './styles';
+} from "./styles";
 
 type Props = {
-  stepNumber?: number,
-  active?: number,
-  img?: string,
-  title?: string,
-  children?: any,
-  next?: (number: number) => void,
-  nextButton?: any,
-  save?: (name: string, e: React.MouseEvent) => void,
-  message?: any
+  stepNumber?: number;
+  active?: number;
+  img?: string;
+  title?: string;
+  children?: any;
+  next?: (number: number) => void;
+  nextButton?: any;
+  save?: (name: string, e: React.MouseEvent) => void;
+  message?: any;
 };
 
 class Step extends Component<Props> {
@@ -34,7 +34,7 @@ class Step extends Component<Props> {
           btnStyle="success"
           size="small"
           icon="checked-1"
-          onClick={e => save('save', e)}
+          onClick={e => save("save", e)}
         >
           Save
         </Button>
@@ -48,7 +48,7 @@ class Step extends Component<Props> {
             btnStyle="warning"
             size="small"
             icon="rightarrow-2"
-            onClick={e => save('draft', e)}
+            onClick={e => save("draft", e)}
           >
             Save & Draft
           </Button>
@@ -56,7 +56,7 @@ class Step extends Component<Props> {
             btnStyle="success"
             size="small"
             icon="checked-1"
-            onClick={e => save('live', e)}
+            onClick={e => save("live", e)}
           >
             Save & Live
           </Button>
@@ -83,7 +83,7 @@ class Step extends Component<Props> {
         size="small"
         onClick={() => this.props.next(0)}
       >
-        {__('Next')} <Icon icon="rightarrow-2" />
+        {__("Next")} <Icon icon="rightarrow-2" />
       </Button>
     );
   }

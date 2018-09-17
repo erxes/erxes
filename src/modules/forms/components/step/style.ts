@@ -1,13 +1,14 @@
-import styled from 'styled-components';
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { BoxRoot } from 'modules/common/styles/main';
-import { PreviewBody } from './preview/styles';
-import { ShoutBox } from './preview/CommonPreview';
+import { colors, dimensions } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import { BoxRoot } from "modules/common/styles/main";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { ShoutBox } from "./preview/CommonPreview";
+import { PreviewBody } from "./preview/styles";
 
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
-const Box = BoxRoot.extend`
+const Box = styledTS<{ selected?: boolean }>(BoxRoot.extend)`
   border: 1px solid
     ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};
   padding: ${dimensions.coreSpacing * 2}px;
@@ -23,10 +24,10 @@ const Box = BoxRoot.extend`
   }
 `;
 
-const BoxRow = styled.div`
+const BoxRow = styledTS<{ type?: string }>(styled.div)`
   display: flex;
   flex-direction: row;
-  margin-right: ${props => props.type && '20px'};
+  margin-right: ${props => props.type && "20px"};
 `;
 
 const FlexItem = styled.div`
@@ -42,13 +43,13 @@ const FullPreview = styled.div`
   overflow: auto;
 `;
 
-const BackgroundSelector = styled.li`
+const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
   display: inline-block;
   cursor: pointer;
   margin-left: ${dimensions.unitSpacing}px;
   border-radius: 50%;
   border: 1px solid
-    ${props => (props.selected ? colors.colorPrimary : 'transparent')};
+    ${props => (props.selected ? colors.colorPrimary : "transparent")};
 
   > div {
     height: ${dimensions.headerSpacing - 20}px;
@@ -109,7 +110,7 @@ const ImageContent = styled.div`
   }
 `;
 
-const CarouselInner = styled.div`
+const CarouselInner = styledTS<{ selected?: boolean }>(styled.div)`
   text-align: center;
   transition: all ease 0.3s;
   flex: 1;
@@ -136,7 +137,7 @@ const CarouselInner = styled.div`
     &:before,
     &:after {
       border-top: 2px solid ${colors.borderDarker};
-      content: ' ';
+      content: " ";
       width: 100%;
     }
   }
@@ -174,7 +175,7 @@ const MarkdownWrapper = styled.div`
 `;
 
 const DesktopPreview = styled.div`
-  background: url('/images/previews/desktop.png') no-repeat;
+  background: url("/images/previews/desktop.png") no-repeat;
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
   flex: 1;
@@ -187,7 +188,7 @@ const DesktopPreview = styled.div`
 `;
 
 const MobilePreview = styled.div`
-  background: url('/images/previews/mobile.png') no-repeat;
+  background: url("/images/previews/mobile.png") no-repeat;
   width: 376px;
   height: 650px;
   margin: 0 auto;
@@ -204,7 +205,7 @@ const MobilePreview = styled.div`
 `;
 
 const TabletPreview = styled.div`
-  background: url('/images/previews/tablet.png') no-repeat center center;
+  background: url("/images/previews/tablet.png") no-repeat center center;
   width: 768px;
   height: 1024px;
   margin: 0 auto;
@@ -212,7 +213,7 @@ const TabletPreview = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
 
-const Tabs = styled.div`
+const Tabs = styledTS<{ selected?: boolean }>(styled.div)`
   display: inline-block;
   padding: ${dimensions.unitSpacing / 2}px ${dimensions.coreSpacing}px;
   background-color: ${props =>
@@ -221,7 +222,8 @@ const Tabs = styled.div`
       : colors.colorPrimaryDark};
   color: ${colors.colorWhite};
   border: 1px solid
-    ${props => (props.selected ? colors.colorPrimaryDark : colors.colorPrimary)};
+    ${props =>
+      props.selected ? colors.colorPrimaryDark : colors.colorPrimary};
   transition: all ease 0.3s;
 
   &:hover {

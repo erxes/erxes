@@ -1,26 +1,25 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { Button } from "modules/common/components";
 import {
   slideDown,
   slideLeft,
   slideRight
-} from 'modules/common/utils/animations';
-import { Button } from 'modules/common/components';
-import { WidgetPreviewStyled } from 'modules/settings/integrations/components/messenger/widgetPreview/styles';
-import { MessengerPreview, Messenger } from 'modules/engage/styles';
-import { LogoContainer } from 'modules/settings/styles';
+} from "modules/common/utils/animations";
+import { Messenger, MessengerPreview } from "modules/engage/styles";
+import { WidgetPreviewStyled } from "modules/settings/integrations/components/messenger/widgetPreview/styles";
+import { LogoContainer } from "modules/settings/styles";
+import React, { Component } from "react";
 import {
-  PreviewTitle,
-  PreviewBody,
   BodyContent,
-  PreviewWrapper,
   CenterContainer,
-  FormContainer,
   DropdownContent,
-  SlideLeftContent,
+  Embedded,
+  FormContainer,
   OverlayTrigger,
-  Embedded
-} from './styles';
+  PreviewBody,
+  PreviewTitle,
+  PreviewWrapper,
+  SlideLeftContent
+} from "./styles";
 
 export const ShoutBox = MessengerPreview.extend`
   height: 100%;
@@ -72,19 +71,19 @@ const SlideRight = SlideRightContent.extend`
   box-shadow: -3px 0px 5px rgba(0, 0, 0, 0.25);
 `;
 
-const propTypes = {
-  title: PropTypes.string,
-  theme: PropTypes.string,
-  color: PropTypes.string,
-  btnText: PropTypes.string,
-  image: PropTypes.string,
-  bodyValue: PropTypes.string,
-  type: PropTypes.string,
-  btnStyle: PropTypes.string,
-  children: PropTypes.any
+type Props = {
+  title?: string;
+  theme?: string;
+  color?: string;
+  btnText?: string;
+  image?: string;
+  bodyValue?: string;
+  type?: string;
+  btnStyle?: string;
+  children?: JSX.Element;
 };
 
-class CommonPreview extends Component {
+class CommonPreview extends Component<Props, {}> {
   renderContent() {
     const {
       title,
@@ -130,7 +129,7 @@ class CommonPreview extends Component {
   render() {
     const { type, theme, color } = this.props;
 
-    if (type === 'shoutbox') {
+    if (type === "shoutbox") {
       return (
         <ShoutBox>
           <Widget>
@@ -145,7 +144,7 @@ class CommonPreview extends Component {
       );
     }
 
-    if (type === 'popup') {
+    if (type === "popup") {
       return (
         <CenterContainer>
           <OverlayTrigger />
@@ -154,7 +153,7 @@ class CommonPreview extends Component {
       );
     }
 
-    if (type === 'dropdown') {
+    if (type === "dropdown") {
       return (
         <Container>
           <Dropdown style={{ borderColor: theme ? theme : color }}>
@@ -164,7 +163,7 @@ class CommonPreview extends Component {
       );
     }
 
-    if (type === 'slideInLeft') {
+    if (type === "slideInLeft") {
       return (
         <CenterContainer>
           <SlideLeft>{this.renderContent()}</SlideLeft>
@@ -172,7 +171,7 @@ class CommonPreview extends Component {
       );
     }
 
-    if (type === 'slideInRight') {
+    if (type === "slideInRight") {
       return (
         <CenterContainer>
           <SlideRight>{this.renderContent()}</SlideRight>
@@ -187,7 +186,5 @@ class CommonPreview extends Component {
     );
   }
 }
-
-CommonPreview.propTypes = propTypes;
 
 export default CommonPreview;
