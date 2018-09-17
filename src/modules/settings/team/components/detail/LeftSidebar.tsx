@@ -1,22 +1,25 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Icon, ModalTrigger, NameCard } from 'modules/common/components';
+import { InfoWrapper, Links } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
-import { Icon, NameCard, ModalTrigger } from 'modules/common/components';
-import { EditProfile } from 'modules/settings/profile/components';
-import { UserForm } from '../../containers';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { Links, InfoWrapper } from 'modules/common/styles/main';
+import { EditProfile } from 'modules/settings/profile/components';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { IUser } from '../../../../auth/types';
+import { IChannel } from '../../../channels/types';
+import { UserForm } from '../../containers';
 import { List } from './styles';
 
-const propTypes = {
-  user: PropTypes.object.isRequired,
-  saveProfile: PropTypes.func,
-  saveUser: PropTypes.func,
-  channels: PropTypes.array
+type Props = {
+  user: IUser,
+  saveUser: (doc: IUser, callback: (e: string) => void ) => void,
+  saveProfile: (variables: IUser) => void,
+  channels: IChannel[],
+  currentUser: IUser,
 };
 
-class LeftSidebar extends React.Component {
+class LeftSidebar extends React.Component<Props> {
   renderLink(link, icon) {
     if (link) {
       return (
@@ -43,9 +46,8 @@ class LeftSidebar extends React.Component {
   render() {
     const { Section } = Sidebar;
     const { Title } = Section;
-    const { user, saveProfile, channels, saveUser } = this.props;
+    const { user, saveProfile, channels, saveUser, currentUser } = this.props;
     const { details = {}, links = {} } = user;
-    const { __, currentUser } = this.context;
 
     let form = <UserForm object={user} save={saveUser} />;
 
@@ -103,12 +105,5 @@ class LeftSidebar extends React.Component {
     );
   }
 }
-
-LeftSidebar.propTypes = propTypes;
-
-LeftSidebar.contextTypes = {
-  __: PropTypes.func,
-  currentUser: PropTypes.object
-};
 
 export default LeftSidebar;

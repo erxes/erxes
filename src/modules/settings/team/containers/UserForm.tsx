@@ -1,13 +1,21 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { UserForm } from '../components';
 import { Spinner } from 'modules/common/components';
+import React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { IUser } from '../../../auth/types';
+import { UserForm } from '../components';
 import { queries } from '../graphql';
 
-const UserFormContainer = props => {
-  const { object = {}, channelsQuery } = props;
+type Props = {
+  object: IUser,
+  channelsQuery: any,
+  closeModal: () => void
+};
+
+const UserFormContainer = (props: Props) => {
+  const { channelsQuery } = props;
+
+  const object = props.object || {} as IUser;
 
   if (channelsQuery.loading) {
     return <Spinner objective />;
@@ -28,11 +36,6 @@ const UserFormContainer = props => {
   };
 
   return <UserForm {...updatedProps} />;
-};
-
-UserFormContainer.propTypes = {
-  object: PropTypes.object,
-  channelsQuery: PropTypes.object
 };
 
 export default compose(

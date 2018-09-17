@@ -8,7 +8,7 @@ import { PasswordConfirmation } from '.';
 type Props = {
   currentUser: IUser,
   closeModal?: () => void,
-  save: (save: { username: string, email: string, details: any, links: any, password: string }) => void
+  save: (variables: IUser & { password?: string }) => void
 };
 
 type State = {
@@ -47,7 +47,7 @@ class EditProfile extends Component<Props, State> {
       password
     });
 
-    this.props.closeModal;
+    this.props.closeModal();
   }
 
   onAvatarUpload(url) {

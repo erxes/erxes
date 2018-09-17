@@ -1,24 +1,40 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import { queries, mutations } from '../graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { IUser } from '../../../auth/types';
 import { UserDetails } from '../components';
+import { mutations, queries } from '../graphql';
 
-const UserDetailsContainer = (props, context) => {
+type SaveUserProfileArgs = {
+  usersEdit: (params: { variables: IUser }) => Promise<any>,
+  usersEditProfile: (params: { variables: IUser }) => Promise<any>,
+};
+
+type Props = {
+  id?: string,
+  userDetailQuery: any,
+  channelsQuery: any,
+  userActivityLogQuery: any,
+  userConversationsQuery: any,
+  currentUser: IUser,
+};
+
+const UserDetailsContainer = (props: Props & SaveUserProfileArgs) => {
   const {
     userDetailQuery,
     usersEdit,
     channelsQuery,
     usersEditProfile,
     userActivityLogQuery,
-    userConversationsQuery
+    userConversationsQuery,
+    currentUser,
   } = props;
 
   const user = userDetailQuery.userDetail || {};
 
-  const saveUser = ({ doc }, callback) => {
+  const saveUser = (doc: IUser, callback: (e?: string) => void) => {
     doc._id = user._id;
 
     usersEdit({
@@ -33,7 +49,7 @@ const UserDetailsContainer = (props, context) => {
       });
   };
 
-  const saveProfile = variables => {
+  const saveProfile = (variables: IUser) => {
     usersEditProfile({ variables })
       .then(() => {
         Alert.success('Congrats');
@@ -55,24 +71,10 @@ const UserDetailsContainer = (props, context) => {
     loadingLogs: userActivityLogQuery.loading,
     activityLogsUser: userActivityLogQuery.activityLogsUser || [],
     channels: channelsQuery.channels || [],
-    currentUser: context.currentUser
+    currentUser,
   };
 
   return <UserDetails {...updatedProps} />;
-};
-
-UserDetailsContainer.propTypes = {
-  id: PropTypes.string,
-  userDetailQuery: PropTypes.object,
-  usersEdit: PropTypes.func,
-  channelsQuery: PropTypes.object,
-  usersEditProfile: PropTypes.func,
-  userActivityLogQuery: PropTypes.object,
-  userConversationsQuery: PropTypes.object
-};
-
-UserDetailsContainer.contextTypes = {
-  currentUser: PropTypes.object
 };
 
 const options = ({ id }) => ({
@@ -82,10 +84,10 @@ const options = ({ id }) => ({
   ]
 });
 
-export default compose(
+const WithQuery = compose(
   graphql(gql(queries.userDetail), {
     name: 'userDetailQuery',
-    options: ({ id }) => ({
+    options: ({ id }: { id: string }) => ({
       variables: {
         _id: id
       }
@@ -93,7 +95,7 @@ export default compose(
   }),
   graphql(gql(queries.userConversations), {
     name: 'userConversationsQuery',
-    options: ({ id, queryParams }) => ({
+    options: ({ id, queryParams }: { id: string, queryParams: any }) => ({
       variables: {
         _id: id,
         perPage: queryParams.limit || 20
@@ -102,13 +104,13 @@ export default compose(
   }),
   graphql(gql(queries.channels), {
     name: 'channelsQuery',
-    options: ({ id }) => ({
+    options: ({ id }: { id: string }) => ({
       variables: { memberIds: [id] }
     })
   }),
   graphql(gql(queries.userActivityLog), {
     name: 'userActivityLogQuery',
-    options: ({ id }) => ({
+    options: ({ id }: { id: string }) => ({
       variables: { _id: id }
     })
   }),
@@ -121,3 +123,13 @@ export default compose(
     options
   })
 )(UserDetailsContainer);
+
+const WithConsumer = (props) => {
+  return (
+    <AppConsumer>
+      {({ currentUser }) => <WithQuery {...props} currentUser={currentUser} />}
+    </AppConsumer>
+  );
+};
+
+export default WithConsumer;
