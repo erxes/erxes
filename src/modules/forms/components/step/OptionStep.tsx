@@ -8,6 +8,8 @@ import { __ } from "modules/common/utils";
 import React, { Component, Fragment } from "react";
 import { OverlayTrigger, Popover } from "react-bootstrap";
 import { ChromePicker } from "react-color";
+import { IBrand } from "../../../settings/brands/types";
+import { IFormField } from "../../types";
 import { FormPreview } from "./preview";
 import { BackgroundSelector, ColorPicker, FlexItem, Picker } from "./style";
 
@@ -19,10 +21,10 @@ type Props = {
   color: string;
   theme: string;
   language: string;
-  onChange: (name, value) => void;
-  fields: any;
-  brand: any;
-  brands: any;
+  onChange: (name: string, value: IFormField[] | string | boolean) => void;
+  fields: IFormField[];
+  brand: IBrand;
+  brands: IBrand[];
   onFieldEdit?: () => void;
 };
 
@@ -57,7 +59,7 @@ class OptionStep extends Component<Props, {}> {
   }
 
   render() {
-    const { brands, language, brand = {} } = this.props;
+    const { brands, language, brand } = this.props;
 
     const popoverTop = (
       <Popover id="color-picker">

@@ -9,6 +9,7 @@ import { __ } from "modules/common/utils";
 import { uploadHandler } from "modules/common/utils";
 import { ActionBar } from "modules/layout/components";
 import React, { Component, Fragment } from "react";
+import { IFormField } from "../../types";
 import { CalloutPreview } from "./preview";
 import { FlexColumn, FlexItem, ImageContent } from "./style";
 
@@ -18,7 +19,7 @@ const defaultValue = {
 
 type Props = {
   type: string;
-  onChange: (name, value) => void;
+  onChange: (name: string, value: IFormField[] | string | boolean) => void;
   calloutTitle: string;
   calloutBtnText: string;
   bodyValue: string;
@@ -30,8 +31,8 @@ type Props = {
 
 type State = {
   logo?: string;
-  logoPreviewStyle?: any;
-  defaultValue?: any;
+  logoPreviewStyle?: { opacity?: string };
+  defaultValue?: { [key: string]: boolean };
   logoPreviewUrl?: string;
 };
 

@@ -24,14 +24,14 @@ type Props = {
   emptyBulk: () => void;
   totalCount: number;
   tagsCount: any;
-  toggleBulk: (target: any, toAdd: boolean) => void;
-  toggleAll: (bulk, name) => void;
+  toggleBulk: (target: IFormIntegration, toAdd: boolean) => void;
+  toggleAll: (bulk: IFormIntegration[], name: string) => void;
   loading: boolean;
   remove: (_id: string, callback: () => void) => void;
 };
 
 class List extends Component<Props, {}> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.onChange = this.onChange.bind(this);

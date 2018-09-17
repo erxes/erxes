@@ -5,6 +5,8 @@ import {
 } from "modules/common/components";
 import { LeftItem, Preview } from "modules/common/components/step/styles";
 import React, { Component } from "react";
+import { IFormData } from "../../../settings/integrations/types";
+import { IFormField } from "../../types";
 import { SuccessPreview } from "./preview";
 import { FlexItem } from "./style";
 
@@ -14,7 +16,7 @@ type Props = {
   theme: string;
   thankContent: string;
   successAction: string;
-  onChange: (name, value) => void;
+  onChange: (name: string, value: IFormField[] | string | boolean) => void;
   formData: any;
 };
 
@@ -51,7 +53,7 @@ class SuccessStep extends Component<Props, State> {
     this.props.onChange(name, value);
   }
 
-  renderEmailFields(formData) {
+  renderEmailFields(formData: IFormData) {
     if (this.state.successAction !== "email") return null;
 
     return (

@@ -74,9 +74,9 @@ class Row extends Component<Props, {}> {
 
   render() {
     const { integration, isChecked, toggleBulk } = this.props;
-    const form = integration.form || {};
+    const form = integration.form;
     const createdUser = form.createdUser;
-    const tags = integration.tags || [];
+    const tags = integration.tags;
 
     let percentage: string | number = "0.00";
 
