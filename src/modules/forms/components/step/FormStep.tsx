@@ -184,8 +184,6 @@ class FormStep extends Component<Props, State> {
   renderOptionsTextArea() {
     const { editingField, chosenFieldType } = this.state;
 
-    console.log("RENDER OPTIONS TEXT AREA", editingField);
-
     if (
       !["select", "check", "radio"].includes(
         chosenFieldType || editingField.type
