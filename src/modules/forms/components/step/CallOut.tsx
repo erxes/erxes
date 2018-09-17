@@ -1,41 +1,48 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { uploadHandler } from 'modules/common/utils';
-import { ActionBar } from 'modules/layout/components';
 import {
+  ControlLabel,
   FormControl,
   FormGroup,
-  ControlLabel,
   Icon
-} from 'modules/common/components';
-import { CalloutPreview } from './preview';
-import { LeftItem, Preview } from 'modules/common/components/step/styles';
-import { FlexItem, FlexColumn, ImageContent } from './style';
-
-const propTypes = {
-  type: PropTypes.string,
-  onChange: PropTypes.func,
-  calloutTitle: PropTypes.string,
-  calloutBtnText: PropTypes.string,
-  bodyValue: PropTypes.string,
-  color: PropTypes.string,
-  theme: PropTypes.string,
-  image: PropTypes.string,
-  skip: PropTypes.bool
-};
+} from "modules/common/components";
+import { LeftItem, Preview } from "modules/common/components/step/styles";
+import { __ } from "modules/common/utils";
+import { uploadHandler } from "modules/common/utils";
+import { ActionBar } from "modules/layout/components";
+import React, { Component, Fragment } from "react";
+import { CalloutPreview } from "./preview";
+import { FlexColumn, FlexItem, ImageContent } from "./style";
 
 const defaultValue = {
   isSkip: false
 };
 
-class CallOut extends Component {
-  constructor(props) {
+type Props = {
+  type: string;
+  onChange: (name, value) => void;
+  calloutTitle: string;
+  calloutBtnText: string;
+  bodyValue: string;
+  color: string;
+  theme: string;
+  image: string;
+  skip: boolean;
+};
+
+type State = {
+  logo?: string;
+  logoPreviewStyle?: any;
+  defaultValue?: any;
+  logoPreviewUrl?: string;
+};
+
+class CallOut extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
-      logo: '',
+      logo: "",
       logoPreviewStyle: {},
-      defaultValue: defaultValue
+      defaultValue
     };
 
     this.onChangeFunction = this.onChangeFunction.bind(this);
@@ -45,12 +52,12 @@ class CallOut extends Component {
     this.removeImage = this.removeImage.bind(this);
   }
 
-  onChangeFunction(name, value) {
+  onChangeFunction(name: string, value: string) {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
   }
 
-  onChangeState(name, value) {
+  onChangeState(name: string, value: boolean) {
     const { defaultValue } = this.state;
 
     defaultValue[name] = value;
@@ -59,31 +66,31 @@ class CallOut extends Component {
     this.props.onChange(name, value);
   }
 
-  removeImage(value) {
-    this.setState({ logoPreviewUrl: '' });
-    this.props.onChange('logoPreviewUrl', value);
+  removeImage(value: string) {
+    this.setState({ logoPreviewUrl: "" });
+    this.props.onChange("logoPreviewUrl", value);
   }
 
-  handleImage(e) {
-    const imageFile = e.target.files;
+  handleImage(e: React.FormEvent<HTMLInputElement>) {
+    const imageFile = e.currentTarget.files;
 
     uploadHandler({
       files: imageFile,
 
       beforeUpload: () => {
-        this.setState({ logoPreviewStyle: { opacity: '0.9' } });
+        this.setState({ logoPreviewStyle: { opacity: "0.9" } });
       },
 
       afterUpload: ({ response }) => {
         this.setState({
           logo: response,
-          logoPreviewStyle: { opacity: '1' }
+          logoPreviewStyle: { opacity: "1" }
         });
       },
 
       afterRead: ({ result }) => {
         this.setState({ logoPreviewUrl: result });
-        this.props.onChange('logoPreviewUrl', result);
+        this.props.onChange("logoPreviewUrl", result);
       }
     });
   }
@@ -92,7 +99,15 @@ class CallOut extends Component {
     const { image, skip } = this.props;
 
     if (!image) {
-      return <input type="file" onChange={this.handleImage} disabled={skip} />;
+      return (
+        <input
+          type="file"
+          onChange={(e: React.FormEvent<HTMLInputElement>) =>
+            this.handleImage(e)
+          }
+          disabled={skip}
+        />
+      );
     }
 
     return (
@@ -101,15 +116,15 @@ class CallOut extends Component {
         <Icon
           icon="cancel-1"
           size={15}
-          onClick={e => this.removeImage(e.target.value)}
+          onClick={(e: React.MouseEvent<HTMLInputElement>) =>
+            this.removeImage(e.currentTarget.value)
+          }
         />
       </Fragment>
     );
   }
 
   footerActions() {
-    const { __ } = this.context;
-
     return (
       <ActionBar
         right={
@@ -117,9 +132,11 @@ class CallOut extends Component {
             checked={this.props.skip || false}
             id="isSkip"
             componentClass="checkbox"
-            onChange={e => this.onChangeState('isSkip', e.target.checked)}
+            onChange={(e: React.FormEvent<HTMLInputElement>) =>
+              this.onChangeState("isSkip", e.currentTarget.checked)
+            }
           >
-            {__('Skip callOut')}
+            {__("Skip callOut")}
           </FormControl>
         }
       />
@@ -140,8 +157,8 @@ class CallOut extends Component {
                 type="text"
                 value={this.props.calloutTitle}
                 disabled={skip}
-                onChange={e =>
-                  this.onChangeFunction('calloutTitle', e.target.value)
+                onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                  this.onChangeFunction("calloutTitle", e.currentTarget.value)
                 }
               />
             </FormGroup>
@@ -153,8 +170,8 @@ class CallOut extends Component {
                 type="text"
                 value={this.props.bodyValue}
                 disabled={skip}
-                onChange={e =>
-                  this.onChangeFunction('bodyValue', e.target.value)
+                onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                  this.onChangeFunction("bodyValue", e.currentTarget.value)
                 }
               />
             </FormGroup>
@@ -165,8 +182,8 @@ class CallOut extends Component {
                 id="callout-btn-text"
                 value={this.props.calloutBtnText}
                 disabled={skip}
-                onChange={e =>
-                  this.onChangeFunction('calloutBtnText', e.target.value)
+                onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                  this.onChangeFunction("calloutBtnText", e.currentTarget.value)
                 }
               />
             </FormGroup>
@@ -184,10 +201,5 @@ class CallOut extends Component {
     );
   }
 }
-
-CallOut.propTypes = propTypes;
-CallOut.contextTypes = {
-  __: PropTypes.func
-};
 
 export default CallOut;

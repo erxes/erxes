@@ -1,13 +1,28 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import { withRouter } from 'react-router';
-import { Alert } from 'modules/common/utils';
-import { Form } from '../components';
-import { queries, mutations } from '../graphql';
+import gql from "graphql-tag";
+import { Alert } from "modules/common/utils";
+import * as React from "react";
+import { compose, graphql } from "react-apollo";
+import { withRouter } from "react-router";
+import { Form } from "../components";
+import { mutations, queries } from "../graphql";
 
-class EditFormContainer extends Component {
+type Props = {
+  contentTypeId: string;
+  formId: string;
+  fieldsQuery: any;
+  brandsQuery: any;
+  integrationDetailQuery: any;
+  editIntegrationMutation: ({ variables }) => Promise<void>;
+  editFormMutation: ({ variables }) => Promise<void>;
+  addFieldMutation: ({ variables }) => Promise<void>;
+  editFieldMutation: ({ variables }) => Promise<void>;
+  removeFieldMutation: ({ variables }) => Promise<void>;
+  location: any;
+  history: any;
+  queryParams: any;
+};
+
+class EditFormContainer extends React.Component<Props, {}> {
   render() {
     const {
       formId,
@@ -48,7 +63,7 @@ class EditFormContainer extends Component {
               brandId,
               name,
               languageCode,
-              formId: formId
+              formId
             }
           })
         )
@@ -74,7 +89,7 @@ class EditFormContainer extends Component {
 
             createFieldsData.push({
               ...field,
-              contentType: 'form',
+              contentType: "form",
               contentTypeId: formId
             });
           }
@@ -106,10 +121,10 @@ class EditFormContainer extends Component {
         })
 
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success("Congrats");
 
           fieldsQuery.refetch().then(() => {
-            history.push('/forms');
+            history.push("/forms");
           });
         })
 
@@ -130,63 +145,51 @@ class EditFormContainer extends Component {
   }
 }
 
-EditFormContainer.propTypes = {
-  fieldsQuery: PropTypes.object,
-  brandsQuery: PropTypes.object,
-  integrationDetailQuery: PropTypes.object,
-  editIntegrationMutation: PropTypes.func,
-  editFormMutation: PropTypes.func,
-  addFieldMutation: PropTypes.func,
-  editFieldMutation: PropTypes.func,
-  removeFieldMutation: PropTypes.func,
-  formId: PropTypes.string,
-  location: PropTypes.object,
-  history: PropTypes.object
-};
-
 const EditFormIntegrationContainer = compose(
   graphql(gql(queries.brands), {
-    name: 'brandsQuery',
-    fetchPolicy: 'network-only'
+    name: "brandsQuery",
+    options: () => ({
+      fetchPolicy: "network-only"
+    })
   }),
-  graphql(gql(queries.fields), {
-    name: 'fieldsQuery',
+  graphql<Props>(gql(queries.fields), {
+    name: "fieldsQuery",
     options: ({ formId }) => {
       return {
         variables: {
-          contentType: 'form',
+          contentType: "form",
           contentTypeId: formId
         },
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only"
       };
     }
   }),
-  graphql(gql(queries.integrationDetail), {
-    name: 'integrationDetailQuery',
+  graphql<Props>(gql(queries.integrationDetail), {
+    name: "integrationDetailQuery",
     options: ({ contentTypeId }) => ({
       variables: {
         _id: contentTypeId
       },
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only"
     })
   }),
   graphql(gql(mutations.integrationsEditFormIntegration), {
-    name: 'editIntegrationMutation',
-    options: props => ({
-      refetchQueries: ['formIntegrations', 'formIntegrationCounts']
-    })
+    name: "editIntegrationMutation",
+    options: {
+      refetchQueries: ["formIntegrations", "formIntegrationCounts"]
+    }
   }),
   graphql(gql(mutations.fieldsAdd), {
-    name: 'addFieldMutation'
+    name: "addFieldMutation"
   }),
   graphql(gql(mutations.fieldsEdit), {
-    name: 'editFieldMutation'
+    name: "editFieldMutation"
   }),
   graphql(gql(mutations.fieldsRemove), {
-    name: 'removeFieldMutation'
+    name: "removeFieldMutation"
   }),
   graphql(gql(mutations.editForm), {
-    name: 'editFormMutation'
+    name: "editFormMutation"
   })
 )(EditFormContainer);
 

@@ -1,10 +1,19 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { SortableList } from 'modules/common/components';
-import { FieldPreview } from './';
+import { SortableList } from "modules/common/components";
+import React, { Component } from "react";
+import { FieldPreview } from "./";
 
-class FormFieldPreview extends Component {
-  constructor(props) {
+type Props = {
+  fields: any;
+  onFieldEdit: (field) => void;
+  onChange: (string, fields) => void;
+};
+
+type State = {
+  fields: any;
+};
+
+class FormFieldPreview extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.onChangeFields = this.onChangeFields.bind(this);
@@ -14,7 +23,7 @@ class FormFieldPreview extends Component {
     };
   }
 
-  componentWillUpdate(nextProps) {
+  componentWillUpdate(nextProps: Props) {
     if (this.state.fields.length !== nextProps.fields.length) {
       this.setState({
         fields: nextProps.fields
@@ -34,7 +43,7 @@ class FormFieldPreview extends Component {
 
     this.setState({ fields });
 
-    this.props.onChange('fields', this.state.fields);
+    this.props.onChange("fields", this.state.fields);
   }
 
   render() {
@@ -57,11 +66,5 @@ class FormFieldPreview extends Component {
     );
   }
 }
-
-FormFieldPreview.propTypes = {
-  fields: PropTypes.array, // eslint-disable-line
-  onFieldEdit: PropTypes.func,
-  onChange: PropTypes.func
-};
 
 export default FormFieldPreview;

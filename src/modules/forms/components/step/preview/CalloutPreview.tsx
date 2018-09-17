@@ -1,0 +1,42 @@
+import React, { Component } from "react";
+import CommonPreview from "./CommonPreview";
+
+type Props = {
+  calloutTitle?: string;
+  bodyValue?: string;
+  calloutBtnText?: string;
+  color?: string;
+  theme?: string;
+  image?: string;
+  onChange?: (name: string, value: string) => void;
+  type?: string;
+};
+
+class CalloutPreview extends Component<Props, {}> {
+  render() {
+    const {
+      calloutTitle,
+      bodyValue,
+      calloutBtnText,
+      color,
+      theme,
+      image,
+      type
+    } = this.props;
+
+    return (
+      <CommonPreview
+        title={calloutTitle}
+        theme={theme}
+        color={color}
+        btnText={calloutBtnText}
+        image={image}
+        btnStyle="primary"
+        bodyValue={bodyValue}
+        type={type}
+      />
+    );
+  }
+}
+
+export default CalloutPreview;

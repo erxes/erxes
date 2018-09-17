@@ -1,29 +1,35 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { ActionBar } from 'modules/layout/components';
 import {
-  FormGroup,
-  FormControl,
   Button,
-  ControlLabel
-} from 'modules/common/components';
-import { FormPreview } from './preview';
-import { LeftItem, Preview } from 'modules/common/components/step/styles';
-import { FlexItem, FlexColumn } from './style';
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from "modules/common/components";
+import { LeftItem, Preview } from "modules/common/components/step/styles";
+import { __ } from "modules/common/utils";
+import { ActionBar } from "modules/layout/components";
+import React, { Component, Fragment } from "react";
+import { FormPreview } from "./preview";
+import { FlexColumn, FlexItem } from "./style";
 
-const propTypes = {
-  type: PropTypes.string,
-  formTitle: PropTypes.string,
-  formBtnText: PropTypes.string,
-  formDesc: PropTypes.string,
-  color: PropTypes.string,
-  theme: PropTypes.string,
-  onChange: PropTypes.func,
-  fields: PropTypes.array
+type Props = {
+  type?: string;
+  formTitle?: string;
+  formBtnText?: string;
+  formDesc?: string;
+  color?: string;
+  theme?: string;
+  onChange?: (name, value) => void;
+  fields?: any;
 };
 
-class FormStep extends Component {
-  constructor(props) {
+type State = {
+  fields?: any;
+  chosenFieldType?: string;
+  editingField: any;
+};
+
+class FormStep extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -41,16 +47,16 @@ class FormStep extends Component {
     this.onFieldEdit = this.onFieldEdit.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     this.setState({ fields: nextProps.fields });
   }
 
-  onChangeType(e) {
-    this.setState({ chosenFieldType: e.target.value });
-    this.setFieldAttrChanges('type', e.target.value);
+  onChangeType(e: React.FormEvent<HTMLInputElement>) {
+    this.setState({ chosenFieldType: e.currentTarget.value });
+    this.setFieldAttrChanges("type", e.currentTarget.value);
   }
 
-  onFieldEdit(field) {
+  onFieldEdit(field: any) {
     this.setState({ editingField: field });
   }
 
@@ -86,17 +92,17 @@ class FormStep extends Component {
 
     this.setState({ fields: this.state.fields, editingField: {} });
 
-    this.props.onChange('fields', this.state.fields);
+    this.props.onChange("fields", this.state.fields);
   }
 
-  setFieldAttrChanges(attributeName, value) {
+  setFieldAttrChanges(attributeName: string, value: string) {
     const { editingField, fields } = this.state;
 
     editingField[attributeName] = value;
 
     this.setState({ editingField });
 
-    this.props.onChange('fields', fields);
+    this.props.onChange("fields", fields);
   }
 
   renderButtons() {
@@ -117,7 +123,7 @@ class FormStep extends Component {
         this.setState({ fields });
         reset();
 
-        this.props.onChange('fields', fields);
+        this.props.onChange("fields", fields);
       };
 
       return (
@@ -150,8 +156,6 @@ class FormStep extends Component {
   }
 
   footerActions() {
-    const { __ } = this.context;
-
     return (
       <ActionBar
         right={
@@ -160,11 +164,11 @@ class FormStep extends Component {
               checked={this.state.editingField.isRequired || false}
               id="isRequired"
               componentClass="checkbox"
-              onChange={e =>
-                this.onFieldAttrChange('isRequired', e.target.checked)
+              onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                this.onFieldAttrChange("isRequired", e.currentTarget.checked)
               }
             >
-              {__('This item is required')}
+              {__("This item is required")}
             </FormControl>
             &emsp; {this.renderButtons()}
           </Fragment>
@@ -177,7 +181,7 @@ class FormStep extends Component {
     const { editingField, chosenFieldType } = this.state;
 
     if (
-      !['select', 'check', 'radio'].includes(
+      !["select", "check", "radio"].includes(
         chosenFieldType || editingField.type
       )
     ) {
@@ -191,9 +195,9 @@ class FormStep extends Component {
         <FormControl
           id="options"
           componentClass="textarea"
-          value={(editingField.options || []).join('\n')}
-          onChange={e =>
-            this.onFieldAttrChange('options', e.target.value.split('\n'))
+          value={(editingField.options || []).join("\n")}
+          onChange={(e: React.FormEvent<HTMLInputElement>) =>
+            this.onFieldAttrChange("options", e.currentTarget.value.split("\n"))
           }
         />
       </FormGroup>
@@ -202,25 +206,28 @@ class FormStep extends Component {
 
   renderOptions() {
     const editingField = this.state.editingField;
-    const { __ } = this.context;
 
     return (
       <Fragment>
         <FormGroup>
-          <ControlLabel>{__('Form title')}</ControlLabel>
+          <ControlLabel>{__("Form title")}</ControlLabel>
           <FormControl
             id="form-btn-text"
             value={this.props.formTitle}
-            onChange={e => this.onChangeState('formTitle', e.target.value)}
+            onChange={(e: React.FormEvent<HTMLInputElement>) =>
+              this.onChangeState("formTitle", e.currentTarget.value)
+            }
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Form description')}</ControlLabel>
+          <ControlLabel>{__("Form description")}</ControlLabel>
           <FormControl
             id="form-btn-text"
             value={this.props.formDesc}
-            onChange={e => this.onChangeState('formDesc', e.target.value)}
+            onChange={(e: React.FormEvent<HTMLInputElement>) =>
+              this.onChangeState("formDesc", e.currentTarget.value)
+            }
           />
         </FormGroup>
 
@@ -230,19 +237,19 @@ class FormStep extends Component {
           <FormControl
             id="type"
             componentClass="select"
-            value={editingField.type || ''}
+            value={editingField.type || ""}
             onChange={this.onChangeType}
           >
             <option />
-            <option value="input">{__('Input')}</option>
-            <option value="textarea">{__('Text area')}</option>
-            <option value="select">{__('Select')}</option>
-            <option value="check">{__('Checkbox')}</option>
-            <option value="radio">{__('Radio button')}</option>
-            <option value="phone">{__('Phone')}</option>
-            <option value="email">{__('Email')}</option>
-            <option value="firstName">{__('First name')}</option>
-            <option value="lastName">{__('Last name')}</option>
+            <option value="input">{__("Input")}</option>
+            <option value="textarea">{__("Text area")}</option>
+            <option value="select">{__("Select")}</option>
+            <option value="check">{__("Checkbox")}</option>
+            <option value="radio">{__("Radio button")}</option>
+            <option value="phone">{__("Phone")}</option>
+            <option value="email">{__("Email")}</option>
+            <option value="firstName">{__("First name")}</option>
+            <option value="lastName">{__("Last name")}</option>
           </FormControl>
         </FormGroup>
 
@@ -252,14 +259,16 @@ class FormStep extends Component {
           <FormControl
             id="validation"
             componentClass="select"
-            value={editingField.validation || ''}
-            onChange={e => this.onFieldAttrChange('validation', e.target.value)}
+            value={editingField.validation || ""}
+            onChange={(e: React.FormEvent<HTMLInputElement>) =>
+              this.onFieldAttrChange("validation", e.currentTarget.value)
+            }
           >
             <option />
-            <option value="email">{__('Email')}</option>
-            <option value="number">{__('Number')}</option>
-            <option value="date">{__('Date')}</option>
-            <option value="phone">{__('Phone')}</option>
+            <option value="email">{__("Email")}</option>
+            <option value="number">{__("Number")}</option>
+            <option value="date">{__("Date")}</option>
+            <option value="phone">{__("Phone")}</option>
           </FormControl>
         </FormGroup>
 
@@ -268,8 +277,10 @@ class FormStep extends Component {
           <FormControl
             id="text"
             type="text"
-            value={editingField.text || ''}
-            onChange={e => this.onFieldAttrChange('text', e.target.value)}
+            value={editingField.text || ""}
+            onChange={(e: React.FormEvent<HTMLInputElement>) =>
+              this.onFieldAttrChange("text", e.currentTarget.value)
+            }
           />
         </FormGroup>
 
@@ -278,9 +289,9 @@ class FormStep extends Component {
           <FormControl
             id="description"
             componentClass="textarea"
-            value={editingField.description || ''}
-            onChange={e =>
-              this.onFieldAttrChange('description', e.target.value)
+            value={editingField.description || ""}
+            onChange={(e: React.FormEvent<HTMLInputElement>) =>
+              this.onFieldAttrChange("description", e.currentTarget.value)
             }
           />
         </FormGroup>
@@ -288,11 +299,13 @@ class FormStep extends Component {
         {this.renderOptionsTextArea()}
 
         <FormGroup>
-          <ControlLabel>{__('Form button text')}</ControlLabel>
+          <ControlLabel>{__("Form button text")}</ControlLabel>
           <FormControl
             id="form-btn-text"
             value={this.props.formBtnText}
-            onChange={e => this.onChangeState('formBtnText', e.target.value)}
+            onChange={(e: React.FormEvent<HTMLInputElement>) =>
+              this.onChangeState("formBtnText", e.currentTarget.value)
+            }
           />
         </FormGroup>
       </Fragment>
@@ -318,10 +331,5 @@ class FormStep extends Component {
     );
   }
 }
-
-FormStep.propTypes = propTypes;
-FormStep.contextTypes = {
-  __: PropTypes.func
-};
 
 export default FormStep;

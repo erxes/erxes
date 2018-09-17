@@ -1,34 +1,36 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { BarItems } from 'modules/layout/styles';
 import {
   Button,
-  Table,
-  Pagination,
-  FormControl,
+  CountsByTag,
   DataWithLoader,
-  CountsByTag
-} from 'modules/common/components';
-import { TaggerPopover } from 'modules/tags/components';
-import { Row } from '/';
+  FormControl,
+  Pagination,
+  Table
+} from "modules/common/components";
+import { __ } from "modules/common/utils";
+import { Wrapper } from "modules/layout/components";
+import { BarItems } from "modules/layout/styles";
+import { TaggerPopover } from "modules/tags/components";
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import { ITag } from "../../tags/types";
+import { IFormIntegration } from "../types";
+import { Row } from "./";
 
-const propTypes = {
-  integrations: PropTypes.array.isRequired,
-  tags: PropTypes.array,
-  bulk: PropTypes.array.isRequired,
-  isAllSelected: PropTypes.bool,
-  emptyBulk: PropTypes.func.isRequired,
-  totalCount: PropTypes.number,
-  tagsCount: PropTypes.object,
-  toggleBulk: PropTypes.func.isRequired,
-  toggleAll: PropTypes.func.isRequired,
-  loading: PropTypes.bool,
-  remove: PropTypes.func
+type Props = {
+  integrations: IFormIntegration[];
+  tags: ITag[];
+  bulk: IFormIntegration[];
+  isAllSelected: boolean;
+  emptyBulk: () => void;
+  totalCount: number;
+  tagsCount: any;
+  toggleBulk: (target: any, toAdd: boolean) => void;
+  toggleAll: (bulk, name) => void;
+  loading: boolean;
+  remove: (_id: string, callback: () => void) => void;
 };
 
-class List extends Component {
+class List extends Component<Props, {}> {
   constructor(props) {
     super(props);
 
@@ -37,7 +39,7 @@ class List extends Component {
 
   onChange() {
     const { toggleAll, integrations } = this.props;
-    toggleAll(integrations, 'integrations');
+    toggleAll(integrations, "integrations");
   }
 
   renderRow() {
@@ -65,8 +67,6 @@ class List extends Component {
       isAllSelected
     } = this.props;
 
-    const { __ } = this.context;
-
     let actionBarLeft = null;
 
     if (bulk.length > 0) {
@@ -91,7 +91,7 @@ class List extends Component {
     const actionBarRight = (
       <Link to="/forms/create">
         <Button btnStyle="success" size="small" icon="add">
-          {__('Create lead')}
+          {__("Create lead")}
         </Button>
       </Link>
     );
@@ -104,7 +104,7 @@ class List extends Component {
       <Wrapper.Sidebar>
         <CountsByTag
           tags={tags}
-          manageUrl={'tags/integration'}
+          manageUrl={"tags/integration"}
           counts={tagsCount}
           loading={false}
         />;
@@ -122,15 +122,15 @@ class List extends Component {
                 onChange={this.onChange}
               />
             </th>
-            <th>{__('Name')}</th>
-            <th>{__('Brand')}</th>
-            <th>{__('Views')}</th>
-            <th>{__('Conversion rate')}</th>
-            <th>{__('Contacts gathered')}</th>
-            <th>{__('Created at')}</th>
-            <th>{__('Created by')}</th>
-            <th>{__('Tags')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Name")}</th>
+            <th>{__("Brand")}</th>
+            <th>{__("Views")}</th>
+            <th>{__("Conversion rate")}</th>
+            <th>{__("Contacts gathered")}</th>
+            <th>{__("Created at")}</th>
+            <th>{__("Created by")}</th>
+            <th>{__("Tags")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody id="integrations">{this.renderRow()}</tbody>
@@ -139,7 +139,7 @@ class List extends Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: __('Leads') }]} />}
+        header={<Wrapper.Header breadcrumb={[{ title: __("Leads") }]} />}
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
@@ -156,10 +156,5 @@ class List extends Component {
     );
   }
 }
-
-List.propTypes = propTypes;
-List.contextTypes = {
-  __: PropTypes.func
-};
 
 export default List;
