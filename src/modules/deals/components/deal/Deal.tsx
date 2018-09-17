@@ -18,14 +18,20 @@ class Deal extends React.Component<Props> {
     const { deal, index, saveDeal, removeDeal } = this.props;
 
     return (
-      <ModalTrigger title="Edit deal" trigger={trigger} size="lg">
-        <DealEditForm
-          deal={deal}
-          saveDeal={saveDeal}
-          removeDeal={removeDeal}
-          index={index}
+      <ModalTrigger 
+        title="Edit deal" 
+        trigger={trigger} 
+        size="lg"
+        content={(props) => (
+          <DealEditForm
+            {...props}
+            deal={deal}
+            saveDeal={saveDeal}
+            removeDeal={removeDeal}
+            index={index}
+          />
+        )}
         />
-      </ModalTrigger>
     );
   }
 

@@ -61,10 +61,6 @@ class Form extends Component<Props, State> {
   render() {
     const { name, colorCode } = this.state;
 
-    const onClick = () => {
-      this.context.closeModal();
-    };
-
     return (
       <form onSubmit={this.submit}>
         <FormGroup>
@@ -89,7 +85,7 @@ class Form extends Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={onClick} icon="cancel-1">
+          <Button btnStyle="simple" onClick={this.props.closeModal} icon="cancel-1">
             Cancel
           </Button>
 

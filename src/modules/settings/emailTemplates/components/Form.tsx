@@ -19,7 +19,7 @@ type Props = {
 }
 
 type State = {
-  editorState: any;
+  editorState: EditorState;
 }
 
 class Form extends React.Component<Props & ICommonFormProps, State> {
@@ -38,6 +38,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     this.renderContent = this.renderContent.bind(this);
     this.onChange = this.onChange.bind(this);
     this.getContent = this.getContent.bind(this);
+    this.generateDoc = this.generateDoc.bind(this);
   }
 
   getContent(editorState) {

@@ -5,6 +5,7 @@ import {
   Icon,
   ModalTrigger
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
@@ -69,7 +70,6 @@ class Properties extends React.Component<Props> {
   }
 
   renderActionBar() {
-    const { __ } = this.context;
     const { queryParams, fieldsGroups } = this.props;
 
     let propertyForm = <PropertyForm {...this.props} queryParams={queryParams} />;
@@ -107,7 +107,6 @@ class Properties extends React.Component<Props> {
   }
 
   render() {
-    const { __ } = this.context;
     const { currentType } = this.props;
 
     const breadcrumb = [

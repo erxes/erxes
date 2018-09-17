@@ -14,6 +14,7 @@ type Props = {
     data: any,
     callback: () => void
   }) => void,
+  closeModal: () => void,
 };
 
 type State = {
@@ -49,7 +50,7 @@ class CustomersMerge extends React.Component<Props, State> {
       ids: objects.map(customer => customer._id),
       data: { ...selectedValues },
       callback: () => {
-        this.context.closeModal();
+        this.props.closeModal();
       }
     });
   }
@@ -211,7 +212,7 @@ class CustomersMerge extends React.Component<Props, State> {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            onClick={() => this.context.closeModal()}
+            onClick={() => this.props.closeModal()}
             icon="cancel-1"
           >
             Cancel

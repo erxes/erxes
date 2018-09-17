@@ -12,6 +12,7 @@ type Props = {
   customersAdd: (params: { variables: ICustomerDoc }) => Promise<any>,
   search: (value?: string) => void,
   perPage: number,
+  closeModal: () => void
 };
 
 const CustomerChooser = (props: WrapperProps & Props) => {

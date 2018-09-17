@@ -1,5 +1,6 @@
 import debounce from 'lodash/debounce';
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { dateUnits, operators, types } from 'modules/customers/constants';
 import { FlexContent, FlexItem, FlexRightItem } from 'modules/layout/styles';
 import React, { Component } from 'react';
@@ -86,13 +87,11 @@ class Condition extends Component<Props, State> {
   }
 
   renderSelect(name, value, obj) {
-    const { __ } = this.context;
-
     return (
       <FormControl
         name={name}
         componentClass="select"
-        placeholder={__('select')}
+        placeholder={__('select').toString()}
         value={value}
         onChange={this.handleInputValue}
       >
@@ -132,13 +131,11 @@ class Condition extends Component<Props, State> {
   }
 
   renderOperator() {
-    const { __ } = this.context;
-
     return (
       <FormControl
         name="operator"
         componentClass="select"
-        placeholder={__('select')}
+        placeholder={__('select').toString()}
         value={this.state.operator}
         onChange={this.handleInputValue}
       >

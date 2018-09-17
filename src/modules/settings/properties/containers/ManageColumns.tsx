@@ -10,7 +10,8 @@ type Props = {
   fieldsQuery: any,
   location: any,
   history: any,
-  fieldsDefaultColumnsConfigQuery: any
+  fieldsDefaultColumnsConfigQuery: any,
+  closeModal: () => void,
 };
 
 const ManageColumnsContainer = (props: Props) => {

@@ -1,10 +1,9 @@
 import { Table } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { List } from '../../common/components';
+import { List, RowActions } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
 import { Form } from '../containers';
-import Row from './Row';
 
 class ResponseTemplateList extends React.Component<ICommonListProps> {
   constructor(props) {
@@ -13,15 +12,19 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
     this.renderContent = this.renderContent.bind(this);
   }
 
-  renderRows({ objects, save, remove }) {
-    return objects.map(object =>
-      <Row
-        key={object._id}
-        object={object}
-        save={save}
-        remove={remove}
-      />
-    );
+  renderRows({ objects }) {
+    return objects.map((object, index) => (
+      <tr key={index}>
+        <td>{object.name}</td>
+        <RowActions
+          {...this.props}
+          object={object}
+          renderForm={(props) =>
+            <Form {...props} />
+          }
+        />
+      </tr>
+    ));
   }
 
   renderContent(props) {

@@ -39,14 +39,16 @@ function ProductSection(
               <Icon icon="add" />
             </a>
           }
-        >
-          <ProductForm
-            onChangeProductsData={onChangeProductsData}
-            productsData={productsData}
-            products={products}
-            saveProductsData={saveProductsData}
-          />
-        </ModalTrigger>
+          content={(props) => (
+            <ProductForm
+              {...props}
+              onChangeProductsData={onChangeProductsData}
+              productsData={productsData}
+              products={products}
+              saveProductsData={saveProductsData}
+            />
+          )}
+        />
       </QuickButtons>
       <SectionBody>
         {products.map((product, index) => (

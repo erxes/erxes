@@ -104,7 +104,7 @@ class CustomerForm extends React.Component<Props, State> {
       }
     });
 
-    this.context.closeModal();
+    this.props.closeModal();
   }
 
   onAvatarUpload(url) {

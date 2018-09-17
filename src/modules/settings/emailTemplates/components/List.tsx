@@ -1,10 +1,27 @@
 import { Table } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { List } from '../../common/components';
+import styled from 'styled-components';
+import { List, RowActions } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
 import Form from './Form';
-import Row from './Row';
+
+const IframePreview = styled.div`
+  width: 140px;
+  height: 100px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+
+  iframe {
+    transform: scale(0.2);
+    transform-origin: 0 0;
+    pointer-events: none;
+    width: 510%;
+    height: 500%;
+    border: 0;
+  }
+`;
 
 class EmailTemplateList extends React.Component<ICommonListProps> {
   constructor(props) {
@@ -13,14 +30,24 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
     this.renderContent = this.renderContent.bind(this);
   }
 
-  renderRows({ objects, save, remove }) {
-    return objects.map(object => (
-      <Row
-        key={object.id}
-        object={object}
-        save={save}
-        remove={ remove}
-      />
+  renderRows({ objects }) {
+    return objects.map((object, index) => (
+      <tr key={index}>
+        <td>
+          <IframePreview>
+            <iframe title="content-iframe" srcDoc={object.content} />
+          </IframePreview>
+        </td>
+        <td>{object.name}</td>
+
+        <RowActions
+          {...this.props}
+          object={object}
+          renderForm={(props) =>
+            <Form {...props} />
+          }
+        />
+      </tr>
     ))
   }
 
