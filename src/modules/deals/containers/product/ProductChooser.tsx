@@ -13,7 +13,8 @@ import { compose, graphql } from 'react-apollo';
 type Props = {
   data: any,
   productsQuery: any,
-  productAdd: any
+  productAdd: any,
+  closeModal: () => void
 };
 
 class ProductChooser extends React.Component<Props, any> {
@@ -63,6 +64,7 @@ class ProductChooser extends React.Component<Props, any> {
     const form = <ProductForm save={addProduct} />;
 
     const updatedProps = {
+      ...this.props,
       data: { name: data.name, datas: data.products },
       search,
       title: 'Product',
@@ -71,7 +73,7 @@ class ProductChooser extends React.Component<Props, any> {
       perPage: this.state.perPage,
       add: addProduct,
       clearState,
-      datas: productsQuery.products || []
+      datas: productsQuery.products || [],
     };
 
     return <Chooser {...updatedProps} />;
