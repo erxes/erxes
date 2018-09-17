@@ -57,12 +57,16 @@ class KnowledgeRow extends Component<Props, State> {
             <Icon icon="settings" />
           </DropdownToggle>
           <Dropdown.Menu>
-            <ModalTrigger title="Manage Knowledge Base" trigger={manageTopic}>
-              <KnowledgeForm save={save} topic={topic} remove={remove} />
-            </ModalTrigger>
-            <ModalTrigger title="Add Category" trigger={addCategory}>
-              <CategoryForm topicIds={topic._id} />
-            </ModalTrigger>
+            <ModalTrigger 
+              title="Manage Knowledge Base" 
+              trigger={manageTopic}
+              content={(props) => <KnowledgeForm {...props} save={save} topic={topic} remove={remove} />}
+            />
+            <ModalTrigger 
+              title="Add Category" 
+              trigger={addCategory}
+              content={(props) => <CategoryForm {...props} topicIds={topic._id} />}
+            />
           </Dropdown.Menu>
         </Dropdown>
         <DropIcon onClick={this.toggle} isOpen={this.state.detailed} />

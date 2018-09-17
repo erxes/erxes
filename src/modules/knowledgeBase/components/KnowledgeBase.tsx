@@ -39,15 +39,12 @@ class KnowledgeBase extends Component<Props> {
     );
 
     const actionBarLeft = currentCategory._id && (
-      <ModalTrigger title="Add Article" trigger={trigger} size="lg">
-        <ArticleForm
-          queryParams={queryParams}
-          currentCategoryId={currentCategory._id}
-          topicIds={
-            currentCategory.firstTopic && currentCategory.firstTopic._id
-          }
-        />
-      </ModalTrigger>
+      <ModalTrigger 
+        title="Add Article" 
+        trigger={trigger} 
+        size="lg"
+        content={(props) => <ArticleForm {...props} queryParams={queryParams} currentCategoryId={currentCategory._id} topicIds={currentCategory.firstTopic && currentCategory.firstTopic._id} />}
+      />
     );
 
     return (

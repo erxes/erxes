@@ -45,9 +45,14 @@ class CategoryRow extends Component<Props> {
     );
 
     return (
-      <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
-        {this.renderEditForm({ category, topicIds })}
-      </ModalTrigger>
+      <ModalTrigger 
+        size={this.size} 
+        title="Edit" 
+        trigger={editTrigger}
+        content={(props) => {
+          return this.renderEditForm({ ...props, category, topicIds })
+        }}
+      />
     );
   }
 

@@ -55,14 +55,8 @@ class ArticleRow extends Component<Props> {
         size="large"
         title="Edit"
         trigger={editTrigger ? editTrigger : editButton}
-      >
-        <ArticleForm
-          article={article}
-          queryParams={queryParams}
-          currentCategoryId={currentCategoryId}
-          topicIds={topicIds}
-        />
-      </ModalTrigger>
+        content={(props) => <ArticleForm {...props} article={article} queryParams={queryParams} currentCategoryId={currentCategoryId} topicIds={topicIds} />}
+      />
     );
   }
 

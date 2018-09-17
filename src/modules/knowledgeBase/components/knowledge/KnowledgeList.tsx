@@ -87,9 +87,13 @@ class KnowledgeList extends Component<Props> {
     return (
       <Header uppercase>
         {__('Knowledge base')}
-        <ModalTrigger title="Add Knowledge base" trigger={trigger}>
-          {this.renderForm({ save })}
-        </ModalTrigger>
+        <ModalTrigger 
+          title="Add Knowledge base" 
+          trigger={trigger}
+          content={(props) => {
+            return this.renderForm({ ...props, save })
+          }}
+        />
       </Header>
     );
   }
