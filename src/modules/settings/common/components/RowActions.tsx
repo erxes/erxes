@@ -10,8 +10,8 @@ import * as React from 'react';
 
 type Props = {
   size?: string;
-  renderForm: (doc: { object: any, closeModal: () => void, save: () => void }) => void,
   object: any,
+  renderForm: (doc: { object: any, closeModal: () => void, save: () => void }) => void,
   remove: (_id: string) => void,
   save: () => void,
 };

@@ -1,6 +1,5 @@
 import Form from './Form';
 import List from './List';
-import Row from './Row';
-import RowActions from './Row';
+import RowActions from './RowActions';
 
-export { List, Row, RowActions, Form };
+export { List, RowActions, Form };

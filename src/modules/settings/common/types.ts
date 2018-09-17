@@ -1,8 +1,6 @@
-import { IIntegration } from "modules/settings/integrations/types";
-
 export interface ICommonListProps {
   objects: any;
-  remove: (integation: IIntegration) => void;
+  remove: (_id: string) => void;
   save: () => void;
   refetch: () => void;
   totalCount: number;
