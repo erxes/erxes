@@ -2,25 +2,29 @@ import { Table } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { List } from '../../common/components';
+import { ICommonListProps } from '../../common/types';
 import Form from './Form';
 import Row from './Row';
 
-class EmailTemplateList extends List {
+class EmailTemplateList extends React.Component<ICommonListProps> {
   constructor(props) {
     super(props);
 
-    this.title = 'New email template';
+    this.renderContent = this.renderContent.bind(this);
   }
 
-  renderRow(props) {
-    return <Row {...props} />;
+  renderRows({ objects, save, remove }) {
+    return objects.map(object => (
+      <Row
+        key={object.id}
+        object={object}
+        save={save}
+        remove={ remove}
+      />
+    ))
   }
 
-  renderForm(props) {
-    return <Form {...props} />;
-  }
-
-  renderContent() {
+  renderContent(props) {
     return (
       <Table>
         <thead>
@@ -30,16 +34,24 @@ class EmailTemplateList extends List {
             <th>{__('Actions')}</th>
           </tr>
         </thead>
-        <tbody>{this.renderObjects()}</tbody>
+        <tbody>{this.renderRows(props)}</tbody>
       </Table>
     );
   }
 
-  breadcrumb() {
-    return [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Email templates') }
-    ];
+  render() {
+    return (
+      <List
+        title="New email template"
+        breadcrumb={[
+          { title: __('Settings'), link: '/settings' },
+          { title: __('Email templates') }
+        ]}
+        renderForm={(props) => <Form {...props} />}
+        renderContent={this.renderContent}
+        {...this.props}
+      />
+    );
   }
 }
 
