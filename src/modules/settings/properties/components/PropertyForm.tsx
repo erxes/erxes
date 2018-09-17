@@ -6,6 +6,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import React, { Component, Fragment } from 'react';
 import { Actions, TypeList } from '../styles';
 import { IField, IFieldGroup } from '../types';
@@ -138,7 +139,6 @@ class PropertyForm extends Component<Props, State> {
   }
 
   renderButtonOrElement() {
-    const { __ } = this.context;
     if (this.state.add) {
       return (
         <Fragment>

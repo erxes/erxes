@@ -5,7 +5,7 @@ import {
   ModalTrigger,
   Table
 } from 'modules/common/components';
-import { Alert, confirm } from 'modules/common/utils';
+import { __, Alert, confirm } from 'modules/common/utils';
 import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
 import Toggle from 'react-toggle';
@@ -45,8 +45,6 @@ class PropertyRow extends React.Component<Props, State> {
   }
 
   visibleHandler(e, property) {
-    const { __ } = this.context;
-
     if (property.isDefinedByErxes) {
       return Alert.error(__('You cannot update this property'));
     }
@@ -117,7 +115,6 @@ class PropertyRow extends React.Component<Props, State> {
   }
 
   renderTable(fields) {
-    const { __ } = this.context;
     if (fields.length === 0) {
       return (
         <EmptyState

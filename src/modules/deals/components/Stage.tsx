@@ -46,9 +46,11 @@ class Stage extends React.Component<Props> {
     );
 
     return (
-      <ModalTrigger title="Add a deal" trigger={trigger}>
-        <DealAddForm stageId={stage._id} saveDeal={saveDeal} />
-      </ModalTrigger>
+      <ModalTrigger 
+        title="Add a deal" 
+        trigger={trigger}
+        content={(props) => <DealAddForm stageId={stage._id} saveDeal={saveDeal} />}
+       />
     );
   }
 
