@@ -36,7 +36,7 @@ type Props = {
   fields: IContentTypeFields[],
   config: IConfig[],
   save: (columnsConfig: IConfig[]) => void,
-  closeModal?: () => void
+  closeModal: () => void
 };
 
 type State = {

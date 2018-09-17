@@ -13,6 +13,7 @@ type Props = {
   companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>,
   search: (value?: string) => void,
   perPage: number,
+  closeModal: () => void
 };
 
 const CompanyChooser = (props: WrapperProps & Props) => {
