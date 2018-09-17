@@ -1,29 +1,30 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import Select from 'react-select-plus';
 import {
-  FormGroup,
+  Button,
   ControlLabel,
   FormControl,
-  Button,
+  FormGroup,
   Icon
 } from 'modules/common/components';
-import { icons } from '../../icons.constant';
 import { ModalFooter } from 'modules/common/styles/main';
+import React, { Component, Fragment } from 'react';
+import Select from 'react-select-plus';
+import { icons } from '../../icons.constant';
+import { ICategory } from '../../types';
 
-const propTypes = {
-  currentTopicId: PropTypes.string,
-  category: PropTypes.object,
-  save: PropTypes.func
+type Props = {
+  currentTopicId: string,
+  category: ICategory,
+  save: ({ doc }: { doc: any; }, callback: () => void, category: ICategory) => void,
+  closeModal?: () => void
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired
-};
+type State = {
+  selectedIcon: string
+}
 
-class CategoryForm extends Component {
-  constructor(props, context) {
-    super(props, context);
+class CategoryForm extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
 
     this.state = {
       selectedIcon: this.getSelectedIcon()
@@ -73,10 +74,10 @@ class CategoryForm extends Component {
       ...category,
       doc: {
         doc: {
-          title: document.getElementById('knowledgebase-category-title').value,
-          description: document.getElementById(
+          title: (document.getElementById('knowledgebase-category-title') as HTMLInputElement).value,
+          description: (document.getElementById(
             'knowledgebase-category-description'
-          ).value,
+          ) as HTMLInputElement).value,
           icon: this.state.selectedIcon,
           topicIds: [currentTopicId]
         }
@@ -84,7 +85,7 @@ class CategoryForm extends Component {
     };
   }
 
-  renderContent(category = {}) {
+  renderContent(category = { title: '', description: '' }) {
     return (
       <Fragment>
         <FormGroup>
@@ -128,7 +129,7 @@ class CategoryForm extends Component {
 
     return (
       <form onSubmit={this.save}>
-        {this.renderContent(this.props.category || {})}
+        {this.renderContent(this.props.category || { title: '', description: ''  })}
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -147,8 +148,5 @@ class CategoryForm extends Component {
     );
   }
 }
-
-CategoryForm.propTypes = propTypes;
-CategoryForm.contextTypes = contextTypes;
 
 export default CategoryForm;

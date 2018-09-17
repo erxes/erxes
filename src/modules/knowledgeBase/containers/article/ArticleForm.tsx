@@ -1,12 +1,19 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
-import { Alert } from 'modules/common/utils';
 import gql from 'graphql-tag';
-import { mutations, queries } from '../../graphql';
+import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { ArticleForm } from '../../components';
+import { mutations, queries } from '../../graphql';
+import { IArticle } from '../../types';
 
-const ArticleContainer = props => {
+type Props = {
+  article: IArticle,
+  addArticlesMutation: (params: { variables: any }) => any,
+  editArticlesMutation: (params: { variables: any }) => any,
+  currentCategoryId: string
+};
+
+const ArticleContainer = (props: Props) => {
   const {
     article,
     addArticlesMutation,
@@ -38,20 +45,13 @@ const ArticleContainer = props => {
   };
 
   const extendedProps = {
-    ...this.props,
+    ...props,
     save,
     article,
     currentCategoryId
   };
 
   return <ArticleForm {...extendedProps} />;
-};
-
-ArticleContainer.propTypes = {
-  article: PropTypes.object,
-  addArticlesMutation: PropTypes.func,
-  editArticlesMutation: PropTypes.func,
-  currentCategoryId: PropTypes.string
 };
 
 const commonOptions = ({ queryParams, currentCategoryId, topicIds }) => {

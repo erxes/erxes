@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import { dimensions } from 'modules/common/styles';
+import styled from 'styled-components';
 
 const ActionButtons = styled.div`
   display: flex;

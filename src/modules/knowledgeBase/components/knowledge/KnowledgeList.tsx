@@ -1,29 +1,26 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { Icon, ModalTrigger, DataWithLoader } from 'modules/common/components';
+import { DataWithLoader, Icon, ModalTrigger } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
-import { KnowledgeForm } from '../../containers';
 import { HelperButtons } from 'modules/layout/styles';
+import React, { Component, Fragment } from 'react';
+import { KnowledgeForm } from '../../containers';
+import { ITopic } from '../../types';
 import { KnowledgeRow } from './';
 
-const propTypes = {
-  queryParams: PropTypes.object,
-  currentCategoryId: PropTypes.string,
-  save: PropTypes.func.isRequired,
-  remove: PropTypes.func.isRequired,
-  count: PropTypes.number,
-  loading: PropTypes.bool.isRequired,
-  topics: PropTypes.array,
-  articlesCount: PropTypes.number.isRequired,
-  topicsCount: PropTypes.number.isRequired
+type Props = {
+  queryParams: any,
+  currentCategoryId: string,
+  save: ({ doc }: { doc: any }, callback: () => void, object: any) => void,
+  remove: ( _id: string ) => void,
+  count?: number,
+  loading: boolean,
+  topics: ITopic[],
+  articlesCount: number,
+  topicsCount: number
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
-
-class KnowledgeList extends Component {
-  constructor(props) {
+class KnowledgeList extends Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.renderSidebarList = this.renderSidebarList.bind(this);
@@ -78,7 +75,6 @@ class KnowledgeList extends Component {
   renderSidebarHeader() {
     const { Header } = Sidebar;
     const { save } = this.props;
-    const { __ } = this.context;
 
     const trigger = (
       <HelperButtons>
@@ -106,8 +102,5 @@ class KnowledgeList extends Component {
     );
   }
 }
-
-KnowledgeList.propTypes = propTypes;
-KnowledgeList.contextTypes = contextTypes;
 
 export default KnowledgeList;

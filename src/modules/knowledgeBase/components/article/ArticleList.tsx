@@ -1,16 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
+import { IArticle } from '../../types';
 import { ArticleRow } from './';
 
-const propTypes = {
-  articles: PropTypes.array.isRequired,
-  queryParams: PropTypes.object,
-  currentCategoryId: PropTypes.string,
-  topicIds: PropTypes.string,
-  remove: PropTypes.func.isRequired
+type Props= {
+  articles: IArticle[]
+  queryParams: any,
+  currentCategoryId: string,
+  topicIds: string,
+  remove: (_id: string) => void
 };
 
-class ArticleList extends Component {
+class ArticleList extends Component<Props> {
   render() {
     const {
       articles,
@@ -36,7 +36,5 @@ class ArticleList extends Component {
     );
   }
 }
-
-ArticleList.propTypes = propTypes;
 
 export default ArticleList;

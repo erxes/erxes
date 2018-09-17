@@ -1,27 +1,26 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
-  Pagination,
-  ModalTrigger,
   Button,
-  DataWithLoader
+  DataWithLoader,
+  ModalTrigger,
+  Pagination
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { KnowledgeList, ArticleList, ArticleForm } from '../containers';
+import React, { Component } from 'react';
+import { ArticleForm, ArticleList, KnowledgeList } from '../containers';
+import { ICategory } from '../types';
 
-const propTypes = {
-  queryParams: PropTypes.object,
-  articlesCount: PropTypes.number.isRequired,
-  loading: PropTypes.bool.isRequired,
-  currentCategory: PropTypes.object
+type Props = {
+  queryParams: any,
+  articlesCount: number,
+  loading: boolean,
+  currentCategory: ICategory
 };
 
-class KnowledgeBase extends Component {
+class KnowledgeBase extends Component<Props> {
   breadcrumb() {
-    const { __ } = this.context;
-
-    const currentCategory = this.props.currentCategory || {};
-    const currentKnowledgeBase = currentCategory.firstTopic || {};
+    const currentCategory = this.props.currentCategory || { title: '', firstTopic: { title: '' } };
+    const currentKnowledgeBase = currentCategory.firstTopic || { title: '' };
 
     return [
       { title: __('Knowledge base'), link: '/knowledgeBase' },
@@ -85,10 +84,5 @@ class KnowledgeBase extends Component {
     );
   }
 }
-
-KnowledgeBase.propTypes = propTypes;
-KnowledgeBase.contextTypes = {
-  __: PropTypes.func
-};
 
 export default KnowledgeBase;

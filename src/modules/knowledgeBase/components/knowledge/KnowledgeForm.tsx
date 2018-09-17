@@ -1,82 +1,40 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import ReactMarkdown from 'react-markdown';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import { ChromePicker } from 'react-color';
 import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
   Button,
-  EmptyState
+  ControlLabel,
+  EmptyState,
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
-import {
-  MarkdownWrapper,
-  ColorPick,
-  ColorPicker
-} from 'modules/settings/styles';
-import SelectBrand from '../SelectBrand';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IBrand } from 'modules/settings/brands/types';
+import {
+  ColorPick,
+  ColorPicker,
+  MarkdownWrapper
+} from 'modules/settings/styles';
+import React, { Component, Fragment } from 'react';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { ChromePicker } from 'react-color';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import ReactMarkdown from 'react-markdown';
+import { ITopic } from '../../types';
+import SelectBrand from '../SelectBrand';
 
-const propTypes = {
-  topic: PropTypes.object,
-  save: PropTypes.func.isRequired,
-  remove: PropTypes.func,
-  brands: PropTypes.array.isRequired
+type Props = {
+  topic?: ITopic,
+  save?: ({ doc }: { doc: any; }, callback: () => void, topic: ITopic) => void,
+  remove?: (_id: string) => void,
+  brands: IBrand[],
+  closeModal?: () => void
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired
-};
+type State = {
+  copied: boolean,
+  code: string,
+  color: string
+}
 
-class KnowledgeForm extends Component {
-  constructor(props, context) {
-    super(props, context);
-
-    let code = '',
-      color = '';
-
-    // showed install code automatically in edit mode
-    if (props.topic) {
-      code = this.constructor.getInstallCode(props.topic._id);
-      color = props.topic.color;
-    }
-
-    this.state = {
-      copied: false,
-      code,
-      color
-    };
-
-    this.handleBrandChange = this.handleBrandChange.bind(this);
-    this.onColorChange = this.onColorChange.bind(this);
-    this.save = this.save.bind(this);
-    this.remove = this.remove.bind(this);
-  }
-
-  onColorChange(e) {
-    this.setState({ color: e.hex });
-  }
-
-  save(e) {
-    e.preventDefault();
-
-    this.props.save(
-      this.generateDoc(),
-      () => {
-        this.context.closeModal();
-      },
-      this.props.topic
-    );
-  }
-
-  remove() {
-    const { remove, topic } = this.props;
-
-    remove(topic._id);
-  }
-
+class KnowledgeForm extends Component<Props, State> {
   static installCodeIncludeScript() {
     return `
       (function() {
@@ -103,6 +61,50 @@ class KnowledgeForm extends Component {
         ${KnowledgeForm.installCodeIncludeScript()}
       </script>
     `;
+  }
+  
+  constructor(props: Props) {
+    super(props);
+
+    let code = '',
+      color = '';
+
+    // showed install code automatically in edit mode
+    if (props.topic) {
+      code = this.constructor().getInstallCode(props.topic._id);
+      color = props.topic.color;
+    }
+
+    this.state = {
+      copied: false,
+      code,
+      color
+    };
+
+    this.handleBrandChange = this.handleBrandChange.bind(this);
+    this.onColorChange = this.onColorChange.bind(this);
+    this.save = this.save.bind(this);
+    this.remove = this.remove.bind(this);
+  }
+
+  onColorChange(e) {
+    this.setState({ color: e.hex });
+  }
+
+  save(e) {
+    e.preventDefault();
+
+    this.props.save(
+      this.generateDoc(),
+      () => this.props.closeModal(),
+      this.props.topic
+    );
+  }
+
+  remove() {
+    const { remove, topic } = this.props;
+
+    remove(topic._id);
   }
 
   renderInstallCode() {
@@ -134,7 +136,7 @@ class KnowledgeForm extends Component {
 
   handleBrandChange() {
     if (this.props.topic && this.props.topic._id) {
-      const code = this.constructor.getInstallCode(this.props.topic._id);
+      const code = this.constructor().getInstallCode(this.props.topic._id);
       this.setState({ code, copied: false });
     }
   }
@@ -146,18 +148,18 @@ class KnowledgeForm extends Component {
       ...topic,
       doc: {
         doc: {
-          title: document.getElementById('knowledgebase-title').value,
-          description: document.getElementById('knowledgebase-description')
+          title: (document.getElementById('knowledgebase-title') as HTMLInputElement).value,
+          description: (document.getElementById('knowledgebase-description') as HTMLInputElement)
             .value,
-          brandId: document.getElementById('selectBrand').value,
-          languageCode: document.getElementById('languageCode').value,
+          brandId: (document.getElementById('selectBrand') as HTMLInputElement).value,
+          languageCode: (document.getElementById('languageCode') as HTMLInputElement).value,
           color: this.state.color
         }
       }
     };
   }
 
-  renderContent(topic = {}) {
+  renderContent(topic = { title: '', description: '', languageCode: '', brand: { _id: '' } }) {
     const { brands } = this.props;
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
@@ -236,20 +238,16 @@ class KnowledgeForm extends Component {
   }
 
   render() {
-    const { topic } = this.props;
-
-    const onClick = () => {
-      this.context.closeModal();
-    };
+    const { topic, closeModal } = this.props;
 
     return (
       <form onSubmit={this.save}>
-        {this.renderContent(topic || {})}
+        {this.renderContent(topic || { title: '', description: '', languageCode: '', brand: { _id: '' } })}
         <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
-            onClick={onClick}
+            onClick={closeModal}
             icon="cancel-1"
           >
             Cancel
@@ -272,8 +270,5 @@ class KnowledgeForm extends Component {
     );
   }
 }
-
-KnowledgeForm.propTypes = propTypes;
-KnowledgeForm.contextTypes = contextTypes;
 
 export default KnowledgeForm;

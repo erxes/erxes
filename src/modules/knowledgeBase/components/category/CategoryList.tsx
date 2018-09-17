@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { ICategory } from '../../types';
 import { CategoryRow } from './';
 import { Categories } from './styles';
 
-const propTypes = {
-  currentCategoryId: PropTypes.string,
-  topicIds: PropTypes.string,
-  categories: PropTypes.array.isRequired,
-  articlesCount: PropTypes.number.isRequired,
-  remove: PropTypes.func.isRequired
+type Props = {
+  currentCategoryId: string,
+  topicIds: string,
+  categories: ICategory[],
+  articlesCount: number,
+  remove: ( _id: string ) => void
 };
 
-class CategoryList extends Component {
+class CategoryList extends Component<Props> {
   render() {
     const {
       categories,
@@ -37,7 +37,5 @@ class CategoryList extends Component {
     );
   }
 }
-
-CategoryList.propTypes = propTypes;
 
 export default CategoryList;

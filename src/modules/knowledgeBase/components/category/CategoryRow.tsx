@@ -1,20 +1,23 @@
+import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Tip, Button, Icon, ModalTrigger } from 'modules/common/components';
 import { CategoryForm } from '../../containers';
-import { CategoryItem, ActionButtons } from './styles';
+import { ICategory } from '../../types';
+import { ActionButtons, CategoryItem } from './styles';
 
-const propTypes = {
-  topicIds: PropTypes.string,
-  category: PropTypes.object.isRequired,
-  articlesCount: PropTypes.number.isRequired,
-  remove: PropTypes.func.isRequired,
-  isActive: PropTypes.bool
+type Props = {
+  topicIds: string,
+  category: ICategory,
+  articlesCount: number,
+  remove: ( _id: string ) => void,
+  isActive: boolean
 };
 
-class CategoryRow extends Component {
-  constructor(props) {
+class CategoryRow extends Component<Props> {
+  private size;
+  
+  constructor(props: Props) {
     super(props);
 
     this.remove = this.remove.bind(this);
@@ -32,7 +35,6 @@ class CategoryRow extends Component {
 
   renderEditAction() {
     const { category, topicIds } = this.props;
-    const { __ } = this.context;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -51,7 +53,6 @@ class CategoryRow extends Component {
 
   render() {
     const { category, isActive } = this.props;
-    const { __ } = this.context;
 
     return (
       <CategoryItem key={category._id} isActive={isActive}>
@@ -68,10 +69,5 @@ class CategoryRow extends Component {
     );
   }
 }
-
-CategoryRow.propTypes = propTypes;
-CategoryRow.contextTypes = {
-  __: PropTypes.func
-};
 
 export default CategoryRow;
