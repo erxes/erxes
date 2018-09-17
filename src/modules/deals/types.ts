@@ -13,10 +13,10 @@ export interface IPipeline {
 
 export interface IStage {
 	_id: string,
-	name?: string
-	type?: string,
-	index?: number,
-	itemId?: string
+	name: string
+	type: string,
+	index: number,
+	itemId: string
 }
 
 export interface IDeal {

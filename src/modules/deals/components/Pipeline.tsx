@@ -3,12 +3,12 @@ import * as React from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import { Stage } from '../containers';
 import { Body, Container, Header } from '../styles/pipeline';
-import { IPipeline } from '../types';
+import { IPipeline, IStage } from '../types';
 
 type Props = {
   pipeline: IPipeline,
   onToggle: any,
-  stages: any,
+  stages: IStage[],
   isExpanded: boolean
 };
 
