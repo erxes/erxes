@@ -15,9 +15,9 @@ type Props = {
   onSelect?: (datas: any[]) => void,
   search: (value: string, reload?: boolean) => void,
   datas: any[],
-  form: any,
   title: string,
   renderName?: (data: any) => void,
+  renderForm: (props: { closeModal: () => void }) => any,
   perPage: number,
   clearState: () => void,
   limit?: number,
@@ -123,10 +123,8 @@ class CommonChooser extends Component<Props, State> {
   }
 
   render() {
-    const { datas, title, data } = this.props;
+    const { renderForm, datas, title, data } = this.props;
     const selectedDatas = this.state.datas;
-
-    const FormComponent = this.props.form;
 
     const addTrigger = (
       <p>
@@ -169,7 +167,7 @@ class CommonChooser extends Component<Props, State> {
         </Columns>
         <ModalFooter>
           <Footer>
-            <ModalTrigger title={`New ${title}`} trigger={addTrigger} size="lg" content={(props) => <FormComponent {...props} />}/>
+            <ModalTrigger title={`New ${title}`} trigger={addTrigger} size="lg" content={renderForm} />}/>
             <div>
               <Button
                 btnStyle="simple"

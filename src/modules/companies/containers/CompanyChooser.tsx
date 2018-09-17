@@ -36,8 +36,6 @@ const CompanyChooser = (props: WrapperProps & Props) => {
       });
   };
 
-  const form = <CompanyForm action={addCompany} />;
-
   const renderName = company => {
     return company.primaryName || company.website || 'N/A';
   };
@@ -52,7 +50,7 @@ const CompanyChooser = (props: WrapperProps & Props) => {
     search,
     clearState: () => search(''),
     title: 'Company',
-    form,
+    renderForm: (props) => <CompanyForm {...props} action={addCompany} />,
     renderName,
     add: addCompany,
     datas: companiesQuery.companies || []
