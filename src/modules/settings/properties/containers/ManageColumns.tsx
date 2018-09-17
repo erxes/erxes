@@ -10,7 +10,8 @@ type Props = {
   fieldsQuery: any,
   location: any,
   history: any,
-  fieldsDefaultColumnsConfigQuery: any
+  fieldsDefaultColumnsConfigQuery: any,
+  closeModal: () => void,
 };
 
 const ManageColumnsContainer = (props: Props) => {
@@ -55,9 +56,9 @@ const ManageColumnsContainer = (props: Props) => {
 };
 
 export default compose(
-  graphql<Props>(gql(queries.fieldsCombinedByContentType), {
+  graphql(gql(queries.fieldsCombinedByContentType), {
     name: 'fieldsQuery',
-    options: ({ contentType }) => {
+    options: ({ contentType } : { contentType: string }) => {
       return {
         variables: {
           contentType
@@ -65,9 +66,9 @@ export default compose(
       };
     }
   }),
-  graphql<Props>(gql(queries.fieldsDefaultColumnsConfig), {
+  graphql(gql(queries.fieldsDefaultColumnsConfig), {
     name: 'fieldsDefaultColumnsConfigQuery',
-    options: ({ contentType }) => {
+    options: ({ contentType } : { contentType: string }) => {
       return {
         variables: {
           contentType

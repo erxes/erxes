@@ -59,9 +59,9 @@ class ManageIntegrationsContainer extends Component<Props, {}> {
 }
 
 export default compose(
-  graphql<Props>(gql(mutations.channelEdit), {
+  graphql(gql(mutations.channelEdit), {
     name: 'editMutation',
-    options: ({ queryParams, currentChannel }) => {
+    options: ({ queryParams, currentChannel } : { queryParams: any, currentChannel: IChannel }) => {
       return {
         refetchQueries: [
           {

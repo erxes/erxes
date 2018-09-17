@@ -10,7 +10,7 @@ import { IBoard } from '../types';
 
 type Props = {
   board: IBoard,
-  onClick: () => void,
+  closeModal: () => void,
   save: (params: { doc: { name: string; }}, callback: () => void, brand: IBoard) => void,
 };
 
@@ -27,7 +27,7 @@ class BoardForm extends React.Component<Props, {}> {
 
     this.props.save(
       this.generateDoc(),
-      this.props.onClick,
+      () => this.props.closeModal(),
       this.props.board
     );
   }
@@ -71,7 +71,7 @@ class BoardForm extends React.Component<Props, {}> {
             btnStyle="simple"
             type="button"
             icon="cancel-1"
-            onClick={this.props.onClick}
+            onClick={this.props.closeModal}
           >
             Cancel
           </Button>

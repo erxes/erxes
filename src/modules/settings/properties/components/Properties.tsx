@@ -5,6 +5,7 @@ import {
   Icon,
   ModalTrigger
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
@@ -69,14 +70,7 @@ class Properties extends React.Component<Props> {
   }
 
   renderActionBar() {
-    const { __ } = this.context;
     const { queryParams, fieldsGroups } = this.props;
-
-    let propertyForm = <PropertyForm queryParams={queryParams} />;
-
-    if (fieldsGroups.length === 0) {
-      propertyForm = <div>{__('Please add property Group first')}!</div>;
-    }
 
     const addGroup = <MenuItem>{__('Add group')}</MenuItem>;
     const addField = <MenuItem>{__('Add Property')}</MenuItem>;
@@ -89,19 +83,28 @@ class Properties extends React.Component<Props> {
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
-          <ModalTrigger title="Add Group" trigger={addGroup}>
-            <PropertyGroupForm queryParams={queryParams} />
-          </ModalTrigger>
-          <ModalTrigger title="Add Property" trigger={addField}>
-            {propertyForm}
-          </ModalTrigger>
+          <ModalTrigger 
+            title="Add Group" 
+            trigger={addGroup}
+            content={(props) => <PropertyGroupForm {...props} queryParams={queryParams} />}
+          />
+          <ModalTrigger 
+            title="Add Property" 
+            trigger={addField}
+            content={(modalProps) => {
+              if (fieldsGroups.length === 0) {
+                return <div>{__('Please add property Group first')}!</div>;
+              }
+
+              return <PropertyForm  {...modalProps} {...this.props} queryParams={queryParams} />;
+            }}
+          />
         </Dropdown.Menu>
       </Dropdown>
     );
   }
 
   render() {
-    const { __ } = this.context;
     const { currentType } = this.props;
 
     const breadcrumb = [

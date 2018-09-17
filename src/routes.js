@@ -46,7 +46,9 @@ const renderRoutes = currentUser => {
 
 const Routes = ({ currentUser }) => (
   <Router>
-    <MainLayout>{renderRoutes(currentUser)}</MainLayout>
+    <MainLayout currentUser={currentUser}>
+      {renderRoutes(currentUser)}
+    </MainLayout>
   </Router>
 );
 

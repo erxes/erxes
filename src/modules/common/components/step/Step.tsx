@@ -77,8 +77,6 @@ class Step extends Component<Props> {
   }
 
   renderNextButton() {
-    const { __ } = this.context;
-
     return (
       <Button
         btnStyle="primary"

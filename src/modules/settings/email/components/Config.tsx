@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup
-} from '../../../common/components';
-import { ModalFooter } from '../../../common/styles/main';
-import { __ } from '../../../common/utils';
+} from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import React, { Component } from 'react';
 import { IBrand } from '../../brands/types';
 
 type Props = {
@@ -44,7 +44,7 @@ class Config extends Component<Props, State> {
     const { type, template } = this.state;
 
     configEmail({ _id: brand._id, emailConfig: { type, template } }, () => {
-      return this.props.closeModal;
+      return this.props.closeModal();
     });
   }
 

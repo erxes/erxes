@@ -85,7 +85,7 @@ const PropertiesContainer = (props: Props) => {
   };
 
   const currentType = router.getParam(history, 'type');
-  const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || {})];
+  const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || [])];
 
   // Initializing default properties for customer and company
   let defaultGroup = companyBasicInfos;
@@ -119,9 +119,9 @@ const options = ({ queryParams }) => ({
 });
 
 export default compose(
-  graphql<{ queryParams: any }>(gql(queries.fieldsGroups), {
+  graphql(gql(queries.fieldsGroups), {
     name: 'fieldsGroupsQuery',
-    options: ({ queryParams }) => ({
+    options: ({ queryParams } : { queryParams: any }) => ({
       variables: {
         contentType: queryParams.type || ''
       }

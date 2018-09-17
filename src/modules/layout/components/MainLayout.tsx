@@ -8,7 +8,7 @@ type Props = {
   history: any,
   location: any,
   match: any,
-  currentUser: IUser,
+  currentUser?: IUser,
   children: React.ReactNode
 }
 

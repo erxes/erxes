@@ -5,22 +5,24 @@ import {
   Icon,
   ModalTrigger
 } from 'modules/common/components';
-import PropTypes from 'prop-types';
+import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
 import { Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';
 
 type Props = {
   data: any,
-  onSelect: (datas: any[]) => void,
+  onSelect?: (datas: any[]) => void,
   search: (value: string, reload?: boolean) => void,
   datas: any[],
-  form: React.ReactNode,
+  form: any,
   title: string,
-  renderName: (data: any) => void,
+  renderName?: (data: any) => void,
   perPage: number,
   clearState: () => void,
-  limit: number,
+  limit?: number,
+  add?: any,
+  closeModal: () => void
 };
 
 type State = {
@@ -30,10 +32,6 @@ type State = {
 }
 
 class CommonChooser extends Component<Props, State> {
-  static contextTypes = {
-    closeModal: PropTypes.func.isRequired,
-  };
-
   private timer: NodeJS.Timer
 
   constructor(props) {
@@ -55,7 +53,7 @@ class CommonChooser extends Component<Props, State> {
 
   onSelect() {
     this.props.onSelect(this.state.datas);
-    this.context.closeModal();
+    this.props.closeModal();
   }
 
   componentWillUnmount() {
@@ -125,9 +123,10 @@ class CommonChooser extends Component<Props, State> {
   }
 
   render() {
-    const { datas, form, title, data } = this.props;
+    const { datas, title, data } = this.props;
     const selectedDatas = this.state.datas;
-    const { __ } = this.context;
+
+    const FormComponent = this.props.form;
 
     const addTrigger = (
       <p>
@@ -141,7 +140,7 @@ class CommonChooser extends Component<Props, State> {
         <Columns>
           <Column>
             <FormControl
-              placeholder={__('Type to search')}
+              placeholder={__('Type to search').toString()}
               onChange={e => this.search(e)}
             />
             <ul>
@@ -170,13 +169,11 @@ class CommonChooser extends Component<Props, State> {
         </Columns>
         <ModalFooter>
           <Footer>
-            <ModalTrigger title={`New ${title}`} trigger={addTrigger} size="lg">
-              {form}
-            </ModalTrigger>
+            <ModalTrigger title={`New ${title}`} trigger={addTrigger} size="lg" content={(props) => <FormComponent {...props} />}/>
             <div>
               <Button
                 btnStyle="simple"
-                onClick={() => this.context.closeModal()}
+                onClick={() => this.props.closeModal()}
                 icon="cancel-1"
               >
                 Cancel

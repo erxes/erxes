@@ -1,6 +1,6 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 import { Button, FormControl, SortableList } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
+import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { IConfig, IContentTypeFields } from '../types';
@@ -35,7 +35,8 @@ const Child = styled.div`
 type Props = {
   fields: IContentTypeFields[],
   config: IConfig[],
-  save: (columnsConfig: IConfig[]) => void
+  save: (columnsConfig: IConfig[]) => void,
+  closeModal: () => void
 };
 
 type State = {
@@ -80,7 +81,6 @@ class ManageColumns extends Component<Props, State> {
 
   render() {
     const { config } = this.props;
-    const { __ } = this.context;
 
     const configMap = {};
 
@@ -101,10 +101,6 @@ class ManageColumns extends Component<Props, State> {
       );
     };
 
-    const closeModal = () => {
-      this.context.closeModal();
-    };
-
     return (
       <form onSubmit={this.onSubmit}>
         <Header>
@@ -123,7 +119,7 @@ class ManageColumns extends Component<Props, State> {
           <Button
             type="button"
             btnStyle="simple"
-            onClick={closeModal}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Cancel
@@ -131,7 +127,7 @@ class ManageColumns extends Component<Props, State> {
 
           <Button
             type="submit"
-            onClick={closeModal}
+            onClick={this.props.closeModal}
             btnStyle="success"
             icon="checked-1"
           >

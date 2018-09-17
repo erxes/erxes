@@ -1,14 +1,15 @@
 import { EmptyState, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
+import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
 import Select from 'react-select-plus';
 
 type Props = {
-  onSave: () => void,
   object: any,
   searchObject: (value: string, callback: (objects: any[]) => void) => void,
   mergeForm: any,
-  generateOptions: (objects: any[]) => void
+  generateOptions: (objects: any[]) => void,
+  onSave: (doc: { ids: string[], data: ICustomer }) => void,
 };
 
 type State = {

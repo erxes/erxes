@@ -7,6 +7,11 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { integrationsListParams } from '../utils';
 
+type Props = {
+  integrationsQuery: any,
+  removeMutation: any
+};
+
 const IntegrationListContainer = (props: Props) => {
   const { integrationsQuery, removeMutation } = props;
 
@@ -39,21 +44,10 @@ const IntegrationListContainer = (props: Props) => {
   return <IntegrationList {...updatedProps} />;
 };
 
-type Props = {
-  integrationsQuery: any,
-  removeMutation: any
-};
-
-type QueryProps = {
-  queryParams: any,
-  kind: string,
-  variables: any
-};
-
 export default compose(
-  graphql<QueryProps>(gql(queries.integrations), {
+  graphql(gql(queries.integrations), {
     name: 'integrationsQuery',
-    options: ({ queryParams, kind, variables }) => {
+    options: ({ queryParams, kind, variables } : { queryParams: any, kind: string, variables: any }) => {
       return {
         notifyOnNetworkStatusChange: true,
         variables: {
@@ -65,9 +59,9 @@ export default compose(
       };
     }
   }),
-  graphql<QueryProps>(gql(mutations.integrationsRemove), {
+  graphql(gql(mutations.integrationsRemove), {
     name: 'removeMutation',
-    options: ({ queryParams, kind }) => {
+    options: ({ queryParams, kind } : { queryParams: any, kind: string }) => {
       return {
         refetchQueries: [
           {

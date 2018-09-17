@@ -1,6 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { Alert, uploadHandler } from 'modules/common/utils';
+import { __, Alert, uploadHandler } from 'modules/common/utils';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
@@ -53,8 +53,6 @@ class CustomerListContainer extends Component<Props, State> {
       customersMerge,
       history
     } = this.props;
-
-    const { __ } = this.context;
 
     let columnsConfig =
       customersListConfigQuery.fieldsDefaultColumnsConfig || [];

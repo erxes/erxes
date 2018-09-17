@@ -1,27 +1,13 @@
-import { IUser } from 'modules/auth/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Col, Grid } from 'react-bootstrap';
-import { withRouter } from 'react-router';
 import { AuthContent, AuthDescription, Authlayout } from '../styles';
 
 type Props = {
-  history: any,
-  location: any,
-  match: any,
   content: React.ReactNode,
-  currentUser: IUser,
 }
 
 class AuthLayout extends React.Component<Props, {}> {
-  componentDidMount() {
-    const { history, currentUser } = this.props;
-
-    if (currentUser) {
-      history.push('/');
-    }
-  }
-
   render() {
     const { content } = this.props;
 
@@ -49,4 +35,4 @@ class AuthLayout extends React.Component<Props, {}> {
   }
 }
 
-export default withRouter<Props>(AuthLayout);
+export default AuthLayout;

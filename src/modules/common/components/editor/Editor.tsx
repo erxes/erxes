@@ -29,14 +29,15 @@ const styleMap = {
 
 type Props = {
   active: boolean,
-  label?: any,
+  label?: React.ReactNode,
   style?: string,
   title?: string,
   onToggle: (style: string) => void
 };
 
 class StyleButton extends Component<Props> {
-  onToggle: any;
+  onToggle: (e: React.MouseEvent) => void
+
   constructor(props: Props) {
     super(props);
 
@@ -94,8 +95,8 @@ const BLOCK_TYPES = [
 ];
 
 type BlockStyleProps = {
-  onToggle: (blockType: any) => void,
-  editorState: any
+  onToggle: (style: string) => void
+  editorState: EditorState
 };
 
 const BlockStyleControls = (props: BlockStyleProps) => {
@@ -135,7 +136,7 @@ const INLINE_STYLES = [
 
 type InlineStyleProps = {
   onToggle: (inlineStyle: any) => void,
-  editorState: any
+  editorState: EditorState
 }
 
 const InlineStyleControls = ({ onToggle, editorState }: InlineStyleProps) => {
@@ -158,17 +159,17 @@ const InlineStyleControls = ({ onToggle, editorState }: InlineStyleProps) => {
 };
 
 type ErxesEditorProps = {
-  editorState: any,
+  editorState: EditorState,
   onChange: (richUtils: any) => void,
   bordered: boolean,
   // extra control rows
-  controls: any[],
-  pluginContent: any,
-  plugins: any[]
-  keyBindingFn: () => void,
-  onUpArrow: () => void,
-  onDownArrow: () => void,
-  handleFileInput: (e: any) => void,
+  controls?: any[],
+  pluginContent?: any,
+  plugins?: any[]
+  keyBindingFn?: () => void,
+  onUpArrow?: () => void,
+  onDownArrow?: () => void,
+  handleFileInput?: (e: any) => void,
   placeholder?: string
 };
 
@@ -176,9 +177,11 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
   constructor(props: ErxesEditorProps) {
     super(props);
 
-    // TODO: remove any
-    const editor: any = this.refs.editor;
-    this.focus = () => editor.focus();
+    this.focus = () => {
+      const editor: Editor = this.refs.editor;
+
+      editor.focus()
+    };
 
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.onTab = this.onTab.bind(this);

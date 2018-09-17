@@ -7,7 +7,7 @@ import { PasswordConfirmation } from '.';
 
 type Props = {
   currentUser: IUser,
-  closeModal: () => void,
+  closeModal?: () => void,
   save: (save: { username: string, email: string, details: any, links: any, password: string }) => void
 };
 
@@ -81,11 +81,8 @@ class EditProfile extends Component<Props, State> {
           <ModalTrigger
             title="Enter your password to Confirm"
             trigger={saveButton}
-          >
-            <PasswordConfirmation
-              onSuccess={password => this.handleSubmit(password)}
-            />
-          </ModalTrigger>
+            content={(props) => <PasswordConfirmation {...props} onSuccess={password => this.handleSubmit(password)} /> }
+          />
         </ModalFooter>
       </Fragment>
     );
