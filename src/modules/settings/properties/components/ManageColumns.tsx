@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 import { Button, FormControl, SortableList } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';

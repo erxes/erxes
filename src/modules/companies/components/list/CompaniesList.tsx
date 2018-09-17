@@ -29,6 +29,7 @@ type Props = {
   location: any,
   loading: boolean,
   searchValue: string,
+  // TODO: check is below line not throwing error ?
   toggleBulk: () => void,
   toggleAll: (targets: ICompany[], containerId: string) => void,
   bulk: any[],

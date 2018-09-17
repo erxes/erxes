@@ -72,7 +72,7 @@ const AvatarWrapper = styledTS<{ isUser?: boolean }>(styled.div)`
   }
 `;
 
-const ActivityIcon = styled.span`
+const ActivityIcon = styledTS<{ color?: string }>(styled.span)`
   display: inline-block;
   position: absolute;
   background-color: ${props => props.color};
