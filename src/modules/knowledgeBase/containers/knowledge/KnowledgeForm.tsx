@@ -4,19 +4,22 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { KnowledgeForm } from '../../components';
 import { queries } from '../../graphql';
+import { ITopic } from '../../types';
 
 type Props = {
   getBrandListQuery: any,
-  save: () => void
+  save: () => void,
+  topic: ITopic
 };
 
-const TopicAddFormContainer = ({ getBrandListQuery, ...props }: Props) => {
+const TopicAddFormContainer = ({ topic, getBrandListQuery, ...props }: Props) => {
   if (getBrandListQuery.loading) {
     return <Spinner objective />;
   }
 
   const updatedProps = {
     ...props,
+    topic,
     brands: getBrandListQuery.brands || []
   };
   return <KnowledgeForm {...updatedProps} />;

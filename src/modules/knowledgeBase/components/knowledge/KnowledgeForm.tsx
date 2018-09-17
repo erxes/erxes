@@ -21,7 +21,7 @@ import { ITopic } from '../../types';
 import SelectBrand from '../SelectBrand';
 
 type Props = {
-  topic?: ITopic,
+  topic: ITopic,
   save?: ({ doc }: { doc: any; }, callback: () => void, topic: ITopic) => void,
   remove?: (_id: string) => void,
   brands: IBrand[],

@@ -26,10 +26,6 @@ class KnowledgeList extends Component<Props> {
     this.renderSidebarList = this.renderSidebarList.bind(this);
   }
 
-  renderForm(props) {
-    return <KnowledgeForm {...props} />;
-  }
-
   renderTopics() {
     const {
       topics,
@@ -90,9 +86,7 @@ class KnowledgeList extends Component<Props> {
         <ModalTrigger 
           title="Add Knowledge base" 
           trigger={trigger}
-          content={(props) => {
-            return this.renderForm({ ...props, save })
-          }}
+          content={(props) => <KnowledgeForm {...props} save={save} />}
         />
       </Header>
     );

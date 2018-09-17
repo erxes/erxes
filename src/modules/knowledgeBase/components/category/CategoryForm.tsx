@@ -40,9 +40,7 @@ class CategoryForm extends Component<Props, State> {
 
     this.props.save(
       this.generateDoc(),
-      () => {
-        this.context.closeModal();
-      },
+      () => this.props.closeModal(),
       this.props.category
     );
   }
@@ -123,10 +121,6 @@ class CategoryForm extends Component<Props, State> {
   }
 
   render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
-
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.category || { title: '', description: ''  })}
@@ -134,7 +128,7 @@ class CategoryForm extends Component<Props, State> {
           <Button
             btnStyle="simple"
             type="button"
-            onClick={onClick}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Cancel
