@@ -1,12 +1,23 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
-import { Alert, confirm } from 'modules/common/utils';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../../graphql';
+import { Spinner } from 'modules/common/components';
+import { Alert, confirm } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { KnowledgeList } from '../../components';
+import { mutations, queries } from '../../graphql';
 
-const KnowledgeBaseContainer = props => {
+type Props = {
+  queryParams: any,
+  topicsQuery: any,
+  topicsCountQuery: any,
+  addTopicsMutation: (params: { variables: any }) => any,
+  editTopicsMutation: (params: { variables: any }) => any,
+  removeTopicsMutation: (params: { variables: { _id: string } }) => any,
+  currentCategoryId: string,
+  articlesCount: number
+};
+
+const KnowledgeBaseContainer = (props : Props) => {
   const {
     currentCategoryId,
     topicsQuery,
@@ -17,6 +28,10 @@ const KnowledgeBaseContainer = props => {
     queryParams,
     articlesCount
   } = props;
+
+  if (topicsQuery.loading || topicsCountQuery.loading) {
+    return <Spinner objective />;
+  }
 
   // remove action
   const remove = _id => {
@@ -64,7 +79,7 @@ const KnowledgeBaseContainer = props => {
   };
 
   const extendedProps = {
-    ...this.props,
+    ...props,
     remove,
     save,
     currentCategoryId,
@@ -77,17 +92,6 @@ const KnowledgeBaseContainer = props => {
   };
 
   return <KnowledgeList {...extendedProps} />;
-};
-
-KnowledgeBaseContainer.propTypes = {
-  queryParams: PropTypes.object,
-  topicsQuery: PropTypes.object,
-  topicsCountQuery: PropTypes.object,
-  addTopicsMutation: PropTypes.func,
-  editTopicsMutation: PropTypes.func,
-  removeTopicsMutation: PropTypes.func,
-  currentCategoryId: PropTypes.string,
-  articlesCount: PropTypes.number.isRequired
 };
 
 export default compose(
@@ -108,7 +112,7 @@ export default compose(
   }),
   graphql(gql(mutations.knowledgeBaseTopicsRemove), {
     name: 'removeTopicsMutation',
-    options: ({ currentCategoryId }) => {
+    options: ({ currentCategoryId } : { currentCategoryId: string }) => {
       return {
         refetchQueries: [
           {

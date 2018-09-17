@@ -1,12 +1,20 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
-import { Alert, confirm } from 'modules/common/utils';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../../graphql';
+import { Alert, confirm } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { CategoryList } from '../../components';
+import { mutations, queries } from '../../graphql';
 
-const KnowledgeBaseContainer = props => {
+type Props = {
+  categoriesQuery: any
+  categoriesCountQuery: any,
+  articlesCountQuery: any,
+  removeCategoriesMutation: (params: { variables: { _id: string } }) => any,
+  currentCategoryId: string,
+  topicIds: string
+};
+
+const KnowledgeBaseContainer = (props: Props) => {
   const {
     currentCategoryId,
     categoriesQuery,
@@ -34,7 +42,7 @@ const KnowledgeBaseContainer = props => {
   };
 
   const extendedProps = {
-    ...this.props,
+    ...props,
     remove,
     currentCategoryId,
     topicIds,
@@ -48,19 +56,10 @@ const KnowledgeBaseContainer = props => {
   return <CategoryList {...extendedProps} />;
 };
 
-KnowledgeBaseContainer.propTypes = {
-  categoriesQuery: PropTypes.object,
-  categoriesCountQuery: PropTypes.object,
-  articlesCountQuery: PropTypes.object,
-  removeCategoriesMutation: PropTypes.func,
-  currentCategoryId: PropTypes.string,
-  topicIds: PropTypes.string
-};
-
 export default compose(
   graphql(gql(queries.knowledgeBaseCategories), {
     name: 'categoriesQuery',
-    options: ({ topicIds }) => {
+    options: ({ topicIds } : { topicIds: string[] }) => {
       return {
         variables: {
           topicIds: [topicIds]
@@ -70,7 +69,7 @@ export default compose(
   }),
   graphql(gql(queries.knowledgeBaseArticlesTotalCount), {
     name: 'articlesCountQuery',
-    options: ({ currentCategoryId }) => ({
+    options: ({ currentCategoryId } : { currentCategoryId: string }) => ({
       variables: { categoryIds: [currentCategoryId] || '' }
     })
   }),
@@ -79,7 +78,7 @@ export default compose(
   }),
   graphql(gql(mutations.knowledgeBaseCategoriesRemove), {
     name: 'removeCategoriesMutation',
-    options: ({ currentCategoryId }) => {
+    options: ({ currentCategoryId } : { currentCategoryId: string }) => {
       return {
         refetchQueries: [
           {

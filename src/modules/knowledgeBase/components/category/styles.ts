@@ -1,5 +1,6 @@
-import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { ActionButtons } from '../../styles';
 
 const Categories = styled.ul`
@@ -9,7 +10,7 @@ const Categories = styled.ul`
   border-top: 1px solid ${colors.borderPrimary};
 `;
 
-const CategoryItem = styled.li`
+const CategoryItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
   background: ${props => (props.isActive ? colors.bgActive : colors.bgLight)};
   border-bottom: 1px solid ${colors.borderPrimary};

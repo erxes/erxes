@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
+import styled from 'styled-components';
 
 const KnowledgeBaseRow = styled.div`
   border-bottom: 1px solid ${colors.borderPrimary};

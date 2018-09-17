@@ -1,33 +1,34 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
 import {
-  ModalTrigger,
-  Tip,
   Button,
   Icon,
-  Label
+  Label,
+  ModalTrigger,
+  Tip
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import moment from 'moment';
+import React, { Component } from 'react';
 import { ArticleForm } from '../../containers';
+import { IArticle } from '../../types';
 import {
-  RowArticle,
-  ArticleTitle,
+  ActionButtons,
   ArticleColumn,
   ArticleMeta,
+  ArticleTitle,
   AuthorName,
-  ActionButtons
+  RowArticle
 } from './styles';
 
-const propTypes = {
-  article: PropTypes.object.isRequired,
-  queryParams: PropTypes.object,
-  currentCategoryId: PropTypes.string,
-  topicIds: PropTypes.string,
-  remove: PropTypes.func.isRequired
+type Props = {
+  article: IArticle,
+  queryParams: any,
+  currentCategoryId: string,
+  topicIds: string,
+  remove: (_id: string) => void
 };
 
-class ArticleRow extends Component {
-  constructor(props) {
+class ArticleRow extends Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.remove = this.remove.bind(this);
@@ -40,7 +41,6 @@ class ArticleRow extends Component {
 
   renderEditAction(editTrigger) {
     const { article, queryParams, currentCategoryId, topicIds } = this.props;
-    const { __ } = this.context;
 
     const editButton = (
       <Button btnStyle="link">
@@ -55,21 +55,14 @@ class ArticleRow extends Component {
         size="large"
         title="Edit"
         trigger={editTrigger ? editTrigger : editButton}
-      >
-        <ArticleForm
-          article={article}
-          queryParams={queryParams}
-          currentCategoryId={currentCategoryId}
-          topicIds={topicIds}
-        />
-      </ModalTrigger>
+        content={(props) => <ArticleForm {...props} article={article} queryParams={queryParams} currentCategoryId={currentCategoryId} topicIds={topicIds} />}
+      />
     );
   }
 
   render() {
     const { article } = this.props;
     const user = article.createdUser;
-    const { __ } = this.context;
 
     const title = (
       <ArticleTitle>
@@ -102,7 +95,7 @@ class ArticleRow extends Component {
           </ArticleMeta>
         </ArticleColumn>
         <ActionButtons>
-          {this.renderEditAction()}
+          {this.renderEditAction('')}
           <Tip text={__('Delete')}>
             <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
@@ -111,10 +104,5 @@ class ArticleRow extends Component {
     );
   }
 }
-
-ArticleRow.propTypes = propTypes;
-ArticleRow.contextTypes = {
-  __: PropTypes.func
-};
 
 export default ArticleRow;

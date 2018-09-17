@@ -1,12 +1,19 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
-import { Alert } from 'modules/common/utils';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../../graphql';
+import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { CategoryForm } from '../../components';
+import { mutations, queries } from '../../graphql';
+import { ICategory } from '../../types';
 
-const KnowledgeBaseContainer = props => {
+type Props = {
+  category: ICategory,
+  addCategoriesMutation: (params: { variables: any }) => any,
+  editCategoriesMutation: (params: { variables: any }) => any,
+  topicIds: string
+};
+
+const KnowledgeBaseContainer = (props: Props) => {
   const {
     category,
     topicIds,
@@ -38,20 +45,13 @@ const KnowledgeBaseContainer = props => {
   };
 
   const extendedProps = {
-    ...this.props,
+    ...props,
     save,
     currentTopicId: topicIds,
     category
   };
 
   return <CategoryForm {...extendedProps} />;
-};
-
-KnowledgeBaseContainer.propTypes = {
-  category: PropTypes.object,
-  addCategoriesMutation: PropTypes.func,
-  editCategoriesMutation: PropTypes.func,
-  topicIds: PropTypes.string
 };
 
 const commonOptions = ({ topicIds }) => {
