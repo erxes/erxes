@@ -1,14 +1,21 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import queryString from 'query-string';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
-import { queries } from '../graphql';
+import queryString from 'query-string';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
 import { KnowledgeBase as KnowledgeBaseComponent } from '../components';
+import { queries } from '../graphql';
 
-class KnowledgeBase extends React.Component {
+type Props = {
+  currentCategoryId: string,
+  articlesCountQuery: any,
+  categoryDetailQuery: any,
+  history: any,
+  location: any,
+};
+
+class KnowledgeBase extends React.Component<Props> {
   componentWillReceiveProps() {
     const { history, currentCategoryId } = this.props;
 
@@ -37,40 +44,32 @@ class KnowledgeBase extends React.Component {
   }
 }
 
-KnowledgeBase.propTypes = {
-  currentCategoryId: PropTypes.string,
-  articlesCountQuery: PropTypes.object,
-  categoryDetailQuery: PropTypes.object,
-  history: PropTypes.object,
-  location: PropTypes.object
-};
-
 const KnowledgeBaseContainer = compose(
   graphql(gql(queries.knowledgeBaseCategoryDetail), {
     name: 'categoryDetailQuery',
-    options: ({ currentCategoryId }) => ({
+    options: ({ currentCategoryId } : { currentCategoryId: string }) => ({
       variables: { _id: currentCategoryId || '' },
       fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(queries.knowledgeBaseArticlesTotalCount), {
     name: 'articlesCountQuery',
-    options: ({ currentCategoryId }) => ({
+    options: ({ currentCategoryId } : { currentCategoryId: string }) => ({
       variables: { categoryIds: [currentCategoryId] || '' }
     })
   })
 )(KnowledgeBase);
 
-const KnowledgeBaseLast = props => {
+type KnowledgeBaseLastProps = {
+  lastCategoryQuery: any
+};
+
+const KnowledgeBaseLast = (props :  KnowledgeBaseLastProps) => {
   const { lastCategoryQuery } = props;
   const lastCategory = lastCategoryQuery.knowledgeBaseCategoriesGetLast || {};
   const extendedProps = { ...props, currentCategoryId: lastCategory._id };
 
   return <KnowledgeBaseContainer {...extendedProps} />;
-};
-
-KnowledgeBaseLast.propTypes = {
-  lastCategoryQuery: PropTypes.object
 };
 
 const KnowledgeBaseLastContainer = compose(
@@ -79,7 +78,13 @@ const KnowledgeBaseLastContainer = compose(
   })
 )(KnowledgeBaseLast);
 
-const MainContainer = props => {
+type MainContainerProps = {
+  history: any,
+  location: any,
+  match: any
+};
+
+const MainContainer = (props : MainContainerProps) => {
   const { history } = props;
   const currentCategoryId = routerUtils.getParam(history, 'id');
 
@@ -92,8 +97,4 @@ const MainContainer = props => {
   return <KnowledgeBaseLastContainer {...props} />;
 };
 
-MainContainer.propTypes = {
-  history: PropTypes.object
-};
-
-export default withRouter(MainContainer);
+export default withRouter<MainContainerProps>(MainContainer);

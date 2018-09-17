@@ -1,35 +1,37 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
 import {
-  FormGroup,
+  Button,
   ControlLabel,
   FormControl,
-  Button
+  FormGroup
 } from 'modules/common/components';
 import {
+  createStateFromHTML,
   ErxesEditor,
-  toHTML,
-  createStateFromHTML
+  toHTML
 } from 'modules/common/components/editor/Editor';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import React, { Component, Fragment } from 'react';
+import { IArticle } from '../../types';
 
-const propTypes = {
-  article: PropTypes.object,
-  currentCategoryId: PropTypes.string,
-  save: PropTypes.func
+type Props = {
+  article: IArticle,
+  currentCategoryId: string,
+  save: ({ doc }: { doc: any }, callback: () => void, IArticle) => void,
+  closeModal?: () => void
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired,
-  __: PropTypes.func
-};
+type State = {
+  status: string,
+  editorState: any
+}
 
-class ArticleForm extends Component {
-  constructor(props) {
+class ArticleForm extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
-    const article = props.article || {};
+    const article = props.article || { content: '' };
 
     this.state = {
       status: this.getCurrentStatus(),
@@ -49,9 +51,7 @@ class ArticleForm extends Component {
 
     this.props.save(
       this.generateDoc(),
-      () => {
-        this.context.closeModal();
-      },
+      () => this.props.closeModal(),
       this.props.article
     );
   }
@@ -68,8 +68,8 @@ class ArticleForm extends Component {
     return {
       doc: {
         doc: {
-          title: document.getElementById('knowledgebase-article-title').value,
-          summary: document.getElementById('knowledgebase-article-summary')
+          title: (document.getElementById('knowledgebase-article-title') as HTMLInputElement).value,
+          summary: (document.getElementById('knowledgebase-article-summary') as HTMLInputElement)
             .value,
           content: this.getContent(this.state.editorState),
           status: this.state.status,
@@ -88,7 +88,6 @@ class ArticleForm extends Component {
   }
 
   renderContent(article) {
-    const { __ } = this.context;
     const props = {
       editorState: this.state.editorState,
       onChange: this.onChange,
@@ -126,9 +125,9 @@ class ArticleForm extends Component {
           <FormControl
             id="knowledgebase-article-status"
             componentClass="select"
-            placeholder={__('select')}
+            placeholder={__('select').toString()}
             onChange={e => {
-              this.setState({ status: e.target.value });
+              this.setState({ status: (e.target as HTMLInputElement).value });
             }}
             value={this.state.status}
           >
@@ -144,10 +143,6 @@ class ArticleForm extends Component {
   }
 
   render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
-
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.article || {})}
@@ -155,7 +150,7 @@ class ArticleForm extends Component {
           <Button
             btnStyle="simple"
             type="button"
-            onClick={onClick}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Cancel
@@ -169,8 +164,5 @@ class ArticleForm extends Component {
     );
   }
 }
-
-ArticleForm.propTypes = propTypes;
-ArticleForm.contextTypes = contextTypes;
 
 export default ArticleForm;

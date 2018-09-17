@@ -1,29 +1,29 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { queries } from '../../graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { KnowledgeForm } from '../../components';
+import { queries } from '../../graphql';
+import { ITopic } from '../../types';
 
-const addPropTypes = {
-  getBrandListQuery: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired
+type Props = {
+  getBrandListQuery: any,
+  save: () => void,
+  topic: ITopic
 };
 
-const TopicAddFormContainer = ({ getBrandListQuery, ...props }) => {
+const TopicAddFormContainer = ({ topic, getBrandListQuery, ...props }: Props) => {
   if (getBrandListQuery.loading) {
     return <Spinner objective />;
   }
 
   const updatedProps = {
     ...props,
+    topic,
     brands: getBrandListQuery.brands || []
   };
   return <KnowledgeForm {...updatedProps} />;
 };
-
-TopicAddFormContainer.propTypes = addPropTypes;
 
 export default compose(
   graphql(gql(queries.getBrandList), {

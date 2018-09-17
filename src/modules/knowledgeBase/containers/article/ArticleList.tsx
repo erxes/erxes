@@ -1,12 +1,19 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { compose, graphql } from 'react-apollo';
-import { Alert, confirm } from 'modules/common/utils';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../../graphql';
+import { Alert, confirm } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { ArticleList } from '../../components';
+import { mutations, queries } from '../../graphql';
 
-const ArticleContainer = props => {
+type Props = {
+  queryParams: any,
+  articlesQuery: any,
+  removeArticlesMutation: (params: { variables: { _id: string } }) => any,
+  currentCategoryId: string,
+  topicIds: string
+};
+
+const ArticleContainer = (props: Props) => {
   const {
     articlesQuery,
     removeArticlesMutation,
@@ -33,7 +40,7 @@ const ArticleContainer = props => {
   };
 
   const extendedProps = {
-    ...this.props,
+    ...props,
     remove,
     currentCategoryId,
     topicIds,
@@ -45,18 +52,10 @@ const ArticleContainer = props => {
   return <ArticleList {...extendedProps} />;
 };
 
-ArticleContainer.propTypes = {
-  queryParams: PropTypes.object,
-  articlesQuery: PropTypes.object,
-  removeArticlesMutation: PropTypes.func,
-  currentCategoryId: PropTypes.string,
-  topicIds: PropTypes.string
-};
-
 export default compose(
   graphql(gql(queries.knowledgeBaseArticles), {
     name: 'articlesQuery',
-    options: ({ queryParams, currentCategoryId }) => ({
+    options: ({ queryParams, currentCategoryId } : { queryParams: any, currentCategoryId: string }) => ({
       variables: {
         categoryIds: [currentCategoryId],
         page: queryParams.page,
@@ -67,7 +66,7 @@ export default compose(
   }),
   graphql(gql(mutations.knowledgeBaseArticlesRemove), {
     name: 'removeArticlesMutation',
-    options: ({ currentCategoryId, topicIds }) => {
+    options: ({ currentCategoryId, topicIds } : { currentCategoryId: string, topicIds: string[] }) => {
       return {
         refetchQueries: [
           {

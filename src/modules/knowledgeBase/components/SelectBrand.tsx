@@ -1,29 +1,26 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import {
-  FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
+  FormGroup
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
+import { IBrand } from '../../settings/brands/types';
 
-const propTypes = {
-  brands: PropTypes.array.isRequired,
-  onChange: PropTypes.func,
-  defaultValue: PropTypes.string
+type Props = {
+  brands: IBrand[],
+  onChange: () => void,
+  defaultValue: string
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
-
-const SelectBrand = ({ brands, onChange, defaultValue }, { __ }) => (
+const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (
   <FormGroup>
     <ControlLabel>Brand</ControlLabel>
 
     <FormControl
       id="selectBrand"
       componentClass="select"
-      placeholder={__('Select Brand')}
+      placeholder={__('Select Brand').toString()}
       defaultValue={defaultValue}
       onChange={onChange}
     >
@@ -36,8 +33,5 @@ const SelectBrand = ({ brands, onChange, defaultValue }, { __ }) => (
     </FormControl>
   </FormGroup>
 );
-
-SelectBrand.propTypes = propTypes;
-SelectBrand.contextTypes = contextTypes;
 
 export default SelectBrand;
