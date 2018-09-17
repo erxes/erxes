@@ -48,9 +48,13 @@ class Boards extends React.Component<Props, {}> {
       <Header uppercase>
         {__('Board')}
 
-        <ModalTrigger title="New Board" trigger={addBoard}>
-          {this.renderBoardForm({ save })}
-        </ModalTrigger>
+        <ModalTrigger 
+          title="New Board" 
+          trigger={addBoard}
+          content={(props) => {
+            return this.renderBoardForm({ ...props, save })
+          }}
+        />
       </Header>
     );
   }
