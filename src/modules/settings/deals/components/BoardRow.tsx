@@ -43,15 +43,9 @@ class BoardRow extends React.Component<Props, {}> {
         size={this.size} 
         title="Edit" 
         trigger={editTrigger}
-        content={(props) => {
-          return this.renderEditForm({ ...props, board, save })
-        }}
+        content={(props) => <BoardForm {...props} board={board} save={save} />}
       />
     );
-  }
-
-  renderEditForm(props) {
-    return <BoardForm {...props} />;
   }
 
   render() {
