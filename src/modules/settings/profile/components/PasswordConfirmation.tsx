@@ -25,7 +25,7 @@ class PasswordConfirmation extends Component<Props> {
     const password = (document.getElementById('password') as HTMLInputElement).value;
 
     this.props.onSuccess(password);
-    this.props.closeModal;
+    this.props.closeModal();
   }
 
   render() {

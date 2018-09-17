@@ -44,7 +44,7 @@ class Config extends Component<Props, State> {
     const { type, template } = this.state;
 
     configEmail({ _id: brand._id, emailConfig: { type, template } }, () => {
-      return this.props.closeModal;
+      return this.props.closeModal();
     });
   }
 

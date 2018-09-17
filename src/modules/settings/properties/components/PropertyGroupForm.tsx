@@ -59,7 +59,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
       this.props.group ? { _id: this.props.group._id, doc } : { doc }
     );
 
-    this.props.closeModal;
+    this.props.closeModal();
   }
 
   visibleHandler(e) {

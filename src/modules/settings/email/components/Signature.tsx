@@ -63,7 +63,7 @@ class Signature extends React.Component<Props, State> {
 
     this.props.save(this.state.signatures);
 
-    this.props.closeModal;
+    this.props.closeModal();
   }
 
   render() {

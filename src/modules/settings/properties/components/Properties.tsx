@@ -72,12 +72,6 @@ class Properties extends React.Component<Props> {
   renderActionBar() {
     const { queryParams, fieldsGroups } = this.props;
 
-    let propertyForm = <PropertyForm {...this.props} queryParams={queryParams} />;
-
-    if (fieldsGroups.length === 0) {
-      propertyForm = <div>{__('Please add property Group first')}!</div>;
-    }
-
     const addGroup = <MenuItem>{__('Add group')}</MenuItem>;
     const addField = <MenuItem>{__('Add Property')}</MenuItem>;
 
@@ -97,8 +91,12 @@ class Properties extends React.Component<Props> {
           <ModalTrigger 
             title="Add Property" 
             trigger={addField}
-            content={(props) => {
-             return propertyForm 
+            content={(modalProps) => {
+              if (fieldsGroups.length === 0) {
+                return <div>{__('Please add property Group first')}!</div>;
+              }
+
+              return <PropertyForm  {...modalProps} {...this.props} queryParams={queryParams} />;
             }}
           />
         </Dropdown.Menu>
