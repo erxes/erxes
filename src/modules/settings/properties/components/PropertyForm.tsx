@@ -99,7 +99,7 @@ class PropertyForm extends Component<Props, State> {
       this.props.field ? { _id: this.props.field._id, doc } : { doc }
     );
 
-    this.props.closeModal;
+    this.props.closeModal();
   }
 
   onTypeChange(e) {
