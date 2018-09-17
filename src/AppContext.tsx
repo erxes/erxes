@@ -55,15 +55,15 @@ const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
+export class AppProvider extends React.Component<{ currentUser?: IUser }, IState> {
+  constructor(props) {
     super(props);
 
     // initiliaze locale ======
     const currentLanguage = localStorage.getItem('currentLanguage') || 'en';
 
     this.state = {
-      currentUser: null,
+      currentUser: props.currentUser,
       currentLanguage,
     };
 
