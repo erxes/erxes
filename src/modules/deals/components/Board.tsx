@@ -3,10 +3,11 @@ import * as React from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import { Pipeline } from '../containers';
+import { IBoard, IPipeline } from '../types';
 
 type Props = {
-  currentBoard?: any,
-  pipelines: any,
+  currentBoard?: IBoard,
+  pipelines: IPipeline[],
   states: any,
   onDragEnd: any,
   loading: boolean

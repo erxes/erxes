@@ -14,10 +14,11 @@ import {
   Indicator,
   IndicatorItem
 } from '../styles/stage';
+import { IDeal } from '../types';
 
 type Props = {
   stage: any,
-  deals: any,
+  deals: IDeal[],
   index?: number,
   length?: number,
   saveDeal: any,

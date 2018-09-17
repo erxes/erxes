@@ -12,7 +12,7 @@ import { IPipeline } from '../types';
 import { collectOrders } from '../utils';
 
 type Props = {
-  pipeline: any,
+  pipeline: IPipeline,
   state: any,
   index: number,
   stages: IStage[],

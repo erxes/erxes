@@ -13,9 +13,10 @@ import {
 } from '../../styles/deal';
 
 import { Amount } from '../../styles/stage';
+import { IDeal } from '../../types';
 
 type Props = {
-  deal: any
+  deal: IDeal
 };
 
 class CommonDeal extends React.Component<Props> {

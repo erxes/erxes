@@ -1,4 +1,5 @@
 import { __, Alert, confirm } from 'modules/common/utils';
+import { IUser } from '../auth/types';
 
 type Options = {
   _id: string,
@@ -6,17 +7,6 @@ type Options = {
 	type?: string,
 	index?: number,
 	itemId?: string
-}
-
-type UserDetails = {
-  fullName: string,
-  avatar: string
-}
-
-type UserOptions = {
-  _id: string,
-  details: UserDetails
-  email: string
 }
 
 // get options for react-select-plus
@@ -33,7 +23,7 @@ export function selectConfigOptions(array: string[] = [], CONSTANT: any) {
 }
 
 // get user options for react-select-plus
-export function selectUserOptions(array: UserOptions[] = []) {
+export function selectUserOptions(array: IUser[] = []) {
   return array.map(item => ({
     value: item._id,
     label: item.details.fullName || item.email,

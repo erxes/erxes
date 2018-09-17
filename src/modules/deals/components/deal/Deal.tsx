@@ -4,9 +4,10 @@ import { Draggable } from 'react-beautiful-dnd';
 import { CommonDeal } from '..';
 import { DealEditForm } from '../../containers';
 import { Container } from '../../styles/deal';
+import { IDeal } from '../../types';
 
 type Props = {
-  deal: any,
+  deal: IDeal,
   saveDeal?: any,
   index?: number,
   removeDeal?: any,

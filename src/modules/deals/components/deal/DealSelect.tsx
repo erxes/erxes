@@ -3,11 +3,12 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { SelectContainer } from '../../styles/deal';
+import { IBoard, IPipeline } from '../../types';
 import { selectOptions } from '../../utils';
 
 type Props = {
-  boards: any,
-  pipelines: any,
+  boards: IBoard[],
+  pipelines: IPipeline[],
   stages: any,
   boardId?: string,
   pipelineId?: string,

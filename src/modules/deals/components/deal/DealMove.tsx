@@ -8,9 +8,10 @@ import {
   StageItem,
   Stages
 } from '../../styles/deal';
+import { IDeal } from '../../types';
 
 type Props = {
-  deal?: any,
+  deal?: IDeal,
   stages: any,
   stageId?: string,
   onChangeStage?: any

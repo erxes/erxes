@@ -7,6 +7,7 @@ import { __ } from 'modules/common/utils';
 import React, { Fragment } from 'react';
 import * as Datetime from 'react-datetime';
 import Select from 'react-select-plus';
+import { IUser } from '../../../../auth/types';
 import { DealMove } from '../../../containers';
 import {
   Avatar,
@@ -19,17 +20,18 @@ import {
   SelectOption,
   SelectValue
 } from '../../../styles/deal';
+import { IDeal } from '../../../types';
 import { selectUserOptions } from '../../../utils';
 
 type Props = {
-  deal: any,
+  deal: IDeal,
   name: string,
   description: string,
   closeDate: Date,
   amount: any,
   stageId: string,
-  assignedUserIds: any,
-  users: any,
+  assignedUserIds: string[],
+  users: IUser[],
   onChangeField: any
 };
 

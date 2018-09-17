@@ -1,6 +1,7 @@
 import { Button, EmptyState, Table } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import { ProductItemForm } from '../../containers';
 import { Add, Footer, FooterInfo, FormContainer } from '../../styles/product';
@@ -9,7 +10,7 @@ type Props = {
   onChangeProductsData: any,
   saveProductsData: any,
   productsData: any,
-  products: any,
+  products: IProduct[],
   closeModal: () => void
 };
 

@@ -1,16 +1,20 @@
+import { IUser } from 'modules/auth/types';
 import { Button } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import React, { Fragment } from 'react';
+import { ICompany } from '../../../companies/types';
+import { ICustomer } from '../../../customers/types';
 import { Tab } from '../../containers';
 import { FlexContent, FormFooter } from '../../styles/deal';
+import { IDeal } from '../../types';
 import { Sidebar, Top } from './editForm';
 
 type Props = {
-  deal?: any,
+  deal?: IDeal,
   saveDeal?: any,
   removeDeal?: any,
-  users: any,
+  users: IUser[],
   dealActivityLog?: any,
   index?: number,
   closeModal?: () => void,
@@ -24,8 +28,8 @@ type State = {
   closeDate: Date,
   amount: any,
   assignedUserIds: string[],
-  customers: any,
-  companies: any,
+  customers: ICustomer[],
+  companies: ICompany[],
   products: any,
   productsData: any,
   disabled: boolean

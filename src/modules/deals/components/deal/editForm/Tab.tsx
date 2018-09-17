@@ -13,9 +13,10 @@ import { WhiteBox } from 'modules/layout/styles';
 import * as React from 'react';
 import { IUser } from '../../../../auth/types';
 import { Left } from '../../../styles/deal';
+import { IDeal } from '../../../types';
 
 type Props = {
-  deal?: any,
+  deal?: IDeal,
   dealActivityLog: any,
   loadingLogs: boolean,
   currentUser?: IUser

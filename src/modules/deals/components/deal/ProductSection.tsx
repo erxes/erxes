@@ -5,10 +5,11 @@ import { Sidebar } from 'modules/layout/components';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import * as React from 'react';
 import { ProductForm } from '..';
+import { IProduct } from '../../../settings/productService/types';
 
 type Props = {
   productsData: any,
-  products: any,
+  products: IProduct[],
   onChangeProductsData: any,
   onChangeProducts: any,
   saveProductsData: any

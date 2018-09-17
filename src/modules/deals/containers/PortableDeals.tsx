@@ -4,10 +4,11 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PortableDeals } from '../components';
 import { mutations, queries } from '../graphql';
+import { IDeal } from '../types';
 import { removeDeal as remove, saveDeal as save } from '../utils';
 
 type Props = {
-  deals: any,
+  deals: IDeal[],
   addMutation: any,
   editMutation: any,
   removeMutation: any,
