@@ -1,7 +1,7 @@
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { AuthLayout } from '../layout/containers';
+import { AuthLayout } from '../layout/components';
 import { ForgotPassword, ResetPassword, SignIn } from './containers';
 
 const routes = () => [
