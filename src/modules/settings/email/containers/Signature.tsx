@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
@@ -68,7 +69,7 @@ const SignatureContainer = (props: Props, { currentUser }) => {
   return <Signature {...updatedProps} />;
 };
 
-export default compose(
+const WithQuery = compose(
   graphql(
     gql`
       query brands {
@@ -95,3 +96,13 @@ export default compose(
     }
   )
 )(SignatureContainer);
+
+const WithConsumer = (props) => {
+  return (
+    <AppConsumer>
+      {({ currentUser }) => <WithQuery {...props} currentUser={currentUser} />}
+    </AppConsumer>
+  );
+};
+
+export default WithConsumer; 
