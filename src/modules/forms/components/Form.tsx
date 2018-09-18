@@ -9,7 +9,7 @@ import { Wrapper } from "modules/layout/components";
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { IBrand } from "../../settings/brands/types";
-import { IFormIntegration } from "../types";
+import { IFormField, IFormIntegration } from "../types";
 import {
   CallOut,
   ChooseType,
@@ -22,28 +22,28 @@ import {
 type Props = {
   integration?: IFormIntegration;
   brands?: IBrand[];
-  fields?: any;
+  fields?: IFormField[];
   loading?: boolean;
   save: (params) => void;
 };
 
 type State = {
-  activeStep: number;
-  type: string;
-  brand: string;
-  language: string;
-  title: string;
-  calloutTitle: string;
-  formTitle: string;
-  bodyValue: string;
-  formDesc: string;
-  thankContent: string;
-  formBtnText: string;
-  calloutBtnText: string;
-  theme: string;
-  logoPreviewUrl: string;
-  fields: any;
-  isSkip: boolean;
+  activeStep?: number;
+  type?: string;
+  brand?: string;
+  language?: string;
+  title?: string;
+  calloutTitle?: string;
+  formTitle?: string;
+  bodyValue?: string;
+  formDesc?: string;
+  thankContent?: string;
+  formBtnText?: string;
+  calloutBtnText?: string;
+  theme?: string;
+  logoPreviewUrl?: string;
+  fields?: IFormField[];
+  isSkip?: boolean;
   color?: string;
 
   successAction?: string;
@@ -59,15 +59,14 @@ type State = {
 };
 
 class Form extends Component<Props, State> {
-  constructor(props, context) {
-    super(props, context);
+  constructor(props: Props) {
+    super(props);
 
-    const { __ } = context;
-    const integration = props.integration || {};
-    const formData = integration && (integration.formData || {});
-    const form = integration && (integration.form || {});
-    const callout = form.callout || {};
-    const fields = props.fields || [];
+    const integration = props.integration;
+    const formData = integration && integration.formData;
+    const form = integration && integration.form;
+    const callout = form.callout;
+    const fields = props.fields;
 
     this.state = {
       activeStep: 1,
@@ -75,12 +74,12 @@ class Form extends Component<Props, State> {
       brand: integration.brandId,
       language: integration.languageCode,
       title: integration.name,
-      calloutTitle: callout.title || __("Title"),
-      formTitle: form.title || __("Contact"),
+      calloutTitle: callout.title || "Title",
+      formTitle: form.title || "Contact",
       bodyValue: callout.body || "",
       formDesc: form.description || "",
-      thankContent: formData.thankContent || __("Thank you."),
-      formBtnText: form.buttonText || __("Send"),
+      thankContent: formData.thankContent || "Thank you.",
+      formBtnText: form.buttonText || "Send",
       calloutBtnText: callout.buttonText || "Start",
       theme: form.themeColor || "#6569DF",
       logoPreviewUrl: callout.featuredImage,
@@ -93,7 +92,7 @@ class Form extends Component<Props, State> {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleSubmit(e) {
+  handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     const { brand, calloutTitle, title } = this.state;
@@ -163,7 +162,7 @@ class Form extends Component<Props, State> {
     );
   }
 
-  onChange(key, value) {
+  onChange(key: string, value: IFormField[] | string | boolean) {
     this.setState({ [key]: value });
   }
 
@@ -193,7 +192,7 @@ class Form extends Component<Props, State> {
     const { integration, brands } = this.props;
 
     const formData = integration && integration.formData;
-    const brand = integration && (integration.brand || {});
+    const brand = integration && integration.brand;
     const breadcrumb = [{ title: __("Leads"), link: "/forms" }];
     const constant = isSkip ? "form" : "callout";
 

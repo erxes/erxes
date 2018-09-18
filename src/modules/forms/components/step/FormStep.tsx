@@ -8,6 +8,7 @@ import { LeftItem, Preview } from "modules/common/components/step/styles";
 import { __ } from "modules/common/utils";
 import { ActionBar } from "modules/layout/components";
 import React, { Component, Fragment } from "react";
+import { IFormField } from "../../types";
 import { FormPreview } from "./preview";
 import { FlexColumn, FlexItem } from "./style";
 
@@ -18,14 +19,14 @@ type Props = {
   formDesc?: string;
   color?: string;
   theme?: string;
-  onChange?: (name, value) => void;
-  fields?: any;
+  onChange?: (name: string, fields: IFormField[] | string | boolean) => void;
+  fields?: IFormField[];
 };
 
 type State = {
-  fields?: any;
+  fields?: IFormField[];
   chosenFieldType?: string;
-  editingField: any;
+  editingField?: IFormField;
 };
 
 class FormStep extends Component<Props, State> {
@@ -34,7 +35,7 @@ class FormStep extends Component<Props, State> {
 
     this.state = {
       fields: props.fields,
-      chosenFieldType: null,
+      chosenFieldType: "",
       editingField: {}
     };
 
@@ -56,15 +57,15 @@ class FormStep extends Component<Props, State> {
     this.setFieldAttrChanges("type", e.currentTarget.value);
   }
 
-  onFieldEdit(field: any) {
+  onFieldEdit(field: IFormField) {
     this.setState({ editingField: field });
   }
 
-  onFieldAttrChange(name, value) {
+  onFieldAttrChange(name: string, value: string | boolean | string[]) {
     this.setFieldAttrChanges(name, value);
   }
 
-  onChangeState(name, value) {
+  onChangeState(name: string, value: string) {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
   }
@@ -95,8 +96,11 @@ class FormStep extends Component<Props, State> {
     this.props.onChange("fields", this.state.fields);
   }
 
-  setFieldAttrChanges(attributeName: string, value: string) {
-    const { editingField, fields } = this.state;
+  setFieldAttrChanges(
+    attributeName: string,
+    value: string | boolean | string[]
+  ) {
+    const { editingField = {}, fields } = this.state;
 
     editingField[attributeName] = value;
 

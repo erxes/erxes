@@ -33,7 +33,7 @@ export interface IFormData {
   fromEmail?: string;
   userEmailTitle?: string;
   userEmailContent?: string;
-  adminEmails?: string;
+  adminEmails?: string[];
   adminEmailTitle?: string;
   adminEmailContent?: string;
   thankContent?: string;

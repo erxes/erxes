@@ -1,3 +1,4 @@
+import { IUser } from "../auth/types";
 import { IBrand } from "../settings/brands/types";
 import { IIntegration } from "../settings/integrations/types";
 import { ITag } from "../tags/types";
@@ -10,19 +11,20 @@ export interface ICallout {
   skip?: boolean;
 }
 
-interface ISubmission extends Document {
+interface ISubmission {
   customerId: string;
   submittedAt: Date;
 }
 
 export interface IForm {
-  title: string;
+  title?: string;
   code?: string;
   description?: string;
   buttonText?: string;
   themeColor?: string;
-  callout?: ICallout;
+  callout: ICallout;
   createdUserId: string;
+  createdUser: IUser;
   createdDate: Date;
   viewCount: number;
   contactsGathered: number;
@@ -31,5 +33,20 @@ export interface IForm {
 
 export interface IFormIntegration extends IIntegration {
   brand: IBrand;
+  form: IForm;
   tags: ITag[];
+  createdUser: IUser;
+}
+
+export interface IFormField {
+  _id?: string;
+  type?: string;
+  name?: string;
+  text?: string;
+  description?: string;
+  isRequired?: boolean;
+  formId?: string;
+  order?: number;
+  options?: string[];
+  validation?: string;
 }

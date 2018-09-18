@@ -1,11 +1,12 @@
 import { SortableList } from "modules/common/components";
 import React, { Component } from "react";
+import { IFormField } from "../../../types";
 import { FieldPreview } from "./";
 
 type Props = {
-  fields: any;
-  onFieldEdit: (field) => void;
-  onChange: (string, fields) => void;
+  fields: IFormField[];
+  onFieldEdit: (field: IFormField) => void;
+  onChange: (name: string, fields: IFormField[]) => void;
 };
 
 type State = {
@@ -31,7 +32,7 @@ class FormFieldPreview extends Component<Props, State> {
     }
   }
 
-  onChangeFields(reOrderedFields) {
+  onChangeFields(reOrderedFields: IFormField[]) {
     const fields = [];
 
     reOrderedFields.forEach((field, index) => {
