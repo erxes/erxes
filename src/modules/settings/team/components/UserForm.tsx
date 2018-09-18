@@ -1,18 +1,28 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl
-} from 'modules/common/components';
-import Select from 'react-select-plus';
 import { UserCommonInfos } from 'modules/auth/components';
-import { Form as CommonForm } from '../../common/components';
+import {
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from 'modules/common/components';
 import { ColumnTitle } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
+import Select from 'react-select-plus';
+import { IChannel } from '../../channels/types';
+import { ICommonFormProps } from '../../common/types';
 
-class UserForm extends CommonForm {
-  constructor(props, context) {
-    super(props, context);
+type Props = {
+  channels: IChannel
+};
+
+type State = {
+  avatar: string,
+  selectedChannels: IChannel[],
+};
+
+class UserForm extends React.Component<Props & ICommonFormProps, State> {
+  constructor(props) {
+    super(props);
 
     this.onAvatarUpload = this.onAvatarUpload.bind(this);
     this.generateChannelsParams = this.generateChannelsParams.bind(this);
@@ -43,7 +53,6 @@ class UserForm extends CommonForm {
   }
 
   renderChannels() {
-    const { __ } = this.context;
     const self = this;
     const { channels } = this.props;
 
@@ -66,37 +75,33 @@ class UserForm extends CommonForm {
   }
 
   generateDoc() {
-    return {
-      doc: {
-        username: document.getElementById('username').value,
-        email: document.getElementById('email').value,
-        role: document.getElementById('role').value,
-        details: {
-          avatar: this.state.avatar,
-          position: document.getElementById('position').value,
-          fullName: document.getElementById('fullName').value,
-          location: document.getElementById('user-location').value,
-          description: document.getElementById('description').value
-        },
-        channelIds: this.collectValues(this.state.selectedChannels),
-        password: document.getElementById('password').value,
-        passwordConfirmation: document.getElementById('password-confirmation')
-          .value,
-        links: {
-          linkedIn: document.getElementById('linkedin').value,
-          twitter: document.getElementById('twitter').value,
-          facebook: document.getElementById('facebook').value,
-          youtube: document.getElementById('youtube').value,
-          github: document.getElementById('github').value,
-          website: document.getElementById('website').value
-        }
+     return {
+      username: (document.getElementById('username') as HTMLInputElement).value,
+      email: (document.getElementById('email') as HTMLInputElement).value,
+      role: (document.getElementById('role') as HTMLInputElement).value,
+      details: {
+        avatar: this.state.avatar,
+        position: (document.getElementById('position') as HTMLInputElement).value,
+        fullName: (document.getElementById('fullName') as HTMLInputElement).value,
+        location: (document.getElementById('user-location') as HTMLInputElement).value,
+        description: (document.getElementById('description') as HTMLInputElement).value,
+      },
+      channelIds: this.collectValues(this.state.selectedChannels),
+      password: (document.getElementById('password') as HTMLInputElement).value,
+      passwordConfirmation: (document.getElementById('password-confirmation') as HTMLInputElement).value,
+      links: {
+        linkedIn: (document.getElementById('linkedin') as HTMLInputElement).value,
+        twitter: (document.getElementById('twitter') as HTMLInputElement).value,
+        facebook: (document.getElementById('facebook') as HTMLInputElement).value,
+        youtube: (document.getElementById('youtube') as HTMLInputElement).value,
+        github: (document.getElementById('github') as HTMLInputElement).value,
+        website: (document.getElementById('website') as HTMLInputElement).value
       }
-    };
+     }
   }
 
   renderContent(object) {
     const user = object._id ? object : { details: {} };
-    const { __ } = this.context;
 
     return (
       <div>
@@ -132,10 +137,5 @@ class UserForm extends CommonForm {
     );
   }
 }
-
-UserForm.contextTypes = {
-  __: PropTypes.func,
-  closeModal: PropTypes.func
-};
 
 export default UserForm;

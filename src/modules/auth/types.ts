@@ -21,7 +21,7 @@ export interface IUserConversation {
 }
 
 export interface IUser {
-    _id: string,
+    _id?: string,
     username: string,
     email: string,
     details?: IUserDetails,

@@ -1,44 +1,50 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
-import { Link } from 'react-router-dom';
 import { ActivityList } from 'modules/activityLogs/components';
-import { Wrapper } from 'modules/layout/components';
-import { WhiteBoxRoot } from 'modules/layout/styles';
 import {
+  ActivityDate,
+  ActivityRow,
+  AvatarWrapper,
+  FlexBody,
+  FlexContent
+} from 'modules/activityLogs/styles';
+import { IUser } from 'modules/auth/types';
+import {
+  DataWithLoader,
+  Icon,
+  LoadMore,
   NameCard,
   Tabs,
   TabTitle,
-  Icon,
-  DataWithLoader,
-  LoadMore,
   Tip
 } from 'modules/common/components';
-import { renderFullName } from 'modules/common/utils';
-import {
-  ActivityRow,
-  AvatarWrapper,
-  ActivityDate,
-  FlexContent,
-  FlexBody
-} from 'modules/activityLogs/styles';
+import { ActivityContent } from 'modules/common/styles/main';
+import { __, renderFullName } from 'modules/common/utils';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
+import { Wrapper } from 'modules/layout/components';
+import { WhiteBoxRoot } from 'modules/layout/styles';
+import { IChannel } from 'modules/settings/channels/types';
+import moment from 'moment';
+import React, { Fragment } from 'react';
+import { Link } from 'react-router-dom';
+import { IActivityLogsUser } from '../../../../activityLogs/types';
 import LeftSidebar from './LeftSidebar';
-import { ActivityContent } from 'modules/common/styles/main';
 
-const propTypes = {
-  user: PropTypes.object.isRequired,
-  currentUser: PropTypes.object.isRequired,
-  saveProfile: PropTypes.func.isRequired,
-  saveUser: PropTypes.func.isRequired,
-  channels: PropTypes.array,
-  loadingLogs: PropTypes.bool,
-  activityLogsUser: PropTypes.array,
-  totalConversationCount: PropTypes.number
+type Props = {
+  user: IUser,
+  currentUser: IUser,
+  saveUser: (doc: IUser, callback: (e: string) => void ) => void,
+  saveProfile: (variables: IUser) => void,
+  channels: IChannel[],
+  loadingLogs: boolean,
+  activityLogsUser: IActivityLogsUser[],
+  totalConversationCount: number
 };
 
-class UserDetails extends React.Component {
+type State = {
+  currentTab: string,
+};
+
+class UserDetails extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -114,13 +120,13 @@ class UserDetails extends React.Component {
       <ActivityContent isEmpty={!hasActivity}>
         <DataWithLoader
           loading={loadingLogs}
-          count={!loadingLogs && hasActivity > 0 ? 1 : 0}
+          count={!loadingLogs && hasActivity ? 1 : 0}
           data={
             <ActivityList
               user={currentUser}
               activities={activityLogsUser}
               target={user.details.fullName}
-              type={currentTab} //show logs filtered by type
+              type={currentTab} // show logs filtered by type
             />
           }
           emptyText="Empty Notes"
@@ -133,7 +139,6 @@ class UserDetails extends React.Component {
   render() {
     const { user } = this.props;
     const { currentTab } = this.state;
-    const { __ } = this.context;
     const { details = {} } = user;
 
     const breadcrumb = [
@@ -182,11 +187,5 @@ class UserDetails extends React.Component {
     );
   }
 }
-
-UserDetails.propTypes = propTypes;
-UserDetails.contextTypes = {
-  __: PropTypes.func,
-  currentUser: PropTypes.object
-};
 
 export default UserDetails;
