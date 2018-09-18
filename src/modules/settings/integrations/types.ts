@@ -1,3 +1,6 @@
+import { IBrand } from "../brands/types";
+import { IChannel } from "../channels/types";
+
 export interface IApps {
     id: string,
     name?: string
@@ -43,4 +46,7 @@ export interface IIntegration {
     createModal: string;
     messengerData?: IMessengerData;
     uiOptions?: IUiOptions;
+
+    brand: IBrand;
+    channels: IChannel[];
 }
