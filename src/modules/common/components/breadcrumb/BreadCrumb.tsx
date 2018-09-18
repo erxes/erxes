@@ -12,7 +12,12 @@ const Items = styled.ol`
   font-size: 14px;
 `;
 
-class BreadCrumb extends React.Component<{ breadcrumbs: any[] }> {
+type BreadCrumbItem = {
+  title: string;
+  link: string;
+}
+
+class BreadCrumb extends React.Component<{ breadcrumbs: BreadCrumbItem[] }> {
   setTabTitle() {
     const { breadcrumbs } = this.props;
     const page = breadcrumbs.pop();

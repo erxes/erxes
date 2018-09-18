@@ -48,6 +48,7 @@ const renderElement = (Element, attributes, type, child) => {
 };
 
 class FormControl extends React.Component<Props> {
+  // TODO: check default props
   static defaultProps = {
     componentClass: 'input',
     required: false,

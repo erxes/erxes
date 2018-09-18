@@ -4,20 +4,18 @@ import { router } from 'modules/common/utils';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import styled from 'styled-components';
+import { IRouterProps } from '../../types';
 import createChipText from './createChipText';
 
 type Props = {
-  history: any,
-  location: any,
-  match: any,
-  queryParams?: any
+  queryParams?: any;
 };
 
 const Filters = styled.div`
   font-size: 0.9em;
 `;
 
-function Filter({ queryParams = {}, history }: Props) {
+function Filter({ queryParams = {}, history }: Props & IRouterProps) {
   const onClickClose = paramKey => {
     for (const key of paramKey) {
       router.setParams(history, { [key]: null });
@@ -94,4 +92,4 @@ function Filter({ queryParams = {}, history }: Props) {
   );
 }
 
-export default withRouter<Props>(Filter);
+export default withRouter<IRouterProps>(Filter);
