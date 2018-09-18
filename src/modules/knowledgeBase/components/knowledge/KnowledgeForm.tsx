@@ -71,7 +71,7 @@ class KnowledgeForm extends Component<Props, State> {
 
     // showed install code automatically in edit mode
     if (props.topic) {
-      code = this.constructor().getInstallCode(props.topic._id);
+      code = KnowledgeForm.getInstallCode(props.topic._id);
       color = props.topic.color;
     }
 
