@@ -29,8 +29,8 @@ const IconWrapper = styled.div`
 type Props = {
   options: any,
   confirmation?: string,
-  proceed?: (value: string) => void,
-  dismiss?: () => void
+  proceed: (value: string) => void,
+  dismiss: () => void
 };
 
 type State = {

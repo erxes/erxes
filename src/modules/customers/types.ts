@@ -34,11 +34,11 @@ export interface ICustomerDoc {
         youtube?: string;
         github?: string;
     }
-    twitterData?: any;
-    facebookData?: any;
-    messengerData?: any;
-    customFieldsData?: any;
-    visitorContactInfo?: any;
+    twitterData?: object;
+    facebookData?: object;
+    messengerData?: object;
+    customFieldsData?: object;
+    visitorContactInfo?: object;
 }
 
 export interface ICustomer extends ICustomerDoc {

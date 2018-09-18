@@ -52,7 +52,7 @@ export default class {
   private queryData: any;
   private currentUser: IUser;
   private target: string;
-  private type: string;
+  private type: string = '';
 
   /**
    * A constructor method
@@ -80,7 +80,7 @@ export default class {
   _processItem({ date, list }) {
     const { year, month } = date;
 
-    const result = {
+    const result: any = {
       title: `${MONTHS[month]} ${year}`,
       data: []
     };
@@ -187,7 +187,7 @@ export default class {
    * @return {Object[]} - Returns list of proccessed list of logs
    */
   process() {
-    const result = [];
+    const result: any = [];
 
     for (const item of this.queryData) {
       result.push(this._processItem(item));
