@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { List, RowActions } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
-import UserForm from './UserForm';
+import { UserForm } from '../containers';
 
 class UserList extends React.Component<ICommonListProps> {
   constructor(props) {

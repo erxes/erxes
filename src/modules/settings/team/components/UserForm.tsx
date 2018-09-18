@@ -8,13 +8,11 @@ import { ColumnTitle } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Select from 'react-select-plus';
-import { IUser } from '../../../auth/types';
 import { IChannel } from '../../channels/types';
 import { ICommonFormProps } from '../../common/types';
 
 type Props = {
-  object?: IUser,
-  channels: IChannel[],
+  channels: IChannel
 };
 
 type State = {
