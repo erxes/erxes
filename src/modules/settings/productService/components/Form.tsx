@@ -11,17 +11,17 @@ import { IProduct } from '../types';
 
 type Props = {
   product?: IProduct,
-  save: (doc: any, callback: () => void, product: IProduct) => void,
-  closeModal?: () => void,
+  save: (doc: any, callback: () => void, product?: IProduct) => void,
+  closeModal: () => void,
 };
 
 type State = {
-  _id: string,
-  type?: any,
-  name: string,
-  description: string,
-  sku: string,
-  createdAt: Date;
+  _id?: string,
+  type: string,
+  name?: string,
+  description?: string,
+  sku?: string,
+  createdAt?: Date;
 }
 
 class Form extends Component<Props, State> {

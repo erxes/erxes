@@ -15,7 +15,7 @@ type Props = {
   products: IProduct[],
   productsCount: number,
   remove: (_id: string) => void,
-  save: ({ doc }: { doc: any; }, callback: () => void, product: IProduct) => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, product?: IProduct) => void,
   loading: boolean
 };
 

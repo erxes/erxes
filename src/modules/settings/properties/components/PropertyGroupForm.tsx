@@ -11,14 +11,14 @@ import { IFieldGroup } from '../types';
 
 type Props = {
   add: ({ doc }: { doc: any; }) => void,
-  edit: ({ doc }: { doc: any; }) => void,
+  edit: ({ _id, doc }: { _id: string, doc: any; }) => void,
   group?: IFieldGroup,
-  closeModal?: () => void
+  closeModal: () => void
 };
 
 type State = {
   isVisible: boolean,
-  action: (doc: any) => void
+  action: (params: {_id?: string, doc: any}) => void
 }
 
 class PropertyGroupForm extends React.Component<Props, State> {

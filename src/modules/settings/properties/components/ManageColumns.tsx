@@ -3,7 +3,7 @@ import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { IConfig, IContentTypeFields } from '../types';
+import { IConfigColumn, IContentTypeFields } from '../types';
 
 const Header = styled.div`
   display: flex;
@@ -34,8 +34,8 @@ const Child = styled.div`
 
 type Props = {
   fields: IContentTypeFields[],
-  config: IConfig[],
-  save: (columnsConfig: IConfig[]) => void,
+  config: IConfigColumn[],
+  save: (columnsConfig: IConfigColumn[]) => void,
   closeModal: () => void
 };
 
@@ -58,7 +58,7 @@ class ManageColumns extends Component<Props, State> {
   onSubmit(e) {
     e.preventDefault();
 
-    const columnsConfig = [];
+    const columnsConfig: IConfigColumn[] = [];
 
     this.state.fields.forEach((field, index) => {
       const element = (document.getElementById(field._id) as HTMLInputElement);
