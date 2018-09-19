@@ -24,7 +24,7 @@ type Props = {
   color: string,
   wallpaper: string,
   users: IUser[],
-  supporterIds: string[],
+  supporterIds?: string[],
   welcomeMessage?: string,
   awayMessage?: string,
   isOnline?: boolean
@@ -44,18 +44,20 @@ function WidgetPreview(
   let avatar = [<img key="1" src="/images/avatar-colored.svg" alt="avatar" />];
   let fullName = 'Support staff';
 
-  const supporters = users.filter(user => supporterIds.includes(user._id));
-
+  const supporters = users.filter(user => (supporterIds || []).includes(user._id || ''));
+  
   if (supporters.length > 0) {
     avatar = supporters.map(u => {
+      const details = u.details || {};
+      
       return (
-        <img key={u._id} src={u.details.avatar} alt={u.details.fullName} />
+        <img key={u._id} src={details.avatar} alt={details.fullName} />
       );
     });
   }
 
-  if (supporterIds.length > 0) {
-    fullName = supporters.map(user => user.details.fullName).join(', ');
+  if ((supporterIds || []).length > 0) {
+    fullName = supporters.map(user => user.details && user.details.fullName).join(', ');
   }
 
   const renderMessage = message => {
@@ -76,7 +78,7 @@ function WidgetPreview(
             {avatar}
             <ErxesStaffName>{fullName}</ErxesStaffName>
             <ErxesState>
-              <StateSpan state={isOnline} />
+              <StateSpan state={isOnline || false} />
               {isOnline ? __('Online') : __('Offline')}
             </ErxesState>
           </ErxesStaffProfile>

@@ -14,7 +14,7 @@ import { Form } from './';
 type Props = {
   product: IProduct,
   remove: (_id: string) => void,
-  save: ({ doc }: { doc: any; }, callback: () => void, product: IProduct) => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, product?: IProduct) => void,
 };
 
 class Row extends Component<Props> {

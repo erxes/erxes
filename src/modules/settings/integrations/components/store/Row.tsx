@@ -6,9 +6,9 @@ import Entry from './Entry';
 import { CollapsibleContent, IntegrationRow } from './styles';
 
 type Props = {
-  integrations: any[],
-  title: string,
-  totalCount: any
+  integrations: any[];
+  title?: string;
+  totalCount: any;
 };
 
 type State = {
@@ -33,14 +33,14 @@ class Row extends Component<Props, State> {
     const { kind, isContentVisible } = this.state;
 
     if (!isContentVisible) {
-      return null;
+      return '';
     }
 
     if (selectedKind === kind) {
       return 'active';
     }
 
-    return null;
+    return '';
   }
 
   toggleBox(selectedKind) {

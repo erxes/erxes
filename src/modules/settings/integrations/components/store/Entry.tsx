@@ -6,10 +6,10 @@ import { Link } from 'react-router-dom';
 import { Box, IntegrationItem } from './styles';
 
 type Props= {
-  integration: any,
-  getClassName: (kind: string) => string,
-  toggleBox: (kind: string) => void,
-  totalCount: any
+  integration: any;
+  getClassName: (selectedKind: string) => string;
+  toggleBox: (kind: string) => void;
+  totalCount: any;
 };
 
 class Entry extends Component<Props> {

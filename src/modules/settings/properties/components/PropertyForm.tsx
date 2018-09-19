@@ -12,26 +12,23 @@ import { Actions, TypeList } from '../styles';
 import { IField, IFieldGroup } from '../types';
 
 type Props = {
-  add: ({ doc }: { doc: any; }) => void,
-  edit: ({ doc }: { doc: any; }) => void,
-  field?: IField,
-  groups: IFieldGroup[],
-  closeModal?: () => void
+  add: ({ doc }: { doc: any; }) => void;
+  edit: ({ _id, doc }: { _id: string, doc: any; }) => void;
+  field?: IField;
+  groups: IFieldGroup[];
+  closeModal: () => void;
 };
 
 type State = {
-  action: (doc: any) => void,
-  options: any[], 
-  type: string, 
-  hasOptions: boolean,
-  add: boolean
+  options: any[]; 
+  type: string;
+  hasOptions: boolean;
+  add: boolean;
 }
 
 class PropertyForm extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    let action = props.add;
 
     let doc = {
       options: [],
@@ -40,8 +37,6 @@ class PropertyForm extends Component<Props, State> {
     };
 
     if (props.field) {
-      action = props.edit;
-
       doc = {
         ...doc,
         type: props.field.type
@@ -62,7 +57,6 @@ class PropertyForm extends Component<Props, State> {
 
     this.state = {
       ...doc,
-      action,
       add: false
     };
 
@@ -84,6 +78,7 @@ class PropertyForm extends Component<Props, State> {
     const text = (document.getElementById('text') as HTMLInputElement).value;
     const description = (document.getElementById('description') as HTMLInputElement).value;
 
+    const { field, add, edit } = this.props;
     const { type, options } = this.state;
 
     const doc = {
@@ -95,10 +90,12 @@ class PropertyForm extends Component<Props, State> {
       groupId
     };
 
-    this.state.action(
-      this.props.field ? { _id: this.props.field._id, doc } : { doc }
-    );
-
+    if (field) {
+      edit({ _id: field._id, doc  })
+    } else {
+      add({ doc });
+    }
+    
     this.props.closeModal();
   }
 

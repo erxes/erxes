@@ -30,7 +30,8 @@ class Sidebar extends Component<Props> {
     if (type === currentType) {
       return 'active';
     }
-    return null;
+
+    return '';
   }
 
   render() {

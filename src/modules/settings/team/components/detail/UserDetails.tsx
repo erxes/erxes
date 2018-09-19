@@ -107,7 +107,7 @@ class UserDetails extends React.Component<Props, State> {
     if (currentTab === 'conversation') {
       return (
         <div>
-          {user.participatedConversations.map(conversation => {
+          {(user.participatedConversations || []).map(conversation => {
             return this.renderConversation(conversation, user);
           })}
 
@@ -125,7 +125,7 @@ class UserDetails extends React.Component<Props, State> {
             <ActivityList
               user={currentUser}
               activities={activityLogsUser}
-              target={user.details.fullName}
+              target={user.details && user.details.fullName}
               type={currentTab} // show logs filtered by type
             />
           }

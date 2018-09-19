@@ -7,7 +7,7 @@ import { PasswordConfirmation } from '.';
 
 type Props = {
   currentUser: IUser,
-  closeModal?: () => void,
+  closeModal: () => void,
   save: (variables: IUser & { password?: string }) => void
 };
 
@@ -22,7 +22,10 @@ class EditProfile extends Component<Props, State> {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onAvatarUpload = this.onAvatarUpload.bind(this);
 
-    this.state = { avatar: props.currentUser.details.avatar };
+    const { currentUser } = props;
+    const { details } = currentUser;
+
+    this.state = { avatar: details ? details.avatar || '' : '' };
   }
 
   handleSubmit(password) {

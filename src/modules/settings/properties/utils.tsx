@@ -1,9 +1,10 @@
 import { COMPANY_INFO } from 'modules/companies/constants';
 import { CUSTOMER_BASIC_INFO } from 'modules/customers/constants';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
+import { IField } from './types';
 
 const generateFields = (infos: any[], type: string) => {
-  const fields = [];
+  const fields: IField[] = [];
 
   infos.forEach((info, index) => {
     fields.push({
@@ -17,12 +18,7 @@ const generateFields = (infos: any[], type: string) => {
       options: [],
       groupId: `basicInfosGroup${type}`,
       description: info.label,
-      isDefinedByErxes: true,
-      lastUpdatedUser: {
-        details: {
-          fullName: 'SYSTEM'
-        }
-      }
+      isDefinedByErxes: true
     });
   });
 
