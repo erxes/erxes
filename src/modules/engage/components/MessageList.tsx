@@ -1,0 +1,171 @@
+import { Pagination } from 'modules/common/components';
+import {
+  Button,
+  DataWithLoader,
+  DropdownToggle,
+  FormControl,
+  Icon,
+  Table
+} from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
+import { TaggerPopover } from 'modules/tags/components';
+import * as React from 'react';
+import { Dropdown } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { MessageListRow, Sidebar } from '../containers';
+import { IEngageMessage } from '../types';
+
+type Props = {
+  messages: IEngageMessage[],
+  totalCount: number,
+  bulk: any[],
+  isAllSelected: boolean,
+  emptyBulk: () => void,
+  toggleBulk: (target: IEngageMessage, toAdd: boolean) => void,
+  toggleAll: (targets: IEngageMessage[], name: string) => void,
+  loading: boolean
+  queryParams: any
+};
+
+class List extends React.Component<Props> {
+  constructor(props: Props) {
+    super(props);
+
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange() {
+    const { toggleAll, messages } = this.props;
+
+    toggleAll(messages, 'engageMessages');
+  }
+
+  renderTagger() {
+    const { bulk, emptyBulk } = this.props;
+
+    const tagButton = (
+      <Button btnStyle="simple" size="small">
+        {__('Tag')} <Icon icon="downarrow" />
+      </Button>
+    );
+
+    if (!bulk.length) {
+      return null;
+    }
+
+    return (
+      <TaggerPopover
+        type="engageMessage"
+        targets={bulk}
+        trigger={tagButton}
+        successCallback={emptyBulk}
+      />
+    );
+  }
+
+  render() {
+    const {
+      messages,
+      totalCount,
+      bulk,
+      toggleBulk,
+      loading,
+      queryParams,
+      isAllSelected
+    } = this.props;
+
+    const actionBarRight = (
+      <Dropdown id="dropdown-engage" pullRight>
+        <DropdownToggle bsRole="toggle">
+          <Button btnStyle="success" size="small" icon="add">
+            {__('New message')} <Icon icon="downarrow" />
+          </Button>
+        </DropdownToggle>
+
+        <Dropdown.Menu>
+          <li>
+            <Link to={'/engage/messages/create?kind=auto'}>
+              {__('Auto message')}
+            </Link>
+          </li>
+          <li>
+            <Link to={'/engage/messages/create?kind=manual'}>
+              {__('Manual message')}
+            </Link>
+          </li>
+          <li>
+            <Link to={'/engage/messages/create?kind=visitorAuto'}>
+              {__('Visitor auto message')}
+            </Link>
+          </li>
+        </Dropdown.Menu>
+      </Dropdown>
+    );
+
+    const actionBar = (
+      <Wrapper.ActionBar left={this.renderTagger()} right={actionBarRight} />
+    );
+
+    const mainContent = (
+      <Table whiteSpace="nowrap" hover bordered>
+        <thead>
+          <tr>
+            <th>
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={this.onChange}
+              />
+            </th>
+            <th>{__('Title')}</th>
+            <th>{__('From')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Total')}</th>
+            <th>{__('Type')}</th>
+            <th>{__('Brand')}</th>
+            <th>{__('Created date')}</th>
+            <th>{__('Tags')}</th>
+            <th>{__('Actions')}</th>
+          </tr>
+        </thead>
+        <tbody id="engageMessages">
+          {messages.map(message => (
+            <MessageListRow
+              isChecked={bulk.includes(message)}
+              toggleBulk={toggleBulk}
+              key={message._id}
+              message={message}
+              queryParams={queryParams}
+            />
+          ))}
+        </tbody>
+      </Table>
+    );
+
+    return (
+      <Wrapper
+        header={
+          <Wrapper.Header
+            breadcrumb={[{ title: __('Engage') }]}
+            queryParams={queryParams}
+          />
+        }
+        leftSidebar={<Sidebar queryParams={queryParams} />}
+        actionBar={actionBar}
+        footer={<Pagination count={totalCount} />}
+        content={
+          <DataWithLoader
+            data={mainContent}
+            loading={loading}
+            count={messages.length}
+            emptyText="There is no engage message."
+            emptyImage="/images/robots/robot-03.svg"
+          />
+        }
+      />
+    );
+  }
+}
+
+export default List;
