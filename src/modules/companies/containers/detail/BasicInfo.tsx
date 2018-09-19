@@ -6,17 +6,17 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IUser } from '../../../auth/types';
+import { IRouterProps } from '../../../common/types';
 import { ICompany } from '../../types';
 
-type Props = {
+interface IProps extends IRouterProps {
   companiesRemove: (params: { variables: { companyIds: string[] } }) => Promise<any>
   companiesMerge: (params: { variables: { companyIds: string[], companyFields: any } }) => Promise<any>,
-  history: any,
-  location: any
+  company: ICompany,
   currentUser: IUser
 };
 
-const BasicInfoContainer = (props: BaseProps & Props) => {
+const BasicInfoContainer = (props: IProps) => {
   const { company, companiesRemove, companiesMerge, history } = props;
 
   const { _id } = company;
@@ -61,13 +61,6 @@ const generateOptions = () => ({
   refetchQueries: ['companieMain', 'companyCounts']
 });
 
-type BaseProps = {
-  company: ICompany,
-  history: any,
-  location: any,
-  match: any,
-};
-
 export default compose(
   // mutations
   graphql(gql(mutations.companiesRemove), {
@@ -78,4 +71,4 @@ export default compose(
     name: 'companiesMerge',
     options: generateOptions
   })
-)(withRouter(BasicInfoContainer));
+)(withRouter<IProps>(BasicInfoContainer));

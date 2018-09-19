@@ -5,17 +5,17 @@ import { DataWithLoader, Icon } from 'modules/common/components';
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { IRouterProps } from '../../../common/types';
 import { LEAD_STATUS_TYPES } from '../../constants';
 import { leadStatusChoices } from '../../utils';
 
-type Props = {
-  history: any,
+interface IProps extends IRouterProps {
   counts: any,
   loading: boolean,
-  searchable: boolean 
+  searchable?: boolean 
 };
 
-class LeadStatusFilter extends Component<Props> {
+class LeadStatusFilter extends Component<IProps> {
   constructor(props, context) {
     super(props, context);
 
@@ -44,7 +44,7 @@ class LeadStatusFilter extends Component<Props> {
         </Section.QuickButtons>
         <div>
           <SidebarList>
-            {leadStatusChoices(__).map(({ value, label }) => {
+            {leadStatusChoices(__).map(({ value, label }: { value: string, label: string }) => {
               return (
                 <li key={Math.random()}>
                   <a
@@ -87,4 +87,4 @@ class LeadStatusFilter extends Component<Props> {
   }
 }
 
-export default withRouter(LeadStatusFilter);
+export default withRouter<IProps>(LeadStatusFilter);

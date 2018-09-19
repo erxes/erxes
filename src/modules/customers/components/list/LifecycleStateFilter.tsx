@@ -5,17 +5,17 @@ import { DataWithLoader, Icon } from 'modules/common/components';
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { IRouterProps } from '../../../common/types';
 import { LIFECYCLE_STATE_TYPES } from '../../constants';
 import { lifecycleStateChoices } from '../../utils';
 
-type Props = {
-  history: any,
+interface IProps extends IRouterProps {
   counts: any,
   loading: boolean,
   searchable: boolean
 };
 
-class LifecycleStateFilter extends Component<Props> {
+class LifecycleStateFilter extends Component<IProps> {
   constructor(props, context) {
     super(props, context);
 
@@ -44,7 +44,7 @@ class LifecycleStateFilter extends Component<Props> {
         </Section.QuickButtons>
         <div>
           <SidebarList>
-            {lifecycleStateChoices(__).map(({ value, label }) => {
+            {lifecycleStateChoices(__).map(({ value, label }: { value: string, label: string }) => {
               return (
                 <li key={Math.random()}>
                   <a
@@ -87,4 +87,4 @@ class LifecycleStateFilter extends Component<Props> {
   }
 }
 
-export default withRouter(LifecycleStateFilter);
+export default withRouter<IProps>(LifecycleStateFilter);

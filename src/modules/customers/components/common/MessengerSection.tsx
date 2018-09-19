@@ -18,7 +18,7 @@ function MessengerSection({ customer, queryParams }: Props) {
 
   const { messengerData } = customer;
 
-  if (!(messengerData || queryParams)) {
+  if (!messengerData || !queryParams) {
     return null;
   }
 

@@ -48,7 +48,7 @@ class CompanyForm extends React.Component<Props, State> {
     super(props);
 
     const { company = {} } = props;
-    const companies = [];
+    const companies: ICompany[] = [];
 
     if (company.parentCompany) {
       companies.push(company.parentCompany);
@@ -77,7 +77,9 @@ class CompanyForm extends React.Component<Props, State> {
   componentDidMount() {
     const company = this.props.company || {} as ICompany;
 
-    if (company.ownerId) this.handleUserSearch(company.owner.details.fullName);
+    if (company.owner && company.owner.details) {
+      this.handleUserSearch(company.owner.details.fullName)
+    };
   }
 
   getInputElementValue(id) {

@@ -80,9 +80,12 @@ const DateFilters = styled.div`
 type Props = {
   queryParams?: any,
   history: any,
-  client: any,
   countQuery?: string,
   countQueryParam?: string
+};
+
+type ApolloClientProps = {
+  client: any,
 };
 
 type State = {
@@ -93,7 +96,7 @@ type State = {
 
 const format = 'YYYY-MM-DD HH:mm';
 
-class DateFilter extends React.Component<Props, State> {
+class DateFilter extends React.Component<Props & ApolloClientProps, State> {
   constructor(props) {
     super(props);
 
@@ -249,4 +252,4 @@ class DateFilter extends React.Component<Props, State> {
   }
 }
 
-export default withApollo(DateFilter);
+export default withApollo<Props>(DateFilter);
