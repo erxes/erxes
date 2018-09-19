@@ -10,21 +10,22 @@ export interface IPages {
 }
 
 export interface IMessengerData {
-  welcomeMessage: string;
-  awayMessage: string;
-  thankYouMessage: string;
-  notifyCustomer: boolean;
-  supporterIds: string[];
-  availabilityMethod: string;
-  isOnline: boolean;
-  timezone: string;
-  onlineHours: any;
+  welcomeMessage?: string;
+  awayMessage?: string;
+  thankYouMessage?: string;
+  notifyCustomer?: boolean;
+  supporterIds?: string[];
+  availabilityMethod?: string;
+  isOnline?: boolean;
+  timezone?: string;
+  onlineHours?: any;
 }
 
 export interface IUiOptions {
-  color: string;
-  wallpaper: string;
-  logo: string;
+  color?: string;
+  wallpaper?: string;
+  logo?: string;
+  logoPreviewUrl? : string
 }
 
 export interface IFormData {
@@ -54,7 +55,7 @@ export interface IFacebookData {
 export interface IIntegration {
   _id: string;
   kind: string;
-  name?: string;
+  name: string;
   brandId?: string;
   description?: string;
   code: string;

@@ -47,37 +47,28 @@ class CreateMessenger extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const integration = props.integration;
-    const configData =( integration && (integration.messengerData)) || {
-      welcomeMessage: '',
-      awayMessage: '',
-      thankYouMessage: '',
-      notifyCustomer: false,
-      supporterIds: [],
-      availabilityMethod: '',
-      isOnline: false,
-      timezone: '',
-      onlineHours: [],
-    };
+    this.onChange = this.onChange.bind(this);
+    this.save = this.save.bind(this);
 
-    const uiOptions = integration && (integration.uiOptions) || {
-      color: '#6569DF',
-      wallpaper: '1',
-      availabilityMethod: 'manual',
-      logo: '',
-      logoPreviewUrl: '/images/erxes.png',
-    };
+    const integration = props.integration;
+
+    if (!integration) {
+      return;
+    }
+    
+    const configData = integration.messengerData || {};
+    const uiOptions = integration.uiOptions || {};
 
     this.state = {
-      title: integration && integration.name,
-      brandId: integration && integration.brandId,
-      languageCode: integration && integration.languageCode,
+      title: integration.name,
+      brandId: integration.brandId || '',
+      languageCode: integration.languageCode || '',
       activeStep: 1,
       color: uiOptions.color || '#6569DF',
       wallpaper: uiOptions.wallpaper || '1',
-      welcomeMessage: configData.welcomeMessage,
-      awayMessage: configData.awayMessage,
-      thankYouMessage: configData.thankYouMessage,
+      welcomeMessage: configData.welcomeMessage || '',
+      awayMessage: configData.awayMessage || '',
+      thankYouMessage: configData.thankYouMessage || '',
       notifyCustomer: configData.notifyCustomer || false,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
@@ -87,13 +78,10 @@ class CreateMessenger extends Component<Props, State> {
         _id: Math.random(),
         ...h
       })),
-      logo: uiOptions.logo,
+      logo: uiOptions.logo || '',
       logoPreviewStyle: {},
-      logoPreviewUrl: uiOptions.logo
+      logoPreviewUrl: uiOptions.logo || ''
     };
-
-    this.onChange = this.onChange.bind(this);
-    this.save = this.save.bind(this);
   }
 
   onChange(key, value) {
@@ -195,7 +183,7 @@ class CreateMessenger extends Component<Props, State> {
           <div>{__('Title')}</div>
           <FormControl
             required
-            onChange={(e: React.FormEvent<HTMLInputElement>)  => this.onChange('title', e.currentTarget.value)}
+            onChange={e => this.onChange('title', (e.currentTarget as HTMLInputElement).value)}
             defaultValue={title}
           />
         </TitleContainer>
