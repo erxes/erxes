@@ -2,6 +2,7 @@ import { Icon } from 'modules/common/components';
 import { router } from 'modules/common/utils';
 import * as React from 'react';
 import { withRouter } from 'react-router';
+import { IRouterProps } from '../../types';
 import { difference, intersection, range, union } from '../../utils';
 import PerPageChooser from './PerPageChooser';
 import { PaginationList, PaginationWrapper } from './styles';
@@ -41,7 +42,7 @@ const generatePages = (pageCount: number, currentPage: number): number[] => {
     if (diff === 2) {
       pages.push(current[0] - 1);
     } else if (diff !== 1) {
-      pages.push(null);
+      pages.push(-1);
     }
 
     pages = pages.concat(current);
@@ -55,7 +56,7 @@ const generatePages = (pageCount: number, currentPage: number): number[] => {
     if (diff === 2) {
       pages.push(last[0] - 1);
     } else if (diff !== 1) {
-      pages.push(null);
+      pages.push(-1);
     }
 
     pages = pages.concat(last);
@@ -68,7 +69,7 @@ const generatePages = (pageCount: number, currentPage: number): number[] => {
 };
 
 // page chooser component
-class Page extends React.Component<{ history: any, page: number, currentPage: number }> {
+class Page extends React.Component<{ history: any; page: number; currentPage: number }> {
   constructor(props) {
     super(props);
 
@@ -88,7 +89,7 @@ class Page extends React.Component<{ history: any, page: number, currentPage: nu
   render() {
     const { currentPage, page } = this.props;
 
-    if (page) {
+    if (page !== -1) {
       let className = '';
 
       if (page === currentPage) {
@@ -110,9 +111,16 @@ class Page extends React.Component<{ history: any, page: number, currentPage: nu
   }
 }
 
+interface IPaginationProps extends IRouterProps {
+  totalPagesCount: number;
+  pages?: number[];
+  currentPage?: number;
+  isPaginated?: boolean;
+};
+
 // main pagination component
-class Pagination extends React.Component<PaginationProps> {
-  constructor(props: PaginationProps) {
+class Pagination extends React.Component<IPaginationProps> {
+  constructor(props) {
     super(props);
 
     // bind events
@@ -127,7 +135,7 @@ class Pagination extends React.Component<PaginationProps> {
   onPrev(e) {
     e.preventDefault();
 
-    const page = this.props.currentPage - 1;
+    const page = (this.props.currentPage || 1) - 1;
 
     if (page > 0) {
       this.goto(page);
@@ -139,7 +147,7 @@ class Pagination extends React.Component<PaginationProps> {
 
     const { totalPagesCount, currentPage } = this.props;
 
-    const page = currentPage + 1;
+    const page = (currentPage || 1) + 1;
 
     if (page <= totalPagesCount) {
       this.goto(page);
@@ -150,8 +158,8 @@ class Pagination extends React.Component<PaginationProps> {
     const {
       history,
       totalPagesCount,
-      pages,
-      currentPage,
+      pages=[],
+      currentPage=1,
       isPaginated
     } = this.props;
 
@@ -207,22 +215,11 @@ class Pagination extends React.Component<PaginationProps> {
   }
 }
 
-type PaginationProps = {
-  history?: any,
-  totalPagesCount?: number,
-  pages?: any[],
-  currentPage?: number,
-  isPaginated?: boolean
+interface IPaginationContainerProps extends IRouterProps {
+  count?: number;
 };
 
-type PaginationContainerProps = {
-  history: any,
-  location: any,
-  match: any,
-  count?: number
-};
-
-const PaginationContainer = (props: PaginationContainerProps) => {
+const PaginationContainer = (props: IPaginationContainerProps) => {
   const { history, count = 100 } = props;
 
   const currentPage = Number(router.getParam(history, 'page')) || 1;
@@ -249,4 +246,4 @@ const PaginationContainer = (props: PaginationContainerProps) => {
 };
 
 
-export default withRouter<PaginationContainerProps>(PaginationContainer);
+export default withRouter<IPaginationContainerProps>(PaginationContainer);
