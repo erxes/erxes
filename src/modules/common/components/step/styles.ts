@@ -1,6 +1,6 @@
-import { colors, dimensions } from 'modules/common/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions } from "modules/common/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const StepContainer = styled.div`
   display: flex;
@@ -20,7 +20,7 @@ const StepWrapper = styled.div`
 
 const StepItem = styledTS<{ show: boolean }>(styled.div)`
   transition: all 0.3s;
-  width: ${props => (props.show ? '100%' : '70px')};
+  width: ${props => (props.show ? "100%" : "70px")};
   box-shadow: 0 0 4px ${colors.colorShadowGray};
 `;
 
@@ -41,7 +41,7 @@ const FullStep = styledTS<{ show: boolean }>(styled.div)`
   height: 100%;
   width: 100%;
   transition: all 0.3s;
-  display: ${props => (props.show ? 'block' : 'none')};
+  display: ${props => (props.show ? "block" : "none")};
 `;
 
 const StepHeaderContainer = styled.div`
@@ -86,7 +86,7 @@ const ShortStep = styledTS<{ show: boolean }>(styled.div)`
   height: 100%;
   background: ${colors.bgLight};
   cursor: pointer;
-  display: ${props => (props.show ? 'flex' : 'none')};
+  display: ${props => (props.show ? "flex" : "none")};
   align-items: center;
   padding: ${dimensions.unitSpacing}px 0;
   flex-direction: column;
@@ -102,7 +102,13 @@ const InlineForm = styled.div`
   }
 `;
 
-const FlexItem = styledTS<{ count?: string, overflow?: boolean, v?: boolean, h?: boolean, direction?: boolean }>(styled.div)`
+const FlexItem = styledTS<{
+  count?: string;
+  overflow?: boolean;
+  v?: boolean;
+  h?: boolean;
+  direction?: boolean;
+}>(styled.div)`
   display: flex;
   height: 100%;
   border-right: 1px solid ${colors.borderPrimary};
@@ -113,7 +119,7 @@ const FlexItem = styledTS<{ count?: string, overflow?: boolean, v?: boolean, h?:
         overflow: ${props.overflow};
       `;
     }
-    return null
+    return null;
   }};
   ${props => {
     if (props.v) {
@@ -121,7 +127,7 @@ const FlexItem = styledTS<{ count?: string, overflow?: boolean, v?: boolean, h?:
         align-items: ${props.v};
       `;
     }
-    return null
+    return null;
   }};
   ${props => {
     if (props.h) {
@@ -129,7 +135,7 @@ const FlexItem = styledTS<{ count?: string, overflow?: boolean, v?: boolean, h?:
         justify-content: ${props.h};
       `;
     }
-    return null
+    return null;
   }};
   ${props => {
     if (props.direction) {
@@ -137,7 +143,7 @@ const FlexItem = styledTS<{ count?: string, overflow?: boolean, v?: boolean, h?:
         flex-direction: ${props.direction};
       `;
     }
-    return null
+    return null;
   }};
 `;
 
@@ -151,24 +157,24 @@ const LeftItem = styledTS<{ deactive?: boolean }>(styled.div)`
   flex: 1;
   min-width: 43.33333%;
   padding: ${dimensions.coreSpacing}px;
-  opacity: ${props => props.deactive && '0.3'};
-  cursor: ${props => props.deactive && 'not-allowed'};
+  opacity: ${props => props.deactive && "0.3"};
+  cursor: ${props => props.deactive && "not-allowed"};
 
   input:disabled {
     cursor: not-allowed;
   }
 `;
 
-const Preview = styledTS<{ fullHeight: boolean }>(styled.div)`
+const Preview = styledTS<{ fullHeight?: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   flex-direction: column;
   border-left: 1px solid ${colors.borderPrimary};
-  padding: ${props => !props.fullHeight && '20px'};
+  padding: ${props => !props.fullHeight && "20px"};
   background: url('/images/previews/preview.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  height: ${props => props.fullHeight && '100%'};
+  height: ${props => props.fullHeight && "100%"};
   overflow: auto;
 `;
 

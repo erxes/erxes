@@ -1,8 +1,11 @@
 import { colors } from 'modules/common/styles';
+import { ICustomer } from 'modules/customers/types';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { IUser } from '../../../auth/types';
+import { ICompany } from '../../../companies/types';
 
 const AvatarStyled = styledTS<{ isUser?: boolean, messenger?: boolean, twitter?: boolean, facebook?: boolean }>(styled.span)`
   display: block;
@@ -47,9 +50,9 @@ const AvatarImage = styledTS<{ image?: string }>(styled.div)`
 `;
 
 type Props = {
-  user?: any,
-  customer?: any,
-  company?: any,
+  user?: IUser,
+  customer?: ICustomer,
+  company?: ICompany,
   size?: number,
   icon?: React.ReactNode
 };

@@ -1,0 +1,102 @@
+import { AppConsumer } from 'appContext';
+import gql from 'graphql-tag';
+import { fromJS } from 'immutable';
+import { RespondBox } from 'modules/inbox/components/conversationDetail';
+import { queries } from 'modules/inbox/graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { IUser } from '../../../auth/types';
+import { IConversation, IMessage } from '../../types';
+
+type Props = {
+  conversation: IConversation,
+  object: any,
+  responseTemplatesQuery: any,
+  usersQuery: any,
+  addMessage: (doc: { variables: IMessage, optimisticResponse: any, kind: string, callback: () => void }) => void,
+  currentUser: IUser
+};
+
+const RespondBoxContainer = (props: Props) => {
+  const {
+    conversation,
+    usersQuery,
+    addMessage,
+    responseTemplatesQuery,
+    currentUser,
+  } = props;
+
+  const sendMessage = (variables, callback) => {
+    const { conversationId, content, attachments, internal } = variables;
+
+    let optimisticResponse;
+
+    if (conversation.integration.kind === 'messenger') {
+      optimisticResponse = {
+        __typename: 'Mutation',
+        conversationMessageAdd: {
+          __typename: 'ConversationMessage',
+          _id: Math.round(Math.random() * -1000000),
+          content,
+          attachments,
+          internal,
+          mentionedUserIds: [],
+          conversationId,
+          customerId: Math.random(),
+          userId: currentUser._id,
+          createdAt: new Date(),
+          isCustomerRead: false,
+          formWidgetData: null,
+          twitterData: null,
+          facebookData: null,
+          user: null,
+          customer: null
+        }
+      };
+    }
+
+    addMessage({
+      variables,
+      optimisticResponse,
+      kind: conversation.integration.kind,
+      callback
+    });
+  };
+
+  const teamMembers = [];
+
+  for (const user of usersQuery.users || []) {
+    teamMembers.push({
+      _id: user._id,
+      name: user.username,
+      title: user.details.position,
+      avatar: user.details.avatar
+    });
+  }
+
+  const updatedProps = {
+    ...props,
+    sendMessage,
+    responseTemplates: responseTemplatesQuery.responseTemplates || [],
+    teamMembers: fromJS(teamMembers)
+  };
+
+  return <RespondBox {...updatedProps} />;
+};
+
+const WithQuery = compose(
+  graphql(gql(queries.userList), { name: 'usersQuery' }),
+  graphql(gql(queries.responseTemplateList), {
+    name: 'responseTemplatesQuery'
+  })
+)(RespondBoxContainer);
+
+const WithConsumer = (props) => {
+  return (
+    <AppConsumer>
+      {({ currentUser }) => <WithQuery {...props} currentUser={currentUser} />}
+    </AppConsumer>
+  );
+};
+
+export default WithConsumer;

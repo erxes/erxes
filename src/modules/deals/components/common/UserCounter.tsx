@@ -2,9 +2,10 @@ import { Tip } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import * as React from 'react';
 import styled from 'styled-components';
+import { IUser } from '../../../auth/types';
 
 type Props = {
-  users: any
+  users: IUser[]
 };
 
 const UserCounterContainer = styled.ul`

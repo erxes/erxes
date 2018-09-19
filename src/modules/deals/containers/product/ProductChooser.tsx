@@ -61,15 +61,13 @@ class ProductChooser extends React.Component<Props, any> {
         });
     };
 
-    const form = <ProductForm save={addProduct} />;
-
     const updatedProps = {
       ...this.props,
       data: { name: data.name, datas: data.products },
       search,
       title: 'Product',
-      form,
       renderName: product => product.name,
+      renderForm: (props) => <ProductForm {...props} action={addProduct} />,
       perPage: this.state.perPage,
       add: addProduct,
       clearState,

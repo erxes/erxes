@@ -34,6 +34,8 @@ export interface ICustomerDoc {
         youtube?: string;
         github?: string;
     }
+    twitterData?: any;
+    facebookData?: any;
     messengerData?: any;
     customFieldsData?: any;
     visitorContactInfo?: any;

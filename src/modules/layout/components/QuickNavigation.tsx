@@ -94,7 +94,7 @@ const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentU
                 </li>
               }
             >
-              <NotificationSettings />
+              <NotificationSettings currentUser={currentUser} />
             </ModalTrigger>
 
             <MenuItem divider />

@@ -5,12 +5,13 @@ import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { IBoard, IPipeline } from '../../settings/deals/types';
 import { Board } from '../containers';
 
 type Props = {
-  currentBoard: any,
-  boards: any,
-  pipelines?: any,
+  currentBoard: IBoard,
+  boards: IBoard[],
+  pipelines?: IPipeline[],
   onDragEnd?: any,
   states?: any,
   loading?: boolean

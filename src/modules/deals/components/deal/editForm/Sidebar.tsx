@@ -1,15 +1,19 @@
 import { Button } from 'modules/common/components';
 import { CompanySection } from 'modules/companies/components';
+import { ICompany } from 'modules/companies/types';
 import { CustomerSection } from 'modules/customers/components/common';
+import { ICustomer } from 'modules/customers/types';
+import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import { ProductSection } from '../..';
 import { Right } from '../../../styles/deal';
+import { IDeal } from '../../../types';
 
 type Props = {
-  deal: any,
-  customers: any,
-  companies: any,
-  products: any,
+  deal: IDeal,
+  customers: ICustomer[],
+  companies: ICompany[],
+  products: IProduct[],
   productsData: any,
   onChangeField: any,
   removeDeal: any,

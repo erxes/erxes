@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { TextArea } from './styles';
 
 type Props = {
-  onChange?: (...args: any[]) => void,
+  onChange?: (e: React.FormEvent<HTMLTextAreaElement>) => void,
   maxHeight?: number
 };
 
@@ -12,7 +12,7 @@ class Textarea extends Component<Props> {
   constructor(props, context) {
     super(props, context);
 
-    this.change = this.change.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {
@@ -28,13 +28,13 @@ class Textarea extends Component<Props> {
     textarea.style.height = `${textarea.scrollHeight + 1}px`;
   }
 
-  change(...params) {
+  onChange(e) {
     const { onChange } = this.props;
 
     this.setHeight();
 
     if (onChange) {
-      onChange(...params);
+      onChange(e);
     }
   }
 
@@ -48,7 +48,7 @@ class Textarea extends Component<Props> {
           this.area = area;
         }}
         maxHeight={maxHeight}
-        onChange={this.change}
+        onChange={this.onChange}
       />
     );
   }

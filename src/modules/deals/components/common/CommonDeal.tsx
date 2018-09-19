@@ -1,4 +1,3 @@
-import T from 'i18n-react';
 import moment from 'moment';
 import React, { Fragment } from 'react';
 
@@ -12,10 +11,12 @@ import {
   SpaceContent
 } from '../../styles/deal';
 
+import { __ } from '../../../common/utils';
 import { Amount } from '../../styles/stage';
+import { IDeal } from '../../types';
 
 type Props = {
-  deal: any
+  deal: IDeal
 };
 
 class CommonDeal extends React.Component<Props> {
@@ -67,7 +68,7 @@ class CommonDeal extends React.Component<Props> {
           <UserCounter users={deal.assignedUsers || []} />
         </SpaceContent>
         <ActionInfo>
-          <span>{T.translate('Last updated')}:</span>
+          <span>{__('Last updated')}:</span>
           {this.renderDate(deal.modifiedAt, 'lll')}
         </ActionInfo>
       </Fragment>

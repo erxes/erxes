@@ -5,9 +5,10 @@ import { SectionContainer } from 'modules/layout/styles';
 import * as React from 'react';
 import { DealAddForm } from '.';
 import { Deal } from '../containers';
+import { IDeal } from '../types';
 
 type Props = {
-  deals: any,
+  deals: IDeal[],
   customerId?: string,
   companyId?: string,
   saveDeal: any,

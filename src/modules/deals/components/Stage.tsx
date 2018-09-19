@@ -14,10 +14,11 @@ import {
   Indicator,
   IndicatorItem
 } from '../styles/stage';
+import { IDeal } from '../types';
 
 type Props = {
   stage: any,
-  deals: any,
+  deals: IDeal[],
   index?: number,
   length?: number,
   saveDeal: any,
@@ -49,7 +50,7 @@ class Stage extends React.Component<Props> {
       <ModalTrigger 
         title="Add a deal" 
         trigger={trigger}
-        content={(props) => <DealAddForm stageId={stage._id} saveDeal={saveDeal} />}
+        content={(props) => <DealAddForm {...props} stageId={stage._id} saveDeal={saveDeal} />}
        />
     );
   }

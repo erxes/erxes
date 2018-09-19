@@ -5,6 +5,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Stage } from '../components';
 import { mutations, queries } from '../graphql';
+import { IDeal } from '../types';
 import {
   collectOrders,
   removeDeal as remove,
@@ -14,7 +15,7 @@ import {
 type Props = {
   state: any,
   stageId: string,
-  deals: any,
+  deals: IDeal[],
   addMutation: any,
   editMutation: any,
   removeMutation: any,

@@ -1,0 +1,22 @@
+import { ConversationItem } from 'modules/inbox/components/leftSidebar';
+import * as React from 'react';
+import { IConversation } from '../../types';
+
+type Props = {
+  conversation: IConversation
+  currentConversationId: string
+};
+
+export default class ConversationItemContainer extends React.Component<Props> {
+  render() {
+    const { conversation, currentConversationId } = this.props;
+
+    const updatedProps = {
+      ...this.props,
+      isActive: conversation._id === currentConversationId
+    };
+
+    return <ConversationItem {...updatedProps} />;
+  }
+}
+

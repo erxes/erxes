@@ -1,10 +1,10 @@
-import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors } from '../styles';
-import { darken, lighten } from '../styles/color';
-import Icon from './Icon';
+import { __ } from "modules/common/utils";
+import React, { Component } from "react";
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
+import { colors } from "../styles";
+import { darken, lighten } from "../styles/color";
+import Icon from "./Icon";
 
 const types = {
   default: {
@@ -28,27 +28,31 @@ const types = {
     color: colors.colorCoreGray
   },
   link: {
-    background: 'transparent',
+    background: "transparent",
     color: colors.colorCoreGray
   }
 };
 
 const sizes = {
   large: {
-    padding: '10px 30px',
-    fontSize: '13px'
+    padding: "10px 30px",
+    fontSize: "13px"
   },
   medium: {
-    padding: '7px 20px',
-    fontSize: '12px'
+    padding: "7px 20px",
+    fontSize: "12px"
   },
   small: {
-    padding: '5px 15px',
-    fontSize: '10px'
+    padding: "5px 15px",
+    fontSize: "10px"
   }
 };
 
-const ButtonStyled = styledTS<{ hugeness: string, btnStyle: string, block?: boolean }>(styled.button)`
+const ButtonStyled = styledTS<{
+  hugeness: string;
+  btnStyle: string;
+  block?: boolean;
+}>(styled.button)`
   border-radius: 30px;
   position: relative;
   transition: all 0.3s ease;
@@ -62,11 +66,11 @@ const ButtonStyled = styledTS<{ hugeness: string, btnStyle: string, block?: bool
     color: ${types[props.btnStyle].color
       ? types[props.btnStyle].color
       : colors.colorWhite};
-    border: ${props.btnStyle === 'simple'
+    border: ${props.btnStyle === "simple"
       ? `1px solid ${colors.borderDarker}`
-      : 'none'};
-    display: ${props.block && 'block'};
-    width: ${props.block && '100%'};
+      : "none"};
+    display: ${props.block && "block"};
+    width: ${props.block && "100%"};
     box-shadow: 0 2px 16px 0 ${lighten(types[props.btnStyle].background, 45)};
 
     &:hover {
@@ -75,7 +79,7 @@ const ButtonStyled = styledTS<{ hugeness: string, btnStyle: string, block?: bool
       color: ${types[props.btnStyle].color
         ? darken(colors.colorCoreGray, 24)
         : colors.colorWhite};
-      box-shadow: ${props.btnStyle !== 'link' &&
+      box-shadow: ${props.btnStyle !== "link" &&
         `0 2px 22px 0 ${lighten(types[props.btnStyle].background, 25)}`};
     }
 
@@ -103,7 +107,9 @@ const ButtonStyled = styledTS<{ hugeness: string, btnStyle: string, block?: bool
   }
 `;
 
-const ButtonLink = styledTS<{ disabled?: boolean }>(ButtonStyled.withComponent('a').extend)`
+const ButtonLink = styledTS<{ disabled?: boolean }>(
+  ButtonStyled.withComponent("a").extend
+)`
   text-decoration: inherit;
   text-align: center;
   
@@ -127,39 +133,40 @@ const ButtonGroup = styled.div`
 `;
 
 type ButtonProps = {
-  children?: React.ReactNode,
-  className?: string,
-  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void,
-  href?: string,
-  type?: string,
-  btnStyle?: string,
-  size?: string,
-  disabled?: boolean,
-  ignoreTrans?: boolean,
-  block?: boolean,
-  icon?: string
+  children?: React.ReactNode;
+  className?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  href?: string;
+  type?: string;
+  btnStyle?: string;
+  size?: string;
+  disabled?: boolean;
+  ignoreTrans?: boolean;
+  block?: boolean;
+  icon?: string;
+  style?: any;
 };
 
 export default class Button extends Component<ButtonProps> {
   static Group = Group;
 
   static defaultProps = {
-    btnStyle: 'default',
-    size: 'medium',
+    btnStyle: "default",
+    size: "medium",
     block: false,
-    type: 'button'
+    type: "button"
   };
 
   render() {
     const { size, ...sizeExcluded } = this.props;
     const { href, children, ignoreTrans, icon } = sizeExcluded;
-    const props = {...sizeExcluded, hugeness: size };
+    const props = { ...sizeExcluded, hugeness: size };
 
     const Element = href ? ButtonLink : ButtonStyled;
 
     let content = children;
 
-    if (!ignoreTrans && typeof content === 'string' && __) {
+    if (!ignoreTrans && typeof content === "string" && __) {
       content = __(content);
     }
 

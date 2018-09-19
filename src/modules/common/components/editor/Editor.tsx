@@ -135,7 +135,7 @@ const INLINE_STYLES = [
 ];
 
 type InlineStyleProps = {
-  onToggle: (inlineStyle: any) => void,
+  onToggle: (inlineStyle: string) => void,
   editorState: EditorState
 }
 
@@ -160,7 +160,7 @@ const InlineStyleControls = ({ onToggle, editorState }: InlineStyleProps) => {
 
 type ErxesEditorProps = {
   editorState: EditorState,
-  onChange: (richUtils: any) => void,
+  onChange: (richUtils: RichUtils) => void,
   bordered: boolean,
   // extra control rows
   controls?: any[],

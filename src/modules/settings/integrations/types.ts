@@ -2,33 +2,56 @@ import { IBrand } from "../brands/types";
 import { IChannel } from "../channels/types";
 
 export interface IApps {
-    id: string,
-    name?: string
+  id: string;
+  name?: string;
 }
 
 export interface IPages {
-    id: string,
-    name?: string,
-    checked?: boolean
+  id: string;
+  name?: string;
+  checked?: boolean;
 }
 
 export interface IMessengerData {
-    welcomeMessage: string,
-    awayMessage: string,
-    thankYouMessage: string,
-    notifyCustomer: boolean,
-    supporterIds: string[],
-    availabilityMethod: string,
-    isOnline: boolean,
-    timezone: string,
-    onlineHours: any,
-
+  welcomeMessage: string;
+  awayMessage: string;
+  thankYouMessage: string;
+  notifyCustomer: boolean;
+  supporterIds: string[];
+  availabilityMethod: string;
+  isOnline: boolean;
+  timezone: string;
+  onlineHours: any;
 }
 
 export interface IUiOptions {
-    color: string,
-    wallpaper: string,
-    logo: string,
+  color: string;
+  wallpaper: string;
+  logo: string;
+}
+
+export interface IFormData {
+  loadType?: string;
+  successAction?: string;
+  fromEmail?: string;
+  userEmailTitle?: string;
+  userEmailContent?: string;
+  adminEmails?: string[];
+  adminEmailTitle?: string;
+  adminEmailContent?: string;
+  thankContent?: string;
+  redirectUrl?: string;
+}
+
+export interface ITwitterData {
+  info?: any;
+  token?: string;
+  tokenSecret?: string;
+}
+
+export interface IFacebookData {
+  appId: string;
+  pageIds: string[];
 }
 
 export interface IIntegration {
@@ -45,6 +68,7 @@ export interface IIntegration {
     createUrl: string;
     createModal: string;
     messengerData?: IMessengerData;
+    facebookData?: IFacebookData;
     uiOptions?: IUiOptions;
 
     brand: IBrand;
