@@ -15,22 +15,23 @@ import { Wrapper } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
 import * as React from 'react';
 import { withRouter } from 'react-router';
+import { IRouterProps } from '../../../common/types';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 
-type Props = {
-  company: ICompany,
-  currentUser: IUser,
-  companyActivityLog: any[],
-  taggerRefetchQueries?: any[],
-  loadingLogs: boolean,
+interface IProps extends IRouterProps {
+  company: ICompany;
+  currentUser: IUser;
+  companyActivityLog: any[];
+  taggerRefetchQueries?: any[];
+  loadingLogs: boolean;
 };
 
 type State = {
   currentTab: string
 };
 
-class CompanyDetails extends React.Component<Props, State> {
+class CompanyDetails extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
 
@@ -64,7 +65,7 @@ class CompanyDetails extends React.Component<Props, State> {
             <ActivityList
               user={currentUser}
               activities={companyActivityLog}
-              target={company.primaryName}
+              target={company.primaryName || ''}
               type={currentTab}
             />
           }
@@ -138,4 +139,4 @@ class CompanyDetails extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(CompanyDetails);
+export default withRouter<IRouterProps>(CompanyDetails);

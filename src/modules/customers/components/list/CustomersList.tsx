@@ -15,6 +15,7 @@ import {
   SortHandler,
   Table
 } from '../../../common/components';
+import { IRouterProps } from '../../../common/types';
 import { __, confirm, router } from '../../../common/utils';
 import { Widget } from '../../../engage/containers';
 import { Wrapper } from '../../../layout/components';
@@ -26,7 +27,7 @@ import { CustomerForm } from '../../containers';
 import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
 
-type Props = {
+interface IProps extends IRouterProps {
   customers: any,
   counts: any,
   columnsConfig: any,
@@ -38,8 +39,6 @@ type Props = {
   emptyBulk: () => void,
   toggleBulk: () => void,
   toggleAll: (targets: string[], containerId: string) => void,
-  location: any,
-  history: any,
   loading: boolean,
   searchValue: string,
   loadingTags: boolean,
@@ -54,8 +53,8 @@ type State = {
   searchValue?: string
 }
 
-class CustomersList extends React.Component<Props, State> {
-  private timer: NodeJS.Timer
+class CustomersList extends React.Component<IProps, State> {
+  private timer?: NodeJS.Timer
 
   constructor(props) {
     super(props);
@@ -76,7 +75,7 @@ class CustomersList extends React.Component<Props, State> {
   }
 
   removeCustomers(customers) {
-    const customerIds = [];
+    const customerIds: string[] = [];
 
     customers.forEach(customer => {
       customerIds.push(customer._id);
@@ -252,7 +251,7 @@ class CustomersList extends React.Component<Props, State> {
       </BarItems>
     );
 
-    let actionBarLeft = null;
+    let actionBarLeft: React.ReactNode;
 
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="shuffle">

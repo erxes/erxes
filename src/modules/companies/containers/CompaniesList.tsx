@@ -5,10 +5,11 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { IRouterProps } from '../../common/types';
 import { CompaniesList } from '../components';
 import { mutations, queries } from '../graphql';
 
-type Props = {
+interface IProps extends IRouterProps {
   queryParams?: any,
   companiesMainQuery?: any,
   companyCountsQuery?: any,
@@ -22,14 +23,13 @@ type Props = {
   }) => Promise<any>,
   tagsQuery?: any,
   loading?: boolean,
-  history: any,
 };
 
 type State = {
   loading: boolean
 };
 
-class CompanyListContainer extends React.Component<Props, State> {
+class CompanyListContainer extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
 
@@ -185,4 +185,4 @@ export default compose(
       refetchQueries: ['companiesMain', 'companyCounts']
     })
   })
-)(withRouter(CompanyListContainer));
+)(withRouter<IRouterProps>(CompanyListContainer));

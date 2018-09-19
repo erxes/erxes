@@ -133,7 +133,7 @@ class BasicInfo extends Component<Props> {
 
           {this.renderRow(
             'Owner',
-            customer.owner ? customer.owner.details.fullName : ''
+            customer.owner && customer.owner.details ? customer.owner.details.fullName : ''
           )}
 
           {this.renderRow('Position', customer.position)}

@@ -44,7 +44,7 @@ function CompanySection({ name, companies, onSelect }: Props) {
           <span>{company.primaryName || 'N/A'}</span>
           <Tip text={company.website || ''}>
             <a target="_blank" href={`//${company.website}`}>
-              {urlParser.extractRootDomain(company.website)}
+              {urlParser.extractRootDomain(company.website || '')}
             </a>
           </Tip>
         </SectionBodyItem>

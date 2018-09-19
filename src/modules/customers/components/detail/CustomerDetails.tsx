@@ -11,7 +11,6 @@ import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { Wrapper } from 'modules/layout/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import * as React from 'react';
-import { withRouter } from 'react-router';
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../types';
 import { hasAnyActivity } from '../../utils';
@@ -139,4 +138,4 @@ class CustomerDetails extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(CustomerDetails);
+export default CustomerDetails;
