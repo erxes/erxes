@@ -3,19 +3,19 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { SelectContainer } from '../../styles/deal';
-import { IBoard, IPipeline } from '../../types';
+import { IBoard, IPipeline, IStage } from '../../types';
 import { selectOptions } from '../../utils';
 
 type Props = {
   boards: IBoard[],
   pipelines: IPipeline[],
-  stages: any,
+  stages: IStage[],
   boardId?: string,
   pipelineId?: string,
   stageId?: string,
-  onChangeBoard: any,
-  onChangePipeline: any,
-  onChangeStage: any,
+  onChangeBoard: (value: string) => any,
+  onChangePipeline: (value: string) => any,
+  onChangeStage: (value: string, callback: any) => any,
   callback?: any
 };
 

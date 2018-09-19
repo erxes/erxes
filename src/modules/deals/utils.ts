@@ -1,5 +1,6 @@
 import { __, Alert, confirm } from 'modules/common/utils';
 import { IUser } from '../auth/types';
+import { IDeal } from './types';
 
 type Options = {
   _id: string,
@@ -39,7 +40,7 @@ export function collectOrders(array: Options[] = []) {
 }
 
 // create or update deal
-export function saveDeal(doc, props, context, callback, deal) {
+export function saveDeal(doc: any, props: any, context: any, callback: any, deal: IDeal) {
   const { addMutation, editMutation, dealsQuery } = props;
 
   let mutation = addMutation;
@@ -66,7 +67,7 @@ export function saveDeal(doc, props, context, callback, deal) {
 }
 
 // remove deal
-export function removeDeal(_id, props, context, callback) {
+export function removeDeal(_id: string, props, context: any, callback: any) {
   const { removeMutation, dealsQuery } = props;
 
   confirm().then(() => {

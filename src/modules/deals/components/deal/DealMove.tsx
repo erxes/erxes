@@ -14,7 +14,7 @@ type Props = {
   deal?: IDeal,
   stages: any,
   stageId?: string,
-  onChangeStage?: any
+  onChangeStage?: (stageId: string) => any
 };
 
 type State = {

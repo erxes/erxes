@@ -18,9 +18,9 @@ type Props = {
   currencies: any,
   productsData?: any,
   productData: any,
-  removeProductItem?: any,
-  onChangeProductsData?: any,
-  updateTotal?: any
+  removeProductItem?: (_id: string) => void,
+  onChangeProductsData?: (productsData: any) => void,
+  updateTotal?: () => void
 };
 
 class ProductItemForm extends React.Component<Props> {

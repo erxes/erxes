@@ -18,8 +18,10 @@ type Props = {
   stages: IStage[],
   stagesUpdateOrder: any,
   stagesChange: any,
-  stagesUpdateOrderMutation: any,
-  stagesChangeMutation: any
+  stagesUpdateOrderMutation: (params: { variables: { orders } }) => Promise<any>
+  stagesChangeMutation: (params: {
+    variables: { _id: string, pipelineId: string }
+  }) => Promise<any>
 };
 
 class PipelineContainer extends React.Component<Props, { stages: any }> {

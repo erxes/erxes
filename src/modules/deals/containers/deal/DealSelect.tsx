@@ -3,15 +3,16 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DealSelect } from '../../components';
 import { queries } from '../../graphql';
+import { IStage } from '../../types';
 
 type Props = {
   boardsQuery: any,
   pipelinesQuery: any,
   stagesQuery: any,
-  onChangeStage: any,
-  onChangePipeline: any,
-  onChangeBoard: any,
-  onChangeStages: any
+  onChangeStage: (stageId: string, callback?: any) => void,
+  onChangePipeline: (pipelineId: string) => void,
+  onChangeBoard: (boardId: string) => void,
+  onChangeStages: (stages: IStage[]) => void,
 };
 
 class DealSelectContainer extends React.Component<Props> {
@@ -23,7 +24,7 @@ class DealSelectContainer extends React.Component<Props> {
     this.onChangeStage = this.onChangeStage.bind(this);
   }
 
-  onChangeBoard(boardId) {
+  onChangeBoard(boardId: string) {
     this.props.onChangeBoard(boardId);
 
     this.props.pipelinesQuery.refetch({ boardId }).then(({ data }) => {
@@ -35,7 +36,7 @@ class DealSelectContainer extends React.Component<Props> {
     });
   }
 
-  onChangePipeline(pipelineId) {
+  onChangePipeline(pipelineId: string) {
     this.props.onChangePipeline(pipelineId);
 
     const { stagesQuery, onChangeStages } = this.props;

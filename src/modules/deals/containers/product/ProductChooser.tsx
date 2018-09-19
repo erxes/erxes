@@ -13,7 +13,7 @@ import { compose, graphql } from 'react-apollo';
 type Props = {
   data: any,
   productsQuery: any,
-  productAdd: any,
+  productAdd: (params: { variables: any }) => Promise<any>,
   closeModal: () => void
 };
 
