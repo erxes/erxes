@@ -104,10 +104,10 @@ const InlineForm = styled.div`
 
 const FlexItem = styledTS<{
   count?: string;
-  overflow?: boolean;
-  v?: boolean;
-  h?: boolean;
-  direction?: boolean;
+  overflow?: string;
+  v?: string;
+  h?: string;
+  direction?: string;
 }>(styled.div)`
   display: flex;
   height: 100%;
