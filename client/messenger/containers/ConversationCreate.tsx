@@ -8,24 +8,27 @@ import graphqlTypes from "../graphql";
 import { IConversation } from "../types";
 import { AppConsumer } from "./AppContext";
 
+type Props = {
+  supporters: IUser[];
+  loading: boolean;
+};
+
 type Response = {
   conversationDetail: IConversation;
 };
 
-class ConversationCreate extends React.Component<ChildProps<{}, Response>, {}> {
+class ConversationCreate extends React.Component<
+  ChildProps<Props, Response>,
+  {}
+> {
   render() {
     let isOnline = false;
-    let loading = true;
-    let supporters: IUser[] = [];
-
     const data = this.props.data;
 
     if (data && data.conversationDetail) {
       const { conversationDetail } = data;
 
-      loading = data.loading;
       isOnline = conversationDetail.isOnline;
-      supporters = conversationDetail.supporters || [];
     }
 
     return (
@@ -37,9 +40,7 @@ class ConversationCreate extends React.Component<ChildProps<{}, Response>, {}> {
               isNew={true}
               color={getColor()}
               messages={[]}
-              users={supporters}
               isOnline={isOnline}
-              loading={loading}
               goToConversationList={goToConversationList}
             />
           );

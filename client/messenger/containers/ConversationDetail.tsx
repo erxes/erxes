@@ -13,6 +13,8 @@ type Props = {
   color?: string;
   goToConversationList: () => void;
   endConversation: (conversationId: string) => void;
+  supporters: IUser[];
+  loading?: boolean;
 };
 
 type QueryResponse = {
@@ -85,24 +87,18 @@ class ConversationDetail extends React.Component<
 
     let messages: IMessage[] = [];
     let isOnline: boolean = false;
-    let loading: boolean = true;
-    let supporters: IUser[] = [];
 
     if (data && data.conversationDetail) {
       const conversationDetail = data.conversationDetail;
 
       messages = conversationDetail.messages;
-      loading = data.loading;
       isOnline = conversationDetail.isOnline;
-      supporters = conversationDetail.supporters || [];
     }
 
     return (
       <DumbConversation
         {...this.props}
         messages={messages}
-        loading={loading}
-        users={supporters}
         isOnline={isOnline}
       />
     );
@@ -126,7 +122,12 @@ const query = compose(
 
 const WithQuery = query(ConversationDetail);
 
-const WithConsumer = () => {
+type PropsWihtConsumer = {
+  supporters: IUser[];
+  loading?: boolean;
+};
+
+const WithConsumer = (props: PropsWihtConsumer) => {
   return (
     <AppConsumer>
       {({
@@ -137,6 +138,7 @@ const WithConsumer = () => {
       }) => {
         return (
           <WithQuery
+            {...props}
             conversationId={activeConversation}
             goToConversationList={goToConversationList}
             endConversation={endConversation}

@@ -9,7 +9,7 @@ import { Supporters } from "./";
 type Props = {
   messages: IMessage[];
   goToConversationList: () => void;
-  users: IUser[];
+  supporters: IUser[];
   isOnline: boolean;
   color?: string;
   isNew?: boolean;
@@ -33,9 +33,9 @@ class Conversation extends React.Component<Props, State> {
   }
 
   toggle() {
-    const { users } = this.props;
+    const { supporters } = this.props;
 
-    if (users.length !== 0) {
+    if (supporters.length !== 0) {
       this.setState({ expanded: !this.state.expanded });
     }
   }
@@ -49,11 +49,11 @@ class Conversation extends React.Component<Props, State> {
   }
 
   renderHead() {
-    const { users, isOnline, color, loading } = this.props;
+    const { supporters, isOnline, color, loading } = this.props;
 
-    const supporters = (
+    const supportersContent = (
       <Supporters
-        users={users}
+        users={supporters}
         loading={loading}
         isOnline={isOnline}
         color={color}
@@ -61,14 +61,14 @@ class Conversation extends React.Component<Props, State> {
       />
     );
 
-    if (users.length === 0) {
-      return supporters;
+    if (supporters.length === 0) {
+      return supportersContent;
     }
 
     return (
       <div className="erxes-head-content">
         <BrandInfo />
-        {supporters}
+        {supportersContent}
       </div>
     );
   }

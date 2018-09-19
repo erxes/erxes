@@ -7,7 +7,7 @@ import { IntegrationItem, Supporters } from "./";
 
 type Props = {
   createConversation: (e: React.FormEvent<HTMLButtonElement>) => void;
-  users: IUser[];
+  supporters: IUser[];
   loading?: boolean;
 };
 
@@ -37,7 +37,7 @@ class Home extends React.Component<Props, State> {
   }
 
   renderHead() {
-    const { users, loading } = this.props;
+    const { supporters, loading } = this.props;
 
     return (
       <div
@@ -47,7 +47,7 @@ class Home extends React.Component<Props, State> {
         }}
       >
         <BrandInfo />
-        <Supporters users={users} isExpanded={false} loading={loading} />
+        <Supporters users={supporters} isExpanded={false} loading={loading} />
       </div>
     );
   }
