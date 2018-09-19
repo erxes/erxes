@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { Reaction, LeftAlign } from './styles';
+import React, { Component } from "react";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import { IReactions } from "../../../../../types";
+import { LeftAlign, Reaction } from "./styles";
 
-const propTypes = {
-  reactions: PropTypes.object.isRequired,
-  comment: PropTypes.bool
+type Props = {
+  reactions: IReactions;
+  comment?: boolean;
 };
 
-class Reactions extends Component {
+class Reactions extends Component<Props, {}> {
   renderUsers(users) {
     return users.map((user, index) => (
       <LeftAlign key={index}>{user.name}</LeftAlign>
@@ -25,7 +25,7 @@ class Reactions extends Component {
       </Tooltip>
     );
 
-    if (!users.length > 0) {
+    if (!(users.length > 0)) {
       return null;
     }
 
@@ -44,7 +44,5 @@ class Reactions extends Component {
     );
   }
 }
-
-Reactions.propTypes = propTypes;
 
 export default Reactions;

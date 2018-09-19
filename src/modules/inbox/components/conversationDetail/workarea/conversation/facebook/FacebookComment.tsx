@@ -1,28 +1,29 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { NameCard, ModalTrigger } from 'modules/common/components';
+import { ModalTrigger, NameCard } from "modules/common/components";
+import * as React from "react";
+import { IMessageDocument } from "../../../../../types";
 import {
+  Date,
   FacebookContent,
   Reactions,
-  Date,
-  UserName,
-  ReplyingMessage
-} from './';
+  ReplyingMessage,
+  UserName
+} from "./";
 import {
   ChildPost,
-  User,
   Comment,
+  FlexItem,
   Reply,
   ReplyReaction,
-  FlexItem
-} from './styles';
+  User
+} from "./styles";
 
-const propTypes = {
-  message: PropTypes.object.isRequired,
-  replyPost: PropTypes.func
+type Props = {
+  message: IMessageDocument;
+  replyPost: (data, callback) => void;
+  scrollBottom: () => void;
 };
 
-export default class FacebookComment extends Component {
+export default class FacebookComment extends React.Component<Props, {}> {
   renderReactionCount() {
     const data = this.props.message.facebookData;
 
@@ -43,18 +44,18 @@ export default class FacebookComment extends Component {
   }
 
   render() {
-    const { message, replyPost } = this.props;
+    const { message, replyPost, scrollBottom } = this.props;
     const data = message.facebookData || {};
     const size = data && data.parentId ? 20 : 32;
-    let commentVideo = '';
+    let commentVideo = "";
 
-    if (message.content.includes('youtube.com')) {
+    if (message.content.includes("youtube.com")) {
       commentVideo = message.content;
     }
 
     return (
       <ChildPost isReply={data.parentId}>
-        <NameCard.Avatar customer={message.customer || {}} size={size} />
+        <NameCard.Avatar customer={message.customer} size={size} />
 
         <User isReply={data.parentId}>
           <FlexItem>
@@ -62,6 +63,7 @@ export default class FacebookComment extends Component {
               <UserName username={data.senderName} userId={data.senderId} />
               <FacebookContent
                 content={message.content}
+                scrollBottom={scrollBottom}
                 image={data.photo}
                 link={data.link || data.video || commentVideo}
               />
@@ -70,14 +72,19 @@ export default class FacebookComment extends Component {
           </FlexItem>
 
           <Reply>
-            <ModalTrigger title="Reply" trigger={<a> Reply •</a>}>
-              <ReplyingMessage
-                conversationId={message.conversationId}
-                commentId={data.commentId}
-                currentUserName={data.senderName}
-                replyPost={replyPost}
-              />
-            </ModalTrigger>
+            <ModalTrigger
+              title="Reply"
+              trigger={<a> Reply •</a>}
+              content={props => (
+                <ReplyingMessage
+                  conversationId={message.conversationId}
+                  commentId={data.commentId}
+                  currentUserName={data.senderName}
+                  replyPost={replyPost}
+                  {...props}
+                />
+              )}
+            />
           </Reply>
 
           <Date message={message} />
@@ -86,5 +93,3 @@ export default class FacebookComment extends Component {
     );
   }
 }
-
-FacebookComment.propTypes = propTypes;

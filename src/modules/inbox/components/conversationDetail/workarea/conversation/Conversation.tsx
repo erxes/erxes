@@ -55,7 +55,12 @@ class Conversation extends React.Component<Props, {}> {
   }
 
   renderConversation() {
-    const { loading, conversation, conversationMessages } = this.props;
+    const {
+      loading,
+      conversation,
+      conversationMessages,
+      scrollBottom
+    } = this.props;
     const { kind } = conversation.integration;
 
     if (!conversation) {
@@ -85,6 +90,7 @@ class Conversation extends React.Component<Props, {}> {
         <FacebookConversation
           conversation={conversation}
           conversationMessages={conversationMessages}
+          scrollBottom={scrollBottom}
         />
       );
     }

@@ -1,14 +1,15 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { NameCard } from 'modules/common/components';
-import { FacebookContent, Reactions, Date, UserName } from './';
-import { PostContainer, User, Counts, FlexItem } from './styles';
+import { NameCard } from "modules/common/components";
+import React, { Component } from "react";
+import { Date, FacebookContent, Reactions, UserName } from ".";
+import { IMessageDocument } from "../../../../../types";
+import { Counts, FlexItem, PostContainer, User } from "./styles";
 
-const propTypes = {
-  message: PropTypes.object.isRequired
+type Props = {
+  message: IMessageDocument;
+  scrollBottom: () => void;
 };
 
-export default class FacebookPost extends Component {
+export default class FacebookPost extends Component<Props, {}> {
   renderCounts(data) {
     return (
       <Counts>
@@ -22,8 +23,8 @@ export default class FacebookPost extends Component {
   }
 
   render() {
-    const { message } = this.props;
-    const customer = message.customer || {};
+    const { message, scrollBottom } = this.props;
+    const customer = message.customer;
     const data = message.facebookData || {};
 
     return (
@@ -40,6 +41,7 @@ export default class FacebookPost extends Component {
           image={data.photo}
           images={data.photos}
           link={data.link || data.video}
+          scrollBottom={scrollBottom}
         />
 
         {this.renderCounts(data)}
@@ -47,5 +49,3 @@ export default class FacebookPost extends Component {
     );
   }
 }
-
-FacebookPost.propTypes = propTypes;

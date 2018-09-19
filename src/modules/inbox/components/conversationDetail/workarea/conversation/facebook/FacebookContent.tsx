@@ -1,29 +1,27 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { ImageWithPreview } from 'modules/common/components';
-import { ImageContainer } from './styles';
+import { ImageWithPreview } from "modules/common/components";
+import React, { Fragment } from "react";
+import { ImageContainer } from "./styles";
 
-const propTypes = {
-  content: PropTypes.string.isRequired,
-  image: PropTypes.string,
-  link: PropTypes.string,
-  images: PropTypes.array,
-  commentVideo: PropTypes.string
+type Props = {
+  content: string;
+  image: string;
+  link: string;
+  images?: string[];
+  commentVideo?: string;
+  scrollBottom: () => void;
 };
 
-export default class FacebookContent extends Component {
+export default class FacebookContent extends React.Component<Props, {}> {
   renderImage(image) {
     if (!image) {
       return null;
     }
 
+    const { scrollBottom } = this.props;
+
     return (
       <ImageContainer>
-        <ImageWithPreview
-          alt={image}
-          src={image}
-          onLoad={this.context.scrollBottom}
-        />
+        <ImageWithPreview alt={image} src={image} onLoad={scrollBottom} />
       </ImageContainer>
     );
   }
@@ -33,6 +31,8 @@ export default class FacebookContent extends Component {
       return null;
     }
 
+    const { scrollBottom } = this.props;
+
     return (
       <ImageContainer>
         {images.map((image, index) => (
@@ -40,7 +40,7 @@ export default class FacebookContent extends Component {
             key={index}
             alt={image}
             src={image}
-            onLoad={this.context.scrollBottom}
+            onLoad={scrollBottom}
             full
           />
         ))}
@@ -53,8 +53,10 @@ export default class FacebookContent extends Component {
       return null;
     }
 
-    if (link.includes('youtube.com')) {
-      const iframeSrc = link.split('v=')[1].substring(0, 11);
+    const { scrollBottom } = this.props;
+
+    if (link.includes("youtube.com")) {
+      const iframeSrc = link.split("v=")[1].substring(0, 11);
 
       return (
         <iframe
@@ -70,22 +72,18 @@ export default class FacebookContent extends Component {
     }
 
     if (
-      link.endsWith('.png') ||
-      link.endsWith('.jpg') ||
-      link.endsWith('.jpeg')
+      link.endsWith(".png") ||
+      link.endsWith(".jpg") ||
+      link.endsWith(".jpeg")
     ) {
       return (
         <ImageContainer isComment>
-          <ImageWithPreview
-            alt={link}
-            src={link}
-            onLoad={this.context.scrollBottom}
-          />
+          <ImageWithPreview alt={link} src={link} onLoad={scrollBottom} />
         </ImageContainer>
       );
     }
 
-    if (link.includes('xx.fbcdn.net')) {
+    if (link.includes("xx.fbcdn.net")) {
       return (
         <iframe
           title="erxesIframeVideo"
@@ -122,9 +120,3 @@ export default class FacebookContent extends Component {
     );
   }
 }
-
-FacebookContent.propTypes = propTypes;
-
-FacebookContent.contextTypes = {
-  scrollBottom: PropTypes.func
-};

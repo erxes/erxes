@@ -1,25 +1,25 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Button, FormGroup, FormControl } from 'modules/common/components';
-import { Footer } from './styles';
+import { Button, FormControl, FormGroup } from "modules/common/components";
+import * as React from "react";
+import { Footer } from "./styles";
 
-const propTypes = {
-  replyPost: PropTypes.func,
-  conversationId: PropTypes.string,
-  commentId: PropTypes.string,
-  currentUserName: PropTypes.string
+type Props = {
+  replyPost: (data, callback) => void;
+  conversationId: string;
+  commentId: string;
+  currentUserName: string;
+  closeModal: () => void;
 };
 
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired
+type State = {
+  post: string;
 };
 
-class ReplyingMessage extends React.Component {
+class ReplyingMessage extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      post: ''
+      post: ""
     };
 
     this.doAction = this.doAction.bind(this);
@@ -47,13 +47,13 @@ class ReplyingMessage extends React.Component {
     const { replyPost, conversationId, commentId } = this.props;
 
     const replyData = {
-      conversationId: conversationId,
+      conversationId,
       content: this.state.post,
       commentReplyToId: commentId
     };
 
     return replyPost(replyData, () => {
-      this.context.closeModal();
+      this.props.closeModal();
     });
   }
 
@@ -74,7 +74,7 @@ class ReplyingMessage extends React.Component {
           <Button
             btnStyle="simple"
             onClick={() => {
-              this.context.closeModal();
+              this.props.closeModal();
             }}
             icon="cancel-1"
           >
@@ -89,8 +89,5 @@ class ReplyingMessage extends React.Component {
     );
   }
 }
-
-ReplyingMessage.propTypes = propTypes;
-ReplyingMessage.contextTypes = contextTypes;
 
 export default ReplyingMessage;

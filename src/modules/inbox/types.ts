@@ -35,10 +35,6 @@ export interface ITwitterResponse {
   favorite_count?: number;
 }
 
-export interface ITwitterResponseDocument extends ITwitterResponse {
-  id?: number;
-}
-
 export interface IFacebook {
   kind?: string;
   senderName?: string;
@@ -114,16 +110,12 @@ export interface IFacebook {
   senderName?: string;
 }
 
-interface IFacebookDataDocument extends IFacebook, Document {}
-
 interface IEngageDataRules {
   kind: string;
   text: string;
   condition: string;
   value?: string;
 }
-
-interface IEngageDataRulesDocument extends IEngageDataRules, Document {}
 
 export interface IEngageData {
   messageId: string;
@@ -133,10 +125,6 @@ export interface IEngageData {
   kind: string;
   sentAs: string;
   rules?: IEngageDataRules[];
-}
-
-interface IEngageDataDocument extends IEngageData, Document {
-  rules?: IEngageDataRulesDocument[];
 }
 
 export interface IMessage {
@@ -157,9 +145,9 @@ export interface IMessage {
 
 export interface IMessageDocument extends IMessage, Document {
   _id: string;
-  engageData?: IEngageDataDocument;
-  facebookData?: IFacebookDataDocument;
-  twitterData?: ITwitterResponseDocument;
+  engageData?: IEngageData;
+  facebookData?: IFacebook;
+  twitterData?: ITwitterResponse;
   user?: IUser;
   customer?: ICustomer;
   createdAt: Date;
