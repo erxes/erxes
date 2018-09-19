@@ -1,10 +1,13 @@
-import { ConversationItem } from 'modules/inbox/components/leftSidebar';
-import * as React from 'react';
-import { IConversation } from '../../types';
+import { ConversationItem } from "modules/inbox/components/leftSidebar";
+import * as React from "react";
+import { IConversation } from "../../types";
 
 type Props = {
-  conversation: IConversation
-  currentConversationId: string
+  conversation: IConversation;
+  currentConversationId: string;
+  toggleCheckbox: any;
+  onClick: (conversation: IConversation) => void;
+  selectedIds: string[];
 };
 
 export default class ConversationItemContainer extends React.Component<Props> {
@@ -19,4 +22,3 @@ export default class ConversationItemContainer extends React.Component<Props> {
     return <ConversationItem {...updatedProps} />;
   }
 }
-

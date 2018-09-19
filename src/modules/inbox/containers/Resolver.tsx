@@ -1,14 +1,16 @@
-import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
-import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
-import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { Resolver } from '../components';
-import { mutations } from '../graphql';
-import { refetchSidebarConversationsOptions } from '../utils';
+import gql from "graphql-tag";
+import { Alert } from "modules/common/utils";
+import { CONVERSATION_STATUSES } from "modules/inbox/constants";
+import * as React from "react";
+import { compose, graphql } from "react-apollo";
+import { Resolver } from "../components";
+import { mutations } from "../graphql";
+import { refetchSidebarConversationsOptions } from "../utils";
 
 type Props = {
-  changeStatusMutation: (doc: { variables: { _ids: any[], status: boolean }}) => Promise<any>
+  changeStatusMutation: (
+    doc: { variables: { _ids: any[]; status: boolean } }
+  ) => Promise<any>;
 };
 
 const ResolverContainer = (props: Props) => {
@@ -19,10 +21,10 @@ const ResolverContainer = (props: Props) => {
     changeStatusMutation({ variables: { _ids: conversationIds, status } })
       .then(() => {
         if (status === CONVERSATION_STATUSES.CLOSED) {
-          Alert.success('The conversation has been resolved!');
+          Alert.success("The conversation has been resolved!");
         } else {
           Alert.info(
-            'The conversation has been reopened and restored to Inbox.'
+            "The conversation has been reopened and restored to Inbox."
           );
         }
       })
@@ -41,7 +43,7 @@ const ResolverContainer = (props: Props) => {
 
 export default compose(
   graphql(gql(mutations.conversationsChangeStatus), {
-    name: 'changeStatusMutation',
+    name: "changeStatusMutation",
     options: () => refetchSidebarConversationsOptions()
   })
 )(ResolverContainer);

@@ -1,59 +1,72 @@
 import createMentionPlugin, {
   defaultSuggestionsFilter
-} from 'bat-draft-js-mention-plugin';
+} from "bat-draft-js-mention-plugin";
 import {
   ContentState,
   EditorState,
   getDefaultKeyBinding,
   Modifier
-} from 'draft-js';
-import highlighter from 'fuzzysearch-highlight';
+} from "draft-js";
+import highlighter from "fuzzysearch-highlight";
 import {
   createStateFromHTML,
   ErxesEditor,
   toHTML
-} from 'modules/common/components/editor/Editor';
-import * as React from 'react';
-import strip from 'strip';
+} from "modules/common/components/editor/Editor";
+import * as React from "react";
+import strip from "strip";
 
 import {
   ResponseSuggestionItem,
   ResponseSuggestions
-} from 'modules/inbox/styles';
+} from "modules/inbox/styles";
 
-type Props = {
+type EditorProps = {
   onChange: (editorState: any) => void;
-  onAddMention: PropTypes.func,
-  onShifEnter: PropTypes.func,
-  showMentions: PropTypes.bool,
+  onAddMention: (mentions: any) => void;
+  onShifEnter: () => void;
+  showMentions: boolean;
   responseTemplate: string;
-  responseTemplates: string[];
-  handleFileInput: () => void;
+  responseTemplates: any;
+  handleFileInput: (e: any) => void;
   mentions: any;
+  placeholder?: string | React.ReactNode;
 };
 
-const MentionEntry = (props: Props) => {
-  const { mention, theme, searchValue, ...parentProps } = props; // eslint-disable-line
+type State = {
+  editorState: any;
+  collectedMentions: any;
+  suggestions: any;
+  templatesState: any;
+};
+
+type TemplateListProps = {
+  suggestionsState: any;
+  onSelect: (name: string) => void;
+};
+
+const MentionEntry = props => {
+  const { mention, theme, searchValue, ...parentProps } = props;
 
   return (
     <div {...parentProps}>
       <div className="mentionSuggestionsEntryContainer">
         <div className="mentionSuggestionsEntryContainerLeft">
           <img
-            alt={mention.get('name')}
+            alt={mention.get("name")}
             role="presentation"
-            src={mention.get('avatar') || '/images/avatar-colored.svg'}
+            src={mention.get("avatar") || "/images/avatar-colored.svg"}
             className="mentionSuggestionsEntryAvatar"
           />
         </div>
 
         <div className="mentionSuggestionsEntryContainerRight">
           <div className="mentionSuggestionsEntryText">
-            {mention.get('name')}
+            {mention.get("name")}
           </div>
 
           <div className="mentionSuggestionsEntryTitle">
-            {mention.get('title')}
+            {mention.get("title")}
           </div>
         </div>
       </div>
@@ -71,7 +84,7 @@ const extractEntries = mention => {
 };
 
 // response templates
-class TemplateList extends React.Component {
+class TemplateList extends React.Component<TemplateListProps, {}> {
   normalizeIndex(selectedIndex, max) {
     let index = selectedIndex % max;
 
@@ -102,8 +115,8 @@ class TemplateList extends React.Component {
           const style: any = {};
 
           if (normalizedIndex === index) {
-            style.backgroundColor = '#5629B6';
-            style.color = '#ffffff';
+            style.backgroundColor = "#5629B6";
+            style.color = "#ffffff";
           }
 
           return (
@@ -113,7 +126,7 @@ class TemplateList extends React.Component {
               style={style}
             >
               <span
-                style={{ fontWeight: 'bold' }}
+                style={{ fontWeight: "bold" }}
                 dangerouslySetInnerHTML={{
                   __html: highlighter(searchText, template.name)
                 }}
@@ -131,12 +144,9 @@ class TemplateList extends React.Component {
   }
 }
 
-TemplateList.propTypes = {
-  suggestionsState: PropTypes.object,
-  onSelect: PropTypes.func
-};
+export default class Editor extends React.Component<EditorProps, State> {
+  private mentionPlugin;
 
-export default class Editor extends Component {
   constructor(props) {
     super(props);
 
@@ -148,7 +158,7 @@ export default class Editor extends Component {
     };
 
     this.mentionPlugin = createMentionPlugin({
-      mentionPrefix: '@'
+      mentionPrefix: "@"
     });
 
     this.onChange = this.onChange.bind(this);
@@ -230,7 +240,7 @@ export default class Editor extends Component {
     return null;
   }
 
-  onSelectTemplate(index) {
+  onSelectTemplate(index?: string) {
     const { templatesState } = this.state;
     const { templates, selectedIndex } = templatesState;
     const selectedTemplate = templates[index || selectedIndex];
@@ -250,9 +260,9 @@ export default class Editor extends Component {
     const contentState = Modifier.insertText(
       editorState.getCurrentContent(),
       selection,
-      ' '
+      " "
     );
-    const es = EditorState.push(editorState, contentState, 'insert-characters');
+    const es = EditorState.push(editorState, contentState, "insert-characters");
 
     editorState = EditorState.moveFocusToEnd(es);
 
@@ -270,15 +280,14 @@ export default class Editor extends Component {
 
     templatesState.selectedIndex += nudgeAmount;
 
-    this.templatesState = templatesState;
     this.onTemplatesStateChange(templatesState);
   }
 
-  onUpArrow(e) {
+  onUpArrow(e: any) {
     this.onArrow(e, -1);
   }
 
-  onDownArrow(e) {
+  onDownArrow(e: any) {
     this.onArrow(e, 1);
   }
 
@@ -327,7 +336,7 @@ export default class Editor extends Component {
     // replace mention content
     this.state.collectedMentions.forEach(m => {
       const toFind = `@${m.name}`;
-      const re = new RegExp(toFind, 'g');
+      const re = new RegExp(toFind, "g");
 
       // collect only not removed mentions
       const findResult = content.match(re);
@@ -348,14 +357,14 @@ export default class Editor extends Component {
     return content;
   }
 
-  keyBindingFn(e) {
+  keyBindingFn(e: any) {
     // handle new line
-    if (e.key === 'Enter' && e.shiftKey) {
+    if (e.key === "Enter" && e.shiftKey) {
       return getDefaultKeyBinding(e);
     }
 
     // handle enter  in editor
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       // select response template
       if (this.state.templatesState) {
         this.onSelectTemplate();
@@ -371,7 +380,8 @@ export default class Editor extends Component {
 
       const editorState = EditorState.push(
         state,
-        ContentState.createFromText('')
+        ContentState.createFromText(""),
+        "insert-characters"
       );
 
       this.setState({ editorState: EditorState.moveFocusToEnd(editorState) });

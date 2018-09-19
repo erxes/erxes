@@ -1,19 +1,20 @@
-import { __ } from 'modules/common/utils';
-import { AssignBox } from 'modules/inbox/containers';
-import * as React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { __ } from "modules/common/utils";
+import { AssignBox } from "modules/inbox/containers";
+import * as React from "react";
+import { OverlayTrigger, Popover } from "react-bootstrap";
+import { IConversation } from "../../types";
 
 type Props = {
-  targets: PropTypes.arrayOf(Object).isRequired,
-  trigger: any;
-  container: any;
-  afterSave: () => void;
+  targets: IConversation[];
+  trigger: JSX.Element;
+  container?: JSX.Element;
+  afterSave?: () => void;
 };
 
 class AssignBoxPopover extends React.Component<Props> {
   private overlayTrigger;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.hidePopover = this.hidePopover.bind(this);
@@ -32,7 +33,7 @@ class AssignBoxPopover extends React.Component<Props> {
   render() {
     const { targets, trigger, container } = this.props;
     const popover = (
-      <Popover id="assign-popover" title={__('Choose person')}>
+      <Popover id="assign-popover" title={__("Choose person")}>
         <AssignBox
           targets={targets}
           event="onClick"

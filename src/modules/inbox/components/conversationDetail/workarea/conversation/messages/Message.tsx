@@ -1,19 +1,19 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
+import * as React from "react";
+import { IMessageDocument } from "../../../../../types";
 import {
+  AppMessage,
+  FacebookMessage,
   FormMessage,
   SimpleMessage,
-  FacebookMessage,
-  AppMessage,
   TwitterMessage
-} from './';
+} from "./";
 
-const propTypes = {
-  message: PropTypes.object.isRequired,
-  isSameUser: PropTypes.bool
+type Props = {
+  message: IMessageDocument;
+  isSameUser: boolean;
 };
 
-function Message(props) {
+function Message(props: Props) {
   const { message, isSameUser } = props;
 
   if (message.formWidgetData) {
@@ -40,7 +40,5 @@ function Message(props) {
     />
   );
 }
-
-Message.propTypes = propTypes;
 
 export default Message;

@@ -55,22 +55,22 @@ export interface IFacebookData {
 }
 
 export interface IIntegration {
-    _id: string;
-    kind: string;
-    name?: string;
-    brandId?: string;
-    description?: string;
-    code: string;
-    formId: string;
-    form: any;
-    logo: string;
-    languageCode?: string;
-    createUrl: string;
-    createModal: string;
-    messengerData?: IMessengerData;
-    facebookData?: IFacebookData;
-    uiOptions?: IUiOptions;
-
-    brand: IBrand;
-    channels: IChannel[];
+  _id: string;
+  kind: string;
+  name?: string;
+  brandId?: string;
+  description?: string;
+  code: string;
+  formId: string;
+  form: any;
+  logo: string;
+  languageCode?: string;
+  createUrl: string;
+  createModal: string;
+  messengerData?: IMessengerData;
+  facebookData?: IFacebookData;
+  uiOptions?: IUiOptions;
+  formData?: IFormData;
+  brand: IBrand;
+  channels: IChannel[];
 }

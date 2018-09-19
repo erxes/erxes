@@ -1,25 +1,44 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { Button, Label, Icon, Tags } from 'modules/common/components';
-import { ContentBox, ContenFooter } from 'modules/layout/styles';
-import { AvatarImg } from 'modules/common/components/filterableList/styles';
-import { BarItems } from 'modules/layout/styles';
-import { Resolver, Tagger } from 'modules/inbox/containers';
-import { RespondBox } from 'modules/inbox/containers/conversationDetail';
-import { AssignBoxPopover } from 'modules/inbox/components';
+import { Button, Icon, Label, Tags } from "modules/common/components";
+import { AvatarImg } from "modules/common/components/filterableList/styles";
+import { __ } from "modules/common/utils";
+import { AssignBoxPopover } from "modules/inbox/components";
+import { Resolver, Tagger } from "modules/inbox/containers";
+import { RespondBox } from "modules/inbox/containers/conversationDetail";
 import {
-  PopoverButton,
-  ConversationWrapper,
-  AssignText,
   ActionBarLeft,
-  AssignTrigger
-} from 'modules/inbox/styles';
-import Conversation from './conversation/Conversation';
-import Participators from './Participators';
+  AssignText,
+  AssignTrigger,
+  ConversationWrapper,
+  PopoverButton
+} from "modules/inbox/styles";
+import { Wrapper } from "modules/layout/components";
+import { ContenFooter, ContentBox } from "modules/layout/styles";
+import { BarItems } from "modules/layout/styles";
+import React, { Component, Fragment } from "react";
+import { IConversation, IMessageDocument } from "../../../types";
+import Conversation from "./conversation/Conversation";
+import Participators from "./Participators";
 
-export default class WorkArea extends Component {
-  constructor(props) {
+type Props = {
+  queryParams?: any;
+  title?: string;
+  currentConversationId?: string;
+  currentConversation: IConversation;
+  conversationMessages: IMessageDocument[];
+  loading: boolean;
+  loadMoreMessages: () => void;
+  addMessage: ({ variables, optimisticResponse, callback, kind }:
+     { variables: any, optimisticResponse: any, callback?: (e?) => void, kind: string }) => void;
+};
+
+type State = {
+  attachmentPreview: any;
+};
+
+export default class WorkArea extends Component<Props, State> {
+  private node;
+
+  constructor(props: Props) {
     super(props);
 
     this.state = { attachmentPreview: {} };
@@ -32,10 +51,6 @@ export default class WorkArea extends Component {
 
   componentDidMount() {
     this.scrollBottom();
-  }
-
-  getChildContext() {
-    return { scrollBottom: this.scrollBottom };
   }
 
   // Calculating new messages's height to use later in componentDidUpdate
@@ -100,7 +115,6 @@ export default class WorkArea extends Component {
       loading
     } = this.props;
 
-    const { __ } = this.context;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];
@@ -120,7 +134,7 @@ export default class WorkArea extends Component {
       <AssignTrigger>
         {assignedUser && assignedUser._id ? (
           <AvatarImg
-            src={assignedUser.details.avatar || '/images/avatar-colored.svg'}
+            src={assignedUser.details.avatar || "/images/avatar-colored.svg"}
           />
         ) : (
           <Button btnStyle="simple" size="small">
@@ -141,7 +155,7 @@ export default class WorkArea extends Component {
 
     const actionBarLeft = (
       <ActionBarLeft>
-        <AssignText>{__('Assign to')}:</AssignText>
+        <AssignText>{__("Assign to")}:</AssignText>
         <AssignBoxPopover
           targets={[currentConversation]}
           trigger={assignTrigger}
@@ -164,6 +178,7 @@ export default class WorkArea extends Component {
       <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
         <Conversation
           conversation={currentConversation}
+          scrollBottom={this.scrollBottom}
           conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
           loading={loading}
@@ -188,22 +203,3 @@ export default class WorkArea extends Component {
     );
   }
 }
-
-WorkArea.propTypes = {
-  queryParams: PropTypes.object,
-  title: PropTypes.string,
-  currentConversationId: PropTypes.string,
-  currentConversation: PropTypes.object,
-  conversationMessages: PropTypes.array,
-  loading: PropTypes.bool,
-  loadMoreMessages: PropTypes.func,
-  addMessage: PropTypes.func
-};
-
-WorkArea.contextTypes = {
-  __: PropTypes.func
-};
-
-WorkArea.childContextTypes = {
-  scrollBottom: PropTypes.func
-};

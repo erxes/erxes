@@ -1,13 +1,13 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Button, NameCard } from 'modules/common/components';
-import { AppMessageBox, CallButton, UserInfo, FlexItem } from '../styles';
+import { Button, NameCard } from "modules/common/components";
+import * as React from "react";
+import { IMessageDocument } from "../../../../../types";
+import { AppMessageBox, CallButton, FlexItem, UserInfo } from "../styles";
 
-const propTypes = {
-  message: PropTypes.object.isRequired
+type Props = {
+  message: IMessageDocument;
 };
 
-export default class AppMessage extends React.Component {
+export default class AppMessage extends React.Component<Props, {}> {
   render() {
     const { messengerAppData = {} } = this.props.message;
     const customerName =
@@ -31,5 +31,3 @@ export default class AppMessage extends React.Component {
     );
   }
 }
-
-AppMessage.propTypes = propTypes;

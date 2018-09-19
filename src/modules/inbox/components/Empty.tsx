@@ -1,11 +1,11 @@
-import { EmptyState } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/inbox/containers/leftSidebar';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import { EmptyState } from "modules/common/components";
+import { __ } from "modules/common/utils";
+import { Sidebar } from "modules/inbox/containers/leftSidebar";
+import { Wrapper } from "modules/layout/components";
+import * as React from "react";
 
 type Props = {
-  queryParams: any;
+  queryParams?: any;
 };
 
 class Empty extends React.Component<Props> {
@@ -20,7 +20,7 @@ class Empty extends React.Component<Props> {
       />
     );
 
-    const breadcrumb = [{ title: __('Inbox') }];
+    const breadcrumb = [{ title: __("Inbox") }];
 
     return (
       <Wrapper

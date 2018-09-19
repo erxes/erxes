@@ -1,19 +1,19 @@
-import moment from 'moment';
-import * as React from 'react';
-import strip from 'strip';
+import moment from "moment";
+import * as React from "react";
+import strip from "strip";
 
 import {
   FormControl,
   IntegrationIcon,
   NameCard,
   Tags
-} from 'modules/common/components';
+} from "modules/common/components";
 
-import { IUser } from '../../../auth/types';
-import { ICustomer } from '../../../customers/types';
-import { IBrand } from '../../../settings/brands/types';
-import { IIntegration } from '../../../settings/integrations/types';
-import { IConversation } from '../../types';
+import { IUser } from "../../../auth/types";
+import { ICustomer } from "../../../customers/types";
+import { IBrand } from "../../../settings/brands/types";
+import { IIntegration } from "../../../settings/integrations/types";
+import { IConversation } from "../../types";
 import {
   AssigneeImg,
   AssigneeWrapper,
@@ -26,16 +26,16 @@ import {
   RowItem,
   SmallText,
   SmallTextOneLine
-} from './styles';
+} from "./styles";
 
 type Props = {
   conversation: IConversation;
-  channelId: string;
+  channelId?: string;
   isActive: boolean;
   onClick: (conversation: IConversation) => void;
   toggleCheckbox: (conversation: IConversation, checked: boolean) => void;
   selectedIds: any[];
-  currentUser: IUser;
+  currentUser?: IUser;
 };
 
 class ConversationItem extends React.Component<Props> {
@@ -79,7 +79,7 @@ class ConversationItem extends React.Component<Props> {
 
   renderFullName(customer) {
     if (customer.firstName || customer.lastName) {
-      return (customer.firstName || '') + ' ' + (customer.lastName || '');
+      return (customer.firstName || "") + " " + (customer.lastName || "");
     }
 
     return null;
@@ -105,9 +105,9 @@ class ConversationItem extends React.Component<Props> {
 
     const { conversation, isActive, selectedIds = [] } = this.props;
     const { createdAt, updatedAt, content } = conversation;
-    const customer = conversation.customer || {} as ICustomer;
-    const integration = conversation.integration || {} as IIntegration;
-    const brand = integration.brand || {} as IBrand;
+    const customer = conversation.customer || ({} as ICustomer);
+    const integration = conversation.integration || ({} as IIntegration);
+    const brand = integration.brand || ({} as IBrand);
     const brandName = brand.name;
     const tags = conversation.tags || [];
     const assignedUser = conversation.assignedUser;
@@ -141,12 +141,11 @@ class ConversationItem extends React.Component<Props> {
               <FlexContent>
                 <CustomerName>
                   {isExistingCustomer &&
-                    (customer.name ||
-                      this.renderFullName(customer) ||
+                    (this.renderFullName(customer) ||
                       customer.primaryEmail ||
                       customer.primaryPhone ||
                       this.getVisitorInfo(customer) ||
-                      'Unnamed')}
+                      "Unnamed")}
                 </CustomerName>
 
                 <SmallTextOneLine>
@@ -167,7 +166,7 @@ class ConversationItem extends React.Component<Props> {
             <AssigneeWrapper>
               <AssigneeImg
                 src={
-                  assignedUser.details.avatar || '/images/avatar-colored.svg'
+                  assignedUser.details.avatar || "/images/avatar-colored.svg"
                 }
               />
             </AssigneeWrapper>

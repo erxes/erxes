@@ -1,14 +1,14 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { Attachment } from 'modules/common/components';
-import { SimpleMessage } from './';
+import classNames from "classnames";
+import { Attachment } from "modules/common/components";
+import React, { Fragment } from "react";
+import { IMessageDocument } from "../../../../../types";
+import { SimpleMessage } from "./";
 
-const propTypes = {
-  message: PropTypes.object.isRequired
+type Props = {
+  message: IMessageDocument;
 };
 
-export default class FacebookMessage extends React.Component {
+export default class FacebookMessage extends React.Component<Props, {}> {
   renderIframe(src) {
     return (
       <iframe
@@ -55,8 +55,8 @@ export default class FacebookMessage extends React.Component {
     const { message } = this.props;
     const fbData = message.facebookData;
 
-    const isPhotoPost = fbData.item === 'photo';
-    const isVideoPost = fbData.item === 'video' && fbData.videoId;
+    const isPhotoPost = fbData.item === "photo";
+    const isVideoPost = fbData.item === "video" && fbData.video;
     const hasAttachment = message.attachments && message.attachments.length > 0;
 
     const classes = classNames({
@@ -84,5 +84,3 @@ export default class FacebookMessage extends React.Component {
     );
   }
 }
-
-FacebookMessage.propTypes = propTypes;

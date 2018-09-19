@@ -1,17 +1,17 @@
-import { EmptyState, LoadMore } from 'modules/common/components';
-import { ConversationItem } from 'modules/inbox/containers/leftSidebar';
-import * as React from 'react';
-import { IConversation } from '../../types';
-import { ConversationItems } from './styles';
+import { EmptyState, LoadMore } from "modules/common/components";
+import { ConversationItem } from "modules/inbox/containers/leftSidebar";
+import * as React from "react";
+import { IConversation } from "../../types";
+import { ConversationItems } from "./styles";
 
 type Props = {
   conversations: IConversation[];
-  currentConversationId: string;
-  selectedIds: any[];
+  currentConversationId?: string;
+  selectedIds?: any[];
   onChangeConversation: (conversation: IConversation) => void;
-  toggleRowCheckbox: (conversation: IConversation, checked: boolean) => void;
+  toggleRowCheckbox?: (conversation: IConversation, checked: boolean) => void;
   loading: boolean;
-  totalCount: number;
+  totalCount?: number;
 };
 
 export default class ConversationList extends React.Component<Props> {

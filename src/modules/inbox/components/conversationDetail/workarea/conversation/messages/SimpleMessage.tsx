@@ -1,19 +1,19 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import moment from 'moment';
-import { NameCard, Tip, Attachment } from 'modules/common/components';
-import { MessageItem, MessageBody, MessageContent } from '../styles';
+import classNames from "classnames";
+import { Attachment, NameCard, Tip } from "modules/common/components";
+import moment from "moment";
+import React, { Fragment } from "react";
+import { IMessageDocument } from "../../../../../types";
+import { MessageBody, MessageContent, MessageItem } from "../styles";
 
-const propTypes = {
-  message: PropTypes.object.isRequired,
-  classes: PropTypes.string,
-  isStaff: PropTypes.bool,
-  isSameUser: PropTypes.bool,
-  renderContent: PropTypes.func
+type Props = {
+  message: IMessageDocument;
+  classes?: any;
+  isStaff: boolean;
+  isSameUser?: boolean;
+  renderContent?: () => React.ReactNode;
 };
 
-export default class SimpleMessage extends React.Component {
+export default class SimpleMessage extends React.Component<Props, {}> {
   renderAvatar() {
     const { message, isSameUser } = this.props;
 
@@ -21,8 +21,8 @@ export default class SimpleMessage extends React.Component {
       return null;
     }
 
-    const user = message.user || {};
-    const customer = message.customer || {};
+    const user = message.user;
+    const customer = message.customer;
     const props = user._id ? { user } : { customer };
 
     return <NameCard.Avatar {...props} />;
@@ -35,12 +35,7 @@ export default class SimpleMessage extends React.Component {
       return null;
     }
 
-    return (
-      <Attachment
-        onLoad={this.context.scrollBottom}
-        attachment={message.attachments[0]}
-      />
-    );
+    return <Attachment attachment={message.attachments[0]} />;
   }
 
   renderContent(hasAttachment) {
@@ -64,7 +59,7 @@ export default class SimpleMessage extends React.Component {
     const hasAttachment = message.attachments && message.attachments.length > 0;
 
     const classes = classNames({
-      ...(this.props.classes || {}),
+      ...(this.props.classes || []),
       attachment: hasAttachment,
       same: isSameUser
     });
@@ -77,17 +72,11 @@ export default class SimpleMessage extends React.Component {
           <MessageContent staff={isStaff} internal={message.internal}>
             {this.renderContent(hasAttachment)}
           </MessageContent>
-          <Tip text={moment(messageDate).format('lll')}>
-            <footer>{moment(messageDate).format('LT')}</footer>
+          <Tip text={moment(messageDate).format("lll")}>
+            <footer>{moment(messageDate).format("LT")}</footer>
           </Tip>
         </MessageBody>
       </MessageItem>
     );
   }
 }
-
-SimpleMessage.contextTypes = {
-  scrollBottom: PropTypes.func
-};
-
-SimpleMessage.propTypes = propTypes;

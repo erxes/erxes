@@ -1,40 +1,40 @@
-import { Icon } from 'modules/common/components';
-import { CompanyAssociate } from 'modules/companies/containers';
+import { Icon } from "modules/common/components";
+import { CompanyAssociate } from "modules/companies/containers";
 import {
   DevicePropertiesSection,
   MessengerSection,
   TaggerSection
-} from 'modules/customers/components/common';
-import { PortableDeals } from 'modules/deals/containers';
-import { Sidebar } from 'modules/layout/components';
-import { SidebarToggle } from 'modules/layout/styles';
-import * as React from 'react';
-import { SectionContainer } from './styles';
+} from "modules/customers/components/common";
+import { PortableDeals } from "modules/deals/containers";
+import { Sidebar } from "modules/layout/components";
+import { SidebarToggle } from "modules/layout/styles";
+import * as React from "react";
+import { SectionContainer } from "./styles";
 
 import {
   BasicInfoSection,
   CustomFieldsSection
-} from 'modules/customers/containers/common';
+} from "modules/customers/containers/common";
 
-import { __ } from 'modules/common/utils';
-import { ICustomer } from 'modules/customers/types';
-import { IConversation } from '../../../types';
-import ConversationDetails from './ConversationDetails';
+import { __ } from "modules/common/utils";
+import { ICustomer } from "modules/customers/types";
+import { IConversation } from "../../../types";
+import ConversationDetails from "./ConversationDetails";
 
 type BoxProps = {
   title: string;
   name: string;
-  children: any;
+  children: JSX.Element;
   isOpen: boolean;
-  toggle: (params: { name: string, isOpen: boolean }) => void;
+  toggle: (params: { name: string; isOpen: boolean }) => void;
 };
 
 type BoxState = {
-  isOpen: boolean
+  isOpen: boolean;
 };
 
 class Box extends React.Component<BoxProps, BoxState> {
-  constructor(props) {
+  constructor(props: BoxProps) {
     super(props);
 
     this.state = {
@@ -54,7 +54,7 @@ class Box extends React.Component<BoxProps, BoxState> {
   }
 
   renderDropBtn() {
-    const icon = this.state.isOpen ? 'uparrow-2' : 'downarrow';
+    const icon = this.state.isOpen ? "uparrow-2" : "downarrow";
 
     return (
       <SidebarToggle inverse={!this.state.isOpen} onClick={this.toggle}>
@@ -91,20 +91,32 @@ class Box extends React.Component<BoxProps, BoxState> {
 type IndexProps = {
   conversation: IConversation;
   customer: ICustomer;
-  toggleSection: (params: { name: string, isOpen: boolean }) => void;
+  toggleSection: (params: { name: string; isOpen: boolean }) => void;
   config: any;
   taggerRefetchQueries: any;
 };
 
 class Index extends React.Component<IndexProps> {
-  renderMessengerData({ customer, kind, __, config, toggleSection }) {
-    if (kind !== 'messenger') {
+  renderMessengerData({
+    customer,
+    kind,
+    __,
+    config,
+    toggleSection
+  }: {
+    customer: ICustomer;
+    kind: string;
+    __: (string) => any;
+    config: any;
+    toggleSection: (params: { name: string; isOpen: boolean }) => void;
+  }) {
+    if (kind !== "messenger") {
       return null;
     }
 
     return (
       <Box
-        title={__('Messenger data')}
+        title={__("Messenger data")}
         name="showMessengerData"
         isOpen={config.showMessengerData || false}
         toggle={toggleSection}
@@ -115,13 +127,13 @@ class Index extends React.Component<IndexProps> {
   }
 
   renderDeviceProperties({ customer, kind, __, config, toggleSection }) {
-    if (!(kind === 'messenger' || kind === 'form')) {
+    if (!(kind === "messenger" || kind === "form")) {
       return null;
     }
 
     return (
       <Box
-        title={__('Device properties')}
+        title={__("Device properties")}
         name="showDeviceProperties"
         isOpen={config.showDeviceProperties || false}
         toggle={toggleSection}
@@ -140,12 +152,12 @@ class Index extends React.Component<IndexProps> {
       config
     } = this.props;
 
-    const { kind = '' } = customer.integration || {};
+    const { kind = "" } = customer.integration || {};
 
     return (
       <Sidebar>
         <Box
-          title={__('Profile').toString()}
+          title={__("Profile").toString()}
           name="showProfile"
           isOpen={config.showProfile || false}
           toggle={toggleSection}
@@ -154,7 +166,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__('Conversation details').toString()}
+          title={__("Conversation details").toString()}
           name="showConversationDetails"
           isOpen={config.showConversationDetails || false}
           toggle={toggleSection}
@@ -178,7 +190,7 @@ class Index extends React.Component<IndexProps> {
         })}
 
         <Box
-          title={__('Contact information').toString()}
+          title={__("Contact information").toString()}
           name="showCustomFields"
           isOpen={config.showCustomFields || false}
           toggle={toggleSection}
@@ -187,7 +199,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__('Tags').toString()}
+          title={__("Tags").toString()}
           name="showTags"
           isOpen={config.showTags || false}
           toggle={toggleSection}
@@ -200,7 +212,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__('Companies').toString()}
+          title={__("Companies").toString()}
           name="showCompanies"
           isOpen={config.showCompanies || false}
           toggle={toggleSection}
@@ -209,7 +221,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__('Deals').toString()}
+          title={__("Deals").toString()}
           name="showDeals"
           isOpen={config.showDeals || false}
           toggle={toggleSection}

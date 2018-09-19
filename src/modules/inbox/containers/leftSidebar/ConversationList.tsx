@@ -1,14 +1,14 @@
-import gql from 'graphql-tag';
-import { router as routerUtils } from 'modules/common/utils';
-import { ConversationList } from 'modules/inbox/components/leftSidebar';
-import { queries, subscriptions } from 'modules/inbox/graphql';
-import { generateParams } from 'modules/inbox/utils';
-import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
+import gql from "graphql-tag";
+import { router as routerUtils } from "modules/common/utils";
+import { ConversationList } from "modules/inbox/components/leftSidebar";
+import { queries, subscriptions } from "modules/inbox/graphql";
+import { generateParams } from "modules/inbox/utils";
+import * as React from "react";
+import { compose, graphql } from "react-apollo";
 
 type Props = {
-  history: any,
-  conversationsQuery: any,
+  history: any;
+  conversationsQuery: any;
 };
 
 class ConversationListContainer extends React.Component<Props> {
@@ -44,13 +44,12 @@ class ConversationListContainer extends React.Component<Props> {
   }
 }
 
-
 export default compose(
   graphql(gql(queries.sidebarConversations), {
-    name: 'conversationsQuery',
+    name: "conversationsQuery",
     options: ({ queryParams }: { queryParams: any }) => ({
       variables: generateParams(queryParams),
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only"
     })
   })
 )(ConversationListContainer);

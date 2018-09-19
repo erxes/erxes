@@ -1,10 +1,11 @@
-import styled from 'styled-components';
-import { colors } from '../common/styles';
-import { rgba, darken } from '../common/styles/color';
 import {
-  PopoverList as RootList,
-  PopoverFooter as RootFooter
-} from 'modules/common/components/filterableList/styles';
+  PopoverFooter as RootFooter,
+  PopoverList as RootList
+} from "modules/common/components/filterableList/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { colors } from "../common/styles";
+import { darken, rgba } from "../common/styles/color";
 
 const PopoverButton = styled.div`
   display: inline-block;
@@ -80,13 +81,16 @@ const ResponseSuggestionItem = styled.li`
   }
 `;
 
-const RespondBoxStyled = styled.div`
+const RespondBoxStyled = styledTS<{
+  isInactive?: boolean;
+  isInternal?: boolean;
+}>(styled.div)`
   border-top: 1px solid ${colors.borderPrimary};
   position: relative;
   transition: background 0.3s ease;
   background: ${props =>
     props.isInternal ? colors.bgInternal : colors.colorWhite};
-  filter: ${props => props.isInactive && 'blur(2px)'};
+  filter: ${props => props.isInactive && "blur(2px)"};
 `;
 
 const ResponseTemplateStyled = styled.div`
@@ -130,7 +134,7 @@ const EditorActions = styled.div`
     margin: 0;
   }
 
-  input[type='file'] {
+  input[type="file"] {
     display: none;
   }
 `;
@@ -159,7 +163,7 @@ const InlineHeaderSpan = styled.span`
 const PopoverHeader = styled.div`
   background-color: ${colors.bgLight};
 
-  input[type='text'] {
+  input[type="text"] {
     padding: 4px 8px 4px 20px;
   }
 `;
@@ -169,12 +173,12 @@ const PopoverFooter = RootFooter.extend`
   width: 100%;
 `;
 
-const PopoverList = RootList.extend`
+const PopoverList = styledTS<{ center?: boolean }>(RootList.extend)`
   position: relative;
   padding: 0;
 
   li {
-    text-align: ${props => props.center && 'center'};
+    text-align: ${props => props.center && "center"};
 
     a {
       color: ${colors.colorCoreDarkGray};

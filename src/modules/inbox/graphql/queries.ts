@@ -1,6 +1,6 @@
-import { queries as customerQueries } from 'modules/customers/graphql';
-import conversationFields from './conversationFields';
-import messageFields from './messageFields';
+import { queries as customerQueries } from "modules/customers/graphql";
+import conversationFields from "./conversationFields";
+import messageFields from "./messageFields";
 
 const listParamsDef = `
   $limit: Int

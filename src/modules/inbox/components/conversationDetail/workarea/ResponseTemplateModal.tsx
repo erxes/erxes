@@ -1,26 +1,23 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
-  ModalTrigger,
   Button,
+  ControlLabel,
   FormControl,
   FormGroup,
-  ControlLabel
-} from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/main';
+  ModalTrigger
+} from "modules/common/components";
+import { ModalFooter } from "modules/common/styles/main";
+import { __ } from "modules/common/utils";
+import * as React from "react";
+import { IBrand } from "../../../../settings/brands/types";
 
-const propTypes = {
-  onSave: PropTypes.func.isRequired,
-  brands: PropTypes.array,
-  trigger: PropTypes.node,
-  brandId: PropTypes.string.isRequired
+type Props = {
+  onSave: (brandId, name) => void;
+  brands: IBrand[];
+  trigger: JSX.Element;
+  brandId: string;
 };
 
-const contextTypes = {
-  __: PropTypes.func
-};
-
-class ResponseTemplateModal extends Component {
+class ResponseTemplateModal extends React.Component<Props, {}> {
   constructor(props) {
     super(props);
 
@@ -29,15 +26,16 @@ class ResponseTemplateModal extends Component {
 
   onSave() {
     const doc = {
-      brandId: document.getElementById('template-brand-id').value,
-      name: document.getElementById('template-name').value
+      brandId: (document.getElementById(
+        "template-brand-id"
+      ) as HTMLInputElement).value,
+      name: (document.getElementById("template-name") as HTMLInputElement).value
     };
 
     this.props.onSave(doc.brandId, doc.name);
   }
 
   render() {
-    const { __ } = this.context;
     const { brands, trigger, brandId } = this.props;
 
     return (
@@ -48,7 +46,7 @@ class ResponseTemplateModal extends Component {
           <FormControl
             id="template-brand-id"
             componentClass="select"
-            placeholder={__('Select Brand')}
+            placeholder={__("Select Brand") as string}
             defaultValue={brandId}
           >
             {brands.map(brand => (
@@ -73,8 +71,5 @@ class ResponseTemplateModal extends Component {
     );
   }
 }
-
-ResponseTemplateModal.propTypes = propTypes;
-ResponseTemplateModal.contextTypes = contextTypes;
 
 export default ResponseTemplateModal;

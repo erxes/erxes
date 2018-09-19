@@ -1,20 +1,21 @@
-import gql from 'graphql-tag';
-import { Sidebar as DumbSidebar } from 'modules/inbox/components/leftSidebar';
-import { queries } from 'modules/inbox/graphql';
-import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
-import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
-import { IRouterProps } from '../../../common/types';
+import gql from "graphql-tag";
+import { Bulk } from "modules/common/components";
+import { Sidebar as DumbSidebar } from "modules/inbox/components/leftSidebar";
+import { queries } from "modules/inbox/graphql";
+import { KIND_CHOICES as INTEGRATIONS_TYPES } from "modules/settings/integrations/constants";
+import * as React from "react";
+import { compose, graphql } from "react-apollo";
+import { withRouter } from "react-router";
+import { IRouterProps } from "../../../common/types";
 
 interface IProps extends IRouterProps {
   queryParams: any;
-  currentConversationId: string;
-};
+  currentConversationId?: string;
+}
 
 type QueryResponse = {
   totalCountQuery: any;
-}
+};
 
 class Sidebar extends React.Component<IProps & QueryResponse> {
   render() {
@@ -33,7 +34,13 @@ class Sidebar extends React.Component<IProps & QueryResponse> {
       totalCount
     };
 
-    return <DumbSidebar {...updatedProps} />;
+    return (
+      <Bulk
+        content={props => {
+          return <DumbSidebar {...updatedProps} {...props} />;
+        }}
+      />
+    );
   }
 }
 
@@ -44,7 +51,7 @@ const generateOptions = queryParams => ({
 
 const WithData = compose(
   graphql(gql(queries.totalConversationsCount), {
-    name: 'totalCountQuery',
+    name: "totalCountQuery",
     options: ({ queryParams }: { queryParams: any }) => ({
       notifyOnNetworkStatusChange: true,
       variables: generateOptions(queryParams)

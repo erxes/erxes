@@ -1,7 +1,10 @@
-import styled from 'styled-components';
-import { colors, dimensions } from 'modules/common/styles';
+import { colors, dimensions } from "modules/common/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
-const MessageContent = styled.div`
+const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
+  styled.div
+)`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-radius: 20px;
   border-bottom-left-radius: 2px;
@@ -14,12 +17,12 @@ const MessageContent = styled.div`
   text-align: left;
 
   ${props => {
-    if (props.staff) {
-      return `
+    if (!props.staff) return "";
+
+    return `
         border-bottom-right-radius: 2px;
         border-bottom-left-radius: 20px;
       `;
-    }
   }};
 
   a {
@@ -59,7 +62,7 @@ const MessageContent = styled.div`
   }
 `;
 
-const MessageItem = styled.div`
+const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean }>(styled.div)`
   margin-top: ${props => (props.isSame ? dimensions.unitSpacing - 5 : 20)}px;
   padding-right: 17%;
   display: flex;
@@ -69,31 +72,31 @@ const MessageItem = styled.div`
 
   > span {
     position: absolute;
-    right: ${props => props.staff && '0'};
+    right: ${props => props.staff && "0"};
     bottom: 0;
   }
 
   ${props => {
-    if (props.staff) {
-      return `
+    if (!props.staff) return "";
+
+    return `
         padding-right: 0;
         padding-left: 17%;
         text-align: right;
         flex-direction: row-reverse;
       `;
-    }
   }};
 
   &.same {
     ${MessageContent} {
-      border-top-left-radius: ${props => !props.staff && '2px'};
-      border-top-right-radius: ${props => props.staff && '2px'};
+      border-top-left-radius: ${props => !props.staff && "2px"};
+      border-top-right-radius: ${props => props.staff && "2px"};
     }
 
     &:last-of-type {
       ${MessageContent} {
-        border-bottom-right-radius: ${props => props.staff && '20px'};
-        border-bottom-left-radius: ${props => !props.staff && '20px'};
+        border-bottom-right-radius: ${props => props.staff && "20px"};
+        border-bottom-left-radius: ${props => !props.staff && "20px"};
       }
     }
   }
@@ -121,10 +124,10 @@ const MessageItem = styled.div`
   }
 `;
 
-const MessageBody = styled.div`
-  margin: ${props => (props.staff ? '0 55px 0 0' : '0 0 0 55px')};
+const MessageBody = styledTS<{ staff?: boolean }>(styled.div)`
+  margin: ${props => (props.staff ? "0 55px 0 0" : "0 0 0 55px")};
   display: flex;
-  flex-direction: ${props => (props.staff ? 'row-reverse' : 'row')};
+  flex-direction: ${props => (props.staff ? "row-reverse" : "row")};
   align-items: center;
 
   footer {

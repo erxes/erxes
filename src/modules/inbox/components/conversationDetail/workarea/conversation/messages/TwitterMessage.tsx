@@ -1,13 +1,13 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { SimpleMessage } from './';
+import * as React from "react";
+import { IMessageDocument } from "../../../../../types";
+import { SimpleMessage } from "./";
 
-const propTypes = {
-  message: PropTypes.object.isRequired,
-  conversationFirstMessage: PropTypes.object.isRequired
+type Props = {
+  message: IMessageDocument;
+  conversationFirstMessage?: IMessageDocument;
 };
 
-const TwitterMessage = props => {
+const TwitterMessage = (props: Props) => {
   const { conversationFirstMessage, message } = props;
 
   const firstTwitterData = conversationFirstMessage.customer.twitterData;
@@ -20,7 +20,5 @@ const TwitterMessage = props => {
     />
   );
 };
-
-TwitterMessage.propTypes = propTypes;
 
 export default TwitterMessage;

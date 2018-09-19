@@ -1,17 +1,17 @@
-import Draft, { ContentState, EditorState, RichUtils } from 'draft-js';
-import { stateToHTML } from 'draft-js-export-html';
-import Editor from 'draft-js-plugins-editor';
-import React, { Component } from 'react';
+import Draft, { ContentState, EditorState, RichUtils } from "draft-js";
+import { stateToHTML } from "draft-js-export-html";
+import Editor from "draft-js-plugins-editor";
+import React, { Component } from "react";
 import {
   RichEditorControls,
   RichEditorControlsRoot,
   RichEditorRoot
-} from './styles';
+} from "./styles";
 
 function getBlockStyle(block) {
   switch (block.getType()) {
-    case 'blockquote':
-      return 'RichEditor-blockquote';
+    case "blockquote":
+      return "RichEditor-blockquote";
     default:
       return null;
   }
@@ -20,7 +20,7 @@ function getBlockStyle(block) {
 // Custom overrides for "code" style.
 const styleMap = {
   CODE: {
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    backgroundColor: "rgba(0, 0, 0, 0.05)",
     fontFamily: '"Inconsolata", "Menlo", "Consolas", monospace',
     fontSize: 16,
     padding: 2
@@ -28,15 +28,15 @@ const styleMap = {
 };
 
 type Props = {
-  active: boolean,
-  label?: React.ReactNode,
-  style?: string,
-  title?: string,
-  onToggle: (style: string) => void
+  active: boolean;
+  label?: React.ReactNode;
+  style?: string;
+  title?: string;
+  onToggle: (style: string) => void;
 };
 
 class StyleButton extends Component<Props> {
-  onToggle: (e: React.MouseEvent) => void
+  onToggle: (e: React.MouseEvent) => void;
 
   constructor(props: Props) {
     super(props);
@@ -52,10 +52,10 @@ class StyleButton extends Component<Props> {
   render() {
     const { active, label, title } = this.props;
 
-    let className = 'RichEditor-styleButton';
+    let className = "RichEditor-styleButton";
 
     if (active) {
-      className += ' RichEditor-activeButton';
+      className += " RichEditor-activeButton";
     }
 
     return (
@@ -69,34 +69,34 @@ class StyleButton extends Component<Props> {
 const BLOCK_TYPES = [
   {
     label: <i className="icon-fontsize" />,
-    style: 'header-three',
-    title: 'Heading'
+    style: "header-three",
+    title: "Heading"
   },
   {
     label: <i className="icon-rightquote" />,
-    style: 'blockquote',
-    title: 'Blockquote'
+    style: "blockquote",
+    title: "Blockquote"
   },
   {
     label: <i className="icon-list-2" />,
-    style: 'unordered-list-item',
-    title: 'Unordered list'
+    style: "unordered-list-item",
+    title: "Unordered list"
   },
   {
     label: <i className="icon-list" />,
-    style: 'ordered-list-item',
-    title: 'Ordered list'
+    style: "ordered-list-item",
+    title: "Ordered list"
   },
   {
     label: <i className="icon-superscript" />,
-    style: 'code-block',
-    title: 'Code Block'
+    style: "code-block",
+    title: "Code Block"
   }
 ];
 
 type BlockStyleProps = {
-  onToggle: (style: string) => void
-  editorState: EditorState
+  onToggle: (style: string) => void;
+  editorState: EditorState;
 };
 
 const BlockStyleControls = (props: BlockStyleProps) => {
@@ -125,19 +125,19 @@ const BlockStyleControls = (props: BlockStyleProps) => {
 };
 
 const INLINE_STYLES = [
-  { label: <i className="icon-bold" />, style: 'BOLD', title: 'Bold' },
-  { label: <i className="icon-italic" />, style: 'ITALIC', title: 'Italic' },
+  { label: <i className="icon-bold" />, style: "BOLD", title: "Bold" },
+  { label: <i className="icon-italic" />, style: "ITALIC", title: "Italic" },
   {
     label: <i className="icon-underline" />,
-    style: 'UNDERLINE',
-    title: 'Underline'
+    style: "UNDERLINE",
+    title: "Underline"
   }
 ];
 
 type InlineStyleProps = {
-  onToggle: (inlineStyle: string) => void,
-  editorState: EditorState
-}
+  onToggle: (inlineStyle: string) => void;
+  editorState: EditorState;
+};
 
 const InlineStyleControls = ({ onToggle, editorState }: InlineStyleProps) => {
   const currentStyle = editorState.getCurrentInlineStyle();
@@ -159,18 +159,18 @@ const InlineStyleControls = ({ onToggle, editorState }: InlineStyleProps) => {
 };
 
 type ErxesEditorProps = {
-  editorState: EditorState,
-  onChange: (richUtils: RichUtils) => void,
-  bordered: boolean,
+  editorState: EditorState;
+  onChange: (richUtils: RichUtils) => void;
+  bordered?: boolean;
   // extra control rows
-  controls?: any[],
-  pluginContent?: any,
-  plugins?: any[]
-  keyBindingFn?: () => void,
-  onUpArrow?: () => void,
-  onDownArrow?: () => void,
-  handleFileInput?: (e: any) => void,
-  placeholder?: string
+  controls?: any[];
+  pluginContent?: any;
+  plugins?: any[];
+  keyBindingFn?: (e: any) => any;
+  onUpArrow?: (e: any) => void;
+  onDownArrow?: (e: any) => void;
+  handleFileInput?: (e: any) => void;
+  placeholder?: string | React.ReactNode;
 };
 
 export class ErxesEditor extends Component<ErxesEditorProps> {
@@ -180,7 +180,7 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
     this.focus = () => {
       const editor: Editor = this.refs.editor;
 
-      editor.focus()
+      editor.focus();
     };
 
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
@@ -241,7 +241,7 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
 
     // If the user changes block type before entering any text, we can
     // either style the placeholder or hide it. Let's just hide it now.
-    let className = 'RichEditor-editor';
+    let className = "RichEditor-editor";
     const contentState = editorState.getCurrentContent();
 
     if (!contentState.hasText()) {
@@ -249,9 +249,9 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
         contentState
           .getBlockMap()
           .first()
-          .getType() !== 'unstyled'
+          .getType() !== "unstyled"
       ) {
-        className += ' RichEditor-hidePlaceholder';
+        className += " RichEditor-hidePlaceholder";
       }
     }
 
@@ -299,16 +299,20 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
 export const toHTML = state => stateToHTML(state.getCurrentContent());
 
 export const createStateFromHTML = (editorState, html) => {
-  const { contentBlocks, entityMap }  = Draft.convertFromHTML(html);
+  const { contentBlocks, entityMap } = Draft.convertFromHTML(html);
   const content = ContentState.createFromBlockArray(contentBlocks, entityMap);
 
   // TODO: Check insert-fragment
-  return EditorState.push(editorState, content, 'insert-fragment');
+  return EditorState.push(editorState, content, "insert-fragment");
 };
 
 // TODO: Check insert-fragment
 export const clearContent = editorState =>
-  EditorState.push(editorState, ContentState.createFromText(''), 'insert-fragment');
+  EditorState.push(
+    editorState,
+    ContentState.createFromText(""),
+    "insert-fragment"
+  );
 
 export default {
   ErxesEditor,

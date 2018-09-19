@@ -1,13 +1,11 @@
-/* eslint-disable max-len */
-
-import { Button, FormControl, Icon, Tip } from 'modules/common/components';
-import { __, Alert, uploadHandler } from 'modules/common/utils';
-import * as React from 'react';
+import { Button, FormControl, Icon, Tip } from "modules/common/components";
+import { __, Alert, uploadHandler } from "modules/common/utils";
+import * as React from "react";
 
 import {
   MessengerApp,
   ResponseTemplate
-} from 'modules/inbox/containers/conversationDetail';
+} from "modules/inbox/containers/conversationDetail";
 
 import {
   Attachment,
@@ -19,18 +17,19 @@ import {
   MaskWrapper,
   PreviewImg,
   RespondBoxStyled
-} from 'modules/inbox/styles';
+} from "modules/inbox/styles";
 
-import { IIntegration } from '../../../../settings/integrations/types';
-import { IConversation, IMessage } from '../../../types';
-import Editor from './Editor';
+import { IUser } from "../../../../auth/types";
+import { IIntegration } from "../../../../settings/integrations/types";
+import { IConversation, IMessage } from "../../../types";
+import Editor from "./Editor";
 
 type Props = {
   conversation: IConversation;
   sendMessage: (message: IMessage, callback: (error: any) => void) => void;
-  setAttachmentPreview: (any) => void;
+  setAttachmentPreview?: (any) => void;
   responseTemplates: string[];
-  teamMembers: PropTypes.object
+  teamMembers: IUser[];
 };
 
 type State = {
@@ -41,6 +40,7 @@ type State = {
   responseTemplate: string;
   content: string;
   mentionedUserIds: string[];
+  editorKey: string;
 };
 
 class RespondBox extends React.Component<Props, State> {
@@ -49,12 +49,12 @@ class RespondBox extends React.Component<Props, State> {
 
     this.state = {
       isInactive: !this.checkIsActive(props.conversation),
-      editorKey: 'editor',
+      editorKey: "editor",
       isInternal: false,
       sending: false,
       attachments: [],
-      responseTemplate: '',
-      content: '',
+      responseTemplate: "",
+      content: "",
       mentionedUserIds: []
     };
 
@@ -73,7 +73,7 @@ class RespondBox extends React.Component<Props, State> {
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(_prevProps, prevState) {
     const { sending, content } = this.state;
 
     if (sending && content !== prevState.content) {
@@ -101,7 +101,7 @@ class RespondBox extends React.Component<Props, State> {
 
   checkIsActive(conversation) {
     return (
-      conversation.integration.kind !== 'messenger' ||
+      conversation.integration.kind !== "messenger" ||
       (conversation.customer &&
         conversation.customer.messengerData &&
         conversation.customer.messengerData.isActive)
@@ -110,7 +110,10 @@ class RespondBox extends React.Component<Props, State> {
 
   hideMask() {
     this.setState({ isInactive: false });
-    document.querySelector('.DraftEditor-root').click();
+
+    const element = document.querySelector(".DraftEditor-root") as HTMLElement;
+
+    element.click();
   }
 
   onSend(e) {
@@ -136,7 +139,7 @@ class RespondBox extends React.Component<Props, State> {
     this.addMessage();
   }
 
-  handleFileInput(e) {
+  handleFileInput(e: any) {
     const files = e.target.files;
 
     uploadHandler({
@@ -165,7 +168,7 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   cleanText(text) {
-    return text.replace(/&nbsp;/g, ' ');
+    return text.replace(/&nbsp;/g, " ");
   }
 
   addMessage() {
@@ -173,7 +176,7 @@ class RespondBox extends React.Component<Props, State> {
     const { isInternal, attachments, content, mentionedUserIds } = this.state;
     const message = {
       conversationId: conversation._id,
-      content: this.cleanText(content) || ' ',
+      content: this.cleanText(content) || " ",
       internal: isInternal,
       attachments,
       mentionedUserIds
@@ -190,7 +193,7 @@ class RespondBox extends React.Component<Props, State> {
         // clear attachments, content, mentioned user ids
         return this.setState({
           attachments: [],
-          content: '',
+          content: "",
           sending: false,
           mentionedUserIds: []
         });
@@ -212,7 +215,7 @@ class RespondBox extends React.Component<Props, State> {
           {attachments.map(attachment => (
             <Attachment key={attachment.name}>
               <AttachmentThumb>
-                {attachment.type.startsWith('image') && (
+                {attachment.type.startsWith("image") && (
                   <PreviewImg
                     style={{ backgroundImage: `url('${attachment.url}')` }}
                   />
@@ -234,7 +237,7 @@ class RespondBox extends React.Component<Props, State> {
       return (
         <Mask onClick={this.hideMask}>
           {__(
-            'Customer is offline Click to hide and send messages and they will receive them the next time they are online'
+            "Customer is offline Click to hide and send messages and they will receive them the next time they are online"
           )}
         </Mask>
       );
@@ -247,7 +250,7 @@ class RespondBox extends React.Component<Props, State> {
     const { isInternal, responseTemplate } = this.state;
     const { responseTemplates, conversation } = this.props;
 
-    const integration = conversation.integration || {} as IIntegration;
+    const integration = conversation.integration || ({} as IIntegration);
 
     const Buttons = (
       <EditorActions>
@@ -256,10 +259,10 @@ class RespondBox extends React.Component<Props, State> {
           componentClass="checkbox"
           onChange={this.toggleForm}
         >
-          {__('Internal note')}
+          {__("Internal note")}
         </FormControl>
 
-        <Tip text={__('Attach file')}>
+        <Tip text={__("Attach file")}>
           <label>
             <Icon icon="upload-2" />
             <input type="file" onChange={this.handleFileInput} />
@@ -286,10 +289,10 @@ class RespondBox extends React.Component<Props, State> {
       </EditorActions>
     );
 
-    let type = 'message';
+    let type = "message";
 
     if (isInternal) {
-      type = 'note';
+      type = "note";
     }
 
     const placeholder = __(

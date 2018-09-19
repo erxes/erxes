@@ -1,17 +1,17 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
-import { Table } from 'modules/common/components';
-import { FormTable } from '../styles';
+import { Table } from "modules/common/components";
+import moment from "moment";
+import * as React from "react";
+import { IMessageDocument } from "../../../../../types";
+import { FormTable } from "../styles";
 
-const propTypes = {
-  message: PropTypes.object.isRequired
+type Props = {
+  message: IMessageDocument;
 };
 
-export default class FormMessage extends React.Component {
+export default class FormMessage extends React.Component<Props, {}> {
   displayValue(data) {
-    if (data.validation === 'date') {
-      return moment(data.value).format('YYYY/MM/DD');
+    if (data.validation === "date") {
+      return moment(data.value).format("YYYY/MM/DD");
     }
 
     return data.value;
@@ -20,10 +20,10 @@ export default class FormMessage extends React.Component {
   renderRow(data, index) {
     return (
       <tr key={index}>
-        <td width="40%">
+        <td style={{ width: "40%" }}>
           <b>{data.text}:</b>
         </td>
-        <td width="60%">{this.displayValue(data)}</td>
+        <td style={{ width: "60%" }}>{this.displayValue(data)}</td>
       </tr>
     );
   }
@@ -36,7 +36,7 @@ export default class FormMessage extends React.Component {
         <Table striped>
           <thead>
             <tr>
-              <th className="text-center" colSpan="2">
+              <th className="text-center" colSpan={2}>
                 {content}
               </th>
             </tr>
@@ -49,5 +49,3 @@ export default class FormMessage extends React.Component {
     );
   }
 }
-
-FormMessage.propTypes = propTypes;

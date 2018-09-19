@@ -1,28 +1,35 @@
-import { Bulk, DateFilter, Icon } from 'modules/common/components';
-import { Resolver, Tagger } from 'modules/inbox/containers';
-import { ConversationList } from 'modules/inbox/containers/leftSidebar';
-import { queries } from 'modules/inbox/graphql';
-import { PopoverButton } from 'modules/inbox/styles';
-import { Sidebar } from 'modules/layout/components';
-import { TAG_TYPES } from 'modules/tags/constants';
-import * as React from 'react';
-import { IIntegration } from '../../../settings/integrations/types';
-import AssignBoxPopover from '../assignBox/AssignBoxPopover';
-import FilterPopover from './FilterPopover';
-import StatusFilterPopover from './StatusFilterPopover';
-import { RightItems } from './styles';
+import { DateFilter, Icon } from "modules/common/components";
+import { __ } from "modules/common/utils";
+import { Resolver, Tagger } from "modules/inbox/containers";
+import { ConversationList } from "modules/inbox/containers/leftSidebar";
+import { queries } from "modules/inbox/graphql";
+import { PopoverButton } from "modules/inbox/styles";
+import { Sidebar } from "modules/layout/components";
+import { TAG_TYPES } from "modules/tags/constants";
+import * as React from "react";
+import AssignBoxPopover from "../assignBox/AssignBoxPopover";
+import FilterPopover from "./FilterPopover";
+import StatusFilterPopover from "./StatusFilterPopover";
+import { RightItems } from "./styles";
 
-type Props = {
-  currentConversationId: string;
-  integrations: IIntegration[];
-  queryParams: any;
-  history: any;
+type Integrations = {
+  _id: string;
+  name: string;
 };
 
-class LeftSidebar extends Bulk {
-  renderTrigger(text) {
-    const { __ } = this.context;
+type Props = {
+  currentConversationId?: string;
+  integrations: Integrations[];
+  queryParams: any;
+  history: any;
+  totalCount: any;
 
+  bulk: any;
+  toggleBulk: (target: any, toggleAdd: boolean) => void;
+};
+
+class LeftSidebar extends React.Component<Props, {}> {
+  renderTrigger(text) {
     return (
       <PopoverButton>
         {__(text)} <Icon icon="downarrow" />
@@ -31,8 +38,7 @@ class LeftSidebar extends Bulk {
   }
 
   renderSidebarHeader() {
-    const { queryParams, history } = this.props;
-    const { bulk } = this.state;
+    const { queryParams, history, bulk } = this.props;
 
     if (bulk.length > 0) {
       return (
@@ -40,10 +46,10 @@ class LeftSidebar extends Bulk {
           <RightItems>
             <AssignBoxPopover
               targets={bulk}
-              trigger={this.renderTrigger('Assign')}
+              trigger={this.renderTrigger("Assign")}
             />
 
-            <Tagger targets={bulk} trigger={this.renderTrigger('Tag')} />
+            <Tagger targets={bulk} trigger={this.renderTrigger("Tag")} />
             <Resolver conversations={bulk} />
           </RightItems>
         </Sidebar.Header>
@@ -56,8 +62,8 @@ class LeftSidebar extends Bulk {
           buttonText="# Channel"
           popoverTitle="Filter by channel"
           query={{
-            queryName: 'channelList',
-            dataName: 'channels'
+            queryName: "channelList",
+            dataName: "channels"
           }}
           counts="byChannels"
           paramKey="channelId"
@@ -82,7 +88,7 @@ class LeftSidebar extends Bulk {
       <Sidebar.Footer>
         <FilterPopover
           buttonText="Brand"
-          query={{ queryName: 'brandList', dataName: 'brands' }}
+          query={{ queryName: "brandList", dataName: "brands" }}
           counts="byBrands"
           popoverTitle="Filter by brand"
           placement="top"
@@ -104,8 +110,8 @@ class LeftSidebar extends Bulk {
         <FilterPopover
           buttonText="Tag"
           query={{
-            queryName: 'tagList',
-            dataName: 'tags',
+            queryName: "tagList",
+            dataName: "tags",
             variables: {
               type: TAG_TYPES.CONVERSATION
             }
@@ -127,10 +133,10 @@ class LeftSidebar extends Bulk {
       totalCount,
       currentConversationId,
       history,
-      queryParams
+      queryParams,
+      bulk,
+      toggleBulk
     } = this.props;
-
-    const { bulk } = this.state;
 
     return (
       <Sidebar
@@ -144,18 +150,12 @@ class LeftSidebar extends Bulk {
           totalCount={totalCount}
           history={history}
           queryParams={queryParams}
-          toggleRowCheckbox={this.toggleBulk}
+          toggleRowCheckbox={toggleBulk}
           selectedIds={bulk}
         />
       </Sidebar>
     );
   }
 }
-
-LeftSidebar.propTypes = propTypes;
-
-LeftSidebar.contextTypes = {
-  __: PropTypes.func
-};
 
 export default LeftSidebar;

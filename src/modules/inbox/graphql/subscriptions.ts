@@ -1,4 +1,4 @@
-import messageFields from './messageFields.js';
+import messageFields from "./messageFields";
 
 const conversationChanged = `
   subscription conversationChanged($_id: String!) {

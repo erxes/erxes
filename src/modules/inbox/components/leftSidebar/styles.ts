@@ -1,5 +1,6 @@
-import styled, { css } from 'styled-components';
-import { colors, dimensions } from 'modules/common/styles';
+import { colors, dimensions } from "modules/common/styles";
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
 
 const RightItems = styled.div`
   display: flex;
@@ -25,7 +26,7 @@ const CheckBox = styled.div`
   margin-right: ${dimensions.unitSpacing}px;
 `;
 
-const RowContent = styled.div`
+const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   flex-direction: row;
@@ -38,7 +39,7 @@ const RowContent = styled.div`
   }
 
   ${CheckBox} {
-    width: ${props => (props.isChecked ? '30px' : '0')};
+    width: ${props => (props.isChecked ? "30px" : "0")};
 
     overflow: hidden;
     transition: all ease 0.3s;
@@ -112,7 +113,7 @@ const MessageContent = styled.div`
   max-height: 18px;
 `;
 
-const RowItem = styled.li`
+const RowItem = styledTS<{ isActive?: boolean; isRead?: boolean }>(styled.li)`
   padding: ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: row;
@@ -132,7 +133,7 @@ const RowItem = styled.li`
     `};
   &:hover {
     background: ${props =>
-      !props.isRead || props.isActive ? '' : colors.bgLight};
+      !props.isRead || props.isActive ? "" : colors.bgLight};
     cursor: pointer;
   }
 `;

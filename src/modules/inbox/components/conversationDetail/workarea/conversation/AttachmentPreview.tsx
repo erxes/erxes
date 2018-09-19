@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Spinner } from 'modules/common/components';
-import { colors } from 'modules/common/styles';
+import { Spinner } from "modules/common/components";
+import { colors } from "modules/common/styles";
+import * as React from "react";
+import styled from "styled-components";
 
 const Preview = styled.div`
   max-width: 360px;
@@ -35,16 +34,16 @@ const File = styled.span`
   display: block;
 `;
 
-const propTypes = {
-  attachmentPreview: PropTypes.object,
-  onLoad: PropTypes.func
+type Props = {
+  attachmentPreview: any;
+  onLoad: () => void;
 };
 
-class AttachmentPreview extends Component {
+class AttachmentPreview extends React.Component<Props, {}> {
   renderContent() {
     const { attachmentPreview, onLoad } = this.props;
 
-    if (attachmentPreview.type.startsWith('image')) {
+    if (attachmentPreview.type.startsWith("image")) {
       return (
         <img
           onLoad={onLoad}
@@ -72,7 +71,5 @@ class AttachmentPreview extends Component {
     );
   }
 }
-
-AttachmentPreview.propTypes = propTypes;
 
 export default AttachmentPreview;

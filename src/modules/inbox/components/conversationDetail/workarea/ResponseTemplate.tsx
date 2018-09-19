@@ -1,50 +1,59 @@
-/* eslint-disable react/no-string-refs */
-
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import strip from 'strip';
-import PropTypes from 'prop-types';
-import { Popover, OverlayTrigger } from 'react-bootstrap';
 import {
-  FormControl,
-  EmptyState,
   Button,
+  EmptyState,
+  FormControl,
   Icon,
   Tip
-} from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
-import ResponseTemplateModal from './ResponseTemplateModal';
+} from "modules/common/components";
+import { __, Alert } from "modules/common/utils";
 import {
-  ResponseTemplateStyled,
-  PopoverHeader,
-  InlineHeader,
   InlineColumn,
-  PopoverFooter,
+  InlineHeader,
   PopoverBody,
+  PopoverFooter,
+  PopoverHeader,
   PopoverList,
-  TemplateTitle,
-  TemplateContent
-} from 'modules/inbox/styles';
+  ResponseTemplateStyled,
+  TemplateContent,
+  TemplateTitle
+} from "modules/inbox/styles";
+import * as React from "react";
+import { OverlayTrigger, Popover } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import strip from "strip";
+import { IBrand } from "../../../../settings/brands/types";
+import { IResponseTemplate } from "../../../../settings/responseTemplates/types";
+import ResponseTemplateModal from "./ResponseTemplateModal";
 
-const propTypes = {
-  brandId: PropTypes.string.isRequired,
-  responseTemplates: PropTypes.array.isRequired,
-  onSelect: PropTypes.func.isRequired,
-  saveResponseTemplate: PropTypes.func.isRequired,
-  attachments: PropTypes.array,
-  brands: PropTypes.array,
-  content: PropTypes.string.isRequired
+type Props = {
+  brandId?: string;
+  responseTemplates: IResponseTemplate[];
+  onSelect?: (responseTemplate) => void;
+  saveResponseTemplate: (doc, callback) => void;
+  attachments?: any;
+  brands: IBrand[];
+  content?: string;
 };
 
-class ResponseTemplate extends Component {
+type State = {
+  key: string;
+  brandId: string;
+  options: IResponseTemplate[];
+};
+
+class ResponseTemplate extends React.Component<Props, State> {
+  private overlayRef;
+
   constructor(props) {
     super(props);
 
     this.state = {
-      key: '',
+      key: "",
       brandId: props.brandId,
       options: this.filterByBrand(props.brandId)
     };
+
+    this.overlayRef = React.createRef();
 
     this.onSelect = this.onSelect.bind(this);
     this.onSave = this.onSave.bind(this);
@@ -73,9 +82,11 @@ class ResponseTemplate extends Component {
     this.props.saveResponseTemplate(doc, error => {
       if (error) return Alert.error(error.message);
 
-      Alert.success('Congrats');
+      Alert.success("Congrats");
 
-      return document.querySelector('button.close').click();
+      const element = document.querySelector("button.close") as HTMLElement;
+
+      return element.click();
     });
   }
 
@@ -86,7 +97,7 @@ class ResponseTemplate extends Component {
     const responseTemplate = responseTemplates.find(t => t._id === eventKey);
 
     // hide selector
-    this.refs.overlay.hide();
+    this.overlayRef.hide();
 
     return this.props.onSelect(responseTemplate);
   }
@@ -134,11 +145,10 @@ class ResponseTemplate extends Component {
 
   render() {
     const { brands, content, brandId } = this.props;
-    const { __ } = this.context;
 
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
-        <Tip text={__('Save as template')}>
+        <Tip text={__("Save as template")}>
           <Icon icon="download-3" />
         </Tip>
       </Button>
@@ -148,14 +158,14 @@ class ResponseTemplate extends Component {
       <Popover
         className="popover-template"
         id="templates-popover"
-        title={__('Response Templates')}
+        title={__("Response Templates")}
       >
         <PopoverHeader>
           <InlineHeader>
             <InlineColumn>
               <FormControl
                 type="text"
-                placeholder={__('Search')}
+                placeholder={__("Search") as string}
                 onChange={this.filterItems}
                 autoFocus
               />
@@ -163,7 +173,7 @@ class ResponseTemplate extends Component {
             <InlineColumn>
               <FormControl
                 componentClass="select"
-                placeholder={__('Select Brand')}
+                placeholder={__("Select Brand") as string}
                 onChange={this.onFilter}
                 defaultValue={this.state.brandId}
               >
@@ -184,7 +194,7 @@ class ResponseTemplate extends Component {
           <PopoverList center>
             <li>
               <Link to="/settings/response-templates">
-                {__('Manage templates')}
+                {__("Manage templates")}
               </Link>
             </li>
           </PopoverList>
@@ -199,10 +209,10 @@ class ResponseTemplate extends Component {
           placement="top"
           overlay={popover}
           rootClose
-          ref="overlay"
+          ref={this.overlayRef}
         >
           <Button btnStyle="link">
-            <Tip text={__('Response template')}>
+            <Tip text={__("Response template")}>
               <Icon icon="clipboard-1" />
             </Tip>
           </Button>
@@ -218,10 +228,5 @@ class ResponseTemplate extends Component {
     );
   }
 }
-
-ResponseTemplate.propTypes = propTypes;
-ResponseTemplate.contextTypes = {
-  __: PropTypes.func
-};
 
 export default ResponseTemplate;

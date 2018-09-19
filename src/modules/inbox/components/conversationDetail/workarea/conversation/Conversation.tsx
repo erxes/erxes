@@ -1,17 +1,18 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Spinner } from 'modules/common/components';
-import { TwitterConversation } from './twitter';
-import { FacebookConversation } from './facebook';
-import { Message } from './messages';
-import AttachmentPreview from './AttachmentPreview';
+import { Spinner } from "modules/common/components";
+import * as React from "react";
+import styled from "styled-components";
+import { IConversation, IMessageDocument } from "../../../../types";
+import AttachmentPreview from "./AttachmentPreview";
+import { FacebookConversation } from "./facebook";
+import { Message } from "./messages";
+import { TwitterConversation } from "./twitter";
 
-const propTypes = {
-  conversation: PropTypes.object,
-  conversationMessages: PropTypes.array.isRequired,
-  attachmentPreview: PropTypes.object,
-  loading: PropTypes.bool
+type Props = {
+  conversation: IConversation;
+  conversationMessages: IMessageDocument[];
+  attachmentPreview: any;
+  scrollBottom: () => void;
+  loading: boolean;
 };
 
 const Wrapper = styled.div`
@@ -24,8 +25,11 @@ const Wrapper = styled.div`
   }
 `;
 
-class Conversation extends Component {
-  renderMessages(messages, conversationFirstMessage) {
+class Conversation extends React.Component<Props, {}> {
+  renderMessages(
+    messages: IMessageDocument[],
+    conversationFirstMessage: IMessageDocument
+  ) {
     const rows = [];
 
     let tempId;
@@ -58,14 +62,14 @@ class Conversation extends Component {
       return null;
     }
 
-    if ((kind === 'facebook' || kind === 'twitter') && loading) {
+    if ((kind === "facebook" || kind === "twitter") && loading) {
       return <Spinner objective />;
     }
 
     const twitterData = conversation.twitterData;
     const facebookData = conversation.facebookData;
     const isTweet = twitterData && !twitterData.isDirectMessage;
-    const isFacebookPost = facebookData && facebookData.kind !== 'messenger';
+    const isFacebookPost = facebookData && facebookData.kind !== "messenger";
 
     if (isTweet) {
       return (
@@ -92,24 +96,18 @@ class Conversation extends Component {
   }
 
   render() {
-    const { attachmentPreview } = this.props;
+    const { attachmentPreview, scrollBottom } = this.props;
 
     return (
       <Wrapper>
         {this.renderConversation()}
         <AttachmentPreview
-          onLoad={this.context.scrollBottom}
+          onLoad={scrollBottom}
           attachmentPreview={attachmentPreview}
         />
       </Wrapper>
     );
   }
 }
-
-Conversation.propTypes = propTypes;
-
-Conversation.contextTypes = {
-  scrollBottom: PropTypes.func
-};
 
 export default Conversation;

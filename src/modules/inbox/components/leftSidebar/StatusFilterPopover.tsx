@@ -1,18 +1,18 @@
-import gql from 'graphql-tag';
-import { Icon, Spinner } from 'modules/common/components';
-import { __, router } from 'modules/common/utils';
-import { queries } from 'modules/inbox/graphql';
-import { PopoverButton } from 'modules/inbox/styles';
-import { generateParams } from 'modules/inbox/utils';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
-import { withApollo } from 'react-apollo';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { withRouter } from 'react-router';
+import gql from "graphql-tag";
+import { Icon, Spinner } from "modules/common/components";
+import { __, router } from "modules/common/utils";
+import { queries } from "modules/inbox/graphql";
+import { PopoverButton } from "modules/inbox/styles";
+import { generateParams } from "modules/inbox/utils";
+import { SidebarCounter, SidebarList } from "modules/layout/styles";
+import * as React from "react";
+import { withApollo } from "react-apollo";
+import { OverlayTrigger, Popover } from "react-bootstrap";
+import { withRouter } from "react-router";
 
 type Props = {
   history: any;
-  client: PropTypes.object,
+  client: any;
   queryParams: any;
 };
 
@@ -22,6 +22,8 @@ type State = {
 };
 
 class StatusFilterPopover extends React.Component<Props, State> {
+  private overlayTrigger;
+
   constructor(props) {
     super(props);
 
@@ -29,6 +31,8 @@ class StatusFilterPopover extends React.Component<Props, State> {
       counts: {},
       loading: true
     };
+
+    this.overlayTrigger = React.createRef();
 
     this.clearStatusFilter = this.clearStatusFilter.bind(this);
     this.onClick = this.onClick.bind(this);
@@ -51,10 +55,10 @@ class StatusFilterPopover extends React.Component<Props, State> {
 
   clearStatusFilter() {
     router.setParams(this.props.history, {
-      participating: '',
-      status: '',
-      unassigned: '',
-      starred: ''
+      participating: "",
+      status: "",
+      unassigned: "",
+      starred: ""
     });
   }
 
@@ -71,7 +75,7 @@ class StatusFilterPopover extends React.Component<Props, State> {
       <li>
         <a
           className={
-            router.getParam(history, [paramName]) === paramValue ? 'active' : ''
+            router.getParam(history, [paramName]) === paramValue ? "active" : ""
           }
           onClick={onClick}
         >
@@ -87,35 +91,35 @@ class StatusFilterPopover extends React.Component<Props, State> {
 
     if (loading) {
       return (
-        <Popover id="filter-popover" title={__('Filter by status')}>
+        <Popover id="filter-popover" title={__("Filter by status")}>
           <Spinner objective />
         </Popover>
       );
     }
 
     return (
-      <Popover id="filter-popover" title={__('Filter by status')}>
+      <Popover id="filter-popover" title={__("Filter by status")}>
         <SidebarList>
           {this.renderSingleFilter(
-            'unassigned',
-            'true',
-            'unassiged',
-            'Unassigned',
+            "unassigned",
+            "true",
+            "unassiged",
+            "Unassigned",
             counts.unassigned
           )}
           {this.renderSingleFilter(
-            'participating',
-            'true',
-            'participating',
-            'Participating',
+            "participating",
+            "true",
+            "participating",
+            "Participating",
             counts.participating
           )}
 
           {this.renderSingleFilter(
-            'status',
-            'closed',
-            'resolved',
-            'Resolved',
+            "status",
+            "closed",
+            "resolved",
+            "Resolved",
             counts.resolved
           )}
         </SidebarList>
@@ -126,9 +130,7 @@ class StatusFilterPopover extends React.Component<Props, State> {
   render() {
     return (
       <OverlayTrigger
-        ref={overlayTrigger => {
-          this.overlayTrigger = overlayTrigger;
-        }}
+        ref={this.overlayTrigger}
         trigger="click"
         placement="bottom"
         overlay={this.renderPopover()}
@@ -136,7 +138,7 @@ class StatusFilterPopover extends React.Component<Props, State> {
         rootClose
       >
         <PopoverButton onClick={() => this.onClick()}>
-          {__('Status')}
+          {__("Status")}
           <Icon icon="downarrow" />
         </PopoverButton>
       </OverlayTrigger>
@@ -144,4 +146,4 @@ class StatusFilterPopover extends React.Component<Props, State> {
   }
 }
 
-export default withApollo(withRouter(StatusFilterPopover));
+export default withRouter(withApollo(StatusFilterPopover));

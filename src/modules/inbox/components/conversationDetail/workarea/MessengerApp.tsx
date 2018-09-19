@@ -1,15 +1,13 @@
-/* eslint-disable react/no-string-refs */
-
-import { Button, Icon, Tip } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
+import { Button, Icon, Tip } from "modules/common/components";
+import { __ } from "modules/common/utils";
 import {
   MessengerApps,
   PopoverBody,
   PopoverList,
   ResponseTemplateStyled
-} from 'modules/inbox/styles';
-import * as React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+} from "modules/inbox/styles";
+import * as React from "react";
+import { OverlayTrigger, Popover } from "react-bootstrap";
 
 type Props = {
   messengerApps: any;
@@ -17,8 +15,12 @@ type Props = {
 };
 
 class MessengerApp extends React.Component<Props> {
+  private overlayRef;
+
   constructor(props) {
     super(props);
+
+    this.overlayRef = React.createRef();
 
     this.onSelect = this.onSelect.bind(this);
   }
@@ -30,7 +32,7 @@ class MessengerApp extends React.Component<Props> {
     const messengerApp = messengerApps.find(t => t._id === eventKey);
 
     // hide selector
-    this.refs.overlay.hide();
+    this.overlayRef.hide();
 
     return this.props.onSelect(messengerApp);
   }
@@ -54,7 +56,7 @@ class MessengerApp extends React.Component<Props> {
       <Popover
         className="popover-template"
         id="templates-popover"
-        title={__('Messenger apps')}
+        title={__("Messenger apps")}
       >
         <PopoverBody>
           <PopoverList>{this.renderItems()}</PopoverList>
@@ -69,10 +71,10 @@ class MessengerApp extends React.Component<Props> {
           placement="top"
           overlay={popover}
           rootClose
-          ref="overlay"
+          ref={this.overlayRef}
         >
           <Button btnStyle="link">
-            <Tip text={__('Messenger apps')}>
+            <Tip text={__("Messenger apps")}>
               <Icon icon="menu" />
             </Tip>
           </Button>
