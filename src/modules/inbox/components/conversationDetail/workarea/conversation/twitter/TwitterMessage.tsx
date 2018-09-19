@@ -1,21 +1,23 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
-import { NameCard, Tip, Icon, ModalTrigger } from 'modules/common/components';
-import { TweetContent, TweetMedia, ModalAction } from './';
-import { Tweet, User, Counts, Count, Time, Reply } from './styles';
+import { Icon, ModalTrigger, NameCard, Tip } from "modules/common/components";
+import moment from "moment";
+import React, { Component } from "react";
+import { ICustomer } from "../../../../../../customers/types";
+import { IMessageDocument } from "../../../../../types";
+import { ModalAction, TweetContent, TweetMedia } from "./";
+import { Count, Counts, Reply, Time, Tweet, User } from "./styles";
 
-const propTypes = {
-  message: PropTypes.object.isRequired,
-  staff: PropTypes.bool,
-  integrationId: PropTypes.string,
-  favoriteTweet: PropTypes.func,
-  retweet: PropTypes.func,
-  replyTweet: PropTypes.func,
-  tweet: PropTypes.func
+type Props = {
+  message: IMessageDocument;
+  staff?: boolean;
+  integrationId: string;
+  favoriteTweet: (data, callback?) => void;
+  retweet: (data, callback) => void;
+  replyTweet: (data, callback) => void;
+  tweet: (data, callback) => void;
+  scrollBottom: () => void;
 };
 
-class TwitterMessage extends Component {
+class TwitterMessage extends Component<Props, {}> {
   constructor(props) {
     super(props);
 
@@ -37,7 +39,7 @@ class TwitterMessage extends Component {
     favoriteTweet(tweet);
   }
 
-  renderUserLink(username, fullName, customer) {
+  renderUserLink(username?: string, fullName?: string, customer?: ICustomer) {
     if (!username) {
       return <div>{customer.firstName}</div>;
     }
@@ -55,7 +57,7 @@ class TwitterMessage extends Component {
     const idStr = message.twitterData.id_str;
 
     return (
-      <Tip text={moment(messageDate).format('lll')}>
+      <Tip text={moment(messageDate).format("lll")}>
         <Time href={`https://twitter.com/statuses/${idStr}`} target="_blank">
           {moment(messageDate).fromNow()}
         </Time>
@@ -77,14 +79,17 @@ class TwitterMessage extends Component {
               <Icon icon="chat" /> Reply • {twitterData.reply_count || 0}
             </Count>
           }
-        >
-          <ModalAction
-            type="reply"
-            integrationId={integrationId}
-            replyTweet={replyTweet}
-            parentMessage={message}
-          />
-        </ModalTrigger>
+          content={props => (
+            <ModalAction
+              type="reply"
+              integrationId={integrationId}
+              replyTweet={replyTweet}
+              parentMessage={message}
+              {...props}
+            />
+          )}
+        />
+
         <ModalTrigger
           title="Retweet"
           trigger={
@@ -92,17 +97,21 @@ class TwitterMessage extends Component {
               <Icon icon="repeat" /> Retweet • {twitterData.retweet_count || 0}
             </Count>
           }
-        >
-          <ModalAction
-            type="retweet"
-            integrationId={integrationId}
-            retweet={retweet}
-            parentMessage={message}
-          />
-        </ModalTrigger>
+          content={props => (
+            <ModalAction
+              type="retweet"
+              integrationId={integrationId}
+              retweet={retweet}
+              parentMessage={message}
+              {...props}
+            />
+          )}
+        />
+
         <Count favorited={favorited} onClick={this.favoriteTweet}>
           <Icon icon="heart" /> Favorite • {twitterData.favorite_count || 0}
         </Count>
+
         <ModalTrigger
           title="Twitter quote"
           trigger={
@@ -110,14 +119,16 @@ class TwitterMessage extends Component {
               <Icon icon="rightquote" /> Quote • {twitterData.quote_count || 0}
             </Count>
           }
-        >
-          <ModalAction
-            type="quote"
-            integrationId={integrationId}
-            tweet={tweet}
-            parentMessage={message}
-          />
-        </ModalTrigger>
+          content={props => (
+            <ModalAction
+              type="quote"
+              integrationId={integrationId}
+              tweet={tweet}
+              parentMessage={message}
+              {...props}
+            />
+          )}
+        />
       </Counts>
     );
   }
@@ -151,7 +162,7 @@ class TwitterMessage extends Component {
   }
 
   render() {
-    const { message } = this.props;
+    const { message, scrollBottom } = this.props;
 
     // customer
     const customer = message.customer || {};
@@ -178,14 +189,12 @@ class TwitterMessage extends Component {
         <div>
           {this.renderReply(twitterData, inReplyStatus)}
           <TweetContent content={tweetContent} entities={entities} />
-          <TweetMedia data={twitterData} />
+          <TweetMedia data={twitterData} scrollBottom={scrollBottom} />
           {this.renderCounts(twitterData)}
         </div>
       </Tweet>
     );
   }
 }
-
-TwitterMessage.propTypes = propTypes;
 
 export default TwitterMessage;

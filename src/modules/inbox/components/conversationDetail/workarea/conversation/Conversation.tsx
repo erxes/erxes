@@ -81,6 +81,7 @@ class Conversation extends React.Component<Props, {}> {
         <TwitterConversation
           conversation={conversation}
           conversationMessages={conversationMessages}
+          scrollBottom={scrollBottom}
         />
       );
     }

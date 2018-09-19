@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { ImageWithPreview } from 'modules/common/components';
-import { TwitterVideoEmbed } from './';
+import { ImageWithPreview } from "modules/common/components";
+import React, { Component } from "react";
+import styled from "styled-components";
+import { ITwitterResponse } from "../../../../../types";
+import { TwitterVideoEmbed } from "./";
 
 const Gif = styled.a`
   display: block;
@@ -31,11 +31,12 @@ const GifIcon = styled.span`
   bottom: 10px;
 `;
 
-const propTypes = {
-  data: PropTypes.object.isRequired
+type Props = {
+  data: ITwitterResponse;
+  scrollBottom: () => void;
 };
 
-class TweetMedia extends Component {
+class TweetMedia extends Component<Props, {}> {
   getEntities(data) {
     if (data.extended_entities) {
       return data.extended_entities;
@@ -51,7 +52,7 @@ class TweetMedia extends Component {
   }
 
   renderMedia() {
-    const { data } = this.props;
+    const { data, scrollBottom } = this.props;
     const entities = this.getEntities(data);
     const hasMedia = entities.media && entities.media.length;
     const media = hasMedia && entities.media[0];
@@ -60,23 +61,22 @@ class TweetMedia extends Component {
       return null;
     }
 
-    if (media.type === 'photo') {
+    if (media.type === "photo") {
       return (
         <ImageWithPreview
           alt={entities.media[0].url}
           src={entities.media[0].media_url}
-          onLoad={this.context.scrollBottom}
+          onLoad={scrollBottom}
         />
       );
     }
 
-    if (media.type === 'animated_gif') {
+    if (media.type === "animated_gif") {
       const gif =
         media.video_info &&
         media.video_info.variants &&
         media.video_info.variants[0];
       const url = gif.url;
-      const type = gif.content_type;
 
       return (
         <Gif href={media.expanded_url} target="_blank">
@@ -87,7 +87,6 @@ class TweetMedia extends Component {
             muted
             poster={media.media_url}
             src={url}
-            type={type}
           />
 
           <GifIcon />
@@ -95,20 +94,16 @@ class TweetMedia extends Component {
       );
     }
 
-    if (media.type === 'video') {
+    if (media.type === "video") {
       return <TwitterVideoEmbed id={data.id_str} />;
     }
+
+    return null;
   }
 
   render() {
     return this.renderMedia();
   }
 }
-
-TweetMedia.propTypes = propTypes;
-
-TweetMedia.contextTypes = {
-  scrollBottom: PropTypes.func
-};
 
 export default TweetMedia;

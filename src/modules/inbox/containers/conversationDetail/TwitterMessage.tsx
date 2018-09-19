@@ -1,17 +1,20 @@
-import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
-import { TwitterMessage } from 'modules/inbox/components/conversationDetail';
-import { mutations, queries } from 'modules/inbox/graphql';
-import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { ITwitterResponse } from '../../types';
+import gql from "graphql-tag";
+import { Alert } from "modules/common/utils";
+import { TwitterMessage } from "modules/inbox/components/conversationDetail";
+import { mutations, queries } from "modules/inbox/graphql";
+import * as React from "react";
+import { compose, graphql } from "react-apollo";
+import { IMessageDocument, ITwitterResponse } from "../../types";
 
 type Props = {
-  replyTweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>, 
-  favoriteTweetMutation: (variables: any) => Promise<any>,
-  currentConversationId: string,
-  retweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>,
-  tweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>,
+  replyTweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>;
+  favoriteTweetMutation: (variables: any) => Promise<any>;
+  currentConversationId: string;
+  retweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>;
+  tweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>;
+  scrollBottom: () => void;
+  message: IMessageDocument;
+  integrationId: string;
 };
 
 const TwitterMessageContainer = (props: Props) => {
@@ -37,7 +40,7 @@ const TwitterMessageContainer = (props: Props) => {
     retweetMutation({ variables })
       .then(() => {
         callback();
-        Alert.success('Successfully retweeted');
+        Alert.success("Successfully retweeted");
       })
       .catch(e => {
         Alert.error(e.message);
@@ -48,7 +51,7 @@ const TwitterMessageContainer = (props: Props) => {
     tweetMutation({ variables })
       .then(() => {
         callback();
-        Alert.success('Successfully tweeted');
+        Alert.success("Successfully tweeted");
       })
       .catch(e => {
         Alert.error(e.message);
@@ -73,11 +76,10 @@ const TwitterMessageContainer = (props: Props) => {
   return <TwitterMessage {...updatedProps} />;
 };
 
-
 export default compose(
   graphql(gql(mutations.favoriteTweet), {
-    name: 'favoriteTweetMutation',
-    options: ({ currentConversationId }: { currentConversationId : string }) => {
+    name: "favoriteTweetMutation",
+    options: ({ currentConversationId }: { currentConversationId: string }) => {
       return {
         refetchQueries: [
           {
@@ -89,8 +91,8 @@ export default compose(
     }
   }),
   graphql(gql(mutations.retweetTweet), {
-    name: 'retweetMutation',
-    options: ({ currentConversationId }: { currentConversationId : string }) => {
+    name: "retweetMutation",
+    options: ({ currentConversationId }: { currentConversationId: string }) => {
       return {
         refetchQueries: [
           {
@@ -102,7 +104,7 @@ export default compose(
     }
   }),
   graphql(gql(mutations.conversationMessageAdd), {
-    name: 'replyTweetMutation'
+    name: "replyTweetMutation"
   }),
-  graphql(gql(mutations.tweet), { name: 'tweetMutation' })
+  graphql(gql(mutations.tweet), { name: "tweetMutation" })
 )(TwitterMessageContainer);

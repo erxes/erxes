@@ -1,11 +1,10 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import Autolinker from 'autolinker';
+import Autolinker from "autolinker";
+import React, { Component } from "react";
+import styled from "styled-components";
 
-const propTypes = {
-  content: PropTypes.string.isRequired,
-  entities: PropTypes.object
+type Props = {
+  content: string;
+  entities: any;
 };
 
 const MessageContent = styled.div`
@@ -16,7 +15,7 @@ const MessageContent = styled.div`
   }
 `;
 
-class TweetContent extends Component {
+class TweetContent extends Component<Props, {}> {
   renderContent() {
     const { entities } = this.props;
     let { content } = this.props;
@@ -37,7 +36,7 @@ class TweetContent extends Component {
     }
 
     if (hashtags.length) {
-      options = { hashtag: 'twitter' };
+      options = { hashtag: "twitter" };
     }
 
     if (urls.length) {
@@ -64,7 +63,5 @@ class TweetContent extends Component {
     );
   }
 }
-
-TweetContent.propTypes = propTypes;
 
 export default TweetContent;

@@ -5,7 +5,7 @@ import { ITag } from "../tags/types";
 
 export interface ITwitterResponse {
   id?: number;
-  id_str: string;
+  id_str?: string;
   created_at?: string;
   isDirectMessage?: boolean;
 

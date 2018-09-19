@@ -1,21 +1,23 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { TwitterMessage } from 'modules/inbox/containers/conversationDetail';
-import { SimpleMessage } from '../messages';
+import { TwitterMessage } from "modules/inbox/containers/conversationDetail";
+import React, { Component, Fragment } from "react";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { IConversation, IMessageDocument } from "../../../../../types";
+import { SimpleMessage } from "../messages";
 
-const propTypes = {
-  conversation: PropTypes.object,
-  conversationMessages: PropTypes.array
+type Props = {
+  conversation: IConversation;
+  conversationMessages: IMessageDocument[];
+  scrollBottom: () => void;
 };
 
-const List = styled.ul`
+const List = styledTS<{ isRoot?: boolean }>(styled.ul)`
   list-style: none;
-  padding-left: ${props => (props.isRoot ? '0' : '40px')};
+  padding-left: ${props => (props.isRoot ? "0" : "40px")};
   max-width: 700px;
 `;
 
-class TwitterConversation extends Component {
+class TwitterConversation extends Component<Props, {}> {
   constructor(props) {
     super(props);
 
@@ -56,6 +58,8 @@ class TwitterConversation extends Component {
   }
 
   renderTweets(messages, integrationId) {
+    const { scrollBottom } = this.props;
+
     return messages.map(message => {
       return (
         <li key={message._id}>
@@ -63,6 +67,7 @@ class TwitterConversation extends Component {
             message={message}
             currentConversationId={this.props.conversation._id}
             integrationId={integrationId}
+            scrollBottom={scrollBottom}
           />
           {this.renderChildren(message.children, integrationId)}
         </li>
@@ -102,7 +107,5 @@ class TwitterConversation extends Component {
     );
   }
 }
-
-TwitterConversation.propTypes = propTypes;
 
 export default TwitterConversation;
