@@ -11,6 +11,7 @@ import {
 type Props = {
   message: IMessageDocument;
   isSameUser: boolean;
+  conversationFirstMessage: IMessageDocument;
 };
 
 function Message(props: Props) {

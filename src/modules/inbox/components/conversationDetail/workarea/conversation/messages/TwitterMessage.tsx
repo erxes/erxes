@@ -4,7 +4,7 @@ import { SimpleMessage } from "./";
 
 type Props = {
   message: IMessageDocument;
-  conversationFirstMessage?: IMessageDocument;
+  conversationFirstMessage: IMessageDocument;
 };
 
 const TwitterMessage = (props: Props) => {
