@@ -38,7 +38,7 @@ class DataWithLoader extends Component<Props> {
     } else if (count === 0) {
       return (
         <EmptyState
-          text={emptyText}
+          text={emptyText || 'There is no data'}
           size={size}
           icon={emptyIcon}
           image={emptyImage}

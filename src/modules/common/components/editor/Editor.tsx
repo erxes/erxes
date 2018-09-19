@@ -32,7 +32,7 @@ type Props = {
   label?: React.ReactNode,
   style?: string,
   title?: string,
-  onToggle: (style: string) => void
+  onToggle: (style?: string) => void
 };
 
 class StyleButton extends Component<Props> {
@@ -95,7 +95,7 @@ const BLOCK_TYPES = [
 ];
 
 type BlockStyleProps = {
-  onToggle: (style: string) => void
+  onToggle: (style?: string) => void
   editorState: EditorState
 };
 
@@ -135,7 +135,7 @@ const INLINE_STYLES = [
 ];
 
 type InlineStyleProps = {
-  onToggle: (inlineStyle: string) => void,
+  onToggle: (inlineStyle?: string) => void,
   editorState: EditorState
 }
 

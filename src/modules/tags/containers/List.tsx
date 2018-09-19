@@ -4,6 +4,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
+import { ITagSaveParams } from '../types';
 
 type Props = {
   type: string,
@@ -29,7 +30,7 @@ const ListContainer = (props: Props) => {
     });
   };
 
-  const save = ({ tag, doc, callback }) => {
+  const save = ({ tag, doc, callback }: ITagSaveParams) => {
     let mutation = addMutation;
 
     if (tag) {

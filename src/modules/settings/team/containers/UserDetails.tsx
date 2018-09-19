@@ -34,15 +34,15 @@ const UserDetailsContainer = (props: Props & SaveUserProfileArgs) => {
 
   const user = userDetailQuery.userDetail || {};
 
-  const saveUser = (doc: IUser, callback: (e?: string) => void) => {
+  const saveUser = (doc: IUser, callback: (e: string) => void) => {
     doc._id = user._id;
 
     usersEdit({
       variables: doc
     })
-      .then(() => {
+      .then((e) => {
         Alert.success('Successfully saved');
-        callback();
+        callback(e);
       })
       .catch(e => {
         callback(e);

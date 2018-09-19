@@ -99,18 +99,18 @@ class DateFilter extends React.Component<Props, State> {
 
     const { startDate, endDate } = props.queryParams;
 
-    const state = {
-      startDate: null,
-      endDate: null,
+    const state: State = {
+      startDate: new Date(),
+      endDate: new Date(),
       totalCount: 0
     };
 
     if (startDate) {
-      state.startDate = moment(startDate);
+      state.startDate = moment(startDate).toDate();
     }
 
     if (endDate) {
-      state.endDate = moment(endDate);
+      state.endDate = moment(endDate).toDate();
     }
 
     this.state = state;
@@ -138,6 +138,10 @@ class DateFilter extends React.Component<Props, State> {
 
   refetchCountQuery() {
     const { client, queryParams, countQuery, countQueryParam } = this.props;
+
+    if (!countQuery || !countQueryParam) {
+      return;
+    }
 
     client
       .query({

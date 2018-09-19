@@ -7,7 +7,7 @@ import FormBase from '../components/FormBase';
 import { mutations, queries } from '../graphql';
 import { crudMutationsOptions } from '../utils';
 
-type Props= {
+type Props = {
   messageId: string,
   history: any,
   kind: string,

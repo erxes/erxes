@@ -4,17 +4,17 @@ import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import styled from 'styled-components';
+import { IRouterProps } from '../types';
 import Filter from './filterableList/Filter';
 
-type Props = {
-  history: any,
+interface IProps extends IRouterProps {
   fields: any[],
   counts: any,
   paramKey: string,
   icon?: string,
   loading: boolean,
   searchable?: boolean,
-  update: () => void
+  update?: () => void
 };
 
 type State = {
@@ -27,7 +27,7 @@ const PopoverContent = styled.div`
   }
 `;
 
-class FilterByParams extends Component<Props, State> {
+class FilterByParams extends Component<IProps, State> {
   constructor(props) {
     super(props);
 
@@ -40,7 +40,12 @@ class FilterByParams extends Component<Props, State> {
 
   filterItems(e) {
     this.setState({ key: e.target.value });
-    this.props.update();
+
+    const { update } = this.props;
+
+    if(update) {
+      update();
+    }
   }
 
   renderItems() {
@@ -105,4 +110,4 @@ class FilterByParams extends Component<Props, State> {
   }
 }
 
-export default withRouter(FilterByParams);
+export default withRouter<IProps>(FilterByParams);

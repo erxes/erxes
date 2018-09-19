@@ -18,7 +18,8 @@ type Props = {
   kind: string,
   brands: IBrand[],
   scheduleDate: any,
-  save: () => any
+  save: () => any,
+  changeState?: (name: string, value: string) => void,
 };
 
 const AutoAndManualFormContainer = (props : Props) => {
@@ -28,7 +29,8 @@ const AutoAndManualFormContainer = (props : Props) => {
     combinedFieldsQuery,
     segmentsAddQuery,
     emailTemplatesQuery,
-    customerCountsQuery
+    customerCountsQuery,
+    changeState
   } = props;
 
   const customerCounts = customerCountsQuery.customerCounts || {
@@ -75,7 +77,8 @@ const AutoAndManualFormContainer = (props : Props) => {
     segments: segmentsQuery.segments || [],
     templates: emailTemplatesQuery.emailTemplates || [],
     customerCounts: customerCounts.bySegment || {},
-    count
+    count,
+    changeState,
   };
 
   return (
