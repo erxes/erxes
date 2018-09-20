@@ -36,7 +36,7 @@ const CustomerAssociate = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    name: data.primaryName,
+    name: data.primaryName || '',
     customers: data.customers,
     onSelect: customers => save(customers)
   };

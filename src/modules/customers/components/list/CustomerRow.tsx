@@ -10,7 +10,7 @@ type Props = {
   columnsConfig: any[],
   history: any 
   isChecked?: boolean,
-  toggleBulk: (customer: ICustomer, isChecked?: boolean) => void,
+  toggleBulk: (target: any, toAdd: boolean) => void,
 };
 
 function isTimeStamp(value) {

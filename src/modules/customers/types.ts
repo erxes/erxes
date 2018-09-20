@@ -42,7 +42,7 @@ export interface ICustomerDoc {
 }
 
 export interface ICustomer extends ICustomerDoc {
-    _id?: string;
+    _id: string;
     owner?: IUser;
     integration?: IIntegration;
     getMessengerCustomData?: any;

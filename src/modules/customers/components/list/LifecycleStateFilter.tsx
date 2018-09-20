@@ -12,7 +12,7 @@ import { lifecycleStateChoices } from '../../utils';
 interface IProps extends IRouterProps {
   counts: any,
   loading: boolean,
-  searchable: boolean
+  searchable?: boolean
 };
 
 class LifecycleStateFilter extends Component<IProps> {
