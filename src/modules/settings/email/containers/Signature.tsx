@@ -8,6 +8,7 @@ import { Signature } from '../components';
 type Props = {
   brandsQuery: any;
   closeModal: () => void;
+  // TODO: add types to signatures
   saveMutation: (params: { variables: { signatures: any } }) => Promise<any>;
 };
 

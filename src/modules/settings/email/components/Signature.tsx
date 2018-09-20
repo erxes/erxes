@@ -17,7 +17,7 @@ type Props = {
 
 type State = {
   signatures: ISignature[];
-  currentId: null | string;
+  currentId?: string;
 };
 
 class Signature extends React.Component<Props, State> {
@@ -30,7 +30,7 @@ class Signature extends React.Component<Props, State> {
 
     this.state = {
       signatures: props.signatures,
-      currentId: null
+      currentId: undefined
     };
   }
 

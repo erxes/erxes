@@ -10,6 +10,8 @@ type Props = {
   channelsQuery: any;
   usersQuery: any;
   channelsCountQuery: any;
+
+  // TODO: add types
   addMutation: (params: { variables: { doc: IChannel } }) => any;
   editMutation: () => void;
   removeMutation: (params: { variables: { _id: string } }) => any;
@@ -31,7 +33,7 @@ const SidebarContainer = (props: Props) => {
 
   // remove action
   const remove = _id => {
-    confirm('Are you sure ?').then(() => {
+    confirm().then(() => {
       removeMutation({
         variables: { _id }
       })

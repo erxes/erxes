@@ -51,6 +51,7 @@ type ConfigProps = {
   brandQuery: any;
   refetch: () => void;
   closeModal: () => void;
+  // TODO: add types
   configEmailMutation: (params: { variables: any }) => any;
 };
 

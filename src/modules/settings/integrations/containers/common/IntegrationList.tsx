@@ -9,6 +9,7 @@ import { integrationsListParams } from '../utils';
 
 type Props = {
   integrationsQuery: any;
+  // TODO: add types
   removeMutation: any;
 };
 

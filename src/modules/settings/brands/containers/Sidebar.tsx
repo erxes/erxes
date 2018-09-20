@@ -8,6 +8,8 @@ import { mutations, queries } from '../graphql';
 type QueryResponse = {
   brandsQuery: any;
   brandsCountQuery: any;
+
+  // TODO: add types
   addMutation:(params: {variables: any}) => any;
   editMutation: (params: {variables: any}) => any;
   removeMutation: (params: {variables: {_id: string; }}) => any;

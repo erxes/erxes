@@ -20,7 +20,7 @@ type Props = {
 };
 
 type State = {
-  selectedMembers: () => void,
+  selectedMembers: IUser[],
 };
 
 class ChannelForm extends Component<Props, State> {

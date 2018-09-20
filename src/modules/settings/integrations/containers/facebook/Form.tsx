@@ -86,6 +86,7 @@ type Props = {
   history: any,
   type?: string,
   integrationFacebookAppsListQuery: any,
+  // TODO: add types
   saveMutation: (variables: any) => any,
   brandsQuery: any
 };
