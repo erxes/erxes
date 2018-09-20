@@ -8,8 +8,11 @@ import { NotificationSettings } from '../components';
 type Props = {
   notificationModulesQuery: any;
   notificationConfigurationsQuery: any;
+
+  // TODO: add types
   configGetNotificationByEmailMutation: (params: { variables: any }) => Promise<any>;
   saveNotificationConfigurationsMutation: (params: { variables: any }) => Promise<any>;
+
   currentUser: IUser;
 };
 

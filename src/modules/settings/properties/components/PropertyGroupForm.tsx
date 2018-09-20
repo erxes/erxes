@@ -10,8 +10,10 @@ import Toggle from 'react-toggle';
 import { IFieldGroup } from '../types';
 
 type Props = {
+  // TODO: replace any
   add: ({ doc }: { doc: any; }) => void;
   edit: ({ _id, doc }: { _id: string, doc: any; }) => void;
+
   group?: IFieldGroup;
   closeModal: () => void;
 };

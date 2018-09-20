@@ -30,6 +30,7 @@ class EditProfile extends Component<Props, State> {
 
   handleSubmit(password) {
     this.props.save({
+      // TODO: write common helper
       username: (document.getElementById('username') as HTMLInputElement).value,
       email: (document.getElementById('email') as HTMLInputElement).value,
       details: {

@@ -10,6 +10,7 @@ import React, { Component } from 'react';
 
 type Props = {
   save: (save: { currentPassword: string, newPassword: string, confirmation: string }) => void;
+  // TODO: remove optional
   closeModal?: () => void;
 };
 

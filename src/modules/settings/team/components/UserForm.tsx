@@ -12,7 +12,7 @@ import { IChannel } from '../../channels/types';
 import { ICommonFormProps } from '../../common/types';
 
 type Props = {
-  channels: IChannel;
+  channels: IChannel[];
 };
 
 type State = {

@@ -95,6 +95,7 @@ class UserDetails extends React.Component<Props, State> {
 
   renderTabContent() {
     const { currentTab } = this.state;
+
     const {
       currentUser,
       activityLogsUser,
@@ -102,6 +103,7 @@ class UserDetails extends React.Component<Props, State> {
       user,
       totalConversationCount
     } = this.props;
+
     const hasActivity = hasAnyActivity(activityLogsUser);
 
     if (currentTab === 'conversation') {

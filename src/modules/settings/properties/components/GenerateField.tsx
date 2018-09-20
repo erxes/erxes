@@ -22,7 +22,7 @@ export default class GenerateField extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const defaultValue = props.defaultValue; // eslint-disable-line
+    const defaultValue = props.defaultValue;
 
     this.onChange = this.onChange.bind(this);
 
@@ -33,9 +33,8 @@ export default class GenerateField extends Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps) {
-    // eslint-disable-next-line
     if (nextProps.defaultValue !== this.props.defaultValue) {
-      const defaultValue = nextProps.defaultValue || ""; // eslint-disable-line
+      const defaultValue = nextProps.defaultValue || '';
 
       this.setState({
         value: defaultValue,

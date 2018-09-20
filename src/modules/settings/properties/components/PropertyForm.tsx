@@ -12,8 +12,10 @@ import { Actions, TypeList } from '../styles';
 import { IField, IFieldGroup } from '../types';
 
 type Props = {
+  // TODO: replace any
   add: ({ doc }: { doc: any; }) => void;
   edit: ({ _id, doc }: { _id: string, doc: any; }) => void;
+
   field?: IField;
   groups: IFieldGroup[];
   closeModal: () => void;
