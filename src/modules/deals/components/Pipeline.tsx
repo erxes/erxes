@@ -7,7 +7,7 @@ import { IPipeline, IStage } from '../types';
 
 type Props = {
   pipeline: IPipeline,
-  onToggle: any,
+  onToggle: (isExpanded: boolean) => void,
   stages: IStage[],
   isExpanded: boolean
 };

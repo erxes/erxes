@@ -35,7 +35,7 @@ class FirstResponse extends CommonReport {
             'Daily First Response Resolve Rate by Team Members',
             convertTime(time)
           )}
-          <TeamMembers loading={isLoading} datas={teamMembers} />
+          <TeamMembers loading={isLoading || false} datas={teamMembers || []} />
         </InsightRow>
       </InsightContent>
     );

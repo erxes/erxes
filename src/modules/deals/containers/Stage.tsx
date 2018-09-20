@@ -16,14 +16,14 @@ type Props = {
   state: any,
   stageId: string,
   deals: IDeal[],
-  addMutation: any,
-  editMutation: any,
-  removeMutation: any,
-  dealsChangeMutation: any,
+  addMutation: (params: { variables: { doc: any } }) => Promise<any>,
+  editMutation: (params: { variables: { doc: any } }) => Promise<any>,
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>,
+  dealsChangeMutation: (params: { variables: { _id: string, stageId: string } }) => Promise<any>,
   dealsUpdateOrder: any,
   stageDetailQuery: any,
   dealsQuery: any,
-  dealsUpdateOrderMutation: any
+  dealsUpdateOrderMutation: (params: { variables: { orders: any } }) => Promise<any>
 };
 
 class StageContainer extends React.Component<Props, any> {
@@ -84,7 +84,7 @@ class StageContainer extends React.Component<Props, any> {
   }
 
   // create or update deal
-  saveDeal(doc, callback, deal) {
+  saveDeal(doc: IDeal, callback: any, deal: IDeal) {
     const {
       stageDetailQuery,
       addMutation,
@@ -119,7 +119,7 @@ class StageContainer extends React.Component<Props, any> {
   }
 
   // remove deal
-  removeDeal(_id) {
+  removeDeal(_id: string) {
     const { stageDetailQuery, removeMutation, dealsQuery } = this.props;
     const { deals } = this.state;
 

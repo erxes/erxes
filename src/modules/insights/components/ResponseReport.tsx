@@ -42,7 +42,7 @@ class ResponseReport extends CommonReport {
           {this.renderTitle('Response by team members')}
           <TeamMembers
             loading={loading.main}
-            datas={teamMembers}
+            datas={teamMembers || []}
           />
         </InsightRow>
       </InsightContent>
