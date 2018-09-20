@@ -23,22 +23,24 @@ import { BarItems } from '../../../layout/styles';
 import { IBrand } from '../../../settings/brands/types';
 import { ManageColumns } from '../../../settings/properties/containers';
 import { TaggerPopover } from '../../../tags/components';
+import { ITag } from '../../../tags/types';
 import { CustomerForm } from '../../containers';
+import { ICustomer } from '../../types';
 import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
-  customers: any;
+  customers: ICustomer[];
   counts: any;
   columnsConfig: any;
   brands: IBrand[];
-  integrations: any;
-  tags: any[];
+  integrations: string[];
+  tags: ITag[];
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
-  toggleBulk: (target: any, toAdd: boolean) => void;
-  toggleAll: (targets: string[], containerId: string) => void;
+  toggleBulk: (target: ICustomer, toAdd: boolean) => void;
+  toggleAll: (targets: ICustomer[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
   loadingTags: boolean;
@@ -49,7 +51,7 @@ interface IProps extends IRouterProps {
     callback: () => void;
   }) => Promise<void>;
   queryParams: any;
-  exportCustomers: (bulk: any[]) => void;
+  exportCustomers: (bulk: string[]) => void;
   handleXlsUpload: (e: React.FormEvent<HTMLInputElement>) => void;
 };
 

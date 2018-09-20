@@ -10,10 +10,11 @@ import { Wrapper } from 'modules/layout/components';
 import { BrandFilter } from 'modules/customers/containers';
 
 import Segments from 'modules/segments/containers/Filter';
+import { ITag } from 'modules/tags/types';
 
 type Props = {
   counts: any;
-  tags: any[];
+  tags: ITag[];
   loading: boolean;
 };
 
