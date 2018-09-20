@@ -8,6 +8,7 @@ import { Box, BoxRow, FlexItem } from "./style";
 
 type Props = {
   type: string;
+  // TODO: check value's type
   onChange: (name: string, value: IFormField[] | string | boolean) => void;
   calloutTitle?: string;
   calloutBtnText?: string;

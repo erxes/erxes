@@ -16,8 +16,11 @@ import { Manage } from "./";
 
 type Props = {
   integration: IFormIntegration;
+
+  // TODO: add types
   toggleBulk: (bulk, checked) => void;
   remove: (integrationId, callback) => void;
+
   isChecked: boolean;
 };
 

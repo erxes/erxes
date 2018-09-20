@@ -39,9 +39,7 @@ class SuccessStep extends Component<Props, State> {
   }
 
   handleSuccessActionChange() {
-    const element = document.getElementById(
-      "successAction"
-    ) as HTMLInputElement;
+    const element = document.getElementById("successAction") as HTMLInputElement; 
     const value = element.value;
 
     this.setState({ successAction: value });
