@@ -19,7 +19,7 @@ const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (
 
     <FormControl
       componentClass="select"
-      placeholder={__('Select Brand').toString()}
+      placeholder={__('Select Brand')}
       defaultValue={defaultValue}
       onChange={onChange}
       id="selectBrand"

@@ -79,7 +79,7 @@ class Form extends Component<Props & ICommonFormProps, State> {
 
           <FormControl
             componentClass="select"
-            placeholder={__('Select Brand').toString()}
+            placeholder={__('Select Brand')}
             defaultValue={object.brandId}
             id="template-brand-id"
           >

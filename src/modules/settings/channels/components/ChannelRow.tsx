@@ -35,7 +35,7 @@ class ChannelRow extends Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit').toString()}>
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>

@@ -49,7 +49,7 @@ class WidgetForm extends Component<Props, State> {
 
     const doc = {
       title: (document.getElementById('title') as HTMLInputElement).value,
-      customerIds: customers.map(customer => customer._id.toString()),
+      customerIds: customers.map(customer => customer._id),
       method: '',
       email: {}, messenger: {}
     };
@@ -91,7 +91,7 @@ class WidgetForm extends Component<Props, State> {
         <ControlLabel>To:</ControlLabel>
         <Recipients>
           {this.props.customers.map(customer => (
-            <Recipient key={customer._id.toString()}>
+            <Recipient key={customer._id}>
               <strong>{customer.firstName}</strong> {customer.primaryEmail}
             </Recipient>
           ))}

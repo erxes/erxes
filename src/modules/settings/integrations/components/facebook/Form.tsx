@@ -77,7 +77,7 @@ class Facebook extends Component<Props> {
 
           <FormControl
             componentClass="select"
-            placeholder={__('Select app').toString()}
+            placeholder={__('Select app')}
             onChange={this.onAppChange}
             id="app"
           >

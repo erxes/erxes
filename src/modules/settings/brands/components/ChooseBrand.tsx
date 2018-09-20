@@ -64,7 +64,7 @@ class ChooseBrand extends Component<Props> {
           <ControlLabel>Brand</ControlLabel>
           <FormControl
             componentClass="select"
-            placeholder={__('Select Brand').toString()}
+            placeholder={__('Select Brand')}
             defaultValue={integration.brandId}
             onChange={this.handleBrandChange}
             id="selectBrand"

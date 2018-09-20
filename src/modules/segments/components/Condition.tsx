@@ -91,7 +91,7 @@ class Condition extends Component<Props, State> {
       <FormControl
         name={name}
         componentClass="select"
-        placeholder={__('select').toString()}
+        placeholder={__('select')}
         value={value}
         onChange={this.handleInputValue}
       >
@@ -135,7 +135,7 @@ class Condition extends Component<Props, State> {
       <FormControl
         name="operator"
         componentClass="select"
-        placeholder={__('select').toString()}
+        placeholder={__('select')}
         value={this.state.operator}
         onChange={this.handleInputValue}
       >

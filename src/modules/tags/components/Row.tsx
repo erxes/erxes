@@ -26,7 +26,7 @@ function Row({ tag, type, count, remove, save }: Props) {
 
   const editTrigger = (
     <Button btnStyle="link">
-      <Tip text={__('Edit').toString()}>
+      <Tip text={__('Edit')}>
         <Icon icon="edit" />
       </Tip>
     </Button>
@@ -46,7 +46,7 @@ function Row({ tag, type, count, remove, save }: Props) {
             content={(props) => <Form {...props} type={type} tag={tag} save={save} />}
           />
 
-          <Tip text={__('Delete').toString()}>
+          <Tip text={__('Delete')}>
             <Button btnStyle="link" onClick={removeTag} icon="close-circled" />
           </Tip>
         </ActionButtons>

@@ -42,7 +42,7 @@ class Signature extends React.Component<Props, State> {
     }
 
     return this.state.signatures.find(
-      signature => signature.brandId.toString() === currentId.toString()
+      signature => signature.brandId.toString() === currentId
     );
   }
 

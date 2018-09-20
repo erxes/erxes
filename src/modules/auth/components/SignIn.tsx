@@ -53,7 +53,7 @@ class SignIn extends Component<Props, State> {
           <FormGroup>
             <FormControl
               type="email"
-              placeholder={__('your@email.com').toString()}
+              placeholder={__('your@email.com')}
               value={this.state.email}
               required
               onChange={this.handleEmailChange}
@@ -62,7 +62,7 @@ class SignIn extends Component<Props, State> {
           <FormGroup>
             <FormControl
               type="password"
-              placeholder={__('password').toString()}
+              placeholder={__('password')}
               value={this.state.password}
               required
               onChange={this.handlePasswordChange}

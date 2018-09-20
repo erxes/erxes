@@ -23,12 +23,12 @@ class SegmentsList extends Component<Props> {
 
     return (
       <ActionButtons>
-        <Tip text={__('Edit').toString()}>
+        <Tip text={__('Edit')}>
           <Link to={`/segments/edit/${contentType}/${segment._id}`}>
             <Button btnStyle="link" icon="edit" />
           </Link>
         </Tip>
-        <Tip text={__('Delete').toString()}>
+        <Tip text={__('Delete')}>
           <Button
             btnStyle="link"
             onClick={() => {
