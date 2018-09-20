@@ -63,7 +63,7 @@ const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
   background-color: ${props => !props.transparent && colors.colorWhite};
 `;
 
-const ContentHeader = styledTS<{ background?: string }>(styled.div)`
+const ContentHeader = styledTS<{ background: string }>(styled.div)`
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
   min-height: ${dimensions.headerSpacing}px;

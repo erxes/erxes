@@ -39,6 +39,8 @@ const NavItem = styled.div`
 `;
 
 const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentUser: IUser }, context) => {
+  const details = currentUser.details || {};
+
   return (
     <nav>
       <NavItem>
@@ -46,7 +48,7 @@ const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentU
           <DropdownToggle bsRole="toggle">
             <UserHelper>
               <UserInfo>
-                {currentUser.details.fullName}
+                {details.fullName}
                 <NameCard.Avatar user={currentUser} size={30} />
                 <Icon icon="downarrow" size={10} />
               </UserInfo>
