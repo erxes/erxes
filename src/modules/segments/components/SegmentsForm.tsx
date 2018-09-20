@@ -34,7 +34,7 @@ type Props = {
   contentType: string,
   fields: any[],
   create: (params: { doc: SegmentDoc }) => void,
-  edit: (params: { doc: SegmentDoc }) => void,
+  edit: (params: { _id: string, doc: SegmentDoc }) => void,
   segment: ISegment,
   headSegments: ISegment[],
   count: (segment: any) => void,
@@ -123,8 +123,6 @@ class SegmentsForm extends Component<Props, State> {
 
     const { segment, create, edit } = this.props;
 
-    const submit = segment ? edit : create;
-
     const {
       name,
       description,
@@ -134,15 +132,17 @@ class SegmentsForm extends Component<Props, State> {
       conditions
     } = this.state;
 
-    const params = { doc: { name, description, color, connector, conditions, subOf: null } };
+    const doc = { name, description, color, connector, conditions, subOf: '' };
 
     if (subOf) {
-      params.doc.subOf = subOf;
+      doc.subOf = subOf;
     }
 
-    Object.assign(params, segment ? { id: segment._id } : {});
-
-    submit(params);
+    if (segment) {
+      edit({ _id: segment._id, doc })
+    } else {
+      create({ doc });
+    }
   }
 
   renderConditions() {

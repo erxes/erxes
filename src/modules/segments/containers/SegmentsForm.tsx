@@ -35,10 +35,10 @@ class SegmentsFormContainer extends React.Component<Props> {
     });
   }
 
-  edit({ id, doc }) {
+  edit({ _id, doc }) {
     const { contentType, segmentsEdit, history } = this.props;
 
-    segmentsEdit({ variables: { _id: id, ...doc } }).then(() => {
+    segmentsEdit({ variables: { _id, ...doc } }).then(() => {
       Alert.success('Success');
       history.push(`/segments/${contentType}`);
     });
