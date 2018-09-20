@@ -7,11 +7,11 @@ import WidgetPreview from './WidgetPreview';
 type Props = {
   onChange: (key: any, value: string) => void,
   teamMembers: IUser[],
-  color?: string,
+  color: string,
   logoPreviewStyle?: any,
   welcomeMessage?: string,
   awayMessage?: string,
-  wallpaper?: string,
+  wallpaper: string,
   supporterIds?: string[],
   isOnline: boolean,
   logoPreviewUrl?: string
