@@ -8,7 +8,7 @@ import { NotifList } from './styles';
 
 type Props = {
   notifications: any[];
-  markAsRead: (bulk?: string[]) => void;
+  markAsRead: (_ids?: string[]) => void;
   count: number;
 };
 

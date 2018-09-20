@@ -12,8 +12,11 @@ type Props = {
   segmentDetailQuery: any;
   headSegmentsQuery: any;
   combinedFieldsQuery: any;
+
+  // TODO: add types
   segmentsAdd: (params: { variables: { contentType: string, doc: any } }) => Promise<any>;
   segmentsEdit: (params: { variables: { _id: string, doc: any } }) => Promise<any>;
+
   customerCounts: any;
 };
 

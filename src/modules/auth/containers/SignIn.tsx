@@ -10,6 +10,7 @@ import { SignIn } from '../components';
 import { mutations } from '../graphql';
 
 interface IProps extends IRouterProps {
+  // TODO: replace any
   loginMutation: (params: { variables: any }) => Promise<any>;
 };
 

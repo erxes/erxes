@@ -21,7 +21,7 @@ function QuickButtons({ children }: { children: React.ReactNode }) {
 }
 
 type Props = {
-  children: any;
+  children: React.ReactNode;
   collapsible?: boolean;
   className?: string;
   noShadow?: boolean;

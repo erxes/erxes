@@ -7,7 +7,6 @@ import { SegmentsList } from '../components';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  object: any;
   segmentsQuery: any;
   removeMutation: (params: { variables: { _id: string } }) => any;
 };

@@ -10,15 +10,18 @@ export interface ISegmentCondition {
   type: string
 }
 
-export interface ISegment {
-  _id: string;
+export interface ISegmentDoc {
   name: string;
   contentType: string
   description: string;
   color: string;
   connector: string;
   conditions: ISegmentCondition[];
-  subOf: any;
-  getSubSegments: ISegment[]
-  getParentSegment: ISegment
+  subOf: string;
+}
+
+export interface ISegment extends ISegmentDoc {
+  _id: string;
+  getSubSegments: ISegment[];
+  getParentSegment: ISegment;
 }
