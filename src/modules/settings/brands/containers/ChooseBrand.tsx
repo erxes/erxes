@@ -12,8 +12,8 @@ type Props = {
   brandsQuery: any;
 
   // TODO: Add types
-  addMutation: () => void;
-  editMutation: () => void;
+  addMutation: () => Promise<any>;
+  editMutation: () => Promise<any>;
   onSave: () => void;
   refetch: () => void;
 };

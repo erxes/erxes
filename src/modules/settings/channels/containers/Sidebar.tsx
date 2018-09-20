@@ -4,17 +4,23 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
-import { IChannel } from '../types';
 
 type Props = {
   channelsQuery: any;
   usersQuery: any;
   channelsCountQuery: any;
 
-  // TODO: add types
-  addMutation: (params: { variables: { doc: IChannel } }) => any;
-  editMutation: () => void;
-  removeMutation: (params: { variables: { _id: string } }) => any;
+  addMutation: (params: { variables: { 
+    name:  string;
+    description: string;
+    memberIds:  string[]
+  } }) => Promise<any>;
+  editMutation: (params: { variables: { 
+    name:  string;
+    description: string;
+    memberIds:  string[]
+  }}) => Promise<any>;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 const SidebarContainer = (props: Props) => {

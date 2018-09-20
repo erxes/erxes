@@ -51,8 +51,14 @@ type ConfigProps = {
   brandQuery: any;
   refetch: () => void;
   closeModal: () => void;
-  // TODO: add types
-  configEmailMutation: (params: { variables: any }) => any;
+
+  configEmailMutation: (params: { variables: {
+    _id: string;
+    emailConfig: {
+      type: string;
+      template: string;
+    }
+  } }) => Promise<any>;
 };
 
 const ConfigContainer = (props: ConfigProps) => {

@@ -5,15 +5,24 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Pipelines } from '../components';
 import { mutations, queries } from '../graphql';
+import { IPipeline, IStage } from '../types';
 
 type Props = {
   boardId: string;
   pipelinesQuery: any;
-  // TODO replace any
-  addPipelineMutation: (params: { variables: any }) => Promise<any>;
-  editPipelineMutation: (params: { variables: any }) => Promise<any>;
+
+  addPipelineMutation: (params: { variables: {
+    name: string;
+    boardId: string;
+    stages: IStage[];
+  } }) => Promise<any>;
+  editPipelineMutation: (params: { variables: {
+    name: string;
+    boardId: string;
+    stages: IStage[];
+  } }) => Promise<any>;
   removePipelineMutation: (params: { variables: { _id: string } }) => Promise<any>;
-  pipelinesUpdateOrderMutation: (params: { variables: any }) => Promise<any>;
+  pipelinesUpdateOrderMutation: (params: { variables: { orders: IPipeline[] } }) => Promise<any>;
 };
 
 class PipelinesContainer extends React.Component<Props> {
