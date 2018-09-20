@@ -4,13 +4,13 @@ import { IFormField } from "../../../types";
 import { FieldPreview } from "./";
 
 type Props = {
-  fields: IFormField[];
-  onFieldEdit: (field: IFormField) => void;
+  fields?: IFormField[];
+  onFieldEdit?: (field: IFormField) => void;
   onChange: (name: string, fields: IFormField[]) => void;
 };
 
 type State = {
-  fields: any;
+  fields?: IFormField[];
 };
 
 class FormFieldPreview extends Component<Props, State> {
@@ -25,7 +25,7 @@ class FormFieldPreview extends Component<Props, State> {
   }
 
   componentWillUpdate(nextProps: Props) {
-    if (this.state.fields.length !== nextProps.fields.length) {
+    if ((this.state.fields || []).length !== (nextProps.fields || []).length) {
       this.setState({
         fields: nextProps.fields
       });
@@ -33,7 +33,7 @@ class FormFieldPreview extends Component<Props, State> {
   }
 
   onChangeFields(reOrderedFields: IFormField[]) {
-    const fields = [];
+    const fields: IFormField[] = [];
 
     reOrderedFields.forEach((field, index) => {
       fields.push({
@@ -44,10 +44,11 @@ class FormFieldPreview extends Component<Props, State> {
 
     this.setState({ fields });
 
-    this.props.onChange("fields", this.state.fields);
+    this.props.onChange("fields", (this.state.fields || []));
   }
 
   render() {
+
     const child = field => {
       return (
         <FieldPreview
@@ -61,7 +62,7 @@ class FormFieldPreview extends Component<Props, State> {
     return (
       <SortableList
         child={child}
-        fields={this.state.fields}
+        fields={(this.state.fields || [])}
         onChangeFields={this.onChangeFields}
       />
     );

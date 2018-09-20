@@ -15,21 +15,21 @@ import {
 
 type Props = {
   type: string;
-  calloutTitle: string;
-  formTitle: string;
-  formBtnText: string;
-  calloutBtnText: string;
-  bodyValue: string;
-  formDesc: string;
+  calloutTitle?: string;
+  formTitle?: string;
+  formBtnText?: string;
+  calloutBtnText?: string;
+  bodyValue?: string;
+  formDesc?: string;
   color: string;
   theme: string;
-  image: string;
+  image?: string;
   preview: string;
   onChange: (name: string, value: IFormField[] | string | boolean) => void;
-  fields: IFormField[];
+  fields?: IFormField[];
   carousel: string;
-  thankContent: string;
-  skip: boolean;
+  thankContent?: string;
+  skip?: boolean;
 };
 
 class FullPreviewStep extends Component<Props, {}> {

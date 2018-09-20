@@ -16,7 +16,7 @@ type State = {
   copied: boolean;
 };
 
-const installCodeIncludeScript = type => {
+const installCodeIncludeScript = (type: string) => {
   return `
     (function() {
       var script = document.createElement('script');
@@ -31,7 +31,7 @@ const installCodeIncludeScript = type => {
   `;
 };
 
-const getInstallCode = (brandCode, formCode) => {
+const getInstallCode = (brandCode: string, formCode: string) => {
   return `
     <script>
       window.erxesSettings = {
@@ -49,7 +49,7 @@ class Manage extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    let code = "";
+    let code = '';
     const integration = props.integration;
 
     // showed install code automatically in edit mode
@@ -57,7 +57,7 @@ class Manage extends Component<Props, State> {
       const brand = integration.brand;
       const form = integration.form;
 
-      code = getInstallCode(brand.code, form.code);
+      code = getInstallCode(brand.code, (form.code || ''));
     }
 
     this.state = {
@@ -70,7 +70,7 @@ class Manage extends Component<Props, State> {
     return (
       <Fragment>
         <MarkdownWrapper>
-          <ReactMarkdown source={this.state.code} />
+          <ReactMarkdown source={this.state.code || ''} />
           {this.state.code ? (
             <CopyToClipboard
               text={this.state.code}

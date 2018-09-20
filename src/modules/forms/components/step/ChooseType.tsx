@@ -9,9 +9,9 @@ import { Box, BoxRow, FlexItem } from "./style";
 type Props = {
   type: string;
   onChange: (name: string, value: IFormField[] | string | boolean) => void;
-  calloutTitle: string;
-  calloutBtnText: string;
-  bodyValue: string;
+  calloutTitle?: string;
+  calloutBtnText?: string;
+  bodyValue?: string;
   color: string;
   theme: string;
 };

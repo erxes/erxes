@@ -67,7 +67,7 @@ class List extends Component<Props, {}> {
       isAllSelected
     } = this.props;
 
-    let actionBarLeft = null;
+    let actionBarLeft = {};
 
     if (bulk.length > 0) {
       const tagButton = (

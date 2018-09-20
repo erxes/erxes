@@ -5,7 +5,7 @@ import { FieldItem } from "./styles";
 
 type Props = {
   field: any;
-  onEdit: (field: IFormField) => void;
+  onEdit?: (field: IFormField) => void;
 };
 
 class FieldPreview extends Component<Props, {}> {

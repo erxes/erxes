@@ -5,12 +5,13 @@ import { compose, graphql } from "react-apollo";
 import { withRouter } from "react-router";
 import { Form } from "../components";
 import { mutations, queries } from "../graphql";
+import { IFormField } from "../types";
 
 type Props = {
   brandsQuery: any;
   addIntegrationMutation: ({ variables }) => Promise<void>;
   addFormMutation: ({ variables }) => Promise<any>;
-  addFieldsMutation: ({ variables }) => void;
+  addFieldsMutation: (params: { variables: { contentType: string, contentTypeId: string, field: IFormField } }) => void;
   location: any;
   history: any;
 };
@@ -48,7 +49,7 @@ class CreateFormContainer extends React.Component<Props, {}> {
         })
 
         .then(() => {
-          const promises = [];
+          const promises: any[] = [];
 
           for (const field of fields) {
             promises.push(

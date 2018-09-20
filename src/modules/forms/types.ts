@@ -11,12 +11,8 @@ export interface ICallout {
   skip?: boolean;
 }
 
-interface ISubmission {
-  customerId: string;
-  submittedAt: Date;
-}
-
 export interface IForm {
+  _id: string;
   title?: string;
   code?: string;
   description?: string;
@@ -28,7 +24,8 @@ export interface IForm {
   createdDate: Date;
   viewCount: number;
   contactsGathered: number;
-  submissions: ISubmission[];
+  tagIds: string[]
+  getTags: ITag[]
 }
 
 export interface IFormIntegration extends IIntegration {

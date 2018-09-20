@@ -16,10 +16,10 @@ import React, { Component, Fragment } from 'react';
 import { IArticle } from '../../types';
 
 type Props = {
-  article: IArticle,
-  currentCategoryId: string,
-  save: ({ doc }: { doc: any }, callback: () => void, IArticle) => void,
-  closeModal: () => void
+  article: IArticle;
+  currentCategoryId: string;
+  save: ({ doc }: { doc: any }, callback: () => void, IArticle) => void;
+  closeModal: () => void;
 };
 
 type State = {

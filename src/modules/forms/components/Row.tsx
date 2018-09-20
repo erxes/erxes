@@ -111,7 +111,7 @@ class Row extends Component<Props, {}> {
         </td>
         <td>{moment(form.createdDate).format("ll")}</td>
         <td>
-          <div key={createdUser._id}>{createdUser.details.fullName}</div>
+          <div key={createdUser._id}>{createdUser.details && createdUser.details.fullName}</div>
         </td>
         <td>
           <Tags tags={tags} limit={2} />

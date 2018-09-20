@@ -5,6 +5,7 @@ import { compose, graphql } from "react-apollo";
 import { withRouter } from "react-router";
 import { Form } from "../components";
 import { mutations, queries } from "../graphql";
+import { IFormField } from "../types";
 
 type Props = {
   contentTypeId: string;
@@ -70,10 +71,10 @@ class EditFormContainer extends React.Component<Props, {}> {
 
         .then(() => {
           const dbFieldIds = dbFields.map(field => field._id);
-          const existingIds = [];
-          const createFieldsData = [];
-          const updateFieldsData = [];
-          const removeFieldsData = [];
+          const existingIds: any[] = [];
+          const createFieldsData: IFormField[] = [];
+          const updateFieldsData: IFormField[] = [];
+          const removeFieldsData: IFormField[] = [];
 
           // collect fields ================
           for (const field of fields) {
@@ -102,7 +103,7 @@ class EditFormContainer extends React.Component<Props, {}> {
           }
 
           // save fields ===================
-          const promises = [];
+          const promises: any[] = [];
 
           const doMutation = ({ datas, mutation }) => {
             for (const data of datas) {

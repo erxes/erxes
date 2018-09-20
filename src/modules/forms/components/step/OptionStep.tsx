@@ -15,16 +15,16 @@ import { BackgroundSelector, ColorPicker, FlexItem, Picker } from "./style";
 
 type Props = {
   type: string;
-  formTitle: string;
-  formBtnText: string;
-  formDesc: string;
+  formTitle?: string;
+  formBtnText?: string;
+  formDesc?: string;
   color: string;
   theme: string;
-  language: string;
+  language?: string;
   onChange: (name: string, value: IFormField[] | string | boolean) => void;
-  fields: IFormField[];
-  brand: IBrand;
-  brands: IBrand[];
+  fields?: IFormField[];
+  brand?: IBrand;
+  brands?: IBrand[];
   onFieldEdit?: () => void;
 };
 
@@ -74,10 +74,10 @@ class OptionStep extends Component<Props, {}> {
             <ControlLabel>Brand</ControlLabel>
             <FormControl
               componentClass="select"
-              defaultValue={brand._id}
+              defaultValue={brand ? brand._id : ''}
               id="selectBrand"
-              onChange={(e: React.FormEvent<HTMLInputElement>) =>
-                this.onChangeFunction("brand", e.currentTarget.value)
+              onChange={(e: React.FormEvent<HTMLElement>) =>
+                this.onChangeFunction("brand", (e.currentTarget as HTMLInputElement).value)
               }
             >
               <option />
@@ -96,8 +96,8 @@ class OptionStep extends Component<Props, {}> {
               componentClass="select"
               defaultValue={language}
               id="languageCode"
-              onChange={(e: React.FormEvent<HTMLInputElement>) =>
-                this.onChangeFunction("language", e.currentTarget.value)
+              onChange={(e: React.FormEvent<HTMLElement>) =>
+                this.onChangeFunction("language", (e.currentTarget as HTMLInputElement).value)
               }
             >
               <option />

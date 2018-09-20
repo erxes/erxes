@@ -29,7 +29,7 @@ type Props = {
 
 type State = {
   activeStep?: number;
-  type?: string;
+  type: string;
   brand?: string;
   language?: string;
   title?: string;
@@ -40,11 +40,11 @@ type State = {
   thankContent?: string;
   formBtnText?: string;
   calloutBtnText?: string;
-  theme?: string;
+  theme: string;
   logoPreviewUrl?: string;
   fields?: IFormField[];
   isSkip?: boolean;
-  color?: string;
+  color: string;
 
   successAction?: string;
   fromEmail?: string;
@@ -63,25 +63,31 @@ class Form extends Component<Props, State> {
     super(props);
 
     const integration = props.integration;
-    const formData = integration && integration.formData;
-    const form = integration && integration.form;
-    const callout = form.callout;
+
+    if (!integration) {
+      return;
+    }
+
+    const formData = integration.formData || {};
+    const form = integration.form || {};
+    const callout = form.callout || {};
     const fields = props.fields;
 
     this.state = {
       activeStep: 1,
-      type: formData.loadType || "shoutbox",
+      type: formData.loadType || 'shoutbox',
       brand: integration.brandId,
       language: integration.languageCode,
       title: integration.name,
-      calloutTitle: callout.title || "Title",
-      formTitle: form.title || "Contact",
-      bodyValue: callout.body || "",
-      formDesc: form.description || "",
-      thankContent: formData.thankContent || "Thank you.",
-      formBtnText: form.buttonText || "Send",
-      calloutBtnText: callout.buttonText || "Start",
-      theme: form.themeColor || "#6569DF",
+      calloutTitle: callout.title || 'Title',
+      formTitle: form.title || 'Contact',
+      bodyValue: callout.body || '',
+      formDesc: form.description || '',
+      thankContent: formData.thankContent || 'Thank you.',
+      formBtnText: form.buttonText || 'Send',
+      calloutBtnText: callout.buttonText || 'Start',
+      color: '',
+      theme: form.themeColor || '#6569DF',
       logoPreviewUrl: callout.featuredImage,
       fields: fields || [],
       isSkip: callout.skip && true
@@ -162,7 +168,7 @@ class Form extends Component<Props, State> {
     );
   }
 
-  onChange(key: string, value: IFormField[] | string | boolean) {
+  onChange(key: any, value: IFormField[] | string | boolean) {
     this.setState({ [key]: value });
   }
 
@@ -203,13 +209,11 @@ class Form extends Component<Props, State> {
           <div>{__("Title")}</div>
           <FormControl
             required
-            onChange={(e: React.FormEvent<HTMLInputElement>) =>
-              this.onChange("title", e.currentTarget.value)
-            }
+            onChange={e => this.onChange("title", (e.currentTarget as HTMLInputElement).value)}
             defaultValue={title}
           />
         </TitleContainer>
-        <Steps active={activeStep}>
+        <Steps active={activeStep || 1}>
           <Step img="/images/icons/erxes-04.svg" title="Type">
             <ChooseType
               onChange={this.onChange}

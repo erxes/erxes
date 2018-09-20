@@ -20,19 +20,19 @@ const defaultValue = {
 type Props = {
   type: string;
   onChange: (name: string, value: IFormField[] | string | boolean) => void;
-  calloutTitle: string;
-  calloutBtnText: string;
-  bodyValue: string;
+  calloutTitle?: string;
+  calloutBtnText?: string;
+  bodyValue?: string;
   color: string;
   theme: string;
-  image: string;
-  skip: boolean;
+  image?: string;
+  skip?: boolean;
 };
 
 type State = {
   logo?: string;
   logoPreviewStyle?: { opacity?: string };
-  defaultValue?: { [key: string]: boolean };
+  defaultValue: { [key: string]: boolean };
   logoPreviewUrl?: string;
 };
 
@@ -53,7 +53,7 @@ class CallOut extends Component<Props, State> {
     this.removeImage = this.removeImage.bind(this);
   }
 
-  onChangeFunction(name: string, value: string) {
+  onChangeFunction(name: any, value: string) {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
   }
@@ -117,9 +117,7 @@ class CallOut extends Component<Props, State> {
         <Icon
           icon="cancel-1"
           size={15}
-          onClick={(e: React.MouseEvent<HTMLInputElement>) =>
-            this.removeImage(e.currentTarget.value)
-          }
+          onClick={(e: React.MouseEvent<HTMLElement>) => this.removeImage((e.currentTarget as HTMLInputElement).value)}
         />
       </Fragment>
     );
@@ -133,8 +131,8 @@ class CallOut extends Component<Props, State> {
             checked={this.props.skip || false}
             id="isSkip"
             componentClass="checkbox"
-            onChange={(e: React.FormEvent<HTMLInputElement>) =>
-              this.onChangeState("isSkip", e.currentTarget.checked)
+            onChange={e =>
+              this.onChangeState("isSkip",( e.currentTarget as HTMLInputElement).checked)
             }
           >
             {__("Skip callOut")}
@@ -158,8 +156,8 @@ class CallOut extends Component<Props, State> {
                 type="text"
                 value={this.props.calloutTitle}
                 disabled={skip}
-                onChange={(e: React.FormEvent<HTMLInputElement>) =>
-                  this.onChangeFunction("calloutTitle", e.currentTarget.value)
+                onChange={e =>
+                  this.onChangeFunction("calloutTitle", (e.currentTarget as HTMLInputElement).value)
                 }
               />
             </FormGroup>
@@ -171,8 +169,8 @@ class CallOut extends Component<Props, State> {
                 type="text"
                 value={this.props.bodyValue}
                 disabled={skip}
-                onChange={(e: React.FormEvent<HTMLInputElement>) =>
-                  this.onChangeFunction("bodyValue", e.currentTarget.value)
+                onChange={e =>
+                  this.onChangeFunction("bodyValue", (e.currentTarget as HTMLInputElement).value)
                 }
               />
             </FormGroup>
@@ -183,8 +181,8 @@ class CallOut extends Component<Props, State> {
                 id="callout-btn-text"
                 value={this.props.calloutBtnText}
                 disabled={skip}
-                onChange={(e: React.FormEvent<HTMLInputElement>) =>
-                  this.onChangeFunction("calloutBtnText", e.currentTarget.value)
+                onChange={e =>
+                  this.onChangeFunction("calloutBtnText", (e.currentTarget as HTMLInputElement).value)
                 }
               />
             </FormGroup>

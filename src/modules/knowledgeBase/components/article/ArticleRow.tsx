@@ -20,11 +20,11 @@ import {
 } from './styles';
 
 type Props = {
-  article: IArticle,
-  queryParams: any,
-  currentCategoryId: string,
-  topicIds: string,
-  remove: (_id: string) => void
+  article: IArticle;
+  queryParams: any;
+  currentCategoryId: string;
+  topicIds: string;
+  remove: (_id: string) => void;
 };
 
 class ArticleRow extends Component<Props> {

@@ -1,3 +1,5 @@
+import { IForm } from "modules/forms/types";
+
 export interface IApps {
   id: string;
   name?: string;
@@ -60,7 +62,7 @@ export interface IIntegration {
   description?: string;
   code: string;
   formId: string;
-  form: any;
+  form: IForm;
   logo: string;
   languageCode?: string;
   createUrl: string;

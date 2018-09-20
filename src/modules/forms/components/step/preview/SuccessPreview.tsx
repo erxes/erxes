@@ -3,9 +3,9 @@ import CommonPreview from "./CommonPreview";
 import { ThankContent } from "./styles";
 
 type Props = {
-  thankContent: string;
+  thankContent?: string;
   onChange: (name: string, value: string) => void;
-  type: string;
+  type?: string;
   color: string;
   theme: string;
 };

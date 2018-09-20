@@ -3,11 +3,11 @@ import { IArticle } from '../../types';
 import { ArticleRow } from './';
 
 type Props= {
-  articles: IArticle[]
-  queryParams: any,
-  currentCategoryId: string,
-  topicIds: string,
-  remove: (_id: string) => void
+  articles: IArticle[];
+  queryParams: any;
+  currentCategoryId: string;
+  topicIds: string;
+  remove: (_id: string) => void;
 };
 
 class ArticleList extends Component<Props> {
