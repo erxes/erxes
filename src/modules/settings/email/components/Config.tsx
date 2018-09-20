@@ -78,7 +78,7 @@ class Config extends Component<Props, State> {
           <ControlLabel>Choose your email template type</ControlLabel>
           <FormControl
             componentClass="select"
-            placeholder={__('select').toString()}
+            placeholder={__('select')}
             onChange={this.handleTypeChange}
             value={type}
           >

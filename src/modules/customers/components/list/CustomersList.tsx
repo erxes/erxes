@@ -188,7 +188,7 @@ class CustomersList extends React.Component<IProps, State> {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Type to search').toString()}
+          placeholder={__('Type to search')}
           onChange={e => this.search(e)}
           value={this.state.searchValue}
           autoFocus

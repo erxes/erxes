@@ -125,7 +125,7 @@ class ArticleForm extends Component<Props, State> {
           <FormControl
             id="knowledgebase-article-status"
             componentClass="select"
-            placeholder={__('select').toString()}
+            placeholder={__('select')}
             onChange={e => {
               this.setState({ status: (e.target as HTMLInputElement).value });
             }}

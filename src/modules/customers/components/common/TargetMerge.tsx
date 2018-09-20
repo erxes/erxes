@@ -68,7 +68,7 @@ class TargetMergeModal extends React.Component<Props, State> {
   render() {
     return (
       <ModalTrigger
-        title={__('Merge').toString()}
+        title={__('Merge')}
         trigger={<a>{__('Merge')}</a>}
         size="lg"
       >

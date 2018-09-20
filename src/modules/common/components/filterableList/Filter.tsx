@@ -11,7 +11,7 @@ function Filter({ placeholder = 'Search', onChange }: Props) {
   return (
     <FormControl
       type="text"
-      placeholder={__(placeholder).toString()}
+      placeholder={__(placeholder)}
       onChange={onChange}
       autoFocus
     />

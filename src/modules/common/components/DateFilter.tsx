@@ -195,7 +195,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
 
   renderPopover() {
     const props = {
-      inputProps: { placeholder: __('Select a date').toString() },
+      inputProps: { placeholder: __('Select a date') },
       timeFormat: 'HH:mm',
       dateFormat: 'YYYY/MM/DD',
       closeOnSelect: true
