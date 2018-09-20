@@ -11,6 +11,7 @@ import { ICustomer } from '../../types';
 
 type Props = {
   customer: ICustomer;
+  // TODO: replace any
   customersEdit: (doc: { variables: any }) => Promise<any>;
   fieldsGroupsQuery: any;
 };
