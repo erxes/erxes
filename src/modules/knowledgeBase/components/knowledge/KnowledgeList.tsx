@@ -10,7 +10,10 @@ import { KnowledgeRow } from './';
 type Props = {
   queryParams: any;
   currentCategoryId: string;
+
+  // TODO: replace any
   save: ({ doc }: { doc: any }, callback: () => void, object: any) => void;
+
   remove: ( _id: string ) => void;
   count?: number;
   loading: boolean;

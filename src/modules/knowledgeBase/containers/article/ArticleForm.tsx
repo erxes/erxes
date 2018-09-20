@@ -8,8 +8,11 @@ import { IArticle } from '../../types';
 
 type Props = {
   article: IArticle;
+
+  // TODO: replace any
   addArticlesMutation: (params: { variables: any }) => Promise<any>;
   editArticlesMutation: (params: { variables: any }) => Promise<any>;
+
   currentCategoryId: string;
   closeModal: () => void;
 };

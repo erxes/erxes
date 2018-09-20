@@ -14,7 +14,10 @@ import { ICategory } from '../../types';
 type Props = {
   currentTopicId: string;
   category: ICategory;
+
+  // TODO: replace any
   save: ({ doc }: { doc: any; }, callback: () => void, category: ICategory) => void;
+
   closeModal: () => void;
 };
 
