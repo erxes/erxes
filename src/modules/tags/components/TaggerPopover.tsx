@@ -4,11 +4,11 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { Tagger } from '../containers';
 
 type Props = {
-  type: string,
-  trigger: React.ReactNode,
-  successCallback?: () => void,
-  targets?: any[],
-  container?: React.ReactNode,
+  type: string;
+  trigger: React.ReactNode;
+  successCallback?: () => void;
+  targets?: any[];
+  container?: React.ReactNode;
 };
 
 function TaggerPopover(props: Props) {

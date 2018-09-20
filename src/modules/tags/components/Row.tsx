@@ -12,11 +12,11 @@ import {
 import Form from './Form';
 
 type Props = {
-  tag: ITag,
-  type: string,
-  count?: number,
-  remove: (tag: ITag) => void,
-  save: (params: ITagSaveParams) => void
+  tag: ITag;
+  type: string;
+  count?: number;
+  remove: (tag: ITag) => void;
+  save: (params: ITagSaveParams) => void;
 };
 
 function Row({ tag, type, count, remove, save }: Props) {

@@ -10,10 +10,10 @@ import { ITag, ITagSaveParams } from 'modules/tags/types';
 import React, { Component } from 'react';
 
 type Props = {
-  tag?: ITag,
-  type: string,
-  closeModal: () => void,
-  save: (params: ITagSaveParams) => void
+  tag?: ITag;
+  type: string;
+  closeModal: () => void;
+  save: (params: ITagSaveParams) => void;
 };
 
 type State = {

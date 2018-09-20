@@ -4,10 +4,10 @@ import { ITag, ITagTypes } from 'modules/tags/types';
 import React, { Component } from 'react';
 
 type Props = {
-  type: ITagTypes,
-  targets: any[],
-  event?: 'onClick' | 'onExit',
-  className?: string,
+  type: ITagTypes;
+  targets: any[];
+  event?: 'onClick' | 'onExit';
+  className?: string;
 
   // from container
   loading: boolean,

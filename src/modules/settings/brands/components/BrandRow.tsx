@@ -7,10 +7,10 @@ import { ActionButtons, SidebarListItem } from '../../styles';
 import { IBrand } from '../types';
 
 type Props = {
-  brand: IBrand,
-  remove: (id: string) => void,
-  save: ({ doc }: { doc: any; }, callback: () => void, brand?: IBrand) => void,
-  isActive: boolean
+  brand: IBrand;
+  remove: (id: string) => void;
+  save: ({ doc }: { doc: any; }, callback: () => void, brand?: IBrand) => void;
+  isActive: boolean;
 }
 
 class BrandRow extends Component<Props> {

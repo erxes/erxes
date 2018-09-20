@@ -7,11 +7,11 @@ import { mutations, queries } from '../graphql';
 import { ITagSaveParams } from '../types';
 
 type Props = {
-  type: string,
-  tagsQuery: any,
-  addMutation: (varaibles: any) => any,
-  editMutation: (varaibles: any) => any,
-  removeMutation: (params: { variables: { ids: string[] } }) => any,
+  type: string;
+  tagsQuery: any;
+  addMutation: (varaibles: any) => Promise<any>;
+  editMutation: (varaibles: any) => Promise<any>;
+  removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
 };
 
 const ListContainer = (props: Props) => {

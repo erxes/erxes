@@ -8,10 +8,10 @@ import Row from './Row';
 import Sidebar from './Sidebar';
 
 type Props = {
-  tags: ITag[],
-  type: string,
-  remove: (tag: ITag) => void,
-  save: (params: ITagSaveParams) => void
+  tags: ITag[];
+  type: string;
+  remove: (tag: ITag) => void;
+  save: (params: ITagSaveParams) => void;
 };
 
 function List({ tags, type, remove, save }: Props) {

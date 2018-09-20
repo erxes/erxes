@@ -6,11 +6,11 @@ import { Tagger } from '../components';
 import { ITagTypes } from '../types';
 
 type Props = {
-  targets: any[],
-  type: ITagTypes,
-  tagsQuery: any,
-  tagMutation: (params: { variables: any }) => any,
-  successCallback: () => void,
+  targets: any[];
+  type: ITagTypes;
+  tagsQuery: any;
+  tagMutation: (params: { variables: any }) => Promise<any>;
+  successCallback: () => void;
 };
 
 const TaggerContainer = (props: Props) => {
