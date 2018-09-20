@@ -56,7 +56,7 @@ class Availability extends Component<Props> {
 
     return (
       <OnlineHours
-        prevOptions={this.props.onlineHours}
+        prevOptions={this.props.onlineHours || []}
         onChange={this.onOnlineHoursChange}
       />
     );
@@ -94,9 +94,10 @@ class Availability extends Component<Props> {
               value="manual"
               componentClass="radio"
               checked={this.props.availabilityMethod === 'manual'}
-              onChange={(e: React.FormEvent<HTMLInputElement>) =>
-                this.onChangeFunction('availabilityMethod', e.currentTarget.value)
-              }
+              onChange={(e: React.FormEvent<HTMLElement>) => {
+                const target = e.currentTarget as HTMLInputElement;
+                return this.onChangeFunction('availabilityMethod', target.value)
+              }}
               inline
             >
               {__('Turn online/offline manually')}
@@ -106,9 +107,10 @@ class Availability extends Component<Props> {
               value="auto"
               componentClass="radio"
               checked={this.props.availabilityMethod === 'auto'}
-              onChange={(e: React.FormEvent<HTMLInputElement>) =>
-                this.onChangeFunction('availabilityMethod', e.currentTarget.value)
-              }
+              onChange={(e: React.FormEvent<HTMLElement>) => {
+                const target = e.currentTarget as HTMLInputElement;
+                this.onChangeFunction('availabilityMethod', target.value)
+              }}
               inline
             >
               {__('Set to follow your schedule')}

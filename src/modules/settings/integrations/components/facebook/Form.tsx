@@ -33,7 +33,7 @@ class Facebook extends Component<Props> {
   }
 
   collectCheckboxValues(name) {
-    const values = [];
+    const values: string[] = [];
     const elements = document.getElementsByName(name);
 
     // tslint:disable-next-line

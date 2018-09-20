@@ -6,13 +6,13 @@ import React, { Component, Fragment } from 'react';
 import { PasswordConfirmation } from '.';
 
 type Props = {
-  currentUser: IUser,
-  closeModal: () => void,
-  save: (variables: IUser & { password?: string }) => void
+  currentUser: IUser;
+  closeModal: () => void;
+  save: (variables: IUser & { _id: undefined, password?: string }) => void;
 };
 
 type State = {
-  avatar: string
+  avatar: string;
 }
 
 class EditProfile extends Component<Props, State> {

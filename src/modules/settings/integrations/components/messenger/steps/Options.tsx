@@ -34,7 +34,7 @@ class Options extends Component<Props> {
       <FlexItem>
         <LeftItem>
           <SelectBrand
-            brands={this.props.brands}
+            brands={this.props.brands || []}
             defaultValue={this.props.brandId}
             onChange={e => this.onChangeFunction('brandId', e.target.value)}
           />
@@ -46,9 +46,10 @@ class Options extends Component<Props> {
               componentClass="select"
               id="languageCode"
               defaultValue={this.props.languageCode}
-              onChange={(e: React.FormEvent<HTMLInputElement>) =>
-                this.onChangeFunction('languageCode', e.currentTarget.value)
-              }
+              onChange={(e: React.FormEvent<HTMLElement>) => {
+                const target = e.currentTarget as HTMLInputElement;
+                return this.onChangeFunction('languageCode', target.value)
+              }}
             >
               <option />
               <option value="mn">Монгол</option>
