@@ -6,15 +6,15 @@ import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { EditProfile } from 'modules/settings/profile/components';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { IUser } from '../../../../auth/types';
+import { IUser, IUserDoc } from '../../../../auth/types';
 import { IChannel } from '../../../channels/types';
 import { UserForm } from '../../containers';
 import { List } from './styles';
 
 type Props = {
   user: IUser,
-  saveUser: (doc: IUser, callback: (e: string) => void ) => void,
-  saveProfile: (variables: IUser) => void,
+  saveUser: (_id: string, doc: IUser, callback: (e: string) => void ) => void,
+  saveProfile: (variables: IUserDoc) => void,
   channels: IChannel[],
   currentUser: IUser,
 };
