@@ -38,7 +38,7 @@ const NavItem = styled.div`
   vertical-align: middle;
 `;
 
-const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentUser: IUser }, context) => {
+const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentUser: IUser }) => {
   const details = currentUser.details || {};
 
   return (
