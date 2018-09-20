@@ -3,13 +3,14 @@ import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Tagger } from '../components';
+import { ITagTypes } from '../types';
 
 type Props = {
-  targets: any[],
-  type: string,
-  tagsQuery: any,
-  tagMutation: (params: { variables: any }) => any,
-  successCallback: () => void,
+  targets: any[];
+  type: ITagTypes;
+  tagsQuery: any;
+  tagMutation: (params: { variables: any }) => Promise<any>;
+  successCallback: () => void;
 };
 
 const TaggerContainer = (props: Props) => {

@@ -26,7 +26,7 @@ const Item = styled.li`
 type Props = {
   children: React.ReactNode,
   active?: boolean,
-  to?: string,
+  to: string,
   title?: string,
   target?: string
 };

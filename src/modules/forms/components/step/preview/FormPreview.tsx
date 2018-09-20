@@ -7,12 +7,12 @@ type Props = {
   formTitle?: string;
   formDesc?: string;
   formBtnText?: string;
-  color?: string;
-  theme?: string;
+  color: string;
+  theme: string;
   fields?: IFormField[];
   onFieldEdit?: (field: IFormField) => void;
-  onChange?: (name: string, fields: IFormField[] | string) => void;
-  type?: string;
+  onChange: (name: string, fields: IFormField[] | string) => void;
+  type: string;
 };
 
 class FormPreview extends Component<Props, {}> {

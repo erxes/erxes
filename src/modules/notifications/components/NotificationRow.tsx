@@ -1,18 +1,19 @@
 import classNames from 'classnames';
 import { IUser } from 'modules/auth/types';
 import { NameCard } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import moment from 'moment';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
+import { INotification } from '../types';
 
-type Props = {
-  history: any,
-  notification: any,
-  markAsRead: (_id: string) => void,
-  createdUser: IUser
+interface IProps extends IRouterProps {
+  notification: INotification;
+  markAsRead: (params: any) => void;
+  createdUser?: IUser;
 };
 
-class NotificationRow extends Component<Props> {
+class NotificationRow extends Component<IProps> {
   constructor(props) {
     super(props);
 
@@ -46,4 +47,4 @@ class NotificationRow extends Component<Props> {
   }
 }
 
-export default withRouter(NotificationRow);
+export default withRouter<IProps>(NotificationRow);

@@ -3,17 +3,21 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DealEditForm } from '../../components';
 import { queries } from '../../graphql';
+import { IDeal } from '../../types';
 
-class DealEditFormContainer extends React.Component<{ usersQuery: any }> {
+type Props = { usersQuery: any, deal: IDeal };
+
+class DealEditFormContainer extends React.Component<Props> {
   render() {
-    const { usersQuery } = this.props;
+    const { usersQuery, deal } = this.props;
 
     const extendedProps = {
       ...this.props,
+      deal,
       users: usersQuery.users || []
     };
 
-    return <DealEditForm {...extendedProps} />;
+    return <DealEditForm { ...extendedProps} />;
   }
 }
 

@@ -14,7 +14,7 @@ type Props = {
   deal?: IDeal,
   stages: any,
   stageId?: string,
-  onChangeStage?: any
+  onChangeStage?: (stageId: string) => void
 };
 
 type State = {
@@ -66,7 +66,7 @@ class DealMove extends React.Component<Props, State> {
           const item = (
             <StageItem key={s._id} isPass={isPass}>
               <Tip text={s.name}>
-                <a onClick={() => onChangeStage(s._id)}>
+                <a onClick={() => onChangeStage && onChangeStage(s._id)}>
                   <Icon icon="checked-1" />
                 </a>
               </Tip>
@@ -102,7 +102,8 @@ class DealMove extends React.Component<Props, State> {
   }
 
   render() {
-    const { deal: { pipeline } } = this.props;
+    const deal = this.props.deal || {} as IDeal;
+    const { pipeline } = deal;
 
     return (
       <MoveContainer>

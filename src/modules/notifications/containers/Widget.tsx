@@ -6,7 +6,7 @@ import { Widget } from '../components';
 import { queries } from '../graphql';
 
 type Props = {
-  notificationCountQuery: any
+  notificationCountQuery: any;
 };
 
 class WidgetContainer extends Component<Props> {

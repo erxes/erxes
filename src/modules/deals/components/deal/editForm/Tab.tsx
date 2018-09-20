@@ -37,7 +37,8 @@ class Tab extends React.Component<Props, { currentTab: string }> {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, dealActivityLog, deal, loadingLogs } = this.props;
+    const { dealActivityLog, deal, loadingLogs } = this.props;
+    const currentUser = this.props.currentUser || {} as IUser;
     const hasActivity = hasAnyActivity(dealActivityLog);
 
     return (
@@ -49,7 +50,7 @@ class Tab extends React.Component<Props, { currentTab: string }> {
             <ActivityList
               user={currentUser}
               activities={dealActivityLog}
-              target={deal.name}
+              target={deal && deal.name}
               type={currentTab} // show logs filtered by type
             />
           }
@@ -73,7 +74,7 @@ class Tab extends React.Component<Props, { currentTab: string }> {
             </TabTitle>
           </Tabs>
 
-          <NoteForm contentType="deal" contentTypeId={deal._id} />
+          <NoteForm contentType="deal" contentTypeId={deal && deal._id} />
         </WhiteBox>
         <Tabs grayBorder>
           <TabTitle

@@ -7,13 +7,14 @@ import { NotificationsLatest } from '../components';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  notificationsQuery: any,
-  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => any
+  notificationsQuery: any;
+  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => any;
+  update?: () => void;
 };
 
 class NotificationsLatestContainer extends React.Component<Props> {
   render() {
-    const { notificationsQuery, notificationsMarkAsReadMutation } = this.props;
+    const { notificationsQuery, notificationsMarkAsReadMutation, update } = this.props;
 
     if (notificationsQuery.loading) {
       return <Spinner objective />;
@@ -34,7 +35,8 @@ class NotificationsLatestContainer extends React.Component<Props> {
       ...this.props,
 
       markAsRead,
-      notifications: notificationsQuery.notifications
+      update,
+      notifications: notificationsQuery.notifications || []
     };
 
     return <NotificationsLatest {...updatedProps} />;

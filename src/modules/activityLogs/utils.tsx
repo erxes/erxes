@@ -44,6 +44,13 @@ const ICON_AND_COLOR_TABLE = {
   }
 };
 
+type Props = {
+  activities: any[];
+  user: IUser;
+  target?: string;
+  type: string;
+}
+
 /**
  * This class is used to process the data received from the query
  * and convert it into a data used on the front side.
@@ -51,14 +58,14 @@ const ICON_AND_COLOR_TABLE = {
 export default class {
   private queryData: any;
   private currentUser: IUser;
-  private target: string;
-  private type: string;
+  private target?: string;
+  private type: string = '';
 
   /**
    * A constructor method
    * @param {Ojbect} queryData - The query received from the back end
    */
-  constructor({ activities, user, target, type }) {
+  constructor({ activities, user, target, type }: Props) {
     if (type === 'conversations') this.type = 'conversation-create';
     if (type === 'notes') this.type = 'internal_note-create';
 
@@ -80,7 +87,7 @@ export default class {
   _processItem({ date, list }) {
     const { year, month } = date;
 
-    const result = {
+    const result: any = {
       title: `${MONTHS[month]} ${year}`,
       data: []
     };
@@ -187,11 +194,12 @@ export default class {
    * @return {Object[]} - Returns list of proccessed list of logs
    */
   process() {
-    const result = [];
+    const result: any = [];
 
     for (const item of this.queryData) {
       result.push(this._processItem(item));
     }
+
     return result;
   }
 }

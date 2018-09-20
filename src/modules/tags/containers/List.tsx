@@ -4,13 +4,14 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
+import { ITagSaveParams } from '../types';
 
 type Props = {
-  type: string,
-  tagsQuery: any,
-  addMutation: (varaibles: any) => any,
-  editMutation: (varaibles: any) => any,
-  removeMutation: (params: { variables: { ids: string[] } }) => any,
+  type: string;
+  tagsQuery: any;
+  addMutation: (varaibles: any) => Promise<any>;
+  editMutation: (varaibles: any) => Promise<any>;
+  removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
 };
 
 const ListContainer = (props: Props) => {
@@ -29,7 +30,7 @@ const ListContainer = (props: Props) => {
     });
   };
 
-  const save = ({ tag, doc, callback }) => {
+  const save = ({ tag, doc, callback }: ITagSaveParams) => {
     let mutation = addMutation;
 
     if (tag) {

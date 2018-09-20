@@ -12,7 +12,7 @@ import { ISignature } from '../types';
 type Props = {
   signatures: ISignature[],
   save: (signatures: ISignature[]) => void,
-  closeModal?: () => void
+  closeModal: () => void
 };
 
 type State = {
@@ -53,9 +53,11 @@ class Signature extends React.Component<Props, State> {
   changeContent(e) {
     const current = this.getCurrent();
 
-    current.signature = e.target.value;
+    if (current) {
+      current.signature = e.target.value;
 
-    this.setState({ signatures: this.state.signatures });
+      this.setState({ signatures: this.state.signatures });
+    }
   }
 
   handleSubmit(e) {
@@ -100,7 +102,7 @@ class Signature extends React.Component<Props, State> {
               id="content"
               rows={6}
               onChange={this.changeContent}
-              value={current.signature}
+              value={current && current.signature}
             />
           </FormGroup>
           <ModalFooter>

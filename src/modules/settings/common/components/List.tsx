@@ -12,8 +12,8 @@ import { ICommonListProps } from '../types';
 type Props = {
   title?: string;
   size?: string;
-  renderForm?: (doc: { save: () => void , closeModal: () => void }) => any;
-  renderContent?: (params: any) => any;
+  renderForm: (doc: { save: () => void , closeModal: () => void }) => any;
+  renderContent: (params: any) => any;
   breadcrumb?: any[];
 };
 
@@ -41,7 +41,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
 
     const actionBarLeft = (
       <ModalTrigger 
-        title={title} 
+        title={title || ''} 
         size={size} 
         trigger={trigger}
         content={(props) => {

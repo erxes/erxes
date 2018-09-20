@@ -1,5 +1,5 @@
 import { __ } from 'modules/common/utils';
-import { ITag, ITagSaveDoc } from 'modules/tags/types';
+import { ITag, ITagSaveParams } from 'modules/tags/types';
 import * as React from 'react';
 import {
   ActionButtons,
@@ -12,11 +12,11 @@ import {
 import Form from './Form';
 
 type Props = {
-  tag: ITag,
-  type: string,
-  count: number,
-  remove: (tag: ITag) => void,
-  save: (params: { tag: ITag, doc: ITagSaveDoc, callback: () => void }) => void
+  tag: ITag;
+  type: string;
+  count?: number;
+  remove: (tag: ITag) => void;
+  save: (params: ITagSaveParams) => void;
 };
 
 function Row({ tag, type, count, remove, save }: Props) {

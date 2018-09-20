@@ -15,7 +15,7 @@ type Props = {
   companies: ICompany[],
   products: IProduct[],
   productsData: any,
-  onChangeField: any,
+  onChangeField?: (name: string, value: any) => void,
   removeDeal: any,
   saveProductsData: any
 };
@@ -33,11 +33,15 @@ class Sidebar extends React.Component<Props> {
       removeDeal
     } = this.props;
 
+    const onChange = (type, value) => {
+      onChangeField && onChangeField(type, value);
+    }
+
     return (
       <Right>
         <ProductSection
-          onChangeProductsData={pData => onChangeField('productsData', pData)}
-          onChangeProducts={prs => onChangeField('products', prs)}
+          onChangeProductsData={pData => onChange('productsData', pData)}
+          onChangeProducts={prs => onChange('products', prs)}
           productsData={productsData}
           products={products}
           saveProductsData={saveProductsData}
@@ -46,13 +50,13 @@ class Sidebar extends React.Component<Props> {
         <CompanySection
           name="Deal"
           companies={companies}
-          onSelect={cmps => onChangeField('companies', cmps)}
+          onSelect={cmps => onChange('companies', cmps)}
         />
 
         <CustomerSection
           name="Deal"
           customers={customers}
-          onSelect={cmrs => onChangeField('customers', cmrs)}
+          onSelect={cmrs => onChange('customers', cmrs)}
         />
 
         <Button icon="checked-1">

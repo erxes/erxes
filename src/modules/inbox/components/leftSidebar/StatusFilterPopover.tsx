@@ -62,7 +62,13 @@ class StatusFilterPopover extends React.Component<Props, State> {
     });
   }
 
-  renderSingleFilter(paramName, paramValue, countName, text, count) {
+  renderSingleFilter(
+    paramName: string,
+    paramValue: string,
+    countName: string,
+    text: string,
+    count: number
+  ) {
     const { history } = this.props;
 
     const onClick = () => {

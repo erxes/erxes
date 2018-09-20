@@ -139,7 +139,7 @@ class BasicInfo extends React.Component<Props> {
           {this.renderRow('Email', company.email)}
           {this.renderRow(
             'Owner',
-            company.owner ? company.owner.details.fullName : '-'
+            company.owner && company.owner.details ? company.owner.details.fullName : '-'
           )}
           {this.renderRow('Phone', company.phone)}
           {this.renderRow('Lead Status', company.leadStatus)}

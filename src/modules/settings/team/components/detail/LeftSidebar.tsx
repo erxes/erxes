@@ -1,3 +1,4 @@
+import { IUser, IUserDoc } from 'modules/auth/types';
 import { Icon, ModalTrigger, NameCard } from 'modules/common/components';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
@@ -6,17 +7,16 @@ import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { EditProfile } from 'modules/settings/profile/components';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { IUser } from '../../../../auth/types';
 import { IChannel } from '../../../channels/types';
 import { UserForm } from '../../containers';
 import { List } from './styles';
 
 type Props = {
-  user: IUser,
-  saveUser: (doc: IUser, callback: (e: string) => void ) => void,
-  saveProfile: (variables: IUser) => void,
-  channels: IChannel[],
-  currentUser: IUser,
+  user: IUser;
+  saveUser: (_id: string, doc: IUser, callback: (e: string) => void ) => void;
+  saveProfile: (variables: IUserDoc) => void;
+  channels: IChannel[];
+  currentUser: IUser;
 };
 
 class LeftSidebar extends React.Component<Props> {
@@ -49,12 +49,6 @@ class LeftSidebar extends React.Component<Props> {
     const { user, saveProfile, channels, saveUser, currentUser } = this.props;
     const { details = {}, links = {} } = user;
 
-    let form = <UserForm object={user} save={saveUser} />;
-
-    if (currentUser._id === user._id) {
-      form = <EditProfile save={saveProfile} currentUser={currentUser} />;
-    }
-
     return (
       <Sidebar wide>
         <Section>
@@ -64,9 +58,18 @@ class LeftSidebar extends React.Component<Props> {
               avatarSize={50}
               secondLine={this.renderLinks(links)}
             />
-            <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
-              {form}
-            </ModalTrigger>
+            <ModalTrigger 
+              title="Edit" 
+              trigger={<Icon icon="edit" />} 
+              size="lg"
+              content={(props) => {
+                if (currentUser._id === user._id) {
+                  return <EditProfile {...props } save={saveProfile} currentUser={currentUser} />;
+                }
+
+                return <UserForm {...props} object={user} save={saveUser} />;
+              }}
+            />
           </InfoWrapper>
           <SidebarList className="no-link">
             <li>

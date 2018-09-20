@@ -3,18 +3,19 @@ import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { IRouterProps } from '../../common/types';
 import { ResetPassword } from '../components';
 import { mutations } from '../graphql';
 
-type Props = {
-  token?: string,
-  resetPasswordMutation?: (params: { variables: { newPassword: string, token: string } }) => any,
-  history: any,
-  location: any,
-  match: any
+interface IProps extends IRouterProps {
+  token: string,
 };
 
-const ResetPasswordContainer = (props: Props) => {
+type MutationResponse = {
+  resetPasswordMutation: (params: { variables: { newPassword: string, token: string } }) => any,
+}
+
+const ResetPasswordContainer = (props: IProps & MutationResponse) => {
   const { resetPasswordMutation, history, token } = props;
 
   const resetPassword = newPassword => {
@@ -40,7 +41,7 @@ const ResetPasswordContainer = (props: Props) => {
   return <ResetPassword {...updatedProps} />;
 };
 
-export default withRouter<Props>(
+export default withRouter<IProps>(
   compose(
     graphql(gql(mutations.resetPassword), {
       name: 'resetPasswordMutation'

@@ -1,3 +1,7 @@
+export interface ISegmentField {
+  _id: string;
+}
+
 export interface ISegmentCondition {
   field: string,
   value: string,
@@ -9,10 +13,12 @@ export interface ISegmentCondition {
 export interface ISegment {
   _id: string;
   name: string;
+  contentType: string
   description: string;
   color: string;
   connector: string;
   conditions: ISegmentCondition[];
   subOf: any;
   getSubSegments: ISegment[]
+  getParentSegment: ISegment
 }

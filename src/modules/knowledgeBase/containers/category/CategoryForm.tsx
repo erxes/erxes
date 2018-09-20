@@ -10,7 +10,8 @@ type Props = {
   category: ICategory,
   addCategoriesMutation: (params: { variables: any }) => any,
   editCategoriesMutation: (params: { variables: any }) => any,
-  topicIds: string
+  topicIds: string,
+  closeModal: () => void
 };
 
 const KnowledgeBaseContainer = (props: Props) => {

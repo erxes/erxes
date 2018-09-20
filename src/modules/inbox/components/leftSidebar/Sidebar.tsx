@@ -29,7 +29,7 @@ type Props = {
 };
 
 class LeftSidebar extends React.Component<Props, {}> {
-  renderTrigger(text) {
+  renderTrigger(text: string) {
     return (
       <PopoverButton>
         {__(text)} <Icon icon="downarrow" />

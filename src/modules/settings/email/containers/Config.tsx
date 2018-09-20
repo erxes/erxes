@@ -47,6 +47,13 @@ const defaultTemplate = `<p>Dear {{fullName}},</p>
     }
 </style>`;
 
+type ConfigProps = {
+  brandQuery: any,
+  refetch: () => void,
+  closeModal: () => void,
+  configEmailMutation: (params: { variables: any }) => any
+};
+
 const ConfigContainer = (props: ConfigProps) => {
   const { brandQuery, configEmailMutation, refetch } = props;
 
@@ -76,12 +83,6 @@ const ConfigContainer = (props: ConfigProps) => {
   };
 
   return <Config {...updatedProps} />;
-};
-
-type ConfigProps = {
-  brandQuery: any,
-  refetch: () => void,
-  configEmailMutation: (params: { variables: any }) => any
 };
 
 export default compose(

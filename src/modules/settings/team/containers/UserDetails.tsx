@@ -3,13 +3,13 @@ import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IUser } from '../../../auth/types';
+import { IUser, IUserDoc } from '../../../auth/types';
 import { UserDetails } from '../components';
 import { mutations, queries } from '../graphql';
 
 type SaveUserProfileArgs = {
-  usersEdit: (params: { variables: IUser }) => Promise<any>,
-  usersEditProfile: (params: { variables: IUser }) => Promise<any>,
+  usersEdit: (params: { variables: { _id: string, doc: IUserDoc } }) => Promise<any>,
+  usersEditProfile: (params: { variables: IUserDoc }) => Promise<any>,
 };
 
 type Props = {
@@ -34,22 +34,20 @@ const UserDetailsContainer = (props: Props & SaveUserProfileArgs) => {
 
   const user = userDetailQuery.userDetail || {};
 
-  const saveUser = (doc: IUser, callback: (e?: string) => void) => {
-    doc._id = user._id;
-
+  const saveUser = (_id: string, doc: IUserDoc, callback: (e: string) => void) => {
     usersEdit({
-      variables: doc
+      variables: { _id, doc }
     })
-      .then(() => {
+      .then((e) => {
         Alert.success('Successfully saved');
-        callback();
+        callback(e);
       })
       .catch(e => {
         callback(e);
       });
   };
 
-  const saveProfile = (variables: IUser) => {
+  const saveProfile = (variables: IUserDoc) => {
     usersEditProfile({ variables })
       .then(() => {
         Alert.success('Congrats');

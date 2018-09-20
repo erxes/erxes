@@ -21,7 +21,7 @@ function Header({ breadcrumb, queryParams }: Props) {
   return (
     <PageHeader>
       <BreadCrumb breadcrumbs={breadcrumb} />
-      {queryParams && <Filter queryParams={queryParams} />}
+      {queryParams && <Filter />}
     </PageHeader>
   );
 }

@@ -75,7 +75,7 @@ class DealAddForm extends React.Component<Props, Stage> {
       // after save, enable save button
       this.setState({ disabled: false });
 
-      closeModal();
+      closeModal && closeModal();
     });
   }
 

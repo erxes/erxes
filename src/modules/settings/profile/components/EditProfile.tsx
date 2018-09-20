@@ -1,18 +1,18 @@
 import { UserCommonInfos } from 'modules/auth/components';
-import { IUser } from 'modules/auth/types';
+import { IUser, IUserDoc } from 'modules/auth/types';
 import { Button, ModalTrigger } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import React, { Component, Fragment } from 'react';
 import { PasswordConfirmation } from '.';
 
 type Props = {
-  currentUser: IUser,
-  closeModal?: () => void,
-  save: (variables: IUser & { password?: string }) => void
+  currentUser: IUser;
+  closeModal: () => void;
+  save: (variables: IUserDoc & {  password?: string }) => void;
 };
 
 type State = {
-  avatar: string
+  avatar: string;
 }
 
 class EditProfile extends Component<Props, State> {
@@ -22,7 +22,10 @@ class EditProfile extends Component<Props, State> {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onAvatarUpload = this.onAvatarUpload.bind(this);
 
-    this.state = { avatar: props.currentUser.details.avatar };
+    const { currentUser } = props;
+    const { details } = currentUser;
+
+    this.state = { avatar: details ? details.avatar || '' : '' };
   }
 
   handleSubmit(password) {

@@ -96,6 +96,14 @@ type IndexProps = {
   taggerRefetchQueries: any;
 };
 
+interface IRenderData {
+  customer: ICustomer;
+  kind: string;
+  __: (string) => React.ReactNode;
+  config: any;
+  toggleSection: (params: { name: string; isOpen: boolean }) => void;
+}
+
 class Index extends React.Component<IndexProps> {
   renderMessengerData({
     customer,
@@ -103,20 +111,14 @@ class Index extends React.Component<IndexProps> {
     __,
     config,
     toggleSection
-  }: {
-    customer: ICustomer;
-    kind: string;
-    __: (string) => any;
-    config: any;
-    toggleSection: (params: { name: string; isOpen: boolean }) => void;
-  }) {
+  }: IRenderData) {
     if (kind !== "messenger") {
       return null;
     }
 
     return (
       <Box
-        title={__("Messenger data")}
+        title={__("Messenger data") as string}
         name="showMessengerData"
         isOpen={config.showMessengerData || false}
         toggle={toggleSection}
@@ -126,14 +128,20 @@ class Index extends React.Component<IndexProps> {
     );
   }
 
-  renderDeviceProperties({ customer, kind, __, config, toggleSection }) {
+  renderDeviceProperties({
+    customer,
+    kind,
+    __,
+    config,
+    toggleSection
+  }: IRenderData) {
     if (!(kind === "messenger" || kind === "form")) {
       return null;
     }
 
     return (
       <Box
-        title={__("Device properties")}
+        title={__("Device properties") as string}
         name="showDeviceProperties"
         isOpen={config.showDeviceProperties || false}
         toggle={toggleSection}

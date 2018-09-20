@@ -28,9 +28,9 @@ class Intro extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { teamMembers, supporterIds } = props;
+    const { teamMembers, supporterIds=[] } = props;
 
-    const selectedMembers = teamMembers.filter(member =>
+    const selectedMembers: IUser[] = teamMembers.filter(member =>
       supporterIds.includes(member._id)
     );
 
@@ -58,12 +58,16 @@ class Intro extends Component<Props, State> {
     }
   }
 
-  generateSupporterOptions(members = []) {
-    return members.map(member => ({
-      value: member._id,
-      label: member.details.fullName,
-      avatar: member.details.avatar
-    }));
+  generateSupporterOptions(members: IUser[] = []) {
+    return members.map(member => {
+      const details = member.details || {};
+
+      return {
+        value: member._id,
+        label: details.fullName,
+        avatar: details.avatar
+      }
+    });
   }
 
   render() {

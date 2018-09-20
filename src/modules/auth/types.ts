@@ -20,12 +20,15 @@ export interface IUserConversation {
   totalCount: number;
 }
 
-export interface IUser {
-  _id?: string;
-  username?: string;
-  email?: string;
-  details?: IUserDetails;
-  links?: IUserLinks;
-  getNotificationByEmail?: boolean;
-  participatedConversations?: IUserConversation[];
+export interface IUserDoc {
+    username: string,
+    email: string,
+    details?: IUserDetails,
+    links?: IUserLinks,
+    getNotificationByEmail?: boolean,
+    participatedConversations? : IUserConversation[]
+}
+
+export interface IUser extends IUserDoc {
+    _id: string,
 }

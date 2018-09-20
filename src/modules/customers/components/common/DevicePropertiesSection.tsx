@@ -10,7 +10,7 @@ type Props = {
 };
 
 class DevicePropertiesSection extends React.Component<Props> {
-  renderDeviceProperty(text: string, value: string, secondValue?: string, nowrap?: boolean) {
+  renderDeviceProperty(text: string, value?: string, secondValue?: string, nowrap?: boolean) {
     if (value || secondValue) {
       return (
         <li>
@@ -56,7 +56,7 @@ class DevicePropertiesSection extends React.Component<Props> {
           {this.renderDeviceProperty(
             'User Agent',
             location.userAgent,
-            null,
+            '',
             true
           )}
         </SidebarList>

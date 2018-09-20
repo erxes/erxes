@@ -23,10 +23,13 @@ class UserCommonInfos extends Component<Props> {
   render() {
     const { user, onAvatarUpload } = this.props;
 
+    const details = user.details || {};
+    const links = user.links || {};
+
     return (
       <Fragment>
         <AvatarUpload
-          avatar={user.details.avatar}
+          avatar={details.avatar}
           onAvatarUpload={onAvatarUpload}
         />
         <FormWrapper>
@@ -36,7 +39,7 @@ class UserCommonInfos extends Component<Props> {
               <FormControl
                 type="text"
                 id="fullName"
-                defaultValue={user.details.fullName || ''}
+                defaultValue={details.fullName || ''}
               />
             </FormGroup>
             <FormGroup>
@@ -49,7 +52,7 @@ class UserCommonInfos extends Component<Props> {
                 type="text"
                 id="description"
                 componentClass="textarea"
-                defaultValue={user.details.description || ''}
+                defaultValue={details.description || ''}
               />
             </FormGroup>
           </FormColumn>
@@ -67,14 +70,14 @@ class UserCommonInfos extends Component<Props> {
               <FormControl
                 type="text"
                 id="position"
-                defaultValue={user.details.position || ''}
+                defaultValue={details.position || ''}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Location</ControlLabel>
               <FormControl
                 componentClass="select"
-                defaultValue={user.details.location}
+                defaultValue={details.location}
                 id="user-location"
                 options={timezones}
               />
@@ -89,7 +92,7 @@ class UserCommonInfos extends Component<Props> {
               <FormControl
                 type="text"
                 id="linkedin"
-                defaultValue={user.links.linkedIn || ''}
+                defaultValue={links.linkedIn || ''}
               />
             </FormGroup>
             <FormGroup>
@@ -97,7 +100,7 @@ class UserCommonInfos extends Component<Props> {
               <FormControl
                 type="text"
                 id="twitter"
-                defaultValue={user.links.twitter || ''}
+                defaultValue={links.twitter || ''}
               />
             </FormGroup>
             <FormGroup>
@@ -105,7 +108,7 @@ class UserCommonInfos extends Component<Props> {
               <FormControl
                 type="text"
                 id="facebook"
-                defaultValue={user.links.facebook || ''}
+                defaultValue={links.facebook || ''}
               />
             </FormGroup>
           </FormColumn>
@@ -115,7 +118,7 @@ class UserCommonInfos extends Component<Props> {
               <FormControl
                 type="text"
                 id="youtube"
-                defaultValue={user.links.youtube || ''}
+                defaultValue={links.youtube || ''}
               />
             </FormGroup>
             <FormGroup>
@@ -123,7 +126,7 @@ class UserCommonInfos extends Component<Props> {
               <FormControl
                 type="text"
                 id="github"
-                defaultValue={user.links.github || ''}
+                defaultValue={links.github || ''}
               />
             </FormGroup>
             <FormGroup>
@@ -131,7 +134,7 @@ class UserCommonInfos extends Component<Props> {
               <FormControl
                 type="text"
                 id="website"
-                defaultValue={user.links.website || ''}
+                defaultValue={links.website || ''}
               />
             </FormGroup>
           </FormColumn>

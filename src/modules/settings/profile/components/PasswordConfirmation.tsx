@@ -9,7 +9,7 @@ import React, { Component } from 'react';
 
 type Props = {
   onSuccess: (password: string) => void,
-  closeModal?: () => void
+  closeModal: () => void
 };
 
 class PasswordConfirmation extends Component<Props> {

@@ -8,7 +8,7 @@ import ActivityItem from './ActivityItem';
 type Props = {
   activities: any[],
   user: IUser,
-  target: string,
+  target?: string,
   type: string
 };
 

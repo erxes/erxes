@@ -6,7 +6,7 @@ import {
   FlexBody,
   FlexContent
 } from 'modules/activityLogs/styles';
-import { IUser } from 'modules/auth/types';
+import { IUser, IUserDoc } from 'modules/auth/types';
 import {
   DataWithLoader,
   Icon,
@@ -30,14 +30,14 @@ import { IActivityLogsUser } from '../../../../activityLogs/types';
 import LeftSidebar from './LeftSidebar';
 
 type Props = {
-  user: IUser,
-  currentUser: IUser,
-  saveUser: (doc: IUser, callback: (e: string) => void ) => void,
-  saveProfile: (variables: IUser) => void,
-  channels: IChannel[],
-  loadingLogs: boolean,
-  activityLogsUser: IActivityLogsUser[],
-  totalConversationCount: number
+  user: IUser;
+  currentUser: IUser;
+  saveUser: (_id: string, doc: IUserDoc, callback: (e: string) => void ) => void;
+  saveProfile: (variables: IUserDoc) => void;
+  channels: IChannel[];
+  loadingLogs: boolean;
+  activityLogsUser: IActivityLogsUser[];
+  totalConversationCount: number;
 };
 
 type State = {
@@ -107,7 +107,7 @@ class UserDetails extends React.Component<Props, State> {
     if (currentTab === 'conversation') {
       return (
         <div>
-          {user.participatedConversations.map(conversation => {
+          {(user.participatedConversations || []).map(conversation => {
             return this.renderConversation(conversation, user);
           })}
 
@@ -125,7 +125,7 @@ class UserDetails extends React.Component<Props, State> {
             <ActivityList
               user={currentUser}
               activities={activityLogsUser}
-              target={user.details.fullName}
+              target={user.details && user.details.fullName}
               type={currentTab} // show logs filtered by type
             />
           }

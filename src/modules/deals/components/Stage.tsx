@@ -21,8 +21,8 @@ type Props = {
   deals: IDeal[],
   index?: number,
   length?: number,
-  saveDeal: any,
-  removeDeal: any,
+  saveDeal: (doc: IDeal, callback: any, deal: IDeal) => void,
+  removeDeal: (_id: string) => void,
   stageId: string
 };
 
@@ -56,8 +56,9 @@ class Stage extends React.Component<Props> {
   }
 
   renderIndicator() {
-    const { length, index } = this.props;
-    const data = [];
+    const index = this.props.index || 0;
+    const length = this.props.length || 0;
+    const data: any = [];
     
     for(let i = 0; i <= length; i++) {
       data.push(<IndicatorItem isPass={index >= i} key={i} />)

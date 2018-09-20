@@ -16,7 +16,11 @@ class DropdownToggle extends Component<Props> {
   handleClick(e) {
     e.preventDefault();
 
-    this.props.onClick(e);
+    const { onClick } = this.props;
+
+    if (onClick) {
+      onClick(e);
+    }
   }
 
   render() {

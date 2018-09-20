@@ -6,10 +6,10 @@ import { NotificationList } from '../components';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  queryParams: any,
-  notificationsQuery: any,
-  notificationCountQuery: any,
-  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => any
+  queryParams: any;
+  notificationsQuery: any;
+  notificationCountQuery: any;
+  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => any;
 };
 
 class NotificationListContainer extends React.Component<Props> {

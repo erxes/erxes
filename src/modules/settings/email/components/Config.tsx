@@ -13,7 +13,7 @@ type Props = {
   brand: IBrand,
   configEmail: (doc: {}, callback: () => void) => void,
   defaultTemplate: string,
-  closeModal?: () => void,
+  closeModal: () => void,
 };
 
 type State = {

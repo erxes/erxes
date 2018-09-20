@@ -12,12 +12,12 @@ import { IChannel } from '../../channels/types';
 import { ICommonFormProps } from '../../common/types';
 
 type Props = {
-  channels: IChannel
+  channels: IChannel;
 };
 
 type State = {
-  avatar: string,
-  selectedChannels: IChannel[],
+  avatar: string;
+  selectedChannels: IChannel[];
 };
 
 class UserForm extends React.Component<Props & ICommonFormProps, State> {

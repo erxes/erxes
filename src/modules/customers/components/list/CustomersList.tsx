@@ -15,6 +15,7 @@ import {
   SortHandler,
   Table
 } from '../../../common/components';
+import { IRouterProps } from '../../../common/types';
 import { __, confirm, router } from '../../../common/utils';
 import { Widget } from '../../../engage/containers';
 import { Wrapper } from '../../../layout/components';
@@ -26,7 +27,7 @@ import { CustomerForm } from '../../containers';
 import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
 
-type Props = {
+interface IProps extends IRouterProps {
   customers: any,
   counts: any,
   columnsConfig: any,
@@ -36,15 +37,17 @@ type Props = {
   bulk: any[],
   isAllSelected: boolean,
   emptyBulk: () => void,
-  toggleBulk: () => void,
+  toggleBulk: (target: any, toAdd: boolean) => void,
   toggleAll: (targets: string[], containerId: string) => void,
-  location: any,
-  history: any,
   loading: boolean,
   searchValue: string,
   loadingTags: boolean,
   removeCustomers: (doc: { customerIds: string[] }, emptyBulk: () => void) => void,
-  mergeCustomers: () => void,
+  mergeCustomers: (doc: {
+    ids: string[],
+    data: any,
+    callback: () => void,
+  }) => Promise<void>,
   queryParams: any,
   exportCustomers: (bulk: any[]) => void,
   handleXlsUpload: (e: React.FormEvent<HTMLInputElement>) => void
@@ -54,8 +57,8 @@ type State = {
   searchValue?: string
 }
 
-class CustomersList extends React.Component<Props, State> {
-  private timer: NodeJS.Timer
+class CustomersList extends React.Component<IProps, State> {
+  private timer?: NodeJS.Timer
 
   constructor(props) {
     super(props);
@@ -76,7 +79,7 @@ class CustomersList extends React.Component<Props, State> {
   }
 
   removeCustomers(customers) {
-    const customerIds = [];
+    const customerIds: string[] = [];
 
     customers.forEach(customer => {
       customerIds.push(customer._id);
@@ -252,7 +255,7 @@ class CustomersList extends React.Component<Props, State> {
       </BarItems>
     );
 
-    let actionBarLeft = null;
+    let actionBarLeft: React.ReactNode;
 
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="shuffle">
@@ -269,7 +272,7 @@ class CustomersList extends React.Component<Props, State> {
 
       actionBarLeft = (
         <BarItems>
-          <Widget customers={bulk} emptyBulk={emptyBulk} />
+          <Widget customers={bulk} emptyBulk={emptyBulk}  />
 
           <TaggerPopover
             type="customer"

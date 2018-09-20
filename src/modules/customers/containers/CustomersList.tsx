@@ -9,31 +9,32 @@ import React, { Component } from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Bulk } from '../../common/components';
+import { IRouterProps } from '../../common/types';
 import { CustomersList } from '../components';
 import { mutations, queries } from '../graphql';
 
-type Props = {
-  customersMainQuery: any,
-  customerCountsQuery: any,
-  customersListConfigQuery: any,
-  customersRemove: (params: { variables: { customerIds: string[] } }) => Promise<void>,
+interface IProps extends IRouterProps {
+  customersMainQuery: any;
+  customerCountsQuery: any;
+  customersListConfigQuery: any;
+  customersRemove: (params: { variables: { customerIds: string[] } }) => Promise<void>;
   customersMerge: (params: {
     variables: {
-      customerIds: string[],
-      customerFields: any
+      customerIds: string[];
+      customerFields: any;
     }
-  }) => Promise<void>,
-  tagsQuery: any,
-  brandsQuery: any,
-  queryParams: any,
-  history: any
+  }) => Promise<void>;
+  tagsQuery: any;
+  brandsQuery: any;
+  queryParams: any;
+  history: any;
 };
 
 type State = {
-  loading: boolean
+  loading: boolean;
 }
 
-class CustomerListContainer extends Component<Props, State> {
+class CustomerListContainer extends Component<IProps, State> {
   constructor(props) {
     super(props);
 
@@ -77,7 +78,7 @@ class CustomerListContainer extends Component<Props, State> {
         });
     };
 
-    const mergeCustomers = ({ ids, data, callback }) => {
+    const mergeCustomers = ({ ids, data, callback }) =>
       customersMerge({
         variables: {
           customerIds: ids,
@@ -92,7 +93,6 @@ class CustomerListContainer extends Component<Props, State> {
         .catch(e => {
           Alert.error(e.message);
         });
-    };
 
     const exportCustomers = (bulk) => {
       const { queryParams } = this.props;
@@ -182,9 +182,7 @@ class CustomerListContainer extends Component<Props, State> {
 
     return (
       <Bulk
-        content={(props) => {
-          return <CustomersList {...updatedProps} {...props} />;
-        }}
+        content={(props) => <CustomersList {...updatedProps} {...props} />}
         refetch={() => {
           this.props.customersMainQuery.refetch();
           this.props.customerCountsQuery.refetch();
@@ -258,4 +256,4 @@ export default compose(
       refetchQueries: ['customersMain', 'customerCounts']
     })
   })
-)(withRouter(CustomerListContainer));
+)(withRouter<IRouterProps>(CustomerListContainer));

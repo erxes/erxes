@@ -16,17 +16,16 @@ import { TaggerPopover } from 'modules/tags/components';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import { CompaniesMerge } from '..';
+import { IRouterProps } from '../../../common/types';
 import { CompanyForm } from '../../containers';
 import { ICompany } from '../../types';
 import CompanyRow from './CompanyRow';
 import Sidebar from './Sidebar';
 
-type Props = {
+interface IProps extends IRouterProps {
   companies: ICompany[],
   counts: any,
   columnsConfig: any,
-  history: any,
-  location: any,
   loading: boolean,
   searchValue: string,
   // TODO: check is below line not throwing error ?
@@ -46,8 +45,8 @@ type State = {
   searchValue?: string
 };
 
-class CompaniesList extends React.Component<Props, State> {
-  private timer: NodeJS.Timer
+class CompaniesList extends React.Component<IProps, State> {
+  private timer?: NodeJS.Timer = undefined
 
   constructor(props) {
     super(props);
@@ -79,7 +78,7 @@ class CompaniesList extends React.Component<Props, State> {
   }
 
   removeCompanies(companies) {
-    const companyIds = [];
+    const companyIds: string[] = [];
 
     companies.forEach(company => {
       companyIds.push(company._id);
@@ -167,7 +166,7 @@ class CompaniesList extends React.Component<Props, State> {
       </Button>
     );
 
-    let actionBarLeft = null;
+    let actionBarLeft: React.ReactNode;
 
     if (bulk.length > 0) {
       const tagButton = (
@@ -270,4 +269,4 @@ class CompaniesList extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(CompaniesList);
+export default withRouter<IRouterProps>(CompaniesList);

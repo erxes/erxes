@@ -44,7 +44,7 @@ class SegmentsList extends Component<Props> {
   renderContent() {
     const { segments } = this.props;
 
-    const parentSegments = [];
+    const parentSegments: ISegment[] = [];
 
     segments.forEach(segment => {
       if (!segment.subOf) {

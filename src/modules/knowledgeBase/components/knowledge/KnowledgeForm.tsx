@@ -21,17 +21,17 @@ import { ITopic } from '../../types';
 import SelectBrand from '../SelectBrand';
 
 type Props = {
-  topic: ITopic,
-  save?: ({ doc }: { doc: any; }, callback: () => void, topic: ITopic) => void,
-  remove?: (_id: string) => void,
-  brands: IBrand[],
-  closeModal?: () => void
+  topic: ITopic;
+  save: ({ doc }: { doc: any; }, callback: () => void, topic: ITopic) => void;
+  remove?: (_id: string) => void;
+  brands: IBrand[];
+  closeModal: () => void;
 };
 
 type State = {
-  copied: boolean,
-  code: string,
-  color: string
+  copied: boolean;
+  code: string;
+  color: string;
 }
 
 class KnowledgeForm extends Component<Props, State> {
@@ -104,7 +104,9 @@ class KnowledgeForm extends Component<Props, State> {
   remove() {
     const { remove, topic } = this.props;
 
-    remove(topic._id);
+    if(remove) {
+      remove(topic._id);
+    }
   }
 
   renderInstallCode() {

@@ -10,15 +10,15 @@ import { PipelineRow } from './';
 
 type Props = {
   pipelines: IPipeline[],
-  save: ({ doc }: { doc: any; }, callback: () => void, pipeline: IPipeline) => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, pipeline?: IPipeline) => void,
   updateOrder?: any,
   remove: (_id: string) => void,
-  boardId?: string
+  boardId: string
 };
 
 type State = {
   showModal: boolean,
-  currentPipeline: null,
+  currentPipeline?: IPipeline,
   pipelines: IPipeline[]
 };
 
@@ -31,7 +31,7 @@ class Pipelines extends Component<Props, State> {
 
     this.state = {
       showModal: false,
-      currentPipeline: null,
+      currentPipeline: undefined,
       pipelines: props.pipelines
     };
   }
@@ -49,7 +49,7 @@ class Pipelines extends Component<Props, State> {
   addPipeline() {
     this.setState({
       showModal: true,
-      currentPipeline: null
+      currentPipeline: undefined
     });
   }
 

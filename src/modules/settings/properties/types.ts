@@ -3,19 +3,19 @@ import { IUser } from "modules/auth/types";
 export interface IField {
     _id: string
     contentType: string
-    contentTypeId: string
+    contentTypeId?: string
     type: string
     validation: string
     text: string
     description: string
     options: string[]
-    isRequired: boolean
+    isRequired?: boolean
     order: React.ReactNode
-    isVisible: boolean
-    isDefinedByErxes: boolean
+    isVisible?: boolean
+    isDefinedByErxes?: boolean
     groupId: string
-    lastUpdatedUser: IUser
-    lastUpdatedUserId: string
+    lastUpdatedUser?: IUser
+    lastUpdatedUserId?: string
 }
 
 export interface IFieldGroup {
@@ -37,7 +37,7 @@ export interface IContentTypeFields {
     label: string
 }
 
-export interface IConfig {
+export interface IConfigColumn {
     name: string
     label: string
     order: React.ReactNode

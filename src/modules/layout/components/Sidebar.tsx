@@ -70,7 +70,7 @@ class Section extends React.Component<Props, State> {
     const { children, collapsible, noShadow, noBackground, full } = this.props;
 
     const height = {
-      maxHeight: collapsible && this.state.maxHeight
+      maxHeight: collapsible ? this.state.maxHeight : undefined
     };
 
     return (

@@ -6,17 +6,18 @@ import { IChannel } from '../types';
 type Props = {
   channel?: IChannel,
   members: IUser[],
-  save: ({ doc }: { doc: any }, callback: () => void, channel: IChannel) => void,
+  save: ({ doc }: { doc: any }, callback: () => void, channel?: IChannel) => void,
+  closeModal: () => void,
   loading?: boolean
 };
 
 const ChannelFormContainer = (props: Props) => {
   const { channel, save, members } = props;
 
-  let selectedMembers = [];
+  let selectedMembers: IUser[] = [];
 
   if (channel) {
-    selectedMembers = members.filter(u => channel.memberIds.includes(u._id));
+    selectedMembers = members.filter(user => channel.memberIds.includes(user._id));
   }
 
   const updatedProps = {

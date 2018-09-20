@@ -6,14 +6,14 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { generateRandomColorCode } from 'modules/common/utils';
-import { ITag, ITagSaveDoc } from 'modules/tags/types';
+import { ITag, ITagSaveParams } from 'modules/tags/types';
 import React, { Component } from 'react';
 
 type Props = {
-  tag?: ITag,
-  type: string,
-  closeModal: () => void,
-  save: (params: { tag: ITag, doc: ITagSaveDoc, callback: () => void }) => void
+  tag?: ITag;
+  type: string;
+  closeModal: () => void;
+  save: (params: ITagSaveParams) => void;
 };
 
 type State = {

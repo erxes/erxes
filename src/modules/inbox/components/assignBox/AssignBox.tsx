@@ -16,7 +16,7 @@ type Props = {
     doc: { conversationIds: string[]; assignedUserId: string },
     callback: (error: any) => void
   ) => void;
-  clear: (any, callback: (error: any) => void) => void;
+  clear: (userIds: string[], callback: (error: any) => void) => void;
 };
 
 type State = {

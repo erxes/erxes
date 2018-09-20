@@ -15,11 +15,11 @@ const commonListComposer = options => {
   } = options;
 
   type Props = {
-    totalCountQuery: any,
-    listQuery: any,
-    addMutation: ({ variables: any }) => any,
-    editMutation: ({ variables: any }) => any,
-    removeMutation: ({ variables: { _id: string } }) => any,
+    totalCountQuery: any;
+    listQuery: any;
+    addMutation: ({ variables: any }) => any;
+    editMutation: ({ variables: any }) => any;
+    removeMutation: ({ variables: { _id: string } }) => any;
   };
 
   const ListContainer = (props: Props) => {

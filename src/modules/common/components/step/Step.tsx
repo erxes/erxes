@@ -64,24 +64,34 @@ class Step extends Component<Props> {
       );
     }
 
-    return (
-      <Button
-        btnStyle="primary"
-        size="small"
-        icon="rightarrow-2"
-        onClick={() => next(0)}
-      >
-        Next
-      </Button>
-    );
+    if (next) {
+      return (
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="rightarrow-2"
+          onClick={() => next(0)}
+        >
+          Next
+        </Button>
+      );
+    }
+
+    return null;
   }
 
   renderNextButton() {
+    const { next } = this.props;
+
+    if (!next) {
+      return null;
+    }
+
     return (
       <Button
         btnStyle="primary"
         size="small"
-        onClick={() => this.props.next(0)}
+        onClick={() => next(0)}
       >
         {__("Next")} <Icon icon="rightarrow-2" />
       </Button>
@@ -114,7 +124,7 @@ class Step extends Component<Props> {
                 <img src={img} alt="step-icon" />
               </StepImg>
 
-              <StepHeaderTitle>{__(title)}</StepHeaderTitle>
+              <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>
             </StepHeader>
             {nextButton || this.renderButton()}
           </StepHeaderContainer>
@@ -122,7 +132,7 @@ class Step extends Component<Props> {
           <StepContent>{children}</StepContent>
         </FullStep>
 
-        <ShortStep show={!show} onClick={() => next(stepNumber)}>
+        <ShortStep show={!show} onClick={() => next && stepNumber && next(stepNumber)}>
           <StepImg>
             <img src={img} alt="step-icon" />
           </StepImg>

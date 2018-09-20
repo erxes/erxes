@@ -42,7 +42,7 @@ class Condition extends Component<Props, State> {
   handleInputValue(e) {
     e.preventDefault();
 
-    const states = { [e.target.name]: e.target.value, operator: null };
+    const states = { [e.target.name]: e.target.value, operator: '' };
 
     // Changing current operator when the type is changed
     if (e.target.name === 'type') {

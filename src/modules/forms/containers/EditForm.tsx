@@ -3,10 +3,12 @@ import { Alert } from "modules/common/utils";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
 import { withRouter } from "react-router";
+import { IRouterProps } from "../../common/types";
 import { Form } from "../components";
 import { mutations, queries } from "../graphql";
+import { IFormField } from "../types";
 
-type Props = {
+interface IProps extends IRouterProps {
   contentTypeId: string;
   formId: string;
   fieldsQuery: any;
@@ -17,12 +19,10 @@ type Props = {
   addFieldMutation: ({ variables }) => Promise<void>;
   editFieldMutation: ({ variables }) => Promise<void>;
   removeFieldMutation: ({ variables }) => Promise<void>;
-  location: any;
-  history: any;
   queryParams: any;
 };
 
-class EditFormContainer extends React.Component<Props, {}> {
+class EditFormContainer extends React.Component<IProps, {}> {
   render() {
     const {
       formId,
@@ -70,10 +70,10 @@ class EditFormContainer extends React.Component<Props, {}> {
 
         .then(() => {
           const dbFieldIds = dbFields.map(field => field._id);
-          const existingIds = [];
-          const createFieldsData = [];
-          const updateFieldsData = [];
-          const removeFieldsData = [];
+          const existingIds: any[] = [];
+          const createFieldsData: IFormField[] = [];
+          const updateFieldsData: IFormField[] = [];
+          const removeFieldsData: IFormField[] = [];
 
           // collect fields ================
           for (const field of fields) {
@@ -102,7 +102,7 @@ class EditFormContainer extends React.Component<Props, {}> {
           }
 
           // save fields ===================
-          const promises = [];
+          const promises: any[] = [];
 
           const doMutation = ({ datas, mutation }) => {
             for (const data of datas) {
@@ -152,9 +152,9 @@ const EditFormIntegrationContainer = compose(
       fetchPolicy: "network-only"
     })
   }),
-  graphql<Props>(gql(queries.fields), {
+  graphql(gql(queries.fields), {
     name: "fieldsQuery",
-    options: ({ formId }) => {
+    options: ({ formId } : { formId: string }) => {
       return {
         variables: {
           contentType: "form",
@@ -164,9 +164,9 @@ const EditFormIntegrationContainer = compose(
       };
     }
   }),
-  graphql<Props>(gql(queries.integrationDetail), {
+  graphql(gql(queries.integrationDetail), {
     name: "integrationDetailQuery",
-    options: ({ contentTypeId }) => ({
+    options: ({ contentTypeId } : { contentTypeId: string }) => ({
       variables: {
         _id: contentTypeId
       },
@@ -193,4 +193,4 @@ const EditFormIntegrationContainer = compose(
   })
 )(EditFormContainer);
 
-export default withRouter(EditFormIntegrationContainer);
+export default withRouter<IProps>(EditFormIntegrationContainer);

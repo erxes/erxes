@@ -9,9 +9,9 @@ import { ModalFooter } from '../../../common/styles/main';
 import { IBrand } from "../types";
 
 type Props = {
-  brand?: IBrand,
-  save: ({ doc }: { doc: any; }, callback: () => void, brand: IBrand) => void,
-  closeModal: () => void,
+  brand?: IBrand;
+  save: ({ doc }: { doc: any; }, callback: () => void, brand?: IBrand) => void;
+  closeModal: () => void;
 }
 
 class BrandForm extends Component<Props, {}> {

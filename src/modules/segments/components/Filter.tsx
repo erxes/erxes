@@ -9,6 +9,7 @@ import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { ISegment } from '../types';
 
 type Props = {
   currentSegment?: string,
@@ -73,7 +74,7 @@ class Segments extends React.Component<Props> {
 
   renderData() {
     const { counts, segments, currentSegment, setSegment } = this.props;
-    const orderedSegments = [];
+    const orderedSegments: ISegment[] = [];
 
     segments.forEach(segment => {
       if (!segment.subOf) {
@@ -86,7 +87,7 @@ class Segments extends React.Component<Props> {
         {orderedSegments.map(segment => (
           <li
             key={segment._id}
-            className={segment.subOf ? 'child-segment' : null}
+            className={segment.subOf ? 'child-segment' : ''}
           >
             <a
               tabIndex={0}

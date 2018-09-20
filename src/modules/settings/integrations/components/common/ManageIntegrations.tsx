@@ -36,7 +36,7 @@ type State = {
 }
 
 class ManageIntegrations extends Component<Props, State> {
-  private timer: NodeJS.Timer
+  private timer?: NodeJS.Timer
 
   constructor(props: Props) {
     super(props);
@@ -57,10 +57,10 @@ class ManageIntegrations extends Component<Props, State> {
 
   save() {
     const { selectedIntegrations } = this.state;
-    const ids = [];
+    const ids: string[] = [];
 
     selectedIntegrations.forEach(integration => {
-      ids.push(integration._id.toString());
+      ids.push(integration._id);
     });
 
     this.props.save(ids);

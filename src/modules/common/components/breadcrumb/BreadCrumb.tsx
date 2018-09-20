@@ -22,10 +22,12 @@ class BreadCrumb extends React.Component<{ breadcrumbs: BreadCrumbItem[] }> {
     const { breadcrumbs } = this.props;
     const page = breadcrumbs.pop();
 
-    setTitle(
-      page.title,
-      page.title === `${__('Inbox')}` && document.title.startsWith('(1)')
-    );
+    if (page) {
+      setTitle(
+        page.title,
+        page.title === `${__('Inbox')}` && document.title.startsWith('(1)')
+      );
+    }
   }
 
   componentDidUpdate() {

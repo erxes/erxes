@@ -80,9 +80,12 @@ const DateFilters = styled.div`
 type Props = {
   queryParams?: any,
   history: any,
-  client: any,
   countQuery?: string,
   countQueryParam?: string
+};
+
+type ApolloClientProps = {
+  client: any,
 };
 
 type State = {
@@ -93,24 +96,24 @@ type State = {
 
 const format = 'YYYY-MM-DD HH:mm';
 
-class DateFilter extends React.Component<Props, State> {
+class DateFilter extends React.Component<Props & ApolloClientProps, State> {
   constructor(props) {
     super(props);
 
     const { startDate, endDate } = props.queryParams;
 
-    const state = {
-      startDate: null,
-      endDate: null,
+    const state: State = {
+      startDate: new Date(),
+      endDate: new Date(),
       totalCount: 0
     };
 
     if (startDate) {
-      state.startDate = moment(startDate);
+      state.startDate = moment(startDate).toDate();
     }
 
     if (endDate) {
-      state.endDate = moment(endDate);
+      state.endDate = moment(endDate).toDate();
     }
 
     this.state = state;
@@ -138,6 +141,10 @@ class DateFilter extends React.Component<Props, State> {
 
   refetchCountQuery() {
     const { client, queryParams, countQuery, countQueryParam } = this.props;
+
+    if (!countQuery || !countQueryParam) {
+      return;
+    }
 
     client
       .query({
@@ -245,4 +252,4 @@ class DateFilter extends React.Component<Props, State> {
   }
 }
 
-export default withApollo(DateFilter);
+export default withApollo<Props>(DateFilter);

@@ -1,13 +1,13 @@
 import { FilterableList, Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { ITag } from 'modules/tags/types';
+import { ITag, ITagTypes } from 'modules/tags/types';
 import React, { Component } from 'react';
 
 type Props = {
-  type: string,
-  targets: string[],
-  event?: string,
-  className?: string,
+  type: ITagTypes;
+  targets: any[];
+  event?: 'onClick' | 'onExit';
+  className?: string;
 
   // from container
   loading: boolean,
@@ -35,12 +35,12 @@ class Tagger extends Component<Props, { tagsForList: any[] }> {
   /**
    * Returns array of tags object
    */
-  generateTagsParams(tags = [], targets = []) {
+  generateTagsParams(tags: ITag[] = [], targets: any[] = []) {
     return tags.map(({ _id, name, colorCode }) => {
       // Current tag's selection state (all, some or none)
       const count = targets.reduce(
         (memo, target) =>
-          memo + (target.tagIds && target.tagIds.indexOf(_id) > -1),
+          memo + ((target.tagIds || []).includes(_id) ? 1 : 0),
         0
       );
 
@@ -102,8 +102,11 @@ class Tagger extends Component<Props, { tagsForList: any[] }> {
       links,
       selectable: true,
       items: JSON.parse(JSON.stringify(this.state.tagsForList)),
-      [event]: this.tag
     };
+
+    if (event) {
+      props[event] = this.tag;
+    }
 
     return <FilterableList {...props} />;
   }

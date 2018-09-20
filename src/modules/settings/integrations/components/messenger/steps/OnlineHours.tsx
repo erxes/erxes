@@ -10,11 +10,12 @@ import React, { Component } from 'react';
 import Select from 'react-select-plus';
 
 type Props = {
-  prevOptions: any[], // eslint-disable-line
+  prevOptions: any[],
   onChange: (onlineHours: any[]) => void
 };
 
 type State = {
+  // TODO: fix any
   onlineHours: any[]
 };
 

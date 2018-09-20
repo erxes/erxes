@@ -15,7 +15,7 @@ type Props = {
   currentTopicId: string,
   category: ICategory,
   save: ({ doc }: { doc: any; }, callback: () => void, category: ICategory) => void,
-  closeModal?: () => void
+  closeModal: () => void
 };
 
 type State = {

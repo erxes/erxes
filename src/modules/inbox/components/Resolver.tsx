@@ -10,13 +10,13 @@ type Props = {
 };
 
 class Resolver extends React.Component<Props> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.changeStatus = this.changeStatus.bind(this);
   }
 
-  changeStatus(status) {
+  changeStatus(status: string) {
     const { conversations, changeStatus } = this.props;
 
     // call change status method

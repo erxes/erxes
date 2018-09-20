@@ -8,14 +8,14 @@ import { IDeal } from '../../types';
 
 type Props = {
   deal: IDeal,
-  saveDeal?: any,
+  saveDeal?: (doc: IDeal, callback: any, deal: IDeal) => Promise<any>,
   index?: number,
-  removeDeal?: any,
+  removeDeal?: (_id: string, callback: any) => Promise<any>,
   draggable?: boolean
 };
 
 class Deal extends React.Component<Props> {
-  showEditForm(trigger) {
+  showEditForm(trigger: any) {
     const { deal, index, saveDeal, removeDeal } = this.props;
 
     return (

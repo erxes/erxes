@@ -6,8 +6,15 @@ export interface ITag {
   objectCount?: number;
 }
 
-export interface ITagSaveDoc {
-  name: string;
-  type: string;
-  colorCode: string;
+export interface ITagSaveParams {
+  tag?: ITag;
+  doc: {
+    _id?: string;
+    name: string;
+    type: string;
+    colorCode: string;
+  };
+  callback: () => void;
 }
+
+export type ITagTypes = 'conversation' | 'customer'  | 'engageMessage' | 'company' | 'integration';

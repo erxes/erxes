@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import { IBrand } from "../brands/types";
 import { IChannel } from "../channels/types";
+=======
+import { IForm } from "modules/forms/types";
+>>>>>>> 7a18106c634fd45823fc113966c63bfc29a10257
 
 export interface IApps {
   id: string;
@@ -13,21 +17,22 @@ export interface IPages {
 }
 
 export interface IMessengerData {
-  welcomeMessage: string;
-  awayMessage: string;
-  thankYouMessage: string;
-  notifyCustomer: boolean;
-  supporterIds: string[];
-  availabilityMethod: string;
-  isOnline: boolean;
-  timezone: string;
-  onlineHours: any;
+  welcomeMessage?: string;
+  awayMessage?: string;
+  thankYouMessage?: string;
+  notifyCustomer?: boolean;
+  supporterIds?: string[];
+  availabilityMethod?: string;
+  isOnline?: boolean;
+  timezone?: string;
+  onlineHours?: any;
 }
 
 export interface IUiOptions {
-  color: string;
-  wallpaper: string;
-  logo: string;
+  color?: string;
+  wallpaper?: string;
+  logo?: string;
+  logoPreviewUrl? : string
 }
 
 export interface IFormData {
@@ -57,12 +62,12 @@ export interface IFacebookData {
 export interface IIntegration {
   _id: string;
   kind: string;
-  name?: string;
+  name: string;
   brandId?: string;
   description?: string;
   code: string;
   formId: string;
-  form: any;
+  form: IForm;
   logo: string;
   languageCode?: string;
   createUrl: string;

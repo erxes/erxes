@@ -14,7 +14,7 @@ type Props = {
   boardId: string,
   pipeline?: IPipeline,
   stages?: IStage[],
-  save?: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline: IPipeline) => void,
+  save: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline?: IPipeline) => void,
   closeModal: () => void,
 };
 

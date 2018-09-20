@@ -9,9 +9,9 @@ import { removeDeal as remove, saveDeal as save } from '../utils';
 
 type Props = {
   deals: IDeal[],
-  addMutation: any,
-  editMutation: any,
-  removeMutation: any,
+  addMutation: (params: { variables: { doc: any } }) => Promise<any>,
+  editMutation: (params: { variables: { doc: any } }) => Promise<any>,
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>,
   dealsQuery: any
 };
 
@@ -24,7 +24,7 @@ class PortableDealsContainer extends React.Component<Props> {
   }
 
   // create or update deal
-  saveDeal(doc, callback, deal) {
+  saveDeal(doc: IDeal, callback: any, deal: IDeal) {
     const { addMutation, editMutation, dealsQuery } = this.props;
 
     save(
@@ -39,7 +39,7 @@ class PortableDealsContainer extends React.Component<Props> {
   }
 
   // remove deal
-  removeDeal(_id, callback) {
+  removeDeal(_id: string, callback: any) {
     const { removeMutation, dealsQuery } = this.props;
 
     remove(_id, { removeMutation, dealsQuery }, { __ }, callback);

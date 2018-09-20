@@ -39,7 +39,7 @@ type Props = {
 };
 
 class ConversationItem extends React.Component<Props> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.onClick = this.onClick.bind(this);
@@ -47,13 +47,13 @@ class ConversationItem extends React.Component<Props> {
     this.toggleCheckbox = this.toggleCheckbox.bind(this);
   }
 
-  toggleCheckbox(e) {
+  toggleCheckbox(e: React.FormEvent<HTMLInputElement>) {
     const { toggleCheckbox, conversation } = this.props;
 
-    toggleCheckbox(conversation, e.target.checked);
+    toggleCheckbox(conversation, e.currentTarget.checked);
   }
 
-  onClick(e) {
+  onClick(e: React.MouseEvent) {
     e.preventDefault();
 
     const { onClick, conversation } = this.props;
@@ -73,11 +73,11 @@ class ConversationItem extends React.Component<Props> {
     );
   }
 
-  onClickCheckBox(e) {
+  onClickCheckBox(e: React.MouseEvent) {
     e.stopPropagation();
   }
 
-  renderFullName(customer) {
+  renderFullName(customer: ICustomer) {
     if (customer.firstName || customer.lastName) {
       return (customer.firstName || "") + " " + (customer.lastName || "");
     }
@@ -85,7 +85,7 @@ class ConversationItem extends React.Component<Props> {
     return null;
   }
 
-  getVisitorInfo(customer) {
+  getVisitorInfo(customer: ICustomer) {
     if (customer.visitorContactInfo) {
       const visitor = customer.visitorContactInfo;
 
