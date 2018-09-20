@@ -9,9 +9,22 @@ type Props = {
   productsQuery: any;
   productsCountQuery: any;
 
-  // TODO: replace any
-  addMutation: (mutation: { variables: { doc: any } }) => any;
-  editMutation: (mutation: { variables: { doc: any } }) => any;
+  addMutation: (mutation: { variables: { 
+    type: string;
+    _id?: string;
+    name?: string;
+    description?: string;
+    sku?: string;
+    createdAt?: Date;
+  } }) => any;
+  editMutation: (mutation: { variables: { 
+    type: string;
+    _id?: string;
+    name?: string;
+    description?: string;
+    sku?: string;
+    createdAt?: Date;
+  } }) => any;
   removeMutation: (mutation: { variables: { _id: string } }) => any;
 };
 

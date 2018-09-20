@@ -16,11 +16,11 @@ type Props = {
 };
 
 type State = {
-  _id?: string,
-  type: string,
-  name?: string,
-  description?: string,
-  sku?: string,
+  _id?: string;
+  type: string;
+  name?: string;
+  description?: string;
+  sku?: string;
   createdAt?: Date;
 }
 

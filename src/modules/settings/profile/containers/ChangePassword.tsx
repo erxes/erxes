@@ -6,6 +6,7 @@ import { ChangePassword } from '../components';
 
 type Props = {
   changePasswordMutation: (params: {variables: { currentPassword: string, newPassword: string }}) => Promise<any>;
+  closeModal: () => void;
 };
 
 const ChangePasswordContainer = (props: Props) => {

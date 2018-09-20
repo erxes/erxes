@@ -10,8 +10,7 @@ import React, { Component } from 'react';
 
 type Props = {
   save: (save: { currentPassword: string, newPassword: string, confirmation: string }) => void;
-  // TODO: remove optional
-  closeModal?: () => void;
+  closeModal: () => void;
 };
 
 class ChangePassword extends Component<Props> {

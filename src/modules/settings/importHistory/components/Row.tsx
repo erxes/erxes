@@ -4,7 +4,6 @@ import moment from 'moment';
 import * as React from 'react';
 
 type Props = {
-  // TODO: replace any rename HISTORIES type to HISTORY
   history?: any;
   removeHistory: (_id: string) => void;
 };
