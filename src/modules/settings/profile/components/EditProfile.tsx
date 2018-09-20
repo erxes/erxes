@@ -1,5 +1,5 @@
 import { UserCommonInfos } from 'modules/auth/components';
-import { IUser } from 'modules/auth/types';
+import { IUser, IUserDoc } from 'modules/auth/types';
 import { Button, ModalTrigger } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import React, { Component, Fragment } from 'react';
@@ -8,7 +8,7 @@ import { PasswordConfirmation } from '.';
 type Props = {
   currentUser: IUser;
   closeModal: () => void;
-  save: (variables: IUser & { _id: undefined, password?: string }) => void;
+  save: (variables: IUserDoc & {  password?: string }) => void;
 };
 
 type State = {

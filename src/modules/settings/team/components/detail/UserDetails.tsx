@@ -6,7 +6,7 @@ import {
   FlexBody,
   FlexContent
 } from 'modules/activityLogs/styles';
-import { IUser } from 'modules/auth/types';
+import { IUser, IUserDoc } from 'modules/auth/types';
 import {
   DataWithLoader,
   Icon,
@@ -32,8 +32,8 @@ import LeftSidebar from './LeftSidebar';
 type Props = {
   user: IUser,
   currentUser: IUser,
-  saveUser: (doc: IUser, callback: (e: string) => void ) => void,
-  saveProfile: (variables: IUser) => void,
+  saveUser: (_id: string, doc: IUserDoc, callback: (e: string) => void ) => void,
+  saveProfile: (variables: IUserDoc) => void,
   channels: IChannel[],
   loadingLogs: boolean,
   activityLogsUser: IActivityLogsUser[],
