@@ -36,7 +36,7 @@ export interface ICompanyDoc {
 };
 
 export interface ICompany extends ICompanyDoc {
-    _id?: string;
+    _id: string;
     owner: IUser;
     parentCompany: ICompany;
     getTags: ITag[];

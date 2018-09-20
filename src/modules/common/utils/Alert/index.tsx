@@ -32,7 +32,11 @@ const createAlert = (type: any, text: string) => {
     alertcount = 0;
 
     if (document.getElementById('alert-container')) {
-      document.body.removeChild(document.getElementById('alert-container'));
+      const container = document.getElementById('alert-container');
+
+      if (container) {
+        document.body.removeChild(container);
+      }
     }
   }, 3500);
 

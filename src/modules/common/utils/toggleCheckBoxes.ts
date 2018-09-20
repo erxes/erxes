@@ -1,5 +1,10 @@
 export default (containerId: string, checked: boolean) => {
   const container = document.getElementById(containerId);
+
+  if (!container) {
+    return;
+  }
+
   const elements = container.getElementsByTagName('input');
 
   // tslint:disable-next-line

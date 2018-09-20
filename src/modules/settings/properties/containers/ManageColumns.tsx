@@ -28,6 +28,7 @@ const ManageColumnsContainer = (props: Props) => {
   }
 
   const storageKey = `erxes_${contentType}_columns_config`;
+  const storageItem = localStorage.getItem(storageKey);
 
   const save = config => {
     localStorage.setItem(storageKey, JSON.stringify(config));
@@ -41,8 +42,8 @@ const ManageColumnsContainer = (props: Props) => {
 
   let config = fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
 
-  if (localStorage.getItem(storageKey)) {
-    config = JSON.parse(localStorage.getItem(storageKey));
+  if (storageItem) {
+    config = JSON.parse(storageItem);
   }
 
   const updatedProps = {

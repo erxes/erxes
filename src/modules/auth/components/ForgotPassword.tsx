@@ -43,7 +43,7 @@ class ForgotPassword extends Component<Props, { email: string }> {
           <FormGroup>
             <FormControl
               type="email"
-              placeholder={__('registered@email.com').toString()}
+              placeholder={__('registered@email.com')}
               value={this.state.email}
               required
               onChange={this.handleEmailChange}

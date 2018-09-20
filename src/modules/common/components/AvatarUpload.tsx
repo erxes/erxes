@@ -11,7 +11,7 @@ import { Alert, uploadHandler } from '../utils';
 type Props = {
   avatar?: string,
   defaultAvatar?: string,
-  onAvatarUpload?: (response: any) => void
+  onAvatarUpload: (response: any) => void
 };
 
 type State = {

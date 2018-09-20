@@ -6,6 +6,7 @@ import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '../../../common/types';
 
 type Props = {
   customersRemove: (doc: {
@@ -23,7 +24,7 @@ type Props = {
   location: any
 };
 
-const BasicInfoContainer = (props: BaseProps & Props) => {
+const BasicInfoContainer = (props: IBaseProps & Props) => {
   const { customer, customersRemove, customersMerge, history } = props;
 
   const { _id } = customer;
@@ -70,14 +71,11 @@ const generateOptions = () => ({
   refetchQueries: ['customersMain', 'customerCounts']
 });
 
-type BaseProps = {
+interface IBaseProps extends IRouterProps {
   customer: ICustomer,
-  history: any,
-  location: any,
-  match: any,
 };
 
-export default withRouter<BaseProps>(
+export default withRouter<IBaseProps>(
   compose(
     // mutations
     graphql(gql(mutations.customersRemove), {

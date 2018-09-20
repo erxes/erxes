@@ -85,4 +85,12 @@ export {
   searchCustomer
 };
 
-export const __ = (key: string, options?: any) => T.translate(key, options);
+export const __ = (key: string, options?: any) => {
+  const translation = T.translate(key, options);
+
+  if (!translation) {
+    return '';
+  }
+
+  return translation.toString();
+}

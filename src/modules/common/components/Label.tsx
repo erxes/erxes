@@ -26,7 +26,7 @@ const types = {
   }
 };
 
-const LabelStyled = styledTS<{ lblStyle?: string, hasLightBackground?: boolean, shake?: boolean }>(styled.span)`
+const LabelStyled = styledTS<{ lblStyle: string, hasLightBackground?: boolean, shake?: boolean }>(styled.span)`
   border-radius: 14px;
   padding: 3px 9px;
   text-transform: uppercase;
@@ -74,20 +74,20 @@ const LabelStyled = styledTS<{ lblStyle?: string, hasLightBackground?: boolean, 
 `;
 
 type Props = {
-  children: React.ReactNode | string,
-  className?: string,
-  shake?: boolean
-  ignoreTrans?: boolean,
-  style?: any,
-  lblStyle?: string
+  children: React.ReactNode | string;
+  className?: string;
+  shake?: boolean;
+  ignoreTrans?: boolean;
+  style?: any;
+  lblStyle?: string;
+};
+
+const defaultProps = {
+  lblStyle: 'default',
+  shake: false
 };
 
 class Label extends Component<Props> {
-  static defaultProps = {
-    lblStyle: 'default',
-    shake: false
-  };
-
   render() {
     const { ignoreTrans, children, style } = this.props;
 
@@ -95,7 +95,7 @@ class Label extends Component<Props> {
       ...this.props,
       hasLightBackground: style
         ? colorParser.isColorLight(style.backgroundColor)
-        : null
+        : undefined
     };
 
     let content;
@@ -107,7 +107,7 @@ class Label extends Component<Props> {
     }
 
     return (
-      <LabelStyled {...updatedProps}>
+      <LabelStyled {...defaultProps} {...updatedProps}>
         {content}
       </LabelStyled>
     );

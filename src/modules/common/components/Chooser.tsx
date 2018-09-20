@@ -12,11 +12,11 @@ import { CenterContent, ModalFooter } from '../styles/main';
 
 type Props = {
   data: any,
-  onSelect?: (datas: any[]) => void,
+  onSelect: (datas: any[]) => void,
   search: (value: string, reload?: boolean) => void,
   datas: any[],
   title: string,
-  renderName?: (data: any) => void,
+  renderName: (data: any) => void,
   renderForm: (props: { closeModal: () => void }) => any,
   perPage: number,
   clearState: () => void,
@@ -32,7 +32,7 @@ type State = {
 }
 
 class CommonChooser extends Component<Props, State> {
-  private timer: NodeJS.Timer
+  private timer?: NodeJS.Timer;
 
   constructor(props) {
     super(props);

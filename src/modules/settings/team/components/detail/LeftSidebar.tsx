@@ -49,12 +49,6 @@ class LeftSidebar extends React.Component<Props> {
     const { user, saveProfile, channels, saveUser, currentUser } = this.props;
     const { details = {}, links = {} } = user;
 
-    let form = <UserForm object={user} save={saveUser} />;
-
-    if (currentUser._id === user._id) {
-      form = <EditProfile save={saveProfile} currentUser={currentUser} />;
-    }
-
     return (
       <Sidebar wide>
         <Section>
@@ -64,9 +58,18 @@ class LeftSidebar extends React.Component<Props> {
               avatarSize={50}
               secondLine={this.renderLinks(links)}
             />
-            <ModalTrigger title="Edit" trigger={<Icon icon="edit" />} size="lg">
-              {form}
-            </ModalTrigger>
+            <ModalTrigger 
+              title="Edit" 
+              trigger={<Icon icon="edit" />} 
+              size="lg"
+              content={(props) => {
+                if (currentUser._id === user._id) {
+                  return <EditProfile {...props } save={saveProfile} currentUser={currentUser} />;
+                }
+
+                return <UserForm {...props} object={user} save={saveUser} />;
+              }}
+            />
           </InfoWrapper>
           <SidebarList className="no-link">
             <li>

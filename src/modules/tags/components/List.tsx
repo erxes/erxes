@@ -1,7 +1,7 @@
 import { Button, ModalTrigger, Table } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { ITag, ITagSaveDoc } from 'modules/tags/types';
+import { ITag, ITagSaveParams } from 'modules/tags/types';
 import * as React from 'react';
 import Form from './Form';
 import Row from './Row';
@@ -11,7 +11,7 @@ type Props = {
   tags: ITag[],
   type: string,
   remove: (tag: ITag) => void,
-  save: (params: { tag: ITag, doc: ITagSaveDoc, callback: () => void }) => void
+  save: (params: ITagSaveParams) => void
 };
 
 function List({ tags, type, remove, save }: Props) {

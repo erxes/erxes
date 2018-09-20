@@ -52,7 +52,7 @@ const EmptyStateStyled = styledTS<{ hugeness: string }>(styled.div)`
 `;
 
 type Props = {
-  text?: string,
+  text: string,
   icon?: string,
   image?: string,
   size?: string,

@@ -62,8 +62,9 @@ class CustomerForm extends React.Component<Props, State> {
   componentDidMount() {
     const { customer } = this.props;
 
-    if (customer && customer.ownerId)
+    if (customer && customer.owner && customer.owner.details) {
       this.handleUserSearch(customer.owner.details.fullName);
+    }
   }
 
   getInputElementValue(id) {

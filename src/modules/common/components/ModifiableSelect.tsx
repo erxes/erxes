@@ -109,7 +109,7 @@ class ModifiableSelect extends Component<Props, State> {
     this.setState(
       {
         options: options.filter(option => option !== value),
-        selectedOption: null
+        selectedOption: ''
       },
       () => {
         onChange({ options: this.state.options, selectedOption: null });
@@ -171,7 +171,7 @@ class ModifiableSelect extends Component<Props, State> {
 
     return (
       <Button onClick={this.handleAdding} size="small" icon="add">
-        {__(buttonText)}
+        {__(buttonText || '')}
       </Button>
     );
   }
@@ -184,7 +184,7 @@ class ModifiableSelect extends Component<Props, State> {
       <Fragment>
         <FormGroup>
           <Select
-            placeholder={__(placeholder)}
+            placeholder={__(placeholder || '')}
             searchable={false}
             value={selectedOption}
             valueComponent={this.renderValue}

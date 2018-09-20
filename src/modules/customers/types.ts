@@ -34,15 +34,15 @@ export interface ICustomerDoc {
         youtube?: string;
         github?: string;
     }
-    twitterData?: any;
-    facebookData?: any;
-    messengerData?: any;
-    customFieldsData?: any;
-    visitorContactInfo?: any;
+    twitterData?: { [key: string]: any };
+    facebookData?: { [key: string]: any };
+    messengerData?: { [key: string]: any };
+    customFieldsData?: { [key: string]: any };
+    visitorContactInfo?: { [key: string]: any };
 }
 
 export interface ICustomer extends ICustomerDoc {
-    _id?: string;
+    _id: string;
     owner?: IUser;
     integration?: IIntegration;
     getMessengerCustomData?: any;
