@@ -19,7 +19,7 @@ type Props = {
   article: IArticle,
   currentCategoryId: string,
   save: ({ doc }: { doc: any }, callback: () => void, IArticle) => void,
-  closeModal?: () => void
+  closeModal: () => void
 };
 
 type State = {

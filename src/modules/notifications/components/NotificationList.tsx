@@ -7,9 +7,9 @@ import { NotificationRow } from './';
 import { NotifList } from './styles';
 
 type Props = {
-  notifications: any[],
-  markAsRead: (bulk?: string[]) => void,
-  count: number
+  notifications: any[];
+  markAsRead: (bulk?: string[]) => void;
+  count: number;
 };
 
 class NotificationList extends Component<Props, { bulk: string[] }> {

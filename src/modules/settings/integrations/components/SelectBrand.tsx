@@ -7,6 +7,12 @@ import {
 import { __ } from '../../../common/utils';
 import { IBrand } from '../../brands/types';
 
+type Props = {
+  brands: IBrand[], // eslint-disable-line react/forbid-prop-types
+  onChange?: (e: any) => any,
+  defaultValue?: string
+};
+
 const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (
   <FormGroup>
     <ControlLabel>Brand</ControlLabel>
@@ -27,11 +33,5 @@ const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (
     </FormControl>
   </FormGroup>
 );
-
-type Props = {
-  brands: IBrand[], // eslint-disable-line react/forbid-prop-types
-  onChange?: (e: any) => any,
-  defaultValue?: string
-};
 
 export default SelectBrand;

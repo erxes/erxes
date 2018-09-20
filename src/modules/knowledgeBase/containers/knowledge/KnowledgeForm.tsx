@@ -7,9 +7,10 @@ import { queries } from '../../graphql';
 import { ITopic } from '../../types';
 
 type Props = {
-  getBrandListQuery: any,
-  save: () => void,
-  topic: ITopic
+  getBrandListQuery: any;
+  save: () => void;
+  topic: ITopic;
+  closeModal: () => void;
 };
 
 const TopicAddFormContainer = ({ topic, getBrandListQuery, ...props }: Props) => {

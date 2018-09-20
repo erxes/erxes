@@ -80,15 +80,15 @@ class ArticleRow extends Component<Props> {
           <p>{article.summary}</p>
           <ArticleMeta>
             <img
-              alt={user.details.fullName || 'author'}
-              src={
+              alt={user.details && user.details.fullName || 'author'}
+              src={ article.createdUser.details &&
                 article.createdUser.details.avatar ||
                 '/images/avatar-colored.svg'
               }
             />
             {__('Written By')}
             <AuthorName>
-              {user.details.fullName || user.username || user.email}
+              {user.details && user.details.fullName || user.username || user.email}
             </AuthorName>
             <Icon icon="wallclock" /> {__('Created')}{' '}
             {moment(article.createdDate).format('ll')}

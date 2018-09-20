@@ -2,6 +2,7 @@ import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
+import { INotification } from '../types';
 import { NotificationRow } from './';
 import {
   NotificationList,
@@ -11,15 +12,19 @@ import {
 } from './styles';
 
 type Props = {
-  notifications: any[],
-  markAsRead: (_ids: string[]) => void,
-  update?: () => void
+  notifications: INotification[];
+  markAsRead: (params: any) => void;
+  update?: () => void;
 };
 
 class NotificationsLatest extends Component<Props> {
   componentDidMount() {
     // update popover position
-    this.props.update();
+    const { update } = this.props;
+
+    if(update) {
+      update();
+    }
   }
 
   render() {
