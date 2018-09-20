@@ -104,8 +104,9 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
      }
   }
 
-  renderContent(object) {
-    const user = object._id ? object : { details: {} };
+  render() {
+    const { object } = this.props;
+    const user = object || { details: {} };
 
     return (
       <div>
