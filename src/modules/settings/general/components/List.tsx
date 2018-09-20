@@ -62,6 +62,7 @@ class List extends Component<Props, State> {
 
   onLanguageChange(language) {
     this.setState({ language });
+    // TODO: check context
     this.context.changeLanguage(language.value);
   }
 
