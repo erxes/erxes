@@ -3,20 +3,19 @@ import { Alert } from "modules/common/utils";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
 import { withRouter } from "react-router";
+import { IRouterProps } from "../../common/types";
 import { Form } from "../components";
 import { mutations, queries } from "../graphql";
 import { IFormField } from "../types";
 
-type Props = {
+interface IProps extends IRouterProps {
   brandsQuery: any;
   addIntegrationMutation: ({ variables }) => Promise<void>;
   addFormMutation: ({ variables }) => Promise<any>;
   addFieldsMutation: (params: { variables: { contentType: string, contentTypeId: string, field: IFormField } }) => void;
-  location: any;
-  history: any;
 };
 
-class CreateFormContainer extends React.Component<Props, {}> {
+class CreateFormContainer extends React.Component<IProps, {}> {
   render() {
     const {
       brandsQuery,
@@ -93,7 +92,7 @@ const CreateFormWithData = compose(
       fetchPolicy: "network-only"
     })
   }),
-  graphql<Props>(gql(mutations.integrationsCreateFormIntegration), {
+  graphql(gql(mutations.integrationsCreateFormIntegration), {
     name: "addIntegrationMutation",
     options: {
       refetchQueries: ["formIntegrations", "formIntegrationCounts"]
@@ -107,4 +106,4 @@ const CreateFormWithData = compose(
   })
 )(CreateFormContainer);
 
-export default withRouter(CreateFormWithData);
+export default withRouter<IProps>(CreateFormWithData);

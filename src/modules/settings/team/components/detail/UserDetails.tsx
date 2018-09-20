@@ -30,14 +30,14 @@ import { IActivityLogsUser } from '../../../../activityLogs/types';
 import LeftSidebar from './LeftSidebar';
 
 type Props = {
-  user: IUser,
-  currentUser: IUser,
-  saveUser: (_id: string, doc: IUserDoc, callback: (e: string) => void ) => void,
-  saveProfile: (variables: IUserDoc) => void,
-  channels: IChannel[],
-  loadingLogs: boolean,
-  activityLogsUser: IActivityLogsUser[],
-  totalConversationCount: number
+  user: IUser;
+  currentUser: IUser;
+  saveUser: (_id: string, doc: IUserDoc, callback: (e: string) => void ) => void;
+  saveProfile: (variables: IUserDoc) => void;
+  channels: IChannel[];
+  loadingLogs: boolean;
+  activityLogsUser: IActivityLogsUser[];
+  totalConversationCount: number;
 };
 
 type State = {
