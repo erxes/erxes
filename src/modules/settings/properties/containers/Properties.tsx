@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
-import { router } from 'modules/common/utils';
+import { IRouterProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
+import { router } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -9,19 +10,16 @@ import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 import { mutations, queries } from '../graphql';
 import { companyBasicInfos, customerBasicInfos } from '../utils';
 
-type Props = {
+interface IProps extends IRouterProps {
   queryParams: any;
   fieldsGroupsQuery: any;
-  history: any;
-  location: any;
-  match: any;
   fieldsGroupsRemove: (params: { variables: { _id: string } }) => Promise<any>;
   fieldsRemove: (params: { variables: { _id: string } }) => Promise<any>;
   fieldsGroupsUpdateVisible: (params: { variables: { _id: string, isVisible: boolean } }) =>Promise<any>;
   fieldsUpdateVisible: (params: { variables: { _id: string, isVisible: boolean } }) => Promise<any>;
 };
 
-const PropertiesContainer = (props: Props) => {
+const PropertiesContainer = (props: IProps) => {
   const {
     fieldsGroupsQuery,
     history,
@@ -143,4 +141,4 @@ export default compose(
     name: 'fieldsGroupsUpdateVisible',
     options
   })
-)(withRouter<Props>(PropertiesContainer));
+)(withRouter<IProps>(PropertiesContainer));

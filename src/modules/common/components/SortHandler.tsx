@@ -1,16 +1,14 @@
 import { Icon } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import { router } from 'modules/common/utils';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 
-type Props = {
-  history: any;
+interface IProps extends IRouterProps {
   sortField?: string;
-  location: any;
-  match: any;
 };
 
-class SortHandler extends Component<Props> {
+class SortHandler extends Component<IProps> {
   sortHandler(field, direction) {
     const { history } = this.props;
 
@@ -52,4 +50,4 @@ class SortHandler extends Component<Props> {
   }
 }
 
-export default withRouter<Props>(SortHandler);
+export default withRouter<IProps>(SortHandler);

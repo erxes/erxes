@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils } from 'modules/common/utils';
 import queryString from 'query-string';
 import * as React from 'react';
@@ -78,13 +79,7 @@ const KnowledgeBaseLastContainer = compose(
   })
 )(KnowledgeBaseLast);
 
-type MainContainerProps = {
-  history: any,
-  location: any,
-  match: any
-};
-
-const MainContainer = (props : MainContainerProps) => {
+const MainContainer = (props : IRouterProps) => {
   const { history } = props;
   const currentCategoryId = routerUtils.getParam(history, 'id');
 
@@ -97,4 +92,4 @@ const MainContainer = (props : MainContainerProps) => {
   return <KnowledgeBaseLastContainer {...props} />;
 };
 
-export default withRouter<MainContainerProps>(MainContainer);
+export default withRouter<IRouterProps>(MainContainer);

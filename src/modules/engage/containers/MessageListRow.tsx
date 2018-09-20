@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IRouterProps } from 'modules/common/types';
 import { Alert, confirm } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -15,17 +16,14 @@ type Props = {
   setLiveManualMutation: () => Promise<void>;
 };
       
-type RouterProps = {
-  history: any,
-  location: any,
-  match: any,
+interface IRouteProps extends IRouterProps {
   isChecked: boolean,
   toggleBulk: (value: IEngageMessage, isChecked: boolean) => void,
   message: IEngageMessage,
   queryParams: any
 };
 
-const MessageRowContainer = (props : Props & RouterProps) => {
+const MessageRowContainer = (props : Props & IRouteProps) => {
   const {
     history,
     message,
@@ -102,7 +100,7 @@ const statusMutationsOptions = ({ queryParams, message }) => {
   };
 };
 
-export default withRouter<RouterProps>(
+export default withRouter<IRouteProps>(
   compose(
     graphql(gql(mutations.messageRemove), {
       name: 'removeMutation',

@@ -1,4 +1,5 @@
 import { DataWithLoader } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
@@ -6,14 +7,11 @@ import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 
-type Props = {
-  history: any;
-  location: any;
-  match: any;
+interface IProps extends IRouterProps {
   counts: any;
 };
 
-function IntegrationFilter({ history, counts }: Props) {
+function IntegrationFilter({ history, counts }: IProps) {
   const { Section, Header } = Wrapper.Sidebar;
 
   const data = (
@@ -56,4 +54,4 @@ function IntegrationFilter({ history, counts }: Props) {
   );
 }
 
-export default withRouter<Props>(IntegrationFilter);
+export default withRouter<IProps>(IntegrationFilter);

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IRouterProps } from 'modules/common/types';
 import { router } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -6,14 +7,11 @@ import { withRouter } from 'react-router';
 import { Filter } from '../components';
 import { queries } from '../graphql';
 
-type Props = {
+interface IProps extends IRouterProps {
   segmentsQuery: any;
-  history: any;
-  location: any;
-  match: any;
 };
 
-const FilterContainer = (props: Props) => {
+const FilterContainer = (props: IProps) => {
   const { segmentsQuery, history } = props;
 
   const currentSegment = router.getParam(history, 'segment');
@@ -45,4 +43,4 @@ export default compose(
       variables: { contentType }
     })
   })
-)(withRouter<Props>(FilterContainer));
+)(withRouter<IProps>(FilterContainer));

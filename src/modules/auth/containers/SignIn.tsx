@@ -5,15 +5,15 @@ import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { IRouterProps } from '../../common/types';
 import { SignIn } from '../components';
 import { mutations } from '../graphql';
 
-type Props = {
-  loginMutation: (params: { variables: any }) => any;
-  history: any;
+interface IProps extends IRouterProps {
+  loginMutation: (params: { variables: any }) => Promise<any>;
 };
 
-const SignInContainer = (props: Props) => {
+const SignInContainer = (props: IProps) => {
   const { loginMutation, history } = props;
 
   const login = variables => {
@@ -44,7 +44,7 @@ const SignInContainer = (props: Props) => {
   return <SignIn {...updatedProps} />;
 };
 
-export default withRouter(
+export default withRouter<IRouterProps>(
   compose(
     graphql(gql(mutations.login), {
       name: 'loginMutation'

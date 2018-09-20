@@ -3,6 +3,7 @@ import { router as routerUtils } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { IRouterProps } from '../../../common/types';
 import { Home } from '../components';
 import { queries } from '../graphql';
 
@@ -46,12 +47,8 @@ const LastBoardContainer = compose(
   })
 )(LastBoard);
 
-type MainContainerProps = {
-  history: any
-};
-
 // Main home component
-const MainContainer = (props: MainContainerProps) => {
+const MainContainer = (props: IRouterProps) => {
   const { history } = props;
   const boardId = routerUtils.getParam(history, 'boardId');
 
@@ -64,4 +61,4 @@ const MainContainer = (props: MainContainerProps) => {
   return <LastBoardContainer {...props} />;
 };
 
-export default withRouter(MainContainer);
+export default withRouter<IRouterProps>(MainContainer);
