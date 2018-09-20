@@ -18,6 +18,8 @@ type Props = {
   topic: ITopic;
   articlesCount: number;
   remove: ( _id: string ) => void;
+
+  // TODO: replace any
   save: ({ doc }: { doc: any }, callback: () => void, object: any) => void;
 };
 

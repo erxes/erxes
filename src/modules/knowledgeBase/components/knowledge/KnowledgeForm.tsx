@@ -22,7 +22,10 @@ import SelectBrand from '../SelectBrand';
 
 type Props = {
   topic: ITopic;
+
+  // TODO: replace any
   save: ({ doc }: { doc: any; }, callback: () => void, topic: ITopic) => void;
+
   remove?: (_id: string) => void;
   brands: IBrand[];
   closeModal: () => void;

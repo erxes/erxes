@@ -8,8 +8,11 @@ import { ICategory } from '../../types';
 
 type Props = {
   category: ICategory;
+
+  // TODO: replace any
   addCategoriesMutation: (params: { variables: any }) => Promise<any>;
   editCategoriesMutation: (params: { variables: any }) => Promise<any>;
+
   topicIds: string;
   closeModal: () => void;
 };

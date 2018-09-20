@@ -8,15 +8,13 @@ import { withRouter } from 'react-router';
 import { KnowledgeBase as KnowledgeBaseComponent } from '../components';
 import { queries } from '../graphql';
 
-type Props = {
+interface IProps extends IRouterProps {
   currentCategoryId: string;
   articlesCountQuery: any;
   categoryDetailQuery: any;
-  history: any;
-  location: any;
 };
 
-class KnowledgeBase extends React.Component<Props> {
+class KnowledgeBase extends React.Component<IProps> {
   componentWillReceiveProps() {
     const { history, currentCategoryId } = this.props;
 
