@@ -20,8 +20,6 @@ type Props = {
       customerFields: ICustomer;
     }
   }) => Promise<any>;
-  history: any;
-  location: any;
 };
 
 const BasicInfoContainer = (props: IBaseProps & Props) => {

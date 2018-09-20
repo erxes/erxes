@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils } from 'modules/common/utils';
 import queryString from 'query-string';
 import * as React from 'react';
@@ -8,15 +9,13 @@ import { Channels as DumbChannels, Empty } from '../components';
 import { queries } from '../graphql';
 import { IChannel } from '../types';
 
-type Props = {
+interface IProps extends IRouterProps {
   currentChannelId: string;
-  history: any;
-  location: any;
   integrationsCountQuery: any;
   channelDetailQuery: any;
 };
 
-class Channels extends React.Component<Props> {
+class Channels extends React.Component<IProps> {
   render() {
     const {
       channelDetailQuery,
@@ -105,7 +104,7 @@ const WithLastChannel = compose(
   })
 )(WithCurrentId);
 
-const WithQueryParams = (props: WithQueryParams) => {
+const WithQueryParams = (props: IRouterProps) => {
   const { location } = props;
   const queryParams = queryString.parse(location.search);
 
@@ -114,9 +113,4 @@ const WithQueryParams = (props: WithQueryParams) => {
   return <WithLastChannel {...extendedProps} />;
 };
 
-type WithQueryParams = {
-  location: any
-};
-
-
-export default withRouter(WithQueryParams);
+export default withRouter<IRouterProps>(WithQueryParams);

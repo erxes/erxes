@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IRouterProps } from 'modules/common/types';
 import { queries as tagQueries } from 'modules/tags/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -13,14 +14,11 @@ type Props = {
   tagCountsQuery: any;
 };
 
-type RouterProps = {
-  location: any;
-  match: any;
-  history: any;
+interface IRouteProps extends IRouterProps {
   queryParams: any;
 };
 
-const SidebarContainer = (props : Props) => {
+const SidebarContainer = (props : Props & IRouteProps) => {
   const {
     kindCountsQuery,
     statusCountsQuery,
@@ -39,7 +37,7 @@ const SidebarContainer = (props : Props) => {
   return <Sidebar {...updatedProps} />;
 };
 
-export default withRouter<RouterProps>(
+export default withRouter<IRouteProps>(
   compose(
     graphql(gql(queries.kindCounts), {
       name: 'kindCountsQuery',
