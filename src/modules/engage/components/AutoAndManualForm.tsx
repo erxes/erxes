@@ -15,19 +15,19 @@ import { ChannelStep, MessageStep, SegmentStep } from './step';
 
 type Props = {
   message?: IEngageMessage,
-  brands?: IBrand[],
-  users?: IUser[],
-  segments?: ISegment[],
-  headSegments?: ISegment[],
-  segmentFields?: ISegment[],
-  segmentAdd?: ({ doc }: { doc: any; }) => void,
-  templates?: IEmailTemplate[],
+  brands: IBrand[],
+  users: IUser[],
+  segments: ISegment[],
+  headSegments: ISegment[],
+  segmentFields: ISegment[],
+  templates: IEmailTemplate[],
+  segmentAdd: ({ doc }: { doc: any; }) => void,
   customerCounts?: any,
-  count?: (segment: ISegment) => void,
-  kind?: string,
-  validateAndSaveForm?: (type: string, doc: any) => void,
-  renderTitle?: () => void,
-  changeState?: (name: string, value: string) => void,
+  count: (segment: ISegment) => void,
+  kind: string,
+  validateAndSaveForm: (type: string, doc: any) => void,
+  renderTitle: () => void,
+  changeState: (name: string, value: string) => void,
 };
 
 type State = {

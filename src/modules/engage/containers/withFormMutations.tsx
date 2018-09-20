@@ -3,7 +3,6 @@ import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import FormBase from '../components/FormBase';
 import { mutations, queries } from '../graphql';
 import { crudMutationsOptions } from '../utils';
 
@@ -86,15 +85,7 @@ const withSaveAndEdit = Component => {
       }
     };
 
-    return (
-      <FormBase
-        save={save}
-        kind={props.kind}
-        content={(props) =>
-          <Component {...updatedProps} {...props} />
-        }
-      />
-    );
+    return <Component {...updatedProps} />;
   };
 
   return withRouter(

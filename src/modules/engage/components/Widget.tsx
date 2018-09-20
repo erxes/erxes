@@ -1,14 +1,16 @@
 import { Button, ModalTrigger } from 'modules/common/components';
+import { ICustomer } from 'modules/customers/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React, { Component } from 'react';
 import { IBrand } from '../../settings/brands/types';
 import WidgetForm from './WidgetForm';
 
 type Props = {
-  emailTemplates: IEmailTemplate[],
-  brands: IBrand[],
-  messengerKinds: any[],
-  sentAsChoices: any[],
+  emailTemplates: IEmailTemplate[];
+  brands: IBrand[];
+  customers: ICustomer[];
+  messengerKinds: any[];
+  sentAsChoices: any[];
   save: (doc: any, closeModal: () => void) => void,
 }
 

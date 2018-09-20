@@ -67,7 +67,7 @@ class Segments extends Component<Props, State> {
   render() {
     const { segments } = this.props;
 
-    const orderedSegments = [];
+    const orderedSegments: ISegment[] = [];
 
     segments.forEach(segment => {
       if (!segment.subOf) {

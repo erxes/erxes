@@ -3,7 +3,7 @@ import { withCurrentUser } from 'modules/auth/containers';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { ICustomer } from '../../customers/types';
 import { Widget } from '../components';
 import { MESSAGE_KINDS, MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
 import { mutations, queries } from '../graphql';
@@ -14,6 +14,7 @@ type Props = {
   emailTemplatesQuery: any,
   brandsQuery: any,
   messagesAddMutation: (params: { variables: any }) => any
+  customers: ICustomer[];
   emptyBulk: () => void
 };
 
@@ -65,13 +66,11 @@ const WidgetContainer = (props : Props) => {
   return <Widget {...updatedProps} />;
 };
 
-export default withRouter(
-  compose(
-    graphql(gql(queries.emailTemplates), { name: 'emailTemplatesQuery' }),
-    graphql(gql(queries.brands), { name: 'brandsQuery' }),
-    graphql(gql(mutations.messagesAdd), {
-      name: 'messagesAddMutation',
-      options: crudMutationsOptions
-    })
-  )(withCurrentUser(WidgetContainer))
-);
+export default compose(
+  graphql(gql(queries.emailTemplates), { name: 'emailTemplatesQuery' }),
+  graphql(gql(queries.brands), { name: 'brandsQuery' }),
+  graphql(gql(mutations.messagesAdd), {
+    name: 'messagesAddMutation',
+    options: crudMutationsOptions
+  })
+)(withCurrentUser(WidgetContainer));

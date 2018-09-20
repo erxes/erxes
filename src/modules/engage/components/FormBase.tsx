@@ -2,12 +2,12 @@ import { __, Alert } from 'modules/common/utils';
 import React, { Component, Fragment } from 'react';
 
 type Props = {
-  save?: (params: { isLive: boolean, isDraft: boolean, doc: any }) => void,
+  save: (params: { isLive: boolean, isDraft: boolean, doc: any }) => void,
   kind?: string,
   content: (params: {
     renderTitle: () => void,
-    changeState?: (name: string, value: string) => void,
-    validateAndSaveForm?: (type: string, doc: any) => void,
+    changeState: (name: string, value: string) => void,
+    validateAndSaveForm: (type: string, doc: any) => void,
    }) => any
 };
 
@@ -72,7 +72,8 @@ class FormBase extends Component<Props> {
 
   renderTitle() {
     const { kind } = this.props;
-    let title = __('Show statistics');
+
+    let title = __('Engage');
 
     if (kind === 'auto') {
       title = __('Auto message');

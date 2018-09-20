@@ -16,13 +16,13 @@ import { Recipient, Recipients } from '../styles';
 import Editor from './Editor';
 
 type Props = {
-  customers?: ICustomer[],
+  customers: ICustomer[],
   emailTemplates: IEmailTemplate[],
   brands: IBrand[],
   messengerKinds: any[],
   sentAsChoices: any[],
   save: (doc: any, closeModal: () => void) => void,
-  closeModal?: () => void
+  closeModal: () => void
 };
 
 type State = {

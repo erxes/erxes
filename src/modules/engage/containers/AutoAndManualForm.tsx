@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import { Alert } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
@@ -17,9 +18,10 @@ type Props = {
   segmentsAddQuery: (params: { variables: any }) => any,
   kind: string,
   brands: IBrand[],
+  users: IUser[],
   scheduleDate: any,
   save: () => any,
-  changeState?: (name: string, value: string) => void,
+  changeState: (name: string, value: string) => void,
 };
 
 const AutoAndManualFormContainer = (props : Props) => {

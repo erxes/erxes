@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { EmailStatistics } from '../components';
-import FormBase from '../components/FormBase';
 import { queries } from '../graphql';
 
 type Props = {
@@ -18,14 +17,7 @@ const EmailStatisticsContainer = (props : Props) => {
 
   const message = engageMessageDetailQuery.engageMessageDetail;
 
-  return (
-    <FormBase
-      kind={''}
-      content={(props) => 
-        <EmailStatistics message={message} {...props} />  
-      }
-    />
-  );
+  return <EmailStatistics message={message} {...props} />;
 };
 
 export default compose(

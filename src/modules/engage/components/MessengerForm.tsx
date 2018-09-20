@@ -118,9 +118,10 @@ class MessengerForm extends Component<Props, State> {
               value={this.state.fromUser}
             >
               <option />{' '}
-              {this.props.users.map(u => (
-                <option key={u._id} value={u._id}>
-                  {u.details.fullName || u.username}
+
+              {this.props.users.map(user => (
+                <option key={user._id} value={user._id}>
+                  {user.details ? user.details.fullName : user.username}
                 </option>
               ))}
             </FormControl>

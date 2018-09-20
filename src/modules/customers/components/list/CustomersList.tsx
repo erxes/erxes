@@ -272,7 +272,7 @@ class CustomersList extends React.Component<IProps, State> {
 
       actionBarLeft = (
         <BarItems>
-          <Widget />
+          <Widget customers={bulk} emptyBulk={emptyBulk}  />
 
           <TaggerPopover
             type="customer"

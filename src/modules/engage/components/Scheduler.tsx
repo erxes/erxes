@@ -38,7 +38,7 @@ class Scheduler extends Component<Props, State> {
   }
 
   generateOptions(number) {
-    const options = [];
+    const options: React.ReactNode[] = [];
 
     for (let i = 1; i <= number; i++) {
       options.push(

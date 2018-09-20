@@ -1,4 +1,5 @@
 import { Icon } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import {
@@ -59,7 +60,7 @@ class EmailStatistics extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={this.props.renderTitle()} />}
+        header={<Wrapper.Header breadcrumb={__('Show statistics')} />}
         content={content}
       />
     );

@@ -20,7 +20,7 @@ type RouterProps = {
   location: any,
   match: any,
   isChecked: boolean,
-  toggleBulk?: (value: IEngageMessage, isChecked: boolean) => void,
+  toggleBulk: (value: IEngageMessage, isChecked: boolean) => void,
   message: IEngageMessage,
   queryParams: any
 };

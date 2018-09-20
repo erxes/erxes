@@ -24,7 +24,7 @@ type Props = {
   setLiveManual: () => void,
   setPause: () => void,
   isChecked: boolean,
-  toggleBulk?: (value: IEngageMessage, isChecked: boolean) => void,
+  toggleBulk: (value: IEngageMessage, isChecked: boolean) => void,
 };
 
 class Row extends React.Component<Props> {
@@ -53,7 +53,7 @@ class Row extends React.Component<Props> {
     const liveM = this.renderLink('Set live', 'play', this.props.setLiveManual);
     const show = this.renderLink('Show statistics', 'eye', this.props.show);
 
-    const links = [];
+    const links: React.ReactNode[] = [];
 
     if (msg.method === 'email') {
       links.push(show);

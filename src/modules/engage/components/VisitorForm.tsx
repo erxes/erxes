@@ -18,11 +18,11 @@ import MessengerForm from './MessengerForm';
 
 type Props = {
   message: any,
-  brands?: IBrand[],
-  users?: IUser[],
-  validateAndSaveForm?: (type: string, doc: any) => void,
-  renderTitle?: () => void,
-  changeState?: (name: string, value: string | any[]) => void,
+  brands: IBrand[],
+  users: IUser[],
+  validateAndSaveForm: (type: string, doc: any) => void,
+  renderTitle: () => void,
+  changeState: (name: string, value: string | any[]) => void,
 };
 
 type State = {
