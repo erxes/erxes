@@ -10,6 +10,15 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 
+type Props = {
+  usersQuery: any;
+  brandsQuery: any;
+  saveMessengerMutation: (params: { variables: { name: string, brandId: string, languageCode: string } }) => any;
+  saveConfigsMutation: (params: { variables: { _id: string, messengerData: IMessengerData } }) => any;
+  saveAppearanceMutation: (params: { variables: { _id: string, uiOptions: IUiOptions } }) => void;
+  history: any;
+};
+
 const CreateMessenger = (props: Props) => {
   const {
     history,
@@ -65,15 +74,6 @@ const CreateMessenger = (props: Props) => {
   };
 
   return <Form {...updatedProps} />;
-};
-
-type Props = {
-  usersQuery: any,
-  brandsQuery: any,
-  saveMessengerMutation: (params: { variables: { name: string, brandId: string, languageCode: string } }) => any,
-  saveConfigsMutation: (params: { variables: { _id: string, messengerData: IMessengerData } }) => any,
-  saveAppearanceMutation: (params: { variables: { _id: string, uiOptions: IUiOptions } }) => void,
-  history: any
 };
 
 const commonOptions = ({ queryParams, integrationId }) => {

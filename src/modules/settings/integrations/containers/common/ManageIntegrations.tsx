@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import { compose, graphql } from 'react-apollo';
 
 type State = {
-  perPage: number
+  perPage: number;
 };
 
 class ManageIntegrationsContainer extends Component<Props, State> {

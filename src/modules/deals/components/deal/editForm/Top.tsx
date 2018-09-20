@@ -24,15 +24,15 @@ import { IDeal } from '../../../types';
 import { selectUserOptions } from '../../../utils';
 
 type Props = {
-  deal: IDeal,
-  name: string,
-  description: string,
-  closeDate: Date,
-  amount: any,
-  stageId: string,
-  assignedUserIds: string[],
-  users: IUser[],
-  onChangeField: (name: string, value: any) => void,
+  deal: IDeal;
+  name: string;
+  description: string;
+  closeDate: Date;
+  amount: any;
+  stageId: string;
+  assignedUserIds: string[];
+  users: IUser[];
+  onChangeField: (name: string, value: any) => void;
 };
 
 class Top extends React.Component<Props> {

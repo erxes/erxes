@@ -6,12 +6,12 @@ import { queries } from '../graphql';
 import { IParamsWithType } from '../types'
 
 interface IProps {
-  queryParams: any,
-  brandsQuery: any,
-  history: any,
-  responseCloseQuery: any,
-  type: string,
-  firstResponseQuery: any
+  queryParams: any;
+  brandsQuery: any;
+  history: any;
+  responseCloseQuery: any;
+  type: string;
+  firstResponseQuery: any;
 };
 
 const FirstAndCloseResponseReportContainer = (props: IProps) => {

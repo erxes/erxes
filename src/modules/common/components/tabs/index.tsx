@@ -6,9 +6,9 @@ function Tabs(props: { children: React.ReactNode, grayBorder?: boolean }) {
 }
 
 type TabTitleProps = {
-  children: React.ReactNode,
-  onClick?: () => void,
-  className?: string,
+  children: React.ReactNode;
+  onClick?: () => void;
+  className?: string;
 };
 
 function TabTitle(props: TabTitleProps) {

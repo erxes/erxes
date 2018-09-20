@@ -9,20 +9,20 @@ import {
 } from './styles';
 
 type Props= {
-  items?: any[]
-  links?: any[]
-  showCheckmark?: boolean,
-  selectable?: boolean,
-  className?: string,
+  items?: any[];
+  links?: any[];
+  showCheckmark?: boolean;
+  selectable?: boolean;
+  className?: string;
 
   // hooks
-  onClick?: (items: any[], id: string) => void,
-  onExit?: (items: any[]) => void,
+  onClick?: (items: any[], id: string) => void;
+  onExit?: (items: any[]) => void;
 };
 
 type State = {
-  key: string,
-  items: any[]
+  key: string;
+  items: any[];
 }
 
 class FilterableList extends Component<Props, State> {

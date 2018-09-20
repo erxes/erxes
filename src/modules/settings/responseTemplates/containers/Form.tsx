@@ -6,7 +6,7 @@ import { ICommonFormProps } from '../../common/types';
 import { Form } from '../components';
 
 type Props = {
-  brandsQuery: any
+  brandsQuery: any;
 };
 
 const FormContainer = (props: Props & ICommonFormProps) => {

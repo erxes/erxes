@@ -16,19 +16,19 @@ import { Recipient, Recipients } from '../styles';
 import Editor from './Editor';
 
 type Props = {
-  customers: ICustomer[],
-  emailTemplates: IEmailTemplate[],
-  brands: IBrand[],
-  messengerKinds: any[],
-  sentAsChoices: any[],
-  save: (doc: any, closeModal: () => void) => void,
-  closeModal: () => void
+  customers: ICustomer[];
+  emailTemplates: IEmailTemplate[];
+  brands: IBrand[];
+  messengerKinds: any[];
+  sentAsChoices: any[];
+  save: (doc: any, closeModal: () => void) => void;
+  closeModal: () => void;
 };
 
 type State = {
-  content: string,
-  channel: string,
-  attachments: string[]
+  content: string;
+  channel: string;
+  attachments: string[];
 }
 
 class WidgetForm extends Component<Props, State> {

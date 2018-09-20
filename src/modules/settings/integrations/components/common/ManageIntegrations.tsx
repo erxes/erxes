@@ -14,19 +14,19 @@ import { BrandName, IntegrationName } from '../../styles';
 import { IIntegration } from '../../types';
 
 type Props = {
-  current: any,
-  save: (ids: string[]) => void,
-  search: (searchValue: string, check?: boolean) => void,
-  allIntegrations: IIntegration[],
-  perPage: number,
-  clearState: () => void,
-  closeModal?: () => void,
+  current: any;
+  save: (ids: string[]) => void;
+  search: (searchValue: string, check?: boolean) => void;
+  allIntegrations: IIntegration[];
+  perPage: number;
+  clearState: () => void;
+  closeModal?: () => void;
   renderConfirm?: (
-    integration: IIntegration, 
-    actionTrigger: React.ReactNode, 
-    icon: any, 
+    integration: IIntegration,
+    actionTrigger: React.ReactNode,
+    icon: any,
     handleChange: (type: string, integration: IIntegration) => any
-  ) => void,
+  ) => void;
 };
 
 type State = {

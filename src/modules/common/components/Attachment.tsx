@@ -80,8 +80,8 @@ const FileWrapper = styled.div`
 `;
 
 type Props = {
-  attachment: any,
-  scrollBottom: () => void,
+  attachment: any;
+  scrollBottom: () => void;
 };
 
 class Attachment extends Component<Props> {

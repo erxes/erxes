@@ -7,9 +7,9 @@ import React from 'react';
 import { ICustomer } from '../../types';
 
 type Props = {
-  customer: ICustomer,
+  customer: ICustomer;
   // TODO: check query params. Because it was in context
-  queryParams?: any,
+  queryParams?: any;
 };
 
 function MessengerSection({ customer, queryParams }: Props) {

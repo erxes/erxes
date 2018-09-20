@@ -21,13 +21,13 @@ import {
 } from './styles';
 
 type Props = {
-  color: string,
-  wallpaper: string,
-  users: IUser[],
-  supporterIds?: string[],
-  welcomeMessage?: string,
-  awayMessage?: string,
-  isOnline?: boolean
+  color: string;
+  wallpaper: string;
+  users: IUser[];
+  supporterIds?: string[];
+  welcomeMessage?: string;
+  awayMessage?: string;
+  isOnline?: boolean;
 };
 
 function WidgetPreview(

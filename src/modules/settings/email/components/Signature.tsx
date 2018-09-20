@@ -10,14 +10,14 @@ import * as React from 'react';
 import { ISignature } from '../types';
 
 type Props = {
-  signatures: ISignature[],
-  save: (signatures: ISignature[]) => void,
-  closeModal: () => void
+  signatures: ISignature[];
+  save: (signatures: ISignature[]) => void;
+  closeModal: () => void;
 };
 
 type State = {
-  signatures: ISignature[],
-  currentId: null | string,
+  signatures: ISignature[];
+  currentId: null | string;
 };
 
 class Signature extends React.Component<Props, State> {

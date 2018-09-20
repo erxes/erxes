@@ -20,21 +20,21 @@ import { ICustomer, ICustomerDoc } from '../../types';
 import { leadStatusChoices, lifecycleStateChoices } from '../../utils';
 
 type Props = {
-  customer?: ICustomer,
-  action: (params: { doc: ICustomerDoc }) => void,
-  closeModal: () => void,
+  customer?: ICustomer;
+  action: (params: { doc: ICustomerDoc }) => void;
+  closeModal: () => void;
 };
 
 type State = {
-  ownerId: string,
-  doNotDisturb: string,
-  hasAuthority: string,
-  users: IUser[],
-  avatar: string
-  phones?: string[],
-  emails?: string[],
-  primaryPhone?: string,
-  primaryEmail?: string
+  ownerId: string;
+  doNotDisturb: string;
+  hasAuthority: string;
+  users: IUser[];
+  avatar: string;
+  phones?: string[];
+  emails?: string[];
+  primaryPhone?: string;
+  primaryEmail?: string;
 }
 
 class CustomerForm extends React.Component<Props, State> {

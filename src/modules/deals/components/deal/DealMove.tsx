@@ -11,17 +11,17 @@ import {
 import { IDeal } from '../../types';
 
 type Props = {
-  deal?: IDeal,
-  stages: any,
-  stageId?: string,
-  onChangeStage?: (stageId: string) => void
+  deal?: IDeal;
+  stages: any;
+  stageId?: string;
+  onChangeStage?: (stageId: string) => void;
 };
 
 type State = {
-  boardId: string,
-  pipelineId: string,
-  show: boolean,
-  stages: any
+  boardId: string;
+  pipelineId: string;
+  show: boolean;
+  stages: any;
 };
 
 class DealMove extends React.Component<Props, State> {

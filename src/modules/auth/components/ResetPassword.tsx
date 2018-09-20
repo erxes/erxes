@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { AuthBox } from '../styles';
 
 type Props = {
-  resetPassword: (newPassword: string) => void
+  resetPassword: (newPassword: string) => void;
 };
 
 class ResetPassword extends Component<Props, { newPassword: string }> {

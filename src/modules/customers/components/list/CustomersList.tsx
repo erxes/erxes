@@ -28,33 +28,33 @@ import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
-  customers: any,
-  counts: any,
-  columnsConfig: any,
-  brands: IBrand[],
-  integrations: any,
-  tags: any[],
-  bulk: any[],
-  isAllSelected: boolean,
-  emptyBulk: () => void,
-  toggleBulk: (target: any, toAdd: boolean) => void,
-  toggleAll: (targets: string[], containerId: string) => void,
-  loading: boolean,
-  searchValue: string,
-  loadingTags: boolean,
-  removeCustomers: (doc: { customerIds: string[] }, emptyBulk: () => void) => void,
+  customers: any;
+  counts: any;
+  columnsConfig: any;
+  brands: IBrand[];
+  integrations: any;
+  tags: any[];
+  bulk: any[];
+  isAllSelected: boolean;
+  emptyBulk: () => void;
+  toggleBulk: (target: any, toAdd: boolean) => void;
+  toggleAll: (targets: string[], containerId: string) => void;
+  loading: boolean;
+  searchValue: string;
+  loadingTags: boolean;
+  removeCustomers: (doc: { customerIds: string[] }, emptyBulk: () => void) => void;
   mergeCustomers: (doc: {
-    ids: string[],
-    data: any,
-    callback: () => void,
-  }) => Promise<void>,
-  queryParams: any,
-  exportCustomers: (bulk: any[]) => void,
-  handleXlsUpload: (e: React.FormEvent<HTMLInputElement>) => void
+    ids: string[];
+    data: any;
+    callback: () => void;
+  }) => Promise<void>;
+  queryParams: any;
+  exportCustomers: (bulk: any[]) => void;
+  handleXlsUpload: (e: React.FormEvent<HTMLInputElement>) => void;
 };
 
 type State = {
-  searchValue?: string
+  searchValue?: string;
 }
 
 class CustomersList extends React.Component<IProps, State> {

@@ -6,11 +6,11 @@ import { compose, graphql } from 'react-apollo';
 import { NotificationSettings } from '../components';
 
 type Props = {
-  notificationModulesQuery: any,
-  notificationConfigurationsQuery: any,
-  configGetNotificationByEmailMutation: (params: { variables: any }) => any,
-  saveNotificationConfigurationsMutation: (params: { variables: any }) => any,
-  currentUser: IUser
+  notificationModulesQuery: any;
+  notificationConfigurationsQuery: any;
+  configGetNotificationByEmailMutation: (params: { variables: any }) => Promise<any>;
+  saveNotificationConfigurationsMutation: (params: { variables: any }) => Promise<any>;
+  currentUser: IUser;
 };
 
 const NotificationSettingsContainer = (props: Props) => {

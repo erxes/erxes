@@ -17,24 +17,24 @@ import * as React from 'react';
 import MessengerForm from './MessengerForm';
 
 type Props = {
-  message: any,
-  brands: IBrand[],
-  users: IUser[],
-  validateAndSaveForm: (type: string, doc: any) => void,
-  renderTitle: () => void,
-  changeState: (name: string, value: string | any[]) => void,
+  message: any;
+  brands: IBrand[];
+  users: IUser[];
+  validateAndSaveForm: (type: string, doc: any) => void;
+  renderTitle: () => void;
+  changeState: (name: string, value: string | any[]) => void;
 };
 
 type State = {
-  maxStep: number,
-  activeStep: number,
-  method: string,
-  title: string,
-  message: string,
-  fromUser: string,
-  rules: string[],
-  messenger: any,
-  scheduleDate: Date,
+  maxStep: number;
+  activeStep: number;
+  method: string;
+  title: string;
+  message: string;
+  fromUser: string;
+  rules: string[];
+  messenger: any;
+  scheduleDate: Date;
 }
 
 class VisitorForm extends React.Component<Props, State> {

@@ -7,17 +7,17 @@ import { Sidebar } from '../components';
 import { queries } from '../graphql';
 
 type Props = {
-  kindCountsQuery: any,
-  statusCountsQuery: any,
-  tagsQuery: any,
-  tagCountsQuery: any
+  kindCountsQuery: any;
+  statusCountsQuery: any;
+  tagsQuery: any;
+  tagCountsQuery: any;
 };
 
 type RouterProps = {
-  location: any,
-  match: any,
-  history: any,
-  queryParams: any
+  location: any;
+  match: any;
+  history: any;
+  queryParams: any;
 };
 
 const SidebarContainer = (props : Props) => {

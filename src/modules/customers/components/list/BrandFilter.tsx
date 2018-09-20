@@ -7,12 +7,12 @@ import React from 'react';
 import { withRouter } from 'react-router';
 
 type Props = {
-  history: any,
-  location: any,
-  match: any,
-  counts: any,
-  brands: IBrand[],
-  loading: boolean
+  history: any;
+  location: any;
+  match: any;
+  counts: any;
+  brands: IBrand[];
+  loading: boolean;
 };
 
 function Brands({ history, counts, brands, loading }: Props) {

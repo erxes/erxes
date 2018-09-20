@@ -9,11 +9,11 @@ import { queries } from '../graphql';
 import { generateListQueryVariables } from '../utils';
 
 type Props = {
-  type: string,
-  queryParams: any,
-  engageMessagesQuery: any,
-  engageMessagesTotalCountQuery: any,
-  loading: boolean
+  type: string;
+  queryParams: any;
+  engageMessagesQuery: any;
+  engageMessagesTotalCountQuery: any;
+  loading: boolean;
 };
 
 type State = {

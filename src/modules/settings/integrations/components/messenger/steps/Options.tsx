@@ -10,11 +10,11 @@ import Toggle from 'react-toggle';
 import { SelectBrand } from '../..';
 
 type Props = {
-  onChange: (name: string, value: string) => void,
-  brandId?: string,
-  languageCode?: string,
-  brands?: IBrand[],
-  notifyCustomer?: boolean
+  onChange: (name: string, value: string) => void;
+  brandId?: string;
+  languageCode?: string;
+  brands?: IBrand[];
+  notifyCustomer?: boolean;
 };
 
 class Options extends Component<Props> {

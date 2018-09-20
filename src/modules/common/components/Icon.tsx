@@ -8,11 +8,11 @@ const IconStyle = styledTS<{ size?: number }>(styled.i)`
 `;
 
 type Props = {
-  icon: string,
-  size?: number,
-  style?: any,
-  isActive?: boolean,
-  onClick?: (e: React.MouseEvent<HTMLElement>) => void
+  icon: string;
+  size?: number;
+  style?: any;
+  isActive?: boolean;
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
 };
 
 function Icon(props: Props) {

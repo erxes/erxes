@@ -7,11 +7,11 @@ import { ICategory } from '../../types';
 import { ActionButtons, CategoryItem } from './styles';
 
 type Props = {
-  topicIds: string,
-  category: ICategory,
-  articlesCount: number,
-  remove: ( _id: string ) => void,
-  isActive: boolean
+  topicIds: string;
+  category: ICategory;
+  articlesCount: number;
+  remove: ( _id: string ) => void;
+  isActive: boolean;
 };
 
 class CategoryRow extends Component<Props> {

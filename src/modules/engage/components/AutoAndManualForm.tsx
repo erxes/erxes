@@ -14,33 +14,33 @@ import { IEngageMessage } from '../types';
 import { ChannelStep, MessageStep, SegmentStep } from './step';
 
 type Props = {
-  message?: IEngageMessage,
-  brands: IBrand[],
-  users: IUser[],
-  segments: ISegment[],
-  headSegments: ISegment[],
-  segmentFields: ISegment[],
-  templates: IEmailTemplate[],
-  segmentAdd: ({ doc }: { doc: any; }) => void,
-  customerCounts?: any,
-  count: (segment: ISegment) => void,
-  kind: string,
-  validateAndSaveForm: (type: string, doc: any) => void,
-  renderTitle: () => void,
-  changeState: (name: string, value: string) => void,
+  message?: IEngageMessage;
+  brands: IBrand[];
+  users: IUser[];
+  segments: ISegment[];
+  headSegments: ISegment[];
+  segmentFields: ISegment[];
+  templates: IEmailTemplate[];
+  segmentAdd: ({ doc }: { doc: any; }) => void;
+  customerCounts?: any;
+  count: (segment: ISegment) => void;
+  kind: string;
+  validateAndSaveForm: (type: string, doc: any) => void;
+  renderTitle: () => void;
+  changeState: (name: string, value: string) => void;
 };
 
 type State = {
-  activeStep: number,
-  maxStep: number,
-  method: string,
-  title: string,
-  segment: string,
-  message: string,
-  fromUser: string,
-  messenger: any,
-  email: any,
-  scheduleDate: Date
+  activeStep: number;
+  maxStep: number;
+  method: string;
+  title: string;
+  segment: string;
+  message: string;
+  fromUser: string;
+  messenger: any;
+  email: any;
+  scheduleDate: Date;
 }
 
 class AutoAndManualForm extends React.Component<Props, State> {

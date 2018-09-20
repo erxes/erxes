@@ -15,8 +15,8 @@ import { IBrand } from '../../brands/types';
 import { Config } from '../containers';
 
 type Props = {
-  brands: IBrand[],
-  refetch: () => void
+  brands: IBrand[];
+  refetch: () => void;
 };
 
 class List extends React.Component<Props, {}> {

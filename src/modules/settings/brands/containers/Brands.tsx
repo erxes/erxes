@@ -8,11 +8,11 @@ import { Brands as DumbBrands, Empty } from '../components';
 import { queries } from '../graphql';
 
 type Props = {
-  currentBrandId: string,
-  history: any,
-  location: any,
-  integrationsCountQuery: any,
-  brandDetailQuery: any,
+  currentBrandId: string;
+  history: any;
+  location: any;
+  integrationsCountQuery: any;
+  brandDetailQuery: any;
 };
 
 class Brands extends React.Component<Props> {

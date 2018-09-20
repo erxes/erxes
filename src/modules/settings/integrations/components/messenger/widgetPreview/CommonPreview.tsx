@@ -5,16 +5,16 @@ import React, { Component } from 'react';
 import WidgetPreview from './WidgetPreview';
 
 type Props = {
-  onChange: (key: any, value: string) => void,
-  teamMembers: IUser[],
-  color: string,
-  logoPreviewStyle?: any,
-  welcomeMessage?: string,
-  awayMessage?: string,
-  wallpaper: string,
-  supporterIds?: string[],
-  isOnline: boolean,
-  logoPreviewUrl?: string
+  onChange: (key: any, value: string) => void;
+  teamMembers: IUser[];
+  color: string;
+  logoPreviewStyle?: any;
+  welcomeMessage?: string;
+  awayMessage?: string;
+  wallpaper: string;
+  supporterIds?: string[];
+  isOnline: boolean;
+  logoPreviewUrl?: string;
 };
 
 class CommonPreview extends Component<Props> {

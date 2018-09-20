@@ -9,11 +9,11 @@ import { CustomerSection } from '../components/common';
 type Props = {
   companiesEditCustomers: (doc: {
     variables: {
-      _id: string,
-      customerIds: string[]
+      _id: string;
+      customerIds: string[];
     }
-  }) => Promise<any>,
-  data: ICompany,
+  }) => Promise<any>;
+  data: ICompany;
 };
 
 const CustomerAssociate = (props: Props) => {

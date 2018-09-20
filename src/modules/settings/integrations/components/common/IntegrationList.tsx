@@ -15,8 +15,8 @@ import { Link } from 'react-router-dom';
 import { IIntegration } from '../../types';
 
 type Props = {
-  integrations: IIntegration[],
-  removeIntegration: (integration: IIntegration, callback?: any) => void,
+  integrations: IIntegration[];
+  removeIntegration: (integration: IIntegration, callback?: any) => void;
 };
 
 class IntegrationList extends Component<Props> {

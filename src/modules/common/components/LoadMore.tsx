@@ -4,13 +4,13 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 
 type Props = {
-  history: any,
-  location: any,
-  match: any,
-  perPage?: number,
-  all: number,
-  paramName?: string,
-  loading?: boolean
+  history: any;
+  location: any;
+  match: any;
+  perPage?: number;
+  all: number;
+  paramName?: string;
+  loading?: boolean;
 };
 
 function LoadMore({

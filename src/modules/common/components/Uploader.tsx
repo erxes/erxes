@@ -15,14 +15,14 @@ const Attachment = styled.div`
 `;
 
 type Props = {
-  defaultFileList: any[],
-  onChange: (attachments: any[]) => void
+  defaultFileList: any[];
+  onChange: (attachments: any[]) => void;
 };
 
 type State = {
-  attachments: any[],
-  loading: boolean,
-  attachmentPreviewStyle: any
+  attachments: any[];
+  loading: boolean;
+  attachmentPreviewStyle: any;
 }
 
 class Uploader extends Component<Props, State> {

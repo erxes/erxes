@@ -5,8 +5,8 @@ import { MessengerPreview } from '../components';
 import { queries } from '../graphql';
 
 type Props = {
-  userDetailQuery: any,
-  fromUser: string
+  userDetailQuery: any;
+  fromUser: string;
 };
 
 const MessengerPreviewContainer = (props : Props) => {

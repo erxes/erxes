@@ -10,10 +10,10 @@ import { IRouterProps } from '../../../common/types';
 import { ICompany } from '../../types';
 
 interface IProps extends IRouterProps {
-  companiesRemove: (params: { variables: { companyIds: string[] } }) => Promise<any>
-  companiesMerge: (params: { variables: { companyIds: string[], companyFields: any } }) => Promise<any>,
-  company: ICompany,
-  currentUser: IUser
+  companiesRemove: (params: { variables: { companyIds: string[] } }) => Promise<any>;
+  companiesMerge: (params: { variables: { companyIds: string[], companyFields: any } }) => Promise<any>;
+  company: ICompany;
+  currentUser: IUser;
 };
 
 const BasicInfoContainer = (props: IProps) => {

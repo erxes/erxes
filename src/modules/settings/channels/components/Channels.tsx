@@ -12,10 +12,10 @@ import { ManageIntegrations, Sidebar } from '../containers';
 import { IChannel } from '../types';
 
 type Props = {
-  integrationsCount: number,
-  queryParams: any,
-  currentChannel: IChannel,
-  loading: boolean
+  integrationsCount: number;
+  queryParams: any;
+  currentChannel: IChannel;
+  loading: boolean;
 };
 
 class Channels extends Component<Props, {}> {

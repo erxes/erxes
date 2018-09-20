@@ -5,10 +5,10 @@ import { compose, graphql } from 'react-apollo';
 import { ProductItemForm } from '../../components';
 
 type Props = {
-  getUomQuery: any,
-  getCurrenciesQuery: any,
-  productDetailQuery: any,
-  productData: any
+  getUomQuery: any;
+  getCurrenciesQuery: any;
+  productDetailQuery: any;
+  productData: any;
 };
 
 class ProductItemFormContainer extends React.Component<Props> {

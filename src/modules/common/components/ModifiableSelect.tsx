@@ -4,8 +4,8 @@ import { Button, FormControl, FormGroup, Icon } from '.';
 import { __, Alert } from '../utils';
 
 type OptionProps = {
-  option: any,
-  onSelect: (option: any[] , e: any ) => void
+  option: any;
+  onSelect: (option: any[] , e: any ) => void;
 };
 
 class Option extends Component<OptionProps> {
@@ -32,17 +32,17 @@ class Option extends Component<OptionProps> {
 }
 
 type Props = {
-  options: any[],
-  onChange: (params: {options: any[] , selectedOption: any}) => void,
-  value?: string,
-  placeholder?: string,
-  buttonText?: string
+  options: any[];
+  onChange: (params: {options: any[] , selectedOption: any}) => void;
+  value?: string;
+  placeholder?: string;
+  buttonText?: string;
 };
 
 type State = {
-  adding: boolean,
-  options: any[],
-  selectedOption: string
+  adding: boolean;
+  options: any[];
+  selectedOption: string;
 };
 
 class ModifiableSelect extends Component<Props, State> {

@@ -8,11 +8,11 @@ import { IDeal } from '../types';
 import { removeDeal as remove, saveDeal as save } from '../utils';
 
 type Props = {
-  deals: IDeal[],
-  addMutation: (params: { variables: { doc: any } }) => Promise<any>,
-  editMutation: (params: { variables: { doc: any } }) => Promise<any>,
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>,
-  dealsQuery: any
+  deals: IDeal[];
+  addMutation: (params: { variables: { doc: any } }) => Promise<any>;
+  editMutation: (params: { variables: { doc: any } }) => Promise<any>;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  dealsQuery: any;
 };
 
 class PortableDealsContainer extends React.Component<Props> {

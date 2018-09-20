@@ -7,10 +7,10 @@ import { Boards } from '../components';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  boardsQuery: any,
-  addMutation: (params: { variables: any}) => any
-  editMutation: (params: { variables: any}) => any
-  removeMutation: (params: { variables: { _id: string }}) => any
+  boardsQuery: any;
+  addMutation: (params: { variables: any}) => Promise<any>;
+  editMutation: (params: { variables: any}) => Promise<any>;
+  removeMutation: (params: { variables: { _id: string }}) => Promise<any>;
 };
 
 class BoardsContainer extends React.Component<Props, {}> {

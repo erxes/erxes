@@ -11,11 +11,11 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 
 type Props = {
-  data: any,
-  productsQuery: any,
-  productAdd: (params: { variables: any }) => Promise<any>,
-  closeModal: () => void,
-  onSelect: (products: any[]) => void,
+  data: any;
+  productsQuery: any;
+  productAdd: (params: { variables: any }) => Promise<any>;
+  closeModal: () => void;
+  onSelect: (products: any[]) => void;
 };
 
 class ProductChooser extends React.Component<Props, any> {

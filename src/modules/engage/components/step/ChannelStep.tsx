@@ -35,8 +35,8 @@ const Box = styledTS<{ selected: boolean }>(BoxRoot.extend)`
 `;
 
 type Props = {
-  changeMethod: (name: string, value: string) => void,
-  method: string
+  changeMethod: (name: string, value: string) => void;
+  method: string;
 };
 
 class ChannelStep extends Component<Props> {

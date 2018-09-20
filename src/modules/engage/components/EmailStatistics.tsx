@@ -13,8 +13,8 @@ import {
 import { IEngageMessage } from '../types';
 
 type Props = {
-  message: IEngageMessage,
-  renderTitle?: () => void,
+  message: IEngageMessage;
+  renderTitle?: () => void;
 };
 
 class EmailStatistics extends React.Component<Props> {

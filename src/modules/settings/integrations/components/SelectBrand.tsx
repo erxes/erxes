@@ -8,9 +8,9 @@ import { __ } from '../../../common/utils';
 import { IBrand } from '../../brands/types';
 
 type Props = {
-  brands: IBrand[], // eslint-disable-line react/forbid-prop-types
-  onChange?: (e: any) => any,
-  defaultValue?: string
+  brands: IBrand[]; // eslint-disable-line react/forbid-prop-types
+  onChange?: (e: any) => any;
+  defaultValue?: string;
 };
 
 const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (

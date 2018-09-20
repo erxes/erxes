@@ -6,8 +6,17 @@ import { withRouter } from 'react-router';
 import { Histories } from '../components';
 import { mutations, queries } from '../graphql';
 
+type Props = {
+  queryParams: any;
+  historiesQuery: any;
+  history: any;
+  location: any;
+  match: any;
+  importHistoriesRemove: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
 type State = {
-  loading: boolean
+  loading: boolean;
 }
 
 class HistoriesContainer extends Component<Props, State> {
@@ -54,15 +63,6 @@ class HistoriesContainer extends Component<Props, State> {
     return <Histories {...updatedProps} />;
   }
 }
-
-type Props = {
-  queryParams: any,
-  historiesQuery: any,
-  history: any,
-  location: any,
-  match: any,
-  importHistoriesRemove: (params: { variables: { _id: string } }) => any
-};
 
 export default compose(
   graphql(gql(queries.histories), {

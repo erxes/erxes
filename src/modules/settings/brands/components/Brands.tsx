@@ -11,10 +11,10 @@ import { IntegrationList } from '../../integrations/containers/common';
 import { ManageIntegrations, Sidebar } from '../containers';
 
 type Props = {
-  integrationsCount: number,
-  queryParams: any,
-  currentBrand: any,
-  loading: boolean
+  integrationsCount: number;
+  queryParams: any;
+  currentBrand: any;
+  loading: boolean;
 }
 
 class Brands extends Component<Props, {}> {

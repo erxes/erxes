@@ -4,10 +4,10 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 
 type Props = {
-  history: any,
-  sortField?: string,
-  location: any,
-  match: any
+  history: any;
+  sortField?: string;
+  location: any;
+  match: any;
 };
 
 class SortHandler extends Component<Props> {

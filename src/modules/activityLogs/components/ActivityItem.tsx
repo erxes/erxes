@@ -12,7 +12,7 @@ import moment from 'moment';
 import React, { Fragment } from 'react';
 
 type Props = {
-  data: any
+  data: any;
 };
 
 const ActivityItem = (props: Props) => {

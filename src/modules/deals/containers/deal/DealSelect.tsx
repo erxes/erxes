@@ -6,13 +6,13 @@ import { queries } from '../../graphql';
 import { IStage } from '../../types';
 
 type Props = {
-  boardsQuery: any,
-  pipelinesQuery: any,
-  stagesQuery: any,
-  onChangeStage: (stageId: string, callback?: any) => void,
-  onChangePipeline: (pipelineId: string) => void,
-  onChangeBoard: (boardId: string) => void,
-  onChangeStages: (stages: IStage[]) => void,
+  boardsQuery: any;
+  pipelinesQuery: any;
+  stagesQuery: any;
+  onChangeStage: (stageId: string, callback?: any) => Promise<void>;
+  onChangePipeline: (pipelineId: string) => Promise<void>;
+  onChangeBoard: (boardId: string) => Promise<void>;
+  onChangeStages: (stages: IStage[]) => Promise<void>;
 };
 
 class DealSelectContainer extends React.Component<Props> {

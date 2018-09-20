@@ -7,10 +7,10 @@ import { Filter } from '../components';
 import { queries } from '../graphql';
 
 type Props = {
-  segmentsQuery: any,
-  history: any,
-  location: any,
-  match: any
+  segmentsQuery: any;
+  history: any;
+  location: any;
+  match: any;
 };
 
 const FilterContainer = (props: Props) => {

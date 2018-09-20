@@ -15,13 +15,13 @@ import { IChannel } from '../types';
 import { ChannelRow } from './';
 
 type Props = {
-  channels: IChannel[],
-  members: IUser[],
-  remove: ( _id: string ) => void,
-  save: ({ doc }: { doc: any; }, callback: () => void, channel?: IChannel) => void,
-  loading: boolean,
-  currentChannelId?: string,
-  channelsTotalCount: number
+  channels: IChannel[];
+  members: IUser[];
+  remove: ( _id: string ) => void;
+  save: ({ doc }: { doc: any; }, callback: () => void, channel?: IChannel) => void;
+  loading: boolean;
+  currentChannelId?: string;
+  channelsTotalCount: number;
 };
 
 class Sidebar extends Component<Props, {}> {

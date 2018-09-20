@@ -23,26 +23,26 @@ import CompanyRow from './CompanyRow';
 import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
-  companies: ICompany[],
-  counts: any,
-  columnsConfig: any,
-  loading: boolean,
-  searchValue: string,
+  companies: ICompany[];
+  counts: any;
+  columnsConfig: any;
+  loading: boolean;
+  searchValue: string;
   // TODO: check is below line not throwing error ?
-  toggleBulk: () => void,
-  toggleAll: (targets: ICompany[], containerId: string) => void,
-  bulk: any[],
-  isAllSelected: boolean,
-  emptyBulk: () => void
-  tags: any[],
-  removeCompanies: (doc: { companyIds: string[] }) => void,
-  loadingTags: boolean,
-  mergeCompanies: () => void,
-  queryParams: any,
+  toggleBulk: () => void;
+  toggleAll: (targets: ICompany[], containerId: string) => void;
+  bulk: any[];
+  isAllSelected: boolean;
+  emptyBulk: () => void;
+  tags: any[];
+  removeCompanies: (doc: { companyIds: string[] }) => void;
+  loadingTags: boolean;
+  mergeCompanies: () => void;
+  queryParams: any;
 };
 
 type State = {
-  searchValue?: string
+  searchValue?: string;
 };
 
 class CompaniesList extends React.Component<IProps, State> {

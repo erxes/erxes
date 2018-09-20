@@ -7,14 +7,14 @@ import { SegmentsForm } from '../components';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  contentType: string,
-  history: any,
-  segmentDetailQuery: any,
-  headSegmentsQuery: any,
-  combinedFieldsQuery: any,
-  segmentsAdd: (params: { variables: { contentType: string, doc: any } }) => any,
-  segmentsEdit: (params: { variables: { _id: string, doc: any } }) => any,
-  customerCounts: any
+  contentType: string;
+  history: any;
+  segmentDetailQuery: any;
+  headSegmentsQuery: any;
+  combinedFieldsQuery: any;
+  segmentsAdd: (params: { variables: { contentType: string, doc: any } }) => Promise<any>;
+  segmentsEdit: (params: { variables: { _id: string, doc: any } }) => Promise<any>;
+  customerCounts: any;
 };
 
 class SegmentsFormContainer extends React.Component<Props> {

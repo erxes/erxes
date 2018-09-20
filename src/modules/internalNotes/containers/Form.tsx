@@ -6,15 +6,15 @@ import { Form } from '../components';
 import { mutations } from '../graphql';
 
 type Props = {
-  contentType: string,
-  contentTypeId: string,
+  contentType: string;
+  contentTypeId: string;
   internalNotesAdd: (params: {
     variables: {
-      contentType: string,
-      contentTypeId: string,
-      content: string
+      contentType: string;
+      contentTypeId: string;
+      content: string;
     }
-  }) => void
+  }) => void;
 };
 
 const FormContainer = (props: Props) => {

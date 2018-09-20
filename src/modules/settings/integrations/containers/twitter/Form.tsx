@@ -5,6 +5,15 @@ import Twitter from 'modules/settings/integrations/components/twitter/Form';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 
+type Props = {
+  type: string;
+  history: any;
+  queryParams: any;
+  brandsQuery: any;
+  twitterAuthUrlQuery: any;
+  saveMutation: (params: { variables: { brandId: string, queryParams: any } }) => Promise<any>;
+};
+
 const TwitterContainer = (props: Props) => {
   const {
     brandsQuery,
@@ -49,15 +58,6 @@ const TwitterContainer = (props: Props) => {
   };
 
   return <Twitter {...updatedProps} />;
-};
-
-type Props = {
-  type: string,
-  history: any,
-  queryParams: any,
-  brandsQuery: any,
-  twitterAuthUrlQuery: any,
-  saveMutation: (params: { variables: { brandId: string, queryParams: any } }) => any
 };
 
 export default compose(

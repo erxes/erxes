@@ -8,18 +8,18 @@ import { ISegmentCondition } from '../types';
 import { ConditionItem } from './styles';
 
 type Props = {
-  fields: any[],
-  condition: ISegmentCondition,
-  changeCondition: (condition: ISegmentCondition) => void,
-  removeCondition: (field: string) => void
+  fields: any[];
+  condition: ISegmentCondition;
+  changeCondition: (condition: ISegmentCondition) => void;
+  removeCondition: (field: string) => void;
 };
 
 type State = {
-  field: string,
-  type: string,
-  value: string,
-  operator: string,
-  dateUnit: string,
+  field: string;
+  type: string;
+  value: string;
+  operator: string;
+  dateUnit: string;
 }
 
 class Condition extends Component<Props, State> {

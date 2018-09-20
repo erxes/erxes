@@ -13,9 +13,9 @@ import {
 } from '../common';
 
 type Props = {
-  customer: ICustomer,
-  taggerRefetchQueries?: any[],
-  wide?: boolean 
+  customer: ICustomer;
+  taggerRefetchQueries?: any[];
+  wide?: boolean;
 };
 
 export default class LeftSidebar extends React.Component<Props> {

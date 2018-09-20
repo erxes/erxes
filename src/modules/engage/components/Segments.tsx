@@ -5,10 +5,10 @@ import React, { Component } from 'react';
 import { Segmentli } from '../styles';
 
 type Props = {
-  segments: ISegment[],
-  changeSegments: (value: string) => void,
-  counts: any,
-  defaultValue: string
+  segments: ISegment[];
+  changeSegments: (value: string) => void;
+  counts: any;
+  defaultValue: string;
 };
 
 type State = {

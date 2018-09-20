@@ -4,7 +4,7 @@ import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
 
 type Props = {
-  currentUserQuery: any
+  currentUserQuery: any;
 };
 
 const withCurrentUser = Component => {

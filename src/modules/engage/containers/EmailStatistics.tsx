@@ -5,7 +5,7 @@ import { EmailStatistics } from '../components';
 import { queries } from '../graphql';
 
 type Props = {
-  engageMessageDetailQuery: any
+  engageMessageDetailQuery: any;
 };
 
 const EmailStatisticsContainer = (props : Props) => {

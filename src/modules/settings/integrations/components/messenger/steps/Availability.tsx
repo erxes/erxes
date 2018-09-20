@@ -12,11 +12,11 @@ import Toggle from 'react-toggle';
 import { OnlineHours } from '.';
 
 type Props = {
-  onChange: (name: string, value: string) => void,
-  isOnline: boolean,
-  availabilityMethod?: string,
-  timezone?: string,
-  onlineHours?: any[]
+  onChange: (name: string, value: string) => void;
+  isOnline: boolean;
+  availabilityMethod?: string;
+  timezone?: string;
+  onlineHours?: any[];
 };
 
 class Availability extends Component<Props> {

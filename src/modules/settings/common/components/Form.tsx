@@ -4,8 +4,8 @@ import * as React from 'react';
 import { ICommonFormProps } from '../types';
 
 type Props = {
-  generateDoc: () => any,
-  renderContent(): any,
+  generateDoc: () => any;
+  renderContent(): any;
 };
 
 class Form extends React.Component<Props & ICommonFormProps> {

@@ -12,11 +12,11 @@ import Select from 'react-select-plus';
 import { IChannel } from "../types";
 
 type Props = {
-  channel?: IChannel,
-  members: IUser[],
-  selectedMembers: IUser[],
-  closeModal: () => void,
-  save: ({ doc }: { doc: any; }, callback: () => void, channel?: IChannel) => void,
+  channel?: IChannel;
+  members: IUser[];
+  selectedMembers: IUser[];
+  closeModal: () => void;
+  save: ({ doc }: { doc: any; }, callback: () => void, channel?: IChannel) => void;
 };
 
 type State = {

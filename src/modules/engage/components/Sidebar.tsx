@@ -10,11 +10,11 @@ import { MESSAGE_KIND_FILTERS, statusFilters } from '../constants';
 const { Section } = Wrapper.Sidebar;
 
 type Props = {
-  kindCounts: any,
-  statusCounts: any,
-  tagCounts: any,
-  tags: ITag[],
-  history?: any
+  kindCounts: any;
+  statusCounts: any;
+  tagCounts: any;
+  tags: ITag[];
+  history?: any;
 };
 
 class Sidebar extends React.Component<Props> {

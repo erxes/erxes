@@ -9,9 +9,9 @@ import { Modal } from 'react-bootstrap';
 import { IBoard } from '../types';
 
 type Props = {
-  board: IBoard,
-  closeModal: () => void,
-  save: (params: { doc: { name: string; }}, callback: () => void, brand: IBoard) => void,
+  board: IBoard;
+  closeModal: () => void;
+  save: (params: { doc: { name: string; }}, callback: () => void, brand: IBoard) => void;
 };
 
 class BoardForm extends React.Component<Props, {}> {

@@ -10,8 +10,8 @@ import React, { Component } from 'react';
 import Select from 'react-select-plus';
 
 type Props = {
-  prevOptions: any[],
-  onChange: (onlineHours: any[]) => void
+  prevOptions: any[];
+  onChange: (onlineHours: any[]) => void;
 };
 
 type State = {

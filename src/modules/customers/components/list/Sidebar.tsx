@@ -6,9 +6,9 @@ import { IntegrationFilter, LeadStatusFilter, LifecycleStateFilter } from '../';
 import { BrandFilter, FormFilter } from '../../containers';
 
 type Props = {
-  counts: any,
-  tags: any[],
-  loading: boolean,
+  counts: any;
+  tags: any[];
+  loading: boolean;
 };
 
 function Sidebar({ counts, tags, loading }: Props) {

@@ -7,9 +7,9 @@ import React, { Component } from 'react';
 import { Collapse } from 'react-bootstrap';
 
 type Props = {
-  data: any,
-  type: string,
-  refetchQueries?: any[]
+  data: any;
+  type: string;
+  refetchQueries?: any[];
 };
 
 type State = {

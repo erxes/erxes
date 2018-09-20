@@ -7,11 +7,11 @@ import { Container } from '../../styles/deal';
 import { IDeal } from '../../types';
 
 type Props = {
-  deal: IDeal,
-  saveDeal?: (doc: IDeal, callback: any, deal: IDeal) => Promise<any>,
-  index?: number,
-  removeDeal?: (_id: string, callback: any) => Promise<any>,
-  draggable?: boolean
+  deal: IDeal;
+  saveDeal?: (doc: IDeal, callback: any, deal: IDeal) => Promise<any>;
+  index?: number;
+  removeDeal?: (_id: string, callback: any) => Promise<any>;
+  draggable?: boolean;
 };
 
 class Deal extends React.Component<Props> {

@@ -16,15 +16,15 @@ import { EngageTitle, HelperText } from '../styles';
 import { IEngageMessage } from '../types';
 
 type Props = {
-  message: IEngageMessage,
-  edit: () => void,
-  show: () => void,
-  remove: () => void,
-  setLive: () => void,
-  setLiveManual: () => void,
-  setPause: () => void,
-  isChecked: boolean,
-  toggleBulk: (value: IEngageMessage, isChecked: boolean) => void,
+  message: IEngageMessage;
+  edit: () => void;
+  show: () => void;
+  remove: () => void;
+  setLive: () => void;
+  setLiveManual: () => void;
+  setPause: () => void;
+  isChecked: boolean;
+  toggleBulk: (value: IEngageMessage, isChecked: boolean) => void;
 };
 
 class Row extends React.Component<Props> {

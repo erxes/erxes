@@ -6,6 +6,11 @@ import { withRouter } from 'react-router';
 import { Home } from '../components';
 import { queries } from '../graphql';
 
+type HomeContainerProps = {
+  history?: any;
+  boardId: string;
+};
+
 class HomeContainer extends React.Component<HomeContainerProps> {
   componentWillReceiveProps() {
     const { history, boardId } = this.props;
@@ -20,9 +25,8 @@ class HomeContainer extends React.Component<HomeContainerProps> {
   }
 }
 
-type HomeContainerProps = {
-  history?: any,
-  boardId: string
+type LastBoardProps = {
+  boardGetLastQuery: any
 };
 
 // Getting lastBoard id to currentBoard
@@ -36,15 +40,15 @@ const LastBoard = (props: LastBoardProps) => {
   return <HomeContainer {...extendedProps} />;
 };
 
-type LastBoardProps = {
-  boardGetLastQuery: any
-};
-
 const LastBoardContainer = compose(
   graphql(gql(queries.boardGetLast), {
     name: 'boardGetLastQuery'
   })
 )(LastBoard);
+
+type MainContainerProps = {
+  history: any
+};
 
 // Main home component
 const MainContainer = (props: MainContainerProps) => {
@@ -58,10 +62,6 @@ const MainContainer = (props: MainContainerProps) => {
   }
 
   return <LastBoardContainer {...props} />;
-};
-
-type MainContainerProps = {
-  history: any
 };
 
 export default withRouter(MainContainer);

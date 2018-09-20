@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../styles';
 
 type Props = {
-  text: string
+  text: string;
 };
 
 const Divider = styled.div`

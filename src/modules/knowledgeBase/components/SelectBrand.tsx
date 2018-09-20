@@ -8,9 +8,9 @@ import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
 
 type Props = {
-  brands: IBrand[],
-  onChange: () => void,
-  defaultValue: string
+  brands: IBrand[];
+  onChange: () => void;
+  defaultValue: string;
 };
 
 const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (

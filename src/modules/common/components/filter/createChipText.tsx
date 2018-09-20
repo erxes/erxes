@@ -1,7 +1,7 @@
 import { graphql } from 'react-apollo';
 
 type Props = {
-  query?: any
+  query?: any;
 };
 
 const ChipText = (props: Props) => {

@@ -15,14 +15,14 @@ import { IFieldGroup } from '../types';
 import { PropertyRow, Sidebar } from './';
 
 type Props = {
-  queryParams: any,
-  refetch?: () => void,
-  fieldsGroups: IFieldGroup[],
-  currentType: string,
-  removePropertyGroup: (data: { _id: string }) => any,
-  removeProperty: (data: { _id: string }) => void,
-  updatePropertyVisible: (data: { _id: string, isVisible: boolean }) => void,
-  updatePropertyGroupVisible: (data: { _id: string, isVisible: boolean }) => void,
+  queryParams: any;
+  refetch?: () => void;
+  fieldsGroups: IFieldGroup[];
+  currentType: string;
+  removePropertyGroup: (data: { _id: string }) => any;
+  removeProperty: (data: { _id: string }) => void;
+  updatePropertyVisible: (data: { _id: string, isVisible: boolean }) => void;
+  updatePropertyGroupVisible: (data: { _id: string, isVisible: boolean }) => void;
 };
 
 class Properties extends React.Component<Props> {

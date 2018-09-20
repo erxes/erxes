@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { IUser } from '../../../auth/types';
 
 type Props = {
-  users: IUser[]
+  users: IUser[];
 };
 
 const UserCounterContainer = styled.ul`

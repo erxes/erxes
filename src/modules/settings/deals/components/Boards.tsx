@@ -7,10 +7,10 @@ import { IBoard } from '../types';
 import { BoardForm, BoardRow } from './';
 
 type Props = {
-  boards: IBoard[],
-  remove: (_id: string) => void,
-  save: ({ doc }: { doc: any; }, callback: () => void, board: IBoard) => void,
-  loading: boolean
+  boards: IBoard[];
+  remove: (_id: string) => void;
+  save: ({ doc }: { doc: any; }, callback: () => void, board: IBoard) => void;
+  loading: boolean;
 };
 
 class Boards extends React.Component<Props, {}> {
