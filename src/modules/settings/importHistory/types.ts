@@ -1,6 +1,6 @@
 import { IUser } from "modules/auth/types";
 
-export interface IHistories {
+export interface IImportHistory {
     _id: string,
     success: string,
     failed: string,

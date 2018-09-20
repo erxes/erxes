@@ -5,10 +5,9 @@ import React, { Component } from 'react';
 import { compose, graphql } from 'react-apollo';
 
 type Props = {
-  current: any,
-  allIntegrationsQuery: any,
-  // TODO: add types
-  save: () => void
+  current: any;
+  allIntegrationsQuery: any;
+  save: (ids: string[]) => Promise<any>; 
 };
 
 type State = {

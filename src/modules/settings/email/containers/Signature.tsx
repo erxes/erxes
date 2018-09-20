@@ -4,12 +4,15 @@ import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Signature } from '../components';
+import { ISignature } from '../types';
 
 type Props = {
   brandsQuery: any;
   closeModal: () => void;
-  // TODO: add types to signatures
-  saveMutation: (params: { variables: { signatures: any } }) => Promise<any>;
+
+  saveMutation: (params: { variables: { 
+    signatures: ISignature[];
+  } }) => Promise<any>;
 };
 
 const SignatureContainer = (props: Props, { currentUser }) => {

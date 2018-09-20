@@ -10,14 +10,14 @@ import React, { Component } from 'react';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
 import { OnlineHours } from '.';
+import { IOnlineHours } from '../../../types';
 
 type Props = {
   onChange: (name: string, value: string) => void;
   isOnline: boolean;
   availabilityMethod?: string;
   timezone?: string;
-  // TODO: add types
-  onlineHours?: any[];
+  onlineHours?: IOnlineHours[];
 };
 
 class Availability extends Component<Props> {

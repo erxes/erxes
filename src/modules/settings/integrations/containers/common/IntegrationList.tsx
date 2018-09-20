@@ -9,8 +9,7 @@ import { integrationsListParams } from '../utils';
 
 type Props = {
   integrationsQuery: any;
-  // TODO: add types
-  removeMutation: any;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 const IntegrationListContainer = (props: Props) => {

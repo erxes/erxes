@@ -9,12 +9,13 @@ import { withRouter } from 'react-router';
 import { IPages } from '../../types';
 
 interface IProps extends IRouterProps {
-  client: any,
-  type?: string,
-  integrationFacebookAppsListQuery: any,
-  // TODO: add types
-  saveMutation: (variables: any) => any,
-  brandsQuery: any
+  client: any;
+  type?: string;
+  integrationFacebookAppsListQuery: any;
+  saveMutation: (params: {variables: {
+    name: string, brandId: string, appId: string, pageIds: string[]
+  }}) => Promise<any>;
+  brandsQuery: any;
 };
 
 type State = {
