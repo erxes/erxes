@@ -11,10 +11,18 @@ import React, { Component, Fragment } from 'react';
 import { Actions, TypeList } from '../styles';
 import { IField, IFieldGroup } from '../types';
 
+type Doc = {
+  type: string;
+  validation: string;
+  text: string;
+  description: string;
+  options: any[];
+  groupId: string;
+}
+
 type Props = {
-  // TODO: replace any
-  add: ({ doc }: { doc: any; }) => void;
-  edit: ({ _id, doc }: { _id: string, doc: any; }) => void;
+  add: (params: { doc: Doc }) => void;
+  edit: ({ _id, doc }: { _id: string, doc: Doc }) => void;
 
   field?: IField;
   groups: IFieldGroup[];
