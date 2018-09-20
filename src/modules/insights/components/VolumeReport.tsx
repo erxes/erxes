@@ -40,7 +40,7 @@ class VolumeReport extends CommonReport {
 
         <InsightRow>
           {this.renderTitle('Insights')}
-          <Insights loading={loading.insights} data={insights} />
+          <Insights loading={loading.insights} data={insights || []} />
         </InsightRow>
       </InsightContent>
     );

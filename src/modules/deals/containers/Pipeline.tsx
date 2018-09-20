@@ -34,7 +34,7 @@ class PipelineContainer extends React.Component<Props, { stages: any }> {
   }
 
   getConfig() {
-    return JSON.parse(localStorage.getItem(STORAGE_PIPELINE_KEY)) || {};
+    return JSON.parse(localStorage.getItem(STORAGE_PIPELINE_KEY) || '') || {};
   }
 
   setConfig(value: string) {

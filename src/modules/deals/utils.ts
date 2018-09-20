@@ -1,5 +1,5 @@
 import { __, Alert, confirm } from 'modules/common/utils';
-import { IUser } from '../auth/types';
+import { IUser, IUserDetails } from '../auth/types';
 import { IDeal } from './types';
 
 type Options = {
@@ -25,11 +25,16 @@ export function selectConfigOptions(array: string[] = [], CONSTANT: any) {
 
 // get user options for react-select-plus
 export function selectUserOptions(array: IUser[] = []) {
-  return array.map(item => ({
-    value: item._id,
-    label: item.details.fullName || item.email,
-    avatar: item.details.avatar
-  }));
+  return array.map(item => {
+    const user =  item || {} as IUser;
+    const details =  item.details || {} as IUserDetails;
+    
+    return {
+      value: user._id,
+      label: details.fullName || user.email,
+      avatar: details.avatar
+    }
+  });
 }
 
 export function collectOrders(array: Options[] = []) {

@@ -1,11 +1,16 @@
+type OptionsType = {
+  value: string,
+  label: string
+}
+
 export function selectOptions(array) {
-  const options = [];
+  const options: OptionsType[] = [];
   array.map(item => options.push({ value: item._id, label: item.name }));
   return options;
 }
 
 export function integrationOptions(array) {
-  const options = [];
+  const options: OptionsType[] = [];
   array.map(item => options.push({ value: item, label: item }));
   return options;
 }

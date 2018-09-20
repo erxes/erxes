@@ -14,7 +14,8 @@ type Props = {
   data: any,
   productsQuery: any,
   productAdd: (params: { variables: any }) => Promise<any>,
-  closeModal: () => void
+  closeModal: () => void,
+  onSelect: (products: any[]) => void,
 };
 
 class ProductChooser extends React.Component<Props, any> {
@@ -25,7 +26,7 @@ class ProductChooser extends React.Component<Props, any> {
   }
 
   render() {
-    const { data, productsQuery, productAdd } = this.props;
+    const { data, productsQuery, productAdd, onSelect } = this.props;
 
     const search = (value, reload) => {
       if (!reload) {
@@ -72,6 +73,7 @@ class ProductChooser extends React.Component<Props, any> {
       add: addProduct,
       clearState,
       datas: productsQuery.products || [],
+      onSelect
     };
 
     return <Chooser {...updatedProps} />;

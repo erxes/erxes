@@ -62,7 +62,9 @@ class ProductItemForm extends React.Component<Props> {
       productData.amount = 0;
     }
 
-    this.props.updateTotal();
+    const { updateTotal } = this.props;
+
+    updateTotal && updateTotal();
   }
 
   onChangeField(type, value, _id) {
@@ -75,7 +77,7 @@ class ProductItemForm extends React.Component<Props> {
       this.calculateAmount(type, productData);
     }
 
-    onChangeProductsData(productsData);
+    onChangeProductsData && onChangeProductsData(productsData);
   }
 
   renderProductServiceTrigger(product) {
@@ -247,7 +249,7 @@ class ProductItemForm extends React.Component<Props> {
             btnStyle="danger"
             icon="cancel-1"
             size="small"
-            onClick={() => removeProductItem(productData._id)}
+            onClick={() => removeProductItem && removeProductItem(productData._id)}
           />
         </td>
       </tr>

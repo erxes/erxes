@@ -11,7 +11,7 @@ import { IDeal } from '../../types';
 import { Sidebar, Top } from './editForm';
 
 type Props = {
-  deal?: IDeal,
+  deal: IDeal,
   saveDeal?: (doc: any, callback: any, deal?: IDeal) => Promise<any>,
   removeDeal?: (_id: string, callback: any) => Promise<any>,
   users: IUser[],
@@ -69,10 +69,10 @@ class DealEditForm extends React.Component<Props, State> {
 
   saveProductsData() {
     const { productsData } = this.state;
-    const products = [];
-    const amount = {};
+    const products: any = [];
+    const amount: any = {};
 
-    const filteredProductsData = [];
+    const filteredProductsData: any = [];
 
     productsData.forEach(data => {
       // products
@@ -107,7 +107,7 @@ class DealEditForm extends React.Component<Props, State> {
       assignedUserIds
     } = this.state;
 
-    const { deal, index, closeModal, move } = this.props;
+    const { deal, index, closeModal, saveDeal, move } = this.props;
 
     if (!name) return Alert.error(__('Enter name'));
 
@@ -128,13 +128,13 @@ class DealEditForm extends React.Component<Props, State> {
     // before save, disable save button
     this.setState({ disabled: true });
 
-    this.props.saveDeal(
+    saveDeal && saveDeal(
       doc,
       () => {
         // after save, enable save button
         this.setState({ disabled: false });
 
-        closeModal();
+        closeModal && closeModal();
       },
       deal
     );
@@ -153,11 +153,13 @@ class DealEditForm extends React.Component<Props, State> {
   }
 
   remove(id) {
-    this.props.removeDeal(id, () => this.props.closeModal());
+    const { removeDeal, closeModal } = this.props;
+
+    removeDeal && removeDeal(id, () => closeModal && closeModal());
   }
 
   copy() {
-    const { deal } = this.props;
+    const { deal, closeModal, saveDeal } = this.props;
 
     // copied doc
     const doc = {
@@ -167,7 +169,7 @@ class DealEditForm extends React.Component<Props, State> {
       customerIds: deal.customers.map(customer => customer._id)
     };
 
-    this.props.saveDeal(doc, () => this.props.closeModal());
+    saveDeal && saveDeal(doc, () => closeModal && closeModal());
   }
 
   renderFormContent() {
