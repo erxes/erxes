@@ -12,12 +12,14 @@ import MainRoutes from './main/routes';
 import ProductService from './productService/routes';
 import PropertiesRoutes from './properties/routes';
 import ResponseTemplatesRoutes from './responseTemplates/routes';
+import TeamRoutes from './team/routes';
 
 const routes = () => [
   <MainRoutes key="MainRoutes" />,
   <ChannelsRoutes key="ChannelsRoutes" />,
   <BrandsRoutes key="BrandsRoutes" />,
   <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />,
+  <TeamRoutes key="team" />,
   <EmailTemplatesRoutes key="EmailTemplatesRoutes" />,
   <EmailRoutes key="EmailRoutes" />,
   <IntegrationsRoutes key="IntegrationsRoutes" />,
