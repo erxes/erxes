@@ -6,15 +6,20 @@ import { PipelineForm } from '../components';
 import { queries } from '../graphql';
 import { IPipeline, IStage } from '../types';
 
-type EditPipelineProps = {
-  stagesQuery: any,
-  boardId: string,
-  save?: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline: IPipeline) => void,
-  closeModal: () => void,
-  pipeline?: IPipeline,
+interface ICommonProps  {
+  boardId: string;
+  save: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline?: IPipeline) => void;
+  closeModal: () => void;
+  pipeline?: IPipeline;
+  show: boolean;
 };
 
-class EditPipelineFormContainer extends React.Component<EditPipelineProps> {
+interface IEditProps extends ICommonProps {
+  stagesQuery: any,
+  pipeline: IPipeline,
+};
+
+class EditPipelineFormContainer extends React.Component<IEditProps> {
   render() {
     const { stagesQuery, boardId, save, closeModal, pipeline } = this.props;
 
@@ -47,15 +52,7 @@ const EditPipelineForm = compose(
   })
 )(EditPipelineFormContainer);
 
-type PipelineFormProps = {
-  boardId: string,
-  save?: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline: IPipeline) => void,
-  closeModal: () => void,
-  pipeline?: IPipeline,
-  show: boolean
-};
-
-const PipelineFormContainer = (props: PipelineFormProps) => {
+const PipelineFormContainer = (props: ICommonProps) => {
   const { pipeline } = props;
 
   if (pipeline) {

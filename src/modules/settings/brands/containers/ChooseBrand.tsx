@@ -8,7 +8,7 @@ import { ChooseBrand } from '../components';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  integration?: IIntegration,
+  integration: IIntegration,
   brandsQuery: any,
   addMutation: () => void,
   editMutation: () => void,

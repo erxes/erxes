@@ -12,7 +12,7 @@ import { IBrand } from '../types';
 
 type Props = {
   brands: IBrand[],
-  integration?: IIntegration,
+  integration: IIntegration,
   save: (variables: { name: string; brandId: string }) => void,
   closeModal?: () => void
 }

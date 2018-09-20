@@ -12,7 +12,7 @@ type Props = {
   channel: IChannel,
   members: IUser[],
   remove: (id: string) => void,
-  save: ({ doc }: { doc: any; }, callback: () => void, channel: IChannel) => void,
+  save: ({ doc }: { doc: any; }, callback: () => void, channel?: IChannel) => void,
   isActive: boolean
 };
 
@@ -67,10 +67,10 @@ class ChannelRow extends Component<Props, {}> {
   renderMembers() {
     const { channel, members } = this.props;
 
-    let selectedMembers = [];
+    let selectedMembers: IUser[] = [];
 
     if (channel) {
-      selectedMembers = members.filter(u => channel.memberIds.includes(u._id));
+      selectedMembers = members.filter(user => channel.memberIds.includes(user._id));
     }
 
     const length = selectedMembers.length;
@@ -83,7 +83,7 @@ class ChannelRow extends Component<Props, {}> {
     );
 
     // render readmore ===============
-    let readMore = null;
+    let readMore: React.ReactNode;
 
     if (length - limit > 0) {
       readMore = <More key="readmore">{`+${length - limit}`}</More>;

@@ -7,11 +7,13 @@ import { Pipelines } from '../components';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  pipelinesQuery: any,
-  addPipelineMutation: (params: { variables: any }) => any,
-  editPipelineMutation: (params: { variables: any }) => any,
-  removePipelineMutation: (params: { variables: { _id: string } }) => any,
-  pipelinesUpdateOrderMutation: (params: { variables: any }) => any,
+  boardId: string;
+  pipelinesQuery: any;
+  // TODO replace any
+  addPipelineMutation: (params: { variables: any }) => any;
+  editPipelineMutation: (params: { variables: any }) => any;
+  removePipelineMutation: (params: { variables: { _id: string } }) => any;
+  pipelinesUpdateOrderMutation: (params: { variables: any }) => any;
 };
 
 class PipelinesContainer extends React.Component<Props> {

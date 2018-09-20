@@ -7,6 +7,7 @@ import { Signature } from '../components';
 
 type Props = {
   brandsQuery: any,
+  closeModal: () => void,
   saveMutation: (params: { variables: { signatures: any } }) => any
 };
 
@@ -15,7 +16,7 @@ const SignatureContainer = (props: Props, { currentUser }) => {
 
   // save email configs action
   const save = signatures => {
-    const doc = [];
+    const doc: Array<{ brandId: string, signature: string }> = [];
 
     // remove brandName from list
     signatures.forEach(signature => {
@@ -37,7 +38,7 @@ const SignatureContainer = (props: Props, { currentUser }) => {
   };
 
   const emailSignatures = currentUser.emailSignatures || [];
-  const signatures = [];
+  const signatures: Array<{ brandId: string, brandName: string, signature: string }> = [];
   const brands = brandsQuery.brands || [];
 
   brands.forEach(brand => {
@@ -46,17 +47,10 @@ const SignatureContainer = (props: Props, { currentUser }) => {
       signature => signature.brandId === brand._id
     );
 
-    // default content
-    let content = '';
-
-    if (oldEntry) {
-      content = oldEntry.signature;
-    }
-
     signatures.push({
       brandId: brand._id,
       brandName: brand.name,
-      content
+      signature: oldEntry ? oldEntry.signature : ''
     });
   });
 
