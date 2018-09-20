@@ -16,6 +16,7 @@ type Props = {
   isOnline: boolean;
   availabilityMethod?: string;
   timezone?: string;
+  // TODO: add types
   onlineHours?: any[];
 };
 

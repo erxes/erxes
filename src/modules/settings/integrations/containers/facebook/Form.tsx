@@ -12,6 +12,7 @@ interface IProps extends IRouterProps {
   client: any,
   type?: string,
   integrationFacebookAppsListQuery: any,
+  // TODO: add types
   saveMutation: (variables: any) => any,
   brandsQuery: any
 };

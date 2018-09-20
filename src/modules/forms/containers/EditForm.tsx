@@ -14,6 +14,8 @@ interface IProps extends IRouterProps {
   fieldsQuery: any;
   brandsQuery: any;
   integrationDetailQuery: any;
+
+  // TODO: add types
   editIntegrationMutation: ({ variables }) => Promise<void>;
   editFormMutation: ({ variables }) => Promise<void>;
   addFieldMutation: ({ variables }) => Promise<void>;
@@ -70,7 +72,7 @@ class EditFormContainer extends React.Component<IProps, {}> {
 
         .then(() => {
           const dbFieldIds = dbFields.map(field => field._id);
-          const existingIds: any[] = [];
+          const existingIds: string[] = [];
           const createFieldsData: IFormField[] = [];
           const updateFieldsData: IFormField[] = [];
           const removeFieldsData: IFormField[] = [];

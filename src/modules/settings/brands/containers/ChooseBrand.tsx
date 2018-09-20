@@ -10,6 +10,8 @@ import { mutations, queries } from '../graphql';
 type Props = {
   integration: IIntegration;
   brandsQuery: any;
+
+  // TODO: Add types
   addMutation: () => void;
   editMutation: () => void;
   onSave: () => void;

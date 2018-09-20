@@ -15,7 +15,7 @@ type Props = {
     name: string;
     integrationIds: string[];
     memberIds: string[];
-  } }) => any;
+  } }) => Promise<any>;
   queryParams: any;
 };
 

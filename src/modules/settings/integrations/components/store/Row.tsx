@@ -8,7 +8,7 @@ import { CollapsibleContent, IntegrationRow } from './styles';
 type Props = {
   integrations: any[];
   title?: string;
-  totalCount: any;
+  totalCount: number;
 };
 
 type State = {

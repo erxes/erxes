@@ -9,7 +9,7 @@ type Props= {
   integration: any;
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
-  totalCount: any;
+  totalCount: number;
 };
 
 class Entry extends Component<Props> {

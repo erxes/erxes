@@ -9,6 +9,7 @@ type Props = {
   integrationsTotalCountQuery: any;
   integrationsQuery: any;
   tagsQuery: any;
+  // TODO: add type
   removeMutation: ({ variables }) => Promise<void>;
   queryParams: any;
 };
