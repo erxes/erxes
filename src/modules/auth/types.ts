@@ -7,28 +7,30 @@ export interface IUserDetails {
 }
 
 export interface IUserLinks {
-    facebook?: string,
-    twitter?: string,
-    linkedIn?: string,
-    youtube?: string,
-    github?: string,
-    website?: string,
+    facebook?: string;
+    twitter?: string;
+    linkedIn?: string;
+    youtube?: string;
+    github?: string;
+    website?: string;
 }
 
 export interface IUserConversation {
-    list: any[],
-    totalCount: number
+    list: any[];
+    totalCount: number;
 }
 
 export interface IUserDoc {
-    username: string,
-    email: string,
-    details?: IUserDetails,
-    links?: IUserLinks,
-    getNotificationByEmail?: boolean,
-    participatedConversations? : IUserConversation[]
+    username: string;
+    email: string;
+    role?: string;
+    details?: IUserDetails;
+    links?: IUserLinks;
+    getNotificationByEmail?: boolean;
+    participatedConversations? : IUserConversation[];
 }
 
 export interface IUser extends IUserDoc {
-    _id: string,
+    _id: string;
+    role: string;
 }

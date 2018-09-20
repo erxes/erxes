@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import { Table } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
@@ -12,19 +13,26 @@ class UserList extends React.Component<ICommonListProps> {
     this.renderContent = this.renderContent.bind(this);
   }
 
-  renderRows({ objects }) {
-    return objects.map((object, index) => (
-      <tr key={index}>
-        <td>{object.name}</td>
-        <RowActions
-          {...this.props}
-          object={object}
-          renderForm={(props) =>
-            <UserForm {...props} />
-          }
-        />
-      </tr>
-    ));
+  renderRows({ objects }: { objects: IUser[] }) {
+    return objects.map((object, index) => {
+      const details = object.details || {};
+
+      return (
+        <tr key={index}>
+          <td>{details.fullName}</td>
+          <td>{object.email}</td>
+          <td>{object.role}</td>
+
+          <RowActions
+            {...this.props}
+            object={object}
+            renderForm={(props) =>
+              <UserForm {...props} />
+            }
+          />
+        </tr>
+      )
+    });
   }
 
   renderContent(props) {
