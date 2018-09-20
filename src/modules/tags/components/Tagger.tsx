@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 
 type Props = {
   type: ITagTypes;
+  // targets can be conversation, customer, company etc ...
   targets: any[];
   event?: 'onClick' | 'onExit';
   className?: string;

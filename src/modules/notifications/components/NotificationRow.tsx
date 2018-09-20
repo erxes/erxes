@@ -9,7 +9,7 @@ import { INotification } from '../types';
 
 interface IProps extends IRouterProps {
   notification: INotification;
-  markAsRead: (params: any) => void;
+  markAsRead: (_ids?: string[]) => void;
   createdUser?: IUser;
 };
 
@@ -24,7 +24,7 @@ class NotificationRow extends Component<IProps> {
     const { history, notification, markAsRead } = this.props;
 
     if (!notification.isRead) {
-      markAsRead(notification._id);
+      markAsRead([notification._id]);
     }
 
     history.push(notification.link);

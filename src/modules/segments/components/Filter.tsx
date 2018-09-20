@@ -17,7 +17,7 @@ type Props = {
   removeSegment: () => void;
   contentType?: string;
   counts?: any;
-  segments: any[];
+  segments: ISegment[];
   loading: boolean;
 };
 

@@ -4,7 +4,7 @@ import { SidebarList } from 'modules/layout/styles';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 
-function TagsSidebar(props) {
+function TagsSidebar() {
   const { Title } = Sidebar.Section;
 
   return (

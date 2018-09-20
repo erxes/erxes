@@ -9,8 +9,11 @@ import { ITagSaveParams } from '../types';
 type Props = {
   type: string;
   tagsQuery: any;
+
+  // TODO: add types
   addMutation: (varaibles: any) => Promise<any>;
   editMutation: (varaibles: any) => Promise<any>;
+
   removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
 };
 
